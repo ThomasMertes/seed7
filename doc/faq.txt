@@ -278,7 +278,7 @@ Several features of Seed7 are missing in Java:
   Stand alone functions                     | Singletons must be used instead
   Call-by-reference parameters              | All parameters are call-by-value
   Call-by-name parameters                   | All parameters are call-by-value
-  Operator overloading                      | No possibility to use + for BigInteger values
+  Operator overloading                      | In Java it is necessary to write a.add(b.multiply(c)) instead of a + b * c.
   User defined operators                    | -
   User defined statements                   | -
   User defined syntax                       | -
