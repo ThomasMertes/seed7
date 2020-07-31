@@ -1,0 +1,1857 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  mahjong.sd7   Mahjong solitaire game                            *)
+(*  Copyright (C) 2007  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "dialog.s7i";
+  include "time.s7i";
+  include "mahjng32.s7i";
+  include "duration.s7i";
+  include "text.s7i";
+  include "vecfont10.s7i";
+  include "pixmap_file.s7i";
+
+
+var text: screen is STD_NULL;
+
+const integer: WINDOW_WIDTH is 1016;
+const integer: WINDOW_HEIGHT is 704;
+const integer: UPPER_BORDER is 46;
+const integer: LEFT_BORDER is 24;
+const integer: MENUE_BAR_HEIGHT is 18;
+const integer: PIXMAP_WIDTH is 48;
+const integer: PIXMAP_HEIGHT is 64;
+const integer: TILE_BORDER is 8;
+const integer: TILE_WIDTH is PIXMAP_WIDTH + 2 * TILE_BORDER;
+const integer: TILE_HEIGHT is PIXMAP_HEIGHT + 2 * TILE_BORDER;
+const integer: FIELD_X_STEP is TILE_WIDTH div 2;
+const integer: FIELD_Y_STEP is TILE_HEIGHT div 2;
+const integer: HALF_FIELD is FIELD_Y_STEP div 2;
+const integer: FRAME_THICKNESS is 5;
+const integer: MARK_THICKNESS is 7;
+const integer: FIELD_LINES is 15;
+const integer: FIELD_COLUMNS is 29;
+const integer: COMPUTER_HIT_XPOS is 8;
+const integer: PLAYER_HIT_XPOS is UPPER_BORDER + FIELD_LINES * FIELD_X_STEP + FIELD_X_STEP + 8;
+const integer: SHIFT_X is 10;
+const integer: SHIFT_Y is 10;
+const color: BACKGROUND is light_blue;
+const color: leftSideColor is gray(49152); # was: 57344
+const color: nearSideColor is gray(40960); # was: 49152
+const color: leftEdgeColor is gray(32768); # was: 40960
+const color: nearEdgeColor is gray(24576); # was: 32768
+
+
+(**
+ *  Return an array of colors between 'first' and 'second'.
+ *  The returned array has the specified 'length'. The colors 'first'
+ *  and 'second' are not part of the array.
+ *)
+const func array color: colorScale (in color: first, in color: second,
+    in integer: length) is func
+  result
+    var array color: colorScale is 0 times color.value;
+  local
+    var integer: red_delta is 0;
+    var integer: green_delta is 0;
+    var integer: blue_delta is 0;
+    var integer: number is 0;
+  begin
+    colorScale := length times color.value;
+    red_delta   := (second.redLight   - first.redLight)   div succ(length);
+    green_delta := (second.greenLight - first.greenLight) div succ(length);
+    blue_delta  := (second.blueLight  - first.blueLight)  div succ(length);
+    for number range 1 to length do
+      colorScale[number].redLight   := first.redLight   + number * red_delta;
+      colorScale[number].greenLight := first.greenLight + number * green_delta;
+      colorScale[number].blueLight  := first.blueLight  + number * blue_delta;
+    end for;
+  end func;
+
+
+const array color: leftFrameColor  is colorScale(leftSideColor, white, FRAME_THICKNESS);
+const array color: rightFrameColor is colorScale(leftEdgeColor, white, FRAME_THICKNESS);
+const array color: nearFrameColor  is colorScale(nearSideColor, white, FRAME_THICKNESS);
+const array color: farFrameColor   is colorScale(nearEdgeColor, white, FRAME_THICKNESS);
+
+const array color: nearLeftEdgeColor is colorScale(nearSideColor, leftSideColor, 3);
+
+const color: nearRightEdgeColor is colorScale(leftEdgeColor, nearSideColor, 1)[1];
+const color: farLeftEdgeColor   is colorScale(nearEdgeColor, leftSideColor, 1)[1];
+
+var array PRIMITIVE_WINDOW: digit_pixmap is 0 times PRIMITIVE_WINDOW.value;
+
+const type: tileType is new struct
+    var array string: pattern is 0 times "";
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+    var integer: value is 0;
+    var integer: quantity is 0;
+  end struct;
+
+const type: fieldType is new struct
+    var boolean: used is FALSE;
+    var boolean: present is FALSE;
+    var boolean: selected is FALSE;
+    var PRIMITIVE_WINDOW: backup is PRIMITIVE_WINDOW.value;
+    var integer: tileNumber is 0;
+  end struct;
+
+const type: positionType is new struct
+    var integer: level is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  end struct;
+
+const type: moveType is new struct
+    var positionType: pos1 is positionType.value;
+    var positionType: pos2 is positionType.value;
+  end struct;
+
+const type: layoutType is array array string;
+
+var array array array fieldType: field is 0 times 0 times 0 times fieldType.value;
+var array moveType: demoMoves is 0 times moveType.value;
+var array moveType: playerMoves is 0 times moveType.value;
+var integer: moveNumber is 0;
+var boolean: doQuit is FALSE;
+
+
+var layoutType: welcomeLayout is [](
+
+ []("   X     X     X     X   X   ",
+    "                             ",
+    "   X X X X   X   X   X   X   ",
+    "                       X     ",
+    "               X             ",
+    "   X     X   X   X   X   X   ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "    X    X X    X   X    X   ",
+    "                             ",
+    "    X   X   X   X       X    ",
+    "X                 X X        ",
+    "        X   X           X   X",
+    " X X      X     X   X     X  "),
+
+ []("                             ",
+    "    X   X     X X    X   X   ",
+    "                             ",
+    "      X                X     ",
+    "   X     X   X   X   X   X   ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "   X      X               X  ",
+    "        X   X           X    ",
+    "    X            X  X        ",
+    "        X   X           X   X",
+    "X   X           X  X         ",
+    "  X      X X             X X "));
+
+
+var layoutType: turtleLayout is [](
+
+ []("  X X X X X X X X X X X X    ",
+    "                             ",
+    "      X X X X X X X X        ",
+    "                             ",
+    "    X X X X X X X X X X      ",
+    "                             ",
+    "  X X X X X X X X X X X X    ",
+    "X                         X X",
+    "  X X X X X X X X X X X X    ",
+    "                             ",
+    "    X X X X X X X X X X      ",
+    "                             ",
+    "      X X X X X X X X        ",
+    "                             ",
+    "  X X X X X X X X X X X X    "),
+
+ []("                             ",
+    "                             ",
+    "        X X X X X X          ",
+    "                             ",
+    "        X X X X X X          ",
+    "                             ",
+    "        X X X X X X          ",
+    "                             ",
+    "        X X X X X X          ",
+    "                             ",
+    "        X X X X X X          ",
+    "                             ",
+    "        X X X X X X          ",
+    "                             ",
+    "                             "),
+
+ []("                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "          X X X X            ",
+    "                             ",
+    "          X X X X            ",
+    "                             ",
+    "          X X X X            ",
+    "                             ",
+    "          X X X X            ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             "),
+
+ []("                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "            X X              ",
+    "                             ",
+    "            X X              ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             "),
+
+ []("                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "             X               ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             ",
+    "                             "));
+
+
+const array string: zero is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc     xBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: one is [](
+  "                ",
+  "                ",
+  "     xBBBBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "      xBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "  xBBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: two is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "   xBBBBBBBBBc  ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBBBBBBBBc ",
+  "                ");
+
+
+const array string: three is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "   xBBBBBBBBBc  ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: four is [](
+  "                ",
+  "                ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc    xBc    ",
+  "  xBc    xBc    ",
+  "  xBBBBBBBBBBBc ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "                ");
+
+const array string: five is [](
+  "                ",
+  "                ",
+  "  xBBBBBBBBBBBc ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBBBBBBBBBBc  ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: six is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBBBBBBBBBBc  ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: seven is [](
+  "                ",
+  "                ",
+  "  xBBBBBBBBBBBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "           xBBc ",
+  "      xBBBBBBc  ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "                ");
+
+
+const array string: eight is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "   xBBBBBBBBBc  ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: nine is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "   xBBBBBBBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const proc: writeButtons is func
+  local
+    var integer: yPos is 0;
+  begin
+    yPos := (MENUE_BAR_HEIGHT - 10) div 2 + 10;
+    rect(0, 0, WINDOW_WIDTH, MENUE_BAR_HEIGHT, light_gray);
+    color(screen, black, light_gray);
+    setPosXY(screen, 5, yPos);
+    write(screen, "New");
+    setPosXY(screen, 55, yPos);
+    write(screen, "Quit");
+    setPosXY(screen, 105, yPos);
+    write(screen, "Demo");
+    setPosXY(screen, 155, yPos);
+    write(screen, "Undo");
+    setPosXY(screen, 205, yPos);
+    write(screen, "Redo");
+    setPosXY(screen, 255, yPos);
+    write(screen, "Help");
+  end func;
+
+
+const func char: getCommand is func
+  result
+    var char: command is ' ';
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+  begin
+    command := upper(getc(KEYBOARD));
+    if command = KEY_MOUSE1 then
+      xPos := getxpos(KEYBOARD);
+      yPos := getypos(KEYBOARD);
+      if yPos <= 20 then
+        case xPos div 50 of
+          when {0}: command := 'N';
+          when {1}: command := 'Q';
+          when {2}: command := 'D';
+          when {3}: command := 'U';
+          when {4}: command := 'R';
+          when {5}: command := 'H';
+        end case;
+      end if;
+    elsif command = KEY_ESC then
+      bossMode(doQuit);
+      if doQuit then
+        command := 'Q';
+      end if;
+    end if;
+  end func;
+
+
+const func tileType: genTile (in array string: pattern) is func
+  result
+    var tileType: aTile is tileType.value;
+  begin
+    aTile.pattern := pattern;
+  end func;
+
+
+var array tileType: tiles is [](
+    genTile(dot1_pic),
+    genTile(dot2_pic),
+    genTile(dot3_pic),
+    genTile(dot4_pic),
+    genTile(dot5_pic),
+    genTile(dot6_pic),
+    genTile(dot7_pic),
+    genTile(dot8_pic),
+    genTile(dot9_pic),
+    genTile(bamboo1_pic),
+    genTile(bamboo2_pic),
+    genTile(bamboo3_pic),
+    genTile(bamboo4_pic),
+    genTile(bamboo5_pic),
+    genTile(bamboo6_pic),
+    genTile(bamboo7_pic),
+    genTile(bamboo8_pic),
+    genTile(bamboo9_pic),
+    genTile(character1_pic),
+    genTile(character2_pic),
+    genTile(character3_pic),
+    genTile(character4_pic),
+    genTile(character5_pic),
+    genTile(character6_pic),
+    genTile(character7_pic),
+    genTile(character8_pic),
+    genTile(character9_pic),
+    genTile(north_pic),
+    genTile(south_pic),
+    genTile(east_pic),
+    genTile(west_pic),
+    genTile(middle_pic),
+    genTile(green_pic),
+    genTile(white_pic),
+    genTile(plum_pic),
+    genTile(orchid_pic),
+    genTile(chrysanthemum_pic),
+    genTile(bamboo_pic),
+    genTile(spring_pic),
+    genTile(summer_pic),
+    genTile(autumn_pic),
+    genTile(winter_pic)
+  );
+
+
+(**
+ *  Draws the symbols of a tile.
+ *  The symbols of a tile are stored in a pixmap. If the pixmap
+ *  does not already exist it is generated from the pattern.
+ *)
+const proc: draw (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos,
+    inout tileType: aTile) is func
+  begin
+    if aTile.pixmap = PRIMITIVE_WINDOW.value then
+      rect(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT, BACKGROUND);
+      drawPattern(win, xPos, yPos, aTile.pattern, PIXMAP_HEIGHT div length(aTile.pattern), white);
+      aTile.pixmap := getPixmap(win, xPos, yPos, PIXMAP_WIDTH, PIXMAP_HEIGHT);
+    else
+      put(win, xPos, yPos, aTile.pixmap, PSET);
+    end if;
+  end func;
+
+
+(**
+ *  Draws the top borders of a tile.
+ *)
+const proc: putFrame (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
+  local
+    var integer: shift is 0;
+  begin
+    for shift range 1 to FRAME_THICKNESS do
+      line(win, xPos - TILE_BORDER + shift,
+          yPos - TILE_BORDER + shift - 1,
+          TILE_WIDTH -  2 * shift - 1, 0, farFrameColor[shift]);
+    end for;
+    for shift range 1 to FRAME_THICKNESS do
+      line(win, xPos - TILE_BORDER + shift - 1,
+          yPos - TILE_BORDER + shift,
+          0, TILE_HEIGHT -  2 * shift - 1, leftFrameColor[shift]);
+    end for;
+    for shift range 1 to FRAME_THICKNESS do
+      line(win, xPos - TILE_BORDER + TILE_WIDTH - shift,
+          yPos - TILE_BORDER + shift,
+          0, TILE_HEIGHT -  2 * shift - 1, rightFrameColor[shift]);
+    end for;
+    for shift range 1 to FRAME_THICKNESS do
+      line(win, xPos - TILE_BORDER + shift,
+          yPos - TILE_BORDER + TILE_HEIGHT - shift,
+          TILE_WIDTH -  2 * shift - 1, 0, nearFrameColor[shift]);
+    end for;
+  end func;
+
+
+(**
+ *  Draws the left (western) vertical side of a tile.
+ *)
+const proc: drawLeftSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
+  local
+    var integer: shift is 0;
+  begin
+    for shift range 1 to pred(SHIFT_X) do
+      lineTo(win, xPos - TILE_BORDER - shift,
+          yPos - TILE_BORDER + shift + 2,
+          xPos - TILE_BORDER - shift,
+          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 3, leftSideColor);
+    end for;
+    lineTo(win, xPos - TILE_BORDER - SHIFT_X,
+        yPos - TILE_BORDER + SHIFT_X + 1,
+        xPos - TILE_BORDER - SHIFT_X,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 2, leftEdgeColor);
+    line(win, xPos - TILE_BORDER, yPos - TILE_BORDER + 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), farLeftEdgeColor);
+  end func;
+
+
+(**
+ *  Draws the near (southern) vertical side of a tile.
+ *)
+const proc: drawNearSide (inout PRIMITIVE_WINDOW: win, in integer: xPos, in integer: yPos) is func
+  local
+    var integer: shift is 0;
+  begin
+    for shift range 1 to pred(SHIFT_X) do
+      lineTo(win, xPos - TILE_BORDER - shift + 2,
+          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 1,
+          xPos + PIXMAP_WIDTH + TILE_BORDER - shift - 3,
+          yPos + PIXMAP_HEIGHT + TILE_BORDER + shift - 1, nearSideColor);
+    end for;
+    lineTo(win, xPos - TILE_BORDER - SHIFT_X + 1,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1,
+        xPos + PIXMAP_WIDTH + TILE_BORDER - SHIFT_X - 2,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER + SHIFT_X - 1, nearEdgeColor);
+    line(win, xPos + PIXMAP_WIDTH + TILE_BORDER - 2,
+        yPos + PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearRightEdgeColor);
+  end func;
+
+
+(**
+ *  Draws a tile at the position (level, line, column).
+ *  The 'field' is not checked for the existence of a tile at
+ *  (level, line, column). The complete tile is drawn inclusive
+ *  borders. Although the tile is drawn with isometric graphic the
+ *  visibility is not checked.
+ *)
+const proc: drawTile (inout PRIMITIVE_WINDOW: win, in integer: level,
+    in integer: line, in integer: column) is func
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+  begin
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(column) + SHIFT_X * level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(line) - SHIFT_Y * level;
+    drawLeftSide(win, xPos, yPos);
+    drawNearSide(win, xPos, yPos);
+    line(win, xPos - TILE_BORDER + 1, yPos + PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[1]);
+    line(win, xPos - TILE_BORDER, yPos + PIXMAP_HEIGHT + TILE_BORDER - 1,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[2]);
+    line(win, xPos - TILE_BORDER, yPos + PIXMAP_HEIGHT + TILE_BORDER - 2,
+        -pred(SHIFT_X), pred(SHIFT_Y), nearLeftEdgeColor[3]);
+    rect(win, xPos - TILE_BORDER + 1, yPos - TILE_BORDER + 1,
+        TILE_WIDTH - 2, TILE_HEIGHT - 2, white);
+    putFrame(win, xPos, yPos);
+    draw(win, xPos, yPos, tiles[field[level][line][column].tileNumber]);
+  end func;
+
+
+(**
+ *  Draw a complete board of tiles and flush after each tile.
+ *  This function us just used on the welcome screen.
+ *  The order in which the tiles are drawn makes sure that
+ *  the visibility is okay.
+ *)
+const proc: drawBoardWithFlush is func
+  local
+    var integer: level is 0;
+    var integer: diagonalStartColumn is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    for level range 1 to length(field) do
+      for diagonalStartColumn range FIELD_COLUMNS downto 2 - FIELD_LINES do
+        for line range 1 to FIELD_LINES do
+          column := diagonalStartColumn + line - 1;
+          if column >= 1 and column <= FIELD_COLUMNS and
+              field[level][line][column].present then
+            drawTile(curr_win, level, line, column);
+            DRAW_FLUSH;
+          end if;
+        end for;
+      end for;
+    end for;
+  end func;
+
+
+(**
+ *  Draw a complete board of tiles.
+ *  The order in which the tiles are drawn makes sure that
+ *  the visibility is okay.
+ *)
+const proc: drawBoard is func
+  local
+    var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
+    var integer: level is 0;
+    var integer: diagonalStartColumn is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    win := newPixmap(WINDOW_WIDTH, WINDOW_HEIGHT);
+    clear(win, BACKGROUND);
+    for level range 1 to length(field) do
+      for diagonalStartColumn range FIELD_COLUMNS downto 2 - FIELD_LINES do
+        for line range 1 to FIELD_LINES do
+          column := diagonalStartColumn + line - 1;
+          if column >= 1 and column <= FIELD_COLUMNS and
+              field[level][line][column].present then
+            drawTile(win, level, line, column);
+          end if;
+        end for;
+      end for;
+    end for;
+    put(0, 0, win, PSET);
+  end func;
+
+
+const func integer: getMaximumLevelLeftward (in integer: line, in integer: column) is func
+  result
+    var integer: maximumLevelLeftward is 0;
+  local
+    var integer: level is 0;
+    var integer: lin is 0;
+  begin
+    if column > 2 then
+      for level range 1 to length(field) do
+        for lin range pred(line) to succ(line) do
+          if lin >= 1 and lin <= FIELD_LINES then
+            if field[level][lin][column - 2].present then
+              maximumLevelLeftward := level;
+            end if;
+          end if;
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+const func integer: getMaximumLevelDownward (in integer: line, in integer: column) is func
+  result
+    var integer: maximumLevelDownward is 0;
+  local
+    var integer: level is 0;
+    var integer: col is 0;
+  begin
+    if line < pred(FIELD_LINES) then
+      for level range 1 to length(field) do
+        for col range pred(column) to succ(column) do
+          if col >= 1 and col <= FIELD_COLUMNS then
+            if field[level][line + 2][col].present then
+              maximumLevelDownward := level;
+            end if;
+          end if;
+        end for;
+      end for;
+    end if;
+  end func;
+
+
+const proc: markFrame (in positionType: pos, in color: frameColor) is func
+  local
+    var integer: maximumLevelLeftward is 0;
+    var integer: maximumLevelDownward is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: shorten_x1 is 0;
+    var integer: shorten_y1 is 0;
+    var integer: shorten_x2 is 0;
+    var integer: shorten_y2 is 0;
+  begin
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
+    field[pos.level][pos.line][pos.column].backup := getPixmap(
+        xPos - TILE_BORDER, yPos - TILE_BORDER, TILE_WIDTH, TILE_HEIGHT);
+    maximumLevelLeftward := getMaximumLevelLeftward(pos.line, pos.column);
+    maximumLevelDownward := getMaximumLevelDownward(pos.line, pos.column);
+    if maximumLevelLeftward > pos.level then
+      shorten_x1 := SHIFT_X * (maximumLevelLeftward - pos.level)
+    end if;
+    if maximumLevelDownward > pos.level then
+      shorten_y2 := SHIFT_Y * (maximumLevelDownward - pos.level)
+    end if;
+    maximumLevelLeftward := getMaximumLevelLeftward(pos.line + 2, pos.column);
+    maximumLevelDownward := getMaximumLevelDownward(pos.line, pos.column - 2);
+    if maximumLevelLeftward > pos.level then
+      shorten_x2 := SHIFT_X * (maximumLevelLeftward - pos.level)
+    end if;
+    if maximumLevelDownward > pos.level then
+      shorten_y1 := SHIFT_Y * (maximumLevelDownward - pos.level)
+    end if;
+    rect(xPos - TILE_BORDER + shorten_x1, yPos - TILE_BORDER,
+        TILE_WIDTH - shorten_x1, MARK_THICKNESS, frameColor);
+    if shorten_x1 = 0 then
+      rect(xPos - TILE_BORDER, yPos - TILE_BORDER,
+          MARK_THICKNESS, TILE_HEIGHT - shorten_y1, frameColor);
+    end if;
+    rect(xPos - TILE_BORDER + TILE_WIDTH - MARK_THICKNESS,
+        yPos - TILE_BORDER,
+        MARK_THICKNESS, TILE_HEIGHT - shorten_y2, frameColor);
+    if shorten_y2 = 0 then
+      rect(xPos - TILE_BORDER + shorten_x2,
+          yPos - TILE_BORDER + TILE_HEIGHT - MARK_THICKNESS,
+          TILE_WIDTH - shorten_x2, MARK_THICKNESS, frameColor);
+    end if;
+  end func;
+
+
+const proc: unmarkFrame (in positionType: pos) is func
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+  begin
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
+    put(xPos - TILE_BORDER, yPos - TILE_BORDER,
+        field[pos.level][pos.line][pos.column].backup, PSET);
+    field[pos.level][pos.line][pos.column].backup := PRIMITIVE_WINDOW.value;
+  end func;
+
+
+const proc: mark (in positionType: pos) is func
+  begin
+    if field[pos.level][pos.line][pos.column].present and
+        not field[pos.level][pos.line][pos.column].selected then
+      field[pos.level][pos.line][pos.column].selected := TRUE;
+      markFrame(pos, light_red);
+    end if;
+  end func;
+
+
+const proc: unmark (in positionType: pos) is func
+  begin
+    if field[pos.level][pos.line][pos.column].present and
+        field[pos.level][pos.line][pos.column].selected then
+      field[pos.level][pos.line][pos.column].selected := FALSE;
+      unmarkFrame(pos);
+    end if;
+  end func;
+
+
+const proc: unmarkAll is func
+  local
+    var positionType: pos is positionType.value;
+  begin
+    for pos.level range 1 to length(field) do
+      for pos.line range 1 to FIELD_LINES do
+        for pos.column range 1 to FIELD_COLUMNS do
+          unmark(pos);
+        end for;
+      end for;
+    end for;
+  end func;
+
+
+(**
+ *  Refreshes the tile at the position 'pos' (level, line, column).
+ *  This function takes the visibility into account.
+ *  The tiles around the specified position are drawn to an offscreen
+ *  pixmap. Finally the area of the tile is copied to the screen.
+ *)
+const proc: refresh (in positionType: pos) is func
+  local
+    var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
+    var integer: level is 0;
+    var integer: diagonalStartColumn is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+  begin
+    win := newPixmap(WINDOW_WIDTH, WINDOW_HEIGHT);
+    clear(win, BACKGROUND);
+    for level range 1 to length(field) do
+      for diagonalStartColumn range pos.column + 2 downto pos.column - 6 do
+        for line range pos.line - 2 to pos.line + 2 do
+          column := diagonalStartColumn + line - pos.line + 2 ;
+          if line >= 1 and line <= FIELD_LINES and
+                column >= 1 and column <= FIELD_COLUMNS and
+                field[level][line][column].present then
+            drawTile(win, level, line, column);
+            # writeln("refresh " <& level <& " " <& line <& " " <& column);
+          end if;
+        end for;
+      end for;
+    end for;
+    xPos := LEFT_BORDER + TILE_BORDER + FIELD_X_STEP * pred(pos.column) + SHIFT_X * pos.level;
+    yPos := UPPER_BORDER + TILE_BORDER + FIELD_Y_STEP * pred(pos.line) - SHIFT_Y * pos.level;
+    win := getPixmap(win, xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER,
+        TILE_WIDTH + SHIFT_X, TILE_HEIGHT + SHIFT_Y);
+    put(xPos - TILE_BORDER - SHIFT_X, yPos - TILE_BORDER, win, PSET);
+  end func;
+
+
+(**
+ *  Removes the tile at the position 'pos' (level, line, column).
+ *)
+const proc: remove (in positionType: pos) is func
+  begin
+    if field[pos.level][pos.line][pos.column].present then
+      field[pos.level][pos.line][pos.column].present := FALSE;
+      refresh(pos);
+    end if;
+  end func;
+
+
+(**
+ *  Inserts the tile at the position 'pos' (level, line, column).
+ *)
+const proc: insert (in positionType: pos) is func
+  begin
+    if not field[pos.level][pos.line][pos.column].present then
+      field[pos.level][pos.line][pos.column].present := TRUE;
+      refresh(pos);
+    end if;
+  end func;
+
+
+const proc: draw_number (in integer: xPos, in integer: yPos, in string: num_stri) is func
+  local
+    var integer: index is 0;
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(num_stri) do
+      ch := num_stri[index];
+      if ch = ' ' then
+        rect(xPos + pred(index) * 32,
+            yPos,
+            32,
+            32,
+            BACKGROUND);
+      else
+        put(xPos + pred(index) * 32,
+            yPos,
+            digit_pixmap[ord(ch) - ord('0')], PSET);
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: covered (in integer: level, in integer: line,
+    in integer: column) is func
+  result
+    var boolean: isCovered is FALSE;
+  local
+    var integer: lin is 0;
+    var integer: col is 0;
+  begin
+    if level < length(field) then
+      for lin range pred(line) to succ(line) do
+        if lin >= 1 and lin <= FIELD_LINES then
+          for col range pred(column) to succ(column) do
+            if col >= 1 and col <= FIELD_COLUMNS then
+              if field[succ(level)][lin][col].present then
+                isCovered := TRUE;
+              end if;
+            end if;
+          end for;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func integer: getFirstAccessibleTileColumn (in integer: level, in integer: line) is func
+  result
+    var integer: accessibleColumn is 0;
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to FIELD_COLUMNS do
+      if accessibleColumn = 0 and
+          field[level][line][column].present then
+        accessibleColumn := column;
+      end if;
+    end for;
+    if accessibleColumn <> 0 then
+      if covered(level, line, accessibleColumn) then
+        accessibleColumn := 0;
+      else
+        for column range accessibleColumn downto 1 do
+          if  (line > 1 and
+              field[level][pred(line)][column].present) or
+              (line < FIELD_LINES and
+              field[level][succ(line)][column].present) then
+            accessibleColumn := 0;
+          end if;
+        end for;
+      end if;
+    end if;
+  end func;
+
+
+const func integer: getLastAccessibleTileColumn (in integer: level, in integer: line) is func
+  result
+    var integer: accessibleColumn is 0;
+  local
+    var integer: column is 0;
+  begin
+    for column range FIELD_COLUMNS downto 1 do
+      if accessibleColumn = 0 and
+          field[level][line][column].present then
+        accessibleColumn := column;
+      end if;
+    end for;
+    if accessibleColumn <> 0 then
+      if covered(level, line, accessibleColumn) then
+        accessibleColumn := 0;
+      else
+        for column range accessibleColumn to FIELD_COLUMNS do
+          if  (line > 1 and
+              field[level][pred(line)][column].present) or
+              (line < FIELD_LINES and
+              field[level][succ(line)][column].present) then
+            accessibleColumn := 0;
+          end if;
+        end for;
+      end if;
+    end if;
+  end func;
+
+
+const func array positionType: getAccessibleTilePositions is func
+  result
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
+  local
+    var positionType: pos is positionType.value;
+    var integer: column is 0;
+  begin
+    for pos.level range 1 to length(field) do
+      for pos.line range 1 to FIELD_LINES do
+        pos.column := getFirstAccessibleTileColumn(pos.level, pos.line);
+        if pos.column <> 0 then
+          accessibleTilePositions &:= [] (pos);
+        end if;
+        column := getLastAccessibleTileColumn(pos.level, pos.line);
+        if column <> 0 and column <> pos.column then
+          pos.column := column;
+          accessibleTilePositions &:= [] (pos);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const func integer: countPossibleMoves is func
+  result
+    var integer: count is 0;
+  local
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
+    var integer: first is 0;
+    var integer: second is 0;
+    var positionType: pos1 is positionType.value;
+    var positionType: pos2 is positionType.value;
+  begin
+    accessibleTilePositions := getAccessibleTilePositions;
+    for first range 1 to length(accessibleTilePositions) do
+      for second range succ(first) to length(accessibleTilePositions) do
+        pos1 := accessibleTilePositions[first];
+        pos2 := accessibleTilePositions[second];
+        if tiles[field[pos1.level][pos1.line][pos1.column].tileNumber].value =
+            tiles[field[pos2.level][pos2.line][pos2.column].tileNumber].value then
+          incr(count);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showPossibleMoves (in color: frameColor, inout char: command,
+    inout boolean: readCommand); is func
+  local
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
+    var integer: first is 0;
+    var integer: second is 0;
+    var positionType: pos1 is positionType.value;
+    var positionType: pos2 is positionType.value;
+  begin
+    accessibleTilePositions := getAccessibleTilePositions;
+    for first range 1 to length(accessibleTilePositions) do
+      for second range succ(first) to length(accessibleTilePositions) do
+        pos1 := accessibleTilePositions[first];
+        pos2 := accessibleTilePositions[second];
+        if command = 'H' and
+            tiles[field[pos1.level][pos1.line][pos1.column].tileNumber].value =
+            tiles[field[pos2.level][pos2.line][pos2.column].tileNumber].value then
+          markFrame(pos1, frameColor);
+          markFrame(pos2, frameColor);
+          command := getCommand;
+          readCommand := FALSE;
+          unmarkFrame(pos2);
+          unmarkFrame(pos1);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showPossibleMatches (in positionType: pos1, in boolean: marked) is func
+  local
+    var array positionType: accessibleTilePositions is 0 times positionType.value;
+    var integer: number is 0;
+    var positionType: pos2 is positionType.value;
+  begin
+    accessibleTilePositions := getAccessibleTilePositions;
+    for number range 1 to length(accessibleTilePositions) do
+      pos2 := accessibleTilePositions[number];
+      if pos1.level <> pos2.level or pos1.line <> pos2.line or pos1.column <> pos2.column then
+        if tiles[field[pos1.level][pos1.line][pos1.column].tileNumber].value =
+            tiles[field[pos2.level][pos2.line][pos2.column].tileNumber].value then
+          if marked then
+            markFrame(pos2, light_green);
+          else
+            unmarkFrame(pos2);
+          end if;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: updateNumbers is func
+  begin
+    draw_number(WINDOW_WIDTH - 104, 30, 2 * (72 - moveNumber) lpad 3);
+    draw_number(WINDOW_WIDTH - 104, 70, countPossibleMoves lpad 3);
+  end func;
+
+
+const proc: showDemo is func
+  local
+    var array array array fieldType: backupField is 0 times 0 times 0 times fieldType.value;
+    var integer: number is 0;
+    var integer: level is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var moveType: move is moveType.value;
+    var char: command is ' ';
+    var boolean: continueDemo is TRUE;
+  begin
+    backupField := field;
+    for level range 1 to length(field) do
+      for line range 1 to FIELD_LINES do
+        for column range 1 to FIELD_COLUMNS do
+          if field[level][line][column].used then
+            field[level][line][column].present := TRUE;
+          end if;
+        end for;
+      end for;
+    end for;
+    drawBoard;
+    number := 1;
+    while continueDemo and number <= length(demoMoves) do
+      if keypressed(KEYBOARD) then
+        command := getc(KEYBOARD);
+        if command = KEY_ESC then
+          bossMode(doQuit);
+        end if;
+        continueDemo := FALSE;
+      else
+        wait(200000 . MICRO_SECONDS);
+        remove(demoMoves[number].pos1);
+        remove(demoMoves[number].pos2);
+        DRAW_FLUSH;
+        incr(number);
+      end if;
+    end while;
+    field := backupField;
+    drawBoard;
+    writeButtons;
+    updateNumbers;
+  end func;
+
+
+const proc: locateTile (in integer: xPos, in integer: yPos,
+    inout integer: level, inout integer: line, inout integer: column,
+    inout boolean: found) is func
+  local
+    var integer: line2 is 0;
+    var integer: column2 is 0;
+    var integer: lev is 0;
+    var integer: lin is 0;
+    var integer: col is 0;
+  begin
+    found := FALSE;
+    for lev range length(field) downto 1 do
+      line2 := (yPos - UPPER_BORDER + SHIFT_Y * lev) div FIELD_Y_STEP + 1;
+      column2 := (xPos - LEFT_BORDER - SHIFT_X * lev) div FIELD_X_STEP + 1;
+      for lin range pred(line2) to line2 do
+        for col range pred(column2) to column2 do
+          if not found and
+              lin >= 1 and lin <= length(field[lev]) and
+              col >= 1 and col <= length(field[lev][lin]) and
+              field[lev][lin][col].present then
+            found := TRUE;
+            level := lev;
+            line := lin;
+            column := col;
+          end if;
+        end for;
+      end for;
+    end for;
+  end func;
+
+
+(**
+ *  Returns TRUE if 'pos' is a legal move, FALSE otherwise.
+ *)
+const func boolean: legalMove (in positionType: pos) is func
+  result
+    var boolean: isLegal is TRUE;
+  local
+    var integer: col is 0;
+  begin
+    for col range 1 to pred(pos.column) do
+      if field[pos.level][pos.line][col].present or
+          pos.line > 1 and
+          field[pos.level][pred(pos.line)][col].present or
+          pos.line < FIELD_LINES and
+          field[pos.level][succ(pos.line)][col].present then
+        isLegal := FALSE;
+      end if;
+    end for;
+    if not isLegal then
+      isLegal := TRUE;
+      for col range succ(pos.column) to FIELD_COLUMNS do
+        if field[pos.level][pos.line][col].present or
+            pos.line > 1 and
+            field[pos.level][pred(pos.line)][col].present or
+            pos.line < FIELD_LINES and
+            field[pos.level][succ(pos.line)][col].present then
+          isLegal := FALSE;
+        end if;
+      end for;
+    end if;
+    isLegal := isLegal and not covered(pos.level, pos.line, pos.column);
+  end func;
+
+
+const proc: playerMove (inout moveType: move, inout char: command) is func
+  local
+    var boolean: readCommand is TRUE;
+    var integer: selectedTiles is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var positionType: pos is positionType.value;
+    var boolean: found is FALSE;
+    var boolean: moveFinished is FALSE;
+  begin
+    repeat
+      if readCommand then
+        command := getCommand;
+      end if;
+      readCommand := TRUE;
+      if command <> KEY_MOUSE1 then
+        if command = 'H' then
+          if selectedTiles = 0 then
+            showPossibleMoves(light_green, command, readCommand);
+          else
+            showPossibleMatches(move.pos1, TRUE);
+            command := getCommand;
+            readCommand := FALSE;
+            showPossibleMatches(move.pos1, FALSE);
+          end if;
+        else
+          moveFinished := TRUE;
+        end if;
+      else
+        xPos := getxpos(KEYBOARD);
+        yPos := getypos(KEYBOARD);
+        if xPos >= LEFT_BORDER and yPos >= UPPER_BORDER then
+          locateTile(xPos, yPos, pos.level, pos.line, pos.column, found);
+          if found and legalMove(pos) then
+            if field[pos.level][pos.line][pos.column].present then
+              if field[pos.level][pos.line][pos.column].selected then
+                unmark(move.pos1);
+                decr(selectedTiles);
+              else
+                if selectedTiles = 0 then
+                  move.pos1 := pos;
+                  mark(move.pos1);
+                  incr(selectedTiles);
+                elsif selectedTiles = 1 then
+                  if  tiles[field[move.pos1.level][move.pos1.line][move.pos1.column].tileNumber].value =
+                      tiles[field[pos.level][pos.line][pos.column].tileNumber].value then
+                    move.pos2 := pos;
+                    mark(move.pos2);
+                    moveFinished := TRUE;
+                  else
+                    unmark(move.pos1);
+                    move.pos1 := pos;
+                    mark(move.pos1);
+                  end if;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    until moveFinished;
+  end func;
+
+
+const proc: playerTurn (inout char: command) is func
+  local
+    var moveType: move is moveType.value;
+    var boolean: onTurn is TRUE;
+    var integer: number is 0;
+  begin
+    while onTurn do
+      playerMove(move, command);
+      if upper(command) = 'U' then
+        unmarkAll;
+        if moveNumber >= 1 then
+          move := playerMoves[moveNumber];
+          insert(move.pos1);
+          insert(move.pos2);
+          decr(moveNumber);
+          updateNumbers;
+        end if;
+      elsif upper(command) = 'R' then
+        unmarkAll;
+        if moveNumber < length(playerMoves) then
+          incr(moveNumber);
+          move := playerMoves[moveNumber];
+          remove(move.pos1);
+          remove(move.pos2);
+          updateNumbers;
+        end if;
+      elsif upper(command) = 'D' then
+        unmarkAll;
+        showDemo;
+        if doQuit then
+          onTurn := FALSE;
+          command := 'Q';
+        end if;
+      elsif command <> KEY_MOUSE1 then
+        unmarkAll;
+        onTurn := FALSE;
+      elsif tiles[field[move.pos1.level][move.pos1.line][move.pos1.column].tileNumber].value =
+          tiles[field[move.pos2.level][move.pos2.line][move.pos2.column].tileNumber].value then
+        DRAW_FLUSH;
+        number := 0;
+        while not keypressed(KEYBOARD) and number <= 5 do
+          wait(100000 . MICRO_SECONDS);
+          incr(number);
+        end while;
+        if keypressed(KEYBOARD) then
+          ignore(getc(KEYBOARD));
+        end if;
+        unmark(move.pos1);
+        unmark(move.pos2);
+        remove(move.pos1);
+        remove(move.pos2);
+        if length(playerMoves) > moveNumber then
+          playerMoves := playerMoves[.. moveNumber];
+        end if;
+        playerMoves &:= [] (move);
+        incr(moveNumber);
+        updateNumbers;
+      else
+        unmark(move.pos1);
+        unmark(move.pos2);
+        onTurn := FALSE;
+      end if;
+    end while;
+  end func;
+
+
+const proc: initLayout (in layoutType: layout) is func
+  local
+    var integer: level is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    field := length(layout) times FIELD_LINES times FIELD_COLUMNS times fieldType.value;
+    for level range 1 to length(field) do
+      for line range 1 to FIELD_LINES do
+        for column range 1 to FIELD_COLUMNS do
+          field[level][line][column].used := layout[level][line][column] = 'X';
+          field[level][line][column].present := FALSE;
+          field[level][line][column].selected := FALSE;
+        end for;
+      end for;
+    end for;
+  end func;
+
+
+const func integer: getFirstFreeColumn (in integer: level, in integer: line) is func
+  result
+    var integer: freeColumn is 0;
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to FIELD_COLUMNS do
+      if freeColumn = 0 then
+        if field[level][line][column].present or
+            (line > 1 and
+            field[level][pred(line)][column].present) or
+            (line < FIELD_LINES and
+            field[level][succ(line)][column].present) then
+          freeColumn := column;
+        end if;
+      end if;
+    end for;
+    if freeColumn > 2 and
+        (field[level][line][freeColumn].present or
+        ((line = 1 or
+        not field[level][pred(line)][freeColumn].used or
+        field[level][pred(line)][freeColumn].present) and
+        (line = FIELD_LINES or
+        not field[level][succ(line)][freeColumn].used or
+        field[level][succ(line)][freeColumn].present))) then
+      freeColumn -:= 2;
+      if not field[level][line][freeColumn].used or
+          field[level][line][freeColumn].present then
+        freeColumn := 0;
+      end if;
+    else
+      freeColumn := 0;
+    end if;
+  end func;
+
+
+const func integer: getLastFreeColumn (in integer: level, in integer: line) is func
+  result
+    var integer: freeColumn is 0;
+  local
+    var integer: column is 0;
+  begin
+    for column range FIELD_COLUMNS downto 1 do
+      if freeColumn = 0 then
+        if field[level][line][column].present or
+            (line > 1 and
+            field[level][pred(line)][column].present) or
+            (line < FIELD_LINES and
+            field[level][succ(line)][column].present) then
+          freeColumn := column;
+        end if;
+      end if;
+    end for;
+    if freeColumn <> 0 then
+      if freeColumn < pred(FIELD_COLUMNS) and
+          (field[level][line][freeColumn].present or
+          ((line = 1 or
+          not field[level][pred(line)][freeColumn].used or
+          field[level][pred(line)][freeColumn].present) and
+          (line = FIELD_LINES or
+          not field[level][succ(line)][freeColumn].used or
+          field[level][succ(line)][freeColumn].present))) then
+        freeColumn +:= 2;
+        if not field[level][line][freeColumn].used or
+            field[level][line][freeColumn].present then
+          freeColumn := 0;
+        end if;
+      else
+        freeColumn := 0;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: lineIsFree (in integer: level, in integer: line) is func
+  result
+    var boolean: isFree is TRUE;
+  local
+    var integer: column is 0;
+  begin
+    for column range 1 to FIELD_COLUMNS do
+      if isFree then
+        if field[level][line][column].present or
+            (line > 1 and
+            field[level][pred(line)][column].present) or
+            (line < FIELD_LINES and
+            field[level][succ(line)][column].present) then
+          isFree := FALSE;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const func integer: getAnyFreeColumn (in integer: level, in integer: line) is func
+  result
+    var integer: freeColumn is 0;
+  local
+    var integer: first is 0;
+    var integer: count is 0;
+    var integer: number is 0;
+    var integer: column is 0;
+  begin
+    for column range 1 to FIELD_COLUMNS do
+      if field[level][line][column].used and
+          not field[level][line][column].present then
+        incr(count);
+        if first = 0 then
+          first := column;
+        end if;
+      end if;
+    end for;
+    if count <> 0 then
+      number := rand(1, count);
+      for column range 1 to FIELD_COLUMNS do
+        if field[level][line][column].used and
+            not field[level][line][column].present then
+          decr(number);
+          if number = 0 then
+            freeColumn := column;
+          end if;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func integer: getFreeColumn (in integer: level, in integer: line) is func
+  result
+    var integer: freeColumn is 0;
+  local
+    var integer: firstPos is 0;
+    var integer: lastPos is 0;
+  begin
+    firstPos := getFirstFreeColumn(level, line);
+    lastPos := getLastFreeColumn(level, line);
+    if firstPos <> 0 then
+      if lastPos <> 0 then
+        if rand(FALSE, TRUE) then
+          freeColumn := firstPos;
+        else
+          freeColumn := lastPos;
+        end if;
+      else
+        freeColumn := firstPos;
+      end if;
+    else
+      if lastPos <> 0 then
+        freeColumn := lastPos;
+      elsif lineIsFree(level, line) then
+        freeColumn := getAnyFreeColumn(level, line);
+      end if;
+    end if;
+  end func;
+
+
+const func integer: getFreePlaceColumn (in integer: level, in integer: line) is func
+  result
+    var integer: freePlaceColumn is 0;
+  local
+    var integer: column is 0;
+  begin
+    column := getFreeColumn(level, line);
+    if column <> 0 then
+      if
+          # Piece at ground level
+          level = 1 or
+
+          # Supported by one piece
+          field[pred(level)][line][column].present or
+
+          # Supported by two pieces
+          (line > 1 and line < FIELD_LINES and
+          field[pred(level)][pred(line)][column].present and
+          field[pred(level)][succ(line)][column].present) or
+          (column > 1 and column < FIELD_COLUMNS and
+          field[pred(level)][line][pred(column)].present and
+          field[pred(level)][line][succ(column)].present) or
+
+          # Supported by four pieces
+          (line > 1 and line < FIELD_LINES and
+          column > 1 and column < FIELD_COLUMNS and
+          field[pred(level)][pred(line)][pred(column)].present and
+          field[pred(level)][pred(line)][succ(column)].present and
+          field[pred(level)][succ(line)][pred(column)].present and
+          field[pred(level)][succ(line)][succ(column)].present) then
+
+        freePlaceColumn := column;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Find a free position to place a tile in the inverse game.
+ *)
+const proc: getFreePlace (inout positionType: pos) is func
+  begin
+    repeat
+      pos.level := rand(1, length(field));
+      pos.line := rand(1, FIELD_LINES);
+      pos.column := getFreePlaceColumn(pos.level, pos.line);
+    until pos.column <> 0;
+  end func;
+
+
+(**
+ *  Deals the tile 'tileNumber' to 'pos' (level, line, column).
+ *)
+const proc: dealOneTile (in integer: tileNumber, in positionType: pos) is func
+  begin
+    field[pos.level][pos.line][pos.column].tileNumber := tileNumber;
+    field[pos.level][pos.line][pos.column].present := TRUE;
+    decr(tiles[tileNumber].quantity);
+  end func;
+
+
+(**
+ *  Removes the tile from 'pos' (level, line, column).
+ *)
+const proc: removeOneTile (in positionType: pos) is func
+  local
+    var integer: tileNumber is 0;
+  begin
+    tileNumber := field[pos.level][pos.line][pos.column].tileNumber;
+    field[pos.level][pos.line][pos.column].tileNumber := 0;
+    field[pos.level][pos.line][pos.column].present := FALSE;
+    incr(tiles[tileNumber].quantity);
+  end func;
+
+
+(**
+ *  Deals a pair of tiles in the inverse game.
+ *  Both tiles have the same 'value'. That means they have the same
+ *  symbols on them or they are both flower tiles or season tiles.
+ *  The tile 'value' is randomly chosen. The places for the tiles are
+ *  chosen with the getFreePlace function. It can happen that the
+ *  tiles block each other. In that case the tiles are removed and
+ *  the process of dealing is retried. If five attempts to deal a
+ *  pair of tiles fail the inverse game fails also and the inverse
+ *  game must be retried from scratch. In this case 'okay' is set to
+ *  FALSE.
+ *)
+const proc: dealTilePair (inout boolean: okay) is func
+  local
+    var integer: retryCount is 0;
+    var moveType: move is moveType.value;
+    var integer: tileNumber1 is 0;
+    var integer: tileNumber2 is 0;
+  begin
+    repeat
+      okay := TRUE;
+      repeat
+        tileNumber1 := rand(1, length(tiles));
+      until tiles[tileNumber1].quantity > 0;
+      getFreePlace(move.pos1);
+      dealOneTile(tileNumber1, move.pos1);
+      if tiles[tileNumber1].quantity > 0 then
+        tileNumber2 := tileNumber1;
+      else
+        repeat
+          tileNumber2 := rand(35, 42);
+        until tiles[tileNumber1].value = tiles[tileNumber2].value and
+            tiles[tileNumber2].quantity > 0;
+      end if;
+      getFreePlace(move.pos2);
+      dealOneTile(tileNumber2, move.pos2);
+      if not legalMove(move.pos1) or
+          not legalMove(move.pos2) then
+        removeOneTile(move.pos1);
+        removeOneTile(move.pos2);
+        okay := FALSE;
+        incr(retryCount);
+      end if;
+    until okay or retryCount > 5;
+    demoMoves := [] (move) & demoMoves;
+  end func;
+
+
+(**
+ *  Assigns the value and the quantity to the tiles.
+ *  Two tiles are compared using the 'value'. E.g.: Two seasons and
+ *  two flowers have different symbols but have the same 'value'.
+ *  The 'quantity' is used when dealing the tiles to maintain how many
+ *  tiles with the same symbols on them can be dealt. E.g.: The dot,
+ *  bamboo, character, wind and dragon tiles have a 'quantity' of 4
+ *  because in each case there are 4 tiles with the same symbols.
+ *)
+const proc: initTiles is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to 34 do
+      tiles[number].value := number;
+      tiles[number].quantity := 4;
+    end for;
+    for number range 35 to 38 do
+      tiles[number].value := 35;
+      tiles[number].quantity := 1;
+    end for;
+    for number range 39 to 42 do
+      tiles[number].value := 36;
+      tiles[number].quantity := 1;
+    end for;
+  end func;
+
+
+(**
+ *  Deals all tiles of a solvable game using the turtle layout.
+ *  To create a solvable game an inverse game is played. The inverse
+ *  game starts with an empty field and the tiles are added according
+ *  to the inverse rules. If the inverse game fails it is retried
+ *  from scratch until it succeeds.
+ *)
+const proc: dealTiles (inout char: command) is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+  begin
+    repeat
+      okay := TRUE;
+      initTiles;
+      initLayout(turtleLayout);
+      number := 1;
+      demoMoves := 0 times moveType.value;
+      while okay and number <= 72 do
+        dealTilePair(okay);
+        if keypressed(KEYBOARD) then
+          command := upper(getc(KEYBOARD));
+        end if;
+        if command = KEY_ESC then
+          bossMode(doQuit);
+          if doQuit then
+            command := 'Q';
+            number := 72;
+          else
+            command := ' ';
+          end if;
+        end if;
+        incr(number);
+      end while;
+    until okay;
+  end func;
+
+
+(**
+ *  Deals tiles using the welcome layout.
+ *  The tiles are dealt in a random fashion until the layout is
+ *  filled. It would be pure coincidence if the resulting game is
+ *  solvable.
+ *)
+const proc: dealTiles2 is func
+  local
+    var positionType: pos is positionType.value;
+    var integer: tileNumber is 0;
+  begin
+    initTiles;
+    initLayout(welcomeLayout);
+    for pos.level range 1 to length(field) do
+      for pos.line range 1 to FIELD_LINES do
+        for pos.column range 1 to FIELD_COLUMNS do
+          if field[pos.level][pos.line][pos.column].used then
+            repeat
+              tileNumber := rand(1, length(tiles));
+            until tiles[tileNumber].quantity > 0;
+            dealOneTile(tileNumber, pos);
+          end if;
+        end for;
+      end for;
+    end for;
+  end func;
+
+
+const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri) is func
+  begin
+    setPosXY(screen, (WINDOW_WIDTH - width(vecFont10, stri)) div 2, yPos);
+    writeln(screen, stri);
+  end func;
+
+
+const proc: main is func
+  local
+    var char: command is ' ';
+  begin
+    screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+    clear(curr_win, BACKGROUND);
+    KEYBOARD := GRAPH_KEYBOARD;
+    screen := openPixmapFontFile(curr_win);
+    setFont(screen, vecFont10);
+    color(screen, white, BACKGROUND);
+    writeCentered(screen, 14, "M A H J O N G");
+    writeCentered(screen, 29, "Copyright (C) 2007  Thomas Mertes");
+    writeCentered(screen, 344, "This program is free software under the terms of the GNU General Public License");
+    writeCentered(screen, 359, "Mahjong is written in the Seed7 programming language");
+    writeCentered(screen, 374, "Homepage:   http://seed7.sourceforge.net");
+    DRAW_FLUSH;
+    digit_pixmap := [0](
+      createPixmap(zero,  2, white),
+      createPixmap(one,   2, white),
+      createPixmap(two,   2, white),
+      createPixmap(three, 2, white),
+      createPixmap(four,  2, white),
+      createPixmap(five,  2, white),
+      createPixmap(six,   2, white),
+      createPixmap(seven, 2, white),
+      createPixmap(eight, 2, white),
+      createPixmap(nine,  2, white));
+    dealTiles2;
+    drawBoardWithFlush;
+    writeCentered(screen, 700, "Press any key to start game");
+    dealTiles(command);
+    if command <> 'Q' and not doQuit then
+      repeat
+        command := getCommand;
+      until command <> KEY_ESC;
+    end if;
+    if command <> 'Q' and not doQuit then
+      clear(curr_win, BACKGROUND);
+      # rect(0, height(curr_win) - 80, width(curr_win), 80, BACKGROUND);
+      drawBoard;
+      writeButtons;
+      updateNumbers;
+      while command <> 'Q' do
+        repeat
+          playerTurn(command);
+        until command = 'N' or command = 'Q';
+        if command <> 'N' and command <> 'Q' then
+          command := getCommand;
+        end if;
+        if command = 'N' and isOkay([] ("Discard old board?")) then
+          dealTiles2;
+          clear(curr_win, BACKGROUND);
+          drawBoard;
+          DRAW_FLUSH;
+          dealTiles(command);
+          if not doQuit then
+            clear(curr_win, BACKGROUND);
+            drawBoard;
+            writeButtons;
+            moveNumber := 0;
+            playerMoves := 0 times moveType.value;
+            updateNumbers;
+            while command <> 'Q' and keypressed(KEYBOARD) do
+              command := getCommand;
+            end while;
+          end if;
+        end if;
+        if command = 'Q' and not doQuit and not isOkay([] ("Quit mahjong?")) then
+          command := ' ';
+        end if;
+      end while;
+    end if;
+  end func;

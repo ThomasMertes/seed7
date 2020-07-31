@@ -1,0 +1,242 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  browser.s7i   Open web browser and provide a connection to it.  *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "osfiles.s7i";
+include "process.s7i";
+include "listener.s7i";
+include "cgi.s7i";
+
+
+(**
+ *  Destribes a connection to a web browser.
+ *)
+const type: browserConnection is new struct
+    var listener: inetListener is listener.value;
+    var file: sock is socket.value;
+    var process: program is process.value;
+    var boolean: keepAlive is FALSE;
+  end struct;
+
+
+const func string: processHttpRequest (inout browserConnection: browser, inout paramHashType: paramHash) is func
+  result
+    var string: filePath is "";
+  local
+    var string: line is "";
+    var string: requestCommand is "";
+    var string: requestPath is "";
+    var string: hostName is "";
+    var integer: questionMarkPos is 0;
+    var string: queryParams is "";
+    var string: postParams is "";
+    var string: buffer is "";
+    var string: contentType is "";
+    var string: contentLengthStri is "";
+    var integer: contentLength is 0;
+  begin
+    browser.keepAlive := FALSE;
+    line := getln(browser.sock);
+    # writeln(literal(line));
+    while line <> "" do
+      # writeln(line);
+      if startsWith(line, "GET") then
+        requestCommand := "GET";
+        requestPath := trim(line[4 ..]);
+        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
+      elsif startsWith(line, "POST") then
+        requestCommand := "POST";
+        requestPath := trim(line[5 ..]);
+        requestPath := requestPath[.. pred(pos(requestPath, ' '))];
+      elsif startsWith(line, "Host") then
+        hostName := trim(line[succ(pos(line, ":")) ..]);
+      elsif startsWith(line, "Connection") then
+        browser.keepAlive := trim(line[succ(pos(line, ":")) ..]) = "keep-alive";
+      elsif startsWith(line, "Content-Length") then
+        contentLengthStri := trim(line[succ(pos(line, ":")) ..]);
+        block
+          contentLength := integer(contentLengthStri);
+        exception
+          catch RANGE_ERROR:
+            contentLength := -1;
+        end block;
+      end if;
+      line := getln(browser.sock);
+    end while;
+    if requestCommand = "GET" then
+      # writeln("GET" <& requestPath);
+      questionMarkPos := pos(requestPath, '?');
+      if questionMarkPos <> 0 then
+        queryParams := requestPath[succ(questionMarkPos) ..];
+        requestPath := requestPath[.. pred(questionMarkPos)];
+      end if;
+      # writeln(queryParams);
+      filePath := replace(requestPath, "\\", "/");
+      # writeln(literal(filePath));
+      paramHash := getCgiParameters(queryParams);
+    elsif requestCommand = "POST" then
+      # writeln("POST" <& requestPath);
+      questionMarkPos := pos(requestPath, '?');
+      if questionMarkPos <> 0 then
+        queryParams := requestPath[succ(questionMarkPos) ..];
+        requestPath := requestPath[.. pred(questionMarkPos)];
+      end if;
+      # writeln(queryParams);
+      if contentLengthStri <> "" then
+        while contentLength <> 0 do
+          buffer := gets(browser.sock, contentLength);
+          contentLength -:= length(buffer);
+          postParams &:= buffer;
+        end while;
+      else
+        # writeln("no length");
+        buffer := gets(browser.sock, 10000000);
+        while buffer <> "" do
+          postParams &:= buffer;
+          buffer := gets(browser.sock, 10000000);
+        end while;
+      end if;
+      buffer := "";
+      # writeln(postParams);
+      filePath := replace(requestPath, "\\", "/");
+      # writeln(literal(filePath));
+      paramHash := getCgiParameters(postParams);
+    else
+      paramHash := paramHashType.value;
+    end if;
+  end func;
+
+
+(**
+ *  Open a browser connection.
+ *  @return an open browser connection.
+ *)
+const func browserConnection: openBrowser is func
+  result
+    var browserConnection: browser is browserConnection.value;
+  local
+    var integer: port is 1080;
+    const integer: MAX_PORT is 1100;
+    var string: filePath is "";
+    var paramHashType: paramHash is paramHashType.value;
+  begin
+    repeat
+      block
+        browser.inetListener := openInetListener(port);
+      exception
+        catch FILE_ERROR:
+          # writeln(" ***** Port " <& port <& " failed");
+          incr(port);
+      end block;
+    until browser.inetListener <> listener.value or port >= MAX_PORT;
+    if browser.inetListener <> listener.value then
+      listen(browser.inetListener, 10);
+      # cmd_sh("firefox localhost:" <& port <& " &");
+      if fileType("/usr/bin/firefox") <> FILE_ABSENT then
+        browser.program := startProcess("/usr/bin/firefox", [] ("localhost:" <& port));
+      elsif fileType("/c/Program Files/Mozilla Firefox/firefox.exe") <> FILE_ABSENT then
+        browser.program := startProcess("/c/Program Files/Mozilla Firefox/firefox.exe", [] ("localhost:" <& port));
+      elsif fileType("/c/Program Files (x86)/Mozilla Firefox/firefox.exe") <> FILE_ABSENT then
+        browser.program := startProcess("/c/Program Files (x86)/Mozilla Firefox/firefox.exe", [] ("localhost:" <& port));
+      elsif fileType("/c/Program Files/Internet Explorer/iexplore.exe") <> FILE_ABSENT then
+        browser.program := startProcess("/c/Program Files/Internet Explorer/iexplore.exe", [] ("http://localhost:" <& port));
+      elsif fileType("/c/Program Files (x86)/Internet Explorer/iexplore.exe") <> FILE_ABSENT then
+        browser.program := startProcess("/c/Program Files (x86)/Internet Explorer/iexplore.exe", [] ("http://localhost:" <& port));
+      elsif fileType("/Applications/Safari.app/Contents/MacOS/Safari") <> FILE_ABSENT and
+            fileType(commandPath("open")) <> FILE_ABSENT then
+        browser.program := startProcess(commandPath("open"), [] ("-a", "safari", "http://localhost:" <& port));
+      end if;
+      browser.sock := accept(browser.inetListener);
+      # writeln("accept");
+      filePath := processHttpRequest(browser, paramHash);
+    end if;
+  end func;
+
+
+const proc: close (inout browserConnection: browser) is func
+  begin
+    block
+      close(browser.sock);
+    exception
+      catch FILE_ERROR:
+        noop;  # Ignore error (the browser has already closed the socket).
+    end block;
+  end func;
+
+
+const proc: acceptNewSock (inout browserConnection: browser) is func
+  local
+    var boolean: hasNext is FALSE;
+  begin
+    repeat
+      browser.sock := accept(browser.inetListener);
+      hasNext := hasNext(browser.sock);
+      # writeln(hasNext);
+      if not hasNext then
+        close(browser.sock);
+      end if;
+    until hasNext;
+    # writeln("accept");
+  end func;
+
+
+const proc: display (inout browserConnection: browser, inout webPage: currWebPage) is func
+  local
+    var string: filePath is "";
+    var paramHashType: paramHash is paramHashType.value;
+  begin
+    # writeln("display " <& currWebPage.title);
+    send(currWebPage, browser.sock);
+    if not browser.keepAlive then
+      close(browser);
+    end if;
+    if currWebPage.isForm then
+      repeat
+        if not browser.keepAlive then
+          acceptNewSock(browser);
+        end if;
+        filePath := processHttpRequest(browser, paramHash);
+        if filePath <> "/" then
+          # If the connection has been closed filePath is "".
+          block
+            write(browser.sock, "HTTP/1.1 404 Not Found\r\n\
+                                \Connection: keep-alive\r\n\
+                                \Content-Length: 0\r\n\
+                                \r\n");
+          exception
+            catch FILE_ERROR:
+              noop;  # Ignore error (the browser has already closed the socket).
+          end block;
+          if not browser.keepAlive then
+            # If the connection has been closed keepAlive is FALSE.
+            close(browser);
+          end if;
+        end if;
+      until filePath = "/";
+      update(currWebPage, paramHash);
+    end if;
+  end func;

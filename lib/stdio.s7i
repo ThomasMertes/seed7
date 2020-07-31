@@ -1,0 +1,187 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  stdio.s7i     Standard input and output via files               *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "file.s7i";
+include "null_file.s7i";
+include "external_file.s7i";
+include "enable_io.s7i";
+
+
+const func external_file: INIT_STD_FILE (ref clib_file: primitive_file,
+    in string: fileName) is func
+  result
+    var external_file: standardFile is external_file.value;
+  begin
+    standardFile.ext_file := primitive_file;
+    standardFile.name := fileName;
+  end func;
+
+
+(**
+ *  Standard input file of the operating system.
+ *  The file IN is initialized with STD_IN.
+ *)
+var external_file: STD_IN is  INIT_STD_FILE(CLIB_INPUT,  "STD_IN");
+
+
+(**
+ *  Standard output file of the operating system.
+ *  The file OUT is initialized with STD_OUT.
+ *)
+var external_file: STD_OUT is INIT_STD_FILE(CLIB_OUTPUT, "STD_OUT");
+
+
+(**
+ *  Standard error file of the operating system.
+ *)
+var external_file: STD_ERR is INIT_STD_FILE(CLIB_ERROR,  "STD_ERR");
+
+
+(**
+ *  Standard input file used by read and readln.
+ *  Assigning a file to ''IN'' changes the source of the functions
+ *  [[#read(inout_string)|read]] and [[#readln|readln]].
+ *)
+var file: IN is STD_IN;
+
+
+(**
+ *  Standard output file used by write and writeln.
+ *  Assigning a file to OUT changes the destination fo the
+ *  functions [[#write(in_string)|write]] and [[#writeln|writeln]].
+ *)
+var file: OUT is STD_OUT;
+
+
+var file: PROT_OUTFILE is STD_OUT;
+
+
+(* Set of operations for IN and OUT *)
+
+
+(**
+ *  Write a string to the standard output file ([[#OUT|OUT]]).
+ *)
+const proc: write (in string: stri) is func
+  begin
+    write(OUT, stri);
+  end func;
+
+
+(**
+ *  Write end-of-line to the standard output file.
+ *  The file type of [[#OUT|OUT]] decides how writing end-of-line is done.
+ *  It can be done by writing '\n', but other solutions are also
+ *  possible.
+ *)
+const proc: writeln is func
+  begin
+    writeln(OUT);
+  end func;
+
+
+(**
+ *  Write a string followed by end-of-line to the standard output.
+ *  The file type of [[#OUT|OUT]] decides how writing end-of-line is done.
+ *  It can be done by writing '\n', but other solutions are also
+ *  possible.
+ *)
+const proc: writeln (in string: stri) is func
+  begin
+    writeln(OUT, stri);
+  end func;
+
+
+(**
+ *  Read a word from the standard input file ([[#IN|IN]]).
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout string: aVar) is func
+  begin
+    read(IN, aVar);
+  end func;
+
+
+(**
+ *  Read a word from the standard input file ([[#IN|IN]]) or use ''defaultValue''.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  If the word is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The word ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout string: aVar, in string: defaultValue) is func
+  begin
+    read(IN, aVar, defaultValue);
+  end func;
+
+
+(**
+ *  Read a line from the standard input file ([[#IN|IN]]).
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout string: aVar) is func
+  begin
+    readln(IN, aVar);
+  end func;
+
+
+(**
+ *  Read a line from the standard input file ([[#IN|IN]]) or use ''defaultValue''.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  If the line is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The line ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout string: aVar, in string: defaultValue) is func
+  begin
+    readln(IN, aVar, defaultValue);
+  end func;
+
+
+(**
+ *  Discard a line from the standard input file ([[#IN|IN]]).
+ *  The function discards characters up to end-of-line or [[char#EOF|EOF]].
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln is func
+  local
+    var string: stri is "";
+  begin
+    stri := getln(IN);
+  end func;

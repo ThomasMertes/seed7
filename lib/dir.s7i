@@ -1,0 +1,162 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dir.s7i       Implementation type to read directories as files  *)
+(*  Copyright (C) 1994, 2005  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "null_file.s7i";
+include "osfiles.s7i";
+
+
+(**
+ *  [[file|File]] to read the contents of a directory.
+ *)
+const type: dir_file is sub null_file struct
+    var string: path is "";
+    var array string: dir_array is 0 times "";
+    var integer: curr_line is 0;
+    var integer: curr_column is 0;
+  end struct;
+
+
+(**
+ *  Open a ''dir_file''.
+ *  @return the ''dir_file'' opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'path' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *)
+const func file: openDir (in string: dir_name) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var dir_file: new_file is dir_file.value;
+  begin
+    new_file.path := "";
+    new_file.curr_line := 1;
+    new_file.curr_column := 1;
+    block
+      new_file.dir_array := readDir(dir_name);
+      newFile := toInterface(new_file);
+    exception
+      catch FILE_ERROR:
+        newFile := STD_NULL;
+    end block;
+  end func;
+
+
+const func file: openDirPath (in string: dir_name) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var dir_file: new_file is dir_file.value;
+  begin
+    if dir_name[length(dir_name)] <> '/' then
+      new_file.path := dir_name & "/";
+    else
+      new_file.path := dir_name;
+    end if;
+    new_file.curr_line := 1;
+    new_file.curr_column := 1;
+    block
+      new_file.dir_array := readDir(dir_name);
+      newFile := toInterface(new_file);
+    exception
+      catch FILE_ERROR:
+        newFile := STD_NULL;
+    end block;
+  end func;
+
+
+(**
+ *  Read a file name from a ''dir_file''.
+ *  When the function is left dir_file.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the file name.
+ *)
+const func string: getln (inout dir_file: aFile) is func
+  result
+    var string: stri is "";
+  begin
+    if aFile.curr_line <= length(aFile.dir_array) then
+      stri := aFile.path &
+          aFile.dir_array[aFile.curr_line][aFile.curr_column .. ];
+      incr(aFile.curr_line);
+      aFile.curr_column := 1;
+      aFile.bufferChar := '\n';
+    else
+      aFile.bufferChar := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Read a file name from a ''dir_file''.
+ *  When the function is left dir_file.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the file name.
+ *)
+const func string: getwd (inout dir_file: aFile) is func
+  result
+    var string: stri is "";
+  begin
+    if aFile.curr_line <= length(aFile.dir_array) then
+      stri := aFile.path &
+          aFile.dir_array[aFile.curr_line][aFile.curr_column .. ];
+      incr(aFile.curr_line);
+      aFile.curr_column := 1;
+      aFile.bufferChar := '\n';
+    else
+      aFile.bufferChar := EOF;
+    end if;
+  end func;
+
+
+const func string: gets (in dir_file: aFile, in integer: maxLength) is func
+  result
+    var string: stri is "";
+  begin
+    stri := "";
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in dir_file: aFile) is
+  return aFile.curr_line > length(aFile.dir_array);
+
+
+(**
+ *  Determine if another filename can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getln' would return "", TRUE otherwise.
+ *)
+const func boolean: hasNext (in dir_file: aFile) is
+  return aFile.curr_line <= length(aFile.dir_array);

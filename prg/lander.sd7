@@ -1,0 +1,1554 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  lander.sd7    Lunar lander                                      *)
+(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "dialog.s7i";
+  include "editline.s7i";
+  include "window.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+  include "math.s7i";
+
+const integer: X_MINIMUM            is   0;
+const integer: X_MAXIMUM            is 639;
+const integer: Y_MINIMUM            is   0;
+const integer: Y_MAXIMUM            is 399;
+const float:   X_START_POSITION     is  15.0;
+const float:   Y_START_POSITION     is flt(Y_MAXIMUM - 199 + 15);
+const integer: SHIP_Y_MIN           is   7;
+const float:   SHIP_DIAMETER        is   7.0;
+const integer: NO_TILT              is   1;
+const integer: MAX_TILT             is  24;
+const integer: LANDSCAPE_X_UNIT     is   4;
+const integer: SIZE_LANDSCAPE       is X_MAXIMUM div LANDSCAPE_X_UNIT;
+const integer: ADLAND               is 100;
+const integer: PODEST_HEIGHT        is   5;
+const integer: GAUGE_Y_POS          is Y_MAXIMUM + 26;
+
+const type: rocket_type is new struct
+    var float: x_pos is 0.0;
+    var float: y_pos is 0.0;
+    var float: old_x_pos is 0.0;
+    var float: old_y_pos is 0.0;
+    var float: x_speed is 0.0;
+    var float: y_speed is 0.0;
+    var integer: tilt is NO_TILT;
+    var integer: old_tilt is NO_TILT;
+    var integer: thrust is 0;
+    var integer: old_thrust is 0;
+    var integer: fuel is 0;
+    var integer: height is 0;
+  end struct;
+
+var rocket_type: rocket is rocket_type.value;
+
+var boolean: flying is TRUE;
+var boolean: quit_program is FALSE;
+
+const type: point is new struct
+    var integer: x is 0;
+    var integer: y is 0;
+  end struct;
+
+var array point: landscape is SIZE_LANDSCAPE times point.value;
+var array point: advanced_landscape is SIZE_LANDSCAPE times point.value;
+
+const array array integer: explosion_data is [] (
+    [] ( 0, 10),
+    [] ( 1,  7),
+    [] ( 2,  8),
+    [] ( 3,  3),
+    [] ( 4,  2),
+    [] ( 5,  8),
+    [] ( 6,  7),
+    [] ( 7,  1),
+    [] ( 8,  6),
+    [] ( 9,  2),
+    [] (10,  0)
+  );
+
+var array float: COS_ANG is MAX_TILT times 0.0;
+var array float: SIN_ANG is MAX_TILT times 0.0;
+var boolean: advancedLander is FALSE;
+var integer: leftOfLandingPad is 0;
+var boolean: sound_on is TRUE;
+var integer: score is 0;
+var integer: scoremax is 0;
+var integer: height_gauge is 0;
+var integer: fuel_gauge is 0;
+var integer: fall_gauge is 0;
+var integer: power_gauge is 0;
+var integer: fuel_max is 0;
+var float: gravity is 0.0;
+
+const type: lineCoordinates is new struct
+    var float: xStart is 0.0;
+    var float: yStart is 0.0;
+    var float: xEnd is 0.0;
+    var float: yEnd is 0.0;
+  end struct;
+
+var array lineCoordinates: ship is 0 times lineCoordinates.value;
+var array array lineCoordinates: flames is 20 times 0 times lineCoordinates.value;
+
+const type: tonetype is new struct
+    var integer: freq is 0;
+    var integer: leng is 0;
+  end struct;
+
+var integer: musicindex is 0;
+var integer: soundstep is 0;
+var string: playerName is "";
+var text: screen is STD_NULL;
+var text: panel is STD_NULL;
+
+
+const func integer: frequency (in integer: frequencyNumber) is func
+  result
+    var integer: frequency is 0;
+  begin (* frequency *)
+    if frequencyNumber in {0 .. 6} then
+      # frequency := 0;
+      frequency := 32767;
+    else
+      frequency := trunc(36.8 * (2.0 ** (1.0 / 12.0)) ** (flt(frequencyNumber) - 6.0));
+    end if;
+  end func;
+
+
+const func tonetype: tone (in integer: frequencyNumber, in integer: leng) is func
+  result
+    var tonetype: tone is tonetype.value;
+  begin
+    tone.freq := frequency(frequencyNumber);
+    tone.leng := leng;
+  end func;
+
+
+(* Blue Danube Waltz by J.S.Strauss *)
+const array tonetype: BLUE is [] (
+    tone(42,  4),
+    tone(46,  4),
+    tone(49,  4),
+    tone(49,  4),
+    tone( 0,  4),
+    tone(61,  2),
+    tone( 0,  2),
+    tone(61,  2),
+    tone( 0,  6),
+    tone(58,  2),
+    tone( 0,  2),
+    tone(58,  2),
+    tone( 0,  6),
+    tone(42,  4),
+    tone(42,  4),
+    tone(46,  4),
+    tone(49,  4),
+    tone(49,  4),
+    tone( 0,  4),
+    tone(61,  2),
+    tone( 0,  2),
+    tone(61,  2),
+    tone( 0,  6),
+    tone(59,  2),
+    tone( 0,  2),
+    tone(59,  2),
+    tone( 0,  6),
+    tone(41,  4),
+    tone(41,  4),
+    tone(44,  4),
+    tone(51,  4),
+    tone(51,  4),
+    tone( 0,  4),
+    tone(63,  2),
+    tone( 0,  2),
+    tone(63,  2),
+    tone( 0,  6),
+    tone(59,  2),
+    tone( 0,  2),
+    tone(59,  2),
+    tone( 0,  6),
+    tone(41,  4),
+    tone(41,  4),
+    tone(44,  4),
+    tone(51,  4),
+    tone(51,  4),
+    tone( 0,  4),
+    tone(63,  2),
+    tone( 0,  2),
+    tone(63,  2),
+    tone( 0,  6),
+    tone(58,  2),
+    tone( 0,  2),
+    tone(58,  2),
+    tone( 0,  6),
+    tone(42,  4),
+    tone(42,  4),
+    tone(46,  4),
+    tone(49,  4),
+    tone(54,  4),
+    tone( 0,  4),
+    tone(66,  2),
+    tone( 0,  2),
+    tone(66,  2),
+    tone( 0,  6),
+    tone(61,  2),
+    tone( 0,  2),
+    tone(61,  2),
+    tone( 0,  6),
+    tone(42,  4),
+    tone(42,  4),
+    tone(46,  4),
+    tone(49,  4),
+    tone(54,  4),
+    tone( 0,  4),
+    tone(66,  2),
+    tone( 0,  2),
+    tone(66,  2),
+    tone( 0,  6),
+    tone(63,  2),
+    tone( 0,  2),
+    tone(63,  2),
+    tone( 0,  6),
+    tone(44,  4),
+    tone(44,  4),
+    tone(47,  4),
+    tone(51,  2),
+    tone( 0,  2),
+    tone(51, 14),
+    tone( 0,  2),
+    tone(48,  4),
+    tone(49,  4),
+    tone(58, 16),
+    tone(54,  4),
+    tone(46,  4),
+    tone(46,  8),
+    tone(44,  4),
+    tone(51,  8),
+    tone(49,  4),
+    tone(42,  4),
+    tone( 0,  2),
+    tone(42,  2),
+    tone(42,  4),
+    tone( 0,  8),
+    tone(49,  2),
+    tone( 0,  2),
+    tone(47,  2),
+    tone( 0,  6),
+    tone(49,  2),
+    tone( 0,  2),
+    tone(47,  2),
+    tone( 0,  6),
+    tone(49,  4),
+    tone(58, 16),
+    tone(56,  4),
+    tone(49,  2),
+    tone( 0,  2),
+    tone(46,  2),
+    tone( 0,  6),
+    tone(49,  2),
+    tone( 0,  2),
+    tone(46,  2),
+    tone( 0,  6),
+    tone(49,  4),
+    tone(56, 16),
+    tone(54,  4),
+    tone(49,  2),
+    tone( 0,  2),
+    tone(47,  2),
+    tone( 0,  6),
+    tone(49,  2),
+    tone( 0,  2),
+    tone(47,  2),
+    tone( 0,  6),
+    tone(49,  4),
+    tone(58, 16),
+    tone(56,  4),
+    tone(49,  4),
+    tone(54,  4),
+    tone(56,  4),
+    tone(58,  4),
+    tone(61,  8),
+    tone(59,  4),
+    tone(58,  2),
+    tone(58,  2),
+    tone(58,  4),
+    tone(56,  2),
+    tone( 0,  2),
+    tone(54,  4),
+    tone( 0,  8));
+
+
+(* Stars and stripes forever - Sousa *)
+const array tonetype: STAR is [] (
+    tone(54,  6),
+    tone(54,  6),
+    tone(52,  3),
+    tone(51,  3),
+    tone(51,  6),
+    tone(50,  3),
+    tone(51,  3),
+    tone(51, 16),
+    tone( 0,  2),
+    tone(50,  3),
+    tone(51,  3),
+    tone(51,  6),
+    tone(50,  3),
+    tone(51,  3),
+    tone(54,  6),
+    tone(51,  3),
+    tone(54,  3),
+    tone(52, 12),
+    tone(49,  6),
+    tone( 0,  3),
+    tone(49,  3),
+    tone(49,  6),
+    tone(48,  3),
+    tone(49,  3),
+    tone(49,  6),
+    tone(48,  3),
+    tone(49,  3),
+    tone(52, 16),
+    tone( 0,  2),
+    tone(51,  3),
+    tone(49,  3),
+    tone(51,  3),
+    tone(54,  9),
+    tone(56,  9),
+    tone(56,  3),
+    tone(49, 16),
+    tone( 0,  2),
+    tone(54,  6),
+    tone(54,  6),
+    tone(52,  3),
+    tone(51,  3),
+    tone(51,  6),
+    tone(50,  3),
+    tone(51,  3),
+    tone(51, 16),
+    tone( 0,  2),
+    tone(50,  3),
+    tone(51,  3),
+    tone(51,  6),
+    tone(50,  3),
+    tone(51,  3),
+    tone(52,  3),
+    tone(51,  3),
+    tone(49,  5),
+    tone(46,  1),
+    tone(49, 12),
+    tone(47,  6),
+    tone( 0,  3),
+    tone(47,  3),
+    tone(47,  6),
+    tone(46,  3),
+    tone(47,  3),
+    tone(50,  6),
+    tone(49,  3),
+    tone(47,  3),
+    tone(59, 15),
+    tone( 0,  3),
+    tone(47,  3),
+    tone(49,  3),
+    tone(51,  3),
+    tone(54,  1),
+    tone( 0,  2),
+    tone(47,  3),
+    tone(49,  3),
+    tone(51,  3),
+    tone(54,  1),
+    tone( 0,  2),
+    tone(42,  3),
+    tone(44,  5),
+    tone(51,  1),
+    tone(49, 12),
+    tone(47,  1));
+
+
+const proc: sound (in integer: frequency) is func
+  begin (* sound *)
+    noop;
+  end func; (* sound *)
+
+
+const proc: nosound is func
+  begin (* nosound *)
+    noop;
+  end func; (* nosound *)
+
+
+const proc: delay (in integer: duration) is func
+  begin (* delay *)
+    noop;
+  end func; (* delay *)
+
+
+const proc: doBeep is func
+  begin (* doBeep *)
+    write(chr(7));
+  end func; (* doBeep *)
+
+
+const proc: welcome is func
+  local
+    var char: ch is ' ';
+  begin (* welcome *)
+    color(screen, light_cyan, black);
+    clear(screen);
+    setPos(screen, 3, 20);
+    write(screen, "L A N D E R");
+    color(screen, white, black);
+    setPos(screen, 5, 3);
+    writeln(screen, "Copyright (C) 1993, 1994, 2005  Thomas Mertes");
+    setPos(screen, 7, 6);
+    writeln(screen, "This program is free software under the");
+    setPos(screen, 8, 6);
+    writeln(screen, "terms of the GNU General Public License");
+    setPos(screen, 10, 2);
+    writeln(screen, "Lander is written in the Seed7 programming language");
+    setPos(screen, 11, 5);
+    writeln(screen, "Homepage:    http://seed7.sourceforge.net");
+    setPos(screen, 14, 1);
+    writeln(screen, "      The object is to successfully land the");
+    writeln(screen, "      space-craft on the landing pad. This is");
+    writeln(screen, "      done by changing the rocket thrust and");
+    writeln(screen, "      direction using the four cursor keys.");
+    setPos(screen, 19, 1);
+    color(screen, yellow);
+    write(screen, "     cursor up    ");
+    color(screen, white);
+    writeln(screen, "Increases the rocket thrust.");
+    writeln(screen);
+    color(screen, yellow);
+    write(screen, "     cursor down  ");
+    color(screen, white);
+    writeln(screen, "Decreases rocket thrust.");
+    writeln(screen);
+    color(screen, yellow);
+    write(screen, "     cursor right ");
+    color(screen, white);
+    writeln(screen, "Tilts the rocket to the right.");
+    writeln(screen);
+    color(screen, yellow);
+    write(screen, "     cursor left  ");
+    color(screen, white);
+    writeln(screen, "Tilts the rocket to the left.");
+    writeln(screen);
+    color(screen, black, light_green);
+    setPos(screen, 27, 6);
+    write(screen, " Gravity = Vertical thrust of about 10. ");
+    color(screen, black, light_green);
+    setPos(screen, 29, 5);
+    write(screen, " Advanced-Lander starts above 100 points. ");
+    color(screen, white, dark_blue);
+    setPos(screen, 32, 9);
+    write(screen, " Press any key to start the game. ");
+    ch := getc(KEYBOARD);
+    if ch in {KEY_ESC, 'Q', 'q'} then
+      quit_program := TRUE;
+    end if;
+  end func; (* welcome *)
+
+
+const proc: turn_sound_on is func
+  begin (* turn_sound_on *)
+    sound(BLUE[musicindex].freq);
+  end func; (* turn_sound_on *)
+
+
+const proc: play_soundstep is func
+  local
+    var time: start_time is time.value;
+  begin (* play_soundstep *)
+    start_time := time(NOW);
+(*
+    (* Play "Blue Danube Waltz" *)
+    if soundstep = 0 then
+      if musicindex < 150 then
+        incr(musicindex);
+      else
+        musicindex := 1;
+      end if;
+      if sound_on then
+        sound(BLUE[musicindex].freq);
+      end if;
+      soundstep := BLUE[musicindex].leng - 1;
+    else
+      decr(soundstep);
+    end if;
+    delay(125);
+    delay(175);
+*)
+    await(start_time + 100000 . MICRO_SECONDS);
+  end func; (* play_soundstep *)
+
+
+const proc: pause_game (in boolean: blankWindow) is func
+  local
+    var boolean: exitPause is FALSE;
+    var char: cmd is ' ';
+  begin (* pause_game *)
+    nosound;
+    if blankWindow then
+      bossMode(quit_program);
+    end if;
+    if not quit_program then
+      color(screen, light_cyan, black);
+      setPos(screen, 34, 60);
+      write(screen, "=== GAME PAUSED ===");
+    end if;
+    while not (exitPause or quit_program) do
+      cmd := getc(KEYBOARD);
+      if cmd in {'Q', 'q'} then
+        flying := FALSE;
+        quit_program := TRUE;
+      elsif cmd = KEY_ESC then
+        bossMode(quit_program);
+      else
+        exitPause := TRUE;
+      end if;
+    end while;
+    if quit_program then
+      flying := FALSE;
+    end if;
+    if not quit_program then
+      setPos(screen, 34, 60);
+      write(screen, "                   ");
+    end if;
+  end func; (* pause_game *)
+
+
+const proc: check_keyboard is func
+  (* Check KEYBOARD for commands *)
+  local
+    var char: ch is ' ';
+  begin (* check_keyboard *)
+    ch := busy_getc(KEYBOARD);
+    while ch <> KEY_NONE do
+      case ch of
+        when {KEY_UP}:
+          incr(rocket.thrust);
+          if rocket.thrust > 19 then
+            rocket.thrust := 19;
+          end if;
+        when {KEY_DOWN}:
+          decr(rocket.thrust);
+          if rocket.thrust < 0 then
+            rocket.thrust := 0;
+          end if;
+        when {KEY_LEFT}:
+          if rocket.tilt < MAX_TILT then
+            incr(rocket.tilt);
+          else
+            rocket.tilt := NO_TILT;
+          end if;
+        when {KEY_RIGHT}:
+          if rocket.tilt > NO_TILT then
+            decr(rocket.tilt);
+          else
+            rocket.tilt := MAX_TILT;
+          end if;
+        when {'S', 's'}:
+          sound_on := not sound_on;
+          if sound_on then
+            turn_sound_on;
+          else
+            nosound;
+          end if;
+        when {'P', 'p'}:
+          pause_game(FALSE);
+        when {KEY_ESC}:
+          pause_game(TRUE);
+        when {'Q', 'q'}:
+          nosound;
+          flying := FALSE;
+          quit_program := TRUE;
+      end case;
+      ch := busy_getc(KEYBOARD);
+    end while;
+  end func; (* check_keyboard *)
+
+
+const proc: readHiScore is func
+  local
+    var file: hiScoreFile is STD_NULL;
+  begin
+    scoremax := 0;
+    playerName := "";
+    hiScoreFile := open("lander.scr", "r");
+    if hiScoreFile <> STD_NULL then
+      readln(hiScoreFile, scoremax);
+      readln(hiScoreFile, playerName);
+      close(hiScoreFile);
+    end if;
+  end func; (* readHiScore *)
+
+
+const proc: writeHiScore is func
+  local
+    var file: hiScoreFile is STD_NULL;
+  begin
+    hiScoreFile := open("lander.scr", "w");
+    if hiScoreFile <> STD_NULL then
+      writeln(hiScoreFile, scoremax);
+      writeln(hiScoreFile, playerName);
+      close(hiScoreFile);
+    end if;
+  end func; (* writeHiScore *)
+
+
+const func lineCoordinates: genLine (in float: xStart, in float: yStart,
+    in float: xEnd, in float: yEnd) is func
+  result
+    var lineCoordinates: line is lineCoordinates.value;
+  begin
+    line.xStart :=  xStart;
+    line.yStart :=  yStart;
+    line.xEnd :=  xEnd;
+    line.yEnd :=  yEnd;
+  end func; (* genLine *)
+
+
+const proc: addNoiseToLandscape (inout array point: landscape) is func
+  (* add noise to land contour. *)
+  local
+    var integer: number is 0;
+  begin (* addNoiseToLandscape *)
+    for number range 1 to SIZE_LANDSCAPE do
+      landscape[number].y +:= round(sqrt(flt(landscape[number].y)) * rand(-0.5, 0.5));
+      if  landscape[number].x > leftOfLandingPad and
+          landscape[number].x < leftOfLandingPad + 30 then
+        landscape[number].y := Y_MAXIMUM - 1; (* landing field *)
+      end if;
+      if landscape[number].y > Y_MAXIMUM - 1 then
+        landscape[number].y := Y_MAXIMUM - 1;
+      end if;
+    end for;
+  end func; (* addNoiseToLandscape *)
+
+
+const proc: load is func
+  (* Init ship pictures.                                          *)
+  local
+    var integer: number is 0;
+  begin (* load *)
+    for number range NO_TILT to MAX_TILT do
+      COS_ANG[number] := cos(3.1415 * flt(15 * pred(number)) / 180.0);
+      SIN_ANG[number] := sin(3.1415 * flt(15 * pred(number)) / 180.0);
+    end for;
+    ship := 8 times lineCoordinates.value;
+    ship[1] := genLine( 3.0,  3.0,  0.0,  7.0);
+    ship[2] := genLine( 0.0,  7.0, -3.0,  3.0);
+    ship[3] := genLine(-3.0,  3.0,  3.0,  3.0);
+    ship[4] := genLine( 3.0,  3.0,  3.0, -3.0);
+    ship[5] := genLine( 3.0, -3.0, -3.0, -3.0);
+    ship[6] := genLine(-3.0, -3.0, -3.0,  3.0);
+    ship[7] := genLine(-3.0, -3.0, -5.0, -7.0);
+    ship[8] := genLine( 3.0, -3.0,  5.0, -7.0);
+    flames[2] := 1 times lineCoordinates.value;
+    flames[2][1] := genLine(0.0, -4.0,  0.0, -5.0);
+    flames[3] := 1 times lineCoordinates.value;
+    flames[3][1] := genLine(0.0, -4.0,  0.0, -6.0);
+    flames[4] := 3 times lineCoordinates.value;
+    flames[4][1] := genLine(0.0, -4.0,  0.0, -7.0);
+    flames[4][2] := genLine(0.0, -4.0, -1.0, -5.0);
+    flames[4][3] := genLine(0.0, -4.0,  1.0, -5.0);
+    flames[5] := 3 times lineCoordinates.value;
+    flames[5][1] := genLine(0.0, -4.0,  0.0, -8.0);
+    flames[5][2] := genLine(0.0, -4.0, -1.0, -6.0);
+    flames[5][3] := genLine(0.0, -4.0,  1.0, -6.0);
+    flames[6] := 3 times lineCoordinates.value;
+    flames[6][1] := genLine(0.0, -4.0,  0.0, -9.0);
+    flames[6][2] := genLine(0.0, -4.0, -1.0, -7.0);
+    flames[6][3] := genLine(0.0, -4.0,  1.0, -7.0);
+    flames[7] := 3 times lineCoordinates.value;
+    flames[7][1] := genLine(0.0, -4.0,  0.0, -10.0);
+    flames[7][2] := genLine(0.0, -4.0, -1.0, -8.0);
+    flames[7][3] := genLine(0.0, -4.0,  1.0, -8.0);
+    flames[8] := 3 times lineCoordinates.value;
+    flames[8][1] := genLine(0.0, -4.0,  0.0, -11.0);
+    flames[8][2] := genLine(0.0, -4.0, -1.0, -9.0);
+    flames[8][3] := genLine(0.0, -4.0,  1.0, -9.0);
+    flames[9] := 3 times lineCoordinates.value;
+    flames[9][1] := genLine(0.0, -4.0,  0.0, -12.0);
+    flames[9][2] := genLine(0.0, -4.0, -1.0, -10.0);
+    flames[9][3] := genLine(0.0, -4.0,  1.0, -10.0);
+    flames[10] := 5 times lineCoordinates.value;
+    flames[10][1] := genLine(0.0, -4.0,  0.0, -12.0);
+    flames[10][2] := genLine(0.0, -4.0, -1.0, -10.0);
+    flames[10][3] := genLine(0.0, -4.0,  1.0, -10.0);
+    flames[10][4] := genLine(0.0, -4.0, -1.0, -7.0);
+    flames[10][5] := genLine(0.0, -4.0,  1.0, -7.0);
+    flames[11] := 5 times lineCoordinates.value;
+    flames[11][1] := genLine(0.0, -4.0,  0.0, -13.0);
+    flames[11][2] := genLine(0.0, -4.0, -1.0, -11.0);
+    flames[11][3] := genLine(0.0, -4.0,  1.0, -11.0);
+    flames[11][4] := genLine(0.0, -4.0, -1.0, -8.0);
+    flames[11][5] := genLine(0.0, -4.0,  1.0, -8.0);
+    flames[12] := 5 times lineCoordinates.value;
+    flames[12][1] := genLine(0.0, -4.0,  0.0, -14.0);
+    flames[12][2] := genLine(0.0, -4.0, -1.0, -12.0);
+    flames[12][3] := genLine(0.0, -4.0,  1.0, -12.0);
+    flames[12][4] := genLine(0.0, -4.0, -1.0, -9.0);
+    flames[12][5] := genLine(0.0, -4.0,  1.0, -9.0);
+    flames[13] := 5 times lineCoordinates.value;
+    flames[13][1] := genLine(0.0, -4.0,  0.0, -15.0);
+    flames[13][2] := genLine(0.0, -4.0, -1.0, -10.0);
+    flames[13][3] := genLine(0.0, -4.0,  1.0, -10.0);
+    flames[13][4] := genLine(0.0, -4.0, -1.0, -13.0);
+    flames[13][5] := genLine(0.0, -4.0,  1.0, -13.0);
+    flames[14] := 5 times lineCoordinates.value;
+    flames[14][1] := genLine(0.0, -4.0,  0.0, -16.0);
+    flames[14][2] := genLine(0.0, -4.0, -1.0, -14.0);
+    flames[14][3] := genLine(0.0, -4.0,  1.0, -14.0);
+    flames[14][4] := genLine(0.0, -4.0, -2.0, -11.0);
+    flames[14][5] := genLine(0.0, -4.0,  2.0, -11.0);
+    flames[15] := 5 times lineCoordinates.value;
+    flames[15][1] := genLine(0.0, -4.0,  0.0, -17.0);
+    flames[15][2] := genLine(0.0, -4.0, -1.0, -15.0);
+    flames[15][3] := genLine(0.0, -4.0,  1.0, -15.0);
+    flames[15][4] := genLine(0.0, -4.0, -2.0, -12.0);
+    flames[15][5] := genLine(0.0, -4.0,  2.0, -12.0);
+    flames[16] := 5 times lineCoordinates.value;
+    flames[16][1] := genLine(0.0, -4.0,  0.0, -18.0);
+    flames[16][2] := genLine(0.0, -4.0, -1.0, -16.0);
+    flames[16][3] := genLine(0.0, -4.0,  1.0, -16.0);
+    flames[16][4] := genLine(0.0, -4.0, -2.0, -13.0);
+    flames[16][5] := genLine(0.0, -4.0,  2.0, -13.0);
+    flames[17] := 7 times lineCoordinates.value;
+    flames[17][1] := genLine(0.0, -4.0,  0.0, -19.0);
+    flames[17][2] := genLine(0.0, -4.0, -1.0, -17.0);
+    flames[17][3] := genLine(0.0, -4.0,  1.0, -17.0);
+    flames[17][4] := genLine(0.0, -4.0, -2.0, -14.0);
+    flames[17][5] := genLine(0.0, -4.0,  2.0, -14.0);
+    flames[17][6] := genLine(0.0, -4.0, -3.0, -10.0);
+    flames[17][7] := genLine(0.0, -4.0,  3.0, -10.0);
+    flames[18] := 7 times lineCoordinates.value;
+    flames[18][1] := genLine(0.0, -4.0,  0.0, -20.0);
+    flames[18][2] := genLine(0.0, -4.0, -1.0, -18.0);
+    flames[18][3] := genLine(0.0, -4.0,  1.0, -18.0);
+    flames[18][4] := genLine(0.0, -4.0, -2.0, -15.0);
+    flames[18][5] := genLine(0.0, -4.0,  2.0, -15.0);
+    flames[18][6] := genLine(0.0, -4.0, -3.0, -11.0);
+    flames[18][7] := genLine(0.0, -4.0,  3.0, -11.0);
+    flames[19] := 7 times lineCoordinates.value;
+    flames[19][1] := genLine(0.0, -4.0,  0.0, -21.0);
+    flames[19][2] := genLine(0.0, -4.0, -1.0, -19.0);
+    flames[19][3] := genLine(0.0, -4.0,  1.0, -19.0);
+    flames[19][4] := genLine(0.0, -4.0, -2.0, -16.0);
+    flames[19][5] := genLine(0.0, -4.0,  2.0, -16.0);
+    flames[19][6] := genLine(0.0, -4.0, -3.0, -12.0);
+    flames[19][7] := genLine(0.0, -4.0,  3.0, -12.0);
+    flames[20] := 7 times lineCoordinates.value;
+    flames[20][1] := genLine(0.0, -4.0,  0.0, -22.0);
+    flames[20][2] := genLine(0.0, -4.0, -1.0, -20.0);
+    flames[20][3] := genLine(0.0, -4.0,  1.0, -20.0);
+    flames[20][4] := genLine(0.0, -4.0, -2.0, -17.0);
+    flames[20][5] := genLine(0.0, -4.0,  2.0, -17.0);
+    flames[20][6] := genLine(0.0, -4.0, -3.0, -13.0);
+    flames[20][7] := genLine(0.0, -4.0,  3.0, -13.0);
+    readHiScore;
+    leftOfLandingPad := 224;
+    for number range 1 to SIZE_LANDSCAPE do
+      landscape[number].x := (number * X_MAXIMUM) div SIZE_LANDSCAPE;
+      advanced_landscape[number].x := landscape[number].x;
+      advanced_landscape[number].y := Y_MAXIMUM - 199 + round(194.0 *
+          abs(cos(3.1415 * flt(advanced_landscape[number].x - leftOfLandingPad - 15) / 400.0)));
+    end for;
+    addNoiseToLandscape(advanced_landscape);
+    advancedLander := FALSE;
+    score := 0;
+  end func; (* load *)
+
+
+const proc: calculate_height is func
+  local
+    var integer: number is 0;
+  begin
+    rocket.height := 999999;
+    for number range round((rocket.x_pos - SHIP_DIAMETER) / flt(LANDSCAPE_X_UNIT)) + 1 to
+        round((rocket.x_pos + SHIP_DIAMETER) / flt(LANDSCAPE_X_UNIT)) - 1 do
+      if landscape[number].y - round(rocket.y_pos) - SHIP_Y_MIN < rocket.height then
+        rocket.height := landscape[number].y - round(rocket.y_pos) - SHIP_Y_MIN;
+      end if;
+    end for;
+  end func; (* calculate_height *)
+
+
+const proc: init_display is func
+  begin
+    setPos(panel, 1, 2);
+    write(panel, "HEIGHT=");
+    setPos(panel, 1, 9);
+    write(panel, rocket.height lpad 3);
+    rect(12 + 0, GAUGE_Y_POS,  6, 13, dark_red);    (* Height Gauge *)
+    rect(12 + 6, GAUGE_Y_POS, 35, 13, dark_green);
+    height_gauge := rocket.height div 5;
+    line(12 + height_gauge, GAUGE_Y_POS, 0, 12, light_cyan);
+
+    setPos(panel, 1, 15);
+    write(panel, "FALL=");
+    setPos(panel, 1, 20);
+    write(panel, round(-rocket.y_speed) lpad 4);
+    rect(90 +  0, GAUGE_Y_POS,  5, 13, dark_red);   (* Fall Gauge *)
+    rect(90 +  5, GAUGE_Y_POS,  6, 13, dark_green);
+    rect(90 + 11, GAUGE_Y_POS, 30, 13, dark_red);
+    fall_gauge := 10;
+    line(90 + fall_gauge, GAUGE_Y_POS, 0, 12, light_cyan);
+
+    setPos(panel, 1, 28);
+    write(panel, "THRUST=");
+    setPos(panel, 1, 35);
+    write(panel, rocket.thrust lpad 2);
+    rect(168 +  0, GAUGE_Y_POS, 15, 13, dark_red);  (* Power Gauge *)
+    rect(168 + 15, GAUGE_Y_POS, 11, 13, dark_green);
+    rect(168 + 26, GAUGE_Y_POS, 15, 13, dark_red);
+    power_gauge := 40 * rocket.thrust div 19;
+    line(168 + power_gauge, GAUGE_Y_POS, 0, 12, light_cyan);
+
+    setPos(panel, 1, 41);
+    write(panel, "FUEL=");
+    setPos(panel, 1, 46);
+    write(panel, rocket.fuel lpad 4);
+    rect(246 + 0, GAUGE_Y_POS,  6, 13, dark_red);   (* Fuel Gauge *)
+    rect(246 + 6, GAUGE_Y_POS, 35, 13, dark_green);
+    fuel_gauge := 40 * rocket.fuel div fuel_max;
+    line(246 + fuel_gauge, GAUGE_Y_POS, 0, 12, light_cyan);
+
+    setPos(screen, 34, 92);
+    write(screen, " SCORE=");
+    setPos(screen, 34, 100);
+    write(screen, score lpad 4);
+  end func;
+
+
+const proc: drawLandscape is func
+  local
+    var integer: number is 0;
+    var array integer: pointxy is 0 times 0;
+    var pointList: points is pointList.value;
+  begin (* drawLandscape *)
+    pointxy &:= [] (X_MINIMUM,      Y_MAXIMUM);
+    pointxy &:= [] (X_MINIMUM,      landscape[1].y);
+    pointxy &:= [] (landscape[1].x, landscape[1].y);
+    for number range 2 to SIZE_LANDSCAPE do
+      pointxy &:= [] (landscape[number].x, landscape[number].y);
+    end for;
+    pointxy &:= [] (X_MAXIMUM,      Y_MAXIMUM);
+    pointxy &:= [] (X_MINIMUM,      Y_MAXIMUM);
+    points := genPointList(pointxy);
+    fpolyLine(0, 0, points, dark_green);
+    polyLine(0, 0, points, brown);
+    for number range 2 to SIZE_LANDSCAPE do
+      if  landscape[number].x > leftOfLandingPad and
+          landscape[number].x < leftOfLandingPad + 30 then
+        landscape[number].y := Y_MAXIMUM - 6; (* landing field *)
+      end if;
+    end for;
+    rect(leftOfLandingPad + 5, Y_MAXIMUM - PODEST_HEIGHT, 21, PODEST_HEIGHT, dark_cyan);
+  end func; (* drawLandscape *)
+
+
+# const proc: setupAdvancedLander is forward;
+
+
+const proc: setup is func
+  local
+    var integer: number is 0;
+  begin (* setup *)
+    flying := TRUE;
+    rocket.x_pos := X_START_POSITION;
+    rocket.y_pos := Y_START_POSITION;
+    rocket.old_x_pos := rocket.x_pos;
+    rocket.old_y_pos := rocket.y_pos;
+    rocket.x_speed := 30.0;
+    rocket.y_speed := 0.0;
+    rocket.tilt := NO_TILT;
+    rocket.old_tilt := rocket.tilt;
+    rocket.thrust := 10;
+    rocket.old_thrust := rocket.thrust;
+    rocket.fuel := 4000 * (1 - score div 1000);
+    if rocket.fuel < 1500 then
+      rocket.fuel := 1500;
+    end if;
+    rocket.height := 200;
+    fuel_max := rocket.fuel;
+    gravity := 10.0 + flt(score) / 100.0;
+    if gravity > 15.0 then
+      gravity := 15.0;
+    end if;
+    musicindex := 0;
+    soundstep := 0;
+    clear(black);
+    color(screen, light_cyan, black);
+    init_display;
+
+    (* lander picture *)
+    leftOfLandingPad := rand(30, X_MAXIMUM - 30);
+    for number range 1 to SIZE_LANDSCAPE do
+      landscape[number].y := Y_MAXIMUM - 159 + round(flt(154) *
+          abs(cos(3.1415 * (1.0 + flt(score) / 600.0) *
+          flt(landscape[number].x - leftOfLandingPad - 15) / 400.0)));
+    end for;
+    addNoiseToLandscape(landscape);
+    drawLandscape;
+    if score > ADLAND then
+      (* Window for Advan.Lndr. *)
+      for number range 0 to 6 do
+        point(leftOfLandingPad + number * 5, Y_MAXIMUM - 19, yellow);
+      end for;
+    end if;
+    advancedLander := FALSE;
+(*  doBeep; *)
+    # setupAdvancedLander;
+  end func; (* setup *)
+
+
+const proc: drawLine (in lineCoordinates: line, in color: col) is func
+  begin
+    lineTo(round(rocket.old_x_pos) + round(line.xStart * COS_ANG[rocket.old_tilt] -
+                                           line.yStart * SIN_ANG[rocket.old_tilt]),
+           round(rocket.old_y_pos) - round(line.xStart * SIN_ANG[rocket.old_tilt] +
+                                           line.yStart * COS_ANG[rocket.old_tilt]),
+           round(rocket.old_x_pos) + round(line.xEnd   * COS_ANG[rocket.old_tilt] -
+                                           line.yEnd   * SIN_ANG[rocket.old_tilt]),
+           round(rocket.old_y_pos) - round(line.xEnd   * SIN_ANG[rocket.old_tilt] +
+                                           line.yEnd   * COS_ANG[rocket.old_tilt]),
+           col);
+  end func;
+
+
+const proc: ship_picture is func
+  (* Get New ship picture *)
+  local
+    var integer: number is 0;
+  begin (* ship_picture *)
+    for number range 1 to length(ship) do
+      drawLine(ship[number], black);
+    end for;
+    for number range 1 to length(flames[succ(rocket.old_thrust)]) do
+      drawLine(flames[succ(rocket.old_thrust)][number], black);
+    end for;
+    rocket.old_x_pos := rocket.x_pos;
+    rocket.old_y_pos := rocket.y_pos;
+    rocket.old_tilt := rocket.tilt;
+    rocket.old_thrust := rocket.thrust;
+    rect(leftOfLandingPad + 5, Y_MAXIMUM - PODEST_HEIGHT, 21, PODEST_HEIGHT, dark_cyan);
+    for number range 1 to length(ship) do
+      drawLine(ship[number], light_cyan);
+    end for;
+    for number range 1 to length(flames[succ(rocket.old_thrust)]) do
+      drawLine(flames[succ(rocket.old_thrust)][number], light_red);
+    end for;
+    DRAW_FLUSH;
+  end func; (* ship_picture *)
+
+
+const proc: display_gauges is func
+  local
+    var integer: new_height_value is 0;
+    var integer: new_fuel_value is 0;
+    var integer: new_fall_value is 0;
+    var integer: new_power_value is 0;
+  begin (* display_gauges *)
+    setPos(panel, 1, 9);
+    write(panel, rocket.height lpad 3);
+    new_height_value := rocket.height div 5;
+    if new_height_value > 40 then
+      new_height_value := 40;
+    end if;
+    if new_height_value <> height_gauge then
+      line(12 + new_height_value, GAUGE_Y_POS, 0, 12, light_cyan);
+      if height_gauge >= 0 and height_gauge <= 6 then
+        line(12 + height_gauge, GAUGE_Y_POS, 0, 12, dark_red);
+      else
+        line(12 + height_gauge, GAUGE_Y_POS, 0, 12, dark_green);
+      end if;
+      height_gauge := new_height_value;
+    end if;
+    setPos(panel, 1, 20);
+    write(panel, trunc(rocket.y_speed) lpad 4);
+    new_fall_value := 5 + trunc(rocket.y_speed / (2.8 + flt(ord(score > ADLAND))));
+    if new_fall_value < 0 then
+      new_fall_value := 0;
+    else
+      if new_fall_value > 40 then
+        new_fall_value := 40;
+      end if;
+    end if;
+    if new_fall_value <> fall_gauge then
+      line(90 + new_fall_value, GAUGE_Y_POS, 0, 12, light_cyan);
+      if fall_gauge >= 5 and fall_gauge <= 10 then
+        line(90 + fall_gauge, GAUGE_Y_POS, 0, 12, dark_green);
+      else
+        line(90 + fall_gauge, GAUGE_Y_POS, 0, 12, dark_red);
+      end if;
+      fall_gauge := new_fall_value;
+    end if;
+    setPos(panel, 1, 35);
+    write(panel, rocket.thrust lpad 2);
+    new_power_value := 40 * rocket.thrust div 19;
+    if new_power_value <> power_gauge then
+      line(168 + new_power_value, GAUGE_Y_POS, 0, 12, light_cyan);
+      if power_gauge >= 15 and power_gauge <= 25 then
+        line(168 + power_gauge, GAUGE_Y_POS, 0, 12, dark_green);
+      else
+        line(168 + power_gauge, GAUGE_Y_POS, 0, 12, dark_red);
+      end if;
+      power_gauge := new_power_value;
+    end if;
+    setPos(panel, 1, 46);
+    write(panel, rocket.fuel lpad 4);
+    new_fuel_value := 40 * rocket.fuel div fuel_max;
+    if new_fuel_value <> fuel_gauge then
+      line(246 + new_fuel_value, GAUGE_Y_POS, 0, 12, light_cyan);
+      if fuel_gauge >= 0 and fuel_gauge <= 6 then
+        line(246 + fuel_gauge, GAUGE_Y_POS, 0, 12, dark_red);
+      else
+        line(246 + fuel_gauge, GAUGE_Y_POS, 0, 12, dark_green);
+      end if;
+      fuel_gauge := new_fuel_value;
+    end if;
+  end func; (* display_gauges *)
+
+
+const proc: display_ship is func
+  (* Display moving Ship and Gauges *)
+  local
+    var integer: counter is 0;
+  begin (* display_ship *)
+    ship_picture;
+    (* if rocket.fuel <> 0 then *)
+      for counter range 1 to 4 do
+        play_soundstep;
+      end for;
+    (* end if; *)
+    (*delay(100);*)
+    (* Display picture. *)
+    display_gauges;
+(*
+    setPos(panel, 1, 53);
+    write(panel, rocket.x_pos - flt(leftOfLandingPad) digits 0 lpad 4);
+*)
+(*  if rocket.fuel = 0 then
+      nosound;
+      doBeep;
+    end if; *)
+  end func; (* display_ship *)
+
+
+const proc: drawLogo is func
+  (* Draw the logo on the Building *)
+  local
+    const array integer: logo is [] (
+        (* x1, y1, delta-x, x2, y2, delta-x2, ...  (delta-y is always 1) *)
+        0, 5, 4, 0, 4, 1, 0, 3, 4, 3, 2, 1, 0, 1, 4,
+        5, 5, 4, 5, 4, 1, 5, 3, 3, 5, 2, 1, 5, 1, 4,
+        10, 5, 4, 10, 4, 1, 10, 3, 3, 10, 2, 1, 10, 1, 4,
+        15, 5, 3, 15, 4, 1, 18, 4, 1, 15, 3, 1, 18, 3, 1, 15, 2, 1, 18, 2, 1, 15, 1, 3,
+        20, 5, 4, 23, 4, 1, 22, 3, 1, 22, 2, 1, 21, 1, 1);
+    const integer: scaleFactor is 3;
+    var integer: x_pos is 22;
+    var integer: y_pos is Y_MAXIMUM - 79;
+    var integer: number is 0;
+  begin
+    for number range 1 to length(logo) - 2 step 3 do
+      rect(x_pos + scaleFactor * logo[number], y_pos - scaleFactor * logo[succ(number)],
+          scaleFactor * logo[number + 2], scaleFactor, dark_red);
+    end for;
+  end func; (* drawLogo *)
+
+
+const proc: setupAdvancedLander is func
+  (* Advanced-Lander Landing Field *)
+  local
+    var integer: number is 0;
+    var integer: level is 0;
+  begin (* setupAdvancedLander *)
+    clear(black);
+(*  doBeep; *)
+    setPos(screen, 1, 1);
+    writeln(screen, "ADVANCED LANDER");
+    setPos(screen, 2, 1);
+    writeln(screen, "Landing fall rate");
+    setPos(screen, 3, 1);
+    write(screen, "less or equal ");
+    color(screen, yellow);
+    writeln(screen, "5");
+    color(screen, light_cyan);
+    leftOfLandingPad := 224;
+    for number range 1 to SIZE_LANDSCAPE do
+      landscape[number].y := advanced_landscape[number].y;
+    end for;
+    drawLandscape;
+    rect(8, Y_MAXIMUM - 77, 101, 78, brown);
+    rect(20, Y_MAXIMUM - 96, 76, 19, light_gray);
+    for level range 0 to 3 do
+      for number range 0 to 6 do
+        rect(11 + 14 * number, Y_MAXIMUM - 71 + 18 * level, 11, 11, black);
+      end for;
+    end for;
+    rect(53, Y_MAXIMUM - 17, 11, 18, dark_gray);
+    rect(109, Y_MAXIMUM - 49, 21, 50, dark_green);
+    box(109, Y_MAXIMUM - 49, 21, 50, dark_gray);
+    for number range 0 to 3 do
+      rect(113, Y_MAXIMUM - 44 + 9 * number, 13, 5, brown);
+    end for;
+    rect(130, Y_MAXIMUM - 21, 52, 22, brown);
+    for number range 0 to 4 do
+      rect(134 + 9 * number, Y_MAXIMUM - 18, 8, 12, black);
+    end for;
+    drawLogo;
+    rocket.x_pos := 90.0;
+    rocket.y_pos := flt(Y_MAXIMUM - 169);
+    rocket.old_x_pos := rocket.x_pos;
+    rocket.old_y_pos := rocket.y_pos;
+    rocket.fuel := rocket.fuel + 1000;
+    fuel_max := rocket.fuel;
+    rocket.thrust := 11;
+    rocket.old_thrust := rocket.thrust;
+    rocket.tilt := NO_TILT;
+    rocket.old_tilt := rocket.tilt;
+    rocket.y_speed := 13.0;
+    advancedLander := TRUE;
+    init_display;
+(*  doBeep; *)
+  end func; (* setupAdvancedLander *)
+
+
+const proc: prepare_message is func
+  local
+    var integer: number is 0;
+  begin (* prepare_message *)
+    rect(10, 40, 250, 170, black);
+    box(10, 40, 250, 170, white);
+  end func; (* prepare_message *)
+
+
+const proc: too_high is func
+  begin (* too_high *)
+    display_ship;
+    prepare_message;
+    setPos(screen, 7, 5);
+    write(screen, "THE GOAL IS TO LAND AND NOT TO START");
+    setPos(screen, 11, 11);
+    writeln(screen, "YOU NEED MORE PRACTISE !!");
+    flying := FALSE;
+  end func; (* too_high *)
+
+
+const proc: outside_operating_area is func
+  begin (* outside_operating_area *)
+    display_ship;
+    prepare_message;
+    setPos(screen, 7, 6);
+    write(screen, "THE ROCKET LEFT THE OPERATING AREA");
+    setPos(screen, 11, 11);
+    writeln(screen, "YOU NEED MORE PRACTISE !!");
+    flying := FALSE;
+  end func; (* outside_operating_area *)
+
+
+const proc: revise_control is func
+  (* Revise CONTROL parameters *)
+  local
+    var integer: J is 0;
+    var integer: frequency is 0;
+  begin (* revise_control *)
+    rocket.y_speed +:= gravity - flt(rocket.thrust) * COS_ANG[rocket.tilt];
+    rocket.x_speed := 0.9 * rocket.x_speed - flt(rocket.thrust) * SIN_ANG[rocket.tilt];
+    (* rocket.x_speed has air drag. *)
+(*  if rocket.y_speed < -10 then
+      rocket.y_speed := -10;
+    end if; *)
+    rocket.x_pos +:= rocket.x_speed * 0.05;
+    rocket.y_pos +:= rocket.y_speed * 0.05;
+    if rocket.y_pos < 0.0 then
+      rocket.y_pos := 0.0;
+      too_high;
+    end if;
+    if rocket.y_pos > flt(Y_MAXIMUM) then
+      rocket.y_pos := flt(Y_MAXIMUM);
+    end if;
+    if rocket.x_pos - SHIP_DIAMETER < flt(X_MINIMUM) then
+      rocket.x_pos := flt(X_MINIMUM) + SHIP_DIAMETER;
+      outside_operating_area;
+    end if;
+    if rocket.x_pos + SHIP_DIAMETER > flt(X_MAXIMUM) then
+      rocket.x_pos := flt(X_MAXIMUM) - SHIP_DIAMETER;
+      outside_operating_area;
+    end if;
+    if flying then
+      if rocket.fuel = 0 then
+        rocket.thrust := 0;
+      else
+        if rocket.fuel < rocket.thrust then
+          rocket.thrust := rocket.fuel;
+        end if;
+        rocket.fuel -:= rocket.thrust;
+        if rocket.fuel = 0 then
+          setPos(screen, 3, 9);
+          write(screen, "OUT OF FUEL");
+          (* alarm *)
+          for J range 1 to 5 do
+            frequency := 1000;
+            while frequency <= 2000 do
+              sound(frequency);
+              delay(10);
+              frequency +:= 20;
+            end while;
+          end for;
+          nosound;
+        end if;
+      end if;
+    end if;
+  end func; (* revise_control *)
+
+
+const proc: anounceAdvancedLander is func
+  local
+    var char: ch is ' ';
+  begin (* anounceAdvancedLander *)
+    color(screen, black, dark_green);
+    clear(black);
+    setPos(screen, 5, 9);
+    write(screen, "YOUR SCORE IS NOW : ");
+    writeln(screen, score);
+    color(screen, light_gray, dark_green);
+    setPos(screen, 7, 5);
+    writeln(screen, "YOU WILL NOW BE IN ADVANCED LANDER ! !");
+    setPos(screen, 12, 1);
+    color(screen, black);
+    writeln(screen, "If your maneuver the lander through the");
+    writeln(screen, "yellow dots above the landing field with");
+    write(screen, "a fall rate less or equal ");
+    color(screen, yellow);
+    write(screen, "10");
+    color(screen, black);
+    writeln(screen, ", you will end");
+    writeln(screen, "the landing in advanced-lander. The land");
+    writeln(screen, "will be enlarged to allow you to make a");
+    writeln(screen, "precision landing. Your final fall rate");
+    write(screen, "must be less or equal ");
+    color(screen, yellow);
+    writeln(screen, "5");
+    color(screen, black);
+    writeln(screen, "for the landing to be ok.");
+    setPos(screen, 24, 7);
+    color(screen, light_gray);
+    write(screen, "PRESS ANY KEY TO CONTINUE.");
+    repeat
+      ch := getc(KEYBOARD);
+      case ch of
+        when {'P', 'p'}:
+          pause_game(FALSE);
+        when {KEY_ESC}:
+          pause_game(TRUE);
+        when {'Q', 'q'}:
+          quit_program := TRUE;
+      end case;
+    until ch not in {'P', 'p', KEY_ESC} or quit_program;
+  end func; (* anounceAdvancedLander *)
+
+
+const proc: end_of_flight is func
+  local
+    var char: ch is ' ';
+  begin (* end_of_flight *)
+    repeat
+      repeat
+        ch := busy_getc(KEYBOARD);
+      until ch = KEY_NONE;
+      setPos(screen, 14, 4);
+      write(screen, "SOUND IS ");
+      if sound_on then
+        writeln(screen, "ON, PRESS S TO TURN SOUND OFF");
+      else
+        writeln(screen, "OFF, PRESS S TO TURN SOUND ON");
+      end if;
+      setPos(screen, 15, 4);
+      writeln(screen, "PRESS Q TO QUIT OR ENTER TO CONTINUE");
+      ch := getc(KEYBOARD);
+      case ch of
+        when {'P', 'p'}:
+          pause_game(FALSE);
+        when {KEY_ESC}:
+          pause_game(TRUE);
+        when {'Q', 'q'}:
+          quit_program := TRUE;
+        when {'S', 's'}:
+          sound_on := not sound_on;
+      end case;
+    until ch = KEY_NL or quit_program;
+    if not quit_program and score >= ADLAND and not advancedLander then
+      anounceAdvancedLander;
+    end if;
+  end func; (* end_of_flight *)
+
+
+const proc: play_stars_and_stripes (in integer: from_index, in integer: to_index) is func
+  (* Play "Stars and Stripes" *)
+  local
+    var integer: number is 0;
+  begin (* play_stars_and_stripes *)
+    if sound_on then
+      nosound;
+      for number range from_index to to_index do
+        sound(STAR[number].freq);
+        delay(STAR[number].leng * 100);
+        if STAR[number].freq <> 0 and STAR[number].leng <> 1 then
+          nosound;
+          delay(50);
+        end if;
+      end for;
+    end if;
+  end func; (* play_stars_and_stripes *)
+
+
+const proc: crash_sound is func
+  local
+    var integer: number is 0;
+    var integer: frequency is 0;
+  begin (* crash_sound *)
+    nosound;
+    for number range 1 to 3 do
+      frequency := 1000;
+      while frequency <= 2000 do
+        sound(frequency);
+        delay(10);
+        frequency +:= 20;
+      end while;
+    end for;
+    nosound;
+(*! score := trunc(flt(score) * 0.7); *)
+  end func; (* crash_sound *)
+
+
+const proc: explosion is func
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: number is 0;
+  begin (* explosion *)
+    xPos := round(rocket.x_pos);
+    yPos := round(rocket.y_pos);
+    yPos := yPos + ord(yPos > 189) * 5;
+    for number range 1 to length(explosion_data) do
+      lineTo(xPos - explosion_data[number][1], yPos - explosion_data[number][2],
+           xPos + explosion_data[number][1], yPos + explosion_data[number][2] div 2, light_red);
+      lineTo(xPos + explosion_data[number][1], yPos - explosion_data[number][2],
+           xPos - explosion_data[number][1], yPos + explosion_data[number][2] div 2, light_red);
+    end for;
+    DRAW_FLUSH;
+  end func; (* explosion *)
+
+
+const proc: crash_landing is func
+  local
+    var integer: number is 0;
+  begin (* crash_landing *)
+    rocket.thrust := 0;
+    ship_picture; (* Show ship with no rocket blast. *)
+    explosion;
+    display_gauges;
+    crash_sound;
+    prepare_message;
+    for number range 1 to 5 do
+      setPos(screen, 4 + number, 8);
+      write(screen, "CRASH !!!  CRASH !!!  CRASH !!!");
+    end for;
+    setPos(screen, 11, 11);
+    writeln(screen, "YOU NEED MORE PRACTISE !!");
+    flying := FALSE;
+  end func; (* crash_landing *)
+
+
+const proc: good_landing is func
+  local
+    var integer: additionalScore is 0;
+  begin (* good_landing *)
+    rocket.thrust := 0;
+    display_ship; (* Show ship with no rocket blast. *)
+    play_stars_and_stripes(1, 30);
+    prepare_message;
+    play_stars_and_stripes(31, 50);
+    if round(rocket.y_speed) <= 5 then
+      setPos(screen, 5, 13);
+      write(screen, "PERFECT");
+    elsif round(rocket.y_speed) <= 7 then
+      setPos(screen, 5, 12);
+      write(screen, "EXCELLENT");
+    elsif round(rocket.y_speed) <= 10 then
+      setPos(screen, 5, 12);
+      write(screen, "VERY GOOD");
+    else
+      setPos(screen, 5, 14);
+      write(screen, "GOOD");
+    end if;
+    writeln(screen, "  LANDING !!");
+    setPos(screen, 7, 4);
+    additionalScore := rocket.fuel div 30;
+    if additionalScore > 0 then
+      score +:= additionalScore;
+      writeln(screen, "YOUR EXTRA FUEL MAKES YOUR SCORE = " & str(score));
+    else
+      writeln(screen, "YOUR SCORE IS NOW " & str(score));
+    end if;
+    setPos(screen, 34, 100);
+    write(screen, score lpad 4);
+    play_stars_and_stripes(51, 82);
+    if score > scoremax then
+      scoremax := score;
+      setPos(screen, 9, 4);
+      writeln(screen, "THIS IS THE HIGHEST SCORE UP TO NOW !!");
+      setPos(screen, 10, 7);
+      writeln(screen, "TYPE IN YOUR NAME FOR POSTERITY");
+      setPos(screen, 12, 18);
+      nosound;
+      playerName := getln(IN);
+      writeHiScore;
+    else
+      setPos(screen, 10, 4);
+      writeln(screen, "  (MAX. SCORE TO DATE IS " &
+          str(scoremax) & " BY " & playerName & ")");
+    end if;
+    rocket.thrust := 0;
+    display_ship; (* Show ship with no rocket blast. *)
+  end func; (* good_landing *)
+
+
+const proc: fast_landing is func
+  begin (* fast_landing *)
+    rocket.thrust := 0;
+    display_ship; (* Show ship with no rocket blast. *)
+    crash_sound;
+    prepare_message;
+    setPos(screen, 7, 4);
+    write(screen, "ALMOST A GOOD LANDING BUT MUCH TOO FAST");
+    setPos(screen, 9, 4);
+    write(screen, "YOUR FALL RATE MUST BE LESS OR EQUAL ");
+    if advancedLander then
+      write(screen, 5);
+    else
+      write(screen, 15);
+    end if;
+    setPos(screen, 11, 11);
+    writeln(screen, "YOU NEED MORE PRACTISE !!");
+    rocket.thrust := 0;
+    display_ship; (* Show ship with no rocket blast. *)
+  end func; (* fast_landing *)
+
+
+const proc: tilt_landing is func
+  begin (* tilt_landing *)
+    rocket.thrust := 0;
+    display_ship; (* Show ship with no rocket blast. *)
+    crash_sound;
+    prepare_message;
+    setPos(screen, 7, 4);
+    write(screen, "GOOD LANDING, BUT PLEASE LAND ON 2 FEET!");
+    setPos(screen, 11, 11);
+    writeln(screen, "YOU NEED MORE PRACTISE !!");
+    rocket.thrust := 0;
+    display_ship; (* Show ship with no rocket blast. *)
+  end func; (* tilt_landing *)
+
+
+const proc: ground_contact is func
+  begin (* ground_contact *)
+    if round(rocket.y_speed) > 15 or
+        advancedLander and round(rocket.y_speed) > 5 then
+      if rocket.tilt <> NO_TILT then
+        crash_landing;
+      else
+        fast_landing;
+      end if;
+    else
+      nosound; (* Turn off "Blue Danube" *)
+      if rocket.tilt <> NO_TILT then
+        tilt_landing;
+      else
+        good_landing;
+      end if;
+    end if;
+    flying := FALSE;
+  end func; (* ground_contact *)
+
+
+const proc: crash_test is func
+  (* Test for crash or landing. *)
+  begin (* crash_test *)
+    calculate_height;
+    if rocket.height <= 0 then
+      if  rocket.x_pos > flt(leftOfLandingPad - 5) and
+          rocket.x_pos < flt(leftOfLandingPad + 35) then
+        ground_contact;
+      else
+        crash_landing;
+      end if;
+    end if;
+    if flying and score >= ADLAND and not advancedLander then
+      if  rocket.y_pos > flt(Y_MAXIMUM - 26) and
+          rocket.x_pos > flt(leftOfLandingPad - 5) and
+          rocket.x_pos < flt(leftOfLandingPad + 35) and
+          round(rocket.y_speed) <= 10 then
+        setupAdvancedLander;
+      end if;
+    end if;
+  end func; (* crash_test *)
+
+
+const proc: main is func
+  begin (* main *)
+    screen(640, 480);
+    clear(curr_win, black);
+    color(white, black);
+    KEYBOARD := GRAPH_KEYBOARD;
+    screen := open(curr_win);
+    panel := open(curr_win, 0, Y_MAXIMUM + 11);
+    IN := openEditLine(KEYBOARD, screen);
+    # IN := openEcho(KEYBOARD, screen);
+    # IN := openLine(IN);
+    quit_program := FALSE;
+    sound_on := TRUE;
+    welcome;
+    load;
+    while not quit_program do
+      setup;               (* Setup initial conditions *)
+      while flying do
+        display_ship;      (* Display Moving ship *)
+        crash_test;        (* Test for Crash or Landing *)
+        if flying then
+          revise_control;  (* Revise control parameters *)
+          check_keyboard;  (* See if any keys pressed. *)
+        end if;
+      end while;
+      if not quit_program then
+        end_of_flight;
+      end if;
+    end while;
+  end func; (* main *)

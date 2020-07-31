@@ -1,0 +1,1514 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  scanstri.s7i  String scanner functions                          *)
+(*  Copyright (C) 2007, 2008, 2009  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "chartype.s7i";
+
+
+(**
+ *  Skips a possibly nested comment from a [[string]].
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that stri[1] contains the '*' of the
+ *  comment start. When the function is left ''stri'' is empty or
+ *  stri[1] contains the character after the ')'.
+ *)
+const proc: skipComment (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    repeat
+      repeat
+        while pos <= leng and stri[pos] not in special_comment_char do
+          incr(pos);
+        end while;
+        if pos <= leng and stri[pos] = '(' then
+          incr(pos);
+          if pos <= leng and stri[pos] = '*' then
+            stri := stri[pos ..];
+            skipComment(stri);
+            leng := length(stri);
+            pos := 1;
+          end if;
+        end if;
+      until pos > leng or stri[pos] = '*';
+      if pos <= leng then
+        incr(pos);
+      end if;
+    until pos > leng or stri[pos] = ')';
+    stri := stri[succ(pos) ..];
+  end func; # skipComment
+
+
+(**
+ *  Reads a possibly nested comment from a [[string]].
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that stri[1] contains the '*' of the
+ *  comment start. When the function is left ''stri'' is empty or
+ *  stri[1] contains the character after the ')'.
+ *  @return the content of the comment, including the introducing (*
+ *          and the ending *) .
+ *)
+const func string: getComment (inout string: stri) is func
+  result
+    var string: symbol is "(";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    repeat
+      repeat
+        while pos <= leng and stri[pos] not in special_comment_char do
+          incr(pos);
+        end while;
+        if pos <= leng and stri[pos] = '(' then
+          incr(pos);
+          if pos <= leng and stri[pos] = '*' then
+            symbol &:= stri[.. pos - 2];
+            stri := stri[pos ..];
+            symbol &:= getComment(stri);
+            leng := length(stri);
+            pos := 1;
+          end if;
+        end if;
+      until pos > leng or stri[pos] = '*';
+      if pos <= leng then
+        incr(pos);
+      end if;
+    until pos > leng or stri[pos] = ')';
+    symbol &:= stri[.. pos];
+    stri := stri[succ(pos) ..];
+  end func; # getComment
+
+
+(**
+ *  Skips a classic C comment from a [[string]].
+ *  The comment starts with /* and ends with */ . In a classic
+ *  C comment no nesting of comments is allowed. When the function
+ *  is called it is assumed that stri[1] contains the '*'
+ *  of the comment start.  When the function is left ''stri''
+ *  is empty or stri[1] contains the character after the '/'.
+ *)
+const proc: skipClassicComment (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 2;
+  begin
+    leng := length(stri);
+    repeat
+      while pos <= leng and stri[pos] <> '*' do
+        incr(pos);
+      end while;
+      incr(pos);
+    until pos > leng or stri[pos] = '/';
+    stri := stri[succ(pos) ..];
+  end func;
+
+
+(**
+ *  Skips a line comment from a [[string]].
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that ''stri'' is empty or stri[1] contains the
+ *  introducing character (e.g. '#'). When the function is left
+ *  ''stri'' is empty or stri[1] contains the line end character
+ *  ('\n').
+ *)
+const proc: skipLineComment (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    repeat
+      incr(pos);
+    until pos > leng or stri[pos] = '\n';
+    stri := stri[pos ..];
+  end func; # skipLineComment
+
+
+(**
+ *  Reads a line comment from a [[string]].
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that ''stri'' is empty or stri[1] contains the
+ *  introducing character (e.g. '#'). When the function is left
+ *  ''stri'' is empty or stri[1] contains the line end character
+ *  ('\n').
+ *  @return the content of the comment, including the start marker
+ *          (e.g. '#') but without line end character ('\n').
+ *)
+const func string: getLineComment (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    repeat
+      incr(pos);
+    until pos > leng or stri[pos] = '\n';
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func; # getLineComment
+
+
+(**
+ *  Reads a sequence of digits from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the digits.
+ *  @return the digit sequence, and
+ *          "" if no digit was found.
+ *)
+const func string: getDigits (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] >= '0' and stri[pos] <= '9' do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a decimal integer with optional sign from a [[string]].
+ *  A decimal integer accepted by ''getInteger'' consists of an optional
+ *  + or - sign followed by a possibly empty sequence of digits. Because
+ *  of the LL(1) approach, a sign without following digits is accepted.
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the integer.
+ *  @return the decimal integer string, and
+ *          "" if no integer was found.
+ *)
+const func string: getInteger (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng and (stri[pos] = '-' or stri[pos] = '+') then
+      incr(pos);
+    end if;
+    while pos <= leng and stri[pos] >= '0' and stri[pos] <= '9' do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a numeric literal from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the introducing digit. When the function is left
+ *  ''stri'' is empty or stri[1] contains the character after the
+ *  literal.
+ *  @return The function returns the numeric literal.
+ *)
+const func string: getNumber (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in digit_char do
+      incr(pos);
+    end while;
+    if pos <= leng and stri[pos] = '.' then
+      # float literal
+      incr(pos);
+      while pos <= leng and stri[pos] in digit_char do
+        incr(pos);
+      end while;
+      if pos <= leng and (stri[pos] = 'E' or stri[pos] = 'e') then
+        incr(pos);
+        if pos <= leng and stri[pos] = '+' then
+          incr(pos);
+        elsif pos <= leng and stri[pos] = '-' then
+          incr(pos);
+        end if;
+        while pos <= leng and stri[pos] in digit_char do
+          incr(pos);
+        end while;
+      end if;
+    elsif pos <= leng and stri[pos] = '#' then
+      # based integer literal
+      incr(pos);
+      while pos <= leng and stri[pos] in alphanum_char do
+        incr(pos);
+      end while;
+    elsif pos <= leng and (stri[pos] = 'E' or stri[pos] = 'e') then
+      # integer literal with exponent
+      incr(pos);
+      if pos <= leng and stri[pos] = '+' then
+        incr(pos);
+      elsif pos <= leng and stri[pos] = '-' then
+        incr(pos);
+      end if;
+      while pos <= leng and stri[pos] in digit_char do
+        incr(pos);
+      end while;
+    elsif pos <= leng and stri[pos] = '_' then
+      # bigInteger literal
+      incr(pos);
+    end if;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a sequence of non digits from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains a digit.
+ *  @return the non digit sequence, and
+ *          "" if a digit was found.
+ *)
+const func string: getNonDigits (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and (stri[pos] < '0' or stri[pos] > '9') do
+      incr(pos);
+    end while;
+    symbol := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a text quoted with " or ' from a [[string]].
+ *  The introducing and the closing character ( " or ' ) of the quoted
+ *  text must be identical. When the function is called it is assumed
+ *  that stri[1] contains the introducing " or ' . When the function
+ *  is left ''stri'' is empty or stri[1] contains the character after
+ *  the closing character.
+ *  @return the string literal without introducing or closing
+ *          characters ( " or ' ).
+ *)
+const func string: getQuotedText (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var char: quoteChar is ' ';
+    var integer: pos is 1;
+  begin
+    quoteChar := stri[1];
+    leng := length(stri);
+    repeat
+      incr(pos);
+    until pos > leng or stri[pos] = quoteChar;
+    symbol := stri[2 .. pred(pos)];
+    stri := stri[succ(pos) ..];
+  end func;
+
+
+(**
+ *  Read a space terminated command line word, from a [[string]].
+ *  Before reading the word it skips whitespace characters. A command
+ *  line word can consist of unquoted and quoted parts. A quoted part
+ *  is introduced with double quotes (") and ends with unescaped
+ *  double quotes. A \ (backslash) is used to escape characters that
+ *  would terminate the word respectively the quoted part. The
+ *  backslash is ignored and the character after it is added to the
+ *  word. To represent a backslash it must be doubled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the terminating space. Examples:
+ *   stri := "a b c";        # getCommandLineWord(stri) returns "a"
+ *   stri := "a\\ b c";      # getCommandLineWord(stri) returns "a b"
+ *   stri := " a b c";       # getCommandLineWord(stri) returns "a"
+ *   stri := "\\ a b c";     # getCommandLineWord(stri) returns " a"
+ *   stri := "a\\\"b c";     # getCommandLineWord(stri) returns "a\"b"
+ *   stri := "a\" b\" c";    # getCommandLineWord(stri) returns "a b"
+ *   stri := "\"a b\" c";    # getCommandLineWord(stri) returns "a b"
+ *   stri := " \"a\" b c";   # getCommandLineWord(stri) returns "a"
+ *   stri := "\" a\" b c";   # getCommandLineWord(stri) returns " a"
+ *   stri := " \" a\" b c";  # getCommandLineWord(stri) returns " a"
+ *   stri := "\"a\\\"b\" c"; # getCommandLineWord(stri) returns "a\"b"
+ *   stri := "a\\\\b c";     # getCommandLineWord(stri) returns "a\\b"
+ *  @return the space terminated word (without terminating space).
+ *)
+const func string: getCommandLineWord (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] = ' ' do
+      incr(pos);
+    end while;
+    while pos <= leng and stri[pos] <> ' ' do
+      if stri[pos] = '"' then
+        incr(pos);
+        while pos <= leng and stri[pos] <> '"' do
+          if stri[pos] = '\\' and pos < leng then
+            incr(pos);
+          end if;
+          symbol &:= stri[pos];
+          incr(pos);
+        end while;
+        incr(pos);
+      else
+        while pos <= leng and stri[pos] <> ' ' and stri[pos] <> '"' do
+          if stri[pos] = '\\' and pos < leng then
+            incr(pos);
+          end if;
+          symbol &:= stri[pos];
+          incr(pos);
+        end while;
+      end if;
+    end while;
+    stri := stri[succ(pos) ..];
+  end func;
+
+
+(**
+ *  Read a simple [[string]] literal from a [[string]].
+ *  A simple string literal is enclosed in delimiter characters
+ *  (e.g. " or ' ). Delimiter characters within the simple string
+ *  literal must be doubled. A simple string literal does not
+ *  support an escape character. All characters, including control
+ *  characters (e.g. linefeed) are allowed inside a simple string
+ *  literal. When the function is called it is assumed that
+ *  stri[1] contains the introducing delimiter character.
+ *  When the function is left ''stri'' is empty or stri[1]
+ *  contains the character after the closing delimiter.
+ *  @return the string literal including the introducing and
+ *          closing delimiter character. Double delimiter chars in
+ *          the literal are converted to single delimiter chars.
+ *)
+const func string: getSimpleStringLiteral (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var char: delimiter is ' ';
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    delimiter := stri[1];
+    symbol := str(delimiter);
+    repeat
+      incr(pos);
+      while pos <= leng and stri[pos] <> delimiter do
+        symbol &:= stri[pos];
+        incr(pos);
+      end while;
+      if pos <= leng then
+        incr(pos);
+        if pos <= leng and stri[pos] = delimiter then
+          symbol &:= delimiter;
+        end if;
+      end if;
+    until pos > leng or stri[pos] <> delimiter;
+    symbol &:= delimiter;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads an escape sequence from ''stri'' and appends it to ''symbol''.
+ *  The function accepts escape sequences from character and string
+ *  literals. When the function is called it is assumed that stri[1]
+ *  contains the introducing \ . When the function is left stri[1]
+ *  contains the character after the escape sequence. The complete
+ *  escape sequence including the introducing \ is appended to
+ *  ''symbol''.
+ *)
+const proc: getEscapeSequence (in string: stri, inout integer: pos, inout string: symbol) is func
+  local
+    var integer: leng is 0;
+    var integer: backslashPos is 0;
+    var string: numberStri is "";
+  begin
+    leng := length(stri);
+    symbol &:= "\\";
+    incr(pos);
+    if pos <= leng then
+      if stri[pos] = '\n' or stri[pos] = ' ' or stri[pos] = '\t' or stri[pos] = '\r' then
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+        until pos > leng or
+            stri[pos] <> '\n' and stri[pos] <> ' ' and stri[pos] <> '\t' and stri[pos] <> '\r';
+        if pos <= leng and stri[pos] = '\\' then
+          symbol &:= stri[pos];
+          incr(pos);
+        end if;
+      elsif stri[pos] in digit_char then
+        backslashPos := pos(stri, '\\', succ(pos));
+        numberStri := stri[pos .. pred(backslashPos)];
+        symbol &:= getNumber(numberStri);
+        if numberStri = "" then
+          symbol &:= "\\";
+          pos := succ(backslashPos);
+        else
+          pos := backslashPos - length(numberStri);
+        end if;
+      else
+        symbol &:= stri[pos];
+        incr(pos);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a character literal from a [[string]].
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing ' . When the function is left ''stri'' is empty or
+ *  stri[1] contains the character after the closing ' .
+ *  @return the character literal including the introducing ' and
+ *          the closing ' .
+ *)
+const func string: getCharLiteral (inout string: stri) is func
+  result
+    var string: symbol is "'";
+  local
+    var integer: leng is 0;
+    var integer: pos is 2;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] <> '\n' and stri[pos] <> '\r' then
+      if stri[pos] = '\\' then
+        repeat
+          getEscapeSequence(stri, pos, symbol);
+        until stri[pos] <> '\\';
+      else
+        symbol &:= stri[pos];
+        incr(pos);
+      end if;
+      if pos > leng or stri[pos] <> '\'' then
+        if stri[pos] <> '\n' and stri[pos] <> '\r' and stri[pos] <> EOF then
+          repeat
+            symbol &:= stri[pos];
+            incr(pos);
+          until pos > leng or
+              stri[pos] = '\'' or
+              stri[pos] = '\n' or
+              stri[pos] = '\r';
+          if pos <= leng and stri[pos] = '\'' then
+            symbol &:= stri[pos];
+            incr(pos);
+          end if;
+        end if;
+      else
+        symbol &:= stri[pos];
+        incr(pos);
+      end if;
+    end if;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a string literal from a [[string]].
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing " . When the function is left ''stri'' is empty or
+ *  stri[1] contains the character after the closing " .
+ *  @return the string literal including the introducing " and the
+ *          closing " .
+ *)
+const func string: getStringLiteral (inout string: stri) is func
+  result
+    var string: symbol is "\"";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var boolean: reading_string is TRUE;
+  begin
+    leng := length(stri);
+    incr(pos);
+    repeat
+      while pos <= leng and stri[pos] in no_escape_char do
+        symbol &:= stri[pos];
+        incr(pos);
+      end while;
+      if pos > leng or stri[pos] = '\n' or stri[pos] = '\r' then
+        reading_string := FALSE;
+      elsif stri[pos] = '\"' then
+        symbol &:= stri[pos];
+        incr(pos);
+        if pos <= leng and stri[pos] = '\"' then
+          symbol &:= stri[pos];
+          incr(pos);
+        else
+          reading_string := FALSE;
+        end if;
+      elsif stri[pos] = '\\' then
+        getEscapeSequence(stri, pos, symbol);
+      else
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+        until pos > leng or stri[pos] >= ' ' or stri[pos] <= '~';
+      end if;
+    until not reading_string;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads the text of a string literal from a [[string]].
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing " . When the function is left ''stri'' is empty or
+ *  stri[1] contains the character after the closing " .
+ *  @return the text of the string literal without introducing or
+ *          closing " .
+ *)
+const func string: getCStringLiteralText (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: startPos is 2;
+    var integer: pos is 2;
+    var boolean: reading_string is TRUE;
+    var integer: charValue is 0;
+  begin
+    leng := length(stri);
+    repeat
+      startPos := pos;
+      while pos <= leng and stri[pos] in no_escape_char do
+        incr(pos);
+      end while;
+      symbol &:= stri[startPos .. pred(pos)];
+      if pos > leng or stri[pos] = '\n' or stri[pos] = '\r' then
+        reading_string := FALSE;
+      elsif stri[pos] = '\"' then
+        incr(pos);
+        if pos <= leng and stri[pos] = '\"' then
+          symbol &:= stri[pos];
+          incr(pos);
+        else
+          reading_string := FALSE;
+        end if;
+      elsif stri[pos] = '\\' then
+        incr(pos);
+        if pos <= leng then
+          case stri[pos] of
+            when {'a'}:
+              symbol &:= "\a";
+              incr(pos);
+            when {'b'}:
+              symbol &:= "\b";
+              incr(pos);
+            when {'f'}:
+              symbol &:= "\f";
+              incr(pos);
+            when {'n'}:
+              symbol &:= "\n";
+              incr(pos);
+            when {'r'}:
+              symbol &:= "\r";
+              incr(pos);
+            when {'t'}:
+              symbol &:= "\t";
+              incr(pos);
+            when {'v'}:
+              symbol &:= "\v";
+              incr(pos);
+            when {'\\', '?', ''', '"'}:
+              symbol &:= stri[pos];
+              incr(pos);
+            when octdigit_char:
+              incr(pos);
+              if pos <= leng and stri[pos] in octdigit_char then
+                incr(pos);
+                if pos <= leng and stri[pos] in octdigit_char then
+                  charValue := integer(stri[pos - 2 len 3], 8);
+                  incr(pos);
+                else
+                  charValue := integer(stri[pos - 2 len 2], 8);
+                end if;
+              else
+                charValue := integer(stri[pred(pos) len 1], 8);
+              end if;
+              symbol &:= chr(charValue);
+            when {'x'}:
+              incr(pos);
+              if pos <= leng and stri[pos] in hexdigit_char then
+                incr(pos);
+                if pos <= leng and stri[pos] in hexdigit_char then
+                  charValue := integer(stri[pred(pos) len 2], 16);
+                  incr(pos);
+                else
+                  charValue := integer(stri[pred(pos) len 1], 16);
+                end if;
+                symbol &:= chr(charValue);
+              else
+                symbol &:= "\\x";
+              end if;
+            otherwise:
+              symbol &:= "\\";
+          end case;
+        else
+          symbol &:= "\\";
+        end if;
+      else
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+        until pos > leng or stri[pos] >= ' ' or stri[pos] <= '~';
+      end if;
+    until not reading_string;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads an alphanumeric name from a [[string]].
+ *  A name consists of a letter or underscore followed by letters,
+ *  digits or underscores. When the function is called it is assumed
+ *  that ''stri'' is empty or stri[1] contains the first character to be
+ *  handled. When the function is left ''stri'' is empty or stri[1]
+ *  contains the character after the name.
+ *  @return the name, and
+ *          "" if no letter or underscore was found.
+ *)
+const func string: getName (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in name_start_char then
+      incr(pos);
+      while pos <= leng and stri[pos] in name_char do
+        incr(pos);
+      end while;
+      symbol := stri[.. pred(pos)];
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Skips space characters from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the space characters.
+ *)
+const proc: skipSpace (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if leng >= 1 and stri[1] = ' ' then
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] <> ' ';
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Skips space and tab characters from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the sequence of space and tab characters.
+ *)
+const proc: skipSpaceOrTab (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if leng >= 1 and (stri[1] = ' ' or stri[1] = '\t') then
+      repeat
+        incr(pos);
+      until pos > leng or (stri[pos] <> ' ' and stri[pos] <> '\t');
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Skips whitespace characters from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the whitespace characters.
+ *)
+const proc: skipWhiteSpace (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in white_space_char then
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] not in white_space_char;
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Reads whitespace characters from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the whitespace characters.
+ *  @return the string of whitespace characters, and
+ *          "" if no whitespace character was found.
+ *)
+const func string: getWhiteSpace (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng and stri[pos] in white_space_char then
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] not in white_space_char;
+      symbol := stri[.. pred(pos)];
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+
+(**
+ *  Reads a white space delimited word from a [[string]].
+ *  Before reading the word it skips whitespace characters. A word is
+ *  a sequence of characters which does not contain a whitespace
+ *  character. When the function is called it is assumed that ''stri''
+ *  is empty or stri[1] contains the first character to be handled.
+ *  When the function is left ''stri'' is empty or stri[1] contains the
+ *  character after the word.
+ *  @return the word, and
+ *          "" if no word was found.
+ *)
+const func string: getWord (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] in white_space_char;
+      symbol := stri[start .. pred(pos)];
+      stri := stri[pos ..];
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Skips a line from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains '\n'.
+ *  If stri[1] already contains '\n' nothing is done.
+ *)
+const proc: skipLine (inout string: stri) is func
+  local
+    var integer: pos is 0;
+  begin
+    pos := pos(stri, '\n');
+    if pos <> 0 then
+      stri := stri[pos ..];
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Reads a line from a [[string]].
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains the first character to be handled. When the
+ *  function is left ''stri'' is empty or stri[1] contains '\n'.
+ *  If stri[1] already contains '\n' nothing is done and the
+ *  function returns "" .
+ *  @return the line read, and
+ *          "" if ''stri'' is empty or stri[1] contains '\n'.
+ *)
+const func string: getLine (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: pos is 0;
+  begin
+    pos := pos(stri, '\n');
+    if pos <> 0 then
+      symbol := stri[.. pred(pos)];
+      stri := stri[pos ..];
+    else
+      symbol := stri;
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Reads a symbol or a comment from a [[string]].
+ *  Before reading the symbol or comment it skips whitespace
+ *  characters. A symbol can be a literal (numeric, character or
+ *  string), a name, a special symbol (sequence of special characters)
+ *  or a parenthesis. A comment can be a normal comment or a line
+ *  comment. When the function is called it is assumed that ''stri'' is
+ *  empty or stri[1] contains a whitespace character or the first
+ *  character of a symbol or comment. When the function is left ''stri''
+ *  is empty or stri[1] contains the character after the symbol or
+ *  comment.
+ *  @return the symbol or comment, and
+ *          "" if EOF was reached.
+ *)
+const func string: getSymbolOrComment (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 0;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      case stri[pos] of
+        when name_start_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in name_char;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+        when special_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in special_char;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+        when left_paren_char:
+          stri := stri[succ(pos) ..];
+          if pos <= length(stri) and stri[pos] = '*' then
+            symbol := getComment(stri);
+          else
+            symbol := "(";
+          end if;
+        when other_paren_char:
+          symbol := stri[pos len 1];
+          stri := stri[succ(pos) ..];
+        when digit_char:
+          stri := stri[pos ..];
+          symbol := getNumber(stri);
+        when single_quotation_char:
+          stri := stri[pos ..];
+          symbol := getCharLiteral(stri);
+        when double_quotation_char:
+          stri := stri[pos ..];
+          symbol := getStringLiteral(stri);
+        when sharp_char:
+          stri := stri[pos ..];
+          symbol := getLineComment(stri);
+        otherwise:
+          incr(pos);
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Reads a symbol from a [[string]].
+ *  Before reading the symbol it skips whitespace characters and
+ *  comments (normal comments and line comments). A symbol can be a
+ *  literal (numeric, character or string), a name, a special symbol
+ *  (sequence of special characters) or a parenthesis. When the
+ *  function is called it is assumed that ''stri'' is empty or stri[1]
+ *  contains a whitespace character or the first character of a symbol
+ *  or comment. When the function is left ''stri'' is empty or stri[1]
+ *  contains the character after the symbol.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
+ *)
+const func string: getSymbol (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 0;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      case stri[pos] of
+        when name_start_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in name_char;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+        when special_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in special_char;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+        when left_paren_char:
+          stri := stri[succ(pos) ..];
+          if length(stri) >= 1 and stri[1] = '*' then
+            skipComment(stri);
+            symbol := getSymbol(stri);
+          else
+            symbol := "(";
+          end if;
+        when other_paren_char:
+          symbol := stri[pos len 1];
+          stri := stri[succ(pos) ..];
+        when digit_char:
+          stri := stri[pos ..];
+          symbol := getNumber(stri);
+        when single_quotation_char:
+          stri := stri[pos ..];
+          symbol := getCharLiteral(stri);
+        when double_quotation_char:
+          stri := stri[pos ..];
+          symbol := getStringLiteral(stri);
+        when sharp_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] = '\n';
+          stri := stri[pos ..];
+        otherwise:
+          incr(pos);
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Skips a XML comment from a [[string]].
+ *  The XML comment starts with <!-- and ends with --> . When the
+ *  function is called it is assumed that stri[1] contains the
+ *  last '-' of the introducing <!-- . When the function is left
+ *  ''stri'' is empty or stri[1] contains the character after --> .
+ *)
+const proc: skipXmlComment (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var boolean: endOfCommentReached is FALSE;
+  begin
+    leng := length(stri);
+    repeat
+      while pos <= leng and stri[pos] <> '-' do
+        incr(pos);
+      end while;
+      if pos <= leng then
+        # stri[pos] = '-'
+        incr(pos);
+        if pos <= leng and stri[pos] = '-' then
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] <> '-';
+          if pos <= leng and stri[pos] = '>' then
+            incr(pos);
+            endOfCommentReached := TRUE;
+          end if;
+        end if;
+      end if;
+    until endOfCommentReached or pos > leng;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a XML/HTML tag or the XML/HTML content text from a [[string]].
+ *  A XML/HTML tag starts with < and ends with > . The content text
+ *  starts with everything else and ends just before a < or with EOF.
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing < of a XML/HTML tag or the first character of the
+ *  content text. When the function is left the character after the
+ *  XML/HTML tag or the content text is in stri[1].
+ *  @return the XML/HTML tag or XML/HTML content text, and
+ *          "" if EOF was reached.
+ *)
+const func string: getXmlTagOrContent (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    if pos <= leng then
+      if stri[pos] = '<' then
+        repeat
+          incr(pos);
+        until pos > leng or stri[pos] = '>';
+        symbol := stri[.. pos];
+        stri := stri[succ(pos) ..];
+      else
+        repeat
+          incr(pos);
+        until pos > leng or stri[pos] = '<';
+        symbol := stri[.. pred(pos)];
+        stri := stri[pos ..];
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a XML/HTML tag head or a XML/HTML content from a [[string]].
+ *  Before reading a tag head or content it skips whitespace
+ *  characters and XML comments. A XML/HTML tag head starts
+ *  with < and ends before a > or a / or a whitespace character
+ *  or EOF. The content text starts with a non whitespace character
+ *  and ends just before a < or with EOF. When the function is
+ *  called it is assumed that ''stri'' is empty or stri[1] contains
+ *  either a whitespace character, the introducing < of a XML/HTML
+ *  tag or the first character of the content text. When the function
+ *  is left ''stri'' is empty or stri[1] contains the character after
+ *  the XML/HTML tag head or the content text. If a tag head
+ *  starts with <-- it is interpreted as XML comment. A XML comment
+ *  is ignored and getXmlTagHeadOrContent is called recursive.
+ *  @return the XML/HTML tag head or XML/HTML content text, and
+ *          "" if EOF was reached.
+ *)
+const func string: getXmlTagHeadOrContent (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 1;
+    var boolean: finished is FALSE;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if pos <= leng and stri[pos] = '<' then
+      incr(pos);
+      if pos <= leng and stri[pos] = '!' then
+        incr(pos);
+        if pos <= leng and stri[pos] = '-' then
+          incr(pos);
+          if pos <= leng and stri[pos] = '-' then
+            stri := stri[pos ..];
+            skipXmlComment(stri);
+            symbol := getXmlTagHeadOrContent(stri);
+            finished  := TRUE;
+          end if;
+        end if;
+      end if;
+      if not finished then
+        if pos <= leng and stri[pos] not in white_space_char and
+            stri[pos] <> '>' then
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] in white_space_char or
+              stri[pos] = '>' or stri[pos] = '/';
+        end if;
+        symbol := stri[start .. pred(pos)];
+        stri := stri[pos ..];
+      end if;
+    else
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] = '<';
+      symbol := stri[start .. pred(pos)];
+      stri := stri[pos ..];
+    end if;
+  end func;
+
+(**
+ *  Reads a symbol which can appear inside a XML/HTML tag from [[string]].
+ *  Before reading the symbol it skips whitespace characters. A symbol
+ *  inside a XML/HTML tag can be a name, a string literal (quoted with "
+ *  or ' ), the equals sign (=), the end tag sign (>), the end of empty
+ *  element tag sign (/) or a special symbol (sequence of characters
+ *  terminated with the character > or a whitespace character). Special
+ *  symbols can only appear in HTML tags. When the function is called it
+ *  is assumed that ''stri'' is empty or stri[1] contains a whitespace
+ *  character or the first character of a symbol. When the function is
+ *  left ''stri'' is empty or stri[1] contains the character after the
+ *  symbol.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
+ *)
+const func string: getSymbolInXmlTag (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 0;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      case stri[pos] of
+        when html_name_start_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in html_name_char;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+        when double_quotation_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] = '"';
+          symbol := stri[succ(start) .. pred(pos)];
+          stri := stri[succ(pos) ..];
+        when single_quotation_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] = ''';
+          symbol := stri[succ(start) .. pred(pos)];
+          stri := stri[succ(pos) ..];
+        when equals_or_end_tag:
+          symbol := stri[pos len 1];
+          stri := stri[succ(pos) ..];
+        otherwise:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] in white_space_or_end_tag;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Skips beyond a XML Tag in a [[string]].
+ *  When the function is left ''stri'' is empty or stri[1] contains
+ *  the character after '>'.
+ *)
+const proc: skipXmlTag (inout string: stri) is func
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getSymbolInXmlTag(stri);
+    until symbol = ">" or symbol = "";
+  end func;
+
+
+(**
+ *  Skips beyond a XML Tag in a [[string]].
+ *  The parameter ''symbol'' is used to provide the current symbol
+ *  which possibly can be ">" or "". When the function is left
+ *  ''stri'' is empty or stri[1] contains the character after '>'.
+ *)
+const proc: skipXmlTag (inout string: stri, in var string: symbol) is func
+  begin
+    while symbol <> ">" and symbol <> "" do
+      symbol := getSymbolInXmlTag(stri);
+    end while;
+  end func;
+
+
+(**
+ *  Reads name and value of an attribute inside a XML tag from [[string]].
+ *  Attribute name and value are returned in ''attributeName'' and
+ *  ''attributeValue'' respectively. Surrounding single or double
+ *  quotes of the attribute value are omitted. It is a syntax
+ *  error if an attribute value is not quoted. XML entities in
+ *  ''attributeValue'' are left as is. If no more attributes are
+ *  present in the XML tag ''attributeName'' is set to "". In this case
+ *  ''attributeValue'' contains the end of the XML tag (">" or "/>").
+ *  If a syntax error occurs the function skips beyond the end
+ *  of the XML tag. To indicate the syntax error ''attributeName'' is
+ *  set to "" and ''attributeValue'' is set to a symbol shortly before
+ *  the error (this will never be ">" or "/>").
+ *)
+const proc: getNextXmlAttribute (inout string: stri,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(stri);
+    if attributeName = "/" then
+      attributeName := "";
+      attributeValue := getSymbolInXmlTag(stri);
+      if attributeValue = ">" then
+        attributeValue := "/>";
+      else
+        attributeValue := "/";
+        skipXmlTag(stri, attributeValue);
+      end if;
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := ">";
+    else
+      attributeValue := getSymbolInXmlTag(stri);
+      if attributeValue = "=" then
+        attributeValue := getSymbolInXmlTag(stri);
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        else
+          attributeValue := attributeName;
+          attributeName := "";
+          skipXmlTag(stri, attributeValue);
+        end if;
+      else
+        attributeValue := attributeName;
+        attributeName := "";
+        skipXmlTag(stri, attributeValue);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a HTML tag attribute value from a [[string]].
+ *  Before reading the value it skips whitespace characters. A HTML
+ *  tag attribute value can be quoted with " or ' or it is terminated
+ *  with the character > or a whitespace character. When the function
+ *  is called it is assumed that ''stri'' is empty or stri[1] contains
+ *  a whitespace character or the first character of a value. When the
+ *  function is left ''stri'' is empty or stri[1] contains the character
+ *  after the value.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
+ *)
+const func string: getHtmlAttributeValue (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 0;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      case stri[pos] of
+        when double_quotation_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] = '"';
+          symbol := stri[succ(start) .. pred(pos)];
+          stri := stri[succ(pos) ..];
+        when single_quotation_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] = ''';
+          symbol := stri[succ(start) .. pred(pos)];
+          stri := stri[succ(pos) ..];
+        when right_angle_bracket:
+          symbol := stri[pos len 1];
+          stri := stri[succ(pos) ..];
+        otherwise:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] in white_space_or_end_tag;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
+ *  Reads name and value of an attribute inside a HTML tag from [[string]].
+ *  The variable ''attributeName'' is set to "" if no more attributes
+ *  are present in the HTML tag. If the HTML tag ends with / the
+ *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
+ *  set to "". If the HTML tag does not end with / ''attributeValue''
+ *  and ''attributeName'' are set to "" if no more attributes are
+ *  present.
+ *)
+const proc: getNextHtmlAttribute (inout string: stri,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(stri);
+    if attributeName = "/" then
+      repeat
+        attributeName := getSymbolInXmlTag(stri);
+      until attributeName = ">" or attributeName = "";
+      attributeName := "";
+      attributeValue := "/";
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := "";
+    else
+      if getSymbolInXmlTag(stri) = "=" then
+        attributeValue := getHtmlAttributeValue(stri);
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        elsif attributeValue = "/" or attributeValue = ">" then
+          attributeValue := "";
+        end if;
+      else
+        attributeValue := "";
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a symbol which appears in a HTTP header from a [[string]].
+ *  Before reading the symbol it skips whitespace characters. A symbol
+ *  from a HTTP header can be a token a string literal or a separator.
+ *  When the function is called it is assumed that ''stri'' is empty or
+ *  stri[1] contains a whitespace character or the first character of
+ *  a symbol. When the function is left ''stri'' is empty or stri[1]
+ *  contains the character after the symbol.
+ *  @return the symbol, and
+ *          "" if EOF was reached.
+ *)
+const func string: getHttpSymbol (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 0;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in space_or_tab do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      case stri[pos] of
+        when http_token_char:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] not in http_token_char;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+        when double_quotation_char:
+          incr(start);
+          incr(pos);
+          while pos <= leng and stri[pos] <> '"' do
+            if stri[pos] = '\\' and pos < leng then
+              symbol &:= stri[start .. pred(pos)] & stri[succ(pos) len 1];
+              pos +:= 2;
+              start := pos;
+            else
+              incr(pos);
+            end if;
+          end while;
+          symbol &:= stri[start .. pred(pos)];
+          stri := stri[succ(pos) ..];
+        when http_separators:
+          symbol := stri[pos len 1];
+          stri := stri[succ(pos) ..];
+        otherwise:
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] in white_space_or_end_tag;
+          symbol := stri[start .. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+const func string: getValueOfHeaderAttribute (in var string: headerLine, in string: attribute) is func
+  result
+    var string: attrValue is "";
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getHttpSymbol(headerLine);
+    until symbol = attribute or symbol = "";
+    if symbol = attribute then
+      symbol := getHttpSymbol(headerLine);
+      if symbol = "=" then
+        attrValue := getHttpSymbol(headerLine);
+      end if;
+    end if;
+  end func;

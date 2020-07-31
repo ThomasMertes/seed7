@@ -1,0 +1,230 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  utf8.s7i      File implementation type for UTF-8 files          *)
+(*  Copyright (C) 2005  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "external_file.s7i";
+
+
+(**
+ *  [[file|File]] implementation type for UTF-8 files.
+ *  This type supports UTF-8 encoded sequential files of the
+ *  operating system. UTF-8 files are seekable, therefore they
+ *  support the functions [[external_file#length(in_external_file)|length]],
+ *  [[#seek(in_utf8_file,in_integer)|seek]] and
+ *  [[external_file#tell(in_external_file)|tell]].
+ *)
+const type: utf8_file is sub external_file struct
+  end struct;
+
+
+const func char: utf8_getc (ref clib_file: inFile)                    is action "UT8_GETC";
+const func string: utf8_gets (in clib_file: inFile,
+                              in integer: maxLength)                  is action "UT8_GETS";
+const func string: utf8_word_read (ref clib_file: inFile,
+                                   inout char: terminationChar)       is action "UT8_WORD_READ";
+const func string: utf8_line_read (ref clib_file: inFile,
+                                   inout char: terminationChar)       is action "UT8_LINE_READ";
+const proc: utf8_write (ref clib_file: outFile, in string: stri)      is action "UT8_WRITE";
+const proc: utf8_seek (ref clib_file: aFile, in integer: position)    is action "UT8_SEEK";
+
+
+(**
+ *  Opens an Unicode file which uses the UTF-8 encoding.
+ *  The file is opened with the specified ''path'' and ''mode''.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened or if ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
+ *)
+const func file: openUtf8 (in string: path, in string: mode) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var clib_file: open_file is CLIB_NULL_FILE;
+    var utf8_file: new_file is utf8_file.value;
+  begin
+    open_file := openClibFile(path, mode);
+    if open_file <> CLIB_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := path;
+      newFile := toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Write a string to an UTF-8 file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: write (in utf8_file: outFile, in string: stri) is func
+  begin
+    utf8_write(outFile.ext_file, stri);
+  end func;
+
+
+(**
+ *  Read a character from an UTF-8 file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *)
+const func char: getc (in utf8_file: inFile) is
+  return utf8_getc(inFile.ext_file);
+
+
+(**
+ *  Return a string read with a maximum length from an UTF-8 file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
+ *             the file contains an illegal encoding.
+ *)
+const func string: gets (in utf8_file: inFile, in integer: maxLength) is
+  return utf8_gets(inFile.ext_file, maxLength);
+
+
+(**
+ *  Read a word from an UTF-8 file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with ' ', '\t', '\n', "\r\n" or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
+ *  When the function is left inFile.bufferChar contains ' ',
+ *  '\t', '\n' or [[char#EOF|EOF]].
+ *  @return the word read.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: getwd (inout utf8_file: inFile) is
+  return utf8_word_read(inFile.ext_file, inFile.bufferChar);
+
+
+(**
+ *  Read a line from an UTF-8 file.
+ *  The function accepts lines ending with '\n', "\r\n" or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
+ *  When the function is left inFile.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the line read.
+ *  @exception RANGE_ERROR The file contains an illegal encoding.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: getln (inout utf8_file: inFile) is
+  return utf8_line_read(inFile.ext_file, inFile.bufferChar);
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  If the file position would be in the middle of an UTF-8 encoded
+ *  character the position is advanced to the beginning of the next
+ *  UTF-8 character.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: seek (in utf8_file: aFile, in integer: position) is func
+  begin
+    utf8_seek(aFile.ext_file, position);
+  end func;
+
+
+(* System STD_UTF8_IN, STD_UTF8_OUT and STD_UTF8_ERR files *)
+
+
+const func utf8_file: INIT_STD_UTF8_FILE (ref clib_file: primitive_file,
+    in string: path) is func
+  result
+    var utf8_file: aFile is utf8_file.value;
+  begin
+    aFile.ext_file := primitive_file;
+    aFile.name := path;
+  end func;
+
+
+(**
+ *  UTF-8 version of the standard input file of the operating system.
+ *  Reading from ''STD_UTF8_IN'' can be done with e.g.:
+ *   read(STD_UTF8_IN, aVariable);
+ *  It is also possible to redirect ''STD_UTF8_IN'' to the default
+ *  input of ''read'' with:
+ *   IN := STD_UTF8_IN;
+ *  Afterwards
+ *   read(aVariable);
+ *  reads from ''STD_UTF8_IN''.
+ *)
+var utf8_file: STD_UTF8_IN is  INIT_STD_UTF8_FILE(CLIB_INPUT,  "STD_UTF8_IN");
+
+
+(**
+ *  UTF-8 version of the standard output file of the operating system.
+ *  Writing to ''STD_UTF8_OUT'' can be done with e.g.:
+ *   write(STD_UTF8_OUT, something);
+ *  It is also possible to redirect the default output of ''write''
+ *  to ''STD_UTF8_OUT'' with:
+ *   OUT := STD_UTF8_OUT;
+ *  Afterwards
+ *   write(something);
+ *  writes to ''STD_UTF8_OUT''.
+ *)
+var utf8_file: STD_UTF8_OUT is INIT_STD_UTF8_FILE(CLIB_OUTPUT, "STD_UTF8_OUT");
+
+
+(**
+ *  UTF-8 version of the standard error file of the operating system.
+ *  Writing to ''STD_UTF8_ERR'' can be done with e.g.:
+ *   write(STD_UTF8_ERR, something);
+ *)
+var utf8_file: STD_UTF8_ERR is INIT_STD_UTF8_FILE(CLIB_ERROR,  "STD_UTF8_ERR");

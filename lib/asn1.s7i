@@ -1,0 +1,461 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  asn1.s7i      Support for Abstract Syntax Notation One (ASN.1). *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bytedata.s7i";
+
+
+const array string: classTagName is [0] (
+    "EOC (End-of-Content)",
+    "BOOLEAN",
+    "INTEGER",
+    "BIT STRING",
+    "OCTET STRING",
+    "NULL",
+    "OBJECT IDENTIFIER",
+    "Object Descriptor",
+    "EXTERNAL",
+    "REAL (float)",
+    "ENUMERATED",
+    "EMBEDDED PDV",
+    "UTF8String",
+    "RELATIVE-OID",
+    "(reserved 14)",
+    "(reserved 15)",
+    "SEQUENCE",
+    "SET",
+    "NumericString",
+    "PrintableString",
+    "T61String",
+    "VideotexString",
+    "IA5String",
+    "UTCTime",
+    "GeneralizedTime",
+    "GraphicString",
+    "VisibleString",
+    "GeneralString",
+    "UniversalString",
+    "CHARACTER STRING",
+    "BMPString",
+    "(use long-form)"
+  );
+
+const type: asn1TagType is new enum
+    tagEndOfContent,
+    tagBoolean,
+    tagInteger,
+    tagBitString,
+    tagOctetString,
+    tagNull,
+    tagObjectIdentifier,
+    tagObjectDescriptor,
+    tagExternal,
+    tagReal,
+    tagEnumerated,
+    tagEmbeddedPdv,
+    tagUTF8String,
+    tagRelativeOid,
+    tagReserved14,
+    tagReserved15,
+    tagSequence,
+    tagSet,
+    tagNumericString,
+    tagPrintableString,
+    tagT61String,
+    tagVideotexString,
+    tagIA5String,
+    tagUTCTime,
+    tagGeneralizedTime,
+    tagGraphicString,
+    tagVisibleString,
+    tagGeneralString,
+    tagUniversalString,
+    tagCharacterString,
+    tagBMPString,
+    tagUseLongForm
+  end enum;
+
+const type: asn1TagClass is new enum
+    universalTagClass, applicationTagClass, contextSpecificTagClass, privateTagClass
+  end enum;
+
+const type: asn1DataElement is new struct
+    var asn1TagClass: tagClass is universalTagClass;
+    var boolean: constructed is FALSE;
+    var asn1TagType: tagCategory is tagEndOfContent;
+    var boolean: indefinite is FALSE;
+    var integer: dataStart is 0;
+    var integer: length is 0;
+  end struct;
+
+
+const func string: encodeObjectIdentifier (in array integer: oid) is func
+  result
+    var string: encodedOid is "";
+  local
+    var integer: pos is 3;
+    var integer: subId is 0;
+    var string: subIdStri is "";
+  begin
+    encodedOid := str(chr(oid[1] * 40 + oid[2]));
+    while pos <= length(oid) do
+      subId := oid[pos];
+      if subId < 0 then
+        raise RANGE_ERROR;
+      elsif subId <= 127 then
+        # Encode in one byte
+        encodedOid &:= chr(subId);
+      else
+        subIdStri := str(chr(subId mod 128));
+        subId := subId mdiv 128;
+        repeat
+          subIdStri := str(chr(subId mod 128 + 128)) & subIdStri;
+          subId := subId mdiv 128;
+        until subId = 0;
+        encodedOid &:= subIdStri;
+      end if;
+      incr(pos);
+    end while;
+  end func;
+
+
+const func array integer: decodeObjectIdentifier (in string: encodedOid) is func
+  result
+    var array integer: oid is 0 times 0;
+  local
+    var integer: pos is 2;
+    var integer: subId is 0;
+    var boolean: highBitClear is FALSE;
+  begin
+    oid &:= [] (ord(encodedOid[1]) mdiv 40);
+    oid &:= [] (ord(encodedOid[1]) mod 40);
+    while pos <= length(encodedOid) do
+      subId := 0;
+      repeat
+        subId *:= 128;
+        subId +:= ord(encodedOid[pos]) mod 128;
+        highBitClear := ord(encodedOid[pos]) <= 127;
+        incr(pos);
+      until highBitClear;
+      oid &:= [] (subId);
+    end while;
+  end func;
+
+
+const func string: objectIdentifier (in string: encodedOid) is func
+  result
+    var string: stri is "";
+  local
+    var integer: pos is 2;
+    var integer: subId is 0;
+    var boolean: highBitClear is FALSE;
+  begin
+    stri := str(ord(encodedOid[1]) mdiv 40);
+    stri &:= " " & str(ord(encodedOid[1]) mod 40);
+    while pos <= length(encodedOid) do
+      subId := 0;
+      repeat
+        subId *:= 128;
+        subId +:= ord(encodedOid[pos]) mod 128;
+        highBitClear := ord(encodedOid[pos]) <= 127;
+        incr(pos);
+      until highBitClear;
+      stri &:= " " & str(subId);
+    end while;
+  end func;
+
+
+(**
+ *  Read the header of an ASN.1/BER data element, from ''stri''.
+ *  It is assumed that the data element header starts at position ''pos''.
+ *  The function advances ''pos'' beyond the header to the actual data.
+ *  The actual data can be read afterwards, with the function ''getData''.
+ *  @return the header of an ASN.1/BER data element.
+ *)
+const func asn1DataElement: getAsn1DataElement (in string: stri, inout integer: pos) is func
+  result
+    var asn1DataElement: dataElement is asn1DataElement.value;
+  local
+    var integer: classTag is 0;
+    var integer: length is 0;
+    var integer: eocPos is 0;
+    var integer: numOctets is 0;
+  begin
+    classTag := ord(stri[pos]);
+    incr(pos);
+    length := ord(stri[pos]);
+    incr(pos);
+    dataElement.tagClass := asn1TagClass conv (classTag >> 6);
+    dataElement.constructed := (classTag >> 5) mod 2 <> 0;
+    dataElement.tagCategory := asn1TagType conv (classTag mod 32);
+    if length <= 127 then
+      # Short form
+      # writeln("Short form: length=" <& length <& ", pos=" <& pos);
+      dataElement.length := length;
+    elsif length = 128 then
+      # Indefinite form
+      # writeln(" *** indefinite form ***");
+      dataElement.indefinite := TRUE;
+      eocPos := pos(stri, "\0;\0;", pos);
+      if eocPos <> 0 then
+        dataElement.length := eocPos - pos;
+      else
+        dataElement.length := length(stri) + 1 - pos;
+      end if;
+    else
+      # Long form
+      numOctets := length mod 128;
+      dataElement.length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
+      pos +:= numOctets;
+    end if;
+    dataElement.dataStart := pos;
+  end func;
+
+
+(**
+ *  Read the data of a given ASN.1/BER ''dataElement'', from ''stri''.
+ *  It is assumed that the actual data starts at position ''pos''.
+ *  The function advances ''pos'' beyond the ''dataElement'' data.
+ *  @return the data of the ASN.1/BER ''dataElement''.
+ *)
+const func string: getData (in string: stri, inout integer: pos,
+    in asn1DataElement: dataElement) is func
+  result
+    var string: data is "";
+  begin
+    data := stri[dataElement.dataStart len dataElement.length];
+    pos +:= dataElement.length;
+  end func;
+
+
+(**
+ *  Skip the data of a given ASN.1/BER ''dataElement'', from ''stri''.
+ *  It is assumed that the actual data starts at position ''pos''.
+ *  The function advances ''pos'' beyond the ''dataElement'' data.
+ *)
+const proc: skipData (inout integer: pos, in asn1DataElement: dataElement) is func
+  begin
+    pos +:= dataElement.length;
+  end func;
+
+
+const func string: genAsn1Length (in integer: length) is func
+  result
+    var string: stri is "";
+  local
+    var string: lengthAsBytes is "";
+  begin
+    if length <= 127 then
+      # Short form
+      stri &:= chr(length);
+    else
+      # Long form
+      lengthAsBytes := bytes(length, SIGNED, BE);
+      stri &:= chr(128 + length(lengthAsBytes));
+      stri &:= lengthAsBytes;
+    end if;
+  end func;
+
+
+(**
+ *  Create an ASN.1/BER data element from ''tagCategory'' and ''data''.
+ *  @return the ASN.1/BER data element as [[string]].
+ *)
+const func string: genAsn1Element (in asn1TagType: tagCategory, in string: data) is func
+  result
+    var string: stri is "";
+  begin
+    stri &:= chr(ord(tagCategory));
+    stri &:= genAsn1Length(length(data));
+    stri &:= data;
+  end func;
+
+
+(**
+ *  Create an integer ASN.1/BER data element from ''data''.
+ *  @return the integer ASN.1/BER data element as [[string]].
+ *)
+const func string: genAsn1Integer (in string: data) is func
+  result
+    var string: stri is "";
+  begin
+    stri &:= chr(ord(tagInteger));
+    stri &:= genAsn1Length(length(data));
+    stri &:= data;
+  end func;
+
+
+(**
+ *  Create a sequence ASN.1/BER data element from ''data''.
+ *  @return the sequence ASN.1/BER data element as [[string]].
+ *)
+const func string: genAsn1Sequence (in string: data) is func
+  result
+    var string: stri is "";
+  begin
+    # A sequence is universal (0) and constructed (32).
+    stri &:= chr(ord(tagSequence) + 32);
+    stri &:= genAsn1Length(length(data));
+    stri &:= data;
+  end func;
+
+
+(**
+ *  Create a set ASN.1/BER data element from ''data''.
+ *  @return the set ASN.1/BER data element as [[string]].
+ *)
+const func string: genAsn1Set (in string: data) is func
+  result
+    var string: stri is "";
+  begin
+    # A set is universal (0) and constructed (32).
+    stri &:= chr(ord(tagSet) + 32);
+    stri &:= genAsn1Length(length(data));
+    stri &:= data;
+  end func;
+
+
+(**
+ *  Create an explicit ASN.1/BER tag with ''tagNumber'' from ''data''.
+ *  @return the explicit ASN.1/BER tag as [[string]].
+ *)
+const func string: genAsn1Tag (in integer: tagNumber, in string: data) is func
+  result
+    var string: stri is "";
+  begin
+    # A tag is context-specific (128) and constructed (32).
+    stri &:= chr(tagNumber + 160);
+    stri &:= genAsn1Length(length(data));
+    stri &:= data;
+  end func;
+
+
+const proc: printAsn1 (in string: stri, inout integer: pos) is func
+  local
+    var integer: startPos is 0;
+    var boolean: constructed is TRUE;
+    var integer: classTag is 0;
+    var asn1TagType: tagCategory is tagEndOfContent;
+    var integer: length is 0;
+    var integer: numOctets is 0;
+    var string: contents is "";
+    var integer: posAfterwards is 0;
+    var integer: subId is 0;
+  begin
+    startPos := pos;
+    write(pos lpad 5 <& ": ");
+    classTag := ord(stri[pos]);
+    incr(pos);
+    length := ord(stri[pos]);
+    incr(pos);
+    write(classTag radix 16 lpad0 2 <& " ");
+    write("UACP"[(classTag >> 6) + 1]);
+    constructed := (classTag >> 5) mod 2 <> 0;
+    write("PC"[succ(ord(constructed))]);
+    tagCategory := asn1TagType conv (classTag mod 32);
+    write(" " <& length radix 16 lpad0 2);
+    if classTag mod 32 = 31 then
+      writeln(" *** long form *** ");
+    end if;
+    if length <= 127 then
+      # Short form
+      # writeln("Short form: length=" <& length <& ", pos=" <& pos);
+      contents := stri[pos len length];
+      posAfterwards := pos + length;
+    elsif length = 128 then
+      # Indefinite form
+      writeln(" *** indefinite form ***");
+      posAfterwards := pos;
+      contents := getAsciiz(stri, posAfterwards);
+      if pos <= length(stri) and stri[pos] = '\0;' then
+        incr(pos);
+      else
+        writeln(" *** Second byte of EOC (End-of-Content) not 0");
+      end if;
+    else
+      # Long form
+      numOctets := length mod 128;
+      length := bytes2Int(stri[pos len numOctets], UNSIGNED, BE);
+      # writeln("Long form: numOctets=" <& numOctets <& ", length=" <& length);
+      pos +:= numOctets;
+      contents := stri[pos len length];
+      posAfterwards := pos + length;
+    end if;
+    write(" " <& length lpad 4);
+    if (classTag >> 6) = 2 then
+      write(" EXPLICIT TAG [" <& ord(tagCategory) <& "]");
+    else
+      write(" " <& classTagName[ord(tagCategory)]);
+    end if;
+    if tagCategory = tagObjectIdentifier then
+      write(":");
+      for subId range decodeObjectIdentifier(contents) do
+        write(" " <& subId);
+      end for;
+      writeln(" (" <& literal(contents) <& ")");
+    else
+      writeln(": " <& literal(contents));
+    end if;
+    if constructed then
+      while pos < posAfterwards do
+        printAsn1(stri, pos);
+      end while;
+      if pos <> posAfterwards then
+        writeln("strange things happen " <& pos <& " " <& posAfterwards);
+      end if;
+      writeln("Leaving construct started at " <& startPos);
+    else
+      if posAfterwards > succ(length(stri)) then
+        writeln("strange things happen " <& posAfterwards <& " " <& succ(length(stri)));
+      end if;
+      pos := posAfterwards;
+    end if;
+  end func;
+
+
+const proc: printAsn1 (in string: stri) is func
+  local
+    var integer: pos is 1;
+  begin
+    while pos < length(stri) do
+      printAsn1(stri, pos);
+    end while;
+  end func;
+
+
+const proc: searchLengthByte (in string: stri, in integer: pos) is func
+  local
+    var integer: testPos is 0;
+    var integer: printPos is 0;
+  begin
+    for testPos range pred(pos) downto 2 do
+      if ord(stri[testPos]) = pred(pos - testPos) then
+        printPos := pred(testPos);
+        printAsn1(stri, printPos);
+      end if;
+    end for;
+  end func;

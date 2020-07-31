@@ -1,0 +1,743 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  draw.s7i      Portable graphic library                          *)
+(*  Copyright (C) 2001, 2005, 2007, 2011  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "stdio.s7i";
+include "graph.s7i";
+include "bytedata.s7i";
+include "color.s7i";
+include "float.s7i";
+include "math.s7i";
+
+
+var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
+
+
+const func pixel: colorPixel (in color: col) is
+  return rgbPixel(col.redLight, col.greenLight, col.blueLight);
+
+
+const func color: pixelToColor (in pixel: pix) is func
+  result
+    var color: col is color.value;
+  begin
+    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+  end func;
+
+
+const proc: screen (in integer: width, in integer: height) is func
+  begin
+    curr_win := PRIMITIVE_GRAPHIC_OPEN(0, 0, width, height, name(PROGRAM));
+  end func;
+
+
+const proc: color (in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+  end func;
+
+
+const proc: color (in color: col1, in color: col2) is func
+  begin
+    SET_COLOR(colorPixel(col1));
+    SET_BACKGROUND(colorPixel(col2));
+  end func;
+
+
+(**
+ *  Draws a point with the color 'col' to the window 'win' at the
+ *  position (x1, y1).
+ *)
+const proc: point (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in color: col) is func
+  begin
+    DRAW_PPOINT(win, x, y, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a point with the color 'col' to the current window 'curr_win'
+ *  at the position (x1, y1).
+ *)
+const proc: point (in integer: x, in integer: y, in color: col) is func
+  begin
+    DRAW_PPOINT(curr_win, x, y, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a line with the color 'col' to the window 'win'.
+ *  The line starts at (x1, y1) and ends at (delta_x, delta_y).
+ *  The coordinates of the endpoint are measured relative to x1, y1.
+ *)
+const proc: line (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: delta_x, in integer: delta_y, in color: col) is func
+  begin
+    DRAW_PLINE(win, x1, y1, x1 + delta_x, y1 + delta_y, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a line with the color 'col' to the current window 'curr_win'.
+ *  The line starts at (x1, y1) and ends at (delta_x, delta_y).
+ *  The coordinates of the endpoint are measured relative to x1, y1.
+ *)
+const proc: line (in integer: x1, in integer: y1,
+    in integer: delta_x, in integer: delta_y, in color: col) is func
+  begin
+    DRAW_PLINE(curr_win, x1, y1, x1 + delta_x, y1 + delta_y, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a line with the color 'col' to the window 'win'.
+ *  The line starts at (x1, y1) and ends at (x2, y2).
+ *  The coordinates of the endpoint are measured in absolute
+ *  window coordinates.
+ *)
+const proc: lineTo (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    DRAW_PLINE(win, x1, y1, x2, y2, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a line with the color 'col' to the current window 'curr_win'.
+ *  The line starts at (x1, y1) and ends at (x2, y2).
+ *  The coordinates of the endpoint are measured in absolute
+ *  window coordinates.
+ *)
+const proc: lineTo (in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    DRAW_PLINE(curr_win, x1, y1, x2, y2, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a line with the color 'col' to the window 'win'.
+ *  The line starts at (x1, y1), has the given 'length' and extends
+ *  in the given 'angle'.
+ *)
+const proc: lineToAngle (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in integer: length, in float: angle, in color: col) is func
+  begin
+    DRAW_PLINE(win, x, y,
+        x + round(flt(length) * sin(angle)),
+        y + round(flt(length) * -cos(angle)), colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a line with the color 'col' to the current window 'curr_win'.
+ *  The line starts at (x1, y1), has the given 'length' and extends
+ *  in the given 'angle'.
+ *)
+const proc: lineToAngle (in integer: x, in integer: y,
+    in integer: length, in float: angle, in color: col) is func
+  begin
+    DRAW_PLINE(curr_win, x, y,
+        x + round(flt(length) * sin(angle)),
+        y + round(flt(length) * -cos(angle)), colorPixel(col));
+  end func;
+
+
+const proc: hline (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in color: col) is func
+  begin
+    DRAW_PLINE(win, x1, y1, x2, y1, colorPixel(col));
+  end func;
+
+
+const proc: hline (in integer: x1, in integer: y1,
+    in integer: x2, in color: col) is func
+  begin
+    DRAW_PLINE(curr_win, x1, y1, x2, y1, colorPixel(col));
+  end func;
+
+
+const proc: vline (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: y2, in color: col) is func
+  begin
+    DRAW_PLINE(win, x1, y1, x1, y2, colorPixel(col));
+  end func;
+
+
+const proc: vline (in integer: x1, in integer: y1,
+    in integer: y2, in color: col) is func
+  begin
+    DRAW_PLINE(curr_win, x1, y1, x1, y2, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
+const proc: rect (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    DRAW_PRECT(win, x1, y1, width, height, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
+const proc: rect (in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    DRAW_PRECT(curr_win, x1, y1, width, height, colorPixel(col));
+  end func;
+
+
+const proc: rect (inout array array pixel: image,
+    in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    pix := colorPixel(col);
+    for line range 1 to height do
+      for column range 1 to width do
+        image[y1 + line][x1 + column] := pix;
+      end for;
+    end for;
+  end func;
+
+
+(**
+ *  Draws a filled rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
+const proc: rectTo (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    DRAW_PRECT(win, x1, y1, x2 - x1 + 1, y2 - y1 + 1, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
+const proc: rectTo (in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    DRAW_PRECT(curr_win, x1, y1, x2 - x1 + 1, y2 - y1 + 1, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws an empty rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
+const proc: box (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(win, x1, y1, pred(x1 + width), y1, pix);
+    DRAW_PLINE(win, pred(x1 + width), y1, pred(x1 + width), pred(y1 + height), pix);
+    DRAW_PLINE(win, pred(x1 + width), pred(y1 + height), x1, pred(y1 + height), pix);
+    DRAW_PLINE(win, x1, pred(y1 + height), x1, y1, pix);
+  end func;
+
+
+(**
+ *  Draws an empty rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1). The size of the
+ *  rectangle is specified with 'width' and 'height'.
+ *)
+const proc: box (in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(curr_win, x1, y1, pred(x1 + width), y1, pix);
+    DRAW_PLINE(curr_win, pred(x1 + width), y1, pred(x1 + width), pred(y1 + height), pix);
+    DRAW_PLINE(curr_win, pred(x1 + width), pred(y1 + height), x1, pred(y1 + height), pix);
+    DRAW_PLINE(curr_win, x1, pred(y1 + height), x1, y1, pix);
+  end func;
+
+
+(**
+ *  Draws an empty rectangle with the color 'col' to the window 'win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
+const proc: boxTo (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(win, x1, y1, x2, y1, pix);
+    DRAW_PLINE(win, x2, y1, x2, y2, pix);
+    DRAW_PLINE(win, x2, y2, x1, y2, pix);
+    DRAW_PLINE(win, x1, y2, x1, y1, pix);
+  end func;
+
+
+(**
+ *  Draws an empty rectangle with the color 'col' to the current window 'curr_win'.
+ *  The top left edge of the rectangle is at (x1, y1) and the lower right
+ *  edge is at (x2, y2).
+ *)
+const proc: boxTo (in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := colorPixel(col);
+    DRAW_PLINE(curr_win, x1, y1, x2, y1, pix);
+    DRAW_PLINE(curr_win, x2, y1, x2, y2, pix);
+    DRAW_PLINE(curr_win, x2, y2, x1, y2, pix);
+    DRAW_PLINE(curr_win, x1, y2, x1, y1, pix);
+  end func;
+
+
+(**
+ *  Draws a circle with the color 'col' to the window 'win'.
+ *  The circle has the given 'radius' and its center is at (x, y).
+ *)
+const proc: circle (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: radius, in color: col) is func
+  begin
+    DRAW_CIRCLE(win, x, y, radius, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a circle with the color 'col' to the current window 'curr_win'.
+ *  The circle has the given 'radius' and its center is at (x, y).
+ *)
+const proc: circle (in integer: x, in integer: y, in integer: radius, in color: col) is func
+  begin
+    DRAW_CIRCLE(curr_win, x, y, radius, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled circle with the color 'col' to the window 'win'.
+ *  The circle has the given 'radius' and its center is at (x, y).
+ *)
+const proc: fcircle (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: radius, in color: col) is func
+  begin
+    FILL_CIRCLE(win, x, y, radius, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled circle with the color 'col' to the current window 'curr_win'.
+ *  The circle has the given 'radius' and its center is at (x, y).
+ *)
+const proc: fcircle (in integer: x, in integer: y, in integer: radius, in color: col) is func
+  begin
+    FILL_CIRCLE(curr_win, x, y, radius, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws an arc with the color 'col' to the window 'win'.
+ *  The arc has the given 'radius' and its center is at (x, y).
+ *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *)
+const proc: arc (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in color: col) is func
+  begin
+    DRAW_ARC(win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws an arc with the color 'col' to the current window 'curr_win'.
+ *  The arc has the given 'radius' and its center is at (x, y).
+ *  The arc begins at 'startAngle' and spans over 'sweepAngle'.
+ *)
+const proc: arc (in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in color: col) is func
+  begin
+    DRAW_ARC(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+  end func;
+
+
+const proc: chord (in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in color: col) is func
+  begin
+    FILL_ARCCHORD(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled sector with color ''col'' to ''curr_win''.
+ *  The sector has the given 'radius' and its center is at (x, y).
+ *  The sector begins at 'startAngle' and spans over 'sweepAngle'.
+ *)
+const proc: pieslice (in integer: x, in integer: y, in integer: radius,
+    in float: startAngle, in float: sweepAngle, in color: col) is func
+  begin
+    FILL_ARCPIESLICE(curr_win, x, y, radius, startAngle, sweepAngle, colorPixel(col));
+  end func;
+
+
+const proc: fellipse (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    FILL_ELLIPSE(win, x, y, width, height, colorPixel(col));
+  end func;
+
+
+const proc: fellipse (in integer: x, in integer: y,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    FILL_ELLIPSE(curr_win, x, y, width, height, colorPixel(col));
+  end func;
+
+
+(**
+ *  Clears the window 'win' with the color 'col'.
+ *)
+const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
+  begin
+    DRAW_CLEAR(win, colorPixel(col));
+  end func;
+
+
+(**
+ *  Clears the window 'win' with the color black.
+ *)
+const proc: clear (inout PRIMITIVE_WINDOW: win) is func
+  begin
+    DRAW_CLEAR(win, colorPixel(black));
+  end func;
+
+
+(**
+ *  Clears the current window 'curr_win' with the color 'col'.
+ *)
+const proc: clear (in color: col) is func
+  begin
+    DRAW_CLEAR(curr_win, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws lines with the color 'col' to the window 'win'.
+ *  The lines connect the 'points' and are drawn at the position (x, y).
+ *)
+const proc: polyLine (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    DRAW_POLYLINE(win, x, y, points, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws lines with the color 'col' to the current window 'curr_win'.
+ *  The lines connect the 'points' and are drawn at the position (x, y).
+ *)
+const proc: polyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    DRAW_POLYLINE(curr_win, x, y, points, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled polygon with the color 'col' to the window 'win'.
+ *  The corners of the polygon are given with 'points'.
+ *  The polygon is drawn at the position (x, y).
+ *)
+const proc: fpolyLine (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    FILL_POLYLINE(win, x, y, points, colorPixel(col));
+  end func;
+
+
+(**
+ *  Draws a filled polygon with the color 'col' to the current window 'curr_win'.
+ *  The corners of the polygon are given with 'points'.
+ *  The polygon is drawn at the position (x, y).
+ *)
+const proc: fpolyLine (in integer: x, in integer: y, in pointList: points, in color: col) is func
+  begin
+    FILL_POLYLINE(curr_win, x, y, points, colorPixel(col));
+  end func;
+
+
+const proc: paint (in integer: x, in integer: y, in integer: col) is func
+  begin
+    write("PAINT");
+  end func;
+
+
+const proc: put (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, PSET) is func
+  begin
+    DRAW_PUT(win, pixmap, x, y);
+  end func;
+
+
+const proc: put (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, XOR) is func
+  begin
+    DRAW_PUT(win, pixmap, x, y);
+  end func;
+
+
+const proc: put (in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, PSET) is func
+  begin
+    DRAW_PUT(curr_win, pixmap, x, y);
+  end func;
+
+
+const proc: put (in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, XOR) is func
+  begin
+    DRAW_PUT(curr_win, pixmap, x, y);
+  end func;
+
+
+(**
+ *  Creates a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (x1, y1) and the given
+ *  'width' and 'height' is copied from 'curr_win' to the new pixmap.
+ *  @return the new pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in integer: x1, in integer: y1,
+    in integer: width, in integer: height) is
+  return DRAW_GET(curr_win, x1, y1, width, height);
+
+
+(**
+ *  Creates a new pixmap with the given 'width' and 'height'.
+ *  A rectangle with the upper left corner at (x1, y1) and the given
+ *  'width' and 'height' is copied from 'source_win' to the new pixmap.
+ *  @return the new pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win,
+    in integer: x1, in integer: y1, in integer: width, in integer: height) is
+  return DRAW_GET(source_win, x1, y1, width, height);
+
+
+(**
+ *  Creates a new pixmap which is a copy from 'source_win'.
+ *  The content of 'source_win' is copied the new pixmap.
+ *  @return the new pixmap.
+ *)
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is
+  return DRAW_GET(source_win, 0, 0, width(source_win), height(source_win));
+
+
+(**
+ *  Creates a new pixmap with the given 'width' and 'height'.
+ *  @return the new pixmap.
+ *)
+const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is action "DRW_NEW_PIXMAP";
+
+
+const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: anImage) is action "DRW_IMAGE";
+
+
+const proc: setTransparentColor (in PRIMITIVE_WINDOW: pixmap, in color: col) is func
+  begin
+    SET_TRANSPARENTCOLOR(pixmap, colorPixel(col));
+  end func;
+
+
+(**
+ *  Retrieve the color at pixel position (''x'', ''y'') from ''aWindow''.
+ *  @return the pixel color at position (''x'', ''y'').
+ *)
+const func color: getPixelColor (in PRIMITIVE_WINDOW: aWindow,
+    in integer: x, in integer: y) is func
+  result
+    var color: col is color.value;
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := getPixel(aWindow, x, y);
+    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+  end func;
+
+
+const func color: getPixelColor (in bstring: bImage, in integer: width,
+    in integer: height, in integer: x, in integer: y) is func
+  result
+    var color: col is color.value;
+  local
+    var pixel: pix is pixel.value;
+  begin
+    pix := getPixel(bImage, width, height, x, y);
+    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
+  end func;
+
+
+(**
+ *  Reads a bitmap file (extension bmp) into a pixmap.
+ *)
+const func PRIMITIVE_WINDOW: readBmp (in string: file_name) is func
+  result
+    var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
+  local
+    var file: bmp_file is STD_NULL;
+    var string: stri is "";
+    var integer: size is 0;
+    var integer: offset is 0;
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: planes is 0;
+    var integer: bits is 0;
+    var integer: padding is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    bmp_file := open(file_name, "r");
+    if bmp_file <> STD_NULL then
+      stri := gets(bmp_file, 2);
+      if stri = "BM" then
+        size :=   getUInt32Le(bmp_file);
+        stri :=   gets(bmp_file, 4);        (* reserved1, reserved2 *)
+        offset := getUInt32Le(bmp_file);
+        stri :=   gets(bmp_file, 4);        (* header size *)
+        width :=  getUInt32Le(bmp_file);
+        height := getUInt32Le(bmp_file);
+        planes := getUInt16Le(bmp_file);
+        bits :=   getUInt16Le(bmp_file);
+        stri :=   gets(bmp_file, 26);
+        padding := -(3 * width) mod 4;
+        image := newPixmap(width, height);
+        seek(bmp_file, offset + 1);
+        for line range pred(height) downto 0 do
+          for column range 0 to pred(width) do
+            stri := gets(bmp_file, 3);
+            DRAW_PPOINT(image, column, line,
+                rgbPixel(ord(stri[3]) * 256, ord(stri[2]) * 256, ord(stri[1]) * 256));
+          end for;
+          ignore(gets(bmp_file, padding));
+        end for;
+      end if;
+      close(bmp_file);
+    end if;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: read_bmp (in string: file_name) is
+  return readBmp(file_name);
+
+
+(**
+ *  Converts an image into a string in BMP format.
+ *)
+const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
+  result
+    var string: stri is "BM";
+  local
+    var integer: width is 0;
+    var integer: height is 0;
+    var integer: padding is 0;
+    var integer: rawDataSize is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var bstring: bImage is bstring.value;
+    var color: col is color.value;
+  begin
+    width := width(image);
+    height := height(image);
+    padding := -(3 * width) mod 4;
+    rawDataSize := height * (3 * width + padding);
+    stri := "BM";
+    stri &:= int32AsFourBytesLe(rawDataSize + 54);
+    stri &:= "\0;" mult 4;               # reserved1, reserved2
+    stri &:= int32AsFourBytesLe(54);     # offset to pixel array
+    stri &:= int32AsFourBytesLe(40);     # header size
+    stri &:= int32AsFourBytesLe(width);
+    stri &:= int32AsFourBytesLe(height);
+    stri &:= int16AsTwoBytesLe(1);       # color planes
+    stri &:= int16AsTwoBytesLe(24);      # bits per pixel
+    stri &:= int32AsFourBytesLe(0);      # compression
+    stri &:= int32AsFourBytesLe(rawDataSize);
+    stri &:= int32AsFourBytesLe(2835);   # horizontal resolution
+    stri &:= int32AsFourBytesLe(2835);   # vertical resolution
+    stri &:= int32AsFourBytesLe(0);      # palette colors
+    stri &:= int32AsFourBytesLe(0);      # important colors (0 means all colors are important)
+    bImage := getImage(image);
+    for line range pred(height) downto 0 do
+      for column range 0 to pred(width) do
+        col := getPixelColor(bImage, width, height, column, line);
+        stri &:= chr(col.blueLight  mdiv 256);
+        stri &:= chr(col.greenLight mdiv 256);
+        stri &:= chr(col.redLight   mdiv 256);
+      end for;
+      stri &:= "\0;" mult padding;
+    end for;
+  end func;
+
+
+const proc: palette (in integer: col, in integer: pal) is func
+  begin
+    write("PALETTE");
+  end func;
+
+
+const proc: palette is func
+  begin
+    write("PALETTE");
+  end func;
+
+
+const proc: sound (in integer: freq, in integer: dur) is func
+  begin
+    write("SOUND");
+  end func;

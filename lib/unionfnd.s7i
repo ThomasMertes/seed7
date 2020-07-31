@@ -1,0 +1,129 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  unionfnd.s7i    Implementation of disjoint sets structure which *)
+(*      allows to merge elements and check if any two are connected *)
+(*  Copyright (C) 2014, 2015  Arkady Kuleshov                       *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(*
+ * Disjoint sets and their ranks.
+ * UF methods expect this structure to contain
+ * initialized arrays [1..n] for items and ranks.
+ *)
+const type: unionfind is new struct
+	var array integer: items is 0 times 0;
+	var array integer: ranks is 0 times 0;
+	var integer: ngroups is 0;
+  end struct;
+
+
+const proc: init_unionfind (inout unionfind: uf, in var integer: n) is func
+	begin
+		uf.items := n times 0;
+		uf.ranks := n times 0;
+		uf.ngroups := n;
+		repeat
+			uf.items[n] := n;
+			decr (n);
+		until n = 0;
+	end func;
+
+const func integer: num_groups(inout unionfind: uf) is func
+	result
+		var integer: num_groups is 0;
+	begin
+		num_groups := uf.ngroups;
+	end func;
+
+const func integer: rank(inout unionfind: uf, in integer: u) is func
+	result
+		var integer: rank is 0;
+	local
+		var integer: rank_parent is 0;
+	begin
+		if uf.items[u] = u then
+			rank := uf.ranks[u];
+		else
+			rank_parent := rank(uf, uf.items[u]);
+			if uf.ranks[u] <> rank_parent then
+				uf.ranks[u] := rank_parent;
+			end if;
+			rank := rank_parent;
+		end if;
+	end func;
+
+const func integer: group(in unionfind: uf, in integer: u) is func
+	result
+		var integer: group is 0;
+	begin
+		if u < 1 or u > maxIdx(uf.items) then
+			raise RANGE_ERROR;
+		end if;
+		(* find group id *)
+		if uf.items[u] = u then
+			group := u;
+		else
+			group := group(uf, uf.items[u]);
+		end if;
+	end func;
+
+const proc: union(inout unionfind: uf, in integer: u, in integer: v) is func
+	local
+		var integer: u_lead is 0;
+		var integer: v_lead is 0;
+	begin
+		u_lead := group(uf, u);
+		v_lead := group(uf, v);
+		if u_lead <> v_lead then
+			(* merge the tree with lower rank *)
+			(* onto the tree with higher rank *)
+			if rank(uf, u_lead) < rank(uf, v_lead) then
+				uf.items[u_lead] := uf.items[v_lead];
+			elsif rank(uf, v_lead) < rank(uf, u_lead) then
+				uf.items[v_lead] := uf.items[u_lead];
+			(* rank of one tree will increase iff *)
+			(* both trees have equal ranks *)
+			else
+				incr(uf.ranks[u_lead]);
+				uf.items[v_lead] := uf.items[u_lead];
+			end if;
+			decr(uf.ngroups);
+		end if;
+	end func;
+
+const func boolean: is_connected(in unionfind: uf, in integer: u, in integer: v) is func
+	result
+		var boolean: conn is FALSE;
+	local
+		var integer: u_lead is 0;
+		var integer: v_lead is 0;
+	begin
+		u_lead := group(uf, u);
+		v_lead := group(uf, v);
+		(* are u and v in the same group? *)
+		if u_lead = v_lead then
+			conn := TRUE;
+		end if;
+	end func;

@@ -1,0 +1,1487 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  scanfile.s7i  File scanner functions                            *)
+(*  Copyright (C) 2007, 2008, 2009  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "file.s7i";
+include "chartype.s7i";
+
+
+(**
+ *  Skips a possibly nested comment from a [[file]].
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that inFile.bufferChar contains the '*'
+ *  of the comment start. When the function is left the character
+ *  after ')' is in inFile.bufferChar.
+ *)
+const proc: skipComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    repeat
+      repeat
+        while character not in special_comment_char do
+          character := getc(inFile);
+        end while;
+        if character = '(' then
+          character := getc(inFile);
+          if character = '*' then
+            skipComment(inFile);
+            character := getc(inFile);
+          end if;
+        end if;
+      until character = '*' or character = EOF;
+      if character <> EOF then
+        character := getc(inFile);
+      end if;
+    until character = ')' or character = EOF;
+    if character = EOF then
+      inFile.bufferChar := EOF;
+    else
+      inFile.bufferChar := getc(inFile);
+    end if;
+  end func; # skipComment
+
+
+(**
+ *  Reads a possibly nested comment from a [[file]].
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that inFile.bufferChar contains the '*'
+ *  of the comment start. When the function is left the character
+ *  after ')' is in inFile.bufferChar.
+ *  @return the content of the comment, including the introducing (*
+ *          and the ending *) .
+ *)
+const func string: getComment (inout file: inFile) is func
+  result
+    var string: symbol is "(*";
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    repeat
+      repeat
+        while character not in special_comment_char do
+          symbol &:= character;
+          character := getc(inFile);
+        end while;
+        if character = '(' then
+          character := getc(inFile);
+          if character = '*' then
+            symbol &:= getComment(inFile);
+            character := inFile.bufferChar;
+          else
+            symbol &:= "(";
+          end if;
+        end if;
+      until character = '*' or character = EOF;
+      if character <> EOF then
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+    until character = ')' or character = EOF;
+    if character = EOF then
+      inFile.bufferChar := EOF;
+    else
+      symbol &:= character;
+      inFile.bufferChar := getc(inFile);
+    end if;
+  end func; # getComment
+
+
+(**
+ *  Skips a classic C comment from a [[file]].
+ *  The comment starts with /* and ends with */ . In a classic
+ *  C comment no nesting of comments is allowed. When the function
+ *  is called it is assumed that inFile.bufferChar contains the '*'
+ *  of the comment start. When the function is left the character
+ *  after '/' is in inFile.bufferChar.
+ *)
+const proc: skipClassicComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    repeat
+      while character <> '*' and character <> EOF do
+        character := getc(inFile);
+      end while;
+      character := getc(inFile);
+    until character = '/' or character = EOF;
+    inFile.bufferChar := getc(inFile);
+  end func;
+
+
+(**
+ *  Skips a line comment from a [[file]].
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that the introducing character (e.g. '#') is in
+ *  inFile.bufferChar. When the function is left the line end
+ *  character ('\n' or [[char#EOF|EOF]]) is in inFile.bufferChar.
+ *)
+const proc: skipLineComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    repeat
+      character := getc(inFile);
+    until character = '\n' or character = EOF;
+    inFile.bufferChar := character;
+  end func; # skipLineComment
+
+
+(**
+ *  Reads a line comment from a [[file]].
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that the introducing character (e.g. '#') is in
+ *  inFile.bufferChar. When the function is left the line end
+ *  character ('\n' or [[char#EOF|EOF]]) is in inFile.bufferChar.
+ *  A sequence of "\r\n" is interpreted as equal to '\n'.
+ *  @return the content of the comment, including the start marker
+ *          (e.g. '#') but without line end character ('\n', or
+ *          [[char#EOF|EOF]]).
+ *)
+const func string: getLineComment (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    symbol := str(inFile.bufferChar);
+    character := getc(inFile);
+    while character <> '\n' and character <> EOF do
+      if character = '\r' then
+        character := getc(inFile);
+        if character <> '\n' then
+          symbol &:= '\r';
+        end if;
+      else
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+    end while;
+    inFile.bufferChar := character;
+  end func; # getLineComment
+
+
+(**
+ *  Reads a sequence of digits from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the digits.
+ *  @return the digit sequence, and
+ *          "" if no digit was found.
+ *)
+const func string: getDigits (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar in digit_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in digit_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a decimal integer with optional sign from a [[file]].
+ *  A decimal integer accepted by ''getInteger'' consists of an optional
+ *  + or - sign followed by a possibly empty sequence of digits. Because
+ *  of the LL(1) approach, a sign without following digits is accepted.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the integer.
+ *  @return the decimal integer string, and
+ *          "" if no integer was found.
+ *)
+const func string: getInteger (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    if character in digit_char or (character = '-' or character = '+') then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in digit_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a numeric literal (integer, bigInteger or float literal) from a [[file]].
+ *  When the function is called it is assumed that the introducing
+ *  digit is in inFile.bufferChar. When the function is left the
+ *  character after the literal is in inFile.bufferChar.
+ *  @return The function returns the numeric literal.
+ *)
+const func string: getNumber (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    symbol := str(inFile.bufferChar);
+    character := getc(inFile);
+    while character in digit_char do
+      symbol &:= character;
+      character := getc(inFile);
+    end while;
+    if character = '.' then
+      # float literal
+      symbol &:= character;
+      character := getc(inFile);
+      while character in digit_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      if character = 'E' or character = 'e' then
+        symbol &:= character;
+        character := getc(inFile);
+        if character = '+' then
+          symbol &:= character;
+          character := getc(inFile);
+        elsif character = '-' then
+          symbol &:= character;
+          character := getc(inFile);
+        end if;
+        while character in digit_char do
+          symbol &:= character;
+          character := getc(inFile);
+        end while;
+      end if;
+    elsif character = '#' then
+      # based integer literal
+      symbol &:= character;
+      character := getc(inFile);
+      while character in alphanum_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+    elsif character = 'E' or character = 'e' then
+      # integer literal with exponent
+      symbol &:= character;
+      character := getc(inFile);
+      if character = '+' then
+        symbol &:= character;
+        character := getc(inFile);
+      elsif character = '-' then
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+      while character in digit_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+    elsif character = '_' then
+      # bigInteger literal
+      symbol &:= character;
+      character := getc(inFile);
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a sequence of non digits from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains a digit or [[char#EOF|EOF]].
+ *  @return the non digit sequence, and
+ *          "" if a digit was found.
+ *)
+const func string: getNonDigits (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar not in digit_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character not in digit_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a text quoted with " or ' from a [[file]].
+ *  The introducing and the closing character ( " or ' ) of the quoted
+ *  text must be identical. When the function is called it is assumed
+ *  that inFile.bufferChar contains the introducing " or ' . When the
+ *  function is left inFile.bufferChar contains the character after
+ *  the closing character.
+ *  @return the quoted text without introducing or closing
+ *          characters ( " or ' ).
+ *)
+const func string: getQuotedText (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: quoteChar is ' ';
+    var char: character is ' ';
+  begin
+    quoteChar := inFile.bufferChar;
+    character := getc(inFile);
+    while character <> quoteChar and character <> EOF do
+      symbol &:= character;
+      character := getc(inFile);
+    end while;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Read a simple [[string]] literal from a [[file]].
+ *  A simple string literal is enclosed in delimiter characters
+ *  (e.g. " or ' ). Delimiter characters within the simple string
+ *  literal must be doubled. A simple string literal does not
+ *  support an escape character. All characters, including control
+ *  characters (e.g. linefeed) are allowed inside a simple string
+ *  literal. When the function is called it is assumed that
+ *  inFile.bufferChar contains the introducing delimiter character.
+ *  When the function is left the character after the closing
+ *  delimiter character is in inFile.bufferChar.
+ *  @return the string literal including the introducing and
+ *          closing delimiter character. Double delimiter chars in
+ *          the literal are converted to single delimiter chars.
+ *)
+const func string: getSimpleStringLiteral (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: delimiter is ' ';
+    var char: character is ' ';
+  begin
+    delimiter := inFile.bufferChar;
+    symbol := str(delimiter);
+    repeat
+      character := getc(inFile);
+      while character <> delimiter and character <> EOF do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      if character = delimiter then
+        character := getc(inFile);
+        if character = delimiter then
+          symbol &:= character;
+        end if;
+      end if;
+    until character <> delimiter;
+    symbol &:= delimiter;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads an escape sequence from ''inFile'' and appends it to ''symbol''.
+ *  The function accepts escape sequences from character and string
+ *  literals. When the function is called it is assumed that the
+ *  introducing \ is in inFile.bufferChar. When the function is left
+ *  the character after the escape sequence is in inFile.bufferChar.
+ *  The complete escape sequence including the introducing \ is
+ *  appended to ''symbol''.
+ *)
+const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
+  local
+    var char: character is ' ';
+  begin
+    symbol &:= "\\";
+    character := getc(inFile);
+    if character = '\n' or character = ' ' or character = '\t' or character = '\r' then
+      repeat
+        symbol &:= character;
+        character := getc(inFile);
+      until character <> '\n' and character <> ' ' and character <> '\t' and character <> '\r';
+      if character = '\\' then
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+    elsif character in digit_char then
+      inFile.bufferChar := character;
+      symbol &:= getNumber(inFile);
+      character := inFile.bufferChar;
+      if character = ';' then
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+    elsif character <> EOF then
+      symbol &:= character;
+      character := getc(inFile);
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a character literal from a [[file]].
+ *  When the function is called it is assumed that the introducing '
+ *  is in inFile.bufferChar. When the function is left the character
+ *  after the closing ' is in inFile.bufferChar.
+ *  @return the character literal including the introducing ' and
+ *          the closing ' .
+ *)
+const func string: getCharLiteral (inout file: inFile) is func
+  result
+    var string: symbol is "'";
+  local
+    var char: character is ' ';
+  begin
+    character := getc(inFile);
+    if character <> '\n' and character <> '\r' and character <> EOF then
+      if character = '\\' then
+        repeat
+          getEscapeSequence(inFile, symbol);
+          character := inFile.bufferChar;
+        until character <> '\\';
+      else
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+      if character <> '\'' then
+        if character <> '\n' and character <> '\r' and character <> EOF then
+          repeat
+            symbol &:= character;
+            character := getc(inFile);
+          until character = '\'' or
+              character = '\n' or
+              character = '\r' or
+              character = EOF;
+          if character = '\'' then
+            symbol &:= character;
+            character := getc(inFile);
+          end if;
+        end if;
+      else
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Read a [[string]] literal from a [[file]].
+ *  When the function is called it is assumed that the introducing "
+ *  is in inFile.bufferChar. When the function is left the character
+ *  after the closing " is in inFile.bufferChar.
+ *  @return the string literal including the introducing " and the
+ *          closing " .
+ *)
+const func string: getStringLiteral (inout file: inFile) is func
+  result
+    var string: symbol is "\"";
+  local
+    var char: character is ' ';
+    var boolean: reading_string is TRUE;
+  begin
+    character := getc(inFile);
+    repeat
+      while character in no_escape_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      if character = '\"' then
+        symbol &:= character;
+        character := getc(inFile);
+        if character = '\"' then
+          symbol &:= character;
+          character := getc(inFile);
+        else
+          reading_string := FALSE;
+        end if;
+      elsif character = '\\' then
+        getEscapeSequence(inFile, symbol);
+        character := inFile.bufferChar;
+      elsif character = '\n' or character = '\r' or character = EOF then
+        reading_string := FALSE;
+      else
+        repeat
+          symbol &:= character;
+          character := getc(inFile);
+        until character >= ' ' or character <= '~' or character = EOF;
+      end if;
+    until not reading_string;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads an alphanumeric name from a [[file]].
+ *  A name consists of a letter or underscore followed by letters,
+ *  digits or underscores. When the function is called it is assumed
+ *  that inFile.bufferChar contains the first character to be handled.
+ *  When the function is left inFile.bufferChar contains the character
+ *  after the name.
+ *  @return the name, and
+ *          "" if no letter or underscore was found.
+ *)
+const func string: getName (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    if inFile.bufferChar in name_start_char then
+      symbol := str(inFile.bufferChar);
+      character := getc(inFile);
+      while character in name_char do
+        symbol &:= character;
+        character := getc(inFile);
+      end while;
+      inFile.bufferChar := character;
+    end if;
+  end func;
+
+
+(**
+ *  Skips space characters from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar does not contain a space character.
+ *)
+const proc: skipSpace (inout file: inFile) is func
+  local
+    var char: ch is ' ';
+  begin
+    ch := inFile.bufferChar;
+    while ch = ' ' do
+      ch := getc(inFile);
+    end while;
+    inFile.bufferChar := ch;
+  end func;
+
+
+(**
+ *  Skips space and tab characters from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the
+ *  sequence of space and tab characters.
+ *)
+const proc: skipSpaceOrTab (inout file: inFile) is func
+  begin
+    while inFile.bufferChar in space_or_tab do
+      inFile.bufferChar := getc(inFile);
+    end while;
+  end func;
+
+
+(**
+ *  Skips whitespace characters from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the
+ *  whitespace characters.
+ *)
+const proc: skipWhiteSpace (inout file: inFile) is func
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+  end func;
+
+
+(**
+ *  Skips characters from the set ''whiteSpaceChar'' from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the
+ *  whitespace characters.
+ *)
+const proc: skipWhiteSpace (inout file: inFile, in set of char: whiteSpaceChar) is func
+  begin
+    while inFile.bufferChar in whiteSpaceChar do
+      inFile.bufferChar := getc(inFile);
+    end while;
+  end func;
+
+
+(**
+ *  Reads whitespace characters from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the
+ *  whitespace characters.
+ *  @return the string of whitespace characters, and
+ *          "" if no whitespace character was found.
+ *)
+const func string: getWhiteSpace (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      symbol &:= inFile.bufferChar;
+      inFile.bufferChar := getc(inFile);
+    end while;
+  end func;
+
+
+(**
+ *  Reads a white space delimited word from a [[file]].
+ *  Before reading the word it skips whitespace characters. A word is
+ *  a sequence of characters which does not contain a whitespace
+ *  character. When the function is called it is assumed that
+ *  inFile.bufferChar contains the first character to be handled.
+ *  When the function is left inFile.bufferChar contains the
+ *  character after the word.
+ *  @return the word, and
+ *          "" if no word was found.
+ *)
+const func string: getWord (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    while character in white_space_char do
+      character := getc(inFile);
+    end while;
+    if character <> EOF then
+      repeat
+        symbol &:= character;
+        character := getc(inFile);
+      until character in white_space_char or character = EOF;
+    end if;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Skips a line from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left the line end character ('\n' or [[char#EOF|EOF]]) is in
+ *  inFile.bufferChar. If inFile.bufferChar already contains a
+ *  line end character ('\n' or [[char#EOF|EOF]]) nothing is done.
+ *)
+const proc: skipLine (inout file: inFile) is func
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    while character <> '\n' and character <> EOF do
+      character := getc(inFile);
+    end while;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a line from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left the line end character ('\n' or [[char#EOF|EOF]]) is in
+ *  inFile.bufferChar. A sequence of "\r\n" is interpreted as equal to '\n'.
+ *  If inFile.bufferChar already contains a line end character
+ *  ('\n' or [[char#EOF|EOF]]) nothing is done and the function returns "" .
+ *  @return the line read, and
+ *          "" if inFile.bufferChar contains '\n' or [[char#EOF|EOF]].
+ *)
+const func string: getLine (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    while character <> '\n' and character <> EOF do
+      if character = '\r' then
+        character := getc(inFile);
+        if character <> '\n' then
+          symbol &:= '\r';
+        end if;
+      else
+        symbol &:= character;
+        character := getc(inFile);
+      end if;
+    end while;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a symbol or a comment from a [[file]].
+ *  Before reading the symbol or comment it skips whitespace
+ *  characters. A symbol can be a literal (numeric, character or
+ *  string), a name, a special symbol (sequence of special characters)
+ *  or a parenthesis. A comment can be a normal comment or a line
+ *  comment. When the function is called it is assumed that
+ *  inFile.bufferChar contains a whitespace character or the first
+ *  character of a symbol or comment. When the function is left the
+ *  character after the symbol or comment is in inFile.bufferChar.
+ *  @return the symbol or comment, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getSymbolOrComment (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          symbol := getComment(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char:
+        symbol := getNumber(inFile);
+      when single_quotation_char:
+        symbol := getCharLiteral(inFile);
+      when double_quotation_char:
+        symbol := getStringLiteral(inFile);
+      when sharp_char:
+        symbol := getLineComment(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+(**
+ *  Reads a symbol from a [[file]].
+ *  Before reading the symbol it skips whitespace characters and
+ *  comments (normal comments and line comments). A symbol can be a
+ *  literal (numeric, character or string), a name, a special symbol
+ *  (sequence of special characters) or a parenthesis. When the
+ *  function is called it is assumed that inFile.bufferChar contains
+ *  a whitespace character or the first character of a symbol or
+ *  comment. When the function is left the character after the symbol
+ *  is in inFile.bufferChar.
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getSymbol (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          skipComment(inFile);
+          symbol := getSymbol(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char:
+        symbol := getNumber(inFile);
+      when single_quotation_char:
+        symbol := getCharLiteral(inFile);
+      when double_quotation_char:
+        symbol := getStringLiteral(inFile);
+      when sharp_char:
+        skipLineComment(inFile);
+        symbol := getSymbol(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+(**
+ *  Reads a symbol, where html entities are allowed, from a [[file]].
+ *  Before reading the symbol it skips whitespace characters and
+ *  comments (normal comments and line comments). A symbol can be a
+ *  literal (numeric, character or string), a name, a special symbol
+ *  (sequence of special characters) or a parenthesis. Html entities
+ *  in the file are treated as special characters. When the function
+ *  is called it is assumed that inFile.bufferChar contains a
+ *  whitespace character or the first character of a symbol or
+ *  comment. When the function is left the character after the symbol
+ *  is in inFile.bufferChar.
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_char:
+        if inFile.bufferChar = '&' then
+          repeat
+            symbol &:= inFile.bufferChar;
+            inFile.bufferChar := getc(inFile);
+          until inFile.bufferChar = ';';
+        end if;
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_char do
+          if inFile.bufferChar = '&' then
+            repeat
+              symbol &:= inFile.bufferChar;
+              inFile.bufferChar := getc(inFile);
+            until inFile.bufferChar = ';';
+          end if;
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          skipComment(inFile);
+          symbol := getSymbol(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char:
+        symbol := getNumber(inFile);
+      when single_quotation_char:
+        symbol := getCharLiteral(inFile);
+      when double_quotation_char:
+        symbol := getStringLiteral(inFile);
+      when sharp_char:
+        skipLineComment(inFile);
+        symbol := getSymbol(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+(**
+ *  Reads a HTML tag, a symbol or a comment from a [[file]].
+ *  Before reading the HTML tag, symbol or comment it skips whitespace
+ *  characters. A HTML tag starts with < and ends with > . A symbol
+ *  can be a literal (numeric, character or string), a name, a special
+ *  symbol (sequence of special characters) or a parenthesis.
+ *  A comment can be a normal comment or a line comment. Html entities
+ *  in the file are treated as special characters. When the function
+ *  is called it is assumed that inFile.bufferChar contains a
+ *  whitespace character, an introducing < of a HTML tag or the first
+ *  character of a symbol or a comment. When the function is left the
+ *  character after the HTML tag, symbol or comment is in
+ *  inFile.bufferChar.
+ *  @return the HTML tag, symbol or comment, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when special_html_char:
+        if inFile.bufferChar = '&' then
+          repeat
+            symbol &:= inFile.bufferChar;
+            inFile.bufferChar := getc(inFile);
+          until inFile.bufferChar = ';';
+        end if;
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in special_html_char do
+          if inFile.bufferChar = '&' then
+            repeat
+              symbol &:= inFile.bufferChar;
+              inFile.bufferChar := getc(inFile);
+            until inFile.bufferChar = ';';
+          end if;
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when left_paren_char:
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '*' then
+          symbol := getComment(inFile);
+        else
+          symbol := "(";
+        end if;
+      when other_paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when left_angle_bracket:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
+        if inFile.bufferChar <> EOF then
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end if;
+      when digit_char:
+        symbol := getNumber(inFile);
+      when single_quotation_char:
+        symbol := getCharLiteral(inFile);
+      when double_quotation_char:
+        symbol := getStringLiteral(inFile);
+      when sharp_char:
+        symbol := getLineComment(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;
+
+
+(**
+ *  Skips a XML comment from a [[file]].
+ *  The XML comment starts with <!-- and ends with --> . When the
+ *  function is called it is assumed that the character in
+ *  inFile.bufferChar is the last '-' of the introducing <!-- .
+ *  When the function is left the character after --> is in
+ *  inFile.bufferChar.
+ *)
+const proc: skipXmlComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+    var boolean: endOfCommentReached is FALSE;
+  begin
+    character := getc(inFile);
+    repeat
+      while character <> '-' and character <> EOF do
+        character := getc(inFile);
+      end while;
+      if character = '-' then
+        character := getc(inFile);
+        if character = '-' then
+          repeat
+            character := getc(inFile);
+          until character <> '-';
+          if character = '>' then
+            character := getc(inFile);
+            endOfCommentReached := TRUE;
+          end if;
+        end if;
+      end if;
+    until endOfCommentReached or character = EOF;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
+ *  Reads a XML/HTML tag or the XML/HTML content text from a [[file]].
+ *  A XML/HTML tag starts with < and ends with > . The content text
+ *  starts with everything else and ends just before a < or with
+ *  [[char#EOF|EOF]]. When the function is called it is assumed that
+ *  inFile.bufferChar contains the introducing < of a XML/HTML tag or
+ *  the first character of the content text. When the function is left
+ *  the character after the XML/HTML tag or the content text is in
+ *  inFile.bufferChar.
+ *  @return the XML/HTML tag or XML/HTML content text, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getXmlTagOrContent (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    if inFile.bufferChar = '<' then
+      repeat
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
+      if inFile.bufferChar = '>' then
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      end if;
+    elsif inFile.bufferChar <> EOF then
+      repeat
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a predefined XML entity from a [[file]].
+ *  @return the predefined XML entity, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getXmlCharacterReference (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    inFile.bufferChar := getc(inFile);
+    if inFile.bufferChar = '#' then
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar = 'x' then
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in hexdigit_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+        symbol := str(chr(integer(symbol, 16)));
+      else
+        while inFile.bufferChar in digit_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+        symbol := str(chr(integer(symbol)));
+      end if;
+    else
+      while inFile.bufferChar <> ';' and inFile.bufferChar <> EOF do
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      end while;
+      if symbol = "amp" then
+        symbol := "&";
+      elsif symbol = "lt" then
+        symbol := "<";
+      elsif symbol = "gt" then
+        symbol := ">";
+      elsif symbol = "apos" then
+        symbol := "'";
+      elsif symbol = "quot" then
+        symbol := "\"";
+      else
+        symbol := "&" & symbol & ";";
+      end if;
+    end if;
+    if inFile.bufferChar = ';' then
+      inFile.bufferChar := getc(inFile);
+    end if;
+  end func;
+
+
+(**
+ *  Reads a XML/HTML tag head or a XML/HTML content from a [[file]].
+ *  Before reading a tag head or content it skips whitespace
+ *  characters and XML comments. A XML/HTML tag head starts
+ *  with < and ends before a > or a / or a whitespace character
+ *  or [[char#EOF|EOF]]. The content text starts with a non whitespace
+ *  character and ends just before a < or with [[char#EOF|EOF]].
+ *  When the function is called inFile.bufferChar contains either
+ *  a whitespace character, the introducing < of a XML/HTML tag or
+ *  the first character of the content text. When the function is left
+ *  the character after the XML/HTML tag head or the content text is
+ *  in inFile.bufferChar. If a tag head starts with <-- it is
+ *  interpreted as XML comment. A XML comment is ignored and
+ *  getXmlTagHeadOrContent is called recursive.
+ *  @return the XML/HTML tag head or XML/HTML content text, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getXmlTagHeadOrContent (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var boolean: finished is FALSE;
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    if inFile.bufferChar = '<' then
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar = '!' then
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '-' then
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar = '-' then
+            skipXmlComment(inFile);
+            symbol := getXmlTagHeadOrContent(inFile);
+            finished  := TRUE;
+          else
+            symbol := "<!-";
+          end if;
+        else
+          symbol := "<!";
+        end if;
+      else
+        symbol := "<";
+      end if;
+      if not finished and inFile.bufferChar not in white_space_char and
+          inFile.bufferChar <> '>' and inFile.bufferChar <> EOF then
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_char or
+            inFile.bufferChar = '>' or inFile.bufferChar = '/' or
+            inFile.bufferChar = EOF;
+      end if;
+    elsif inFile.bufferChar <> EOF then
+      repeat
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a symbol which can appear inside a XML/HTML tag from a [[file]].
+ *  Before reading the symbol it skips whitespace characters. A symbol
+ *  inside a XML/HTML tag can be a name, a string literal (quoted with "
+ *  or ' ), the equals sign (=), the end tag sign (>), the end of empty
+ *  element tag sign (/) or a special symbol (sequence of characters
+ *  terminated with the character > or a whitespace character). Special
+ *  symbols can only appear in HTML tags. When the function is called it
+ *  is assumed that inFile.bufferChar contains a whitespace character or
+ *  the first character of a symbol. When the function is left
+ *  inFile.bufferChar contains the character after the XML/HTML symbol
+ *  or [[char#EOF|EOF]].
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getSymbolInXmlTag (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when html_name_start_char:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar not in html_name_char;
+      when double_quotation_char:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when single_quotation_char:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when equals_or_end_tag:
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_or_end_tag or
+            inFile.bufferChar = EOF;
+    end case;
+  end func;
+
+
+(**
+ *  Skips beyond a XML Tag in a [[file]].
+ *  When the function is left the character after '>' is in
+ *  inFile.bufferChar.
+ *)
+const proc: skipXmlTag (inout file: inFile) is func
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getSymbolInXmlTag(inFile);
+    until symbol = ">" or symbol = "";
+  end func;
+
+
+(**
+ *  Skips beyond a XML Tag in a [[file]].
+ *  The parameter ''symbol'' is used to provide the current symbol
+ *  which possibly can be ">" or "". When the function is left the
+ *  character after '>' is in inFile.bufferChar.
+ *)
+const proc: skipXmlTag (inout file: inFile, in var string: symbol) is func
+  begin
+    while symbol <> ">" and symbol <> "" do
+      symbol := getSymbolInXmlTag(inFile);
+    end while;
+  end func;
+
+
+(**
+ *  Reads name and value of an attribute inside a XML tag from [[file]].
+ *  Attribute name and value are returned in ''attributeName'' and
+ *  ''attributeValue'' respectively. Surrounding single or double
+ *  quotes of the attribute value are omitted. It is a syntax
+ *  error if an attribute value is not quoted. XML entities in
+ *  ''attributeValue'' are left as is. If no more attributes are
+ *  present in the XML tag ''attributeName'' is set to "". In this case
+ *  ''attributeValue'' contains the end of the XML tag (">" or "/>").
+ *  If a syntax error occurs the function skips beyond the end
+ *  of the XML tag. To indicate the syntax error ''attributeName'' is
+ *  set to "" and ''attributeValue'' is set to a symbol shortly before
+ *  the error (this will never be ">" or "/>").
+ *)
+const proc: getNextXmlAttribute (inout file: inFile,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(inFile);
+    if attributeName = "/" then
+      attributeName := "";
+      attributeValue := getSymbolInXmlTag(inFile);
+      if attributeValue = ">" then
+        attributeValue := "/>";
+      else
+        attributeValue := "/";
+        skipXmlTag(inFile, attributeValue);
+      end if;
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := ">";
+    else
+      attributeValue := getSymbolInXmlTag(inFile);
+      if attributeValue = "=" then
+        attributeValue := getSymbolInXmlTag(inFile);
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        else
+          attributeValue := attributeName;
+          attributeName := "";
+          skipXmlTag(inFile, attributeValue);
+        end if;
+      else
+        attributeValue := attributeName;
+        attributeName := "";
+        skipXmlTag(inFile, attributeValue);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a HTML tag attribute value from a [[file]].
+ *  Before reading the value it skips whitespace characters. A HTML
+ *  tag attribute value can be quoted with " or ' or it is terminated
+ *  with the character > or a whitespace character. When the function
+ *  is called it is assumed that inFile.bufferChar contains a
+ *  whitespace character or the first character of a value. When the
+ *  function is left inFile.bufferChar contains the character after
+ *  the XML/HTML symbol or [[char#EOF|EOF]].
+ *  @return the symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getHtmlAttributeValue (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when double_quotation_char:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when single_quotation_char:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
+        inFile.bufferChar := getc(inFile);
+      when right_angle_bracket:
+        symbol &:= inFile.bufferChar;
+        inFile.bufferChar := getc(inFile);
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        repeat
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar in white_space_or_end_tag or
+            inFile.bufferChar = EOF;
+    end case;
+  end func;
+
+
+(**
+ *  Reads name and value of an attribute inside a HTML tag from a [[file]].
+ *  The variable ''attributeName'' is set to "" if no more attributes
+ *  are present in the HTML tag. If the HTML tag ends with / the
+ *  function assigns "/" to ''attributeValue'' and ''attributeName'' is
+ *  set to "". If the HTML tag does not end with / ''attributeValue''
+ *  and ''attributeName'' are set to "" if no more attributes are
+ *  present.
+ *)
+const proc: getNextHtmlAttribute (inout file: inFile,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(inFile);
+    if attributeName = "/" then
+      repeat
+        attributeName := getSymbolInXmlTag(inFile);
+      until attributeName = ">" or attributeName = "";
+      attributeName := "";
+      attributeValue := "/";
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := "";
+    else
+      if getSymbolInXmlTag(inFile) = "=" then
+        attributeValue := getHtmlAttributeValue(inFile);
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        elsif attributeValue = "/" or attributeValue = ">" then
+          attributeValue := "";
+        end if;
+      else
+        attributeValue := "";
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a simple symbol from a [[file]].
+ *  Before reading the simple symbol it skips whitespace characters.
+ *  A simple symbol can be an integer literal, a name, a special
+ *  symbol (sequence of special characters) or a parenthesis.
+ *  Note that string, char and float literals are not recognized as
+ *  simple symbol.
+ *  @return the simple symbol, and
+ *          "" if [[char#EOF|EOF]] was reached.
+ *)
+const func string: getSimpleSymbol (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    while inFile.bufferChar in white_space_char do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    case inFile.bufferChar of
+      when name_start_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in name_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when extended_special_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in extended_special_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when paren_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      when digit_char:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        while inFile.bufferChar in digit_char do
+          symbol &:= inFile.bufferChar;
+          inFile.bufferChar := getc(inFile);
+        end while;
+      when {EOF}:
+        symbol := "";
+      otherwise:
+        symbol := str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+    end case;
+  end func;

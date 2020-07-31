@@ -1,0 +1,93 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  gtksvtst.sd7  Gtk-server connection test program                *)
+(*  Copyright (C) 2007  Leonardo Cecchi                             *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "enable_io.s7i";
+  include "socket.s7i";
+  include "gtkserver.s7i";
+
+const proc: show_message(in string: parent, in string: msg) is func
+  local
+    (* widgets *)
+    var string: id is "";
+  begin
+    id:=gtk("gtk_message_dialog_new " <& parent <& " 0 0 1 \"" <& msg <& "\"");
+    gtk_exec("gtk_dialog_run " <& id);
+    gtk_exec("gtk_widget_destroy " <& id);
+  end func;
+
+const proc: main_window is func
+  local
+    (* widgets *)
+    var string: wptr is "";
+    var string: vbox is "";
+    var string: bt_one is "";
+    var string: bt_two is "";
+
+    (* temporary *)
+    var boolean: running is TRUE;
+    var string: evt is "";
+  begin
+    wptr:=gtk("gtk_window_new 0");
+    gtk_exec("gtk_window_set_title " <& wptr <& " \"Gtk-Server Example\"");
+
+    (* Widgets creation *)
+    vbox:=gtk("gtk_vbox_new 1 1");
+    bt_one:=gtk("gtk_button_new_with_label \"First Button\"");
+    bt_two:=gtk("gtk_button_new_with_label \"Second Button\"");
+
+    (* Widgets packing *)
+    gtk_exec("gtk_box_pack_start_defaults " <& vbox <& " " <& bt_one);
+    gtk_exec("gtk_box_pack_start_defaults " <& vbox <& " " <& bt_two);
+    gtk_exec("gtk_container_add " <& wptr <& " " <& vbox);
+
+    (* Show window *)
+    gtk_exec("gtk_widget_show_all " <& wptr);
+
+    (* Event loop *)
+    while running do
+      evt:=gtk("gtk_server_callback WAIT");
+      if evt=wptr then
+        running:=FALSE;
+      elsif evt=bt_one then
+        show_message(wptr, "One!");
+      elsif evt=bt_two then
+        show_message(wptr, "Two!");
+      end if;
+    end while;
+  end func;
+
+const proc: main is func
+  local
+    var string: win is "";
+    var string: but is "";
+    var string: evt is "";
+  begin
+    set_gtk_logging(FALSE);
+    gtk_start(8765);
+    gtk_exec("gtk_init NULL NULL");
+    main_window();
+    gtk_stop();
+  end func;
+

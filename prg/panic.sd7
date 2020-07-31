@@ -1,0 +1,2496 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  panic.sd7     Catch aliens in traps game                        *)
+(*  Copyright (C) 2004, 2005  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+  include "float.s7i";
+  include "keybd.s7i";
+  include "draw.s7i";
+  include "pic_util.s7i";
+  include "dialog.s7i";
+  include "stdfont9.s7i";
+  include "pixmap_file.s7i";
+
+
+const integer: NUM_LEVELS is 6;
+const integer: SPEED is 1;
+const integer: FALL_SPEED is 2 * SPEED;
+const integer: FIELD_ELEM_STEP is 2;
+const integer: PICTURE_SCALE is 2;
+const integer: AREA_LINES is 161;
+const integer: AREA_COLUMNS is 267;
+const integer: WIN_HEIGHT is (AREA_LINES + 34) * FIELD_ELEM_STEP;
+const integer: WIN_WIDTH is (AREA_COLUMNS + 16) * FIELD_ELEM_STEP;
+const integer: FIELD_BORDER is SPEED;
+const integer: FIELD_LINES is AREA_LINES + 2 * FIELD_BORDER;
+const integer: FIELD_COLUMNS is AREA_COLUMNS + 2 * FIELD_BORDER;
+const integer: FIELD_X_START is (1 - FIELD_BORDER) * FIELD_ELEM_STEP;
+const integer: FIELD_Y_START is (17 - FIELD_BORDER) * FIELD_ELEM_STEP;
+const integer: FULL_MOTION is 0;
+const integer: CATCH_MOTION is 1;
+const integer: LEAVE_MOTION is 2;
+const integer: TRAP_DEPTH is 9;
+const duration: TIME_IN_HOLE is 17 . SECONDS;
+
+const type: holeType is new enum
+    no_hole, hole_depth1, hole_depth2, hole_depth3, hole_depth4, hole_finished,
+    hole_part, hole_unfinished, hole_bottom, hole_entering, hole_leaving,
+    hole_filled, hole_pound1, hole_pound2, hole_pound3, hole_pound4, hole_pounded
+  end enum;
+
+const func string: str (in holeType: aHole) is
+  return [](
+    "no_hole", "hole_depth1", "hole_depth2", "hole_depth3", "hole_depth4", "hole_finished",
+    "hole_part", "hole_unfinished", "hole_bottom", "hole_entering", "hole_leaving",
+    "hole_filled", "hole_pound1", "hole_pound2", "hole_pound3", "hole_pound4", "hole_pounded"
+  )[succ(ord(aHole))];
+
+enable_output(holeType);
+
+const array array integer: round_description is [](
+  [](3, 0, 0, 2000, 0),
+  [](5, 0, 0, 2000, 0),
+  [](8, 0, 0, 2000, 0),
+  [](2, 1, 0, 3000, 1),
+  [](4, 1, 0, 3000, 0),
+  [](7, 1, 0, 3000, 0),
+  [](1, 1, 1, 3000, 0),
+  [](3, 1, 1, 4000, 0),
+  [](6, 1, 1, 4000, 0),
+  [](0, 2, 1, 4000, 0),
+  [](2, 2, 1, 4000, 0),
+  [](5, 2, 1, 5000, 0),
+  [](0, 2, 1, 5000, 0),
+  [](1, 3, 1, 5000, 0),
+  [](4, 3, 1, 5000, 0),
+  [](0, 2, 1, 6000, 0), (* ? *)
+  [](0, 4, 1, 6000, 0), (* ? *)
+  [](3, 4, 1, 6000, 0), (* ? *)
+  [](0, 2, 1, 6000, 0), (* ? *)
+  [](0, 4, 1, 7000, 0), (* ? *)
+  [](2, 5, 1, 7000, 0), (* ? *)
+  [](0, 2, 1, 7000, 0), (* ? *)
+  [](0, 4, 1, 7000, 0), (* ? *)
+  [](1, 6, 1, 8000, 0), (* ? *)
+  [](0, 2, 1, 8000, 0), (* ? *)
+  [](0, 4, 1, 8000, 0), (* ? *)
+  [](0, 7, 1, 8000, 0), (* ? *)
+  [](0, 1, 2, 9000, 0), (* ? *)
+  [](0, 3, 2, 9000, 0), (* ? *)
+  [](0, 6, 2, 9000, 0), (* ? *)
+  [](0, 0, 3, 9000, 0), (* ? *)
+  [](0, 2, 3, 9000, 0), (* ? *)
+  [](0, 5, 3, 9000, 0), (* ? *)
+  [](0, 0, 3, 9000, 0), (* ? *)
+  [](0, 1, 4, 9000, 0), (* ? *)
+  [](0, 4, 4, 9000, 0), (* ? *)
+  [](0, 0, 3, 9000, 0), (* ? *)
+  [](0, 0, 5, 9000, 0), (* ? *)
+  [](0, 3, 5, 9000, 0), (* ? *)
+  [](0, 0, 3, 9000, 0), (* ? *)
+  [](0, 0, 5, 9000, 0), (* ? *)
+  [](0, 2, 6, 9000, 0), (* ? *)
+  [](0, 0, 3, 9000, 0), (* ? *)
+  [](0, 0, 5, 9000, 0), (* ? *)
+  [](0, 1, 7, 9000, 0), (* ? *)
+  [](0, 0, 3, 9000, 0), (* ? *)
+  [](0, 0, 5, 9000, 0), (* ? *)
+  [](0, 0, 8, 9000, 0));(* ? *)
+
+const type: ladderLayout is array array integer;
+
+const array ladderLayout: layout_description is [](
+  []([](1, 6,   8), [](1, 2,  48), [](1, 3,  96), [](1, 6, 256), [](2, 3, 160),
+     [](2, 4, 200), [](3, 5,  80), [](5, 6,  64), [](5, 6, 160)),
+  []([](1, 4,   8), [](1, 2,  72), [](1, 6, 128), [](1, 2, 192), [](2, 5, 176),
+     [](3, 4,  40), [](3, 5,  80), [](3, 6, 260), [](5, 6,   8)),
+  []([](1, 2,   8), [](1, 2, 192), [](2, 4,  96), [](2, 6, 176), [](2, 4, 236),
+     [](3, 4,   8), [](4, 5,  44), [](5, 6,   8), [](5, 6, 104), [](5, 6, 260)),
+  []([](1, 6,   8), [](1, 3,  64), [](1, 2, 128), [](1, 6, 236), [](3, 6, 164),
+     [](4, 5,  64), [](5, 6, 106))
+  );
+
+var array array PRIMITIVE_WINDOW: monster_pixmap is 3 times 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: player_left_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: player_right_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: player_up_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: player_down_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: player_falling_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: player_dig_left_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: player_dig_right_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var array PRIMITIVE_WINDOW: digit_pixmap is 0 times PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: player_reserve_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: score_text_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: bonus_text_pixmap is PRIMITIVE_WINDOW.value;
+var PRIMITIVE_WINDOW: hiscore_text_pixmap is PRIMITIVE_WINDOW.value;
+
+const type: pixmap_array is array PRIMITIVE_WINDOW;
+
+const type: screenObj is new struct
+    var integer: line is 1;
+    var integer: column is 1;
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line_direction is 0;
+    var integer: column_direction is 0;
+    var boolean: moving is TRUE;
+    var boolean: falling is FALSE;
+    var integer: motionIndex is 0;
+    var integer: motionSpeed is FULL_MOTION;
+    var integer: actual_pixmap_index is 1;
+    var pixmap_array: pixmap is 0 times PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: saved_pixmap is PRIMITIVE_WINDOW.value;
+  end struct;
+
+const type: playerObj is sub screenObj struct
+    var char:    command is ' ';
+    var boolean: living is TRUE;
+    var boolean: digging is FALSE;
+    var integer: dig_direction is 0;
+    var integer: face_direction is 1;
+  end struct;
+
+const type: monsterObj is sub screenObj struct
+    var integer: category is 1;
+    var integer: saved_column_direction is 0;
+    var time:    action_time is time.value;
+    var integer: holes_passed is 0;
+    var integer: basePoints is 0;
+    var integer: points is 0;
+    var boolean: catching is FALSE;
+  end struct;
+
+const type: gameObj is new struct
+    var integer: num_players is 0;
+    var integer: round_number is 0;
+    var integer: round_bonus is 0;
+    var integer: num_monsters is 0;
+    var integer: score is 0;
+    var integer: hiScore is 0;
+    var time: turn_time is time.value;
+    var boolean: round_finished is FALSE;
+    var boolean: restart is FALSE;
+    var boolean: quit is FALSE;
+  end struct;
+
+var array monsterObj: monster is 0 times monsterObj.value;
+var playerObj: player is playerObj.value;
+var gameObj: game is gameObj.value;
+
+const array integer: level_line is [](
+    1, 33, 65, 97, 129, 161
+  );
+
+var array array boolean: field is FIELD_LINES times FIELD_COLUMNS times FALSE;
+var array array holeType: hole_status is FIELD_LINES times FIELD_COLUMNS times no_hole;
+
+var text: scr is STD_NULL;
+
+
+const array string: player_right_1 is [](
+  "    WWWWW     ",
+  "    WW WWW    ",
+  "    WWWWW   WW",
+  "     WWW    WW",
+  "      W    WW ",
+  "  WWWWWWWWWW  ",
+  " WW  WWW      ",
+  "WW   WWW      ",
+  "WW   WWW      ",
+  "    WWWWWWWW  ",
+  "    WW    WW  ",
+  "    WW    WW  ",
+  "    WW    WW  ",
+  "    WW    WWW ",
+  "    WW        ",
+  "    WWW       ");
+
+
+const array string: player_right_2 is [](
+  "    WWWWW     ",
+  "    WW WWW    ",
+  "    WWWWW     ",
+  "     WWW      ",
+  "      W       ",
+  "   WWWWWWW  WW",
+  "  WW WWW WW WW",
+  " WW  WWW  WWW ",
+  "  WW WWW      ",
+  "    WWWWWW    ",
+  "    WW  WW    ",
+  "    WW  WW    ",
+  "WWWWWW  WW    ",
+  "W       WW    ",
+  "        WW    ",
+  "        WWW   ");
+
+
+const array string: player_left_1 is [](
+  "     WWWWW    ",
+  "    WWW WW    ",
+  "WW   WWWWW    ",
+  "WW    WWW     ",
+  " WW    W      ",
+  "  WWWWWWWWWW  ",
+  "      WWW  WW ",
+  "      WWW   WW",
+  "      WWW   WW",
+  "  WWWWWWWW    ",
+  "  WW    WW    ",
+  "  WW    WW    ",
+  "  WW    WW    ",
+  " WWW    WW    ",
+  "        WW    ",
+  "       WWW    ");
+
+
+const array string: player_left_2 is [](
+  "     WWWWW    ",
+  "    WWW WW    ",
+  "     WWWWW    ",
+  "      WWW     ",
+  "       W      ",
+  "WW  WWWWWWW   ",
+  "WW WW WWW WW  ",
+  " WWW  WWW  WW ",
+  "      WWW WW  ",
+  "    WWWWWW    ",
+  "    WW  WW    ",
+  "    WW  WW    ",
+  "    WW  WWWWWW",
+  "    WW       W",
+  "    WW        ",
+  "   WWW        ");
+
+
+const array string: player_falling is [](
+  " WW  WWW    ",
+  " WW WWWWW   ",
+  " WW WWWWW   ",
+  " WW  WWW    ",
+  "  WW  W     ",
+  "   WWWWWWWW ",
+  "     WWW  WW",
+  "     WWW  WW",
+  "     WWW  WW",
+  " WWWWWWWW WW",
+  " WW    WW   ",
+  " WW    WW   ",
+  " WW    WW   ",
+  "       WW   ",
+  "       WW   ",
+  "       WW   ");
+
+
+const array string: player_dig_right_1 is [](
+  " WWWWW       ",
+  " WW WWW      ",
+  " WWWWW       ",
+  "  WWW        ",
+  "   W         ",
+  " WWWWWW      ",
+  " WWWW WW     ",
+  "  WWWW WW    ",
+  "  WWWWWWW    ",
+  "  WWW  WW    ",
+  " WW WW  WW   ",
+  " WW WW   WW  ",
+  " WW WW    WWW",
+  " WW WW    WWW",
+  " WW WW     WW",
+  "WWW WWW     W");
+
+
+const array string: player_dig_right_2 is [](
+  " WWWWW     WW",
+  " WW WWW   WWW",
+  " WWWWW   WWWW",
+  "  WWW   WW   ",
+  "   W   WW    ",
+  "  WWWWWWW    ",
+  "  WWW  WW    ",
+  "  WWWWWW     ",
+  "  WWW        ",
+  "  WWW        ",
+  " WW WW       ",
+  " WW WW       ",
+  " WW WW       ",
+  " WW WW       ",
+  " WW WW       ",
+  "WWW WWW      ");
+
+
+const array string: player_dig_left_1 is [](
+  "       WWWWW ",
+  "      WWW WW ",
+  "       WWWWW ",
+  "        WWW  ",
+  "         W   ",
+  "      WWWWWW ",
+  "     WW WWWW ",
+  "    WW WWWW  ",
+  "    WWWWWWW  ",
+  "    WW  WWW  ",
+  "   WW  WW WW ",
+  "  WW   WW WW ",
+  "WWW    WW WW ",
+  "WWW    WW WW ",
+  "WW     WW WW ",
+  "W     WWW WWW");
+
+
+const array string: player_dig_left_2 is [](
+  "WW     WWWWW ",
+  "WWW   WWW WW ",
+  "WWWW   WWWWW ",
+  "   WW   WWW  ",
+  "    WW   W   ",
+  "    WWWWWWW  ",
+  "    WW  WWW  ",
+  "     WWWWWW  ",
+  "        WWW  ",
+  "        WWW  ",
+  "       WW WW ",
+  "       WW WW ",
+  "       WW WW ",
+  "       WW WW ",
+  "       WW WW ",
+  "      WWW WWW");
+
+const array string: player_up_down_1 is [](
+  "    WWWWW WWW",
+  "    WWWWW WWW",
+  "    WWWWW WWW",
+  "     WWW  WWW",
+  "      W WWW  ",
+  "  WWWWWWWWW  ",
+  "WWW  WWW     ",
+  "WWW  WWW     ",
+  "WWW WWWWW    ",
+  "WWW WWWWWWWWW",
+  "    WW    WWW",
+  "    WW    WWW",
+  "    WWW   WWW",
+  "    WWW      ",
+  "    WW       ",
+  "    WW       ");
+
+
+const array string: player_up_down_2 is [](
+  "WWW  WWW     ",
+  "WWW WWWWW    ",
+  "WWW WWWWW    ",
+  "WWW WWWWW    ",
+  "  WW  W      ",
+  "   WWWWWWWW  ",
+  "    WWWWW WWW",
+  "    WWWWW WWW",
+  "     WWW  WWW",
+  "WWWWWWWWW WWW",
+  "WWW   WWW    ",
+  "WWW   WWW    ",
+  "WWW    WW    ",
+  "       WW    ",
+  "      WWW    ",
+  "      WWW    ");
+
+
+const array string: monster1_1 is [](
+  "B           B",
+  "B           B",
+  "BBBBB   BBBBB",
+  "     OOO     ",
+  "   OOOOOOO   ",
+  " O      B  O ",
+  " O      B  O ",
+  " O         O ",
+  " OOOOOOOOOOO ",
+  "   O     O   ");
+
+
+const array string: monster1_2 is [](
+  "B           B",
+  "BB         BB",
+  "B BBB   BBB B",
+  "     OOO     ",
+  "   OOOOOOO   ",
+  " O     B   O ",
+  " O     B   O ",
+  " O         O ",
+  " OOOOOOOOOOO ",
+  "   OO   OO   ");
+
+
+const array string: monster1_3 is [](
+  "B           B",
+  "BBBB     BBBB",
+  "B   B   B   B",
+  "     OOO     ",
+  "   OOOOOOO   ",
+  " O    B    O ",
+  " O    B    O ",
+  " O         O ",
+  " OOOOOOOOOOO ",
+  "  O O   O O  ");
+
+
+const array string: monster1_4 is [](
+  "BBB       BBB",
+  "B  B     B  B",
+  "    B   B    ",
+  "     OOO     ",
+  "   OOOOOOO   ",
+  " O   B     O ",
+  " O   B     O ",
+  " O         O ",
+  " OOOOOOOOOOO ",
+  "  O  O O  O  ");
+
+
+const array string: monster1_5 is [](
+  "BBB       BBB",
+  "B   B   B   B",
+  "    B   B    ",
+  "     OOO     ",
+  "   OOOOOOO   ",
+  " O  B      O ",
+  " O  B      O ",
+  " O         O ",
+  " OOOOOOOOOOO ",
+  " O   OOO   O ");
+
+
+const array string: monster2_1 is [](
+  "  G       G  ",
+  "  G       G  ",
+  "GGGGG   GGGGG",
+  "GGGGG   GGGGG",
+  "G  M  G  M  G",
+  "G     G     G",
+  "GGGGGGGGGGGGG",
+  "  GGGGGGGGG  ",
+  "  OOO   OOO  ",
+  "OOO       OOO");
+
+
+const array string: monster2_2 is [](
+  "G           G",
+  "GGG       GGG",
+  "GGG       GGG",
+  "GGGGG   GGGGG",
+  "G     G     G",
+  "G  M  G  M  G",
+  "GGGGGGGGGGGGG",
+  "  GGGGGGGGG  ",
+  "  OOO   OOO  ",
+  "    O   O    ");
+
+
+const array string: monster3_1 is [](
+  "  B       B  ",
+  "  BBB   BBB  ",
+  "BBBBB   BBBBB",
+  "BBBBB   BBBBB",
+  "  B  OOO  B  ",
+  "  B  OOO  B  ",
+  "  BBB   BBB  ",
+  "  B   B   B  ",
+  "    BBBBB    ",
+  "    B   B    ");
+
+
+const array string: monster3_2 is [](
+  "B           B",
+  "BBB       BBB",
+  "BBB       BBB",
+  "BBB  OOO  BBB",
+  "  B  OOO  B  ",
+  "  B       B  ",
+  "  BBB   BBB  ",
+  "  B   B   B  ",
+  "B     B     B",
+  "B           B");
+
+
+const array string: player_reserve is [](
+  "  WWW  ",
+  "  WWW  ",
+  "W  W  W",
+  " WWWWW ",
+  "   W   ",
+  "  WWW  ",
+  " W   W ",
+  "W     W");
+
+
+const array string: score_text is [](
+  " WWW    WWW        ",
+  "G   G  M   M       ",
+  "G      M           ",
+  " WWW   M      WWWWW",
+  "    G  M           ",
+  "G   G  M   M       ",
+  " WWW    WWW        ");
+
+
+const array string: bonus_text is [](
+  "WWWW    WWW   M   M  G   G   WWW        ",
+  "M   M  G   G  M   M  G   G  M   M       ",
+  "M   M  G   G  WW  M  G   G  M           ",
+  "WWWW   G   G  MMMMM  G   G   WWW   WWWWW",
+  "M   M  G   G  M  WW  G   G      M       ",
+  "M   M  G   G  M   M  G   G  M   M       ",
+  "WWWW    WWW   M   M   WWW    WWW        ");
+
+
+const array string: hiscore_text is [](
+  "M   M   WWW        ",
+  "M   M    G         ",
+  "M   M    G         ",
+  "WWWWW    G    WWWWW",
+  "M   M    G         ",
+  "M   M    G         ",
+  "M   M   WWW        ");
+
+
+const array string: zero is [](
+  "     ",
+  " WWW ",
+  "M   M",
+  "M   M",
+  "M   M",
+  "M   M",
+  " WWW ");
+
+
+const array string: one is [](
+  "  WW ",
+  " MMM ",
+  "   M ",
+  "   M ",
+  "   M ",
+  "   M ",
+  "  WWW");
+
+
+const array string: two is [](
+  " WWW ",
+  "G   G",
+  "    G",
+  "   M ",
+  " WW  ",
+  "G    ",
+  "WWWWW");
+
+
+const array string: three is [](
+  " WWW ",
+  "M   M",
+  "    M",
+  "  WW ",
+  "    M",
+  "M   M",
+  " WWW ");
+
+
+const array string: four is [](
+  "G    ",
+  "G    ",
+  "G  M ",
+  "WWWWW",
+  "   M ",
+  "   M ",
+  "   M ");
+
+
+const array string: five is [](
+  "WWWW ",
+  "M    ",
+  "M    ",
+  "WWWW ",
+  "    M",
+  "    M",
+  "WWWW ");
+
+
+const array string: six is [](
+  " WWW ",
+  "G   G",
+  "G    ",
+  "WWWW ",
+  "G   G",
+  "G   G",
+  " WWW ");
+
+
+const array string: seven is [](
+  "WWWWW",
+  "M   M",
+  "    M",
+  "   G ",
+  "   G ",
+  "  M  ",
+  "  M  ");
+
+
+const array string: eight is [](
+  " WWW ",
+  "G   G",
+  "G   G",
+  " WWW ",
+  "G   G",
+  "G   G",
+  " WWW ");
+
+
+const array string: nine is [](
+  " WWW ",
+  "M   M",
+  "M   M",
+  " WWWW",
+  "    M",
+  "M   M",
+  " WWW ");
+
+
+const func PRIMITIVE_WINDOW: createPixmap (in array string: pattern) is
+  return createPixmap(pattern, PICTURE_SCALE, black);
+
+
+const proc: init_pictures is func
+  begin
+    monster_pixmap[1] := 8 times PRIMITIVE_WINDOW.value;
+    monster_pixmap[1][1] := createPixmap(monster1_1);
+    monster_pixmap[1][2] := monster_pixmap[1][1];
+    monster_pixmap[1][3] := monster_pixmap[1][1];
+    monster_pixmap[1][4] := monster_pixmap[1][1];
+    monster_pixmap[1][5] := createPixmap(monster1_5);
+    monster_pixmap[1][6] := monster_pixmap[1][5];
+    monster_pixmap[1][7] := monster_pixmap[1][5];
+    monster_pixmap[1][8] := monster_pixmap[1][5];
+    monster_pixmap[2] := 8 times PRIMITIVE_WINDOW.value;
+    monster_pixmap[2][1] := createPixmap(monster2_1);
+    monster_pixmap[2][2] := monster_pixmap[2][1];
+    monster_pixmap[2][3] := monster_pixmap[2][1];
+    monster_pixmap[2][4] := monster_pixmap[2][1];
+    monster_pixmap[2][5] := createPixmap(monster2_2);
+    monster_pixmap[2][6] := monster_pixmap[2][5];
+    monster_pixmap[2][7] := monster_pixmap[2][5];
+    monster_pixmap[2][8] := monster_pixmap[2][5];
+    monster_pixmap[3] := 8 times PRIMITIVE_WINDOW.value;
+    monster_pixmap[3][1] := createPixmap(monster3_1);
+    monster_pixmap[3][2] := monster_pixmap[3][1];
+    monster_pixmap[3][3] := monster_pixmap[3][1];
+    monster_pixmap[3][4] := monster_pixmap[3][1];
+    monster_pixmap[3][5] := createPixmap(monster3_2);
+    monster_pixmap[3][6] := monster_pixmap[3][5];
+    monster_pixmap[3][7] := monster_pixmap[3][5];
+    monster_pixmap[3][8] := monster_pixmap[3][5];
+    player_right_pixmap := 6 times PRIMITIVE_WINDOW.value;
+    player_right_pixmap[1] := createPixmap(player_right_1);
+    player_right_pixmap[2] := player_right_pixmap[1];
+    player_right_pixmap[3] := player_right_pixmap[1];
+    player_right_pixmap[4] := createPixmap(player_right_2);
+    player_right_pixmap[5] := player_right_pixmap[4];
+    player_right_pixmap[6] := player_right_pixmap[4];
+    player_left_pixmap := 6 times PRIMITIVE_WINDOW.value;
+    player_left_pixmap[1] := createPixmap(player_left_1);
+    player_left_pixmap[2] := player_left_pixmap[1];
+    player_left_pixmap[3] := player_left_pixmap[1];
+    player_left_pixmap[4] := createPixmap(player_left_2);
+    player_left_pixmap[5] := player_left_pixmap[4];
+    player_left_pixmap[6] := player_left_pixmap[4];
+    player_up_pixmap := 6 times PRIMITIVE_WINDOW.value;
+    player_up_pixmap[1] := createPixmap(player_up_down_1);
+    player_up_pixmap[2] := player_up_pixmap[1];
+    player_up_pixmap[3] := player_up_pixmap[1];
+    player_up_pixmap[4] := createPixmap(player_up_down_2);
+    player_up_pixmap[5] := player_up_pixmap[4];
+    player_up_pixmap[6] := player_up_pixmap[4];
+    player_down_pixmap := 6 times PRIMITIVE_WINDOW.value;
+    player_down_pixmap[1] := createPixmap(player_up_down_1);
+    player_down_pixmap[2] := player_down_pixmap[1];
+    player_down_pixmap[3] := player_down_pixmap[1];
+    player_down_pixmap[4] := createPixmap(player_up_down_2);
+    player_down_pixmap[5] := player_down_pixmap[4];
+    player_down_pixmap[6] := player_down_pixmap[4];
+    player_falling_pixmap := 1 times PRIMITIVE_WINDOW.value;
+    player_falling_pixmap[1] := createPixmap(player_falling);
+    player_dig_right_pixmap := 22 times PRIMITIVE_WINDOW.value;
+    player_dig_right_pixmap[1] := createPixmap(player_dig_right_1);
+    player_dig_right_pixmap[2] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[3] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[4] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[5] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[6] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[7] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[8] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[9] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[10] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[11] := player_dig_right_pixmap[1];
+    player_dig_right_pixmap[12] := createPixmap(player_dig_right_2);
+    player_dig_right_pixmap[13] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[14] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[15] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[16] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[17] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[18] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[19] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[20] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[21] := player_dig_right_pixmap[12];
+    player_dig_right_pixmap[22] := player_dig_right_pixmap[12];
+    player_dig_left_pixmap := 22 times PRIMITIVE_WINDOW.value;
+    player_dig_left_pixmap[1] := createPixmap(player_dig_left_1);
+    player_dig_left_pixmap[2] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[3] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[4] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[5] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[6] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[7] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[8] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[9] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[10] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[11] := player_dig_left_pixmap[1];
+    player_dig_left_pixmap[12] := createPixmap(player_dig_left_2);
+    player_dig_left_pixmap[13] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[14] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[15] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[16] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[17] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[18] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[19] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[20] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[21] := player_dig_left_pixmap[12];
+    player_dig_left_pixmap[22] := player_dig_left_pixmap[12];
+    digit_pixmap := [0](
+      createPixmap(zero),
+      createPixmap(one),
+      createPixmap(two),
+      createPixmap(three),
+      createPixmap(four),
+      createPixmap(five),
+      createPixmap(six),
+      createPixmap(seven),
+      createPixmap(eight),
+      createPixmap(nine));
+    player_reserve_pixmap := createPixmap(player_reserve);
+    score_text_pixmap := createPixmap(score_text);
+    bonus_text_pixmap := createPixmap(bonus_text);
+    hiscore_text_pixmap := createPixmap(hiscore_text);
+  end func;
+
+
+const proc: pause_game (in boolean: blankWindow, in boolean: exitWithAnyKey) is func
+  local
+    var boolean: exitPause is FALSE;
+    var time: pause_time is time.value;
+    var duration: pause_duration is duration.value;
+    var integer: number is 0;
+    var char: cmd is ' ';
+  begin
+    pause_time := time(NOW);
+    if blankWindow then
+      bossMode(game.quit);
+    end if;
+    while not (exitPause or game.quit) do
+      cmd := getc(KEYBOARD);
+      if cmd in {'Q', 'q'} then
+        game.quit := TRUE;
+      elsif cmd = KEY_ESC then
+        bossMode(game.quit);
+      else
+        exitPause := exitWithAnyKey or cmd in {'P', 'p'};
+      end if;
+    end while;
+    pause_duration := time(NOW) - pause_time;
+    for number range 1 to length(monster) do
+      if monster[number].action_time <> time.value then
+        monster[number].action_time +:= pause_duration;
+      end if;
+    end for;
+    if game.turn_time <> time.value then
+      game.turn_time +:= pause_duration;
+    end if;
+  end func;
+
+
+const proc: game_command (in char: cmd) is func
+  begin
+    case cmd of
+      when {KEY_CTL_R}:
+        game.round_finished := TRUE;
+        game.restart := TRUE;
+      when {'Q', 'q'}:
+        game.quit := TRUE;
+      when {'Y', 'y'}:
+        writeln(heapsize(PROGRAM));
+      when {KEY_ESC}:
+        pause_game(TRUE, FALSE);
+      when {'P', 'p'}:
+        pause_game(FALSE, FALSE);
+    end case;
+  end func;
+
+
+const proc: draw_number (in integer: line, in integer: column, in string: num_stri) is func
+  local
+    var integer: index is 0;
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(num_stri) do
+      ch := num_stri[index];
+      if ch = ' ' then
+        rect(succ((column + index - 2) * 7) * FIELD_ELEM_STEP,
+            succ((pred(line) * 8 + 2)       * FIELD_ELEM_STEP),
+            5                               * FIELD_ELEM_STEP,
+            7                               * FIELD_ELEM_STEP,
+            black);
+      else
+        put(succ((column + index - 2) * 7) * FIELD_ELEM_STEP,
+            succ((pred(line) * 8 + 2)      * FIELD_ELEM_STEP),
+            digit_pixmap[ord(ch) - ord('0')], PSET);
+      end if;
+    end for;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: number_pixmap (in string: num_stri) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: index is 0;
+    var char: ch is ' ';
+  begin
+    pixmap := newPixmap(
+        (7 * length(num_stri) + 2) * PICTURE_SCALE,
+        11                         * PICTURE_SCALE);
+    clear(pixmap, black);
+    for index range 1 to length(num_stri) do
+      ch := num_stri[index];
+      if ch <> ' ' then
+        put(pixmap,
+            (2 + pred(index) * 7) * PICTURE_SCALE,
+            2                     * PICTURE_SCALE,
+            digit_pixmap[ord(ch) - ord('0')], PSET);
+      end if;
+    end for;
+  end func;
+
+
+const proc: draw_level (in integer: line) is func
+  local
+    var integer: number is 0;
+  begin
+    rect(2            * FIELD_ELEM_STEP,
+         (17 + line)  * FIELD_ELEM_STEP,
+         5            * FIELD_ELEM_STEP,
+         2            * FIELD_ELEM_STEP,
+         light_green);
+    number := 10;
+    while number < AREA_COLUMNS do
+      rect(number       * FIELD_ELEM_STEP,
+           (17 + line)  * FIELD_ELEM_STEP,
+           11           * FIELD_ELEM_STEP,
+           2            * FIELD_ELEM_STEP,
+           light_green);
+      number +:= 14;
+    end while;
+    rect(number                   * FIELD_ELEM_STEP,
+         (17 + line)              * FIELD_ELEM_STEP,
+         WIN_WIDTH - (number + 2) * FIELD_ELEM_STEP,
+         2                        * FIELD_ELEM_STEP,
+         light_green);
+    number := 2;
+    while number < AREA_COLUMNS do
+      rect(number        * FIELD_ELEM_STEP,
+           (20 + line)   * FIELD_ELEM_STEP,
+           11            * FIELD_ELEM_STEP,
+           3             * FIELD_ELEM_STEP,
+           light_green);
+      number +:= 14;
+    end while;
+    rect(number                   * FIELD_ELEM_STEP,
+         (20 + line)              * FIELD_ELEM_STEP,
+         WIN_WIDTH - (number + 2) * FIELD_ELEM_STEP,
+         3                        * FIELD_ELEM_STEP,
+         light_green);
+  end func;
+
+
+const proc: draw_base_level (in integer: line) is func
+  begin
+    rect(2             * FIELD_ELEM_STEP,
+         (17 + line)   * FIELD_ELEM_STEP,
+         WIN_WIDTH - 4 * FIELD_ELEM_STEP,
+         2             * FIELD_ELEM_STEP,
+         orange);
+  end func;
+
+
+const proc: mark_level (in integer: line) is func
+  local
+    var integer: number is 0;
+  begin
+    for number range succ(FIELD_BORDER) to FIELD_COLUMNS - FIELD_BORDER do
+      field[FIELD_BORDER + line][number] := TRUE;
+    end for;
+  end func;
+
+
+const proc: draw_level_piece (in integer: line, in integer: column) is func
+  local
+    var integer: col1 is 0;
+    var integer: col2 is 0;
+    var integer: len2 is 0;
+  begin
+    col1 := 6 + (column + 3) div 14 * 14;
+    if col1 >= column then
+      rect(column              * FIELD_ELEM_STEP,
+           (16 + line)         * FIELD_ELEM_STEP,
+           (col1 - column + 1) * FIELD_ELEM_STEP,
+           2                   * FIELD_ELEM_STEP,
+           light_green);
+    end if;
+    col2 := 10 + (column + 3) div 14 * 14;
+    len2 := column + 13 - col2;
+    if len2 > 11 then
+      len2 := 11;
+    end if;
+    if col2 >= column (* and col2 + 13 <= column *) then
+      rect(col2                 * FIELD_ELEM_STEP,
+           (16 + line)          * FIELD_ELEM_STEP,
+           len2                 * FIELD_ELEM_STEP,
+           2                    * FIELD_ELEM_STEP,
+           light_green);
+    end if;
+    col1 := -2 + (column + 11) div 14 * 14;
+    if col1 >= column then
+      rect(column              * FIELD_ELEM_STEP,
+           (19 + line)         * FIELD_ELEM_STEP,
+           (col1 - column + 1) * FIELD_ELEM_STEP,
+           3                   * FIELD_ELEM_STEP,
+           light_green);
+    end if;
+    col2 := 2 + (column + 11) div 14 * 14;
+    len2 := column + 13 - col2;
+    if len2 > 11 then
+      len2 := 11;
+    end if;
+    if col2 >= column (* and col2 + 13 <= column *) then
+      rect(col2                 * FIELD_ELEM_STEP,
+           (19 + line)          * FIELD_ELEM_STEP,
+           len2                 * FIELD_ELEM_STEP,
+           3                    * FIELD_ELEM_STEP,
+           light_green);
+    end if;
+  end func;
+
+
+const proc: draw_hole (in integer: line, in integer: column,
+    in holeType: curr_hole_status) is func
+  begin
+    draw_level_piece(line, column);
+    case curr_hole_status of
+      when {hole_depth1}:
+        rect((2 + column) * FIELD_ELEM_STEP,
+             (16 + line)  * FIELD_ELEM_STEP,
+             9            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+        rect((4 + column) * FIELD_ELEM_STEP,
+             (17 + line)  * FIELD_ELEM_STEP,
+             5            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+      when {hole_depth2}:
+        rect(column       * FIELD_ELEM_STEP,
+             (16 + line)  * FIELD_ELEM_STEP,
+             13           * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+        rect((2 + column) * FIELD_ELEM_STEP,
+             (17 + line)  * FIELD_ELEM_STEP,
+             9            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+        rect((4 + column) * FIELD_ELEM_STEP,
+             (18 + line)  * FIELD_ELEM_STEP,
+             5            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+      when {hole_depth3}:
+        rect(column       * FIELD_ELEM_STEP,
+             (16 + line)  * FIELD_ELEM_STEP,
+             13           * FIELD_ELEM_STEP,
+             2            * FIELD_ELEM_STEP,
+             black);
+        rect((2 + column) * FIELD_ELEM_STEP,
+             (18 + line)  * FIELD_ELEM_STEP,
+             9            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+        rect((4 + column) * FIELD_ELEM_STEP,
+             (19 + line)  * FIELD_ELEM_STEP,
+             5            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+      when {hole_depth4}:
+        rect(column       * FIELD_ELEM_STEP,
+             (16 + line)  * FIELD_ELEM_STEP,
+             13           * FIELD_ELEM_STEP,
+             3            * FIELD_ELEM_STEP,
+             black);
+        rect((2 + column) * FIELD_ELEM_STEP,
+             (19 + line)  * FIELD_ELEM_STEP,
+             9            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+        rect((4 + column) * FIELD_ELEM_STEP,
+             (20 + line)  * FIELD_ELEM_STEP,
+             5            * FIELD_ELEM_STEP,
+             1            * FIELD_ELEM_STEP,
+             black);
+      when {hole_finished}:
+        rect(column       * FIELD_ELEM_STEP,
+             (16 + line)  * FIELD_ELEM_STEP,
+             13           * FIELD_ELEM_STEP,
+             6            * FIELD_ELEM_STEP,
+             black);
+    end case;
+  end func;
+
+
+const proc: draw_ladder (in integer: line1, in integer: line2, in integer: column) is func
+  local
+    var integer: number is 0;
+  begin
+    rect((1 + column)        * FIELD_ELEM_STEP,
+         (7 + line1)         * FIELD_ELEM_STEP,
+         13                  * FIELD_ELEM_STEP,
+         (line2- line1 + 10) * FIELD_ELEM_STEP,
+         black);
+    rect((1 + column)        * FIELD_ELEM_STEP,
+         (7 + line1)         * FIELD_ELEM_STEP,
+         1                   * FIELD_ELEM_STEP,
+         (line2- line1 + 10) * FIELD_ELEM_STEP,
+         light_magenta);
+    rect((13 + column)       * FIELD_ELEM_STEP,
+         (7 + line1)         * FIELD_ELEM_STEP,
+         1                   * FIELD_ELEM_STEP,
+         (line2- line1 + 10) * FIELD_ELEM_STEP,
+         light_magenta);
+    for number range line1 - 8 to line2 - 4 step 4 do
+      rect((2 + column)  * FIELD_ELEM_STEP,
+           (17 + number) * FIELD_ELEM_STEP,
+           11            * FIELD_ELEM_STEP,
+           2             * FIELD_ELEM_STEP,
+           light_magenta);
+    end for;
+  end func;
+
+
+const proc: mark_ladder (in integer: line1, in integer: line2,
+    in integer: column) is func
+  local
+    var integer: number is 0;
+  begin
+    for number range line1 to line2 do
+      field[FIELD_BORDER + number][FIELD_BORDER + column] := TRUE;
+    end for;
+  end func;
+
+
+const proc: set_ladder (in integer: line1, in integer: line2,
+    in integer: column) is func
+  begin
+    mark_ladder(line1, line2, column);
+    draw_ladder(line1, line2, column);
+  end func;
+
+
+const proc: init_ladders (in ladderLayout: layout_descr) is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(layout_descr) do
+      set_ladder(level_line[layout_descr[number][1]],
+                 level_line[layout_descr[number][2]],
+                 layout_descr[number][3]);
+    end for;
+  end func;
+
+
+const proc: change_direction (inout screenObj: monster) is func
+  local
+    var integer: num_directions is 0;
+    var integer: random_direction is 0;
+  begin
+    num_directions := 0;
+    if field[pred(monster.line)][monster.column] then
+      incr(num_directions);
+    end if;
+    if field[succ(monster.line)][monster.column] then
+      incr(num_directions);
+    end if;
+    if field[monster.line][pred(monster.column)] then
+      incr(num_directions);
+    end if;
+    if field[monster.line][succ(monster.column)] then
+      incr(num_directions);
+    end if;
+    if num_directions >= 1 then
+      random_direction := rand(1, num_directions);
+      if field[pred(monster.line)][monster.column] then
+        decr(random_direction);
+        if random_direction = 0 then
+          monster.line_direction := -SPEED;
+          monster.column_direction := 0;
+        end if;
+      end if;
+      if field[succ(monster.line)][monster.column] then
+        decr(random_direction);
+        if random_direction = 0 then
+          monster.line_direction := SPEED;
+          monster.column_direction := 0;
+        end if;
+      end if;
+      if field[monster.line][pred(monster.column)] then
+        decr(random_direction);
+        if random_direction = 0 then
+          monster.line_direction := 0;
+          monster.column_direction := -SPEED;
+        end if;
+      end if;
+      if field[monster.line][succ(monster.column)] then
+        decr(random_direction);
+        if random_direction = 0 then
+          monster.line_direction := 0;
+          monster.column_direction := SPEED;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: collision (in screenObj: obj1, in screenObj: obj2) is func
+  result
+    var boolean: collision is FALSE;
+  begin
+    if obj1.line + obj1.line_direction >= obj2.line - obj2.height and
+        obj1.line - obj1.height + obj1.line_direction <= obj2.line and
+        obj1.column + obj1.width + obj1.column_direction >= obj2.column and
+        obj1.column + obj1.column_direction <= obj2.column + obj2.width then
+      collision := TRUE;
+    end if;
+  end func;
+
+
+const func boolean: collision2 (in screenObj: obj1, in screenObj: obj2) is func
+  result
+    var boolean: collision is FALSE;
+  begin
+    if obj1.line + obj1.line_direction > obj2.line - obj2.height + obj2.line_direction and
+        obj1.line - obj1.height + obj1.line_direction < obj2.line + obj2.line_direction and
+        obj1.column + obj1.width + obj1.column_direction > obj2.column + obj2.column_direction and
+        obj1.column + obj1.column_direction < obj2.column + obj2.width + obj2.column_direction or
+        obj1.line + obj1.line_direction > obj2.line - obj2.height and
+        obj1.line - obj1.height + obj1.line_direction < obj2.line and
+        obj1.column + obj1.width + obj1.column_direction > obj2.column and
+        obj1.column + obj1.column_direction < obj2.column + obj2.width then
+      collision := TRUE;
+    end if;
+  end func;
+
+
+const proc: avoid_monster_collision (inout screenObj: screenObject) is func
+  local
+    var integer: number is 0;
+    var boolean: collision_found is FALSE;
+  begin
+    for number range 1 to length(monster) do
+      if (screenObject.line <> monster[number].line or
+          screenObject.column <> monster[number].column) and
+          collision(screenObject, monster[number]) then
+        if collision_found then
+          if screenObject.column >= monster[number].column then
+            if screenObject.column_direction < 0 then
+              screenObject.column_direction := 0;
+            end if;
+          else
+            if screenObject.column_direction > 0 then
+              screenObject.column_direction := 0;
+            end if;
+          end if;
+          if screenObject.line >= monster[number].line then
+            if screenObject.line_direction < 0 then
+              screenObject.line_direction := 0;
+            end if;
+          else
+            if screenObject.line_direction > 0 then
+              screenObject.line_direction := 0;
+            end if;
+          end if;
+        else
+          collision_found := TRUE;
+          if screenObject.column_direction <> 0 then
+            if screenObject.column >= monster[number].column then
+              screenObject.column_direction := SPEED;
+            else
+              screenObject.column_direction := -SPEED;
+            end if;
+          elsif screenObject.line_direction <> 0 then
+            if screenObject.line >= monster[number].line then
+              screenObject.line_direction := SPEED;
+            else
+              screenObject.line_direction := -SPEED;
+            end if;
+          end if;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: move (inout screenObj: screenObject) is func
+  begin
+    if screenObject.moving and screenObject.motionIndex = 0 then
+      incr(screenObject.actual_pixmap_index);
+      if screenObject.actual_pixmap_index > length(screenObject.pixmap) then
+        screenObject.actual_pixmap_index := 1;
+      end if;
+      if screenObject.line_direction <> 0 or screenObject.column_direction <> 0 or
+          width(screenObject.saved_pixmap) <> screenObject.width * PICTURE_SCALE then
+        put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+            FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
+            screenObject.saved_pixmap, PSET);
+        screenObject.line +:= screenObject.line_direction;
+        screenObject.column +:= screenObject.column_direction;
+        screenObject.saved_pixmap := getPixmap(
+            FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+            FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
+            screenObject.width * PICTURE_SCALE,
+            screenObject.height * PICTURE_SCALE);
+      end if;
+      put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+          FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
+          screenObject.pixmap[screenObject.actual_pixmap_index], PSET);
+      screenObject.motionIndex := screenObject.motionSpeed;
+    elsif screenObject.motionIndex > 0 then
+      decr(screenObject.motionIndex);
+    end if;
+  end func;
+
+
+const proc: visible (inout screenObj: screenObject) is func
+  begin
+    screenObject.saved_pixmap := getPixmap(
+        FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+        FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
+        screenObject.width * PICTURE_SCALE,
+        screenObject.height * PICTURE_SCALE);
+    put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+        FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
+        screenObject.pixmap[screenObject.actual_pixmap_index], PSET);
+  end func;
+
+
+const proc: invisible (inout screenObj: screenObject) is func
+  begin
+    put(FIELD_X_START + screenObject.column * FIELD_ELEM_STEP,
+        FIELD_Y_START + screenObject.line * FIELD_ELEM_STEP - screenObject.height * PICTURE_SCALE,
+        screenObject.saved_pixmap, PSET);
+  end func;
+
+
+const proc: place (inout screenObj: screenObject,
+    in integer: line, in integer: column) is func
+  begin
+    screenObject.line := line;
+    screenObject.column := column;
+    visible(screenObject);
+  end func;
+
+
+const proc: jump (inout screenObj: screenObject,
+    in integer: line, in integer: column) is func
+  begin
+    invisible(screenObject);
+    screenObject.line := line;
+    screenObject.column := column;
+    visible(screenObject);
+  end func;
+
+
+const proc: die (inout screenObj: screenObject) is func
+  begin
+    screenObject.moving := FALSE;
+    screenObject.line := -100;
+    screenObject.column := -100;
+    decr(game.num_monsters);
+    if game.num_monsters = 0 then
+      game.round_finished := TRUE;
+    end if;
+  end func;
+
+
+const proc: save_overlapping (inout screenObj: screenObject) is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(monster) do
+      if (screenObject.line <> monster[number].line or
+          screenObject.column <> monster[number].column) and
+          collision(screenObject, monster[number]) then
+        invisible(monster[number]);
+      end if;
+    end for;
+    if collision(screenObject, player) then
+      invisible(player);
+    end if;
+  end func;
+
+
+const proc: restore_overlapping (inout screenObj: screenObject) is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(monster) do
+      if (screenObject.line <> monster[number].line or
+          screenObject.column <> monster[number].column) and
+          collision(screenObject, monster[number]) then
+        visible(monster[number]);
+      end if;
+    end for;
+    if collision(screenObject, player) then
+      visible(player);
+    end if;
+  end func;
+
+
+const proc: redraw_hole (in integer: line, in integer: column, inout monsterObj: currObject) is func
+  begin
+    invisible(currObject);
+    draw_hole(line, column, no_hole);
+    visible(currObject);
+  end func;
+
+
+const proc: mark_hole (in integer: line, in integer: column,
+    in holeType: curr_hole_status) is func
+  local
+    var integer: depth is 0;
+  begin
+    hole_status[line][column] := curr_hole_status;
+    case curr_hole_status of
+      when {no_hole}:
+        for depth range 1 to TRAP_DEPTH do
+          hole_status[line + depth][column] := no_hole;
+        end for;
+      when {hole_depth1}:
+        hole_status[line + 1][column] := hole_part;
+        hole_status[line + 2][column] := hole_unfinished;
+      when {hole_depth2}:
+        hole_status[line + 1][column] := hole_part;
+        hole_status[line + 2][column] := hole_part;
+        hole_status[line + 3][column] := hole_unfinished;
+      when {hole_depth3}:
+        hole_status[line + 1][column] := hole_part;
+        hole_status[line + 2][column] := hole_part;
+        hole_status[line + 3][column] := hole_part;
+        hole_status[line + 4][column] := hole_unfinished;
+      when {hole_depth4}:
+        hole_status[line + 1][column] := hole_part;
+        hole_status[line + 2][column] := hole_part;
+        hole_status[line + 3][column] := hole_part;
+        hole_status[line + 4][column] := hole_part;
+        hole_status[line + 5][column] := hole_unfinished;
+      when {hole_finished}:
+        for depth range 1 to pred(TRAP_DEPTH) do
+          hole_status[line + depth][column] := hole_part;
+        end for;
+        hole_status[line + TRAP_DEPTH][column] := hole_bottom;
+    end case;
+  end func;
+
+
+const proc: fall_at_monsters (inout monsterObj: currObject) is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(monster) do
+      if (currObject.line <> monster[number].line or
+          currObject.column <> monster[number].column) and
+          collision(currObject, monster[number]) then
+        if hole_status[monster[number].line - TRAP_DEPTH][monster[number].column] >= hole_filled then
+          if monster[number].column = currObject.column then
+            currObject.basePoints +:= 100 * monster[number].category;
+            incr(currObject.holes_passed);
+            invisible(monster[number]);
+            die(monster[number]);
+          else
+            hole_status[monster[number].line - TRAP_DEPTH][monster[number].column] := hole_pounded;
+            decr(currObject.line_direction);
+          end if;
+        else
+          currObject.points +:= 100 * monster[number].category;
+          invisible(monster[number]);
+          die(monster[number]);
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: check_falling (inout monsterObj: currObject, in holeType: curr_hole_status) is func
+  local
+    var integer: number is 0;
+  begin
+    if field[currObject.line][currObject.column] and
+        (curr_hole_status < hole_finished or curr_hole_status = hole_leaving) then
+      if currObject.line_direction <> 0 then
+        currObject.line_direction := 0;
+        if curr_hole_status = hole_leaving then
+          mark_hole(currObject.line, currObject.column, no_hole);
+          draw_hole(currObject.line, currObject.column, no_hole);
+        end if;
+        currObject.action_time := time(NOW) + 100000 . MICRO_SECONDS;
+      elsif time(NOW) >= currObject.action_time then
+        game.score +:= currObject.points;
+        draw_number(24, 10, game.score lpad 6);
+        if game.score > game.hiScore then
+          game.hiScore := game.score;
+          draw_number(24, 35, game.hiScore lpad 6);
+        end if;
+        if currObject.category <= currObject.holes_passed then
+          invisible(currObject);
+          currObject.pixmap := [](number_pixmap(str(currObject.points)));
+          currObject.actual_pixmap_index := 1;
+          currObject.height := height(currObject.pixmap[1]) div PICTURE_SCALE;
+          currObject.width := width(currObject.pixmap[1]) div PICTURE_SCALE;
+          currObject.line -:= 10;
+          currObject.column -:= 6;
+          save_overlapping(currObject);
+          visible(currObject);
+          restore_overlapping(currObject);
+          currObject.action_time := time(NOW) + 1 . SECONDS;
+        else
+          currObject.falling := FALSE;
+        end if;
+        currObject.points := 0;
+      end if;
+    else
+      if currObject.points > 0 then
+        currObject.line_direction := 1;
+        while currObject.line_direction <= FALL_SPEED and
+            currObject.line + currObject.line_direction <= length(field) and
+            not field[currObject.line + currObject.line_direction][currObject.column] do
+          incr(currObject.line_direction);
+        end while;
+        fall_at_monsters(currObject);
+        for number range 1 to currObject.line_direction do
+          if hole_status[currObject.line - number][currObject.column] = hole_finished or
+              hole_status[currObject.line - number][currObject.column] = hole_entering or
+              hole_status[currObject.line - number][currObject.column] >= hole_filled then
+            mark_hole(currObject.line - number, currObject.column, no_hole);
+            redraw_hole(currObject.line - number, currObject.column, currObject);
+            incr(currObject.holes_passed);
+            currObject.points +:= currObject.basePoints;
+          end if;
+        end for;
+      elsif time(NOW) >= currObject.action_time then
+        save_overlapping(currObject);
+        invisible(currObject);
+        restore_overlapping(currObject);
+        die(currObject);
+      end if;
+    end if;
+  end func;
+
+
+const proc: set_direction (inout monsterObj: currObject,
+    in integer: line, in integer: column) is func
+  begin
+    if abs(currObject.line - line) >= abs(currObject.column - column) then
+      if currObject.line < line then
+        currObject.line_direction := 1;
+      elsif currObject.line = line then
+        currObject.line_direction := 0;
+      else
+        currObject.line_direction := -1;
+      end if;
+      if abs(currObject.line - line) > abs(currObject.column - column) then
+        currObject.column_direction := 0;
+      end if;
+    elsif abs(currObject.line - line) <= abs(currObject.column - column) then
+      if currObject.column < column then
+        currObject.column_direction := 1;
+      elsif currObject.column = column then
+        currObject.column_direction := 0;
+      else
+        currObject.column_direction := -1;
+      end if;
+      if abs(currObject.line - line) < abs(currObject.column - column) then
+        currObject.line_direction := 0;
+      end if;
+    end if;
+  end func;
+
+
+const proc: player_collision (inout monsterObj: currObject) is func
+  begin
+    if player.living then
+      player.line_direction := 0;
+      player.column_direction := 0;
+      player.moving := FALSE;
+      player.motionSpeed := CATCH_MOTION;
+      player.living := FALSE;
+      player.command := ' ';
+      currObject.catching := TRUE;
+      set_direction(currObject, player.line - 6, player.column);
+    elsif currObject.catching then
+      if currObject.line_direction <> 0 or currObject.column_direction <> 0 then
+        if currObject.line <> player.line - 6 or currObject.column <> player.column then
+          set_direction(currObject, player.line - 6, player.column);
+        else
+          currObject.line_direction := 0;
+          currObject.column_direction := 0;
+          if game.num_players > 1 then
+            currObject.action_time := time(NOW) + 5 . SECONDS;
+          else
+            currObject.action_time := time.value;
+          end if;
+        end if;
+      elsif currObject.action_time <> time.value and
+          time(NOW) >= currObject.action_time then
+        game.round_finished := TRUE;
+      end if;
+    else
+      if currObject.column_direction <> 0 then
+        if currObject.column >= player.column then
+          currObject.column_direction := SPEED;
+        else
+          currObject.column_direction := -SPEED;
+        end if;
+      elsif currObject.line_direction <> 0 then
+        if currObject.line >= player.line then
+          currObject.line_direction := SPEED;
+        else
+          currObject.line_direction := -SPEED;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: check_hole (inout monsterObj: currObject, in holeType: curr_hole_status) is func
+  local
+    var integer: number is 0;
+  begin
+    if curr_hole_status < hole_finished then
+      currObject.saved_column_direction := currObject.column_direction;
+      currObject.line_direction := SPEED;
+      currObject.column_direction := 0;
+    elsif curr_hole_status = hole_finished then
+      currObject.saved_column_direction := currObject.column_direction;
+      currObject.column_direction := 0;
+      if collision2(currObject, player) then
+        player_collision(currObject);
+      else
+        currObject.line_direction := SPEED;
+        hole_status[currObject.line][currObject.column] := hole_entering;
+      end if;
+    elsif curr_hole_status = hole_leaving then
+      currObject.line_direction := 0;
+      currObject.column_direction := currObject.saved_column_direction;
+      currObject.motionSpeed := FULL_MOTION;
+      mark_hole(currObject.line, currObject.column, no_hole);
+    elsif curr_hole_status = hole_part then
+      noop;
+    elsif curr_hole_status = hole_unfinished then
+      for number range 1 to TRAP_DEPTH do
+        if currObject.line - number >= 1 and
+            hole_status[currObject.line - number][currObject.column] in
+            {hole_depth1, hole_depth2, hole_depth3, hole_depth4} then
+          hole_status[currObject.line - number][currObject.column] := hole_leaving;
+          redraw_hole(currObject.line - number, currObject.column, currObject);
+        end if;
+      end for;
+      currObject.line_direction := -SPEED;
+      currObject.motionSpeed := LEAVE_MOTION;
+    elsif curr_hole_status = hole_bottom then
+      if currObject.line_direction <> 0 then
+        currObject.line_direction := 0;
+        currObject.column_direction := 0;
+        currObject.action_time := time(NOW) + TIME_IN_HOLE;
+        hole_status[currObject.line - TRAP_DEPTH][currObject.column] := hole_filled;
+      elsif hole_status[currObject.line - TRAP_DEPTH][currObject.column] = hole_pounded then
+        mark_hole(currObject.line - TRAP_DEPTH, currObject.column, no_hole);
+        redraw_hole(currObject.line - TRAP_DEPTH, currObject.column, currObject);
+        currObject.line_direction := FALL_SPEED;
+        currObject.falling := TRUE;
+        currObject.holes_passed := 1;
+        currObject.basePoints := 100 * currObject.category;
+        currObject.points := currObject.basePoints;
+      else
+        if time(NOW) >= currObject.action_time then
+          hole_status[currObject.line - TRAP_DEPTH][currObject.column] := hole_leaving;
+          redraw_hole(currObject.line - TRAP_DEPTH, currObject.column, currObject);
+          currObject.line_direction := -SPEED;
+          currObject.motionSpeed := LEAVE_MOTION;
+          if player.falling and collision2(currObject, player) then
+            player_collision(currObject);
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: check_direction (inout monsterObj: currObject) is func
+  local
+    var holeType: curr_hole_status is no_hole;
+  begin
+    if currObject.moving then
+      if currObject.line >= 1 then
+        curr_hole_status := hole_status[currObject.line][currObject.column];
+      end if;
+      if currObject.catching then
+        player_collision(currObject);
+      elsif currObject.falling then
+        check_falling(currObject, curr_hole_status);
+      elsif curr_hole_status <> no_hole then
+        check_hole(currObject, curr_hole_status);
+      elsif collision2(currObject, player) then
+        player_collision(currObject);
+      elsif currObject.column_direction <> 0 then
+        if field[pred(currObject.line)][currObject.column] or
+            field[succ(currObject.line)][currObject.column] then
+          change_direction(currObject);
+        elsif not field[currObject.line]
+            [currObject.column + currObject.column_direction] then
+          currObject.column_direction := -currObject.column_direction;
+        else
+          avoid_monster_collision(currObject);
+        end if;
+      elsif currObject.line_direction <> 0 then
+        if field[currObject.line][pred(currObject.column)] or
+            field[currObject.line][succ(currObject.column)] then
+          change_direction(currObject);
+        elsif not field[currObject.line + currObject.line_direction]
+            [currObject.column] then
+          currObject.line_direction := -currObject.line_direction;
+        else
+          avoid_monster_collision(currObject);
+        end if;
+      else
+        change_direction(currObject);
+        check_direction(currObject);
+      end if;
+    end if;
+  end func;
+
+
+const proc: place_monster (inout screenObj: screenObject,
+    in integer: number, in integer: line) is func
+  local
+    var boolean: place_is_ok is FALSE;
+    var integer: num is 0;
+  begin
+    screenObject.line := FIELD_BORDER + line;
+    repeat
+      screenObject.column := rand(succ(FIELD_BORDER), FIELD_COLUMNS - FIELD_BORDER) div SPEED * SPEED;
+      place_is_ok := TRUE;
+      for num range 1 to pred(number) do
+        if collision(screenObject, monster[num]) then
+          place_is_ok := FALSE;
+        end if;
+      end for;
+    until place_is_ok;
+    place(screenObject, FIELD_BORDER + line, screenObject.column);
+  end func;
+
+
+const proc: draw_reserve (in var integer: num_players) is func
+  local
+    var integer: number is 0;
+  begin
+    if num_players > 5 then
+      num_players := 5;
+    end if;
+    for number range 1 to num_players do
+      put((number * 7 - 6) * FIELD_ELEM_STEP,
+          succ(186         * FIELD_ELEM_STEP),
+          player_reserve_pixmap, PSET);
+    end for;
+    for number range succ(num_players) to 4 do
+      rect((number * 7 - 6) * FIELD_ELEM_STEP,
+          succ(186          * FIELD_ELEM_STEP),
+          7                 * FIELD_ELEM_STEP,
+          8                 * FIELD_ELEM_STEP,
+          black);
+    end for;
+  end func;
+
+
+const proc: init_round (in integer: num_round) is func
+  local
+    var time: start_time is time.value;
+    var integer: number is 0;
+  begin
+    start_time := time(NOW);
+    game.round_finished := FALSE;
+    field := FIELD_LINES times FIELD_COLUMNS times FALSE;
+    hole_status := FIELD_LINES times FIELD_COLUMNS times no_hole;
+    for number range 1 to pred(NUM_LEVELS) do
+      mark_level(level_line[number]);
+      draw_level(level_line[number]);
+    end for;
+    mark_level(level_line[NUM_LEVELS]);
+    draw_base_level(level_line[NUM_LEVELS]);
+    init_ladders(layout_description[rand(1, 4)]);
+    rect(1   * FIELD_ELEM_STEP,
+         182 * FIELD_ELEM_STEP,
+         223 * FIELD_ELEM_STEP,
+         3   * FIELD_ELEM_STEP,
+         light_blue);
+    rect(226 * FIELD_ELEM_STEP,
+         182 * FIELD_ELEM_STEP,
+         41  * FIELD_ELEM_STEP,
+         3   * FIELD_ELEM_STEP,
+         orange);
+    draw_reserve(game.num_players);
+    put(succ(6 * 7) * FIELD_ELEM_STEP,
+        succ(186    * FIELD_ELEM_STEP),
+        score_text_pixmap, PSET);
+    if game.score <> 0 then
+      draw_number(24, 10, game.score lpad 6);
+    end if;
+    game.round_bonus := round_description[num_round][4];
+    put(succ(17 * 7) * FIELD_ELEM_STEP,
+        succ(186    * FIELD_ELEM_STEP),
+        bonus_text_pixmap, PSET);
+    draw_number(24, 24, game.round_bonus lpad 4);
+    put(succ(31 * 7) * FIELD_ELEM_STEP,
+        succ(186    * FIELD_ELEM_STEP),
+        hiscore_text_pixmap, PSET);
+    if game.hiScore <> 0 then
+      draw_number(24, 35, game.hiScore lpad 6);
+    end if;
+    game.num_monsters := round_description[num_round][1] +
+      round_description[num_round][2] +
+      round_description[num_round][3];
+    monster := game.num_monsters times monsterObj.value;
+    for number range 1 to game.num_monsters do
+      if number <= round_description[num_round][1] then
+        monster[number].pixmap := monster_pixmap[1];
+        monster[number].category := 1;
+      elsif number <= round_description[num_round][1] + round_description[num_round][2] then
+        monster[number].pixmap := monster_pixmap[2];
+        monster[number].category := 2;
+      else
+        monster[number].pixmap := monster_pixmap[3];
+        monster[number].category := 3;
+      end if;
+      monster[number].actual_pixmap_index := rand(1, length(monster[number].pixmap));
+      monster[number].height := height(monster[number].pixmap[1]) div PICTURE_SCALE;
+      monster[number].width := width(monster[number].pixmap[1]) div PICTURE_SCALE;
+    end for;
+    DRAW_FLUSH;
+    game_command(busy_getc(KEYBOARD));
+    if not game.round_finished and not game.quit then
+      await(start_time + 500000 . MICRO_SECONDS);
+    end if;
+    number := 1;
+    while number <= game.num_monsters and not game.round_finished and not game.quit do
+      start_time := time(NOW);
+      place_monster(monster[number], number, level_line[rand(1, pred(NUM_LEVELS))]);
+      change_direction(monster[number]);
+      incr(number);
+      DRAW_FLUSH;
+      game_command(busy_getc(KEYBOARD));
+      if not game.round_finished and not game.quit then
+        await(start_time + 500000 . MICRO_SECONDS);
+      end if;
+    end while;
+    if not game.round_finished and not game.quit then
+      draw_reserve(pred(game.num_players));
+      player := playerObj.value;
+      player.moving := FALSE;
+      player.pixmap := player_right_pixmap;
+      player.actual_pixmap_index := 1;
+      player.height := height(player.pixmap[1]) div PICTURE_SCALE;
+      player.width := width(player.pixmap[1]) div PICTURE_SCALE;
+      place(player, FIELD_BORDER + level_line[length(level_line)], 136 div SPEED * SPEED);
+    end if;
+  end func;
+
+
+const proc: dig_hole (inout playerObj: playerObject,
+    in integer: line, in integer: column) is func
+  local
+    var holeType: curr_hole_status is no_hole;
+  begin
+    curr_hole_status := hole_status[line][column];
+    if curr_hole_status >= hole_finished then
+      playerObject.command := ' ';
+    elsif curr_hole_status < hole_finished then
+      incr(curr_hole_status);
+      mark_hole(line, column, curr_hole_status);
+      draw_hole(line, column, curr_hole_status);
+      if curr_hole_status = hole_finished then
+        playerObject.command := ' ';
+      end if;
+    end if;
+  end func;
+
+
+const proc: shut_hole (inout playerObj: playerObject,
+    in integer: line, in integer: column) is func
+  local
+    var holeType: curr_hole_status is no_hole;
+  begin
+    curr_hole_status := hole_status[line][column];
+    if curr_hole_status = no_hole then
+      playerObject.command := ' ';
+    elsif curr_hole_status <= hole_finished then
+      decr(curr_hole_status);
+      mark_hole(line, column, curr_hole_status);
+      draw_hole(line, column, curr_hole_status);
+      if curr_hole_status = no_hole then
+        playerObject.command := ' ';
+      end if;
+    elsif curr_hole_status >= hole_filled and curr_hole_status < hole_pounded then
+      incr(curr_hole_status);
+      hole_status[line][column] := curr_hole_status;
+      if curr_hole_status = hole_pounded then
+        playerObject.command := ' ';
+      end if;
+    end if;
+  end func;
+
+
+const proc: do_dig (inout playerObj: playerObject) is func
+  begin
+    if playerObject.digging and playerObject.actual_pixmap_index = 1 then
+      if playerObject.dig_direction > 0 then
+        if playerObject.face_direction < 0 then
+          dig_hole(playerObject, playerObject.line, playerObject.column - 13);
+        else
+          dig_hole(playerObject, playerObject.line, playerObject.column + 13);
+        end if;
+      else
+        if playerObject.face_direction < 0 then
+          shut_hole(playerObject, playerObject.line, playerObject.column - 13);
+        else
+          shut_hole(playerObject, playerObject.line, playerObject.column + 13);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: hole_position_ok (in integer: line, in integer: column) is func
+  result
+    var boolean: position_ok is TRUE;
+  local
+    var integer: col is 0;
+  begin
+    if line = FIELD_BORDER + level_line[NUM_LEVELS] then
+      position_ok := FALSE;
+    elsif column - 2 < 1 or column + 2 > length(field[line]) then
+      position_ok := FALSE;
+    elsif hole_status[line][column] = no_hole then
+      for col range column - 14 to column + 14 do
+        if col >= 1 and col <= length(field[line]) and
+            (field[pred(line)][col] or
+            field[succ(line)][col] or
+            hole_status[line][col] <> no_hole) then
+          position_ok := FALSE;
+        end if;
+      end for;
+    end if;
+    if column rem 4 <> 0 then
+      position_ok := FALSE;
+    end if;
+  end func;
+
+
+const func integer: ladder_up_direction (inout playerObj: playerObject) is func
+  result
+    var integer: direction is 0;
+  local
+    var integer: col is 0;
+  begin
+    for col range playerObject.column - 12 to playerObject.column - 1 do
+      if col >= 1 and col <= length(field[playerObject.line]) and
+          field[pred(playerObject.line)][col] then
+        direction := -1;
+      end if;
+    end for;
+    for col range playerObject.column + 1 to playerObject.column + 13 do
+      if col >= 1 and col <= length(field[playerObject.line]) and
+          field[pred(playerObject.line)][col] then
+        direction := 1;
+      end if;
+    end for;
+  end func;
+
+
+const func integer: ladder_down_direction (inout playerObj: playerObject) is func
+  result
+    var integer: direction is 0;
+  local
+    var integer: col is 0;
+  begin
+    for col range playerObject.column - 12 to playerObject.column - 1 do
+      if col >= 1 and col <= length(field[playerObject.line]) and
+          field[succ(playerObject.line)][col] then
+        direction := -1;
+      end if;
+    end for;
+    for col range playerObject.column + 1 to playerObject.column + 13 do
+      if col >= 1 and col <= length(field[playerObject.line]) and
+          field[succ(playerObject.line)][col] then
+        direction := 1;
+      end if;
+    end for;
+  end func;
+
+
+const func integer: level_direction (inout playerObj: playerObject) is func
+  result
+    var integer: direction is 0;
+  local
+    var integer: lin is 0;
+  begin
+    for lin range playerObject.line - 15 to playerObject.line - 1 do
+      if lin >= 1 and lin <= length(field) and
+          field[lin][succ(playerObject.column)] then
+        direction := -1;
+      end if;
+    end for;
+    for lin range playerObject.line + 1 to playerObject.line + 6 do
+      if lin >= 1 and lin <= length(field) and
+          field[lin][succ(playerObject.column)] then
+        direction := 1;
+      end if;
+    end for;
+  end func;
+
+
+const func integer: hole_direction (inout playerObj: playerObject) is func
+  result
+    var integer: direction is 0;
+  local
+    var integer: col is 0;
+  begin
+    for col range playerObject.column - 14 downto playerObject.column - 20 do
+      if col >= 1 and col <= length(hole_status[playerObject.line]) and
+          hole_status[playerObject.line][col] <> no_hole then
+        direction := -1;
+      end if;
+    end for;
+    for col range playerObject.column + 14 to playerObject.column + 20 do
+      if col >= 1 and col <= length(hole_status[playerObject.line]) and
+          hole_status[playerObject.line][col] <> no_hole then
+        direction := 1;
+      end if;
+    end for;
+  end func;
+
+
+const proc: stop (inout playerObj: playerObject) is func
+  begin
+    playerObject.line_direction := 0;
+    playerObject.column_direction := 0;
+    playerObject.moving := FALSE;
+    playerObject.digging := FALSE;
+  end func;
+
+
+const proc: left (inout playerObj: playerObject) is func
+  begin
+    if playerObject.column_direction <> -SPEED then
+      playerObject.line_direction := 0;
+      playerObject.column_direction := -SPEED;
+      playerObject.face_direction := -1;
+      playerObject.moving := TRUE;
+      playerObject.digging := FALSE;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_left_pixmap;
+      playerObject.width := 14;
+    end if;
+  end func;
+
+
+const proc: right (inout playerObj: playerObject) is func
+  begin
+    if playerObject.column_direction <> SPEED then
+      playerObject.line_direction := 0;
+      playerObject.column_direction := SPEED;
+      playerObject.face_direction := 1;
+      playerObject.moving := TRUE;
+      playerObject.digging := FALSE;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_right_pixmap;
+      playerObject.width := 14;
+    end if;
+  end func;
+
+
+const proc: up (inout playerObj: playerObject) is func
+  begin
+    if playerObject.line_direction <> -SPEED then
+      playerObject.line_direction := -SPEED;
+      playerObject.column_direction := 0;
+      playerObject.face_direction := 0;
+      playerObject.moving := TRUE;
+      playerObject.digging := FALSE;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_up_pixmap;
+      playerObject.width := 13;
+    end if;
+  end func;
+
+
+const proc: down (inout playerObj: playerObject) is func
+  begin
+    if playerObject.line_direction <> SPEED then
+      playerObject.line_direction := SPEED;
+      playerObject.column_direction := 0;
+      playerObject.face_direction := 0;
+      playerObject.moving := TRUE;
+      playerObject.digging := FALSE;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_down_pixmap;
+      playerObject.width := 13;
+    end if;
+  end func;
+
+
+const proc: dig_left (inout playerObj: playerObject) is func
+  begin
+    if not playerObject.digging or playerObject.dig_direction <> 1 then
+      playerObject.line_direction := 0;
+      playerObject.column_direction := 0;
+      playerObject.moving := TRUE;
+      playerObject.digging := TRUE;
+      playerObject.dig_direction := 1;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_dig_left_pixmap;
+      playerObject.width := 13;
+    end if;
+  end func;
+
+
+const proc: dig_right (inout playerObj: playerObject) is func
+  begin
+    if not playerObject.digging or playerObject.dig_direction <> 1 then
+      playerObject.line_direction := 0;
+      playerObject.column_direction := 0;
+      playerObject.moving := TRUE;
+      playerObject.digging := TRUE;
+      playerObject.dig_direction := 1;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_dig_right_pixmap;
+      playerObject.width := 13;
+    end if;
+  end func;
+
+
+const proc: shut_left (inout playerObj: playerObject) is func
+  begin
+    if not playerObject.digging or playerObject.dig_direction <> -1 then
+      playerObject.line_direction := 0;
+      playerObject.column_direction := 0;
+      playerObject.moving := TRUE;
+      playerObject.digging := TRUE;
+      playerObject.dig_direction := -1;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_dig_left_pixmap;
+      playerObject.width := 13;
+    end if;
+  end func;
+
+
+const proc: shut_right (inout playerObj: playerObject) is func
+  begin
+    if not playerObject.digging or playerObject.dig_direction <> -1 then
+      playerObject.line_direction := 0;
+      playerObject.column_direction := 0;
+      playerObject.moving := TRUE;
+      playerObject.digging := TRUE;
+      playerObject.dig_direction := -1;
+      playerObject.actual_pixmap_index := 1;
+      playerObject.pixmap := player_dig_right_pixmap;
+      playerObject.width := 13;
+    end if;
+  end func;
+
+
+const proc: go_horizontally (inout playerObj: playerObject, in integer: direction) is func
+  begin
+    if direction = -1 then
+      left(playerObject);
+    elsif direction = 1 then
+      right(playerObject);
+    end if;
+  end func;
+
+
+const proc: go_vertically (inout playerObj: playerObject, in integer: direction) is func
+  begin
+    if direction = -1 then
+      up(playerObject);
+    elsif direction = 1 then
+      down(playerObject);
+    end if;
+  end func;
+
+
+const proc: player_falling (inout playerObj: playerObject) is func
+  local
+    var integer: number is 0;
+  begin
+    if field[playerObject.line][playerObject.column] and
+        hole_status[playerObject.line][playerObject.column] <= hole_depth4 then
+      playerObject.line_direction := 0;
+      playerObject.falling := FALSE;
+    else
+      playerObject.line_direction := SPEED;
+      for number range 1 to length(monster) do
+        if collision2(monster[number], playerObject) then
+          playerObject.line_direction := 0;
+          if monster[number].line_direction = 0 and
+              monster[number].column_direction = 0 then
+            if playerObject.command = KEY_LEFT then
+              if pred(playerObject.column) >= succ(FIELD_BORDER) then
+                left(playerObject);
+              else
+                stop(playerObject);
+              end if;
+            elsif playerObject.command = KEY_RIGHT then
+              if succ(playerObject.column) <= FIELD_COLUMNS - FIELD_BORDER then
+                right(playerObject);
+              else
+                stop(playerObject);
+              end if;
+            elsif playerObject.command = ' ' then
+              stop(playerObject);
+            end if;
+          end if;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const proc: process_command (inout playerObj: playerObject) is func
+  begin
+    if playerObject.command = KEY_UP then
+      if field[pred(playerObject.line)][playerObject.column] then
+        up(playerObject);
+      elsif playerObject.column_direction = 0 then
+        go_horizontally(playerObject, ladder_up_direction(playerObject));
+      end if
+    elsif playerObject.command = KEY_DOWN then
+      if field[succ(playerObject.line)][playerObject.column] then
+        down(playerObject);
+      elsif playerObject.column_direction = 0 then
+        go_horizontally(playerObject, ladder_down_direction(playerObject));
+      end if;
+    elsif playerObject.command = KEY_LEFT then
+      if field[playerObject.line][pred(playerObject.column)] then
+        left(playerObject);
+      elsif playerObject.line_direction = 0 then
+        go_vertically(playerObject, level_direction(playerObject));
+      end if;
+    elsif playerObject.command = KEY_RIGHT then
+      if field[playerObject.line][succ(playerObject.column)] then
+        right(playerObject);
+      elsif playerObject.line_direction = 0 then
+        go_vertically(playerObject, level_direction(playerObject));
+      end if;
+    elsif playerObject.command = 'A' then
+      if playerObject.face_direction < 0 and
+          hole_position_ok(playerObject.line, playerObject.column - 13) then
+        dig_left(playerObject);
+      elsif playerObject.face_direction > 0 and
+          hole_position_ok(playerObject.line, playerObject.column + 13) then
+        dig_right(playerObject);
+      elsif playerObject.column_direction = 0 and
+          playerObject.line <> FIELD_BORDER + level_line[NUM_LEVELS] then
+        go_horizontally(playerObject, playerObject.face_direction);
+      end if;
+    elsif playerObject.command = 'S' then
+      if playerObject.face_direction < 0 and
+          playerObject.column > 13 and
+          hole_status[playerObject.line][playerObject.column - 13] <> no_hole then
+        shut_left(playerObject);
+      elsif playerObject.face_direction > 0 and
+          playerObject.column + 13 <= length(hole_status[playerObject.line]) and
+          hole_status[playerObject.line][playerObject.column + 13] <> no_hole then
+        shut_right(playerObject);
+      elsif playerObject.column_direction = 0 and
+          playerObject.face_direction = hole_direction(playerObject) then
+        go_horizontally(playerObject, playerObject.face_direction);
+      end if;
+    elsif playerObject.command = ' ' then
+      stop(playerObject);
+    end if;
+  end func;
+
+
+const proc: stop_at_hole (inout playerObj: playerObject) is func
+  begin
+    if playerObject.command not in {'A', 'S'} then
+      if playerObject.face_direction < 0 then
+        if playerObject.column > 13 and
+            hole_status[playerObject.line][playerObject.column - 13] not in
+            {no_hole, hole_finished} then
+          playerObject.moving := FALSE;
+          playerObject.column_direction := 0;
+        end if;
+      elsif playerObject.face_direction > 0 then
+        if playerObject.column + 13 <= length(hole_status[playerObject.line]) and
+            hole_status[playerObject.line][playerObject.column + 13] not in
+            {no_hole, hole_finished} then
+          playerObject.moving := FALSE;
+          playerObject.column_direction := 0;
+          if player.width > 13 then
+            player.width := 13;
+          end if;
+        elsif player.width > 13 and
+            playerObject.column +  player.width <= length(hole_status[playerObject.line]) and
+            hole_status[playerObject.line][playerObject.column +  player.width] not in
+            {no_hole, hole_finished} then
+          playerObject.moving := FALSE;
+          playerObject.column_direction := 0;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: process (inout playerObj: playerObject) is func
+  begin
+    if playerObject.falling then
+      player_falling(playerObject);
+    elsif hole_status[playerObject.line][playerObject.column] = hole_finished then
+      playerObject.line_direction := SPEED;
+      playerObject.column_direction := 0;
+      playerObject.falling := TRUE;
+      playerObject.face_direction := 0;
+      playerObject.pixmap := player_falling_pixmap;
+    else
+      process_command(playerObject);
+      stop_at_hole(playerObject);
+      if not field[playerObject.line][playerObject.column + playerObject.column_direction] then
+        playerObject.moving := FALSE;
+        playerObject.column_direction := 0;
+      end if;
+      if not field[playerObject.line + playerObject.line_direction][playerObject.column] then
+        playerObject.moving := FALSE;
+        playerObject.line_direction := 0;
+      end if;
+    end if;
+  end func;
+
+
+const proc: get_command (inout playerObj: playerObject) is func
+  local
+    var char: cmd is ' ';
+  begin
+    cmd := busy_getc(KEYBOARD);
+    if playerObject.living then
+      case cmd of
+        when {KEY_LEFT, 'J', 'j'}:
+          playerObject.command := KEY_LEFT;
+        when {KEY_RIGHT, 'K', 'k'}:
+          playerObject.command := KEY_RIGHT;
+        when {KEY_UP, 'I', 'i'}:
+          playerObject.command := KEY_UP;
+        when {KEY_DOWN, 'M', 'm'}:
+          playerObject.command := KEY_DOWN;
+        when {'A', 'a'}:
+          playerObject.command := 'A';
+        when {'S', 's'}:
+          playerObject.command := 'S';
+        when {' '}:
+          playerObject.command := ' ';
+      end case;
+    elsif cmd in {'S', 's'} then
+      game.round_finished := TRUE;
+    end if;
+    game_command(cmd);
+  end func;
+
+
+const proc: game_round is func
+  local
+    var integer: number is 0;
+    var integer: progress is 0;
+    var integer: blackBarLength is -1;
+    var integer: new_bonus is 0;
+    var integer: bonus is 0;
+  begin
+    clear(curr_win, black);
+    DRAW_FLUSH;
+    init_round(game.round_number);
+    bonus := game.round_bonus;
+    game.turn_time := time(NOW);
+    while not game.round_finished and not game.quit do
+      for number range 1 to length(monster) do
+        check_direction(monster[number]);
+        move(monster[number]);
+      end for;
+      get_command(player);
+      if not game.round_finished and not game.quit then
+        process(player);
+        move(player);
+        do_dig(player);
+        if progress div 62 <> blackBarLength then
+          blackBarLength := progress div 62;
+          rect(1            * FIELD_ELEM_STEP,
+             182            * FIELD_ELEM_STEP,
+             blackBarLength * FIELD_ELEM_STEP,
+             3              * FIELD_ELEM_STEP,
+             black);
+        end if;
+        new_bonus := (game.round_bonus + 19 - progress div 7) div 20 * 20;
+        if bonus <> new_bonus then
+          bonus := new_bonus;
+          if bonus > 0 then
+            draw_number(24, 24, bonus lpad 4);
+          elsif bonus = 0 then
+            draw_number(24, 24, "    ");
+          end if;
+        end if;
+        if progress div 62 = 266 then
+          game.round_finished := TRUE;
+        end if;
+        incr(progress);
+        game.turn_time +:= 30000 . MICRO_SECONDS;
+        DRAW_FLUSH;
+        await(game.turn_time);
+      end if;
+    end while;
+    if player.living and game.num_monsters = 0 then
+      game.score +:= bonus;
+      draw_number(24, 10, game.score lpad 6);
+      if game.score > game.hiScore then
+        game.hiScore := game.score;
+        draw_number(24, 35, game.hiScore lpad 6);
+      end if;
+    end if;
+  end func;
+
+
+const proc: play_game is func
+  begin
+    game.num_players := 3;
+    game.round_number := 1;
+    game.score := 0;
+    game.restart := FALSE;
+    game_command(busy_getc(KEYBOARD));
+    while not game.quit and not game.restart and game.num_players <> 0 do
+      game_round;
+      if not game.quit and not player.living then
+        decr(game.num_players);
+      elsif game.num_monsters = 0 then
+        if game.round_number < length(round_description) then
+          incr(game.round_number);
+        end if;
+        game.num_players +:= round_description[game.round_number][5];
+      end if;
+    end while;
+  end func;
+
+
+const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri) is func
+  begin
+    setPosXY(screen, (WIN_WIDTH - width(stdFont9, stri)) div 2, yPos);
+    writeln(screen, stri);
+  end func;
+
+
+const proc: main is func
+  local
+    var char: cmd is ' ';
+  begin
+    screen(WIN_WIDTH, WIN_HEIGHT);
+    clear(curr_win, black);
+    KEYBOARD := GRAPH_KEYBOARD;
+    scr := openPixmapFontFile(curr_win);
+    setFont(scr, stdFont9);
+    color(scr, white, black);
+    writeCentered(scr, 22, "P A N I C");
+    writeCentered(scr, 66, "Copyright (C) 2004, 2005  Thomas Mertes");
+    writeCentered(scr, 93, "This program is free software under the");
+    writeCentered(scr, 108, "terms of the GNU General Public License");
+    writeCentered(scr, 135, "Panic is written in the Seed7 programming language");
+    writeCentered(scr, 150, "Homepage:    http://seed7.sourceforge.net");
+    setPosXY(scr, 65, 205);
+    writeln(scr, "Dig holes and pound the apples through the holes");
+    writeln(scr);
+    writeln(scr, "cursor keys:");
+    writeln(scr, "space:");
+    writeln(scr, "A:");
+    writeln(scr, "S:");
+    writeln(scr);
+    writeln(scr, "ESC or P:");
+    writeln(scr, "ctrl-R:");
+    writeln(scr, "Q:");
+    setPosXY(scr, 175, 205);
+    writeln(scr);
+    writeln(scr);
+    writeln(scr, "Move your man");
+    writeln(scr, "Stop moving");
+    writeln(scr, "Dig hole");
+    writeln(scr, "Pound apples, shut hole and");
+    writeln(scr, "play again when the game is over");
+    writeln(scr, "Pause game (press P to continue)");
+    writeln(scr, "Restart game");
+    writeln(scr, "Quit game");
+    writeCentered(scr, 378, "     Wait for a moment     ");
+    draw_level(level_line[1]);
+    draw_level(level_line[3]);
+    draw_base_level(level_line[6]);
+    draw_ladder(level_line[1], level_line[6], 8);
+    draw_ladder(level_line[1], level_line[6], 260);
+    DRAW_FLUSH;
+    init_pictures;
+    writeCentered(scr, 378, "Press any key to start game");
+    DRAW_FLUSH;
+    cmd := getc(KEYBOARD);
+    if cmd in {'Q', 'q'} then
+      game.quit := TRUE;
+    elsif cmd = KEY_ESC then
+      pause_game(TRUE, TRUE);
+    end if;
+    while not game.quit do
+      play_game;
+    end while;
+  end func;

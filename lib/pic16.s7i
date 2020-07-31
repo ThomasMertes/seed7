@@ -1,0 +1,1036 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pic16.s7i     Pictures in the size 16 x 16                      *)
+(*  Copyright (C) 2004, 2005, 2006  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "pic_util.s7i";
+
+
+const array string: bat_pic is [](
+  "     r    r     ",
+  "     rr  rr     ",
+  "     rrrrrr     ",
+  "     rBrrBr     ",
+  "     rrrrrr     ",
+  "     rWWWWr     ",
+  "   rrrWrrWrrr   ",
+  " rrbbrbbbbrbbrr ",
+  " rbbbrbbbbrbbbr ",
+  "rbbbbrbbbbrbbbbr",
+  "rbbbbrbbbbrbbbbr",
+  "rrrbrrbbbbrrbrrr",
+  "r  r  rbbr  r  r",
+  "     r rr r     ",
+  "     r    r     ",
+  "   rr      rr   ");
+
+
+const array string: book_pic is [](
+  " RRRRRRRRRRRRRRR",
+  "RRXXXXXXXXXXXXXR",
+  "ORXGXXXXWXXXXGXR",
+  "ORXXXXWWXWWXXXXR",
+  "ORXXXXWWXWWXXXXR",
+  "ORXGXXXXWXXXXGXR",
+  "ORXXXXXXXXXXXXXR",
+  "ORXWWXWXWXWXWWXR",
+  "ORXWWXWXWXWXWWXR",
+  "ORXWWXWXWXWXWWXR",
+  "ORXXXXXXXXXXXXXR",
+  "ORRRRRRRRRRRRRRR",
+  "RWWWWWWWWWWWWWWX",
+  "RWWWWWWWWWWWWWWX",
+  "RWWWWWWWWWWWWWWX",
+  " RRRRRRRRRRRRRRR");
+
+
+const array string: cancel_pic is [](
+  "                ",
+  "      RRRR      ",
+  "    RRRRRRRR    ",
+  "   RRRRRRRRRR   ",
+  "  RRRWRRRRWRRR  ",
+  "  RRWWWRRWWWRR  ",
+  " RRRRWWWWWWRRRR ",
+  " RRRRRWWWWRRRRR ",
+  " RRRRRWWWWRRRRR ",
+  " RRRRWWWWWWRRRR ",
+  "  RRWWWRRWWWRR  ",
+  "  RRRWRRRRWRRR  ",
+  "   RRRRRRRRRR   ",
+  "    RRRRRRRR    ",
+  "      RRRR      ",
+  "                ");
+
+
+const array string: card_back_pic is [](
+  "                ",
+  " cccccccccccccc ",
+  " c            c ",
+  " c G  RRRR  G c ",
+  " c   RR  RR   c ",
+  " c  RR    RR  c ",
+  " c RR  BB  RR c ",
+  " c R  BBBB  R c ",
+  " c R  BBBB  R c ",
+  " c RR  BB  RR c ",
+  " c  RR    RR  c ",
+  " c   RR  RR   c ",
+  " c G  RRRR  G c ",
+  " c            c ",
+  " cccccccccccccc ",
+  "                ");
+
+
+const array string: checkmark_pic is [](
+  "             BBB",
+  "             BBB",
+  "            BBB ",
+  "            BBB ",
+  "           BBB  ",
+  "           BBB  ",
+  "          BBB   ",
+  "          BBB   ",
+  "         BBB    ",
+  "         BBB    ",
+  "BBB     BBB     ",
+  " BBB    BBB     ",
+  "  BBB  BBB      ",
+  "   BBB BBB      ",
+  "    BBBBB       ",
+  "     BBBB       ");
+
+
+const array string: clear_pic is [](
+ "            bbX  ",
+ "           XbbX  ",
+ "           bbX   ",
+ "          XbbX   ",
+ "          XbX    ",
+ "         XbbX    ",
+ "         XbX     ",
+ "        XbbX     ",
+ "  bbbbb XbX      ",
+ " bbbbbbXbbXb     ",
+ " XYYXYbbXXbbbbbb ",
+ " XYXYYXYXYYbbbbX ",
+ "XYYXYXYYXYXYYXXYX",
+ "XXXXXYYXYYXYXXYXX",
+ "     XXXXXYYXYXX ",
+ "          XXXXX  ");
+
+
+const array string: crown_pic is [](
+  "                ",
+  "       YY       ",
+  "       YY       ",
+  "     YYYYYY     ",
+  "       YY       ",
+  " R   R YY R   R ",
+  "RRR RRRYYRRR RRR",
+  " R   R YY R   R ",
+  " Y  YYYYYYYY  Y ",
+  " YYYYYYBBYYYYYY ",
+  "RYYWYYBBBBYYWYYR",
+  " YWWWYYBBYYWWWY ",
+  "BYYWYYYYYYYYWYYB",
+  " YYYYYYYYYYYYYY ",
+  " RRRRRRRRRRRRRR ",
+  " YYYYYYYYYYYYYY ");
+
+
+const array string: crystal_ball_pic is [](
+  "     cccccc     ",
+  "   cccccccccc   ",
+  "  cccBBccccccc  ",
+  " cccBcccccccccc ",
+  " ccBccccccccccc ",
+  "ccBccccccccccccc",
+  "ccBccccccccccccc",
+  "cccccccccccccccc",
+  "cccccccccccccccc",
+  "cccccccccccccRcc",
+  "cccccccccccccRcc",
+  " cccccccccccRcc ",
+  " ccccccccccRccc ",
+  "  cccccccRRccc  ",
+  " OOOOOOOOOOOOOO ",
+  "OOOOOOOOOOOOOOOO");
+
+
+const array string: demon_pic is [](
+  "    XWWWWWWX    ",
+  "   XWWWWWWWWX   ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWXXWWXXWWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWXXWWXXWWX  ",
+  "  XWXXWXXWXXWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWWWWWWWWWX  ",
+  "  XWWXWWWWXWWX  ",
+  "  XWX XWWX XWX  ");
+
+
+const array string: diamond_pic is [](
+  "                ",
+  "       XX       ",
+  "      XWBX      ",
+  "     XWWBBX     ",
+  "    XWWccBBX    ",
+  "   XWWWccBBBX   ",
+  "  XWWWccccBBBX  ",
+  " XWWWWccccBBBBX ",
+  "XWWWWccccccBBBBX",
+  "WWWWWccccccBBBBB",
+  "ccccBBBBBBBBWWWW",
+  "XXcccBBBBBBWWWXX",
+  "  XXccBBBBWWXX  ",
+  "    XXcBBWXX    ",
+  "      XcWX      ",
+  "       XX       ");
+
+
+const array string: drop_pic is [](
+  "      XXXXXXBBBB",
+  "   XXXWWWWWWBBBB",
+  " XXWWWWWWWWWBBBB",
+  "XWWWXXXXWWXXBBBB",
+  "WXXX   XWX      ",
+  "X     XWX       ",
+  "       X        ",
+  "   RRR          ",
+  "   RRR          ",
+  "   RRR          ",
+  "  RRRRR         ",
+  "   RRR          ",
+  "    R           ",
+  "                ",
+  "  GGGGG         ",
+  "  GGGGG         ");
+
+
+const array string: execute_pic is [](
+  "     X    X     ",
+  "    XyX  XyX    ",
+  "    XyX  XyX    ",
+  "     XyXXyX     ",
+  " XX  XyyyyX  XX ",
+  "XyyXXyWWWWyXXyyX",
+  " XXyyWyyyyWyyXX ",
+  "   XyWyWWXWyX   ",
+  "   XyWyWWXWyX   ",
+  " XXyyWyXXWWWyXX ",
+  "XyyXXyWWWWggWWyX",
+  " XX  XyyyWggggWW",
+  "     XyXXWgggggg",
+  "    XyX  WggggWW",
+  "    XyX  WggWW  ",
+  "     X   WWW    ");
+
+
+const array string: exit_pic is [](
+  "gggggggggggggggg",
+  "gggWWWWWWWWWWggg",
+  "gggWWWWWggWWWggg",
+  "gggWWWWWggWWWggg",
+  "gggWWWWWWWWWWggg",
+  "gggWWgggggWWWggg",
+  "gggWggWggggWWggg",
+  "gggWgWgggWggWggg",
+  "gggWWWgggWWWWggg",
+  "gggWWggWggWWWggg",
+  "gWWWWggWggWWWggg",
+  "gWggggWWWggWWggg",
+  "gWWWWWWWWggWWggg",
+  "gggWWWWWWWggWggg",
+  "gggWWWWWWWWWWggg",
+  "ggWWWWWWWWWWgggg");
+
+
+const array string: eye_pic is [](
+  "                ",
+  "                ",
+  "                ",
+  "     XXXXXX     ",
+  "   XXWWWWWWXX   ",
+  " XXWWWBBBBWWWXX ",
+  "XWWWWBBB BBWWWWX",
+  "WWWWWB BBBBWWWWW",
+  "WWWWWBBBB BWWWWW",
+  "XWWWWBB BBBWWWWX",
+  " XXWWWBBBBWWWXX ",
+  "   XXWWWWWWXX   ",
+  "     XXXXXX     ",
+  "                ",
+  "                ",
+  "                ");
+
+
+const array string: flask_pic is [](
+  "       bb       ",
+  "      GGGG      ",
+  "       GG       ",
+  "       GG       ",
+  "     GGGGGG     ",
+  "    GGGGGGGG    ",
+  "    GGGGGGGG    ",
+  "    GWWWWWWG    ",
+  "    GWRWWRWG    ",
+  "    GWWWWWWG    ",
+  "    GWRRRRWG    ",
+  "    GWWRRWWG    ",
+  "    GWWWWWWG    ",
+  "    GGGGGGGG    ",
+  "    GGGGGGGG    ",
+  "    GGGGGGGG    ");
+
+
+const array string: folder_pic is [](
+  "   bbbb    bbb  ",
+  "bbbYYYb bbbYYb  ",
+  "bYYYYYbbYxxxYb  ",
+  "bYYYYYxxxWWxYbbb",
+  "bYYxxxWWWWWbbYYb",
+  "bYYxWWWWbbbYYYYb",
+  " bYxWWbbYYYYYYYb",
+  " bYxWbYYYYYYYYYb",
+  " bYYxbYYYYYYYYb ",
+  " bYYxbYYYYYYYYb ",
+  "  bYxbYYYYYYYYb ",
+  "  bYbYYYYYYYYYb ",
+  "  bYbYYYYYYYbb  ",
+  "  bYbYYYYbbb    ",
+  "   bbYbbb       ",
+  "   bbb          ");
+
+
+const array string: fountain_pic is [](
+  "    BB    BB    ",
+  "  BB  BBBB  BB  ",
+  " B  B  BB  B  B ",
+  "     BBBBBB     ",
+  "B     BBBB     B",
+  "      BBBB      ",
+  "       BB       ",
+  "       BB       ",
+  "      XWWX      ",
+  "     XWWWWX     ",
+  "   xxxWxxWxxx   ",
+  " xxBBxWxxWxBBxx ",
+  "xBBBxWWWWWWxBBBx",
+  "xBBBBxxxxxxBBBBx",
+  " xxBBBBBBBBBBxx ",
+  "   xxxxxxxxxx   ");
+
+
+const array string: glasses_pic is [](
+  "                ",
+  " b            b ",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b              b",
+  "b BBB      BBB b",
+  "bBcccB    BcccBb",
+  "BcccccB  BcccccB",
+  "BcccccBBBBcccccB",
+  "BcccccB  BcccccB",
+  " BcccB    BcccB ",
+  "  BBB      BBB  ",
+  "                ");
+
+
+const array string: goblet_pic is [](
+  "    RRRRRRRR    ",
+  "   RRYYYYYYRR   ",
+  "  RYYYYYYYYYYR  ",
+  " XRYYYYYYYYYYRX ",
+  " XWRRYYYYYYRRWX ",
+  " XWYRRRRRRRRYWX ",
+  "  XWGYYYYYYBWX  ",
+  "   XWYBYYGYWX   ",
+  "    XWYYYYWX    ",
+  "    XXWYYWXX    ",
+  "   XWWBYYBWWX   ",
+  "  XWWRBYYBRWWX  ",
+  " XWRYYBYYBYYRWX ",
+  " XWYYYYBBYYYYWX ",
+  "  XWBYRYYRYBWX  ",
+  "   XWWWWWWWWX   ");
+
+
+const array string: goldbar_pic is [](
+  "       XWWWWWX  ",
+  "      XWWYYYWWX ",
+  "     XWWYYYYWYWX",
+  "     XWWYYYWYYYW",
+  "    XWWYYYYWYYYW",
+  "    XWWYYYWYYYYW",
+  "   XWWYYYYWYYYWX",
+  "   XWWYYYWYYYYWX",
+  "  XWWYYYYWYYYWX ",
+  "  XWWYYYWYYYYWX ",
+  " XWWYYYYWYYYWX  ",
+  " XWWWWWWYYYYWX  ",
+  "XWWYYYYYWYYWX   ",
+  "XWYYYYYYYWYWX   ",
+  "WYYYYYYYYYWX    ",
+  "WWWWWWWWWWWX    ");
+
+
+const array string: grating_pic is [](
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB");
+
+
+const array string: hand_pic is [](
+  "     XXXWWXXX   ",
+  "    XWWXWWXWWX  ",
+  "    XWWXWWXWWXXX",
+  "    XWWXWWXWWXWW",
+  "XX  XWWXWWXWWXWW",
+  "WWX XWWXWWXWWXWW",
+  "WWWXXWWXWWXWWXWW",
+  "WWWXXWWWWWWWWXWW",
+  "XWWWXWWWWWWWWWWW",
+  "XWWWWWWWWWWWWWWW",
+  " XWWWWWWWWWWWWWW",
+  " XWWWWWWWWWWWWWW",
+  "  XWWWWWWWWWWWWX",
+  "   XWWWWWWWWWWWX",
+  "    XWWWWWWWWWX ",
+  "    XWWWWWWWWWX ");
+
+
+const array string: harp_pic is [](
+  "  OOO           ",
+  "  OxOOOO    OOOO",
+  " OOx xOOOOOOOxbO",
+  " O x x x x x xOO",
+  " O x x x x xbxOO",
+  "OO x x x x xOOOb",
+  "O  x x x xbxOOb ",
+  "O  x x x xOOOb  ",
+  "O  x x xbxOOb   ",
+  "O  x x xOOOb    ",
+  "OO x xbxOOb     ",
+  " O x xOOOb      ",
+  " O xbxOOb       ",
+  " OOxOOOb        ",
+  "  OxOOb         ",
+  "  OOOb          ");
+
+
+const array string: helmet_pic is [](
+  " RBRBRBRBRBR    ",
+  "  RBRBRBRBR     ",
+  "   RBRBRBR      ",
+  "    RBRBR       ",
+  "    YYYYY       ",
+  "    YYYYY       ",
+  "  YYYYYYYYY     ",
+  " YYYYWWWYYYY    ",
+  "YYYYWWWWWYYYY   ",
+  "YYYYWWWWWYYYY   ",
+  "YYYYWWWWWYYYYYYY",
+  "RRRRRRRRRRRRRRRR",
+  "Y  XYYYYYX      ",
+  "Y  XYYYYYX      ",
+  "    XWWWX       ",
+  "     XYX        ");
+
+
+const array string: holy_cross_pic is [](
+  "       RR       ",
+  "      YYYY      ",
+  "     BYRRYB     ",
+  "      YWWY      ",
+  "       YY       ",
+  "       YY       ",
+  "  YY  YYYY  YY  ",
+  " YRYYYYBBYYYYRY ",
+  " YRYYYYBBYYYYRY ",
+  "  YY  YYYY  YY  ",
+  "       YY       ",
+  "       YY       ",
+  "       YY       ",
+  "       YY       ",
+  "      YYYY      ",
+  "     RYYYYR     ");
+
+
+const array string: hourglass_pic is [](
+  "bbbbbbbbbbbbbbb ",
+  " bXWWWWWWWWWXb  ",
+  " bWXXXXXXXXXWb  ",
+  " bWX  YYY  XWb  ",
+  " bXWXYYYYYXWXb  ",
+  " b XWYYYYYWX b  ",
+  " b  XWYYYWX  b  ",
+  " b   XWYWX   b  ",
+  " b   XWYWX   b  ",
+  " b  XWXYXWX  b  ",
+  " b XWX Y XWX b  ",
+  " bXWX  Y  XWXb  ",
+  " bWX  YYY  XWb  ",
+  " bWXXYYYYYXXWb  ",
+  " bXWWWWWWWWWXb  ",
+  "bbbbbbbbbbbbbbb ");
+
+
+const array string: hut_pic is [](
+  "xx     xx       ",
+  " xx   xrrx      ",
+  "  xx xbbbbx     ",
+  " XWWxrOOOOrx    ",
+  " XWxbbO  Obbx   ",
+  " XxrrrO  Orrrx  ",
+  " xbbbbOOOObbbbx ",
+  "xrrrrrrrrrrrrrrx",
+  "rbbbbbbbbbbbbbbr",
+  "brOOOOOrrOOOOOrb",
+  "rbOcWcObbObbbObr",
+  "brOcWcOrrObbbOrb",
+  "rbOcWcObbO bbObr",
+  "brOOOOOrrObbbOrb",
+  "rbbbbbbbbObbbObr",
+  "brrrrrrrrObbbOrb");
+
+
+const array string: jade_figurine_pic is [](
+  "       GGG      ",
+  "      GGGGG     ",
+  "      GGGGG     ",
+  "       GGG      ",
+  "     GGGGGGG    ",
+  "    GGGGGGGGG   ",
+  "   GG GGGGG GG  ",
+  "  GG  GGGGG  GG ",
+  "  G  GGGGGGG  G ",
+  "     GGGGGGG    ",
+  "     GGG GGG    ",
+  "      GG GG     ",
+  "      GG GG     ",
+  "       G G      ",
+  "       G G      ",
+  "     GGG GGG    ");
+
+
+const array string: key_pic is [](
+  "          RRR   ",
+  "         R   R  ",
+  "        R     R ",
+  "      BRB      R",
+  "BBBBBB R B     R",
+  "B B   BBB      R",
+  "        R  B  R ",
+  "         RB BR  ",
+  "          RRB   ",
+  "          B B   ",
+  "           B    ",
+  "           B    ",
+  "           B    ",
+  "           BB   ",
+  "           B    ",
+  "           BB   ");
+
+
+const array string: lamp_pic is [](
+  "    BBBBBBB     ",
+  "   BB     BB    ",
+  "   B       B    ",
+  "BBBBBBBBBBBBBBB ",
+  "BWWWWWWWWWWWWWB ",
+  "BWWWWWYYYWWWWWB ",
+  "BWWWYYYYYYYWWWB ",
+  "BWWYYYYYRYYYWWB ",
+  "BWYYYYYRRYYYYWB ",
+  "BWYYYYRRRYYYYWB ",
+  "BWYYYYRRRYYYYWB ",
+  "BWYYY  R  YYYWB ",
+  "BWWYY WWW YYWWB ",
+  "BWWWY WWW YWWWB ",
+  "BWWWW WWW WWWWB ",
+  "BBBBBBBBBBBBBBB ");
+
+
+const array string: load_pic is [](
+  "  xxxxxxxxxxx   ",
+  " xBBWBWWWWWWBx  ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWWWWBBx ",
+  " xBBBBBBBBBBBBx ",
+  " xBBWWWWWWWWBBx ",
+  " xBBWBBBBBBWBBx ",
+  " xBBWBWWWWWWBBx ",
+  " xBBWBWRRRWWBBx ",
+  " xBBWWWRRRWWBBx ",
+  " xBBWRRRRRRRWBx ",
+  "  xxxWRRRRRWxx  ",
+  "      WRRRW     ",
+  "       WRW      ",
+  "        W       ");
+
+
+const array string: magic_wand_pic is [](
+  "     Y    G XWWX",
+  "   YYYYY   XWWWW",
+  "    YWY   XWWWWW",
+  "   YYYYY XWWWWWX",
+  "     Y  XWXWWWX ",
+  "       XWXXXWX B",
+  "      XWXXXWX   ",
+  "     XWXXXWX R R",
+  "    XWXXXWX   R ",
+  "   XWXXXWX   R R",
+  "  XWXXXWX       ",
+  " XWXXXWX        ",
+  "XWXXXWX         ",
+  "WXXXWX          ",
+  "WXXWX           ",
+  "XWWX            ");
+
+
+const array string: magnifier_pic is [](
+  "    OOOO        ",
+  "  OOOOOOOO      ",
+  " OOccccccOO     ",
+  " OOcRccWcOO     ",
+  "OOcRccccWcOO    ",
+  "OOccccccccOO    ",
+  "OOccccccccOO    ",
+  "OOccccccBcOO    ",
+  " OOccccBcOO     ",
+  " OOccccccOO     ",
+  "  OOOOOOOObOO   ",
+  "    OOOO  ObbO  ",
+  "          ObbbO ",
+  "           ObbbO",
+  "            ObbO",
+  "             OO ");
+
+
+const array string: necklace_pic is [](
+  "    GGYRRRYGG   ",
+  "   YGG     GGY  ",
+  "  BB         BB ",
+  "  BB         BB ",
+  "  Y           Y ",
+  " RR           RR",
+  " RR           RR",
+  "  Y           Y ",
+  "  GG         GG ",
+  "  GGYBB   BBYGG ",
+  "     BBYYYBB    ",
+  "        Y       ",
+  "      RRYRR     ",
+  "      RRRRR     ",
+  "       RRR      ",
+  "        R       ");
+
+
+const array string: ogre_pic is [](
+  "     GGGGGGG    ",
+  "    GGGGGGGGG   ",
+  "    GG  G  GG   ",
+  "    GGGGGGGGG   ",
+  "    GGG   GGG   ",
+  "    GG  G  GG   ",
+  "   GxGGGGGGGxG  ",
+  "  GGxxxxxxxxxGG ",
+  " GG xxxxxxxxx GG",
+  " GG xxxxxxxxx GG",
+  " bb xxxxxxxxx   ",
+  " bb  bbb bbb    ",
+  "bbbb bbb bbb    ",
+  "bbbb bb   bb    ",
+  "bbbb bb   bb    ",
+  " bbrrrr   rrrr  ");
+
+
+const array string: on_off_pic is [](
+  "     BBBBBB     ",
+  "   BBBBBBBBBB   ",
+  "  BBBBBWWBBBBB  ",
+  " BBBWBBWWBBWBBB ",
+  " BBWWWBWWBWWWBB ",
+  "BBBWWBBWWBBWWBBB",
+  "BBWWBBBWWBBBWWBB",
+  "BBWWBBBWWBBBWWBB",
+  "BBWWBBBBBBBBWWBB",
+  "BBWWBBBBBBBBWWBB",
+  "BBBWWBBBBBBWWBBB",
+  " BBWWWBBBBWWWBB ",
+  " BBBWWWWWWWWBBB ",
+  "  BBBBWWWWBBBB  ",
+  "   BBBBBBBBBB   ",
+  "     BBBBBB     ");
+
+
+const array string: reset_pic is [](
+  "                ",
+  "    XXXXXXXX    ",
+  "   XWWWWWWWWX   ",
+  "  XWccccccccWX  ",
+  " XWccBcccBBccWX ",
+  " XWccBccBBBccWX ",
+  " XWccBcBBBBccWX ",
+  " XWccBBBBBBccWX ",
+  " XWccBBBBBBccWX ",
+  " XWccBcBBBBccWX ",
+  " XWccBccBBBccWX ",
+  " XWccBcccBBccWX ",
+  "  XWccccccccWX  ",
+  "   XWWWWWWWWX   ",
+  "    XXXXXXXX    ",
+  "                ");
+
+
+const array string: return_pic is [](
+  "                ",
+  "    BB          ",
+  "   BBB          ",
+  "  BBBBBBBBB     ",
+  "  BBBBBBBBBBB   ",
+  "   BBB     BBB  ",
+  "    BB      BB  ",
+  "             BB ",
+  "             BB ",
+  "             BB ",
+  "             BB ",
+  "            BB  ",
+  "           BBB  ",
+  "  BBBBBBBBBBB   ",
+  "  BBBBBBBBB     ",
+  "                ");
+
+
+const array string: right_arrow_pic is [](
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "           BB   ",
+  "           BBB  ",
+  " BBBBBBBBBBBBBB ",
+  " BBBBBBBBBBBBBB ",
+  "           BBB  ",
+  "           BB   ",
+  "                ",
+  "                ",
+  "                ",
+  "                ",
+  "                ");
+
+
+const array string: ruby_pic is [](
+  "                ",
+  "       XX       ",
+  "      XWrX      ",
+  "     XWWrrX     ",
+  "    XWWRRrrX    ",
+  "   XWWWRRrrrX   ",
+  "  XWWWRRRRrrrX  ",
+  " XWWWWRRRRrrrrX ",
+  "XWWWWRRRRRRrrrrX",
+  "WWWWWRRRRRRrrrrr",
+  "RRRRrrrrrrrrWWWW",
+  "XXRRRrrrrrrWWWXX",
+  "  XXRRrrrrWWXX  ",
+  "    XXRrrWXX    ",
+  "      XRWX      ",
+  "       XX       ");
+
+
+const array string: save_pic is [](
+  "  xxxxxxxxxxx   ",
+  " xBBWBWWWWWWBx  ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWBBWBBx ",
+  " xBBWBWWWWWWBBx ",
+  " xBBBBBBBBBBBBx ",
+  " xBBWWWWWWWWBBx ",
+  " xBBWBBBBBBWBBx ",
+  " xBBWBBBWBBWBBx ",
+  " xBBWBBWRWBWBBx ",
+  " xBBWBWRRRWWBBx ",
+  " xBBWWRRRRRWBBx ",
+  "  xxWRRRRRRRWx  ",
+  "    WWWRRRWWW   ",
+  "      WRRRW     ",
+  "      WWWWW     ");
+
+
+const array string: save_as_pic is [](
+  "  xxxxxxxxxxx   ",
+  " xBBWBWWWWWWBWW ",
+  " xBBWBWWWBBWWXXW",
+  " xBBWBWWWWWXXYYX",
+  " xBBWBWWWXXYYYXX",
+  " xBBBBWXXYYYXXWW",
+  " xBBWWXppYXXWWx ",
+  " xBBWXXXXXWWBBx ",
+  " xBBWWWWWWWWBBx ",
+  " xBBWXXWRWXWBBx ",
+  " xBBWWWRRRWWBBx ",
+  " xBBWWRRRRRWBBx ",
+  "  xxWRRRRRRRWx  ",
+  "    WWWRRRWWW   ",
+  "      WRRRW     ",
+  "      WWWWW     ");
+
+
+const array string: scepter_pic is [](
+  "             R R",
+  "              Y ",
+  "             Y R",
+  "        YYY Y   ",
+  "       YYYYY    ",
+  "      YYYWYYY   ",
+  "      YYWWWYY   ",
+  "      YYYWYYY   ",
+  "      YYYYYY    ",
+  "     YRYYYY     ",
+  "    YYY         ",
+  "   YYY          ",
+  "  YBY           ",
+  " YYY            ",
+  "YYY             ",
+  "RY              ");
+
+
+const array string: seed7_include_pic is [](
+  "XXXXXXXXXXXXXXXX",
+  "XWWWWWWWWWWWWWWX",
+  "XWxxxWxxxxWWWWWX",
+  "XWWxxxxxWWWWWWWX",
+  "XWxxxxWWWWWWWWWX",
+  "XWxxxxWRRRWWRWWX",
+  "XWWWWWWWWRWWWWWX",
+  "XWWWRRWWWRWRRWWX",
+  "XWWRWWWWRWWWRWWX",
+  "XWWWRWWWRWWWRWWX",
+  "XWWWWRWRWWWWRWWX",
+  "XWWRRWWRWWWRRRWX",
+  "XWWWWWWWWWWWXXXX",
+  "XWWWWWWWWWWWXWx ",
+  "XWWWWWWWWWWWXx  ",
+  "XXXXXXXXXXXXX   ");
+
+
+const array string: seed7_source_pic is [](
+  "XXXXXXXXXXXXXXXX",
+  "XWWWWWWWWWWWWWWX",
+  "XWxxxWxxxxWWWWWX",
+  "XWWWWWWWWWWWWWWX",
+  "XWxxxxWxxWWWWWWX",
+  "XWxxxxxxxRxRRRWX",
+  "XWWWWWWWWRWWWRWX",
+  "XWWRRWWRRRWWWRWX",
+  "XWRWWWRWWRWWRWWX",
+  "XWWRWWRWWRWWRWWX",
+  "XWWWRWRWWRWRWWWX",
+  "XWRRWWWRRRWRWWWX",
+  "XWWWWWWWWWWWXXXX",
+  "XWWWWWWWWWWWXWx ",
+  "XWWWWWWWWWWWXx  ",
+  "XXXXXXXXXXXXX   ");
+
+
+const array string: silver_bars_pic is [](
+  "     XWWWWWWWX  ",
+  "    XWWxxxxxWWX ",
+  "   XWWxxxxxxWxWX",
+  "   XWWxxxxxWxxxW",
+  "  XWWxxxxxxWxxxW",
+  "  XWWxxxxxWxxxxW",
+  " XWWxxxxxxWxxxWX",
+  " XWWWWWWWWxxxxWW",
+  "XWWxxxxxxxWxxWxW",
+  "XWxxxxxxxxxWxWxW",
+  "WxxxxxxxxxxxWxWX",
+  "WWWWWWWWWWWWWxWX",
+  "XWWxxxxxxxWxxWX ",
+  "XWxxxxxxxxxWxWX ",
+  "WxxxxxxxxxxxWX  ",
+  "WWWWWWWWWWWWWX  ");
+
+
+const array string: snake_pic is [](
+  "    gggg        ",
+  "gggggWWgg       ",
+  "XWX gXWgRgGgg   ",
+  "XXX gggggGgGgRg ",
+  "WXWXggggGgRgGGG ",
+  "ggggggg     ggGg",
+  "             GgR",
+  "   ggGggG    gGg",
+  "  gG     g   RgG",
+  " Rg      g   gGg",
+  "gG   g   G   GgR",
+  "Rg   g   g   gGg",
+  "gG    gGg   RgG ",
+  " Rg        gGGg ",
+  "  gGRGgGgGRGgR  ",
+  "   gGgGRGgGg    ");
+
+
+const array string: statue_pic is [](
+  "   XXWWWWWXX    ",
+  "  XWWWWWWWWWX   ",
+  " XWWWWWWWWWWWX  ",
+  " XWWWWWWWWWWWX  ",
+  " XWWWWWWWWWWWX  ",
+  " XWWWWWWWWxWWX  ",
+  " XWWWWWWWWWWWWX ",
+  " XWWWWWWWWWWWWWX",
+  " XWWWWWWWWWWWXX ",
+  "  XWWWWWWWWXX   ",
+  "   XWWWWWWWWX   ",
+  "    XWWWWWX     ",
+  "   XXWWWWWXX    ",
+  "XXXWWWWWWWWWXXXX",
+  "WWWWWWWWWWWWWWWW",
+  "WXXXXXXXXXXXXXXW");
+
+
+const array string: sword_pic is [](
+  "            BBBB",
+  "           BBBBB",
+  "          BBBBWB",
+  "         BBBBWWB",
+  "        BBBBWWB ",
+  "   b   BBBBWWB  ",
+  "   b  BBBBWWB   ",
+  "   bbBBBBWWB    ",
+  "    bbBBWWB     ",
+  "     bbWWB      ",
+  "    bbbbB       ",
+  "   bbb bb       ",
+  "  bbb   bbb     ",
+  "bbbb            ",
+  " bb             ",
+  "  b             ");
+
+
+const array string: take_pic is [](
+  "           BBBBB",
+  "         BBBBBBB",
+  "       BBBBBBBBB",
+  "   XXBBBBBBBBB  ",
+  " XXWWWBBBBBB    ",
+  "XWWWWWWBBB      ",
+  "WWXXWWWX        ",
+  "WX  XWX         ",
+  "WGGGGWX         ",
+  "XGGGGX          ",
+  "                ",
+  "   R            ",
+  "  RRR           ",
+  " RRRRR          ",
+  "  RRR           ",
+  "  RRR           ");
+
+
+const array string: terminate_pic is [](
+  "                ",
+  "                ",
+  "   RRRRRRRRRR   ",
+  "  RppppppppppR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RpRRRRRRRRpR  ",
+  "  RppppppppppR  ",
+  "   RRRRRRRRRR   ",
+  "                ",
+  "                ");
+
+
+const array string: tree_pic is [](
+  "       GG       ",
+  "     GgGGgG     ",
+  "   GGgGGgGGgG   ",
+  "      GgGG      ",
+  "    GGGgGGgG    ",
+  "  GgGgGGGgGGgG  ",
+  "     GgGGGG     ",
+  "   GGGGGgGGgG   ",
+  " GgGGgGGGGgGGgG ",
+  "      GgGG      ",
+  "    GgGGgGgG    ",
+  "  GgGGGgGGGgGG  ",
+  "GgGGGgGGGgGGGGgG",
+  "       bb       ",
+  "       bb       ",
+  "       bb       ");
+
+
+const array string: vampire_pic is [](
+  "      bbbb      ",
+  "     bbbbbb     ",
+  "XX   bBxxBb   XX",
+  "WWX  xxxxxx  XWW",
+  "Wx   xWWWWx   xW",
+  "Xxx  XWxxWX  xxX",
+  "  xxggggggggxx  ",
+  "  bxggggggggxb  ",
+  "  bbggggggggbb  ",
+  "  bbggggggggbb  ",
+  "  bbggggggggbb  ",
+  "  bbbxxbbxxbbb  ",
+  "  bbbxxbbxxbbb  ",
+  "  bbbxxbbxxbbb  ",
+  "     xx  xx     ",
+  "   rrrr  rrrr   ");

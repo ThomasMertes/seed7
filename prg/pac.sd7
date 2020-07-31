@@ -1,0 +1,726 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  pac.sd7       Pacman game                                       *)
+(*  Copyright (C) 1993, 1994, 2004  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "console.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+  include "float.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+
+
+var text: scr is STD_NULL;
+var text: labyrinth is STD_NULL;
+var text: info_sheet is STD_NULL;
+
+const type: place_type is new enum
+    FREE_PLACE, DOT_PLACE, WALL_PLACE, POWER_PLACE
+  end enum;
+
+const string: str(DOT_PLACE)             is ".";
+const string: str(POWER_PLACE)           is "*";
+const string: str(FREE_PLACE)            is " ";
+const string: str(WALL_PLACE)            is "#";
+
+const func string: str (in place_type: aPlace) is DYNAMIC;
+
+enable_output(place_type);
+
+const type: direct_type is new enum
+    NOWHERE, RIGHTWARD, LEFTWARD, UPWARD, DOWNWARD
+  end enum;
+
+const type: pacman_type is new object struct
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: line_move is 0;
+    var integer: column_move is 0;
+  end struct;
+
+var pacman_type: PACMAN is pacman_type.value;
+
+const string: str (in pacman_type: pacman) is "P";
+
+enable_output(pacman_type);
+
+const type: ghost_struct is new object struct
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: line_move is 0;
+    var integer: column_move is 0;
+    var boolean: at_home is TRUE;
+  end struct;
+
+var ghost_struct: ghost_1 is ghost_struct.value;
+var ghost_struct: ghost_2 is ghost_struct.value;
+var ghost_struct: ghost_3 is ghost_struct.value;
+var ghost_struct: ghost_4 is ghost_struct.value;
+
+const string: str (in ghost_struct: ghost) is "G";
+
+enable_output(ghost_struct);
+
+const type: ghost_type is varptr ghost_struct;
+
+const array ghost_type: GHOST_LIST is [](&ghost_1, &ghost_2, &ghost_3, &ghost_4);
+
+var char: next_command is KEY_NONE;
+
+var boolean: quit is FALSE;
+var boolean: playing is TRUE;
+var integer: points_eaten is 0;
+var integer: score is 0;
+var integer: high_score is 0;
+var array array place_type: labyrinth_map is 23 times 40 times FREE_PLACE;
+var array array place_type: map is 0 times 0 times FREE_PLACE;
+var integer: number_of_lifes is 0;
+var integer: ghosts_flee is 0;
+var integer: number_of_points is 351;
+const array string: field is [](
+    "#######################################",
+    "#..................#..................#",
+    "#*#####.##########.#.##########.#####*#",
+    "#.#####.##########.#.##########.#####.#",
+    "#.....................................#",
+    "#.#####.##########.#.##########.#####.#",
+    "#.#   #............#............#   #.#",
+    "#.#####.###.###############.###.#####.#",
+    "#.......# #.................# #.......#",
+    "#######.###.###############.###.#######",
+    " ...........#             #........... ",
+    "#######.###.###############.###.#######",
+    "#.......# #.................# #.......#",
+    "#.#####.# ########.#.######## #.#####.#",
+    "#.#   #.# #........#........# #.#   #.#",
+    "#.#####.###.###############.###.#####.#",
+    "#.....#.........................#.....#",
+    "#####.#.##########.#.##########.#.#####",
+    "#.......# #........#........# #.......#",
+    "#*#########.###############.#########*#",
+    "#.....................................#",
+    "#######################################");
+
+
+const proc: set_color (in integer: foreground, in integer: background) is noop;
+
+
+const proc: sound (in integer: frequency, in float: duration) is noop;
+
+
+const proc: show_lifes is func
+
+  local
+    var integer: life is 0;
+
+  begin (* show_lifes *)
+    set_color(0, 0);
+    setPos(info_sheet, 3, 1);
+    write(info_sheet, "          ");
+    set_color(14, 0);
+    setPos(info_sheet, 3, 1);
+    for life range 1 to pred(number_of_lifes) do
+      write(info_sheet, PACMAN);
+    end for;
+  end func; (* show_lifes *)
+
+
+const proc: left (PACMAN) is func
+
+  begin (* left (PACMAN) *)
+    if map[PACMAN.line][pred(PACMAN.column)] <> WALL_PLACE then
+      PACMAN.line_move := 0;
+      PACMAN.column_move := -1;
+      next_command := KEY_NONE;
+    else
+      next_command := KEY_LEFT;
+    end if;
+  end func; (* left (PACMAN) *)
+
+
+const proc: right (PACMAN) is func
+
+  begin (* right (PACMAN) *)
+    if map[PACMAN.line][succ(PACMAN.column)] <> WALL_PLACE then
+      PACMAN.line_move := 0;
+      PACMAN.column_move := 1;
+      next_command := KEY_NONE;
+    else
+      next_command := KEY_RIGHT;
+    end if;
+  end func; (* right (PACMAN) *)
+
+
+const proc: up (PACMAN) is func
+
+  begin (* up (PACMAN) *)
+    if map[pred(PACMAN.line)][PACMAN.column] <> WALL_PLACE then
+      PACMAN.line_move := -1;
+      PACMAN.column_move := 0;
+      next_command := KEY_NONE;
+    else
+      next_command := KEY_UP;
+    end if;
+  end func; (* up (PACMAN) *)
+
+
+const proc: down (PACMAN) is func
+
+  begin (* down (PACMAN) *)
+    if map[succ(PACMAN.line)][PACMAN.column] <> WALL_PLACE then
+      PACMAN.line_move := 1;
+      PACMAN.column_move := 0;
+      next_command := KEY_NONE;
+    else
+      next_command := KEY_DOWN;
+    end if;
+  end func; (* down (PACMAN) *)
+
+
+const proc: send_home (inout ghost_type: ghost) is func
+  begin
+    ghost->line := 11;
+    ghost->column := 16 + rand(1, 8);
+    ghost->line_move := 0;
+    if rand(FALSE, TRUE) then
+      ghost->column_move := 1;
+    else
+      ghost->column_move := -1;
+    end if;
+    ghost->at_home := TRUE;
+  end func;
+
+
+const proc: read_command is func
+
+  local
+    var char: inp is ' ';
+
+  begin (* read_command *)
+    inp := busy_getc(KEYBOARD);
+    if inp = KEY_NONE then
+      inp := next_command;
+      next_command := KEY_NONE;
+    end if;
+    if inp <> KEY_NONE then
+      repeat
+        case inp of
+          when {KEY_LEFT,  '4'}: left(PACMAN);
+          when {KEY_RIGHT, '6'}: right(PACMAN);
+          when {KEY_UP,    '8'}: up(PACMAN);
+          when {KEY_DOWN,  '2'}: down(PACMAN);
+          when {'q', 'Q'}:
+            playing := FALSE;
+            quit := TRUE;
+        end case;
+        inp := busy_getc(KEYBOARD);
+      until inp = KEY_NONE;
+    end if;
+  end func; (* read_command *)
+
+
+const proc: write_map_position (in integer: line, in integer: column) is func
+
+  begin (* write_map_position *)
+    setPos(labyrinth, line, column);
+    write(labyrinth, map[line][column]);
+  end func; (* write_map_position *)
+
+
+const proc: pacman_cought is func
+
+  local
+    var integer: frequency is 0;
+    var ghost_type: ghost is ghost_type.NIL;
+
+  begin (* pacman_cought *)
+    for frequency range 1000 downto 200 do
+      sound(frequency, 0.001);
+    end for;
+    decr(number_of_lifes);
+    show_lifes();
+    if number_of_lifes = 0 then
+      playing := FALSE;
+    end if;
+    PACMAN.line := 17;
+    PACMAN.column := 20;
+    PACMAN.line_move := 0;
+    PACMAN.column_move := 0;
+    for ghost range GHOST_LIST do
+      write_map_position(ghost->line, ghost->column);
+    end for;
+    for ghost range GHOST_LIST do
+      send_home(ghost);
+    end for;
+  end func; (* pacman_cought *)
+
+
+const proc: ghost_cought (inout ghost_type: ghost) is func
+
+  local
+    var integer: frequency is 0;
+
+  begin (* ghost_cought *)
+    frequency := 200;
+    while frequency <= 900 do
+       sound(frequency, 0.001);
+       sound(succ(frequency), 0.001);
+       frequency := frequency + 3;
+    end while;
+    send_home(ghost);
+  end func; (* ghost_cought *)
+
+
+const proc: someone_cought (inout ghost_type: ghost) is func
+
+  begin (* someone_cought *)
+    if ghosts_flee > 0 then
+      ghost_cought(ghost);
+    else
+      pacman_cought;
+    end if;
+  end func; (* someone_cought *)
+
+
+const proc: EAT (in place_type: aPlace) is DYNAMIC;
+
+
+const proc: EAT (FREE_PLACE) is noop;
+
+
+const proc: EAT (DOT_PLACE) is func
+
+  begin (* EAT (DOT_PLACE *)
+    map[PACMAN.line][PACMAN.column] := FREE_PLACE;
+    incr(points_eaten);
+    incr(score);
+    set_color(15, 0);
+    setPos(info_sheet, 2, 8);
+    write(info_sheet, score);
+  end func; (* EAT (DOT_PLACE) *)
+
+
+const proc: EAT (POWER_PLACE) is func
+  local
+    var integer: frequency is 0;
+
+  begin (* EAT (POWER_PLACE *)
+    map[PACMAN.line][PACMAN.column] := FREE_PLACE;
+    incr(points_eaten);
+    incr(score);
+    set_color(15, 0);
+    setPos(info_sheet, 2, 8);
+    write(info_sheet, score);
+    frequency := 300;
+    while frequency <= 700 do
+      sound(frequency, 0.001);
+      frequency := frequency + 2;
+    end while;
+    ghosts_flee := 80;
+  end func; (* EAT (POWER_PLACE) *)
+
+
+const proc: check_all_ghosts (PACMAN) is func
+  local
+    var ghost_type: ghost is ghost_type.NIL;
+
+  begin (* check_all_ghosts *)
+    for ghost range GHOST_LIST do
+      if PACMAN.line = ghost->line and
+          PACMAN.column = ghost->column then
+        someone_cought(ghost);
+      end if;
+    end for;
+  end func; (* check_all_ghosts *)
+
+
+const proc: move_pacman is func
+
+  begin (* move_pacman *)
+    if map[PACMAN.line + PACMAN.line_move]
+        [PACMAN.column + PACMAN.column_move] = WALL_PLACE then
+      PACMAN.column_move := 0;
+      PACMAN.line_move := 0;
+    end if;
+    set_color(14, 0);
+    setPos(labyrinth, PACMAN.line, PACMAN.column);
+    write(labyrinth, str(FREE_PLACE));
+    PACMAN.line := PACMAN.line + PACMAN.line_move;
+    PACMAN.column := PACMAN.column + PACMAN.column_move;
+    if PACMAN.column = 1 then
+      (* left tunnel *)
+      PACMAN.column := 38;
+    elsif PACMAN.column = 39 then
+      (* right tunnel *)
+      PACMAN.column := 2;
+    end if;
+    EAT(map[PACMAN.line][PACMAN.column]);
+    if ghosts_flee > 0 then
+      decr(ghosts_flee);
+    end if;
+    setPos(labyrinth, PACMAN.line, PACMAN.column);
+    write(labyrinth, PACMAN);
+    check_all_ghosts(PACMAN);
+  end func; (* move_pacman *)
+
+
+const func direct_type: select_direction (
+    in boolean: rightward_possible,
+    in boolean: leftward_possible,
+    in boolean: upward_possible,
+    in boolean: downward_possible) is func
+  result
+    var direct_type: direction is NOWHERE;
+  local
+    var array direct_type: possible is 5 times NOWHERE;
+    var integer: num_directions is 0;
+
+  begin (* select_direction *)
+    num_directions := 0;
+    if rightward_possible then
+      incr(num_directions);
+      possible[num_directions] := RIGHTWARD;
+    end if;
+    if leftward_possible then
+      incr(num_directions);
+      possible[num_directions] := LEFTWARD;
+    end if;
+    if upward_possible then
+      incr(num_directions);
+      possible[num_directions] := UPWARD;
+    end if;
+    if downward_possible then
+      incr(num_directions);
+      possible[num_directions] := DOWNWARD
+    end if;
+    if num_directions <> 0 then
+      direction := possible[rand(1, num_directions)];
+    end if;
+  end func; (* select_direction *)
+
+
+const proc: turn (in ghost_type: ghost, in direct_type: direction) is DYNAMIC;
+
+
+const proc: turn (inout ghost_type: ghost, RIGHTWARD) is func
+
+  begin (* turn (ghost_type, RIGHTWARD) *)
+    ghost->column_move := 1;
+    ghost->line_move := 0;
+  end func; (* turn (ghost_type, RIGHTWARD) *)
+
+
+const proc: turn (inout ghost_type: ghost, LEFTWARD) is func
+
+  begin (* turn (ghost_type, LEFTWARD) *)
+    ghost->column_move := -1;
+    ghost->line_move := 0;
+  end func; (* turn (ghost_type, LEFTWARD) *)
+
+
+const proc: turn (inout ghost_type: ghost, UPWARD) is func
+
+  begin (* turn (ghost_type, UPWARD) *)
+    ghost->column_move := 0;
+    ghost->line_move := -1;
+  end func; (* turn (ghost_type, UPWARD) *)
+
+
+const proc: turn (inout ghost_type: ghost, DOWNWARD) is func
+
+  begin (* turn (ghost_type, DOWNWARD) *)
+    ghost->column_move := 0;
+    ghost->line_move := 1;
+  end func; (* turn (ghost_type, DOWNWARD) *)
+
+
+const proc: move (inout ghost_type: ghost) is func
+  local
+    var boolean: rightward_possible is FALSE;
+    var boolean: leftward_possible is FALSE;
+    var boolean: upward_possible is FALSE;
+    var boolean: downward_possible is FALSE;
+    var direct_type: direction is NOWHERE;
+
+  begin (* move (ghost_type) *)
+    if ghost->at_home and ghosts_flee = 0 then
+      ghost->line_move := 0;
+      if ghost = &ghost_1 or ghost = &ghost_2 then
+        (* Leave home to the left *)
+        ghost->column_move := -1;
+      else
+        (* Leave home to the right *)
+        ghost->column_move := 1;
+      end if;
+      if ghost->column <= 13 or ghost->column >= 27 then
+        ghost->at_home := FALSE;
+      end if;
+    else
+      if ghost->line_move = 0 then
+        downward_possible :=
+            map[succ(ghost->line)][ghost->column] <> WALL_PLACE;
+        upward_possible :=
+            map[pred(ghost->line)][ghost->column] <> WALL_PLACE;
+      elsif ghost->line_move = 1 then
+        if map[succ(ghost->line)][ghost->column] <> WALL_PLACE then
+          downward_possible := TRUE;
+        else
+          upward_possible :=
+              map[pred(ghost->line)][ghost->column] <> WALL_PLACE;
+        end if;
+      elsif ghost->line_move = -1 then
+        if map[pred(ghost->line)][ghost->column] <> WALL_PLACE then
+          upward_possible := TRUE;
+        else
+          downward_possible :=
+              map[succ(ghost->line)][ghost->column] <> WALL_PLACE;
+        end if;
+      end if;
+      if ghost->column_move = 0 then
+        rightward_possible :=
+            map[ghost->line][succ(ghost->column)] <> WALL_PLACE;
+        leftward_possible :=
+            map[ghost->line][pred(ghost->column)] <> WALL_PLACE;
+      elsif ghost->column_move = 1 then
+        if map[ghost->line][succ(ghost->column)] <> WALL_PLACE then
+          rightward_possible := TRUE;
+        else
+          leftward_possible :=
+              map[ghost->line][pred(ghost->column)] <> WALL_PLACE
+        end if;
+      elsif ghost->column_move = -1 then
+        if map[ghost->line][pred(ghost->column)] <> WALL_PLACE then
+          leftward_possible := TRUE;
+        else
+          rightward_possible :=
+              map[ghost->line][succ(ghost->column)] <> WALL_PLACE
+        end if;
+      end if;
+      if ghosts_flee = 0 then
+        if rand(1, 100) <= 20 then
+          direction := select_direction(rightward_possible,
+              leftward_possible, upward_possible, downward_possible);
+        else
+          direction := select_direction(
+              rightward_possible and ghost->column < PACMAN.column,
+              leftward_possible  and ghost->column > PACMAN.column,
+              upward_possible    and ghost->line > PACMAN.line,
+              downward_possible  and ghost->line < PACMAN.line);
+          if direction = NOWHERE then
+            direction := select_direction(rightward_possible,
+                leftward_possible, upward_possible, downward_possible);
+          end if;
+        end if;
+      else
+        direction := select_direction(
+            rightward_possible and ghost->column > PACMAN.column,
+            leftward_possible  and ghost->column < PACMAN.column,
+            upward_possible    and ghost->line < PACMAN.line,
+            downward_possible  and ghost->line > PACMAN.line);
+        if direction = NOWHERE then
+          direction := select_direction(rightward_possible,
+              leftward_possible, upward_possible, downward_possible);
+        end if;
+      end if;
+      turn(ghost, direction);
+    end if;
+    write_map_position(ghost->line, ghost->column);
+    ghost->line +:= ghost->line_move;
+    ghost->column +:= ghost->column_move;
+    if ghost->column = 1 then
+      (* left tunnel *)
+      ghost->column := 38;
+    elsif ghost->column = 39 then
+      (* right tunnel *)
+      ghost->column := 2;
+    end if;
+    if ghosts_flee > 0 then
+      if ghosts_flee < 20 then
+        if odd(ghosts_flee) then
+          set_color(9, 0);
+        else
+          set_color(15, 0);
+        end if;
+      else
+        set_color(9, 0);
+      end if;
+    else
+      set_color(13, 0);
+    end if;
+    setPos(labyrinth, ghost->line, ghost->column);
+    write(labyrinth, ghost^);
+    if ghost->line = PACMAN.line and
+        ghost->column = PACMAN.column then
+      someone_cought(ghost);
+    end if;
+  end func; (* move (ghost_type) *)
+
+
+const proc: move_ghosts is func
+
+  local
+    var ghost_type: ghost is ghost_type.NIL;
+
+  begin (* move_ghosts *)
+    for ghost range GHOST_LIST do
+      move(ghost);
+    end for;
+  end func; (* move_ghosts *)
+
+
+const proc: read_map is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var string: field_line is "";
+
+  begin (* read_map *)
+    number_of_points := 0;
+    for line range 1 to 22 do
+      field_line := field[line];
+      for column range 1 to 39 do
+        case field_line[column] of
+          when {' '}: labyrinth_map[line][column] := FREE_PLACE;
+          when {'.'}: labyrinth_map[line][column] := DOT_PLACE;
+                      incr(number_of_points);
+          when {'#'}: labyrinth_map[line][column] := WALL_PLACE;
+          when {'*'}: labyrinth_map[line][column] := POWER_PLACE;
+                      incr(number_of_points);
+        end case;
+      end for;
+    end for;
+  end func; (* read_map *)
+
+
+const proc: show_map is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+
+  begin (* show_map *)
+    set_color(1, 1);
+    for line range 1 to 22 do
+      setPos(labyrinth, line, 1);
+      write(labyrinth, field[line]);
+(*
+      for column range 1 to 39 do
+        write_map_position(line, column);
+      end for;
+*)
+    end for;
+  end func; (* show_map *)
+
+
+const proc: main_control is func
+
+  local
+    var integer: frequency is 0;
+    var time: start_time is time.value;
+
+  begin (* main_control *)
+    while playing do
+      start_time := time(NOW);
+      read_command;
+      move_pacman();
+      if points_eaten = number_of_points then
+        (* Round finished *)
+        playing := FALSE;
+      else
+        move_ghosts();
+(*      frequency := 50;
+        while frequency <= 200 do
+          sound(frequency, 0.001);
+          frequency := frequency + 2;
+        end while; *)
+      end if;
+      await(start_time + 150000 . MICRO_SECONDS);
+    end while;
+  end func; (* main_control *)
+
+
+const proc: main is func
+
+  local
+    var ghost_type: ghost is ghost_type.NIL;
+    var char: command is ' ';
+
+  begin (* main *)
+    quit := FALSE;
+    high_score := 0;
+    scr := open(CONSOLE);
+    labyrinth := openWindow(scr, 2, 2, 22, 39);
+    info_sheet := openWindow(scr, 2, 44, 22, 20);
+    box(labyrinth);
+    box(info_sheet);
+    clear(labyrinth);
+    read_map();
+    while not quit do
+      playing := TRUE;
+      map := labyrinth_map;
+      points_eaten := 0;
+      score := 0;
+      PACMAN.line := 17;
+      PACMAN.column := 20;
+      PACMAN.line_move := 0;
+      PACMAN.column_move := 0;
+      for ghost range GHOST_LIST do
+        send_home(ghost);
+      end for;
+      number_of_lifes := 3;
+      show_map();
+      show_lifes();
+      set_color(15, 0);
+      setPos(info_sheet, 2, 1);
+      write(info_sheet, "Score:     ");
+      set_color(14, 0);
+      setPos(labyrinth, PACMAN.line, PACMAN.column);
+      write(labyrinth, PACMAN);
+      for ghost range GHOST_LIST do
+        set_color(9, 0);
+        setPos(labyrinth, ghost->line, ghost->column);
+        write(labyrinth, ghost^);
+      end for;
+      main_control();
+      if not quit then
+        if score > high_score then
+          high_score := score;
+          set_color(15, 0);
+          setPos(info_sheet, 1, 1);
+          write(info_sheet, "Highscore:");
+          set_color(15, 0);
+          setPos(info_sheet, 1, 12);
+          write(info_sheet, score);
+        end if;
+        set_color(15, 0);
+        setPos(labyrinth, 11, 14);
+        write(labyrinth, "  GAME OVER  ");
+        command := getc(KEYBOARD);
+        if command = 'Q' or command = 'q' then
+          quit := TRUE;
+        end if;
+      end if;
+    end while;
+  end func; (* main *)

@@ -1,0 +1,214 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ref_list.s7i  Reference list support library                    *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Type to describe a list of ''reference'' objects.
+ *)
+const type: ref_list is subtype object;
+
+
+IN_PARAM_IS_REFERENCE(ref_list);
+
+const proc: (ref ref_list: dest) ::= (in ref_list: source)               is action "RFL_CREATE";
+const proc: destroy (ref ref_list: aValue)                               is action "RFL_DESTR";
+const proc: (inout ref_list: dest) := (in ref_list: source)              is action "RFL_CPY";
+
+
+(**
+ *  Append the ref_list ''extension'' to ''dest''.
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             ref_list.
+ *)
+const proc: (inout ref_list: dest) &:= (in ref_list: extension)          is action "RFL_APPEND";
+
+
+(**
+ *  Assign reference ''source'' to the ''position'' of the ''dest''.
+ *   A @:= [B] C;
+ *  is equivalent to
+ *   A := A[..pred(B)] & make_list(C) & A[succ(B)..];
+ *  @exception INDEX_ERROR If ''position'' is negative or zero, or
+ *             an element beyond ''dest'' would be overwritten
+ *             (''position'' > length(''dest'') holds).
+ *)
+const proc: (inout ref_list: dest) @:=
+             [ (in integer: position) ] (in reference: source)           is action "RFL_ELEMCPY";
+
+
+const func ref_list: _GENERATE_EMPTY_REFLIST                             is action "RFL_EMPTY";
+const ref_list: (attr ref_list) . EMPTY                                  is _GENERATE_EMPTY_REFLIST;
+const ref_list: (attr ref_list) . value                                  is ref_list.EMPTY;
+
+
+(**
+ *  Create ref_list with the given ''element''.
+ *  @return a ''ref_list'' of length 1 with the given element.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func ref_list: make_list (in reference: element)                   is action "RFL_MKLIST";
+
+
+(**
+ *  Check if two ref_lists are equal.
+ *  @return TRUE if both ref_lists are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in ref_list: refList1) = (in ref_list: refList2)    is action "RFL_EQ";
+
+
+(**
+ *  Check if two ref_lists are not equal.
+ *  @return FALSE if both ref_lists are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in ref_list: refList1) <> (in ref_list: refList2)   is action "RFL_NE";
+
+
+(**
+ *  Access one element from the ''ref_list'' ''aRefList''.
+ *  @return the element with the specified ''index'' from ''aRefList''.
+ *  @exception INDEX_ERROR If the index is less than 1 or
+ *             greater than the length of the ''ref_list''.
+ *)
+const func reference: (in ref_list: aRefList) [ (in integer: index) ]    is action "RFL_IDX";
+
+
+(**
+ *  Get a sublist from ''aRefList'' beginning at a ''start'' position.
+ *  The first element in a ''ref_list'' has the position 1.
+ *  @return the sublist beginning at the ''start'' position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func ref_list: (in ref_list: aRefList) [ (in integer: start) .. ]  is action "RFL_TAIL";
+
+
+(**
+ *  Get a sublist from ''aRefList'' ending at a ''stop'' position.
+ *  The first element in a ''ref_list'' has the position 1.
+ *  @return the substring ending at the ''stop'' position.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func ref_list: (in ref_list: aRefList) [ .. (in integer: stop) ]   is action "RFL_HEAD";
+
+
+(**
+ *  Get a sublist from a ''start'' position to a ''stop'' position.
+ *  The first element in a ''ref_list'' has the position 1.
+ *  @return the substring from position start to stop.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func ref_list: (in ref_list: aRefList) [ (in integer: start) ..
+                                               (in integer: stop) ]      is action "RFL_RANGE";
+
+
+(**
+ *  Concatenate two ref_lists.
+ *  @return the result of the concatenation.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func ref_list: (in ref_list: refList1) & (in ref_list: refList2)   is action "RFL_CAT";
+
+
+(**
+ *  Membership test for a ''ref_list''.
+ *  Determine if ''aRefList'' contains ''element''.
+ *  @return TRUE if ''element'' is a member of  ''aRefList'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in reference: element) in (in ref_list: aRefList)   is action "RFL_ELEM";
+
+
+(**
+ *  Negated membership test for a ''ref_list''.
+ *  Determine if ''aRefList'' does not contain ''element''.
+ *  @return FALSE if ''element'' is a member of  ''aRefList'',
+ *          TRUE otherwise.
+ *)
+const func boolean: (in reference: element) not in (in ref_list: aRefList) is action "RFL_NOT_ELEM";
+
+
+(**
+ *  Search for the first occurrence of ''searched'' in ''main''.
+ *  The first element in a ''ref_list'' has the position 1.
+ *  @return the position of ''searched'' or 0 if ''main''
+ *          does not contain ''searched''.
+ *)
+const func integer: pos (in ref_list: main, in reference: searched)      is action "RFL_POS";
+
+
+(**
+ *  Search for ''searched'' in ''main'' at or after ''start''.
+ *  The search begins at position ''start'' and proceeds to the
+ *  end. The first element in a ''ref_list'' has the position 1.
+ *  The pos function is designed to allow loops like:
+ *
+ *   index := pos(aList, aReference);
+ *   while index <> 0 do
+ *     # Do something with index
+ *     index := pos(aList, aReference, succ(index));
+ *   end while;
+ *
+ *  @return the position of ''searched'' or 0 if ''main''
+ *          does not contain ''searched'' at or after ''start''.
+ *  @exception RANGE_ERROR ''start'' <= 0 holds.
+ *)
+const func integer: pos (in ref_list: main, in reference: searched,
+                         in integer: start)                              is action "RFL_IPOS";
+
+
+const proc: incl (in ref_list: aRefList, in reference: element)          is action "RFL_INCL";
+const proc: excl (in ref_list: aRefList, in reference: element)          is action "RFL_EXCL";
+
+
+(**
+ *  Determine the length of a ''ref_list''.
+ *  @return the length of the ''ref_list''.
+ *)
+const func integer: length (in ref_list: aRefList)                       is action "RFL_LNG";
+
+
+const proc: TRACE_LIST (in ref_list: aRefList)                           is action "RFL_TRACE";
+
+
+(**
+ *  For-loop where ''forVar'' loops over the elements of '' aRefList''.
+ *)
+const proc: for (inout reference: variable) range (in ref_list: aRefList) do
+              (in proc: statement)
+            end for                                                      is action "RFL_FOR";
+
+
+const proc: for (inout reference: variable) range (in ref_list: aRefList) until (ref func boolean: condition) do
+              (in proc: statement)
+            end for                                                      is action "RFL_FOR_UNTIL";
+const proc: for (inout reference: variable) range (in ref_list: aRefList) until (ref varfunc boolean: condition) do
+              (in proc: statement)
+            end for                                                      is action "RFL_FOR_UNTIL";
+const proc: for (inout reference: variable) range (in ref_list: aRefList) until (ref boolean: condition) do
+              (in proc: statement)
+            end for                                                      is action "RFL_FOR_UNTIL";

@@ -1,0 +1,277 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  httpserv.s7i  Support for HTTP server and HTTP requests.        *)
+(*  Copyright (C) 2015  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "time.s7i";
+include "duration.s7i";
+include "listener.s7i";
+include "scanstri.s7i";
+include "encoding.s7i";
+include "unicode.s7i";
+include "x509cert.s7i";
+include "tls.s7i";
+include "cgi.s7i";
+
+
+const type: propertyType is hash [string] string;
+
+
+(**
+ *  Destribes a HTTP request.
+ *)
+const type: httpRequest is new struct
+    var file: sock is STD_NULL;
+    var string: method is "";
+    var string: path is "";
+    var string: queryStri is "";
+    var propertyType: queryParams is propertyType.value;
+    var propertyType: properties is propertyType.value;
+    var string: header is "";
+    var string: body is "";
+  end struct;
+
+
+(**
+ *  Destribes a HTTP server connection.
+ *)
+const type: httpServerConnection is new struct
+    var file: sock is STD_NULL;
+    var duration: keepAliveTime is 15 . SECONDS;
+    var time: timeout is time.value;
+    var string: buffer is "";
+    var integer: readPos is 1;
+    var boolean: readingHeader is TRUE;
+    var integer: contentToRead is 0;
+    var httpRequest: request is httpRequest.value;
+  end struct;
+
+const type: httpConnectionHash is hash [file] httpServerConnection;
+
+
+(**
+ *  Destribes a HTTP server.
+ *)
+const type: httpServer is new struct
+    var boolean: useTls is FALSE;
+    var integer: port is 1080;
+    var certAndKey: certificate is certAndKey.value;
+    var listener: httpListener is listener.value;
+    var httpConnectionHash: sessions is httpConnectionHash.value;
+    var duration: keepAliveTime is 15 . SECONDS;
+  end struct;
+
+
+const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is func
+  result
+    var httpRequest: request is httpRequest.value;
+  local
+    var string: line is "";
+    var integer: lfPos is 0;
+    var string: requestPath is "";
+    var integer: questionMarkPos is 0;
+    var integer: colonPos is 0;
+  begin
+    # writeln("processHttpRequest");
+    conn.timeout := time(NOW) + conn.keepAliveTime;
+    conn.buffer := conn.buffer[conn.readPos ..];
+    conn.readPos := 1;
+    conn.buffer &:= gets(conn.sock, 16384);
+    if conn.readingHeader then
+      lfPos := pos(conn.buffer, '\n');
+      while lfPos <> 0 do
+        conn.request.header &:= conn.buffer[conn.readPos .. lfPos];
+        if lfPos > 1 and conn.buffer[pred(lfPos)] = '\r' then
+          line := conn.buffer[conn.readPos .. lfPos - 2];
+        else
+          line := conn.buffer[conn.readPos .. pred(lfPos)];
+        end if;
+        conn.readPos := succ(lfPos);
+        # writeln("<- " <& line);
+        if line = "" then
+          if "Content-Length" in conn.request.properties then
+            block
+              conn.contentToRead := integer(conn.request.properties["Content-Length"]);
+            exception
+              catch RANGE_ERROR:
+                noop;
+            end block;
+          end if;
+          conn.readingHeader := FALSE;
+        elsif conn.request.method = "" then
+          conn.request.method := getWord(line);
+          requestPath := getWord(line);
+          questionMarkPos := pos(requestPath, '?');
+          if questionMarkPos <> 0 then
+            conn.request.queryStri := requestPath[succ(questionMarkPos) ..];
+            requestPath := requestPath[.. pred(questionMarkPos)];
+          end if;
+          conn.request.path := replace(fromUrlEncoded(requestPath), "\\", "/");
+          block
+            conn.request.path := utf8ToStri(conn.request.path);
+          exception
+            catch RANGE_ERROR:
+              noop;
+          end block;
+          conn.request.queryParams := getCgiParameters(conn.request.queryStri);
+        else
+          colonPos := pos(line, ':');
+          if colonPos <> 0 then
+            conn.request.properties @:= [trim(line[.. pred(colonPos)])] trim(line[succ(colonPos) ..]);
+          end if;
+        end if;
+        lfPos := pos(conn.buffer, '\n', conn.readPos);
+      end while;
+    end if;
+    if not conn.readingHeader then
+      if conn.contentToRead <> 0 then
+        if length(conn.buffer) - conn.readPos + 1 <= conn.contentToRead then
+          # writeln("<- " <& conn.buffer[conn.readPos len conn.contentToRead]);
+          conn.request.body &:= conn.buffer[conn.readPos len conn.contentToRead];
+          conn.readPos +:= conn.contentToRead;
+          conn.contentToRead := 0;
+        else
+          # writeln("<- " <& conn.buffer[conn.readPos ..]);
+          conn.request.body &:= conn.buffer[conn.readPos ..];
+          conn.contentToRead -:= length(conn.buffer) - conn.readPos + 1;
+          conn.readPos := succ(length(conn.buffer));
+        end if;
+      end if;
+      if conn.contentToRead = 0 then
+        request := conn.request;
+        request.sock := conn.sock;
+        conn.readingHeader := TRUE;
+        conn.request := httpRequest.value;
+      end if;
+    end if;
+ end func;
+
+
+const proc: openHttpSession (inout httpServer: server, inout file: sock) is func
+  local
+    var file: tlsSock is STD_NULL;
+    var httpServerConnection: conn is httpServerConnection.value;
+  begin
+    # writeln("openHttpSession: " <& ord(sock));
+    if server.useTls then
+      conn.sock := openServerTls(sock, server.certificate);
+      if conn.sock = STD_NULL then
+        # writeln(" ***** Cannot open TLS connection.");
+        block
+          close(sock);
+        exception
+          catch FILE_ERROR:
+            noop;
+        end block;
+        sock := STD_NULL;
+      end if;
+    else
+      conn.sock := sock;
+    end if;
+    if conn.sock <> STD_NULL then
+      conn.keepAliveTime := server.keepAliveTime;
+      conn.timeout := time(NOW) + conn.keepAliveTime;
+      server.sessions @:= [sock] conn;
+    end if;
+  end func;
+
+
+const proc: closeHttpSession (inout httpServer: server, inout file: sock) is func
+  begin
+    # writeln("closeHttpSession: " <& ord(sock));
+    close(server.sessions[sock].sock);
+    excl(server.sessions, sock);
+  end func;
+
+
+const func httpRequest: processHttpRequest (inout httpServer: server, inout file: sock) is func
+  result
+    var httpRequest: request is httpRequest.value;
+  begin
+    # writeln("processHttpRequest: " <& ord(sock));
+    if sock not in server.sessions then
+      openHttpSession(server, sock);
+    end if;
+    if sock in server.sessions then
+      if eof(sock) then
+        closeHttpSession(server, sock);
+      else
+        block
+          request := processHttpRequest(server.sessions[sock]);
+        exception
+          catch FILE_ERROR:
+            noop;
+        end block;
+      end if;
+    end if;
+  end func;
+
+
+const proc: cleanSessions (inout httpServer: server) is func
+  local
+    var file: sock is STD_NULL;
+  begin
+    # writeln(length(server.sessions) <& " sessions");
+    for sock range keys(server.sessions) do
+      if sock in server.sessions and
+          time(NOW) > server.sessions[sock].timeout then
+        closeHttpSession(server, sock);
+      end if;
+    end for;
+  end func;
+
+
+const func httpServer: openHttpServer (in integer: port,
+    in certAndKey: certificate, in boolean: useTls) is func
+  result
+    var httpServer: server is httpServer.value;
+  begin
+    server.useTls := useTls;
+    server.port := port;
+    server.certificate := certificate;
+    server.httpListener := openInetListener(port);
+    listen(server.httpListener, 10);
+  end func;
+
+
+const func httpRequest: getRequest (inout httpServer: server) is func
+  result
+    var httpRequest: request is httpRequest.value;
+  local
+    var file: existingConnection is STD_NULL;
+    var file: newConnection is STD_NULL;
+  begin
+    repeat
+      waitForRequest(server.httpListener, existingConnection, newConnection);
+      if existingConnection <> STD_NULL then
+        request := processHttpRequest(server, existingConnection);
+      end if;
+      if newConnection <> STD_NULL then
+        openHttpSession(server, newConnection);
+      end if;
+      cleanSessions(server);
+    until request.method <> "";
+  end func;

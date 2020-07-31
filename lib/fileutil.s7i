@@ -1,0 +1,143 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  fileutil.s7i  File utility functions.                           *)
+(*  Copyright (C) 2019, 2020  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Copy a file from source to destination.
+ *  The ''source'' file is copied to ''dest'' until end-of-file
+ *  is reached.
+ *)
+const proc: copyFile (inout file: source, inout file: dest) is func
+  local
+    var string: buffer is "";
+   begin
+    buffer := gets(source, 1000000);
+    while buffer <> "" do
+      write(dest, buffer);
+      buffer := gets(source, 1000000);
+    end while;
+  end func;
+
+
+(**
+ *  Copy at most ''numChars'' bytes from ''source'' to ''dest''.
+ *  The ''source'' file is copied to ''dest'' until '''numChars'' bytes
+ *  are copied or end-of-file is reached.
+ *  @return the number of bytes copied (which is less or equal ''numChars'').
+ *)
+const func integer: copyFile (inout file: source, inout file: dest,
+    in integer: numChars) is func
+  result
+    var integer: charsCopied is 0;
+  local
+    var string: buffer is "";
+  begin
+    buffer := gets(source, min(numChars, 1000000));
+    while buffer <> "" do
+      charsCopied +:= length(buffer);
+      write(dest, buffer);
+      buffer := gets(source, min(numChars - charsCopied, 1000000));
+    end while;
+  end func;
+
+
+(**
+ *  Insert an area of ''numChars'' chars beginning at ''insertPos'' into ''aFile''.
+ *  @exception RANGE_ERROR If ''insertPos'' is negative or zero, or
+ *             if ''numChars'' is negative.
+ *)
+const proc: insertArea (inout file: aFile, in integer: insertPos, in integer: numChars) is func
+  local
+    const integer: bufferSize is 2 ** 20;
+    var integer: length is 0;
+    var string: buffer is "";
+    var integer: pos is 0;
+    var integer: bytesMissing is 0;
+  begin
+    # writeln("insertArea: " <& insertPos <& ", " <& numChars);
+    if insertPos <= 0 or numChars < 0 then
+      raise RANGE_ERROR
+    else
+      length := length(aFile);
+      # writeln("length: " <& length);
+      if insertPos <= length and numChars <> 0 then
+        pos := length - bufferSize + 1;
+        while pos > insertPos do
+          seek(aFile, pos);
+          buffer := gets(aFile, bufferSize);
+          seek(aFile, pos + numChars);
+          write(aFile, buffer);
+          pos -:= bufferSize;
+        end while;
+        bytesMissing := bufferSize - (insertPos - pos);
+        seek(aFile, insertPos);
+        buffer := gets(aFile, bytesMissing);
+        seek(aFile, insertPos + numChars);
+        write(aFile, buffer);
+        # Fill inserted area with spaces:
+        # seek(aFile, insertPos);
+        # write(aFile, " " mult numChars);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Delete an area of ''numChars'' chars beginning at ''deletePos'' from ''aFile''.
+ *  @exception RANGE_ERROR If ''deletePos'' is negative or zero, or
+ *             if ''numChars'' is negative.
+ *)
+const proc: deleteArea (inout file: aFile, in integer: deletePos, in integer: numChars) is func
+  local
+    const integer: bufferSize is 2 ** 20;
+    var integer: length is 0;
+    var string: buffer is "";
+    var integer: pos is 0;
+  begin
+    # writeln("deleteArea: " <& deletePos <& ", " <& numChars);
+    if deletePos <= 0 or numChars < 0 then
+      raise RANGE_ERROR
+    else
+      length := length(aFile);
+      # writeln("length: " <& length);
+      if deletePos <= length and numChars <> 0 then
+        pos := deletePos + numChars;
+        while pos <= length do
+          seek(aFile, pos);
+          buffer := gets(aFile, bufferSize);
+          seek(aFile, pos - numChars);
+          write(aFile, buffer);
+          pos +:= bufferSize;
+        end while;
+        if length - numChars >= pred(deletePos) then
+          truncate(aFile, length - numChars);
+        else
+          truncate(aFile, pred(deletePos));
+        end if;
+      end if;
+    end if;
+  end func;

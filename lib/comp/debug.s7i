@@ -1,0 +1,151 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  debug.s7i     Functions to add debug info for s7c.              *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const func boolean: isByteString (in string: stri) is func
+
+  result
+    var boolean: isByteString is TRUE;
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      if ord(ch) > 255 then
+        isByteString := FALSE;
+      end if;
+    end for;
+  end func;
+
+
+const func string: sourceNameString (in string: sourceName) is func
+
+  result
+    var string: stri is "";
+  begin
+    if ccConf.CC_SOURCE_UTF8 or not isByteString(sourceName) then
+      stri := c_literal(striToUtf8(toOsPath(sourceName)));
+    else
+      stri := c_literal(toOsPath(sourceName));
+    end if;
+  end func;
+
+
+const func string: noDiagnosticLine is func
+
+  result
+    var string: diagnosticLine is "";
+  begin
+    if source_debug_info then
+      diagnosticLine &:= "#line 1 \"no_file\"\n";
+    else
+      diagnosticLine &:= "/* line 1 \"no_file\" */\n";
+    end if;
+  end func;
+
+
+const func string: diagnosticLine (in reference: current_object) is func
+
+  result
+    var string: diagnosticLine is "";
+  begin
+    if source_debug_info and line(current_object) <> 0 then
+      diagnosticLine := "#line ";
+      diagnosticLine &:= str(line(current_object));
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(file(current_object));
+      diagnosticLine &:= "\n";
+    else
+      diagnosticLine := "/* line ";
+      diagnosticLine &:= str(line(current_object));
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(file(current_object));
+      diagnosticLine &:= " */\n";
+    end if;
+  end func;
+
+
+const func string: diagnosticLine (inout expr_type: c_expr) is func
+
+  result
+    var string: diagnosticLine is "";
+  begin
+    if source_debug_info and c_expr.currentLine <> 0 then
+      diagnosticLine := "#line ";
+      diagnosticLine &:= str(c_expr.currentLine);
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(c_expr.currentFile);
+      diagnosticLine &:= "\n";
+    else
+      diagnosticLine := "/* line ";
+      diagnosticLine &:= str(c_expr.currentLine);
+      diagnosticLine &:= " ";
+      diagnosticLine &:= sourceNameString(c_expr.currentFile);
+      diagnosticLine &:= " */\n";
+    end if;
+  end func;
+
+
+const proc: setDiagnosticLine (inout expr_type: c_expr) is func
+
+  begin
+    if source_debug_info and c_expr.currentLine <> 0 then
+      c_expr.expr &:= "#line ";
+      c_expr.expr &:= str(c_expr.currentLine);
+      c_expr.expr &:= " ";
+      c_expr.expr &:= sourceNameString(c_expr.currentFile);
+      c_expr.expr &:= "\n";
+    else
+      c_expr.expr &:= "/* line ";
+      c_expr.expr &:= str(c_expr.currentLine);
+      c_expr.expr &:= " ";
+      c_expr.expr &:= sourceNameString(c_expr.currentFile);
+      c_expr.expr &:= " */\n";
+    end if;
+  end func;
+
+
+const proc: appendWithDiagnostic (in string: decls, inout expr_type: c_expr) is func
+
+  local
+    var string: line is "";
+    var boolean: hasLineDirective is FALSE;
+  begin
+    for line range split(decls, '\n') do
+      if hasLineDirective then
+        c_expr.expr &:= line;
+        c_expr.expr &:= "\n";
+        hasLineDirective := FALSE;
+      elsif startsWith(line, "#line ") or startsWith(line, "/* line ") then
+        c_expr.expr &:= line;
+        c_expr.expr &:= "\n";
+        hasLineDirective := TRUE;
+      elsif line <> "" then
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= line;
+        c_expr.expr &:= "\n";
+        hasLineDirective := FALSE;
+      end if;
+    end for;
+  end func;

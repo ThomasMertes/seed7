@@ -1,0 +1,78 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  hd.sd7        Write a hexdump of a given file.                  *)
+(*  Copyright (C) 2011, 2015, 2017  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
+
+const proc: main is func
+  local
+    var file: inFile is STD_NULL;
+    var char: ch is ' ';
+    var string: asc is "";
+    var integer: count is 0;
+  begin
+    if length(argv(PROGRAM)) <> 1 then
+      writeln("Hd Version 1.0 - Write a hexdump of a given file.");
+      writeln("Copyright (C) 2011, 2015, 2017 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Hd is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+      writeln("usage: hd file");
+    else
+      inFile := open(convDosPath(argv(PROGRAM)[1]), "r");
+      if inFile = STD_NULL then
+        writeln(" ***** Cannot open " <& argv(PROGRAM)[1]);
+      else
+        ch := getc(inFile);
+        while ch <> EOF do
+          write(ord(ch) radix 16 lpad0 2);
+          if ch >= ' ' and ch <= '~' then
+            asc &:= str(ch);
+          else
+            asc &:= ".";
+          end if;
+          incr(count);
+          if count mod 24 = 0 then
+            writeln("  " <& asc);
+            asc := "";
+          elsif count mod 4 = 0 then
+            write(" ");
+          end if;
+          ch := getc(inFile);
+        end while;
+        while count mod 24 <> 0 do
+          write("  ");
+          incr(count);
+          if count mod 24 = 0 then
+            writeln("  " <& asc);
+          elsif count mod 4 = 0 then
+            write(" ");
+          end if;
+        end while;
+      end if;
+    end if;
+  end func;

@@ -1,0 +1,264 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  deflate.s7i   Deflate compression algorithm                     *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bitdata.s7i";
+
+
+const proc: putLiteralOrLength (inout string: stri, inout integer: bitPos,
+    in integer: literalOrLength) is func
+  begin
+    if literalOrLength <= 143 then
+      putBitsLsb(stri, bitPos, reverseBits[8][literalOrLength + 2#00110000], 8);
+    elsif literalOrLength <= 255 then
+      putBitsLsb(stri, bitPos, reverseBits[9][literalOrLength + 2#110010000 - 144], 9);
+    elsif literalOrLength <= 279 then
+      putBitsLsb(stri, bitPos, reverseBits[7][literalOrLength - 256], 7);
+    else
+      putBitsLsb(stri, bitPos, reverseBits[8][literalOrLength + 2#11000000 - 280], 8);
+    end if;
+  end func;
+
+
+const proc: putLength (inout string: stri, inout integer: bitPos, in integer: length) is func
+  begin
+    if length <= 10 then
+      putLiteralOrLength(stri, bitPos, 254 + length);
+    elsif length <= 18 then
+      putLiteralOrLength(stri, bitPos, 265 + ((length - 11) >> 1));
+      putBitLsb(stri, bitPos, (length - 11) mod 2);
+    elsif length <= 34 then
+      putLiteralOrLength(stri, bitPos, 269 + ((length - 19) >> 2));
+      putBitsLsb(stri, bitPos, (length - 19) mod 4, 2);
+    elsif length <= 66 then
+      putLiteralOrLength(stri, bitPos, 273 + ((length - 35) >> 3));
+      putBitsLsb(stri, bitPos, (length - 35) mod 8, 3);
+    elsif length <= 130 then
+      putLiteralOrLength(stri, bitPos, 277 + ((length - 67) >> 4));
+      putBitsLsb(stri, bitPos, (length - 67) mod 16, 4);
+    elsif length <= 257 then
+      putLiteralOrLength(stri, bitPos, 281 + ((length - 131) >> 5));
+      putBitsLsb(stri, bitPos, (length - 131) mod 32, 5);
+    elsif length = 258 then
+      putLiteralOrLength(stri, bitPos, 285);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const proc: putDistance (inout string: stri, inout integer: bitPos, in integer: distance) is func
+  begin
+    if distance <= 4 then
+      putBitsLsb(stri, bitPos, reverseBits[5][pred(distance)], 5);
+    elsif distance <= 8 then
+      putBitsLsb(stri, bitPos, reverseBits[5][4 + ((distance - 5) >> 1)], 5);
+      putBitLsb(stri, bitPos, (distance - 5) mod 2);
+    elsif distance <= 16 then
+      putBitsLsb(stri, bitPos, reverseBits[5][6 + ((distance - 9) >> 2)], 5);
+      putBitsLsb(stri, bitPos, (distance - 9) mod 4, 2);
+    elsif distance <= 32 then
+      putBitsLsb(stri, bitPos, reverseBits[5][8 + ((distance - 17) >> 3)], 5);
+      putBitsLsb(stri, bitPos, (distance - 17) mod 8, 3);
+    elsif distance <= 64 then
+      putBitsLsb(stri, bitPos, reverseBits[5][10 + ((distance - 33) >> 4)], 5);
+      putBitsLsb(stri, bitPos, (distance - 33) mod 16, 4);
+    elsif distance <= 128 then
+      putBitsLsb(stri, bitPos, reverseBits[5][12 + ((distance - 65) >> 5)], 5);
+      putBitsLsb(stri, bitPos, (distance - 65) mod 32, 5);
+    elsif distance <= 256 then
+      putBitsLsb(stri, bitPos, reverseBits[5][14 + ((distance - 129) >> 6)], 5);
+      putBitsLsb(stri, bitPos, (distance - 129) mod 64, 6);
+    elsif distance <= 512 then
+      putBitsLsb(stri, bitPos, reverseBits[5][16 + ((distance - 257) >> 7)], 5);
+      putBitsLsb(stri, bitPos, (distance - 257) mod 128, 7);
+    elsif distance <= 1024 then
+      putBitsLsb(stri, bitPos, reverseBits[5][18 + ((distance - 513) >> 8)], 5);
+      putBitsLsb(stri, bitPos, (distance - 513) mod 256, 8);
+    elsif distance <= 2048 then
+      putBitsLsb(stri, bitPos, reverseBits[5][20 + ((distance - 1025) >> 9)], 5);
+      putBitsLsb(stri, bitPos, (distance - 1025) mod 512, 9);
+    elsif distance <= 4096 then
+      putBitsLsb(stri, bitPos, reverseBits[5][22 + ((distance - 2049) >> 10)], 5);
+      putBitsLsb(stri, bitPos, (distance - 2049) mod 1024, 10);
+    elsif distance <= 8192 then
+      putBitsLsb(stri, bitPos, reverseBits[5][24 + ((distance - 4097) >> 11)], 5);
+      putBitsLsb(stri, bitPos, (distance - 4097) mod 2048, 11);
+    elsif distance <= 16384 then
+      putBitsLsb(stri, bitPos, reverseBits[5][26 + ((distance - 8193) >> 12)], 5);
+      putBitsLsb(stri, bitPos, (distance - 8193) mod 4096, 12);
+    elsif distance <= 32768 then
+      putBitsLsb(stri, bitPos, reverseBits[5][28 + ((distance - 16385) >> 13)], 5);
+      putBitsLsb(stri, bitPos, (distance - 16385) mod 8192, 13);
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+const type: lookupDict is hash [string] integer;
+
+const type: deflateData is new struct
+    var integer: uPos is 1;
+    var integer: bitPos is 0;
+    var lookupDict: dictionary is lookupDict.value;
+    var array integer: slidingWindow is [0 .. 32767] times -32768;
+  end struct;
+
+
+const proc: deflate (inout deflateData: deflateState, in string: uncompressed,
+    in integer: limit, inout string: compressed) is func
+  local
+    var integer: pos is 0;
+    var string: threeChars is "";
+    var integer: posFound is 0;
+    var integer: dictionaryPosFound is 0;
+    var integer: length is 0;
+    var integer: maxLength is 0;
+    var integer: nextPos is 0;
+  begin
+    pos := deflateState.uPos;
+    while pos <= limit do
+      if pos < pred(length(uncompressed)) then
+        posFound := update(deflateState.dictionary, uncompressed[pos len 3], pos);
+        if posFound <> pos and posFound >= pos - 32768 then
+          maxLength := 258;
+          if length(uncompressed) - pos < maxLength then
+            maxLength := length(uncompressed) - pos;
+          end if;
+          length := 3;
+          while length < maxLength and
+                uncompressed[pos + length] = uncompressed[posFound + length] do
+            incr(length);
+          end while;
+          dictionaryPosFound := posFound;
+          nextPos := deflateState.slidingWindow[posFound mod 32768];
+          while nextPos >= pos - 32768 and length < maxLength do
+            if uncompressed[nextPos + 3 len length - 2] = uncompressed[pos + 3 len length - 2] then
+              incr(length);
+              posFound := nextPos;
+              while length < maxLength and
+                    uncompressed[pos + length] = uncompressed[posFound + length] do
+                incr(length);
+              end while;
+            end if;
+            nextPos := deflateState.slidingWindow[nextPos mod 32768];
+          end while;
+          deflateState.slidingWindow[pos mod 32768] := dictionaryPosFound;
+          if length > 3 or pos - posFound <= 4096 then
+            putLength(compressed, deflateState.bitPos, length);
+            putDistance(compressed, deflateState.bitPos, pos - posFound);
+            nextPos := pos + length;
+            incr(pos);
+            while pos < nextPos do
+              if pos < pred(length(uncompressed)) then
+                posFound := update(deflateState.dictionary, uncompressed[pos len 3], pos);
+                if posFound <> pos then
+                  deflateState.slidingWindow[pos mod 32768] := posFound;
+                end if;
+              end if;
+              incr(pos);
+            end while;
+          else
+            putLiteralOrLength(compressed, deflateState.bitPos, ord(uncompressed[pos]));
+            incr(pos);
+          end if;
+        else
+          # Not necessary to update slidingWindow, since it is already outdated.
+          putLiteralOrLength(compressed, deflateState.bitPos, ord(uncompressed[pos]));
+          incr(pos);
+        end if;
+      else
+        putLiteralOrLength(compressed, deflateState.bitPos, ord(uncompressed[pos]));
+        incr(pos);
+      end if;
+    end while;
+    deflateState.uPos := pos;
+  end func;
+
+
+const proc: beginDeflateBlock (inout deflateData: deflateState,
+    inout string: compressed, in boolean: bfinal) is func
+  begin
+    putBitLsb(compressed, deflateState.bitPos, ord(bfinal));
+    putBitsLsb(compressed, deflateState.bitPos, 1, 2);       # btype:  Fixed Huffman codes
+  end func;
+
+
+const proc: endDeflateBlock (inout deflateData: deflateState, inout string: compressed) is func
+  begin
+    putLiteralOrLength(compressed, deflateState.bitPos, 256);
+  end func;
+
+
+const proc: closeDeflateBlock (inout deflateData: deflateState, in string: uncompressed,
+    inout string: compressed) is func
+  begin
+    deflate(deflateState, uncompressed, length(uncompressed), compressed);
+    endDeflateBlock(deflateState, compressed);
+  end func;
+
+
+(**
+ *  Compress a string with the DEFLATE algorithm.
+ *  DEFLATE is a compression algorithm that uses a combination of
+ *  the LZ77 algorithm and Huffman coding.
+ *)
+const proc: deflateBlock (in string: uncompressed, inout string: compressed,
+    in boolean: bfinal) is func
+  local
+    var deflateData: deflateState is deflateData.value;
+  begin
+    beginDeflateBlock(deflateState, compressed, bfinal);
+    deflate(deflateState, uncompressed, length(uncompressed), compressed);
+    endDeflateBlock(deflateState, compressed);
+  end func;
+
+
+const proc: deflateBlock (inout file: inFile, inout string: compressed,
+    inout integer: bitPos, in boolean: bfinal) is func
+  local
+    var deflateData: deflateState is deflateData.value;
+    var string: uncompressed is "";
+  begin
+    beginDeflateBlock(deflateState, compressed, bfinal);
+    uncompressed := gets(inFile, 4096);
+    while hasNext(inFile) do
+      deflate(deflateState, uncompressed, length(uncompressed) - 258, compressed);
+      uncompressed &:= gets(inFile, 4096);
+    end while;
+    deflate(deflateState, uncompressed, length(uncompressed), compressed);
+    endDeflateBlock(deflateState, compressed);
+  end func;
+
+
+const func string: deflate (in string: uncompressed) is func
+  result
+    var string: compressed is "";
+  begin
+    deflateBlock(uncompressed, compressed, TRUE);
+  end func;

@@ -1,0 +1,473 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bitset.s7i    Support for sets of integer numbers               *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Sets of [[integer]] numbers.
+ *)
+const type: bitset is subtype object;
+
+
+IN_PARAM_IS_REFERENCE(bitset);
+
+const proc: (ref bitset: dest) ::= (in bitset: source)          is action "SET_CREATE";
+const proc: destroy (ref bitset: aValue)                        is action "SET_DESTR";
+const proc: (inout bitset: dest) := (in bitset: source)         is action "SET_CPY";
+
+
+const boolean: isBitset (attr bitset)                           is TRUE;
+
+
+(**
+ *  Union of two sets.
+ *  @return the union of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ *)
+const func bitset: (in bitset: set1) | (in bitset: set2)        is action "SET_UNION";
+
+
+(**
+ *  Intersection of two sets.
+ *  @return the intersection of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ *)
+const func bitset: (in bitset: set1) & (in bitset: set2)        is action "SET_INTERSECT";
+
+
+(**
+ *  Symmetric difference of two sets.
+ *  @return the symmetric difference of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ *)
+const func bitset: (in bitset: set1) >< (in bitset: set2)       is action "SET_SYMDIFF";
+
+
+(**
+ *  Difference of two sets.
+ *  @return the difference of the two sets.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ *)
+const func bitset: (in bitset: set1) - (in bitset: set2)        is action "SET_DIFF";
+
+
+(**
+ *  Assign the union of set2 and dest to dest.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ *)
+const proc: (inout bitset: dest) |:= (in bitset: set2)          is action "SET_UNION_ASSIGN";
+
+
+(**
+ *  Assign the intersection of set2 and dest to dest.
+ *  @exception MEMORY_ERROR Not enough memory for the result.
+ *)
+const proc: (inout bitset: dest) &:= (in bitset: set2)          is action "SET_INTERSECT_ASSIGN";
+
+
+(**
+ *  Check if two sets are equal.
+ *  @return TRUE if the two sets are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bitset: set1) = (in bitset: set2)       is action "SET_EQ";
+
+
+(**
+ *  Check if two sets are not equal.
+ *  @return FALSE if the two sets are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in bitset: set1) <> (in bitset: set2)      is action "SET_NE";
+
+
+(**
+ *  Determine if ''set1'' is a proper subset of ''set2''.
+ *  ''set1'' is a proper subset of ''set2'' if
+ *   set1 <= set2 and set1 <> set2
+ *  holds.
+ *  @return TRUE if ''set1'' is a proper subset of ''set2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bitset: set1) < (in bitset: set2)       is action "SET_LT";
+
+
+(**
+ *  Determine if ''set1'' is a proper superset of ''set2''.
+ *  ''set1'' is a proper superset of ''set2'' if
+ *   set1 >= set2 and set1 <> set2
+ *  holds.
+ *  @return TRUE if ''set1'' is a proper superset of ''set2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bitset: set1) > (in bitset: set2)       is action "SET_GT";
+
+
+(**
+ *  Determine if ''set1'' is a subset of ''set2''.
+ *  ''set1'' is a subset of ''set2'' if no element X exists for which
+ *   X in set1 and X not in set2
+ *  holds.
+ *  @return TRUE if ''set1'' is a subset of ''set2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bitset: set1) <= (in bitset: set2)      is action "SET_LE";
+
+
+(**
+ *  Determine if ''set1'' is a superset of ''set2''.
+ *  ''set1'' is a superset of ''set2'' if no element X exists for which
+ *   X in set2 and X not in set1
+ *  holds.
+ *  @return TRUE if ''set1'' is a superset of ''set2'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bitset: set1) >= (in bitset: set2)      is action "SET_GE";
+
+
+(**
+ *  Compares two sets to make them useable as key in a hash table.
+ *  The sets are compared by determining the biggest element that is
+ *  not present or absent in both sets. The set in which this element
+ *  is not present is the smaller one. Note that the set comparison
+ *  is not related to the concepts of subset or superset. With the
+ *  comparison function ''compare'' it is possible to sort an array of
+ *  sets or to use sets as key in a hash table.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in bitset: set1, in bitset: set2)  is action "SET_CMP";
+
+
+(**
+ *  Compute the hash value of a ''bitset''.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in bitset: aSet)                  is action "SET_HASHCODE";
+
+
+(**
+ *  Set membership test.
+ *  Determine if ''number'' is a member of the set ''aSet''.
+ *  @return TRUE if ''number'' is a member of  ''aSet'',
+ *          FALSE otherwise.
+ *)
+const func boolean: (in integer: number) in (in bitset: aSet)   is action "SET_ELEM";
+
+
+(**
+ *  Negated set membership test.
+ *  Determine if ''number'' is not a member of the set ''aSet''.
+ *  @return FALSE if ''number'' is a member of  ''aSet'',
+ *          TRUE otherwise.
+ *)
+const func boolean: (in integer: number) not in (in bitset: aSet) is action "SET_NOT_ELEM";
+
+
+(**
+ *  Add ''number'' to the set ''aSet''.
+ *  If ''number'' is already in ''aSet'' then ''aSet'' stays unchanged.
+ *  @exception MEMORY_ERROR If there is not enough memory.
+ *)
+const proc: incl (inout bitset: aSet, in integer: number)       is action "SET_INCL";
+
+
+(**
+ *  Remove ''number'' from the set ''aSet''.
+ *  If ''number'' is not element of ''aSet'' then ''aSet'' stays unchanged.
+ *)
+const proc: excl (inout bitset: aSet, in integer: number)       is action "SET_EXCL";
+
+
+(**
+ *  Add or remove ''aValue'' to respectively from ''sSet''.
+ *  Adding an existing value or remove a non-existing value
+ *  leaves ''aSet'' unchanged.
+ *  @exception MEMORY_ERROR If there is not enough memory.
+ *)
+const proc: (inout bitset: aSet) @:= [ (in integer: number) ] (in boolean: isElement) is func
+  begin
+    if isElement then
+      incl(aSet, number);
+    else
+      excl(aSet, number);
+    end if;
+  end func;
+
+
+(**
+ *  Compute the cardinality of a set.
+ *  @return the number of elements in ''aSet''.
+ *  @exception RANGE_ERROR Result does not fit into an integer.
+ *)
+const func integer: card (in bitset: aSet)                      is action "SET_CARD";
+
+
+(**
+ *  Compute pseudo-random element from ''aSet''.
+ *  The random values are uniform distributed.
+ *  @return a random number such that rand(aSet) in aSet holds.
+ *  @exception RANGE_ERROR If ''aSet'' is empty.
+ *)
+const func integer: rand (in bitset: aSet)                      is action "SET_RAND";
+
+
+(**
+ *  Minimal element of a set.
+ *  Delivers the element from ''aSet'' for which the following condition holds:
+ *   element <= X
+ *  for all X which are in the set.
+ *  @return the minimum element of ''aSet''.
+ *  @exception RANGE_ERROR If ''aSet'' is the empty set.
+ *)
+const func integer: min (in bitset: aSet)                       is action "SET_MIN";
+
+
+(**
+ *  Maximal element of a set.
+ *  Delivers the element from ''aSet'' for which the following condition holds:
+ *   element >= X
+ *  for all X which are in the set.
+ *  @return the maximal element of ''aSet''.
+ *  @exception RANGE_ERROR If ''aSet'' is the empty set.
+ *)
+const func integer: max (in bitset: aSet)                       is action "SET_MAX";
+
+
+(**
+ *  Minimal element of ''aSet'' that is larger than ''number''.
+ *  @return the minimum element of ''aSet'' that is larger than ''number''.
+ *  @exception RANGE_ERROR If ''aSet'' has no element larger than ''number''.
+ *)
+const func integer: next (in bitset: aSet, in integer: number)  is action "SET_NEXT";
+
+
+const func bitset: { (in integer: aNumber) }                    is action "SET_BASELIT";
+const func bitset: { (in tuple integer: numberTuple) }          is action "SET_ARRLIT";
+const func bitset: { (in integer: lowValue) ..
+                     (in integer: highValue) }                  is action "SET_RANGELIT";
+
+
+(**
+ *  Convert a ''bitset'' to [[integer]].
+ *   integer({2, 3, 5, 7, 11})    returns 2220
+ *  @return an [[integer]] which corresponds to the given ''bitset''.
+ *  @exception RANGE_ERROR If ''aSet'' contains negative values or
+ *             if it does not fit into a non-negative [[integer]].
+ *)
+const func integer: integer (in bitset: aSet)                   is action "SET_SCONV1";
+
+
+(**
+ *  Convert a ''bitset'' to [[integer]].
+ *   integer conv {2, 3, 5, 7, 11}    returns 2220
+ *  @return an [[integer]] which corresponds to the given ''bitset''.
+ *  @exception RANGE_ERROR If ''aSet'' contains negative values or
+ *             if it does not fit into a non-negative [[integer]].
+ *)
+const func integer: (attr integer) conv (in bitset: aSet)       is action "SET_SCONV3";
+
+
+(**
+ *  Convert an [[integer]] number to a ''bitset''.
+ *   bitset(2220)    returns {2, 3, 5, 7, 11}
+ *  @return a ''bitset'' which corresponds to the given [[integer]].
+ *  @exception RANGE_ERROR Number is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bitset: bitset (in integer: number)                  is action "SET_ICONV1";
+
+
+(**
+ *  Convert an [[integer]] number to a ''bitset''.
+ *   bitset conv 2220    returns {2, 3, 5, 7, 11}
+ *  @return a ''bitset'' which corresponds to the given [[integer]].
+ *  @exception RANGE_ERROR Number is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func bitset: (attr bitset) conv (in integer: number)      is action "SET_ICONV3";
+
+
+const func bitset: _GENERATE_EMPTY_SET                          is action "SET_EMPTY";
+const bitset: EMPTY_SET                                         is _GENERATE_EMPTY_SET;
+const bitset: (attr bitset) . EMPTY_SET                         is EMPTY_SET;
+const bitset: (attr bitset) . value                             is EMPTY_SET;
+const bitset: { }                                               is EMPTY_SET;
+
+
+(**
+ *  For-loop where ''forVar'' loops over the elements of the set ''aSet''.
+ *)
+const proc: for (inout integer: forVar) range (in bitset: aSet) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: upperBound is 0;
+    var boolean: leave is FALSE;
+  begin
+    if aSet <> EMPTY_SET then
+      forVar := min(aSet);
+      upperBound := max(aSet);
+      repeat
+        statements;
+        if forVar = upperBound then
+          leave := TRUE;
+        else
+          forVar := next(aSet, forVar);
+        end if;
+      until leave;
+    end if;
+  end func;
+
+const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref func boolean: cond) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: upperBound is 0;
+    var boolean: leave is FALSE;
+  begin
+    if aSet <> EMPTY_SET then
+      forVar := min(aSet);
+      upperBound := max(aSet);
+      leave := cond;
+      while not leave do
+        statements;
+        if forVar = upperBound then
+          leave := TRUE;
+        else
+          forVar := next(aSet, forVar);
+          leave := cond;
+        end if;
+      end while;
+    end if;
+  end func;
+
+const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref boolean: cond) do
+              (in proc: statements)
+            end for is func
+  begin
+    for forVar range aSet until cond = TRUE do
+      statements;
+    end for;
+  end func;
+
+(**
+ *  Obtain an array containing all the values in ''aSet''.
+ *  @return all the values from ''aSet''.
+ *)
+const func array integer: toArray (in bitset: aSet) is func
+  result
+    var array integer: values is 0 times 0;
+  local
+    var integer: aValue is 0;
+    var integer: upperBound is 0;
+    var integer: index is 1;
+    var boolean: leave is FALSE;
+  begin
+    if aSet <> EMPTY_SET then
+      values := card(aSet) times 0;
+      aValue := min(aSet);
+      upperBound := max(aSet);
+      repeat
+        values[index] := aValue;
+        if aValue = upperBound then
+          leave := TRUE;
+        else
+          aValue := next(aSet, aValue);
+          incr(index);
+        end if;
+      until leave;
+    end if;
+  end func;
+
+(**
+ *  Convert a ''bitset'' to a [[string]].
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in bitset: aSet) is func
+  result
+    var string: stri is "{";
+  local
+    var integer: setElement is 0;
+  begin
+    for setElement range aSet do
+      if stri <> "{" then
+        stri &:= ", ";
+      end if;
+      stri &:= str(setElement);
+    end for;
+    stri &:= "}";
+  end func;
+
+
+(**
+ *  Convert a [[string]] to a ''bitset''.
+ *  @return the integer result of the conversion.
+ *  @exception RANGE_ERROR If the string is empty or
+ *             cannot be converted to a ''bitset''.
+ *)
+const func bitset: bitset (in var string: stri) is func
+  result
+    var bitset: aBitset is EMPTY_SET;
+  begin
+    if stri[1] = '{' then
+      repeat
+        repeat
+          stri := stri[2 ..];
+        until stri[1] <> ' ';
+        if stri[1] >= '0' and stri[1] <= '9' then
+          incl(aBitset, integer(getint(stri)));
+        elsif stri[1] <> '}' then
+          raise RANGE_ERROR;
+        end if;
+      until stri[1] <> ',';
+      if stri <> "}" then
+        raise RANGE_ERROR;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a [[string]] to a ''bitset''.
+ *  @return the integer result of the conversion.
+ *  @exception RANGE_ERROR If the string is empty or
+ *             cannot be converted to a ''bitset''.
+ *)
+const func bitset: (attr bitset) parse (in string: stri) is
+    return bitset(stri);
+
+
+(**
+ *  Alternate name for [[bitset#bitset|bitset]].
+ *   set of [[integer]]
+ *  is an alternate name for [[bitset#bitset|bitset]].
+ *)
+const type: set of (attr integer) is bitset;

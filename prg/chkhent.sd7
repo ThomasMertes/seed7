@@ -1,0 +1,53 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkhent.sd7   Checks the HTML entity handling functions         *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
+  include "html_ent.s7i";
+  include "getf.s7i";
+
+const proc: main is func
+  local
+    var array string: fileNames is 0 times "";
+    var string: fileName is "";
+    var string: fileContent is "";
+    var string: encodedContent is "";
+    var string: decodedContent is "";
+  begin
+    fileNames := readDir(".");
+    for fileName range fileNames do
+      fileContent := getf(fileName);
+      encodedContent := encodeHtmlEntities(fileContent);
+      decodedContent := decodeHtmlEntities(encodedContent);
+      if fileContent = decodedContent then
+        write(".");
+        flush(OUT);
+      else
+        writeln;
+        writeln(" *** " <& fileName);
+      end if;
+    end for;
+    writeln;
+  end func;

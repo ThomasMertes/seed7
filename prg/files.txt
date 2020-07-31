@@ -1,0 +1,292 @@
+
+  Seed7 program examples:
+addup.sd7    Game of adding numbers to reach a goal number
+bas7.sd7     Basic interpreter
+bifurk.sd7   Display the bifurcation diagram
+bigfiles.sd7 Utility to search for big files.
+brainf7.sd7  Brainfuck interpreter
+calc7.sd7    Calculator
+carddemo.sd7 Demonstate the playing cards of the french deck
+castle.sd7   Castle Adventure
+cat.sd7      Concatenate and print files
+cellauto.sd7 Simulate a one-dimensional cellular automaton
+celsius.sd7  Print a Fahrenheit-Celsius table
+chk_all.sd7  Runs interpreted and compiled checks.
+chkbig.sd7   Checks bigInteger literals and operations
+chkbin.sd7   Checks bin32 and bin64 operations.
+chkbitdata.sd7 Checks functions from the bitdata.s7i library.
+chkbool.sd7  Checks boolean operations
+chkbst.sd7   Checks byte string operations
+chkchr.sd7   Checks character properties
+chkcmd.sd7   Check functions that manipulate files.
+chkdb.sd7    Checks the database interface.
+chkexc.sd7   Checks exceptions
+chkfil.sd7   Checks file operations
+chkflt.sd7   Checks float literals and operations
+chkhent.sd7  Checks the HTML entity handling functions
+chkhsh.sd7   Checks hash table operations
+chkint.sd7   Checks integer literals and operations
+chkovf.sd7   Checks catching of integer overflows.
+chkprc.sd7   Checks procedures and statements
+chkscan.sd7  Checks the scanner functions
+chkset.sd7   Checks set literals and operations
+chkstr.sd7   Checks string literals and operations
+clock.sd7    Displays a digital clock
+clock2.sd7   Displays a digital clock with microseconds
+clock3.sd7   Analog Clock
+cmpfil.sd7   Compares two files in main memory
+comanche.sd7 Simple webserver for static and cgi pages.
+confval.sd7  Show config values of C compiler and runtime.
+db7.sd7      Database inspector with browser interface.
+diff7.sd7    Compare two files line by line.
+dirtst.sd7   Test reading a directory as file
+dirx.sd7     Make a directory listing
+dnafight.sd7 Bacterial dna fight programming game
+dragon.sd7   Draw a dragon curve
+echo.sd7     Write the arguments of the program
+eliza.sd7    The computer psychiatrist
+err.sd7      Test for almost all possible compile time errors
+fannkuch.sd7 Fannkuch-redux benchmark program
+fib.sd7      Compute fibonacci numbers
+find7.sd7    Utility to search for files and file contents.
+findchar.sd7 Utility to search for specific chars in files.
+fractree.sd7 Draw a fractal tree
+ftp7.sd7     FTP internet file transfer program
+ftpserv.sd7  FTP (file transfer protocol) server
+gcd.sd7      Compute the greatest common divisor
+gkbd.sd7     Keyboard test program for graphic keyboard
+gtksvtst.sd7 Gtk-server connection test program
+hal.sd7      HAL 9000 simulation program
+hamu.sd7     Game to govern the ancient kingdom of sumeria.
+hanoi.sd7    Solve the tower of hanoi problem
+hd.sd7       Write a hexdump of a given file.
+hello.sd7    Hello world
+hilbert.sd7  Display a Hilbert curve.
+ide7.sd7     Cgi dialog demo program.
+kbd.sd7      Keyboard test program
+klondike.sd7 Klondike solitaire game
+lander.sd7   Lunar lander
+mahjong.sd7  Mahjong solitaire game
+make7.sd7    Make utility to manage the compilation process
+mandelbr.sd7 Display the Mandelbrot set
+mind.sd7     Guess a four digit number game
+ms.sd7       Mine sweeper game
+nicoma.sd7   Puzzle from arithmetica of Nicomachus (A.D. 90)!
+pac.sd7      Pacman game
+pairs.sd7    Concentration game
+panic.sd7    Catch aliens in traps game
+percolation.sd7 Given a composite systems comprised of randomly
+planets.sd7  Display information about the planets
+prime.sd7    Write a list of prime numbers
+printpi1.sd7 PI with 1000 digits using John Machin's formula
+printpi2.sd7 PI with 1000 digits (Bailey/Borwein/Plouffe)
+printpi3.sd7 Print 1000 digits of PI with Newtons formula
+queen.sd7    Solve the n queen problem
+rand.sd7     Floating point random numbers test
+raytrace.sd7 Raytracing demo program.
+rever.sd7    Reversi game
+roman.sd7    Write roman numerals
+s7c.sd7      Seed7 compiler - Compiles Seed7 to C
+savehd7.sd7  Save a harddisk which has hardware errors.
+self.sd7     A program that writes itself (except this header)
+shisen.sd7   Shisen game
+sl.sd7       Game of Life
+snake.sd7    Snake eats apple game
+sokoban.sd7  Sokoban puzzle game
+spigotpi.sd7 Write digits of PI with a spigot algorithm.
+sql7.sd7     Sql command line tool
+startrek.sd7 Classical startrek game
+sudoku7.sd7  Sudoku program
+sydir7.sd7   Utility to synchronize directory trees
+tak.sd7      Little benchmark computing tak(18, 12, 6)
+tar7.sd7     Tar archiving utility
+tch.sd7      The hitchhikers guide ...
+testfont.sd7 Program to demonstrate bitmap fonts.
+tet.sd7      Tetris game with text output
+tetg.sd7     Tetris game with graphical output
+toutf8.sd7   Convert a file to UTF-8
+tst_cli.sd7  Test client to demonstrate a socket client
+tst_srv.sd7  Test server to demonstrate a socket server
+wator.sd7    Planet Wator simulation with fish and sharks
+which.sd7    Locate in which directory a command is found.
+wiz.sd7      Find treasures and fight monsters labyrinth game
+wordcnt.sd7  Count the words in a file
+wrinum.sd7   Write numbers as english text
+wumpus.sd7   Hunt the Wumpus game
+
+  Seed7 include files:
+aes.s7i      AES (Advanced Encryption Standard) cipher support.
+ar.s7i       Ar archive library
+arc4.s7i     Support for ARC4 (Alleged RC4) stream cipher.
+array.s7i    Support for arrays with integer index
+asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).
+bigfile.s7i  bigInteger versions of seek, tell and length
+bigint.s7i   Unlimited precision integer support library
+bigrat.s7i   Big rational number support library
+bin32.s7i    32-bit binary value support library
+bin64.s7i    64-bit binary value support library
+bitdata.s7i  Read and write bits to and from strings
+bitmapfont.s7i Font implementation type for bitmap fonts
+bitset.s7i   Support for sets of integer numbers
+bitsetof.s7i Support for bitsets of a base type
+blowfish.s7i Blowfish cipher support.
+boolean.s7i  Boolean support library
+browser.s7i  Open web browser and provide a connection to it.
+bstring.s7i  Byte string support library
+bytedata.s7i Convert byte data to and from strings
+cards.s7i    Playing card pictures of a french deck
+category.s7i Category support library
+cc_conf.s7i  Configuration values for C compiler and runtime.
+cgi.s7i      Support for the Common Gateway Interface
+cgidialog.s7i Dialogs to be shown with a web browser.
+char.s7i     Char support library
+charsets.s7i Code pages for various character sets
+chartype.s7i Character type definitions
+cipher.s7i   Generic support for TLS bulk cipher algorithms.
+cli_cmds.s7i Emulate CLI commands from Unix and Dos.
+clib_file.s7i Type for FILE * files from the C runtime library
+color.s7i    Functions for color processing
+complex.s7i  Complex support library
+console.s7i  Text implementation type for text console/window.
+cpio.s7i     Cpio archive library
+crc32.s7i    CRC-32 cyclic redundancy check support library
+cronos16.s7i Cronos vector font with capHeight 16.
+cronos27.s7i Cronos vector font with capHeight 27.
+csv.s7i      Comma-separated values (CSV) support library.
+db_prop.s7i  Collection of database properties.
+deflate.s7i  Deflate compression algorithm
+des.s7i      DES (Data Encryption Standard) cipher support.
+dialog.s7i   Dialog support library
+dir.s7i      Implementation type to read directories as files
+draw.s7i     Portable graphic library
+duration.s7i Time and date duration support library
+echo.s7i     Filter file which generates an echo of the input
+editline.s7i Filter file for linewise editing with history
+elliptic.s7i Support for elliptic curve cryptography (ECC).
+enable_io.s7i Templates to enable file I/O for a given type
+encoding.s7i Encoding and decoding functions
+environment.s7i Support for program arguments and environment.
+external_file.s7i File implementation type describing OS files
+field.s7i    Filter file which reads the input fieldwise
+file.s7i     Interface type describing sequential files.
+filebits.s7i File mode bits used by archive file systems.
+filesys.s7i  Interface for file systems (os, tar, zip, ...)
+fileutil.s7i File utility functions.
+float.s7i    Floating point support library
+font.s7i     Defines the font interface
+font8x8.s7i  font with 8x8 pixel used by TI-99/4A.
+forloop.s7i  For-loop and templates to define for-loop
+ftp.s7i      Support for FTP (file transfer protocol)
+ftpserv.s7i  FTP (file transfer protocol) server library.
+getf.s7i     Read and write whole files into and from strings
+gethttp.s7i  Support to get data with the HTTP protocol
+gethttps.s7i Support to get data with the HTTPS protocol
+graph.s7i    Basic graphic library
+graph_file.s7i Implementation type to display graphic text
+gtkserver.s7i Gtk-server connection library
+gzip.s7i     Gzip compression support library
+hash.s7i     Hash map support library
+hashsetof.s7i Support for hashsets of a base type
+hmac.s7i     Hash-based message authentication code functions.
+html.s7i     Support functions for html
+html_ent.s7i HTML entity handling library
+http_response.s7i Support for HTTP responses.
+httpserv.s7i Support for HTTP server and HTTP requests.
+ico.s7i      Support for the ICO image file format.
+idxarray.s7i Support for arrays with non-integer index
+image.s7i    Defines images, which are in a window
+inflate.s7i  Inflate uncompression algorithm
+inflatefile.s7i Uncompress data from a file with Inflate
+inifile.s7i  Read key value pairs from an INI file
+integer.s7i  Integer support library
+iobuffer.s7i Implementation type for a buffered file.
+keybd.s7i    Read from keyboard without buffering and echo
+keydescr.s7i Descriptive text for function keys
+leb128.s7i   Convert integers to and from LEB128 encoding.
+line.s7i     Filter file which reads the input linewise
+listener.s7i Support for inet listener
+logfile.s7i  Interface type describing log files.
+lower.s7i    Filter file which turns characters to lower case
+lzma.s7i     LZMA compression support library
+lzw.s7i      Lempel-Ziv-Welch compression support library
+mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
+make.s7i     Make library to manage the compilation process
+makedata.s7i Function and data structure to read makefiles
+math.s7i     Mathematical functions and constants
+mixarith.s7i Support to mix arithmetic between numeric types.
+modern27.s7i Modern vector font with capHeight 27.
+more.s7i     Filter file which shows another file screenwise
+msgdigest.s7i Message digest and secure hash algorithms.
+multiscr.s7i Demonstration for several file filters
+null_file.s7i Base implementation type for all files
+osfiles.s7i  Functions to handle operating system files
+pic16.s7i    Pictures in the size 16 x 16
+pic32.s7i    Pictures in the size 32 x 32
+pic_util.s7i Picture utility functions
+pixmap_file.s7i Text implementation type to use a pixmap font
+pixmapfont.s7i Defines pixmapFontType and the font cache
+pkcs1.s7i    RSA public-key cryptography standard #1 support.
+poll.s7i     Support for pollData and the poll function
+process.s7i  Support for creating processes
+progs.s7i    Program handling support library
+propertyfile.s7i Read key-value pairs from a property file
+rational.s7i Rational number support library
+ref_list.s7i Reference list support library
+reference.s7i Reference to object support library
+reverse.s7i  Filter file which writes right to left on output
+rpm.s7i      Rpm archive library
+scanfile.s7i File scanner functions
+scanstri.s7i String scanner functions
+seed7_05.s7i Standard Seed7 library
+set.s7i      Support for sets of a base type
+shell.s7i    Support for shell commands
+showtls.s7i  Show TLS messages. Use it to debug tls.s7i.
+smtp.s7i     Support for SMTP (simple mail transfer protocol)
+sockbase.s7i Support for socket address and primitive socket
+socket.s7i   File implementation type for sockets
+sokoban1.s7i Classic sokoban levels 1 to 90.
+sql_base.s7i Base SQL access library
+stars.s7i    List of stars with name, RA, DEC and magnitude V
+stdfont10.s7i Standard bitmap font with capHeight 10.
+stdfont12.s7i Standard bitmap font with capHeight 12.
+stdfont14.s7i Standard bitmap font with capHeight 14.
+stdfont16.s7i Standard bitmap font with capHeight 16.
+stdfont18.s7i Standard bitmap font with capHeight 18.
+stdfont20.s7i Standard bitmap font with capHeight 20.
+stdfont24.s7i Standard bitmap font with capHeight 24.
+stdfont8.s7i Standard bitmap font with capHeight 8.
+stdfont9.s7i Standard bitmap font with capHeight 9.
+stdio.s7i    Standard input and output via files
+strifile.s7i Implementation type for files stored in a string
+string.s7i   String support library
+stritext.s7i string text library (uses an array string)
+struct.s7i   Struct support library
+subfile.s7i  Open part of an existing file as read only file.
+subrange.s7i Subrange support library
+syntax.s7i   Syntax definition of the standard Seed7 library
+tar.s7i      Tar archive library
+tar_cmds.s7i Commands of the tar program.
+tdes.s7i     TDES (Triple DES) cipher support.
+tee.s7i      Filter file which emulates the tee functionality
+text.s7i     Interface type for line/column oriented files
+time.s7i     Time and date library
+tls.s7i      Support for Transport Layer Security (TLS/SSL).
+unicode.s7i  Functions to convert between Unicode encodings.
+unionfnd.s7i Implementation of disjoint sets structure which
+upper.s7i    Filter file which turns characters to upper case
+utf16.s7i    File implementation type for UTF-16 files
+utf8.s7i     File implementation type for UTF-8 files
+vecfont10.s7i Standard vector font with capHeight 10.
+vecfont18.s7i Standard vector font with capHeight 18.
+vector3d.s7i 3D vector support library
+vectorfont.s7i Defines the vector font type.
+wildcard.s7i Wild card match and find matching files.
+window.s7i   Filter file for text windows with random access
+wrinum.s7i   Functions to write numbers
+x509cert.s7i Support for X.509 public key certificates.
+xml_ent.s7i  XML entity handling library
+xmldom.s7i   Simple XML dom parser
+xz.s7i       XZ compression support library
+zip.s7i      Zip compression support library
+zstd.s7i     Zstandard compression support library
+dna_base.s7i Bacterial dna fight programming game interface

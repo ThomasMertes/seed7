@@ -1,0 +1,108 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  gcd.sd7       Compute the greatest common divisor               *)
+(*  Copyright (C) 2005  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+
+
+const func integer: gcd (in var integer: a, in var integer: b) is func
+  result
+    var integer: gcd is 0;
+  local
+    var integer: help is 0;
+  begin
+    while a <> 0 do
+      help := b rem a;
+      b := a;
+      a := help;
+    end while;
+    gcd := b;
+  end func;
+
+
+const func integer: binaryGcd (in var integer: a, in var integer: b) is func
+  result
+    var integer: gcd is 0;
+  local
+    var integer: shift is 0;
+    var integer: diff is 0;
+  begin
+    if a = 0 then
+      gcd := b;
+    elsif b = 0 then
+      gcd := a;
+    else
+      (* Let shift := log2(K), where K is the greatest power of 2
+         dividing both a and b. *)
+      while not odd(a) and not odd(b) do
+          a >>:= 1;
+          b >>:= 1;
+        incr(shift);
+      end while;
+
+      while not odd(a) do
+        a >>:= 1;
+      end while;
+
+      (* From here on, a is always odd. *)
+      repeat
+        while not odd(b) do
+          b >>:= 1;
+        end while;
+
+        (* Now a and b are both odd, so diff(a, b) is even.
+           Let a := min(a, b); b := diff(a, b)/2; *)
+        if a < b then
+          b -:= a;
+        else
+          diff := a - b;
+          a := b;
+          b := diff;
+        end if;
+        b >>:= 1;
+      until b = 0;
+
+      gcd := a << shift;
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var integer: count is 0;
+    var integer: a is 0;
+    var integer: b is 0;
+  begin
+    for count range 1 to 50 do
+      a := rand(1, 10000);
+      b := rand(1, 10000);
+      write("gcd(" <& a <& ", " <& b <& ")=" <& gcd(a, b));
+      if a rem gcd(a, b) = 0 and b rem gcd(a, b) = 0 and
+          a rem binaryGcd(a, b) = 0 and b rem binaryGcd(a, b) = 0 then
+        writeln(" okay");
+      else
+        writeln(" not okay");
+      end if;
+    end for;
+  end func;

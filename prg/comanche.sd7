@@ -1,0 +1,131 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  comanche.sd7  Simple webserver for static and cgi pages.        *)
+(*  Copyright (C) 2009 - 2017  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "httpserv.s7i";
+  include "x509cert.s7i";
+  include "osfiles.s7i";
+  include "http_response.s7i";
+
+
+const proc: main is func
+  local
+    const string: htdocsDefault is "../htdocs";
+    const string: cgiBinDefault is "../prg";
+    var array string: args is 0 times "";
+    var integer: index is 0;
+    var boolean: writeHelp is FALSE;
+    var boolean: useTls is FALSE;
+    var boolean: htdocsAssigned is FALSE;
+    var boolean: cgiBinAssigned is FALSE;
+    var boolean: okay is TRUE;
+    var integer: port is 1080;
+    var httpServer: server is httpServer.value;
+    var httpRequest: request is httpRequest.value;
+    var httpResposeData: responseData is httpResposeData.value;
+  begin
+    writeln("Comanche Version 2.0 - Simple webserver for static and cgi pages");
+    writeln("Copyright (C) 2009 - 2015 Thomas Mertes");
+    writeln("This is free software; see the source for copying conditions.  There is NO");
+    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+    writeln("Comanche is written in the Seed7 programming language");
+    writeln("Homepage: http://seed7.sourceforge.net");
+    responseData := httpResposeData(htdocsDefault, cgiBinDefault, osFiles);
+    args := argv(PROGRAM);
+    for key index range argv(PROGRAM) do
+      if args[index] in {"-h", "-?"} then
+        writeHelp := TRUE;
+      elsif args[index] = "-p" and index < length(args) then
+        block
+          port := integer(args[succ(index)]);
+        exception
+          catch RANGE_ERROR:
+            writeln(" ***** Port not numeric. Port " <& port <& " used instead.");
+        end block;
+        incr(index);
+      elsif args[index] = "-tls" then
+        useTls := TRUE;
+      elsif not htdocsAssigned then
+        responseData.htdocs := convDosPath(args[index]);
+        htdocsAssigned := TRUE;
+      elsif not cgiBinAssigned then
+        responseData.cgiBin := convDosPath(args[index]);
+        cgiBinAssigned := TRUE;
+      else
+        writeln(" ***** Unrecognized parameter " <& args[index] <& ".");
+      end if;
+    end for;
+    if writeHelp then
+      writeln;
+      writeln("usage: comanche [-h | -?] [-p port] [-tls] [html-directory [cgi-directory]]");
+      writeln;
+      writeln("The html-directory specifies the root directory for HTML files.");
+      writeln("The default html-directory is " <& literal(htdocsDefault) <& ".");
+      writeln("The cgi-directory specifies the root directory for CGI scripts.");
+      writeln("The default cgi-directory is " <& literal(cgiBinDefault) <& ".");
+      writeln("The default port is 1080.");
+    else
+      if fileType(responseData.backendSys, responseData.htdocs) <> FILE_DIR then
+        writeln(" *** Directory " <& literal(responseData.htdocs) <& " not found.");
+        writeln("     You need to specify a directory which contains");
+        writeln("     at least \"index.htm\" and possibly other HTML files.");
+        okay := FALSE;
+      end if;
+      if fileType(responseData.backendSys, responseData.cgiBin) <> FILE_DIR then
+        writeln(" *** Directory " <& literal(responseData.cgiBin) <& " not found.");
+        writeln("     You need to specify a directory which contains");
+        writeln("     executable CGI scripts.");
+        okay := FALSE;
+      end if;
+      if not okay then
+        writeln("Use the option -? (or -h) to get more information.");
+      else
+        writeln("HTML directory: " <& responseData.htdocs);
+        writeln("CGI directory: " <& responseData.cgiBin);
+        writeln("Port: " <& port);
+        server := openHttpServer(port, stdCertificate, useTls);
+        writeln("To test comanche make sure that " <&
+                literal(responseData.htdocs & "/index.htm") <& " exists and");
+        write("open http");
+        if useTls then
+          write("s");
+        end if;
+        writeln("://localhost:" <& port <& "/ in your browser. \
+                \To stop comanche press CTRL-C.");
+        while TRUE do
+          request := getRequest(server);
+          # writeln(request.method <& " " <& request.path);
+          if request.method = "GET" then
+            processGet(responseData, request);
+          elsif request.method = "POST" then
+            processPost(responseData, request);
+          else
+            sendClientError(request.sock, 405, "Method Not Allowed",
+                "The HTTP-method " <& request.method <& " is not allowed.");
+          end if;
+          # process(request);
+        end while;
+      end if;
+    end if;
+  end func;

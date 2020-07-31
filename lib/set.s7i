@@ -1,0 +1,56 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  set.s7i       Support for sets of a base type                   *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Abstract data type, describing sets of ''baseType'' values.
+ *  This abstract data type decides about the implementation of the
+ *  set. If ''baseType'' values can be mapped to [[integer]] with
+ *  the ''ord'' function and ''ord'' does never raise an exception
+ *  the set is implemented as [[bitsetof|bitset]], otherwise the set
+ *  is implemented as [[hashsetof|hashset]].
+ *  Sets of [[integer]] numbers are described with [[bitset]].
+ *)
+const func type: set of (in type: baseType) is func
+  result
+    var type: setType is void;
+  begin
+    setType := get_type(getfunc(set of (attr baseType)));
+    if setType = void then
+      if getobj(ord(ref baseType: setElement)) <> NIL and
+          getobj(ord(ref baseType: setElement, mayRaiseRangeError)) = NIL then
+        setType := bitset(baseType);
+      else
+        setType := hashset(baseType);
+      end if;
+      global
+
+      const type: set of (attr baseType) is setType;
+
+      end global;
+    end if;
+  end func;

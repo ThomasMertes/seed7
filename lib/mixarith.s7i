@@ -1,0 +1,248 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  mixarith.s7i  Support to mix arithmetic between numeric types.  *)
+(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "float.s7i";
+include "rational.s7i";
+
+
+(**
+ *  Add an [[integer]] and a [[float]] number.
+ *  @return the sum of the two numbers.
+ *)
+const func float: (in integer: summand1) + (in float: summand2) is
+    return float(summand1) + summand2;
+
+
+(**
+ *  Add a [[float]] and an [[integer]] number.
+ *  @return the sum of the two numbers.
+ *)
+const func float: (in float: summand1) + (in integer: summand2) is
+    return summand1 + float(summand2);
+
+
+(**
+ *  Subtract a [[float]] from an [[integer]] number.
+ *  @return the difference of the two numbers.
+ *)
+const func float: (in integer: minuend) - (in float: subtrahend) is
+    return float(minuend) - subtrahend;
+
+
+(**
+ *  Subtract an [[integer]] from a [[float]] number.
+ *  @return the difference of the two numbers.
+ *)
+const func float: (in float: minuend) - (in integer: subtrahend) is
+    return minuend - float(subtrahend);
+
+
+(**
+ *  Multiply an [[integer]] by a [[float]] number.
+ *  @return the product of the two numbers.
+ *)
+const func float: (in integer: factor1) * (in float: factor2) is
+    return float(factor1) * factor2;
+
+
+(**
+ *  Multiply a [[float]] by an [[integer] number.
+ *  @return the product of the two numbers.
+ *)
+const func float: (in float: factor1) * (in integer: factor2) is
+    return factor1 * float(factor2);
+
+
+(**
+ *  Divide an [[integer]] by a [[float]] number.
+ *   A / 0.0  returns  Infinity  for A > 0
+ *   A / 0.0  returns -Infinity  for A &lt; 0
+ *   0 / 0.0  returns NaN
+ *  @return the quotient of the division.
+ *)
+const func float: (in integer: dividend) / (in float: divisor) is
+    return float(dividend) / divisor;
+
+
+(**
+ *  Divide a [[float]] by an [[integer]] number.
+ *   A / 0    returns  Infinity  for A > 0.0
+ *   A / 0    returns -Infinity  for A &lt; 0.0
+ *   0.0 / 0  returns NaN
+ *  @return the quotient of the division.
+ *)
+const func float: (in float: dividend) / (in integer: divisor) is
+    return dividend / float(divisor);
+
+
+(**
+ *  Add an [[integer]] and a [[rational]] number.
+ *  @return the sum of the two numbers.
+ *)
+const func rational: (in integer: summand1) + (in rational: summand2) is
+    return rational(summand1) + summand2;
+
+
+(**
+ *  Add a [[rational]] and an [[integer]] number.
+ *  @return the sum of the two numbers.
+ *)
+const func rational: (in rational: summand1) + (in integer: summand2) is
+    return summand1 + rational(summand2);
+
+
+(**
+ *  Subtract a [[rational]] from an [[integer]] number.
+ *  @return the difference of the two numbers.
+ *)
+const func rational: (in integer: minuend) - (in rational: subtrahend) is
+    return rational(minuend) - subtrahend;
+
+
+(**
+ *  Subtract an [[integer]] from a [[rational]] number.
+ *  @return the difference of the two numbers.
+ *)
+const func rational: (in rational: minuend) - (in integer: subtrahend) is
+    return minuend - rational(subtrahend);
+
+
+(**
+ *  Multiply an [[integer]] by a [[rational]] number.
+ *  @return the product of the two numbers.
+ *)
+const func rational: (in integer: factor1) * (in rational: factor2) is
+    return rational(factor1) * factor2;
+
+
+(**
+ *  Multiply a [[rational]] by an [[integer] number.
+ *  @return the product of the two numbers.
+ *)
+const func rational: (in rational: factor1) * (in integer: factor2) is
+    return factor1 * rational(factor2);
+
+
+(**
+ *  Divide an [[integer]] by a [[rational]] number.
+ *   A / 0.0  returns  Infinity  for A > 0
+ *   A / 0.0  returns -Infinity  for A &lt; 0
+ *   0 / 0.0  returns NaN
+ *  @return the quotient of the division.
+ *)
+const func rational: (in integer: dividend) / (in rational: divisor) is
+    return rational(dividend) / divisor;
+
+
+(**
+ *  Divide a [[rational]] by an [[integer]] number.
+ *   A / 0    returns  Infinity  for A > 0.0
+ *   A / 0    returns -Infinity  for A &lt; 0.0
+ *   0.0 / 0  returns NaN
+ *  @return the quotient of the division.
+ *)
+const func rational: (in rational: dividend) / (in integer: divisor) is
+    return dividend / rational(divisor);
+
+
+(**
+ *  Convert a [[rational]] to a [[float]].
+ *  @return the float result of the conversion.
+ *)
+const func float: float (in rational: aRational) is
+    return float(aRational.numerator) / float(aRational.denominator);
+
+
+(**
+ *  Add a [[rational]] and a [[float]] number.
+ *  @return the sum of the two numbers.
+ *)
+const func float: (in rational: summand1) + (in float: summand2) is
+    return float(summand1) + summand2;
+
+
+(**
+ *  Add a [[float]] and a [[rational]] number.
+ *  @return the sum of the two numbers.
+ *)
+const func float: (in float: summand1) + (in rational: summand2) is
+    return summand1 + float(summand2);
+
+
+(**
+ *  Subtract a [[float]] from a [[rational]] number.
+ *  @return the difference of the two numbers.
+ *)
+const func float: (in rational: minuend) - (in float: subtrahend) is
+    return float(minuend) - subtrahend;
+
+
+(**
+ *  Subtract a [[rational]] from a [[float]] number.
+ *  @return the difference of the two numbers.
+ *)
+const func float: (in float: minuend) - (in rational: subtrahend) is
+    return minuend - float(subtrahend);
+
+
+(**
+ *  Multiply a [[rational]] by a [[float]] number.
+ *  @return the product of the two numbers.
+ *)
+const func float: (in rational: factor1) * (in float: factor2) is
+    return float(factor1) * factor2;
+
+
+(**
+ *  Multiply a [[float]] by a [[rational] number.
+ *  @return the product of the two numbers.
+ *)
+const func float: (in float: factor1) * (in rational: factor2) is
+    return factor1 * float(factor2);
+
+
+(**
+ *  Divide a [[rational]] by a [[float]] number.
+ *   A / 0.0        returns  Infinity  for A > 0 / 1
+ *   A / 0.0        returns -Infinity  for A &lt; 0 / 1
+ *   (0 / 1) / 0.0  returns NaN
+ *  @return the quotient of the division.
+ *)
+const func float: (in rational: dividend) / (in float: divisor) is
+    return float(dividend) / divisor;
+
+
+(**
+ *  Divide a [[float]] by a [[rational]] number.
+ *   A / (0 / 1)    returns  Infinity  for A > 0.0
+ *   A / (0 / 1)    returns -Infinity  for A &lt; 0.0
+ *   0.0 / (0 / 1)  returns NaN
+ *  @return the quotient of the division.
+ *)
+const func float: (in float: dividend) / (in rational: divisor) is
+    return dividend / float(divisor);

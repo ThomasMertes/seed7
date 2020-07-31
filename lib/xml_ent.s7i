@@ -1,0 +1,93 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  xml_ent.s7i   XML entity handling library                       *)
+(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: xmlEntityHashType is hash [string] string;
+
+const func xmlEntityHashType: genPredeclaredXmlEntities is func
+  result
+    var xmlEntityHashType: entityHash is xmlEntityHashType.value;
+  begin
+    entityHash @:= ["quot"] "\"";
+    entityHash @:= ["amp"]  "&";
+    entityHash @:= ["apos"] "'";
+    entityHash @:= ["lt"]   "<";
+    entityHash @:= ["gt"]   ">";
+  end func;
+
+const xmlEntityHashType: predeclaredXmlEntities is genPredeclaredXmlEntities;
+
+
+(**
+ *  Decode a string, which contains XML entities.
+ *  @return a string were XML entities are replaced by
+ *          the corresponding characters.
+ *)
+const func string: decodeXmlEntities (in string: stri, in xmlEntityHashType: xmlEntityHash) is func
+  result
+    var string: decoded is "";
+  local
+    var integer: old_pos is 1;
+    var integer: new_pos is 0;
+    var integer: semicol_pos is 0;
+    var string: entityName is "";
+    var string: entityValue is "";
+  begin
+    new_pos := pos(stri, '&');
+    while new_pos <> 0 do
+      semicol_pos := pos(stri, ';', succ(new_pos));
+      if semicol_pos <> 0 then
+        entityName := stri[succ(new_pos) .. pred(semicol_pos)];
+        if length(entityName) >= 2 and entityName[1] = '#' and
+            isDigitString(entityName[2 ..]) then
+          entityValue := str(chr(integer(entityName[2 ..])));
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= entityValue;
+          old_pos := succ(semicol_pos);
+        elsif length(entityName) >= 3 and entityName[1 .. 2] = "#x" and
+            isDigitString(entityName[3 ..], 16) then
+          entityValue := str(chr(integer(entityName[3 ..], 16)));
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= entityValue;
+          old_pos := succ(semicol_pos);
+        elsif entityName in xmlEntityHash then
+          entityValue := xmlEntityHash[entityName];
+          decoded &:= stri[old_pos .. pred(new_pos)];
+          decoded &:= entityValue;
+          old_pos := succ(semicol_pos);
+        else
+          decoded &:= stri[old_pos .. new_pos];
+          old_pos := succ(new_pos);
+        end if;
+      else
+        decoded &:= stri[old_pos .. new_pos];
+        old_pos := succ(new_pos);
+      end if;
+      new_pos := pos(stri, '&', old_pos);
+    end while;
+    decoded &:= stri[old_pos ..];
+  end func;

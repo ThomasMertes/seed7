@@ -1,0 +1,238 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bln_act.s7i   Generate code for actions of the type boolean.    *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2015  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: BLN_AND    is action "BLN_AND";
+const ACTION: BLN_CPY    is action "BLN_CPY";
+const ACTION: BLN_EQ     is action "BLN_EQ";
+const ACTION: BLN_GE     is action "BLN_GE";
+const ACTION: BLN_GT     is action "BLN_GT";
+const ACTION: BLN_ICONV1 is action "BLN_ICONV1";
+const ACTION: BLN_ICONV3 is action "BLN_ICONV3";
+const ACTION: BLN_LE     is action "BLN_LE";
+const ACTION: BLN_LT     is action "BLN_LT";
+const ACTION: BLN_NE     is action "BLN_NE";
+const ACTION: BLN_NOT    is action "BLN_NOT";
+const ACTION: BLN_OR     is action "BLN_OR";
+const ACTION: BLN_ORD    is action "BLN_ORD";
+const ACTION: BLN_VALUE  is action "BLN_VALUE";
+
+
+const proc: bln_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        blnCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "boolType    blnValue (const const_objRefType);");
+  end func;
+
+
+const proc: process (BLN_AND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    if isActionExpression(params[1], "BLN_AND") then
+      process_expr(params[1], c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+    c_expr.expr &:= " &&\n";
+    if category(params[3]) = MATCHOBJECT then
+      c_expr.expr &:= diagnosticLine(params[3]);
+    else
+      setDiagnosticLine(c_expr);
+    end if;
+    c_expr.expr &:= "(";
+    process_call_by_name_expr(params[3], c_expr);
+    if endsWith(c_expr.expr, "\n") then
+      setDiagnosticLine(c_expr);
+    end if;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    statement.temp_num := c_expr.temp_num;
+    process_expr(params[1], statement);
+    statement.expr &:= "=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+    c_expr.temp_num := statement.temp_num;
+  end func;
+
+
+const proc: process (BLN_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_GE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") >= (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_GT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") > (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_ICONV1, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") & 1";
+  end func;
+
+
+const proc: process (BLN_ICONV3, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ") & 1";
+  end func;
+
+
+const proc: process (BLN_LE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") <= (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_LT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") < (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_NOT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "!(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_OR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    if isActionExpression(params[1], "BLN_OR") then
+      process_expr(params[1], c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+    c_expr.expr &:= " ||\n";
+    if category(params[3]) = MATCHOBJECT then
+      c_expr.expr &:= diagnosticLine(params[3]);
+    else
+      setDiagnosticLine(c_expr);
+    end if;
+    c_expr.expr &:= "(";
+    process_call_by_name_expr(params[3], c_expr);
+    if endsWith(c_expr.expr, "\n") then
+      setDiagnosticLine(c_expr);
+    end if;
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_ORD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BLN_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "blnValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;

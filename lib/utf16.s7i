@@ -1,0 +1,513 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  utf16.s7i     File implementation type for UTF-16 files         *)
+(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "null_file.s7i";
+
+
+(**
+ *  [[file|File]] implementation type for UTF-16 files.
+ *  This type supports UTF-16 encoded sequential files of the
+ *  operating system. UTF-16 files are seekable, therefore they
+ *  support the functions [[#length(in_utf16_file)|length]],
+ *  [[#seek(in_utf16_file,in_integer)|seek]] and
+ *  [[#tell(in_utf16_file)|tell]].
+ *)
+const type: utf16_file is sub null_file struct
+    var clib_file: ext_file is CLIB_NULL_FILE;
+    var string: name is "";
+  end struct;
+
+
+(**
+ *  Close an utf16_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: close (in utf16_file: aFile) is func
+  begin
+    close(aFile.ext_file);
+  end func;
+
+
+(**
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
+ *  This causes data to be sent to the operating systems file system.
+ *)
+const proc: flush (in utf16_file: outFile) is func
+  begin
+    flush(outFile.ext_file);
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in utf16_file: inFile) is
+  return eof(inFile.ext_file);
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if 'getc' would return [[char#EOF|EOF]], TRUE otherwise.
+ *)
+const func boolean: hasNext (in utf16_file: inFile) is
+  return hasNext(inFile.ext_file);
+
+
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the size of the given file.
+ *  @exception RANGE_ERROR The file length does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
+ *)
+const func integer: length (in utf16_file: aFile) is
+  return length(aFile.ext_file);
+
+
+(**
+ *  Truncate ''aFile'' to the given ''length''.
+ *  If the file previously was larger than ''length'', the extra data is lost.
+ *  If the file previously was shorter, it is extended, and the extended
+ *  part is filled with null bytes ('\0;').
+ *  @param aFile File to be truncated.
+ *  @param length Requested length of ''aFile'' in bytes.
+ *  @exception RANGE_ERROR The requested length is negative or
+ *             the length is not representable in the type
+ *             used by the system function.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: truncate (in utf16_file: aFile, in integer: length) is func
+  begin
+    truncate(aFile.ext_file, length);
+  end func;
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: seek (in utf16_file: aFile, in integer: position) is func
+  begin
+    seek(aFile.ext_file, position);
+  end func;
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
+ *)
+const func integer: tell (in utf16_file: aFile) is
+  return tell(aFile.ext_file);
+
+
+const type: utf16le_file is sub utf16_file struct
+  end struct;
+
+
+(**
+ *  Opens an Unicode file which uses the UTF-16LE encoding.
+ *  The file is opened with the specified ''path'' and ''mode''.
+ *  If the file is opened with one of the modes "w", "w+", "wt" or
+ *  "wt+" an appropriate BOM is created. If the file is opened
+ *  with a any other mode the application program is in charge to
+ *  handle optional BOM markers. This way 'openUtf16le' can be used
+ *  to open existing files without BOM.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened or if ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
+ *)
+const func file: openUtf16le (in string: path, in string: mode) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var clib_file: open_file is CLIB_NULL_FILE;
+    var utf16le_file: new_le_file is utf16le_file.value;
+  begin
+    open_file := openClibFile(path, mode);
+    if open_file <> CLIB_NULL_FILE then
+      if mode[1 len 1] = "w" then
+        write(open_file, "\16#ff;\16#fe;");
+      end if;
+      new_le_file.ext_file := open_file;
+      new_le_file.name := path;
+      newFile := toInterface(new_le_file);
+    end if;
+  end func;
+
+
+(**
+ *  Write a string to an UTF-16LE file.
+ *  @exception RANGE_ERROR A character is not representable with UTF-16.
+ *  @exception FILE_ERROR The system function returns an error.
+ *)
+const proc: write (in utf16le_file: outFile, in string: stri) is func
+  local
+    var char: ch is ' ';
+    var integer: number is 0;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for ch range stri do
+      if ch <= '\16#ffff;' then
+        write(outFile.ext_file, str(chr(ord(ch) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch) mdiv 256)));
+      elsif ch <= '\16#10ffff;' then
+        number := ord(ch) - 16#10000;
+        ch1 := chr(16#d800 + (number >> 10));
+        write(outFile.ext_file, str(chr(ord(ch1) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch1) mdiv 256)));
+        ch2 := chr(16#dc00 + (number mod 16#400));
+        write(outFile.ext_file, str(chr(ord(ch2) mod 256)));
+        write(outFile.ext_file, str(chr(ord(ch2) mdiv 256)));
+      else
+        raise RANGE_ERROR;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Return a string read with a maximum length from an UTF-16LE file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
+ *             the file contains an illegal surrogate pair.
+ *)
+const func string: gets (in utf16le_file: inFile, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  local
+    var integer: charsMissing is 0;
+    var boolean: partialRead is FALSE;
+    var string: stri is "";
+    var string: surrogate_part is "";
+    var integer: index is 0;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    else
+      charsMissing := maxLength;
+      repeat
+        stri := gets(inFile.ext_file, 2 * charsMissing);
+        if odd(length(stri)) then
+          raise RANGE_ERROR;
+        elsif length(stri) <> 2 * charsMissing then
+          partialRead := TRUE;
+        end if;
+        for index range 1 to length(stri) mdiv 2 do
+          ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+          if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
+            # ch1 introduces a surrogate pair
+            if index = length(stri) mdiv 2 then
+              surrogate_part := gets(inFile.ext_file, 2);
+              if length(surrogate_part) = 2 then
+                ch2 := chr(ord(surrogate_part[2]) * 256 + ord(surrogate_part[1]));
+              else
+                raise RANGE_ERROR;
+              end if;
+            else
+              incr(index);
+              ch2 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+            end if;
+            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+              # ch1 and ch2 are a surrogate pair
+              striRead &:= chr((ord(ch1) - 16#d800) << 10 +
+                               (ord(ch2) - 16#dc00) + 16#10000);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            striRead &:= str(ch1);
+          end if;
+        end for;
+        charsMissing := maxLength - length(striRead);
+      until charsMissing = 0 or partialRead;
+    end if;
+  end func;
+
+
+const type: utf16be_file is sub utf16_file struct
+  end struct;
+
+
+(**
+ *  Opens an Unicode file which uses the UTF-16BE encoding.
+ *  The file is opened with the specified ''path'' and ''mode''.
+ *  If the file is opened with one of the modes "w", "w+", "wt" or
+ *  "wt+" an appropriate BOM is created. If the file is opened
+ *  with a any other mode the application program is in charge to
+ *  handle optional BOM markers. This way 'openUtf16be' can be used
+ *  to open existing files without BOM.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened or if ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
+ *)
+const func file: openUtf16be (in string: path, in string: mode) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var clib_file: open_file is CLIB_NULL_FILE;
+    var utf16be_file: new_be_file is utf16be_file.value;
+  begin
+    open_file := openClibFile(path, mode);
+    if open_file <> CLIB_NULL_FILE then
+      if mode[1 len 1] = "w" then
+        write(open_file, "\16#fe;\16#ff;");
+      end if;
+      new_be_file.ext_file := open_file;
+      new_be_file.name := path;
+      newFile := toInterface(new_be_file);
+    end if;
+  end func;
+
+
+(**
+ *  Write a string to an UTF-16BE file.
+ *  @exception RANGE_ERROR If a character is not representable with UTF-16.
+ *  @exception FILE_ERROR The system function returns an error.
+ *)
+const proc: write (in utf16be_file: outFile, in string: stri) is func
+  local
+    var char: ch is ' ';
+    var integer: number is 0;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for ch range stri do
+      if ch <= '\16#ffff;' then
+        write(outFile.ext_file, str(chr(ord(ch) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch) mod 256)));
+      elsif ch <= '\16#10ffff;' then
+        number := ord(ch) - 16#10000;
+        ch1 := chr(16#d800 + (number >> 10));
+        write(outFile.ext_file, str(chr(ord(ch1) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch1) mod 256)));
+        ch2 := chr(16#dc00 + (number mod 16#400));
+        write(outFile.ext_file, str(chr(ord(ch2) mdiv 256)));
+        write(outFile.ext_file, str(chr(ord(ch2) mod 256)));
+      else
+        raise RANGE_ERROR;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Return a string read with a maximum length from an UTF-16BE file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative, or
+ *             the file contains an illegal surrogate pair.
+ *)
+const func string: gets (in utf16be_file: inFile, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  local
+    var integer: charsMissing is 0;
+    var boolean: partialRead is FALSE;
+    var string: stri is "";
+    var string: surrogate_part is "";
+    var integer: index is 0;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    else
+      charsMissing := maxLength;
+      repeat
+        stri := gets(inFile.ext_file, 2 * charsMissing);
+        if odd(length(stri)) then
+          raise RANGE_ERROR;
+        elsif length(stri) <> 2 * charsMissing then
+          partialRead := TRUE;
+        end if;
+        for index range 1 to length(stri) mdiv 2 do
+          ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+          if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
+            # ch1 introduces a surrogate pair
+            if index = length(stri) mdiv 2 then
+              surrogate_part := gets(inFile.ext_file, 2);
+              if length(surrogate_part) = 2 then
+                ch2 := chr(ord(surrogate_part[1]) * 256 + ord(surrogate_part[2]));
+              else
+                raise RANGE_ERROR;
+              end if;
+            else
+              incr(index);
+              ch2 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+            end if;
+            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+              # ch1 and ch2 are a surrogate pair
+              striRead &:= chr((ord(ch1) - 16#d800) << 10 +
+                               (ord(ch2) - 16#dc00) + 16#10000);
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            striRead &:= str(ch1);
+          end if;
+        end for;
+        charsMissing := maxLength - length(striRead);
+      until charsMissing = 0 or partialRead;
+    end if;
+  end func;
+
+
+(**
+ *  Opens an Unicode file which uses the UTF-16LE or UTF-16BE encoding.
+ *  The file is opened with the specified ''path'' and ''mode''.
+ *  The function 'openUtf16' checks for a BOM and depending on that
+ *  opens an UTF-16LE or UTF-16BE file. If the file contains no BOM
+ *  the function returns [[null_file#STD_NULL|STD_NULL]].
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened or if ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
+ *)
+const func file: openUtf16 (in string: path, in string: mode) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var clib_file: open_file is CLIB_NULL_FILE;
+    var utf16le_file: new_le_file is utf16le_file.value;
+    var utf16be_file: new_be_file is utf16be_file.value;
+    var string: bom is "";
+  begin
+    open_file := openClibFile(path, mode);
+    if open_file <> CLIB_NULL_FILE then
+      bom := gets(open_file, 2);
+      if bom = "\16#ff;\16#fe;" then
+        new_le_file.ext_file := open_file;
+        new_le_file.name := path;
+        newFile := toInterface(new_le_file);
+      elsif bom = "\16#fe;\16#ff;" then
+        new_be_file.ext_file := open_file;
+        new_be_file.name := path;
+        newFile := toInterface(new_be_file);
+      else
+        close(open_file);
+      end if;
+    end if;
+  end func;

@@ -1,0 +1,237 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  vectorfont.s7i  Defines the vector font type.                   *)
+(*  Copyright (C) 2010, 2012  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "font.s7i";
+include "pixmapfont.s7i";
+include "pixmap_file.s7i";
+
+
+const type: charVectorType is new struct
+    var integer: width is 0;
+    var array pointList: points is 0 times pointList.value;
+  end struct;
+
+const type: fontVectorType is hash [char] charVectorType;
+
+(**
+ *  [[font|Font]] implementation type for vector fonts.
+ *  The following vector fonts are available: vecfont10.s7i,
+ *  vecfont18.s7i, cronos16.s7i, cronos27.s7i, modern27.s7i
+ *)
+const type: vectorFont is sub fontProperties struct
+    var fontVectorType: fontVectors is fontVectorType.value;
+  end struct;
+
+type_implements_interface(vectorFont, font);
+
+
+(**
+ *  Determine the pixel width of a string displayed with a font.
+ *  @return the pixel width of ''stri'' displayed with ''vecFont''.
+ *)
+const func integer: width (in vectorFont: vecFont, in string: stri) is func
+  result
+    var integer: width is 0;
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      if ch in vecFont.fontVectors then
+        width +:= vecFont.fontVectors[ch].width;
+      else
+        width +:= vecFont.fontVectors[' '].width;
+      end if;
+    end for;
+    width +:= vecFont.characterSpacing * length(stri);
+  end func;
+
+
+(**
+ *  Compute how many chars fit in a width, if ''stri'' is displayed.
+ *  This is done for the given ''vecFont''. The ''allowedWidth'' is
+ *  specified in pixels. The expression:
+ *   numOfCharsInWidth(aFont, stri, width(aFont, stri))
+ *  will always be equivalent to
+ *   length(stri);
+ *  @return the number of chars from ''stri'' that fit into ''allowedWidth''
+ *          if ''stri'' is displayed with ''vecFont''.
+ *)
+const func integer: numOfCharsInWidth (in vectorFont: vecFont,
+    in string: stri, in integer: allowedWidth) is func
+  result
+    var integer: numOfChars is 0;
+  local
+    var integer: index is 1;
+    var integer: totalWidth is 0;
+  begin
+    while index <= length(stri) and totalWidth <= allowedWidth do
+      if stri[index] in vecFont.fontVectors then
+        totalWidth +:= vecFont.fontVectors[stri[index]].width;
+      else
+        totalWidth +:= vecFont.fontVectors[' '].width;
+      end if;
+      totalWidth +:= vecFont.characterSpacing;
+      if totalWidth <= allowedWidth then
+        incr(index);
+      end if;
+    end while;
+    numOfChars := pred(index);
+  end func;
+
+
+(**
+ *  Create a pixmap from ''charVectors''.
+ *  The ''charVectorType'' describes an array of filled polygons.
+ *  Together the filled polygons define a pixmap. The ''background''
+ *  is used as background of the pixmap and the ''foreground'' is used
+ *  as color for the filled polygons. The ''scale'' parameter is
+ *  used to scale the pixmap, but does not scale the polygons.
+ *  @return the created pixmap.
+ *)
+const func PRIMITIVE_WINDOW: genPixmap (in vectorFont: vecFont, in charVectorType: charVectors,
+    in color: foreground, in color: background, in integer: scale) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: index is 0;
+  begin
+    height := lineHeight(vecFont);
+    width := charVectors.width;
+    pixmap := newPixmap(width * scale, height * scale);
+    clear(pixmap, background);
+    if scale = 1 then
+      for index range 1 to length(charVectors.points) do
+        fpolyLine(pixmap, 0, 0, charVectors.points[index], foreground);
+      end for;
+    else
+      for index range 1 to length(charVectors.points) do
+        fpolyLine(pixmap, 0, 0, scale(charVectors.points[index], scale), foreground);
+      end for;
+    end if;
+  end func;
+
+
+(**
+ *  Create a pixmap font from a vector font.
+ *  The pixmapFont structure is set up and the pixmap for space (' ')
+ *  is created. The pixmaps of other characters are created on demand
+ *  with ''getFontCharPixmap''.
+ *  @return the created pixmap font.
+ *)
+const func pixmapFontType: genPixmapFont (in vectorFont: vecFont,
+    in integer: fontSize, in integer: scale,
+    in color: foreground, in color: background) is func
+  result
+    var pixmapFontType: pixmapFont is pixmapFontType.value;
+  begin
+    if ' ' in vecFont.fontVectors then
+      incl(pixmapFont.pixmap, ' ', genPixmap(vecFont, vecFont.fontVectors[' '],
+          foreground, background, scale));
+    end if;
+    pixmapFont.baseFont := vecFont;
+    pixmapFont.fontSize := fontSize;
+    pixmapFont.scale := scale;
+    pixmapFont.foreground := foreground;
+    pixmapFont.background := background;
+    pixmapFont.baseLineDelta := baseLineDelta(vecFont) * scale;
+    pixmapFont.line_delta := lineHeight(vecFont) * scale;
+    pixmapFont.column_delta := columnWidth(vecFont) * scale;
+    pixmapFont.characterSpacing := characterSpacing(vecFont) * scale;
+  end func;
+
+
+(**
+ *  Get the pixmap of a given ''vectorFont'' and char.
+ *  This function is used to create character pixmaps on demand.
+ *  @return the pixmap of the character ''ch''.
+ *)
+const func PRIMITIVE_WINDOW: getFontCharPixmap (in vectorFont: vecFont,
+    inout pixmapFontType: pixmapFont, in char: ch) is func
+  result
+    var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
+  begin
+    if ch in vecFont.fontVectors then
+      charPixmap := genPixmap(vecFont, vecFont.fontVectors[ch],
+          pixmapFont.foreground, pixmapFont.background, pixmapFont.scale);
+      incl(pixmapFont.pixmap, ch, charPixmap);
+    else
+      charPixmap := pixmapFont.pixmap[' '];
+    end if;
+  end func;
+
+
+const proc: setFont (inout pixmapFontFile: fontFile, in vectorFont: aFont) is func
+  begin
+    fontFile.font := getFont(aFont, fontSize(fontFile.font),
+        scale(fontFile.font), foreground(fontFile.font), background(fontFile.font));
+  end func;
+
+
+#
+# Helper functions for the font definition
+#
+
+
+const func pointList: pline (in array integer: points) is
+  return genPointList(points);
+
+
+const func pointList: fillp (in array integer: points) is
+  return genPointList(points);
+
+
+const proc: incl (inout fontVectorType: fontVectors, in char: ch, in integer: width,
+    in array pointList: points) is func
+  local
+    var charVectorType: charDescription is charVectorType.value;
+  begin
+    charDescription.width := width;
+    charDescription.points := points;
+    incl(fontVectors, ch, charDescription);
+  end func;
+
+
+(**
+ *  Determine the maximal column width of all chars in a ''fontVectorType''.
+ *  This is used as helper function when a font is defined.
+ *  @return the maximal column width of all chars in ''fontVectorType''.
+ *)
+const func integer: columnWidth (in fontVectorType: fontVectors) is func
+  result
+    var integer: maxWidth is 0;
+  local
+    var char: ch is ' ';
+  begin
+    for key ch range fontVectors do
+      if fontVectors[ch].width > maxWidth then
+        maxWidth := fontVectors[ch].width;
+      end if;
+    end for;
+  end func;

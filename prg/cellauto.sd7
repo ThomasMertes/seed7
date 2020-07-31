@@ -1,0 +1,84 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cellauto.sd7  Simulate a one-dimensional cellular automaton     *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+
+
+const type: generationType is array boolean;
+
+
+const func generationType: nextGeneration (in bitset: rule,
+    in generationType: currGeneration) is func
+  result
+    var generationType: nextGeneration is 0 times FALSE;
+  local
+    var integer: index is 0;
+    var integer: pattern is 0;
+  begin
+    nextGeneration := length(currGeneration) times FALSE;
+    for index range 2 to pred(length(currGeneration)) do
+      pattern := ord(currGeneration[pred(index)]) * 4 +
+                 ord(currGeneration[index])       * 2 +
+                 ord(currGeneration[succ(index)]);
+      nextGeneration[index] := pattern in rule;
+    end for;
+  end func;
+
+
+const proc: drawGeneration (in integer: generationNumber,
+    in generationType: currentGeneration) is func
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to length(currentGeneration) do
+      if currentGeneration[index] then
+        point(index, generationNumber, black);
+      end if;
+    end for;
+  end func;
+
+
+const proc: main is func
+  local
+    const bitset: rule30 is bitset(30);
+    const bitset: rule110 is bitset(110);
+    var integer: generationNumber is 0;
+    var generationType: currentGeneration is 0 times FALSE;
+  begin
+    screen(1024, 768);
+    clear(white);
+    KEYBOARD := GRAPH_KEYBOARD;
+    currentGeneration := 1024 times FALSE;
+    currentGeneration[512] := TRUE;
+    drawGeneration(generationNumber, currentGeneration);
+    for generationNumber range 1 to 500 do
+      currentGeneration := nextGeneration(rule30, currentGeneration);
+      drawGeneration(generationNumber, currentGeneration);
+    end for;
+    DRAW_FLUSH;
+    readln(KEYBOARD);
+  end func;

@@ -1,0 +1,537 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  raytrace.sd7  Raytracing demo program.                          *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "float.s7i";
+  include "math.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "vector3d.s7i";
+
+
+const func color: (in color: col) * (in float: num) is
+  return color(round(flt(col.redLight)   * num),
+               round(flt(col.greenLight) * num),
+               round(flt(col.blueLight)  * num));
+
+const func string: str (in color: col) is
+  return "(" & str(col.redLight) & ", " & str(col.greenLight) & ", " & str(col.greenLight) & ")";
+
+enable_output(color);
+
+const proc: add (inout color: col1, in color: col2) is func
+  begin
+    col1.redLight   +:= col2.redLight;
+    col1.greenLight +:= col2.greenLight;
+    col1.blueLight  +:= col2.blueLight;
+    if col1.redLight > 65535 then
+      col1.redLight := 65535;
+    end if;
+    if col1.greenLight > 65535 then
+      col1.greenLight := 65535;
+    end if;
+    if col1.blueLight > 65535 then
+      col1.blueLight := 65535;
+    end if;
+  end func;
+
+
+const type: ray is new struct
+    var vector3d: origin is vector3d.value;
+    var vector3d: direction is vector3d.value; # normalized direction
+  end struct;
+
+    const func ray: ray (in vector3d: origin, in vector3d: direction) is func
+      result
+        var ray: aRay is ray.value;
+      begin
+        aRay.origin := origin;
+        aRay.direction := direction;
+      end func;
+
+
+const type: view is new struct
+    var integer: width is 32;
+    var integer: height is 32;
+    var float: depth is 64.0;
+    var vector3d: pos  is vector3d(0.0, 30.0, 100.0);
+    var vector3d: xdir is vector3d(1.0, 0.0, 0.0);
+    var vector3d: ydir is vector3d(0.0, 1.0, 0.0);
+    var vector3d: zdir is vector3d(0.0, 0.0, 1.0);
+    var float: elevation is 0.0;
+  end struct;
+
+    const view: standardView is view.value;
+
+    const func vector3d: calcDirection (in view: aView, in float: dx, in float: dy) is
+      return unitVector(aView.xdir * dx + aView.ydir * dy - aView.zdir * aView.depth);
+
+
+const type: light is new struct
+    var vector3d: pos is vector3d.value;
+    var color: colour is color(0, 0, 0);
+    var boolean: castsShadows is FALSE
+  end struct;
+
+    const func light: light (in vector3d: pos, in color: colour, in boolean: castsShadows) is func
+      result
+        var light: aLight is light.value;
+      begin
+        aLight.pos := pos;
+        aLight.colour := colour;
+        aLight.castsShadows := castsShadows;
+      end func;
+
+    const func vector3d: pos (in light: aLight) is
+      return aLight.pos;
+
+    const func color: colour (in light: aLight) is
+      return aLight.colour;
+
+    const func boolean: castsShadows (in light: aLight) is
+        return aLight.castsShadows;
+
+
+const type: surface is new struct
+    var float: ambient is 0.5;
+    var float: diffuse is 0.5;
+    var float: specular is 0.0;
+    var float: specIndex is 1.0;
+    var float: reflect is 0.0;
+    var color: colour is color(65535, 0, 0);
+    var vector3d: normal is vector3d.value;
+  end struct;
+
+    const func surface: surface (
+        in float: ambient,
+        in float: diffuse,
+        in float: specular,
+        in float: specIndex,
+        in float: reflect,
+        in color: colour,
+        in vector3d: normal) is func
+      result
+        var surface: aSurface is surface.value;
+      begin
+        aSurface.ambient    := ambient;
+        aSurface.diffuse    := diffuse;
+        aSurface.specular   := specular;
+        aSurface.specIndex  := specIndex;
+        aSurface.reflect    := reflect;
+        aSurface.colour     := colour;
+        aSurface.normal     := normal;
+      end func;
+
+    const func surface: dull (in color: aColor) is func
+      result
+        var surface: aSurface is surface.value;
+      begin
+        aSurface.ambient    :=  0.6;
+        aSurface.diffuse    :=  0.7;
+        aSurface.specular   :=  0.0;
+        aSurface.specIndex  :=  1.0;
+        aSurface.reflect    :=  0.0;
+        aSurface.colour     := aColor;
+      end func;
+
+    const func surface: shiny (in color: aColor) is func
+      result
+        var surface: aSurface is surface.value;
+      begin
+        aSurface.ambient    :=  0.3;
+        aSurface.diffuse    :=  0.2;
+        aSurface.specular   :=  0.9;
+        aSurface.specIndex  := 32.0;
+        aSurface.reflect    :=  0.8;
+        aSurface.colour     := aColor;
+      end func;
+
+
+const type: rayTraceObject is new interface;
+
+
+const type: baseRayTraceObject is new struct
+    var surface: aSurface is surface.value;
+  end struct;
+
+    type_implements_interface(baseRayTraceObject, rayTraceObject);
+
+    const func baseRayTraceObject: rayTraceObject (in surface: aSurface) is func
+      result
+        var baseRayTraceObject: rayTraceObject is baseRayTraceObject.value;
+      begin
+        rayTraceObject.aSurface := aSurface;
+      end func;
+
+    const func surface: surfaceAt (in baseRayTraceObject: obj, in vector3d: vect) is
+      return obj.aSurface;
+
+
+const type: intersect is new struct
+    var float: t is NaN;
+    var boolean: enter is FALSE;
+    var rayTraceObject: obj is baseRayTraceObject.value;
+  end struct;
+
+    const func intersect: intersect (in float: t) is func
+      result
+        var intersect: intersection is intersect.value;
+      begin
+        intersection.t := t;
+      end func;
+
+    const proc: setValue (inout intersect: intersection, in float: t, in boolean: enter, in rayTraceObject: obj) is func
+      begin
+        intersection.t := t;
+        intersection.enter := enter;
+        intersection.obj := obj;
+      end func;
+
+
+const func boolean: intersect (in rayTraceObject: anObject, in ray: aRay, inout intersect: hit) is DYNAMIC;
+const func surface: surfaceAt (in rayTraceObject: anObject, in vector3d: vect) is DYNAMIC;
+
+
+const type: sphere is sub baseRayTraceObject struct
+    var vector3d: centre is vector3d.value;
+    var float: radius is 0.0;
+  end struct;
+
+    type_implements_interface(sphere, rayTraceObject);
+
+    const func sphere: sphere (in surface: aSurface, in vector3d: centre, in float: radius) is func
+      result
+        var sphere: aSphere is sphere.value;
+      begin
+        aSphere.aSurface := aSurface;
+        aSphere.centre := centre;
+        aSphere.radius := radius;
+      end func;
+
+    const func boolean: intersect (in sphere: aSphere, in ray: aRay, inout intersect: hit) is func
+      result
+        var boolean: doesIntersect is TRUE;
+      local
+        var vector3d: v is vector3d.value;
+        var float: b is 0.0;
+        var float: disc is 0.0;
+        var float: t2 is 0.0;
+        var float: t1 is 0.0;
+      begin
+        v := aSphere.centre - aRay.origin;
+        b := dot(v, aRay.direction);
+        disc := b * b - dot(v, v) + aSphere.radius * aSphere.radius;
+        if disc <= 0.0 then
+          doesIntersect := FALSE;
+        else
+          disc := sqrt(disc);
+          t2 := b + disc;
+          if t2 <= 1.0e-9 then
+            doesIntersect := FALSE;
+          else
+            t1 := b - disc;
+            if not isNaN(hit.t) and t1 >= hit.t and t2 >= hit.t then
+              doesIntersect := FALSE;
+            else
+              if t1 > 1.0e-9 then
+                setValue(hit, t1, TRUE, aSphere);
+              else
+                setValue(hit, t2, FALSE, aSphere);
+              end if;
+              doesIntersect := TRUE;
+            end if;
+          end if;
+        end if;
+      end func;
+
+    const func surface: surfaceAt (in sphere: aSphere, in vector3d: vect) is func
+      result
+        var surface: surf is surface.value;
+      begin
+        surf := aSphere.aSurface;
+        surf.normal := unitVector(vect - aSphere.centre);
+      end func;
+
+
+const type: infinitePlane is sub baseRayTraceObject struct
+    var vector3d: centre is vector3d.value;
+    var vector3d: normal is vector3d.value;
+  end struct;
+
+    type_implements_interface(infinitePlane, rayTraceObject);
+
+    const func infinitePlane: infinitePlane (in surface: aSurface, in vector3d: centre, in vector3d: normal) is func
+      result
+        var infinitePlane: aPlane is infinitePlane.value;
+      begin
+        aPlane.aSurface := aSurface;
+        aPlane.centre := centre;
+        aPlane.normal := unitVector(normal);
+      end func;
+
+    const func boolean: intersect (in infinitePlane: plane, in ray: aRay, inout intersect: hit) is func
+      result
+        var boolean: doesIntersect is TRUE;
+      local
+        var float: cdotn is 0.0;
+        var float: ddotn is 0.0;
+        var float: t is 0.0;
+      begin
+        cdotn := dot(plane.centre, plane.normal);
+        ddotn := dot(aRay.direction, plane.normal);
+        if abs(ddotn) < 1.0e-9 then
+          doesIntersect := FALSE;
+        else
+          t := (cdotn - dot(aRay.origin, plane.normal)) / ddotn;
+          if t <= 0.0 or (not isNaN(hit.t) and t >= hit.t) then
+            doesIntersect := FALSE;
+          else
+            #TRACE(plane);
+            #writeln;
+            setValue(hit, t, FALSE, plane);
+            doesIntersect := TRUE;
+          end if;
+        end if;
+      end func;
+
+    const func surface: surfaceAt (in infinitePlane: plane, in vector3d: vect) is func
+      result
+        var surface: surf is surface.value;
+      begin
+        surf := plane.aSurface;
+        surf.normal := plane.normal;
+      end func;
+
+
+const type: canvas is new struct
+    var integer: width is 0;
+    var integer: height is 0;
+  end struct;
+
+
+const type: rayTraceCanvas is sub canvas struct
+    var array rayTraceObject: scene is 0 times baseRayTraceObject.value;
+    var color: backgroundCol is color(0, 0, 0);
+    var float: ambientIntensity is 0.0;
+    var light: lightSource is light.value;
+  end struct;
+
+
+    const func boolean: intersect (in rayTraceCanvas: aCanvas, in ray: aRay, inout intersect: hit) is func
+      result
+        var boolean: doesIntersect is FALSE;
+      local
+        var rayTraceObject: obj is baseRayTraceObject.value;
+      begin
+        for obj range aCanvas.scene do
+          if intersect(obj, aRay, hit) then
+            doesIntersect := TRUE;
+          end if;
+        end for;
+      end func;
+
+    const func boolean: shadow (in rayTraceCanvas: aCanvas, in ray: aRay, in float: ld) is func
+      result
+        var boolean: inShadow is FALSE;
+      local
+        var intersect: hit is intersect.value;
+        var rayTraceObject: obj is baseRayTraceObject.value;
+      begin
+        hit := intersect(ld);
+        for obj range aCanvas.scene do
+          if not inShadow and intersect(obj, aRay, hit) then
+            inShadow := TRUE;
+          end if;
+        end for;
+      end func;
+
+    const func color: trace (in rayTraceCanvas: aCanvas, in ray: aRay, in float: depth) is forward;
+
+    const func color: shade (in rayTraceCanvas: aCanvas, in ray: aRay, in intersect: hit, in float: depth) is func
+      result
+        var color: shadeColor is color(0, 0, 0);
+      local
+        var vector3d: point is vector3d.value;
+        var surface: surf is surface.value;
+        var vector3d: incident is vector3d.value;
+        var vector3d: reflected is vector3d.value;
+        var vector3d: toLight is vector3d.value;
+        var float: lightDist is 0.0;
+        var float: ndotl is 0.0;
+        var float: ldotv is 0.0;
+        var ray: shadowRay is ray.value;
+        var color: amb is color(0, 0, 0);
+        var color: diff is color(0, 0, 0);
+        var color: spec is color(0, 0, 0);
+        var color: reflectCol is color(0, 0, 0);
+        var color: transCol is color(0, 0, 0);
+      begin
+        if hit.obj = baseRayTraceObject.value then
+          shadeColor := aCanvas.backgroundCol;
+        else
+
+          point := aRay.origin + aRay.direction * hit.t;
+          surf := surfaceAt(hit.obj, point);
+          if dot(aRay.direction, surf.normal) > 0.0 then
+            surf.normal := -surf.normal;
+          end if;
+
+          incident := aRay.direction;
+          reflected := reflect(incident, surf.normal);
+
+          toLight := aCanvas.lightSource.pos - point;
+          lightDist := abs(toLight);
+          toLight /:= lightDist;
+          ndotl := dot(surf.normal, toLight);
+
+          shadowRay := ray(point + toLight * 0.01, toLight);
+
+          # ambient light
+          amb := surf.colour * surf.ambient * aCanvas.ambientIntensity;
+
+          # diffuse and specular
+          diff := color(0, 0, 0);
+          spec := color(0, 0, 0);
+          if not aCanvas.lightSource.castsShadows or
+              not shadow(aCanvas, shadowRay, lightDist) then
+            if ndotl > 0.0 and surf.diffuse > 0.0 then
+                diff := aCanvas.lightSource.colour * surf.diffuse * ndotl;
+            end if;
+            ldotv := dot(toLight, reflected);
+            if ldotv > 0.0 and surf.specular > 0.0 then
+              spec := aCanvas.lightSource.colour * surf.specular *
+                  ldotv ** surf.specIndex;
+            end if;
+          end if;
+
+          # reflections
+          if depth > 0.0 and surf.reflect > 0.0 then
+              reflectCol := trace(aCanvas,
+                                   ray(point + reflected * 0.01, reflected),
+                                   depth - 1.0);
+              add(spec, reflectCol * surf.reflect)
+          end if;
+
+          # transparency
+          if depth > 0.0 and surf.reflect > 0.0 then
+              transCol := trace(aCanvas,
+                                ray(point + incident * 0.01, incident),
+                                depth - 1.0);
+              add(spec, transCol * surf.reflect)
+          end if;
+
+          # shadeColor := amb + diff + spec;
+          shadeColor := amb;
+          add(shadeColor, diff);
+          add(shadeColor, spec);
+        end if;
+      end func;
+
+    const func color: trace (in rayTraceCanvas: aCanvas, in ray: aRay, in float: depth) is func
+      result
+        var color: traceColor is color(0, 0, 0);
+      local
+        var intersect: hit is intersect.value;
+        var rayTraceObject: obj is baseRayTraceObject.value;
+      begin
+        traceColor := aCanvas.backgroundCol;
+        if intersect(aCanvas, aRay, hit) then
+          obj := hit.obj;
+          traceColor := shade(aCanvas, aRay, hit, depth);
+        end if;
+      end func;
+
+    const proc: trace (inout rayTraceCanvas: aCanvas, in array rayTraceObject: scn, in view: aView,
+          in color: bgcol, in float: amb, in light: li, in float: maxRayDepth) is func
+      local
+        var integer: x is 0;
+        var integer: y is 0;
+        var float: xscale is 0.0;
+        var float: yscale is 0.0;
+        var float: dxscale is 0.0;
+        var float: dyscale is 0.0;
+        var ray: aRay is ray.value;
+        var color: col is color(0, 0, 0);
+      begin
+        aCanvas.scene := scn;
+        aCanvas.backgroundCol := bgcol;
+        aCanvas.ambientIntensity := amb;
+        aCanvas.lightSource := li;
+
+        yscale := flt(pred(aCanvas.height)) / -2.0 *
+                 flt(aView.height) / flt(aCanvas.height);
+        dxscale := flt(aView.width) / flt(aCanvas.width);
+        dyscale := flt(aView.height) / flt(aCanvas.height);
+
+        for y range pred(aCanvas.height) downto 0 do
+          xscale := flt(pred(aCanvas.width)) / -2.0 *
+              flt(aView.width) / flt(aCanvas.width);
+          for x range 0 to pred(aCanvas.width) do
+            aRay := ray(aView.pos, calcDirection(aView, xscale, yscale));
+            col := trace(aCanvas, aRay, maxRayDepth);
+            point(x, y, col);
+            xscale +:= dxscale;
+          end for;
+          yscale +:= dyscale;
+        end for;
+      end func;
+
+
+const proc: main is func
+  local
+    var array rayTraceObject: scene is 0 times baseRayTraceObject.value;
+    var rayTraceObject: obj is baseRayTraceObject.value;
+    var light: aLight is light.value;
+    var rayTraceCanvas: rt is rayTraceCanvas.value;
+    var integer: xPos is 0;
+  begin
+    screen(320, 320);
+    KEYBOARD := GRAPH_KEYBOARD;
+
+    rt.height := height(curr_win);
+    rt.width := width(curr_win);
+
+    obj := infinitePlane(shiny(color(0, 32768, 0)),
+                         vector3d(0.0, 25.0, 0.0),
+                         vector3d(0.0,  1.0, 0.0));
+    scene &:= [] (obj);
+    obj := sphere(shiny(color(0, 0, 65535)),
+                  vector3d(flt(xPos) (*0.0*), 40.0, 20.0), 10.0);
+    scene &:= [] (obj);
+    obj := sphere(dull(color(65535, 0, 32768)),
+                  vector3d(-15.0, 30.0, 20.0), 5.0);
+    scene &:= [] (obj);
+    obj := sphere(shiny(color(65535, 65535, 65535)),
+                  vector3d(10.0, 25.0, 30.0), 8.0);
+    scene &:= [] (obj);
+
+    aLight := light(vector3d(100.0, 100.0, 100.0),
+                   color(65535, 65535, 65535),
+                   TRUE);
+
+    trace(rt, scene, standardView, color(0, 0, 8192), 0.4, aLight, 5.0);
+
+    DRAW_FLUSH;
+    ignore(getc(KEYBOARD));
+  end func;

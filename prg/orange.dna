@@ -1,0 +1,218 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dnafight.sd7  Bacterial dna fight programming game              *)
+(*  Copyright (C) 1985  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const proc: dna (ORANGE) is func
+
+  local
+    const colorSet: FRIENDS is {ORANGE};
+    var colorSet: enemy is colorSet.EMPTY_SET;
+    var direction: direct is HERE;
+    var directSet: killDirs is directSet.EMPTY_SET;
+    var directSet: eatDirs is directSet.EMPTY_SET;
+    var directSet: splitDirs is directSet.EMPTY_SET;
+    var directSet: helpDirs is directSet.EMPTY_SET;
+    var power: killPow is 0;
+    var power: eatPow is 0;
+    var power: splitPow is 0;
+    var power: helpPow is 0;
+    var power: split1Pow is 0;
+    var power: split2Pow is 0;
+    var power: newPow is 0;
+    var power: new1SplitPow is 0;
+    var power: new2SplitPow is 0;
+    var power: meal is 0;
+    var boolean: dangerHere is FALSE;
+
+
+    const func direction: optimalDir (in directSet: dirs) is func
+      result
+        var direction: optimalDir is HERE;
+
+      local
+        var direction: direct is HERE;
+        var power: pow is 0;
+        var power: help is 0;
+        var directSet: directs is directSet.EMPTY_SET;
+
+      begin (* optimalDir *)
+        if dirs = {HERE} then
+          optimalDir := HERE;
+        else
+          pow := 0;
+          directs := directSet.EMPTY_SET;
+          for direct range MAIN_DIRECTIONS do
+            if direct in dirs then
+              help := food(left[direct]) + food(direct) +
+                  food(right[direct]);
+              if help > pow then
+                pow := help;
+                directs := directSet.EMPTY_SET;
+                incl(directs, direct);
+              elsif help = pow then
+                incl(directs, direct);
+              end if;
+            end if;
+          end for;
+          optimalDir := ranDir(directs);
+        end if;
+      end func;
+
+
+  begin (* dna (ORANGE) *)
+    enemy := ALL_COLORS;
+    excl(enemy, ORANGE);
+    killPow := 0;
+    eatPow := 0;
+    splitPow := 0;
+    helpPow := 0;
+    newPow := strength(HERE) - shrinkSize(strength(HERE));
+    split1Pow := strength(HERE) - strength(HERE) div 2;
+    split2Pow := strength(HERE) div 2;
+    new1SplitPow := split1Pow - shrinkSize(split1Pow);
+    if strength(HERE) > 1 then
+      new2SplitPow := split2Pow - shrinkSize(split2Pow);
+    else
+      new2SplitPow := 0;
+    end if;
+    dangerHere := FALSE;
+    for direct range MAIN_DIRECTIONS do
+      if view(direct) = CLEAR then
+        meal := min(strength(HERE), food(direct));
+        if (view(   left [direct]) in enemy and
+            strength(left [direct]) >= newPow + meal) or
+            (view(   right[direct]) in enemy and
+            strength(right[direct]) >= newPow + meal) then
+          noop;
+        else
+          if meal > eatPow then
+            eatPow := meal;
+            eatDirs := directSet.EMPTY_SET;
+            incl(eatDirs, direct);
+          elsif meal = eatPow then
+            incl(eatDirs, direct);
+          end if;
+        end if;
+        meal := min(strength(HERE) div 2, food(direct));
+        if (view(   left [direct]) in enemy and
+            strength(left [direct]) >= new2SplitPow + meal) or
+            (view(   right[direct]) in enemy and
+            strength(right[direct]) >= new2SplitPow + meal) then
+          noop;
+        else
+          if meal>splitPow then
+            splitPow := meal;
+            splitDirs := directSet.EMPTY_SET;
+            incl(splitDirs, direct);
+          elsif meal = splitPow then
+            incl(splitDirs, direct);
+          end if;
+        end if;
+      else
+        if view(direct) in enemy then
+          if strength(direct)>strength(HERE) then
+             dangerHere := TRUE;
+          else
+            if  (view(    left [direct]) in enemy and
+                strength(left [direct]) >= newPow + strength(direct)) or
+                (view(   right[direct]) in enemy and
+                strength(right[direct]) >= newPow + strength(direct)) then
+              noop;
+            else
+              if strength(direct) > killPow then
+                killPow := strength(direct);
+                killDirs := directSet.EMPTY_SET;
+                incl(killDirs, direct);
+              elsif strength(direct) = killPow then
+                incl(killDirs, direct);
+              end if;
+            end if;
+          end if;
+        else
+          if view(direct) in FRIENDS then
+            if (strength(direct)<=strength(HERE)) then
+              if (view(    left [direct]) in enemy and
+                  strength(left [direct]) >= strength(direct) and
+                  strength(left [direct]) < newPow + strength(direct)) or
+                  (view(   right[direct]) in enemy and
+                  strength(right[direct]) >= strength(direct) and
+                  strength(right[direct]) < newPow + strength(direct)) then
+                if strength(direct) > helpPow then
+                  helpPow := strength(direct);
+                  helpDirs := directSet.EMPTY_SET;
+                  incl(helpDirs, direct);
+                elsif strength(direct) = helpPow then
+                  incl(helpDirs, direct);
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end for;
+    meal := min(strength(HERE)-strength(HERE) div 2, food(HERE));
+    if dangerHere or strength(HERE) = 1 or
+        killPow >= new1SplitPow + meal then
+      splitPow := 0;
+      splitDirs := directSet.EMPTY_SET;
+    else
+      splitPow := new1SplitPow + meal + new2SplitPow + splitPow;
+    end if;
+    if not dangerHere then
+      meal := min(strength(HERE), food(HERE));
+      if meal > eatPow then
+        eatPow := meal;
+        eatDirs := directSet.EMPTY_SET;
+        incl(eatDirs, HERE);
+      else
+        if meal = eatPow then
+          incl(eatDirs, HERE);
+        end if;
+      end if;
+    end if;
+    eatPow := newPow + eatPow;
+    killPow := newPow + killPow;
+    helpPow := newPow + helpPow;
+    if killDirs <> directSet.EMPTY_SET and
+        killPow >= strength(HERE) - newPow then
+      kill(optimalDir(killDirs))
+    else
+      if max(max(eatPow, splitPow), helpPow)>0 then
+        if splitPow >= eatPow then
+          if helpPow>splitPow then
+            kill(optimalDir(helpDirs));
+          else
+            split(optimalDir(splitDirs), split1Pow, split2Pow);
+          end if;
+        else
+          if helpPow>eatPow then
+            kill(optimalDir(helpDirs));
+          else
+            eat(optimalDir(eatDirs), strength(HERE));
+          end if;
+        end if;
+      else
+        noop;
+      end if;
+    end if;
+  end func; (* dna (ORANGE) *)

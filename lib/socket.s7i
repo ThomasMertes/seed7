@@ -1,0 +1,315 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  socket.s7i    File implementation type for sockets              *)
+(*  Copyright (C) 2007 - 2009, 2011  Thomas Mertes                  *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "null_file.s7i";
+include "enable_io.s7i";
+include "duration.s7i";
+include "sockbase.s7i";
+
+
+const integer: SOCK_STREAM is 1;
+const integer: SOCK_DGRAM is 2;
+
+
+(**
+ *  Interface type for listeners.
+ *  The listener interface is implemented with inetListener.
+ *  A listener manages its accepted sockets.
+ *)
+const type: listener is sub object interface;
+
+const proc: close (inout listener: aListener)                               is DYNAMIC;
+const proc: listen (in listener: aListener, in integer: backlog)            is DYNAMIC;
+const func file: accept (inout listener: aListener)                         is DYNAMIC;
+const proc: signOn (inout listener: aListener, in file: sock)               is DYNAMIC;
+const proc: signOff (inout listener: aListener, in file: sock)              is DYNAMIC;
+const proc: waitForRequest (inout listener: aListener)                      is DYNAMIC;
+const func file: getExistingConnection (in listener: aListener)             is DYNAMIC;
+const func file: getNewConnection (in listener: aListener)                  is DYNAMIC;
+
+
+const type: baseListener is new struct
+  end struct;
+
+type_implements_interface(baseListener, listener);
+
+const listener: (attr listener) . value is baseListener.value;
+
+
+(* Operations for socket files *)
+
+
+(**
+ *  [[file|File]] implementation type for OS sockets.
+ *  This type supports communication via sockets. A ''socket'' is
+ *  not seekable. The functions [[null_file#length(in_null_file)|length]],
+ *  [[null_file#seek(in_null_file,in_integer)|seek]] and
+ *  [[null_file#tell(in_null_file)|tell]] raise FILE_ERROR.
+ *)
+const type: socket is sub null_file struct
+    var PRIMITIVE_SOCKET: sock is PRIMITIVE_NULL_SOCKET;
+    var socketAddress: addr is socketAddress.value;
+    var string: service is "";
+    var listener: acceptedFrom is listener.value;
+  end struct;
+
+
+type_implements_interface(socket, file);
+
+const func socketAddress: localAddress (in file: aFile) is DYNAMIC;
+const func socketAddress: peerAddress (in file: aFile) is DYNAMIC;
+
+
+(**
+ *  Get the local address of the socket 'aSocket'.
+ *  @return the address to which the socket 'aSocket' is bound.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func socketAddress: localAddress (in socket: aSocket) is
+  return localAddress(aSocket.sock);
+
+
+(**
+ *  Get the address of the peer to which 'aSocket' is connected.
+ *  @return the address of the peer connected to the socket 'aSocket'.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func socketAddress: peerAddress (in socket: aSocket) is
+  return peerAddress(aSocket.sock);
+
+
+const func string: service (in file: aFile) is DYNAMIC;
+const func string: service (in socket: aSocket) is
+  return aSocket.service;
+
+const func integer: port (in file: aFile) is DYNAMIC;
+const func integer: port (in socket: aSocket) is
+  return integer(service(aSocket.addr));
+
+const func integer: ord (in file: aFile) is DYNAMIC;
+const func integer: ord (in socket: aSocket) is
+  return ord(aSocket.sock);
+
+
+const func boolean: inputReady (in file: inFile, in duration: timeout) is DYNAMIC;
+const func boolean: inputReady (in socket: inSocket, in duration: timeout) is
+  return inputReady(inSocket.sock, toSeconds(timeout), timeout.micro_second);
+
+
+(**
+ *  Return a connected socket file for the given [[sockbase|socket address]].
+ *  @return the socket file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func file: openSocket (in socketAddress: address) is func
+  result
+    var file: newSocket is STD_NULL;
+  local
+    var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
+    var socket: new_socket is socket.value;
+  begin
+    if address <> socketAddress.value then
+      open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
+      if open_socket <> PRIMITIVE_NULL_SOCKET then
+        block
+          connect(open_socket, address);
+          new_socket.addr := address;
+          new_socket.service := service(address);
+          new_socket.sock := open_socket;
+          newSocket := toInterface(new_socket);
+        exception
+          catch FILE_ERROR:
+            close(open_socket);
+        end block;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Return a connected internet socket file at a port at localhost.
+ *  @return the socket file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func file: openInetSocket (in integer: portNumber) is
+  return openSocket(inetSocketAddress(portNumber));
+
+
+(**
+ *  Return a connected internet socket file at a port at ''hostName''.
+ *  Here ''hostName'' is either a host name (e.g.: "www.example.org"),
+ *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
+ *  Operating systems supporting IPv6 may also accept an IPv6 address
+ *  in colon notation.
+ *  @return the socket file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func file: openInetSocket (in string: hostName, in integer: portNumber) is
+  return openSocket(inetSocketAddress(hostName, portNumber));
+
+
+(**
+ *  Close the socket ''aSocket''.
+ *  A listener manages accepted sockets (its existing connections).
+ *  When closing a socket, that was accepted from a listener,
+ *  it is also signed off from the listener.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: close (inout socket: aSocket) is func
+  begin
+    if aSocket.acceptedFrom <> listener.value then
+      signOff(aSocket.acceptedFrom, aSocket);
+    end if;
+    close(aSocket.sock);
+    aSocket.sock := PRIMITIVE_NULL_SOCKET;
+  end func;
+
+
+const proc: release (inout file: aFile) is DYNAMIC;
+
+
+const proc: release (inout socket: aSocket) is func
+  begin
+    aSocket.acceptedFrom := listener.value;
+  end func;
+
+
+(**
+ *  Forces that all buffered data of ''outSocket'' is sent to its destination.
+ *  Flushing a socket has no effect.
+ *)
+const proc: flush (in socket: outSocket) is func
+  begin
+    noop; # flush(outSocket.sock);
+  end func;
+
+
+(**
+ *  Write the [[string]] ''stri'' to ''outSocket''.
+ *  @exception FILE_ERROR The system function is not able to write
+ *             all characters of the string.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ *)
+const proc: write (in socket: outSocket, in string: stri) is func
+  begin
+    write(outSocket.sock, stri);
+  end func;
+
+
+(**
+ *  Write a [[string]] followed by end-of-line to ''outSocket''.
+ *  This function assures that string and '\n' are sent together.
+ *  @exception FILE_ERROR The system function is not able to write
+ *             all characters of the string.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ *)
+const proc: writeln (in socket: outSocket, in string: stri) is func
+  begin
+    write(outSocket.sock, stri & "\n");
+  end func;
+
+
+(**
+ *  Read a character from ''inSocket''.
+ *  @return the character read.
+ *)
+const func char: getc (inout socket: inSocket) is
+  return getc(inSocket.sock, inSocket.bufferChar);
+
+
+(**
+ *  Read a [[string]] with a maximum length from ''inSocket''.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: gets (inout socket: inSocket, in integer: maxLength) is
+  return gets(inSocket.sock, maxLength, inSocket.bufferChar);
+
+
+(**
+ *  Read a word from ''inSocket''.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the [[string]].
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left the inSocket.bufferChar contains ' ',
+ *  '\t', '\n' or [[char#EOF|EOF]].
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: getwd (inout socket: inSocket) is
+  return word_read(inSocket.sock, inSocket.bufferChar);
+
+
+(**
+ *  Read a line from 'inSocket'.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the [[string]]. That
+ *  means that the "\r" of a "\r\n" sequence is silently removed. When
+ *  the function is left the inSocket.bufferChar contains '\n' or [[char#EOF|EOF]].
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: getln (inout socket: inSocket) is
+  return line_read(inSocket.sock, inSocket.bufferChar);
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the socket failed. The socket functions ''getc'', ''gets'',
+ *  ''getln'' and ''getwd'' indicate the end-of-file situation by
+ *  setting ''bufferChar'' to [[char#EOF|EOF]].
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in socket: inSocket) is
+  return inSocket.bufferChar = EOF;
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a socket to be handled like an iterator.
+ *  Since ''hasNext'' peeks the next character from the socket
+ *  it may block.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]], TRUE otherwise.
+ *)
+const func boolean: hasNext (in socket: inSocket) is
+  return hasNext(inSocket.sock);

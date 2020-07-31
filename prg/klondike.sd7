@@ -1,0 +1,849 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  klondike.sd7  Klondike solitaire game                           *)
+(*  Copyright (C) 2017  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "cards.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "image.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+  include "dialog.s7i";
+
+
+const integer: PICTURE_SCALE is 2;
+
+const PRIMITIVE_WINDOW: cardBackside is cardBackside(PICTURE_SCALE);
+
+const integer: LEFT_MARGIN is 20 * PICTURE_SCALE;
+const integer: TOP_MARGIN is 20 * PICTURE_SCALE;
+const integer: CARD_WIDTH is width(cardBackside);
+const integer: CARD_HEIGHT is height(cardBackside);
+const integer: DELTA_X is 90 * PICTURE_SCALE;
+const integer: DELTA_Y is 120 * PICTURE_SCALE;
+const integer: PILE_DELTA_Y is 15 * PICTURE_SCALE;
+
+
+const type: cardImage is sub image interface;
+
+const func cardSuit: suit (in cardImage: card) is DYNAMIC;
+const func cardRank: rank (in cardImage: card) is DYNAMIC;
+const func boolean: visible (in cardImage: card) is DYNAMIC;
+const proc: setVisible (inout cardImage: card, in boolean: visible) is DYNAMIC;
+const proc: putCard (inout cardImage: card, in integer: xPos, in integer: yPos,
+    in boolean: visible) is DYNAMIC;
+
+const type: cardImageArray is array cardImage;
+
+
+const type: cardType is sub baseImage struct
+    var cardSuit: suit is cardSuit.value;
+    var cardRank: rank is cardRank.value;
+    var PRIMITIVE_WINDOW: frontside is PRIMITIVE_WINDOW.value;
+    var PRIMITIVE_WINDOW: backside is PRIMITIVE_WINDOW.value;
+    var boolean: visible is FALSE;
+  end struct;
+
+type_implements_interface(cardType, cardImage);
+
+const cardImage: (attr cardImage) . value is cardType.value;
+
+
+const func cardSuit: suit (in cardType: card) is
+  return card.suit;
+
+
+const func cardRank: rank (in cardType: card) is
+  return card.rank;
+
+
+const func boolean: visible (in cardType: card) is
+  return card.visible;
+
+
+const proc: setVisible (inout cardType: card, in boolean: visible) is func
+  begin
+    card.visible := visible;
+    if visible then
+      put(card.window, 0, 0, card.frontside, PSET);
+    else
+      put(card.window, 0, 0, card.backside, PSET);
+    end if;
+  end func;
+
+
+const proc: putCard (inout cardType: card, in integer: xPos, in integer: yPos,
+    in boolean: visible) is func
+  begin
+    card.visible := visible;
+    card.window := openSubWindow(curr_win, xPos, yPos,
+        width(card.frontside), height(card.frontside));
+    if visible then
+      put(card.window, 0, 0, card.frontside, PSET);
+    else
+      put(card.window, 0, 0, card.backside, PSET);
+    end if;
+  end func;
+
+
+const type: cardDeck is new struct
+    var array cardImage: cards is 0 times cardImage.value;
+    var integer: cardsInDeck is 0;
+  end struct;
+
+
+const func integer: cardsInDeck (in cardDeck: deck) is
+  return deck.cardsInDeck;
+
+
+const func cardImage: genCardImage (in cardSuit: suit, in cardRank: rank) is func
+  result
+    var cardImage: newCardImage is cardImage.value;
+  local
+    var cardType: card is cardType.value;
+  begin
+    card.suit := suit;
+    card.rank := rank;
+    card.name := str(card.rank) <& " of " <& str(card.suit);
+    card.frontside := cardPixmap(suit, rank, PICTURE_SCALE);
+    card.backside := cardBackside;
+    newCardImage := toInterface(card);
+  end func;
+
+
+const func cardDeck: createCardDeck is func
+  result
+    var cardDeck: deck is cardDeck.value;
+  local
+    var cardSuit: suit is cardSuit.value;
+    var cardRank: rank is cardRank.value;
+  begin
+    for suit range clubs to spades do
+      for rank range two to ace do
+        deck.cards &:= genCardImage(suit, rank);
+      end for;
+    end for;
+    deck.cardsInDeck := length(deck.cards);
+  end func;
+
+
+const proc: shuffle (inout cardDeck: deck) is func
+  local
+    var array cardImage: shuffled is 0 times cardImage.value;
+  begin
+    while length(deck.cards) > 0 do
+      shuffled &:= remove(deck.cards, rand(1, length(deck.cards)));
+    end while;
+    deck.cards := shuffled;
+    deck.cardsInDeck := length(deck.cards);
+  end func;
+
+
+const func cardImage: dealCard (inout cardDeck: deck) is func
+  result
+    var cardImage: card is cardImage.value;
+  begin
+    card := deck.cards[deck.cardsInDeck];
+    decr(deck.cardsInDeck);
+  end func;
+
+
+const func cardImage: selectCard (in cardDeck: deck, in PRIMITIVE_WINDOW: win) is func
+  result
+    var cardImage: card is cardImage.value;
+  local
+    var cardImage: cardFromDeck is cardImage.value;
+  begin
+    for cardFromDeck range deck.cards do
+      if window(cardFromDeck) = win then
+        card := cardFromDeck;
+      end if;
+    end for;
+  end func;
+
+
+const func cardImage: cardBelow (in cardDeck: deck, in cardImage: aCard) is func
+  result
+    var cardImage: card is cardImage.value;
+  local
+    var integer: xPosMin is 0;
+    var integer: yPosMin is 0;
+    var integer: xPosMax is 0;
+    var integer: yPosMax is 0;
+    var cardImage: cardFromDeck is cardImage.value;
+    var boolean: distinct is TRUE;
+  begin
+    xPosMin := xPos(aCard);
+    yPosMin := yPos(aCard);
+    xPosMax := xPosMin + width(aCard) - 1;
+    yPosMax := yPosMin + height(aCard) - 1;
+    for cardFromDeck range deck.cards do
+      if cardFromDeck <> aCard and
+          xPosMin < xPos(cardFromDeck) + width(cardFromDeck) and
+          xPosMax >= xPos(cardFromDeck) and
+          yPosMin < yPos(cardFromDeck) + height(cardFromDeck) and
+          yPosMax >= yPos(cardFromDeck) and
+          visible(cardFromDeck) then
+        if card = cardImage.value then
+          card := cardFromDeck;
+        else
+          distinct := FALSE;
+        end if;
+      end if;
+    end for;
+    if not distinct then
+      card := cardImage.value;
+    end if;
+  end func;
+
+
+const integer: DEST_PILES is 4;
+
+const type: subPileType is array cardImage;
+const type: pileOrDestType is array array cardImage;
+
+const type: stateType is new struct
+    var cardDeck: deck is createCardDeck;
+    var subPileType: waste is 0 times cardImage.value;
+    var pileOrDestType: pile is 0 times 0 times cardImage.value;
+    var pileOrDestType: dest is DEST_PILES times 0 times cardImage.value;
+    var boolean: finished is FALSE;
+  end struct;
+
+
+const func cardImage: dealCard (inout cardDeck: deck, in integer: xPos,
+   in integer: yPos, in boolean: visible) is func
+  result
+    var cardImage: card is cardImage.value;
+  begin
+    card := dealCard(deck);
+    putCard(card, xPos, yPos, visible);
+  end func;
+
+
+const proc: dealCards (inout stateType: state) is func
+  local
+    var integer: pileNum is 0;
+    var integer: cardNum is 0;
+    var cardImage: card is cardImage.value;
+  begin
+    for pileNum range 1 to 7 do
+      state.pile &:= 0 times cardImage.value;
+      for cardNum range 1 to pred(pileNum) do
+        state.pile[pileNum] &:= dealCard(state.deck,
+            LEFT_MARGIN + pred(pileNum) * DELTA_X,
+            TOP_MARGIN + DELTA_Y + pred(cardNum) * PILE_DELTA_Y, FALSE);
+      end for;
+      state.pile[pileNum] &:= dealCard(state.deck,
+          LEFT_MARGIN + pred(pileNum) * DELTA_X,
+          TOP_MARGIN + DELTA_Y + pred(pileNum) * PILE_DELTA_Y, TRUE);
+    end for;
+    while cardsInDeck(state.deck) <> 0 do
+      card := dealCard(state.deck);
+      putCard(card, LEFT_MARGIN, TOP_MARGIN, FALSE);
+    end while;
+  end func;
+
+
+const proc: recycleWaste (inout stateType: state) is func
+  local
+    var cardImage: card is cardImage.value;
+  begin
+    for card range state.waste do
+      setVisible(card, FALSE);
+      setPos(card, LEFT_MARGIN, TOP_MARGIN);
+      toBottom(card);
+    end for;
+    state.waste := 0 times cardImage.value;
+  end func;
+
+
+const func integer: cardIndex (in pileOrDestType: pileOrDest,
+    in cardImage: card) is func
+  result
+    var integer: number is 0;
+  local
+    var integer: num is 0;
+    var integer: length is 0;
+  begin
+    for key num range pileOrDest do
+      length := length(pileOrDest[num]);
+      if length <> 0 then
+        if pileOrDest[num][length] = card then
+          number := num;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: searchCard (in pileOrDestType: pileOrDest,
+    in cardImage: card, inout integer: index, inout integer: subIndex) is func
+  result
+    var boolean: found is FALSE;
+  local
+    var integer: num is 0;
+    var integer: pos is 0;
+  begin
+    for key num range pileOrDest do
+      for key pos range pileOrDest[num] do
+        if pileOrDest[num][pos] = card then
+          index := num;
+          subIndex := pos;
+          found := TRUE;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const func subPileType: getSubPile (inout stateType: state, in cardImage: card) is func
+  result
+    var subPileType: subPile is subPileType.value;
+  local
+    var integer: pileNumber is 0;
+    var integer: posInPile is 0;
+  begin
+    if searchCard(state.pile, card, pileNumber, posInPile) then
+      subPile := state.pile[pileNumber][posInPile ..];
+    else
+      subPile &:= card;
+    end if;
+  end func;
+
+
+const proc: toTop (in subPileType: subPile) is func
+  local
+    var cardImage: pileCard is cardImage.value;
+  begin
+    for pileCard range subPile do
+      toTop(pileCard);
+    end for;
+  end func;
+
+
+const func boolean: isAtPlace (in cardImage: card, in integer: xPos,
+    in integer: yPos) is func
+  result
+    var boolean: isAtPlace is FALSE;
+  local
+    var integer: xPosMax is 0;
+    var integer: yPosMax is 0;
+  begin
+    xPosMax := xPos + width(card) - 1;
+    yPosMax := yPos + height(card) - 1;
+    if xPos < xPos(card) + width(card) and
+        xPosMax >= xPos(card) and
+        yPos < yPos(card) + height(card) and
+        yPosMax >= yPos(card) then
+      isAtPlace := TRUE;
+    end if;
+  end func;
+
+
+const func boolean: isAtDestPlace (in cardImage: card, in integer: destNum) is
+  return isAtPlace(card, LEFT_MARGIN + (destNum + 2) * DELTA_X, TOP_MARGIN);
+
+
+const func integer: atDestPlace (in stateType: state, in cardImage: card) is func
+  result
+    var integer: destNumber is 0;
+  local
+    var integer: destNum is 0;
+    var integer: length is 0;
+  begin
+    for destNum range 1 to DEST_PILES do
+      if isAtDestPlace(card, destNum) then
+        destNumber := destNum;
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: cardFitsToDest (in cardImage: card, in cardImage: cardBelow) is
+  return suit(card) = suit(cardBelow) and
+         ((rank(card) = two and rank(cardBelow) = ace) or
+         (rank(card) <> two and pred(rank(card)) = rank(cardBelow)));
+
+
+const proc: removeFromDest (inout stateType: state, in integer: destNumber) is func
+  local
+    var integer: cardNum is 0;
+  begin
+    cardNum := length(state.dest[destNumber]);
+    state.dest[destNumber] := state.dest[destNumber][.. pred(cardNum)];
+  end func;
+
+
+const proc: appendToDest (inout stateType: state, in integer: destNumber,
+    inout cardImage: card) is func
+  local
+    var integer: cardNum is 0;
+  begin
+    state.dest[destNumber] &:= card;
+    cardNum := length(state.dest[destNumber]);
+    setPos(card, LEFT_MARGIN + (destNumber + 2) * DELTA_X, TOP_MARGIN);
+  end func;
+
+
+const func boolean: isFinished (in stateType: state) is func
+  result
+    var boolean: finished is TRUE;
+  local
+    var integer: destNumber is 0;
+    var integer: topIndex is 0;
+  begin
+    for key destNumber range state.dest do
+      topIndex := length(state.dest[destNumber]);
+      if topIndex = 0 or
+          rank(state.dest[destNumber][topIndex]) <> king then
+        finished := FALSE;
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: isAtPilePlace (in cardImage: card,
+    in integer: pileNum, in integer: depth) is
+  return isAtPlace(card, LEFT_MARGIN + pred(pileNum) * DELTA_X,
+                   TOP_MARGIN + DELTA_Y + pred(depth) * PILE_DELTA_Y);
+
+
+const func integer: atFreePilePlace (in stateType: state, in cardImage: card) is func
+  result
+    var integer: pileNumber is 0;
+  local
+    var integer: pileNum is 0;
+    var integer: length is 0;
+  begin
+    for pileNum range 1 to 7 do
+      length := length(state.pile[pileNum]);
+      if isAtPilePlace(card, pileNum, succ(length)) then
+        pileNumber := pileNum;
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: cardFitsToPile (in cardImage: card, in cardImage: cardBelow) is
+  return (suit(card) in blackCardSuit) = (suit(cardBelow) in redCardSuit) and
+         ((rank(card) = ace and rank(cardBelow) = two) or
+          (rank(card) <> ace and rank(card) <> king and
+           succ(rank(card)) = rank(cardBelow)));
+
+
+const proc: removeFromPile (inout stateType: state, in integer: pileNumber,
+    in integer: posInPile) is func
+  begin
+    state.pile[pileNumber] := state.pile[pileNumber][.. pred(posInPile)];
+  end func;
+
+
+const proc: appendToPile (inout stateType: state, in integer: pileNumber,
+    in subPileType: subPile) is func
+  local
+    var integer: posInPile is 0;
+    var cardImage: card is cardImage.value;
+  begin
+    posInPile := succ(length(state.pile[pileNumber]));
+    state.pile[pileNumber] &:= subPile;
+    for card range subPile do
+      setPos(card, LEFT_MARGIN + pred(pileNumber) * DELTA_X,
+             TOP_MARGIN + DELTA_Y + pred(posInPile) * PILE_DELTA_Y);
+      incr(posInPile);
+    end for;
+  end func;
+
+
+const proc: removeFromOldPlace (inout stateType: state, in subPileType: subPile) is func
+  local
+    var integer: pileNumber is 0;
+    var integer: posInPile is 0;
+    var integer: destNumber is 0;
+    var integer: wasteLength is 0;
+  begin
+    pileNumber := cardIndex(state.pile, subPile[1]);
+    if searchCard(state.pile, subPile[1], pileNumber, posInPile) then
+      removeFromPile(state, pileNumber, posInPile);
+    else
+      destNumber := cardIndex(state.dest, subPile[1]);
+      if destNumber <> 0 then
+        removeFromDest(state, destNumber);
+      else
+        wasteLength := length(state.waste);
+        if wasteLength <> 0 then
+          if state.waste[wasteLength] = subPile[1] then
+            state.waste := state.waste[.. pred(wasteLength)];
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: move (inout image: anImage, in integer: xDest, in integer: yDest) is func
+  local
+    var integer: xStart is 0;
+    var integer: yStart is 0;
+    var integer: steps is 0;
+    var integer: stepNum is 1;
+    const integer: delta is 10;
+  begin
+    xStart := xPos(anImage);
+    yStart := yPos(anImage);
+    if abs(xDest - xStart) > abs(yDest - yStart) then
+      steps := pred(abs(xDest - xStart)) div delta + 1;
+    else
+      steps := pred(abs(yDest - yStart)) div delta + 1;
+    end if;
+    for stepNum range 1 to steps do
+      setPos(anImage, xStart + (xDest - xStart) * stepNum div steps,
+                      yStart + (yDest - yStart) * stepNum div steps);
+      ignore(busy_getc(KEYBOARD));
+      DRAW_FLUSH;
+      wait(5000 . MICRO_SECONDS);
+    end for;
+  end func;
+
+
+const proc: move (in subPileType: subPile, in integer: xDest, in integer: yDest) is func
+  local
+    var integer: xStart is 0;
+    var integer: yStart is 0;
+    var integer: steps is 0;
+    var integer: stepNum is 1;
+    const integer: delta is 10;
+    var cardImage: card is cardImage.value;
+    var integer: yDist is 0;
+  begin
+    xStart := xPos(subPile[1]);
+    yStart := yPos(subPile[1]);
+    if abs(xDest - xStart) > abs(yDest - yStart) then
+      steps := pred(abs(xDest - xStart)) div delta + 1;
+    else
+      steps := pred(abs(yDest - yStart)) div delta + 1;
+    end if;
+    for stepNum range 1 to steps do
+      yDist := 0;
+      for card range subPile do
+        setPos(card, xStart + (xDest - xStart) * stepNum div steps,
+                     yStart + (yDest - yStart) * stepNum div steps + yDist);
+        yDist +:= PILE_DELTA_Y;
+      end for;
+      ignore(busy_getc(KEYBOARD));
+      DRAW_FLUSH;
+      wait(5000 . MICRO_SECONDS);
+    end for;
+  end func;
+
+
+const proc: move (inout image: anImage) is func
+  local
+    var integer: deltaX is 0;
+    var integer: deltaY is 0;
+    var integer: newXpos is 0;
+    var integer: newYpos is 0;
+  begin
+    deltaX := pointerXPos(curr_win) - xPos(anImage);
+    deltaY := pointerYPos(curr_win) - yPos(anImage);
+    repeat
+      newXpos := pointerXPos(curr_win) - deltaX;
+      newYpos := pointerYPos(curr_win) - deltaY;
+      if newXpos <> xPos(anImage) or newYpos <> yPos(anImage) then
+        setPos(anImage, newXpos, newYpos);
+        DRAW_FLUSH;
+      end if;
+      wait(30000 . MICRO_SECONDS);
+    until keypressed(KEYBOARD) or
+        not (buttonPressed(KEYBOARD, KEY_MOUSE1) or
+             buttonPressed(KEYBOARD, KEY_MOUSE2) or
+             buttonPressed(KEYBOARD, KEY_MOUSE3));
+  end func;
+
+
+const proc: move (in subPileType: subPile) is func
+  local
+    var integer: deltaX is 0;
+    var integer: deltaY is 0;
+    var integer: newXpos is 0;
+    var integer: newYpos is 0;
+    var cardImage: card is cardImage.value;
+  begin
+    deltaX := pointerXPos(curr_win) - xPos(subPile[1]);
+    deltaY := pointerYPos(curr_win) - yPos(subPile[1]);
+    repeat
+      newXpos := pointerXPos(curr_win) - deltaX;
+      newYpos := pointerYPos(curr_win) - deltaY;
+      if newXpos <> xPos(subPile[1]) or newYpos <> yPos(subPile[1]) then
+        for card range subPile do
+          setPos(card, newXpos, newYpos);
+          newYpos +:= PILE_DELTA_Y;
+        end for;
+        DRAW_FLUSH;
+      end if;
+      wait(30000 . MICRO_SECONDS);
+    until keypressed(KEYBOARD) or
+        not (buttonPressed(KEYBOARD, KEY_MOUSE1) or
+             buttonPressed(KEYBOARD, KEY_MOUSE2) or
+             buttonPressed(KEYBOARD, KEY_MOUSE3));
+  end func;
+
+
+const func cardImage: selectCard (in stateType: state) is func
+  result
+    var cardImage: cardImage is cardImage.value;
+  local
+    var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
+  begin
+    win := buttonWindow(KEYBOARD);
+    cardImage := selectCard(state.deck, win);
+  end func;
+
+
+const proc: processMouseClick (inout stateType: state) is func
+  local
+    var cardImage: card is cardImage.value;
+    var subPileType: subPile is subPileType.value;
+    var cardImage: cardBelow is cardImage.value;
+    var integer: newPileNumber is 0;
+    var integer: newDestPlace is 0;
+    var integer: length is 0;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+  begin
+    card := selectCard(state);
+    if card <> cardImage.value then
+      xPos := xPos(card);
+      yPos := yPos(card);
+      if visible(card) then
+        subPile := getSubPile(state, card);
+        if length(subPile) > 1 then
+          toTop(subPile);
+          move(subPile);
+        else
+          toTop(card);
+          move(card);
+        end if;
+        newPileNumber := atFreePilePlace(state, card);
+        if newPileNumber <> 0 then
+          length := length(state.pile[newPileNumber]);
+          if length <> 0 then
+            cardBelow := state.pile[newPileNumber][length];
+            if cardFitsToPile(card, cardBelow) then
+              removeFromOldPlace(state, subPile);
+              appendToPile(state, newPileNumber, subPile);
+            else
+              move(subPile, xPos, yPos);
+            end if;
+          elsif rank(card) = king then
+            removeFromOldPlace(state, subPile);
+            appendToPile(state, newPileNumber, subPile);
+          else
+            move(subPile, xPos, yPos);
+          end if;
+        elsif length(subPile) = 1 then
+          newDestPlace := atDestPlace(state, card);
+          if newDestPlace <> 0 then
+            length := length(state.dest[newDestPlace]);
+            if length <> 0 then
+              cardBelow := state.dest[newDestPlace][length];
+              if cardFitsToDest(card, cardBelow) then
+                removeFromOldPlace(state, subPile);
+                appendToDest(state, newDestPlace, card);
+                state.finished := isFinished(state);
+              else
+                move(card, xPos, yPos);
+              end if;
+            elsif rank(card) = ace then
+              removeFromOldPlace(state, subPile);
+              appendToDest(state, newDestPlace, card);
+            else
+              move(card, xPos, yPos);
+            end if;
+          else
+            move(card, xPos, yPos);
+          end if;
+        else
+          move(subPile, xPos, yPos);
+        end if;
+      elsif isAtPlace(card, LEFT_MARGIN, TOP_MARGIN) then
+        toTop(card);
+        setPos(card, LEFT_MARGIN + DELTA_X, TOP_MARGIN);
+        setVisible(card, TRUE);
+        state.waste &:= card;
+      else
+        newPileNumber := cardIndex(state.pile, card);
+        if newPileNumber <> 0 then
+          setVisible(card, TRUE);
+        end if;
+      end if;
+    elsif getxpos(KEYBOARD) >= LEFT_MARGIN and
+          getxpos(KEYBOARD) < LEFT_MARGIN + CARD_WIDTH and
+          getypos(KEYBOARD) >= TOP_MARGIN and
+          getypos(KEYBOARD) < TOP_MARGIN + CARD_HEIGHT then
+      recycleWaste(state);
+    end if;
+  end func;
+
+
+const func cardImage: findCard (in cardDeck: deck, in cardSuit: suit,
+    in cardRank: rank) is func
+  result
+    var cardImage: card is cardImage.value;
+  local
+    var integer: index is 0;
+  begin
+    for key index range deck.cards until card <> cardImage.value do
+      if suit(deck.cards[index]) = suit and
+          rank(deck.cards[index]) = rank then
+        card := deck.cards[index];
+      end if;
+    end for;
+  end func;
+
+
+const proc: createSolution (inout stateType: state) is func
+  local
+    const array cardRank: wholeSuit is [] (ace, two, three, four,
+        five, six, seven, eight, nine, ten, jack, queen, king);
+    var cardSuit: suit is clubs;
+    var cardRank: rank is ace;
+    var integer: destNumber is 0;
+    var cardImage: card is cardImage.value;
+  begin
+    for suit range cardSuit do
+      destNumber := succ(ord(suit));
+      state.dest[destNumber] := 0 times cardImage.value;
+      for rank range wholeSuit do
+        card := findCard(state.deck, suit, rank);
+        toTop(card);
+        setVisible(card, TRUE);
+        appendToDest(state, destNumber, card);
+      end for;
+    end for;
+  end func;
+
+
+const proc: jumpingCard (inout cardImage: card) is DYNAMIC;
+
+
+const proc: jumpingCard (inout cardType: card) is func
+  local
+    const integer: SPEED_REDUCTION is 2;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var integer: xSpeed is 0;
+    var integer: ySpeed is 0;
+    var time: startTime is time.value;
+  begin
+    xPos := xPos(card);
+    yPos := yPos(card);
+    xSpeed := rand(-8, 7);
+    if xSpeed >= 0 then
+      incr(xSpeed);
+    end if;
+    ySpeed := rand(-10, 6);
+    # card.window := PRIMITIVE_WINDOW.value;
+    startTime := time(NOW);
+    while xPos > -width(card.frontside) and xPos < width(curr_win) and
+        not keypressed(KEYBOARD) do
+      put(xPos, yPos, card.frontside, PSET);
+      setPos(card, xPos, yPos);
+      xPos +:= xSpeed;
+      yPos +:= ySpeed;
+      if yPos > height(curr_win) - height(card.frontside) then
+        yPos := height(curr_win) - height(card.frontside);
+        ySpeed := -(ySpeed - SPEED_REDUCTION);
+      end if;
+      incr(ySpeed);
+      DRAW_FLUSH;
+      startTime +:= 5000 . MICRO_SECONDS;
+      await(startTime);
+    end while;
+    setPos(card, -width(card.frontside), yPos);
+  end func;
+
+
+const proc: victoryAnimation (inout stateType: state) is func
+  local
+    var boolean: allDestPilesEmpty is FALSE;
+    var integer: destNumber is 0;
+    var integer: topIndex is 0;
+    var boolean: keypressed is FALSE;
+  begin
+    repeat
+      allDestPilesEmpty := TRUE;
+      for key destNumber range state.dest until keypressed do
+        topIndex := length(state.dest[destNumber]);
+        if topIndex <> 0 then
+          allDestPilesEmpty := FALSE;
+          jumpingCard(state.dest[destNumber][topIndex]);
+          removeFromDest(state, destNumber);
+        end if;
+        keypressed := keypressed(KEYBOARD);
+      end for;
+    until allDestPilesEmpty or keypressed;
+  end func;
+
+
+const proc: playGame is func
+  local
+    var char: command is ' ';
+    var boolean: playing is TRUE;
+    var stateType: state is stateType.value;
+  begin
+    clear(curr_win, dark_green);
+    shuffle(state.deck);
+    dealCards(state);
+    command := getc(KEYBOARD);
+    while playing and not state.finished do
+      case command of
+        when {KEY_MOUSE1}:
+          processMouseClick(state);
+        when {KEY_ALT_2}:
+          createSolution(state);
+          state.finished := TRUE;
+          playing := FALSE;
+        when {'q', 'Q'}:
+          playing := FALSE;
+      end case;
+      if playing and not state.finished then
+        command := getc(KEYBOARD);
+      end if;
+    end while;
+    if state.finished then
+      victoryAnimation(state);
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    screen(2 * LEFT_MARGIN + 6 * DELTA_X + CARD_WIDTH,
+           2 * TOP_MARGIN + DELTA_Y + 19 * PILE_DELTA_Y + CARD_HEIGHT);
+    KEYBOARD := GRAPH_KEYBOARD;
+    repeat
+      playGame;
+    until FALSE;
+  end func;

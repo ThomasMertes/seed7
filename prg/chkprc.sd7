@@ -1,0 +1,4753 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkprc.sd7    Checks procedures and statements                  *)
+(*  Copyright (C) 1992, 1993, 1994, 2004  Thomas Mertes             *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "bigint.s7i";
+  include "float.s7i";
+  include "stdio.s7i";
+
+
+CASE_DECLS(float);
+
+var boolean: global_loop_control is TRUE;
+
+var boolean: true_var is TRUE;
+var boolean: false_var is FALSE;
+
+
+const func boolean: boolExpr (ref boolean: value) is
+  return value and str(rand(1, 9))[2 ..] = "";
+
+
+const func string: striExpr (in string: stri) is
+  return stri & str(rand(1, 9))[2 ..];
+
+
+const func integer: intExpr (in integer: number) is
+  return number + length(str(rand(1, 9))[2 ..]);
+
+
+const func char: charExpr (in char: ch) is
+  return chr(ord(ch) + length(str(rand(1, 9))[2 ..]));
+
+
+const func bigInteger: bigintExpr (in bigInteger: number) is func
+  result
+    var bigInteger: exprResult is 0_;
+  begin
+    exprResult := number;
+  end func;
+
+
+const func float: floatExpr (in float: number) is
+  return number;
+
+
+const proc: check_if is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+  begin
+    okay := TRUE;
+    number := 0;
+
+    (* Test if statements with constants *)
+
+    if TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    end if;
+
+    if TRUE then
+      incr(number);
+    else
+      writeln(" ***** if TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    else
+      writeln(" ***** if FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    else
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+
+    (* Test if statements with variables *)
+
+    if true_var then
+      incr(number);
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    end if;
+
+    if true_var then
+      incr(number);
+    else
+      writeln(" ***** if true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    else
+      writeln(" ***** if false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    else
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+
+    if okay and number = 68 then
+      writeln("If statements work correct.");
+    else
+      writeln(" ***** If statements do not work correct");
+      PRINT(str(number));
+      PRINT(str(ord(okay)));
+      writeln;
+    end if;
+  end func;
+
+const proc: check_while is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: local_loop_control is TRUE;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    while FALSE do
+      writeln(" ***** while FALSE ...  does not work correct");
+      okay := FALSE;
+    end while;
+    global_loop_control := FALSE;
+    while global_loop_control do
+      writeln(" ***** while GLOBAL_VARIABLE ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    local_loop_control := FALSE;
+    while local_loop_control do
+      writeln(" ***** while LOCAL_VARIABLE ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    while 0 <> 0 do
+      writeln(" ***** while EXPRESSION ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    while boolExpr(FALSE) do
+      writeln(" ***** while FUNCTION ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    counter := 0;
+    global_loop_control := TRUE;
+    while global_loop_control do
+      incr(counter);
+      if counter = 1 then
+        global_loop_control := FALSE;
+      else
+        writeln(" ***** while GLOBAL_VARIABLE ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 or global_loop_control then
+      writeln(" ***** while GLOBAL_VARIABLE ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := TRUE;
+    while local_loop_control do
+      incr(counter);
+      if counter = 1 then
+        local_loop_control := FALSE;
+      else
+        writeln(" ***** while LOCAL_VARIABLE ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 or local_loop_control then
+      writeln(" ***** while LOCAL_VARIABLE ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    while counter = 0 do
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** while EXPRESSION ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 then
+      writeln(" ***** while EXPRESSION ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    global_loop_control := TRUE;
+    while boolExpr(global_loop_control) do
+      incr(counter);
+      if counter = 1 then
+        global_loop_control := FALSE;
+      else
+        writeln(" ***** while FUNCTION ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 or global_loop_control then
+      writeln(" ***** while FUNCTION ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    global_loop_control := TRUE;
+    while global_loop_control do
+      incr(counter);
+      if counter = 2 then
+        global_loop_control := FALSE;
+      elsif counter > 2 then
+        writeln(" ***** while GLOBAL_VARIABLE ...  with two loop trips does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 2 or global_loop_control then
+      writeln(" ***** while GLOBAL_VARIABLE ...  with two loop trips does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := TRUE;
+    while local_loop_control do
+      incr(counter);
+      if counter = 2 then
+        local_loop_control := FALSE;
+      elsif counter > 2 then
+        writeln(" ***** while LOCAL_VARIABLE ...  with two loop trips does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 2 or local_loop_control then
+      writeln(" ***** while LOCAL_VARIABLE ...  with two loop trips does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    while counter <= 1 do
+      incr(counter);
+      if counter > 2 then
+        writeln(" ***** while EXPRESSION ...  with two loop trips does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 2 then
+      writeln(" ***** while EXPRESSION ...  with two loop trips does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("While statements work correct.");
+    else
+      writeln(" ***** While statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_repeat is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: local_loop_control is TRUE;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    counter := 0;
+    repeat
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** repeat ... until TRUE  does not work correct");
+        okay := FALSE;
+      end if;
+    until TRUE;
+    if counter <> 1 then
+      writeln(" ***** repeat ... until TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := TRUE;
+    repeat
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** repeat ... until VARIABLE  does not work correct");
+        okay := FALSE;
+      end if;
+    until local_loop_control;
+    if counter <> 1 or not local_loop_control then
+      writeln(" ***** repeat ... until VARIABLE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := FALSE;
+    repeat
+      incr(counter);
+      if counter = 1 then
+        local_loop_control := TRUE;
+      else
+        writeln(" ***** repeat ... until VARIABLE  does not work correct");
+        okay := FALSE;
+      end if;
+    until local_loop_control;
+    if counter <> 1 or not local_loop_control then
+      writeln(" ***** repeat ... until VARIABLE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := FALSE;
+    repeat
+      incr(counter);
+      if counter = 2 then
+        local_loop_control := TRUE;
+      elsif counter > 2 then
+        writeln(" ***** repeat ... until VARIABLE  does not work correct");
+        okay := FALSE;
+      end if;
+    until local_loop_control;
+    if counter <> 2 or not local_loop_control then
+      writeln(" ***** repeat ... until VARIABLE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    repeat
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+        okay := FALSE;
+      end if;
+    until counter = 1;
+    if counter <> 1 then
+      writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    repeat
+      incr(counter);
+      if counter > 3 then
+        writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+        okay := FALSE;
+      end if;
+    until counter >= 3;
+    if counter <> 3 then
+      writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Repeat statements work correct.");
+    else
+      writeln(" ***** Repeat statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_int_to is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 12345;
+    var integer: counter is 0;
+    var integer: startVariable is 4;
+    var integer: endVariable is 6;
+  begin
+    okay := TRUE;
+    for number range 1 to 0 do
+      writeln(" ***** for integer range 1 to 0 ...  does not work correct");
+      okay := FALSE;
+    end for;
+    if number <> 1 then
+      writeln(" ***** for integer range 1 to 0 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 1 to 1 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or number <> 2 then
+      writeln(" ***** for integer range 1 to 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 1 to 2 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 2 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 2 or number <> 3 then
+      writeln(" ***** for integer range 1 to 2 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 1 to 3 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 3 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 4 then
+      writeln(" ***** for integer range 1 to 3 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 0 to counter do
+      incr(counter);
+      if number <> 0 then
+        writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct");
+        counter := 0;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or number <> 1 then
+      writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 4 to endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range CONSTANT to VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable to 6 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range VARIABLE to CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable to endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range VARIABLE to VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 4 to intExpr(6) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range intExpr(4) to 6 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range intExpr(4) to intExpr(6) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 4 to length(striExpr("123456")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range CONSTANT to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length(striExpr("1234")) to 6 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range EXPRESSION to CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length(striExpr("1234")) to length(striExpr("123456")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> counter + 3 then
+        writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+        number := 7;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 7 then
+      writeln(" ***** for integer range EXPRESSION to EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 1 to 32 step 2 do
+      incr(counter);
+      if number < 1 or number > 32 or number <> 2 * counter - 1 then
+        writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct");
+        number := 33;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 16 or number <> 33 then
+      writeln(" ***** for integer range 1 to 32 step 2 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("For to statements work correct.");
+    else
+      writeln(" ***** For to statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_int_downto is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 12345;
+    var integer: counter is 0;
+    var integer: startVariable is 6;
+    var integer: endVariable is 4;
+  begin
+    okay := TRUE;
+    for number range 0 downto 1 do
+      writeln(" ***** for integer range 0 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end for;
+    if number <> 0 then
+      writeln(" ***** for integer range 0 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 2;
+    for number range 1 downto 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 downto 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or number <> 0 then
+      writeln(" ***** for integer range 1 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 3;
+    for number range 2 downto 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 2 downto 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or number <> 0 then
+      writeln(" ***** for integer range 2 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 4;
+    for number range 3 downto 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 3 downto 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or number <> 0 then
+      writeln(" ***** for integer range 3 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range counter downto 0 do
+      incr(counter);
+      if number <> 0 then
+        writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct");
+        counter := 0;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 or number <> -1 then
+      writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 6 downto endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range CONSTANT downto VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable downto 4 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range VARIABLE downto CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range startVariable downto endVariable do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range VARIABLE downto VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 6 downto intExpr(4) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range intExpr(6) downto 4 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range intExpr(6) downto intExpr(4) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 6 downto length(striExpr("1234")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range CONSTANT downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length(striExpr("123456")) downto 4 do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto CONSTANT ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range length(striExpr("123456")) downto length(striExpr("1234")) do
+      incr(counter);
+      if number < 4 or number > 6 or number <> 7 - counter then
+        writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+        number := 3;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 or number <> 3 then
+      writeln(" ***** for integer range EXPRESSION downto EXPRESSION ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 32 downto 1 step 2 do
+      incr(counter);
+      if number < 1 or number > 32 or number <> 34 - 2 * counter then
+        writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct");
+        number := 0;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 16 or number <> 0 then
+      writeln(" ***** for integer range 1 downto 32 step 2 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("For downto statements work correct.");
+    else
+      writeln(" ***** For downto statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_big_to is func
+  local
+    var boolean: okay is TRUE;
+    var bigInteger: num1 is 0_;
+    var bigInteger: num2 is 0_;
+    var bigInteger: check1 is 0_;
+    var bigInteger: check2 is 0_;
+    var bigInteger: counter is 0_;
+  begin
+    for num1 range 1_ to 100_ do
+      incr(check1);
+      okay := okay and num1 = check1;
+      check2 := 0_;
+      for num2 range 1_ to 50_ do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+      for num2 range 51_ to 100_ do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+    end for;
+    check1 := 0_;
+    for num1 range 1_ to 100_ do
+      incr(check1);
+      okay := okay and num1 = check1;
+      check2 := 0_;
+      for num2 range 1_ to num1 do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+      for num2 range succ(num1) to 100_ do
+        incr(check2);
+        okay := okay and num1 = check1 and num2 = check2;
+      end for;
+    end for;
+    if okay then
+      writeln("For bigInteger statements work correct.");
+    else
+      writeln(" ***** For bigInteger statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_case_int is func
+  local
+    var integer: num is 0;
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    case 1 of
+    end case;
+    counter := 0;
+    case 1 of
+      when {1}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1}  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 1 of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1} {2}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 3 of
+      when {1}: writeln(" ***** case 3 of when {1} {2}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 1 of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} {3} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      when {3}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} {3} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3 of
+      when {1}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} {3} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 4 of
+      when {1}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case 1 of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1 of
+      when {1}: incr(counter);
+      otherwise: writeln(" ***** case 1 of when {1} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1 of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      otherwise: writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3 of
+      when {1}: writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1 of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      when {3}: writeln(" ***** case 2 of when {1} {2} {3}  otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3 of
+      when {1}: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3}: incr(counter);
+      otherwise: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 4 of
+      when {1}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    case intExpr(1) of
+    end case;
+    counter := 0;
+    case intExpr(1) of
+      when {1}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1}  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case intExpr(2) of
+      when {1}: writeln(" ***** case 2 of when {1}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case intExpr(1) of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(2) of
+      when {1}: writeln(" ***** case 2 of when {1} {2}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case intExpr(3) of
+      when {1}: writeln(" ***** case 3 of when {1} {2}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case intExpr(1) of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} {3} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(2) of
+      when {1}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      when {3}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} {3} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(3) of
+      when {1}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} {3} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case intExpr(4) of
+      when {1}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case intExpr(1) of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(1) of
+      when {1}: incr(counter);
+      otherwise: writeln(" ***** case 1 of when {1} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(2) of
+      when {1}: writeln(" ***** case 2 of when {1} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(1) of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(2) of
+      when {1}: writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      otherwise: writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(3) of
+      when {1}: writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(1) of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(2) of
+      when {1}: writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      when {3}: writeln(" ***** case 2 of when {1} {2} {3}  otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(3) of
+      when {1}: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3}: incr(counter);
+      otherwise: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case intExpr(4) of
+      when {1}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    case num of
+    end case;
+    counter := 0;
+    num := 1;
+    case num of
+      when {1}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1}  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 2;
+    case num of
+      when {1}: writeln(" ***** case 2 of when {1}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := 1;
+    case num of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2;
+    case num of
+      when {1}: writeln(" ***** case 2 of when {1} {2}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 3;
+    case num of
+      when {1}: writeln(" ***** case 3 of when {1} {2}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := 1;
+    case num of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} {3} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2;
+    case num of
+      when {1}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      when {3}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} {3} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3;
+    case num of
+      when {1}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} {3} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 4;
+    case num of
+      when {1}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 4 of when {1} {2} {3}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    num := 1;
+    case num of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1;
+    case num of
+      when {1}: incr(counter);
+      otherwise: writeln(" ***** case 1 of when {1} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2;
+    case num of
+      when {1}: writeln(" ***** case 2 of when {1} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1;
+    case num of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2;
+    case num of
+      when {1}: writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      otherwise: writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3;
+    case num of
+      when {1}: writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1;
+    case num of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2;
+    case num of
+      when {1}: writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: incr(counter);
+      when {3}: writeln(" ***** case 2 of when {1} {2} {3}  otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3;
+    case num of
+      when {1}: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3}: incr(counter);
+      otherwise: writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 4;
+    case num of
+      when {1}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4 of when {1} {2} {3} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Case integer statements work correct.");
+    else
+      writeln(" ***** Case integer statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_case_char is func
+  local
+    var char: ch is ' ';
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    case 'a' of
+    end case;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'}  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 'c' of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      when {'c'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'c' of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 'd' of
+      when {'a'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case 'a' of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+      otherwise: writeln(" ***** case 'a' of when {'a'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      otherwise: writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'c' of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      when {'c'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'c' of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: incr(counter);
+      otherwise: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'd' of
+      when {'a'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    case charExpr('a') of
+    end case;
+    counter := 0;
+    case charExpr('a') of
+      when {'a'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'}  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case charExpr('b') of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case charExpr('a') of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('b') of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case charExpr('c') of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case charExpr('a') of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('b') of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      when {'c'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('c') of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'c'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case charExpr('d') of
+      when {'a'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case charExpr('a') of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('a') of
+      when {'a'}: incr(counter);
+      otherwise: writeln(" ***** case 'a' of when {'a'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('b') of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('a') of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('b') of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      otherwise: writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('c') of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('a') of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('b') of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      when {'c'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('c') of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'c'}: incr(counter);
+      otherwise: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case charExpr('d') of
+      when {'a'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    case ch of
+    end case;
+    counter := 0;
+    ch := 'a';
+    case ch of
+      when {'a'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'}  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    ch := 'b';
+    case ch of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    ch := 'a';
+    case ch of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'b';
+    case ch of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    ch := 'c';
+    case ch of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    ch := 'a';
+    case ch of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'b';
+    case ch of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      when {'c'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'c';
+    case ch of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'c'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    ch := 'd';
+    case ch of
+      when {'a'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    ch := 'a';
+    case ch of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'a';
+    case ch of
+      when {'a'}: incr(counter);
+      otherwise: writeln(" ***** case 'a' of when {'a'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'b';
+    case ch of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'a';
+    case ch of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'b';
+    case ch of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      otherwise: writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'c';
+    case ch of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'a';
+    case ch of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'b';
+    case ch of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      when {'c'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'c';
+    case ch of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: incr(counter);
+      otherwise: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    ch := 'd';
+    case ch of
+      when {'a'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'd' of when {'a'} {'b'} {'c'} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Case char statements work correct.");
+    else
+      writeln(" ***** Case char statements do not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_case_string is func
+  local
+    var string: stri is "";
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    case "a" of
+    end case;
+    counter := 0;
+    case "a" of
+      when {"a"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"}  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case "b" of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case "a" of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "b" of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case "c" of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case "a" of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "b" of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      when {"c"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "c" of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"c"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case "d" of
+      when {"a"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case "a" of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "a" of
+      when {"a"}: incr(counter);
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "b" of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "a" of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "b" of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      otherwise: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "c" of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "a" of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "b" of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      when {"c"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "c" of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"c"}: incr(counter);
+      otherwise: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case "d" of
+      when {"a"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    case striExpr("a") of
+    end case;
+    counter := 0;
+    case striExpr("a") of
+      when {"a"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"}  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case striExpr("b") of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case striExpr("a") of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("b") of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case striExpr("c") of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case striExpr("a") of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("b") of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      when {"c"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("c") of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"c"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case striExpr("d") of
+      when {"a"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case striExpr("a") of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("a") of
+      when {"a"}: incr(counter);
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("b") of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("a") of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("b") of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      otherwise: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("c") of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("a") of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("b") of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      when {"c"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("c") of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"c"}: incr(counter);
+      otherwise: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case striExpr("d") of
+      when {"a"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    case stri of
+    end case;
+    counter := 0;
+    stri := "a";
+    case stri of
+      when {"a"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"}  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    stri := "b";
+    case stri of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    stri := "a";
+    case stri of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "b";
+    case stri of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    stri := "c";
+    case stri of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    stri := "a";
+    case stri of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "b";
+    case stri of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      when {"c"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "c";
+    case stri of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"c"}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    stri := "d";
+    case stri of
+      when {"a"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    stri := "a";
+    case stri of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "a";
+    case stri of
+      when {"a"}: incr(counter);
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "b";
+    case stri of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "a";
+    case stri of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "b";
+    case stri of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      otherwise: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "c";
+    case stri of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "a";
+    case stri of
+      when {"a"}: incr(counter);
+      when {"b"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"a\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "b";
+    case stri of
+      when {"a"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: incr(counter);
+      when {"c"}: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"}  otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"b\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "c";
+    case stri of
+      when {"a"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"c"}: incr(counter);
+      otherwise: writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"c\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    stri := "d";
+    case stri of
+      when {"a"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"b"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {"c"}: writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case \"d\" of when {\"a\"} {\"b\"} {\"c\"} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Case string statements work correct.");
+    else
+      writeln(" ***** Case string statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_case_bigint is func
+  local
+    var bigInteger: num is 0_;
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    case 1_ of
+    end case;
+    counter := 0;
+    case 1_ of
+      when {1_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_}  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 2_ of
+      when {1_}: writeln(" ***** case 2_ of when {1_}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 1_ of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2_ of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 3_ of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 1_ of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 1_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} {3_} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2_ of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      when {3_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} {3_} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3_ of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} {3_} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 4_ of
+      when {1_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case 1_ of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1_ of
+      when {1_}: incr(counter);
+      otherwise: writeln(" ***** case 1_ of when {1_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2_ of
+      when {1_}: writeln(" ***** case 2_ of when {1_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1_ of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2_ of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      otherwise: writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3_ of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1_ of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2_ of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      when {3_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3_ of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3_}: incr(counter);
+      otherwise: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 4_ of
+      when {1_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    case bigintExpr(1_) of
+    end case;
+    counter := 0;
+    case bigintExpr(1_) of
+      when {1_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_}  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case bigintExpr(2_) of
+      when {1_}: writeln(" ***** case 2_ of when {1_}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case bigintExpr(1_) of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(2_) of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case bigintExpr(3_) of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case bigintExpr(1_) of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 1_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} {3_} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(2_) of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      when {3_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} {3_} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(3_) of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} {3_} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case bigintExpr(4_) of
+      when {1_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case bigintExpr(1_) of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(1_) of
+      when {1_}: incr(counter);
+      otherwise: writeln(" ***** case 1_ of when {1_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(2_) of
+      when {1_}: writeln(" ***** case 2_ of when {1_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(1_) of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(2_) of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      otherwise: writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(3_) of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(1_) of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(2_) of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      when {3_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(3_) of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3_}: incr(counter);
+      otherwise: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case bigintExpr(4_) of
+      when {1_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    case num of
+    end case;
+    counter := 0;
+    num := 1_;
+    case num of
+      when {1_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_}  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 2_;
+    case num of
+      when {1_}: writeln(" ***** case 2_ of when {1_}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := 1_;
+    case num of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2_;
+    case num of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 3_;
+    case num of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := 1_;
+    case num of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 1_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} {3_} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2_;
+    case num of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      when {3_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} {3_} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3_;
+    case num of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3_}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} {3_} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 4_;
+    case num of
+      when {1_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 4_ of when {1_} {2_} {3_}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    num := 1_;
+    case num of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1_;
+    case num of
+      when {1_}: incr(counter);
+      otherwise: writeln(" ***** case 1_ of when {1_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2_;
+    case num of
+      when {1_}: writeln(" ***** case 2_ of when {1_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2__ of when {1_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1_;
+    case num of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2_;
+    case num of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      otherwise: writeln(" ***** case 2__ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3_;
+    case num of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1_;
+    case num of
+      when {1_}: incr(counter);
+      when {2_}: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2_;
+    case num of
+      when {1_}: writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: incr(counter);
+      when {3_}: writeln(" ***** case 2_ of when {1_} {2_} {3_}  otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3_;
+    case num of
+      when {1_}: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3_}: incr(counter);
+      otherwise: writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 4_;
+    case num of
+      when {1_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3_}: writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4_ of when {1_} {2_} {3_} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Case bigInteger statements work correct.");
+    else
+      writeln(" ***** Case bigInteger statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_case_float is func
+  local
+    var float: num is 0.0;
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    case 1.0 of
+    end case;
+    counter := 0;
+    case 1.0 of
+      when {1.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0}  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 2.0 of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 1.0 of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2.0 of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 3.0 of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 1.0 of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2.0 of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      when {3.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3.0 of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    case 4.0 of
+      when {1.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case 1.0 of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1.0 of
+      when {1.0}: incr(counter);
+      otherwise: writeln(" ***** case 1.0 of when {1.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2.0 of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1.0 of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2.0 of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      otherwise: writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3.0 of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 1.0 of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 2.0 of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      when {3.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 3.0 of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3.0}: incr(counter);
+      otherwise: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 4.0 of
+      when {1.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    case floatExpr(1.0) of
+    end case;
+    counter := 0;
+    case floatExpr(1.0) of
+      when {1.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0}  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case floatExpr(2.0) of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case floatExpr(1.0) of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(2.0) of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case floatExpr(3.0) of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case floatExpr(1.0) of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(2.0) of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      when {3.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(3.0) of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    case floatExpr(4.0) of
+      when {1.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    case floatExpr(1.0) of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(1.0) of
+      when {1.0}: incr(counter);
+      otherwise: writeln(" ***** case 1.0 of when {1.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(2.0) of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(1.0) of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(2.0) of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      otherwise: writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(3.0) of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(1.0) of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(2.0) of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      when {3.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(3.0) of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3.0}: incr(counter);
+      otherwise: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case floatExpr(4.0) of
+      when {1.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    case num of
+    end case;
+    counter := 0;
+    num := 1.0;
+    case num of
+      when {1.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0}  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 2.0;
+    case num of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := 1.0;
+    case num of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2.0;
+    case num of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 3.0;
+    case num of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    num := 1.0;
+    case num of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2.0;
+    case num of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      when {3.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3.0;
+    case num of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3.0}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    num := 4.0;
+    case num of
+      when {1.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0}  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+
+    counter := 0;
+    num := 1.0;
+    case num of
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1.0;
+    case num of
+      when {1.0}: incr(counter);
+      otherwise: writeln(" ***** case 1.0 of when {1.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2.0;
+    case num of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1.0;
+    case num of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2.0;
+    case num of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      otherwise: writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3.0;
+    case num of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 1.0;
+    case num of
+      when {1.0}: incr(counter);
+      when {2.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 1.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 2.0;
+    case num of
+      when {1.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: incr(counter);
+      when {3.0}: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0}  otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 2.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 3.0;
+    case num of
+      when {1.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3.0}: incr(counter);
+      otherwise: writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 3.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    num := 4.0;
+    case num of
+      when {1.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {2.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      when {3.0}: writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+          okay := FALSE;
+      otherwise: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 4.0 of when {1.0} {2.0} {3.0} otherwise  ...  does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Case float statements work correct.");
+    else
+      writeln(" ***** Case float statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: main is func
+
+  begin
+    writeln;
+    check_if;
+    check_while;
+    check_repeat;
+    check_for_int_to;
+    check_for_int_downto;
+    check_for_big_to;
+    check_case_int;
+    check_case_char;
+    check_case_string;
+    check_case_bigint;
+    check_case_float;
+  end func;

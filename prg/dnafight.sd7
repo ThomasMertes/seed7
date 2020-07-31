@@ -1,0 +1,1303 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dnafight.sd7  Bacterial dna fight programming game              *)
+(*  Copyright (C) 1985, 1986, 2005  Thomas Mertes                   *)
+(*  Copyright (C) 1985, 1986,       Markus Stumptner                *)
+(*  Copyright (C) 1985, 1986, 1991  Johannes Gritsch                *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+  include "float.s7i";
+  include "bigint.s7i";
+  include "draw.s7i";
+  include "graph_file.s7i";
+  include "field.s7i";
+  include "dna_base.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+
+  include "white.dna";
+  include "violet.dna";
+  include "indigo.dna";
+  include "blue.dna";
+  include "green.dna";
+  include "orange.dna";
+  include "red.dna";
+  include "tan.dna";
+
+
+const string:   Version     is   "5.3";
+
+var text: scr is STD_NULL;
+var text: info is STD_NULL;
+var text: stat is STD_NULL;
+var text: fstat is STD_NULL;
+
+const integer: MAX_LINE       is 21;
+const integer: MAX_COLUMN     is 21;
+const integer: STRETCH_FACTOR is 12;
+const integer: PLATE_XPOS     is  6;
+const integer: PLATE_YPOS     is 16;
+const integer: PLATE_BORDER   is  3;
+
+const integer: HALF_FACTOR    is STRETCH_FACTOR div 2;
+const integer: NORMAL_RADIUS  is pred(HALF_FACTOR);
+const integer: SMALL_RADIUS   is pred(NORMAL_RADIUS);
+const integer: X_SHIFT        is PLATE_XPOS + PLATE_BORDER - STRETCH_FACTOR * 2;
+const integer: Y_SHIFT        is PLATE_YPOS + PLATE_BORDER - STRETCH_FACTOR * 2;
+const integer: XMAX           is MAX_COLUMN + 2;
+const integer: YMAX           is MAX_LINE + 2;
+
+const type: xcoordinate is subtype integer; (* 1 .. XMAX *)
+const type: ycoordinate is subtype integer; (* 1 .. YMAX *)
+
+const type: hue is subrange FIRSTCOL .. LASTCOL;
+
+const type: bacterium is new struct
+    var xcoordinate: xpos is 0;
+    var ycoordinate: ypos is 0;
+    var lifeSpan:    hungry is 0;
+    var power:       mass is 0;
+  end struct;
+
+const type: microbe is varptr bacterium;
+
+const type: position is new struct
+    var bactColor: content is CLEAR;
+    var power:     meal is 0;
+    var microbe:   possessor is microbe.NIL;
+  end struct;
+
+var array array position: area is XMAX times YMAX times position.value;
+var array microbe: animates is 0 times microbe.NIL;
+var array microbe: children is 0 times microbe.NIL;
+var xcoordinate: x is 0;
+var ycoordinate: y is 0;
+var boolean: done is FALSE;
+
+const type: killReason is new enum
+    KNoReason, KEdge, KHunger, KWhite, KViolet, KIndigo, KBlue, KCyan,
+    KGreen, KYellow, KAmber, KOrange, KRed, KScarlet, KTan, KLilac, KPink,
+    KWrMove, KBigMouth, KSuicide, KFnotEmpty
+  end enum;
+
+const string: str (KEdge) is      "Edge";
+const string: str (KHunger) is    "Hunger";
+const string: str (KWrMove) is    "WrMove";
+const string: str (KBigMouth) is  "Big M.";
+const string: str (KSuicide) is   "Suic";
+const string: str (KFnotEmpty) is "F.n.e";
+const string: str (KWhite) is     str(WHITE);
+const string: str (KViolet) is    str(VIOLET);
+const string: str (KIndigo) is    str(INDIGO);
+const string: str (KBlue) is      str(BLUE);
+const string: str (KCyan) is      str(CYAN);
+const string: str (KGreen) is     str(GREEN);
+const string: str (KYellow) is    str(YELLOW);
+const string: str (KAmber) is     str(AMBER);
+const string: str (KOrange) is    str(ORANGE);
+const string: str (KRed) is       str(RED);
+const string: str (KScarlet) is   str(SCARLET);
+const string: str (KTan) is       str(TAN);
+const string: str (KLilac) is     str(LILIAC);
+const string: str (KPink) is      str(PINK);
+
+const func string: str (in killReason: aReason) is DYNAMIC;
+
+enable_output(killReason);
+
+const type: statRecord is new struct
+    var integer: accno is 0;
+    var integer: accmass is 0;
+    var integer: deathtime is 0;
+    var integer: totalno is 0;
+    var integer: totalmass is 0;
+  end struct;
+
+var array [bactColor] array [boolean] statRecord: statValues is
+    bactColor times boolean times statRecord.value;
+
+var array [bactColor] array [killReason] integer: killarray is
+    bactColor times killReason times 0;
+
+const array [bactColor] killReason: REASON is [bactColor] (
+    KNoReason, KNoReason, KWhite, KViolet, KIndigo, KBlue, KCyan,
+    KGreen, KYellow, KAmber, KOrange, KRed, KScarlet, KTan,
+    KLilac, KPink
+  );
+
+const integer: STATTIME is 1;     (* Interval of Statistics *)
+
+var integer: genNr is 0;
+
+const color: statCol is white;   (* Color for statistics *)
+
+const color: display_color (EDGE) is    white;
+const color: display_color (CLEAR) is   white;
+
+const color: display_color (WHITE) is   white;
+const color: display_color (VIOLET) is  dark_magenta;
+const color: display_color (INDIGO) is  white;
+const color: display_color (BLUE) is    light_blue;
+const color: display_color (CYAN) is    dark_cyan;
+const color: display_color (GREEN) is   light_green;
+const color: display_color (YELLOW) is  yellow;
+const color: display_color (AMBER) is   amber;
+const color: display_color (ORANGE) is  orange;
+const color: display_color (RED) is     light_red;
+const color: display_color (SCARLET) is dark_red;
+const color: display_color (TAN) is     brown;
+const color: display_color (LILIAC) is  light_magenta;
+const color: display_color (PINK) is    pink;
+
+const func color: display_color (in bactColor: aColor) is DYNAMIC;
+
+const func char: upper_char (in bactColor: aColor) is
+  return [] (
+    ' ', ' ', 'W', 'V', 'I', 'B', 'C',
+    'G', 'Y', 'A', 'O', 'R', 'S', 'T',
+    'L', 'P'
+  )[succ(ord(aColor))];
+
+const func char: lower_char (in bactColor: aColor) is
+  return [] (
+    ' ', ' ', 'w', 'v', 'i', 'b', 'c',
+    'g', 'y', 'a', 'o', 'r', 's', 't',
+    'l', 'p'
+  )[succ(ord(aColor))];
+
+const color: textColor       is white;
+const color: textBackground  is dark_blue;
+const color: plateBackground is dark_blue;
+
+var array file: fieldWin is 3 times STD_NULL;
+
+
+const array [direction] integer: diffx is [direction] (
+    0, -1,  1,  0,  0, -1, -1,  1,  1);
+const array [direction] integer: diffy is [direction] (
+    0,  0,  0, -1,  1, -1,  1, -1,  1);
+
+
+var colorSet: playerSet is colorSet.EMPTY_SET;
+
+
+const proc: resetStat (in bactColor: species) is func
+
+  begin (* resetStat *)
+(*! statValues[species][FALSE].accno:= 0;
+    statValues[species][FALSE].accmass:= 0; *)
+    noop;
+  end func; (* resetStat *)
+
+
+const proc: incrKillStat (in bactColor: content, in killReason: Killer) is func
+
+  begin (* incrKillStat *)
+    incr(killarray[content][Killer]);
+  end func; (* incrKillStat *)
+
+
+const func boolean: continue (GAME) is func
+  result
+    var boolean: doContinue is FALSE;
+
+  local
+    var char: c is ' ';
+
+  begin (* continue (GAME) *)
+    setPos(stat, 34, 1);
+    color(stat, statCol);
+    write(stat, " Once more (y/n) ?                 ");
+    setPos(stat, 34, 21);
+    repeat
+      c := upper(getc(KEYBOARD));
+    until c = 'Y' or c = 'N';
+    setPos(stat, 34, 1);
+    doContinue := c = 'Y';
+  end func; (* continue (GAME) *)
+
+
+const proc: setclass (in xcoordinate: x, in ycoordinate: y,
+    in bactColor: sclass, in boolean: small) is func
+
+  begin (* setclass *)
+    if sclass = CLEAR then
+      rect(X_SHIFT + STRETCH_FACTOR * x, Y_SHIFT + STRETCH_FACTOR * y,
+          STRETCH_FACTOR, STRETCH_FACTOR, plateBackground);
+      if area[x][y].meal <> 0 then
+        point(X_SHIFT + STRETCH_FACTOR * x + HALF_FACTOR,
+            Y_SHIFT + STRETCH_FACTOR * y + HALF_FACTOR,
+            white);
+      end if;
+    else
+      if small then
+        fcircle(X_SHIFT + STRETCH_FACTOR * x + HALF_FACTOR,
+            Y_SHIFT + STRETCH_FACTOR * y + HALF_FACTOR,
+            SMALL_RADIUS, display_color(sclass));
+      else
+        fcircle(X_SHIFT + STRETCH_FACTOR * x + HALF_FACTOR,
+            Y_SHIFT + STRETCH_FACTOR * y + HALF_FACTOR,
+            NORMAL_RADIUS, display_color(sclass));
+      end if;
+    end if;
+  end func; (* setclass *)
+
+
+const proc: writeParameters (in integer: initSize,
+    in integer: foodReserve, in integer: shrinkage) is func
+
+  begin (* writeParameters *)
+    setPos(info, 1, 1);
+    writeln(info, "Isize "     <& initSize    lpad 5);
+    writeln(info, "Foodr "     <& foodReserve lpad 5);
+    writeln(info, "Shrinkage " <& shrinkage   lpad 3 <& "%");
+  end func; (* writeParameters *)
+
+
+const proc: initScreen is func
+
+  local
+    var integer: x is 0;
+    var integer: y is 0;
+
+  begin (* initScreen *)
+    info := openWindow(scr, 2, 48, 34, 58);
+    stat := info;
+    fstat := info;
+    rect(PLATE_XPOS, PLATE_YPOS,
+        STRETCH_FACTOR * MAX_COLUMN + 2 * PLATE_BORDER + 1,
+        STRETCH_FACTOR * MAX_LINE + 2 * PLATE_BORDER + 1, plateBackground);
+    box(PLATE_XPOS, PLATE_YPOS,
+        STRETCH_FACTOR * MAX_COLUMN + 2 * PLATE_BORDER + 1,
+        STRETCH_FACTOR * MAX_LINE + 2 * PLATE_BORDER + 1, light_cyan);
+    if foodReserve > 0 then
+      for x range 2 to pred(XMAX) do
+        for y range 2 to pred(YMAX) do
+          point(X_SHIFT + STRETCH_FACTOR * x + HALF_FACTOR,
+              Y_SHIFT + STRETCH_FACTOR * y + HALF_FACTOR, white);
+        end for;
+      end for;
+    end if;
+    color(scr, white, dark_blue);
+    box(info);
+    setPos(scr, 25, 2);
+    color(scr, black, dark_cyan);
+    write(scr, " F1 ");
+    color(scr, white, black);
+    write(scr, " brings bacteria to life ");
+
+    setPos(scr, 27, 2);
+    color(scr, white, textBackground);
+    write(scr, " W White   ");
+    color(scr, dark_magenta, textBackground);
+    write(scr, " V Violet  ");
+    color(scr, white, textBackground);
+    write(scr, " I Indigo  ");
+    color(scr, light_blue, textBackground);
+    write(scr, " B Blue   ");
+    setPos(scr, 28, 2);
+    color(scr, dark_cyan, textBackground);
+    write(scr, " C Cyan    ");
+    color(scr, light_green, textBackground);
+    write(scr, " G Green   ");
+    color(scr, yellow, textBackground);
+    write(scr, " Y Yellow  ");
+    color(scr, amber, textBackground);
+    write(scr, " A Amber  ");
+    setPos(scr, 29, 2);
+    color(scr, orange, textBackground);
+    write(scr, " O Orange  ");
+    color(scr, light_red, textBackground);
+    write(scr, " R Red     ");
+    color(scr, dark_red, textBackground);
+    write(scr, " S Scarlet ");
+    color(scr, brown, textBackground);
+    write(scr, " T Tan    ");
+    setPos(scr, 30, 2);
+    color(scr, light_magenta, textBackground);
+    write(scr, " L Lilac   ");
+    color(scr, pink, textBackground);
+    write(scr, " P Pink    ");
+    write(scr, "           ");
+    write(scr, "          ");
+
+    setPos(scr, 1, 1);
+    color(scr, textColor, textBackground)
+  end func; (* initScreen *)
+
+
+const proc: readLimits is func
+
+  local
+    var integer: currWin is 1;
+    var array integer: intValue is 3 times 10;
+    var boolean: leave is FALSE;
+
+  begin (* readLimits *)
+    intValue[1] := initSize;
+    intValue[2] := foodReserve;
+    intValue[3] := shrinkage;
+    leave := FALSE;
+    currWin:= 1;
+    repeat
+      read(fieldWin[currWin], intValue[currWin]);
+      case fieldWin[currWin].bufferChar of
+        when {KEY_TAB, KEY_DOWN}:
+          writeParameters(intValue[1], intValue[2], intValue[3]);
+          incr(currWin);
+          if currWin = 4 then
+            currWin := 1;
+          end if;
+        when {KEY_BACKTAB, KEY_UP}:
+          writeParameters(intValue[1], intValue[2], intValue[3]);
+          decr(currWin);
+          if currWin = 0 then
+            currWin := 3;
+          end if;
+        when {KEY_NL}:
+          initSize    := intValue[1];
+          foodReserve := intValue[2];
+          shrinkage   := intValue[3];
+          leave := TRUE;
+        when {KEY_ESC}:
+          leave := TRUE;
+      end case;
+(*
+      write(intValue[1]); write(" "); write(intValue[2]); write(" "); write(intValue[3]); write("  ");
+      write(initSize); write(" "); write(foodReserve); write(" "); writeln(shrinkage);
+*)
+    until leave;
+  end func; (* readLimits *)
+
+
+const func bactColor: charCol (in char: ch) is func
+  result
+    var bactColor: col is CLEAR;
+
+  begin (* charCol *)
+    case upper(ch) of
+      when {' '}: col:= CLEAR;
+      when {'.'}: col:= CLEAR;
+      when {'W'}: col:= WHITE;
+      when {'V'}: col:= VIOLET;
+      when {'I'}: col:= INDIGO;
+      when {'B'}: col:= BLUE;
+      when {'C'}: col:= CYAN;
+      when {'G'}: col:= GREEN;
+      when {'Y'}: col:= YELLOW;
+      when {'A'}: col:= AMBER;
+      when {'O'}: col:= ORANGE;
+      when {'R'}: col:= RED;
+      when {'S'}: col:= SCARLET;
+      when {'T'}: col:= TAN;
+      when {'L'}: col:= LILIAC;
+      when {'P'}: col:= PINK
+      otherwise: col := EDGE;
+    end case;
+  end func; (* charCol *)
+
+
+const proc: initDisplay is func
+
+  begin (* initDisplay *)
+    fieldWin[1] := openField(KEYBOARD, info, 1,  7, 5, "   10");
+    fieldWin[2] := openField(KEYBOARD, info, 2,  7, 5, "   10");
+    fieldWin[3] := openField(KEYBOARD, info, 3, 11, 3, " 10");
+(*
+    color(scr, textColor, textBackground);
+    clear(scr);
+*)
+  end func; (* initDisplay *)
+
+
+const func direction: ranDir (in directSet: dirset) is func
+  result
+    var direction: dir is HERE;
+
+  begin (* ranDir *)
+    if dirset <> directSet.EMPTY_SET then
+      dir := rand(dirset);
+    end if;
+  end func; (* ranDir *)
+
+
+const func power: shrinkSize (in power: size) is func
+  result
+    var power: shrinkSize is 0;
+
+  begin (* shrinkSize *)
+    if size <> 0 then
+      shrinkSize := succ((pred(size) * shrinkage) div 100);
+    end if;
+  end func; (* shrinkSize *)
+
+
+const func power: nextSize (in power: ownSize, in power: foodMass,
+    in lifeSpan: ownHunger) is func
+  result
+    var power: size is 0;
+
+  local
+    var power: shrinkext is 0;
+
+  begin (* nextSize *)
+    shrinkext := shrinkSize(ownSize);
+    if foodMass >= shrinkext or ownHunger <> 0 then
+      size := ownSize - shrinkext + foodMass;
+    end if;
+  end func; (* nextSize *)
+
+
+const proc: initBacterium (inout bacterium: bact,
+    in xcoordinate: cx, in ycoordinate: cy,
+    in lifeSpan: ownHunger, in power: strength) is func
+
+  begin (* initBacterium *)
+    bact.xpos := cx;
+    bact.ypos := cy;
+    bact.hungry := ownHunger;
+    bact.mass := strength;
+  end func; (* initBacterium *)
+
+
+const proc: create (in xcoordinate: cx, in ycoordinate: cy,
+    inout array microbe: animates, in bactColor: species,
+    in lifeSpan: ownHunger, in power: strength) is func
+
+  local
+    var bacterium: bact is bacterium.value;
+
+  begin (* create *)
+    area[cx][cy].content := species;
+    initBacterium(bact, cx, cy, ownHunger, strength);
+    area[cx][cy].possessor := varalloc(bact);
+    children &:= [] (area[cx][cy].possessor);
+  end func; (* create *)
+
+
+const proc: setBact (in xcoordinate: x, in ycoordinate: y, in bactColor: species) is func
+
+  begin (* setBact *)
+    create(x, y, animates, species, MAXLIFESPAN, initSize);
+    incl(playerSet, species);
+    resetStat(species);
+  end func; (* setBact *)
+
+
+const proc: die (in xcoordinate: x, in ycoordinate: y, in killReason: killer) is func
+
+  begin (* die *)
+    if area[x][y].content <> CLEAR then
+      area[x][y].meal +:= area[x][y].possessor->mass;
+      area[x][y].possessor->mass := 0;
+      area[x][y].possessor := microbe.NIL;
+      incrKillStat(area[x][y].content, killer);
+      area[x][y].content := CLEAR;
+      setclass(x, y, CLEAR, FALSE);
+    end if;
+  end func; (* die *)
+
+
+const proc: move (inout xcoordinate: old_x_pos, inout ycoordinate: old_y_pos,
+    in direction: direct) is func
+
+  local
+    var xcoordinate: new_x_pos is 0;
+    var ycoordinate: new_y_pos is 0;
+
+  begin (* move *)
+    new_x_pos := old_x_pos + diffx[direct];
+    new_y_pos := old_y_pos + diffy[direct];
+    if area[new_x_pos][new_y_pos].content = CLEAR then
+      area[new_x_pos][new_y_pos].content :=
+          area[old_x_pos][old_y_pos].content;
+      area[new_x_pos][new_y_pos].possessor :=
+          area[old_x_pos][old_y_pos].possessor;
+      area[new_x_pos][new_y_pos].possessor->xpos := new_x_pos;
+      area[new_x_pos][new_y_pos].possessor->ypos := new_y_pos;
+      area[old_x_pos][old_y_pos].content := CLEAR;
+      area[old_x_pos][old_y_pos].possessor := microbe.NIL;
+      setclass(old_x_pos, old_y_pos, CLEAR, FALSE);
+      setclass(new_x_pos, new_y_pos,
+          area[new_x_pos][new_y_pos].content, FALSE);
+      old_x_pos := new_x_pos;
+      old_y_pos := new_y_pos;
+    end if;
+  end func; (* move *)
+
+
+const proc: digest (in xcoordinate: x, in ycoordinate: y, in power: quantity) is func
+
+  local
+    var microbe: bact_1 is microbe.NIL;
+    var power: shrinkext is 0;
+
+  begin (* digest *)
+    bact_1 := area[x][y].possessor;
+    shrinkext := shrinkSize(bact_1->mass);
+    if quantity < shrinkext then
+      if bact_1->hungry = 0 or
+          bact_1->mass - shrinkext + quantity <= 0 then
+        die(x, y, KHunger);
+      else
+        bact_1->mass +:= quantity - shrinkext;
+        area[x][y].meal -:= quantity;
+        bact_1->hungry := min(pred(bact_1->mass), pred(bact_1->hungry));
+      end if;
+    else
+      bact_1->mass +:= quantity - shrinkext;
+      area[x][y].meal -:= quantity;
+      bact_1->hungry := min(MAXLIFESPAN, pred(bact_1->mass));
+    end if;
+  end func; (* digest *)
+
+
+const proc: eatat (in xcoordinate: x, in ycoordinate: y, in var power: quantity) is func
+
+  begin (* eatat *)
+    quantity := min(quantity, area[x][y].meal);
+    if area[x][y].possessor->mass < quantity then
+      die(x, y, KBigMouth)
+    else
+      digest(x, y, quantity)
+    end if;
+  end func; (* eatat *)
+
+
+const func power: strength (in direction: direct) is func
+  result
+    var power: strength is 0;
+  local
+    var microbe: possessor is microbe.NIL;
+
+  begin (* strength *)
+    possessor := area[x + diffx[direct]][y + diffy[direct]].possessor;
+    if possessor <> microbe.NIL then
+      strength := possessor->mass;
+    else
+      strength := 0;
+    end if;
+  end func; (* strength *)
+
+
+const func bactColor: view (in direction: direct) is func
+  result
+    var bactColor: content is CLEAR;
+
+  begin (* view *)
+    content := area[x + diffx[direct]][y + diffy[direct]].content;
+  end func; (* view *)
+
+
+const func power: food (in direction: direct) is func
+  result
+    var power: meal is 0;
+
+  begin (* food *)
+    meal := area[x + diffx[direct]][y + diffy[direct]].meal;
+  end func; (* food *)
+
+
+const func lifeSpan: hunger is func
+  result
+    var lifeSpan: hungry is 0;
+
+  begin (* hunger *)
+    hungry := area[x][y].possessor->hungry;
+  end func; (* hunger *)
+
+
+const proc: doWait is func
+
+  local
+    var power: quantity is 0;
+
+  begin (* doWait *)
+    if not done then
+      digest(x, y, quantity);
+      done := TRUE;
+    end if;
+  end func; (* doWait *)
+
+
+const proc: eat (in direction: direct, in power: quantity) is func
+
+  begin (* eat *)
+    if not done then
+(*    write("eat("); write(direct); write(", "); write(quantity); writeln(");"); *)
+      if area[x + diffx[direct]][y + diffy[direct]].content <> CLEAR and
+          direct <> HERE then
+        die(x, y, KFnotEmpty);
+      elsif direct in {NW, NE, SW, SE} then
+        die(x, y, KWrMove);
+      else
+        if direct = HERE then
+          setclass(x, y, area[x][y].content, FALSE);
+        else
+          move(x, y, direct);
+        end if;
+        eatat(x, y, quantity);
+      end if;
+      done := TRUE;
+    end if;
+  end func; (* eat *)
+
+
+const proc: kill (in direction: direct) is func
+
+  local
+    var xcoordinate: new_x is 0;
+    var ycoordinate: new_y is 0;
+    var power: quantity is 0;
+
+  begin (* kill *)
+    if not done then
+(*    write("kill("); write(direct); write(", "); write(quantity); writeln(");"); *)
+      if direct = HERE then
+        die(x, y, KSuicide);
+      elsif direct in {NW, NE, SW, SE} then
+        die(x, y, KWrMove);
+      elsif strength(direct) > strength(HERE) then
+        die(x, y, KBigMouth);
+      else
+        new_x := x + diffx[direct];
+        new_y := y + diffy[direct];
+        case area[new_x][new_y].content of
+          when {EDGE}:
+            die(x, y, KEdge);
+          when {CLEAR}:
+            move(x, y, direct);
+          otherwise:
+            quantity := strength(direct);
+            die(new_x, new_y, REASON[area[x][y].content]);
+            move(x, y, direct);
+            digest(x, y, quantity);
+        end case;
+      end if;
+      done := TRUE;
+    end if;
+  end func; (* kill *)
+
+
+const proc: split (in direction: direct, in power: quantity1, in power: quantity2) is func
+
+  local
+    var microbe: bact_1 is microbe.NIL;
+    var xcoordinate: new_x is 0;
+    var ycoordinate: new_y is 0;
+    var bactColor: species is CLEAR;
+    var lifeSpan: hungry is 0;
+    var power: strength is 0;
+
+  begin (* split *)
+    if not done then
+(*    write("split("); write(direct); write(", "); write(quantity1); write(", "); write(quantity2); writeln(");"); *)
+      bact_1 := area[x][y].possessor;
+      new_x := x + diffx[direct];
+      new_y := y + diffy[direct];
+      if area[new_x][new_y].content = EDGE then
+        die(x, y, KEdge);
+      elsif direct in {HERE, NW, NE, SW, SE} then
+        die(x, y, KWrMove);
+      elsif area[new_x][new_y].content <> CLEAR then
+        die(x, y, KFnotEmpty);
+      elsif bact_1->mass <= 1 then
+        die(x, y, KHunger);
+      else
+        species := view(HERE);
+        setclass(x, y, species, TRUE);
+        setclass(new_x, new_y, species, TRUE);
+        hungry := min(bact_1->hungry, pred(bact_1->mass div 2));
+        strength := bact_1->mass div 2;
+        create(new_x, new_y, animates, species, hungry, strength);
+        bact_1->hungry := min(bact_1->hungry, pred(bact_1->mass));
+        bact_1->mass -:= strength;
+        eatat(x, y, quantity1);
+        eatat(new_x, new_y, quantity2);
+      end if;
+      done := TRUE
+    end if;
+  end func; (* split *)
+
+
+const proc: setAllBacterials is func
+
+  local
+    var xcoordinate: x is 0;
+    var ycoordinate: y is 0;
+
+  begin (* setAllBacterials *)
+    children := 0 times microbe.NIL;
+    for x range 2 to pred(XMAX) do
+      for y range 2 to pred(YMAX) do
+        (* write(STD_ERR, x lpad 2);
+        write(STD_ERR, y lpad 3);
+        write(STD_ERR, " ");
+        writeln(STD_ERR, area[x][y].content); *)
+        area[x][y].meal := foodReserve;
+        if area[x][y].content <> CLEAR then
+          setBact(x, y, area[x][y].content);
+        end if;
+      end for;
+    end for;
+    animates := children;
+  end func; (* setAllBacterials *)
+
+
+const proc: writeInfo (in integer: line, in integer: column) is func
+
+  local
+    var bactColor: species is CLEAR;
+
+  begin (* writeInfo *)
+    color(info, white, dark_blue);
+    clear(info);
+    writeParameters(initSize, foodReserve, shrinkage);
+    writeln(info, "Position " <& line lpad 2 <& " " <& column lpad 2);
+    species := area[succ(column)][succ(line)].content;
+    write(info, species);
+    if species <> EDGE and species <> CLEAR then
+      write(info, " of size ");
+      if area[succ(column)][succ(line)].possessor <> microbe.NIL then
+        write(info, area[succ(column)][succ(line)].possessor->mass);
+      else
+        write(info, initSize);
+      end if;
+    end if;
+    writeln(info);
+    write(info, "Meal ");
+    write(info, area[succ(column)][succ(line)].meal);
+  end func; (* writeInfo *)
+
+
+const func char: readCommand (in integer: line, in integer: column) is func
+  result
+    var char: command is ' ';
+
+  begin (* readCommand *)
+    writeInfo(line, column);
+    box(X_SHIFT + STRETCH_FACTOR * succ(column), Y_SHIFT + STRETCH_FACTOR * succ(line),
+        succ(STRETCH_FACTOR), succ(STRETCH_FACTOR), white);
+    command := getc(KEYBOARD);
+    box(X_SHIFT + STRETCH_FACTOR * succ(column), Y_SHIFT + STRETCH_FACTOR * succ(line),
+        succ(STRETCH_FACTOR), succ(STRETCH_FACTOR), plateBackground);
+  end func; (* readCommand *)
+
+
+const proc: InitAnimates is func
+
+  local
+    var integer: x is 0;
+    var integer: y is 0;
+    var integer: line is 1;
+    var integer: column is 1;
+    var char: command is ' ';
+    var bactColor: species is CLEAR;
+
+  begin (* InitAnimates *)
+    playerSet:= colorSet.EMPTY_SET;
+    animates:= 0 times microbe.value;
+    command := readCommand(line, column);
+    while command <> 'q' and command <> KEY_F1 do
+      case command of
+        when {'2', KEY_DOWN}:
+          if line < MAX_LINE then
+            incr(line);
+          else
+            line := 1;
+          end if;
+        when {'8', KEY_UP}:
+          if line > 1 then
+            decr(line);
+          else
+            line := MAX_LINE;
+          end if;
+        when {'6', KEY_RIGHT}:
+          if column < MAX_COLUMN then
+            incr(column);
+          else
+            column := 1;
+          end if;
+        when {'4', KEY_LEFT}:
+          if column > 1 then
+            decr(column);
+          else
+            column := MAX_COLUMN;
+          end if;
+        when {'7', KEY_HOME}:
+          line := 1;
+          column := 1;
+        when {'1', KEY_END}:
+          line := MAX_LINE;
+          column := MAX_COLUMN;
+        when {KEY_TAB}:
+          column := MAX_COLUMN;
+        when {KEY_NL}:
+          if line = MAX_LINE then
+            column := 1;
+          else
+            incr(line);
+            column := 1;
+          end if;
+        when {KEY_MOUSE1}:
+          x := getxpos(KEYBOARD);
+          y := getypos(KEYBOARD);
+          if x >= X_SHIFT + STRETCH_FACTOR * 2 + 1 and
+              x <= X_SHIFT + STRETCH_FACTOR * XMAX and
+              y >= Y_SHIFT + STRETCH_FACTOR * 2 + 1 and
+              y <= Y_SHIFT + STRETCH_FACTOR * YMAX then
+            line := pred(y - Y_SHIFT) div STRETCH_FACTOR - 1;
+            column := pred(x - X_SHIFT) div STRETCH_FACTOR - 1;
+          end if;
+        when {KEY_ESC}:
+          readLimits;
+        otherwise:
+          species := charCol(command);
+          if species <> EDGE then
+            area[succ(column)][succ(line)].content := species;
+            if species = CLEAR then
+              rect(X_SHIFT + STRETCH_FACTOR * succ(column),
+                  Y_SHIFT + STRETCH_FACTOR * succ(line),
+                  STRETCH_FACTOR, STRETCH_FACTOR, plateBackground);
+              if command = '.' then
+                point(X_SHIFT + STRETCH_FACTOR * succ(column) + HALF_FACTOR,
+                    Y_SHIFT + STRETCH_FACTOR * succ(line) + HALF_FACTOR, white);
+                area[succ(column)][succ(line)].meal := foodReserve;
+              else
+                area[succ(column)][succ(line)].meal := 0;
+              end if;
+            else
+              fcircle(X_SHIFT + STRETCH_FACTOR * succ(column) + HALF_FACTOR,
+                  Y_SHIFT + STRETCH_FACTOR * succ(line) + HALF_FACTOR,
+                  4, display_color(species));
+            end if;
+          end if;
+      end case;
+      command := readCommand(line, column);
+    end while;
+    if command = KEY_F1 then
+      setAllBacterials;
+    end if;
+  end func; (* InitAnimates *)
+
+
+const proc: initArea is func
+
+  local
+    var xcoordinate: x is 0;
+    var ycoordinate: y is 0;
+    var position: edgePosition is position.value;
+
+  begin (* initArea *)
+    edgePosition.content := EDGE;
+    edgePosition.meal := 0;
+    edgePosition.possessor := microbe.NIL;
+    for x range 1 to XMAX do
+      area[x][1] := edgePosition;
+      area[x][YMAX] := edgePosition;
+    end for;
+    for y range 2 to pred(YMAX) do
+      area[1][y] := edgePosition;
+      area[XMAX][y] := edgePosition;
+    end for;
+    for x range 2 to pred(XMAX) do
+      for y range 2 to pred(YMAX) do
+        area[x][y].content := CLEAR;
+        area[x][y].meal := foodReserve;
+        area[x][y].possessor := microbe.NIL;
+      end for;
+    end for;
+    InitAnimates;
+  end func; (* initArea *)
+
+
+const proc: statistics (in integer: genNr) is func
+
+  local
+    var integer: playanz is 0;
+    var integer: sumAccno is 0;
+    var integer: sumAccmass is 0;
+    var integer: sumFoodno is 0;
+    var integer: sumFoodmass is 0;
+    var xcoordinate: x is 0;
+    var ycoordinate: y is 0;
+    var hue: species is CLEAR;
+    var boolean: anychange is FALSE;
+    var microbe: p is microbe.NIL;
+
+  begin (* statistics *)
+    sumAccno := 0;
+    sumAccmass := 0;
+    anychange := FALSE;
+    for species range FIRSTCOL to LASTCOL do
+      statValues[species][TRUE].accno := 0;
+      statValues[species][TRUE].accmass := 0;
+    end for;
+    color(stat, statCol);
+    setPos(stat, 1, 12);
+    writeln(stat, genNr lpad 1);
+    for p range animates do
+      if p->mass > 0 then
+        incr(statValues[area[p->xpos][p->ypos].content][TRUE].accno);
+        statValues[area[p->xpos][p->ypos].content][TRUE].accmass +:= p->mass;
+      end if;
+    end for;
+    playanz := 1;
+    for species range FIRSTCOL to LASTCOL do
+      if species in playerSet then
+        if statValues[species][TRUE].deathtime = 0 then
+          if statValues[species][TRUE].accno = 0 then
+            statValues[species][TRUE].deathtime := genNr;
+            setPos(stat, 4 + playanz, 9);
+            write(stat, "(");
+            write(stat, statValues[species][TRUE].totalno lpad 5);
+            write(stat, " ");
+            write(stat, statValues[species][TRUE].totalmass lpad 9);
+            write(stat, flt(statValues[species][TRUE].totalmass) /
+                flt(succ(statValues[species][TRUE].totalno)) digits 1 lpad 8);
+            write(stat, ") d");
+            writeln(stat, genNr lpad 5);
+            anychange := TRUE;
+          else
+            sumAccno +:= statValues[species][TRUE].accno;
+            sumAccmass +:= statValues[species][TRUE].accmass;
+            statValues[species][TRUE].totalno +:=
+                statValues[species][TRUE].accno;
+            statValues[species][TRUE].totalmass +:=
+                statValues[species][TRUE].accmass;
+            if statValues[species][TRUE].accno <>
+                statValues[species][FALSE].accno or
+                statValues[species][TRUE].accmass <>
+                statValues[species][FALSE].accmass then
+              setPos(stat, 4 + playanz, 9);
+              write(stat, statValues[species][TRUE].accno lpad 6);
+              write(stat, " ");
+              write(stat, statValues[species][TRUE].accmass lpad 9);
+              writeln(stat, flt(statValues[species][TRUE].accmass) /
+                  flt(statValues[species][TRUE].accno) digits 1 lpad 8);
+              statValues[species][FALSE] := statValues[species][TRUE];
+              anychange := TRUE;
+            end if;
+          end if;
+        end if;
+        incr(playanz);
+      end if;
+    end for;
+    if anychange then
+      setPos(stat, 5 + playanz, 9);
+      write(stat, sumAccno lpad 6);
+      write(stat, " ");
+      write(stat, sumAccmass lpad 9);
+      if sumAccno <> 0 then
+        writeln(stat, flt(sumAccmass) / flt(sumAccno) digits 1 lpad 8);
+      else
+        writeln(stat, " " lpad 8);
+      end if;
+    end if;
+    sumFoodno := 0;
+    sumFoodmass := 0;
+    for x range 2 to pred(XMAX) do
+      for y range 2 to pred(YMAX) do
+        if area[x][y].meal <> 0 then
+          incr(sumFoodno);
+        end if;
+        sumFoodmass +:= area[x][y].meal;
+      end for;
+    end for;
+    setPos(stat, 6 + playanz, 9);
+    write(stat, sumFoodno lpad 6);
+    write(stat, " ");
+    write(stat, sumFoodmass lpad 9);
+    if sumFoodno <> 0 then
+      writeln(stat, flt(sumFoodmass) / flt(sumFoodno) digits 1 lpad 8);
+    else
+      writeln(stat, " " lpad 8);
+    end if;
+    setPos(stat, 8 + playanz, 9);
+    write(stat, sumAccno + sumFoodno lpad 6);
+    write(stat, " ");
+    write(stat, sumAccmass + sumFoodmass lpad 9);
+    if sumAccno + sumFoodno <> 0 then
+      writeln(stat, flt(sumAccmass + sumFoodmass) / flt(sumAccno + sumFoodno) digits 1 lpad 8);
+    else
+      writeln(stat, " " lpad 8);
+    end if;
+  end func; (* statistics *)
+
+
+const proc: finalStatistics is func
+
+  local
+    var integer: i is 0;
+    var integer: cardPlayerSet is 0;
+    var hue: col1 is CLEAR;
+    var hue: col2 is CLEAR;
+    var bactColor: col3 is CLEAR;
+    var killReason: reason is KHunger;
+    var array [hue] hue: colField is hue times hue.value;
+    var array [hue] bigInteger: valueField is hue times 0_;
+
+  begin (* finalStatistics *)
+    cardPlayerSet:= 0;
+    color(stat, statCol);
+    for col1 range FIRSTCOL to LASTCOL do
+      if col1 in playerSet then
+        incr(cardPlayerSet);
+        valueField[col1] := bigInteger(abs(statValues[col1][TRUE].totalno) + 1) *
+            bigInteger(abs(statValues[col1][TRUE].totalmass) + 1) *
+            bigInteger(abs(statValues[col1][TRUE].deathtime) + 1);
+      end if;
+      colField[col1] := col1;
+    end for;
+
+    if cardPlayerSet <> 0 then
+      for col1 range FIRSTCOL to pred(LASTCOL) do
+        for col2 range succ(col1) to LASTCOL do
+          if valueField[colField[col1]] < valueField[colField[col2]] then
+            col3 := colField[col2];
+            colField[col2] := colField[col1];
+            colField[col1] := col3;
+          end if;
+        end for;
+      end for;
+
+      for col1 range FIRSTCOL to LASTCOL do
+        if colField[col1] in playerSet then
+          i:= 0;
+          for col3 range FIRSTCOL to colField[col1] do
+            if col3 in playerSet then
+              incr(i);
+            end if;
+          end for;
+          setPos(stat, 4 + i, 42);
+          writeln(stat, ord(col1) - ord(FIRSTCOL) + 1 lpad 1);
+        end if;
+      end for;
+
+      setPos(fstat, cardPlayerSet + 11, 1);
+      write(fstat, "Victims:");
+      for col1 range FIRSTCOL to LASTCOL do
+        if col1 in playerSet then
+          write(fstat, col1 lpad 7);
+        end if;
+      end for;
+      writeln(fstat);
+      for reason range KEdge to KFnotEmpty do
+        if reason <= KHunger or reason >= KWrMove or
+            hue conv (ord(reason) - ord(KWhite) + ord(WHITE)) in playerSet then
+          write(fstat, reason rpad 8);
+          for col1 range FIRSTCOL to LASTCOL do
+            if col1 in playerSet | {CLEAR} then
+              write(fstat, killarray[col1][reason] lpad 7);
+            end if;
+          end for;
+          writeln(fstat);
+        end if;
+      end for;
+    end if;
+  end func; (* finalStatistics *)
+
+
+const proc: initStatistics is func
+
+  local
+    var bactColor: col1 is CLEAR;
+    var killReason: reason is KHunger;
+    var integer: playanz is 0;
+
+  begin (* initStatistics *)
+    playanz:= 0;
+    clear(stat);
+    color(stat, statCol);
+    setPos(stat, 1, 1);
+    writeln(stat, "Generation");
+    setPos(stat, 3, 1);
+    writeln(stat, "bact    number      mass  av.size");
+    for col1 range ALL_COLORS do
+      if col1 in playerSet then
+        setPos(stat, 5 + playanz, 1);
+        writeln(stat, col1);
+        incr(playanz);
+        statValues[col1][TRUE].deathtime:= 0;
+        statValues[col1][TRUE].totalno:= 0;
+        statValues[col1][TRUE].totalmass:= 0;
+        for reason range KEdge to KFnotEmpty do
+          killarray[col1][reason] := 0;
+        end for;
+      end if;
+    end for;
+    setPos(stat, 6 + playanz, 1);
+    writeln(stat, "Sum");
+    setPos(stat, 7 + playanz, 1);
+    writeln(stat, "Food");
+    setPos(stat, 9 + playanz, 1);
+    writeln(stat, "Total");
+  end func; (* initStatistics *)
+
+
+const proc: execute (ref microbe: individuum) is func
+
+  local
+    var bactColor: species is CLEAR;
+
+  begin
+    x := individuum->xpos;
+    y := individuum->ypos;
+    done:= FALSE;
+    species := area[x][y].content;
+    case species of
+      when {WHITE}:   dna(WHITE);
+      when {VIOLET}:  dna(VIOLET);
+      when {INDIGO}:  dna(INDIGO);
+      when {BLUE}:    dna(BLUE);
+      when {GREEN}:   dna(GREEN);
+      when {ORANGE}:  dna(ORANGE);
+      when {RED}:     dna(RED);
+      when {TAN}:     dna(TAN);
+(*
+      when {CYAN}:    dna(CYAN);
+      when {YELLOW}:  dna(YELLOW);
+      when {AMBER}:   dna(AMBER);
+      when {SCARLET}: dna(SCARLET);
+      when {LILIAC}:  dna(LILIAC);
+      when {PINK}:    dna(PINK);
+*)
+    end case;
+    if not done then
+      doWait;
+    end if;
+  end func; (* execute *)
+
+
+const proc: generation is func
+
+  local
+    var microbe: individuum is microbe.NIL;
+    var integer: index is 1;
+
+  begin (* generation *)
+    children := 0 times microbe.NIL;
+    index := 1;
+    while index <= length(animates) do
+      if animates[index]->mass = 0 then
+        ignore(remove(animates, index));
+      else
+        execute(animates[index]);
+        incr(index);
+      end if;
+    end while;
+    animates := children & animates;
+  end func; (* generation *)
+
+
+const proc: main is func
+
+  local
+    var time: turnTime is time.value;
+
+  begin (* main *)
+(*
+    scr := open(SCREEN);
+*)
+    screen(640, 480);
+    clear(curr_win, white);
+    color(black, white);
+    KEYBOARD := GRAPH_KEYBOARD;
+    scr := open(curr_win);
+    color(scr, black, white);
+    setPos(scr, 4, 47);
+    writeln(scr, "D N A F I G H T");
+    setPos(scr, 6, 31);
+    writeln(scr, "Copyright (C) 1985, 1986, 2005  Thomas Mertes");
+    setPos(scr, 7, 31);
+    writeln(scr, "Copyright (C) 1985, 1986,       Markus Stumptner");
+    setPos(scr, 8, 31);
+    writeln(scr, "Copyright (C) 1985, 1986, 1991  Johannes Gritsch");
+    setPos(scr, 10, 35);
+    writeln(scr, "This program is free software under the");
+    setPos(scr, 11, 35);
+    writeln(scr, "terms of the GNU General Public License");
+    setPos(scr, 13, 28);
+    writeln(scr, "Dnafight is written in the Seed7 programming language");
+    setPos(scr, 14, 35);
+    writeln(scr, "Homepage:  http://seed7.sourceforge.net");
+    setPos(scr, 17, 1);
+    writeln(scr, "   Dnafight is a programming game in which bacteria fight \
+        \against each other.");
+    writeln(scr);
+    writeln(scr, "   In Dnafight there are different types of bacteria named \
+        \with colors. Each bacterium is controlled by");
+    writeln(scr, "   a DNA program written in Seed7. The plate on which the bacteria \
+        \live is a rectangular grid of cells.");
+    writeln(scr, "   A cell can be empty or contain one bacterium. A cell can also \
+        \contain some food. In every turn a");
+    writeln(scr, "   bacterium can inspect its own cell and the eight neighbour cells. \
+        \Then the bacterium can decide");
+    writeln(scr, "   between eating, killing or splitting in one of the four cardinal \
+        \directions.");
+    writeln(scr);
+    writeln(scr, "     - Eating food includes moving and is also allowed when the \
+        \bacterium stays in place.");
+    writeln(scr, "     - Killing another bacterium is allowed when the other \
+        \bacterium is of the same size or smaller.");
+    writeln(scr, "     - Splitting a bacterium produces two half-sized bacteria. \
+        \The first stays in place while the");
+    writeln(scr, "       second moves to another place. Both new bacteria can eat food.");
+    writeln(scr);
+    writeln(scr, "   There are two ways to play this game:");
+    writeln(scr);
+    writeln(scr, "     1. Place some bacteria on the plate and let them fight \
+        \against each other.");
+    writeln(scr, "     2. Write a DNA program for a new bacterium and measure your \
+        \programming skills.");
+    setPos(scr, 36, 41);
+    writeln(scr, "Press any key to start game");
+    if upper(getc(KEYBOARD)) <> 'Q' then
+      clear(curr_win, white);
+      setPos(scr, 1, 1);
+      write(scr, "DNAFIGHT V");
+      writeln(scr, Version);
+      repeat
+        initScreen;
+        initDisplay;
+        initArea;
+        initStatistics;
+        genNr := 0;
+
+        turnTime := time(NOW);
+        while length(animates) <> 0 and busy_getc(KEYBOARD) = KEY_NONE do
+          generation;
+          turnTime +:= 50000 . MICRO_SECONDS;
+          DRAW_FLUSH;
+          await(turnTime);
+          incr(genNr);
+          if genNr mod STATTIME = 0 then
+            statistics(genNr);
+          end if;
+        end while;
+
+        finalStatistics;
+      until not continue(GAME);
+    end if;
+  end func; (* main *)

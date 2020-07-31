@@ -1,0 +1,58 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tak.sd7       Little benchmark computing tak(18, 12, 6)         *)
+(*  Copyright (C) 1990, 1991, 1992, 1993, 1994, 2004  Thomas Mertes *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+
+var time: before is time.value;
+var time: after is time.value;
+var duration: diff is duration.value;
+
+
+const func integer: tak (in integer: x, in integer: y, in integer: z) is func
+  result
+    var integer: tak is 0;
+  begin
+    if y >= x then
+      tak := z;
+    else
+      tak := tak(tak(pred(x), y, z),
+                 tak(pred(y), z, x),
+                 tak(pred(z), x, y));
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    before := time(NOW);
+    writeln("tak(18, 12, 6) = " <& tak(18, 12, 6));
+    after := time(NOW);
+    writeln(before);
+    writeln(after);
+    diff := after - before;
+    writeln(diff <& " " <& diff.micro_second lpad 6);
+  end func;

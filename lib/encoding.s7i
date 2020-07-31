@@ -1,0 +1,723 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  encoding.s7i  Encoding and decoding functions                   *)
+(*  Copyright (C) 2007, 2008  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "chartype.s7i";
+include "bytedata.s7i";
+
+
+(**
+ *  Encode a string with the Base64 encoding.
+ *  Base64 encodes a byte string as ASCII string. This is done by
+ *  taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with letters
+ *  (upper case followed by lower case), digits and the characters
+ *  '+' and '/'.
+ *  @return the Base64 encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toBase64 (in string: byteStri) is func
+  result
+    var string: base64 is "";
+  local
+    const string: coding is "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var char: ch is ' ';
+    var integer: threeBytes is 0;
+    var string: fourBytes is "    ";
+    var integer: posToAddNewline is 58;
+  begin
+    for index range 1 to length(byteStri) step 3 do
+      threeBytes := 0;
+      for subIndex range index to index + 2 do
+        threeBytes <<:= 8;
+        if subIndex <= length(byteStri) then
+          ch := byteStri[subIndex];
+          if ch >= '\256;' then
+            raise RANGE_ERROR;
+          end if;
+          threeBytes +:= ord(ch);
+        end if;
+      end for;
+      fourBytes @:= [1] coding[succ( threeBytes >> 18)];
+      fourBytes @:= [2] coding[succ((threeBytes >> 12) mod 64)];
+      fourBytes @:= [3] coding[succ((threeBytes >>  6) mod 64)];
+      fourBytes @:= [4] coding[succ( threeBytes        mod 64)];
+      if index = posToAddNewline then
+        base64 &:= "\n";
+        posToAddNewline +:= 57;
+      end if;
+      base64 &:= fourBytes;
+    end for;
+    index := length(base64);
+    if length(byteStri) rem 3 = 2 then
+      base64 @:= [index] '=';
+    elsif length(byteStri) rem 3 = 1 then
+      base64 @:= [pred(index)] "==";
+    end if;
+  end func;
+
+
+(**
+ *  Decode a Base64 encoded string.
+ *  @param base64 Base64 encoded string without leading or trailing
+ *         whitespace characters.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If ''base64'' is not in Base64 format.
+ *)
+const func string: fromBase64 (in string: base64) is func
+  result
+    var string: decoded is "";
+  local
+    const array integer: decode is [] (                      # -1 is illegal
+        62, -1, -1, -1, 63,                                  # + /
+        52, 53, 54, 55, 56, 57, 58, 59, 60, 61,              # 0 - 9
+        -1, -1, -1,  0, -1, -1, -1,                          # =
+         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,  # A - M
+        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  # N - Z
+        -1, -1, -1, -1, -1, -1,
+        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,  # a - m
+        39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51); # n - z
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var integer: number is 0;
+    var integer: fourBytes is 0;
+    var string: threeBytes is "   ";
+  begin
+    while index <= length(base64) - 3 do
+      if base64[index] >= '+' then
+        fourBytes := 0;
+        for subIndex range index to index + 3 do
+          number := decode[ord(base64[subIndex]) - ord(pred('+'))];
+          if number = -1 then
+            raise RANGE_ERROR;
+          end if;
+          fourBytes := (fourBytes << 6) + number;
+        end for;
+        threeBytes @:= [1] chr( fourBytes >> 16);
+        threeBytes @:= [2] chr((fourBytes >>  8) mod 256);
+        threeBytes @:= [3] chr( fourBytes        mod 256);
+        decoded &:= threeBytes;
+        index +:= 4;
+      elsif base64[index] = '\n' then
+        incr(index);
+      elsif base64[index] = '\r' and base64[succ(index)] = '\n' then
+        index +:= 2;
+      else
+        raise RANGE_ERROR;
+      end if;
+    end while;
+    if index <> succ(length(base64)) then
+      raise RANGE_ERROR;
+    end if;
+    if base64[length(base64) - 1 len 2] = "==" then
+      decoded := decoded[.. length(decoded) - 2];
+    elsif length(base64) >= 1 and base64[length(base64)] = '=' then
+      decoded := decoded[.. pred(length(decoded))];
+    end if;
+  end func;
+
+
+(**
+ *  Encode a string with the Quoted-printable encoding.
+ *  Quoted-printable encodes a byte string as ASCII string. This
+ *  is done by encoding printable ASCII characters except '=' as
+ *  themself. Other byte values are encoded with '=' followed by two
+ *  hexadecimal digits representing the byte's numeric value.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toQuotedPrintable (in string: byteStri) is func
+  result
+    var string: quoted is "";
+  local
+    var integer: index is 0;
+    var integer: startPos is 1;
+    var integer: counter is 1;
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(byteStri) do
+      ch := byteStri[index];
+      if ch >= '\256;' then
+        raise RANGE_ERROR;
+      elsif ch = '\n' or (ch = '\r' and
+          index < length(byteStri) and byteStri[succ(index)] = '\n') then
+        if index > 1 then
+          ch := byteStri[pred(index)];
+          if ch = ' ' or ch = '\t' then
+            quoted &:= byteStri[startPos .. index - 2];
+            if counter >= 76 then
+              quoted &:= "=\n";
+              counter := 1;
+            end if;
+            quoted &:= "=" <& ord(byteStri[pred(index)]) RADIX 16 lpad0 2;
+            counter +:= 3;
+            startPos := index;
+          end if;
+        end if;
+        counter := 1;
+      elsif ch >= '\127;' or ch = '=' or (ch < ' ' and ch <> '\9;') then
+        quoted &:= byteStri[startPos .. pred(index)];
+        if counter >= 74 then
+          quoted &:= "=\n";
+          counter := 1;
+        end if;
+        quoted &:= "=" <& ord(ch) RADIX 16 lpad0 2;
+        startPos := succ(index);
+        counter +:= 3;
+      elsif counter >= 76 then
+        quoted &:= byteStri[startPos .. pred(index)] & "=\n";
+        startPos := index;
+        counter := 2;
+      else
+        incr(counter);
+      end if;
+    end for;
+    quoted &:= byteStri[startPos ..];
+  end func;
+
+
+(**
+ *  Decode a quoted-printable encoded string.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If ''quoted'' is not in quoted-printable format.
+ *)
+const func string: fromQuotedPrintable (in string: quoted) is func
+  result
+    var string: decoded is "";
+  local
+    var integer: startPos is 1;
+    var integer: equalSignPos is 0;
+    var string: twoChars is "";
+  begin
+    equalSignPos := pos(quoted, "=");
+    while equalSignPos <> 0 do
+      decoded &:= quoted[startPos .. pred(equalSignPos)];
+      if equalSignPos < length(quoted) and
+          quoted[succ(equalSignPos)] = '\n' then
+        startPos := equalSignPos + 2;
+      elsif equalSignPos <= length(quoted) - 2 then
+        twoChars := quoted[succ(equalSignPos) len 2];
+        if twoChars[1] in hexdigit_char then
+          decoded &:= chr(integer(twoChars, 16));
+        elsif twoChars <> "\r\n" then
+          raise RANGE_ERROR;
+        end if;
+        startPos := equalSignPos + 3;
+      else
+        raise RANGE_ERROR;
+      end if;
+      equalSignPos := pos(quoted, "=", startPos);
+    end while;
+    decoded &:= quoted[startPos ..];
+  end func;
+
+
+(**
+ *  Encode a string with uuencoding.
+ *  Uuencode encodes a byte string as ASCII string. This is done
+ *  by taking packs of 6-bits and translating them into a radix-64
+ *  representation. The radix-64 digits are encoded with consecutive
+ *  ASCII characters starting from ' ' (which represents 0). Every
+ *  line starts with a radix-64 digit character indicating the number
+ *  of data bytes encoded on that line. Some newer uuencode tools use
+ *  grave accent ('`') instead of space (' ') to encode 0. This can
+ *  be emulated by using: replace(toUuencoded(source), " ", "`").
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toUuencoded (in string: byteStri) is func
+  result
+    var string: uuencoded is "";
+  local
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var char: ch is ' ';
+    var integer: threeBytes is 0;
+    var string: fourBytes is "    ";
+    var integer: posToAddNewline is 43;
+  begin
+    if length(byteStri) <> 0 then
+      if length(byteStri) < 45 then
+        uuencoded &:= chr(32 + length(byteStri));
+      else
+        uuencoded &:= "M";
+      end if;
+      for index range 1 to length(byteStri) step 3 do
+        threeBytes := 0;
+        for subIndex range index to index + 2 do
+          threeBytes <<:= 8;
+          if subIndex <= length(byteStri) then
+            ch := byteStri[subIndex];
+            if ch >= '\256;' then
+              raise RANGE_ERROR;
+            end if;
+            threeBytes +:= ord(ch);
+          end if;
+        end for;
+        fourBytes @:= [1] chr(32 + (threeBytes >> 18));
+        fourBytes @:= [2] chr(32 + (threeBytes >> 12) mod 64);
+        fourBytes @:= [3] chr(32 + (threeBytes >>  6) mod 64);
+        fourBytes @:= [4] chr(32 +  threeBytes        mod 64);
+        uuencoded &:= fourBytes;
+        if index = posToAddNewline and length(byteStri) > index + 2 then
+          if length(byteStri) - index - 2 < 45 then
+            uuencoded &:= "\n" <& chr(32 + length(byteStri) - index - 2);
+          else
+            uuencoded &:= "\nM";
+          end if;
+          posToAddNewline +:= 45;
+        end if;
+      end for;
+      uuencoded &:= "\n";
+    end if;
+    uuencoded &:= "`\n";
+  end func;
+
+
+(**
+ *  Decode an uuencoded string.
+ *  Space (' ') and grave accent ('`') both are used to encode 0.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If ''uuencoded'' is not in uuencoded format.
+ *)
+const func string: fromUuencoded (in string: uuencoded) is func
+  result
+    var string: decoded is "";
+  local
+    var integer: lineLength is 1;
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var integer: number is 0;
+    var integer: fourBytes is 0;
+    var string: threeBytes is "   ";
+  begin
+    lineLength := ord(uuencoded[1]) - 32;
+    while lineLength <> 0 and lineLength <> 64 do
+      incr(index);
+      while lineLength >= 1 do
+        fourBytes := 0;
+        for subIndex range index to index + 3 do
+          number := ord(uuencoded[subIndex]) - 32;
+          if number = 64 then
+            number := 0;
+          elsif number < 0 or number > 64 then
+            raise RANGE_ERROR;
+          end if;
+          fourBytes := (fourBytes << 6) + number;
+        end for;
+        threeBytes @:= [1] chr( fourBytes >> 16);
+        threeBytes @:= [2] chr((fourBytes >>  8) mod 256);
+        threeBytes @:= [3] chr( fourBytes        mod 256);
+        decoded &:= threeBytes[ .. lineLength];
+        lineLength -:= 3;
+        index +:= 4;
+      end while;
+      while index <= length(uuencoded) and uuencoded[index] <> '\n' do
+        incr(index);
+      end while;
+      if index < length(uuencoded) then
+        incr(index);
+        lineLength := ord(uuencoded[index]) - 32;
+      else
+        lineLength := 0;
+      end if;
+    end while;
+  end func;
+
+
+(**
+ *  Encode a string with percent-encoding.
+ *  Percent-encoding encodes a byte string as ASCII string. This is done
+ *  by encoding all characters, which are not in the set of unreserved
+ *  characters (A-Z, a-z, 0-9 - _ . ~). The encoding uses a percent sign
+ *  ('%') followed by two hexadecimal digits, which represent the ordinal
+ *  value of the encoded character.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toPercentEncoded (in string: byteStri) is func
+  result
+    var string: percentEncoded is "";
+  local
+    const set of char: unreservedChars is alphanum_char | {'-', '_', '.', '~'};
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    for ch key pos range byteStri do
+      if ch > '\255;' then
+        raise RANGE_ERROR;
+      elsif ch not in unreservedChars then
+        percentEncoded &:= byteStri[start .. pred(pos)];
+        percentEncoded &:= "%" <& ord(ch) RADIX 16 lpad0 2;
+        start := succ(pos);
+      end if;
+    end for;
+    percentEncoded &:= byteStri[start ..];
+  end func;
+
+
+(**
+ *  Decode a percent-encoded string.
+ *  Percent-encoding encodes a byte string as ASCII string. It uses
+ *  the percent sign ('%') followed by two hexadecimal digits to
+ *  encode characters that otherwise would not be allowed in an
+ *  URL. Allowed URL characters are encoded as themself.
+ *  @return the decoded string.
+ *)
+const func string: fromPercentEncoded (in string: percentEncoded) is func
+  result
+    var string: decoded is "";
+  local
+    var integer: pos is 0;
+  begin
+    decoded := percentEncoded;
+    pos := pos(decoded, '%', succ(pos));
+    while pos <> 0 do
+      if pos <= length(decoded) - 2 and
+          decoded[succ(pos)] in hexdigit_char and
+          decoded[pos + 2] in hexdigit_char then
+        decoded := decoded[.. pred(pos)] &
+            str(chr(integer(decoded[succ(pos) len 2], 16))) &
+            decoded[pos + 3 ..];
+      end if;
+      pos := pos(decoded, '%', succ(pos));
+    end while;
+  end func;
+
+
+(**
+ *  Encode a string with URL encoding.
+ *  URL encoding encodes a byte string as ASCII string. This is done
+ *  by encoding all characters, which are not in the set of unreserved
+ *  characters (A-Z, a-z, 0-9 - _ . ~). The encoding uses a percent sign
+ *  ('%') followed by two hexadecimal digits, which represent the ordinal
+ *  value of the encoded character. A plus sign ('+') is used to encode
+ *  a space (' ').
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toUrlEncoded (in string: byteStri) is func
+  result
+    var string: urlEncoded is "";
+  local
+    const set of char: unreservedChars is alphanum_char | {'-', '_', '.', '~'};
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    for ch key pos range byteStri do
+      if ch > '\255;' then
+        raise RANGE_ERROR;
+      elsif ch = ' ' then
+        urlEncoded &:= byteStri[start .. pred(pos)];
+        urlEncoded &:= '+';
+        start := succ(pos);
+      elsif ch not in unreservedChars then
+        urlEncoded &:= byteStri[start .. pred(pos)];
+        urlEncoded &:= "%" <& ord(ch) RADIX 16 lpad0 2;
+        start := succ(pos);
+      end if;
+    end for;
+    urlEncoded &:= byteStri[start ..];
+  end func;
+
+
+(**
+ *  Decode an URL encoded string.
+ *  URL encoding encodes a byte string as ASCII string. It uses
+ *  the percent sign ('%') followed by two hexadecimal digits to
+ *  encode characters that otherwise would not be allowed in an
+ *  URL. A plus sign ('+') is used to encode a space (' ').
+ *  Allowed URL characters are encoded as themself.
+ *  @return the decoded string.
+ *)
+const func string: fromUrlEncoded (in string: urlEncoded) is func
+  result
+    var string: decoded is "";
+  local
+    var integer: pos is 0;
+    var integer: start is 1;
+    var char: ch is ' ';
+  begin
+    for ch key pos range urlEncoded do
+      if ch = '%' and pos <= length(urlEncoded) - 2 and
+          urlEncoded[succ(pos)] in hexdigit_char and
+          urlEncoded[pos + 2] in hexdigit_char then
+        decoded &:= urlEncoded[start .. pred(pos)];
+        decoded &:= chr(integer(urlEncoded[succ(pos) len 2], 16));
+        pos +:= 2;
+        start := succ(pos);
+      elsif ch = '+' then
+        decoded &:= urlEncoded[start .. pred(pos)];
+        decoded &:= ' ';
+        start := succ(pos);
+      end if;
+    end for;
+    decoded &:= urlEncoded[start ..];
+  end func;
+
+
+(**
+ *  Encode a string with the Ascii85 encoding.
+ *  Ascii85 encodes a byte string as ASCII string. This is done by
+ *  encoded every four bytes with five printable ASCII characters.
+ *  Five radix 85 digits provide enough possible values to encode
+ *  the possible values of four bytes. The radix 85 digits are encoded
+ *  with the characters '!' (encodes 0) through 'u' (encodes 84).
+ *  If the last block of the byte string contains fewer than 4 bytes,
+ *  the block is padded with up to three null bytes before encoding.
+ *  After encoding, as many bytes as were added as padding are removed
+ *  from the end of the output. In files the end of an Ascii85 encoding
+ *  is marked with "~>" (this end marker is not added by toAscii85).
+ *  @return the Ascii85 encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toAscii85 (in string: byteStri) is func
+  result
+    var string: ascii85 is "";
+  local
+    var integer: index is 0;
+    var integer: subIndex is 0;
+    var integer: fourBytes is 0;
+    var string: fiveBytes is "     ";
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(byteStri) step 4 do
+      fourBytes := 0;
+      for subIndex range index to index + 3 do
+        fourBytes <<:= 8;
+        if subIndex <= length(byteStri) then
+          ch := byteStri[subIndex];
+          if ch >= '\256;' then
+            raise RANGE_ERROR;
+          end if;
+          fourBytes +:= ord(ch);
+        end if;
+      end for;
+      if fourBytes = 0 then
+        ascii85 &:= 'z';
+      else
+        for subIndex range 5 downto 1 do
+          fiveBytes @:= [subIndex] chr(ord('!') + fourBytes rem 85);
+          fourBytes := fourBytes div 85;
+        end for;
+        ascii85 &:= fiveBytes;
+      end if;
+    end for;
+    if length(byteStri) rem 4 <> 0 then
+      ascii85 := ascii85[.. length(ascii85) - 4 + length(byteStri) rem 4];
+    end if;
+  end func;
+
+
+(**
+ *  Decode a Ascii85 encoded string.
+ *  Every block of five radix 85 characters is decoded to four bytes.
+ *  Radix 85 characters are between '!' (encodes 0) and 'u' (encodes 84).
+ *  The character 'z' is used to encode a block of four zero bytes.
+ *  White space in the Ascii85 encoded string is ignored.
+ *  The last block is padded to 5 bytes with the Ascii85 character "u",
+ *  and as many bytes as were added as padding are omitted from the
+ *  end of the output.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If ''ascii85'' is not in Ascii85 format.
+ *)
+const func string: fromAscii85 (in string: ascii85) is func
+  result
+    var string: decoded is "";
+  local
+    const set of char: whiteSpace is {'\0;', '\t', '\n', '\f', '\r', ' '};
+    var char: ch is ' ';
+    var integer: digitIndex is 0;
+    var integer: base85Number is 0;
+    var integer: idx is 0;
+  begin
+    for ch range ascii85 until ch = '~' do
+      if ch >= '!' and ch <= 'u' then
+        incr(digitIndex);
+        base85Number := base85Number * 85 + (ord(ch) - ord('!'));
+        if digitIndex = 5 then
+          decoded &:= int32AsFourBytesBe(base85Number);
+          digitIndex := 0;
+          base85Number := 0;
+        end if;
+      elsif ch = 'z' and digitIndex = 0 then
+        decoded &:= "\0;\0;\0;\0;";
+      elsif ch not in whiteSpace then
+        raise RANGE_ERROR;
+      end if;
+    end for;
+    if digitIndex <> 0 then
+      for idx range 1 to 5 - digitIndex do
+        base85Number := base85Number * 85 + 84;
+      end for;
+      decoded &:= int32AsFourBytesBe(base85Number)[.. pred(digitIndex)];
+    end if;
+  end func;
+
+
+(**
+ *  Encode a number with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  @param number BigInteger number to be encoded.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the encoded string.
+ *)
+const func string: toBase (in bigInteger: number, in string: digits) is func
+  result
+    var string: encoded is "";
+  local
+    var bigInteger: base is 0_;
+    var quotRem: quotientAndRemainder is quotRem.value;
+  begin
+    base := bigInteger(length(digits));
+    quotientAndRemainder.quotient := number;
+    while quotientAndRemainder.quotient <> 0_ do
+      quotientAndRemainder := quotientAndRemainder.quotient divRem base;
+      encoded &:= digits[succ(ord(quotientAndRemainder.remainder))];
+    end while;
+    encoded := reverse(encoded);
+  end func;
+
+
+(**
+ *  Decode a string that has been encoded with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  @param encoded String containing the encoded data.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the decoded bigInteger Number.
+ *  @exception RANGE_ERROR If characters are present, that are not found
+ *                         in ''digits''.
+ *)
+const func bigInteger: fromBaseToBigInt (in string: encoded, in string: digits) is func
+  result
+    var bigInteger: number is 0_;
+  local
+    var bigInteger: base is 0_;
+    var bigInteger: factor is 1_;
+    var integer: index is 0;
+    var integer: digit is 0;
+  begin
+    base := bigInteger(length(digits));
+    for index range length(encoded) downto 1 do
+      digit := pred(pos(digits, encoded[index]));
+      if digit = -1 then
+        raise RANGE_ERROR;
+      else
+        number +:= factor * bigInteger(digit);
+        factor *:= base;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Encode a string of bytes with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  Leading zero bytes in ''byteStri'' are converted into leading
+ *  zero digits in the encoded string.
+ *  @param byteStri String of bytes to be encoded.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toBase (in string: byteStri, in string: digits) is func
+  result
+    var string: encoded is "";
+  local
+    var integer: index is 1;
+  begin
+    encoded := toBase(bytes2BigInt(byteStri, UNSIGNED, BE), digits);
+    while index <= length(byteStri) and byteStri[index] = '\0;' do
+      incr(index);
+    end while;
+    if index >= 1 then
+      encoded := "1" mult pred(index) & encoded;
+    end if;
+  end func;
+
+
+(**
+ *  Decode a string that has been encoded with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  Leading zero digits in the encoded string are converted into leading
+ *  zero bytes in the decoded string.
+ *  @param encoded String containing the encoded data.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If characters are present, that are not found
+ *                         in ''digits''.
+ *)
+const func string: fromBase (in string: encoded, in string: digits) is func
+  result
+    var string: decoded is "";
+  local
+    var bigInteger: number is 0_;
+    var integer: index is 1;
+  begin
+    number := fromBaseToBigInt(encoded, digits);
+    if number <> 0_ then
+      decoded := bytes(number, UNSIGNED, BE);
+    end if;
+    while index <= length(encoded) and encoded[index] = '1' do
+      incr(index);
+    end while;
+    if index >= 1 then
+      decoded := "\0;" mult pred(index) & decoded;
+    end if;
+  end func;
+
+
+const string: defaultBase58Digits is "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+
+(**
+ *  Encode a string with the Base58 encoding used by Bitcoin.
+ *  Leading zero bytes ('\0;') in ''byteStri'' are converted into
+ *  leading zero digits ('1') in the encoded string.
+ *  @param byteStri String of bytes to be encoded.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR If characters beyond '\255;' are present.
+ *)
+const func string: toBase58 (in string: byteStri) is
+  return toBase(byteStri, defaultBase58Digits);
+
+
+(**
+ *  Decode a Base58 encoded string.
+ *  Leading '1' characters in ''base58'' are converted into
+ *  leading zero bytes ('\0;') in the decoded string.
+ *  @param base58 String containing Base58 encoded data.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR If characters are present, that are not valid
+ *                         in the Base58 encoding used by Bitcoin.
+ *)
+const func string: fromBase58 (in string: base58) is
+  return fromBase(base58, defaultBase58Digits);

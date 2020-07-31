@@ -1,0 +1,471 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  hashsetof.s7i  Support for hashsets of a base type              *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Abstract data type, describing sets of ''baseType'' values.
+ *  This abstract data type uses hash maps to represent a set.
+ *  Therefore it can be used if ''baseType'' values cannot be
+ *  mapped to [[integer]].
+ *)
+const func type: hashset (in type: baseType) is func
+  result
+    var type: setType is void;
+  local
+    var type: tupleType is void;
+    var type: array_type is void;
+  begin
+    setType := get_type(getfunc(hashset(attr baseType)));
+    if setType = void then
+      global
+      setType := newtype;
+      IN_PARAM_IS_REFERENCE(setType);
+      const type: hashset (attr baseType)     is setType;
+      const type: base_type (attr setType)    is baseType;
+
+      const reference: (attr setType) . keyCreate   is getfunc((ref baseType: dest) ::= (in baseType: source));
+      const reference: (attr setType) . keyDestroy  is getfunc(destroy(ref baseType: aValue));
+      const reference: (attr setType) . keyCopy     is getfunc((inout baseType: dest) := (in baseType: source));
+      const reference: (attr setType) . keyCompare  is getfunc(compare(in baseType: key1, in baseType: key2));
+      const reference: (attr setType) . dataCreate  is getfunc((ref boolean: dest) ::= (in boolean: source));
+      const reference: (attr setType) . dataDestroy is getfunc(destroy(ref boolean: aValue));
+      const reference: (attr setType) . dataCopy    is getfunc((inout boolean: dest) := (in boolean:source));
+
+      const proc: CREATE (ref setType: dest, in setType: source,
+                          in reference: keyCreate, in reference: keyDestroy,
+                          in reference: dataCreate, in reference: dataDestroy) is action "HSH_CREATE";
+      const proc: DESTROY (ref setType: oldSet, in reference: keyDestroy,
+                           in reference: dataDestroy)                          is action "HSH_DESTR";
+      const proc: COPY (inout setType: dest, in setType: source,
+                        in reference: keyCreate, in reference: keyDestroy,
+                        in reference: dataCreate, in reference: dataDestroy)   is action "HSH_CPY";
+      const proc: FOR_KEY (inout baseType: variable, in setType: aSet,
+                           in proc: statements, in reference: keyCopy)         is action "HSH_FOR_KEY";
+      const func array baseType: KEYS (in setType: aSet, in reference: keyCreate,
+                                       in reference: keyDestroy)               is action "HSH_KEYS";
+
+      const proc: (ref setType: dest) ::= (in setType: source) is func
+        begin
+          CREATE(dest, source, setType.keyCreate, setType.keyDestroy,
+              setType.dataCreate, setType.dataDestroy);
+        end func;
+
+      const proc: destroy (ref setType: oldSet) is func
+        begin
+          DESTROY(oldSet, setType.keyDestroy, setType.dataDestroy);
+        end func;
+
+      const proc: (inout setType: dest) := (in setType: source) is func
+        begin
+          COPY(dest, source, setType.keyCreate, setType.keyDestroy,
+              setType.dataCreate, setType.dataDestroy);
+        end func;
+
+      const boolean: isBitset (attr setType)                                   is FALSE;
+
+      (**
+       *  Compute the cardinality of a set.
+       *  @return the number of elements in ''aSet''.
+       *)
+      const func integer: card (in setType: aSet)                              is action "HSH_LNG";
+
+      (**
+       *  Compute pseudo-random element from ''aSet''.
+       *  The random values are uniform distributed.
+       *  @return a random element such that rand(aSet) in aSet holds.
+       *  @exception RANGE_ERROR If ''aSet'' is empty.
+       *)
+      const func baseType: rand (in setType: aSet)                             is action "HSH_RAND_KEY";
+
+      const func setType: (attr setType) . _GENERATE_EMPTY_SET                 is action "HSH_EMPTY";
+      const setType: (attr setType) . EMPTY_SET                                is setType._GENERATE_EMPTY_SET;
+      const setType: (attr setType) . value                                    is setType._GENERATE_EMPTY_SET;
+
+      const proc: INCL (inout setType: aSet, in baseType: hashKey,
+                        in boolean: data, in integer: hashCode,
+                        in reference: keyCompare, in reference: keyCreate,
+                        in reference: dataCreate, in reference: dataCopy)      is action "HSH_INCL";
+      const proc: EXCL (inout setType: aSet, in baseType: hashKey,
+                        in integer: hashCode, in reference: keyCompare,
+                        in reference: keyDestroy, in reference: dataDestroy)   is action "HSH_EXCL";
+      const func boolean: CONTAINS (in setType: aSet, in baseType: hashKey,
+                                    in integer: hashCode,
+                                    in reference: keyCompare)                  is action "HSH_CONTAINS";
+
+      (**
+       *  Set membership test.
+       *  Determine if ''aValue'' is a member of the set ''aSet''.
+       *  @return TRUE if ''aValue'' is a member of  ''aSet'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in baseType: aValue) in (in setType: aSet) is
+        return CONTAINS(aSet, aValue, hashCode(aValue), setType.keyCompare);
+
+      (**
+       *  Negated set membership test.
+       *  Determine if ''aValue'' is not a member of the set ''aSet''.
+       *  @return FALSE if ''aValue'' is a member of  ''aSet'',
+       *          TRUE otherwise.
+       *)
+      const func boolean: (in baseType: aValue) not in (in setType: aSet) is
+        return not CONTAINS(aSet, aValue, hashCode(aValue), setType.keyCompare);
+
+      (**
+       *  Add ''aValue'' to the set ''aSet''.
+       *  If ''aValue'' is already in ''aSet'' then ''aSet'' stays unchanged.
+       *  @exception MEMORY_ERROR If there is not enough memory.
+       *)
+      const proc: incl (inout setType: aSet, in baseType: aValue) is func
+        begin
+          INCL(aSet, aValue, TRUE, hashCode(aValue), setType.keyCompare,
+              setType.keyCreate, setType.dataCreate, setType.dataCopy);
+        end func;
+
+      (**
+       *  Remove ''aValue'' from the set ''aSet''.
+       *  If ''aValue'' is not element of ''aSet'' then ''aSet'' stays unchanged.
+       *)
+      const proc: excl (inout setType: aSet, in baseType: aValue) is func
+        begin
+          EXCL(aSet, aValue, hashCode(aValue), setType.keyCompare,
+              setType.keyDestroy, setType.dataDestroy);
+        end func;
+
+      (**
+       *  Add or remove ''aValue'' to respectively from ''sSet''.
+       *  Adding an existing value or remove a non-existing value
+       *  leaves ''aSet'' unchanged.
+       *  @exception MEMORY_ERROR If there is not enough memory.
+       *)
+      const proc: (inout setType: aSet) @:= [ (in baseType: aValue) ] (in boolean: isElement) is func
+        begin
+          if isElement then
+            INCL(aSet, aValue, TRUE, hashCode(aValue), setType.keyCompare,
+                setType.keyCreate, setType.dataCreate, setType.dataCopy);
+          else
+            EXCL(aSet, aValue, hashCode(aValue), setType.keyCompare,
+                setType.keyDestroy, setType.dataDestroy);
+          end if;
+        end func;
+
+      (**
+       *  For-loop where ''variable'' loops over the elements of the set ''aSet''.
+       *)
+      const proc: for (inout baseType: variable) range (in setType: aSet) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          FOR_KEY(variable, aSet, statements, setType.keyCopy);
+        end func;
+
+      (**
+       *  Obtain an array containing all the values in ''aSet''.
+       *  @return all the values from ''aSet''.
+       *)
+      const func array baseType: toArray (in setType: aSet) is
+        return KEYS(aSet, setType.keyCreate, setType.keyDestroy);
+
+      (**
+       *  Union of two sets.
+       *  @return the union of the two sets.
+       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *)
+      const func setType: (in setType: set1) | (in setType: set2) is func
+        result
+          var setType: union is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          union := set1;
+          for element range set2 do
+            incl(union, element);
+          end for;
+        end func;
+
+      (**
+       *  Intersection of two sets.
+       *  @return the intersection of the two sets.
+       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *)
+      const func setType: (in setType: set1) & (in setType: set2) is func
+        result
+          var setType: intersection is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set1 do
+            if element in set2 then
+              incl(intersection, element);
+            end if;
+          end for;
+        end func;
+
+      (**
+       *  Symmetric difference of two sets.
+       *  @return the symmetric difference of the two sets.
+       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *)
+      const func setType: (in setType: set1) >< (in setType: set2) is func
+        result
+          var setType: difference is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set1 do
+            if element not in set2 then
+              incl(difference, element);
+            end if;
+          end for;
+          for element range set2 do
+            if element not in set1 then
+              incl(difference, element);
+            end if;
+          end for;
+        end func;
+
+      (**
+       *  Difference of two sets.
+       *  @return the difference of the two sets.
+       *  @exception MEMORY_ERROR Not enough memory for the result.
+       *)
+      const func setType: (in setType: set1) - (in setType: set2) is func
+        result
+          var setType: difference is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          difference := set1;
+          for element range set2 do
+            excl(difference, element);
+          end for;
+        end func;
+
+      (**
+       *  Assign the union of set2 and dest to dest.
+       *  @exception MEMORY_ERROR Not enough memory to create dest.
+       *)
+      const proc: (inout setType: dest) |:= (in setType: set2) is func
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set2 do
+            incl(dest, element);
+          end for;
+        end func;
+
+      (**
+       *  Assign the intersection of set2 and dest to dest.
+       *  @exception MEMORY_ERROR Not enough memory to create dest.
+       *)
+      const proc: (inout setType: dest) &:= (in setType: set2) is func
+        local
+          var setType: intersection is setType.EMPTY_SET;
+          var baseType: element is baseType.value;
+        begin
+          for element range dest do
+            if element in set2 then
+              incl(intersection, element);
+            end if;
+          end for;
+          dest := intersection;
+        end func;
+
+      (**
+       *  Check if two sets are equal.
+       *  @return TRUE if the two sets are equal,
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in setType: set1) = (in setType: set2) is func
+        result
+          var boolean: isEqual is TRUE;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set1 do
+            if element not in set2 then
+              isEqual := FALSE;
+            end if;
+          end for;
+          for element range set2 do
+            if element not in set1 then
+              isEqual := FALSE;
+            end if;
+          end for;
+        end func;
+
+      (**
+       *  Check if two sets are not equal.
+       *  @return FALSE if the two sets are equal,
+       *          TRUE otherwise.
+       *)
+      const func boolean: (in setType: set1) <> (in setType: set2) is
+        return not set1 = set2;
+
+      (**
+       *  Determine if ''set1'' is a proper subset of ''set2''.
+       *  ''set1'' is a proper subset of ''set2'' if
+       *   set1 <= set2 and set1 <> set2
+       *  holds.
+       *  @return TRUE if ''set1'' is a proper subset of ''set2'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in setType: set1) < (in setType: set2) is func
+        result
+          var boolean: isProperSubset is TRUE;
+        local
+          var baseType: element is baseType.value;
+          var boolean: isEqual is TRUE;
+        begin
+          for element range set1 do
+            if element not in set2 then
+              isProperSubset := FALSE;
+            end if;
+          end for;
+          for element range set2 do
+            if element not in set1 then
+              isEqual := FALSE;
+            end if;
+          end for;
+          isProperSubset := isProperSubset and not isEqual;
+        end func;
+
+      (**
+       *  Determine if ''set1'' is a proper superset of ''set2''.
+       *  ''set1'' is a proper superset of ''set2'' if
+       *   set1 >= set2 and set1 <> set2
+       *  holds.
+       *  @return TRUE if ''set1'' is a proper superset of ''set2'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in setType: set1) > (in setType: set2) is func
+        result
+          var boolean: isProperSuperset is TRUE;
+        local
+          var baseType: element is baseType.value;
+          var boolean: isEqual is TRUE;
+        begin
+          for element range set2 do
+            if element not in set1 then
+              isProperSuperset := FALSE;
+            end if;
+          end for;
+          for element range set1 do
+            if element not in set2 then
+              isEqual := FALSE;
+            end if;
+          end for;
+          isProperSuperset := isProperSuperset and not isEqual;
+        end func;
+
+      (**
+       *  Determine if ''set1'' is a subset of ''set2''.
+       *  ''set1'' is a subset of ''set2'' if no element X exists for which
+       *   X in set1 and X not in set2
+       *  holds.
+       *  @return TRUE if ''set1'' is a subset of ''set2'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in setType: set1) <= (in setType: set2) is func
+        result
+          var boolean: isSubset is TRUE;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set1 do
+            if element not in set2 then
+              isSubset := FALSE;
+            end if;
+          end for;
+        end func;
+
+      (**
+       *  Determine if ''set1'' is a superset of ''set2''.
+       *  ''set1'' is a superset of ''set2'' if no element X exists for which
+       *   X in set2 and X not in set1
+       *  holds.
+       *  @return TRUE if ''set1'' is a superset of ''set2'',
+       *          FALSE otherwise.
+       *)
+      const func boolean: (in setType: set1) >= (in setType: set2) is func
+        result
+          var boolean: isSuperset is TRUE;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set2 do
+            if element not in set1 then
+              isSuperset := FALSE;
+            end if;
+          end for;
+        end func;
+
+      const func setType: { (in baseType: value) } is func
+        result
+          var setType: aSet is setType.EMPTY_SET;
+        begin
+          incl(aSet, value);
+        end func;
+
+      tupleType := tuple baseType;
+      array_type := array baseType;
+
+      const func setType: { (in tupleType: value) } is func
+        result
+          var setType: aSet is setType.EMPTY_SET;
+        local
+          var integer: number is 0;
+        begin
+          for number range 1 to length([] value) do
+            incl(aSet, ([] value)[number]);
+          end for;
+        end func;
+
+      if getobj(str(ref baseType: setElement)) <> NIL then
+        (**
+         *  Convert a set to a [[string]].
+         *  @return the string result of the conversion.
+         *  @exception MEMORY_ERROR Not enough memory to represent the result.
+         *)
+        const func string: str (in setType: aSet) is func
+          result
+            var string: stri is "{";
+          local
+            var baseType: setElement is baseType.value;
+          begin
+            for setElement range aSet do
+              if stri <> "{" then
+                stri &:= ", ";
+              end if;
+              stri &:= str(setElement);
+            end for;
+            stri &:= "}";
+          end func;
+
+      end if;
+      end global;
+    end if;
+  end func;

@@ -1,0 +1,178 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  color.s7i     Functions for color processing                    *)
+(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Describes colors with red, green and blue.
+ *)
+const type: color is new struct
+    var integer: redLight is 0;
+    var integer: greenLight is 0;
+    var integer: blueLight is 0;
+  end struct;
+
+
+(**
+ *  Check if two color values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
+const func boolean: (in color: col1) = (in color: col2) is
+  return col1.redLight = col2.redLight and
+         col1.greenLight = col2.greenLight and
+         col1.blueLight = col2.blueLight;
+
+
+(**
+ *  Check if two color values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
+const func boolean: (in color: col1) <> (in color: col2) is
+  return col1.redLight <> col2.redLight or
+         col1.greenLight <> col2.greenLight or
+         col1.blueLight <> col2.blueLight;
+
+
+(**
+ *  Add two colors in an additive color system.
+ *  @return the sum of the two colors.
+ *)
+const func color: (in color: col1) + (in color: col2) is func
+  result
+    var color: sum is color.value;
+  begin
+    sum.redLight :=   (col1.redLight   + col2.redLight)   mdiv 2;
+    sum.greenLight := (col1.greenLight + col2.greenLight) mdiv 2;
+    sum.blueLight :=  (col1.blueLight  + col2.blueLight)  mdiv 2;
+  end func;
+
+
+(**
+ *  Create a color value from the red, green and blue parts.
+ *  @return the created color value.
+ *)
+const func color: color (in integer: red, in integer: green, in integer: blue) is func
+  result
+    var color: aColor is color.value;
+  begin
+    aColor.redLight := red;
+    aColor.greenLight := green;
+    aColor.blueLight := blue;
+  end func;
+
+
+(**
+ *  Create a gray color value from the brightness.
+ *  @return the created color value.
+ *)
+const func color: gray (in integer: brightness) is func
+  result
+    var color: aColor is color.value;
+  begin
+    aColor.redLight := brightness;
+    aColor.greenLight := brightness;
+    aColor.blueLight := brightness;
+  end func;
+
+
+(**
+ *  Compares two colors.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in color: col1, in color: col2) is func
+  result
+    var integer: signumValue is 0;
+  begin
+    if col1.redLight < col2.redLight then
+      signumValue := -1;
+    elsif col1.redLight > col2.redLight then
+      signumValue := 1;
+    elsif col1.greenLight < col2.greenLight then
+      signumValue := -1;
+    elsif col1.greenLight > col2.greenLight then
+      signumValue := 1;
+    elsif col1.blueLight < col2.blueLight then
+      signumValue := -1;
+    elsif col1.blueLight > col2.blueLight then
+      signumValue := 1;
+    end if;
+  end func;
+
+
+(**
+ *  Compute the hash value of a color.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in color: col) is
+  return col.redLight + col.greenLight + col.blueLight;
+
+
+const color: black         is color(0, 0, 0);             (* Black     *)
+const color: dark_red      is color(32768, 0, 0);         (* Maroon  r *)
+const color: dark_green    is color(0, 32768, 0);         (* Green   g *)
+const color: brown         is color(32768, 16384, 0);     (*         b *)
+const color: dark_blue     is color(0, 0, 32768);         (* Navy    N *)
+const color: dark_magenta  is color(32768, 0, 32768);     (* Purple    *)
+const color: dark_cyan     is color(0, 65535, 65535);     (* Aqua      *)
+const color: light_gray    is color(49152, 49152, 49152); (* Silver  x *)
+const color: middle_gray   is color(32768, 32768, 32768);
+const color: dark_gray     is color(16384, 16384, 16384);
+const color: light_red     is color(65535, 0, 0);         (* Red     R *)
+const color: light_green   is color(0, 65535, 0);         (* Lime    G *)
+const color: yellow        is color(65535, 65535, 0);     (* Yellow  Y *)
+const color: light_blue    is color(0, 0, 65535);         (* Blue    B *)
+const color: light_magenta is color(65535, 0, 65535);     (* Fuchsia M *)
+const color: light_cyan    is color(32768, 65535, 65535); (*         c *)
+const color: lavender      is color(32768, 32768, 65535);
+const color: white         is color(65535, 65535, 65535); (* White   X *)
+const color: orange        is color(65535, 32768, 0);     (*         O *)
+const color: amber         is color(49152, 32768, 16384);
+const color: pink          is color(65535, 32768, 32768);
+const color: light_pink    is color(65535, 32768, 65535);
+const color: mint          is color(21845, 57343, 21845);
+const color: forestgreen   is color(8704, 35584, 8704);
+const color: middle_blue   is color(0, 0, 43008);
+
+(* Basic HTML colors: *)
+
+const color: Black         is color(0, 0, 0);
+const color: Maroon        is color(32768, 0, 0);
+const color: Green         is color(0, 32768, 0);
+const color: Navy          is color(0, 0, 32768);
+const color: Silver        is color(49152, 49152, 49152);
+const color: Red           is color(65535, 0, 0);
+const color: Lime          is color(0, 65535, 0);
+const color: Blue          is color(0, 0, 65535);
+const color: Gray          is color(32768, 32768, 32768);
+const color: Purple        is color(32768, 0, 32768);
+const color: Olive         is color(32768, 32768, 0);
+const color: Teal          is color(0, 32768, 32768);
+const color: White         is color(65535, 65535, 65535);
+const color: Fuchsia       is color(65535, 0, 65535);
+const color: Yellow        is color(65535, 65535, 0);
+const color: Aqua          is color(0, 65535, 65535);

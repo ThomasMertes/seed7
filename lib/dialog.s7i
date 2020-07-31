@@ -1,0 +1,188 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dialog.s7i    Dialog support library                            *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "graph_file.s7i";
+
+
+const func PRIMITIVE_WINDOW: buttonWindow (ref keyboard_file: keybd) is DYNAMIC;
+
+
+const func PRIMITIVE_WINDOW: buttonWindow (ref graph_keybd_file: keybd) is action "GKB_WINDOW";
+
+
+const proc: writeButton (inout graph_file: messageFile,
+    in integer: xPos, in integer: yPos, in string: buttonText) is func
+  begin
+    setPosXY(messageFile, xPos + 12, yPos + 14);
+    write(messageFile, buttonText);
+    line(messageFile.win, xPos, yPos, 40, 0, white);
+    line(messageFile.win, xPos, yPos, 0, 20, white);
+    line(messageFile.win, xPos, yPos + 20, 40, 0, dark_gray);
+    line(messageFile.win, xPos + 40, yPos, 0, 20, dark_gray);
+  end func;
+
+
+const proc: writeButton (inout text: messageFile,
+    in integer: xPos, in integer: yPos, in string: buttonText) is DYNAMIC;
+
+
+(**
+ *  Returns the answer (yes or no) of the user to 'messagText'.
+ *  A popup window with the 'messagText' and two buttons (yes and no)
+ *  is displayed. The user can use the keyboard or the mouse to
+ *  respond.
+ *  @return TRUE if 'yes' was pressed and FALSE if 'no' was pressed.
+ *)
+const func boolean: isOkay (in array string: messagText) is func
+  result
+    var boolean: okay is FALSE;
+  local
+    const integer: charHeight is 16;
+    const integer: charWidth  is  8;
+    var integer: windowHeight is 0;
+    var integer: windowWidth is 0;
+    var PRIMITIVE_WINDOW: popupWindow is PRIMITIVE_WINDOW.value;
+    var text: messageFile is STD_NULL;
+    var text: buttonTextFile is STD_NULL;
+    var integer: number is 0;
+    var integer: yesButtonXPos is 0;
+    var integer: noButtonXPos is 0;
+    var integer: buttonYPos is 0;
+    var boolean: yesButtonActive is FALSE;
+    var boolean: finished is FALSE;
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var char: ch is ' ';
+  begin
+    windowHeight := 84 + length(messagText) * charHeight;
+    windowWidth := 200;
+    for number range 1 to length(messagText) do
+      if length(messagText[number]) * charWidth > windowWidth then
+        windowWidth := length(messagText[number]) * charWidth;
+      end if;
+    end for;
+    popupWindow := PRIMITIVE_GRAPHIC_OPEN(0, 0, windowWidth, windowHeight, "Yes or No");
+    clear(popupWindow, light_gray);
+    if odd(length(messagText)) then
+      messageFile := open(popupWindow);
+    else
+      messageFile := open(popupWindow, 0, charHeight div 2);
+    end if;
+    buttonTextFile := open(popupWindow);
+    color(messageFile, black, light_gray);
+    color(buttonTextFile, black, light_gray);
+    for number range 1 to length(messagText) do
+      setPos(messageFile, height(messageFile) div 3 - length(messagText) div 2 + number,
+          width(messageFile) div 2 - length(messagText[number]) div 2);
+      writeln(messageFile, messagText[number]);
+    end for;
+    yesButtonXPos := width(popupWindow) div 4;
+    noButtonXPos := width(popupWindow) div 4 * 3 - 40;
+    buttonYPos := height(popupWindow) div 3 * 2 - 10;
+    writeButton(buttonTextFile, yesButtonXPos, buttonYPos, "Yes");
+    writeButton(buttonTextFile, noButtonXPos, buttonYPos, "No");
+    if yesButtonActive then
+      box(popupWindow, pred(yesButtonXPos), pred(buttonYPos), 43, 23, black);
+    else
+      box(popupWindow, pred(noButtonXPos), pred(buttonYPos), 43, 23, black);
+    end if;
+    ch := upper(getc(KEYBOARD));
+    while not finished do
+      if ch = KEY_MOUSE1 and buttonWindow(KEYBOARD) = popupWindow then
+        xPos := getxpos(KEYBOARD);
+        yPos := getypos(KEYBOARD);
+        if yPos >= buttonYPos  and yPos <= buttonYPos + 20 then
+          if xPos >= yesButtonXPos and xPos <= yesButtonXPos + 40 then
+            okay := TRUE;
+            finished := TRUE;
+          elsif xPos >= noButtonXPos and xPos <= noButtonXPos + 40 then
+            okay := FALSE;
+            finished := TRUE;
+          end if;
+        end if;
+      elsif ch in {KEY_LEFT, KEY_TAB, KEY_BACKTAB} and not yesButtonActive then
+        box(popupWindow, pred(yesButtonXPos), pred(buttonYPos), 43, 23, black);
+        box(popupWindow, pred(noButtonXPos), pred(buttonYPos), 43, 23, light_gray);
+        yesButtonActive := TRUE;
+      elsif ch in {KEY_RIGHT, KEY_TAB, KEY_BACKTAB} and yesButtonActive then
+        box(popupWindow, pred(yesButtonXPos), pred(buttonYPos), 43, 23, light_gray);
+        box(popupWindow, pred(noButtonXPos), pred(buttonYPos), 43, 23, black);
+        yesButtonActive := FALSE;
+      elsif ch = KEY_NL then
+        okay := yesButtonActive;
+        finished := TRUE;
+      elsif ch = 'Y' or ch = 'N' then
+        okay := ch = 'Y';
+        finished := TRUE;
+      end if;
+      if not finished then
+        ch := upper(getc(KEYBOARD));
+      end if;
+    end while;
+    close(messageFile);
+    close(buttonTextFile);
+  end func;
+
+
+const proc: bossMode (inout boolean: doQuit) is func
+  local
+    var PRIMITIVE_WINDOW: savedWindow is PRIMITIVE_WINDOW.value;
+    var text: txt is STD_NULL;
+    var boolean: restored is FALSE;
+    var char: cmd is ' ';
+  begin
+    savedWindow := getPixmap(curr_win);
+    clear(white);
+    txt := open(curr_win, 20, 20);
+    setPos(txt, 3, 1);
+    color(txt, black, white);
+    writeln(txt, "MODES OF OPERATION IN PROGRAMS");
+    writeln(txt);
+    writeln(txt, "Sometimes it is necessary that programs support different modes of operation.");
+    writeln(txt, "It can be necessary to switch between these modes to enhance the workflow.");
+    writeln(txt, "There are several possibilitys to implement such a switch.");
+    writeln(txt);
+    writeln(txt, "1. The use of several windows. In this case the user just switches to another");
+    writeln(txt, "   active window to get another view.");
+    writeln(txt, "2. The use of function keys. In this case function keys allow to change the");
+    writeln(txt, "   operating mode.");
+    writeln(txt);
+    writeln(txt, "The current mode of operation must be explained as well.");
+    writeln(txt, "An explanation could be: Type P to get back to normal mode or Q to quit.");
+    writeln(txt, "That way the user has the possibility to continue or to quit the program.");
+    repeat
+      cmd := getc(KEYBOARD);
+      if cmd in {'Q', 'q'} then
+        doQuit := TRUE;
+      elsif cmd in {'P', 'p'} then
+        put(0, 0, savedWindow, PSET);
+        DRAW_FLUSH;
+        restored := TRUE;
+      end if;
+    until restored or doQuit;
+  end func;

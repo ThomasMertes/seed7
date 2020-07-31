@@ -1,0 +1,803 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bigrat.s7i    Big rational number support library               *)
+(*  Copyright (C) 2006, 2007  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bigint.s7i";
+
+
+(**
+ *  Rational numbers represented with [[bigint|bigInteger]] numerator and denominator.
+ *  The values of the type ''bigRational'' are finite and periodical
+ *  decimal numbers. BigRational literals do not exist. Although
+ *  ''bigRational'' operations cannot overflow, it can happen that
+ *  there is not enough memory to represent a ''bigRational'' value.
+ *  In this case the exception MEMORY_ERROR is raised.
+ *)
+const type: bigRational is new object struct
+    var bigInteger: numerator is 0_;
+    var bigInteger: denominator is 1_;
+  end struct;
+
+
+const proc: normalize (inout bigRational: number) is func
+  begin
+    if number.denominator < 0_ then
+      number.numerator := -number.numerator;
+      number.denominator := -number.denominator;
+    end if;
+  end func;
+
+
+const proc: reduce (inout bigRational: number) is func
+  local
+    var bigInteger: gcd is 0_;
+  begin
+    gcd := gcd(number.numerator, number.denominator);
+    if gcd >= 2_ then
+      number.numerator := number.numerator div gcd;
+      number.denominator := number.denominator div gcd;
+    end if;
+  end func;
+
+
+(**
+ *  Create a ''bigRational'' number from its numerator and denominator.
+ *  @return the created ''bigRational'' value.
+ *)
+const func bigRational: (in bigInteger: numerator) / (in bigInteger: denominator) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := numerator;
+    aRational.denominator := denominator;
+    normalize(aRational);
+    reduce(aRational);
+  end func;
+
+
+(**
+ *  Plus sign for ''bigRational'' numbers.
+ *  @return its operand unchanged.
+ *)
+const func bigRational: + (in bigRational: number) is
+  return number;
+
+
+(**
+ *  Minus sign, negate a ''bigRational'' number.
+ *  @return the negated value of the number.
+ *)
+const func bigRational: - (in bigRational: number) is func
+  result
+    var bigRational: negatedNumber is bigRational.value;
+  begin
+    negatedNumber.numerator := -number.numerator;
+    negatedNumber.denominator := number.denominator;
+  end func;
+
+
+(**
+ *  Add two ''bigRational'' numbers.
+ *  @return the sum of the two numbers.
+ *)
+const func bigRational: (in bigRational: summand1) + (in bigRational: summand2) is func
+  result
+    var bigRational: sum is bigRational.value;
+  local
+    var bigInteger: gcd_denominator is 0_;
+  begin
+    gcd_denominator := gcd(summand1.denominator, summand2.denominator);
+    sum.numerator := (summand1.numerator * summand2.denominator +
+        summand2.numerator * summand1.denominator) div gcd_denominator;
+    sum.denominator := summand1.denominator div gcd_denominator * summand2.denominator;
+    reduce(sum);
+  end func;
+
+
+(**
+ *  Compute the subtraction of two ''bigRational'' numbers.
+ *  @return the difference of the two numbers.
+ *)
+const func bigRational: (in bigRational: minuend) - (in bigRational: subtrahend) is func
+  result
+    var bigRational: difference is bigRational.value;
+  local
+    var bigInteger: gcd_denominator is 0_;
+  begin
+    gcd_denominator := gcd(minuend.denominator, subtrahend.denominator);
+    difference.numerator := (minuend.numerator * subtrahend.denominator -
+        subtrahend.numerator * minuend.denominator) div gcd_denominator;
+    difference.denominator := minuend.denominator div gcd_denominator * subtrahend.denominator;
+    reduce(difference);
+  end func;
+
+
+(**
+ *  Multiply two ''bigRational'' numbers.
+ *  @return the product of the two numbers.
+ *)
+const func bigRational: (in bigRational: factor1) * (in bigRational: factor2) is func
+  result
+    var bigRational: product is bigRational.value;
+  local
+    var bigInteger: gcd1 is 0_;
+    var bigInteger: gcd2 is 0_;
+  begin
+    gcd1 := gcd(factor1.numerator, factor2.denominator);
+    gcd2 := gcd(factor2.numerator, factor1.denominator);
+    product.numerator := (factor1.numerator div gcd1) * (factor2.numerator div gcd2);
+    product.denominator := (factor1.denominator div gcd2) * (factor2.denominator div gcd1);
+  end func;
+
+
+(**
+ *  Compute the division of two ''bigRational'' numbers.
+ *  @return the quotient of the division.
+ *  @exception NUMERIC_ERROR If a division by zero occurs.
+ *)
+const func bigRational: (in bigRational: dividend) / (in bigRational: divisor) is func
+  result
+    var bigRational: quotient is bigRational.value;
+  local
+    var bigInteger: gcd1 is 0_;
+    var bigInteger: gcd2 is 0_;
+  begin
+    gcd1 := gcd(dividend.numerator, divisor.numerator);
+    gcd2 := gcd(divisor.denominator, dividend.denominator);
+    quotient.numerator := (dividend.numerator div gcd1) * (divisor.denominator div gcd2);
+    quotient.denominator := (dividend.denominator div gcd2) * (divisor.numerator div gcd1);
+    normalize(quotient);
+  end func;
+
+
+(**
+ *  Increment a ''bigRational'' number by a delta.
+ *)
+const proc: (inout bigRational: number) +:= (in bigRational: delta) is func
+  local
+    var bigInteger: gcd_denominator is 0_;
+  begin
+    gcd_denominator := gcd(number.denominator, delta.denominator);
+    number.numerator := (number.numerator * delta.denominator +
+        delta.numerator * number.denominator) div gcd_denominator;
+    number.denominator *:= delta.denominator div gcd_denominator;
+    reduce(number);
+  end func;
+
+
+(**
+ *  Decrement a ''bigRational'' number by a delta.
+ *)
+const proc: (inout bigRational: number) -:= (in bigRational: delta) is func
+  local
+    var bigInteger: gcd_denominator is 0_;
+  begin
+    gcd_denominator := gcd(number.denominator, delta.denominator);
+    number.numerator := (number.numerator * delta.denominator -
+        delta.numerator * number.denominator) div gcd_denominator;
+    number.denominator *:= delta.denominator div gcd_denominator;
+    reduce(number);
+  end func;
+
+
+(**
+ *  Multiply a ''bigRational'' number by a factor and assign the result back to number.
+ *)
+const proc: (inout bigRational: number) *:= (in bigRational: factor) is func
+  begin
+    number.numerator *:= factor.numerator;
+    number.denominator *:= factor.denominator;
+    reduce(number);
+  end func;
+
+
+(**
+ *  Divide a ''bigRational'' number by a divisor and assign the result back to number.
+ *)
+const proc: (inout bigRational: number) /:= (in bigRational: divisor) is func
+  begin
+    number.numerator *:= divisor.denominator;
+    number.denominator *:= divisor.numerator;
+    normalize(number);
+    reduce(number);
+  end func;
+
+
+(**
+ *  Compute the exponentiation of a ''bigRational'' base with an integer exponent.
+ *  @return the result of the exponentiation.
+ *)
+const func bigRational: (in bigRational: base) ** (in integer: exponent) is func
+  result
+    var bigRational: power is bigRational.value;
+  begin
+    if exponent >= 0 then
+      power.numerator := base.numerator ** exponent;
+      power.denominator := base.denominator ** exponent;
+    else
+      power.numerator := base.denominator ** (-exponent);
+      power.denominator := base.numerator ** (-exponent);
+      normalize(power);
+    end if;
+  end func;
+
+
+(**
+ *  Check if two ''bigRational'' numbers are equal.
+ *  @return TRUE if both numbers are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bigRational: number1) = (in bigRational: number2) is
+  return number1.numerator   = number2.numerator and
+         number1.denominator = number2.denominator;
+
+
+(**
+ *  Check if two ''bigRational'' numbers are not equal.
+ *  @return FALSE if both numbers are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in bigRational: number1) <> (in bigRational: number2) is
+  return number1.numerator   <> number2.numerator or
+         number1.denominator <> number2.denominator;
+
+
+(**
+ *  Check if number1 is less than number2.
+ *  @return TRUE if number1 is less than number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bigRational: number1) < (in bigRational: number2) is
+  return number1.numerator * number2.denominator <
+         number2.numerator * number1.denominator;
+
+
+(**
+ *  Check if number1 is greater than number2.
+ *  @return TRUE if number1 is greater than number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bigRational: number1) > (in bigRational: number2) is
+  return number1.numerator * number2.denominator >
+         number2.numerator * number1.denominator;
+
+
+(**
+ *  Check if number1 is less than or equal to number2.
+ *  @return TRUE if number1 is less than or equal to number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bigRational: number1) <= (in bigRational: number2) is
+  return number1.numerator * number2.denominator <=
+         number2.numerator * number1.denominator;
+
+
+(**
+ *  Check if number1 is greater than or equal to number2.
+ *  @return TRUE if number1 is greater than or equal to number2,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in bigRational: number1) >= (in bigRational: number2) is
+  return number1.numerator * number2.denominator >=
+         number2.numerator * number1.denominator;
+
+
+(**
+ *  Compare two ''bigRational'' numbers.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in bigRational: number1, in bigRational: number2) is
+  return compare(number1.numerator * number2.denominator,
+                 number2.numerator * number1.denominator);
+
+
+(**
+ *  Compute the hash value of a ''bigRational'' number.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in bigRational: number) is
+  return hashCode(number.numerator) mod 16#40000000 + hashCode(number.denominator) mod 16#40000000;
+
+
+(**
+ *  Return the conversion of a [[bigint|bigInteger]] to a ''bigRational''.
+ *)
+const func bigRational: rat (in bigInteger: number) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := number;
+    aRational.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of an integer to a ''bigRational''.
+ *)
+const func bigRational: bigRational (in integer: number) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := bigInteger(number);
+    aRational.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of an integer to a ''bigRational''.
+ *)
+const func bigRational: (attr bigRational) conv (in integer: number) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := bigInteger(number);
+    aRational.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of a bigInteger to a ''bigRational''.
+ *)
+const func bigRational: bigRational (in bigInteger: number) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := number;
+    aRational.denominator := 1_;
+  end func;
+
+
+(**
+ *  Return the conversion of a bigInteger to a ''bigRational''.
+ *)
+const func bigRational: (attr bigRational) conv (in bigInteger: number) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  begin
+    aRational.numerator := number;
+    aRational.denominator := 1_;
+  end func;
+
+
+(**
+ *  Compute the absolute value of a ''bigRational'' number.
+ *  @return the absolute value.
+ *)
+const func bigRational: abs (in bigRational: number) is func
+  result
+    var bigRational: absoluteValue is bigRational.value;
+  begin
+    absoluteValue.numerator := abs(number.numerator);
+    absoluteValue.denominator := number.denominator;
+  end func;
+
+
+(**
+ *  Return a ''bigRational'' number truncated towards negative infinity.
+ *)
+const func bigInteger: floor (in bigRational: number) is
+  return number.numerator mdiv number.denominator;
+
+
+(**
+ *  Return a ''bigRational'' number rounded up towards positive infinity.
+ *)
+const func bigInteger: ceil (in bigRational: number) is
+  return -(number.numerator mdiv -number.denominator);
+
+
+(**
+ *  Return a ''bigRational'' number truncated towards zero.
+ *)
+const func bigInteger: trunc (in bigRational: number) is
+  return number.numerator div number.denominator;
+
+
+(**
+ *  Round a ''bigRational'' number to the nearest [[bigint|bigInteger]].
+ *  Halfway cases are rounded away from zero.
+ *  @return the rounded value.
+ *)
+const func bigInteger: round (in bigRational: number) is func
+  result
+    var bigInteger: int_val is 0_;
+  begin
+    if number.numerator >= 0_ then
+      int_val := (2_ * number.numerator + number.denominator) div (2_ * number.denominator);
+    else
+      int_val := (2_ * number.numerator - number.denominator) div (2_ * number.denominator);
+    end if;
+  end func;
+
+
+(**
+ *  Round a ''bigRational'' number with a decimal ''precision''.
+ *  Halfway cases are rounded away from zero.
+ *  @return the rounded value.
+ *)
+const func bigRational: round10 (in bigRational: number, in integer: precision) is func
+  result
+    var bigRational: rounded is bigRational.value;
+  begin
+    if precision < 0 then
+      rounded.numerator := (abs(number.numerator) div 10_ ** pred(-precision) +
+                           number.denominator * 5_) div (number.denominator * 10_) *
+                           10_ ** (-precision);
+      rounded.denominator := 1_;
+    else
+      rounded.numerator := (abs(number.numerator) * 10_ ** succ(precision) +
+                           number.denominator * 5_) div (number.denominator * 10_);
+      rounded.denominator := 10_ ** precision;
+    end if;
+    if number.numerator < 0_ then
+      rounded.numerator := -rounded.numerator;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the minimum of two ''bigRational'' numbers.
+ *  @return the minimum of the two numbers.
+ *)
+const func bigRational: min (in bigRational: value1, in bigRational: value2) is func
+  result
+    var bigRational: minimum is bigRational.value;
+  begin
+    if value1 < value2 then
+      minimum := value1;
+    else
+      minimum := value2;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the maximum of two ''bigRational'' numbers.
+ *  @return the maximum of the two numbers.
+ *)
+const func bigRational: max (in bigRational: value1, in bigRational: value2) is func
+  result
+    var bigRational: maximum is bigRational.value;
+  begin
+    if value1 > value2 then
+      maximum := value1;
+    else
+      maximum := value2;
+    end if;
+  end func;
+
+
+const type: BIG_REMAINDER_HASH_TYPE is hash [bigInteger] integer;
+
+
+(**
+ *  Convert a ''bigRational'' number to a [[string]].
+ *  The number is converted to a [[string]] with a decimal representation
+ *  (e.g.: "1.25"). The representation has a decimal point and at
+ *  least one digit before and after the decimal point. Negative
+ *  numbers are preceded by a minus sign (e.g.: "-1.25"). The
+ *  decimal number can have repeating decimals, which are enclosed
+ *  in parentheses ("e.g.: "0.(3)"). The repeating decimals will
+ *  not start before the decimal point.
+ *  @return the string result of the conversion.
+ *)
+const func string: str (in bigRational: number) is func
+  result
+    var string: stri is "";
+  local
+    var BIG_REMAINDER_HASH_TYPE: remainderHash is BIG_REMAINDER_HASH_TYPE.value;
+    var quotRem: quotAndRem is quotRem.value;
+    var integer: pos is 0;
+  begin
+    if number.denominator = 0_ then
+      if number.numerator > 0_ then
+        stri := "Infinity";
+      elsif number.numerator = 0_ then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    else
+      quotAndRem := abs(number.numerator) divRem number.denominator;
+      stri := str(quotAndRem.quotient);
+      stri &:= ".";
+      if quotAndRem.remainder = 0_ then
+        stri &:= "0";
+      else
+        repeat
+          remainderHash @:= [quotAndRem.remainder] length(stri);
+          quotAndRem.remainder *:= 10_;
+          quotAndRem := quotAndRem.remainder divRem number.denominator;
+          stri &:= str(quotAndRem.quotient);
+        until quotAndRem.remainder = 0_ or quotAndRem.remainder in remainderHash;
+        if quotAndRem.remainder <> 0_ then
+          pos := remainderHash[quotAndRem.remainder];
+          stri := stri[.. pos] & "(" & stri[succ(pos) ..] & ")";
+        end if;
+      end if;
+      if number.numerator < 0_ then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a ''bigRational'' number to a ''bigRational'' literal.
+ *  @return the ''bigRational'' literal.
+ *)
+const func string: literal (in bigRational: number) is
+    return "bigRational(" & literal(str(number)) & ")";
+
+
+(**
+ *  Convert a ''bigRational'' number to a [[string]] in decimal fixed point notation.
+ *  The number is rounded to the specified number of digits (''precision'').
+ *  Halfway cases are rounded away from zero. Except for a ''precision'' of
+ *  zero the representation has a decimal point and at least one digit
+ *  before and after the decimal point. Negative numbers are preceded by
+ *  a minus sign (e.g.: "-1.25"). If all digits in the result are 0 a
+ *  possible negative sign is omitted.
+ *   1_/64_ digits 7     returns "0.0156250"
+ *   1_/64_ digits 4     returns "0.0156"
+ *   1_/64_ digits 2     returns "0.02"
+ *   355_/113_ digits 6  returns "3.141593"
+ *   22_/7_ digits 0     returns "3"
+ *   -1_/2_ digits 1     returns "-1"
+ *   1_/0_ digits 5      returns "Infinity"
+ *   -1_/0_ digits 6     returns "-Infinity"
+ *   0_/0_ digits 7      returns "NaN"
+ *   -1_/2048_ digits 3  returns "0.000"
+ *  @param precision Number of digits after the decimal point.
+ *         If the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
+ *)
+const func string: (in bigRational: number) digits (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var bigInteger: mantissa is 0_;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number.denominator = 0_ then
+      if number.numerator > 0_ then
+        stri := "Infinity";
+      elsif number.numerator = 0_ then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    else
+      mantissa := (abs(number.numerator) * 10_ ** succ(precision) +
+                  number.denominator * 5_) div (number.denominator * 10_);
+      stri := str(mantissa);
+      if precision >= length(stri) then
+        stri := "0" mult (precision - length(stri) + 1) & stri;
+      end if;
+      if precision <> 0 then
+        stri := stri[ .. length(stri) - precision] & "." &
+            stri[length(stri) - precision + 1 .. ];
+      end if;
+      if number.numerator < 0_ and mantissa <> 0_ then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+const func integer: decimalExponent (in bigRational: number) is func
+  result
+    var integer: exponent is 0;
+  begin
+    if abs(number.numerator) >= number.denominator then
+      exponent := ord(log10(abs(number.numerator) div number.denominator));
+    else
+      exponent := -ord(log10(number.denominator div abs(number.numerator))) - 1;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a ''bigRational'' number to a [[string]] in scientific notation.
+ *  Scientific notation uses a decimal significand and a decimal exponent.
+ *  The significand has an optional sign and exactly one digit before the
+ *  decimal point. The fractional part of the significand is rounded
+ *  to the specified number of digits (''precision''). Halfway cases are
+ *  rounded away from zero. The fractional part is followed by the
+ *  letter e and an exponent, which is always signed. The value zero is
+ *  never written with a negative sign.
+ *   1_/64_ sci 4     returns "1.5625e-2"
+ *   1_/64_ sci 3     returns "1.563e-2"
+ *   1_/64_ sci 2     returns "1.56e-2"
+ *   355_/113_ sci 6  returns "3.141593e+0"
+ *   22_/7_ sci 0     returns "3e+0"
+ *   -1_/2_ sci 1     returns "-5.0e-1"
+ *   1_/0_ sci 5      returns "Infinity"
+ *   -1_/0_ sci 6     returns "-Infinity"
+ *   0_/0_ sci 7      returns "NaN"
+ *   -1_/2048_ sci 3  returns "-4.883e-4"
+ *   -0_/1_ sci 2     returns "0.00e+0"
+ *  @param precision Number of digits after the decimal point.
+ *         If the ''precision'' is zero the decimal point is omitted.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR If the ''precision'' is negative.
+ *)
+const func string: (in bigRational: number) sci (in integer: precision) is func
+  result
+    var string: stri is "";
+  local
+    var integer: exponent is 0;
+    var bigInteger: mantissa is 0_;
+  begin
+    if precision < 0 then
+      raise RANGE_ERROR;
+    elsif number.denominator = 0_ then
+      if number.numerator > 0_ then
+        stri := "Infinity";
+      elsif number.numerator = 0_ then
+        stri := "NaN";
+      else
+        stri := "-Infinity";
+      end if;
+    elsif number.numerator = 0_ then
+      if precision = 0 then
+        stri := "0e+0";
+      else
+        stri := "0." & "0" mult precision & "e+0";
+      end if;
+    else
+      exponent := decimalExponent(number);
+      if succ(precision) >= exponent then
+        mantissa := (abs(number.numerator) * 10_ ** succ(precision - exponent) +
+                    number.denominator * 5_) div (number.denominator * 10_);
+      else
+        mantissa := (abs(number.numerator) div 10_ ** pred(exponent - precision) +
+                    number.denominator * 5_) div (number.denominator * 10_);
+      end if;
+      stri := str(mantissa);
+      if length(stri) > succ(precision) then
+        # Rounding up increased the number of digits.
+        incr(exponent);
+        stri := stri[.. succ(precision)];
+      end if;
+      if precision <> 0 then
+        stri := stri[1 len 1] & "." & stri[2 .. ];
+      end if;
+      if exponent >= 0 then
+        stri &:= "e+" <& exponent;
+      else
+        stri &:= "e" <& exponent;
+      end if;
+      if number.numerator < 0_ then
+        stri := "-" & stri;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a [[string]] to a ''bigRational'' number.
+ *  The [[string]] must contain a fraction (e.g.: "3/5") or a decimal number
+ *  (e.g.: "1.25"). In a fraction numerator and denominator are separated
+ *  with a slash (/). A decimal number can have repeating decimals,
+ *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
+ *  decimals are not allowed to start before the decimal point.
+ *   bigRational("3/5")         returns   3_ /   5_
+ *   bigRational("1.25")        returns   5_ /   4_
+ *   bigRational("0.(3)")       returns   1_ /   3_
+ *   bigRational("1.23(45)")    returns 679_ / 550_
+ *   bigRational("3.(142857)")  returns  22_ /   7_
+ *   bigRational("0.(846153)")  returns  11_ /  13_
+ *  @return the ''bigRational'' result of the conversion.
+ *  @exception RANGE_ERROR If stri contains not a valid ''bigRational'' value.
+ *)
+const func bigRational: bigRational (in var string: stri) is func
+  result
+    var bigRational: aRational is bigRational.value;
+  local
+    var boolean: negative is FALSE;
+    var string: fraction is "";
+    var string: period is "";
+  begin
+    if stri <> "" then
+      if stri[1] = '-' then
+        stri := stri[2 ..];
+        negative := TRUE;
+      elsif stri[1] = '+' then
+        stri := stri[2 ..];
+      end if;
+      aRational.numerator := bigInteger(getint(stri));
+      if stri[1] = '/' then
+        stri := stri[2 ..];
+        aRational.denominator := bigInteger(getint(stri));
+        reduce(aRational);
+      elsif stri[1] = '.' then
+        stri := stri[2 ..];
+        if startsWith(stri, "(") then
+          stri := stri[2 ..];
+          period := getint(stri);
+          aRational.denominator := 1_;
+          aRational +:= bigInteger(period) / pred(10_ ** length(period));
+          if stri[1] = ')' then
+            stri := stri[2 ..];
+          end if;
+        else
+          fraction := getint(stri);
+          aRational.denominator := 10_ ** length(fraction);
+          aRational.numerator *:= aRational.denominator;
+          aRational.numerator +:= bigInteger(fraction);
+          if startsWith(stri, "(") then
+            stri := stri[2 ..];
+            period := getint(stri);
+            aRational +:= bigInteger(period) / (pred(10_ ** length(period)) * aRational.denominator);
+            if stri[1] = ')' then
+              stri := stri[2 ..];
+            end if;
+          end if;
+        end if;
+        reduce(aRational);
+      end if;
+      if stri <> "" then
+        raise RANGE_ERROR;
+      elsif negative then
+        aRational.numerator := -aRational.numerator;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a [[string]] to a ''bigRational'' number.
+ *  The [[string]] must contain a fraction (e.g.: "3/5") or a decimal number
+ *  (e.g.: "1.25"). In a fraction numerator and denominator are separated
+ *  with a slash (/). A decimal number can have repeating decimals,
+ *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
+ *  decimals are not allowed to start before the decimal point.
+ *   bigRational parse "3/5"         returns   3_ /   5_
+ *   bigRational parse "1.25"        returns   5_ /   4_
+ *   bigRational parse "0.(3)"       returns   1_ /   3_
+ *   bigRational parse "1.23(45)"    returns 679_ / 550_
+ *   bigRational parse "3.(142857)"  returns  22_ /   7_
+ *   bigRational parse "0.(846153)"  returns  11_ /  13_
+ *  @return the ''bigRational'' result of the conversion.
+ *  @exception RANGE_ERROR If stri contains not a valid ''bigRational'' value.
+ *)
+const func bigRational: (attr bigRational) parse (in string: stri) is
+    return bigRational(stri);
+
+
+enable_io(bigRational);
+
+
+# Allows 'array bigRational' everywhere without extra type definition.
+const type: _bigRationalArray is array bigRational;

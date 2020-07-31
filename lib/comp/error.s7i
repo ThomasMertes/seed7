@@ -1,0 +1,178 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  error.s7i     Support to raise exceptions.                      *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const func string: raiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "raiseError(";
+    expr &:= exceptionName;
+    expr &:= ");";
+  end func;
+
+
+const func string: intRaiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "intRaiseError(";
+    expr &:= exceptionName;
+    expr &:= ")";
+  end func;
+
+
+const func string: bigRaiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "bigRaiseError(";
+    expr &:= exceptionName;
+    expr &:= ")";
+  end func;
+
+
+const func string: strRaiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "strRaiseError(";
+    expr &:= exceptionName;
+    expr &:= ")";
+  end func;
+
+
+const func string: refRaiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "refRaiseError(";
+    expr &:= exceptionName;
+    expr &:= ")";
+  end func;
+
+
+const proc: warning (DOES_RAISE, in string: exceptionName, in expr_type: c_expr) is func
+  begin
+    noop;
+    # writeln("*** " <& c_expr.currentFile <& "(" <& c_expr.currentLine <&
+    #         "): Expression raises " <& exceptionName <& ".");
+  end func;
+
+
+const proc: checkWarning (CATCH_WITH_SUPPRESSED_CHECK, in string: exceptionName, in reference: place) is func
+  begin
+    if  (not (string_index_check and bstring_index_check and array_index_check) and exceptionName = "INDEX_ERROR") or
+        (not integer_division_check and exceptionName = "NUMERIC_ERROR") or
+        (not integer_overflow_check and exceptionName = "OVERFLOW_ERROR") or
+        (not (function_range_check and conversion_range_check) and exceptionName = "RANGE_ERROR") then
+      writeln("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
+              "): Catch of " <& exceptionName <& " although the checks are suppressed.");
+    end if;
+  end func;
+
+
+const proc: checkWarning (CATCH_OTHERWISE_WITH_SUPPRESSED_CHECK, in reference: place) is func
+  local
+    var array string: exceptionNameList is 0 times "";
+    var integer: index is 0;
+  begin
+    if not (string_index_check and bstring_index_check and array_index_check) then
+      exceptionNameList &:= "INDEX_ERROR";
+    end if;
+    if not integer_division_check then
+      exceptionNameList &:= "NUMERIC_ERROR";
+    end if;
+    if not integer_overflow_check then
+      exceptionNameList &:= "OVERFLOW_ERROR";
+    end if;
+    if not (function_range_check and conversion_range_check) then
+      exceptionNameList &:= "RANGE_ERROR";
+    end if;
+    if length(exceptionNameList) <> 0 then
+      write("*** " <& sourceNameString(file(place)) <& "(" <& line(place) <&
+            "): Catch of otherwise although the checks for ");
+      for index range 1 to pred(length(exceptionNameList)) do
+        if index <> 1 then
+          write(", ");
+        end if;
+        write(exceptionNameList[index]);
+      end for;
+      if length(exceptionNameList) >= 2 then
+        write(" and ");
+      end if;
+      write(exceptionNameList[length(exceptionNameList)]);
+      writeln(" are suppressed.");
+    end if;
+  end func;
+
+
+const proc: error (WHEN_OVERLAPPING, in bitset: overlappingWhenValues,
+    in reference: current_expression) is func
+  begin
+   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+            "): When values " <& overlappingWhenValues <& " do overlap.");
+  end func;
+
+
+const proc: error (VARIABLE_WHEN, in reference: current_expression) is func
+  begin
+   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+            "): When value must be constant.");
+  end func;
+
+
+const proc: error (FORWARD_CALLED, in reference: current_expression,
+    in reference: function) is func
+  begin
+   writeln("*** " <& file(current_expression) <& "(" <& line(current_expression) <&
+            "): Forward defined function called.");
+   writeln("*** " <& file(function) <& "(" <& line(function) <&
+            "): Forward definition of the called function.");
+  end func;
+
+
+const proc: checkRangeFromZero (in string: number_name, in string: beyond,
+    inout expr_type: c_expr) is func
+
+  begin
+    if ccConf.TWOS_COMPLEMENT_INTTYPE then
+      c_expr.expr &:= "(uintType)";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ">=(uintType)";
+      c_expr.expr &:= beyond;
+    else
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "<0||";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ">=";
+      c_expr.expr &:= beyond;
+    end if;
+  end func;

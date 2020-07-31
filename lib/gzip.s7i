@@ -1,0 +1,445 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  gzip.s7i      Gzip compression support library                  *)
+(*  Copyright (C) 2008 - 2013, 2015, 2019, 2020  Thomas Mertes      *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "inflate.s7i";
+include "inflatefile.s7i";
+include "deflate.s7i";
+include "bytedata.s7i";
+include "time.s7i";
+include "crc32.s7i";
+
+
+const string: GZIP_MAGIC is "\31;\139;";  # Identification for gzip format
+
+
+const proc: readGzipHeader (in string: stri, inout integer: bytePos) is func
+  local
+    var integer: compressionMethod is 0;
+    var integer: flags is 0;
+    var boolean: flagFtext is FALSE;
+    var boolean: flagFhcrc is FALSE;
+    var boolean: flagFextra is FALSE;
+    var boolean: flagFname is FALSE;
+    var boolean: flagFcomment is FALSE;
+    var integer: mtime is 0;
+    var integer: extraFlags is 0;
+    var integer: operatingSystem is 0;
+    var integer: extraLength is 0;
+    var string: originalFileName is "";
+    var string: fileComment is "";
+    var integer: crc16 is 0;
+  begin
+    compressionMethod := ord(stri[3]);
+    flags := ord(stri[4]);
+    flagFtext    := odd(flags);
+    flagFhcrc    := odd(flags >> 1);
+    flagFextra   := odd(flags >> 2);
+    flagFname    := odd(flags >> 3);
+    flagFcomment := odd(flags >> 4);
+    mtime := ord(stri[5]) + (ord(stri[6]) << 8) + (ord(stri[7]) << 16) + (ord(stri[8]) << 24);
+    extraFlags := ord(stri[9]);
+    operatingSystem := ord(stri[10]);
+    bytePos := 11;
+    if flagFextra then
+      extraLength := ord(stri[11]) + (ord(stri[12]) << 8);
+      bytePos +:= 2 + extraLength;
+    end if;
+    if flagFname then
+      originalFileName := getAsciiz(stri, bytePos);
+    end if;
+    if flagFcomment then
+      fileComment := getAsciiz(stri, bytePos);
+    end if;
+    if flagFhcrc then
+      crc16 := ord(stri[bytePos]) + (ord(stri[bytePos + 1]) << 8);
+      bytePos +:= 2;
+    end if;
+  end func;
+
+
+const proc: readGzipHeader (inout file: compressed) is func
+  local
+    var integer: compressionMethod is 0;
+    var integer: flags is 0;
+    var boolean: flagFtext is FALSE;
+    var boolean: flagFhcrc is FALSE;
+    var boolean: flagFextra is FALSE;
+    var boolean: flagFname is FALSE;
+    var boolean: flagFcomment is FALSE;
+    var integer: mtime is 0;
+    var integer: extraFlags is 0;
+    var integer: operatingSystem is 0;
+    var integer: extraLength is 0;
+    var string: extraData is "";
+    var string: originalFileName is "";
+    var string: fileComment is "";
+    var integer: crc16 is 0;
+  begin
+    compressionMethod := ord(getc(compressed));
+    flags := ord(getc(compressed));
+    flagFtext    := odd(flags);
+    flagFhcrc    := odd(flags >> 1);
+    flagFextra   := odd(flags >> 2);
+    flagFname    := odd(flags >> 3);
+    flagFcomment := odd(flags >> 4);
+    mtime := getUInt32Le(compressed);
+    extraFlags := ord(getc(compressed));
+    operatingSystem := ord(getc(compressed));
+    if flagFextra then
+      extraLength := getUInt16Le(compressed);
+      extraData := gets(compressed, extraLength);
+    end if;
+    if flagFname then
+      originalFileName := getAsciiz(compressed);
+    end if;
+    if flagFcomment then
+      fileComment := getAsciiz(compressed);
+    end if;
+    if flagFhcrc then
+      crc16 := getUInt16Le(compressed);
+    end if;
+  end func;
+
+
+(**
+ *  Decompress a string that was compressed with zlib (RFC 1950).
+ *  Zlib uses the DEFLATE compression algorithm. DEFLATE uses
+ *  a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE zlib uses a small header.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in zlib format.
+ *)
+const func string: gzuncompress (in string: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var integer: compressionMethod is 0;
+    var integer: cinfo is 0;
+    var integer: flags is 0;
+    var integer: bytePos is 3;
+    var integer: bitPos is 0;
+    var boolean: bfinal is FALSE;
+  begin
+    if (ord(compressed[1]) * 256 + ord(compressed[2])) mod 31 = 0 then
+      compressionMethod := ord(compressed[1]) mod 16;
+      cinfo := (ord(compressed[1]) >> 4) mod 16;
+      flags := ord(compressed[2]);
+      if odd(flags >> 5) then
+        bytePos +:= 4;
+      end if;
+      if compressionMethod = 8 then
+        repeat
+          processCompressedBlock(compressed, bytePos, bitPos, uncompressed, bfinal);
+        until bfinal;
+      end if;
+    end if;
+  end func;
+
+
+const func string: gzcompress (in string: uncompressed) is func
+  result
+    var string: compressed is "\184;\109;";
+  begin
+    deflateBlock(uncompressed, compressed, TRUE);
+  end func;
+
+
+(**
+ *  Decompress a string that was compressed with gzip (RFC 1952).
+ *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
+ *  a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  @return the uncompressed string.
+ *  @exception RANGE_ERROR If ''compressed'' is not in gzip format.
+ *)
+const func string: gunzip (in string: compressed) is func
+  result
+    var string: uncompressed is "";
+  local
+    var integer: bytePos is 0;
+    var integer: bitPos is 0;
+    var boolean: bfinal is FALSE;
+  begin
+    if compressed[1 len 2] = GZIP_MAGIC then
+      readGzipHeader(compressed, bytePos);
+      repeat
+        processCompressedBlock(compressed, bytePos, bitPos, uncompressed, bfinal);
+      until bfinal;
+    end if;
+  end func;
+
+
+const type: gunzipFile is sub null_file struct
+    var file: compressed is STD_NULL;
+    var integer: bitPos is 0;
+    var boolean: bfinal is FALSE;
+    var string: uncompressed is "";
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(gunzipFile, file);
+
+
+(**
+ *  Open a ''gunzipFile'' to decompress a compressed file.
+ *  @return the file opened.
+ *)
+const func file: openGunzipFile (inout file: compressed) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var string: magic is "";
+    var gunzipFile: new_gunzipFile is gunzipFile.value;
+  begin
+    magic := gets(compressed, 2);
+    if magic = GZIP_MAGIC then
+      readGzipHeader(compressed);
+      compressed.bufferChar := getc(compressed);
+      new_gunzipFile.compressed := compressed;
+      newFile := toInterface(new_gunzipFile);
+    end if;
+  end func;
+
+
+(**
+ *  Close a ''gunzipFile''.
+ *)
+const proc: close (in gunzipFile: aFile) is noop;
+
+
+(**
+ *  Read a character from a ''gunzipFile''.
+ *  @return the character read.
+ *)
+const func char: getc (inout gunzipFile: inFile) is func
+  result
+    var char: charRead is ' ';
+  begin
+    while inFile.position > length(inFile.uncompressed) and
+        not inFile.bfinal do
+      processCompressedBlock(inFile.compressed, inFile.bitPos,
+          inFile.uncompressed, inFile.bfinal);
+    end while;
+    if inFile.position <= length(inFile.uncompressed) then
+      charRead := inFile.uncompressed[inFile.position];
+      incr(inFile.position);
+    else
+      charRead := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Read a string with maximum length from a ''gunzipFile''.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *)
+const func string: gets (inout gunzipFile: inFile, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  begin
+    if maxLength <= 0 then
+      if maxLength <> 0 then
+        raise RANGE_ERROR;
+      end if;
+    else
+      while maxLength > succ(length(inFile.uncompressed) - inFile.position) and
+          not inFile.bfinal do
+        processCompressedBlock(inFile.compressed, inFile.bitPos,
+            inFile.uncompressed, inFile.bfinal);
+      end while;
+      if maxLength <= succ(length(inFile.uncompressed) - inFile.position) then
+        striRead := inFile.uncompressed[inFile.position len maxLength];
+        inFile.position +:= maxLength;
+      else
+        striRead := inFile.uncompressed[inFile.position ..];
+        inFile.position := succ(length(inFile.uncompressed));
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in gunzipFile: inFile) is
+  return inFile.position > length(inFile.uncompressed) and inFile.bfinal;
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return EOF, TRUE otherwise.
+ *)
+const func boolean: hasNext (inout gunzipFile: inFile) is func
+  result
+    var boolean: hasNext is FALSE;
+  begin
+    while inFile.position > length(inFile.uncompressed) and
+        not inFile.bfinal do
+      processCompressedBlock(inFile.compressed, inFile.bitPos,
+          inFile.uncompressed, inFile.bfinal);
+    end while;
+    hasNext := inFile.position <= length(inFile.uncompressed);
+  end func;
+
+
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file, or 0 if it cannot be obtained.
+ *)
+const func integer: length (inout gunzipFile: aFile) is func
+  result
+    var integer: length is 0;
+  begin
+    while not aFile.bfinal do
+      processCompressedBlock(aFile.compressed, aFile.bitPos,
+          aFile.uncompressed, aFile.bfinal);
+    end while;
+    length := length(aFile.uncompressed);
+  end func;
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *)
+const proc: seek (inout gunzipFile: aFile, in integer: position) is func
+  begin
+    aFile.position := position;
+  end func;
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *)
+const func integer: tell (in gunzipFile: aFile) is
+  return aFile.position;
+
+
+(**
+ *  Compress a string to the gzip format.
+ *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
+ *  a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  @return the compressed string.
+ *)
+const func string: gzip (in string: uncompressed) is func
+  result
+    var string: compressed is GZIP_MAGIC;
+  begin
+    compressed &:= '\8;';  # Compression method: Deflate
+    compressed &:= '\0;';  # Flags
+    compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
+    compressed &:= '\0;';  # Extra flags
+    compressed &:= '\3;';  # Operating system: Unix
+    deflateBlock(uncompressed, compressed, TRUE);
+    compressed &:= int32AsFourBytesLe(ord(crc32(uncompressed)));
+    compressed &:= int32AsFourBytesLe(length(uncompressed));
+  end func;
+
+
+const type: gzipFile is sub null_file struct
+    var file: destFile is STD_NULL;
+    var deflateData: deflateState is deflateData.value;
+    var bin32: crc32 is bin32(0);
+    var integer: uncompressedLength is 0;
+    var string: uncompressed is "";
+    var string: compressed is GZIP_MAGIC;
+  end struct;
+
+type_implements_interface(gzipFile, file);
+
+
+(**
+ *  Open a ''gzipFile'' to compress data to the gzip format.
+ *  A ''gzipFile'' compresses data that is written to it. The
+ *  compressed data is written to ''destFile'' in the gzip
+ *  format. Gzip uses the DEFLATE compression algorithm. DEFLATE
+ *  uses a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE gzip uses a magic number and a header.
+ *  @return the file opened.
+ *)
+const func file: openGzipFile (inout file: destFile) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var gzipFile: new_gzipFile is gzipFile.value;
+  begin
+    new_gzipFile.destFile := destFile;
+    new_gzipFile.compressed &:= '\8;';  # Compression method: Deflate
+    new_gzipFile.compressed &:= '\0;';  # Flags
+    new_gzipFile.compressed &:= int32AsFourBytesLe(timestamp1970(time(NOW)));
+    new_gzipFile.compressed &:= '\0;';  # Extra flags
+    new_gzipFile.compressed &:= '\3;';  # Operating system: Unix
+    newFile := toInterface(new_gzipFile);
+  end func;
+
+
+(**
+ *  Close a ''gzipFile''.
+ *)
+const proc: close (inout gzipFile: aFile) is func
+  begin
+    beginDeflateBlock(aFile.deflateState, aFile.compressed, TRUE);
+    closeDeflateBlock(aFile.deflateState, aFile.uncompressed, aFile.compressed);
+    aFile.compressed &:= int32AsFourBytesLe(ord(crc32(aFile.uncompressed, aFile.crc32)));
+    aFile.compressed &:= int32AsFourBytesLe(length(aFile.uncompressed) + aFile.uncompressedLength);
+    write(aFile.destFile, aFile.compressed);
+  end func;
+
+
+(**
+ *  Write the [[string]] ''stri'' to a ''gzipFile''.
+ *)
+const proc: write (inout gzipFile: outFile, in string: stri) is func
+  local
+    const integer: blockSize is 1000000;
+  begin
+    if length(outFile.uncompressed) > blockSize and length(stri) <> 0 then
+      beginDeflateBlock(outFile.deflateState, outFile.compressed, FALSE);
+      closeDeflateBlock(outFile.deflateState, outFile.uncompressed, outFile.compressed);
+      write(outFile.destFile, outFile.compressed[.. pred(length(outFile.compressed))]);
+      outFile.deflateState.uPos := 1;
+      outFile.deflateState.dictionary := lookupDict.value;
+      outFile.deflateState.slidingWindow := [0 .. 32767] times -32768;
+      outFile.crc32 := crc32(outFile.uncompressed, outFile.crc32);
+      outFile.uncompressedLength +:= length(outFile.uncompressed);
+      outFile.uncompressed := "";
+      outFile.compressed := outFile.compressed[length(outFile.compressed) len 1];
+    end if;
+    outFile.uncompressed &:= stri;
+  end func;

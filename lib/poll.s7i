@@ -1,0 +1,307 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  poll.s7i      Support for pollData and the poll function        *)
+(*  Copyright (C) 2011  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "sockbase.s7i";
+include "socket.s7i";
+
+const integer: POLLNOTHING is 0;
+const integer: POLLIN      is 1;
+const integer: POLLOUT     is 2;
+const integer: POLLINOUT   is 3;
+
+
+(**
+ *  Type to manage sockets and corresponding event checks and findings.
+ *  ''PollData'' maintains input (checkedEvents) and output (eventFindings)
+ *  of the function [[#poll(inout_pollData)|poll]]. ''PollData'' contains
+ *  a set of sockets. For every [[socket]] the checkedEvents and the
+ *  eventFindings are maintained. The checkedEvents determine, which
+ *  events (POLLIN, POLLOUT, or POLLINOUT) should be checked by
+ *  [[#poll(inout_pollData)|poll]]. ''Poll'' determines the events found
+ *  and stores them as eventFindings. ''PollData'' provides also an
+ *  iterator, which can be used to iterate over checkedEvents and
+ *  eventFindings.
+ *)
+const type: pollData is newtype;
+
+
+IN_PARAM_IS_REFERENCE(pollData);
+
+const proc: destroy (ref pollData: aValue)                                 is action "POL_DESTR";
+const proc: (ref pollData: dest) ::= (ref pollData: source)                is action "POL_CREATE";
+const proc: (inout pollData: dest) := (ref pollData: source)               is action "POL_CPY";
+
+const func pollData: _GENERATE_EMPTY_POLL_DATA (in file: aFile)            is action "POL_EMPTY";
+const pollData: (attr pollData) . value                                    is _GENERATE_EMPTY_POLL_DATA(STD_NULL);
+
+
+(**
+ *  Clears ''pData''.
+ *  All [[socket|sockets]] and all events are removed from ''pData'' and
+ *  the iterator is reset, such that ''hasNext'' returns FALSE.
+ *)
+const proc: clear (inout pollData: pData)                                  is action "POL_CLEAR";
+
+
+(**
+ *  Add ''eventsToCheck'' for ''aSocket'' to ''pData''.
+ *  ''EventsToCheck'' can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding socket.
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data to which the event checks are added.
+ *  @param aSocket Socket for which the events should be checked.
+ *  @param eventsToCheck Events to be added to the checkedEvents
+ *         field of ''pData''.
+ *  @param fileObj File to be returned, if the iterator returns
+ *         files in ''pData''.
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *  @exception FILE_ERROR A limit of the operating system was reached.
+ *)
+const proc: addCheck (inout pollData: pData, in PRIMITIVE_SOCKET: aSocket,
+                      in integer: eventsToCheck, in file: aFile)           is action "POL_ADD_CHECK";
+
+
+const proc: addCheck (inout pollData: pData, in socket: aSocket,
+                      in integer: eventsToCheck) is func
+  begin
+    addCheck(pData, aSocket.sock, eventsToCheck, aSocket);
+  end func;
+
+
+(**
+ *  Add ''eventsToCheck'' for ''aFile'' to ''pData''.
+ *  ''EventsToCheck'' can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding [[socket]].
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data to which the event checks are added.
+ *  @param aFile File for which the events should be checked.
+ *  @param eventsToCheck Events to be added to the checkedEvents
+ *         field of ''pData''.
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *  @exception FILE_ERROR A limit of the operating system was reached.
+ *)
+const proc: addCheck (inout pollData: pData, in file: aFile,
+                      in integer: eventsToCheck) is DYNAMIC;
+
+
+(**
+ *  Remove ''eventsToCheck'' for ''aSocket'' from ''pData''.
+ *  ''EventsToCheck'' can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding [[socket]].
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data from which the event checks are removed.
+ *  @param aSocket Socket for which the events should not be checked.
+ *  @param eventsToCheck Events to be removed from the checkedEvents
+ *         field of ''pData''.
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
+ *)
+const proc: removeCheck (inout pollData: pData, in PRIMITIVE_SOCKET: aSocket,
+                      in integer: eventsToCheck)                           is action "POL_REMOVE_CHECK";
+
+
+const proc: removeCheck (inout pollData: pData, in socket: aSocket,
+                         in integer: eventsToCheck) is func
+  begin
+    removeCheck(pData, aSocket.sock, eventsToCheck);
+  end func;
+
+
+(**
+ *  Remove ''eventsToCheck'' for ''aFile'' from ''pData''.
+ *  ''EventsToCheck'' can have one of the following values:
+ *  * POLLIN check if data can be read from the corresponding [[socket]].
+ *  * POLLOUT check if data can be written to the corresponding socket.
+ *  * POLLINOUT check if data can be read or written (POLLIN or POLLOUT).
+ *  @param pollData Poll data from which the event checks are removed.
+ *  @param aFile File for which the events should not be checked.
+ *  @param eventsToCheck Events to be removed from the checkedEvents
+ *         field of ''pData''.
+ *  @exception RANGE_ERROR Illegal value for ''eventsToCheck''.
+ *)
+const proc: removeCheck (inout pollData: pData, in file: aFile,
+                         in integer: eventsToCheck) is DYNAMIC;
+
+
+(**
+ *  Return the checkedEvents field from ''pData'' for ''aSocket''.
+ *  The [[#poll(inout_pollData)|poll]] function uses the checkedEvents
+ *  as input. The following checkedEvents can be returned:
+ *  * POLLNOTHING no data can be read or written.
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the events added and removed for ''aSocket' with
+ *          ''addCheck'' and ''removeCheck''.
+ *)
+const func integer: getCheck (inout pollData: pData,
+                               in PRIMITIVE_SOCKET: aSocket)               is action "POL_GET_CHECK";
+
+
+const func integer: getCheck (inout pollData: pData, in socket: aSocket) is
+  return getCheck(pData, aSocket.sock);
+
+
+(**
+ *  Return the checkedEvents field from ''pData'' for ''aFile''.
+ *  The [[#poll(inout_pollData)|poll]] function uses the checkedEvents
+ *  as input. The following checkedEvents can be returned:
+ *  * POLLNOTHING no data can be read or written.
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the events added and removed for ''aFile' with
+ *          ''addCheck'' and ''removeCheck''.
+ *)
+const func integer: getCheck (inout pollData: pData, in file: aFile) is DYNAMIC;
+
+
+(**
+ *  Waits for one or more of the checkedEvents from ''pData''.
+ *  ''Poll'' waits until one of the checkedEvents for a
+ *  corresponding socket occurs. If a checkedEvents occurs
+ *  the eventFindings field is assigned a value. The following
+ *  eventFindings values are assigned:
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  @exception FILE_ERROR The system function returns an error.
+ *)
+const proc: poll (inout pollData: pData)                                   is action "POL_POLL";
+
+
+(**
+ *  Return the eventFindings field from ''pData'' for ''aSocket''.
+ *  The [[#poll(inout_pollData)|poll]] function assigns the
+ *  eventFindings for ''aSocket'' to ''pData''. The following
+ *  eventFindings can be returned:
+ *  * POLLNOTHING no data can be read or written.
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the findings of [[#poll(inout_pollData)|poll]]
+ *          concerning ''aSocket''.
+ *)
+const func integer: getFinding (inout pollData: pData,
+                                in PRIMITIVE_SOCKET: aSocket)              is action "POL_GET_FINDING";
+
+
+const func integer: getFinding (inout pollData: pData, in socket: aSocket) is
+  return getFinding(pData, aSocket.sock);
+
+
+(**
+ *  Return the eventFindings field from ''pData'' for ''aFile''.
+ *  The [[#poll(inout_pollData)|poll]] function assigns the
+ *  eventFindings for ''aFile'' to ''pData''. The following
+ *  eventFindings can be returned:
+ *  * POLLNOTHING no data can be read or written.
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read and written (POLLIN and POLLOUT).
+ *  @return POLLNOTHING, POLLIN, POLLOUT or POLLINOUT, depending on
+ *          the findings of [[#poll(inout_pollData)|poll]]
+ *          concerning ''aFile''.
+ *)
+const func integer: getFinding (inout pollData: pData, in file: aFile) is DYNAMIC;
+
+
+(**
+ *  Reset the ''pollData'' iterator to process checkedEvents.
+ *  The following calls of ''hasNext'' and ''nextFile'' refer to
+ *  the checkedEvents of the given ''pollMode''. ''PollMode''
+ *  can have one of the following values:
+ *  * POLLNOTHING don't iterate (''hasNext'' returns FALSE).
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''pollMode''.
+ *)
+const proc: iterChecks (in pollData: pData, in integer: pollMode)           is action "POL_ITER_CHECKS";
+
+
+(**
+ *  Reset the ''pollData'' iterator to process eventFindings.
+ *  The following calls of ''hasNext'' and ''nextFile'' refer to
+ *  the eventFindings of the given ''pollMode''. ''PollMode''
+ *  can have one of the following values:
+ *  * POLLNOTHING don't iterate (''hasNext'' returns FALSE).
+ *  * POLLIN data can be read from the corresponding [[socket]].
+ *  * POLLOUT data can be written to the corresponding socket.
+ *  * POLLINOUT data can be read or written (POLLIN and POLLOUT).
+ *  @exception RANGE_ERROR Illegal value for ''pollMode''.
+ *)
+const proc: iterFindings (in pollData: pData, in integer: pollMode)        is action "POL_ITER_FINDINGS";
+
+
+(**
+ *  Determine if the ''pData'' iterator can deliver another [[file]].
+ *  @return TRUE if ''nextFile'' would return another file from the
+ *          ''pData'' iterator, FALSE otherwise.
+ *)
+const func boolean: hasNext (inout pollData: pData)                        is action "POL_HAS_NEXT";
+
+
+const func file: nextFile (inout pollData: pData, in file: nullFile) is action "POL_NEXT_FILE";
+
+
+(**
+ *  Get the next [[file]] from the ''pData'' iterator.
+ *  Successive calls of ''nextFile'' return all files from the ''pData''
+ *  iterator. The file returned by ''nextFile'' is determined with the
+ *  function ''addCheck''. The files covered by the ''pData'' iterator
+ *  are determined with ''iterChecks'' or ''iterFindings''.
+ *  @return the next file from the ''pData'' iterator, or STD_NULL,
+ *          if no file from the ''pData'' iterator is available.
+ *)
+const func file: nextFile (inout pollData: pData) is
+    return nextFile(pData, STD_NULL);
+
+
+(**
+ *  For-loop to loop over the values of the ''pData'' iterator.
+ *  The for-loop loops over the values determined by the ''pollMode''.
+ *  With ''iterCheck'' or ''iterFindings'' the ''pollMode'' of the
+ *  iterator is determined.
+ *)
+const proc: for (inout file: forVar) range (inout pollData: pData) do
+              (in proc: statements)
+            end for is func
+  begin
+    while hasNext(pData) do
+      forVar := nextFile(pData);
+      statements;
+    end while;
+  end func;

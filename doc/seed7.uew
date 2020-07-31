@@ -1,0 +1,78 @@
+/L20"Seed7" SEED7_LANG Nocase Line Comment = # Block Comment On = (* Block Comment Off = *)  Escape Char = \ String Chars = '" File Extensions = SD7
+/Delimiters = ~!@%^&*()-+=|\/{}[]:;"'<> ,	.?
+/Indent Strings = "BEGIN" "CASE" "DO" "ELSE" "ELSIF" "OTHERWISE" "THEN" "WHEN"
+/Unindent Strings = "END"
+/C1"Reserved words"
+BEGIN
+CASE CONST 
+DO DOWNTO
+ELSE ELSIF END ENUM EXP
+FOR FORWARD FUNC FALSE
+IF IN INCLUDE INOUT IS
+LOCAL 
+NEW
+OF OTHERWISE
+PARAM 
+RANGE REF REPEAT RESULT RETURN 
+SCI STRUCT SYNTAX SYSTEM
+THEN TO TRUE 
+UNTIL
+VAL VAR 
+WHEN WHILE 
+/C2"Predeclared identifiers"
+ARRAY
+BIGINTEGER BIGRATIONAL BITSET BOOLEAN 
+CHAR COLOR COMPLEX 
+DURATION
+EXPR
+FILE FLOAT FUNC
+HASH
+INTEGER
+OBJECT
+PROC PROGRAM
+RATIONAL REFERENCE REF_LIST 
+SET STRING
+TEXT TIME TYPE
+VARFUNC VOID
+/C3"Operators"
++
+-
+>
+<
+^
+:
+=
+:=  
+<>  
+<=  
+>=  
+><
+**  
+<<  
+>>  
+<&  
++:=  
+-:=  
+*:=  
+/:=  
+<<:=  
+>>:=  
+&:=  
+@:=
+/C4"Other ops"
+AND
+CONV
+DIGITS DIV
+EXP
+LPAD LPAD0
+MDIV MOD MULT
+NOT
+OR
+PARSE
+REM RPAD
+SCI
+TIMES
+VARCONV
+/C5"Statements"
+READ READLN
+WRITE WRITELN

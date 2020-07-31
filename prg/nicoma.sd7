@@ -1,0 +1,134 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  nicoma.sd7    Puzzle from arithmetica of Nicomachus (A.D. 90)!  *)
+(*  Copyright (C) 2004  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+
+
+var integer: rem_3 is 0;
+var integer: rem_5 is 0;
+var integer: rem_7 is 0;
+
+
+const proc: verify (in integer: guessed_number) is func
+  local
+    var integer: number is 0;
+  begin
+    writeln("I feel your arithmetic is in error.");
+    write("Please enter your number for verification ");
+    while not succeeds(read(number)) do
+      writeln("This is not a number.");
+      write("Please enter your number for verification ");
+    end while;
+    writeln;
+    if number = guessed_number then
+      writeln("So what, I guessed your number.");
+    elsif number < 1 or number > 100 then
+      writeln("Your number is not in the allowed range of 1 to 100.");
+    else
+      if number rem 3 <> rem_3 then
+        writeln("Your number (" <& number <& ") divided by 3 has a remainder of " <&
+                number rem 3 <& ".");
+        writeln("But your answer was " <& rem_3 <& ".");
+      end if;
+      if number rem 5 <> rem_5 then
+        writeln("Your number (" <& number <& ") divided by 5 has a remainder of " <&
+                number rem 5 <& ".");
+        writeln("But your answer was " <& rem_5 <& ".");
+      end if;
+      if number rem 7 <> rem_7 then
+        writeln("Your number (" <& number <& ") divided by 7 has a remainder of " <&
+                number rem 7 <& ".");
+        writeln("But your answer was " <& rem_7 <& ".");
+      end if;
+    end if;
+  end func;
+
+
+const func integer: read_remainder (in integer: divisor) is func
+  result
+    var integer: remainder is 0;
+  begin
+    repeat
+      write("Your number divided by " <& divisor <& " has a remainder of ");
+      if not succeeds(read(remainder)) then
+        writeln(" *** Please enter a number.");
+        remainder := divisor;
+      elsif remainder < 0 then
+        writeln(" *** The remainder of a number divided by " <& divisor <&
+                " cannot be negative.");
+      elsif remainder >= divisor then
+        writeln(" *** The remainder of a number divided by " <& divisor <&
+                " is always less than " <& divisor <& ".");
+      end if;
+    until remainder >= 0 and remainder < divisor;
+    writeln;
+  end func;
+
+
+const proc: guess_number is func
+  local
+    var integer: guessed_number is 0;
+    var string: answer is "";
+  begin
+    writeln;
+    writeln("Please think of a number between 1 and 100.");
+    writeln;
+    rem_3 := read_remainder(3);
+    rem_5 := read_remainder(5);
+    rem_7 := read_remainder(7);
+    writeln("Let me think a moment...");
+    writeln;
+    guessed_number := (70 * rem_3 + 21 * rem_5 + 15 * rem_7) rem 105;
+    write("Your number was " <& guessed_number <& ", right? ");
+    repeat
+      read(answer);
+      answer := upper(answer);
+      writeln;
+      if answer = "Y" then
+        writeln("How about that!!");
+      elsif answer = "N" then
+        verify(guessed_number);
+      else
+        write("Eh? I don't understand '" <& answer <& "' try 'Y' or 'N'. ");
+      end if;
+    until answer = "Y" or answer = "N";
+  end func;
+
+
+const proc: main is func
+  local
+    var string: answer is "";
+  begin
+    writeln;
+    writeln("NICOMA - Puzzle from arithmetica of Nicomachus (A.D. 90)!");
+    writeln;
+    repeat
+      guess_number;
+      writeln;
+      write("Care to try another number? ");
+      read(answer);
+      answer := upper(answer);
+    until answer <> "Y";
+  end func;

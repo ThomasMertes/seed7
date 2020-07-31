@@ -1,0 +1,54 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  hanoi.sd7     Solve the tower of hanoi problem                  *)
+(*  Copyright (C) 1991, 1992, 1993, 1994, 2004  Thomas Mertes       *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+
+
+const proc: hanoi (in integer: disk, in string: source, in string: dest, in string: via) is func
+  begin
+    if disk > 0 then
+      hanoi(pred(disk), source, via, dest);
+      writeln("Move disk " <& disk <& " from " <& source <& " to " <& dest);
+      hanoi(pred(disk), via, dest, source);
+    end if;
+  end func;
+
+
+const proc: hanoi (in integer: height) is func
+  begin
+    writeln("To move a tower of height " <& height <& " from left to right:");
+    writeln;
+    hanoi(height, "left", "right", "middle");
+    writeln;
+  end func;
+
+
+const proc: main is func
+  begin
+    writeln;
+    writeln("Tower of Hanoi:");
+    writeln;
+    hanoi(4);
+  end func;

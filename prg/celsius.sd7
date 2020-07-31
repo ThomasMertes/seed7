@@ -1,0 +1,41 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  celsius.sd7   Print a Fahrenheit-Celsius table                  *)
+(*  Copyright (C) 2005  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "float.s7i";
+
+const proc: main is func
+  local
+    const integer: lower is 0;
+    const integer: upper is 300;
+    const integer: increment is 20;
+    var integer: fahr is 0;
+    var float: celsius is 0.0;
+  begin
+    for fahr range lower to upper step increment do
+      celsius := flt(5 * (fahr - 32)) / 9.0;
+      writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
+    end for;
+  end func;

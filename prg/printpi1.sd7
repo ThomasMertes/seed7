@@ -1,0 +1,55 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  printpi1.sd7  PI with 1000 digits using John Machin's formula   *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "bigint.s7i";
+  include "bigrat.s7i";
+
+# John Machin's formula from 1706:
+# PI = 16 * arctan(1 / 5) - 4 * arctan(1 / 239)
+
+# Taylor series for arctan:
+# arctan(x) = sum_n_from_0_to_inf((-1) ** n / succ(2 * n) * x ** succ(2 * n))
+
+# Taylor series of John Machin's formula:
+# PI = sum_n_from_0_to_inf(16 * (-1) ** n / (succ(2 * n) *   5 ** succ(2 * n)) -
+#                           4 * (-1) ** n / (succ(2 * n) * 239 ** succ(2 * n)))
+
+const func bigRational: compute_pi_machin is func
+  result
+    var bigRational: sum is 0_ / 1_;
+  local
+    var integer: n is 0;
+  begin
+    for n range 0 to 713 do
+      sum +:= 16_ * (-1_) ** n / (bigInteger(succ(2 * n)) *   5_ ** succ(2 * n)) -
+               4_ * (-1_) ** n / (bigInteger(succ(2 * n)) * 239_ ** succ(2 * n));
+    end for;
+  end func;
+
+const proc: main is func
+  begin
+    writeln(compute_pi_machin digits 1000);
+  end func;

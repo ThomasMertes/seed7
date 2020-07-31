@@ -1,0 +1,572 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  keybd.s7i     Read from keyboard without buffering and echo     *)
+(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "file.s7i";
+include "null_file.s7i";
+
+
+(**
+ *  Interface type describing keyboard [[file|files]].
+ *  This interface is implemented with ''console_keybd_file'' and
+ *  ''graph_keybd_file''.
+ *)
+const type: keyboard_file is subtype file;
+
+
+(* Procedures granted for every keyboard_file *)
+
+
+(**
+ *  Read a char from ''keybd'', but don't wait if no key was pressed.
+ *  @return the char read from ''keybd'', and
+ +          KEY_NONE IF no char is available.
+ *)
+const func char: busy_getc (in keyboard_file: keybd) is DYNAMIC;
+
+
+(**
+ *  Determine if at least one character can be read without waiting.
+ *  @return TRUE if a character is available at ''keybd'',
+ *          FALSE otherwise.
+ *)
+const func boolean: keypressed (in keyboard_file: keybd) is DYNAMIC;
+
+
+(**
+ *  Determine if a given ''button'' is currently pressed.
+ *  @return TRUE if ''button'' is currently pressed,
+ *          FALSE otherwise.
+ *)
+const func boolean: buttonPressed (in keyboard_file: keybd, in char: button) is DYNAMIC;
+
+
+(**
+ *  X position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the X position of the mouse cursor at the time when
+ *          the last button was pressed.
+ *)
+const func integer: getxpos (in keyboard_file: keybd) is DYNAMIC;
+
+
+(**
+ *  Y position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the Y position of the mouse cursor at the time when
+ *          the last button was pressed.
+ *)
+const func integer: getypos (in keyboard_file: keybd) is DYNAMIC;
+
+
+const type: console_keybd_file is sub null_file struct
+  end struct;
+
+type_implements_interface(console_keybd_file, keyboard_file);
+
+
+(**
+ *  Read a character from the console keyboard file.
+ *  @return the character read.
+ *)
+const func char: getc (in console_keybd_file: keybd)                           is action "KBD_GETC";
+
+
+(**
+ *  Read a string with maximum length from the console keyboard file.
+ *  @return the string read.
+ *)
+const func string: gets (in console_keybd_file: keybd, in integer: maxLength)  is action "KBD_GETS";
+
+
+const func char: raw_getc (in console_keybd_file: keybd)                       is action "KBD_RAW_GETC";
+const func string: line_read (in console_keybd_file: keybd,
+                              inout char: terminationChar)                     is action "KBD_LINE_READ";
+const func string: word_read (in console_keybd_file: keybd,
+                              inout char: terminationChar)                     is action "KBD_WORD_READ";
+
+
+(**
+ *  Read a char from ''keybd'', but don't wait if no key was pressed.
+ *  @return the char read from the console keyboard file, and
+ *          KEY_NONE if no char is available.
+ *)
+const func char: busy_getc (in console_keybd_file: keybd)                      is action "KBD_BUSY_GETC";
+
+
+(**
+ *  Determine if at least one character can be read without waiting.
+ *  @return TRUE if a character is available at the console keyboard file
+ *          FALSE otherwise.
+ *)
+const func boolean: keypressed (in console_keybd_file: keybd)                  is action "KBD_KEYPRESSED";
+
+
+(**
+ *  Keyboard file describing the console keyboard.
+ *  The console keyboard belongs to a text/console window.
+ *  Characters typed at the keyboard are queued (first in first out)
+ *  and can be read directly, without the need to press ENTER or
+ *  RETURN. There is also no possibility to correct a key, once it
+ *  is pressed. Additionally KEYBOARD does not echo the characters.
+ *)
+var console_keybd_file: CONSOLE_KEYBOARD is console_keybd_file.value;
+
+
+const func string: getk (in console_keybd_file: keybd) is func
+  result
+    var string: rawKey is "";
+  begin
+    rawKey := str(raw_getc(keybd));
+    while keypressed(keybd) do
+      rawKey &:= str(raw_getc(keybd));
+    end while;
+  end func;
+
+
+(**
+ *  Read a word from the console keyboard file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left keybd.bufferChar contains ' ',
+ *  '\t', '\n' or [[char#EOF|EOF]].
+ *  @return the word read.
+ *)
+const func string: getwd (inout console_keybd_file: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := word_read(keybd, keybd.bufferChar);
+  end func;
+
+
+(**
+ *  Read a line from the console keyboard file.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left keybd.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the line read.
+ *)
+const func string: getln (inout console_keybd_file: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := line_read(keybd, keybd.bufferChar);
+  end func;
+
+
+const type: graph_keybd_file is sub null_file struct
+  end struct;
+
+type_implements_interface(graph_keybd_file, keyboard_file);
+
+
+(**
+ *  Read a character from the graphic keyboard file.
+ *  @return the character read.
+ *)
+const func char: getc (in graph_keybd_file: keybd)                             is action "GKB_GETC";
+
+
+(**
+ *  Read a string with maximum length from the graphic keyboard file.
+ *  @return the string read.
+ *)
+const func string: gets (in graph_keybd_file: keybd, in integer: maxLength)    is action "GKB_GETS";
+
+
+(**
+ *  Determine if a given ''button'' is currently pressed.
+ *  @return TRUE if ''button'' is currently pressed,
+ *          FALSE otherwise.
+ *)
+const func boolean: buttonPressed (in graph_keybd_file: keybd, in char: button)  is action "GKB_BUTTON_PRESSED";
+
+
+(**
+ *  X position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the X position of the mouse cursor at the time when
+ *          the last button was pressed.
+ *)
+const func integer: getxpos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_XPOS";
+
+
+(**
+ *  Y position of the mouse cursor when a button was pressed.
+ *  The functions ''getxpos'' and ''getypos'' can be used to
+ *  determine which position was "clicked".
+ *  @return the Y position of the mouse cursor at the time when
+ *          the last button was pressed.
+ *)
+const func integer: getypos (in graph_keybd_file: keybd)                       is action "GKB_BUTTON_YPOS";
+
+
+const func char: raw_getc (in graph_keybd_file: keybd)                         is action "GKB_RAW_GETC";
+const func string: line_read (in graph_keybd_file: keybd,
+                              inout char: terminationChar)                     is action "GKB_LINE_READ";
+const func string: word_read (in graph_keybd_file: keybd,
+                              inout char: terminationChar)                     is action "GKB_WORD_READ";
+
+
+(**
+ *  Read a char from ''keybd'', but don't wait if no key was pressed.
+ *  @return the char read from the graphic keyboard file, and
+ *          KEY_NONE if no char is available.
+ *)
+const func char: busy_getc (in graph_keybd_file: keybd)                        is action "GKB_BUSY_GETC";
+
+
+(**
+ *  Determine if at least one character can be read without waiting.
+ *  @return TRUE if a character is available at the graphic keyboard file
+ *          FALSE otherwise.
+ *)
+const func boolean: keypressed (in graph_keybd_file: keybd)                    is action "GKB_KEYPRESSED";
+
+
+(**
+ *  Keyboard file describing the graphic keyboard.
+ *  The graphic keyboard belongs to a graphic window.
+ *  Characters typed at the keyboard are queued (first in first out)
+ *  and can be read directly, without the need to press ENTER or
+ *  RETURN. There is also no possibility to correct a key, once it
+ *  is pressed. Additionally KEYBOARD does not echo the characters.
+ *)
+var graph_keybd_file: GRAPH_KEYBOARD is graph_keybd_file.value;
+
+
+const func string: getk (in graph_keybd_file: keybd) is func
+  result
+    var string: rawKey is "";
+  begin
+    rawKey := str(raw_getc(keybd));
+    while keypressed(keybd) do
+      rawKey &:= str(raw_getc(keybd));
+    end while;
+  end func;
+
+
+(**
+ *  Read a word from the graphic keyboard file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left keybd.bufferChar contains ' ',
+ *  '\t', '\n' or [[char#EOF|EOF]].
+ *  @return the word read.
+ *)
+const func string: getwd (inout graph_keybd_file: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := word_read(keybd, keybd.bufferChar);
+  end func;
+
+
+(**
+ *  Read a line from the graphic keyboard file.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left keybd.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the line read.
+ *)
+const func string: getln (inout graph_keybd_file: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := line_read(keybd, keybd.bufferChar);
+  end func;
+
+
+(**
+ *  Variable describing the keyboard.
+ *  Characters typed at the keyboard are queued (first in first out)
+ *  and can be read directly, without the need to press ENTER or
+ *  RETURN. There is also no possibility to correct a key, once it
+ *  is pressed. Additionally KEYBOARD does not echo the characters.
+ *  KEYBOARD delivers cursor keys and function keys as single
+ *  characters (e.g. KEY_LEFT or KEY_F1).
+ *  This variable is initialized with CONSOLE_KEYBOARD.
+ *  If a program wants to work with the graphic keyboard,
+ *  the following assignment is necessary:
+ *   KEYBOARD := GRAPH_KEYBOARD;
+ *)
+var keyboard_file: KEYBOARD is CONSOLE_KEYBOARD;
+
+
+const char: KEY_CTL_A is        '\1;';
+const char: KEY_CTL_B is        '\2;';
+const char: KEY_CTL_C is        '\3;';
+const char: KEY_CTL_D is        '\4;';
+const char: KEY_CTL_E is        '\5;';
+const char: KEY_CTL_F is        '\6;';
+const char: KEY_CTL_G is        '\7;';
+const char: KEY_CTL_H is        '\8;';
+const char: KEY_BS is           '\8;';
+const char: KEY_CTL_I is        '\9;';
+const char: KEY_TAB is          '\9;';
+const char: KEY_CTL_J is       '\10;';
+const char: KEY_NL is          '\10;';
+const char: KEY_CTL_K is       '\11;';
+const char: KEY_CTL_L is       '\12;';
+const char: KEY_CTL_M is       '\13;';
+const char: KEY_CR is          '\13;';
+const char: KEY_CTL_N is       '\14;';
+const char: KEY_CTL_O is       '\15;';
+const char: KEY_CTL_P is       '\16;';
+const char: KEY_CTL_Q is       '\17;';
+const char: KEY_CTL_R is       '\18;';
+const char: KEY_CTL_S is       '\19;';
+const char: KEY_CTL_T is       '\20;';
+const char: KEY_CTL_U is       '\21;';
+const char: KEY_CTL_V is       '\22;';
+const char: KEY_CTL_W is       '\23;';
+const char: KEY_CTL_X is       '\24;';
+const char: KEY_CTL_Y is       '\25;';
+const char: KEY_CTL_Z is       '\26;';
+const char: KEY_ESC is         '\27;';
+
+(* KEYCODE_BASE is beyond the range of Unicode characters *)
+const integer: KEYCODE_BASE is 16#110000;
+
+const char: KEY_ALT_A      is chr(KEYCODE_BASE +   1);
+const char: KEY_ALT_B      is chr(KEYCODE_BASE +   2);
+const char: KEY_ALT_C      is chr(KEYCODE_BASE +   3);
+const char: KEY_ALT_D      is chr(KEYCODE_BASE +   4);
+const char: KEY_ALT_E      is chr(KEYCODE_BASE +   5);
+const char: KEY_ALT_F      is chr(KEYCODE_BASE +   6);
+const char: KEY_ALT_G      is chr(KEYCODE_BASE +   7);
+const char: KEY_ALT_H      is chr(KEYCODE_BASE +   8);
+const char: KEY_ALT_I      is chr(KEYCODE_BASE +   9);
+const char: KEY_ALT_J      is chr(KEYCODE_BASE +  10);
+const char: KEY_ALT_K      is chr(KEYCODE_BASE +  11);
+const char: KEY_ALT_L      is chr(KEYCODE_BASE +  12);
+const char: KEY_ALT_M      is chr(KEYCODE_BASE +  13);
+const char: KEY_ALT_N      is chr(KEYCODE_BASE +  14);
+const char: KEY_ALT_O      is chr(KEYCODE_BASE +  15);
+const char: KEY_ALT_P      is chr(KEYCODE_BASE +  16);
+const char: KEY_ALT_Q      is chr(KEYCODE_BASE +  17);
+const char: KEY_ALT_R      is chr(KEYCODE_BASE +  18);
+const char: KEY_ALT_S      is chr(KEYCODE_BASE +  19);
+const char: KEY_ALT_T      is chr(KEYCODE_BASE +  20);
+const char: KEY_ALT_U      is chr(KEYCODE_BASE +  21);
+const char: KEY_ALT_V      is chr(KEYCODE_BASE +  22);
+const char: KEY_ALT_W      is chr(KEYCODE_BASE +  23);
+const char: KEY_ALT_X      is chr(KEYCODE_BASE +  24);
+const char: KEY_ALT_Y      is chr(KEYCODE_BASE +  25);
+const char: KEY_ALT_Z      is chr(KEYCODE_BASE +  26);
+const char: KEY_ALT_0      is chr(KEYCODE_BASE +  48);
+const char: KEY_ALT_1      is chr(KEYCODE_BASE +  49);
+const char: KEY_ALT_2      is chr(KEYCODE_BASE +  50);
+const char: KEY_ALT_3      is chr(KEYCODE_BASE +  51);
+const char: KEY_ALT_4      is chr(KEYCODE_BASE +  52);
+const char: KEY_ALT_5      is chr(KEYCODE_BASE +  53);
+const char: KEY_ALT_6      is chr(KEYCODE_BASE +  54);
+const char: KEY_ALT_7      is chr(KEYCODE_BASE +  55);
+const char: KEY_ALT_8      is chr(KEYCODE_BASE +  56);
+const char: KEY_ALT_9      is chr(KEYCODE_BASE +  57);
+const char: KEY_F1         is chr(KEYCODE_BASE +  64);
+const char: KEY_F2         is chr(KEYCODE_BASE +  65);
+const char: KEY_F3         is chr(KEYCODE_BASE +  66);
+const char: KEY_F4         is chr(KEYCODE_BASE +  67);
+const char: KEY_F5         is chr(KEYCODE_BASE +  68);
+const char: KEY_F6         is chr(KEYCODE_BASE +  69);
+const char: KEY_F7         is chr(KEYCODE_BASE +  70);
+const char: KEY_F8         is chr(KEYCODE_BASE +  71);
+const char: KEY_F9         is chr(KEYCODE_BASE +  72);
+const char: KEY_F10        is chr(KEYCODE_BASE +  73);
+const char: KEY_F11        is chr(KEYCODE_BASE +  74);
+const char: KEY_F12        is chr(KEYCODE_BASE +  75);
+const char: KEY_SFT_F1     is chr(KEYCODE_BASE +  80);
+const char: KEY_SFT_F2     is chr(KEYCODE_BASE +  81);
+const char: KEY_SFT_F3     is chr(KEYCODE_BASE +  82);
+const char: KEY_SFT_F4     is chr(KEYCODE_BASE +  83);
+const char: KEY_SFT_F5     is chr(KEYCODE_BASE +  84);
+const char: KEY_SFT_F6     is chr(KEYCODE_BASE +  85);
+const char: KEY_SFT_F7     is chr(KEYCODE_BASE +  86);
+const char: KEY_SFT_F8     is chr(KEYCODE_BASE +  87);
+const char: KEY_SFT_F9     is chr(KEYCODE_BASE +  88);
+const char: KEY_SFT_F10    is chr(KEYCODE_BASE +  89);
+const char: KEY_SFT_F11    is chr(KEYCODE_BASE +  90);
+const char: KEY_SFT_F12    is chr(KEYCODE_BASE +  91);
+const char: KEY_CTL_F1     is chr(KEYCODE_BASE +  96);
+const char: KEY_CTL_F2     is chr(KEYCODE_BASE +  97);
+const char: KEY_CTL_F3     is chr(KEYCODE_BASE +  98);
+const char: KEY_CTL_F4     is chr(KEYCODE_BASE +  99);
+const char: KEY_CTL_F5     is chr(KEYCODE_BASE + 100);
+const char: KEY_CTL_F6     is chr(KEYCODE_BASE + 101);
+const char: KEY_CTL_F7     is chr(KEYCODE_BASE + 102);
+const char: KEY_CTL_F8     is chr(KEYCODE_BASE + 103);
+const char: KEY_CTL_F9     is chr(KEYCODE_BASE + 104);
+const char: KEY_CTL_F10    is chr(KEYCODE_BASE + 105);
+const char: KEY_CTL_F11    is chr(KEYCODE_BASE + 106);
+const char: KEY_CTL_F12    is chr(KEYCODE_BASE + 107);
+const char: KEY_ALT_F1     is chr(KEYCODE_BASE + 112);
+const char: KEY_ALT_F2     is chr(KEYCODE_BASE + 113);
+const char: KEY_ALT_F3     is chr(KEYCODE_BASE + 114);
+const char: KEY_ALT_F4     is chr(KEYCODE_BASE + 115);
+const char: KEY_ALT_F5     is chr(KEYCODE_BASE + 116);
+const char: KEY_ALT_F6     is chr(KEYCODE_BASE + 117);
+const char: KEY_ALT_F7     is chr(KEYCODE_BASE + 118);
+const char: KEY_ALT_F8     is chr(KEYCODE_BASE + 119);
+const char: KEY_ALT_F9     is chr(KEYCODE_BASE + 120);
+const char: KEY_ALT_F10    is chr(KEYCODE_BASE + 121);
+const char: KEY_ALT_F11    is chr(KEYCODE_BASE + 122);
+const char: KEY_ALT_F12    is chr(KEYCODE_BASE + 123);
+const char: KEY_LEFT           is chr(KEYCODE_BASE + 160);
+const char: KEY_RIGHT          is chr(KEYCODE_BASE + 161);
+const char: KEY_UP             is chr(KEYCODE_BASE + 162);
+const char: KEY_DOWN           is chr(KEYCODE_BASE + 163);
+const char: KEY_HOME           is chr(KEYCODE_BASE + 164);
+const char: KEY_END            is chr(KEYCODE_BASE + 165);
+const char: KEY_PGUP           is chr(KEYCODE_BASE + 166);
+const char: KEY_PGDN           is chr(KEYCODE_BASE + 167);
+const char: KEY_INS            is chr(KEYCODE_BASE + 168);
+const char: KEY_DEL            is chr(KEYCODE_BASE + 169);
+const char: KEY_PAD_CENTER     is chr(KEYCODE_BASE + 170);
+const char: KEY_SFT_LEFT       is chr(KEYCODE_BASE + 176);
+const char: KEY_SFT_RIGHT      is chr(KEYCODE_BASE + 177);
+const char: KEY_SFT_UP         is chr(KEYCODE_BASE + 178);
+const char: KEY_SFT_DOWN       is chr(KEYCODE_BASE + 179);
+const char: KEY_SFT_HOME       is chr(KEYCODE_BASE + 180);
+const char: KEY_SFT_END        is chr(KEYCODE_BASE + 181);
+const char: KEY_SFT_PGUP       is chr(KEYCODE_BASE + 182);
+const char: KEY_SFT_PGDN       is chr(KEYCODE_BASE + 183);
+const char: KEY_SFT_INS        is chr(KEYCODE_BASE + 184);
+const char: KEY_SFT_DEL        is chr(KEYCODE_BASE + 185);
+const char: KEY_SFT_PAD_CENTER is chr(KEYCODE_BASE + 186);
+const char: KEY_CTL_LEFT       is chr(KEYCODE_BASE + 192);
+const char: KEY_CTL_RIGHT      is chr(KEYCODE_BASE + 193);
+const char: KEY_CTL_UP         is chr(KEYCODE_BASE + 194);
+const char: KEY_CTL_DOWN       is chr(KEYCODE_BASE + 195);
+const char: KEY_CTL_HOME       is chr(KEYCODE_BASE + 196);
+const char: KEY_CTL_END        is chr(KEYCODE_BASE + 197);
+const char: KEY_CTL_PGUP       is chr(KEYCODE_BASE + 198);
+const char: KEY_CTL_PGDN       is chr(KEYCODE_BASE + 199);
+const char: KEY_CTL_INS        is chr(KEYCODE_BASE + 200);
+const char: KEY_CTL_DEL        is chr(KEYCODE_BASE + 201);
+const char: KEY_CTL_PAD_CENTER is chr(KEYCODE_BASE + 202);
+const char: KEY_ALT_LEFT       is chr(KEYCODE_BASE + 208);
+const char: KEY_ALT_RIGHT      is chr(KEYCODE_BASE + 209);
+const char: KEY_ALT_UP         is chr(KEYCODE_BASE + 210);
+const char: KEY_ALT_DOWN       is chr(KEYCODE_BASE + 211);
+const char: KEY_ALT_HOME       is chr(KEYCODE_BASE + 212);
+const char: KEY_ALT_END        is chr(KEYCODE_BASE + 213);
+const char: KEY_ALT_PGUP       is chr(KEYCODE_BASE + 214);
+const char: KEY_ALT_PGDN       is chr(KEYCODE_BASE + 215);
+const char: KEY_ALT_INS        is chr(KEYCODE_BASE + 216);
+const char: KEY_ALT_DEL        is chr(KEYCODE_BASE + 217);
+const char: KEY_ALT_PAD_CENTER is chr(KEYCODE_BASE + 218);
+const char: KEY_MENU           is chr(KEYCODE_BASE + 228);
+const char: KEY_PRINT          is chr(KEYCODE_BASE + 229);
+const char: KEY_PAUSE          is chr(KEYCODE_BASE + 230);
+const char: KEY_SFT_NL         is chr(KEYCODE_BASE + 240);
+const char: KEY_SFT_BS         is chr(KEYCODE_BASE + 241);
+const char: KEY_SFT_TAB        is chr(KEYCODE_BASE + 242);
+const char: KEY_BACKTAB        is KEY_SFT_TAB;
+const char: KEY_SFT_ESC        is chr(KEYCODE_BASE + 243);
+const char: KEY_SFT_MENU       is chr(KEYCODE_BASE + 244);
+const char: KEY_SFT_PRINT      is chr(KEYCODE_BASE + 245);
+const char: KEY_SFT_PAUSE      is chr(KEYCODE_BASE + 246);
+const char: KEY_CTL_NL         is chr(KEYCODE_BASE + 256);
+const char: KEY_CTL_BS         is chr(KEYCODE_BASE + 257);
+const char: KEY_CTL_TAB        is chr(KEYCODE_BASE + 258);
+const char: KEY_CTL_ESC        is chr(KEYCODE_BASE + 259);
+const char: KEY_CTL_MENU       is chr(KEYCODE_BASE + 260);
+const char: KEY_CTL_PRINT      is chr(KEYCODE_BASE + 261);
+const char: KEY_CTL_PAUSE      is chr(KEYCODE_BASE + 262);
+const char: KEY_ALT_NL         is chr(KEYCODE_BASE + 272);
+const char: KEY_ALT_BS         is chr(KEYCODE_BASE + 273);
+const char: KEY_ALT_TAB        is chr(KEYCODE_BASE + 274);
+const char: KEY_ALT_ESC        is chr(KEYCODE_BASE + 275);
+const char: KEY_ALT_MENU       is chr(KEYCODE_BASE + 276);
+const char: KEY_ALT_PRINT      is chr(KEYCODE_BASE + 277);
+const char: KEY_ALT_PAUSE      is chr(KEYCODE_BASE + 278);
+const char: KEY_SCRLUP         is chr(KEYCODE_BASE + 288);
+const char: KEY_SCRLDN         is chr(KEYCODE_BASE + 289);
+const char: KEY_INSLN          is chr(KEYCODE_BASE + 290);
+const char: KEY_DELLN          is chr(KEYCODE_BASE + 291);
+const char: KEY_ERASE          is chr(KEYCODE_BASE + 292);
+const char: KEY_NULCHAR        is chr(KEYCODE_BASE + 293);
+const char: KEY_NULLCMD        is chr(KEYCODE_BASE + 294);
+const char: KEY_REDRAW         is chr(KEYCODE_BASE + 295);
+const char: KEY_MOUSE1         is chr(KEYCODE_BASE + 304);
+const char: KEY_MOUSE2         is chr(KEYCODE_BASE + 305);
+const char: KEY_MOUSE3         is chr(KEYCODE_BASE + 306);
+const char: KEY_MOUSE4         is chr(KEYCODE_BASE + 307);
+const char: KEY_MOUSE5         is chr(KEYCODE_BASE + 308);
+const char: KEY_MOUSE_FWD      is chr(KEYCODE_BASE + 309);
+const char: KEY_MOUSE_BACK     is chr(KEYCODE_BASE + 310);
+const char: KEY_SFT_MOUSE1     is chr(KEYCODE_BASE + 320);
+const char: KEY_SFT_MOUSE2     is chr(KEYCODE_BASE + 321);
+const char: KEY_SFT_MOUSE3     is chr(KEYCODE_BASE + 322);
+const char: KEY_SFT_MOUSE4     is chr(KEYCODE_BASE + 323);
+const char: KEY_SFT_MOUSE5     is chr(KEYCODE_BASE + 324);
+const char: KEY_SFT_MOUSE_FWD  is chr(KEYCODE_BASE + 325);
+const char: KEY_SFT_MOUSE_BACK is chr(KEYCODE_BASE + 326);
+const char: KEY_CTL_MOUSE1     is chr(KEYCODE_BASE + 336);
+const char: KEY_CTL_MOUSE2     is chr(KEYCODE_BASE + 337);
+const char: KEY_CTL_MOUSE3     is chr(KEYCODE_BASE + 338);
+const char: KEY_CTL_MOUSE4     is chr(KEYCODE_BASE + 339);
+const char: KEY_CTL_MOUSE5     is chr(KEYCODE_BASE + 340);
+const char: KEY_CTL_MOUSE_FWD  is chr(KEYCODE_BASE + 341);
+const char: KEY_CTL_MOUSE_BACK is chr(KEYCODE_BASE + 342);
+const char: KEY_ALT_MOUSE1     is chr(KEYCODE_BASE + 352);
+const char: KEY_ALT_MOUSE2     is chr(KEYCODE_BASE + 353);
+const char: KEY_ALT_MOUSE3     is chr(KEYCODE_BASE + 354);
+const char: KEY_ALT_MOUSE4     is chr(KEYCODE_BASE + 355);
+const char: KEY_ALT_MOUSE5     is chr(KEYCODE_BASE + 356);
+const char: KEY_ALT_MOUSE_FWD  is chr(KEYCODE_BASE + 357);
+const char: KEY_ALT_MOUSE_BACK is chr(KEYCODE_BASE + 358);
+const char: KEY_SHIFT          is chr(KEYCODE_BASE + 368);
+const char: KEY_LEFT_SHIFT     is chr(KEYCODE_BASE + 369);
+const char: KEY_RIGHT_SHIFT    is chr(KEYCODE_BASE + 370);
+const char: KEY_CONTROL        is chr(KEYCODE_BASE + 371);
+const char: KEY_LEFT_CONTROL   is chr(KEYCODE_BASE + 372);
+const char: KEY_RIGHT_CONTROL  is chr(KEYCODE_BASE + 373);
+const char: KEY_ALT            is chr(KEYCODE_BASE + 374);
+const char: KEY_LEFT_ALT       is chr(KEYCODE_BASE + 375);
+const char: KEY_RIGHT_ALT      is chr(KEYCODE_BASE + 376);
+const char: KEY_SHIFT_LOCK     is chr(KEYCODE_BASE + 377);
+const char: KEY_SHIFT_LOCK_ON  is chr(KEYCODE_BASE + 378);
+const char: KEY_NUM_LOCK       is chr(KEYCODE_BASE + 379);
+const char: KEY_NUM_LOCK_ON    is chr(KEYCODE_BASE + 380);
+const char: KEY_SCROLL_LOCK    is chr(KEYCODE_BASE + 381);
+const char: KEY_SCROLL_LOCK_ON is chr(KEYCODE_BASE + 382);
+const char: KEY_UNDEF          is chr(KEYCODE_BASE + 386);
+const char: KEY_NONE           is chr(KEYCODE_BASE + 387);

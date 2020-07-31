@@ -1,0 +1,79 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  html.s7i      Support functions for html                        *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanstri.s7i";
+
+
+const set of string: voidHtmlElements is {
+    "area", "base", "br", "col", "command", "embed", "hr", "img",
+    "input", "keygen", "link", "meta", "param", "source", "wbr"};
+
+
+const func string: getValueOfHtmlAttribute (in var string: tag, in string: attribute) is func
+  result
+    var string: attrValue is "";
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getSymbolInXmlTag(tag);
+    until symbol = attribute or symbol = "";
+    if symbol = attribute then
+      symbol := getSymbolInXmlTag(tag);
+      if symbol = "=" then
+        attrValue := getHtmlAttributeValue(tag);
+      end if;
+    end if;
+  end func;
+
+
+const func array string: getHtmlLinks (in string: html) is func
+  result
+    var array string: htmlLinks is 0 times "";
+  local
+    var integer: startPos is 0;
+    var integer: endPos is 0;
+    var string: rawLink is "";
+    var string: symbol is "";
+    var string: linkDest is "";
+  begin
+    startPos := pos(html, "<a ");
+    while startPos <> 0 do
+      endPos := pos(html, ">", startPos + 3);
+      if endPos <> 0 then
+        rawLink := html[startPos + 3 .. pred(endPos)];
+        linkDest := getValueOfHtmlAttribute(rawLink, "href");
+        if linkDest <> "" then
+          htmlLinks &:= [] (linkDest);
+        end if;
+        startPos := pos(html, "<a ", succ(endPos));
+      else
+        startPos := 0;
+      end if;
+    end while;
+  end func;

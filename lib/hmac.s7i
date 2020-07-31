@@ -1,0 +1,142 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  hmac.s7i      Hash-based message authentication code functions. *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "msgdigest.s7i";
+include "bin32.s7i";
+
+
+const func string: (in string: stri1) >< (in string: stri2) is func
+  result
+    var string: xorResult is "";
+  local
+    var integer: index is 0;
+  begin
+    if length(stri1) <> length(stri2) then
+      raise RANGE_ERROR;
+    else
+      xorResult := "\0;" mult length(stri1);
+      for index range 1 to length(stri1) do
+        xorResult @:= [index] chr(ord(bin32(stri1[index]) >< bin32(stri2[index])));
+      end for;
+    end if;
+  end func;
+
+
+(**
+ *  Compute a message authentication code with the given [[msgdigest#digestAlgorithm|digestAlgorithm]].
+ *  @param digestAlg The [[msgdigest#digestAlgorithm|digestAlgorithm]] to be used.
+ *  @return the message authentication code produced with ''digestAlg''.
+ *  @exception RANGE_ERROR If ''message'' contains a character beyond '\255;'.
+ *)
+const func string: hmac (in digestAlgorithm: digestAlg, in var string: cryptoKey,
+    in string: message) is func
+  result
+    var string: authenticationCode is "";
+  local
+    var integer: blockSize is 0;  # DigestFunc breaks the input message into blockSize bytes.
+    var string: o_key_pad is "";
+    var string: i_key_pad is "";
+  begin
+    blockSize := blockSize(digestAlg);
+    if length(cryptoKey) > blockSize then
+      # Keys longer than blockSize are shortened.
+      cryptoKey := msgDigest(digestAlg, cryptoKey);
+    end if;
+    # Keys shorter than blockSize are zero-padded.
+    cryptoKey &:= "\0;" mult (blockSize - length(cryptoKey));
+    o_key_pad := ("\16#5c;" mult blockSize) >< cryptoKey;
+    i_key_pad := ("\16#36;" mult blockSize) >< cryptoKey;
+    authenticationCode := msgDigest(digestAlg, o_key_pad &
+                                    msgDigest(digestAlg, i_key_pad & message));
+  end func;
+
+
+(**
+ *  Data expansion function based on the message authentication (hmac) of ''digestAlg''.
+ *  @param digestAlg The [[msgdigest#digestAlgorithm|digestAlgorithm]] to be used.
+ *  @return a pseudo random [[string]] of the given ''length''.
+ *)
+const func string: p_hash (in digestAlgorithm: digestAlg, in string: secret, in string: seed,
+    in integer: length) is func
+  result
+    var string: digest is "";
+  local
+    var string: a is "";
+  begin
+    a := hmac(digestAlg, secret, seed);  # a[1]
+    digest := hmac(digestAlg, secret, a & seed);
+    while length(digest) < length do
+      a := hmac(digestAlg, secret, a);  # a[i]
+      digest &:= hmac(digestAlg, secret, a & seed);
+    end while;
+    digest := digest[.. length];
+  end func;
+
+
+const func string: pseudoRandomFunction (in string: secret, in string: label,
+    in string: seed, in integer: length) is func
+  result
+    var string: digest is "";
+  local
+    var integer: halveLength is 0;
+  begin
+    halveLength := succ(length(secret)) div 2;
+    digest := p_hash(MD5,  secret[.. halveLength],                      label & seed, length) ><
+              p_hash(SHA1, secret[length(secret) - halveLength + 1 ..], label & seed, length);
+  end func;
+
+
+const func string: keyBlockFunction (in string: secret, in string: random,
+    in integer: length) is func
+  result
+    var string: keyBlock is "";
+  local
+    var integer: count is 1;
+  begin
+    while length(keyBlock) < length do
+      keyBlock &:= md5(secret &
+                       sha1(str(chr(ord('A') + count - 1)) mult count &
+                            secret & random));
+      incr(count);
+    end while;
+    keyBlock := keyBlock[.. length];
+  end func;
+
+
+const func string: mgf1Sha1 (in string: mgfSeed, in integer: maskLen) is func
+  result
+    var string: mask is "";
+  local
+    const integer: hLen is 20;  # Length (in bytes) of the sha1 output.
+    var integer: counter is 0;
+  begin
+    for counter range 0 to pred(maskLen) mdiv hLen do
+      mask &:= sha1(mgfSeed & int32AsFourBytesBe(counter));
+    end for;
+    mask := mask[.. maskLen];
+  end func;

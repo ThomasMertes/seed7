@@ -1,0 +1,1966 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  charsets.s7i  Code pages for various character sets             *)
+(*  Copyright (C) 2006, 2008 - 2010, 2016  Thomas Mertes            *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(*  This file contains UTF-8 characters.                            *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "unicode.s7i";
+
+
+(**
+ *  Conversion table from code page 437 to Unicode.
+ *  Code page 437 is the character set of the original IBM PC.
+ *)
+const string: cp_437 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜ¢£¥₧ƒ\
+    \áíóúñÑªº¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+const string: cp_437g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜ¢£¥₧ƒ\
+    \áíóúñÑªº¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 708 to Unicode.
+ *  Code page 708 was outlined by ASMO to write Arabic.
+ *)
+const string: cp_708 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \│┤éâ╡à╢çêëèïî╖╕╣\
+    \║╗╝ô╜╜╛ù┐└??????\
+    \?┴┬├¤─┼╞╟╚╔╩،╦«»\
+    \░▒▓╠═╬╧╨╤╥╙؛╘╒╓؟\
+    \╫ءآأؤإئابةتثجحخد\
+    \ذرزسشصضطظعغ█▄▌▐▀\
+    \ـفقكلمنهوىيًٌٍَُ\
+    \ِّْ??????╪┘┌µ£■\160;";
+
+const string: cp_708g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \│┤éâ╡à╢çêëèïî╖╕╣\
+    \║╗╝ô╜╜╛ù┐└??????\
+    \?┴┬├¤─┼╞╟╚╔╩،╦«»\
+    \░▒▓╠═╬╧╨╤╥╙؛╘╒╓؟\
+    \╫ءآأؤإئابةتثجحخد\
+    \ذرزسشصضطظعغ█▄▌▐▀\
+    \ـفقكلمنهوىيًٌٍَُ\
+    \ِّْ??????╪┘┌µ£■\160;";
+
+(**
+ *  Conversion table from code page 720 to Unicode.
+ *  The MS-DOS code page 720 is used to write Arabic.
+ *)
+const string: cp_720 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \??éâ?à?çêëèïî???\
+    \?ّْô¤ـûùءآأؤ£إئا\
+    \بةتثجحخدذرزسشص«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \ضطظعغفµقكلمنهوىي\
+    \≡ًٌٍَُِ≈°∙·√ⁿ²■\160;";
+
+const string: cp_720g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \??éâ?à?çêëèïî???\
+    \?ّْô¤ـûùءآأؤ£إئا\
+    \بةتثجحخدذرزسشص«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \ضطظعغفµقكلمنهوىي\
+    \≡ًٌٍَُِ≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 737 to Unicode.
+ *  The MS-DOS code page 737 is used to write Greek language.
+ *)
+const string: cp_737 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠ\
+    \ΡΣΤΥΦΧΨΩαβγδεζηθ\
+    \ικλμνξοπρσςτυφχψ\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \ωάέήϊίόύϋώΆΈΉΊΌΎ\
+    \Ώ±≥≤ΪΫ÷≈°∙·√ⁿ²■\160;";
+
+const string: cp_737g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠ\
+    \ΡΣΤΥΦΧΨΩαβγδεζηθ\
+    \ικλμνξοπρσςτυφχψ\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \ωάέήϊίόύϋώΆΈΉΊΌΎ\
+    \Ώ±≥≤ΪΫ÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 775 to Unicode.
+ *  The MS-DOS code page 775 is used to write the
+ *  Estonian, Lithuanian and Latvian languages.
+ *)
+const string: cp_775 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ĆüéāäģåćłēŖŗīŹÄÅ\
+    \ÉæÆōöĢ¢ŚśÖÜø£Ø×¤\
+    \ĀĪóŻżź”¦©®¬½¼Ł«»\
+    \░▒▓│┤ĄČĘĖ╣║╗╝ĮŠ┐\
+    \└┴┬├─┼ŲŪ╚╔╩╦╠═╬Ž\
+    \ąčęėįšųūž┘┌█▄▌▐▀\
+    \ÓßŌŃõÕµńĶķĻļņĒŅ’\
+    \­±“¾¶§÷„°∙·¹³²■\160;";
+
+const string: cp_775g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ĆüéāäģåćłēŖŗīŹÄÅ\
+    \ÉæÆōöĢ¢ŚśÖÜø£Ø×¤\
+    \ĀĪóŻżź”¦©®¬½¼Ł«»\
+    \░▒▓│┤ĄČĘĖ╣║╗╝ĮŠ┐\
+    \└┴┬├─┼ŲŪ╚╔╩╦╠═╬Ž\
+    \ąčęėįšųūž┘┌█▄▌▐▀\
+    \ÓßŌŃõÕµńĶķĻļņĒŅ’\
+    \­±“¾¶§÷„°∙·¹³²■\160;";
+
+(**
+ *  Conversion table from code page 850 to Unicode.
+ *  The MS-DOS code page 850 is used to write Western
+ *  European languages.
+ *)
+const string: cp_850 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
+    \áíóúñÑªº¿®¬½¼¡«»\
+    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
+    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
+    \ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀\
+    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
+    \­±‗¾¶§÷¸°¨·¹³²■\160;";
+
+const string: cp_850g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
+    \áíóúñÑªº¿®¬½¼¡«»\
+    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
+    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
+    \ðÐÊËÈıÍÎÏ┘┌█▄¦Ì▀\
+    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
+    \­±‗¾¶§÷¸°¨·¹³²■\160;";
+
+(**
+ *  Conversion table from code page 852 to Unicode.
+ *  The MS-DOS code page 752 is used to write Central
+ *  European languages that use Latin script, such as
+ *  Bosnian, Croatian, Czech, Hungarian, Polish, Romanian,
+ *  Serbian and Slovak.
+ *)
+const string: cp_852 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâäůćçłëŐőîŹÄĆ\
+    \ÉĹĺôöĽľŚśÖÜŤťŁ×č\
+    \áíóúĄąŽžĘę¬źČş«»\
+    \░▒▓│┤ÁÂĚŞ╣║╗╝Żż┐\
+    \└┴┬├─┼Ăă╚╔╩╦╠═╬¤\
+    \đĐĎËďŇÍÎě┘┌█▄ŢŮ▀\
+    \ÓßÔŃńňŠšŔÚŕŰýÝţ´\
+    \­˝˛ˇ˘§÷¸°¨˙űŘř■\160;";
+
+const string: cp_852g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâäůćçłëŐőîŹÄĆ\
+    \ÉĹĺôöĽľŚśÖÜŤťŁ×č\
+    \áíóúĄąŽžĘę¬źČş«»\
+    \░▒▓│┤ÁÂĚŞ╣║╗╝Żż┐\
+    \└┴┬├─┼Ăă╚╔╩╦╠═╬¤\
+    \đĐĎËďŇÍÎě┘┌█▄ŢŮ▀\
+    \ÓßÔŃńňŠšŔÚŕŰýÝţ´\
+    \­˝˛ˇ˘§÷¸°¨˙űŘř■\160;";
+
+(**
+ *  Conversion table from code page 855 to Unicode.
+ *  The MS-DOS code page 855 is used to write Cyrillic script.
+ *)
+const string: cp_855 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ђЂѓЃёЁєЄѕЅіІїЇјЈ\
+    \љЉњЊћЋќЌўЎџЏюЮъЪ\
+    \аАбБцЦдДеЕфФгГ«»\
+    \░▒▓│┤хХиИ╣║╗╝йЙ┐\
+    \└┴┬├─┼кК╚╔╩╦╠═╬¤\
+    \лЛмМнНоОп┘┌█▄Пя▀\
+    \ЯрРсСтТуУжЖвВьЬ№\
+    \­ыЫзЗшШэЭщЩчЧ§■\160;";
+
+const string: cp_855g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ђЂѓЃёЁєЄѕЅіІїЇјЈ\
+    \љЉњЊћЋќЌўЎџЏюЮъЪ\
+    \аАбБцЦдДеЕфФгГ«»\
+    \░▒▓│┤хХиИ╣║╗╝йЙ┐\
+    \└┴┬├─┼кК╚╔╩╦╠═╬¤\
+    \лЛмМнНоОп┘┌█▄Пя▀\
+    \ЯрРсСтТуУжЖвВьЬ№\
+    \­ыЫзЗшШэЭщЩчЧ§■\160;";
+
+(**
+ *  Conversion table from code page 857 to Unicode.
+ *  The MS-DOS code page 857 is used to write Turkish.
+ *)
+const string: cp_857 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâäàåçêëèïîıÄÅ\
+    \ÉæÆôöòûùİÖÜø£ØŞş\
+    \áíóúñÑĞğ¿®¬½¼¡«»\
+    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
+    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
+    \ºªÊËÈ?ÍÎÏ┘┌█▄¦Ì▀\
+    \ÓßÔÒõÕµ?×ÚÛÙìÿ¯´\
+    \­±?¾¶§÷¸°¨·¹³²■\160;";
+
+const string: cp_857g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâäàåçêëèïîıÄÅ\
+    \ÉæÆôöòûùİÖÜø£ØŞş\
+    \áíóúñÑĞğ¿®¬½¼¡«»\
+    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
+    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
+    \ºªÊËÈ?ÍÎÏ┘┌█▄¦Ì▀\
+    \ÓßÔÒõÕµ?×ÚÛÙìÿ¯´\
+    \­±?¾¶§÷¸°¨·¹³²■\160;";
+
+(**
+ *  Conversion table from code page 858 to Unicode.
+ *  The MS-DOS code page 858 is used to write Western
+ *  European languages.
+ *)
+const string: cp_858 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
+    \áíóúñÑªº¿®¬½¼¡«»\
+    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
+    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
+    \ðÐÊËÈ€ÍÎÏ┘┌█▄¦Ì▀\
+    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
+    \­±‗¾¶§÷¸°¨·¹³²■\160;";
+
+const string: cp_858g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜø£Ø×ƒ\
+    \áíóúñÑªº¿®¬½¼¡«»\
+    \░▒▓│┤ÁÂÀ©╣║╗╝¢¥┐\
+    \└┴┬├─┼ãÃ╚╔╩╦╠═╬¤\
+    \ðÐÊËÈ€ÍÎÏ┘┌█▄¦Ì▀\
+    \ÓßÔÒõÕµþÞÚÛÙýÝ¯´\
+    \­±‗¾¶§÷¸°¨·¹³²■\160;";
+
+(**
+ *  Conversion table from code page 860 to Unicode.
+ *  The MS-DOS code page 860 is used to write Portuguese.
+ *)
+const string: cp_860 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâãàÁçêÊèÍÔìÃÂ\
+    \ÉÀÈôõòÚùÌÕÜ¢£Ù₧Ó\
+    \áíóúñÑªº¿Ò¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+const string: cp_860g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâãàÁçêÊèÍÔìÃÂ\
+    \ÉÀÈôõòÚùÌÕÜ¢£Ù₧Ó\
+    \áíóúñÑªº¿Ò¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 861 to Unicode.
+ *  The MS-DOS code page 861 is used to write Icelandic language.
+ *)
+const string: cp_861 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâäàåçêëèÐðÞÄÅ\
+    \ÉæÆôöþûÝýÖÜø£Ø₧ƒ\
+    \áíóúÁÍÓÚ¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+const string: cp_861g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâäàåçêëèÐðÞÄÅ\
+    \ÉæÆôöþûÝýÖÜø£Ø₧ƒ\
+    \áíóúÁÍÓÚ¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 862 to Unicode.
+ *  The MS-DOS code page 862 is used to write Hebrew.
+ *)
+const string: cp_862 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \אבגדהוזחטיךכלםמן\
+    \נסעףפץצקרשת¢£¥₧ƒ\
+    \áíóúñÑªº¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+const string: cp_862g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \אבגדהוזחטיךכלםמן\
+    \נסעףפץצקרשת¢£¥₧ƒ\
+    \áíóúñÑªº¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 863 to Unicode.
+ *  The MS-DOS code page 863 is used to write French language.
+ *)
+const string: cp_863 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâÂà¶çêëèïî‗À§\
+    \ÉÈÊôËÏûù¤ÔÜ¢£ÙÛƒ\
+    \¦´óú¨¸³¯Î⌐¬½¼¾«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+const string: cp_863g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâÂà¶çêëèïî‗À§\
+    \ÉÈÊôËÏûù¤ÔÜ¢£ÙÛƒ\
+    \¦´óú¨¸³¯Î⌐¬½¼¾«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 864 to Unicode.
+ *  The MS-DOS code page 864 is used to write Arabic.
+ *)
+const string: cp_864 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \°·∙√▒─│┼┤┬├┴┐┌└┘\
+    \β∞φ±½¼≈«»ﻷﻸ??ﻻﻼ​\
+    \ ­ﺂ£¤ﺄ??ﺎﺏﺕﺙ،ﺝﺡﺥ\
+    \٠١٢٣٤٥٦٧٨٩ﻑ؛ﺱﺵﺹ؟\
+    \¢ﺀﺁﺃﺅﻊﺋﺍﺑﺓﺗﺛﺟﺣﺧ╧\
+    \ﺫﺭﺯﺳﺷﺻﺿﻃﻇﻋﻏ¦¬÷×ﻉ\
+    \ـﻓﻗﻛﻟﻣﻧﻫﻭﻯﻳﺽﻌﻎﻍﻡ\
+    \ﹽﹼﻥﻩﻬﻰﻲﻐﻕﻵﻶﻝﻙﻱ■?";
+
+const string: cp_864g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \°·∙√▒─│┼┤┬├┴┐┌└┘\
+    \β∞φ±½¼≈«»ﻷﻸ??ﻻﻼ​\
+    \ ­ﺂ£¤ﺄ??ﺎﺏﺕﺙ،ﺝﺡﺥ\
+    \٠١٢٣٤٥٦٧٨٩ﻑ؛ﺱﺵﺹ؟\
+    \¢ﺀﺁﺃﺅﻊﺋﺍﺑﺓﺗﺛﺟﺣﺧ╧\
+    \ﺫﺭﺯﺳﺷﺻﺿﻃﻇﻋﻏ¦¬÷×ﻉ\
+    \ـﻓﻗﻛﻟﻣﻧﻫﻭﻯﻳﺽﻌﻎﻍﻡ\
+    \ﹽﹼﻥﻩﻬﻰﻲﻐﻕﻵﻶﻝﻙﻱ■?";
+
+(**
+ *  Conversion table from code page 865 to Unicode.
+ *  The MS-DOS code page 865 is used to write Nordic languages.
+ *)
+const string: cp_865 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜø£Ø₧ƒ\
+    \áíóúñÑªº¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+const string: cp_865g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \ÇüéâäàåçêëèïîìÄÅ\
+    \ÉæÆôöòûùÿÖÜø£Ø₧ƒ\
+    \áíóúñÑªº¿⌐¬½¼¡«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from code page 866 to Unicode.
+ *  The MS-DOS code page 866 is used to write Cyrillic script.
+ *)
+const string: cp_866 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \рстуфхцчшщъыьэюя\
+    \ЁёЄєЇїЎў°∙·√№¤■\160;";
+
+const string: cp_866g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \рстуфхцчшщъыьэюя\
+    \ЁёЄєЇїЎў°∙·√№¤■\160;";
+
+(**
+ *  Conversion table from code page 869 to Unicode.
+ *  The MS-DOS code page 869 is used to write Greek language.
+ *)
+const string: cp_869 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \??????Ά?·¬¦‘’Έ―Ή\
+    \ΊΪΌ??ΎΫ©Ώ²³ά£έήί\
+    \ϊΐόύΑΒΓΔΕΖΗ½ΘΙ«»\
+    \░▒▓│┤ΚΛΜΝ╣║╗╝ΞΟ┐\
+    \└┴┬├─┼ΠΡ╚╔╩╦╠═╬Σ\
+    \ΤΥΦΧΨΩαβγ┘┌█▄δε▀\
+    \ζηθικλμνξοπρσςτ΄\
+    \­±υφχ§ψ΅°¨ωϋΰώ■\160;";
+
+const string: cp_869g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \??????Ά?·¬¦‘’Έ―Ή\
+    \ΊΪΌ??ΎΫ©Ώ²³ά£έήί\
+    \ϊΐόύΑΒΓΔΕΖΗ½ΘΙ«»\
+    \░▒▓│┤ΚΛΜΝ╣║╗╝ΞΟ┐\
+    \└┴┬├─┼ΠΡ╚╔╩╦╠═╬Σ\
+    \ΤΥΦΧΨΩαβγ┘┌█▄δε▀\
+    \ζηθικλμνξοπρσςτ΄\
+    \­±υφχ§ψ΅°¨ωϋΰώ■\160;";
+
+(**
+ *  Conversion table from code page 874 to Unicode.
+ *  The Windows code page 874 is used for the Thai language.
+ *)
+const string: cp_874 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \€????…??????????\
+    \?‘’“”•–—????????\
+    \\160;กขฃคฅฆงจฉชซฌญฎฏ\
+    \ฐฑฒณดตถทธนบปผฝพฟ\
+    \ภมยรฤลฦวศษสหฬอฮฯ\
+    \ะัาำิีึืฺุู????฿\
+    \เแโใไๅๆ็่้๊๋์ํ๎๏\
+    \๐๑๒๓๔๕๖๗๘๙๚๛????";
+
+(**
+ *  Conversion table from code page 1125 to Unicode.
+ *  The code page 1125 is used for the Ukrainian language.
+ *)
+const string: cp_1125 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \рстуфхцчшщъыьэюя\
+    \ЁёҐґЄєІіЇї÷±№€■\160;";
+
+const string: cp_1125g is "\
+    \\0;☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \рстуфхцчшщъыьэюя\
+    \ЁёҐґЄєІіЇї÷±№€■ \160;";
+
+(**
+ *  Conversion table from code page 1250 to Unicode.
+ *  The Windows code page 1250 encodes the Latin alphabet for
+ *  Central and Eastern European languages, that use Latin script.
+ *  It can be used for encoding German, Polish, Czech, Slovak,
+ *  Hungarian, Slovene, Bosnian, Croatian, Serbian, Romanian
+ *  and Albanian.
+ *)
+const string: cp_1250 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚?„…†‡?‰Š‹ŚŤŽŹ\
+    \?‘’“”•–—?™š›śťžź\
+    \\160;ˇ˘Ł¤Ą¦§¨©Ş«¬­®Ż\
+    \°±˛ł´µ¶·¸ąş»Ľ˝ľż\
+    \ŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎ\
+    \ĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢß\
+    \ŕáâăäĺćçčéęëěíîď\
+    \đńňóôőö÷řůúűüýţ˙";
+
+(**
+ *  Conversion table from code page 1251 to Unicode.
+ *  The Windows code page 1251 encodes the Latin/Cyrillic alphabet.
+ *  It can be used is for encoding Russian, Bulgarian, Serbian and
+ *  Macedonian.
+ *)
+const string: cp_1251 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏ\
+    \ђ‘’“”•–—?™љ›њќћџ\
+    \\160;ЎўЈ¤Ґ¦§Ё©Є«¬­®Ї\
+    \°±Ііґµ¶·ё№є»јЅѕї\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \рстуфхцчшщъыьэюя";
+
+(**
+ *  Conversion table from code page 1252 to Unicode.
+ *  The Windows code page 1250 encodes the Latin alphabet for
+ *  Western European languages. The Windows code page 1252 is
+ *  a superset of ISO 8859-1.
+ *)
+const string: cp_1252 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚ƒ„…†‡ˆ‰Š‹Œ?Ž?\
+    \?‘’“”•–—˜™š›œ?žŸ\
+    \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+    \àáâãäåæçèéêëìíîï\
+    \ðñòóôõö÷øùúûüýþÿ";
+
+(**
+ *  Conversion table from code page 1253 to Unicode.
+ *  The Windows code page 1253 encodes the Latin/Greek alphabet.
+ *)
+const string: cp_1253 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚ƒ„…†‡?‰?‹????\
+    \?‘’“”•–—?™?›????\
+    \\160;΅Ά£¤¥¦§¨©?«¬­®―\
+    \°±²³΄µ¶·ΈΉΊ»Ό½ΎΏ\
+    \ΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟ\
+    \ΠΡ?ΣΤΥΦΧΨΩΪΫάέήί\
+    \ΰαβγδεζηθικλμνξο\
+    \πρςστυφχψωϊϋόύώ?";
+
+(**
+ *  Conversion table from code page 1254 to Unicode.
+ *  The Windows code page 1254 covers the Turkish language.
+ *)
+const string: cp_1254 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚ƒ„…†‡ˆ‰Š‹Œ???\
+    \?‘’“”•–—˜™š›œ??Ÿ\
+    \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ĞÑÒÓÔÕÖ×ØÙÚÛÜİŞß\
+    \àáâãäåæçèéêëìíîï\
+    \ğñòóôõö÷øùúûüışÿ";
+
+(**
+ *  Conversion table from code page 1255 to Unicode.
+ *  The Windows code page 1255 encodes the Latin/Hebrew alphabet.
+ *)
+const string: cp_1255 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚ƒ„…†‡ˆ‰?‹????\
+    \?‘’“”•–—˜™?›????\
+    \\160;¡¢£₪¥¦§¨©×«¬­®¯\
+    \°±²³´µ¶·¸¹÷»¼½¾¿\
+    \ְֱֲֳִֵֶַָֹ?ֻּֽ־ֿ\
+    \׀ׁׂ׃װױײ׳״???????\
+    \אבגדהוזחטיךכלםמן\
+    \נסעףפץצקרשת??\16#200e;\16#200f;?";
+
+(**
+ *  Conversion table from code page 1256 to Unicode.
+ *  The Windows code page 1256 encodes the Latin/Arabic alphabet.
+ *)
+const string: cp_1256 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€پ‚ƒ„…†‡ˆ‰ٹ‹Œچژڈ\
+    \گ‘’“”•–—ک™ڑ›œ‌‍ں\
+    \\160;،¢£¤¥¦§¨©ھ«¬­®¯\
+    \°±²³´µ¶·¸¹؛»¼½¾؟\
+    \ہءآأؤإئابةتثجحخد\
+    \ذرزسشصض×طظعغـفقك\
+    \àلâمنهوçèéêëىيîï\
+    \ًٌٍَôُِ÷ّùْûü\16#200e;\16#200f;ے";
+
+(**
+ *  Conversion table from code page 1257 to Unicode.
+ *  The Windows code page 1257 covers the Baltic languages.
+ *)
+const string: cp_1257 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚?„…†‡?‰?‹?¨ˇ¸\
+    \?‘’“”•–—?™?›?¯˛?\
+    \\160;?¢£¤?¦§Ø©Ŗ«¬­®Æ\
+    \°±²³´µ¶·ø¹ŗ»¼½¾æ\
+    \ĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻ\
+    \ŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽß\
+    \ąįāćäåęēčéźėģķīļ\
+    \šńņóōõö÷ųłśūüżž˙";
+
+(**
+ *  Conversion table from code page 1258 to Unicode.
+ *  The Windows code page 1258 covers the Vietnamese language.
+ *)
+const string: cp_1258 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚ƒ„…†‡ˆ‰?‹Œ???\
+    \?‘’“”•–—˜™?›œ??Ÿ\
+    \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂĂÄÅÆÇÈÉÊË\16#300;ÍÎÏ\
+    \ĐÑ\16#309;ÓÔƠÖ×ØÙÚÛÜƯ\16#303;ß\
+    \àáâăäåæçèéêë\16#301;íîï\
+    \đñ\16#323;óôơö÷øùúûüư₫ÿ";
+
+(**
+ *  Conversion table from ISO-8859-1 (Latin-1) to Unicode.
+ *  ISO-8859-1 is the character set for Western European languages.
+ *  ISO-8859-1 defines the first 256 code point assignments in Unicode.
+ *  It can be used for encoding Afrikaans, Albanian, Basque, Breton,
+ *  Catalan, Danish, English, Faroese, Galician, German, Icelandic,
+ *  Malay, Irish, Italian, Latin, Leonese, Luxembourgish, Norwegian,
+ *  Occitan, Portuguese, Rhaeto-Romanic, Scottish Gaelic, Spanish,
+ *  Swahili, Swedish and Walloon.
+ *)
+const string: iso_8859_1 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+    \àáâãäåæçèéêëìíîï\
+    \ðñòóôõö÷øùúûüýþÿ";
+
+(**
+ *  Conversion table from ISO-8859-2 (Latin-2) to Unicode.
+ *  ISO-8859-2 is the character set for Eastern European languages.
+ *  It can be used for encoding Bosnian, Croatian, Czech, German,
+ *  Hungarian, Polish, Serbian, Slovak, Slovene and Sorbian.
+ *)
+const string: iso_8859_2 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;Ą˘Ł¤ĽŚ§¨ŠŞŤŹ­ŽŻ\
+    \°ą˛ł´ľśˇ¸šşťź˝žż\
+    \ŔÁÂĂÄĹĆÇČÉĘËĚÍÎĎ\
+    \ĐŃŇÓÔŐÖ×ŘŮÚŰÜÝŢß\
+    \ŕáâăäĺćçčéęëěíîď\
+    \đńňóôőö÷řůúűüýţ˙";
+
+(**
+ *  Conversion table from ISO-8859-3 (Latin-3) to Unicode.
+ *  ISO-8859-3 is the character set for South European languages.
+ *  It can be used for encoding Turkish, Maltese and Esperanto.
+ *)
+const string: iso_8859_3 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;Ħ˘£¤?Ĥ§¨İŞĞĴ­?Ż\
+    \°ħ²³´µĥ·¸ışğĵ½?ż\
+    \ÀÁÂ?ÄĊĈÇÈÉÊËÌÍÎÏ\
+    \?ÑÒÓÔĠÖ×ĈÙÚÛÜŬŜß\
+    \àáâ?äċĉçèéêëìíîï\
+    \?ñòóôġö÷ĝùúûüŭŝ˙";
+
+(**
+ *  Conversion table from ISO-8859-4 (Latin-4) to Unicode.
+ *  ISO-8859-4 is the character set for North European languages.
+ *  It can be used for encoding Estonian, Latvian, Lithuanian,
+ *  Greenlandic and Sami.
+ *)
+const string: iso_8859_4 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;ĄĸŖ¤ĨĻ§¨ŠĒĢŦ­Ž¯\
+    \°ą˛ŗ´ĩļˇ¸šēģŧŊžŋ\
+    \ĀÁÂÃÄÅÆĮČÉĘËĖÍÎĪ\
+    \ĐŅŌĶÔÕÖ×ØŲÚÛÜŨŪß\
+    \āáâãäåæįčéęëėíîī\
+    \đņōķôõö÷øųúûüũū˙";
+
+(**
+ *  Conversion table from ISO-8859-5 to Unicode.
+ *  ISO-8859-5 is the character set for the Latin/Cyrillic alphabet.
+ *  It can be used for encoding Bulgarian, Belarusian, Russian,
+ *  Serbian and Macedonian.
+ *)
+const string: iso_8859_5 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;ЁЂЃЄЅІЇЈЉЊЋЌ­ЎЏ\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \рстуфхцчшщъыьэюя\
+    \№ёђѓєѕіїјљњћќ§ўџ";
+
+(**
+ *  Conversion table from ISO-8859-6 to Unicode.
+ *  ISO-8859-6 is the character set for the Latin/Arabic alphabet.
+ *)
+const string: iso_8859_6 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;???¤???????،­??\
+    \???????????؛???؟\
+    \?ءآأؤإئابةتثجحخد\
+    \ذرزسشصضطظعغ?????\
+    \ـفقكلمنهوىيًٌٍَُ\
+    \ِّْ?????????????";
+
+(**
+ *  Conversion table from ISO-8859-7 to Unicode.
+ *  ISO-8859-7 is the character set for the Latin/Greek alphabet.
+ *)
+const string: iso_8859_7 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;‘’£€₯¦§¨©ͺ«¬­?―\
+    \°±²³΄΅Ά·ΈΉΊ»Ό½ΎΏ\
+    \ΐΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟ\
+    \ΠΡ?ΣΤΥΦΧΨΩΪΫάέήί\
+    \ΰαβγδεζηθικλμνξο\
+    \πρςστυφχψωϊϋόύώ?";
+
+(**
+ *  Conversion table from ISO-8859-8 to Unicode.
+ *  ISO-8859-8 is the character set for the Latin/Hebrew alphabet.
+ *)
+const string: iso_8859_8 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;?¢£¤¥¦§¨©×«¬­®¯\
+    \°±²³´µ¶·¸¹÷»¼½¾?\
+    \????????????????\
+    \???????????????‗\
+    \אבגדהוזחטיךכלםמן\
+    \נסעףפץצקרשת??\16#200e;\16#200f;?";
+
+(**
+ *  Conversion table from ISO-8859-9 (Latin-5) to Unicode.
+ *  ISO-8859-9 is the character set to cover the Turkish language.
+ *)
+const string: iso_8859_9 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ĞÑÒÓÔÕÖ×ØÙÚÛÜİŞß\
+    \àáâãäåæçèéêëìíîï\
+    \ğñòóôõö÷øùúûüışÿ";
+
+(**
+ *  Conversion table from ISO-8859-10 (Latin-6) to Unicode.
+ *  ISO-8859-10 is the character set to cover the Nordic languages.
+ *)
+const string: iso_8859_10 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;ĄĒĢĪĨĶ§ĻĐŠŦŽ­ŪŊ\
+    \°ąēģīĩķ·ļđšŧž―ūŋ\
+    \ĀÁÂÃÄÅÆĮČÉĘËĖÍÎÏ\
+    \ÐŅŌÓÔÕÖŨØŲÚÛÜÝÞß\
+    \āáâãäåæįčéęëėíîï\
+    \ðņōóôõöũøųúûüýþĸ";
+
+(**
+ *  Conversion table from ISO-8859-11 to Unicode.
+ *  ISO-8859-11 is the character set for the Latin/Thai alphabet.
+ *)
+const string: iso_8859_11 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;กขฃคฅฆงจฉชซฌญฎฏ\
+    \ฐฑฒณดตถทธนบปผฝพฟ\
+    \ภมยรฤลฦวศษสหฬอฮฯ\
+    \ะัาำิีึืฺุู????฿\
+    \เแโใไๅๆ็่้๊๋์ํ๎๏\
+    \๐๑๒๓๔๕๖๗๘๙๚๛????";
+
+(**
+ *  Conversion table from ISO-8859-13 (Latin-7) to Unicode.
+ *  ISO-8859-13 is the character set to cover the Baltic languages.
+ *)
+const string: iso_8859_13 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;”¢£¤„¦§Ø©Ŗ«¬­®Æ\
+    \°±²³“µ¶·ø¹ŗ»¼½¾æ\
+    \ĄĮĀĆÄÅĘĒČÉŹĖĢĶĪĻ\
+    \ŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽß\
+    \ąįāćäåęēčéźėģķīļ\
+    \šńņóōõö÷ųłśūüżž’";
+
+(**
+ *  Conversion table from ISO-8859-14 (Latin-8) to Unicode.
+ *  ISO-8859-14 is the character set to cover the Celtic languages.
+ *  It can be used for encoding Irish, Manx, Scottish Gaelic,
+ *  Welsh, Cornish and Breton.
+ *)
+const string: iso_8859_14 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;Ḃḃ£ĊċḊ§Ẁ©ẂḋỲ­®Ÿ\
+    \ḞḟĠġṀṁ¶ṖẁṗẃṠỳẄẅṡ\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ŴÑÒÓÔÕÖṪØÙÚÛÜÝŶß\
+    \àáâãäåæçèéêëìíîï\
+    \ŵñòóôõöṫøùúûüýŷÿ";
+
+(**
+ *  Conversion table from ISO-8859-15 (Latin-9) to Unicode.
+ *  ISO-8859-15 is the character set for Western European languages.
+ *  It can be used for encoding Afrikaans, Albanian, Breton, Catalan,
+ *  Danish, Dutch, English, Estonian, Faroese, Finnish, French,
+ *  Galician, German, Icelandic, Irish, Italian, Kurdish, Latin,
+ *  Luxembourgish, Malay, Norwegian, Occitan, Portuguese,
+ *  Rhaeto-Romanic, Scottish Gaelic, Scots, Spanish, Swahili,
+ *  Swedish, Tagalog and Walloon.
+ *)
+const string: iso_8859_15 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;¡¢£€¥Š§š©ª«¬­®¯\
+    \°±²³Žµ¶·ž¹º»ŒœŸ¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+    \àáâãäåæçèéêëìíîï\
+    \ðñòóôõö÷øùúûüýþÿ";
+
+(**
+ *  Conversion table from ISO-8859-16 (Latin-10) to Unicode.
+ *  ISO-8859-16 is the character set for South-Eastern European languages.
+ *  It can be used for encoding Albanian, Croatian, Hungarian,
+ *  Polish, Romanian, Serbian and Slovenian, but also French, German,
+ *  Italian and Irish Gaelic.
+ *)
+const string: iso_8859_16 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;ĄąŁ€„Š§š©Ș«Ź­źŻ\
+    \°±ČłŽ”¶·žčș»ŒœŸż\
+    \ÀÁÂĂÄĆÆÇÈÉÊËÌÍÎÏ\
+    \ĐŃÒÓÔŐÖŚŰÙÚÛÜĘȚß\
+    \àáâăäćæçèéêëìíîï\
+    \đńòóôőöśűùúûüęțÿ";
+
+const string: pdf_doc_encoding is "\
+    \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+    \\0;\0;\0;\0;\0;\0;\0;\0;\728;\711;\710;\729;\733;\731;\730;\732;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\0;\
+    \•†‡…—–ƒ⁄‹›−‰„“”‘\
+    \’‚™ﬁﬂŁŒŠŸŽıłœšž\0;\
+    \€¡¢£¤¥¦§¨©ª«¬\0;®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+    \àáâãäåæçèéêëìíîï\
+    \ðñòóôõö÷øùúûüýþÿ";
+
+(**
+ *  Conversion table from Mac OS Roman encoding to Unicode.
+ *)
+const string: mac_os_roman is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \ÄÅÇÉÑÖÜáàâäãåçéè\
+    \êëíìîïñóòôöõúùûü\
+    \†°¢£§•¶ß®©™´¨≠ÆØ\
+    \∞±≤≥¥µ∂∑∏π∫ªºΩæø\
+    \¿¡¬√ƒ≈∆«»…\160;ÀÃÕŒœ\
+    \–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ\
+    \‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔ\
+    \ÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ";
+
+(**
+ *  Conversion table from KOI8-R encoding to Unicode.
+ *  KOI8-R is an encoding used for Russian and Bulgarian.
+ *)
+const string: koi8_r is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \─│┌┐└┘├┤┬┴┼▀▄█▌▐\
+    \░▒▓⌠■∙√≈≤≥\160;⌡°²·÷\
+    \═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞\
+    \╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©\
+    \юабцдефгхийклмно\
+    \пярстужвьызшэщчъ\
+    \ЮАБЦДЕФГХИЙКЛМНО\
+    \ПЯРСТУЖВЬЫЗШЭЩЧЪ";
+
+(**
+ *  Conversion table from KOI8-U encoding to Unicode.
+ *  KOI8-U is an encoding used for Ukrainian and Belorussian.
+ *)
+const string: koi8_u is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \─│┌┐└┘├┤┬┴┼▀▄█▌▐\
+    \░▒▓⌠■∙√≈≤≥\160;⌡°²·÷\
+    \═║╒ёє╔ії╗╘╙╚╛ґ╝╞\
+    \╟╠╡ЁЄ╣ІЇ╦╧╨╩╪Ґ╬©\
+    \юабцдефгхийклмно\
+    \пярстужвьызшэщчъ\
+    \ЮАБЦДЕФГХИЙКЛМНО\
+    \ПЯРСТУЖВЬЫЗШЭЩЧЪ";
+
+(**
+ *  Conversion table from MIK encoding to Unicode.
+ *  MIK is an encoding used for the Bulgarian language.
+ *)
+const string: mik is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \рстуфхцчшщъыьэюя\
+    \└┴┬├─┼╣║╚╔╩╦╠═╬┐\
+    \░▒▓│┤№§╗╝┘┌█▄▌▐▀\
+    \αßΓπΣσµτΦΘΩδ∞φε∩\
+    \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160;";
+
+(**
+ *  Conversion table from TIS-620 encoding to Unicode.
+ *  TIS-620 is the Thai Industrial Standard encoding for the Thai language.
+ *)
+const string: tis_620 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \????????????????\
+    \????????????????\
+    \?กขฃคฅฆงจฉชซฌญฎฏ\
+    \ฐฑฒณดตถทธนบปผฝพฟ\
+    \ภมยรฤลฦวศษสหฬอฮฯ\
+    \ะัาำิีึืฺุู????฿\
+    \เแโใไๅๆ็่้๊๋์ํ๎๏\
+    \๐๑๒๓๔๕๖๗๘๙๚๛????";
+
+(**
+ *  Conversion table from ArmSCII-8 encoding to Unicode.
+ *  ArmSCII-8 is an encoding for the Armenian alphabet.
+ *)
+const string: armscii_8 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \????????????????\
+    \????????????????\
+    \\160;?և։)(»«—.՝,-֊…՜\
+    \՛՞ԱաԲբԳգԴդԵեԶզԷէ\
+    \ԸըԹթԺժԻիԼլԽխԾծԿկ\
+    \ՀհՁձՂղՃճՄմՅյՆնՇշ\
+    \ՈոՉչՊպՋջՌռՍսՎվՏտ\
+    \ՐրՑցՒւՓփՔքՕօՖֆ՚?";
+
+(**
+ *  Conversion table from GEOSTD8 encoding to Unicode.
+ *  GEOSTD is an encoding for the Georgian language.
+ *)
+const string: geostd8 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \€?‚?„…†‡?‰?‹????\
+    \?‘’“”•–—???›????\
+    \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \აბგდევზჱთიკლმნჲო\
+    \პჟრსტჳუფქღყშჩცძწ\
+    \ჭხჴჯჰჵ??????????\
+    \?????????????№??";
+
+(**
+ *  Conversion table from JIS X 0201 encoding to Unicode.
+ *  JIS X 0201 is a Japanese Industrial Standard which combines
+ *  ASCII (except backslash and tilde) with half-width kana
+ *  (the halfwidth form of katakana).
+ *)
+const string: jis_x_0201 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[¥]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}‾\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;｡｢｣､･ｦｧｨｩｪｫｬｭｮｯ\
+    \ｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿ\
+    \ﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏ\
+    \ﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ\
+    \????????????????\
+    \????????????????";
+
+(**
+ *  Conversion table from VISCII encoding to Unicode.
+ *  VISCII is the Vietnamese Standard Code for Information Interchange.
+ *)
+const string: viscii is "\
+    \\0;\AẲ\C\DẴẪ\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\SỶ\U\V\W\XỸ\Z\e\28;\29;Ỵ\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127;\
+    \ẠẮẰẶẤẦẨẬẼẸẾỀỂỄỆỐ\
+    \ỒỔỖỘỢỚỜỞỊỎỌỈỦŨỤỲ\
+    \Õắằặấầẩậẽẹếềểễệố\
+    \ồổỗỠƠộờởịỰỨỪỬơớƯ\
+    \ÀÁÂÃẢĂẳẵÈÉÊẺÌÍĨỳ\
+    \ĐứÒÓÔạỷừửÙÚỹỵÝỡư\
+    \àáâãảăữẫèéêẻìíĩỉ\
+    \đựòóôõỏọụùúũủýợỮ";
+
+(**
+ *  Conversion table from NS 4551-1 encoding to Unicode.
+ *  NS 4551 version 1 is the national variant of ISO 646 for Norway.
+ *)
+const string: ns_4551_1 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZÆØÅ^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyzæøå~\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+    \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+    \àáâãäåæçèéêëìíîï\
+    \ðñòóôõö÷øùúûüýþÿ";
+
+(**
+ *  Conversion table from code page 37 to Unicode.
+ *  Code page 37 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  used in Australia, Brazil, Canada, New Zealand, Portugal,
+ *  South Africa and USA.
+ *)
+const string: cp_037 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;âäàáãåçñ¢.<(+|\
+    \&éêëèíîïìß!$*);¬\
+    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
+    \øÉÊËÈÍÎÏÌ`:#@'=\"\
+    \Øabcdefghi«»ðýþ±\
+    \°jklmnopqrªºæ¸Æ¤\
+    \µ~stuvwxyz¡¿ÐÝÞ®\
+    \^£¥·©§¶¼½¾[]¯¨´×\
+    \{ABCDEFGHI­ôöòóõ\
+    \}JKLMNOPQR¹ûüùúÿ\
+    \\\÷STUVWXYZ²ÔÖÒÓÕ\
+    \0123456789³ÛÜÙÚ\159;";
+
+(**
+ *  Conversion table from code page 273 to Unicode.
+ *  Code page 273 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  used in Austria and Germany.
+ *)
+const string: cp_273 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;â{àáãåçñÄ.<(+!\
+    \&éêëèíîïì~Ü$*);^\
+    \-/Â[ÀÁÃÅÇÑö,%_>?\
+    \øÉÊËÈÍÎÏÌ`:#§'=\"\
+    \Øabcdefghi«»ðýþ±\
+    \°jklmnopqrªºæ¸Æ¤\
+    \µßstuvwxyz¡¿ÐÝÞ®\
+    \¢£¥·©@¶¼½¾¬|¯¨´×\
+    \äABCDEFGHI­ô¦òóõ\
+    \üJKLMNOPQR¹û}ùúÿ\
+    \Ö÷STUVWXYZ²Ô\\ÒÓÕ\
+    \0123456789³Û]ÙÚ\159;";
+
+(**
+ *  Conversion table from code page 277 to Unicode.
+ *  Code page 277 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  used in Denmark and Norway.
+ *)
+const string: cp_277 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;âäàáã}çñ#.<(+!\
+    \&éêëèíîïìß¤Å*);^\
+    \-/ÂÄÀÁÃ$ÇÑø,%_>?\
+    \¦ÉÊËÈÍÎÏÌ`:ÆØ'=\"\
+    \@abcdefghi«»ðýþ±\
+    \°jklmnopqrªº{¸[]\
+    \µüstuvwxyz¡¿ÐÝÞ®\
+    \¢£¥·©§¶¼½¾¬|¯¨´×\
+    \æABCDEFGHI­ôöòóõ\
+    \åJKLMNOPQR¹û~ùúÿ\
+    \\\÷STUVWXYZ²ÔÖÒÓÕ\
+    \0123456789³ÛÜÙÚ\159;";
+
+(**
+ *  Conversion table from code page 280 to Unicode.
+ *  Code page 280 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  used in Italy.
+ *)
+const string: cp_280 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;âä{áãå\\ñ°.<(+!\
+    \&]êë}íîï~ßé$*);^\
+    \-/ÂÄÀÁÃÅÇÑò,%_>?\
+    \øÉÊËÈÍÎÏÌù:£§'=\"\
+    \Øabcdefghi«»ðýþ±\
+    \[jklmnopqrªºæ¸Æ¤\
+    \µìstuvwxyz¡¿ÐÝÞ®\
+    \¢#¥·©@¶¼½¾¬|¯¨´×\
+    \àABCDEFGHI­ôö¦óõ\
+    \èJKLMNOPQR¹ûü`úÿ\
+    \ç÷STUVWXYZ²ÔÖÒÓÕ\
+    \0123456789³ÛÜÙÚ\159;";
+
+(**
+ *  Conversion table from code page 285 to Unicode.
+ *  Code page 285 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  used in Ireland and the United Kingdom.
+ *)
+const string: cp_285 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;âäàáãåçñ$.<(+|\
+    \&éêëèíîïìß!£*);¬\
+    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
+    \øÉÊËÈÍÎÏÌ`:#@'=\"\
+    \Øabcdefghi«»ðýþ±\
+    \°jklmnopqrªºæ¸Æ¤\
+    \µ¯stuvwxyz¡¿ÐÝÞ®\
+    \¢[¥·©§¶¼½¾^]~¨´×\
+    \{ABCDEFGHI­ôöòóõ\
+    \}JKLMNOPQR¹ûüùúÿ\
+    \\\÷STUVWXYZ²ÔÖÒÓÕ\
+    \0123456789³ÛÜÙÚ\159;";
+
+(**
+ *  Conversion table from code page 297 to Unicode.
+ *  Code page 297 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  used in France.
+ *)
+const string: cp_297 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;âä@áãå\\ñ°.<(+!\
+    \&{êë}íîïìß§$*);^\
+    \-/ÂÄÀÁÃÅÇÑù,%_>?\
+    \øÉÊËÈÍÎÏÌµ:£à'=\"\
+    \Øabcdefghi«»ðýþ±\
+    \[jklmnopqrªºæ¸Æ¤\
+    \`¨stuvwxyz¡¿ÐÝÞ®\
+    \¢#¥·©]¶¼½¾¬|¯~´×\
+    \éABCDEFGHI­ôöòóõ\
+    \èJKLMNOPQR¹ûü¦úÿ\
+    \ç÷STUVWXYZ²ÔÖÒÓÕ\
+    \0123456789³ÛÜÙÚ\159;";
+
+(**
+ *  Conversion table from code page 500 to Unicode.
+ *  Code page 500 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  international.
+ *)
+const string: cp_500 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;âäàáãåçñ[.<(+!\
+    \&éêëèíîïìß]$*);^\
+    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
+    \øÉÊËÈÍÎÏÌ`:#@'=\"\
+    \Øabcdefghi«»ðýþ±\
+    \°jklmnopqrªºæ¸Æ¤\
+    \µ~stuvwxyz¡¿ÐÝÞ®\
+    \¢£¥·©§¶¼½¾¬|¯¨´×\
+    \{ABCDEFGHI­ôöòóõ\
+    \}JKLMNOPQR¹ûüùúÿ\
+    \\\÷STUVWXYZ²ÔÖÒÓÕ\
+    \0123456789³ÛÜÙÚ\159;";
+
+(**
+ *  Conversion table from code page 1047 to Unicode.
+ *  Code page 1047 is an EBCDIC code page with the full
+ *  ISO-8859-1 (Latin-1) character set. This codepage is
+ *  used for Open Systems.
+ *)
+const string: cp_1047 is "\
+    \\000;\001;\002;\003;\156;\009;\134;\127;\  # NUL, SOH, STX, ETX, SEL, HT,  RNL, DEL
+    \\151;\141;\142;\011;\012;\013;\014;\015;\  # GE,  SPS, RPT, VT,  FF,  CR,  SO,  SI
+    \\016;\017;\018;\019;\157;\133;\008;\135;\  # DLE, DC1, DC2, DC3, RES, NL,  BS,  POC
+    \\024;\025;\146;\143;\028;\029;\030;\031;\  # CAN, EM,  UBS, CU1, IFS, IGS, IRS, IUS
+    \\128;\129;\130;\131;\132;\010;\023;\027;\  # DS,  SOS, FS,  WUS, BYP, LF,  ETB, ESC
+    \\136;\137;\138;\139;\140;\005;\006;\007;\  # SA,  SFE, SM,  CSP, MFA, ENQ, ACK, BEL
+    \\144;\145;\022;\147;\148;\149;\150;\004;\  # ?,   ?,   SYN, IR,  PP,  TRN, NBS, EOT
+    \\152;\153;\154;\155;\020;\021;\158;\026;\  # SBS, IT,  RFF, CU3, DC4, NAK, ?,   SUB
+    \ \160;âäàáãåçñ¢.<(+|\
+    \&éêëèíîïìß!$*);^\
+    \-/ÂÄÀÁÃÅÇÑ¦,%_>?\
+    \øÉÊËÈÍÎÏÌ`:#@'=\"\
+    \Øabcdefghi«»ðýþ±\
+    \°jklmnopqrªºæ¸Æ¤\
+    \µ~stuvwxyz¡¿Ð[Þ®\
+    \¬£¥·©§¶¼½¾Ý¨¯]´×\
+    \{ABCDEFGHI­ôöòóõ\
+    \}JKLMNOPQR¹ûüùúÿ\
+    \\\÷STUVWXYZ²ÔÖÒÓÕ\
+    \0123456789³ÛÜÙÚ\159;";
+
+
+(**
+ *  Convert a [[string]] with bytes from a code page encoding to UTF-32.
+ *  When the function is called ''stri'' is assumed to be a [[string]]
+ *  of bytes. The byte sequence in ''stri'' is encoded with the
+ *  specified code page. When the function is left ''stri'' contains
+ *  an UTF-32 unicode [[string]].
+ *)
+const proc: conv2unicode (inout string: stri, in string: codePage) is func
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to length(stri) do
+      stri @:= [index] codePage[succ(ord(stri[index]))];
+    end for;
+  end func;
+
+
+(**
+ *  Convert a [[string]] from a charset encoding to UTF-32.
+ *  When the function is called ''stri'' is assumed to be a [[string]]
+ *  of bytes encoded with the specified charset. When the function
+ *  is left ''stri'' contains an UTF-32 unicode [[string]]. The
+ *  'charset' encoding is specified with an IANA/MIME charset name.
+ *  This way the function can be used to convert encoded data for
+ *  internet protocols such as NNTP.
+ *  @exception RANGE_ERROR The charset unknown
+ *)
+const proc: conv2unicodeByName (inout string: stri,
+    in var string: charset) is func
+  begin
+    charset := upper(charset);
+    if  charset = "UTF-8" or
+        charset = "UTF8" then
+      stri := utf8ToStri(stri);
+    elsif charset = "ISO-8859-1" or
+          charset = "ISO_8859-1" or
+          charset = "ANSI_X3.4-1968" or
+          charset = "US-ASCII" or
+          charset = "ASCII" or
+          charset = "" then
+      noop;
+    elsif charset =     "ISO-8859-2" then
+      conv2unicode(stri, iso_8859_2);
+    elsif charset =     "ISO-8859-3" then
+      conv2unicode(stri, iso_8859_3);
+    elsif charset =     "ISO-8859-4" then
+      conv2unicode(stri, iso_8859_4);
+    elsif charset =     "ISO-8859-5" then
+      conv2unicode(stri, iso_8859_5);
+    elsif charset =     "ISO-8859-6" then
+      conv2unicode(stri, iso_8859_6);
+    elsif charset =     "ISO-8859-7" then
+      conv2unicode(stri, iso_8859_7);
+    elsif charset =     "ISO-8859-8" then
+      conv2unicode(stri, iso_8859_8);
+    elsif charset =     "ISO-8859-9" then
+      conv2unicode(stri, iso_8859_9);
+    elsif charset =     "ISO-8859-10" then
+      conv2unicode(stri, iso_8859_10);
+    elsif charset =     "ISO-8859-13" then
+      conv2unicode(stri, iso_8859_13);
+    elsif charset =     "ISO-8859-14" then
+      conv2unicode(stri, iso_8859_14);
+    elsif charset =     "ISO-8859-15" then
+      conv2unicode(stri, iso_8859_15);
+    elsif charset =     "ISO-8859-16" then
+      conv2unicode(stri, iso_8859_16);
+    elsif charset = "WINDOWS-1250" then
+      conv2unicode(stri,  cp_1250);
+    elsif charset = "WINDOWS-1251" then
+      conv2unicode(stri,  cp_1251);
+    elsif charset = "WINDOWS-1252" then
+      conv2unicode(stri,  cp_1252);
+    elsif charset = "WINDOWS-1253" then
+      conv2unicode(stri,  cp_1253);
+    elsif charset = "WINDOWS-1254" then
+      conv2unicode(stri,  cp_1254);
+    elsif charset = "WINDOWS-1255" then
+      conv2unicode(stri,  cp_1255);
+    elsif charset = "WINDOWS-1256" then
+      conv2unicode(stri,  cp_1256);
+    elsif charset = "WINDOWS-1257" then
+      conv2unicode(stri,  cp_1257);
+    elsif charset = "WINDOWS-1258" then
+      conv2unicode(stri,  cp_1258);
+    elsif charset =     "IBM437" or
+          charset =     "CP437" then
+      conv2unicode(stri, cp_437);
+    elsif charset =     "IBM850" or
+          charset =     "CP850" then
+      conv2unicode(stri, cp_850);
+    elsif charset =     "MACINTOSH" then
+      conv2unicode(stri, mac_os_roman);
+    elsif charset =     "KOI8-R" then
+      conv2unicode(stri, koi8_r);
+    elsif charset =     "KOI8-U" then
+      conv2unicode(stri, koi8_u);
+    elsif charset =     "TIS-620" then
+      conv2unicode(stri, tis_620);
+    elsif charset =     "ARMSCII-8" then
+      conv2unicode(stri, armscii_8);
+    elsif charset =     "GEOSTD8" then
+      conv2unicode(stri, geostd8);
+    elsif charset =     "VISCII" then
+      conv2unicode(stri, viscii);
+    elsif charset =     "NS_4551-1" then
+      conv2unicode(stri, ns_4551_1);
+    elsif charset =     "UTF-16BE" then
+      stri := utf16beToStri(stri);
+    elsif charset =     "UTF-16LE" then
+      stri := utf16leToStri(stri);
+    elsif charset =     "UTF-7" then
+      stri := utf7ToStri(stri);
+    else
+      # writeln("Unknown charset: " <& literal(charset));
+      raise RANGE_ERROR;
+    end if;
+  end func;

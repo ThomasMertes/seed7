@@ -1,0 +1,139 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  confval.sd7   Show config values of C compiler and runtime.     *)
+(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "utf8.s7i";
+  include "osfiles.s7i";
+  include "cc_conf.s7i";
+
+
+const func array string: noEmptyArray (in array string: anArray) is func
+  result
+    var array string: resultArray is [] ("");
+  begin
+    if length(anArray) <> 0 then
+      resultArray := anArray;
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    OUT := STD_UTF8_OUT;
+    writeln("WITH_STRI_CAPACITY:         " <& ccConf.WITH_STRI_CAPACITY);
+    writeln("ALLOW_STRITYPE_SLICES:      " <& ccConf.ALLOW_STRITYPE_SLICES);
+    writeln("ALLOW_BSTRITYPE_SLICES:     " <& ccConf.ALLOW_BSTRITYPE_SLICES);
+    writeln("RSHIFT_DOES_SIGN_EXTEND:    " <& ccConf.RSHIFT_DOES_SIGN_EXTEND);
+    writeln("TWOS_COMPLEMENT_INTTYPE:    " <& ccConf.TWOS_COMPLEMENT_INTTYPE);
+    writeln("LITTLE_ENDIAN_INTTYPE:      " <& ccConf.LITTLE_ENDIAN_INTTYPE);
+    writeln("FLOAT_COMPARISON_OKAY:      " <& ccConf.FLOAT_COMPARISON_OKAY);
+    writeln("POW_FUNCTION_OKAY:          " <& ccConf.POW_FUNCTION_OKAY);
+    writeln("FMOD_FUNCTION_OKAY:         " <& ccConf.FMOD_FUNCTION_OKAY);
+    writeln("SQRT_FUNCTION_OKAY:         " <& ccConf.SQRT_FUNCTION_OKAY);
+    writeln("EXP_FUNCTION_OKAY:          " <& ccConf.EXP_FUNCTION_OKAY);
+    writeln("LOG_FUNCTION_OKAY:          " <& ccConf.LOG_FUNCTION_OKAY);
+    writeln("LOG10_FUNCTION_OKAY:        " <& ccConf.LOG10_FUNCTION_OKAY);
+    writeln("LOG2_FUNCTION_OKAY:         " <& ccConf.LOG2_FUNCTION_OKAY);
+    writeln("LDEXP_FUNCTION_OKAY:        " <& ccConf.LDEXP_FUNCTION_OKAY);
+    writeln("FREXP_FUNCTION_OKAY:        " <& ccConf.FREXP_FUNCTION_OKAY);
+    writeln("HAS_SIGSETJMP:              " <& ccConf.HAS_SIGSETJMP);
+    writeln("CHECK_INT_DIV_BY_ZERO:      " <& ccConf.CHECK_INT_DIV_BY_ZERO);
+    writeln("CHECK_INT_DIV_ZERO_BY_ZERO: " <& ccConf.CHECK_INT_DIV_ZERO_BY_ZERO);
+    writeln("CHECK_INT_REM_BY_ZERO:      " <& ccConf.CHECK_INT_REM_BY_ZERO);
+    writeln("CHECK_INT_REM_ZERO_BY_ZERO: " <& ccConf.CHECK_INT_REM_ZERO_BY_ZERO);
+    writeln("FLOAT_ZERO_DIV_ERROR:       " <& ccConf.FLOAT_ZERO_DIV_ERROR);
+    writeln("CHECK_FLOAT_DIV_BY_ZERO:    " <& ccConf.CHECK_FLOAT_DIV_BY_ZERO);
+    writeln("HAS_EXP2:                   " <& ccConf.HAS_EXP2);
+    writeln("HAS_EXP10:                  " <& ccConf.HAS_EXP10);
+    writeln("HAS_CBRT:                   " <& ccConf.HAS_CBRT);
+    writeln("LIMITED_CSTRI_LITERAL_LEN:  " <& ccConf.LIMITED_CSTRI_LITERAL_LEN);
+    writeln("SWITCH_WORKS_FOR_INT64TYPE: " <& ccConf.SWITCH_WORKS_FOR_INT64TYPE);
+    writeln("CC_SOURCE_UTF8:             " <& ccConf.CC_SOURCE_UTF8);
+    writeln("USE_WMAIN:                  " <& ccConf.USE_WMAIN);
+    writeln("USE_WINMAIN:                " <& ccConf.USE_WINMAIN);
+    writeln("FLOATTYPE_DOUBLE:           " <& ccConf.FLOATTYPE_DOUBLE);
+    writeln("INTTYPE_SIZE:               " <& ccConf.INTTYPE_SIZE);
+    writeln("FLOATTYPE_SIZE:             " <& ccConf.FLOATTYPE_SIZE);
+    writeln("POINTER_SIZE:               " <& ccConf.POINTER_SIZE);
+    writeln("GENERIC_SIZE:               " <& ccConf.GENERIC_SIZE);
+    writeln("INT_SIZE:                   " <& ccConf.INT_SIZE);
+    writeln("LONG_SIZE:                  " <& ccConf.LONG_SIZE);
+    writeln("INT_RANGE_IN_FLOATTYPE_MAX: " <& ccConf.INT_RANGE_IN_FLOATTYPE_MAX);
+    writeln("MINIMUM_TRUNC_ARGUMENT:     " <& ccConf.MINIMUM_TRUNC_ARGUMENT);
+    writeln("MAXIMUM_TRUNC_ARGUMENT:     " <& ccConf.MAXIMUM_TRUNC_ARGUMENT);
+    writeln("BOOLTYPE:                   " <& ccConf.BOOLTYPE);
+    writeln("INT32TYPE:                  " <& ccConf.INT32TYPE);
+    writeln("UINT32TYPE:                 " <& ccConf.UINT32TYPE);
+    writeln("INT64TYPE:                  " <& ccConf.INT64TYPE);
+    writeln("UINT64TYPE:                 " <& ccConf.UINT64TYPE);
+    writeln("INT128TYPE:                 " <& ccConf.INT128TYPE);
+    writeln("UINT128TYPE:                " <& ccConf.UINT128TYPE);
+    writeln("INT32TYPE_LITERAL_SUFFIX:   " <& ccConf.INT32TYPE_LITERAL_SUFFIX);
+    writeln("INT64TYPE_LITERAL_SUFFIX:   " <& ccConf.INT64TYPE_LITERAL_SUFFIX);
+    writeln("MACRO_DEFS:                 " <& literal(ccConf.MACRO_DEFS));
+    writeln("OVERFLOW_SIGNAL:            " <& ccConf.OVERFLOW_SIGNAL);
+    writeln("BUILTIN_ADD_OVERFLOW:       " <& ccConf.BUILTIN_ADD_OVERFLOW);
+    writeln("BUILTIN_SUB_OVERFLOW:       " <& ccConf.BUILTIN_SUB_OVERFLOW);
+    writeln("BUILTIN_MULT_OVERFLOW:      " <& ccConf.BUILTIN_MULT_OVERFLOW);
+    writeln("OBJECT_FILE_EXTENSION:      " <& ccConf.OBJECT_FILE_EXTENSION);
+    writeln("LIBRARY_FILE_EXTENSION:     " <& ccConf.LIBRARY_FILE_EXTENSION);
+    writeln("EXECUTABLE_FILE_EXTENSION:  " <& ccConf.EXECUTABLE_FILE_EXTENSION);
+    writeln("LINKED_PROGRAM_EXTENSION:   " <& ccConf.LINKED_PROGRAM_EXTENSION);
+    writeln("C_COMPILER:                 " <& ccConf.C_COMPILER);
+    writeln("CPLUSPLUS_COMPILER:         " <& ccConf.CPLUSPLUS_COMPILER);
+    writeln("CALL_C_COMPILER_FROM_SHELL: " <& ccConf.CALL_C_COMPILER_FROM_SHELL);
+    writeln("C_COMPILER_VERSION:         " <& ccConf.C_COMPILER_VERSION);
+    writeln("CC_OPT_DEBUG_INFO:          " <& join(noEmptyArray(ccConf.CC_OPT_DEBUG_INFO), " "));
+    writeln("CC_OPT_NO_WARNINGS:         " <& ccConf.CC_OPT_NO_WARNINGS);
+    writeln("CC_OPT_OPTIMIZE_1:          " <& join(noEmptyArray(ccConf.CC_OPT_OPTIMIZE_1), " "));
+    writeln("CC_OPT_OPTIMIZE_2:          " <& join(noEmptyArray(ccConf.CC_OPT_OPTIMIZE_2), " "));
+    writeln("CC_OPT_OPTIMIZE_3:          " <& join(noEmptyArray(ccConf.CC_OPT_OPTIMIZE_3), " "));
+    writeln("CC_OPT_TRAP_OVERFLOW:       " <& ccConf.CC_OPT_TRAP_OVERFLOW);
+    writeln("CC_OPT_VERSION_INFO:        " <& ccConf.CC_OPT_VERSION_INFO);
+    writeln("CC_FLAGS:                   " <& join(noEmptyArray(ccConf.CC_FLAGS), " "));
+    writeln("CC_ERROR_FILEDES:           " <& ccConf.CC_ERROR_FILEDES);
+    writeln("CC_VERSION_INFO_FILEDES:    " <& ccConf.CC_VERSION_INFO_FILEDES);
+    writeln("LINKER_OPT_DEBUG_INFO:      " <& ccConf.LINKER_OPT_DEBUG_INFO);
+    writeln("LINKER_OPT_NO_DEBUG_INFO:   " <& ccConf.LINKER_OPT_NO_DEBUG_INFO);
+    writeln("LINKER_OPT_OUTPUT_FILE:     " <& ccConf.LINKER_OPT_OUTPUT_FILE);
+    writeln("LINKER_FLAGS:               " <& join(noEmptyArray(ccConf.LINKER_FLAGS), " "));
+    writeln("SYSTEM_LIBS:                " <& join(noEmptyArray(ccConf.SYSTEM_LIBS), " "));
+    writeln("SYSTEM_DRAW_LIBS:           " <& join(noEmptyArray(ccConf.SYSTEM_DRAW_LIBS), " "));
+    writeln("SYSTEM_CONSOLE_LIBS:        " <& join(noEmptyArray(ccConf.SYSTEM_CONSOLE_LIBS), " "));
+    writeln("SYSTEM_DATABASE_LIBS:       " <& join(noEmptyArray(ccConf.SYSTEM_DATABASE_LIBS), " "));
+    writeln("ADDITIONAL_SYSTEM_LIBS:     " <& join(noEmptyArray(ccConf.ADDITIONAL_SYSTEM_LIBS), " "));
+    writeln("SEED7_LIB:                  " <& ccConf.SEED7_LIB);
+    writeln("DRAW_LIB:                   " <& ccConf.DRAW_LIB);
+    writeln("CONSOLE_LIB:                " <& ccConf.CONSOLE_LIB);
+    writeln("DATABASE_LIB:               " <& ccConf.DATABASE_LIB);
+    writeln("COMP_DATA_LIB:              " <& ccConf.COMP_DATA_LIB);
+    writeln("COMPILER_LIB:               " <& ccConf.COMPILER_LIB);
+    writeln("S7_LIB_DIR:                 " <& ccConf.S7_LIB_DIR);
+    writeln("REDIRECT_FILEDES_1:         " <& ccConf.REDIRECT_FILEDES_1);
+    writeln("REDIRECT_FILEDES_2:         " <& ccConf.REDIRECT_FILEDES_2);
+    writeln("NULL_DEVICE:                " <& ccConf.NULL_DEVICE);
+    writeln("INTTYPE_LITERAL_SUFFIX:     " <& ccConf.INTTYPE_LITERAL_SUFFIX);
+    writeln("INT_MIN:                    " <& ccConf.INT_MIN);
+    writeln("INT_MAX:                    " <& ccConf.INT_MAX);
+  end func;

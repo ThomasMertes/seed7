@@ -1,0 +1,111 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  wildcard.s7i  Wild card match and find matching files.          *)
+(*  Copyright (C) 2010 - 2014, 2017  Thomas Mertes                  *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Check if the [[string]] stri matches with ''pattern''.
+ *  The pattern may contain wildcard characters.
+ *  * The asterisk * matches zero or more characters.
+ *  * The question mark ? matches exactly one character.
+ *  @return TRUE, if stri is matched by pattern,
+ *          FALSE otherwise.
+ *)
+const func boolean: wildcardMatch (in string: stri, in string: pattern) is func
+  result
+    var boolean: doesMatch is FALSE;
+  local
+    var integer: length is 0;
+    var integer: index is 1;
+    var string: patternTail is "";
+  begin
+    if pattern = "" then
+      doesMatch := stri = "";
+    else
+      case pattern[1] of
+        when {'*'}:
+          if pattern = "*" then
+            doesMatch := TRUE;
+          else
+            length := length(stri);
+            patternTail := pattern[2 .. ];
+            while index <= length and not doesMatch do
+              doesMatch := wildcardMatch(stri[index .. ], patternTail);
+              incr(index);
+            end while;
+          end if;
+        when {'?'}:
+          if stri <> "" then
+            doesMatch := wildcardMatch(stri[2 .. ], pattern[2 .. ]);
+          end if;
+        otherwise:
+          if stri <> "" and stri[1] = pattern[1] then
+            doesMatch := wildcardMatch(stri[2 .. ], pattern[2 .. ]);
+          end if;
+      end case;
+    end if;
+  end func;
+
+
+(**
+ *  Determine which file paths that match a given ''pattern''.
+ *  The pattern may contain wildcard characters.
+ *  * The asterisk * matches zero or more characters.
+ *  * The question mark ? matches exactly one character.
+ *  @param pattern File name pattern (e.g.: *.sd7) or path
+ *         followed by a file name pattern (e.g.: prg/*.sd7).
+ *  @return array of matching file paths.
+ *)
+const func array string: findMatchingFiles (in string: pattern) is func
+  result
+    var array string: matchingFiles is 0 times "";
+  local
+    var integer: slashPos is 0;
+    var string: path is "";
+    var array string: dirContent is 0 times "";
+    var string: filePattern is "";
+    var string: fileName is "";
+  begin
+    slashPos := rpos(pattern, '/');
+    block
+      if slashPos <> 0 then
+        path := pattern[.. pred(slashPos)];
+        filePattern := pattern[succ(slashPos) ..];
+        dirContent := readDir(path);
+        path &:= "/";
+      else
+        filePattern := pattern;
+        dirContent := readDir(".");
+      end if;
+    exception
+      catch FILE_ERROR: noop;
+    end block;
+    for fileName range dirContent do
+      if wildcardMatch(fileName, filePattern) then
+        matchingFiles &:= [] (path & fileName);
+      end if;
+    end for;
+  end func;

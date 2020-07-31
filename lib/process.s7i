@@ -1,0 +1,443 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  process.s7i   Support for creating processes                    *)
+(*  Copyright (C) 2009 - 2013  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "osfiles.s7i";
+include "cc_conf.s7i";
+include "stdio.s7i";
+
+
+(**
+ *  Type to manage processes.
+ *)
+const type: process is newtype;
+
+
+IN_PARAM_IS_REFERENCE(process);
+
+const proc: (ref process: dest) ::= (in process: source)     is action "PCS_CREATE";
+const proc: destroy (ref process: aValue)                    is action "PCS_DESTR";
+const proc: (inout process: dest) := (in process: source)    is action "PCS_CPY";
+const func process: _GENERATE_EMPTY_PROCESS                  is action "PCS_EMPTY";
+const process: (attr process) . value                        is _GENERATE_EMPTY_PROCESS;
+const process: (attr process) . EMPTY                        is _GENERATE_EMPTY_PROCESS;
+
+
+(**
+ *  Check if two processes are equal.
+ *  @return TRUE if the two processes are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in process: process1) = (in process: process2)  is action "PCS_EQ";
+
+
+(**
+ *  Check if two processes are not equal.
+ *  @return TRUE if both processes are not equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in process: process1) <> (in process: process2) is action "PCS_NE";
+
+
+(**
+ *  Compare two process values.
+ *  The order of two processes is determined by comparing the process
+ *  identifiers (PID). Therefore the result of ''compare'' may change
+ *  if the program is executed again. Inside a program the result
+ *  of ''compare'' is consistent and can be used to maintain hash
+ *  tables.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in process: process1, in process: process2) is action "PCS_CMP";
+
+
+(**
+ *  Compute the hash value of a process.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in process: aProcess) is action "PCS_HASHCODE";
+
+
+(**
+ *  Convert a ''process'' to a [[string]].
+ *  The process is converted to a string with the process identifier (PID).
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in process: aProcess) is action "PCS_STR";
+
+
+(**
+ *  Test whether the specified process is alive.
+ *  @return TRUE if the specified process has not yet terminated,
+ *          FALSE otherwise.
+ *)
+const func boolean: isAlive (in process: process1) is action "PCS_IS_ALIVE";
+
+
+const func process: startProcess (in string: command, in array string: parameters,
+    inout clib_file: stdin, inout clib_file: stdout, inout clib_file: stderr) is action "PCS_START";
+
+
+const func process: startProcess (in string: command, in array string: parameters,
+    inout file: stdin, inout file: stdout, inout file: stderr) is func
+  result
+    var process: aProcess is process.value;
+  local
+    var clib_file: stdinFile is CLIB_NULL_FILE;
+    var clib_file: stdoutFile is CLIB_NULL_FILE;
+    var clib_file: stderrFile is CLIB_NULL_FILE;
+    var external_file: aFile is external_file.value;
+  begin
+    if stdin <> STD_NULL then
+      aFile := external_file conv stdin;
+      stdinFile := aFile.ext_file;
+    end if;
+    if stdout <> STD_NULL then
+      aFile := external_file conv stdout;
+      stdoutFile := aFile.ext_file;
+    end if;
+    if stderr <> STD_NULL then
+      aFile := external_file conv stderr;
+      stderrFile := aFile.ext_file;
+    end if;
+    aProcess := startProcess(command, parameters, stdinFile, stdoutFile, stderrFile);
+  end func;
+
+
+(**
+ *  Start a new process.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters Array of argument strings passed to the new
+ *         program.
+ *  @return the process that has been started.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const func process: startProcess (in string: command, in array string: parameters) is
+  return startProcess(command, parameters, STD_IN.ext_file, STD_OUT.ext_file,
+                      STD_ERR.ext_file);
+
+
+(**
+ *  Start a new process.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable.
+ *  @param cmdAndParams Command to be executed and optional space
+ *         separated list of parameters. Command and parameters
+ *         must be space separated.
+ *  @return the process that has been started.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const func process: startProcess (in var string: cmdAndParams) is func
+  result
+    var process: childProcess is process.value;
+  local
+    var string: command is "";
+    var string: parameter is "";
+    var array string: parameters is 0 times "";
+  begin
+    command := getCommandLineWord(cmdAndParams);
+    parameter := getCommandLineWord(cmdAndParams);
+    while parameter <> "" do
+      parameters &:= parameter;
+      parameter := getCommandLineWord(cmdAndParams);
+    end while;
+    childProcess := startProcess(command, parameters);
+  end func;
+
+
+const func clib_file: childStdInClibFile (in process: aProcess) is action "PCS_CHILD_STDIN";
+const func clib_file: childStdOutClibFile (in process: aProcess) is action "PCS_CHILD_STDOUT";
+const func clib_file: childStdErrClibFile (in process: aProcess) is action "PCS_CHILD_STDERR";
+
+
+(**
+ *  Returns the standard input file (stdin) of the given child process.
+ *  If the standard input file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the standard input file of 'aProcess' or
+ *          NULL, if stdin has been redirected.
+ *)
+const func file: childStdIn (in process: aProcess) is func
+  result
+    var file: stdIn is STD_NULL;
+  local
+    var clib_file: stdinClibFile is CLIB_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    stdinClibFile := childStdInClibFile(aProcess);
+    if stdinClibFile <> CLIB_NULL_FILE then
+      new_file.ext_file := stdinClibFile;
+      stdIn:= toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Returns the standard output file (stdout) of the given child process.
+ *  If the standard output file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the standard output file of 'aProcess' or
+ *          NULL, if stdout has been redirected.
+ *)
+const func file: childStdOut (in process: aProcess) is func
+  result
+    var file: stdOut is STD_NULL;
+  local
+    var clib_file: stdoutClibFile is CLIB_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    stdoutClibFile := childStdOutClibFile(aProcess);
+    if stdoutClibFile <> CLIB_NULL_FILE then
+      new_file.ext_file := stdoutClibFile;
+      stdOut:= toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Returns the error output file (stderr) of the given child process.
+ *  If the standard error file of the subprocess has been redirected
+ *  then this function will return NULL.
+ *  @return the error output file of 'aProcess' or
+ *          NULL, if stderr has been redirected.
+ *)
+const func file: childStdErr (in process: aProcess) is func
+  result
+    var file: stdErr is STD_NULL;
+  local
+    var clib_file: stderrClibFile is CLIB_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    stderrClibFile := childStdErrClibFile(aProcess);
+    if stderrClibFile <> CLIB_NULL_FILE then
+      new_file.ext_file := stderrClibFile;
+      stdErr:= toInterface(new_file);
+    end if;
+  end func;
+
+
+(**
+ *  Kill the specified process.
+ *  @exception FILE_ERROR It was not possible to kill the process.
+ *)
+const proc: kill (in process: aProcess) is action "PCS_KILL";
+
+
+(**
+ *  Wait until the specified child process has terminated.
+ *  Suspend the execution of the calling process until the
+ *  specified child has terminated.
+ *)
+const proc: waitFor (in process: aProcess) is action "PCS_WAIT_FOR";
+
+
+(**
+ *  Return the exit value of the specified process.
+ *  By convention, the value 0 indicates normal termination.
+ *  @return the exit value of the specified process.
+ *)
+const func integer: exitValue (in process: aProcess) is action "PCS_EXIT_VALUE";
+
+
+(**
+ *  Returns the search path of the system as [[array]] of [[string]]s.
+ *  @return the search path of the system.
+ *  @exception MEMORY_ERROR Not enough memory to create the result.
+ *)
+const func array string: getSearchPath  is action "CMD_GET_SEARCH_PATH";
+
+
+(**
+ *  Sets the search path from an array of strings.
+ *  The search path is used by the current process and its sub processes.
+ *  The path of parent processes is not affected by this function.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system string type.
+ *  @exception RANGE_ERROR The path cannot be converted to the
+ *             system string type or a system function returns an error.
+ *)
+const proc: setSearchPath (in array string: searchPath)  is action "CMD_SET_SEARCH_PATH";
+
+
+(**
+ *  Search for an executable in the directories of the search path.
+ *  @return the absolute path of the executable or "" if
+ *          the executable was not found.
+ *)
+const func string: commandPath (in string: command) is func
+  result
+    var string: cmdPath is "";
+  local
+    var string: path is "";
+    var string: filePath is "";
+    var boolean: searching is TRUE;
+  begin
+    if pos(command, '/') = 0 then
+      for path range getSearchPath do
+        filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        if searching and fileType(filePath) = FILE_REGULAR and
+            fileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
+          searching := FALSE;
+          cmdPath := filePath;
+        end if;
+      end for;
+    else
+      if startsWith(command, "/") then
+        cmdPath := command & ccConf.EXECUTABLE_FILE_EXTENSION;
+      else
+        cmdPath := getcwd;
+        if cmdPath = "/" then
+          cmdPath &:= command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        else
+          cmdPath &:= "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        end if;
+      end if;
+      if fileType(cmdPath) <> FILE_REGULAR or
+          fileMode(cmdPath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} = fileMode.value then
+        cmdPath := "";
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Search for the directory of an executable in the search path.
+ *  @return the absolute path of the directory of the executable or
+ *          "" if the executable was not found.
+ *)
+const func string: commandDir (in string: command) is func
+  result
+    var string: cmdDir is "";
+  local
+    var string: path is "";
+    var string: filePath is "";
+    var boolean: searching is TRUE;
+    var integer: lastSlashPos is 0;
+  begin
+    if pos(command, '/') = 0 then
+      for path range getSearchPath do
+        filePath := path & "/" & command & ccConf.EXECUTABLE_FILE_EXTENSION;
+        if searching and fileType(filePath) = FILE_REGULAR and
+            fileMode(filePath) & {EXEC_USER, EXEC_GROUP, EXEC_OTHER} <> fileMode.value then
+          searching := FALSE;
+          cmdDir := path;
+        end if;
+      end for;
+    elsif startsWith(command, "/") then
+      lastSlashPos := rpos(command, '/');
+      if lastSlashPos = 1 then
+        cmdDir := "/";
+      else
+        cmdDir := command[.. pred(lastSlashPos)];
+      end if;
+    else
+      cmdDir := getcwd;
+    end if;
+  end func;
+
+
+const proc: pipe2 (in string: command, in array string: parameters,
+    inout clib_file: primitiveChildStdin,
+    inout clib_file: primitiveChildStdout) is action "PCS_PIPE2";
+
+
+(**
+ *  Start a process and connect pipes to its standard I/O files.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable. Pipe2
+ *  can be used to execute programs which process a stream of data.
+ *  Interactive programs buffer their I/O if they are not connected
+ *  to a terminal. Pipe2 has no influence of the buffering of the
+ *  executed command. Therefore interactive programs might not work
+ *  correctly with pipe2.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const proc: pipe2 (in string: command, in array string: parameters,
+    inout file: childStdin, inout file: childStdout) is func
+  local
+    var clib_file: primitiveChildStdin is CLIB_NULL_FILE;
+    var clib_file: primitiveChildStdout is CLIB_NULL_FILE;
+    var external_file: new_ChildStdin is external_file.value;
+    var external_file: new_ChildStdout is external_file.value;
+  begin
+    pipe2(command, parameters, primitiveChildStdin, primitiveChildStdout);
+    if primitiveChildStdin <> CLIB_NULL_FILE then
+      new_ChildStdin.ext_file := primitiveChildStdin;
+      childStdin := toInterface(new_ChildStdin);
+    end if;
+    if primitiveChildStdout <> CLIB_NULL_FILE then
+      # setbuf(primitiveChildStdout, IO_NO_BUFFERING, 0);
+      new_ChildStdout.ext_file := primitiveChildStdout;
+      childStdout := toInterface(new_ChildStdout);
+    end if;
+  end func;
+
+
+const proc: pty (in string: command, in array string: parameters,
+    inout clib_file: primitiveChildStdin,
+    inout clib_file: primitiveChildStdout) is action "PCS_PTY";
+
+
+const proc: pty (in string: command, in array string: parameters,
+    inout file: childStdin, inout file: childStdout) is func
+  local
+    var clib_file: primitiveChildStdin is CLIB_NULL_FILE;
+    var clib_file: primitiveChildStdout is CLIB_NULL_FILE;
+    var external_file: new_ChildStdin is external_file.value;
+    var external_file: new_ChildStdout is external_file.value;
+  begin
+    pty(command, parameters, primitiveChildStdin, primitiveChildStdout);
+    if primitiveChildStdin <> CLIB_NULL_FILE then
+      new_ChildStdin.ext_file := primitiveChildStdin;
+      childStdin := toInterface(new_ChildStdin);
+    end if;
+    if primitiveChildStdout <> CLIB_NULL_FILE then
+      new_ChildStdout.ext_file := primitiveChildStdout;
+      childStdout := toInterface(new_ChildStdout);
+    end if;
+  end func;

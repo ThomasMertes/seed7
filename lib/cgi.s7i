@@ -1,0 +1,104 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cgi.s7i       Support for the Common Gateway Interface          *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "chartype.s7i";
+include "file.s7i";
+include "unicode.s7i";
+include "encoding.s7i";
+
+
+(**
+ *  Read the CGI parameters from the given paramStri.
+ *  The parameter paramStri is assumed to consist of of name=value
+ *  pairs separated with ampersands. Name and value may be
+ *  percent-encoded. Both are decoded before they are entered into
+ *  the hash table. A CGI script can use the environment variable
+ *  QUERY_STRING as actual parameter for paramStri. Web servers
+ *  usually assign the URL part after the '?' character to
+ *  QUERY_STRING.
+ *  @return a hash table containing CGI parameters as key, value pairs.
+ *)
+const func hash [string] string: getCgiParameters (in string: paramStri) is func
+  result
+    var hash [string] string: cgiParameters is (hash [string] string).value;
+  local
+    var array string: paramArray is 0 times "";
+    var integer: index is 0;
+    var string: nameValuePair is "";
+    var integer: pos is 0;
+    var string: name is "";
+    var string: value is "";
+  begin
+    paramArray := split(paramStri, '&');
+    for index range 1 to length(paramArray) do
+      nameValuePair := paramArray[index];
+      pos := pos(nameValuePair, '=');
+      if pos <> 0 then
+        name := nameValuePair[.. pred(pos)];
+        value := nameValuePair[succ(pos) ..];
+        name := fromUrlEncoded(name);
+        value := fromUrlEncoded(value);
+        block
+          name := utf8ToStri(name);
+        exception
+          catch RANGE_ERROR:
+            noop;
+        end block;
+        block
+          value := utf8ToStri(value);
+        exception
+          catch RANGE_ERROR:
+            noop;
+        end block;
+        cgiParameters @:= [name] value;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Read the CGI parameters from the given file inFile.
+ *  The standard input file IN can be used as actual parameter for
+ *  inFile.
+ *  @return a hash table containing CGI parameters as key, value pairs.
+ *)
+const func hash [string] string: getCgiParameters (inout file: inFile) is func
+  result
+    var hash [string] string: cgiParameters is (hash [string] string).value;
+  local
+    var string: cgiParamLine is "";
+  begin
+    cgiParamLine := getln(inFile);
+    block
+      cgiParamLine := utf8ToStri(cgiParamLine);
+    exception
+      catch RANGE_ERROR:
+        noop;
+    end block;
+    cgiParameters := getCgiParameters(cgiParamLine);
+  end func;

@@ -1,0 +1,371 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  wumpus.sd7    Hunt the Wumpus game                              *)
+(*  Copyright (C) 2004, 2005  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+
+const integer: PLAYER is 1;
+const integer: WUMPUS is 2;
+const integer: PIT1   is 3;
+const integer: PIT2   is 4;
+const integer: BATS1  is 5;
+const integer: BATS2  is 6;
+const integer: LOCS   is 6;
+
+var integer: arrows is 0;
+
+var array integer: loc is LOCS times 0;
+var array integer: save is LOCS times 0; (* locations *)
+
+const type: status_type is new enum
+    PLAYING, WIN, LOSE
+  end enum;
+
+var status_type: game_status is PLAYING;
+
+const array array integer: cave is [](
+    []( 2,  5,  8),
+    []( 1,  3, 10),
+    []( 2,  4, 12),
+    []( 3,  5, 14),
+    []( 1,  4,  6),
+    []( 5,  7, 15),
+    []( 6,  8, 17),
+    []( 1,  7,  9),
+    []( 8, 10, 18),
+    []( 2,  9, 11),
+    [](10, 12, 19),
+    []( 3, 11, 13),
+    [](12, 14, 20),
+    []( 4, 13, 15),
+    []( 6, 14, 16),
+    [](15, 17, 20),
+    []( 7, 16, 18),
+    []( 9, 17, 19),
+    [](11, 18, 20),
+    [](13, 16, 19));
+
+
+const proc: print_instructions is func
+  begin
+    writeln("Welcome to 'Hunt the Wumpus'");
+    writeln("  The Wumpus lives in a cave of 20 rooms. Each room");
+    writeln("has 3 tunnels leading to other rooms. (look at a");
+    writeln("dodecahedron to see how this works-if you don't know");
+    writeln("what a dodecahedron is, ask someone)");
+    writeln;
+    writeln("     Hazards:");
+    writeln(" Bottomless pits - Two rooms have bottomless pits in them");
+    writeln("     If you go there, you fall into the pit (& lose!)");
+    writeln(" Super bats - Two other rooms have super bats. If you");
+    writeln("     go there, a bat graps you and takes you to some other");
+    writeln("     room at random. (which may be troublesome)");
+    write("Type return to continue ");
+    readln;
+    writeln("     Wumpus:");
+    writeln(" The Wumpus is not bothered by hazards (he has sucker");
+    writeln(" feet and is too big for a bat to lift).  Usually");
+    writeln(" he is asleep.  Two things wake him up: You shooting an");
+    writeln(" arrow or you entering his room.");
+    writeln("     If the Wumpus wakes he moves (P=.75) one room");
+    writeln(" or stays still (P=.25).  after that, if he is where you");
+    writeln(" are, he eats you up and you lose!");
+    writeln;
+    writeln("     You:");
+    writeln(" Each turn you may move or shoot a crooked arrow");
+    writeln("   Moving:  You can move one room (thru one tunnel)");
+    writeln("   Arrows:  You have 5 arrows.  You lose when you run out");
+    writeln("   Each arrow can go from 1 to 5 rooms. You aim by telling");
+    writeln("   the computer the room #s you want the arrow to go to.");
+    writeln("   If the arrow can't go that way (if no tunnel) It moves");
+    writeln("   at random to the next room.");
+    writeln("     If the arrow hits the wumpus, you win.");
+    writeln("     If the arrow hits you, you lose.");
+    write("Type return to continue ");
+    readln;
+    writeln("    Warnings:");
+    writeln("     When you are one room away from a Wumpus or hazard,");
+    writeln("     The computer says:");
+    writeln(" Wumpus:  'I smell a Wumpus'");
+    writeln(" Bat   :  'Bats nearby'");
+    writeln(" Pit   :  'I feel a draft'");
+    writeln;
+  end func;
+
+
+const proc: check_hazards is func
+  local
+    var integer: number is 0;
+    var integer: room is 0;
+  begin
+    writeln;
+
+    for number range 1 to 3 do
+      room := cave[loc[PLAYER]][number];
+      if room = loc[WUMPUS] then
+        writeln("I smell a Wumpus!");
+      elsif room = loc[PIT1] or room = loc[PIT2] then
+        writeln("I feel a draft");
+      elsif room = loc[BATS1] or room = loc[BATS2] then
+        writeln("Bats nearby!");
+      end if;
+    end for;
+
+    writeln("You are in room " <& loc[PLAYER]);
+
+    write("Tunnels lead to");
+    for number range 1 to 3 do
+      write(" " <& cave[loc[PLAYER]][number]);
+    end for;
+    writeln;
+    writeln;
+  end func;
+
+
+const func boolean: shoot_or_move is func
+  result
+    var boolean: do_shoot is FALSE;
+  local
+    var char: ch is ' ';
+  begin
+    repeat
+      write("Shoot or move (S-M) ");
+      readln(ch);
+      ch := upper(ch);
+    until ch = 'S' or ch = 'M';
+
+    if ch = 'S' then
+      do_shoot := TRUE;
+    elsif ch = 'M' then
+      do_shoot := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_shot (in integer: arrow_location) is func
+  begin
+    if arrow_location = loc[WUMPUS] then
+      writeln("AHA! YOU GOT THE WUMPUS!");
+      game_status := WIN;
+    elsif arrow_location = loc[PLAYER] then
+      writeln("OUCH! ARROW GOT YOU!");
+      game_status := LOSE;
+    end if;
+  end func;
+
+
+const proc: move_wumpus is func
+  local
+    var integer: k is 0;
+  begin
+    k := rand(1, 4);
+    if k < 3 then
+      loc[WUMPUS] := cave[loc[WUMPUS]][k];
+    end if;
+    if loc[WUMPUS] = loc[PLAYER] then
+      writeln("TSK TSK TSK - WUMPUS GOT YOU!");
+      game_status := LOSE;
+    end if;
+  end func;
+
+
+const proc: shoot_arrow is func
+  local
+    var integer: number_of_rooms is 0;
+    var integer: number is 0;
+    var integer: number2 is 0;
+    var integer: arrow_location is 0;
+    var array integer: path is 5 times 0;
+  begin
+    repeat
+      write("No. of rooms (1-5) ");
+      readln(number_of_rooms);
+    until number_of_rooms >= 1 and number_of_rooms <= 5;
+
+    for number range 1 to number_of_rooms do
+      repeat
+        write("Room # ");
+        readln(path[number]);
+        if number >= 3 and path[number] = path[number - 2] then
+          writeln("ARROWS AREN'T THAT CROOKED - TRY ANOTHER ROOM");
+        end if;
+      until number < 3 or path[number] <> path[number - 2];
+    end for;
+
+    arrow_location := loc[PLAYER];
+    number := 1;
+    game_status := PLAYING;
+
+    while number <= number_of_rooms and game_status = PLAYING do
+      number2 := 1;
+      while number2 <= 3 and
+          cave[arrow_location][number2] <> path[number] do
+        incr(number2);
+      end while;
+      if number <= 3 then
+        arrow_location := path[number];
+      else
+        arrow_location := cave[arrow_location][rand(1, 3)];
+      end if;
+      check_shot(arrow_location);
+      incr(number);
+    end while;
+
+    if game_status = PLAYING then
+      writeln("MISSED");
+      move_wumpus();
+      decr(arrows);
+      if arrows <= 0 then
+        game_status := LOSE;
+      end if;
+    end if;
+  end func;
+
+
+const func integer: readmove is func
+  result
+    var integer: new_loc is 0;
+  local
+    var boolean: goodmove is FALSE;
+    var integer: number is 0;
+  begin
+    goodmove := FALSE;
+    repeat
+      repeat
+        write("Where to ");
+        readln(new_loc);
+      until new_loc >= 1 and new_loc <= 20;
+
+      for number range 1 to 3 do
+        if cave[loc[PLAYER]][number] = new_loc then
+          goodmove := TRUE;
+        end if;
+      end for;
+
+      if not goodmove then
+        if new_loc = loc[PLAYER] then
+          goodmove := TRUE;
+        else
+          writeln("Not possible -");
+        end if;
+      end if;
+    until goodmove;
+  end func;
+
+
+const proc: move_player is func
+  local
+    var integer: player_location is 0;
+    var boolean: super_bat_snatch is FALSE;
+  begin
+    game_status := PLAYING;
+    player_location := readmove;
+    repeat
+      super_bat_snatch := FALSE;
+      loc[PLAYER] := player_location;
+      if player_location = loc[WUMPUS] then
+        writeln("... OOPS! BUMPED A WUMPUS!");
+        move_wumpus();
+      elsif player_location = loc[PIT1] or player_location = loc[PIT2] then
+        writeln("YYYYIIIIEEEE . . . FELL IN PIT");
+        game_status := LOSE;
+      elsif player_location = loc[BATS1] or player_location = loc[BATS2] then
+        writeln("ZAP--SUPER BAT SNATCH! ELSEWHEREVILLE FOR YOU!");
+        player_location := rand(1, 20);
+        super_bat_snatch := TRUE;
+      end if;
+    until not super_bat_snatch;
+  end func;
+
+
+const proc: init_setup is func
+  local
+    var integer: j is 0;
+    var integer: k is 0;
+    var boolean: already_used is FALSE;
+  begin
+    for j range 1 to LOCS do
+      repeat
+        already_used := FALSE;
+        loc[j] := rand(1, 20);
+        for k range 1 to pred(j) do
+          if loc[j] = loc[k] then
+            already_used := TRUE;
+          end if;
+        end for;
+      until not already_used;
+      save[j] := loc[j];
+    end for;
+  end func;
+
+
+const proc: main is func
+  local
+    var char: command is ' ';
+    var integer: j is 0;
+  begin
+    writeln;
+    writeln("WUMPUS - Hunt the wumpus in a cave of 20 rooms.");
+    writeln;
+    write("Instructions (Y/N)? ");
+    readln(command);
+    command := upper(command);
+    if command = 'Y' then
+      print_instructions();
+    end if;
+
+    repeat
+      init_setup;
+
+      repeat
+        arrows := 5;
+
+        writeln("HUNT THE WUMPUS");
+        repeat
+          check_hazards();
+          if shoot_or_move then
+            shoot_arrow();
+          else
+            move_player();
+          end if;
+        until game_status <> PLAYING;
+
+        if game_status = LOSE then
+          writeln("Ha Ha Ha - You lose!");
+        else
+          writeln("Hee Hee Hee - The wumpus'll get you next time!!");
+        end if;
+
+        for j range 1 to LOCS do
+          loc[j] := save[j];
+        end for;
+
+        repeat
+          write("Same setup (Y/N) ");
+          readln(command);
+          command := upper(command);
+        until command in {'Y', 'N', 'Q'};
+      until command <> 'Y';
+    until command = 'Q'
+  end func;

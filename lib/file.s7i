@@ -1,0 +1,333 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  file.s7i      Interface type describing sequential files.       *)
+(*  Copyright (C) 1989 - 2013, 2019  Thomas Mertes                  *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Interface type for sequential files.
+ *  The file interface is implemented with [[null_file]],
+ *  [[external_file]], [[utf8|utf8_file]], [[utf16|utf16_file]],
+ *  [[socket]], [[echo|echo_file]], [[line|line_file]],
+ *  [[dir|dir_file]] and many other types.
+ *)
+const type: file is sub object interface;
+
+
+(**
+ *  Write a [[string]] to a file.
+ *)
+const proc: write (inout file: outFile, in string: stri)     is DYNAMIC;
+
+
+(**
+ *  Write end-of-line to a file.
+ *  The implementation function decides how writing end-of-line is
+ *  done. It can be done by writing '\n', but other solutions are also
+ *  possible.
+ *)
+const proc: writeln (inout file: outFile)                    is DYNAMIC;
+
+
+(**
+ *  Write a [[string]] followed by end-of-line to a file.
+ *  The implementation function decides how writing end-of-line is
+ *  done. It can be done by writing '\n', but other solutions are also
+ *  possible.
+ *)
+const proc: writeln (inout file: outFile, in string: stri)   is DYNAMIC;
+
+
+const proc: moveLeft (inout file: outFile, in string: stri)  is DYNAMIC;
+const proc: erase (inout file: outFile, in string: stri)     is DYNAMIC;
+
+
+const proc: backSpace (inout file: outFile, in string: stri) is func
+  begin
+    moveLeft(outFile, stri);
+    erase(outFile, stri);
+    moveLeft(outFile, stri);
+  end func;
+
+
+const proc: cursorOn (inout file: outFile, in char: ch) is DYNAMIC;
+const proc: cursorOff (inout file: outFile, in char: ch) is DYNAMIC;
+
+
+(**
+ *  Close a file.
+ *)
+const proc: close (inout file: aFile)                        is DYNAMIC;
+
+
+(**
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
+ *  Depending on the implementation type this causes data to be sent
+ *  to the file system, screen, network or other destination.
+ *)
+const proc: flush (inout file: outFile)                      is DYNAMIC;
+
+
+(**
+ *  Read a character from a file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *)
+const func char: getc (inout file: inFile)                   is DYNAMIC;
+
+
+(**
+ *  Read a [[string]] with a maximum length from a file.
+ *  @return the string read.
+ *)
+const func string: gets (inout file: inFile, in integer: maxLength) is DYNAMIC;
+
+
+(**
+ *  Read a word from a file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *  @return the word read.
+ *)
+const func string: getwd (inout file: inFile)                is DYNAMIC;
+
+
+(**
+ *  Read a line from a file.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *  @return the line read.
+ *)
+const func string: getln (inout file: inFile)                is DYNAMIC;
+
+
+const func string: getk (in file: inFile)                    is DYNAMIC;
+const func boolean: eoln (in file: inFile)                   is DYNAMIC;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in file: inFile)                    is DYNAMIC;
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
+ *          TRUE otherwise.
+ *)
+const func boolean: hasNext (inout file: inFile)             is DYNAMIC;
+
+
+(**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  Regular files do not block.
+ *  @return TRUE if ''getc'' would not block, FALSE otherwise.
+ *)
+const func boolean: inputReady (in file: inFile)             is DYNAMIC;
+
+
+(**
+ *  Obtain the length of a file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file.
+ *  @exception RANGE_ERROR The file length does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR The implementation type of ''aFile'' is
+ *             not seekable or a system function returns an error
+ *             or the file length reported by the system is negative.
+ *)
+const func integer: length (inout file: aFile)               is DYNAMIC;
+
+
+(**
+ *  Truncate ''aFile'' to the given ''length''.
+ *  If the file previously was larger than ''length'', the extra data is lost.
+ *  If the file previously was shorter, it is extended, and the extended
+ *  part is filled with null bytes ('\0;').
+ *  @param aFile File to be truncated.
+ *  @param length Requested length of ''aFile'' in bytes.
+ *  @exception RANGE_ERROR The requested length is negative or
+ *             the length is not representable in the type
+ *             used by the system function.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: truncate (inout file: aFile, in integer: length) is DYNAMIC;
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
+ *  @exception FILE_ERROR The implementation type of ''aFile'' is
+ *             not seekable or a system function returns an error.
+ *)
+const proc: seek (inout file: aFile, in integer: position)   is DYNAMIC;
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR The implementation type of ''aFile'' is
+ *             not seekable or a system function returns an error
+ *             or the file position reported by the system is negative.
+ *)
+const func integer: tell (in file: aFile)                    is DYNAMIC;
+
+
+(**
+ *  Compare two file values.
+ *  This function does neither compare file contents nor file names.
+ *  The order of two files is determined by comparing the memory
+ *  positions of their internal data representation. Therefore the
+ *  result of ''compare'' is arbitrary and may change if the
+ *  program is executed again. Inside a program the result of
+ *  ''compare'' is consistent and can be used to maintain hash
+ *  tables.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in file: file1, in file: file2) is action "ITF_CMP";
+
+
+(**
+ *  Compute the hash value of a file.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in file: aFile)                is action "ITF_HASHCODE";
+
+
+const func char: (in file: aFile).bufferChar          is DYNAMIC;
+const varfunc char: (inout file: aFile).bufferChar    is DYNAMIC;
+
+
+(**
+ *  Read a word from ''inFile'' into ''aVar''.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  The word ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout file: inFile, inout string: aVar) is func
+  begin
+    aVar := getwd(inFile);
+  end func;
+
+
+(**
+ *  Read a word from ''inFile'' into ''aVar'' or use ''defaultValue''.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  If the word is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The word ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout file: inFile, inout string: aVar,
+    in string: defaultValue) is func
+  begin
+    aVar := getwd(inFile);
+    if aVar = "" then
+      aVar := defaultValue;
+    end if;
+  end func;
+
+
+(**
+ *  Read a line from ''inFile'' into ''aVar''.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  The line ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout file: inFile, inout string: aVar) is func
+  begin
+    aVar := getln(inFile);
+  end func;
+
+
+(**
+ *  Read a line from ''inFile'' into ''aVar'' or use ''defaultValue''.
+ *  The function reads a string up to end-of-line or [[char#EOF|EOF]].
+ *  If the line is empty ''defaultValue'' is assigned to ''aVar''.
+ *  The line ending character is not copied into the string.
+ *  When the function is left inFile.bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout file: inFile, inout string: aVar,
+    in string: defaultValue) is func
+  begin
+    aVar := getln(inFile);
+    if aVar = "" then
+      aVar := defaultValue;
+    end if;
+  end func;
+
+
+(**
+ *  Discard a line from a file.
+ *  The function discards characters up to end-of-line or [[char#EOF|EOF]].
+ *  When the function is left inFile.bufferChar contains the
+ *  line ending character ('\n' or [[char#EOF|EOF]]).
+ *)
+const proc: readln (inout file: inFile) is func
+  local
+    var string: stri is "";
+  begin
+    stri := getln(inFile);
+  end func;
+
+
+(**
+ *  Skip ''numChars'' characters from ''inFile''.
+ *)
+const proc: skip (inout file: inFile, in var integer: numChars) is func
+  local
+    var string: buffer is "";
+  begin
+    while numChars <> 0 do
+      buffer := gets(inFile, min(numChars, 1000000));
+      numChars -:= length(buffer);
+    end while;
+  end func;

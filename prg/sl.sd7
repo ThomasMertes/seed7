@@ -1,0 +1,1066 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sl.sd7        Game of Life                                      *)
+(*  Copyright (C) 1993, 1994, 2004  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "console.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+
+const string: MARKEDFIELD is "#";
+const string: EMPTYFIELD  is " ";
+const integer: MAXDIGITS  is    7;
+
+(*
+const integer: MINLINE    is  -50;
+const integer: MAXLINE    is   76;
+const integer: MINCOLUMN  is  -23;
+const integer: MAXCOLUMN  is  104;
+*)
+const integer: MINLINE    is -114;
+const integer: MAXLINE    is  140;
+const integer: MINCOLUMN  is  -87;
+const integer: MAXCOLUMN  is  168;
+
+
+var text: scr is STD_NULL;
+var text: win is STD_NULL;
+var text: gen_win is STD_NULL;
+var text: field_win is STD_NULL;
+var text: cmd_win is STD_NULL;
+var text: map_win is STD_NULL;
+var text: header is STD_NULL;
+var text: prot is STD_NULL;
+
+const type: coord is new struct
+    var integer: lin is 0;
+    var integer: col is 0;
+  end struct;
+
+const coord: COORD_REC is coord.value;
+
+const type: fieldlinetype is array boolean;
+const type: fieldtype is array fieldlinetype;
+const type: listtype is array coord;
+
+const type: workplace is new struct
+    var fieldtype: field is 0 times 0 times FALSE;
+    var listtype: bact_list is 8001 times COORD_REC;
+  end struct;
+
+const workplace: WORKPLACE_REC is workplace.value;
+
+var array workplace: workspace is 2 times WORKPLACE_REC;
+var array integer: listlength is 2 times 0;
+var integer: current is 1;
+var integer: next is 0;
+var integer: listindex is 0;
+var integer: line is 0;
+var integer: column is 0;
+var boolean: singlestep is FALSE;
+var boolean: quit is FALSE;
+var integer: generation is 0;
+
+
+
+const proc: textcolour (in integer: colour) is noop;
+
+const proc: setbackground (in integer: colour) is noop;
+
+
+
+const proc: info1 is func
+
+  begin (* info1 *)
+    clear(scr);
+    setPos(win, 1, 1);
+    writeln(win, "                               L  I  F  E");
+    writeln(win);
+    writeln(win, "  The original game of life was invented by mathematician John Conway. The idea");
+    writeln(win, "is  to  initialize  the screen with a pattern of bacteria in EDIT mode. The RUN");
+    writeln(win, "mode or singlestep commands then bring  life  to  the  colony.  The  population");
+    writeln(win, "increases  and  decreases  according  to fixed rules which affect the birth and");
+    writeln(win, "death of individual bacterium. A rectangular grid  (2-dimensional matrix)  will");
+    writeln(win, "be  shown  on  the  screen. Each cell in the grid can contain a bacterium or be");
+    writeln(win, "empty. Each cell has 8 neighbors. The existence of cells from one generation to");
+    writeln(win, "the next is determined by the following rules:");
+    writeln(win);
+    writeln(win, "  1.  A bacteria with 2 or 3 neighbors survives from one generation to");
+    writeln(win, "      the next.  A bacterium with fewer neighbors dies of isolation.");
+    writeln(win, "      One with more neighbors dies of overcrowding.");
+    writeln(win);
+    writeln(win, "  2.  An empty cell spawns a bacteria if it has exactly three");
+    writeln(win, "      neighboring cells which contain bacteria.");
+    writeln(win);
+    writeln(win);
+    write  (win, "   Press the any key to continue ");
+  end func; (* info1 *)
+
+
+
+const proc: info2 is func
+
+  begin (* info2 *)
+    clear(scr);
+    setPos(win, 1, 1);
+    writeln(win, "In EDIT mode the following commands are available:");
+    writeln(win);
+    writeln(win, "  Cursor keys  Move the cursor                  +            Scroll down");
+    writeln(win, "  HJKL         Move the cursor                  -            Scroll up");
+    writeln(win, "  M or *       Mark a cell                      <            Scroll left");
+    writeln(win, "  space        Erase a cell                     >            Scroll right");
+    writeln(win, "  enter        Calculate next generation        backspace    Erase cell left");
+    writeln(win, "  B            Back to previous generation      tab          Forward 8 columns");
+    writeln(win, "  R            Enter the RUN mode               shift-tab    Backward 8 columns");
+    writeln(win, "  C            Clear the grid                   home         First column");
+    writeln(win, "  D            Redraw the screen                end          Last column");
+    writeln(win, "  I            Show info pages");
+    writeln(win, "  Q            Quit the program");
+    writeln(win);
+    writeln(win);
+    writeln(win, "In RUN mode the following commands are available:");
+    writeln(win);
+    writeln(win, "  any key      to enter the EDIT mode to create or change the pattern");
+    writeln(win, "  Q            to Quit the game of LIFE");
+    writeln(win);
+    writeln(win);
+    writeln(win, "The EDIT and Quit commands take effect only at the end of a cycle.");
+    writeln(win);
+    write  (win, "   Press the any key to continue ");
+  end func; (* info2 *)
+
+
+
+const proc: nextDecimal is func
+  begin (* nextDecimal *)
+    if generation = 999999 then
+      generation := 0;
+    else
+      incr(generation);
+    end if;
+    setPos(gen_win, 1, 1);
+    write(gen_win, generation lpad MAXDIGITS);
+  end func; (* nextDecimal *)
+
+
+
+const proc: writeHeader is func
+
+  (* Der durch diese Prozedur geschriebene Text muss beim Aufruf des *)
+  (* Programmes und in der Infofunktion am Bildschirm aufscheinen.   *)
+  (* Der durch diese Prozedur geschriebene Text und die Aufrufe      *)
+  (* dieser Prozedur duerfen nicht veraendert oder entfernt werden.  *)
+  (* Diese Kommentarzeilen duerfen ebenfalls nicht entfernt werden.  *)
+
+  begin (* writeHeader *)
+    clear(header);
+    box(header);
+    setPos(header, 2, 10);
+    write(header, "SCIENTIFIC LIFE  2.0");
+    setPos(header, 5, 13);
+    write(header, "Copyright 1994");
+    setPos(header, 7, 19);
+    write(header, "by");
+    setPos(header, 9, 13);
+    write(header, "Thomas  Mertes");
+    flush(header);
+  end func; (* writeHeader *)
+
+
+
+const proc: editInfo is func
+
+  begin (* editInfo *)
+    textcolour(0);
+    setbackground(7);
+    setPos(cmd_win, 1, 1);
+    write(cmd_win, " EDIT ");
+    textcolour(7);
+    setbackground(0);
+    setPos(cmd_win, 1, 7);
+    write(cmd_win, " I=Info, HJKL=Move, M=Mark, space=Erase, C=Clear, R=Run, Q=Quit ");
+    textcolour(15);
+    setPos(cmd_win, 1, 8);
+    write(cmd_win, "I");
+    setPos(cmd_win, 1, 16);
+    write(cmd_win, "HJKL");
+    setPos(cmd_win, 1, 27);
+    write(cmd_win, "M");
+    setPos(cmd_win, 1, 35);
+    write(cmd_win, "space");
+    setPos(cmd_win, 1, 48);
+    write(cmd_win, "C");
+    setPos(cmd_win, 1, 57);
+    write(cmd_win, "R");
+    setPos(cmd_win, 1, 64);
+    write(cmd_win, "Q");
+  end func; (* editInfo *)
+
+
+
+const proc: clearScreen is func
+
+  local
+    var integer: index is 0;
+
+  begin (* clearScreen *)
+    for index range 1 to listlength[current] do
+      setPos(field_win,
+          workspace[current].bact_list[index].lin + MINLINE,
+          workspace[current].bact_list[index].col + MINCOLUMN);
+      write(field_win, EMPTYFIELD);
+    end for;
+  end func; (* clearScreen *)
+
+
+
+const proc: writeScreen is func
+  local
+    var integer: index is 0;
+  begin (* writeScreen *)
+    for index range 1 to listlength[current] do
+      setPos(field_win,
+          workspace[current].bact_list[index].lin + MINLINE,
+          workspace[current].bact_list[index].col + MINCOLUMN);
+      write(field_win, MARKEDFIELD);
+    end for;
+  end func; (* writeScreen *)
+
+
+
+const proc: writeMap (inout text: map_win) is func
+  local
+    var integer: index is 0;
+    var integer: line_div is 0;
+    var integer: column_div is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var array array integer: mapfield is 0 times 0 times 0;
+  begin (* writeMap *)
+    mapfield := height(map_win) times width(map_win) times 0;
+    line_div := pred(length(workspace[current].field)) div pred(height(map_win)) ;
+    column_div :=  pred(length(workspace[current].field[1])) div pred(width(map_win));
+    for index range 1 to listlength[current] do
+(*    writeln(prot, "CELL(" <& index <& ", " <&
+          workspace[current].bact_list[index].lin <& ", " <&
+          workspace[current].bact_list[index].col <& ");"); *)
+      line := succ((workspace[current].bact_list[index].lin - 2) div line_div);
+      column := succ((workspace[current].bact_list[index].col - 2) div column_div);
+      if line >= 1 and line <= length(mapfield) and
+          column >= 1 and column <= length(mapfield[1]) then
+        incr(mapfield[line][column]);
+      end if;
+    end for;
+    box(map_win);
+    clear(map_win);
+    for line range 1 to height(map_win) do
+      for column range 1 to width(map_win) do
+        case mapfield[line][column] of
+          when {0}:
+            noop;
+          when {1, 2, 3, 4}:
+            setPos(map_win, line, column);
+            write(map_win, "1");
+          when {5, 6, 7, 8}:
+            setPos(map_win, line, column);
+            write(map_win, "2");
+          when {9, 10, 11, 12, 13}:
+            setPos(map_win, line, column);
+            write(map_win, "3");
+          when {14, 15, 16, 17}:
+            setPos(map_win, line, column);
+            write(map_win, "4");
+          when {18, 19, 20, 21, 22}:
+            setPos(map_win, line, column);
+            write(map_win, "5");
+          when {23, 24, 25, 26}:
+            setPos(map_win, line, column);
+            write(map_win, "6");
+          when {27, 28, 29, 30}:
+            setPos(map_win, line, column);
+            write(map_win, "7");
+          when {31, 32, 33, 34, 35}:
+            setPos(map_win, line, column);
+            write(map_win, "8");
+          when {36, 37, 38, 39}:
+            setPos(map_win, line, column);
+            write(map_win, "9");
+          when {40, 41, 42, 43, 44}:
+            setPos(map_win, line, column);
+            write(map_win, "0");
+        end case;
+      end for;
+    end for;
+    setPos(win,  3, 67);
+    write(win, "Living: ");
+    setPos(win,  3, 75);
+    write(win, str(listlength[current]));
+    setPos(win, 23, 67);
+    write(win, "Press a key");
+  end func; (* writeMap *)
+
+
+
+const proc: redraw is func
+  begin (* redraw *)
+    box(field_win);
+    clear(field_win);
+    editInfo();
+    setPos(gen_win, 1, 1);
+    write(gen_win, "        ");
+    setPos(gen_win, 1, 1);
+    write(gen_win, generation lpad MAXDIGITS);
+    writeScreen();
+  end func; (* redraw *)
+
+
+
+const proc: shiftField (inout fieldtype: curr_field, inout listtype: curr_list,
+    in integer: lindiff, in integer: coldiff) is func
+  local
+    var integer: index is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin (* shiftField *)
+    for index range 1 to listlength[current] do
+      line := curr_list[index].lin;
+      column := curr_list[index].col;
+      curr_field[line][column] := FALSE;
+      setPos(field_win, line + MINLINE, column + MINCOLUMN);
+      write(field_win, EMPTYFIELD);
+    end for;
+    for index range 1 to listlength[current] do
+      line := curr_list[index].lin;
+      column := curr_list[index].col;
+      if line + lindiff >= 1 and line + lindiff <=
+          length(curr_field) then
+        line +:= lindiff;
+        curr_list[index].lin := line;
+      end if;
+      if column + coldiff >= 1 and column + coldiff <=
+          length(curr_field[1]) then
+        column +:= coldiff;
+        curr_list[index].col := column;
+      end if;
+      curr_field[line][column] := TRUE;
+      setPos(field_win, line + MINLINE, column + MINCOLUMN);
+      write(field_win, MARKEDFIELD);
+    end for;
+  end func; (* shiftField *)
+
+
+
+const proc: mark (in integer: win_line, in integer: win_column) is func
+  begin (* mark *)
+    if not workspace[current].field[win_line - MINLINE][win_column - MINCOLUMN] then
+      workspace[current].field[win_line - MINLINE][win_column - MINCOLUMN] := TRUE;
+      incr(listlength[current]);
+      workspace[current].bact_list[listlength[current]].lin := win_line - MINLINE;
+      workspace[current].bact_list[listlength[current]].col := win_column - MINCOLUMN;
+      setPos(field_win, win_line, win_column);
+      write(field_win, MARKEDFIELD);
+      setPos(field_win, win_line, win_column);
+    end if;
+  end func; (* mark *)
+
+
+
+const proc: erase (in integer: win_line, in integer: win_column) is func
+  local
+    var boolean: found is FALSE;
+    var integer: index is 0;
+    var integer: number is 0;
+  begin (* erase *)
+    if workspace[current].field[win_line - MINLINE][win_column - MINCOLUMN] then
+      if listlength[current] >= 1 then
+        found := FALSE;
+        index := listlength[current];
+        repeat
+          if workspace[current].bact_list[index].lin = win_line - MINLINE and
+              workspace[current].bact_list[index].col = win_column - MINCOLUMN then
+            found := TRUE;
+          else
+            decr(index);
+          end if;
+        until found or index < 1;
+        if found then
+          for number range index to pred(listlength[current]) do
+            workspace[current].bact_list[number].lin := workspace[current].bact_list[succ(number)].lin;
+            workspace[current].bact_list[number].col := workspace[current].bact_list[succ(number)].col;
+          end for;
+          decr(listlength[current]);
+          workspace[current].field[win_line - MINLINE][win_column - MINCOLUMN] := FALSE;
+          setPos(field_win, win_line, win_column);
+          write(field_win, EMPTYFIELD);
+          setPos(field_win, win_line, win_column);
+        else
+          redraw();
+          setPos(field_win, win_line, win_column);
+        end if;
+      end if;
+    end if;
+  end func; (* erase *)
+
+
+
+const proc: clearField is func
+  local
+    var integer: index is 0;
+  begin (* clearField *)
+    if listlength[current] <> 0 then
+      clearScreen();
+      next := current;
+      current := 3 - current;
+      for index range 1 to listlength[current] do
+        workspace[current].field
+            [workspace[current].bact_list[index].lin]
+            [workspace[current].bact_list[index].col] := FALSE;
+      end for;
+      listlength[current] := 0;
+    end if;
+    generation := 0;
+    setPos(gen_win, 1, 1);
+    write(gen_win, generation lpad MAXDIGITS);
+  end func; (* clearField *)
+
+
+
+const proc: readFilename (in string: prompt, inout string: filename) is func
+  local
+    var integer: startPos is 0;
+    var integer: pos is 0;
+    var char: ch is ' ';
+  begin (* readFilename *)
+    clear(cmd_win);
+    textcolour(0);
+    setbackground(7);
+    setPos(cmd_win, 1, 1);
+    write(cmd_win, prompt);
+    textcolour(7);
+    setbackground(0);
+    startPos := 3 + length(prompt);
+    setPos(cmd_win, 1, startPos);
+    filename := "";
+    pos := 0;
+    repeat
+      flush(cmd_win);
+      ch := getc(KEYBOARD);
+      if ch >= ' ' and ch <= '~' then
+        if pos <= 50 then
+          incr(pos);
+          filename := filename & str(ch);
+          setPos(cmd_win, 1, startPos + pos - 1);
+          write(cmd_win, filename[pos]);
+        end if;
+      elsif ch = '\b' then (* Backspace *)
+        if pos >= 1 then
+          decr(pos);
+          filename := filename[ .. pos];
+          setPos(cmd_win, 1, startPos + pos);
+          write(cmd_win, " ");
+        end if;
+      end if;
+      setPos(cmd_win, 1, startPos + pos);
+    until ch = '\n';
+  end func; (* readFilename *)
+
+
+
+const proc: load (in string: filename) is func
+  local
+    var file: loadfile is STD_NULL;
+    var integer: index is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: startcolumn is 0;
+    var char: ch is ' ';
+  begin (* load *)
+    loadfile := open(filename, "r");
+    if loadfile <> STD_NULL then
+      clear(field_win);
+      ch := getc(loadfile);
+      if ch = '+' then
+        read(loadfile, generation);
+        read(loadfile, line);
+        read(loadfile, startcolumn);
+        line -:= pred(MINLINE);
+        startcolumn -:= MINCOLUMN;
+        if line < 1 then
+          line := 1;
+        end if;
+        if startcolumn < 1 then
+          startcolumn := 1;
+        end if;
+        ch := getc(loadfile);
+      else
+        line := 1 - MINLINE;
+        startcolumn := 1 - MINCOLUMN;
+      end if;
+      index := 0;
+      while not eof(loadfile) and line <= MAXLINE - MINLINE - 1 do
+        column := startcolumn;
+        while ch <> '\n' do
+          if ch <> ' ' and ch <> '\r' and
+              column <= MAXCOLUMN - MINCOLUMN - 1 then
+            workspace[current].field[line][column] := TRUE;
+            incr(index);
+            workspace[current].bact_list[index].lin := line;
+            workspace[current].bact_list[index].col := column;
+            setPos(field_win, line + MINLINE, column + MINCOLUMN);
+            write(field_win, MARKEDFIELD);
+          end if;
+          incr(column);
+          ch := getc(loadfile);
+        end while;
+        incr(line);
+        ch := getc(loadfile);
+      end while;
+      listlength[current] := index;
+      setPos(gen_win, 1, 1);
+      write(gen_win, generation lpad MAXDIGITS);
+      close(loadfile);
+    end if;
+  end func; (* load *)
+
+
+
+const proc: save (in string: filename) is func
+  local
+    var file: savefile is STD_NULL;
+    var integer: index is 0;
+    var integer: startline is 0;
+    var integer: startcolumn is 0;
+    var integer: stopline is 0;
+    var integer: stopcolumn is 0;
+    var integer: end_of_current_line is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var coord: current_element is COORD_REC;
+  begin (* save *)
+    savefile := open(filename, "w");
+    if savefile <> STD_NULL then
+      startline := MAXLINE;
+      startcolumn := MAXCOLUMN;
+      stopline := MINLINE;
+      stopcolumn := MINCOLUMN;
+      for index range 1 to listlength[current] do
+        current_element := workspace[current].bact_list[index];
+        if current_element.lin < startline then
+          startline := current_element.lin;
+        end if;
+        if current_element.col < startcolumn then
+          startcolumn := current_element.col;
+        end if;
+        if current_element.lin > stopline then
+          stopline := current_element.lin;
+        end if;
+        if current_element.col > stopcolumn then
+          stopcolumn := current_element.col;
+        end if;
+      end for;
+      writeln(savefile, "+ " <& generation <& " " <&
+          startline + MINLINE - 1 <& " " <& startcolumn + MINCOLUMN);
+      for line range startline to stopline do
+        end_of_current_line := stopcolumn;
+        while end_of_current_line >= startcolumn and
+            not workspace[current].field[line][end_of_current_line] do
+          decr(end_of_current_line);
+        end while;
+        for column range startcolumn to end_of_current_line do
+          if workspace[current].field[line][column] then
+            write(savefile, "#");
+          else
+            write(savefile, " ");
+          end if;
+        end for;
+        writeln(savefile);
+      end for;
+      close(savefile);
+    end if;
+  end func; (* save *)
+
+
+
+const proc: pressakey is func
+  local
+    var string: stri is "";
+  begin (* pressakey *)
+    stri := gets(KEYBOARD, 1);
+    if stri <> "" then
+      if stri[1] = 'Q' or stri[1] = 'q' then
+        quit := TRUE;
+      end if;
+    end if;
+  end func; (* pressakey *)
+
+
+
+const proc: editmode (inout boolean: quit) is func
+
+  (* Routine to get and display a pattern *)
+  (* Print instructions on line 25 *)
+
+  local
+    var boolean: endEdit is FALSE;
+    var boolean: backstep is FALSE;
+    var integer: win_line is 0;
+    var integer: win_column is 0;
+    var integer: oldgeneration is 0;
+    var integer: help is 0;
+    var string: filename is "";
+    var char: ch is ' ';
+
+  begin (* editmode *)
+    editInfo();
+    singlestep := FALSE;
+    win_line := 12;
+    win_column := 39;
+    setPos(field_win, win_line, win_column);
+    oldgeneration := 0;
+    backstep := FALSE;
+    endEdit := FALSE;
+    repeat
+      flush(field_win);
+      ch := getc(KEYBOARD);
+      case ch of
+        when {'H', 'h', KEY_LEFT}: (* Left *)
+          if win_column > 1 then
+            decr(win_column);
+            setPos(field_win, win_line, win_column);
+          end if;
+        when {'J', 'j', KEY_DOWN}: (* Down *)
+          if win_line < height(field_win) then
+            incr(win_line);
+            setPos(field_win, win_line, win_column);
+          end if;
+        when {'K', 'k', KEY_UP}: (* Up *)
+          if win_line > 1 then
+            decr(win_line);
+            setPos(field_win, win_line, win_column);
+          end if;
+        when {'L', 'l', KEY_RIGHT}: (* Right *)
+          if win_column < width(field_win) then
+            incr(win_column);
+            setPos(field_win, win_line, win_column);
+          end if;
+        when {' '}:  (* Space *)
+          erase(win_line, win_column);
+          if win_column < width(field_win) then
+            incr(win_column);
+            setPos(field_win, win_line, win_column);
+          end if;
+        when {'\b'}: (* Backspace *)
+          if win_column > 1 then
+            decr(win_column);
+            setPos(field_win, win_line, win_column);
+          end if;
+          erase(win_line, win_column);
+        when {KEY_DEL}: (* Del *)
+          erase(win_line, win_column);
+        when {'\t'}: (* Tab *)
+          if win_column + 8 < width(field_win) then
+            win_column +:= 8;
+          else
+            win_column := width(field_win);
+          end if;
+          setPos(field_win, win_line, win_column);
+        when {KEY_BACKTAB}: (* Backtab *)
+          if win_column - 8 > 1 then
+            win_column := win_column - 8;
+          else
+            win_column := 1;
+          end if;
+          setPos(field_win, win_line, win_column);
+        when {KEY_HOME}: (* Home *)
+          win_column := 1;
+          setPos(field_win, win_line, win_column);
+        when {KEY_END}: (* End *)
+          win_column := width(field_win);
+          setPos(field_win, win_line, win_column);
+        when {'+', KEY_SFT_F1}: (* Shift-F1 *)
+          shiftField(workspace[current].field,
+              workspace[current].bact_list, 1, 0);
+          setPos(field_win, win_line, win_column);
+        when {'-', KEY_SFT_F2}: (* Shift-F2 *)
+          shiftField(workspace[current].field,
+              workspace[current].bact_list, -1, 0);
+          setPos(field_win, win_line, win_column);
+        when {'>', KEY_SFT_F3}: (* Shift-F3 *)
+          shiftField(workspace[current].field,
+              workspace[current].bact_list, 0, 1);
+          setPos(field_win, win_line, win_column);
+        when {'<', KEY_SFT_F4}: (* Shift-F4 *)
+          shiftField(workspace[current].field,
+              workspace[current].bact_list, 0, -1);
+          setPos(field_win, win_line, win_column);
+        when {KEY_NL}: (* Enter *)
+          endEdit := TRUE;
+          singlestep := TRUE;
+        when {'M', 'm', '*'}:
+          mark(win_line, win_column);
+          if win_column < width(field_win) then
+            incr(win_column);
+            setPos(field_win, win_line, win_column);
+          end if;
+        when {'R', 'r'}:
+          endEdit := TRUE;
+        when {'D', 'd'}:
+          redraw();
+          setPos(field_win, win_line, win_column);
+        when {'C', 'c'}:
+          if listlength[current] <> 0 then
+            oldgeneration := generation;
+          end if;
+          clearField;
+          win_line := 12;
+          win_column := 39;
+          setPos(field_win, win_line, win_column);
+        when {'B', 'b'}:
+          clearScreen();
+          next := current;
+          current := 3 - current;
+          if not backstep then
+            backstep := TRUE;
+            if generation = 0 then
+              help := generation;
+              generation := oldgeneration;
+              oldgeneration := help;
+            else
+              oldgeneration := generation;
+              decr(generation);
+            end if;
+          else
+            help := generation;
+            generation := oldgeneration;
+            oldgeneration := help;
+          end if;
+          writeScreen();
+          setPos(gen_win, 1, 1);
+          write(gen_win, generation lpad MAXDIGITS);
+          setPos(field_win, win_line, win_column);
+        when {'O', 'o'}:
+          writeMap(map_win);
+          pressakey();
+          if not quit then
+            redraw();
+            setPos(field_win, win_line, win_column);
+          end if;
+        when {'I', 'i'}:
+          info1();
+          setPos(win, 1, 1);
+          pressakey();
+          if not quit then
+            info2();
+            setPos(win, 1, 1);
+            pressakey();
+            if not quit then
+              redraw();
+              setPos(field_win, win_line, win_column);
+            end if;
+          end if;
+        when {'P', 'p'}:
+          readFilename("SAVE?", filename);
+          if filename <> "" then
+            save(filename);
+          end if;
+          editInfo();
+          setPos(field_win, win_line, win_column);
+        when {'G', 'g'}:
+          readFilename("LOAD?", filename);
+          if filename <> "" then
+            load(filename);
+          end if;
+          editInfo();
+          setPos(field_win, win_line, win_column);
+        when {'Q', 'q'}:
+          quit := TRUE;
+      end case;
+    until endEdit or quit;
+  end func; (* editmode *)
+
+
+
+const proc: runinfo is func
+  begin (* runinfo *)
+    textcolour(0);
+    setbackground(7);
+    setPos(cmd_win, 1, 1);
+    write(cmd_win, " RUN ");
+    textcolour(7);
+    setbackground(0);
+    setPos(cmd_win, 1, 6);
+    write(cmd_win, " Q=Quit, any key=Edit -------------------------------------------");
+    textcolour(15);
+    setPos(cmd_win, 1, 7);
+    write(cmd_win, "Q");
+    setPos(cmd_win, 1, 15);
+    write(cmd_win, "any key");
+  end func; (* runinfo *)
+
+
+
+const proc: init is func
+
+  begin (* init *)
+    workspace[1].field :=
+        1 times
+        MAXCOLUMN - MINCOLUMN + 1 times TRUE &
+        (MAXLINE - MINLINE - 1) times
+        (1 times TRUE & MAXCOLUMN - MINCOLUMN - 1 times FALSE & 1 times TRUE) &
+        1 times
+        MAXCOLUMN - MINCOLUMN + 1 times TRUE;
+    workspace[2].field := workspace[1].field;
+  end func; (* init *)
+
+
+
+const proc: markcell (in integer: line, in integer: column, inout fieldtype: nextfield, inout listtype: nextlist) is func
+  begin (* markcell *)
+(*  writeln(prot, "mark(" <& line <& ", " <& column <& ");"); *)
+    incr(listindex);
+    nextlist[listindex].lin := line;
+    nextlist[listindex].col := column;
+    nextfield[line][column] := TRUE;
+    setPos(field_win, line + MINLINE, column + MINCOLUMN);
+    write(field_win, MARKEDFIELD);
+  end func; (* markcell *)
+
+
+
+const proc: nextgeneration (in fieldtype: currfield, inout fieldtype: nextfield,
+    in listtype: currlist, inout listtype: nextlist) is func
+  local
+    var integer: index is 0;
+    var integer: neighbors is 0;
+    var boolean: cell1 is FALSE;
+    var boolean: cell2 is FALSE;
+    var boolean: cell3 is FALSE;
+    var boolean: cell4 is FALSE;
+    var boolean: cell5 is FALSE;
+    var boolean: cell6 is FALSE;
+    var boolean: cell7 is FALSE;
+    var boolean: cell33 is FALSE;
+    var boolean: cell55 is FALSE;
+  begin (* nextgeneration *)
+    (* Zero out last generation *)
+    for index range 1 to listlength[next] do
+      nextfield[nextlist[index].lin][nextlist[index].col] := FALSE;
+    end for;
+    listindex := 0;
+
+    for index range 1 to listlength[current] do
+      line := currlist[index].lin;
+      column := currlist[index].col;
+
+(*    writeln(prot, "DO(" <& index <& ", " <& line <& ", " <& column <& ");"); *)
+
+      cell2 := currfield[pred(line)][succ(column)];
+      cell3 := currfield[line][succ(column)];
+      cell4 := currfield[succ(line)][succ(column)];
+      cell5 := currfield[succ(line)][column];
+      cell6 := currfield[succ(line)][pred(column)];
+      cell7 := currfield[line][pred(column)];
+      cell33 := currfield[line][column + 2];
+      cell55 := currfield[line + 2][column];
+
+      (* Consider each of the cells neighbors *)
+
+      (* neighbor 1 at pred(line), column *)
+      if currfield[pred(line)][column] then
+        cell1 := TRUE;
+        neighbors := 1;
+      else
+        cell1 := FALSE;
+        neighbors := 0;
+        if (ord(cell2) + ord(cell3) + ord(cell7) +
+            ord(currfield[pred(line)][pred(column)]) +
+            ord(currfield[line - 2][pred(column)]) +
+            ord(currfield[line - 2][column]) +
+            ord(currfield[line - 2][succ(column)])) = 2 then
+          markcell(pred(line), column, nextfield, nextlist);
+        end if;
+      end if;
+
+      (* neighbor 2 at pred(line), succ(column) *)
+      if cell2 then
+        incr(neighbors);
+      else
+        if not cell3 then
+          if (ord(cell1) + ord(cell33) +
+              ord(currfield[line - 2][column]) +
+              ord(currfield[line - 2][succ(column)]) +
+              ord(currfield[line - 2][column + 2]) +
+              ord(currfield[pred(line)][column + 2])) = 2 then
+            markcell(pred(line), succ(column), nextfield, nextlist);
+          end if;
+        end if;
+      end if;
+
+      (* neighbor 3 at line, succ(column) *)
+      if cell3 then
+        incr(neighbors);
+      else
+        if not (cell4 or cell5) then
+          if (ord(cell1) + ord(cell2) + ord(cell33) +
+              ord(currfield[succ(line)][column + 2]) +
+              ord(currfield[pred(line)][column + 2])) = 2 then
+            markcell(line, succ(column), nextfield, nextlist);
+          end if;
+        end if;
+      end if;
+
+      (* neighbor 4 at succ(line), succ(column) *)
+      if cell4 then
+        incr(neighbors);
+      else
+        if not (cell5 or cell55 or
+            currfield[line + 2][succ(column)]) then
+          if (ord(currfield[line + 2][column + 2]) +
+              ord(cell3) + ord(cell33) +
+              ord(currfield[succ(line)][column + 2])) = 2 then
+            markcell(succ(line), succ(column), nextfield, nextlist);
+          end if;
+        end if;
+      end if;
+
+      (* neighbor 5 at succ(line), column *)
+      if cell5 then
+        incr(neighbors);
+      else
+        if not (cell6 or cell7 or cell55 or
+            currfield[line + 2][pred(column)]) then
+          if (ord(cell3) + ord(cell4) +
+              ord(currfield[line + 2][succ(column)])) = 2 then
+            markcell(succ(line), column, nextfield, nextlist);
+          end if;
+        end if;
+      end if;
+
+      (* neighbor 6 at succ(line), pred(column) *)
+      if cell6 then
+        incr(neighbors);
+      else
+        if cell5 and cell55 then
+          if not (cell7 or currfield[line + 2][pred(column)] or
+              currfield[line + 2][column - 2] or
+              currfield[succ(line)][column - 2] or
+              currfield[line][column - 2]) then
+            markcell(succ(line), pred(column), nextfield, nextlist);
+          end if;
+        end if;
+      end if;
+
+      (* neighbor 7 at line, pred(column) and *)
+      (* neighbor 8 at pred(line), pred(column) need no check *)
+
+      neighbors := neighbors + ord(cell7) +
+          ord(currfield[pred(line)][pred(column)]);
+      if neighbors <> 2 and neighbors <> 3 then
+        (* Cell dies *)
+(*      writeln(prot, "DIE(" <& line <& ", " <& column <& ");"); *)
+        setPos(field_win, line + MINLINE, column + MINCOLUMN);
+        write(field_win, EMPTYFIELD);
+      else
+        (* Cell lives *)
+(*      writeln(prot, "LIVE(" <& line <& ", " <& column <& ");"); *)
+        incr(listindex);
+        nextlist[listindex].lin := line;
+        nextlist[listindex].col := column;
+        nextfield[line][column] := TRUE;
+      end if;
+    end for;
+    listlength[next] := listindex;
+  end func; (* nextgeneration *)
+
+
+
+const proc: main is func
+  local
+    var char: ch is ' ';
+  begin (* main *)
+    scr := open(CONSOLE);
+    cursor(scr, TRUE);
+    win := openWindow(scr, 1, 1, 25, 80);
+    field_win := openWindow(scr, 2, 2, 23, 78);
+    gen_win := openWindow(scr, 1, 3, 1, 8);
+    cmd_win := openWindow(scr, 25, 2, 1, 78);
+    map_win := openWindow(scr, 2, 2, 23, 63);
+    header := openWindow(scr, 6, 21, 10, 38);
+    prot := openWindow(scr, 2, 2, 22, 20);
+    writeHeader();
+    quit := FALSE;
+    current := 1;
+    next := 2;
+    listlength[1] := 0;
+    listlength[2] := 0;
+    init();
+    box(field_win);
+    clear(field_win);
+    generation := 0;
+    clear(gen_win);
+    setPos(gen_win, 1, 1);
+    write(gen_win, generation lpad MAXDIGITS <& " ");
+    editmode(quit);
+    if not quit then
+      runinfo();
+      repeat
+        if singlestep then
+          nextDecimal();
+          nextgeneration(workspace[current].field, workspace[next].field,
+              workspace[current].bact_list, workspace[next].bact_list);
+          next := current;
+          current := 3 - current;
+          ch := KEY_NONE;
+        else
+          cursor(scr, FALSE);
+          repeat
+            nextDecimal();
+            nextgeneration(workspace[current].field, workspace[next].field,
+                workspace[current].bact_list, workspace[next].bact_list);
+            next := current;
+            current := 3 - current;
+            ch := busy_getc(KEYBOARD);
+          until ch <> KEY_NONE;
+          cursor(scr, TRUE);
+        end if;
+        if ch = KEY_NONE then
+          ch := 'E';
+        end if;
+        if singlestep then
+          if ch <> '\r' then
+            editmode(quit);
+            runinfo();
+          end if;
+        else
+          if ch <> 'Q' and ch <> 'q' then
+            editmode(quit);
+            runinfo();
+          else
+            quit := TRUE;
+          end if;
+        end if;
+      until quit;
+    end if;
+    clear(scr);
+  end func; (* main *)

@@ -1,0 +1,72 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  logfile.s7i   Interface type describing log files.              *)
+(*  Copyright (C) 1989 - 2018  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Interface type for log files.
+ *  When [[string]] expressions are written to a ''logFile'' the
+ *  evaluation of the string takes only place if the logFile is not
+ *  STD_NULL. The logFile interface is implemented with [[null_file]],
+ *  [[external_file]], [[utf8|utf8_file]], [[utf16|utf16_file]],
+ *  [[socket]], [[echo|echo_file]], [[line|line_file]],
+ *  [[dir|dir_file]] and many other types.
+ *)
+const type: logFile is sub file interface;
+
+
+(**
+ *  Write an evaluated [[string]] expression to a logFile.
+ *  The evaluation of the string takes only place if the logFile
+ *  is not STD_NULL.
+ *)
+const proc: write (inout logFile: log, ref func string: stri) is func
+  local
+    var file: aFile is STD_NULL;
+  begin
+    if log <> STD_NULL then
+      aFile := log;
+      write(aFile, stri);
+    end if;
+  end func;
+
+
+(**
+ *  Write an evaluated [[string]] expression followed by end-of-line to a logFile.
+ *  The evaluation of the string takes only place if the logFile
+ *  is not STD_NULL. The implementation function decides how writing
+ *  end-of-line is done. It can be done by writing '\n', but other
+ *  solutions are also possible.
+ *)
+const proc: writeln (inout logFile: log, ref func string: stri) is func
+  local
+    var file: aFile is STD_NULL;
+  begin
+    if log <> STD_NULL then
+      aFile := log;
+      writeln(aFile, stri);
+    end if;
+  end func;

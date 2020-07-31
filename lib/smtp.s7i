@@ -1,0 +1,258 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  smtp.s7i      Support for SMTP (simple mail transfer protocol)  *)
+(*  Copyright (C) 2015  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "socket.s7i";
+include "encoding.s7i";
+include "tls.s7i";
+
+
+(**
+ *  Describes a SMTP connection to a remote SMTP server.
+ *)
+const type: smtpConnection is new struct
+    var file: sock is STD_NULL;
+    var string: response is "";
+    var string: responseContent is "";
+  end struct;
+
+
+(**
+ *  Describes a SMTP message.
+ *)
+const type: smtpMessage is new struct
+    var string: fromAddr is "";
+    var array string: toAddrs is 0 times "";
+    var array string: ccAddrs is 0 times "";
+    var array string: bccAddrs is 0 times "";
+    var string: subject is "";
+    var string: msgBody is "";
+  end struct;
+
+
+const func string: str (in smtpMessage: message) is func
+  result
+    var string: msgString is "";
+  begin
+    if message.fromAddr <> "" then
+      msgString &:= "From: " & message.fromAddr & "\r\n";
+    end if;
+    if length(message.toAddrs) <> 0 then
+      msgString &:= "To: " & join(message.toAddrs, ", ") & "\r\n";
+    end if;
+    if length(message.ccAddrs) <> 0 then
+      msgString &:= "Cc: " & join(message.ccAddrs, ", ") & "\r\n";
+    end if;
+    msgString &:= "Subject: " & message.subject & "\r\n";
+    # for headerValue key headerName range message.otherHeaders do
+    #   msgString &:= headerName & ": " & headerValue & "\r\n";
+    # end for;
+    msgString &:= "\r\n";
+    msgString &:= message.msgBody;
+  end func;
+
+
+const proc: smtpCommand (inout smtpConnection: smtp, in string: command) is func
+  begin
+    # writeln("<- " <& command);
+    write(smtp.sock, command <& "\r\n");
+  end func;
+
+
+const proc: smtpResponse (inout smtpConnection: smtp) is func
+  local
+    var string: responseCode is "";
+  begin
+    smtp.response := getln(smtp.sock);
+    if smtp.response[4 len 1] = "-" then
+      responseCode := smtp.response[.. 3] & " ";
+      # writeln("-> " <& smtp.response);
+      smtp.responseContent := "";
+      smtp.response := getln(smtp.sock);
+      while not startsWith(smtp.response, responseCode) do
+        # writeln("-> " <& smtp.response);
+        smtp.responseContent &:= smtp.response;
+        smtp.responseContent &:= '\n';
+        smtp.response := getln(smtp.sock);
+      end while;
+    end if;
+    # writeln("-> " <& smtp.response);
+  end func;
+
+
+(**
+ *  Close an SMTP connection.
+ *  Disconnects from the SMTP server and closes the socket.
+ *)
+const proc: close (inout smtpConnection: smtp) is func
+  begin
+    block
+      smtpCommand(smtp, "QUIT");
+      smtpResponse(smtp);
+    exception
+      catch FILE_ERROR: noop;
+    end block;
+    close(smtp.sock);
+    smtp.sock := STD_NULL;
+  end func;
+
+
+(**
+ *  Open an SMTP connection to the specified host and port.
+ *  @param hostName Either a host name ("e.g.: "www.example.org"),
+ *                  or an IPv4 address in standard dot notation
+ *                  (e.g.: "192.0.2.235"), or an IPv6 address in
+ *                  colon notation.
+ *  @param smtpPort Port to be used for the SMTP connection.
+ *                  SMTP usually uses the ports 25, 465 and 587,
+ *                  but other ports can also be specified.
+ *  @return an SMTP connection. For an open SMTP connection
+ *          smtp.sock <> STD_NULL holds. If the connection could not
+ *          be opened smtp.sock = STD_NULL holds.
+ *)
+const func smtpConnection: openSmtp (in string: hostName,
+    in integer: smtpPort) is func
+  result
+    var smtpConnection: smtp is smtpConnection.value;
+  begin
+    smtp.sock := openInetSocket(hostName, smtpPort);
+    if smtp.sock <> STD_NULL then
+      smtpResponse(smtp);
+      if startsWith(smtp.response, "220") then
+        smtpCommand(smtp, "EHLO " & getHostname);
+        smtpResponse(smtp);
+        if startsWith(smtp.response, "250") then
+          if startsWith(smtp.response, "250 STARTTLS") then
+            smtpCommand(smtp, "STARTTLS");
+            smtpResponse(smtp);
+            if startsWith(smtp.response, "220") then
+              smtp.sock := openTlsSocket(smtp.sock);
+              smtpCommand(smtp, "EHLO " & getHostname);
+              smtpResponse(smtp);
+              if not startsWith(smtp.response, "250") then
+                close(smtp);
+              end if;
+            else
+              close(smtp);
+            end if;
+          end if;
+        else
+          smtpCommand(smtp, "HELO " & getHostname);
+          smtpResponse(smtp);
+          if not startsWith(smtp.response, "250") then
+            close(smtp);
+          end if;
+        end if;
+      else
+        close(smtp);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Login as ''user'' with ''password''.
+ *  @param smtp Open smtp connection.
+ *  @param user Username to be used for the login.
+ *  @param password Password to be used for the login.
+ *  @exception FILE_ERROR If the login fails.
+ *)
+const proc: login (inout smtpConnection: smtp, in string: user,
+    in string: password) is func
+  begin
+    smtpCommand(smtp, "AUTH LOGIN " <& toBase64(user));
+    smtpResponse(smtp);
+    if startsWith(smtp.response, "334") then
+      smtpCommand(smtp, toBase64(password));
+      smtpResponse(smtp);
+      if not startsWith(smtp.response, "235") then
+        close(smtp);
+        raise FILE_ERROR;
+      end if;
+    else
+      close(smtp);
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Send ''message'' from ''fromAddr'' to ''toAddrs''.
+ *  @param smtp Open smtp connection.
+ *  @param fromAddr Address of the sender.
+ *  @param toAddrs Addresses of the receivers.
+ *  @param message Message to be sent.
+ *  @exception FILE_ERROR If sending the message fails.
+ *)
+const proc: send (inout smtpConnection: smtp, in string: fromAddr,
+                  in array string: toAddrs, in smtpMessage: message) is func
+  local
+    var string: address is "";
+    var string: messageData is "";
+  begin
+    smtpCommand(smtp, "MAIL FROM:<" & fromAddr & ">");
+    smtpResponse(smtp);
+    for address range toAddrs until not startsWith(smtp.response, "250") do
+      smtpCommand(smtp, "RCPT TO:<" & address & ">");
+      smtpResponse(smtp);
+    end for;
+    if startsWith(smtp.response, "250") then
+      smtpCommand(smtp, "DATA");
+      smtpResponse(smtp);
+      if startsWith(smtp.response, "354") then
+        messageData := str(message);
+        messageData := replace(messageData, "\n.\r\n", "\n. \r\n");
+        messageData := replace(messageData, "\n.\n", "\n. \n");
+        smtpCommand(smtp, messageData);
+        smtpCommand(smtp, ".");
+        smtpResponse(smtp);
+        if not startsWith(smtp.response, "250") then
+          close(smtp);
+          raise FILE_ERROR;
+        end if;
+      else
+        close(smtp);
+        raise FILE_ERROR;
+      end if;
+    else
+      close(smtp);
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Send ''message'' to the addresses specified in the message.
+ *  @param smtp Open smtp connection.
+ *  @param message Message to be sent.
+ *  @exception FILE_ERROR If sending the message fails.
+ *)
+const proc: send (inout smtpConnection: smtp, in smtpMessage: message) is func
+  begin
+    send(smtp, message.fromAddr,
+         message.toAddrs & message.ccAddrs & message.bccAddrs, message);
+  end func;

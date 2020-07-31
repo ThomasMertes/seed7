@@ -1,0 +1,2887 @@
+<html>
+<head>
+<title>
+Seed7 FAQ</title>
+<style type="text/css">
+<!--
+a.link:visited { color: mediumblue; text-decoration: none }
+a.link:link    { color: blue; text-decoration: none }
+a.link:hover   { color: blue; text-decoration: underline }
+a.link:active  { color: orange; text-decoration: underline }
+
+a.head:visited { color: cyan;  background-color: blue }
+a.head:link    { color: cyan;  background-color: blue }
+a.head:hover   { color: white; background-color: blue }
+a.head:active  { color: green; background-color: blue }
+
+a.menu:visited { color: purple; background-color: silver }
+a.menu:link    { color: purple; background-color: silver }
+a.menu:hover   { color: red;    background-color: white  }
+a.menu:active  { color: green;  background-color: silver }
+
+a.navigation:visited { color: purple; text-decoration: none; background-color: silver }
+a.navigation:link    { color: purple; text-decoration: none; background-color: silver }
+a.navigation:hover   { color: red;    text-decoration: none; background-color: silver }
+a.navigation:active  { color: green;  text-decoration: none; background-color: silver }
+
+a.type:visited { color: red; text-decoration: underline }
+a.type:link    { color: red; text-decoration: underline }
+a.type:hover   { color: navy }
+a.type:active  { color: gold }
+
+a.type_no_ul:visited { color: red; text-decoration: none }
+a.type_no_ul:link    { color: red; text-decoration: none }
+a.type_no_ul:hover   { color: navy; text-decoration: underline }
+a.type_no_ul:active  { color: gold; text-decoration: underline }
+
+a.keywd:visited { color: blue; text-decoration: underline }
+a.keywd:link    { color: blue; text-decoration: underline }
+a.keywd:hover   { color: orange }
+a.keywd:active  { color: green }
+
+a.keywd_no_ul:visited { color: blue; text-decoration: none }
+a.keywd_no_ul:link    { color: blue; text-decoration: none }
+a.keywd_no_ul:hover   { color: orange; text-decoration: underline }
+a.keywd_no_ul:active  { color: green; text-decoration: underline }
+
+a.op:visited { color: blue; text-decoration: underline }
+a.op:link    { color: blue; text-decoration: underline }
+a.op:hover   { color: orange }
+a.op:active  { color: green }
+
+a.op_no_ul:visited { color: blue; text-decoration: none }
+a.op_no_ul:link    { color: blue; text-decoration: none }
+a.op_no_ul:hover   { color: orange; text-decoration: underline }
+a.op_no_ul:active  { color: green; text-decoration: underline }
+
+a.lib:visited { color: maroon; text-decoration: underline }
+a.lib:link    { color: maroon; text-decoration: underline }
+a.lib:hover   { color: blue }
+a.lib:active  { color: orange }
+
+a.prog:visited { color: darkgreen; text-decoration: underline }
+a.prog:link    { color: darkgreen; text-decoration: underline }
+a.prog:hover   { color: darkorange }
+a.prog:active  { color: orange }
+
+a.func:visited { color: purple; text-decoration: underline }
+a.func:link    { color: purple; text-decoration: underline }
+a.func:hover   { color: magenta }
+a.func:active  { color: olive }
+
+a.func_no_ul:visited { color: black; text-decoration: none }
+a.func_no_ul:link    { color: black; text-decoration: none }
+a.func_no_ul:hover   { color: magenta; text-decoration: underline }
+a.func_no_ul:active  { color: olive; text-decoration: underline }
+
+a.var:visited { color: darkcyan; text-decoration: underline  }
+a.var:link    { color: darkcyan; text-decoration: underline  }
+a.var:hover   { color: darkred }
+a.var:active  { color: gold }
+
+a.exception:visited { color: black; text-decoration: none }
+a.exception:link    { color: black; text-decoration: none }
+a.exception:hover   { color: blue; text-decoration: underline }
+a.exception:active  { color: orange; text-decoration: underline }
+
+a.ebnf:visited { color: black; text-decoration: none }
+a.ebnf:link    { color: black; text-decoration: none }
+a.ebnf:hover   { color: blue; text-decoration: underline }
+a.ebnf:active  { color: orange; text-decoration: underline }
+
+span.type    { color: red }
+span.keywd   { color: blue }
+span.op      { color: blue }
+span.comment { color: green }
+span.stri    { color: maroon }
+span.lib     { color: maroon }
+span.prog    { color: darkgreen }
+span.func    { color: purple }
+span.var     { color: darkcyan }
+span.input   { color: green }
+
+span.box {
+  border: solid 1px black;
+  background-color: WhiteSmoke;
+  padding: 0px 1px 0px 1px;
+  margin: 4px 2px 6px 2px;
+}
+
+a.menu, a.head {
+  text-decoration: none;
+  margin: 0px;
+  color: black;
+  padding: 0px;
+  padding-left: 5px;
+  border: 1px solid blue;
+  border-top: 0;
+  display: block;
+  width: 120px;
+}
+
+.tt { font-family: monospace; font-size: 10pt; }
+
+body  { font-size: 12pt; }
+table { font-size: 12pt; }
+tt    { font-size: 10pt; }
+
+pre.tt {
+    white-space: pre;
+    table-display: fixed;
+    white-space: pre-wrap;
+    font-size: 10pt;
+    overflow: auto;
+    color: black;
+    margin: 0;
+    padding: 0;
+}
+
+pre.box {
+    border: 1pt dashed black;
+    white-space: pre;
+    table-display: fixed;
+    white-space: pre-wrap;
+    font-size: 10pt;
+    overflow: auto;
+    padding: 1em 0;
+    background: #F8F8F8;
+    color: black;
+}
+
+pre.indent {
+    border: 1pt dashed black;
+    white-space: pre;
+    table-display: fixed;
+    white-space: pre-wrap;
+    font-size: 10pt;
+    overflow: auto;
+    padding: 1em 0;
+    background: #F8F8F8;
+    color: black;
+    padding-left: 16px;
+}
+//-->
+</style>
+</head>
+<body>
+
+<p></p><hr /><h1 align="center">
+Frequently asked questions
+</h1><hr />
+<p></p><!--(*-->
+<h2>
+General
+</h2><ul>
+<li><a class="link" href="#faq_new_language"><b>
+Why a new programming language?
+</b></a></li>
+<li><a class="link" href="#faq_design_principles"><b>
+What are the design principles Seed7?
+</b></a></li>
+<li><a class="link" href="#faq_extensible_programming"><b>
+What is an extensible programming language?
+</b></a></li>
+<li><a class="link" href="#faq_portable"><b>
+Are Seed7 programs portable?
+</b></a></li>
+<li><a class="link" href="#faq_license"><b>
+Which license does Seed7 use?
+</b></a></li>
+<li><a class="link" href="#faq_pascal_descendant"><b>
+Is Seed7 a descendant of Pascal?
+</b></a></li>
+<li><a class="link" href="#faq_java_comparison"><b>
+How does Seed7 compare to Java?
+</b></a></li>
+<li><a class="link" href="#faq_application_area"><b>
+What kind of programs can be written in Seed7?
+</b></a></li>
+<li><a class="link" href="#faq_lines_of_code"><b>
+How many lines of code are in the Seed7 project?
+</b></a></li>
+<li><a class="link" href="#faq_os"><b>
+On which operating systems does Seed7 run?
+</b></a></li>
+<li><a class="link" href="#faq_installer"><b>
+Is there an installer for Seed7?
+</b></a></li>
+<li><a class="link" href="#faq_download"><b>
+Where can I download Seed7?
+</b></a></li>
+<li><a class="link" href="#faq_uncompress"><b>
+How do I uncompress the *.tgz file from the release?
+</b></a></li>
+<li><a class="link" href="#faq_compile_interpreter"><b>
+How do I compile the Seed7 interpreter?
+</b></a></li>
+<li><a class="link" href="#faq_errors"><b>
+I got errors when compiling Seed7. What should I do?
+</b></a></li>
+<li><a class="link" href="#faq_verify_interpreter"><b>
+How do I verify that the interpreter works correct?
+</b></a></li>
+<li><a class="link" href="#faq_install"><b>
+How can I install Seed7?
+</b></a></li>
+<li><a class="link" href="#faq_interpreter"><b>
+How can I use the Seed7 interpreter?
+</b></a></li>
+<li><a class="link" href="#faq_compile"><b>
+Is it possible to compile Seed7 programs?
+</b></a></li>
+<li><a class="link" href="#faq_debug_with_eclipse"><b>
+Can I debug Seed7 programs with Eclipse?
+</b></a></li>
+</ul><h2>
+Language
+</h2><ul>
+<li><a class="link" href="#faq_reserved_words"><b>
+What are the reserved words of Seed7?
+</b></a></li>
+<li><a class="link" href="#faq_syntax"><b>
+How is the syntax of Seed7 defined?
+</b></a></li>
+<li><a class="link" href="#faq_statements"><b>
+Why does Seed7 not use the C statements like C++ and Java?
+</b></a></li>
+<li><a class="link" href="#faq_everybody_invents_statements"><b>
+Isn't the code unreadable if everybody invents new statements?
+</b></a></li>
+<li><a class="link" href="#faq_lisp_comparison"><b>
+Hasn't Lisp already user defined statements and operators?
+</b></a></li>
+<li><a class="link" href="#faq_static_type_checking"><b>
+Why does Seed7 use static type checking?
+</b></a></li>
+<li><a class="link" href="#faq_development_speed_and_type_checking"><b>
+Is the program development slowed down with static type checking?
+</b></a></li>
+<li><a class="link" href="#faq_first_class_types_and_type_checking"><b>
+How can static type checking work if types are first-class objects?
+</b></a></li>
+<li><a class="link" href="#faq_type_inference"><b>
+Why does Seed7 not use type inference?
+</b></a></li>
+<li><a class="link" href="#faq_automatic_casts"><b>
+Are there automatic casts to the right type?
+</b></a></li>
+<li><a class="link" href="#faq_declare_later"><b>
+Can I use something and declare it later?
+</b></a></li>
+<li><a class="link" href="#faq_overloading"><b>
+Can functions be overloaded?
+</b></a></li>
+<li><a class="link" href="#faq_overload_result"><b>
+Can I overload two functions which just differ in the result type?
+</b></a></li>
+<li><a class="link" href="#faq_variable_parameter_list"><b>
+Can functions have variable parameter lists?
+</b></a></li>
+<li><a class="link" href="#faq_initialize_data"><b>
+Is there an elegant way to initialize data?
+</b></a></li>
+<li><a class="link" href="#faq_initialize_variables"><b>
+Why is it necessary to initialize all variables?
+</b></a></li>
+<li><a class="link" href="#faq_unicode"><b>
+Is Unicode supported?
+</b></a></li>
+<li><a class="link" href="#faq_mutable_strings"><b>
+Why are the strings in Seed7 mutable?
+</b></a></li>
+<li><a class="link" href="#faq_comparisons"><b>
+How are comparisons done in Seed7?
+</b></a></li>
+<li><a class="link" href="#faq_database_access"><b>
+Can Seed7 access databases?
+</b></a></li>
+<li><a class="link" href="#faq_regular_expressions"><b>
+Are there regular expressions?
+</b></a></li>
+<li><a class="link" href="#faq_div_operator"><b>
+Why is the div operator used for integer divisions?
+</b></a></li>
+<li><a class="link" href="#faq_concatenation_operators"><b>
+Why are &amp; and &lt;&amp; defined for string concatenation?
+</b></a></li>
+<li><a class="link" href="#faq_types_of_parameters"><b>
+What types of parameters does Seed7 have?
+</b></a></li>
+<li><a class="link" href="#faq_in_parameter"><b>
+What is an 'in' parameter?
+</b></a></li>
+<li><a class="link" href="#faq_difference_val_and_ref_parameter"><b>
+Is there an example where val and ref parameters have different behavior?
+</b></a></li>
+<li><a class="link" href="#faq_call_by_name"><b>
+What is call-by-name?
+</b></a></li>
+<li><a class="link" href="#faq_integer_overflow"><b>
+What is an integer overflow?
+</b></a></li>
+<li><a class="link" href="#faq_garbage_collection"><b>
+Is there a garbage collection?
+</b></a></li>
+<li><a class="link" href="#faq_object_oriented"><b>
+Is Seed7 object oriented?
+</b></a></li>
+<li><a class="link" href="#faq_inherited_from_object"><b>
+Is everything inherited from object?
+</b></a></li>
+<li><a class="link" href="#faq_difference_overloading_oo"><b>
+What is the difference between overloading and object orientation?
+</b></a></li>
+<li><a class="link" href="#faq_abstract_data_type"><b>
+What is an abstract data type?
+</b></a></li>
+<li><a class="link" href="#faq_multiple_dispatch"><b>
+What is multiple dispatch?
+</b></a></li>
+<li><a class="link" href="#faq_container_classes"><b>
+What container classes do exist?
+</b></a></li>
+<li><a class="link" href="#faq_primitive_types"><b>
+Are there primitive types?
+</b></a></li>
+<li><a class="link" href="#faq_object_and_primitive_types"><b>
+What is the difference between object and primitive types?
+</b></a></li>
+<li><a class="link" href="#faq_when_use_object_or_primitive_types"><b>
+When to use an object type and when a primitive type?
+</b></a></li>
+<li><a class="link" href="#faq_how_does_the_assignment_work"><b>
+How does the assignment work?
+</b></a></li>
+<li><a class="link" href="#faq_two_forms_of_assignment"><b>
+Why are there two forms of assignment?
+</b></a></li>
+<li><a class="link" href="#faq_constructors"><b>
+Where are the constructors?
+</b></a></li>
+<li><a class="link" href="#faq_static_methods"><b>
+Are there static methods / class methods?
+</b></a></li>
+<li><a class="link" href="#faq_generics"><b>
+Are there generics / templates?
+</b></a></li>
+<li><a class="link" href="#faq_undefined_behavior"><b>
+What means the term undefined behavior?
+</b></a></li>
+<li><a class="link" href="#faq_exceptions"><b>
+Are there exceptions?
+</b></a></li>
+<li><a class="link" href="#faq_stack_trace"><b>
+What happens if an exception is not caught?
+</b></a></li>
+</ul><h2>
+Implementation
+</h2><ul>
+<li><a class="link" href="#faq_lib_path"><b>
+Where does the interpreter look for include libraries?
+</b></a></li>
+<li><a class="link" href="#faq_predefined_include_libraries"><b>
+How is the directory of the predefined include libraries determined?
+</b></a></li>
+<li><a class="link" href="#faq_cmd_config_value"><b>
+How does the Seed7 compiler get information about C compiler and runtime?
+</b></a></li>
+<li><a class="link" href="#faq_seed7_package"><b>
+What should a binary Seed7 package install?
+</b></a></li>
+<li><a class="link" href="#faq_compile_with_database_connectons"><b>
+What is necessary to compile Seed7 with database connections?
+</b></a></li>
+<li><a class="link" href="#faq_bytecode"><b>
+Does the interpreter use bytecode?
+</b></a></li>
+<li><a class="link" href="#faq_analyze"><b>
+How does the analyze phase of the interpreter work?
+</b></a></li>
+<li><a class="link" href="#faq_compile_call_by_name"><b>
+How does the compiler implement call-by-name parameters?
+</b></a></li>
+<li><a class="link" href="#faq_action"><b>
+What does action "XYZ_SOMETHING" mean?
+</b></a></li>
+<li><a class="link" href="#faq_dollar_signs"><b>
+Why are there dollar signs at some places?
+</b></a></li>
+<li><a class="link" href="#faq_seed7_version_number"><b>
+Why does "seed7_05.s7i" contain a version number?
+</b></a></li>
+<li><a class="link" href="#faq_boot_a_language"><b>
+Can I use an "abc.s7i" include file to boot to the abc language?
+</b></a></li>
+</ul><hr />
+<p></p><!--*)-->
+
+<div><br /><a name="faq_new_language"><h3>Why a new programming language?
+</h3></a><hr />
+<p>
+Because Seed7 has several features which are not found in other
+programming languages:
+</p><ul>
+<li>The possibility to declare new statements (syntactical and
+   semantically) in the same way as functions are declared (There are
+   also user definable operators with priority and associativity).</li>
+<li>Declaration constructs for constant-, variable-, function-,
+   parameter-, and other declarations are described in Seed7 (The user
+   can change existing declaration constructs or invent new ones).</li>
+<li><a class="link" href="#faq_generics">Templates</a> use no special syntax. They are just functions with
+   <tt><span class="type">type</span></tt> parameters or a <tt><span class="type">type</span></tt> result.</li>
+<li>Seed7 has <a class="link" href="#faq_abstract_data_type">abstract data types</a>. For example the types <tt><span class="type">array</span></tt>, <tt><span class="type">hash</span></tt>,
+   <tt><span class="type">struct</span></tt> and <tt><span class="type">set</span></tt>. They are not hard coded in the compiler, but are
+   abstract data types written in Seed7. User defined abstract data
+   types are also possible.</li>
+<li>The <a class="link" href="#faq_object_oriented">object orientation</a> of Seed7 allows <a class="link" href="#faq_multiple_dispatch">multiple dispatch</a>. That
+   means that a function or method is connected to more than one type.</li>
+<li>Seed7 is a syntactically and semantically extensible language:
+   Almost all of the Seed7 language (<span class="link">statements</span>, <span class="link">operators</span>,
+   declaration constructs, and more) is defined in Seed7 in an include
+   file (seed7_05.s7i).</li>
+<li>The application program contains an include statement and the s7
+   interpreter is booted with the language description when it starts.
+   This way it is possible to define language variants or a totally
+   different language.</li>
+</ul></div>
+
+<div><br /><a name="faq_design_principles"><h3>What are the design principles Seed7?
+</h3></a><hr />
+<p>
+The design principles are:
+</p><dl>
+<dt>Error prevention:</dt><dd>
+   Seed7 is <a class="link" href="#faq_static_type_checking">statically typed</a>, variables must always have a value,
+   there is no NULL and all errors, inclusive <a class="link" href="#faq_integer_overflow">integer overflow</a>,
+   trigger an exception.</dd>
+
+<dt>Source code portability:</dt><dd>
+   Most programming languages claim to be source code portable, but
+   often you need considerable effort to actually write portable
+   code. In Seed7 it is hard to write unportable code. Seed7 programs
+   can be <a class="link" href="#faq_portable">executed without changes</a>. Even the path delimiter
+   (/) and database connection strings are standardized. Seed7 has
+   drivers for graphic, console, etc. to compensate for different
+   operating systems.</dd>
+
+<dt>Readability:</dt><dd>
+   Programs are more often read than written.</dd>
+
+<dt>Well defined behavior:</dt><dd>
+   Seed7 has a well defined behavior in all situations.
+   <a class="link" href="#faq_undefined_behavior">Undefined behavior</a> like in C does not exist.</dd>
+
+<dt>Extensibility:</dt><dd>
+   Every programmer can <a class="link" href="#faq_extensible_programming">define new statements and operators</a>. This
+   includes new operator symbols. Even the syntax and semantics
+   of Seed7 is defined in libraries.</dd>
+
+<dt>Object orientation:</dt><dd>
+   There are interfaces and implementations of them. Classes are
+   not used. This allows <a class="link" href="#faq_multiple_dispatch">multiple dispatch</a>.</dd>
+
+<dt>Multiple dispatch:</dt><dd>
+   A method is not attached to one object (this). Instead it can
+   be connected to several objects. This works analog to the
+   overloading of operators.</dd>
+
+<dt>Performance:</dt><dd>
+   The Seed7 <a class="link" href="#faq_compile">compiler</a> is written in Seed7. It creates C and calls
+   the C compiler, which generates machine code. The generated C
+   program is adapted for the configured C compiler and operating
+   system.</dd>
+
+<dt>No virtual machine:</dt><dd>
+   Seed7 is based on the executables of the operating system.
+   This removes another dependency.</dd>
+
+<dt>An interpreter that starts quickly:</dt><dd>
+   This allows a quick edit-test cycle. Often the interpreter
+   reads 400000 lines per second or more.</dd>
+
+<dt>No artificial restrictions:</dt><dd>
+   There is no limit for length of an identifier or string, for
+   the number of variables or number of nesting levels, etc.
+   Nowadays this is no problem, but old programming languages
+   have lots of these limits.</dd>
+
+<dt>Independent of databases:</dt><dd>
+   The <a class="link" href="#faq_database_access">database</a> drivers of Seed7 consist of 30000 lines of C.
+   This way many differences are abstracted away.</dd>
+
+<dt>Possibility to work without IDE:</dt><dd>
+   IDEs are great, but some programming languages have been
+   designed in a way that makes it hard to use them without
+   IDE. Programming language features should be designed in a way
+   that makes it possible to work also with a simple text editor.</dd>
+
+<dt>Minimal dependency on external tools:</dt><dd>
+   To <a class="link" href="#faq_compile_interpreter">compile Seed7</a> you just need a C compiler and a make utility.
+   The Seed7 libraries avoid calling external tools also.</dd>
+
+<dt>Comprehensive libraries:</dt><dd>
+   The <span class="link">libraries</span> of Seed7 cover many areas.</dd>
+
+<dt>Own implementations of libraries:</dt><dd>   
+   Many languages have no own implementation for essential library
+   functions. Instead C, C++ or Java libraries are used. In Seed7
+   most of the libraries are written in Seed7. This reduces the
+   dependency on external libraries. The source code of external
+   libraries is sometimes hard to find and in most cases hard to
+   read.</dd>
+
+<dt>Reliable solutions:</dt><dd>
+   Simple and reliable solutions are preferred over complex
+   solutions, that may fail for various reasons.</dd>
+</dl></div>
+
+<div><br /><a name="faq_extensible_programming"><h3>What is an extensible programming language?
+</h3></a><hr />
+<p>
+An extensible programming language supports mechanisms to extend the
+programming language, compiler/interpreter and runtime environment.
+The programmer is allowed to define new language constructs such as
+statements, declaration constructs and operators syntactically
+and semantically. Most programming languages allow user defined
+variables, functions and types, but they also use constructs which
+are hard-coded in the compiler/interpreter. An extensible programming
+language tries to avoid such hard-coded constructs in normal programs.
+</p><p>
+Extensible programming was an area of active research in the 1960s,
+but in the 1970s the extensibility movement was displaced by the
+abstraction movement. Todays software history gives almost no hint
+that the extensible languages movement had ever occurred. In the
+historical movement an extensible programming language consisted of
+a base language providing elementary computing facilities, and a
+meta-language capable of modifying the base language. A program then
+consisted of meta-language modifications and code in the modified
+base language. A popular approach to do language extension was the
+use of macro definitions. The constructs of the base language were
+hard-coded.
+</p><p>
+The design and development of Seed7 is based on independent research,
+which was done without knowing that the historic extensible
+programming language movement existed. Although Seed7 has different
+roots it reaches many of the original extensible programming language
+goals. Contrary to the historic movement Seed7 does not have a
+meta-language. In Seed7 a language extension is formulated in Seed7
+itself. Seed7 differentiates between syntactic and semantic extensions.
+Syntactic extensions are described in <span class="link">Chapter 9 (Structured syntax
+definition)</span> of the manual. The semantic extensions of Seed7 are done
+by declaring statements and operators as functions. For the body of
+loops and similar needs statically typed <a class="link" href="#faq_call_by_name">call-by-name</a> parameters are
+used.
+</p></div>
+
+<div><br /><a name="faq_portable"><h3>Are Seed7 programs portable?
+</h3></a><hr />
+<p>
+Yes. Seed7 spares no effort to support source code portability.
+No changes are necessary, if programs are moved between different
+processors, between 32- and 64-bit systems or between little- and
+big-endian machines. Seed7 source code can also be moved between
+different operating systems. Several driver libraries assure that
+the access to operating system resources such as files, directories,
+network, clock, keyboard, console and graphics is done in a portable
+way. The <span class="link">libraries</span> of Seed7 cover many areas. The goal is: There
+should be no need to <span class="link">call foreign C functions</span>, or to <span class="link">execute shell</span>
+(respectively cmd.exe) commands.
+</p><ul>
+<li>Seed7 <a class="link" href="#faq_cmd_config_value">determines the properties</a> of the underlying C compiler and
+   C runtime library and uses code to compensate the differences.</li>
+<li>Different <a class="link" href="#faq_unicode">Unicode</a> encodings (e.g.: UTF-8 or UTF-16) in system
+   calls (e.g. fopen()/wopen()) are hidden from the programmer.</li>
+<li>Portable file functions are provided in the library <span class="lib">osfiles.s7i</span>:<ul>
+<li>There are functions to <span class="link">copy</span>, <span class="link">move</span> and <span class="link">remove</span> files (and
+      directory trees).</li>
+<li>File properties such as <span class="link">size</span>, <span class="link">type</span>, <span class="link">time</span> and <span class="link">mode</span> can be
+      obtained and changed.</li>
+<li><span class="link">The contents of a directory</span> can be read as array of strings or
+      <span class="link">via the file interface</span>.</li>
+<li>A <span class="link">standard path representation</span> removes all problems with
+      drive letters and different path delimiters.</li></ul></li>
+<li>Differences between Unix sockets and winsockets are hidden and
+   a Seed7 <tt><span class="type">socket</span></tt> is a <tt><span class="type">file</span></tt> (as in Unix). The type <tt><span class="type">pollData</span></tt> allows
+   to wait until a socket is ready to read or write data. <span class="link">TLS/SSL</span>
+   and higher level protocols such as <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span>
+   and <span class="link">SMTP</span> are also supported.</li>
+<li>The library <span class="lib">keybd.s7i</span> defines the file <span class="var">KEYBOARD</span>, which supports
+   reading single key presses. The characters read from <span class="var">KEYBOARD</span> are
+   not echoed to the console and there is no need to press ENTER.
+   There is also a portable way to check, if a <span class="link">key has been pressed</span>.</li>
+<li><span class="link">Reading keys</span> and key combinations such as ctrl-F1 from a <span class="link">text
+   console</span> or a <span class="link">graphic window</span> under different operating systems
+   always delivers the same character code.</li>
+<li>There is an access to the <span class="link">text console</span>, which allows <span class="link">cursor
+   positioning</span>.</li>
+<li>An operating system independent type for <span class="link">times and dates</span>, based
+   on the proleptic Gregorian calendar, is provided in the library
+   <span class="lib">time.s7i</span>.</li>
+<li>A <span class="link">portable graphics library</span> allows drawing, image operations,
+   windows manipulation and bitmap <span class="link">fonts</span>. Events to redraw a window
+   and other annoyances are managed in the graphics library.</li>
+<li>A <span class="link">database library</span> provides a <span class="link">database independent API</span> to connect
+   to MySQL, MariaDB, SQLLite, PostgreSQL, Oracle, Firebird, Interbase,
+   Db2 and SQL Server databases. The ODBC interface can be used also.</li>
+<li>Weaknesses of operating systems are hidden (E.g.: The windows
+   function utime() does not work on directories, but Seed7 allows
+   the modification of directory <span class="link">access</span> and <span class="link">modification times</span> also
+   under windows).</li>
+</ul></div>
+
+<div><br /><a name="faq_license"><h3>Which license does Seed7 use?
+</h3></a><hr />
+<p>
+Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
+The s7 interpreter and the example programs (extension .sd7) are under the
+GPL (General Public License, see also the file COPYING).
+</p><p>
+The Seed7 runtime library is under the LGPL (Lesser General Public License,
+see also the file LGPL). The Seed7 include files (extension .s7i) are a part
+of the Seed7 runtime library.
+</p><p>
+Seed7 allows the interpretation and compilation of programs with any license.
+There is no restriction on the license of your Seed7 programs.
+</p><p>
+For the development of the <span class="link">Seed7 compiler</span> it will be necessary to move some
+source code from the s7 interpreter (under GPL) to the Seed7 runtime library
+(under LGPL). This will only be done to for the Seed7 runtime library and only
+as far as necessary to make no restriction on the license of compiled Seed7
+programs.
+</p><p>
+If you send me patches (I would be very pleased), it is assumed that you
+accept license changes from GPL to LGPL for parts of code which need to be
+in the runtime library to support compilation of Seed7 programs.
+</p></div>
+
+<div><br /><a name="faq_pascal_descendant"><h3>Is Seed7 a descendant of Pascal?
+</h3></a><hr />
+<p>
+No, not really. The keywords and statements remind people of Pascal,
+but behind the surface there is much difference. Don't judge a book
+by its cover. Seed7 is neither limited to Pascal's features, nor is it
+implemented like Pascal. Notable differences are:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>Feature            </th><th> Standard Pascal             </th><th> Seed7</th></tr>
+  
+  <tr><td>syntax             </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
+  <tr><td>statements         </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
+  <tr><td>operators          </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
+  <tr><td>array              </td><td> hard-coded in the compiler  </td><td> defined as abstract data type <tt><span class="type">array</span></tt></td></tr>
+  <tr><td>record / struct    </td><td> hard-coded in the compiler  </td><td> defined as abstract data type</td></tr>
+  <tr><td>hash table         </td><td> not in the standard library </td><td> defined as abstract data type <tt><span class="type">hash</span></tt></td></tr>
+  <tr><td>compiler target    </td><td> machine code or P-code      </td><td> C, compiled to machine code afterwards</td></tr>
+  <tr><td><a class="link" href="#faq_generics">template</a>           </td><td> none                        </td><td> function with type parameters</td></tr>
+  <tr><td><a class="link" href="#faq_abstract_data_type">abstract data type</a> </td><td> none                        </td><td> function with type result</td></tr>
+  <tr><td>object orientation </td><td> none                        </td><td> interfaces and multiple dispatch</td></tr>
+</table></dd></dl><p>
+Except for LL(1) parsing, no technology used by classical Pascal
+compilers could be used to implement Seed7.
+</p></div>
+
+<div><br /><a name="faq_java_comparison"><h3>How does Seed7 compare to Java?
+</h3></a><hr />
+<p>
+Several features of Seed7 are missing in Java:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>Features missing in Java                  </th><th> Comment</th></tr>
+  
+  <tr><td>Stand alone functions                     </td><td> Singletons must be used instead </td></tr>
+  <tr><td>Call-by-reference parameters              </td><td> All parameters are call-by-value </td></tr>
+  <tr><td><a class="link" href="#faq_call_by_name">Call-by-name</a> parameters                   </td><td> All parameters are call-by-value </td></tr>
+  <tr><td><a class="link" href="#faq_overloading">Operator overloading</a>                      </td><td> No possibility to use <tt>+</tt> for <tt>BigInteger</tt> values </td></tr>
+  <tr><td>User defined operators                    </td><td> - </td></tr>
+  <tr><td>User defined statements                   </td><td> - </td></tr>
+  <tr><td>User defined syntax                       </td><td> - </td></tr>
+  <tr><td><a class="link" href="#faq_comparisons">One operator to check for equality</a>        </td><td> For POD types Java uses <tt><span class="op">==</span></tt> and for strings <tt>name.equals(<span class="stri">""</span>)</tt>.</td></tr>
+  <tr><td><a class="link" href="#faq_initialize_data">Elegant way to express data structures</a>    </td><td> Property files and XML must be used instead </td></tr>
+  <tr><td><a class="link" href="#faq_initialize_data">User defined functions to initialize data</a> </td><td> - </td></tr>
+  <tr><td><a class="link" href="#faq_multiple_dispatch">Multiple dispatch</a>                         </td><td> - </td></tr>
+  <tr><td>Checking for <a class="link" href="#faq_integer_overflow">integer overflow</a>             </td><td> - </td></tr>
+  <tr><td>Escape sequences only as part of <span class="link">literals</span> </td><td> Unicode escapes can be everywhere. That can cause unexpected effects </td></tr>
+</table></dd></dl><p>
+</p></div>
+
+<div><br /><a name="faq_application_area"><h3>What kind of programs can be written in Seed7?
+</h3></a><hr />
+<p>
+Seed7 can be used in various application areas:
+</p><ul>
+<li>Applications, like an Excel look-alike (Seed7 is a general purpose
+   language and programs can be <a class="link" href="#faq_compile">compiled</a> to an executable).</li>
+<li>Scripts that deal with <span class="link">files and directories</span> (The Seed7 Homepage
+   and the Seed7 release are created with Seed7 scripts).</li>
+<li>Tools for networking (There is support for <span class="link">sockets</span>, <span class="link">TLS/SSL</span>, <span class="link">listeners</span>,
+   <span class="link">HTTP</span>, <span class="link">HTTPS</span>, <span class="link">FTP</span>, <span class="link">SMTP</span> and HTML parsing). E.g.:<ul>
+<li><span class="link">A ftp file transfer program</span></li>
+<li><span class="link">A ftp server</span></li>
+<li><span class="link">A web server</span></li></ul></li>
+<li>Programs that deal with XML (There is support for XML parsing and
+   the possibility to <span class="link">read XML</span> into a DOM data structure).</li>
+<li>CGI scripts (A <span class="link">CGI support library</span> is available and the <span class="link">Comanche</span>
+   web server can be used to test CGI scripts).</li>
+<li>Programs that use the browser as user interface:<ul>
+<li><span class="link">A database inspector</span></li>
+<li><span class="link">A simple editor</span></li></ul></li>
+<li>As language to describe <span class="link">algorithms</span>.</li>
+<li>Command line utilities. E.g.:<ul>
+<li><span class="link">A calculator that works like a read-eval-print loop (REPL)</span></li>
+<li><span class="link">A make utility capable to process Unix and Windows makefiles</span></li>
+<li><span class="link">A tar archiving utility</span></li>
+<li><span class="link">A program to save a potentially damaged harddisk partition to an image file</span></li></ul></li>
+<li>2D games. E.g.:<ul>
+<li><span class="link">Panic</span></li>
+<li><span class="link">Mahjong solitaire</span></li>
+<li><span class="link">Pairs</span></li></ul></li>
+<li>Simulations. E.g.:<ul>
+<li><span class="link">Planet Wator Predator-Prey simulation</span></li>
+<li><span class="link">Bacteria which fight against each other</span></li></ul></li>
+<li>Functions to explore mathematics. E.g.:<ul>
+<li><span class="link">Mandelbrot set</span></li>
+<li><span class="link">Bifurcation</span></li>
+<li><span class="link">Cellular automaton</span></li></ul></li>
+</ul></div>
+
+<div><br /><a name="faq_lines_of_code"><h3>How many lines of code are in the Seed7 project?
+</h3></a><hr />
+<p>
+The Seed7 package contains more than 100000 lines of C and more
+than 300000 lines of Seed7. For version 2020-07-27 the number of lines is:
+</p><dl><dd><table border="0" cellspacing="0">
+  <tr><td align="right">159445</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12642</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">180506</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">159775</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+</table></dd></dl><p>
+C code (*.c and *.h files) can be divided into the following areas:
+</p><dl><dd><table border="0" cellspacing="0">
+  <tr><td align="right"> 0.3%</td> <td width="20"></td> <td>Interpreter main
+  <tr><td align="right">11.6%</td> <td width="20"></td> <td>Parser
+  <tr><td align="right"> 2.8%</td> <td width="20"></td> <td>Interpreter core
+  <tr><td align="right">24.7%</td> <td width="20"></td> <td>Primitive action functions
+  <tr><td align="right"> 7.4%</td> <td width="20"></td> <td>General helper functions
+  <tr><td align="right">48.5%</td> <td width="20"></td> <td>Runtime library
+  <tr><td align="right"> 4.7%</td> <td width="20"></td> <td>Compiler data library
+</table></dd></dl><p>
+Details about this files can be found in the file <nobr><span class="lib">seed7/src/read_me.txt</span></nobr>.
+</p></div>
+
+<div><br /><a name="faq_os"><h3>On which operating systems does Seed7 run?
+</h3></a><hr />
+<p>
+Seed7 runs on the following operating systems:
+</p><ul>
+<li>Linux is supported with the following compilers:<ul>
+<li>gcc (the development is done using gcc under Linux)</li>
+<li>clang</li>
+<li>icc</li>
+<li>tcc</li></ul></li>
+<li>Unix (I used Seed7 also under various Unix variants, so it is probably
+   easy to port Seed7 to a Unix variant)</li>
+<li>BSD (there is a <span class="link">FreeBSD port</span> and an <span class="link">OpenBSD port</span>)</li>
+<li>Windows is supported with the following compilers:<ul>
+<li>MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
+<li>Cygwin GCC (the X11 graphics needs Cygwin/X)</li>
+<li>clang</li>
+<li>MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
+<li>tcc</li>
+<li>BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
+<li>DOS (uses DJGPP. Sockets, graphics, processes and databases are currently not supported)</li>
+<li>Mac OS X is supported with the following compilers:<ul>
+<li>gcc</li>
+<li>clang</li></ul></li>
+</ul><p>
+For other operating systems it might be necessary to write driver modules for
+screen (=text console), graphics, time or other aspects of Seed7. The package
+contains various older driver modules which are not up to date, but can be used
+as base to write such driver modules. For more detailed information look at the
+files <nobr><span class="lib">seed7/read_me.txt</span></nobr> and <nobr><span class="lib">seed7/src/read_me.txt</span></nobr>.
+</p></div>
+
+<div><br /><a name="faq_installer"><h3>Is there an installer for Seed7?
+</h3></a><hr />
+<p>
+A Seed7 installer for Windows can be downloaded from:
+</p><pre class="indent">
+<span class="link">https://sourceforge.net/projects/seed7/files/bin</span>
+</pre><p>
+This directory contains the latest installer and older ones. Installers have
+names with the following pattern:
+</p><pre class="indent">
+seed7_05_<b>yyyymmdd</b>_win.exe
+</pre><p>
+Just download the installer with the latest date (<tt>yyyy-mm-dd</tt>). It is not a
+problem, if the installer is older than the latest source release of Seed7.
+The installer is capable to download the latest source release. After you
+have downloaded the installer you can start it (either from the console
+(cmd.exe) or from the Windows Explorer).
+</p><p>
+The installer leads through the installation process with a dialog. It
+determines the latest source release of Seed7 and downloads it. If the
+latest release cannot be downloaded a manually downloaded source release
+can be used instead. The installer can also use a built-in release of
+Seed7. This built-in release is the one with the date of the installer.
+</p><p>
+The installer asks for an installation directory for Seed7. Afterwards it
+compiles Seed7 with the makefile <span class="lib">seed7/src/mk_mingc.mak</span>. The installer
+uses a built-in make utility and an encapsulated gcc. These tools do not
+interfere with another make or gcc, which might be installed on your
+computer.
+</p><p>
+Finally the installer adds the directory with the Seed7 executables to the
+search path (PATH variable). Therefore it needs administrator rights. The
+program to change the path is <tt>setwpath.exe</tt>. The name <tt>setwpath.exe</tt> will show
+up, when you are asked to allow administrative rights for the installation.
+</p><p>
+The installer can be used to update an existing Seed7 installation. The
+installer checks the version of an existing installation of Seed7 and
+offers the possibility to update. Update means that all files in the Seed7
+installation directory are replaced. Therefore it makes sense to place your
+own Seed7 programs and libraries at a different place.
+</p></div>
+
+<div><br /><a name="faq_download"><h3>Where can I download Seed7?
+</h3></a><hr />
+<p>
+The latest source code release of Seed7 can be downloaded from:
+</p><pre class="indent">
+<span class="link">https://sourceforge.net/projects/seed7/files</span>
+</pre><p>
+Just click on the link after the text: <tt><b>Looking for the latest version?</b></tt>.
+</p><p>
+Other source code releases can be found in the directory <tt>seed7</tt>.
+It is strongly recommended to use the latest version.
+An <a class="link" href="#faq_installer">installer for Windows</a> can be found in the directory <tt>bin</tt>.
+Other executables are also in the <tt>bin</tt> directory.
+</p></div>
+
+<div><br /><a name="faq_uncompress"><h3>How do I uncompress the *.tgz file from the release?
+</h3></a><hr />
+<p>
+If you have a gnu <tt>'tar'</tt> program available you can just do
+</p><pre class="indent">
+$ tar -xvzf seed7_05_yyyymmdd.tgz
+</pre><p>
+If your <tt>'tar'</tt> command does not accept the <tt>'z'</tt> option
+you need to uncompress the file first with <tt>'gunzip'</tt>:
+</p><pre class="indent">
+$ gunzip seed7_05_yyyymmdd.tgz
+$ tar -xvf seed7_05_yyyymmdd.tar
+</pre><p>
+Sometimes the browser downloads a *.gz file instead of a *.tgz file.
+In that case you could also use <tt>'gunzip'</tt> as shown above. As
+an alternative you can also use <tt>'zcat'</tt>:
+</p><pre class="indent">
+$ zcat seed7_05_yyyymmdd.gz > seed7.tar
+$ tar -xvf seed7.tar
+</pre><p>
+Under windows you can use the 7-Zip compression/decompression utility
+(there is no relationship to Seed7). 7-Zip is open source software and is
+available at: <span class="link">www.7-zip.org</span>.
+</p></div>
+
+<div><br /><a name="faq_compile_interpreter"><h3>How do I compile the Seed7 interpreter?
+</h3></a><hr />
+<p>
+The way to compile the interpreter depends on the operating system and the
+development tools used. You need a stand-alone C compiler and a make utility
+to compile the interpreter. A C compiler, which is only usable from an IDE,
+is not so useful, since some Seed7 programs (e.g. The Seed7 compiler <tt><span class="prog">s7c</span></tt>)
+need to call the C compiler as well.
+</p><p>
+In case a make utility is missing the program <tt><span class="prog">make7</span></tt> can be used instead.
+You can download <span class="link">make7.exe</span>, which is a binary version of make7 for Windows.
+</p><p>
+To compile the interpreter under Linux just go to the <nobr><span class="lib">src</span></nobr> directory and type:
+</p><pre class="indent">
+make depend
+make
+</pre><p>
+For other cases several makefiles are prepared for various combinations of
+operating system, make utility, C compiler and shell:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  <tr><th>makefile name</th><th>operating system </th><th>make prog     </th><th>C compiler  </th><th>shell</th></tr>
+  
+  <tr><td>mk_linux.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_clang.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> clang      </td><td> sh</td></tr>
+  <tr><td>mk_icc.mak   </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> icc        </td><td> sh</td></tr>
+  <tr><td>mk_tcc_l.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> tcc        </td><td> sh</td></tr>
+  <tr><td>mk_cygw.mak  </td><td> Windows (Cygwin)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_msys.mak  </td><td> Windows (MSYS)  </td><td> mingw32-make </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_mingw.mak </td><td> Windows (MinGW) </td><td> mingw32-make </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td>mk_nmake.mak </td><td> Windows (MinGW) </td><td> nmake        </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td>mk_msvc.mak  </td><td> Windows (MSVC)  </td><td> nmake        </td><td> cl         </td><td> cmd.exe</td></tr>
+  <tr><td>mk_bcc32.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32      </td><td> cmd.exe</td></tr>
+  <tr><td>mk_bccv5.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32 V5.5 </td><td> cmd.exe</td></tr>
+  <tr><td>mk_clangw.mak</td><td> Windows (clang) </td><td> (g)make      </td><td> clang      </td><td> cmd.exe</td></tr>
+  <tr><td>mk_tcc_w.mak </td><td> Windows (tcc)   </td><td> (g)make      </td><td> tcc        </td><td> cmd.exe</td></tr>
+  <tr><td>mk_djgpp.mak </td><td> DOS             </td><td> (g)make      </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td>mk_osx.mak   </td><td> Mac OS X        </td><td> make         </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_osxcl.mak </td><td> Mac OS X        </td><td> make         </td><td> clang      </td><td> sh</td></tr>
+  <tr><td>mk_freebsd.mk</td><td> FreeBSD         </td><td> make         </td><td> clang/gcc  </td><td> sh</td></tr>
+  <tr><td>mk_emccl.mak </td><td> Linux/Unix/BSD  </td><td> make         </td><td> emcc + gcc </td><td> sh</td></tr>
+  <tr><td>mk_emccw.mak </td><td> Windows (emcc)  </td><td> mingw32-make </td><td> emcc + gcc </td><td> cmd.exe</td></tr>
+</table></dd></dl><p>
+In the optimal case you just copy one of this files to 'makefile' and do (with
+the make program from the table above):
+</p><pre class="indent">
+make depend
+make
+</pre><p>
+When the interpreter is compiled successfully the executable and the libraries
+are placed in the <tt>'bin'</tt> directory. Additionally a symbolic link to the executable
+is placed in the <tt>'prg'</tt> directory (Under Windows symbolic links are not supported,
+so a copy of the executable is placed in the <tt>'prg'</tt> directory). The Seed7 compiler
+(<tt><span class="prog">s7c</span></tt>) is compiled with:
+</p><pre class="indent">
+make s7c
+</pre><p>
+The compiler executable is copied to the <tt>'bin'</tt> directory. If you do several
+compilation attempts in succession you need to do
+</p><pre class="indent">
+make clean
+</pre><p>
+before you start a new attempt. More details about the compilation process can
+be found in the file <nobr><span class="lib">seed7/src/read_me.txt</span></nobr>.
+</p></div>
+
+<div><br /><a name="faq_errors"><h3>I got errors when compiling Seed7. What should I do?
+</h3></a><hr />
+<p>
+In most cases errors indicate that some development package of your
+distribution is missing. If your operating system is Linux, BSD or Unix
+not all development packages with header files might be installed. In
+this case you get some errors after typing 'make depend'. Errors such as
+</p><pre class="box">
+  chkccomp.c:56:20: fatal error: stdlib.h: No such file or directory
+  s7.c:30:20: fatal error: stdlib.h: No such file or directory
+</pre><p>
+indicate that the development package of the C library is
+missing. I don't know the name of this package in your
+distribution (under Ubuntu it has the name libc6-dev), but
+you can search for C development libraries and header files.
+</p><p>
+Errors such as
+</p><pre class="box">
+  con_inf.c:54:18: error: term.h: No such file or directory
+  kbd_inf.c:53:18: error: term.h: No such file or directory
+  trm_inf.c:47:18: error: term.h: No such file or directory
+</pre><p>
+indicate that the curses or ncurses development package is missing.
+I don't know the name of this package in your distribution
+(under Ubuntu it has the name libncurses5-dev), but you
+can search in your package manager for a curses/ncurses
+package which mentions that it contains the header files.
+To execute programs you need also to install the non-developer
+package of curses/ncurses (in most cases it will already
+be installed because it is needed by other packages).
+</p><p>
+Errors such as
+</p><pre class="box">
+  drw_x11.c:38:19: error: X11/X.h: No such file or directory
+  drw_x11.c:39:22: error: X11/Xlib.h: No such file or directory
+  drw_x11.c:40:23: error: X11/Xutil.h: No such file or directory
+  drw_x11.c:45:24: error: X11/keysym.h: No such file or directory
+</pre><p>
+indicate that the X11 development package is missing.
+Under Ubuntu this package has the name libx11-dev and is
+described as: X11 client-side library (development headers)
+Note that under X11 'client' means: The program which wants to
+draw. A X11 <tt>'server'</tt> is the place where the drawings are displayed.
+So you have to search for a X11 client developer package with
+headers. If you use X11 in some way (you don't do everything
+from the text console) the non-developer package of X11 will
+already be installed.
+</p><p>
+Errors such as
+</p><pre class="box">
+  gcc chkccomp.c -o chkccomp
+  chkccomp.c:28:10: fatal error: base.h: No such file or directory
+  compilation terminated.
+</pre><p>
+or
+</p><pre class="box">
+  del version.h
+  process_begin: CreateProcess(NULL, del version.h, ...) failed.
+  make (e=2): The system cannot find the file specified.
+  mingw32-make: *** [clean] Error 2
+</pre><p>
+indicate that your makefile contains commands for the cmd.exe
+(or command.com) windows console, but your 'make' program uses
+a Unix shell (<nobr><span class="lib">/usr/bin/sh</span></nobr>) to execute them. Either use a
+makefile which uses Unix shell commands (e.g. mk_msys.mak or
+mk_cygw.mak) or take care that the 'make' program uses cmd.exe
+(or command.com) to execute the commands.
+</p><p>
+Errors such as
+</p><pre class="box">
+  s7.c:28:21: error: version.h: No such file or directory
+</pre><p>
+indicate that you forgot to run 'make depend' before running
+'make'. Since such an attempt produces several unneeded files it
+is necessary now to run 'make clean', 'make depend' and 'make'.
+</p><p>
+If you got other errors I would like to know about. Please
+send a mail with detailed information (name and version) of
+your operating system, distribution, C compiler, the version of
+Seed7 you wanted to compile and the complete log of error
+messages to seed7-users@lists.sourceforge.net .
+</p></div>
+
+<div><br /><a name="faq_verify_interpreter"><h3>How do I verify that the interpreter works correct?
+</h3></a><hr />
+<p>
+A comprehensive test of the <a class="link" href="#faq_interpreter">s7</a> interpreter and the <span class="link">s7c</span>
+compiler can be done in the directory <tt><span class="stri">prg</span></tt> with the command:
+</p><pre class="box">
+  ./s7 chk_all
+</pre><p>
+Under windows using <tt>./</tt> might not work. Just omit the <tt>./</tt> and
+type:
+</p><pre class="box">
+  s7 chk_all
+</pre><p>
+The program <tt><span class="prog">chk_all</span></tt> uses several check programs to do its
+work. First a check program is interpreted and the output
+is compared to a reference. Then the program is compiled and
+executed and this output is also checked. Finally the C code
+generated by the compiled compiler is checked against the C
+code generated by the interpreted compiler. The checks of
+the compiler are repeated with several compiler options. If
+everything works correct the output is (after the usual
+information from the interpreter):
+</p><pre class="indent">
+compiling the compiler - okay
+chkint ........... okay
+chkovf ........... okay
+chkflt ........... okay
+chkbin ........... okay
+chkchr ........... okay
+chkstr ........... okay
+chkbst ........... okay
+chkprc ........... okay
+chkbig ........... okay
+chkbool ........... okay
+chkbitdata ........... okay
+chkset ........... okay
+chkhsh ........... okay
+chkfil ........... okay
+chkexc ........... okay
+</pre><p>
+This verifies that interpreter and compiler work correct.
+</p></div>
+
+<div><br /><a name="faq_install"><h3>How can I install Seed7?
+</h3></a><hr />
+<p>
+After Seed7 interpreter and compiler have been <a class="link" href="#faq_compile_interpreter">compiled</a> and
+<a class="link" href="#faq_verify_interpreter">verified</a> they can be installed. The makefiles support the
+target install. You need appropriate privileges to do the
+installation. Depending on the operating system there are
+different strategies to get the privileges:
+</p><ol>
+<li><p>Unix-like operating systems
+</p><p>
+    Just go to the directory <nobr><span class="lib">seed7/src</span></nobr> and type:
+</p><pre class="indent">
+sudo make install
+</pre><p>
+    With the make command of your computer. The <tt>sudo</tt> command
+    will ask you for your password. If your permissions are
+    sufficient the command creates symbolic links in the
+    directory <nobr><span class="lib">/usr/local/bin</span></nobr>.
+</p></li>
+<li><p>Windows
+</p><p>
+    You need to open a console as administrator. Then you can
+    go to the directory <nobr><span class="lib">seed7/src</span></nobr> and type:
+</p><pre class="indent">
+make install
+</pre><p>
+    With the make command of your computer. This adds the
+    directory <nobr><span class="lib">seed7/bin</span></nobr> to the search path (PATH variable).
+    You need to start a new console to see the effect of this
+    change.
+</p></li></ol><p>
+More details can be found in the file <nobr><span class="lib">seed7/doc/install.txt</span></nobr>.
+</p></div>
+
+<div><br /><a name="faq_interpreter"><h3>How can I use the Seed7 interpreter?
+</h3></a><hr />
+<p>
+The s7 interpreter is called with the command
+</p><pre class="box">
+  s7 [options] sourcefile [parameters]
+</pre><p>
+Note that the <tt>'options'</tt> must be written before the <tt>'sourcefile'</tt>.
+If the <tt>'sourcefile'</tt> is not found <tt>.sd7</tt> is appended to the <tt>'sourcefile'</tt>
+and searched for that file.
+</p><p>
+The following options are recognized by s7:
+</p><ul>
+  <li><b>-?</b>   Write Seed7 interpreter usage.</li>
+  <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
+  <li><b>-d</b><span class="keywd">x</span>  Set compile time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
+       of the following characters:<ul>
+         <li><b>a</b> Trace primitive actions</li>
+         <li><b>c</b> Do action check</li>
+         <li><b>d</b> Trace dynamic calls</li>
+         <li><b>e</b> Trace exceptions and handlers</li>
+         <li><b>h</b> Trace heap size (in combination with 'a')</li>
+         <li><b>s</b> Trace signals</li></ul></li>
+  <li><b>-d</b>   Equivalent to <b>-da</b></li>
+  <li><b>-i</b>   Show the identifier table after the analyzing phase.</li>
+  <li><a name="faq_interpreter_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
+  <li><b>-p</b>   Specify a protocol file, for trace output (e.g.: <b>-p</b><tt> <span class="lib">prot.txt</span></tt>).</li>
+  <li><b>-q</b>   Compile quiet. Line and file information and compilation
+       statistics are suppressed.</li>
+  <li><b>-s</b>   Deactivate signal handlers.</li>
+  <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
+       of the following characters:<ul>
+         <li><b>a</b> Trace primitive actions</li>
+         <li><b>c</b> Do action check</li>
+         <li><b>d</b> Trace dynamic calls</li>
+         <li><b>e</b> Trace exceptions and handlers</li>
+         <li><b>h</b> Trace heap size (in combination with 'a')</li>
+         <li><b>s</b> Trace signals</li></ul></li>
+  <li><b>-t</b>   Equivalent to <b>-ta</b></li>
+  <li><b>-v</b><span class="keywd">n</span>  Set verbosity level of analyse phase to <span class="keywd">n</span>. Where <span class="keywd">n</span> is one
+       of the following characters:<ul>
+         <li><b>0</b> Compile quiet (equivalent to <b>-q</b>)</li>
+         <li><b>1</b> Write just the header with version information (default)</li>
+         <li><b>2</b> Write a list of include libraries</li>
+         <li><b>3</b> Write line numbers, while analyzing</li></ul></li>
+  <li><b>-v</b>   Equivalent to <b>-v2</b></li>
+  <li><b>-x</b>   Execute even if the program contains errors.</li>
+</ul><p>
+  In the program the <tt>'parameters'</tt> can be accessed via <tt><span class="func">argv</span>(PROGRAM)</tt>.
+  The function <tt><span class="func">argv</span>(PROGRAM)</tt> delivers an array of strings. The number
+  of parameters is <tt>'length(<span class="func">argv</span>(PROGRAM))'</tt> and <tt>'<span class="func">argv</span>(PROGRAM)[1]'</tt>
+  returns the first parameter.
+</p></div>
+
+<div><br /><a name="faq_compile"><h3>Is it possible to compile Seed7 programs?
+</h3></a><hr />
+<p>
+Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
+compiler (<span class="link">s7c</span>) is written in Seed7. It uses the analyze phase of the interpreter
+to convert a program to <a class="link" href="#faq_bytecode">call-code</a> and then generates a corresponding C program.
+This C program is compiled and linked afterwards. The Seed7 compiler can be
+called with:
+</p><pre class="box">
+  s7c [ options ] source
+</pre><p>
+Possible options are
+</p><ul>
+  <li><b>-?</b>   Write Seed7 compiler usage.</li>
+  <li><b>-O</b> and <b>-O2</b>  Tell the C compiler to optimize.</li>
+  <li><a name="faq_compiler_option-b"><b>-b</b></a>   Specify the directory of the Seed7 runtime libraries (e.g.: <b>-b</b><tt> <span class="lib">../bin</span></tt>).</li>
+  <li><a name="faq_compiler_option-e"><b>-e</b></a>   Generate code which sends a signal, if an uncaught exception occurs.
+       This option allows debuggers to handle uncaught Seed7 exceptions.</li>
+  <li><a name="faq_compiler_option-g"><b>-g</b></a>   Tell the C compiler to generate an executable with debug information.
+       This way the debugger will refer to Seed7 source files and line numbers.
+       To generate debug information which refers to the temporary C program
+       the option <b>-g-debug_c</b> can be used.</li>
+  <li><a name="faq_compiler_option-l"><b>-l</b></a>   Add a directory to the include library search path (e.g.: <b>-l</b><tt> <span class="lib">../lib</span></tt>).</li>
+  <li><b>-oc</b><span class="keywd">n</span> Optimize constants with level <span class="keywd">n</span>. E.g.: <b>-oc3</b>
+       The level <span class="keywd">n</span> is a digit between 0 and 3:<ul>
+         <li><b>0</b> Do no optimizations with constants.</li>
+         <li><b>1</b> Use literals and named constants to simplify expressions (default).</li>
+         <li><b>2</b> Evaluate constant parameter expressions to simplify expressions.</li>
+         <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions.</li></ul></li>
+  <li><b>-p</b>   Activate simple function profiling.</li>
+  <li><a name="faq_compiler_option-s"><b>-s</b><span class="keywd">x</span></a>  <span class="link">Suppress checks</span> specified with <span class="keywd">x</span>. E.g.: <b>-sr</b> or <b>-sro</b>
+       The checks <span class="keywd">x</span> are specified with letters from the following list:<ul>
+         <li><b>d</b> Suppress the generation of checks for <span class="link">integer division by zero</span>.</li>
+         <li><b>i</b> Suppress the generation of <span class="link">index checks</span> (e.g. string, array).</li>
+         <li><b>o</b> Suppress the generation of <span class="link">integer overflow</span> checks.</li>
+         <li><b>r</b> Suppress the generation of range checks.</li></ul></li>
+  <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
+       of the following characters:<ul>
+         <li><b>e</b> Trace exceptions and handlers</li>
+         <li><b>f</b> Trace functions</li>
+         <li><b>s</b> Trace signals</li></ul></li>
+</ul></div>
+
+<div><br /><a name="faq_debug_with_eclipse"><h3>Can I debug Seed7 programs with Eclipse?
+</h3></a><hr />
+<p>
+Yes, Eclipse can be easily configured to work with Seed7:
+</p><ul>
+  <li>Eclipse needs the C/C++ Development Tools (CDT) plugin.</li>
+  <li>In Window <b>&rArr;</b> Preferences <b>&rArr;</b> C/C++ <b>&rArr;</b> FileTypes add *.sd7 as <tt>C&nbsp;Source&nbsp;File</tt>
+       and *.s7i as <tt>C&nbsp;Header&nbsp;File</tt>.</li>
+  <li>In Window <b>&rArr;</b> Preferences <b>&rArr;</b> General <b>&rArr;</b> Editors <b>&rArr;</b> File&nbsp;Associations add *.sd7
+       and *.s7i and make the C/C++ Editor default for them.</li>
+  <li>Create a C project (New <b>&rArr;</b> Project <b>&rArr;</b> C/C++ <b>&rArr;</b> C&nbsp;Project).</li>
+  <li>Right click on the project in the Project Explorer and select Properties <b>&rArr;</b> C/C++&nbsp;General <b>&rArr;</b> File&nbsp;Types.
+       Check if the workspace settings are used. If not add *.sd7 as <tt>C&nbsp;Source&nbsp;File</tt>
+       and *.s7i as <tt>C&nbsp;Header&nbsp;File</tt>.</li>
+  <li>In a console window: Compile your Seed7 program with the option <a class="link" href="#faq_compiler_option-g"><tt><b>-g</b></tt></a>.</li>
+  <li>In Eclipse: Create a Debug Configuration with: Run <b>&rArr;</b> Debug&nbsp;Configurations...
+       Right click on C/C++&nbsp;Application and select New.</li>
+  <li>In the Main tab of the new Debug Configuration: Press the Browse... button
+       below <tt>C/C++&nbsp;Application</tt> to select the executable you want to debug.</li>
+  <li>Select the C project you created.</li>
+  <li>In the Arguments tab you can set program arguments and current working directory.</li>
+  <li>Press the Debug button to start the program.</li>
+</ul></div>
+
+<div><br /><a name="faq_reserved_words"><h3>What are the reserved words of Seed7?
+</h3></a><hr />
+<p>
+In Seed7 there are no reserved words. Instead there are keywords which are
+used at various places. Some keywords introduce statements or other constructs
+(such as declarations). E.g.: The keywords <tt><span class="keywd">if</span></tt>, <tt><span class="keywd">while</span></tt>, <tt><span class="keywd">repeat</span></tt>, <tt><span class="keywd">for</span></tt>,
+and some others introduce statements. Other keywords like <tt><span class="keywd">do</span></tt>, <tt><span class="keywd">then</span></tt>, <tt><span class="keywd">range</span></tt>,
+<tt><span class="keywd">result</span></tt>, etc. are used in the middle of statements (or other constructs).
+Finally there are also keywords like <tt><span class="keywd">div</span></tt>, <tt><span class="keywd">rem</span></tt>, <tt><span class="keywd">lpad</span></tt>, <tt><span class="keywd">times</span></tt>, etc. which
+are used as operator symbols.
+</p><p>
+Seed7 uses <span class="link">syntax declarations</span> to specify the syntax of statements. A keyword
+is a name which is used somewhere in a syntax declaration. Syntax declarations
+reduce the possibilities to use a keyword out of context. E.g.: After the keyword
+<tt><span class="keywd">if</span></tt> the parser expects always an expression. This makes <tt><span class="keywd">if</span></tt> unusable as
+variable name. This way you get error messages when you try to use <tt><span class="keywd">if</span></tt> or
+other keywords as variable name. That behavior is just the same as in other
+languages which have reserved words. It can be summarized that Seed7 reaches
+the goal of avoiding the misuse of keywords in other ways and not by reserving
+them altogether.
+</p><p>
+In a classic compiler (e.g. a Pascal compiler) there is a distinction between
+reserved words and identifiers. Pascal compilers and probably also Ada, C/C++,
+Java and C# compilers use an enumeration type to represent the reserved words.
+Since Seed7 allows user defined statements (which may introduce new keywords)
+it is not possible to hard code reserved words in the compiler as it is done in
+Pascal, Ada, C/C++, Java and many other compilers.
+</p></div>
+
+<div><br /><a name="faq_syntax"><h3>How is the syntax of Seed7 defined?
+</h3></a><hr />
+<p>
+The syntax of Seed7 is described with the <span class="link">Seed7 Structured Syntax Description</span>
+(S7SSD). The S7SSD is similar to an Extended Backus-Naur Form (EBNF), but there are
+important differences. S7SSD does not distinguish between different nonterminal
+symbols. Instead it only knows one nonterminal symbol: <i>()</i> . S7SSD syntax rules do
+not define named nonterminal symbols (EBNF rules define named nonterminal symbols).
+S7SSD syntax rules are introduced with:
+</p><pre class="indent">
+$ syntax
+</pre><p>
+S7SSD syntax rules define a pattern of terminal and nonterminal symbols separated
+by dots. A S7SSD syntax rule defines also a priority and associativity. The syntax
+of the + operator is:
+</p><pre class="indent">
+$ syntax expr: .(). + .()   is -> 7;
+</pre><p>
+The syntax of statements and other constructs is defined as if they were also
+operators:
+</p><pre class="indent">
+$ syntax expr: .while.().do.().end.while   is -> 25;
+</pre><p>
+S7SSD is a simple syntax description that can be used by humans and compilers
+respectively interpreters. The syntax of a Seed7 program is defined in the library
+"<span class="lib">syntax.s7i</span>". When a Seed7 program is interpreted or compiled the syntax
+definitions are read from "syntax.s7i".
+</p></div>
+
+<div><br /><a name="faq_statements"><h3>Why does Seed7 not use the C statements like C++ and Java?
+</h3></a><hr />
+<p>
+The C statements have some weaknesses which are avoided with the Seed7 statements:
+</p><ol>
+<li><p>The C if-statement
+</p><pre class="indent">
+<span class="keywd">if</span> (condition)
+  statement;
+</pre><p>
+    allows just one statement after the condition. By using the compound statement
+    it is possible to have several statements after the condition
+</p><pre class="indent">
+<span class="keywd">if</span> (condition) {
+  statement1;
+  statement2;
+}
+</pre><p>
+    Adding or removing a statement in the second if-statement is always possible.
+    In the first if-statement you must add braces if you add a statement otherwise
+    you get an undesired effect. Adding statements to an if-statement is quite
+    common.
+</p><p>
+    Since both forms are legal and adding a statement to the first form can lead to
+    errors Seed7 closes this possible source of errors with its <span class="link">if-statement</span>:
+</p><pre class="indent">
+<span class="keywd">if</span> condition <span class="keywd">then</span>
+  statement
+<span class="keywd">end if</span>;
+</pre></li>
+<li><p>The following switch statement is formally correct but probably wrong
+</p><pre class="indent">
+<span class="keywd">switch</span> (number) {
+  <span class="keywd">case</span> 1:
+  <span class="keywd">case</span> 2:
+    result = 5;
+  <span class="keywd">case</span> 3:
+  <span class="keywd">case</span> 4:
+    result = 8;
+    <span class="keywd">break</span>;
+  <span class="keywd">default</span>:
+    result = 0;
+}
+</pre><p>
+    Forgetting break statements in a switch is another possible source of errors
+    which is avoided with the <span class="link">case-statement</span> of Seed7:
+</p><pre class="indent">
+<span class="keywd">case</span> number <span class="keywd">of</span>
+  <span class="keywd">when</span> {1, 2}:
+    result = 5;
+  <span class="keywd">when</span> {3, 4}:
+    result = 8;
+  <span class="keywd">otherwise</span>:
+    result = 0;
+<span class="keywd">end case</span>;
+</pre></li></ol></div>
+
+<div><br /><a name="faq_everybody_invents_statements"><h3>Isn't the code unreadable if everybody invents new statements?
+</h3></a><hr />
+<p>
+There are lots of possibilities to write unreadable code without using the
+extension features of Seed7. The programmer is (as always) responsible to write
+readable programs. The variable/type/function names and other things chosen by
+the programmer can always lead to obfuscated code.
+</p><p>
+Defining new statements and operators is a feature which should not be used in
+every program by every programmer. It is a feature which allows experienced
+programmers, to write libraries which use statement or operator syntax instead
+of function syntax, in areas where such a notation is already accepted practice.
+</p><p>
+Statements to access a database or operators for vector arithmetic would be such
+an example. Another example is a construct which can be used in the definition of
+text adventure games.
+</p><p>
+The possibility to define statements allows also a more precise language
+definition. The for/while/if statements of C++ are described in the C++ manuals
+with BNF and an English description. Seed7 statements can be defined in Seed7.
+For example:
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
+
+<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd">ref</span> <span class="type">func</span> <span class="type">boolean</span>: condition) do
+              (<span class="keywd">ref</span> <span class="type">proc</span>: statement)
+            end while <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> condition <span class="keywd">then</span>
+      statement;
+      <span class="keywd">while</span> condition <span class="keywd">do</span>
+        statement;
+      <span class="keywd">end while</span>;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+The syntax and semantic of a <span class="link">while-statement</span> is described using an <span class="link">if-statement</span>
+and recursion. For performance reasons the implementation will usually use a
+different approach to implement a <span class="link">while-loop</span>, but this example shows the expressive
+power of Seed7.
+</p></div>
+
+<div><br /><a name="faq_lisp_comparison"><h3>Hasn't Lisp already user defined statements and operators?
+</h3></a><hr />
+<p>
+Defining the semantic of a new 'statement' in Lisp is a classic example.
+Normally such 'statements' still use the list notation with lots of parentheses.
+The read macros of Lisp could be used to define the syntax of a statement, but
+read macros make no type checks at compile time. Any type checking must be written
+by the programmer and is not mandated by Lisp. The type checks will be performed
+at runtime. Depending on the implementation there might be warnings issued at
+compile time. In general: Lisp 'statement' declarations do not force compile time
+checks and look less elegant. Seed7 statement declarations force a type check at
+compile time.
+</p><p>
+While Lisp allows new and overloaded functions, the Lisp 'operators' are
+functions which use the prefix notation (with lots of parentheses).
+Again read macros could be used to support infix operators with priority
+and associativity. This read macros would have the same problems as above.
+Although Lisp fanatics would never admit it, infix operators with priority
+and associativity are not really supported by Lisp. If somebody tells you
+that everything can be done in Lisp, send him to the next advocacy group.
+In general: Seed7 supports user definable infix operators with priority and
+associativity. Such operators can be overloaded and the type checks are done
+at compile time. In Lisp all this would be a hack.
+</p></div>
+
+<div><br /><a name="faq_static_type_checking"><h3>Why does Seed7 use static type checking?
+</h3></a><hr />
+<p>
+With static type checking all type checks are performed during compile time.
+Type errors, such as an attempt to divide an integer by a string, can be
+caught earlier (unless this unusual operation has been defined). The key point
+is that type errors are found without the need to execute the program. Some
+type errors can be hidden in rarely executed code paths. Static type checking
+can find such errors easily. With dynamic type checking extensive tests are
+necessary to find all type errors. Even tests with 100% code coverage are not
+enough since the combination of all places where values are created and all
+places where these values are used must be taken into account. That means that
+testing cannot guarantee to find all type errors that a static type checker
+can find. Additionally it would be necessary to repeat all tests every time
+the program is changed. Naturally there are doubts that enough tests are done
+and that the tests are adjusted and repeated for every change in the program.
+Therefore it can be said that compile time type checks increase the reliability
+of the program.
+</p><p>
+Seed7 makes sure that the object values always have the type of the object.
+This goal is reached with mechanisms like mandatory initialization, runtime
+checks and the impossibility to change arbitrary places in memory. If the
+generation of garbage values is avoided, it can be guaranteed that only legal
+values of the correct type are used as object values. This way runtime type
+checks are unnecessary and the program execution can be more efficient.
+</p><p>
+Type declarations can also serve as a form of documentation, because they can
+illustrate the intent of the programmer. Although static type checking is very
+helpful in finding type errors, it cannot replace a careful program design.
+Some operations, allowed by the static type system, can still be wrong because
+of different measurement units or other reasons. In the end there are also
+other possible sources of errors, such as range violations.
+</p><p>
+Interface types can be used if an object can have several types at runtime.
+In this case the interface type of the object can be determined at compile time
+and the type of the object value (implementation type) can vary at runtime.
+The static type checking can still check the interface type and the presence
+of interface functions. Additionally the compiler can also check that all
+functions granted by the interface type are defined for the implementation type.
+</p></div>
+
+<div><br /><a name="faq_development_speed_and_type_checking"><h3>Is the program development slowed down with static type checking?
+</h3></a><hr />
+<p>
+No, especially if the time spent to debug a program is taken into account.
+Except for artificial corner cases all type errors found by a "nitpicking"
+compiler correspond to runtime type errors that can happen in a dynamically
+typed language under some circumstances. That way the compile time type checks
+save the time necessary to find and debug those errors. The time that a compiler
+needs to find and flag type errors is so small that it can be ignored in this
+comparison.
+</p><p>
+Some people claim, that adding type information to a program is a time consuming
+process. This is only true if the type information is added afterwards, but
+it is wrong if type considerations take place during the program development.
+Every good programmer has some concepts about what values will be hold by
+variables or parameters and what values will be returned by functions. A good
+type system helps to formalize the type concepts which are already in the mind of
+the programmer. That way the ideas of the programmer are also documented.
+</p><p>
+When comparing compile time and runtime type checking it can be concluded that
+dynamic typed languages save some programming time by omitting type
+declarations, but this time must be paid back with massive interest rates to do
+the debugging.
+</p></div>
+
+<div><br /><a name="faq_first_class_types_and_type_checking"><h3>How can static type checking work if types are first-class objects?
+</h3></a><hr />
+<p>
+This question refers to something which seems paradox: If Seed7 types are
+created at runtime how can they be checked at compile time. The simple answer
+is that a <tt><span class="type">type</span></tt> created at runtime cannot be used to define something in
+the program that is currently running.
+</p><p>
+Seed7 declarations are not executed at runtime. Functions with type parameters
+and type result are executed at compile time. This is done in <a class="link" href="#faq_generics">templates</a> and
+<a class="link" href="#faq_abstract_data_type">abstract data types</a> (both are executed at compile time). It is possible to have
+type variables and type expressions at runtime but is not possible to declare
+objects with such a variable type for the program which currently runs. Such
+type variables and type expressions are used in the <span class="link">Seed7 compiler</span>.
+</p></div>
+
+<div><br /><a name="faq_type_inference"><h3>Why does Seed7 not use type inference?
+</h3></a><hr />
+<p>
+Seed7 has a basic principle that would break if type inference would be used:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
+  &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
+  &nbsp;This is independent from the place where this expression is used.&nbsp;
+</td></tr></table></dd></dl><p>
+To explain this principle consider the expression:
+</p><pre class="indent">
+<span class="var">a</span> + <span class="var">b</span>
+</pre><p>
+If the types of <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> are known and the definition of <tt>+</tt> fits the
+type of the expression <tt><span class="var">a</span> + <span class="var">b</span></tt> is also known. In this example <tt><span class="var">a</span></tt> and <tt><span class="var">b</span></tt> can be
+constants, variables or even sub-expressions. If one of the types of <tt><span class="var">a</span></tt> or <tt><span class="var">b</span></tt>
+is not known the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> cannot be determined. Now assume that <tt><span class="var">a</span> + <span class="var">b</span></tt>
+is part of a bigger expression:
+</p><pre class="indent">
+<span class="var">c</span> = (<span class="var">a</span> + <span class="var">b</span>)
+</pre><p>
+In theory you could deduce the type of <tt><span class="var">a</span> + <span class="var">b</span></tt> if you know the type of <tt><span class="var">c</span></tt> and
+how <tt>=</tt> works. But in this case the information where <tt><span class="var">a</span> + <span class="var">b</span></tt> is used is taken
+into account. The basic principle mentioned above rules that out. According
+to that the place where an expression is used has no influence on the type
+of the expression. In Seed7 the type information moves inside out from
+sub-expressions to expressions. In other words it moves from the bottom to
+the top. This rule simplifies parsing a lot. This is one of the reasons why
+the parser processes several hundred thousand lines per second.
+</p><p>
+To do type inference it is necessary that type information moves also in
+the other direction. You can see: It is exactly the violation of the basic
+principle mentioned above, that makes type inference possible. As long as
+this principle holds you need to know the global and local declarations to
+find out the result type of an expression. With type inference it is necessary
+to take other expressions in the local function and even expressions in other
+functions into account. I do not say that this is not possible (for sure it
+is an interesting challenge to invent an algorithm to do this). But the reader
+of the program needs to use this algorithm also every time he/she reads the
+program. And that is very bad since a program is more often read than written.
+</p></div>
+
+<div><br /><a name="faq_automatic_casts"><h3>Are there automatic casts to the right type?
+</h3></a><hr />
+<p>
+Seed7 cannot read the mind of the programmer. It is hard to find out what the
+programmer considers as "right type". A conversion can lose information. Apart
+from truncating integers also seemingly safe conversions may lose information.
+E.g. Not all 64-bit integer values can be represented as 64-bit float values.
+It can also lead to unplanned behavior if the programmer is not aware of an
+automatic conversion. It improves readability if conversions are done explicit.
+Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
+<tt><span class="type">integer</span></tt> to <tt><span class="type">float</span></tt> is done with the function <tt><span class="func">flt</span></tt>. Conversions from <tt><span class="type">float</span></tt>
+to <tt><span class="type">integer</span></tt> are done with <tt><span class="func">round</span></tt> or <tt><span class="func">trunc</span></tt>. Explicit conversions have more
+advantages than disadvantages:
+</p><ol>
+<li>The overloading rules are much simpler.</li>
+<li>An expression can be understood without its calling context.</li>
+<li>Errors caused by unplanned automatic type conversions cannot happen.</li>
+<li>Since you have to do type conversions explicit you are more aware of the
+    run time overhead.</li>
+</ol></div>
+
+<div><br /><a name="faq_declare_later"><h3>Can I use something and declare it later?
+</h3></a><hr />
+<p>
+No, everything must be declared before it is used. The possibility to declare new
+statements and new operators on one side and the static typing requirements with
+compile time checks of the parameters on the other side would make the job of
+analyzing expressions with undeclared functions very complex.
+</p><p>
+Forward declarations help, if something needs to be used before it can be declared
+fully.
+</p></div>
+
+<div><br /><a name="faq_overloading"><h3>Can functions be overloaded?
+</h3></a><hr />
+<p>
+Yes, functions, operators and statements can be overloaded. Additionally it is
+possible to define new operators and statements.
+</p></div>
+
+<div><br /><a name="faq_overload_result"><h3>Can I overload two functions which just differ in the result type?
+</h3></a><hr />
+<p>
+No, it is not possible to overload functions (operators, statements) which have
+the same parameter types and just differ in the result type. This type of
+overloading has a big advantage:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
+  &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
+  &nbsp;This is independent from the place where this expression is used.&nbsp;
+</td></tr></table></dd></dl><p>
+This means that the place, where an expression is used, has no influence on
+the type of the expression (see also at the answer about <a class="link" href="#faq_type_inference">type inference</a>).
+Therefore it is not possible to overload something which has no parameters
+(like a variable or a literal). As a consequence it is sometimes necessary to
+cast a literal to get an unambiguous expression. This concept parallels the
+approach used in mathematics where it is also required to specify measurement
+units. Obviously there is a difference between 5 seconds, 5 square meters and
+5 apples. In school it is usually considered wrong to just write 5 and let
+the teacher guess the measurement unit.
+</p></div>
+
+<div><br /><a name="faq_variable_parameter_list"><h3>Can functions have variable parameter lists?
+</h3></a><hr />
+<p>
+No, because functions with variable parameter list as the C printf function have
+some problems:
+</p><ul>
+<li>Normally type checking is only possible at run time.</li>
+<li>The recognition of overloaded functions becomes more complicated.</li>
+</ul><p>
+Instead Seed7 has array aggregates and allows functions with arrays as parameters.
+So you could declare a function
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd">in</span> <span class="type">array</span> <span class="type">integer</span>: arr) <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <span class="keywd">for</span> number <span class="keywd">range</span> arr <span class="keywd">do</span>
+      writeln(number);
+    <span class="keywd">end for</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+and call it with
+</p><pre class="indent">
+print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
+</pre></div>
+
+<div><br /><a name="faq_initialize_data"><h3>Is there an elegant way to initialize data?
+</h3></a><hr />
+<p>
+Most languages allow that a constant is initialized with a constant expression.
+This usually rules out user defined functions (or it is restricted in other ways).
+Seed7 allows arbitrary expressions (including user defined functions) in
+initializations of constants and variables:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">integer</span>: limit <span class="keywd">is</span> 1000 ** 2 * 10;
+
+<span class="keywd">var</span> <span class="type">string</span>: s7Page <span class="keywd">is</span> <span class="func">getHttp</span>(<span class="stri">"seed7.sourceforge.net"</span>);
+
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">array</span> <span class="type">string</span>: getWords (<span class="keywd">in</span> <span class="type">string</span>: fileName) <span class="keywd">is</span>
+    <span class="keywd">return</span> split(<span class="func">lower</span>(<span class="func">getf</span>(fileName)), <span class="stri">"\n"</span>);
+
+<span class="keywd">var</span> <span class="type">array</span> <span class="type">string</span>: dict <span class="keywd">is</span> getWords(<span class="stri">"unixdict.txt"</span>);
+
+<span class="keywd">const</span> <span class="type">set</span> <span class="type">of</span> <span class="type">integer</span>: primes <span class="keywd">is</span> <span class="func">eratosthenes</span>(limit);
+
+<span class="keywd">const</span> <span class="type">PRIMITIVE_WINDOW</span>: pic <span class="keywd">is</span> <span class="func">readBmp</span>(<span class="stri">"head3.bmp"</span>);
+
+<span class="keywd">const</span> <span class="type">array</span> <span class="type">integer</span>: someData <span class="keywd">is</span> [](1, 1, 2, 3, 5, 8, 13, 21, 34, 55);
+</pre><p>
+A nice example is the initialization of the table <span class="var">stars</span> with
+the function <span class="func">genStarDescr</span> in the library <span class="lib">stars.s7i</span>.
+</p></div>
+
+<div><br /><a name="faq_initialize_variables"><h3>Why is it necessary to initialize all variables?
+</h3></a><hr />
+<p>
+Forgetting to initialize a variable is a common source of errors. In some
+programming languages uninitialized variables have a random value which could lead
+to errors. To avoid errors caused by uninitialized variables in Seed7 each variable
+must be initialized when it is declared.
+</p></div>
+
+<div><br /><a name="faq_unicode"><h3>Is Unicode supported?
+</h3></a><hr />
+<p>
+Seed7 <tt><span class="type">char</span>acters</tt> and <tt><span class="type">string</span>s</tt> support Unicode. Unicode values are encoded
+with UTF-32. Functions which exchange strings <span class="link">with the operating system</span>
+automatically convert the strings from and to UTF-32. It is possible to
+read and write files with <span class="link">Latin-1</span>, <span class="link">UTF-8</span> and <span class="link">UTF-16</span> encoding. Functions
+to deal with <span class="link">code pages</span> and functions to <span class="link">convert</span> between different Unicode
+encodings are also available.
+</p><p>
+The usage of UTF-32 for strings in a program has several advantages:
+</p><ul>
+<li>With UTF-32 it is not necessary to distinguish character-length from
+   byte-length. The character-length of an UTF-8 or UTF-16 string must be
+   computed by processing the whole string. The character-length of an
+   UTF-32 string does not need such an effort.</li>
+<li>Accessing a character with an index in an UTF-32 string is also simple.
+   With UTF-8 and UTF-16 it is necessary to process all characters up
+   to the index. It has been argued, that most strings are processed
+   sequentially. UTF-32 strings can be processed sequentially, but if
+   the processing is not sequentially UTF-32 has a big advantage.</li>
+<li>UTF-8 has invalid byte sequences. In UTF-16 single surrogate characters
+   are also invalid. A string library, that is based on UTF-8 or UTF-16
+   must check for valid byte sequences. UTF-32 does not have invalid byte
+   sequences. UTF-32 can hold non-unicode characters, but this can be
+   used as advantage.</li>
+<li>The overlong encodings of UTF-8 allow several encodings for the same
+   character. According to the standard overlong encodings are not valid
+   UTF-8 representations of the code point. An UTF-8 string library must
+   also consider overlong encodings. UTF-32 and UTF-16 do not have
+   overlong encodings.</li>
+<li>Using a byte-index into an UTF-8 or UTF-16 string triggers a search for
+   the beginning of an UTF-8 or UTF-16 code point. E.g.: If an UTF-8
+   string is split into two parts a search for the beginning of an UTF-8
+   byte sequence is necessary. UTF-32 does not need such an effort.</li>
+<li>UTF-32 uses more memory, but todays computers are equipped with a lot
+   of memory. The pressure to save memory is gone and the simple and fast
+   handling of UTF-32 strings outweighs the increased memory usage.
+   Using UTF-32 leads to faster programs than any approach that tries to
+   save memory by examining strings.</li>
+<li>An UTF-32 string can also hold Ascii, Latin-1, UTF-8 or UTF-16 encoded
+   strings. An UTF-32 string can even hold characters from a <span class="link">code page</span>.
+   Of cause it is necessary to know the encoding of such strings. The
+   possibility to hold all this encodings is an advantage that only UTF-32
+   offers.</li>
+</ul><p>
+In a Seed7 program all operations with strings can be done with the type
+<tt><span class="type">string</span></tt>. Having just one <tt><span class="type">string</span></tt> type simplifies things.
+</p><p>
+Conversions to <span class="func">upper</span> and to <span class="func">lower</span> case use the default Unicode case mapping,
+where each character is considered in isolation. Characters without case
+mapping are left unchanged. The mapping is independent from the locale.
+Individual character case mappings cannot be reversed, because some
+characters have multiple characters that map to them.
+</p><p>
+Seed7 source code allows Unicode in <span class="link">char literals</span>, <span class="link">string literals</span>, <span class="link">block comments</span>
+and <span class="link">line comments</span>. Interpreter and <span class="link">compiler</span> assume that a Seed7 program is written
+with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
+</p><p>
+There is also support for Unicode names. The support for Unicode names
+is switched off by default and must be activated with the pragma:
+</p><pre class="indent">
+$ names unicode;
+</pre><p>
+This pragma allows variables with e.g. german umlauts or cyrillic letters.
+This way beginners can use variable and function names from their native
+language.
+</p></div>
+
+<div><br /><a name="faq_mutable_strings"><h3>Why are the strings in Seed7 mutable?
+</h3></a><hr />
+<p>
+Java, C# and several other languages use immutable strings. But immutable strings
+have not only advantages. They have also disadvantages. Okay, assigning immutable
+strings is cheap (just the pointer is assigned), but almost everything else becomes
+more expensive. Every time immutable strings are changed the whole string content
+must be copied. If you want to change a string a lot, this becomes very costly.
+For that reason Java introduced the mutable string class StringBuffer (and later
+StringBuilder). Maintaining the string data of immutable strings is also an
+overhead that costs time, as it requires bookkeeping and a garbage collection.
+</p><p>
+The string handling of mutable strings can be optimized, such that copying the
+string content can be avoided in many cases. This is done by the Seed7 interpreter
+and compiler. You get cheap string parameter passing, string slicing and assignment
+without being bothered with immutable and mutable string types (which is essentially
+an implementation detail). Mutable strings give us also consistent language
+semantics (strings are not handled different than other objects).
+</p></div>
+
+<div><br /><a name="faq_comparisons"><h3>How are comparisons done in Seed7?
+</h3></a><hr />
+<p>
+In Seed7 the operators <tt><span class="op">=</span></tt> (equal) and <tt><span class="op">&lt;&gt;</span></tt> (not equal) are defined for all types.
+Additionally many types define also the operators <tt><span class="op">&lt;</span></tt> (less than), <tt><span class="op">&lt;=</span></tt> (less than or
+equal to), <tt><span class="op">&gt;</span></tt> (greater than) and <tt><span class="op">&gt;=</span></tt> (greater than or equal to). These operators do
+exactly what the corresponding type considers as the correct comparison.
+</p><p>
+In Java and other languages you are discouraged to use the normal equality
+comparison operator (<tt><span class="op">==</span></tt>) for string comparisons. Instead you need to use an
+expression like <tt>name.equals(<span class="stri">""</span>)</tt>. The <tt><span class="op">==</span></tt> operator just compares references,
+which is almost never the desired operation. Seed7 is much more consistent in
+this regard, because the <tt><span class="op">=</span></tt> operator is generally used to check for equality.
+It is just not necessary to tell every newcomer that <tt><span class="op">==</span></tt> is used to compare
+integers, but that it should never be used to compare strings.
+</p><p>
+Most types define also the function <tt><span class="func">compare</span>(A, B)</tt>, which returns -1 (if A is
+less than B), 0 (if A equals B) or 1 (if A is greater than B). This function
+defines a total order over the values of a type even if <tt><span class="op">&lt;</span></tt> has not been defined
+or if <tt><span class="op">&lt;</span></tt> does not define a total order. E.g.:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> type       </th><th> comparisons    </th><th> compare </th><th> comment                                </th></tr>
+  
+  <tr><td> <tt><span class="type">float</span></tt>      </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> According to IEEE 754 a <tt><span class="var">NaN</span></tt> is neither 
+                                        less than, equal to, nor greater than  
+                                        any value, including itself.           
+                                        Float <tt><span class="func">compare</span>(A, B)</tt> considers all      
+                                        <tt><span class="var">NaN</span></tt> values as greater than <tt><span class="var">Infinity</span></tt>.   </td></tr>
+  
+  <tr><td> <tt><span class="type">complex</span></tt>    </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt>           </td><td> <tt><span class="func">compare</span></tt> </td><td> Compares real and imaginary part.      </td></tr>
+  
+  <tr><td> <tt><span class="type">bitset</span></tt>     </td><td align="center"> <tt><span class="op">=</span></tt> <tt><span class="op">&lt;&gt;</span></tt> <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> </td><td> <tt><span class="func">compare</span></tt> </td><td> The comparisons <tt><span class="op">&lt;</span></tt> <tt><span class="op">&lt;=</span></tt> <tt><span class="op">&gt;</span></tt> <tt><span class="op">&gt;=</span></tt> check for    
+                                        subsets and supersets.                 
+                                        Bitset <tt><span class="func">compare</span>(A, B)</tt> compares by       
+                                        determining the biggest element that   
+                                        is not present or absent in both sets. </td></tr>
+  
+</table></dd></dl><p>
+Hash tables use <tt><span class="func">compare</span>(A, B)</tt> to manage their elements.
+</p></div>
+
+<div><br /><a name="faq_database_access"><h3>Can Seed7 access databases?
+</h3></a><hr />
+<p>
+A <span class="link">database library</span> provides a <span class="link">database independent API</span>, which defines how
+a client may access a database. Seed7 accomplishes database independence
+by using database drivers as abstraction layers between the application
+and the database. There are database drivers for MySQL, MariaDB, SQLLite,
+PostgreSQL, Oracle, Firebird, Interbase, Db2 and SQL Server databases.
+Databases can also be accessed via the ODBC interface. How the database
+independent API of Seed7 works can be seen in the following example:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: dbDemo <span class="keywd">is</span> <span class="keywd">func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">database</span>: currDb <span class="keywd">is</span> <span class="type">database</span>.value;
+    <span class="keywd">var</span> <span class="type">sqlStatement</span>: statement <span class="keywd">is</span> <span class="type">sqlStatement</span>.value;
+    <span class="keywd">var</span> <span class="type">integer</span>: index <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    currDb := <span class="func">openDatabase</span>(<span class="var">DB_MYSQL</span>, <span class="stri">"testDb"</span>, <span class="stri">"testUser"</span>, <span class="stri">"testPassword"</span>);
+    <span class="keywd">if</span> currDb <span class="op">&lt;></span> <span class="type">database</span>.value <span class="keywd">then</span>
+      statement := <span class="func">prepare</span>(currDb, <span class="stri">"select * from testTable"</span>);
+      <span class="func">execute</span>(statement);
+      <span class="keywd">while</span> <span class="func">fetch</span>(statement) <span class="keywd">do</span>
+        <span class="keywd">for</span> index <span class="keywd">range</span> 1 <span class="keywd">to</span> <span class="func">columnCount</span>(statement) <span class="keywd">do</span>
+          write(<span class="func">column</span>(statement, index, <span class="type">string</span>) <span class="op">&lt;&amp;</span> <span class="stri">", "</span>);
+        <span class="keywd">end</span> <span class="keywd">for</span>;
+        writeln;
+      <span class="keywd">end</span> <span class="keywd">while</span>;
+      <span class="func">close</span>(currDb);
+    <span class="keywd">end</span> <span class="keywd">if</span>;
+  <span class="keywd">end</span> <span class="keywd">func</span>;
+</pre><p>
+In the manual there is a chapter about the <span class="link">database abstraction API</span>.
+</p></div>
+
+<div><br /><a name="faq_regular_expressions"><h3>Are there regular expressions?
+</h3></a><hr />
+<p>
+Regular expressions are a powerful feature. Unfortunately they lead also
+to code, that is hard to maintain. The regular expression language is
+usually embedded in a surrounding programming language. As with other
+language in language features this leads to maintenance problems. There
+are also other difficulties. Regular expressions work typeless but Seed7
+does not. For this reasons regular expressions are currently not supported,
+but there is an alternative (see below).
+</p><p>
+Seed7 has support for lexical scanner functions. Scanner functions use the
+LL(1) approach, which is used in compilers. Practically no compiler uses
+regular expressions to parse a program. Scanner functions work strictly
+from left to right. They examine one character and do decisions based on
+this character. How scanner functions work is described in <span class="link">the manual</span>.
+Scanner functions for strings are defined in <span class="lib">scanstri.s7i</span> and scanner
+functions for files are defined in <span class="lib">scanfile.s7i</span>.
+</p></div>
+
+<div><br /><a name="faq_div_operator"><h3>Why is the div operator used for integer divisions?
+</h3></a><hr />
+<p>
+In Pascal and Ada the keyword <tt><span class="op">div</span></tt> is used as integer division operator. Other
+languages like C and its descendants use <tt>/</tt> for integer division. Using <tt><span class="op">div</span></tt> has
+some advantages:
+</p><ul>
+<li>It opens the opportunity to use <tt>/</tt> for a different purpose. The library
+   <span class="lib">rational.s7i</span> defines <tt><span class="op">/</span></tt> to create a rational number.</li>
+<li>An integer division truncates the result. In the common case the result is not
+   equal to that of a floating point division (E.g.: <tt><span class="func">flt</span>(4 <span class="op">div</span> 3)</tt> returns <tt>1.0</tt>,
+   but <tt><span class="func">flt</span>(4) <span class="op">/</span> <span class="func">flt</span>(3)</tt> returns <tt>1.333333</tt>). This difference is emphasized by using
+   different operator symbols.</li>
+<li>A negative result of a division can be rounded towards zero or towards minus
+   infinite. Seed7 provides both possibilities with the two integer division
+   operators <tt><span class="op">div</span></tt> and <tt><span class="op">mdiv</span></tt>.</li>
+</ul><p>
+The chapter about the type <tt><span class="type">integer</span></tt> in the manual describes <span class="link">properties</span> of integer
+divisions and contains <span class="link">tables</span> that show their behavior.
+</p></div>
+
+<div><br /><a name="faq_concatenation_operators"><h3>Why are &amp; and &lt;&amp; defined for string concatenation?
+</h3></a><hr />
+<p>
+The operators <tt><span class="op">&amp;</span></tt> and <tt><span class="op">&lt;&amp;</span></tt> both concatenate strings, but they have different purposes.
+</p><ul>
+<li><p>The <tt><span class="op">&amp;</span></tt> operator is intended for <tt><span class="type">string</span></tt> concatenations in normal expressions.
+   The <tt><span class="op">&amp;</span></tt> operator does not convert an <tt><span class="type">integer</span></tt> (or some other value) to a <tt><span class="type">string</span></tt>.
+</p><p>
+   The priority of <tt><span class="op">&amp;</span></tt> is defined to execute the concatenation before doing a
+   comparison. E.g.:
+</p><pre class="indent">
+name <span class="op">&amp;</span> extension <span class="op">=</span> check
+</pre><p>
+   has the meaning
+</p><pre class="indent">
+(name <span class="op">&amp;</span> extension) <span class="op">=</span> check
+</pre><p>
+   So the <tt><span class="op">&amp;</span></tt> operator can be used like <tt><span class="op">+</span></tt> <tt><span class="op">-</span></tt> <tt><span class="op">*</span></tt> (the expression is evaluated and its
+   result can be compared).
+</p></li>
+<li><p>The <tt><span class="op">&lt;&amp;</span></tt> operator is intended for <tt><span class="func">write</span></tt> statements. It is overloaded for many
+   types. As long as the first or the second parameter is a <tt><span class="type">string</span></tt> it does convert
+   the other parameter to a <tt><span class="type">string</span></tt> (with the function <tt><span class="func">str</span></tt>) and does the
+   concatenation afterwards.
+</p><p>
+   The priority of <tt><span class="op">&lt;&amp;</span></tt> is defined to allow also the output of <tt><span class="type">boolean</span></tt> expressions.
+   E.g.:
+</p><pre class="indent">
+name <span class="op">&lt;&amp;</span> extension <span class="op">=</span> check
+</pre><p>
+   has the meaning
+</p><pre class="indent">
+name <span class="op">&lt;&amp;</span> (extension <span class="op">=</span> check)
+</pre><p>
+   Note that <tt><span class="var">extension</span></tt> and <tt><span class="var">check</span></tt> could be e.g. <tt><span class="type">integer</span>s</tt>. The result of
+   '<span class="var">extension</span> = <span class="var">check</span>' is converted to <tt><span class="type">string</span></tt> with the function <tt><span class="func">str</span></tt>. So
+</p><pre class="indent">
+<span class="func">writeln</span>(name <span class="op">&lt;&amp;</span> extension = check)
+</pre><p>
+   would write (if <tt><span class="var">name</span></tt> is <tt><span class="stri">"asdf: "</span></tt> and <tt><span class="var">extension</span></tt> is not equal to <tt><span class="var">check</span></tt>):
+</p><pre class="indent">
+asdf: FALSE
+</pre></li></ul><p>
+The <tt><span class="op">&lt;&amp;</span></tt> operator can be defined for new types with <tt><span class="func">enable_io</span></tt> respectively
+<tt><span class="func">enable_output</span></tt>. The description of the <span class="link">Seed7 file API</span> contains also a chapter
+about the <span class="link">conversion to strings and back</span>.
+</p></div>
+
+<div><br /><a name="faq_types_of_parameters"><h3>What types of parameters does Seed7 have?
+</h3></a><hr />
+<p>
+There are call-by-value and call-by-reference parameters. The formal parameter
+can be constant or variable. The combination of these features allows four types
+of parameters:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> parameter </th><th> evaluation strategy </th><th> access right </th></tr>
+  
+  <tr><td> val       </td><td align="center">    call-by-value    </td><td> const        </td></tr>
+  <tr><td> ref       </td><td align="center">  call-by-reference  </td><td> const        </td></tr>
+  <tr><td> in var    </td><td align="center">    call-by-value    </td><td> var          </td></tr>
+  <tr><td> inout     </td><td align="center">  call-by-reference  </td><td> var          </td></tr>
+  
+</table></dd></dl><p>
+For call-by-value parameters (<tt><span class="keywd">val</span></tt> and <tt><span class="keywd">in var</span></tt>) the actual parameter value
+is copied, when the function is called. For call-by-refererence parameters
+(<tt><span class="keywd">ref</span></tt> and <tt><span class="keywd">inout</span></tt>) the function uses a reference to the actual parameter value.
+Since a call-by-reference parameter is not copied it can provide better
+performance for structured types like strings, arrays, structs and hashes.
+</p></div>
+
+<div><br /><a name="faq_in_parameter"><h3>What is an 'in' parameter?
+</h3></a><hr />
+<p>
+An <tt><span class="keywd">in</span></tt> parameter describes, that the actual parameter value is going into
+the function. Inside the function an <tt><span class="keywd">in</span></tt> parameter cannot be changed.
+<tt><span class="keywd">In</span></tt> parameters are the most commonly used evaluation strategy for parameters.
+</p><p>
+An <tt><span class="keywd">in</span></tt> parameter is either a <tt><span class="keywd">val</span></tt> (call-by-value) parameter or a <tt><span class="keywd">ref</span></tt>
+(call-by-reference) parameter. Every type defines an <tt><span class="keywd">in</span></tt> parameter:
+</p><ul>
+<li>For types with little memory requirements <tt><span class="keywd">in</span></tt> is a <tt><span class="keywd">val</span></tt> (call-by-value) parameter:<dl><dd>
+     <tt><span class="type">boolean</span></tt>, <tt><span class="type">integer</span></tt>, <tt><span class="type">float</span></tt>, <tt><span class="type">char</span></tt>, <tt><span class="type">category</span></tt>, <tt><span class="type">reference</span></tt>, <tt><span class="type">enumeration</span></tt>,
+     <tt><span class="type">clib_file</span></tt>, <tt><span class="type">pixel</span></tt>, <tt><span class="type">PRIMITIVE_SOCKET</span></tt></dd></dl></li>
+
+<li>For types with bigger memory requirements <tt><span class="keywd">in</span></tt> is a <tt><span class="keywd">ref</span></tt> (call-by-reference) parameter:<dl><dd>
+     <tt><span class="type">bigInteger</span></tt>, <tt><span class="type">rational</span></tt>, <tt><span class="type">bigRational</span></tt>, <tt><span class="type">complex</span></tt>, <tt><span class="type">string</span></tt>, <tt><span class="type">array</span></tt>, <tt><span class="type">hash</span></tt>,
+     <tt><span class="type">set</span></tt>, <tt><span class="type">bitset</span></tt>, <tt><span class="type">struct</span></tt>, <tt><span class="type">interface</span></tt>, <tt><span class="type">ref_list</span></tt>, <tt><span class="type">program</span></tt>, <tt><span class="type">color</span></tt>, <tt><span class="type">time</span></tt>,
+     <tt><span class="type">duration</span></tt>, <tt><span class="type">file</span></tt>, <tt><span class="type">text</span></tt>, <tt><span class="type">proc</span></tt>, <tt><span class="type">type</span></tt>, <tt><span class="type">object</span></tt></dd></dl></li>
+</ul></p>
+Usually it is not necessary to care, if an <tt><span class="keywd">in</span></tt> parameter uses call-by-value or
+call-by-reference. A programmer can just use <tt><span class="keywd">in</span></tt> parameters to specify, that
+the actual parameter value is going into the function. A programmer can use
+<tt><span class="keywd">val</span></tt> or <tt><span class="keywd">ref</span></tt> to overrule this behavior in cases, where the default
+<tt><span class="keywd">in</span></tt> parameter specified by a type is not desired.
+</p></div>
+
+<div><br /><a name="faq_difference_val_and_ref_parameter"><h3>Is there an example where val and ref parameters have different behavior?
+</h3></a><hr />
+<p>
+Normally <tt><span class="keywd">val</span></tt> and <tt><span class="keywd">ref</span></tt> parameters behave the same. Only in corner cases
+their behavior differs. This is shown with the following example:
+</p><pre class="indent">
+$ include <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">var</span> <span class="type">integer</span>: aGlobal <span class="keywd">is</span> 1;
+
+<span class="keywd">const</span> <span class="type">proc</span>: aFunc (<span class="keywd">val</span> <span class="type">integer</span>: valParam, <span class="keywd">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    writeln(valParam <& <span class="stri">" "</span> <& refParam);
+    aGlobal := 2;
+    writeln(valParam <& <span class="stri">" "</span> <& refParam);
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> proc: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    aFunc(aGlobal, aGlobal);
+  <span class="keywd">end func</span>;
+</pre><p>
+The program above writes:
+</p><pre class="indent">
+1 1
+1 2
+</pre><p>
+The different behavior is triggered when <tt>2</tt> is assigned to the global variable
+<tt>aGlobal</tt>:
+</p><ul>
+<li>The <tt><span class="keywd">val</span></tt> parameter (<tt>valParam</tt>) is unaffected by the change of <tt>aGlobal</tt>,
+   because the actual parameter value was copied when the function was called.</li>
+<li>The <tt><span class="keywd">ref</span></tt> parameter (<tt>refParam</tt>) changes when <tt>aGlobal</tt> is changed.</li>
+</ul><p>
+The effect happens for any type, not just for <tt><span class="type">integer</span></tt> parameters. The same
+effect happens also, when an additional <tt><span class="keywd">inout</span></tt> parameter is used instead of
+a global variable and when the function is called with the same variable as
+actual parameter for all three parameters.
+</p><p>
+If a programmer has to deal with such corner cases it is necessary
+to explicitly use <tt><span class="keywd">val</span></tt> or <tt><span class="keywd">ref</span></tt>.
+</p></div>
+
+<div><br /><a name="faq_call_by_name"><h3>What is call-by-name?
+</h3></a><hr />
+<p>
+Call-by-name is an evaluation strategy for parameters. The actual call-by-name
+parameter is not evaluated before the function is called. When the function is
+executed the call-by-name parameter might be executed once, many times or not at
+all. Examples of call-by-name parameters are:
+</p><ul>
+<li>The conditions of <span class="link">while-loops</span></li>
+<li>The statements in loop bodies</li>
+<li>The statements that are conditionally executed in
+   an <span class="link">if-statement</span></li>
+<li>The right operand of the <tt><span class="type">boolean</span></tt> operators <tt><span class="op">and</span></tt> and <tt><span class="op">or</span></tt></li>
+</ul><p>
+As can be seen, call-by-name parameters are used all the time, without realizing
+it. A call-by-name parameter is a function without parameters. Function types such
+as <tt><span class="type">proc</span></tt> or <tt><span class="type">func</span> <span class="type">boolean</span></tt> are used as type of formal call-by-name parameters.
+An expression with the correct type is allowed as actual call-by-name parameter. This
+actual parameter expression is not evaluated when the function is called. Instead
+the call-by-name expression is evaluated every time the formal call-by-name
+parameter is used. A <tt>'conditional'</tt> function (similar to the ?: operator from C)
+is defined with:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
+    <span class="keywd">ref</span> <span class="type">func</span> <span class="type">integer</span>: trueValue, <span class="keywd">ref</span> <span class="type">func</span> <span class="type">integer</span>: falseValue) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> condition <span class="keywd">then</span>
+      conditionalResult := trueValue;
+    <span class="keywd">else</span>
+      conditionalResult := falseValue;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+Seed7 does not require a special notation (like brackets) for actual call-by-name
+parameters, therefore the <tt>'conditional'</tt> function can be called with:
+</p><pre class="indent">
+conditional(a <span class="op">&gt;=</span> 0, <span class="func">sqrt</span>(a), a <span class="op">**</span> 2)
+</pre><p>
+Depending on the condition <tt>'a <span class="op">&gt;=</span> 0'</tt> only one of the expressions <tt>'<span class="func">sqrt</span>(a)'</tt> and
+<tt>'a <span class="op">**</span> 2'</tt> is evaluated. This evaluation takes place when <tt>'trueValue'</tt> or <tt>'falseValue'</tt>
+is assigned to <tt>'result'</tt>.
+</p></div>
+
+<div><br /><a name="faq_integer_overflow"><h3>What is an integer overflow?
+</h3></a><hr />
+<p>
+An <span class="link">integer overflow</span> occurs if a calculation produces a result that
+cannot be stored in an integer variable. Very popular languages such as
+C, C++, Java, Objective-C and Go do not care about integer overflow.
+Programs in this languages continue to execute with a wrong value
+instead of the correct result. This wrong value can then trigger
+dangerous things. A program can make wrong decisions or produce wrong
+output, without any hint that an integer overflow occurred. In Seed7
+the <span class="link">exception</span> <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised if an overflow occurs.
+If performance is important the overflow checking can be switched
+off with the <span class="link">compiler</span> option <a class="link" href="#faq_compiler_option-s"><tt><b>-so</b></tt></a>.
+</p></div>
+
+<div><br /><a name="faq_garbage_collection"><h3>Is there a garbage collection?
+</h3></a><hr />
+<p>
+There is automatic memory management, but there is no garbage collection
+process, that interrupts normal processing. There is no situation, where a
+garbage collection needs to "stop the world". The automatic memory management
+of Seed7 uses different mechanisms. Memory usage can be categorized and for
+every category a specific strategy of automatic memory management is used:
+</p><ul>
+<li>Memory used by local variables and parameters is automatically freed, when
+   a function is left. The interpreter maintains a list of local values and
+   frees them. The <span class="link">compiler</span> inserts code, to free the memory used by local
+   variables, in front of each return statement.</li>
+<li>Memory allocated for intermediate results is freed automatically in a stack
+   like manner. Like an arithmetic expressions such as (1+2)*3+4 can be
+   evaluated with the help of a stack (which stores the intermediate results
+   3 and 9). For structured values it is possible to maintain a stack of
+   pointers to the values. The interpreter uses a temp flag, which is present
+   in every interpreter object, to free memory. The compiler determines the
+   point, where intermediate results can be be freed, at compile time.
+   Functions, such as the assignment, can abstain from freeing the
+   intermediate result and just assign it to the variable. This way it is not
+   always necessary to copy arbitrary complex values. All this things can be
+   decided by the compiler.</li>
+<li><span class="link">Strings</span>, <span class="link">arrays</span>, <span class="link">hashes</span> and other containers manage their memory. E.g.:
+   When an element is removed from a hash table the memory used by the element
+   is freed as well as the hash table internal data.</li>
+<li>A struct value can be referred by one struct variable and by several
+   interface variables. Struct values use a reference counter to free the
+   struct, if no reference to it exists.</li>
+</ul></div>
+
+<div><br /><a name="faq_object_oriented"><h3>Is Seed7 object oriented?
+</h3></a><hr />
+<p>
+Yes, but object orientation is organized different compared to other object
+oriented languages. In a nutshell: It is based on interfaces and allows <a class="link" href="#faq_multiple_dispatch">multiple
+dispatch</a>. <span class="link">Chapter 7 (Object orientation)</span> of the manual contains a detailed
+description of the Seed7 object orientation.
+</p><p>
+An example of an object oriented type is <tt><span class="type">file</span></tt>. A <tt><span class="type">file</span></tt> describes references to
+values with some other type. A value of a <tt><span class="type">file</span></tt> can have one of the following
+types: null_file, external_file, echo_file, line_file, etc. Each of this <tt><span class="type">file</span></tt>
+value types acts differently to the same requests.
+</p><p>
+For the type <tt><span class="type">file</span></tt> two kinds of functions are defined:
+</p><ol>
+<li>Functions which work for all files the same way.</li>
+<li>Dynamic functions which are just an interface. At run time the corresponding
+    function defined for the type of the value is used.</li>
+</ol><p>
+Compared to Java the type file can be seen as interface or abstract class, while
+the type of the file value can be seen as the class implementing the interface.
+</p></div>
+
+<div><br /><a name="faq_inherited_from_object"><h3>Is everything inherited from object?
+</h3></a><hr />
+<p>
+There can be several base types, each with their own hierarchy. In many object
+oriented languages the class <tt><span class="type">object</span></tt> is used as element of all container classes.
+<a class="link" href="#faq_abstract_data_type">Abstract data types</a> provide a better and type safe solution for containers and
+other uses of the root class <tt><span class="type">object</span></tt>. Therefore a single rooted hierarchy is not
+needed.
+</p></div>
+
+<div><br /><a name="faq_difference_overloading_oo"><h3>What is the difference between overloading and object orientation?
+</h3></a><hr />
+<p>
+Overloading is resolved at compile time while object orientation uses dynamic
+dispatch which decides at runtime which method should be called. Overloading
+resolution uses static types to decide. Dynamic dispatch uses the implementation
+type, which is only known at runtime, to decide. Besides this difference
+overloading resolution and dynamic dispatch both use the same approach to do the
+work: The types and the access rights of all parameters are used in the decision
+process.
+</p></div>
+
+<div><br /><a name="faq_abstract_data_type"><h3>What is an abstract data type?
+</h3></a><hr />
+<p>
+An abstract data type defines, like every other type, a set of functions to handle
+data. An abstract data type leaves, like an interface type from OO, the details of
+the data representation open. The difference between the two is:
+</p><ul>
+<li>An interface type is resolved to an implementation type at runtime.</li>
+<li>An abstract data type is resolved to a concrete type at compile time,
+   when it is used.</li>
+</ul><p>
+Usually an abstract data type uses parameters to resolve to a concrete type.
+Examples of abstract data types are <tt><span class="type">array</span>s</tt>, <tt><span class="type">struct</span>s</tt> and <tt><span class="type">hash</span>es</tt>. An abstract <tt><span class="type">array</span></tt>
+type needs the element type as parameter. E.g.:
+</p><pre class="indent">
+<span class="type">array string</span>
+</pre><p>
+This <tt><span class="type">array</span></tt> has <tt><span class="type">string</span></tt> elements and uses <tt><span class="type">integer</span></tt> indices.
+An abstract <tt><span class="type">array</span></tt>, were the index type is also specified as parameters is:
+</p><pre class="indent">
+<span class="type">array [char] string</span>
+</pre><p>
+This <tt><span class="type">array</span></tt> has <tt><span class="type">string</span></tt> elements and uses <tt><span class="type">char</span></tt> indices.
+Arrays are present in many programming languages, but they are usually hard-coded
+into the compiler / interpreter. Seed7 does not follow this direction. Instead it
+introduces abstract data types as common concept behind <tt><span class="type">array</span>s</tt>, <tt><span class="type">struct</span>s</tt>, <tt><span class="type">hash</span>es</tt>
+and other types. Like <a class="link" href="#faq_generics">templates</a> abstract data types are implemented with functions
+that are executed at compile time. In contrast to templates abstract data types
+return a type as result.
+</p></div>
+
+<div><br /><a name="faq_multiple_dispatch"><h3>What is multiple dispatch?
+</h3></a><hr />
+<p>
+Multiple dispatch means that a function or method is connected to more
+than one type. The decision which method is called at runtime is done
+based on more than one of its arguments. The classic object orientation
+is a special case where a method is connected to one class and the dispatch
+decision is done based on the type of the <tt>'self'</tt> or <tt>'this'</tt> parameter.
+The classic object orientation is a single dispatch system.
+</p><p>
+In a multiple dispatch system the methods cannot be grouped to one class
+and it makes no sense to have a <tt>'self'</tt> or <tt>'this'</tt> parameter.
+All parameters are taken into account when the dispatch decision is done.
+In the following example the interface type <tt><span class="type">Number</span></tt> uses multiple dispatch:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
+
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Number</span>: (<span class="keywd">in</span> <span class="type">Number</span>: a) + (<span class="keywd">in</span> <span class="type">Number</span>: b) <span class="keywd">is DYNAMIC</span>;
+</pre><p>
+The <tt><span class="keywd">DYNAMIC</span></tt> declaration creates an interface function for the <tt>'+'</tt> operator.
+The interface type <tt><span class="type">Number</span></tt> can represent an <tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: Integer <span class="keywd">is new struct</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: data <span class="keywd">is</span> 0;
+  <span class="keywd">end struct</span>;
+
+type_implements_interface(<span class="type">Integer</span>, <span class="type">Number</span>);
+
+<span class="keywd">const</span> <span class="type">type</span>: Float <span class="keywd">is new struct</span>
+    <span class="keywd">var</span> <span class="type">float</span>: data <span class="keywd">is</span> 0.0;
+  <span class="keywd">end struct</span>;
+
+type_implements_interface(<span class="type">Float</span>, <span class="type">Number</span>);
+</pre><p>
+The declarations of the converting <tt>'+'</tt> operators are:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
+  <span class="keywd">begin</span>
+    sum.data := <span class="func">flt</span>(a.data) + b.data;
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
+  <span class="keywd">begin</span>
+    sum.data := a.data + <span class="func">flt</span>(b.data);
+  <span class="keywd">end func</span>;
+</pre><p>
+The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Integer</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Integer</span>: sum <span class="keywd">is</span> <span class="type">Integer</span>.value;
+  <span class="keywd">begin</span>
+    sum.data := a.data + b.data;
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Float</span>: sum <span class="keywd">is</span> <span class="type">Float</span>.value;
+  <span class="keywd">begin</span>
+    sum.data := a.data + b.data;
+  <span class="keywd">end func</span>;
+</pre><p>
+The decision which <tt>'+'</tt> operator should be called at runtime is based on the
+implementation type (<tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>) of both arguments of the <tt>'+'</tt>.
+</p></div>
+
+<div><br /><a name="faq_container_classes"><h3>What container classes do exist?
+</h3></a><hr />
+<p>
+<a class="link" href="#faq_abstract_data_type">Abstract data types</a> are used to replace container classes. When using an
+abstract data type as container you have to specify the type of the element
+in the type declaration. Therefore abstract data types are always type safe.
+Typeless container classes with object elements do not exist. The only thing
+which comes near to this is the <tt><span class="type">ref_list</span></tt> which is used in the reflection.
+A <tt><span class="type">ref_list</span></tt> should not be misused as container class. Predefined abstract
+data types are:
+</p><dl>
+<dt><span class="type">array</span></dt><dd>
+   The type <tt>'<span class="type">array baseType</span>'</tt> describes sequences of identical elements of
+   a <tt>'<span class="type">baseType</span>'</tt></dd>
+
+<dt><span class="type">hash</span></dt><dd>
+   The type <tt>'<span class="type">hash [keyType] baseType</span>'</tt> describes hash tables with elements
+   of <tt>'<span class="type">baseType</span>'</tt> which can be accessed using an index of <tt>'<span class="type">keyType</span>'</tt></dd>
+
+<dt><span class="type">set</span></dt><dd>
+   The type <tt>'<span class="type">set of baseType</span>'</tt> describes a set of elements of a <tt>'<span class="type">baseType</span>'</tt></dd>
+
+<dt><span class="type">struct</span></dt><dd>
+   The type <tt>'<span class="type">struct ... end struct</span>'</tt> describes all structured types.</dd>
+</dl><p>
+Usage examples of abstract data types are:
+</p><pre class="indent">
+<span class="type">array string</span>
+<span class="type">array [boolean] string</span>
+<span class="type">hash [string] boolean</span>
+<span class="type">hash [string] array array string</span>
+<span class="type">set of char</span>
+<span class="type">set of integer</span>
+</pre></div>
+
+<div><br /><a name="faq_primitive_types"><h3>Are there primitive types?
+</h3></a><hr />
+<p>
+As in C++, Java, C# and other hybrid object oriented languages there are
+predefined primitive types in Seed7. These are <tt><span class="type">integer</span></tt>, <tt><span class="type">char</span></tt>, <tt><span class="type">boolean</span></tt>,
+<tt><span class="type">string</span></tt>, <tt><span class="type">float</span></tt>, <tt><span class="type">rational</span></tt>, <tt><span class="type">time</span></tt>, <tt><span class="type">duration</span></tt> and others. Additionally to the
+predefined primitive types there is also the possibility to declare new primitive
+types.
+</p></div>
+
+<div><br /><a name="faq_object_and_primitive_types"><h3>What is the difference between object and primitive types?
+</h3></a><hr />
+<p>
+Variables with object types contain references to object values. This means
+that after
+</p><pre class="indent">
+a := b
+</pre><p>
+the variable 'a' refers to the same object as variable 'b'. Therefore changes
+of the object value that 'a' refers to, will effect variable 'b' as well (and
+vice versa) because both variables refer to the same object.
+</p><p>
+For primitive types a different logic is used. Variables with primitive types
+contain the value itself. This means that after
+</p><pre class="indent">
+a := b
+</pre><p>
+both variables are still distinct and changing one variable has no effect on
+the other.
+</p><p>
+If 'a' and 'b' are declared to have type <tt>'<span class="type">aType</span>'</tt> which contains the integer
+field 'property' you can do the following:
+</p><pre class="indent">
+b.property := 1;
+a := b;
+b.property := 2;
+</pre><p>
+Everything boils down to the question: What value does <tt>'a.property'</tt> have now.
+</p><ul>
+<li>If <tt>'<span class="type">aType</span>'</tt> is an object type a.property has the value 2 because 'a' and 'b'
+   both refer to the same object.</li>
+<li>If <tt>'<span class="type">aType</span>'</tt> is a primitive type a.property has still the value 1 because 'a'
+   and 'b' are distinct objects.</li>
+</ul></div>
+
+<div><br /><a name="faq_when_use_object_or_primitive_types"><h3>When to use an object type and when a primitive type?
+</h3></a><hr />
+<p>
+You should declare a new primitive type if you don't need the object oriented
+paradigm that a variable (and a constant) is just a reference to the object.
+Another indication is: If you don't need two concepts of what is equal
+(An == operator and an equal method).
+</p></div>
+
+<div><br /><a name="faq_how_does_the_assignment_work"><h3>How does the assignment work?
+</h3></a><hr />
+<p>
+For object types just the reference to the object value is copied. For primitive
+types the value itself is copied. Since values can be very big (think of arrays of
+structs with string elements) value copies can be time consuming.
+</p><p>
+In pure object oriented languages the effect of independent objects after the
+assignment is reached in a different way: Every change to an object creates a new
+object and therefore the time consuming copy takes place with every change. Because
+usually changes to an object are more frequent than assignments this approach can
+be even more time consuming than the approach using value copies for the
+assignment.
+</p></div>
+
+<div><br /><a name="faq_two_forms_of_assignment"><h3>Why are there two forms of assignment?
+</h3></a><hr />
+<p>
+Seed7 has an approach for the assignment where practical arguments count more than
+the classic object oriented principles. In Seed7 every type has its own logic for
+the assignment where sometimes a value copy and sometimes a reference copy is the
+right thing to do. Exactly speaking there are many forms of assignment since every
+type can define its own assignment. If a value copy works like a deep or a shallow
+copy can also be defined depending on the type.
+</p><p>
+For example: For <tt><span class="type">integer</span></tt>, <tt><span class="type">char</span></tt> and <tt><span class="type">string</span></tt> variables a value copy is what most
+people expect. For files you don't expect the whole file to be copied with an
+assignment, therefore a reference copy seems appropriate.
+</p><p>
+And by the way:
+Although it is always stated that in object oriented languages everything is done
+with methods, this is just not true. Besides statements and operators in C++ and
+Java which are special even Smalltalk treats the assignment and the comparison
+special. Seed7 does not have such special treatment for the assignment and the
+comparison operators.
+</p></div>
+
+<div><br /><a name="faq_constructors"><h3>Where are the constructors?
+</h3></a><hr />
+<p>
+Seed7 does not need constructors, but you can define normal functions which create
+a new value in a similar way as constructors do it.
+</p><p>
+Seed7 uses a special create statement ( ::= ) to initialize objects. Explicit calls
+of the create statement are not needed.
+</p><p>
+The lifetime of an object goes like this:
+</p><ol><li>
+Memory is reserved for the new object (stack or heap memory make no difference
+   here).
+</li><li>
+The content of the new memory is undefined (It may contain garbage), therefore a
+   create statement is necessary instead of an assignment.
+</li><li>
+The create statements copies the right expression to the left expression taking
+   into account that the left expression is undefined.
+</li><li>
+If the object is variable other values can be assigned using the assign
+   statement ( := ). The assignment can assume that the left expression contains a
+   legal value. This allows that for strings (and some other types which are just
+   references to a memory area) the memory containing the old string value (and not
+   the memory of the object itself) can be freed if necessary.
+</li><li>
+At the end of the lifetime of an object the destroy statement is executed.
+   For strings (and some other types which are just references to a memory area)
+   the memory containing the string value (and not the memory of the object itself)
+   is freed.
+</li><li>
+The memory of the object is freed.
+</li></ol><p>
+The first three steps are usually hidden in the declaration statement.
+</p></div>
+
+<div><br /><a name="faq_static_methods"><h3>Are there static methods / class methods?
+</h3></a><hr />
+<p>
+Seed7 allows defining functions (procedures and statements) without corresponding
+class. If this is not desired Seed7 uses a special parameter, the <tt>'attr'</tt>
+(attribute) parameter, to archive the functionality of static methods (elsewhere
+named class methods) in a more general way. How a static method is declared is
+shown in the following example:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func</span> <span class="type">integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: converted <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    converted := <span class="func">ord</span>(ch);
+  <span class="keywd">end func</span>;
+</pre><p>
+The function <tt>'convert_to'</tt> can be called as
+</p><pre class="indent">
+number := convert_to(<span class="type">integer</span>, 'a');
+</pre><p>
+Since the result of a function is not used to determine an overloaded function,
+this is sometimes the only way to use the same function name for different purposes
+as in:
+</p><pre class="indent">
+ch   := convert_to(<span class="type">char</span>,    1);
+stri := convert_to(<span class="type">string</span>,  1);
+ok   := convert_to(<span class="type">boolean</span>, 1);
+num  := convert_to(typeof(num), 1);
+</pre><p>
+Attribute parameters allow a function to be attached to a certain type. But this
+concept is much more flexible than static methods (or class methods). A function
+can also have several <tt>'attr'</tt> parameters and <tt>'attr'</tt> parameters can be at any
+parameter position (not just the first parameter). Furthermore the type can be the
+result of a function as for example typeof(num).
+</div>
+
+<div><br /><a name="faq_generics"><h3>Are there generics / templates?
+</h3></a><hr />
+<p>
+The generics (templates) of Ada, C++ and Java use special syntax. In Seed7 you get
+this functionality for free without special syntax or other magic.
+</p><p>
+Generally all Seed7 functions can be executed at compile time or at runtime. The
+time of the function execution depends on the place of the call. Declarations are
+just a form of statement and statements are a form of expression. A Seed7 program
+consists of a sequence of declarations (expressions), which are executed one by one
+at compile time. This expressions can also invoke user defined functions.
+</p><p>
+A function body can contain declaration statements. When such a function is
+executed at compile time, it defines things that are part of the program. It is an
+error to execute such a function at runtime.
+</p><p>
+Seed7 uses the word template to describe a function which is executed at compile
+time and declares some things while executing (at compile time). Naturally a
+template function can have parameters. Especially types as parameters are useful
+with template functions. That way a template function can declare objects with the
+type value of a parameter.
+</p><p>
+It is necessary to call template functions explicit. They are not invoked implicit
+as the C++ template functions. The explicit calls of template functions make it
+obvious what it is going on. This way the program is easier to read.
+</p></div>
+
+<div><br /><a name="faq_undefined_behavior"><h3>What means the term undefined behavior?
+</h3></a><hr />
+<p>
+Undefined behavior is a term used in the language specification
+of C and in other programming languages. Undefined behavior usually
+means that the behavior of the program is unpredictable. In C
+dividing by zero, accessing an array out of bounds, dereferencing
+NULL or a signed integer overflow all trigger undefined behavior.
+Seed7 has a well defined behavior in all situations. Even in
+situations where the language specification of C refers to
+undefined behavior.
+</p></div>
+
+<div><br /><a name="faq_exceptions"><h3>Are there exceptions?
+</h3></a><hr />
+<p>
+Yes, Seed7 has exceptions which are similar to Ada exceptions. <span class="link">Chapter 16.2
+(Exceptions)</span> of the manual contains a detailed description of the Seed7 exceptions.
+</p></div>
+
+<div><br /><a name="faq_stack_trace"><h3>What happens if an exception is not caught?
+</h3></a><hr />
+<p>
+If an EXCEPTION is not caught the program is terminated and the s7 interpreter
+writes a stack trace:
+</p><pre class="box">
+  *** Uncaught EXCEPTION NUMERIC_ERROR raised with
+  {integer: &lt;SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
+
+  Stack:
+  in (val integer: dividend) div (val integer: divisor) at integer.s7i(95)
+  in init_display at lander.sd7(840)
+  in setup at lander.sd7(909)
+  in main at lander.sd7(1541)
+</pre><p>
+This stack trace shows that a <tt><span class="op">div</span></tt> operation causes a <tt><span class="exception">NUMERIC_ERROR</span></tt> (probably a
+division by zero) in line 840 of the file <tt><span class="prog">lander.sd7</span></tt>. A short examination in
+<tt><span class="prog">lander.sd7</span></tt> shows that an assignment to <tt>'fuel_max'</tt> was commented out to show how
+stack traces work.
+</p><p>
+  A compiled program creates a much shorter crash message:
+</p><pre class="box">
+  *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
+</pre><p>
+In this case the mentioned file name and line number refers to the temporary
+C file or the Seed7 runtime library. To get useful information there are two
+possibilities:
+</p><ol>
+<li>Start the program in the interpreter instead.</li>
+<li>Compile the program with the options <a class="link" href="#faq_compiler_option-g"><tt><b>-g</b></tt></a> <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> and start it from a debugger.</li>
+</ol><p>
+If <span class="link">s7c</span> is called with the option <a class="link" href="#faq_compiler_option-g"><tt><b>-g</b></tt></a> it instructs the C compiler to generate
+debugging information. This way a debugger like gdb can run the program and provide
+information. The option <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> tells the compiler to generate code which sends a
+signal, if an uncaught exception occurs. This option allows debuggers to handle
+uncaught Seed7 exceptions. Note that <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> sends the signal SIGFPE. This is done even
+if the exception is not related to floating point operations.
+</p><p>
+<span class="link">Chapter 16.4 (Stack trace)</span> of the manual contains a detailed description how to
+debug compiled Seed7 programs.
+</p></div>
+
+<div><br /><a name="faq_lib_path"><h3>Where does the interpreter look for include libraries?
+</h3></a><hr />
+<p>
+Include libraries with absolute path (an absolute path starts with a forward slash)
+are only searched at the specified place. All other include libraries are searched
+in several directories. This is done according to a list of library directories
+(a library search path). The directories of the list are checked one after another
+for the requested include file. As soon as the include file is found the search is
+stopped and the file is included. The following directories are in the list of
+library directories:
+</p><ol>
+<li>The directory of the interpreted program. E.g.: When the program
+    <nobr><span class="lib">/home/abc/test/pairs.sd7</span></nobr> is interpreted the directory <nobr><span class="lib">/home/abc/test</span></nobr>
+    is in the list of library directories.</li>
+<li>The directories that are specified at the command-line with the option <a class="link" href="#faq_interpreter_option-l"><tt><b>-l</b></tt></a>.</li>
+<li>The directory containing the predefined Seed7 include libraries. This
+    directory is hard-coded in the interpreter (an absolute path like
+    <nobr><span class="lib">/<i>directory_where_Seed7_was_installed</i>/seed7/lib</span></nobr>). The hard-coded library
+    directory is determined when the interpreter is compiled. When the interpreter
+    was not compiled from source (binary release) the path <nobr><span class="lib">../lib</span></nobr> relative to the
+    current working directory is used.</li>
+<li>The directory specified with the <tt>SEED7_LIBRARY</tt> environment variable.</li>
+<li>Directories specified in the source file with the <tt>library</tt> pragma.
+    E.g.: The line: <tt>$ library <span class="stri">"/home/abc/seed7/lib"</span></tt> adds the directory
+    <nobr><span class="lib">/home/abc/seed7/lib</span></nobr> to the list of library directories.</li>
+</ol><p>
+Seed7 interpreter and <span class="link">compiler</span> (s7c) use the same list of library
+directories (the same library search path). When Seed7 is compiled from
+source code both (interpreter and compiler) will find the Seed7 include
+files automatically. Interpreter and compiler from the binary release will
+only find library include files when the path <nobr><span class="lib">../lib</span></nobr> relative to the <nobr><span class="lib">s7</span></nobr>
+or <nobr><span class="lib">s7c</span></nobr> executable leads to the library directory. Additionally it is
+possible to set the environment variable <tt>SEED7_LIBRARY</tt> to the absolute path
+<nobr><span class="lib">/<i>directory_where_Seed7_was_installed</i>/seed7/lib</span></nobr>.
+</p></div>
+
+<div><br /><a name="faq_predefined_include_libraries"><h3>How is the directory of the predefined include libraries determined?
+</h3></a><hr />
+<p>
+The directory of the predefined include libraries is hard-coded in the interpreter.
+This information is determined when the Seed7 interpreter is compiled. The command
+<tt>'make depend'</tt> writes a line, which defines the C preprocessor variable
+SEED7_LIBRARY, to the file <nobr><span class="lib">seed7/src/version.h</span></nobr>. E.g.: The file <nobr><span class="lib">version.h</span></nobr>
+contains the line:
+</p><pre class="indent">
+#define SEED7_LIBRARY <span class="stri">"/home/abc/seed7/lib"</span>
+</pre><p>
+The preprocessor macro SEED7_LIBRARY is used by the function <tt>init_lib_path()</tt>, which
+is defined in <nobr><span class="lib">seed7/src/infile.c</span></nobr>.
+</p><p>
+Interpreter and compiler use the same strategy to determine the directory with
+predefined include libraries.
+</p></div>
+
+<div><br /><a name="faq_cmd_config_value"><h3>How does the Seed7 compiler get information about C compiler and runtime?
+</h3></a><hr />
+<p>
+The <span class="link">Seed7 compiler</span> needs detailed information about the C compiler and its runtime
+library. This information is created when the Seed7 interpreter is compiled. The
+command <tt>'make depend'</tt> writes C preprocessor macros to <nobr><span class="lib">seed7/src/version.h</span></nobr>. E.g.:
+</p><pre class="indent">
+#define CC_SOURCE_UTF8
+#define SEED7_LIB <span class="stri">"seed7_05.a"</span>
+#define DRAW_LIB <span class="stri">"s7_draw.a"</span>
+#define CONSOLE_LIB <span class="stri">"s7_con.a"</span>
+#define DATABASE_LIB <span class="stri">"s7_db.a"</span>
+#define COMP_DATA_LIB <span class="stri">"s7_data.a"</span>
+#define COMPILER_LIB <span class="stri">"s7_comp.a"</span>
+#define S7_LIB_DIR <span class="stri">"/home/abc/seed7/bin"</span>
+</pre><p>
+The command <tt>'make depend'</tt> compiles and executes the program <tt><span class="stri">"chkccomp.c"</span></tt>, which
+also writes preprocessor macros to <tt><span class="stri">"version.h"</span></tt>. E.g.:
+</p><pre class="indent">
+#define RSHIFT_DOES_SIGN_EXTEND 1
+#define TWOS_COMPLEMENT_INTTYPE 1
+#define ONES_COMPLEMENT_INTTYPE 0
+#define LITTLE_ENDIAN_INTTYPE 1
+</pre><p>
+The preprocessor macros used by <nobr><span class="lib">version.h</span></nobr> are described in
+<nobr><span class="lib">seed7/src/read_me.txt</span></nobr>. The Seed7 library <span class="lib">cc_conf.s7i</span> can be used to access
+values from <tt><span class="stri">"version.h"</span></tt>. This library defines <tt><span class="func">ccConf</span></tt>, which is a constant
+of type <tt><span class="type">ccConfigType</span></tt>. The type <tt><span class="type">ccConfigType</span></tt> contains elements for various
+configuration values. In our example the element <tt><span class="link">S7_LIB_DIR</span></tt> has the value
+<tt><span class="stri">"/home/abc/seed7/bin"</span></tt>. For macros which are either defined or undefined the
+configuration value is <tt><span class="var">TRUE</span></tt> respectively <tt><span class="var">FALSE</span></tt>. In our example the element
+<tt><span class="link">CC_SOURCE_UTF8</span></tt> has the value <tt><span class="var">TRUE</span></tt>.
+</p><p>
+The <span class="link">Seed7 compiler</span> uses the runtime libraries <tt><span class="link">SEED7_LIB</span></tt>, <tt><span class="link">CONSOLE_LIB</span></tt>, <tt><span class="link">DRAW_LIB</span></tt>,
+<tt><span class="link">COMP_DATA_LIB</span></tt> and <tt><span class="link">COMPILER_LIB</span></tt> in the directory <tt><span class="link">S7_LIB_DIR</span></tt> when it links object
+files to an executable. Config values like <tt><span class="link">RSHIFT_DOES_SIGN_EXTEND</span></tt>,
+<tt><span class="link">TWOS_COMPLEMENT_INTTYPE</span></tt> and <tt><span class="link">LITTLE_ENDIAN_INTTYPE</span></tt> are used to control the kind
+of C code produced by the <span class="link">Seed7 compiler</span>. The library <span class="lib">cc_conf.s7i</span> provides
+also access to config values that do not come from <tt><span class="stri">"version.h"</span></tt>, but are
+defined in <nobr><span class="lib">seed7/src/config.h</span></nobr>. E.g.:
+</p><pre class="indent">
+#define WITH_STRI_CAPACITY 1
+#define ALLOW_STRITYPE_SLICES 1
+</pre><p>
+This configuration values describe data structures and implementation strategies
+used by the Seed7 runtime library. They do not depend on the C compiler and its
+runtime library, but they may change between releases of Seed7.
+</p></div>
+
+<div><br /><a name="faq_seed7_package"><h3>What should a binary Seed7 package install?
+</h3></a><hr />
+<p>
+A binary Seed7 package needs to install four groups of files:
+</p><ul>
+<li>The executables of the interpreter (s7 from <nobr><span class="lib">seed7/bin</span></nobr>) and the compiler
+   (<span class="link">s7c</span> from <nobr><span class="lib">seed7/bin</span></nobr> or <nobr><span class="lib">seed7/prg</span></nobr>).</li>
+<li>The Seed7 include libraries (files from <nobr><span class="lib">seed7/lib</span></nobr> with the extension <tt><span class="lib">.s7i</span></tt>).</li>
+<li>The static Seed7 object libraries (the files <nobr><span class="lib">seed7_05.a</span></nobr>, <nobr><span class="lib">s7_draw.a</span></nobr>, <nobr><span class="lib">s7_con.a</span></nobr>,
+   <nobr><span class="lib">s7_db.a</span></nobr>, <nobr><span class="lib">s7_data.a</span></nobr> and <nobr><span class="lib">s7_comp.a</span></nobr> from <nobr><span class="lib">seed7/bin</span></nobr>).</li>
+<li>Documentation files (the files <tt>COPYING</tt> and <tt>LGPL</tt> and all files from <nobr><span class="lib">seed7/doc</span></nobr>).</li>
+</ul><p>
+The table below shows the suggested directories for Linux/Unix/BSD:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Directory           </th><th> Macro         </th><th> Group of files          </th></tr>
+  
+  <tr><td> /usr/bin            </td><td> -             </td><td> Executables (s7 + s7c)  </td></tr>
+  <tr><td> /usr/lib/seed7/lib  </td><td> SEED7_LIBRARY </td><td> Seed7 include libraries </td></tr>
+  <tr><td> /usr/lib/seed7/bin  </td><td> S7_LIB_DIR    </td><td> Static libraries        </td></tr>
+  
+</table></dd></dl><p>
+The macros must be defined, when the interpreter is compiled. This can be done
+by calling <tt>'make depend'</tt> with:
+</p><pre class="indent">
+make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend
+</pre><p>
+Afterwards the interpreter can be compiled with <tt>'make'</tt> and the <span class="link">Seed7 compiler</span>
+can be compiled with <tt>'make s7c'</tt>. This three make commands can be combined to
+</p><pre class="indent">
+make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend s7 s7c
+</pre><p>
+Alternatively the <span class="link">Seed7 compiler</span> can be compiled as post-install step.
+This requires that <nobr><span class="lib">seed7/prg/s7c.sd7</span></nobr> is also installed. The actual
+compilation of <span class="link">s7c</span> is done with:
+</p><pre class="indent">
+s7 s7c -O2 s7c
+</pre><p>
+It is also possible to compile the <span class="link">Seed7 compiler</span> in the build directory.
+In this case it is necessary to specify the directories <tt>SEED7_LIBRARY</tt>
+and <tt>S7_LIB_DIR</tt> with the options <a class="link" href="#faq_compiler_option-l"><tt><b>-l</b></tt></a> and <a class="link" href="#faq_compiler_option-b"><tt><b>-b</b></tt></a>:
+</p><pre class="indent">
+./s7 -l ../lib s7c -l ../lib -b ../bin -O2 s7c
+</pre><p>
+Compiling <span class="link">s7c</span> with a make command should be preferred.
+</p></div>
+
+<div><br /><a name="faq_compile_with_database_connectons"><h3>What is necessary to compile Seed7 with database connections?
+</h3></a><hr />
+<p>
+The Seed7 runtime library provides the possibility to connect to several
+databases. During the compilation of the Seed7 interpreter the program
+<tt><span class="stri">"chkccomp.c"</span></tt> searches for the availability of database connector libraries
+and the corresponding database include files (*.h header files). The
+connector libraries are provided by the database and can be static or
+dynamic. Often a connector library provides also a database include file
+(column <b>DB include</b> below). If the database include file is missing Seed7
+uses its own database include file (the one from the column <b>Other *.h</b>
+below). The names of the connector libraries can be specified in the
+makefile (macro definitions can be written to <tt><span class="stri">"chkccomp.h"</span></tt>). The names of
+the macros for the connector library names are provided in the columns
+<b>Static lib macro</b> and <b>Dynamic lib macro</b> below. The list below lists the
+currently supported databases:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Database   </th><th> DB include </th><th> Other *.h </th><th> DB driver  </th><th> Static lib macro </th><th> Dynamic lib macro </th></tr>
+  
+  <tr><td> MySQL      </td><td> mysql.h    </td><td> db_my.h   </td><td> sql_my.c   </td><td> MYSQL_LIBS       </td><td> MYSQL_DLL         </td></tr>
+  <tr><td> MariaDB    </td><td> mysql.h    </td><td> db_my.h   </td><td> sql_my.c   </td><td> MYSQL_LIBS       </td><td> MYSQL_DLL         </td></tr>
+  <tr><td> SQLLite    </td><td> sqlite3.h  </td><td> db_lite.h </td><td> sql_lite.c </td><td> SQLITE_LIBS      </td><td> SQLITE_DLL        </td></tr>
+  <tr><td> PostgreSQL </td><td> libpq-fe.h </td><td> db_post.h </td><td> sql_post.c </td><td> POSTGRESQL_LIBS  </td><td> POSTGRESQL_DLL    </td></tr>
+  <tr><td> Oracle     </td><td> oci.h      </td><td> db_oci.h  </td><td> sql_oci.c  </td><td> OCI_LIBS         </td><td> OCI_DLL           </td></tr>
+  <tr><td> Firebird   </td><td> ibase.h    </td><td> db_fire.h </td><td> sql_fire.c </td><td> FIRE_LIBS        </td><td> FIRE_DLL          </td></tr>
+  <tr><td> Interbase  </td><td> ibase.h    </td><td> db_fire.h </td><td> sql_fire.c </td><td> FIRE_LIBS        </td><td> FIRE_DLL          </td></tr>
+  <tr><td> DB2        </td><td> sqlcli1.h  </td><td> db_odbc.h </td><td> sql_db2.c  </td><td> DB2_LIBS         </td><td> DB2_LIBS          </td></tr>
+  <tr><td> SQL Server </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_srv.c  </td><td> SQL_SERVER_LIBS  </td><td> SQL_SERVER_DLL    </td></tr>
+  <tr><td> ODBC       </td><td> sql.h      </td><td> db_odbc.h </td><td> sql_odbc.c </td><td> ODBC_LIBS        </td><td> ODBC_DLL          </td></tr>
+  <tr><td> TDS        </td><td> sybdb.h    </td><td> db_tds.h  </td><td> sql_tds.c  </td><td>                  </td><td> TDS_DLL           </td></tr>
+  
+</table></dd></dl><p>
+If no static library is provided in the makefile (by writing it to
+<tt><span class="stri">"chkccomp.h"</span></tt>) a default value is used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
+value differs between Linux, macOS and Windows:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Static lib macro </th><th> Linux connector lib </th><th> macOS connector lib </th><th> Windows connector lib                </th></tr>
+  
+  <tr><td> MYSQL_LIBS       </td><td> -lmysqlclient       </td><td> -lmysqlclient       </td><td> mariadbclient.lib or mysqlclient.lib </td></tr>
+  <tr><td> SQLITE_LIBS      </td><td> -lsqlite3           </td><td> -lsqlite3           </td><td> sqlite3.lib                          </td></tr>
+  <tr><td> POSTGRESQL_LIBS  </td><td> -lpq                </td><td> -lpq                </td><td> libpq.lib                            </td></tr>
+  <tr><td> OCI_LIBS         </td><td> -lclntsh            </td><td> -lclntsh            </td><td>                                      </td></tr>
+  <tr><td> FIRE_LIBS        </td><td> -lfbclient          </td><td> -lfbclient          </td><td> fbclient.dll or gds32.dll            </td></tr>
+  <tr><td> DB2_LIBS         </td><td> libdb2.a            </td><td> libdb2.a            </td><td> db2cli.lib                           </td></tr>
+  <tr><td> SQL_SERVER_LIBS  </td><td>                     </td><td>                     </td><td>                                      </td></tr>
+  <tr><td> ODBC_LIBS        </td><td> -lodbc              </td><td> -liodbc             </td><td> -lodbc32 or odbc32.lib               </td></tr>
+  
+</table></dd></dl><p>
+If no dynamic library is provided in the makefile (by writing it to
+<tt><span class="stri">"chkccomp.h"</span></tt>) a default value is used by <tt><span class="stri">"chkccomp.c"</span></tt>. This default
+value differs between Linux, macOS and Windows:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> Dynamic lib macro </th><th> Linux connector lib    </th><th> macOS connector lib  </th><th> Windows connector lib          </th></tr>
+  
+  <tr><td> MYSQL_DLL         </td><td> libmysqlclient.so      </td><td> libmysqlclient.dylib </td><td> libmariadb.dll or libmysql.dll </td></tr>
+  <tr><td> SQLITE_DLL        </td><td> libsqlite3.so          </td><td> libsqlite3.dylib     </td><td> sqlite3.dll                    </td></tr>
+  <tr><td> POSTGRESQL_DLL    </td><td> libpq.so or libpq.so.5 </td><td> libpq.dylib          </td><td> libpq.dll                      </td></tr>
+  <tr><td> OCI_DLL           </td><td> libclntsh.so           </td><td> libclntsh.dylib      </td><td> oci.dll                        </td></tr>
+  <tr><td> FIRE_DLL          </td><td> libfbclient.so         </td><td> libfbclient.dylib    </td><td> fbclient.dll or gds32.dll      </td></tr>
+  <tr><td> DB2_LIBS          </td><td> libdb2.so              </td><td> libdb2.dylib         </td><td> db2cli.dll                     </td></tr>
+  <tr><td> SQL_SERVER_DLL    </td><td> libtdsodbc.so          </td><td> libtdsodbc.dylib     </td><td> sqlsrv32.dll                   </td></tr>
+  <tr><td> ODBC_DLL          </td><td> libodbc.so             </td><td> libiodbc.dylib       </td><td> odbc32.dll                     </td></tr>
+  <tr><td> TDS_DLL           </td><td> libsybdb.so            </td><td> libsybdb.dylib       </td><td> sybdb.dll                      </td></tr>
+  
+</table></dd></dl><p>
+For Oracle it is assumed that the environment variable ORACLE_HOME has
+been set. Static libraries are preferred over dynamic libraries. When
+no connector library can be found a dynamic library is expected. This
+way the database can be connected if a dynamic database connector
+library is installed later.
+</p><p>
+For a Seed7 package this means: During the compilation of Seed7 the
+development packages of all supported databases should be installed.
+This way the original headers are used instead of the headers provided
+by Seed7. When dynamic database connector libraries are used the Seed7
+package must require this packages.
+</p><p>
+Depending on the configuration the database connector library is linked
+statically or dynamically. If a dynamic database connector library cannot
+be found at runtime the function <tt><span class="func">openDatabase</span></tt> raises the exception
+<tt><span class="exception">DATABASE_ERROR</span></tt>.
+</p></div>
+
+<div><br /><a name="faq_bytecode"><h3>Does the interpreter use bytecode?
+</h3></a><hr />
+<p>
+No, the analyze phase of the Seed7 interpreter produces call-code which consists
+of values and function calls. This call-code is just handled in memory and
+never written to a file. After the analyze phase the call-code is interpreted.
+</p></div>
+
+<div><br /><a name="faq_analyze"><h3>How does the analyze phase of the interpreter work?
+</h3></a><hr />
+<p>
+The analyzer reads successive expressions. The expressions are read with a
+table-driven LL(1) recursive descent parser. The parser is controlled by <span class="link">Seed7
+syntax definitions</span>. The parser calls a scanner, which skips <span class="link">whitespace</span> and reads
+<span class="link">identifiers</span> and <span class="link">literals</span>. Each parsed expression is searched in the internal
+database of defined objects. This search process is called matching. The matching
+resolves overloaded functions and generates call-code for the parsed expression.
+Call-code uses a data structure which is similar to S-Expressions. The analyzer
+executes the call-code of the parsed and matched expressions. Normally parsed and
+matched expressions represents declaration statements. Executing a declaration
+statement adds new defined objects to the internal database.
+</p></div>
+
+<div><br /><a name="faq_compile_call_by_name"><h3>How does the compiler implement call-by-name parameters?
+</h3></a><hr />
+<p>
+Every function with <a class="link" href="#faq_call_by_name">call-by-name</a> parameters is searched for recursive calls.
+If no recursive call of the function is present it can be implemented with
+code inlining. In this case every call of the function is inlined and the actual
+call-by-name parameters replace all occurrences of the formal call-by-name
+parameter in the function body.
+</p><p>
+If a function cannot be implemented with code inlining (recursive calls occur)
+pointers to a closure structure are used as formal call-by-name parameters. This
+closure structure contains a function pointer and a structure which represents
+the environment of the closure. If a formal call-by-name parameter is used, the
+function of the closure structure is called with a pointer to the closure
+environment as parameter.
+</p><p>
+When a function with call-by-name parameters is called the following things are
+done: For every actual call-by-name parameter a closure structure with the
+function pointer and the closure environment structure is generated. An actual
+function representing the closure code is also generated. Before a function with a
+call-by-name parameter is called a closure structure variable is initialized. This
+includes initializing the function pointer and the environment data of the closure
+structure variable. Finally a pointer to the closure structure variable is used as
+actual call-by-name parameter.
+</p></div>
+
+<div><br /><a name="faq_action"><h3>What does action "XYZ_SOMETHING" mean?
+</h3></a><hr />
+<p>
+Actions are used to call a corresponding C function in the interpreter.
+For example:
+</p><p>
+The action "INT_ADD" corresponds to the function 'int_add' in the file
+<nobr><span class="lib">seed7/src/intlib.c</span></nobr>.
+</p><p>
+<span class="link">Chapter 14 (Primitive actions)</span> of the manual contains a detailed description
+of the primitive actions. In the interpreter all action functions get the
+parameters as list. The action functions take the parameters they need from the
+list, perform the action and deliver a result.
+</p></div>
+
+<div><br /><a name="faq_dollar_signs"><h3>Why are there dollar signs at some places?
+</h3></a><hr />
+<p>
+The $ is used to force the analyzer to use a hard coded expression recognition
+instead of the configurable one. This mechanism is used to boot the Seed7 language:
+</p><p>
+At the beginning of the seed7_05.s7i file nothing is declared. This means that
+no statements, no functions, no operators, no types and no variables are predefined.
+To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
+contains only $ commands. First the type <tt><span class="type">type</span></tt> is defined. Declarations of other
+types, system variables and syntax descriptions of operators and statements follow.
+After finishing the inclusion of syntax.s7i the file seed7_05.s7i contains some $
+declarations until the <tt>'<span class="keywd">const</span>'</tt> declaration statement is established. From that point
+onward almost no $ statements are needed.
+</p></div>
+
+<div><br /><a name="faq_seed7_version_number"><h3>Why does "seed7_05.s7i" contain a version number?
+</h3></a><hr />
+<p>
+The number 05 is actually a 'branch info'. As if C had headers like
+</p><pre class="box">
+  &lt;stdlib_c78.h> /* For K&amp;R C programs */
+  &lt;stdlib_c89.h> /* For ANSI C */
+  &lt;stdlib_c99.h> /* For C99 */
+</pre><p>
+and your program must include one of these three headers as first include file
+(Other include files have no version/branch info in the name). That way nobody is
+forced to upgrade an old program (to get no warnings or to make it compile). You
+can leave your old K&amp;R program from 1980 as is. If you decide to rewrite your
+K&amp;R program to use prototypes, you change the &lt;stdlib...> include file as well.
+</p><p>
+Programming languages change over long time periods. This results in different
+language standards. Seed7 tries to address this problem from the beginning. Since
+most of the Seed7's constructs (statements, operators, types, ... ) are defined in
+seed7_05.s7i this is the right place to do it.
+</p></div>
+
+<div><br /><a name="faq_boot_a_language"><h3>Can I use an "abc.s7i" include file to boot to the abc language?
+</h3></a><hr />
+<p>
+Theoretically yes. In practice there would be several problems. For example:
+</p><ul>
+<li>  All primitive actions are defined such that they fit to Seed7.</li>
+<li>  Some concepts like <tt>goto</tt>, <tt>return</tt> and <tt>break</tt> are not supported.</li>
+<li>  Some things like comments and $ pragmas are hard coded.</li>
+</ul><p>
+But basically booting various languages was one of the goals of the extensible
+programming language Seed7 and the s7 interpreter.
+</p><p>
+In practice it turned out to be a better approach to steal concepts from other
+programming languages and to integrate them in Seed7 than to split the development
+in different branches.
+</p><p>
+The capability to boot a language can be used to allow slightly different
+future versions of Seed7 to coexist with the current version. This is also the
+reason why the file seed7_05.s7i contains a version number (05).
+</p></div>
+</body>
+</html>

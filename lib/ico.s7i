@@ -1,0 +1,97 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ico.s7i       Support for the ICO image file format.            *)
+(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "draw.s7i";
+
+
+(**
+ *  Converts an image into a string in ICO format.
+ *  @param image Image to be converted.
+ *  @return a string with data in ICO format.
+ *  @exception RANGE_ERROR The image is too large vor the ICO format.
+ *)
+const func string: str (in PRIMITIVE_WINDOW: image, ICO) is func
+  result
+    var string: stri is "";
+  local
+    var integer: width is 0;
+    var integer: height is 0;
+    var bstring: bImage is bstring.value;
+    var integer: padding is 0;
+    var integer: lineMaskLen is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var color: col is color.value;
+  begin
+    width := width(image);
+    height := height(image);
+    if width > 256 or height > 256 then
+      raise RANGE_ERROR;
+    else
+      stri := "\0;\0;\                     # Must always be 0
+              \\1;\0;\                     # Image type: 1 for icon
+              \\1;\0;" &                   # Number of images in the file: 1
+              str(chr(width mod 256)) &    # A width of 0 means 256.
+              str(chr(height mod 256)) &   # A height of 0 means 256.
+              "\0;\                        # Number of palette colors, 0 for no palette.
+              \\0;" &                      # Reserved
+              int16AsTwoBytesLe(1) &       # color planes
+              int16AsTwoBytesLe(24) &      # bits per pixel
+              "\0;\0;\0;\0;" &             # image size in bytes: filled later (index: 15)
+              int32AsFourBytesLe(22) &     # offset to BMP data
+              int32AsFourBytesLe(40) &     # BMP header size
+              int32AsFourBytesLe(width) &
+              int32AsFourBytesLe(2 * height) &  # Factor 2 because of the AND mask.
+              int16AsTwoBytesLe(1) &       # color planes
+              int16AsTwoBytesLe(24) &      # bits per pixel
+              "\0;" mult 4 &               # compression
+              "\0;" mult 4 &               # image size
+              "\0;" mult 4 &               # horizontal resolution
+              "\0;" mult 4 &               # vertical resolution
+              "\0;" mult 4 &               # palette colors
+              "\0;" mult 4;                # important colors (0 means all colors are important)
+      bImage := getImage(image);
+      padding := -(3 * width) mod 4;
+      for line range pred(height) downto 0 do
+        for column range 0 to pred(width) do
+          col := getPixelColor(bImage, width, height, column, line);
+          stri &:= chr(col.blueLight  mdiv 256);
+          stri &:= chr(col.greenLight mdiv 256);
+          stri &:= chr(col.redLight   mdiv 256);
+        end for;
+        stri &:= "\0;" mult padding;
+      end for;
+      lineMaskLen := succ(pred(width) mdiv 8);
+      padding := lineMaskLen mod 4;
+      for line range pred(height) downto 0 do
+        # Assume no transparent pixels.
+        stri &:= "\0;" mult (lineMaskLen + padding);
+      end for;
+      stri @:= [15] int32AsFourBytesLe(length(stri) - 22);  # Subtract ICO header size (=offset)
+    end if;
+  end func;

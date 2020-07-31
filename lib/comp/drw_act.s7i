@@ -1,0 +1,1087 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  drw_act.s7i   Generate code for actions to do graphic output.   *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*                                                                  *)
+(*  This file is part of the Seed7 compiler.                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const ACTION: DRW_ARC                  is action "DRW_ARC";
+const ACTION: DRW_ARC2                 is action "DRW_ARC2";
+const ACTION: DRW_BACKGROUND           is action "DRW_BACKGROUND";
+const ACTION: DRW_CIRCLE               is action "DRW_CIRCLE";
+const ACTION: DRW_CLEAR                is action "DRW_CLEAR";
+const ACTION: DRW_CMP                  is action "DRW_CMP";
+const ACTION: DRW_COLOR                is action "DRW_COLOR";
+const ACTION: DRW_CONVPOINTLIST        is action "DRW_CONVPOINTLIST";
+const ACTION: DRW_COPYAREA             is action "DRW_COPYAREA";
+const ACTION: DRW_CPY                  is action "DRW_CPY";
+const ACTION: DRW_EQ                   is action "DRW_EQ";
+const ACTION: DRW_FARCCHORD            is action "DRW_FARCCHORD";
+const ACTION: DRW_FARCPIESLICE         is action "DRW_FARCPIESLICE";
+const ACTION: DRW_FCIRCLE              is action "DRW_FCIRCLE";
+const ACTION: DRW_FELLIPSE             is action "DRW_FELLIPSE";
+const ACTION: DRW_FLUSH                is action "DRW_FLUSH";
+const ACTION: DRW_FPOLYLINE            is action "DRW_FPOLYLINE";
+const ACTION: DRW_GENPOINTLIST         is action "DRW_GENPOINTLIST";
+const ACTION: DRW_GET                  is action "DRW_GET";
+const ACTION: DRW_GETIMAGE             is action "DRW_GETIMAGE";
+const ACTION: DRW_GETIMAGEPIXEL        is action "DRW_GETIMAGEPIXEL";
+const ACTION: DRW_GETPIXEL             is action "DRW_GETPIXEL";
+const ACTION: DRW_HASHCODE             is action "DRW_HASHCODE";
+const ACTION: DRW_HEIGHT               is action "DRW_HEIGHT";
+const ACTION: DRW_IMAGE                is action "DRW_IMAGE";
+const ACTION: DRW_LINE                 is action "DRW_LINE";
+const ACTION: DRW_NE                   is action "DRW_NE";
+const ACTION: DRW_NEW_PIXMAP           is action "DRW_NEW_PIXMAP";
+const ACTION: DRW_OPEN                 is action "DRW_OPEN";
+const ACTION: DRW_OPEN_SUB_WINDOW      is action "DRW_OPEN_SUB_WINDOW";
+const ACTION: DRW_PARC                 is action "DRW_PARC";
+const ACTION: DRW_PCIRCLE              is action "DRW_PCIRCLE";
+const ACTION: DRW_PFARCCHORD           is action "DRW_PFARCCHORD";
+const ACTION: DRW_PFARCPIESLICE        is action "DRW_PFARCPIESLICE";
+const ACTION: DRW_PFCIRCLE             is action "DRW_PFCIRCLE";
+const ACTION: DRW_PFELLIPSE            is action "DRW_PFELLIPSE";
+const ACTION: DRW_PIXELTORGB           is action "DRW_PIXELTORGB";
+const ACTION: DRW_PLINE                is action "DRW_PLINE";
+const ACTION: DRW_POINT                is action "DRW_POINT";
+const ACTION: DRW_POINTER_XPOS         is action "DRW_POINTER_XPOS";
+const ACTION: DRW_POINTER_YPOS         is action "DRW_POINTER_YPOS";
+const ACTION: DRW_POLYLINE             is action "DRW_POLYLINE";
+const ACTION: DRW_PPOINT               is action "DRW_PPOINT";
+const ACTION: DRW_PRECT                is action "DRW_PRECT";
+const ACTION: DRW_PUT                  is action "DRW_PUT";
+const ACTION: DRW_RECT                 is action "DRW_RECT";
+const ACTION: DRW_RGBCOL               is action "DRW_RGBCOL";
+const ACTION: DRW_SETCONTENT           is action "DRW_SETCONTENT";
+const ACTION: DRW_SETPOS               is action "DRW_SETPOS";
+const ACTION: DRW_SETTRANSPARENTCOLOR  is action "DRW_SETTRANSPARENTCOLOR";
+const ACTION: DRW_TEXT                 is action "DRW_TEXT";
+const ACTION: DRW_TOBOTTOM             is action "DRW_TOBOTTOM";
+const ACTION: DRW_TOTOP                is action "DRW_TOTOP";
+const ACTION: DRW_VALUE                is action "DRW_VALUE";
+const ACTION: DRW_WIDTH                is action "DRW_WIDTH";
+const ACTION: DRW_XPOS                 is action "DRW_XPOS";
+const ACTION: DRW_YPOS                 is action "DRW_YPOS";
+
+
+const proc: drw_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "intType     drwPointerXpos (const_winType);");
+    declareExtern(c_prog, "intType     drwPointerYpos (const_winType);");
+    declareExtern(c_prog, "void        drwArc (const_winType, intType, intType, intType, floatType, floatType);");
+    declareExtern(c_prog, "void        drwArc2 (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwBackground (intType);");
+    declareExtern(c_prog, "void        drwCircle (const_winType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwClear (winType, intType);");
+    declareExtern(c_prog, "void        drwColor (intType);");
+    declareExtern(c_prog, "arrayType   drwConvPointList (const const_bstriType);");
+    declareExtern(c_prog, "void        drwCopyArea (const_winType, const_winType, intType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwCpy (winType *const, const winType);");
+    declareExtern(c_prog, "void        drwCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "winType     drwCreate (const winType);");
+    declareExtern(c_prog, "genericType drwCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        drwDestr (const winType);");
+    declareExtern(c_prog, "void        drwDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        drwFArcChord (const_winType, intType, intType, intType, floatType, floatType);");
+    declareExtern(c_prog, "void        drwFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType);");
+    declareExtern(c_prog, "void        drwFCircle (const_winType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwFEllipse (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "winType     drwEmpty (void);");
+    declareExtern(c_prog, "void        drwFlush (void);");
+    declareExtern(c_prog, "bstriType   drwGenPointList (const const_arrayType);");
+    declareExtern(c_prog, "winType     drwGet (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "bstriType   drwGetImage (const_winType);");
+    declareExtern(c_prog, "intType     drwGetImagePixel (const_bstriType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "intType     drwGetPixel (const_winType, intType, intType);");
+    declareExtern(c_prog, "intType     drwHeight (const_winType);");
+    declareExtern(c_prog, "winType     drwImage (int32Type *, memSizeType, memSizeType);");
+    declareExtern(c_prog, "void        drwLine (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "winType     drwNewPixmap (intType, intType);");
+    declareExtern(c_prog, "winType     drwOpen (intType, intType, intType, intType, const const_striType);");
+    declareExtern(c_prog, "winType     drwOpenSubWindow (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPArc (const_winType, intType, intType, intType, floatType, floatType, intType);");
+    declareExtern(c_prog, "void        drwPCircle (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPFArcChord (const_winType, intType, intType, intType, floatType, floatType, intType);");
+    declareExtern(c_prog, "void        drwPFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType, intType);");
+    declareExtern(c_prog, "void        drwPFCircle (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPFEllipse (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPixelToRgb (intType, intType *, intType *, intType *);");
+    declareExtern(c_prog, "void        drwPLine (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPoint (const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwPPoint (const_winType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPRect (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPolyLine (const_winType, intType, intType, bstriType, intType);");
+    declareExtern(c_prog, "void        drwFPolyLine (const_winType, intType, intType, bstriType, intType);");
+    declareExtern(c_prog, "void        drwPut (const_winType, const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "intType     drwRgbColor (intType, intType, intType);");
+    declareExtern(c_prog, "winType     drwRtlImage (const_arrayType);");
+    declareExtern(c_prog, "void        drwSetContent (const_winType, const_winType);");
+    declareExtern(c_prog, "void        drwSetPos (const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwSetTransparentColor (winType, intType);");
+    declareExtern(c_prog, "void        drwText (const_winType, intType, intType, const const_striType, intType, intType);");
+    declareExtern(c_prog, "void        drwToBottom (const_winType);");
+    declareExtern(c_prog, "void        drwToTop (const_winType);");
+    declareExtern(c_prog, "winType     drwValue (const const_objRefType);");
+    declareExtern(c_prog, "intType     drwWidth (const_winType);");
+    declareExtern(c_prog, "intType     drwXPos (const_winType);");
+    declareExtern(c_prog, "intType     drwYPos (const_winType);");
+  end func;
+
+
+const proc: process (DRW_ARC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwArc(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_ARC2, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwArc2(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_BACKGROUND, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwBackground(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_CIRCLE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwCircle(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_CLEAR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwClear(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_CMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "ptrCmp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_COLOR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwColor(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_CONVPOINTLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+  begin
+    result_type := resultType(getType(function));
+    prepare_typed_result(result_type, c_expr);
+    c_expr.result_expr := "drwConvPointList(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_COPYAREA, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwCopyArea(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_CPY, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      appendWithDiagnostic(c_param1.temp_decls, c_expr);
+      appendWithDiagnostic(c_param3.temp_decls, c_expr);
+      appendWithDiagnostic(c_param1.temp_assigns, c_expr);
+      appendWithDiagnostic(c_param3.temp_assigns, c_expr);
+    end if;
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      setDiagnosticLine(c_expr);
+      if isNormalVariable(params[1]) then
+        c_expr.expr &:= "winType old_win=";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ";\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "=";
+      else
+        c_expr.expr &:= "winType *win_ptr=&(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "winType old_win=*win_ptr;\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "*win_ptr=";
+      end if;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= ";\n";
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "drwDestr(old_win);\n";
+      c_expr.expr &:= "}\n";
+    else
+      setDiagnosticLine(c_expr);
+      c_expr.expr &:= "drwCpy(&(";
+      c_expr.expr &:= c_param1.expr;
+      c_expr.expr &:= "), ";
+      c_expr.expr &:= c_param3.expr;
+      c_expr.expr &:= ");\n";
+    end if;
+    if has_temp_values(c_param3) then
+      appendWithDiagnostic(c_param1.temp_frees, c_expr);
+      appendWithDiagnostic(c_param3.temp_frees, c_expr);
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process (DRW_EQ, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ") == (";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_FARCCHORD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwFArcChord(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_FARCPIESLICE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwFArcPieSlice(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_FCIRCLE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwFCircle(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_FELLIPSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwFEllipse(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_FLUSH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwFlush();\n";
+  end func;
+
+
+const proc: process (DRW_FPOLYLINE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwFPolyLine(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_GENPOINTLIST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr &:= "drwGenPointList(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_GET, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr := "drwGet(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_GETIMAGE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "drwGetImage(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_GETIMAGEPIXEL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwGetImagePixel(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_GETPIXEL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwGetPixel(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_HASHCODE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(intType)(((memSizeType)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")) >> 6)";
+  end func;
+
+
+const proc: process (DRW_HEIGHT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwHeight(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_IMAGE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr := "drwRtlImage(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_LINE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwLine(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_NE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ") != (";
+    getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_NEW_PIXMAP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr := "drwNewPixmap(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_OPEN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr := "drwOpen(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_OPEN_SUB_WINDOW, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr := "drwOpenSubWindow(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_PARC, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPArc(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PCIRCLE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPCircle(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PFARCCHORD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPFArcChord(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PFARCPIESLICE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPFArcPieSlice(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PFCIRCLE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPFCircle(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PFELLIPSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPFEllipse(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PIXELTORGB, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPixelToRgb(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process (DRW_PLINE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPLine(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_POINT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPoint(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_POINTER_XPOS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwPointerXpos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_POINTER_YPOS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwPointerYpos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_POLYLINE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPolyLine(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PPOINT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPPoint(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PRECT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPRect(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_PUT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwPut(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_RECT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwRect(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_RGBCOL, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwRgbColor(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_SETCONTENT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetContent(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_SETPOS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetPos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_SETTRANSPARENTCOLOR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetTransparentColor(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_TEXT, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwText(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_TOBOTTOM, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwToBottom(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_TOTOP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwToTop(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (DRW_VALUE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwValue(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_WIDTH, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwWidth(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_XPOS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwXPos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (DRW_YPOS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwYPos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;

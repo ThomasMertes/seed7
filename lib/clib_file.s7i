@@ -1,0 +1,270 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  clib_file.s7i  Type for FILE * files from the C runtime library *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  File type realized with FILE * files from the C runtime library.
+ *  The type ''clib_file'' is not accessible via the [[file]] interface.
+ *  The type [[external_file]], which implements the [[file]] interface
+ *  is based on a ''clib_file''. Access to operating system files should
+ *  always be done via the [[file]] interface and files of the type
+ *  [[external_file]].
+ *)
+const type: clib_file is newtype;
+
+
+IN_PARAM_IS_VALUE(clib_file);
+
+const proc: destroy (ref clib_file: aValue)                          is action "GEN_DESTR";
+const proc: (ref clib_file: dest) ::= (in clib_file: source)         is action "FIL_CREATE";
+const proc: (inout clib_file: dest) := (in clib_file: source)        is action "FIL_CPY";
+
+
+(**
+ *  Check if two files are equal.
+ *  @return TRUE if the two files are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in clib_file: file1) = (in clib_file: file2)    is action "FIL_EQ";
+
+
+(**
+ *  Check if two files are not equal.
+ *  @return FALSE if both files are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (in clib_file: file1) <> (in clib_file: file2)   is action "FIL_NE";
+
+
+const func clib_file: _GENERATE_EMPTY_CLIB_FILE                      is action "FIL_EMPTY";
+const clib_file: (attr clib_file) . value                            is _GENERATE_EMPTY_CLIB_FILE;
+
+
+(**
+ *  NULL file of the C runtime library.
+ *  This value is returned by [[#openClibFile(in_string,in_string)|openClibFile]]
+ *  and other functions if no ''clib_file'' could be opened. Reading from or
+ *  writing to a ''CLIB_NULL_FILE'' raises an exception.
+ *)
+const clib_file: CLIB_NULL_FILE                                      is clib_file.value;
+
+
+const func clib_file: CLIB_INPUT  is action "FIL_IN";
+const func clib_file: CLIB_OUTPUT is action "FIL_OUT";
+const func clib_file: CLIB_ERROR  is action "FIL_ERR";
+
+
+(**
+ *  Opens a clib_file with the specified ''path'' and ''mode''.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  ** "a"   Append; open or create file for writing at end-of-file.
+ *  ** "r+"  Open file for update (reading and writing).
+ *  ** "w+"  Truncate to zero length or create file for update.
+ *  ** "a+"  Append; open or create file for update, writing at end-of-file.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  ** "at"  Append; open or create file for writing at end-of-file.
+ *  ** "rt+" Open file for update (reading and writing).
+ *  ** "wt+" Truncate to zero length or create file for update.
+ *  ** "at+" Append; open or create file for update, writing at end-of-file.
+ *  Note that this modes differ from the ones used by the C function
+ *  fopen().
+ *  @param path Path of the file to be opened. The path must
+ *         use the standard path representation.
+ *  @param mode Mode of the file to be opened.
+ *  @return the file opened, or [[null_file#STD_NULL|STD_NULL]]
+ *          if it could not be opened or if ''path'' refers to
+ *          a directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
+ *)
+const func clib_file: openClibFile (in string: path, in string: mode) is action "FIL_OPEN";
+
+
+const func clib_file: openNullDeviceClibFile is action "FIL_OPEN_NULL_DEVICE";
+const proc: pipe (inout clib_file: inFile, inout clib_file: outFile) is action "FIL_PIPE";
+
+
+(**
+ *  Close a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: close (in clib_file: aFile)                              is action "FIL_CLOSE";
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in clib_file: inFile)                       is action "FIL_EOF";
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]], TRUE otherwise.
+ *)
+const func boolean: hasNext (in clib_file: inFile)                   is action "FIL_HAS_NEXT";
+
+
+(**
+ *  Determine if at least one character can be read without blocking.
+ *  Blocking means that ''getc'' would wait until a character is
+ *  received. Blocking can last for a period of unspecified length.
+ *  Regular files do not block.
+ *  @return TRUE if ''getc'' would not block, FALSE otherwise.
+ *)
+const func boolean: inputReady (in clib_file: inFile)                is action "FIL_INPUT_READY";
+
+
+(**
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
+ *  This causes data to be sent to the file system of the OS.
+ *)
+const proc: flush (in clib_file: outFile)                            is action "FIL_FLUSH";
+
+
+(**
+ *  Read a character from a clib_file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *)
+const func char: getc (in clib_file: inFile)                         is action "FIL_GETC";
+
+
+(**
+ *  Read a [[string]] with a maximum length from a clib_file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The parameter ''maxLength'' is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: gets (in clib_file: inFile,
+                         in integer: maxLength)                      is action "FIL_GETS";
+
+
+(**
+ *  Read a word from a clib_file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains ' ', '\t', '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: word_read (in clib_file: inFile,
+                              inout char: terminationChar)           is action "FIL_WORD_READ";
+
+
+(**
+ *  Read a line from a clib_file.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains '\n' or [[char#EOF|EOF]].
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: line_read (in clib_file: inFile,
+                              inout char: terminationChar)           is action "FIL_LINE_READ";
+
+
+(**
+ *  Write a string to a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ *)
+const proc: write (in clib_file: outFile, in string: stri)           is action "FIL_WRITE";
+
+
+(**
+ *  Obtain the length of a clib_file.
+ *  The file length is measured in bytes.
+ *  @return the size of the given file.
+ *  @exception RANGE_ERROR The file length does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file length reported by the system is negative.
+ *)
+const func integer: length (in clib_file: aFile)                     is action "FIL_LNG";
+
+
+(**
+ *  Truncate ''aFile'' to the given ''length''.
+ *  If the file previously was larger than ''length'', the extra data is lost.
+ *  If the file previously was shorter, it is extended, and the extended
+ *  part is filled with null bytes ('\0;').
+ *  @param aFile File to be truncated.
+ *  @param length Requested length of ''aFile'' in bytes.
+ *  @exception RANGE_ERROR The requested length is negative or
+ *             the length is not representable in the type
+ *             used by the system function.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: truncate (in clib_file: aFile, in integer: length)       is action "FIL_TRUNCATE";
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero or
+ *             the file position is not representable in the system
+ *             file position type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: seek (in clib_file: aFile, in integer: position)        is action "FIL_SEEK";
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position does not fit into
+ *             an integer value.
+ *  @exception FILE_ERROR A system function returns an error or the
+ *             file position reported by the system is negative.
+ *)
+const func integer: tell (in clib_file: aFile)                       is action "FIL_TELL";
+
+
+const func string: literal (in clib_file: aFile)                     is action "FIL_LIT";

@@ -1,0 +1,95 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  gkbd.sd7      Keyboard test program for graphic keyboard        *)
+(*  Copyright (C) 2004  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "keybd.s7i";
+  include "keydescr.s7i";
+  include "float.s7i";
+  include "draw.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+  include "console.s7i";
+
+
+const integer: xSpeed is 2;
+
+
+const proc: main is func
+  local
+    const array [boolean] color: buttonColor is [boolean] (light_blue, light_red);
+    var char: ch is ' ';
+    var char: lastChar is ' ';
+    var integer: xPos is 10;
+    var integer: xIncr is xSpeed;
+    var time: waitTime is time.value;
+  begin
+    screen(640, 480);
+    OUT := STD_CONSOLE;
+    writeln("Keyboard test program. Type ! to terminate the program");
+    KEYBOARD := GRAPH_KEYBOARD;
+    DRAW_FLUSH;
+    waitTime := time(NOW);
+    repeat
+      waitTime +:= 100000 . MICRO_SECONDS;
+      ch := busy_getc(KEYBOARD);
+      while ch <> KEY_NONE do
+        lastChar := ch;
+        write(ord(ch) <& " ");
+        if ch in keyDescription then
+          writeln(keyDescription[ch]);
+        elsif ch >= ' ' and ch <= '~' or
+            ch >= '\160;' and ch <= char.last then
+          writeln(ch);
+        else
+          writeln;
+        end if;
+        ch := busy_getc(KEYBOARD);
+      end while;
+      rect(xPos, 10, 10, 10, black);
+      if xPos > 620 then
+        xIncr := -xSpeed;
+      elsif xPos < 10 then
+        xIncr := xSpeed;
+      end if;
+      xPos +:= xIncr;
+      rect(xPos, 10, 10, 10, buttonColor[buttonPressed(KEYBOARD, lastChar)]);
+      rect( 10, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT_LOCK)]);
+      rect( 10, 130, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_SHIFT)]);
+      rect( 10, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_CONTROL)]);
+      rect( 60, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_LEFT_ALT)]);
+      rect(540, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SCROLL_LOCK)]);
+      rect(590, 100, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_NUM_LOCK)]);
+      rect(590, 130, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_SHIFT)]);
+      rect(590, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_CONTROL)]);
+      rect(540, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_RIGHT_ALT)]);
+      rect(240, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT)]);
+      rect(300, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_CONTROL)]);
+      rect(360, 160, 40, 20, buttonColor[buttonPressed(KEYBOARD, KEY_ALT)]);
+      rect(580,  50, 10, 10, buttonColor[buttonPressed(KEYBOARD, KEY_NUM_LOCK_ON)]);
+      rect(600,  50, 10, 10, buttonColor[buttonPressed(KEYBOARD, KEY_SHIFT_LOCK_ON)]);
+      rect(620,  50, 10, 10, buttonColor[buttonPressed(KEYBOARD, KEY_SCROLL_LOCK_ON)]);
+      DRAW_FLUSH;
+      await(waitTime);
+    until lastChar = '!';
+  end func;

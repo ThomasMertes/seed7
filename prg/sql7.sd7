@@ -1,0 +1,277 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sql7.sd7      Sql command line tool                             *)
+(*  Copyright (C) 2014, 2017  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "keybd.s7i";
+  include "console.s7i";
+  include "osfiles.s7i";
+  include "editline.s7i";
+  include "sql_base.s7i";
+  include "utf8.s7i";
+
+
+const proc: writeHelp is func
+  begin
+    writeln("usage: sql7 driver dbName user [password [sqlFile]]");
+    writeln;
+    writeln("The following drivers are supported: ");
+    writeln("  Driver     Shortcut  Database");
+    writeln("  MYSQL      MY        MySql/MariaDb");
+    writeln("  SQLITE     LITE      SQLLite");
+    writeln("  POSTGRESQL POST      PostgreSQL");
+    writeln("  ORACLE     OCI       Oracle");
+    writeln("  ODBC                 Odbc");
+    writeln("  FIREBIRD   FIRE      Firebird/Interbase");
+    writeln("  DB2                  Db2");
+    writeln("  SQL_SERVER SQLSRV    SQL Server");
+    writeln;
+    writeln("The database name (dbName) can be specified with or without host name:");
+    writeln("  myDb");
+    writeln("  www.example.org/myDb");
+    writeln("  192.0.1.250/myDb");
+    writeln;
+    writeln("Sql7 accepts SQL commands of the connected database.");
+    writeln("Commands to exit sql7: exit, quit");
+    writeln;
+  end func;
+
+
+const func boolean: failed (in proc: statement) is func
+  result
+    var boolean: failed is FALSE;
+  begin
+    block
+      statement;
+    exception
+      catch RANGE_ERROR:
+        failed := TRUE;
+      catch FILE_ERROR:
+        failed := TRUE;
+      catch DATABASE_ERROR:
+        failed := TRUE;
+    end block;
+  end func;
+
+
+const proc: displayResult (in sqlStatement: statement) is func
+  local
+    const integer: width is 20;
+    var integer: index is 0;
+  begin
+    for index range 1 to columnCount(statement) do
+      write(columnName(statement, index) rpad width <& " ");
+    end for;
+    writeln;
+    writeln(("-" mult width & " ") mult columnCount(statement));
+    while fetch(statement) do
+      for index range 1 to columnCount(statement) do
+        if failed(write(noCtrlChars(column(statement, index, string)[1 len width])            rpad width <& " ")) and
+           failed(write(            column(statement, index, integer)                         lpad width <& " ")) and
+           failed(write(            column(statement, index, bigInteger)                      lpad width <& " ")) and
+           failed(write(            column(statement, index, bigRational)                     lpad width <& " ")) and
+           failed(write(            column(statement, index, float)       sci width - 7 exp 2 lpad width <& " ")) and
+           failed(write(strDateTime(column(statement, index, time))                           rpad width <& " ")) and
+           failed(write(            column(statement, index, duration)                        rpad width <& " ")) and
+           failed(write(            column(statement, index, boolean)                         lpad width <& " ")) then
+          write("*" mult width <& " ");
+        end if;
+      end for;
+      writeln;
+    end while;
+  end func;
+
+
+const proc: doExecute (in database: currDb, in var string: command) is func
+  local
+    var sqlStatement: statement is sqlStatement.value;
+    var boolean: failed is FALSE;
+  begin
+    if endsWith(command, ";") then
+      command := command[.. pred(length(command))];
+    end if;
+    block
+      statement := prepare(currDb, command);
+      execute(statement);
+    exception
+      catch DATABASE_ERROR:
+        writeln;
+        writeln(command);
+        writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
+        writeln;
+        failed := TRUE;
+      otherwise:
+        writeln;
+        writeln(command);
+        writeln(" *** Error occurred");
+        writeln;
+        failed := TRUE;
+    end block;
+    if not failed then
+      if columnCount(statement) <> 0 then
+        displayResult(statement);
+      else
+        writeln;
+        writeln("Success.");
+        writeln;
+      end if;
+    end if;
+  end func;
+
+
+const func string: getSqlStatement (inout file: inFile) is func
+  result
+    var string: sqlStatement is "";
+  local
+    var char: ch is ' ';
+    var char: delimiter is ' ';
+  begin
+    ch := getc(inFile);
+    while ch <> ';' and ch <> EOF do
+      if ch = ''' or ch = '"' then
+        delimiter := ch;
+        sqlStatement &:= delimiter;
+        ch := getc(inFile);
+        while ch <> delimiter and ch <> EOF do
+          sqlStatement &:= ch;
+          ch := getc(inFile);
+        end while;
+        if ch = delimiter then
+          sqlStatement &:= delimiter;
+          ch := getc(inFile);
+        end if;
+      elsif ch = '/' then
+        ch := getc(inFile);
+        if ch <> '*' or ch = EOF then
+          sqlStatement &:= '/';
+        else
+          ch := getc(inFile);
+          repeat
+            while ch <> '*' and ch <> EOF do
+              ch := getc(inFile);
+            end while;
+            ch := getc(inFile);
+          until ch = '/' or ch = EOF;
+          ch := getc(inFile);
+        end if;
+      elsif ch = '-' then
+        ch := getc(inFile);
+        if ch <> '-' or ch = EOF then
+          sqlStatement &:= '-';
+        else
+          ch := getc(inFile);
+          while ch <> '\n' and ch <> EOF do
+            ch := getc(inFile);
+          end while;
+        end if;
+      else
+        sqlStatement &:= ch;
+        ch := getc(inFile);
+      end if;
+    end while;
+    inFile.bufferChar := ch;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: fileName is "";
+    var file: sqlFile is STD_NULL;
+    var string: driverName is "";
+    var dbCategory: driver is NO_DB;
+    var string: password is "";
+    var database: currDb is database.value;
+    var string: command is "";
+  begin
+    OUT := STD_CONSOLE;
+    IN := openEditLine(KEYBOARD, OUT);
+    if length(argv(PROGRAM)) = 5 then
+      fileName := convDosPath(argv(PROGRAM)[5]);
+      sqlFile := openUtf8(fileName, "r");
+    end if;
+    if sqlFile = STD_NULL then
+      writeln("Sql7 - Sql command line tool");
+      writeln("Copyright (C) 2014 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Sql7 is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+    end if;
+    if length(argv(PROGRAM)) = 0 then
+      writeln("Use  sql7 -?  to get more information about sql7.");
+      writeln;
+    elsif length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "-?" then
+      writeHelp;
+    elsif length(argv(PROGRAM)) not in {3, 4, 5} then
+      writeln("usage: sql7 driver dbName user [password [sqlfile]]");
+    elsif length(argv(PROGRAM)) = 5 and sqlFile = STD_NULL then
+      writeln(" *** Cannot open " <& fileName);
+    else
+      driverName := argv(PROGRAM)[1];
+      driver := dbCategory(driverName);
+      if driver = NO_DB then
+        writeln("*** " <& literal(driverName) <& " is not a valid database driver.");
+      else
+        if length(argv(PROGRAM)) = 3 then
+          write("Password: ");
+          flush(OUT);
+          password := readPassword(IN);
+        else
+          password := argv(PROGRAM)[4];
+        end if;
+        block
+          currDb := openDatabase(driver, argv(PROGRAM)[2], argv(PROGRAM)[3], password);
+        exception
+          catch DATABASE_ERROR:
+            writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
+          otherwise:
+            writeln(" *** Cannot open " <& argv(PROGRAM)[2]);
+        end block;
+        if currDb <> database.value then
+          if sqlFile <> STD_NULL then
+            while hasNext(sqlFile) do
+              command := getSqlStatement(sqlFile);
+              command := trim(command);
+              if command <> "" then
+                # writeln(literal(command));
+                doExecute(currDb, command);
+              end if;
+            end while;
+            close(sqlFile);
+          else
+            write("Sql7? ");
+            readln(command);
+            while lower(command) <> "exit" and lower(command) <> "quit" do
+              if command <> "" then
+                doExecute(currDb, command);
+              end if;
+              write("Sql7? ");
+              readln(command);
+            end while;
+          end if;
+          close(currDb);
+        end if;
+      end if;
+    end if;
+  end func;

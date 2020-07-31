@@ -1,0 +1,156 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  category.s7i  Category support library                          *)
+(*  Copyright (C) 1991 - 1994, 2004, 2005, 2012  Thomas Mertes      *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Describes the category of a ''reference''.
+ *)
+const type: category is newtype;
+
+
+IN_PARAM_IS_VALUE(category);
+
+const proc: (ref category: dest) ::= (ref category: source)     is action "INT_CREATE";
+const proc: destroy (ref category: aValue)                      is action "GEN_DESTR";
+const proc: (inout category: dest) := (in category: source)     is action "INT_CPY";
+
+
+(**
+ *  Check if two ''category'' values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ *)
+const func boolean: (in category: cat1) = (in category: cat2)   is action "INT_EQ";
+
+
+(**
+ *  Check if two ''category'' values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ *)
+const func boolean: (in category: cat1) <> (in category: cat2)  is action "INT_NE";
+
+
+(**
+ *  Determine the ordinal number of a ''category''.
+ *  @return a small [[integer]] which corresponds to ''aCategory''.
+ *)
+const func integer: ord (in category: aCategory)                is action "INT_ICONV1";
+
+
+(**
+ *  Convert an [[integer]] number to ''category''.
+ *  @return the ''category'' result of the conversion.
+ *)
+const func category: (attr category) conv (in integer: number)  is action "INT_ICONV3";
+
+
+(**
+ *  Convert an [[integer]] number to ''category''.
+ *  @return the ''category'' result of the conversion.
+ *)
+const func category: category (in integer: number)              is action "INT_ICONV1";
+
+
+(**
+ *  Convert a ''category'' to a [[string]].
+ *  @param aCategory Category to be converted.
+ *  @return the [[string]] result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in category: aCategory)                 is action "REF_CAT_STR";
+
+
+(**
+ *  Convert a [[string]] to a ''category''.
+ *  @param catName Name of a category to be converted.
+ *  @return the ''category'' result fo the conversion.
+ *  @exception RANGE_ERROR If there is no corresponding ''category''.
+ *)
+const func category: category (in string: catName)              is action "REF_CAT_PARSE";
+
+
+(**
+ *  Convert a [[string]] to a ''category''.
+ *  @param catName Name of a category to be converted.
+ *  @return the ''category'' result fo the conversion.
+ *  @exception RANGE_ERROR If there is no corresponding ''category''.
+ *)
+const func category: (attr category) parse (in string: catName) is
+    return category(catName);
+
+
+const category: (attr category) . value is category("SYMBOLOBJECT");
+
+const category: SYMBOLOBJECT      is category("SYMBOLOBJECT");
+const category: DECLAREDOBJECT    is category("DECLAREDOBJECT");
+const category: FORWARDOBJECT     is category("FORWARDOBJECT");
+const category: FWDREFOBJECT      is category("FWDREFOBJECT");
+const category: BLOCKOBJECT       is category("BLOCKOBJECT");
+const category: CALLOBJECT        is category("CALLOBJECT");
+const category: MATCHOBJECT       is category("MATCHOBJECT");
+const category: TYPEOBJECT        is category("TYPEOBJECT");
+const category: FORMPARAMOBJECT   is category("FORMPARAMOBJECT");
+const category: INTOBJECT         is category("INTOBJECT");
+const category: BIGINTOBJECT      is category("BIGINTOBJECT");
+const category: CHAROBJECT        is category("CHAROBJECT");
+const category: STRIOBJECT        is category("STRIOBJECT");
+const category: BSTRIOBJECT       is category("BSTRIOBJECT");
+const category: ARRAYOBJECT       is category("ARRAYOBJECT");
+const category: HASHOBJECT        is category("HASHOBJECT");
+const category: STRUCTOBJECT      is category("STRUCTOBJECT");
+const category: CLASSOBJECT       is category("CLASSOBJECT");
+const category: INTERFACEOBJECT   is category("INTERFACEOBJECT");
+const category: SETOBJECT         is category("SETOBJECT");
+const category: FILEOBJECT        is category("FILEOBJECT");
+const category: SOCKETOBJECT      is category("SOCKETOBJECT");
+const category: POLLOBJECT        is category("POLLOBJECT");
+const category: LISTOBJECT        is category("LISTOBJECT");
+const category: FLOATOBJECT       is category("FLOATOBJECT");
+const category: WINOBJECT         is category("WINOBJECT");
+const category: PROCESSOBJECT     is category("PROCESSOBJECT");
+const category: ENUMLITERALOBJECT is category("ENUMLITERALOBJECT");
+const category: CONSTENUMOBJECT   is category("CONSTENUMOBJECT");
+const category: VARENUMOBJECT     is category("VARENUMOBJECT");
+const category: REFOBJECT         is category("REFOBJECT");
+const category: REFLISTOBJECT     is category("REFLISTOBJECT");
+const category: EXPROBJECT        is category("EXPROBJECT");
+const category: ACTOBJECT         is category("ACTOBJECT");
+const category: VALUEPARAMOBJECT  is category("VALUEPARAMOBJECT");
+const category: REFPARAMOBJECT    is category("REFPARAMOBJECT");
+const category: RESULTOBJECT      is category("RESULTOBJECT");
+const category: LOCALVOBJECT      is category("LOCALVOBJECT");
+const category: DATABASEOBJECT    is category("DATABASEOBJECT");
+const category: SQLSTMTOBJECT     is category("SQLSTMTOBJECT");
+const category: PROGOBJECT        is category("PROGOBJECT");
+
+const proc: for (inout category: variable) range (in category: startValue) to (in category: endValue) do
+              (in proc: statements)
+            end for                                                     is action "PRC_FOR_TO";
+const proc: for (inout category: variable) range (in category: startValue) downto (in category: endValue) do
+              (in proc: statements)
+            end for                                                     is action "PRC_FOR_DOWNTO";
+
+CASE_DECLS(category);

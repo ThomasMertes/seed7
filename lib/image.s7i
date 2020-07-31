@@ -1,0 +1,152 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  image.s7i     Defines images, which are in a window             *)
+(*  Copyright (C) 2012  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Type to describe on screen images.
+ *  Images can be used to describe icons, cards and other items on
+ *  the screen.
+ *)
+const type: image is sub object interface;
+
+
+(**
+ *  Determine the width of an ''image''.
+ *  @return the width of ''anImage''.
+ *)
+const func integer: width (in image: anImage) is DYNAMIC;
+
+
+(**
+ *  Determine the height of an ''image''.
+ *  @return the height of ''anImage''.
+ *)
+const func integer: height (in image: anImage) is DYNAMIC;
+
+
+(**
+ *  Determine the x-position of an ''image''.
+ *  @return the x-position of ''anImage''.
+ *)
+const func integer: xPos (in image: anImage) is DYNAMIC;
+
+
+(**
+ *  Determine the y-position of an ''image''.
+ *  @return the y-position of ''anImage''.
+ *)
+const func integer: yPos (in image: anImage) is DYNAMIC;
+
+
+(**
+ *  Determine the window of an ''image''.
+ *  The contents of the ''image'' can be changed, by drawing on the window.
+ *  @return the window of ''anImage''.
+ *)
+const func PRIMITIVE_WINDOW: window (in image: anImage) is DYNAMIC;
+
+
+(**
+ *  Set the x- and y-positon of an ''image''.
+ *)
+const proc: setPos (inout image: anImage, in integer: xPos, in integer: yPos) is DYNAMIC;
+
+
+(**
+ *  Layers an ''image'' above all other windows.
+ *)
+const proc: toTop (inout image: anImage) is DYNAMIC;
+
+
+(**
+ *  Layers an ''image'' below all other windows.
+ *)
+const proc: toBottom (inout image: anImage) is DYNAMIC;
+
+
+(**
+ *  Determine the name of an ''image''.
+ *  @return the name of ''anImage''.
+ *)
+const func string: str (in image: anImage) is DYNAMIC;
+
+
+enable_output(image);
+
+
+const type: baseImage is new struct
+    var string: name is "";
+    var PRIMITIVE_WINDOW: window is PRIMITIVE_WINDOW.value;
+  end struct;
+
+
+type_implements_interface(baseImage, image);
+
+
+const image: (attr image) . value is baseImage.value;
+
+
+const func integer: width (in baseImage: anImage) is
+  return width(anImage.window);
+
+
+const func integer: height (in baseImage: anImage) is
+  return height(anImage.window);
+
+
+const func integer: xPos (in baseImage: anImage) is
+  return xPos(anImage.window);
+
+
+const func integer: yPos (in baseImage: anImage) is
+  return yPos(anImage.window);
+
+
+const func PRIMITIVE_WINDOW: window (in baseImage: anImage) is
+  return anImage.window;
+
+
+const proc: setPos (inout baseImage: anImage, in integer: xPos, in integer: yPos) is func
+  begin
+    setPos(anImage.window, xPos, yPos);
+  end func;
+
+
+const proc: toTop (inout baseImage: anImage) is func
+  begin
+    toTop(anImage.window);
+  end func;
+
+
+const proc: toBottom (inout baseImage: anImage) is func
+  begin
+    toBottom(anImage.window);
+  end func;
+
+
+const func string: str (in baseImage: anImage) is
+  return anImage.name;

@@ -1,0 +1,53 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  printpi2.sd7  PI with 1000 digits (Bailey/Borwein/Plouffe)      *)
+(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "bigint.s7i";
+  include "bigrat.s7i";
+
+# In 1997, David H. Bailey, Peter Borwein and Simon Plouffe published a
+# paper (Bailey, 1997) on a new formula for PI as an infinite series:
+
+# PI = sum_n_from_0_to_inf(16 ** (-n) *
+#      (4 / (8 * n + 1) - 2 / (8 * n + 4) - 1 / (8 * n + 5) - 1 / (8 * n + 6)))
+
+const func bigRational: compute_pi_bailey_borwein_plouffe is func
+  result
+    var bigRational: sum is 0_ / 1_;
+  local
+    var integer: n is 0;
+    var bigInteger: k8 is 0_;
+  begin
+    for n range 0 to 825 do
+      k8 := bigInteger(8 * n);
+      sum +:= 1_ / 16_ ** n *
+          (4_ / (k8 + 1_) - 2_ / (k8 + 4_) - 1_ / (k8 + 5_) - 1_ / (k8 + 6_));
+    end for;
+  end func;
+
+const proc: main is func
+  begin
+    writeln(compute_pi_bailey_borwein_plouffe digits 1000);
+  end func;

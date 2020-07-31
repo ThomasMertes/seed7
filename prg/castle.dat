@@ -1,0 +1,2040 @@
+##########    ##########
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+##########====##########
+You are in the Castle
+Courtyard. To the north
+is a large Doorway.To the
+south is a large gate.
+
+ 2 84 0 0 0 0
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+##########    ##########
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+#                      #
+##########    ##########
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+You are in the Entrance
+room. Exits are to the
+north & south.
+
+
+ 3 1 0 0 0 0
+         #    #         
+ #########    ######### 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+##                    ##
+                        
+                        
+                        
+                        
+##                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #########    ######### 
+         #    #         
+You are in The Welcome
+Hall. This room was used
+to welcome guests. There
+are large archways in
+all four walls.
+ 7 2 5 4 0 0
+         #    #         
+ #########    ######### 
+ #                    # 
+ #                  U # 
+ #                    # 
+ #                    # 
+ #                    ##
+ #                      
+ #                      
+ #                      
+ #                      
+ #                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ ###################### 
+                        
+You are in The West
+Ballroom. There are arch
+ways to the north & east;
+a spiral staircase in one
+corner.
+ 8 0 3 0 20 0
+         #    #         
+ #########    ######### 
+ #                    # 
+ # U                  # 
+ #                    # 
+ #                    # 
+##                    # 
+                      # 
+                      # 
+                      # 
+                      # 
+##                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ ###################### 
+                        
+You are in The East
+Ballroom. There are arch
+ways to the north & west;
+a spiral staircase in one
+corner.
+ 6 0 0 3 21 0
+         #    #         
+ #########    ########  
+ #                   #  
+ #                   #  
+ #                   ###
+ #                      
+##                      
+                        
+                        
+                        
+                        
+##                      
+ #                      
+ #                   ###
+ #                   #  
+ #                   #  
+ #########    ########  
+         #    #         
+You are in the East
+Dining room. The large
+opening to the east leads
+to the garden patio.
+
+ 12 5 18 7 0 0
+         #    #         
+ #########    ######### 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+##                    ##
+                        
+           UU           
+           UU           
+                        
+##                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #########    ######### 
+         #    #         
+You are in The Central
+Hall. Exits are in all
+directions. There is a
+large spiral staircase
+in the middle.
+ 13 3 6 8 23 0
+    #  #        #  #    
+ ####  ##########  #### 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    ##
+ #                      
+ #                      
+ #                      
+ #                      
+ #                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #########    ######### 
+         #    #         
+You are in the West
+Dining room. There 2 door
+ways to the north, & arch
+ways to the east & south.
+
+ 9 4 7 0 0 0
+          #  #          
+          #  #          
+   ########  #########  
+   #                 ###
+   #                    
+   #                 ###
+   #                 #  
+   #                 #  
+   #    %%%%%%%%%    #  
+   #    %%%%%%%%%    #  
+   #                 #  
+   #                 #  
+   #                 #  
+   #                 #  
+   #                 #  
+   ##  ##########  ###  
+    #  #        #  #    
+    #  #        #  #    
+You are in The Kitchen.
+In the Center is a large
+stone table.
+
+
+ 11 8 10 0 0 0
+  ###########           
+  #   ]WWWW[#           
+  #   ]WWWW[#           
+###         #           
+            #           
+###         #           
+  #         #           
+  #         #           
+  #         #           
+  #         #           
+  #   @@@@  #           
+  #   @@@@  #           
+  #         #           
+  ###########           
+                        
+                        
+                        
+                        
+You are in The Chef's
+Quarters. There is a
+small desk & a Bed here.
+
+
+ 0 0 0 9 0 0
+                        
+                        
+                        
+                        
+###################     
+#                 #     
+# D               #     
+#     @@@@@@@@@   #     
+#                 #     
+#                 #     
+#     @@@@@@@@@   #     
+#                 #     
+#                 #     
+#                 #     
+###########  ######     
+          #  #          
+          #  #          
+          #  #          
+You are in the Storage
+room. There are Two large
+shelves in the middle,and
+a Small Staircase in one
+corner.
+ 0 9 0 0 0 68
+                        
+       ###############  
+       #             #  
+       #             #  
+       #             ###
+       #                
+       #                
+       #                
+       #                
+       #                
+       #                
+       #                
+       #                
+       #             ###
+       #             #  
+       #             #  
+       ###    ########  
+         #    #         
+You are in The Castle
+Museum. This room was
+once decorated with many
+artifacts.
+
+ 0 6 17 0 0 0
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+      ####    ####      
+      #          #      
+      #          #      
+      #          #      
+      #          #      
+      #          #      
+      #          #      
+      ####    ####      
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+You are in the Ante Room.
+Here People waited for
+an audience with the King
+It was once lined with
+benches.
+ 14 7 0 0 0 0
+                        
+                        
+ ###################### 
+##        %  %        ##
+          %--%          
+##                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #########    ######### 
+         #    #         
+You are in the Throne
+Room. There is a Large
+Throne at one end of the
+room.
+
+ 0 13 16 15 0 0
+      ################# 
+      #               # 
+      #               # 
+      #               ##
+      #                 
+      #               ##
+      #             U # 
+      #               # 
+      ################# 
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+You are In the Kings
+Dressing room. It was
+Once Filled with clothes.
+There is a Staircase in
+one corner.
+ 0 0 14 0 31 0
+ #################      
+ #               #      
+ #               #      
+##               #      
+                 #      
+##               #      
+ # U             #      
+ #               #      
+ #################      
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+You are in the Queen's
+Dressing room. It was
+once filled with clothes.
+There is a Staircase in
+one corner.
+ 0 0 0 14 30 0
+                        
+  ##################### 
+  #                   # 
+  #     *             # 
+###               +   # 
+              *       # 
+            *         # 
+       +          +   # 
+                      # 
+         *   +        # 
+                      # 
+          *      *    # 
+                      # 
+###  +       +        # 
+  #                +  # 
+  #                   # 
+  #           +       # 
+  #                   # 
+You are In The North end
+of the Castle Garden. It
+is overgrown with bushes.
+
+
+ 0 18 0 12 0 0
+  #                   # 
+  #+              +   # 
+  #        *          # 
+  #                   # 
+###    +              # 
+                 +    # 
+                      # 
+                      # 
+          ,-.         # 
+          |?|         # 
+          `-'     *   # 
+       +              # 
+                      # 
+###      *            # 
+  #            +      # 
+  #                   # 
+  ##################### 
+                        
+You are in The South end
+of The Castle garden. In
+the center is a fountain.
+
+
+ 17 0 0 6 0 0
+         #    #         
+##########    ##########
+                        
+                        
+                        
+                        
+                        
+          ,-.           
+          |$|           
+          `-'           
+                        
+                        
+                        
+                        
+                        
+                        
+########################
+                        
+You are in the center of
+The upper Hall. There is
+a statue of the King in
+the middle.
+
+ 23 0 21 20 0 0
+         #    #         
+ #########    ##########
+ #                      
+ #                  D   
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #                      
+ #######################
+                        
+You are in the west end
+of the Upper hall. There
+is a staircase leading
+down.
+
+ 24 0 19 0 0 4
+         #    #         
+##########    ######### 
+                      # 
+   D                  # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+                      # 
+####################### 
+                        
+You are in the east end
+of the Upper Hall. There
+is a Staircase leading
+down.
+
+ 22 0 0 19 0 5
+                 #  #   
+ #################  ### 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+##                    ##
+                        
+                        
+                        
+                        
+##                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #########    ######### 
+         #    #         
+You are in The Guards
+Hall. This room was once
+used to honor Members of
+the Royal Guard.
+
+ 25 21 33 23 0 0
+          #  #          
+ ##########  ########## 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+##                    ##
+                        
+           DD           
+           DD           
+                        
+##                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #########    ######### 
+         #    #         
+You are in the Anex Hall.
+There is a large spiral
+staircase in the middle.
+
+
+ 28 19 22 24 0 7
+   #  #                 
+ ###  ################# 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    ##
+ #                      
+ #                      
+ #                      
+ #                      
+ #                    ##
+ #                    # 
+ #                    # 
+ #                    # 
+ #                    # 
+ #########    ######### 
+         #    #         
+You are in The Knights
+Hall. This room was once
+used to Honor The King's
+Knights.
+
+ 26 20 23 0 0 0
+               ######## 
+               #      # 
+               #  UU  # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               ###  ### 
+                 #  #   
+                 #  #   
+You are in a lower
+Battlement. There is a
+staircase at one end.
+
+
+ 0 22 0 0 42 0
+ ########               
+ #      #               
+ #  UU  #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ ###  ###               
+   #  #                 
+You are In a Lower
+Battlement. There is a
+staircase at one end.
+
+
+ 0 24 0 0 45 0
+                        
+                        
+                        
+   ##################   
+   #                #   
+   #                #   
+   #                #   
+   #                ####
+   #                    
+   #                    
+   #                ####
+   #                #   
+   #                #   
+   #                #   
+   ##################   
+                        
+                        
+                        
+You are In a Guest room.
+
+
+
+
+ 0 0 28 0 0 0
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+##########    ##########
+                       #
+                        
+##########    ##########
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         ##  ##         
+          #  #          
+You are in a corridor.
+
+
+
+
+ 32 23 29 27 0 0
+                        
+                        
+                        
+   ##################   
+   #                #   
+   #                #   
+   #                #   
+####                #   
+#                   #   
+                    #   
+####                #   
+   #                #   
+   #                #   
+   #                #   
+   ##################   
+                        
+                        
+                        
+You are In a Guest Room.
+
+
+
+
+ 0 0 0 28 0 0
+                        
+                        
+                        
+ #################      
+ #               #      
+ #               #      
+ # D             #      
+##               #      
+                 #      
+                 #      
+##               #      
+ #               #      
+ #               #      
+ #               #      
+ #################      
+                        
+                        
+                        
+You are in the Queen's
+Bed room. It was once
+furnished but is now
+empty. there is a stair
+case in one corner.
+ 0 0 0 32 0 16
+                        
+                        
+                        
+                        
+     ################## 
+     #                # 
+     #              D # 
+     #                ##
+     #                  
+     #                  
+     #                ##
+     #                # 
+     #                # 
+     #                # 
+     ################## 
+                        
+                        
+                        
+You are In the Kings room
+. It was once Furnished
+but is now empty. There
+is a staircase in one
+corner.
+ 0 0 32 0 0 15
+                        
+         ######         
+         #    #         
+         # UU #         
+         #    #         
+         #    #         
+         #    #         
+##########    ##########
+                        
+                        
+##########    ##########
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+You are in a corridor.
+There is a staircase at
+one end.
+
+
+ 0 28 30 31 34 0
+                        
+ ######&-.            + 
+ #       |     *        
+ #       >              
+ #       | +            
+ #       >           +  
+##       |              
+         |              
+         >    ,-.       
+         >    |?|       
+         |    `-'     * 
+##       | +            
+ #       >              
+ #       |   *          
+ #       >         +    
+ #       |              
+ ######&-'              
+                        
+You are on a Balcony
+looking over the Castle
+Gardens.
+
+
+ 0 0 0 22 0 0
+                        
+         ######         
+         #    #         
+         # DD #         
+         #    #         
+         #    #         
+         #    #         
+##########    ##########
+                        
+                        
+##########    ##########
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+You are in a corridor.
+There is a staircase at
+on end.
+
+
+ 0 41 40 39 0 32
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+     ######  ###########
+     #                  
+     #                  
+     ######  ###########
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+You are in a corridor.
+
+
+
+
+ 39 37 41 0 0 0
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+###########  ######     
+                  #     
+                  #     
+###########  ######     
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+You are in a corridor.
+
+
+
+
+ 40 38 0 41 0 0
+          #  #          
+          #  #          
+          #  #          
+   ########  ########   
+   #                #   
+   #                #   
+   #                #   
+   #  __        __  #   
+   #  RR        RR  #   
+   #  RR        RR  #   
+   #  RR        RR  #   
+   #  RR        RR  #   
+   #  ^^        ^^  #   
+   #                #   
+   ##################   
+                        
+                        
+                        
+You are in The Red Room.
+This is decorated all in
+red. It is mostly empty
+now except for 2 beds.
+
+ 35 0 0 0 0 0
+          #  #          
+          #  #          
+          #  #          
+   ########  ########   
+   #                #   
+   #                #   
+   #                #   
+   #  __        __  #   
+   #  NN        NN  #   
+   #  NN        NN  #   
+   #  NN        NN  #   
+   #  NN        NN  #   
+   #  ^^        ^^  #   
+   #                #   
+   ##################   
+                        
+                        
+                        
+You are in the Blue room.
+This room is decorated
+all in blue. It is now
+empty except for 2 beds.
+
+ 36 0 0 0 0 0
+                        
+                        
+                        
+   ##################   
+   #                #   
+   #]PPPP[          #   
+   #]PPPP[          #   
+   #                ####
+   #                    
+   #                    
+   #                ####
+   #                #   
+   #                #   
+   #                #   
+   ########  ########   
+          #  #          
+          #  #          
+          #  #          
+You are in the Purple
+room. It is Decorated all
+in purple. There is 1 bed
+left.
+
+ 0 35 34 0 0 0
+                        
+                        
+                        
+   ##################   
+   #                #   
+   #]YYYY[          #   
+   #]YYYY[          #   
+####                #   
+                    #   
+                    #   
+####                #   
+   #           @@@@ #   
+   #           @@@@ #   
+   #                #   
+   ########  ########   
+          #  #          
+          #  #          
+          #  #          
+You are in the Yellow
+room. It is decorated all
+in Yellow.Now it is empty
+except for a desk & bed.
+
+ 0 36 0 34 0 0
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+##########    ##########
+                        
+                        
+##########    ##########
+         # UU #         
+         #    #         
+         ######         
+                        
+                        
+                        
+                        
+You are in a corridor.
+There is a staircase at
+one end.
+
+
+ 34 0 36 35 53 0
+####################### 
+                      # 
+                  DU  # 
+                      # 
+################      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+You are in An upper
+Battlement. There is a
+staircase in one corner.
+
+
+ 0 43 0 45 49 25
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      ##
+               #       #
+               #      D#
+               #      D#
+               #       #
+               #      ##
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+You are In an Upper
+Battlement. There is a
+long staircase leading
+down.
+
+ 42 46 0 0 0 82
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+You are in an Upper
+Batlement.
+
+
+
+ 45 47 0 0 0 0
+ #######################
+ #                      
+ #  UD                  
+ #                      
+ #      ################
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+You are in an Upper
+Battlement. There is a
+staircase in one corner.
+
+
+ 0 44 42 0 48 26
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+################      # 
+                      # 
+                      # 
+                      # 
+####################### 
+You are in an Upper
+Battlement.
+
+
+
+ 43 0 0 47 0 0
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      ################
+ #                      
+ #                      
+ #                      
+ #######################
+You are in an Upper
+Battlement.
+
+
+
+ 44 0 46 0 0 0
+ #######################
+ #                      
+ #  DD                  
+ #                      
+ #      ################
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+You are on the Castle
+wall. There is a stair
+case leading down in one
+corner.
+
+ 0 61 49 0 0 45
+####################### 
+                      # 
+                  DD  # 
+                      # 
+################      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+You are on the Castle
+wall. There is a stair
+case leading down in one
+corner.
+
+ 0 50 0 48 0 42
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+              ##      ##
+              #        #
+              #   UU   #
+              #   UU   #
+              #        #
+              ##      ##
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+You are at the Bottom of
+the East Tower.
+
+
+
+ 49 51 0 0 63 0
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+               #      # 
+################      # 
+                      # 
+                      # 
+                      # 
+####################### 
+You are on the Castle
+wall.
+
+
+
+ 50 0 0 60 0 0
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+########################
+#                       
+                        
+##########    ##########
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+You are in a corridor.
+
+
+
+
+ 0 53 56 57 0 0
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+##########    ##########
+                        
+                        
+##########    ##########
+         # DD #         
+         #    #         
+         ######         
+                        
+                        
+                        
+                        
+You are in a corridor.
+there is a Stairway going
+down.
+
+
+ 52 0 55 54 0 41
+          # ##          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+     ######  ###########
+     #                  
+     #                  
+     ######  ###########
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+You are in a corridor.
+
+
+
+
+ 57 58 53 0 0 0
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+###########  ######     
+                  #     
+                  #     
+###########  ######     
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+You are in a corridor.
+
+
+
+
+ 56 59 0 53 0 0
+                        
+                        
+                        
+   ##################   
+   #                #   
+   #     @@@@@@     #   
+   #     @@@@@@     #   
+####     @@@@@@     #   
+                    #   
+                    #   
+####                #   
+   #                #   
+   #                #   
+   #                #   
+   ########  ########   
+          #  #          
+          #  #          
+          #  #          
+You are in the King's
+Study. A large Wooden
+Desk is all that is left.
+
+
+ 0 55 0 52 0 0
+                        
+                        
+                        
+   ##################   
+   #                #   
+   #                #   
+   #                #   
+   #                ####
+   #                   #
+   #                    
+   #                ####
+   #                #   
+   #                #   
+   #                #   
+   ########  ########   
+          #  #          
+          #  #          
+          # ##          
+You are in a totally
+Empty room.
+
+
+
+ 0 54 52 0 0 0
+          #  #          
+    #######  ###########
+    #                   
+    #                   
+    #                   
+    #                   
+    #                   
+    #  @@@@@@@   @@@@@@@
+    #                   
+    #                   
+    #  @@@@@@@   @@@@@@@
+    #                   
+    #                   
+    #  @@@@@@@   @@@@@@@
+    #                   
+    #                   
+    ####################
+                        
+You are in the west end
+of The King's Library. It
+is full of shelves.
+
+
+ 54 0 59 0 0 0
+          #  #          
+###########  #######    
+                   #    
+                   #    
+                   #    
+                   #    
+                   #    
+@@@@@@@   @@@@@@@  #    
+                   #    
+                   #    
+@@@@@@@   @@@@@@@  #    
+                   #    
+                   #    
+@@@@@@@   @@@@@@@  #    
+                   #    
+                   #    
+####################    
+                        
+You are in the East end
+of the King's Library. It
+is full of shelves.
+
+
+ 55 0 0 58 0 0
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      ################
+ #                      
+ #                      
+ #                      
+ #######################
+You are on the Castle
+Wall.
+
+
+
+ 61 0 51 0 0 0
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+##      ##              
+#        #              
+#   UU   #              
+#   UU   #              
+#        #              
+##      ##              
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+ #      #               
+You are Below the West
+Tower. there is a large
+staircase leading up the
+tower.
+
+ 48 60 0 0 62 0
+                        
+                        
+                        
+                        
+                        
+ ########               
+##      ##              
+#        ###############
+#   DU                  
+#   DU                  
+#        ###############
+##      ##              
+ ########               
+                        
+                        
+                        
+                        
+                        
+You are in the West Tower
+.There is a Passage to
+the East.
+
+
+ 0 0 67 0 64 61
+                        
+                        
+                        
+                        
+                        
+               ######## 
+              ##      ##
+              #        #
+              #   UD   #
+              #   UD   #
+              #        #
+              ##      ##
+               ######## 
+                        
+                        
+                        
+                        
+                        
+You are in The East Tower
+. There are Stairs Going
+both up & down.
+
+
+ 0 0 0 0 65 50
+                        
+                        
+                        
+                        
+                        
+ ##----##               
+##      ##              
+#        #              
+|   DD   |              
+|   DD   |              
+#        #              
+##      ##              
+ ##----##               
+                        
+                        
+                        
+                        
+                        
+You are at the top of the
+West tower.
+
+
+
+ 0 0 0 0 0 62
+                        
+                        
+                        
+                        
+                        
+               ##----## 
+              ##      ##
+              #        #
+              |   DD   |
+              |   DD   |
+              #        #
+              ##      ##
+               ##----## 
+                        
+                        
+                        
+                        
+                        
+You are at the top of the
+East Tower.
+
+
+
+ 0 0 0 0 0 63
+                        
+                        
+    ####################
+    #                  #
+    #                  #
+    #                  #
+    #                  #
+#####                  #
+                       #
+                       #
+#####                  #
+    #                  #
+    #                  #
+    #                  #
+    #                  #
+    ####################
+                        
+                        
+You are in the Sorcerers
+secret laboratory.
+
+
+
+ 0 0 0 67 0 0
+                        
+                        
+                        
+     ###############    
+     #             #    
+     #]WWWW[       #    
+     #]WWWW[      ,#    
+######            |#    
+                  |#    
+                  |#    
+######            |#    
+     #]WWWW[      `#    
+     #]WWWW[       #    
+     #             #    
+     ###############    
+                        
+                        
+                        
+You are in the Sorcerers
+Quarters. Two Beds and a
+large mirror are all that
+is left.
+
+ 0 0 66 62 0 0
+###################     
+#                 #     
+#  @@@@     @@@@  #     
+#  @@@@     @@@@  #     
+#                 #     
+#           @@@@  #     
+# U         @@@@  #     
+#                 #     
+#  @@@@     @@@@  #     
+#  @@@@     @@@@  #     
+#                 #     
+#  @@@@     @@@@  #     
+#  @@@@     @@@@  #     
+#                 #     
+########  #########     
+       #  #             
+       #  #             
+       #  #             
+You are in the Royal Wine
+Cellar. It is filled with
+many Barrels. At one end
+is a Large metal Door.
+
+ 0 69 0 0 11 0
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+       #  #             
+You are in a long
+Passageway.
+
+
+
+ 68 70 0 0 0 0
+       #  #             
+       #  #             
+########  ##############
+#                      #
+#                      #
+###########  #  #####  #
+#     #&&&#  #  #      #
+#     #&&&#  #  #      #
+#  ########  #  #  #####
+#            #  #       
+#            #  #       
+# ###### #####  ########
+# #        #&#  #       
+# # ###### #&#  #    ###
+# #      # #&#  # #  #&&
+# ###### # ###  # #  ###
+# #      #        #     
+# # ####################
+You are in a Maze.
+
+
+
+
+ 69 72 71 0 0 0
+########################
+#                      #
+#                      #
+#  ##################  #
+#  #                #  #
+#  #                #  #
+#  #  ########      #  #
+#  #  #      #      #  #
+#  #  # ###  #####  #  #
+   #  # #&#  #&&&#  #  #
+   #  # #&#  #&&&#  #  #
+####  # #&#  #&&&#  #  #
+   #  # #&#  #&&&#  #  #
+#  #    #&#  #&&&#  #  #
+#  ########  #&&&#  #  #
+#            #&&&#     #
+             #&&&#     #
+##############&&&#######
+You are in a Maze.
+
+
+
+
+ 0 0 0 70 0 0
+# # ####################
+# #                    #
+# #                    #
+# #################### #
+#    #               # #
+#### #               # #
+#    #     ########  # #
+# #######  #&&&&&&#  # #
+#    #&&#  ########  # #
+###  #&&#  #           #
+#&#  #&&#  #           #
+#&#  #&&#  #  ##  ######
+#&#  #&&#  #  ##  #&#   
+###  #&&#  #  ##  #&#   
+#    #&&#  #  ##  ###  #
+#  ###&&#  #           #
+#  #&&&&#  #           #
+#  ######  #############
+You are in a Maze.
+
+
+
+
+ 70 74 73 0 0 0
+########################
+#     ##      ##      ##
+#  #      ##      ##   #
+#  ###  ############## #
+#    #               # #
+#### ####            # #
+#    #     ########  # #
+#  ###  #  #&&&&&&#  # #
+#  #&#  #  ########  # #
+#  #&#  #  #           #
+#  #&#  #  #           #
+#  #&#  #  #           #
+   #&#  #  #           #
+   #&#  #  #           #
+####&#  #  #           #
+#&&&&#  #  #           #
+#&&&&#  #  #           #
+######  #  ###  ########
+You are in a Maze.
+
+
+
+
+ 0 75 0 72 0 0
+#  ######  #############
+#  #    #               
+#  #  # #               
+#  #  # ############## #
+#  #  # #            # #
+#  #  # #            # #
+#  #  # #  ########  # #
+#  #  #    #&&&&&&#  # #
+#  #  #############  # #
+#  #  #&&&&#           #
+#  #  #&KB&#           #
+#  #  #&&&&# ###########
+#  #  ###### #    #&#   
+#  #  #      # #  #&#   
+#  #  # ###### #  ###  #
+#  #  #     #  #       #
+#     ####     #       #
+########################
+You are in a Maze.
+
+
+
+
+ 72 0 75 0 0 0
+######  #  ###  ########
+   #    #    #         #
+   #    ###  ########  #
+#  #  ###&#         #  #
+#  #    #&########  #  #
+#  #    #&&&&&&&&#  #  #
+#  ###  ##########  #  #
+#  #&#  #           #  #
+#  #&#  #  ##########  #
+#  #&#  #  #        #  #
+#  #&#  #  #        #  #
+#  #&# ##  #  ####  #  #
+   #&# #  ##  #&&#  #  #
+   #&# #  #   #&&#  #  #
+####&# #  #  ##&&#  #  #
+#&&&&# #  #  #&&&#  #  #
+#&&&&#    #  #&&&#     #
+###########  ###########
+You are in a Maze.
+
+
+
+
+ 73 76 0 74 0 0
+          #  #          
+          #  #  ########
+          #  #  #       
+      #####  #  #       
+      #      #  #  #####
+      #      #  #  #    
+      #  #####  #  #    
+      #  #      #  #    
+      #  #      #  #    
+      #  #      #  #    
+      #  #      #  #    
+      #  ########  #    
+      #            #    
+      #            #    
+      ##############    
+                        
+                        
+                        
+You are in a Winding
+Passage.
+
+
+
+ 75 0 77 0 0 0
+          #  #          
+#######   #  #          
+      #   #  #          
+      #####  #          
+####  #      #          
+   #  #      #          
+   #  #  ########       
+   #  #  #&&&&&&#       
+   #  #  #&&&&&&####### 
+   #  #  #&&&&&&#     # 
+   #  #  #&&&&&&#     # 
+   #  #  ########  #  # 
+   #  #            #  # 
+   #  #            #  # 
+   #  ##############  # 
+   #                  # 
+   #                  # 
+   #################### 
+You are in a Winding
+Passage.
+
+
+
+ 78 83 0 76 0 0
+                        
+                        
+                        
+############            
+#          #            
+#          #            
+#  ######  #            
+#  #&&&&#  #############
+#  ######               
+#       #               
+#       ################
+######       #          
+     #       #          
+     ######  #          
+          #  #          
+          #  #          
+          #  #          
+          #  #          
+You are in a Winding
+passage.
+
+
+
+ 0 77 81 0 0 0
+          #  #          
+          #  #          
+  #########  #########  
+  #                  #  
+  #                  #  
+  #  @@              #  
+  #  @@              #  
+  #  @@             {#  
+  #                  #  
+  #                  #  
+  #                 {#  
+  #                  #  
+  #                  #  
+  #                  #  
+  #                  #  
+  ####################  
+                        
+                        
+You are in the Toture
+room. There are chains on
+one wall, and a Large
+Table.
+
+ 81 0 0 0 0 0
+########################
+#       #       #      #
+#       #       #      #
+#       # #######      #
+#                      #
+#######          #######
+#     #          #     #
+#                      #
+#     #          #     #
+#######          #######
+#     #          #     #
+#     #          #     #
+#                      #
+#     #          #     #
+##########    ##########
+         #    #         
+         #    #         
+         #    #         
+You are in the Dungeon.
+
+
+
+
+ 0 81 0 0 0 0
+         #    #         
+         #    #         
+         #    #         
+         #    #         
+     #####    ########  
+     #               #  
+     #               #  
+######               ###
+                        
+                        
+######               ###
+     #               #  
+     #               #  
+     #               #  
+     ######  #########  
+          #  #          
+          #  #          
+          #  #          
+You are in the Dungeon
+Annex.
+
+
+
+ 80 79 82 78 0 0
+                        
+                        
+                        
+                        
+                        
+                        
+             ###########
+##############         #
+                      U#
+                      U#
+##############         #
+             ###########
+                        
+                        
+                        
+                        
+                        
+                        
+You are in the Dungeon
+entrace hall. There is a
+long staircase leading
+up.
+
+ 0 0 0 81 43 0
+          #  #          
+          #  #          
+          #  #          
+    ;:;:;:;  :;:;:;:    
+    :              ;    
+    ;              :    
+    :              ;    
+    ;              :    
+    :              ;    
+    ;              :    
+    :              ;    
+    ;              :    
+    :              ;    
+    ;:;:;:;:;:;:;:;:    
+                        
+                        
+                        
+                        
+You are in the King's
+Secret room. The walls
+are many colors.
+
+
+ 77 0 0 0 0 0
+                        
+  *    +      *    +   *
+    +     *      +      
++       *    +     *  + 
+  *  +          +       
+          +   *      *  
+    *  *          *    *
+ +          *   +    +  
+     *    +        *    
+*      *     *   +     +
+   +      *         *   
+      *     +  *       *
+ *      +         +     
+    +        *        * 
+  *       *     +       
+       +      *    *    
++    *     +         +  
+   +    *    *   +      
+You've Escaped the Castle!
+
+
+
+
+ 84 84 84 84 0 0
+& & & &          & & & &
+& & & &          & & & &
+&&&&&&&          &&&&&&&
+&&&&&&&          &&&&&&&
+ &&&&&            &&&&& 
+ &&&&&            &&&&& 
+ &&&&&            &&&&& 
+ &&&&&& && && && &&&&&& 
+ &&&&&&&&&&&&&&&&&&&&&& 
+ &&&&&&&&&&&&&&&&&&&&&& 
+  &&&&&&&&&&&&&&&&&&&&  
+  &&&&&&########&&&&&&  
+  &&&&&&########&&&&&&  
+  &&&&&&##@@@@##&&&&&&  
+  &&&&&&##@@@@##&&&&&&  
+  &&&&&&##@@@@##&&&&&&  
+  &&&&&&##@@@@##&&&&&&  
+  &&&&&&##@@@@##&&&&&&  
+  You are  trapped  in a deserted  Castle      Use the cursor keypad  to move your man      just  run  into  them,  but only if you
+  and you must escape. It is rumored that      around the rooms.  To pick up a visible      have a weapon.  There are 83 rooms  and
+  the  castle is  full of treasures.  Can      item,  just run into it.  To pick up an      13 treasures.  To see  the  High Score,
+  you find them all?                           item  not displayed on the screen,  use      look at the wall in the courtyard.
+                                               the command TAKE.  To  attack  monsters
+ 0 0 0 0 0 0

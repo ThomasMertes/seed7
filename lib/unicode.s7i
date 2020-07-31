@@ -1,0 +1,351 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  unicode.s7i   Functions to convert between Unicode encodings.   *)
+(*  Copyright (C) 2006, 2008 - 2010, 2014  Thomas Mertes            *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Convert a [[string]] with bytes in UTF-8 encoding to UTF-32.
+ *  This function accepts overlong encodings and unpaired surrogate halves.
+ *   utf8ToStri("\16#c0;\16#80;")         returns "\0;"        (overlong encoding)
+ *   utf8ToStri("\16#ed;\16#b0;\16#80;")  returns "\16#dc00;"  (surrogate halve)
+ *  @param utf8 String of bytes encoded with UTF-8.
+ *  @return ''utf8'' converted to a normal (UTF-32) [[string]].
+ *  @exception RANGE_ERROR If ''utf8'' contains a char beyond '\255;' or
+ *                         if ''utf8'' is not encoded with UTF-8.
+ *)
+const func string: utf8ToStri (in string: utf8)                is action "STR_UTF8TOSTRI";
+
+
+(**
+ *  Convert a [[string]] to an UTF-8 encoded string of bytes.
+ *  This function accepts unpaired surrogate halves.
+ *   striToUtf8("\16#dc00;")  returns "\16#ed;\16#b0;\16#80;"  (surrogate halve)
+ *  @param stri Normal (UTF-32) string to be converted to UTF-8.
+ *  @return ''stri'' converted to a string of bytes with UTF-8 encoding.
+ *)
+const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
+
+
+(**
+ *  Convert a [[string]] with bytes in UTF-16BE encoding to UTF-32.
+ *  @param utf16be String of bytes encoded with UTF-16 in
+ *         big endian byte order.
+ *  @return ''utf16be'' converted to a normal (UTF-32) [[string]].
+ *  @exception RANGE_ERROR If the length of ''utf16be'' is odd or
+ *                         if ''utf16be'' contains a char beyond '\255;' or
+ *                         if an illegal surrogate pair is found.
+ *)
+const func string: utf16beToStri (in string: utf16be) is func
+  result
+    var string: stri is "";
+  local
+    var integer: index is 0;
+    var char: byte1 is ' ';
+    var char: byte2 is ' ';
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for index range 1 to length(utf16be) step 2 do
+      byte1 := utf16be[index];
+      byte2 := utf16be[succ(index)];
+      if byte1 > '\255;' or byte2 > '\255;' then
+        raise RANGE_ERROR;
+      else
+        ch1 := chr(ord(byte1) * 256 + ord(byte2));
+        if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
+          index +:= 2;
+          byte1 := utf16be[index];
+          byte2 := utf16be[succ(index)];
+          if byte1 > '\255;' or byte2 > '\255;' then
+            raise RANGE_ERROR;
+          else
+            ch2 := chr(ord(byte1) * 256 + ord(byte2));
+            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+              stri &:= chr(((ord(ch1) - 16#d800) << 10) +
+                            (ord(ch2) - 16#dc00) + 16#10000);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        else
+          stri &:= ch1;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Convert a [[string]] to an UTF-16BE encoded string of bytes.
+ *  @param stri Normal (UTF-32) string to be converted to UTF-16BE.
+ *  @return ''stri'' converted to a string of bytes with UTF-16BE encoding.
+ *  @exception RANGE_ERROR If a character is not representable as UTF-16 or
+ *                         the first char of a surrogate pair is found.
+ *)
+const func string: striToUtf16be (in string: stri) is func
+  result
+    var string: utf16be is "";
+  local
+    var char: ch is ' ';
+    var integer: ch1 is 0;
+    var integer: ch2 is 0;
+  begin
+    for ch range stri do
+      if ch <= '\16#ffff;' then
+        if ch >= '\16#d800;' and ch <= '\16#dbff;' then
+          raise RANGE_ERROR;
+        else
+          utf16be &:= chr((ord(ch) >> 8) mod 256);
+          utf16be &:= chr( ord(ch)       mod 256);
+        end if;
+      elsif ch <= '\16#10ffff;' then
+        ch1 := 16#d800 + ((ord(ch) - 16#10000) >> 10);
+        ch2 := 16#dc00 +  (ord(ch) - 16#10000) mod 16#400;
+        utf16be &:= chr((ch1 >> 8) mod 256);
+        utf16be &:= chr( ch1       mod 256);
+        utf16be &:= chr((ch2 >> 8) mod 256);
+        utf16be &:= chr( ch2       mod 256);
+      else
+        raise RANGE_ERROR;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Convert a [[string]] with bytes in UTF-16LE encoding to UTF-32.
+ *  @param utf16le String of bytes encoded with UTF-16 in
+ *         little endian byte order.
+ *  @return ''utf16le'' converted to a normal (UTF-32) [[string]].
+ *  @exception RANGE_ERROR If the length of ''utf16le'' is odd or
+ *                         if ''utf16le'' contains a char beyond '\255;' or
+ *                         if an illegal surrogate pair is found.
+ *)
+const func string: utf16leToStri (in string: utf16le) is func
+  result
+    var string: stri is "";
+  local
+    var integer: index is 0;
+    var char: byte1 is ' ';
+    var char: byte2 is ' ';
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for index range 1 to length(utf16le) step 2 do
+      byte1 := utf16le[index];
+      byte2 := utf16le[succ(index)];
+      if byte1 > '\255;' or byte2 > '\255;' then
+        raise RANGE_ERROR;
+      else
+        ch1 := chr(ord(byte2) * 256 + ord(byte1));
+        if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
+          index +:= 2;
+          byte1 := utf16le[index];
+          byte2 := utf16le[succ(index)];
+          if byte1 > '\255;' or byte2 > '\255;' then
+            raise RANGE_ERROR;
+          else
+            ch2 := chr(ord(byte2) * 256 + ord(byte1));
+            if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+              stri &:= chr(((ord(ch1) - 16#d800) << 10) +
+                            (ord(ch2) - 16#dc00) + 16#10000);
+            else
+              raise RANGE_ERROR;
+            end if;
+          end if;
+        else
+          stri &:= ch1;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Convert a [[string]] to an UTF-16LE encoded string of bytes.
+ *  @param stri Normal (UTF-32) string to be converted to UTF-16LE.
+ *  @return ''stri'' converted to a string of bytes with UTF-16LE encoding.
+ *  @exception RANGE_ERROR If a character is not representable as UTF-16 or
+ *                         the first char of a surrogate pair is found.
+ *)
+const func string: striToUtf16le (in string: stri) is func
+  result
+    var string: utf16le is "";
+  local
+    var char: ch is ' ';
+    var integer: ch1 is 0;
+    var integer: ch2 is 0;
+  begin
+    for ch range stri do
+      if ch <= '\16#ffff;' then
+        if ch >= '\16#d800;' and ch <= '\16#dbff;' then
+          raise RANGE_ERROR;
+        else
+          utf16le &:= chr( ord(ch)       mod 256);
+          utf16le &:= chr((ord(ch) >> 8) mod 256);
+        end if;
+      elsif ch <= '\16#10ffff;' then
+        ch1 := 16#d800 + ((ord(ch) - 16#10000) >> 10);
+        ch2 := 16#dc00 +  (ord(ch) - 16#10000) mod 16#400;
+        utf16le &:= chr( ch1       mod 256);
+        utf16le &:= chr((ch1 >> 8) mod 256);
+        utf16le &:= chr( ch2       mod 256);
+        utf16le &:= chr((ch2 >> 8) mod 256);
+      else
+        raise RANGE_ERROR;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Return [[string]] where all surrogate pairs are replaced by single chars.
+ *  This function can be used to decode CESU-8 encoded strings:
+ *   replaceUtf16SurrogatePairs(utf8ToStri(cesu8String))
+ *  In CESU-8 an Unicode code point from the Basic Multilingual Plane (BMP) is
+ *  encoded in the same way as in UTF-8. An Unicode code point outside the BMP
+ *  is first represented as a surrogate pair, like in UTF-16, and then each
+ *  surrogate code point is encoded in UTF-8.
+ *  @param stri String of UTF-16 or UTF-32 Unicode characters,
+ *         which may contain surrogate pairs.
+ *  @return ''stri'' with all surrogate pairs replaced by single UTF-32 chars.
+ *  @exception RANGE_ERROR If an illegal surrogate pair is found.
+ *)
+const func string: replaceUtf16SurrogatePairs (in string: stri) is func
+  result
+    var string: resultStri is "";
+  local
+    var integer: index is 0;
+    var integer: startPos is 1;
+    var char: ch1 is ' ';
+    var char: ch2 is ' ';
+  begin
+    for index range 1 to length(stri) do
+      ch1 := stri[index];
+      if ch1 >= '\16#d800;' and ch1 <= '\16#dbff;' then
+        if index < length(stri) then
+          ch2 := stri[succ(index)];
+          if ch2 >= '\16#dc00;' and ch2 <= '\16#dfff;' then
+            resultStri &:= stri[startPos .. pred(index)];
+            resultStri &:= chr(((ord(ch1) - 16#d800) << 10) +
+                                (ord(ch2) - 16#dc00) + 16#10000);
+            startPos := succ(index);
+            incr(index);
+          else
+            raise RANGE_ERROR;
+          end if;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end if;
+    end for;
+    resultStri &:= stri[startPos ..];
+  end func;
+
+
+(**
+ *  Convert a [[string]] from an UTF-7 encoding to UTF-32.
+ *  @param stri7 String of bytes encoded with UTF-7.
+ *  @return ''stri7'' converted a to normal (UTF-32) [[string]].
+ *  @exception RANGE_ERROR The [[string]] is not UTF-7 encoded.
+ *)
+const func string: utf7ToStri (in string: stri7) is func
+  result
+    var string: resultStri is "";
+  local
+    const array integer: decode is [] (                      # -1 is illegal
+        62, -1, -1, -1, 63,                                  # + /
+        52, 53, 54, 55, 56, 57, 58, 59, 60, 61,              # 0 - 9
+        -1, -1, -1, -1, -1, -1, -1,                          # =
+         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,  # A - M
+        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  # N - Z
+        -1, -1, -1, -1, -1, -1,
+        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,  # a - m
+        39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51); # n - z
+    var integer: startPos is 1;
+    var integer: plusPos is 0;
+    var integer: minusPos is 0;
+    var integer: index is 0;
+    var char: ch is ' ';
+    var integer: charNum is 0;
+    var integer: accumulator is 0;
+    var integer: numBits is 0;
+    var integer: number is 0;
+    var boolean: okay is FALSE;
+    var string: unicodeStri is "";
+  begin
+    plusPos := pos(stri7, "+");
+    while plusPos <> 0 do
+      resultStri &:= stri7[startPos .. pred(plusPos)];
+      minusPos := pos(stri7, "-", succ(plusPos));
+      if minusPos = 0 then
+        resultStri &:= "+";
+        minusPos := plusPos;
+      elsif minusPos = succ(plusPos) then
+        resultStri &:= "+";
+      else
+        okay := TRUE;
+        unicodeStri := "";
+        accumulator := 0;
+        numBits := 0;
+        for index range succ(plusPos) to pred(minusPos) do
+          ch := stri7[index];
+          if ch >= '+' and ch <= 'z' then
+            number := decode[ord(stri7[index]) - ord(pred('+'))];
+            if number >= 0 then
+              accumulator := (accumulator << 6) + number;
+              numBits +:= 6;
+              if numBits >= 16 then
+                numBits -:= 16;
+                charNum := accumulator >> numBits;
+                accumulator -:= charNum << numBits;
+                unicodeStri &:= chr(charNum);
+              end if;
+            else
+              okay := FALSE;
+              index := minusPos;
+            end if;
+          else
+            okay := FALSE;
+            index := minusPos;
+          end if;
+        end for;
+        if okay then
+          if accumulator <> 0 then
+            raise RANGE_ERROR;
+          else
+            resultStri &:= replaceUtf16SurrogatePairs(unicodeStri);
+          end if;
+        else
+          resultStri &:= "+";
+          minusPos := plusPos;
+        end if;
+      end if;
+      startPos := succ(minusPos);
+      plusPos := pos(stri7, "+", startPos);
+    end while;
+    resultStri &:= stri7[startPos ..];
+  end func;

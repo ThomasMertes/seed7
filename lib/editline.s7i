@@ -1,0 +1,378 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  editline.s7i  Filter file for linewise editing with history     *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "keybd.s7i";
+
+
+(**
+ *  [[file|File]] implementation type for linewise editing with history.
+ *  The possibilities of editing are described in the documentation of
+ *  the function [[#getln(inout_editLineFile)|getln]].
+ *)
+const type: editLineFile is sub null_file struct
+    var file: inFile is STD_NULL;
+    var file: outFile is STD_NULL;
+    var boolean: allowUnicode is TRUE;
+    var string: line is "";
+    var boolean: lineFinished is TRUE;
+    var array string: history is 0 times "";
+  end struct;
+
+
+(**
+ *  Open an Unicode filter file for linewise editing with history.
+ *  Unicode characters and editing keys are read from ''inFile''.
+ *  All Unicode characters are accepted and written to ''outFile''.
+ *  To avoid RANGE_ERROR use an Unicode capable file as ''outFile''.
+ *  The following editing keys are accepted: Backspace, delete,
+ *  home, end and the cursor keys. The history is accessed with
+ *  the vertical cursor keys. Ctrl-C and ctrl-T allow terminating
+ *  the program. Other keys (e.g. function keys) are ignored.
+ *  Call ''openEditLine'' with
+ *   IN := openEditLine(KEYBOARD, OUT);
+ *  to allow editing standard console input.
+ *  @return the file opened.
+ *)
+const func file: openEditLine (in file: inFile, in file: outFile) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var editLineFile: new_editLineFile is editLineFile.value;
+  begin
+    new_editLineFile.inFile := inFile;
+    new_editLineFile.outFile := outFile;
+    newFile := toInterface(new_editLineFile);
+  end func;
+
+
+(**
+ *  Open a Latin-1 filter file for linewise editing with history.
+ *  Unicode characters and editing keys are read from ''inFile''.
+ *  Only Latin-1 characters are accepted and written to ''outFile''.
+ *  Unicode characters beyond ISO Latin-1 (ISO-8859-1) are ignored.
+ *  This allows that a normal byte file is used as ''outFile''.
+ *  The following editing keys are accepted: Backspace, delete,
+ *  home, end and the cursor keys. The history is accessed with
+ *  the vertical cursor keys. Ctrl-C and ctrl-T allow terminating
+ *  the program. Other keys (e.g. function keys) are ignored.
+ *  Call ''openEditLine'' with
+ *   IN := openEditLineLatin1(KEYBOARD, OUT);
+ *  to allow editing standard console input.
+ *  @return the file opened.
+ *)
+const func file: openEditLineLatin1 (in file: inFile, in file: outFile) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var editLineFile: new_editLineFile is editLineFile.value;
+  begin
+    new_editLineFile.inFile := inFile;
+    new_editLineFile.outFile := outFile;
+    new_editLineFile.allowUnicode := FALSE;
+    newFile := toInterface(new_editLineFile);
+  end func;
+
+
+(**
+ *  Read a line from ''inEditLine''.
+ *  Before the line is sent it can be edited. It is possible to
+ *  move the cursor with horizontal cursor keys. The home key and
+ *  the end key move the cursor to the beginning respectively end
+ *  of the input line. Characters can be inserted at the current
+ *  cursor position. Backspace and delete can be used to remove
+ *  characters. Vertical cursor keys allow browsing the history of
+ *  input lines. Sending the line is done with enter/return ('\n').
+ *  The line ending character is not copied into the string. When
+ *  the function is left inEditLine.bufferChar contains '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the line read.
+ *)
+const func string: getln (inout editLineFile: inEditLine) is func
+  result
+    var string: line is "";
+  local
+    var char: ch is ' ';
+    var char: response is ' ';
+    var integer: pos is 1;
+    var array string: history is 0 times "";
+    var integer: historyPos is 0;
+  begin
+    if inEditLine.line = "" then
+      history := inEditLine.history & [] ("");
+      historyPos := length(history);
+      repeat
+        if pos <= length(line) then
+          cursorOn(inEditLine.outFile, line[pos]);
+        else
+          cursorOn(inEditLine.outFile, ' ');
+        end if;
+        flush(inEditLine.outFile);
+        ch := getc(inEditLine.inFile);
+        if pos <= length(line) then
+          cursorOff(inEditLine.outFile, line[pos]);
+        else
+          cursorOff(inEditLine.outFile, ' ');
+        end if;
+        if ch = KEY_BS then
+          if pos > 1 then
+            decr(pos);
+            moveLeft(inEditLine.outFile, line[pos len 1]);
+            erase(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
+            line := line[.. pred(pos)] & line[succ(pos) ..];
+            write(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
+          end if;
+        elsif ch = KEY_DEL then
+          if pos <= length(line) then
+            erase(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
+            line := line[.. pred(pos)] & line[succ(pos) ..];
+            write(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
+          end if;
+        elsif ch = KEY_HOME then
+          moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+          pos := 1;
+        elsif ch = KEY_END then
+          write(inEditLine.outFile, line[pos ..]);
+          pos := succ(length(line));
+        elsif ch = KEY_LEFT then
+          if pos > 1 then
+            decr(pos);
+            moveLeft(inEditLine.outFile, line[pos len 1]);
+          end if;
+        elsif ch = KEY_RIGHT then
+          if pos <= length(line) then
+            write(inEditLine.outFile, line[pos]);
+            incr(pos);
+          end if;
+        elsif ch = KEY_UP then
+          if historyPos > 1 then
+            moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+            erase(inEditLine.outFile, line);
+            moveLeft(inEditLine.outFile, line);
+            history[historyPos] := line;
+            decr(historyPos);
+            line := history[historyPos];
+            write(inEditLine.outFile, line);
+            pos := succ(length(line));
+          end if;
+        elsif ch = KEY_DOWN then
+          if historyPos < length(history) then
+            moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+            erase(inEditLine.outFile, line);
+            moveLeft(inEditLine.outFile, line);
+            history[historyPos] := line;
+            incr(historyPos);
+            line := history[historyPos];
+            write(inEditLine.outFile, line);
+            pos := succ(length(line));
+          end if;
+        elsif ch = '\C' or ch = '\T' then
+          write(inEditLine.outFile, " terminate (y/n)?   ");
+          moveLeft(inEditLine.outFile, "  ");
+          cursorOn(inEditLine.outFile, ' ');
+          flush(inEditLine.outFile);
+          response := getc(inEditLine.inFile);
+          cursorOff(inEditLine.outFile, ' ');
+          if lower(response) = 'y' then
+            writeln(inEditLine.outFile, "yes  ");
+            writeln(inEditLine.outFile);
+            writeln(inEditLine.outFile, "*** PROGRAM TERMINATED BY USER");
+            exit(PROGRAM);
+          else
+            backSpace(inEditLine.outFile, " terminate (y/n)? ");
+            write(inEditLine.outFile, line[pos len 20]);
+            moveLeft(inEditLine.outFile, line[pos len 20]);
+          end if;
+        elsif ch >= ' ' and ch <= '~' or ch >= '\160;' and ch <= '\255;' or
+              ch >= '\256;' and ch <= '\16#10ffff;' and inEditLine.allowUnicode then
+          line := line[.. pred(pos)] & str(ch) & line[pos ..];
+          write(inEditLine.outFile, line[pos ..]);
+          moveLeft(inEditLine.outFile, line[succ(pos) ..]);
+          incr(pos);
+        end if;
+      until ch = KEY_NL or ch = EOF;
+      writeln(inEditLine.outFile);
+      inEditLine.bufferChar := ch;
+      if length(inEditLine.history) = 0 or
+          inEditLine.history[length(inEditLine.history)] <> line then
+        inEditLine.history &:= line;
+      end if;
+    else
+      line := inEditLine.line;
+      inEditLine.line := "";
+    end if;
+    inEditLine.lineFinished := FALSE;
+  end func;
+
+
+(**
+ *  Read a character from ''inEditLine''.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *)
+const func char: getc (inout editLineFile: inEditLine) is func
+  result
+    var char: ch is ' ';
+  local
+    var integer: number is 0;
+  begin
+    if inEditLine.lineFinished then
+      inEditLine.line := getln(inEditLine);
+    end if;
+    if inEditLine.line = "" then
+      ch := inEditLine.bufferChar;
+      inEditLine.lineFinished := TRUE;
+    else
+      ch := inEditLine.line[1];
+      inEditLine.line := inEditLine.line[2 ..];
+    end if;
+  end func;
+
+
+(**
+ *  Read a [[string]] with maximum length from ''inEditLine''.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative.
+ *)
+const func string: gets (inout editLineFile: inEditLine, in integer: length) is func
+  result
+    var string: stri is "";
+  begin
+    if length < 0 then
+      raise RANGE_ERROR;
+    else
+      if inEditLine.lineFinished then
+        inEditLine.line := getln(inEditLine);
+      end if;
+      stri := inEditLine.line[.. length];
+      inEditLine.line := inEditLine.line[succ(length) ..];
+      while length(stri) < length do
+        stri &:= inEditLine.bufferChar;
+        inEditLine.lineFinished := TRUE;
+        if length(stri) < length then
+          inEditLine.line := getln(inEditLine);
+          stri &:= inEditLine.line[.. length - length(stri)];
+          inEditLine.line := inEditLine.line[succ(length - length(stri)) ..];
+        end if;
+      end while;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in editLineFile: inEditLine) is
+  return inEditLine.lineFinished and inEditLine.bufferChar = EOF;
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
+ *          TRUE otherwise.
+ *)
+const func boolean: hasNext (in editLineFile: inEditLine) is
+  return inEditLine.bufferChar = EOF;
+
+
+const func string: readPassword (inout file: aFile) is DYNAMIC;
+
+
+const func string: readPassword (inout editLineFile: inEditLine) is func
+  result
+    var string: line is "";
+  local
+    var char: ch is ' ';
+    var integer: pos is 1;
+   begin
+    repeat
+      if pos <= length(line) then
+        cursorOn(inEditLine.outFile, '*');
+      else
+        cursorOn(inEditLine.outFile, ' ');
+      end if;
+      flush(inEditLine.outFile);
+      ch := getc(inEditLine.inFile);
+      if pos <= length(line) then
+        cursorOff(inEditLine.outFile, '*');
+      else
+        cursorOff(inEditLine.outFile, ' ');
+      end if;
+      if ch = KEY_BS then
+        if pos > 1 then
+          decr(pos);
+          moveLeft(inEditLine.outFile, line[pos len 1]);
+          erase(inEditLine.outFile, line[pos ..]);
+          moveLeft(inEditLine.outFile, line[pos ..]);
+          line := line[.. pred(pos)] & line[succ(pos) ..];
+          write(inEditLine.outFile, "*" mult length(line[pos ..]));
+          moveLeft(inEditLine.outFile, line[pos ..]);
+        end if;
+      elsif ch = KEY_DEL then
+        if pos <= length(line) then
+          erase(inEditLine.outFile, line[pos ..]);
+          moveLeft(inEditLine.outFile, line[pos ..]);
+          line := line[.. pred(pos)] & line[succ(pos) ..];
+          write(inEditLine.outFile, "*" mult length(line[pos ..]));
+          moveLeft(inEditLine.outFile, line[pos ..]);
+        end if;
+      elsif ch = KEY_HOME then
+        moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+        pos := 1;
+      elsif ch = KEY_END then
+        write(inEditLine.outFile, line[pos ..]);
+        pos := succ(length(line));
+      elsif ch = KEY_LEFT then
+        if pos > 1 then
+          decr(pos);
+          moveLeft(inEditLine.outFile, line[pos len 1]);
+        end if;
+      elsif ch = KEY_RIGHT then
+        if pos <= length(line) then
+          write(inEditLine.outFile, "*");
+          incr(pos);
+        end if;
+      elsif ch >= ' ' and ch <= '~' or ch >= '\160;' and ch <= '\255;' or
+            ch >= '\256;' and ch <= '\16#10ffff;' and inEditLine.allowUnicode then
+        line := line[.. pred(pos)] & str(ch) & line[pos ..];
+        write(inEditLine.outFile, "*" mult length(line[pos ..]));
+        moveLeft(inEditLine.outFile, line[succ(pos) ..]);
+        incr(pos);
+      end if;
+    until ch = KEY_NL or ch = EOF;
+    writeln(inEditLine.outFile);
+    inEditLine.bufferChar := ch;
+    inEditLine.line := "";
+    inEditLine.lineFinished := FALSE;
+  end func;

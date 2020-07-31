@@ -1,0 +1,160 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  gtkserver.s7i Gtk-server connection library                     *)
+(*  Copyright (C) 2007  Leonardo Cecchi                             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "stdio.s7i";
+
+
+var file: gtk_sock is socket.value;
+var boolean: gtk_logging is FALSE;
+
+(****f* gtkserver/set_gtk_logging
+ * NAME
+ *   set_gtk_logging -- Activate or deactivate the gtk-server logging facility
+ * SYNOPSIS
+ *   const proc: set_gtk_logging (in boolean: status)
+ * FUNCTION
+ *   Activate or deactivate the gtk-server logging facility. If the gtk-server
+ *   logging facility is active you will see printed in the console the
+ *   gtk-server command that is currently invoked and the relative result
+ * INPUTS
+ *   flag - A boolean flag. If it's true the gtk-server logging facility is
+ *          activated, otherwise is deactivated
+ *)
+const proc: set_gtk_logging (in boolean: status) is func
+  begin
+    gtk_logging:=status;
+  end func;
+
+(** Internal use **)
+const proc: gtk_log (in string: msg, in string:res) is func
+  begin
+    if gtk_logging then
+      writeln(msg <& " ==> " <& res);
+    end if;
+  end func;
+
+(****f* gtkserver/gtk_start
+ * NAME
+ *   gtk_start -- Start the connection with the Gtk-Server
+ * SYNOPSIS
+ *   const proc: gtk_start(in integer: gtk_server_port)
+ * FUNCTION
+ *   Activate the TCP connection with the gtk-server; the port to use must be specified.
+ *   Please note that the gtk-server must be already started and listening on that
+ *   TCP port.
+ *   The gtk-server is only connected and not initialized so you must call the
+ *   gtk_init gtk-server command before creating your gui.
+ * INPUTS
+ *   port - The port to use in the gtk-server connection
+ * EXAMPLE
+ *   set_gtk_logging(FALSE);
+ *   gtk_start(8765);
+ *   gtk_exec("gtk_init NULL NULL");
+ *   main_window();
+ *   gtk_stop();
+ * NOTES
+ *   Please note that, before trying the previous example, you must start the gtk-server
+ *   with the following command:
+ *
+ *   gtk-server tcp=127.0.0.1:8765
+ * SEE ALSO
+ *   gtk_stop
+ *)
+const proc: gtk_start(in integer: gtk_server_port) is func
+  begin
+    gtk_sock := openInetSocket(gtk_server_port);
+  end func;
+
+(****f* gtkserver/gtk_stop
+ * NAME
+ *   gtk_stop -- Close the gtk-server connection
+ * SYNOPSIS
+ *   const proc: gtk_stop
+ * FUNCTION
+ *   Close the TCP connection with the gtk-server.
+ *   The connection must be already started.
+ * SEE ALSO
+ *   gtk_start
+ *)
+const proc: gtk_stop is func
+  begin
+    close(gtk_sock);
+  end func;
+
+(****f* gtkserver/gtk
+ * NAME
+ *   gtk -- Invoke a gtk-server command and return the result
+ * SYNOPSIS
+ *   const func string: gtk (in string: cmd)
+ * FUNCTION
+ *   Invoke a gtk-server command and return the result to the caller.
+ *   The connection must be already started.
+ * SEE ALSO
+ *   gtk_start
+ * NOTES
+ *   This function doesn't verify the command syntax so the gtk-server
+ *   command must be correct.
+ * EXAMPLE
+ *   wptr:=gtk("gtk_window_new 0");
+ *   gtk_exec("gtk_window_set_title " <& wptr <& " \"Gtk-Server Example\"");
+ *   vbox:=gtk("gtk_vbox_new 1 1");
+ *   bt_one:=gtk("gtk_button_new_with_label \"First Button\"");
+ *   bt_two:=gtk("gtk_button_new_with_label \"Second Button\"");
+ *)
+const func string: gtk (in string: cmd) is func
+  result
+    var string: msg is "";
+  begin
+    write(gtk_sock, cmd <& "\n");
+    flush(gtk_sock);
+    msg:=getln(gtk_sock);
+    gtk_log(cmd, msg);
+  end func;
+
+(****f* gtkserver/gtk_exec
+ * NAME
+ *   gtk -- Invoke a gtk-server command and discard the result
+ * SYNOPSIS
+ *   const proc: gtk_exec (in string: cmd)
+ * FUNCTION
+ *   Invoke a gtk-server command and discard the command result.
+ *   The connection must be already started.
+ * SEE ALSO
+ *   gtk_start
+ *   gtk_exec
+ *   gtk
+ * NOTES
+ *   This function doesn't verify the command syntax so the gtk-server
+ *   command must be correct.
+ *)
+const proc: gtk_exec (in string: cmd) is func
+  local
+    var string: msg is "";
+  begin
+    msg:=gtk(cmd);
+  end func;

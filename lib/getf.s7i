@@ -1,0 +1,113 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  getf.s7i      Read and write whole files into and from strings  *)
+(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "stdio.s7i";
+
+
+(**
+ *  Read the file with the given 'file_name' into a string.
+ *  @return a string with the file content, or "" if no file exists.
+ *)
+const func string: getf (in string: file_name) is func
+  result
+    var string: data is "";
+  local
+    var file: work_file is STD_NULL;
+  begin
+    work_file := open(file_name, "r");
+    if work_file <> STD_NULL then
+      data := gets(work_file, length(work_file));
+      close(work_file);
+    end if;
+  end func;
+
+
+(**
+ *  Write the string 'stri' to the file with the name 'file_name'.
+ *  If the file exists already, it is overwritten.
+ *)
+const proc: putf (in string: file_name, in string: stri) is func
+  local
+    var file: work_file is STD_NULL;
+  begin
+    if stri <> "" then
+      work_file := open(file_name, "w");
+      if work_file <> STD_NULL then
+        write(work_file, stri);
+        close(work_file);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Read the file with the name 'file_name' into an array of strings.
+ *  The function accepts lines ending with LF or with CR LF. The line
+ *  endings are not copied into the strings. The last line of the
+ *  file needs not to be terminated with a LF.
+ *  @return a string array with the file content, or an empty array if no file exists.
+ *)
+const func array string: readf (in string: file_name) is func
+  result
+    var array string: data is 0 times "";
+  local
+    var string: contents is "";
+  begin
+    contents := replace(getf(file_name), "\r\n", "\n");
+    if contents <> "" then
+      if endsWith(contents, "\n") then
+        data := split(contents[.. pred(length(contents))], "\n");
+      else
+        data := split(contents, "\n");
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Write the string array 'data' to the file with the name 'file_name'.
+ *  The elements of the array are written as lines to the file. The
+ *  function uses LF as line ending and the last line is also
+ *  terminated with a LF. If the file exists already, it is
+ *  overwritten.
+ *)
+const proc: writef (in string: file_name, in array string: data) is func
+  local
+    var file: work_file is STD_NULL;
+    var integer: line is 0;
+  begin
+    if length(data) <> 0 then
+      work_file := open(file_name, "w");
+      if work_file <> STD_NULL then
+        for line range 1 to length(data) do
+          writeln(work_file, data[line]);
+        end for;
+        close(work_file);
+      end if;
+    end if;
+  end func;

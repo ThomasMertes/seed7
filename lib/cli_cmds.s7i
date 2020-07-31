@@ -1,0 +1,1170 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cli_cmds.s7i  Emulate CLI commands from Unix and Dos.           *)
+(*  Copyright (C) 2010 - 2015, 2017, 2019  Thomas Mertes            *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "osfiles.s7i";
+include "shell.s7i";
+include "getf.s7i";
+include "wildcard.s7i";
+
+
+const set of char: parameter_char is {'!' .. '~'} - {'<', '>', '|', ';', ')'};
+const set of char: dos_parameter_char is {'!' .. '~'} - {'&', '<', '>', '|'};
+
+
+(**
+ *  Remove files and directories.
+ *  If errors occur messages are written to STD_OUT.
+ *  @param fileList List of files to be removed.
+ *  @param recursive TRUE if subdirectories should be
+ *                   removed recursively, FALSE otherwise.
+ *  @param force TRUE if absent files should not
+ *               trigger error messages, FALSE otherwise.
+ *)
+const proc: doRemoveCmd (in array string: fileList,
+    in boolean: recursive, in boolean: force) is func
+  local
+    var string: fileName is "";
+  begin
+    for fileName range fileList do
+      if fileTypeSL(fileName) = FILE_ABSENT then
+        if not force then
+          writeln("Cannot remove " <& fileName <& " - No such file or directory");
+        end if;
+      else
+        block
+          if recursive then
+            removeTree(fileName);
+          else
+            removeFile(fileName);
+          end if;
+        exception
+          catch FILE_ERROR:
+            writeln("Cannot remove " <& fileName <& " - Not permitted");
+        end block;
+      end if;
+    end for;
+  end func;
+
+
+(**
+ *  Copy files and directories.
+ *  The list of files must have at least two elements. If the
+ *  last element of the list is a directory the other files
+ *  are copied into this directory. If errors occur messages
+ *  are written to STD_OUT.
+ *  @param fileList List of files to be copied. The last
+ *                  element is the destination.
+ *  @param recursive TRUE if subdirectories should be
+ *                   copied recursively, FALSE otherwise.
+ *  @param overwriteExisting TRUE if existing files
+ *                           should be overwritten,
+ *                           FALSE otherwise.
+ *  @param archive TRUE if file properties should be
+ *                 preserved, FALSE otherwise.
+ *)
+const proc: doCopyCmd (in var array string: fileList,
+   in boolean: recursive, in boolean: overwriteExisting, in boolean: archive) is func
+  local
+    var string: fileName is "";
+    var string: destination is "";
+    var string: destFileName is "";
+    var integer: slashPos is 0;
+  begin
+    if length(fileList) >= 2 then
+      destination := fileList[length(fileList)];
+      fileList := fileList[.. pred(length(fileList))];
+      if fileType(destination) = FILE_DIR then
+        for fileName range fileList do
+          if fileType(fileName) = FILE_REGULAR or
+              (recursive and fileType(fileName) = FILE_DIR) then
+            slashPos := rpos(fileName, "/");
+            if slashPos = 0 then
+              destFileName := destination & "/" & fileName;
+            else
+              destFileName := destination & "/" & fileName[succ(slashPos) ..];
+            end if;
+            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
+              block
+                removeFile(destFileName);
+              exception
+                catch FILE_ERROR:
+                  writeln(" *** Cannot remove " <& destFileName);
+              end block;
+            end if;
+            if fileType(destFileName) = FILE_ABSENT then
+              # write("copyFile " <& fileName <& " " <& destination);
+              if archive then
+                cloneFile(fileName, destFileName);
+              else
+                copyFile(fileName, destFileName);
+              end if;
+            end if;
+          elsif fileType(fileName) = FILE_ABSENT then
+            writeln("Cannot copy non-existent file " <& fileName);
+          else
+            writeln("Cannot copy " <& fileName);
+          end if;
+        end for;
+      elsif length(fileList) = 1 then
+        fileName := fileList[1];
+        if fileType(fileName) = FILE_REGULAR or
+            (recursive and fileType(fileName) = FILE_DIR) then
+          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
+            block
+              removeFile(destination);
+            exception
+              catch FILE_ERROR:
+                writeln(" *** Cannot remove " <& destination);
+            end block;
+          end if;
+          if fileType(destination) = FILE_ABSENT then
+            # write("copyFile " <& fileName <& " " <& destination);
+            if archive then
+              cloneFile(fileName, destination);
+            else
+              copyFile(fileName, destination);
+            end if;
+          end if;
+        elsif fileType(fileName) = FILE_ABSENT then
+          writeln("Cannot copy non-existent file " <& fileName);
+        else
+          writeln("Cannot copy " <& fileName);
+        end if;
+      else
+        writeln("Target " <& destination <& " is not a directory");
+      end if;
+    else
+      writeln("Missing destination file");
+    end if;
+  end func;
+
+
+(**
+ *  Move files and directories.
+ *  The list of files must have at least two elements. If the
+ *  last element of the list is a directory the other files
+ *  are moved into this directory. If errors occur messages
+ *  are written to STD_OUT.
+ *  @param fileList List of files to be moved. The last
+ *                  element is the destination.
+ *  @param overwriteExisting TRUE if existing files
+ *                           should be overwritten,
+ *                           FALSE otherwise.
+ *)
+const proc: doMoveCmd (in var array string: fileList,
+    in boolean: overwriteExisting) is func
+  local
+    var string: fileName is "";
+    var string: destination is "";
+    var string: destFileName is "";
+    var integer: slashPos is 0;
+  begin
+    if length(fileList) >= 2 then
+      destination := fileList[length(fileList)];
+      fileList := fileList[.. pred(length(fileList))];
+      if fileType(destination) = FILE_DIR then
+        for fileName range fileList do
+          if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+            slashPos := rpos(fileName, "/");
+            if slashPos = 0 then
+              destFileName := destination & "/" & fileName;
+            else
+              destFileName := destination & "/" & fileName[succ(slashPos) ..];
+            end if;
+            if fileTypeSL(destFileName) = FILE_REGULAR and overwriteExisting then
+              block
+                removeFile(destFileName);
+              exception
+                catch FILE_ERROR:
+                  writeln(" *** Cannot remove " <& destFileName);
+              end block;
+            end if;
+            if fileType(destFileName) = FILE_ABSENT then
+              # write("moveFile " <& fileName <& " " <& destination);
+              moveFile(fileName, destFileName);
+            end if;
+          elsif fileType(fileName) = FILE_ABSENT then
+            writeln("Cannot move non-existent file " <& fileName);
+          else
+            writeln("Cannot move " <& fileName);
+          end if;
+        end for;
+      elsif length(fileList) = 1 then
+        fileName := fileList[1];
+        if fileType(fileName) = FILE_REGULAR or fileType(fileName) = FILE_DIR then
+          if fileTypeSL(destination) = FILE_REGULAR and overwriteExisting then
+            block
+              removeFile(destination);
+            exception
+              catch FILE_ERROR:
+                writeln(" *** Cannot remove " <& destination);
+            end block;
+          end if;
+          if fileType(destination) = FILE_ABSENT then
+            # write("moveFile " <& fileName <& " " <& destination);
+            moveFile(fileName, destination);
+          end if;
+        elsif fileType(fileName) = FILE_ABSENT then
+          writeln("Cannot move non-existent file " <& fileName);
+        else
+          writeln("Cannot move " <& fileName);
+        end if;
+      else
+        writeln("Target " <& destination <& " is not a directory");
+      end if;
+    else
+      writeln("Missing destination file");
+    end if;
+  end func;
+
+
+(**
+ *  Make directories.
+ *  @param fileList List of directories to be created.
+ *  @param parentDirs TRUE if parent directories should
+ *                    be created as needed, FALSE otherwise.
+ *)
+const proc: doMkdirCmd (in array string: fileList,
+    in boolean: parentDirs) is func
+  local
+    var string: fileName is "";
+    var boolean: okay is TRUE;
+  begin
+    for fileName range fileList do
+      okay := TRUE;
+      if parentDirs then
+        block
+          makeParentDirs(fileName);
+        exception
+          catch FILE_ERROR:
+            writeln(" *** Cannot make parent directories of " <& fileName <& " - Element is not a directory");
+            okay := FALSE;
+        end block;
+      end if;
+      if okay then
+        if fileTypeSL(fileName) = FILE_ABSENT then
+          block
+            mkdir(fileName);
+          exception
+            catch FILE_ERROR:
+              writeln(" *** Cannot make directory " <& fileName);
+          end block;
+        elsif fileTypeSL(fileName) = FILE_DIR and not parentDirs then
+          writeln(" *** Cannot make directory " <& fileName <& " - File exists");
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const func string: getCommandParameter (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var char: quotation is ' ';
+    var integer: quotedPos is 0;
+    var string: quotedPart is "";
+    var boolean: quoteMissing is FALSE;
+  begin
+    leng := length(stri);
+    repeat
+      if stri[pos] = '"' or stri[pos] = ''' then
+        quotation := stri[pos];
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and stri[quotedPos] <> quotation do
+          quotedPart &:= stri[quotedPos];
+          incr(quotedPos);
+        end while;
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
+      else
+        repeat
+          symbol &:= stri[pos];
+          incr(pos);
+        until pos > leng or stri[pos] not in parameter_char or
+            stri[pos] = '"' or stri[pos] = ''';
+      end if;
+    until pos > leng or stri[pos] not in parameter_char or quoteMissing;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Read a parameter for a Unix command from a 'string'.
+ *  Unix parameters consist of unquoted and quoted parts. Quoted parts
+ *  can be quoted with single quotes (') or with double quotes (").
+ *  A single quoted part ends with the next single quote. A double
+ *  quoted part ends with unescaped double quotes. In a double quoted
+ *  part the sequences \" and \\ do not terminate the quoted part and
+ *  describe a double quote (") respectively a backslash (\). In an
+ *  unquoted part a backslash (\) can used to escape characters that
+ *  would otherwise have a special meaning. The backslash is ignored
+ *  and the character after it is added to the word. To represent a
+ *  backslash it must be doubled. When the function is called it is
+ *  assumed that parameters[1] contains the first character of the
+ *  parameter. When the function is left ''parameters'' is empty or
+ *  parameters[1] contains the character after the parameter.
+ *  @return the next parameter for a Unix command.
+ *)
+const func string: getUnixCommandParameter (inout string: parameters) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var integer: quotedPos is 0;
+    var string: quotedPart is "";
+    var boolean: quoteMissing is FALSE;
+  begin
+    leng := length(parameters);
+    while pos <= leng and parameters[pos] in parameter_char and
+        not quoteMissing do
+      if parameters[pos] = '"' then
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> '"' do
+          if parameters[quotedPos] = '\\' and quotedPos < leng and
+              (parameters[succ(quotedPos)] = '"' or
+               parameters[succ(quotedPos)] = '\\') then
+            incr(quotedPos);
+          end if;
+          quotedPart &:= parameters[quotedPos];
+          incr(quotedPos);
+        end while;
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
+      elsif parameters[pos] = ''' then
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> ''' do
+          quotedPart &:= parameters[quotedPos];
+          incr(quotedPos);
+        end while;
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
+      else
+        repeat
+          if parameters[pos] = '\\' and pos < leng then
+            incr(pos);
+          end if;
+          symbol &:= parameters[pos];
+          incr(pos);
+        until pos > leng or parameters[pos] not in parameter_char or
+            parameters[pos] = '"' or parameters[pos] = ''';
+      end if;
+    end while;
+    parameters := parameters[pos ..];
+  end func;
+
+
+(**
+ *  Read a parameter for a Dos command from a 'string'.
+ *  Dos parameters consist of unquoted and quoted parts. Quoted parts
+ *  start with a double quote (") and end with the next double quote.
+ *  In an unquoted part a caret (^) can used to escape characters that
+ *  would otherwise have a special meaning. The caret is ignored and
+ *  the character after it is added to the word. To represent a caret
+ *  it must be doubled. When the function is called it is assumed that
+ *  parameters[1] contains the first character of the parameter. When
+ *  the function is left 'parameters' is empty or parameters[1]
+ *  contains the character after the parameter.
+ *  @return the next parameter for a Dos command.
+ *)
+const func string: getDosCommandParameter (inout string: parameters) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var integer: quotedPos is 0;
+    var string: quotedPart is "";
+    var boolean: quoteMissing is FALSE;
+  begin
+    leng := length(parameters);
+    while pos <= leng and parameters[pos] in dos_parameter_char and
+        not quoteMissing do
+      if parameters[pos] = '"' then
+        quotedPos := succ(pos);
+        quotedPart := "";
+        while quotedPos <= leng and parameters[quotedPos] <> '"' do
+          quotedPart &:= parameters[quotedPos];
+          incr(quotedPos);
+        end while;
+        if quotedPos <= leng then
+          pos := succ(quotedPos);
+          symbol &:= quotedPart;
+        else
+          quoteMissing := TRUE;
+        end if;
+      else
+        repeat
+          if parameters[pos] = '^' then
+            incr(pos);
+            if pos <= leng then
+              symbol &:= parameters[pos];
+            end if;
+          else
+            symbol &:= parameters[pos];
+          end if;
+          incr(pos);
+        until pos > leng or parameters[pos] not in dos_parameter_char or
+            parameters[pos] = '"';
+      end if;
+    end while;
+    parameters := parameters[pos ..];
+  end func;
+
+
+(**
+ *  Read a parameter for the Dos echo command from a 'string'.
+ *  Dos parameters consist of unquoted and quoted parts. Quoted parts
+ *  start with a double quote (") and end with the next double quote.
+ *  The starting and ending double quotes are part of the result.
+ *  In an unquoted part a caret (^) can used to escape characters that
+ *  would otherwise have a special meaning. The caret is ignored and
+ *  the character after it is added to the word. To represent a caret
+ *  it must be doubled. When the function is called it is assumed that
+ *  parameters[1] contains the first character of the parameter. When
+ *  the function is left 'parameters' is empty or parameters[1]
+ *  contains the character after the parameter.
+ *  @return the next parameter for the Dos echo command.
+ *)
+const func string: getDosEchoParameter (inout string: parameters) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(parameters);
+    repeat
+      # writeln("source char: " <& parameters[pos]);
+      if parameters[pos] = '"' then
+        # Inside quotation mode
+        repeat
+          symbol &:= parameters[pos];
+          incr(pos);
+        until pos > leng or parameters[pos] = '"';
+        if pos <= leng then
+          # Consume the terminating quotation mark
+          symbol &:= '"';
+          incr(pos);
+        end if;
+      else
+        # Outside quotation mode
+        repeat
+          if parameters[pos] = '^' then
+            incr(pos);
+            if pos <= leng then
+              symbol &:= parameters[pos];
+            end if;
+          else
+            symbol &:= parameters[pos];
+          end if;
+          incr(pos);
+        until pos > leng or parameters[pos] not in dos_parameter_char or
+            parameters[pos] = '"';
+      end if;
+    until pos > leng or parameters[pos] not in dos_parameter_char;
+    parameters := parameters[pos ..];
+  end func;
+
+
+const func boolean: doOneCommand (inout string: command,
+    inout string: commandOutput) is forward;
+
+
+const func string: execCommand (inout string: command) is func
+  result
+    var string: backtickOutput is "";
+  local
+    var string: fullCommand is "";
+    var file: commandFile is STD_NULL;
+  begin
+    fullCommand := command;
+    if not doOneCommand(command, backtickOutput) then
+      # writeln("command: " <& literal(fullCommand));
+      commandFile := popen(fullCommand, "r");
+      if commandFile <> STD_NULL then
+        backtickOutput := gets(commandFile, 999999999);
+        while endsWith(backtickOutput, "\r\n") do
+          backtickOutput := backtickOutput[.. length(backtickOutput) - 2];
+        end while;
+        while endsWith(backtickOutput, "\n") do
+          backtickOutput := backtickOutput[.. pred(length(backtickOutput))];
+        end while;
+      else
+        backtickOutput := "";
+      end if;
+    end if;
+  end func;
+
+
+const func string: execBacktickCommands (in string: stri) is func
+  result
+    var string: withBacktickOutput is "";
+  local
+    var integer: backtickPos is 0;
+    var integer: closingBacktickPos is 0;
+    var string: command is "";
+    var string: backtickOutput is "";
+  begin
+    withBacktickOutput := stri;
+    backtickPos := pos(withBacktickOutput, '`');
+    while backtickPos <> 0 do
+      closingBacktickPos := pos(withBacktickOutput, '`', succ(backtickPos));
+      if closingBacktickPos <> 0 then
+        command := withBacktickOutput[succ(backtickPos) .. pred(closingBacktickPos)];
+        backtickOutput := execCommand(command);
+        withBacktickOutput := withBacktickOutput[.. pred(backtickPos)] & backtickOutput &
+                              withBacktickOutput[succ(closingBacktickPos) ..];
+      end if;
+      backtickPos := pos(withBacktickOutput, '`', succ(backtickPos));
+    end while;
+  end func;
+
+
+const proc: addToFileList (inout array string: fileList, in var string: parameter) is func
+  local
+    var string: fileName is "";
+  begin
+    parameter := convDosPath(parameter);
+    if pos(parameter, "*") <> 0 or pos(parameter, "?") <> 0 then
+      for fileName range findMatchingFiles(parameter) do
+        fileList &:= [] (fileName);
+      end for;
+    else
+      fileList &:= [] (parameter);
+    end if;
+  end func;
+
+
+(**
+ *  Remove files and directories like the Unix rm command.
+ *  The command accepts the options -r, -R and -f.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doRm (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var char: option is ' ';
+    var boolean: recursive is FALSE;
+    var boolean: force is FALSE;
+    var boolean: optionMayFollow is TRUE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doRm(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getUnixCommandParameter(parameters);
+    while startsWith(aParam, "-") and optionMayFollow do
+      aParam := aParam[2 ..];
+      for option range aParam do
+        case option of
+          when {'r', 'R'}: recursive := TRUE;
+          when {'f'}:      force := TRUE;
+          when {'-'}:      optionMayFollow := FALSE;
+        end case;
+      end for;
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    while aParam <> "" do
+      addToFileList(fileList, aParam);
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    doRemoveCmd(fileList, recursive, force);
+  end func;
+
+
+(**
+ *  Remove files and directories like the DOS del command.
+ *  The command accepts the option /S.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doDel (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var boolean: recursive is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doDel(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getDosCommandParameter(parameters);
+    while aParam <> "" do
+      if upper(aParam) = "/S" then
+        recursive := TRUE;
+      elsif not startsWith(aParam, "/") then
+        addToFileList(fileList, aParam);
+      end if;
+      skipWhiteSpace(parameters);
+      aParam := getDosCommandParameter(parameters);
+    end while;
+    doRemoveCmd(fileList, recursive, FALSE);
+  end func;
+
+
+(**
+ *  Copy files and directories like the Unix cp command.
+ *  The command accepts the options -r, -R, -n, -a and -p.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doCp (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var char: option is ' ';
+    var boolean: recursive is FALSE;
+    var boolean: overwriteExisting is TRUE;
+    var boolean: archive is FALSE;
+    var boolean: optionMayFollow is TRUE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doCp(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getUnixCommandParameter(parameters);
+    while startsWith(aParam, "-") and optionMayFollow do
+      aParam := aParam[2 ..];
+      for option range aParam do
+        case option of
+          when {'r', 'R'}: recursive := TRUE;
+          when {'n'}:      overwriteExisting := FALSE;
+          when {'a', 'p'}: recursive := TRUE;
+                           archive := TRUE;
+          when {'-'}:      optionMayFollow := FALSE;
+        end case;
+      end for;
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    while aParam <> "" do
+      addToFileList(fileList, aParam);
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    doCopyCmd(fileList, recursive, overwriteExisting, archive);
+  end func;
+
+
+(**
+ *  Copy files and directories like the DOS copy command.
+ *  The command accepts the option /Y.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doCopy (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var boolean: overwriteExisting is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doCopy(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getDosCommandParameter(parameters);
+    while aParam <> "" do
+      if upper(aParam) = "/Y" then
+        overwriteExisting := TRUE;
+      elsif not startsWith(aParam, "/") then
+        addToFileList(fileList, aParam);
+      end if;
+      skipWhiteSpace(parameters);
+      aParam := getDosCommandParameter(parameters);
+    end while;
+    doCopyCmd(fileList, FALSE, overwriteExisting, FALSE);
+  end func;
+
+
+(**
+ *  Copy files and directories like the DOS xcopy command.
+ *  The command accepts the options /E, /O and /Y.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doXCopy (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var boolean: recursive is FALSE;
+    var boolean: overwriteExisting is FALSE;
+    var boolean: archive is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doXCopy(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getDosCommandParameter(parameters);
+    while aParam <> "" do
+      if upper(aParam) = "/E" then
+        recursive := TRUE;
+      elsif upper(aParam) = "/O" then
+        archive := TRUE;
+      elsif upper(aParam) = "/Y" then
+        overwriteExisting := TRUE;
+      elsif not startsWith(aParam, "/") then
+        addToFileList(fileList, aParam);
+      end if;
+      skipWhiteSpace(parameters);
+      aParam := getDosCommandParameter(parameters);
+    end while;
+    doCopyCmd(fileList, recursive, overwriteExisting, archive);
+  end func;
+
+
+(**
+ *  Move files and directories like the Unix mv command.
+ *  The command accepts the option -n.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doMv (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var char: option is ' ';
+    var boolean: overwriteExisting is TRUE;
+    var boolean: optionMayFollow is TRUE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doMv(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getUnixCommandParameter(parameters);
+    while startsWith(aParam, "-") and optionMayFollow do
+      aParam := aParam[2 ..];
+      for option range aParam do
+        case option of
+          when {'n'}:      overwriteExisting := FALSE;
+          when {'-'}:      optionMayFollow := FALSE;
+        end case;
+      end for;
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    while aParam <> "" do
+      addToFileList(fileList, aParam);
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    doMoveCmd(fileList, overwriteExisting);
+  end func;
+
+
+(**
+ *  Move files and directories like the DOS move command.
+ *  The command accepts the option /Y.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doMove (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var boolean: overwriteExisting is FALSE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doMove(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getDosCommandParameter(parameters);
+    while aParam <> "" do
+      if upper(aParam) = "/Y" then
+        overwriteExisting := TRUE;
+      elsif not startsWith(aParam, "/") then
+        addToFileList(fileList, aParam);
+      end if;
+      skipWhiteSpace(parameters);
+      aParam := getDosCommandParameter(parameters);
+    end while;
+    doMoveCmd(fileList, overwriteExisting);
+  end func;
+
+
+(**
+ *  Make directories like the Unix mkdir command.
+ *  The command accepts the option -p.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doMkdir (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var char: option is ' ';
+    var boolean: parentDirs is FALSE;
+    var boolean: optionMayFollow is TRUE;
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doMkdir(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getUnixCommandParameter(parameters);
+    while startsWith(aParam, "-") and optionMayFollow do
+      aParam := aParam[2 ..];
+      for option range aParam do
+        case option of
+          when {'p'}: parentDirs := TRUE;
+          when {'-'}: optionMayFollow := FALSE;
+        end case;
+      end for;
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    while aParam <> "" do
+      addToFileList(fileList, aParam);
+      skipWhiteSpace(parameters);
+      aParam := getUnixCommandParameter(parameters);
+    end while;
+    doMkdirCmd(fileList, TRUE);  # Under windows mkdir generates parent dirs.
+  end func;
+
+
+(**
+ *  Make directories like the DOS md command.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doMd (inout string: parameters) is func
+  local
+    var string: aParam is "";
+    var array string: fileList is 0 times "";
+  begin
+    # writeln("doMd(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    aParam := getDosCommandParameter(parameters);
+    while aParam <> "" do
+      if not startsWith(aParam, "/") then
+        addToFileList(fileList, aParam);
+      end if;
+      skipWhiteSpace(parameters);
+      aParam := getDosCommandParameter(parameters);
+    end while;
+    doMkdirCmd(fileList, TRUE);
+  end func;
+
+
+(**
+ *  Act like the Unix/DOS pwd (print working directory) command.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *  @return the current working directory.
+ *)
+const func string: doPwd (inout string: parameters) is func
+  result
+    var string: commandOutput is "";
+  begin
+    # writeln("doPwd(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    if startsWith(parameters, "-W") then
+      parameters := parameters[3 ..];
+      skipWhiteSpace(parameters);
+    end if;
+    commandOutput := getcwd & "\n";
+  end func;
+
+
+(**
+ *  Act like the Unix/DOS echo (write text) command.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *  @return the string that should be written.
+ *)
+const func string: doEcho (inout string: parameters) is func
+  result
+    var string: commandOutput is "";
+  local
+    var string: whiteSpace is "";
+    var string: aParam is "";
+  begin
+    # writeln("doEcho(" <& literal(parameters) <& ")");
+    whiteSpace := getWhiteSpace(parameters);
+    if parameters <> "" and (parameters[1] = '"' or parameters[1] = ''') then
+      while parameters <> "" and parameters[1] in parameter_char do
+        if commandOutput <> "" then
+          commandOutput &:= whiteSpace;
+        end if;
+        aParam := getUnixCommandParameter(parameters);
+        commandOutput &:= execBacktickCommands(aParam);
+        whiteSpace := getWhiteSpace(parameters);
+      end while;
+    else
+      while parameters <> "" and parameters[1] in parameter_char do
+        aParam := getDosEchoParameter(parameters);
+        commandOutput &:= aParam;
+        commandOutput &:= getWhiteSpace(parameters);
+      end while;
+    end if;
+    commandOutput &:= "\n";
+  end func;
+
+
+(**
+ *  Change working directory like the Unix/DOS cd command.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doCd (inout string: parameters) is func
+  local
+    var string: aParam is "";
+  begin
+    # writeln("doCd(" <& literal(parameters) <& ")");
+    skipWhiteSpace(parameters);
+    if parameters <> "" then
+      aParam := getCommandParameter(parameters);
+      aParam := convDosPath(aParam);
+      if fileType(aParam) = FILE_DIR then
+        chdir(aParam);
+      else
+        writeln(" *** cd " <& aParam <& " - No such file or directory");
+        # writeln(getcwd);
+        # writeln(fileType(aParam));
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Act like the Unix make command.
+ *  This library just contains a forward definition.
+ *  The actual definition of this function must be done
+ *  outside of this library.
+ *  @param parameters Parameters (file names and options)
+ *                    of the command. The function
+ *                    removes the used parameters.
+ *)
+const proc: doMake (inout string: parameters) is forward;
+
+
+const func boolean: doOneCommand (inout string: command,
+    inout string: commandOutput) is func
+  result
+    var boolean: done is TRUE;
+  local
+    var string: commandName is "";
+  begin
+    if command <> "" and command[1] = '#' then
+      command := "";
+      commandOutput := "";
+    else
+      commandName := lower(getWord(command));
+      # writeln("doOneCommand: " <& commandName);
+      if commandName = "rm" then
+        doRm(command);
+        commandOutput := "";
+      elsif commandName = "del" or commandName = "erase" then
+        doDel(command);
+        commandOutput := "";
+      elsif commandName = "cp" then
+        doCp(command);
+        commandOutput := "";
+      elsif commandName = "copy" then
+        doCopy(command);
+        commandOutput := "";
+      elsif commandName = "xcopy" then
+        doXCopy(command);
+        commandOutput := "";
+      elsif commandName = "mv" then
+        doMv(command);
+        commandOutput := "";
+      elsif commandName = "move" then
+        doMove(command);
+        commandOutput := "";
+      elsif commandName = "mkdir" then
+        doMkdir(command);
+        commandOutput := "";
+      elsif commandName = "md" then
+        doMd(command);
+        commandOutput := "";
+      elsif commandName = "pwd" then
+        commandOutput := doPwd(command);
+      elsif commandName = "echo" or commandName = "echo." then
+        commandOutput := doEcho(command);
+      elsif commandName = "cd" then
+        doCd(command);
+        commandOutput := "";
+      elsif commandName = "make" or commandName = "make7" then
+        doMake(command);
+        commandOutput := "";
+      elsif commandName = "rem" then
+        command := "";
+        commandOutput := "";
+      elsif commandName = "(" then
+        done := doOneCommand(command, commandOutput);
+      else
+        done := FALSE;
+        commandOutput := "";
+      end if;
+    end if;
+  end func;
+
+
+const proc: appendToFile (in string: file_name, in string: stri) is func
+  local
+    var file: work_file is STD_NULL;
+  begin
+    if stri <> "" then
+      work_file := open(file_name, "a");
+      if work_file <> STD_NULL then
+        write(work_file, stri);
+        close(work_file);
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: doCommands (inout string: command) is func
+  result
+    var boolean: done is TRUE;
+  local
+    var integer: quotePos is 0;
+    var string: commandOutput is "";
+    var string: redirect is "";
+    var string: fileName is "";
+  begin
+    if startsWith(command, "\"") then
+      quotePos := rpos(command, "\"");
+      if quotePos <> 0 and quotePos <> 1 then
+        command := command[2 .. pred(quotePos)] & command[succ(quotePos) ..];
+      end if;
+    end if;
+    repeat
+      done := doOneCommand(command, commandOutput);
+      if done then
+        skipWhiteSpace(command);
+        redirect := getWord(command);
+        if redirect = ">" then
+          skipWhiteSpace(command);
+          fileName := getCommandParameter(command);
+          if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
+            fileName := convDosPath(fileName);
+            putf(fileName, commandOutput);
+          end if;
+        elsif redirect = ">>" then
+          skipWhiteSpace(command);
+          fileName := getCommandParameter(command);
+          if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
+            fileName := convDosPath(fileName);
+            appendToFile(fileName, commandOutput);
+          end if;
+        elsif commandOutput <> "" then
+          write(commandOutput);
+        end if;
+        skipWhiteSpace(command);
+        if command <> "" and command[1] = ';' then
+          command := command[2 ..];
+          skipWhiteSpace(command);
+        end if;
+      end if;
+    until command = "" or not done;
+  end func;
+
+
+const func integer: processCommand (in var string: command) is func
+  result
+    var integer: commandStatus is 0;
+  local
+    var string: fullCommand is "";
+    var integer: gtPos is 0;
+    var boolean: doRedirect is FALSE;
+    var boolean: doAppend is FALSE;
+    var string: rawFileName is "";
+    var string: fileName is "";
+    var file: aFile is STD_NULL;
+    var string: commandOutput is "";
+  begin
+    # writeln("process command: " <& command);
+    fullCommand := command;
+    if not doCommands(command) then
+      gtPos := rpos(fullCommand, ">");
+      if gtPos >= 2 then
+        rawFileName := fullCommand[succ(gtPos) ..];
+        skipWhiteSpace(rawFileName);
+        fileName := getCommandParameter(rawFileName);
+        skipWhiteSpace(rawFileName);
+        if rawFileName = "" then
+          if fullCommand[pred(gtPos)] = '>' and gtPos >= 3 and
+              fullCommand[gtPos - 2] not in {'\\', '^'} then
+            doAppend := TRUE;
+            fullCommand := fullCommand[.. gtPos - 2];
+          elsif fullCommand[pred(gtPos)] not in {'\\', '^', '2'} then
+            doRedirect := TRUE;
+            fullCommand := fullCommand[.. pred(gtPos)];
+          end if;
+        end if;
+      end if;
+      if doRedirect or doAppend then
+        if startsWith(fullCommand, "\"") then
+          command := getQuotedText(fullCommand);
+        else
+          command := getWord(fullCommand);
+        end if;
+        # writeln("cmd: " <& literal(command) <& " " <& literal(convDosPath(command)) <& " " <& literal(fullCommand));
+        aFile := popen(convDosPath(command), fullCommand, "r");
+        if aFile <> STD_NULL then
+          commandOutput := gets(aFile, 999999999);
+          close(aFile);
+          if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
+            fileName := convDosPath(fileName);
+            if doAppend then
+              appendToFile(fileName, commandOutput);
+            else
+              putf(fileName, commandOutput);
+            end if;
+          end if;
+        end if;
+      else
+        if startsWith(fullCommand, "\"") then
+          command := getQuotedText(fullCommand);
+        else
+          command := getWord(fullCommand);
+        end if;
+        # writeln("cmd: " <& literal(command) <& " " <& literal(convDosPath(command)) <& " " <& literal(fullCommand));
+        commandStatus := shell(convDosPath(command), fullCommand);
+      end if;
+    end if;
+  end func;

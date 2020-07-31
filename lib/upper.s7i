@@ -1,0 +1,100 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  upper.s7i     Filter file which turns characters to upper case  *)
+(*  Copyright (C) 1992, 1993, 1994, 2005 Thomas Mertes              *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: upper_file is sub null_file struct
+    var file: destination_file is STD_NULL;
+  end struct;
+
+
+const func file: openUpper (in file: aFile) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var upper_file: new_upper_file is upper_file.value;
+  begin
+    new_upper_file.destination_file := aFile;
+    newFile := toInterface(new_upper_file);
+  end func;
+
+
+(*
+const proc: page (ref upper_file: upper_fil) is func
+  begin
+    page(upper_fil.destination_file);
+  end func;
+*)
+
+
+const proc: write (inout upper_file: upper_fil, in string: stri) is func
+  begin
+    write(upper_fil.destination_file, upper(stri));
+  end func;
+
+
+const proc: writeln (inout upper_file: upper_fil) is func
+  begin
+    writeln(upper_fil.destination_file);
+  end func;
+
+
+const proc: writeln (inout upper_file: upper_fil, in string: stri) is func
+  begin
+    writeln(upper_fil.destination_file, upper(stri));
+  end func;
+
+
+const proc: moveLeft (inout upper_file: upper_fil, in string: stri) is func
+  begin
+    moveLeft(upper_fil.destination_file, stri);
+  end func;
+
+
+const proc: erase (inout upper_file: upper_fil, in string: stri) is func
+  begin
+    erase(upper_fil.destination_file, stri);
+  end func;
+
+
+const proc: cursorOn (inout upper_file: upper_fil, in char: cursorChar) is func
+  begin
+    cursorOn(upper_fil.destination_file, cursorChar);
+  end func;
+
+
+const proc: cursorOff (inout upper_file: upper_fil, in char: cursorChar) is func
+  begin
+    cursorOff(upper_fil.destination_file, cursorChar);
+  end func;
+
+
+const func string: gets (inout upper_file: upper_fil, in integer: maxLength) is func
+  result
+    var string: stri is "";
+  begin
+    stri := upper(gets(upper_fil.destination_file, maxLength));
+  end func;

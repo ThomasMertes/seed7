@@ -1,0 +1,77 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  subrange.s7i  Subrange support library                          *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Template function to define an abstract data type for subranges.
+ *  This template defines the abstract data type for the given ''baseType''.
+ *)
+const proc: SUBRANGE_TYPES (in type: baseType) is func
+  begin
+
+    (**
+     *  Abstract data type, describing a subrange type.
+     *)
+    const func type: subrange (in baseType: first) .. (in baseType: last) is func
+      result
+        var type: subrangeType is void;
+      begin
+        global
+        subrangeType := subtype baseType;
+        IN_PARAM_IS_REFERENCE(subrangeType);
+
+        (**
+         *  First value of the ''subrangeType''.
+         *)
+        const subrangeType: (attr subrangeType) . first is first;
+
+        (**
+         *  Last value of the ''subrangeType''.
+         *)
+        const subrangeType: (attr subrangeType) . last  is last;
+
+        if baseType.value >= first and baseType.value <= last then
+          const subrangeType: (attr subrangeType) . value is baseType.value;
+        else
+          const subrangeType: (attr subrangeType) . value is first;
+        end if;
+
+        if baseType <> integer then
+          const func subrangeType: (attr subrangeType) conv (in baseType: enum) is action "ENU_CONV";
+        end if;
+
+        const func subrangeType: (attr subrangeType) conv (in integer: number) is
+          return subrangeType conv baseType conv number;
+
+        end global;
+      end func;
+
+  end func;
+
+SUBRANGE_TYPES(integer);
+SUBRANGE_TYPES(char);
+SUBRANGE_TYPES(boolean);

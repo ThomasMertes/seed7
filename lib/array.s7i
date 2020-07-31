@@ -1,0 +1,505 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  array.s7i     Support for arrays with integer index             *)
+(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: ARRAY_IDX_RANGE is new struct
+    var integer: minIdx is 1;
+    var integer: maxIdx is 0;
+  end struct;
+
+const func ARRAY_IDX_RANGE: [ (in integer: minIdx) .. (in integer: maxIdx) ] is func
+  result
+    var ARRAY_IDX_RANGE: indexRange is ARRAY_IDX_RANGE.value;
+  begin
+    indexRange.minIdx := minIdx;
+    indexRange.maxIdx := maxIdx;
+  end func;
+
+
+(**
+ *  Abstract data type, describing resizable arrays with [[integer]] index.
+ *  Arrays with non-integer index are described in [[idxarray]].
+ *)
+const func type: array (in type: baseType) is func
+  result
+    var type: arrayType is void;
+  local
+    var type: tupleType is void;
+  begin
+    arrayType := get_type(getfunc(array (attr baseType)));
+    if arrayType = void then
+      global
+      arrayType := newtype;
+      IN_PARAM_IS_REFERENCE(arrayType);
+      tupleType := tuple(baseType);
+      const type: array (attr baseType)                                       is arrayType;
+      const type: base_type (attr arrayType)                                  is baseType;
+
+      const proc: (ref arrayType: dest) ::= (in arrayType: source)            is action "ARR_CREATE";
+      const proc: destroy (ref arrayType: aValue)                             is action "ARR_DESTR";
+      const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
+
+      (**
+       *  Append the array ''extension'' to the array ''arr''.
+       *  @exception MEMORY_ERROR Not enough memory for the concatenated
+       *             array.
+       *)
+      const proc: (inout arrayType: arr) &:= (in arrayType: extension)        is action "ARR_APPEND";
+
+      (**
+       *  Append the given ''element'' to the array ''arr''.
+       *  @exception MEMORY_ERROR Not enough memory for the concatenated
+       *             array.
+       *)
+      const proc: (inout arrayType: arr) &:= (in baseType: element)           is action "ARR_PUSH";
+
+      const func arrayType: [] (in tupleType: aTuple)                         is action "ARR_ARRLIT";
+      const func arrayType: [] (in baseType: anElement)                       is action "ARR_BASELIT";
+      const func arrayType: [ (in integer: start) ] (in tupleType: aTuple)    is action "ARR_ARRLIT2";
+      const func arrayType: [ (in integer: start) ] (in baseType: anElement)  is action "ARR_BASELIT2";
+
+      (**
+       *  Concatenate two arrays.
+       *  @return the result of the concatenation.
+       *)
+      const func arrayType: (in arrayType: arr1) & (in arrayType: arr2)       is action "ARR_CAT";
+
+      (**
+       *  Access one element from the array ''arr''.
+       *  @return the element with the specified ''index'' from ''arr''.
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
+       *)
+      const func baseType: (in arrayType: arr) [ (in integer: index) ]        is action "ARR_IDX";
+
+      const varfunc baseType: (inout arrayType: arr) [ (in integer: index) ]  is action "ARR_IDX";
+
+      (**
+       *  Get a sub array beginning at the position ''start''.
+       *  @return the sub array beginning at the start position.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: arr) [ (in integer: start) .. ]    is action "ARR_TAIL";
+
+      (**
+       *  Get a sub array ending at the position ''stop''.
+       *  @return the sub array ending at the stop position.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: arr) [ .. (in integer: stop) ]     is action "ARR_HEAD";
+
+      (**
+       *  Get a sub array from the position ''start'' to the position ''stop''.
+       *  @return the sub array from position ''start'' to ''stop''.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: arr) [ (in integer: start) ..
+                                                  (in integer: stop) ]        is action "ARR_RANGE";
+
+      (**
+       *  Get a sub array from the position ''start'' with maximum length ''len''.
+       *  @return the sub array from position ''start'' with maximum length ''len''.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in arrayType: arr) [ (in integer: start) len
+                                                  (in integer: length) ]      is action "ARR_SUBARR";
+
+      (**
+       *  Remove the element with ''index'' from ''arr'' and return the removed element.
+       *  @return the removed element.
+       *  @exception INDEX_ERROR If ''index'' is less than [[#minIdx(in_arrayType)|minIdx]](arr) or
+       *                         greater than [[#minIdx(in_arrayType)|maxIdx]](arr)
+       *)
+      const func baseType: remove (inout arrayType: arr, in integer: index)   is action "ARR_REMOVE";
+
+      (**
+       *  Determine the length of the array ''arr''.
+       *  @return the length of the array.
+       *)
+      const func integer: length (in arrayType: arr)                          is action "ARR_LNG";
+
+      (**
+       *  Minimum index of array ''arr''.
+       *  @return the minimum index of the array.
+       *)
+      const func integer: minIdx (in arrayType: arr)                          is action "ARR_MINIDX";
+
+      (**
+       *  Maximum index of array ''arr''.
+       *  @return the maximum index of the array.
+       *)
+      const func integer: maxIdx (in arrayType: arr)                          is action "ARR_MAXIDX";
+
+      (**
+       *  Generate an array by using ''factor'' ''elements''.
+       *  @return an array with ''factor'' ''elements''.
+       *  @exception RANGE_ERROR If ''factor'' is negative.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in integer: factor) times (in baseType: element) is action "ARR_TIMES";
+
+      const func arrayType: (attr arrayType) . _GENERATE_EMPTY_ARRAY          is action "ARR_EMPTY";
+      const arrayType: (attr arrayType) . value                               is arrayType._GENERATE_EMPTY_ARRAY;
+
+      const func tupleType: (attr tupleType) conv (in arrayType: arr)         is action "ARR_CONV";
+
+      (**
+       *  Generate an array of ''elements'' with indices in a specified range.
+       *  The range is specified with a bracketed range expression like [A .. B].
+       *  An array with 5 char elements indexed from 0 to 4 is created with:
+       *   [0 .. 4] times 'x'
+       *  This is equivalent to
+       *   [0] ('x', 'x', 'x', 'x', 'x')
+       *  An empty array can be generated with
+       *   [0 .. -1] times "asdf"
+       *  @return an array with B - A + 1 ''elements''.
+       *  @exception RANGE_ERROR If B - A is less than -1.
+       *  @exception MEMORY_ERROR Not enough memory to represent the result.
+       *)
+      const func arrayType: (in ARRAY_IDX_RANGE: indexRange) times
+          (in baseType: element) is func
+        result
+          var arrayType: anArray is arrayType.value;
+        begin
+          anArray := succ(indexRange.maxIdx - indexRange.minIdx) times element;
+          anArray := [indexRange.minIdx] (tupleType conv anArray);
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' loops over the elements of the array ''arr''.
+       *)
+      const proc: for (inout baseType: forVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: number is 0;
+        begin
+          for number range minIdx(arr) to maxIdx(arr) do
+            forVar := arr[number];
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''keyVar'' loops over the indices of the array ''arr''.
+       *)
+      const proc: for key (inout integer: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) do
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' and ''keyVar' loop over the array ''arr''.
+       *)
+      const proc: for (inout baseType: forVar) key (inout integer: keyVar) range (in arrayType: arr) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) do
+            forVar := arr[keyVar];
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' loops over the elements of the array ''arr''.
+       *  Additionally a condition is checked before the statements in
+       *  the loop body are executed.
+       *)
+      const proc: for (inout baseType: forVar)
+                  range (in arrayType: arr)
+                  until (ref func boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: index is 0;
+          var integer: maxIdx is 0;
+        begin
+          index := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if index <= maxIdx then
+            forVar := arr[index];
+            while index <= maxIdx and not condition do
+              statements;
+              incr(index);
+              if index <= maxIdx then
+                forVar := arr[index];
+              end if;
+            end while;
+          end if;
+        end func;
+
+      const proc: for (inout baseType: forVar)
+                  range (in arrayType: arr)
+                  until (ref boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: index is 0;
+          var integer: maxIdx is 0;
+        begin
+          index := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if index <= maxIdx then
+            forVar := arr[index];
+            while index <= maxIdx and not condition do
+              statements;
+              incr(index);
+              if index <= maxIdx then
+                forVar := arr[index];
+              end if;
+            end while;
+          end if;
+        end func;
+
+      (**
+       *  For-loop where ''keyVar'' loops over the indices of the array ''arr''.
+       *  Additionally a condition is checked before the statements in
+       *  the loop body are executed.
+       *)
+      const proc: for key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref func boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) until condition do
+            statements;
+          end for;
+        end func;
+
+      const proc: for key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for keyVar range minIdx(arr) to maxIdx(arr) until condition do
+            statements;
+          end for;
+        end func;
+
+      (**
+       *  For-loop where ''forVar'' and ''keyVar' loop over the array ''arr''.
+       *  Additionally a condition is checked before the statements in
+       *  the loop body are executed.
+       *)
+      const proc: for (inout baseType: forVar)
+                  key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref func boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: maxIdx is 0;
+        begin
+          keyVar := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if keyVar <= maxIdx then
+            forVar := arr[keyVar];
+            while keyVar <= maxIdx and not condition do
+              statements;
+              incr(keyVar);
+              if keyVar <= maxIdx then
+                forVar := arr[keyVar];
+              end if;
+            end while;
+          end if;
+        end func;
+
+      const proc: for (inout baseType: forVar)
+                  key (inout integer: keyVar)
+                  range (in arrayType: arr)
+                  until (ref boolean: condition) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: maxIdx is 0;
+        begin
+          keyVar := minIdx(arr);
+          maxIdx := maxIdx(arr);
+          if keyVar <= maxIdx then
+            forVar := arr[keyVar];
+            while keyVar <= maxIdx and not condition do
+              statements;
+              incr(keyVar);
+              if keyVar <= maxIdx then
+                forVar := arr[keyVar];
+              end if;
+            end while;
+          end if;
+        end func;
+
+      (**
+       *  Select a random element from ''arr''.
+       *  The pseudo-random indices of the elements are uniform distributed.
+       *  @return a random element from ''arr''.
+       *  @exception RANGE_ERROR If ''arr'' is empty.
+       *)
+      const func baseType: rand (in arrayType: arr) is
+        return arr[rand(minIdx(arr), maxIdx(arr))];
+
+      const proc: insert (inout arrayType: arr, in integer: index, in baseType: element) is func
+        begin
+          if index >= minIdx(arr) and index <= succ(maxIdx(arr)) then
+            arr := arr[.. pred(index)] & [] (element) & arr[index ..];
+          else
+            raise RANGE_ERROR;
+          end if;
+        end func;
+
+      const proc: insert (inout arrayType: arr, in integer: index, in arrayType: elements) is func
+        begin
+          if index >= minIdx(arr) and index <= succ(maxIdx(arr)) then
+            arr := arr[.. pred(index)] & elements & arr[index ..];
+          else
+            raise RANGE_ERROR;
+          end if;
+        end func;
+
+      if getobj((in baseType: element1) = (in baseType: element2)) <> NIL and
+          getobj((in baseType: element1) <> (in baseType: element2)) <> NIL then
+
+        const func boolean: (in arrayType: arr1) = (in arrayType: arr2) is func
+          result
+            var boolean: isEqual is FALSE;
+          local
+            var integer: number is 1;
+          begin
+            if minIdx(arr1) = minIdx(arr2) and maxIdx(arr1) = maxIdx(arr2) then
+              isEqual := TRUE;
+              number := minIdx(arr1);
+              while number <= maxIdx(arr1) and isEqual do
+                isEqual := arr1[number] = arr2[number];
+                incr(number);
+              end while;
+            end if;
+          end func;
+
+        const func boolean: (in arrayType: arr1) <> (in arrayType: arr2) is func
+          result
+            var boolean: isNotEqual is TRUE;
+          local
+            var integer: number is 1;
+          begin
+            if minIdx(arr1) = minIdx(arr2) and maxIdx(arr1) = maxIdx(arr2) then
+              isNotEqual := FALSE;
+              number := minIdx(arr1);
+              while number <= maxIdx(arr1) and not isNotEqual do
+                isNotEqual := arr1[number] <> arr2[number];
+                incr(number);
+              end while;
+            end if;
+          end func;
+
+      end if;
+
+      if getobj((in baseType: element1) < (in baseType: element2)) <> NIL and
+          getobj((in baseType: element1) > (in baseType: element2)) <> NIL then
+
+        const proc: insert (inout arrayType: arr, in baseType: element) is func
+          local
+            var integer: number is 1;
+          begin
+            number := minIdx(arr);
+            while number <= maxIdx(arr) and arr[number] < element do
+              incr(number);
+            end while;
+            if number > maxIdx(arr) then
+              arr := arr & [] (element);
+            elsif arr[number] > element then
+              arr := arr[.. pred(number)] & [] (element) & arr[number ..];
+            end if;
+          end func;
+
+      end if;
+
+      if getobj(compare(in baseType: element1, in baseType: element2)) <> NIL then
+
+        const func integer: compare (in arrayType: arr1, in arrayType: arr2) is func
+          result
+            var integer: signumValue is 0;
+          local
+            var integer: idx1 is 0;
+            var integer: idx2 is 0;
+          begin
+            idx1 := minIdx(arr1);
+            idx2 := minIdx(arr2);
+            while idx1 <= maxIdx(arr1) and idx2 <= maxIdx(arr2) and compare(arr1[idx1], arr2[idx2]) = 0 do
+              incr(idx1);
+              incr(idx2);
+            end while;
+            if idx1 <= maxIdx(arr1) and idx2 <= maxIdx(arr2) then
+              signumValue := compare(arr1[idx1], arr2[idx2]);
+            else
+              signumValue := compare(length(arr1), length(arr2));
+            end if;
+          end func;
+
+        const func boolean: (in arrayType: arr1) < (in arrayType: arr2) is
+          return compare(arr1, arr2) < 0;
+
+        const func boolean: (in arrayType: arr1) > (in arrayType: arr2) is
+          return compare(arr1, arr2) > 0;
+
+        const func boolean: (in arrayType: arr1) <= (in arrayType: arr2) is
+          return compare(arr1, arr2) <= 0;
+
+        const func boolean: (in arrayType: arr1) >= (in arrayType: arr2) is
+          return compare(arr1, arr2) >= 0;
+
+        const reference: (attr arrayType) . dataCompare  is getobj(compare(in baseType: element1, in baseType: element2));
+
+        const func arrayType: SORT (in arrayType: arr, in reference: dataCompare) is   action "ARR_SORT";
+
+        const func arrayType: sort (in arrayType: arr_obj) is
+          return SORT(arr_obj, arrayType.dataCompare);
+
+      end if;
+      end global;
+
+    end if;
+  end func;
+
+const type: TEST_1 is array integer;
+const type: TEST_2 is array integer;
+const type: TEST_3 is array string;
+
+
+const proc: ENABLE_SORT (in type: arrayType) is func
+  begin
+    const reference: (attr arrayType) . dataCompare  is getobj(compare(in base_type(arrayType): element1, in base_type(arrayType): element2));
+
+    const func arrayType: SORT (in arrayType: arr, in reference: dataCompare) is   action "ARR_SORT";
+
+    const func arrayType: sort (in arrayType: arr_obj) is
+      return SORT(arr_obj, arrayType.dataCompare);
+  end func;

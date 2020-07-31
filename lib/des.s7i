@@ -1,0 +1,443 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  des.s7i       DES (Data Encryption Standard) cipher support.    *)
+(*  Copyright (C) 2013  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bin32.s7i";
+include "bytedata.s7i";
+include "cipher.s7i";
+
+
+(**
+ *  [[cipher|cipherState]] implementation type describing the state of a DES cipher.
+ *  The data is encrypted / decrypted with the DES (Data Encryption
+ *  Standard) block cipher.
+ *)
+const type: desState is new struct
+    var array bin32: encryptionSubKey is 0 times bin32.value;
+    var array bin32: decryptionSubKey is 0 times bin32.value;
+    var string: cipherBlock is "";
+  end struct;
+
+
+type_implements_interface(desState, cipherState);
+
+
+(**
+ *  Block size used by the DES (Data Encryption Standard) block cipher.
+ *  @return the block size used by the DES cipher.
+ *)
+const func integer: blockSize (DES) is 8;
+
+
+const integer: DES_KS_SIZE is 32;
+
+
+const func array bin32: setDesKey (in string: desKey) is func
+  result
+    var array bin32: subKey is DES_KS_SIZE times bin32.value;
+  local
+    const array integer: pc1 is [] (                       # Permuted choice table (key)
+        57, 49, 41, 33, 25, 17,  9,  1, 58, 50, 42, 34, 26, 18,
+        10,  2, 59, 51, 43, 35, 27, 19, 11,  3, 60, 52, 44, 36,
+        63, 55, 47, 39, 31, 23, 15,  7, 62, 54, 46, 38, 30, 22,
+        14,  6, 61, 53, 45, 37, 29, 21, 13,  5, 28, 20, 12,  4);
+    const array integer: pc2 is [] (                       # Permuted choice key (table)
+        14, 17, 11, 24,  1,  5,  3, 28, 15,  6, 21, 10,
+        23, 19, 12,  4, 26,  8, 16,  7, 27, 20, 13,  2,
+        41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48,
+        44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32);
+    const array bin32: bytebit is [] (                     # Bit 0 is left-most in byte
+        bin32(8#200), bin32(8#100), bin32(8#40), bin32(8#20),
+        bin32(8#10), bin32(8#4), bin32(8#2), bin32(8#1));
+    const array integer: totrot is [] (                    # Number left rotations of pc1
+        1, 2, 4, 6, 8, 10, 12, 14, 15, 17, 19, 21, 23, 25, 27, 28);
+    var array boolean: pc1m is [0 .. 55] times FALSE;      # Place to modify pc1 into
+    var array boolean: pcr is [0 .. 55] times FALSE;       # Place to rotate pc1 into
+    var array bin32: ks is [0 .. 7] times bin32.value;
+    var integer: i is 0;
+    var integer: j is 0;
+    var integer: l is 0;
+    var integer: m is 0;
+  begin
+    for j range 0 to 55 do                                 # Convert pc1 to bits of key
+        l := pc1[succ(j)] - 1;                             # Integer bit location
+        m := succ(l mod 8);                                # Find bit
+        pc1m[j] := (bin32(desKey[succ(l >> 3)]) &          # Find which key byte l is in
+            bytebit[m]) <> bin32(0);                       # and which bit of that byte
+                                                           # and store 1-bit result
+    end for;
+    for i range 0 to 15 do                                 # Key chunk for each iteration
+      ks := [0 .. 7] times bin32.value;                    # Clear key schedule
+      for j range 0 to 55 do                               # Rotate pc1 the right amount
+        l := j + totrot[succ(i)];
+        if j < 28 and l < 28 or j >= 28 and l < 56 then
+          pcr[j] := pc1m[l];
+        else
+          pcr[j] := pc1m[l - 28];
+        end if;
+      end for;
+      # Rotate left and right halves independently
+      for j range 0 to 47 do                               # Select bits individually
+        # Check bit that goes to ks[j]
+        if pcr[pc2[succ(j)] - 1] then
+          # Mask it in if it's there
+          l := succ(j rem 6);
+          ks[j div 6] |:= bytebit[l] >> 2;
+        end if;
+      end for;
+      # Now convert to odd/even interleaved form for use in F
+      subKey[2*i + 1] := ks[0] << 24 |
+                         ks[2] << 16 |
+                         ks[4] <<  8 |
+                         ks[6];
+      subKey[2*i + 2] := ks[1] << 24 |
+                         ks[3] << 16 |
+                         ks[5] <<  8 |
+                         ks[7];
+    end for;
+  end func;
+
+
+const func array bin32: reverseKeyScheduleOrder (in array bin32: subKey) is func
+  result
+    var array bin32: reversedKey is DES_KS_SIZE times bin32.value;
+  local
+    var integer: i is 0;
+  begin
+    for i range 1 to 32 step 2 do
+      reversedKey[i]     := subKey[DES_KS_SIZE - i];
+      reversedKey[i + 1] := subKey[DES_KS_SIZE - i + 1];
+    end for;
+  end func;
+
+
+(**
+ *  Set key and initialization vector for the DES (Data Encryption Standard) block cipher.
+ *  @param desKey The key to be used for DES.
+ *  @param initializationVector The initialisation vector (IV) for DES.
+ *  @return the DES cipher state.
+ *)
+const func desState: setDesKey (in string: desKey, in string: initializationVector) is func
+  result
+    var desState: state is desState.value;
+  begin
+    state.encryptionSubKey := setDesKey(desKey);
+    state.decryptionSubKey := reverseKeyScheduleOrder(state.encryptionSubKey);
+    state.cipherBlock := initializationVector;
+  end func;
+
+
+(**
+ *  Set key and initialization vector for the DES (Data Encryption Standard) block cipher.
+ *  @param cipherKey The key to be used for DES.
+ *  @param initializationVector The initialisation vector (IV) for DES.
+ *  @return the initial ''cipherState'' of a DES cipher.
+ *)
+const func cipherState: setCipherKey (DES, in string: cipherKey,
+    in string: initializationVector) is
+  return toInterface(setDesKey(cipherKey, initializationVector));
+
+
+const array array bin32: spBox is [] (
+  [0] (bin32(16#01010400), bin32(16#00000000), bin32(16#00010000), bin32(16#01010404),
+       bin32(16#01010004), bin32(16#00010404), bin32(16#00000004), bin32(16#00010000),
+       bin32(16#00000400), bin32(16#01010400), bin32(16#01010404), bin32(16#00000400),
+       bin32(16#01000404), bin32(16#01010004), bin32(16#01000000), bin32(16#00000004),
+       bin32(16#00000404), bin32(16#01000400), bin32(16#01000400), bin32(16#00010400),
+       bin32(16#00010400), bin32(16#01010000), bin32(16#01010000), bin32(16#01000404),
+       bin32(16#00010004), bin32(16#01000004), bin32(16#01000004), bin32(16#00010004),
+       bin32(16#00000000), bin32(16#00000404), bin32(16#00010404), bin32(16#01000000),
+       bin32(16#00010000), bin32(16#01010404), bin32(16#00000004), bin32(16#01010000),
+       bin32(16#01010400), bin32(16#01000000), bin32(16#01000000), bin32(16#00000400),
+       bin32(16#01010004), bin32(16#00010000), bin32(16#00010400), bin32(16#01000004),
+       bin32(16#00000400), bin32(16#00000004), bin32(16#01000404), bin32(16#00010404),
+       bin32(16#01010404), bin32(16#00010004), bin32(16#01010000), bin32(16#01000404),
+       bin32(16#01000004), bin32(16#00000404), bin32(16#00010404), bin32(16#01010400),
+       bin32(16#00000404), bin32(16#01000400), bin32(16#01000400), bin32(16#00000000),
+       bin32(16#00010004), bin32(16#00010400), bin32(16#00000000), bin32(16#01010004)),
+  [0] (bin32(16#80108020), bin32(16#80008000), bin32(16#00008000), bin32(16#00108020),
+       bin32(16#00100000), bin32(16#00000020), bin32(16#80100020), bin32(16#80008020),
+       bin32(16#80000020), bin32(16#80108020), bin32(16#80108000), bin32(16#80000000),
+       bin32(16#80008000), bin32(16#00100000), bin32(16#00000020), bin32(16#80100020),
+       bin32(16#00108000), bin32(16#00100020), bin32(16#80008020), bin32(16#00000000),
+       bin32(16#80000000), bin32(16#00008000), bin32(16#00108020), bin32(16#80100000),
+       bin32(16#00100020), bin32(16#80000020), bin32(16#00000000), bin32(16#00108000),
+       bin32(16#00008020), bin32(16#80108000), bin32(16#80100000), bin32(16#00008020),
+       bin32(16#00000000), bin32(16#00108020), bin32(16#80100020), bin32(16#00100000),
+       bin32(16#80008020), bin32(16#80100000), bin32(16#80108000), bin32(16#00008000),
+       bin32(16#80100000), bin32(16#80008000), bin32(16#00000020), bin32(16#80108020),
+       bin32(16#00108020), bin32(16#00000020), bin32(16#00008000), bin32(16#80000000),
+       bin32(16#00008020), bin32(16#80108000), bin32(16#00100000), bin32(16#80000020),
+       bin32(16#00100020), bin32(16#80008020), bin32(16#80000020), bin32(16#00100020),
+       bin32(16#00108000), bin32(16#00000000), bin32(16#80008000), bin32(16#00008020),
+       bin32(16#80000000), bin32(16#80100020), bin32(16#80108020), bin32(16#00108000)),
+  [0] (bin32(16#00000208), bin32(16#08020200), bin32(16#00000000), bin32(16#08020008),
+       bin32(16#08000200), bin32(16#00000000), bin32(16#00020208), bin32(16#08000200),
+       bin32(16#00020008), bin32(16#08000008), bin32(16#08000008), bin32(16#00020000),
+       bin32(16#08020208), bin32(16#00020008), bin32(16#08020000), bin32(16#00000208),
+       bin32(16#08000000), bin32(16#00000008), bin32(16#08020200), bin32(16#00000200),
+       bin32(16#00020200), bin32(16#08020000), bin32(16#08020008), bin32(16#00020208),
+       bin32(16#08000208), bin32(16#00020200), bin32(16#00020000), bin32(16#08000208),
+       bin32(16#00000008), bin32(16#08020208), bin32(16#00000200), bin32(16#08000000),
+       bin32(16#08020200), bin32(16#08000000), bin32(16#00020008), bin32(16#00000208),
+       bin32(16#00020000), bin32(16#08020200), bin32(16#08000200), bin32(16#00000000),
+       bin32(16#00000200), bin32(16#00020008), bin32(16#08020208), bin32(16#08000200),
+       bin32(16#08000008), bin32(16#00000200), bin32(16#00000000), bin32(16#08020008),
+       bin32(16#08000208), bin32(16#00020000), bin32(16#08000000), bin32(16#08020208),
+       bin32(16#00000008), bin32(16#00020208), bin32(16#00020200), bin32(16#08000008),
+       bin32(16#08020000), bin32(16#08000208), bin32(16#00000208), bin32(16#08020000),
+       bin32(16#00020208), bin32(16#00000008), bin32(16#08020008), bin32(16#00020200)),
+  [0] (bin32(16#00802001), bin32(16#00002081), bin32(16#00002081), bin32(16#00000080),
+       bin32(16#00802080), bin32(16#00800081), bin32(16#00800001), bin32(16#00002001),
+       bin32(16#00000000), bin32(16#00802000), bin32(16#00802000), bin32(16#00802081),
+       bin32(16#00000081), bin32(16#00000000), bin32(16#00800080), bin32(16#00800001),
+       bin32(16#00000001), bin32(16#00002000), bin32(16#00800000), bin32(16#00802001),
+       bin32(16#00000080), bin32(16#00800000), bin32(16#00002001), bin32(16#00002080),
+       bin32(16#00800081), bin32(16#00000001), bin32(16#00002080), bin32(16#00800080),
+       bin32(16#00002000), bin32(16#00802080), bin32(16#00802081), bin32(16#00000081),
+       bin32(16#00800080), bin32(16#00800001), bin32(16#00802000), bin32(16#00802081),
+       bin32(16#00000081), bin32(16#00000000), bin32(16#00000000), bin32(16#00802000),
+       bin32(16#00002080), bin32(16#00800080), bin32(16#00800081), bin32(16#00000001),
+       bin32(16#00802001), bin32(16#00002081), bin32(16#00002081), bin32(16#00000080),
+       bin32(16#00802081), bin32(16#00000081), bin32(16#00000001), bin32(16#00002000),
+       bin32(16#00800001), bin32(16#00002001), bin32(16#00802080), bin32(16#00800081),
+       bin32(16#00002001), bin32(16#00002080), bin32(16#00800000), bin32(16#00802001),
+       bin32(16#00000080), bin32(16#00800000), bin32(16#00002000), bin32(16#00802080)),
+  [0] (bin32(16#00000100), bin32(16#02080100), bin32(16#02080000), bin32(16#42000100),
+       bin32(16#00080000), bin32(16#00000100), bin32(16#40000000), bin32(16#02080000),
+       bin32(16#40080100), bin32(16#00080000), bin32(16#02000100), bin32(16#40080100),
+       bin32(16#42000100), bin32(16#42080000), bin32(16#00080100), bin32(16#40000000),
+       bin32(16#02000000), bin32(16#40080000), bin32(16#40080000), bin32(16#00000000),
+       bin32(16#40000100), bin32(16#42080100), bin32(16#42080100), bin32(16#02000100),
+       bin32(16#42080000), bin32(16#40000100), bin32(16#00000000), bin32(16#42000000),
+       bin32(16#02080100), bin32(16#02000000), bin32(16#42000000), bin32(16#00080100),
+       bin32(16#00080000), bin32(16#42000100), bin32(16#00000100), bin32(16#02000000),
+       bin32(16#40000000), bin32(16#02080000), bin32(16#42000100), bin32(16#40080100),
+       bin32(16#02000100), bin32(16#40000000), bin32(16#42080000), bin32(16#02080100),
+       bin32(16#40080100), bin32(16#00000100), bin32(16#02000000), bin32(16#42080000),
+       bin32(16#42080100), bin32(16#00080100), bin32(16#42000000), bin32(16#42080100),
+       bin32(16#02080000), bin32(16#00000000), bin32(16#40080000), bin32(16#42000000),
+       bin32(16#00080100), bin32(16#02000100), bin32(16#40000100), bin32(16#00080000),
+       bin32(16#00000000), bin32(16#40080000), bin32(16#02080100), bin32(16#40000100)),
+  [0] (bin32(16#20000010), bin32(16#20400000), bin32(16#00004000), bin32(16#20404010),
+       bin32(16#20400000), bin32(16#00000010), bin32(16#20404010), bin32(16#00400000),
+       bin32(16#20004000), bin32(16#00404010), bin32(16#00400000), bin32(16#20000010),
+       bin32(16#00400010), bin32(16#20004000), bin32(16#20000000), bin32(16#00004010),
+       bin32(16#00000000), bin32(16#00400010), bin32(16#20004010), bin32(16#00004000),
+       bin32(16#00404000), bin32(16#20004010), bin32(16#00000010), bin32(16#20400010),
+       bin32(16#20400010), bin32(16#00000000), bin32(16#00404010), bin32(16#20404000),
+       bin32(16#00004010), bin32(16#00404000), bin32(16#20404000), bin32(16#20000000),
+       bin32(16#20004000), bin32(16#00000010), bin32(16#20400010), bin32(16#00404000),
+       bin32(16#20404010), bin32(16#00400000), bin32(16#00004010), bin32(16#20000010),
+       bin32(16#00400000), bin32(16#20004000), bin32(16#20000000), bin32(16#00004010),
+       bin32(16#20000010), bin32(16#20404010), bin32(16#00404000), bin32(16#20400000),
+       bin32(16#00404010), bin32(16#20404000), bin32(16#00000000), bin32(16#20400010),
+       bin32(16#00000010), bin32(16#00004000), bin32(16#20400000), bin32(16#00404010),
+       bin32(16#00004000), bin32(16#00400010), bin32(16#20004010), bin32(16#00000000),
+       bin32(16#20404000), bin32(16#20000000), bin32(16#00400010), bin32(16#20004010)),
+  [0] (bin32(16#00200000), bin32(16#04200002), bin32(16#04000802), bin32(16#00000000),
+       bin32(16#00000800), bin32(16#04000802), bin32(16#00200802), bin32(16#04200800),
+       bin32(16#04200802), bin32(16#00200000), bin32(16#00000000), bin32(16#04000002),
+       bin32(16#00000002), bin32(16#04000000), bin32(16#04200002), bin32(16#00000802),
+       bin32(16#04000800), bin32(16#00200802), bin32(16#00200002), bin32(16#04000800),
+       bin32(16#04000002), bin32(16#04200000), bin32(16#04200800), bin32(16#00200002),
+       bin32(16#04200000), bin32(16#00000800), bin32(16#00000802), bin32(16#04200802),
+       bin32(16#00200800), bin32(16#00000002), bin32(16#04000000), bin32(16#00200800),
+       bin32(16#04000000), bin32(16#00200800), bin32(16#00200000), bin32(16#04000802),
+       bin32(16#04000802), bin32(16#04200002), bin32(16#04200002), bin32(16#00000002),
+       bin32(16#00200002), bin32(16#04000000), bin32(16#04000800), bin32(16#00200000),
+       bin32(16#04200800), bin32(16#00000802), bin32(16#00200802), bin32(16#04200800),
+       bin32(16#00000802), bin32(16#04000002), bin32(16#04200802), bin32(16#04200000),
+       bin32(16#00200800), bin32(16#00000000), bin32(16#00000002), bin32(16#04200802),
+       bin32(16#00000000), bin32(16#00200802), bin32(16#04200000), bin32(16#00000800),
+       bin32(16#04000002), bin32(16#04000800), bin32(16#00000800), bin32(16#00200002)),
+  [0] (bin32(16#10001040), bin32(16#00001000), bin32(16#00040000), bin32(16#10041040),
+       bin32(16#10000000), bin32(16#10001040), bin32(16#00000040), bin32(16#10000000),
+       bin32(16#00040040), bin32(16#10040000), bin32(16#10041040), bin32(16#00041000),
+       bin32(16#10041000), bin32(16#00041040), bin32(16#00001000), bin32(16#00000040),
+       bin32(16#10040000), bin32(16#10000040), bin32(16#10001000), bin32(16#00001040),
+       bin32(16#00041000), bin32(16#00040040), bin32(16#10040040), bin32(16#10041000),
+       bin32(16#00001040), bin32(16#00000000), bin32(16#00000000), bin32(16#10040040),
+       bin32(16#10000040), bin32(16#10001000), bin32(16#00041040), bin32(16#00040000),
+       bin32(16#00041040), bin32(16#00040000), bin32(16#10041000), bin32(16#00001000),
+       bin32(16#00000040), bin32(16#10040040), bin32(16#00001000), bin32(16#00041040),
+       bin32(16#10001000), bin32(16#00000040), bin32(16#10000040), bin32(16#10040000),
+       bin32(16#10040040), bin32(16#10000000), bin32(16#00040000), bin32(16#10001040),
+       bin32(16#00000000), bin32(16#10041040), bin32(16#00040040), bin32(16#10000040),
+       bin32(16#10040000), bin32(16#10001000), bin32(16#10001040), bin32(16#00000000),
+       bin32(16#10041040), bin32(16#00041000), bin32(16#00041000), bin32(16#00001040),
+       bin32(16#00001040), bin32(16#00040040), bin32(16#10000000), bin32(16#10041000)));
+
+
+const proc: initialPermutation (inout bin32: left, inout bin32: right) is func
+  local
+    var bin32: work is bin32.value;
+  begin
+    right := rotLeft(right, 4);
+
+    work := (left >< right) & bin32(16#f0f0f0f0);
+    left ><:= work;
+    right := rotRight(right >< work, 20);
+
+    work := (left >< right) & bin32(16#ffff0000);
+    left ><:= work;
+    right := rotRight(right >< work, 18);
+
+    work := (left >< right) & bin32(16#33333333);
+    left ><:= work;
+    right := rotRight(right >< work, 6);
+
+    work := (left >< right) & bin32(16#00ff00ff);
+    left ><:= work;
+    right := rotLeft(right >< work, 9);
+
+    work := (left >< right) & bin32(16#aaaaaaaa);
+    left := rotLeft(left >< work, 1);
+    right ><:= work;
+  end func;
+
+
+const proc: finalPermutation (inout bin32: left, inout bin32: right) is func
+  local
+    var bin32: work is bin32.value;
+  begin
+    right := rotRight(right, 1);
+
+    work := (left >< right) & bin32(16#aaaaaaaa);
+    left := rotRight(left >< work, 9);
+    right ><:= work;
+
+    work := (left >< right) & bin32(16#00ff00ff);
+    left := rotLeft(left >< work, 6);
+    right ><:= work;
+
+    work := (left >< right) & bin32(16#33333333);
+    left := rotLeft(left >< work, 18);
+    right ><:= work;
+
+    work := (left >< right) & bin32(16#ffff0000);
+    left := rotLeft(left >< work, 20);
+    right ><:= work;
+
+    work := (left >< right) & bin32(16#f0f0f0f0);
+    left := rotRight(left >< work, 4);
+    right ><:= work;
+  end func;
+
+
+const func string: processDesBlock (in array bin32: subKey, in string: inData) is func
+  result
+    var string: outData is "";
+  local
+    var bin32: left is bin32.value;
+    var bin32: right is bin32.value;
+    var integer: work is 0;
+    var integer: idx is 0;
+  begin
+    left := bin32(bytes2Int(inData[.. 4], UNSIGNED, BE));
+    right := bin32(bytes2Int(inData[5 len 4], UNSIGNED, BE));
+    initialPermutation(left, right);
+
+    for idx range 1 to 8 do
+      work := ord(rotRight(right, 4) >< subKey[4 * idx - 3]);
+      left ><:=  spBox[7][ work        mod 64] ><
+                 spBox[5][(work >>  8) mod 64] ><
+                 spBox[3][(work >> 16) mod 64] ><
+                 spBox[1][(work >> 24) mod 64];
+      work := ord(right >< subKey[4 * idx - 2]);
+      left ><:=  spBox[8][ work        mod 64] ><
+                 spBox[6][(work >>  8) mod 64] ><
+                 spBox[4][(work >> 16) mod 64] ><
+                 spBox[2][(work >> 24) mod 64];
+      work := ord(rotRight(left, 4) >< subKey[4 * idx - 1]);
+      right ><:= spBox[7][ work        mod 64] ><
+                 spBox[5][(work >>  8) mod 64] ><
+                 spBox[3][(work >> 16) mod 64] ><
+                 spBox[1][(work >> 24) mod 64];
+      work := ord(left >< subKey[4 * idx]);
+      right ><:= spBox[8][ work        mod 64] ><
+                 spBox[6][(work >>  8) mod 64] ><
+                 spBox[4][(work >> 16) mod 64] ><
+                 spBox[2][(work >> 24) mod 64];
+    end for;
+
+    finalPermutation(left, right);
+    outData := int32AsFourBytesBe(ord(right)) &
+               int32AsFourBytesBe(ord(left));
+  end func;
+
+
+(**
+ *  Encode a string with the DES (Data Encryption Standard) block cipher.
+ *  @return the encoded string.
+ *)
+const func string: encode (inout desState: state, in string: plaintext) is func
+  result
+    var string: encoded is "";
+  local
+    var integer: index is 0;
+    var integer: subIndex is 0;
+    var string: dataBlock is "";
+    var string: cipherBlock is "";
+  begin
+    for index range 1 to length(plaintext) step blockSize(DES) do
+      dataBlock := "";
+      for subIndex range 1 to blockSize(DES) do
+        dataBlock &:= chr(ord(bin32(plaintext[pred(index + subIndex)]) ><
+                              bin32(state.cipherBlock[subIndex])));
+      end for;
+      cipherBlock := processDesBlock(state.encryptionSubKey, dataBlock);
+      state.cipherBlock := cipherBlock;
+      encoded &:= cipherBlock;
+    end for;
+  end func;
+
+
+(**
+ *  Decode a string with the DES (Data Encryption Standard) block cipher.
+ *  @return the decoded string.
+ *)
+const func string: decode (inout desState: state, in string: encoded) is func
+  result
+    var string: plaintext is "";
+  local
+    var integer: index is 0;
+    var integer: subIndex is 0;
+    var string: cipherBlock is "";
+    var string: dataBlock is "";
+    var string: plainBlock is "";
+  begin
+    for index range 1 to length(encoded) step blockSize(DES) do
+      cipherBlock := encoded[index len blockSize(DES)];
+      dataBlock := processDesBlock(state.decryptionSubKey, cipherBlock);
+      for subIndex range 1 to blockSize(DES) do
+        plaintext &:= chr(ord(bin32(dataBlock[subIndex]) ><
+                              bin32(state.cipherBlock[subIndex])));
+      end for;
+      state.cipherBlock := cipherBlock;
+    end for;
+  end func;

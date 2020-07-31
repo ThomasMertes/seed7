@@ -1,0 +1,72 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ftpserv.sd7   FTP (file transfer protocol) server               *)
+(*  Copyright (C) 2011, 2012, 2017  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "ftpserv.s7i";
+
+
+const proc: main is func
+  local
+    var string: parameter is "";
+    var ftpServer: ftpServ is ftpServer.value;
+    var fileSys: backendSys is fileSys.value;
+    var listener: aListener is listener.value;
+    var file: existingConnection is STD_NULL;
+    var file: newConnection is STD_NULL;
+  begin
+    writeln("Ftpserv Version 1.0 - FTP (file transfer protocol) server");
+    writeln("Copyright (C) 2011 Thomas Mertes");
+    writeln("This is free software; see the source for copying conditions.  There is NO");
+    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+    writeln("Ftpserv is written in the Seed7 programming language");
+    writeln("Homepage: http://seed7.sourceforge.net");
+    if length(argv(PROGRAM)) >= 1 then
+      parameter := argv(PROGRAM)[1];
+      if length(argv(PROGRAM)) >= 2 and isDigitString(argv(PROGRAM)[2]) then
+        block
+          ftpServ.ftpControlPort := integer(argv(PROGRAM)[2]);
+        exception
+          catch RANGE_ERROR: writeln(" ***** Port number too big. Port " <&
+              ftpServ.ftpControlPort <& " used instead.");
+        end block;
+      end if;
+    end if;
+    if parameter in {"-h", "-?"} then
+      writeln;
+      writeln("usage: ftpserv [ftp-directory [port]]");
+    else
+      ftpServ.backendSys := osFiles;
+      if parameter = "" then
+        ftpServ.startDirectory := getcwd(ftpServ.backendSys);
+      else
+        ftpServ.startDirectory := parameter;
+      end if;
+      writeln("FTP directory: " <& ftpServ.startDirectory);
+      writeln("Port: " <& ftpServ.ftpControlPort);
+      writeln("To test ftpserv you can call the ftp7 FTP client with:");
+      writeln("  s7 ftp7 " <& getHostname <& " " <& ftpServ.ftpControlPort);
+      writeln("To stop ftpserv press CTRL-C.");
+      runServer(ftpServ);
+    end if;
+  end func;

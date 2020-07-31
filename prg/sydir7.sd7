@@ -1,0 +1,298 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sydir7.sd7    Utility to synchronize directory trees            *)
+(*  Copyright (C) 2009 - 2019  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "stdio.s7i";
+  include "osfiles.s7i";
+  include "time.s7i";
+  include "duration.s7i";
+
+const type: syncFlags is new struct
+    var boolean: removeFilesAtDest is FALSE;
+    var boolean: overwriteNewerDestFiles is FALSE;
+    var boolean: doChanges is TRUE;
+  end struct;
+
+
+const proc: syncFile (in string: sourcePath, in string: destPath,
+    in syncFlags: flags) is forward;
+
+
+const proc: syncDir (in string: sourcePath, in string: destPath,
+    in syncFlags: flags) is func
+  local
+    var array string: sourceContent is 0 times "";
+    var array string: destContent is 0 times "";
+    var boolean: updateMtime is FALSE;
+    var integer: sourceIndex is 1;
+    var integer: destIndex is 1;
+    var string: sourceName is "";
+    var string: destName is "";
+  begin
+    if getMTime(sourcePath) + 1 . SECONDS >= getMTime(destPath) then
+      updateMtime := TRUE;
+    end if;
+    sourceContent := readDir(sourcePath);
+    destContent := readDir(destPath);
+    # writeln("syncDir " <& literal(sourcePath) <& " " <& literal(destPath));
+    while sourceIndex <= length(sourceContent) and
+        destIndex <= length(destContent) do
+      sourceName := sourceContent[sourceIndex];
+      destName := destContent[destIndex];
+      if sourceName = destName then
+        # writeln("syncFile = " <& literal(sourceName) <& " " <& literal(destName));
+        syncFile(sourcePath & "/" & sourceName,
+                 destPath & "/" & destName, flags);
+        incr(sourceIndex);
+        incr(destIndex);
+      elsif sourceName < destName then
+        # writeln("syncFile < " <& literal(sourceName) <& " " <& literal(destName));
+        syncFile(sourcePath & "/" & sourceName,
+                 destPath & "/" & sourceName, flags);
+        incr(sourceIndex);
+      else # sourceName > destName then
+        # writeln("syncFile > " <& literal(sourceName) <& " " <& literal(destName));
+        syncFile(sourcePath & "/" & destName,
+                 destPath & "/" & destName, flags);
+        incr(destIndex);
+      end if;
+    end while;
+    while sourceIndex <= length(sourceContent) do
+      sourceName := sourceContent[sourceIndex];
+      # writeln("syncFile S " <& literal(sourceName));
+      syncFile(sourcePath & "/" & sourceName,
+               destPath & "/" & sourceName, flags);
+      incr(sourceIndex);
+    end while;
+    while destIndex <= length(destContent) do
+      destName := destContent[destIndex];
+      # writeln("syncFile D " <& literal(destName));
+      syncFile(sourcePath & "/" & destName,
+               destPath & "/" & destName, flags);
+      incr(destIndex);
+    end while;
+    if updateMtime then
+      # writeln("update mtime " <& literal(sourcePath) <& " to " <& literal(destPath));
+      if flags.doChanges then
+        setMTime(destPath, getMTime(sourcePath));
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: equalFileContent (in string: sourcePath, in string: destPath) is func
+  result
+    var boolean: equal is FALSE;
+  local
+    var file: sourceFile is STD_NULL;
+    var file: destFile is STD_NULL;
+    var string: sourceBlock is "";
+    var string: destBlock is "";
+  begin
+    sourceFile := open(sourcePath, "r");
+    if sourceFile <> STD_NULL then
+      destFile := open(destPath, "r");
+      if destFile <> STD_NULL then
+        equal := TRUE;
+        while equal and not eof(sourceFile) and not eof(destFile) do
+          sourceBlock := gets(sourceFile, 134217728);
+          destBlock := gets(destFile, 134217728);
+          equal := sourceBlock = destBlock;
+        end while;
+        close(destFile);
+      end if;
+      close(sourceFile);
+    end if;
+  end func;
+
+
+const proc: syncFile (in string: sourcePath, in string: destPath,
+    in syncFlags: flags) is func
+  local
+    var fileType: sourceType is FILE_ABSENT;
+    var fileType: destType is FILE_ABSENT;
+    var time: sourceTime is time.value;
+    var time: destTime is time.value;
+    var array string: dirContent is 0 times "";
+    var string: fileName is "";
+  begin
+    sourceType := fileTypeSL(sourcePath);
+    destType := fileTypeSL(destPath);
+    if sourceType = FILE_ABSENT then
+      if destType <> FILE_ABSENT then
+        if flags.removeFilesAtDest then
+          writeln("remove file " <& literal(destPath));
+          if flags.doChanges then
+            removeTree(destPath);
+          end if;
+        end if;
+      end if;
+    elsif sourceType = FILE_SYMLINK then
+      if destType = FILE_ABSENT then
+        block
+          if flags.doChanges then
+            cloneFile(sourcePath, destPath);
+          end if;
+          writeln("copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
+        exception
+          catch FILE_ERROR:
+            writeln(" *** Cannot copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
+        end block;
+      elsif destType = FILE_SYMLINK then
+        if readlink(sourcePath) <> readlink(destPath) then
+          writeln("Source link " <& literal(sourcePath) <&
+                  " and destination link " <& literal(destPath) <&
+                  " point to different paths");
+        end if;
+      else
+        writeln(" *** Destination " <& literal(destPath) <& " is not a symbolic link");
+      end if;
+    elsif sourceType = FILE_DIR then
+      if destType = FILE_ABSENT then
+        writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
+        if flags.doChanges then
+          mkdir(destPath);
+          syncDir(sourcePath, destPath, flags);
+          setMTime(destPath, getMTime(sourcePath));
+        end if;
+      elsif destType = FILE_DIR then
+        syncDir(sourcePath, destPath, flags);
+      else
+        writeln(" *** Destination " <& literal(destPath) <& " is not a directory");
+      end if;
+    elsif sourceType = FILE_REGULAR then
+      if destType = FILE_ABSENT then
+        block
+          if flags.doChanges then
+            cloneFile(sourcePath, destPath);
+          end if;
+          writeln("copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
+        exception
+          catch FILE_ERROR:
+            writeln(" *** Cannot copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
+        end block;
+      elsif destType = FILE_REGULAR then
+        sourceTime := getMTime(sourcePath);
+        destTime := getMTime(destPath);
+        # writeln(sourceTime);
+        # writeln(destTime);
+        if sourceTime > destTime + 1 . SECONDS then
+          if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
+            writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+            if flags.doChanges then
+              setMTime(destPath, sourceTime);
+            end if;
+          else
+            writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
+            if flags.doChanges then
+              removeFile(destPath);
+              cloneFile(sourcePath, destPath);
+            end if;
+          end if;
+        elsif sourceTime < destTime - 1 . SECONDS then
+          if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
+            writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+            if flags.doChanges then
+              setMTime(destPath, sourceTime);
+            end if;
+          elsif flags.overwriteNewerDestFiles then
+            writeln("replace newer dest file " <& literal(sourcePath) <& " to " <& literal(destPath));
+            if flags.doChanges then
+              removeFile(destPath);
+              cloneFile(sourcePath, destPath);
+            end if;
+          else
+            writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
+            # writeln(sourceTime <& "   " <& destTime <& "   " <& destTime - 1 . SECONDS);
+          end if;
+        elsif fileSize(sourcePath) <> fileSize(destPath) then
+          writeln("Correct file " <& literal(sourcePath) <& " to " <& literal(destPath));
+          if flags.doChanges then
+            removeFile(destPath);
+            cloneFile(sourcePath, destPath);
+          end if;
+        end if;
+      else
+        writeln(" *** Destination " <& literal(destPath) <& " is not a regular file");
+      end if;
+    else
+      writeln(" *** Source " <& literal(sourcePath) <& " has file type " <& sourceType);
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var integer: numOfFileNames is 0;
+    var string: parameter is "";
+    var string: fromName is "";
+    var string: toName is "";
+    var boolean: error is FALSE;
+    var syncFlags: flags is syncFlags.value;
+  begin
+    if length(argv(PROGRAM)) < 2 then
+      writeln("Sydir7 Version 1.0 - Utility to synchronize directory trees");
+      writeln("Copyright (C) 2009 - 2019 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Sydir7 is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+      writeln("usage: sydir7 {-c|-n} source destination");
+      writeln;
+      writeln("Options:");
+      writeln("  -c Copy files. Remove destination files, if they are missing in source.");
+      writeln("     Overwrite newer destination files with older source files.");
+      writeln("  -n No change. Write, what should be done to sync, but do not change");
+      writeln("     anything.");
+      writeln;
+    else
+      for parameter range argv(PROGRAM) do
+        if startsWith(parameter, "-") then
+          if parameter = "-c" then
+            flags.removeFilesAtDest := TRUE;
+            flags.overwriteNewerDestFiles := TRUE;
+          elsif parameter = "-n" then
+            flags.doChanges := FALSE;
+          else
+            writeln(" *** Unknown option: " <& parameter);
+            error := TRUE;
+          end if;
+        else
+          incr(numOfFileNames);
+          case numOfFileNames of
+            when {1}: fromName := convDosPath(parameter);
+            when {2}: toName := convDosPath(parameter);
+          end case;
+        end if;
+      end for;
+      if numOfFileNames <> 2 then
+        writeln(" *** Wrong number of parameters.");
+        error := TRUE;
+      end if;
+      if not error then
+        syncFile(fromName, toName, flags);
+      end if;
+    end if;
+  end func;
