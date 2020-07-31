@@ -46,7 +46,7 @@ WHAT IS CONTAINED IN THIS PACKAGE?
 HOW TO COMPILE THE INTERPRETER?
 
     For Linux this is quite simple (to compile under other
-  operating systems see 'seed7/src/read_me.txt'). The 'makefile'
+  operating systems see 'seed7/src/README.txt'). The 'makefile'
   is prepared for Linux. First make sure that gcc, make and the
   development packages for X11 and ncurses are installed. Then
   go to the 'src' directory and type:
@@ -59,7 +59,7 @@ HOW TO COMPILE THE INTERPRETER?
 
     make s7c
 
-  The file 'seed7/src/read_me.txt' contains a detailed
+  The file 'seed7/src/README.txt' contains a detailed
   explanation of the compilation process.
 
 
@@ -68,7 +68,7 @@ HOW TO COMPILE UNDER OTHER OPERATING SYSTEMS?
     Seed7 supports several operating systems such as Windows,
   Mac OS X and various Unix variants. How to compile under
   this operating systems is explained in the file
-  'seed7/src/read_me.txt'.
+  'seed7/src/README.txt'.
 
 
 HOW TO EXECUTE A PROGRAM?
@@ -88,7 +88,7 @@ HOW TO EXECUTE A PROGRAM?
 
 WHAT TO DO WHEN THERE ARE PROBLEMS WITH THE COMPILATION?
 
-    There is a read_me.txt file in the seed7/src directory which
+    There is a README.txt file in the seed7/src directory which
   discusses the compilation process with more detail.
 
 
