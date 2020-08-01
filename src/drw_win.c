@@ -888,20 +888,19 @@ wintype actual_window;
 #endif
 
   {
-    CURSORINFO cursorinfo;
+    POINT point;
     inttype result;
 
   /* drwPointerXpos */
-    cursorinfo.cbSize = sizeof(CURSORINFO);
-    if (GetCursorInfo(&cursorinfo) == 0) {
+    if (GetCursorPos(&point) == 0) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      if (ScreenToClient(to_hwnd(actual_window), &cursorinfo.ptScreenPos) == 0) {
+      if (ScreenToClient(to_hwnd(actual_window), &point) == 0) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
-        result = cursorinfo.ptScreenPos.x;
+        result = point.x;
       } /* if */
     } /* if */
     return(result);
@@ -919,20 +918,19 @@ wintype actual_window;
 #endif
 
   {
-    CURSORINFO cursorinfo;
+    POINT point;
     inttype result;
 
   /* drwPointerYpos */
-    cursorinfo.cbSize = sizeof(CURSORINFO);
-    if (GetCursorInfo(&cursorinfo) == 0) {
+    if (GetCursorPos(&point) == 0) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      if (ScreenToClient(to_hwnd(actual_window), &cursorinfo.ptScreenPos) == 0) {
+      if (ScreenToClient(to_hwnd(actual_window), &point) == 0) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
-        result = cursorinfo.ptScreenPos.y;
+        result = point.y;
       } /* if */
     } /* if */
     return(result);
@@ -1454,8 +1452,17 @@ inttype drwHeight (actual_window)
 wintype actual_window;
 #endif
 
-  { /* drwHeight */
-    return(to_height(actual_window));
+  {
+    RECT rect;
+    inttype result;
+
+  /* drwHeight */
+    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+      result = to_height(actual_window);
+    } else {
+      result = rect.bottom - rect.top;
+    } /* if */
+    return result;
   } /* drwHeight */
 
 
@@ -1712,6 +1719,105 @@ stritype window_name;
 #endif
     return((wintype) result);
   } /* drwOpen */
+
+
+
+#ifdef ANSI_C
+
+wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
+    inttype width, inttype height)
+#else
+
+wintype drwOpenSubWindow (parent_window, xPos, yPos, width, height)
+const_wintype parent_window;
+inttype xPos;
+inttype yPos;
+inttype width;
+inttype height;
+#endif
+
+  {
+    HFONT std_font;
+    win_wintype result;
+
+  /* drwOpenSubWindow */
+#ifdef TRACE_WIN
+    printf("BEGIN drwOpenSubWindow(%ld, %ld, %ld, %ld)\n",
+        xPos, yPos, width, height);
+#endif
+#ifdef DO_HEAP_STATISTIC
+    count.size_winrecord = SIZ_REC(win_winrecord);
+#endif
+    result = NULL;
+    if (init_called == 0) {
+      dra_init();
+    } /* if */
+    if (init_called != 0) {
+      if (ALLOC_RECORD(result, win_winrecord, count.win)) {
+        memset(result, 0, sizeof(struct win_winstruct));
+        result->usage_count = 1;
+        result->next = window_list;
+        window_list = result;
+#ifdef OUT_OF_ORDER
+        printf("SM_CXBORDER=%d\n",    GetSystemMetrics(SM_CXBORDER));
+        printf("SM_CYBORDER=%d\n",    GetSystemMetrics(SM_CYBORDER));
+        printf("SM_CXSIZE=%d\n",      GetSystemMetrics(SM_CXSIZE));
+        printf("SM_CYSIZE=%d\n",      GetSystemMetrics(SM_CYSIZE));
+        printf("SM_CXSIZEFRAME=%d\n", GetSystemMetrics(SM_CXSIZEFRAME));
+        printf("SM_CYSIZEFRAME=%d\n", GetSystemMetrics(SM_CYSIZEFRAME));
+        printf("SM_CXEDGE=%d\n",      GetSystemMetrics(SM_CXEDGE));
+        printf("SM_CYEDGE=%d\n",      GetSystemMetrics(SM_CYEDGE));
+        printf("width=%d\n",          width + 2 * GetSystemMetrics(SM_CXSIZEFRAME));
+        printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
+            GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
+        printf("WS_OVERLAPPEDWINDOW = %lx\n", WS_OVERLAPPEDWINDOW);
+        printf("WS_BORDER           = %lx\n", WS_BORDER);
+        printf("WS_THICKFRAME       = %lx\n", WS_THICKFRAME);
+        printf("WS_DLGFRAME         = %lx\n", WS_DLGFRAME);
+        printf("WS_CAPTION          = %lx\n", WS_CAPTION);
+        printf("WS_CHILD            = %lx\n", WS_CHILD);
+#endif
+
+        result->hWnd = CreateWindow(windowClass, "",
+            WS_CHILD /* | WS_OVERLAPPED WS_DLGFRAME & ~WS_BORDER & ~WS_THICKFRAME ** WS_OVERLAPPEDWINDOW */,
+            xPos, yPos, width, height,
+            to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
+#ifdef OUT_OF_ORDER
+        result->hWnd = CreateWindowEx(0, windowClass, "",
+            (WS_VISIBLE | WS_SYSMENU /* | WS_THICKFRAME */),
+            xPos, yPos, width, height,
+            to_hwnd(parent_window), NULL, NULL /* hInstance */, NULL);
+#endif
+
+        /* printf("hWnd=%lu\n", result->hWnd); */
+        if (result->hWnd != NULL) {
+          SetWindowLong(result->hWnd , GWL_STYLE, GetWindowLong(result->hWnd , GWL_STYLE) &~ WS_CAPTION);
+          SetWindowPos(result->hWnd , HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+          result->hdc = GetDC(result->hWnd);
+          /* printf("hdc=%lu\n", result->hdc); */
+          result->hasTransparentPixel = FALSE;
+          result->transparentPixel = 0;
+          result->is_pixmap = FALSE;
+          result->width = width;
+          result->height = height;
+          result->backup_hdc = CreateCompatibleDC(result->hdc);
+          result->backup = CreateCompatibleBitmap(result->hdc, width, height);
+          SelectObject(result->backup_hdc, result->backup);
+          std_font = CreateFont(16, 6, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+              ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+              DEFAULT_QUALITY, FIXED_PITCH | FF_SWISS, NULL);
+          SelectObject(result->hdc, std_font);
+          SelectObject(result->backup_hdc, std_font);
+          ShowWindow(result->hWnd, SW_SHOW /*SW_SHOWDEFAULT*/);
+          UpdateWindow(result->hWnd);
+        } /* if */
+      } /* if */
+    } /* if */
+#ifdef TRACE_WIN
+    printf("END drwOpenSubWindow ==> %lu\n", (long unsigned) result);
+#endif
+    return((wintype) result);
+  } /* drwOpenSubWindow */
 
 
 
@@ -2144,6 +2250,23 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
+#else
+
+void drwSetPos (actual_window, xPos, yPos)
+wintype actual_window;
+inttype x1, y1;
+#endif
+
+  { /* drwSetPos */
+    SetWindowPos(to_hwnd(actual_window), 0, xPos, yPos, 0, 0,
+	/* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
+  } /* drwSetPos */
+
+
+
+#ifdef ANSI_C
+
 void drwSetTransparentColor (wintype pixmap, inttype col)
 #else
 
@@ -2232,6 +2355,73 @@ inttype drwWidth (actual_window)
 wintype actual_window;
 #endif
 
-  { /* drwWidth */
-    return(to_width(actual_window));
+  {
+    RECT rect;
+    inttype result;
+
+  /* drwWidth */
+    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+      result = to_width(actual_window);
+    } else {
+      result = rect.right - rect.left;
+    } /* if */
+    return result;
   } /* drwWidth */
+
+
+
+#ifdef ANSI_C
+
+inttype drwXPos (const_wintype actual_window)
+#else
+
+inttype drwXPos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    RECT rect;
+    POINT point;
+    inttype result;
+
+  /* drwXPos */
+    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      point.x = rect.left;
+      point.y = rect.top;
+      ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
+      result = point.x;
+    } /* if */
+    return result;
+  } /* drwXPos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwYPos (const_wintype actual_window)
+#else
+
+inttype drwYPos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    RECT rect;
+    POINT point;
+    inttype result;
+
+  /* drwYPos */
+    if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      point.x = rect.left;
+      point.y = rect.top;
+      ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
+      result = point.y;
+    } /* if */
+    return result;
+  } /* drwYPos */

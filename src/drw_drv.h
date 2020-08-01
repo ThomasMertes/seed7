@@ -66,6 +66,7 @@ void drwPLine (const_wintype, inttype, inttype, inttype, inttype, inttype);
 wintype drwNewPixmap (const_wintype, inttype, inttype);
 wintype drwNewBitmap (const_wintype, inttype, inttype);
 wintype drwOpen (inttype, inttype, inttype, inttype, stritype);
+wintype drwOpenSubWindow (const_wintype, inttype, inttype, inttype, inttype);
 void drwPoint (const_wintype, inttype, inttype);
 void drwPPoint (const_wintype, inttype, inttype, inttype);
 void drwConvPointList (bstritype, inttype *);
@@ -79,9 +80,12 @@ void drwPRect (const_wintype, inttype, inttype, inttype, inttype, inttype);
 inttype drwRgbColor (inttype, inttype, inttype);
 void drwBackground (inttype);
 void drwColor (inttype);
+void drwSetPos (const_wintype, inttype, inttype);
 void drwSetTransparentColor (wintype, inttype);
 void drwText (const_wintype, inttype, inttype, stritype, inttype, inttype);
 inttype drwWidth (const_wintype);
+inttype drwXPos (const_wintype);
+inttype drwYPos (const_wintype);
 
 #else
 
@@ -119,6 +123,7 @@ void drwPLine ();
 wintype drwNewPixmap ();
 wintype drwNewBitmap ();
 wintype drwOpen ();
+wintype drwOpenSubWindow ();
 void drwPoint ();
 void drwPPoint ();
 void drwConvPointList ();
@@ -132,8 +137,11 @@ void drwPRect ();
 inttype drwRgbColor ();
 void drwBackground ();
 void drwColor ();
+void drwSetPos ();
 void drwSetTransparentColor ();
 void drwText ();
 inttype drwWidth ();
+inttype drwXPos ();
+inttype drwYPos ();
 
 #endif

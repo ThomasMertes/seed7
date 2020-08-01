@@ -38,11 +38,14 @@ void timFromTimestamp (time_t st_time,
     booltype *is_dst);
 time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
+void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype *time_zone, booltype *is_dst);
 
 #else
 
 time_t mkutc ();
 void timFromTimestamp ();
 time_t timToTimestamp ();
+void timSetLocalTZ ();
 
 #endif

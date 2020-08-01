@@ -219,12 +219,11 @@ errinfotype *err_info;
         /* printf("before remove directory <%s>\n", dir_name); */
         if (os_rmdir(dir_name) != 0) {
           *err_info = FILE_ERROR;
+/*        printf("errno=%d\n", errno);
+          printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+              EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+          printf("dir_name=\"%ls\"\n", dir_name); */
         } /* if */
-/*      okay = errno;
-        printf("errno=%d\n", okay);
-        printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-            EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
-        /* printf("remove ==> %d\n", remove(dir_name)); */
       } /* if */
     } /* if */
 #ifdef TRACE_CMD_RTL

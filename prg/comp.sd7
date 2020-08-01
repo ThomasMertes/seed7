@@ -2087,11 +2087,18 @@ const proc: process_arr_append (in ref_list: params, inout expr_type: c_expr) is
 
 const proc: process_arr_arrlit (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param is expr_type.value;
   begin
-    prepare_array_result(getExprResultType(params[3]), c_expr);
-    c_expr.result_expr := "arrArrlit((arraytype)(";
-    getTemporaryToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= "))";
+    prepareAnyParamTemporarys(params[3], c_param, c_expr);
+    if c_param.result_expr <> "" then
+      prepare_array_result(getExprResultType(params[3]), c_expr);
+      c_expr.result_expr := "/*arrArrlit()*/";
+      c_expr.result_expr &:= c_param.result_expr;
+    else
+      c_expr.expr &:= "/*arrArrlit()*/";
+      c_expr.expr &:= c_param.expr;
+    end if;
   end func;
 
 
@@ -2145,10 +2152,18 @@ const proc: process_arr_cat (in ref_list: params, inout expr_type: c_expr) is fu
 
 const proc: process_arr_conv (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param is expr_type.value;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    prepareAnyParamTemporarys(params[3], c_param, c_expr);
+    if c_param.result_expr <> "" then
+      prepare_array_result(getExprResultType(params[3]), c_expr);
+      c_expr.result_expr := "/*arrConv()*/";
+      c_expr.result_expr &:= c_param.result_expr;
+    else
+      c_expr.expr &:= "/*arrConv()*/";
+      c_expr.expr &:= c_param.expr;
+    end if;
   end func;
 
 
@@ -2331,61 +2346,33 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
     in integer: index, inout expr_type: c_expr) is func
 
   local
+    var expr_type: c_param is expr_type.value;
     var integer: array_temp_num is 0;
+    var integer: result_temp_num is 0;
   begin
-    incr(countOptimizations);
-    incr(c_expr.temp_num);
-    array_temp_num := c_expr.temp_num;
-    c_expr.temp_decls &:= "arraytype tmp_";
-    c_expr.temp_decls &:= str(array_temp_num);
-    c_expr.temp_decls &:= ";\n";
-    c_expr.expr &:= "(*(tmp_";
-    c_expr.expr &:= str(array_temp_num);
-    c_expr.expr &:= "=(arraytype)(";
-    getAnyParamToExpr(param1, c_expr);
-    c_expr.expr &:= "), &tmp_";
-    c_expr.expr &:= str(array_temp_num);
-    c_expr.expr &:= "->arr[";
-    if array_range_check then
-      c_expr.expr &:= "(";
+    prepareAnyParamTemporarys(param1, c_param, c_expr);
+    if c_param.result_expr <> "" then
+      incr(c_expr.temp_num);
+      result_temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "rtlObjecttype help_";
+      c_expr.temp_decls &:= str(result_temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.temp_decls &:= c_param.result_decl;
+      c_expr.temp_frees &:= c_param.result_free;
+      c_expr.expr &:= "(help_";
+      c_expr.expr &:= str(result_temp_num);
+      c_expr.expr &:= ".value.genericvalue=arrIdxTemp((arraytype)(";
+      c_expr.expr &:= c_param.result_intro;
+      c_expr.expr &:= c_param.result_expr;
+      c_expr.expr &:= c_param.result_finish;
+      c_expr.expr &:= "), ";
       c_expr.expr &:= str(index);
-      c_expr.expr &:= "<tmp_";
-      c_expr.expr &:= str(array_temp_num);
-      c_expr.expr &:= "->min_position || ";
-      c_expr.expr &:= str(index);
-      c_expr.expr &:= ">tmp_";
-      c_expr.expr &:= str(array_temp_num);
-      c_expr.expr &:= "->max_position ? ";
-      process_raise_error("RANGE_ERROR", function, c_expr);
-      c_expr.expr &:= " : 0, ";
-      c_expr.expr &:= str(index);
-      c_expr.expr &:= "-tmp_";
-      c_expr.expr &:= str(array_temp_num);
-      c_expr.expr &:= "->min_position)";
+      c_expr.expr &:= "), help_";
+      c_expr.expr &:= str(result_temp_num);
+      c_expr.expr &:= select_value_from_rtlObjectstruct(result_type(getType(function)));
+      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= str(index);
-      c_expr.expr &:= "-tmp_";
-      c_expr.expr &:= str(array_temp_num);
-      c_expr.expr &:= "->min_position";
-    end if;
-    c_expr.expr &:= "]";
-    c_expr.expr &:= select_value_from_rtlObjectstruct(result_type(getType(function)));
-    c_expr.expr &:= "))";
-  end func;
-
-
-const proc: process_arr_idx (in reference: function, in ref_list: params,
-    inout expr_type: c_expr) is func
-
-  local
-    var integer: array_temp_num is 0;
-    var integer: index_temp_num is 0;
-  begin
-    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
-      process_const_arr_idx(function, params[1], params[3], c_expr);
-    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
-      process_const_arr_idx(function, params[1], getValue(params[3], integer), c_expr);
-    else
+      incr(countOptimizations);
       incr(c_expr.temp_num);
       array_temp_num := c_expr.temp_num;
       c_expr.temp_decls &:= "arraytype tmp_";
@@ -2394,45 +2381,123 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
       c_expr.expr &:= "(*(tmp_";
       c_expr.expr &:= str(array_temp_num);
       c_expr.expr &:= "=(arraytype)(";
-      getAnyParamToExpr(params[1], c_expr);
+      c_expr.expr &:= c_param.expr;
       c_expr.expr &:= "), &tmp_";
       c_expr.expr &:= str(array_temp_num);
       c_expr.expr &:= "->arr[";
       if array_range_check then
-        incr(c_expr.temp_num);
-        index_temp_num := c_expr.temp_num;
-        c_expr.temp_decls &:= "inttype tmp_";
-        c_expr.temp_decls &:= str(index_temp_num);
-        c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "(tmp_";
-        c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= "=";
-        process_expr(params[3], c_expr);
-        c_expr.expr &:= ", tmp_";
-        c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= " < tmp_";
+        c_expr.expr &:= "(";
+        c_expr.expr &:= str(index);
+        c_expr.expr &:= "<tmp_";
         c_expr.expr &:= str(array_temp_num);
-        c_expr.expr &:= "->min_position || tmp_";
-        c_expr.expr &:= str(index_temp_num);
-        c_expr.expr &:= " > tmp_";
+        c_expr.expr &:= "->min_position || ";
+        c_expr.expr &:= str(index);
+        c_expr.expr &:= ">tmp_";
         c_expr.expr &:= str(array_temp_num);
         c_expr.expr &:= "->max_position ? ";
         process_raise_error("RANGE_ERROR", function, c_expr);
-        c_expr.expr &:= " : 0, tmp_";
-        c_expr.expr &:= str(index_temp_num);
+        c_expr.expr &:= " : 0, ";
+        c_expr.expr &:= str(index);
         c_expr.expr &:= "-tmp_";
         c_expr.expr &:= str(array_temp_num);
         c_expr.expr &:= "->min_position)";
       else
-        c_expr.expr &:= "(";
-        process_expr(params[3], c_expr);
-        c_expr.expr &:= ")-tmp_";
+        c_expr.expr &:= str(index);
+        c_expr.expr &:= "-tmp_";
         c_expr.expr &:= str(array_temp_num);
         c_expr.expr &:= "->min_position";
       end if;
       c_expr.expr &:= "]";
       c_expr.expr &:= select_value_from_rtlObjectstruct(result_type(getType(function)));
       c_expr.expr &:= "))";
+    end if;
+  end func;
+
+
+const proc: process_arr_idx (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param is expr_type.value;
+    var integer: array_temp_num is 0;
+    var integer: index_temp_num is 0;
+    var integer: result_temp_num is 0;
+  begin
+    if category(params[1]) = ARRAYOBJECT and not isVar(params[1]) then
+      process_const_arr_idx(function, params[1], params[3], c_expr);
+    elsif category(params[3]) = INTOBJECT and not isVar(params[3]) then
+      process_const_arr_idx(function, params[1], getValue(params[3], integer), c_expr);
+    else
+      prepareAnyParamTemporarys(params[1], c_param, c_expr);
+      if c_param.result_expr <> "" then
+        incr(c_expr.temp_num);
+        result_temp_num := c_expr.temp_num;
+        c_expr.temp_decls &:= "rtlObjecttype help_";
+        c_expr.temp_decls &:= str(result_temp_num);
+        c_expr.temp_decls &:= ";\n";
+        c_expr.temp_decls &:= c_param.result_decl;
+        c_expr.temp_frees &:= c_param.result_free;
+        c_expr.expr &:= "(help_";
+        c_expr.expr &:= str(result_temp_num);
+        c_expr.expr &:= ".value.genericvalue=arrIdxTemp((arraytype)(";
+        c_expr.expr &:= c_param.result_intro;
+        c_expr.expr &:= c_param.result_expr;
+        c_expr.expr &:= c_param.result_finish;
+        c_expr.expr &:= "), ";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= "), help_";
+        c_expr.expr &:= str(result_temp_num);
+        c_expr.expr &:= select_value_from_rtlObjectstruct(result_type(getType(function)));
+        c_expr.expr &:= ")";
+      else
+        incr(c_expr.temp_num);
+        array_temp_num := c_expr.temp_num;
+        c_expr.temp_decls &:= "arraytype tmp_";
+        c_expr.temp_decls &:= str(array_temp_num);
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= "(*(tmp_";
+        c_expr.expr &:= str(array_temp_num);
+        c_expr.expr &:= "=(arraytype)(";
+        c_expr.expr &:= c_param.expr;
+        c_expr.expr &:= "), &tmp_";
+        c_expr.expr &:= str(array_temp_num);
+        c_expr.expr &:= "->arr[";
+        if array_range_check then
+          incr(c_expr.temp_num);
+          index_temp_num := c_expr.temp_num;
+          c_expr.temp_decls &:= "inttype tmp_";
+          c_expr.temp_decls &:= str(index_temp_num);
+          c_expr.temp_decls &:= ";\n";
+          c_expr.expr &:= "(tmp_";
+          c_expr.expr &:= str(index_temp_num);
+          c_expr.expr &:= "=";
+          process_expr(params[3], c_expr);
+          c_expr.expr &:= ", tmp_";
+          c_expr.expr &:= str(index_temp_num);
+          c_expr.expr &:= " < tmp_";
+          c_expr.expr &:= str(array_temp_num);
+          c_expr.expr &:= "->min_position || tmp_";
+          c_expr.expr &:= str(index_temp_num);
+          c_expr.expr &:= " > tmp_";
+          c_expr.expr &:= str(array_temp_num);
+          c_expr.expr &:= "->max_position ? ";
+          process_raise_error("RANGE_ERROR", function, c_expr);
+          c_expr.expr &:= " : 0, tmp_";
+          c_expr.expr &:= str(index_temp_num);
+          c_expr.expr &:= "-tmp_";
+          c_expr.expr &:= str(array_temp_num);
+          c_expr.expr &:= "->min_position)";
+        else
+          c_expr.expr &:= "(";
+          process_expr(params[3], c_expr);
+          c_expr.expr &:= ")-tmp_";
+          c_expr.expr &:= str(array_temp_num);
+          c_expr.expr &:= "->min_position";
+        end if;
+        c_expr.expr &:= "]";
+        c_expr.expr &:= select_value_from_rtlObjectstruct(result_type(getType(function)));
+        c_expr.expr &:= "))";
+      end if;
     end if;
   end func;
 
@@ -4292,6 +4357,33 @@ const proc: process_cmd_get_atime (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
+const proc: process_cmd_get_ctime (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdGetCTime(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
 const proc: process_cmd_get_mtime (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4809,7 +4901,7 @@ const proc: process_drw_open (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[4], c_expr);
     c_expr.result_expr &:= ", ";
-    getStdParamToResultExpr(params[5], c_expr);
+    getAnyParamToResultExpr(params[5], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -11123,6 +11215,39 @@ const proc: process_str_pos (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_str_push (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    c_expr.expr &:= "strPush(&(";
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "), ";
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
+    c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_str_range (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -11338,6 +11463,33 @@ const proc: process_tim_await (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_tim_from_timestamp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "timFromTimestamp(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[9], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[10], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
 const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -11359,6 +11511,29 @@ const proc: process_tim_now (in ref_list: params, inout expr_type: c_expr) is fu
     process_expr(params[8], c_expr);
     c_expr.expr &:= "), &(";
     process_expr(params[9], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process_tim_set_local_tz (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "timSetLocalTZ(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[5], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[7], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[8], c_expr);
     c_expr.expr &:= "));\n";
   end func;
 
@@ -11861,6 +12036,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_getcwd(params, c_expr);
       elsif action_name = "CMD_GET_ATIME" then
         process_cmd_get_atime(params, c_expr);
+      elsif action_name = "CMD_GET_CTIME" then
+        process_cmd_get_ctime(params, c_expr);
       elsif action_name = "CMD_GET_MTIME" then
         process_cmd_get_mtime(params, c_expr);
       elsif action_name = "CMD_LS" then
@@ -12727,6 +12904,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_str_ne(params, c_expr);
       elsif action_name = "STR_POS" then
         process_str_pos(params, c_expr);
+      elsif action_name = "STR_PUSH" then
+        process_str_push(params, c_expr);
       elsif action_name = "STR_RANGE" then
         process_str_range(params, c_expr);
       elsif action_name = "STR_RCHPOS" then
@@ -12761,8 +12940,12 @@ const proc: process_action (in reference: function, in ref_list: params,
     elsif action_prefix = "TIM" then
       if action_name = "TIM_AWAIT" then
         process_tim_await(params, c_expr);
+      elsif action_name = "TIM_FROM_TIMESTAMP" then
+        process_tim_from_timestamp(params, c_expr);
       elsif action_name = "TIM_NOW" then
         process_tim_now(params, c_expr);
+      elsif action_name = "TIM_SET_LOCAL_TZ" then
+        process_tim_set_local_tz(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -16416,7 +16599,6 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    actStr (generictype);");
     writeln(c_prog, "generictype actValue (objreftype);");
     writeln(c_prog, "void        arrAppend (arraytype *, arraytype);");
-    writeln(c_prog, "arraytype   arrArrlit (arraytype);");
     writeln(c_prog, "arraytype   arrArrlit2 (inttype, arraytype);");
     writeln(c_prog, "arraytype   arrBaselit (long);");
     writeln(c_prog, "arraytype   arrBaselit2 (inttype, long);");
@@ -16424,6 +16606,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "arraytype   arrExtend (arraytype, inttype);");
     writeln(c_prog, "arraytype   arrGen (inttype, inttype);");
     writeln(c_prog, "arraytype   arrHead (arraytype, inttype);");
+    writeln(c_prog, "generictype arrIdxTemp (arraytype, inttype);");
     writeln(c_prog, "arraytype   arrRange (arraytype, inttype, inttype);");
     writeln(c_prog, "generictype arrRemove (arraytype, inttype);");
     writeln(c_prog, "arraytype   arrSort (arraytype, comparetype);");
@@ -16499,6 +16682,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "inttype     cmdFileTypeSL (stritype);");
     writeln(c_prog, "stritype    cmdGetcwd (void);");
     writeln(c_prog, "void        cmdGetATime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        cmdGetCTime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "void        cmdGetMTime (stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "arraytype   cmdLs (stritype);");
     writeln(c_prog, "void        cmdMove (stritype, stritype);");
@@ -16759,6 +16943,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "booltype    strLt (stritype, stritype);");
     writeln(c_prog, "stritype    strMult (stritype, inttype);");
     writeln(c_prog, "inttype     strPos (stritype, stritype);");
+    writeln(c_prog, "void        strPush (stritype *, chartype);");
     writeln(c_prog, "stritype    strRange (stritype, inttype, inttype);");
     writeln(c_prog, "inttype     strRChPos (stritype, chartype);");
     writeln(c_prog, "stritype    strRepl (stritype, stritype, stritype);");
@@ -16773,7 +16958,9 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    strValue (objreftype);");
     writeln(c_prog, "stritype    cstri_to_stri (char *);");
     writeln(c_prog, "void        timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
-    writeln(c_prog, "void        timNow (inttype *, inttype *, inttype*, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        timFromTimestamp (inttype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        timNow (inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    writeln(c_prog, "void        timSetLocalTZ (inttype, inttype, inttype, inttype, inttype, inttype, inttype *, booltype *);");
     writeln(c_prog, "inttype     typCmp (typetype, typetype);");
     writeln(c_prog, "void        typCpy (typetype *, typetype);");
     writeln(c_prog, "typetype    typCreate (typetype);");

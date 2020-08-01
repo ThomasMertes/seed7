@@ -129,6 +129,10 @@ const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
     ref integer param, ref integer param,
     ref integer param, ref integer param,
     ref string param) is                               action "DRW_OPEN";
+const func PRIMITIVE_WINDOW: openSubWindow (
+    in PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param) is           action "DRW_OPEN_SUB_WINDOW";
 const func PRIMITIVE_WINDOW: DRAW_GET (
     in PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
@@ -150,6 +154,10 @@ const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW param,
     ref pixel param) is                                action "DRW_SETTRANSPARENTCOLOR";
 const func integer: height (in PRIMITIVE_WINDOW param) is    action "DRW_HEIGHT";
 const func integer: width (in PRIMITIVE_WINDOW param) is     action "DRW_WIDTH";
+const func integer: xPos (in PRIMITIVE_WINDOW param) is      action "DRW_XPOS";
+const func integer: yPos (in PRIMITIVE_WINDOW param) is      action "DRW_YPOS";
+const proc: setPos (in PRIMITIVE_WINDOW param,
+    in integer param, in integer param) is                   action "DRW_SETPOS";
 const func pixel: rgbPixel (ref integer param,
     ref integer param, ref integer param) is           action "DRW_RGBCOL";
 const proc: SET_COLOR (ref pixel param) is             action "DRW_COLOR";

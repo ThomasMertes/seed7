@@ -983,6 +983,35 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_open_sub_window (listtype arguments)
+#else
+
+objecttype drw_open_sub_window (arguments)
+listtype arguments;
+#endif
+
+  {
+    wintype parent_window;
+    inttype xPos, yPos, width, height;
+
+  /* drw_open_sub_window */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    parent_window = take_win(arg_1(arguments));
+    xPos = take_int(arg_2(arguments));
+    yPos = take_int(arg_3(arguments));
+    width = take_int(arg_4(arguments));
+    height = take_int(arg_5(arguments));
+    return(bld_win_temp(drwOpenSubWindow(parent_window, xPos, yPos, width, height)));
+  } /* drw_open_sub_window */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_parc (listtype arguments)
 #else
 
@@ -1472,6 +1501,26 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_setPos (listtype arguments)
+#else
+
+objecttype drw_setPos (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_setPos */
+    isit_win(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    drwSetPos(take_win(arg_1(arguments)),
+	take_int(arg_2(arguments)), take_int(arg_3(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_setPos */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_setTransparentColor (listtype arguments)
 #else
 
@@ -1536,3 +1585,35 @@ listtype arguments;
     isit_win(arg_1(arguments));
     return(bld_int_temp(drwWidth(take_win(arg_1(arguments)))));
   } /* drw_width */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_xpos (listtype arguments)
+#else
+
+objecttype drw_xpos (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_xpos */
+    isit_win(arg_1(arguments));
+    return(bld_int_temp(drwXPos(take_win(arg_1(arguments)))));
+  } /* drw_xpos */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_ypos (listtype arguments)
+#else
+
+objecttype drw_ypos (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_ypos */
+    isit_win(arg_1(arguments));
+    return(bld_int_temp(drwYPos(take_win(arg_1(arguments)))));
+  } /* drw_ypos */

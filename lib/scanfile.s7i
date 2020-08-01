@@ -85,7 +85,7 @@ const func string: getComment (inout file: inFile) is func
     repeat
       repeat
         while character not in special_comment_char do
-          symbol &:= str(character);
+          symbol &:= character;
           character := getc(inFile);
         end while;
         if character = '(' then
@@ -99,14 +99,14 @@ const func string: getComment (inout file: inFile) is func
         end if;
       until character = '*' or character = EOF;
       if character <> EOF then
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
     until character = ')' or character = EOF;
     if character = EOF then
       inFile.bufferChar := EOF;
     else
-      symbol &:= str(character);
+      symbol &:= character;
       inFile.bufferChar := getc(inFile);
     end if;
   end func; # getComment
@@ -154,10 +154,10 @@ const func string: getLineComment (inout file: inFile) is func
       if character = '\r' then
         character := getc(inFile);
         if character <> '\n' then
-          symbol &:= str('\r');
+          symbol &:= '\r';
         end if;
       else
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
     end while;
@@ -182,7 +182,7 @@ const func string: getDigits (inout file: inFile) is func
       symbol := str(inFile.bufferChar);
       character := getc(inFile);
       while character in digit_char do
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end while;
       inFile.bufferChar := character;
@@ -206,58 +206,58 @@ const func string: getNumber (inout file: inFile) is func
     symbol := str(inFile.bufferChar);
     character := getc(inFile);
     while character in digit_char do
-      symbol &:= str(character);
+      symbol &:= character;
       character := getc(inFile);
     end while;
     if character = '.' then
       # float literal
-      symbol &:= str(character);
+      symbol &:= character;
       character := getc(inFile);
       while character in digit_char do
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end while;
       if character = 'E' or character = 'e' then
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
         if character = '+' then
-          symbol &:= str(character);
+          symbol &:= character;
           character := getc(inFile);
         elsif character = '-' then
-          symbol &:= str(character);
+          symbol &:= character;
           character := getc(inFile);
         end if;
         while character in digit_char do
-          symbol &:= str(character);
+          symbol &:= character;
           character := getc(inFile);
         end while;
       end if;
     elsif character = '#' then
       # based integer literal
-      symbol &:= str(character);
+      symbol &:= character;
       character := getc(inFile);
       while character in alphanum_char do
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end while;
     elsif character = 'E' or character = 'e' then
       # integer literal with exponent
-      symbol &:= str(character);
+      symbol &:= character;
       character := getc(inFile);
       if character = '+' then
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       elsif character = '-' then
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
       while character in digit_char do
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end while;
     elsif character = '_' then
       # bigInteger literal
-      symbol &:= str(character);
+      symbol &:= character;
       character := getc(inFile);
     end if;
     inFile.bufferChar := character;
@@ -281,7 +281,7 @@ const func string: getNonDigits (inout file: inFile) is func
       symbol := str(inFile.bufferChar);
       character := getc(inFile);
       while character not in digit_char do
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end while;
       inFile.bufferChar := character;
@@ -309,7 +309,7 @@ const func string: getQuotedText (inout file: inFile) is func
     quoteChar := inFile.bufferChar;
     character := getc(inFile);
     while character <> quoteChar and character <> EOF do
-      symbol &:= str(character);
+      symbol &:= character;
       character := getc(inFile);
     end while;
     inFile.bufferChar := character;
@@ -333,11 +333,11 @@ const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
     character := getc(inFile);
     if character = '\n' or character = ' ' or character = '\t' or character = '\r' then
       repeat
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       until character <> '\n' and character <> ' ' and character <> '\t' and character <> '\r';
       if character = '\\' then
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
     elsif character in digit_char then
@@ -345,11 +345,11 @@ const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
       symbol &:= getNumber(inFile);
       character := inFile.bufferChar;
       if character = '\\' then
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
     elsif character <> EOF then
-      symbol &:= str(character);
+      symbol &:= character;
       character := getc(inFile);
     end if;
     inFile.bufferChar := character;
@@ -378,25 +378,25 @@ const func string: getCharLiteral (inout file: inFile) is func
           character := inFile.bufferChar;
         until character <> '\\';
       else
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
       if character <> '\'' then
         if character <> '\n' and character <> '\r' and character <> EOF then
           repeat
-            symbol &:= str(character);
+            symbol &:= character;
             character := getc(inFile);
           until character = '\'' or
               character = '\n' or
               character = '\r' or
               character = EOF;
           if character = '\'' then
-            symbol &:= str(character);
+            symbol &:= character;
             character := getc(inFile);
           end if;
         end if;
       else
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
     end if;
@@ -422,14 +422,14 @@ const func string: getStringLiteral (inout file: inFile) is func
     character := getc(inFile);
     repeat
       while character in no_escape_char do
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end while;
       if character = '\"' then
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
         if character = '\"' then
-          symbol &:= str(character);
+          symbol &:= character;
           character := getc(inFile);
         else
           reading_string := FALSE;
@@ -441,7 +441,7 @@ const func string: getStringLiteral (inout file: inFile) is func
         reading_string := FALSE;
       else
         repeat
-          symbol &:= str(character);
+          symbol &:= character;
           character := getc(inFile);
         until character >= ' ' or character <= '~' or character = EOF;
       end if;
@@ -469,7 +469,7 @@ const func string: getName (inout file: inFile) is func
       symbol := str(inFile.bufferChar);
       character := getc(inFile);
       while character in name_char do
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end while;
       inFile.bufferChar := character;
@@ -524,7 +524,7 @@ const func string: getWhiteSpace (inout file: inFile) is func
     var string: symbol is "";
   begin
     while inFile.bufferChar in white_space_char do
-      symbol &:= str(inFile.bufferChar);
+      symbol &:= inFile.bufferChar;
       inFile.bufferChar := getc(inFile);
     end while;
   end func;
@@ -552,7 +552,7 @@ const func string: getWord (inout file: inFile) is func
     end while;
     if character <> EOF then
       repeat
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       until character in white_space_char or character = EOF;
     end if;
@@ -602,10 +602,10 @@ const func string: getLine (inout file: inFile) is func
       if character = '\r' then
         character := getc(inFile);
         if character <> '\n' then
-          symbol &:= str('\r');
+          symbol &:= '\r';
         end if;
       else
-        symbol &:= str(character);
+        symbol &:= character;
         character := getc(inFile);
       end if;
     end while;
@@ -637,14 +637,14 @@ const func string: getSymbolOrComment (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in name_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when special_char:
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in special_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when left_paren_char:
@@ -698,14 +698,14 @@ const func string: getSymbol (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in name_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when special_char:
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in special_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when left_paren_char:
@@ -762,13 +762,13 @@ const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in name_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when special_char:
         if inFile.bufferChar = '&' then
           repeat
-            symbol &:= str(inFile.bufferChar);
+            symbol &:= inFile.bufferChar;
             inFile.bufferChar := getc(inFile);
           until inFile.bufferChar = ';';
         end if;
@@ -777,11 +777,11 @@ const func string: getSymbolWithHtmlEntities (inout file: inFile) is func
         while inFile.bufferChar in special_char do
           if inFile.bufferChar = '&' then
             repeat
-              symbol &:= str(inFile.bufferChar);
+              symbol &:= inFile.bufferChar;
               inFile.bufferChar := getc(inFile);
             until inFile.bufferChar = ';';
           end if;
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when left_paren_char:
@@ -840,26 +840,26 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in name_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when special_html_char:
         if inFile.bufferChar = '&' then
           repeat
-            symbol &:= str(inFile.bufferChar);
+            symbol &:= inFile.bufferChar;
             inFile.bufferChar := getc(inFile);
           until inFile.bufferChar = ';';
         end if;
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in special_html_char do
           if inFile.bufferChar = '&' then
             repeat
-              symbol &:= str(inFile.bufferChar);
+              symbol &:= inFile.bufferChar;
               inFile.bufferChar := getc(inFile);
             until inFile.bufferChar = ';';
           end if;
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when left_paren_char:
@@ -874,11 +874,11 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
         inFile.bufferChar := getc(inFile);
       when left_angle_bracket:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
         if inFile.bufferChar <> EOF then
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end if;
       when digit_char:
@@ -951,16 +951,16 @@ const func string: getXmlTagOrContent (inout file: inFile) is func
   begin
     if inFile.bufferChar = '<' then
       repeat
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
       until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
       if inFile.bufferChar = '>' then
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
       end if;
     elsif inFile.bufferChar <> EOF then
       repeat
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
       until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
     end if;
@@ -981,20 +981,20 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
       if inFile.bufferChar = 'x' then
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in hexdigit_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
         symbol := str(chr(toInt(symbol, 16)));
       else
         while inFile.bufferChar in digit_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
         symbol := str(chr(integer parse symbol));
       end if;
     else
       while inFile.bufferChar <> ';' and inFile.bufferChar <> EOF do
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
       end while;
       if symbol = "amp" then
@@ -1065,7 +1065,7 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
       if not finished and inFile.bufferChar not in white_space_char and
           inFile.bufferChar <> '>' and inFile.bufferChar <> EOF then
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar in white_space_char or
             inFile.bufferChar = '>' or inFile.bufferChar = '/' or
@@ -1073,7 +1073,7 @@ const func string: getXmlTagHeadOrContent (inout file: inFile) is func
       end if;
     elsif inFile.bufferChar <> EOF then
       repeat
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
       until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
     end if;
@@ -1104,29 +1104,29 @@ const func string: getSymbolInXmlTag (inout file: inFile) is func
     case inFile.bufferChar of
       when html_name_start_char:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar not in html_name_char;
       when double_quotation_char:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
         inFile.bufferChar := getc(inFile);
       when single_quotation_char:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
         inFile.bufferChar := getc(inFile);
       when equals_or_end_tag:
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
       when {EOF}:
         symbol := "";
       otherwise:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar in white_space_or_end_tag or
             inFile.bufferChar = EOF;
@@ -1235,24 +1235,24 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
     case inFile.bufferChar of
       when double_quotation_char:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = '"' or inFile.bufferChar = EOF;
         inFile.bufferChar := getc(inFile);
       when single_quotation_char:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar = ''' or inFile.bufferChar = EOF;
         inFile.bufferChar := getc(inFile);
       when right_angle_bracket:
-        symbol &:= str(inFile.bufferChar);
+        symbol &:= inFile.bufferChar;
         inFile.bufferChar := getc(inFile);
       when {EOF}:
         symbol := "";
       otherwise:
         repeat
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         until inFile.bufferChar in white_space_or_end_tag or
             inFile.bufferChar = EOF;
@@ -1319,14 +1319,14 @@ const func string: getSimpleSymbol (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in name_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when extended_special_char:
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in extended_special_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when paren_char:
@@ -1336,7 +1336,7 @@ const func string: getSimpleSymbol (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
         while inFile.bufferChar in digit_char do
-          symbol &:= str(inFile.bufferChar);
+          symbol &:= inFile.bufferChar;
           inFile.bufferChar := getc(inFile);
         end while;
       when {EOF}:

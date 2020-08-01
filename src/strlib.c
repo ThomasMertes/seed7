@@ -359,33 +359,18 @@ listtype arguments;
     str_to = take_stri(str_variable);
     isit_stri(arg_3(arguments));
     str_from = take_stri(arg_3(arguments));
-/*
-    printf("str_to (%lx) %d = ", str_to, str_to->size);
-    prot_stri(str_to);
-    printf("\n");
-    printf("str_from (%lx) %d = ", str_from, str_from->size);
-    prot_stri(str_from);
-    printf("\n");
-*/
     if (str_from->size != 0) {
       new_size = str_to->size + str_from->size;
       GROW_STRI(str_to, str_to, str_to->size, new_size);
       if (str_to == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        COUNT3_STRI(str_to->size, new_size);
+        memcpy(&str_to->mem[str_to->size], str_from->mem,
+            str_from->size * sizeof(strelemtype));
+        str_to->size = new_size;
+        str_variable->value.strivalue = str_to;
       } /* if */
-      COUNT3_STRI(str_to->size, new_size);
-      str_variable->value.strivalue = str_to;
-      memcpy(&str_to->mem[str_to->size], str_from->mem,
-          str_from->size * sizeof(strelemtype));
-      str_to->size = new_size;
-/*
-      printf("new str_to (%lx) %d = ", str_to, str_to->size);
-      prot_stri(str_to);
-      printf("\n");
-      printf("new str_variable (%lx): ", take_stri(str_variable));
-      trace1(str_variable);
-      printf("\n");
-*/
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* str_append */
@@ -1310,6 +1295,52 @@ listtype arguments;
     return(bld_int_temp(
         strPos(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)))));
   } /* str_pos */
+
+
+
+#ifdef ANSI_C
+
+objecttype str_push (listtype arguments)
+#else
+
+objecttype str_push (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype str_variable;
+    stritype str_to;
+    chartype char_from;
+    memsizetype new_size;
+
+  /* str_push */
+    str_variable = arg_1(arguments);
+    isit_stri(str_variable);
+    is_variable(str_variable);
+    str_to = take_stri(str_variable);
+    isit_char(arg_3(arguments));
+    char_from = take_char(arg_3(arguments));
+#ifndef UTF32_STRINGS
+    if (char_from > (chartype) 255) {
+      raise_error(RANGE_ERROR);
+      return(NULL);
+    } else {
+#endif
+      new_size = str_to->size + 1;
+      GROW_STRI(str_to, str_to, str_to->size, new_size);
+      if (str_to == NULL) {
+        return(raise_exception(SYS_MEM_EXCEPTION));
+      } else {
+        COUNT3_STRI(str_to->size, new_size);
+        str_to->mem[str_to->size] = char_from;
+        str_to->size = new_size;
+        str_variable->value.strivalue = str_to;
+      } /* if */
+#ifndef UTF32_STRINGS
+    } /* if */
+#endif
+    return(SYS_EMPTY_OBJECT);
+  } /* str_push */
 
 
 

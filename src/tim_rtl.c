@@ -198,6 +198,80 @@ inttype time_zone;
 
 #ifdef ANSI_C
 
+void timSetLocalTZ (inttype year, inttype month, inttype day, inttype hour,
+    inttype min, inttype sec, inttype *time_zone, booltype *is_dst)
+#else
+
+void timSetLocalTZ (year, month, day, hour, min, sec, time_zone, is_dst)
+inttype year;
+inttype month;
+inttype day;
+inttype hour;
+inttype min;
+inttype sec;
+inttype *time_zone;
+booltype *is_dst;
+#endif
+
+  {
+    struct tm tm_time;
+    time_t timestamp;
+#ifdef USE_LOCALTIME_R
+    struct tm tm_result;
+#endif
+    struct tm *local_time;
+    inttype time_zone_reference;
+
+  /* timSetLocalTZ */
+#ifdef TRACE_TIM_RTL
+    printf("BEGIN timSetLocalTZ(%04ld-%02ld-%02ld %02ld:%02ld:%02ld)\n",
+        year, month, day, hour, min, sec);
+#endif
+    timestamp = 0;
+#ifdef USE_LOCALTIME_R
+    local_time = localtime_r(&timestamp, &tm_result);
+#else
+    local_time = localtime(&timestamp);
+#endif
+    if (local_time == NULL) {
+      raise_error(RANGE_ERROR);
+    } else {
+      time_zone_reference = mkutc(local_time) / 60;
+      if (year < 1970 || year >= 2038 || month < 1 || month > 12 || day < 1 || day > 31 ||
+          hour < 0 || hour >= 24 || min < 0 || min >= 60 || sec < 0 || sec >= 60) {
+        raise_error(RANGE_ERROR);
+      } else {
+        tm_time.tm_year  = (int) year - 1900;
+        tm_time.tm_mon   = (int) month - 1;
+        tm_time.tm_mday  = (int) day;
+        tm_time.tm_hour  = (int) hour;
+        tm_time.tm_min   = (int) min;
+        tm_time.tm_sec   = (int) sec;
+        tm_time.tm_isdst = 0;
+        timestamp = mkutc(&tm_time) - time_zone_reference * 60;
+#ifdef USE_LOCALTIME_R
+        local_time = localtime_r(&timestamp, &tm_result);
+#else
+        local_time = localtime(&timestamp);
+#endif
+        if (local_time == NULL) {
+          raise_error(RANGE_ERROR);
+        } else {
+          *time_zone = (mkutc(local_time) - timestamp) / 60;
+          *is_dst    = local_time->tm_isdst;
+        } /* if */
+      } /* if */
+    } /* if */
+#ifdef TRACE_TIM_RTL
+    printf("END timSetLocalTZ (%04ld-%02ld-%02ld %02ld:%02ld:%02ld %ld %d)\n",
+        year, month, day, hour, min, sec, *time_zone, *is_dst);
+#endif
+  } /* timSetLocalTZ */
+
+
+
+#ifdef ANSI_C
+
 void timFromBigTimestamp (biginttype timestamp,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,

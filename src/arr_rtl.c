@@ -162,21 +162,6 @@ rtlArraytype arr_from;
 
 #ifdef ANSI_C
 
-rtlArraytype arrArrlit (rtlArraytype arr1)
-#else
-
-rtlArraytype arrArrlit (arr1)
-rtlArraytype arr1;
-#endif
-
-  { /* arrArrlit */
-    return(arr1);
-  } /* arrArrlit */
-
-
-
-#ifdef ANSI_C
-
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1)
 #else
 
@@ -409,6 +394,50 @@ inttype stop;
     } /* if */
     return(result);
   } /* arrHead */
+
+
+
+/**
+ *  Index access when the array is destroyed after indexing.
+ *  To avoid problems the indexed element is removed from the array.
+ */
+#ifdef ANSI_C
+
+rtlGenerictype arrIdxTemp (rtlArraytype arr1, inttype pos)
+#else
+
+rtlGenerictype arrIdxTemp (arr1, pos)
+rtlArraytype arr1;
+inttype pos;
+#endif
+
+  {
+    memsizetype length;
+    rtlArraytype resized_arr1;
+    rtlGenerictype result;
+
+  /* arrIdxTemp */
+    if (pos >= arr1->min_position && pos <= arr1->max_position) {
+      length = (uinttype) (arr1->max_position - arr1->min_position + 1);
+      result = arr1->arr[pos - arr1->min_position].value.genericvalue;
+      if (pos != arr1->max_position) {
+        arr1->arr[pos - arr1->min_position].value.genericvalue =
+            arr1->arr[length - 1].value.genericvalue;
+      } /* if */
+      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - 1);
+      if (resized_arr1 == NULL) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        arr1 = resized_arr1;
+        COUNT3_RTL_ARRAY(length, length - 1);
+        arr1->max_position--;
+      } /* if */
+    } else {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } /* if */
+    return(result);
+  } /* arrIdxTemp */
 
 
 

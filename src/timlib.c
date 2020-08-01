@@ -114,7 +114,7 @@ listtype arguments;
     } else {
       arg_10(arguments)->value.objvalue = SYS_FALSE_OBJECT;
     } /* if */
-/*  fprintf(stderr, "timestamp %10ld  %04ld/%02ld/%02ld %02ld:%02ld:%02ld %7ld\n",
+/*  fprintf(stderr, "timestamp %10ld  %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld\n",
         arg_1(arguments)->value.intvalue,
         arg_2(arguments)->value.intvalue,
         arg_3(arguments)->value.intvalue,
@@ -164,7 +164,7 @@ listtype arguments;
     } else {
       arg_9(arguments)->value.objvalue = SYS_FALSE_OBJECT;
     } /* if */
-/*  fprintf(stderr, "now      %04ld/%02ld/%02ld %02ld:%02ld:%02ld %7ld\n",
+/*  fprintf(stderr, "now      %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld\n",
         arg_1(arguments)->value.intvalue,
         arg_2(arguments)->value.intvalue,
         arg_3(arguments)->value.intvalue,
@@ -174,3 +174,51 @@ listtype arguments;
         arg_7(arguments)->value.intvalue); */
     return(SYS_EMPTY_OBJECT);
   } /* tim_now */
+
+
+
+#ifdef ANSI_C
+
+objecttype tim_set_local_tz (listtype arguments)
+#else
+
+objecttype tim_set_local_tz (arguments)
+listtype arguments;
+#endif
+
+  {
+    booltype is_dst;
+
+  /* tim_set_local_tz */
+    isit_int(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_int(arg_4(arguments));
+    isit_int(arg_5(arguments));
+    isit_int(arg_6(arguments));
+    isit_int(arg_7(arguments));
+    isit_bool(arg_8(arguments));
+    timSetLocalTZ(take_int(arg_1(arguments)),
+                  take_int(arg_2(arguments)),
+                  take_int(arg_3(arguments)),
+                  take_int(arg_4(arguments)),
+                  take_int(arg_5(arguments)),
+                  take_int(arg_6(arguments)),
+                  &arg_7(arguments)->value.intvalue,
+                  &is_dst);
+    if (is_dst) {
+      arg_8(arguments)->value.objvalue = SYS_TRUE_OBJECT;
+    } else {
+      arg_8(arguments)->value.objvalue = SYS_FALSE_OBJECT;
+    } /* if */
+/*  fprintf(stderr, "tim_set_local_tz %04ld-%02ld-%02ld %02ld:%02ld:%02ld %7ld %d\n",
+        take_int(arg_1(arguments)),
+        take_int(arg_2(arguments)),
+        take_int(arg_3(arguments)),
+        take_int(arg_4(arguments)),
+        take_int(arg_5(arguments)),
+        take_int(arg_6(arguments)),
+        take_int(arg_7(arguments)),
+        is_dst); */
+    return(SYS_EMPTY_OBJECT);
+  } /* tim_set_local_tz */

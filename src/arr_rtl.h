@@ -32,7 +32,6 @@
 #ifdef ANSI_C
 
 void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from);
-rtlArraytype arrArrlit (rtlArraytype arr1);
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
 rtlArraytype arrBaselit (rtlObjecttype element);
 rtlArraytype arrBaselit2 (inttype start_position, rtlObjecttype element);
@@ -40,6 +39,7 @@ rtlArraytype arrCat (rtlArraytype arr1, rtlArraytype arr2);
 rtlArraytype arrExtend (rtlArraytype arr1, rtlObjecttype element);
 rtlArraytype arrGen (rtlObjecttype element1, rtlObjecttype element2);
 rtlArraytype arrHead (rtlArraytype arr1, inttype stop);
+rtlGenerictype arrIdxTemp (rtlArraytype arr1, inttype pos);
 rtlArraytype arrRange (rtlArraytype arr1, inttype start, inttype stop);
 rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position);
 rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype));
@@ -48,7 +48,6 @@ rtlArraytype arrTail (rtlArraytype arr1, inttype start);
 #else
 
 void arrAppend ();
-rtlArraytype arrArrlit ();
 rtlArraytype arrArrlit2 ();
 rtlArraytype arrBaselit ();
 rtlArraytype arrBaselit2 ();
@@ -56,6 +55,7 @@ rtlArraytype arrCat ();
 rtlArraytype arrExtend ();
 rtlArraytype arrGen ();
 rtlArraytype arrHead ();
+rtlGenerictype arrIdxTemp ();
 rtlArraytype arrRange ();
 rtlGenerictype arrRemove ();
 rtlArraytype arrSort ();

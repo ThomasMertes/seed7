@@ -71,6 +71,9 @@ const proc: FROM_TIMESTAMP (in integer param, inout integer param, inout integer
     inout integer param, inout integer param, inout integer param, inout integer param,
     inout integer param, inout integer param, inout boolean param) is action "TIM_FROM_TIMESTAMP";
 
+const proc: SET_LOCAL_TZ (in integer param, in integer param, in integer param,
+    in integer param, in integer param, in integer param,
+    inout integer param, inout boolean param) is action "TIM_SET_LOCAL_TZ";
 
 (**
  *  Return TRUE if a given year is a leap year in the Gregorian
@@ -667,6 +670,20 @@ const func time: toUTC (in time: tim) is func
     result.minute -:= tim.timeZone;
     result.timeZone := 0;
     NORMALIZE(result);
+  end func;
+
+
+(**
+ *  Sets timeZone and daylightSavingTime for a given time.
+ *)
+const func time: setLocalTZ (in time: aTime) is func
+  result
+    var time: result is time.value;
+  begin
+    result := aTime;
+    SET_LOCAL_TZ(result.year, result.month, result.day,
+        result.hour, result.minute, result.second,
+        result.timeZone, result.daylightSavingTime);
   end func;
 
 

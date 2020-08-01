@@ -1722,7 +1722,6 @@ wintype actual_window;
 #endif
 
   {
-    /* Display *mydisplay;                        globally defined */
     Window root;
     int x, y;
     unsigned int width, height;
@@ -2120,6 +2119,118 @@ stritype window_name;
 #endif
     return((wintype) result);
   } /* drwOpen */
+
+
+
+#ifdef ANSI_C
+
+wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPos,
+    inttype width, inttype height)
+#else
+
+  wintype drwOpenSubWindow (parent_window, xPos, yPos, width, height)
+wintype parent_window;
+inttype xPos;
+inttype yPos;
+inttype width;
+inttype height;
+#endif
+
+  {
+    unsigned long valuemask;
+    Screen *x_screen;
+    XSetWindowAttributes attributes;
+    XWindowAttributes attribs;
+    x11_wintype result;
+
+  /* drwOpenSubWindow */
+#ifdef TRACE_X11
+    printf("BEGIN drwOpenSubWindow(%ld, %ld, %ld, %ld)\n",
+        xPos, yPos, width, height);
+#endif
+#ifdef DO_HEAP_STATISTIC
+    count.size_winrecord = SIZ_REC(x11_winrecord);
+#endif
+    result = NULL;
+    if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
+    } else {
+      if (mydisplay == NULL) {
+        dra_init();
+      } /* if */
+      if (mydisplay != NULL) {
+        if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
+          memset(result, 0, sizeof(struct x11_winstruct));
+          result->usage_count = 1;
+          result->next = window_list;
+          window_list = result;
+
+          myhint.x = xPos;
+          myhint.y = yPos;
+          myhint.width = width;
+          myhint.height = height;
+          myhint.flags = PPosition | PSize;
+          mywmhint.flags = InputHint;
+          mywmhint.input = True;
+
+          result->window = XCreateSimpleWindow(mydisplay,
+              to_window(parent_window),
+              xPos, yPos, (unsigned) width, (unsigned) height,
+              0, myforeground, mybackground);
+
+          result->backup = 0;
+          result->clip_mask = 0;
+          result->is_pixmap = FALSE;
+          result->width = (unsigned int) width;
+          result->height = (unsigned int) height;
+
+          XSetStandardProperties(mydisplay, result->window,
+              "", "",
+              None, /* argv, argc, */ NULL, 0, &myhint);
+          /* XSetWMHints(mydisplay, result->window, &mywmhint); */
+
+          x_screen = XScreenOfDisplay(mydisplay, myscreen);
+          /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
+              x_screen->backing_store, NotUseful, WhenMapped, Always); */
+          if (x_screen->backing_store != NotUseful) {
+            valuemask = CWBackingStore;
+            attributes.backing_store = Always;
+            XChangeWindowAttributes(mydisplay, result->window, valuemask, &attributes);
+
+            /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
+            XGetWindowAttributes(mydisplay, result->window, &attribs);
+            /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
+            if (attribs.backing_store != Always) {
+              result->backup = XCreatePixmap(mydisplay, result->window,
+                  (unsigned int) width, (unsigned int) height,
+                  DefaultDepth(mydisplay, myscreen));
+              /* printf("backup=%lu\n", (long unsigned) result->backup); */
+            } /* if */
+          } else {
+            result->backup = XCreatePixmap(mydisplay, result->window,
+                (unsigned int) width, (unsigned int) height,
+                DefaultDepth(mydisplay, myscreen));
+            /* printf("backup=%lu\n", (long unsigned) result->backup); */
+          } /* if */
+
+          mygc = XCreateGC(mydisplay, result->window, 0, 0);
+          XSetBackground(mydisplay, mygc, mybackground);
+          XSetForeground(mydisplay, mygc, myforeground);
+
+          XSelectInput(mydisplay, result->window,
+              ButtonPressMask | KeyPressMask | ExposureMask);
+
+          XMapRaised(mydisplay, result->window);
+          drwClear((wintype) result, (inttype) myforeground);
+        } /* if */
+      } /* if */
+    } /* if */
+    /* printf("result=%lu\n", (long unsigned) result); */
+#ifdef TRACE_X11
+    printf("END drwOpenSubWindow ==> %lu\n", (long unsigned) result);
+#endif
+    return((wintype) result);
+  } /* drwOpenSubWindow */
 
 
 
@@ -2749,6 +2860,22 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
+#else
+
+void drwSetPos (actual_window, xPos, yPos)
+wintype actual_window;
+inttype x1, y1;
+#endif
+
+  { /* drwSetPos */
+    XMoveWindow(mydisplay, to_window(actual_window), xPos, yPos);
+  } /* drwSetPos */
+
+
+
+#ifdef ANSI_C
+
 void drwSetTransparentColor (wintype pixmap, inttype col)
 #else
 
@@ -2884,7 +3011,6 @@ wintype actual_window;
 #endif
 
   {
-    /* Display *mydisplay;                        globally defined */
     Window root;
     int x, y;
     unsigned int width, height;
@@ -2897,3 +3023,53 @@ wintype actual_window;
         &x, &y, &width, &height, &border_width, &depth);
     return((inttype) width);
   } /* drwWidth */
+
+
+
+#ifdef ANSI_C
+
+inttype drwXPos (const_wintype actual_window)
+#else
+
+inttype drwXPos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    Window root;
+    int x, y;
+    unsigned int width, height;
+    unsigned int border_width;
+    unsigned int depth;
+    Status status;
+
+  /* drwXPos */
+    status = XGetGeometry(mydisplay, to_window(actual_window), &root,
+        &x, &y, &width, &height, &border_width, &depth);
+    return((inttype) x);
+  } /* drwXPos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwYPos (const_wintype actual_window)
+#else
+
+inttype drwYPos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    Window root;
+    int x, y;
+    unsigned int width, height;
+    unsigned int border_width;
+    unsigned int depth;
+    Status status;
+
+  /* drwYPos */
+    status = XGetGeometry(mydisplay, to_window(actual_window), &root,
+        &x, &y, &width, &height, &border_width, &depth);
+    return((inttype) y);
+  } /* drwYPos */

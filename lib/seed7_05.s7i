@@ -639,6 +639,7 @@ const func string: (in string param) mult (in integer param) is   action "STR_MU
 
 const proc: (inout string param) := (in string param) is          action "STR_CPY";
 const proc: (inout string param) &:= (in string param) is         action "STR_APPEND";
+const proc: (inout string param) &:= (in char param) is           action "STR_PUSH";
 const proc: (inout string param) @:= [ (in integer param) ] (in char param) is action "STR_ELEMCPY";
 const func string: (in string param) lpad (in integer param) is   action "STR_LPAD";
 const func string: (in string param) lpad0 (in integer param) is  action "STR_LPAD0";

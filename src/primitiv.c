@@ -259,6 +259,7 @@ static primactrecord prim_act_table[] = {
     { "DRW_NE",              drw_ne,              },
     { "DRW_NEW_PIXMAP",      drw_new_pixmap,      },
     { "DRW_OPEN",            drw_open,            },
+    { "DRW_OPEN_SUB_WINDOW", drw_open_sub_window, },
     { "DRW_PARC",            drw_parc,            },
     { "DRW_PCIRCLE",         drw_pcircle,         },
     { "DRW_PFARCCHORD",      drw_pfarcchord,      },
@@ -277,9 +278,12 @@ static primactrecord prim_act_table[] = {
     { "DRW_RGBCOL",          drw_rgbcol,          },
     /* { "DRW_ROT",             drw_rot,             }, */
     /* { "DRW_SCALE",           drw_scale,           }, */
+    { "DRW_SETPOS",          drw_setPos,          },
     { "DRW_SETTRANSPARENTCOLOR", drw_setTransparentColor, },
     { "DRW_TEXT",            drw_text,            },
     { "DRW_WIDTH",           drw_width,           },
+    { "DRW_XPOS",            drw_xpos,            },
+    { "DRW_YPOS",            drw_ypos,            },
 #endif
 
     { "ENU_CONV",            enu_conv,            },
@@ -728,6 +732,7 @@ static primactrecord prim_act_table[] = {
     { "STR_MULT",            str_mult,            },
     { "STR_NE",              str_ne,              },
     { "STR_POS",             str_pos,             },
+    { "STR_PUSH",            str_push,            },
     { "STR_RANGE",           str_range,           },
     { "STR_RCHPOS",          str_rchpos,          },
     { "STR_REPL",            str_repl,            },
@@ -746,7 +751,7 @@ static primactrecord prim_act_table[] = {
     { "TIM_AWAIT",           tim_await,           },
     { "TIM_FROM_TIMESTAMP",  tim_from_timestamp,  },
     { "TIM_NOW",             tim_now,             },
-
+    { "TIM_SET_LOCAL_TZ",    tim_set_local_tz,    },
 
     { "TYP_ADDINTERFACE",    typ_addinterface,    },
     { "TYP_CMP",             typ_cmp,             },

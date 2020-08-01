@@ -452,11 +452,11 @@ chartype delimiter;
 
 #ifdef ANSI_C
 
-stritype strCLit (const const_stritype str1)
+stritype strCLit (const const_stritype stri)
 #else
 
-stritype strCLit (str1)
-stritype str1;
+stritype strCLit (stri)
+stritype stri;
 #endif
 
   {
@@ -470,7 +470,7 @@ stritype str1;
     stritype result;
 
   /* strCLit */
-    length = str1->size;
+    length = stri->size;
     if (!ALLOC_STRI(result, (memsizetype) (4 * length + 2))) {
       raise_error(MEMORY_ERROR);
       return(NULL);
@@ -478,7 +478,7 @@ stritype str1;
     result->mem[0] = (strelemtype) '"';
     pos = 1;
     for (position = 0; position < length; position++) {
-      character = str1->mem[position];
+      character = stri->mem[position];
       /* The following comparison uses 255 instead of '\377',       */
       /* because chars might be signed and this can produce wrong   */
       /* code when '\377' is sign extended.                         */

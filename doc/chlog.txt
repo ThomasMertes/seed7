@@ -1,3 +1,21 @@
+20091018:
+- The compiler (comp.sd7) was improved to support the primitive actions CMD_GET_CTIME
+  and TIM_FROM_TIMESTAMP.
+- The handling of the action ARR_ARRLIT in the compiler was improved to work without
+  calling the function arrArrlit.
+- The handling of the action ARR_IDX in the compiler was improved to use the function
+  arrIdxTemp when the array is a temporary value.
+- The handling of the action DRW_OPEN in the compiler was improved.
+- The interpreter (hi) and the compiler were improved to support the primitive actions
+  STR_PUSH, TIM_SET_LOCAL_TZ, DRW_OPEN_SUB_WINDOW, DRW_SETPOS, DRW_XPOS and DRW_YPOS.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The functions drwPointerXpos, drwPointerYpos, drwHeight and drwWidth in the file
+  drw_win.c were improved.
+- The function arrArrlit was removed and the function arrIdxTemp was added in the file
+  arr_rtl.c .
+- Parameter names were added to the function prototypes of the header file str_rtl.h .
+- The functions closedir and wclosedir in dir_win.c were improved to call FindClose.
+
 20091004:
 - The function isDigitString in the seed7_05.s7i library was improved.
 - The bas7.sd7 (basic interpreter) example program was improved.
@@ -7,7 +25,7 @@
 - A FAQ about extensible programming languages and the portability of Seed7 programs,
   was added.
 - The bas7.sd7 (basic interpreter) example program was improved.
-- The function gkbButtonPressed in the file drw_win.c was improved.
+ - The function gkbButtonPressed in the file drw_win.c was improved.
 
 20090906:
 - Various syntax descriptions in the manual were improved.

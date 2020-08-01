@@ -64,6 +64,7 @@ objecttype drw_line (listtype);
 objecttype drw_ne (listtype);
 objecttype drw_new_pixmap (listtype);
 objecttype drw_open (listtype);
+objecttype drw_open_sub_window (listtype);
 objecttype drw_parc (listtype);
 objecttype drw_pcircle (listtype);
 objecttype drw_pfarcchord (listtype);
@@ -82,9 +83,12 @@ objecttype drw_rect (listtype);
 objecttype drw_rgbcol (listtype);
 objecttype drw_rot (listtype);
 objecttype drw_scale (listtype);
+objecttype drw_setPos (listtype);
 objecttype drw_setTransparentColor (listtype);
 objecttype drw_text (listtype);
 objecttype drw_width (listtype);
+objecttype drw_xpos (listtype);
+objecttype drw_ypos (listtype);
 
 #else
 
@@ -125,6 +129,7 @@ objecttype drw_line ();
 objecttype drw_ne ();
 objecttype drw_new_pixmap ();
 objecttype drw_open ();
+objecttype drw_open_sub_window ();
 objecttype drw_parc ();
 objecttype drw_pcircle ();
 objecttype drw_pfarcchord ();
@@ -143,8 +148,11 @@ objecttype drw_rect ();
 objecttype drw_rgbcol ();
 objecttype drw_rot ();
 objecttype drw_scale ();
+objecttype drw_setPos ();
 objecttype drw_setTransparentColor ();
 objecttype drw_text ();
 objecttype drw_width ();
+objecttype drw_xpos ();
+objecttype drw_ypos ();
 
 #endif

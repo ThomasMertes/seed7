@@ -136,6 +136,7 @@ DIR *curr_dir;
 #endif
 
   { /* closedir */
+    FindClose(curr_dir->dir_handle);
     free(curr_dir);
     return(0);
   } /* closedir */
@@ -235,6 +236,7 @@ WDIR *curr_dir;
 #endif
 
   { /* wclosedir */
+    FindClose(curr_dir->dir_handle);
     free(curr_dir);
     return(0);
   } /* wclosedir */

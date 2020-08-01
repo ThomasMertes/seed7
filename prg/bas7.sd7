@@ -61,6 +61,7 @@ const integer: MAX_LINENUM is 2147483647;
 
 const set of char: basic_name_char is alphanum_char | {'.'};
 const set of char: number_suffix is {'!', '#', '&'};
+const set of char: numeric_var_suffix is {'%', '!', '#'};
 
 const type: lineType is new struct
     var string: fileName is "";
@@ -100,7 +101,6 @@ var string: data_line is "";
 
 var string: varseg_variable is "";
 
-var set of char: defstr_any is {'\"'};
 var set of char: defstr_var is (set of char).EMPTY_SET;
 
 const type: defFnType is new struct
@@ -586,11 +586,15 @@ const func boolean: ignoreRestOfLine (in string: symbol) is
 
 
 const func boolean: isStringExpr (in string: symbol) is
-  return symbol <> "" and (symbol[length(symbol)] = '$' or symbol[1] in defstr_any);
+  return symbol <> "" and
+        (symbol[length(symbol)] = '$' or symbol[1] = '\"' or symbol[1] in defstr_var and
+         not symbol[length(symbol)] in numeric_var_suffix);
 
 
 const func boolean: isStringVar (in string: symbol) is
-  return symbol <> "" and (symbol[length(symbol)] = '$' or symbol[1] in defstr_var);
+  return symbol <> "" and
+        (symbol[length(symbol)] = '$' or symbol[1] in defstr_var and
+         not symbol[length(symbol)] in numeric_var_suffix);
 
 
 const func float: getNumericVar (in string: varName) is func
@@ -3046,6 +3050,10 @@ const func string: find_else (inout string: line) is func
     var string: symbol is "";
   begin
     symbol := get_symbol(line);
+    if startsWith(symbol, "ELSE") and not is_let_statement(line) then
+      line := symbol[5 ..] & line;
+      symbol := "ELSE";
+    end if;
     while symbol <> "ELSE" and symbol <> "" do
       if symbol = "IF" then
         symbol := find_else(line);
@@ -3053,6 +3061,10 @@ const func string: find_else (inout string: line) is func
         line := "";
       end if;
       symbol := get_symbol(line);
+      if startsWith(symbol, "ELSE") and not is_let_statement(line) then
+        line := symbol[5 ..] & line;
+        symbol := "ELSE";
+      end if;
     end while;
   end func;
 
@@ -3812,6 +3824,10 @@ const proc: exec_if (inout string: symbol, inout string: line,
       elsif label_or_linenum(symbol) then
         writeln(log, " THEN " <& symbol <& " - SKIP LABEL");
         symbol := get_symbol(line);
+        if startsWith(symbol, "ELSE") and not is_let_statement(line) then
+          line := symbol[5 ..] & line;
+          symbol := "ELSE";
+        end if;
         if symbol = "ELSE" then
           symbol := get_symbol(line);
           if label_or_linenum(symbol) then
@@ -3826,8 +3842,29 @@ const proc: exec_if (inout string: symbol, inout string: line,
             process_next := TRUE;
           end if;
         elsif symbol = ":" then
-          line_marker;
-          writeln(log, "NO ELSE - CONTINUE AFTER THE LABEL");
+          symbol := get_symbol(line);
+          if startsWith(symbol, "ELSE") and not is_let_statement(line) then
+            line := symbol[5 ..] & line;
+            symbol := "ELSE";
+          end if;
+          if symbol = "ELSE" then
+            symbol := get_symbol(line);
+            if label_or_linenum(symbol) then
+              line_marker;
+              writeln(log, "ELSE " <& symbol <& " - GOTO LINE");
+              goto_label_or_linenum(symbol);
+              symbol := "";
+              line := "";
+            else
+              line_marker;
+              writeln(log, "ELSE - EXECUTE STATEMENTS IN LINE");
+              process_next := TRUE;
+            end if;
+          else
+            line_marker;
+            writeln(log, "NO ELSE - CONTINUE AFTER THE LABEL");
+            process_next := TRUE;
+          end if;
         else
           line_marker;
           writeln(log, "NO ELSE - CONTINUE AT NEXT LINE");
@@ -3836,6 +3873,10 @@ const proc: exec_if (inout string: symbol, inout string: line,
         end if;
       else
         writeln(log, " THEN - SKIP STATEMENTS IN LINE UNTIL \"ELSE\"");
+        if startsWith(symbol, "ELSE") and not is_let_statement(line) then
+          line := symbol[5 ..] & line;
+          symbol := "ELSE";
+        end if;
         if symbol <> "ELSE" then
           symbol := find_else(line);
         end if;
@@ -3859,6 +3900,29 @@ const proc: exec_if (inout string: symbol, inout string: line,
           line := "";
         end if;
       end if;
+    end if;
+  end func;
+
+
+const proc: exec_else (inout string: symbol, inout string: line) is func
+  begin
+    line_marker;
+    writeln(log, "ELSE - THE \"THEN\" BLOCK BEFORE WAS EXECUTED");
+    if upper(prg[file_line_number].line[.. 4]) = "ELSE" then
+      symbol := find_end_if(line);
+      if symbol = "IF" then
+        symbol := get_symbol(line);
+        line_marker;
+        writeln(log, "END IF");
+      else
+        error_marker;
+        writeln(err, "ELSE - MISSING \"END IF\".");
+      end if;
+    else
+      line := "";
+      symbol := "";
+      line_marker;
+      writeln(log, "SKIP ELSE PART - CONTINUE AT NEXT LINE");
     end if;
   end func;
 
@@ -5846,6 +5910,23 @@ const proc: exec_seek (inout string: symbol, inout string: line) is func
   end func;
 
 
+const proc: exec_clear (inout string: symbol, inout string: line) is func
+  begin
+    symbol := get_symbol(line);
+    closeAllFiles;
+    numeric_var := numeric_hash.EMPTY_HASH;
+    string_var := string_hash.EMPTY_HASH;
+    image_var := image_hash.EMPTY_HASH;
+    def_fn_list := def_fn_hash.EMPTY_HASH;
+    defstr_var := (set of char).EMPTY_SET;
+    line_marker;
+    writeln(log, "CLEAR " <& symbol);
+    while not endOfStatement(symbol) do
+      symbol := get_symbol(line);
+    end while;
+  end func;
+
+
 const proc: initArray (in var string: arrayName, in boolean: isStringVar,
     in integer: dimension, in dimensionType: dimensionBounds) is func
   local
@@ -5955,7 +6036,6 @@ const proc: exec_defType_numeric (inout string: symbol, inout string: line) is f
             param2 := symbol;
             symbol := get_symbol(line);
             for ch1 range param1[1] to param2[1] do
-              excl(defstr_any, ch1);
               excl(defstr_var, ch1);
             end for;
             line_marker;
@@ -5965,7 +6045,6 @@ const proc: exec_defType_numeric (inout string: symbol, inout string: line) is f
             writeln(err, "ILLEGAL " <& statement <& " " <& param1 <& "-" <& symbol);
           end if;
         else
-          excl(defstr_any, param1[1]);
           excl(defstr_var, param1[1]);
           line_marker;
           writeln(log, statement <& " " <& param1);
@@ -5991,7 +6070,6 @@ const proc: exec_defstr (inout string: symbol, inout string: line) is func
     var boolean: okay is FALSE;
   begin
     symbol := get_symbol(line);
-    defstr_any := {'\"'};
     defstr_var := (set of char).EMPTY_SET;
     okay := FALSE;
     repeat
@@ -6004,7 +6082,6 @@ const proc: exec_defstr (inout string: symbol, inout string: line) is func
             param2 := symbol;
             symbol := get_symbol(line);
             for ch1 range param1[1] to param2[1] do
-              incl(defstr_any, ch1);
               incl(defstr_var, ch1);
             end for;
             line_marker;
@@ -6014,7 +6091,6 @@ const proc: exec_defstr (inout string: symbol, inout string: line) is func
             writeln(err, "ILLEGAL DEFSTR " <& param1 <& "-" <& symbol);
           end if;
         else
-          incl(defstr_any, param1[1]);
           incl(defstr_var, param1[1]);
           line_marker;
           writeln(log, "DEFSTR " <& param1);
@@ -7009,6 +7085,7 @@ const proc: exec_let (inout string: symbol, inout string: line,
     var boolean: is_let_statement is TRUE;
     var string: variable_name is "";
     var string: unused_name is "";
+    var string: backup_line is "";
     var string: param1 is "";
     var float: num1 is 0.0;
   begin
@@ -7031,6 +7108,9 @@ const proc: exec_let (inout string: symbol, inout string: line,
       elsif startsWith(symbol, "GOSUB") then
         line := symbol[6 ..] & line;
         exec_gosub(symbol, line);
+      elsif startsWith(symbol, "ELSE") and not startsWith(symbol, "ELSEIF") then
+        line := symbol[6 ..] & line;
+        exec_else(symbol, line);
       elsif startsWith(symbol, "NEXT") then
         line := symbol[5 ..] & line;
         exec_next(symbol, line);
@@ -7041,18 +7121,38 @@ const proc: exec_let (inout string: symbol, inout string: line,
         line := symbol[6 ..] & line;
         symbol := get_symbol(line);
         exec_print(symbol, line);
+      elsif startsWith(symbol, "LPRINT") then
+        line := symbol[7 ..] & line;
+        symbol := get_symbol(line);
+        exec_print(symbol, line);
+      elsif startsWith(symbol, "INPUT") then
+        line := symbol[6 ..] & line;
+        symbol := get_symbol(line);
+        exec_input(symbol, line);
+      elsif startsWith(symbol, "READ") then
+        line := symbol[5 ..] & line;
+        exec_read(symbol, line);
+      elsif startsWith(symbol, "CLEAR") then
+        line := symbol[6 ..] & line;
+        exec_clear(symbol, line);
+      elsif startsWith(symbol, "DIM") then
+        line := symbol[4 ..] & line;
+        exec_dim(symbol, line);
       else
         is_let_statement := TRUE;
       end if;
     end if;
     if is_let_statement then
       if isStringVar(symbol) then
+        backup_line := symbol & line;
         variable_name := get_name(symbol, line);
+        backup_line := backup_line[.. length(backup_line) - length(line)];
         if symbol = "=" then
           symbol := get_symbol(line);
           param1 := exec_str_expr(symbol, line, unused_name);
           if startsWith(variable_name, "IF") and startsWith(symbol, "THEN") then
-            line := variable_name[3 ..] & "=\"" & param1 & "\"" & symbol & line;
+            line := backup_line[3 ..] & "\"" & param1 & "\"" & symbol & line;
+            writeln(log, "asdf " <& literal(symbol) <& " " <& literal(line));
             exec_if(symbol, line, process_next);
           else
             setStringVar(variable_name, param1);
@@ -7271,24 +7371,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           expect("INPUT", symbol, line);
         end if;
       elsif symbol = "ELSE" then
-        line_marker;
-        writeln(log, "ELSE - THE \"THEN\" BLOCK BEFORE WAS EXECUTED");
-        if upper(prg[file_line_number].line[.. 4]) = "ELSE" then
-          symbol := find_end_if(line);
-          if symbol = "IF" then
-            symbol := get_symbol(line);
-            line_marker;
-            writeln(log, "END IF");
-          else
-            error_marker;
-            writeln(err, "ELSE - MISSING \"END IF\".");
-          end if;
-        else
-          line := "";
-          symbol := "";
-          line_marker;
-          writeln(log, "SKIP ELSE PART - CONTINUE AT NEXT LINE");
-        end if;
+        exec_else(symbol, line);
       elsif symbol = "ELSEIF" then
         line_marker;
         writeln(log, "ELSEIF - THE \"THEN\" BLOCK BEFORE WAS EXECUTED");
@@ -7538,19 +7621,7 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
         line_marker;
         writeln(log, "'" <& line);
       elsif symbol = "CLEAR" then
-        symbol := get_symbol(line);
-        closeAllFiles;
-        numeric_var := numeric_hash.EMPTY_HASH;
-        string_var := string_hash.EMPTY_HASH;
-        image_var := image_hash.EMPTY_HASH;
-        def_fn_list := def_fn_hash.EMPTY_HASH;
-        defstr_any := {'\"'};
-        defstr_var := (set of char).EMPTY_SET;
-        line_marker;
-        writeln(log, "CLEAR " <& symbol);
-        while not endOfStatement(symbol) do
-          symbol := get_symbol(line);
-        end while;
+        exec_clear(symbol, line);
       elsif symbol = "BEEP" then
         symbol := get_symbol(line);
         line_marker;
@@ -7581,6 +7652,9 @@ const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
           line_marker;
           writeln(log, "RESTORE");
         end if;
+      elsif symbol = "LPRINT" then
+        symbol := get_symbol(line);
+        exec_print(symbol, line);
       elsif symbol = "CLS" then
         symbol := get_symbol(line);
         if symbol = "0" or symbol = "1" or symbol = "2" then
@@ -8488,6 +8562,9 @@ const proc: load_prog (in string: name, inout file: infile) is func
             symbol in sub_declared then
           line_label := "";
         elsif startsWith(symbol, "NEXT") and length(symbol) = 5 and
+            symbol[5] in letter_char then
+          line_label := "";
+        elsif startsWith(symbol, "READ") and length(symbol) = 5 and
             symbol[5] in letter_char then
           line_label := "";
         elsif startsWith(symbol, "GOTO") and isDigitString(symbol[5 ..]) or
