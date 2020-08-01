@@ -5995,6 +5995,7 @@ biginttype big1;
 
 
 
+#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 bstritype bigToBStri (const_biginttype big1)
@@ -6056,6 +6057,7 @@ biginttype big1;
     } /* if */
     return result;
   } /* bigToBStri */
+#endif
 
 
 

@@ -1,14 +1,15 @@
-# Makefile for mingw32-make and gcc from MinGW. Commands executed by: cmd.exe
+# Makefile for make7 and gcc from MinGW. Commands executed by: cmd.exe
 # To compile use a Windows console and call:
-#   mingw32-make -f mk_mingw.mak depend
-#   mingw32-make -f mk_mingw.mak
+#   ..\bin\make7 -f mk_mingc.mak depend
+#   ..\bin\make7 -f mk_mingc.mak
 # When your make utility uses Unix commands, you should use mk_msys.mak instead.
 # When the nmake utility from Windows is available, you can use mk_nmake.mak instead.
 # When you are using the MSYS console from MinGW you should use mk_msys.mak instead.
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -27,7 +28,7 @@ COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
 # CC = g++
-CC = gcc
+CC = ../bin/call_gcc
 GET_CC_VERSION_INFO = $(CC) --version >
 
 BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
@@ -164,7 +165,7 @@ version.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define long_long_EXISTS >> chkccomp.h
 	echo #define long_long_SUFFIX_LL >> chkccomp.h
-	$(CC) chkccomp.c -lm -o chkccomp
+	$(CC) chkccomp.c -w -lm -o chkccomp
 	.\chkccomp.exe >> version.h
 	del chkccomp.h
 	del chkccomp.exe
@@ -177,9 +178,8 @@ version.h:
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
 	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
 	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
-	$(CC) -o setpaths setpaths.c
-	.\setpaths.exe >> version.h
-	del setpaths.exe
+	echo #define PATHS_RELATIVE_TO_EXECUTABLE >> version.h
+	echo #define SEED7_LIBRARY "../lib" >> version.h
 
 depend: version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend
@@ -193,19 +193,19 @@ level.h:
 	..\bin\hi level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	../bin/call_ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	../bin/call_ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	../bin/call_ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	../bin/call_ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	../bin/call_ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 wc: $(SRC)
 	echo SRC:

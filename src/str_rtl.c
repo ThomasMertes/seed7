@@ -1007,7 +1007,7 @@ stritype stri_from;
         *stri_to = stri_dest;
       } /* if */
 #endif
-      /* It is possible that stri_dest == stri_from overlap. */
+      /* It is possible that stri_dest and stri_from overlap. */
       /* The behavior of memcpy() is undefined when source    */
       /* and destination areas overlap (or are identical).    */
       /* Therefore memmove() is used instead of memcpy().     */
@@ -1020,7 +1020,7 @@ stritype stri_from;
       } else {
         stri_dest->size = new_size;
         memcpy(stri_dest->mem, stri_from->mem,
-          new_size * sizeof(strelemtype));
+            new_size * sizeof(strelemtype));
         FREE_STRI(*stri_to, (*stri_to)->size);
         *stri_to = stri_dest;
       } /* if */

@@ -1,3 +1,36 @@
+20121007:
+- An error message, that could occur when the Seed7 interpreter is
+  compiled, is explained in the FAQ and to 'src/read_me.txt'.
+- A description of the for-step-statement was added to the manual.
+- The library make.s7i was improved. Now makefile dependencies can
+  contain colons (:) and equal signs (=). The parameters of the echo
+  command are parsed better now. Calls of the function callOwnProgram
+  are also avoided now. This way the library works correctly, when it
+  is used by programs other than make7.sd7.
+- The library tar.s7i was improved to set the file mode, when an
+  archive is extracted.
+- Testcases for a variant of the @:= operator, which copies a string
+  to another, were added to the program chkstr.sd7.
+- Interpreter and compiler were improved to support the situation,
+  when source and destination of the @:= operator (action STR_POSCPY)
+  are identical.
+- The compiler was improved to support the action ITF_DESTR.
+- The compiler was improved, to call C compiler and linker with
+  specific options, such that unneeded functions are ommited (when
+  the linker and executable file format support this feature).
+- The compiler was improved to remove debug symbols, unless called
+  with -g (some makefiles now define LINKER_OPT_NO_DEBUG_INFO).
+- The function name(PROGRAM) was improved, to return the program name
+  without following symbolic links.
+- The function path(PROGRAM) was improved, to follow symbolic links
+  (see function followLink in cmd_rtl.c). Consequently dir(PROGRAM)
+  also follows symbolic links.
+- The function CommandLineToArgvW in cmd_win.c was improved.
+- The files itf_rtl.c and itf_rtl.h, which contain interface
+  functions, were added.
+- The makefile mk_mingc.mak was added to support compilation of the
+  self extracting version of Seed7.
+
 20120923:
 - Experimental support for automatic memory management with reference
   counting was added to the interpreter.

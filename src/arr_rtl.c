@@ -249,11 +249,10 @@ stritype *exePath;
         *exePath = getExecutablePath(*arg_0);
         if (*exePath == NULL) {
           err_info = MEMORY_ERROR;
-        } else {
-          *programName = getProgramName(*exePath);
-          if (*programName == NULL) {
-            err_info = MEMORY_ERROR;
-          } /* if */
+        } /* if */
+        *programName = getProgramName(*arg_0);
+        if (*programName == NULL) {
+          err_info = MEMORY_ERROR;
         } /* if */
       } /* if */
       if (err_info == OKAY_NO_ERROR) {
@@ -313,11 +312,10 @@ stritype *exePath;
           *exePath = getExecutablePath(*arg_0);
           if (*exePath == NULL) {
             err_info = MEMORY_ERROR;
-          } else {
-            *programName = getProgramName(*exePath);
-            if (*programName == NULL) {
-              err_info = MEMORY_ERROR;
-            } /* if */
+          } /* if */
+          *programName = getProgramName(*arg_0);
+          if (*programName == NULL) {
+            err_info = MEMORY_ERROR;
           } /* if */
         } /* if */
         if (err_info == OKAY_NO_ERROR) {
@@ -334,11 +332,10 @@ stritype *exePath;
         *exePath = getExecutablePath(*arg_0);
         if (*exePath == NULL) {
           err_info = MEMORY_ERROR;
-        } else {
-          *programName = getProgramName(*exePath);
-          if (*programName == NULL) {
-            err_info = MEMORY_ERROR;
-          } /* if */
+        } /* if */
+        *programName = getProgramName(*arg_0);
+        if (*programName == NULL) {
+          err_info = MEMORY_ERROR;
         } /* if */
       } /* if */
       if (err_info == OKAY_NO_ERROR) {
@@ -376,7 +373,7 @@ stritype fileName;
     stritype result;
 
   /* examineSearchPath */
-    printf("examineSearchPath\n");
+    /* printf("examineSearchPath\n"); */
     result = NULL;
     searchPath = cmdGetSearchPath();
     if (searchPath != NULL) {

@@ -40,9 +40,10 @@ CONTENTS
   4.2     while-statement
   4.3     repeat-statement
   4.4     for-statement
-  4.5     for-each-statement
-  4.6     if-statement
-  4.7     case-statement
+  4.5     for-step-statement
+  4.6     for-each-statement
+  4.7     if-statement
+  4.8     case-statement
   5.    PREDEFINED TYPES
   5.1     boolean
   5.2     integer
@@ -1052,7 +1053,8 @@ CONTENTS
 
     single_statement ::=
       assignment_statement | while_statement | repeat_statement |
-      for_statement | for_each_statement | if_statement | case_statement |
+      for_statement | for_step_statement | for_each_statement |
+      if_statement | case_statement |
       procedure_call | empty_statement .
 
     empty_statement ::=
@@ -1295,7 +1297,88 @@ CONTENTS
     FOR_DECLS(boolean);
 
 
-4.5 for-each-statement
+4.5 for-step-statement
+
+  For example:
+
+    for evenNumber range 0 to 10 step 2 do
+      write(evenNumber);
+    end for;
+
+  Semantics:
+    When the 'to' symbol is used the for-statement is defined as
+    follows:
+      First the lower limit and the upper limit which stand behind
+      'range' and 'to' are evaluated. Then the lower limit is assigned
+      to the control variable which stands behind 'for'. If the value
+      of the control variable is less than or equal the upper limit
+      the statements behind 'do' are executed. After that the control
+      variable is incremented by the value behind 'step'. Then
+      the control variable is compared with the upper limit again.
+      This compare - execute - increment cycle is repeated until
+      the control variable is greater than the upper limit.
+    When the 'downto' symbol is used the for-statement is defined as
+    follows:
+      First the upper limit and the lower limit which stand behind
+      'range' and 'downto' are evaluated. Then the upper limit is
+      assigned to the control variable which stands behind 'for'. If
+      the value of the control variable is greater than or equal the
+      lower limit the statements behind 'do' are executed. After that
+      the control variable is decremented by the value behind 'step'.
+      Then the control variable is compared with the lower limit
+      again. This compare - execute - increment cycle is repeated
+      until the control variable is less than the lower limit.
+
+
+  Syntax:
+
+    for_step_statement ::=
+      'for' identifier 'range' expression [ 'to' | 'downto' ] expression 'step' expression 'do'
+        statement
+      'end' 'for' .
+
+
+  Declaration:
+
+    $ syntax expr: .for.().range.().to.().step.().do.().end.for is     -> 25;
+    $ syntax expr: .for.().range.().downto.().step.().do.().end.for is -> 25;
+
+    const proc: FOR_STEP_DECLS (in type: aType) is func
+      begin
+        if getobj((inout aType param) +:= (in integer param)) <> NIL then
+
+          const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit)
+              step (in integer: incr_step) do
+              (in proc: statements) end for is func
+            begin
+              variable := lower_limit;
+              while variable <= upper_limit do
+                statements;
+                variable +:= incr_step;
+              end while;
+            end func;
+
+        end if;
+        if getobj((inout aType param) -:= (in integer param)) <> NIL then
+
+          const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit)
+              step (in integer: decr_step) do
+              (in proc: statements) end for is func
+            begin
+              variable := upper_limit;
+              while variable >= lower_limit do
+                statements;
+                variable -:= decr_step;
+              end while;
+            end func;
+
+        end if;
+      end func;
+
+    FOR_STEP_DECLS(integer);
+
+
+4.6 for-each-statement
 
   For example:
 
@@ -1355,7 +1438,7 @@ CONTENTS
       end func;
 
 
-4.6 if-statement
+4.7 if-statement
 
   For example:
 
@@ -1439,7 +1522,7 @@ CONTENTS
     const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is ELSIF_EMPTY;
 
 
-4.7 case-statement
+4.8 case-statement
 
   For example:
 

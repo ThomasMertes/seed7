@@ -162,6 +162,7 @@ pre.indent {
 <li><a class="link" href="#stats_while-statement"><b>while-statement</b></a></li>
 <li><a class="link" href="#stats_repeat-statement"><b>repeat-statement</b></a></li>
 <li><a class="link" href="#stats_for-statement"><b>for-statement</b></a></li>
+<li><a class="link" href="#stats_for-step-statement"><b>for-step-statement</b></a></li>
 <li><a class="link" href="#stats_for-each-statement"><b>for-each-statement</b></a></li>
 <li><a class="link" href="#stats_if-statement"><b>if-statement</b></a></li>
 <li><a class="link" href="#stats_case-statement"><b>case-statement</b></a></li></ol></li>
@@ -1174,7 +1175,8 @@ $ <span class="keywd">system</span> <span class="stri">"main"</span> <span class
 <dt><br /></dt>
     <dt><a name="stats_ebnf_single_statement">single_statement</a> ::=</dt><dd>
       <a class="ebnf" href="#stats_ebnf_assignment_statement">assignment_statement</a> | <a class="ebnf" href="#stats_ebnf_while_statement">while_statement</a> | <a class="ebnf" href="#stats_ebnf_repeat_statement">repeat_statement</a> |<br />
-      <a class="ebnf" href="#stats_ebnf_for_statement">for_statement</a> | <a class="ebnf" href="#stats_ebnf_for_each_statement">for_each_statement</a> | <a class="ebnf" href="#stats_ebnf_if_statement">if_statement</a> | <a class="ebnf" href="#stats_ebnf_case_statement">case_statement</a> |<br />
+      <a class="ebnf" href="#stats_ebnf_for_statement">for_statement</a> | <a class="ebnf" href="#stats_ebnf_for_step_statement">for_step_statement</a> | <a class="ebnf" href="#stats_ebnf_for_each_statement">for_each_statement</a> |<br />
+      <a class="ebnf" href="#stats_ebnf_if_statement">if_statement</a> | <a class="ebnf" href="#stats_ebnf_case_statement">case_statement</a> |<br />
       procedure_call | <a class="ebnf" href="#stats_ebnf_empty_statement">empty_statement</a> .</dd>
 <dt><br /></dt>
     <dt><a name="stats_ebnf_empty_statement">empty_statement</a> ::=</dt><dd>
@@ -1417,7 +1419,88 @@ FOR_DECLS(<a class="type" href="#types_char">char</a>);
 FOR_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 </pre><p></p>
 
-<a name="stats_for-each-statement"><h3>4.5 for-each-statement</h3></a>
+<a name="stats_for-step-statement"><h3>4.5 for-step-statement</h3></a>
+<p>
+  For example:
+</p><pre class="indent">
+<span class="keywd">for</span> evenNumber <span class="keywd">range</span> 0 <span class="keywd">to</span> 10 <span class="keywd">step</span> 2 <span class="keywd">do</span>
+  write(evenNumber);
+<span class="keywd">end for</span>;
+</pre><p></p><dl><dt>
+  Semantics:</dt><dd><dl><dt>
+    When the <tt><span class="keywd">to</span></tt> symbol is used the for-statement is defined as
+    follows:</dt><dd>
+      First the lower limit and the upper limit which stand behind
+      <tt><span class="keywd">range</span></tt> and <tt><span class="keywd">to</span></tt> are evaluated. Then the lower limit is assigned
+      to the control variable which stands behind <tt><span class="keywd">for</span></tt>. If the value
+      of the control variable is less than or equal the upper limit
+      the statements behind <tt><span class="keywd">do</span></tt> are executed. After that the control
+      variable is incremented by the value behind <tt><span class="keywd">step</span></tt>. Then
+      the control variable is compared with the upper limit again.
+      This compare - execute - increment cycle is repeated until
+      the control variable is greater than the upper limit.</dd><dt>
+    When the <tt><span class="keywd">downto</span></tt> symbol is used the for-statement is defined as
+    follows:</dt><dd>
+      First the upper limit and the lower limit which stand behind
+      <tt><span class="keywd">range</span></tt> and <tt><span class="keywd">downto</span></tt> are evaluated. Then the upper limit is
+      assigned to the control variable which stands behind <tt><span class="keywd">for</span></tt>. If
+      the value of the control variable is greater than or equal the
+      lower limit the statements behind <tt><span class="keywd">do</span></tt> are executed. After that
+      the control variable is decremented by the value behind <tt><span class="keywd">step</span></tt>.
+      Then the control variable is compared with the lower limit
+      again. This compare - execute - increment cycle is repeated
+      until the control variable is less than the lower limit.</dd></dl>
+</dd></dl>
+<dl><dt>
+  Syntax:
+</dt><dd><tt><dl>
+    <dt><a name="stats_ebnf_for_step_statement">for_step_statement</a> ::=</dt><dd>
+      '<span class="keywd">for</span>' identifier '<span class="keywd">range</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> [ '<span class="keywd">to</span>' | '<span class="keywd">downto</span>' ] <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">step</span>' <a class="ebnf" href="#expr_ebnf_expression">expression</a> '<span class="keywd">do</span>'<br />
+      &nbsp;&nbsp;<a class="ebnf" href="#stats_ebnf_statement">statement</a><br />
+      '<span class="keywd">end</span>' '<span class="keywd">for</span>' .</dd>
+</dl></tt></dd></dl><p>
+
+  Declaration:
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().to.().step.().do.().end.for <span class="keywd">is</span>     -> 25;
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .for.().range.().downto.().step.().do.().end.for <span class="keywd">is</span> -> 25;
+
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: FOR_STEP_DECLS (<span class="keywd">in</span> <a class="type" href="#types_type">type</a>: aType) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span> param) +:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a> param)) <> NIL <span class="keywd">then</span>
+
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: lower_limit) to (<span class="keywd">in</span> <span class="type">aType</span>: upper_limit)
+          step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: incr_step) do
+          (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+        <span class="keywd">begin</span>
+          variable := lower_limit;
+          <span class="keywd">while</span> variable <= upper_limit <span class="keywd">do</span>
+            statements;
+            variable +:= incr_step;
+          <span class="keywd">end while</span>;
+        <span class="keywd">end func</span>;
+
+    <span class="keywd">end if</span>;
+    <span class="keywd">if</span> getobj((<span class="keywd">inout</span> <span class="type">aType</span> param) -:= (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a> param)) <> NIL <span class="keywd">then</span>
+
+      <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: for (<span class="keywd">inout</span> <span class="type">aType</span>: variable) range (<span class="keywd">in</span> <span class="type">aType</span>: upper_limit) downto (<span class="keywd">in</span> <span class="type">aType</span>: lower_limit)
+          step (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: decr_step) do
+          (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a>: statements) end for <span class="keywd">is func</span>
+        <span class="keywd">begin</span>
+          variable := upper_limit;
+          <span class="keywd">while</span> variable >= lower_limit <span class="keywd">do</span>
+            statements;
+            variable -:= decr_step;
+          <span class="keywd">end while</span>;
+        <span class="keywd">end func</span>;
+
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+
+FOR_STEP_DECLS(<a class="type" href="#types_integer">integer</a>);
+</pre><p></p>
+
+<a name="stats_for-each-statement"><h3>4.6 for-each-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
@@ -1477,7 +1560,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   <span class="keywd">end func</span>;
 </pre><p></p>
 
-<a name="stats_if-statement"><h3>4.6 if-statement</h3></a>
+<a name="stats_if-statement"><h3>4.7 if-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">
@@ -1561,7 +1644,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 <span class="keywd">const</span> <span class="type">ELSIF_PROC</span>: elsif FALSE then (<span class="keywd">in</span> <a class="type" href="#types_proc">proc</a> <span class="keywd">param</span>) (<span class="keywd">in</span> <span class="type">ELSIF_RESULT</span> <span class="keywd">param</span>) <span class="keywd">is</span> ELSIF_EMPTY;
 </pre><p></p>
 
-<a name="stats_case-statement"><h3>4.7 case-statement</h3></a>
+<a name="stats_case-statement"><h3>4.8 case-statement</h3></a>
 <p>
   For example:
 </p><pre class="indent">

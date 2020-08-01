@@ -76,7 +76,9 @@ stritype arg_0;
     os_chartype buffer[PATH_MAX];
     ssize_t readlink_result;
     errinfotype err_info = OKAY_NO_ERROR;
-    stritype helpPath;
+#ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
+    stritype exeExtension;
+#endif
 #endif
     stritype cwd;
     stritype result;
@@ -89,34 +91,30 @@ stritype arg_0;
       result = cp_from_os_path(buffer, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(err_info);
+#ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
+      } else {
+        exeExtension = cstri8_or_cstri_to_stri(EXECUTABLE_FILE_EXTENSION);
+        result = strConcat(result, exeExtension);
+        FREE_STRI(exeExtension, exeExtension->size);
+#endif
       } /* if */
     } else {
 #endif
       if (strChPos(arg_0, (chartype) '/') == 0) {
         result = examineSearchPath(arg_0);
-        if (result == NULL) {
-          raise_error(MEMORY_ERROR);
-        } else {
-#ifdef HAS_SYMLINKS
-          if (cmdFileTypeSL(result) == 7) {
-            /* printf("symbolic link: ");
-               prot_stri(result);
-               printf("\n"); */
-            helpPath = result;
-            result = cmdReadlink(helpPath);
-            FREE_STRI(helpPath, helpPath->size);
-          } /* if */
-#endif
-        } /* if */
       } else if (arg_0->size >= 1 && arg_0->mem[0] == (chartype) '/') {
         result = strCreate(arg_0);
       } else {
         cwd = cmdGetcwd();
         result = concat_path(cwd, arg_0);
         FREE_STRI(cwd, cwd->size);
-        if (result == NULL) {
-          raise_error(MEMORY_ERROR);
-        } /* if */
+      } /* if */
+      if (result == NULL) {
+        raise_error(MEMORY_ERROR);
+#ifdef HAS_SYMLINKS
+      } else {
+        result = followLink(result);
+#endif
       } /* if */
 #ifdef HAS_SYMLINKS
     } /* if */

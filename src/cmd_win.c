@@ -151,10 +151,38 @@ int *w_argc;
           free(result);
           result = NULL;
         } else {
+          /* Set pointer to first char of first argument */
           result[0] = destBuffer;
           argumentCount = 1;
           destPos = destBuffer;
-          do {
+          if (*sourcePos == '"') {
+	    sourcePos++;
+            while (*sourcePos != '"' && *sourcePos != 0) {
+              *destPos = *sourcePos;
+              sourcePos++;
+              destPos++;
+            } /* if */
+          } else {
+            while (*sourcePos != ' ' && *sourcePos != 0) {
+              *destPos = *sourcePos;
+              sourcePos++;
+              destPos++;
+            } /* if */
+          } /* if */
+          if (*sourcePos != 0) {
+            do {
+              sourcePos++;
+            } while (*sourcePos == ' ');
+            if (*sourcePos != 0) {
+              /* Terminate the current argument */
+              *destPos = 0;
+              destPos++;
+              /* Set pointer to first char of next argument */
+              result[argumentCount] = destPos;
+              argumentCount++;
+            } /* if */
+          } /* if */
+          while (*sourcePos != 0) {
             /* printf("source char: %d\n", *sourcePos); */
             if (*sourcePos == '"') {
               /* Inside quotation mode */
@@ -186,17 +214,20 @@ int *w_argc;
               } while (*sourcePos != ' ' && *sourcePos != '"' && *sourcePos != 0);
             } /* if */
             if (*sourcePos == ' ') {
-              /* The current argument is terminated */
-              *destPos = 0;
-              destPos++;
-              result[argumentCount] = destPos;
-              argumentCount++;
-              while (*sourcePos == ' ') {
+              do {
                 sourcePos++;
-              } /* while */
+              } while (*sourcePos == ' ');
+              if (*sourcePos != 0) {
+                /* Terminate the current argument */
+                *destPos = 0;
+                destPos++;
+                /* Set pointer to first char of next argument */
+                result[argumentCount] = destPos;
+                argumentCount++;
+              } /* if */
             } /* if */
-          } while (*sourcePos != 0);
-          /* The last argument is terminated */
+          } /* while */
+          /* Terminate the last argument */
           *destPos = 0;
           result[argumentCount] = NULL;
         } /* if */

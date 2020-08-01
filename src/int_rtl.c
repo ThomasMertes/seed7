@@ -1180,7 +1180,7 @@ int mask
     } /* if */
     buffer = &buffer_1[50];
     do {
-      *(--buffer) = (strelemtype) (digits[unsigned_number & mask]);
+      *(--buffer) = (strelemtype) (digits[unsigned_number & (uinttype) mask]);
     } while ((unsigned_number >>= shift) != 0);
     if (negative) {
       *(--buffer) = (strelemtype) '-';

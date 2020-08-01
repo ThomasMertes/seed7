@@ -9,13 +9,13 @@
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar -Wc++-compat
 # CFLAGS = -O2 -fomit-frame-pointer -pedantic -Wall -Wextra -Wswitch-default -Wcast-qual -Wlogical-op -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar -Wpadded
-CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--stack,4194304
+LDFLAGS = -Wl,--gc-sections,--stack,4194304
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
@@ -74,7 +74,7 @@ AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
 GOBJ1 = syvarutl.o traceutl.o actutl.o executl.o blockutl.o
 GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o con_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o
-ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
+ROBJ2 = flt_rtl.o hsh_rtl.o int_rtl.o itf_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
 ROBJ3 = heaputl.o striutl.o
 DOBJ1 = $(BIGINT_LIB).o cmd_unx.o fil_unx.o pol_sel.o tim_unx.o
 OBJ = $(MOBJ1)
@@ -95,7 +95,7 @@ ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
 GSRC1 = syvarutl.c traceutl.c actutl.c executl.c blockutl.c
 GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c con_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c
-RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
+RSRC2 = flt_rtl.c hsh_rtl.c int_rtl.c itf_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
 DSRC1 = $(BIGINT_LIB).c cmd_unx.c fil_unx.c pol_sel.c tim_unx.c
 SRC = $(MSRC1)
@@ -141,6 +141,7 @@ version.h:
 	echo "#define os_ftell ftello" >> version.h
 	echo "#define os_off_t off_t" >> version.h
 	echo "#define os_environ environ" >> version.h
+	echo "#define APPEND_EXTENSION_TO_EXECUTABLE_PATH" >> version.h
 	echo "#define QUOTE_WHOLE_SHELL_COMMAND" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
@@ -151,13 +152,16 @@ version.h:
 	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
+	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
+	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	echo "#include \"sys/stat.h\"" > chkccomp.h
 	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#include \"unistd.h\"" >> chkccomp.h
+	echo "#define USE_BUILTIN_EXPECT" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define long_long_EXISTS" >> chkccomp.h
 	echo "#define long_long_SUFFIX_LL" >> chkccomp.h

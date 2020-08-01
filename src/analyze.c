@@ -553,7 +553,7 @@ errinfotype *err_info;
         } /* if */
         clean_idents();
         resultProg->arg0             = source_file_argument_copy;
-        resultProg->program_name     = getProgramName(source_name);
+        resultProg->program_name     = getProgramName(source_file_argument);
         resultProg->program_path     = getProgramPath(source_name);
         resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
@@ -643,6 +643,9 @@ errinfotype *err_info;
         source_name->size = name_len - 4;
         open_infile(source_name, err_info);
       } /* if */
+#ifdef HAS_SYMLINKS
+      source_name = followLink(source_name);
+#endif
       if (*err_info == OKAY_NO_ERROR) {
         scan_byte_order_mark();
         resultProg = analyze_prog(source_file_argument, source_name, err_info);

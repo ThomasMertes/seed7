@@ -1266,7 +1266,6 @@ progtype currentProg;
 
   {
     progrecord prog_backup;
-    objecttype resultOfProgram;
 
   /* interpr */
 #ifdef TRACE_EXEC
@@ -1294,7 +1293,7 @@ progtype currentProg;
           prot_nl();
         } /* if */
 #endif
-        resultOfProgram = exec_call(prog.main_object);
+        exec_call(prog.main_object);
 #ifdef WITH_PROTOCOL
         if (trace.actions) {
           if (trace.heapsize) {

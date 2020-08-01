@@ -31,6 +31,9 @@
 
 #ifdef ANSI_C
 
+#ifdef HAS_SYMLINKS
+stritype followLink (stritype path);
+#endif
 #ifdef EMULATE_ROOT_CWD
 void initEmulatedCwd (errinfotype *err_info);
 #endif
@@ -79,8 +82,11 @@ stritype cmdToOsPath (const const_stritype standardPath);
 
 #else
 
+#ifdef HAS_SYMLINKS
+stritype followLink ();
+#endif
 #ifdef EMULATE_ROOT_CWD
-void initEmulatedCwd (void);
+void initEmulatedCwd ();
 #endif
 biginttype cmdBigFileSize ();
 void cmdChdir ();

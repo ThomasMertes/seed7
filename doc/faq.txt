@@ -195,12 +195,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-09-23 the number of lines is:
+than 150000 lines of Seed7. For version 2012-10-07 the number of lines is:
 
-   102243  C source files (*.c)
-    10071  C header files (*.h)
-   110509  Seed7 source files (*.sd7)
-    80037  Seed7 library/include files (*.s7i)
+   102459  C source files (*.c)
+    10117  C header files (*.h)
+   110830  Seed7 source files (*.sd7)
+    80143  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -325,6 +325,16 @@ In most cases errors indicate that some development package of your
 distribution is missing. If your operating system is Linux, BSD or Unix
 not all development packages with header files might be installed. In
 this case you get some errors after typing 'make depend'. Errors such as
+
+  chkccomp.c:56:20: fatal error: stdlib.h: No such file or directory
+  hi.c:30:20: fatal error: stdlib.h: No such file or directory
+
+indicate that the development package of the C library is
+missing. I don't know the name of this package in your
+distribution (under Ubuntu it has the name libc6-dev), but
+you can search for C development libraries and header files.
+
+Errors such as
 
   scr_inf.c:57:18: error: term.h: No such file or directory
   kbd_inf.c:55:18: error: term.h: No such file or directory

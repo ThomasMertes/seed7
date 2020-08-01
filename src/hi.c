@@ -137,11 +137,11 @@ rtlArraytype arg_v;
 #ifdef TRACE_OPTION
     printf("BEGIN processOptions\n");
 #endif
-    option.source_file_name = NULL;
+    option.source_file_argument = NULL;
     option.analyze_only = FALSE;
     option.show_ident_table = FALSE;
     for (position = 0; position < arg_v->max_position; position++) {
-      if (option.source_file_name == NULL) {
+      if (option.source_file_argument == NULL) {
         opt = arg_v->arr[position].value.strivalue;
         /* prot_stri(opt);
            printf("\n"); */
@@ -249,7 +249,7 @@ rtlArraytype arg_v;
               break;
           } /* switch */
         } else {
-          option.source_file_name = stri_to_standard_path(opt);
+          option.source_file_argument = stri_to_standard_path(opt);
         } /* if */
       } else {
         if (option.argv == NULL) {
@@ -328,14 +328,14 @@ char **argv;
         writeHelp();
       } else {
         setupFloat();
-        /* printf("source_file_name: \"");
-           prot_stri(option.source_file_name);
+        /* printf("source_file_argument: \"");
+           prot_stri(option.source_file_argument);
            printf("\"\n");
            printf("prot_file_name: \"%s\"\n", option.prot_file_name); */
-        if (option.source_file_name == NULL) {
+        if (option.source_file_argument == NULL) {
           printf("*** Sourcefile missing\n");
         } else {
-          currentProg = analyze(option.source_file_name);
+          currentProg = analyze(option.source_file_argument);
           if (!option.analyze_only && currentProg != NULL &&
               (currentProg->error_count == 0 || option.execute_always)) {
             /* PRIME_OBJECTS(); */

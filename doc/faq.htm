@@ -508,12 +508,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-09-23 the number of lines is:
+than 150000 lines of Seed7. For version 2012-10-07 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 102243</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  10071</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right"> 110509</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">  80037</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 102459</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  10117</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right"> 110830</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">  80143</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -638,6 +638,16 @@ In most cases errors indicate that some development package of your
 distribution is missing. If your operating system is Linux, BSD or Unix
 not all development packages with header files might be installed. In
 this case you get some errors after typing 'make depend'. Errors such as
+</p><pre class="box">
+  chkccomp.c:56:20: fatal error: stdlib.h: No such file or directory
+  hi.c:30:20: fatal error: stdlib.h: No such file or directory
+</pre><p>
+indicate that the development package of the C library is
+missing. I don't know the name of this package in your
+distribution (under Ubuntu it has the name libc6-dev), but
+you can search for C development libraries and header files.
+</p><p>
+Errors such as
 </p><pre class="box">
   scr_inf.c:57:18: error: term.h: No such file or directory
   kbd_inf.c:55:18: error: term.h: No such file or directory

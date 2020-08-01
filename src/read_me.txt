@@ -255,6 +255,16 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
  --- Errors such as
 
+    chkccomp.c:56:20: fatal error: stdlib.h: No such file or directory
+    hi.c:30:20: fatal error: stdlib.h: No such file or directory
+
+  indicate that the development package of the C library is
+  missing. I don't know the name of this package in your
+  distribution (under Ubuntu it has the name libc6-dev), but
+  you can search for C development libraries and header files.
+
+ --- Errors such as
+
     scr_inf.c:57:18: error: term.h: No such file or directory
     kbd_inf.c:55:18: error: term.h: No such file or directory
     trm_inf.c:47:18: error: term.h: No such file or directory

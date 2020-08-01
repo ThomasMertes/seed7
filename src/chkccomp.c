@@ -282,19 +282,16 @@ void determineEnvironDefines (void)
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
-#ifdef USE_MYUNISTD_H
-    if (!compilationOkay("#include<stdlib.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;}\n")) {
-      printf("#define DEFINE_OS_ENVIRON\n");
-      define_os_environ = 1;
+    if (compilationOkay("#include<stdlib.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;}\n")) {
       strcat(buffer, "#include<stdlib.h>\n");
-    } /* if */
-#else
-    if (!compilationOkay("#include<unistd.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;}\n")) {
+#ifndef USE_MYUNISTD_H
+    } else if (compilationOkay("#include<unistd.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;}\n")) {
+      strcat(buffer, "#include<unistd.h>\n");
+#endif
+    } else {
       printf("#define DEFINE_OS_ENVIRON\n");
       define_os_environ = 1;
-      strcat(buffer, "#include<unistd.h>\n");
     } /* if */
-#endif
     strcat(buffer, "#include\"version.h\"\n");
     if (define_os_environ) {
 #ifdef OS_STRI_WCHAR

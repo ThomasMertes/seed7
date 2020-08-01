@@ -46,8 +46,6 @@ const proc: main is func
         if curr_arg = "-f" and number < length(argv(PROGRAM)) then
           incr(number);
           make_option @:= [curr_arg[.. 2]] argv(PROGRAM)[number]
-        else
-          make_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
         end if;
       elsif target = "" then
         target := curr_arg;

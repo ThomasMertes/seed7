@@ -473,6 +473,7 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
           end if;
           if fileType(head.name) = FILE_ABSENT then
             putf(head.name, stri[ .. head.size]);
+            setFileMode(head.name, head.mode);
             modTime := timestamp1970ToTime(head.mtime);
             setMTime(head.name, modTime);
           else
@@ -484,6 +485,7 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
       readHead(inFile, head);
     end while;
     for index range length(dirHeaderList) downto 1 do
+      setFileMode(dirHeaderList[index].name, dirHeaderList[index].mode);
       modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
       setMTime(dirHeaderList[index].name, modTime);
     end for;

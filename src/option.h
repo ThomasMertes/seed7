@@ -26,7 +26,7 @@
 /********************************************************************/
 
 typedef struct {
-    stritype          source_file_name;
+    stritype          source_file_argument;
     const_cstritype   prot_file_name;
     booltype          write_help;
     booltype          analyze_only;

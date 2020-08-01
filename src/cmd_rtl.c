@@ -103,6 +103,9 @@
 #ifndef LINKER_OPT_DEBUG_INFO
 #define LINKER_OPT_DEBUG_INFO ""
 #endif
+#ifndef LINKER_OPT_NO_DEBUG_INFO
+#define LINKER_OPT_NO_DEBUG_INFO ""
+#endif
 #ifndef LINKER_OPT_OUTPUT_FILE
 #define LINKER_OPT_OUTPUT_FILE ""
 #endif
@@ -879,6 +882,47 @@ errinfotype *err_info;
 
 
 
+#ifdef HAS_SYMLINKS
+#ifdef ANSI_C
+
+stritype followLink (stritype path)
+#else
+
+stritype followLink (path)
+stritype path;
+#endif
+
+  {
+    stritype startPath;
+    stritype helpPath;
+    int count = 5;
+
+  /* followLink */
+    if (cmdFileTypeSL(path) == 7) {
+      /* printf("symbolic link: ");
+         prot_stri(path);
+         printf("\n"); */
+      startPath = path;
+      path = cmdReadlink(startPath);
+      while (cmdFileTypeSL(path) == 7 && count != 0) {
+        helpPath = path;
+        path = cmdReadlink(helpPath);
+        FREE_STRI(helpPath, helpPath->size);
+        count--;
+      } /* if */
+      if (count == 0) {
+        FREE_STRI(path, path->size);
+        path = startPath;
+      } else {
+        FREE_STRI(startPath, startPath->size);
+      } /* if */
+    } /* if */
+    return path;
+  } /* followLink */
+#endif
+
+
+
 #ifdef EMULATE_ROOT_CWD
 #ifdef ANSI_C
 
@@ -1102,14 +1146,14 @@ stritype name;
         opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin/callgcc");
+        result = relativeToProgramPath(programPath, "bin/call_gcc");
         opt = NULL;
 #else
         opt = C_COMPILER;
 #endif
       } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
 #ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin/callgcc");
+        result = relativeToProgramPath(programPath, "bin/call_gcc");
         opt = NULL;
 #else
         opt = CPLUSPLUS_COMPILER;
@@ -1128,6 +1172,8 @@ stritype name;
         opt = REDIRECT_C_ERRORS;
       } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {
         opt = LINKER_OPT_DEBUG_INFO;
+      } else if (strcmp(opt_name, "LINKER_OPT_NO_DEBUG_INFO") == 0) {
+        opt = LINKER_OPT_NO_DEBUG_INFO;
       } else if (strcmp(opt_name, "LINKER_OPT_OUTPUT_FILE") == 0) {
         opt = LINKER_OPT_OUTPUT_FILE;
       } else if (strcmp(opt_name, "LINKER_FLAGS") == 0) {

@@ -1318,7 +1318,12 @@ listtype arguments;
     sourceStri = take_stri(arg_6(arguments));
     if (position >= 1 && destStri->size >= sourceStri->size &&
         (uinttype) position <= destStri->size - sourceStri->size + 1) {
-      memcpy(&destStri->mem[position - 1], sourceStri->mem,
+      /* It is possible that destStri and sourceStri overlap. */
+      /* E.g. for the expression: stri @:= [idx] stri;        */
+      /* The behavior of memcpy() is undefined when source    */
+      /* and destination areas overlap (or are identical).    */
+      /* Therefore memmove() is used instead of memcpy().     */
+      memmove(&destStri->mem[position - 1], sourceStri->mem,
           sourceStri->size * sizeof(strelemtype));
     } else {
       return raise_exception(SYS_RNG_EXCEPTION);

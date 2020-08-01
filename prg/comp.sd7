@@ -15652,7 +15652,7 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
         c_expr.expr &:= ";\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "  memcpy(&str1->mem[";
+        c_expr.expr &:= "  memmove(&str1->mem[";
         c_expr.expr &:= str(pred(index));
         c_expr.expr &:= "], str2->mem, str2->size*sizeof(strelemtype));\n";
         c_expr.expr &:= "}\n";
@@ -15661,7 +15661,7 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
         c_expr.expr &:= c_param6.expr;
         c_expr.expr &:= ";\n";
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "memcpy(&(";
+        c_expr.expr &:= "memmove(&(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ")->mem[";
         c_expr.expr &:= str(pred(index));
@@ -15728,14 +15728,14 @@ const proc: process_str_poscpy (in reference: function, in ref_list: params, ino
         c_expr.expr &:= ";\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "  memcpy(&str1->mem[pos], str2->mem, str2->size*sizeof(strelemtype));\n";
+        c_expr.expr &:= "  memmove(&str1->mem[pos], str2->mem, str2->size*sizeof(strelemtype));\n";
         c_expr.expr &:= "}\n";
       else
         c_expr.expr &:= "stritype str2=";
         c_expr.expr &:= c_param6.expr;
         c_expr.expr &:= ";\n";
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "memcpy(&(";
+        c_expr.expr &:= "memmove(&(";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ")->mem[(";
         c_expr.expr &:= c_param4.expr;
@@ -20187,6 +20187,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&intCpy";
     elsif action_name = "ITF_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
+    elsif action_name = "ITF_DESTR" then
+      c_expr.expr &:= "&itfDestr";
     elsif action_name = "PRC_NOOP" then
       if length(params(function)) = 2 then
         c_expr.expr &:= "&intDestrGeneric";
@@ -22679,6 +22681,7 @@ const proc: write_prototypes is func
     declareExtern("stritype    intStrBased (inttype, inttype);");
     declareExtern("stritype    intStrPow2Base (inttype, int, int);");
     declareExtern("inttype     intValue (objreftype);");
+    declareExtern("void        itfDestr (const const_rtlInterfacetype);");
     declareExtern("chartype    kbdGetc (void);");
     declareExtern("stritype    kbdGets (inttype);");
     declareExtern("booltype    kbdKeyPressed (void);");
@@ -24322,6 +24325,7 @@ const proc: pass_3 (in string: source, in program: prog,
     const string: CC_FLAGS                  is configValue("CC_FLAGS");
     const string: REDIRECT_C_ERRORS         is configValue("REDIRECT_C_ERRORS");
     const string: LINKER_OPT_DEBUG_INFO     is configValue("LINKER_OPT_DEBUG_INFO");
+    const string: LINKER_OPT_NO_DEBUG_INFO  is configValue("LINKER_OPT_NO_DEBUG_INFO");
     const string: LINKER_OPT_OUTPUT_FILE    is configValue("LINKER_OPT_OUTPUT_FILE");
     const string: LINKER_FLAGS              is configValue("LINKER_FLAGS");
     const string: SYSTEM_LIBS               is configValue("SYSTEM_LIBS");
@@ -24462,8 +24466,14 @@ const proc: pass_3 (in string: source, in program: prog,
             else
               link_cmd := C_COMPILER;
             end if;
-            if "-g" in compiler_option and LINKER_OPT_DEBUG_INFO <> "" then
-              link_params &:= " " & LINKER_OPT_DEBUG_INFO;
+            if "-g" in compiler_option then
+              if LINKER_OPT_DEBUG_INFO <> "" then
+                link_params &:= " " & LINKER_OPT_DEBUG_INFO;
+              end if;
+            else
+              if LINKER_OPT_NO_DEBUG_INFO <> "" then
+                link_params &:= " " & LINKER_OPT_NO_DEBUG_INFO;
+              end if;
             end if;
             if LINKER_FLAGS <> "" then
               link_params &:= " " & LINKER_FLAGS;
