@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hsh_rtl.h     Primitive actions for the string type.            */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,17 +24,41 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/hsh_rtl.h                                       */
-/*  Changes: 2005  Thomas Mertes                                    */
+/*  Changes: 2007  Thomas Mertes                                    */
 /*  Content: Primitive actions for the hash type.                   */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-inttype hshLng (hashtype hash);
+booltype hshContains (rtlHashtype, rtlGenerictype, inttype, comparetype);
+void hshCpy (rtlHashtype *, rtlHashtype, createfunctype, createfunctype,
+             destrfunctype, destrfunctype);
+rtlHashtype hshCreate (rtlHashtype, createfunctype, createfunctype,
+                       destrfunctype, destrfunctype);
+void hshDestr (rtlHashtype, destrfunctype, destrfunctype);
+rtlHashtype hshEmpty (void);
+void hshExcl (rtlHashtype, rtlGenerictype, inttype,
+              comparetype, destrfunctype, destrfunctype);
+rtlGenerictype hshIdx (rtlHashtype, rtlGenerictype, inttype, comparetype);
+rtlObjecttype *hshIdxAddr (rtlHashtype, rtlGenerictype, inttype, comparetype);
+void hshIncl (rtlHashtype, rtlGenerictype, rtlGenerictype , inttype,
+	      comparetype, createfunctype, createfunctype, copyfunctype);
+rtlArraytype hshKeys (rtlHashtype, createfunctype, destrfunctype);
+rtlArraytype hshValues (rtlHashtype, createfunctype, destrfunctype);
 
 #else
 
-inttype hshLng ()
+booltype hshContains ();
+void hshCpy ();
+rtlHashtype hshCreate ();
+void hshDestr ();
+rtlHashtype hshEmpty ();
+void hshExcl ();
+rtlGenerictype hshIdx ();
+rtlObjecttype *hshIdxAddr ();
+void hshIncl ();
+rtlArraytype hshKeys ();
+rtlArraytype hshValues ();
 
 #endif

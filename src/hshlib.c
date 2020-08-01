@@ -335,48 +335,38 @@ errinfotype *err_info;
     arraytype key_array;
 
   /* keys_hash */
-    if (curr_hash != NULL) {
-      if (!ALLOC_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
-        *err_info = MEMORY_ERROR;
+    if (!ALLOC_ARRAY(key_array, ARRAY_SIZE_INCREMENT)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      COUNT_ARRAY(ARRAY_SIZE_INCREMENT);
+      key_array->min_position = 1;
+      key_array->max_position = ARRAY_SIZE_INCREMENT;
+      arr_pos = 0;
+      number = curr_hash->table_size;
+      curr_helem = &curr_hash->table[0];
+      while (number > 0 && *err_info == OKAY_NO_ERROR) {
+        if (*curr_helem != NULL) {
+          keys_helem(&key_array, &arr_pos, *curr_helem, key_create_func, err_info);
+        } /* if */
+        number--;
+        curr_helem++;
+      } /* while */
+      array_size = key_array->max_position - key_array->min_position;
+      if (*err_info != OKAY_NO_ERROR) {
+        for (number = 0; number < arr_pos; number++) {
+          param2_call(key_destr_func, &key_array->arr[number], SYS_DESTR_OBJECT);
+        } /* for */
+        FREE_ARRAY(key_array, array_size);
+        key_array = NULL;
       } else {
-        COUNT_ARRAY(ARRAY_SIZE_INCREMENT);
-        key_array->min_position = 1;
-        key_array->max_position = ARRAY_SIZE_INCREMENT;
-        arr_pos = 0;
-        number = curr_hash->table_size;
-        curr_helem = &curr_hash->table[0];
-        while (number > 0 && *err_info == OKAY_NO_ERROR) {
-          if (*curr_helem != NULL) {
-            keys_helem(&key_array, &arr_pos, *curr_helem, key_create_func, err_info);
-          } /* if */
-          number--;
-          curr_helem++;
-        } /* while */
-        array_size = key_array->max_position - key_array->min_position;
-        if (*err_info != OKAY_NO_ERROR) {
-          for (number = 0; number < arr_pos; number++) {
-            param2_call(key_destr_func, &key_array->arr[number], SYS_DESTR_OBJECT);
-          } /* for */
+        if (!RESIZE_ARRAY(key_array, array_size, arr_pos)) {
           FREE_ARRAY(key_array, array_size);
           key_array = NULL;
+          *err_info = MEMORY_ERROR;
         } else {
-          if (!RESIZE_ARRAY(key_array, array_size, arr_pos)) {
-            FREE_ARRAY(key_array, array_size);
-            key_array = NULL;
-            *err_info = MEMORY_ERROR;
-          } else {
-            COUNT3_ARRAY(array_size, arr_pos);
-            key_array->max_position = arr_pos;
-          } /* if */
+          COUNT3_ARRAY(array_size, arr_pos);
+          key_array->max_position = arr_pos;
         } /* if */
-      } /* if */
-    } else {
-      if (!ALLOC_ARRAY(key_array, 0)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        COUNT_ARRAY(0);
-        key_array->min_position = 1;
-        key_array->max_position = 0;
       } /* if */
     } /* if */
     return(key_array);
@@ -451,48 +441,38 @@ errinfotype *err_info;
     arraytype value_array;
 
   /* values_hash */
-    if (curr_hash != NULL) {
-      if (!ALLOC_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
-        *err_info = MEMORY_ERROR;
+    if (!ALLOC_ARRAY(value_array, ARRAY_SIZE_INCREMENT)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      COUNT_ARRAY(ARRAY_SIZE_INCREMENT);
+      value_array->min_position = 1;
+      value_array->max_position = ARRAY_SIZE_INCREMENT;
+      arr_pos = 0;
+      number = curr_hash->table_size;
+      curr_helem = &curr_hash->table[0];
+      while (number > 0 && *err_info == OKAY_NO_ERROR) {
+        if (*curr_helem != NULL) {
+          values_helem(&value_array, &arr_pos, *curr_helem, value_create_func, err_info);
+        } /* if */
+        number--;
+        curr_helem++;
+      } /* while */
+      array_size = value_array->max_position - value_array->min_position;
+      if (*err_info != OKAY_NO_ERROR) {
+        for (number = 0; number < arr_pos; number++) {
+          param2_call(value_destr_func, &value_array->arr[number], SYS_DESTR_OBJECT);
+        } /* for */
+        FREE_ARRAY(value_array, array_size);
+        value_array = NULL;
       } else {
-        COUNT_ARRAY(ARRAY_SIZE_INCREMENT);
-        value_array->min_position = 1;
-        value_array->max_position = ARRAY_SIZE_INCREMENT;
-        arr_pos = 0;
-        number = curr_hash->table_size;
-        curr_helem = &curr_hash->table[0];
-        while (number > 0 && *err_info == OKAY_NO_ERROR) {
-          if (*curr_helem != NULL) {
-            values_helem(&value_array, &arr_pos, *curr_helem, value_create_func, err_info);
-          } /* if */
-          number--;
-          curr_helem++;
-        } /* while */
-        array_size = value_array->max_position - value_array->min_position;
-        if (*err_info != OKAY_NO_ERROR) {
-          for (number = 0; number < arr_pos; number++) {
-            param2_call(value_destr_func, &value_array->arr[number], SYS_DESTR_OBJECT);
-          } /* for */
+        if (!RESIZE_ARRAY(value_array, array_size, arr_pos)) {
           FREE_ARRAY(value_array, array_size);
           value_array = NULL;
+          *err_info = MEMORY_ERROR;
         } else {
-          if (!RESIZE_ARRAY(value_array, array_size, arr_pos)) {
-            FREE_ARRAY(value_array, array_size);
-            value_array = NULL;
-            *err_info = MEMORY_ERROR;
-          } else {
-            COUNT3_ARRAY(array_size, arr_pos);
-            value_array->max_position = arr_pos;
-          } /* if */
+          COUNT3_ARRAY(array_size, arr_pos);
+          value_array->max_position = arr_pos;
         } /* if */
-      } /* if */
-    } else {
-      if (!ALLOC_ARRAY(value_array, 0)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        COUNT_ARRAY(0);
-        value_array->min_position = 1;
-        value_array->max_position = 0;
       } /* if */
     } /* if */
     return(value_array);
@@ -542,15 +522,13 @@ objecttype data_copy_func;
     helemtype *curr_helem;
 
   /* for_hash */
-    if (curr_hash != NULL) {
-      number = curr_hash->table_size;
-      curr_helem = &curr_hash->table[0];
-      while (number > 0) {
-        for_helem(for_variable, *curr_helem, statement, data_copy_func);
-        number--;
-        curr_helem++;
-      } /* while */
-    } /* if */
+    number = curr_hash->table_size;
+    curr_helem = &curr_hash->table[0];
+    while (number > 0) {
+      for_helem(for_variable, *curr_helem, statement, data_copy_func);
+      number--;
+      curr_helem++;
+    } /* while */
   } /* for_hash */
 
 
@@ -598,15 +576,13 @@ objecttype key_copy_func;
     helemtype *curr_helem;
 
   /* for_key_hash */
-    if (curr_hash != NULL) {
-      number = curr_hash->table_size;
-      curr_helem = &curr_hash->table[0];
-      while (number > 0) {
-        for_key_helem(key_variable, *curr_helem, statement, key_copy_func);
-        number--;
-        curr_helem++;
-      } /* while */
-    } /* if */
+    number = curr_hash->table_size;
+    curr_helem = &curr_hash->table[0];
+    while (number > 0) {
+      for_key_helem(key_variable, *curr_helem, statement, key_copy_func);
+      number--;
+      curr_helem++;
+    } /* while */
   } /* for_key_hash */
 
 
@@ -664,16 +640,14 @@ objecttype key_copy_func;
     helemtype *curr_helem;
 
   /* for_data_key_hash */
-    if (curr_hash != NULL) {
-      number = curr_hash->table_size;
-      curr_helem = &curr_hash->table[0];
-      while (number > 0) {
-        for_data_key_helem(for_variable, key_variable, *curr_helem, statement,
-            data_copy_func, key_copy_func);
-        number--;
-        curr_helem++;
-      } /* while */
-    } /* if */
+    number = curr_hash->table_size;
+    curr_helem = &curr_hash->table[0];
+    while (number > 0) {
+      for_data_key_helem(for_variable, key_variable, *curr_helem, statement,
+          data_copy_func, key_copy_func);
+      number--;
+      curr_helem++;
+    } /* while */
   } /* for_data_key_hash */
 
 

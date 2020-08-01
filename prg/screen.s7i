@@ -55,8 +55,8 @@ const proc: v_scroll (inout screen_file param,
     in integer param, in integer param, in integer param,
     in integer param, in integer param) is                          action "SCR_V_SCL";
 const proc: h_scroll (ref screen_file param,
-    ref integer param, ref integer param, ref integer param,
-    ref integer param, ref integer param) is                        action "SCR_H_SCL";
+    in integer param, in integer param, in integer param,
+    in integer param, in integer param) is                          action "SCR_H_SCL";
 const proc: setPos (ref screen_file param,
     ref integer param, ref integer param) is                        action "SCR_SETPOS";
 const proc: color (ref screen_file param, ref color param) is noop;

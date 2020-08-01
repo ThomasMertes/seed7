@@ -439,10 +439,10 @@ booltype on;
 
 #ifdef ANSI_C
 
-void scrSetpos (inttype lin, inttype col)
+void scrSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetpos (lin, col)
+void scrSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
@@ -451,20 +451,20 @@ inttype col;
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
-  { /* scrSetpos */
+  { /* scrSetCursor */
     move(lin - 1, col - 1);
     changes = TRUE;
-  } /* scrSetpos */
+  } /* scrSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrWrite (inttype lin, inttype col, ustritype stri,
+void scrText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrWrite (lin, col, stri, length)
+void scrText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
@@ -480,7 +480,7 @@ memsizetype length;
   {
     inttype pos;
 
-  /* scrWrite */
+  /* scrText */
     move(lin - 1, col - 1);
     for (pos = 0; pos < length; pos++) {
 #ifdef MAP_CHARS
@@ -490,7 +490,7 @@ memsizetype length;
 #endif
     } /* for */
     changes = TRUE;
-  } /* scrWrite */
+  } /* scrText */
 
 
 

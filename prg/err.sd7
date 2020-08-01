@@ -45,26 +45,31 @@ ignore("\!");                   (* Illegal string escape       *)
 ignore("\8y"); ignore(          (* Numerical escape wrong      *) "\
 continued string");             (* String continuation wrong   *)
 ignore("not terminated          (* String literal exceeds      *)
-); $ 12345;                      (* Name expected               *)
-$ syntax: l2 is -> x;           (* Integer literal expected    *)
-include 1                     (* String literal expected     *)
-const: ";asdf" is 1;             (* Identifier expected         *)
-const: k is proc begin x        (* Expression expected         *) end proc;
-syntax: [.{}.] is -> 1; syntax: i.{} is -> 1; const: h is [i];
+); $ 12345;                     (* Name expected               *)
+$ syntax expr: l2 is -> x;      (* Integer literal expected    *)
+include 1                       (* String literal expected     *)
+const integer: ";asdf" is 1;    (* Identifier expected         *)
+const proc : k is proc begin x  (* Expression expected         *) end proc;
+$ syntax: [.().] is -> 1; $ syntax: i.() is -> 1; const: h is [i];
 x                               (* Declaration expected        *)
 const j2: j3 is ASD(1);         (* Initialisation failed       *)
-const: h2 is 1;                 (* Declared twice              *)
+const integer: h2 is 1;         (* Declared twice              *)
                                 (* Not declared                *)
-syntax: h is x 1;               (* Associativity expected      *)
-syntax: j is -> 999999;         (* Statement priority too big  *)
-syntax: {}.{}.x is -> 1;        (* Syntax with two parameters  *)
-syntax: {} is -> 1;             (* Empty syntax declaration    *)
-syntax: {}.a2 is -> 5; syntax: {}.a2 is -> 7;
-syntax: .b2 is -> 5; syntax: .b2 is -> 7;
-syntax: .c2.{} is -> 5; syntax: .c2.{} is <- 5;
-syntax: .d2.{} is -> 100; const: d3 is d2 1;
-syntax: .e2 is -> 20; const: e3 is e2.e4;
-syntax: .i2.i3 is -> 3; const: i4 is i2 i5;
+$ syntax expr: .h is x 1;       (* Associativity expected      *)
+$ syntax expr: .j is -> 999999; (* Statement priority too big  *)
+$ syntax expr: .().().x is -> 1;(* Syntax with two parameters  *)
+$ syntax expr: .() is -> 1;     (* Empty syntax declaration    *)
+$ syntax expr: .().a2 is -> 5; $ syntax expr: .().a2 is -> 7;
+$ syntax expr: .b2 is -> 5; $ syntax expr: .b2 is -> 7;
+$ syntax expr: .c2.() is -> 5; $ syntax expr: .c2.() is <- 5;
+$ syntax expr: .c3.().c4 is -> 5; $ syntax expr: .c3.() is -> 5;
+$ syntax expr: .keyword1.()                    is -> 5;
+$ syntax expr: .keyword1.().keyword2           is -> 5;
+$ syntax expr: .().inx.()                           is <-> 12;
+$ syntax expr: .for.().inx.().to.().do.().end.for   is  -> 25;
+$ syntax expr: .d2.() is -> 100; const expr: d3 is d2 1;
+$ syntax expr: .e2 is -> 20; const expr: e3 is e2.e4;
+$ syntax expr: .i2.i3 is -> 3; const expr: i4 is i2 i5;
 const l m is 1;
 const: n is 1 const
 : p(q is 1;

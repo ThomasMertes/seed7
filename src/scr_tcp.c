@@ -638,10 +638,10 @@ booltype on;
 
 #ifdef ANSI_C
 
-void scrSetpos (inttype lin, inttype col)
+void scrSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetpos (lin, col)
+void scrSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
@@ -650,20 +650,20 @@ inttype col;
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
-  { /* scrSetpos */
+  { /* scrSetCursor */
     putctl(tgoto(CM, col - 1, lin - 1)); /* cursor motion */
     changes = TRUE;
-  } /* scrSetpos */
+  } /* scrSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrWrite (inttype lin, inttype col, ustritype stri,
+void scrText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrWrite (lin, col, stri, length)
+void scrText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
@@ -681,7 +681,7 @@ memsizetype length;
     int end_pos;
     unsigned char *new_line;
 
-  /* scrWrite */
+  /* scrText */
     if (col + length - 1 <= CO) {
       end_pos = length - 1;
       new_line = &SCREEN[lin - 1][col - 1];
@@ -711,7 +711,7 @@ memsizetype length;
     } /* if */
     fflush(stdout);
     changes = TRUE;
-  } /* scrWrite */
+  } /* scrText */
 
 
 

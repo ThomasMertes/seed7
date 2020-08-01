@@ -33,6 +33,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -45,7 +46,6 @@
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from)
@@ -77,11 +77,9 @@ rtlArraytype arr_from;
             (SIZE_TYPE) (arr_from_size * sizeof(rtlObjecttype)));
         arr_to->max_position += arr_from_size;
         FREE_RTL_ARRAY(arr_from, arr_from_size);
-        arg_3(arguments)->value.arrayvalue = NULL;
       } /* if */
     } /* if */
   } /* arrAppend */
-#endif
 
 
 

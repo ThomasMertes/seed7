@@ -479,7 +479,6 @@ ustritype stri;
 
   {
     memsizetype length;
-    memsizetype bytes_remaining;
     stritype stri;
 
   /* cp_ustri8_to_stri */

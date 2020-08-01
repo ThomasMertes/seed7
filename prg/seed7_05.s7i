@@ -165,6 +165,11 @@ BASIC_TYPE_DECLS(string);
 BASIC_TYPE_DECLS(ACTION);
 
 
+const proc: var (ref type: aType) : (ref expr: name) is default is func
+  begin
+    var aType: name is aType.value;
+  end func;
+
 const func string: str (in type param) is                     action "TYP_STR";
 const func string: (in string param) & (in string param) is   action "STR_CAT";
 const func type: gentype is                                   action "TYP_GENTYPE";
@@ -2601,24 +2606,16 @@ const type: color is new struct
   end struct;
 
 
-const func boolean: (in color: col1) = (in color: col2) is func
-  result
-    var boolean: result is FALSE;
-  begin
-    result := col1.red_part = col2.red_part and
-        col1.green_part = col2.green_part and
-        col1.blue_part = col2.blue_part;
-  end func;
+const func boolean: (in color: col1) = (in color: col2) is
+  return col1.red_part = col2.red_part and
+         col1.green_part = col2.green_part and
+         col1.blue_part = col2.blue_part;
 
 
-const func boolean: (in color: col1) <> (in color: col2) is func
-  result
-    var boolean: result is FALSE;
-  begin
-    result := col1.red_part <> col2.red_part or
-        col1.green_part <> col2.green_part or
-        col1.blue_part <> col2.blue_part;
-  end func;
+const func boolean: (in color: col1) <> (in color: col2) is
+  return col1.red_part <> col2.red_part or
+         col1.green_part <> col2.green_part or
+         col1.blue_part <> col2.blue_part;
 
 
 const func color: (in color: col1) + (in color: col2) is func
@@ -2639,6 +2636,30 @@ const func color: color (in integer: red, in integer: green, in integer: blue) i
     result.green_part := green;
     result.blue_part := blue;
   end func;
+
+
+const func integer: compare (in color: col1, in color: col2) is func
+  result
+    var integer: result is 0;
+  begin
+    if col1.red_part < col2.red_part then
+      result := -1;
+    elsif col1.red_part > col2.red_part then
+      result := 1;
+    elsif col1.green_part < col2.green_part then
+      result := -1;
+    elsif col1.green_part > col2.green_part then
+      result := 1;
+    elsif col1.blue_part < col2.blue_part then
+      result := -1;
+    elsif col1.blue_part > col2.blue_part then
+      result := 1;
+    end if;
+  end func;
+
+
+const func integer: hashCode (in color: col) is
+  return col.red_part + col.green_part + col.blue_part;
 
 
 (* BLOCK *)
@@ -3179,16 +3200,16 @@ const func integer: column (ref text param) is DYNAMIC;
 const proc: clear (inout text param) is DYNAMIC;
 const proc: clear (in text param, in integer param, in integer param,
     in integer param, in integer param) is DYNAMIC;
-const proc: v_scroll (ref text param, in integer param) is DYNAMIC;
+const proc: v_scroll (inout text param, in integer param) is DYNAMIC;
 const proc: v_scroll (inout text param, in integer param, in integer param,
     in integer param, in integer param, in integer param) is DYNAMIC;
 const proc: h_scroll (ref text param, in integer param) is DYNAMIC;
-const proc: h_scroll (ref text param, ref integer param, ref integer param,
-    ref integer param, ref integer param, ref integer param) is DYNAMIC;
+const proc: h_scroll (ref text param, in integer param, in integer param,
+    in integer param, in integer param, in integer param) is DYNAMIC;
 const proc: color (inout text param, in color param) is DYNAMIC;
 const proc: color (inout text param, in color param, in color param) is DYNAMIC;
 const proc: setPos (inout text param, in integer param, in integer param) is DYNAMIC;
-const proc: setPosXY (ref text param, in integer param, in integer param) is DYNAMIC;
+const proc: setPosXY (inout text param, in integer param, in integer param) is DYNAMIC;
 const proc: setLine (ref text param, ref integer param) is DYNAMIC;
 const proc: setColumn (ref text param, ref integer param) is DYNAMIC;
 const proc: setXY (ref text param, ref integer param, ref integer param) is DYNAMIC;

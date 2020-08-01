@@ -88,7 +88,7 @@ listtype arguments;
     isit_file(arg_1(arguments));
     isit_bigint(arg_2(arguments));
     filBigSeek(take_file(arg_1(arguments)),
-          take_bigint(arg_2(arguments)));
+        take_bigint(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* fil_big_seek */
 
@@ -537,13 +537,9 @@ listtype arguments;
   { /* fil_seek */
     isit_file(arg_1(arguments));
     isit_int(arg_2(arguments));
-    if (take_int(arg_2(arguments)) <= 0) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
-    } else {
-      fseek(take_file(arg_1(arguments)),
-          take_int(arg_2(arguments)) - 1, SEEK_SET);
-      return(SYS_EMPTY_OBJECT);
-    } /* if */
+    filSeek(take_file(arg_1(arguments)),
+        take_int(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
   } /* fil_seek */
 
 

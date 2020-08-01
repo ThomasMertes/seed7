@@ -29,25 +29,33 @@
 /*                                                                  */
 /********************************************************************/
 
+/* Since a function cannot return structs by value and */
+/* cannot have struct value parameters rtlGenerictype  */
+/* is used in these cases instead of rtlObjecttype.    */
+
+typedef inttype rtlGenerictype;
+
+typedef struct rtlListstruct   *rtlListtype;
 typedef struct rtlArraystruct  *rtlArraytype;
-typedef struct helemstruct     *helemtype;
-typedef struct hashstruct      *hashtype;
+typedef struct rtlHelemstruct  *rtlHelemtype;
+typedef struct rtlHashstruct   *rtlHashtype;
 
 typedef union {
+    rtlGenerictype genericvalue;
 /*    postype    pos;          ** SYMBOLOBJECT */
 /*    nodetype   nodevalue;    ** MDULEOBJECT */
 /*    typetype   typevalue;    ** TYPEOBJECT */
-    inttype    intvalue;     /* INTOBJECT */
-    biginttype bigintvalue;  /* BIGINTOBJECT */
-    chartype   charvalue;    /* CHAROBJECT */
-    stritype   strivalue;    /* STRIOBJECT */
+    inttype       intvalue;     /* INTOBJECT */
+    biginttype    bigintvalue;  /* BIGINTOBJECT */
+    chartype      charvalue;    /* CHAROBJECT */
+    stritype      strivalue;    /* STRIOBJECT */
     rtlArraytype  arrayvalue;   /* ARRAYOBJECT */
-    hashtype   hashvalue;    /* HASHOBJECT */
-    settype    setvalue;     /* SETOBJECT */
+    rtlHashtype   hashvalue;    /* HASHOBJECT */
+    settype       setvalue;     /* SETOBJECT */
 /*    structtype structvalue;  ** STRUCTOBJECT */
-    filetype   filevalue;    /* FILEOBJECT */
-/*    listtype   listvalue;    ** LISTOBJECT, EXPROBJECT */
-    wintype    winvalue;     /* WINOBJECT */
+    filetype      filevalue;    /* FILEOBJECT */
+    rtlListtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
+    wintype       winvalue;     /* WINOBJECT */
 /*    rtlObjecttype objvalue;     ** ENUMLITERALOBJECT, CONSTENUMOBJECT */
                              /* VARENUMOBJECT, VALUEPARAMOBJECT */
                              /* REFPARAMOBJECT, RESULTOBJECT */
@@ -57,7 +65,7 @@ typedef union {
 /*    acttype    actvalue;     ** ACTOBJECT */
 /*    progtype   progvalue;    ** PROGOBJECT */
 #ifdef WITH_FLOAT
-    floattype  floatvalue;   /* FLOATOBJECT */
+    floattype     floatvalue;   /* FLOATOBJECT */
 #endif
   } valueunion;
 
@@ -65,22 +73,33 @@ typedef struct rtlObjectstruct {
     valueunion value;
   } rtlObjecttype;
 
+typedef struct rtlListstruct {
+    rtlListtype next;
+    rtlObjecttype obj;
+  } rtlListrecord;
+
 typedef struct rtlArraystruct {
     inttype min_position;
     inttype max_position;
     rtlObjecttype arr[1];
   } rtlArrayrecord;
 
-typedef struct helemstruct {
-    helemtype next_less;
-    helemtype next_greater;
+typedef struct rtlHelemstruct {
+    rtlHelemtype next_less;
+    rtlHelemtype next_greater;
     rtlObjecttype key;
     rtlObjecttype data;
-  } helemrecord;
+  } rtlHelemrecord;
 
-typedef struct hashstruct {
+typedef struct rtlHashstruct {
     int bits;
     int mask;
     int table_size;
-    helemtype table[1];
-  } hashrecord;
+    memsizetype size;
+    rtlHelemtype table[1];
+  } rtlHashrecord;
+
+typedef inttype (*comparetype) (rtlGenerictype, rtlGenerictype);
+typedef rtlGenerictype (*createfunctype) (rtlGenerictype);
+typedef void (*destrfunctype) (rtlGenerictype);
+typedef void (*copyfunctype) (rtlGenerictype *, rtlGenerictype);

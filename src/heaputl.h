@@ -157,6 +157,8 @@ EXTERN memsizetype hs;
 #define BYT_SUB(size)          , count.byte -= (memsizetype) (size)
 #define RTL_ARR_ADD(len)       , count.array++, count.arr_elems += (memsizetype) (len)
 #define RTL_ARR_SUB(len)       , count.array--, count.arr_elems -= (memsizetype) (len)
+#define RTL_HSH_ADD(len)       , count.hash++,  count.hsh_elems += (memsizetype) (len)
+#define RTL_HSH_SUB(len)       , count.hash--,  count.hsh_elems -= (memsizetype) (len)
 #else
 #define USTRI_ADD(len,cnt,byt)
 #define USTRI_SUB(len,cnt,byt)
@@ -180,6 +182,8 @@ EXTERN memsizetype hs;
 #define BYT_SUB(size)
 #define RTL_ARR_ADD(len)
 #define RTL_ARR_SUB(len)
+#define RTL_HSH_ADD(len)
+#define RTL_HSH_SUB(len)
 #endif
 
 
@@ -214,6 +218,7 @@ EXTERN memsizetype hs;
 #define SIZ_REC(rec)     (sizeof(rec))
 #define SIZ_TAB(tp, nr)  (sizeof(tp) * (nr))
 #define SIZ_RTL_ARR(len) (sizeof(rtlArrayrecord) - sizeof(rtlObjecttype) + (len) * sizeof(rtlObjecttype))
+#define SIZ_RTL_HSH(len) (sizeof(rtlHashrecord)  - sizeof(rtlHelemtype)  + (len) * sizeof(rtlHelemtype))
 
 
 #ifdef DO_HEAPSIZE_COMPUTATION
@@ -239,6 +244,8 @@ EXTERN memsizetype hs;
 #define CNT2_BYT(size)         (HS_SUB(size) BYT_SUB(size)    H_LOG2(size)),
 #define CNT1_RTL_ARR(len,size) (HS_ADD(size) RTL_ARR_ADD(len) H_LOG1(size))
 #define CNT2_RTL_ARR(len,size) (HS_SUB(size) RTL_ARR_SUB(len) H_LOG2(size)),
+#define CNT1_RTL_HSH(len,size) (HS_ADD(size) RTL_HSH_ADD(len) H_LOG1(size))
+#define CNT2_RTL_HSH(len,size) (HS_SUB(size) RTL_HSH_SUB(len) H_LOG2(size)),
 #define CNT3(cnt)              (cnt)
 #else
 #define CNT1_USTRI(L,S,C,B)
@@ -263,6 +270,8 @@ EXTERN memsizetype hs;
 #define CNT2_BYT(size)
 #define CNT1_RTL_ARR(len,size)
 #define CNT2_RTL_ARR(len,size)
+#define CNT1_RTL_HSH(len,size)
+#define CNT2_RTL_HSH(len,size)
 #define CNT3(cnt)
 #endif
 
@@ -331,6 +340,13 @@ EXTERN memsizetype hs;
 #define RESIZE_HASH(var,ln1,ln2)   REALLOC_HEAP(var, hashtype, SIZ_HSH(ln2))
 #define COUNT_HASH(len)            CNT1_HSH(len, SIZ_HSH(len))
 #define COUNT3_HASH(len1,len2)     CNT3(CNT2_HSH(len1, SIZ_HSH(len1)) CNT1_HSH(len2, SIZ_HSH(len2)))
+
+
+#define ALLOC_RTL_HASH(var,len)       ALLOC_HEAP(var, rtlHashtype, SIZ_RTL_HSH(len))
+#define FREE_RTL_HASH(var,len)        (CNT2_RTL_HSH(len, SIZ_RTL_HSH(len)) FREE_HEAP(var, byt))
+#define RESIZE_RTL_HASH(var,ln1,ln2)  REALLOC_HEAP(var, rtlHashtype, SIZ_RTL_HSH(ln2))
+#define COUNT_RTL_HASH(len)           CNT1_RTL_HSH(len, SIZ_RTL_HSH(len))
+#define COUNT3_RTL_HASH(len1,len2)    CNT3(CNT2_RTL_HSH(len1, SIZ_RTL_HSH(len1)) CNT1_RTL_HSH(len2, SIZ_RTL_HSH(len2)))
 
 
 #define ALLOC_SET(var,len)         ALLOC_HEAP(var, settype, SIZ_SET(len))

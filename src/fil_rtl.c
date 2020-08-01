@@ -191,10 +191,8 @@ biginttype big_position;
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-      return;
     } else if (lseek(fileno(fil1), file_position - 1, SEEK_SET) == (offsettype) -1) {
       raise_error(FILE_ERROR);
-      return;
     } /* if */
 #elif defined USE_FSEEKO
     if (sizeof(offsettype) == 8) {
@@ -204,10 +202,8 @@ biginttype big_position;
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-      return;
     } else if (fseeko(fil1, file_position - 1, SEEK_SET) != 0) {
       raise_error(FILE_ERROR);
-      return;
     } /* if */
 #elif defined USE_FSEEKO64
     if (sizeof(offsettype) == 8) {
@@ -217,10 +213,8 @@ biginttype big_position;
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-      return;
     } else if (fseeko64(fil1, file_position - 1, SEEK_SET) != 0) {
       raise_error(FILE_ERROR);
-      return;
     } /* if */
 #else
     if (sizeof(offsettype) == 8) {
@@ -230,10 +224,8 @@ biginttype big_position;
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
-      return;
     } else if (fseek(fil1, file_position - 1, SEEK_SET) != 0) {
       raise_error(FILE_ERROR);
-      return;
     } /* if */
 #endif
   } /* filBigSeek */
@@ -670,6 +662,26 @@ stritype str2;
     } /* if */
     return(result);
   } /* filOpen */
+
+
+
+#ifdef ANSI_C
+
+void filSeek (filetype fil1, inttype file_position)
+#else
+
+void filSeek (fil1, file_position)
+filetype fil1;
+inttype file_position;
+#endif
+
+  { /* filSeek */
+    if (file_position <= 0) {
+      raise_error(RANGE_ERROR);
+    } else if (fseek(fil1, file_position - 1, SEEK_SET) != 0) {
+      raise_error(FILE_ERROR);
+    } /* if */
+  } /* filSeek */
 
 
 

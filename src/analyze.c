@@ -178,7 +178,6 @@ static void process_pragma ()
 #endif
 
   {
-    int number;
     cstritype str1;
 
   /* process_pragma */
@@ -226,6 +225,7 @@ static void process_pragma ()
         } else if (strcmp((cstritype) symbol.name, "off") == 0) {
 #ifdef WITH_COMPILATION_INFO
           if (option.compilation_info) {
+            SIZE_TYPE number;
             for (number = 1; number <= 7 + strlen((cstritype) in_file.name);
                 number++) {
               fputc(' ', stdout);

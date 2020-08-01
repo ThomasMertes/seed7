@@ -449,10 +449,10 @@ booltype on;
 
 #ifdef ANSI_C
 
-void scrSetpos (inttype lin, inttype col)
+void scrSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetpos (lin, col)
+void scrSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
@@ -465,7 +465,7 @@ inttype col;
     HANDLE hConsole;
     COORD position;
 
-  /* scrSetpos */
+  /* scrSetCursor */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       position.X = col - 1;
@@ -478,17 +478,17 @@ inttype col;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrSetpos */
+  } /* scrSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrWrite (inttype lin, inttype col, ustritype stri,
+void scrText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrWrite (lin, col, stri, length)
+void scrText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
@@ -506,7 +506,7 @@ memsizetype length;
     COORD position;
     inttype numchars;
 
-  /* scrWrite */
+  /* scrText */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       position.X = col - 1;
@@ -521,7 +521,7 @@ memsizetype length;
       /* printf("GetStdHandle(STD_OUTPUT_HANDLE) ==> %d / Error %d\n",
           hConsole, GetLastError()); */
     } /* if */
-  } /* scrWrite */
+  } /* scrText */
 
 
 
@@ -752,7 +752,7 @@ void scrShut ()
       con_standardcolour();
       scrCursor(TRUE);
       scrClear(1, 1, scrHeight(), scrWidth());
-      scrSetpos(1, 24);
+      scrSetCursor(1, 24);
       screen_initialized = FALSE;
     } /* if */
   } /* scrShut */

@@ -106,7 +106,7 @@ listtype arguments;
 #endif
 
   { /* scr_flush */
-/*  scrSetpos(current_line, current_column); */
+/*  scrSetCursor(current_line, current_column); */
     scrFlush();
     return(SYS_EMPTY_OBJECT);
   } /* scr_flush */
@@ -195,7 +195,7 @@ listtype arguments;
     isit_int(arg_3(arguments));
     current_line = take_int(arg_2(arguments));
     current_column = take_int(arg_3(arguments));
-    scrSetpos(current_line, current_column);
+    scrSetCursor(current_line, current_column);
     return(SYS_EMPTY_OBJECT);
   } /* scr_setpos */
 
@@ -273,14 +273,14 @@ listtype arguments;
       uchartype stri_buffer[2000];
 
       stri_compress(stri_buffer, stri->mem, stri->size);
-      scrWrite(current_line, current_column,
+      scrText(current_line, current_column,
         stri_buffer, stri->size);
     }
 #else
-    scrWrite(current_line, current_column,
+    scrText(current_line, current_column,
         stri->mem, stri->size);
 #endif
     current_column = current_column + stri->size;
-    scrSetpos(current_line, current_column);
+    scrSetCursor(current_line, current_column);
     return(SYS_EMPTY_OBJECT);
   } /* scr_write */

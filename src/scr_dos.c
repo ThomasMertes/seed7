@@ -408,10 +408,10 @@ booltype on;
 
 #ifdef ANSI_C
 
-void scrSetpos (inttype lin, inttype col)
+void scrSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetpos (lin, col)
+void scrSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
@@ -423,23 +423,23 @@ inttype col;
   {
     union REGS r;
 
-  /* scrSetpos */
+  /* scrSetCursor */
     r.h.ah = (unsigned char) 2; /* cursor addressing function */
     r.h.dh = (unsigned char) (lin - 1);
     r.h.dl = (unsigned char) (col - 1);
     r.h.bh = (unsigned char) 0; /* video page */
     int86(0x10, &r, &r);
-  } /* scrSetpos */
+  } /* scrSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrWrite (inttype lin, inttype col, ustritype stri,
+void scrText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrWrite (lin, col, stri, length)
+void scrText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
@@ -455,7 +455,7 @@ memsizetype length;
   {
     inttype pos;
 
-  /* scrWrite */
+  /* scrText */
     for (pos = 0; pos < length; pos++) {
 #ifdef MAP_TO_ISO
       outbuffer[pos].character = MAP[stri[pos] & 0xFF];
@@ -466,7 +466,7 @@ memsizetype length;
     } /* for */
     memcpy(&current_screen->screen[lin - 1][col - 1],
       outbuffer, 2 * length);
-  } /* scrWrite */
+  } /* scrText */
 
 
 
@@ -669,7 +669,7 @@ void scrShut ()
       standardcolour();
       scrCursor(TRUE);
       scrClear(1, 1, 25, 80);
-      scrSetpos(1, 24);
+      scrSetCursor(1, 24);
       screen_initialized = FALSE;
     } /* if */
   } /* scrShut */

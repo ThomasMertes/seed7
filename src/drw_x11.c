@@ -1397,7 +1397,7 @@ inttype height;
       result->window = XCreatePixmap(mydisplay,
           to_window(actual_window), width, height,
           DefaultDepth(mydisplay, myscreen));
-      result->backup = NULL;
+      result->backup = 0;
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
@@ -1476,7 +1476,7 @@ inttype height;
         result->window = XCreatePixmap(mydisplay,
             to_window(actual_window), width, height,
             DefaultDepth(mydisplay, myscreen));
-        result->backup = NULL;
+        result->backup = 0;
         result->is_pixmap = TRUE;
         result->width = width;
         result->height = height;
@@ -1565,7 +1565,7 @@ inttype height;
       result->window = XCreatePixmap(mydisplay,
           to_window(actual_window), width, height,
           DefaultDepth(mydisplay, myscreen));
-      result->backup = NULL;
+      result->backup = 0;
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
@@ -1600,7 +1600,7 @@ inttype height;
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,
           to_window(actual_window), width, height, 1);
-      result->backup = NULL;
+      result->backup = 0;
       result->is_pixmap = TRUE;
       result->width = width;
       result->height = height;
@@ -1984,7 +1984,6 @@ inttype blue_val;
     color_entry_type nearest_entry;
     color_entry_type *insert_place;
     color_entry_type entry;
-    XStandardColormap stdcolor;
     Colormap cmap;
     XColor col;
     int okay;
@@ -2074,6 +2073,8 @@ inttype blue_val;
 
 #ifdef OUT_OF_ORDER
     if (num_pixels > 1) {
+      XStandardColormap stdcolor;
+
       if (XGetStandardColormap(mydisplay, RootWindow(mydisplay, DefaultScreen(mydisplay)), &stdcolor, XA_RGB_BEST_MAP) == 0) {
         printf("XGetStandardColormap(... XA_RGB_BEST_MAP) not okay\n");
         if (XGetStandardColormap(mydisplay, RootWindow(mydisplay, DefaultScreen(mydisplay)), &stdcolor, XA_RGB_DEFAULT_MAP) == 0) {

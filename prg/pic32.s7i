@@ -96,6 +96,41 @@ const array string: book_pic is [](
   "  RRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 
 
+const array string: card_back_pic is [](
+  "                                ",
+  "                                ",
+  "  cccccccccccccccccccccccccccc  ",
+  "  cccccccccccccccccccccccccccc  ",
+  "  cc                        cc  ",
+  "  cc                        cc  ",
+  "  cc  GG     RRRRRR     GG  cc  ",
+  "  cc  GG    RRRRRRRR    GG  cc  ",
+  "  cc       RRR    RRR       cc  ",
+  "  cc      RRR      RRR      cc  ",
+  "  cc     RRR        RRR     cc  ",
+  "  cc    RRR          RRR    cc  ",
+  "  cc   RRR     BB     RRR   cc  ",
+  "  cc  RRR     BBBB     RRR  cc  ",
+  "  cc  RR     BBBBBB     RR  cc  ",
+  "  cc  RR    BBBBBBBB    RR  cc  ",
+  "  cc  RR    BBBBBBBB    RR  cc  ",
+  "  cc  RR     BBBBBB     RR  cc  ",
+  "  cc  RRR     BBBB     RRR  cc  ",
+  "  cc   RRR     BB     RRR   cc  ",
+  "  cc    RRR          RRR    cc  ",
+  "  cc     RRR        RRR     cc  ",
+  "  cc      RRR      RRR      cc  ",
+  "  cc       RRR    RRR       cc  ",
+  "  cc  GG    RRRRRRRR    GG  cc  ",
+  "  cc  GG     RRRRRR     GG  cc  ",
+  "  cc                        cc  ",
+  "  cc                        cc  ",
+  "  cccccccccccccccccccccccccccc  ",
+  "  cccccccccccccccccccccccccccc  ",
+  "                                ",
+  "                                ");
+
+
 const array string: checkmark_pic is [](
   "                          BBBBBB",
   "                          BBBBBB",

@@ -1622,10 +1622,10 @@ inttype len;
 
 #ifdef ANSI_C
 
-void scrSetpos (inttype lin, inttype col)
+void scrSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetpos (lin, col)
+void scrSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
@@ -1638,26 +1638,26 @@ inttype col;
     int charxpos;
     int charypos;
 
-  /* scrSetpos */
+  /* scrSetCursor */
 #ifdef OUT_OF_ORDER
-    printf("BEGIN scrSetpos(%d, %d)\n", lin, col);
+    printf("BEGIN scrSetCursor(%d, %d)\n", lin, col);
     charxpos = col - 1;
     charypos = actual_scaledfont->yDiff * (lin - 1) + actual_scaledfont->yMax;
     XDrawLine(mydisplay, mywindow, mygc, charxpos, charypos,
         charxpos, charypos + actual_scaledfont->yDiff);
-    printf("END scrSetpos(%d, %d)\n", lin, col);
+    printf("END scrSetCursor(%d, %d)\n", lin, col);
 #endif
-  } /* scrSetpos */
+  } /* scrSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrWrite (inttype lin, inttype col, ustritype stri,
+void scrText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrWrite (lin, col, stri, length)
+void scrText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
@@ -1678,12 +1678,12 @@ memsizetype length;
     charDefType *act_ch;
     polyLineType *act_polyline;
 
-  /* scrWrite */
+  /* scrText */
 #ifdef TRACE_SCRWRITE
     { char buffer[256];
       memcpy(buffer, stri, length);
       buffer[length] = '\0';
-      printf("BEGIN scrWrite(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
+      printf("BEGIN scrText(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
       fflush(stdout);
     }
 #endif
@@ -1767,11 +1767,11 @@ memsizetype length;
     { char buffer[256];
       memcpy(buffer, stri, length);
       buffer[length] = '\0';
-      printf("END scrWrite(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
+      printf("END scrText(%d, %d, \"%s\", %d)\n", lin, col, buffer, length);
       fflush(stdout);
     }
 #endif
-  } /* scrWrite */
+  } /* scrText */
 
 
 

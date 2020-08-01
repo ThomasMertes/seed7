@@ -153,6 +153,24 @@ register objecttype object;
 
 
 
+/**
+ *  When a temporary value is entered into a reference parameter
+ *  the TEMP flag must be cleared. This is necessary to avoid
+ *  destroying the value inside the function before the end of
+ *  the function is reached. Such temporary values are removed
+ *  upon function exit by par_restore. When the TEMP flag
+ *  is cleared for a temporary reference parameter the TEMP2
+ *  flag is set instead. Note that there is no other place
+ *  where the TEMP2 flag is set. This TEMP2 flag can be used
+ *  by primitive actions like hsh_cpy, hsh_create, hsh_idx
+ *  or arr_sort to avoid unnecessary copying of data values.
+ *  This must be done with care, because the calling function
+ *  cannot access the parameter after the primitive action was
+ *  executed. For the actions mentioned above the surrounding
+ *  functions are defined in seed7_05.s7i and take care of this.
+ *  When a TEMP2 parameter is used for a deeper function call
+ *  The TEMP2 flag is cleared to avoid unwanted effects.
+ */
 #ifdef ANSI_C
 
 static INLINE void par_init (loclisttype form_param_list,

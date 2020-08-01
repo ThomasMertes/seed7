@@ -25,25 +25,21 @@
 $ include "seed7_05.s7i";
 
 
-const proc: move_tower (in integer: number, in string: source, in string: destination, in string: intermediate) is func
+const proc: hanoi (in integer: disk, in string: source, in string: dest, in string: via) is func
   begin
-    if number > 0 then
-      move_tower(number - 1, source, intermediate, destination);
-      write("  Move disk "); write(number);
-      write(" from "); write(source);
-      write(" to "); write(destination);
-      writeln;
-      move_tower(number - 1, intermediate, destination, source);
+    if disk > 0 then
+      hanoi(pred(disk), source, via, dest);
+      writeln("Move disk " <& disk <& " from " <& source <& " to " <& dest);
+      hanoi(pred(disk), via, dest, source);
     end if;
   end func;
 
 
-const proc: hanoi (in integer: number) is func
+const proc: hanoi (in integer: height) is func
   begin
-    write("To move a tower of height ");
-    write(number);
-    writeln(" from left to right:");
-    move_tower(number, "left", "right", "middle");
+    writeln("To move a tower of height " <& height <& " from left to right:");
+    writeln;
+    hanoi(height, "left", "right", "middle");
     writeln;
   end func;
 

@@ -52,7 +52,7 @@ const func boolean: keypressed (ref SCREEN_KEYBD_FILE param) is                 
 
 var SCREEN_KEYBD_FILE: SCREEN_KEYBOARD is SCREEN_KEYBD_FILE.value;
 
-const func string: getk (inout SCREEN_KEYBD_FILE: keybd) is func
+const func string: getk (in SCREEN_KEYBD_FILE: keybd) is func
   result
     var string: result is "";
   begin
@@ -95,7 +95,7 @@ const func boolean: keypressed (ref GRAPH_KEYBD_FILE param) is                  
 
 var GRAPH_KEYBD_FILE: GRAPH_KEYBOARD is GRAPH_KEYBD_FILE.value;
 
-const func string: getk (inout GRAPH_KEYBD_FILE: keybd) is func
+const func string: getk (in GRAPH_KEYBD_FILE: keybd) is func
   result
     var string: result is "";
   begin

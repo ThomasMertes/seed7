@@ -492,41 +492,6 @@ const array string: size_6_14 is [](
   "                                ");
 
 
-const array string: back_pic is [](
-  "                                ",
-  "                                ",
-  "  cccccccccccccccccccccccccccc  ",
-  "  cccccccccccccccccccccccccccc  ",
-  "  cc                        cc  ",
-  "  cc                        cc  ",
-  "  cc  GG     RRRRRR     GG  cc  ",
-  "  cc  GG    RRRRRRRR    GG  cc  ",
-  "  cc       RRR    RRR       cc  ",
-  "  cc      RRR      RRR      cc  ",
-  "  cc     RRR        RRR     cc  ",
-  "  cc    RRR          RRR    cc  ",
-  "  cc   RRR     BB     RRR   cc  ",
-  "  cc  RRR     BBBB     RRR  cc  ",
-  "  cc  RR     BBBBBB     RR  cc  ",
-  "  cc  RR    BBBBBBBB    RR  cc  ",
-  "  cc  RR    BBBBBBBB    RR  cc  ",
-  "  cc  RR     BBBBBB     RR  cc  ",
-  "  cc  RRR     BBBB     RRR  cc  ",
-  "  cc   RRR     BB     RRR   cc  ",
-  "  cc    RRR          RRR    cc  ",
-  "  cc     RRR        RRR     cc  ",
-  "  cc      RRR      RRR      cc  ",
-  "  cc       RRR    RRR       cc  ",
-  "  cc  GG    RRRRRRRR    GG  cc  ",
-  "  cc  GG     RRRRRR     GG  cc  ",
-  "  cc                        cc  ",
-  "  cc                        cc  ",
-  "  cccccccccccccccccccccccccccc  ",
-  "  cccccccccccccccccccccccccccc  ",
-  "                                ",
-  "                                ");
-
-
 const array string: panic_monster1_pic is [](
   "                ",
   "                ",
@@ -1214,7 +1179,7 @@ const func cardType: genCard (in array string: pattern) is func
   end func;
 
 
-var cardType: back     is genCard(back_pic);
+var cardType: back     is genCard(card_back_pic);
 
 var array cardType: cards is [](
     genCard(fairy_pic),

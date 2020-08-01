@@ -506,10 +506,10 @@ booltype on;
 
 #ifdef ANSI_C
 
-void scrSetpos (inttype lin, inttype col)
+void scrSetCursor (inttype lin, inttype col)
 #else
 
-void scrSetpos (lin, col)
+void scrSetCursor (lin, col)
 inttype lin;
 inttype col;
 #endif
@@ -518,7 +518,7 @@ inttype col;
   /* When no system cursor exists this procedure can be replaced by */
   /* a dummy procedure.                                             */
 
-  { /* scrSetpos */
+  { /* scrSetCursor */
     if (cursor_line != lin || cursor_column != col) {
       cursor_position_okay = FALSE;
       cursor_line = lin;
@@ -526,17 +526,17 @@ inttype col;
     } /* if */
 /*  putgoto(cursor_address, col - 1, lin - 1); cursor motion */
     changes = TRUE;
-  } /* scrSetpos */
+  } /* scrSetCursor */
 
 
 
 #ifdef ANSI_C
 
-void scrWrite (inttype lin, inttype col, ustritype stri,
+void scrText (inttype lin, inttype col, ustritype stri,
 memsizetype length)
 #else
 
-void scrWrite (lin, col, stri, length)
+void scrText (lin, col, stri, length)
 inttype lin;
 inttype col;
 ustritype stri;
@@ -556,7 +556,7 @@ memsizetype length;
     unsigned char *new_line;
     unsigned char *new_attr;
 
-  /* scrWrite */
+  /* scrText */
     if (lin <= lines) {
       new_line = &whole_screen[lin - 1][col - 1];
       new_attr = &attributes[lin - 1][col - 1];
@@ -647,7 +647,7 @@ memsizetype length;
       } /* if */
       changes = TRUE;
     } /* if */
-  } /* scrWrite */
+  } /* scrText */
 
 
 

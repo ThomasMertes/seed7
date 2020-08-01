@@ -35,6 +35,7 @@
 #include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
+#include "traceutl.h"
 #include "listutl.h"
 #include "exec.h"
 #include "runerr.h"
@@ -109,7 +110,6 @@ listtype arguments;
     listtype list2_start;
     errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
-
 
   /* rfl_cat */
     arg1 = arg_1(arguments);

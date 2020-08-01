@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  arr_rtl.h     Primitive actions for the array type.             */
-/*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
+/*  scr_rtl.h     Primitive actions for screen output.              */
+/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,30 +23,24 @@
 /*  Boston, MA 02111-1307 USA                                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/arr_rtl.h                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005, 2006  Thomas Mertes      */
-/*  Content: Primitive actions for the array type.                  */
+/*  File: seed7/src/scr_rtl.h                                       */
+/*  Changes: 2007  Thomas Mertes                                    */
+/*  Content: Primitive actions for screen output.                   */
 /*                                                                  */
 /********************************************************************/
 
 #ifdef ANSI_C
 
-void arrAppend (rtlArraytype *, rtlArraytype);
-rtlArraytype arrArrlit (rtlArraytype);
-rtlArraytype arrArrlit2 (inttype, rtlArraytype);
-rtlArraytype arrBaselit (rtlObjecttype);
-rtlArraytype arrBaselit2 (inttype, rtlObjecttype);
-rtlArraytype arrExtend (rtlArraytype, rtlObjecttype);
-rtlArraytype arrGen (rtlObjecttype, rtlObjecttype);
+void scrHScroll (inttype, inttype, inttype, inttype, inttype);
+void scrSetpos (inttype, inttype);
+void scrVScroll (inttype, inttype, inttype, inttype, inttype);
+void scrWrite (stritype);
 
 #else
 
-void arrAppend ();
-rtlArraytype arrArrlit ();
-rtlArraytype arrArrlit2 ();
-rtlArraytype arrBaselit ();
-rtlArraytype arrBaselit2 ();
-rtlArraytype arrExtend ();
-rtlArraytype arrGen ();
+void scrHScroll ();
+void scrSetpos ();
+void scrVScroll ();
+void scrWrite ();
 
 #endif

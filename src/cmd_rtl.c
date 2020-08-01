@@ -44,6 +44,7 @@
 #include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "str_rtl.h"
 #include "rtl_err.h"
 #include "dir_drv.h"
 
