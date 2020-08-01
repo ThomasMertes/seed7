@@ -1992,6 +1992,24 @@ const proc: saveGame is func
   end func;
 
 
+const func monsterType: searchMonster (in integer: xPos, in integer: yPos) is func
+  result
+    var monsterType: result is NO_MONSTER;
+  local
+    var monsterType: monster_ident is NO_MONSTER;
+  begin
+    for monster_ident range MIN_MONSTER to MAX_MONSTER do
+      if monster[monster_ident].room_num = player.room and
+          xPos >= monster[monster_ident].xPos and
+          xPos < monster[monster_ident].xPos + PIXMAP_SIZE and
+          yPos >= monster[monster_ident].yPos and
+          yPos < monster[monster_ident].yPos + PIXMAP_SIZE then
+        result := monster_ident;
+      end if;
+    end for;
+  end func;
+
+
 const func itemType: selectItem (in PRIMITIVE_WINDOW: symbol, in string: name, in integer: invSize) is func
   result
     var itemType: result is NO_ITEM;
@@ -2282,37 +2300,27 @@ const proc: useItem is func
   end func;
 
 
-const func array string: getMonsterMessage (in integer: xPos, in integer: yPos) is func
+const func array string: getMonsterMessage (in monsterType: monster_ident) is func
   result
     var array string: message is 0 times "";
-  local
-    var monsterType: monster_ident is NO_MONSTER;
   begin
-    for monster_ident range MIN_MONSTER to MAX_MONSTER do
-      if monster[monster_ident].room_num = player.room and
-          xPos >= monster[monster_ident].xPos and
-          xPos < monster[monster_ident].xPos + PIXMAP_SIZE and
-          yPos >= monster[monster_ident].yPos and
-          yPos < monster[monster_ident].yPos + PIXMAP_SIZE then
-        case monster_ident of
-          when {ANGRY_DEMON1, ANGRY_DEMON2, UGLY_OGRE1, UGLY_OGRE2,
-              BIG_SPIDER, SMALL_SPIDER, SNAKE, BAT, VAMPIRE}:
-			if monster[monster_ident].living then
-              message := [] ("look " & monster[monster_ident].name & ":",
-                             "The " & monster[monster_ident].name & " looks Mean!");            
-			else
-              message := [] ("look " & monster[monster_ident].name & ":",
-                             "The " & monster[monster_ident].name & " looks Dead!");    
-			end if;
-          when {FAIRY1, FAIRY2}:
-            message := [] ("look " & monster[monster_ident].name & ":",
-                           "The " & monster[monster_ident].name & " looks pretty but unhappy.");
-          when {DOOR1, DOOR2, DOOR3, DOOR4}:
-            message := [] ("look door:",
-                           "It looks very Strong.");
-        end case;
-      end if;
-    end for;
+    case monster_ident of
+      when {ANGRY_DEMON1, ANGRY_DEMON2, UGLY_OGRE1, UGLY_OGRE2,
+          BIG_SPIDER, SMALL_SPIDER, SNAKE, BAT, VAMPIRE}:
+        if monster[monster_ident].living then
+          message := [] ("look " & monster[monster_ident].name & ":",
+                         "The " & monster[monster_ident].name & " looks Mean!");            
+        else
+          message := [] ("look " & monster[monster_ident].name & ":",
+                         "The " & monster[monster_ident].name & " looks Dead!");
+        end if;
+      when {FAIRY1, FAIRY2}:
+        message := [] ("look " & monster[monster_ident].name & ":",
+                       "The " & monster[monster_ident].name & " looks pretty but unhappy.");
+      when {DOOR1, DOOR2, DOOR3, DOOR4}:
+        message := [] ("look door:",
+                       "It looks very Strong.");
+    end case;
  end func;
 
 
@@ -2384,6 +2392,7 @@ const proc: lookItemInRoom is func
     var integer: line is 0;
     var integer: column is 0;
     var itemType: item_ident is NO_ITEM;
+    var monsterType: monster_ident is NO_MONSTER;
   begin
     xPos := getxpos(KEYBOARD);
     yPos := getypos(KEYBOARD);
@@ -2553,24 +2562,24 @@ const proc: lookItemInRoom is func
             message &:= getItemMessage(item_ident);
           end if;
         when {' '}:
-          message := getMonsterMessage(xPos, yPos);
-          if length(message) = 0 then
-            if xPos >= player.xPos and
-                xPos < player.xPos + PIXMAP_SIZE and
-                yPos >= player.yPos and
-                yPos < player.yPos + PIXMAP_SIZE then
-              if player.room = SORCERERS_QUARTERS and
-                  room[SORCERERS_QUARTERS].data[10][20] = '#' then
-                message := [] ("look player:",
-                               "You see an ugly face in the mirror.");
-              else
-                message := [] ("look player:",
-                               "This is only possible with a mirror.");
-              end if;
+          monster_ident := searchMonster(xPos, yPos);
+          if monster_ident <> NO_MONSTER then
+            message := getMonsterMessage(monster_ident);
+          elsif xPos >= player.xPos and
+              xPos < player.xPos + PIXMAP_SIZE and
+              yPos >= player.yPos and
+              yPos < player.yPos + PIXMAP_SIZE then
+            if player.room = SORCERERS_QUARTERS and
+                room[SORCERERS_QUARTERS].data[10][20] = '#' then
+              message := [] ("look player:",
+                             "You see an ugly face in the mirror.");
             else
-              message := [] ("look floor:",
-                             "The FLOORS are made of Gray Stone.");
+              message := [] ("look player:",
+                             "This is only possible with a mirror.");
             end if;
+          else
+            message := [] ("look floor:",
+                           "The FLOORS are made of Gray Stone.");
           end if;
       end case;
     end if;
@@ -3237,7 +3246,7 @@ const proc: takeItem is func
             moveTo(pred(column) * PIXMAP_SIZE, pred(line) * PIXMAP_SIZE);
           end if;
         when {' '}:
-          monster_ident := hitMonster(xPos, yPos);
+          monster_ident := searchMonster(xPos, yPos);
           if monster_ident <> NO_MONSTER then
             message := [] ("take " & monster[monster_ident].name & ":",
                            "I don't think that would be very safe!");

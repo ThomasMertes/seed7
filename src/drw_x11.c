@@ -1326,7 +1326,9 @@ inttype height;
     printf("get(%lu, %ld, %ld, %ld, %ld)\n", actual_window, left, upper, width, height);
 #endif
     result = (x11_wintype) malloc(sizeof(struct x11_winstruct));
-    if (result != NULL) {
+    if (result == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
       memset(result, 0, sizeof(struct x11_winstruct));
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,
@@ -1492,7 +1494,9 @@ inttype height;
     printf("drwNewPixmap(%ld, %ld)\n", width, height);
 #endif
     result = (x11_wintype) malloc(sizeof(struct x11_winstruct));
-    if (result != NULL) {
+    if (result == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
       memset(result, 0, sizeof(struct x11_winstruct));
       result->usage_count = 1;
       result->window = XCreatePixmap(mydisplay,

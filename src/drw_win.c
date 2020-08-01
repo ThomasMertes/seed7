@@ -1103,18 +1103,26 @@ inttype height;
 
   /* drwGet */
     result = (win_wintype) malloc(sizeof(struct win_winstruct));
-    if (result != NULL) {
+    if (result == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
       memset(result, 0, sizeof(struct win_winstruct));
       result->usage_count = 1;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
       result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
-      SelectObject(result->hdc, result->hBitmap);
-      result->is_pixmap = TRUE;
-      result->width = width;
-      result->height = height;
-      result->next = NULL;
-      BitBlt(result->hdc, 0, 0, width, height,
-          to_backup_hdc(actual_window), left, upper, SRCCOPY);
+      if (result->hBitmap == NULL) {
+        free(result);
+        result = NULL;
+        raise_error(MEMORY_ERROR);
+      } else {
+        SelectObject(result->hdc, result->hBitmap);
+        result->is_pixmap = TRUE;
+        result->width = width;
+        result->height = height;
+        result->next = NULL;
+        BitBlt(result->hdc, 0, 0, width, height,
+            to_backup_hdc(actual_window), left, upper, SRCCOPY);
+      } /* if */
     } /* if */
     return((wintype) result);
   } /* drwGet */
@@ -1233,7 +1241,9 @@ inttype height;
 
   /* drwNewPixmap */
     result = (win_wintype) malloc(sizeof(struct win_winstruct));
-    if (result != NULL) {
+    if (result == NULL) {
+      raise_error(MEMORY_ERROR);
+    } else {
       memset(result, 0, sizeof(struct win_winstruct));
       result->usage_count = 1;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
@@ -1643,21 +1653,31 @@ inttype bkcol;
   { /* drwText */
 #ifdef WIDE_CHAR_STRINGS
     {
-      cstritype cstri;
+      WORD *stri_buffer;
+      WORD *wstri;
+      strelemtype *strelem;
+      memsizetype len;
 
-      cstri = cp_to_cstri(stri);
-      if (cstri != NULL) {
+      stri_buffer = (WORD *) malloc(sizeof(WORD) * stri->size);
+      if (stri_buffer != NULL) {
+        wstri = stri_buffer;
+        strelem = stri->mem;
+        len = stri->size;
+        for (; len > 0; wstri++, strelem++, len--) {
+          *wstri = *strelem;
+        } /* while */
+
         SetTextColor(to_hdc(actual_window), (COLORREF) col);
         SetBkColor(to_hdc(actual_window), (COLORREF) bkcol);
         SetTextAlign(to_hdc(actual_window), TA_BASELINE | TA_LEFT);
-        TextOut(to_hdc(actual_window), x, y, cstri, strlen(cstri));
+        TextOutW(to_hdc(actual_window), x, y, stri_buffer, stri->size);
         if (to_backup_hdc(actual_window) != 0) {
           SetTextColor(to_backup_hdc(actual_window), (COLORREF) col);
           SetBkColor(to_backup_hdc(actual_window), (COLORREF) bkcol);
           SetTextAlign(to_backup_hdc(actual_window), TA_BASELINE | TA_LEFT);
-          TextOut(to_backup_hdc(actual_window), x, y, cstri, strlen(cstri));
+          TextOutW(to_backup_hdc(actual_window), x, y, stri_buffer, stri->size);
         } /* if */
-        free_cstri(cstri, stri);
+        free(stri_buffer);
       } /* if */
     }
 #else

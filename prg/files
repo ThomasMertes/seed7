@@ -35,6 +35,7 @@ ms.sd7       Mine sweeper game
 nicoma.sd7   Puzzle from arithmetica of Nicomachus (A.D. 90)!  
 pac.sd7      Pacman game                                       
 panic.sd7    Catch aliens in traps game                        
+planets.sd7  Display information about the planets             
 prime.sd7    Write a list of prime numbers                     
 rand.sd7     Floating point random numbers test                
 rever.sd7    Reversi game                                      
