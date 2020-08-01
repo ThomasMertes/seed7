@@ -109,7 +109,7 @@ const proc: main is func
       writeln("   f   Use archive file provided as argument");
       writeln;
       writeln("Example of a tar7 usage:");
-      writeln("  ./hi tar7 -tvzf ../../seed7_05_20100221.tgz");
+      writeln("  ./s7 tar7 -tvzf ../../seed7_05_20100221.tgz");
       writeln;
     end if;
   end func;

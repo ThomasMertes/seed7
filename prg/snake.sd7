@@ -71,7 +71,7 @@ const type: snake_object is sub screen_object struct
 var snake_object: SNAKE is snake_object.value;
 SNAKE.picture := 'S';
 
-const proc: move (SNAKE, in direction_type param) is DYNAMIC;
+const proc: move (SNAKE, in direction_type: direction) is DYNAMIC;
 
 
 var text: scr is STD_NULL;

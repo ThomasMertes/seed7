@@ -2157,7 +2157,7 @@ const proc: check_file is func
       end block;
     end if;
 
-    aFile := popen("./hi", "r");
+    aFile := popen("./s7", "r");
     if aFile = STD_NULL then
       writeln(" ***** Failed to popen pipe");
     else
@@ -2213,7 +2213,7 @@ const proc: check_file is func
       close(aFile);
     end if;
 
-    aFile := popen8("./hi", "r");
+    aFile := popen8("./s7", "r");
     if aFile = STD_NULL then
       writeln(" ***** Failed to popen pipe");
     else

@@ -23,9 +23,9 @@ WHAT IS SEED7?
 
 WHAT IS CONTAINED IN THIS PACKAGE?
 
-    The Seed7 package contains the hi Interpreter in source besides
-  documentation files, include files and program examples. The
-  following subdirectorys exist:
+    The Seed7 package contains the Seed7 interpreter in source
+  besides documentation files, include files and program
+  examples. The following subdirectorys exist:
 
     src    The source of the interpreter
     prg    Program examples
@@ -55,7 +55,7 @@ HOW TO COMPILE THE INTERPRETER?
     make
 
   After the compilation the interpreter is linked to the file
-  'seed7/prg/hi'. The Seed7 compiler (s7c) is compiled with:
+  'seed7/prg/s7'. The Seed7 compiler (s7c) is compiled with:
 
     make s7c
 
@@ -76,11 +76,11 @@ HOW TO EXECUTE A PROGRAM?
     After compiling the interpreter you can make the first test.
   Switch to the 'prg' directory and type:
 
-    ./hi hello
+    ./s7 hello
 
   This executes the hello world program which is in the
   'hello.sd7' file. Every file with the '.sd7' extension can be
-  executed with the 'hi' interpreter.
+  executed with the 's7' interpreter.
 
   A list of the program files with a short description can be
   found in the file: prg/files.

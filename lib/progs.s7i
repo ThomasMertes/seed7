@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  progs.s7i     Program handling support library                  *)
-(*  Copyright (C) 1991 - 1994, 2004, 2005  Thomas Mertes            *)
+(*  Copyright (C) 1991 - 1994, 2004 - 2013  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -219,37 +219,23 @@ const func integer: line (ref reference: aReference)                    is actio
 const func reference: alloc (in reference param)                        is action "REF_ALLOC";
 const func integer: obj_number (ref reference param)                    is action "REF_NUM";
 
-const func integer: getValue (ref reference param, attr integer)        is action "INT_VALUE";
-const func char: getValue (ref reference param, attr char)              is action "CHR_VALUE";
-const func string: getValue (ref reference param, attr string)          is action "STR_VALUE";
-const func bstring: getValue (ref reference param, attr bstring)        is action "BST_VALUE";
-const func bitset: getValue (ref reference param, attr bitset)          is action "SET_VALUE";
-const func pollData: getValue (ref reference param, attr pollData)      is action "POL_VALUE";
-const func program: getValue (ref reference param, attr program)        is action "PRG_VALUE";
-const func ACTION: getValue (ref reference param, attr ACTION)          is action "ACT_VALUE";
-const func clib_file: getValue (ref reference param, attr clib_file)    is action "FIL_VALUE";
-const func ref_list: getValue (ref reference param, attr ref_list)      is action "RFL_VALUE";
-const func bigInteger: getValue (ref reference param, attr bigInteger)  is action "BIG_VALUE";
-const func float: getValue (ref reference param, attr float)            is action "FLT_VALUE";
-const func reference: getValue (ref reference param, attr reference)    is action "REF_VALUE";
-const func PRIMITIVE_WINDOW: getValue (ref reference param,
-                                       attr PRIMITIVE_WINDOW)           is action "DRW_VALUE";
-# const func type: getValue (in reference param, attr type)               is action "TYP_VALUE";
-(*
-const func integer: integer (ref reference param)                       is action "INT_VALUE";
-const func char: char (ref reference param)                             is action "CHR_VALUE";
-const func string: string (ref reference param)                         is action "STR_VALUE";
-const func bitset: bitset (ref reference param)                         is action "SET_VALUE";
-const func program: program (ref reference param)                       is action "PRG_VALUE";
-const func ACTION: ACTION (ref reference param)                         is action "ACT_VALUE";
-const func clib_file: clib_file (ref reference param)                   is action "FIL_VALUE";
-const func ref_list: ref_list (ref reference param)                     is action "RFL_VALUE";
-const func bigInteger: bigInteger (ref reference param)                 is action "BIG_VALUE";
-const func float: float (ref reference param)                           is action "FLT_VALUE";
-const func reference: reference (ref reference param)                   is action "REF_VALUE";
-const func type: type (ref reference: aRef)
-  return getValue(aRef, type);
-*)
+const func integer: getValue (ref reference: aReference, attr integer)        is action "INT_VALUE";
+const func char: getValue (ref reference: aReference, attr char)              is action "CHR_VALUE";
+const func string: getValue (ref reference: aReference, attr string)          is action "STR_VALUE";
+const func bstring: getValue (ref reference: aReference, attr bstring)        is action "BST_VALUE";
+const func bitset: getValue (ref reference: aReference, attr bitset)          is action "SET_VALUE";
+const func pollData: getValue (ref reference: aReference, attr pollData)      is action "POL_VALUE";
+const func program: getValue (ref reference: aReference, attr program)        is action "PRG_VALUE";
+const func ACTION: getValue (ref reference: aReference, attr ACTION)          is action "ACT_VALUE";
+const func clib_file: getValue (ref reference: aReference, attr clib_file)    is action "FIL_VALUE";
+const func ref_list: getValue (ref reference: aReference, attr ref_list)      is action "RFL_VALUE";
+const func bigInteger: getValue (ref reference: aReference, attr bigInteger)  is action "BIG_VALUE";
+const func float: getValue (ref reference: aReference, attr float)            is action "FLT_VALUE";
+const func reference: getValue (ref reference: aReference, attr reference)    is action "REF_VALUE";
+const func PRIMITIVE_WINDOW: getValue (ref reference: aReference,
+                                       attr PRIMITIVE_WINDOW)                 is action "DRW_VALUE";
+# const func type: getValue (in reference: aReference, attr type)               is action "TYP_VALUE";
+
 const proc: setValue(inout reference param, in ref_list param)          is action "RFL_SETVALUE";
 
 const func integer: type_number (ref type param)                        is action "TYP_NUM";

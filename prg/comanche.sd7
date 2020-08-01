@@ -122,7 +122,7 @@ const func string: callCgi (in string: filePath, in string: queryParams,
     # writeln(cgiInput, "*");
     close(cgiInput);
     if endsWith(cgiPath, ".sd7") then
-      cgiOutput := popen("./hi -q " <& cgiPath & " < " & tempName, "r");
+      cgiOutput := popen("./s7 -q " <& cgiPath & " < " & tempName, "r");
     else
       cgiOutput := popen(cgiPath & " < " & tempName, "r");
     end if;

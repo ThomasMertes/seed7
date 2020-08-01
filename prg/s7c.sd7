@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2012  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2013  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -50,6 +50,7 @@ const boolean: CHECK_FLOAT_DIV_BY_ZERO   is boolean parse configValue("CHECK_FLO
 const boolean: LIMITED_CSTRI_LITERAL_LEN is boolean parse configValue("LIMITED_CSTRI_LITERAL_LEN");
 const boolean: CC_SOURCE_UTF8            is boolean parse configValue("CC_SOURCE_UTF8");
 const boolean: USE_WMAIN                 is boolean parse configValue("USE_WMAIN");
+const boolean: USE_WINMAIN               is boolean parse configValue("USE_WINMAIN");
 const boolean: FLOATTYPE_DOUBLE          is boolean parse configValue("FLOATTYPE_DOUBLE");
 const integer: INTTYPE_SIZE              is integer parse configValue("INTTYPE_SIZE");
 const integer: FLOATTYPE_SIZE            is integer parse configValue("FLOATTYPE_SIZE");
@@ -19936,6 +19937,8 @@ const proc: process_main_declaration (in reference: current_object,
     c_expr.currentLine := line(current_object);
     if USE_WMAIN then
       main_prolog := "int wmain (int argc, wchar_t **argv)\n";
+    elsif USE_WINMAIN then
+      main_prolog := "int WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)\n";
     else
       main_prolog := "int main (int argc, char **argv)\n";
     end if;
@@ -19946,13 +19949,24 @@ const proc: process_main_declaration (in reference: current_object,
     main_prolog &:= "max_catch_stack = 128;\n";
     main_prolog &:= "catch_stack = (catch_type *)(malloc(max_catch_stack * sizeof(catch_type)));\n";
     main_prolog &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
-    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);\n";
+    if USE_WINMAIN then
+      main_prolog &:= "arg_v = getArgv(0, NULL, &arg_0, &programName, &programPath);\n";
+    else
+      main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);\n";
+    end if;
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
     main_prolog &:= "activate_signal_handlers();\n";
     main_prolog &:= "init_globals();\n";
     main_prolog &:= "{\n";
 
+    if USE_WINMAIN then
+      c_expr.expr &:= "typedef struct {\n";
+      c_expr.expr &:= "    int dummy;\n";
+      c_expr.expr &:= "  } HINSTANCE__;\n";
+      c_expr.expr &:= "typedef HINSTANCE__* HINSTANCE;\n";
+      c_expr.expr &:= "\n";
+    end if;
     AppendWithDiagnostic(main_prolog, c_expr);
     c_expr.expr &:= c_local_vars.temp_decls;
     AppendWithDiagnostic(c_func_body.temp_decls, c_expr);
@@ -24763,7 +24777,7 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 2.1  Copyright (c) 1990-2012 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 2.1  Copyright (c) 1990-2013 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

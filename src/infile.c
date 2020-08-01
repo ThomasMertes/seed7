@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  hi   Interpreter for Seed7 programs.                            */
+/*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
@@ -58,7 +58,7 @@
 #define SIZE_IN_BUFFER 32768
 
 
-extern stritype programPath; /* defined in hi.c or in the executable of a program */
+extern stritype programPath; /* defined in s7.c or in the executable of a program */
 static infiltype file_pointer = NULL;
 static filenumtype file_counter = 0;
 

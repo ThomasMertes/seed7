@@ -85,12 +85,12 @@ const proc: clear (inout text: aText, in integer: upper, in integer: left,
 const proc: clear (inout text: aText) is DYNAMIC;
 
 
-const proc: v_scroll (inout text param, in integer param) is DYNAMIC;
-const proc: v_scroll (inout text param, in integer param, in integer param,
-    in integer param, in integer param, in integer param) is DYNAMIC;
-const proc: h_scroll (in text param, in integer param) is DYNAMIC;
-const proc: h_scroll (in text param, in integer param, in integer param,
-    in integer param, in integer param, in integer param) is DYNAMIC;
+const proc: v_scroll (inout text: aText, in integer: count) is DYNAMIC;
+const proc: v_scroll (inout text: aText, in integer: upper, in integer: left,
+    in integer: lower, in integer: right, in integer: count) is DYNAMIC;
+const proc: h_scroll (inout text: aText, in integer: count) is DYNAMIC;
+const proc: h_scroll (inout text: aText, in integer: upper, in integer: left,
+    in integer: lower, in integer: right, in integer: count) is DYNAMIC;
 
 
 (**

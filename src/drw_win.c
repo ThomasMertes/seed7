@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_win.c     Graphic access using the windows capabilities.    */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_win.c                                       */
-/*  Changes: 2005 - 2007  Thomas Mertes                             */
+/*  Changes: 2005 - 2007, 2013  Thomas Mertes                       */
 /*  Content: Graphic access using the windows capabilities.         */
 /*                                                                  */
 /********************************************************************/
@@ -107,6 +107,8 @@ chartype map_1252_to_unicode[] = {
 /* 136 */ 0x02C6, 0x2030, 0x0160, 0x2039, 0x0152,    '?', 0x017D,    '?',
 /* 144 */    '?', 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
 /* 152 */ 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153,    '?', 0x017E, 0x0178};
+
+static HWND (WINAPI *pGetConsoleWindow)(void) = NULL;
 
 
 
@@ -1721,6 +1723,7 @@ static void dra_init ()
 
   {
     WNDCLASSEX wcex = {0};
+    HMODULE hntdll = 0;
 
   /* dra_init */
     wcex.cbSize        = sizeof(WNDCLASSEX);
@@ -1734,8 +1737,34 @@ static void dra_init ()
     wcex.lpszClassName = windowClass;
     wcex.hIconSm       = NULL;
     RegisterClassEx(&wcex);
+    hntdll = LoadLibraryA("kernel32.dll");
+    if (hntdll != 0) {
+      pGetConsoleWindow = (void *) GetProcAddress(hntdll, "GetConsoleWindow");
+    } /* if */
     init_called = 1;
   } /* dra_init */
+
+
+
+#ifdef ANSI_C
+
+static booltype private_console (void)
+#else
+
+static booltype private_console ()
+#endif
+
+  {
+    CONSOLE_SCREEN_BUFFER_INFO conBufInfo;
+
+  /* private_console */
+    if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &conBufInfo)) {
+      return FALSE;
+    } else {
+      /* When the cursor position is (0,0) the program has a private console */
+      return conBufInfo.dwCursorPosition.X == 0 && conBufInfo.dwCursorPosition.Y == 0;
+    } /* if */
+  } /* private_console */
 
 
 
@@ -1775,6 +1804,14 @@ stritype window_name;
       if (win_name == NULL) {
         raise_error(MEMORY_ERROR);
       } else {
+        if (private_console()) {
+          /* printf("private_session\n"); */
+          if (pGetConsoleWindow != NULL) {
+            ShowWindow(pGetConsoleWindow(), SW_HIDE);
+          } else {
+            FreeConsole();
+          } /* if */
+        } /* if */
         if (ALLOC_RECORD(result, win_winrecord, count.win)) {
           memset(result, 0, sizeof(struct win_winstruct));
           result->usage_count = 1;

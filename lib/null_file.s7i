@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  null_file.s7i  Base implementation type for all files           *)
-(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -53,8 +53,8 @@ const type: null_file is new struct
 
 type_implements_interface(null_file, file);
 
-const func boolean: (in null_file param) = (in null_file param)   is action "ENU_EQ";
-const func boolean: (in null_file param) <> (in null_file param)  is action "ENU_NE";
+const func boolean: (in null_file: aFile1) = (in null_file: aFile2)   is action "ENU_EQ";
+const func boolean: (in null_file: aFile1) <> (in null_file: aFile2)  is action "ENU_NE";
 
 
 (**

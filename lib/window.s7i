@@ -261,7 +261,7 @@ const proc: v_scroll (inout window_file: window_fil,
   end func;
 
 
-const proc: h_scroll (ref window_file: window_fil, in integer: count) is func
+const proc: h_scroll (inout window_file: window_fil, in integer: count) is func
   begin
     h_scroll(window_fil.out_file, window_fil.upper_border,
         window_fil.left_border,
@@ -270,7 +270,7 @@ const proc: h_scroll (ref window_file: window_fil, in integer: count) is func
   end func;
 
 
-const proc: h_scroll (ref window_file: window_fil,
+const proc: h_scroll (inout window_file: window_fil,
     in integer: upper, in integer: left, in integer: lower, in integer: right, in integer: count) is func
   begin
     h_scroll(window_fil.out_file,

@@ -486,11 +486,11 @@ CONTENTS
   If you write this program in a file called hello.sd7
   and execute the command
 
-    hi hello
+    s7 hello
 
   The Seed7 interpreter writes something like
 
-    HI INTERPRETER Version 4.5.9610  Copyright (c) 1990-2012 Thomas Mertes
+    SEED7 INTERPRETER Version 5.0.4  Copyright (c) 1990-2013 Thomas Mertes
     hello world
 
   You get information about the Seed7 interpreter and
@@ -501,7 +501,7 @@ CONTENTS
   The the option -q can be used to suppress the line
   with information about the Seed7 interpreter:
 
-    hi -q hello
+    s7 -q hello
 
 
 2.2 Local declarations and expressions
@@ -2413,6 +2413,31 @@ CONTENTS
                     Infinity digits A => "Infinity",
                     -Infinity digits A => "-Infinity",
                     NaN digits A => "NaN" )
+      sci       Conversion to a string in scientific notation
+                  ( Type of right operand: integer,
+                    Type of result: string,
+                    0.012345 sci 4 => "1.2345e-2",
+                    1.2468 sci 2 => "1.25e+0",
+                    3.1415 sci 0 => "3e+0",
+                    0.125 sci 1 => "1.2e-1",
+                    0.375 sci 1 => "3.8e-1",
+                    Infinity sci 5 => "Infinity",
+                    -Infinity sci 6 => "-Infinity",
+                    NaN sci 7 => "NaN",
+                    -0.004 sci 2 => "-4.00e-3" )
+      exp       Set the number of exponent digits in a scientific float notation.
+                  ( Type of left operand: string,
+                    Type of right operand: integer,
+                    Type of result: string,
+                    0.012345 sci 4 exp 2 => "1.2345e-02",
+                    1.2468e15 sci 2 exp 1 => "1.25e+15",
+                    3.1415 sci 0 exp 3 => "3e+000",
+                    0.125 sci 1 exp 2 => "1.2e-01",
+                    0.375 sci 1 exp 2 => "3.8e-01",
+                    Infinity sci 5 exp 2 => "Infinity",
+                    -Infinity sci 6 exp 2 => "-Infinity",
+                    NaN sci 7 exp 2 => "NaN",
+                    -0.004 sci 2 exp 2 => "-4.00e-03" )
       float parse A   Conversion of string to float
                   ( Type of argument A: string )
     Relations:
@@ -5317,7 +5342,7 @@ CONTENTS
         stri := str(aValue) rpad leng;
       end func;
 
-  For 'float' values exists an additional way to convert them to
+  For 'float' values exist additional ways to convert them to
   strings. The 'digits' operator allows the specification of a
   precision. For example the statements
 
@@ -5338,6 +5363,39 @@ CONTENTS
 
       3.14
      99.90
+
+  Scientific notation for 'float' is supported with the
+  conversion operator 'sci'. The statements
+
+    writeln(0.012345 sci 4);
+    writeln(1.2468 sci 2 );
+    writeln(3.1415 sci 0);
+    writeln(0.125 sci 1);
+    writeln(0.375 sci 1);
+
+  produce the following output:
+
+    1.2345e-2
+    1.25e+0
+    3e+0
+    1.2e-1
+    3.8e-1
+
+  The operator 'exp' is used to specifie the number of exponent digits.  The statements
+
+    writeln(0.012345 sci 4 exp 2);
+    writeln(1.2468e15 sci 2 exp 1);
+    writeln(3.1415 sci 0 exp 3);
+    writeln(0.125 sci 1 exp 2);
+    writeln(0.375 sci 1 exp 2);
+
+  produce the following output:
+
+    1.2345e-02
+    1.25e+15
+    3e+000
+    1.2e-01
+    3.8e-01
 
 
 8.2 Basic input and output operations
@@ -8745,7 +8803,7 @@ CONTENTS
     const func integer: (in integer: summand1) + (in integer: summand2) is action "INT_ADD";
 
   To execute an action a corresponding C function must
-  be present in the hi interpreter. The function for the
+  be present in the s7 interpreter. The function for the
   action 'INT_ADD' is 'int_add()'. The function 'int_add()'
   is defined in the file "intlib.c" with:
 
@@ -8804,7 +8862,7 @@ CONTENTS
     { "INT_ADD",             int_add,             },
 
   The entries of the primitive action in the file "primitive.c" are
-  sorted alphabetically. With this definitions the hi interpreter
+  sorted alphabetically. With this definitions the s7 interpreter
   understands a primitive action.
 
   To allow a primitive function in a compiled Seed7 program the
@@ -10601,7 +10659,7 @@ CONTENTS
     ILLEGAL_ACTION:
       May be raised by the interpreter kernel when a primitive action
       does not point to any legal action. This check is only done when
-      the hi interpreter is compiled with '#define WITH_ACTION_CHECK'.
+      the s7 interpreter is compiled with '#define WITH_ACTION_CHECK'.
       The ILLEGAL_ACTION exception is also raised when the primitive
       action ACT_ILLEGAL is executed.
 
@@ -10633,7 +10691,7 @@ CONTENTS
 
 15.4 Stack trace
 
-  When an EXCEPTION is not caught the program is terminated and the hi
+  When an EXCEPTION is not caught the program is terminated and the s7
   interpreter writes a stack trace:
 
     *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -10671,7 +10729,7 @@ CONTENTS
   signal SIGFPE. This is done even when the exception is not
   related to floating point operations.
 
-    ./hi s7c -g -e lander
+    ./s7 s7c -g -e lander
     gdb ./lander
 
   Then the debugger should be able to run the program and to
@@ -10692,7 +10750,7 @@ CONTENTS
   the Seed7 source. The option -g-debug_c creates debug
   information, which refers to the C program generated by the Seed7 compiler:
 
-    ./hi s7c -g-debug_c -e lander
+    ./s7 s7c -g-debug_c -e lander
     gdb ./lander
 
   Now the debugger refers to the temporary file "tmp_lander.c":

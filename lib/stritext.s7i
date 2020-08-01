@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  stritext.s7i  string text library (uses an array string)        *)
-(*  Copyright (C) 2007  Thomas Mertes                               *)
+(*  Copyright (C) 2007 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -333,15 +333,15 @@ const proc: setColumn (inout stritext: aStritext, in integer: column) is func
   end func;
 
 
-const proc: clear (inout stritext param) is noop;
-const proc: clear (in stritext param, in integer param, in integer param,
-    in integer param, in integer param) is noop;
-const proc: v_scroll (inout stritext param, in integer param) is noop;
-const proc: v_scroll (inout stritext param, in integer param, in integer param,
-    in integer param, in integer param, in integer param) is noop;
-const proc: h_scroll (ref stritext param, in integer param) is noop;
-const proc: h_scroll (ref stritext param, in integer param, in integer param,
-    in integer param, in integer param, in integer param) is noop;
-const proc: color (ref stritext param, ref color param) is noop;
-const proc: color (ref stritext param, ref color param, ref color param) is noop;
-const proc: setPosXY (inout stritext param, in integer param, in integer param) is noop;
+const proc: clear (inout stritext: aText) is noop;
+const proc: clear (inout stritext: aText, in integer: upper, in integer: left,
+    in integer: lower, in integer: right) is noop;
+const proc: v_scroll (inout stritext: aText, in integer: count) is noop;
+const proc: v_scroll (inout stritext: aText, in integer: upper, in integer: left,
+    in integer: lower, in integer: right, in integer: count) is noop;
+const proc: h_scroll (inout stritext: aText, in integer: count) is noop;
+const proc: h_scroll (inout stritext: aText, in integer: upper, in integer: left,
+    in integer: lower, in integer: right, in integer: count) is noop;
+const proc: color (inout stritext: aText, in color: foreground) is noop;
+const proc: color (inout stritext: aText, in color: foreground, in color: background) is noop;
+const proc: setPosXY (inout stritext: aText, in integer: xPos, in integer: yPos) is noop;

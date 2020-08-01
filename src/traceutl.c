@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  hi   Interpreter for Seed7 programs.                            */
+/*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */

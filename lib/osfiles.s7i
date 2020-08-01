@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  osfiles.s7i   Functions to handle operating system files        *)
-(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -497,7 +497,7 @@ const proc: cloneFile (in string: sourcePath, in string: destPath) is action "CM
 const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CMD_MOVE";
 
 
-const func string: configValue (in string param)             is action "CMD_CONFIG_VALUE";
+const func string: configValue (in string: name)             is action "CMD_CONFIG_VALUE";
 
 
 const func string: convDosPath (in string: path) is func

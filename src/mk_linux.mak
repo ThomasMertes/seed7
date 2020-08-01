@@ -71,7 +71,7 @@ CONSOLE_LIB_SRC = kbd_rtl.c con_inf.c kbd_inf.c trm_inf.c
 # CONSOLE_LIB_OBJ = kbd_rtl.o con_win.o
 # CONSOLE_LIB_SRC = kbd_rtl.c con_win.c
 
-MOBJ1 = hi.o
+MOBJ1 = s7.o
 POBJ1 = runerr.o option.o primitiv.o
 LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o drwlib.o
 LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o prclib.o
@@ -92,7 +92,7 @@ DRAW_LIB_OBJ = gkb_rtl.o drw_x11.o gkb_x11.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 
-MSRC1 = hi.c
+MSRC1 = s7.c
 PSRC1 = runerr.c option.c primitiv.c
 LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
 LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c
@@ -113,34 +113,42 @@ DRAW_LIB_SRC = gkb_rtl.c drw_x11.c gkb_x11.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi: ../bin/hi ../prg/hi
-	../bin/hi level
+s7: ../bin/s7 ../prg/s7
+	../bin/s7 level
 
 s7c: ../bin/s7c ../prg/s7c
 
-../bin/hi: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/hi
+../bin/s7: $(OBJ) $(ALL_S7_LIBS)
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/s7
 
-../prg/hi:
-	ln -s ../bin/hi ../prg
+../prg/s7:
+	ln -s ../bin/s7 ../prg
 
 ../bin/s7c: ../prg/s7c
 	cp -a ../prg/s7c ../bin
 
 ../prg/s7c: ../prg/s7c.sd7
-	cd ../prg; ./hi s7c -O2 s7c; cd ../src
+	../bin/s7 ../prg/s7c -O2 ../prg/s7c
 
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/hi ../bin/s7c ../prg/s7c depend version.h
+	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7c depend chkccomp.h version.h
 
 dep: depend
 
-strip:
-	strip ../bin/hi
+hi: s7
 
-version.h:
+strip:
+	strip ../bin/s7
+
+chkccomp.h:
+	echo "#include \"sys/stat.h\"" > chkccomp.h
+	echo "#include \"sys/types.h\"" >> chkccomp.h
+	echo "#include \"unistd.h\"" >> chkccomp.h
+	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
+
+version.h: chkccomp.h
 	echo "#define ANSI_C" > version.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define PATH_DELIMITER '/'" >> version.h
@@ -176,13 +184,8 @@ version.h:
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	echo "#include \"sys/stat.h\"" > chkccomp.h
-	echo "#include \"sys/types.h\"" >> chkccomp.h
-	echo "#include \"unistd.h\"" >> chkccomp.h
-	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp
 	./chkccomp >> version.h
-	rm chkccomp.h
 	rm chkccomp
 	rm cc_vers.txt
 	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
@@ -206,7 +209,7 @@ depend: version.h
 	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
 
 level.h:
-	../bin/hi level
+	../bin/s7 level
 
 ../bin/$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	ar r ../bin/$(SEED7_LIB) $(SEED7_LIB_OBJ)

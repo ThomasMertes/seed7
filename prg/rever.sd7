@@ -74,7 +74,7 @@ const integer: line_delta (SOUTH    ) is  1;
 const integer: line_delta (SOUTHWEST) is  1;
 const integer: line_delta (WEST     ) is  0;
 const integer: line_delta (NORTHWEST) is -1;
-const func integer: line_delta (in direction_type param) is DYNAMIC;
+const func integer: line_delta (in direction_type: direction) is DYNAMIC;
 
 const integer: column_delta (NORTH    ) is  0;
 const integer: column_delta (NORTHEAST) is  1;
@@ -84,7 +84,7 @@ const integer: column_delta (SOUTH    ) is  0;
 const integer: column_delta (SOUTHWEST) is -1;
 const integer: column_delta (WEST     ) is -1;
 const integer: column_delta (NORTHWEST) is -1;
-const func integer: column_delta (in direction_type param) is DYNAMIC;
+const func integer: column_delta (in direction_type: direction) is DYNAMIC;
 
 
 const proc: rules is func

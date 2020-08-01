@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  pixmap_file.s7i  Text implementation type to use a pixmap font  *)
-(*  Copyright (C) 2010  Thomas Mertes                               *)
+(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -47,10 +47,10 @@ const type: pixmapFontFile is sub null_file struct
     var integer: column is 0;
     var integer: min_x is 0;
     var integer: min_y is 0;
-    var integer: curr_x is 0;
-    var integer: curr_y is 0;
-    var color: foreground is white;
-    var color: background is black;
+    var integer: currLeftX is 0;
+    var integer: currTopY is 0;
+    var integer: currBaseY is 0;
+    var boolean: useBaseY is FALSE;
   end struct;
 
 
@@ -90,6 +90,8 @@ const func text: openPixmapFontFile (in PRIMITIVE_WINDOW: win,
     new_file.font.baseFont := fontProperties.value;
     new_file.min_x := min_x;
     new_file.min_y := min_y;
+    new_file.currLeftX := min_x;
+    new_file.currTopY := min_y;
     newFile := toInterface(new_file);
   end func;
 
@@ -118,9 +120,27 @@ const proc: clear (inout pixmapFontFile: fontFile,
         fontFile.min_y + line_delta(fontFile.font) * pred(upper),
         fontFile.min_x + pred(column_delta(fontFile.font) * right),
         fontFile.min_y + pred(line_delta(fontFile.font) * lower),
-        fontFile.background);
-    fontFile.curr_y := fontFile.min_y + line_delta(fontFile.font) * upper;
-    fontFile.curr_x := fontFile.min_x + column_delta(fontFile.font) * left;
+        background(fontFile.font));
+    fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(upper);
+    fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(left);
+    fontFile.useBaseY := FALSE;
+  end func;
+
+
+(**
+ *  Clear the area of ''fontFile'' with the background color.
+ *)
+const proc: clear (inout pixmapFontFile: fontFile) is func
+  begin
+    rectTo(curr_win,
+        fontFile.min_x,
+        fontFile.min_y,
+        pred(width(fontFile.win)),
+        pred(height(fontFile.win)),
+        background(fontFile.font));
+    fontFile.currTopY := fontFile.min_y;
+    fontFile.currLeftX := fontFile.min_x;
+    fontFile.useBaseY := FALSE;
   end func;
 
 
@@ -130,8 +150,9 @@ const proc: clear (inout pixmapFontFile: fontFile,
 const proc: setPos (inout pixmapFontFile: fontFile,
     in integer: line, in integer: column) is func
   begin
-    fontFile.curr_y := fontFile.min_y + line_delta(fontFile.font) * line;
-    fontFile.curr_x := fontFile.min_x + column_delta(fontFile.font) * column;
+    fontFile.currTopY := fontFile.min_y + line_delta(fontFile.font) * pred(line);
+    fontFile.currLeftX := fontFile.min_x + column_delta(fontFile.font) * pred(column);
+    fontFile.useBaseY := FALSE;
   end func;
 
 
@@ -141,10 +162,11 @@ const proc: setPos (inout pixmapFontFile: fontFile,
  *)
 const proc: setPosXY (inout pixmapFontFile: fontFile, in integer: xPos, in integer: yPos) is func
   begin
-    fontFile.curr_x := fontFile.min_x + xPos;
-    fontFile.curr_y := fontFile.min_y + yPos;
-    fontFile.line := (fontFile.curr_y + 2) div line_delta(fontFile.font);
-    fontFile.column := (fontFile.curr_x + 6) div column_delta(fontFile.font);
+    fontFile.currLeftX := fontFile.min_x + xPos;
+    fontFile.currBaseY := fontFile.min_y + yPos;
+    fontFile.useBaseY := TRUE;
+    fontFile.line := yPos div line_delta(fontFile.font);
+    fontFile.column := xPos div column_delta(fontFile.font);
   end func;
 
 
@@ -186,18 +208,24 @@ const proc: write (inout pixmapFontFile: fontFile, in string: stri) is func
     var char: ch is ' ';
     var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
   begin
+    if fontFile.useBaseY then
+      fontFile.currTopY := fontFile.currBaseY - baseLineDelta(fontFile.font);
+    else
+      fontFile.currBaseY := fontFile.currTopY + baseLineDelta(fontFile.font);
+      fontFile.useBaseY := TRUE;
+    end if;
     for ch range stri do
       if ch in fontFile.font.pixmap then
         charPixmap := fontFile.font.pixmap[ch];
       else
         charPixmap := getFontCharPixmap(fontFile.font, ch);
       end if;
-      put(fontFile.curr_x, fontFile.curr_y - baseLineDelta(fontFile.font), charPixmap, PSET);
-      fontFile.curr_x +:= width(charPixmap);
+      put(fontFile.currLeftX, fontFile.currTopY, charPixmap, PSET);
+      fontFile.currLeftX +:= width(charPixmap);
       if characterSpacing(fontFile.font) <> 0 then
-        rect(fontFile.curr_x, fontFile.curr_y - baseLineDelta(fontFile.font),
+        rect(fontFile.currLeftX, fontFile.currTopY,
             characterSpacing(fontFile.font), height(charPixmap), background(fontFile.font));
-        fontFile.curr_x +:= characterSpacing(fontFile.font);
+        fontFile.currLeftX +:= characterSpacing(fontFile.font);
       end if;
     end for;
     fontFile.column +:= length(stri);
@@ -212,6 +240,11 @@ const proc: writeln (inout pixmapFontFile: fontFile) is func
   begin
     incr(fontFile.line);
     fontFile.column := 1;
-    fontFile.curr_x := fontFile.min_x + column_delta(fontFile.font) - 6;
-    fontFile.curr_y +:= line_delta(fontFile.font);
+    fontFile.currLeftX := fontFile.min_x;
+    if fontFile.useBaseY then
+      fontFile.currTopY := fontFile.currBaseY - baseLineDelta(fontFile.font) + line_delta(fontFile.font);
+      fontFile.useBaseY := FALSE;
+    else
+      fontFile.currTopY +:= line_delta(fontFile.font);
+    end if;
   end func;

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  striutl.c     Procedures to work with wide char strings.        */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/striutl.c                                       */
-/*  Changes: 1991, 1992, 1993, 1994, 2005  Thomas Mertes            */
+/*  Changes: 1991 - 1994, 2005 - 2013  Thomas Mertes                */
 /*  Content: Procedures to work with wide char strings.             */
 /*                                                                  */
 /********************************************************************/
@@ -1949,23 +1949,11 @@ errinfotype *err_info;
           *err_info = RANGE_ERROR;
           break;
 #else
-        case ' ':  case '~':  case 160:
+        case ' ':  case '%':  case '&':  case '\'': case '(':
+        case ')':  case ',':  case ';':  case '=':  case '^':
+        case '~':  case 160:
           quote_path = TRUE;
           outBuffer[outPos] = inBuffer[inPos];
-          break;
-        case '&':  case '^':  case '(':  case ')':
-          quote_path = TRUE;
-          outBuffer[outPos] = '^';
-          outPos++;
-          outBuffer[outPos] = inBuffer[inPos];
-          break;
-        case '%':  case ',':  case ';':  case '=':
-          quote_path = TRUE;
-          outBuffer[outPos] = '\"';
-          outPos++;
-          outBuffer[outPos] = inBuffer[inPos];
-          outPos++;
-          outBuffer[outPos] = '\"';
           break;
         case ':':
           if (inPos == 1 &&
@@ -2057,7 +2045,7 @@ errinfotype *err_info;
             if (*err_info != OKAY_NO_ERROR) {
               os_stri_free(result);
               result = NULL;
-            } else if (os_parameters[0] != '\0') {
+            } else {
               result_len = os_stri_strlen(result);
 #ifdef QUOTE_WHOLE_SHELL_COMMAND
               if (result[0] == '\"') {

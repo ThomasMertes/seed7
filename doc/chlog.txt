@@ -1,3 +1,30 @@
+20130105:
+- The Seed7 interpreter was renamed. The new name of the Seed7
+  interpreter is s7.
+- Manual, FAQ, read_me files and several example programs were
+  updated to use the new name of the Seed7 interpreter (s7).
+- The build process of a package can compile interpreter and compiler
+  with (xx and yy must be replaced with a path):
+    make S7_LIB_DIR=xx SEED7_LIBRARY=yy depend s7 s7c
+- The function drwOpen in drw_win.c was improved to hide the console
+  window, when the program was not started from a console.
+- Descriptions of the operators 'sci' and 'exp' were added to the
+  manual.
+- Documentation comments were added to clib_file.s7i.
+- In pixmap_file.s7i the functions for pixmapFontFiles were improved.
+- Interpreter and compiler were improved to allow using winmain as
+  main function.
+- In cmd_win.c the function prepareCommandLine was improved and in
+  the function cmdStartProcess the flag wShowWindow was changed to 1.
+- The file hi.c was renamed to s7.c.
+- In striutl.c the function escape_command was changed to quote
+  commands with special characters under windows.
+- In striutl.c the function cp_to_command was improved to do a
+  quoting under windows, even when there are no parameters.
+- Parameter names were added to null_file.s7i, osfiles.s7i, time.s7i,
+  pixmapfont.s7i, progs.s7i, reference.s7i, seed7_05.s7i, shell.s7i,
+  stritext.s7i, text.s7i, rever.sd7 and snake.sd7.
+
 20121221:
 - The Seed7 compiler (s7c) was improved to support constant pixmaps
   (constants with the type PRIMITIVE_WINDOW).

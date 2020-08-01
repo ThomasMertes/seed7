@@ -231,7 +231,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
   begin
     write(progName);
     flush(OUT);
-    interpretedOutput := cmdOutput("./hi -q " & progName);
+    interpretedOutput := cmdOutput("./s7 -q " & progName);
     if interpretedOutput <> referenceOutput then
       writeln;
       writeln(" *** The interpreted " <& progName <& " does not work okay:");
@@ -241,7 +241,7 @@ const proc: check (in string: progName, in string: referenceOutput) is func
     if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
       removeFile(progName & EXECUTABLE_FILE_EXTENSION);
     end if;
-    compilerOutput := cmdOutput("./hi s7c " & progName);
+    compilerOutput := cmdOutput("./s7 s7c " & progName);
     if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       compiledOutput := cmdOutput("./" & progName);
       if compiledOutput <> referenceOutput then
@@ -329,7 +329,7 @@ const proc: main is func
     end if;
     write("compiling the compiler");
     flush(OUT);
-    ignore(cmdOutput("./hi s7c s7c"));
+    ignore(cmdOutput("./s7 s7c s7c"));
     if not fileType("s7c" & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       writeln;
       writeln(" *** Failed to compile the compiler");

@@ -183,9 +183,9 @@ const proc: callOwnProgram (in array string: parameters) is func
   end func;
 
 
-const func clib_file: popenClibFile
-    (in string param, in string param, in string param) is action "FIL_POPEN";
-const proc: pclose (in clib_file param)    is action "FIL_PCLOSE";
+const func clib_file: popenClibFile (in string: command,
+    in string: parameters, in string: mode)       is action "FIL_POPEN";
+const proc: pclose (in clib_file: fileToClose)    is action "FIL_PCLOSE";
 
 
 const type: popen_file is sub external_file struct

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  time.s7i      Time and date library                             *)
-(*  Copyright (C) 1991, 1992, 1993, 1994, 2005  Thomas Mertes       *)
+(*  Copyright (C) 1991 - 1994, 2005 - 2013 Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -53,21 +53,23 @@ const type: time is new object struct
   end struct;
 
 
-const proc: GET_TIME (inout integer param, inout integer param, inout integer param,
-    inout integer param, inout integer param, inout integer param, inout integer param,
-    inout integer param, inout boolean param) is action "TIM_NOW";
+const proc: GET_TIME (inout integer: year, inout integer: month, inout integer: day,
+    inout integer: hour, inout integer: minute, inout integer: second,
+    inout integer: micro_second, inout integer: timeZone,
+    inout boolean: daylightSavingTime)                           is action "TIM_NOW";
 
-const proc: AWAIT_TIME (ref integer param, ref integer param, ref integer param,
-    ref integer param, ref integer param, ref integer param, ref integer param,
-    ref integer param) is action "TIM_AWAIT";
+const proc: AWAIT_TIME (in integer: year, in integer: month, in integer: day,
+    in integer: hour, in integer: minute, in integer: second,
+    in integer: micro_second, in integer: timeZone)              is action "TIM_AWAIT";
 
-const proc: FROM_TIMESTAMP (in integer param, inout integer param, inout integer param,
-    inout integer param, inout integer param, inout integer param, inout integer param,
-    inout integer param, inout integer param, inout boolean param) is action "TIM_FROM_TIMESTAMP";
+const proc: FROM_TIMESTAMP (in integer: timestamp, inout integer: year,
+    inout integer: month, inout integer: day, inout integer: hour,
+    inout integer: minute, inout integer: second, inout integer: micro_second,
+    inout integer: timeZone, inout boolean: daylightSavingTime)  is action "TIM_FROM_TIMESTAMP";
 
-const proc: SET_LOCAL_TZ (in integer param, in integer param, in integer param,
-    in integer param, in integer param, in integer param,
-    inout integer param, inout boolean param) is action "TIM_SET_LOCAL_TZ";
+const proc: SET_LOCAL_TZ (in integer: year, in integer: month, in integer: day,
+    in integer: hour, in integer: minute, in integer: second,
+    inout integer: timeZone, inout boolean: daylightSavingTime)  is action "TIM_SET_LOCAL_TZ";
 
 
 (**

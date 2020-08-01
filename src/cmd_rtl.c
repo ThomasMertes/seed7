@@ -146,7 +146,7 @@
 extern os_stritype *os_environ;
 #endif
 
-extern stritype programPath; /* defined in hi.c or in the executable of a program */
+extern stritype programPath; /* defined in s7.c or in the executable of a program */
 
 
 
@@ -1318,6 +1318,12 @@ stritype name;
 #endif
       } else if (strcmp(opt_name, "USE_WMAIN") == 0) {
 #ifdef USE_WMAIN
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "USE_WINMAIN") == 0) {
+#ifdef USE_WINMAIN
         opt = "TRUE";
 #else
         opt = "FALSE";

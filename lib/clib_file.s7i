@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  clib_file.s7i  Type for FILE * files from the C runtime library *)
-(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -62,7 +62,16 @@ const func boolean: (ref clib_file: file1) <> (ref clib_file: file2)  is action 
 
 const func clib_file: _GENERATE_EMPTY_CLIB_FILE                       is action "FIL_EMPTY";
 const clib_file: (attr clib_file) . value                             is _GENERATE_EMPTY_CLIB_FILE;
+
+
+(**
+ *  NULL file of the C runtime library.
+ *  This value is returned by [[#openClibFile(in_string,in_string)|openClibFile]]
+ *  and other functions, when no ''clib_file'' could be opened. Reading from or
+ *  writing to a ''CLIB_NULL_FILE'' raises an exception.
+ *)
 const clib_file: CLIB_NULL_FILE                                       is clib_file.value;
+
 
 const func clib_file: CLIB_INPUT  is action "FIL_IN";
 const func clib_file: CLIB_OUTPUT is action "FIL_OUT";

@@ -94,7 +94,7 @@
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
  *  The macros described above are only used in the program chkccomp.
- *  This macros are not used in the Seed7 Interpreter (hi) or in the
+ *  This macros are not used in the Seed7 Interpreter (s7) or in the
  *  Seed7 Runtime Library.
  */
 

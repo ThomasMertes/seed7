@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  seed7_05.s7i  Standard Seed7 library                            *)
-(*  Copyright (C) 1989 - 2012  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -319,10 +319,10 @@ const func string: str (in ACTION param)    is action "ACT_STR";
 const ACTION: DYNAMIC is action "PRC_DYNAMIC";
 
 
-const proc: TRACE_OPTIONS (in string param) is action "PRC_SETTRACE";
-const proc: TRACE_OBJ (in object param)     is action "REF_TRACE";
-const proc: TRACE_PROC (in proc param)      is action "REF_TRACE";
-const proc: DECLS                           is action "PRC_DECLS";
+const proc: TRACE_OPTIONS (in string: traceLevel)  is action "PRC_SETTRACE";
+const proc: TRACE_OBJ (in object: traceobject)     is action "REF_TRACE";
+const proc: TRACE_PROC (in proc: traceobject)      is action "REF_TRACE";
+const proc: DECLS                                  is action "PRC_DECLS";
 
 
 (* boolean *)
@@ -333,16 +333,16 @@ $ include "boolean.s7i";
 (* type *)
 
 const type: (attr type) . value is void;
-const func boolean: (in type param) = (in type param)      is action "TYP_EQ";
-const func boolean: (in type param) <> (in type param)     is action "TYP_NE";
-const func integer: compare (in type param, in type param) is action "TYP_CMP";
-const func integer: hashCode (in type param)               is action "TYP_HASHCODE";
-const func boolean: is_func (in type param)                is action "TYP_ISFUNC";
-const func boolean: is_varfunc (in type param)             is action "TYP_ISVARFUNC";
-const func type: result_type (in type param)               is action "TYP_RESULT";
-const func boolean: is_derived (in type param)             is action "TYP_ISDERIVED";
-const func type: meta (in type param)                      is action "TYP_META";
-const proc: addInterface (in type param, in type param)    is action "TYP_ADDINTERFACE";
+const func boolean: (in type: aType1) = (in type: aType2)      is action "TYP_EQ";
+const func boolean: (in type: aType1) <> (in type: aType2)     is action "TYP_NE";
+const func integer: compare (in type: aType1, in type: aType2) is action "TYP_CMP";
+const func integer: hashCode (in type: aType)                  is action "TYP_HASHCODE";
+const func boolean: is_func (in type param)                    is action "TYP_ISFUNC";
+const func boolean: is_varfunc (in type param)                 is action "TYP_ISVARFUNC";
+const func type: result_type (in type param)                   is action "TYP_RESULT";
+const func boolean: is_derived (in type param)                 is action "TYP_ISDERIVED";
+const func type: meta (in type param)                          is action "TYP_META";
+const proc: addInterface (in type param, in type param)        is action "TYP_ADDINTERFACE";
 
 (* IF *)
 
@@ -648,8 +648,8 @@ $ include "idxarray.s7i";
 
 (* Functions with arrays of strings *)
 
-const func array string: split (in string param, in char param) is   action "STR_CHSPLIT";
-const func array string: split (in string param, in string param) is action "STR_SPLIT";
+const func array string: split (in string: main_stri, in char: delimiter)   is action "STR_CHSPLIT";
+const func array string: split (in string: main_stri, in string: delimiter) is action "STR_SPLIT";
 
 const func string: join (in array string: striArray, in char: delimiter) is func
   result
@@ -848,7 +848,7 @@ CASE_DECLS(boolean);
 (* CASE_DECLS(string); *)
 
 const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";
-const proc: TRACE (ref expr param)                      is action "REF_TRACE";
+const proc: TRACE (ref expr: traceobject)               is action "REF_TRACE";
 
 const func type: new enum (ref expr: elem_expr) end enum is func
   result
@@ -967,13 +967,13 @@ $ include "environment.s7i";
 
 const proc: heapstat (PROGRAM)              is action "PRC_HEAPSTAT";
 const func integer: heapsize (PROGRAM)      is action "PRC_HSIZE";
-const proc: exit (in integer param)         is action "PRC_EXIT";
+const proc: exit (in integer: status)       is action "PRC_EXIT";
 const proc: exit (PROGRAM) is func
   begin
     exit(0);
   end func;
 
-const proc: PRIMITIVE_INCLUDE (in string param) is        action "PRC_INCLUDE";
+const proc: PRIMITIVE_INCLUDE (in string: fileName)  is action "PRC_INCLUDE";
 
 var set of string: INCLUDED_LIBRARY_LIST is (set of string).value;
 

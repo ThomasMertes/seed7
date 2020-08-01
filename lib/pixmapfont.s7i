@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  pixmapfont.s7i  Defines pixmapFontType and the font cache       *)
-(*  Copyright (C) 2010  Thomas Mertes                               *)
+(*  Copyright (C) 2010 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -30,18 +30,18 @@ const type: pixmapHashType is hash [char] PRIMITIVE_WINDOW;
 
 const type: activeFont is sub object interface;
 
-const func font:              (in activeFont param).baseFont         is DYNAMIC;
-const varfunc font:           (inout activeFont param).baseFont      is DYNAMIC;
-const func pixmapHashType:    (in activeFont param).pixmap           is DYNAMIC;
-const varfunc pixmapHashType: (inout activeFont param).pixmap        is DYNAMIC;
-const func integer:           fontSize (in activeFont param)         is DYNAMIC;
-const func integer:           scale (in activeFont param)            is DYNAMIC;
-const func color:             foreground (in activeFont param)       is DYNAMIC;
-const func color:             background (in activeFont param)       is DYNAMIC;
-const func integer:           baseLineDelta (in activeFont param)    is DYNAMIC;
-const func integer:           line_delta (in activeFont param)       is DYNAMIC;
-const func integer:           column_delta (in activeFont param)     is DYNAMIC;
-const func integer:           characterSpacing (in activeFont param) is DYNAMIC;
+const func font:              (in activeFont: actFont).baseFont         is DYNAMIC;
+const varfunc font:           (inout activeFont: actFont).baseFont      is DYNAMIC;
+const func pixmapHashType:    (in activeFont: actFont).pixmap           is DYNAMIC;
+const varfunc pixmapHashType: (inout activeFont: actFont).pixmap        is DYNAMIC;
+const func integer:           fontSize (in activeFont: actFont)         is DYNAMIC;
+const func integer:           scale (in activeFont: actFont)            is DYNAMIC;
+const func color:             foreground (in activeFont: actFont)       is DYNAMIC;
+const func color:             background (in activeFont: actFont)       is DYNAMIC;
+const func integer:           baseLineDelta (in activeFont: actFont)    is DYNAMIC;
+const func integer:           line_delta (in activeFont: actFont)       is DYNAMIC;
+const func integer:           column_delta (in activeFont: actFont)     is DYNAMIC;
+const func integer:           characterSpacing (in activeFont: actFont) is DYNAMIC;
 
 (**
  *  Type to describe a font, based on pixmap images.

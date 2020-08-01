@@ -108,7 +108,7 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
     nmake
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and it is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/s7.exe.
 
 
 COMPILING UNDER WINDOWS WITH CL FROM MSVC
@@ -132,7 +132,7 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
     nmake
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and it is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/s7.exe.
 
 
 COMPILING UNDER WINDOWS WITH BCC32
@@ -146,7 +146,7 @@ COMPILING UNDER WINDOWS WITH BCC32
     make
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and it is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/s7.exe.
   For the older version of bcc32 (Version 5.5, which is available
   in the internet) use:
 
@@ -214,7 +214,7 @@ COMPILING UNDER DOS WITH DJGPP
     make
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and it is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/s7.exe.
   If your get errors you can try mk_djgp2.mak instead.
 
   Note that the DOS version of Seed7 currently supports neither
@@ -260,7 +260,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
  --- Errors such as
 
     chkccomp.c:56:20: fatal error: stdlib.h: No such file or directory
-    hi.c:30:20: fatal error: stdlib.h: No such file or directory
+    s7.c:30:20: fatal error: stdlib.h: No such file or directory
 
   indicate that the development package of the C library is
   missing. I don't know the name of this package in your
@@ -322,7 +322,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
  --- Errors such as
 
-    hi.c:28:21: error: version.h: No such file or directory
+    s7.c:28:21: error: version.h: No such file or directory
 
   indicate that you forgot to run 'make depend' before running
   'make'. Since such an attempt produces several unneeded files it
@@ -360,7 +360,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
   indicates that you forgot to execute vcvars32 before executing
   'make depend' or 'make'. A message box, which complains that
-  mspbd100.dll was not found, indicates also that vcvars32 was
+  mspdb100.dll was not found, indicates also that vcvars32 was
   not executed.
 
  --- A linker error like
@@ -429,15 +429,15 @@ WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
 
 HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
 
-    A comprehensive test of the 'hi' interpreter can be done in
+    A comprehensive test of the 's7' interpreter can be done in
   the 'prg' directory with the command:
 
-    ./hi chk_all
+    ./s7 chk_all
 
   Under Windows using ./ might not work. Just omit the ./ and
   type:
 
-    hi chk_all
+    s7 chk_all
 
   The 'chk_all' program uses several check programs to do its
   work. First a check program is interpreted and the output
@@ -475,7 +475,7 @@ HOW TO USE THE GMP LIBRARY?
   and the gmp.h include file.
 
   Every makefile contains a line which defines the 'SYSTEM_LIBS'
-  to be used when the 'hi' interpreter is linked. E.g.:
+  to be used when the 's7' interpreter is linked. E.g.:
 
     SYSTEM_LIBS = -lncurses -lm
 
@@ -528,7 +528,7 @@ INTERPRETER MAIN
   create an internal program representation and afterwards it calls
   the Interpreter core to execute this program.
 
-    hi.c       Main program of the hi Interpreter.
+    s7.c       Main program of the s7 Interpreter.
 
   The interpreter main is licensed under the GPL.
 

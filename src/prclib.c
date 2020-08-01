@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  hi   Interpreter for Seed7 programs.                            */
+/*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
@@ -648,7 +648,7 @@ listtype arguments;
 #ifdef DO_HEAP_STATISTIC
     heap_statistic();
 #else
-    printf("heap statistic not supported - compile the hi interpreter with DO_HEAP_STATISTIC\n");
+    printf("heap statistic not supported - compile the s7 interpreter with DO_HEAP_STATISTIC\n");
 #endif
     return SYS_EMPTY_OBJECT;
   } /* prc_heapstat */

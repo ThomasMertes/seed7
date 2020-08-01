@@ -346,7 +346,7 @@ programming languages:
    Almost all of the Seed7 language (<a class="link" href="manual/stats.htm">statements</a>, <a class="link" href="examples/operator.htm">operators</a>,
    declaration constructs, and more) is defined in Seed7 in an include
    file (seed7_05.s7i).</li>
-<li>The application program contains an include statement and the hi
+<li>The application program contains an include statement and the s7
    interpreter is booted with the language description when it starts.
    This way it is possible to define language variants or a totally
    different language.</li>
@@ -432,7 +432,7 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 </h3></a><hr />
 <p>
 Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
-The hi Interpreter and the example programs (extension .sd7) are under the
+The s7 Interpreter and the example programs (extension .sd7) are under the
 GPL (General Public License, see also the file COPYING).
 </p><p>
 The Seed7 Runtime Library is under the LGPL (Lesser General Public License,
@@ -443,7 +443,7 @@ Seed7 allows the interpretation and compilation of programs with any license.
 There is no restriction on the license of your Seed7 programs.
 </p><p>
 For the development of the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> it will be necessary to move some
-source code from the hi Interpreter (under GPL) to the Seed7 Runtime Library
+source code from the s7 Interpreter (under GPL) to the Seed7 Runtime Library
 (under LGPL). This will only be done to for the Seed7 runtime library and only
 as far as necessary to make no restriction on the license of compiled Seed7
 programs.
@@ -515,12 +515,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-12-21 the number of lines is:
+than 150000 lines of Seed7. For version 2013-01-05 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">102887</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">102937</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
   <tr><td align="right"> 10114</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">111155</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 81784</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">111169</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 81814</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -577,8 +577,8 @@ Sometimes the browser downloads a *.gz file instead of a *.tgz file.
 In that case you could also use <tt>'gunzip'</tt> as shown above. As
 an alternative you can also use <tt>'zcat'</tt>:
 </p><pre class="indent">
-$ zcat seed7_05_yyyymmdd.gz > s7.tar
-$ tar -xvf s7.tar
+$ zcat seed7_05_yyyymmdd.gz > seed7.tar
+$ tar -xvf seed7.tar
 </pre><p>
 Under windows you can use the 7-Zip compression/decompression utility
 (there is no relationship to Seed7). 7-Zip is open source software and is
@@ -623,7 +623,12 @@ make
 When the interpreter is compiled successfully the executable and the libraries
 are placed in the <tt>'bin'</tt> directory. Additionally a symbolic link to the executable
 is placed in the <tt>'prg'</tt> directory (Under Windows symbolic links are not supported,
-so a copy of the executable is placed in the <tt>'prg'</tt> directory). If you do several
+so a copy of the executable is placed in the <tt>'prg'</tt> directory). The Seed7 compiler
+(<tt><a class="prog" href="scrshots/s7c.htm">s7c</a></tt>) is compiled with:
+</p><pre class="indent">
+make s7c
+</pre><p>
+The compiler executable is copied to the <tt>'bin'</tt> directory. If you do several
 compilation attempts in succession you need to do
 </p><pre class="indent">
 make clean
@@ -641,7 +646,7 @@ not all development packages with header files might be installed. In
 this case you get some errors after typing 'make depend'. Errors such as
 </p><pre class="box">
   chkccomp.c:56:20: fatal error: stdlib.h: No such file or directory
-  hi.c:30:20: fatal error: stdlib.h: No such file or directory
+  s7.c:30:20: fatal error: stdlib.h: No such file or directory
 </pre><p>
 indicate that the development package of the C library is
 missing. I don't know the name of this package in your
@@ -703,7 +708,7 @@ mk_cygw.mak) or take care that the 'make' program uses cmd.exe
 </p><p>
 Errors such as
 </p><pre class="box">
-  hi.c:28:21: error: version.h: No such file or directory
+  s7.c:28:21: error: version.h: No such file or directory
 </pre><p>
 indicate that you forgot to run 'make depend' before running
 'make'. Since such an attempt produces several unneeded files it
@@ -719,15 +724,15 @@ messages to seed7-users@lists.sourceforge.net .
 <div><br /><a name="verify_interpreter"><h3>How do I verify that the interpreter works correct?
 </h3></a><hr />
 <p>
-A comprehensive test of the <tt>'hi'</tt> interpreter can be done in
+A comprehensive test of the <tt>'s7'</tt> interpreter can be done in
 the <tt>'prg'</tt> directory with the command:
 </p><pre class="box">
-  ./hi chk_all
+  ./s7 chk_all
 </pre><p>
 Under windows using <tt>./</tt> might not work. Just omit the <tt>./</tt> and
 type:
 </p><pre class="box">
-  hi chk_all
+  s7 chk_all
 </pre><p>
 The <tt>'chk_all'</tt> program uses several check programs to do its
 work. First a check program is interpreted and the output
@@ -754,17 +759,17 @@ This verifies that interpreter and compiler work correct.
 <div><br /><a name="interpreter"><h3>How can I use the Seed7 interpreter?
 </h3></a><hr />
 <p>
-The hi Interpreter is called with the command
+The s7 Interpreter is called with the command
 </p><pre class="box">
-  hi [options] sourcefile [parameters]
+  s7 [options] sourcefile [parameters]
 </pre><p>
 Note that the <tt>'options'</tt> must be written before the <tt>'sourcefile'</tt>.
 If the <tt>'sourcefile'</tt> is not found <tt>.sd7</tt> is appended to the <tt>'sourcefile'</tt>
 and searched for that file.
 </p><p>
-The following options are recognized by hi:
+The following options are recognized by s7:
 </p><ul>
-  <li><b>-?</b>   Write hi interpreter usage.</li>
+  <li><b>-?</b>   Write Seed7 interpreter usage.</li>
   <li><b>-a</b>   Analyze only and suppress the execution phase.</li>
   <li><b>-d</b><span class="keywd">x</span>  Set compile time trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
@@ -1764,7 +1769,7 @@ Yes, Seed7 has exceptions which are similar to Ada exceptions. <a class="link" h
 <div><br /><a name="stack_trace"><h3>What happens when an exception is not caught?
 </h3></a><hr />
 <p>
-When an EXCEPTION is not caught the program is terminated and the hi interpreter
+When an EXCEPTION is not caught the program is terminated and the s7 interpreter
 writes a stack trace:
 </p><pre class="box">
   *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -1820,7 +1825,7 @@ library directories:
 <li>This point is only in effect when the interpreter was not compiled from source
     (The C preprocessor macro PATHS_RELATIVE_TO_EXECUTABLE is defined): Interpreter
     and compiler from the binary release use <tt><span class="stri">"../lib"</span></tt> relative to the directory of
-    the <tt>'hi'</tt> interpreter executable. E.g.: When the interpreter is in the directory
+    the <tt>'s7'</tt> interpreter executable. E.g.: When the interpreter is in the directory
     <tt><span class="stri">"/home/abc/seed7/bin"</span></tt> the directory <tt><span class="stri">"/home/abc/seed7/lib"</span></tt> is in the list of
     library directories.</li>
 <li>The directory containing the predefined Seed7 include libraries. This
@@ -1838,7 +1843,7 @@ Seed7 interpreter and <a class="link" href="scrshots/s7c.htm">compiler</a> (s7c)
 directories (the same library search path). When Seed7 is compiled from
 source code both (interpreter and compiler) will find the Seed7 include
 files automatically. Interpreter and compiler from the binary release will
-only find library include files when the path <tt><span class="stri">"../lib"</span></tt> relative to the <tt>'hi'</tt>
+only find library include files when the path <tt><span class="stri">"../lib"</span></tt> relative to the <tt>'s7'</tt>
 or <tt>'s7c'</tt> executable leads to the library directory. Additionally it is
 possible to set the environment variable <tt>SEED7_LIBRARY</tt> to the absolute path
 <tt><span class="stri">"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</span></tt>.
@@ -1927,8 +1932,8 @@ runtime library, but they may change between releases of Seed7.
 <p>
 A binary Seed7 package needs to install four groups of files:
 </p><ul>
-<li>The executables of the interpreter (hi from <tt><span class="stri">"seed7/bin"</span></tt>) and the compiler
-   (<a class="link" href="scrshots/s7c.htm">s7c</a> from <tt><span class="stri">"seed7/prg"</span></tt>).</li>
+<li>The executables of the interpreter (s7 from <tt><span class="stri">"seed7/bin"</span></tt>) and the compiler
+   (<a class="link" href="scrshots/s7c.htm">s7c</a> from <tt><span class="stri">"seed7/bin"</span></tt> or <tt><span class="stri">"seed7/prg"</span></tt>).</li>
 <li>The Seed7 include libraries (files from <tt><span class="stri">"seed7/lib"</span></tt> with the extension <tt><span class="lib">.s7i</span></tt>).</li>
 <li>The static Seed7 object libraries (the files <tt><span class="lib">seed7_05.a</span></tt>, <tt><span class="lib">s7_con.a</span></tt>, <tt><span class="lib">s7_draw.a</span></tt>,
    <tt><span class="lib">s7_data.a</span></tt> and <tt><span class="lib">s7_comp.a</span></tt> from <tt><span class="stri">"seed7/bin"</span></tt>).</li>
@@ -1939,20 +1944,25 @@ The table below shows the suggested directories for Linux/Unix/BSD:
   
   <tr><th> Directory           </th><th> Macro         </th><th> Group of files          </th></tr>
   
-  <tr><td> /usr/bin            </td><td> -             </td><td> Executables (hi + s7c)  </td></tr>
+  <tr><td> /usr/bin            </td><td> -             </td><td> Executables (s7 + s7c)  </td></tr>
   <tr><td> /usr/lib/seed7/lib  </td><td> SEED7_LIBRARY </td><td> Seed7 include libraries </td></tr>
   <tr><td> /usr/lib/seed7/bin  </td><td> S7_LIB_DIR    </td><td> Static libraries        </td></tr>
   
 </table></dd></dl><p>
-The macros must be defined, when the interpreter is compiled. This can be done by
-calling <tt>'make depend'</tt> with:
+The macros must be defined, when the interpreter is compiled. This can be done
+by calling <tt>'make depend'</tt> with:
 </p><pre class="indent">
 make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend
 </pre><p>
-Afterwards the interpreter can be compiled with <tt>'make'</tt>. The <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> can be
-compiled in the directory <tt><span class="stri">"seed7/prg"</span></tt> with:
+Afterwards the interpreter can be compiled with <tt>'make'</tt> and the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a>
+can be compiled with <tt>'make s7c'</tt>. This three make commands can be combined to
 </p><pre class="indent">
-./hi s7c -O2 s7c
+make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend s7 s7c
+</pre><p>
+Alternatively the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> can be compiled in the directory <tt><span class="stri">"seed7/prg"</span></tt>
+with:
+</p><pre class="indent">
+./s7 s7c -O2 s7c
 </pre><p>
 </p></div>
 
@@ -2067,7 +2077,7 @@ Theoretically yes. In practice there would be several problems. For example:
 <li>  Some things like comments and $ pragmas are hard coded.</li>
 </ul><p>
 But basically booting various languages was one of the goals of the extensible
-programming language Seed7 and the hi Interpreter.
+programming language Seed7 and the s7 Interpreter.
 </p><p>
 In practice it turned out to be a better approach to steal concepts from other
 programming languages and to integrate them in Seed7 than to split the development

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  hi   Interpreter for Seed7 programs.                            */
+/*  s7   Seed7 interpreter                                          */
 /*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
@@ -59,7 +59,7 @@
 #define TABLE_INCREMENT 127
 
 
-extern stritype programPath; /* defined in hi.c or in the executable of a program */
+extern stritype programPath; /* defined in s7.c or in the executable of a program */
 
 
 

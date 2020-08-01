@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_win.c     Command functions which call the Windows API.     */
-/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_win.c                                       */
-/*  Changes: 2010, 2012  Thomas Mertes                              */
+/*  Changes: 2010, 2012 - 2013  Thomas Mertes                       */
 /*  Content: Command functions which call the Windows API.          */
 /*                                                                  */
 /********************************************************************/
@@ -427,14 +427,16 @@ static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
     } else {
       beyondDest = &command_line[MAXIMUM_COMMAND_LINE_LENGTH];
       /* fprintf(stderr, "\ncommand_stri=\"%ls\"\n", os_command_stri); */
-      striSize = os_stri_strlen(command_line);
-      if (striSize > MAXIMUM_COMMAND_LINE_LENGTH ||
+      striSize = os_stri_strlen(os_command_stri);
+      if (striSize > MAXIMUM_COMMAND_LINE_LENGTH - 2 ||
           &command_line[striSize] > beyondDest) {
         *err_info = MEMORY_ERROR;
         destChar = beyondDest;
       } else {
-        memcpy(command_line, os_command_stri, sizeof(os_chartype) * striSize);
-        destChar = &command_line[striSize];
+        command_line[0] = '\"';
+        memcpy(&command_line[1], os_command_stri, sizeof(os_chartype) * striSize);
+        command_line[striSize + 1] = '\"';
+        destChar = &command_line[striSize + 2];
       } /* if */
       for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
         argument = stri_to_os_stri(parameters->arr[pos].value.strivalue, err_info);
@@ -651,7 +653,7 @@ rtlArraytype parameters;
         /* memset(&processInformation, 0, sizeof(processInformation)); */
         startupInfo.cb = sizeof(startupInfo);
         startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-        startupInfo.wShowWindow = 0;
+        startupInfo.wShowWindow = 1;
         /* printf("before CreateProcessW(%ls, %ls, ...)\n", os_command_stri, command_line); */
         if (CreateProcessW(os_command_stri,
                            command_line /* lpCommandLine */,

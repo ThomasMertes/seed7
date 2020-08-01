@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2012  Thomas Mertes                        */
+/*  s7   Seed7 interpreter                                          */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -19,9 +19,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Main                                                    */
-/*  File: seed7/src/hi.c                                            */
+/*  File: seed7/src/s7.c                                            */
 /*  Changes: 1990 - 1994, 2010, 2011  Thomas Mertes                 */
-/*  Content: Main program of the hi Interpreter.                    */
+/*  Content: Main program of the Seed7 interpreter.                 */
 /*                                                                  */
 /********************************************************************/
 
@@ -54,6 +54,13 @@
 #include "cmd_rtl.h"
 #include "con_drv.h"
 
+#ifdef USE_WINMAIN
+typedef struct {
+    int dummy;
+  } HINSTANCE__;
+typedef HINSTANCE__* HINSTANCE;
+#endif
+
 stritype programPath;
 
 
@@ -84,9 +91,9 @@ static void writeHelp ()
 #endif
 
   { /* writeHelp */
-    printf("usage: hi [options] sourcefile [parameters]\n\n");
+    printf("usage: s7 [options] sourcefile [parameters]\n\n");
     printf("Options:\n");
-    printf("  -?   Write hi interpreter usage.\n");
+    printf("  -?   Write Seed7 interpreter usage.\n");
     printf("  -a   Analyze only and suppress the execution phase.\n");
     printf("  -dx  Set compile time trace level to x. Where x is a string consisting of:\n");
     printf("         a Trace primitive actions\n");
@@ -270,22 +277,28 @@ rtlArraytype arg_v;
 
 
 
-#ifdef USE_WMAIN
 #ifdef ANSI_C
 
+#ifdef USE_WMAIN
 int wmain (int argc, wchar_t **argv)
+#elif defined USE_WINMAIN
+int WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, char *lpCmdLine, int nShowCmd)
+#else
+int main (int argc, char **argv)
+#endif
 #else
 
+#ifdef USE_WMAIN
 int wmain (argc, argv)
 int argc;
 wchar_t **argv;
-#endif
+#elif defined USE_WINMAIN
+int WinMain (hInstance, hPrevInstance, lpCmdLine, nShowCmd)
+HINSTANCE hInstance;
+HINSTANCE hPrevInstance;
+char *lpCmdLine;
+int nShowCmd;
 #else
-#ifdef ANSI_C
-
-int main (int argc, char **argv)
-#else
-
 int main (argc, argv)
 int argc;
 char **argv;
@@ -299,11 +312,15 @@ char **argv;
     progtype currentProg;
 
   /* main */
-#ifdef TRACE_HI
-    printf("BEGIN HI\n");
+#ifdef TRACE_S7
+    printf("BEGIN S7\n");
 #endif
     set_trace(NULL, -1, NULL);
+#ifdef USE_WINMAIN
+    arg_v = getArgv(0, NULL, &arg_0, &programName, &programPath);
+#else
     arg_v = getArgv(argc, argv, &arg_0, &programName, &programPath);
+#endif
     if (arg_v == NULL) {
       printf("\n*** No more memory. Program terminated.\n");
     } else {
@@ -311,19 +328,19 @@ char **argv;
       FREE_STRI(arg_0, arg_0->size);
       processOptions(arg_v);
       if (option.version_info) {
-        printf("HI INTERPRETER Version 4.5.%d  Copyright (c) 1990-2012 Thomas Mertes\n", LEVEL);
+        printf("SEED7 INTERPRETER Version 5.0.%d  Copyright (c) 1990-2013 Thomas Mertes\n", LEVEL);
       } /* if */
 #ifdef CATCH_SIGNALS
       if (option.catch_signals) {
         activate_signal_handlers();
       } /* if */
 #endif
-      if (argc == 1) {
+      if (arg_v->max_position < arg_v->min_position) {
         printf("This is free software; see the source for copying conditions.  There is NO\n");
         printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
         printf("Homepage: http://seed7.sourceforge.net\n\n");
-        printf("usage: hi [options] sourcefile [parameters]\n\n");
-        printf("Use  hi -?  to get more information about hi.\n\n");
+        printf("usage: s7 [options] sourcefile [parameters]\n\n");
+        printf("Use  s7 -?  to get more information about s7.\n\n");
       } else if (option.write_help) {
         writeHelp();
       } else {
@@ -357,8 +374,8 @@ char **argv;
       } /* if */
     } /* if */
     /* getchar(); */
-#ifdef TRACE_HI
-    printf("END HI\n");
+#ifdef TRACE_S7
+    printf("END S7\n");
 #endif
     return 0;
   } /* main */

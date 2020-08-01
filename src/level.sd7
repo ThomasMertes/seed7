@@ -1,4 +1,4 @@
-#! ./hi
+#! ../bin/s7
 $ library "../lib";
 $ include "seed7_05.s7i";
   include "stdio.s7i";

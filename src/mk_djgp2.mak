@@ -35,7 +35,7 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
-MOBJ1 = hi.o
+MOBJ1 = s7.o
 POBJ1 = runerr.o option.o primitiv.o
 LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o bstlib.o chrlib.o cmdlib.o conlib.o dcllib.o drwlib.o
 LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o itflib.o kbdlib.o lstlib.o pollib.o prclib.o
@@ -57,7 +57,7 @@ CONSOLE_LIB_OBJ = kbd_rtl.o con_wat.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 
-MSRC1 = hi.c
+MSRC1 = s7.c
 PSRC1 = runerr.c option.c primitiv.c
 LSRC1 = actlib.c arrlib.c biglib.c blnlib.c bstlib.c chrlib.c cmdlib.c conlib.c dcllib.c drwlib.c
 LSRC2 = enulib.c fillib.c fltlib.c hshlib.c intlib.c itflib.c kbdlib.c lstlib.c pollib.c prclib.c
@@ -79,42 +79,48 @@ CONSOLE_LIB_SRC = kbd_rtl.c con_wat.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi: ..\bin\hi.exe ..\prg\hi.exe
-	..\bin\hi level
+s7: ..\bin\s7.exe ..\prg\s7.exe
+	..\bin\s7 level
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
 
-..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\hi.exe
+..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\s7.exe
 
-..\prg\hi.exe: ..\bin\hi.exe
-	copy ..\bin\hi.exe ..\prg
+..\prg\s7.exe: ..\bin\s7.exe
+	copy ..\bin\s7.exe ..\prg
 
 ..\bin\s7c.exe: ..\prg\s7c.exe
 	copy ..\prg\s7c.exe ..\bin /Y
 
 ..\prg\s7c.exe: ..\prg\s7c.sd7
-	cd ..\prg
-	hi s7c -O2 s7c
-	cd ..\src
+	..\bin\s7 ..\prg\s7c -O2 ..\prg\s7c
 
 clear: clean
 
 clean:
+	del chkccomp.h
 	del version.h
 	del *.o
 	del ..\bin\*.a
-	del ..\bin\hi.exe
+	del ..\bin\s7.exe
 	del ..\bin\s7c.exe
 	del ..\prg\s7c.exe
 	del depend
 
 dep: depend
 
-strip:
-	strip ..\bin\hi.exe
+hi: s7
 
-version.h:
+strip:
+	strip ..\bin\s7.exe
+
+chkccomp.h:
+	echo #include "direct.h" > chkccomp.h
+	echo #include "unistd.h" >> chkccomp.h
+	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+
+version.h: chkccomp.h
 	echo #define ANSI_C > version.h
 	echo #define USE_DIRENT >> version.h
 	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ >> version.h
@@ -142,13 +148,9 @@ version.h:
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
-	echo #include "direct.h" > chkccomp.h
-	echo #include "unistd.h" >> chkccomp.h
-	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp.exe
 	echo The following C compiler errors can be safely ignored
 	.\chkccomp.exe >> version.h
-	del chkccomp.h
 	del chkccomp.exe
 	del cc_vers.txt
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
@@ -168,7 +170,7 @@ depend: version.h
 	echo Working without C header dependency checks.
 
 level.h:
-	..\bin\hi level
+	..\bin\s7 level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
 	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)

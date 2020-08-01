@@ -32,7 +32,7 @@ INSTALLATION
   When the interpreter is compiled just go to the 'seed7/prg'
   directory and start a program like hello.sd7 with:
 
-    hi hello
+    s7 hello
 
   The programs find their include files in the 'lib' directory.
   It is not necessary to add a directory to the PATH variable.
@@ -40,7 +40,7 @@ INSTALLATION
   When the PATH variable does not contain '.' a program can be
   started with:
 
-    ./hi hello
+    ./s7 hello
 
   This installation can be used for playing a little bit with
   the example programs.
@@ -74,23 +74,23 @@ INSTALLATION
          make depend
          make
 
-       The hi interpreter has now the path to the 'lib' directory
-       hardcoded as /usr/local/src/seed7/lib. If the 'hi'
+       The s7 interpreter has now the path to the 'lib' directory
+       hardcoded as /usr/local/src/seed7/lib. If the 's7'
        interpreter was compiled at a different place it is
        possible to use the SEED7_LIBRARY environment variable
        as path to a library directory.
 
-    3. Put a link to the interpreter (seed7/bin/hi) in a directory
+    3. Put a link to the interpreter (seed7/bin/s7) in a directory
        with public access which is in the search path. In our
        example we chose /usr/local/bin:
 
          cd /usr/local/bin
          su
-         ln -s /usr/local/src/seed7/bin/hi .
+         ln -s /usr/local/src/seed7/bin/s7 .
          exit
 
        The advantage of being in the search path is that direct
-       calls of hi (Like: hi myprog) can be done from any
+       calls of s7 (Like: s7 myprog) can be done from any
        directory (Provided that myprog is there).
 
     To generate a Seed7 program which can be called from any
@@ -98,16 +98,16 @@ INSTALLATION
 
     1. The first line in the program must be:
 
-         #! /usr/bin/env hi
+         #! /usr/bin/env s7
 
        The first line informs the (unix like) operating system
-       to start the 'env' program which itself searches for 'hi'
-       in the directories of the PATH variable. Then the 'hi'
+       to start the 'env' program which itself searches for 's7'
+       in the directories of the PATH variable. Then the 's7'
        interpreter is started to execute the desired program.
        To avoid a search in the PATH variable the path to the
-       'hi' interpreter can also be hardcoded as first line:
+       's7' interpreter can also be hardcoded as first line:
 
-         #! /usr/local/src/seed7/bin/hi
+         #! /usr/local/src/seed7/bin/s7
 
        To suppress the compiling information it is possible to
        add as second line:

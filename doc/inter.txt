@@ -14,20 +14,20 @@
 (********************************************************************)
 
 
-THE HI INTERPRETER
-==================
+THE SEED7 INTERPRETER
+=====================
 
-  The hi Interpreter is called with the command
+  The Seed7 interpreter is called with the command
 
-    hi [options] sourcefile [parameters]
+    s7 [options] sourcefile [parameters]
 
   Note that the options must be written before the sourcefile.
   If the sourcefile is not found .sd7 is appended to the sourcefile
   and searched for that file.
 
-  The following options are recognized by hi:
+  The following options are recognized by s7:
 
-  -?   Write hi interpreter usage.
+  -?   Write Seed7 interpreter usage.
   -a   Analyze only and suppress the execution phase.
   -dx  Set compile-time trace level to x. Where x is a string consisting
        of the following characters:

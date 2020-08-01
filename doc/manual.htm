@@ -608,11 +608,11 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   If you write this program in a file called hello.sd7
   and execute the command
 </p><pre class="indent">
-hi hello
+s7 hello
 </pre><p>
   The Seed7 interpreter writes something like
 </p><pre class="indent">
-HI INTERPRETER Version 4.5.9610  Copyright (c) 1990-2012 Thomas Mertes
+SEED7 INTERPRETER Version 5.0.4  Copyright (c) 1990-2013 Thomas Mertes
 hello world
 </pre><p>
   You get information about the Seed7 interpreter and
@@ -623,7 +623,7 @@ hello world
   The the option <b>-q</b> can be used to suppress the line
   with information about the Seed7 interpreter:
 </p><pre class="indent">
-hi -q hello
+s7 -q hello
 </pre><p></p>
 
 <a name="tutorial_Local_declarations_and_expressions"><h3>2.2 Local declarations and expressions</h3></a>
@@ -2493,8 +2493,8 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   in the library <span class="stri">"<span class="lib">math.s7i</span>"</span>.
 </p><pre class="tt">
     Constants:
-      Infinity  Positive infinity
-      NaN       Not-a-Number
+      <span class="var">Infinity</span>  Positive infinity
+      <span class="var">NaN</span>       Not-a-Number
     Prefix operators:
       <span class="op">+</span>         Identity
       <span class="op">-</span>         Change sign
@@ -2535,6 +2535,31 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     Infinity <span class="op">digits</span> A => <span class="stri">"Infinity"</span>,
                     -Infinity <span class="op">digits</span> A => <span class="stri">"-Infinity"</span>,
                     NaN <span class="op">digits</span> A => <span class="stri">"NaN"</span> )
+      <span class="op">sci</span>       Conversion to a <a class="type" href="#types_string">string</a> in scientific notation
+                  ( Type of right operand: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    0.012345 <span class="op">sci</span> 4 => <span class="stri">"1.2345e-2"</span>,
+                    1.2468 <span class="op">sci</span> 2 => <span class="stri">"1.25e+0"</span>,
+                    3.1415 <span class="op">sci</span> 0 => <span class="stri">"3e+0"</span>,
+                    0.125 <span class="op">sci</span> 1 => <span class="stri">"1.2e-1"</span>,
+                    0.375 <span class="op">sci</span> 1 => <span class="stri">"3.8e-1"</span>,
+                    Infinity <span class="op">sci</span> 5 => <span class="stri">"Infinity"</span>,
+                    -Infinity <span class="op">sci</span> 6 => <span class="stri">"-Infinity"</span>,
+                    NaN <span class="op">sci</span> 7 => <span class="stri">"NaN"</span>,
+                    -0.004 <span class="op">sci</span> 2 => <span class="stri">"-4.00e-3"</span> )
+      <span class="op">exp</span>       Set the number of exponent digits in a scientific float notation.
+                  ( Type of left operand: <a class="type" href="#types_string">string</a>,
+                    Type of right operand: <a class="type" href="#types_integer">integer</a>,
+                    Type of result: <a class="type" href="#types_string">string</a>,
+                    0.012345 <span class="op">sci</span> 4 <span class="op">exp</span> 2 => <span class="stri">"1.2345e-02"</span>,
+                    1.2468e15 <span class="op">sci</span> 2 <span class="op">exp</span> 1 => <span class="stri">"1.25e+15"</span>,
+                    3.1415 <span class="op">sci</span> 0 <span class="op">exp</span> 3 => <span class="stri">"3e+000"</span>,
+                    0.125 <span class="op">sci</span> 1 <span class="op">exp</span> 2 => <span class="stri">"1.2e-01"</span>,
+                    0.375 <span class="op">sci</span> 1 <span class="op">exp</span> 2 => <span class="stri">"3.8e-01"</span>,
+                    Infinity <span class="op">sci</span> 5 <span class="op">exp</span> 2 => <span class="stri">"Infinity"</span>,
+                    -Infinity <span class="op">sci</span> 6 <span class="op">exp</span> 2 => <span class="stri">"-Infinity"</span>,
+                    NaN <span class="op">sci</span> 7 <span class="op">exp</span> 2 => <span class="stri">"NaN"</span>,
+                    -0.004 <span class="op">sci</span> 2 <span class="op">exp</span> 2 => <span class="stri">"-4.00e-03"</span> )
       <a class="type" href="#types_float">float</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_float">float</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a> )
     Relations:
@@ -2855,14 +2880,14 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     <span class="stri">"HELLO"</span> <span class="op">rpad</span> -8 => <span class="stri">"HELLO"</span> )
       <a class="type" href="#types_string">string</a> <span class="op">parse</span> A   Identity
     Indices:
-      [ A ]     Access one character
+      <span class="op">[</span> A ]     Access one character
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     Type of result: <a class="type" href="#types_char">char</a>,
                     <span class="stri">"abcde"</span>[1] => <span class="stri">'a'</span>,
                     <span class="stri">"abcde"</span>[5] => <span class="stri">'e'</span>,
                     <span class="stri">"abcde"</span>[0] => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     <span class="stri">"abcde"</span>[6] => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      [ A .. B ] Access a substring from position A to B
+      <span class="op">[</span> A .. B ] Access a substring from position A to B
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
                     <span class="stri">"abcde"</span>[2 .. 4] => <span class="stri">"bcd"</span>,
                     <span class="stri">"abcde"</span>[2 .. 7] => <span class="stri">"bcde"</span>,
@@ -2871,19 +2896,19 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     <span class="stri">"abcde"</span>[-3 .. 4] => <span class="stri">"abcd"</span>,
                     <span class="stri">"abcde"</span>[-3 .. 7] => <span class="stri">"abcde"</span>,
                     <span class="stri">"abcde"</span>[-3 .. 0] => <span class="stri">""</span> )
-      [ A <span class="keywd">len</span> B ] Access a substring from position A with length B
+      <span class="op">[</span> A <span class="keywd">len</span> B ] Access a substring from position A with length B
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a>,
                     <span class="stri">"abcde"</span>[2 <span class="keywd">len</span> 3] => <span class="stri">"bcd"</span>,
                     <span class="stri">"abcde"</span>[2 <span class="keywd">len</span> 5] => <span class="stri">"bcde"</span>,
                     <span class="stri">"abcde"</span>[-3 <span class="keywd">len</span> 8] => <span class="stri">"abcd"</span>,
                     <span class="stri">"abcde"</span>[-1 <span class="keywd">len</span> 9] => <span class="stri">"abcde"</span> )
-      [ A .. ]  Access a substring beginning at position A
+      <span class="op">[</span> A .. ]  Access a substring beginning at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <span class="stri">"abcde"</span>[3 ..] => <span class="stri">"cde"</span>,
                     <span class="stri">"abcde"</span>[6 ..] => <span class="stri">""</span>,
                     <span class="stri">"abcde"</span>[-3 ..] => <span class="stri">"abcde"</span>,
                     <span class="stri">""</span>[1 ..] => <span class="stri">""</span> )
-      [ .. A ]  Access a substring ending at position A
+      <span class="op">[</span> .. A ]  Access a substring ending at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     <span class="stri">"abcde"</span>[.. 4] => <span class="stri">"abcd"</span>,
                     <span class="stri">"abcde"</span>[.. 6] => <span class="stri">"abcde"</span>,
@@ -3122,7 +3147,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( Left argument: <span class="type">baseType</span>,
                     Type of result: <a class="type" href="#types_boolean">boolean</a> )
     Indices:
-      [ A ]     Access one hash table element
+      <span class="op">[</span> A ]     Access one hash table element
                   ( Type of argument A: <span class="type">keyType</span>,
                     Type of result: <span class="type">baseType</span> )
     Functions:
@@ -3452,10 +3477,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( Type of result: <a class="type" href="#types_set">bitset</a>,
                     getValue(NIL, <a class="type" href="#types_set">bitset</a>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     getValue(A, <a class="type" href="#types_set">bitset</a>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> SETOBJECT )
-      getValue(A, <font color=red>clib_file</font>) Dereference as <font color=red>clib_file</font>
-                  ( Type of result: <font color=red>clib_file</font>,
-                    getValue(NIL, <font color=red>clib_file</font>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
-                    getValue(A, <font color=red>clib_file</font>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> FILEOBJECT )
+      getValue(A, <span class="type">clib_file</span>) Dereference as <span class="type">clib_file</span>
+                  ( Type of result: <span class="type">clib_file</span>,
+                    getValue(NIL, <span class="type">clib_file</span>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
+                    getValue(A, <span class="type">clib_file</span>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> for category(A) &lt;> FILEOBJECT )
       getValue(A, <a class="type" href="#types_program">program</a>) Dereference as <a class="type" href="#types_program">program</a>
                   ( Type of result: <a class="type" href="#types_program">program</a>,
                     getValue(NIL, <a class="type" href="#types_program">program</a>) => EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
@@ -3634,21 +3659,21 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   do I/O for a new enumeration type.
 </p><pre class="tt">
     Infix operators:
-      <span class="type">enumType</span> <font color=blue>conv</font> A  Conversion from <a class="type" href="#types_integer">integer</a> A to <span class="type">enumType</span>
+      <span class="type">enumType</span> <span class="op">conv</span> A  Conversion from <a class="type" href="#types_integer">integer</a> A to <span class="type">enumType</span>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
-                    <span class="type">enumType</span> <font color=blue>conv</font> 0 => enum_literal1 )
-      <a class="type" href="#types_integer">integer</a> <font color=blue>conv</font> A   Conversion from <span class="type">enumType</span> A to <a class="type" href="#types_integer">integer</a>
+                    <span class="type">enumType</span> <span class="op">conv</span> 0 => enum_literal1 )
+      <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> A   Conversion from <span class="type">enumType</span> A to <a class="type" href="#types_integer">integer</a>
                   ( Type of result: <a class="type" href="#types_integer">integer</a>,
-                    <a class="type" href="#types_integer">integer</a> <font color=blue>conv</font> enum_literal1 => 0 )
+                    <a class="type" href="#types_integer">integer</a> <span class="op">conv</span> enum_literal1 => 0 )
     Relations:
       =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
       ord(A)    Ordinal number
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       succ(A)   Successor
-                  ( succ(A)=>enumType <font color=blue>conv</font>(succ(ord(A))) )
+                  ( succ(A)=>enumType <span class="op">conv</span>(succ(ord(A))) )
       pred(A)   Predecessor
-                  ( pred(A)=>enumType <font color=blue>conv</font>(pred(ord(A))) )
+                  ( pred(A)=>enumType <span class="op">conv</span>(pred(ord(A))) )
     Statements:
       incr(A)   Increment
                   ( incr(A) => A:=succ(A) )
@@ -3894,17 +3919,17 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
   The <tt><span class="type">file</span></tt> functions are defined in the library <span class="stri">"<span class="lib">file.s7i</span>"</span>.
 </p><pre class="tt">
     Constants:
-      STD_NULL  Standard null file
-      STD_IN    Standard input of the operating system
-      STD_OUT   Standard output of the operating system
-      STD_ERR   Standard error output of the operating system
+      <span class="var">STD_NULL</span>  Standard null file
+      <span class="var">STD_IN</span>    Standard input of the operating system
+      <span class="var">STD_OUT</span>   Standard output of the operating system
+      <span class="var">STD_ERR</span>   Standard error output of the operating system
     Variables:
-      IN        Standard input file used for file input
+      <span class="var">IN</span>        Standard input file used for file input
                   operations when no file is specified
-                  ( IN is initialized with STD_IN )
-      OUT       Standard output file used for file output
+                  ( <span class="var">IN</span> is initialized with <span class="var">STD_IN</span> )
+      <span class="var">OUT</span>       Standard output file used for file output
                   operations when no file is specified
-                  ( OUT is initialized with STD_OUT )
+                  ( <span class="var">OUT</span> is initialized with <span class="var">STD_OUT</span> )
     Relations:
       =, &lt;>
     Functions:
@@ -4756,19 +4781,19 @@ writeln(name(<a class="type" href="#types_char">char</a>));
 </p><p>
   A new interface type is declared with:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: shape <font color=blue>is new interface</font>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: shape <span class="keywd">is</span> <span class="keywd">new interface</span>;
 </pre><p>
   Interface (DYNAMIC) functions describe what can be done
   with objects of an interface type. An interface function
   for a <tt><span class="type">shape</span></tt> could be:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span> <span class="keywd">param</span>, <span class="keywd">inout</span> <font color=red>window</font> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span> <span class="keywd">param</span>, <span class="keywd">inout</span> <span class="type">window</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   Now we know that it is possible to <tt>'draw'</tt> a <tt><span class="type">shape</span></tt> to a
   <tt><span class="type">window</span></tt>. How this drawing is done is described in the
   implementation type. An implementation type for <tt><span class="type">shape</span></tt> is:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: circle <font color=blue>is new struct</font>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: circle <span class="keywd">is</span> <span class="keywd">new struct</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: radius <span class="keywd">is</span> 0;
   <span class="keywd">end struct</span>;
 </pre><p>
@@ -4779,7 +4804,7 @@ type_implements_interface(<span class="type">circle</span>, <span class="type">s
 </pre><p>
   The function which implements <tt>'draw'</tt> for <tt><span class="type">circle</span>s</tt> is:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">circle</span>: aCircle, <span class="keywd">inout</span> <font color=red>window</font>: aWindow) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">circle</span>: aCircle, <span class="keywd">inout</span> <span class="type">window</span>: aWindow) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     circle(aWindow.win, aWindow.currX, aWindow.currY,
         aCircle.radius, aWindow.foreground);
@@ -4845,14 +4870,14 @@ draw(circle(50), aWindow);
   To demonstrate the dynamic dispatch we define the type <tt><span class="type">line</span></tt>
   which also implements a <tt><span class="type">shape</span></tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: line <font color=blue>is new struct</font>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: line <span class="keywd">is</span> <span class="keywd">new struct</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: xLen <span class="keywd">is</span> 0.0;
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: yLen <span class="keywd">is</span> 0.0;
   <span class="keywd">end func</span>;
 
 type_implements_interface(<span class="type">line</span>, <span class="type">shape</span>);
 
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">line</span>: aLine, <span class="keywd">in</span> <font color=red>window</font>: aWindow) <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">line</span>: aLine, <span class="keywd">in</span> <span class="type">window</span>: aWindow) <span class="keywd">is func</span>
   <span class="keywd">begin</span>
     line(aWindow.win, aWindow.currX, aWindow.currY,
         aLine.xLen, aLine.yLen, aWindow.foreground);
@@ -4878,7 +4903,7 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
   function is <tt>'draw(aShape, currWindow)'</tt>. The
   interface function declared with
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span> <span class="keywd">param</span>, <span class="keywd">inout</span> <font color=red>window</font> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: draw (<span class="keywd">in</span> <span class="type">shape</span> <span class="keywd">param</span>, <span class="keywd">inout</span> <span class="type">window</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   decides which implementation function has to be called.
   The dynamic dispatch works as follows:
@@ -4906,7 +4931,7 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
     When a new <tt><a class="type" href="#types_struct">struct</a></tt> type is defined it is possible to
   inherit from an existing <tt><a class="type" href="#types_struct">struct</a></tt> type. E.g.:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: external_file <font color=blue>is sub</font> <span class="type">null_file</span> <font color=blue>struct</font>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: external_file <span class="keywd">is</span> <span class="keywd">sub</span> <span class="type">null_file</span> <span class="keywd">struct</span>
     <span class="keywd">var</span> <span class="type">clib_file</span>: ext_file <span class="keywd">is</span> PRIMITIVE_NULL_FILE;
     <span class="keywd">var</span> <a class="type" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">end struct</span>;
@@ -4914,7 +4939,7 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
   That way the type <tt><span class="type">external_file</span></tt> inherits the fields and
   methods of <tt><span class="type">null_file</span></tt>, which is declared as:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: null_file <font color=blue>is new struct</font>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: null_file <span class="keywd">is</span> <span class="keywd">new struct</span>
   <span class="keywd">var</span> <a class="type" href="#types_char">char</a>: bufferChar <span class="keywd">is</span> '\n';
   <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: io_empty <span class="keywd">is</span> FALSE;
   <span class="keywd">var</span> <a class="type" href="#types_boolean">boolean</a>: io_ok <span class="keywd">is</span> TRUE;
@@ -4976,7 +5001,7 @@ type_implements_interface(<span class="type">line</span>, <span class="type">sha
   A new interface type can also inherit from an existing
   interface type:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: shape <font color=blue>is sub</font> <font color=red>object</font> <font color=blue>interface</font>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: shape <span class="keywd">is</span> <span class="keywd">sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 </pre><p>
   Although inheritance is a very powerful feature it should
   be used with care. In many situations it makes more sense
@@ -5049,19 +5074,19 @@ circle(10)
   <tt><span class="type">Number</span></tt> is an interface type which defines
   the interface function for the <tt>'+'</tt> operation:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Number <font color=blue>is sub</font> <font color=red>object</font> <font color=blue>interface</font>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Number <span class="keywd">is</span> <span class="keywd">sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <span class="type">Number</span>: (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) + (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
   The interface type <tt><span class="type">Number</span></tt> can represent an <tt>'<span class="type">Integer</span>'</tt> or a <tt>'<span class="type">Float</span>'</tt>:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Integer <font color=blue>is new struct</font>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Integer <span class="keywd">is</span> </font><span class="keywd">new struct</span>
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: val <span class="keywd">is</span> 0;
   <span class="keywd">end struct</span>;
 
 type_implements_interface(<span class="type">Integer</span>, <span class="type">Number</span>);
 
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Float <font color=blue>is new struct</font>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: Float <span class="keywd">is</span> </font><span class="keywd">new struct</span>
     <span class="keywd">var</span> <a class="type" href="#types_float">float</a>: val <span class="keywd">is</span> 0.0;
   <span class="keywd">end struct</span>;
 
@@ -5121,13 +5146,13 @@ type_implements_interface(<span class="type">Float</span>, <span class="type">Nu
   The following example shows how to do this:
   The interface type <tt><span class="type">element</span></tt> will be used as "pointer":
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: element <font color=blue>is new interface</font>;
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: element <span class="keywd">is</span> <span class="keywd">new interface</span>;
 </pre><p>
   An implementation type for the empty <tt><span class="type">element</span></tt> (emptyElement)
   can be used as basic implementation type from which other
   implementation types can inherit:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: emptyElement <font color=blue>is new struct
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: emptyElement <span class="keywd">is</span> </font><span class="keywd">new struct</span>
   end struct</font>;
 </pre><p>
   That the implementation type <tt><span class="type">emptyElement</span></tt> implements the
@@ -5144,7 +5169,7 @@ type_implements_interface(<span class="type">emptyElement</span>, <span class="t
   Now the struct with two "pointers" and an <tt><a class="type" href="#types_integer">integer</a></tt> can be
   declared:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: treeElement <font color=blue>is sub</font> <span class="type">emptyElement</span> <font color=blue>struct</font>
+<span class="keywd">const</span> <a class="type" href="#types_type">type</a>: treeElement <span class="keywd">is</span> <span class="keywd">sub</span> <span class="type">emptyElement</span> <span class="keywd">struct</span>
     <span class="keywd">var</span> <span class="type">element</span>: left <span class="keywd">is</span> <span class="type">element</span>.NIL;
     <span class="keywd">var</span> <span class="type">element</span>: right <span class="keywd">is</span> <span class="type">element</span>.NIL;
     <span class="keywd">var</span> <a class="type" href="#types_integer">integer</a>: item <span class="keywd">is</span> 0;
@@ -5439,7 +5464,7 @@ writeln(4321 <span class="keywd">lpad</span> 6);
     stri := str(aValue) <span class="keywd">rpad</span> leng;
   <span class="keywd">end func</span>;
 </pre><p>
-  For <tt><a class="type" href="#types_float">float</a></tt> values exists an additional way to convert them to
+  For <tt><a class="type" href="#types_float">float</a></tt> values exist additional ways to convert them to
   strings. The <tt><span class="keywd">digits</span></tt> operator allows the specification of a
   precision. For example the statements
 </p><pre class="indent">
@@ -5460,6 +5485,39 @@ writeln(99.9 <span class="keywd">digits</span> 2 <span class="keywd">lpad</span>
 </p><pre class="indent">
   3.14
  99.90
+</pre><p>
+  Scientific notation for <tt><a class="type" href="#types_float">float</a></tt> is supported with the
+  conversion operator <tt><span class="keywd">sci</span></tt>. The statements
+</p><pre class="indent">
+writeln(0.012345 <span class="keywd">sci</span> 4);
+writeln(1.2468 <span class="keywd">sci</span> 2 );
+writeln(3.1415 <span class="keywd">sci</span> 0);
+writeln(0.125 <span class="keywd">sci</span> 1);
+writeln(0.375 <span class="keywd">sci</span> 1);
+</pre><p>
+  produce the following output:
+</p><pre class="indent">
+1.2345e-2
+1.25e+0
+3e+0
+1.2e-1
+3.8e-1
+</pre><p>
+  The operator <tt><span class="keywd">exp</span></tt> is used to specifie the number of exponent digits.  The statements
+</p><pre class="indent">
+writeln(0.012345 <span class="keywd">sci</span> 4 <span class="keywd">exp</span> 2);
+writeln(1.2468e15 <span class="keywd">sci</span> 2 <span class="keywd">exp</span> 1);
+writeln(3.1415 <span class="keywd">sci</span> 0 <span class="keywd">exp</span> 3);
+writeln(0.125 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2);
+writeln(0.375 <span class="keywd">sci</span> 1 <span class="keywd">exp</span> 2);
+</pre><p>
+  produce the following output:
+</p><pre class="indent">
+1.2345e-02
+1.25e+15
+3e+000
+1.2e-01
+3.8e-01
 </pre><p></p>
 
 <a name="file_Basic_input_and_output_operations"><h3>8.2 Basic input and output operations</h3></a>
@@ -8867,7 +8925,7 @@ TYPE_ACTION
 <span class="keywd">const</span> <a class="type" href="#types_func">func</a> <a class="type" href="#types_integer">integer</a>: (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: summand1) + (<span class="keywd">in</span> <a class="type" href="#types_integer">integer</a>: summand2) <span class="keywd">is action</span> <span class="stri">"INT_ADD"</span>;
 </pre><p>
   To execute an action a corresponding C function must
-  be present in the hi interpreter. The function for the
+  be present in the s7 interpreter. The function for the
   action <tt>'INT_ADD'</tt> is <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>. The function <tt><a class="func" href="#actions_int_add">int_add</a>()</tt>
   is defined in the file <tt><span class="lib">"intlib.c"</span></tt> with:
 </p><pre class="indent">
@@ -8926,7 +8984,7 @@ TYPE_ACTION
 { <span class="stri">"INT_ADD"</span>,             <a class="func" href="#actions_int_add">int_add</a>,             },
 </pre><p>
   The entries of the primitive action in the file <tt><span class="lib">"primitive.c"</span></tt> are
-  sorted alphabetically. With this definitions the hi interpreter
+  sorted alphabetically. With this definitions the s7 interpreter
   understands a primitive action.
 </p><p>
   To allow a primitive function in a compiled Seed7 program the
@@ -10723,7 +10781,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <a name="errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a>:</dt><dd>
       May be raised by the interpreter kernel when a primitive action
       does not point to any legal action. This check is only done when
-      the hi interpreter is compiled with <tt>'#define WITH_ACTION_CHECK'</tt>.
+      the s7 interpreter is compiled with <tt>'#define WITH_ACTION_CHECK'</tt>.
       The ILLEGAL_ACTION exception is also raised when the primitive
       action ACT_ILLEGAL is executed.</dd><dt>
 </dl><p>
@@ -10755,7 +10813,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
 <a name="errors_Stack_trace"><h3>15.4 Stack trace</h3></a>
 <p>
-  When an EXCEPTION is not caught the program is terminated and the hi
+  When an EXCEPTION is not caught the program is terminated and the s7
   interpreter writes a stack trace:
 </p><pre class="indent">
 *** Uncaught EXCEPTION NUMERIC_ERROR raised with
@@ -10793,7 +10851,7 @@ in main at lander.sd7(1541)
   signal SIGFPE. This is done even when the exception is not
   related to floating point operations.
 </p><pre class="indent">
-./hi s7c -g -e lander
+./s7 s7c -g -e lander
 gdb ./lander
 </pre><p>
   Then the debugger should be able to run the program and to
@@ -10814,7 +10872,7 @@ Program received signal SIGFPE, Arithmetic exception.
   the Seed7 source. The option <tt><b>-g-debug_c</b></tt> creates debug
   information, which refers to the C program generated by the Seed7 compiler:
 </p><pre class="indent">
-./hi s7c -g-debug_c -e lander
+./s7 s7c -g-debug_c -e lander
 gdb ./lander
 </pre><p>
   Now the debugger refers to the temporary file <tt><span class="stri">tmp_lander.c</span></tt>:
