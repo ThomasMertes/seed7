@@ -205,20 +205,20 @@ uinttype uint_rand ()
     printf("BEGIN uint_rand\n");
 #endif
     if (seed_necessary) {
-      uinttype mycro_sec = (uinttype) timMycroSec();
+      uinttype micro_sec = (uinttype) timMicroSec();
 
       high_seed = (uinttype) time(NULL);
       high_seed = high_seed ^ (high_seed << 16);
       low_seed = (uinttype) clock();
       low_seed = (low_seed ^ (low_seed << 16)) ^ high_seed;
       /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
-      high_seed ^= mycro_sec ^ mycro_sec << 8 ^ mycro_sec << 16 ^ mycro_sec << 24;
+      high_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
 #if INTTYPE_SIZE >= 64
-      high_seed ^= mycro_sec << 32 ^ mycro_sec << 40 ^ mycro_sec << 48 ^ mycro_sec << 56;
+      high_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
 #endif
-      low_seed ^= mycro_sec ^ mycro_sec << 8 ^ mycro_sec << 16 ^ mycro_sec << 24;
+      low_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
 #if INTTYPE_SIZE >= 64
-      low_seed ^= mycro_sec << 32 ^ mycro_sec << 40 ^ mycro_sec << 48 ^ mycro_sec << 56;
+      low_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
 #endif
       /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
       seed_necessary = FALSE;

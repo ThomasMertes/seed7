@@ -403,12 +403,12 @@ errinfotype *err_info;
     len = stri->size;
     for (; len > 0; wstri++, strelem++, len--) {
       if (*strelem <= 0xFFFF) {
-        *wstri = (os_chartype) *strelem;
+        *wstri = (uint16type) *strelem;
       } else if (*strelem <= 0x10FFFF) {
         strelemtype currChar = *strelem - 0x10000;
-        *wstri = 0xD800 | (os_chartype) (currChar >> 10);
+        *wstri = (uint16type) (0xD800 | (currChar >> 10));
         wstri++;
-        *wstri = 0xDC00 | (os_chartype) (currChar & 0x3FF);
+        *wstri = (uint16type) (0xDC00 | (currChar & 0x3FF));
       } else {
         *err_info = RANGE_ERROR;
         len = 1;
@@ -492,9 +492,9 @@ errinfotype *err_info;
             } /* if */
           } else if (*strelem <= 0x10FFFF) {
             strelemtype currChar = *strelem - 0x10000;
-            *wstri = 0xD800 | (os_chartype) (currChar >> 10);
+            *wstri = (os_chartype) (0xD800 | (currChar >> 10));
             wstri++;
-            *wstri = 0xDC00 | (os_chartype) (currChar & 0x3FF);
+            *wstri = (os_chartype) (0xDC00 | (currChar & 0x3FF));
           } else {
             *err_info = RANGE_ERROR;
             len = 1;
@@ -783,7 +783,7 @@ wstritype wstri;
 
 #ifdef ANSI_C
 
-stritype os_stri_to_stri (os_stritype os_stri)
+stritype os_stri_to_stri (const_os_stritype os_stri)
 #else
 
 stritype os_stri_to_stri (os_stri)
@@ -855,7 +855,7 @@ strelemtype ch;
  */
 #ifdef ANSI_C
 
-os_stritype cp_to_command (stritype stri, errinfotype *err_info)
+os_stritype cp_to_command (const_stritype stri, errinfotype *err_info)
 #else
 
 os_stritype cp_to_command (stri, err_info)
@@ -947,7 +947,7 @@ errinfotype *err_info;
  */
 #ifdef ANSI_C
 
-os_stritype cp_to_command (stritype stri, errinfotype *err_info)
+os_stritype cp_to_command (const_stritype stri, errinfotype *err_info)
 #else
 
 os_stritype cp_to_command (stri, err_info)

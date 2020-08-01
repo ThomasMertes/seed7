@@ -226,12 +226,12 @@ const proc: delay (in float: secs) is func
   local
     var time: start_time is time.value;
     var integer: seconds is 0;
-    var integer: mycro_seconds is 0;
+    var integer: micro_seconds is 0;
   begin
     start_time := time(NOW);
     seconds := trunc(secs);
-    mycro_seconds := round((secs - flt(seconds)) * 1000000.0);
-    await(start_time + seconds . SECONDS + mycro_seconds . MYCRO_SECONDS);
+    micro_seconds := round((secs - flt(seconds)) * 1000000.0);
+    await(start_time + seconds . SECONDS + micro_seconds . MICRO_SECONDS);
   end func;
 
 
@@ -2348,7 +2348,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       time_now := time(NOW);
       since_midnight := time_now - truncToDay(time_now);
       result := flt(toSeconds(since_midnight)) +
-        flt(since_midnight.mycro_second) / 1000000.0;
+        flt(since_midnight.micro_second) / 1000000.0;
       writeln(log, "TIMER -> " <& result);
     elsif symbol = "CDBL" then
       symbol := get_symbol(line);
@@ -2383,7 +2383,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
           time_now := time(NOW);
           since_midnight := time_now - truncToDay(time_now);
           result := 18.2 * (flt(toSeconds(since_midnight)) +
-            flt(since_midnight.mycro_second) / 1000000.0);
+            flt(since_midnight.micro_second) / 1000000.0);
           result -:= floor(result / 256.0) * 256.0;
           index1 := round(result);
           if index1 < 0 then

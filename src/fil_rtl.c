@@ -70,16 +70,16 @@ extern __int64 __cdecl _ftelli64(FILE *);
 
 #ifdef ANSI_C
 
-static void get_mode (os_chartype mode[4], stritype file_mode)
+static void get_mode (os_chartype os_mode[4], stritype file_mode)
 #else
 
-static void get_mode (mode, file_mode)
-os_chartype mode[4];
+static void get_mode (os_mode, file_mode)
+os_chartype os_mode[4];
 stritype file_mode;
 #endif
 
   { /* get_mode */
-    mode[0] = '\0';
+    os_mode[0] = '\0';
     if (file_mode->size >= 1 &&
         (file_mode->mem[0] == 'r' ||
          file_mode->mem[0] == 'w' ||
@@ -90,9 +90,9 @@ stritype file_mode;
            w ... Truncate to zero length or create file for writing.
            a ... Append; open or create file for writing at end-of-file.
         */
-        mode[0] = (os_chartype) file_mode->mem[0];
-        mode[1] = 'b';
-        mode[2] = '\0';
+        os_mode[0] = (os_chartype) file_mode->mem[0];
+        os_mode[1] = 'b';
+        os_mode[2] = '\0';
       } else if (file_mode->size == 2) {
         if (file_mode->mem[1] == '+') {
           /* Binary mode
@@ -100,18 +100,18 @@ stritype file_mode;
              w+ ... Truncate to zero length or create file for update.
              a+ ... Append; open or create file for update, writing at end-of-file.
           */
-          mode[0] = (os_chartype) file_mode->mem[0];
-          mode[1] = 'b';
-          mode[2] = '+';
-          mode[3] = '\0';
+          os_mode[0] = (os_chartype) file_mode->mem[0];
+          os_mode[1] = 'b';
+          os_mode[2] = '+';
+          os_mode[3] = '\0';
         } else if (file_mode->mem[1] == 't') {
           /* Text mode
              rt ... Open file for reading.
              wt ... Truncate to zero length or create file for writing.
              at ... Append; open or create file for writing at end-of-file.
           */
-          mode[0] = (os_chartype) file_mode->mem[0];
-          mode[1] = '\0';
+          os_mode[0] = (os_chartype) file_mode->mem[0];
+          os_mode[1] = '\0';
         } /* if */
       } else if (file_mode->size == 3) {
         if (file_mode->mem[1] == 't' &&
@@ -121,9 +121,9 @@ stritype file_mode;
              wt+ ... Truncate to zero length or create file for update.
              at+ ... Append; open or create file for update, writing at end-of-file.
           */
-          mode[0] = (os_chartype) file_mode->mem[0];
-          mode[1] = '+';
-          mode[2] = '\0';
+          os_mode[0] = (os_chartype) file_mode->mem[0];
+          os_mode[1] = '+';
+          os_mode[2] = '\0';
         } /* if */
       } /* if */
     } /* if */
@@ -249,9 +249,10 @@ filetype aFile;
 int offsetSeek (filetype aFile, const os_off_t anOffset, const int origin)
 #else
 
-int offsetSeek (aFile, anOffset)
+int offsetSeek (aFile, anOffset, origin)
 filetype aFile;
 os_off_t anOffset;
+int origin;
 #endif
 
   {
@@ -767,6 +768,9 @@ inttype length;
               (size_t) allocated_size, aFile);
           /* printf("num_of_chars_read=%lu\n", num_of_chars_read); */
           if (num_of_chars_read == 0 && ferror(aFile)) {
+            /* printf("errno=%d\n", errno);
+            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  EISDIR=%d  EROFS=%d\n",
+                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, EISDIR, EROFS); */
             err_info = FILE_ERROR;
           } else {
             uchartype *from = &((uchartype *) result->mem)[num_of_chars_read - 1];
@@ -983,43 +987,92 @@ filetype aFile;
 
 
 
+/**
+ *  Opens the file with the specified 'path' and 'mode'.
+ *  Unicode characters in 'path' are converted to the representation
+ *  used by the fopen() function of the operating system. In 'path'
+ *  a slash / must be used as path delimiter. Using a backslash \
+ *  in 'path' may raise the exception 'RANGE_ERROR'. The following
+ *  values are allowed as mode: "r", "w", "a", "r+", "w+", "a+",
+ *  "rt", "wt", "at", "rt+", "wt+" and "at+". The modes with t are
+ *  text modes and the modes without t are binary modes. Note that
+ *  this modes differ from the ones used by the C function fopen().
+ *  When 'mode' is not one of the allowed values the exception
+ *  'RANGE_ERROR' is raised. An attempt to open a directory returns
+ *  NULL.
+ *  @return return a filetype value when fopen() succeeds, or NULL
+ *          when fopen() fails or when the file is a directory.
+ *  @raise MEMORY_ERROR when there is not enough memory to convert
+ *         the path to the system path type.
+ *  @raise RANGE_ERROR when 'mode' is not one of the allowed values
+ *         or 'path' is not representable in the system path type or
+ *         when a backslash \ is used as path delimiter.
+ */
 #ifdef ANSI_C
 
-filetype filOpen (stritype file_name, stritype file_mode)
+filetype filOpen (stritype path, stritype mode)
 #else
 
-filetype filOpen (file_name, file_mode)
-stritype file_name;
-stritype file_mode;
+filetype filOpen (path, mode)
+stritype path;
+stritype mode;
 #endif
 
   {
     os_stritype os_path;
-    os_chartype mode[4];
+    os_chartype os_mode[4];
     errinfotype err_info = OKAY_NO_ERROR;
+#ifdef FOPEN_OPENS_DIRECTORIES
+    int file_no;
+    os_stat_struct stat_buf;
+#endif
     filetype result;
 
   /* filOpen */
-    /* printf("BEGIN filOpen(%lX, %lX)\n", file_name, file_mode); */
-    get_mode(mode, file_mode);
-    if (mode[0] == '\0') {
+    /* printf("BEGIN filOpen(%lX, %lX)\n", path, mode); */
+    get_mode(os_mode, mode);
+    if (os_mode[0] == '\0') {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      os_path = cp_to_os_path(file_name, &err_info);
+      os_path = cp_to_os_path(path, &err_info);
       if (os_path == NULL) {
         raise_error(err_info);
         result = NULL;
       } else {
 #ifdef OS_PATH_WCHAR
-        result = wide_fopen(os_path, mode);
+        result = wide_fopen(os_path, os_mode);
 #else
-        result = fopen(os_path, mode);
+        result = fopen(os_path, os_mode);
 #endif
         os_stri_free(os_path);
+#ifdef FOPEN_OPENS_DIRECTORIES
+        if (result != NULL) {
+          file_no = fileno(result);
+          if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
+              S_ISDIR(stat_buf.st_mode)) {
+            /* An attempt to open a directory with filOpen()     */
+            /* returns NULL even when fopen() succeeds. On many  */
+            /* modern operating systems functions like fgetc()   */
+            /* and readf() fail to read from a directory anyway. */
+            /* So it is better to fail early, when the file is   */
+            /* opened, instead of later at an unexpected place.  */
+            /* Even when reading a directory as file succeeds    */
+            /* there is another issue: Reading a directory as    */
+            /* file is not portable, since it delivers an        */
+            /* operating system specific representation of the   */
+            /* directory. So reading a directory as file should  */
+            /* be avoided altogether. The functions dirOpen(),   */
+            /* dirRead() and dirClose() provide a portable way   */
+            /* to open, read and close a directory.              */
+            fclose(result);
+            result = NULL;
+          } /* if */
+        } /* if */
+#endif
       } /* if */
     } /* if */
-    /* printf("END filOpen(%lX, %lX) => %lX\n", file_name, file_mode, result); */
+    /* printf("END filOpen(%lX, %lX) => %lX\n", path, mode, result); */
     return result;
   } /* filOpen */
 
@@ -1044,17 +1097,17 @@ filetype aFile;
 
 #ifdef ANSI_C
 
-filetype filPopen (stritype command, stritype file_mode)
+filetype filPopen (stritype command, stritype mode)
 #else
 
-filetype filPopen (command, file_mode)
+filetype filPopen (command, mode)
 stritype command;
-stritype file_mode;
+stritype mode;
 #endif
 
   {
     os_stritype cmd;
-    os_chartype mode[4];
+    os_chartype os_mode[4];
     errinfotype err_info = OKAY_NO_ERROR;
     filetype result;
 
@@ -1064,20 +1117,20 @@ stritype file_mode;
       raise_error(err_info);
       result = NULL;
     } else {
-      mode[0] = '\0';
-      if (file_mode->size == 1 &&
-          (file_mode->mem[0] == 'r' ||
-           file_mode->mem[0] == 'w')) {
-        mode[0] = (os_chartype) file_mode->mem[0];
-        mode[1] = '\0';
+      os_mode[0] = '\0';
+      if (mode->size == 1 &&
+          (mode->mem[0] == 'r' ||
+           mode->mem[0] == 'w')) {
+        os_mode[0] = (os_chartype) mode->mem[0];
+        os_mode[1] = '\0';
       } /* if */
       /* The mode "rb" is not allowed under unix/linux */
-      /* therefore get_mode(mode, file_mode); cannot be called */
-      if (mode[0] == '\0') {
+      /* therefore get_mode(os_mode, mode); cannot be called */
+      if (os_mode[0] == '\0') {
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-        result = os_popen(cmd, mode);
+        result = os_popen(cmd, os_mode);
       } /* if */
       free_cstri(cmd, command);
     } /* if */

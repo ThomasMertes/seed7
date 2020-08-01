@@ -152,10 +152,15 @@ const proc: copyArea(in PRIMITIVE_WINDOW param,
     ref integer param, ref integer param) is           action "DRW_COPYAREA";
 const proc: SET_TRANSPARENTCOLOR (in PRIMITIVE_WINDOW param,
     ref pixel param) is                                action "DRW_SETTRANSPARENTCOLOR";
+const func integer: hashCode (in PRIMITIVE_WINDOW param) is  action "DRW_HASHCODE";
+const func integer: compare (in PRIMITIVE_WINDOW param,
+                             in PRIMITIVE_WINDOW param) is   action "DRW_CMP";
 const func integer: height (in PRIMITIVE_WINDOW param) is    action "DRW_HEIGHT";
 const func integer: width (in PRIMITIVE_WINDOW param) is     action "DRW_WIDTH";
 const func integer: xPos (in PRIMITIVE_WINDOW param) is      action "DRW_XPOS";
 const func integer: yPos (in PRIMITIVE_WINDOW param) is      action "DRW_YPOS";
+const proc: setContent (inout PRIMITIVE_WINDOW param,
+    in PRIMITIVE_WINDOW param) is                            action "DRW_SETCONTENT";
 const proc: setPos (in PRIMITIVE_WINDOW param,
     in integer param, in integer param) is                   action "DRW_SETPOS";
 const func pixel: rgbPixel (ref integer param,
@@ -165,6 +170,8 @@ const proc: SET_BACKGROUND (ref pixel param) is        action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, in string param,
     ref pixel param, ref pixel param) is               action "DRW_TEXT";
+const proc: toBottom (in PRIMITIVE_WINDOW param) is    action "DRW_TOBOTTOM";
+const proc: toTop (in PRIMITIVE_WINDOW param)    is    action "DRW_TOTOP";
 
 (**
  *  Determine the actual X position of the mouse pointer.

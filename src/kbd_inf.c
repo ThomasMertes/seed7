@@ -421,7 +421,7 @@ static void utf8_init ()
     if (((s = getenv("LC_ALL"))   && *s) ||
         ((s = getenv("LC_CTYPE")) && *s) ||
         ((s = getenv("LANG"))     && *s)) {
-      if (strstr(s, "UTF-8")) {
+      if (strstr(s, "UTF-8") || strstr(s, "utf8")) {
         utf8_mode = TRUE;
       } /* if */
     } /* if */

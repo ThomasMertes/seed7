@@ -399,9 +399,10 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
     var time: modTime is time.value;
     var array header: dirHeaderList is 0 times header.value;
     var integer: index is 0;
+    var boolean: okay is TRUE;
   begin
     readHead(inFile, head);
-    while head.name <> "" and head.magic = TMAGIC do
+    while head.name <> "" and head.magic = TMAGIC and okay do
       if do_view then
         write("x ");
         writeln(head.name);
@@ -410,14 +411,29 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
         head.name := head.name[.. pred(length(head.name))];
       end if;
       if head.typeflag = DIRTYPE then
-        mkdir(head.name);
-        dirHeaderList &:= [] (head);
+        if fileType(head.name) = FILE_DIR then
+          dirHeaderList &:= [] (head);
+        elsif fileType(head.name) = FILE_ABSENT then
+          mkdir(head.name);
+          dirHeaderList &:= [] (head);
+        else
+          writeln("*** The file " <& literal(head.name) <& " exists, but is not a directory");
+          okay := FALSE;
+        end if;
       elsif head.typeflag = REGTYPE or head.typeflag = AREGTYPE then
         if head.size <> 0 then
           stri := gets(inFile, succ(pred(head.size) mdiv 512) * 512);
-          putf(head.name, stri[ .. head.size]);
-          modTime := timestamp1970ToTime(head.mtime);
-          setMTime(head.name, modTime);
+          if fileType(head.name) = FILE_REGULAR then
+            removeFile(head.name);
+          end if;
+          if fileType(head.name) = FILE_ABSENT then
+            putf(head.name, stri[ .. head.size]);
+            modTime := timestamp1970ToTime(head.mtime);
+            setMTime(head.name, modTime);
+          else
+            writeln("*** The file " <& literal(head.name) <& " exists, but is not a regular file");
+            okay := FALSE;
+          end if;
         end if;
       end if;
       readHead(inFile, head);

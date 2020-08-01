@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-include "qwert";(* Include file "qwert" not found     *)
+include "qwerty";(* Include file "qwert" not found     *)
 (* char: *)    (* Illegal character in text "\8\"    *)
 $ illegal;      (* Illegal pragma "illegal"           *)
 $ const ACTION: (* Illegal action "z"                 *)  a is $ action "z";

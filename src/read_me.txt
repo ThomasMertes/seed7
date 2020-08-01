@@ -15,17 +15,17 @@ THE MAKEFILES
     Several makefiles are prepared for various combinations
   of operating system, make utility, C compiler and shell:
 
-  makefile name|operating system |make prog|compiler    |shell
-  -------------+-----------------+---------+------------+--------
-  mk_linux.mak | linux/unix/bsd  | (g)make | gcc        | sh
-  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc        | sh
-  mk_msys.mak  | windows (MinGW) | (g)make | gcc        | sh
-  mk_mingw.mak | windows (MinGW) | (g)make | gcc        | cmd.exe
-  mk_nmake.mak | windows (MinGW) | nmake   | gcc        | cmd.exe
-  mk_msvc.mak  | windows (MSVC)  | nmake   | cl         | cmd.exe
-  mk_bcc32.mak | windows (bcc32) | make    | bcc32      | cmd.exe
-  mk_bccv5.mak | windows (bcc32) | make    | bcc32 V5.5 | cmd.exe
-  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc        | sh
+  makefile name|operating system |make prog     |compiler    |shell
+  -------------+-----------------+--------------+------------+--------
+  mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
+  mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
+  mk_msys.mak  | Windows (MinGW) | (g)make      | gcc        | sh
+  mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
+  mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
+  mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
+  mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
+  mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
+  mk_osx.mak   | Mac OS X (Xcode)| (g)make      | gcc        | sh
 
   In the optimal case you just copy one of this files to
   'makefile' and do (with the make program from the table above):
@@ -36,7 +36,7 @@ THE MAKEFILES
   When the interpreter is compiled successfully the executable
   is placed in the 'src' directory. Additionally a symbolic link
   to the executable is placed in the 'prg' directory (Under
-  windows symbolic links are not supported, so a copy of the
+  Windows symbolic links are not supported, so a copy of the
   executable is placed in the 'prg' directory). If you do several
   compilation attempts in succession you need to do
 
@@ -47,9 +47,9 @@ THE MAKEFILES
 
 COMPILING UNTER LINUX
 
-    For linux the compilation process is the simplest. The
+    For Linux the compilation process is the simplest. The
   file 'makefile' is (almost) identical to 'mk_linux.mak' and
-  that file is already prepared to compile under linux.
+  that file is already prepared to compile under Linux.
   Just type:
 
     make depend
@@ -64,7 +64,7 @@ COMPILING UNTER LINUX
 
 COMPILING UNDER BSD AND UNIX
 
-    Probably you can do it just the same way as under linux.
+    Probably you can do it just the same way as under Linux.
   If there are problems and the makefile needs to be adjusted
   please let me know. If you send the changed makefile to me
   I can include it in the release.
@@ -72,30 +72,26 @@ COMPILING UNDER BSD AND UNIX
 
 COMPILING UNDER WINDOWS WITH GCC
 
-    You need gcc and gmake from MinGW. Use a console and
+    You need gcc and mingw32-make from MinGW. Use a console and
   change the PATH variable to contain the MinGW tools. Then
   go to the 'src' directory and type:
 
     copy mk_mingw.mak makefile
-    gmake depend
-    gmake
+    mingw32-make depend
+    mingw32-make
 
-  To compile under MSYS (a unix shell window from the MinGW
+  To compile under MSYS (a Unix shell window from the MinGW
   tools) go to the 'src' directory and type:
 
     cp mk_msys.mak makefile
     gmake depend
     gmake
 
-  Sometimes the gmake utility uses unix shell commands even
-  when started from a windows console. In this case use a
-  windows console, go to the 'src' directory and type:
+  When gmake uses Unix shell commands even when started from
+  a Windows console, you can use gmake totether with
+  mk_msys.mak from a Windows console also.
 
-    copy mk_msys.mak makefile
-    gmake depend
-    gmake
-
-  To utilize nmake from windows and gcc from MinGW use a
+  To utilize nmake from Windows and gcc from MinGW use a
   console, go to the 'src' directory and type:
 
     copy mk_nmake.mak makefile
@@ -107,9 +103,9 @@ COMPILING UNDER WINDOWS WITH GCC
 
 COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
-    To utilize compilation with nmake and cl (the command line
-  compiler of a big big software company) use a console, go
-  to the 'src' directory and type:
+    To utilize compilation with nmake and cl (the C compiler of
+  a big big software company) use a console, go to the 'src'
+  directory and type:
 
     copy mk_msvc.mak makefile
     nmake depend
@@ -121,8 +117,8 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 COMPILING UNDER WINDOWS WITH BCC32
 
     To utilize compilation with make and bcc32 (the make utility
-  and the command line compiler of a smaller software company)
-  use a console, go to the 'src' directory and type:
+  and the C compiler of a smaller software company) use a
+  console, go to the 'src' directory and type:
 
     copy mk_bcc32.mak makefile
     make depend
@@ -195,11 +191,11 @@ COMPILING UNTER MAC OS X
   linker normally does not search libraries in '/usr/X11R6/lib'.
   Therefore 'mk_osx.mak' defines the following linker flag:
 
-    LFLAGS = -L/usr/X11R6/lib 
+    LDFLAGS = -L/usr/X11R6/lib 
 
   Besides this 'mk_osx.mak' is almost identical to
   'mk_linux.mak' and 'makefile'. When the X11 library is in a
-  different directory you need to change the LFLAGS value to
+  different directory you need to change the LDFLAGS value to
   that directory.
 
 
@@ -207,7 +203,7 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
     In most cases errors indicate that some development package
   of your distribution is missing. If your operating system is
-  linux, bsd or unix not all development packages with header
+  Linux, BSD or Unix not all development packages with header
   files might be installed. In this case you get some errors
   after typing 'make depend'.
 
@@ -249,9 +245,9 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
     /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
 
   indicate that your makefile contains commands for the cmd.exe
-  (or command.com) windows console, but your 'make' program uses
-  a unix shell (/usr/bin/sh) to execute them. Either use a
-  makefile which uses unix shell commands (e.g. mk_msys.mak or
+  (or command.com) Windows console, but your 'make' program uses
+  a Unix shell (/usr/bin/sh) to execute them. Either use a
+  makefile which uses Unix shell commands (e.g. mk_msys.mak or
   mk_cygw.mak) or take care that the 'make' program uses cmd.exe
   (or command.com) to execute the commands.
 
@@ -297,15 +293,15 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   The X11 library can have the name libX11.so (dynamic library)
   or libX11.a (static library). You need to search for this
   library (the dynamic library should normally be preferred).
-  After you found it the LFLAGS definition in your makefile must
+  After you found it the LDFLAGS definition in your makefile must
   be changed. E.g.: If you found libX11.so in '/usr/X11R6/lib'
-  the LFLAGS assignment should be changed from
+  the LDFLAGS assignment should be changed from
 
-    LFLAGS =
+    LDFLAGS =
 
   to
 
-    LFLAGS = -L/usr/X11R6/lib 
+    LDFLAGS = -L/usr/X11R6/lib 
 
  --- Other errors
 
@@ -360,7 +356,7 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
 
     ./hi chk_all
 
-  Under windows using ./ might not work. Just omit the ./ and
+  Under Windows using ./ might not work. Just omit the ./ and
   type:
 
     hi chk_all
@@ -633,12 +629,19 @@ THE VERSION.H FILE
   ANSI_C: Defined when the ansi C prototypes are used. If
           it is not defined K&R C function headers are used.
           It seems to be antiquated to still support K&R C,
-          but I really saw UNIX systems where the K&R C
+          but I really saw Unix systems where the K&R C
           compiler was available for free and the ansi C
           compiler was a chargeable option (and in most
           situations you don't have the possibility to force
           your boss to buy a C compiler just to compile some
           open source program).
+
+  USE_WMAIN: Defined when the main function is named wmain.
+             This is a way to support Unicode command line
+             arguments under Windows. An alternate way to
+             support Unicode command line arguments under
+             Windows uses the functions getUtf16Argv and
+             freeUtf16Argv (both defined in "cmd_win.c").
 
   USE_DIRENT: The header file containing the definitions for
               opendir(), readdir() and closedir() has the name
@@ -692,9 +695,9 @@ THE VERSION.H FILE
   os_mkdir(path,mode): Function to be used instead of mkdir()
                        under the target operating system.
                        If not defined mkdir() is used. Under
-                       windows the mkdir() function usually
+                       Windows the mkdir() function usually
                        has only one parameter while under
-                       unix/linux/bsd mkdir() has two
+                       Unix/Linux/BSD mkdir() has two
                        parameters.
 
   os_rmdir: Function to be used instead of rmdir() under the
@@ -768,12 +771,12 @@ THE VERSION.H FILE
               UTF-8 encoded characters.
 
   USE_WINSOCK: Use thw winsocket functions instead of the
-               normal unix socket functions.
+               normal Unix socket functions.
 
   PATH_DELIMITER: This is the path delimiter character used by
                   the command shell of the operating system. It
                   is defined as '/' for most operating systems,
-                  except for windows, where it is defined as
+                  except for Windows, where it is defined as
                   '\\'. The PATH_DELIMITER macro is used when
                   the functions popen() and system() are called.
                   Seed7 programs are portable and do not need to
@@ -850,16 +853,16 @@ THE VERSION.H FILE
   OBJECT_FILE_EXTENSION: The extension used by the C compiler for
                          object files (Several object files and
                          libraries are linked together to an
-                         executable). Under linux/unix/bsd this
-                         is usually ".o" Under windows this is
+                         executable). Under Linux/Unix/BSD this
+                         is usually ".o" Under Windows this is
                          ".o" for MinGW and cygwin, but ".obj"
                          for MSVC and bcc32.
 
   EXECUTABLE_FILE_EXTENSION: The extension which is used by the
                              operating systemfor executables.
                              Since executable extensions are not
-                             used under linux/unix/bsd it is ""
-                             for them. Under windows the value
+                             used under Linux/Unix/BSD it is ""
+                             for them. Under Windows the value
                              ".exe" is used.
 
   C_COMPILER: Contains the command to call the stand-alone C
@@ -876,7 +879,7 @@ THE VERSION.H FILE
                      of the C compiler to a file. The MSVC
                      stand-alone C compiler (CL) writes the error
                      messages to standard output (use: "2>NUL: >"),
-                     while the unix C compliers including MinGW and
+                     while the Unix C compliers including MinGW and
                      cygwin write the error messages to the error
                      output (use "2>").
 

@@ -53,7 +53,7 @@
 #define STRUCT_TM_MIN_YEAR 1970
 #endif
 #define STRUCT_TM_MAX_YEAR 2037
-#elif INTTYPE_SIZE == 64
+#elif TIME_T_SIZE == 64
 #if   defined INT64TYPE_SUFFIX_LL
 #define STRUCT_TM_MIN_YEAR (-292277022655LL)
 #define STRUCT_TM_MAX_YEAR   292277026595LL
@@ -65,6 +65,11 @@
 #define STRUCT_TM_MAX_YEAR   292277026595
 #endif
 #endif
+
+
+static time_t month_days[2][12] = {
+    {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+    {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
 
 static time_t year_days[2][12] = {
     {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
@@ -94,6 +99,53 @@ struct tm *timeptr;
     } else {
       leap_year = 0;
     } /* if */
+    if (unlikely(
+        real_year < STRUCT_TM_MIN_YEAR || real_year > STRUCT_TM_MAX_YEAR ||
+        timeptr->tm_mon < 0 || timeptr->tm_mon > 11 || timeptr->tm_mday < 1 ||
+        timeptr->tm_mday > month_days[leap_year][timeptr->tm_mon] ||
+        timeptr->tm_hour < 0 || timeptr->tm_hour >= 24 ||
+        timeptr->tm_min < 0 || timeptr->tm_min >= 60 ||
+        timeptr->tm_sec < 0 || timeptr->tm_sec >= 60)) {
+      result = (time_t) -1;
+    } else {
+      year_before = real_year - 1;
+      result = ((((time_t) year_before * 365 +
+                           year_before / 4 -
+                           year_before / 100 +
+                           year_before / 400 -
+               (time_t) 719162 +
+               year_days[leap_year][timeptr->tm_mon] + timeptr->tm_mday - 1) * 24 +
+               (time_t) timeptr->tm_hour) * 60 +
+               (time_t) timeptr->tm_min) * 60 +
+               (time_t) timeptr->tm_sec;
+    } /* if */
+    return result;
+  } /* mkutc */
+
+
+
+#ifdef ANSI_C
+
+time_t unchecked_mkutc (struct tm *timeptr)
+#else
+
+time_t unchecked_mkutc (timeptr)
+struct tm *timeptr;
+#endif
+
+  {
+    int real_year;
+    int leap_year;
+    int year_before;
+    time_t result;
+
+  /* unchecked_mkutc */
+    real_year = 1900 + timeptr->tm_year;
+    if ((real_year % 4 == 0 && real_year % 100 != 0) || real_year % 400 == 0) {
+      leap_year = 1;
+    } else {
+      leap_year = 0;
+    } /* if */
     year_before = real_year - 1;
     result = ((((time_t) year_before * 365 +
                          year_before / 4 -
@@ -105,7 +157,7 @@ struct tm *timeptr;
              (time_t) timeptr->tm_min) * 60 +
              (time_t) timeptr->tm_sec;
     return result;
-  } /* mkutc */
+  } /* unchecked_mkutc */
 
 
 
@@ -113,12 +165,12 @@ struct tm *timeptr;
 
 void timFromTimestamp (time_t timestamp,
     inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
 #else
 
 void timFromTimestamp (timestamp,
-    year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
+    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
 time_t timestamp;
 inttype *year;
 inttype *month;
@@ -126,7 +178,7 @@ inttype *day;
 inttype *hour;
 inttype *min;
 inttype *sec;
-inttype *mycro_sec;
+inttype *micro_sec;
 inttype *time_zone;
 booltype *is_dst;
 #endif
@@ -146,7 +198,7 @@ booltype *is_dst;
 #else
     local_time = localtime(&timestamp);
 #endif
-    if (local_time == NULL) {
+    if (unlikely(local_time == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
       *year      = local_time->tm_year + 1900;
@@ -155,14 +207,14 @@ booltype *is_dst;
       *hour      = local_time->tm_hour;
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
-      *mycro_sec = 0;
-      *time_zone = (mkutc(local_time) - timestamp) / 60;
+      *micro_sec = 0;
+      *time_zone = (unchecked_mkutc(local_time) - timestamp) / 60;
       *is_dst    = local_time->tm_isdst;
     } /* if */
 #ifdef TRACE_TIM_RTL
     printf("END timFromTimestamp(%ld, %04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
         timestamp, *year, *month, *day, *hour, *min, *sec,
-        *mycro_sec, *time_zone, *is_dst);
+        *micro_sec, *time_zone, *is_dst);
 #endif
   } /* timFromTimestamp */
 
@@ -171,17 +223,17 @@ booltype *is_dst;
 #ifdef ANSI_C
 
 time_t timToTimestamp (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype mycro_sec, inttype time_zone)
+    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
 
-time_t timToTimestamp (year, month, day, hour, min, sec, mycro_sec, time_zone)
+time_t timToTimestamp (year, month, day, hour, min, sec, micro_sec, time_zone)
 inttype year;
 inttype month;
 inttype day;
 inttype hour;
 inttype min;
 inttype sec;
-inttype mycro_sec;
+inttype micro_sec;
 inttype time_zone;
 #endif
 
@@ -192,25 +244,18 @@ inttype time_zone;
   /* timToTimestamp */
 #ifdef TRACE_TIM_RTL
     printf("BEGIN timToTimestamp(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
-        year, month, day, hour, min, sec, mycro_sec, time_zone);
+        year, month, day, hour, min, sec, micro_sec, time_zone);
 #endif
-    if (
-#ifdef STRUCT_TM_MIN_YEAR
-        year < STRUCT_TM_MIN_YEAR || year > STRUCT_TM_MAX_YEAR ||
-#endif
-        month < 1 || month > 12 || day < 1 || day > 31 ||
-        hour < 0 || hour >= 24 || min < 0 || min >= 60 || sec < 0 || sec >= 60) {
-      raise_error(RANGE_ERROR);
-      result = (time_t) -1;
-    } else {
-      tm_time.tm_year  = (int) year - 1900;
-      tm_time.tm_mon   = (int) month - 1;
-      tm_time.tm_mday  = (int) day;
-      tm_time.tm_hour  = (int) hour;
-      tm_time.tm_min   = (int) min;
-      tm_time.tm_sec   = (int) sec;
-      tm_time.tm_isdst = 0;
-      result = mkutc(&tm_time) - time_zone * 60;
+    tm_time.tm_year  = (int) year - 1900;
+    tm_time.tm_mon   = (int) month - 1;
+    tm_time.tm_mday  = (int) day;
+    tm_time.tm_hour  = (int) hour;
+    tm_time.tm_min   = (int) min;
+    tm_time.tm_sec   = (int) sec;
+    tm_time.tm_isdst = 0;
+    result = mkutc(&tm_time);
+    if (likely(result != (time_t) -1)) {
+      result -= time_zone * 60;
     } /* if */
 #ifdef TRACE_TIM_RTL
     printf("END timToTimestamp ==> %lu\n", result);
@@ -257,35 +302,31 @@ booltype *is_dst;
 #else
     local_time = localtime(&timestamp);
 #endif
-    if (local_time == NULL) {
+    if (unlikely(local_time == NULL)) {
       raise_error(RANGE_ERROR);
     } else {
-      time_zone_reference = mkutc(local_time) / 60;
-      if (
-#ifdef STRUCT_TM_MIN_YEAR
-          year < STRUCT_TM_MIN_YEAR || year > STRUCT_TM_MAX_YEAR ||
-#endif
-          month < 1 || month > 12 || day < 1 || day > 31 ||
-          hour < 0 || hour >= 24 || min < 0 || min >= 60 || sec < 0 || sec >= 60) {
+      time_zone_reference = unchecked_mkutc(local_time) / 60;
+      tm_time.tm_year  = (int) year - 1900;
+      tm_time.tm_mon   = (int) month - 1;
+      tm_time.tm_mday  = (int) day;
+      tm_time.tm_hour  = (int) hour;
+      tm_time.tm_min   = (int) min;
+      tm_time.tm_sec   = (int) sec;
+      tm_time.tm_isdst = 0;
+      timestamp = mkutc(&tm_time);
+      if (unlikely(timestamp == (time_t) -1)) {
         raise_error(RANGE_ERROR);
       } else {
-        tm_time.tm_year  = (int) year - 1900;
-        tm_time.tm_mon   = (int) month - 1;
-        tm_time.tm_mday  = (int) day;
-        tm_time.tm_hour  = (int) hour;
-        tm_time.tm_min   = (int) min;
-        tm_time.tm_sec   = (int) sec;
-        tm_time.tm_isdst = 0;
-        timestamp = mkutc(&tm_time) - time_zone_reference * 60;
+        timestamp -= time_zone_reference * 60;
 #ifdef USE_LOCALTIME_R
         local_time = localtime_r(&timestamp, &tm_result);
 #else
         local_time = localtime(&timestamp);
 #endif
-        if (local_time == NULL) {
+        if (unlikely(local_time == NULL)) {
           raise_error(RANGE_ERROR);
         } else {
-          *time_zone = (mkutc(local_time) - timestamp) / 60;
+          *time_zone = (unchecked_mkutc(local_time) - timestamp) / 60;
           *is_dst    = local_time->tm_isdst;
         } /* if */
       } /* if */
@@ -302,12 +343,12 @@ booltype *is_dst;
 
 void timFromBigTimestamp (biginttype timestamp,
     inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
 #else
 
 void timFromBigTimestamp (timestamp,
-    year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
+    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
 biginttype timestamp;
 inttype *year;
 inttype *month;
@@ -315,7 +356,7 @@ inttype *day;
 inttype *hour;
 inttype *min;
 inttype *sec;
-inttype *mycro_sec;
+inttype *micro_sec;
 inttype *time_zone;
 booltype *is_dst;
 #endif
@@ -330,7 +371,7 @@ booltype *is_dst;
       os_timestamp = (time_t) bigToInt32(timestamp);
     } /* if */
     timFromTimestamp(os_timestamp,
-        year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst);
+        year, month, day, hour, min, sec, micro_sec, time_zone, is_dst);
   } /* timFromBigTimestamp */
 
 
@@ -338,17 +379,17 @@ booltype *is_dst;
 #ifdef ANSI_C
 
 biginttype timToBigTimestamp (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype mycro_sec, inttype time_zone)
+    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
 
-biginttype timToBigTimestamp (year, month, day, hour, min, sec, mycro_sec, time_zone)
+biginttype timToBigTimestamp (year, month, day, hour, min, sec, micro_sec, time_zone)
 inttype year;
 inttype month;
 inttype day;
 inttype hour;
 inttype min;
 inttype sec;
-inttype mycro_sec;
+inttype micro_sec;
 inttype time_zone;
 #endif
 
@@ -357,7 +398,7 @@ inttype time_zone;
     biginttype result;
 
   /* timToBigTimestamp */
-    os_timestamp = timToTimestamp(year, month, day, hour, min, sec, mycro_sec, time_zone);
+    os_timestamp = timToTimestamp(year, month, day, hour, min, sec, micro_sec, time_zone);
     if (sizeof(time_t) == 8) {
       result = bigFromInt64((int64type) os_timestamp);
     } else {

@@ -104,10 +104,10 @@ const func pixmapFontType: genPixmapFont (in fontProperties: properties,
     result.scale := scale;
     result.foreground := foreground;
     result.background := background;
-    result.baseLineDelta := baseLineDelta(properties);
-    result.line_delta := lineHeight(properties);
-    result.column_delta := columnWidth(properties);
-    result.characterSpacing := characterSpacing(properties);
+    result.baseLineDelta := baseLineDelta(properties) * scale;
+    result.line_delta := lineHeight(properties) * scale;
+    result.column_delta := columnWidth(properties) * scale;
+    result.characterSpacing := characterSpacing(properties) * scale;
   end func;
 
 
@@ -197,7 +197,7 @@ const func text: openBitmapFontFile (in PRIMITIVE_WINDOW: win,
   end func;
 
 
-const proc: setFont (inout file param, in font param) is DYNAMIC;
+const proc: setFont (inout text param, in font param) is DYNAMIC;
 
 
 const proc: setPos (inout pixmapFontFile: fontFile,
@@ -228,6 +228,16 @@ const proc: color (inout pixmapFontFile: fontFile, in color: col, in color: back
   begin
     fontFile.font := getFont(fontFile.font.baseFont, fontFile.font.fontSize,
         fontFile.font.scale, col, backgr);
+  end func;
+
+
+const proc: scale (inout text param, in integer: scale) is DYNAMIC;
+
+
+const proc: scale (inout pixmapFontFile: fontFile, in integer: scale) is func
+  begin
+    fontFile.font := getFont(fontFile.font.baseFont, fontFile.font.fontSize,
+        scale, fontFile.font.foreground, fontFile.font.background);
   end func;
 
 

@@ -498,13 +498,16 @@ listtype arguments;
 #endif
 
   {
+    const_stritype name;
     stritype result;
 
   /* ref_file */
     isit_reference(arg_1(arguments));
-    result = refFile(take_reference(arg_1(arguments)));
-    if (result != NULL) {
-      result = strCreate(result);
+    name = refFile(take_reference(arg_1(arguments)));
+    if (name == NULL) {
+      result = NULL;
+    } else {
+      result = strCreate(name);
     } /* if */
     if (result == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);

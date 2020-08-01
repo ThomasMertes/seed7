@@ -502,7 +502,7 @@ const proc: play_soundstep is func
     delay(125);
     delay(175);
 *)
-    await(start_time + 100000 . MYCRO_SECONDS);
+    await(start_time + 100000 . MICRO_SECONDS);
   end func; (* play_soundstep *)
 
 

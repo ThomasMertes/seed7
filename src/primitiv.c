@@ -248,6 +248,7 @@ static primactrecord prim_act_table[] = {
     { "DRW_BACKGROUND",      drw_background,      },
     { "DRW_CIRCLE",          drw_circle,          },
     { "DRW_CLEAR",           drw_clear,           },
+    { "DRW_CMP",             drw_cmp,             },
     { "DRW_COLOR",           drw_color,           },
     { "DRW_COPYAREA",        drw_copyarea,        },
     { "DRW_CPY",             drw_cpy,             },
@@ -263,6 +264,7 @@ static primactrecord prim_act_table[] = {
     { "DRW_FPOLYLINE",       drw_fpolyLine,       },
     { "DRW_GENPOINTLIST",    drw_genPointList,    },
     { "DRW_GET",             drw_get,             },
+    { "DRW_HASHCODE",        drw_hashcode,        },
     { "DRW_HEIGHT",          drw_height,          },
     { "DRW_IMAGE",           drw_image,           },
     { "DRW_LINE",            drw_line,            },
@@ -288,9 +290,12 @@ static primactrecord prim_act_table[] = {
     { "DRW_RGBCOL",          drw_rgbcol,          },
     /* { "DRW_ROT",             drw_rot,             }, */
     /* { "DRW_SCALE",           drw_scale,           }, */
+    { "DRW_SETCONTENT",      drw_setContent,      },
     { "DRW_SETPOS",          drw_setPos,          },
     { "DRW_SETTRANSPARENTCOLOR", drw_setTransparentColor, },
     { "DRW_TEXT",            drw_text,            },
+    { "DRW_TOBOTTOM",        drw_toBottom,        },
+    { "DRW_TOTOP",           drw_toTop,           },
     { "DRW_WIDTH",           drw_width,           },
     { "DRW_XPOS",            drw_xpos,            },
     { "DRW_YPOS",            drw_ypos,            },

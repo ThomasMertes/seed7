@@ -52,12 +52,12 @@ const proc: main is func
     after := time(NOW);
     write(before);
     write(" ");
-    writeln(before.mycro_second lpad 6);
+    writeln(before.micro_second lpad 6);
     write(after);
     write(" ");
-    writeln(after.mycro_second lpad 6);
+    writeln(after.micro_second lpad 6);
     diff := after - before;
     write(diff);
     write(" ");
-    writeln(diff.mycro_second lpad 6);
+    writeln(diff.micro_second lpad 6);
   end func;

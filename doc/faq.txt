@@ -86,8 +86,8 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
    obtained and changed with portable functions.
  - A forward slash is used as path delimiter on all operating systems
    and an attempt to use a backslash as path delimiter is an error.
- - Differences between UNIX sockets and winsockets are hidden and
-   Seed7 sockets are files (as in UNIX).
+ - Differences between Unix sockets and winsockets are hidden and
+   Seed7 sockets are files (as in Unix).
  - Reading keys and key combinations such as ctrl-F1 from a text
    console or a graphic window under different operating systems
    always delivers the same character code.
@@ -132,8 +132,8 @@ On which operating systems does Seed7 run?
 ==========================================
 
 Linux is supported out of the box (because the development is done using
-Linux). I used Seed7 also under various UNIX variants, so it is probably
-easy to port Seed7 to a UNIX variant. Windows is supported with MinGW,
+Linux). I used Seed7 also under various Unix variants, so it is probably
+easy to port Seed7 to a Unix variant. Windows is supported with MinGW,
 Cygwin (it may be necessary to change some include or library paths),
 the stand alone compiler of MSVC (cl.exe) and the stand alone compiler of
 the BDS (bcc32.exe). For other operating systems it might be necessary to
@@ -188,17 +188,17 @@ For other cases several makefiles are prepared for various
 combinations of operating system, make utility, C compiler
 and shell:
 
-  makefile name|operating system |make prog|compiler    |shell
-  -------------+-----------------+---------+------------+--------
-  mk_linux.mak | linux/unix/bsd  | (g)make | gcc        | sh
-  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc        | sh
-  mk_msys.mak  | windows (MinGW) | (g)make | gcc        | sh
-  mk_mingw.mak | windows (MinGW) | (g)make | gcc        | cmd.exe
-  mk_nmake.mak | windows (MinGW) | nmake   | gcc        | cmd.exe
-  mk_msvc.mak  | windows (MSVC)  | nmake   | cl         | cmd.exe
-  mk_bcc32.mak | windows (bcc32) | make    | bcc32      | cmd.exe
-  mk_bccv5.mak | windows (bcc32) | make    | bcc32 V5.5 | cmd.exe
-  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc        | sh
+  makefile name|operating system |make prog     |compiler    |shell
+  -------------+-----------------+--------------+------------+--------
+  mk_linux.mak | Linux/Unix/BSD  | (g)make      | gcc        | sh
+  mk_cygw.mak  | Windows (Cygwin)| (g)make      | gcc        | sh
+  mk_msys.mak  | Windows (MinGW) | (g)make      | gcc        | sh
+  mk_mingw.mak | Windows (MinGW) | mingw32-make | gcc        | cmd.exe
+  mk_nmake.mak | Windows (MinGW) | nmake        | gcc        | cmd.exe
+  mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
+  mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
+  mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
+  mk_osx.mak   | Mac OS X (Xcode)| (g)make      | gcc        | sh
 
 In the optimal case you just copy one of this files to 'makefile'
 and do (with the make program from the table above):
@@ -223,7 +223,7 @@ I got errors when compiling Seed7. What should I do?
 ====================================================
 
 In most cases errors indicate that some development package of your
-distribution is missing. If your operating system is Linux, BSD or UNIX
+distribution is missing. If your operating system is Linux, BSD or Unix
 not all development packages with header files might be installed. In
 this case you get some errors after typing 'make depend'. Errors such as
 
@@ -264,8 +264,8 @@ Errors such as
 
 indicate that your makefile contains commands for the cmd.exe
 (or command.com) windows console, but your 'make' program uses
-a UNIX shell (/usr/bin/sh) to execute them. Either use a
-makefile which uses UNIX shell commands (e.g. mk_msys.mak or
+a Unix shell (/usr/bin/sh) to execute them. Either use a
+makefile which uses Unix shell commands (e.g. mk_msys.mak or
 mk_cygw.mak) or take care that the 'make' program uses cmd.exe
 (or command.com) to execute the commands.
 

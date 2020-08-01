@@ -31,6 +31,11 @@
 
 #ifdef ANSI_C
 
+#ifdef USE_WMAIN
+rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0);
+#else
+rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0);
+#endif
 void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from);
 rtlArraytype arrArrlit2 (inttype start_position, rtlArraytype arr1);
 rtlArraytype arrBaselit (const rtlGenerictype element);
@@ -51,6 +56,11 @@ rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start);
 
 #else
 
+#ifdef USE_WMAIN
+rtlArraytype getArgv ();
+#else
+rtlArraytype getArgv ();
+#endif
 void arrAppend ();
 rtlArraytype arrArrlit2 ();
 rtlArraytype arrBaselit ();

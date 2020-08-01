@@ -43,6 +43,7 @@ const boolean: FLOAT_ZERO_DIV_ERROR     is boolean parse configValue("FLOAT_ZERO
 const boolean: ISNAN_WITH_UNDERLINE     is boolean parse configValue("ISNAN_WITH_UNDERLINE");
 const boolean: CHECK_INT_DIV_BY_ZERO    is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
 const boolean: CC_SOURCE_UTF8           is boolean parse configValue("CC_SOURCE_UTF8");
+const boolean: USE_WMAIN                is boolean parse configValue("USE_WMAIN");
 const boolean: FLOATTYPE_DOUBLE         is boolean parse configValue("FLOATTYPE_DOUBLE");
 const integer: INTTYPE_SIZE             is integer parse configValue("INTTYPE_SIZE");
 const integer: FLOATTYPE_SIZE           is integer parse configValue("FLOATTYPE_SIZE");
@@ -165,6 +166,7 @@ var struct_element_type_hash: struct_element_type is struct_element_type_hash.EM
 var boolean_type_hash: create_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: cpy_declared is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
@@ -470,6 +472,7 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
         end if;
         incl(declared_types, type_obj);
       # else
+      #   writeln(type_name2(aType) & " in typeCategory " & str(typeCategory[aType]));
       #   c_expr.expr &:= "/* " & type_name2(aType) & " in typeCategory " & str(typeCategory[aType]) & " */\n";
       end if;
     # else
@@ -861,7 +864,11 @@ const proc: process_create_declaration (in type: object_type,
           when {STRUCTOBJECT}:
             process_sct_create_declaration(object_type, c_expr);
           when {HASHOBJECT}:
-            process_hsh_create_declaration(object_type, c_expr);
+            if object_type in parametersOfHshCreate then
+              process_hsh_create_declaration(object_type, c_expr);
+            else
+              declare_create_prototype(object_type, c_expr);
+            end if;
           otherwise:
             create_declared @:= [object_type] TRUE;
         end case;
@@ -1042,7 +1049,11 @@ const proc: process_destr_declaration (in type: object_type,
           when {STRUCTOBJECT}:
             process_sct_destr_declaration(object_type, c_expr);
           when {HASHOBJECT}:
-            process_hsh_destr_declaration(object_type, c_expr);
+            if object_type in parametersOfHshDestr then
+              process_hsh_destr_declaration(object_type, c_expr);
+            else
+              declare_destr_prototype(object_type, c_expr);
+            end if;
           otherwise:
             destr_declared @:= [object_type] TRUE;
         end case;
@@ -1313,6 +1324,29 @@ const proc: process_cpy_call (in type: object_type,
       expr &:= " for type ";
       expr &:= type_name2(object_type);
       expr &:= " */";
+    end if;
+  end func;
+
+
+const proc: process_generic_sct_cpy_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  begin
+    if object_type not in generic_cpy_declared then
+      process_cpy_declaration(object_type, c_expr);
+      c_expr.expr &:= "static void generic_cpy_";
+      c_expr.expr &:= str(type_number(object_type));
+      c_expr.expr &:= " (";
+      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= " *a, ";
+      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= " b)\n";
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "cpy_";
+      c_expr.expr &:= str(type_number(object_type));
+      c_expr.expr &:= "(*a, b);\n";
+      c_expr.expr &:= "}\n\n";
+      generic_cpy_declared @:= [object_type] TRUE;
     end if;
   end func;
 
@@ -2950,7 +2984,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         end if;
         c_expr.temp_decls &:= str(temp_num);
         c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "idx_";
+        c_expr.expr &:= "(idx_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "=(";
         process_expr(param3, c_expr);
@@ -2968,6 +3002,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, idx_";
         c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= ")";
       else
         c_expr.expr &:= "(";
         process_expr(param3, c_expr);
@@ -3027,6 +3062,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
       c_expr.expr &:= str(array_temp_num);
       c_expr.expr &:= "->arr[";
       if array_range_check then
+        c_expr.expr &:= "(";
         c_expr.expr &:= str(index);
         c_expr.expr &:= "<tmp_";
         c_expr.expr &:= str(array_temp_num);
@@ -3037,11 +3073,16 @@ const proc: process_const_arr_idx (in reference: function, in reference: param1,
         c_expr.expr &:= "->max_position ? ";
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, ";
+        c_expr.expr &:= str(index);
+        c_expr.expr &:= "-tmp_";
+        c_expr.expr &:= str(array_temp_num);
+        c_expr.expr &:= "->min_position)";
+      else
+        c_expr.expr &:= str(index);
+        c_expr.expr &:= "-tmp_";
+        c_expr.expr &:= str(array_temp_num);
+        c_expr.expr &:= "->min_position";
       end if;
-      c_expr.expr &:= str(index);
-      c_expr.expr &:= "-tmp_";
-      c_expr.expr &:= str(array_temp_num);
-      c_expr.expr &:= "->min_position";
       c_expr.expr &:= "]";
       c_expr.expr &:= select_value_from_rtlObjectstruct(result_type(getType(function)));
       c_expr.expr &:= "))";
@@ -3106,7 +3147,7 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
           c_expr.temp_decls &:= "inttype idx_";
           c_expr.temp_decls &:= str(index_temp_num);
           c_expr.temp_decls &:= ";\n";
-          c_expr.expr &:= "idx_";
+          c_expr.expr &:= "(idx_";
           c_expr.expr &:= str(index_temp_num);
           c_expr.expr &:= "=";
           process_expr(params[3], c_expr);
@@ -3123,13 +3164,16 @@ const proc: process_arr_idx (in reference: function, in ref_list: params,
           c_expr.expr &:= " : 0, idx_";
           c_expr.expr &:= str(index_temp_num);
           c_expr.expr &:= "-tmp_";
+          c_expr.expr &:= str(array_temp_num);
+          c_expr.expr &:= "->min_position)";
         else
           c_expr.expr &:= "(";
           process_expr(params[3], c_expr);
           c_expr.expr &:= ")-tmp_";
+          c_expr.expr &:= str(array_temp_num);
+          c_expr.expr &:= "->min_position";
         end if;
-        c_expr.expr &:= str(array_temp_num);
-        c_expr.expr &:= "->min_position]";
+        c_expr.expr &:= "]";
         c_expr.expr &:= select_value_from_rtlObjectstruct(result_type(getType(function)));
         c_expr.expr &:= "))";
       end if;
@@ -5090,7 +5134,7 @@ const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
         end if;
         c_expr.temp_decls &:= str(temp_num);
         c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "idx_";
+        c_expr.expr &:= "(idx_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "=";
         if TWOS_COMPLEMENT_INTTYPE then
@@ -5111,6 +5155,7 @@ const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, idx_";
         c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= ")";
       else
         c_expr.expr &:= "(";
         process_expr(param3, c_expr);
@@ -5133,7 +5178,7 @@ const proc: process_const_bst_idx (in reference: function, in reference: param1,
     elsif array_range_check then
       incr(c_expr.temp_num);
       string_temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "stritype tmp_";
+      c_expr.temp_decls &:= "bstritype tmp_";
       c_expr.temp_decls &:= str(string_temp_num);
       c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "(*(tmp_";
@@ -5142,7 +5187,7 @@ const proc: process_const_bst_idx (in reference: function, in reference: param1,
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ", &tmp_";
       c_expr.expr &:= str(string_temp_num);
-      c_expr.expr &:= "->mem[tmp_";
+      c_expr.expr &:= "->mem[(tmp_";
       c_expr.expr &:= str(string_temp_num);
       c_expr.expr &:= "->size<";
       c_expr.expr &:= str(index);
@@ -5150,7 +5195,7 @@ const proc: process_const_bst_idx (in reference: function, in reference: param1,
       process_raise_error("RANGE_ERROR", function, c_expr);
       c_expr.expr &:= " : 0, ";
       c_expr.expr &:= str(pred(index));
-      c_expr.expr &:= "]))";
+      c_expr.expr &:= ")]))";
     else
       c_expr.expr &:= "(";
       getAnyParamToExpr(param1, c_expr);
@@ -5173,7 +5218,7 @@ const proc: process_bst_idx (in reference: function, in ref_list: params, inout 
     elsif array_range_check then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "stritype tmp_";
+      c_expr.temp_decls &:= "bstritype tmp_";
       c_expr.temp_decls &:= str(temp_num);
       c_expr.temp_decls &:= ";\n";
       if TWOS_COMPLEMENT_INTTYPE then
@@ -5189,7 +5234,7 @@ const proc: process_bst_idx (in reference: function, in ref_list: params, inout 
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", &tmp_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "->mem[idx_";
+      c_expr.expr &:= "->mem[(idx_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "=";
       if TWOS_COMPLEMENT_INTTYPE then
@@ -5210,7 +5255,7 @@ const proc: process_bst_idx (in reference: function, in ref_list: params, inout 
       process_raise_error("RANGE_ERROR", function, c_expr);
       c_expr.expr &:= " : 0, idx_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "]))";
+      c_expr.expr &:= ")]))";
     else
       c_expr.expr &:= "(";
       getAnyParamToExpr(params[1], c_expr);
@@ -6046,6 +6091,17 @@ const proc: process_drw_clear (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_drw_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "refCmpGeneric((generictype)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "), (generictype)(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
 const proc: process_drw_color (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6272,6 +6328,15 @@ const proc: process_drw_get (in ref_list: params, inout expr_type: c_expr) is fu
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[5], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_drw_hashcode (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(inttype)(((memsizetype)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ")) >> 6)";
   end func;
 
 
@@ -6651,6 +6716,18 @@ const proc: process_drw_rgbcol (in ref_list: params, inout expr_type: c_expr) is
   end func;
 
 
+const proc: process_drw_setcontent (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwSetContent(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_drw_setpos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6693,6 +6770,26 @@ const proc: process_drw_text (in ref_list: params, inout expr_type: c_expr) is f
     process_expr(params[5], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[6], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_drw_toBottom (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwToBottom(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_drw_toTop (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "drwToTop(";
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -9801,11 +9898,11 @@ const proc: process_int_value (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_itf_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "refCmpGeneric(";
+    c_expr.expr &:= "refCmpGeneric((generictype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
+    c_expr.expr &:= "), (generictype)(";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -10275,11 +10372,11 @@ const proc: process_ref_cat_str (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_ref_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "refCmpGeneric(";
+    c_expr.expr &:= "refCmpGeneric((generictype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
+    c_expr.expr &:= "), (generictype)(";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -12725,7 +12822,7 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
         end if;
         c_expr.temp_decls &:= str(temp_num);
         c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "idx_";
+        c_expr.expr &:= "(idx_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "=";
         if TWOS_COMPLEMENT_INTTYPE then
@@ -12746,6 +12843,7 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, idx_";
         c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= ")";
       else
         c_expr.expr &:= "(";
         process_expr(param3, c_expr);
@@ -12771,7 +12869,7 @@ const proc: process_const_str_idx (in reference: function, in reference: param1,
         prepareAnyParamTemporarys(param1, c_param1, c_expr);
         c_expr.expr &:= "(";
         c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ")->mem[(";
+        c_expr.expr &:= ")->mem[((";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ")->size<";
         c_expr.expr &:= str(index);
@@ -12779,7 +12877,7 @@ const proc: process_const_str_idx (in reference: function, in reference: param1,
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, ";
         c_expr.expr &:= str(pred(index));
-        c_expr.expr &:= "]";
+        c_expr.expr &:= ")]";
       else
         incr(c_expr.temp_num);
         temp_num := c_expr.temp_num;
@@ -12792,7 +12890,7 @@ const proc: process_const_str_idx (in reference: function, in reference: param1,
         getAnyParamToExpr(param1, c_expr);
         c_expr.expr &:= ", &tmp_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "->mem[tmp_";
+        c_expr.expr &:= "->mem[(tmp_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "->size<";
         c_expr.expr &:= str(index);
@@ -12800,7 +12898,7 @@ const proc: process_const_str_idx (in reference: function, in reference: param1,
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, ";
         c_expr.expr &:= str(pred(index));
-        c_expr.expr &:= "]))";
+        c_expr.expr &:= ")]))";
       end if;
     else
       c_expr.expr &:= "(";
@@ -12836,7 +12934,7 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
         prepareAnyParamTemporarys(params[1], c_param1, c_expr);
         c_expr.expr &:= "(";
         c_expr.expr &:= c_param1.expr;
-        c_expr.expr &:= ")->mem[idx_";
+        c_expr.expr &:= ")->mem[(idx_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "=";
         if TWOS_COMPLEMENT_INTTYPE then
@@ -12857,7 +12955,7 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, idx_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "]";
+        c_expr.expr &:= ")]";
       else
         c_expr.temp_decls &:= "stritype tmp_";
         c_expr.temp_decls &:= str(temp_num);
@@ -12868,7 +12966,7 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
         getAnyParamToExpr(params[1], c_expr);
         c_expr.expr &:= ", &tmp_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "->mem[idx_";
+        c_expr.expr &:= "->mem[(idx_";
         c_expr.expr &:= str(temp_num);
         c_expr.expr &:= "=";
         if TWOS_COMPLEMENT_INTTYPE then
@@ -12889,7 +12987,7 @@ const proc: process_str_idx (in reference: function, in ref_list: params, inout 
         process_raise_error("RANGE_ERROR", function, c_expr);
         c_expr.expr &:= " : 0, idx_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "]))";
+        c_expr.expr &:= ")]))";
       end if;
     else
       c_expr.expr &:= "(";
@@ -14250,6 +14348,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_circle(params, c_expr);
       elsif action_name = "DRW_CLEAR" then
         process_drw_clear(params, c_expr);
+      elsif action_name = "DRW_CMP" then
+        process_drw_cmp(params, c_expr);
       elsif action_name = "DRW_COLOR" then
         process_drw_color(params, c_expr);
       elsif action_name = "DRW_COPYAREA" then
@@ -14274,6 +14374,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_genpointlist(params, c_expr);
       elsif action_name = "DRW_GET" then
         process_drw_get(params, c_expr);
+      elsif action_name = "DRW_HASHCODE" then
+        process_drw_hashcode(params, c_expr);
       elsif action_name = "DRW_HEIGHT" then
         process_drw_height(params, c_expr);
       elsif action_name = "DRW_IMAGE" then
@@ -14320,12 +14422,18 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_rect(params, c_expr);
       elsif action_name = "DRW_RGBCOL" then
         process_drw_rgbcol(params, c_expr);
+      elsif action_name = "DRW_SETCONTENT" then
+        process_drw_setcontent(params, c_expr);
       elsif action_name = "DRW_SETPOS" then
         process_drw_setpos(params, c_expr);
       elsif action_name = "DRW_SETTRANSPARENTCOLOR" then
         process_drw_setTransparentColor(params, c_expr);
       elsif action_name = "DRW_TEXT" then
         process_drw_text(params, c_expr);
+      elsif action_name = "DRW_TOBOTTOM" then
+        process_drw_toBottom(params, c_expr);
+      elsif action_name = "DRW_TOTOP" then
+        process_drw_toTop(params, c_expr);
       elsif action_name = "DRW_WIDTH" then
         process_drw_width(params, c_expr);
       elsif action_name = "DRW_XPOS" then
@@ -16947,7 +17055,11 @@ const proc: process_main_declaration (in reference: function,
     process_expr(body(function), c_func_body);
     c_expr.currentFile := file(function);
     c_expr.currentLine := line(function);
-    main_prolog := "int main (int argc, char **argv)\n";
+    if USE_WMAIN then
+      main_prolog := "int wmain (int argc, wchar_t **argv)\n";
+    else
+      main_prolog := "int main (int argc, char **argv)\n";
+    end if;
     main_prolog &:= "\n";
     main_prolog &:= "{\n";
     main_prolog &:= "int fail_value;\n";
@@ -16959,7 +17071,7 @@ const proc: process_main_declaration (in reference: function,
     else
       main_prolog &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     end if;
-    main_prolog &:= "init_args(argc, argv);\n";
+    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0);\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
     if not signal_exception then
@@ -17251,6 +17363,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&chrCpy";
     elsif action_name = "CHR_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
+    elsif action_name = "DRW_CMP" then
+      c_expr.expr &:= "&refCmpGeneric";
     elsif action_name = "DRW_CPY" then
       c_expr.expr &:= "&drwCpy";
     elsif action_name = "DRW_CREATE" then
@@ -17306,8 +17420,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= str(type_number(object_type));
     elsif action_name = "SCT_CPY" then
       object_type := getType(params(function)[1]);
-      process_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&cpy_";
+      process_generic_sct_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_cpy_";
       c_expr.expr &:= str(type_number(object_type));
     elsif action_name = "SET_CMP" then
       c_expr.expr &:= "&setCmpGeneric";
@@ -19384,8 +19498,11 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        drwPut (wintype, wintype, inttype, inttype);");
     writeln(c_prog, "void        drwRect (wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "inttype     drwRgbColor (inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwSetContent (wintype, wintype);");
     writeln(c_prog, "void        drwSetPos (wintype, inttype, inttype);");
     writeln(c_prog, "void        drwText (wintype, inttype, inttype, stritype, inttype, inttype);");
+    writeln(c_prog, "void        drwToBottom (wintype);");
+    writeln(c_prog, "void        drwToTop (wintype);");
     writeln(c_prog, "void        drwSetTransparentColor (wintype, inttype);");
     writeln(c_prog, "inttype     drwWidth (wintype);");
     writeln(c_prog, "inttype     drwXPos (wintype);");
@@ -19611,7 +19728,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    strLow (stritype);");
     writeln(c_prog, "stritype    strLowTemp (stritype);");
     writeln(c_prog, "stritype    strLpad (stritype, inttype);");
-    writeln(c_prog, "stritype    strLpad0Temp (stritype, inttype);");
+    writeln(c_prog, "stritype    strLpadTemp (stritype, inttype);");
     writeln(c_prog, "stritype    strLpad0 (stritype, inttype);");
     writeln(c_prog, "stritype    strLpad0Temp (stritype, inttype);");
     writeln(c_prog, "booltype    strLt (stritype, stritype);");
@@ -19660,6 +19777,11 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        ut8Seek (filetype, inttype);");
     writeln(c_prog, "stritype    ut8WordRead (filetype, chartype *);");
     writeln(c_prog, "void        ut8Write (filetype, stritype);");
+    if USE_WMAIN then
+      writeln(c_prog, "arraytype   getArgv (int, wchar_t **, stritype *);");
+    else
+      writeln(c_prog, "arraytype   getArgv (int, char **, stritype *);");
+    end if;
     writeln(c_prog, "void        setupFloat (void);");
     writeln(c_prog, "void        init_values (void);");
     writeln(c_prog, "void        init_globals (void);");
@@ -19761,22 +19883,6 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "      raise_error(MEMORY_ERROR);");
     writeln(c_prog, "    } else {");
     writeln(c_prog, "      catch_stack = resized_stack;");
-    writeln(c_prog, "    }");
-    writeln(c_prog, "  }");
-    writeln(c_prog);
-    writeln(c_prog);
-    writeln(c_prog, "static void init_args (int argc, char **argv)");
-    writeln(c_prog);
-    writeln(c_prog, "  {");
-    writeln(c_prog, "    int number;");
-    writeln(c_prog);
-    writeln(c_prog, "    arg_0 = cstri8_or_cstri_to_stri(argv[0]);");
-    writeln(c_prog, "    arg_v = (arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +");
-    writeln(c_prog, "        argc * sizeof(rtlObjecttype)));");
-    writeln(c_prog, "    arg_v->min_position = 1;");
-    writeln(c_prog, "    arg_v->max_position = argc - 1;");
-    writeln(c_prog, "    for (number = 1; number < argc; number++) {");
-    writeln(c_prog, "      arg_v->arr[number-1].value.strivalue=cstri8_or_cstri_to_stri(argv[number]);");
     writeln(c_prog, "    }");
     writeln(c_prog, "  }");
     writeln(c_prog);
@@ -20957,6 +21063,7 @@ const proc: main is func
     var boolean: okay is TRUE;
 
   begin
+    OUT := STD_UTF8_OUT;
     writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2010 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("usage: comp [options] sourcefile [parameters]");

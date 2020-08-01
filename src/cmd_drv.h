@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  tim_drv.h     Prototypes for time handling functions.           */
-/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
+/*  cmd_drv.h     Driver functions for commands.                    */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,49 +23,20 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/tim_drv.h                                       */
-/*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
-/*  Content: Prototypes for time handling functions.                */
+/*  File: seed7/src/cmd_drv.h                                       */
+/*  Changes: 2010  Thomas Mertes                                    */
+/*  Content: Driver functions for commands.                         */
 /*                                                                  */
 /********************************************************************/
 
-#ifdef USE_ALTERNATE_UTIME
-#ifdef INCLUDE_SYS_UTIME
-#include "sys/utime.h"
-#else
-#include "utime.h"
-#endif
-#endif
-
-#ifdef USE_ALTERNATE_LOCALTIME_R
-#define localtime_r alternate_localtime_r
-#endif
-
 #ifdef ANSI_C
 
-void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype micro_sec, inttype time_zone);
-inttype timMicroSec (void);
-void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
-    booltype *is_dst);
-#ifdef USE_ALTERNATE_LOCALTIME_R
-struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result);
-#endif
-#ifdef USE_ALTERNATE_UTIME
-int alternate_utime (wchar_t *os_path, os_utimbuf_struct *utime_buf);
-#endif
+os_stritype *getUtf16Argv (int *w_argc);
+void freeUtf16Argv (os_stritype *w_argv);
 
 #else
 
-void timAwait ();
-inttype timMicroSec ();
-void timNow ();
-#ifdef USE_ALTERNATE_LOCALTIME_R
-struct tm *alternate_localtime_r ();
-#endif
-#ifdef USE_ALTERNATE_UTIME
-int alternate_utime ();
-#endif
+os_stritype *getUtf16Argv ();
+void freeUtf16Argv ();
 
 #endif

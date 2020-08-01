@@ -993,6 +993,12 @@ stritype name;
 #else
         opt = "FALSE";
 #endif
+      } else if (strcmp(opt_name, "USE_WMAIN") == 0) {
+#ifdef USE_WMAIN
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else {
         opt = "";
       } /* if */
@@ -1202,7 +1208,7 @@ stritype file_name;
         } /* if */
       } else {
         result = 0;
-        if (errno != ENOENT || file_name->size == 0) {
+        if (file_name->size != 0 && errno != ENOENT && errno != ENOTDIR) {
           /* printf("errno=%d\n", errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
@@ -1263,7 +1269,7 @@ stritype file_name;
         } /* if */
       } else {
         result = 0;
-        if (errno != ENOENT || file_name->size == 0) {
+        if (file_name->size != 0 && errno != ENOENT && errno != ENOTDIR) {
           /* printf("errno=%d\n", errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
@@ -1318,12 +1324,12 @@ stritype cmdGetcwd ()
 
 void cmdGetATime (stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
 #else
 
 void cmdGetATime (file_name,
-    year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
+    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
 stritype file_name;
 inttype *year;
 inttype *month;
@@ -1331,7 +1337,7 @@ inttype *day;
 inttype *hour;
 inttype *min;
 inttype *sec;
-inttype *mycro_sec;
+inttype *micro_sec;
 inttype *time_zone;
 booltype *is_dst;
 #endif
@@ -1356,7 +1362,7 @@ booltype *is_dst;
         /* printf("cmdGetATime: st_atime=%ld\n", stat_buf.st_atime); */
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
-            min, sec, mycro_sec, time_zone, is_dst);
+            min, sec, micro_sec, time_zone, is_dst);
       } else {
         /* printf("errno=%d\n", errno); */
         raise_error(FILE_ERROR);
@@ -1365,7 +1371,7 @@ booltype *is_dst;
 #ifdef TRACE_CMD_RTL
     printf("END cmdGetATime(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
         *year, *month, *day, *hour, *min, *sec,
-        *mycro_sec, *time_zone, *is_dst);
+        *micro_sec, *time_zone, *is_dst);
 #endif
   } /* cmdGetATime */
 
@@ -1375,12 +1381,12 @@ booltype *is_dst;
 
 void cmdGetCTime (stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
 #else
 
 void cmdGetCTime (file_name,
-    year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
+    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
 stritype file_name;
 inttype *year;
 inttype *month;
@@ -1388,7 +1394,7 @@ inttype *day;
 inttype *hour;
 inttype *min;
 inttype *sec;
-inttype *mycro_sec;
+inttype *micro_sec;
 inttype *time_zone;
 booltype *is_dst;
 #endif
@@ -1413,7 +1419,7 @@ booltype *is_dst;
         /* printf("cmdGetCTime: st_ctime=%ld\n", stat_buf.st_ctime); */
         timFromTimestamp(stat_buf.st_ctime,
             year, month, day, hour,
-            min, sec, mycro_sec, time_zone, is_dst);
+            min, sec, micro_sec, time_zone, is_dst);
       } else {
         /* printf("errno=%d\n", errno); */
         raise_error(FILE_ERROR);
@@ -1422,7 +1428,7 @@ booltype *is_dst;
 #ifdef TRACE_CMD_RTL
     printf("END cmdGetCTime(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
         *year, *month, *day, *hour, *min, *sec,
-        *mycro_sec, *time_zone, *is_dst);
+        *micro_sec, *time_zone, *is_dst);
 #endif
   } /* cmdGetCTime */
 
@@ -1432,12 +1438,12 @@ booltype *is_dst;
 
 void cmdGetMTime (stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
 #else
 
 void cmdGetMTime (file_name,
-    year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
+    year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
 stritype file_name;
 inttype *year;
 inttype *month;
@@ -1445,7 +1451,7 @@ inttype *day;
 inttype *hour;
 inttype *min;
 inttype *sec;
-inttype *mycro_sec;
+inttype *micro_sec;
 inttype *time_zone;
 booltype *is_dst;
 #endif
@@ -1472,7 +1478,7 @@ booltype *is_dst;
         /* printf("cmdGetMTime: st_mtime=%ld\n", stat_buf.st_mtime); */
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
-            min, sec, mycro_sec, time_zone, is_dst);
+            min, sec, micro_sec, time_zone, is_dst);
       } else {
         /* printf("errno=%d\n", errno); */
         raise_error(FILE_ERROR);
@@ -1481,7 +1487,7 @@ booltype *is_dst;
 #ifdef TRACE_CMD_RTL
     printf("END cmdGetMTime(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
         *year, *month, *day, *hour, *min, *sec,
-        *mycro_sec, *time_zone, *is_dst);
+        *micro_sec, *time_zone, *is_dst);
 #endif
   } /* cmdGetMTime */
 
@@ -1740,11 +1746,11 @@ stritype file_name;
 
 void cmdSetATime (stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype mycro_sec, inttype time_zone)
+    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
 
 void cmdSetATime (file_name,
-    year, month, day, hour, min, sec, mycro_sec, time_zone)
+    year, month, day, hour, min, sec, micro_sec, time_zone)
  stritype file_name;
 inttype year;
 inttype month;
@@ -1752,7 +1758,7 @@ inttype day;
 inttype hour;
 inttype min;
 inttype sec;
-inttype mycro_sec;
+inttype micro_sec;
 inttype time_zone;
 #endif
 
@@ -1767,10 +1773,12 @@ inttype time_zone;
     if (os_path != NULL) {
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = timToTimestamp(year, month, day, hour,
-            min, sec, mycro_sec, time_zone);
+            min, sec, micro_sec, time_zone);
         /* printf("cmdSetATime: actime=%ld\n", utime_buf.actime); */
         utime_buf.modtime = stat_buf.st_mtime;
-        if (os_utime(os_path, &utime_buf) != 0) {
+        if (utime_buf.actime == (time_t) -1) {
+          err_info = RANGE_ERROR;
+        } else if (os_utime(os_path, &utime_buf) != 0) {
           err_info = FILE_ERROR;
         } /* if */
       } else {
@@ -1843,11 +1851,11 @@ settype mode;
 
 void cmdSetMTime (stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype mycro_sec, inttype time_zone)
+    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
 
 void cmdSetMTime (file_name,
-    year, month, day, hour, min, sec, mycro_sec, time_zone)
+    year, month, day, hour, min, sec, micro_sec, time_zone)
 stritype file_name;
 inttype year;
 inttype month;
@@ -1855,7 +1863,7 @@ inttype day;
 inttype hour;
 inttype min;
 inttype sec;
-inttype mycro_sec;
+inttype micro_sec;
 inttype time_zone;
 #endif
 
@@ -1871,9 +1879,11 @@ inttype time_zone;
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = stat_buf.st_atime;
         utime_buf.modtime = timToTimestamp(year, month, day, hour,
-            min, sec, mycro_sec, time_zone);
+            min, sec, micro_sec, time_zone);
         /* printf("cmdSetMTime: modtime=%ld\n", utime_buf.modtime); */
-        if (os_utime(os_path, &utime_buf) != 0) {
+        if (utime_buf.actime == (time_t) -1) {
+          err_info = RANGE_ERROR;
+        } else if (os_utime(os_path, &utime_buf) != 0) {
           err_info = FILE_ERROR;
         } /* if */
       } else {

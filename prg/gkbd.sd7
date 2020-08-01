@@ -68,7 +68,7 @@ const proc: main is func
           rect(xPos, 10, 10, 10, light_blue);
         end if;
         DRAW_FLUSH;
-        await(time(NOW) + 100000 . MYCRO_SECONDS);
+        await(time(NOW) + 100000 . MICRO_SECONDS);
       end if;
     until ch = '!';
   end func;

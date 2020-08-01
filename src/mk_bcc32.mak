@@ -14,8 +14,8 @@ CFLAGS = -O2 -y -v
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS = -lS:0x400000
-# LFLAGS = -pg
+LDFLAGS = -lS:0x400000
+# LDFLAGS = -pg
 LIBS = user32.lib gdi32.lib ws2_32.lib
 # LIBS = user32.lib gdi32.lib ws2_32.lib gmp.lib
 SEED7_LIB = seed7_05.lib
@@ -67,7 +67,7 @@ GOBJ2 = entutl.obj identutl.obj chclsutl.obj sigutl.obj
 ROBJ1 = arr_rtl.obj bln_rtl.obj bst_rtl.obj chr_rtl.obj cmd_rtl.obj dir_rtl.obj drw_rtl.obj fil_rtl.obj flt_rtl.obj
 ROBJ2 = hsh_rtl.obj int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj soc_rtl.obj str_rtl.obj tim_rtl.obj ut8_rtl.obj
 ROBJ3 = heaputl.obj striutl.obj
-DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj
+DOBJ1 = $(BIGINT_LIB).obj $(SCREEN_OBJ) tim_win.obj drw_win.obj cmd_win.obj
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 COMP_DATA_LIB_OBJ = typ_data.obj rfl_data.obj ref_data.obj listutl.obj flistutl.obj typeutl.obj datautl.obj
@@ -87,21 +87,21 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
 RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c cmd_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
 hi.exe: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LFLAGS) -o hi.exe $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
+	$(CC) $(LDFLAGS) -o hi.exe $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
 	copy hi.exe ..\prg /Y
 	.\hi level
 
 hi: hi.exe
 
 hi.gp: $(OBJ)
-	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
+	$(CC) $(LDFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
 
 clear: clean
@@ -134,7 +134,6 @@ version.h:
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
 	echo ^#define USE_ALTERNATE_UTIME >> version.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h
-	echo ^#define REMOVE_FAILS_FOR_EMPTY_DIRS >> version.h
 	echo ^#define TURN_OFF_FP_EXCEPTIONS >> version.h
 	echo ^#define DEFINE_MATHERR_FUNCTION >> version.h
 	echo ^#define ISNAN_WITH_UNDERLINE >> version.h
@@ -175,101 +174,16 @@ version.h:
 	echo ^#define $(BIGINT_LIB_DEFINE) >> version.h
 	echo bcc32.exe %* > bcc32.bat
 	$(GET_CC_VERSION_INFO) cc_version
-	echo ^#include "stdlib.h" > chkccomp.c
-	echo ^#include "stdio.h" >> chkccomp.c
-	echo ^#include "time.h" >> chkccomp.c
-	echo int main (int argc, char **argv) >> chkccomp.c
-	echo { >> chkccomp.c
-	echo FILE *aFile; >> chkccomp.c
-	echo time_t timestamp; >> chkccomp.c
-	echo struct tm *local_time; >> chkccomp.c
-	echo long number; >> chkccomp.c
-	echo int ch; >> chkccomp.c
-	echo aFile = fopen("cc_version","r"); >> chkccomp.c
-	echo printf("\043define C_COMPILER_VERSION \042"); >> chkccomp.c
-	"echo for (ch=getc(aFile); ch!=EOF ^&^& ch!=10 ^&^& ch!=13; ch=getc(aFile)) {" >> chkccomp.c
-	"echo if (ch^>=' ' ^&^& ch^<='~') {" >> chkccomp.c
-	"echo if (ch==34 ^|^| ch==39 ^|^| ch==92) putchar(92);" >> chkccomp.c
-	echo putchar(ch); >> chkccomp.c
-	echo } else { >> chkccomp.c
-	echo putchar(92); >> chkccomp.c
-	echo printf("%3o", ch); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo } >> chkccomp.c
-	echo puts("\042"); >> chkccomp.c
-	echo fclose(aFile); >> chkccomp.c
-	echo aFile = _popen("dir","r"); >> chkccomp.c
-	echo if (ftell(aFile) != -1) { >> chkccomp.c
-	echo puts("\043define FTELL_WRONG_FOR_PIPE"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo if ((aFile = fopen("tmp_test_file","w")) != NULL) { >> chkccomp.c
-	echo fwrite("asdf",1,4,aFile); >> chkccomp.c
-	echo fclose(aFile); >> chkccomp.c
-	echo if ((aFile = fopen("tmp_test_file","r")) != NULL) { >> chkccomp.c
-	echo if (fwrite("qwert",1,5,aFile) != 0) { >> chkccomp.c
-	echo puts("\043define FWRITE_WRONG_FOR_READ_ONLY_FILES"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo fclose(aFile); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo remove("tmp_test_file"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo printf("\043define POINTER_SIZE %d", 8 * sizeof(char *)); >> chkccomp.c
-	echo puts(""); >> chkccomp.c
-	echo printf("\043define FLOAT_SIZE %d", 8 * sizeof(float)); >> chkccomp.c
-	echo puts(""); >> chkccomp.c
-	echo printf("\043define DOUBLE_SIZE %d", 8 * sizeof(double)); >> chkccomp.c
-	echo puts(""); >> chkccomp.c
-	echo printf("\043define TIME_T_SIZE %d", 8 * sizeof(time_t)); >> chkccomp.c
-	echo puts(""); >> chkccomp.c
-	echo timestamp = -2147483648; >> chkccomp.c
-	"echo local_time = localtime(^&timestamp);" >> chkccomp.c
-	"echo if (local_time != NULL ^&^& local_time-^>tm_year == 1) {" >> chkccomp.c
-	echo puts("\043define TIME_T_SIGNED"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo if (sizeof(int) == 4) { >> chkccomp.c
-	echo puts("\043define INT32TYPE int"); >> chkccomp.c
-	echo puts("\043define INT32TYPE_STRI \"int\""); >> chkccomp.c
-	echo puts("\043define UINT32TYPE unsigned int"); >> chkccomp.c
-	echo puts("\043define UINT32TYPE_STRI \"unsigned int\""); >> chkccomp.c
-	echo } else if (sizeof(long) == 4) { >> chkccomp.c
-	echo puts("\043define INT32TYPE long"); >> chkccomp.c
-	echo puts("\043define INT32TYPE_STRI \"long\""); >> chkccomp.c
-	echo puts("\043define UINT32TYPE unsigned long"); >> chkccomp.c
-	echo puts("\043define UINT32TYPE_STRI \"unsigned long\""); >> chkccomp.c
-	echo puts("\043define INT32TYPE_SUFFIX_L"); >> chkccomp.c
-	echo puts("\043define INT32TYPE_FORMAT_L"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo if (sizeof(long) == 8) { >> chkccomp.c
-	echo puts("\043define INT64TYPE long"); >> chkccomp.c
-	echo puts("\043define INT64TYPE_STRI \"long\""); >> chkccomp.c
-	echo puts("\043define UINT64TYPE unsigned long"); >> chkccomp.c
-	echo puts("\043define UINT64TYPE_STRI \"unsigned long\""); >> chkccomp.c
-	echo puts("\043define INT64TYPE_SUFFIX_L"); >> chkccomp.c
-	echo puts("\043define INT64TYPE_FORMAT_L"); >> chkccomp.c
-	echo } else if (sizeof(__int64) == 8) { >> chkccomp.c
-	echo puts("\043define INT64TYPE __int64"); >> chkccomp.c
-	echo puts("\043define INT64TYPE_STRI \"__int64\""); >> chkccomp.c
-	echo puts("\043define UINT64TYPE unsigned __int64"); >> chkccomp.c
-	echo puts("\043define UINT64TYPE_STRI \"unsigned __int64\""); >> chkccomp.c
-	echo puts("\043define INT64TYPE_SUFFIX_LL"); >> chkccomp.c
-	echo puts("\043define INT64TYPE_FORMAT_CAPITAL_L"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo number = -1; >> chkccomp.c
-	echo if (number ^>^> 1 == (long) -1) { >> chkccomp.c
-	echo puts("\043define RSHIFT_DOES_SIGN_EXTEND"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo if (~number == (long) 0) { >> chkccomp.c
-	echo puts("\043define TWOS_COMPLEMENT_INTTYPE"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo number = 1; >> chkccomp.c
-	"echo if (((char *) ^&number)[0] == 1) {" >> chkccomp.c
-	echo puts("\043define LITTLE_ENDIAN_INTTYPE"); >> chkccomp.c
-	echo } >> chkccomp.c
-	echo return 0; >> chkccomp.c
-	echo } >> chkccomp.c
+	echo ^#include "dir.h" > chkccomp.h
+	echo ^#define popen _popen >> chkccomp.h
+	echo ^#define mkdir(path,mode) mkdir(path) >> chkccomp.h
+	echo ^#define rmdir _rmdir >> chkccomp.h
+	echo ^#define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo ^#define __int64_EXISTS >> chkccomp.h
+	echo "#define __int64_SUFFIX_LL" >> chkccomp.h
 	$(CC) chkccomp.c
 	chkccomp.exe >> version.h
-	del chkccomp.c
+	del chkccomp.h
 	del chkccomp.obj
 	del chkccomp.tds
 	del chkccomp.exe
@@ -283,7 +197,7 @@ version.h:
 	echo ^#define REDIRECT_C_ERRORS "\076" >> version.h
 	echo ^#define LINKER_OPT_DEBUG_INFO "-v" >> version.h
 	echo ^#define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
-	echo ^#define LINKER_FLAGS "$(LFLAGS)" >> version.h
+	echo ^#define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo ^#define SYSTEM_LIBS "$(LIBS)" >> version.h
 	echo ^#include "stdio.h" > setpaths.c
 	echo ^#include "stddef.h" >> setpaths.c
@@ -347,9 +261,6 @@ version.h:
 	del calltlib.c
 	del calltlib.obj
 	del calltlib.tds
-
-hi.obj: hi.c
-	$(CC) $(CFLAGS) -c hi.c
 
 .c.obj:
 	$(CC) $(CFLAGS) -c $<

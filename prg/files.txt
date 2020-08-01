@@ -21,7 +21,7 @@ chkscan.sd7  Checks the scanner functions
 chkset.sd7   Checks set literals and operations                
 chkstr.sd7   Checks string literals and operations             
 clock.sd7    Displays a digital clock                          
-clock2.sd7   Displays a digital clock with mycroseconds        
+clock2.sd7   Displays a digital clock with microseconds        
 clock3.sd7   Analog Clock                                      
 cmpfil.sd7   Compares two files in main memory                 
 comanche.sd7 Simple webserver for static pages.                

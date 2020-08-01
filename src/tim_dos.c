@@ -52,17 +52,17 @@
 #ifdef ANSI_C
 
 void timAwait (inttype year, inttype month, inttype day, inttype hour,
-    inttype min, inttype sec, inttype mycro_sec, inttype time_zone)
+    inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
 
-void timAwait (year, month, day, hour, min, sec, mycro_sec, time_zone)
+void timAwait (year, month, day, hour, min, sec, micro_sec, time_zone)
 inttype year;
 inttype month;
 inttype day;
 inttype hour;
 inttype min;
 inttype sec;
-inttype mycro_sec;
+inttype micro_sec;
 inttype time_zone;
 #endif
 
@@ -74,7 +74,7 @@ inttype time_zone;
   /* timAwait */
 #ifdef TRACE_TIM_DOS
     printf("BEGIN timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
-        year, month, day, hour, min, sec, mycro_sec, time_zone);
+        year, month, day, hour, min, sec, micro_sec, time_zone);
 #endif
     tm_time.tm_year  = (int) year - 1900;
     tm_time.tm_mon   = (int) month - 1;
@@ -89,7 +89,7 @@ inttype time_zone;
     /* printf("%ld %d %d %d\n",
            tstruct.time, tstruct.millitm, tstruct.timezone, tstruct.dstflag);
        printf("%ld %ld %ld\n",
-           await_second, mycro_sec, time_zone);
+           await_second, micro_sec, time_zone);
        printf("tstruct.time < await_second: %d < %d\n",
            tstruct.time, await_second); */
     if (tstruct.time < await_second) {
@@ -98,14 +98,14 @@ inttype time_zone;
 /*      printf("%ld ?= %ld\n", tstruct.time, await_second); */
       } while (tstruct.time < await_second);
     } /* if */
-    if (mycro_sec != 0) {
+    if (micro_sec != 0) {
       do {
         ftime(&tstruct);
 /*      printf("%ld.%ld000 ?= %ld.%ld\n",
             tstruct.time, (long) tstruct.millitm,
-            await_second, mycro_sec); */
+            await_second, micro_sec); */
       } while (tstruct.time <= await_second &&
-          1000 * ((long) tstruct.millitm) < mycro_sec);
+          1000 * ((long) tstruct.millitm) < micro_sec);
     } /* if */
 #ifdef TRACE_TIM_DOS
     printf("END timAwait\n");
@@ -117,18 +117,18 @@ inttype time_zone;
 #ifdef ANSI_C
 
 void timNow (inttype *year, inttype *month, inttype *day, inttype *hour,
-    inttype *min, inttype *sec, inttype *mycro_sec, inttype *time_zone,
+    inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
 #else
 
-void timNow (year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst)
+void timNow (year, month, day, hour, min, sec, micro_sec, time_zone, is_dst)
 inttype *year;
 inttype *month;
 inttype *day;
 inttype *hour;
 inttype *min;
 inttype *sec;
-inttype *mycro_sec;
+inttype *micro_sec;
 inttype *time_zone;
 booltype *is_dst;
 #endif
@@ -159,7 +159,7 @@ booltype *is_dst;
       *hour      = local_time->tm_hour;
       *min       = local_time->tm_min;
       *sec       = local_time->tm_sec;
-      *mycro_sec = 1000 * ((long) tstruct.millitm);
+      *micro_sec = 1000 * ((long) tstruct.millitm);
 #ifdef TAKE_TIMEZONE_FROM_TSTRUCT
       *time_zone = - (inttype) tstruct.timezone;
       if (tstruct.dstflag) {
@@ -174,6 +174,6 @@ booltype *is_dst;
 #ifdef TRACE_TIM_DOS
     printf("END timNow(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld %d)\n",
         *year, *month, *day, *hour, *min, *sec,
-        *mycro_sec, *time_zone, *is_dst);
+        *micro_sec, *time_zone, *is_dst);
 #endif
   } /* timNow */

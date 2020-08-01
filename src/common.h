@@ -85,6 +85,7 @@ typedef int booltype;
 #define WITH_STRI_CAPACITY
 #define ALLOW_STRITYPE_SLICES
 #define INTTYPE_SIZE 32
+#define BITSETTYPE_SIZE INTTYPE_SIZE
 #undef  FLOATTYPE_DOUBLE
 
 
@@ -157,16 +158,7 @@ typedef UINT64TYPE         uint64type;
 #endif
 
 
-#if   INTTYPE_SIZE == 64
-typedef int64type               inttype;
-typedef uint64type              uinttype;
-#define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
-#define INTTYPE_MAX             INT64TYPE_MAX
-#define UINTTYPE_MAX            UINT64TYPE_MAX
-#define INTTYPE_FORMAT          INT64TYPE_FORMAT
-#define uintMostSignificantBit  uint64MostSignificantBit
-#define uintLeastSignificantBit uint64LeastSignificantBit
-#elif INTTYPE_SIZE == 32
+#if   INTTYPE_SIZE == 32
 typedef int32type               inttype;
 typedef uint32type              uinttype;
 #define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
@@ -175,6 +167,22 @@ typedef uint32type              uinttype;
 #define INTTYPE_FORMAT          INT32TYPE_FORMAT
 #define uintMostSignificantBit  uint32MostSignificantBit
 #define uintLeastSignificantBit uint32LeastSignificantBit
+#elif INTTYPE_SIZE == 64
+typedef int64type               inttype;
+typedef uint64type              uinttype;
+#define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
+#define INTTYPE_MAX             INT64TYPE_MAX
+#define UINTTYPE_MAX            UINT64TYPE_MAX
+#define INTTYPE_FORMAT          INT64TYPE_FORMAT
+#define uintMostSignificantBit  uint64MostSignificantBit
+#define uintLeastSignificantBit uint64LeastSignificantBit
+#endif
+
+
+#if   BITSETTYPE_SIZE == 32
+typedef uint32type         bitsettype;
+#elif BITSETTYPE_SIZE == 64
+typedef uint64type         bitsettype;
 #endif
 
 
@@ -189,7 +197,6 @@ typedef float              floattype;
 
 typedef uint32type         chartype;
 typedef int32type          schartype;
-typedef uinttype           bitsettype;
 
 #ifdef UTF32_STRINGS
 typedef uint32type         strelemtype;

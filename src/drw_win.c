@@ -2318,6 +2318,33 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwSetContent (const_wintype actual_window, const_wintype pixmap)
+#else
+
+void drwSetContent (actual_window, pixmap)
+wintype actual_window;
+wintype pixmap;
+#endif
+
+  { /* drwSetContent */
+    /* printf("begin drwSetContent(%lu, %lu)\n",
+        to_window(actual_window), to_window(pixmap)); */
+    if (pixmap != NULL) {
+      BitBlt(to_hdc(actual_window), 0, 0, to_width(pixmap), to_height(pixmap),
+          to_hdc(pixmap), 0, 0, SRCCOPY);
+      if (to_backup_hdc(actual_window) != 0) {
+        BitBlt(to_backup_hdc(actual_window), 0, 0, to_width(pixmap), to_height(pixmap),
+            to_hdc(pixmap), 0, 0, SRCCOPY);
+      } /* if */
+    } /* if */
+    /* printf("end drwSetContent(%lu, %lu)\n",
+        to_window(actual_window), to_window(pixmap)); */
+  } /* drwSetContent */
+
+
+
+#ifdef ANSI_C
+
 void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
 #else
 
@@ -2416,6 +2443,42 @@ inttype bkcol;
     } /* if */
 #endif
   } /* drwText */
+
+
+
+#ifdef ANSI_C
+
+void drwToBottom (const_wintype actual_window)
+#else
+
+void drwToBottom (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwToBottom */
+    /* printf("begin drwToBottom(%lu)\n", to_window(actual_window)); */
+    SetWindowPos(to_hwnd(actual_window), HWND_BOTTOM, 0, 0, 0, 0,
+        /* SWP_NOSENDCHANGING | */ SWP_NOMOVE | SWP_NOSIZE);
+    /* printf("end drwToBottom(%lu)\n", to_window(actual_window)); */
+  } /* drwToBottom */
+
+
+
+#ifdef ANSI_C
+
+void drwToTop (const_wintype actual_window)
+#else
+
+void drwToTop (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwToTop */
+    /* printf("begin drwToTop(%lu)\n", to_window(actual_window)); */
+    SetWindowPos(to_hwnd(actual_window), HWND_TOP, 0, 0, 0, 0,
+        /* SWP_NOSENDCHANGING | */ SWP_NOMOVE | SWP_NOSIZE);
+    /* printf("end drwToTop(%lu)\n", to_window(actual_window)); */
+  } /* drwToTop */
 
 
 

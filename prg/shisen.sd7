@@ -1363,7 +1363,7 @@ const proc: playerTurn (inout char: command) is func
         DRAW_FLUSH;
         number := 0;
         while not keypressed(KEYBOARD) and number <= 5 do
-          wait(100000 . MYCRO_SECONDS);
+          wait(100000 . MICRO_SECONDS);
           incr(number);
         end while;
         ignore(find_way(line1, column1, line2, column2, white));

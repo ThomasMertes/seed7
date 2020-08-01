@@ -37,7 +37,6 @@
 #include "flistutl.h"
 #include "striutl.h"
 #include "listutl.h"
-#include "option.h"
 #include "syvarutl.h"
 #include "identutl.h"
 #include "analyze.h"

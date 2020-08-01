@@ -41,6 +41,7 @@ extern const_cstritype cstri_escape_sequence[];
 #ifdef OS_PATH_WCHAR
 typedef wchar_t          os_chartype;
 typedef wchar_t         *os_stritype;
+typedef const wchar_t   *const_os_stritype;
 #define os_stri_strlen   wcslen
 #define os_stri_strcpy   wcscpy
 #define os_stri_strcat   wcscat
@@ -50,6 +51,7 @@ typedef wchar_t         *os_stritype;
 #else
 typedef char             os_chartype;
 typedef cstritype        os_stritype;
+typedef const_cstritype  const_os_stritype;
 #define os_stri_strlen   strlen
 #define os_stri_strcpy   strcpy
 #define os_stri_strcat   strcat
@@ -71,9 +73,9 @@ bstritype stri_to_bstri (const_stritype stri);
 bstritype stri_to_bstri8 (const_stritype stri);
 stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
-stritype os_stri_to_stri (os_stritype os_stri);
+stritype os_stri_to_stri (const_os_stritype os_stri);
 const strelemtype *stri_charpos (const_stritype stri, strelemtype ch);
-os_stritype cp_to_command (stritype stri, errinfotype *err_info);
+os_stritype cp_to_command (const_stritype stri, errinfotype *err_info);
 
 #else
 

@@ -2,8 +2,9 @@
 # To compile use a MSYS console and call:
 #   gmake -f mk_msys.mak depend
 #   gmake -f mk_msys.mak
-# It might also be possible to use this makefile from a windows console instead of the MSYS console.
-# If you do not have a MSYS console you could use a windows console together with mk_mingw.mak or mk_nmake.mak.
+# It might also be possible to use this makefile from a Windows console instead of the MSYS console.
+# When your make utility is mingw32-make, you should use mk_mingw.mak instead.
+# When the nmake utility from Windows is available, you can use mk_nmake.mak instead.
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -12,9 +13,9 @@ CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpoint
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS = -Wl,--stack,4194304
-# LFLAGS = -pg
-# LFLAGS = -pg -lc_p
+LDFLAGS = -Wl,--stack,4194304
+# LDFLAGS = -pg
+# LDFLAGS = -pg -lc_p
 LIBS = -lm -lgdi32 -lws2_32
 # LIBS = -lm -lgdi32 -lws2_32 -lgmp
 SEED7_LIB = seed7_05.a
@@ -66,7 +67,7 @@ GOBJ2 = entutl.o identutl.o chclsutl.o sigutl.o
 ROBJ1 = arr_rtl.o bln_rtl.o bst_rtl.o chr_rtl.o cmd_rtl.o dir_rtl.o drw_rtl.o fil_rtl.o flt_rtl.o
 ROBJ2 = hsh_rtl.o int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o soc_rtl.o str_rtl.o tim_rtl.o ut8_rtl.o
 ROBJ3 = heaputl.o striutl.o
-DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_win.o drw_win.o
+DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_win.o drw_win.o cmd_win.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
@@ -86,19 +87,21 @@ GSRC2 = entutl.c identutl.c chclsutl.c sigutl.c
 RSRC1 = arr_rtl.c bln_rtl.c bst_rtl.c chr_rtl.c cmd_rtl.c dir_rtl.c drw_rtl.c fil_rtl.c flt_rtl.c
 RSRC2 = hsh_rtl.c int_rtl.c kbd_rtl.c scr_rtl.c set_rtl.c soc_rtl.c str_rtl.c tim_rtl.c ut8_rtl.c
 RSRC3 = heaputl.c striutl.c
-DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c
+DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_win.c drw_win.c cmd_win.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
+hi.exe: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
+	$(CC) $(LDFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
 	cp hi.exe ../prg
 	./hi.exe level
 
+hi: hi.exe
+
 hi.gp: $(OBJ)
-	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
+	$(CC) $(LDFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
 
 clear: clean
@@ -118,7 +121,6 @@ version.h:
 	echo "#define ALLOW_DRIVE_LETTERS" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define USE_ALTERNATE_UTIME" >> version.h
-	echo "#define REMOVE_FAILS_FOR_EMPTY_DIRS" >> version.h
 	echo "#define OS_PATH_WCHAR" >> version.h
 	echo "#define os_chdir _wchdir" >> version.h
 	echo "#define os_getcwd _wgetcwd" >> version.h
@@ -151,102 +153,15 @@ version.h:
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h
 	echo "#define unlikely(x) __builtin_expect((x),0)" >> version.h
-	echo "#include \"stdlib.h\"" > chkccomp.c
-	echo "#include \"stdio.h\"" >> chkccomp.c
-	echo "#include \"time.h\"" >> chkccomp.c
-	echo "int main (int argc, char **argv)" >> chkccomp.c
-	echo "{" >> chkccomp.c
-	echo "FILE *aFile;" >> chkccomp.c
-	echo "time_t timestamp;" >> chkccomp.c
-	echo "struct tm *local_time;" >> chkccomp.c
-	echo "long number;" >> chkccomp.c
-	echo "int ch;" >> chkccomp.c
-	echo "system(\"$(GET_CC_VERSION_INFO) cc_version\");" >> chkccomp.c
-	echo "aFile = fopen(\"cc_version\",\"r\");" >> chkccomp.c
-	echo "printf(\"\043define C_COMPILER_VERSION \\\"\");" >> chkccomp.c
-	echo "for (ch=getc(aFile); ch!=EOF && ch!=10 && ch!=13; ch=getc(aFile)) {" >> chkccomp.c
-	echo "if (ch>=' ' && ch<='~') {" >> chkccomp.c
-	echo "if (ch==34 || ch==39 || ch==92) putchar(92);" >> chkccomp.c
-	echo "putchar(ch);" >> chkccomp.c
-	echo "} else {" >> chkccomp.c
-	echo "putchar(92);" >> chkccomp.c
-	echo "printf(\"%3o\", ch);" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "puts(\"\\\"\");" >> chkccomp.c
-	echo "fclose(aFile);" >> chkccomp.c
-	echo "aFile = popen(\"dir\",\"r\");" >> chkccomp.c
-	echo "if (ftell(aFile) != -1) {" >> chkccomp.c
-	echo "puts(\"\043define FTELL_WRONG_FOR_PIPE\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "if ((aFile = fopen(\"tmp_test_file\",\"w\")) != NULL) {" >> chkccomp.c
-	echo "fwrite(\"asdf\",1,4,aFile);" >> chkccomp.c
-	echo "fclose(aFile);" >> chkccomp.c
-	echo "if ((aFile = fopen(\"tmp_test_file\",\"r\")) != NULL) {" >> chkccomp.c
-	echo "if (fwrite(\"qwert\",1,5,aFile) != 0) {" >> chkccomp.c
-	echo "puts(\"\043define FWRITE_WRONG_FOR_READ_ONLY_FILES\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "fclose(aFile);" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "remove(\"tmp_test_file\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "printf(\"\043define POINTER_SIZE %d\", 8 * sizeof(char *));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"\043define FLOAT_SIZE %d\", 8 * sizeof(float));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"\043define DOUBLE_SIZE %d\", 8 * sizeof(double));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"\043define TIME_T_SIZE %d\", 8 * sizeof(time_t));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "timestamp = -2147483648;" >> chkccomp.c
-	echo "local_time = localtime(&timestamp);" >> chkccomp.c
-	echo "if (local_time != NULL && local_time->tm_year == 1) {" >> chkccomp.c
-	echo "puts(\"\043define TIME_T_SIGNED\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "if (sizeof(int) == 4) {" >> chkccomp.c
-	echo "puts(\"\043define INT32TYPE int\");" >> chkccomp.c
-	echo "puts(\"\043define INT32TYPE_STRI \\\"int\\\"\");" >> chkccomp.c
-	echo "puts(\"\043define UINT32TYPE unsigned int\");" >> chkccomp.c
-	echo "puts(\"\043define UINT32TYPE_STRI \\\"unsigned int\\\"\");" >> chkccomp.c
-	echo "} else if (sizeof(long) == 4) {" >> chkccomp.c
-	echo "puts(\"\043define INT32TYPE long\");" >> chkccomp.c
-	echo "puts(\"\043define INT32TYPE_STRI \\\"long\\\"\");" >> chkccomp.c
-	echo "puts(\"\043define UINT32TYPE unsigned long\");" >> chkccomp.c
-	echo "puts(\"\043define UINT32TYPE_STRI \\\"unsigned long\\\"\");" >> chkccomp.c
-	echo "puts(\"\043define INT32TYPE_SUFFIX_L\");" >> chkccomp.c
-	echo "puts(\"\043define INT32TYPE_FORMAT_L\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "if (sizeof(long) == 8) {" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE long\");" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE_STRI \\\"long\\\"\");" >> chkccomp.c
-	echo "puts(\"\043define UINT64TYPE unsigned long\");" >> chkccomp.c
-	echo "puts(\"\043define UINT64TYPE_STRI \\\"unsigned long\\\"\");" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE_SUFFIX_L\");" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE_FORMAT_L\");" >> chkccomp.c
-	echo "} else if (sizeof(long long) == 8) {" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE long long\");" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE_STRI \\\"long long\\\"\");" >> chkccomp.c
-	echo "puts(\"\043define UINT64TYPE unsigned long long\");" >> chkccomp.c
-	echo "puts(\"\043define UINT64TYPE_STRI \\\"unsigned long long\\\"\");" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE_SUFFIX_LL\");" >> chkccomp.c
-	echo "puts(\"\043define INT64TYPE_FORMAT_I64\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "number = -1;" >> chkccomp.c
-	echo "if (number >> 1 == (long) -1) {" >> chkccomp.c
-	echo "puts(\"\043define RSHIFT_DOES_SIGN_EXTEND\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "if (~number == (long) 0) {" >> chkccomp.c
-	echo "puts(\"\043define TWOS_COMPLEMENT_INTTYPE\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "number = 1;" >> chkccomp.c
-	echo "if (((char *) &number)[0] == 1) {" >> chkccomp.c
-	echo "puts(\"\043define LITTLE_ENDIAN_INTTYPE\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "return 0;" >> chkccomp.c
-	echo "}" >> chkccomp.c
+	echo "#include \"direct.h\"" > chkccomp.h
+	echo "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_version\");" >> chkccomp.h
+	echo "#define mkdir(path,mode) mkdir(path)" >> chkccomp.h
+	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
+	echo "#define long_long_EXISTS" >> chkccomp.h
+	echo "#define long_long_SUFFIX_LL" >> chkccomp.h
 	$(CC) chkccomp.c -o chkccomp
 	./chkccomp.exe >> version.h
-	rm chkccomp.c
+	rm chkccomp.h
 	rm chkccomp.exe
 	rm cc_version
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
@@ -257,15 +172,12 @@ version.h:
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
-	echo "#define LINKER_FLAGS \"$(LFLAGS)\"" >> version.h
+	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
 	echo "#define SEED7_LIB \"`pwd -W`/$(SEED7_LIB)\"" >> version.h
 	echo "#define COMP_DATA_LIB \"`pwd -W`/$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"`pwd -W`/$(COMPILER_LIB)\"" >> version.h
 	cd ../lib; echo "#define SEED7_LIBRARY \"`pwd -W`\"" >> ../src/version.h; cd ../src
-
-hi.o: hi.c
-	$(CC) $(CFLAGS) -c hi.c
 
 depend: a_depend b_depend c_depend version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend

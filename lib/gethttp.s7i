@@ -50,6 +50,7 @@ const proc: splitHttpLocation (in string: location, inout string: hostname,
     var integer: questionMarkPos is 0;
     var integer: colonPos is 0;
   begin
+    # writeln("splitHttpLocation: " <& location);
     slashPos := pos(location, "/");
     questionMarkPos := pos(location, "?");
     if slashPos = 0 then
@@ -123,6 +124,7 @@ const func file: openHttp (in string: serverName, in integer: portNumber,
   begin
     # writeln(literal(serverName) <& " " <& portNumber);
     # writeln(hostname <& ":" <& portNumber <& "/" <& path);
+    # writeln("params=" <& params);
     sock := openInetSocket(serverName, portNumber);
     if sock <> STD_NULL then
       address := "/" & path;
@@ -130,6 +132,7 @@ const func file: openHttp (in string: serverName, in integer: portNumber,
         address &:= "?" & params;
       end if;
       # writeln(literal(address));
+      # writeln(sock, "OPTIONS " <& address <& " HTTP/1.1");
       writeln(sock, "GET " <& address <& " HTTP/1.1");
       writeln(sock, "Host: " <& hostname);
       writeln(sock, "User-Agent: BlackHole");
@@ -190,15 +193,12 @@ const func string: getHttp (inout file: sock) is func
       # writeln(line);
       if startsWith(line, "Transfer-Encoding") then
         transferEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
-      end if;
-      if startsWith(line, "Content-Type") then
+      elsif startsWith(line, "Content-Type") then
         contentType := trim(line[succ(pos(line, ":")) ..]);
         charset := getValueOfHeaderAttribute(contentType, "charset");
-      end if;
-      if startsWith(line, "Content-Encoding") then
+      elsif startsWith(line, "Content-Encoding") then
         contentEncoding := lower(trim(line[succ(pos(line, ":")) ..]));
-      end if;
-      if startsWith(line, "Content-Length") then
+      elsif startsWith(line, "Content-Length") then
         contentLengthStri := lower(trim(line[succ(pos(line, ":")) ..]));
         block
           contentLength := integer parse contentLengthStri;
@@ -254,13 +254,64 @@ const func string: getHttp (inout file: sock) is func
   end func;
 
 
+const func string: getHttpStatusCode (inout file: sock) is func
+  result
+    var string: statusCode is "";
+  local
+    var string: line is "";
+    var string: statusInfo is "";
+    var string: location is "";
+  begin
+    line := getln(sock);
+    # writeln(line);
+    if startsWith(line, "HTTP") then
+      statusInfo := trim(line[pos(line, " ") ..]);
+      statusCode := statusInfo[.. pred(pos(statusInfo, " "))];
+    end if;
+  end func;
+
+
+const func string: getHttpLocation (inout file: sock) is func
+  result
+    var string: location is "";
+  local
+    var string: line is "";
+  begin
+    line := getln(sock);
+    while line <> "" do
+      # writeln(line);
+      if startsWith(line, "Location") then
+        location := trim(line[succ(pos(line, ":")) ..]);
+        if startsWith(location, "http:") then
+          location := trim(location[6 ..]);
+        end if;
+        while startsWith(location, "/") do
+          location := location[2 ..];
+        end while;
+      end if;
+      line := getln(sock);
+    end while;
+  end func;
+
+
 const func string: getHttp (in string: serverName, in integer: portNumber, in string: url) is func
   result
     var string: result is "";
   local
     var file: sock is STD_NULL;
+    var string: statusCode is "";
+    var string: location is "";
   begin
     sock := openHttp(serverName, portNumber, url);
+    if sock <> STD_NULL then
+      statusCode := getHttpStatusCode(sock);
+      if statusCode = "301" or statusCode = "302" or
+          statusCode = "303" or statusCode = "307" then
+        location := getHttpLocation(sock);
+        close(sock);
+        sock := openHttp(serverName, portNumber, location);
+      end if;
+    end if;
     if sock <> STD_NULL then
       result := getHttp(sock);
       close(sock);
@@ -273,11 +324,26 @@ const func string: getHttp (in string: url) is func
     var string: result is "";
   local
     var file: sock is STD_NULL;
+    var string: statusCode is "";
+    var string: location is "";
   begin
     if proxyServer = "" then
       sock := openHttp(url);
     else
       sock := openHttp(proxyServer, proxyHttpPort, url);
+    end if;
+    if sock <> STD_NULL then
+      statusCode := getHttpStatusCode(sock);
+      if statusCode = "301" or statusCode = "302" or
+          statusCode = "303" or statusCode = "307" then
+        location := getHttpLocation(sock);
+        close(sock);
+        if proxyServer = "" then
+          sock := openHttp(location);
+        else
+          sock := openHttp(proxyServer, proxyHttpPort, location);
+        end if;
+      end if;
     end if;
     if sock <> STD_NULL then
       result := getHttp(sock);

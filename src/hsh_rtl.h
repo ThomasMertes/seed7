@@ -82,6 +82,7 @@ rtlHashtype hshEmpty ();
 void hshExcl ();
 rtlGenerictype hshIdx ();
 rtlObjecttype *hshIdxAddr ();
+rtlGenerictype hshIdxWithDefault ();
 void hshIncl ();
 rtlArraytype hshKeys ();
 rtlArraytype hshValues ();

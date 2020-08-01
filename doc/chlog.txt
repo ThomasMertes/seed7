@@ -1,3 +1,59 @@
+20101205:
+- The chapter explaining the file open function in the manual was improved.
+- The file open function was improved to return STD_NULL on an attempt to
+  open a directory.
+- Interpreter and compiler were improved to support Unicode program arguments
+  under Windows.
+- The file "chkccomp.c" was added. It is used during the make process to
+  determine properties of the C compiler and the C runtime library.
+- The makefiles were improved to use the new generic file "chkccomp.c",
+  instead of creating their own versions of "chkccomp.c".
+- The time/duration field 'mycro_second' and the functions 'getMycroSeconds',
+  'toMycroSeconds' and 'MYCRO_SECONDS' were renamed to 'micro_second',
+  'getMicroSeconds', 'toMicroSeconds' and 'MICRO_SECONDS' respectively. This
+  changes were done in the example programs and in the "time.s7i" library.
+- The functions 'setATime' and 'setMTime' in 'time.s7i' were improved to raise
+  RANGE_ERROR when the specified time is illegal or outside the allowed range.
+- The carddemo.sd7 example program was improved to allow moving, raising and
+  lowering cards with the mouse and mouse buttons.
+- The function 'getHttp' in the "gethttp.s7i" library was improved to handle
+  the status codes 301, 302, 303 and 307.
+- The functions 'hashCode', 'compare', 'setContent', 'toBottom' and 'toTop'
+  were added to the "graph.s7i" library and the compiler was improved to
+  support them.
+- Bitmap fonts were improved to allow scaling.
+- The function 'skipSpaceOrTab' was added to the "scanfile.s7i" library.
+- The "chkhsh.sd7" example program was improved.
+- The compiler was improved to generate code, which defines functions for
+  'hsh_create' and 'hsh_destr' before they are used.
+- The compiler was improved to generate code with parenthesis around C comma
+  operator expressions. This is necessary to allow using such an expression as
+  argument of a C macro.
+- The handling of the action 'bst_idx' in the compiler was fixed to use
+  'bstritype' instead of 'stritype'.
+- The compiler was improved to use the function 'generic_sct_cpy'. This
+  function was introduced to allow changing an element of a hash, when the
+  hash has struct elements.
+- The "tar7.sd7" example program was improved to check if a file already
+  exists.
+- The function 'bst_cpy' in "bstlib.c" was fixed to use 'take_bstri' instead
+  of 'take_stri'.
+- The function 'cmdFileType' in "cmd_rtl.c" was improved to return FILE_ABSENT
+  when one element in the path is not a directory.
+- The "drw_x11.c" driver was improved: Expose events now draw only the exposed
+  area. The exposed area is not cleared before the expose event is delivered.
+  Expose events for the whole window are avoided, when a window is resized.
+- The function 'drwFlush' in "drw_x11.c" now proceeds until no expose events
+  are present.
+- The function 'find_window' in "drw_x11.c" now manages the windows with a
+  hash table instead of linked list.
+- The new function 'processEvents' in "drw_x11.c" looks for expose events and
+  processes them.
+- Documentation comments were added to the function 'filOpen' in the file
+  "fil_rtl.c".
+- The files "kbd_inf.c" and "kbd_poll.c" were improved to use utf8_mode also
+  when the LANG environment variable contains the substring "utf8".
+
 20101121:
 - The chapters explaining integer and bigInteger in the manual were improved.
 - Several improvements and a bugfix were done in the "gzip.s7i" library.
@@ -239,7 +295,7 @@
 - Calls of 'rflNe' in the compiler "comp.sd7" were replaced with '!rflEq'.
 - Checks with MAX_UTF8_EXPANSION_FACTOR were added to functions in "actutl.c",
   "cmd_rtl.c", "flt_rtl.c", "striutl.c", "str_rtl.c" and "syvarutl.c".
-- The function "parseFile" was improved to work with unicode file names and to
+- The function "parseFile" was improved to work with Unicode file names and to
   raise FILE_ERROR when the file is not found or RANGE_ERROR when a backslash
   is used as path delimiter.
 - The files arrutl.c and arrutl.h were removed and the function "qsort_array"
@@ -379,9 +435,9 @@
 - The function ref_type in "reflib.c" was improved to reliably raise an
   exception when the type is NULL.
 - Unused variables were removed in the files cards.s7i, draw.s7i, gzip.s7i,
-  seed7_05.s7i, addup.sd7, bas7.sd7, carddemo.sd7, carddemo.sd7, chk_all.sd7,
-  comanche.sd7, comp.sd7, lander.sd7, mahjong.sd7, mandelbr.sd7, panic.sd7,
-  sl.sd7, snake.sd7, sokoban.sd7, sudoku7.sd7 and tar7.sd7 .
+  seed7_05.s7i, addup.sd7, bas7.sd7, carddemo.sd7, chk_all.sd7, comanche.sd7,
+  comp.sd7, lander.sd7, mahjong.sd7, mandelbr.sd7, panic.sd7, sl.sd7,
+  snake.sd7, sokoban.sd7, sudoku7.sd7 and tar7.sd7 .
 - Return statements were changed to omit parentheses in the files actutl.c,
   analyze.c, bst_rtl.c, dir_dos.c, dir_rtl.c, dir_win.c, drw_rtl.c, fil_rtl.c,
   flt_rtl.c, hsh_rtl.c, kbd_inf.c, kbd_poll.c, kbd_rtl.c, reflib.c, rfl_data.c,
@@ -577,9 +633,9 @@
 - The toutf8.sd7 example program was improved to support more codepages.
 
 20091115:
-- The unicode support for the functions shell, cmd_sh and popen was improved to
-  use wide char (UTF-16) functions under windows and normal (UTF-8) functions under
-  UNIX/Linux/BSD.
+- The Unicode support for the functions shell, cmd_sh and popen was improved to
+  use wide char (UTF-16) functions under Windows and normal (UTF-8) functions under
+  Unix/Linux/BSD.
 - The compiler (comp.sd7) was improved to support the actions CMD_FILEMODE,
   CMD_SET_FILEMODE, DRW_OPEN_SUB_WINDOW, DRW_SETPOS, DRW_XPOS and DRW_YPOS.
 - The compiler was improved to make sure that generated C programs always define
@@ -714,7 +770,7 @@
 - Documentation comments in the libraries rational.s7i, bigrat.s7i, keybd.s7i,
   socket.s7i and time.s7i were improved.
 - The function alternate_utime was introduced to allow changing the access and
-  modification times of directories under windows.
+  modification times of directories under Windows.
 - The makefiles mk_bcc32.mak, mk_mingw.mak, mk_msvc.mak, mk_msys.mak and mk_nmake.mak
   were improved to support alternate_utime.
 - The type 'screen_keybd_file' was renamed to 'console_keybd_file' and the keyboard file
@@ -782,7 +838,7 @@
 - Several changes in the interpreter and the runtime library were done to reduce the
   number of warnings generated by the C compiler.
 - The makefile mk_cygw.mak was improved to better support compilation with cygwin.
-- The file src/read_me.txt was improved to explain compiling under windows with cygwin.
+- The file src/read_me.txt was improved to explain compiling under Windows with cygwin.
 - The function 'exit' was introduced to terminate a program with a return code.
 - The functions setIsSubset and setIsProperSubset were introduced in set_rtl.c and used
   in setlib.c and comp.sd7 to replace the functions setGe, setLe, setGt and setLt.
@@ -911,7 +967,7 @@
   zone description.
 - The K&R function headers in several files were corrected.
 - The files tim_rtl.c and tim_rtl.h were introduced to support conversion between 'time'
-  and unix timestamps with the functions mkutc, timFromTimestamp and timToTimestamp.
+  and Unix timestamps with the functions mkutc, timFromTimestamp and timToTimestamp.
 - The driver functions timAwait and timNow were improved in the files tim_dos.c,
   tim_unx.c and tim_win.c .
 - The functions remove_dir, remove_any_file, copy_dir, copy_any_file, cmdBigFileSize,
@@ -943,7 +999,7 @@
   move_any_file in the file cmd_rtl.c were improved to use 'os_path_stri' instead of
   'char *'.
 - The driver functions cmdCopy, cmdMove and cmdRemove were improved to use wide char
-  (UTF-16) functions under windows and normal (UTF-8) functions under UNIX/Linux/BSD.
+  (UTF-16) functions under Windows and normal (UTF-8) functions under Unix/Linux/BSD.
 - The file common.h was improved to contain default defines for os_rmdir, os_chown,
   os_chmod, os_utime, os_utimbuf_struct, os_remove and os_rename.
 - The functions dirOpen, dirRead and dirClose in the file dir_rtl.c were improved
@@ -970,8 +1026,8 @@
 - The functions file_size and file_type were renamed to fileSize and fileType in the
   seed7_05.s7i library.
 - The driver functions cmdBigFileSize, cmdChdir, cmdFileType cmdFileSize, cmdMkdir were
-  improved to use wide char (UTF-16) functions under windows and normal (UTF-8) functions
-  under UNIX/Linux/BSD.
+  improved to use wide char (UTF-16) functions under Windows and normal (UTF-8) functions
+  under Unix/Linux/BSD.
 - In the files big_rtl.c and big_gmp.c the function bigFromInt32 was added and the
   functions bigIConv and bigOrd were removed.
 - In the file big_drv.h the macros bigIConv and bigOrd were added.
@@ -1238,7 +1294,7 @@
 20080525:
 - A new chapter about complex numbers was added to the manual.
 - A new chapter about symbol scanning from a file, was added to the manual.
-- The makefile for linux/bsd/unix and the file mk_linux.mak were improved to be usable
+- The makefile for Linux/BSD/Unix and the file mk_linux.mak were improved to be usable
   for shells where a \n in the echo command leads to errors in the make process (thanks to
   Wolfgang Raith, Jens Thoms Toerring and Arnold Hendriks for helping with this issue).
 - The function cp_to_wstri was protected with 'ifdef USE_WFOPEN' in the files striutl.c and
@@ -1488,9 +1544,9 @@
   of the scanner.s7i library were created or improved.
 - A new example program (chkscan.sd7) to check the new scanner functions was added.
 - A bug in the planets.sd7 example program was fixed.
-- The manual was corrected to explain that the types 'char' and 'string' support UNICODE.
+- The manual was corrected to explain that the types 'char' and 'string' support Unicode.
 - The actions cmd_ls and scr_write were improved to use utf-8 characters when available.
-- The filOpen function was improved to use _wfopen under windows.
+- The filOpen function was improved to use _wfopen under Windows.
 - The timezone handling to get the Greenwich Mean Time was improved.
 - A string in shisen.sd7 was enlarged to avoid a RANGE_ERROR exception
   when accessing it.
@@ -1672,7 +1728,7 @@
   preferred over non interface functions.
 - The error message which flags wrong access rights of actual parameters was improved.
 - The sorting of directory entrys for cmd_ls was improved.
-- The unicode support for prc_getenv and prc_option was improved.
+- The Unicode support for prc_getenv and prc_option was improved.
 - The -v (verbose) option was added to the interpreter.
 - A small bug in the startrek.sd7 example program was fixed.
 - The handling of interface (DYNAMIC) functions in the compiler was improved.
@@ -1769,32 +1825,32 @@
 20060826:
 - A description of the 'attr' parameter was added to the manual.
 - The first steps towards bigInteger support were done.
-- The graphic and keyboard drivers for windows have been improved.
+- The graphic and keyboard drivers for Windows have been improved.
 - A check for the maximum of fish and sharks was added to the wator example program.
 
 20060808:
 - A description of the 'func', 'varfunc' and 'proc' types was added to the manual.
 - The 'parse' operator for the type 'time' was improved.
 - The operators '<=', '>' and '<' were added for the type 'duration'.
-- The windows graphic driver was improved to use the SetPixel function.
+- The Windows graphic driver was improved to use the SetPixel function.
 - The filOpen function was changed to open files in binary mode.
 
 20060724:
 - A new example program (bifurcation) was added.
 - A trim function to remove leading and trailing spaces from strings was added.
-- The windows graphic driver was improved to support windows 98.
+- The Windows graphic driver was improved to support Windows 98.
 - A changelog (chlog) was added.
 
 20060707:
 - A little improvement of the castle example program was done.
-- The drwText function of the windows graphic driver
-  was changed to support unicode characters.
+- The drwText function of the Windows graphic driver
+  was changed to support Unicode characters.
 - A new example program (planets) was added.
 
 20060622:
 - A new example program (castle) was added.
   Castle was inspired by the castle adventure from 1984.
-- The graphic driver for windows has been improved for
+- The graphic driver for Windows has been improved for
   circle, arc, chord, pieslice, fellipse.
 
 20060606:
@@ -1807,7 +1863,7 @@
 20060520:
 - The performance of the interpreter was raised by circa 8% with
   an improved free list management.
-- The graphic and keyborad drivers for windows have been improved.
+- The graphic and keyborad drivers for Windows have been improved.
 - A new primitive action (set_arrlit) was defined to create sets from
   integer arrays.
 - The bas (basic interpreter) example program was improved to support do loops.
@@ -1831,11 +1887,11 @@
   empty sets.
 - A new example program toutf8 to convert files to utf-8
   was added.
-- The windows driver function drwPRect was fixed.
+- The Windows driver function drwPRect was fixed.
 
 20060404:
 - Function to close a graph_file
-- Write graphic text under windows
+- Write graphic text under Windows
 - Parse operator and reading for bitsets
 - Allow hashtables for sets
 - Date format according to ISO 8601
@@ -1869,29 +1925,29 @@
 - Improvements in the compiler (comp.sd7)
 - Changed wrinum.s7i to write roman, english and german numbers.
 - Moved some pictures to pic16.s7i and pic32.s7i.
-- Renamed NO_ERROR to OKAY_NO_ERROR (NO_ERROR is used in windows).
+- Renamed NO_ERROR to OKAY_NO_ERROR (NO_ERROR is used in Windows).
 - Defined compare and hashCode for the type 'reference'.
-- In drw_win.c: Map characters 128 to 159 to unicode chars.
-- In scr_win.c: Map console characters to unicode chars.
+- In drw_win.c: Map characters 128 to 159 to Unicode chars.
+- In scr_win.c: Map console characters to Unicode chars.
 - Add #include "string.h" in files that use memcmp.
 - Add functions to support compilation:
   filLit, drwCpy, strHead, strRange, strTail and others.
 - In kbd_inf.c: Add support for UTF-8 keys for KEYBOARD.
 
 20060118:
-- Some improvements of the windows support
+- Some improvements of the Windows support
 - Console mode programs work
 - Windows time driver works
 - GDI Keyboard driver works
 - Graphic programs work to some degree
-  The windows port uses Mingw and the makefile "makefile.win".
+  The Windows port uses MinGW and the makefile "makefile.win".
 - Changes in the time driver interface tim_drv.h to support compilation.
-- Test program gkbd.sd7 for tests of the keyboard with x11/gdi - windows.
+- Test program gkbd.sd7 for tests of the keyboard with x11/gdi - Windows.
 
 20060111:
-- The beginning of windows support
+- The beginning of Windows support
   (Textmode programs work, Graphic programs work to some degree)
-  The windows port uses Mingw and the makefile "makefile.win".
+  The Windows port uses MinGW and the makefile "makefile.win".
 - The definition of
   $ system "main" main;
   has been moved to the seed7_05.s7i library.

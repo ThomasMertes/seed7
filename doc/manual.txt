@@ -3380,7 +3380,7 @@ CONTENTS
   its official introduction). This convention is used according to
   ISO 8601 which also defines that positive and negative years exist
   and that the year preceding 1 is 0. Time is measured in hours,
-  minutes, seconds and mycro seconds. Additionally information about
+  minutes, seconds and micro seconds. Additionally information about
   the difference to UTC and a flag indicating daylight saving time
   is maintained also.
 
@@ -3391,7 +3391,7 @@ CONTENTS
       var integer: hour is 0;
       var integer: minute is 0;
       var integer: second is 0;
-      var integer: mycro_second is 0;
+      var integer: micro_second is 0;
     Infix operators:
       +         Add a duration to a time
                   ( Type of right operand: duration )
@@ -3510,7 +3510,7 @@ CONTENTS
                   ( Type of result: integer )
       getSeconds(A) Obtains the seconds of a duration
                   ( Type of result: integer )
-      getMycroSeconds(A)  Obtains the mycro seconds of a duration
+      getMicroSeconds(A)  Obtains the micro seconds of a duration
                   ( Type of result: integer )
       toYears(A)  Return the duration in years
                   ( Type of result: integer )
@@ -3524,7 +3524,7 @@ CONTENTS
                   ( Type of result: integer )
       toSeconds(A) Return the duration in seconds
                   ( Type of result: integer )
-      toMycroSeconds(A)  Return the duration in mycro seconds
+      toMicroSeconds(A)  Return the duration in micro seconds
                   ( Type of result: integer )
       str(A)    Conversion to string
                   ( Type of result: string )
@@ -3629,7 +3629,7 @@ CONTENTS
                     seek(A, 1) => Set to file begin,
                     seek(A, length(A)) => Set to last position,
                     seek(A, length(A) + 1) => Set to end of file,
-                    seek(A, -1) => EXCEPTION RANGE_ERROR )
+                    seek(A, 0) => EXCEPTION RANGE_ERROR )
 
 
 5.24 text
@@ -4337,7 +4337,7 @@ CONTENTS
   interfacing. When you write to a 'file' in C you use the same
   interface ('fprintf') for hard disk files, console output and
   printer output. The implementation does totally different
-  things for these files. UNIX has used the "everything is a
+  things for these files. Unix has used the "everything is a
   file" philosophy for ages (even network communication uses
   the file' interface (see sockets)).
 
@@ -5442,9 +5442,14 @@ ont color=blue>is "";
       "at+" ... Append; open or create file for update, writing at end-of-file.
 
   Note that Seed7 defines the modes "r", "w", "a", "r+", "w+"
-  and "a+" as binary modes.
-  When 'open' fails it returns 'STD_NULL'. It is
-  recommended to check the file variable:
+  and "a+" as binary modes. When 'open' is called, with a mode
+  not listed in the table above, the exception 'RANGE_ERROR'
+  is raised. When there is not enough memory to convert 'path'
+  to the system path type the exception 'MEMORY_ERROR'
+  is raised. When 'open' fails for other reasons it returns
+  'STD_NULL'. E.g.: It is not allowed to 'open' a directory.
+  An attempt to 'open' a directory returns 'STD_NULL'. It is
+  recommended to check the file variable after opening a file:
 
     if my_out <> STD_NULL then
 
@@ -5456,9 +5461,9 @@ ont color=blue>is "";
 
     close(my_out);
 
-  Writing to a file after it has been closed results in the exception 'FILE_ERROR'.
-  The following program writes "hi there" to the file
-  "my_file":
+  Writing to a file after it has been closed results in the
+  exception 'FILE_ERROR'. The following program writes
+  "hi there" to the file "my_file":
 
     $ include "seed7_05.s7i";
 
@@ -5511,7 +5516,7 @@ ont color=blue>is "";
     my_out := open_utf8("utf8_file", "r");
     if getc(my_file) <> '\16#FEFF\' then
       # This is a file without BOM (the first character will be read later).
-      seek(my_file, 0);
+      seek(my_file, 1);
     end if;
     ...
 
@@ -5925,7 +5930,7 @@ ont color=blue>is "";
     - The information can be processed (e.g. to upper case)
       and sent to another file.
 
-    - It could work just like an UNIX utility (Think of
+    - It could work just like an Unix utility (Think of
       more, sort, tee, uniq ...)
 
     - It could provide a file-like interface for something
@@ -7519,7 +7524,7 @@ ont color=blue>is "";
 
     Seed7 provides a portable access to the services provided
   by an operating system. This interface is oriented towards
-  POSIX and UNIX.
+  Posix and Unix.
 
 
 12.1 Directory access
@@ -7633,7 +7638,7 @@ ont color=blue>is "";
       RANGE_ERROR
           'filePath' is not representable in the system path type.
       FILE_ERROR
-          The system function returns an error other than ENOENT.
+          The system function returns an error other than ENOENT or ENOTDIR.
       
 
 12.4 fileMode
@@ -7801,7 +7806,8 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          'filePath' is not representable in the system path type.
+          'filePath' is not representable in the system path type or
+          'aTime' is invalid or cannot be converted to the system file time.
       FILE_ERROR
           A system function returns an error.
       
@@ -7817,7 +7823,8 @@ ont color=blue>is "";
       MEMORY_ERROR
           Not enough memory to convert 'filePath' to the system path type.
       RANGE_ERROR
-          'filePath' is not representable in the system path type.
+          'filePath' is not representable in the system path type or
+          'aTime' is invalid or cannot be converted to the system file time.
       FILE_ERROR
           A system function returns an error.
       

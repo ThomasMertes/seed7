@@ -342,7 +342,7 @@ const func boolean: play(ROUND) is func
           end if;
 
 
-          await(start_time + 100000 . MYCRO_SECONDS);
+          await(start_time + 100000 . MICRO_SECONDS);
 
           inp := busy_getc(KEYBOARD);
 

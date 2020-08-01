@@ -1721,7 +1721,7 @@ const proc: check_falling (inout monsterObj: currObject, in holeType: curr_hole_
           mark_hole(currObject.line, currObject.column, no_hole);
           draw_hole(currObject.line, currObject.column, no_hole);
         end if;
-        currObject.action_time := time(NOW) + 100000 . MYCRO_SECONDS;
+        currObject.action_time := time(NOW) + 100000 . MICRO_SECONDS;
       elsif time(NOW) >= currObject.action_time then
         game.score +:= currObject.points;
         draw_number(24, 10, game.score lpad 6);
@@ -2066,7 +2066,7 @@ const proc: init_round (in integer: num_round) is func
     DRAW_FLUSH;
     game_command(busy_getc(KEYBOARD));
     if not game.round_finished and not game.quit then
-      await(start_time + 500000 . MYCRO_SECONDS);
+      await(start_time + 500000 . MICRO_SECONDS);
     end if;
     number := 1;
     while number <= game.num_monsters and not game.round_finished and not game.quit do
@@ -2077,7 +2077,7 @@ const proc: init_round (in integer: num_round) is func
       DRAW_FLUSH;
       game_command(busy_getc(KEYBOARD));
       if not game.round_finished and not game.quit then
-        await(start_time + 500000 . MYCRO_SECONDS);
+        await(start_time + 500000 . MICRO_SECONDS);
       end if;
     end while;
     if not game.round_finished and not game.quit then
@@ -2635,7 +2635,7 @@ const proc: game_round is func
           game.round_finished := TRUE;
         end if;
         incr(progress);
-        game.turn_time +:= 30000 . MYCRO_SECONDS;
+        game.turn_time +:= 30000 . MICRO_SECONDS;
         DRAW_FLUSH;
         await(game.turn_time);
       end if;

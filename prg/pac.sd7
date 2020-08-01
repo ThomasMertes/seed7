@@ -655,7 +655,7 @@ const proc: main_control is func
           frequency := frequency + 2;
         end while; *)
       end if;
-      await(start_time + 150000 . MYCRO_SECONDS);
+      await(start_time + 150000 . MICRO_SECONDS);
     end while;
   end func; (* main_control *)
 

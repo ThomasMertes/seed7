@@ -35,6 +35,8 @@
 #include "stdio.h"
 #include "string.h"
 
+#undef WITH_XSHAPE_EXTENSION
+
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -43,6 +45,9 @@
 #include <X11/keysymdef.h>
 #endif
 #include <X11/keysym.h>
+#ifdef WITH_XSHAPE_EXTENSION
+#include <X11/extensions/shape.h>
+#endif
 
 #include "common.h"
 #include "data_rtl.h"
@@ -68,11 +73,10 @@
 #define PI 3.14159265358979323846264338327950284197
 
 Display *mydisplay = NULL;
-Window mywindow;
 unsigned long myforeground, mybackground;
 GC mygc;
-XEvent myevent;
-KeySym mykey;
+booltype eventPresent = FALSE;
+XEvent currentEvent;
 XSizeHints myhint;
 XWMHints mywmhint;
 int myscreen;
@@ -93,7 +97,7 @@ typedef struct x11_winstruct {
 
 typedef const struct x11_winstruct *const_x11_wintype;
 
-static x11_wintype window_list = NULL;
+static x11_wintype window_hash[1024];
 
 #define to_window(win)    (((const_x11_wintype) win)->window)
 #define to_backup(win)    (((const_x11_wintype) win)->backup)
@@ -150,7 +154,7 @@ Window curr_window;
     x11_wintype window;
 
   /* find_window */
-    window = window_list;
+    window = window_hash[((memsizetype) curr_window) >> 6 & 1023];
     while (window != NULL) {
       if (to_window(window) == curr_window) {
         return(window);
@@ -159,6 +163,26 @@ Window curr_window;
     } /* while */
     return(NULL);
   } /* find_window */
+
+
+
+#ifdef ANSI_C
+
+static void enter_window (x11_wintype curr_window)
+#else
+
+static void enter_window (curr_window)
+x11_wintype curr_window;
+#endif
+
+  {
+    x11_wintype window;
+
+  /* enter_window */
+    window = window_hash[((memsizetype) to_window(curr_window)) >> 6 & 1023];
+    curr_window->next = window;
+    window_hash[((memsizetype) to_window(curr_window)) >> 6 & 1023] = curr_window;
+  } /* enter_window */
 
 
 
@@ -176,8 +200,8 @@ x11_wintype curr_window;
     x11_wintype window;
 
   /* remove_window */
-    win_addr = &window_list;
-    window = window_list;
+    win_addr = &window_hash[((memsizetype) curr_window) >> 6 & 1023];
+    window = *win_addr;
     while (window != NULL) {
       if (window == curr_window) {
         *win_addr = window->next;
@@ -200,27 +224,131 @@ XExposeEvent *xexpose;
 
   {
     x11_wintype expose_window;
+    int x, y, width, height;
 
   /* redraw */
 #ifdef TRACE_X11
     printf("begin redraw\n");
 #endif
-    if (xexpose->count == 0) {
-      expose_window = find_window(xexpose->window);
-      if (expose_window != NULL && expose_window->backup != 0) {
-        /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d\n",
-            xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
-        XCopyArea(mydisplay, expose_window->backup,
-            expose_window->window, mygc, 0, 0,
-            to_width(expose_window), to_height(expose_window), 0, 0);
-        /* XFlush(mydisplay);
-            XSync(mydisplay, 0); */
+    /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
+        xexpose->x, xexpose->y, xexpose->width, xexpose->height, xexpose->count); */
+    expose_window = find_window(xexpose->window);
+    /* XFlush(mydisplay);
+       XSync(mydisplay, 0);
+       getchar(); */
+    XCopyArea(mydisplay, expose_window->backup,
+        expose_window->window, mygc, xexpose->x, xexpose->y,
+        xexpose->width, xexpose->height, xexpose->x, xexpose->y);
+    /* printf("xexpose->x + xexpose->width=%d, to_width(expose_window)=%d\n",
+           xexpose->x + xexpose->width, to_width(expose_window));
+       printf("xexpose->y + xexpose->height=%d, to_height(expose_window)=%d\n",
+           xexpose->y + xexpose->height, to_height(expose_window)); */
+    if (xexpose->x + xexpose->width > to_width(expose_window)) {
+      XSetForeground(mydisplay, mygc, mybackground);
+      if (xexpose->x >= to_width(expose_window)) {
+        x = xexpose->x;
+        width = xexpose->width;
+      } else {
+        x = to_width(expose_window);
+        width = xexpose->x + xexpose->width - to_width(expose_window);
+        if (xexpose->y + xexpose->height > to_height(expose_window)) {
+          if (xexpose->y >= to_height(expose_window)) {
+            y = xexpose->y;
+            height = xexpose->height;
+          } else {
+            y = to_height(expose_window);
+            height = xexpose->y + xexpose->height - to_height(expose_window);
+          } /* if */
+          /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+              xexpose->x, y, to_width(expose_window) - xexpose->x, height); */
+          XFillRectangle(mydisplay, to_window(expose_window), mygc,
+              xexpose->x, y, to_width(expose_window) - xexpose->x, height);
+        } /* if */
       } /* if */
+      /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+          x, xexpose->y, width, xexpose->height); */
+      XFillRectangle(mydisplay, to_window(expose_window), mygc,
+          x, xexpose->y, width, xexpose->height);
+    } else if (xexpose->y + xexpose->height > to_height(expose_window)) {
+      XSetForeground(mydisplay, mygc, mybackground);
+      if (xexpose->y >= to_height(expose_window)) {
+        y = xexpose->y;
+        height = xexpose->height;
+      } else {
+        y = to_height(expose_window);
+        height = xexpose->y + xexpose->height - to_height(expose_window);
+      } /* if */
+      /* printf("clear x=%d, y=%d, width=%d, height=%d\n",
+          xexpose->x, y, xexpose->width, height); */
+      XFillRectangle(mydisplay, to_window(expose_window), mygc,
+          xexpose->x, y, xexpose->width, height);
     } /* if */
 #ifdef TRACE_X11
     printf("end redraw\n");
 #endif
   } /* redraw */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+void configure (XConfigureEvent *xconfigure)
+#else
+
+void configure (xconfigure)
+XConfigureEvent *xconfigure;
+#endif
+
+  {
+    x11_wintype configure_window;
+    Window root;
+    int x, y;
+    unsigned int width, height;
+    unsigned int border_width;
+    unsigned int depth;
+    Status status;
+    int num_events;
+    XEvent peekEvent;
+
+  /* configure */
+#ifdef TRACE_X11
+    printf("begin configure\n");
+#endif
+    configure_window = find_window(xconfigure->window);
+    if (configure_window->actual_width != xconfigure->width ||
+        configure_window->actual_height != xconfigure->height) {
+      printf("XConfigureEvent x=%d, y=%d, width=%d, height=%d\n",
+          xconfigure->x, xconfigure->y, xconfigure->width, xconfigure->height);
+      /* status = XGetGeometry(mydisplay, xconfigure->window, &root,
+          &x, &y, &width, &height, &border_width, &depth); */
+      /* printf("XGetGeometry    x=%d, y=%d, width=%d, height=%d\n",
+          x, y, width, height); */
+      num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+      if (num_events != 0) {
+        XPeekEvent(mydisplay, &peekEvent);
+        if (peekEvent.type == Expose &&
+            peekEvent.xexpose.x == 0 &&
+            peekEvent.xexpose.y == 0 &&
+            peekEvent.xexpose.width == xconfigure->width &&
+            peekEvent.xexpose.height == xconfigure->height) {
+          printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
+              peekEvent.xexpose.x, peekEvent.xexpose.y, peekEvent.xexpose.width, peekEvent.xexpose.height, peekEvent.xexpose.count);
+          /* XNextEvent(mydisplay, &peekEvent); */
+        } else {
+          printf("peekEvent.type=%d\n", peekEvent.type);
+        } /* if */
+      } else {
+        printf("num_events == 0\n");
+      } /* if */
+      configure_window->actual_width = xconfigure->width;
+      configure_window->actual_height = xconfigure->height;
+    } /* if */
+#ifdef TRACE_X11
+    printf("end configure\n");
+#endif
+  } /* configure */
+#endif
 
 
 
@@ -233,6 +361,7 @@ chartype gkbGetc ()
 #endif
 
   {
+    KeySym currentKey;
     int lookup_count;
     unsigned char buffer[21];
     chartype result;
@@ -242,18 +371,35 @@ chartype gkbGetc ()
     printf("begin gkbGetc\n");
 #endif
     result = K_NONE;
-    do {
-      XNextEvent(mydisplay, &myevent);
-    } while (myevent.type == KeyRelease);
-    switch(myevent.type) {
+    if (eventPresent) {
+      eventPresent = FALSE;
+    } else {
+      XNextEvent(mydisplay, &currentEvent);
+    } /* if */
+    while (currentEvent.type == KeyRelease) {
+      XNextEvent(mydisplay, &currentEvent);
+    } /* while */
+    switch(currentEvent.type) {
       case Expose:
 #ifdef FLAG_EVENTS
         printf("Expose\n");
 #endif
-        redraw(&myevent.xexpose);
+        redraw(&currentEvent.xexpose);
         result = gkbGetc();
         break;
 
+#ifdef OUT_OF_ORDER
+      case ConfigureNotify:
+#ifdef FLAG_EVENTS
+        printf("ConfigureNotify");
+#endif
+        configure(&currentEvent.xconfigure);
+        result = gkbGetc();
+        break;
+
+      case MapNotify:
+      case ReparentNotify:
+#endif
       case GraphicsExpose:
       case NoExpose:
 #ifdef FLAG_EVENTS
@@ -266,19 +412,19 @@ chartype gkbGetc ()
 #ifdef FLAG_EVENTS
         printf("MappingNotify\n");
 #endif
-        XRefreshKeyboardMapping(&myevent.xmapping);
+        XRefreshKeyboardMapping(&currentEvent.xmapping);
         break;
 
       case ButtonPress:
 #ifdef FLAG_EVENTS
         printf("ButtonPress (%d, %d, %u)\n",
-            myevent.xbutton.x, myevent.xbutton.y, myevent.xbutton.button);
+            currentEvent.xbutton.x, currentEvent.xbutton.y, currentEvent.xbutton.button);
 #endif
-        button_x = myevent.xbutton.x;
-        button_y = myevent.xbutton.y;
-        button_window = myevent.xbutton.window;
-        if (myevent.xbutton.button >= 1 && myevent.xbutton.button <= 5) {
-          result = myevent.xbutton.button + K_MOUSE1 - 1;
+        button_x = currentEvent.xbutton.x;
+        button_y = currentEvent.xbutton.y;
+        button_window = currentEvent.xbutton.window;
+        if (currentEvent.xbutton.button >= 1 && currentEvent.xbutton.button <= 5) {
+          result = currentEvent.xbutton.button + K_MOUSE1 - 1;
         } else {
           result = K_UNDEF;
         } /* if */
@@ -287,13 +433,14 @@ chartype gkbGetc ()
       case KeyPress:
 #ifdef FLAG_EVENTS
         printf("KeyPress\n");
-        printf("xkey.state (%o)\n", myevent.xkey.state);
+        printf("xkey.state (%o)\n", currentEvent.xkey.state);
 #endif
-        lookup_count = XLookupString(&myevent.xkey, (cstritype) buffer, 20, &mykey, 0);
+        lookup_count = XLookupString(&currentEvent.xkey, (cstritype) buffer,
+                                     20, &currentKey, 0);
         buffer[lookup_count] = '\0';
-        if (myevent.xkey.state & ShiftMask) {
+        if (currentEvent.xkey.state & ShiftMask) {
           /* printf("ShiftMask\n"); */
-          switch (mykey) {
+          switch (currentKey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
             case XK_ISO_Left_Tab:
@@ -335,14 +482,14 @@ chartype gkbGetc ()
               if (lookup_count == 1) {
                 result = buffer[0];
               } else {
-                printf("1 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("1 undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
           } /* switch */
-        } else if (myevent.xkey.state & ControlMask) {
+        } else if (currentEvent.xkey.state & ControlMask) {
           /* printf("ControlMask\n"); */
-          switch (mykey) {
+          switch (currentKey) {
             case XK_Return:     result = K_CTL_NL;      break;
             case XK_BackSpace:  result = K_UNDEF;       break;
             case XK_Tab:        result = K_UNDEF;       break;
@@ -415,14 +562,14 @@ chartype gkbGetc ()
               if (lookup_count == 1) {
                 result = buffer[0];
               } else {
-                printf("2 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("2 undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
           } /* switch */
-        } else if (myevent.xkey.state & Mod1Mask) { /* Left ALT modifier */
+        } else if (currentEvent.xkey.state & Mod1Mask) { /* Left ALT modifier */
           /* printf("Mod1Mask\n"); */
-          switch (mykey) {
+          switch (currentKey) {
             case XK_Return:     result = K_UNDEF;       break;
             case XK_BackSpace:  result = K_UNDEF;       break;
             case XK_Tab:        result = K_UNDEF;       break;
@@ -521,18 +668,18 @@ chartype gkbGetc ()
                   case 'y':     result = K_ALT_Y;       break;
                   case 'z':     result = K_ALT_Z;       break;
                   default:
-                    printf("3 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                    printf("3 undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                     break;
                 } /* switch */
               } else {
-                printf("4 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("4 undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
           } /* switch */
-        } else if (myevent.xkey.state & Mod2Mask) { /* Num Lock modifier */
+        } else if (currentEvent.xkey.state & Mod2Mask) { /* Num Lock modifier */
           /* printf("Mod2Mask\n"); */
-          switch (mykey) {
+          switch (currentKey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
             case XK_Tab:        result = K_TAB;         break;
@@ -559,7 +706,7 @@ chartype gkbGetc ()
             case XK_Insert:     result = K_INS;         break;
             case XK_Delete:     result = K_DEL;         break;
             case XK_KP_Enter:   result = K_NL;          break;
-            case XK_EuroSign:   result = mykey;         break;
+            case XK_EuroSign:   result = currentKey;    break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -576,13 +723,13 @@ chartype gkbGetc ()
               if (lookup_count == 1) {
                 result = buffer[0];
               } else {
-                printf("5 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("5 undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
           } /* switch */
         } else {
-          switch (mykey) {
+          switch (currentKey) {
             case XK_Return:     result = K_NL;          break;
             case XK_BackSpace:  result = K_BS;          break;
             case XK_Tab:        result = K_TAB;         break;
@@ -631,7 +778,7 @@ chartype gkbGetc ()
             case XK_KP_5:       result = K_UNDEF;       break;
             case XK_KP_Enter:   result = K_NL;          break;
             case XK_KP_Decimal: result = K_DEL;         break;
-            case XK_EuroSign:   result = mykey;         break;
+            case XK_EuroSign:   result = currentKey;    break;
             case XK_Shift_L:
             case XK_Shift_R:
             case XK_Control_L:
@@ -648,7 +795,7 @@ chartype gkbGetc ()
               if (lookup_count == 1) {
                 result = buffer[0];
               } else {
-                printf("6 undef key: %ld %lx\n", (long) mykey, (long) mykey);
+                printf("6 undef key: %ld %lx\n", (long) currentKey, (long) currentKey);
                 result = K_UNDEF;
               } /* if */
               break;
@@ -656,15 +803,113 @@ chartype gkbGetc ()
         } /* if */
         break;
       default:
-        printf("Other Event %d\n", myevent.type);
+        printf("Other Event %d\n", currentEvent.type);
         break;
     } /* switch */
 #ifdef TRACE_KBD
     printf("end gkbGetc key: \"%s\" %ld %lx %d\n",
-        buffer, (long) mykey, (long) mykey, result);
+        buffer, (long) currentKey, (long) currentKey, result);
 #endif
     return(result);
   } /* gkbGetc */
+
+
+
+#ifdef ANSI_C
+
+booltype processEvents (void)
+#else
+
+booltype processEvents ()
+#endif
+
+  {
+    KeySym currentKey;
+    int num_events;
+    int lookup_count;
+    char buffer[21];
+    booltype result;
+
+  /* processEvents */
+#ifdef TRACE_KBD
+    printf("begin processEvents\n");
+#endif
+    result = FALSE;
+    if (!eventPresent) {
+      num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+      while (num_events != 0) {
+        XNextEvent(mydisplay, &currentEvent);
+        switch(currentEvent.type) {
+          case Expose:
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            redraw(&currentEvent.xexpose);
+            result = TRUE;
+            break;
+#ifdef OUT_OF_ORDER
+          case ConfigureNotify:
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            configure(&currentEvent.xconfigure);
+            result = TRUE;
+            break;
+          case MapNotify:
+          case ReparentNotify:
+#endif
+          case GraphicsExpose:
+          case NoExpose:
+            if (num_events == 1) {
+              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+            } else {
+              num_events--;
+            } /* if */
+            break;
+          case KeyPress:
+            lookup_count = XLookupString(&currentEvent.xkey, buffer,
+                                         20, &currentKey, 0);
+            buffer[lookup_count] = '\0';
+            switch (currentKey) {
+              case XK_Shift_L:
+              case XK_Shift_R:
+              case XK_Control_L:
+              case XK_Control_R:
+              case XK_Alt_L:
+              case XK_Alt_R:
+              case XK_Mode_switch:
+              case XK_Caps_Lock:
+              case XK_Num_Lock:
+              case XK_Shift_Lock:
+              case XK_ISO_Level3_Shift:
+                if (num_events == 1) {
+                  num_events = XEventsQueued(mydisplay, QueuedAfterReading);
+                } else {
+                  num_events--;
+                } /* if */
+                break;
+              default:
+                num_events = 0;
+                eventPresent = TRUE;
+                break;
+            } /* switch */
+            break;
+          default:
+            num_events = 0;
+            eventPresent = TRUE;
+            break;
+        } /* switch */
+      } /* while */
+    } /* if */
+#ifdef TRACE_KBD
+    printf("end processEvents ==> %d\n", result);
+#endif
+    return(result);
+  } /* processEvents */
 
 
 
@@ -676,68 +921,16 @@ booltype gkbKeyPressed (void)
 booltype gkbKeyPressed ()
 #endif
 
-  {
-    int num_events;
-    int lookup_count;
-    char buffer[21];
-    booltype result;
-
-  /* gkbKeyPressed */
+  { /* gkbKeyPressed */
 #ifdef TRACE_KBD
     printf("begin gkbKeyPressed\n");
 #endif
-    result = FALSE;
-    num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-    while (num_events != 0) {
-      XPeekEvent(mydisplay, &myevent);
-      switch(myevent.type) {
-        case Expose:
-          XNextEvent(mydisplay, &myevent);
-          num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-          redraw(&myevent.xexpose);
-          break;
-        case GraphicsExpose:
-        case NoExpose:
-          XNextEvent(mydisplay, &myevent);
-          num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-          break;
-        case KeyPress:
-          lookup_count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
-          buffer[lookup_count] = '\0';
-          switch (mykey) {
-            case XK_Shift_L:
-            case XK_Shift_R:
-            case XK_Control_L:
-            case XK_Control_R:
-            case XK_Alt_L:
-            case XK_Alt_R:
-            case XK_Mode_switch:
-            case XK_Caps_Lock:
-            case XK_Num_Lock:
-            case XK_Shift_Lock:
-            case XK_ISO_Level3_Shift:
-              XNextEvent(mydisplay, &myevent);
-              num_events = XEventsQueued(mydisplay, QueuedAfterReading);
-              break;
-            default:
-              num_events = 0;
-              result = TRUE;
-              break;
-          } /* switch */
-          break;
-        default:
-          num_events = 0;
-          result = TRUE;
-          break;
-      } /* switch */
-    } /* while */
-    if (result && XEventsQueued(mydisplay, QueuedAfterReading) == 0) {
-      printf("problem");
-    } /* if */
+    processEvents();
+    return eventPresent;
 #ifdef TRACE_KBD
-    printf("end gkbKeyPressed ==> %d\n", result);
+    printf("end gkbKeyPressed ==> %d\n", eventPresent);
 #endif
-    return(result);
+    return(eventPresent);
   } /* gkbKeyPressed */
 
 
@@ -1614,42 +1807,11 @@ void drwFlush ()
 
   { /* drwFlush */
 /*  printf("drwFlush()\n"); */
-    gkbKeyPressed();
-#ifdef OUT_OF_ORDER
-    if (XEventsQueued(mydisplay, QueuedAfterReading) > 0) {
-      printf("drwFlush(%d)\n", XEventsQueued(mydisplay, QueuedAfterReading));
-      while (XEventsQueued(mydisplay, QueuedAfterReading) > 0) {
-        XNextEvent(mydisplay, &myevent);
-        switch(myevent.type) {
-          case Expose:
-            printf("Expose\n");
-            break;
-          case GraphicsExpose:
-            printf("GraphicsExpose\n");
-            break;
-          case NoExpose:
-            printf("NoExpose\n");
-            break;
-          case MappingNotify:
-            printf("MappingNotify\n");
-            break;
-          case ButtonPress:
-            printf("ButtonPress (%d, %d, %u)\n",
-                myevent.xbutton.x, myevent.xbutton.y, myevent.xbutton.button);
-            break;
-          case KeyPress:
-            printf("KeyPress\n");
-            printf("xkey.state (%o)\n", myevent.xkey.state);
-            break;
-          default:
-            printf("Other Event %d\n", myevent.type);
-            break;
-        } /* switch */
-      } /* while */
-    } /* if */
-#endif
-    XFlush(mydisplay);
-    XSync(mydisplay, 0);
+    processEvents();
+    do {
+      XFlush(mydisplay);
+      XSync(mydisplay, 0);
+    } while (processEvents());
   } /* drwFlush */
 
 
@@ -2014,6 +2176,8 @@ static void dra_init ()
     printf("lshift_blue:  %d\n", lshift_blue);
     printf("rshift_blue:  %d\n", rshift_blue);
 #endif
+    memset(window_hash, 0, 1024 * sizeof(x11_wintype));
+
     mybackground = WhitePixel(mydisplay, myscreen);
     myforeground = BlackPixel(mydisplay, myscreen);
 #ifdef TRACE_X11
@@ -2039,7 +2203,6 @@ stritype window_name;
 
   {
     char *win_name;
-    unsigned long valuemask;
     Screen *x_screen;
     XSetWindowAttributes attributes;
     XWindowAttributes attribs;
@@ -2068,8 +2231,6 @@ stritype window_name;
           if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
             memset(result, 0, sizeof(struct x11_winstruct));
             result->usage_count = 1;
-            result->next = window_list;
-            window_list = result;
 
             myhint.x = xPos;
             myhint.y = yPos;
@@ -2083,6 +2244,7 @@ stritype window_name;
                 DefaultRootWindow(mydisplay),
                 myhint.x, myhint.y, (unsigned) myhint.width, (unsigned) myhint.height,
                 5, myforeground, mybackground);
+            enter_window(result);
 
             result->backup = 0;
             result->clip_mask = 0;
@@ -2099,9 +2261,9 @@ stritype window_name;
             /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
                 x_screen->backing_store, NotUseful, WhenMapped, Always); */
             if (x_screen->backing_store != NotUseful) {
-              valuemask = CWBackingStore;
               attributes.backing_store = Always;
-              XChangeWindowAttributes(mydisplay, result->window, valuemask, &attributes);
+              XChangeWindowAttributes(mydisplay, result->window,
+                  CWBackingStore, &attributes);
 
               /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
               XGetWindowAttributes(mydisplay, result->window, &attribs);
@@ -2119,15 +2281,28 @@ stritype window_name;
               /* printf("backup=%lu\n", (long unsigned) result->backup); */
             } /* if */
 
+            /* Avoid Expose events for the whole window when */
+            /* it is resized:                                */
+            attributes.bit_gravity = StaticGravity;
+            XChangeWindowAttributes(mydisplay, result->window, CWBitGravity, &attributes);
+
+            /* Avoid that an exposed area is cleared before  */
+            /* the Expose event is delivered:                */
+            attributes.background_pixmap = None;
+            XChangeWindowAttributes(mydisplay, result->window, CWBackPixmap, &attributes);
+
             mygc = XCreateGC(mydisplay, result->window, 0, 0);
             XSetBackground(mydisplay, mygc, mybackground);
             XSetForeground(mydisplay, mygc, myforeground);
 
             XSelectInput(mydisplay, result->window,
                 ButtonPressMask | KeyPressMask | ExposureMask);
+            /* currently not used: StructureNotifyMask */
 
             XMapRaised(mydisplay, result->window);
             drwClear((wintype) result, (inttype) myforeground);
+            XFlush(mydisplay);
+            XSync(mydisplay, 0);
           } /* if */
           free_cstri(win_name, window_name);
         } /* if */
@@ -2157,7 +2332,6 @@ inttype height;
 #endif
 
   {
-    unsigned long valuemask;
     Screen *x_screen;
     XSetWindowAttributes attributes;
     XWindowAttributes attribs;
@@ -2182,8 +2356,6 @@ inttype height;
         if (ALLOC_RECORD(result, x11_winrecord, count.win)) {
           memset(result, 0, sizeof(struct x11_winstruct));
           result->usage_count = 1;
-          result->next = window_list;
-          window_list = result;
 
           myhint.x = xPos;
           myhint.y = yPos;
@@ -2197,6 +2369,7 @@ inttype height;
               to_window(parent_window),
               xPos, yPos, (unsigned) width, (unsigned) height,
               0, myforeground, mybackground);
+          enter_window(result);
 
           result->backup = 0;
           result->clip_mask = 0;
@@ -2213,9 +2386,9 @@ inttype height;
           /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
               x_screen->backing_store, NotUseful, WhenMapped, Always); */
           if (x_screen->backing_store != NotUseful) {
-            valuemask = CWBackingStore;
             attributes.backing_store = Always;
-            XChangeWindowAttributes(mydisplay, result->window, valuemask, &attributes);
+            XChangeWindowAttributes(mydisplay, result->window,
+                CWBackingStore, &attributes);
 
             /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
             XGetWindowAttributes(mydisplay, result->window, &attribs);
@@ -2233,6 +2406,16 @@ inttype height;
             /* printf("backup=%lu\n", (long unsigned) result->backup); */
           } /* if */
 
+          /* Avoid Expose events for the whole window when */
+          /* it is resized:                                */
+          attributes.bit_gravity = StaticGravity;
+          XChangeWindowAttributes(mydisplay, result->window, CWBitGravity, &attributes);
+
+          /* Avoid that an exposed area is cleared before  */
+          /* the Expose event is delivered:                */
+          attributes.background_pixmap = None;
+          XChangeWindowAttributes(mydisplay, result->window, CWBackPixmap, &attributes);
+
           /*
           mygc = XCreateGC(mydisplay, result->window, 0, 0);
           XSetBackground(mydisplay, mygc, mybackground);
@@ -2244,6 +2427,8 @@ inttype height;
 
           XMapRaised(mydisplay, result->window);
           drwClear((wintype) result, (inttype) myforeground);
+          /* XFlush(mydisplay);
+             XSync(mydisplay, 0); */
         } /* if */
       } /* if */
     } /* if */
@@ -2503,41 +2688,6 @@ inttype y;
       } /* if */
     } /* if */
   } /* drwPut */
-
-
-
-#ifdef ANSI_C
-
-void dra_put_clip (wintype actual_window, wintype pixmap, wintype bitmap,
-    inttype x, inttype y)
-#else
-
-void dra_put_clip (actual_window, pixmap, bitmap, x, y)
-wintype actual_window;
-wintype pixmap;
-wintype bitmap;
-inttype x;
-inttype y;
-#endif
-
-  { /* dra_put_clip */
-#ifdef TRACE_X11
-    printf("put(%lu, %lu, %ld, %ld)\n", actual_window, pixmap, x, y);
-    printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window), to_window(pixmap));
-#endif
-    /* A pixmap value of NULL is used to describe an empty pixmap. */
-    /* In this case nothing should be done.                        */
-    if (pixmap != NULL) {
-      XSetClipMask(mydisplay, mygc, to_window(bitmap));
-      XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
-          mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
-      if (to_backup(actual_window) != 0) {
-        XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
-            mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
-      } /* if */
-      XSetClipMask(mydisplay, mygc, None);
-    } /* if */
-  } /* dra_put_clip */
 
 
 
@@ -2893,6 +3043,39 @@ inttype col;
 
 #ifdef ANSI_C
 
+void drwSetContent (const_wintype actual_window, const_wintype pixmap)
+#else
+
+void drwSetContent (actual_window, pixmap)
+wintype actual_window;
+wintype pixmap;
+#endif
+
+  { /* drwSetContent */
+    /* printf("begin drwSetContent(%lu, %lu)\n",
+        to_window(actual_window), to_window(pixmap)); */
+    if (pixmap != NULL) {
+#ifdef WITH_XSHAPE_EXTENSION
+      if (to_clip_mask(pixmap) != 0) {
+        XShapeCombineMask(mydisplay, to_window(actual_window), ShapeBounding,
+            0, 0, to_clip_mask(pixmap), ShapeSet);
+      } /* if */
+#endif
+      XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
+          mygc, 0, 0, to_width(pixmap), to_height(pixmap), 0, 0);
+      if (to_backup(actual_window) != 0) {
+        XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
+            mygc, 0, 0, to_width(pixmap), to_height(pixmap), 0, 0);
+      } /* if */
+    } /* if */
+    /* printf("end drwSetContent(%lu, %lu)\n",
+        to_window(actual_window), to_window(pixmap)); */
+  } /* drwSetContent */
+
+
+
+#ifdef ANSI_C
+
 void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos)
 #else
 
@@ -2905,9 +3088,6 @@ inttype xPos, yPos;
     /* printf("begin drwSetPos(%lu, %ld, %ld)\n",
         to_window(actual_window), xPos, yPos); */
     XMoveWindow(mydisplay, to_window(actual_window), xPos, yPos);
-    gkbKeyPressed();
-    XFlush(mydisplay);
-    XSync(mydisplay, 0);
     /* printf("end drwSetPos(%lu, %ld, %ld)\n",
         to_window(actual_window), xPos, yPos); */
   } /* drwSetPos */
@@ -3038,6 +3218,40 @@ inttype bkcol;
     } /* if */
 #endif
   } /* drwText */
+
+
+
+#ifdef ANSI_C
+
+void drwToBottom (const_wintype actual_window)
+#else
+
+void drwToBottom (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwToBottom */
+    /* printf("begin drwRaise(%lu)\n", to_window(actual_window)); */
+    XLowerWindow(mydisplay, to_window(actual_window));
+    /* printf("end drwRaise(%lu)\n", to_window(actual_window)); */
+  } /* drwToBottom */
+
+
+
+#ifdef ANSI_C
+
+void drwToTop (const_wintype actual_window)
+#else
+
+void drwToTop (actual_window)
+wintype actual_window;
+#endif
+
+  { /* drwToTop */
+    /* printf("begin drwRaise(%lu)\n", to_window(actual_window)); */
+    XRaiseWindow(mydisplay, to_window(actual_window));
+    /* printf("end drwRaise(%lu)\n", to_window(actual_window)); */
+  } /* drwToTop */
 
 
 

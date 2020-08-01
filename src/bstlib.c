@@ -237,7 +237,7 @@ listtype arguments;
           /* behavior of memcpy() is undefined when source and   */
           /* destination areas overlap (or are identical).       */
           /* Therefore a check for this case is necessary.       */
-          memcpy(bstri_dest->mem, take_stri(bstri_from)->mem,
+          memcpy(bstri_dest->mem, take_bstri(bstri_from)->mem,
               new_size * sizeof(uchartype));
         } /* if */
       } else {

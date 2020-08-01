@@ -496,6 +496,21 @@ const proc: skipSpace (inout file: inFile) is func
 
 
 (**
+ *  Skips space and tab characters from a 'file'.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the
+ *  sequence of space and tab characters.
+ *)
+const proc: skipSpaceOrTab (inout file: inFile) is func
+  begin
+    while inFile.bufferChar in space_or_tab do
+      inFile.bufferChar := getc(inFile);
+    end while;
+  end func;
+
+
+(**
  *  Skips whitespace characters from a 'file'.
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is

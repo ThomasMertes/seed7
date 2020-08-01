@@ -14,10 +14,11 @@ CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpoint
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS = -L/usr/X11R6/lib 
-# LFLAGS = -pg
-# LFLAGS = -pg -lc_p
+LDFLAGS = -L/usr/X11R6/lib 
+# LDFLAGS = -pg
+# LDFLAGS = -pg -lc_p
 # LIBS = /usr/Xlib/libX11.so -lncurses -lm
+# LIBS = -lX11 -lXext -lncurses -lm
 LIBS = -lX11 -lncurses -lm
 # LIBS = -lX11 -lncurses -lm -lgmp
 # LIBS = -lX11 -lncurses -lm_p -lc_p
@@ -97,12 +98,12 @@ COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeut
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
 hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
+	$(CC) $(LDFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
 	$(MAKE) ../prg/hi
 	./hi level
 
 hi.gp: $(OBJ)
-	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
+	$(CC) $(LDFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
 
 ../prg/hi:
@@ -138,86 +139,15 @@ version.h:
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_version
-	echo "#include \"stdlib.h\"" > chkccomp.c
-	echo "#include \"stdio.h\"" >> chkccomp.c
-	echo "#include \"time.h\"" >> chkccomp.c
-	echo "int main (int argc, char **argv)" >> chkccomp.c
-	echo "{" >> chkccomp.c
-	echo "FILE *aFile;" >> chkccomp.c
-	echo "time_t timestamp;" >> chkccomp.c
-	echo "struct tm *local_time;" >> chkccomp.c
-	echo "long number;" >> chkccomp.c
-	echo "int ch;" >> chkccomp.c
-	echo "aFile = fopen(\"cc_version\",\"r\");" >> chkccomp.c
-	echo "printf(\"#define C_COMPILER_VERSION \\\"\");" >> chkccomp.c
-	echo "for (ch=getc(aFile); ch!=EOF && ch!=10 && ch!=13; ch=getc(aFile)) {" >> chkccomp.c
-	echo "if (ch>=' ' && ch<='~') {" >> chkccomp.c
-	echo "if (ch==34 || ch==39 || ch==92) putchar(92);" >> chkccomp.c
-	echo "putchar(ch);" >> chkccomp.c
-	echo "} else {" >> chkccomp.c
-	echo "putchar(92);" >> chkccomp.c
-	echo "printf(\"%3o\", ch);" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "puts(\"\\\"\");" >> chkccomp.c
-	echo "fclose(aFile);" >> chkccomp.c
-	echo "printf(\"#define POINTER_SIZE %lu\", (long unsigned)(8 * sizeof(char *)));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"#define FLOAT_SIZE %lu\", (long unsigned)(8 * sizeof(float)));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"#define DOUBLE_SIZE %lu\", (long unsigned)(8 * sizeof(double)));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "printf(\"#define TIME_T_SIZE %lu\", (long unsigned)(8 * sizeof(time_t)));" >> chkccomp.c
-	echo "puts(\"\");" >> chkccomp.c
-	echo "timestamp = -2147483648;" >> chkccomp.c
-	echo "local_time = localtime(&timestamp);" >> chkccomp.c
-	echo "if (local_time != NULL && local_time->tm_year == 1) {" >> chkccomp.c
-	echo "puts(\"#define TIME_T_SIGNED\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "if (sizeof(int) == 4) {" >> chkccomp.c
-	echo "puts(\"#define INT32TYPE int\");" >> chkccomp.c
-	echo "puts(\"#define INT32TYPE_STRI \\\"int\\\"\");" >> chkccomp.c
-	echo "puts(\"#define UINT32TYPE unsigned int\");" >> chkccomp.c
-	echo "puts(\"#define UINT32TYPE_STRI \\\"unsigned int\\\"\");" >> chkccomp.c
-	echo "} else if (sizeof(long) == 4) {" >> chkccomp.c
-	echo "puts(\"#define INT32TYPE long\");" >> chkccomp.c
-	echo "puts(\"#define INT32TYPE_STRI \\\"long\\\"\");" >> chkccomp.c
-	echo "puts(\"#define UINT32TYPE unsigned long\");" >> chkccomp.c
-	echo "puts(\"#define UINT32TYPE_STRI \\\"unsigned long\\\"\");" >> chkccomp.c
-	echo "puts(\"#define INT32TYPE_SUFFIX_L\");" >> chkccomp.c
-	echo "puts(\"#define INT32TYPE_FORMAT_L\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "if (sizeof(long) == 8) {" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE long\");" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE_STRI \\\"long\\\"\");" >> chkccomp.c
-	echo "puts(\"#define UINT64TYPE unsigned long\");" >> chkccomp.c
-	echo "puts(\"#define UINT64TYPE_STRI \\\"unsigned long\\\"\");" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE_SUFFIX_L\");" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE_FORMAT_L\");" >> chkccomp.c
-	echo "} else if (sizeof(long long) == 8) {" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE long long\");" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE_STRI \\\"long long\\\"\");" >> chkccomp.c
-	echo "puts(\"#define UINT64TYPE unsigned long long\");" >> chkccomp.c
-	echo "puts(\"#define UINT64TYPE_STRI \\\"unsigned long long\\\"\");" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE_SUFFIX_LL\");" >> chkccomp.c
-	echo "puts(\"#define INT64TYPE_FORMAT_LL\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "number = -1;" >> chkccomp.c
-	echo "if (number >> 1 == (long) -1) {" >> chkccomp.c
-	echo "puts(\"#define RSHIFT_DOES_SIGN_EXTEND\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "if (~number == (long) 0) {" >> chkccomp.c
-	echo "puts(\"#define TWOS_COMPLEMENT_INTTYPE\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "number = 1;" >> chkccomp.c
-	echo "if (((char *) &number)[0] == 1) {" >> chkccomp.c
-	echo "puts(\"#define LITTLE_ENDIAN_INTTYPE\");" >> chkccomp.c
-	echo "}" >> chkccomp.c
-	echo "return 0;" >> chkccomp.c
-	echo "}" >> chkccomp.c
+	echo "#include \"sys/stat.h\"" > chkccomp.h
+	echo "#include \"sys/types.h\"" >> chkccomp.h
+	echo "#include \"unistd.h\"" >> chkccomp.h
+	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
+	echo "#define long_long_EXISTS" >> chkccomp.h
+	echo "#define long_long_SUFFIX_LL" >> chkccomp.h
 	$(CC) chkccomp.c -o chkccomp
 	./chkccomp >> version.h
-	rm chkccomp.c
+	rm chkccomp.h
 	rm chkccomp
 	rm cc_version
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
@@ -228,15 +158,12 @@ version.h:
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
 	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
-	echo "#define LINKER_FLAGS \"$(LFLAGS)\"" >> version.h
+	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
 	echo "#define SYSTEM_LIBS \"$(LIBS)\"" >> version.h
 	echo "#define SEED7_LIB \"`pwd`/$(SEED7_LIB)\"" >> version.h
 	echo "#define COMP_DATA_LIB \"`pwd`/$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"`pwd`/$(COMPILER_LIB)\"" >> version.h
-	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd`\" >> ../src/version.h; cd ../src
-
-hi.o: hi.c
-	$(CC) $(CFLAGS) -c hi.c
+	cd ../lib; echo "#define SEED7_LIBRARY \"`pwd`\"" >> ../src/version.h; cd ../src
 
 depend: a_depend b_depend c_depend version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  carddemo.sd7  Demonstate the playing cards of the french deck   *)
-(*  Copyright (C) 2006  Thomas Mertes                               *)
+(*  Copyright (C) 2006, 2010  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -28,177 +28,231 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "cards.s7i";
   include "time.s7i";
+  include "dialog.s7i";
 
 
 const integer: PICTURE_SCALE is 1;
 
 
-const proc: move_card (in PRIMITIVE_WINDOW: aCard) is func
-  local
-    var integer: cursorXpos is 0;
-    var integer: cursorYpos is 0;
-    var integer: cardXpos is 0;
-    var integer: cardYpos is 0;
-    var PRIMITIVE_WINDOW: backup is PRIMITIVE_WINDOW.value;
+const type: suitType is new enum
+    clubs, diamonds, hearts, spades
+  end enum;
+
+const func string: str (in suitType: suit) is
+  return [] ("clubs", "diamonds", "hearts", "spades") [succ(ord(suit))];
+
+
+const type: rankType is new enum
+    two, three, four, five, six, seven, eight, nine, ten, jack, queen, king, ace
+  end enum;
+
+const func string: str (in rankType: rank) is
+  return [] ("two", "three", "four", "five", "six", "seven",
+             "eight", "nine", "ten", "jack", "queen", "king", "ace") [succ(ord(rank))];
+
+
+const type: imageType is sub object interface;
+
+const func integer: width (in imageType param) is DYNAMIC;
+const func integer: height (in imageType param) is DYNAMIC;
+const func integer: xPos (in imageType param) is DYNAMIC;
+const func integer: yPos (in imageType param) is DYNAMIC;
+const func PRIMITIVE_WINDOW: window (in imageType param) is DYNAMIC;
+const proc: setPos (inout imageType param, in integer param, in integer param) is DYNAMIC;
+const func string: str (in imageType param) is DYNAMIC;
+
+enable_output(imageType);
+
+
+const type: cardType is new struct
+    var suitType: suit is suitType.value;
+    var rankType: rank is rankType.value;
+    var PRIMITIVE_WINDOW: window is PRIMITIVE_WINDOW.value;
+  end struct;
+
+
+type_implements_interface(cardType, imageType);
+
+
+const imageType: (attr imageType) . value is cardType.value;
+
+
+const func integer: width (in cardType: aCard) is
+  return width(aCard.window);
+
+
+const func integer: height (in cardType: aCard) is
+  return height(aCard.window);
+
+
+const func integer: xPos (in cardType: aCard) is
+  return xPos(aCard.window);
+
+
+const func integer: yPos (in cardType: aCard) is
+  return yPos(aCard.window);
+
+
+const func PRIMITIVE_WINDOW: window (in cardType: aCard) is
+  return aCard.window;
+
+
+const proc: setPos (inout cardType: aCard, in integer: xPos, in integer: yPos) is func
   begin
-    repeat
-      cursorXpos := pointerXPos(curr_win) - width(aCard) div 2;
-      cursorYpos := pointerYPos(curr_win) - height(aCard) div 2;
-      # writeln("X=" <& cursorXpos <& ", Y=" <& cursorYpos);
-      if cursorXpos <> cardXpos or
-          cursorYpos <> cardYpos then
-        put(cardXpos, cardYpos, backup, PSET);
-        cardXpos := cursorXpos;
-        cardYpos := cursorYpos;
-        backup := getPixmap(cardXpos, cardYpos,
-            width(aCard), height(aCard));
-        put(cardXpos, cardYpos, aCard, PSET);
-        DRAW_FLUSH;
-      end if;
-      wait(30000 . MYCRO_SECONDS);
-    until not buttonPressed(KEYBOARD, KEY_MOUSE1);
+    setPos(aCard.window, xPos, yPos);
   end func;
 
 
-const func PRIMITIVE_WINDOW: take_card is func
+const func string: str (in cardType: aCard) is
+  return str(aCard.rank) & " of " & str(aCard.suit);
+
+
+const func cardType: malloc (ref cardType: aCard) is func
   result
-    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
-  local
-    var integer: line is 0;
-    var integer: column is 0;
+    var cardType: result is cardType.value;
   begin
-    line   := succ((getypos(KEYBOARD) - 4) div 100);
-    column := succ((getxpos(KEYBOARD) - 4) div 75);
-    case line of
-      when {1}:
-        case column of
-          when { 1}: result := ace_of_spades;
-          when { 2}: result := king_of_spades;
-          when { 3}: result := queen_of_spades;
-          when { 4}: result := jack_of_spades;
-          when { 5}: result := ten_of_spades;
-          when { 6}: result := nine_of_spades;
-          when { 7}: result := eight_of_spades;
-          when { 8}: result := seven_of_spades;
-          when { 9}: result := six_of_spades;
-          when {10}: result := five_of_spades;
-          when {11}: result := four_of_spades;
-          when {12}: result := three_of_spades;
-          when {13}: result := two_of_spades;
-        end case;
-      when {2}:
-        case column of
-          when { 1}: result := ace_of_hearts;
-          when { 2}: result := king_of_hearts;
-          when { 3}: result := queen_of_hearts;
-          when { 4}: result := jack_of_hearts;
-          when { 5}: result := ten_of_hearts;
-          when { 6}: result := nine_of_hearts;
-          when { 7}: result := eight_of_hearts;
-          when { 8}: result := seven_of_hearts;
-          when { 9}: result := six_of_hearts;
-          when {10}: result := five_of_hearts;
-          when {11}: result := four_of_hearts;
-          when {12}: result := three_of_hearts;
-          when {13}: result := two_of_hearts;
-        end case;
-      when {3}:
-        case column of
-          when { 1}: result := ace_of_diamonds;
-          when { 2}: result := king_of_diamonds;
-          when { 3}: result := queen_of_diamonds;
-          when { 4}: result := jack_of_diamonds;
-          when { 5}: result := ten_of_diamonds;
-          when { 6}: result := nine_of_diamonds;
-          when { 7}: result := eight_of_diamonds;
-          when { 8}: result := seven_of_diamonds;
-          when { 9}: result := six_of_diamonds;
-          when {10}: result := five_of_diamonds;
-          when {11}: result := four_of_diamonds;
-          when {12}: result := three_of_diamonds;
-          when {13}: result := two_of_diamonds;
-        end case;
-      when {4}:
-        case column of
-          when { 1}: result := ace_of_clubs;
-          when { 2}: result := king_of_clubs;
-          when { 3}: result := queen_of_clubs;
-          when { 4}: result := jack_of_clubs;
-          when { 5}: result := ten_of_clubs;
-          when { 6}: result := nine_of_clubs;
-          when { 7}: result := eight_of_clubs;
-          when { 8}: result := seven_of_clubs;
-          when { 9}: result := six_of_clubs;
-          when {10}: result := five_of_clubs;
-          when {11}: result := four_of_clubs;
-          when {12}: result := three_of_clubs;
-          when {13}: result := two_of_clubs;
-        end case;
-    end case;
+    result := aCard;
+  end func;
+
+
+const type: imageHashType is hash [PRIMITIVE_WINDOW] imageType;
+
+
+var imageHashType: imageHash is imageHashType.value;
+
+
+const proc: put (in integer: xPos, in integer: yPos, in PRIMITIVE_WINDOW: pixmap,
+    in suitType: suit, in rankType: rank) is func
+  local
+    var cardType: aCard is cardType.value;
+    var imageType: anImage is imageType.value;
+  begin
+    aCard.suit := suit;
+    aCard.rank := rank;
+    aCard.window := openSubWindow(curr_win, xPos, yPos, width(pixmap), height(pixmap));
+    put(aCard.window, 0, 0, pixmap, PSET);
+    anImage := malloc(aCard);
+    imageHash @:= [window(anImage)] anImage;
+  end func;
+
+
+const proc: move (inout imageType: anImage) is func
+  local
+    var integer: deltaX is 0;
+    var integer: deltaY is 0;
+    var integer: newXpos is 0;
+    var integer: newYpos is 0;
+  begin
+    deltaX := pointerXPos(curr_win) - xPos(window(anImage));
+    deltaY := pointerYPos(curr_win) - yPos(window(anImage));
+    repeat
+      newXpos := pointerXPos(curr_win) - deltaX;
+      newYpos := pointerYPos(curr_win) - deltaY;
+      if newXpos <> xPos(anImage) or newYpos <> yPos(anImage) then
+        setPos(window(anImage), newXpos, newYpos);
+        DRAW_FLUSH;
+      end if;
+      wait(30000 . MICRO_SECONDS);
+    until keypressed(KEYBOARD) or
+        not (buttonPressed(KEYBOARD, KEY_MOUSE1) or
+             buttonPressed(KEYBOARD, KEY_MOUSE2) or
+             buttonPressed(KEYBOARD, KEY_MOUSE3));
+  end func;
+
+
+const func imageType: select_card is func
+  result
+    var imageType: result is imageType.value;
+  local
+    var integer: xPos is 0;
+    var integer: yPos is 0;
+    var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
+  begin
+    xPos := getxpos(KEYBOARD);
+    yPos := getypos(KEYBOARD);
+    win := buttonWindow(KEYBOARD);
+    if win in imageHash then
+      result := imageHash[win];
+    end if;
   end func;
 
 
 const proc: main is func
+  local
+    var char: command is ' ';
+    var imageType: anImage is imageType.value;
   begin
     screen(980 * PICTURE_SCALE, 405 * PICTURE_SCALE);
     clear(curr_win, white);
     (* screen := open(curr_win, 16); *)
     KEYBOARD := GRAPH_KEYBOARD;
     initCardPixmaps(PICTURE_SCALE);
-    put(  4 * PICTURE_SCALE,   4 * PICTURE_SCALE, ace_of_spades,     PSET);
-    put( 79 * PICTURE_SCALE,   4 * PICTURE_SCALE, king_of_spades,    PSET);
-    put(154 * PICTURE_SCALE,   4 * PICTURE_SCALE, queen_of_spades,   PSET);
-    put(229 * PICTURE_SCALE,   4 * PICTURE_SCALE, jack_of_spades,    PSET);
-    put(304 * PICTURE_SCALE,   4 * PICTURE_SCALE, ten_of_spades,     PSET);
-    put(379 * PICTURE_SCALE,   4 * PICTURE_SCALE, nine_of_spades,    PSET);
-    put(454 * PICTURE_SCALE,   4 * PICTURE_SCALE, eight_of_spades,   PSET);
-    put(529 * PICTURE_SCALE,   4 * PICTURE_SCALE, seven_of_spades,   PSET);
-    put(604 * PICTURE_SCALE,   4 * PICTURE_SCALE, six_of_spades,     PSET);
-    put(679 * PICTURE_SCALE,   4 * PICTURE_SCALE, five_of_spades,    PSET);
-    put(754 * PICTURE_SCALE,   4 * PICTURE_SCALE, four_of_spades,    PSET);
-    put(829 * PICTURE_SCALE,   4 * PICTURE_SCALE, three_of_spades,   PSET);
-    put(904 * PICTURE_SCALE,   4 * PICTURE_SCALE, two_of_spades,     PSET);
-    put(  4 * PICTURE_SCALE, 104 * PICTURE_SCALE, ace_of_hearts,     PSET);
-    put( 79 * PICTURE_SCALE, 104 * PICTURE_SCALE, king_of_hearts,    PSET);
-    put(154 * PICTURE_SCALE, 104 * PICTURE_SCALE, queen_of_hearts,   PSET);
-    put(229 * PICTURE_SCALE, 104 * PICTURE_SCALE, jack_of_hearts,    PSET);
-    put(304 * PICTURE_SCALE, 104 * PICTURE_SCALE, ten_of_hearts,     PSET);
-    put(379 * PICTURE_SCALE, 104 * PICTURE_SCALE, nine_of_hearts,    PSET);
-    put(454 * PICTURE_SCALE, 104 * PICTURE_SCALE, eight_of_hearts,   PSET);
-    put(529 * PICTURE_SCALE, 104 * PICTURE_SCALE, seven_of_hearts,   PSET);
-    put(604 * PICTURE_SCALE, 104 * PICTURE_SCALE, six_of_hearts,     PSET);
-    put(679 * PICTURE_SCALE, 104 * PICTURE_SCALE, five_of_hearts,    PSET);
-    put(754 * PICTURE_SCALE, 104 * PICTURE_SCALE, four_of_hearts,    PSET);
-    put(829 * PICTURE_SCALE, 104 * PICTURE_SCALE, three_of_hearts,   PSET);
-    put(904 * PICTURE_SCALE, 104 * PICTURE_SCALE, two_of_hearts,     PSET);
-    put(  4 * PICTURE_SCALE, 204 * PICTURE_SCALE, ace_of_diamonds,   PSET);
-    put( 79 * PICTURE_SCALE, 204 * PICTURE_SCALE, king_of_diamonds,  PSET);
-    put(154 * PICTURE_SCALE, 204 * PICTURE_SCALE, queen_of_diamonds, PSET);
-    put(229 * PICTURE_SCALE, 204 * PICTURE_SCALE, jack_of_diamonds,  PSET);
-    put(304 * PICTURE_SCALE, 204 * PICTURE_SCALE, ten_of_diamonds,   PSET);
-    put(379 * PICTURE_SCALE, 204 * PICTURE_SCALE, nine_of_diamonds,  PSET);
-    put(454 * PICTURE_SCALE, 204 * PICTURE_SCALE, eight_of_diamonds, PSET);
-    put(529 * PICTURE_SCALE, 204 * PICTURE_SCALE, seven_of_diamonds, PSET);
-    put(604 * PICTURE_SCALE, 204 * PICTURE_SCALE, six_of_diamonds,   PSET);
-    put(679 * PICTURE_SCALE, 204 * PICTURE_SCALE, five_of_diamonds,  PSET);
-    put(754 * PICTURE_SCALE, 204 * PICTURE_SCALE, four_of_diamonds,  PSET);
-    put(829 * PICTURE_SCALE, 204 * PICTURE_SCALE, three_of_diamonds, PSET);
-    put(904 * PICTURE_SCALE, 204 * PICTURE_SCALE, two_of_diamonds,   PSET);
-    put(  4 * PICTURE_SCALE, 304 * PICTURE_SCALE, ace_of_clubs,      PSET);
-    put( 79 * PICTURE_SCALE, 304 * PICTURE_SCALE, king_of_clubs,     PSET);
-    put(154 * PICTURE_SCALE, 304 * PICTURE_SCALE, queen_of_clubs,    PSET);
-    put(229 * PICTURE_SCALE, 304 * PICTURE_SCALE, jack_of_clubs,     PSET);
-    put(304 * PICTURE_SCALE, 304 * PICTURE_SCALE, ten_of_clubs,      PSET);
-    put(379 * PICTURE_SCALE, 304 * PICTURE_SCALE, nine_of_clubs,     PSET);
-    put(454 * PICTURE_SCALE, 304 * PICTURE_SCALE, eight_of_clubs,    PSET);
-    put(529 * PICTURE_SCALE, 304 * PICTURE_SCALE, seven_of_clubs,    PSET);
-    put(604 * PICTURE_SCALE, 304 * PICTURE_SCALE, six_of_clubs,      PSET);
-    put(679 * PICTURE_SCALE, 304 * PICTURE_SCALE, five_of_clubs,     PSET);
-    put(754 * PICTURE_SCALE, 304 * PICTURE_SCALE, four_of_clubs,     PSET);
-    put(829 * PICTURE_SCALE, 304 * PICTURE_SCALE, three_of_clubs,    PSET);
-    put(904 * PICTURE_SCALE, 304 * PICTURE_SCALE, two_of_clubs,      PSET);
+    put(  4,   4, ace_of_spades,     spades,   ace);
+    put( 79,   4, king_of_spades,    spades,   king);
+    put(154,   4, queen_of_spades,   spades,   queen);
+    put(229,   4, jack_of_spades,    spades,   jack);
+    put(304,   4, ten_of_spades,     spades,   ten);
+    put(379,   4, nine_of_spades,    spades,   nine);
+    put(454,   4, eight_of_spades,   spades,   eight);
+    put(529,   4, seven_of_spades,   spades,   seven);
+    put(604,   4, six_of_spades,     spades,   six);
+    put(679,   4, five_of_spades,    spades,   five);
+    put(754,   4, four_of_spades,    spades,   four);
+    put(829,   4, three_of_spades,   spades,   three);
+    put(904,   4, two_of_spades,     spades,   two);
+    put(  4, 104, ace_of_hearts,     hearts,   ace);
+    put( 79, 104, king_of_hearts,    hearts,   king);
+    put(154, 104, queen_of_hearts,   hearts,   queen);
+    put(229, 104, jack_of_hearts,    hearts,   jack);
+    put(304, 104, ten_of_hearts,     hearts,   ten);
+    put(379, 104, nine_of_hearts,    hearts,   nine);
+    put(454, 104, eight_of_hearts,   hearts,   eight);
+    put(529, 104, seven_of_hearts,   hearts,   seven);
+    put(604, 104, six_of_hearts,     hearts,   six);
+    put(679, 104, five_of_hearts,    hearts,   five);
+    put(754, 104, four_of_hearts,    hearts,   four);
+    put(829, 104, three_of_hearts,   hearts,   three);
+    put(904, 104, two_of_hearts,     hearts,   two);
+    put(  4, 204, ace_of_diamonds,   diamonds, ace);
+    put( 79, 204, king_of_diamonds,  diamonds, king);
+    put(154, 204, queen_of_diamonds, diamonds, queen);
+    put(229, 204, jack_of_diamonds,  diamonds, jack);
+    put(304, 204, ten_of_diamonds,   diamonds, ten);
+    put(379, 204, nine_of_diamonds,  diamonds, nine);
+    put(454, 204, eight_of_diamonds, diamonds, eight);
+    put(529, 204, seven_of_diamonds, diamonds, seven);
+    put(604, 204, six_of_diamonds,   diamonds, six);
+    put(679, 204, five_of_diamonds,  diamonds, five);
+    put(754, 204, four_of_diamonds,  diamonds, four);
+    put(829, 204, three_of_diamonds, diamonds, three);
+    put(904, 204, two_of_diamonds,   diamonds, two);
+    put(  4, 304, ace_of_clubs,      clubs,    ace);
+    put( 79, 304, king_of_clubs,     clubs,    king);
+    put(154, 304, queen_of_clubs,    clubs,    queen);
+    put(229, 304, jack_of_clubs,     clubs,    jack);
+    put(304, 304, ten_of_clubs,      clubs,    ten);
+    put(379, 304, nine_of_clubs,     clubs,    nine);
+    put(454, 304, eight_of_clubs,    clubs,    eight);
+    put(529, 304, seven_of_clubs,    clubs,    seven);
+    put(604, 304, six_of_clubs,      clubs,    six);
+    put(679, 304, five_of_clubs,     clubs,    five);
+    put(754, 304, four_of_clubs,     clubs,    four);
+    put(829, 304, three_of_clubs,    clubs,    three);
+    put(904, 304, two_of_clubs,      clubs,    two);
     DRAW_FLUSH;
-    while getc(KEYBOARD) = KEY_MOUSE1 do
-      move_card(take_card);
+    command := getc(KEYBOARD);
+    while command in {KEY_MOUSE1, KEY_MOUSE2, KEY_MOUSE3} do
+      anImage := select_card;
+      if anImage <> imageType.value then
+        if command = KEY_MOUSE2 then
+          toTop(window(anImage));
+          DRAW_FLUSH;
+        elsif command = KEY_MOUSE3 then
+          toBottom(window(anImage));
+          DRAW_FLUSH;
+        end if;
+        move(anImage);
+      end if;
+      command := getc(KEYBOARD);
     end while;
   end func;

@@ -4070,7 +4070,7 @@ biginttype bigLShiftOne (const inttype lshift)
 #else
 
 biginttype bigLShiftOne (lshift)
-inttype rshift;
+inttype lshift;
 #endif
 
   {

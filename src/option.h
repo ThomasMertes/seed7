@@ -26,7 +26,7 @@
 /********************************************************************/
 
 typedef struct {
-    const_cstritype   source_file_name;
+    stritype          source_file_name;
     char             *prot_file_name;
     booltype          analyze_only;
     booltype          execute_always;
@@ -37,10 +37,10 @@ typedef struct {
     booltype          linecount_info;
     booltype          catch_signals;
     unsigned int      incr_message_line;
-    const_cstritype   comp_trace_level;
-    const_cstritype   exec_trace_level;
-    memsizetype       argc;
-    char            **argv;
+    cstritype         comp_trace_level;
+    cstritype         exec_trace_level;
+    void             *argv;
+    memsizetype       argv_start;
     objecttype        arg_v;
   } opttype;
 
@@ -59,21 +59,10 @@ opttype option = {
     16383, /* incr_message_line */
     NULL,  /* comp_trace_level  */
     NULL,  /* exec_trace_level  */
-    0,     /* argc              */
     NULL,  /* argv              */
+    0,     /* argv_start        */
     NULL,  /* arg_v             */
   };
 #else
 EXTERN opttype option;
-#endif
-
-
-#ifdef ANSI_C
-
-void options (int, char **, int);
-
-#else
-
-void options ();
-
 #endif

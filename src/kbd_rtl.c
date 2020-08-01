@@ -101,7 +101,7 @@ chartype *termination_char;
 #endif
 
   {
-    register int ch;
+    register chartype ch;
     register memsizetype position;
     strelemtype *memory;
     memsizetype memlength;
@@ -116,7 +116,7 @@ chartype *termination_char;
     } else {
       memory = result->mem;
       position = 0;
-      while ((ch = gkbGetc()) != '\n' && ch != EOF) {
+      while ((ch = gkbGetc()) != '\n' && ch != (chartype) ((schartype) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -144,7 +144,7 @@ chartype *termination_char;
         result = resized_result;
         COUNT3_STRI(memlength, position);
         result->size = position;
-        *termination_char = (chartype) ch;
+        *termination_char = ch;
       } /* if */
     } /* if */
     return result;
@@ -162,7 +162,7 @@ chartype *termination_char;
 #endif
 
   {
-    register int ch;
+    register chartype ch;
     register memsizetype position;
     strelemtype *memory;
     memsizetype memlength;
@@ -181,7 +181,7 @@ chartype *termination_char;
         ch = gkbGetc();
       } while (ch == ' ' || ch == '\t');
       while (ch != ' ' && ch != '\t' &&
-          ch != '\n' && ch != EOF) {
+          ch != '\n' && ch != (chartype) ((schartype) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -210,7 +210,7 @@ chartype *termination_char;
         result = resized_result;
         COUNT3_STRI(memlength, position);
         result->size = position;
-        *termination_char = (chartype) ch;
+        *termination_char = ch;
       } /* if */
     } /* if */
     return result;
@@ -267,7 +267,7 @@ chartype *termination_char;
 #endif
 
   {
-    register int ch;
+    register chartype ch;
     register memsizetype position;
     strelemtype *memory;
     memsizetype memlength;
@@ -282,7 +282,7 @@ chartype *termination_char;
     } else {
       memory = result->mem;
       position = 0;
-      while ((ch = kbdGetc()) != '\n' && ch != EOF) {
+      while ((ch = kbdGetc()) != '\n' && ch != (chartype) ((schartype) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -310,7 +310,7 @@ chartype *termination_char;
         result = resized_result;
         COUNT3_STRI(memlength, position);
         result->size = position;
-        *termination_char = (chartype) ch;
+        *termination_char = ch;
       } /* if */
     } /* if */
     return result;
@@ -328,7 +328,7 @@ chartype *termination_char;
 #endif
 
   {
-    register int ch;
+    register chartype ch;
     register memsizetype position;
     strelemtype *memory;
     memsizetype memlength;
@@ -347,7 +347,7 @@ chartype *termination_char;
         ch = kbdGetc();
       } while (ch == ' ' || ch == '\t');
       while (ch != ' ' && ch != '\t' &&
-          ch != '\n' && ch != EOF) {
+	     ch != '\n' && ch != (chartype) ((schartype) EOF)) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
@@ -376,7 +376,7 @@ chartype *termination_char;
         result = resized_result;
         COUNT3_STRI(memlength, position);
         result->size = position;
-        *termination_char = (chartype) ch;
+        *termination_char = ch;
       } /* if */
     } /* if */
     return result;

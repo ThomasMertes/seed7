@@ -63,7 +63,7 @@ stritype strLit (const const_stritype stri);
 stritype strLow (const const_stritype stri);
 stritype strLowTemp (const stritype stri);
 stritype strLpad (const const_stritype stri, const inttype pad_size);
-stritype strLpad0Temp (const stritype stri, const inttype pad_size);
+stritype strLpadTemp (const stritype stri, const inttype pad_size);
 stritype strLpad0 (const const_stritype stri, const inttype pad_size);
 stritype strLpad0Temp (const stritype stri, const inttype pad_size);
 booltype strLt (const const_stritype stri1, const const_stritype stri2);
@@ -127,14 +127,14 @@ stritype strHeadSlice ();
 #else
 stritype strHead ();
 #endif
-stritype strHeadTemp ()
+stritype strHeadTemp ();
 inttype strIpos ();
 booltype strLe ();
 stritype strLit ();
 stritype strLow ();
 stritype strLowTemp ();
 stritype strLpad ();
-stritype strLpad0Temp ();
+stritype strLpadTemp ();
 stritype strLpad0 ();
 stritype strLpad0Temp ();
 booltype strLt ();

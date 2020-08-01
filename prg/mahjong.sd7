@@ -1260,7 +1260,7 @@ const proc: showDemo is func
         end if;
         continueDemo := FALSE;
       else
-        wait(200000 . MYCRO_SECONDS);
+        wait(200000 . MICRO_SECONDS);
         remove(demoMoves[number].pos1);
         remove(demoMoves[number].pos2);
         DRAW_FLUSH;
@@ -1444,7 +1444,7 @@ const proc: playerTurn (inout char: command) is func
         DRAW_FLUSH;
         number := 0;
         while not keypressed(KEYBOARD) and number <= 5 do
-          wait(100000 . MYCRO_SECONDS);
+          wait(100000 . MICRO_SECONDS);
           incr(number);
         end while;
         if keypressed(KEYBOARD) then

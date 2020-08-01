@@ -84,7 +84,7 @@ settype setIConv ();
 void setIncl ();
 settype setIntersect ();
 booltype setIsProperSubset ();
-booltype setIsSubset ()
+booltype setIsSubset ();
 inttype setMax ();
 inttype setMin ();
 booltype setNotElem ();

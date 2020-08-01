@@ -33,7 +33,7 @@ const type: time is new object struct
     var integer: hour is 0;
     var integer: minute is 0;
     var integer: second is 0;
-    var integer: mycro_second is 0;
+    var integer: micro_second is 0;
     var integer: timeZone is 0;
     var boolean: daylightSavingTime is FALSE;
   end struct;
@@ -143,8 +143,8 @@ const func string: strTime (in time: aTime) is func
     result := aTime.hour   lpad0 2 <& ":" <&
               aTime.minute lpad0 2 <& ":" <&
               aTime.second lpad0 2;
-    if aTime.mycro_second <> 0 then
-      result &:= "." <& aTime.mycro_second lpad0 6;
+    if aTime.micro_second <> 0 then
+      result &:= "." <& aTime.micro_second lpad0 6;
     end if;
   end func;
 
@@ -268,7 +268,7 @@ const func time: (attr time) parse (in var string: stri) is func
         end if;
       end if;
     end if;
-    result.mycro_second := 0;
+    result.micro_second := 0;
     result.timeZone := 0;
     result.daylightSavingTime := FALSE;
     if result.month < 1 or result.month > 12 or
@@ -292,7 +292,7 @@ const func boolean: (in time: tim1) = (in time: tim2) is
     tim1.hour = tim2.hour and
     tim1.minute = tim2.minute and
     tim1.second = tim2.second and
-    tim1.mycro_second = tim2.mycro_second;
+    tim1.micro_second = tim2.micro_second;
 
 
 const func boolean: (in time: tim1) <> (in time: tim2) is
@@ -303,7 +303,7 @@ const func boolean: (in time: tim1) <> (in time: tim2) is
     tim1.hour <> tim2.hour or
     tim1.minute <> tim2.minute or
     tim1.second <> tim2.second or
-    tim1.mycro_second <> tim2.mycro_second;
+    tim1.micro_second <> tim2.micro_second;
 
 
 const func boolean: (in time: tim1) >= (in time: tim2) is func
@@ -328,7 +328,7 @@ const func boolean: (in time: tim1) >= (in time: tim2) is func
               if tim1.second > tim2.second then
                 result := TRUE;
               elsif tim1.second = tim2.second then
-                if tim1.mycro_second >= tim2.mycro_second then
+                if tim1.micro_second >= tim2.micro_second then
                   result := TRUE;
                 end if;
               end if;
@@ -362,7 +362,7 @@ const func boolean: (in time: tim1) <= (in time: tim2) is func
               if tim1.second < tim2.second then
                 result := TRUE;
               elsif tim1.second = tim2.second then
-                if tim1.mycro_second <= tim2.mycro_second then
+                if tim1.micro_second <= tim2.micro_second then
                   result := TRUE;
                 end if;
               end if;
@@ -414,9 +414,9 @@ const func integer: compare (in time: tim1, in time: tim2) is func
       result := -1;
     elsif tim1.second > tim2.second then
       result := 1;
-    elsif tim1.mycro_second < tim2.mycro_second then
+    elsif tim1.micro_second < tim2.micro_second then
       result := -1;
-    elsif tim1.mycro_second > tim2.mycro_second then
+    elsif tim1.micro_second > tim2.micro_second then
       result := 1;
     end if;
   end func;
@@ -427,7 +427,7 @@ const func integer: compare (in time: tim1, in time: tim2) is func
  *)
 const func integer: hashCode (in time: aTime) is
   return aTime.year + aTime.month + aTime.day +
-      aTime.hour + aTime.minute + aTime.second + aTime.mycro_second;
+      aTime.hour + aTime.minute + aTime.second + aTime.micro_second;
 
 
 (**
@@ -438,7 +438,7 @@ const func time: truncToSecond (in time: aTime) is func
     var time: result is time.value;
   begin
     result := aTime;
-    result.mycro_second := 0;
+    result.micro_second := 0;
   end func;
 
 
@@ -451,7 +451,7 @@ const func time: truncToMinute (in time: aTime) is func
   begin
     result := aTime;
     result.second := 0;
-    result.mycro_second := 0;
+    result.micro_second := 0;
   end func;
 
 
@@ -465,7 +465,7 @@ const func time: truncToHour (in time: aTime) is func
     result := aTime;
     result.minute := 0;
     result.second := 0;
-    result.mycro_second := 0;
+    result.micro_second := 0;
   end func;
 
 
@@ -480,7 +480,7 @@ const func time: truncToDay (in time: aTime) is func
     result.hour := 0;
     result.minute := 0;
     result.second := 0;
-    result.mycro_second := 0;
+    result.micro_second := 0;
   end func;
 
 
@@ -497,7 +497,7 @@ const func time: truncToMonth (in time: aTime) is func
     result.hour := 0;
     result.minute := 0;
     result.second := 0;
-    result.mycro_second := 0;
+    result.micro_second := 0;
   end func;
 
 
@@ -515,7 +515,7 @@ const func time: truncToYear (in time: aTime) is func
     result.hour := 0;
     result.minute := 0;
     result.second := 0;
-    result.mycro_second := 0;
+    result.micro_second := 0;
   end func;
 
 
@@ -640,8 +640,8 @@ const proc: NORMALIZE (inout time: tim) is func
   local
     var integer: month_length is 0;
   begin
-    tim.second := tim.second + tim.mycro_second mdiv 1000000;
-    tim.mycro_second := tim.mycro_second mod 1000000;
+    tim.second := tim.second + tim.micro_second mdiv 1000000;
+    tim.micro_second := tim.micro_second mod 1000000;
     tim.minute := tim.minute + tim.second mdiv 60;
     tim.second := tim.second mod 60;
     tim.hour := tim.hour + tim.minute mdiv 60;
@@ -787,7 +787,7 @@ const func time: timestamp1970ToTime (in integer: timestamp) is func
   begin
     FROM_TIMESTAMP(timestamp, result.year, result.month, result.day,
         result.hour, result.minute, result.second,
-        result.mycro_second, result.timeZone,
+        result.micro_second, result.timeZone,
         result.daylightSavingTime);
   end func;
 
@@ -849,7 +849,7 @@ const func time: time (NOW) is func
   begin
     GET_TIME(result.year, result.month, result.day,
         result.hour, result.minute, result.second,
-        result.mycro_second, result.timeZone,
+        result.micro_second, result.timeZone,
         result.daylightSavingTime);
   end func;
 
@@ -909,7 +909,7 @@ const proc: await (ref time: aTime) is func
   begin
     AWAIT_TIME(aTime.year, aTime.month, aTime.day,
         aTime.hour, aTime.minute, aTime.second,
-        aTime.mycro_second, aTime.timeZone);
+        aTime.micro_second, aTime.timeZone);
   end func;
 
 
@@ -922,7 +922,7 @@ const func time: getATime (in string: filePath) is func
   begin
     GET_ATIME(filePath, result.year, result.month, result.day,
         result.hour, result.minute, result.second,
-        result.mycro_second, result.timeZone,
+        result.micro_second, result.timeZone,
         result.daylightSavingTime);
   end func;
 
@@ -936,7 +936,7 @@ const func time: getCTime (in string: filePath) is func
   begin
     GET_CTIME(filePath, result.year, result.month, result.day,
         result.hour, result.minute, result.second,
-        result.mycro_second, result.timeZone,
+        result.micro_second, result.timeZone,
         result.daylightSavingTime);
   end func;
 
@@ -950,7 +950,7 @@ const func time: getMTime (in string: filePath) is func
   begin
     GET_MTIME(filePath, result.year, result.month, result.day,
         result.hour, result.minute, result.second,
-        result.mycro_second, result.timeZone,
+        result.micro_second, result.timeZone,
         result.daylightSavingTime);
   end func;
 
@@ -959,7 +959,7 @@ const proc: setATime (in string: fileName, in time: aTime) is func
   begin
     SET_ATIME(fileName, aTime.year, aTime.month, aTime.day,
         aTime.hour, aTime.minute, aTime.second,
-        aTime.mycro_second, aTime.timeZone);
+        aTime.micro_second, aTime.timeZone);
   end func;
 
 
@@ -967,7 +967,7 @@ const proc: setMTime (in string: fileName, in time: aTime) is func
   begin
     SET_MTIME(fileName, aTime.year, aTime.month, aTime.day,
         aTime.hour, aTime.minute, aTime.second,
-        aTime.mycro_second, aTime.timeZone);
+        aTime.micro_second, aTime.timeZone);
   end func;
 
 
@@ -982,7 +982,7 @@ const type: duration is new object struct
     var integer: hour is 0;
     var integer: minute is 0;
     var integer: second is 0;
-    var integer: mycro_second is 0;
+    var integer: micro_second is 0;
     var integer: year_correction is 0;
     var integer: month_correction is 0;
     var integer: day_correction is 0;
@@ -1051,10 +1051,10 @@ const func integer: getSeconds (in duration: aDuration) is
 
 
 (**
- *  Obtains the mycro seconds of a duration.
+ *  Obtains the micro seconds of a duration.
  *)
-const func integer: getMycroSeconds (in duration: aDuration) is
-  return aDuration.mycro_second;
+const func integer: getMicroSeconds (in duration: aDuration) is
+  return aDuration.micro_second;
 
 
 (**
@@ -1109,7 +1109,7 @@ const func duration: (attr duration) parse (in var string: stri) is func
     if stri <> "" then
       raise RANGE_ERROR;
     end if;
-    result.mycro_second := 0;
+    result.micro_second := 0;
     if result.month_30 < 1 or result.month_30 > 12 or
         result.day < 1 or result.day > daysInMonth(result.year_365, result.month_30) or
         result.hour < 0 or result.hour > 23 or
@@ -1138,7 +1138,7 @@ const func boolean: (in duration: dur1) = (in duration: dur2) is func
         dur1.hour = dur2.hour and
         dur1.minute = dur2.minute and
         dur1.second = dur2.second and
-        dur1.mycro_second = dur2.mycro_second;
+        dur1.micro_second = dur2.micro_second;
   end func;
 
 
@@ -1157,7 +1157,7 @@ const func boolean: (in duration: dur1) <> (in duration: dur2) is func
         dur1.hour <> dur2.hour or
         dur1.minute <> dur2.minute or
         dur1.second <> dur2.second or
-        dur1.mycro_second <> dur2.mycro_second;
+        dur1.micro_second <> dur2.micro_second;
   end func;
 
 
@@ -1185,7 +1185,7 @@ const func boolean: (in duration: dur1) >= (in duration: dur2) is func
               if dur1.second > dur2.second then
                 result := TRUE;
               elsif dur1.second = dur2.second then
-                if dur1.mycro_second >= dur2.mycro_second then
+                if dur1.micro_second >= dur2.micro_second then
                   result := TRUE;
                 end if;
               end if;
@@ -1221,7 +1221,7 @@ const func boolean: (in duration: dur1) <= (in duration: dur2) is func
               if dur1.second < dur2.second then
                 result := TRUE;
               elsif dur1.second = dur2.second then
-                if dur1.mycro_second <= dur2.mycro_second then
+                if dur1.micro_second <= dur2.micro_second then
                   result := TRUE;
                 end if;
               end if;
@@ -1275,9 +1275,9 @@ const func integer: compare (in duration: dur1, in duration: dur2) is func
       result := -1;
     elsif dur1.second > dur2.second then
       result := 1;
-    elsif dur1.mycro_second < dur2.mycro_second then
+    elsif dur1.micro_second < dur2.micro_second then
       result := -1;
-    elsif dur1.mycro_second > dur2.mycro_second then
+    elsif dur1.micro_second > dur2.micro_second then
       result := 1;
     end if;
   end func;
@@ -1290,7 +1290,7 @@ const func integer: hashCode (in duration: aDuration) is
   return aDuration.year_365 + aDuration.year_366 +
       aDuration.month_28 + aDuration.month_29 + aDuration.month_30 + aDuration.month_31 +
       aDuration.day + aDuration.hour + aDuration.minute + aDuration.second +
-      aDuration.mycro_second;
+      aDuration.micro_second;
 
 
 const func duration: (in integer: numYears) . YEARS is func
@@ -1341,11 +1341,11 @@ const func duration: (in integer: SECS) . SECONDS is func
   end func;
 
 
-const func duration: (in integer: MY_SECS) . MYCRO_SECONDS is func
+const func duration: (in integer: MY_SECS) . MICRO_SECONDS is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.mycro_second := MY_SECS;
+    dur_val.micro_second := MY_SECS;
   end func;
 
 
@@ -1410,20 +1410,20 @@ const func integer: toSeconds (in duration: aDuration) is
 
 
 (**
- *  Return the duration in mycro seconds.
+ *  Return the duration in micro seconds.
  *)
-const func integer: toMycroSeconds (in duration: aDuration) is
+const func integer: toMicroSeconds (in duration: aDuration) is
   return (((toDays(aDuration) * 24 +
       aDuration.hour) * 60 +
       aDuration.minute) * 60 +
       aDuration.second) * 1000000 +
-      aDuration.mycro_second;
+      aDuration.micro_second;
 
 
 const proc: NORMALIZE_DUR_TIME (inout duration: aDuration) is func
   begin
-    aDuration.second       +:= aDuration.mycro_second mdiv 1000000;
-    aDuration.mycro_second  := aDuration.mycro_second mod  1000000;
+    aDuration.second       +:= aDuration.micro_second mdiv 1000000;
+    aDuration.micro_second  := aDuration.micro_second mod  1000000;
     aDuration.minute       +:= aDuration.second       mdiv      60;
     aDuration.second        := aDuration.second       mod       60;
     aDuration.hour         +:= aDuration.minute       mdiv      60;
@@ -1457,7 +1457,7 @@ const func duration: - (in duration: aDuration) is func
     dur_val.hour             := -aDuration.hour;
     dur_val.minute           := -aDuration.minute;
     dur_val.second           := -aDuration.second;
-    dur_val.mycro_second     := -aDuration.mycro_second;
+    dur_val.micro_second     := -aDuration.micro_second;
     dur_val.year_correction  := -aDuration.year_correction;
     dur_val.month_correction := -aDuration.month_correction;
     dur_val.day_correction   := -aDuration.day_correction;
@@ -1478,7 +1478,7 @@ const func duration: + (in duration: aDuration) is func
     dur_val.hour             := aDuration.hour;
     dur_val.minute           := aDuration.minute;
     dur_val.second           := aDuration.second;
-    dur_val.mycro_second     := aDuration.mycro_second;
+    dur_val.micro_second     := aDuration.micro_second;
     dur_val.year_correction  := aDuration.year_correction;
     dur_val.month_correction := aDuration.month_correction;
     dur_val.day_correction   := aDuration.day_correction;
@@ -1499,7 +1499,7 @@ const func duration: (in duration: aDuration1) + (in duration: aDuration2) is fu
     dur_val.hour         := aDuration1.hour         + aDuration2.hour;
     dur_val.minute       := aDuration1.minute       + aDuration2.minute;
     dur_val.second       := aDuration1.second       + aDuration2.second;
-    dur_val.mycro_second := aDuration1.mycro_second + aDuration2.mycro_second;
+    dur_val.micro_second := aDuration1.micro_second + aDuration2.micro_second;
     NORMALIZE(dur_val);
   end func;
 
@@ -1518,7 +1518,7 @@ const func duration: (in duration: aDuration1) - (in duration: aDuration2) is fu
     dur_val.hour         := aDuration1.hour         - aDuration2.hour;
     dur_val.minute       := aDuration1.minute       - aDuration2.minute;
     dur_val.second       := aDuration1.second       - aDuration2.second;
-    dur_val.mycro_second := aDuration1.mycro_second - aDuration2.mycro_second;
+    dur_val.micro_second := aDuration1.micro_second - aDuration2.micro_second;
     NORMALIZE(dur_val);
   end func;
 
@@ -1537,7 +1537,7 @@ const func duration: (in integer: number) * (in duration: aDuration) is func
     dur_val.hour         := number * aDuration.hour;
     dur_val.minute       := number * aDuration.minute;
     dur_val.second       := number * aDuration.second;
-    dur_val.mycro_second := number * aDuration.mycro_second;
+    dur_val.micro_second := number * aDuration.micro_second;
     NORMALIZE(dur_val);
   end func;
 
@@ -1556,7 +1556,7 @@ const func duration: (in duration: aDuration) * (in integer: number) is func
     dur_val.hour         := aDuration.hour         * number;
     dur_val.minute       := aDuration.minute       * number;
     dur_val.second       := aDuration.second       * number;
-    dur_val.mycro_second := aDuration.mycro_second * number;
+    dur_val.micro_second := aDuration.micro_second * number;
     NORMALIZE(dur_val);
   end func;
 
@@ -1569,7 +1569,7 @@ const proc: (inout time: tim) +:= (in duration: aDuration) is func
     tim.hour +:= aDuration.hour;
     tim.minute +:= aDuration.minute;
     tim.second +:= aDuration.second;
-    tim.mycro_second +:= aDuration.mycro_second;
+    tim.micro_second +:= aDuration.micro_second;
     NORMALIZE(tim);
   end func;
 
@@ -1582,7 +1582,7 @@ const proc: (inout time: tim) -:= (in duration: aDuration) is func
     tim.hour -:= aDuration.hour;
     tim.minute -:= aDuration.minute;
     tim.second -:= aDuration.second;
-    tim.mycro_second -:= aDuration.mycro_second;
+    tim.micro_second -:= aDuration.micro_second;
     NORMALIZE(tim);
   end func;
 
@@ -1597,7 +1597,7 @@ const func time: (in time: tim) + (in duration: aDuration) is func
     result.hour := tim.hour + aDuration.hour;
     result.minute := tim.minute + aDuration.minute;
     result.second := tim.second + aDuration.second;
-    result.mycro_second := tim.mycro_second + aDuration.mycro_second;
+    result.micro_second := tim.micro_second + aDuration.micro_second;
     result.timeZone := tim.timeZone;
     NORMALIZE(result);
   end func;
@@ -1613,7 +1613,7 @@ const func time: (in time: tim) - (in duration: aDuration) is func
     result.hour := tim.hour - aDuration.hour;
     result.minute := tim.minute - aDuration.minute;
     result.second := tim.second - aDuration.second;
-    result.mycro_second := tim.mycro_second - aDuration.mycro_second;
+    result.micro_second := tim.micro_second - aDuration.micro_second;
     result.timeZone := tim.timeZone;
     NORMALIZE(result);
   end func;
@@ -1633,13 +1633,13 @@ const func duration: (in time: tim1) - (in time: tim2) is func
       dur_val.hour := tim2.hour - tim1.hour;
       dur_val.minute := tim2.minute - tim1.minute;
       dur_val.second := tim2.second - tim1.second;
-      dur_val.mycro_second := tim2.mycro_second - tim1.mycro_second;
+      dur_val.micro_second := tim2.micro_second - tim1.micro_second;
       NORMALIZE_DUR_TIME(dur_val);
       dur_val.day          := -dur_val.day;
       dur_val.hour         := -dur_val.hour;
       dur_val.minute       := -dur_val.minute;
       dur_val.second       := -dur_val.second;
-      dur_val.mycro_second := -dur_val.mycro_second;
+      dur_val.micro_second := -dur_val.micro_second;
       tim_month := tim1.month;
       tim_year := tim1.year;
       if dur_val.day > 0 then
@@ -1667,7 +1667,7 @@ const func duration: (in time: tim1) - (in time: tim2) is func
       dur_val.hour := tim1.hour - tim2.hour;
       dur_val.minute := tim1.minute - tim2.minute;
       dur_val.second := tim1.second - tim2.second;
-      dur_val.mycro_second := tim1.mycro_second - tim2.mycro_second;
+      dur_val.micro_second := tim1.micro_second - tim2.micro_second;
       NORMALIZE_DUR_TIME(dur_val);
       tim_month := tim1.month;
       tim_year := tim1.year;

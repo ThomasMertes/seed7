@@ -34,6 +34,7 @@
 #include "common.h"
 #include "sigutl.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "flistutl.h"
 #include "striutl.h"
@@ -85,49 +86,44 @@ objecttype block_body_list;
 
 #ifdef ANSI_C
 
-static objecttype copy_args (memsizetype argc, char **argv)
+static objecttype copy_args (rtlArraytype argv, memsizetype start)
 #else
 
-static objecttype copy_args (argc, argv)
-memsizetype argc;
-char **argv;
+static objecttype copy_args (argv, start)
+rtlArraytype argv;
+memsizetype start;
 #endif
 
   {
+    memsizetype argc;
     arraytype arg_array;
     memsizetype arg_idx;
-    memsizetype position;
-    stritype stri;
-    booltype okay;
     objecttype result;
 
   /* copy_args */
+    /* printf("start = %d\n", start); */
+    if (argv == NULL || argv->max_position < 0) {
+      argc = 0;
+    } else {
+      argc = (memsizetype) argv->max_position - start;
+    } /* if */
+    /* printf("argc = %d\n", argc); */
     if (ALLOC_ARRAY(arg_array, argc)) {
-      okay = TRUE;
       arg_idx = 0;
-      while (okay && arg_idx < argc) {
-        stri = cstri8_or_cstri_to_stri(argv[arg_idx]);
-        if (stri == NULL) {
-          okay = FALSE;
-        } else {
-          arg_array->arr[arg_idx].type_of = take_type(SYS_STRI_TYPE);
-          arg_array->arr[arg_idx].descriptor.property = NULL;
-          arg_array->arr[arg_idx].value.strivalue = stri;
-          INIT_CATEGORY_OF_OBJ(&arg_array->arr[arg_idx], STRIOBJECT);
-          arg_idx++;
-        } /* if */
+      while (arg_idx < argc) {
+        /* printf("arg_idx = %d\n", arg_idx);
+	   printf("argv[%d] = ", start + arg_idx);
+           prot_stri(argv->arr[start + arg_idx].value.strivalue);
+           printf("\n"); */
+        arg_array->arr[arg_idx].type_of = take_type(SYS_STRI_TYPE);
+        arg_array->arr[arg_idx].descriptor.property = NULL;
+        arg_array->arr[arg_idx].value.strivalue =
+            argv->arr[start + arg_idx].value.strivalue;
+        INIT_CATEGORY_OF_OBJ(&arg_array->arr[arg_idx], STRIOBJECT);
+        arg_idx++;
       } /* while */
-      if (okay) {
-        arg_array->min_position = 1;
-        arg_array->max_position = (inttype) arg_idx;
-      } else {
-        for (position = 0; position < arg_idx; position++) {
-          FREE_STRI(arg_array->arr[position].value.strivalue,
-              arg_array->arr[position].value.strivalue->size);
-        } /* for */
-        FREE_ARRAY(arg_array, argc);
-        arg_array = NULL;
-      } /* if */
+      arg_array->min_position = 1;
+      arg_array->max_position = (inttype) arg_idx;
     } /* if */
     if (arg_array != NULL) {
       if (ALLOC_OBJECT(result)) {
@@ -135,6 +131,8 @@ char **argv;
         result->descriptor.property = NULL;
         INIT_CATEGORY_OF_OBJ(result, ARRAYOBJECT);
         result->value.arrayvalue = arg_array;
+      } else {
+        FREE_ARRAY(arg_array, argc);
       } /* if */
     } else {
       result = NULL;
@@ -155,7 +153,7 @@ listtype arguments;
 
   { /* prc_args */
     if (option.arg_v == NULL) {
-      option.arg_v = copy_args(option.argc, option.argv);
+      option.arg_v = copy_args(option.argv, option.argv_start);
     } /* if */
     if (option.arg_v == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));

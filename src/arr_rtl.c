@@ -47,6 +47,7 @@
 #include "common.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -114,6 +115,142 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
       rtl_qsort_array(less_elem + 1, end_sort, cmp_func);
     } /* if */
   } /* rtl_qsort_array */
+
+
+
+#ifdef ANSI_C
+
+static rtlArraytype copyArgv (const int argc, const os_stritype *const argv)
+#else
+
+static rtlArraytype copyArgv (argc, argv)
+int argc;
+os_stritype *argv;
+#endif
+
+  {
+    memsizetype arg_c;
+    rtlArraytype arg_v;
+    memsizetype number;
+    stritype stri;
+
+  /* copyArgv */
+    if (unlikely(argc < 0)) {
+      raise_error(RANGE_ERROR);
+      arg_v = NULL;
+    } else {
+      arg_c = (memsizetype) (argc);
+      if (unlikely(!ALLOC_RTL_ARRAY(arg_v, arg_c))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        arg_v->min_position = 1;
+        arg_v->max_position = (inttype) (arg_c);
+        for (number = 0; number < arg_c; number++) {
+          stri = os_stri_to_stri(argv[number]);
+          if (stri != NULL) {
+            arg_v->arr[number].value.strivalue = stri;
+          } else {
+            while (number >= 1) {
+              number--;
+              stri = arg_v->arr[number].value.strivalue;
+              FREE_STRI(stri, stri->size);
+            } /* while */
+            FREE_RTL_ARRAY(arg_v, arg_c);
+            raise_error(MEMORY_ERROR);
+            arg_v = NULL;
+            number = arg_c; /* leave for-loop */
+          } /* if */
+        } /* for */
+      } /* if */
+    } /* if */
+    return arg_v;
+  } /* copyArgv */
+
+
+
+#ifdef USE_WMAIN
+#ifdef ANSI_C
+
+rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0)
+#else
+
+rtlArraytype getArgv (argc, argv, arg_0)
+int argc;
+os_stritype *argv;
+stritype *arg_0;
+#endif
+
+  {
+    rtlArraytype arg_v;
+
+  /* getArgv */
+    if (arg_0 != NULL) {
+      *arg_0 = os_stri_to_stri(argv[0]);
+    } /* if */
+    if (arg_0 == NULL || *arg_0 != NULL) {
+      arg_v = copyArgv(argc - 1, &argv[1]);
+    } else {
+      raise_error(MEMORY_ERROR);
+      arg_v = NULL;
+    } /* if */
+    return arg_v;
+  } /* getArgv */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0)
+#else
+
+rtlArraytype getArgv (argc, argv, arg_0)
+int argc;
+char **argv;
+stritype *arg_0;
+#endif
+
+  {
+#ifdef OS_PATH_WCHAR
+    int w_argc;
+    os_stritype *w_argv;
+#endif
+    rtlArraytype arg_v;
+
+  /* getArgv */
+#ifdef OS_PATH_WCHAR
+    w_argv = getUtf16Argv(&w_argc);
+    if (w_argv == NULL) {
+      raise_error(MEMORY_ERROR);
+      arg_v = NULL;
+    } else {
+      if (arg_0 != NULL) {
+        *arg_0 = os_stri_to_stri(w_argv[0]);
+      } /* if */
+      if (arg_0 == NULL || *arg_0 != NULL) {
+        arg_v = copyArgv(w_argc - 1, &w_argv[1]);
+      } else {
+        raise_error(MEMORY_ERROR);
+        arg_v = NULL;
+      } /* if */
+      freeUtf16Argv(w_argv);
+    } /* if */
+#else
+    if (arg_0 != NULL) {
+      *arg_0 = os_stri_to_stri(argv[0]);
+    } /* if */
+    if (arg_0 == NULL || *arg_0 != NULL) {
+      arg_v = copyArgv(argc - 1, &argv[1]);
+    } else {
+      raise_error(MEMORY_ERROR);
+      arg_v = NULL;
+    } /* if */
+#endif
+    return arg_v;
+  } /* getArgv */
+
+#endif
 
 
 

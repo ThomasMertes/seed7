@@ -684,7 +684,6 @@ inttype number;
 #endif
 
   {
-    memsizetype pos;
     memsizetype result_size;
     settype result;
 
@@ -695,10 +694,17 @@ inttype number;
     } else {
       result->min_position = 0;
       result->max_position = (inttype) (result_size - 1);
-      for (pos = 0; pos < result_size; pos++) {
-        result->bitset[pos] = (bitsettype) number;
-        number >>= 8 * sizeof(bitsettype);
-      } /* for */
+      result->bitset[0] = (bitsettype) number;
+#if BITSETTYPE_SIZE < INTTYPE_SIZE
+      {
+        memsizetype pos;
+
+        for (pos = 1; pos < result_size; pos++) {
+          number >>= 8 * sizeof(bitsettype);
+          result->bitset[pos] = (bitsettype) number;
+        } /* for */
+      }
+#endif
     } /* if */
     return result;
   } /* setIConv */

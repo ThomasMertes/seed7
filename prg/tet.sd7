@@ -38,7 +38,7 @@ var text: info_sheet is STD_NULL;
 var boolean: quit_round is FALSE;
 var integer: score is 0;
 var integer: level is 1;
-var duration: delta is 50000 . MYCRO_SECONDS;
+var duration: delta is 50000 . MICRO_SECONDS;
 var integer: counter_start is 5;
 
 const type: bool_list is array boolean;

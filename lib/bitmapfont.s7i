@@ -125,10 +125,10 @@ const func pixmapFontType: genPixmapFont (in bitmapFont: bmpFont,
     result.scale := scale;
     result.foreground := foreground;
     result.background := background;
-    result.baseLineDelta := baseLineDelta(bmpFont);
-    result.line_delta := lineHeight(bmpFont);
-    result.column_delta := columnWidth(bmpFont);
-    result.characterSpacing := characterSpacing(bmpFont);
+    result.baseLineDelta := baseLineDelta(bmpFont) * scale;
+    result.line_delta := lineHeight(bmpFont) * scale;
+    result.column_delta := columnWidth(bmpFont) * scale;
+    result.characterSpacing := characterSpacing(bmpFont) * scale;
   end func;
 
 

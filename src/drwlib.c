@@ -373,6 +373,37 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_cmp (listtype arguments)
+#else
+
+objecttype drw_cmp (arguments)
+listtype arguments;
+#endif
+
+  {
+    memsizetype ref1;
+    memsizetype ref2;
+    inttype result;
+
+  /* drw_cmp */
+    isit_win(arg_1(arguments));
+    isit_win(arg_2(arguments));
+    ref1 = (memsizetype) take_win(arg_1(arguments));
+    ref2 = (memsizetype) take_win(arg_2(arguments));
+    if (ref1 < ref2) {
+      result = -1;
+    } else if (ref1 > ref2) {
+      result = 1;
+    } else {
+      result = 0;
+    } /* if */
+    return bld_int_temp(result);
+  } /* drw_cmp */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_color (listtype arguments)
 #else
 
@@ -797,6 +828,23 @@ listtype arguments;
     return(bld_win_temp(
         drwGet(actual_window, x1, y1, width, height)));
   } /* drw_get */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_hashcode (listtype arguments)
+#else
+
+objecttype drw_hashcode (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_hashcode */
+    isit_win(arg_1(arguments));
+    return bld_int_temp((inttype)
+        (((memsizetype) take_win(arg_1(arguments))) >> 6));
+  } /* drw_hashcode */
 
 
 
@@ -1503,6 +1551,24 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype drw_setContent (listtype arguments)
+#else
+
+objecttype drw_setContent (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_setContent */
+    isit_win(arg_1(arguments));
+    isit_win(arg_2(arguments));
+    drwSetContent(take_win(arg_1(arguments)), take_win(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_setContent */
+
+
+
+#ifdef ANSI_C
+
 objecttype drw_setPos (listtype arguments)
 #else
 
@@ -1571,6 +1637,40 @@ listtype arguments;
     drwText(actual_window, x, y, stri, col, bkcol);
     return(SYS_EMPTY_OBJECT);
   } /* drw_text */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_toBottom (listtype arguments)
+#else
+
+objecttype drw_toBottom (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_toBottom */
+    isit_win(arg_1(arguments));
+    drwToBottom(take_win(arg_1(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_toBottom */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_toTop (listtype arguments)
+#else
+
+objecttype drw_toTop (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_toTop */
+    isit_win(arg_1(arguments));
+    drwToTop(take_win(arg_1(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* drw_toTop */
 
 
 

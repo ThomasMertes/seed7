@@ -105,10 +105,13 @@ void drwPRect (const_wintype actual_window,
 inttype drwRgbColor (inttype red_val, inttype green_val, inttype blue_val);
 void drwBackground (inttype col);
 void drwColor (inttype col);
+void drwSetContent (const_wintype actual_window, const_wintype pixmap);
 void drwSetPos (const_wintype actual_window, inttype xPos, inttype yPos);
 void drwSetTransparentColor (wintype pixmap, inttype col);
 void drwText (const_wintype actual_window, inttype x, inttype y,
     stritype stri, inttype col, inttype bkcol);
+void drwToBottom (const_wintype actual_window);
+void drwToTop (const_wintype actual_window);
 inttype drwWidth (const_wintype actual_window);
 inttype drwXPos (const_wintype actual_window);
 inttype drwYPos (const_wintype actual_window);
@@ -163,9 +166,12 @@ void drwPRect ();
 inttype drwRgbColor ();
 void drwBackground ();
 void drwColor ();
+void drwSetContent ();
 void drwSetPos ();
 void drwSetTransparentColor ();
 void drwText ();
+void drwToBottom ();
+void drwToTop ();
 inttype drwWidth ();
 inttype drwXPos ();
 inttype drwYPos ();

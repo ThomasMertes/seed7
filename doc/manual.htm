@@ -3380,7 +3380,7 @@
   its official introduction). This convention is used according to
   ISO 8601 which also defines that positive and negative years exist
   and that the year preceding 1 is 0. Time is measured in hours,
-  minutes, seconds and mycro seconds. Additionally information about
+  minutes, seconds and micro seconds. Additionally information about
   the difference to UTC and a flag indicating daylight saving time
   is maintained also.
 </p><pre>
@@ -3391,7 +3391,7 @@
       <font color=blue>var</font> <font color=red>integer</font>: hour <font color=blue>is</font> 0;
       <font color=blue>var</font> <font color=red>integer</font>: minute <font color=blue>is</font> 0;
       <font color=blue>var</font> <font color=red>integer</font>: second <font color=blue>is</font> 0;
-      <font color=blue>var</font> <font color=red>integer</font>: mycro_second <font color=blue>is</font> 0;
+      <font color=blue>var</font> <font color=red>integer</font>: micro_second <font color=blue>is</font> 0;
     Infix operators:
       +         Add a duration to a time
                   ( Type of right operand: <font color=red>duration</font> )
@@ -3510,7 +3510,7 @@
                   ( Type of result: <font color=red>integer</font> )
       getSeconds(A) Obtains the seconds of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
-      getMycroSeconds(A)  Obtains the mycro seconds of a <font color=red>duration</font>
+      getMicroSeconds(A)  Obtains the micro seconds of a <font color=red>duration</font>
                   ( Type of result: <font color=red>integer</font> )
       toYears(A)  Return the <font color=red>duration</font> in years
                   ( Type of result: <font color=red>integer</font> )
@@ -3524,7 +3524,7 @@
                   ( Type of result: <font color=red>integer</font> )
       toSeconds(A) Return the <font color=red>duration</font> in seconds
                   ( Type of result: <font color=red>integer</font> )
-      toMycroSeconds(A)  Return the <font color=red>duration</font> in mycro seconds
+      toMicroSeconds(A)  Return the <font color=red>duration</font> in micro seconds
                   ( Type of result: <font color=red>integer</font> )
       str(A)    Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
@@ -3629,7 +3629,7 @@
                     seek(A, 1) => Set to file begin,
                     seek(A, length(A)) => Set to last position,
                     seek(A, length(A) + 1) => Set to end of file,
-                    seek(A, -1) => EXCEPTION RANGE_ERROR )
+                    seek(A, 0) => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
 <a name="text"><h3>5.24 text</h3></a>
@@ -4337,7 +4337,7 @@
   interfacing. When you write to a <tt>'file'</tt> in C you use the same
   interface (<tt>'fprintf'</tt>) for hard disk files, console output and
   printer output. The implementation does totally different
-  things for these files. UNIX has used the "everything is a
+  things for these files. Unix has used the "everything is a
   file" philosophy for ages (even network communication uses
   the <tt>file'</tt> interface (see sockets)).
 </p><p>
@@ -5442,9 +5442,14 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=maroon>"at+"</font> ... Append; open or create file for update, writing at end-of-file.
 </pre><p>
   Note that Seed7 defines the modes <font color=maroon>"r"</font>, <font color=maroon>"w"</font>, <font color=maroon>"a"</font>, <font color=maroon>"r+"</font>, <font color=maroon>"w+"</font>
-  and <font color=maroon>"a+"</font> as binary modes.
-  When <tt>'open'</tt> fails it returns <tt>'STD_NULL'</tt>. It is
-  recommended to check the file variable:
+  and <font color=maroon>"a+"</font> as binary modes. When <tt>'open'</tt> is called, with a mode
+  not listed in the table above, the exception <tt>'RANGE_ERROR'</tt>
+  is raised. When there is not enough memory to convert <tt>'path'</tt>
+  to the system path type the exception <tt>'MEMORY_ERROR'</tt>
+  is raised. When <tt>'open'</tt> fails for other reasons it returns
+  <tt>'STD_NULL'</tt>. E.g.: It is not allowed to <tt>'open'</tt> a directory.
+  An attempt to <tt>'open'</tt> a directory returns <tt>'STD_NULL'</tt>. It is
+  recommended to check the file variable after opening a file:
 </p><pre>
     <font color=blue>if</font> my_out &lt;> STD_NULL <font color=blue>then</font>
 </pre><p>
@@ -5456,9 +5461,9 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p><pre>
     close(my_out);
 </pre><p>
-  Writing to a file after it has been closed results in the exception <tt>'FILE_ERROR'</tt>.
-  The following program writes <font color=maroon>"hi there"</font> to the file
-  <font color=maroon>"my_file"</font>:
+  Writing to a file after it has been closed results in the
+  exception <tt>'FILE_ERROR'</tt>. The following program writes
+  <font color=maroon>"hi there"</font> to the file <font color=maroon>"my_file"</font>:
 </p><pre>
     $ <font color=blue>include</font> <font color=maroon>"seed7_05.s7i"</font>;
 
@@ -5511,7 +5516,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"r"</font>);
     <font color=blue>if</font> getc(my_file) <> <font color=maroon>'\16#FEFF\'</font> <font color=blue>then</font>
       <font color=green># This is a file without BOM (the first character will be read later).</font>
-      seek(my_file, 0);
+      seek(my_file, 1);
     <font color=blue>end if</font>;
     ...
 </pre><p>
@@ -5925,7 +5930,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <li><!-- -  -->The information can be processed (e.g. to upper case)
       and sent to another file.</li>
 
-    <li><!-- -  -->It could work just like an UNIX utility (Think of
+    <li><!-- -  -->It could work just like an Unix utility (Think of
       more, sort, tee, uniq ...)</li>
 
     <li><!-- -  -->It could provide a file-like interface for something
@@ -7519,7 +7524,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 <p>
     Seed7 provides a portable access to the services provided
   by an operating system. This interface is oriented towards
-  POSIX and UNIX.
+  Posix and Unix.
 </p>
 
 <a name="Directory_access"><h3>12.1 Directory access</h3></a>
@@ -7633,7 +7638,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>RANGE_ERROR</dt>
           <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
       <dt>FILE_ERROR</dt>
-          <dd>The system function returns an error other than ENOENT.</dd>
+          <dd>The system function returns an error other than ENOENT or ENOTDIR.</dd>
       </dl></dd></dl></p>
 
 <a name="fileMode"><h3>12.4 fileMode</h3></a>
@@ -7801,7 +7806,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type or
+          <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
       <dt>FILE_ERROR</dt>
           <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
@@ -7817,7 +7823,8 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <dt>MEMORY_ERROR</dt>
           <dd>Not enough memory to convert <tt>'filePath'</tt> to the system path type.</dd>
       <dt>RANGE_ERROR</dt>
-          <dd><tt>'filePath'</tt> is not representable in the system path type.</dd>
+          <dd><tt>'filePath'</tt> is not representable in the system path type or
+          <tt>'aTime'</tt> is invalid or cannot be converted to the system file time.</dd>
       <dt>FILE_ERROR</dt>
           <dd>A system function returns an error.</dd>
       </dl></dd></dl></p>
