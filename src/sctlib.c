@@ -382,7 +382,7 @@ listtype arguments;
       push_stack();
       current_object = entername(prog.declaration_root, name_expr, &err_info);
       pop_stack();
-      copy_expression(value_expr, &value, &err_info);
+      value = copy_expression(value_expr, &err_info);
       if (err_info == OKAY_NO_ERROR) {
         current_object->type_of = object_type;
         SET_VAR_FLAG(current_object);

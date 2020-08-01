@@ -81,6 +81,10 @@ typedef struct win_winstruct {
     struct win_winstruct *next;
   } win_winrecord, *win_wintype;
 
+#ifdef DO_HEAP_STATISTIC
+size_t sizeof_winrecord = sizeof(win_winrecord);
+#endif
+
 static win_wintype window_list = NULL;
 
 #define to_hwnd(win)                 (((win_wintype) win)->hWnd)
@@ -1792,9 +1796,6 @@ stritype window_name;
     printf("BEGIN drwOpen(%ld, %ld, %ld, %ld)\n",
         xPos, yPos, width, height);
 #endif
-#ifdef DO_HEAP_STATISTIC
-    count.size_winrecord = SIZ_REC(win_winrecord);
-#endif
     result = NULL;
     if (init_called == 0) {
       dra_init();
@@ -1893,9 +1894,6 @@ inttype height;
 #ifdef TRACE_WIN
     printf("BEGIN drwOpenSubWindow(%ld, %ld, %ld, %ld)\n",
         xPos, yPos, width, height);
-#endif
-#ifdef DO_HEAP_STATISTIC
-    count.size_winrecord = SIZ_REC(win_winrecord);
 #endif
     result = NULL;
     if (init_called == 0) {

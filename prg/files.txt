@@ -116,6 +116,7 @@ dir.s7i      Implementation type to read directories as files
 draw.s7i     Portable graphic library
 duration.s7i Time and date duration support library
 echo.s7i     Filter file which generates an echo of the input
+editline.s7i File type for linewise editing with history
 enable_input.s7i Templates to enable file output for a type
 enable_io.s7i Templates to enable file I/O for a given type
 enable_output.s7i Templates to enable file output for a type

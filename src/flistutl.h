@@ -60,55 +60,82 @@ EXTERN freelisttype flist;
 #define FREE_CHUNK(var,byt)      (chunk.lost_bytes += (byt))
 #endif
 #else
-#define ALLOC_CHUNK(var,tp,byt)  ALLOC_HEAP(var, tp, byt)
 #endif
 
 
 #ifdef USE_CHUNK_ALLOCS
 #define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustritype, SIZ_ID(len))
-#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes) FREE_CHUNK(var, SIZ_ID(len)))
+#define FREE_ID_NAME(var,len)      (CNT(CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes)) FREE_CHUNK(var, SIZ_ID(len)))
 #else
 #define ALLOC_ID_NAME(var,len)     ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
-#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes) FREE_HEAP(var, SIZ_USTRI(len)))
+#define FREE_ID_NAME(var,len)      (CNT(CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes)) FREE_HEAP(var, SIZ_USTRI(len)))
 #endif
 #define COUNT_ID_NAME(len)         CNT1_USTRI((len), SIZ_USTRI(len), count.idt, count.idt_bytes)
 
-
+#ifdef USE_CHUNK_ALLOCS
 #define ALLOC_FLISTELEM(var,rec)   ALLOC_CHUNK(var, rec *, SIZ_REC(rec))
-
-#ifdef DO_HEAPSIZE_COMPUTATION
-#define COUNT_FLISTELEM(rec,cnt)   CNT1_REC(SIZ_REC(rec), cnt)
-#define CNT(cnt)                   cnt,
 #else
-#define COUNT_FLISTELEM(rec,cnt)
-#define CNT(cnt)
+#define ALLOC_FLISTELEM(var,rec)   ALLOC_HEAP(var, rec *, SIZ_REC(rec))
 #endif
 
+#define COUNT_FLISTELEM(rec,cnt)   CNT1_REC(SIZ_REC(rec), cnt)
 
-#define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.object))    TRUE))
-#define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.list_elem)) TRUE))
-#define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.node))      TRUE))
-#define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : (CNT(COUNT_FLISTELEM(T, count.infil))     TRUE))
-/* #define HEAP_STRI(S,L)  ALLOC_HEAP(S, stritype, SIZ_STRI(L))
-   #define CHUNK_STRI(S,L) ALLOC_CHUNK(S, stritype, SIZ_STRI(L)) */
+
+#define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.object))    TRUE)
+#define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.list_elem)) TRUE)
+#define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.node))      TRUE)
+#define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : CNT(COUNT_FLISTELEM(T, count.infil))     TRUE)
 
 #define POP_OBJ(O)      (O = flist.objects,    flist.objects = flist.objects->value.objvalue, F_LOG1(O) TRUE)
 #define POP_L_E(L)      (L = flist.list_elems, flist.list_elems = flist.list_elems->next,     F_LOG1(L) TRUE)
 #define POP_NODE(N)     (N = flist.nodes,      flist.nodes = flist.nodes->next1,              F_LOG1(N) TRUE)
 #define POP_FILE(F)     (F = flist.infiles,    flist.infiles = flist.infiles->next,           F_LOG1(F) TRUE)
-/* #define POP_STRI(S,L)   (S = flist.stris[L],   flist.stris[L] = (stritype) flist.stris[L]->size, TRUE) */
 
+
+#ifdef WITH_OBJECT_FREELIST
 #define ALLOC_OBJECT(O) (flist.objects != NULL ? POP_OBJ(O) : HEAP_OBJ(O, objectrecord))
 #define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objvalue = flist.objects, (O)->objcategory = 0, flist.objects = (O))
+/* #define FREE_OBJECT(O)  (F_LOG2(O) check_obj_flist(O), (O)->value.objvalue = flist.objects, flist.objects = (O)) */
+#else
+#define ALLOC_OBJECT(O) HEAP_OBJ(O, objectrecord)
+#define FREE_OBJECT(O)  FREE_RECORD(O, objectrecord, count.object)
+#ifdef USE_CHUNK_ALLOCS
+#error Configuration error: USE_CHUNK_ALLOCS needs WITH_OBJECT_FREELIST
+#endif
+#endif
 
+#ifdef WITH_LIST_FREELIST
 #define ALLOC_L_ELEM(L) (flist.list_elems != NULL ? POP_L_E(L) : HEAP_L_E(L, listrecord))
 #define FREE_L_ELEM(L)  (F_LOG2(L) (L)->next = flist.list_elems, flist.list_elems = (L))
+#else
+#define ALLOC_L_ELEM(L) HEAP_L_E(L, listrecord)
+#define FREE_L_ELEM(L)  FREE_RECORD(L, listrecord, count.list_elem)
+#ifdef USE_CHUNK_ALLOCS
+#error Configuration error: USE_CHUNK_ALLOCS needs WITH_LIST_FREELIST
+#endif
+#endif
 
+#ifdef WITH_NODE_FREELIST
 #define ALLOC_NODE(N)   (flist.nodes != NULL ? POP_NODE(N) : HEAP_NODE(N, noderecord))
 #define FREE_NODE(N)    (F_LOG2(N) (N)->next1 = flist.nodes, flist.nodes = (N))
+#else
+#define ALLOC_NODE(N)   HEAP_NODE(N, noderecord)
+#define FREE_NODE(N)    FREE_RECORD(N, noderecord, count.node)
+#ifdef USE_CHUNK_ALLOCS
+#error Configuration error: USE_CHUNK_ALLOCS needs WITH_NODE_FREELIST
+#endif
+#endif
 
+#ifdef WITH_FILE_FREELIST
 #define ALLOC_FILE(F)   (flist.infiles != NULL ? POP_FILE(F) : HEAP_FILE(F, infilrecord))
 #define FREE_FILE(F)    (F_LOG2(F) (F)->next = flist.infiles, flist.infiles = (F))
+#else
+#define ALLOC_FILE(F)   HEAP_FILE(F, infilrecord)
+#define FREE_FILE(F)    FREE_RECORD(F, infilrecord, count.infil)
+#ifdef USE_CHUNK_ALLOCS
+#error Configuration error: USE_CHUNK_ALLOCS needs WITH_FILE_FREELIST
+#endif
+#endif
 
 
 #ifdef ANSI_C
@@ -118,11 +145,11 @@ void heap_statistic (void);
 #endif
 memsizetype heapsize (void);
 #ifdef USE_CHUNK_ALLOCS
+#ifdef USE_FLIST_ALLOC
 void *flist_alloc (size_t);
-void reuse_free_lists (void);
 #endif
-#ifndef USE_CHUNK_ALLOCS
-void REUSE_FLIST.LISTS (void);
+#else
+void reuse_free_lists (void);
 #endif
 #ifdef USE_CHUNK_ALLOCS
 void *heap_chunk (size_t);
@@ -135,11 +162,11 @@ void heap_statistic ();
 #endif
 memsizetype heapsize ();
 #ifdef USE_CHUNK_ALLOCS
+#ifdef USE_FLIST_ALLOC
 void *flist_alloc ();
-void reuse_free_lists ();
 #endif
-#ifndef USE_CHUNK_ALLOCS
-void REUSE_FLIST.LISTS ();
+#else
+void reuse_free_lists ();
 #endif
 #ifdef USE_CHUNK_ALLOCS
 void *heap_chunk ();

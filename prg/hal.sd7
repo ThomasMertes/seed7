@@ -22,7 +22,6 @@
 (********************************************************************)
 
 
-$ info off;
 $ include "seed7_05.s7i";
   include "console.s7i";
   include "window.s7i";

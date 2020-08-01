@@ -179,6 +179,7 @@ register int character;
       result = (chartype) (character & 0x1F) << 6;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
+        /* character range 0x80 to 0xBF (128 to 191) */
         result |= character & 0x3F;
         if (result <= 0x7F) {
           err_char(CHAR_ILLEGAL, result);
@@ -194,6 +195,7 @@ register int character;
       result = (chartype) (character & 0x0F) << 12;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
+        /* character range 0x80 to 0xBF (128 to 191) */
         result |= (chartype) (character & 0x3F) << 6;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
@@ -217,6 +219,7 @@ register int character;
       result = (chartype) (character & 0x07) << 18;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
+        /* character range 0x80 to 0xBF (128 to 191) */
         result |= (chartype) (character & 0x3F) << 12;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
@@ -248,6 +251,7 @@ register int character;
       result = (chartype) (character & 0x03) << 24;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
+        /* character range 0x80 to 0xBF (128 to 191) */
         result |= (chartype) (character & 0x3F) << 18;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
@@ -287,6 +291,7 @@ register int character;
       result = (chartype) (character & 0x03) << 30;
       character = next_character();
       if ((character & 0xC0) == 0x80) {
+        /* character range 0x80 to 0xBF (128 to 191) */
         result |= (chartype) (character & 0x3F) << 24;
         character = next_character();
         if ((character & 0xC0) == 0x80) {
@@ -482,6 +487,7 @@ void lit_char ()
           symbol.charvalue = (chartype) in_file.character;
           in_file.character = next_character();
         } else if ((in_file.character & 0xC0) == 0xC0) {
+          /* character range 0xC0 to 0xFF (192 to 255) */
           symbol.charvalue = utf8_char(in_file.character);
         } else {
           err_cchar(CHAR_ILLEGAL, in_file.character);
@@ -581,6 +587,7 @@ void lit_string ()
         err_warning(STRINGEXCEEDS);
         reading_string = FALSE;
       } else if ((character & 0xC0) == 0xC0) {
+        /* character range 0xC0 to 0xFF (192 to 255) */
         check_stri_length(position);
         symbol.strivalue->mem[position++] = utf8_char(character);
         character = in_file.character;

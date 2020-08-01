@@ -68,6 +68,7 @@ const func f_param: inout (ref type param) : (ref expr param)   is action "DCL_I
 const func f_param: in (ref type param) param                   is action "DCL_REF1";
 const func f_param: attr (ref type param)                       is action "DCL_ATTR";
 const func f_param: attr (ref f_param param)                    is action "DCL_PARAM_ATTR";
+const proc: global (in proc param) end global                   is action "DCL_GLOBAL";
 
 const proc: (ref type param) ::= (ref type param)            is action "TYP_CREATE";
 const proc: destroy (ref type param)                         is action "TYP_DESTR";
@@ -106,6 +107,7 @@ IN_PARAM_IS_REFERENCE(ACTION);
 
 const proc: BASIC_TYPE_DECLS (in type: aType) is func
   begin
+    global
 (*    PRINT("in BASIC_TYPE_DECLS\n"); *)
     const proc: TRACE (ref aType param)                                    is action "REF_TRACE";
     const proc: ignore (ref aType param)                                   is noop;
@@ -183,7 +185,7 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
                                 begin
                                   (ref expr param)
                                 end func                              is action "PRC_RES_BEGIN";
-
+    end global;
   end func;
 
 BASIC_TYPE_DECLS(type);
@@ -337,10 +339,10 @@ const func boolean: (in type: aType1) = (in type: aType2)      is action "TYP_EQ
 const func boolean: (in type: aType1) <> (in type: aType2)     is action "TYP_NE";
 const func integer: compare (in type: aType1, in type: aType2) is action "TYP_CMP";
 const func integer: hashCode (in type: aType)                  is action "TYP_HASHCODE";
-const func boolean: is_func (in type param)                    is action "TYP_ISFUNC";
-const func boolean: is_varfunc (in type param)                 is action "TYP_ISVARFUNC";
-const func type: result_type (in type param)                   is action "TYP_RESULT";
-const func boolean: is_derived (in type param)                 is action "TYP_ISDERIVED";
+const func boolean: isFunc (in type: aType)                    is action "TYP_ISFUNC";
+const func boolean: isVarfunc (in type: aType)                 is action "TYP_ISVARFUNC";
+const func type: resultType (in type: funcType)                is action "TYP_RESULT";
+const func boolean: isDerived (in type: aType)                 is action "TYP_ISDERIVED";
 const func type: meta (in type param)                          is action "TYP_META";
 const proc: addInterface (in type param, in type param)        is action "TYP_ADDINTERFACE";
 
@@ -389,8 +391,6 @@ const proc: while (in boolean: condition)  do (in proc: statement) end while    
 const proc: repeat (in proc: statement) until (ref func boolean: condition)     is action "PRC_REPEAT";
 const proc: repeat (in proc: statement) until (ref varfunc boolean: condition)  is action "PRC_REPEAT";
 const proc: repeat (in proc: statement) until (in boolean: condition)           is action "PRC_REPEAT";
-
-const proc: global (in proc param) end global   is action "DCL_GLOBAL";
 
 
 (* integer *)
@@ -479,8 +479,8 @@ $ include "ref_list.s7i";
 var type: CURR_STRUCT_PTR is void;
 var type: FORWARD_PTR is void;
 
-const func boolean: is_declared (in type param) is                    action "TYP_ISDECLARED";
-const func boolean: is_forward (in type param) is                     action "TYP_ISFORWARD";
+const func boolean: is_declared (in type param)                      is action "TYP_ISDECLARED";
+const func boolean: is_forward (in type param)                       is action "TYP_ISFORWARD";
 
 const func type: forward_ptr (ref expr: baseTypeName) is func
   result
@@ -494,15 +494,14 @@ const func type: forward_ptr (ref expr: baseTypeName) is func
     ptrType := newtype;
     FORWARD_PTR := ptrType;
     IN_PARAM_IS_VALUE(ptrType);
-    const proc: (ref ptrType param) ::= (in ptrType param) is         action "REF_CREATE";
-    const proc: destroy (ref ptrType param) is                        noop;
-    const proc: (inout ptrType: dest) := (in ptrType: source) is      action "REF_CPY";
-    const func boolean: (in ptrType param) = (in ptrType param) is    action "REF_EQ";
-    const func boolean: (in ptrType param) <> (in ptrType param) is   action "REF_NE";
-    const func ptrType: (attr ptrType) conv (in reference param) is   action "REF_CONV";
-    const func reference: (attr reference) conv (in ptrType param) is action "REF_CONV";
-    const ptrType: (attr ptrType) . NIL is                            ptrType conv NIL;
-    const ptrType: (attr ptrType) . value is                          ptrType.NIL;
+    const proc: (ref ptrType param) ::= (in ptrType param)           is action "REF_CREATE";
+    const proc: destroy (ref ptrType param)                          is noop;
+    const proc: (inout ptrType: dest) := (in ptrType: source)        is action "REF_CPY";
+    const func boolean: (in ptrType param) = (in ptrType param)      is action "REF_EQ";
+    const func boolean: (in ptrType param) <> (in ptrType param)     is action "REF_NE";
+    const func ptrType: _GENERATE_NIL(attr ptrType)                  is action "REF_NIL";
+    const ptrType: (attr ptrType) . NIL                              is _GENERATE_NIL(ptrType);
+    const ptrType: (attr ptrType) . value                            is ptrType.NIL;
   end func;
 
 
@@ -511,10 +510,10 @@ const proc: finish_ptr (in type: baseType, in type: ptrType) is func
     if FORWARD_PTR <> void then
       PRINT("finish_ptr\n");
       FORWARD_PTR := void;
-      const type: ptr (attr baseType) is                              ptrType;
-      const type: base_type (attr ptrType) is                         baseType;
-      const func ptrType: & (in baseType param) is                    action "REF_ADDR";
-      const func baseType: (in ptrType param) ^ is                    action "REF_DEREF";
+      const type: ptr (attr baseType)                                is ptrType;
+      const type: base_type (attr ptrType)                           is baseType;
+      const func ptrType: & (in baseType param)                      is action "REF_ADDR";
+      const func baseType: (in ptrType param) ^                      is action "REF_DEREF";
     end if;
   end func;
 
@@ -547,19 +546,18 @@ const func type: ptr (in type: baseType) is func
       global
       ptrType := newtype;
       IN_PARAM_IS_VALUE(ptrType);
-      const type: ptr (attr baseType) is                                ptrType;
-      const type: base_type (attr ptrType) is                           baseType;
-      const proc: (ref ptrType param) ::= (in ptrType param) is         action "REF_CREATE";
-      const proc: destroy (ref ptrType param) is                        noop;
-      const proc: (inout ptrType: dest) := (in ptrType: source) is      action "REF_CPY";
-      const func boolean: (in ptrType param) = (in ptrType param) is    action "REF_EQ";
-      const func boolean: (in ptrType param) <> (in ptrType param) is   action "REF_NE";
-      const func ptrType: & (in baseType param) is                      action "REF_ADDR";
-      const func baseType: (in ptrType param) ^ is                      action "REF_DEREF";
-      const func ptrType: (attr ptrType) conv (in reference param) is   action "REF_CONV";
-      const func reference: (attr reference) conv (in ptrType param) is action "REF_CONV";
-      const ptrType: (attr ptrType) . NIL is                            ptrType conv NIL;
-      const ptrType: (attr ptrType) . value is                          ptrType.NIL;
+      const type: ptr (attr baseType)                                is   ptrType;
+      const type: base_type (attr ptrType)                           is   baseType;
+      const proc: (ref ptrType param) ::= (in ptrType param)         is action "REF_CREATE";
+      const proc: destroy (ref ptrType param)                        is noop;
+      const proc: (inout ptrType: dest) := (in ptrType: source)      is action "REF_CPY";
+      const func boolean: (in ptrType param) = (in ptrType param)    is action "REF_EQ";
+      const func boolean: (in ptrType param) <> (in ptrType param)   is action "REF_NE";
+      const func ptrType: & (in baseType param)                      is action "REF_ADDR";
+      const func baseType: (in ptrType param) ^                      is action "REF_DEREF";
+      const func ptrType: _GENERATE_NIL(attr ptrType)                is action "REF_NIL";
+      const ptrType: (attr ptrType) . NIL                            is _GENERATE_NIL(ptrType);
+      const ptrType: (attr ptrType) . value                          is ptrType.NIL;
       end global;
     end if;
   end func;
@@ -574,19 +572,18 @@ const func type: varptr (in type: baseType) is func
       global
       varptrType := newtype;
       IN_PARAM_IS_VALUE(varptrType);
-      const type: varptr (attr baseType) is                                 varptrType;
-      const type: base_type (attr varptrType) is                            baseType;
-      const proc: (ref varptrType param) ::= (in varptrType param) is       action "REF_CREATE";
-      const proc: destroy (ref varptrType param) is                         noop;
-      const proc: (inout varptrType: dest) := (in varptrType: source) is    action "REF_CPY";
-      const func boolean: (in varptrType param) = (in varptrType param) is  action "REF_EQ";
+      const type: varptr (attr baseType)                                 is varptrType;
+      const type: base_type (attr varptrType)                            is baseType;
+      const proc: (ref varptrType param) ::= (in varptrType param)       is action "REF_CREATE";
+      const proc: destroy (ref varptrType param)                         is noop;
+      const proc: (inout varptrType: dest) := (in varptrType: source)    is action "REF_CPY";
+      const func boolean: (in varptrType param) = (in varptrType param)  is action "REF_EQ";
       const func boolean: (in varptrType param) <> (in varptrType param) is action "REF_NE";
-      const func varptrType: & (inout baseType param) is                    action "REF_ADDR";
-      const varfunc baseType: (in varptrType param) ^ is                    action "REF_DEREF";
-      const func varptrType: (attr varptrType) conv (in reference param) is action "REF_CONV";
-      const func reference: (attr reference) conv (in varptrType param) is  action "REF_CONV";
-      const varptrType: (attr varptrType) . NIL is                          varptrType conv NIL;
-      const varptrType: (attr varptrType) . value is                        varptrType.NIL;
+      const func varptrType: & (inout baseType param)                    is action "REF_ADDR";
+      const varfunc baseType: (in varptrType param) ^                    is action "REF_DEREF";
+      const func varptrType: _GENERATE_NIL(attr varptrType)              is action "REF_NIL";
+      const varptrType: (attr varptrType) . NIL                          is _GENERATE_NIL(varptrType);
+      const varptrType: (attr varptrType) . value                        is varptrType.NIL;
       end global;
     end if;
   end func;

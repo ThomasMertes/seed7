@@ -27,14 +27,16 @@
 
 #ifdef ANSI_C
 
-typetype new_type (typetype, typetype);
-typetype get_func_type (typetype, typetype);
-typetype get_varfunc_type (typetype, typetype);
-void add_interface (typetype, typetype);
+typetype new_type (progtype owningProg, typetype meta_type, typetype result_type);
+void close_type (progtype currentProg);
+typetype get_func_type (typetype meta_type, typetype basic_type);
+typetype get_varfunc_type (typetype meta_type, typetype basic_type);
+void add_interface (typetype basic_type, typetype interface_type);
 
 #else
 
 typetype new_type ();
+void close_type (progtype currentProg);
 typetype get_func_type ();
 typetype get_varfunc_type ();
 void add_interface ();

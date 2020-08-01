@@ -153,7 +153,8 @@ void scan_byte_order_mark ()
 #ifdef TRACE_SCANNER
     printf("BEGIN scan_byte_order_mark\n");
 #endif
-    if ((in_file.character & 0xC0) == 0xC0) {
+    if (in_file.character != EOF && (in_file.character & 0xC0) == 0xC0) {
+      /* character range 0xC0 to 0xFF (192 to 255) */
       unicode_char = utf8_char(in_file.character);
       if (unicode_char != 0xFEFF /* Byte-order mark */) {
         err_char(CHAR_ILLEGAL, unicode_char);

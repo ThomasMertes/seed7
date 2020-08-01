@@ -197,6 +197,7 @@ objecttype bld_type_temp (typetype temp_type);
 objecttype bld_win_temp (wintype temp_win);
 void dump_temp_value (objecttype object);
 void dump_any_temp (objecttype object);
+void dump_list (listtype list);
 
 #else
 
@@ -253,5 +254,6 @@ objecttype bld_type_temp ();
 objecttype bld_win_temp ();
 void dump_temp_value ();
 void dump_any_temp ();
+void dump_list ();
 
 #endif

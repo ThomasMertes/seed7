@@ -107,8 +107,15 @@ listtype list;
       printf("\n");
       trace1(list->next->next->obj);
       printf("\n");
+      if (CATEGORY_OF_OBJ(list->obj) == CALLOBJECT) {
+        trace1(list->obj);
+        printf("\n");
+      } /* if */
 #endif
       result = exec_call(object);
+      FREE_L_ELEM(object->value.listvalue);
+      /* FREE_OBJECT(object) is not necessary, */
+      /* because object == &expr_object holds. */
     } else {
       result = NULL;
     } /* if */

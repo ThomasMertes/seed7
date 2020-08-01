@@ -109,23 +109,25 @@ typedef uint64type               doublebigdigittype;
 #define IS_NEGATIVE(digit) (((digit) & BIGDIGIT_SIGN) != 0)
 
 
+#ifdef DO_HEAP_STATISTIC
 size_t sizeof_bigdigittype = sizeof(bigdigittype);
 size_t sizeof_bigintrecord = sizeof(bigintrecord);
+#endif
 
 
 #define SIZ_RTLBIG(len)  ((sizeof(bigintrecord) - sizeof(bigdigittype)) + (len) * sizeof(bigdigittype))
 #define MAX_BIG_LEN      ((MAX_MEMSIZETYPE - sizeof(bigintrecord) + sizeof(bigdigittype)) / sizeof(bigdigittype))
 
 #ifdef WITH_BIGINT_CAPACITY
-#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?((var)->capacity = len, CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE):FALSE)
-#define HEAP_FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
+#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?((var)->capacity = len, CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE):FALSE)
+#define HEAP_FREE_BIG(var,len)        (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) FREE_HEAP(var, SIZ_RTLBIG(len)))
 #define HEAP_REALLOC_BIG(v1,v2,l1,l2) if((v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2)))!=NULL)(v1)->capacity=l2;
 #else
-#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
-#define HEAP_FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
+#define HEAP_ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT(CNT1_BIG(len, SIZ_RTLBIG(len))) TRUE:FALSE)
+#define HEAP_FREE_BIG(var,len)        (CNT(CNT2_BIG(len, SIZ_RTLBIG(len))) FREE_HEAP(var, SIZ_RTLBIG(len)))
 #define HEAP_REALLOC_BIG(v1,v2,l1,l2) v1=REALLOC_HEAP(v2, biginttype, SIZ_RTLBIG(l2));
 #endif
-#define COUNT3_BIG(len1,len2)         CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)) CNT1_BIG(len2, SIZ_RTLBIG(len2)))
+#define COUNT3_BIG(len1,len2)         CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)), CNT1_BIG(len2, SIZ_RTLBIG(len2)))
 
 #ifdef WITH_BIGINT_FREELIST
 #ifdef WITH_BIGINT_CAPACITY

@@ -32,6 +32,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "heaputl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "listutl.h"
@@ -129,7 +130,7 @@ listtype arguments;
     is_variable(list_to);
     if (list_from != list_to) {
       if (TEMP_OBJECT(list_from)) {
-        emptylist(take_list(list_to));
+        free_list(take_list(list_to));
         list_to->value.listvalue = take_list(list_from);
         list_from->value.listvalue = NULL;
       } else {
@@ -137,7 +138,7 @@ listtype arguments;
         if (err_info != OKAY_NO_ERROR) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          emptylist(take_list(list_to));
+          free_list(take_list(list_to));
           list_to->value.listvalue = help_list;
         } /* if */
       } /* if */
@@ -215,7 +216,7 @@ listtype arguments;
       flist.list_elems = take_list(old_list);
     } /* if */
 #ifdef OUT_OF_ORDER
-    emptylist(take_list(old_list));
+    free_list(take_list(old_list));
 #endif
     old_list->value.listvalue = NULL;
     return SYS_EMPTY_OBJECT;
@@ -326,7 +327,7 @@ listtype arguments;
       } /* while */
       if (TEMP_OBJECT(list)) {
         if (stop_element != NULL) {
-          emptylist(stop_element->next);
+          free_list(stop_element->next);
           stop_element->next = NULL;
         } /* if */
         result = take_list(list);

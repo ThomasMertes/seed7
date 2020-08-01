@@ -113,6 +113,10 @@ typedef struct select_based_pollstruct {
 
 typedef const struct select_based_pollstruct *const_select_based_polltype;
 
+#ifdef DO_HEAP_STATISTIC
+size_t sizeof_pollrecord = sizeof(select_based_pollrecord);
+#endif
+
 #define conv(genericPollData) ((const_select_based_polltype) genericPollData)
 #define var_conv(genericPollData) ((select_based_polltype) genericPollData)
 
@@ -967,9 +971,6 @@ polltype pollDataFrom;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-#ifdef DO_HEAP_STATISTIC
-      count.size_pollrecord = sizeof(select_based_pollrecord);
-#endif
       if (unlikely(!ALLOC_TABLE(result->readTest.files, fdAndFileType,
                                 conv(pollDataFrom)->readTest.capacity) ||
                    !ALLOC_TABLE(result->writeTest.files, fdAndFileType,
@@ -1091,9 +1092,6 @@ polltype polEmpty ()
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-#ifdef DO_HEAP_STATISTIC
-      count.size_pollrecord = sizeof(select_based_pollrecord);
-#endif
       if (unlikely(!ALLOC_TABLE(result->readTest.files, fdAndFileType, TABLE_START_SIZE) ||
                    !ALLOC_TABLE(result->writeTest.files, fdAndFileType, TABLE_START_SIZE) ||
                    !allocFdSet(&result->readTest, TABLE_START_SIZE) ||

@@ -208,7 +208,7 @@ listtype arguments;
 
   { /* ref_arrmaxidx */
     isit_reference(arg_1(arguments));
-    return bld_int_temp(refArrmaxidx(
+    return bld_int_temp(refArrMaxIdx(
         take_reference(arg_1(arguments))));
   } /* ref_arrmaxidx */
 
@@ -225,7 +225,7 @@ listtype arguments;
 
   { /* ref_arrminidx */
     isit_reference(arg_1(arguments));
-    return bld_int_temp(refArrminidx(
+    return bld_int_temp(refArrMinIdx(
         take_reference(arg_1(arguments))));
   } /* ref_arrminidx */
 
@@ -242,7 +242,7 @@ listtype arguments;
 
   { /* ref_arrtolist */
     isit_reference(arg_1(arguments));
-    return bld_reflist_temp(refArrtolist(
+    return bld_reflist_temp(refArrToList(
         take_reference(arg_1(arguments))));
   } /* ref_arrtolist */
 
@@ -604,18 +604,18 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype ref_hshkeytolist (listtype arguments)
+objecttype ref_hshkeystolist (listtype arguments)
 #else
 
-objecttype ref_hshkeytolist (arguments)
+objecttype ref_hshkeystolist (arguments)
 listtype arguments;
 #endif
 
-  { /* ref_hshkeytolist */
+  { /* ref_hshkeystolist */
     isit_reference(arg_1(arguments));
-    return bld_reflist_temp(refHshKeyToList(
+    return bld_reflist_temp(refHshKeysToList(
         take_reference(arg_1(arguments))));
-  } /* ref_hshkeytolist */
+  } /* ref_hshkeystolist */
 
 
 
@@ -829,10 +829,20 @@ objecttype ref_params (arguments)
 listtype arguments;
 #endif
 
-  { /* ref_params */
+  {
+    listtype params;
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* ref_params */
     isit_reference(arg_1(arguments));
-    return bld_reflist_temp(refParams(
-        take_reference(arg_1(arguments))));
+    params = refParams(take_reference(arg_1(arguments)));
+    result = copy_list(params, &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      return bld_reflist_temp(result);
+    } /* if */
   } /* ref_params */
 
 
@@ -961,7 +971,7 @@ listtype arguments;
 
   { /* ref_scttolist */
     isit_reference(arg_1(arguments));
-    return bld_reflist_temp(refScttolist(
+    return bld_reflist_temp(refSctToList(
         take_reference(arg_1(arguments))));
   } /* ref_scttolist */
 
@@ -1079,23 +1089,10 @@ objecttype ref_setparams (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    errinfotype err_info = OKAY_NO_ERROR;
-
-  /* ref_setparams */
+  { /* ref_setparams */
     isit_reference(arg_1(arguments));
     isit_reflist(arg_2(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    if (CATEGORY_OF_OBJ(obj_arg1) == BLOCKOBJECT) {
-      /*FIXME not ok since parameter names are important here !!! */
-      /* Comment copied from dcllib.c */
-      obj_arg1->value.blockvalue->params =
-          get_param_list(take_reflist(arg_2(arguments)), &err_info);
-    } /* if */
-    if (err_info != OKAY_NO_ERROR) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } /* if */
+    refSetParams(take_reference(arg_1(arguments)), take_reflist(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* ref_setparams */
 

@@ -560,13 +560,13 @@ objecttype object;
     par_init(block->params, &backup_form_params, actual_parameters,
         &evaluated_act_params);
     if (fail_flag) {
-      emptylist(backup_form_params);
-      emptylist(evaluated_act_params);
+      free_list(backup_form_params);
+      free_list(evaluated_act_params);
       result = fail_value;
     } else {
       loc_init(block->local_vars, &backup_loc_var, actual_parameters);
       if (fail_flag) {
-        emptylist(backup_loc_var);
+        free_list(backup_loc_var);
         result = fail_value;
       } else {
         if (res_init(&block->result, &backup_block_result)) {
@@ -600,12 +600,12 @@ objecttype object;
           result = raise_with_arguments(SYS_MEM_EXCEPTION, actual_parameters);
         } /* if */
         loc_restore(block->local_vars, backup_loc_var);
-        emptylist(backup_loc_var);
+        free_list(backup_loc_var);
       } /* if */
       /* show_arg_list(evaluated_act_params); */
       par_restore(block->params, backup_form_params, evaluated_act_params);
-      emptylist(backup_form_params);
-      emptylist(evaluated_act_params);
+      free_list(backup_form_params);
+      free_list(evaluated_act_params);
     } /* if */
 #ifdef TRACE_EXEC
     printf("END exec_lambda\n");
@@ -666,7 +666,7 @@ listtype evaluated_act_params;
           TEMP_OBJECT(list_end->obj)) {
         dump_any_temp(list_end->obj);
       } /* if */
-      to_empty_list(evaluated_act_params, list_end);
+      free_list2(evaluated_act_params, list_end);
     } /* if */
   } /* dump_arg_list */
 
@@ -695,7 +695,7 @@ objecttype object;
 #endif
     evaluated_act_params = eval_arg_list(act_param_list);
     if (fail_flag) {
-      emptylist(evaluated_act_params);
+      free_list(evaluated_act_params);
       result = fail_value;
     } else {
 #ifdef WITH_ACTION_CHECK
@@ -774,7 +774,6 @@ objecttype object;
       } /* if */
 #endif
       dump_arg_list(evaluated_act_params);
-      /* emptylist(evaluated_act_params); replaced by to_empty_list */
     } /* if */
 #ifdef TRACE_EXEC
     printf("END exec_action\n");
@@ -1172,10 +1171,10 @@ printf("\n"); */
 
         if (match_result != match_expr) {
           FREE_OBJECT(match_result->value.listvalue->obj);
-          emptylist(match_result->value.listvalue);
+          free_list(match_result->value.listvalue);
           FREE_OBJECT(match_result);
         } else {
-          emptylist(match_expr->value.listvalue);
+          free_list(match_expr->value.listvalue);
           FREE_OBJECT(match_expr);
         } /* if */
 #ifdef WITH_PROTOCOL

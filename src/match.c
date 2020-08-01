@@ -151,7 +151,7 @@ objecttype object;
         trace1(object->value.listvalue->obj);
         printf("\n"); */
         if (HAS_ENTITY(object->value.listvalue->obj)) {
-          name_elem = GET_ENTITY(object->value.listvalue->obj)->name_list;
+          name_elem = GET_ENTITY(object->value.listvalue->obj)->fparam_list;
           expr_list = object->value.listvalue->next;
           while (name_elem != NULL && expr_list != NULL) {
             if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
@@ -195,10 +195,10 @@ objecttype object;
 
 #ifdef ANSI_C
 
-void update_owner (const_objecttype expr_object)
+void substitute_params (const_objecttype expr_object)
 #else
 
-void update_owner (expr_object)
+void substitute_params (expr_object)
 objecttype expr_object;
 #endif
 
@@ -206,12 +206,15 @@ objecttype expr_object;
     listtype expr_list;
     objecttype current_element;
     objecttype created_object;
+    /* listtype list_elem; */
     errinfotype err_info = OKAY_NO_ERROR;
+    /* listtype substituted_objects; */
 
-  /* update_owner */
+  /* substitute_params */
 #ifdef TRACE_MATCH
-    printf("BEGIN update_owner\n");
+    printf("BEGIN substitute_params\n");
 #endif
+    /* substituted_objects = NULL; */
     expr_list = expr_object->value.listvalue;
     while (expr_list != NULL) {
       current_element = expr_list->obj;
@@ -221,7 +224,7 @@ objecttype expr_object;
         current_element = expr_list->obj;
       } /* if */
       if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT) {
-        update_owner(current_element);
+        substitute_params(current_element);
       } else if (CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
           CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT) {
         if (current_element->value.objvalue != NULL) {
@@ -238,7 +241,7 @@ objecttype expr_object;
           printf("\n");
 #endif
           current_element = current_element->value.objvalue;
-          if (ALLOC_OBJECT(created_object)) {
+          if (/* ALLOC_L_ELEM(list_elem) && */ ALLOC_OBJECT(created_object)) {
             created_object->type_of = current_element->type_of;
             created_object->descriptor.property = NULL;
             INIT_CATEGORY_OF_OBJ(created_object, DECLAREDOBJECT);
@@ -248,6 +251,9 @@ objecttype expr_object;
               printf("*** do_create failed ");
               printf("\n");
             } /* if */
+            /* list_elem->obj = created_object;
+            list_elem->next = substituted_objects;
+            substituted_objects = list_elem; */
           } /* if */
           expr_list->obj = created_object;
 #ifdef TRACE_MATCH_extended
@@ -266,6 +272,44 @@ objecttype expr_object;
             } /* if */
           } /* if */
         } /* if */
+      } /* if */
+      expr_list = expr_list->next;
+    } /* while */
+#ifdef TRACE_MATCH
+    printf("END substitute_params\n");
+#endif
+    /* return substituted_objects; */
+  } /* substitute_params */
+
+
+
+#ifdef ANSI_C
+
+void update_owner (const_objecttype expr_object)
+#else
+
+void update_owner (expr_object)
+objecttype expr_object;
+#endif
+
+  {
+    listtype expr_list;
+    objecttype current_element;
+
+  /* update_owner */
+#ifdef TRACE_MATCH
+    printf("BEGIN update_owner\n");
+#endif
+    expr_list = expr_object->value.listvalue;
+    while (expr_list != NULL) {
+      current_element = expr_list->obj;
+      if (HAS_ENTITY(current_element) &&
+          GET_ENTITY(current_element)->data.owner != NULL) {
+        expr_list->obj = GET_ENTITY(current_element)->data.owner->obj;
+        current_element = expr_list->obj;
+      } /* if */
+      if (CATEGORY_OF_OBJ(current_element) == EXPROBJECT) {
+        update_owner(current_element);
       } /* if */
       expr_list = expr_list->next;
     } /* while */

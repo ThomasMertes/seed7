@@ -56,15 +56,6 @@
 
 #define INCR_SYMB_LENGTH   256
 
-#ifndef UINT_MAX
-#define MAX_2 65535
-#define MAX_4 4294967295
-#define MAX_8 84667400737095116166
-#define UINT_MAX (sizeof(unsigned int) == 8 ? MAX_8 : (sizeof(unsigned int) == 4 ? MAX_4 : MAX_2))
-#endif
-
-#define MAX_SYMB_LENGTH UINT_MAX
-
 
 
 #ifdef ANSI_C
@@ -147,5 +138,9 @@ void close_symbol ()
 
   { /* close_symbol */
     FREE_USTRI(symbol.name, symbol.name_length, count.symb, count.symb_bytes);
+    symbol.name = NULL;
     symbol.name_length = 0;
+    FREE_STRI(symbol.strivalue, symbol.stri_max);
+    symbol.strivalue = NULL;
+    symbol.stri_max = 0;
   } /* close_symbol */

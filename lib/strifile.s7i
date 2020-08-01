@@ -97,7 +97,7 @@ const func char: getc (inout strifile: inStrifile) is func
 
 
 (**
- *  Read a [[string]] with maximum length from a ''inStrifile''.
+ *  Read a [[string]] with maximum length from ''inStrifile''.
  *  @return the string read.
  *)
 const func string: gets (inout strifile: inStrifile, in var integer: maxLength) is func

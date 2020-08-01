@@ -31,6 +31,7 @@
 
 #include "common.h"
 #include "data.h"
+#include "heaputl.h"
 #include "flistutl.h"
 #include "listutl.h"
 #include "syvarutl.h"
@@ -90,7 +91,7 @@ inttype position;
     } else {
       result = SYS_EMPTY_OBJECT;
     } /* if */
-    emptylist(expression->value.listvalue);
+    free_list(expression->value.listvalue);
     FREE_OBJECT(expression);
 #ifdef TRACE_SELECT
     printf("END select_element\n");

@@ -85,6 +85,10 @@ typedef struct x11_winstruct {
 
 typedef const struct x11_winstruct *const_x11_wintype;
 
+#ifdef DO_HEAP_STATISTIC
+size_t sizeof_winrecord = sizeof(x11_winrecord);
+#endif
+
 #define to_window(win)    (((const_x11_wintype) win)->window)
 #define to_backup(win)    (((const_x11_wintype) win)->backup)
 #define to_clip_mask(win) (((const_x11_wintype) win)->clip_mask)
@@ -1408,9 +1412,6 @@ stritype window_name;
     printf("BEGIN drwOpen(%ld, %ld, %ld, %ld)\n",
         xPos, yPos, width, height);
 #endif
-#ifdef DO_HEAP_STATISTIC
-    count.size_winrecord = SIZ_REC(x11_winrecord);
-#endif
     result = NULL;
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
@@ -1536,9 +1537,6 @@ inttype height;
 #ifdef TRACE_X11
     printf("BEGIN drwOpenSubWindow(%ld, %ld, %ld, %ld)\n",
         xPos, yPos, width, height);
-#endif
-#ifdef DO_HEAP_STATISTIC
-    count.size_winrecord = SIZ_REC(x11_winrecord);
 #endif
     result = NULL;
     if (width < 1 || height < 1) {

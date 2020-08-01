@@ -39,9 +39,11 @@
 #include "striutl.h"
 #include "listutl.h"
 #include "entutl.h"
+#include "typeutl.h"
 #include "syvarutl.h"
 #include "identutl.h"
 #include "traceutl.h"
+#include "infile.h"
 #include "analyze.h"
 #include "name.h"
 #include "exec.h"
@@ -222,56 +224,49 @@ stritype prot_file_name;
 
 #ifdef ANSI_C
 
-void prgCpy (progtype *const dest, const progtype source)
+void prgCpy (progtype *const prog_to, const progtype prog_from)
 #else
 
-void prgCpy (dest, source)
-progtype *dest;
-progtype source;
+void prgCpy (prog_to, prog_from)
+progtype *prog_to;
+progtype prog_from;
 #endif
 
   {
     progtype old_prog;
 
   /* prgCpy */
-    old_prog = *dest;
-    if (old_prog != source) {
+    old_prog = *prog_to;
+    if (old_prog != prog_from) {
       prgDestr(old_prog);
-      *dest = source;
-      if (source != NULL) {
-        source->usage_count++;
+      *prog_to = prog_from;
+      if (prog_from != NULL) {
+        prog_from->usage_count++;
       } /* if */
     } /* if */
-    /* printf("prgCpy: usage_count=%d\n", (*dest)->usage_count); */
+    /* printf("prgCpy: usage_count=%d\n", (*prog_to)->usage_count); */
   } /* prgCpy */
 
 
 
 #ifdef ANSI_C
 
-listtype prgDeclObjects (const const_progtype aProg)
+progtype prgCreate (const progtype prog_from)
 #else
 
-listtype prgDeclObjects (aProg)
-progtype aProg;
+progtype prgCreate (prog_from)
+progtype prog_from;
 #endif
 
   {
-    errinfotype err_info = OKAY_NO_ERROR;
-    listtype result;
 
-  /* prgDeclObjects */
-    if (aProg->stack_current != NULL) {
-      result = copy_list(aProg->stack_current->local_object_list, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
-        raise_error(MEMORY_ERROR);
-        result = NULL;
-      } /* if */
-    } else {
-      result = NULL;
+  /* prgCreate */
+    if (prog_from != NULL) {
+      prog_from->usage_count++;
     } /* if */
-    return result;
-  } /* prgDeclObjects */
+    /* printf("prgCreate: usage_count=%d\n", prog_from->usage_count); */
+    return prog_from;
+  } /* prgCreate */
 
 
 
@@ -301,6 +296,9 @@ progtype old_prog;
         close_declaration_root(old_prog);
         close_entity(old_prog);
         close_idents(old_prog);
+        close_type(old_prog);
+        remove_prog_files(old_prog);
+        dump_list(old_prog->literals);
         free_entity(old_prog, old_prog->entity.literal);
         FREE_RECORD(old_prog->property.literal, propertyrecord, count.property);
         memcpy(&prog, &prog_backup, sizeof(progrecord));
@@ -427,6 +425,34 @@ stritype prot_file_name;
 
 #ifdef ANSI_C
 
+listtype prgGlobalObjects (const const_progtype aProg)
+#else
+
+listtype prgGlobalObjects (aProg)
+progtype aProg;
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+    listtype result;
+
+  /* prgGlobalObjects */
+    if (aProg->stack_current != NULL) {
+      result = copy_list(aProg->stack_global->local_object_list, &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } /* if */
+    } else {
+      result = NULL;
+    } /* if */
+    return result;
+  } /* prgGlobalObjects */
+
+
+
+#ifdef ANSI_C
+
 objecttype prgMatch (const const_progtype aProg, listtype curr_expr)
 #else
 
@@ -454,7 +480,7 @@ listtype curr_expr;
         curr_expr = expr_object.value.listvalue->next;
         result = expr_object.value.listvalue->obj;
         expr_object.value.listvalue->next = NULL;
-        emptylist(expr_object.value.listvalue);
+        free_list(expr_object.value.listvalue);
       } else {
         run_error(MATCHOBJECT, result);
       } /* if */

@@ -89,50 +89,50 @@ objecttype obj_arg;
 
 #ifdef ANSI_C
 
-inttype refArrmaxidx (objecttype obj_arg)
+inttype refArrMaxIdx (objecttype obj_arg)
 #else
 
-inttype refArrmaxidx (obj_arg)
+inttype refArrMaxIdx (obj_arg)
 objecttype obj_arg;
 #endif
 
-  { /* refArrmaxidx */
+  { /* refArrMaxIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
       return take_array(obj_arg)->max_position;
     } /* if */
-  } /* refArrmaxidx */
+  } /* refArrMaxIdx */
 
 
 
 #ifdef ANSI_C
 
-inttype refArrminidx (objecttype obj_arg)
+inttype refArrMinIdx (objecttype obj_arg)
 #else
 
-inttype refArrminidx (obj_arg)
+inttype refArrMinIdx (obj_arg)
 objecttype obj_arg;
 #endif
 
-  { /* refArrminidx */
+  { /* refArrMinIdx */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
       return take_array(obj_arg)->min_position;
     } /* if */
-  } /* refArrminidx */
+  } /* refArrMinIdx */
 
 
 
 #ifdef ANSI_C
 
-listtype refArrtolist (objecttype obj_arg)
+listtype refArrToList (objecttype obj_arg)
 #else
 
-listtype refArrtolist (obj_arg)
+listtype refArrToList (obj_arg)
 objecttype obj_arg;
 #endif
 
@@ -140,7 +140,7 @@ objecttype obj_arg;
     errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
-  /* refArrtolist */
+  /* refArrToList */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != ARRAYOBJECT) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -152,7 +152,7 @@ objecttype obj_arg;
       } /* if */
     } /* if */
     return result;
-  } /* refArrtolist */
+  } /* refArrToList */
 
 
 
@@ -343,10 +343,10 @@ objecttype obj_arg;
 
 #ifdef ANSI_C
 
-listtype refHshKeyToList (objecttype obj_arg)
+listtype refHshKeysToList (objecttype obj_arg)
 #else
 
-listtype refHshKeyToList (obj_arg)
+listtype refHshKeysToList (obj_arg)
 objecttype obj_arg;
 #endif
 
@@ -354,19 +354,19 @@ objecttype obj_arg;
     errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
-  /* refHshKeyToList */
+  /* refHshKeysToList */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != HASHOBJECT) {
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = hash_key_to_list(take_hash(obj_arg), &err_info);
+      result = hash_keys_to_list(take_hash(obj_arg), &err_info);
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } /* if */
     } /* if */
     return result;
-  } /* refHshKeyToList */
+  } /* refHshKeysToList */
 
 
 
@@ -479,7 +479,7 @@ objecttype obj_arg;
         local_elem = local_elem->next;
       } /* while */
       if (err_info != OKAY_NO_ERROR) {
-        emptylist(result);
+        free_list(result);
         result = NULL;
         raise_error(MEMORY_ERROR);
       } /* if */
@@ -517,7 +517,7 @@ objecttype obj_arg;
         local_elem = local_elem->next;
       } /* while */
       if (err_info != OKAY_NO_ERROR) {
-        emptylist(result);
+        free_list(result);
         result = NULL;
         raise_error(MEMORY_ERROR);
       } /* if */
@@ -578,9 +578,6 @@ objecttype obj_arg;
 #endif
 
   {
-    loclisttype local_elem;
-    listtype *list_insert_place;
-    errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
   /* refParams */
@@ -588,22 +585,8 @@ objecttype obj_arg;
     if (obj_arg == NULL) {
       raise_error(RANGE_ERROR);
     } else {
-      if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
-        list_insert_place = &result;
-        local_elem = obj_arg->value.blockvalue->params;
-        while (local_elem != NULL) {
-          list_insert_place = append_element_to_list(list_insert_place,
-              local_elem->local.object, &err_info);
-          local_elem = local_elem->next;
-        } /* while */
-      } else if (HAS_ENTITY(obj_arg)) {
-        result = create_parameter_list(GET_ENTITY(obj_arg)->name_list,
-            &err_info);
-      } /* if */
-      if (err_info != OKAY_NO_ERROR) {
-        emptylist(result);
-        raise_error(MEMORY_ERROR);
-        result = NULL;
+      if (HAS_PROPERTY(obj_arg)) {
+        result = obj_arg->descriptor.property->params;
       } /* if */
     } /* if */
     return result;
@@ -624,10 +607,11 @@ objecttype obj_arg;
     objecttype result;
 
   /* refResini */
-    if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
-      result = obj_arg->value.blockvalue->result.init_value;
-    } else {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+      raise_error(RANGE_ERROR);
       result = NULL;
+    } else {
+      result = obj_arg->value.blockvalue->result.init_value;
     } /* if */
     return result;
   } /* refResini */
@@ -647,10 +631,11 @@ objecttype obj_arg;
     objecttype result;
 
   /* refResult */
-    if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
-      result = obj_arg->value.blockvalue->result.object;
-    } else {
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+      raise_error(RANGE_ERROR);
       result = NULL;
+    } else {
+      result = obj_arg->value.blockvalue->result.object;
     } /* if */
     return result;
   } /* refResult */
@@ -659,10 +644,10 @@ objecttype obj_arg;
 
 #ifdef ANSI_C
 
-listtype refScttolist (objecttype obj_arg)
+listtype refSctToList (objecttype obj_arg)
 #else
 
-listtype refScttolist (obj_arg)
+listtype refSctToList (obj_arg)
 objecttype obj_arg;
 #endif
 
@@ -670,7 +655,7 @@ objecttype obj_arg;
     errinfotype err_info = OKAY_NO_ERROR;
     listtype result;
 
-  /* refScttolist */
+  /* refSctToList */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != STRUCTOBJECT) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -682,7 +667,7 @@ objecttype obj_arg;
       } /* if */
     } /* if */
     return result;
-  } /* refScttolist */
+  } /* refSctToList */
 
 
 
@@ -720,13 +705,17 @@ listtype params;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* refSetParams */
-    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BLOCKOBJECT) {
+    if (obj_arg == NULL) {
       raise_error(RANGE_ERROR);
     } else {
-      /*FIXME not ok since parameter names are important here !!! */
-      /* Comment copied from dcllib.c */
-      obj_arg->value.blockvalue->params =
-          get_param_list(params, &err_info);
+      if (HAS_PROPERTY(obj_arg)) {
+        free_list(obj_arg->descriptor.property->params);
+        obj_arg->descriptor.property->params = copy_list(params, &err_info);
+      } /* if */
+      if (CATEGORY_OF_OBJ(obj_arg) == BLOCKOBJECT) {
+        obj_arg->value.blockvalue->params =
+            get_param_list(params, &err_info);
+      } /* if */
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
       } /* if */
@@ -814,7 +803,7 @@ objecttype obj_arg;
       stri = id_string(GET_ENTITY(obj_arg)->ident);
     } else {
       stri = NULL;
-      name_elem = GET_ENTITY(obj_arg)->name_list;
+      name_elem = GET_ENTITY(obj_arg)->fparam_list;
       while (name_elem != NULL && stri == NULL) {
         if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
           param_obj = name_elem->obj->value.objvalue;
@@ -1170,7 +1159,7 @@ listtype list_from;
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
       } else {
-        emptylist(take_reflist(list_to));
+        free_list(take_reflist(list_to));
         list_to->value.listvalue = help_list;
       } /* if */
     } else {

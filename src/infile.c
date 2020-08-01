@@ -214,6 +214,7 @@ errinfotype *err_info;
     infiltype new_file;
     FILE *in_fil;
     ustritype name_ustri;
+    memsizetype name_length;
     stritype in_name;
     int path_info = PATH_IS_NORMAL;
 
@@ -234,6 +235,10 @@ errinfotype *err_info;
           *err_info = MEMORY_ERROR;
         } else {
           name_ustri = (ustritype) cp_to_cstri8(source_file_name);
+          if (name_ustri != NULL) {
+            name_length = strlen((cstritype) name_ustri);
+            name_ustri = REALLOC_USTRI(name_ustri, max_utf8_size(source_file_name->size), name_length);
+          } /* if */
           if (name_ustri == NULL) {
             fclose(in_file.fil);
             *err_info = MEMORY_ERROR;
@@ -259,13 +264,18 @@ errinfotype *err_info;
               } /* if */
               *err_info = FILE_ERROR;
             } else {
-              COUNT_USTRI(max_utf8_size(source_file_name->size), count.fnam, count.fnam_bytes);
+              COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
               in_file.name_ustri = name_ustri;
               in_file.name = in_name;
               in_file.character = next_character();
               in_file.line = 1;
               file_counter++;
               in_file.file_number = file_counter;
+              if (in_file.curr_infile != NULL) {
+                in_file.owningProg = in_file.curr_infile->owningProg;
+              } else {
+                in_file.owningProg = NULL; /* Is set in analyze_prog() */
+              } /* if */
               open_compilation_info(write_library_names, write_line_numbers);
               in_file.end_of_file = FALSE;
               in_file.up_infile = in_file.curr_infile;
@@ -385,7 +395,7 @@ errinfotype *err_info;
           UNALLOC_USTRI(name_ustri, name_length);
           *err_info = MEMORY_ERROR;
         } else {
-          /* COUNT_USTRI(name_length, count.fnam, count.fnam_bytes); */
+          COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
           strcpy((cstritype) name_ustri, source_file_name);
           in_name->size = name_length;
           ustri_expand(in_name->mem, name_ustri, name_length);
@@ -403,6 +413,7 @@ errinfotype *err_info;
           in_file.line = 1;
           file_counter++;
           in_file.file_number = file_counter;
+          in_file.owningProg = NULL; /* Is set in analyze_prog() */
           open_compilation_info(write_library_names, write_line_numbers);
           in_file.end_of_file = FALSE;
           in_file.up_infile = in_file.curr_infile;
@@ -421,28 +432,69 @@ errinfotype *err_info;
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-void free_file (infiltype old_file)
+static void free_file (infiltype old_file)
 #else
 
-void free_file (old_file)
+static void free_file (old_file)
 infiltype old_file;
 #endif
 
-  { /* free_file */
+  {
+    memsizetype name_length;
+
+  /* free_file */
 #ifdef TRACE_INFILE
     printf("BEGIN free_file\n");
 #endif
-    UNALLOC_USTRI(old_file->name_ustri, unknown);
-    FREE_STRI(old_file->name, old_file->name->size)
+    name_length = strlen((cstritype) old_file->name_ustri);
+    FREE_USTRI(old_file->name_ustri, name_length, count.fnam, count.fnam_bytes);
+    FREE_STRI(old_file->name, old_file->name->size);
     FREE_FILE(old_file);
 #ifdef TRACE_INFILE
     printf("END free_file\n");
 #endif
   } /* free_file */
+
+
+
+#ifdef ANSI_C
+
+void remove_prog_files (progtype currentProg)
+#else
+
+void remove_prog_files (currentProg)
+progtype currentProg;
 #endif
+
+  {
+    infiltype aFile;
+    infiltype *fileAddr;
+    infiltype currFile;
+
+  /* remove_prog_files */
+#ifdef TRACE_INFILE
+    printf("BEGIN remove_prog_files\n");
+#endif
+    aFile = file_pointer;
+    fileAddr = &file_pointer;
+    while (aFile != NULL) {
+      currFile = aFile;
+      aFile = aFile->next;
+      /* printf("remove_prog_files: %s %lx %lx\n", currFile->name_ustri,
+         (unsigned long) currFile->owningProg, (unsigned long) currentProg); */
+      if (currFile->owningProg == currentProg) {
+        free_file(currFile);
+        *fileAddr = aFile;
+      } else {
+        fileAddr = &currFile->next;
+      } /* if */
+    } /* if */
+#ifdef TRACE_INFILE
+    printf("END remove_prog_files\n");
+#endif
+  } /* remove_prog_files */
 
 
 

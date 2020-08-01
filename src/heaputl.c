@@ -195,123 +195,123 @@ void rtlHeapStatistic ()
 #endif
     bytes_used = 0;
     if (count.stri != 0) {
-      printf("%9lu bytes in %8lu string records of    %4d bytes\n",
+      printf("%9lu bytes in %8lu string records of      %4u bytes\n",
           count.stri * SIZ_STRI(0),
           count.stri,
-          SIZ_STRI(0));
+          (unsigned int) SIZ_STRI(0));
       bytes_used += count.stri * SIZ_STRI(0);
-      printf("%9lu bytes in %8lu string chars of      %4d bytes\n",
+      printf("%9lu bytes in %8lu string chars of        %4u bytes\n",
           count.stri_elems * sizeof(strelemtype),
           count.stri_elems,
-          sizeof(strelemtype));
+          (unsigned int) sizeof(strelemtype));
       bytes_used += count.stri_elems * sizeof(strelemtype);
     } /* if */
     if (count.bstri != 0) {
-      printf("%9lu bytes in %8lu bstring records of   %4d bytes\n",
+      printf("%9lu bytes in %8lu bstring records of     %4u bytes\n",
           count.bstri * SIZ_BSTRI(0),
           count.bstri,
-          SIZ_BSTRI(0));
+          (unsigned int) SIZ_BSTRI(0));
       bytes_used += count.bstri * SIZ_BSTRI(0);
-      printf("%9lu bytes in %8lu bstrings of average  %4lu bytes\n",
+      printf("%9lu bytes in %8lu bstrings of average    %4lu bytes\n",
           count.bstri_elems * sizeof(uchartype),
           count.bstri,
           count.bstri_elems * sizeof(uchartype) / count.bstri);
       bytes_used += count.bstri_elems * sizeof(uchartype);
     } /* if */
     if (count.array != 0) {
-      printf("%9lu bytes in %8lu arrays of            %4d bytes\n",
+      printf("%9lu bytes in %8lu arrays of              %4u bytes\n",
           count.array * SIZ_RTL_ARR(0),
           count.array,
-          SIZ_RTL_ARR(0));
+          (unsigned int) SIZ_RTL_ARR(0));
       bytes_used += count.array * SIZ_RTL_ARR(0);
     } /* if */
     if (count.rtl_arr_elems != 0) {
-      printf("%9lu bytes in %8lu array elements of    %4d bytes\n",
+      printf("%9lu bytes in %8lu array elements of      %4u bytes\n",
           count.rtl_arr_elems * SIZ_REC(rtlObjecttype),
           count.rtl_arr_elems,
-          SIZ_REC(rtlObjecttype));
+          (unsigned int) SIZ_REC(rtlObjecttype));
       bytes_used += count.rtl_arr_elems * SIZ_REC(rtlObjecttype);
     } /* if */
     if (count.hash != 0) {
-      printf("%9lu bytes in %8lu hashtables of        %4d bytes\n",
+      printf("%9lu bytes in %8lu hashtables of          %4u bytes\n",
           count.hash * SIZ_RTL_HSH(0),
           count.hash,
-          SIZ_RTL_HSH(0));
+          (unsigned int) SIZ_RTL_HSH(0));
       bytes_used += count.hash * SIZ_RTL_HSH(0);
     } /* if */
     if (count.hsh_elems != 0) {
-      printf("%9lu bytes in %8lu hashtable elems of   %4d bytes\n",
+      printf("%9lu bytes in %8lu hashtable elems of     %4u bytes\n",
           count.hsh_elems * SIZ_REC(rtlHelemtype),
           count.hsh_elems,
-          SIZ_REC(rtlHelemtype));
+          (unsigned int) SIZ_REC(rtlHelemtype));
       bytes_used += count.hsh_elems * SIZ_REC(rtlHelemtype);
     } /* if */
     if (count.rtl_helem != 0) {
-      printf("%9lu bytes in %8lu helems of            %4d bytes\n",
+      printf("%9lu bytes in %8lu helems of              %4u bytes\n",
           count.rtl_helem * SIZ_REC(rtlHelemrecord),
           count.rtl_helem,
-          SIZ_REC(rtlHelemrecord));
+          (unsigned int) SIZ_REC(rtlHelemrecord));
       bytes_used += count.rtl_helem * SIZ_REC(rtlHelemrecord);
     } /* if */
     if (count.set != 0) {
-      printf("%9lu bytes in %8lu sets of              %4d bytes\n",
+      printf("%9lu bytes in %8lu sets of                %4u bytes\n",
           count.set * SIZ_SET(0),
           count.set,
-          SIZ_SET(0));
+          (unsigned int) SIZ_SET(0));
       bytes_used += count.set * SIZ_SET(0);
     } /* if */
     if (count.set_elems != 0) {
-      printf("%9lu bytes in %8lu set elements of      %4d bytes\n",
+      printf("%9lu bytes in %8lu set elements of        %4u bytes\n",
           count.set_elems * SIZ_REC(bitsettype),
           count.set_elems,
-          SIZ_REC(bitsettype));
+          (unsigned int) SIZ_REC(bitsettype));
       bytes_used += count.set_elems * SIZ_REC(bitsettype);
     } /* if */
 #if 0
     if (count.stru != 0) {
-      printf("%9lu bytes in %8lu structs of           %4d bytes\n",
+      printf("%9lu bytes in %8lu structs of             %4u bytes\n",
           count.stru * SIZ_SCT(0),
           count.stru,
-          SIZ_SCT(0));
+          (unsigned int) SIZ_SCT(0));
       bytes_used += count.stru * SIZ_SCT(0);
     } /* if */
     if (count.sct_elems != 0) {
-      printf("%9lu bytes in %8lu struct elements of   %4d bytes\n",
+      printf("%9lu bytes in %8lu struct elements of     %4u bytes\n",
           count.sct_elems * SIZ_REC(objectrecord),
           count.sct_elems,
-          SIZ_REC(objectrecord));
+          (unsigned int) SIZ_REC(objectrecord));
       bytes_used += count.sct_elems * SIZ_REC(objectrecord);
     } /* if */
 #endif
-    if (count.polldata != 0) {
-      printf("%9lu bytes in %8lu pollData elements of %4lu bytes\n",
-          count.polldata * count.size_pollrecord,
-          count.polldata,
-          count.size_pollrecord);
-      bytes_used += count.polldata * count.size_pollrecord;
-    } /* if */
 #ifdef USE_BIG_RTL_LIBRARY
     if (count.big != 0) {
-      printf("%9lu bytes in %8lu bigIntegers of       %4d bytes\n",
+      printf("%9lu bytes in %8lu bigIntegers of         %4u bytes\n",
           count.big * SIZ_BIG(0),
           count.big,
-          SIZ_BIG(0));
+          (unsigned int) SIZ_BIG(0));
       bytes_used += count.big * SIZ_BIG(0);
     } /* if */
     if (count.big_elems != 0) {
-      printf("%9lu bytes in %8lu bigdigits of         %4d bytes\n",
+      printf("%9lu bytes in %8lu bigdigits of           %4u bytes\n",
           count.big_elems * sizeof_bigdigittype,
           count.big_elems,
-          sizeof_bigdigittype);
+          (unsigned int) sizeof_bigdigittype);
       bytes_used += count.big_elems * sizeof_bigdigittype;
     } /* if */
 #endif
+    if (count.polldata != 0) {
+      printf("%9lu bytes in %8lu pollData elements of   %4u bytes\n",
+          count.polldata * sizeof_pollrecord,
+          count.polldata,
+          (unsigned int) sizeof_pollrecord);
+      bytes_used += count.polldata * sizeof_pollrecord;
+    } /* if */
     if (count.win != 0) {
-      printf("%9lu bytes in %8lu windows of           %4d bytes\n",
-          count.win * count.size_winrecord,
+      printf("%9lu bytes in %8lu windows of             %4u bytes\n",
+          count.win * sizeof_winrecord,
           count.win,
-          count.size_winrecord);
-      bytes_used += count.win * count.size_winrecord;
+          (unsigned int) sizeof_winrecord);
+      bytes_used += count.win * sizeof_winrecord;
     } /* if */
     if (bytes_used != 0) {
       printf("%9lu bytes in use\n", bytes_used);

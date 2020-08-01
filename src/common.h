@@ -226,6 +226,8 @@ typedef const unsigned char *  const_ustritype;
 #define MAX_DIV_10 ((inttype) (INTTYPE_MAX / 10))
 #define MAX_REM_10 ((inttype) (INTTYPE_MAX % 10))
 
+#define MAX_SYMB_LENGTH MAX_MEMSIZETYPE
+
 #ifndef CLOCKS_PER_SEC
 #define CLOCKS_PER_SEC 1000000
 #endif

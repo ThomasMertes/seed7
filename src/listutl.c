@@ -41,19 +41,20 @@
 
 
 
+#ifdef WITH_LIST_FREELIST
 #ifdef ANSI_C
 
-void emptylist (listtype list)
+void free_list (listtype list)
 #else
 
-void emptylist (list)
+void free_list (list)
 listtype list;
 #endif
 
   {
     register listtype list_end;
 
-  /* emptylist */
+  /* free_list */
     if (list != NULL) {
       list_end = list;
       while (list_end->next != NULL) {
@@ -62,7 +63,34 @@ listtype list;
       list_end->next = flist.list_elems;
       flist.list_elems = list;
     } /* if */
-  } /* emptylist */
+  } /* free_list */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+void free_list (listtype list)
+#else
+
+void free_list (list)
+listtype list;
+#endif
+
+  {
+    register listtype list_elem;
+    register listtype old_elem;
+
+  /* free_list */
+    list_elem = list;
+    while (list_elem != NULL) {
+      old_elem = list_elem;
+      list_elem = list_elem->next;
+      FREE_L_ELEM(old_elem);
+    } /* while */
+  } /* free_list */
+#endif
 
 
 
@@ -97,43 +125,87 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-void copy_expression (objecttype object_from,
-    objecttype *object_to, errinfotype *err_info)
+static objecttype copy_expression2 (objecttype object_from, errinfotype *err_info)
 #else
 
-void copy_expression (object_from, object_to, err_info)
+static objecttype copy_expression2 (object_from, err_info)
 objecttype object_from;
-objecttype *object_to;
 errinfotype *err_info;
 #endif
 
   {
-    listtype list_from_elem;
-    listtype *list_insert_place;
-    objecttype object_to_elem;
+    register listtype list_from_elem;
+    register listtype list_to_elem;
+    register listtype new_elem;
+    objecttype object_to;
+
+  /* copy_expression2 */
+    if (!ALLOC_OBJECT(object_to)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      object_to->type_of = object_from->type_of;
+      object_to->descriptor.property = object_from->descriptor.property;
+      object_to->value.listvalue = NULL;
+      INIT_CATEGORY_OF_OBJ(object_to, CATEGORY_OF_OBJ(object_from));
+      SET_ANY_FLAG(object_to, HAS_POSINFO(object_from));
+      list_from_elem = object_from->value.listvalue;
+      if (list_from_elem != NULL) {
+        if (ALLOC_L_ELEM(list_to_elem)) {
+          object_to->value.listvalue = list_to_elem;
+          list_to_elem->obj = copy_expression(list_from_elem->obj, err_info);
+          list_from_elem = list_from_elem->next;
+          while (list_from_elem != NULL) {
+            if (ALLOC_L_ELEM(new_elem)) {
+              list_to_elem->next = new_elem;
+              list_to_elem = new_elem;
+              if (CATEGORY_OF_OBJ(list_from_elem->obj) == EXPROBJECT ||
+                  CATEGORY_OF_OBJ(list_from_elem->obj) == CALLOBJECT ||
+                  CATEGORY_OF_OBJ(list_from_elem->obj) == MATCHOBJECT ||
+                  CATEGORY_OF_OBJ(list_from_elem->obj) == LISTOBJECT) {
+                list_to_elem->obj = copy_expression(list_from_elem->obj, err_info);
+              } else {
+                list_to_elem->obj = list_from_elem->obj;
+              } /* if */
+              list_from_elem = list_from_elem->next;
+            } else {
+              *err_info = MEMORY_ERROR;
+              list_from_elem = NULL;
+            } /* if */
+          } /* while */
+          list_to_elem->next = NULL;
+        } else {
+          *err_info = MEMORY_ERROR;
+        } /* if */
+      } /* if */
+    } /* if */
+    return object_to;
+  } /* copy_expression2 */
+
+
+
+#ifdef ANSI_C
+
+objecttype copy_expression (objecttype object_from, errinfotype *err_info)
+#else
+
+objecttype copy_expression (object_from, err_info)
+objecttype object_from;
+errinfotype *err_info;
+#endif
+
+  {
+    objecttype object_to;
 
   /* copy_expression */
-    if (CATEGORY_OF_OBJ(object_from) == EXPROBJECT) {
-      if (!ALLOC_OBJECT(*object_to)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        (*object_to)->type_of = object_from->type_of;
-        (*object_to)->descriptor.property = object_from->descriptor.property;
-        (*object_to)->value.listvalue = NULL;
-        list_insert_place = &(*object_to)->value.listvalue;
-        INIT_CATEGORY_OF_OBJ((*object_to), CATEGORY_OF_OBJ(object_from));
-        SET_ANY_FLAG((*object_to), HAS_POSINFO(object_from));
-        list_from_elem = object_from->value.listvalue;
-        while (list_from_elem != NULL && *err_info == OKAY_NO_ERROR) {
-          copy_expression(list_from_elem->obj, &object_to_elem, err_info);
-          list_insert_place = append_element_to_list(list_insert_place,
-              object_to_elem, err_info);
-          list_from_elem = list_from_elem->next;
-        } /* while */
-      } /* if */
+    if (CATEGORY_OF_OBJ(object_from) == EXPROBJECT ||
+        CATEGORY_OF_OBJ(object_from) == CALLOBJECT ||
+        CATEGORY_OF_OBJ(object_from) == MATCHOBJECT ||
+        CATEGORY_OF_OBJ(object_from) == LISTOBJECT) {
+      object_to = copy_expression2(object_from, err_info);
     } else {
-      *object_to = object_from;
+      object_to = object_from;
     } /* if */
+    return object_to;
   } /* copy_expression */
 
 
@@ -158,15 +230,19 @@ objecttype object;
         case CALLOBJECT:
         case MATCHOBJECT:
         case EXPROBJECT:
+        case LISTOBJECT:
           /* printf("free_expression: \n");
           trace1(object);
           printf("\n"); */
           list_elem = object->value.listvalue;
-          while (list_elem != NULL) {
+          if (list_elem != NULL) {
+            while (list_elem->next != NULL) {
+              free_expression(list_elem->obj);
+              list_elem = list_elem->next;
+            } /* while */
             free_expression(list_elem->obj);
-            list_elem = list_elem->next;
-          } /* while */
-          emptylist(object->value.listvalue);
+            free_list2(object->value.listvalue, list_elem);
+          } /* if */
           FREE_OBJECT(object);
           break;
         default:
@@ -406,7 +482,7 @@ errinfotype *err_info;
         help_element->next = NULL;
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {
-        emptylist(list_to);
+        free_list(list_to);
         list_to = NULL;
       } /* if */
     } else {
@@ -466,7 +542,7 @@ errinfotype *err_info;
       if (list_to != NULL) {
         while (position < arr_from_size && list_to != NULL) {
           if (!HEAP_L_E(help_element->next, listrecord)) {
-            emptylist(list_to);
+            free_list(list_to);
             list_to = NULL;
             *err_info = MEMORY_ERROR;
           } else {
@@ -532,7 +608,7 @@ errinfotype *err_info;
       if (list_to != NULL) {
         while (position < stru_from->size && list_to != NULL) {
           if (!HEAP_L_E(help_element->next, listrecord)) {
-            emptylist(list_to);
+            free_list(list_to);
             list_to = NULL;
             *err_info = MEMORY_ERROR;
           } else {
@@ -631,10 +707,10 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-listtype hash_key_to_list (hashtype hash, errinfotype *err_info)
+listtype hash_keys_to_list (hashtype hash, errinfotype *err_info)
 #else
 
-listtype hash_key_to_list (hash, err_info)
+listtype hash_keys_to_list (hash, err_info)
 hashtype hash;
 errinfotype *err_info;
 #endif
@@ -644,7 +720,7 @@ errinfotype *err_info;
     helemtype *helem;
     listtype result;
 
-  /* hash_key_to_list */
+  /* hash_keys_to_list */
     result = NULL;
     if (hash != NULL) {
       number = hash->table_size;
@@ -656,4 +732,4 @@ errinfotype *err_info;
       } /* while */
     } /* if */
     return result;
-  } /* hash_key_to_list */
+  } /* hash_keys_to_list */

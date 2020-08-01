@@ -136,9 +136,6 @@ listtype arguments;
     printf("\n");
 #endif
     old_value = take_interface(interface_to);
-    isit_struct(old_value);
-    new_value = take_interface(interface_from);
-    isit_struct(new_value);
     if (CATEGORY_OF_OBJ(interface_to) == STRUCTOBJECT) {
       /* printf("before SET_CATEGORY: ");
       trace1(interface_to);
@@ -149,37 +146,48 @@ listtype arguments;
       trace1(interface_to);
       printf("\n"); */
     } /* if */
-    if (TEMP_OBJECT(interface_from)) {
-      if (CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
-        if (!ALLOC_OBJECT(new_value)) {
-          return raise_exception(SYS_MEM_EXCEPTION);
+    new_value = take_interface(interface_from);
+    if (CATEGORY_OF_OBJ(new_value) == INTERFACEOBJECT ||
+        CATEGORY_OF_OBJ(new_value) == STRUCTOBJECT) {
+      if (TEMP_OBJECT(interface_from)) {
+        if (CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
+          if (!ALLOC_OBJECT(new_value)) {
+            return raise_exception(SYS_MEM_EXCEPTION);
+          } else {
+            memcpy(new_value, interface_from, sizeof(objectrecord));
+            new_value->value.structvalue->usage_count++;
+            interface_from->value.structvalue = NULL;
+          } /* if */
         } else {
-          memcpy(new_value, interface_from, sizeof(objectrecord));
-          new_value->value.structvalue->usage_count++;
-          interface_from->value.structvalue = NULL;
+          interface_from->value.objvalue = NULL;
         } /* if */
       } else {
-        interface_from->value.objvalue = NULL;
+        if (new_value->value.structvalue->usage_count != 0) {
+          new_value->value.structvalue->usage_count++;
+        } /* if */
       } /* if */
-    } else {
-      if (new_value->value.structvalue->usage_count != 0) {
-        new_value->value.structvalue->usage_count++;
-      } /* if */
+    } else if (CATEGORY_OF_OBJ(new_value) != FORWARDOBJECT) {
+      run_exception(INTERFACEOBJECT, interface_from);
     } /* if */
     interface_to->value.objvalue = new_value;
     CLEAR_TEMP_FLAG(new_value);
     CLEAR_TEMP2_FLAG(new_value);
-    /* printf("usage_count=%d\n", old_value->value.structvalue->usage_count); */
-    if (old_value->value.structvalue->usage_count != 0) {
-      old_value->value.structvalue->usage_count--;
-      if (old_value->value.structvalue->usage_count == 0) {
-        /* printf("really destroy ");
-        trace1(old_value);
-        printf("\n"); */
-        CLEAR_TEMP_FLAG(old_value);
-        do_destroy(old_value, &err_info);
-        FREE_OBJECT(old_value);
+    if (CATEGORY_OF_OBJ(old_value) == STRUCTOBJECT) {
+      /* printf("usage_count=%d\n", old_value->value.structvalue->usage_count); */
+      if (old_value->value.structvalue->usage_count != 0) {
+        old_value->value.structvalue->usage_count--;
+        if (old_value->value.structvalue->usage_count == 0) {
+          /* printf("really destroy ");
+          trace1(old_value);
+          printf("\n"); */
+          CLEAR_TEMP_FLAG(old_value);
+          do_destroy(old_value, &err_info);
+          FREE_OBJECT(old_value);
+        } /* if */
       } /* if */
+    } else if (CATEGORY_OF_OBJ(old_value) != DECLAREDOBJECT &&
+               CATEGORY_OF_OBJ(old_value) != FORWARDOBJECT) {
+      run_exception(INTERFACEOBJECT, old_value);
     } /* if */
 #ifdef TRACE_ITFLIB
     printf("itf_cpy afterwards: ");
@@ -209,7 +217,7 @@ listtype arguments;
     interface_to = arg_1(arguments);
     interface_from = arg_3(arguments);
     isit_interface(interface_to);
-    isit_struct(interface_from);
+    /* isit_struct(interface_from); allow FORWARDOBJECT */
     new_value = interface_from;
     if (CATEGORY_OF_OBJ(interface_to) == STRUCTOBJECT) {
       /* printf("before SET_CATEGORY: ");
@@ -221,18 +229,22 @@ listtype arguments;
       trace1(interface_to);
       printf("\n"); */
     } /* if */
-    if (TEMP_OBJECT(interface_from)) {
-      if (!ALLOC_OBJECT(new_value)) {
-        return raise_exception(SYS_MEM_EXCEPTION);
+    if (CATEGORY_OF_OBJ(interface_from) == STRUCTOBJECT) {
+      if (TEMP_OBJECT(interface_from)) {
+        if (!ALLOC_OBJECT(new_value)) {
+          return raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          memcpy(new_value, interface_from, sizeof(objectrecord));
+          new_value->value.structvalue->usage_count++;
+          interface_from->value.structvalue = NULL;
+        } /* if */
       } else {
-        memcpy(new_value, interface_from, sizeof(objectrecord));
-        new_value->value.structvalue->usage_count++;
-        interface_from->value.structvalue = NULL;
+        if (new_value->value.structvalue->usage_count != 0) {
+          new_value->value.structvalue->usage_count++;
+        } /* if */
       } /* if */
-    } else {
-      if (new_value->value.structvalue->usage_count != 0) {
-        new_value->value.structvalue->usage_count++;
-      } /* if */
+    } else if (CATEGORY_OF_OBJ(interface_from) != FORWARDOBJECT) {
+      run_exception(STRUCTOBJECT, interface_from);
     } /* if */
     interface_to->value.objvalue = new_value;
     CLEAR_TEMP_FLAG(new_value);

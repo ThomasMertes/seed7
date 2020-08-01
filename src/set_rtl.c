@@ -158,15 +158,15 @@ settype set1;
 
   {
     const unsigned char *byte;
-    memsizetype count;
+    memsizetype byteCount;
     uinttype card = 0;
     inttype result;
 
   /* setCard */
     byte = (const unsigned char *) set1->bitset;
-    for (count = sizeof(bitsettype) *
-                 (memsizetype) (uinttype) (set1->max_position - set1->min_position + 1);
-        count != 0; count--, byte++) {
+    for (byteCount = sizeof(bitsettype) *
+                     (memsizetype) (uinttype) (set1->max_position - set1->min_position + 1);
+        byteCount != 0; byteCount--, byte++) {
       card += (uinttype) card_byte[(int) *byte];
     } /* for */
     if (card > INTTYPE_MAX) {

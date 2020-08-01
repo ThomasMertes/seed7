@@ -305,8 +305,8 @@ listtype arguments;
     result->min_position = 1;
     result->max_position = 1;
     /* The element type of the result is the type of the 3rd formal parameter */
-    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
-                          name_list->next->next->obj->value.objvalue->type_of;
+    result_element_type = curr_exec_object->value.listvalue->obj->
+                          descriptor.property->params->next->next->obj->type_of;
     if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
@@ -351,8 +351,8 @@ listtype arguments;
     result->min_position = start_position;
     result->max_position = start_position;
     /* The element type of the result is the type of the 4th formal parameter */
-    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
-                          name_list->next->next->next->obj->value.objvalue->type_of;
+    result_element_type = curr_exec_object->value.listvalue->obj->
+                          descriptor.property->params->next->next->next->obj->type_of;
     if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
@@ -675,8 +675,8 @@ listtype arguments;
       } /* if */
     } /* if */
     /* The element type of the result is the type of the 3rd formal parameter */
-    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
-                          name_list->next->next->obj->value.objvalue->type_of;
+    result_element_type = curr_exec_object->value.listvalue->obj->
+                          descriptor.property->params->next->next->obj->type_of;
     if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element);
       SET_VAR_FLAG(element);
@@ -721,8 +721,8 @@ listtype arguments;
     result->min_position = 1;
     result->max_position = 2;
     /* The element type of the result is the type of the 1st formal parameter */
-    result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
-                          name_list->obj->value.objvalue->type_of;
+    result_element_type = curr_exec_object->value.listvalue->obj->
+                          descriptor.property->params->obj->type_of;
     if (TEMP_OBJECT(element1) && element1->type_of == result_element_type) {
       CLEAR_TEMP_FLAG(element1);
       SET_VAR_FLAG(element1);
@@ -969,8 +969,8 @@ listtype arguments;
       COUNT3_ARRAY(arr_to_size, new_size);
       arr_variable->value.arrayvalue = new_arr;
       /* The element type of the result is the type of the 3rd formal parameter */
-      result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
-                            name_list->next->next->obj->value.objvalue->type_of;
+      result_element_type = curr_exec_object->value.listvalue->obj->
+                            descriptor.property->params->next->next->obj->type_of;
       if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
         CLEAR_TEMP_FLAG(element);
         SET_VAR_FLAG(element);
@@ -1272,8 +1272,8 @@ listtype arguments;
           printtype(GET_ENTITY(curr_exec_object->value.listvalue->obj)->name_list->next->next->obj->value.objvalue->type_of);
           printf("\n"); */
           /* The element type of the result is the type of the 3rd formal parameter */
-          result_element_type = GET_ENTITY(curr_exec_object->value.listvalue->obj)->
-                                name_list->next->next->obj->value.objvalue->type_of;
+          result_element_type = curr_exec_object->value.listvalue->obj->
+                                descriptor.property->params->next->next->obj->type_of;
           if (TEMP_OBJECT(element) && element->type_of == result_element_type) {
             CLEAR_TEMP_FLAG(element);
             SET_VAR_FLAG(element);

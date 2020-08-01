@@ -177,7 +177,7 @@ listtype arguments;
     is_variable(list_to);
     if (list_from != list_to) {
       if (TEMP_OBJECT(list_from)) {
-        emptylist(take_reflist(list_to));
+        free_list(take_reflist(list_to));
         list_to->value.listvalue = take_reflist(list_from);
         list_from->value.listvalue = NULL;
       } else {
@@ -185,7 +185,7 @@ listtype arguments;
         if (err_info != OKAY_NO_ERROR) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          emptylist(take_reflist(list_to));
+          free_list(take_reflist(list_to));
           list_to->value.listvalue = help_list;
         } /* if */
       } /* if */
@@ -240,7 +240,7 @@ listtype arguments;
 
   { /* rfl_destr */
     isit_reflist(arg_1(arguments));
-    emptylist(take_reflist(arg_1(arguments)));
+    free_list(take_reflist(arg_1(arguments)));
     arg_1(arguments)->value.listvalue = NULL;
     return SYS_EMPTY_OBJECT;
   } /* rfl_destr */
@@ -491,7 +491,7 @@ listtype arguments;
         result = evaluate(statement);
         listelement = listelement->next;
       } /* while */
-      emptylist(helplist);
+      free_list(helplist);
       return result;
     } /* if */
   } /* rfl_for */
@@ -559,7 +559,7 @@ listtype arguments;
           } /* while */
         } /* if */
       } /* if */
-      emptylist(helplist);
+      free_list(helplist);
       return SYS_EMPTY_OBJECT;
     } /* if */
   } /* rfl_for_until */
@@ -598,7 +598,7 @@ listtype arguments;
       } /* while */
       if (TEMP_OBJECT(list)) {
         if (stop_element != NULL) {
-          emptylist(stop_element->next);
+          free_list(stop_element->next);
           stop_element->next = NULL;
         } /* if */
         result = take_reflist(list);
@@ -968,7 +968,7 @@ listtype arguments;
         CATEGORY_OF_OBJ(list_to) == REFLISTOBJECT) {
       if (list_from != list_to) {
         if (TEMP_OBJECT(list_from)) {
-          emptylist(take_reflist(list_to));
+          free_list(take_reflist(list_to));
           list_to->value.listvalue = take_reflist(list_from);
           list_from->value.listvalue = NULL;
         } else {
@@ -976,7 +976,7 @@ listtype arguments;
           if (err_info != OKAY_NO_ERROR) {
             return raise_exception(SYS_MEM_EXCEPTION);
           } else {
-            emptylist(take_reflist(list_to));
+            free_list(take_reflist(list_to));
             list_to->value.listvalue = help_list;
           } /* if */
         } /* if */

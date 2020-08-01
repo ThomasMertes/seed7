@@ -34,6 +34,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
+#include "syvarutl.h"
 #include "datautl.h"
 #include "listutl.h"
 #include "sigutl.h"
@@ -112,10 +113,12 @@ listtype stack_elem;
         if (HAS_ENTITY(func_object)) {
           printf("in ");
           if (GET_ENTITY(func_object)->ident != NULL) {
-            printf("%s ",
-                id_string(GET_ENTITY(func_object)->ident));
-          } else if (GET_ENTITY(func_object)->name_list != NULL) {
-            prot_name(GET_ENTITY(func_object)->name_list);
+            printf("%s ", id_string(GET_ENTITY(func_object)->ident));
+          } else if (func_object->descriptor.property->params != NULL) {
+            prot_params(func_object->descriptor.property->params);
+            printf(" ");
+          } else if (GET_ENTITY(func_object)->fparam_list != NULL) {
+            prot_name(GET_ENTITY(func_object)->fparam_list);
             printf(" ");
           } /* if */
         } /* if */
@@ -233,7 +236,7 @@ listtype list;
     } /* if */
 #endif
 #ifndef USE_CHUNK_ALLOCS
-    if (exception == MEM_EXCEPTION) {
+    if (exception == SYS_MEM_EXCEPTION) {
       reuse_free_lists();
     } /* if */
 #endif

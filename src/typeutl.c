@@ -34,6 +34,7 @@
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
+#include "listutl.h"
 #include "identutl.h"
 #include "entutl.h"
 
@@ -45,43 +46,55 @@
 
 #ifdef ANSI_C
 
-typetype new_type (typetype meta_type, typetype result_type)
+typetype new_type (progtype owningProg, typetype meta_type, typetype result_type)
 #else
 
-typetype new_type (meta_type, result_type)
+typetype new_type (owningProg, meta_type, result_type)
+progtype owningProg;
 typetype meta_type;
 typetype result_type;
 #endif
 
   {
     objecttype match_obj;
+    listtype list_elem;
     typetype created_type;
 
   /* new_type */
 #ifdef TRACE_TYPEUTIL
-  printf("BEGIN new_type\n");
+    printf("BEGIN new_type\n");
 #endif
     if (ALLOC_OBJECT(match_obj)) {
-      if (ALLOC_RECORD(created_type, typerecord, count.type)) {
-        match_obj->type_of = NULL;
-        match_obj->descriptor.property = NULL;
-        match_obj->value.typevalue = created_type;
-        INIT_CATEGORY_OF_OBJ(match_obj, TYPEOBJECT);
-        created_type->match_obj = match_obj;
-        created_type->meta = meta_type;
-        created_type->func_type = NULL;
-        created_type->varfunc_type = NULL;
-        created_type->result_type = result_type;
-        created_type->is_varfunc_type = FALSE;
-        created_type->interfaces = NULL;
-        created_type->name = NULL;
-        created_type->inout_f_param_prototype = NULL;
-        created_type->other_f_param_prototype = NULL;
-        created_type->create_call_obj = NULL;
-        created_type->destroy_call_obj = NULL;
-        created_type->copy_call_obj = NULL;
-        created_type->ord_call_obj = NULL;
-        created_type->in_call_obj = NULL;
+      if (ALLOC_L_ELEM(list_elem)) {
+        if (ALLOC_RECORD(created_type, typerecord, count.type)) {
+          match_obj->type_of = NULL;
+          match_obj->descriptor.property = NULL;
+          match_obj->value.typevalue = created_type;
+          INIT_CATEGORY_OF_OBJ(match_obj, TYPEOBJECT);
+          created_type->match_obj = match_obj;
+          created_type->meta = meta_type;
+          created_type->func_type = NULL;
+          created_type->varfunc_type = NULL;
+          created_type->result_type = result_type;
+          created_type->is_varfunc_type = FALSE;
+          created_type->interfaces = NULL;
+          created_type->name = NULL;
+          created_type->owningProg = owningProg;
+          created_type->inout_f_param_prototype = NULL;
+          created_type->other_f_param_prototype = NULL;
+          created_type->create_call_obj = NULL;
+          created_type->destroy_call_obj = NULL;
+          created_type->copy_call_obj = NULL;
+          created_type->ord_call_obj = NULL;
+          created_type->in_call_obj = NULL;
+          list_elem->obj = match_obj;
+          list_elem->next = prog.types;
+          prog.types = list_elem;
+        } else {
+          FREE_L_ELEM(list_elem);
+          FREE_OBJECT(match_obj);
+          created_type = NULL;
+        } /* if */
       } else {
         FREE_OBJECT(match_obj);
         created_type = NULL;
@@ -90,10 +103,67 @@ typetype result_type;
       created_type = NULL;
     } /* if */
 #ifdef TRACE_TYPEUTIL
-  printf("END new_type\n");
+    printf("END new_type\n");
 #endif
     return created_type;
   } /* new_type */
+
+
+
+#ifdef ANSI_C
+
+static void free_type (typetype old_type)
+#else
+
+static void free_type (old_type)
+typetype old_type;
+#endif
+
+  {
+    typelisttype typelist_elem;
+    typelisttype next_elem;
+
+  /* free_type */
+#ifdef TRACE_TYPEUTIL
+    printf("BEGIN free_type\n");
+#endif
+    FREE_OBJECT(old_type->match_obj);
+    typelist_elem = old_type->interfaces;
+    while (typelist_elem != NULL) {
+      next_elem = typelist_elem->next;
+      FREE_RECORD(typelist_elem, typelistrecord, count.typelist_elems);
+      typelist_elem = next_elem;
+    } /* while */
+    FREE_RECORD(old_type, typerecord, count.type);
+#ifdef TRACE_TYPEUTIL
+    printf("END free_type\n");
+#endif
+  } /* free_type */
+
+
+
+#ifdef ANSI_C
+
+void close_type (progtype currentProg)
+#else
+
+void close_type (currentProg)
+progtype currentProg;
+#endif
+
+  {
+    listtype type_elem;
+    listtype next_elem;
+
+  /* close_type */
+    type_elem = currentProg->types;
+    while (type_elem != NULL) {
+      next_elem = type_elem->next;
+      free_type(type_elem->obj->value.typevalue);
+      type_elem = next_elem;
+    } /* while */
+    free_list(currentProg->types);
+  } /* close_type */
 
 
 
@@ -114,7 +184,7 @@ typetype basic_type;
     if (basic_type->func_type != NULL) {
       func_type = basic_type->func_type;
     } else {
-      func_type = new_type(meta_type, basic_type);
+      func_type = new_type(basic_type->owningProg, meta_type, basic_type);
       basic_type->func_type = func_type;
     } /* if */
     return func_type;
@@ -139,7 +209,7 @@ typetype basic_type;
     if (basic_type->varfunc_type != NULL) {
       varfunc_type = basic_type->varfunc_type;
     } else {
-      varfunc_type = new_type(meta_type, basic_type);
+      varfunc_type = new_type(basic_type->owningProg, meta_type, basic_type);
       varfunc_type->is_varfunc_type = TRUE;
       basic_type->varfunc_type = varfunc_type;
     } /* if */
@@ -206,7 +276,7 @@ typetype basic_type;
       typelist_elem = typelist_elem->next;
     } /* while */
     if (err_info != OKAY_NO_ERROR) {
-      emptylist(result);
+      free_list(result);
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     return bld_reflist_temp(result);

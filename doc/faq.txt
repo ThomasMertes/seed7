@@ -113,18 +113,18 @@ Which license does Seed7 use?
 =============================
 
 Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
-The s7 Interpreter and the example programs (extension .sd7) are under the
+The s7 interpreter and the example programs (extension .sd7) are under the
 GPL (General Public License, see also the file COPYING).
 
-The Seed7 Runtime Library is under the LGPL (Lesser General Public License,
+The Seed7 runtime library is under the LGPL (Lesser General Public License,
 see also the file LGPL). The Seed7 include files (extension .s7i) are a part
-of the Seed7 Runtime Library.
+of the Seed7 runtime library.
 
 Seed7 allows the interpretation and compilation of programs with any license.
 There is no restriction on the license of your Seed7 programs.
 
 For the development of the Seed7 compiler it will be necessary to move some
-source code from the s7 Interpreter (under GPL) to the Seed7 Runtime Library
+source code from the s7 interpreter (under GPL) to the Seed7 runtime library
 (under LGPL). This will only be done to for the Seed7 runtime library and only
 as far as necessary to make no restriction on the license of compiled Seed7
 programs.
@@ -196,12 +196,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 190000 lines of Seed7. For version 2013-02-17 the number of lines is:
+than 190000 lines of Seed7. For version 2013-03-03 the number of lines is:
 
-  104320  C source files (*.c)
-   10290  C header files (*.h)
-  111860  Seed7 source files (*.sd7)
-   82112  Seed7 library/include files (*.s7i)
+  104891  C source files (*.c)
+   10326  C header files (*.h)
+  111912  Seed7 source files (*.sd7)
+   82425  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -441,7 +441,7 @@ This verifies that interpreter and compiler work correct.
 How can I use the Seed7 interpreter?
 ====================================
 
-The s7 Interpreter is called with the command
+The s7 interpreter is called with the command
 
   s7 [options] sourcefile [parameters]
 
@@ -1458,7 +1458,7 @@ writes a stack trace:
   {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
   Stack:
-  in {(val integer param) div (val integer param) } at integer.s7i(95)
+  in (val integer: dividend) div (val integer: divisor) at integer.s7i(95)
   in init_display at lander.sd7(840)
   in setup at lander.sd7(909)
   in main at lander.sd7(1541)
@@ -1769,7 +1769,7 @@ Theoretically yes. In practice there would be several problems. For example:
  - Some things like comments and $ pragmas are hard coded.
 
 But basically booting various languages was one of the goals of the extensible
-programming language Seed7 and the s7 Interpreter.
+programming language Seed7 and the s7 interpreter.
 
 In practice it turned out to be a better approach to steal concepts from other
 programming languages and to integrate them in Seed7 than to split the development

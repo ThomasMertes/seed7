@@ -32,19 +32,19 @@
  *  Therefore it can be used when ''baseType'' values cannot be
  *  mapped to [[integer]].
  *)
-const func type: HASHSET_OF (in type: baseType) is func
+const func type: hashset (in type: baseType) is func
   result
     var type: setType is void;
   local
     var type: tupleType is void;
     var type: array_type is void;
   begin
-    setType := get_type(getfunc(HASHSET_OF(attr baseType)));
+    setType := get_type(getfunc(hashset(attr baseType)));
     if setType = void then
       global
       setType := newtype;
       IN_PARAM_IS_REFERENCE(setType);
-      const type: HASHSET_OF (attr baseType)  is setType;
+      const type: hashset (attr baseType)     is setType;
       const type: base_type (attr setType)    is baseType;
 
       const reference: (attr setType) . keyCreate   is getfunc((ref baseType param) ::= (in baseType param));

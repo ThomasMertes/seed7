@@ -29,8 +29,8 @@
 
 void interpret (const const_progtype currentProg, const const_rtlArraytype argv,
                 memsizetype argv_start, uinttype options, const const_stritype prot_file_name);
-void prgCpy (progtype *const dest, const progtype source);
-listtype prgDeclObjects (const const_progtype aProg);
+void prgCpy (progtype *const prog_to, const progtype prog_from);
+progtype prgCreate (const progtype prog_from);
 void prgDestr (progtype old_prog);
 inttype prgErrorCount (const const_progtype aProg);
 objecttype prgEval (progtype currentProg, objecttype object);
@@ -38,6 +38,7 @@ void prgExec (const const_progtype currentProg, const const_rtlArraytype argv,
               const const_settype options, const const_stritype prot_file_name);
 progtype prgFilParse (const const_stritype fileName, const const_settype options,
                       const const_rtlArraytype libraryDirs, const const_stritype prot_file_name);
+listtype prgGlobalObjects (const const_progtype aProg);
 objecttype prgMatch (const const_progtype aProg, listtype curr_expr);
 objecttype prgMatchExpr (const const_progtype aProg, listtype curr_expr);
 progtype prgStrParse (const const_stritype stri, const const_settype options,
@@ -49,12 +50,13 @@ objecttype prgSysvar (const const_progtype aProg, const const_stritype sysvarNam
 
 void interpret ();
 void prgCpy ();
-listtype prgDeclObjects ();
+progtype prgCreate ();
 void prgDestr ();
 inttype prgErrorCount ();
 objecttype prgEval ();
 void prgExec ();
 progtype prgFilParse ();
+listtype prgGlobalObjects ();
 objecttype prgMatch ();
 objecttype prgMatchExpr ();
 progtype prgStrParse ();

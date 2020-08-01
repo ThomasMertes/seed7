@@ -22,7 +22,6 @@
 (********************************************************************)
 
 
-$ info off;
 $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "time.s7i";

@@ -593,12 +593,7 @@ void decl_syntax ()
       err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
     } /* if */
 /*  printcategory(CATEGORY_OF_OBJ(expression)); */
-/* Loeschen der expression wenn EXPROBJECT: */
-  if (CATEGORY_OF_OBJ(expression) == EXPROBJECT) {
-    emptylist(expression->value.listvalue);
-    FREE_OBJECT(expression);
-/*  FREE_RECORD(expression, objectrecord, count.object); */
-  } /* if */
+    free_expression(expression);
 #ifdef TRACE_SYNTAX
     printf("END decl_syntax\n");
 #endif

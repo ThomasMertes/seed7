@@ -619,7 +619,7 @@ int main (int argc, char **argv)
                         "_control87(MCW_EM, MCW_EM);\n"
 #endif
                         "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
-			"printf(\"%d\\n\",(int) 1.0E37);return 0;}\n")) {
+                        "printf(\"%d\\n\",(int) 1.0E37);return 0;}\n")) {
       testResult = doTest();
       if ((sizeof(int) == 4 && (long) testResult == 2147483647L) ||
           (sizeof(int) == 2 && testResult == 32767)) {

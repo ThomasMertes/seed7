@@ -32,19 +32,19 @@
  *  mapped to [[integer]] with the ''ord'' function.
  *  Sets of [[integer]] numbers are described with [[bitset]].
  *)
-const func type: BITSET_OF (in type: baseType) is func
+const func type: bitset (in type: baseType) is func
   result
     var type: setType is void;
   local
     var type: tupleType is void;
     var type: array_type is void;
   begin
-    setType := get_type(getfunc(BITSET_OF(attr baseType)));
+    setType := get_type(getfunc(bitset(attr baseType)));
     if setType = void then
       global
       setType := newtype;
       IN_PARAM_IS_REFERENCE(setType);
-      const type: BITSET_OF (attr baseType)                              is setType;
+      const type: bitset (attr baseType)                                 is setType;
       const type: base_type (attr setType)                               is baseType;
       const proc: (ref setType param) ::= (in setType param)             is action "SET_CREATE";
       const proc: destroy (ref setType param)                            is action "SET_DESTR";

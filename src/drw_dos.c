@@ -43,6 +43,11 @@
 #include "drw_drv.h"
 
 
+#ifdef DO_HEAP_STATISTIC
+size_t sizeof_winrecord = sizeof(winrecord);
+#endif
+
+
 
 #ifdef ANSI_C
 

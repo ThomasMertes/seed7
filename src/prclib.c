@@ -65,7 +65,7 @@
 
 #ifdef ANSI_C
 
-static void fix_posinfo (objecttype block_body, objecttype block_body_list)
+static void fix_posinfo (objecttype block_body, const const_objecttype block_body_list)
 #else
 
 static void fix_posinfo (block_body, block_body_list)
@@ -111,6 +111,7 @@ listtype arguments;
   {
     objecttype block_body;
     objecttype block_body_list = NULL;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_begin */
@@ -121,6 +122,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
@@ -134,7 +136,8 @@ listtype arguments;
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
-    if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
+    if (err_info != OKAY_NO_ERROR ||
+        (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -173,7 +176,7 @@ listtype arguments;
           catch_statement = arg_5(current_catch->value.listvalue);
           fail_flag = FALSE;
           fail_value = NULL;
-          emptylist(fail_stack);
+          free_list(fail_stack);
           fail_stack = NULL;
           evaluate(catch_statement);
           searching = FALSE;
@@ -718,6 +721,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
     local_object_insert_place = get_local_object_insert_place();
     decl_res = evaluate(local_decls);
@@ -743,7 +747,8 @@ listtype arguments;
     if (block_body != NULL && block_body->type_of != take_type(SYS_PROC_TYPE)) {
       err_type(PROC_EXPECTED, block_body->type_of);
     } /* if */
-    if ((block = new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL) {
+    if (err_info != OKAY_NO_ERROR ||
+        (block = new_block(NULL, NULL, local_vars, local_consts, block_body)) == NULL) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -850,6 +855,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
 /*    printf("result_type ");
     trace1(result_type->match_obj);
@@ -933,6 +939,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
     grow_stack(&err_info);
     if (err_info == OKAY_NO_ERROR) {
@@ -1001,6 +1008,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
@@ -1026,7 +1034,8 @@ listtype arguments;
     printf("\n");
 #endif
     get_return_var(&return_var, return_type, &err_info);
-    if ((block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
+    if (err_info != OKAY_NO_ERROR ||
+        (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -1060,6 +1069,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
@@ -1085,7 +1095,8 @@ listtype arguments;
     printf("\n");
 #endif
     get_return_var(&return_var, return_type, &err_info);
-    if ((block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
+    if (err_info != OKAY_NO_ERROR ||
+        (block = new_block(NULL, &return_var, NULL, NULL, block_body)) == NULL) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -1144,6 +1155,7 @@ listtype arguments;
   {
     objecttype block_body;
     objecttype block_body_list = NULL;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_varfunc */
@@ -1154,6 +1166,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
@@ -1164,7 +1177,8 @@ listtype arguments;
       fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
-    if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
+    if (err_info != OKAY_NO_ERROR ||
+        (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);
@@ -1185,6 +1199,7 @@ listtype arguments;
   {
     objecttype block_body;
     objecttype block_body_list = NULL;
+    errinfotype err_info = OKAY_NO_ERROR;
     blocktype block;
 
   /* prc_varfunc2 */
@@ -1195,6 +1210,7 @@ listtype arguments;
       block_body_list = block_body;
       block_body = block_body->value.listvalue->obj;
     } /* if */
+    block_body = copy_expression(block_body, &err_info);
     push_stack();
     if (CATEGORY_OF_OBJ(block_body) == EXPROBJECT) {
       update_owner(block_body);
@@ -1205,7 +1221,8 @@ listtype arguments;
       fix_posinfo(block_body, block_body_list);
     } /* if */
     pop_stack();
-    if ((block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
+    if (err_info != OKAY_NO_ERROR ||
+        (block = new_block(NULL, NULL, NULL, NULL, block_body)) == NULL) {
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       return bld_block_temp(block);

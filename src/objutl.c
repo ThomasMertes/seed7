@@ -829,10 +829,10 @@ objecttype object;
         polDestr(object->value.pollvalue);
         break;
       case REFLISTOBJECT:
-        emptylist(object->value.listvalue);
+        free_list(object->value.listvalue);
         break;
       case LISTOBJECT:
-        emptylist(object->value.listvalue);
+        free_list(object->value.listvalue);
         break;
       case BLOCKOBJECT:
         if (object->value.blockvalue != NULL) {
@@ -907,3 +907,29 @@ objecttype object;
     dump_temp_value(object);
     FREE_OBJECT(object);
   } /* dump_any_temp */
+
+
+
+#ifdef ANSI_C
+
+void dump_list (listtype list)
+#else
+
+void dump_list (list)
+listtype list;
+#endif
+
+  {
+    register listtype list_end;
+
+  /* dump_list */
+    if (list != NULL) {
+      list_end = list;
+      while (list_end->next != NULL) {
+        dump_any_temp(list_end->obj);
+        list_end = list_end->next;
+      } /* while */
+      dump_any_temp(list_end->obj);
+      free_list2(list, list_end);
+    } /* if */
+  } /* dump_list */

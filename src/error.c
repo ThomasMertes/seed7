@@ -678,10 +678,10 @@ objecttype obj_found;
     } /* if */
     switch (err) {
       case OBJTWICEDECLARED:
-        if (GET_ENTITY(obj_found)->name_list == NULL) {
+        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
           printf("\"%s\" declared twice\n", GET_ENTITY(obj_found)->ident->name);
         } else {
-          write_name_list(GET_ENTITY(obj_found)->name_list);
+          write_name_list(GET_ENTITY(obj_found)->fparam_list);
           printf(" declared twice\n");
         } /* if */
         break;
@@ -694,11 +694,11 @@ objecttype obj_found;
         printf(" failed\n");
         break;
       case DECL_FAILED:
-        if (GET_ENTITY(obj_found)->name_list == NULL) {
+        if (GET_ENTITY(obj_found)->fparam_list == NULL) {
           printf("Declaration of \"%s\" failed\n", GET_ENTITY(obj_found)->ident->name);
         } else {
           printf("Declaration of ");
-          write_name_list(GET_ENTITY(obj_found)->name_list);
+          write_name_list(GET_ENTITY(obj_found)->fparam_list);
           printf(" failed\n");
         } /* if */
         break;

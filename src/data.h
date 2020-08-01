@@ -180,7 +180,7 @@ typedef struct nodestruct {
 typedef struct entitystruct {
     identtype ident;
     objecttype syobject;
-    listtype name_list;
+    listtype fparam_list;
     union {
       ownertype owner;
       entitytype next;
@@ -189,7 +189,6 @@ typedef struct entitystruct {
 
 typedef struct ownerstruct {
     objecttype obj;
-    listtype params;
     stacktype decl_level;
     ownertype next;
   } ownerrecord;
@@ -227,6 +226,7 @@ typedef union {
 
 typedef struct propertystruct {
     entitytype entity;
+    listtype params;
     filenumtype file_number;
     linenumtype line;
     unsigned int syNumberInLine;
@@ -265,6 +265,7 @@ typedef struct typestruct {
     booltype is_varfunc_type;
     typelisttype interfaces;
     identtype name;
+    progtype owningProg;
     objecttype inout_f_param_prototype;
     objecttype other_f_param_prototype;
     objecttype create_call_obj;
@@ -393,6 +394,8 @@ typedef struct progstruct {
     entroottype entity;
     propertyroottype property;
     systype sys_var;
+    listtype types;
+    listtype literals;
     nodetype declaration_root;
     stacktype stack_global;
     stacktype stack_data;
@@ -425,6 +428,7 @@ typedef struct infilstruct {
     linenumtype incr_message_line;
     linenumtype next_msg_line;
     filenumtype file_number;
+    progtype owningProg;
     booltype end_of_file;
   } infilrecord;
 

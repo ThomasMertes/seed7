@@ -74,6 +74,10 @@ typedef struct poll_based_pollstruct {
 
 typedef const struct poll_based_pollstruct *const_poll_based_polltype;
 
+#ifdef DO_HEAP_STATISTIC
+size_t sizeof_pollrecord = sizeof(poll_based_pollrecord);
+#endif
+
 #define conv(genericPollData) ((const_poll_based_polltype) genericPollData)
 #define var_conv(genericPollData) ((poll_based_polltype) genericPollData)
 
@@ -495,9 +499,6 @@ polltype pollDataFrom;
     if (unlikely(!ALLOC_RECORD(result, poll_based_pollrecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
     } else {
-#ifdef DO_HEAP_STATISTIC
-      count.size_pollrecord = sizeof(poll_based_pollrecord);
-#endif
       if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, conv(pollDataFrom)->capacity))) {
         FREE_RECORD(result, poll_based_pollrecord, count.polldata);
         raise_error(MEMORY_ERROR);
@@ -570,9 +571,6 @@ polltype polEmpty ()
     if (unlikely(!ALLOC_RECORD(result, poll_based_pollrecord, count.polldata))) {
       raise_error(MEMORY_ERROR);
     } else {
-#ifdef DO_HEAP_STATISTIC
-      count.size_pollrecord = sizeof(poll_based_pollrecord);
-#endif
       if (unlikely(!ALLOC_TABLE(result->pollFds, struct pollfd, TABLE_START_SIZE))) {
         FREE_RECORD(result, poll_based_pollrecord, count.polldata);
         raise_error(MEMORY_ERROR);

@@ -36,17 +36,21 @@
       raise_with_arguments(SYS_MEM_EXCEPTION, act_param_list); \
     } }
 
-#define to_empty_list(list_begin, list_end) { \
+#ifdef WITH_LIST_FREELIST
+#define free_list2(list_begin, list_end) { \
     list_end->next = flist.list_elems;        \
     flist.list_elems = list_begin;            \
     }
+#else
+#define free_list2(list_begin, list_end) free_list(list_begin)
+#endif
 
 
 #ifdef ANSI_C
 
-void emptylist (listtype);
+void free_list (listtype list);
 listtype *append_element_to_list (listtype *, objecttype, errinfotype *);
-void copy_expression (objecttype, objecttype *, errinfotype *);
+objecttype copy_expression (objecttype object_from, errinfotype *err_info);
 void free_expression (objecttype object);
 void concat_lists (listtype *, listtype);
 void incl_list (listtype *, objecttype, errinfotype *);
@@ -57,13 +61,13 @@ listtype copy_list (const_listtype list_from, errinfotype *err_info);
 listtype array_to_list (arraytype arr_from, errinfotype *err_info);
 listtype struct_to_list (structtype stru_from, errinfotype *err_info);
 listtype hash_data_to_list (hashtype hash, errinfotype *err_info);
-listtype hash_key_to_list (hashtype hash, errinfotype *err_info);
+listtype hash_keys_to_list (hashtype hash, errinfotype *err_info);
 
 #else
 
-void emptylist ();
+void free_list ();
 listtype *append_element_to_list ();
-void copy_expression ();
+objecttype copy_expression ();
 void free_expression ();
 void concat_lists ();
 void incl_list ();
@@ -74,6 +78,6 @@ listtype copy_list ();
 listtype array_to_list ();
 listtype struct_to_list ();
 listtype hash_data_to_list ();
-listtype hash_key_to_list ();
+listtype hash_keys_to_list ();
 
 #endif

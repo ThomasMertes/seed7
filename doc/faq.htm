@@ -432,18 +432,18 @@ are defined to avoid the need to use shell (and cmd.exe) commands.
 </h3></a><hr />
 <p>
 Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
-The s7 Interpreter and the example programs (extension .sd7) are under the
+The s7 interpreter and the example programs (extension .sd7) are under the
 GPL (General Public License, see also the file COPYING).
 </p><p>
-The Seed7 Runtime Library is under the LGPL (Lesser General Public License,
+The Seed7 runtime library is under the LGPL (Lesser General Public License,
 see also the file LGPL). The Seed7 include files (extension .s7i) are a part
-of the Seed7 Runtime Library.
+of the Seed7 runtime library.
 </p><p>
 Seed7 allows the interpretation and compilation of programs with any license.
 There is no restriction on the license of your Seed7 programs.
 </p><p>
 For the development of the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a> it will be necessary to move some
-source code from the s7 Interpreter (under GPL) to the Seed7 Runtime Library
+source code from the s7 interpreter (under GPL) to the Seed7 runtime library
 (under LGPL). This will only be done to for the Seed7 runtime library and only
 as far as necessary to make no restriction on the license of compiled Seed7
 programs.
@@ -515,12 +515,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 190000 lines of Seed7. For version 2013-02-17 the number of lines is:
+than 190000 lines of Seed7. For version 2013-03-03 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">104320</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10290</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">111860</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 82112</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">104891</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10326</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">111912</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 82425</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -760,7 +760,7 @@ This verifies that interpreter and compiler work correct.
 <div><br /><a name="interpreter"><h3>How can I use the Seed7 interpreter?
 </h3></a><hr />
 <p>
-The s7 Interpreter is called with the command
+The s7 interpreter is called with the command
 </p><pre class="box">
   s7 [options] sourcefile [parameters]
 </pre><p>
@@ -1777,7 +1777,7 @@ writes a stack trace:
   {integer: &lt;SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
   Stack:
-  in {(val integer param) div (val integer param) } at integer.s7i(95)
+  in (val integer: dividend) div (val integer: divisor) at integer.s7i(95)
   in init_display at lander.sd7(840)
   in setup at lander.sd7(909)
   in main at lander.sd7(1541)
@@ -2088,7 +2088,7 @@ Theoretically yes. In practice there would be several problems. For example:
 <li>  Some things like comments and $ pragmas are hard coded.</li>
 </ul><p>
 But basically booting various languages was one of the goals of the extensible
-programming language Seed7 and the s7 Interpreter.
+programming language Seed7 and the s7 interpreter.
 </p><p>
 In practice it turned out to be a better approach to steal concepts from other
 programming languages and to integrate them in Seed7 than to split the development

@@ -87,6 +87,7 @@ infilrecord in_file = {
     0,          /* incr_message_line */
     LARGE_INCR, /* next_msg_line */
     0,          /* file_number */
+    NULL,       /* owningProg */
     TRUE        /* end_of_file */
   };
 #else
@@ -102,6 +103,7 @@ void open_infile (const_stritype source_file_name, booltype write_library_names,
 void close_infile (void);
 void open_string (bstritype input_string, booltype write_library_names,
     booltype write_line_numbers, errinfotype *err_info);
+void remove_prog_files (progtype currentProg);
 void next_file (void);
 int next_line (void);
 stritype get_file_name (filenumtype file_num);
@@ -113,6 +115,7 @@ int fill_buf ();
 void open_infile ();
 void close_infile ();
 void open_string ();
+void remove_prog_files ();
 void next_file ();
 int next_line ();
 stritype get_file_name ();

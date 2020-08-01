@@ -286,6 +286,7 @@ filetype inFile;
         result = (chartype) (character & 0x1F) << 6;
         character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
+          /* character range 0x80 to 0xBF (128 to 191) */
           result |= character & 0x3F;
           if (result <= 0x7F) {
             raise_error(RANGE_ERROR);
@@ -300,6 +301,7 @@ filetype inFile;
         result = (chartype) (character & 0x0F) << 12;
         character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
+          /* character range 0x80 to 0xBF (128 to 191) */
           result |= (chartype) (character & 0x3F) << 6;
           character = getc(inFile);
           if ((character & 0xC0) == 0x80) {
@@ -321,6 +323,7 @@ filetype inFile;
         result = (chartype) (character & 0x07) << 18;
         character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
+          /* character range 0x80 to 0xBF (128 to 191) */
           result |= (chartype) (character & 0x3F) << 12;
           character = getc(inFile);
           if ((character & 0xC0) == 0x80) {
@@ -349,6 +352,7 @@ filetype inFile;
         result = (chartype) (character & 0x03) << 24;
         character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
+          /* character range 0x80 to 0xBF (128 to 191) */
           result |= (chartype) (character & 0x3F) << 18;
           character = getc(inFile);
           if ((character & 0xC0) == 0x80) {
@@ -384,6 +388,7 @@ filetype inFile;
         result = (chartype) (character & 0x03) << 30;
         character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
+          /* character range 0x80 to 0xBF (128 to 191) */
           result |= (chartype) (character & 0x3F) << 24;
           character = getc(inFile);
           if ((character & 0xC0) == 0x80) {

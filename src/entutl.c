@@ -390,6 +390,7 @@ entitytype old_entity;
 
   {
     listtype name_elem;
+    objecttype param_obj;
 
   /* free_entity */
 #ifdef TRACE_ENTITY
@@ -404,15 +405,20 @@ entitytype old_entity;
         } /* if */
         FREE_OBJECT(old_entity->syobject);
       } /* if */
-      if (old_entity->name_list != NULL) {
-        name_elem = old_entity->name_list;
+      if (old_entity->fparam_list != NULL) {
+        name_elem = old_entity->fparam_list;
         while (name_elem != NULL) {
           if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+            param_obj = name_elem->obj->value.objvalue;
+            if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+                CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+              FREE_OBJECT(param_obj);
+            } /* if */
             FREE_OBJECT(name_elem->obj);
           } /* if */
           name_elem = name_elem->next;
         } /* if */
-        emptylist(old_entity->name_list);
+        free_list(old_entity->fparam_list);
       } /* if */
       FREE_RECORD(old_entity, entityrecord, count.entity);
     } /* if */
@@ -442,7 +448,7 @@ identtype id;
     if (ALLOC_RECORD(created_entity, entityrecord, count.entity)) {
       created_entity->ident = id;
       created_entity->syobject = NULL;
-      created_entity->name_list = NULL;
+      created_entity->fparam_list = NULL;
       created_entity->data.owner = NULL;
     } /* if */
 #ifdef TRACE_ENTITY
@@ -452,6 +458,50 @@ identtype id;
 #endif
     return created_entity;
   } /* new_entity */
+
+
+
+#ifdef ANSI_C
+
+static listtype copy_params (listtype name_list)
+#else
+
+static listtype copy_params (name_list)
+listtype name_list;
+#endif
+
+  {
+    listtype name_elem;
+    objecttype param_obj;
+    objecttype copied_param;
+
+  /* copy_params */
+    name_elem = name_list;
+    while (name_elem != NULL) {
+      if (CATEGORY_OF_OBJ(name_elem->obj) == FORMPARAMOBJECT) {
+        param_obj = name_elem->obj->value.objvalue;
+        if (CATEGORY_OF_OBJ(param_obj) == VALUEPARAMOBJECT ||
+            CATEGORY_OF_OBJ(param_obj) == REFPARAMOBJECT) {
+          /* printf("copy_params: ");
+          trace1(param_obj);
+          printf("\n"); */
+          if (ALLOC_OBJECT(copied_param)) {
+            INIT_CATEGORY_OF_OBJ(copied_param, CATEGORY_OF_OBJ(param_obj));
+            COPY_VAR_FLAG(copied_param, param_obj);
+            copied_param->type_of = param_obj->type_of;
+            copied_param->descriptor.property = NULL;
+            copied_param->value.objvalue = NULL;
+            /* memcpy(copied_param, param_obj, sizeof(objectrecord)); */
+            name_elem->obj->value.objvalue = copied_param;
+          } else {
+            name_list = NULL;
+          } /* if */
+        } /* if */
+      } /* if */
+      name_elem = name_elem->next;
+    } /* while */
+    return name_list;
+  } /* copy_params */
 
 
 
@@ -524,8 +574,13 @@ printf("\n"); */
     } else {
       if (curr_node->entity == NULL) {
         if ((entity_found = new_entity(NULL)) != NULL) {
-          entity_found->name_list = name_list;
-          curr_node->entity = entity_found;
+          entity_found->fparam_list = copy_params(name_list);
+          if (entity_found->fparam_list == NULL) {
+            FREE_RECORD(entity_found, entityrecord, count.entity);
+            entity_found = NULL;
+          } else {
+            curr_node->entity = entity_found;
+          } /* if */
         } /* if */
       } else {
         entity_found = curr_node->entity;
@@ -736,7 +791,7 @@ entitytype entity;
     printf("BEGIN pop_entity\n");
 #endif
     /* trace_entity(ent); */
-    name_elem = entity->name_list;
+    name_elem = entity->fparam_list;
     if (name_elem != NULL) {
       curr_node = declaration_base;
       while (name_elem != NULL && curr_node != NULL) {
@@ -809,6 +864,7 @@ errinfotype *err_info;
       *err_info = MEMORY_ERROR;
     } /* if */
     prog.property.literal->entity = prog.entity.literal;
+    prog.property.literal->params = NULL;
     prog.property.literal->file_number = 0;
     prog.property.literal->line = 0;
     prog.property.literal->syNumberInLine = 0;

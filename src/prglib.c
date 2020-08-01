@@ -135,23 +135,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype prg_decl_objects (listtype arguments)
-#else
-
-objecttype prg_decl_objects (arguments)
-listtype arguments;
-#endif
-
-  { /* prg_decl_objects */
-    isit_prog(arg_1(arguments));
-    return bld_reflist_temp(prgDeclObjects(
-        take_prog(arg_1(arguments))));
-  } /* prg_decl_objects */
-
-
-
-#ifdef ANSI_C
-
 objecttype prg_destr (listtype arguments)
 #else
 
@@ -347,6 +330,23 @@ listtype arguments;
 #endif
     return bld_reference_temp(result);
   } /* prg_find */
+
+
+
+#ifdef ANSI_C
+
+objecttype prg_global_objects (listtype arguments)
+#else
+
+objecttype prg_global_objects (arguments)
+listtype arguments;
+#endif
+
+  { /* prg_global_objects */
+    isit_prog(arg_1(arguments));
+    return bld_reflist_temp(prgGlobalObjects(
+        take_prog(arg_1(arguments))));
+  } /* prg_global_objects */
 
 
 

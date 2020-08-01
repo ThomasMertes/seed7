@@ -199,6 +199,27 @@ biginttype bintvalue;
 
 
 
+#ifdef WITH_FLOAT
+#ifdef ANSI_C
+
+void prot_float (floattype floatvalue)
+#else
+
+void prot_float (ivalue)
+floattype floatvalue;
+#endif
+
+  {
+    char buffer[51];
+
+  /* prot_float */
+    sprintf(buffer, "%f", floatvalue);
+    prot_cstri(buffer);
+  } /* prot_float */
+#endif
+
+
+
 #ifdef ANSI_C
 
 static void prot_char (chartype cvalue)
@@ -605,7 +626,7 @@ objecttype anyobject;
         break;
 #ifdef WITH_FLOAT
       case FLOATOBJECT:
-        printf("%f", anyobject->value.floatvalue);
+        prot_float(anyobject->value.floatvalue);
         break;
 #endif
       case ARRAYOBJECT:
@@ -1103,6 +1124,80 @@ listtype list;
 
 #ifdef ANSI_C
 
+void prot_params (const_listtype list)
+#else
+
+void prot_params (list)
+listtype list;
+#endif
+
+  {
+    const_listtype list_end;
+    const_listtype list_elem;
+    booltype first_elem = TRUE;
+    booltype previous_elem_was_symbol = FALSE;
+
+  /* prot_params */
+    if (list != NULL) {
+      list_end = list;
+      while (list_end->next != NULL) {
+        list_end = list_end->next;
+      } /* while */
+      if (CATEGORY_OF_OBJ(list_end->obj) == SYMBOLOBJECT &&
+          HAS_ENTITY(list_end->obj) &&
+          GET_ENTITY(list_end->obj)->ident != NULL &&
+          GET_ENTITY(list_end->obj)->ident->infix_priority == 0) {
+        prot_cstri(id_string(GET_ENTITY(list_end->obj)->ident));
+        first_elem = FALSE;
+        previous_elem_was_symbol = TRUE;
+      } else {
+        list_end = NULL;
+      } /* if */
+      list_elem = list;
+      while (list_elem != list_end) {
+        if (list_elem->obj == NULL) {
+          prot_cstri("*NULL_OBJECT*");
+        } else {
+          switch (CATEGORY_OF_OBJ(list_elem->obj)) {
+            case VALUEPARAMOBJECT:
+            case REFPARAMOBJECT:
+            case TYPEOBJECT:
+              if (first_elem) {
+                prot_cstri("(");
+              } else if (previous_elem_was_symbol) {
+                prot_cstri(" (");
+              } else {
+                prot_cstri(", ");
+              } /* if */
+              printformparam(list_elem->obj);
+              previous_elem_was_symbol = FALSE;
+              break;
+            default:
+              if (previous_elem_was_symbol) {
+                prot_cstri(" ");
+              } else if (!first_elem) {
+                prot_cstri(") ");
+              } /* if */
+              printobject(list_elem->obj);
+              previous_elem_was_symbol = TRUE;
+              break;
+          } /* switch */
+          first_elem = FALSE;
+        } /* if */
+        list_elem = list_elem->next;
+      } /* while */
+      if (!first_elem && !previous_elem_was_symbol) {
+        prot_cstri(")");
+      } /* if */
+    } else {
+      prot_cstri("{}");
+    } /* if */
+  } /* prot_params */
+
+
+
+#ifdef ANSI_C
+
 void prot_name (const_listtype list)
 #else
 
@@ -1524,7 +1619,15 @@ objecttype traceobject;
         prot_cstri(")");
       } else {
         if (HAS_ENTITY(traceobject)) {
-          prot_cstri(id_string(GET_ENTITY(traceobject)->ident));
+          if (GET_ENTITY(traceobject)->ident != NULL) {
+            prot_cstri(id_string(GET_ENTITY(traceobject)->ident));
+          } else if (traceobject->descriptor.property->params != NULL) {
+            prot_params(traceobject->descriptor.property->params);
+          } else if (GET_ENTITY(traceobject)->fparam_list != NULL) {
+            prot_name(GET_ENTITY(traceobject)->fparam_list);
+          } else {
+            prot_cstri(id_string(NULL));
+          } /* if */
         } else {
           prot_cstri("*NULL_ENTITY_OBJECT*");
         } /* if */
@@ -1664,8 +1767,8 @@ entitytype anyentity;
       prot_cstri("anyentity->syobject ");
       trace1(anyentity->syobject);
       prot_cstri("\n");
-      prot_cstri("anyentity->params ");
-      prot_list(anyentity->name_list);
+      prot_cstri("anyentity->fparam_list ");
+      prot_list(anyentity->fparam_list);
       prot_cstri("\n");
       prot_cstri("anyentity->data.owner ");
       prot_owner(anyentity->data.owner);

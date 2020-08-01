@@ -176,7 +176,7 @@ listtype list_from;
       if (err_info != OKAY_NO_ERROR) {
         raise_error(MEMORY_ERROR);
       } else {
-        emptylist(*list_to);
+        free_list(*list_to);
         *list_to = help_list;
       } /* if */
     } /* if */
@@ -239,7 +239,7 @@ listtype old_list;
 #endif
 
   { /* rflDestr */
-    emptylist(old_list);
+    free_list(old_list);
   } /* rflDestr */
 
 

@@ -1,7 +1,66 @@
+20130303:
+- The library editline.s7i has been added. This library defines a
+  file type for linewise editing with history.
+- The manual chapter describing types, especially the type program,
+  has been improved.
+- The calc.sd7 example has been improved to allow linewise editing.
+- The handling of the internal program representation in interpreter
+  and compiler has been improved to free most unused memory.
+- The handling of the functions prgGlobalObjects, refArrToList,
+  refHshDataToList, refHshKeyToList, refLocalVars and refSctToList
+  in compiler and run-time library has been improved to free unused
+  memory.
+- The stack trace has been improved to display infix operators
+  better and to write parameter names.
+- The compiler has been improved to support the action TYP_FUNC.
+- The functions copy_expression and free_expression in listutl.c
+  have been optimized.
+- The function substitute_params has been added to match.c . 
+- The functions free_params and free_name_list have been added to
+  name.c .
+- The function dump_list has been added to objutl.c .
+- The function copy_params has been added to entutl.c .
+- The functions prot_float and prot_params have been added to
+  traceutl.c .
+- The functions free_type and close_type have been added to
+  typeutl.c .
+- The free list management has been improved to be configurable
+  in config.h.
+- The memory management in heaputl.h has been improved to work with
+  and without DO_HEAPSIZE_COMPUTATION.
+- The function free_file and remove_prog_files have been added to
+  infile.c.
+- The functions itf_cpy and itf_cpy2 in itflib.c have been improved
+  to support assigning forward declared objects to an interface.
+- The function emptylist and the macro to_empty_list have been
+  renamed to free_list and free_list2.
+- In prg_comp.c the function prgDeclObjects has been renamed to
+  prgGlobalObjects.
+- In ref_data.c the functions refArrmaxidx, refArrminidx,
+  refArrtolist, refScttolist and refHshKeyToList have been renamed
+  to refArrMaxIdx, refArrMinIdx, refArrToList, refSctToList and
+  refHshKeysToList.
+- In ref_data.c the functions refResult, refResini and refSetParams
+  have been improved to raise RANGE_ERROR when the argument is NULL
+  or when it is not a BLOCKOBJECT.
+- In progs.s7i the functions sys_var, error_count, declared_objects,
+  params, setParams, func_result, func_res_init, local_consts,
+  local_vars, array_to_list, array_min_index, array_max_index,
+  struct_to_list, hash_data_to_list, hash_key_to_list,
+  interface_to_struct, obj_number, type_number and match_obj have
+  been renamed to sysVar errorCount, globalObjects, formalParams,
+  setFormalParams, resultVar, resultInitValue, localConsts,
+  localVars, arrayToList, arrayMinIdx, arrayMaxIdx, structToList,
+  hashDataToList, hashKeysToList, interfaceToStruct, objNumber,
+  typeNumber and typeObject.
+- In seed7_05.s7i the functions is_func, is_varfunc, result_type and
+  is_derived have been renamed to isFunc, isVarfunc, resultType and
+  isDerived.
+
 20130217:
 - The description of exceptions in the manual has been improved.
-- The handling of program data in interpreter and compiler has been
-  improved to free more unused memory.
+- The handling of the internal program representation in interpreter
+  and compiler has been improved to free more unused memory.
 - The handling of the actions PRG_FIL_PARSE and PRG_STR_PARSE in the
   Seed7 compiler (s7c) has been improved to support releasing unused
   programs.

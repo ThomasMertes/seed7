@@ -70,27 +70,36 @@ locobjtype locobj;
           CATEGORY_OF_OBJ(locobj->object) == REFPARAMOBJECT ||
           CATEGORY_OF_OBJ(locobj->object) == RESULTOBJECT ||
           CATEGORY_OF_OBJ(locobj->object) == LOCALVOBJECT) {
-        if (CATEGORY_OF_OBJ(locobj->object) != RESULTOBJECT &&
-            locobj->init_value != NULL) {
-          /* prot_heapsize();
-          prot_cstri(" free_locobj value ");
-          prot_int((inttype) locobj->init_value);
-          prot_cstri(" ");
-          trace1(locobj->init_value);
-          prot_nl(); */
-          destroy_local_init_value(locobj, &err_info);
-          FREE_OBJECT(locobj->init_value);
-          /* dump_any_temp(locobj->init_value); */
+        if (locobj->init_value != NULL) {
+          if (CATEGORY_OF_OBJ(locobj->object) == RESULTOBJECT) {
+            /* printf("free_locobj: RESULTOBJECT init category %u\n",
+               CATEGORY_OF_OBJ(locobj->init_value)); */
+            free_expression(locobj->init_value);
+          } else {
+            /* prot_heapsize();
+            prot_cstri(" free_locobj value ");
+            prot_int((inttype) locobj->init_value);
+            prot_cstri(" ");
+            trace1(locobj->init_value);
+            prot_nl(); */
+            destroy_local_init_value(locobj, &err_info);
+            FREE_OBJECT(locobj->init_value);
+            /* dump_any_temp(locobj->init_value); */
+          } /* if */
         } /* if */
         /* if (locobj->object->value.objvalue != NULL &&
             CATEGORY_OF_OBJ(locobj->object->value.objvalue) != SYMBOLOBJECT) {
           trace1(locobj->object);
           prot_nl();
         } * if */
-        if (HAS_PROPERTY(locobj->object) && locobj->object->descriptor.property != prog.property.literal) {
-          FREE_RECORD(locobj->object->descriptor.property, propertyrecord, count.property);
+        if (CATEGORY_OF_OBJ(locobj->object) != VALUEPARAMOBJECT &&
+            CATEGORY_OF_OBJ(locobj->object) != REFPARAMOBJECT) {
+          /* Parameters are freed by the function free_params (in name.c). */
+          if (HAS_PROPERTY(locobj->object) && locobj->object->descriptor.property != prog.property.literal) {
+            FREE_RECORD(locobj->object->descriptor.property, propertyrecord, count.property);
+          } /* if */
+          FREE_OBJECT(locobj->object);
         } /* if */
-        FREE_OBJECT(locobj->object);
       /* } else if (CATEGORY_OF_OBJ(locobj->object) != SYMBOLOBJECT) {
         printf("####### ");
         trace1(locobj->object);
@@ -129,120 +138,6 @@ loclisttype loclist;
 
 #ifdef ANSI_C
 
-static void free_local_consts (listtype local_consts)
-#else
-
-static void free_local_consts (local_consts)
-listtype local_consts;
-#endif
-
-  { /* free_local_consts */
-    /* prot_heapsize();
-    prot_cstri(" free_local_consts");
-    prot_nl(); */
-    while (local_consts != NULL) {
-      /* trace1(local_consts->obj);
-         printf("\n"); */
-      dump_any_temp(local_consts->obj);
-      local_consts = local_consts->next;
-    } /* while */
-  } /* free_local_consts */
-
-
-
-#ifdef ANSI_C
-
-static void free_body (objecttype object)
-#else
-
-static void free_body (object)
-objecttype object;
-#endif
-
-  {
-    listtype list_elem;
-
-  /* free_body */
-    /* prot_heapsize();
-    prot_cstri(" free_body");
-    prot_nl(); */
-    /* trace1(object);
-       printf("\n"); */
-    if (object != NULL) {
-      switch (CATEGORY_OF_OBJ(object)) {
-        case CALLOBJECT:
-        case MATCHOBJECT:
-        case EXPROBJECT:
-          /* if (HAS_PROPERTY(object)) { */
-          /* printf("free_body: expr\n");
-          trace1(object);
-          printf("\n"); */
-          list_elem = object->value.listvalue;
-          while (list_elem != NULL) {
-            free_body(list_elem->obj);
-            list_elem = list_elem->next;
-          } /* while */
-          emptylist(object->value.listvalue);
-          FREE_OBJECT(object);
-          break;
-        case INTOBJECT:
-        case CHAROBJECT:
-        case FILEOBJECT:
-        case SOCKETOBJECT:
-        case FLOATOBJECT:
-        case REFOBJECT:
-        case ACTOBJECT:
-        case BIGINTOBJECT:
-        case STRIOBJECT:
-        case BSTRIOBJECT:
-        case SETOBJECT:
-        case ARRAYOBJECT:
-        case HASHOBJECT:
-        case STRUCTOBJECT:
-        case POLLOBJECT:
-        case REFLISTOBJECT:
-        case LISTOBJECT:
-        case PROGOBJECT:
-        case WINOBJECT:
-        case INTERFACEOBJECT:
-          /* trace1(object);
-             printf("\n"); */
-          if (HAS_POSINFO(object) || !HAS_ENTITY(object) ||
-              GET_ENTITY(object)->ident == prog.ident.literal) {
-            /* Free only literals. Defined objects are removed somewhere else. */
-            /* printf("free_body: literal\n");
-            trace1(object);
-            printf("\n"); */
-            dump_temp_value(object);
-            if (HAS_PROPERTY(object) && object->descriptor.property != prog.property.literal) {
-              FREE_RECORD(object->descriptor.property, propertyrecord, count.property);
-            } /* if */
-            FREE_OBJECT(object);
-          } /* if */
-          break;
-        case SYMBOLOBJECT:
-        case TYPEOBJECT:
-        case VALUEPARAMOBJECT:
-        case REFPARAMOBJECT:
-        case RESULTOBJECT:
-        case LOCALVOBJECT:
-        case BLOCKOBJECT:
-        case ENUMLITERALOBJECT:
-        case CONSTENUMOBJECT:
-          /* This objects are freed somewhere else. */
-          break;
-        default:
-          /* trace1(object);
-             printf("\n"); */
-          break;
-      } /* switch */
-    } /* if */
-  } /* free_body */
-
-
-
-#ifdef ANSI_C
-
 void free_block (blocktype block)
 #else
 
@@ -254,12 +149,11 @@ blocktype block;
     /* prot_heapsize();
     prot_cstri(" free_block");
     prot_nl(); */
+    free_expression(block->body);
     free_loclist(block->params);
     free_locobj(&block->result);
     free_loclist(block->local_vars);
-    free_local_consts(block->local_consts);
-    emptylist(block->local_consts);
-    free_body(block->body);
+    dump_list(block->local_consts);
     FREE_RECORD(block, blockrecord, count.block);
   } /* free_block */
 
@@ -366,6 +260,7 @@ errinfotype *err_info;
 #ifdef TRACE_BLOCK
     printf("BEGIN get_result_var\n");
 #endif
+    result_init = copy_expression(result_init, err_info);
     if (CATEGORY_OF_OBJ(result_init) == MATCHOBJECT) {
       SET_CATEGORY_OF_OBJ(result_init, CALLOBJECT);
     } /* if */
@@ -442,6 +337,9 @@ errinfotype *err_info;
     params_insert_place = &params;
     param_element = param_object_list;
     while (param_element != NULL) {
+      /* printf("get_param_list: ");
+      trace1(param_element->obj);
+      printf("\n"); */
       if (CATEGORY_OF_OBJ(param_element->obj) == VALUEPARAMOBJECT) {
         if (param_element->obj->type_of->create_call_obj != NULL) {
           create_call_obj = param_element->obj->type_of->create_call_obj;

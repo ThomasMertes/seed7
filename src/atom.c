@@ -89,10 +89,11 @@ static objecttype gen_object ()
         } else {
           atomic_entity->ident = current_ident;
           atomic_entity->syobject = atomic_object;
-          atomic_entity->name_list = NULL;
+          atomic_entity->fparam_list = NULL;
           atomic_entity->data.owner = NULL;
           current_ident->entity = atomic_entity;
           atomic_property->entity = atomic_entity;
+          atomic_property->params = NULL;
           atomic_property->file_number = in_file.file_number;
           atomic_property->line = in_file.line;
           atomic_property->syNumberInLine = symbol.syNumberInLine;
@@ -127,6 +128,7 @@ objectcategory category;
 
   {
     register objecttype literal_object;
+    register listtype list_elem;
 
   /* gen_literal_object */
 #ifdef TRACE_OBJECT
@@ -135,14 +137,23 @@ objectcategory category;
     if (!ALLOC_OBJECT(literal_object)) {
       fatal_memory_error(SOURCE_POSITION(2054));
     } else {
-      if (typeof_object == NULL) {
-        err_warning(LITERAL_TYPE_UNDEFINED);
-        literal_object->type_of = NULL;
+      if (!ALLOC_L_ELEM(list_elem)) {
+        FREE_OBJECT(literal_object);
+        literal_object = NULL;
+        fatal_memory_error(SOURCE_POSITION(2055));
       } else {
-        literal_object->type_of = take_type(typeof_object);
+        if (typeof_object == NULL) {
+          err_warning(LITERAL_TYPE_UNDEFINED);
+          literal_object->type_of = NULL;
+        } else {
+          literal_object->type_of = take_type(typeof_object);
+        } /* if */
+        literal_object->descriptor.property = prog.property.literal;
+        INIT_CATEGORY_OF_OBJ(literal_object, category);
+        list_elem->obj = literal_object;
+        list_elem->next = prog.literals;
+        prog.literals = list_elem;
       } /* if */
-      literal_object->descriptor.property = prog.property.literal;
-      INIT_CATEGORY_OF_OBJ(literal_object, category);
     } /* if */
 #ifdef TRACE_OBJECT
     printf("END gen_literal_object ");
@@ -181,15 +192,15 @@ static INLINE stritype new_string ()
           symbol.stri_max, stri_created_size);
     }
     if (stri_created == NULL) {
-      fatal_memory_error(SOURCE_POSITION(2055));
+      fatal_memory_error(SOURCE_POSITION(2056));
     } /* if */
     COUNT3_STRI(symbol.stri_max, stri_created->size);
     if (!ALLOC_STRI_SIZE_OK(symbol.strivalue, symbol.stri_max)) {
-      fatal_memory_error(SOURCE_POSITION(2056));
+      fatal_memory_error(SOURCE_POSITION(2057));
     } /* if */
 #else
     if (!ALLOC_STRI_SIZE_OK(stri_created, symbol.strivalue->size)) {
-      fatal_memory_error(SOURCE_POSITION(2057));
+      fatal_memory_error(SOURCE_POSITION(2058));
     } /* if */
     stri_created->size = symbol.strivalue->size;
     memcpy(stri_created->mem, symbol.strivalue->mem,

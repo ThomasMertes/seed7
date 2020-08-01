@@ -289,7 +289,7 @@ listtype arguments;
 #endif
     isit_type(arg_1(arguments));
     meta_type = take_type(arg_1(arguments));
-    if ((result = new_type(meta_type, NULL)) == NULL) {
+    if ((result = new_type(meta_type->owningProg, meta_type, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
 #ifdef TRACE_TYPLIB
@@ -316,7 +316,7 @@ listtype arguments;
 #ifdef TRACE_TYPLIB
     printf("BEGIN typ_gentype\n");
 #endif
-    if ((result = new_type(NULL, NULL)) == NULL) {
+    if ((result = new_type(&prog, NULL, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
 #ifdef TRACE_TYPLIB
@@ -367,7 +367,7 @@ listtype arguments;
     isit_type(arg_1(arguments));
     ;
     get_create_call_obj(take_type(arg_1(arguments)), errinfotype *err_info)
-    if ((result = new_type(NULL, NULL)) == NULL) {
+    if ((result = new_type(&prog, NULL, NULL)) == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
     return bld_type_temp(result);

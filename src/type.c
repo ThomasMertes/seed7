@@ -39,6 +39,7 @@
 #include "scanner.h"
 #include "findid.h"
 #include "objutl.h"
+#include "listutl.h"
 #include "object.h"
 #include "match.h"
 #include "error.h"
@@ -66,8 +67,8 @@ errinfotype *err_info;
 
   {
     objecttype basic_type;
-    objecttype evaluated_type;
-    objecttype typeof_object;
+    objecttype type_expression;
+    objecttype type_of_object;
     typetype func_type;
 
   /* decl_type */
@@ -78,7 +79,7 @@ errinfotype *err_info;
     scan_symbol();
     if (current_ident == prog.id_for.colon) {
       err_warning(TYPE_EXPECTED);
-      typeof_object = NULL;
+      type_of_object = NULL;
       scan_symbol();
     } else {
       if (current_ident == prog.id_for.dollar) {
@@ -88,47 +89,49 @@ errinfotype *err_info;
           basic_type = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
           if (CATEGORY_OF_OBJ(basic_type) == TYPEOBJECT) {
             if ((func_type = get_func_type(NULL, take_type(basic_type))) != NULL) {
-              typeof_object = bld_type_temp(func_type);
+              type_of_object = bld_type_temp(func_type);
             } else {
               *err_info = MEMORY_ERROR;
-              typeof_object = NULL;
+              type_of_object = NULL;
             } /* if */
           } else {
             err_object(TYPE_EXPECTED, basic_type);
-            typeof_object = NULL;
+            type_of_object = NULL;
           } /* if */
         } else if (current_ident == prog.id_for.type) {
-          typeof_object = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
+          type_of_object = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
           *is_dollar_type = 1;
         } else {
           err_warning(DOLLAR_TYPE_WRONG);
-          typeof_object = NULL;
+          type_of_object = NULL;
           if (current_ident != prog.id_for.colon) {
             scan_symbol();
           } /* if */
         } /* if */
       } else {
-        typeof_object = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
-        /* printf("typeof_object=%lu ", (long unsigned) typeof_object);
-        trace1(typeof_object);
+        type_expression = pars_infix_expression(WEAKEST_PRIORITY, TRUE);
+        /* printf("type_expression=%lu ", (long unsigned) type_expression);
+        trace1(type_expression);
         printf("\n"); */
-        if (CATEGORY_OF_OBJ(typeof_object) != TYPEOBJECT) {
+        if (CATEGORY_OF_OBJ(type_expression) != TYPEOBJECT) {
           /* printf("before evaluate\n"); */
-          if ((evaluated_type = evaluate(typeof_object)) != NULL &&
-              CATEGORY_OF_OBJ(evaluated_type) == TYPEOBJECT) {
-            /* printf("evaluated_type ");
-            trace1(evaluated_type);
+          if ((type_of_object = evaluate(type_expression)) != NULL &&
+              CATEGORY_OF_OBJ(type_of_object) == TYPEOBJECT) {
+            /* printf("type_of_object ");
+            trace1(type_of_object);
             printf("\n"); */
-            typeof_object = evaluated_type;
           } else {
-            printf("\n typeof: ");
-            trace1(typeof_object);
+            /* printf("\n type expression: ");
+            trace1(type_expression);
             printf("\n evaluated: ");
-            trace1(evaluated_type);
+            trace1(type_of_object);
             printf("\n");
-            printf("&evaluated_type->type_of %lu\n", (long unsigned) evaluated_type->type_of);
-            err_object(TYPE_EXPECTED, typeof_object);
+            printf("&type_of_object->type_of %lu\n", (long unsigned) type_of_object->type_of); */
+            err_object(TYPE_EXPECTED, type_expression);
           } /* if */
+          free_expression(type_expression);
+        } else {
+          type_of_object = type_expression;
         } /* if */
       } /* if */
       if (current_ident == prog.id_for.colon) {
@@ -139,8 +142,8 @@ errinfotype *err_info;
     } /* if */
 #ifdef TRACE_TYPE
     printf("END decl_type --> ");
-    trace1(typeof_object);
+    trace1(type_of_object);
     printf("\n");
 #endif
-    return typeof_object;
+    return type_of_object;
   } /* decl_type */

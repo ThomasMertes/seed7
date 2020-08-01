@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  calc.sd7      Calculator                                        *)
-(*  Copyright (C) 1995, 2004  Thomas Mertes                         *)
+(*  Copyright (C) 1995, 2004, 2013  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -22,11 +22,10 @@
 (********************************************************************)
 
 
-$ info off;
 $ include "seed7_05.s7i";
-  include "float.s7i";
-  include "bigint.s7i";
   include "progs.s7i";
+  include "keybd.s7i";
+  include "editline.s7i";
 
 
 const proc: main is func
@@ -35,7 +34,15 @@ const proc: main is func
     var string: command is "";
     var program: prog_expr is program.EMPTY;
   begin
-    write("command? ");
+    IN := openEditLine(KEYBOARD, OUT);
+    writeln("Calc - Seed7 calculator");
+    writeln("Copyright (C) 1995, 2004, 2013 Thomas Mertes");
+    writeln("This is free software; see the source for copying conditions.  There is NO");
+    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+    writeln("Calc is written in the Seed7 programming language");
+    writeln("Homepage: http://seed7.sourceforge.net");
+    writeln;
+    write("calculate? ");
     readln(command);
     while command <> "" do
       prog_expr := parseStri("\
@@ -54,13 +61,13 @@ const proc: main is func
         \  end func;\n\
         \");
       if prog_expr <> program.EMPTY then
-        if error_count(prog_expr) = 0 then
+        if errorCount(prog_expr) = 0 then
           execute(prog_expr);
         else
-          writeln("*** " <& error_count(prog_expr) <& " errors found");
+          writeln("*** " <& errorCount(prog_expr) <& " errors found");
         end if;
       end if;
-      write("command? ");
+      write("calculate? ");
       readln(command);
     end while;
   end func;

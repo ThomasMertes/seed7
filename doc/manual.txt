@@ -1812,15 +1812,17 @@ CONTENTS
       !         Binomial coefficient
                   ( A ! B => !A div (!B * !(A - B)) )
       A radix B  Convert the integer A to a string. The conversion
-                uses the numeral system with the base B.
+                 uses the numeral system with the base B.
                   ( Type of result: string,
                     48879 radix 16 => "beef",
-                    -48879 radix 16 => "-beef" )
+                    -48879 radix 16 => "-beef",
+                    123 radix 37 => EXCEPTION RANGE_ERROR )
       A RADIX B  Convert the integer A to a string. The conversion
-                uses the numeral system with the base B.
+                 uses the numeral system with the base B.
                   ( Type of result: string,
                     48879 RADIX 16 => "BEEF",
-                    -48879 RADIX 16 => "-BEEF" )
+                    -48879 RADIX 16 => "-BEEF",
+                    123 RADIX 37 => EXCEPTION RANGE_ERROR )
       lpad      Left padding with spaces
                   ( 123 lpad  8 => "     123",
                     123 lpad  4 => " 123",
@@ -2065,15 +2067,17 @@ CONTENTS
                     A >> B => -1_ for A < 0_ and B > ord(log2(-A)),
                     0_ >> B => 0_ for every B )
       A radix B  Convert the bigInteger A to a string. The conversion
-                uses the numeral system with the base B.
+                 uses the numeral system with the base B.
                   ( Type of result: string,
                     3735928559_ radix 16 => "deadbeef",
-                    -3735928559_ radix 16 ) => "-deadbeef" )
+                    -3735928559_ radix 16 ) => "-deadbeef",
+                    123_ radix 37 => EXCEPTION RANGE_ERROR )
       A RADIX B  Convert the integer A to a string. The conversion
-                uses the numeral system with the base B.
+                 uses the numeral system with the base B.
                   ( Type of result: string,
                     3735928559_ RADIX 16 => "DEADBEEF",
-                    -3735928559_ RADIX 16 ) => "-DEADBEEF" )
+                    -3735928559_ RADIX 16 ) => "-DEADBEEF",
+                    123_ RADIX 37 => EXCEPTION RANGE_ERROR )
       bigInteger conv A   Conversion of integer to bigInteger
                   ( Type of argument A: integer,
                     bigInteger conv 1 => 1_ )
@@ -2280,20 +2284,20 @@ CONTENTS
                     rat(1) => 1 / 1 )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: integer,
-                    floor( 1.8)=> 1, floor( 1.0)=> 1,
-                    floor(-1.0)=>-1, floor(-1.8)=>-2 )
+                    floor( 1.8) =>  1, floor( 1.0) =>  1,
+                    floor(-1.0) => -1, floor(-1.8) => -2 )
       ceil(A)   Rounding up towards positive infinity
                   ( Type of result: integer,
-                    ceil( 1.2)=> 2, ceil( 1.0)=> 1,
-                    ceil(-1.0)=>-1, ceil(-1.2)=>-1 )
+                    ceil( 1.2) =>  2, ceil( 1.0) =>  1,
+                    ceil(-1.0) => -1, ceil(-1.2) => -1 )
       trunc(A)  Truncation towards zero
                   ( Type of result: integer,
-                    trunc( 1.8)=> 1, trunc( 1.0)=> 1,
-                    trunc(-1.0)=>-1, trunc(-1.8)=>-1 )
+                    trunc( 1.8) =>  1, trunc( 1.0) =>  1,
+                    trunc(-1.0) => -1, trunc(-1.8) => -1 )
       round(A)  Round towards zero
                   ( Type of result: integer,
-                    round(0.5)=>1, round(-0.5)=>-1,
-                    round(0.4)=>0, round(-0.4)=>0 )
+                    round(0.5) => 1, round(-0.5) => -1,
+                    round(0.4) => 0, round(-0.4) => 0 )
       str(A)    Conversion to string
                   ( Type of result: string )
       compare(A, B) Compare function
@@ -2366,20 +2370,20 @@ CONTENTS
                     rat(1_) => 1_ / 1_ )
       floor(A)  Truncation towards negative infinity
                   ( Type of result: bigInteger,
-                    floor( 1.8)=> 1, floor( 1.0)=> 1,
-                    floor(-1.0)=>-1, floor(-1.8)=>-2 )
+                    floor( 1.8) =>  1, floor( 1.0) =>  1,
+                    floor(-1.0) => -1, floor(-1.8) => -2 )
       ceil(A)   Rounding up towards positive infinity
                   ( Type of result: bigInteger,
-                    ceil( 1.2)=> 2, ceil( 1.0)=> 1,
-                    ceil(-1.0)=>-1, ceil(-1.2)=>-1 )
+                    ceil( 1.2) =>  2, ceil( 1.0) =>  1,
+                    ceil(-1.0) => -1, ceil(-1.2) => -1 )
       trunc(A)  Truncation towards zero
                   ( Type of result: bigInteger,
-                    trunc( 1.8)=> 1, trunc( 1.0)=> 1,
-                    trunc(-1.0)=>-1, trunc(-1.8)=>-1 )
+                    trunc( 1.8) =>  1, trunc( 1.0) =>  1,
+                    trunc(-1.0) => -1, trunc(-1.8) => -1 )
       round(A)  Round towards zero
                   ( Type of result: bigInteger,
-                    round(0.5)=>1, round(-0.5)=>-1,
-                    round(0.4)=>0, round(-0.4)=>0 )
+                    round(0.5) => 1, round(-0.5) => -1,
+                    round(0.4) => 0, round(-0.4) => 0 )
       str(A)    Conversion to string
                   ( Type of result: string )
       compare(A, B) Compare function
@@ -2501,23 +2505,23 @@ CONTENTS
                   ( Type of argument A: integer,
                     flt(1) => 1.0 )
       floor(A)  Truncation towards negative infinity
-                  ( floor( 1.8)=> 1.0, floor( 1.0)=> 1.0,
-                    floor(-1.0)=>-1.0, floor(-1.2)=>-2.0,
-                    floor( 0.9)=> 0.0, floor(-0.1)=>-1.0 )
+                  ( floor( 1.8) =>  1.0, floor( 1.0) =>  1.0,
+                    floor(-1.0) => -1.0, floor(-1.2) => -2.0,
+                    floor( 0.9) =>  0.0, floor(-0.1) => -1.0 )
       ceil(A)   Rounding up towards positive infinity
-                  ( ceil( 1.2)=> 2.0, ceil( 1.0)=> 1.0,
-                    ceil(-1.8)=>-1.0, ceil(-1.0)=>-1.0,
-                    ceil( 0.1)=> 1.0, ceil(-0.9)=> 0.0 )
+                  ( ceil( 1.2) =>  2.0, ceil( 1.0) =>  1.0,
+                    ceil(-1.8) => -1.0, ceil(-1.0) => -1.0,
+                    ceil( 0.1) =>  1.0, ceil(-0.9) =>  0.0 )
       trunc(A)  Truncation towards zero
                   ( Type of result: integer,
-                    trunc( 1.8)=> 1, trunc( 1.0)=> 1,
-                    trunc(-1.8)=>-1, trunc(-1.0)=>-1,
-                    trunc( 0.9)=> 0, trunc(-0.9)=> 0 )
+                    trunc( 1.8) =>  1, trunc( 1.0) =>  1,
+                    trunc(-1.8) => -1, trunc(-1.0) => -1,
+                    trunc( 0.9) =>  0, trunc(-0.9) =>  0 )
       round(A)  Round towards zero
                   ( Type of result: integer,
-                    round(1.5)=>2, round(-1.5)=>-2,
-                    round(0.5)=>1, round(-0.5)=>-1,
-                    round(0.4)=>0, round(-0.4)=>0 )
+                    round(1.5) => 2, round(-1.5) => -2,
+                    round(0.5) => 1, round(-0.5) => -1,
+                    round(0.4) => 0, round(-0.4) => 0 )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(Infinity) => "Infinity",
@@ -2703,9 +2707,9 @@ CONTENTS
       chr(A)    Conversion of integer to char
                   ( Type of argument: integer )
       succ(A)   Successor
-                  ( succ(A)=>chr(succ(ord(A))) )
+                  ( succ(A) => chr(succ(ord(A))) )
       pred(A)   Predecessor
-                  ( pred(A)=>chr(pred(ord(A))) )
+                  ( pred(A) => chr(pred(ord(A))) )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str('A') => "A" )
@@ -2854,57 +2858,57 @@ CONTENTS
       pos(A,B)  First position of char B in string A
                   ( Type of argument B: char,
                     Type of result: integer,
-                    pos("ABCABC",'B')=>2,
-                    pos("XYZ",'A')=>0 )
+                    pos("ABCABC",'B') => 2,
+                    pos("XYZ",'A') => 0 )
       pos(A,B)  First position of string B in string A
                   ( Type of result: integer,
-                    pos("ABCDE ABCDE","BC")=>2,
-                    pos("XYZXYZ","ZYX")=>0,
-                    pos("123456789","")=>0 )
+                    pos("ABCDE ABCDE","BC") => 2,
+                    pos("XYZXYZ","ZYX") => 0,
+                    pos("123456789","") => 0 )
       pos(A,B,C) First position of char B in string A
                  The search starts at position C of string A
                   ( Type of argument B: char,
                     Type of argument C: integer,
                     Type of result: integer,
-                    pos("ABCABC",'B', 3)=>5,
-                    pos("XYZYX",'Z', 4)=>0,
-                    pos("12345",'3', 7)=>0 )
+                    pos("ABCABC",'B', 3) => 5,
+                    pos("XYZYX",'Z', 4) => 0,
+                    pos("12345",'3', 7) => 0 )
       pos(A,B,C) First position of string B in string A
                  The search starts at position C of string A
                   ( Type of argument C: integer,
                     Type of result: integer,
-                    pos("ABCDE ABCDE","BC", 3)=>8,
-                    pos("XYZXYZ","ZXY", 4)=>0,
-                    pos("12345","34", 7)=>0 )
-                    pos("123456789","", 2)=>0 )
+                    pos("ABCDE ABCDE","BC", 3) => 8,
+                    pos("XYZXYZ","ZXY", 4) => 0,
+                    pos("12345","34", 7) => 0 )
+                    pos("123456789","", 2) => 0 )
       rpos(A,B) Last position of char B in string A
                   ( Type of argument B: char,
                     Type of result: integer,
-                    rpos("ABCABC",'B')=>5,
-                    rpos("XYZ",'A')=>0 )
+                    rpos("ABCABC",'B') => 5,
+                    rpos("XYZ",'A') => 0 )
       rpos(A,B) Last position of string B in string A
                   ( Type of result: integer,
-                    rpos("ABCDE ABCDE","BC")=>8,
-                    rpos("XYZXYZ","ZYX")=>0,
-                    rpos("123456789","")=>0 )
+                    rpos("ABCDE ABCDE","BC") => 8,
+                    rpos("XYZXYZ","ZYX") => 0,
+                    rpos("123456789","") => 0 )
       rpos(A,B,C) Last position of char B in string A
                  The search starts at position C of string A
                   ( Type of argument B: char,
                     Type of argument C: integer,
                     Type of result: integer,
-                    rpos("ABCABC",'B', 4)=>2,
-                    rpos("XYZYX",'Z', 2)=>0,
-                    rpos("12345",'3', 5)=>3 )
+                    rpos("ABCABC",'B', 4) => 2,
+                    rpos("XYZYX",'Z', 2) => 0,
+                    rpos("12345",'3', 5) => 3 )
       rpos(A,B,C) Last position of char B in string A
                  The search starts at position C of string A
                   ( Type of argument C: integer,
                     Type of result: integer,
-                    rpos("ABCABC","BC", 4)=>2,
-                    rpos("XYZYX","ZY", 2)=>0,
-                    rpos("12345","34", 5)=>3 )
+                    rpos("ABCABC","BC", 4) => 2,
+                    rpos("XYZYX","ZY", 2) => 0,
+                    rpos("12345","34", 5) => 3 )
       replace(A,B,C) Replace all occurrences of string B in
                 string A by string C
-                  ( replace("old gold", "old", "one")=>
+                  ( replace("old gold", "old", "one") =>
                     "one gone" )
       split(A,B) Split A into strings delimited by B
                   ( Type of argument B: char,
@@ -2940,9 +2944,9 @@ CONTENTS
                     literal("ABC") => "\"ABC\"",
                     literal("O' \"X\"") => "\"O\' \\\"X\\\"\"" )
       upper(A)  Conversion to upper case characters
-                  ( upper("Upper")=>"UPPER" )
+                  ( upper("Upper") => "UPPER" )
       lower(A)  Conversion to lower case characters
-                  ( lower("Lower")=>"lower" )
+                  ( lower("Lower") => "lower" )
       compare(A, B) Compare function
                   ( Type of result: integer,
                     compare("ABC", "ABCD") => -1,
@@ -3124,10 +3128,15 @@ CONTENTS
 5.12 set
 
     The type 'set of baseType' describes a set of elements of a
-  'baseType'. (including the empty set). The 'set of baseType'
-  functions are defined in the library "set.s7i". The type
-  'set of integer' is an alternate name for 'bitset', which is
-  defined in the library "bitset.s7i".
+  'baseType'. (including the empty set). The type 'set of baseType' is
+  defined in the library "set.s7i". This abstract data type decides
+  about the implementation of the set. When 'baseType' values can be
+  mapped to 'integer' with the 'ord' function and 'ord' does never
+  raise an exception the set is implemented as 'bitset(baseType)'
+  (defined in the library "bitsetof.htm"), otherwise the set is
+  implemented as 'hashset(baseType)' (defined in the library
+  "hashsetof.htm"). The type 'set of integer' is an alternate name
+  for 'bitset', which is defined in the library "bitset.s7i".
 
     Constants:
       setType.EMPTY_SET  Empty set
@@ -3286,7 +3295,8 @@ CONTENTS
                     category conv ord(INTOBJECT) => INTOBJECT )
       category parse A   Conversion of string to category
                   ( Type of argument A: string,
-                    category parse "FLOATOBJECT" => FLOATOBJECT )
+                    category parse "FLOATOBJECT" => FLOATOBJECT,
+                    category parse "does not exist" => EXCEPTION RANGE_ERROR )
     Relations:
       =, <>
     Functions:
@@ -3326,48 +3336,52 @@ CONTENTS
       getType(A) Get the type of the referenced object
                   ( Type of result: type,
                     getType(NIL) => EXCEPTION RANGE_ERROR )
-      obj_number(A) Delivers an unique number for each object
+      objNumber(A) Delivers an unique number for each object
                   ( Type of result: integer,
-                    obj_number(NIL) => 0 )
+                    objNumber(NIL) => 0 )
       isVar(A)  Reference to a variable object
                   ( Type of result: boolean,
                     isVar(NIL) => EXCEPTION RANGE_ERROR )
-      params(A) Gets the formal parameters of a function
+      formalParams(A) Gets the formal parameters of a function
                   ( Type of result: ref_list,
-                    params(NIL) => EXCEPTION RANGE_ERROR )
-      local_vars(A) Gets the local variables of a function
+                    formalParams(NIL) => EXCEPTION RANGE_ERROR )
+      localVars(A) Gets the local variables of a function
                   ( Type of result: ref_list,
-                    local_vars(NIL) => EXCEPTION RANGE_ERROR,
-                    local_vars(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
-      local_consts(A) Gets the local constants of a function
+                    localVars(NIL) => EXCEPTION RANGE_ERROR,
+                    localVars(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      localConsts(A) Gets the local constants of a function
                   ( Type of result: ref_list,
-                    local_consts(NIL) => EXCEPTION RANGE_ERROR,
-                    local_consts(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+                    localConsts(NIL) => EXCEPTION RANGE_ERROR,
+                    localConsts(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
       body(A)   Gets the body of a function
                   ( body(NIL) => EXCEPTION RANGE_ERROR,
                     body(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
-      func_result(A) Gets the result object of a function
-      func_res_init(A) Gets the initialization value of the result
-                       object of a function
-      array_to_list(A) Return the array elements as list
+      resultVar(A) Gets the result variable of a function
+                  ( resultVar(NIL) => EXCEPTION RANGE_ERROR,
+                    resultVar(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      resultInitValue(A) Gets the initialization value of the result
+                         object of a function
+                  ( resultInitValue(NIL) => EXCEPTION RANGE_ERROR,
+                    resultInitValue(A) => EXCEPTION RANGE_ERROR for category(A) <> BLOCKOBJECT )
+      arrayToList(A) Return the array elements as list
                   ( Type of result: ref_list,
-                    array_to_list(NIL) => EXCEPTION RANGE_ERROR,
-                    array_to_list(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
-      array_min_index(A) Return the minimal index of an array
+                    arrayToList(NIL) => EXCEPTION RANGE_ERROR,
+                    arrayToList(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
+      arrayMinIdx(A) Return the minimal index of an array
                   ( Type of result: integer,
-                    array_min_index(NIL) => EXCEPTION RANGE_ERROR,
-                    array_min_index(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
-      array_max_index(A) Return the maximal index of an array
+                    arrayMinIdx(NIL) => EXCEPTION RANGE_ERROR,
+                    arrayMinIdx(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
+      arrayMaxIdx(A) Return the maximal index of an array
                   ( Type of result: integer,
-                    array_max_index(NIL) => EXCEPTION RANGE_ERROR,
-                    array_max_index(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
-      struct_to_list(A) Return the struct elements as list
+                    arrayMaxIdx(NIL) => EXCEPTION RANGE_ERROR,
+                    arrayMaxIdx(A) => EXCEPTION RANGE_ERROR for category(A) <> ARRAYOBJECT )
+      structToList(A) Return the struct elements as list
                   ( Type of result: ref_list,
-                    struct_to_list(NIL) => EXCEPTION RANGE_ERROR,
-                    struct_to_list(A) => EXCEPTION RANGE_ERROR for category(A) <> STRUCTOBJECT )
-      interface_to_struct(A) Return the struct to which the interface object points.
-                  ( interface_to_struct(NIL) => EXCEPTION RANGE_ERROR,
-                    interface_to_struct(A) => EXCEPTION RANGE_ERROR for category(A) <> INTERFACEOBJECT )
+                    structToList(NIL) => EXCEPTION RANGE_ERROR,
+                    structToList(A) => EXCEPTION RANGE_ERROR for category(A) <> STRUCTOBJECT )
+      interfaceToStruct(A) Return the struct to which the interface object points.
+                  ( interfaceToStruct(NIL) => EXCEPTION RANGE_ERROR,
+                    interfaceToStruct(A) => EXCEPTION RANGE_ERROR for category(A) <> INTERFACEOBJECT )
       file(A)   File name of the referenced object
                   ( Type of result: string,
                     file(NIL) => EXCEPTION RANGE_ERROR )
@@ -3443,8 +3457,9 @@ CONTENTS
                     setType(NIL, B) => EXCEPTION RANGE_ERROR )
       setValue(A, B) Set the value of the referenced object A to B
                   ( Type of argument B: ref_list )
-      setParams(A, B) Set the formal parameters of a function
-                  ( Type of argument B: ref_list )
+      setFormalParams(A, B) Set the formal parameters of a function
+                  ( Type of argument B: ref_list,
+                    setFormalParams(NIL, B) => EXCEPTION RANGE_ERROR )
 
 
 5.16 ref_list
@@ -3531,12 +3546,12 @@ CONTENTS
       evaluate(A, B)  Evaluate the expression B which is part of program A
                   ( Type of result: reference,
                     Type of argument B: reference )
-      sys_var(A, B)  Return a reference of the system var B of program A
+      sysVar(A, B)  Return a reference of the system var B of program A
                   ( Type of result: reference,
                     Type of argument B: string )
-      error_count(A)  Number of errors in the program A
+      errorCount(A)  Number of errors in the program A
                   ( Type of result: integer )
-      declared_objects(A)  List of objects declared in the program A
+      globalObjects(A)  List of global defined objects in the program A
                   ( Type of result: ref_list )
       syobject(A, B)  Return object with name B in program A
                   ( Type of result: reference,
@@ -3589,7 +3604,7 @@ CONTENTS
 
   For a enumeration type only few operations are predefined.
   Additional operations must be defined separately. So it is
-  necessary to define the 'str' and 'parse' functions in order to
+  necessary to define the functions 'str' and 'parse' in order to
   do I/O for a new enumeration type.
 
     Infix operators:
@@ -3605,9 +3620,9 @@ CONTENTS
       ord(A)    Ordinal number
                   ( Type of result: integer )
       succ(A)   Successor
-                  ( succ(A)=>enumType conv(succ(ord(A))) )
+                  ( succ(A) => enumType conv(succ(ord(A))) )
       pred(A)   Predecessor
-                  ( pred(A)=>enumType conv(pred(ord(A))) )
+                  ( pred(A) => enumType conv(pred(ord(A))) )
     Statements:
       incr(A)   Increment
                   ( incr(A) => A:=succ(A) )
@@ -4215,22 +4230,23 @@ CONTENTS
                   ( Type of argument A: Defined for all types,
                     typeof(1) => integer,
                     typeof("asdf") => string )
-      is_func(A)  Is this type a 'func' type
+      isFunc(A)  Is this type a 'func' type
                   ( Type of result: boolean,
-                    is_func(func char) => TRUE,
-                    is_func(varfunc char) => FALSE )
-                    is_func(char) => FALSE )
-      is_varfunc(A)  Is this type a 'varfunc' type
+                    isFunc(func char) => TRUE,
+                    isFunc(varfunc char) => FALSE )
+                    isFunc(char) => FALSE )
+      isVarfunc(A)  Is this type a 'varfunc' type
                   ( Type of result: boolean,
-                    is_varfunc(func char) => FALSE,
-                    is_varfunc(varfunc char) => TRUE,
-                    is_varfunc(char) => FALSE )
-      result_type(A)  Get the result type of a 'func' or 'varfunc' type
-                  ( result_type(func char) => char,
-                    result_type(char) => EXCEPTION RANGE_ERROR )
-      is_derived(A)  Is this type derived from another type
+                    isVarfunc(func char) => FALSE,
+                    isVarfunc(varfunc char) => TRUE,
+                    isVarfunc(char) => FALSE )
+      resultType(A)  Get the result type of a 'func' or 'varfunc' type
+                  ( resultType(func char) => char,
+                    resultType(proc) => void,
+                    resultType(integer) => EXCEPTION RANGE_ERROR )
+      isDerived(A)  Is this type derived from another type
                   ( Type of result: boolean,
-                    is_derived(subtype char) => TRUE )
+                    isDerived(subtype char) => TRUE )
       meta(A)       Get the type from which type A is derived
                   ( meta(subtype char) => char )
       base_type(A)  Get the base type of an array, pointer or
@@ -4238,9 +4254,9 @@ CONTENTS
                   ( base_type(array char) => char,
                     base_type(ptr string) => string,
                     base_type(set of integer) => integer )
-      type_number(A)  Get an unique number for a type
+      typeNumber(A)  Get an unique number for a type
                   ( Type of result: integer )
-      match_obj(A)  Get the match object of a type
+      typeObject(A)  Get a unique object (match object) of a type
                   ( Type of result: reference )
       compare(A, B) Compare function
                   ( Type of result: integer )
@@ -4259,7 +4275,7 @@ CONTENTS
     The type 'object' is used as meta type for various types.
   This allows defining common operations for all this types.
   The type 'object' is not used as element type for container
-  classes since this can be done much better and type save
+  classes since this can be done much better and type safe
   with abstract data types like 'array', 'set', 'hash' and
   others.
 
@@ -10761,7 +10777,7 @@ CONTENTS
     {integer: <SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
     Stack:
-    in {(val integer param) div (val integer param) } at integer.s7i(95)
+    in (val integer: dividend) div (val integer: divisor) at integer.s7i(95)
     in init_display at lander.sd7(840)
     in setup at lander.sd7(909)
     in main at lander.sd7(1541)

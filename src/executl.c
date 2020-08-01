@@ -96,6 +96,9 @@ errinfotype *err_info;
       match_result = match_object(match_result);
       if (match_result != NULL) {
         create_call_obj = match_result->value.listvalue->obj;
+        FREE_L_ELEM(match_result->value.listvalue);
+        /* FREE_OBJECT(match_result) is not necessary, */
+        /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
 
@@ -145,6 +148,9 @@ errinfotype *err_info;
       match_result = match_object(match_result);
       if (match_result != NULL) {
         destroy_call_obj = match_result->value.listvalue->obj;
+        FREE_L_ELEM(match_result->value.listvalue);
+        /* FREE_OBJECT(match_result) is not necessary, */
+        /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
 
@@ -199,6 +205,9 @@ errinfotype *err_info;
       if (match_result != NULL) {
         destination->type_of->create_call_obj =
             match_result->value.listvalue->obj;
+        FREE_L_ELEM(match_result->value.listvalue);
+        /* FREE_OBJECT(match_result) is not necessary, */
+        /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
   } /* type_create_call_obj */
@@ -251,6 +260,9 @@ errinfotype *err_info;
       if (match_result != NULL) {
         destination->type_of->copy_call_obj =
             match_result->value.listvalue->obj;
+        FREE_L_ELEM(match_result->value.listvalue);
+        /* FREE_OBJECT(match_result) is not necessary, */
+        /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
   } /* type_copy_call_obj */
@@ -297,6 +309,9 @@ errinfotype *err_info;
       if (match_result != NULL) {
         any_obj->type_of->ord_call_obj =
             match_result->value.listvalue->obj;
+        FREE_L_ELEM(match_result->value.listvalue);
+        /* FREE_OBJECT(match_result) is not necessary, */
+        /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
   } /* type_ord_call_obj */
@@ -349,6 +364,9 @@ errinfotype *err_info;
       if (match_result != NULL) {
         elem_obj->type_of->in_call_obj =
             match_result->value.listvalue->obj;
+        FREE_L_ELEM(match_result->value.listvalue);
+        /* FREE_OBJECT(match_result) is not necessary, */
+        /* because match_result == &expr_object holds. */
       } /* if */
     } /* if */
   } /* type_in_call_obj */
@@ -398,8 +416,18 @@ errinfotype *err_info;
       fail_flag = FALSE;
       *err_info = CREATE_ERROR;
     } /* if */
+    /* printf("free callobjects ");
+    trace1(crea_expr[0].obj);
+    printf("\n"); */
+    /* The function match_expression, called from exec1, may */
+    /* allocate CALLOBJECT objects which can be freed now.   */
+    free_expression(crea_expr[0].obj);
 #ifdef TRACE_EXECUTL
-    printf("END old_do_create\n");
+    printf("END old_do_create ");
+    trace1(crea_expr[0].obj);
+    printf("\nas ");
+    trace1(crea_expr[2].obj);
+    printf("\n");
 #endif
   } /* old_do_create */
 
