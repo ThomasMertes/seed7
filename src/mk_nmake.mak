@@ -105,7 +105,8 @@ version.h:
 	echo #define ANSI_C > version.h
 	echo #define USE_DIRENT >> version.h
 	echo #define PATH_DELIMITER '\\' >> version.h
-	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
+	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo #define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define USE_ALTERNATE_UTIME >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
@@ -137,6 +138,7 @@ version.h:
 	echo #define os_fseek fseeko64 >> version.h
 	echo #define os_ftell ftello64 >> version.h
 	echo #define os_off_t off64_t >> version.h
+	echo #define os_environ _wenviron >> version.h
 	echo #define os_getenv _wgetenv >> version.h
 	echo #define os_putenv _wputenv >> version.h
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h

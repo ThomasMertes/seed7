@@ -154,6 +154,51 @@ dirtype directory;
 
 #ifdef ANSI_C
 
+static objecttype toArraytype (rtlArraytype anRtlArray)
+#else
+
+static objecttype toArraytype (anRtlArray)
+rtlArraytype anRtlArray;
+#endif
+
+  {
+    memsizetype arraySize;
+    memsizetype pos;
+    arraytype anArray;
+    objecttype result;
+
+  /* toArraytype */
+    if (anRtlArray == NULL) {
+      /* Assume that an exception was already raised */
+      result = NULL;
+    } else {
+      arraySize = (uinttype) (anRtlArray->max_position - anRtlArray->min_position + 1);
+      if (!ALLOC_ARRAY(anArray, arraySize)) {
+        for (pos = 0; pos < arraySize; pos++) {
+          strDestr(anRtlArray->arr[pos].value.strivalue);
+        } /* for */
+        FREE_RTL_ARRAY(anRtlArray, arraySize);
+        result = raise_exception(SYS_MEM_EXCEPTION);
+      } else {
+        anArray->min_position = anRtlArray->min_position;
+        anArray->max_position = anRtlArray->max_position;
+        for (pos = 0; pos < arraySize; pos++) {
+          anArray->arr[pos].type_of = take_type(SYS_STRI_TYPE);
+          anArray->arr[pos].descriptor.property = NULL;
+          anArray->arr[pos].value.strivalue = anRtlArray->arr[pos].value.strivalue;
+          INIT_CATEGORY_OF_VAR(&anArray->arr[pos], STRIOBJECT);
+        } /* for */
+        FREE_RTL_ARRAY(anRtlArray, arraySize);
+        result = bld_array_temp(anArray);
+      } /* if */
+    } /* if */
+    return result;
+  } /* toArraytype */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_big_filesize (listtype arguments)
 #else
 
@@ -236,6 +281,21 @@ listtype arguments;
     cmdCopyFile(take_stri(arg_1(arguments)), take_stri(arg_2(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* cmd_copy_file */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_environment (listtype arguments)
+#else
+
+objecttype cmd_environment (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_environment */
+    return toArraytype(cmdEnvironment());
+  } /* cmd_environment */
 
 
 
@@ -465,6 +525,21 @@ listtype arguments;
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* cmd_get_mtime */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_getSearchPath (listtype arguments)
+#else
+
+objecttype cmd_getSearchPath (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_getSearchPath */
+    return toArraytype(cmdGetSearchPath());
+  } /* cmd_getSearchPath */
 
 
 

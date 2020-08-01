@@ -39,8 +39,6 @@
  *      Define the function _matherr() which handles floating point errors.
  *  PATH_DELIMITER:
  *      Path delimiter character used by the command shell of the operating system.
- *  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
- *      Map absolute paths to operating system paths with drive letter.
  *  QUOTE_WHOLE_SHELL_COMMAND:
  *      Defined when shell commands, starting with " need to be quoted a again.
  *  OBJECT_FILE_EXTENSION:
@@ -69,6 +67,15 @@
 #else
 #include "unistd.h"
 #endif
+
+#include "config.h"
+
+/**
+ *  From config.h the following defines are used (for details see: read_me.txt):
+ *
+ *  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+ *      Map absolute paths to operating system paths with drive letter.
+ */
 
 #include "chkccomp.h"
 
@@ -265,6 +272,52 @@ int doTest (void)
 
 
 /**
+ *  Determine if DEFINE_OS_ENVIRON or INITIALIZE_OS_ENVIRON must be defined.
+ */
+void determineEnvironDefines (void)
+
+  {
+    char buffer[4096];
+    int define_os_environ = 0;
+
+  /* determineEnvironDefines */
+    buffer[0] = '\0';
+#ifdef USE_MYUNISTD_H
+    if (!compilationOkay("#include<stdlib.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;}\n")) {
+      printf("#define DEFINE_OS_ENVIRON\n");
+      define_os_environ = 1;
+      strcat(buffer, "#include<stdlib.h>\n");
+    } /* if */
+#else
+    if (!compilationOkay("#include<unistd.h>\n#include\"version.h\"\nint main(int argc,char *argv[]){os_environ;}\n")) {
+      printf("#define DEFINE_OS_ENVIRON\n");
+      define_os_environ = 1;
+      strcat(buffer, "#include<unistd.h>\n");
+    } /* if */
+#endif
+    strcat(buffer, "#include\"version.h\"\n");
+    if (define_os_environ) {
+#ifdef OS_STRI_WCHAR
+      strcat(buffer, "typedef wchar_t *os_stritype;\n");
+#else
+      strcat(buffer, "typedef char *os_stritype;\n");
+#endif
+      strcat(buffer, "extern os_stritype *os_environ;\n");
+    } /* if */
+#ifdef USE_WMAIN
+    strcat(buffer, "int wmain(int argc,wchar_t *argv[])");
+#else
+    strcat(buffer, "int main(int argc,char *argv[])");
+#endif
+    strcat(buffer, "{printf(\"%d\\n\",os_environ==NULL);return 0;}\n");
+    if (!compilationOkay(buffer) || doTest() == 1) {
+      printf("#define INITIALIZE_OS_ENVIRON\n");
+    } /* if */
+  } /* determineEnvironDefines */
+
+
+
+/**
  *  Program to Check properties of C compiler and runtime.
  */
 int main (int argc, char **argv)
@@ -455,6 +508,7 @@ int main (int argc, char **argv)
     if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {
       puts("#define POWER_OF_ZERO_WRONG");
     } /* if */
+    determineEnvironDefines();
     if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
     } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;}\n")) {

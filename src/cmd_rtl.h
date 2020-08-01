@@ -40,6 +40,7 @@ void cmdChdir (const const_stritype dir_name);
 void cmdCloneFile (const const_stritype source_name, const const_stritype dest_name);
 stritype cmdConfigValue (const const_stritype name);
 void cmdCopyFile (const const_stritype source_name, const const_stritype dest_name);
+rtlArraytype cmdEnvironment (void);
 settype cmdFileMode (const const_stritype file_name);
 inttype cmdFileSize (const const_stritype file_name);
 inttype cmdFileType (const const_stritype file_name);
@@ -58,6 +59,7 @@ void cmdGetMTime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst);
+rtlArraytype cmdGetSearchPath (void);
 void cmdMkdir (const const_stritype dir_name);
 void cmdMove (const const_stritype source_name, const const_stritype dest_name);
 stritype cmdReadlink (const const_stritype link_name);
@@ -87,6 +89,7 @@ void cmdChdir ();
 void cmdCloneFile ();
 stritype cmdConfigValue ();
 void cmdCopyFile ();
+rtlArraytype cmdEnvironment ();
 settype cmdFileMode ();
 inttype cmdFileSize ();
 inttype cmdFileType ();
@@ -96,6 +99,7 @@ stritype cmdGetenv ();
 void cmdGetATime ();
 void cmdGetCTime ();
 void cmdGetMTime ();
+rtlArraytype cmdGetSearchPath ();
 void cmdMkdir ();
 void cmdMove ();
 stritype cmdReadlink ();

@@ -104,6 +104,9 @@
 #ifndef os_poll
 #define os_poll poll
 #endif
+#ifndef os_environ
+#define os_environ environ
+#endif
 #ifndef os_getenv
 #define os_getenv getenv
 #endif

@@ -54,6 +54,16 @@ a.var:link    { color: darkcyan; text-decoration: underline  }
 a.var:hover   { color: darkred }
 a.var:active  { color: gold }
 
+a.exception:visited { color: black; text-decoration: none }
+a.exception:link    { color: black; text-decoration: none }
+a.exception:hover   { color: blue; text-decoration: underline }
+a.exception:active  { color: orange; text-decoration: underline }
+
+a.ebnf:visited { color: black; text-decoration: none }
+a.ebnf:link    { color: black; text-decoration: none }
+a.ebnf:hover   { color: blue; text-decoration: underline }
+a.ebnf:active  { color: orange; text-decoration: underline }
+
 span.type    { color: red }
 span.keywd   { color: blue }
 span.op      { color: blue }
@@ -64,13 +74,24 @@ span.prog    { color: darkgreen }
 span.func    { color: purple }
 span.var     { color: darkcyan }
 
-body { font-size: 12px; }
-p    { font-size: 12pt; }
-li   { font-size: 12pt; }
-td   { font-size: 12pt; }
-tt   { font-size: 10pt; }
+.tt { font-family: monospace; font-size: 10pt; }
 
-pre {
+body  { font-size: 12pt; }
+table { font-size: 12pt; }
+tt    { font-size: 10pt; }
+
+pre.tt {
+    white-space: pre;
+    table-display: fixed;
+    white-space: pre-wrap;
+    font-size: 10pt;
+    overflow: auto;
+    color: black;
+    margin: 0;
+    padding: 0;
+}
+
+pre.box {
     border: 1pt dashed black;
     white-space: pre;
     table-display: fixed;
@@ -92,7 +113,7 @@ pre.indent {
     padding: 1em 0;
     background: #F8F8F8;
     color: black;
-    padding-left: 16;
+    padding-left: 16px;
 }
 
 //-->
@@ -101,9 +122,9 @@ pre.indent {
 <body>
 <p></p><hr /><h1 align="center">
 Frequently asked questions
-</h1><hr /><!-- ========================== -->
+</h1><hr />
 <p></p><!--(*-->
-<ul><li><h2>
+<h2>
 General
 </h2><ul>
 <li><a class="link" href="#new_language"><b>
@@ -148,7 +169,7 @@ How can I use the Seed7 interpreter?
 <li><a class="link" href="#compile"><b>
 Is it possible to compile Seed7 programs?
 </b></a></li>
-</ul></li><li><h2>
+</ul><h2>
 Language
 </h2><ul>
 <li><a class="link" href="#reserved_words"><b>
@@ -196,11 +217,14 @@ Can functions have variable parameter lists?
 <li><a class="link" href="#initialize_variables"><b>
 Why is it necessary to initialize all variables?
 </b></a></li>
-<li><a class="link" href="#garbage_collection"><b>
-Is there a garbage collection?
-</b></a></li>
 <li><a class="link" href="#unicode"><b>
 Is Unicode supported?
+</b></a></li>
+<li><a class="link" href="#div_operator"><b>
+Why is the div operator used for integer divisions?
+</b></a></li>
+<li><a class="link" href="#garbage_collection"><b>
+Is there a garbage collection?
 </b></a></li>
 <li><a class="link" href="#object_oriented"><b>
 Is Seed7 object oriented?
@@ -256,7 +280,7 @@ Are there exceptions?
 <li><a class="link" href="#stack_trace"><b>
 What happens when an exception is not caught?
 </b></a></li>
-</ul></li><li><h2>
+</ul><h2>
 Implementation
 </h2><ul>
 <li><a class="link" href="#lib_path"><b>
@@ -289,41 +313,41 @@ Why does "seed7_05.s7i" contain a version number?
 <li><a class="link" href="#boot_a_language"><b>
 Can I use an "abc.s7i" include file to boot to the abc language?
 </b></a></li>
-</ul></li></ul><hr />
+</ul><hr />
 <p></p><!--*)-->
 
 <div><br /><a name="new_language"><h3>Why a new programming language?
-</h3></a><hr /><!-- =============================== -->
+</h3></a><hr />
 <p>
 Because Seed7 has several features which are not found in other
 programming languages:
 </p><ul>
-<li><!--  -  -->The possibility to declare new statements (syntactical and
+<li>The possibility to declare new statements (syntactical and
    semantically) in the same way as functions are declared (There are
    also user definable operators with priority and associativity).</li>
-<li><!--  -  -->Declaration constructs for constant-, variable-, function-,
+<li>Declaration constructs for constant-, variable-, function-,
    parameter-, and other declarations are described in Seed7 (The user
    can change existing declaration constructs or invent new ones).</li>
-<li><!--  -  --><a class="link" href="#generics">Templates</a> use no special syntax. They are just functions with
+<li><a class="link" href="#generics">Templates</a> use no special syntax. They are just functions with
    <tt><a class="type" href="manual/types.htm#type">type</a></tt> parameters or a <tt><a class="type" href="manual/types.htm#type">type</a></tt> result.</li>
-<li><!--  -  -->Seed7 has <a class="link" href="#abstract_data_type">abstract data types</a>. For example the types <tt><a class="type" href="manual/types.htm#array">array</a></tt>, <tt><a class="type" href="manual/types.htm#hash">hash</a></tt>,
+<li>Seed7 has <a class="link" href="#abstract_data_type">abstract data types</a>. For example the types <tt><a class="type" href="manual/types.htm#array">array</a></tt>, <tt><a class="type" href="manual/types.htm#hash">hash</a></tt>,
    <tt><a class="type" href="manual/types.htm#struct">struct</a></tt> and <tt><a class="type" href="manual/types.htm#set">set</a></tt>. They are not hard coded in the compiler, but are
    abstract data types written in Seed7. User defined abstract data
    types are also possible.</li>
-<li><!--  -  -->The <a class="link" href="#object_oriented">object orientation</a> of Seed7 allows <a class="link" href="#multiple_dispatch">multiple dispatch</a>. That
+<li>The <a class="link" href="#object_oriented">object orientation</a> of Seed7 allows <a class="link" href="#multiple_dispatch">multiple dispatch</a>. That
    means that a function or method is connected to more than one type.</li>
-<li><!--  -  -->Seed7 is a syntactically and semantically extensible language:
+<li>Seed7 is a syntactically and semantically extensible language:
    Almost all of the Seed7 language (<a class="link" href="manual/stats.htm">statements</a>, <a class="link" href="examples/operator.htm">operators</a>,
    declaration constructs, and more) is defined in Seed7 in an include
    file (seed7_05.s7i).</li>
-<li><!--  -  -->The application program contains an include statement and the hi
+<li>The application program contains an include statement and the hi
    interpreter is booted with the language description when it starts.
    This way it is possible to define language variants or a totally
    different language.</li>
 </ul></div>
 
 <div><br /><a name="extensible_programming"><h3>What is an extensible programming language?
-</h3></a><hr /><!-- =========================================== -->
+</h3></a><hr />
 <p>
 An extensible programming language supports mechanisms to extend the
 programming language, compiler/interpreter and runtime environment.
@@ -358,7 +382,7 @@ statically typed <a class="link" href="#call_by_name">call-by-name</a> parameter
 </p></div>
 
 <div><br /><a name="portable"><h3>Are Seed7 programs portable?
-</h3></a><hr /><!-- ============================ -->
+</h3></a><hr />
 <p>
 Yes. Seed7 spares no effort to support portable programming.
 Several driver libraries assure that the access to operating system
@@ -366,39 +390,39 @@ resources such as files, directories, network, clock, keyboard,
 console and graphics are done in a portable way. Many functions
 are defined to avoid the need to use shell (and cmd.exe) commands.
 </p><ul>
-<li><!--  -  -->Different <a class="link" href="#unicode">Unicode</a> encodings (e.g.: UTF-8 or UTF-16) in system
+<li>Different <a class="link" href="#unicode">Unicode</a> encodings (e.g.: UTF-8 or UTF-16) in system
    calls (e.g. fopen()/wopen()) are hidden from the programmer.</li>
-<li><!--  -  -->Portable file functions:<ul>
-<li><!--     -  --><a class="link" href="manual/os.htm#copyFile">Copying</a>, <a class="link" href="manual/os.htm#moveFile">moving</a> and <a class="link" href="manual/os.htm#removeFile">removing files</a> (and directory trees).</li>
-<li><!--     -  -->File properties such as <a class="link" href="manual/os.htm#fileSize">size</a>, <a class="link" href="manual/os.htm#fileType">type</a>, <a class="link" href="manual/os.htm#getATime">time</a> and <a class="link" href="manual/os.htm#fileMode">mode</a> can be
+<li>Portable file functions:<ul>
+<li><a class="link" href="manual/os.htm#copyFile">Copying</a>, <a class="link" href="manual/os.htm#moveFile">moving</a> and <a class="link" href="manual/os.htm#removeFile">removing files</a> (and directory trees).</li>
+<li>File properties such as <a class="link" href="manual/os.htm#fileSize">size</a>, <a class="link" href="manual/os.htm#fileType">type</a>, <a class="link" href="manual/os.htm#getATime">time</a> and <a class="link" href="manual/os.htm#fileMode">mode</a> can be
       obtained and changed.</li>
-<li><!--     -  --><a class="link" href="manual/os.htm#readDir">Reading the contents of a directory</a> as array of strings or <a class="link" href="libraries/dir.htm">via the file interface</a>.</li>
-<li><!--     -  -->A <a class="link" href="manual/os.htm#Standard_path_representation">standard path representation</a> removes all problems with
+<li><a class="link" href="manual/os.htm#readDir">Reading the contents of a directory</a> as array of strings or <a class="link" href="libraries/dir.htm">via the file interface</a>.</li>
+<li>A <a class="link" href="manual/os.htm#Standard_path_representation">standard path representation</a> removes all problems with
       drive letters and different path delimiters.</li></ul></li>
-<li><!--  -  -->Differences between Unix sockets and winsockets are hidden and
+<li>Differences between Unix sockets and winsockets are hidden and
    in Seed7 a <tt><a class="type" href="manual/file.htm#Sockets">socket</a></tt> is a <tt><a class="type" href="manual/types.htm#file">file</a></tt> (as in Unix).</li>
-<li><!--  -  -->The library <a class="lib" href="libraries/keybd.htm">keybd.s7i</a> defines the file <a class="var" href="manual/file.htm#Keyboard_file">KEYBOARD</a>, which supports
+<li>The library <a class="lib" href="libraries/keybd.htm">keybd.s7i</a> defines the file <a class="var" href="manual/file.htm#Keyboard_file">KEYBOARD</a>, which supports
    reading single keypresses. The characters read from <a class="var" href="manual/file.htm#Keyboard_file">KEYBOARD</a> are
    not echoed to the console and there is no need to press ENTER.
    There is also a portable way to check, if a <a class="link" href="libraries/keybd.htm#keypressed(in_keyboard_file)">key has been pressed</a>.</li>
-<li><!--  -  --><a class="link" href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a
+<li><a class="link" href="manual/file.htm#Keyboard_file">Reading keys</a> and key combinations such as ctrl-F1 from a
    <a class="link" href="libraries/console.htm">text console</a> or a <a class="link" href="libraries/draw.htm">graphic window</a> under different operating
    systems always delivers the same character code.</li>
-<li><!--  -  -->An operating system independend type for <a class="link" href="manual/types.htm#time">times and dates</a>,
+<li>An operating system independend type for <a class="link" href="manual/types.htm#time">times and dates</a>,
    based on the proleptic Gregorian calendar, is provided in
    the library <a class="lib" href="libraries/time.htm">time.s7i</a>.</li>
-<li><!--  -  -->A <a class="link" href="libraries/console.htm">text console</a> which allows <a class="link" href="libraries/console.htm#setPos(in_console_file,in_integer,in_integer)">cursor positioning</a>.</li>
-<li><!--  -  -->A <a class="link" href="libraries/draw.htm">portable graphics library</a> allows drawing, image operations,
+<li>A <a class="link" href="libraries/console.htm">text console</a> which allows <a class="link" href="libraries/console.htm#setPos(in_console_file,in_integer,in_integer)">cursor positioning</a>.</li>
+<li>A <a class="link" href="libraries/draw.htm">portable graphics library</a> allows drawing, image operations,
    windows manipulation and bitmap <a class="link" href="libraries/font.htm">fonts</a>. Events to redraw a window
    and other annoyances are managed in the graphics library.</li>
-<li><!--  -  -->Weaknesses of operating systems are hidden (E.g.: The windows
+<li>Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    to modify directory <a class="link" href="manual/os.htm#setATime">access</a> and <a class="link" href="manual/os.htm#setMTime">modification times</a> also under
    windows).</li>
 </ul></div>
 
 <div><br /><a name="license"><h3>Which license does Seed7 use?
-</h3></a><hr /><!-- ============================= -->
+</h3></a><hr />
 <p>
 Seed7 is "Free as in Freedom" and not only "Free as in Free Beer".
 The hi Interpreter and the example programs (extension .sd7) are under the
@@ -423,73 +447,73 @@ in the runtime library to support compilation of Seed7 programs.
 </p></div>
 
 <div><br /><a name="pascal_descendant"><h3>Is Seed7 a descendant of Pascal?
-</h3></a><hr /><!-- ================================ -->
+</h3></a><hr />
 <p>
 No, not really. The keywords and statements remind people of Pascal,
 but behind the surface there is much difference. Don't judge a book
 by its cover. Seed7 is neither limited to Pascal's features, nor is it
 implemented like Pascal. Notable differences are:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  <tr><th>Feature            </th><!-- | --><th> Standard Pascal             </th><!-- | --><th> Seed7</th></tr>
-  <!-- -------------------+-----------------------------+----------------------------- -->
-  <tr><td>syntax             </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined in a library</td></tr>
-  <tr><td>statements         </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined in a library</td></tr>
-  <tr><td>operators          </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined in a library</td></tr>
-  <tr><td>array              </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined as abstract data type <tt><!-- ' --><a class="type" href="libraries/array.htm">array</a><!-- ' --></tt></td></tr>
-  <tr><td>record / struct    </td><!-- | --><td> hard-coded in the compiler  </td><!-- | --><td> defined as abstract data type</td></tr>
-  <tr><td>hash table         </td><!-- | --><td> not in the standard library </td><!-- | --><td> defined as abstract data type <tt><!-- ' --><a class="type" href="libraries/hash.htm">hash</a><!-- ' --></tt></td></tr>
-  <tr><td>compiler target    </td><!-- | --><td> machine code or P-code      </td><!-- | --><td> C, compiled to machine code afterwards</td></tr>
-  <tr><td><a class="link" href="#generics">template</a>           </td><!-- | --><td> none                        </td><!-- | --><td> function with type parameters</td></tr>
-  <tr><td><a class="link" href="#abstract_data_type">abstract data type</a> </td><!-- | --><td> none                        </td><!-- | --><td> function with type result</td></tr>
-  <tr><td>object orientation </td><!-- | --><td> none                        </td><!-- | --><td> interfaces and multiple dispatch</td></tr>
+  <tr><th>Feature            </th><th> Standard Pascal             </th><th> Seed7</th></tr>
+  
+  <tr><td>syntax             </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
+  <tr><td>statements         </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
+  <tr><td>operators          </td><td> hard-coded in the compiler  </td><td> defined in a library</td></tr>
+  <tr><td>array              </td><td> hard-coded in the compiler  </td><td> defined as abstract data type <tt><a class="type" href="libraries/array.htm">array</a></tt></td></tr>
+  <tr><td>record / struct    </td><td> hard-coded in the compiler  </td><td> defined as abstract data type</td></tr>
+  <tr><td>hash table         </td><td> not in the standard library </td><td> defined as abstract data type <tt><a class="type" href="libraries/hash.htm">hash</a></tt></td></tr>
+  <tr><td>compiler target    </td><td> machine code or P-code      </td><td> C, compiled to machine code afterwards</td></tr>
+  <tr><td><a class="link" href="#generics">template</a>           </td><td> none                        </td><td> function with type parameters</td></tr>
+  <tr><td><a class="link" href="#abstract_data_type">abstract data type</a> </td><td> none                        </td><td> function with type result</td></tr>
+  <tr><td>object orientation </td><td> none                        </td><td> interfaces and multiple dispatch</td></tr>
 </table></dd></dl><p>
 Except for LL(1) parsing, no technology used by classical Pascal
 compilers could be used to implement Seed7.
 </p></div>
 
 <div><br /><a name="application_area"><h3>What kind of programs can be written in Seed7?
-</h3></a><hr /><!-- ============================================== -->
+</h3></a><hr />
 <p>
 Seed7 can be used in various application areas:
 </p><ul>
-<li><!--  -  -->Applications, like an Excel look-alike (Seed7 is a general
+<li>Applications, like an Excel look-alike (Seed7 is a general
    purpose language and programs can be <a class="link" href="#compile">compiled</a> to an executable).</li>
-<li><!--  -  -->Scripts that deal with <a class="link" href="manual/os.htm">files and directories</a> (The Seed7 Homepage
+<li>Scripts that deal with <a class="link" href="manual/os.htm">files and directories</a> (The Seed7 Homepage
    and the Seed7 release are created with Seed7 scripts).</li>
-<li><!--  -  -->Tools for networking (There is support for <a class="link" href="manual/file.htm#Sockets">sockets</a>, <a class="link" href="libraries/gethttp.htm">HTTP</a>, <a class="link" href="libraries/ftp.htm">FTP</a> and
+<li>Tools for networking (There is support for <a class="link" href="manual/file.htm#Sockets">sockets</a>, <a class="link" href="libraries/gethttp.htm">HTTP</a>, <a class="link" href="libraries/ftp.htm">FTP</a> and
    HTML parsing).</li>
-<li><!--  -  -->Programs that deal with XML (There is support for XML parsing and
+<li>Programs that deal with XML (There is support for XML parsing and
    the possibility to <a class="link" href="libraries/xmldom.htm">read XML</a> into a DOM data structure).</li>
-<li><!--  -  -->CGI scripts (A <a class="link" href="libraries/cgi.htm">CGI support library</a> is available and the <a class="link" href="scrshots/comanche.htm">Comanche</a> web server
+<li>CGI scripts (A <a class="link" href="libraries/cgi.htm">CGI support library</a> is available and the <a class="link" href="scrshots/comanche.htm">Comanche</a> web server
    can be used to test CGI scripts).</li>
-<li><!--  -  -->As language to describe <a class="link" href="algorith/index.htm">algorithms</a>.</li>
-<li><!--  -  -->Command line utilities. E.g.:<ul>
-<li><!--     -  --><a class="link" href="scrshots/make7.htm">A make utility capable to process Unix and Windows makefiles</a></li>
-<li><!--     -  --><a class="link" href="scrshots/tar7.htm">A tar archiving utility</a></li>
-<li><!--     -  --><a class="link" href="scrshots/savehd7.htm">A program to save a potentially damaged harddisk partition to an image file</a></li></ul></li>
-<li><!--  -  -->2D games. E.g.:<ul>
-<li><!--     -  --><a class="link" href="scrshots/panic.htm">Panic</a></li>
-<li><!--     -  --><a class="link" href="scrshots/mahjong.htm">Mahjong solitaire</a></li>
-<li><!--     -  --><a class="link" href="scrshots/pairs.htm">Pairs</a></li></ul></li>
-<li><!--  -  -->Simulations. E.g.:<ul>
-<li><!--     -  --><a class="link" href="scrshots/wator.htm">Planet Wator simulation with fish and sharks</a></li>
-<li><!--     -  --><a class="link" href="scrshots/dnafight.htm">Bacteria which fight against each other</a></li></ul></li>
-<li><!--  -  -->Functions to explore mathematics. E.g.:<ul>
-<li><!--     -  --><a class="link" href="scrshots/mandelbr.htm">Mandelbrot set</a></li>
-<li><!--     -  --><a class="link" href="algorith/graphic.htm#bifurk">Bifurcation</a></li>
-<li><!--     -  --><a class="link" href="algorith/graphic.htm#cellauto">Cellular automaton</a></li></ul></li>
+<li>As language to describe <a class="link" href="algorith/index.htm">algorithms</a>.</li>
+<li>Command line utilities. E.g.:<ul>
+<li><a class="link" href="scrshots/make7.htm">A make utility capable to process Unix and Windows makefiles</a></li>
+<li><a class="link" href="scrshots/tar7.htm">A tar archiving utility</a></li>
+<li><a class="link" href="scrshots/savehd7.htm">A program to save a potentially damaged harddisk partition to an image file</a></li></ul></li>
+<li>2D games. E.g.:<ul>
+<li><a class="link" href="scrshots/panic.htm">Panic</a></li>
+<li><a class="link" href="scrshots/mahjong.htm">Mahjong solitaire</a></li>
+<li><a class="link" href="scrshots/pairs.htm">Pairs</a></li></ul></li>
+<li>Simulations. E.g.:<ul>
+<li><a class="link" href="scrshots/wator.htm">Planet Wator simulation with fish and sharks</a></li>
+<li><a class="link" href="scrshots/dnafight.htm">Bacteria which fight against each other</a></li></ul></li>
+<li>Functions to explore mathematics. E.g.:<ul>
+<li><a class="link" href="scrshots/mandelbr.htm">Mandelbrot set</a></li>
+<li><a class="link" href="algorith/graphic.htm#bifurk">Bifurcation</a></li>
+<li><a class="link" href="algorith/graphic.htm#cellauto">Cellular automaton</a></li></ul></li>
 </ul></div>
 
 <div><br /><a name="lines_of_code"><h3>How many lines of code are in the Seed7 project?
-</h3></a><hr /><!-- ================================================ -->
+</h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-08-26 the number of lines is:
+than 150000 lines of Seed7. For version 2012-09-09 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 101433</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  10093</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right"> 110416</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">  80009</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 101933</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  10057</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right"> 110447</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">  80170</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -505,22 +529,22 @@ Details about this files can be found in the file <nobr>'seed7/src/read_me.txt'<
 </p></div>
 
 <div><br /><a name="os"><h3>On which operating systems does Seed7 run?
-</h3></a><hr /><!-- ========================================== -->
+</h3></a><hr />
 <p>
 Seed7 runs on the following operating systems:
 </p><ul>
-<li><!--  -  -->Linux is supported out of the box (because the development is done using
+<li>Linux is supported out of the box (because the development is done using
    Linux)</li>
-<li><!--  -  -->Unix (I used Seed7 also under various Unix variants, so it is probably
+<li>Unix (I used Seed7 also under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)</li>
-<li><!--  -  -->BSD (there is a <a class="link" href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/lang/seed7">FreeBSD port</a>)</li>
-<li><!--  -  -->Windows is supported with several compilers:<ul>
-<li><!--     -  -->MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
-<li><!--     -  -->Cygwin GCC (the X11 graphics needs Cygwin/X)</li>
-<li><!--     -  -->MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
-<li><!--     -  -->BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
-<li><!--  -  -->DOS (uses DJGPP, sockets and graphics are currently not supported)</li>
-<li><!--  -  -->Mac OS X</li>
+<li>BSD (there is a <a class="link" href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/lang/seed7">FreeBSD port</a>)</li>
+<li>Windows is supported with several compilers:<ul>
+<li>MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
+<li>Cygwin GCC (the X11 graphics needs Cygwin/X)</li>
+<li>MSVC cl.exe (cl.exe is the stand-alone compiler of MSVC)</li>
+<li>BDS bcc32.exe (bcc32.exe is the stand-alone compiler of the BDS)</li></ul></li>
+<li>DOS (uses DJGPP, sockets and graphics are currently not supported)</li>
+<li>Mac OS X</li>
 </ul><p>
 For other operating systems it might be necessary to
 write driver modules for screen (=text console), graphics, time or other
@@ -531,24 +555,24 @@ and <nobr>'seed7/src/read_me.txt'</nobr>.
 </p></div>
 
 <div><br /><a name="uncompress"><h3>How do I uncompress the *.tgz file from the release?
-</h3></a><hr /><!-- ==================================================== -->
+</h3></a><hr />
 <p>
 When you have a gnu <tt>'tar'</tt> program available you can just do
-</p><pre>
-  $ tar -xvzf seed7_05_yyyymmdd.tgz
+</p><pre class="indent">
+$ tar -xvzf seed7_05_yyyymmdd.tgz
 </pre><p>
 If your <tt>'tar'</tt> command does not accept the <tt>'z'</tt> option
 you need to uncompress the file first with <tt>'gunzip'</tt>:
-</p><pre>
-  $ gunzip seed7_05_yyyymmdd.tgz
-  $ tar -xvf seed7_05_yyyymmdd.tar
+</p><pre class="indent">
+$ gunzip seed7_05_yyyymmdd.tgz
+$ tar -xvf seed7_05_yyyymmdd.tar
 </pre><p>
 Sometimes the browser downloads a *.gz file instead of a *.tgz file.
 In that case you could also use <tt>'gunzip'</tt> as shown above. As
 an alternative you can also use <tt>'zcat'</tt>:
-</p><pre>
-  $ zcat seed7_05_yyyymmdd.gz > s7.tar
-  $ tar -xvf s7.tar
+</p><pre class="indent">
+$ zcat seed7_05_yyyymmdd.gz > s7.tar
+$ tar -xvf s7.tar
 </pre><p>
 Under windows you can use the 7-Zip compression/decompression utility
 (there is no relationship to Seed7). 7-Zip is open source software and is
@@ -556,7 +580,7 @@ available at: <a class="link" href="http://www.7-zip.org">www.7-zip.org</a>.
 </p></div>
 
 <div><br /><a name="compile_interpreter"><h3>How do I compile the Seed7 interpreter?
-</h3></a><hr /><!-- ======================================= -->
+</h3></a><hr />
 <p>
 The way to compile the interpreter is dependent on the
 operating system and the development tools used. You need a
@@ -566,32 +590,32 @@ is not so useful, since some Seed7 programs (e.g. The
 Seed7 to C compiler <tt><a class="prog" href="scrshots/comp.htm">comp.sd7</a></tt>) need to call the C compiler
 as well. To compile the interpreter under Linux just go to
 the <tt>'src'</tt> directory and type:
-</p><pre>
-  make depend
-  make
+</p><pre class="indent">
+make depend
+make
 </pre><p>
 For other cases several makefiles are prepared for various
 combinations of operating system, make utility, C compiler
 and shell:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  <tr><th>makefile name</th><!-- | --><th>operating system </th><!-- | --><th>make prog     </th><!-- | --><th>compiler    </th><!-- | --><th>shell</th></tr>
-  <!-- -------------+-----------------+--------------+------------+-------- -->
-  <tr><td>mk_linux.mak </td><!-- | --><td> Linux/Unix/BSD  </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
-  <tr><td>mk_cygw.mak  </td><!-- | --><td> Windows (Cygwin)</td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
-  <tr><td>mk_msys.mak  </td><!-- | --><td> Windows (MSYS)  </td><!-- | --><td> mingw32-make </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
-  <tr><td>mk_mingw.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> mingw32-make </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
-  <tr><td>mk_nmake.mak </td><!-- | --><td> Windows (MinGW) </td><!-- | --><td> nmake        </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
-  <tr><td>mk_msvc.mak  </td><!-- | --><td> Windows (MSVC)  </td><!-- | --><td> nmake        </td><!-- | --><td> cl         </td><!-- | --><td> cmd.exe</td></tr>
-  <tr><td>mk_bcc32.mak </td><!-- | --><td> Windows (bcc32) </td><!-- | --><td> make         </td><!-- | --><td> bcc32      </td><!-- | --><td> cmd.exe</td></tr>
-  <tr><td>mk_bccv5.mak </td><!-- | --><td> Windows (bcc32) </td><!-- | --><td> make         </td><!-- | --><td> bcc32 V5.5 </td><!-- | --><td> cmd.exe</td></tr>
-  <tr><td>mk_djgpp.mak </td><!-- | --><td> DOS             </td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> cmd.exe</td></tr>
-  <tr><td>mk_osx.mak   </td><!-- | --><td> Mac OS X (Xcode)</td><!-- | --><td> (g)make      </td><!-- | --><td> gcc        </td><!-- | --><td> sh</td></tr>
+  <tr><th>makefile name</th><th>operating system </th><th>make prog     </th><th>compiler    </th><th>shell</th></tr>
+  
+  <tr><td>mk_linux.mak </td><td> Linux/Unix/BSD  </td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_cygw.mak  </td><td> Windows (Cygwin)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_msys.mak  </td><td> Windows (MSYS)  </td><td> mingw32-make </td><td> gcc        </td><td> sh</td></tr>
+  <tr><td>mk_mingw.mak </td><td> Windows (MinGW) </td><td> mingw32-make </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td>mk_nmake.mak </td><td> Windows (MinGW) </td><td> nmake        </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td>mk_msvc.mak  </td><td> Windows (MSVC)  </td><td> nmake        </td><td> cl         </td><td> cmd.exe</td></tr>
+  <tr><td>mk_bcc32.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32      </td><td> cmd.exe</td></tr>
+  <tr><td>mk_bccv5.mak </td><td> Windows (bcc32) </td><td> make         </td><td> bcc32 V5.5 </td><td> cmd.exe</td></tr>
+  <tr><td>mk_djgpp.mak </td><td> DOS             </td><td> (g)make      </td><td> gcc        </td><td> cmd.exe</td></tr>
+  <tr><td>mk_osx.mak   </td><td> Mac OS X (Xcode)</td><td> (g)make      </td><td> gcc        </td><td> sh</td></tr>
 </table></dd></dl><p>
 In the optimal case you just copy one of this files to 'makefile'
 and do (with the make program from the table above):
-</p><pre>
-  make depend
-  make
+</p><pre class="indent">
+make depend
+make
 </pre><p>
 When the interpreter is compiled successfully the executable
 and the libraries are placed in the <tt>'bin'</tt> directory.
@@ -600,21 +624,21 @@ the <tt>'prg'</tt> directory (Under Windows symbolic links are not
 supported, so a copy of the executable is placed in the <tt>'prg'</tt>
 directory). If you do several compilation attempts in
 succession you need to do
-</p><pre>
-  make clean
+</p><pre class="indent">
+make clean
 </pre><p>
 before you start a new attempt. More details about the compilation
 process can be found in the file <nobr>'seed7/src/read_me.txt'</nobr>.
 </p></div>
 
 <div><br /><a name="errors"><h3>I got errors when compiling Seed7. What should I do?
-</h3></a><hr /><!-- ==================================================== -->
+</h3></a><hr />
 <p>
 In most cases errors indicate that some development package of your
 distribution is missing. If your operating system is Linux, BSD or Unix
 not all development packages with header files might be installed. In
 this case you get some errors after typing 'make depend'. Errors such as
-</p><pre>
+</p><pre class="box">
   scr_inf.c:57:18: error: term.h: No such file or directory
   kbd_inf.c:55:18: error: term.h: No such file or directory
   trm_inf.c:47:18: error: term.h: No such file or directory
@@ -629,7 +653,7 @@ package of curses/ncurses (in most cases it will already
 be installed because it is needed by other packages).
 </p><p>
 Errors such as
-</p><pre>
+</p><pre class="box">
   drw_x11.c:38:19: error: X11/X.h: No such file or directory
   drw_x11.c:39:22: error: X11/Xlib.h: No such file or directory
   drw_x11.c:40:23: error: X11/Xutil.h: No such file or directory
@@ -646,14 +670,14 @@ from the text console) the non-developer package of X11 will
 already be installed.
 </p><p>
 Errors such as
-</p><pre>
+</p><pre class="box">
   gcc chkccomp.c -lm -o chkccomp
   chkccomp.c:28:21: fatal error: version.h: No such file or directory
   compilation terminated.
   mingw32-make: *** [version.h] Error 1
 </pre><p>
 or
-</p><pre>
+</p><pre class="box">
   del version.h
   process_begin: CreateProcess(NULL, del version.h, ...) failed.
   make (e=2): The system cannot find the file specified.
@@ -667,7 +691,7 @@ mk_cygw.mak) or take care that the 'make' program uses cmd.exe
 (or command.com) to execute the commands.
 </p><p>
 Errors such as
-</p><pre>
+</p><pre class="box">
   hi.c:28:21: error: version.h: No such file or directory
 </pre><p>
 indicate that you forgot to run 'make depend' before running
@@ -682,16 +706,16 @@ messages to seed7-users@lists.sourceforge.net .
 </p></div>
 
 <div><br /><a name="verify_interpreter"><h3>How do I verify that the interpreter works correct?
-</h3></a><hr /><!-- =================================================== -->
+</h3></a><hr />
 <p>
 A comprehensive test of the <tt>'hi'</tt> interpreter can be done in
 the <tt>'prg'</tt> directory with the command:
-</p><pre>
+</p><pre class="box">
   ./hi chk_all
 </pre><p>
 Under windows using <tt>./</tt> might not work. Just omit the <tt>./</tt> and
 type:
-</p><pre>
+</p><pre class="box">
   hi chk_all
 </pre><p>
 The <tt>'chk_all'</tt> program uses several check programs to do its
@@ -702,7 +726,7 @@ generated by the compiled compiler is checked against the C
 code generated by the interpreted compiler. If everything
 works correct the output is (after the usual information from
 the interpreter):
-</p><pre>
+</p><pre class="box">
   compiling the compiler - okay
   chkint - okay
   chkflt - okay
@@ -717,10 +741,10 @@ This verifies that interpreter and compiler work correct.
 </p></div>
 
 <div><br /><a name="interpreter"><h3>How can I use the Seed7 interpreter?
-</h3></a><hr /><!-- ==================================== -->
+</h3></a><hr />
 <p>
 The hi Interpreter is called with the command
-</p><pre>
+</p><pre class="box">
   hi [options] sourcefile [parameters]
 </pre><p>
 Note that the <tt>'options'</tt> must be written before the <tt>'sourcefile'</tt>.
@@ -762,20 +786,20 @@ The following options are recognized by hi:
   <li><b>-v</b>   Equivalent to <b>-v2</b></li>
   <li><b>-x</b>   Execute even when the program contains errors.</li>
 </ul><p>
-  In the program the <tt>'parameters'</tt> can be accessed via <tt><!-- ' --><a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)<!-- ' --></tt>.
-  The function <tt><!-- ' --><a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)<!-- ' --></tt> delivers an array of strings. The number
+  In the program the <tt>'parameters'</tt> can be accessed via <tt><a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)</tt>.
+  The function <tt><a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)</tt> delivers an array of strings. The number
   of parameters is <tt>'length(<a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM))'</tt> and <tt>'<a class="func" href="manual/os.htm#argv_PROGRAM">argv</a>(PROGRAM)[1]'</tt>
   returns the first parameter.
 </p></div>
 
 <div><br /><a name="compile"><h3>Is it possible to compile Seed7 programs?
-</h3></a><hr /><!-- ========================================= -->
+</h3></a><hr />
 <p>
 Generally Seed7 is designed to allow the compilation from Seed7 to C. The Seed7
 <a class="link" href="scrshots/comp.htm">compiler</a> (written in Seed7) uses the analyze phase of the interpreter to convert
 a program to call-code and then generates a corresponding C program. This C
 program is compiled and linked afterwards. The Seed7 compiler can be called with:
-</p><pre>
+</p><pre class="box">
   hi comp [ options ] source
 </pre><p>
 Possible options are
@@ -793,30 +817,30 @@ Possible options are
          <li><b>2</b> Evaluate constant expressions to simplify expressions.</li>
          <li><b>3</b> Like <b>-oc2</b> and additionally evaluate all constant expressions</li></ul></li>
   <li><b>-te</b>  Generate code to trace exceptions. This option works in the same way
-       as the interpreter option <b>-te</b>: Every exception will write a
-       message to stdout and the user will be ask to continue (with enter) or
-       to terminate (with * ).</li>
+       as the interpreter option <b>-te</b>: Every exception will write a message
+       to stdout and the user will be asked to continue (with enter) or to
+       terminate (with * ).</li>
   <li><b>-r</b>   Suppress the generation of range checks for strings and arrays.</li>
   <li><b>-e</b>   Generate code which sends a signal, when an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.</li>
 </ul></div>
 
 <div><br /><a name="reserved_words"><h3>What are the reserved words of Seed7?
-</h3></a><hr /><!-- ===================================== -->
+</h3></a><hr />
 <p>
 In Seed7 there are no reserved words. Instead there are keywords which are
 used at various places. Some keywords introduce statements or other constructs
-(such as declarations). E.g.: The keywords <tt><!-- ' --><span class="keywd">if</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">while</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">repeat</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">for</span><!-- ' --></tt>,
-and some others introduce statements. Other keywords like <tt><!-- ' --><span class="keywd">do</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">then</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">range</span><!-- ' --></tt>,
-<tt><!-- ' --><span class="keywd">result</span><!-- ' --></tt>, etc. are used in the middle of statements (or other constructs).
-Finally there are also keywords like <tt><!-- ' --><span class="keywd">div</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">rem</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">lpad</span><!-- ' --></tt>, <tt><!-- ' --><span class="keywd">times</span><!-- ' --></tt>, etc. which
+(such as declarations). E.g.: The keywords <tt><span class="keywd">if</span></tt>, <tt><span class="keywd">while</span></tt>, <tt><span class="keywd">repeat</span></tt>, <tt><span class="keywd">for</span></tt>,
+and some others introduce statements. Other keywords like <tt><span class="keywd">do</span></tt>, <tt><span class="keywd">then</span></tt>, <tt><span class="keywd">range</span></tt>,
+<tt><span class="keywd">result</span></tt>, etc. are used in the middle of statements (or other constructs).
+Finally there are also keywords like <tt><span class="keywd">div</span></tt>, <tt><span class="keywd">rem</span></tt>, <tt><span class="keywd">lpad</span></tt>, <tt><span class="keywd">times</span></tt>, etc. which
 are used as operator symbols.
 </p><p>
 Seed7 uses <a class="link" href="manual/syntax.htm">syntax declarations</a> to specify the syntax of statements. A keyword
 is a name which is used somewhere in a syntax declaration. Syntax declarations
 reduce the possibilities to use a keyword out of context. E.g.: After the keyword
-<tt><!-- ' --><span class="keywd">if</span><!-- ' --></tt> the parser expects always an expression. This makes <tt><!-- ' --><span class="keywd">if</span><!-- ' --></tt> unusable as
-variable name. This way you get error messages when you try to use <tt><!-- ' --><span class="keywd">if</span><!-- ' --></tt> or
+<tt><span class="keywd">if</span></tt> the parser expects always an expression. This makes <tt><span class="keywd">if</span></tt> unusable as
+variable name. This way you get error messages when you try to use <tt><span class="keywd">if</span></tt> or
 other keywords as variable name. That behavior is just the same as in other
 languages which have reserved words. It can be summarized that Seed7 reaches
 the goal of avoiding the misuse of keywords in other ways and not by reserving
@@ -831,7 +855,7 @@ Pascal, Ada, C/C++, Java and many other compilers.
 </p></div>
 
 <div><br /><a name="syntax"><h3>How is the syntax of Seed7 defined?
-</h3></a><hr /><!-- =================================== -->
+</h3></a><hr />
 <p>
 The syntax of Seed7 is described with the <a class="link" href="manual/syntax.htm">Seed7 Structured Syntax Description</a>
 (S7SSD). The S7SSD is similar to an Extended Backus-Naur Form (EBNF),
@@ -840,19 +864,19 @@ different nonterminal symbols. Instead it only knows one nonterminal
 symbol: <i>()</i> . S7SSD syntax rules do not define named nonterminal
 symbols (EBNF rules define named nonterminal symbols). S7SSD syntax
 rules are introduced with:
-</p><pre>
-  $ syntax
+</p><pre class="indent">
+$ syntax
 </pre><p>
 S7SSD syntax rules define a pattern of terminal and nonterminal symbols
 separated by dots. A S7SSD syntax rule defines also a priority and
 associativity. The syntax of the + operator is:
-</p><pre>
-  $ syntax expr: .(). + .()   is -> 7;
+</p><pre class="indent">
+$ syntax expr: .(). + .()   is -> 7;
 </pre><p>
 The syntax of statements and other constructs is defined as if they
 were also operators:
-</p><pre>
-  $ syntax expr: .while.().do.().end.while   is -> 25;
+</p><pre class="indent">
+$ syntax expr: .while.().do.().end.while   is -> 25;
 </pre><p>
 S7SSD is a simple syntax description that can be used by humans and
 compilers/interpreters. The syntax of a Seed7 program is defined
@@ -861,22 +885,22 @@ or compiled the syntax definitions are read from "syntax.s7i".
 </p></div>
 
 <div><br /><a name="statements"><h3>Why does Seed7 not use the C statements like C++ and Java?
-</h3></a><hr /><!-- ========================================================== -->
+</h3></a><hr />
 <p>
 The C statements have some weaknesses which are avoided with the Seed7 statements:
 </p><ol>
-<li><!--  1.  --><p>The C if-statement
-</p><pre>
-    <span class="keywd">if</span> (condition)
-      statement;
+<li><p>The C if-statement
+</p><pre class="indent">
+<span class="keywd">if</span> (condition)
+  statement;
 </pre><p>
   allows just one statement after the condition. By using the compound statement
   it is possible to have several statements after the condition
-</p><pre>
-    <span class="keywd">if</span> (condition) {
-      statement1;
-      statement2;
-    }
+</p><pre class="indent">
+<span class="keywd">if</span> (condition) {
+  statement1;
+  statement2;
+}
 </pre><p>
   Adding or removing a statement in the second if-statement is always possible.
   In the first if-statement you must add braces if you add a statement otherwise
@@ -884,40 +908,40 @@ The C statements have some weaknesses which are avoided with the Seed7 statement
 </p><p>
   Since both forms are legal and adding a statement to the first form can lead to
   errors Seed7 closes this possible source of errors with its <a class="link" href="manual/stats.htm#if-statement">if-statement</a>:
-</p><pre>
-    <span class="keywd">if</span> condition <span class="keywd">then</span>
-      statement
-    <span class="keywd">end if</span>;
+</p><pre class="indent">
+<span class="keywd">if</span> condition <span class="keywd">then</span>
+  statement
+<span class="keywd">end if</span>;
 </pre></li>
-<li><!--  2.  --><p>The following switch statement is formally correct but probably wrong
-</p><pre>
-    <span class="keywd">switch</span> (number) {
-      <span class="keywd">case</span> 1:
-      <span class="keywd">case</span> 2:
-        result = 5;
-      <span class="keywd">case</span> 3:
-      <span class="keywd">case</span> 4:
-        result = 8;
-        <span class="keywd">break</span>;
-      <span class="keywd">default</span>:
-        result = 0;
-    }
+<li><p>The following switch statement is formally correct but probably wrong
+</p><pre class="indent">
+<span class="keywd">switch</span> (number) {
+  <span class="keywd">case</span> 1:
+  <span class="keywd">case</span> 2:
+    result = 5;
+  <span class="keywd">case</span> 3:
+  <span class="keywd">case</span> 4:
+    result = 8;
+    <span class="keywd">break</span>;
+  <span class="keywd">default</span>:
+    result = 0;
+}
 </pre><p>
   Forgetting break statements in a switch is another possible source of errors which
   is avoided with the <a class="link" href="manual/stats.htm#case-statement">case-statement</a> of Seed7:
-</p><pre>
-    <span class="keywd">case</span> number <span class="keywd">of</span>
-      <span class="keywd">when</span> {1, 2}:
-        result = 5;
-      <span class="keywd">when</span> {3, 4}:
-        result = 8;
-      <span class="keywd">otherwise</span>:
-        result = 0;
-    <span class="keywd">end case</span>;
+</p><pre class="indent">
+<span class="keywd">case</span> number <span class="keywd">of</span>
+  <span class="keywd">when</span> {1, 2}:
+    result = 5;
+  <span class="keywd">when</span> {3, 4}:
+    result = 8;
+  <span class="keywd">otherwise</span>:
+    result = 0;
+<span class="keywd">end case</span>;
 </pre></li></ol></div>
 
 <div><br /><a name="everybody_invents_statements"><h3>Isn't the code unreadable if everybody invents new statements?
-</h3></a><hr /><!-- ============================================================== -->
+</h3></a><hr />
 <p>
 There are lots of possibilities to write unreadable code without
 using the extension features of Seed7. The programmer is (as always)
@@ -939,20 +963,20 @@ The possibility to define statements allows also a more precise language
 definition. The C++ for/while/if statements are described in the C++
 manuals using BNF and an English description. Seed7 statements can be
 defined in Seed7. For example:
-</p><pre>
-  $ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <span class="type">expr</span>: .while.().do.().end.while <span class="keywd">is</span> -> 25;
 
-  <span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd">ref</span> <span class="type">func boolean</span>: condition) do
-                (<span class="keywd">ref</span> <span class="type">proc</span>: statement)
-              end while <span class="keywd">is func</span>
-    <span class="keywd">begin</span>
-      <span class="keywd">if</span> condition <span class="keywd">then</span>
+<span class="keywd">const</span> <span class="type">proc</span>: while (<span class="keywd">ref</span> <span class="type">func boolean</span>: condition) do
+              (<span class="keywd">ref</span> <span class="type">proc</span>: statement)
+            end while <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> condition <span class="keywd">then</span>
+      statement;
+      <span class="keywd">while</span> condition <span class="keywd">do</span>
         statement;
-        <span class="keywd">while</span> condition <span class="keywd">do</span>
-          statement;
-        <span class="keywd">end while</span>;
-      <span class="keywd">end if</span>;
-    <span class="keywd">end func</span>;
+      <span class="keywd">end while</span>;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
 </pre><p>
 The syntax and semantic of a <a class="link" href="manual/stats.htm#while-statement">while-statement</a> is described using an
 <a class="link" href="manual/stats.htm#if-statement">if-statement</a> and recursion. For performance reasons the implementation
@@ -961,7 +985,7 @@ this example shows the expressive power of Seed7.
 </p></div>
 
 <div><br /><a name="lisp_comparison"><h3>Hasn't Lisp already user defined statements and operators?
-</h3></a><hr /><!-- ========================================================== -->
+</h3></a><hr />
 <p>
 Defining the semantic of a new 'statement' in Lisp is a classic example.
 Normally such 'statements' still use the list notation with lots of parentheses.
@@ -986,7 +1010,7 @@ at compile time. In Lisp all this would be a hack.
 </p></div>
 
 <div><br /><a name="static_type_checking"><h3>Why does Seed7 use static type checking?
-</h3></a><hr /><!-- ======================================== -->
+</h3></a><hr />
 <p>
 With static type checking all type checks are performed during compile-time.
 Type errors, such as an attempt to divide an integer by a string, can be
@@ -1027,7 +1051,7 @@ functions granted by the interface type are defined for the implementation type.
 </p></div>
 
 <div><br /><a name="development_speed_and_type_checking"><h3>Is the program development slowed down with static type checking?
-</h3></a><hr /><!-- ======================================== -->
+</h3></a><hr />
 <p>
 No, especially when the time spent to debug a program is taken into account.
 Except for artificial corner cases all type errors found by a "nitpicking"
@@ -1052,7 +1076,7 @@ the debugging.
 </p></div>
 
 <div><br /><a name="first_class_types_and_type_checking"><h3>How can static type checking work when types are first-class objects?
-</h3></a><hr /><!-- ===================================================================== -->
+</h3></a><hr />
 <p>
 This question refers to something which seems paradox: When Seed7 types are
 created at runtime how can they be checked at compile time. The simple answer
@@ -1068,7 +1092,7 @@ type variables and type expressions are used in the Seed7 compiler.
 </p></div>
 
 <div><br /><a name="type_inference"><h3>Why does Seed7 not use type inference?
-</h3></a><hr /><!-- ====================================== -->
+</h3></a><hr />
 <p>
 Seed7 has a basic principle that would break if type
 inference would be used:
@@ -1089,22 +1113,22 @@ is very bad since a program is more often read than written.
 </p></div>
 
 <div><br /><a name="automatic_casts"><h3>Are there automatic casts to the right type?
-</h3></a><hr /><!-- ============================================ -->
+</h3></a><hr />
 <p>
 No, because Seed7 is strong typed. This means that for every expression (and sub expression)
 you know its type at compile time without knowing where this expression is used.
-Although this means that you have to convert types explicit (for example from <tt><!-- ' --><a class="type" href="manual/types.htm#integer">integer</a><!-- ' --></tt>
-to <tt><!-- ' --><a class="type" href="manual/types.htm#float">float</a><!-- ' --></tt>) it has more advantages than disadvantages:
+Although this means that you have to convert types explicit (for example from <tt><a class="type" href="manual/types.htm#integer">integer</a></tt>
+to <tt><a class="type" href="manual/types.htm#float">float</a></tt>) it has more advantages than disadvantages:
 </p><ol>
-<li><!--  1.  -->The overloading rules are much simpler.</li>
-<li><!--  2.  -->An expression can be understood without its calling context.</li>
-<li><!--  3.  -->Errors caused by unplanned automatic type conversions cannot happen.</li>
-<li><!--  4.  -->Since you have to do type conversions explicit you are more aware of the
+<li>The overloading rules are much simpler.</li>
+<li>An expression can be understood without its calling context.</li>
+<li>Errors caused by unplanned automatic type conversions cannot happen.</li>
+<li>Since you have to do type conversions explicit you are more aware of the
     run time overhead.</li>
 </ol></div>
 
 <div><br /><a name="declare_later"><h3>Can I use something and declare it later?
-</h3></a><hr /><!-- ========================================= -->
+</h3></a><hr />
 <p>
 No, everything must be declared before it is used. The possibility to declare new
 statements and new operators on one side and the static typing requirements with
@@ -1115,14 +1139,14 @@ Forward declarations help, if something needs to be used before it can be declar
 </p></div>
 
 <div><br /><a name="overloading"><h3>Can functions be overloaded?
-</h3></a><hr /><!-- ============================ -->
+</h3></a><hr />
 <p>
 Yes, functions, operators and statements can be overloaded. Additionally it is possible
 to define new operators and statements.
 </p></div>
 
 <div><br /><a name="overload_result"><h3>Can I overload two functions which just differ in the result type?
-</h3></a><hr /><!-- ================================================================== -->
+</h3></a><hr />
 <p>
 No, it is not possible to overload functions (operators, statements) which have
 the same parameter types and just differ in the result type. This type of overloading
@@ -1141,33 +1165,33 @@ guess the measurement unit.
 </p></div>
 
 <div><br /><a name="variable_parameters"><h3>Can functions have variable parameter lists?
-</h3></a><hr /><!-- ============================================ -->
+</h3></a><hr />
 <p>
 No, because functions with variable parameter list as the C printf function have
 some problems:
 </p><ul>
-<li><!--  -  -->Normally type checking is only possible at run time.</li>
-<li><!--  -  -->The recognition of overloaded functions becomes more complicated.</li>
+<li>Normally type checking is only possible at run time.</li>
+<li>The recognition of overloaded functions becomes more complicated.</li>
 </ul><p>
 Instead Seed7 has array aggregates and allows functions with arrays as parameters.
 So you could declare a function
-</p><pre>
-  <span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd">in</span> <span class="type">array integer</span>: arr) <span class="keywd">is func</span>
-    <span class="keywd">local</span>
-      <span class="keywd">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
-    <span class="keywd">begin</span>
-      <span class="keywd">for</span> number <span class="keywd">range</span> arr <span class="keywd">do</span>
-        writeln(number);
-      <span class="keywd">end for</span>;
-    <span class="keywd">end func</span>;
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">proc</span>: print_list (<span class="keywd">in</span> <span class="type">array integer</span>: arr) <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: number <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <span class="keywd">for</span> number <span class="keywd">range</span> arr <span class="keywd">do</span>
+      writeln(number);
+    <span class="keywd">end for</span>;
+  <span class="keywd">end func</span>;
 </pre><p>
 and call it with
-</p><pre>
-  print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
+</p><pre class="indent">
+print_list([](1, 1, 2, 3, 5, 8, 13, 21, 34, 55));
 </pre></div>
 
 <div><br /><a name="initialize_variables"><h3>Why is it necessary to initialize all variables?
-</h3></a><hr /><!-- ================================================ -->
+</h3></a><hr />
 <p>
 Forgetting to initialize a variable is a common source of errors. In some programming
 languages uninitialized variables have a random value which could lead to errors.
@@ -1176,7 +1200,7 @@ initialized when it is declared.
 </p></div>
 
 <div><br /><a name="unicode"><h3>Is Unicode supported?
-</h3></a><hr /><!-- ===================== -->
+</h3></a><hr />
 <p>
 Seed7 <tt><a class="type" href="manual/types.htm#char">char</a>acters</tt> and <tt><a class="type" href="manual/types.htm#string">string</a>s</tt> support Unicode.
 Unicode values are encoded with UTF-32. This way it is not necessary to
@@ -1191,45 +1215,69 @@ and <a class="link" href="manual/tokens.htm#Line_comments">line comments</a>. In
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
 </p></div>
 
-<div><br /><a name="garbage_collection"><h3>Is there a garbage collection?
-</h3></a><hr /><!-- ============================== -->
+<div><br /><a name="div_operator"><h3>Why is the div operator used for integer divisions?
+</h3></a><hr />
 <p>
-There is no garbage collection process that interrupts the normal processing to
-free some memory. Seed7 uses a different mechanism to manage the memory.
-</p><p>
-Memory used by local variables and parameters is automatically freed when leaving
-a function.
-</p><p>
-Although functions can return arbitrary complex values (e.g. arrays of structures
-with string elements) the memory allocated for all intermediate results is freed
-automatically without the help of a garbage collector. This is done in a stack
-like manner. The same way as arithmetic expressions like (1+2)*3+4 can be evaluated
-with the help of a stack (which stores the intermediate results 3 and 9), it is
-possible to maintain a stack of pointers to arbitrary complex values. Note that
-the point where such intermediate results should be freed can be determined at
-compile time. Functions such as the assignment, can abstain from freeing the
-intermediate result and just assign it to the variable. This way it is not
-always necessary to copy arbitrary complex values. All this things can be decided
-at compile time.
-</p></div>
+In Pascal and Ada the keyword <tt><a class="op" href="libraries/integer.htm#(in_integer)div(in_integer)">div</a></tt> is used as integer division operator. Other
+languages like C and its descendants use <tt>/</tt> for integer division. Using <tt><a class="op" href="libraries/integer.htm#(in_integer)div(in_integer)">div</a></tt> has
+some advantages:
+</p><ul>
+<li>It opens the opportunity to use <tt>/</tt> for a different purpose. The library
+   <a class="lib" href="libraries/rational.htm">rational.s7i</a> defines <tt><a class="op" href="libraries/rational.htm#(in_integer)/(in_integer)">/</a></tt> to create a rational number.</li>
+<li>An integer division truncates the result. In the common case the result is not
+   equal to that of a floating point division (E.g.: <tt><a class="func" href="libraries/float.htm#flt(in_integer)">flt</a>(4 <a class="op" href="libraries/integer.htm#(in_integer)div(in_integer)">div</a> 3)</tt> returns <tt>1.0</tt>,
+   but <tt><a class="func" href="libraries/float.htm#flt(in_integer)">flt</a>(4) <a class="op" href="libraries/float.htm#(in_float)/(in_float)">/</a> <a class="func" href="libraries/float.htm#flt(in_integer)">flt</a>(3)</tt> returns <tt>1.333333</tt>). This difference is emphasized by using
+   different operator symbols.</li>
+<li>A negative result of a division can be rounded towards zero or towards minus
+   infinite. Seed7 provides both possibilities with the two integer division
+   operators <tt><a class="op" href="libraries/integer.htm#(in_integer)div(in_integer)">div</a></tt> and <tt><a class="op" href="libraries/integer.htm#(in_integer)mdiv(in_integer)">mdiv</a></tt>.</li>
+</ul></div>
+
+<div><br /><a name="garbage_collection"><h3>Is there a garbage collection?
+</h3></a><hr />
+<p>
+There is no garbage collection process, that interrupts the normal processing,
+to free some memory. Seed7 uses different mechanisms to manage memory. Memory
+usage can be categorized and for every category a specific strategy of
+automatic memory management is used:
+</p><ul>
+<li>Memory used by local variables and parameters is automatically freed, when
+   a function is left. The interpreter maintains a list of local values and
+   frees them. The compiler inserts code, to free the memory used by local
+   variables, in front of each return statement.</li>
+<li>Memory allocated for intermediate results is freed automatically in a stack
+   like manner. Like an arithmetic expressions such as (1+2)*3+4 can be
+   evaluated with the help of a stack (which stores the intermediate results
+   3 and 9). For structured values it is possible to maintain a stack of
+   pointers to the values. The interpreter uses a temp flag, which is present
+   in every interpreter object, to free memory. The compiler determines the
+   point, where intermediate results can be be freed, at compile time.
+   Functions, such as the assignment, can abstain from freeing the
+   intermediate result and just assign it to the variable. This way it is not
+   always necessary to copy arbitrary complex values. All this things can be
+   decided by the compiler.</li>
+<li>Strings, arrays, hashes and other containers manage their memory. E.g.:
+   When an element is removed from a hash table the memory used by the element
+   is freed as well as the hash table internal data.</li>
+</ul></div>
 
 <div><br /><a name="object_oriented"><h3>Is Seed7 object oriented?
-</h3></a><hr /><!-- ========================= -->
+</h3></a><hr />
 <p>
 Yes, but object orientation is organized different compared to other object
 oriented languages. In a nutshell: It is based on interfaces and allows
 <a class="link" href="#multiple_dispatch">multiple dispatch</a>. <a class="link" href="manual/objects.htm">Chapter 7 (Object orientation)</a> of the manual
 contains a detailed description of the Seed7 object orientation.
 </p><p>
-An example of an object oriented type is <tt><!-- ' --><a class="type" href="manual/types.htm#file">file</a><!-- ' --></tt>. A <tt><!-- ' --><a class="type" href="manual/types.htm#file">file</a><!-- ' --></tt> describes references to
-values with some other type. A value of a <tt><!-- ' --><a class="type" href="manual/types.htm#file">file</a><!-- ' --></tt> can have one of the following types:
-null_file, external_file, echo_file, line_file, etc. Each of this <tt><!-- ' --><a class="type" href="manual/types.htm#file">file</a><!-- ' --></tt> value types
+An example of an object oriented type is <tt><a class="type" href="manual/types.htm#file">file</a></tt>. A <tt><a class="type" href="manual/types.htm#file">file</a></tt> describes references to
+values with some other type. A value of a <tt><a class="type" href="manual/types.htm#file">file</a></tt> can have one of the following types:
+null_file, external_file, echo_file, line_file, etc. Each of this <tt><a class="type" href="manual/types.htm#file">file</a></tt> value types
 acts differently to the same requests.
 </p><p>
-For the type <tt><!-- ' --><a class="type" href="manual/types.htm#file">file</a><!-- ' --></tt> two kinds of functions are defined:
+For the type <tt><a class="type" href="manual/types.htm#file">file</a></tt> two kinds of functions are defined:
 </p><ol>
-<li><!--  1.  -->Functions which work for all files the same way.</li>
-<li><!--  2.  -->Dynamic functions which are just an interface. At run time the corresponding
+<li>Functions which work for all files the same way.</li>
+<li>Dynamic functions which are just an interface. At run time the corresponding
     function defined for the type of the value is used.</li>
 </ol><p>
 Compared to Java the type file can be seen as interface or abstract class, while the
@@ -1237,17 +1285,17 @@ type of the file value can be seen as the class implementing the interface.
 </p></div>
 
 <div><br /><a name="inherited_from_object"><h3>Is everything inherited from object?
-</h3></a><hr /><!-- ==================================== -->
+</h3></a><hr />
 <p>
 There can be several base types, each with their own hierarchy. In many object
-oriented languages the class <tt><!-- ' --><span class="type">object</span><!-- ' --></tt> is used as element of all container classes.
+oriented languages the class <tt><span class="type">object</span></tt> is used as element of all container classes.
 <a class="link" href="#abstract_data_type">Abstract data types</a> provide a better and type safe solution for containers and
-other uses of the root class <tt><!-- ' --><span class="type">object</span><!-- ' --></tt>. Therefore a single rooted hierarchy is not
+other uses of the root class <tt><span class="type">object</span></tt>. Therefore a single rooted hierarchy is not
 needed.
 </p></div>
 
 <div><br /><a name="difference_overloading_oo"><h3>What is the difference between overloading and object orientation?
-</h3></a><hr /><!-- ================================================================== -->
+</h3></a><hr />
 <p>
 Overloading is resolved at compile time while object orientation uses dynamic dispatch
 which decides at runtime which method should be called. Overloading resolution uses
@@ -1258,28 +1306,28 @@ rights of all parameters are used in the decision process.
 </p></div>
 
 <div><br /><a name="abstract_data_type"><h3>What is an abstract data type?
-</h3></a><hr /><!-- ============================== -->
+</h3></a><hr />
 <p>
 An abstract data type defines, like every other type, a set of funtions to handle data.
 An abstract data type leaves, like an interface type from OO, the details of the
 data representation open. The difference between the two is:
 </p><ul>
-<li><!--  -  -->An interface type is resolved to an implementation type at runtime.</li>
-<li><!--  -  -->An abstract data type is resolved to a concrete type at compile-time,
+<li>An interface type is resolved to an implementation type at runtime.</li>
+<li>An abstract data type is resolved to a concrete type at compile-time,
    when it is used.</li>
 </ul><p>
 Usually an abstract data type uses parameters to resolve to a concrete type.
-Examples of abstract data types are <tt><a class="type" href="manual/types.htm#array">array</a>s</tt>, <tt><a class="type" href="manual/types.htm#struct">struct</a>s</tt> and <tt><a class="type" href="manual/types.htm#hash">hash</a>es</tt>. An abstract <tt><!-- ' --><a class="type" href="libraries/array.htm#array(in_type)">array</a><!-- ' --></tt>
+Examples of abstract data types are <tt><a class="type" href="manual/types.htm#array">array</a>s</tt>, <tt><a class="type" href="manual/types.htm#struct">struct</a>s</tt> and <tt><a class="type" href="manual/types.htm#hash">hash</a>es</tt>. An abstract <tt><a class="type" href="libraries/array.htm#array(in_type)">array</a></tt>
 type needs the element type as parameter. E.g.:
-</p><pre>
-  <span class="type">array string</span>
+</p><pre class="indent">
+<span class="type">array string</span>
 </pre><p>
-This <tt><!-- ' --><a class="type" href="libraries/idxarray.htm#array_[(in_type)](in_type)">array</a><!-- ' --></tt> has <tt><!-- ' --><a class="type" href="manual/types.htm#string">string</a><!-- ' --></tt> elements and uses <tt><!-- ' --><a class="type" href="manual/types.htm#integer">integer</a><!-- ' --></tt> indices.
-An abstrace <tt><!-- ' --><a class="type" href="libraries/idxarray.htm#array_[(in_type)](in_type)">array</a><!-- ' --></tt>, were the index type is also specified as parameters is:
-</p><pre>
-  <span class="type">array [char] string</span>
+This <tt><a class="type" href="libraries/idxarray.htm#array_[(in_type)](in_type)">array</a></tt> has <tt><a class="type" href="manual/types.htm#string">string</a></tt> elements and uses <tt><a class="type" href="manual/types.htm#integer">integer</a></tt> indices.
+An abstrace <tt><a class="type" href="libraries/idxarray.htm#array_[(in_type)](in_type)">array</a></tt>, were the index type is also specified as parameters is:
+</p><pre class="indent">
+<span class="type">array [char] string</span>
 </pre><p>
-This <tt><!-- ' --><a class="type" href="libraries/idxarray.htm#array_[(in_type)](in_type)">array</a><!-- ' --></tt> has <tt><!-- ' --><a class="type" href="manual/types.htm#string">string</a><!-- ' --></tt> elements and uses <tt><!-- ' --><a class="type" href="manual/types.htm#char">char</a><!-- ' --></tt> indices.
+This <tt><a class="type" href="libraries/idxarray.htm#array_[(in_type)](in_type)">array</a></tt> has <tt><a class="type" href="manual/types.htm#string">string</a></tt> elements and uses <tt><a class="type" href="manual/types.htm#char">char</a></tt> indices.
 Arrays are present in many programming languages, but they are usually hard-coded
 into the compiler / interpreter. Seed7 does not follow this direction. Instead it
 introduces abstract data types as common concept behind <tt><a class="type" href="manual/types.htm#array">array</a>s</tt>, <tt><a class="type" href="manual/types.htm#struct">struct</a>s</tt>, <tt><a class="type" href="manual/types.htm#hash">hash</a>es</tt>
@@ -1289,7 +1337,7 @@ a type as result.
 </p></div>
 
 <div><br /><a name="multiple_dispatch"><h3>What is multiple dispatch?
-</h3></a><hr /><!-- ========================== -->
+</h3></a><hr />
 <p>
 Multiple dispatch means that a function or method is connected to more
 than one type. The decision which method is called at runtime is done
@@ -1301,65 +1349,65 @@ The classic object orientation is a single dispatch system.
 In a multiple dispatch system the methods cannot be grouped to one class
 and it makes no sense to have a <tt>'self'</tt> or <tt>'this'</tt> parameter.
 All parameters are taken into account when the dispatch decision is done.
-In the following example the interface type <tt><!-- ' --><span class="type">Number</span><!-- ' --></tt> uses multiple dispatch:
-</p><pre>
-  <span class="keywd">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
+In the following example the interface type <tt><span class="type">Number</span></tt> uses multiple dispatch:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: Number <span class="keywd">is sub</span> <span class="type">object</span> <span class="keywd">interface</span>;
 
-  <span class="keywd">const</span> <span class="type">func Number</span>: (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) + (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
+<span class="keywd">const</span> <span class="type">func Number</span>: (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) + (<span class="keywd">in</span> <span class="type">Number</span> <span class="keywd">param</span>) <span class="keywd">is DYNAMIC</span>;
 </pre><p>
-The <tt><!-- ' --><span class="keywd">DYNAMIC</span><!-- ' --></tt> declaration creates an interface function for the <tt>'+'</tt> operator.
-The interface type <tt><!-- ' --><span class="type">Number</span><!-- ' --></tt> can represent an <tt><!-- ' --><span class="type">Integer</span><!-- ' --></tt> or a <tt><!-- ' --><span class="type">Float</span><!-- ' --></tt>:
-</p><pre>
-  <span class="keywd">const</span> <span class="type">type</span>: Integer <span class="keywd">is new struct</span>
-      <span class="keywd">var</span> <span class="type">integer</span>: val <span class="keywd">is</span> 0;
-    <span class="keywd">end struct</span>;
+The <tt><span class="keywd">DYNAMIC</span></tt> declaration creates an interface function for the <tt>'+'</tt> operator.
+The interface type <tt><span class="type">Number</span></tt> can represent an <tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">type</span>: Integer <span class="keywd">is new struct</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: val <span class="keywd">is</span> 0;
+  <span class="keywd">end struct</span>;
 
-  type_implements_interface(<span class="type">Integer</span>, <span class="type">Number</span>);
+type_implements_interface(<span class="type">Integer</span>, <span class="type">Number</span>);
 
-  <span class="keywd">const</span> <span class="type">type</span>: Float <span class="keywd">is new struct</span>
-      <span class="keywd">var</span> <span class="type">float</span>: val <span class="keywd">is</span> 0.0;
-    <span class="keywd">end struct</span>;
+<span class="keywd">const</span> <span class="type">type</span>: Float <span class="keywd">is new struct</span>
+    <span class="keywd">var</span> <span class="type">float</span>: val <span class="keywd">is</span> 0.0;
+  <span class="keywd">end struct</span>;
 
-  type_implements_interface(<span class="type">Float</span>, <span class="type">Number</span>);
+type_implements_interface(<span class="type">Float</span>, <span class="type">Number</span>);
 </pre><p>
 The declarations of the converting <tt>'+'</tt> operators are:
-</p><pre>
-  <span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
-    <span class="keywd">result</span>
-      <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
-    <span class="keywd">begin</span>
-      result.val := flt(a.val) + b.val;
-    <span class="keywd">end func</span>;
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
+  <span class="keywd">begin</span>
+    result.val := flt(a.val) + b.val;
+  <span class="keywd">end func</span>;
 
-  <span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
-    <span class="keywd">result</span>
-      <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
-    <span class="keywd">begin</span>
-      result.val := a.val + flt(b.val);
-    <span class="keywd">end func</span>;
+<span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
+  <span class="keywd">begin</span>
+    result.val := a.val + flt(b.val);
+  <span class="keywd">end func</span>;
 </pre><p>
 The declarations of the normal <tt>'+'</tt> operators (which do not convert) are:
-</p><pre>
-  <span class="keywd">const</span> <span class="type">func Integer</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
-    <span class="keywd">result</span>
-      <span class="keywd">var</span> <span class="type">Integer</span>: result <span class="keywd">is</span> <span class="type">Integer</span>.value;
-    <span class="keywd">begin</span>
-      result.val := a.val + b.val;
-    <span class="keywd">end func</span>;
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func Integer</span>: (<span class="keywd">in</span> <span class="type">Integer</span>: a) + (<span class="keywd">in</span> <span class="type">Integer</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Integer</span>: result <span class="keywd">is</span> <span class="type">Integer</span>.value;
+  <span class="keywd">begin</span>
+    result.val := a.val + b.val;
+  <span class="keywd">end func</span>;
 
-  <span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
-    <span class="keywd">result</span>
-      <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
-    <span class="keywd">begin</span>
-      result.val := a.val + b.val;
-    <span class="keywd">end func</span>;
+<span class="keywd">const</span> <span class="type">func Float</span>: (<span class="keywd">in</span> <span class="type">Float</span>: a) + (<span class="keywd">in</span> <span class="type">Float</span>: b) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">Float</span>: result <span class="keywd">is</span> <span class="type">Float</span>.value;
+  <span class="keywd">begin</span>
+    result.val := a.val + b.val;
+  <span class="keywd">end func</span>;
 </pre><p>
 The decision which <tt>'+'</tt> operator should be called at runtime is based on the
-implementation type (<tt><!-- ' --><span class="type">Integer</span><!-- ' --></tt> or a <tt><!-- ' --><span class="type">Float</span><!-- ' --></tt>) of both arguments of the <tt>'+'</tt>.
+implementation type (<tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>) of both arguments of the <tt>'+'</tt>.
 </p></div>
 
 <div><br /><a name="call_by_name"><h3>What is a call-by-name?
-</h3></a><hr /><!-- ======================= -->
+</h3></a><hr />
 <p>
 Call-by-name is an evaluation strategy for parameters.
 The actual call-by-name parameter is not evaluated before
@@ -1367,39 +1415,39 @@ the function is called. When the function is executed the
 call-by-name parameter might be executed once, many times
 or not at all. Examples of call-by-name parameters are:
 </p><ul>
-<li><!--  -  -->The conditions of <a class="link" href="manual/stats.htm#while-statement">while-loops</a></li>
-<li><!--  -  -->The statements in loop bodies</li>
-<li><!--  -  -->The statements that are conditionally executed in
+<li>The conditions of <a class="link" href="manual/stats.htm#while-statement">while-loops</a></li>
+<li>The statements in loop bodies</li>
+<li>The statements that are conditionally executed in
    an <a class="link" href="manual/stats.htm#if-statement">if-statement</a></li>
 </ul><p>
 As can be seen, call-by-name parameters are used all the time,
 without realizing it. A call-by-name parameter is a function
-without parameters. Function types such as <tt><!-- ' --><a class="type" href="manual/types.htm#proc">proc</a><!-- ' --></tt> or
-<tt><!-- ' --><a class="type" href="manual/types.htm#func">func</a> <a class="type" href="manual/types.htm#boolean">boolean</a><!-- ' --></tt> are used as type of formal call-by-name
+without parameters. Function types such as <tt><a class="type" href="manual/types.htm#proc">proc</a></tt> or
+<tt><a class="type" href="manual/types.htm#func">func</a> <a class="type" href="manual/types.htm#boolean">boolean</a></tt> are used as type of formal call-by-name
 parameters. An expression with the correct type is allowed
 as actual call-by-name parameter. This actual parameter expression is
 not evaluated when the function is called. Instead the call-by-name
 expression is evaluated every time the formal call-by-name parameter
 is used. A <tt>'conditional'</tt> function (similar to the ?: operator from C)
 is defined with:
-</p><pre>
-  <span class="keywd">const</span> <span class="type">func integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
-      (<span class="keywd">in</span> <span class="type">func integer</span>: trueValue, <span class="keywd">in</span> <span class="type">func integer</span>: falseValue) <span class="keywd">is func</span>
-    <span class="keywd">result</span>
-      <span class="keywd">var</span> <span class="type">integer</span>: result <span class="keywd">is</span> 0;
-    <span class="keywd">begin</span>
-      <span class="keywd">if</span> condition <span class="keywd">then</span>
-        result := trueValue;
-      <span class="keywd">else</span>
-        result := falseValue;
-      <span class="keywd">end if</span>;
-    <span class="keywd">end func</span>;
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
+    (<span class="keywd">in</span> <span class="type">func integer</span>: trueValue, <span class="keywd">in</span> <span class="type">func integer</span>: falseValue) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: result <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> condition <span class="keywd">then</span>
+      result := trueValue;
+    <span class="keywd">else</span>
+      result := falseValue;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
 </pre><p>
 Seed7 does not require a special notation (like brackets) for
 actual call-by-name parameters, therefore the <tt>'conditional'</tt> function
 can be called with:
-</p><pre>
-  conditional(a &lt; 100.0, sqrt(a), a ** 2)
+</p><pre class="indent">
+conditional(a &lt; 100.0, sqrt(a), a ** 2)
 </pre><p>
 Depending on the condition <tt>'a &lt; 100.0'</tt> only one of the expressions
 <tt>'sqrt(a)'</tt> and <tt>'a ** 2'</tt> is evaluated. This evaluation
@@ -1408,56 +1456,56 @@ to <tt>'result'</tt>.
 </p></div>
 
 <div><br /><a name="container_classes"><h3>What container classes do exist?
-</h3></a><hr /><!-- ================================ -->
+</h3></a><hr />
 <p>
 <a class="link" href="#abstract_data_type">Abstract data types</a> are used to replace container classes. When using an
 abstract data type as container you have to specify the type of the element
 in the type declaration. Therefore abstract data types are always type safe.
 Typeless container classes with object elements do not exist. The only thing
-which comes near to this is the <tt><!-- ' --><a class="type" href="manual/types.htm#ref_list">ref_list</a><!-- ' --></tt> which is used in the reflection.
-A <tt><!-- ' --><a class="type" href="manual/types.htm#ref_list">ref_list</a><!-- ' --></tt> should not be misused as container class. Predefined abstract
+which comes near to this is the <tt><a class="type" href="manual/types.htm#ref_list">ref_list</a></tt> which is used in the reflection.
+A <tt><a class="type" href="manual/types.htm#ref_list">ref_list</a></tt> should not be misused as container class. Predefined abstract
 data types are:
 </p><dl>
-<dt><!--  -  --><a class="type" href="manual/types.htm#array">array</a></dt><dd>
+<dt><a class="type" href="manual/types.htm#array">array</a></dt><dd>
    The type <tt>'<span class="type">array baseType</span>'</tt> describes sequences of identical elements of
    a <tt>'<span class="type">baseType</span>'</tt></dd>
 
-<dt><!--  -  --><a class="type" href="manual/types.htm#hash">hash</a></dt><dd>
+<dt><a class="type" href="manual/types.htm#hash">hash</a></dt><dd>
    The type <tt>'<span class="type">hash [keyType] baseType</span>'</tt> describes hash tables with elements
    of <tt>'<span class="type">baseType</span>'</tt> which can be accessed using an index of <tt>'<span class="type">keyType</span>'</tt></dd>
 
-<dt><!--  -  --><a class="type" href="manual/types.htm#set">set</a></dt><dd>
+<dt><a class="type" href="manual/types.htm#set">set</a></dt><dd>
    The type <tt>'<span class="type">set of baseType</span>'</tt> describes a set of elements of a <tt>'<span class="type">baseType</span>'</tt></dd>
 
-<dt><!--  -  --><a class="type" href="manual/types.htm#struct">struct</a></dt><dd>
+<dt><a class="type" href="manual/types.htm#struct">struct</a></dt><dd>
    The type <tt>'<span class="type">struct ... end struct</span>'</tt> describes all structured types.</dd>
 </dl><p>
 Usage examples of abstract data types are:
-</p><pre>
-  <span class="type">array string</span>
-  <span class="type">array [boolean] string</span>
-  <span class="type">hash [string] boolean</span>
-  <span class="type">hash [string] array array string</span>
-  <span class="type">set of char</span>
-  <span class="type">set of integer</span>
+</p><pre class="indent">
+<span class="type">array string</span>
+<span class="type">array [boolean] string</span>
+<span class="type">hash [string] boolean</span>
+<span class="type">hash [string] array array string</span>
+<span class="type">set of char</span>
+<span class="type">set of integer</span>
 </pre></div>
 
 <div><br /><a name="primitive_types"><h3>Are there primitive types?
-</h3></a><hr /><!-- ========================== -->
+</h3></a><hr />
 <p>
 As in C++, Java, C# and other hybrid object oriented languages there are
-predefined primitive types in Seed7. These are <tt><!-- ' --><a class="type" href="manual/types.htm#integer">integer</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#char">char</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#boolean">boolean</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#string">string</a><!-- ' --></tt>,
-<tt><!-- ' --><a class="type" href="manual/types.htm#float">float</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#rational">rational</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#time">time</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#duration">duration</a><!-- ' --></tt> and others. Additionally to the predefined
+predefined primitive types in Seed7. These are <tt><a class="type" href="manual/types.htm#integer">integer</a></tt>, <tt><a class="type" href="manual/types.htm#char">char</a></tt>, <tt><a class="type" href="manual/types.htm#boolean">boolean</a></tt>, <tt><a class="type" href="manual/types.htm#string">string</a></tt>,
+<tt><a class="type" href="manual/types.htm#float">float</a></tt>, <tt><a class="type" href="manual/types.htm#rational">rational</a></tt>, <tt><a class="type" href="manual/types.htm#time">time</a></tt>, <tt><a class="type" href="manual/types.htm#duration">duration</a></tt> and others. Additionally to the predefined
 primitive types there is also the possibility to declare new primitive types.
 </p></div>
 
 <div><br /><a name="object_and_primitive_types"><h3>What is the difference between object and primitive types?
-</h3></a><hr /><!-- ========================================================== -->
+</h3></a><hr />
 <p>
 Variables with object types contain references to object values. This means
 that after
-</p><pre>
-  a := b
+</p><pre class="indent">
+a := b
 </pre><p>
 the variable 'a' refers to the same object as variable 'b'. Therefore changes
 of the object value that 'a' refers to, will effect variable 'b' as well (and
@@ -1465,29 +1513,29 @@ vice versa) because both variables refer to the same object.
 </p><p>
 For primitive types a different logic is used. Variables with primitive types
 contain the value itself. This means that after
-</p><pre>
-  a := b
+</p><pre class="indent">
+a := b
 </pre><p>
 both variables are still distinct and changing one variable has no effect on
 the other.
 </p><p>
 If 'a' and 'b' are declared to have type <tt>'<span class="type">aType</span>'</tt> which contains the integer
 field 'property' you can do the following:
-</p><pre>
-  b.property := 1;
-  a := b;
-  b.property := 2;
+</p><pre class="indent">
+b.property := 1;
+a := b;
+b.property := 2;
 </pre><p>
 Everything boils down to the question: What value does <tt>'a.property'</tt> have now.
 </p><ul>
-<li><!--  -  -->When <tt>'<span class="type">aType</span>'</tt> is an object type a.property has the value 2 because 'a' and 'b'
+<li>When <tt>'<span class="type">aType</span>'</tt> is an object type a.property has the value 2 because 'a' and 'b'
    both refer to the same object.</li>
-<li><!--  -  -->When <tt>'<span class="type">aType</span>'</tt> is a primitive type a.property has still the value 1 because 'a'
+<li>When <tt>'<span class="type">aType</span>'</tt> is a primitive type a.property has still the value 1 because 'a'
    and 'b' are distinct objects.</li>
 </ul></div>
 
 <div><br /><a name="when_use_object_or_primitive_types"><h3>When to use an object type and when a primitive type?
-</h3></a><hr /><!-- ===================================================== -->
+</h3></a><hr />
 <p>
 You should declare a new primitive type if you don't need the object
 oriented paradigm that a variable (and a constant) is just a reference
@@ -1496,7 +1544,7 @@ what is equal (An == operator and an equal method).
 </p></div>
 
 <div><br /><a name="how_does_the_assignment_work"><h3>How does the assignment work?
-</h3></a><hr /><!-- ============================= -->
+</h3></a><hr />
 <p>
 For object types just the reference to the object value is copied. For
 primitive types the value itself is copied. Since values can be very big
@@ -1512,7 +1560,7 @@ using value copies for the assignment.
 </p></div>
 
 <div><br /><a name="two_forms_of_assignment"><h3>Why are there two forms of assignment?
-</h3></a><hr /><!-- ====================================== -->
+</h3></a><hr />
 <p>
 Seed7 has an approach for the assignment where practical arguments count
 more than the classic object oriented principles. In Seed7 every type has
@@ -1522,7 +1570,7 @@ forms of assignment since every type can define its own assignment. If a
 value copy works like a deep or a shallow copy can also be defined depending
 on the type. 
 </p><p>
-For example: For <tt><!-- ' --><a class="type" href="manual/types.htm#integer">integer</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#char">char</a><!-- ' --></tt> and <tt><!-- ' --><a class="type" href="manual/types.htm#string">string</a><!-- ' --></tt> variables a value copy is what most
+For example: For <tt><a class="type" href="manual/types.htm#integer">integer</a></tt>, <tt><a class="type" href="manual/types.htm#char">char</a></tt> and <tt><a class="type" href="manual/types.htm#string">string</a></tt> variables a value copy is what most
 people expect. For files you don't expect the whole file to be copied with
 an assignment, therefore a reference copy seems appropriate.
 </p><p>
@@ -1535,29 +1583,29 @@ assignment and the comparison operators.
 </p></div>
 
 <div><br /><a name="types of parameters"><h3>What types of parameters does Seed7 have?
-</h3></a><hr /><!-- ========================================= -->
+</h3></a><hr />
 <p>
 There are value and reference parameters. The formal parameter can be constant or
 variable. The combination of these features allows four types of parameters:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  <!-- +-----------+-----------+--------------+ -->
-  <tr><!-- | --><th> parameter </th><!-- | --><th>  call by  </th><!-- | --><th> access right </th><!-- | --></tr>
-  <!-- +-----------+-----------+--------------+ -->
-  <tr><!-- | --><td> val       </td><!-- | --><td align="center">   value   </td><!-- | --><td> const        </td><!-- | --></tr>
-  <tr><!-- | --><td> ref       </td><!-- | --><td align="center"> reference </td><!-- | --><td> const        </td><!-- | --></tr>
-  <tr><!-- | --><td> in var    </td><!-- | --><td align="center">   value   </td><!-- | --><td> var          </td><!-- | --></tr>
-  <tr><!-- | --><td> inout     </td><!-- | --><td align="center"> reference </td><!-- | --><td> var          </td><!-- | --></tr>
-  <!-- +-----------+-----------+--------------+ -->
+  
+  <tr><th> parameter </th><th>  call by  </th><th> access right </th></tr>
+  
+  <tr><td> val       </td><td align="center">   value   </td><td> const        </td></tr>
+  <tr><td> ref       </td><td align="center"> reference </td><td> const        </td></tr>
+  <tr><td> in var    </td><td align="center">   value   </td><td> var          </td></tr>
+  <tr><td> inout     </td><td align="center"> reference </td><td> var          </td></tr>
+  
 </table></dd></dl><p>
 Additionally every type defines an <tt>'<span class="keywd">in</span>'</tt> parameter which is either a <tt>'<span class="keywd">val</span>'</tt> or a
-<tt>'<span class="keywd">ref</span>'</tt> parameter. Types with little memory requirements like <tt><!-- ' --><a class="type" href="manual/types.htm#integer">integer</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#char">char</a><!-- ' --></tt>
-and <tt><!-- ' --><a class="type" href="manual/types.htm#boolean">boolean</a><!-- ' --></tt> use a <tt>'<span class="keywd">val</span>'</tt> parameter as <tt>'<span class="keywd">in</span>'</tt>. Other types like <tt><!-- ' --><a class="type" href="manual/types.htm#string">string</a><!-- ' --></tt>, <tt><!-- ' --><a class="type" href="manual/types.htm#array">array</a><!-- ' --></tt>
-and <tt><!-- ' --><a class="type" href="manual/types.htm#struct">struct</a><!-- ' --></tt> use a <tt>'<span class="keywd">ref</span>'</tt> parameter as <tt>'<span class="keywd">in</span>'</tt>. Usually it is not necessary to
+<tt>'<span class="keywd">ref</span>'</tt> parameter. Types with little memory requirements like <tt><a class="type" href="manual/types.htm#integer">integer</a></tt>, <tt><a class="type" href="manual/types.htm#char">char</a></tt>
+and <tt><a class="type" href="manual/types.htm#boolean">boolean</a></tt> use a <tt>'<span class="keywd">val</span>'</tt> parameter as <tt>'<span class="keywd">in</span>'</tt>. Other types like <tt><a class="type" href="manual/types.htm#string">string</a></tt>, <tt><a class="type" href="manual/types.htm#array">array</a></tt>
+and <tt><a class="type" href="manual/types.htm#struct">struct</a></tt> use a <tt>'<span class="keywd">ref</span>'</tt> parameter as <tt>'<span class="keywd">in</span>'</tt>. Usually it is not necessary to
 care if an <tt>'<span class="keywd">in</span>'</tt> parameter is by value or by reference.
 </p></div>
 
 <div><br /><a name="constructors"><h3>Where are the constructors?
-</h3></a><hr /><!-- =========================== -->
+</h3></a><hr />
 <p>
 Seed7 does not need constructors, but you can define normal functions which
 create a new value in a similar way as constructors do it.
@@ -1567,56 +1615,56 @@ Explicit calls of the create statement are not needed.
 </p><p>
 The lifetime of an object goes like this:
 </p><ol><li>
-<!-- 1.  -->Memory is reserved for the new object (stack or heap memory make no difference here).
+Memory is reserved for the new object (stack or heap memory make no difference here).
 </li><li>
-<!-- 2.  -->The content of the new memory is undefined (It may contain garbage), therefore a
+The content of the new memory is undefined (It may contain garbage), therefore a
    create statement is necessary instead of an assignment.
 </li><li>
-<!-- 3.  -->The create statements copies the right expression to the left expression taking
+The create statements copies the right expression to the left expression taking
    into account that the left expression is undefined.
 </li><li>
-<!-- 4.  -->If the object is variable other values can be assigned using the assign statement ( := ).
+If the object is variable other values can be assigned using the assign statement ( := ).
    The assignment can assume that the left expression contains a legal value. This allows
    that for strings (and some other types which are just references to a memory area) the
    memory containing the old string value (and not the memory of the object itself) can
    be freed when necessary.
 </li><li>
-<!-- 5.  -->At the end of the lifetime of an object the destroy statement is executed.
+At the end of the lifetime of an object the destroy statement is executed.
    For strings (and some other types which are just references to a memory area) the memory
    containing the string value (and not the memory of the object itself) is freed.
 </li><li>
-<!-- 6.  -->The memory of the object is freed.
+The memory of the object is freed.
 </li></ol><p>
 The first three steps are usually hidden in the declaration statement.
 </p></div>
 
 <div><br /><a name="static_methods"><h3>Are there static methods / class methods?
-</h3></a><hr /><!-- ========================================= -->
+</h3></a><hr />
 <p>
 Seed7 allows defining functions (procedures and statements) without corresponding
 class. When this is not desired Seed7 uses a special parameter, the <tt>'attr'</tt> (attribute)
 parameter, to archive the functionality of static methods (elsewhere named class
 methods) in a more general way. How a static method is declared is shown in the
 following example:
-</p><pre>
-  <span class="keywd">const</span> <span class="type">func integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
-    <span class="keywd">result</span>
-      <span class="keywd">var</span> <span class="type">integer</span>: result <span class="keywd">is</span> 0;
-    <span class="keywd">begin</span>
-      result := ord(ch);
-    <span class="keywd">end func</span>;
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func integer</span>: convert_to (<span class="keywd">attr</span> <span class="type">integer</span>, <span class="keywd">in</span> <span class="type">char</span>: ch) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: result <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    result := ord(ch);
+  <span class="keywd">end func</span>;
 </pre><p>
 The function <tt>'convert_to'</tt> can be called as
-</p><pre>
-  number := convert_to(<span class="type">integer</span>, 'a');
+</p><pre class="indent">
+number := convert_to(<span class="type">integer</span>, 'a');
 </pre><p>
 Since the result of a function is not used to determine an overloaded function, this
 is sometimes the only way to use the same function name for different purposes as in:
-</p><pre>
-  ch   := convert_to(<span class="type">char</span>,    1);
-  stri := convert_to(<span class="type">string</span>,  1);
-  ok   := convert_to(<span class="type">boolean</span>, 1);
-  num  := convert_to(typeof(num), 1);
+</p><pre class="indent">
+ch   := convert_to(<span class="type">char</span>,    1);
+stri := convert_to(<span class="type">string</span>,  1);
+ok   := convert_to(<span class="type">boolean</span>, 1);
+num  := convert_to(typeof(num), 1);
 </pre><p>
 Attribute parameters allow a function to be attached to a certain type. But this concept
 is much more flexible than static methods (or class methods). A function can also
@@ -1626,7 +1674,7 @@ example typeof(num).
 </div>
 
 <div><br /><a name="generics"><h3>Are there generics / templates?
-</h3></a><hr /><!-- =============================== -->
+</h3></a><hr />
 <p>
 The generics (templates) of Ada, C++ and Java use special
 syntax. In Seed7 you get this functionality for free without
@@ -1659,7 +1707,7 @@ what it is going on. This way the program is easier to read.
 </p></div>
 
 <div><br /><a name="exceptions"><h3>Are there exceptions?
-</h3></a><hr /><!-- ===================== -->
+</h3></a><hr />
 <p>
 Yes, Seed7 has exceptions which are similar to Ada exceptions.
 <a class="link" href="manual/errors.htm#Exceptions">Chapter 14.2 (Exceptions)</a> of the manual contains a detailed
@@ -1667,11 +1715,11 @@ description of the Seed7 exceptions.
 </p></div>
 
 <div><br /><a name="stack_trace"><h3>What happens when an exception is not caught?
-</h3></a><hr /><!-- ============================================= -->
+</h3></a><hr />
 <p>
 When an EXCEPTION is not caught the program is terminated and the hi
 interpreter writes a stack trace:
-</p><pre>
+</p><pre class="box">
   *** Uncaught EXCEPTION NUMERIC_ERROR raised with
   {integer: &lt;SYMBOLOBJECT> *NULL_ENTITY_OBJECT* div fuel_max }
 
@@ -1681,21 +1729,21 @@ interpreter writes a stack trace:
   in setup at lander.sd7(909)
   in main at lander.sd7(1541)
 </pre><p>
-This stack trace shows that a <tt><!-- ' --><a class="keywd" href="libraries/integer.htm#(in_integer)div(in_integer)">div</a><!-- ' --></tt> operation causes a <tt>'NUMERIC_ERROR'</tt>
-(probably a division by zero) in line 840 of the file <tt><!-- " --><a class="prog" href="prg/lander.htm">lander.sd7</a><!-- " --></tt>.
-A short examination in <tt><!-- " --><a class="prog" href="prg/lander.htm">lander.sd7</a><!-- " --></tt> shows that an assignment to
+This stack trace shows that a <tt><a class="op" href="libraries/integer.htm#(in_integer)div(in_integer)">div</a></tt> operation causes a <tt><a class="exception" href="manual/errors.htm#NUMERIC_ERROR">NUMERIC_ERROR</a></tt>
+(probably a division by zero) in line 840 of the file <tt><a class="prog" href="prg/lander.htm">lander.sd7</a></tt>.
+A short examination in <tt><a class="prog" href="prg/lander.htm">lander.sd7</a></tt> shows that an assignment to
 <tt>'fuel_max'</tt> was commented out to show how stack traces work.
 </p><p>
   A compiled program creates a much shorter crash message:
-</p><pre>
+</p><pre class="box">
   *** Uncaught EXCEPTION NUMERIC_ERROR raised at tmp_lander.c(764)
 </pre><p>
 In this case the mentioned file name and line number refers to
 the temporary C file or the Seed7 runtime library. To get useful
 information there are two possibilities:
 </p><ol>
-<li><!--  1.  -->Start the program in the interpreter instead.</li>
-<li><!--  2.  -->Compile the program with the options <tt><b>-g</b></tt> <tt><b>-e</b></tt> and start it from a debugger.</li>
+<li>Start the program in the interpreter instead.</li>
+<li>Compile the program with the options <tt><b>-g</b></tt> <tt><b>-e</b></tt> and start it from a debugger.</li>
 </ol><p>
 The option <tt><b>-g</b></tt> instructs the C compiler to include
 debugging information. This way a debugger like gdb can
@@ -1711,7 +1759,7 @@ description how to debug compiled Seed7 programs.
 </p></div>
 
 <div><br /><a name="lib_path"><h3>Where does the interpreter look for include libraries?
-</h3></a><hr /><!-- ====================================================== -->
+</h3></a><hr />
 <p>
 Include libraries with absolute path (an absolute path starts with
 a forward slash) are only searched at the specified place. All
@@ -1722,10 +1770,10 @@ another for the requested include file. As soon as the include file
 is found the search is stopped and the file is included. The
 following directories are in the list of library directories:
 </p><ol>
-<li><!--  1.  -->The directory of the interpreted program. E.g.: When the
+<li>The directory of the interpreted program. E.g.: When the
     program <tt><span class="stri">"/home/abc/test/pairs.sd7"</span></tt> is interpreted the directory
     <tt><span class="stri">"/home/abc/test"</span></tt> is in the list of library directories.</li>
-<li><!--  2.  -->This point is only in effect when the interpreter
+<li>This point is only in effect when the interpreter
     was not compiled from source (The C preprocessor macro
     PATHS_RELATIVE_TO_EXECUTABLE is defined): Interpreter and
     compiler from the binary release use <tt><span class="stri">"../lib"</span></tt> relative
@@ -1733,16 +1781,16 @@ following directories are in the list of library directories:
     E.g.: When the interpreter is in the directory
     <tt><span class="stri">"/home/abc/seed7/bin"</span></tt> the directory <tt><span class="stri">"/home/abc/seed7/lib"</span></tt>
     is in the list of library directories.</li>
-<li><!--  3.  -->The directory containing the predefined Seed7 include libraries.
+<li>The directory containing the predefined Seed7 include libraries.
     This directory is hard-coded in the interpreter (an absolute
     path like <tt><span class="stri">"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</span></tt>).
     The hard-coded library directory is determined when the
     interpreter is compiled. When the interpreter was not compiled
     from source (binary release) the path <tt><span class="stri">"../lib"</span></tt>
     relative to the current working directory is used.</li>
-<li><!--  4.  -->The directory specified with the <tt>SEED7_LIBRARY</tt> environment
+<li>The directory specified with the <tt>SEED7_LIBRARY</tt> environment
     variable.</li>
-<li><!--  5.  -->Directories specified in the source file with the <tt>library</tt>
+<li>Directories specified in the source file with the <tt>library</tt>
     pragma. E.g.: The line: <tt>$ library <span class="stri">"/home/abc/seed7/lib"</span></tt>
     adds the directory <tt><span class="stri">"/home/abc/seed7/lib"</span></tt> to the list of library
     directories.</li>
@@ -1759,15 +1807,15 @@ absolute path <tt><span class="stri">"/<i>directory_where_Seed7_was_installed</i
 </p></div>
 
 <div><br /><a name="predefined_include_libraries"><h3>How is the directory of the predefined include libraries determined?
-</h3></a><hr /><!-- ==================================================================== -->
+</h3></a><hr />
 <p>
 The directory of the predefined include libraries is hard-coded in the
 interpreter. This information is determined when the Seed7 interpreter
 is compiled. The command <tt>'make depend'</tt> writes a line, which defines the
 C preprocessor variable SEED7_LIBRARY, to the file <tt><span class="stri">"seed7/src/version.h"</span></tt>.
 E.g.: The file <tt><span class="stri">"version.h"</span></tt> contains the line:
-</p><pre>
-  #define SEED7_LIBRARY <span class="stri">"/home/abc/seed7/lib"</span>
+</p><pre class="indent">
+#define SEED7_LIBRARY <span class="stri">"/home/abc/seed7/lib"</span>
 </pre><p>
 The preprocessor macro SEED7_LIBRARY is used by the function
 <tt>init_lib_path()</tt>, which is defined in <tt><span class="stri">"seed7/src/infile.c"</span></tt>.
@@ -1776,9 +1824,9 @@ When the interpreter of a binary release is compiled, a slightly
 modified makefile is used. The command <tt>'make depend'</tt> writes
 the following preprocessor macro definitions to the file
 <tt><span class="stri">"version.h"</span></tt>:
-</p><pre>
-  #define PATHS_RELATIVE_TO_EXECUTABLE
-  #define SEED7_LIBRARY "../lib"
+</p><pre class="indent">
+#define PATHS_RELATIVE_TO_EXECUTABLE
+#define SEED7_LIBRARY "../lib"
 </pre><p>
 The preprocessor macro PATHS_RELATIVE_TO_EXECUTABLE is used
 by the function <tt>init_lib_path()</tt>, to add a path relative
@@ -1790,27 +1838,27 @@ the directory with predefined include libraries.
 </p></div>
 
 <div><br /><a name="cmd_config_value"><h3>How does the Seed7 compiler get information about C compiler and runtime?
-</h3></a><hr /><!-- ========================================================================= -->
+</h3></a><hr />
 <p>
 The Seed7 compiler needs detailed information about the C compiler
 and its runtime library. This information is created when the Seed7
 interpreter is compiled. The command <tt>'make depend'</tt> writes C preprocessor
 macros to <tt><span class="stri">"seed7/src/version.h"</span></tt>. E.g.:
-</p><pre>
-  #define SEED7_LIB <span class="stri">"seed7_05.a"</span>
-  #define CONSOLE_LIB <span class="stri">"s7_con.a"</span>
-  #define DRAW_LIB <span class="stri">"s7_draw.a"</span>
-  #define COMP_DATA_LIB <span class="stri">"s7_data.a"</span>
-  #define COMPILER_LIB <span class="stri">"s7_comp.a"</span>
-  #define S7_LIB_DIR <span class="stri">"/home/abc/seed7/bin"</span>
+</p><pre class="indent">
+#define SEED7_LIB <span class="stri">"seed7_05.a"</span>
+#define CONSOLE_LIB <span class="stri">"s7_con.a"</span>
+#define DRAW_LIB <span class="stri">"s7_draw.a"</span>
+#define COMP_DATA_LIB <span class="stri">"s7_data.a"</span>
+#define COMPILER_LIB <span class="stri">"s7_comp.a"</span>
+#define S7_LIB_DIR <span class="stri">"/home/abc/seed7/bin"</span>
 </pre><p>
 The command <tt>'make depend'</tt> compiles and executes the program
 <tt><span class="stri">"chkccomp.c"</span></tt>, which also writes preprocessor macros to <tt><span class="stri">"version.h"</span></tt>.
 E.g.:
-</p><pre>
-  #define RSHIFT_DOES_SIGN_EXTEND
-  #define TWOS_COMPLEMENT_INTTYPE
-  #define LITTLE_ENDIAN_INTTYPE
+</p><pre class="indent">
+#define RSHIFT_DOES_SIGN_EXTEND
+#define TWOS_COMPLEMENT_INTTYPE
+#define LITTLE_ENDIAN_INTTYPE
 </pre><p>
 The preprocessor macros used by <tt><span class="stri">"version.h"</span></tt> are described in
 <tt><span class="stri">"seed7/src/read_me.txt"</span></tt>. The function <tt>'cmdConfigValue()'</tt>, which is
@@ -1833,9 +1881,9 @@ LITTLE_ENDIAN_INTTYPE are used to control the kind of C code
 produced by the Seed7 compiler. The function <tt>'configValue'</tt>
 can also obtain config values that do not come from <tt><span class="stri">"version.h"</span></tt>,
 but are defined in <tt><span class="stri">"seed7/src/common.h"</span></tt>. E.g.:
-</p><pre>
-  #define WITH_STRI_CAPACITY
-  #define ALLOW_STRITYPE_SLICES
+</p><pre class="indent">
+#define WITH_STRI_CAPACITY
+#define ALLOW_STRITYPE_SLICES
 </pre><p>
 This configuration values describe data structures and
 implementation strategies used by the Seed7 runtime library.
@@ -1844,7 +1892,7 @@ but they may change between releases of Seed7.
 </p></div>
 
 <div><br /><a name="bytecode"><h3>Does the interpreter use bytecode?
-</h3></a><hr /><!-- ================================== -->
+</h3></a><hr />
 <p>
 No, the analyze phase of the Seed7 interpreter produces call-code which consists
 of values and function calls. This call-code is just handled in memory and
@@ -1852,7 +1900,7 @@ never written to a file. After the analyze phase the call-code is interpreted.
 </p></div>
 
 <div><br /><a name="analyze"><h3>How does the analyze phase of the interpreter work?
-</h3></a><hr /><!-- =================================================== -->
+</h3></a><hr />
 <p>
 The analyzer reads successive expressions. The expressions are read with a
 table-driven LL(1) recursive descent parser. The parser is controlled by
@@ -1869,7 +1917,7 @@ database.
 </p></div>
 
 <div><br /><a name="compile_call_by_name"><h3>How does the compiler implement call-by-name parameters?
-</h3></a><hr /><!-- ======================================================== -->
+</h3></a><hr />
 <p>
 Every function with call-by-name parameters is searched for recursive calls.
 When no recursive call of the function is present it can be implemented
@@ -1895,7 +1943,7 @@ to the closure structure variable is used as actual call-by-name parameter.
 </p></div>
 
 <div><br /><a name="action"><h3>What does action "XYZ_SOMETHING" mean?
-</h3></a><hr /><!-- ====================================== -->
+</h3></a><hr />
 <p>
 Actions are used to call a corresponding C function in the interpreter.
 For example:
@@ -1910,7 +1958,7 @@ list, perform the action and deliver a result.
 </p></div>
 
 <div><br /><a name="dollar_signs"><h3>Why are there dollar signs at some places?
-</h3></a><hr /><!-- ========================================== -->
+</h3></a><hr />
 <p>
 The $ is used to force the analyzer to use a hard coded expression recognition
 instead of the configurable one. This mechanism is used to boot the Seed7 language:
@@ -1918,7 +1966,7 @@ instead of the configurable one. This mechanism is used to boot the Seed7 langua
 At the beginning of the seed7_05.s7i file nothing is declared. This means that
 no statements, no functions, no operators, no types and no variables are predefined.
 To boot the Seed7 language the file syntax.s7i is included. The file syntax.s7i
-contains only $ commands. First the type <tt><!-- ' --><a class="type" href="manual/types.htm#type">type</a><!-- ' --></tt> is defined. Declarations of other
+contains only $ commands. First the type <tt><a class="type" href="manual/types.htm#type">type</a></tt> is defined. Declarations of other
 types, system variables and syntax descriptions of operators and statements follow.
 After finishing the inclusion of syntax.s7i the file seed7_05.s7i contains some $
 declarations until the <tt>'<span class="keywd">const</span>'</tt> declaration statement is established. From that point
@@ -1926,10 +1974,10 @@ onward almost no $ statements are needed.
 </p></div>
 
 <div><br /><a name="seed7_version_number"><h3>Why does "seed7_05.s7i" contain a version number?
-</h3></a><hr /><!-- ================================================= -->
+</h3></a><hr />
 <p>
 The number 05 is actually a 'branch info'. As if C had headers like
-</p><pre>
+</p><pre class="box">
   &lt;stdlib_c78.h> /* For K&amp;R C programs */
   &lt;stdlib_c89.h> /* For ANSI C */
   &lt;stdlib_c99.h> /* For C99 */
@@ -1950,13 +1998,13 @@ are defined in "seed7_05.s7i" this is the right place to do it.
 </p></div>
 
 <div><br /><a name="boot_a_language"><h3>Can I use an "abc.s7i" include file to boot to the abc language?
-</h3></a><hr /><!-- ================================================================ -->
+</h3></a><hr />
 <p>
 Theoretically yes. In practice there would be several problems. For example:
 </p><ul>
-<li> <!-- - --> All primitive actions are defined such that they fit to Seed7.</li>
-<li> <!-- - --> Some concepts like goto's, return's and break's are not supported.</li>
-<li> <!-- - --> Some things like comments and $ pragmas are hard coded.</li>
+<li>  All primitive actions are defined such that they fit to Seed7.</li>
+<li>  Some concepts like goto's, return's and break's are not supported.</li>
+<li>  Some things like comments and $ pragmas are hard coded.</li>
 </ul><p>
 But basically booting various languages was one of the goals of the extensible
 programming language Seed7 and the hi Interpreter.

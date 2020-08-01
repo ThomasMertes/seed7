@@ -41,12 +41,15 @@ const type: utf8_file is sub external_file struct
   end struct;
 
 
-const func char: utf8_getc (ref clib_file param)                          is action "UT8_GETC";
-const func string: utf8_gets (ref clib_file param, ref integer param)     is action "UT8_GETS";
-const func string: utf8_word_read (ref clib_file param, inout char param) is action "UT8_WORD_READ";
-const func string: utf8_line_read (ref clib_file param, inout char param) is action "UT8_LINE_READ";
-const proc: utf8_write (ref clib_file param, in string param)             is action "UT8_WRITE";
-const proc: utf8_seek (ref clib_file param, in integer param)             is action "UT8_SEEK";
+const func char: utf8_getc (ref clib_file: inFile)                    is action "UT8_GETC";
+const func string: utf8_gets (in clib_file: inFile,
+                              in integer: maxLength)                  is action "UT8_GETS";
+const func string: utf8_word_read (ref clib_file: inFile,
+                                   inout char: terminationChar)       is action "UT8_WORD_READ";
+const func string: utf8_line_read (ref clib_file: inFile,
+                                   inout char: terminationChar)       is action "UT8_LINE_READ";
+const proc: utf8_write (ref clib_file: outFile, in string: stri)      is action "UT8_WRITE";
+const proc: utf8_seek (ref clib_file: aFile, in integer: position)    is action "UT8_SEEK";
 
 
 const func utf8_file: malloc (in utf8_file: anUtf8File) is func
@@ -168,9 +171,9 @@ const func string: getln (inout utf8_file: inFile) is
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: seek (in utf8_file: aFile, in integer: pos) is func
+const proc: seek (in utf8_file: aFile, in integer: position) is func
   begin
-    utf8_seek(aFile.ext_file, pos);
+    utf8_seek(aFile.ext_file, position);
   end func;
 
 

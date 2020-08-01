@@ -92,11 +92,11 @@ inttype length;
 
 #ifdef ANSI_C
 
-stritype gkbLineRead (chartype *termination_char)
+stritype gkbLineRead (chartype *terminationChar)
 #else
 
-stritype gkbLineRead (termination_char)
-chartype *termination_char;
+stritype gkbLineRead (terminationChar)
+chartype *terminationChar;
 #endif
 
   {
@@ -143,7 +143,7 @@ chartype *termination_char;
         result = resized_result;
         COUNT3_STRI(memlength, position);
         result->size = position;
-        *termination_char = ch;
+        *terminationChar = ch;
       } /* if */
     } /* if */
     return result;
@@ -153,11 +153,11 @@ chartype *termination_char;
 
 #ifdef ANSI_C
 
-stritype gkbWordRead (chartype *termination_char)
+stritype gkbWordRead (chartype *terminationChar)
 #else
 
-stritype gkbWordRead (termination_char)
-chartype *termination_char;
+stritype gkbWordRead (terminationChar)
+chartype *terminationChar;
 #endif
 
   {
@@ -209,7 +209,7 @@ chartype *termination_char;
         result = resized_result;
         COUNT3_STRI(memlength, position);
         result->size = position;
-        *termination_char = ch;
+        *terminationChar = ch;
       } /* if */
     } /* if */
     return result;

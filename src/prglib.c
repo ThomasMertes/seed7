@@ -49,7 +49,6 @@
 #include "match.h"
 #include "name.h"
 #include "str_rtl.h"
-#include "cmd_rtl.h"
 #include "prg_comp.h"
 
 #undef EXTERN

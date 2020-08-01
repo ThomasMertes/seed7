@@ -151,8 +151,7 @@ inttype *used_max_position;
   /* add_stri_to_array */
     if (ALLOC_STRI_SIZE_OK(new_stri, length)) {
       new_stri->size = length;
-      memcpy(new_stri->mem, stri_elems,
-          length * sizeof(strelemtype));
+      memcpy(new_stri->mem, stri_elems, length * sizeof(strelemtype));
       if (*used_max_position >= work_array->max_position) {
         if (work_array->max_position >= MAX_MEM_INDEX - 256) {
           resized_work_array = NULL;
@@ -188,59 +187,98 @@ inttype *used_max_position;
 
 #ifdef ANSI_C
 
-stritype concat_path (const_stritype stri1, const_stritype stri2)
+stritype concat_path (const const_stritype absolutePath,
+    const const_stritype relativePath)
 #else
 
-stritype concat_path (stri, stri2)
-stritype stri1;
-stritype stri2;
+stritype concat_path (absolutePath, relativePath)
+stritype absolutePath;
+stritype relativePath;
 #endif
 
   {
-    memsizetype endPos1;
-    memsizetype startPos2;
-    inttype slashPos;
+    memsizetype abs_path_length;
+    memsizetype estimated_result_size;
+    strelemtype *abs_path_end;
+    strelemtype *rel_path_pos;
+    strelemtype *rel_path_byond;
     memsizetype result_size;
+    stritype resized_result;
     stritype result;
 
   /* concat_path */
-    endPos1 = stri1->size;
-    startPos2 = 0;
-    while (stri2->size >= startPos2 + 3 &&
-           stri2->mem[startPos2    ] == (chartype) '.' &&
-           stri2->mem[startPos2 + 1] == (chartype) '.' &&
-           stri2->mem[startPos2 + 2] == (chartype) '/') {
-      slashPos = strRChIPos(stri1, (chartype) '/', (inttype) endPos1);
-      if (likely(slashPos > 1)) {
-        endPos1 = (memsizetype) slashPos - 1;
-      } else {
-        raise_error(FILE_ERROR);
-        return NULL;
-      } /* if */
-      startPos2 += 3;
-    } /* while */
-    while (stri2->size >= startPos2 + 2 &&
-           stri2->mem[startPos2    ] == (chartype) '.' &&
-           stri2->mem[startPos2 + 1] == (chartype) '/') {
-      startPos2 += 2;
-    } /* while */
-    if (unlikely(stri2->size - startPos2 > MAX_STRI_LEN - endPos1 - 1)) {
-      /* number of bytes does not fit into memsizetype */
-      raise_error(MEMORY_ERROR);
+    /* printf("concat_path(");
+    prot_stri(absolutePath);
+    printf(", ");
+    prot_stri(relativePath);
+    printf(")\n"); */
+    /* absolutePath->mem[0] is always '/'. */
+    if (absolutePath->size == 1) {
+      abs_path_length = 0;
+    } else {
+      abs_path_length = absolutePath->size;
+    } /* if */
+    if (unlikely(abs_path_length > MAX_STRI_LEN - relativePath->size - 2)) {
       result = NULL;
     } else {
-      result_size = endPos1 + stri2->size - startPos2 + 1;
-      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = result_size;
-        memcpy(result->mem, stri1->mem, endPos1 * sizeof(strelemtype));
-        result->mem[endPos1] = (chartype) '/';
-        endPos1++;
-        memcpy(&result->mem[endPos1], &stri2->mem[startPos2],
-            (stri2->size - startPos2) * sizeof(strelemtype));
+      /* There is one slash (/) between the two paths. Temporarily    */
+      /* there is also a slash at the end of the intermediate result. */
+      estimated_result_size = abs_path_length + relativePath->size + 2;
+      if (ALLOC_STRI_SIZE_OK(result, estimated_result_size)) {
+        memcpy(result->mem, absolutePath->mem, abs_path_length * sizeof(strelemtype));
+        result->mem[abs_path_length] = '/';
+        abs_path_end = &result->mem[abs_path_length];
+        rel_path_pos = relativePath->mem;
+        rel_path_byond = &relativePath->mem[relativePath->size];
+        while (rel_path_pos < rel_path_byond) {
+          if (&rel_path_pos[1] < rel_path_byond &&
+              rel_path_pos[0] == '.' && rel_path_pos[1] == '.' &&
+              (&rel_path_pos[2] >= rel_path_byond || rel_path_pos[2] == '/')) {
+            rel_path_pos += 2;
+            if (abs_path_end > result->mem) {
+              do {
+                abs_path_end--;
+              } while (*abs_path_end != '/');
+            } /* if */
+          } else if (&rel_path_pos[0] < rel_path_byond &&
+                     rel_path_pos[0] == '.' &&
+                     (&rel_path_pos[1] >= rel_path_byond || rel_path_pos[1] == '/')) {
+            rel_path_pos++;
+          } else if (*rel_path_pos == '/') {
+            rel_path_pos++;
+          } else {
+            do {
+              abs_path_end++;
+              *abs_path_end = *rel_path_pos;
+              rel_path_pos++;
+            } while (&rel_path_pos[0] < rel_path_byond && rel_path_pos[0] != '/');
+            abs_path_end++;
+            /* The line below adds a temporary slash (/) to the end   */
+            /* of the intermediate result. Therefore + 2 is used to   */
+            /* compute the estimated_result_size.                     */
+            *abs_path_end = '/';
+          } /* if */
+        } /* while */
+        if (abs_path_end == result->mem) {
+          result->mem[0] = '/';
+          result_size = 1;
+        } else {
+          result_size = (memsizetype) (abs_path_end - result->mem);
+        } /* if */
+        REALLOC_STRI_SIZE_OK(resized_result, result, estimated_result_size, result_size);
+        if (unlikely(resized_result == NULL)) {
+          FREE_STRI(result, estimated_result_size);
+          result = NULL;
+        } else {
+          result = resized_result;
+          COUNT3_STRI(estimated_result_size, result_size);
+          result->size = result_size;
+        } /* if */
       } /* if */
     } /* if */
+    /* printf("concat_path --> ");
+    prot_stri(result);
+    printf("\n"); */
     return result;
   } /* concat_path */
 

@@ -27,42 +27,38 @@ THE HI INTERPRETER
 
   The following options are recognized by hi:
 
-    -a   Analyze only and suppress the execution phase.
-
-    -dx  Set compiletime trace level to x. Where x is a string consisting
-         of the following characters:
-
-           a Trace primitive actions
-           c Do action check
-           d Trace dynamic calls
-           e Trace exceptions and handlers
-           h Trace heapsize (in combination with 'a')
-
-    -d   Equivalent to -da
-
-    -i   Show the identifier table after the analyzing phase.
-
-    -m   Use less memory during the analyzing phase.
-         If there is a "No more memory" error you can try this
-         option.
-
-    -q   Compile quiet. Line and file information and compilation
-         statistics are suppressed.
-
-    -tx  Set runtime trace level to x. Where x is a string consisting
-         of the following characters:
-
-           a Trace primitive actions
-           c Do action check
-           d Trace dynamic calls
-           e Trace exceptions and handlers
-           h Trace heapsize (in combination with 'a')
-
-    -t   Equivalent to -ta
-
-    -v   Compile verbose. Write line numbers while analyzing.
-
-    -x   Execute even when the program contains errors.
+  -?   Write hi interpreter usage.
+  -a   Analyze only and suppress the execution phase.
+  -dx  Set compile-time trace level to x. Where x is a string consisting
+       of the following characters:
+         a Trace primitive actions
+         c Do action check
+         d Trace dynamic calls
+         e Trace exceptions and handlers
+         h Trace heap size (in combination with 'a')
+  -d   Equivalent to -da
+  -i   Show the identifier table after the analyzing phase.
+  -m   Use less memory during the analyzing phase.
+       If there is a "No more memory" error you can try this
+       option.
+  -q   Compile quiet. Line and file information and compilation
+       statistics are suppressed.
+  -tx  Set runtime trace level to x. Where x is a string consisting
+       of the following characters:
+         a Trace primitive actions
+         c Do action check
+         d Trace dynamic calls
+         e Trace exceptions and handlers
+         h Trace heap size (in combination with 'a')
+  -t   Equivalent to -ta
+  -vn  Set verbosity level of analyse phase to n. Where n is one
+       of the following characters:
+         0 Compile quiet (equivalent to -q)
+         1 Write just the header with version information (default)
+         2 Write a list of include libraries
+         3 Write line numbers, while analyzing
+  -v   Equivalent to -v2
+  -x   Execute even when the program contains errors.
 
   In the program the 'parameters' can be accessed via 'argv(PROGRAM)'.
   The 'argv(PROGRAM)' function delivers an array of strings. The number

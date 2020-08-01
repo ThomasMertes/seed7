@@ -195,12 +195,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 150000 lines of Seed7. For version 2012-08-26 the number of lines is:
+than 150000 lines of Seed7. For version 2012-09-09 the number of lines is:
 
-   101433  C source files (*.c)
-    10093  C header files (*.h)
-   110416  Seed7 source files (*.sd7)
-    80009  Seed7 library/include files (*.s7i)
+   101933  C source files (*.c)
+    10057  C header files (*.h)
+   110447  Seed7 source files (*.sd7)
+    80170  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -504,9 +504,9 @@ Possible options are
          2 Evaluate constant expressions to simplify expressions.
          3 Like -oc2 and additionally evaluate all constant expressions
   -te  Generate code to trace exceptions. This option works in the same way
-       as the interpreter option -te: Every exception will write a
-       message to stdout and the user will be ask to continue (with enter) or
-       to terminate (with * ).
+       as the interpreter option -te: Every exception will write a message
+       to stdout and the user will be asked to continue (with enter) or to
+       terminate (with * ).
   -r   Suppress the generation of range checks for strings and arrays.
   -e   Generate code which sends a signal, when an uncaught exception occurs.
        This option allows debuggers to handle uncaught Seed7 exceptions.
@@ -738,7 +738,7 @@ functions granted by the interface type are defined for the implementation type.
 
 
 Is the program development slowed down with static type checking?
-========================================
+=================================================================
 
 No, especially when the time spent to debug a program is taken into account.
 Except for artificial corner cases all type errors found by a "nitpicking"
@@ -902,26 +902,50 @@ and line comments. Interpreter and compiler assume that a Seed7 program is writt
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
 
 
+Why is the div operator used for integer divisions?
+===================================================
+
+In Pascal and Ada the keyword 'div' is used as integer division operator. Other
+languages like C and its descendants use / for integer division. Using 'div' has
+some advantages:
+
+ - It opens the opportunity to use / for a different purpose. The library
+   rational.s7i defines / to create a rational number.
+ - An integer division truncates the result. In the common case the result is not
+   equal to that of a floating point division (E.g.: flt(4 div 3) returns 1.0,
+   but flt(4) / flt(3) returns 1.333333). This difference is emphasized by using
+   different operator symbols.
+ - A negative result of a division can be rounded towards zero or towards minus
+   infinite. Seed7 provides both possibilities with the two integer division
+   operators 'div' and 'mdiv'.
+
+
 Is there a garbage collection?
 ==============================
 
-There is no garbage collection process that interrupts the normal processing to
-free some memory. Seed7 uses a different mechanism to manage the memory.
+There is no garbage collection process, that interrupts the normal processing,
+to free some memory. Seed7 uses different mechanisms to manage memory. Memory
+usage can be categorized and for every category a specific strategy of
+automatic memory management is used:
 
-Memory used by local variables and parameters is automatically freed when leaving
-a function.
-
-Although functions can return arbitrary complex values (e.g. arrays of structures
-with string elements) the memory allocated for all intermediate results is freed
-automatically without the help of a garbage collector. This is done in a stack
-like manner. The same way as arithmetic expressions like (1+2)*3+4 can be evaluated
-with the help of a stack (which stores the intermediate results 3 and 9), it is
-possible to maintain a stack of pointers to arbitrary complex values. Note that
-the point where such intermediate results should be freed can be determined at
-compile time. Functions such as the assignment, can abstain from freeing the
-intermediate result and just assign it to the variable. This way it is not
-always necessary to copy arbitrary complex values. All this things can be decided
-at compile time.
+ - Memory used by local variables and parameters is automatically freed, when
+   a function is left. The interpreter maintains a list of local values and
+   frees them. The compiler inserts code, to free the memory used by local
+   variables, in front of each return statement.
+ - Memory allocated for intermediate results is freed automatically in a stack
+   like manner. Like an arithmetic expressions such as (1+2)*3+4 can be
+   evaluated with the help of a stack (which stores the intermediate results
+   3 and 9). For structured values it is possible to maintain a stack of
+   pointers to the values. The interpreter uses a temp flag, which is present
+   in every interpreter object, to free memory. The compiler determines the
+   point, where intermediate results can be be freed, at compile time.
+   Functions, such as the assignment, can abstain from freeing the
+   intermediate result and just assign it to the variable. This way it is not
+   always necessary to copy arbitrary complex values. All this things can be
+   decided by the compiler.
+ - Strings, arrays, hashes and other containers manage their memory. E.g.:
+   When an element is removed from a hash table the memory used by the element
+   is freed as well as the hash table internal data.
 
 
 Is Seed7 object oriented?
@@ -1392,7 +1416,7 @@ interpreter writes a stack trace:
   in setup at lander.sd7(909)
   in main at lander.sd7(1541)
 
-This stack trace shows that a 'div' operation causes a 'NUMERIC_ERROR'
+This stack trace shows that a 'div' operation causes a NUMERIC_ERROR
 (probably a division by zero) in line 840 of the file "lander.sd7".
 A short examination in "lander.sd7" shows that an assignment to
 'fuel_max' was commented out to show how stack traces work.

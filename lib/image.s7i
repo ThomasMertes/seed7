@@ -92,7 +92,7 @@ const proc: toBottom (inout image: anImage) is DYNAMIC;
  *  Determine the name of an ''image''.
  *  @return the name of ''anImage''.
  *)
-const func string: str (in image param) is DYNAMIC;
+const func string: str (in image: anImage) is DYNAMIC;
 
 
 enable_output(image);

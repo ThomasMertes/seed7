@@ -205,7 +205,7 @@ const func boolean: inputReady (in external_file: inFile) is
 
 
 (**
- *  Obtain the length of a file.
+ *  Obtain the length of an external_file.
  *  The file length is measured in bytes.
  *  @return the length of a file, or 0 if it cannot be obtained.
  *  @exception RANGE_ERROR The file length is negative or does not
@@ -223,9 +223,9 @@ const func integer: length (in external_file: aFile) is
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: seek (in external_file: aFile, in integer: pos) is func
+const proc: seek (in external_file: aFile, in integer: position) is func
   begin
-    seek(aFile.ext_file, pos);
+    seek(aFile.ext_file, position);
   end func;
 
 

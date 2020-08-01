@@ -246,7 +246,7 @@ const func integer: length (in stritext: aStritext) is func
   end func;
 
 
-const proc: seek (in stritext: aStritext, in integer: pos) is func
+const proc: seek (in stritext: aStritext, in integer: position) is func
   begin
     noop; # todo
   end func;

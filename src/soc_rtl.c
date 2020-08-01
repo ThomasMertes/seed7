@@ -558,12 +558,12 @@ bstritype address;
 
 #ifdef ANSI_C
 
-chartype socGetc (sockettype sock, chartype *const eof_indicator)
+chartype socGetc (sockettype sock, chartype *const eofIndicator)
 #else
 
-chartype socGetc (sock, eof_indicator)
+chartype socGetc (sock, eofIndicator)
 sockettype sock;
-chartype *eof_indicator;
+chartype *eofIndicator;
 #endif
 
   {
@@ -573,7 +573,7 @@ chartype *eof_indicator;
   /* socGetc */
     bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
     if (bytes_received != 1) {
-      *eof_indicator = (chartype) EOF;
+      *eofIndicator = (chartype) EOF;
       return (chartype) EOF;
     } else {
       return (chartype) ch;
@@ -584,13 +584,13 @@ chartype *eof_indicator;
 
 #ifdef ANSI_C
 
-stritype socGets (sockettype sock, inttype length, chartype *const eof_indicator)
+stritype socGets (sockettype sock, inttype length, chartype *const eofIndicator)
 #else
 
-stritype socGets (sock, length, eof_indicator)
+stritype socGets (sock, length, eofIndicator)
 sockettype sock;
 inttype length;
-chartype *eof_indicator;
+chartype *eofIndicator;
 #endif
 
   {
@@ -634,7 +634,7 @@ chartype *eof_indicator;
           } /* if */
           result->size = result_size;
           if (result_size == 0 && result_size < bytes_requested) {
-            *eof_indicator = (chartype) EOF;
+            *eofIndicator = (chartype) EOF;
           } /* if */
         } /* if */
       } else {
@@ -660,7 +660,7 @@ chartype *eof_indicator;
           result->size = result_size;
           if (result_size < bytes_requested) {
             if (result_size == 0) {
-              *eof_indicator = (chartype) EOF;
+              *eofIndicator = (chartype) EOF;
             } /* if */
             REALLOC_STRI_SIZE_OK(resized_result, result, bytes_requested, result_size);
             if (unlikely(resized_result == NULL)) {
@@ -1205,12 +1205,12 @@ inttype micro_seconds;
 
 #ifdef ANSI_C
 
-stritype socLineRead (sockettype sock, chartype *const termination_char)
+stritype socLineRead (sockettype sock, chartype *const terminationChar)
 #else
 
-stritype socLineRead (sock, termination_char)
+stritype socLineRead (sock, terminationChar)
 sockettype sock;
-chartype *termination_char;
+chartype *terminationChar;
 #endif
 
   {
@@ -1236,7 +1236,7 @@ chartype *termination_char;
         result = NULL;
       } else {
         result->size = 0;
-        *termination_char = (chartype) EOF;
+        *terminationChar = (chartype) EOF;
       } /* if */
     } else {
       nlPos = (uchartype *) memchr(buffer, '\n', bytes_received);
@@ -1264,7 +1264,7 @@ chartype *termination_char;
             } /* for */
           } /* if */
           result->size = result_size;
-          *termination_char = '\n';
+          *terminationChar = '\n';
         } /* if */
       } else {
         result_size = bytes_received;
@@ -1315,7 +1315,7 @@ chartype *termination_char;
               } else {
                 result = resized_result;
                 result->size = result_pos;
-                *termination_char = (chartype) EOF;
+                *terminationChar = (chartype) EOF;
               } /* if */
             } else {
               nlPos = (uchartype *) memchr(buffer, '\n', bytes_received);
@@ -1358,7 +1358,7 @@ chartype *termination_char;
               } /* for */
             } /* if */
             result->size = result_size;
-            *termination_char = '\n';
+            *terminationChar = '\n';
           } /* if */
         } /* if */
       } /* if */
@@ -1371,12 +1371,12 @@ chartype *termination_char;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-stritype socLineRead (sockettype sock, chartype *const termination_char)
+stritype socLineRead (sockettype sock, chartype *const terminationChar)
 #else
 
-stritype socLineRead (sock, termination_char)
+stritype socLineRead (sock, terminationChar)
 sockettype sock;
-chartype *termination_char;
+chartype *terminationChar;
 #endif
 
   {
@@ -1428,9 +1428,9 @@ chartype *termination_char;
         COUNT3_STRI(memlength, position);
         result->size = position;
         if (bytes_received != 1) {
-          *termination_char = (chartype) EOF;
+          *terminationChar = (chartype) EOF;
         } else {
-          *termination_char = (chartype) ch;
+          *terminationChar = (chartype) ch;
         } /* if */
       } /* if */
     } /* if */
@@ -1452,7 +1452,17 @@ inttype backlog;
 
   { /* socListen */
     if (unlikely(listen(sock, backlog) != 0)) {
-      /* printf("socListen errno=%d\n", errno); */
+      /* printf("socListen(%d) errno=%d %s\n", sock, errno, strerror(errno));
+      printf("WSAGetLastError=%d\n", WSAGetLastError());
+      printf("WSANOTINITIALISED=%ld, WSAENETDOWN=%ld, WSAEFAULT=%ld, WSAENOTCONN=%ld\n",
+             WSANOTINITIALISED, WSAENETDOWN, WSAEFAULT, WSAENOTCONN);
+      printf("WSAEINTR=%ld, WSAEINPROGRESS=%ld, WSAENETRESET=%ld, WSAENOTSOCK=%ld\n",
+             WSAEINTR, WSAEINPROGRESS, WSAENETRESET, WSAENOTSOCK);
+      printf("WSAEOPNOTSUPP=%ld, WSAESHUTDOWN=%ld, WSAEWOULDBLOCK=%ld, WSAEMSGSIZE=%ld\n",
+             WSAEOPNOTSUPP, WSAESHUTDOWN, WSAEWOULDBLOCK, WSAEMSGSIZE);
+      printf("WSAEINVAL=%ld, WSAECONNABORTED=%ld, WSAETIMEDOUT=%ld, WSAECONNRESET=%ld\n",
+             WSAEINVAL, WSAECONNABORTED, WSAETIMEDOUT, WSAECONNRESET);
+      printf("WSAENOBUFS=%ld\n", WSAENOBUFS); */
       raise_error(FILE_ERROR);
     } /* if */
   } /* socListen */
@@ -1753,12 +1763,12 @@ inttype protocol;
 
 #ifdef ANSI_C
 
-stritype socWordRead (sockettype sock, chartype *const termination_char)
+stritype socWordRead (sockettype sock, chartype *const terminationChar)
 #else
 
-stritype socWordRead (sock, termination_char)
+stritype socWordRead (sock, terminationChar)
 sockettype sock;
-chartype *termination_char;
+chartype *terminationChar;
 #endif
 
   {
@@ -1813,9 +1823,9 @@ chartype *termination_char;
         COUNT3_STRI(memlength, position);
         result->size = position;
         if (bytes_received != 1) {
-          *termination_char = (chartype) EOF;
+          *terminationChar = (chartype) EOF;
         } else {
-          *termination_char = (chartype) ch;
+          *terminationChar = (chartype) ch;
         } /* if */
       } /* if */
     } /* if */

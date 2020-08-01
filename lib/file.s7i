@@ -143,7 +143,7 @@ const func integer: length (in file: aFile)                  is DYNAMIC;
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *)
-const proc: seek (inout file: aFile, in integer: pos)        is DYNAMIC;
+const proc: seek (inout file: aFile, in integer: position)   is DYNAMIC;
 
 
 (**

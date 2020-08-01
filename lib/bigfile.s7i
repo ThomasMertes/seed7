@@ -32,16 +32,16 @@ include "external_file.s7i";
 
 (* clib_file *)
 
-const func bigInteger: bigLength (ref clib_file param)       is action "FIL_BIG_LNG";
-const proc: seek (ref clib_file param, ref bigInteger param) is action "FIL_BIG_SEEK";
-const func bigInteger: bigTell (ref clib_file param)         is action "FIL_BIG_TELL";
+const func bigInteger: bigLength (ref clib_file: aFile)           is action "FIL_BIG_LNG";
+const proc: seek (ref clib_file: aFile, ref bigInteger: position) is action "FIL_BIG_SEEK";
+const func bigInteger: bigTell (ref clib_file: aFile)             is action "FIL_BIG_TELL";
 
 
 (* file *)
 
-const func bigInteger: bigLength (ref file: aFile)      is DYNAMIC;
-const proc: seek (ref file: aFile, ref bigInteger: pos) is DYNAMIC;
-const func bigInteger: bigTell (ref file: aFile)        is DYNAMIC;
+const func bigInteger: bigLength (ref file: aFile)           is DYNAMIC;
+const proc: seek (ref file: aFile, ref bigInteger: position) is DYNAMIC;
+const func bigInteger: bigTell (ref file: aFile)             is DYNAMIC;
 
 
 (* null_file *)
@@ -70,7 +70,7 @@ const func bigInteger: bigLength (ref null_file: aFile) is func
  *  @exception FILE_ERROR Is always raised, because a [[null_file]] is
  *             not seekable.
  *)
-const proc: seek (ref null_file: aFile, ref bigInteger: pos) is func
+const proc: seek (ref null_file: aFile, ref bigInteger: position) is func
   begin
     raise FILE_ERROR;
   end func;
@@ -114,9 +114,9 @@ const func bigInteger: bigLength (ref external_file: aFile) is
  *             converted into a system file position.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: seek (ref external_file: aFile, in bigInteger: pos) is func
+const proc: seek (ref external_file: aFile, in bigInteger: position) is func
   begin
-    seek(aFile.ext_file, pos);
+    seek(aFile.ext_file, position);
   end func;
 
 

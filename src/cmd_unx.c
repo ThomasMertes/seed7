@@ -114,6 +114,9 @@ stritype arg_0;
         cwd = cmdGetcwd();
         result = concat_path(cwd, arg_0);
         FREE_STRI(cwd, cwd->size);
+        if (result == NULL) {
+          raise_error(MEMORY_ERROR);
+        } /* if */
       } /* if */
 #ifdef HAS_SYMLINKS
     } /* if */

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  common.h      Basic type definitions and settings.              */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -28,6 +28,8 @@
 /*  Content: Basic type definitions and settings.                   */
 /*                                                                  */
 /********************************************************************/
+
+#include "config.h"
 
 #ifdef USE_BIG_GMP_LIBRARY
 #include "gmp.h"
@@ -62,36 +64,6 @@ typedef int booltype;
 #define TRUE     ((booltype) 1)
 
 #define EXTERN          extern
-
-#define WITH_FLOAT
-#define WITH_REFERENCE
-#define WITH_DRAW
-#undef  WITH_STATISTIC
-#define WITH_COMPILATION_INFO
-#define WITH_TYPE_CHECK
-#undef  WITH_ACTION_CHECK
-#define WITH_PROTOCOL
-#define USE_ALTERNATE_NEXT_CHARACTER
-#define USE_INFILE_BUFFER
-#define USE_CHUNK_ALLOCS
-#undef  USE_ALTERNATE_CHUNK_ALLOCS
-#define USE_VARIABLE_FORMATS
-#undef  USE_MAXIMUM_MALLOC_CHECK
-#define DO_HEAPSIZE_COMPUTATION
-#undef  DO_HEAP_STATISTIC
-#undef  DO_HEAP_CHECK
-#undef  DO_HEAP_LOG
-#define WITH_STRI_CAPACITY
-#define ALLOW_STRITYPE_SLICES
-#define WITH_STRI_FLIST
-#define INTTYPE_SIZE 32
-#define BITSETTYPE_SIZE INTTYPE_SIZE
-#undef  FLOATTYPE_DOUBLE
-
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-#define EMULATE_ROOT_CWD
-#endif
-
 
 typedef signed char        int8type;
 typedef unsigned char      uint8type;

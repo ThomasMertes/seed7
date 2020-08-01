@@ -26,16 +26,39 @@
 (********************************************************************)
 
 
+(**
+ *  File type realized with FILE * files from the C runtime library.
+ *  The type ''clib_file'' is not accessable via the [[file]] interface.
+ *  The type [[external_file]], which implements the [[file]] interface
+ *  is based on a ''clib_file''. Access to operating system files should
+ *  always be done via the [[file]] interface and files of the type
+ *  [[external_file]].
+ *)
 const type: clib_file is newtype;
+
 
 IN_PARAM_IS_VALUE(clib_file);
 
 const proc: (ref clib_file param) ::= (ref clib_file param)           is action "FIL_CREATE";
 const proc: destroy (ref clib_file param)                             is noop;
-const proc: (inout clib_file param) := (ref clib_file param)          is action "FIL_CPY";
+const proc: (inout clib_file: dest) := (ref clib_file: source)        is action "FIL_CPY";
 
-const func boolean: (ref clib_file param) = (ref clib_file param)     is action "FIL_EQ";
-const func boolean: (ref clib_file param) <> (ref clib_file param)    is action "FIL_NE";
+
+(**
+ *  Check if two files are equal.
+ *  @return TRUE if the two files are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (ref clib_file: file1) = (ref clib_file: file2)   is action "FIL_EQ";
+
+
+(**
+ *  Check if two files are not equal.
+ *  @return FALSE if both files are equal,
+ *          TRUE otherwise.
+ *)
+const func boolean: (ref clib_file: file1) <> (ref clib_file: file2)  is action "FIL_NE";
+
 
 const func clib_file: _GENERATE_EMPTY_CLIB_FILE                       is action "FIL_EMPTY";
 const clib_file: (attr clib_file) . value                             is _GENERATE_EMPTY_CLIB_FILE;
@@ -49,19 +72,146 @@ const integer: IO_FULL_BUFFERING is 0;
 const integer: IO_LINE_BUFFERING is 1;
 const integer: IO_NO_BUFFERING   is 2;
 
-const func clib_file: openClibFile (in string param, in string param) is action "FIL_OPEN";
-const proc: setbuf (ref clib_file param, ref integer param, ref integer param) is action "FIL_SETBUF";
-const proc: close (ref clib_file param)                               is action "FIL_CLOSE";
-const func boolean: eof (ref clib_file param)                         is action "FIL_EOF";
-const func boolean: hasNext (ref clib_file param)                     is action "FIL_HAS_NEXT";
-const func boolean: inputReady (ref clib_file param)                  is action "FIL_INPUT_READY";
-const proc: flush (ref clib_file param)                               is action "FIL_FLUSH";
-const func char: getc (ref clib_file param)                           is action "FIL_GETC";
-const func string: gets (ref clib_file param, ref integer param)      is action "FIL_GETS";
-const func string: word_read (ref clib_file param, inout char param)  is action "FIL_WORD_READ";
-const func string: line_read (ref clib_file param, inout char param)  is action "FIL_LINE_READ";
-const proc: write (ref clib_file param, in string param)              is action "FIL_WRITE";
-const func integer: length (ref clib_file param)                      is action "FIL_LNG";
-const proc: seek (ref clib_file param, ref integer param)             is action "FIL_SEEK";
-const func integer: tell (ref clib_file param)                        is action "FIL_TELL";
-const func string: literal (ref clib_file param)                      is action "FIL_LIT";
+
+(**
+ *  Open a clib_file.
+ *  @return the file opened, or [[#CLIB_NULL_FILE|CLIB_NULL_FILE]]
+ *          if it could not be opened.
+ *  @exception MEMORY_ERROR Not enough memory to convert the path
+ *             to the system path type.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation or ''path'' cannot be converted
+ *             to the system path type.
+ *)
+const func clib_file: openClibFile (in string: path, in string: mode) is action "FIL_OPEN";
+
+
+const proc: setbuf (ref clib_file: aFile, ref integer: mode, ref integer: size) is action "FIL_SETBUF";
+
+
+(**
+ *  Close a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: close (ref clib_file: aFile)                              is action "FIL_CLOSE";
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (ref clib_file: inFile)                       is action "FIL_EOF";
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]], TRUE otherwise.
+ *)
+const func boolean: hasNext (ref clib_file: inFile)                   is action "FIL_HAS_NEXT";
+
+
+const func boolean: inputReady (ref clib_file: inFile)                is action "FIL_INPUT_READY";
+
+
+(**
+ *  Forces that all buffered data of ''outFile'' is sent to its destination.
+ *  This causes data to be sent to the file system of the OS.
+ *)
+const proc: flush (ref clib_file: outFile)                            is action "FIL_FLUSH";
+
+
+(**
+ *  Read a character from a clib_file.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *)
+const func char: getc (ref clib_file: inFile)                         is action "FIL_GETC";
+
+
+(**
+ *  Read a [[string]] with a maximum length from an clib_file.
+ *  @return the string read.
+ *  @exception RANGE_ERROR The length is negative.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: gets (ref clib_file: inFile,
+                         ref integer: maxLength)                      is action "FIL_GETS";
+
+
+(**
+ *  Read a word from a clib_file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains ' ', '\t', '\n' or
+ *  [[char#EOF|EOF]].
+ *  @return the word read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: word_read (ref clib_file: inFile,
+                              inout char: terminationChar)            is action "FIL_WORD_READ";
+
+
+(**
+ *  Read a line from a clib_file.
+ *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar contains '\n' or [[char#EOF|EOF]].
+ *  @return the line read.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func string: line_read (ref clib_file: inFile,
+                              inout char: terminationChar)            is action "FIL_LINE_READ";
+
+
+(**
+ *  Write a string to a clib_file.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The string contains a character that does
+ *             not fit into a byte.
+ *)
+const proc: write (ref clib_file: outFile, in string: stri)           is action "FIL_WRITE";
+
+
+(**
+ *  Obtain the length of a clib_file.
+ *  The file length is measured in bytes.
+ *  @return the length of a file, or 0 if it cannot be obtained.
+ *  @exception RANGE_ERROR The file length is negative or does not
+ *             fit into an integer value.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func integer: length (ref clib_file: aFile)                     is action "FIL_LNG";
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @exception RANGE_ERROR The file position is negative or zero.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: seek (ref clib_file: aFile, ref integer: position)        is action "FIL_SEEK";
+
+
+(**
+ *  Obtain the current file position.
+ *  The file position is measured in bytes from the start of the file.
+ *  The first byte in the file has the position 1.
+ *  @return the current file position.
+ *  @exception RANGE_ERROR The file position is negative or does not
+ *             fit into an integer value.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const func integer: tell (ref clib_file: aFile)                       is action "FIL_TELL";
+
+
+const func string: literal (ref clib_file: aFile)                     is action "FIL_LIT";

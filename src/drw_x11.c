@@ -1501,7 +1501,7 @@ wintype drwOpenSubWindow (const_wintype parent_window, inttype xPos, inttype yPo
     inttype width, inttype height)
 #else
 
-  wintype drwOpenSubWindow (parent_window, xPos, yPos, width, height)
+wintype drwOpenSubWindow (parent_window, xPos, yPos, width, height)
 wintype parent_window;
 inttype xPos;
 inttype yPos;
@@ -1870,23 +1870,23 @@ inttype y;
 #ifdef ANSI_C
 
 void drwRect (const_wintype actual_window,
-    inttype x, inttype y, inttype length_x, inttype length_y)
+    inttype x, inttype y, inttype width, inttype height)
 #else
 
-void drwRect (actual_window, x, y, length_x, length_y)
+void drwRect (actual_window, x, y, width, height)
 wintype actual_window;
-inttype x, y, length_x, length_y;
+inttype x, y, width, height;
 #endif
 
   { /* drwRect */
 #ifdef TRACE_X11
-    printf("drwRect(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, length_x, length_y);
+    printf("drwRect(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
 #endif
     XFillRectangle(mydisplay, to_window(actual_window), mygc, x, y,
-        (unsigned) length_x, (unsigned) length_y);
+        (unsigned) width, (unsigned) height);
     if (to_backup(actual_window) != 0) {
       XFillRectangle(mydisplay, to_backup(actual_window), mygc, x, y,
-          (unsigned) length_x, (unsigned) length_y);
+          (unsigned) width, (unsigned) height);
     } /* if */
   } /* drwRect */
 
@@ -1895,25 +1895,25 @@ inttype x, y, length_x, length_y;
 #ifdef ANSI_C
 
 void drwPRect (const_wintype actual_window,
-    inttype x, inttype y, inttype length_x, inttype length_y, inttype col)
+    inttype x, inttype y, inttype width, inttype height, inttype col)
 #else
 
-void drwPRect (actual_window, x, y, length_x, length_y, col)
+void drwPRect (actual_window, x, y, width, height, col)
 wintype actual_window;
-inttype x, y, length_x, length_y;
+inttype x, y, width, height;
 inttype col;
 #endif
 
   { /* drwPRect */
 #ifdef TRACE_X11
-    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x, y, length_x, length_y, col);
+    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x, y, width, height, col);
 #endif
     XSetForeground(mydisplay, mygc, (unsigned) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, x, y,
-        (unsigned) length_x, (unsigned) length_y);
+        (unsigned) width, (unsigned) height);
     if (to_backup(actual_window) != 0) {
       XFillRectangle(mydisplay, to_backup(actual_window), mygc, x, y,
-          (unsigned) length_x, (unsigned) length_y);
+          (unsigned) width, (unsigned) height);
     } /* if */
   } /* drwPRect */
 

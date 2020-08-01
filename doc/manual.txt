@@ -782,7 +782,7 @@ CONTENTS
     $ syntax expr: .for.().range.().to.().do.().end.for is              -> 25;
 
   Additionally everybody can overload the for-statement also.
-  Because of these powerful features Seed7 does not need Iterators.
+  Because of these powerful features Seed7 does not need iterators.
 
 
 2.6 Template declaring a statement
@@ -1008,6 +1008,7 @@ CONTENTS
     $ system "type" is type;
     $ system "expr" is expr;
     $ system "integer" is integer;
+    $ system "bigInteger" is bigInteger;
     $ system "char" is char;
     $ system "string" is string;
     $ system "proc" is proc;
@@ -1020,7 +1021,7 @@ CONTENTS
     $ system "memory_error" is MEMORY_ERROR;
     $ system "numeric_error" is NUMERIC_ERROR;
     $ system "range_error" is RANGE_ERROR;
-    $ system "io_error" is IO_ERROR;
+    $ system "file_error" is FILE_ERROR;
     $ system "illegal_action" is ILLEGAL_ACTION;
 
     $ system "assign" is := ;
@@ -1051,7 +1052,7 @@ CONTENTS
 
     single_statement ::=
       assignment_statement | while_statement | repeat_statement |
-      for_statement | if_statement | case_statement |
+      for_statement | for_each_statement | if_statement | case_statement |
       procedure_call | empty_statement .
 
     empty_statement ::=
@@ -1098,27 +1099,26 @@ CONTENTS
 
     $ syntax expr: .(). := .() is                     <-> 20;
 
-    const proc: (inout type param) := (ref type param)             is action "TYP_CPY";
-    const proc: (inout proc param) := (ref proc param)             is action "PRC_CPY";
-    const proc: (inout func aType param) := (ref func aType param) is action "PRC_CPY";
-    const proc: (inout varfunc aType param) := (ref varfunc aType param) is action "PRC_CPY";
-    const proc: (inout ACTION param) := (in ACTION param)          is action "ACT_CPY";
-    const proc: (inout boolean param) := (in boolean param)        is action "BLN_CPY";
-    const proc: (inout integer param) := (in integer param)        is action "INT_CPY";
-    const proc: (inout char param) := (ref char param)             is action "CHR_CPY";
-    const proc: (inout string param) := (ref string param)         is action "STR_CPY";
-    const proc: (inout reference param) := (ref reference param)   is action "REF_CPY";
-    const proc: (inout ref_list param) := (in ref_list param)      is action "RFL_CPY";
-    const proc: (inout ptrType param) := (in ptrType param)        is action "REF_CPY";
-    const proc: (inout varptrType param) := (in varptrType param)  is action "REF_CPY";
-    const proc: (inout arrayType param) := (in arrayType param)    is action "ARR_CPY";
-    const proc: (inout bitset param) := (in bitset param)          is action "SET_CPY";
-    const proc: (inout structType param) := (in structType param)  is action "SCT_CPY";
-    const proc: (inout enumType param) := (in enumType param)      is action "ENU_CPY";
-    const proc: (inout clib_file param) := (ref clib_file param)   is action "FIL_CPY";
-    const proc: (inout file param) := (ref file param)             is action "CLS_CPY";
-    const proc: (inout file param) := (ref null_file param)        is action "CLS_CPY2";
-    const proc: (inout file param) := (ref external_file param)    is action "CLS_CPY2";
+    const proc: (inout type: dest) := (ref type: source)             is action "TYP_CPY";
+    const proc: (inout proc: dest) := (ref proc: source)             is action "PRC_CPY";
+    const proc: (inout func aType: dest) := (ref func aType: source) is action "PRC_CPY";
+    const proc: (inout varfunc aType: dest) := (ref varfunc aType: source) is action "PRC_CPY";
+    const proc: (inout ACTION: dest) := (in ACTION: source)          is action "ACT_CPY";
+    const proc: (inout boolean: dest) := (in boolean: source)        is action "BLN_CPY";
+    const proc: (inout integer: dest) := (in integer: source)        is action "INT_CPY";
+    const proc: (inout char: dest) := (ref char: source)             is action "CHR_CPY";
+    const proc: (inout string: dest) := (ref string: source)         is action "STR_CPY";
+    const proc: (inout reference: dest) := (ref reference: source)   is action "REF_CPY";
+    const proc: (inout ref_list: dest) := (in ref_list: source)      is action "RFL_CPY";
+    const proc: (inout ptrType: dest) := (in ptrType: source)        is action "REF_CPY";
+    const proc: (inout varptrType: dest) := (in varptrType: source)  is action "REF_CPY";
+    const proc: (inout arrayType: dest) := (in arrayType: source)    is action "ARR_CPY";
+    const proc: (inout bitset: dest) := (in bitset: source)          is action "SET_CPY";
+    const proc: (inout structType: dest) := (in structType: source)  is action "SCT_CPY";
+    const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
+    const proc: (inout clib_file: dest) := (ref clib_file: source)   is action "FIL_CPY";
+    const proc: (inout interfaceType: dest) := (ref interfaceType: source) is action "ITF_CPY";
+    const proc: (inout interfaceType: dest) := (ref aType: source)   is action "ITF_CPY2";
 
 
 4.2 while-statement
@@ -1152,12 +1152,12 @@ CONTENTS
 
     $ syntax expr: .while.().do.().end.while is       -> 25;
 
-    const proc: while (ref func boolean param) do (ref proc param) end while is action "PRC_WHILE";
-    const proc: while (ref boolean param)  do (ref proc param) end while     is action "PRC_WHILE";
+    const proc: while (ref func boolean: condition) do (in proc: statement) end while is action "PRC_WHILE";
+    const proc: while (in boolean: condition)  do (in proc: statement) end while      is action "PRC_WHILE";
 
   Alternate declaration:
 
-    const proc: while (ref func boolean: condition) do (ref proc: statement) end while is func
+    const proc: while (ref func boolean: condition) do (in proc: statement) end while is func
       begin
         if condition then
           statement;
@@ -1199,12 +1199,12 @@ CONTENTS
 
     $ syntax expr: .repeat.().until.() is             -> 25;
 
-    const proc: repeat (ref proc param) until (ref func boolean param) is action "PRC_REPEAT";
-    const proc: repeat (ref proc param) until (ref boolean param)      is action "PRC_REPEAT";
+    const proc: repeat (in proc: statement) until (ref func boolean: condition) is action "PRC_REPEAT";
+    const proc: repeat (in proc: statement) until (in boolean: condition)       is action "PRC_REPEAT";
 
   Alternate declaration:
 
-    const proc: repeat (ref proc: statement) until (ref func boolean: condition) is func
+    const proc: repeat (in proc: statement) until (ref func boolean: condition) is func
       begin
         statement;
         if not condition then
@@ -1317,7 +1317,7 @@ CONTENTS
 
   Syntax:
 
-    for_statement ::=
+    for_each_statement ::=
       'for' identifier 'range' expression 'do'
         statement
       'end' 'for' .
@@ -1327,8 +1327,8 @@ CONTENTS
 
     $ syntax expr: .for.().range.().do.().end.for is          -> 25;
 
-    const proc: for (ref reference param) range (ref ref_list param) do
-                  (ref proc param)
+    const proc: for (inout reference: variable) range (in ref_list: aRefList) do
+                  (in proc: statement)
                 end for is action "RFL_FOR";
 
     const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
@@ -1901,7 +1901,7 @@ CONTENTS
   of digits followed by an underscore character (for example 1_ ).
   Although 'bigInteger' operations cannot overflow, it can happen
   that there is not enough memory to represent a 'bigInteger' value.
-  In this case the exception 'MEMORY_ERROR' is raised. The 'bigInteger'
+  In this case the exception MEMORY_ERROR is raised. The 'bigInteger'
   functions are defined in the library "bigint.s7i".
 
     Prefix operators:
@@ -2189,7 +2189,7 @@ CONTENTS
   BigRational literals do not exist. Although 'bigRational'
   operations cannot overflow, it can happen that there
   is not enough memory to represent a 'bigRational' value.
-  In this case the exception 'MEMORY_ERROR' is raised.
+  In this case the exception MEMORY_ERROR is raised.
   The 'bigRational' functions are defined in the library
   "bigrat.s7i".
 
@@ -2581,7 +2581,7 @@ CONTENTS
   and therefore can also contain binary data. Although 'string's
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a 'string' value. In this case the
-  exception 'MEMORY_ERROR' is raised. In the source file a string
+  exception MEMORY_ERROR is raised. In the source file a string
   literal is a sequence of UTF-8 encoded Unicode characters
   surrounded by double quotes.
 
@@ -4132,16 +4132,16 @@ CONTENTS
     globalStri &:= "a";
     appendStri(globalStri);
 
-  the globalStri variable contains the value "a,a". If the function
+  the variable globalStri contains the value "a,a". If the function
   header would be
 
     const proc: appendStri (in string: stri) is func
 
-  the globalStri variable would contain the value "a,a,". This
+  the variable globalStri would contain the value "a,a,". This
   difference is because of the following reasons:
 
   For arrays 'in' parameters are equal to 'ref' parameters.
-  When appendStri called with globalStri as parameter an unwanted
+  When appendStri is called with globalStri as parameter an unwanted
   side effect takes place: Every change of globalStri changes also
   the 'ref' parameter stri. Changes to the 'ref' parameter would
   also change the global variable. Such unwanted side effects can
@@ -4149,8 +4149,8 @@ CONTENTS
   is an 'inout' parameter).
 
   In most cases such unwanted side effects are impossible or can
-  be avoided easily. When possible 'in' parameters should be
-  preferred over 'val' parameters.
+  be avoided easily. An 'in' parameter should be preferred
+  over an 'val' parameter, when possible.
 
   Semantics:
     When calling a function a formal 'val' parameter gets its
@@ -4183,7 +4183,7 @@ CONTENTS
   Reference parameters are marked with the keyword 'ref'.
   A reference parameter refers to the value of the actual parameter.
   Reference parameters are used, when copying is expensive and
-  referring to the value does not change the correct bahavior.
+  referring to the value does not change the correct behavior.
   The function below defines the primitive action for the
   semicolon operator:
 
@@ -4211,8 +4211,8 @@ CONTENTS
 
   Since for array types (and also for struct types) 'in'
   parameters are defined to act as 'ref' parameters both
-  definitions are equal. When possible 'in' parameters should
-  be preferred over 'ref' parameters.
+  definitions are equal. An 'in' parameter should be
+  preferred over an 'ref' parameter, when possible.
 
   Semantics:
     When calling a function a formal 'ref' parameter is set to
@@ -5582,7 +5582,7 @@ CONTENTS
   The first parameter of 'open' is the path of the file to
   be opened. Seed7 always uses the slash ('/') as path
   delimiter. The use of a backslash in a path may raise the
-  exception 'RANGE_ERROR'. The second parameter of 'open'
+  exception RANGE_ERROR. The second parameter of 'open'
   specifies the mode:
 
     Binary mode:
@@ -5602,9 +5602,9 @@ CONTENTS
 
   Note that Seed7 defines the modes "r", "w", "a", "r+", "w+"
   and "a+" as binary modes. When 'open' is called, with a mode
-  not listed in the table above, the exception 'RANGE_ERROR'
+  not listed in the table above, the exception RANGE_ERROR
   is raised. When there is not enough memory to convert 'path'
-  to the system path type the exception 'MEMORY_ERROR'
+  to the system path type the exception MEMORY_ERROR
   is raised. When 'open' fails for other reasons it returns
   'STD_NULL'. E.g.: It is not allowed to 'open' a directory.
   An attempt to 'open' a directory returns 'STD_NULL'. It is
@@ -5621,7 +5621,7 @@ CONTENTS
     close(my_out);
 
   Writing to a file after it has been closed results in the
-  exception 'FILE_ERROR'. The following program writes
+  exception FILE_ERROR. The following program writes
   "hi there" to the file "my_file":
 
     $ include "seed7_05.s7i";
@@ -5642,7 +5642,7 @@ CONTENTS
 
     writeln(my_out, "illegal char: \256\");
 
-  results in the exception 'RANGE_ERROR'. To write Unicode
+  results in the exception RANGE_ERROR. To write Unicode
   characters other file types must be used. The libraries
   "utf8.s7i" and "utf16.s7i" provide access to UTF-8 and
   UTF-16 files. The function 'open_utf8' can be used the same
@@ -7306,6 +7306,9 @@ CONTENTS
     dot_expression ::=
       [ '.' ] call_expression { '.' call_expression } .
 
+  The EBNF description can become long, when many priority levels
+  exist, as it is the case in Seed7.
+
   There are some things which are out of the scope of S7SSD.
   The syntax of tokens (whitespace, comments, identifiers and
   literals) and expressions (parentheses, function calls and dot
@@ -7598,21 +7601,33 @@ CONTENTS
   Syntax:
 
     string_literal ::=
-      '"' { string_character } '"' .
+      '"' { string_literal_element } '"' .
 
-    string_character ::=
-      printable_character | escape_sequence .
+    string_literal_element ::=
+      printable_character | escape_sequence | apostrophe .
+
+    printable_character ::=
+      letter | digit | parenthesis | special_literal_character |
+      other_printable_character .
+
+    special_literal_character ::=
+      ' ' | '!' | '#' | '$' | '%' | '&' | '*' | '+' | ',' | '-' |
+      '.' | '/' | ':' | ';' | '<' | '=' | '>' | '?' | '@' | '^' |
+      '_' | '`' | '|' | '~' .
 
     escape_sequence ::=
       '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |
       '\\' | '\''' | '\"' | '\' upper_case_letter |
       '\' { space } '\' | '\' integer_literal '\' .
 
+    apostrophe ::=
+      ''' .
+
 
 10.3.3 Character literals
 
     A character literal is an UTF-8 encoded Unicode character
-  enclosed in single quotes. For example:
+  enclosed in apostrophes. For example:
 
     'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''
 
@@ -7623,12 +7638,10 @@ CONTENTS
   Syntax:
 
     character_literal ::=
-      ''' ( printable_character | escape_sequence ) ''' .
+      apostrophe char_literal_element apostrophe .
 
-    escape_sequence ::=
-      '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |
-      '\\' | '\''' | '\"' | '\' upper_case_letter |
-      '\' { space } '\' | '\' integer_literal '\' .
+    char_literal_element ::=
+      printable_character | escape_sequence | apostrophe | '"' .
 
 
 
@@ -7636,13 +7649,30 @@ CONTENTS
 ===============
 
     There are two types of expressions. On one side there so
-  called simple expressions which are constructed using fixed
+  called simple expressions, which are constructed using fixed
   predefined syntax rules. On the other side there are expressions
-  which are constructed according to syntax rules defined with
-  syntax declarations. Here we describe only simple expressions.
-  How syntax declarations work is described in Chapter 3.2
-  (Syntax declarations) and chapter 9 (Structured syntax
-  definition). There are only few fixed predefined syntax rules:
+  which are constructed according to syntax rules. Syntax rules
+  are defined with syntax declarations. How syntax declarations
+  work is described in Chapter 3.2 (Syntax declarations) and
+  chapter 9 (Structured syntax definition). The syntax
+  declarations support the extensible syntax of Seed7. A
+  simplified description of user defined expressions, which
+  does not take priority levels into account, is:
+
+    expression ::=
+      prefix_expression | infix_expression | simple_expression .
+
+    prefix_expression ::=
+      identifier { identifier | expression } .
+
+    infix_expression ::=
+      expression identifier { identifier | expression } .
+
+    simple_expression ::=
+      dot_expression .
+
+  The chapters below describe the predefined syntax rules
+  of simple expressions.
 
 
 11.1 Parentheses
@@ -7692,10 +7722,13 @@ CONTENTS
   Syntax:
 
     call_expression ::=
-      primary_expression [ '(' comma_expression ')' ] .
+      primary_expression [ '(' parameter_list ')' ] .
 
     primary_expression ::=
-      parentheses_expression | atom .
+      parentheses_expression | token .
+
+    parameter_list ::=
+      expression { ',' expression } .
 
 
 11.3 Dot expressions
@@ -7761,11 +7794,11 @@ CONTENTS
       to end with a slash.
 
   When a function like 'open' is called with a path that is not
-  "/", but ends with a slash, the exception 'RANGE_ERROR' is
+  "/", but ends with a slash, the exception RANGE_ERROR is
   raised. Under Windows a standard path like "/c" is mapped to
   the drive "C:". Reading the directory "/" under Windows
   returns a list of available drives. A path with a backslash
-  or with a drive letter may raise the exception 'RANGE_ERROR',
+  or with a drive letter may raise the exception RANGE_ERROR,
   when a function like 'open' is called.
 
   An absolute path specifies an unique location in the file
@@ -9646,7 +9679,7 @@ CONTENTS
   placed in two *.c files. Corresponding *.h files contain prototypes.
   Assume, we have the library "superlib" and the function 'doWurx1'
   from "superlib" should be called from a Seed7 program. The three
-  letter abbreveation sup is used to determine the file and function
+  letter abbreviation sup is used to determine the file and function
   names for wrapper and action. The following files and functions are
   used:
 
@@ -9836,6 +9869,8 @@ CONTENTS
     os_stritype  char *            When the OS uses UTF-8 chars
                  wchar_t *         When the OS uses UTF-16 chars
     uinttype     unsigned inttype  Unsigned integer type with the size of inttype
+    memsizetype  uint32type        When C uses 32-bit pointers
+                 uint64type        When C uses 64-bit pointers
 
 
 14.2 String and path conversions
@@ -9846,10 +9881,10 @@ CONTENTS
   stri_to_bstri, stri_to_bstri8, cstri_to_stri, cstri8_to_stri
   and cstri8_or_cstri_to_stri. Operating systems disagree in their
   Unicode encoding (UTF-8 or UTF-16). To cope with this, "striutl.h"
-  defines the type 'os_stritype' and the functions stri_to_os_stri
-  and os_stri_to_stri. The different concepts to represent a file
-  path (path delimiter and drive letter) are handled with cp_to_os_path
-  and cp_from_os_path.
+  defines the type 'os_stritype' and the functions conv_from_os_stri,
+  stri_to_os_stri and os_stri_to_stri. The different concepts to
+  represent a file path (path delimiter and drive letter) are handled
+  with cp_to_os_path and cp_from_os_path.
 
 
   Function Summary
@@ -9872,16 +9907,19 @@ CONTENTS
     stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
       Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
 
+    stritype conv_from_os_stri (const const_os_stritype os_stri, memsizetype length)
+      Convert an os_stritype string with length to a Seed7 UTF-32 string.
+
     os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
-      Convert a Seed7 UTF-32 string to a string used by system calls.
+      Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
 
     stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
-      Convert a string returned by a system call to a Seed7 UTF-32 string.
+      Convert a null terminated os_stritype string to a Seed7 UTF-32 string.
 
-    os_stritype cp_to_os_path (const_stritype stri, int *path_info, errinfotype *err_info)
-      Convert a Seed7 UTF-32 string to a string used by system calls.
+    os_stritype cp_to_os_path (const_stritype std_path, int *path_info, errinfotype *err_info)
+      Convert a Seed7 standard path to a path used by system calls.
 
-    stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info)
+    stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info)
       Convert a path returned by a system call to a Seed7 standard path.
 
 
@@ -9898,6 +9936,9 @@ CONTENTS
       are used as parameters. To get good performance the allocated
       memory for the C string is oversized. No special action is
       done, when the UTF-32 string contains a null character.
+
+      Parameters:
+        stri - Seed7 UTF-32 string to be converted.
 
       Returns:
         an UTF-8 encoded null terminated C string or NULL, when the memory allocation failed.
@@ -9917,6 +9958,9 @@ CONTENTS
       was successful, when the bstring has the same size as the UTF-32
       string.
 
+      Parameters:
+        stri - Seed7 UTF-32 string to be converted.
+
       Returns:
         an ISO-8859-1 encoded bstring or
         NULL, when the memory allocation failed.
@@ -9931,6 +9975,9 @@ CONTENTS
       to the end of the bstring. No special action is done, when
       the original string contains a null character.
 
+      Parameters:
+        stri - Seed7 UTF-32 string to be converted.
+
       Returns:
         an UTF-8 encoded bstring or
         NULL, when the memory allocation failed.
@@ -9942,6 +9989,9 @@ CONTENTS
 
       Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Parameters:
+        cstri - null terminated ISO-8859-1 encoded C string.
 
       Returns:
         an UTF-32 encoded Seed7 string or
@@ -9955,10 +10005,13 @@ CONTENTS
       Copy an UTF-8 encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
 
+      Parameters:
+        cstri - null terminated ISO-8859-1 encoded C string.
+
       Returns:
         an UTF-32 encoded Seed7 string or
-        NULL, when the memory allocation failed or
-        when illegal UTF-8 encodings are used.
+        NULL, when the memory allocation failed or when
+        illegal UTF-8 encodings are used.
 
 
   cstri8_or_cstri_to_stri
@@ -9968,22 +10021,51 @@ CONTENTS
       Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
 
+      Parameters:
+        cstri - null terminated UTF-8 or ISO-8859-1 encoded C string.
+
       Returns:
         an UTF-32 encoded Seed7 string or
         NULL, when the memory allocation failed.
+
+
+  conv_from_os_stri
+
+    stritype conv_from_os_stri (const const_os_stritype os_stri,
+        memsizetype length)
+
+      Convert an os_stritype string with length to a Seed7 UTF-32 string.
+      Many system calls return os_stritype data with length. System calls
+      are defined in "version.h" and "os_decls.h". They are prefixed
+      with os_ and use strings of the type os_stritype. Depending on the
+      operating system os_stritype can describe byte or wide char strings.
+      The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
+
+      Parameters:
+        os_stri - possibly binary string (may contain null characters).
+        length - length of os_stri.
+
+      Returns:
+        a Seed7 UTF-32 string or
+        NULL, when an error occurred.
 
 
   stri_to_os_stri
 
     os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
 
-      Convert a Seed7 UTF-32 string to a string used by system calls.
-      System calls are defined in "version.h" and "os_decls.h". They are
-      prefixed with os_ and use strings of the type os_stritype. Depending
-      on the operating system os_stritype can be either an UTF-8 or an
-      UTF-16 encoded null terminated string.
+      Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
+      The memory for the null terminated os_stritype string is allocated.
+      The os_stritype result must be freed with the macro os_stri_free().
+      Many system calls have parameters with null terminated os_stritype
+      strings. System calls are defined in "version.h" and "os_decls.h".
+      They are prefixed with os_ and use strings of the type os_stritype.
+      Depending on the operating system os_stritype can describe byte or
+      wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+      it can use a code page.
 
       Parameters:
+        stri - Seed7 UTF-32 string to be converted.
         err_info - unchanged when the function succceeds or
                    MEMORY_ERROR when the memory allocation failed or
                    RANGE_ERROR when the conversion failed.
@@ -9997,13 +10079,15 @@ CONTENTS
 
     stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
 
-      Convert a string returned by a system call to a Seed7 UTF-32 string.
-      System calls are defined in "version.h" and "os_decls.h". They are
-      prefixed with os_ and use strings of the type os_stritype. Depending
-      on the operating system os_stritype can be either an UTF-8 or an
-      UTF-16 encoded null terminated string.
+      Convert a null terminated os_stritype string to a Seed7 UTF-32 string.
+      Many system calls return null terminated os_stritype strings. System
+      calls are defined in "version.h" and "os_decls.h". They are prefixed
+      with os_ and use strings of the type os_stritype. Depending on the
+      operating system os_stritype can describe byte or wide char strings.
+      The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
 
       Parameters:
+        os_stri - null terminated os_stritype string to be converted.
         err_info - unchanged when the function succceeds or
                    MEMORY_ERROR when the memory allocation failed.
 
@@ -10014,17 +10098,20 @@ CONTENTS
 
   cp_to_os_path
 
-    os_stritype cp_to_os_path (const_stritype stri, int *path_info, errinfotype *err_info)
+    os_stritype cp_to_os_path (const_stritype std_path, int *path_info, errinfotype *err_info)
 
       Convert a Seed7 standard path to a path used by system calls.
+      The memory for the null terminated os_stritype path is allocated.
+      The os_stritype result must be freed with the macro os_stri_free().
       System calls are defined in "version.h" and "os_decls.h". They are
       prefixed with os_ and use system paths of the type os_stritype.
-      Depending on the operating system os_stritype can be either an UTF-8
-      or an UTF-16 encoded null terminated string. Beyond the conversion to
-      os_stritype a mapping to drive letters might take place on some
-      operating systems.
+      Depending on the operating system os_stritype can describe byte or
+      wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+      it can use a code page. Beyond the conversion to os_stritype a
+      mapping to drive letters might take place on some operating systems.
 
     Parameters:
+        std_path - UTF-32 encoded Seed7 standard path to be converted.
         path_info - unchanged when the function succceeds or
                     PATH_IS_EMULATED_ROOT when the path is "/".
                     PATH_NOT_MAPPED when the path cannot be mapped.
@@ -10039,17 +10126,19 @@ CONTENTS
 
   cp_from_os_path
 
-    stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info)
+    stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info)
 
       Convert a path returned by a system call to a Seed7 standard path.
       System calls are defined in "version.h" and "os_decls.h". They are
       prefixed with os_ and use system paths of the type os_stritype.
-      Depending on the operating system os_stritype can be either an UTF-8
-      or an UTF-16 encoded null terminated string. Beyond the conversion from
-      os_stritype a mapping from drive letters might take place on some
-      operating systems.
+      Depending on the operating system os_stritype can describe byte or
+      wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+      it can use a code page. Beyond the conversion from os_stritype a
+      mapping from drive letters might take place on some operating
+      systems.
 
       Parameters:
+        os_path - null terminated os_stritype path to be converted.
         err_info - unchanged when the function succceeds or
                    MEMORY_ERROR when the memory allocation failed.
 
@@ -10313,7 +10402,7 @@ CONTENTS
 
 15.2 Exceptions
 
-  There are various exceptions which can be raised during
+  There are various exceptions, which can be raised during
   program execution:
 
     MEMORY_ERROR:
@@ -10347,7 +10436,7 @@ CONTENTS
     FILE_ERROR:
       May be raised by the following functions:
           fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
-          readDir, remove, removeAnyFile, rename, cloneFile, copyFile,
+          readDir, removeFile, removeAnyFile, moveFile, cloneFile, copyFile,
           readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
           inetSocketAddress, openInetSocket, openInetListener
     ILLEGAL_ACTION:

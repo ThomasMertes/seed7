@@ -101,9 +101,9 @@ const func integer: length (in utf16_file: aFile) is
  *  @exception RANGE_ERROR The file position is negative or zero.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: seek (in utf16_file: aFile, in integer: pos) is func
+const proc: seek (in utf16_file: aFile, in integer: position) is func
   begin
-    seek(aFile.ext_file, pos);
+    seek(aFile.ext_file, position);
   end func;
 
 

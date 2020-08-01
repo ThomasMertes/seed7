@@ -367,3 +367,7 @@ const proc: startProcess (in var string: cmdAndParams) is func
     end while;
     startProcess(command, parameters);
   end func;
+
+  
+const func array string: getSearchPath  is action "CMD_GET_SEARCH_PATH";
+const func array string: environment    is action "CMD_ENVIRONMENT";

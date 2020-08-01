@@ -106,7 +106,7 @@ version.h:
 	echo #define USE_DIRENT >> version.h
 	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ >> version.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
+	echo #define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define AWAIT_WITH_SELECT >> version.h
 	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
@@ -116,6 +116,7 @@ version.h:
 	echo #define os_ftell ftell >> version.h
 	echo #define OS_FSEEK_OFFSET_BITS 32 >> version.h
 	echo #define os_off_t off_t >> version.h
+	echo #define os_environ environ >> version.h
 	echo #define os_putenv putenv >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h

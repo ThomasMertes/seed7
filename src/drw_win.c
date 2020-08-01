@@ -2189,18 +2189,18 @@ inttype y;
 #ifdef ANSI_C
 
 void drwRect (const_wintype actual_window,
-    inttype x, inttype y, inttype length_x, inttype length_y)
+    inttype x, inttype y, inttype width, inttype height)
 #else
 
-void drwRect (actual_window, x, y, length_x, length_y)
+void drwRect (actual_window, x, y, width, height)
 wintype actual_window;
-inttype x, y, length_x, length_y;
+inttype x, y, width, height;
 #endif
 
   { /* drwRect */
-    Rectangle(to_hdc(actual_window), x, y, x + length_x, y + length_y);
+    Rectangle(to_hdc(actual_window), x, y, x + width, y + height);
     if (to_backup_hdc(actual_window) != 0) {
-      Rectangle(to_backup_hdc(actual_window), x, y, x + length_x, y + length_y);
+      Rectangle(to_backup_hdc(actual_window), x, y, x + width, y + height);
     } /* if */
   } /* drwRect */
 
@@ -2209,12 +2209,12 @@ inttype x, y, length_x, length_y;
 #ifdef ANSI_C
 
 void drwPRect (const_wintype actual_window,
-    inttype x, inttype y, inttype length_x, inttype length_y, inttype col)
+    inttype x, inttype y, inttype width, inttype height, inttype col)
 #else
 
-void drwPRect (actual_window, x, y, length_x, length_y, col)
+void drwPRect (actual_window, x, y, width, height, col)
 wintype actual_window;
-inttype x, y, length_x, length_y;
+inttype x, y, width, height;
 inttype col;
 #endif
 
@@ -2226,15 +2226,15 @@ inttype col;
 
   /* drwPRect */
 #ifdef TRACE_WIN
-    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x, y, length_x, length_y, col);
+    printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %lx)\n", actual_window, x, y, width, height, col);
 #endif
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
 #ifdef OUT_OF_ORDER
-    if (length_x == 0 && length_y == 0) {
-      printf("length_x == 0 && length_y == 0\n");
+    if (width == 0 && height == 0) {
+      printf("width == 0 && height == 0\n");
     } /* if */
-    if (length_x == 1 && length_y == 1) {
-      printf("length_x == 1 && length_y == 1\n");
+    if (width == 1 && height == 1) {
+      printf("width == 1 && height == 1\n");
     } /* if */
 #endif
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
@@ -2244,19 +2244,19 @@ inttype col;
     } else {
       old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
-      if (length_x == 1) {
-        if (length_y == 1) {
+      if (width == 1) {
+        if (height == 1) {
           SetPixel(to_hdc(actual_window), x, y, (COLORREF) col);
         } else {
           MoveToEx(to_hdc(actual_window), x, y, NULL);
-          LineTo(to_hdc(actual_window), x, y + length_y);
+          LineTo(to_hdc(actual_window), x, y + height);
         } /* if */
       } else {
-        if (length_y == 1) {
+        if (height == 1) {
           MoveToEx(to_hdc(actual_window), x, y, NULL);
-          LineTo(to_hdc(actual_window), x + length_x, y);
+          LineTo(to_hdc(actual_window), x + width, y);
         } else {
-          Rectangle(to_hdc(actual_window), x, y, x + length_x, y + length_y);
+          Rectangle(to_hdc(actual_window), x, y, x + width, y + height);
         } /* if */
       } /* if */
       SelectObject(to_hdc(actual_window), old_pen);
@@ -2264,19 +2264,19 @@ inttype col;
       if (to_backup_hdc(actual_window) != 0) {
         old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
-        if (length_x == 1) {
-          if (length_y == 1) {
+        if (width == 1) {
+          if (height == 1) {
             SetPixel(to_backup_hdc(actual_window), x, y, (COLORREF) col);
           } else {
             MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
-            LineTo(to_backup_hdc(actual_window), x, y + length_y);
+            LineTo(to_backup_hdc(actual_window), x, y + height);
           } /* if */
         } else {
-          if (length_y == 1) {
+          if (height == 1) {
             MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
-            LineTo(to_backup_hdc(actual_window), x + length_x, y);
+            LineTo(to_backup_hdc(actual_window), x + width, y);
           } else {
-            Rectangle(to_backup_hdc(actual_window), x, y, x + length_x, y + length_y);
+            Rectangle(to_backup_hdc(actual_window), x, y, x + width, y + height);
           } /* if */
         } /* if */
         SelectObject(to_backup_hdc(actual_window), old_pen);

@@ -58,10 +58,6 @@
 #define EXTERN
 #include "arr_rtl.h"
 
-#ifndef SEARCH_PATH_DELIMITER
-#define SEARCH_PATH_DELIMITER ':'
-#endif
-
 
 rtlArraytype strChSplit (const const_stritype main_stri, const chartype delimiter);
 
@@ -316,49 +312,35 @@ stritype fileName;
 #endif
 
   {
-    static const os_chartype path[] = {'P', 'A', 'T', 'H', 0};
-    os_stritype path_environment_variable;
-    stritype searchPathStri;
     rtlArraytype searchPath;
     memsizetype arraySize;
     memsizetype pos;
     stritype aPath;
-    errinfotype err_info = OKAY_NO_ERROR;
     stritype result;
 
   /* examineSearchPath */
+    printf("examineSearchPath\n");
     result = NULL;
-    path_environment_variable = os_getenv(path);
-    if (path_environment_variable != NULL) {
-      searchPathStri = os_stri_to_stri(path_environment_variable, &err_info);
-      os_getenv_string_free(path_environment_variable);
-      if (likely(err_info == OKAY_NO_ERROR)) {
-        searchPath = strChSplit(searchPathStri, (chartype) SEARCH_PATH_DELIMITER);
-        FREE_STRI(searchPathStri, searchPathStri->size);
-        if (searchPath != NULL) {
-          arraySize = (uinttype) (searchPath->max_position - searchPath->min_position + 1);
-          for (pos = 0; result == NULL && pos < arraySize; pos++) {
-            aPath = stri_to_standard_path(searchPath->arr[pos].value.strivalue);
-            while (aPath->size > 1 && aPath->mem[aPath->size - 1] == (chartype) '/') {
-              aPath->size--;
-            } /* while */
-            if (aPath->size != 0 && aPath->mem[aPath->size - 1] != (chartype) '/') {
-              strPush(&aPath, (chartype) '/');
-            } /* if */
-            strAppend(&aPath, fileName);
-            if (cmdFileType(aPath) == 2) {
-              result = aPath;
-            } else {
-              FREE_STRI(aPath, aPath->size);
-            } /* if */
-          } /* for */
-          for (; pos < arraySize; pos++) {
-            aPath = searchPath->arr[pos].value.strivalue;
-            FREE_STRI(aPath, aPath->size);
-          } /* for */
-          FREE_RTL_ARRAY(searchPath, arraySize);
+    searchPath = cmdGetSearchPath();
+    if (searchPath != NULL) {
+      arraySize = (uinttype) (searchPath->max_position - searchPath->min_position + 1);
+      for (pos = 0; result == NULL && pos < arraySize; pos++) {
+        aPath = searchPath->arr[pos].value.strivalue;
+        if (aPath->size != 0 && aPath->mem[aPath->size - 1] != (chartype) '/') {
+          strPush(&aPath, (chartype) '/');
         } /* if */
-      } /* if */
+        strAppend(&aPath, fileName);
+        if (cmdFileType(aPath) == 2) {
+          result = aPath;
+        } else {
+          FREE_STRI(aPath, aPath->size);
+        } /* if */
+      } /* for */
+      for (; pos < arraySize; pos++) {
+        aPath = searchPath->arr[pos].value.strivalue;
+        FREE_STRI(aPath, aPath->size);
+      } /* for */
+      FREE_RTL_ARRAY(searchPath, arraySize);
     } /* if */
     /* printf("examineSearchPath --> ");
        prot_stri(result);

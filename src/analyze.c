@@ -34,6 +34,7 @@
 #include "common.h"
 #include "sigutl.h"
 #include "data.h"
+#include "data_rtl.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "syvarutl.h"
@@ -400,16 +401,18 @@ nodetype objects;
 
 #ifdef ANSI_C
 
-static progtype analyze_prog (const const_stritype source_file_name, errinfotype *err_info)
+static progtype analyze_prog (const const_stritype source_file_argument,
+    const const_stritype source_name, errinfotype *err_info)
 #else
 
-static progtype analyze_prog (source_file_name, err_info)
-stritype source_file_name;
+static progtype analyze_prog (source_file_argument, source_name, err_info)
+stritype source_file_argument;
+stritype source_name;
 errinfotype *err_info;
 #endif
 
   {
-    stritype source_file_name_copy;
+    stritype source_file_argument_copy;
     tracerecord trace_backup;
     progrecord prog_backup;
     progtype resultProg;
@@ -420,18 +423,18 @@ errinfotype *err_info;
 #endif
     if (!ALLOC_RECORD(resultProg, progrecord, count.prog)) {
       *err_info = MEMORY_ERROR;
-    } else if (!ALLOC_STRI_SIZE_OK(source_file_name_copy, source_file_name->size)) {
+    } else if (!ALLOC_STRI_SIZE_OK(source_file_argument_copy, source_file_argument->size)) {
       *err_info = MEMORY_ERROR;
       FREE_RECORD(resultProg, progrecord, count.prog);
       resultProg = NULL;
     } else {
-      source_file_name_copy->size = source_file_name->size;
-      memcpy(source_file_name_copy->mem, source_file_name->mem,
-          source_file_name->size * sizeof(strelemtype));
+      source_file_argument_copy->size = source_file_argument->size;
+      memcpy(source_file_argument_copy->mem, source_file_argument->mem,
+          source_file_argument->size * sizeof(strelemtype));
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       memcpy(&prog_backup, &prog, sizeof(progrecord));
-      init_lib_path(source_file_name, err_info);
+      init_lib_path(source_file_argument, err_info);
       init_idents(&prog, err_info);
       init_findid(err_info);
       init_entity(err_info);
@@ -486,8 +489,8 @@ errinfotype *err_info;
           write_idents();
         } /* if */
         clean_idents();
-        resultProg->source_file_name = source_file_name_copy;
-        resultProg->source_file_path = getProgramPath(source_file_name_copy);
+        resultProg->source_file_name = source_file_argument_copy;
+        resultProg->source_file_path = getProgramPath(source_name);
         resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));
@@ -513,7 +516,7 @@ errinfotype *err_info;
       } else {
         memcpy(&prog, &prog_backup, sizeof(progrecord));
         FREE_RECORD(resultProg, progrecord, count.prog);
-        FREE_STRI(source_file_name_copy, source_file_name_copy->size);
+        FREE_STRI(source_file_argument_copy, source_file_argument_copy->size);
         resultProg = NULL;
       } /* if */
     } /* if */
@@ -527,11 +530,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze_file (const const_stritype source_file_name, errinfotype *err_info)
+progtype analyze_file (const const_stritype source_file_argument, errinfotype *err_info)
 #else
 
-progtype analyze_file (source_file_name, err_info)
-stritype source_file_name;
+progtype analyze_file (source_file_argument, err_info)
+stritype source_file_argument;
 errinfotype *err_info;
 #endif
 
@@ -548,26 +551,27 @@ errinfotype *err_info;
     in_analyze = TRUE;
     init_analyze();
     resultProg = NULL;
-    if (source_file_name->size > 4 &&
-        source_file_name->mem[source_file_name->size - 4] == '.' &&
-        source_file_name->mem[source_file_name->size - 3] == 's' &&
-        source_file_name->mem[source_file_name->size - 2] == 'd' &&
-        source_file_name->mem[source_file_name->size - 1] == '7') {
-      name_len = source_file_name->size;
+    if (source_file_argument->size > 4 &&
+        source_file_argument->mem[source_file_argument->size - 4] == '.' &&
+        source_file_argument->mem[source_file_argument->size - 3] == 's' &&
+        source_file_argument->mem[source_file_argument->size - 2] == 'd' &&
+        source_file_argument->mem[source_file_argument->size - 1] == '7') {
+      name_len = source_file_argument->size;
       add_extension = FALSE;
     } else {
-      name_len = source_file_name->size + 4;
+      name_len = source_file_argument->size + 4;
       add_extension = TRUE;
     } /* if */
-    if (stri_charpos(source_file_name, '\\') != NULL) {
+    if (stri_charpos(source_file_argument, '\\') != NULL) {
       *err_info = RANGE_ERROR;
     } else if (!ALLOC_STRI_CHECK_SIZE(source_name, name_len)) {
       *err_info = MEMORY_ERROR;
     } else if (*err_info == OKAY_NO_ERROR) {
       source_name->size = name_len;
-      memcpy(source_name->mem, source_file_name->mem, source_file_name->size * sizeof(strelemtype));
+      memcpy(source_name->mem, source_file_argument->mem,
+          source_file_argument->size * sizeof(strelemtype));
       if (add_extension) {
-        cstri_expand(&source_name->mem[source_file_name->size], ".sd7", 4);
+        cstri_expand(&source_name->mem[source_file_argument->size], ".sd7", 4);
       } /* if */
       open_infile(source_name, err_info);
       if (*err_info == FILE_ERROR && add_extension) {
@@ -577,7 +581,7 @@ errinfotype *err_info;
       } /* if */
       if (*err_info == OKAY_NO_ERROR) {
         scan_byte_order_mark();
-        resultProg = analyze_prog(source_file_name, err_info);
+        resultProg = analyze_prog(source_file_argument, source_name, err_info);
       } else if (*err_info == FILE_ERROR) {
         *err_info = OKAY_NO_ERROR;
       } /* if */
@@ -594,11 +598,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze (const const_stritype source_file_name)
+progtype analyze (const const_stritype source_file_argument)
 #else
 
-progtype analyze (source_file_name)
-stritype source_file_name;
+progtype analyze (source_file_argument)
+stritype source_file_argument;
 #endif
 
   {
@@ -609,11 +613,11 @@ stritype source_file_name;
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze\n");
 #endif
-    resultProg = analyze_file(source_file_name, &err_info);
+    resultProg = analyze_file(source_file_argument, &err_info);
     if (err_info == MEMORY_ERROR) {
       err_warning(OUT_OF_HEAP_SPACE);
     } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
-      err_message(NO_SOURCEFILE, source_file_name);
+      err_message(NO_SOURCEFILE, source_file_argument);
     } /* if */
 #ifdef TRACE_ANALYZE
     printf("END analyze\n");
@@ -634,7 +638,7 @@ errinfotype *err_info;
 #endif
 
   {
-    stritype source_file_name;
+    stritype source_file_argument;
     bstritype input_bstri;
     progtype resultProg;
 
@@ -645,8 +649,8 @@ errinfotype *err_info;
     in_analyze = TRUE;
     init_analyze();
     resultProg = NULL;
-    source_file_name = cstri_to_stri("STRING");
-    if (source_file_name == NULL) {
+    source_file_argument = cstri_to_stri("STRING");
+    if (source_file_argument == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
       input_bstri = stri_to_bstri8(input_string);
@@ -655,11 +659,11 @@ errinfotype *err_info;
       } else {
         open_string(input_bstri, err_info);
         if (*err_info == OKAY_NO_ERROR) {
-          resultProg = analyze_prog(source_file_name, err_info);
+          resultProg = analyze_prog(source_file_argument, source_file_argument, err_info);
         } /* if */
         FREE_BSTRI(input_bstri, input_bstri->size);
       } /* if */
-      FREE_STRI(source_file_name, source_file_name->size);
+      FREE_STRI(source_file_argument, source_file_argument->size);
     } /* if */
     in_analyze = FALSE;
 #ifdef TRACE_ANALYZE

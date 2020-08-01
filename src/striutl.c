@@ -87,6 +87,13 @@ int codepage = DEFAULT_CODEPAGE;
 #define OS_STRI_SIZE(size)  max_utf8_size(size)
 #define OS_BSTRI_SIZE(size) (max_utf8_size(size) + 1)
 
+#else
+
+#define MAX_OS_STRI_SIZE    ((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1)
+#define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN / sizeof(os_chartype)) - 1)
+#define OS_STRI_SIZE(size)  (size)
+#define OS_BSTRI_SIZE(size) (((size) + 1) * sizeof(os_chartype))
+
 #endif
 
 
@@ -639,6 +646,7 @@ errinfotype *err_info;
   } /* conv_to_os_stri */
 
 #elif defined OS_STRI_UTF8
+#define CONF_TO_OS_STRI_SUCCEEDS_ALWAYS
 
 
 
@@ -661,6 +669,33 @@ errinfotype *err_info;
   /* conv_to_os_stri */
     length = stri_to_utf8((ustritype) os_stri, strelem, len);
     os_stri[length] = '\0';
+  } /* conv_to_os_stri */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
+    memsizetype len, errinfotype *err_info)
+#else
+
+static INLINE void conv_to_os_stri (os_stri, strelem, len, err_info)
+os_stritype os_stri;
+strelemtype *strelem;
+memsizetype len;
+errinfotype *err_info;
+#endif
+
+  { /* conv_to_os_stri */
+    for (; len > 0; strelem++, os_stri++, len--) {
+      if (unlikely(*strelem >= 256)) {
+        *err_info = RANGE_ERROR;
+      } /* if */
+      *os_stri = (os_chartype) *strelem;
+    } /* for */
+    *os_stri = '\0';
   } /* conv_to_os_stri */
 
 #endif
@@ -708,26 +743,48 @@ errinfotype *err_info;
 
 
 
+/**
+ *  Convert an os_stritype string with length to a Seed7 UTF-32 string.
+ *  Many system calls return os_stritype data with length. System calls
+ *  are defined in "version.h" and "os_decls.h". They are prefixed
+ *  with os_ and use strings of the type os_stritype. Depending on the
+ *  operating system os_stritype can describe byte or wide char strings.
+ *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
+ *  @param os_stri possibly binary string (may contain null characters).
+ *  @param length length of os_stri.
+ *  @return a Seed7 UTF-32 string or
+ *          NULL, when an error occurred.
+ */
 #ifdef ANSI_C
 
-static stritype conv_from_os_stri (const const_os_stritype os_stri)
+stritype conv_from_os_stri (const const_os_stritype os_stri,
+    memsizetype length)
 #else
 
-static stritype conv_from_os_stri (os_stri)
+stritype conv_from_os_stri (os_stri, length)
 os_stritype os_stri;
+memsizetype length;
 #endif
 
   {
-    memsizetype length;
+    memsizetype stri_size;
+    stritype resized_stri;
     stritype stri;
 
   /* conv_from_os_stri */
-    length = 0;
-    while (os_stri[length] != 0) {
-      length++;
-    } /* while */
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
-      stri->size = wstri_expand(stri->mem, os_stri, length);
+      stri_size = wstri_expand(stri->mem, os_stri, length);
+      stri->size = stri_size;
+      if (stri_size != length) {
+        REALLOC_STRI_SIZE_OK(resized_stri, stri, length, stri_size);
+        if (resized_stri == NULL) {
+          FREE_STRI(stri, length);
+          stri = NULL;
+        } else {
+          stri = resized_stri;
+          COUNT3_STRI(length, stri_size);
+        } /* if */
+      } /* if */
     } /* if */
     return stri;
   } /* conv_from_os_stri */
@@ -793,25 +850,35 @@ static strelemtype map_from_850[] = {
 /* 250 */  183,  185,  179,  178, 9632,  160};
 
 
+
+/**
+ *  Convert an os_stritype string with length to a Seed7 UTF-32 string.
+ *  Many system calls return os_stritype data with length. System calls
+ *  are defined in "version.h" and "os_decls.h". They are prefixed
+ *  with os_ and use strings of the type os_stritype. Depending on the
+ *  operating system os_stritype can describe byte or wide char strings.
+ *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
+ *  @param os_stri possibly binary string (may contain null characters).
+ *  @param length length of os_stri.
+ *  @return a Seed7 UTF-32 string or
+ *          NULL, when an error occurred.
+ */
 #ifdef ANSI_C
 
-static stritype conv_from_os_stri (const const_os_stritype os_stri)
+stritype conv_from_os_stri (const const_os_stritype os_stri,
+    memsizetype length)
 #else
 
-static stritype conv_from_os_stri (os_stri)
+stritype conv_from_os_stri (os_stri, length)
 os_stritype os_stri;
+memsizetype length;
 #endif
 
   {
-    memsizetype length;
     memsizetype pos;
     stritype stri;
 
   /* conv_from_os_stri */
-    length = 0;
-    while (os_stri[length] != 0) {
-      length++;
-    } /* while */
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
       stri->size = length;
       if (codepage == 437) {
@@ -830,6 +897,96 @@ os_stritype os_stri;
     return stri;
   } /* conv_from_os_stri */
 
+#elif defined OS_STRI_UTF8
+
+
+
+/**
+ *  Convert an os_stritype string with length to a Seed7 UTF-32 string.
+ *  Many system calls return os_stritype data with length. System calls
+ *  are defined in "version.h" and "os_decls.h". They are prefixed
+ *  with os_ and use strings of the type os_stritype. Depending on the
+ *  operating system os_stritype can describe byte or wide char strings.
+ *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
+ *  @param os_stri possibly binary string (may contain null characters).
+ *  @param length length of os_stri.
+ *  @return a Seed7 UTF-32 string or
+ *          NULL, when an error occurred.
+ */
+#ifdef ANSI_C
+
+stritype conv_from_os_stri (const const_os_stritype os_stri,
+    memsizetype length)
+#else
+
+stritype conv_from_os_stri (os_stri, length)
+os_stritype os_stri;
+memsizetype length;
+#endif
+
+  {
+    memsizetype stri_size;
+    stritype resized_stri;
+    stritype stri;
+
+  /* conv_from_os_stri */
+    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      if (utf8_to_stri(stri->mem, &stri_size, (const_ustritype) os_stri, length) == 0) {
+        REALLOC_STRI_SIZE_OK(resized_stri, stri, length, stri_size);
+        if (resized_stri == NULL) {
+          FREE_STRI(stri, length);
+          stri = NULL;
+        } else {
+          stri = resized_stri;
+          COUNT3_STRI(length, stri_size);
+          stri->size = stri_size;
+        } /* if */
+      } else {
+        stri->size = length;
+        cstri_expand(stri->mem, os_stri, length);
+      } /* if */
+    } /* if */
+    return stri;
+  } /* conv_from_os_stri */
+
+#else
+
+
+
+/**
+ *  Convert an os_stritype string with length to a Seed7 UTF-32 string.
+ *  Many system calls return os_stritype data with length. System calls
+ *  are defined in "version.h" and "os_decls.h". They are prefixed
+ *  with os_ and use strings of the type os_stritype. Depending on the
+ *  operating system os_stritype can describe byte or wide char strings.
+ *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
+ *  @param os_stri possibly binary string (may contain null characters).
+ *  @param length length of os_stri.
+ *  @return a Seed7 UTF-32 string or
+ *          NULL, when an error occurred.
+ */
+#ifdef ANSI_C
+
+stritype conv_from_os_stri (const const_os_stritype os_stri,
+    memsizetype length)
+#else
+
+stritype conv_from_os_stri (os_stri, length)
+os_stritype os_stri;
+memsizetype length;
+#endif
+
+  {
+    stritype stri;
+
+  /* conv_from_os_stri */
+    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      ustri_expand(stri->mem, (const_ustritype) os_stri, length);
+      stri->size = length;
+    } /* if */
+    return stri;
+  } /* conv_from_os_stri */
+
 #endif
 
 
@@ -842,6 +999,7 @@ os_stritype os_stri;
  *  are used as parameters. To get good performance the allocated
  *  memory for the C string is oversized. No special action is
  *  done, when the UTF-32 string contains a null character.
+ *  @param stri Seed7 UTF-32 string to be converted.
  *  @return an UTF-8 encoded null terminated C string or
  *          NULL, when the memory allocation failed.
  */
@@ -878,6 +1036,7 @@ stritype stri;
  *  is byond ISO-8859-1 an empty bstring is returned. The conversion
  *  was successful, when the bstring has the same size as the UTF-32
  *  string.
+ *  @param stri Seed7 UTF-32 string to be converted.
  *  @return an ISO-8859-1 encoded bstring or
  *          NULL, when the memory allocation failed.
  */
@@ -927,6 +1086,7 @@ stritype stri;
  *  The memory for the bstring is allocated. No zero byte is added
  *  to the end of the bstring. No special action is done, when
  *  the original string contains a null character.
+ *  @param stri Seed7 UTF-32 string to be converted.
  *  @return an UTF-8 encoded bstring or
  *          NULL, when the memory allocation failed.
  */
@@ -1041,6 +1201,7 @@ stritype stri;
 /**
  *  Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
+ *  @param cstri null terminated ISO-8859-1 encoded C string.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed.
  */
@@ -1103,6 +1264,7 @@ cstritype cstri;
 /**
  *  Copy an UTF-8 encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
+ *  @param cstri null terminated UTF-8 encoded C string.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed or when
  *          illegal UTF-8 encodings are used.
@@ -1148,6 +1310,7 @@ cstritype cstri;
 /**
  *  Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
+ *  @param cstri null terminated UTF-8 or ISO-8859-1 encoded C string.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed.
  */
@@ -1173,16 +1336,17 @@ cstritype cstri;
 
 
 
-#if defined OS_STRI_WCHAR || defined OS_STRI_USES_CODEPAGE
-
-
-
 /**
- *  Convert a Seed7 UTF-32 string to a string used by system calls.
- *  System calls are defined in "version.h" and "os_decls.h". They are
- *  prefixed with os_ and use strings of the type os_stritype. Depending
- *  on the operating system os_stritype can be either an UTF-8 or an
- *  UTF-16 encoded null terminated string.
+ *  Convert a Seed7 UTF-32 string to a null terminated os_stritype string.
+ *  The memory for the null terminated os_stritype string is allocated.
+ *  The os_stritype result must be freed with the macro os_stri_free(). 
+ *  Many system calls have parameters with null terminated os_stritype
+ *  strings. System calls are defined in "version.h" and "os_decls.h".
+ *  They are prefixed with os_ and use strings of the type os_stritype.
+ *  Depending on the operating system os_stritype can describe byte or
+ *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+ *  it can use a code page.
+ *  @param stri Seed7 UTF-32 string to be converted.
  *  @param err_info unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed or
  *                  RANGE_ERROR when the conversion failed.
@@ -1211,68 +1375,27 @@ errinfotype *err_info;
         *err_info = MEMORY_ERROR;
       } else {
         conv_to_os_stri(result, stri->mem, stri->size, err_info);
+#ifndef CONF_TO_OS_STRI_SUCCEEDS_ALWAYS
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
           os_stri_free(result);
           result = NULL;
         } /* if */
+#endif
       } /* if */
     } /* if */
     return result;
   } /* stri_to_os_stri */
 
-#else
-
-
-
-/**
- *  Convert a Seed7 UTF-32 string to a string used by system calls.
- *  System calls are defined in "version.h" and "os_decls.h". They are
- *  prefixed with os_ and use strings of the type os_stritype. Depending
- *  on the operating system os_stritype can be either an UTF-8 or an
- *  UTF-16 encoded null terminated string.
- *  @param err_info unchanged when the function succceeds or
- *                  MEMORY_ERROR when the memory allocation failed or
- *                  RANGE_ERROR when the conversion failed.
- *  @return a null terminated os_stritype value used by system calls or
- *          NULL, when an error occurred.
- */
-#ifdef ANSI_C
-
-os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info)
-#else
-
-os_stritype stri_to_os_stri (stri, err_info)
-const_stritype stri;
-errinfotype *err_info;
-#endif
-
-  {
-    os_stritype result;
-
-  /* stri_to_os_stri */
-    if (unlikely(stri->size > MAX_OS_STRI_SIZE)) {
-      *err_info = MEMORY_ERROR;
-      result = NULL;
-    } else {
-      if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        stri_export_utf8((ustritype) result, stri);
-      } /* if */
-    } /* if */
-    return result;
-  } /* stri_to_os_stri */
-
-#endif
-
 
 
 /**
- *  Convert a string returned by a system call to a Seed7 UTF-32 string.
- *  System calls are defined in "version.h" and "os_decls.h". They are
- *  prefixed with os_ and use strings of the type os_stritype. Depending
- *  on the operating system os_stritype can be either an UTF-8 or an
- *  UTF-16 encoded null terminated string.
+ *  Convert a null terminated os_stritype string to a Seed7 UTF-32 string.
+ *  Many system calls return null terminated os_stritype strings. System
+ *  calls are defined in "version.h" and "os_decls.h". They are prefixed
+ *  with os_ and use strings of the type os_stritype. Depending on the
+ *  operating system os_stritype can describe byte or wide char strings.
+ *  The encoding can be Latin-1, UTF-8, UTF-16 or it can use a code page.
+ *  @param os_stri null terminated os_stritype string to be converted.
  *  @param err_info unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed.
  *  @return a Seed7 UTF-32 string or
@@ -1292,13 +1415,7 @@ errinfotype *err_info;
     stritype stri;
 
   /* os_stri_to_stri */
-#if defined OS_STRI_WCHAR || defined OS_STRI_USES_CODEPAGE
-    stri = conv_from_os_stri(os_stri);
-#elif defined OS_STRI_UTF8
-    stri = cstri8_or_cstri_to_stri(os_stri);
-#else
-    stri = cstri_to_stri(os_stri);
-#endif
+    stri = conv_from_os_stri(os_stri, os_stri_strlen(os_stri));
     if (unlikely(stri == NULL)) {
       *err_info = MEMORY_ERROR;
     } /* if */
@@ -1356,10 +1473,12 @@ stritype stri;
  *  Convert a path returned by a system call to a Seed7 standard path.
  *  System calls are defined in "version.h" and "os_decls.h". They are
  *  prefixed with os_ and use system paths of the type os_stritype.
- *  Depending on the operating system os_stritype can be either an UTF-8
- *  or an UTF-16 encoded null terminated string. Beyond the conversion from
- *  os_stritype a mapping from drive letters might take place on some
- *  operating systems.
+ *  Depending on the operating system os_stritype can describe byte or
+ *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+ *  it can use a code page. Beyond the conversion from os_stritype a
+ *  mapping from drive letters might take place on some operating
+ *  systems.
+ *  @param os_path null terminated os_stritype path to be converted.
  *  @param err_info unchanged when the function succceeds or
  *                  MEMORY_ERROR when the memory allocation failed.
  *  @return an UTF-32 encoded Seed7 standard path or
@@ -1367,11 +1486,11 @@ stritype stri;
  */
 #ifdef ANSI_C
 
-stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info)
+stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info)
 #else
 
-stritype cp_from_os_path (os_stri, err_info)
-os_stritype os_stri;
+stritype cp_from_os_path (os_path, err_info)
+os_stritype os_path;
 errinfotype *err_info;
 #endif
 
@@ -1379,7 +1498,7 @@ errinfotype *err_info;
     stritype result;
 
   /* cp_from_os_path */
-    result = os_stri_to_stri(os_stri, err_info);
+    result = os_stri_to_stri(os_path, err_info);
     if (likely(result != NULL)) {
       result = stri_to_standard_path(result);
       if (unlikely(result == NULL)) {
@@ -1391,7 +1510,7 @@ errinfotype *err_info;
 
 
 
-#if defined OS_STRI_WCHAR || defined OS_STRI_USES_CODEPAGE
+#ifdef OS_PATH_HAS_DRIVE_LETTERS
 
 
 
@@ -1545,11 +1664,11 @@ errinfotype *err_info;
         absolutePath, relative_path, result); */
     return result;
   } /* append_path */
-#endif
+
+#else
 
 
 
-#ifndef EMULATE_ROOT_CWD
 #ifdef ANSI_C
 
 static os_stritype map_to_drive_letter (const strelemtype *const pathChars,
@@ -1611,18 +1730,22 @@ errinfotype *err_info;
     } /* if */
     return result;
   } /* map_to_drive_letter */
+
 #endif
 
 
 
 /**
  *  Convert a Seed7 standard path to a path used by system calls.
+ *  The memory for the null terminated os_stritype path is allocated.
+ *  The os_stritype result must be freed with the macro os_stri_free(). 
  *  System calls are defined in "version.h" and "os_decls.h". They are
  *  prefixed with os_ and use system paths of the type os_stritype.
- *  Depending on the operating system os_stritype can be either an UTF-8
- *  or an UTF-16 encoded null terminated string. Beyond the conversion to
- *  os_stritype a mapping to drive letters might take place on some
- *  operating systems.
+ *  Depending on the operating system os_stritype can describe byte or
+ *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+ *  it can use a code page. Beyond the conversion to os_stritype a
+ *  mapping to drive letters might take place on some operating systems.
+ *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
  *  @param path_info unchanged when the function succceeds or
  *                   PATH_IS_EMULATED_ROOT when the path is "/".
  *                   PATH_NOT_MAPPED when the path cannot be mapped.
@@ -1634,12 +1757,12 @@ errinfotype *err_info;
  */
 #ifdef ANSI_C
 
-os_stritype cp_to_os_path (const_stritype stri, int *path_info,
+os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
     errinfotype *err_info)
 #else
 
-os_stritype cp_to_os_path (stri, path_info, err_info)
-stritype stri;
+os_stritype cp_to_os_path (std_path, path_info, err_info)
+stritype std_path;
 int *path_info;
 errinfotype *err_info;
 #endif
@@ -1649,25 +1772,29 @@ errinfotype *err_info;
 
   /* cp_to_os_path */
 #ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
+    printf("BEGIN cp_to_os_path(%lx, %d)\n", std_path, *err_info);
 #endif
-#ifdef ALLOW_DRIVE_LETTERS
-    if (unlikely(stri->size >= 2 && stri->mem[stri->size - 1] == '/' &&
-                 (stri->size != 3 || stri->mem[1] != ':' ||
-                 ((stri->mem[0] < 'a' || stri->mem[0] > 'z') &&
-                  (stri->mem[0] < 'A' || stri->mem[0] > 'Z'))))) {
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#ifdef FORBID_DRIVE_LETTERS
+    if (unlikely(std_path->size >= 2 && (std_path->mem[std_path->size - 1] == '/' ||
+                 (std_path->mem[1] == ':' &&
+                 ((std_path->mem[0] >= 'a' && std_path->mem[0] <= 'z') ||
+                  (std_path->mem[0] >= 'A' && std_path->mem[0] <= 'Z')))))) {
 #else
-    if (unlikely(stri->size >= 2 && (stri->mem[stri->size - 1] == '/' ||
-                 (stri->mem[1] == ':' &&
-                 ((stri->mem[0] >= 'a' && stri->mem[0] <= 'z') ||
-                  (stri->mem[0] >= 'A' && stri->mem[0] <= 'Z')))))) {
+    if (unlikely(std_path->size >= 2 && std_path->mem[std_path->size - 1] == '/')) {
+#endif
+#else
+    if (unlikely(std_path->size >= 2 && std_path->mem[std_path->size - 1] == '/' &&
+                 (std_path->size != 3 || std_path->mem[1] != ':' ||
+                 ((std_path->mem[0] < 'a' || std_path->mem[0] > 'z') &&
+                  (std_path->mem[0] < 'A' || std_path->mem[0] > 'Z'))))) {
 #endif
       *err_info = RANGE_ERROR;
       result = NULL;
-    } else if (unlikely(stri_charpos(stri, '\\') != NULL)) {
+    } else if (unlikely(stri_charpos(std_path, '\\') != NULL)) {
       *err_info = RANGE_ERROR;
       result = NULL;
-    } else if (stri->size == 0) {
+    } else if (std_path->size == 0) {
       if (unlikely(!os_stri_alloc(result, 0))) {
         *err_info = MEMORY_ERROR;
       } else {
@@ -1675,23 +1802,23 @@ errinfotype *err_info;
       } /* if */
     } else {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-      if (stri->size >= 1 && stri->mem[0] == '/') {
+      if (std_path->size >= 1 && std_path->mem[0] == '/') {
         /* Absolute path: Try to map the path to a drive letter */
 #ifdef EMULATE_ROOT_CWD
-        result = append_path(emulated_root, &stri->mem[1], stri->size - 1,
+        result = append_path(emulated_root, &std_path->mem[1], std_path->size - 1,
                              path_info, err_info);
 #else
-        result = map_to_drive_letter(&stri->mem[1], stri->size - 1, err_info);
+        result = map_to_drive_letter(&std_path->mem[1], std_path->size - 1, err_info);
 #endif
       } else {
 #ifdef EMULATE_ROOT_CWD
-        result = append_path(current_emulated_cwd, stri->mem, stri->size,
+        result = append_path(current_emulated_cwd, std_path->mem, std_path->size,
                              path_info, err_info);
 #else
-        if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
+        if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(std_path->size)))) {
           *err_info = MEMORY_ERROR;
         } else {
-          conv_to_os_stri(result, stri->mem, stri->size, err_info);
+          conv_to_os_stri(result, std_path->mem, std_path->size, err_info);
           if (unlikely(*err_info != OKAY_NO_ERROR)) {
             os_stri_free(result);
             result = NULL;
@@ -1700,10 +1827,10 @@ errinfotype *err_info;
 #endif
       } /* if */
 #else
-      if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
+      if (unlikely(!os_stri_alloc(result, OS_STRI_SIZE(std_path->size)))) {
         *err_info = MEMORY_ERROR;
       } else {
-        conv_to_os_stri(result, stri->mem, stri->size, err_info);
+        conv_to_os_stri(result, std_path->mem, std_path->size, err_info);
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
           os_stri_free(result);
           result = NULL;
@@ -1712,7 +1839,7 @@ errinfotype *err_info;
 #endif
     } /* if */
 #ifdef TRACE_STRIUTL
-    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
+    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", std_path, *err_info, result);
 #endif
     return result;
   } /* cp_to_os_path */
@@ -1723,12 +1850,15 @@ errinfotype *err_info;
 
 /**
  *  Convert a Seed7 standard path to a path used by system calls.
+ *  The memory for the null terminated os_stritype path is allocated.
+ *  The os_stritype result must be freed with the macro os_stri_free(). 
  *  System calls are defined in "version.h" and "os_decls.h". They are
  *  prefixed with os_ and use system paths of the type os_stritype.
- *  Depending on the operating system os_stritype can be either an UTF-8
- *  or an UTF-16 encoded null terminated string. Beyond the conversion to
- *  os_stritype a mapping to drive letters might take place on some
- *  operating systems.
+ *  Depending on the operating system os_stritype can describe byte or
+ *  wide char strings. The encoding can be Latin-1, UTF-8, UTF-16 or
+ *  it can use a code page. Beyond the conversion to os_stritype a
+ *  mapping to drive letters might take place on some operating systems.
+ *  @param std_path UTF-32 encoded Seed7 standard path to be converted.
  *  @param path_info unchanged when the function succceeds or
  *                   PATH_IS_EMULATED_ROOT when the path is "/".
  *                   PATH_NOT_MAPPED when the path cannot be mapped.
@@ -1740,12 +1870,12 @@ errinfotype *err_info;
  */
 #ifdef ANSI_C
 
-os_stritype cp_to_os_path (const_stritype stri, int *path_info,
+os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
     errinfotype *err_info)
 #else
 
-os_stritype cp_to_os_path (stri, path_info, err_info)
-stritype stri;
+os_stritype cp_to_os_path (std_path, path_info, err_info)
+stritype std_path;
 int *path_info;
 errinfotype *err_info;
 #endif
@@ -1755,20 +1885,26 @@ errinfotype *err_info;
 
   /* cp_to_os_path */
 #ifdef TRACE_STRIUTL
-    printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
+    printf("BEGIN cp_to_os_path(%lx, %d)\n", std_path, *err_info);
 #endif
-    if (unlikely(stri->size >= 2 && stri->mem[stri->size - 1] == '/')) {
+    if (unlikely(std_path->size >= 2 && std_path->mem[std_path->size - 1] == '/')) {
       *err_info = RANGE_ERROR;
       result = NULL;
-    } else if (unlikely(stri->size > MAX_OS_STRI_SIZE ||
-                        !os_stri_alloc(result, OS_STRI_SIZE(stri->size)))) {
+    } else if (unlikely(std_path->size > MAX_OS_STRI_SIZE ||
+                        !os_stri_alloc(result, OS_STRI_SIZE(std_path->size)))) {
       *err_info = MEMORY_ERROR;
       result = NULL;
     } else {
-      stri_export_utf8((ustritype) result, stri);
+      conv_to_os_stri(result, std_path->mem, std_path->size, err_info);
+#ifndef CONF_TO_OS_STRI_SUCCEEDS_ALWAYS
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
+        os_stri_free(result);
+        result = NULL;
+      } /* if */
+#endif
     } /* if */
 #ifdef TRACE_STRIUTL
-    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", stri, *err_info, result);
+    printf("END cp_to_os_path(%lx, %d) ==> %lx\n", std_path, *err_info, result);
 #endif
     return result;
   } /* cp_to_os_path */

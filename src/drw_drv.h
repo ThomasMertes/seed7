@@ -101,9 +101,9 @@ void drwFPolyLine (const_wintype actual_window,
 void drwPut (const_wintype actual_window, const_wintype pixmap,
     inttype x, inttype y);
 void drwRect (const_wintype actual_window,
-    inttype x, inttype y, inttype length_x, inttype length_y);
+    inttype x, inttype y, inttype width, inttype height);
 void drwPRect (const_wintype actual_window,
-    inttype x, inttype y, inttype length_x, inttype length_y, inttype col);
+    inttype x, inttype y, inttype width, inttype height, inttype col);
 inttype drwRgbColor (inttype red_val, inttype green_val, inttype blue_val);
 void drwBackground (inttype col);
 void drwColor (inttype col);

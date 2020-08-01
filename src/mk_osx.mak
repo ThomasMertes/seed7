@@ -135,6 +135,7 @@ version.h:
 	echo "#define ANSI_C" > version.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define PATH_DELIMITER '/'" >> version.h
+	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
 	echo "#define HAS_FIFO_FILES" >> version.h
@@ -149,6 +150,7 @@ version.h:
 	echo "#define os_fseek fseeko" >> version.h
 	echo "#define os_ftell ftello" >> version.h
 	echo "#define os_off_t off_t" >> version.h
+	echo "#define os_environ environ" >> version.h
 	echo "#define ESCAPE_SHELL_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h

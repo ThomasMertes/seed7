@@ -38,8 +38,8 @@ stritype socAddrService (const const_bstritype address);
 void socBind (sockettype sock, const_bstritype address);
 void socClose (sockettype sock);
 void socConnect (sockettype sock, const_bstritype address);
-chartype socGetc (sockettype sock, chartype *const eof_indicator);
-stritype socGets (sockettype sock, inttype length, chartype *const eof_indicator);
+chartype socGetc (sockettype sock, chartype *const eofIndicator);
+stritype socGets (sockettype sock, inttype length, chartype *const eofIndicator);
 bstritype socGetAddr (sockettype sock);
 stritype socGetHostname (void);
 booltype socHasNext (sockettype sock);
@@ -47,7 +47,7 @@ bstritype socInetAddr (const const_stritype host_name, inttype port);
 bstritype socInetLocalAddr (inttype port);
 bstritype socInetServAddr (inttype port);
 booltype socInputReady (sockettype sock, inttype seconds, inttype micro_seconds);
-stritype socLineRead (sockettype sock, chartype *const termination_char);
+stritype socLineRead (sockettype sock, chartype *const terminationChar);
 void socListen (sockettype sock, inttype backlog);
 inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags);
 inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype flags,
@@ -56,7 +56,7 @@ inttype socSend (sockettype sock, const const_stritype stri, inttype flags);
 inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
     const_bstritype address);
 sockettype socSocket (inttype domain, inttype type, inttype protocol);
-stritype socWordRead (sockettype sock, chartype *const termination_char);
+stritype socWordRead (sockettype sock, chartype *const terminationChar);
 void socWrite (sockettype sock, const const_stritype stri);
 
 #else

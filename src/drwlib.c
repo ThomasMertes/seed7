@@ -1485,7 +1485,7 @@ listtype arguments;
 
   {
     wintype actual_window;
-    inttype x1, y1, length_x, length_y, col;
+    inttype x1, y1, width, height, col;
 
   /* drw_prect */
     isit_win(arg_1(arguments));
@@ -1497,10 +1497,10 @@ listtype arguments;
     actual_window = take_win(arg_1(arguments));
     x1 = take_int(arg_2(arguments));
     y1 = take_int(arg_3(arguments));
-    length_x = take_int(arg_4(arguments));
-    length_y = take_int(arg_5(arguments));
+    width = take_int(arg_4(arguments));
+    height = take_int(arg_5(arguments));
     col = take_int(arg_6(arguments));
-    drwPRect(actual_window, x1, y1, length_x, length_y, col);
+    drwPRect(actual_window, x1, y1, width, height, col);
     return SYS_EMPTY_OBJECT;
   } /* drw_prect */
 
@@ -1548,7 +1548,7 @@ listtype arguments;
 
   {
     wintype actual_window;
-    inttype x1, y1, length_x, length_y;
+    inttype x1, y1, width, height;
 
   /* drw_rect */
     isit_win(arg_1(arguments));
@@ -1559,9 +1559,9 @@ listtype arguments;
     actual_window = take_win(arg_1(arguments));
     x1 = take_int(arg_2(arguments));
     y1 = take_int(arg_3(arguments));
-    length_x = take_int(arg_4(arguments));
-    length_y = take_int(arg_5(arguments));
-    drwRect(actual_window, x1, y1, length_x, length_y);
+    width = take_int(arg_4(arguments));
+    height = take_int(arg_5(arguments));
+    drwRect(actual_window, x1, y1, width, height);
     return SYS_EMPTY_OBJECT;
   } /* drw_rect */
 

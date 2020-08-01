@@ -694,7 +694,7 @@ THE VERSION.H FILE
   file. This is done with 'make depend' (or 'gmake depend' or
   'nmake depend'). The version.h file contains several #defines
   which contain information over available features and the way
-  they are available:
+  they are available. Other #defines can be found in config.h.
 
   ANSI_C: Defined when the ansi C prototypes are used. If
           it is not defined K&R C function headers are used.
@@ -912,11 +912,27 @@ THE VERSION.H FILE
                   characters. Instead Seed7 programs must always
                   use '/' as path delimiter.
 
-  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined when absolute
-                                      paths (paths starting with
-                                      '/') should be mapped to
-                                      operating system paths
-                                      with drive letter.
+  OS_PATH_HAS_DRIVE_LETTERS: Defined when the absolute paths of
+                             the operating system use drive
+                             letters.
+
+  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined in config.h, when
+                                      absolute paths (paths
+                                      starting with '/') must
+                                      be mapped to operating
+                                      system paths with drive
+                                      letter. E.g.: "/c" is
+                                      mapped to the drive letter
+                                      "C:".
+
+  FORBID_DRIVE_LETTERS: Defined in config.h, when a Seed7 path
+                        with drive letters must raise
+                        RANGE_ERROR.
+
+  EMULATE_ROOT_CWD: Defined in config.h, when the operating
+                    system uses drive letters and reading the
+                    directory "/" must return a list of
+                    available drives.
 
   ESCAPE_SHELL_COMMANDS: Depending on the shell/os the C
                          functions system() and popen() need

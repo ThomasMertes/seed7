@@ -115,11 +115,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static memsizetype read_utf8_string (filetype aFile, stritype stri, errinfotype *err_info)
+static memsizetype read_utf8_string (filetype inFile, stritype stri, errinfotype *err_info)
 #else
 
-static memsizetype read_utf8_string (aFile, stri, err_info)
-filetype aFile;
+static memsizetype read_utf8_string (inFile, stri, err_info)
+filetype inFile;
 stritype stri;
 errinfotype *err_info;
 #endif
@@ -138,8 +138,8 @@ errinfotype *err_info;
         *err_info == OKAY_NO_ERROR;
         stri_pos += state.chars_read, chars_missing -= state.chars_read) {
       bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
-          BUFFER_SIZE, aFile);
-      if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(aFile)) {
+          BUFFER_SIZE, inFile);
+      if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         *err_info = FILE_ERROR;
       } else {
         /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
@@ -152,8 +152,8 @@ errinfotype *err_info;
         *err_info == OKAY_NO_ERROR;
         stri_pos += state.chars_read, chars_missing -= state.chars_read) {
       bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
-          chars_missing - state.chars_there + state.bytes_missing, aFile);
-      if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(aFile)) {
+          chars_missing - state.chars_there + state.bytes_missing, inFile);
+      if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         *err_info = FILE_ERROR;
       } else {
         /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
@@ -170,12 +170,12 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static stritype read_and_alloc_utf8_stri (filetype aFile, memsizetype chars_missing,
+static stritype read_and_alloc_utf8_stri (filetype inFile, memsizetype chars_missing,
     memsizetype *num_of_chars_read, errinfotype *err_info)
 #else
 
-static stritype read_and_alloc_utf8_stri (aFile, chars_missing, num_of_chars_read, err_info)
-filetype aFile;
+static stritype read_and_alloc_utf8_stri (inFile, chars_missing, num_of_chars_read, err_info)
+filetype inFile;
 memsizetype chars_missing;
 memsizetype *num_of_chars_read;
 errinfotype *err_info;
@@ -191,7 +191,7 @@ errinfotype *err_info;
     stritype result;
 
   /* read_and_alloc_utf8_stri */
-    /* printf("read_and_alloc_utf8_stri(%d, %d, *, *)\n", fileno(aFile), chars_missing); */
+    /* printf("read_and_alloc_utf8_stri(%d, %d, *, *)\n", fileno(inFile), chars_missing); */
     if (!ALLOC_STRI_SIZE_OK(result, GETS_STRI_SIZE_DELTA)) {
       *err_info = MEMORY_ERROR;
       result = NULL;
@@ -203,8 +203,8 @@ errinfotype *err_info;
           *err_info == OKAY_NO_ERROR;
           result_pos += state.chars_read, chars_missing -= state.chars_read) {
         bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
-            BUFFER_SIZE, aFile);
-        if (bytes_in_buffer == 0 && result_pos == 0 && ferror(aFile)) {
+            BUFFER_SIZE, inFile);
+        if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
           *err_info = FILE_ERROR;
         } else {
           /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
@@ -229,8 +229,8 @@ errinfotype *err_info;
           *err_info == OKAY_NO_ERROR;
           result_pos += state.chars_read, chars_missing -= state.chars_read) {
         bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
-            chars_missing - state.chars_there + state.bytes_missing, aFile);
-        if (bytes_in_buffer == 0 && result_pos == 0 && ferror(aFile)) {
+            chars_missing - state.chars_there + state.bytes_missing, inFile);
+        if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
           *err_info = FILE_ERROR;
         } else {
           /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
@@ -266,11 +266,11 @@ errinfotype *err_info;
  */
 #ifdef ANSI_C
 
-chartype ut8Getc (filetype aFile)
+chartype ut8Getc (filetype inFile)
 #else
 
-chartype ut8Getc (aFile)
-filetype aFile;
+chartype ut8Getc (inFile)
+filetype inFile;
 #endif
 
   {
@@ -278,13 +278,13 @@ filetype aFile;
     chartype result;
 
   /* ut8Getc */
-    character = getc(aFile);
+    character = getc(inFile);
     if (character != EOF && character > 0x7F) {
       /* character range 0x80 to 0xFF (128 to 255) */
       if ((character & 0xE0) == 0xC0) {
         /* character range 0xC0 to 0xDF (192 to 223) */
         result = (chartype) (character & 0x1F) << 6;
-        character = getc(aFile);
+        character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
           result |= character & 0x3F;
           if (result <= 0x7F) {
@@ -298,10 +298,10 @@ filetype aFile;
       } else if ((character & 0xF0) == 0xE0) {
         /* character range 0xE0 to 0xEF (224 to 239) */
         result = (chartype) (character & 0x0F) << 12;
-        character = getc(aFile);
+        character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
           result |= (chartype) (character & 0x3F) << 6;
-          character = getc(aFile);
+          character = getc(inFile);
           if ((character & 0xC0) == 0x80) {
             result |= character & 0x3F;
             if (result <= 0x7FF) {  /* (result >= 0xD800 && result <= 0xDFFF)) */
@@ -319,13 +319,13 @@ filetype aFile;
       } else if ((character & 0xF8) == 0xF0) {
         /* character range 0xF0 to 0xF7 (240 to 247) */
         result = (chartype) (character & 0x07) << 18;
-        character = getc(aFile);
+        character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
           result |= (chartype) (character & 0x3F) << 12;
-          character = getc(aFile);
+          character = getc(inFile);
           if ((character & 0xC0) == 0x80) {
             result |= (chartype) (character & 0x3F) << 6;
-            character = getc(aFile);
+            character = getc(inFile);
             if ((character & 0xC0) == 0x80) {
               result |= character & 0x3F;
               if (result <= 0xFFFF) {
@@ -347,16 +347,16 @@ filetype aFile;
       } else if ((character & 0xFC) == 0xF8) {
         /* character range 0xF8 to 0xFB (248 to 251) */
         result = (chartype) (character & 0x03) << 24;
-        character = getc(aFile);
+        character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
           result |= (chartype) (character & 0x3F) << 18;
-          character = getc(aFile);
+          character = getc(inFile);
           if ((character & 0xC0) == 0x80) {
             result |= (chartype) (character & 0x3F) << 12;
-            character = getc(aFile);
+            character = getc(inFile);
             if ((character & 0xC0) == 0x80) {
               result |= (chartype) (character & 0x3F) << 6;
-              character = getc(aFile);
+              character = getc(inFile);
               if ((character & 0xC0) == 0x80) {
                 result |= character & 0x3F;
                 if (result <= 0x1FFFFF) {
@@ -382,19 +382,19 @@ filetype aFile;
       } else if ((character & 0xFC) == 0xFC) {
         /* character range 0xFC to 0xFF (252 to 255) */
         result = (chartype) (character & 0x03) << 30;
-        character = getc(aFile);
+        character = getc(inFile);
         if ((character & 0xC0) == 0x80) {
           result |= (chartype) (character & 0x3F) << 24;
-          character = getc(aFile);
+          character = getc(inFile);
           if ((character & 0xC0) == 0x80) {
             result |= (chartype) (character & 0x3F) << 18;
-            character = getc(aFile);
+            character = getc(inFile);
             if ((character & 0xC0) == 0x80) {
               result |= (chartype) (character & 0x3F) << 12;
-              character = getc(aFile);
+              character = getc(inFile);
               if ((character & 0xC0) == 0x80) {
                 result |= (chartype) (character & 0x3F) <<  6;
-                character = getc(aFile);
+                character = getc(inFile);
                 if ((character & 0xC0) == 0x80) {
                   result |= character & 0x3F;
                   if (result <= 0x3FFFFFF) {
@@ -452,11 +452,11 @@ filetype aFile;
  */
 #ifdef ANSI_C
 
-stritype ut8Gets (filetype aFile, inttype length)
+stritype ut8Gets (filetype inFile, inttype length)
 #else
 
-stritype ut8Gets (aFile, length)
-filetype aFile;
+stritype ut8Gets (inFile, length)
+filetype inFile;
 inttype length;
 #endif
 
@@ -470,7 +470,7 @@ inttype length;
     stritype result;
 
   /* ut8Gets */
-    /* printf("ut8Gets(%d, %d)\n", fileno(aFile), length); */
+    /* printf("ut8Gets(%d, %d)\n", fileno(inFile), length); */
     if (length < 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -488,10 +488,10 @@ inttype length;
         ALLOC_STRI_SIZE_OK(result, allocated_size);
       } /* if */
       if (result == NULL) {
-        bytes_there = remainingBytesInFile(aFile);
+        bytes_there = remainingBytesInFile(inFile);
         /* printf("bytes_there=%lu\n", bytes_there); */
         if (bytes_there != 0) {
-          /* Now we know that bytes_there bytes are available in aFile */
+          /* Now we know that bytes_there bytes are available in inFile */
           if (chars_requested <= bytes_there) {
             allocated_size = chars_requested;
           } else {
@@ -510,12 +510,12 @@ inttype length;
         /* We have allocated a buffer for the requested number of chars
            or for the number of bytes which are available in the file */
         result->size = allocated_size;
-        num_of_chars_read = read_utf8_string(aFile, result, &err_info);
+        num_of_chars_read = read_utf8_string(inFile, result, &err_info);
       } else {
         /* We do not know how many bytes are avaliable therefore
            result is resized with GETS_STRI_SIZE_DELTA until we
            have read enough or we reach EOF */
-        result = read_and_alloc_utf8_stri(aFile, chars_requested, &num_of_chars_read, &err_info);
+        result = read_and_alloc_utf8_stri(inFile, chars_requested, &num_of_chars_read, &err_info);
       } /* if */
       if (err_info != OKAY_NO_ERROR) {
         if (result != NULL) {
@@ -536,7 +536,7 @@ inttype length;
         } /* if */
       } /* if */
     } /* if */
-    /* printf("ut8Gets(%d, %d) ==> ", fileno(aFile), length);
+    /* printf("ut8Gets(%d, %d) ==> ", fileno(inFile), length);
         prot_stri(result);
         printf("\n"); */
     return result;
@@ -546,12 +546,12 @@ inttype length;
 
 #ifdef ANSI_C
 
-stritype ut8LineRead (filetype aFile, chartype *termination_char)
+stritype ut8LineRead (filetype inFile, chartype *terminationChar)
 #else
 
-stritype ut8LineRead (aFile, termination_char)
-filetype aFile;
-chartype *termination_char;
+stritype ut8LineRead (inFile, terminationChar)
+filetype inFile;
+chartype *terminationChar;
 #endif
 
   {
@@ -574,7 +574,7 @@ chartype *termination_char;
     } else {
       memory = buffer->mem;
       position = 0;
-      while ((ch = getc(aFile)) != (int) '\n' && ch != EOF) {
+      while ((ch = getc(inFile)) != (int) '\n' && ch != EOF) {
         if (position >= memlength) {
           newmemlength = memlength + READ_STRI_SIZE_DELTA;
           REALLOC_BSTRI_CHECK_SIZE(resized_buffer, buffer, memlength, newmemlength);
@@ -593,7 +593,7 @@ chartype *termination_char;
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (ch == EOF && position == 0 && ferror(aFile)) {
+      if (ch == EOF && position == 0 && ferror(inFile)) {
         FREE_BSTRI(buffer, memlength);
         raise_error(FILE_ERROR);
         result = NULL;
@@ -618,7 +618,7 @@ chartype *termination_char;
               result = resized_result;
               COUNT3_STRI(position, result_size);
               result->size = result_size;
-              *termination_char = (chartype) ch;
+              *terminationChar = (chartype) ch;
             } /* if */
           } /* if */
         } /* if */
@@ -672,12 +672,12 @@ inttype file_position;
 
 #ifdef ANSI_C
 
-stritype ut8WordRead (filetype aFile, chartype *termination_char)
+stritype ut8WordRead (filetype inFile, chartype *terminationChar)
 #else
 
-stritype ut8WordRead (aFile, termination_char)
-filetype aFile;
-chartype *termination_char;
+stritype ut8WordRead (inFile, terminationChar)
+filetype inFile;
+chartype *terminationChar;
 #endif
 
   {
@@ -701,7 +701,7 @@ chartype *termination_char;
       memory = buffer->mem;
       position = 0;
       do {
-        ch = getc(aFile);
+        ch = getc(inFile);
       } while (ch == (int) ' ' || ch == (int) '\t');
       while (ch != (int) ' ' && ch != (int) '\t' &&
           ch != (int) '\n' && ch != EOF) {
@@ -719,12 +719,12 @@ chartype *termination_char;
           memlength = newmemlength;
         } /* if */
         memory[position++] = (uchartype) ch;
-        ch = getc(aFile);
+        ch = getc(inFile);
       } /* while */
       if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
         position--;
       } /* if */
-      if (ch == EOF && position == 0 && ferror(aFile)) {
+      if (ch == EOF && position == 0 && ferror(inFile)) {
         FREE_BSTRI(buffer, memlength);
         raise_error(FILE_ERROR);
         result = NULL;
@@ -749,7 +749,7 @@ chartype *termination_char;
               result = resized_result;
               COUNT3_STRI(position, result_size);
               result->size = result_size;
-              *termination_char = (chartype) ch;
+              *terminationChar = (chartype) ch;
             } /* if */
           } /* if */
         } /* if */
@@ -762,11 +762,11 @@ chartype *termination_char;
 
 #ifdef ANSI_C
 
-void ut8Write (filetype aFile, const const_stritype stri)
+void ut8Write (filetype outFile, const const_stritype stri)
 #else
 
-void ut8Write (aFile, stri)
-filetype aFile;
+void ut8Write (outFile, stri)
+filetype outFile;
 stritype stri;
 #endif
 
@@ -778,21 +778,21 @@ stritype stri;
 
   /* ut8Write */
 #ifdef FWRITE_WRONG_FOR_READ_ONLY_FILES
-    if (stri->size > 0 && (aFile->flags & _F_WRIT) == 0) {
+    if (stri->size > 0 && (outFile->flags & _F_WRIT) == 0) {
       raise_error(FILE_ERROR);
       return;
     } /* if */
 #endif
     for (str = stri->mem, len = stri->size; len >= 512; str += 512, len -= 512) {
       size = stri_to_utf8(stri_buffer, str, 512);
-      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, aFile)) {
+      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, outFile)) {
         raise_error(FILE_ERROR);
         return;
       } /* if */
     } /* for */
     if (len > 0) {
       size = stri_to_utf8(stri_buffer, str, len);
-      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, aFile)) {
+      if (size != fwrite(stri_buffer, sizeof(uchartype), (size_t) size, outFile)) {
         raise_error(FILE_ERROR);
         return;
       } /* if */

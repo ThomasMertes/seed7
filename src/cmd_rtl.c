@@ -138,6 +138,13 @@
 #define OTH_BITS_NORMAL (S_IROTH == 0004 && S_IWOTH == 0002 && S_IXOTH == 0001)
 #define MODE_BITS_NORMAL (USR_BITS_NORMAL && GRP_BITS_NORMAL && OTH_BITS_NORMAL)
 
+#define INITAL_ARRAY_SIZE  256
+#define ARRAY_SIZE_DELTA   256
+
+#ifdef DEFINE_OS_ENVIRON
+extern os_stritype *os_environ;
+#endif
+
 extern stritype programPath; /* defined in hi.c or in the executable of a program */
 
 
@@ -674,6 +681,91 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
+static rtlArraytype add_stri_to_array (const stritype stri,
+    rtlArraytype work_array, inttype *used_max_position, errinfotype *err_info)
+#else
+
+static rtlArraytype add_stri_to_array (stri, work_array, used_max_position, err_info)
+stritype stri;
+rtlArraytype work_array;
+inttype *used_max_position;
+errinfotype *err_info;
+#endif
+
+  {
+    rtlArraytype resized_work_array;
+
+  /* add_stri_to_array */
+    /* printf("add_stri_to_array\n"); */
+    if (*used_max_position >= work_array->max_position) {
+      if (work_array->max_position >= MAX_MEM_INDEX - ARRAY_SIZE_DELTA) {
+        resized_work_array = NULL;
+      } else {
+        resized_work_array = REALLOC_RTL_ARRAY(work_array,
+            (uinttype) work_array->max_position,
+            (uinttype) work_array->max_position + ARRAY_SIZE_DELTA);
+      } /* if */
+      if (resized_work_array == NULL) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        work_array = resized_work_array;
+        COUNT3_RTL_ARRAY((uinttype) work_array->max_position,
+            (uinttype) work_array->max_position + ARRAY_SIZE_DELTA);
+        work_array->max_position += ARRAY_SIZE_DELTA;
+      } /* if */
+    } /* if */
+    if (*err_info == OKAY_NO_ERROR) {
+      work_array->arr[*used_max_position].value.strivalue = stri;
+      (*used_max_position)++;
+    } /* if */
+    return work_array;
+  } /* add_stri_to_array */
+
+
+
+#ifdef ANSI_C
+
+static rtlArraytype complete_stri_array (rtlArraytype work_array, inttype used_max_position,
+    errinfotype *err_info)
+#else
+
+static rtlArraytype complete_stri_array (work_array, used_max_position, err_info)
+rtlArraytype work_array;
+inttype used_max_position;
+errinfotype *err_info;
+#endif
+
+  {
+    rtlArraytype resized_work_array;
+    memsizetype position;
+
+  /* complete_stri_array */
+    if (*err_info == OKAY_NO_ERROR) {
+      resized_work_array = REALLOC_RTL_ARRAY(work_array,
+          (uinttype) work_array->max_position, (uinttype) used_max_position);
+      if (resized_work_array == NULL) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        work_array = resized_work_array;
+        COUNT3_RTL_ARRAY((uinttype) work_array->max_position, (uinttype) used_max_position);
+        work_array->max_position = used_max_position;
+      } /* if */
+    } /* if */
+    if (*err_info != OKAY_NO_ERROR) {
+      for (position = 0; position < (memsizetype) used_max_position; position++) {
+        FREE_STRI(work_array->arr[position].value.strivalue,
+            work_array->arr[position].value.strivalue->size);
+      } /* for */
+      FREE_RTL_ARRAY(work_array, (uinttype) work_array->max_position);
+      work_array = NULL;
+    } /* if */
+    return work_array;
+  } /* complete_stri_array */
+
+
+
+#ifdef ANSI_C
+
 static rtlArraytype read_dir (const const_stritype dir_name, errinfotype *err_info)
 #else
 
@@ -683,66 +775,28 @@ errinfotype *err_info;
 #endif
 
   {
-    rtlArraytype dir_array;
-    rtlArraytype resized_dir_array;
-    memsizetype max_array_size;
-    inttype used_array_size;
-    memsizetype position;
+    inttype used_max_position;
     dirtype directory;
-    stritype stri1;
+    stritype nameStri;
+    rtlArraytype dir_array;
 
   /* read_dir */
-/*  printf("opendir(");
+/*  printf("read_dir(");
     prot_stri(dir_name);
     printf(");\n");
     fflush(stdout); */
     if ((directory = dirOpen(dir_name)) != NULL) {
-      max_array_size = 256;
-      if (ALLOC_RTL_ARRAY(dir_array, max_array_size)) {
-        used_array_size = 0;
-        stri1 = dirRead(directory);
-        while (*err_info == OKAY_NO_ERROR && stri1 != NULL) {
-          if ((memsizetype) used_array_size >= max_array_size) {
-            if (max_array_size >= MAX_MEM_INDEX - 256) {
-              resized_dir_array = NULL;
-            } else {
-              resized_dir_array = REALLOC_RTL_ARRAY(dir_array,
-                  max_array_size, max_array_size + 256);
-            } /* if */
-            if (resized_dir_array == NULL) {
-              *err_info = MEMORY_ERROR;
-            } else {
-              dir_array = resized_dir_array;
-              COUNT3_RTL_ARRAY(max_array_size, max_array_size + 256);
-              max_array_size += 256;
-            } /* if */
-          } /* if */
-          if (*err_info == OKAY_NO_ERROR) {
-            dir_array->arr[used_array_size].value.strivalue = stri1;
-            used_array_size++;
-            stri1 = dirRead(directory);
-          } /* if */
+      if (ALLOC_RTL_ARRAY(dir_array, INITAL_ARRAY_SIZE)) {
+        dir_array->min_position = 1;
+        dir_array->max_position = INITAL_ARRAY_SIZE;
+        used_max_position = 0;
+        nameStri = dirRead(directory);
+        while (*err_info == OKAY_NO_ERROR && nameStri != NULL) {
+          dir_array = add_stri_to_array(nameStri, dir_array,
+              &used_max_position, err_info);
+          nameStri = dirRead(directory);
         } /* while */
-        if (*err_info == OKAY_NO_ERROR) {
-          resized_dir_array = REALLOC_RTL_ARRAY(dir_array,
-              max_array_size, (memsizetype) used_array_size);
-          if (resized_dir_array == NULL) {
-            *err_info = MEMORY_ERROR;
-          } else {
-            dir_array = resized_dir_array;
-            COUNT3_RTL_ARRAY(max_array_size, (memsizetype) used_array_size);
-            dir_array->min_position = 1;
-            dir_array->max_position = used_array_size;
-          } /* if */
-        } /* if */
-        if (*err_info != OKAY_NO_ERROR) {
-          for (position = 0; position < (memsizetype) used_array_size; position++) {
-            FREE_STRI(dir_array->arr[position].value.strivalue,
-                dir_array->arr[position].value.strivalue->size);
-          } /* for */
-          FREE_RTL_ARRAY(dir_array, max_array_size);
-          dir_array = NULL;
-        } /* if */
+        dir_array = complete_stri_array(dir_array, used_max_position, err_info);
       } else {
         *err_info = MEMORY_ERROR;
       } /* if */
@@ -753,6 +807,75 @@ errinfotype *err_info;
     } /* if */
     return dir_array;
   } /* read_dir */
+
+
+
+#ifdef ANSI_C
+
+static rtlArraytype getSearchPath (errinfotype *err_info)
+#else
+
+static rtlArraytype getSearchPath (err_info)
+errinfotype *err_info;
+#endif
+
+  {
+    static const os_chartype path[] = {'P', 'A', 'T', 'H', 0};
+    os_stritype path_environment_variable;
+    memsizetype path_length;
+    os_stritype path_copy;
+    os_stritype path_start;
+    os_stritype path_end;
+    stritype pathStri;
+    inttype used_max_position;
+    rtlArraytype path_array;
+
+  /* getSearchPath */
+    /* printf("getSearchPath\n"); */
+    if (ALLOC_RTL_ARRAY(path_array, INITAL_ARRAY_SIZE)) {
+      path_array->min_position = 1;
+      path_array->max_position = INITAL_ARRAY_SIZE;
+      used_max_position = 0;
+      path_environment_variable = os_getenv(path);
+      if (path_environment_variable != NULL) {
+        path_length = os_stri_strlen(path_environment_variable);
+        if (unlikely(!os_stri_alloc(path_copy, path_length))) {
+          *err_info = MEMORY_ERROR;
+        } else {
+          os_stri_strcpy(path_copy, path_environment_variable);
+          path_start = path_copy;
+          do {
+            path_end = os_stri_strchr(path_start, SEARCH_PATH_DELIMITER);
+            if (path_end != NULL) {
+              *path_end = '\0';
+            } /* if */
+            pathStri = cp_from_os_path(path_start, err_info);
+            if (*err_info == OKAY_NO_ERROR) {
+              while (pathStri->size > 1 && pathStri->mem[pathStri->size - 1] == (chartype) '/') {
+                pathStri->size--;
+#ifdef WITH_STRI_CAPACITY
+                COUNT3_STRI(pathStri->size + 1, pathStri->size);
+#endif
+              } /* while */
+              path_array = add_stri_to_array(pathStri, path_array,
+                  &used_max_position, err_info);
+            } /* if */
+            if (path_end == NULL) {
+              path_start = NULL;
+            } else {
+              path_start = path_end + 1;
+            } /* if */
+          } while (path_start != NULL && *err_info == OKAY_NO_ERROR);
+          os_stri_free(path_copy);
+        } /* if */
+        os_getenv_string_free(path_environment_variable);
+        path_array = complete_stri_array(path_array, used_max_position, err_info);
+      } /* if */
+    } else {
+      *err_info = MEMORY_ERROR;
+    } /* if */
+    return path_array;
+  } /* getSearchPath */
 
 
 
@@ -777,16 +900,6 @@ stritype source_file_name;
       cwd = cmdGetcwd();
       result = concat_path(cwd, source_file_name);
       FREE_STRI(cwd, cwd->size);
-    } /* if */
-    if (result->size <= 4 ||
-        result->mem[result->size - 4] != '.' ||
-        result->mem[result->size - 3] != 's' ||
-        result->mem[result->size - 2] != 'd' ||
-        result->mem[result->size - 1] != '7') {
-      strPush(&result, (chartype) '.');
-      strPush(&result, (chartype) 's');
-      strPush(&result, (chartype) 'd');
-      strPush(&result, (chartype) '7');
     } /* if */
     return result;
   } /* getProgramPath */
@@ -1237,6 +1350,65 @@ stritype dest_name;
       raise_error(err_info);
     } /* if */
   } /* cmdCopyFile */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype cmdEnvironment (void)
+#else
+
+rtlArraytype cmdEnvironment ()
+#endif
+
+  {
+#ifdef INITIALIZE_OS_ENVIRON
+    static const os_chartype empty_os_stri[] = {0};
+#endif
+    inttype used_max_position;
+    os_stritype *nameStartPos;
+    os_stritype nameEndPos;
+    stritype variableName;
+    errinfotype err_info = OKAY_NO_ERROR;
+    rtlArraytype environment_array;
+
+  /* cmdEnvironment */
+#ifdef INITIALIZE_OS_ENVIRON
+    if (os_environ == NULL) {
+      os_getenv(empty_os_stri);
+    } /* if */
+#endif
+    if (ALLOC_RTL_ARRAY(environment_array, INITAL_ARRAY_SIZE)) {
+      environment_array->min_position = 1;
+      environment_array->max_position = INITAL_ARRAY_SIZE;
+      used_max_position = 0;
+      for (nameStartPos = os_environ; *nameStartPos != NULL; ++nameStartPos) {
+        if ((*nameStartPos)[0] != '=' && (*nameStartPos)[0] != '\0') {
+          nameEndPos = os_stri_strchr(*nameStartPos, '=');
+          if (nameEndPos != NULL) {
+            variableName = conv_from_os_stri(*nameStartPos, (memsizetype) (nameEndPos - *nameStartPos));
+            if (unlikely(variableName == NULL)) {
+              err_info = MEMORY_ERROR;
+            } /* if */
+          } else {
+            variableName = os_stri_to_stri(*nameStartPos, &err_info);
+          } /* if */
+          if (err_info == OKAY_NO_ERROR) {
+            environment_array = add_stri_to_array(variableName, environment_array,
+                &used_max_position, &err_info);
+          } /* if */
+        } /* if */
+      } /* for */
+      environment_array = complete_stri_array(environment_array, used_max_position, &err_info);
+      if (err_info != OKAY_NO_ERROR) {
+        raise_error(err_info);
+        environment_array = NULL;
+      } /* if */
+    } else {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return environment_array;
+  } /* cmdEnvironment */
 
 
 
@@ -1817,6 +1989,28 @@ booltype *is_dst;
         *micro_sec, *time_zone, *is_dst);
 #endif
   } /* cmdGetMTime */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype cmdGetSearchPath (void)
+#else
+
+rtlArraytype cmdGetSearchPath ()
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+    rtlArraytype result;
+
+  /* cmdGetSearchPath */
+    result = getSearchPath(&err_info);
+    if (unlikely(result == NULL)) {
+      raise_error(err_info);
+    } /* if */
+    return result;
+  } /* cmdGetSearchPath */
 
 
 
@@ -2557,16 +2751,20 @@ stritype stri;
     prot_stri(standardPath);
     printf(")\n");
 #endif
-#ifdef ALLOW_DRIVE_LETTERS
-    if (unlikely(standardPath->size >= 2 && standardPath->mem[standardPath->size - 1] == '/' &&
-                 (standardPath->size != 3 || standardPath->mem[1] != ':' ||
-                 ((standardPath->mem[0] < 'a' || standardPath->mem[0] > 'z') &&
-                  (standardPath->mem[0] < 'A' || standardPath->mem[0] > 'Z'))))) {
-#else
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+#ifdef FORBID_DRIVE_LETTERS
     if (unlikely(standardPath->size >= 2 && (standardPath->mem[standardPath->size - 1] == '/' ||
                  (standardPath->mem[1] == ':' &&
                  ((standardPath->mem[0] >= 'a' && standardPath->mem[0] <= 'z') ||
                   (standardPath->mem[0] >= 'A' && standardPath->mem[0] <= 'Z')))))) {
+#else
+    if (unlikely(standardPath->size >= 2 && standardPath->mem[standardPath->size - 1] == '/')) {
+#endif
+#else
+    if (unlikely(standardPath->size >= 2 && standardPath->mem[standardPath->size - 1] == '/' &&
+                 (standardPath->size != 3 || standardPath->mem[1] != ':' ||
+                 ((standardPath->mem[0] < 'a' || standardPath->mem[0] > 'z') &&
+                  (standardPath->mem[0] < 'A' || standardPath->mem[0] > 'Z'))))) {
 #endif
       err_info = RANGE_ERROR;
     } else {
@@ -2578,27 +2776,27 @@ stritype stri;
           err_info = RANGE_ERROR;
         } else if (standardPath->mem[1] >= 'a' && standardPath->mem[1] <= 'z') {
           if (standardPath->size == 2) {
-            /* "/c"   is mapped to "c:\"  */
+            /* "/c"   is mapped to "c:/"  */
             if (unlikely(!ALLOC_STRI_SIZE_OK(result, 3))) {
               err_info = MEMORY_ERROR;
             } else {
               result->size = 3;
               result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
-              result->mem[2] = '\\';
+              result->mem[2] = '/';
             } /* if */
           } else if (unlikely(standardPath->mem[2] != '/')) {
             /* "/cd"  cannot be mapped to a drive letter */
             err_info = RANGE_ERROR;
           } else {
-            /* "/c/d" is mapped to "c:\d" */
+            /* "/c/d" is mapped to "c:/d" */
             if (unlikely(!ALLOC_STRI_SIZE_OK(result, standardPath->size))) {
               err_info = MEMORY_ERROR;
             } else {
               result->size = standardPath->size;
               result->mem[0] = standardPath->mem[1];
               result->mem[1] = ':';
-              result->mem[2] = '\\';
+              result->mem[2] = '/';
               memcpy(&result->mem[3], &standardPath->mem[3], (standardPath->size - 3) * sizeof(strelemtype));
             } /* if */
           } /* if */

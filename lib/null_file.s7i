@@ -220,7 +220,7 @@ const func integer: length (in null_file: aFile) is func
  *  @exception FILE_ERROR Is always raised, because a ''null_file'' is
  *             not seekable.
  *)
-const proc: seek (in null_file: aFile, in integer: pos) is func
+const proc: seek (in null_file: aFile, in integer: position) is func
   begin
     raise FILE_ERROR;
   end func;

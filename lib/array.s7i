@@ -61,7 +61,7 @@ const func type: array (in type: baseType) is func
 
       const proc: (ref arrayType param) ::= (in arrayType param)              is action "ARR_CREATE";
       const proc: destroy (ref arrayType param)                               is action "ARR_DESTR";
-      const proc: (inout arrayType: destr) := (in arrayType: source)          is action "ARR_CPY";
+      const proc: (inout arrayType: dest) := (in arrayType: source)           is action "ARR_CPY";
 
       (**
        *  Append the array ''extension'' to the array ''arr''.

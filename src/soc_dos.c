@@ -288,12 +288,12 @@ inttype micro_seconds;
 
 #ifdef ANSI_C
 
-stritype socLineRead (sockettype sock, chartype *termination_char)
+stritype socLineRead (sockettype sock, chartype *terminationChar)
 #else
 
-stritype socLineRead (sock, termination_char)
+stritype socLineRead (sock, terminationChar)
 sockettype sock;
-chartype *termination_char;
+chartype *terminationChar;
 #endif
 
   { /* socLineRead */
@@ -410,12 +410,12 @@ inttype protocol;
 
 #ifdef ANSI_C
 
-stritype socWordRead (sockettype sock, chartype *termination_char)
+stritype socWordRead (sockettype sock, chartype *terminationChar)
 #else
 
-stritype socWordRead (sock, termination_char)
+stritype socWordRead (sock, terminationChar)
 sockettype sock;
-chartype *termination_char;
+chartype *terminationChar;
 #endif
 
   { /* socWordRead */

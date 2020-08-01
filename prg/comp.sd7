@@ -6658,6 +6658,18 @@ const proc: process_cmd_copy_file (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
+const proc: process_cmd_environment (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+  begin
+    result_type := result_type(getType(function));
+    prepare_array_result(result_type, c_expr);
+    c_expr.result_expr := "cmdEnvironment()";
+  end func;
+
+
 const proc: process_cmd_filemode (in reference: function, in ref_list: params,
     inout expr_type: c_expr) is func
 
@@ -6795,6 +6807,18 @@ const proc: process_cmd_get_mtime (in ref_list: params, inout expr_type: c_expr)
     c_expr.expr &:= "), &(";
     process_expr(params[10], c_expr);
     c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process_cmd_get_search_path (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  local
+    var type: result_type is void;
+  begin
+    result_type := result_type(getType(function));
+    prepare_array_result(result_type, c_expr);
+    c_expr.result_expr := "cmdGetSearchPath()";
   end func;
 
 
@@ -16687,6 +16711,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_config_value(params, c_expr);
       elsif action_name = "CMD_COPY_FILE" then
         process_cmd_copy_file(params, c_expr);
+      elsif action_name = "CMD_ENVIRONMENT" then
+        process_cmd_environment(function, params, c_expr);
       elsif action_name = "CMD_FILEMODE" then
         process_cmd_filemode(function, params, c_expr);
       elsif action_name = "CMD_FILESIZE" then
@@ -16705,6 +16731,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_get_ctime(params, c_expr);
       elsif action_name = "CMD_GET_MTIME" then
         process_cmd_get_mtime(params, c_expr);
+      elsif action_name = "CMD_GET_SEARCH_PATH" then
+        process_cmd_get_search_path(function, params, c_expr);
       elsif action_name = "CMD_LS" then
         process_cmd_ls(params, c_expr);
       elsif action_name = "CMD_MKDIR" then
@@ -22419,6 +22447,7 @@ const proc: write_prototypes is func
     declareExtern("void        cmdCloneFile (const const_stritype, const const_stritype);");
     declareExtern("stritype    cmdConfigValue (const const_stritype);");
     declareExtern("void        cmdCopyFile (const const_stritype, const const_stritype);");
+    declareExtern("arraytype   cmdEnvironment (void);");
     declareExtern("settype     cmdFileMode (const const_stritype);");
     declareExtern("inttype     cmdFileSize (const const_stritype);");
     declareExtern("inttype     cmdFileType (const const_stritype);");
@@ -22428,6 +22457,7 @@ const proc: write_prototypes is func
     declareExtern("void        cmdGetATime (const const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     declareExtern("void        cmdGetCTime (const const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     declareExtern("void        cmdGetMTime (const const_stritype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
+    declareExtern("arraytype   cmdGetSearchPath (void);");
     declareExtern("arraytype   cmdLs (const const_stritype);");
     declareExtern("void        cmdMkdir (const const_stritype);");
     declareExtern("void        cmdMove (const const_stritype, const const_stritype);");
@@ -23517,6 +23547,7 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
       elsif POINTER_SIZE = 64 then
         lengthAsChars := int64AsEightInt8Chars(length(bstri));
       end if;
+      countChars := 0;
       if LIMITED_CSTRI_LITERAL_LEN then
         c_expr.expr &:= "[]={";
         for ch range lengthAsChars do
@@ -24456,9 +24487,9 @@ const proc: writeHelp is func
     writeln("         2 Evaluate constant expressions to simplify expressions.");
     writeln("         3 Like -oc2 and additionally evaluate all constant expressions");
     writeln("  -te  Generate code to trace exceptions. This option works in the same way");
-    writeln("       as the interpreter option -te: Every exception will write a");
-    writeln("       message to stdout and the user will be ask to continue (with enter) or");
-    writeln("       to terminate (with * ).");
+    writeln("       as the interpreter option -te: Every exception will write a message");
+    writeln("       to stdout and the user will be asked to continue (with enter) or to");
+    writeln("       terminate (with * ).");
     writeln("  -r   Suppress the generation of range checks for strings and arrays.");
     writeln("  -e   Generate code which sends a signal, when an uncaught exception occurs.");
     writeln("       This option allows debuggers to handle uncaught Seed7 exceptions.");

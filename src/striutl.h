@@ -102,14 +102,15 @@ bstritype stri_to_bstriw (const_stritype stri);
 #endif
 stritype cstri_to_stri (const_cstritype cstri);
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
+stritype conv_from_os_stri (const const_os_stritype os_stri, memsizetype length);
 os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info);
 stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info);
 stritype stri_to_standard_path (stritype stri);
-stritype cp_from_os_path (const_os_stritype os_stri, errinfotype *err_info);
+stritype cp_from_os_path (const_os_stritype os_path, errinfotype *err_info);
 #ifdef EMULATE_ROOT_CWD
 void setEmulatedCwd (const os_stritype os_path);
 #endif
-os_stritype cp_to_os_path (const_stritype stri, int *path_info,
+os_stritype cp_to_os_path (const_stritype std_path, int *path_info,
     errinfotype *err_info);
 os_stritype cp_to_command (const const_stritype commandPath,
     const const_stritype parameters, errinfotype *err_info);
@@ -138,9 +139,10 @@ bstritype stri_to_bstriw ();
 #endif
 stritype cstri_to_stri ();
 stritype cstri8_or_cstri_to_stri ();
-stritype stri_to_standard_path ():
+stritype conv_from_os_stri ();
 os_stritype stri_to_os_stri ();
 stritype os_stri_to_stri ();
+stritype stri_to_standard_path ():
 stritype cp_from_os_path ();
 #ifdef EMULATE_ROOT_CWD
 void setEmulatedCwd ();

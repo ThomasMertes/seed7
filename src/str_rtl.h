@@ -31,7 +31,8 @@
 
 #ifdef ANSI_C
 
-stritype concat_path (const_stritype stri1, const_stritype stri2);
+stritype concat_path (const const_stritype absolutePath,
+    const const_stritype relativePath);
 void strAppend (stritype *const destination, const_stritype stri_from);
 void strAppendTemp (stritype *const destination, const stritype stri_from);
 inttype strChIPos (const const_stritype main_stri, const chartype searched,

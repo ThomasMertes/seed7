@@ -107,9 +107,9 @@ const func string: gets (in console_keybd_file: keybd, in integer: maxLength)  i
 
 const func char: raw_getc (in console_keybd_file: keybd)                       is action "KBD_RAW_GETC";
 const func string: line_read (in console_keybd_file: keybd,
-                              inout char: bufferChar)                          is action "KBD_LINE_READ";
+                              inout char: terminationChar)                     is action "KBD_LINE_READ";
 const func string: word_read (in console_keybd_file: keybd,
-                              inout char: bufferChar)                          is action "KBD_WORD_READ";
+                              inout char: terminationChar)                     is action "KBD_WORD_READ";
 
 
 (**
@@ -231,9 +231,9 @@ const func integer: getypos (in graph_keybd_file: keybd)                       i
 
 const func char: raw_getc (in graph_keybd_file: keybd)                         is action "GKB_RAW_GETC";
 const func string: line_read (in graph_keybd_file: keybd,
-                              inout char: bufferChar)                          is action "GKB_LINE_READ";
+                              inout char: terminationChar)                     is action "GKB_LINE_READ";
 const func string: word_read (in graph_keybd_file: keybd,
-                              inout char: bufferChar)                          is action "GKB_WORD_READ";
+                              inout char: terminationChar)                     is action "GKB_WORD_READ";
 
 
 (**

@@ -1,3 +1,46 @@
+20120909:
+- The chapters about predefined statements and the foreign function
+  interface in the manual, were improved.
+- An explanation, why the div operator is used for integer divisions,
+  was added to the FAQ.
+- The FAQ about garbage collection was improved.
+- Links to EBNF syntax descriptions and exceptions were added to the
+  HTML version of the manual.
+- EBNF syntax descriptions in the manual were improved.
+- Interpreter and compiler were improved to support the actions
+  CMD_ENVIRONMENT and CMD_GET_SEARCH_PATH.
+- The library shell.s7i was improved to define the functions
+  getSearchPath and environment.
+- The function path(PROGRAM) was improved to return the accurate
+  value under all circumstances.
+- Several preprocessor defines were moved from "common.h to the new
+  include file "config.h".
+- In cmdlib.c the function toArraytype() was introduced and used in
+  cmd_environment() and cmd_getSearchPath().
+- In cmd_rtl.c the functions add_stri_to_array() and
+  complete_stri_array() were introduced and used in read_dir(),
+  getSearchPath() and cmdEnvironment().
+- Parameter names in drw_win.c, drw_x11.c and drw_dos.c were changed
+  to fit to the names used in graph.s7i.
+- Parameter names in clib_file.s7i, keybd.s7i, sockbase.s7i,
+  socket.s7i, utf8.s7i, fil_rtl.c, gkb_rtl.c, kbd_rtl.c, soc_dos.c,
+  soc_rtl.c and ut8_rtl.c were changed to fit to each other.
+- The function conv_from_os_stri() was added to striutl.c .
+- The function concat_path in str_rtl.c was improved to work
+  correctly, when the relative path contains "..".
+- In several makefiles defines for SEARCH_PATH_DELIMITER and
+  os_environ were added and defines for
+  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS were replaced with
+  defines for OS_PATH_HAS_DRIVE_LETTERS.
+- A description of several C preprocessor macros used in "version.h"
+  and "config.h" was added to the file "src/read_me.txt".
+- Parameter names were added to function definitions in various
+  libraries.
+- Documentation comments were added or improved in the files
+  "clib_file.s7i", "external_file.s7i", "socket.s7i", "fil_rtl.c" and
+  "striutl.c".
+- The function determineEnvironDefines was added to "chkccomp.c".
+
 20120826:
 - A chapter, which explains the foreign function interface, was added
   to the manual.

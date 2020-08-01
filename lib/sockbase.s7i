@@ -44,7 +44,7 @@ const socketAddress: (attr socketAddress) . value                           is _
 const func boolean: (ref socketAddress: addr1) = (ref socketAddress: addr2) is action "BST_EQ";
 const func boolean: (ref socketAddress: addr1) <> (ref socketAddress: addr2) is action "BST_NE";
 
-const func integer: addrFamily (in socketAddress param)                     is action "SOC_ADDR_FAMILY";
+const func integer: addrFamily (in socketAddress: sockAddr)                 is action "SOC_ADDR_FAMILY";
 
 
 (**
@@ -57,7 +57,7 @@ const func integer: addrFamily (in socketAddress param)                     is a
 const func string: numericAddress (in socketAddress: sockAddr)              is action "SOC_ADDR_NUMERIC";
 
 
-const func string: service (in socketAddress param)                         is action "SOC_ADDR_SERVICE";
+const func string: service (in socketAddress: sockAddr)                     is action "SOC_ADDR_SERVICE";
 
 
 (**
@@ -113,39 +113,43 @@ const proc: destroy (ref PRIMITIVE_SOCKET param)                            is n
 const proc: (ref PRIMITIVE_SOCKET param) ::= (ref PRIMITIVE_SOCKET param)   is action "SOC_CREATE";
 const proc: (inout PRIMITIVE_SOCKET: dest) := (ref PRIMITIVE_SOCKET: source) is action "SOC_CPY";
 
-const func boolean: (in PRIMITIVE_SOCKET param) = (in PRIMITIVE_SOCKET param)  is action "SOC_EQ";
-const func boolean: (in PRIMITIVE_SOCKET param) <> (in PRIMITIVE_SOCKET param) is action "SOC_NE";
+const func boolean: (in PRIMITIVE_SOCKET: sock1) = (in PRIMITIVE_SOCKET: sock2)  is action "SOC_EQ";
+const func boolean: (in PRIMITIVE_SOCKET: sock1) <> (in PRIMITIVE_SOCKET: sock2) is action "SOC_NE";
 
 const func PRIMITIVE_SOCKET: _GENERATE_EMPTY_PRIMITIVE_SOCKET               is action "SOC_EMPTY";
 const PRIMITIVE_SOCKET: (attr PRIMITIVE_SOCKET) . value                     is _GENERATE_EMPTY_PRIMITIVE_SOCKET;
 const PRIMITIVE_SOCKET: PRIMITIVE_NULL_SOCKET                               is PRIMITIVE_SOCKET.value;
 
-const proc: close (in PRIMITIVE_SOCKET param)                               is action "SOC_CLOSE";
-const func socketAddress: address (in PRIMITIVE_SOCKET param)               is action "SOC_GET_ADDR";
-const func char: getc (in PRIMITIVE_SOCKET param, inout char param)         is action "SOC_GETC";
-const func string: gets (in PRIMITIVE_SOCKET param, in integer param,
-                         inout char param)                                  is action "SOC_GETS";
-const func boolean: hasNext (in PRIMITIVE_SOCKET param)                     is action "SOC_HAS_NEXT";
-const func string: word_read (in PRIMITIVE_SOCKET param, inout char param)  is action "SOC_WORD_READ";
-const func string: line_read (in PRIMITIVE_SOCKET param, inout char param)  is action "SOC_LINE_READ";
-const proc: write (in PRIMITIVE_SOCKET param, in string param)              is action "SOC_WRITE";
-const func integer: recv (in PRIMITIVE_SOCKET param, inout string param,
-                          in integer param, in integer param)               is action "SOC_RECV";
-const func integer: recvfrom (in PRIMITIVE_SOCKET param, inout string param,
-                          in integer param, in integer param,
-                          inout socketAddress param)                        is action "SOC_RECVFROM";
-const func integer: send (in PRIMITIVE_SOCKET param, in string param,
-                          in integer param)                                 is action "SOC_SEND";
-const func integer: sendto (in PRIMITIVE_SOCKET param, in string param,
-                          in integer param, in socketAddress param)         is action "SOC_SENDTO";
+const proc: close (in PRIMITIVE_SOCKET: aSocket)                            is action "SOC_CLOSE";
+const func socketAddress: address (in PRIMITIVE_SOCKET: aSocket)            is action "SOC_GET_ADDR";
+const func char: getc (in PRIMITIVE_SOCKET: inSocket,
+                       inout char: eofIndicator)                            is action "SOC_GETC";
+const func string: gets (in PRIMITIVE_SOCKET: inSocket, in integer: maxLength,
+                         inout char: eofIndicator)                          is action "SOC_GETS";
+const func boolean: hasNext (in PRIMITIVE_SOCKET: inSocket)                 is action "SOC_HAS_NEXT";
+const func string: word_read (in PRIMITIVE_SOCKET: inSocket,
+                              inout char: terminationChar)                  is action "SOC_WORD_READ";
+const func string: line_read (in PRIMITIVE_SOCKET: inSocket,
+                              inout char: terminationChar)                  is action "SOC_LINE_READ";
+const proc: write (in PRIMITIVE_SOCKET: outSocket, in string: stri)         is action "SOC_WRITE";
+const func integer: recv (in PRIMITIVE_SOCKET: inSocket, inout string: stri,
+                          in integer: length, in integer: flags)            is action "SOC_RECV";
+const func integer: recvfrom (in PRIMITIVE_SOCKET: inSocket, inout string: stri,
+                          in integer: length, in integer: flags,
+                          inout socketAddress: address)                     is action "SOC_RECVFROM";
+const func integer: send (in PRIMITIVE_SOCKET: outSocket, in string: stri,
+                          in integer: flags)                                is action "SOC_SEND";
+const func integer: sendto (in PRIMITIVE_SOCKET: outSocket, in string: stri,
+                          in integer: flags, in socketAddress: address)     is action "SOC_SENDTO";
 
-const func PRIMITIVE_SOCKET: PRIMITIVE_SOCKET (in integer param,
-                                               in integer param,
-                                               in integer param)            is action "SOC_SOCKET";
-const func PRIMITIVE_SOCKET: accept (in PRIMITIVE_SOCKET param,
-                                     inout socketAddress param)             is action "SOC_ACCEPT";
-const proc: bind (in PRIMITIVE_SOCKET param, in socketAddress param)        is action "SOC_BIND";
-const proc: connect (in PRIMITIVE_SOCKET param, in socketAddress param)     is action "SOC_CONNECT";
-const proc: listen (in PRIMITIVE_SOCKET param, in integer param)            is action "SOC_LISTEN";
-const func boolean: inputReady (in PRIMITIVE_SOCKET param,
-                                in integer param, in integer param)         is action "SOC_INPUT_READY";
+const func PRIMITIVE_SOCKET: PRIMITIVE_SOCKET (in integer: domain,
+                                               in integer: sockType,
+                                               in integer: protocol)        is action "SOC_SOCKET";
+const func PRIMITIVE_SOCKET: accept (in PRIMITIVE_SOCKET: aSocket,
+                                     inout socketAddress: address)          is action "SOC_ACCEPT";
+const proc: bind (in PRIMITIVE_SOCKET: aSocket, in socketAddress: address)  is action "SOC_BIND";
+const proc: connect (in PRIMITIVE_SOCKET: aSocket,
+                     in socketAddress: address)                             is action "SOC_CONNECT";
+const proc: listen (in PRIMITIVE_SOCKET: aSocket, in integer: backlog)      is action "SOC_LISTEN";
+const func boolean: inputReady (in PRIMITIVE_SOCKET: inSocket, in integer: seconds,
+                                in integer: microSeconds)                   is action "SOC_INPUT_READY";

@@ -723,12 +723,12 @@ inttype y1;
 #ifdef ANSI_C
 
 void drwRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype length_x, inttype length_y)
+    inttype x1, inttype y1, inttype width, inttype height)
 #else
 
-void drwRect (actual_window, x1, y1, length_x, length_y)
+void drwRect (actual_window, x1, y1, width, height)
 wintype actual_window;
-inttype x1, y1, length_x, length_y;
+inttype x1, y1, width, height;
 #endif
 
   { /* drwRect */
@@ -739,12 +739,12 @@ inttype x1, y1, length_x, length_y;
 #ifdef ANSI_C
 
 void drwPRect (const_wintype actual_window,
-    inttype x1, inttype y1, inttype length_x, inttype length_y, inttype col)
+    inttype x1, inttype y1, inttype width, inttype height, inttype col)
 #else
 
-void drwPRect (actual_window, x1, y1, length_x, length_y, col)
+void drwPRect (actual_window, x1, y1, width, height, col)
 wintype actual_window;
-inttype x1, y1, length_x, length_y;
+inttype x1, y1, width, height;
 inttype col;
 #endif
 

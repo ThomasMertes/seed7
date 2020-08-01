@@ -30,7 +30,7 @@ const type: STRUCT is newtype;
 IN_PARAM_IS_REFERENCE(STRUCT);
 const proc: (ref STRUCT param) ::= (in STRUCT param) is                         action "SCT_CREATE";
 const proc: destroy (ref STRUCT param) is                                       action "SCT_DESTR";
-const proc: (inout STRUCT param) := (in STRUCT param) is                        action "SCT_CPY";
+const proc: (inout STRUCT: dest) := (in STRUCT: source) is                      action "SCT_CPY";
 const func integer: length (in STRUCT param) is                                 action "SCT_LNG";
 (* const func STRUCT: elem (in type param) : (in expr param) is (in expr param) is action "SCT_ELEM"; *)
 const func STRUCT: (in STRUCT param) & (in STRUCT param) is                     action "SCT_CAT";
@@ -65,7 +65,7 @@ const func type: new struct (ref proc: elem_decl) end struct is func
     elem_list := declare_elements(elem_decl);
     const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
     const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
     const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
     const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
     const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
@@ -97,7 +97,7 @@ const func type: new struct end struct is func
     varptrType := varptr structType;
     const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
     const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
     const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
     const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
     const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
@@ -123,7 +123,7 @@ const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct
     elem_list := declare_elements(elem_decl);
     const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
     const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
     const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
     const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
     const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
@@ -154,7 +154,7 @@ const func type: new (in type: baseType) struct end struct is func
     varptrType := varptr structType;
     const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
     const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
     const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
     const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
     const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
@@ -180,7 +180,7 @@ const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct
     elem_list := declare_elements(elem_decl);
     const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
     const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
     const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
     const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
     const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
@@ -211,7 +211,7 @@ const func type: sub (in type: baseType) struct end struct is func
     varptrType := varptr structType;
     const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
     const proc: destroy (ref structType param) is                      action "SCT_DESTR";
-    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const proc: (inout structType: dest) := (in structType: source) is action "SCT_CPY";
     const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
     const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
     const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";

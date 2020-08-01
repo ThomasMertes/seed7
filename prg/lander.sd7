@@ -1244,7 +1244,7 @@ const proc: anounceAdvancedLander is func
     writeln(screen, "YOU WILL NOW BE IN ADVANCED LANDER ! !");
     setPos(screen, 12, 1);
     color(screen, black);
-    writeln(screen, "If your manouver the lander through the");
+    writeln(screen, "If your maneuver the lander through the");
     writeln(screen, "yellow dots above the landing field with");
     write(screen, "a fall rate less or equal ");
     color(screen, yellow);

@@ -32,7 +32,6 @@
 
 #include "common.h"
 #include "data.h"
-#include "data_rtl.h"
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "objutl.h"
