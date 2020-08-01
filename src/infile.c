@@ -133,7 +133,7 @@ static INLINE booltype speedup ()
         in_file.beyond = in_file.start + file_length;
         in_file.buffer_size = 0;
       } else {
-        if (ALLOC_BYTES(in_file.start, file_length)) {
+        if (ALLOC_UBYTES(in_file.start, file_length)) {
           if (fread(in_file.start, 1, file_length, in_file.fil) ==
               file_length) {
             in_file.nextch = in_file.start;
@@ -157,12 +157,12 @@ static INLINE booltype speedup ()
     } else {
       in_file.buffer_size = 512;
     } /* if */
-    if (ALLOC_BYTES(in_file.start, in_file.buffer_size)) {
+    if (ALLOC_UBYTES(in_file.start, in_file.buffer_size)) {
       in_file.nextch = in_file.start + in_file.buffer_size;
       in_file.beyond = in_file.start;
     } else {
       in_file.buffer_size = 512;
-      if (ALLOC_BYTES(in_file.start, in_file.buffer_size)) {
+      if (ALLOC_UBYTES(in_file.start, in_file.buffer_size)) {
         in_file.nextch = in_file.start + in_file.buffer_size;
         in_file.beyond = in_file.start;
       } else {
@@ -173,7 +173,7 @@ static INLINE booltype speedup ()
 #else
 #ifdef USE_INFILE_BUFFER
     if (option.get_infile_buffer) {
-      if (ALLOC_BYTES(in_file.buffer, SIZE_IN_BUFFER)) {
+      if (ALLOC_UBYTES(in_file.buffer, SIZE_IN_BUFFER)) {
         setvbuf(in_file.fil, in_file.buffer, _IOFBF,
             (size_t) SIZE_IN_BUFFER);
       } /* if */
@@ -347,7 +347,7 @@ errinfotype *err_info;
 #endif
 
   {
-    cstritype source_file_name = "STRING";
+    const_cstritype source_file_name = "STRING";
     infiltype new_file;
     unsigned int name_length;
     ustritype in_name;
@@ -453,7 +453,7 @@ int next_line ()
 
 #ifdef ANSI_C
 
-ustritype file_name (filenumtype file_num)
+const_ustritype file_name (filenumtype file_num)
 #else
 
 ustritype file_name (file_num)
@@ -462,13 +462,13 @@ filenumtype file_num;
 
   {
     infiltype help_file;
-    ustritype result;
+    const_ustritype result;
 
   /* file_name */
 #ifdef TRACE_INFILE
     printf("BEGIN file_name\n");
 #endif
-    result = (ustritype) "?";
+    result = (const_ustritype) "?";
     help_file = file_pointer;
     while (help_file != NULL) {
       if (help_file->file_number == file_num) {
@@ -577,13 +577,13 @@ errinfotype *err_info;
       *err_info = MEMORY_ERROR;
     } else {
       resized_lib_path = REALLOC_ARRAY(lib_path,
-          lib_path->max_position, lib_path->max_position + 1);
+          (memsizetype) lib_path->max_position, (memsizetype) (lib_path->max_position + 1));
       if (resized_lib_path == NULL) {
         FREE_STRI(stri, stri_len);
         *err_info = MEMORY_ERROR;
       } else {
         lib_path = resized_lib_path;
-        COUNT3_ARRAY(lib_path->max_position, lib_path->max_position + 1);
+        COUNT3_ARRAY((memsizetype) lib_path->max_position, (memsizetype) (lib_path->max_position + 1));
         stri->size = stri_len;
         for (position = 0; position < path->size; position++) {
           if (path->mem[position] == '\\') {

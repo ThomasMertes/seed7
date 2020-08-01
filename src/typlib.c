@@ -699,7 +699,7 @@ listtype arguments;
 
   {
     typetype type_arg;
-    cstritype stri;
+    const_cstritype stri;
     memsizetype len;
     stritype result;
 

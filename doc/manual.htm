@@ -7241,6 +7241,23 @@
     copy(<font color=maroon>"from"</font>, <font color=maroon>"to"</font>);
 </pre>
 
+<a name="getenv"><b>12.9 getenv</b></a>
+<p>
+    The function <tt>'getenv'</tt> determines the value of an
+    environment variable.
+</p><pre>
+      <font color=blue>const</font> <font color=red>func string</font>: getenv (<font color=blue>in</font> <font color=red>string</font>: name) <font color=blue>is</font> ...
+</pre><p>
+    The <tt>'getenv'</tt> function searches the environment for an
+    environment variable with the given <tt>'name'</tt>. When such
+    an environment variable exists the corresponding <font color=red>string</font>
+    value is returned.
+</p>
+    <p><dl><dt><p>Returns:</p></dt><dd>
+      The value of an environment variable or <font color=maroon>""</font>
+      when the requested environment variable does not exist.
+      </dd></dl></p>
+
 <p></p>
 <a name="PRIMITIVE_ACTIONS"><big><b>13. PRIMITIVE ACTIONS</b></big></a>
 <!-- ===================== -->

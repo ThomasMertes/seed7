@@ -89,7 +89,9 @@ const func file: open_utf16le (in string: fileName, in string: access) is func
   begin
     open_file := PRIMITIVE_FILE_OPEN(fileName, access);
     if open_file <> PRIMITIVE_NULL_FILE then
-      write(open_file, "\16#FF\\16#FE\");
+      if access[1 len 1] = "w" then
+        write(open_file, "\16#FF\\16#FE\");
+      end if;
       new_le_file.ext_file := open_file;
       new_le_file.name := fileName;
       result := malloc(new_le_file);
@@ -169,7 +171,9 @@ const func file: open_utf16be (in string: fileName, in string: access) is func
   begin
     open_file := PRIMITIVE_FILE_OPEN(fileName, access);
     if open_file <> PRIMITIVE_NULL_FILE then
-      write(open_file, "\16#FE\\16#FF\");
+      if access[1 len 1] = "w" then
+        write(open_file, "\16#FE\\16#FF\");
+      end if;
       new_be_file.ext_file := open_file;
       new_be_file.name := fileName;
       result := malloc(new_be_file);

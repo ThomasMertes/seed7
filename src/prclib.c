@@ -739,14 +739,16 @@ listtype arguments;
     isit_stri(arg_1(arguments));
     include_file_name = take_stri(arg_1(arguments));
     if (stri_charpos(include_file_name, '\\') != NULL) {
-      err_warning(WRONG_PATH_DELIMITER);
+      err_stri(WRONG_PATH_DELIMITER, include_file_name);
     } else {
       find_include_file(include_file_name, &err_info);
-      if (err_info == FILE_ERROR) {
-        err_stri(FILENOTFOUND, include_file_name);
-      } else if (err_info != OKAY_NO_ERROR) {
+      if (err_info == MEMORY_ERROR) {
         err_warning(OUT_OF_HEAP_SPACE);
+      } else if (err_info != OKAY_NO_ERROR) {
+        /* FILE_ERROR or RANGE_ERROR */
+        err_stri(FILENOTFOUND, include_file_name);
       } else {
+        scan_byte_order_mark();
         scan_symbol();
       } /* if */
     } /* if */

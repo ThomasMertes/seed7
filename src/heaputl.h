@@ -395,6 +395,7 @@ EXTERN memsizetype hs;
 
 
 #define ALLOC_BYTES(var,byt)       (ALLOC_HEAP(var, char *, byt)?CNT1_BYT(byt), TRUE:FALSE)
+#define ALLOC_UBYTES(var,byt)      (ALLOC_HEAP(var, unsigned char *, byt)?CNT1_BYT(byt), TRUE:FALSE)
 #define FREE_BYTES(var,byt)        (CNT2_BYT(byt) FREE_HEAP(var, byt))
 
 

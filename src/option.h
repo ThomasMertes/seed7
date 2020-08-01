@@ -37,8 +37,8 @@ typedef struct {
     booltype linecount_info;
     booltype catch_signals;
     unsigned int incr_message_line;
-    char *comp_trace_level;
-    char *exec_trace_level;
+    const_cstritype comp_trace_level;
+    const_cstritype exec_trace_level;
     int arg_c;
     char **arg_v;
   } opttype;

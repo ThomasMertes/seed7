@@ -973,15 +973,15 @@ booltype look_for_interfaces;
                   matched_object = match_subexpr_attr(expr_object, start_node,
                       object_type, rest_of_expression, check_access_right,
                       look_for_interfaces);
-		/* } else {
+                /* } else {
                   trace1(current_element->value.listvalue->obj);
                   printf("\n"); */
                 } /* if */
               } else if (CATEGORY_OF_OBJ(current_element) == MATCHOBJECT) {
                 if (CATEGORY_OF_OBJ(current_element->value.listvalue->obj) == ACTOBJECT) {
-		  /* if (current_element->value.listvalue->obj->type_of->result_type == */
+                  /* if (current_element->value.listvalue->obj->type_of->result_type == */
                   /* trace1(current_element->value.listvalue->obj);
-		     printf("\n"); */
+                     printf("\n"); */
                   if (current_element->value.listvalue->obj->value.actvalue == dcl_val1 ||
                       current_element->value.listvalue->obj->value.actvalue == dcl_val2 ||
                       current_element->value.listvalue->obj->value.actvalue == dcl_ref1 ||

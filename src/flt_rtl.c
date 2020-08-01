@@ -35,9 +35,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "math.h"
-#ifdef TURN_OFF_FP_EXCEPTIONS
 #include "float.h"
-#endif
 
 #include "common.h"
 #include "heaputl.h"
@@ -175,7 +173,7 @@ inttype digits_precision;
 
   {
     char buffer[2001];
-    char *buffer_ptr;
+    const_cstritype buffer_ptr;
 #ifndef USE_VARIABLE_FORMATS
     char form_buffer[10];
 #endif

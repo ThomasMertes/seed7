@@ -34,7 +34,7 @@
 
 #ifdef ANSI_C
 
-void raise_error2 (int, char *, int);
+void raise_error2 (int exception_num, const_cstritype filename, int line);
 
 #else
 

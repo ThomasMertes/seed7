@@ -29,6 +29,27 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef USE_BIG_GMP_LIBRARY
+#include "gmp.h"
+#endif
+
+
+#if defined(__cplusplus) || defined(c_plusplus)
+#define C_PLUS_PLUS
+#endif
+
+#ifndef ANSI_C
+typedef unsigned int SIZE_TYPE;
+#define size_t SIZE_TYPE
+#define const
+#endif
+
+#ifdef C_PLUS_PLUS
+#define INLINE inline
+#else
+#define INLINE
+#endif
+
 typedef int booltype;
 
 #ifdef FALSE
@@ -103,6 +124,12 @@ typedef uint32type         uinttype;
 #define uintLeastSignificantBit uint32LeastSignificantBit
 #endif
 
+#ifdef INT64TYPE
+#define BIGDIGIT_SIZE 32
+#else
+#define BIGDIGIT_SIZE 16
+#endif
+
 #ifdef FLOATTYPE_DOUBLE
 typedef double             floattype;
 #else
@@ -144,19 +171,6 @@ typedef const uint16type *     const_wstritype;
 #endif
 
 #define SOURCE_POSITION(POS_NR) __FILE__, __LINE__
-
-
-#ifndef ANSI_C
-typedef unsigned int SIZE_TYPE;
-#define size_t SIZE_TYPE
-#define const
-#endif
-
-#ifdef C_PLUS_PLUS
-#define INLINE inline
-#else
-#define INLINE
-#endif
 
 
 typedef int errinfotype;
@@ -236,13 +250,11 @@ typedef struct setstruct     *settype;
 typedef struct stristruct    *stritype;
 typedef struct bstristruct   *bstritype;
 typedef struct winstruct     *wintype;
-typedef struct bigintstruct  *biginttype;
 
 typedef const struct setstruct     *const_settype;
 typedef const struct stristruct    *const_stritype;
 typedef const struct bstristruct   *const_bstritype;
 typedef const struct winstruct     *const_wintype;
-typedef const struct bigintstruct  *const_biginttype;
 
 typedef struct setstruct {
     inttype min_position;
@@ -273,8 +285,44 @@ typedef struct winstruct {
     /* The rest of the structure is only accessable for the driver */
   } winrecord;
 
-typedef struct bigintstruct {
-#ifdef NO_EMPTY_STRUCTS
-    int dummy;
+
+#ifdef USE_BIG_RTL_LIBRARY
+
+/***************************************/
+/*                                     */
+/*   Define biginttype for big_rtl.c   */
+/*                                     */
+/***************************************/
+
+typedef       struct bigintstruct  *      biginttype;
+typedef const struct bigintstruct  *const_biginttype;
+
+#if BIGDIGIT_SIZE == 8
+  typedef uint8type         bigdigittype;
+#elif BIGDIGIT_SIZE == 16
+  typedef uint16type        bigdigittype;
+#elif BIGDIGIT_SIZE == 32
+  typedef uint32type        bigdigittype;
 #endif
+
+typedef struct bigintstruct {
+    memsizetype size;
+    bigdigittype bigdigits[1];
   } bigintrecord;
+
+
+#else
+#ifdef USE_BIG_GMP_LIBRARY
+
+/***************************************/
+/*                                     */
+/*   Define biginttype for big_gmp.c   */
+/*                                     */
+/***************************************/
+
+typedef mpz_ptr           biginttype;
+typedef mpz_srcptr  const_biginttype;
+
+
+#endif
+#endif

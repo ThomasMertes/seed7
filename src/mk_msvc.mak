@@ -21,9 +21,9 @@ COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
 CC = cl
 
-USE_BIG_RTL_LIBRARY = define
+BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
 BIGINT_LIB = big_rtl
-# USE_BIG_RTL_LIBRARY = undef
+# BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
 # SCREEN_OBJ = scr_x11.obj
@@ -175,7 +175,7 @@ version.h:
 	echo #define USE_FSEEKI64 >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define popen _popen >> version.h
-	echo #$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY >> version.h
+	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	echo #include "stdio.h" > chkftell.c
 	echo int main (int argc, char **argv) >> chkftell.c
 	echo { >> chkftell.c

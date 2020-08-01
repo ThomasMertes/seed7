@@ -54,11 +54,14 @@
 #define EXTERN
 #include "drw_drv.h"
 
-
 #undef TRACE_X11
 
 #undef FLAG_EVENTS
 #undef TRACE_KBD
+
+#ifndef C_PLUS_PLUS
+#define c_class class
+#endif
 
 
 #define PI 3.14159265358979323846264338327950284197
@@ -87,14 +90,23 @@ typedef struct x11_winstruct {
   struct x11_winstruct *next;
 } x11_winrecord, *x11_wintype;
 
+typedef const struct x11_winstruct *const_x11_wintype;
+
 static x11_wintype window_list = NULL;
 
-#define to_window(win)    (((x11_wintype) win)->window)
-#define to_backup(win)    (((x11_wintype) win)->backup)
-#define to_clip_mask(win) (((x11_wintype) win)->clip_mask)
-#define is_pixmap(win)    (((x11_wintype) win)->is_pixmap)
-#define to_width(win)     (((x11_wintype) win)->width)
-#define to_height(win)    (((x11_wintype) win)->height)
+#define to_window(win)    (((const_x11_wintype) win)->window)
+#define to_backup(win)    (((const_x11_wintype) win)->backup)
+#define to_clip_mask(win) (((const_x11_wintype) win)->clip_mask)
+#define is_pixmap(win)    (((const_x11_wintype) win)->is_pixmap)
+#define to_width(win)     (((const_x11_wintype) win)->width)
+#define to_height(win)    (((const_x11_wintype) win)->height)
+
+#define to_var_window(win)    (((x11_wintype) win)->window)
+#define to_var_backup(win)    (((x11_wintype) win)->backup)
+#define to_var_clip_mask(win) (((x11_wintype) win)->clip_mask)
+#define is_var_pixmap(win)    (((x11_wintype) win)->is_pixmap)
+#define to_var_width(win)     (((x11_wintype) win)->width)
+#define to_var_height(win)    (((x11_wintype) win)->height)
 
 Visual *default_visual;
 
@@ -271,7 +283,7 @@ chartype gkbGetc ()
         printf("KeyPress\n");
         printf("xkey.state (%o)\n", myevent.xkey.state);
 #endif
-        lookup_count = XLookupString(&myevent.xkey, buffer, 20, &mykey, 0);
+        lookup_count = XLookupString(&myevent.xkey, (cstritype) buffer, 20, &mykey, 0);
         buffer[lookup_count] = '\0';
         if (myevent.xkey.state & ShiftMask) {
           /* printf("ShiftMask\n"); */
@@ -1654,7 +1666,7 @@ static void dra_init ()
 #endif
 
   {
-    char *class_text;
+    const_cstritype class_text;
 
   /* dra_init */
 #ifdef TRACE_X11
@@ -1668,17 +1680,17 @@ static void dra_init ()
     /* printf("myscreen = %lu\n", (long unsigned) myscreen); */
 
     default_visual = XDefaultVisual(mydisplay, myscreen);
-    if (default_visual->class == PseudoColor) {
+    if (default_visual->c_class == PseudoColor) {
       class_text = "PseudoColor";
-    } else if (default_visual->class == DirectColor) {
+    } else if (default_visual->c_class == DirectColor) {
       class_text = "DirectColor";
-    } else if (default_visual->class == GrayScale) {
+    } else if (default_visual->c_class == GrayScale) {
       class_text = "GrayScale";
-    } else if (default_visual->class == StaticColor) {
+    } else if (default_visual->c_class == StaticColor) {
       class_text = "StaticColor";
-    } else if (default_visual->class == TrueColor) {
+    } else if (default_visual->c_class == TrueColor) {
       class_text = "TrueColor";
-    } else if (default_visual->class == StaticGray) {
+    } else if (default_visual->c_class == StaticGray) {
       class_text = "StaticGray";
     } else {
       class_text = "unknown";
@@ -2206,7 +2218,7 @@ inttype blue_val;
 #endif
 /*    printf("search [%ld, %ld, %ld]\n",
         red_val, green_val, blue_val); */
-    if (default_visual->class == TrueColor) {
+    if (default_visual->c_class == TrueColor) {
       col.pixel =
           ((((unsigned long) red_val)   << lshift_red   >> rshift_red)   & default_visual->red_mask)   |
           ((((unsigned long) green_val) << lshift_green >> rshift_green) & default_visual->green_mask) |
@@ -2496,7 +2508,7 @@ inttype col;
     /* In this case nothing should be done.                        */
     if (pixmap != NULL) {
       if (to_clip_mask(pixmap) == 0) {
-        to_clip_mask(pixmap) = XCreatePixmap(mydisplay,
+        to_var_clip_mask(pixmap) = XCreatePixmap(mydisplay,
             to_window(pixmap), to_width(pixmap), to_height(pixmap), 1);
         /* printf("clip_mask = %lu\n", to_window(pixmap)); */
       } /* if */

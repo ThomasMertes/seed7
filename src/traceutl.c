@@ -111,7 +111,7 @@ void prot_nl ()
 
 #ifdef ANSI_C
 
-void prot_cstri (cstritype stri)
+void prot_cstri (const_cstritype stri)
 #else
 
 void prot_cstri (stri)
@@ -138,7 +138,7 @@ cstritype stri;
 
 #ifdef ANSI_C
 
-void prot_writeln (cstritype stri)
+void prot_writeln (const_cstritype stri)
 #else
 
 void prot_writeln (stri)
@@ -248,6 +248,10 @@ stritype out_mem;
             sprintf(buffer, "\\%c", ((int) *str) + '@');
           } else if (*str <= (chartype) 31) {
             sprintf(buffer, "\\%lu\\", *str);
+          } else if (*str == (chartype) '\\') {
+            sprintf(buffer, "\\\\");
+          } else if (*str == (chartype) '\"') {
+            sprintf(buffer, "\\\"");
           } else if (*str <= (chartype) 127) {
             sprintf(buffer, "%c", (int) *str);
           } else if (*str == (chartype) -1) {
@@ -538,6 +542,15 @@ objecttype anyobject;
           prot_cstri(" *NULL_ARRAY* ");
         } /* if */
         break;
+      case HASHOBJECT:
+        if (anyobject->value.hashvalue != NULL) {
+          prot_cstri("hash[");
+          prot_int((inttype) anyobject->value.hashvalue->size);
+          prot_cstri("]");
+        } else {
+          prot_cstri(" *NULL_HASH* ");
+        } /* if */
+        break;
       case STRUCTOBJECT:
         if (anyobject->value.structvalue != NULL) {
           prot_cstri("struct[");
@@ -676,6 +689,7 @@ objecttype anyobject;
         case SOCKETOBJECT:
         case FLOATOBJECT:
         case ARRAYOBJECT:
+        case HASHOBJECT:
         case STRUCTOBJECT:
         case SETOBJECT:
         case BLOCKOBJECT:
@@ -827,6 +841,7 @@ listtype list;
           case SOCKETOBJECT:
           case FLOATOBJECT:
           case ARRAYOBJECT:
+          case HASHOBJECT:
           case STRUCTOBJECT:
           case SETOBJECT:
           case ACTOBJECT:
@@ -888,7 +903,7 @@ listtype list;
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               if (HAS_POSINFO(list->obj)) {
-                prot_cstri((cstritype) file_name(GET_FILE_NUM(list->obj)));
+                prot_cstri((const_cstritype) file_name(GET_FILE_NUM(list->obj)));
                 prot_cstri("(");
                 prot_int((inttype) GET_LINE_NUM(list->obj));
                 prot_cstri(")");
@@ -1307,7 +1322,7 @@ objecttype traceobject;
       } /* if */
       prot_cstri(": ");
       if (HAS_POSINFO(traceobject)) {
-        prot_cstri((cstritype) file_name(GET_FILE_NUM(traceobject)));
+        prot_cstri((const_cstritype) file_name(GET_FILE_NUM(traceobject)));
         prot_cstri("(");
         prot_int((inttype) GET_LINE_NUM(traceobject));
         prot_cstri(")");
@@ -1407,6 +1422,7 @@ objecttype traceobject;
         case SOCKETOBJECT:
         case FLOATOBJECT:
         case ARRAYOBJECT:
+        case HASHOBJECT:
         case STRUCTOBJECT:
         case SETOBJECT:
         case ACTOBJECT:
@@ -1518,7 +1534,7 @@ listtype list;
 
 #ifdef ANSI_C
 
-void set_trace (cstritype trace_level, int len, cstritype prot_file_name)
+void set_trace (const_cstritype trace_level, int len, cstritype prot_file_name)
 #else
 
 void set_trace (trace_level, len, prot_file_name)

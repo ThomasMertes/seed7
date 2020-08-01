@@ -26,7 +26,7 @@
 /********************************************************************/
 
 typedef struct {
-    cstritype name;
+    const_cstritype name;
     acttype action;
   } primactrecord;
 

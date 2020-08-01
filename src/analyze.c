@@ -179,14 +179,17 @@ static INLINE void include_file ()
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
         if (stri_charpos(symbol.strivalue, '\\') != NULL) {
-          err_warning(WRONG_PATH_DELIMITER);
+          err_stri(WRONG_PATH_DELIMITER, include_file_name);
           scan_symbol();
         } else {
           find_include_file(include_file_name, &err_info);
-          if (err_info == FILE_ERROR) {
-            err_stri(FILENOTFOUND, include_file_name);
-          } else if (err_info != OKAY_NO_ERROR) {
+          if (err_info == MEMORY_ERROR) {
             err_warning(OUT_OF_HEAP_SPACE);
+          } else if (err_info != OKAY_NO_ERROR) {
+            /* FILE_ERROR or RANGE_ERROR */
+            err_stri(FILENOTFOUND, include_file_name);
+          } else {
+            scan_byte_order_mark();
           } /* if */
           scan_symbol();
         } /* if */
@@ -565,6 +568,7 @@ ustritype source_file_name;
         err_message(NO_SOURCEFILE, source_name);
         resultProg = NULL;
       } else if (err_info == OKAY_NO_ERROR) {
+        scan_byte_order_mark();
         resultProg = analyze_prog(source_file_name, &err_info);
       } /* if */
       if (err_info == MEMORY_ERROR) {

@@ -39,7 +39,6 @@
 typedef inttype generictype;
 
 #ifdef ISNAN_WITH_UNDERLINE
-int _isnan( double x );
 #define isnan _isnan
 #endif
 

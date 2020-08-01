@@ -122,6 +122,8 @@ size_t len;
         *stri++ = (strelemtype) *ustri++;
       } else if ((ustri[0] & 0xE0) == 0xC0 && len > 1 &&
                  (ustri[1] & 0xC0) == 0x80) {
+        /* ustri[0]   range 0xC0 to 0xDF (192 to 223) */
+        /* ustri[1]   range 0x80 to 0xBF (128 to 191) */
         *stri++ = (strelemtype) (ustri[0] & 0x1F) << 6 |
                   (strelemtype) (ustri[1] & 0x3F);
         ustri += 2;
@@ -129,6 +131,8 @@ size_t len;
       } else if ((ustri[0] & 0xF0) == 0xE0 && len > 2 &&
                  (ustri[1] & 0xC0) == 0x80 &&
                  (ustri[2] & 0xC0) == 0x80) {
+        /* ustri[0]   range 0xE0 to 0xEF (224 to 239) */
+        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
         *stri++ = (strelemtype) (ustri[0] & 0x0F) << 12 |
                   (strelemtype) (ustri[1] & 0x3F) <<  6 |
                   (strelemtype) (ustri[2] & 0x3F);
@@ -138,6 +142,8 @@ size_t len;
                  (ustri[1] & 0xC0) == 0x80 &&
                  (ustri[2] & 0xC0) == 0x80 &&
                  (ustri[3] & 0xC0) == 0x80) {
+        /* ustri[0]   range 0xF0 to 0xF7 (240 to 247) */
+        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
         *stri++ = (strelemtype) (ustri[0] & 0x07) << 18 |
                   (strelemtype) (ustri[1] & 0x3F) << 12 |
                   (strelemtype) (ustri[2] & 0x3F) <<  6 |
@@ -149,6 +155,8 @@ size_t len;
                  (ustri[2] & 0xC0) == 0x80 &&
                  (ustri[3] & 0xC0) == 0x80 &&
                  (ustri[4] & 0xC0) == 0x80) {
+        /* ustri[0]   range 0xF8 to 0xFB (248 to 251) */
+        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
         *stri++ = (strelemtype) (ustri[0] & 0x03) << 24 |
                   (strelemtype) (ustri[1] & 0x3F) << 18 |
                   (strelemtype) (ustri[2] & 0x3F) << 12 |
@@ -162,6 +170,8 @@ size_t len;
                  (ustri[3] & 0xC0) == 0x80 &&
                  (ustri[4] & 0xC0) == 0x80 &&
                  (ustri[5] & 0xC0) == 0x80) {
+        /* ustri[0]   range 0xFC to 0xFF (252 to 255) */
+        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
         *stri++ = (strelemtype) (ustri[0] & 0x03) << 30 |
                   (strelemtype) (ustri[1] & 0x3F) << 24 |
                   (strelemtype) (ustri[2] & 0x3F) << 18 |
@@ -171,6 +181,7 @@ size_t len;
         ustri += 6;
         len -= 5;
       } else {
+        /* ustri[0] not in range 0xC0 to 0xFF (192 to 255) */
         *dest_len = (memsizetype) (stri - dest_stri);
         return(len);
       } /* if */

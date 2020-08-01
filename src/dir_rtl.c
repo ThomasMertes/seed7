@@ -125,7 +125,7 @@ dirtype directory;
       result = NULL;
     } else {
 #ifdef OS_PATH_WCHAR
-      result = wstri_to_stri(current_entry->d_name);
+      result = wstri_to_stri((const_wstritype)current_entry->d_name); /*!!*/
 #else
 #ifdef OS_PATH_UTF8
       result = cstri8_to_stri(current_entry->d_name);

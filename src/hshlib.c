@@ -71,7 +71,10 @@ objecttype data_destr_func;
   { /* free_helem */
     if (old_helem != NULL) {
       param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
-      param2_call(data_destr_func, &old_helem->data, SYS_DESTR_OBJECT);
+      if (CATEGORY_OF_OBJ(&old_helem->data) != FORWARDOBJECT) {
+        /* FORWARDOBJECT is used as magic category in hsh_idx */
+        param2_call(data_destr_func, &old_helem->data, SYS_DESTR_OBJECT);
+      } /* if */
       free_helem(old_helem->next_less, key_destr_func,
           data_destr_func);
       free_helem(old_helem->next_greater, key_destr_func,
@@ -835,6 +838,9 @@ listtype arguments;
     key_destr_func   = take_reference(arg_4(arguments));
     data_create_func = take_reference(arg_5(arguments));
     data_destr_func  = take_reference(arg_6(arguments));
+    /* printf("hsh_create(%lX, %lX, %lX, %lX, %lX, %lX)\n",
+        hsh_to, hsh_from, key_create_func, key_destr_func,
+        data_create_func, data_destr_func); */
     SET_CATEGORY_OF_OBJ(hsh_to, HASHOBJECT);
     if (TEMP2_OBJECT(hsh_from)) {
       hsh_to->value.hashvalue = hsh_source;
@@ -1091,6 +1097,7 @@ listtype arguments;
     key      =                arg_2(arguments);
     hashcode =       take_int(arg_3(arguments));
     cmp_func = take_reference(arg_4(arguments));
+    /* printf("hsh_idx(%lX, %lX, %lu, %lX)\n", hash1, key, hashcode, cmp_func); */
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
@@ -1108,16 +1115,30 @@ listtype arguments;
       } /* if */
     } /* while */
     if (result_hashelem != NULL) {
-      result = &result_hashelem->data;
       if (TEMP2_OBJECT(arg_1(arguments))) {
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
-        return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        if (!ALLOC_OBJECT(result)) {
+          result = raise_exception(SYS_MEM_EXCEPTION);
+        } else {
+          memcpy(result, &result_hashelem->data, sizeof(objectrecord));
+          SET_TEMP_FLAG(result);
+          /* Overwrite the data element in the hash with a FORWARDOBJECT value. */
+          /* The function free_helem uses FORWARDOBJECT as magic value */
+          /* and does not call a destructor for it. */
+          SET_CATEGORY_OF_OBJ(&result_hashelem->data, FORWARDOBJECT);
+          result_hashelem->data.value.intvalue = 1234567890;
+        } /* if */
+      } else {
+        result = &result_hashelem->data;
       } /* if */
     } else {
       result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } /* if */
+    /* printf("hsh_idx(%lX, %lX, %lu, %lX) => ", hash1, key, hashcode, cmp_func);
+       trace1(result);
+       printf("\n"); */
     return(result);
   } /* hsh_idx */
 

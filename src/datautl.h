@@ -27,9 +27,9 @@
 
 #ifdef ANSI_C
 
-cstritype category_cstri (objectcategory category);
+const_cstritype category_cstri (objectcategory category);
 objectcategory category_value (cstritype stri);
-cstritype id_string (const_identtype actual_ident);
+const_cstritype id_string (const_identtype actual_ident);
 
 #else
 

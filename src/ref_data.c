@@ -241,7 +241,7 @@ inttype aCategory;
 #endif
 
   {
-    cstritype name;
+    const_cstritype name;
     memsizetype len;
     stritype result;
 
@@ -330,7 +330,7 @@ objecttype obj_arg1;
 
   {
     filenumtype file_number;
-    cstritype name;
+    const_cstritype name;
     stritype result;
 
   /* refFile */
@@ -346,7 +346,7 @@ objecttype obj_arg1;
     } else {
       file_number = 0;
     } /* if */
-    name = (cstritype) file_name(file_number);
+    name = (const_cstritype) file_name(file_number);
     result = cstri_to_stri(name);
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
@@ -474,14 +474,16 @@ objecttype obj_arg;
 
   /* refLine */
     if (HAS_POSINFO(obj_arg)) {
-      result = GET_LINE_NUM(obj_arg);
+      /* GET_LINE_NUM delivers an unsigned integer in the range 0 to 1048575 */
+      result = (inttype) GET_LINE_NUM(obj_arg);
     } else if (HAS_PROPERTY(obj_arg)) {
       /* trace1(obj_arg);
       printf(" %u %u %u\n",
           obj_arg->descriptor.property->file_number,
           obj_arg->descriptor.property->line,
           obj_arg->descriptor.property->syNumberInLine); */
-      result = obj_arg->descriptor.property->line;
+      /* Cast to inttype: The line is probably in the range 0 to 2147483647 */
+      result = (inttype) obj_arg->descriptor.property->line;
     } else {
       result = 0;
     } /* if */
@@ -822,7 +824,7 @@ objecttype obj_arg;
 #endif
 
   {
-    char *stri;
+    const_cstritype stri;
     memsizetype buffer_len;
     char *buffer;
     listtype name_elem;
@@ -835,7 +837,7 @@ objecttype obj_arg;
     if (obj_arg == NULL) {
       stri = " *NULL_OBJECT* ";
     } else if (HAS_POSINFO(obj_arg)) {
-      stri = (char *) file_name(GET_FILE_NUM(obj_arg));
+      stri = (const_cstritype) file_name(GET_FILE_NUM(obj_arg));
       buffer_len = (memsizetype) strlen(stri) + 32;
       if (!ALLOC_CSTRI(buffer, buffer_len)) {
         raise_error(MEMORY_ERROR);

@@ -92,7 +92,6 @@ chartype.s7i Character type definitions
 complex.s7i  Complex support library                           
 dialog.s7i   Dialog support library                            
 dir.s7i      Read directorys as files                          
-dom.s7i      Simple dom parser                                 
 draw.s7i     Graphic library                                   
 echo.s7i     Filter file which generates an echo of the input  
 encoding.s7i Encoding and decoding functions                   
@@ -105,6 +104,7 @@ gtkserver.s7i Gtk-server connection library
 gzip.s7i     Gzip uncompression function                       
 html.s7i     Support functions for html                        
 html_ent.s7i HTML entity handling library                      
+inifile.s7i  Read key value pairs from an INI file.            
 keybd.s7i    Keyboard driver                                   
 line.s7i     Filter file which reads the input linewise        
 lower.s7i    Filter file which turns characters to lower case  
@@ -135,5 +135,7 @@ utf16.s7i    Read and write utf-16 files
 utf8.s7i     Read and write utf-8 files                        
 window.s7i   Filter file for text windows with random access   
 wrinum.s7i   Functions to write numbers                        
+xml_ent.s7i  XML entity handling library                       
+xmldom.s7i   Simple XML dom parser                             
 zip.s7i      Zip format support library                        
 dna_base.s7i Bacterial dna fight programming game interface    

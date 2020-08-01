@@ -171,7 +171,7 @@ bstritype bstri_from;
 
 #ifdef ANSI_C
 
-void bstDestr (const const_bstritype old_bstring)
+void bstDestr (const bstritype old_bstring)
 #else
 
 void bstDestr (old_bstring)

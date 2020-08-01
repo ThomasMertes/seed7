@@ -1,0 +1,118 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  inifile.s7i   Read key value pairs from an INI file.            *)
+(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "scanfile.s7i";
+
+const type: iniKeyValueType is hash [string] string;
+const type: iniDataType is hash [string] iniKeyValueType;
+
+
+const func string: getParamValue (in iniDataType: iniData,
+    in string: sectionName, in string: paramName) is func
+  result
+    var string: result is "";
+  begin
+    if sectionName in iniData then
+      if paramName in iniData[sectionName] then
+        result := iniData[sectionName][paramName];
+      end if;
+    end if;
+  end func;
+
+
+const proc: getKeyValuePair (inout file: inFile,
+    inout string: paramName, inout string: paramValue) is func
+  begin
+    skipWhiteSpace(inFile);
+    paramName := getName(inFile);
+    skipWhiteSpace(inFile);
+    if inFile.bufferChar = '=' then
+      inFile.bufferChar := getc(inFile);    
+      paramValue := getLine(inFile);
+    else
+      paramValue := "";
+      skipLine(inFile);
+    end if;
+  end func;
+
+
+const func string: getIniSection (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    inFile.bufferChar := getc(inFile);
+    while inFile.bufferChar in space_or_tab do
+      inFile.bufferChar := getc(inFile);
+    end while;
+    while inFile.bufferChar <> ']' and inFile.bufferChar <> '\n' and inFile.bufferChar <> EOF do
+      symbol &:= str(inFile.bufferChar);
+      inFile.bufferChar := getc(inFile);
+    end while;
+    symbol := trim(symbol);
+  end func;
+
+
+const func iniDataType: readIniFile (inout file: inFile) is func
+  result
+    var iniDataType: result is iniDataType.value;
+  local
+    var string: sectionName is "";
+    var string: paramName is "";
+    var string: paramValue is "";
+  begin
+    inFile.bufferChar := getc(inFile);
+    while inFile.bufferChar <> EOF do
+      skipWhiteSpace(inFile);
+      if inFile.bufferChar = '[' then
+        sectionName := getIniSection(inFile);
+        skipLine(inFile);
+      elsif inFile.bufferChar = ';' then
+        skipLineComment(inFile);
+      elsif inFile.bufferChar <> EOF then
+        getKeyValuePair(inFile, paramName, paramValue);
+        if sectionName not in result then
+          result @:= [sectionName] iniKeyValueType.value;
+        end if;
+        result[sectionName] @:= [paramName] paramValue;
+      end if;
+    end while;
+  end func;
+
+
+const func iniDataType: readIniFile (in string: fileName) is func
+  result
+    var iniDataType: result is iniDataType.value;
+  local
+    var file: inFile is STD_NULL;
+  begin
+    inFile := open(fileName, "r");
+    if inFile <> STD_NULL then
+      result := readIniFile(inFile);
+      close(inFile);
+    end if;
+  end func;

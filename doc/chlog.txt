@@ -1,3 +1,32 @@
+20090705:
+- The chapter explaining the function 'getenv' in the manual was improved.
+- The dom.s7i library was renamed to xmldom.s7i and its functionality was improved.
+- A new library named inifile.s7i, which allows reading key value pairs from an INI file,
+  was added.
+- The functions getLineComment, getLine, skipXmlComment, getXmlTagHeadOrContent
+  skipXmlTag, getNextXmlAttribute and getNextHtmlAttribute in scanfile.s7i were added
+  or improved.
+- The functions getSymbol, skipXmlComment, getXmlTagHeadOrContent skipXmlTag,
+  getNextXmlAttribute and getNextHtmlAttribute in scanstri.s7i were added or improved.
+- The function isDigitString was added to the seed7_05.s7i library.
+- The functions open_utf16le and open_utf16be in the utf16.s7i library were improved.
+- A new library named xml_ent.s7i, which supports XML entity handling, was added.
+- The compiler comp.sd7 was improved to create more prototype definitions of extern
+  library functions.
+- The interpreter (hi) and the compiler (comp.sd7) were improved to accept a UTF-8
+  byte order mark at the beginning of a source or include/library file.
+- The types gmpBiginttype and rtlBiginttype in the files big_gmp.c and big_rtl.c were
+  replaced with biginttype (defined in common.h).
+- The function bigLowestSetBit in big_rtl.c was improved to raise RANGE_ERROR when
+  the result does not fit in an integer.
+- The function move_any_file in cmd_rtl.c was improved to raise FILE_ERROR when the
+  file cannot be renamed.
+- The function hsh_idx in hshlib.c was improved to work correctly the the hash is
+  destroyed after indexing.
+- The const qualifier was added in many *.c and *.h files.
+- Several makefiles were changed to use BIGINT_LIB_DEFINE and BIGINT_LIB to decide about
+  the big integer library.
+
 20090621:
 - The chapters explaining set types and primitive actions in the manual were improved.
 - The codepages 720, 1125, 1255, 1256, 1258, 8859_6 and 8859_8 were added to the

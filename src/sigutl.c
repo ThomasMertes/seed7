@@ -69,7 +69,7 @@ int sig_num;
 
   {
     int ch;
-    char *sig_name;
+    const_cstritype sig_name;
     char buffer[20];
 
   /* handle_signals */

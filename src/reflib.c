@@ -500,7 +500,7 @@ listtype arguments;
   {
     objecttype obj_arg1;
     filenumtype file_number;
-    cstritype name;
+    const_cstritype name;
     stritype result;
 
   /* ref_file */
@@ -518,7 +518,7 @@ listtype arguments;
     } else {
       file_number = 0;
     } /* if */
-    name = (cstritype) file_name(file_number);
+    name = (const_cstritype) file_name(file_number);
     result = cstri_to_stri(name);
     if (result == NULL) {
       return(raise_exception(SYS_MEM_EXCEPTION));
@@ -691,26 +691,10 @@ objecttype ref_line (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype obj_arg1;
-    inttype result;
-
-  /* ref_line */
+  { /* ref_line */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    if (HAS_POSINFO(obj_arg1)) {
-      result = GET_LINE_NUM(obj_arg1);
-    } else if (HAS_PROPERTY(obj_arg1)) {
-      /* trace1(obj_arg1);
-      printf(" %u %u %u\n",
-          obj_arg1->descriptor.property->file_number,
-          obj_arg1->descriptor.property->line,
-          obj_arg1->descriptor.property->syNumberInLine); */
-      result = obj_arg1->descriptor.property->line;
-    } else {
-      result = 0;
-    } /* if */
-    return(bld_int_temp(result));
+    return(bld_int_temp(refLine(
+        take_reference(arg_1(arguments)))));
   } /* ref_line */
 
 

@@ -31,10 +31,10 @@ include "chartype.s7i";
 
 (**
  *  Skips a possibly nested comment from a 'file'.
- *  The comment starts with (* and ends with *) . When the function is
- *  called it is assumed that the '*' is in inFile.bufferChar. When
- *  the function is left the character after the ')' is in
- *  inFile.bufferChar.
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that inFile.bufferChar contains the '*'
+ *  of the comment start. When the function is left the character
+ *  after ')' is in inFile.bufferChar.
  *)
 const proc: skipComment (inout file: inFile) is func
   local
@@ -68,10 +68,10 @@ const proc: skipComment (inout file: inFile) is func
 
 (**
  *  Reads a possibly nested comment from a 'file'.
- *  The comment starts with (* and ends with *) . When the function is
- *  called it is assumed that the '*' is in inFile.bufferChar. When
- *  the function is left the character after the ')' is in
- *  inFile.bufferChar.
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that inFile.bufferChar contains the '*'
+ *  of the comment start. When the function is left the character
+ *  after ')' is in inFile.bufferChar.
  *  @return the content of the comment, including the introducing (*
  *          and the ending *) .
  *)
@@ -114,8 +114,9 @@ const func string: getComment (inout file: inFile) is func
 
 (**
  *  Skips a line comment from a 'file'.
- *  A line comment starts with # and ends with the end of the line.
- *  When the function is called it is assumed that the '#' is in
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that the introducing character (e.g. '#') is in
  *  inFile.bufferChar. When the function is left the line end
  *  character ('\n' or EOF) is in inFile.bufferChar.
  *)
@@ -132,23 +133,33 @@ const proc: skipLineComment (inout file: inFile) is func
 
 (**
  *  Reads a line comment from a 'file'.
- *  A line comment starts with # and ends with the end of the line.
- *  When the function is called it is assumed that the '#' is in
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that the introducing character (e.g. '#') is in
  *  inFile.bufferChar. When the function is left the line end
- *  character ('\n' or EOF) is in inFile.bufferChar.
- *  @return the content of the comment, including the start
- *          marker # but without the line end character.
+ *  character ('\n' or EOF) is in inFile.bufferChar. A sequence of
+ *  "\r\n" is interpreted as equal to '\n'.
+ *  @return the content of the comment, including the start marker
+ *          (e.g. '#') but without line end character ('\n', or EOF).
  *)
 const func string: getLineComment (inout file: inFile) is func
   result
-    var string: symbol is "#";
+    var string: symbol is "";
   local
     var char: character is ' ';
   begin
+    symbol := str(inFile.bufferChar);
     character := getc(inFile);
     while character <> '\n' and character <> EOF do
-      symbol &:= str(character);
-      character := getc(inFile);
+      if character = '\r' then
+        character := getc(inFile);
+        if character <> '\n' then
+          symbol &:= str('\r');
+        end if;
+      else
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
     end while;
     inFile.bufferChar := character;
   end func; # getLineComment
@@ -492,6 +503,7 @@ const proc: skipLine (inout file: inFile) is func
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
  *  left the line end character ('\n' or EOF) is in inFile.bufferChar.
+ *  A sequence of "\r\n" is interpreted as equal to '\n'.
  *  When inFile.bufferChar already contains a line end character
  *  ('\n' or EOF) nothing is done and the function returns "" .
  *  @return the line read or "" when inFile.bufferChar contains
@@ -505,8 +517,15 @@ const func string: getLine (inout file: inFile) is func
   begin
     character := inFile.bufferChar;
     while character <> '\n' and character <> EOF do
-      symbol &:= str(character);
-      character := getc(inFile);
+      if character = '\r' then
+        character := getc(inFile);
+        if character <> '\n' then
+          symbol &:= str('\r');
+        end if;
+      else
+        symbol &:= str(character);
+        character := getc(inFile);
+      end if;
     end while;
     inFile.bufferChar := character;
   end func;
@@ -798,6 +817,41 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
 
 
 (**
+ *  Skips a XML comment from a 'file'.
+ *  The XML comment starts with <!-- and ends with --> . When the
+ *  function is called it is assumed that the character in
+ *  inFile.bufferChar is the last '-' of the introducing <!-- .
+ *  When the function is left the character after '>' is in
+ *  inFile.bufferChar.
+ *)
+const proc: skipXmlComment (inout file: inFile) is func
+  local
+    var char: character is ' ';
+    var boolean: endOfCommentReached is FALSE;
+  begin
+    character := getc(inFile);
+    repeat
+      while character <> '-' and character <> EOF do
+        character := getc(inFile);
+      end while;
+      if character = '-' then
+        character := getc(inFile);
+        if character = '-' then
+          repeat
+            character := getc(inFile);
+          until character <> '-';
+          if character = '>' then
+            character := getc(inFile);
+            endOfCommentReached := TRUE;
+          end if;
+        end if;
+      end if;
+    until endOfCommentReached or character = EOF;
+    inFile.bufferChar := character;
+  end func;
+
+
+(**
  *  Reads a XML/HTML tag or the XML/HTML content text from a 'file'.
  *  A XML/HTML tag starts with < and ends with > . The content text
  *  starts with everything else and ends just before a < or with EOF.
@@ -883,25 +937,50 @@ const func string: getXmlCharacterReference (inout file: inFile) is func
 
 (**
  *  Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
- *  A XML/HTML tag head starts with < and ends before a > or a /
- *  or a whitespace character or EOF. The content text starts with
- *  everything else and ends just before a < or with EOF. When the
- *  function is called it is assumed that inFile.bufferChar
- *  contains the introducing < of a XML/HTML tag or the first
- *  charater of the content text. When the function is left the
- *  character after the XML/HTML tag head or the content text is in
- *  inFile.bufferChar.
+ *  Before reading a tag head or content it skips whitespace
+ *  characters and XML comments. A XML/HTML tag head starts
+ *  with < and ends before a > or a / or a whitespace character
+ *  or EOF. The content text starts with a non whitespace character
+ *  and ends just before a < or with EOF. When the function is called
+ *  inFile.bufferChar contains either a whitespace character, the
+ *  introducing < of a XML/HTML tag or the first charater of the
+ *  content text. When the function is left the character after the
+ *  XML/HTML tag head or the content text is in inFile.bufferChar.
+ *  When a tag head starts with <-- it is interpreted as XML comment.
+ *  A XML comment is ignored and getXmlTagHeadOrContent is called
+ *  recursive.
  *  @return the XML/HTML tag head, XML/HTML content text or "" when
  *          EOF was reached.
  *)
 const func string: getXmlTagHeadOrContent (inout file: inFile) is func
   result
     var string: symbol is "";
+  local
+    var boolean: finished is FALSE;
   begin
-    if inFile.bufferChar = '<' then
-      symbol &:= str(inFile.bufferChar);
+    while inFile.bufferChar in white_space_char do
       inFile.bufferChar := getc(inFile);
-      if inFile.bufferChar not in white_space_char and
+    end while;
+    if inFile.bufferChar = '<' then
+      inFile.bufferChar := getc(inFile);
+      if inFile.bufferChar = '!' then
+        inFile.bufferChar := getc(inFile);
+        if inFile.bufferChar = '-' then
+          inFile.bufferChar := getc(inFile);
+          if inFile.bufferChar = '-' then
+            skipXmlComment(inFile);
+            symbol := getXmlTagHeadOrContent(inFile);
+            finished  := TRUE;
+          else
+            symbol := "<!-";
+          end if;
+        else
+          symbol := "<!";
+        end if;
+      else
+        symbol := "<";
+      end if;
+      if not finished and inFile.bufferChar not in white_space_char and
           inFile.bufferChar <> '>' and inFile.bufferChar <> EOF then
         repeat
           symbol &:= str(inFile.bufferChar);
@@ -974,6 +1053,86 @@ const func string: getSymbolInXmlTag (inout file: inFile) is func
 
 
 (**
+ *  Skips beyond a XML Tag in a 'file'.
+ *  When the function is left the character after '>' is in
+ *  inFile.bufferChar.
+ *)
+const proc: skipXmlTag (inout file: inFile) is func
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getSymbolInXmlTag(inFile);
+    until symbol = ">" or symbol = "";
+  end func;
+
+
+(**
+ *  Skips beyond a XML Tag in a 'file'.
+ *  The parameter 'symbol' is used to provide the current symbol
+ *  which possibly can be ">" or "". When the function is left the
+ *  character after '>' is in inFile.bufferChar.
+ *)
+const proc: skipXmlTag (inout file: inFile, in var string: symbol) is func
+  begin
+    while symbol <> ">" and symbol <> "" do
+      symbol := getSymbolInXmlTag(inFile);
+    end while;
+  end func;
+
+
+(**
+ *  Reads name and value of an attribute inside a XML tag from 'file'.
+ *  Attribute name and value are returned in 'attributeName' and
+ *  'attributeValue' respectively. Surrounding single or double
+ *  quotes of the attribute value are omitted. It is a syntax
+ *  error when an attribute value is not quoted. XML entities in
+ *  'attributeValue' are left as is. When no more attributes are
+ *  present in the XML tag 'attributeName' is set to "". In this case
+ *  'attributeValue' contains the end of the XML tag (">" or "/>").
+ *  When a syntax error occurs the function skips beyond the end
+ *  of the XML tag. To indicate the syntax error 'attributeName' is
+ *  set to "" and 'attributeValue' is set to a symbol shortly before
+ *  the error (this will never be ">" or "/>").
+ *)
+const proc: getNextXmlAttribute (inout file: inFile,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(inFile);
+    if attributeName = "/" then
+      attributeName := "";
+      attributeValue := getSymbolInXmlTag(inFile);
+      if attributeValue = ">" then
+        attributeValue := "/>";
+      else
+        attributeValue := "/";
+        skipXmlTag(inFile, attributeValue);
+      end if;
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := ">";
+    else
+      attributeValue := getSymbolInXmlTag(inFile);
+      if attributeValue = "=" then
+        attributeValue := getSymbolInXmlTag(inFile);
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        else
+          attributeValue := attributeName;
+          attributeName := "";
+          skipXmlTag(inFile, attributeValue);
+        end if;
+      else
+        attributeValue := attributeName;
+        attributeName := "";
+        skipXmlTag(inFile, attributeValue);
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Reads a HTML tag attribute value from a 'file'.
  *  Before reading the value it skips whitespace characters. A HTML
  *  tag attribute value can be quoted with " or ' or it is terminated
@@ -1018,41 +1177,6 @@ const func string: getHtmlAttributeValue (inout file: inFile) is func
 
 
 (**
- *  Reads name and value of an attribute inside a XML tag from a 'file'.
- *  The variable 'attributeName' is set to "" when no more attributes
- *  are present in the XML tag. When the XML tag ends with / the
- *  function assigns "/" to 'attributeValue' when 'attributeName' is
- *  set to "". When the XML tag does not end with / 'attributeValue'
- *  and 'attributeName' are set to "" when no more attributes are
- *  present.
- *)
-const proc: getNextXmlAttribute (inout file: inFile,
-    inout string: attributeName, inout string: attributeValue) is func
-  begin
-    attributeName := getSymbolInXmlTag(inFile);
-    if attributeName = "/" then
-      repeat
-        attributeName := getSymbolInXmlTag(inFile);
-      until attributeName = ">" or attributeName = "";
-      attributeName := "";
-      attributeValue := "/";
-    elsif attributeName = ">" then
-      attributeName := "";
-      attributeValue := "";
-    else
-      if getSymbolInXmlTag(inFile) = "=" then
-        attributeValue := getSymbolInXmlTag(inFile);
-        if attributeValue = "/" or attributeValue = ">" then
-          attributeValue := "";
-        end if;
-      else
-        attributeValue := "";
-      end if;
-    end if;
-  end func;
-
-
-(**
  *  Reads name and value of an attribute inside a HTML tag from a 'file'.
  *  The variable 'attributeName' is set to "" when no more attributes
  *  are present in the HTML tag. When the HTML tag ends with / the
@@ -1077,23 +1201,16 @@ const proc: getNextHtmlAttribute (inout file: inFile,
     else
       if getSymbolInXmlTag(inFile) = "=" then
         attributeValue := getHtmlAttributeValue(inFile);
-        if attributeValue = "/" or attributeValue = ">" then
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        elsif attributeValue = "/" or attributeValue = ">" then
           attributeValue := "";
         end if;
       else
         attributeValue := "";
       end if;
     end if;
-  end func;
-
-
-const proc: skipXmlTag (inout file: inFile) is func
-  local
-    var string: symbol is "";
-  begin
-    repeat
-      symbol := getSymbolInXmlTag(inFile);
-    until symbol = ">" or symbol = "";
   end func;
 
 

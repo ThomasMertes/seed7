@@ -159,7 +159,7 @@ settype set1;
 
   {
     memsizetype bitset_index;
-    unsigned char *byte;
+    const unsigned char *byte;
     unsigned int idx;
     inttype result;
 
@@ -168,7 +168,7 @@ settype set1;
     for (bitset_index = 0;
         bitset_index <= (uinttype) (set1->max_position - set1->min_position);
         bitset_index++) {
-      byte = (unsigned char *) &set1->bitset[bitset_index];
+      byte = (const unsigned char *) &set1->bitset[bitset_index];
       for (idx = 0; idx < sizeof(bitsettype); idx++) {
         /* printf("%c%c%c%c%c%c%c%c [%d] ",
                *byte & 0x80 ? '1' : '0',
@@ -370,7 +370,7 @@ settype set_from;
 
 #ifdef ANSI_C
 
-void setDestr (const const_settype old_set)
+void setDestr (const settype old_set)
 #else
 
 void setDestr (old_set)

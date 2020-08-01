@@ -31,10 +31,10 @@ include "chartype.s7i";
 
 (**
  *  Skips a possibly nested comment from a 'string'.
- *  The comment starts with (* and ends with *) . When the function is
- *  called it is assumed that 'stri' is empty or stri[1] contains the
- *  '*'. When the function is left 'stri' is empty or stri[1] contains
- *  the character after the ')'.
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that stri[1] contains the '*' of the
+ *  comment start. When the function is left 'stri' is empty or
+ *  stri[1] contains the character after the ')'.
  *)
 const proc: skipComment (inout string: stri) is func
   local
@@ -67,10 +67,10 @@ const proc: skipComment (inout string: stri) is func
 
 (**
  *  Reads a possibly nested comment from a 'string'.
- *  The comment starts with (* and ends with *) . When the function is
- *  called it is assumed that 'stri' is empty or stri[1] contains the
- *  '*'. When the function is left 'stri' is empty or stri[1] contains
- *  the character after the ')'.
+ *  The comment starts with (* and ends with *) . When the function
+ *  is called it is assumed that stri[1] contains the '*' of the
+ *  comment start. When the function is left 'stri' is empty or
+ *  stri[1] contains the character after the ')'.
  *  @return the content of the comment, including the introducing (*
  *          and the ending *) .
  *)
@@ -109,10 +109,12 @@ const func string: getComment (inout string: stri) is func
 
 (**
  *  Skips a line comment from a 'string'.
- *  A line comment starts with # and ends with the end of the line.
- *  When the function is called it is assumed that 'stri' is empty or
- *  stri[1] contains the '#'. When the function is left 'stri' is
- *  empty or stri[1] contains '\n'.
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that 'stri' is empty or stri[1] contains the
+ *  introducing character (e.g. '#'). When the function is left
+ *  'stri' is empty or stri[1] contains the line end character
+ *  ('\n').
  *)
 const proc: skipLineComment (inout string: stri) is func
   local
@@ -129,12 +131,14 @@ const proc: skipLineComment (inout string: stri) is func
 
 (**
  *  Reads a line comment from a 'string'.
- *  A line comment starts with # and ends with the end of the line.
- *  When the function is called it is assumed that 'stri' is empty or
- *  stri[1] contains the '#'. When the function is left 'stri' is
- *  empty or stri[1] contains '\n'.
- *  @return the content of the comment, including the start
- *          marker # but without the line end character.
+ *  A line comment starts with an introducing character (like '#')
+ *  and ends with the end of the line. When the function is called
+ *  it is assumed that 'stri' is empty or stri[1] contains the
+ *  introducing character (e.g. '#'). When the function is left
+ *  'stri' is empty or stri[1] contains the line end character
+ *  ('\n').
+ *  @return the content of the comment, including the start marker
+ *          (e.g. '#') but without line end character ('\n').
  *)
 const func string: getLineComment (inout string: stri) is func
   result
@@ -652,7 +656,7 @@ const func string: getSymbol (inout string: stri) is func
           stri := stri[pos ..];
         when left_paren_char:
           stri := stri[succ(pos) ..];
-          if pos <= length(stri) and stri[pos] = '*' then
+          if length(stri) >= 1 and stri[1] = '*' then
             skipComment(stri);
             symbol := getSymbol(stri);
           else
@@ -715,6 +719,42 @@ const func string: getQuotedText (inout string: stri) is func
 
 
 (**
+ *  Skips a XML comment from a 'string'.
+ *  The XML comment starts with <!-- and ends with --> . When the
+ *  function is called it is assumed that stri[1] contains the
+ *  last '-' of the introducing <!-- . When the function is left
+ *  'stri' is empty or stri[1] contains the character after '>'.
+ *)
+const proc: skipXmlComment (inout string: stri) is func
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+    var boolean: endOfCommentReached is FALSE;
+  begin
+    leng := length(stri);
+    repeat
+      while pos <= leng and stri[pos] <> '-' do
+        incr(pos);
+      end while;
+      if pos <= leng then
+        # stri[pos] = '-'
+        incr(pos);
+        if pos <= leng and stri[pos] = '-' then
+          repeat
+            incr(pos);
+          until pos > leng or stri[pos] <> '-';
+          if pos <= leng and stri[pos] = '>' then
+            incr(pos);
+            endOfCommentReached := TRUE;
+          end if;
+        end if;
+      end if;
+    until endOfCommentReached or pos > leng;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
  *  Reads a XML/HTML tag or the XML/HTML content text from a 'string'.
  *  A XML/HTML tag starts with < and ends with > . The content text
  *  starts with everything else and ends just before a < or with EOF.
@@ -752,14 +792,19 @@ const func string: getXmlTagOrContent (inout string: stri) is func
 
 
 (**
- *  Reads a XML/HTML tag head or a XML/HTML content from a 'string'.
- *  A XML/HTML tag head starts with < and ends before a > or a /
- *  or a whitespace character or EOF. The content text starts with
- *  everything else and ends just before a < or with EOF. When the
- *  function is called it is assumed that 'stri' is empty or stri[1]
- *  contains the introducing < of a XML/HTML tag or the first
- *  charater of the content text. When the function is left 'stri'
- *  is empty or stri[1] contains the character after the symbol.
+ *  Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
+ *  Before reading a tag head or content it skips whitespace
+ *  characters and XML comments. A XML/HTML tag head starts
+ *  with < and ends before a > or a / or a whitespace character
+ *  or EOF. The content text starts with a non whitespace character
+ *  and ends just before a < or with EOF. When the function is
+ *  called it is assumed that 'stri' is empty or stri[1] contains
+ *  either a whitespace character, the introducing < of a XML/HTML
+ *  tag or the first charater of the content text. When the function
+ *  is left 'stri' is empty or stri[1] contains the character after
+ *  the XML/HTML tag head or the content text. When a tag head
+ *  starts with <-- it is interpreted as XML comment. A XML comment
+ *  is ignored and getXmlTagHeadOrContent is called recursive.
  *  @return the XML/HTML tag head, XML/HTML content text or "" when
  *          EOF was reached.
  *)
@@ -768,12 +813,29 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
     var string: symbol is "";
   local
     var integer: leng is 0;
+    var integer: start is 1;
     var integer: pos is 1;
+    var boolean: finished is FALSE;
   begin
     leng := length(stri);
-    if pos <= leng then
-      if stri[pos] = '<' then
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if pos <= leng and stri[pos] = '<' then
+      incr(pos);
+      if pos <= leng and stri[pos] = '!' then
         incr(pos);
+        if pos <= leng and stri[pos] = '-' then
+          incr(pos);
+          if pos <= leng and stri[pos] = '-' then
+            stri := stri[pos ..];
+            skipXmlComment(stri);
+            symbol := getXmlTagHeadOrContent(stri);
+            finished  := TRUE;
+          end if;
+        end if;
+      end if;
+      if not finished then
         if pos <= leng and stri[pos] not in white_space_char and
             stri[pos] <> '>' then
           repeat
@@ -781,15 +843,15 @@ const func string: getXmlTagHeadOrContent (inout string: stri) is func
           until pos > leng or stri[pos] in white_space_char or
               stri[pos] = '>' or stri[pos] = '/';
         end if;
-        symbol := stri[.. pred(pos)];
-        stri := stri[pos ..];
-      else
-        repeat
-          incr(pos);
-        until pos > leng or stri[pos] = '<';
-        symbol := stri[.. pred(pos)];
+        symbol := stri[start .. pred(pos)];
         stri := stri[pos ..];
       end if;
+    else
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] = '<';
+      symbol := stri[start .. pred(pos)];
+      stri := stri[pos ..];
     end if;
   end func;
 
@@ -858,6 +920,86 @@ const func string: getSymbolInXmlTag (inout string: stri) is func
 
 
 (**
+ *  Skips beyond a XML Tag in a 'string'.
+ *  When the function is left 'stri' is empty or stri[1] contains
+ *  the character after '>'.
+ *)
+const proc: skipXmlTag (inout string: stri) is func
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := getSymbolInXmlTag(stri);
+    until symbol = ">" or symbol = "";
+  end func;
+
+
+(**
+ *  Skips beyond a XML Tag in a 'string'.
+ *  The parameter 'symbol' is used to provide the current symbol
+ *  which possibly can be ">" or "". When the function is left
+ *  'stri' is empty or stri[1] contains the character after '>'.
+ *)
+const proc: skipXmlTag (inout string: stri, in var string: symbol) is func
+  begin
+    while symbol <> ">" and symbol <> "" do
+      symbol := getSymbolInXmlTag(stri);
+    end while;
+  end func;
+
+
+(**
+ *  Reads name and value of an attribute inside a XML tag from 'string'.
+ *  Attribute name and value are returned in 'attributeName' and
+ *  'attributeValue' respectively. Surrounding single or double
+ *  quotes of the attribute value are omitted. It is a syntax
+ *  error when an attribute value is not quoted. XML entities in
+ *  'attributeValue' are left as is. When no more attributes are
+ *  present in the XML tag 'attributeName' is set to "". In this case
+ *  'attributeValue' contains the end of the XML tag (">" or "/>").
+ *  When a syntax error occurs the function skips beyond the end
+ *  of the XML tag. To indicate the syntax error 'attributeName' is
+ *  set to "" and 'attributeValue' is set to a symbol shortly before
+ *  the error (this will never be ">" or "/>").
+ *)
+const proc: getNextXmlAttribute (inout string: stri,
+    inout string: attributeName, inout string: attributeValue) is func
+  begin
+    attributeName := getSymbolInXmlTag(stri);
+    if attributeName = "/" then
+      attributeName := "";
+      attributeValue := getSymbolInXmlTag(stri);
+      if attributeValue = ">" then
+        attributeValue := "/>";
+      else
+        attributeValue := "/";
+        skipXmlTag(stri, attributeValue);
+      end if;
+    elsif attributeName = ">" then
+      attributeName := "";
+      attributeValue := ">";
+    else
+      attributeValue := getSymbolInXmlTag(stri);
+      if attributeValue = "=" then
+        attributeValue := getSymbolInXmlTag(stri);
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        else
+          attributeValue := attributeName;
+          attributeName := "";
+          skipXmlTag(stri, attributeValue);
+        end if;
+      else
+        attributeValue := attributeName;
+        attributeName := "";
+        skipXmlTag(stri, attributeValue);
+      end if;
+    end if;
+  end func;
+
+
+(**
  *  Reads a HTML tag attribute value from a 'string'.
  *  Before reading the value it skips whitespace characters. A HTML
  *  tag attribute value can be quoted with " or ' or it is terminated
@@ -912,41 +1054,6 @@ const func string: getHtmlAttributeValue (inout string: stri) is func
 
 
 (**
- *  Reads name and value of an attribute inside a XML tag from 'string'.
- *  The variable 'attributeName' is set to "" when no more attributes
- *  are present in the XML tag. When the XML tag ends with / the
- *  function assigns "/" to 'attributeValue' when 'attributeName' is
- *  set to "". When the XML tag does not end with / 'attributeValue'
- *  and 'attributeName' are set to "" when no more attributes are
- *  present.
- *)
-const proc: getNextXmlAttribute (inout string: stri,
-    inout string: attributeName, inout string: attributeValue) is func
-  begin
-    attributeName := getSymbolInXmlTag(stri);
-    if attributeName = "/" then
-      repeat
-        attributeName := getSymbolInXmlTag(stri);
-      until attributeName = ">" or attributeName = "";
-      attributeName := "";
-      attributeValue := "/";
-    elsif attributeName = ">" then
-      attributeName := "";
-      attributeValue := "";
-    else
-      if getSymbolInXmlTag(stri) = "=" then
-        attributeValue := getSymbolInXmlTag(stri);
-        if attributeValue = "/" or attributeValue = ">" then
-          attributeValue := "";
-        end if;
-      else
-        attributeValue := "";
-      end if;
-    end if;
-  end func;
-
-
-(**
  *  Reads name and value of an attribute inside a HTML tag from 'string'.
  *  The variable 'attributeName' is set to "" when no more attributes
  *  are present in the HTML tag. When the HTML tag ends with / the
@@ -971,7 +1078,10 @@ const proc: getNextHtmlAttribute (inout string: stri,
     else
       if getSymbolInXmlTag(stri) = "=" then
         attributeValue := getHtmlAttributeValue(stri);
-        if attributeValue = "/" or attributeValue = ">" then
+        if  startsWith(attributeValue, "\"") or
+            startsWith(attributeValue, "'") then
+          attributeValue := attributeValue[2 ..];
+        elsif attributeValue = "/" or attributeValue = ">" then
           attributeValue := "";
         end if;
       else

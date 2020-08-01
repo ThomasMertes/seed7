@@ -223,9 +223,9 @@ booltype *is_dst;
 
   /* timFromBigTimestamp */
     if (sizeof(time_t) == 8) {
-      os_timestamp = bigToInt64(timestamp);
+      os_timestamp = (time_t) bigToInt64(timestamp);
     } else {
-      os_timestamp = bigToInt32(timestamp);
+      os_timestamp = (time_t) bigToInt32(timestamp);
     } /* if */
     timFromTimestamp(os_timestamp,
         year, month, day, hour, min, sec, mycro_sec, time_zone, is_dst);

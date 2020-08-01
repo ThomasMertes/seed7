@@ -47,7 +47,7 @@ inttype setCard (const const_settype set1);
 inttype setCmp (const const_settype set1, const const_settype set2);
 void setCpy (settype *const set_to, const const_settype set_from);
 settype setCreate (const const_settype set_from);
-void setDestr (const const_settype old_set);
+void setDestr (const settype old_set);
 settype setDiff (const const_settype set1, const const_settype set2);
 booltype setElem (const inttype number, const const_settype set1);
 booltype setEq (const const_settype set1, const const_settype set2);

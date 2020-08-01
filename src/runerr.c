@@ -251,7 +251,7 @@ objecttype exception;
 
 #ifdef ANSI_C
 
-void raise_error2 (int exception_num, char *filename, int line)
+void raise_error2 (int exception_num, const_cstritype filename, int line)
 #else
 
 void raise_error2 (exception_num, filename, line)

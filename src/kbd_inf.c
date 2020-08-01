@@ -84,7 +84,7 @@ static booltype keybd_initialized = FALSE;
 
 #define SIZE_KEY_TABLE 97
 
-static char *key_table[SIZE_KEY_TABLE];
+static const_cstritype key_table[SIZE_KEY_TABLE];
 static char erase_ch[2];
 
 #ifdef OUT_OF_ORDER
@@ -366,7 +366,7 @@ chartype actual_char;
     } else {
       if (pos == 2 || pos == 3) {
         if (utf8_mode) {
-          result = read_utf8_key(in_buffer, pos - 1);
+          result = read_utf8_key((ustritype) in_buffer, pos - 1);
         } else {
           if (pos == 2) {
             result = actual_char;

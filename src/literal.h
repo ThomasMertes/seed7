@@ -27,11 +27,13 @@
 
 #ifdef ANSI_C
 
+chartype utf8_char (register int character);
 void lit_char (void);
 void lit_string (void);
 
 #else
 
+chartype utf8_char ();
 void lit_char ();
 void lit_string ();
 

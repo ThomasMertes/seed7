@@ -61,9 +61,18 @@
 
 
 #ifdef USE_WINSOCK
+
+typedef int socklen_type;
+#define cast_send_recv_data(data_ptr) ((char *) (data_ptr))
 #ifndef SHUT_RDWR
 #define SHUT_RDWR SD_BOTH
 #endif
+
+#else
+
+typedef socklen_t socklen_type;
+#define cast_send_recv_data(data_ptr) ((void *) (data_ptr))
+
 #endif
 
 #define MAX_ADDRESS_SIZE 1024
@@ -82,7 +91,7 @@ bstritype *address;
 
   {
     bstritype resized_address;
-    memsizetype address_size;
+    socklen_type addrlen;
     sockettype result;
 
   /* socAccept */
@@ -93,9 +102,9 @@ bstritype *address;
     } else {
       *address = resized_address;
       COUNT3_BSTRI((*address)->size, MAX_ADDRESS_SIZE);
-      address_size = MAX_ADDRESS_SIZE;
-      result = accept(sock, (struct sockaddr *) (*address)->mem, &address_size);
-      if (result == -1) {
+      addrlen = MAX_ADDRESS_SIZE;
+      result = accept(sock, (struct sockaddr *) (*address)->mem, &addrlen);
+      if (result == -1 || addrlen < 0) {
         REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (*address)->size);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
@@ -106,15 +115,15 @@ bstritype *address;
         /* printf("socAccept errno=%d\n", errno); */
         raise_error(RANGE_ERROR);
       } else {
-        REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, address_size);
+        REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) addrlen);
         if (resized_address == NULL) {
           (*address)->size = MAX_ADDRESS_SIZE;
           raise_error(MEMORY_ERROR);
           result = -1;
         } else {
           *address = resized_address;
-          COUNT3_BSTRI(MAX_ADDRESS_SIZE, address_size);
-          (*address)->size = address_size;
+          COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memsizetype) addrlen);
+          (*address)->size = (memsizetype) addrlen;
         } /* if */
       } /* if */
     } /* if */
@@ -135,7 +144,7 @@ bstritype address;
 
   { /* socBind */
     if (bind(sock, (const struct sockaddr *) address->mem,
-        address->size) != 0) {
+        (socklen_type) address->size) != 0) {
       /* printf("socBind errno=%d\n", errno); */
       raise_error(RANGE_ERROR);
     } /* if */
@@ -175,7 +184,7 @@ bstritype address;
 
   { /* socConnect */
     if (connect(sock, (const struct sockaddr *) address->mem,
-        address->size) != 0) {
+        (socklen_type) address->size) != 0) {
       /* printf("socConnect(%d) errno=%d\n", sock, errno); */
       raise_error(RANGE_ERROR);
     } /* if */
@@ -197,7 +206,7 @@ sockettype sock;
     memsizetype bytes_received;
 
   /* socGetc */
-    bytes_received = (memsizetype) recv(sock, &ch, 1, 0);
+    bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
     if (bytes_received != 1) {
       return((chartype) EOF);
     } else {
@@ -233,7 +242,7 @@ inttype length;
         raise_error(MEMORY_ERROR);
         return(NULL);
       } /* if */
-      result_size = (memsizetype) recv(sock, result->mem,
+      result_size = (memsizetype) recv(sock, cast_send_recv_data(result->mem),
           (size_t) bytes_requested, 0);
 #ifdef UTF32_STRINGS
       if (result_size > 0) {
@@ -440,7 +449,7 @@ chartype *termination_char;
     } else {
       memory = result->mem;
       position = 0;
-      bytes_received = (memsizetype) recv(sock, &ch, 1, 0);
+      bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
       while (bytes_received == 1 && ch != '\n') {
         if (position >= memlength) {
           newmemlength = memlength + 2048;
@@ -456,7 +465,7 @@ chartype *termination_char;
           memlength = newmemlength;
         } /* if */
         memory[position++] = (strelemtype) ch;
-        bytes_received = (memsizetype) recv(sock, &ch, 1, 0);
+        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
       } /* while */
       if (bytes_received == 1 && ch == '\n' &&
           position != 0 && memory[position - 1] == '\r') {
@@ -534,7 +543,7 @@ inttype flags;
         COUNT3_STRI(old_stri_size, bytes_requested);
         old_stri_size = bytes_requested;
       } /* if */
-      new_stri_size = (memsizetype) recv(sock, (*stri)->mem,
+      new_stri_size = (memsizetype) recv(sock, cast_send_recv_data((*stri)->mem),
           (size_t) bytes_requested, flags);
 #ifdef UTF32_STRINGS
       if (new_stri_size > 0) {
@@ -581,7 +590,7 @@ bstritype *address;
     stritype resized_stri;
     bstritype resized_address;
     memsizetype bytes_requested;
-    memsizetype address_size;
+    socklen_type fromlen;
     memsizetype stri_size;
 
   /* socRecvfrom */
@@ -611,11 +620,11 @@ bstritype *address;
       } else {
         *address = resized_address;
         COUNT3_BSTRI((*address)->size, MAX_ADDRESS_SIZE);
-        address_size = MAX_ADDRESS_SIZE;
-        stri_size = (memsizetype) recvfrom(sock, (*stri)->mem,
+        fromlen = MAX_ADDRESS_SIZE;
+        stri_size = (memsizetype) recvfrom(sock, cast_send_recv_data((*stri)->mem),
             (size_t) bytes_requested, flags,
-            (struct sockaddr *) (*address)->mem, &address_size);
-        if (stri_size == -1) {
+            (struct sockaddr *) (*address)->mem, &fromlen);
+        if (stri_size == (memsizetype) -1 || fromlen < 0) {
           REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (*address)->size);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
@@ -626,15 +635,15 @@ bstritype *address;
           /* printf("socRecvfrom errno=%d\n", errno); */
           raise_error(RANGE_ERROR);
         } else {
-          REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, address_size);
+          REALLOC_BSTRI(resized_address, *address, MAX_ADDRESS_SIZE, (memsizetype) fromlen);
           if (resized_address == NULL) {
             (*address)->size = MAX_ADDRESS_SIZE;
             raise_error(MEMORY_ERROR);
             return(0);
           } else {
             *address = resized_address;
-            COUNT3_BSTRI(MAX_ADDRESS_SIZE, address_size);
-            (*address)->size = address_size;
+            COUNT3_BSTRI(MAX_ADDRESS_SIZE, (memsizetype) fromlen);
+            (*address)->size = (memsizetype) fromlen;
           } /* if */
         } /* if */
       } /* if */
@@ -690,7 +699,7 @@ inttype flags;
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = send(sock, buf->mem, buf->size, flags);
+      result = send(sock, cast_send_recv_data(buf->mem), buf->size, flags);
       FREE_BSTRI(buf, buf->size);
     } /* if */
     return(result);
@@ -725,8 +734,8 @@ bstritype address;
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = sendto(sock, buf->mem, buf->size, flags,
-          (const struct sockaddr *) address->mem, address->size);
+      result = sendto(sock, cast_send_recv_data(buf->mem), buf->size, flags,
+          (const struct sockaddr *) address->mem, (socklen_type) address->size);
       FREE_BSTRI(buf, buf->size);
     } /* if */
     return(result);
@@ -808,7 +817,7 @@ chartype *termination_char;
       memory = result->mem;
       position = 0;
       do {
-        bytes_received = (memsizetype) recv(sock, &ch, 1, 0);
+        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
       } while (bytes_received == 1 && (ch == ' ' || ch == '\t'));
       while (bytes_received == 1 &&
           ch != ' ' && ch != '\t' && ch != '\n') {
@@ -826,7 +835,7 @@ chartype *termination_char;
           memlength = newmemlength;
         } /* if */
         memory[position++] = (strelemtype) ch;
-        bytes_received = (memsizetype) recv(sock, &ch, 1, 0);
+        bytes_received = (memsizetype) recv(sock, cast_send_recv_data(&ch), 1, 0);
       } /* while */
       if (bytes_received == 1 && ch == '\n' &&
           position != 0 && memory[position - 1] == '\r') {
@@ -874,7 +883,7 @@ stritype stri;
       FREE_BSTRI(buf, buf->size);
       raise_error(RANGE_ERROR);
     } else {
-      if (send(sock, buf->mem, buf->size, 0) != buf->size) {
+      if (send(sock, cast_send_recv_data(buf->mem), buf->size, 0) != buf->size) {
         FREE_BSTRI(buf, buf->size);
         raise_error(FILE_ERROR);
       } else {

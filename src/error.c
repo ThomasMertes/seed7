@@ -71,8 +71,8 @@ linenumtype err_line;
     long buffer_start_position;
     unsigned int table_size;
     long *nl_table;
-    int table_start;
-    int table_pos;
+    unsigned int table_start;
+    unsigned int table_pos;
     booltype searching;
     int area_size;
     int area_pos;
@@ -977,6 +977,11 @@ stritype stri;
         prot_stri(stri);
         printf("\n");
         break;
+      case WRONG_PATH_DELIMITER:
+        printf("Use / instead of \\ as path delimiter in ");
+        prot_stri(stri);
+        printf("\n");
+        break;
       default:
         undef_err();
         break;
@@ -1172,11 +1177,6 @@ stritype stri;
         printf("File ");
         prot_stri(stri);
         printf(" not found\n");
-        break;
-      case WRONG_PATH_DELIMITER:
-        printf("Use / instead of \\ as path delimiter in ");
-        prot_stri(stri);
-        printf("\n");
         break;
       default:
         undef_err();

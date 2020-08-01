@@ -31,7 +31,7 @@ objecttype exec1 (listtype);
 booltype do_flush (objecttype);
 booltype do_wrnl (objecttype);
 booltype do_wrstri (objecttype, stritype);
-booltype do_wrcstri (objecttype, cstritype);
+booltype do_wrcstri (objecttype, const_cstritype);
 void init_do_any (void);
 
 #else

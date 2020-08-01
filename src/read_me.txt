@@ -294,16 +294,16 @@ HOW TO USE THE GMP LIBRARY?
   There are also four lines which define which files contain
   the interface functions for bigInteger:
 
-    USE_BIG_RTL_LIBRARY = define
+    BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
     BIGINT_LIB = big_rtl
-    # USE_BIG_RTL_LIBRARY = undef
+    # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
     # BIGINT_LIB = big_gmp
 
   This four lines must be changed to
 
-    # USE_BIG_RTL_LIBRARY = define
+    # BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
     # BIGINT_LIB = big_rtl
-    USE_BIG_RTL_LIBRARY = undef
+    BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
     BIGINT_LIB = big_gmp
 
   After the changes in the makefile it is necessary to start the

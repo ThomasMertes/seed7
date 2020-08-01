@@ -43,7 +43,7 @@ rtlHashtype hshCreate (const const_rtlHashtype hash_from,
                        destrfunctype key_destr_func,
                        createfunctype data_create_func,
                        destrfunctype data_destr_func);
-void hshDestr (const const_rtlHashtype old_hash,
+void hshDestr (const rtlHashtype old_hash,
                destrfunctype key_destr_func, destrfunctype data_destr_func);
 rtlHashtype hshEmpty (void);
 void hshExcl (const rtlHashtype hash1, const rtlGenerictype key,

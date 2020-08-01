@@ -41,12 +41,10 @@
 #include "int_rtl.h"
 #include "rtl_err.h"
 
+#undef EXTERN
+#define EXTERN
+#include "big_drv.h"
 
-#ifdef INT64TYPE
-#define BIGDIGIT_SIZE 32
-#else
-#define BIGDIGIT_SIZE 16
-#endif
 
 #define KARATSUBA_THRESHOLD 32
 
@@ -62,7 +60,7 @@
 
 #if BIGDIGIT_SIZE == 8
 
-typedef uint8type                bigdigittype;
+/* typedef uint8type             bigdigittype; */
 typedef uint16type               doublebigdigittype;
 #define digitMostSignificantBit  uint8MostSignificantBit
 #define digitLeastSignificantBit uint8LeastSignificantBit
@@ -75,7 +73,7 @@ typedef uint16type               doublebigdigittype;
 
 #elif BIGDIGIT_SIZE == 16
 
-typedef uint16type               bigdigittype;
+/* typedef uint16type            bigdigittype; */
 typedef uint32type               doublebigdigittype;
 #define digitMostSignificantBit  uint16MostSignificantBit
 #define digitLeastSignificantBit uint16LeastSignificantBit
@@ -88,7 +86,7 @@ typedef uint32type               doublebigdigittype;
 
 #elif BIGDIGIT_SIZE == 32
 
-typedef uint32type               bigdigittype;
+/* typedef uint32type            bigdigittype; */
 typedef uint64type               doublebigdigittype;
 #define digitMostSignificantBit  uint32MostSignificantBit
 #define digitLeastSignificantBit uint32LeastSignificantBit
@@ -105,49 +103,41 @@ typedef uint64type               doublebigdigittype;
 #define IS_NEGATIVE(digit) ((digit) & BIGDIGIT_SIGN)
 
 
-typedef struct rtlBigintstruct  *rtlBiginttype;
-typedef const struct rtlBigintstruct  *const_rtlBiginttype;
-
-typedef struct rtlBigintstruct {
-    memsizetype size;
-    bigdigittype bigdigits[1];
-  } rtlBigintrecord;
-
 size_t sizeof_bigdigittype = sizeof(bigdigittype);
-size_t sizeof_rtlBigintrecord = sizeof(rtlBigintrecord);
+size_t sizeof_bigintrecord = sizeof(bigintrecord);
 
 
-#define SIZ_RTLBIG(len)     ((sizeof(rtlBigintrecord) - sizeof(bigdigittype)) + (len) * sizeof(bigdigittype))
+#define SIZ_RTLBIG(len)     ((sizeof(bigintrecord) - sizeof(bigdigittype)) + (len) * sizeof(bigdigittype))
 
-#define ALLOC_BIG(var,len)       (ALLOC_HEAP(var, rtlBiginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
+#define ALLOC_BIG(var,len)       (ALLOC_HEAP(var, biginttype, SIZ_RTLBIG(len))?CNT1_BIG(len, SIZ_RTLBIG(len)), TRUE:FALSE)
 #define FREE_BIG(var,len)        (CNT2_BIG(len, SIZ_RTLBIG(len)) FREE_HEAP(var, SIZ_RTLBIG(len)))
-#define REALLOC_BIG(var,ln1,ln2) REALLOC_HEAP(var, rtlBiginttype, SIZ_RTLBIG(ln2))
+#define REALLOC_BIG(var,ln1,ln2) REALLOC_HEAP(var, biginttype, SIZ_RTLBIG(ln2))
 #define COUNT3_BIG(len1,len2)    CNT3(CNT2_BIG(len1, SIZ_RTLBIG(len1)) CNT1_BIG(len2, SIZ_RTLBIG(len2)))
 
 
 
 #ifdef ANSI_C
 
-void bigGrow (rtlBiginttype *const big_variable, const const_rtlBiginttype big2);
-inttype bigLowestSetBit (const const_rtlBiginttype big1);
-rtlBiginttype bigLShift (const const_rtlBiginttype big1, const inttype lshift);
-void bigLShiftAssign (rtlBiginttype *const big_variable, inttype lshift);
-rtlBiginttype bigMinus (const const_rtlBiginttype big1);
-rtlBiginttype bigRem (const const_rtlBiginttype big1, const const_rtlBiginttype big2);
-void bigRShiftAssign (rtlBiginttype *const big_variable, inttype rshift);
-rtlBiginttype bigSbtr (const const_rtlBiginttype big1, const const_rtlBiginttype big2);
-void bigShrink (rtlBiginttype *const big_variable, const const_rtlBiginttype big2);
+void bigGrow (biginttype *const big_variable, const const_biginttype big2);
+inttype bigLowestSetBit (const const_biginttype big1);
+biginttype bigLShift (const const_biginttype big1, const inttype lshift);
+void bigLShiftAssign (biginttype *const big_variable, inttype lshift);
+biginttype bigMinus (const const_biginttype big1);
+biginttype bigRem (const const_biginttype big1, const const_biginttype big2);
+void bigRShiftAssign (biginttype *const big_variable, inttype rshift);
+biginttype bigSbtr (const const_biginttype big1, const const_biginttype big2);
+void bigShrink (biginttype *const big_variable, const const_biginttype big2);
 
 #else
 
 void bigGrow ();
 inttype bigLowestSetBit ();
-rtlBiginttype bigLShift ();
+biginttype bigLShift ();
 void bigLShiftAssign ();
-rtlBiginttype bigMinus ();
-rtlBiginttype bigRem ();
+biginttype bigMinus ();
+biginttype bigRem ();
 void bigRShiftAssign ();
-rtlBiginttype bigSbtr ();
+biginttype bigSbtr ();
 void bigShrink ();
 
 #endif
@@ -156,16 +146,17 @@ void bigShrink ();
 
 #ifdef ANSI_C
 
-cstritype bigHexCStri (const_rtlBiginttype big1)
+cstritype bigHexCStri (const_biginttype big1)
 #else
 
 cstritype bigHexCStri (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
     memsizetype pos;
     memsizetype byteCount;
+    const_cstritype stri_ptr;
     cstritype buffer;
     cstritype result;
 
@@ -176,7 +167,7 @@ rtlBiginttype big1;
         return NULL;
       } else {
         buffer = result;
-        sprintf(buffer, "16#");
+        strcpy(buffer, "16#");
         buffer += 3;
         pos = big1->size - 1;
 #if BIGDIGIT_SIZE == 8
@@ -217,15 +208,15 @@ rtlBiginttype big1;
       } /* if */
     } else {
       if (big1 == NULL) {
-        buffer = " *NULL_BIGINT* ";
+        stri_ptr = " *NULL_BIGINT* ";
       } else {
-        buffer = " *ZERO_SIZE_BIGINT* ";
+        stri_ptr = " *ZERO_SIZE_BIGINT* ";
       } /* if */
-      if (!ALLOC_CSTRI(result, strlen(buffer))) {
+      if (!ALLOC_CSTRI(result, strlen(stri_ptr))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        strcpy(result, buffer);
+        strcpy(result, stri_ptr);
       } /* if */
     } /* if */
     return result;
@@ -239,11 +230,11 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype normalize (rtlBiginttype big1)
+static biginttype normalize (biginttype big1)
 #else
 
-static rtlBiginttype normalize (big1)
-rtlBiginttype big1;
+static biginttype normalize (big1)
+biginttype big1;
 #endif
 
   {
@@ -290,11 +281,11 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-static void negate_positive_big (const rtlBiginttype big1)
+static void negate_positive_big (const biginttype big1)
 #else
 
 static void negate_positive_big (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -315,13 +306,13 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-static void positive_copy_of_negative_big (const rtlBiginttype dest,
-    const const_rtlBiginttype big1)
+static void positive_copy_of_negative_big (const biginttype dest,
+    const const_biginttype big1)
 #else
 
 static void positive_copy_of_negative_big (dest, big1)
-rtlBiginttype dest;
-rtlBiginttype big1;
+biginttype dest;
+biginttype big1;
 #endif
 
   {
@@ -347,17 +338,17 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-static rtlBiginttype alloc_positive_copy_of_negative_big (const const_rtlBiginttype big1)
+static biginttype alloc_positive_copy_of_negative_big (const const_biginttype big1)
 #else
 
-static rtlBiginttype alloc_positive_copy_of_negative_big (big1)
-rtlBiginttype big1;
+static biginttype alloc_positive_copy_of_negative_big (big1)
+biginttype big1;
 #endif
 
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
-    rtlBiginttype result;
+    biginttype result;
 
   /* alloc_positive_copy_of_negative_big */
     if (!ALLOC_BIG(result, big1->size)) {
@@ -385,11 +376,11 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-static void uBigMultBy10AndAdd (const rtlBiginttype big1, doublebigdigittype carry)
+static void uBigMultBy10AndAdd (const biginttype big1, doublebigdigittype carry)
 #else
 
 static void uBigMultBy10AndAdd (big1, carry)
-rtlBiginttype big1;
+biginttype big1;
 doublebigdigittype carry;
 #endif
 
@@ -418,11 +409,11 @@ doublebigdigittype carry;
  */
 #ifdef ANSI_C
 
-static bigdigittype uBigDivideByPowerOf10 (const rtlBiginttype big1)
+static bigdigittype uBigDivideByPowerOf10 (const biginttype big1)
 #else
 
 static bigdigittype uBigDivideByPowerOf10 (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -452,11 +443,11 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-static void uBigLShift (const rtlBiginttype big1, const unsigned int lshift)
+static void uBigLShift (const biginttype big1, const unsigned int lshift)
 #else
 
 static void uBigLShift (big1, lshift)
-rtlBiginttype big1;
+biginttype big1;
 unsigned int lshift;
 #endif
 
@@ -485,11 +476,11 @@ unsigned int lshift;
  */
 #ifdef ANSI_C
 
-static void uBigLShift (const rtlBiginttype big1, const unsigned int lshift)
+static void uBigLShift (const biginttype big1, const unsigned int lshift)
 #else
 
 static void uBigLShift (big1, lshift)
-rtlBiginttype big1;
+biginttype big1;
 unsigned int lshift;
 #endif
 
@@ -522,11 +513,11 @@ unsigned int lshift;
  */
 #ifdef ANSI_C
 
-static void uBigRShift (const rtlBiginttype big1, const unsigned int rshift)
+static void uBigRShift (const biginttype big1, const unsigned int rshift)
 #else
 
 static void uBigRShift (big1, rshift)
-rtlBiginttype big1;
+biginttype big1;
 unsigned int rshift;
 #endif
 
@@ -556,11 +547,11 @@ unsigned int rshift;
  */
 #ifdef ANSI_C
 
-static void uBigRShift (const rtlBiginttype big1, const unsigned int rshift)
+static void uBigRShift (const biginttype big1, const unsigned int rshift)
 #else
 
 static void uBigRShift (big1, rshift)
-rtlBiginttype big1;
+biginttype big1;
 unsigned int rshift;
 #endif
 
@@ -591,11 +582,11 @@ unsigned int rshift;
  */
 #ifdef ANSI_C
 
-static void uBigIncr (const rtlBiginttype big1)
+static void uBigIncr (const biginttype big1)
 #else
 
 static void uBigIncr (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -620,11 +611,11 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-static void uBigDecr (const rtlBiginttype big1)
+static void uBigDecr (const biginttype big1)
 #else
 
 static void uBigDecr (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -649,14 +640,14 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-static void uBigDiv1 (const const_rtlBiginttype big1, const bigdigittype digit,
-    const rtlBiginttype result)
+static void uBigDiv1 (const const_biginttype big1, const bigdigittype digit,
+    const biginttype result)
 #else
 
 static void uBigDiv1 (big1, digit, result)
-rtlBiginttype big1;
+biginttype big1;
 bigdigittype digit;
-rtlBiginttype result;
+biginttype result;
 #endif
 
   {
@@ -685,18 +676,18 @@ rtlBiginttype result;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigDiv1 (const_rtlBiginttype big1, bigdigittype digit)
+static biginttype bigDiv1 (const_biginttype big1, bigdigittype digit)
 #else
 
-static rtlBiginttype bigDiv1 (big1, digit)
-rtlBiginttype big1;
+static biginttype bigDiv1 (big1, digit)
+biginttype big1;
 bigdigittype digit;
 #endif
 
   {
     booltype negative = FALSE;
-    rtlBiginttype big1_help = NULL;
-    rtlBiginttype result;
+    biginttype big1_help = NULL;
+    biginttype result;
 
   /* bigDiv1 */
     if (digit == 0) {
@@ -750,18 +741,18 @@ bigdigittype digit;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigDivSizeLess (const const_rtlBiginttype big1,
-    const const_rtlBiginttype big2)
+static biginttype bigDivSizeLess (const const_biginttype big1,
+    const const_biginttype big2)
 #else
 
-static rtlBiginttype bigDivSizeLess (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+static biginttype bigDivSizeLess (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     memsizetype pos;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigDivSizeLess */
     if (!ALLOC_BIG(result, 1)) {
@@ -797,13 +788,13 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-static bigdigittype uBigMultSub (const rtlBiginttype big1, const const_rtlBiginttype big2,
+static bigdigittype uBigMultSub (const biginttype big1, const const_biginttype big2,
     const bigdigittype multiplier, const memsizetype pos1)
 #else
 
 static bigdigittype uBigMultSub (big1, big2, multiplier, pos1)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype big1;
+biginttype big2;
 bigdigittype multiplier;
 memsizetype pos1;
 #endif
@@ -846,13 +837,13 @@ memsizetype pos1;
  */
 #ifdef ANSI_C
 
-static void uBigAddTo (const rtlBiginttype big1, const const_rtlBiginttype big2,
+static void uBigAddTo (const biginttype big1, const const_biginttype big2,
     const memsizetype pos1)
 #else
 
 static void uBigAddTo (big1, big2, pos1)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype big1;
+biginttype big2;
 memsizetype pos1;
 #endif
 
@@ -893,14 +884,14 @@ memsizetype pos1;
  */
 #ifdef ANSI_C
 
-static void uBigDiv (const rtlBiginttype big1, const const_rtlBiginttype big2,
-    const rtlBiginttype result)
+static void uBigDiv (const biginttype big1, const const_biginttype big2,
+    const biginttype result)
 #else
 
 static void uBigDiv (big1, big2, result)
-rtlBiginttype big1;
-rtlBiginttype big2;
-rtlBiginttype result;
+biginttype big1;
+biginttype big2;
+biginttype result;
 #endif
 
   {
@@ -946,11 +937,11 @@ rtlBiginttype result;
  */
 #ifdef ANSI_C
 
-static bigdigittype uBigRem1 (const const_rtlBiginttype big1, const bigdigittype digit)
+static bigdigittype uBigRem1 (const const_biginttype big1, const bigdigittype digit)
 #else
 
 static bigdigittype uBigRem1 (big1, digit)
-rtlBiginttype big1;
+biginttype big1;
 bigdigittype digit;
 #endif
 
@@ -979,18 +970,18 @@ bigdigittype digit;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigRem1 (const_rtlBiginttype big1, bigdigittype digit)
+static biginttype bigRem1 (const_biginttype big1, bigdigittype digit)
 #else
 
-static rtlBiginttype bigRem1 (big1, digit)
-rtlBiginttype big1;
+static biginttype bigRem1 (big1, digit)
+biginttype big1;
 bigdigittype digit;
 #endif
 
   {
     booltype negative = FALSE;
-    rtlBiginttype big1_help = NULL;
-    rtlBiginttype remainder;
+    biginttype big1_help = NULL;
+    biginttype remainder;
 
   /* bigRem1 */
     if (digit == 0) {
@@ -1035,14 +1026,14 @@ bigdigittype digit;
  */
 #ifdef ANSI_C
 
-static bigdigittype uBigMDiv1 (const const_rtlBiginttype big1,
-    const bigdigittype digit, const rtlBiginttype result)
+static bigdigittype uBigMDiv1 (const const_biginttype big1,
+    const bigdigittype digit, const biginttype result)
 #else
 
 static bigdigittype uBigMDiv1 (big1, digit, result)
-rtlBiginttype big1;
+biginttype big1;
 bigdigittype digit;
-rtlBiginttype result;
+biginttype result;
 #endif
 
   {
@@ -1072,19 +1063,19 @@ rtlBiginttype result;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigMDiv1 (const_rtlBiginttype big1, bigdigittype digit)
+static biginttype bigMDiv1 (const_biginttype big1, bigdigittype digit)
 #else
 
-static rtlBiginttype bigMDiv1 (big1, digit)
-rtlBiginttype big1;
+static biginttype bigMDiv1 (big1, digit)
+biginttype big1;
 bigdigittype digit;
 #endif
 
   {
     booltype negative = FALSE;
-    rtlBiginttype big1_help = NULL;
+    biginttype big1_help = NULL;
     bigdigittype remainder;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigMDiv1 */
     if (digit == 0) {
@@ -1143,18 +1134,18 @@ bigdigittype digit;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigMDivSizeLess (const const_rtlBiginttype big1,
-    const const_rtlBiginttype big2)
+static biginttype bigMDivSizeLess (const const_biginttype big1,
+    const const_biginttype big2)
 #else
 
-static rtlBiginttype bigMDivSizeLess (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+static biginttype bigMDivSizeLess (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     memsizetype pos;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigMDivSizeLess */
     if (!ALLOC_BIG(result, 1)) {
@@ -1194,16 +1185,16 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigMod1 (const const_rtlBiginttype big1, const bigdigittype digit)
+static biginttype bigMod1 (const const_biginttype big1, const bigdigittype digit)
 #else
 
-static rtlBiginttype bigMod1 (big1, digit)
-rtlBiginttype big1;
+static biginttype bigMod1 (big1, digit)
+biginttype big1;
 bigdigittype digit;
 #endif
 
   {
-    rtlBiginttype modulo;
+    biginttype modulo;
 
   /* bigMod1 */
     modulo = bigRem1(big1, digit);
@@ -1229,19 +1220,19 @@ bigdigittype digit;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigRemSizeLess (const const_rtlBiginttype big1,
-    const const_rtlBiginttype big2)
+static biginttype bigRemSizeLess (const const_biginttype big1,
+    const const_biginttype big2)
 #else
 
-static rtlBiginttype bigRemSizeLess (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+static biginttype bigRemSizeLess (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     memsizetype pos;
     booltype remainderIs0;
-    rtlBiginttype remainder;
+    biginttype remainder;
 
   /* bigRemSizeLess */
     if (big1->size + 1 == big2->size &&
@@ -1285,12 +1276,12 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-static void bigAddTo (const rtlBiginttype big1, const const_rtlBiginttype big2)
+static void bigAddTo (const biginttype big1, const const_biginttype big2)
 #else
 
 static void bigAddTo (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   {
@@ -1330,19 +1321,19 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype bigModSizeLess (const const_rtlBiginttype big1,
-    const const_rtlBiginttype big2)
+static biginttype bigModSizeLess (const const_biginttype big1,
+    const const_biginttype big2)
 #else
 
-static rtlBiginttype bigModSizeLess (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+static biginttype bigModSizeLess (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     memsizetype pos;
     booltype moduloIs0;
-    rtlBiginttype modulo;
+    biginttype modulo;
 
   /* bigModSizeLess */
     if (big1->size + 1 == big2->size &&
@@ -1409,12 +1400,12 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-static void uBigRem (const rtlBiginttype big1, const const_rtlBiginttype big2)
+static void uBigRem (const biginttype big1, const const_biginttype big2)
 #else
 
 static void uBigRem (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   {
@@ -1467,12 +1458,12 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype uBigSqare (const rtlBiginttype big1, rtlBiginttype *big_help)
+static biginttype uBigSqare (const biginttype big1, biginttype *big_help)
 #else
 
-static rtlBiginttype uBigSqare (big1, big_help)
-rtlBiginttype big1;
-rtlBiginttype *big_help;
+static biginttype uBigSqare (big1, big_help)
+biginttype big1;
+biginttype *big_help;
 #endif
 
   {
@@ -1481,7 +1472,7 @@ rtlBiginttype *big_help;
     doublebigdigittype carry;
     doublebigdigittype product;
     bigdigittype digit;
-    rtlBiginttype result;
+    biginttype result;
 
   /* uBigSqare */
     result = *big_help;
@@ -1735,14 +1726,14 @@ bigdigittype *temp;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-static void uBigMultPositiveWithDigit (const const_rtlBiginttype big1, bigdigittype bigDigit,
-    const rtlBiginttype result)
+static void uBigMultPositiveWithDigit (const const_biginttype big1, bigdigittype bigDigit,
+    const biginttype result)
 #else
 
 static void uBigMultPositiveWithDigit (big1, bigDigit, result)
-rtlBiginttype big1;
+biginttype big1;
 bigdigittype bigDigit;
-rtlBiginttype result;
+biginttype result;
 #endif
 
   {
@@ -1765,14 +1756,14 @@ rtlBiginttype result;
 
 #ifdef ANSI_C
 
-static void uBigMultPositiveWithNegatedDigit (const const_rtlBiginttype big1, bigdigittype bigDigit,
-    const rtlBiginttype result)
+static void uBigMultPositiveWithNegatedDigit (const const_biginttype big1, bigdigittype bigDigit,
+    const biginttype result)
 #else
 
 static void uBigMultPositiveWithNegatedDigit (big1, bigDigit, result)
-rtlBiginttype big1;
+biginttype big1;
 bigdigittype bigDigit;
-rtlBiginttype result;
+biginttype result;
 #endif
 
   {
@@ -1801,14 +1792,14 @@ rtlBiginttype result;
 
 #ifdef ANSI_C
 
-static void uBigMultNegativeWithDigit (const const_rtlBiginttype big1, bigdigittype bigDigit,
-    const rtlBiginttype result)
+static void uBigMultNegativeWithDigit (const const_biginttype big1, bigdigittype bigDigit,
+    const biginttype result)
 #else
 
 static void uBigMultNegativeWithDigit (big1, bigDigit, result)
-rtlBiginttype big1;
+biginttype big1;
 bigdigittype bigDigit;
-rtlBiginttype result;
+biginttype result;
 #endif
 
   {
@@ -1842,14 +1833,14 @@ rtlBiginttype result;
 
 #ifdef ANSI_C
 
-static void uBigMultNegativeWithNegatedDigit (const const_rtlBiginttype big1, bigdigittype bigDigit,
-    const rtlBiginttype result)
+static void uBigMultNegativeWithNegatedDigit (const const_biginttype big1, bigdigittype bigDigit,
+    const biginttype result)
 #else
 
 static void uBigMultNegativeWithNegatedDigit (big1, bigDigit, result)
-rtlBiginttype big1;
+biginttype big1;
 bigdigittype bigDigit;
-rtlBiginttype result;
+biginttype result;
 #endif
 
   {
@@ -1878,18 +1869,18 @@ rtlBiginttype result;
 
 #ifdef ANSI_C
 
-static void uBigMult (const_rtlBiginttype big1, const_rtlBiginttype big2,
-    const rtlBiginttype result)
+static void uBigMult (const_biginttype big1, const_biginttype big2,
+    const biginttype result)
 #else
 
 static void uBigMult (big1, big2, result)
-rtlBiginttype big1;
-rtlBiginttype big2;
-rtlBiginttype result;
+biginttype big1;
+biginttype big2;
+biginttype result;
 #endif
 
   {
-    const_rtlBiginttype help_big;
+    const_biginttype help_big;
     memsizetype pos1;
     memsizetype pos2;
     doublebigdigittype carry;
@@ -1960,14 +1951,14 @@ rtlBiginttype result;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-static void uBigMult (const const_rtlBiginttype big1, const const_rtlBiginttype big2,
-    const rtlBiginttype result)
+static void uBigMult (const const_biginttype big1, const const_biginttype big2,
+    const biginttype result)
 #else
 
 static void uBigMult (big1, big2, result)
-rtlBiginttype big1;
-rtlBiginttype big2;
-rtlBiginttype result;
+biginttype big1;
+biginttype big2;
+biginttype result;
 #endif
 
   {
@@ -2018,14 +2009,14 @@ rtlBiginttype result;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-static void uBigMult (const const_rtlBiginttype big1, const const_rtlBiginttype big2,
-    const rtlBiginttype result)
+static void uBigMult (const const_biginttype big1, const const_biginttype big2,
+    const biginttype result)
 #else
 
 static void uBigMult (big1, big2, result)
-rtlBiginttype big1;
-rtlBiginttype big2;
-rtlBiginttype result;
+biginttype big1;
+biginttype big2;
+biginttype result;
 #endif
 
   {
@@ -2061,21 +2052,21 @@ rtlBiginttype result;
 
 #ifdef ANSI_C
 
-static rtlBiginttype uBigMultK (const_rtlBiginttype big1, const_rtlBiginttype big2,
+static biginttype uBigMultK (const_biginttype big1, const_biginttype big2,
     const booltype negative)
 #else
 
-static rtlBiginttype uBigMultK (big1, big2, negative)
-rtlBiginttype big1;
-rtlBiginttype big2;
+static biginttype uBigMultK (big1, big2, negative)
+biginttype big1;
+biginttype big2;
 booltype negative;
 #endif
 
   {
-    const_rtlBiginttype help_big;
-    rtlBiginttype big2_help;
-    rtlBiginttype temp;
-    rtlBiginttype result;
+    const_biginttype help_big;
+    biginttype big2_help;
+    biginttype temp;
+    biginttype result;
 
   /* uBigMultK */
     if (big1->size >= KARATSUBA_THRESHOLD && big2->size >= KARATSUBA_THRESHOLD) {
@@ -2177,20 +2168,20 @@ booltype negative;
  */
 #ifdef ANSI_C
 
-static rtlBiginttype uBigMultIntoHelp (const rtlBiginttype big1,
-    const const_rtlBiginttype big2, rtlBiginttype *const big_help)
+static biginttype uBigMultIntoHelp (const biginttype big1,
+    const const_biginttype big2, biginttype *const big_help)
 #else
 
-static rtlBiginttype uBigMultIntoHelp (big1, big2, big_help)
-rtlBiginttype big1;
-rtlBiginttype big2;
-rtlBiginttype *big_help;
+static biginttype uBigMultIntoHelp (big1, big2, big_help)
+biginttype big1;
+biginttype big2;
+biginttype *big_help;
 #endif
 
   {
     memsizetype pos1;
     bigdigittype digit;
-    rtlBiginttype result;
+    biginttype result;
 
   /* uBigMultIntoHelp */
     result = *big_help;
@@ -2217,11 +2208,11 @@ rtlBiginttype *big_help;
 
 #ifdef ANSI_C
 
-static int uBigIsNot0 (const const_rtlBiginttype big)
+static int uBigIsNot0 (const const_biginttype big)
 #else
 
 static int uBigIsNot0 (big)
-rtlBiginttype big;
+biginttype big;
 #endif
 
   {
@@ -2245,17 +2236,17 @@ rtlBiginttype big;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigAbs (const const_rtlBiginttype big1)
+biginttype bigAbs (const const_biginttype big1)
 #else
 
-rtlBiginttype bigAbs (big1)
-rtlBiginttype big1;
+biginttype bigAbs (big1)
+biginttype big1;
 #endif
 
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigAbs */
     if (!ALLOC_BIG(result, big1->size)) {
@@ -2300,20 +2291,20 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigAdd (const_rtlBiginttype big1, const_rtlBiginttype big2)
+biginttype bigAdd (const_biginttype big1, const_biginttype big2)
 #else
 
-rtlBiginttype bigAdd (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigAdd (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    const_rtlBiginttype help_big;
+    const_biginttype help_big;
     memsizetype pos;
     doublebigdigittype carry = 0;
     doublebigdigittype big2_sign;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigAdd */
     if (big2->size > big1->size) {
@@ -2356,12 +2347,12 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigAddTemp (rtlBiginttype big1, const_rtlBiginttype big2)
+biginttype bigAddTemp (biginttype big1, const_biginttype big2)
 #else
 
-rtlBiginttype bigAddTemp (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigAddTemp (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigAddTemp */
@@ -2374,17 +2365,17 @@ rtlBiginttype big2;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-rtlBiginttype bigBinom (rtlBiginttype n_number, rtlBiginttype k_number)
+biginttype bigBinom (biginttype n_number, biginttype k_number)
 #else
 
-rtlBiginttype bigBinom (n_number, k_number)
-rtlBiginttype n_number;
-rtlBiginttype k_number;
+biginttype bigBinom (n_number, k_number)
+biginttype n_number;
+biginttype k_number;
 #endif
 
   {
-    rtlBiginttype number;
-    rtlBiginttype result;
+    biginttype number;
+    biginttype result;
 
   /* bigBinom */
     if (2 * k_number > n_number) {
@@ -2409,22 +2400,22 @@ rtlBiginttype k_number;
 
 #ifdef ANSI_C
 
-inttype bigBitLength (const const_rtlBiginttype big1)
+inttype bigBitLength (const const_biginttype big1)
 #else
 
 inttype bigBitLength (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
     inttype result;
 
   /* bigBitLength */
-    if (big1->size >= MAX_MEM_INDEX / (8 * sizeof(bigdigittype))) {
+    if (big1->size >= MAX_MEM_INDEX >> BIGDIGIT_LOG2_SIZE) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
-      result = (inttype) ((big1->size - 1) * 8 * sizeof(bigdigittype));
+      result = (inttype) ((big1->size - 1) << BIGDIGIT_LOG2_SIZE);
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
         result += digitMostSignificantBit(~big1->bigdigits[big1->size - 1]) + 1;
       } else {
@@ -2438,11 +2429,11 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-stritype bigCLit (const const_rtlBiginttype big1)
+stritype bigCLit (const const_biginttype big1)
 #else
 
 stritype bigCLit (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -2525,12 +2516,12 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-inttype bigCmp (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
 #else
 
 inttype bigCmp (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   {
@@ -2561,11 +2552,11 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-inttype bigCmpSignedDigit (const const_rtlBiginttype big1, inttype number)
+inttype bigCmpSignedDigit (const const_biginttype big1, inttype number)
 #else
 
 inttype bigCmpSignedDigit (big1, number)
-rtlBiginttype big1;
+biginttype big1;
 inttype number;
 #endif
 
@@ -2609,17 +2600,17 @@ inttype number;
 
 #ifdef ANSI_C
 
-void bigCpy (rtlBiginttype *const big_to, const const_rtlBiginttype big_from)
+void bigCpy (biginttype *const big_to, const const_biginttype big_from)
 #else
 
 void bigCpy (big_to, big_from)
-rtlBiginttype *big_to;
-rtlBiginttype big_from;
+biginttype *big_to;
+biginttype big_from;
 #endif
 
   {
     memsizetype new_size;
-    rtlBiginttype big_dest;
+    biginttype big_dest;
 
   /* bigCpy */
     big_dest = *big_to;
@@ -2642,16 +2633,16 @@ rtlBiginttype big_from;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigCreate (const const_rtlBiginttype big_from)
+biginttype bigCreate (const const_biginttype big_from)
 #else
 
-rtlBiginttype bigCreate (big_from)
-rtlBiginttype big_from;
+biginttype bigCreate (big_from)
+biginttype big_from;
 #endif
 
   {
     memsizetype new_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigCreate */
     new_size = big_from->size;
@@ -2669,15 +2660,15 @@ rtlBiginttype big_from;
 
 #ifdef ANSI_C
 
-void bigDecr (rtlBiginttype *const big_variable)
+void bigDecr (biginttype *const big_variable)
 #else
 
 void bigDecr (big_variable)
-rtlBiginttype *big_variable;
+biginttype *big_variable;
 #endif
 
   {
-    rtlBiginttype big1;
+    biginttype big1;
     memsizetype pos;
     doublebigdigittype carry = 0;
     bigdigittype negative;
@@ -2722,11 +2713,11 @@ rtlBiginttype *big_variable;
 
 #ifdef ANSI_C
 
-void bigDestr (const rtlBiginttype old_bigint)
+void bigDestr (const biginttype old_bigint)
 #else
 
 void bigDestr (old_bigint)
-rtlBiginttype old_bigint;
+biginttype old_bigint;
 #endif
 
   { /* bigDestr */
@@ -2751,20 +2742,20 @@ rtlBiginttype old_bigint;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigDiv (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+biginttype bigDiv (const const_biginttype big1, const const_biginttype big2)
 #else
 
-rtlBiginttype bigDiv (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigDiv (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     booltype negative = FALSE;
-    rtlBiginttype big1_help;
-    rtlBiginttype big2_help;
+    biginttype big1_help;
+    biginttype big2_help;
     unsigned int shift;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigDiv */
     if (big2->size == 1) {
@@ -2839,12 +2830,12 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-booltype bigEq (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+booltype bigEq (const const_biginttype big1, const const_biginttype big2)
 #else
 
 booltype bigEq (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigEq */
@@ -2861,16 +2852,16 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigFromInt32 (int32type number)
+biginttype bigFromInt32 (int32type number)
 #else
 
-rtlBiginttype bigFromInt32 (number)
+biginttype bigFromInt32 (number)
 int32type number;
 #endif
 
   {
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigFromInt32 */
     result_size = sizeof(int32type) / sizeof(bigdigittype);
@@ -2899,17 +2890,17 @@ int32type number;
 #ifdef INT64TYPE
 #ifdef ANSI_C
 
-rtlBiginttype bigFromInt64 (int64type number)
+biginttype bigFromInt64 (int64type number)
 #else
 
-rtlBiginttype bigFromInt64 (number)
+biginttype bigFromInt64 (number)
 int64type number;
 #endif
 
   {
     memsizetype pos;
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigFromInt64 */
     result_size = sizeof(int64type) / sizeof(bigdigittype);
@@ -2932,16 +2923,16 @@ int64type number;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigFromUInt32 (uint32type number)
+biginttype bigFromUInt32 (uint32type number)
 #else
 
-rtlBiginttype bigFromUInt32 (number)
+biginttype bigFromUInt32 (number)
 uint32type number;
 #endif
 
   {
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigFromUInt32 */
     result_size = sizeof(uint32type) / sizeof(bigdigittype) + 1;
@@ -2971,17 +2962,17 @@ uint32type number;
 #ifdef INT64TYPE
 #ifdef ANSI_C
 
-rtlBiginttype bigFromUInt64 (uint64type number)
+biginttype bigFromUInt64 (uint64type number)
 #else
 
-rtlBiginttype bigFromUInt64 (number)
+biginttype bigFromUInt64 (number)
 uint64type number;
 #endif
 
   {
     memsizetype pos;
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigFromUInt64 */
     result_size = sizeof(uint64type) / sizeof(bigdigittype) + 1;
@@ -3005,23 +2996,23 @@ uint64type number;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigGcd (const const_rtlBiginttype big1,
-    const const_rtlBiginttype big2)
+biginttype bigGcd (const const_biginttype big1,
+    const const_biginttype big2)
 #else
 
-rtlBiginttype bigGcd (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigGcd (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    rtlBiginttype big1_help;
-    rtlBiginttype big2_help;
+    biginttype big1_help;
+    biginttype big2_help;
     inttype lowestSetBitA;
     inttype lowestSetBitB;
     inttype shift;
-    rtlBiginttype help_big;
-    rtlBiginttype result;
+    biginttype help_big;
+    biginttype result;
 
   /* bigGcd */
     if (big1->size == 1 && big1->bigdigits[0] == 0) {
@@ -3093,21 +3084,21 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-void bigGrow (rtlBiginttype *const big_variable, const const_rtlBiginttype big2)
+void bigGrow (biginttype *const big_variable, const const_biginttype big2)
 #else
 
 void bigGrow (big_variable, big2)
-rtlBiginttype *big_variable;
-rtlBiginttype big2;
+biginttype *big_variable;
+biginttype big2;
 #endif
 
   {
-    rtlBiginttype big1;
+    biginttype big1;
     memsizetype pos;
     doublebigdigittype carry = 0;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
-    rtlBiginttype resized_big1;
+    biginttype resized_big1;
 
   /* bigGrow */
     big1 = *big_variable;
@@ -3189,11 +3180,11 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-inttype bigHashCode (const const_rtlBiginttype big1)
+inttype bigHashCode (const const_biginttype big1)
 #else
 
 inttype bigHashCode (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -3208,10 +3199,10 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigImport (ustritype buffer)
+biginttype bigImport (ustritype buffer)
 #else
 
-rtlBiginttype bigImport (buffer)
+biginttype bigImport (buffer)
 ustritype buffer;
 #endif
 
@@ -3222,7 +3213,7 @@ ustritype buffer;
     unsigned int byteNum;
     bigdigittype digit;
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigImport */
     byteDigitCount = ((memsizetype) buffer[0]) << 24 |
@@ -3258,15 +3249,15 @@ ustritype buffer;
 
 #ifdef ANSI_C
 
-void bigIncr (rtlBiginttype *const big_variable)
+void bigIncr (biginttype *const big_variable)
 #else
 
 void bigIncr (big_variable)
-rtlBiginttype *big_variable;
+biginttype *big_variable;
 #endif
 
   {
-    rtlBiginttype big1;
+    biginttype big1;
     memsizetype pos;
     doublebigdigittype carry = 1;
     bigdigittype negative;
@@ -3320,20 +3311,20 @@ rtlBiginttype *big_variable;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigIPow (const const_rtlBiginttype base, inttype exponent)
+biginttype bigIPow (const const_biginttype base, inttype exponent)
 #else
 
-rtlBiginttype bigIPow (base, exponent)
-rtlBiginttype base;
+biginttype bigIPow (base, exponent)
+biginttype base;
 inttype exponent;
 #endif
 
   {
     booltype negative = FALSE;
     memsizetype help_size;
-    rtlBiginttype square;
-    rtlBiginttype big_help;
-    rtlBiginttype result;
+    biginttype square;
+    biginttype big_help;
+    biginttype result;
 
   /* bigIPow */
     if (exponent < 0) {
@@ -3401,11 +3392,11 @@ inttype exponent;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigLog2 (const const_rtlBiginttype big1)
+biginttype bigLog2 (const const_biginttype big1)
 #else
 
-rtlBiginttype bigLog2 (big1)
-rtlBiginttype big1;
+biginttype bigLog2 (big1)
+biginttype big1;
 #endif
 
   {
@@ -3413,7 +3404,7 @@ rtlBiginttype big1;
     doublebigdigittype number;
     memsizetype pos;
     inttype bigdigit_log2;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigLog2 */
     if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
@@ -3448,16 +3439,17 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-inttype bigLowestSetBit (const const_rtlBiginttype big1)
+inttype bigLowestSetBit (const const_biginttype big1)
 #else
 
 inttype bigLowestSetBit (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
     memsizetype big1_size;
     memsizetype pos;
+    inttype result;
 
   /* bigLowestSetBit */
     big1_size = big1->size;
@@ -3466,21 +3458,28 @@ rtlBiginttype big1;
       pos++;
     } /* while */
     if (pos < big1_size) {
-      return (pos << BIGDIGIT_LOG2_SIZE) + digitLeastSignificantBit(big1->bigdigits[pos]);
+      result = digitLeastSignificantBit(big1->bigdigits[pos]);
+      if (pos > (memsizetype) (MAX_MEM_INDEX - result) >> BIGDIGIT_LOG2_SIZE) {
+        raise_error(RANGE_ERROR);
+        result = 0;
+      } else {
+        result += (inttype) (pos << BIGDIGIT_LOG2_SIZE);
+      } /* if */
     } else {
-      return -1;
+      result = -1;
     } /* if */
+    return result;
   } /* bigLowestSetBit */
 
 
 
 #ifdef ANSI_C
 
-rtlBiginttype bigLShift (const const_rtlBiginttype big1, const inttype lshift)
+biginttype bigLShift (const const_biginttype big1, const inttype lshift)
 #else
 
-rtlBiginttype bigLShift (big1, lshift)
-rtlBiginttype big1;
+biginttype bigLShift (big1, lshift)
+biginttype big1;
 inttype lshift;
 #endif
 
@@ -3495,7 +3494,7 @@ inttype lshift;
     memsizetype size_reduction;
     memsizetype pos;
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigLShift */
     if (lshift < 0) {
@@ -3573,16 +3572,16 @@ inttype lshift;
 
 #ifdef ANSI_C
 
-void bigLShiftAssign (rtlBiginttype *const big_variable, inttype lshift)
+void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
 #else
 
 void bigLShiftAssign (big_variable, lshift)
-rtlBiginttype *const big_variable;
+biginttype *const big_variable;
 inttype lshift;
 #endif
 
   {
-    rtlBiginttype big1;
+    biginttype big1;
     unsigned int digit_rshift;
     unsigned int digit_lshift;
     bigdigittype digit_mask;
@@ -3593,7 +3592,7 @@ inttype lshift;
     memsizetype size_reduction;
     memsizetype pos;
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigLShiftAssign */
     if (lshift < 0) {
@@ -3695,21 +3694,21 @@ inttype lshift;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigMDiv (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+biginttype bigMDiv (const const_biginttype big1, const const_biginttype big2)
 #else
 
-rtlBiginttype bigMDiv (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigMDiv (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     booltype negative = FALSE;
-    rtlBiginttype big1_help;
-    rtlBiginttype big2_help;
+    biginttype big1_help;
+    biginttype big2_help;
     unsigned int shift;
     bigdigittype mdiv1_remainder = 0;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigMDiv */
     if (big2->size == 1) {
@@ -3788,17 +3787,17 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigMinus (const const_rtlBiginttype big1)
+biginttype bigMinus (const const_biginttype big1)
 #else
 
-rtlBiginttype bigMinus (big1)
-rtlBiginttype big1;
+biginttype bigMinus (big1)
+biginttype big1;
 #endif
 
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigMinus */
     if (!ALLOC_BIG(result, big1->size)) {
@@ -3861,20 +3860,20 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigMod (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+biginttype bigMod (const const_biginttype big1, const const_biginttype big2)
 #else
 
-rtlBiginttype bigMod (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigMod (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     booltype negative1 = FALSE;
     booltype negative2 = FALSE;
-    rtlBiginttype big2_help;
+    biginttype big2_help;
     unsigned int shift;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigMod */
     if (big2->size == 1) {
@@ -3965,19 +3964,19 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigMult (const_rtlBiginttype big1, const_rtlBiginttype big2)
+biginttype bigMult (const_biginttype big1, const_biginttype big2)
 #else
 
-rtlBiginttype bigMult (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigMult (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     booltype negative = FALSE;
-    rtlBiginttype big1_help = NULL;
-    rtlBiginttype big2_help = NULL;
-    rtlBiginttype result;
+    biginttype big1_help = NULL;
+    biginttype big2_help = NULL;
+    biginttype result;
 
   /* bigMult */
     if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
@@ -4027,23 +4026,23 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-void bigMultAssign (rtlBiginttype *const big_variable, const_rtlBiginttype big2)
+void bigMultAssign (biginttype *const big_variable, const_biginttype big2)
 #else
 
 void bigMultAssign (big_variable, big2)
-rtlBiginttype *big_variable;
-rtlBiginttype big2;
+biginttype *big_variable;
+biginttype big2;
 #endif
 
   {
-    rtlBiginttype big1;
+    biginttype big1;
     booltype negative = FALSE;
-    rtlBiginttype big1_help = NULL;
-    rtlBiginttype big2_help = NULL;
+    biginttype big1_help = NULL;
+    biginttype big2_help = NULL;
     memsizetype pos1;
     memsizetype pos2;
     doublebigdigittype carry = 0;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigMultAssign */
     big1 = *big_variable;
@@ -4110,16 +4109,16 @@ rtlBiginttype big2;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-rtlBiginttype bigMultSignedDigit (const_rtlBiginttype big1, inttype number)
+biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
 #else
 
-rtlBiginttype bigMultSignedDigit (big1, number)
-rtlBiginttype big1;
+biginttype bigMultSignedDigit (big1, number)
+biginttype big1;
 inttype number;
 #endif
 
   {
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigMultSignedDigit */
     if (!ALLOC_BIG(result, big1->size + 1)) {
@@ -4149,12 +4148,12 @@ inttype number;
 
 #ifdef ANSI_C
 
-booltype bigNe (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+booltype bigNe (const const_biginttype big1, const const_biginttype big2)
 #else
 
 booltype bigNe (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigNe */
@@ -4171,11 +4170,11 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-booltype bigOdd (const const_rtlBiginttype big1)
+booltype bigOdd (const const_biginttype big1)
 #else
 
 booltype bigOdd (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   { /* bigOdd */
@@ -4186,10 +4185,10 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigParse (const const_stritype stri)
+biginttype bigParse (const const_stritype stri)
 #else
 
-rtlBiginttype bigParse (stri)
+biginttype bigParse (stri)
 stritype stri;
 #endif
 
@@ -4199,7 +4198,7 @@ stritype stri;
     booltype negative;
     memsizetype position;
     doublebigdigittype digitval;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigParse */
     if (stri->size == 0) {
@@ -4255,17 +4254,17 @@ stritype stri;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigPred (const const_rtlBiginttype big1)
+biginttype bigPred (const const_biginttype big1)
 #else
 
-rtlBiginttype bigPred (big1)
-rtlBiginttype big1;
+biginttype bigPred (big1)
+biginttype big1;
 #endif
 
   {
     memsizetype pos;
     doublebigdigittype carry = 0;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigPred */
     if (!ALLOC_BIG(result, big1->size)) {
@@ -4315,11 +4314,11 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigPredTemp (rtlBiginttype big1)
+biginttype bigPredTemp (biginttype big1)
 #else
 
-rtlBiginttype bigPredTemp (big1)
-rtlBiginttype big1;
+biginttype bigPredTemp (big1)
+biginttype big1;
 #endif
 
   { /* bigPredTemp */
@@ -4337,22 +4336,22 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigRand (const const_rtlBiginttype lower_limit,
-    const const_rtlBiginttype upper_limit)
+biginttype bigRand (const const_biginttype lower_limit,
+    const const_biginttype upper_limit)
 #else
 
-rtlBiginttype bigRand (lower_limit, upper_limit)
-rtlBiginttype lower_limit;
-rtlBiginttype upper_limit;
+biginttype bigRand (lower_limit, upper_limit)
+biginttype lower_limit;
+biginttype upper_limit;
 #endif
 
   {
-    rtlBiginttype scale_limit;
+    biginttype scale_limit;
     bigdigittype mask;
     memsizetype pos;
     doublebigdigittype random_number = 0;
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigRand */
     if (bigCmp(lower_limit, upper_limit) > 0) {
@@ -4413,19 +4412,19 @@ rtlBiginttype upper_limit;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigRem (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+biginttype bigRem (const const_biginttype big1, const const_biginttype big2)
 #else
 
-rtlBiginttype bigRem (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigRem (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
     booltype negative = FALSE;
-    rtlBiginttype big2_help;
+    biginttype big2_help;
     unsigned int shift;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigRem */
     if (big2->size == 1) {
@@ -4499,11 +4498,11 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-rtlBiginttype bigRShift (const const_rtlBiginttype big1, const inttype rshift)
+biginttype bigRShift (const const_biginttype big1, const inttype rshift)
 #else
 
-rtlBiginttype bigRShift (big1, rshift)
-rtlBiginttype big1;
+biginttype bigRShift (big1, rshift)
+biginttype big1;
 inttype rshift;
 #endif
 
@@ -4517,7 +4516,7 @@ inttype rshift;
     bigdigittype *dest_digits;
     memsizetype pos;
     memsizetype result_size;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigRShift */
     if (rshift < 0) {
@@ -4593,16 +4592,16 @@ inttype rshift;
 
 #ifdef ANSI_C
 
-void bigRShiftAssign (rtlBiginttype *const big_variable, inttype rshift)
+void bigRShiftAssign (biginttype *const big_variable, inttype rshift)
 #else
 
 void bigRShiftAssign (big_variable, rshift)
-rtlBiginttype *const big_variable;
+biginttype *const big_variable;
 inttype rshift;
 #endif
 
   {
-    rtlBiginttype big1;
+    biginttype big1;
     memsizetype size_reduction;
     unsigned int digit_rshift;
     unsigned int digit_lshift;
@@ -4720,12 +4719,12 @@ inttype rshift;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigSbtr (const const_rtlBiginttype big1, const const_rtlBiginttype big2)
+biginttype bigSbtr (const const_biginttype big1, const const_biginttype big2)
 #else
 
-rtlBiginttype bigSbtr (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigSbtr (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
@@ -4733,7 +4732,7 @@ rtlBiginttype big2;
     doublebigdigittype carry = 1;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigSbtr */
     if (big1->size >= big2->size) {
@@ -4802,12 +4801,12 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigSbtrTemp (rtlBiginttype big1, const_rtlBiginttype big2)
+biginttype bigSbtrTemp (biginttype big1, const_biginttype big2)
 #else
 
-rtlBiginttype bigSbtrTemp (big1, big2)
-rtlBiginttype big1;
-rtlBiginttype big2;
+biginttype bigSbtrTemp (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigSbtrTemp */
@@ -4828,21 +4827,21 @@ rtlBiginttype big2;
  */
 #ifdef ANSI_C
 
-void bigShrink (rtlBiginttype *const big_variable, const const_rtlBiginttype big2)
+void bigShrink (biginttype *const big_variable, const const_biginttype big2)
 #else
 
 void bigShrink (big_variable, big2)
-rtlBiginttype *big_variable;
-rtlBiginttype big2;
+biginttype *big_variable;
+biginttype big2;
 #endif
 
   {
-    rtlBiginttype big1;
+    biginttype big1;
     memsizetype pos;
     doublebigdigittype carry = 1;
     doublebigdigittype big1_sign;
     doublebigdigittype big2_sign;
-    rtlBiginttype resized_big1;
+    biginttype resized_big1;
 
   /* bigShrink */
     big1 = *big_variable;
@@ -4926,15 +4925,15 @@ rtlBiginttype big2;
 
 #ifdef ANSI_C
 
-stritype bigStr (const const_rtlBiginttype big1)
+stritype bigStr (const const_biginttype big1)
 #else
 
 stritype bigStr (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
-    rtlBiginttype help_big;
+    biginttype help_big;
     memsizetype pos;
     bigdigittype digit;
     int digit_pos;
@@ -5033,17 +5032,17 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigSucc (const const_rtlBiginttype big1)
+biginttype bigSucc (const const_biginttype big1)
 #else
 
-rtlBiginttype bigSucc (big1)
-rtlBiginttype big1;
+biginttype bigSucc (big1)
+biginttype big1;
 #endif
 
   {
     memsizetype pos;
     doublebigdigittype carry = 1;
-    rtlBiginttype result;
+    biginttype result;
 
   /* bigSucc */
     if (!ALLOC_BIG(result, big1->size)) {
@@ -5093,11 +5092,11 @@ rtlBiginttype big1;
  */
 #ifdef ANSI_C
 
-rtlBiginttype bigSuccTemp (rtlBiginttype big1)
+biginttype bigSuccTemp (biginttype big1)
 #else
 
-rtlBiginttype bigSuccTemp (big1)
-rtlBiginttype big1;
+biginttype bigSuccTemp (big1)
+biginttype big1;
 #endif
 
   { /* bigSuccTemp */
@@ -5109,11 +5108,11 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-bstritype bigToBStri (const_rtlBiginttype big1)
+bstritype bigToBStri (const_biginttype big1)
 #else
 
 bstritype bigToBStri (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -5171,11 +5170,11 @@ rtlBiginttype big1;
 
 #ifdef ANSI_C
 
-int32type bigToInt32 (const const_rtlBiginttype big1)
+int32type bigToInt32 (const const_biginttype big1)
 #else
 
 int32type bigToInt32 (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -5205,11 +5204,11 @@ rtlBiginttype big1;
 #ifdef INT64TYPE
 #ifdef ANSI_C
 
-int64type bigToInt64 (const const_rtlBiginttype big1)
+int64type bigToInt64 (const const_biginttype big1)
 #else
 
 int64type bigToInt64 (big1)
-rtlBiginttype big1;
+biginttype big1;
 #endif
 
   {

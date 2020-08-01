@@ -46,8 +46,8 @@ EXTERN tracerecord trace;
 
 void prot_flush (void);
 void prot_nl (void);
-void prot_cstri (cstritype);
-void prot_writeln (cstritype);
+void prot_cstri (const_cstritype);
+void prot_writeln (const_cstritype);
 void prot_int (inttype);
 void prot_bigint (const_biginttype);
 void prot_stri (stritype);
@@ -66,7 +66,7 @@ void trace_entity (const_entitytype);
 void trace_list (const_listtype);
 void traceelements (nodetype);
 void trace2 (objecttype);
-void set_trace (cstritype, int, cstritype);
+void set_trace (const_cstritype, int, cstritype);
 void set_trace2 (stritype);
 
 #else

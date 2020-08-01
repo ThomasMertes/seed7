@@ -45,6 +45,12 @@
 #endif
 #ifdef OS_PATH_WCHAR
 #include "wchar.h"
+#ifdef OS_WIDE_DIR_INCLUDE_DIR_H
+#include "dir.h"
+#endif
+#ifdef OS_CHMOD_INCLUDE_IO_H
+#include "io.h"
+#endif
 #endif
 #include "errno.h"
 
@@ -112,8 +118,8 @@ char *strg2;
 
   { /* cmp_mem */
     return(strCompare(
-        ((rtlObjecttype *) strg1)->value.strivalue,
-        ((rtlObjecttype *) strg2)->value.strivalue));
+        ((const_rtlObjecttype *) strg1)->value.strivalue,
+        ((const_rtlObjecttype *) strg2)->value.strivalue));
   } /* cmp_mem */
 
 
@@ -357,7 +363,7 @@ static void copy_dir (os_path_stri from_name, os_path_stri to_name,
 static void copy_dir (from_name, to_name, flags, err_info)
 os_path_stri from_name;
 os_path_stri to_name;
- int flags;
+int flags;
 errinfotype *err_info;
 #endif
 
@@ -583,6 +589,9 @@ errinfotype *err_info;
             remove_any_file(to_name, err_info);
           } /* if */
           break;
+        default:
+          *err_info = FILE_ERROR;
+          break;
       } /* switch */
     } /* if */
 #ifdef TRACE_CMD_RTL
@@ -804,7 +813,7 @@ stritype name;
 
   {
     char opt_name[250];
-    cstritype opt;
+    const_cstritype opt;
     stritype result;
 
   /* cmdConfigValue */
@@ -1116,7 +1125,7 @@ stritype cmdGetcwd ()
       result = NULL;
     } else {
 #ifdef OS_PATH_WCHAR
-      result = wstri_to_stri(cwd);
+      result = wstri_to_stri((const_wstritype)cwd); /*!!*/
 #else
 #ifdef OS_PATH_UTF8
       result = cstri8_to_stri(cwd);
@@ -1187,7 +1196,7 @@ booltype *is_dst;
       if (stat_result == 0) {
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
-	    min, sec, mycro_sec, time_zone, is_dst);
+            min, sec, mycro_sec, time_zone, is_dst);
       } else {
         raise_error(FILE_ERROR);
       } /* if */
@@ -1242,7 +1251,7 @@ booltype *is_dst;
       if (stat_result == 0) {
         timFromTimestamp(stat_buf.st_ctime,
             year, month, day, hour,
-	    min, sec, mycro_sec, time_zone, is_dst);
+            min, sec, mycro_sec, time_zone, is_dst);
       } else {
         raise_error(FILE_ERROR);
       } /* if */
@@ -1299,7 +1308,7 @@ booltype *is_dst;
       if (stat_result == 0) {
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
-	    min, sec, mycro_sec, time_zone, is_dst);
+            min, sec, mycro_sec, time_zone, is_dst);
       } else {
         /* printf("errno=%d\n", errno); */
         raise_error(FILE_ERROR);
@@ -1562,7 +1571,7 @@ inttype time_zone;
     if (os_path != NULL) {
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = timToTimestamp(year, month, day, hour,
-	    min, sec, mycro_sec, time_zone);
+            min, sec, mycro_sec, time_zone);
         utime_buf.modtime = stat_buf.st_mtime;
         if (os_utime(os_path, &utime_buf) != 0) {
           err_info = FILE_ERROR;
@@ -1588,7 +1597,7 @@ void cmdSetMTime (stritype file_name,
 
 void cmdSetMTime (file_name,
     year, month, day, hour, min, sec, mycro_sec, time_zone)
- stritype file_name;
+stritype file_name;
 inttype year;
 inttype month;
 inttype day;
@@ -1611,7 +1620,7 @@ inttype time_zone;
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = stat_buf.st_atime;
         utime_buf.modtime = timToTimestamp(year, month, day, hour,
-	    min, sec, mycro_sec, time_zone);
+            min, sec, mycro_sec, time_zone);
         if (os_utime(os_path, &utime_buf) != 0) {
           err_info = FILE_ERROR;
         } /* if */

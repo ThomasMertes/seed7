@@ -164,7 +164,7 @@ inttype time_zone;
       action.sa_handler = &alarm_signal_handler;
       sigemptyset(&action.sa_mask);
       action.sa_flags = 0;
-      if (sigaction(SIGALRM, &action, NULL) != SIG_ERR) {
+      if (sigaction(SIGALRM, &action, NULL) == 0) {
         if (sigsetjmp(wait_finished, 1) == 0) {
           if (setitimer(ITIMER_REAL, &timer_value, NULL) == 0) {
             pause();

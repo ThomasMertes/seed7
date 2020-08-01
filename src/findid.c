@@ -151,7 +151,7 @@ unsigned int length;
 
 #ifdef ANSI_C
 
-static identtype put_ident (cstritype stri, errinfotype *err_info)
+static identtype put_ident (const_cstritype stri, errinfotype *err_info)
 #else
 
 static identtype put_ident (stri, err_info)
@@ -166,7 +166,7 @@ errinfotype *err_info;
 #ifdef TRACE_FINDID
     printf("BEGIN put_ident\n");
 #endif
-    if ((ident_found = get_ident((ustritype) stri, strlen(stri))) == NULL) {
+    if ((ident_found = get_ident((const_ustritype) stri, strlen(stri))) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
 #ifdef TRACE_FINDID

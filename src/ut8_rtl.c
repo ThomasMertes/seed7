@@ -276,7 +276,9 @@ filetype aFile;
   /* ut8Getc */
     character = getc(aFile);
     if (character != EOF && character > 0x7F) {
+      /* character range 0x80 to 0xFF (128 to 255) */
       if ((character & 0xE0) == 0xC0) {
+        /* character range 0xC0 to 0xDF (192 to 223) */
         result = (chartype) (character & 0x1F) << 6;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
@@ -290,6 +292,7 @@ filetype aFile;
           return(0);
         } /* if */
       } else if ((character & 0xF0) == 0xE0) {
+        /* character range 0xE0 to 0xEF (224 to 239) */
         result = (chartype) (character & 0x0F) << 12;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
@@ -310,6 +313,7 @@ filetype aFile;
           return(0);
         } /* if */
       } else if ((character & 0xF8) == 0xF0) {
+        /* character range 0xF0 to 0xF7 (240 to 247) */
         result = (chartype) (character & 0x07) << 18;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
@@ -337,6 +341,7 @@ filetype aFile;
           return(0);
         } /* if */
       } else if ((character & 0xFC) == 0xF8) {
+        /* character range 0xF8 to 0xFB (248 to 251) */
         result = (chartype) (character & 0x03) << 24;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
@@ -370,7 +375,8 @@ filetype aFile;
           raise_error(RANGE_ERROR);
           return(0);
         } /* if */
-      } else { /* (character & 0xFC) == 0xFC */
+      } else if ((character & 0xFC) == 0xFC) {
+        /* character range 0xFC to 0xFF (252 to 255) */
         result = (chartype) (character & 0x03) << 30;
         character = getc(aFile);
         if ((character & 0xC0) == 0x80) {
@@ -411,6 +417,10 @@ filetype aFile;
           raise_error(RANGE_ERROR);
           return(0);
         } /* if */
+      } else {
+        /* character not in range 0xC0 to 0xFF (192 to 255) */
+        raise_error(RANGE_ERROR);
+        return(0);
       } /* if */
     } else {
       result = (chartype) character;
@@ -479,7 +489,7 @@ inttype length;
           result = NULL;
         } else {
           result = resized_result;
-	  result->size = num_of_chars_read;
+          result->size = num_of_chars_read;
           COUNT3_STRI(chars_requested, result->size);
         } /* if */
       } /* if */

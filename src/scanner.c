@@ -141,20 +141,62 @@ static INLINE void scan_line_comment ()
 
 #ifdef ANSI_C
 
-static INLINE void scan_illegal (void)
+void scan_byte_order_mark (void)
 #else
 
-static INLINE void scan_illegal ()
+void scan_byte_order_mark ()
 #endif
 
-  { /* scan_illegal */
+  {
+    chartype unicode_char;
+
+  /* scan_byte_order_mark */
+#ifdef TRACE_SCANNER
+    printf("BEGIN scan_byte_order_mark\n");
+#endif
+    if ((in_file.character & 0xC0) == 0xC0) {
+      unicode_char = utf8_char(in_file.character);
+      if (unicode_char != 0xFEFF /* Byte-order mark */) {
+        err_char(CHAR_ILLEGAL, unicode_char);
+        while (char_class(in_file.character) == ILLEGALCHAR) {
+          in_file.character = next_character();
+        } /* while */
+      } /* if */
+    } /* if */
+#ifdef TRACE_SCANNER
+    printf("END scan_byte_order_mark\n");
+#endif
+  } /* scan_byte_order_mark */
+
+
+
+#ifdef ANSI_C
+
+static void scan_illegal (void)
+#else
+
+static void scan_illegal ()
+#endif
+
+  {
+    chartype unicode_char;
+
+  /* scan_illegal */
 #ifdef TRACE_SCANNER
     printf("BEGIN scan_illegal\n");
 #endif
-    err_cchar(CHAR_ILLEGAL, in_file.character);
-    do {
-      in_file.character = next_character();
-    } while (char_class(in_file.character) == ILLEGALCHAR);
+    if ((in_file.character & 0xC0) == 0xC0) {
+      unicode_char = utf8_char(in_file.character);
+      err_char(CHAR_ILLEGAL, unicode_char);
+      while (char_class(in_file.character) == ILLEGALCHAR) {
+        in_file.character = next_character();
+      } /* while */
+    } else {
+      err_cchar(CHAR_ILLEGAL, in_file.character);
+      do {
+        in_file.character = next_character();
+      } while (char_class(in_file.character) == ILLEGALCHAR);
+    } /* if */
 #ifdef TRACE_SCANNER
     printf("END scan_illegal\n");
 #endif

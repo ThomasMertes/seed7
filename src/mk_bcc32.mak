@@ -23,9 +23,9 @@ COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
 CC = bcc32
 
-USE_BIG_RTL_LIBRARY = define
+BIGINT_LIB_DEFINE = USE_BIG_RTL_LIBRARY
 BIGINT_LIB = big_rtl
-# USE_BIG_RTL_LIBRARY = undef
+# BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
 # SCREEN_OBJ = scr_x11.obj
@@ -137,6 +137,7 @@ clean:
 	del *.obj
 	del *.lib
 	del *.tds
+	del *.d
 
 dep: depend
 
@@ -163,6 +164,8 @@ version.h:
 	cmd /S /C "echo #define UINT64TYPE unsigned __int64" >> version.h
 	cmd /S /C "echo #define INT64TYPE_SUFFIX_LL" >> version.h
 	cmd /S /C "echo #define OS_PATH_WCHAR" >> version.h
+	cmd /S /C "echo #define OS_WIDE_DIR_INCLUDE_DIR_H" >> version.h
+	cmd /S /C "echo #define OS_CHMOD_INCLUDE_IO_H" >> version.h
 	cmd /S /C "echo #define os_chdir _wchdir" >> version.h
 	cmd /S /C "echo #define os_getcwd _wgetcwd" >> version.h
 	cmd /S /C "echo #define os_mkdir(path,mode) _wmkdir(path)" >> version.h
@@ -185,7 +188,7 @@ version.h:
 	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
 	cmd /S /C "echo #define USE_WINSOCK" >> version.h
 	cmd /S /C "echo #define popen _popen" >> version.h
-	cmd /S /C "echo #$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
+	cmd /S /C "echo #define $(BIGINT_LIB_DEFINE)" >> version.h
 	cmd /S /C "echo #include "stdio.h"" > chkftell.c
 	cmd /S /C "echo int main (int argc, char **argv)" >> chkftell.c
 	cmd /S /C "echo {" >> chkftell.c

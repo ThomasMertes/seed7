@@ -1728,6 +1728,29 @@ const func boolean: isDigitString (in string: stri) is func
     end for;
   end func;
 
+const func boolean: isDigitString (in string: stri, in integer: base) is func
+  result
+    var boolean: result is TRUE;
+  local
+    var char: ch is ' ';
+  begin
+    if base <= 10 then
+      for ch range stri do
+        if ch < '0' or ch >= chr(base) then
+          result := FALSE;
+        end if;
+      end for;
+    else
+      for ch range stri do
+        if (ch < '0' or ch > '9') and
+            (ch < 'a' or ch >= chr(ord('a') + base - 10)) and
+            (ch < 'A' or ch >= chr(ord('A') + base - 10)) then
+          result := FALSE;
+        end if;
+      end for;
+    end if;
+  end func;
+
 
 (* LIST
 

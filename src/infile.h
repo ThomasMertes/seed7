@@ -85,7 +85,7 @@ void close_infile (void);
 void open_string (bstritype, errinfotype *);
 void next_file (void);
 int next_line (void);
-ustritype file_name (filenumtype);
+const_ustritype file_name (filenumtype);
 void find_include_file (stritype, errinfotype *);
 void append_to_lib_path (const_stritype, errinfotype *);
 void init_lib_path (void);

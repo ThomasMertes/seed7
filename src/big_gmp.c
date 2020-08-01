@@ -41,18 +41,19 @@
 #include "striutl.h"
 #include "rtl_err.h"
 
-typedef mpz_ptr gmpBiginttype;
-typedef mpz_srcptr const_gmpBiginttype;
+#undef EXTERN
+#define EXTERN
+#include "big_drv.h"
 
 
 
 #ifdef ANSI_C
 
-cstritype bigHexCStri (const_gmpBiginttype big1)
+cstritype bigHexCStri (const_biginttype big1)
 #else
 
 cstritype bigHexCStri (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -137,15 +138,15 @@ gmpBiginttype big1;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigAbs (const const_gmpBiginttype big1)
+biginttype bigAbs (const const_biginttype big1)
 #else
 
-gmpBiginttype bigAbs (big1)
-gmpBiginttype big1;
+biginttype bigAbs (big1)
+biginttype big1;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigAbs */
     result = malloc(sizeof(__mpz_struct));
@@ -161,16 +162,16 @@ gmpBiginttype big1;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigAdd (const_gmpBiginttype big1, const_gmpBiginttype big2)
+biginttype bigAdd (const_biginttype big1, const_biginttype big2)
 #else
 
-gmpBiginttype bigAdd (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigAdd (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigAdd */
     result = malloc(sizeof(__mpz_struct));
@@ -187,12 +188,12 @@ gmpBiginttype big2;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigAddTemp (gmpBiginttype big1, const_gmpBiginttype big2)
+biginttype bigAddTemp (biginttype big1, const_biginttype big2)
 #else
 
-gmpBiginttype bigAddTemp (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigAddTemp (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigAddTemp */
@@ -204,11 +205,11 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-inttype bigBitLength (const const_gmpBiginttype big1)
+inttype bigBitLength (const const_biginttype big1)
 #else
 
 inttype bigBitLength (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -223,11 +224,11 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-stritype bigCLit (const const_gmpBiginttype big1)
+stritype bigCLit (const const_biginttype big1)
 #else
 
 stritype bigCLit (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -308,12 +309,12 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-inttype bigCmp (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
 #else
 
 inttype bigCmp (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   {
@@ -333,11 +334,11 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-inttype bigCmpSignedDigit (const const_gmpBiginttype big1, inttype number)
+inttype bigCmpSignedDigit (const const_biginttype big1, inttype number)
 #else
 
 inttype bigCmpSignedDigit (big1, number)
-gmpBiginttype big1;
+biginttype big1;
 inttype number;
 #endif
 
@@ -358,12 +359,12 @@ inttype number;
 
 #ifdef ANSI_C
 
-void bigCpy (gmpBiginttype *const big_to, const const_gmpBiginttype big_from)
+void bigCpy (biginttype *const big_to, const const_biginttype big_from)
 #else
 
 void bigCpy (big_to, big_from)
-gmpBiginttype *big_to;
-gmpBiginttype big_from;
+biginttype *big_to;
+biginttype big_from;
 #endif
 
   { /* bigCpy */
@@ -374,15 +375,15 @@ gmpBiginttype big_from;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigCreate (const const_gmpBiginttype big_from)
+biginttype bigCreate (const const_biginttype big_from)
 #else
 
-gmpBiginttype bigCreate (big_from)
-gmpBiginttype big_from;
+biginttype bigCreate (big_from)
+biginttype big_from;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigCreate */
     result = malloc(sizeof(__mpz_struct));
@@ -394,11 +395,11 @@ gmpBiginttype big_from;
 
 #ifdef ANSI_C
 
-void bigDecr (gmpBiginttype *const big_variable)
+void bigDecr (biginttype *const big_variable)
 #else
 
 void bigDecr (big_variable)
-gmpBiginttype *big_variable;
+biginttype *big_variable;
 #endif
 
   { /* bigDecr */
@@ -409,11 +410,11 @@ gmpBiginttype *big_variable;
 
 #ifdef ANSI_C
 
-void bigDestr (const gmpBiginttype old_bigint)
+void bigDestr (const biginttype old_bigint)
 #else
 
 void bigDestr (old_bigint)
-gmpBiginttype old_bigint;
+biginttype old_bigint;
 #endif
 
   { /* bigDestr */
@@ -431,16 +432,16 @@ gmpBiginttype old_bigint;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigDiv (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+biginttype bigDiv (const const_biginttype big1, const const_biginttype big2)
 #else
 
-gmpBiginttype bigDiv (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigDiv (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigDiv */
     if (mpz_sgn(big2) == 0) {
@@ -458,12 +459,12 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-booltype bigEq (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+booltype bigEq (const const_biginttype big1, const const_biginttype big2)
 #else
 
 booltype bigEq (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigEq */
@@ -474,15 +475,15 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigFromInt32 (int32type number)
+biginttype bigFromInt32 (int32type number)
 #else
 
-gmpBiginttype bigFromInt32 (number)
+biginttype bigFromInt32 (number)
 int32type number;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigFromInt32 */
     result = malloc(sizeof(__mpz_struct));
@@ -495,16 +496,16 @@ int32type number;
 #ifdef INT64TYPE
 #ifdef ANSI_C
 
-gmpBiginttype bigFromInt64 (int64type number)
+biginttype bigFromInt64 (int64type number)
 #else
 
-gmpBiginttype bigFromInt64 (number)
+biginttype bigFromInt64 (number)
 int64type number;
 #endif
 
   {
     mpz_t help;
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigFromInt64 */
     result = malloc(sizeof(__mpz_struct));
@@ -520,15 +521,15 @@ int64type number;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigFromUInt32 (uint32type number)
+biginttype bigFromUInt32 (uint32type number)
 #else
 
-gmpBiginttype bigFromUInt32 (number)
+biginttype bigFromUInt32 (number)
 uint32type number;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigFromUInt32 */
     result = malloc(sizeof(__mpz_struct));
@@ -541,16 +542,16 @@ uint32type number;
 #ifdef INT64TYPE
 #ifdef ANSI_C
 
-gmpBiginttype bigFromUInt64 (uint64type number)
+biginttype bigFromUInt64 (uint64type number)
 #else
 
-gmpBiginttype bigFromUInt64 (number)
+biginttype bigFromUInt64 (number)
 uint64type number;
 #endif
 
   {
     mpz_t help;
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigFromUInt64 */
     result = malloc(sizeof(__mpz_struct));
@@ -566,17 +567,17 @@ uint64type number;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigGcd (const const_gmpBiginttype big1,
-    const const_gmpBiginttype big2)
+biginttype bigGcd (const const_biginttype big1,
+    const const_biginttype big2)
 #else
 
-gmpBiginttype bigGcd (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigGcd (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigGcd */
     result = malloc(sizeof(__mpz_struct));
@@ -592,12 +593,12 @@ gmpBiginttype big2;
  */
 #ifdef ANSI_C
 
-void bigGrow (gmpBiginttype *const big_variable, const const_gmpBiginttype big2)
+void bigGrow (biginttype *const big_variable, const const_biginttype big2)
 #else
 
 void bigGrow (big_variable, big2)
-gmpBiginttype *big_variable;
-gmpBiginttype big2;
+biginttype *big_variable;
+biginttype big2;
 #endif
 
   { /* bigGrow */
@@ -608,11 +609,11 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-inttype bigHashCode (const const_gmpBiginttype big1)
+inttype bigHashCode (const const_biginttype big1)
 #else
 
 inttype bigHashCode (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -632,10 +633,10 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigImport (ustritype buffer)
+biginttype bigImport (ustritype buffer)
 #else
 
-gmpBiginttype bigImport (buffer)
+biginttype bigImport (buffer)
 ustritype buffer;
 #endif
 
@@ -644,7 +645,7 @@ ustritype buffer;
     size_t pos;
     ustritype negated_buffer;
     unsigned short carry;
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigImport */
     result = malloc(sizeof(__mpz_struct));
@@ -672,11 +673,11 @@ ustritype buffer;
 
 #ifdef ANSI_C
 
-void bigIncr (gmpBiginttype *const big_variable)
+void bigIncr (biginttype *const big_variable)
 #else
 
 void bigIncr (big_variable)
-gmpBiginttype *big_variable;
+biginttype *big_variable;
 #endif
 
   { /* bigIncr */
@@ -690,16 +691,16 @@ gmpBiginttype *big_variable;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigIPow (const const_gmpBiginttype base, inttype exponent)
+biginttype bigIPow (const const_biginttype base, inttype exponent)
 #else
 
-gmpBiginttype bigIPow (base, exponent)
-gmpBiginttype base;
+biginttype bigIPow (base, exponent)
+biginttype base;
 inttype exponent;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigIPow */
     if (exponent < 0) {
@@ -717,16 +718,16 @@ inttype exponent;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigLog2 (const const_gmpBiginttype big1)
+biginttype bigLog2 (const const_biginttype big1)
 #else
 
-gmpBiginttype bigLog2 (big1)
-gmpBiginttype big1;
+biginttype bigLog2 (big1)
+biginttype big1;
 #endif
 
   {
     int sign;
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigLog2 */
     sign = mpz_sgn(big1);
@@ -747,11 +748,11 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-inttype bigLowestSetBit (const const_gmpBiginttype big1)
+inttype bigLowestSetBit (const const_biginttype big1)
 #else
 
 inttype bigLowestSetBit (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   { /* bigLowestSetBit */
@@ -762,16 +763,16 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigLShift (const const_gmpBiginttype big1, const inttype lshift)
+biginttype bigLShift (const const_biginttype big1, const inttype lshift)
 #else
 
-gmpBiginttype bigLShift (big1, lshift)
-gmpBiginttype big1;
+biginttype bigLShift (big1, lshift)
+biginttype big1;
 inttype rshift;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigLShift */
     if (lshift < 0) {
@@ -789,11 +790,11 @@ inttype rshift;
 
 #ifdef ANSI_C
 
-void bigLShiftAssign (gmpBiginttype *const big_variable, inttype lshift)
+void bigLShiftAssign (biginttype *const big_variable, inttype lshift)
 #else
 
 void bigLShiftAssign (big_variable, rshift)
-gmpBiginttype *const big_variable;
+biginttype *const big_variable;
 inttype lshift;
 #endif
 
@@ -813,16 +814,16 @@ inttype lshift;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigMDiv (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+biginttype bigMDiv (const const_biginttype big1, const const_biginttype big2)
 #else
 
-gmpBiginttype bigMDiv (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigMDiv (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigMDiv */
     if (mpz_sgn(big2) == 0) {
@@ -840,15 +841,15 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigMinus (const const_gmpBiginttype big1)
+biginttype bigMinus (const const_biginttype big1)
 #else
 
-gmpBiginttype bigMinus (big1)
-gmpBiginttype big1;
+biginttype bigMinus (big1)
+biginttype big1;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigMinus */
     result = malloc(sizeof(__mpz_struct));
@@ -865,16 +866,16 @@ gmpBiginttype big1;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigMod (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+biginttype bigMod (const const_biginttype big1, const const_biginttype big2)
 #else
 
-gmpBiginttype bigMod (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigMod (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigMod */
     if (mpz_sgn(big2) == 0) {
@@ -895,16 +896,16 @@ gmpBiginttype big2;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigMult (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+biginttype bigMult (const const_biginttype big1, const const_biginttype big2)
 #else
 
-gmpBiginttype bigMult (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigMult (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigMult */
     result = malloc(sizeof(__mpz_struct));
@@ -917,12 +918,12 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-void bigMultAssign (gmpBiginttype *const big_variable, const_gmpBiginttype big2)
+void bigMultAssign (biginttype *const big_variable, const_biginttype big2)
 #else
 
 void bigMultAssign (big_variable, big2)
-gmpBiginttype *big_variable;
-gmpBiginttype big2;
+biginttype *big_variable;
+biginttype big2;
 #endif
 
   { /* bigMultAssign */
@@ -934,16 +935,16 @@ gmpBiginttype big2;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-gmpBiginttype bigMultSignedDigit (const_gmpBiginttype big1, inttype number)
+biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
 #else
 
-gmpBiginttype bigMultSignedDigit (big1, number)
-gmpBiginttype big1;
+biginttype bigMultSignedDigit (big1, number)
+biginttype big1;
 inttype number;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigMultSignedDigit */
     result = malloc(sizeof(__mpz_struct));
@@ -957,12 +958,12 @@ inttype number;
 
 #ifdef ANSI_C
 
-booltype bigNe (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+booltype bigNe (const const_biginttype big1, const const_biginttype big2)
 #else
 
 booltype bigNe (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigNe */
@@ -973,11 +974,11 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-booltype bigOdd (const const_gmpBiginttype big1)
+booltype bigOdd (const const_biginttype big1)
 #else
 
 booltype bigOdd (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   { /* bigOdd */
@@ -988,16 +989,16 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigParse (const const_stritype stri)
+biginttype bigParse (const const_stritype stri)
 #else
 
-gmpBiginttype bigParse (stri)
+biginttype bigParse (stri)
 stritype stri;
 #endif
 
   {
     cstritype cstri;
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigParse */
     cstri = cp_to_cstri(stri);
@@ -1023,15 +1024,15 @@ stritype stri;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigPred (const const_gmpBiginttype big1)
+biginttype bigPred (const const_biginttype big1)
 #else
 
-gmpBiginttype bigPred (big1)
-gmpBiginttype big1;
+biginttype bigPred (big1)
+biginttype big1;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigPred */
     result = malloc(sizeof(__mpz_struct));
@@ -1044,11 +1045,11 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigPredTemp (gmpBiginttype big1)
+biginttype bigPredTemp (biginttype big1)
 #else
 
-gmpBiginttype bigPredTemp (big1)
-gmpBiginttype big1;
+biginttype bigPredTemp (big1)
+biginttype big1;
 #endif
 
   { /* bigPredTemp */
@@ -1064,20 +1065,20 @@ gmpBiginttype big1;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigRand (const const_gmpBiginttype lower_limit,
-    const const_gmpBiginttype upper_limit)
+biginttype bigRand (const const_biginttype lower_limit,
+    const const_biginttype upper_limit)
 #else
 
-gmpBiginttype bigRand (lower_limit, upper_limit)
-gmpBiginttype lower_limit;
-gmpBiginttype upper_limit;
+biginttype bigRand (lower_limit, upper_limit)
+biginttype lower_limit;
+biginttype upper_limit;
 #endif
 
   {
     static booltype seed_necessary = TRUE;
     static gmp_randstate_t state;
     mpz_t range_limit;
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigRand */
     mpz_init(range_limit);
@@ -1107,16 +1108,16 @@ gmpBiginttype upper_limit;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigRem (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+biginttype bigRem (const const_biginttype big1, const const_biginttype big2)
 #else
 
-gmpBiginttype bigRem (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigRem (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigRem */
     if (mpz_sgn(big2) == 0) {
@@ -1134,16 +1135,16 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigRShift (const const_gmpBiginttype big1, const inttype rshift)
+biginttype bigRShift (const const_biginttype big1, const inttype rshift)
 #else
 
-gmpBiginttype bigRShift (big1, rshift)
-gmpBiginttype big1;
+biginttype bigRShift (big1, rshift)
+biginttype big1;
 inttype rshift;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigRShift */
     if (rshift < 0) {
@@ -1161,11 +1162,11 @@ inttype rshift;
 
 #ifdef ANSI_C
 
-void bigRShiftAssign (gmpBiginttype *const big_variable, inttype rshift)
+void bigRShiftAssign (biginttype *const big_variable, inttype rshift)
 #else
 
 void bigRShiftAssign (big_variable, rshift)
-gmpBiginttype *const big_variable;
+biginttype *const big_variable;
 inttype rshift;
 #endif
 
@@ -1184,16 +1185,16 @@ inttype rshift;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigSbtr (const const_gmpBiginttype big1, const const_gmpBiginttype big2)
+biginttype bigSbtr (const const_biginttype big1, const const_biginttype big2)
 #else
 
-gmpBiginttype bigSbtr (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigSbtr (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigSbtr */
     result = malloc(sizeof(__mpz_struct));
@@ -1210,12 +1211,12 @@ gmpBiginttype big2;
  */
 #ifdef ANSI_C
 
-gmpBiginttype bigSbtrTemp (gmpBiginttype big1, const_gmpBiginttype big2)
+biginttype bigSbtrTemp (biginttype big1, const_biginttype big2)
 #else
 
-gmpBiginttype bigSbtrTemp (big1, big2)
-gmpBiginttype big1;
-gmpBiginttype big2;
+biginttype bigSbtrTemp (big1, big2)
+biginttype big1;
+biginttype big2;
 #endif
 
   { /* bigSbtrTemp */
@@ -1230,12 +1231,12 @@ gmpBiginttype big2;
  */
 #ifdef ANSI_C
 
-void bigShrink (gmpBiginttype *const big_variable, const const_gmpBiginttype big2)
+void bigShrink (biginttype *const big_variable, const const_biginttype big2)
 #else
 
 void bigShrink (big_variable, big2)
-gmpBiginttype *big_variable;
-gmpBiginttype big2;
+biginttype *big_variable;
+biginttype big2;
 #endif
 
   { /* bigShrink */
@@ -1246,11 +1247,11 @@ gmpBiginttype big2;
 
 #ifdef ANSI_C
 
-stritype bigStr (const const_gmpBiginttype big1)
+stritype bigStr (const const_biginttype big1)
 #else
 
 stritype bigStr (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -1271,15 +1272,15 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigSucc (const const_gmpBiginttype big1)
+biginttype bigSucc (const const_biginttype big1)
 #else
 
-gmpBiginttype bigSucc (big1)
-gmpBiginttype big1;
+biginttype bigSucc (big1)
+biginttype big1;
 #endif
 
   {
-    gmpBiginttype result;
+    biginttype result;
 
   /* bigSucc */
     result = malloc(sizeof(__mpz_struct));
@@ -1292,11 +1293,11 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-gmpBiginttype bigSuccTemp (gmpBiginttype big1)
+biginttype bigSuccTemp (biginttype big1)
 #else
 
-gmpBiginttype bigSuccTemp (big1)
-gmpBiginttype big1;
+biginttype bigSuccTemp (big1)
+biginttype big1;
 #endif
 
   { /* bigSuccTemp */
@@ -1308,11 +1309,11 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-bstritype bigToBStri (const_gmpBiginttype big1)
+bstritype bigToBStri (const_biginttype big1)
 #else
 
 bstritype bigToBStri (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   {
@@ -1384,11 +1385,11 @@ gmpBiginttype big1;
 
 #ifdef ANSI_C
 
-int32type bigToInt32 (const const_gmpBiginttype big1)
+int32type bigToInt32 (const const_biginttype big1)
 #else
 
 int32type bigToInt32 (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   { /* bigToInt32 */
@@ -1405,11 +1406,11 @@ gmpBiginttype big1;
 #ifdef INT64TYPE
 #ifdef ANSI_C
 
-int64type bigToInt64 (const const_gmpBiginttype big1)
+int64type bigToInt64 (const const_biginttype big1)
 #else
 
 int64type bigToInt64 (big1)
-gmpBiginttype big1;
+biginttype big1;
 #endif
 
   { /* bigToInt64 */

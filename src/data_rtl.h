@@ -78,6 +78,8 @@ typedef struct rtlObjectstruct {
     rtlValueunion value;
   } rtlObjecttype;
 
+typedef const struct rtlObjectstruct const_rtlObjecttype;
+
 typedef struct rtlListstruct {
     rtlListtype next;
     rtlObjecttype obj;

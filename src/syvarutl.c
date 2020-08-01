@@ -40,7 +40,7 @@
 #include "syvarutl.h"
 
 
-static cstritype sys_name[NUMBER_OF_SYSVARS] = {
+static const_cstritype sys_name[NUMBER_OF_SYSVARS] = {
     "empty",
     "memory_error",
     "numeric_error",

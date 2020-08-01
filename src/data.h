@@ -82,7 +82,7 @@ typedef enum {
     UNDEF_SYNTAX,
     LIST_WITH_TYPEOF_SYNTAX,
     SELECT_ELEMENT_FROM_LIST_SYNTAX
-  } token_category;
+  } tokencategory;
 
 typedef unsigned long      postype;
 typedef unsigned int       linenumtype;
@@ -161,7 +161,7 @@ typedef struct tokenstruct {
       typetype type_of;
       inttype select;
     } token_value;
-    token_category token_category;
+    tokencategory token_category;
   } tokenrecord;
 
 typedef struct nodestruct {

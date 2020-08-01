@@ -7241,6 +7241,23 @@ CONTENTS
     copy("from", "to");
 
 
+12.9 getenv
+
+    The function 'getenv' determines the value of an
+    environment variable.
+
+      const func string: getenv (in string: name) is ...
+
+    The 'getenv' function searches the environment for an
+    environment variable with the given 'name'. When such
+    an environment variable exists the corresponding string
+    value is returned.
+
+    Returns:
+      The value of an environment variable or ""
+      when the requested environment variable does not exist.
+      
+
 
 13. PRIMITIVE ACTIONS
 =====================

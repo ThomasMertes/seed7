@@ -46,7 +46,7 @@
 
 #ifdef ANSI_C
 
-identtype new_ident (ustritype name, unsigned int length)
+identtype new_ident (const_ustritype name, unsigned int length)
 #else
 
 identtype new_ident (name, length)
@@ -120,7 +120,7 @@ identtype old_ident;
 
 #ifdef ANSI_C
 
-identtype get_ident (ustritype name, unsigned int length)
+identtype get_ident (const_ustritype name, unsigned int length)
 #else
 
 identtype get_ident (name, length)
@@ -149,7 +149,7 @@ unsigned int length;
         ident_found = IDENT_TABLE(name, length);
         searching = TRUE;
         do {
-          if ((comparison = strncmp((cstritype) name,
+          if ((comparison = strncmp((const_cstritype) name,
               (cstritype) ident_found->name, length)) == 0) {
             if (ident_found->name[length] == '\0') {
               searching = FALSE;
@@ -250,10 +250,10 @@ errinfotype *err_info;
         } /* if */
       } /* if */
     } /* for */
-    if ((currentProg->ident.literal = new_ident((ustritype) " *SIMPLE_IDENT* ", 16)) == NULL) {
+    if ((currentProg->ident.literal = new_ident((const_ustritype) " *SIMPLE_IDENT* ", 16)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
-    if ((currentProg->ident.end_of_file = new_ident((ustritype) "END OF FILE", 11)) == NULL) {
+    if ((currentProg->ident.end_of_file = new_ident((const_ustritype) "END OF FILE", 11)) == NULL) {
       *err_info = MEMORY_ERROR;
     } /* if */
     if (*err_info != OKAY_NO_ERROR) {

@@ -101,11 +101,11 @@ char *act_ptr2;
 #ifdef TRACE_ACTUTIL
     printf("BEGIN action_ptr_compare\n");
 #endif
-    if (((unsigned long) (*((primacttype *) act_ptr1))->action) <
-        ((unsigned long) (*((primacttype *) act_ptr2))->action)) {
+    if (((unsigned long) (*((const primacttype *) act_ptr1))->action) <
+        ((unsigned long) (*((const primacttype *) act_ptr2))->action)) {
       return -1;
-    } else if (((unsigned long) (*((primacttype *) act_ptr1))->action) ==
-               ((unsigned long) (*((primacttype *) act_ptr2))->action)) {
+    } else if (((unsigned long) (*((const primacttype *) act_ptr1))->action) ==
+               ((unsigned long) (*((const primacttype *) act_ptr2))->action)) {
       return 0;
     } else {
       return 1;

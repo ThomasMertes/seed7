@@ -40,6 +40,7 @@
 #include "common.h"
 #include "data.h"
 #include "heaputl.h"
+#include "striutl.h"
 #include "flistutl.h"
 #include "syvarutl.h"
 #include "traceutl.h"
@@ -220,7 +221,7 @@ stritype stri;
 
 #ifdef ANSI_C
 
-booltype do_wrcstri (objecttype outfile, cstritype stri)
+booltype do_wrcstri (objecttype outfile, const_cstritype stri)
 #else
 
 booltype do_wrcstri (outfile, stri)
@@ -229,7 +230,6 @@ cstritype stri;
 #endif
 
   {
-    memsizetype len;
     stritype out_stri;
     booltype result;
 
@@ -238,10 +238,8 @@ cstritype stri;
     printf("BEGIN do_wrcstri\n");
 #endif
     result = FALSE;
-    len = (memsizetype) strlen(stri);
-    if (ALLOC_STRI(out_stri, len)) {
-      out_stri->size = len;
-      memcpy(out_stri->mem, stri, (size_t) len);
+    out_stri = cstri_to_stri(stri);
+    if (out_stri != NULL) {
       result = do_wrstri(outfile, out_stri);
       FREE_STRI(out_stri, out_stri->size);
     } /* if */

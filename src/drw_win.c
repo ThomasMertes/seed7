@@ -181,8 +181,8 @@ inttype col;
     if (current_brush == NULL) {
       printf("drwPRect brush with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(actual_window->hdc, current_pen);
-    old_brush = SelectObject(actual_window->hdc, current_brush);
+    old_pen = (HPEN) SelectObject(actual_window->hdc, current_pen);
+    old_brush = (HBRUSH) SelectObject(actual_window->hdc, current_brush);
     if (x1 == x2) {
       if (y1 == y2) {
         SetPixel(actual_window->hdc, x1, y1, (COLORREF) col);
@@ -819,12 +819,12 @@ inttype col;
     if (current_pen == NULL) {
       printf("drwPFCircle pen with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
     /* MoveToEx(to_hdc(actual_window), x + radius, y, NULL); */
     AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
     SelectObject(to_hdc(actual_window), old_pen);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
       /* MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL); */
       AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, angle1, angle2);
       SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -959,12 +959,12 @@ inttype col;
     if (current_pen == NULL) {
       printf("drwPCircle pen with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
     MoveToEx(to_hdc(actual_window), x + radius, y, NULL);
     AngleArc(to_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
     SelectObject(to_hdc(actual_window), old_pen);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
       MoveToEx(to_backup_hdc(actual_window), x + radius, y, NULL);
       AngleArc(to_backup_hdc(actual_window), x, y, (unsigned) radius, 0.0, 360.0);
       SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -996,15 +996,15 @@ inttype col;
 #endif
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
-    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
     Rectangle(to_hdc(actual_window), 0, 0,
         to_width(actual_window), to_height(actual_window));
     SelectObject(to_hdc(actual_window), old_pen);
     SelectObject(to_hdc(actual_window), old_brush);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
-      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
       Rectangle(to_backup_hdc(actual_window), 0, 0,
           to_width(actual_window), to_height(actual_window));
       SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -1103,15 +1103,15 @@ inttype col;
     if (current_brush == NULL) {
       printf("drwPFCircle brush with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
-    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
     Ellipse(to_hdc(actual_window), x - radius, y - radius,
         x + radius, y + radius);
     SelectObject(to_hdc(actual_window), old_pen);
     SelectObject(to_hdc(actual_window), old_brush);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
-      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
       Ellipse(to_backup_hdc(actual_window), x - radius, y - radius,
           x + radius, y + radius);
       SelectObject(to_backup_hdc(actual_window), old_pen);
@@ -1166,14 +1166,14 @@ inttype col;
     if (current_brush == NULL) {
       printf("drwPFEllipse brush with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
-    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
     Ellipse(to_hdc(actual_window), x, y, x + width, y + height);
     SelectObject(to_hdc(actual_window), old_pen);
     SelectObject(to_hdc(actual_window), old_brush);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
-      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
       Ellipse(to_backup_hdc(actual_window), x, y, x + width, y + height);
       SelectObject(to_backup_hdc(actual_window), old_pen);
       SelectObject(to_backup_hdc(actual_window), old_brush);
@@ -1255,7 +1255,7 @@ inttype height;
         result = NULL;
         raise_error(MEMORY_ERROR);
       } else {
-        result->oldBitmap = SelectObject(result->hdc, result->hBitmap);
+        result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
         result->hasTransparentPixel = FALSE;
         result->transparentPixel = 0;
         result->is_pixmap = TRUE;
@@ -1357,13 +1357,13 @@ inttype col;
     if (current_pen == NULL) {
       printf("drwPLine pen with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
     MoveToEx(to_hdc(actual_window), x1, y1, NULL);
     LineTo(to_hdc(actual_window), x2, y2);
     SetPixel(to_hdc(actual_window), x2, y2, (COLORREF) col);
     SelectObject(to_hdc(actual_window), old_pen);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
       MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
       LineTo(to_backup_hdc(actual_window), x2, y2);
       SetPixel(to_backup_hdc(actual_window), x2, y2, (COLORREF) col);
@@ -1396,7 +1396,7 @@ inttype height;
       result->usage_count = 1;
       result->hdc = CreateCompatibleDC(to_hdc(actual_window));
       result->hBitmap = CreateCompatibleBitmap(to_hdc(actual_window), width, height);
-      result->oldBitmap = SelectObject(result->hdc, result->hBitmap);
+      result->oldBitmap = (HBITMAP) SelectObject(result->hdc, result->hBitmap);
       result->hasTransparentPixel = FALSE;
       result->transparentPixel = 0;
       result->is_pixmap = TRUE;
@@ -1690,14 +1690,14 @@ inttype col;
     HPEN current_pen;
 
   /* drwPolyLine */
-    points = point_list->mem;
+    points = (POINT *) point_list->mem;
     npoints = point_list->size / sizeof(POINT);
     if (npoints >= 2) {
       current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
       if (current_pen == NULL) {
         printf("drwPLine pen with color %lx is NULL\n", col);
       } /* if */
-      old_pen = SelectObject(to_hdc(actual_window), current_pen);
+      old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
       MoveToEx(to_hdc(actual_window), x1 + points[0].x, y1 + points[0].y, NULL);
       for (pos = 1; pos < npoints; pos ++) {
         LineTo(to_hdc(actual_window), x1 + points[pos].x, y1 + points[pos].y);
@@ -1705,7 +1705,7 @@ inttype col;
       SetPixel(to_hdc(actual_window), x1 + points[npoints - 1].x, y1 + points[npoints - 1].y, (COLORREF) col);
       SelectObject(to_hdc(actual_window), old_pen);
       if (to_backup_hdc(actual_window) != 0) {
-        old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
+        old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
         MoveToEx(to_backup_hdc(actual_window), x1 + points[0].x, y1 + points[0].y, NULL);
         for (pos = 1; pos < npoints; pos ++) {
           LineTo(to_backup_hdc(actual_window), x1 + points[pos].x, y1 + points[pos].y);
@@ -1742,7 +1742,7 @@ inttype col;
     HBRUSH current_brush;
 
   /* drwFPolyLine */
-    points = point_list->mem;
+    points = (POINT *) point_list->mem;
     npoints = point_list->size / sizeof(POINT);
     for (pos = 0; pos < npoints; pos ++) {
       points[pos].x += x1;
@@ -1756,14 +1756,14 @@ inttype col;
     if (current_brush == NULL) {
       printf("drwPFCircle brush with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
-    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
     Polygon(to_hdc(actual_window), points, npoints);
     SelectObject(to_hdc(actual_window), old_pen);
     SelectObject(to_hdc(actual_window), old_brush);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
-      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
       Polygon(to_backup_hdc(actual_window), points, npoints);
       SelectObject(to_backup_hdc(actual_window), old_pen);
       SelectObject(to_backup_hdc(actual_window), old_brush);
@@ -1817,8 +1817,8 @@ inttype col;
     if (current_brush == NULL) {
       printf("drwPRect brush with color %lx is NULL\n", col);
     } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
-    old_brush = SelectObject(to_hdc(actual_window), current_brush);
+    old_pen = (HPEN) SelectObject(to_hdc(actual_window), current_pen);
+    old_brush = (HBRUSH) SelectObject(to_hdc(actual_window), current_brush);
     if (length_x == 1) {
       if (length_y == 1) {
         SetPixel(to_hdc(actual_window), x1, y1, (COLORREF) col);
@@ -1837,8 +1837,8 @@ inttype col;
     SelectObject(to_hdc(actual_window), old_pen);
     SelectObject(to_hdc(actual_window), old_brush);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
-      old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
+      old_pen = (HPEN) SelectObject(to_backup_hdc(actual_window), current_pen);
+      old_brush = (HBRUSH) SelectObject(to_backup_hdc(actual_window), current_brush);
       if (length_x == 1) {
         if (length_y == 1) {
           SetPixel(to_backup_hdc(actual_window), x1, y1, (COLORREF) col);
@@ -2007,12 +2007,12 @@ inttype bkcol;
   { /* drwText */
 #ifdef UTF32_STRINGS
     {
-      WORD *stri_buffer;
-      WORD *wstri;
+      wchar_t *stri_buffer;
+      wchar_t *wstri;
       strelemtype *strelem;
       memsizetype len;
 
-      stri_buffer = (WORD *) malloc(sizeof(WORD) * stri->size);
+      stri_buffer = (wchar_t *) malloc(sizeof(WORD) * stri->size);
       if (stri_buffer != NULL) {
         wstri = stri_buffer;
         strelem = stri->mem;

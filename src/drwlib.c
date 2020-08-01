@@ -831,7 +831,7 @@ listtype arguments;
       if (width > 0) {
         curr_column = &arr_line->arr[0];
         isit_int(curr_column);
-        image_data = malloc((uinttype) height * (uinttype) width * sizeof(inttype));
+        image_data = (inttype *) malloc((uinttype) height * (uinttype) width * sizeof(inttype));
         pixel_elem = image_data;
         for (line = height; line > 0; line--, curr_line++) {
           arr_line = take_array(curr_line);

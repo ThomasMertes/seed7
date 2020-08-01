@@ -33,8 +33,8 @@
 
 #ifdef ANSI_C
 
-identtype new_ident (ustritype, unsigned int);
-identtype get_ident (ustritype, unsigned int);
+identtype new_ident (const_ustritype, unsigned int);
+identtype get_ident (const_ustritype, unsigned int);
 void close_idents (const_progtype);
 void init_idents (progtype, errinfotype *);
 

@@ -67,8 +67,8 @@ char *strg2;
 
   { /* cmp_mem */
     return(strCompare(
-        ((objecttype) strg1)->value.strivalue,
-        ((objecttype) strg2)->value.strivalue));
+        ((const_objecttype) strg1)->value.strivalue,
+        ((const_objecttype) strg2)->value.strivalue));
   } /* cmp_mem */
 
 

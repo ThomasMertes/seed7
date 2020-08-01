@@ -92,7 +92,7 @@ destrfunctype data_destr_func;
 
 #ifdef ANSI_C
 
-static void free_hash (const const_rtlHashtype old_hash, destrfunctype key_destr_func,
+static void free_hash (const rtlHashtype old_hash, destrfunctype key_destr_func,
     destrfunctype data_destr_func)
 #else
 
@@ -563,8 +563,7 @@ destrfunctype data_destr_func;
     *hash_to = copy_hash(hash_from,
         key_create_func, data_create_func, &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      free_hash(*hash_to, key_destr_func,
-          data_destr_func);
+      free_hash(*hash_to, key_destr_func, data_destr_func);
       *hash_to = NULL;
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -596,8 +595,7 @@ destrfunctype data_destr_func;
     result = copy_hash(hash_from,
         key_create_func, data_create_func, &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      free_hash(result, key_destr_func,
-          data_destr_func);
+      free_hash(result, key_destr_func, data_destr_func);
       result = NULL;
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -608,7 +606,7 @@ destrfunctype data_destr_func;
 
 #ifdef ANSI_C
 
-void hshDestr (const const_rtlHashtype old_hash, destrfunctype key_destr_func,
+void hshDestr (const rtlHashtype old_hash, destrfunctype key_destr_func,
     destrfunctype data_destr_func)
 #else
 
@@ -770,7 +768,7 @@ comparetype cmp_func;
 #ifdef TRACE_HSH_RTL
     printf("END hshIdx(%lX, %lu, %lu) ==> %lX (%lX)\n",
         (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode,
-	(unsigned long) result,
+        (unsigned long) result,
         (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
 #endif
     return(result);
@@ -827,7 +825,7 @@ comparetype cmp_func;
 #ifdef TRACE_HSH_RTL
     printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX)\n",
         (unsigned long) hash1, (unsigned long) key, (unsigned long) hashcode,
-	(unsigned long) result,
+        (unsigned long) result,
         (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
 #endif
     return(result);

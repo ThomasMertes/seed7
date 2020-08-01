@@ -50,7 +50,7 @@
 
 #ifdef ANSI_C
 
-void no_memory (char *source_file, int source_line)
+void no_memory (const_cstritype source_file, int source_line)
 #else
 
 void no_memory (source_file, source_line)
@@ -86,7 +86,7 @@ int source_line;
 
 #ifdef ANSI_C
 
-void fatal_memory_error (char *source_file, int source_line)
+void fatal_memory_error (const_cstritype source_file, int source_line)
 #else
 
 void fatal_memory_error (source_file, source_line)

@@ -39,7 +39,7 @@
 #include "datautl.h"
 
 
-static cstritype category_name[] = {
+static const_cstritype category_name[] = {
     "SYMBOLOBJECT",      /* pos (file, line) - Symbol object        */
                          /*                    created by read_atom */
                          /*                    and read_name        */
@@ -94,7 +94,7 @@ static cstritype category_name[] = {
 
 #ifdef ANSI_C
 
-cstritype category_cstri (objectcategory category)
+const_cstritype category_cstri (objectcategory category)
 #else
 
 cstritype category_cstri (category)
@@ -102,7 +102,7 @@ objectcategory category;
 #endif
 
   {
-    cstritype result;
+    const_cstritype result;
 
   /* category_cstri */
     if (category >= SYMBOLOBJECT && category <= PROGOBJECT) {
@@ -125,12 +125,12 @@ cstritype stri;
 #endif
 
   {
-    objectcategory result;
+    int number;
 
   /* category_value */
-    for (result = SYMBOLOBJECT; result <= PROGOBJECT; result++) {
-      if (strcmp(stri, category_name[(int) result]) == 0) {
-        return(result);
+    for (number = SYMBOLOBJECT; number <= PROGOBJECT; number++) {
+      if (strcmp(stri, category_name[number]) == 0) {
+        return((objectcategory) number);
       } /* if */
     } /* for */
     return((objectcategory) -1);
@@ -140,7 +140,7 @@ cstritype stri;
 
 #ifdef ANSI_C
 
-cstritype id_string (const_identtype actual_ident)
+const_cstritype id_string (const_identtype actual_ident)
 #else
 
 cstritype id_string (actual_ident)
@@ -148,7 +148,7 @@ identtype actual_ident;
 #endif
 
   {
-    cstritype result;
+    const_cstritype result;
 
   /* id_string */
     if (actual_ident == NULL) {
@@ -160,7 +160,7 @@ identtype actual_ident;
     } else if (memchr((cstritype) actual_ident->name, '\0', 51) == NULL) {
       result = " *GARBAGE_IDENT* ";
     } else {
-      result = (cstritype) actual_ident->name;
+      result = (const_cstritype) actual_ident->name;
     } /* if */
     return(result);
   } /* id_string */

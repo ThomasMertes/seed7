@@ -46,7 +46,7 @@
 #include "str_rtl.h"
 
 
-static char *stri_escape_sequence[] = {
+static const_cstritype stri_escape_sequence[] = {
     "\\0\\",  "\\1\\",  "\\2\\",  "\\3\\",  "\\4\\",
     "\\5\\",  "\\6\\",  "\\a",    "\\b",    "\\t",
     "\\n",    "\\v",    "\\f",    "\\r",    "\\14\\",
@@ -55,7 +55,7 @@ static char *stri_escape_sequence[] = {
     "\\25\\", "\\26\\", "\\e",    "\\28\\", "\\29\\",
     "\\30\\", "\\31\\"};
 
-static char *cstri_escape_sequence[] = {
+static const_cstritype cstri_escape_sequence[] = {
     "\\000", "\\001", "\\002", "\\003", "\\004",
     "\\005", "\\006", "\\007", "\\b",   "\\t",
     "\\n",   "\\013", "\\f",   "\\r",   "\\016",
@@ -697,7 +697,7 @@ stritype stri_from;
 
 #ifdef ANSI_C
 
-void strDestr (const const_stritype old_string)
+void strDestr (const stritype old_string)
 #else
 
 void strDestr (old_string)
@@ -774,7 +774,7 @@ stritype stri;
 
   {
     char env_name[250];
-    cstritype environment;
+    const_cstritype environment;
     stritype result;
 
   /* strGetenv */

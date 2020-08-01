@@ -54,7 +54,7 @@ acttype anAction;
 #endif
 
   {
-    char *stri;
+    const_cstritype stri;
     memsizetype len;
     stritype result;
 

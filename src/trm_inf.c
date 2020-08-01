@@ -223,8 +223,8 @@ int *term_char;
 
 #ifdef ANSI_C
 
-static int assign_cap (char *cap_name, char *terminfo_name,
-    char *termcap_name, char **cap_pointer, char *cap_value)
+static int assign_cap (char *cap_name, const_cstritype terminfo_name,
+    const_cstritype termcap_name, char **cap_pointer, char *cap_value)
 #else
 
 static int assign_cap (cap_name, terminfo_name,

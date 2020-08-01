@@ -366,7 +366,7 @@ typetype type_arg;
 #endif
 
   {
-    cstritype stri;
+    const_cstritype stri;
     memsizetype len;
     stritype result;
 

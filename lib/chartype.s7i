@@ -48,6 +48,7 @@ const set of char: other_paren_char is {')', '[', ']', '{', '}'};
 const set of char: name_start_char is letter_char | {'_'};
 const set of char: name_char is letter_char | digit_char | {'_'};
 const set of char: space_or_tab is {' ', '\t'};
+const set of char: line_end_char is {'\n', '\r'};
 const set of char: white_space_char is {' ', '\t', '\n', '\r'};
 const set of char: white_space_or_end_tag is white_space_char | {'>'};
 const set of char: white_space_or_printable is white_space_char | {'!' .. '~'};

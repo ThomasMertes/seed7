@@ -500,7 +500,7 @@ memsizetype length;
   {
     HANDLE hConsole;
     COORD position;
-    inttype numchars;
+    DWORD numchars;
 
   /* scrText */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -540,7 +540,7 @@ inttype stopcol;
   {
     HANDLE hConsole;
     COORD position;
-    inttype numchars;
+    DWORD numchars;
 
   /* scrClear */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);

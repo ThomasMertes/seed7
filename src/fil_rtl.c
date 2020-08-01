@@ -341,9 +341,9 @@ biginttype big_position;
 #ifdef myLseek
     fflush(aFile);
     if (sizeof(offsettype) == 8) {
-      file_position = bigToInt64(big_position);
+      file_position = (offsettype) bigToInt64(big_position);
     } else {
-      file_position = bigToInt32(big_position);
+      file_position = (offsettype) bigToInt32(big_position);
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
@@ -352,9 +352,9 @@ biginttype big_position;
     } /* if */
 #else
     if (sizeof(offsettype) == 8) {
-      file_position = bigToInt64(big_position);
+      file_position = (offsettype) bigToInt64(big_position);
     } else {
-      file_position = bigToInt32(big_position);
+      file_position = (offsettype) bigToInt32(big_position);
     } /* if */
     if (file_position <= 0) {
       raise_error(RANGE_ERROR);
@@ -651,7 +651,7 @@ filetype aFile;
 #endif
 
   {
-    cstritype file_name;
+    const_cstritype file_name;
     memsizetype length;
     stritype result;
 

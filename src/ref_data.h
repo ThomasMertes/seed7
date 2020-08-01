@@ -44,7 +44,7 @@ objecttype refItftosct (objecttype obj_arg);
 inttype refLine (objecttype obj_arg);
 listtype refLocalConsts (objecttype obj_arg);
 listtype refLocalVars (objecttype obj_arg);
-inttype refNum (objecttype obj_arg);;
+inttype refNum (objecttype obj_arg);
 listtype refParams (objecttype obj_arg);
 objecttype refResini (objecttype obj_arg);
 objecttype refResult (objecttype obj_arg);
