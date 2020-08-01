@@ -500,11 +500,15 @@ const proc: skipLine (inout file: inFile) is func
 const func string: getLine (inout file: inFile) is func
   result
     var string: symbol is "";
+  local
+    var char: character is ' ';
   begin
-    while inFile.bufferChar in white_space_char do
-      symbol &:= str(inFile.bufferChar);
-      inFile.bufferChar := getc(inFile);
+    character := inFile.bufferChar;
+    while character <> '\n' and character <> EOF do
+      symbol &:= str(character);
+      character := getc(inFile);
     end while;
+    inFile.bufferChar := character;
   end func;
 
 

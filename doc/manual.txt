@@ -2,7 +2,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2008  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -5015,8 +5015,24 @@ CONTENTS
     end if;
 
   The function 'getSymbol' is designed to read Seed7 symbols. When
-  it returns "" the end of the file is reached. The following loop
-  can be used to process the symbols of a Seed7 program:
+  it returns "" the end of the file is reached.
+  With 'getSymbol' name-value pairs can be read:
+
+    name := getSymbol(inFile);
+    while name <> "" do
+      if name <> "#" and getSymbol(inFile) = nt color=maroon>"="/font> then
+        aValue = getSymbol(inFile);
+        if aValue <> "" then
+          if aValue[1] = '"' then
+            keyValueHash @:= [name] aValue[2 ..];
+          elsif aValue[1] in {'0' .. '9'} then
+            keyValueHash @:= [name] aValue;
+          end if;
+        end if;
+      end if;
+    end while;
+
+  The following loop can be used to process the symbols of a Seed7 program:
 
     inFile.bufferChar := getc(inFile);
     currSymbol := getSymbol(inFile);

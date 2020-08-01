@@ -11380,7 +11380,7 @@ const func boolean: param_list_okay (in ref_list: formal_params) is func
       paramCategory := category(obj);
       if paramCategory <> SYMBOLOBJECT and paramCategory <> TYPEOBJECT then
         if                                  # getType(obj) = typetype or
-            getType(obj) = proctype then
+            is_func(getType(obj)) then
           okay := FALSE;
         end if;
       end if;
@@ -11615,7 +11615,7 @@ const proc: push_macro_param (in reference: formal_param,
   begin
     if category(formal_param) <> SYMBOLOBJECT then
       param_type := getType(formal_param);
-      if param_type = proctype then
+      if is_func(param_type) then
         c_expr.expr &:= "/* proc param o_";
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= "*/\n";
@@ -11688,7 +11688,7 @@ const proc: pop_macro_param (in reference: formal_param,
     paramCategory := category(formal_param);
     if paramCategory <> SYMBOLOBJECT then
       param_type := getType(formal_param);
-      if param_type = proctype then
+      if is_func(param_type) then
         c_expr.expr &:= "/* end proc param o_";
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= "*/\n";
@@ -12019,17 +12019,29 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       if isPointerParam(current_expression) then
         if obj_number(current_expression) <= length(object_value) and
             length(object_value[obj_number(current_expression)]) > 0 then
-          c_expr.expr &:= "/* body o_";
-          create_name2(current_expression, c_expr.expr);
-          c_expr.expr &:= "*/ {\n";
-          process_expr(object_value[obj_number(current_expression)][1], c_body);
-          c_expr.expr &:= c_body.temp_decls;
-          c_expr.expr &:= c_body.temp_assigns;
-          c_expr.expr &:= c_body.expr;
-          c_expr.expr &:= c_body.temp_frees;
-          c_expr.expr &:= "\n} /* body o_";
-          create_name2(current_expression, c_expr.expr);
-          c_expr.expr &:= "*/\n";
+          if getType(current_expression) = proctype then
+            c_expr.expr &:= "/* body o_";
+            create_name2(current_expression, c_expr.expr);
+            c_expr.expr &:= "*/ {\n";
+            process_expr(object_value[obj_number(current_expression)][1], c_body);
+            c_expr.expr &:= c_body.temp_decls;
+            c_expr.expr &:= c_body.temp_assigns;
+            c_expr.expr &:= c_body.expr;
+            c_expr.expr &:= c_body.temp_frees;
+            c_expr.expr &:= "\n} /* body o_";
+            create_name2(current_expression, c_expr.expr);
+            c_expr.expr &:= "*/\n";
+          else
+            c_expr.expr &:= "/* body o_";
+            create_name2(current_expression, c_expr.expr);
+            c_expr.expr &:= "*/ (";
+            process_expr(object_value[obj_number(current_expression)][1], c_body);
+            c_expr.expr &:= c_body.temp_decls;
+            c_expr.expr &:= c_body.temp_assigns;
+            c_expr.expr &:= c_body.expr;
+            c_expr.expr &:= c_body.temp_frees;
+            c_expr.expr &:= ")";
+          end if;
         else
           c_expr.expr &:= "(*o_";
           create_name(current_expression, c_expr.expr);
@@ -15510,20 +15522,6 @@ const func string: temp_name (in string: source) is func
   end func;
 
 
-const func boolean: file_exists (in string: file_name) is func
-  result
-    var boolean: result is FALSE;
-  local
-    var file: a_file is STD_NULL;
-  begin
-    a_file := open(file_name, "r");
-    if a_file <> STD_NULL then
-      close(a_file);
-      result := TRUE;
-    end if;
-  end func;
-
-
 const proc: pass_1 (in string: source, inout program: prog,
     inout boolean: okay) is func
 
@@ -15633,7 +15631,7 @@ const proc: pass_3 (in string: source, in program: prog,
       writeln(compile_cmd);
       flush(OUT);
       cmd_sh(compile_cmd);
-      if not file_exists(temp_name(source) & OBJECT_FILE_EXTENSION) then
+      if not fileExists(temp_name(source) & OBJECT_FILE_EXTENSION) then
         writeln("*** Errors in " <& literal(temp_name(source) & ".c") <&
             " - see " <& literal(temp_name(source) & ".cerrs"));
       else
@@ -15657,7 +15655,7 @@ const proc: pass_3 (in string: source, in program: prog,
         writeln(link_cmd);
         flush(OUT);
         cmd_sh(link_cmd);
-        if not file_exists(source & EXECUTABLE_FILE_EXTENSION) then
+        if not fileExists(source & EXECUTABLE_FILE_EXTENSION) then
           writeln("*** Linker errors with " <&
               literal(temp_name(source) & OBJECT_FILE_EXTENSION) <&
               " - see " <& literal(temp_name(source) & ".lerrs"));

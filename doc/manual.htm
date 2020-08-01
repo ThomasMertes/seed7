@@ -2,7 +2,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2008  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation:  --><p></p><hr><p align="center"><big><b>Manual for the Seed7 programming language</b></big></p><hr><!--         *)
@@ -5015,8 +5015,24 @@
     <font color=blue>end if</font>;
 </pre><p>
   The function <tt>'getSymbol'</tt> is designed to read Seed7 symbols. When
-  it returns <tt><font color=maroon>""</font></tt> the end of the file is reached. The following loop
-  can be used to process the symbols of a Seed7 program:
+  it returns <tt><font color=maroon>""</font></tt> the end of the file is reached.
+  With <tt>'getSymbol'</tt> name-value pairs can be read:
+</p><pre>
+    name := getSymbol(inFile);
+    <font color=blue>while</font> name <> <font color=maroon>""</font> <font color=blue>do</font>
+      <font color=blue>if</font> name <> <font color=maroon>"#"</font> <font color=blue>and</font> getSymbol(inFile) = nt color=maroon>"="/font> <font color=blue>then</font>
+        aValue = getSymbol(inFile);
+        <font color=blue>if</font> aValue <> <font color=maroon>""</font> <font color=blue>then</font>
+          <font color=blue>if</font> aValue[1] = <font color=maroon>'"'</font> <font color=blue>then</font>
+            keyValueHash @:= [name] aValue[2 ..];
+          <font color=blue>elsif</font> aValue[1] <font color=blue>in</font> {<font color=maroon>'0'</font> .. <font color=maroon>'9'</font>} <font color=blue>then</font>
+            keyValueHash @:= [name] aValue;
+          <font color=blue>end if</font>;
+        <font color=blue>end if</font>;
+      <font color=blue>end if</font>;
+    <font color=blue>end while</font>;
+</pre><p>
+  The following loop can be used to process the symbols of a Seed7 program:
 </p><pre>
     inFile.bufferChar := getc(inFile);
     currSymbol := getSymbol(inFile);

@@ -3416,6 +3416,19 @@ const proc: copy (in string param, in string param) is    action "CMD_COPY";
 const proc: symlink (in string param, in string param) is action "CMD_SYMLINK";
 const func string: configValue (in string param) is       action "CMD_CONFIG_VALUE";
 
+const func boolean: fileExists (in string: file_name) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var file: a_file is STD_NULL;
+  begin
+    a_file := open(file_name, "r");
+    if a_file <> STD_NULL then
+      close(a_file);
+      result := TRUE;
+    end if;
+  end func;
+
 const proc: heapstat (PROGRAM) is                         action "PRC_HEAPSTAT";
 const func integer: heapsize (PROGRAM) is                 action "PRC_HSIZE";
 const proc: PRIMITIVE_INCLUDE (in string param) is        action "PRC_INCLUDE";

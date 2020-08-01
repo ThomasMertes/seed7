@@ -1,0 +1,100 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  cgi.s7i       Support for the Common Gateway Interface          *)
+(*  Copyright (C) 1989 - 2008  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "charsets.s7i";
+
+
+const func integer: hex_value (in string: stri) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: pos is 0;
+    var integer: digit is 0;
+  begin
+    pos := 1;
+    while pos <= length(stri) do
+      if stri[pos] >= '0' and stri[pos] <= '9' then
+        digit := ord(stri[pos]) - ord('0');
+      elsif stri[pos] >= 'A' and stri[pos] <= 'F' then
+        digit := 10 + ord(stri[pos]) - ord('A');
+      elsif stri[pos] >= 'a' and stri[pos] <= 'f' then
+        digit := 10 + ord(stri[pos]) - ord('a');
+      end if;
+      result := result * 16 + digit;
+      incr(pos);
+    end while;
+  end func;
+
+
+const func string: replaceHexChars (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: pos is 0;
+  begin
+    result := stri;
+    pos := pos(result, '%', succ(pos));
+    while pos <> 0 do
+      if pos <= length(result) - 2 and
+          result[succ(pos)] in hexdigit_char and
+          result[pos + 2] in hexdigit_char then
+        result := result[.. pred(pos)] &
+            str(chr(hex_value(result[succ(pos) len 2]))) &
+            result[pos + 3 ..];
+      end if;
+      pos := pos(result, '%', succ(pos));
+    end while;
+  end func;
+      
+
+const func hash [string] string: getCgiParameters (in string: paramStri) is func
+  result
+    var hash [string] string: result is (hash [string] string).value;
+  local
+    var array string: paramArray is 0 times "";
+    var integer: index is 0;
+    var string: nameValuePair is "";
+    var integer: pos is 0;
+    var string: name is "";
+    var string: value is "";
+  begin
+    paramArray := split(paramStri, '&');
+    for index range 1 to length(paramArray) do
+      nameValuePair := paramArray[index];
+      pos := pos(nameValuePair, '=');
+      if pos <> 0 then
+        name := nameValuePair[.. pred(pos)];
+        value := nameValuePair[succ(pos) ..];
+        name := replace(name, "+", " ");
+        value := replace(value, "+", " ");
+        name := replaceHexChars(name);
+        value := replaceHexChars(value);
+        result @:= [name] value;
+      end if;
+    end for;
+  end func;

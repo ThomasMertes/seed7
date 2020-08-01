@@ -1,3 +1,11 @@
+20080608:
+- The chapter about symbol scanning from a file in the manual, was improved.
+- A new include file (cgi.s7i) to support the Common Gateway Interface, was added.
+- A bug in the getLine function of the scanfile.s7i library was fixed.
+- The functions fileExists was added to the seed7_05.s7i library.
+- The handling of closures in the compiler (comp.sd7) was improved.
+- A new example program (lander.sd7), which simulates a lunar landing, was added.
+
 20080525:
 - A new chapter about complex numbers was added to the manual.
 - A new chapter about symbol scanning from a file, was added to the manual.

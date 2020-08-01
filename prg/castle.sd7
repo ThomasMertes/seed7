@@ -1800,20 +1800,6 @@ const proc: showItem (in itemObj: anItem) is func
   end func;
 
 
-const func boolean: exists (in string: file_name) is func
-  result
-    var boolean: result is FALSE;
-  local
-    var file: a_file is STD_NULL;
-  begin
-    a_file := open(file_name, "r");
-    if a_file <> STD_NULL then
-      close(a_file);
-      result := TRUE;
-    end if;
-  end func;
-
-
 const proc: loadGame is func
   local
     var file: load_file is STD_NULL;
@@ -1823,7 +1809,7 @@ const proc: loadGame is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    if exists("castle.sav") then
+    if fileExists("castle.sav") then
       if isOkay([]("Do you want to load a saved game.", "This will end the current game?")) then
         load_file := open("castle.sav", "r");
         for monster_ident range MIN_MONSTER to MAX_MONSTER do
@@ -1870,12 +1856,12 @@ const proc: saveGame is func
     var integer: line is 0;
     var integer: column is 0;
   begin
-    if exists("castle.sav") then
+    if fileExists("castle.sav") then
       if isOkay([]("Do you want to overwrite the", "game currently saved?")) then
         remove("castle.sav");
       end if;
     end if;
-    if not exists("castle.sav") then
+    if not fileExists("castle.sav") then
       save_file := open("castle.sav", "w");
       for monster_ident range MIN_MONSTER to MAX_MONSTER do
         writeln(save_file, monster[monster_ident].adjective);
