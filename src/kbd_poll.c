@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  kbd_inf.c     Driver for terminfo keyboard access               */
-/*  Copyright (C) 1989 - 2005  Thomas Mertes                        */
+/*  kbd_poll.c    Driver for terminfo keyboard access using poll()  */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,7 +23,7 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/kbd_inf.c                                       */
+/*  File: seed7/src/kbd_poll.c                                      */
 /*  Changes: 1994, 2006, 2010  Thomas Mertes                        */
 /*  Content: Driver for terminfo keyboard access                    */
 /*                                                                  */
@@ -54,6 +54,7 @@
 #endif
 #endif
 
+#include "poll.h"
 #include "errno.h"
 
 #include "trm_drv.h"
@@ -125,43 +126,28 @@ char *ch;
 #endif
 
   {
+    struct pollfd poll_fds[1];
+    int poll_result;
     booltype result;
 
   /* read_char_if_present */
-    term_descr.c_cc[VMIN] = 0;
-    term_descr.c_cc[VTIME] = 10; /* Time in units of 0.1 seconds */
-    tcsetattr(fileno(stdin), TCSANOW, &term_descr);
-    result = fread(ch, 1, 1, stdin) == 1;
-    term_descr.c_cc[VMIN] = 1;
-    term_descr.c_cc[VTIME] = 0;
-    tcsetattr(fileno(stdin), TCSANOW, &term_descr);
+    poll_fds[0].fd = fileno(stdin);
+    poll_fds[0].events = POLLIN | POLLPRI;
+    poll_result = poll(poll_fds, 1, 1000 /* milliseconds */);
+    if (poll_result == 1) {
+      printf("poll_fds[0].events = %04X\n", poll_fds[0].events);
+      printf("poll_fds[0].revents = %04X\n", poll_fds[0].revents);
+      fread(ch, 1, 1, stdin);
+      result = TRUE;
+    } else {
+      result = FALSE;
+    } /* if */
+#ifdef TRACE_FKEYS
+    printf("read_char_if_present: ch=%u, poll_result=%d, result=%s\n",
+        *ch, poll_result, result ? "TRUE" : "FALSE");
+#endif
     return(result);
   } /* read_char_if_present */
-
-
-
-#ifdef ANSI_C
-
-static void consume_chars_present (void)
-#else
-
-static void consume_chars_present ()
-#endif
-
-  {
-    char ch;
-
-  /* consume_chars_present */
-    term_descr.c_cc[VMIN] = 0;
-    term_descr.c_cc[VTIME] = 0;
-    tcsetattr(fileno(stdin), TCSANOW, &term_descr);
-    while (fread(&ch, 1, 1, stdin) == 1) {
-      printf("consume: %d\n", ch);
-    } /* while */
-    term_descr.c_cc[VMIN] = 1;
-    term_descr.c_cc[VTIME] = 0;
-    tcsetattr(fileno(stdin), TCSANOW, &term_descr);
-  } /* consume_chars_present */
 
 
 
@@ -184,10 +170,10 @@ int ustri_len;
     if (ustri[0] <= 0x7F) {
       if (ustri_len == 1) {
         return(ustri[0]);
-      } else { /* ustri_len == 2 */
+      } else { /* ustri_len >= 2 */
         last_key = ustri[1];
         key_buffer_filled = TRUE;
-        return(ustri[0]);
+        return(K_UNDEF);
       } /* if */
     } else if ((ustri[0] & 0xE0) == 0xC0) {
       len = 2;
@@ -202,10 +188,10 @@ int ustri_len;
     } else {
       if (ustri_len == 1) {
         return(ustri[0]);
-      } else { /* ustri_len == 2 */
+      } else { /* ustri_len >= 2 */
         last_key = ustri[1];
         key_buffer_filled = TRUE;
-        return(ustri[0]);
+        return(K_UNDEF);
       } /* if */
     } /* if */
     if (ustri_len == 2 && (ustri[1] & 0xC0) != 0x80) {
@@ -244,165 +230,6 @@ int ustri_len;
       } /* if */
     } /* if */
   } /* read_utf8_key */
-
-
-
-#ifdef ANSI_C
-
-static chartype read_f_key (chartype actual_char)
-#else
-
-static chartype read_f_key (actual_char)
-chartype actual_char;
-#endif
-
-  {
-    char in_buffer[101];
-    static char last_partial_match[101];
-    static time_t last_partial_time = 0;
-    size_t pos;
-    int exact_match;
-    int partial_match;
-    int number;
-    size_t len;
-    int key_number;
-    chartype result;
-
-  /* read_f_key */
-    if (last_partial_time != 0) {
-      if (time(NULL) - last_partial_time < 5) {
-        /* If the previous call of read_f_key was at most 5 seconds */
-        /* ago and the function key was recognised with a partial   */
-        /* match and a timeout the following check is done. It is   */
-        /* checked if the new character together with the       */
-        /* characters from the partial match of the previous call   */
-        /* of read_f_key are a possible begin of a function key. In */
-        /* this case it was wrong that the previous call of         */
-        /* read_f_key submits the function key found with a partial */
-        /* match and a timeout. Hopefully the function key did not  */
-        /* damage something. Normally the function key deliverd in  */
-        /* such a case is the escape key. For that reason escape    */
-        /* should not start any dangerous function. Terminating a   */
-        /* function with escape should be safe. The following       */
-        /* actions are done to avoid further damage. As long as     */
-        /* characters are already typed in they are read and        */
-        /* discarded. When no more characters are present in the    */
-        /* input queue the function returns K_NULLCMD. The          */
-        /* K_NULLCMD should do nothing in every application.        */
-        /* fprintf(stderr, "<possible garbage keys>"); */
-        pos = strlen(last_partial_match);
-        last_partial_match[pos] = (char) actual_char;
-        last_partial_match[pos + 1] = '\0';
-        pos++;
-        key_number = 0;
-        exact_match = 0;
-        partial_match = 0;
-        for (number = 0; number < SIZE_KEY_TABLE; number++) {
-          if (key_table[number] != NULL) {
-            len = strlen(key_table[number]);
-            if (pos <= len) {
-              if (strncmp(key_table[number], last_partial_match,
-                  pos) == 0) {
-                if (pos == len) {
-                  exact_match++;
-                  key_number = number;
-                } else {
-                  partial_match++;
-                } /* if */
-              } /* if */
-            } /* if */
-          } /* if */
-        } /* for */
-        if (exact_match != 0 || partial_match != 0) {
-#ifdef TRACE_FKEYS
-          printf("exact %d partial %d - consume_chars_present\n",
-              exact_match, partial_match);
-#endif
-          consume_chars_present();
-          last_partial_time = 0;
-          return(K_NULLCMD);
-        } /* if */
-      } /* if */
-      last_partial_time = 0;
-    } /* if */
-    in_buffer[0] = (char) actual_char;
-    in_buffer[1] = '\0';
-    pos = 1;
-    do {
-      key_number = 0;
-      exact_match = 0;
-      partial_match = 0;
-      for (number = 0; number < SIZE_KEY_TABLE; number++) {
-        if (key_table[number] != NULL) {
-          len = strlen(key_table[number]);
-          if (pos <= len) {
-            if (strncmp(key_table[number], in_buffer,
-                pos) == 0) {
-              if (pos == len) {
-                exact_match++;
-                key_number = number;
-              } else {
-                partial_match++;
-              } /* if */
-            } /* if */
-          } /* if */
-        } /* if */
-      } /* for */
-#ifdef TRACE_FKEYS
-      { char *cha = in_buffer;
-        printf("key match \"");
-        while (*cha != 0) {
-          if (*cha == '\"' || *cha == '\\') {
-            printf("\%c", *cha);
-          } else if (*cha >= ' ' && *cha <= '~') {
-            printf("%c", *cha);
-          } else {
-            printf("\\%d\\", (int) *cha);
-          } /* if */
-          cha++;
-        } /* while */
-        printf("\" exact %d partial %d\n", exact_match, partial_match);
-      }
-#endif
-      if (exact_match == 0) {
-        if (partial_match != 0) {
-          in_buffer[pos] = getc(stdin);
-          in_buffer[pos + 1] = '\0';
-        } /* if */
-      } else {
-        if (partial_match != 0) {
-          if (read_char_if_present(&in_buffer[pos])) {
-            in_buffer[pos + 1] = '\0';
-          } else {
-            strcpy(last_partial_match, in_buffer);
-            last_partial_time = time(NULL);
-            partial_match = 0;
-          } /* if */
-        } /* if */
-      } /* if */
-      pos++;
-    } while (partial_match != 0 && pos < 100);
-    if (exact_match == 1) {
-      result = key_code[key_number];
-    } else {
-      if (pos == 2 || pos == 3) {
-        if (utf8_mode) {
-          result = read_utf8_key((ustritype) in_buffer, pos - 1);
-        } else {
-          if (pos == 2) {
-            result = actual_char;
-          } else { /* if (pos == 3) { */
-            last_key = in_buffer[1];
-            key_buffer_filled = TRUE;
-            result = actual_char;
-          } /* if */
-        } /* if */
-      } else {
-        result = K_UNDEF;
-      } /* if */
-    } /* if */
-    return(result);
-  } /* read_f_key */
 
 
 
@@ -679,7 +506,7 @@ booltype kbdKeyPressed ()
 #endif
 
   {
-    char buffer;
+    struct pollfd poll_fds[1];
     booltype result;
 
   /* kbdKeyPressed */
@@ -692,30 +519,12 @@ booltype kbdKeyPressed ()
       if (changes) {
         scrFlush();
       } /* if */
-      term_descr.c_cc[VMIN] = 0;
-      term_descr.c_cc[VTIME] = 0;
-      if (tcsetattr(fileno(stdin), TCSANOW, &term_descr) != 0) {
-        printf("kbdKeyPressed: tcsetattr(%d, VMIN=0) failed, errno=%d\n",
-            fileno(stdin), errno);
-        printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
-            EBADF, EINTR, EINVAL, ENOTTY, EIO);
-        result = FALSE;
+      poll_fds[0].fd = fileno(stdin);
+      poll_fds[0].events = POLLIN | POLLPRI;
+      if (poll(poll_fds, 1, 0) == 1) {
+        result = TRUE;
       } else {
-        if (fread(&buffer, 1, 1, stdin) == 1) {
-          result = TRUE;
-          last_key = buffer;
-          key_buffer_filled = TRUE;
-        } else {
-          result = FALSE;
-        } /* if */
-        term_descr.c_cc[VMIN] = 1;
-        term_descr.c_cc[VTIME] = 0;
-        if (tcsetattr(fileno(stdin), TCSANOW, &term_descr) != 0) {
-          printf("kbdKeyPressed: tcsetattr(%d, VMIN=1) failed, errno=%d\n",
-              fileno(stdin), errno);
-          printf("EBADF=%d  EINTR=%d  EINVAL=%d  ENOTTY=%d  EIO=%d\n",
-              EBADF, EINTR, EINVAL, ENOTTY, EIO);
-        } /* if */
+        result = FALSE;
       } /* if */
     } /* if */
     return(result);
@@ -732,23 +541,60 @@ chartype kbdGetc ()
 #endif
 
   {
+    char buffer[10];
+    int fread_result;
+    int exact_match;
+    int number;
+    size_t len;
+    int key_number;
     chartype result;
 
   /* kbdGetc */
     if (!keybd_initialized) {
       kbd_init();
     } /* if */
-    if (key_buffer_filled) {
-      key_buffer_filled = FALSE;
-      result = last_key;
-    } else {
-      if (changes) {
-        scrFlush();
-      } /* if */
-      result = getc(stdin);
+    if (changes) {
+      scrFlush();
     } /* if */
-    result = read_f_key(result);
-/*  fprintf(stderr, "<%d>", result); */
+    fread_result = read(fileno(stdin), &buffer, 10);
+#ifdef TRACE_FKEYS
+    printf("kbdGetc: fread_result = %u, buffer: ", fread_result);
+    for (number = 0; number < fread_result; number++) {
+      if (buffer[number] == '\\') {
+        printf("\\\\");
+      } else if (buffer[number] >= ' ' && buffer[number] <= '~') {
+        printf("%c", buffer[number]);
+      } else {
+        printf("\\%u\\", buffer[number]);
+      } /* if */
+    } /* if */
+    printf("\n");
+#endif
+    key_number = 0;
+    exact_match = 0;
+    for (number = 0; number < SIZE_KEY_TABLE; number++) {
+      if (key_table[number] != NULL) {
+        len = strlen(key_table[number]);
+        if (fread_result == len &&
+            memcmp(key_table[number], buffer, fread_result) == 0) {
+          exact_match++;
+          key_number = number;
+        } /* if */
+      } /* if */
+    } /* for */
+    if (exact_match == 1) {
+      result = key_code[key_number];
+    } else {
+      if (utf8_mode) {
+        result = read_utf8_key((ustritype) buffer, fread_result);
+      } else {
+        if (fread_result == 1) {
+          result = buffer[0];
+        } else { /* if (fread_result >= 2) { */
+          result = K_UNDEF;
+        } /* if */
+      } /* if */
+    } /* if */
     return(result);
   } /* kbdGetc */
 

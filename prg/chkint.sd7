@@ -24,6 +24,8 @@
 
 $ include "seed7_05.s7i";
 
+const integer: INT32_MIN is pred(-2147483647);
+
 
 const func integer: intExpr (in integer: number) is
   return number;
@@ -85,7 +87,7 @@ const proc: check_exponent_integer_literal is func
     if okay then
       writeln("Integer literals with exponent work correct.");
     else
-      writeln(" ***** Integer literals with exponent do not work correct");
+      writeln(" ***** Integer literals with exponent do not work correct.");
       writeln;
     end if;
   end func;
@@ -203,7 +205,7 @@ const proc: chack_based_integer_literal is func
     if okay then
       writeln("Based integer literals work correct.");
     else
-      writeln(" ***** Based integer literals do not work correct");
+      writeln(" ***** Based integer literals do not work correct.");
       writeln;
     end if;
   end func;
@@ -221,13 +223,13 @@ const proc: check_negation is func
       if -number <> neg_number then
         write(" ***** -");
         write(number);
-        writeln(" is not correct computed");
+        writeln(" is not correct computed.");
         okay := FALSE;
       end if;
       decr(neg_number);
     end for;
     if okay then
-      writeln("-i is correct computed in the range -10 to 10");
+      writeln("-i is correct computed in the range -10 to 10.");
     end if;
   end func;
 
@@ -245,9 +247,9 @@ const proc: check_add is func
              73819 +     124303 =     198122 and
         2147483647 +          0 = 2147483647 and
                  0 + 2147483647 = 2147483647 then
-      writeln("Addition works correct for selected values");
+      writeln("Addition works correct for selected values.");
     else
-      writeln(" ***** Addition does not work correct");
+      writeln(" ***** Addition does not work correct.");
     end if;
   end func;
 
@@ -311,9 +313,9 @@ const proc: check_division is func
       end for;
     end for;
     if okay then
-      writeln("Div and rem work correct for selected values");
+      writeln("Div and rem work correct for selected values.");
     else
-      writeln(" ***** div and rem does not work correct");
+      writeln(" ***** div and rem does not work correct.");
     end if;
 
     okay := TRUE;
@@ -328,9 +330,9 @@ const proc: check_division is func
       end for;
     end for;
     if okay then
-      writeln("Mdiv and mod work correct for selected values");
+      writeln("Mdiv and mod work correct for selected values.");
     else
-      writeln(" ***** mdiv and mod does not work correct");
+      writeln(" ***** mdiv and mod does not work correct.");
     end if;
   end func;
 
@@ -550,7 +552,7 @@ const proc: check_div is func
          -8 div -5 <>  1 or
          -9 div -5 <>  1 or
         -10 div -5 <>  2 then
-      writeln(" ***** div with two constants does not work correct");
+      writeln(" ***** div with two constants does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) div  5 <>  2 or
@@ -976,7 +978,7 @@ const proc: check_div is func
          -8 div intExpr(-5) <>  1 or
          -9 div intExpr(-5) <>  1 or
         -10 div intExpr(-5) <>  2 then
-      writeln(" ***** div with a constant and an expression does not work correct");
+      writeln(" ***** div with a constant and an expression does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) div intExpr( 5) <>  2 or
@@ -1189,13 +1191,13 @@ const proc: check_div is func
         intExpr( -8) div intExpr(-5) <>  1 or
         intExpr( -9) div intExpr(-5) <>  1 or
         intExpr(-10) div intExpr(-5) <>  2 then
-      writeln(" ***** div with two expressions does not work correct");
+      writeln(" ***** div with two expressions does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("Div works correct for selected values");
+      writeln("Div works correct for selected values.");
     else
-      writeln(" ***** div does not work correct");
+      writeln(" ***** div does not work correct.");
     end if;
   end func;
 
@@ -1415,7 +1417,7 @@ const proc: check_rem is func
          -8 rem -5 <> -3 or
          -9 rem -5 <> -4 or
         -10 rem -5 <>  0 then
-      writeln(" ***** rem with two constants does not work correct");
+      writeln(" ***** rem with two constants does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) rem  5 <>  0 or
@@ -1628,7 +1630,7 @@ const proc: check_rem is func
         intExpr( -8) rem -5 <> -3 or
         intExpr( -9) rem -5 <> -4 or
         intExpr(-10) rem -5 <>  0 then
-      writeln(" ***** rem with an expression and a constant does not work correct");
+      writeln(" ***** rem with an expression and a constant does not work correct.");
       okay := FALSE;
     end if;
     if   10 rem intExpr( 5) <>  0 or
@@ -1841,7 +1843,7 @@ const proc: check_rem is func
          -8 rem intExpr(-5) <> -3 or
          -9 rem intExpr(-5) <> -4 or
         -10 rem intExpr(-5) <>  0 then
-      writeln(" ***** rem with a constant and an expression does not work correct");
+      writeln(" ***** rem with a constant and an expression does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) rem intExpr( 5) <>  0 or
@@ -2054,13 +2056,13 @@ const proc: check_rem is func
         intExpr( -8) rem intExpr(-5) <> -3 or
         intExpr( -9) rem intExpr(-5) <> -4 or
         intExpr(-10) rem intExpr(-5) <>  0 then
-      writeln(" ***** rem with two expressions does not work correct");
+      writeln(" ***** rem with two expressions does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("Rem works correct for selected values");
+      writeln("Rem works correct for selected values.");
     else
-      writeln(" ***** rem does not work correct");
+      writeln(" ***** rem does not work correct.");
     end if;
   end func;
 
@@ -2280,7 +2282,7 @@ const proc: check_mdiv is func
          -8 mdiv -5 <>  1 or
          -9 mdiv -5 <>  1 or
         -10 mdiv -5 <>  2 then
-      writeln(" ***** mdiv with two constants does not work correct");
+      writeln(" ***** mdiv with two constants does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) mdiv  5 <>  2 or
@@ -2706,7 +2708,7 @@ const proc: check_mdiv is func
          -8 mdiv intExpr(-5) <>  1 or
          -9 mdiv intExpr(-5) <>  1 or
         -10 mdiv intExpr(-5) <>  2 then
-      writeln(" ***** mdiv with a constant and an expression does not work correct");
+      writeln(" ***** mdiv with a constant and an expression does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) mdiv intExpr( 5) <>  2 or
@@ -2919,13 +2921,13 @@ const proc: check_mdiv is func
         intExpr( -8) mdiv intExpr(-5) <>  1 or
         intExpr( -9) mdiv intExpr(-5) <>  1 or
         intExpr(-10) mdiv intExpr(-5) <>  2 then
-      writeln(" ***** mdiv with two expressions does not work correct");
+      writeln(" ***** mdiv with two expressions does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("Mdiv works correct for selected values");
+      writeln("Mdiv works correct for selected values.");
     else
-      writeln(" ***** mdiv does not work correct");
+      writeln(" ***** mdiv does not work correct.");
     end if;
   end func;
 
@@ -3145,7 +3147,7 @@ const proc: check_mod is func
          -8 mod -5 <> -3 or
          -9 mod -5 <> -4 or
         -10 mod -5 <>  0 then
-      writeln(" ***** mod with two constants does not work correct");
+      writeln(" ***** mod with two constants does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) mod  5 <>  0 or
@@ -3358,7 +3360,7 @@ const proc: check_mod is func
         intExpr( -8) mod -5 <> -3 or
         intExpr( -9) mod -5 <> -4 or
         intExpr(-10) mod -5 <>  0 then
-      writeln(" ***** mod with an expression and a constant does not work correct");
+      writeln(" ***** mod with an expression and a constant does not work correct.");
       okay := FALSE;
     end if;
     if   10 mod intExpr( 5) <>  0 or
@@ -3571,7 +3573,7 @@ const proc: check_mod is func
          -8 mod intExpr(-5) <> -3 or
          -9 mod intExpr(-5) <> -4 or
         -10 mod intExpr(-5) <>  0 then
-      writeln(" ***** mod with a constant and an expression does not work correct");
+      writeln(" ***** mod with a constant and an expression does not work correct.");
       okay := FALSE;
     end if;
     if  intExpr( 10) mod intExpr( 5) <>  0 or
@@ -3784,13 +3786,13 @@ const proc: check_mod is func
         intExpr( -8) mod intExpr(-5) <> -3 or
         intExpr( -9) mod intExpr(-5) <> -4 or
         intExpr(-10) mod intExpr(-5) <>  0 then
-      writeln(" ***** mod with two expressions does not work correct");
+      writeln(" ***** mod with two expressions does not work correct.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("Mod works correct for selected values");
+      writeln("Mod works correct for selected values.");
     else
-      writeln(" ***** mod does not work correct");
+      writeln(" ***** mod does not work correct.");
     end if;
   end func;
 
@@ -3810,9 +3812,9 @@ const proc: check_odd is func
       is_odd := not is_odd;
     end for;
     if okay then
-      writeln("odd(i) works correct in the range -20 to 20");
+      writeln("odd(i) works correct in the range -20 to 20.");
     else
-      writeln(" ***** odd(i) does not work correct");
+      writeln(" ***** odd(i) does not work correct.");
     end if;
   end func;
 
@@ -3833,13 +3835,13 @@ const proc: check_fact is func
         if !number <> fact then
           write(" ***** !");
           write(number);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           okay := FALSE;
         end if;
       end for;
     end if;
     if okay then
-      writeln("!i works correct for i in the range 0 to 12");
+      writeln("!i works correct for i in the range 0 to 12.");
     end if;
   end func;
 
@@ -3860,7 +3862,7 @@ const proc: check_binom is func
           write(n);
           write(" ! ");
           write(k);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           okay := FALSE;
         end if;
       end for;
@@ -3870,7 +3872,7 @@ const proc: check_binom is func
           write(n);
           write(" ! ");
           write(k);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           okay := FALSE;
         end if;
       end for;
@@ -3882,7 +3884,7 @@ const proc: check_binom is func
           write(n);
           write(" ! ");
           write(k);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           write(pred(n) ! pred(k));
           write(" ");
           write(pred(n) ! k);
@@ -3899,7 +3901,7 @@ const proc: check_binom is func
           write(n);
           write(" ! ");
           write(k);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           okay := FALSE;
         end if;
       end for;
@@ -3916,7 +3918,7 @@ const proc: check_binom is func
           write(n);
           write(" ! ");
           write(k);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           write(binom_result);
           write(" ");
           writeln(n ! k);
@@ -3925,7 +3927,7 @@ const proc: check_binom is func
       end for;
     end for;
     if okay then
-      writeln("n ! k is correct for n <= 30");
+      writeln("n ! k is correct for n <= 30.");
     end if;
   end func;
 
@@ -3946,7 +3948,7 @@ const proc: check_power is func
           write(BASE);
           write(" ** ");
           write(EXP);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           okay := FALSE;
         end if;
         number := BASE * number;
@@ -3961,7 +3963,7 @@ const proc: check_power is func
           write(BASE);
           write(" ** ");
           write(EXP);
-          writeln(" is not correct computed");
+          writeln(" is not correct computed.");
           okay := FALSE;
         end if;
         number := BASE * number;
@@ -3971,16 +3973,166 @@ const proc: check_power is func
       if 0 ** EXP <> 0 then
         write(" ***** 0 ** ");
         write(EXP);
-        writeln(" is not correct computed");
+        writeln(" is not correct computed.");
         okay := FALSE;
       end if;
     end for;
     if 0 ** 0 <> 1 then
-      write(" ***** 0 ** 0 is not correct computed");
+      write(" ***** 0 ** 0 is not correct computed.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4");
+      writeln("i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4.");
+    end if;
+  end func;
+
+
+const proc: check_powers_of_2 is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  2 **  0 <>          1 or
+        2 **  1 <>          2 or
+        2 **  2 <>          4 or
+        2 **  3 <>          8 or
+        2 **  4 <>         16 or
+        2 **  5 <>         32 or
+        2 **  6 <>         64 or
+        2 **  7 <>        128 or
+        2 **  8 <>        256 or
+        2 **  9 <>        512 or
+        2 ** 10 <>       1024 or
+        2 ** 11 <>       2048 or
+        2 ** 12 <>       4096 or
+        2 ** 13 <>       8192 or
+        2 ** 14 <>      16384 or
+        2 ** 15 <>      32768 or
+        2 ** 16 <>      65536 or
+        2 ** 17 <>     131072 or
+        2 ** 18 <>     262144 or
+        2 ** 19 <>     524288 or
+        2 ** 20 <>    1048576 or
+        2 ** 21 <>    2097152 or
+        2 ** 22 <>    4194304 or
+        2 ** 23 <>    8388608 or
+        2 ** 24 <>   16777216 or
+        2 ** 25 <>   33554432 or
+        2 ** 26 <>   67108864 or
+        2 ** 27 <>  134217728 or
+        2 ** 28 <>  268435456 or
+        2 ** 29 <>  536870912 or
+        2 ** 30 <> 1073741824 then
+      writeln(" ***** Computing powers of two with constants does not work correct.");
+      okay := FALSE;
+    end if;
+    if  intExpr(2) **  0 <>          1 or
+        intExpr(2) **  1 <>          2 or
+        intExpr(2) **  2 <>          4 or
+        intExpr(2) **  3 <>          8 or
+        intExpr(2) **  4 <>         16 or
+        intExpr(2) **  5 <>         32 or
+        intExpr(2) **  6 <>         64 or
+        intExpr(2) **  7 <>        128 or
+        intExpr(2) **  8 <>        256 or
+        intExpr(2) **  9 <>        512 or
+        intExpr(2) ** 10 <>       1024 or
+        intExpr(2) ** 11 <>       2048 or
+        intExpr(2) ** 12 <>       4096 or
+        intExpr(2) ** 13 <>       8192 or
+        intExpr(2) ** 14 <>      16384 or
+        intExpr(2) ** 15 <>      32768 or
+        intExpr(2) ** 16 <>      65536 or
+        intExpr(2) ** 17 <>     131072 or
+        intExpr(2) ** 18 <>     262144 or
+        intExpr(2) ** 19 <>     524288 or
+        intExpr(2) ** 20 <>    1048576 or
+        intExpr(2) ** 21 <>    2097152 or
+        intExpr(2) ** 22 <>    4194304 or
+        intExpr(2) ** 23 <>    8388608 or
+        intExpr(2) ** 24 <>   16777216 or
+        intExpr(2) ** 25 <>   33554432 or
+        intExpr(2) ** 26 <>   67108864 or
+        intExpr(2) ** 27 <>  134217728 or
+        intExpr(2) ** 28 <>  268435456 or
+        intExpr(2) ** 29 <>  536870912 or
+        intExpr(2) ** 30 <> 1073741824 then
+      writeln(" ***** Computing powers of two with an expression and a constant does not work correct.");
+      okay := FALSE;
+    end if;
+    if  2 ** intExpr( 0) <>          1 or
+        2 ** intExpr( 1) <>          2 or
+        2 ** intExpr( 2) <>          4 or
+        2 ** intExpr( 3) <>          8 or
+        2 ** intExpr( 4) <>         16 or
+        2 ** intExpr( 5) <>         32 or
+        2 ** intExpr( 6) <>         64 or
+        2 ** intExpr( 7) <>        128 or
+        2 ** intExpr( 8) <>        256 or
+        2 ** intExpr( 9) <>        512 or
+        2 ** intExpr(10) <>       1024 or
+        2 ** intExpr(11) <>       2048 or
+        2 ** intExpr(12) <>       4096 or
+        2 ** intExpr(13) <>       8192 or
+        2 ** intExpr(14) <>      16384 or
+        2 ** intExpr(15) <>      32768 or
+        2 ** intExpr(16) <>      65536 or
+        2 ** intExpr(17) <>     131072 or
+        2 ** intExpr(18) <>     262144 or
+        2 ** intExpr(19) <>     524288 or
+        2 ** intExpr(20) <>    1048576 or
+        2 ** intExpr(21) <>    2097152 or
+        2 ** intExpr(22) <>    4194304 or
+        2 ** intExpr(23) <>    8388608 or
+        2 ** intExpr(24) <>   16777216 or
+        2 ** intExpr(25) <>   33554432 or
+        2 ** intExpr(26) <>   67108864 or
+        2 ** intExpr(27) <>  134217728 or
+        2 ** intExpr(28) <>  268435456 or
+        2 ** intExpr(29) <>  536870912 or
+        2 ** intExpr(30) <> 1073741824 then
+      writeln(" ***** Computing powers of two with a constant and an expression does not work correct.");
+      okay := FALSE;
+    end if;
+    if  intExpr(2) ** intExpr( 0) <>          1 or
+        intExpr(2) ** intExpr( 1) <>          2 or
+        intExpr(2) ** intExpr( 2) <>          4 or
+        intExpr(2) ** intExpr( 3) <>          8 or
+        intExpr(2) ** intExpr( 4) <>         16 or
+        intExpr(2) ** intExpr( 5) <>         32 or
+        intExpr(2) ** intExpr( 6) <>         64 or
+        intExpr(2) ** intExpr( 7) <>        128 or
+        intExpr(2) ** intExpr( 8) <>        256 or
+        intExpr(2) ** intExpr( 9) <>        512 or
+        intExpr(2) ** intExpr(10) <>       1024 or
+        intExpr(2) ** intExpr(11) <>       2048 or
+        intExpr(2) ** intExpr(12) <>       4096 or
+        intExpr(2) ** intExpr(13) <>       8192 or
+        intExpr(2) ** intExpr(14) <>      16384 or
+        intExpr(2) ** intExpr(15) <>      32768 or
+        intExpr(2) ** intExpr(16) <>      65536 or
+        intExpr(2) ** intExpr(17) <>     131072 or
+        intExpr(2) ** intExpr(18) <>     262144 or
+        intExpr(2) ** intExpr(19) <>     524288 or
+        intExpr(2) ** intExpr(20) <>    1048576 or
+        intExpr(2) ** intExpr(21) <>    2097152 or
+        intExpr(2) ** intExpr(22) <>    4194304 or
+        intExpr(2) ** intExpr(23) <>    8388608 or
+        intExpr(2) ** intExpr(24) <>   16777216 or
+        intExpr(2) ** intExpr(25) <>   33554432 or
+        intExpr(2) ** intExpr(26) <>   67108864 or
+        intExpr(2) ** intExpr(27) <>  134217728 or
+        intExpr(2) ** intExpr(28) <>  268435456 or
+        intExpr(2) ** intExpr(29) <>  536870912 or
+        intExpr(2) ** intExpr(30) <> 1073741824 then
+      writeln(" ***** Computing powers of two with two expressions does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Computing powers of two works correct.");
+    else
+      writeln(" ***** Computing powers of two does not work correct.");
     end if;
   end func;
 
@@ -4006,7 +4158,7 @@ const proc: check_sqrt is func
       end if;
     end for;
     if okay then
-      writeln("Integer sqrt is correct for values between 0 and 1000");
+      writeln("Integer sqrt is correct for values between 0 and 1000.");
     end if;
     okay := TRUE;
     for count range 1 to 10000 do
@@ -4035,7 +4187,7 @@ const proc: check_sqrt is func
       end if;
     end for;
     if okay then
-      writeln("Integer sqrt is correct for 11000 random values");
+      writeln("Integer sqrt is correct for 11000 random values.");
     end if;
   end func;
 
@@ -4074,7 +4226,7 @@ const proc: check_log2 is func
       power_of_two := power_of_two * 2;
     end for;
     if okay then
-      writeln("log2 is correct for results between 0 and 30");
+      writeln("log2 is correct for results between 0 and 30.");
     end if;
   end func;
 
@@ -4105,46 +4257,50 @@ const func boolean: chkLShift (in integer: number, in integer: lshift) is func
 
 const proc: chkLShift (in integer: lshift, inout boolean: okay) is func
   begin
-    if  chkLShift(           2147483647, lshift) or
-        chkLShift(           1000000000, lshift) or
-        chkLShift(            100000000, lshift) or
-        chkLShift(             10000000, lshift) or
-        chkLShift(              1000000, lshift) or
-        chkLShift(               100000, lshift) or
-        chkLShift(                65536, lshift) or
-        chkLShift(                65535, lshift) or
-        chkLShift(                32768, lshift) or
-        chkLShift(                32767, lshift) or
-        chkLShift(                10000, lshift) or
-        chkLShift(                 1000, lshift) or
-        chkLShift(                  256, lshift) or
-        chkLShift(                  255, lshift) or
-        chkLShift(                  128, lshift) or
-        chkLShift(                  127, lshift) or
-        chkLShift(                  100, lshift) or
-        chkLShift(                   10, lshift) or
-        chkLShift(                    1, lshift) or
-        chkLShift(                    0, lshift) or
-        chkLShift(                   -1, lshift) or
-        chkLShift(                  -10, lshift) or
-        chkLShift(                 -100, lshift) or
-        chkLShift(                 -128, lshift) or
-        chkLShift(                 -129, lshift) or
-        chkLShift(                 -256, lshift) or
-        chkLShift(                 -257, lshift) or
-        chkLShift(                -1000, lshift) or
-        chkLShift(               -10000, lshift) or
-        chkLShift(               -32768, lshift) or
-        chkLShift(               -32769, lshift) or
-        chkLShift(               -65536, lshift) or
-        chkLShift(               -65537, lshift) or
-        chkLShift(              -100000, lshift) or
-        chkLShift(             -1000000, lshift) or
-        chkLShift(            -10000000, lshift) or
-        chkLShift(           -100000000, lshift) or
-        chkLShift(          -1000000000, lshift) or
-        chkLShift(          -2147483647, lshift) or
-        chkLShift(    pred(-2147483647), lshift) then
+    if  chkLShift( 2147483647, lshift) or
+        chkLShift( 1073741824, lshift) or
+        chkLShift( 1073741823, lshift) or
+        chkLShift( 1000000000, lshift) or
+        chkLShift(  100000000, lshift) or
+        chkLShift(   10000000, lshift) or
+        chkLShift(    1000000, lshift) or
+        chkLShift(     100000, lshift) or
+        chkLShift(      65536, lshift) or
+        chkLShift(      65535, lshift) or
+        chkLShift(      32768, lshift) or
+        chkLShift(      32767, lshift) or
+        chkLShift(      10000, lshift) or
+        chkLShift(       1000, lshift) or
+        chkLShift(        256, lshift) or
+        chkLShift(        255, lshift) or
+        chkLShift(        128, lshift) or
+        chkLShift(        127, lshift) or
+        chkLShift(        100, lshift) or
+        chkLShift(         10, lshift) or
+        chkLShift(          1, lshift) or
+        chkLShift(          0, lshift) or
+        chkLShift(         -1, lshift) or
+        chkLShift(        -10, lshift) or
+        chkLShift(       -100, lshift) or
+        chkLShift(       -128, lshift) or
+        chkLShift(       -129, lshift) or
+        chkLShift(       -256, lshift) or
+        chkLShift(       -257, lshift) or
+        chkLShift(      -1000, lshift) or
+        chkLShift(     -10000, lshift) or
+        chkLShift(     -32768, lshift) or
+        chkLShift(     -32769, lshift) or
+        chkLShift(     -65536, lshift) or
+        chkLShift(     -65537, lshift) or
+        chkLShift(    -100000, lshift) or
+        chkLShift(   -1000000, lshift) or
+        chkLShift(  -10000000, lshift) or
+        chkLShift( -100000000, lshift) or
+        chkLShift(-1000000000, lshift) or
+        chkLShift(-1073741824, lshift) or
+        chkLShift(-1073741825, lshift) or
+        chkLShift(-2147483647, lshift) or
+        chkLShift(  INT32_MIN, lshift) then
       writeln("The integer << or <<:= with " <& lshift <& " does not work correct.");
       okay := FALSE;
     end if;
@@ -4201,46 +4357,50 @@ const func boolean: chkRShift (in integer: number, in integer: rshift) is func
 
 const proc: chkRShift (in integer: rshift, inout boolean: okay) is func
   begin
-    if  chkRShift(           2147483647, rshift) or
-        chkRShift(           1000000000, rshift) or
-        chkRShift(            100000000, rshift) or
-        chkRShift(             10000000, rshift) or
-        chkRShift(              1000000, rshift) or
-        chkRShift(               100000, rshift) or
-        chkRShift(                65536, rshift) or
-        chkRShift(                65535, rshift) or
-        chkRShift(                32768, rshift) or
-        chkRShift(                32767, rshift) or
-        chkRShift(                10000, rshift) or
-        chkRShift(                 1000, rshift) or
-        chkRShift(                  256, rshift) or
-        chkRShift(                  255, rshift) or
-        chkRShift(                  128, rshift) or
-        chkRShift(                  127, rshift) or
-        chkRShift(                  100, rshift) or
-        chkRShift(                   10, rshift) or
-        chkRShift(                    1, rshift) or
-        chkRShift(                    0, rshift) or
-        chkRShift(                   -1, rshift) or
-        chkRShift(                  -10, rshift) or
-        chkRShift(                 -100, rshift) or
-        chkRShift(                 -128, rshift) or
-        chkRShift(                 -129, rshift) or
-        chkRShift(                 -256, rshift) or
-        chkRShift(                 -257, rshift) or
-        chkRShift(                -1000, rshift) or
-        chkRShift(               -10000, rshift) or
-        chkRShift(               -32768, rshift) or
-        chkRShift(               -32769, rshift) or
-        chkRShift(               -65536, rshift) or
-        chkRShift(               -65537, rshift) or
-        chkRShift(              -100000, rshift) or
-        chkRShift(             -1000000, rshift) or
-        chkRShift(            -10000000, rshift) or
-        chkRShift(           -100000000, rshift) or
-        chkRShift(          -1000000000, rshift) or
-        chkRShift(          -2147483647, rshift) or
-        chkRShift(    pred(-2147483647), rshift) then
+    if  chkRShift( 2147483647, rshift) or
+        chkRShift( 1073741824, rshift) or
+        chkRShift( 1073741823, rshift) or
+        chkRShift( 1000000000, rshift) or
+        chkRShift(  100000000, rshift) or
+        chkRShift(   10000000, rshift) or
+        chkRShift(    1000000, rshift) or
+        chkRShift(     100000, rshift) or
+        chkRShift(      65536, rshift) or
+        chkRShift(      65535, rshift) or
+        chkRShift(      32768, rshift) or
+        chkRShift(      32767, rshift) or
+        chkRShift(      10000, rshift) or
+        chkRShift(       1000, rshift) or
+        chkRShift(        256, rshift) or
+        chkRShift(        255, rshift) or
+        chkRShift(        128, rshift) or
+        chkRShift(        127, rshift) or
+        chkRShift(        100, rshift) or
+        chkRShift(         10, rshift) or
+        chkRShift(          1, rshift) or
+        chkRShift(          0, rshift) or
+        chkRShift(         -1, rshift) or
+        chkRShift(        -10, rshift) or
+        chkRShift(       -100, rshift) or
+        chkRShift(       -128, rshift) or
+        chkRShift(       -129, rshift) or
+        chkRShift(       -256, rshift) or
+        chkRShift(       -257, rshift) or
+        chkRShift(      -1000, rshift) or
+        chkRShift(     -10000, rshift) or
+        chkRShift(     -32768, rshift) or
+        chkRShift(     -32769, rshift) or
+        chkRShift(     -65536, rshift) or
+        chkRShift(     -65537, rshift) or
+        chkRShift(    -100000, rshift) or
+        chkRShift(   -1000000, rshift) or
+        chkRShift(  -10000000, rshift) or
+        chkRShift( -100000000, rshift) or
+        chkRShift(-1000000000, rshift) or
+        chkRShift(-1073741824, rshift) or
+        chkRShift(-1073741825, rshift) or
+        chkRShift(-2147483647, rshift) or
+        chkRShift(  INT32_MIN, rshift) then
       writeln("The integer >> or >>:= with " <& rshift <& " does not work correct.");
       okay := FALSE;
     end if;
@@ -4268,50 +4428,140 @@ const proc: check_rShift is func
 const proc: check_str is func
   local
     var boolean: okay is TRUE;
+    
     var integer: n is 0;
     var integer: k is 0;
   begin
     okay := TRUE;
-    if  str(-10001) <>  "-10001" or
-        str(-10000) <>  "-10000" or
-        str( -9999) <>   "-9999" or
-        str( -2000) <>   "-2000" or
-        str( -1001) <>   "-1001" or
-        str( -1000) <>   "-1000" or
-        str(  -999) <>    "-999" or
-        str(  -200) <>    "-200" or
-        str(  -101) <>    "-101" or
-        str(  -100) <>    "-100" or
-        str(   -99) <>     "-99" or
-        str(   -20) <>     "-20" or
-        str(   -11) <>     "-11" or
-        str(   -10) <>     "-10" or
-        str(    -9) <>      "-9" or
-        str(    -2) <>      "-2" or
-        str(    -1) <>      "-1" or
-        str(     0) <>       "0" or
-        str(     1) <>       "1" or
-        str(     2) <>       "2" or
-        str(     9) <>       "9" or
-        str(    10) <>      "10" or
-        str(    11) <>      "11" or
-        str(    20) <>      "20" or
-        str(    99) <>      "99" or
-        str(   100) <>     "100" or
-        str(   101) <>     "101" or
-        str(   200) <>     "200" or
-        str(   999) <>     "999" or
-        str(  1000) <>    "1000" or
-        str(  1001) <>    "1001" or
-        str(  2000) <>    "2000" or
-        str(  9999) <>    "9999" or
-        str( 10000) <>   "10000" or
-        str( 10001) <>   "10001" then
-      writeln(" ***** Integer str is not correct computed");
+    if  str(  INT32_MIN) <> "-2147483648" or
+        str(-2147483647) <> "-2147483647" or
+        str(-1073741825) <> "-1073741825" or
+        str(-1073741824) <> "-1073741824" or
+        str(-1000000000) <> "-1000000000" or
+        str( -100000000) <>  "-100000000" or
+        str(  -10000000) <>   "-10000000" or
+        str(   -1000000) <>    "-1000000" or
+        str(    -100000) <>     "-100000" or
+        str(     -65537) <>      "-65537" or
+        str(     -65536) <>      "-65536" or
+        str(     -32769) <>      "-32769" or
+        str(     -32768) <>      "-32768" or
+        str(     -10001) <>      "-10001" or
+        str(     -10000) <>      "-10000" or
+        str(      -9999) <>       "-9999" or
+        str(      -2000) <>       "-2000" or
+        str(      -1001) <>       "-1001" or
+        str(      -1000) <>       "-1000" or
+        str(       -999) <>        "-999" or
+        str(       -200) <>        "-200" or
+        str(       -101) <>        "-101" or
+        str(       -100) <>        "-100" or
+        str(        -99) <>         "-99" or
+        str(        -20) <>         "-20" or
+        str(        -11) <>         "-11" or
+        str(        -10) <>         "-10" or
+        str(         -9) <>          "-9" or
+        str(         -2) <>          "-2" or
+        str(         -1) <>          "-1" or
+        str(          0) <>           "0" or
+        str(          1) <>           "1" or
+        str(          2) <>           "2" or
+        str(          9) <>           "9" or
+        str(         10) <>          "10" or
+        str(         11) <>          "11" or
+        str(         20) <>          "20" or
+        str(         99) <>          "99" or
+        str(        100) <>         "100" or
+        str(        101) <>         "101" or
+        str(        200) <>         "200" or
+        str(        999) <>         "999" or
+        str(       1000) <>        "1000" or
+        str(       1001) <>        "1001" or
+        str(       2000) <>        "2000" or
+        str(       9999) <>        "9999" or
+        str(      10000) <>       "10000" or
+        str(      10001) <>       "10001" or
+        str(      32768) <>       "32768" or
+        str(      32769) <>       "32769" or
+        str(      65536) <>       "65536" or
+        str(      65537) <>       "65537" or
+        str(     100000) <>      "100000" or
+        str(    1000000) <>     "1000000" or
+        str(   10000000) <>    "10000000" or
+        str(  100000000) <>   "100000000" or
+        str( 1000000000) <>  "1000000000" or
+        str( 1073741823) <>  "1073741823" or
+        str( 1073741824) <>  "1073741824" or
+        str( 2147483647) <>  "2147483647" then
+      writeln(" ***** Integer str with literals does not work correct.");
       okay := FALSE;
     end if;
+    if  str(intExpr(  INT32_MIN)) <> "-2147483648" or
+        str(intExpr(-2147483647)) <> "-2147483647" or
+        str(intExpr(-1073741825)) <> "-1073741825" or
+        str(intExpr(-1073741824)) <> "-1073741824" or
+        str(intExpr(-1000000000)) <> "-1000000000" or
+        str(intExpr( -100000000)) <>  "-100000000" or
+        str(intExpr(  -10000000)) <>   "-10000000" or
+        str(intExpr(   -1000000)) <>    "-1000000" or
+        str(intExpr(    -100000)) <>     "-100000" or
+        str(intExpr(     -65537)) <>      "-65537" or
+        str(intExpr(     -65536)) <>      "-65536" or
+        str(intExpr(     -32769)) <>      "-32769" or
+        str(intExpr(     -32768)) <>      "-32768" or
+        str(intExpr(     -10001)) <>      "-10001" or
+        str(intExpr(     -10000)) <>      "-10000" or
+        str(intExpr(      -9999)) <>       "-9999" or
+        str(intExpr(      -2000)) <>       "-2000" or
+        str(intExpr(      -1001)) <>       "-1001" or
+        str(intExpr(      -1000)) <>       "-1000" or
+        str(intExpr(       -999)) <>        "-999" or
+        str(intExpr(       -200)) <>        "-200" or
+        str(intExpr(       -101)) <>        "-101" or
+        str(intExpr(       -100)) <>        "-100" or
+        str(intExpr(        -99)) <>         "-99" or
+        str(intExpr(        -20)) <>         "-20" or
+        str(intExpr(        -11)) <>         "-11" or
+        str(intExpr(        -10)) <>         "-10" or
+        str(intExpr(         -9)) <>          "-9" or
+        str(intExpr(         -2)) <>          "-2" or
+        str(intExpr(         -1)) <>          "-1" or
+        str(intExpr(          0)) <>           "0" or
+        str(intExpr(          1)) <>           "1" or
+        str(intExpr(          2)) <>           "2" or
+        str(intExpr(          9)) <>           "9" or
+        str(intExpr(         10)) <>          "10" or
+        str(intExpr(         11)) <>          "11" or
+        str(intExpr(         20)) <>          "20" or
+        str(intExpr(         99)) <>          "99" or
+        str(intExpr(        100)) <>         "100" or
+        str(intExpr(        101)) <>         "101" or
+        str(intExpr(        200)) <>         "200" or
+        str(intExpr(        999)) <>         "999" or
+        str(intExpr(       1000)) <>        "1000" or
+        str(intExpr(       1001)) <>        "1001" or
+        str(intExpr(       2000)) <>        "2000" or
+        str(intExpr(       9999)) <>        "9999" or
+        str(intExpr(      10000)) <>       "10000" or
+        str(intExpr(      10001)) <>       "10001" or
+        str(intExpr(      32768)) <>       "32768" or
+        str(intExpr(      32769)) <>       "32769" or
+        str(intExpr(      65536)) <>       "65536" or
+        str(intExpr(      65537)) <>       "65537" or
+        str(intExpr(     100000)) <>      "100000" or
+        str(intExpr(    1000000)) <>     "1000000" or
+        str(intExpr(   10000000)) <>    "10000000" or
+        str(intExpr(  100000000)) <>   "100000000" or
+        str(intExpr( 1000000000)) <>  "1000000000" or
+        str(intExpr( 1073741823)) <>  "1073741823" or
+        str(intExpr( 1073741824)) <>  "1073741824" or
+        str(intExpr( 2147483647)) <>  "2147483647" then
+      writeln(" ***** Integer str with expressions does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
-      writeln("Integer str does work correct");
+      writeln("Integer str does work correct.");
     end if;
   end func;
 
@@ -4323,46 +4573,71 @@ const proc: check_parse is func
     var integer: k is 0;
   begin
     okay := TRUE;
-    if  integer parse "-10001" <> -10001 or
-        integer parse "-10000" <> -10000 or
-        integer parse  "-9999" <>  -9999 or
-        integer parse  "-2000" <>  -2000 or
-        integer parse  "-1001" <>  -1001 or
-        integer parse  "-1000" <>  -1000 or
-        integer parse   "-999" <>   -999 or
-        integer parse   "-200" <>   -200 or
-        integer parse   "-101" <>   -101 or
-        integer parse   "-100" <>   -100 or
-        integer parse    "-99" <>    -99 or
-        integer parse    "-20" <>    -20 or
-        integer parse    "-11" <>    -11 or
-        integer parse    "-10" <>    -10 or
-        integer parse     "-9" <>     -9 or
-        integer parse     "-2" <>     -2 or
-        integer parse     "-1" <>     -1 or
-        integer parse      "0" <>      0 or
-        integer parse      "1" <>      1 or
-        integer parse      "2" <>      2 or
-        integer parse      "9" <>      9 or
-        integer parse     "10" <>     10 or
-        integer parse     "11" <>     11 or
-        integer parse     "20" <>     20 or
-        integer parse     "99" <>     99 or
-        integer parse    "100" <>    100 or
-        integer parse    "101" <>    101 or
-        integer parse    "200" <>    200 or
-        integer parse    "999" <>    999 or
-        integer parse   "1000" <>   1000 or
-        integer parse   "1001" <>   1001 or
-        integer parse   "2000" <>   2000 or
-        integer parse   "9999" <>   9999 or
-        integer parse  "10000" <>  10000 or
-        integer parse  "10001" <>  10001 then
-      writeln(" ***** Integer parse is not correct computed");
+    if  # integer parse "-2147483648" <>   INT32_MIN or
+        integer parse "-2147483647" <> -2147483647 or
+        integer parse "-1073741825" <> -1073741825 or
+        integer parse "-1073741824" <> -1073741824 or
+        integer parse "-1000000000" <> -1000000000 or
+        integer parse  "-100000000" <>  -100000000 or
+        integer parse   "-10000000" <>   -10000000 or
+        integer parse    "-1000000" <>    -1000000 or
+        integer parse     "-100000" <>     -100000 or
+        integer parse      "-65537" <>      -65537 or
+        integer parse      "-65536" <>      -65536 or
+        integer parse      "-32769" <>      -32769 or
+        integer parse      "-32768" <>      -32768 or
+        integer parse      "-10001" <>      -10001 or
+        integer parse      "-10000" <>      -10000 or
+        integer parse       "-9999" <>       -9999 or
+        integer parse       "-2000" <>       -2000 or
+        integer parse       "-1001" <>       -1001 or
+        integer parse       "-1000" <>       -1000 or
+        integer parse        "-999" <>        -999 or
+        integer parse        "-200" <>        -200 or
+        integer parse        "-101" <>        -101 or
+        integer parse        "-100" <>        -100 or
+        integer parse         "-99" <>         -99 or
+        integer parse         "-20" <>         -20 or
+        integer parse         "-11" <>         -11 or
+        integer parse         "-10" <>         -10 or
+        integer parse          "-9" <>          -9 or
+        integer parse          "-2" <>          -2 or
+        integer parse          "-1" <>          -1 or
+        integer parse           "0" <>           0 or
+        integer parse           "1" <>           1 or
+        integer parse           "2" <>           2 or
+        integer parse           "9" <>           9 or
+        integer parse          "10" <>          10 or
+        integer parse          "11" <>          11 or
+        integer parse          "20" <>          20 or
+        integer parse          "99" <>          99 or
+        integer parse         "100" <>         100 or
+        integer parse         "101" <>         101 or
+        integer parse         "200" <>         200 or
+        integer parse         "999" <>         999 or
+        integer parse        "1000" <>        1000 or
+        integer parse        "1001" <>        1001 or
+        integer parse        "2000" <>        2000 or
+        integer parse        "9999" <>        9999 or
+        integer parse       "10000" <>       10000 or
+        integer parse       "10001" <>       10001 or
+        integer parse       "32768" <>       32768 or
+        integer parse       "32769" <>       32769 or
+        integer parse       "65536" <>       65536 or
+        integer parse       "65537" <>       65537 or
+        integer parse      "100000" <>      100000 or
+        integer parse     "1000000" <>     1000000 or
+        integer parse    "10000000" <>    10000000 or
+        integer parse   "100000000" <>   100000000 or
+        integer parse  "1000000000" <>  1000000000 or
+        integer parse  "1073741823" <>  1073741823 or
+        integer parse  "1073741824" <>  1073741824 or
+        integer parse  "2147483647" <>  2147483647 then
+      writeln(" ***** Integer parse is not correct computed.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("Integer parse does work correct");
+      writeln("Integer parse does work correct.");
     end if;
   end func;
 
@@ -4584,11 +4859,11 @@ const proc: check_lpad0 is func
        (  9999 lpad0 5) <>  "09999" or
        ( 10000 lpad0 5) <>  "10000" or
        ( 10001 lpad0 5) <>  "10001" then
-      writeln(" ***** Integer lpad0 is not correct computed");
+      writeln(" ***** Integer lpad0 is not correct computed.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("Integer lpad0 does work correct");
+      writeln("Integer lpad0 does work correct.");
     end if;
   end func;
 
@@ -4600,7 +4875,7 @@ const proc: check_bitLength is func
     var integer: k is 0;
   begin
     okay := TRUE;
-    if  bitLength(pred(-2147483647)) <> 31 or
+    if  bitLength(  INT32_MIN) <> 31 or
         bitLength(-2147483647) <> 31 or
         bitLength(-1073741825) <> 31 or
         bitLength(-1073741824) <> 30 or
@@ -4725,11 +5000,11 @@ const proc: check_bitLength is func
         bitLength( 1073741823) <> 30 or
         bitLength( 1073741824) <> 31 or
         bitLength( 2147483647) <> 31 then
-      writeln(" ***** Integer bitLength is not correct computed");
+      writeln(" ***** Integer bitLength is not correct computed.");
       okay := FALSE;
     end if;
     if okay then
-      writeln("Integer bitLength does work correct");
+      writeln("Integer bitLength does work correct.");
     end if;
   end func;
 
@@ -4751,6 +5026,7 @@ const proc: main is func
     check_fact;
     check_binom;
     check_power;
+    check_powers_of_2;
     check_sqrt;
     check_log2;
     check_lShift;

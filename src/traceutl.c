@@ -165,7 +165,7 @@ inttype ivalue;
     char buffer[51];
 
   /* prot_int */
-    sprintf(buffer, "%ld", ivalue);
+    sprintf(buffer, INTTYPE_FORMAT, ivalue);
     prot_cstri(buffer);
   } /* prot_int */
 
@@ -207,11 +207,11 @@ chartype cvalue;
     if (cvalue <= (chartype) 26) {
       sprintf(buffer, "\'\\%c\'", ((int) cvalue) + '@');
     } else if (cvalue <= (chartype) 31) {
-      sprintf(buffer, "\'\\%ld\\\'", cvalue);
+      sprintf(buffer, "\'\\%lu\\\'", (unsigned long) cvalue);
     } else if (cvalue <= (chartype) 127) {
       sprintf(buffer, "\'%c\'", (int) cvalue);
     } else {
-      sprintf(buffer, "\'\\%ld\\\'", cvalue);
+      sprintf(buffer, "\'\\%lu\\\'", (unsigned long) cvalue);
     } /* if */
     prot_cstri(buffer);
   } /* prot_char */
@@ -247,7 +247,7 @@ stritype out_mem;
           if (*str <= (chartype) 26) {
             sprintf(buffer, "\\%c", ((int) *str) + '@');
           } else if (*str <= (chartype) 31) {
-            sprintf(buffer, "\\%lu\\", *str);
+            sprintf(buffer, "\\%lu\\", (unsigned long) *str);
           } else if (*str == (chartype) '\\') {
             sprintf(buffer, "\\\\");
           } else if (*str == (chartype) '\"') {
@@ -257,7 +257,7 @@ stritype out_mem;
           } else if (*str == (chartype) -1) {
             sprintf(buffer, "\\-1\\");
           } else {
-            sprintf(buffer, "\\%lu\\", *str);
+            sprintf(buffer, "\\%lu\\", (unsigned long) *str);
           } /* if */
           prot_cstri(buffer);
           /* putc((int) *str, protfile); */
@@ -383,7 +383,7 @@ void prot_heapsize ()
     char buffer[51];
 
   /* prot_heapsize */
-    sprintf(buffer, "%6lu", heapsize());
+    sprintf(buffer, "%6lu", (unsigned long) heapsize());
     prot_cstri(buffer);
   } /* prot_heapsize */
 

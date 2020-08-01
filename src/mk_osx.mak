@@ -7,7 +7,10 @@
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -g -Wall
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -16,8 +19,8 @@ LFLAGS = -L/usr/X11R6/lib
 # LFLAGS = -pg -lc_p
 # LIBS = /usr/Xlib/libX11.so -lncurses -lm
 LIBS = -lX11 -lncurses -lm
-# LIBS = -lX11 -lncurses -lm_p -lc_p
 # LIBS = -lX11 -lncurses -lm -lgmp
+# LIBS = -lX11 -lncurses -lm_p -lc_p
 SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
@@ -28,18 +31,29 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
-# SCREEN_OBJ = scr_x11.o
-# SCREEN_SRC = scr_x11.c
-SCREEN_OBJ = scr_infi.o kbd_infi.o trm_inf.o
-SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
-# SCREEN_OBJ = scr_infp.o kbd_infp.o trm_cap.o
+# TERMINFO_OR_TERMCAP = USE_TERMINFO
+# SCREEN_OBJ = scr_inf.o kbd_inf.o trm_inf.o
+# SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
+# TERMINFO_OR_TERMCAP = USE_TERMCAP
+# SCREEN_OBJ = scr_inf.o kbd_inf.o trm_cap.o
 # SCREEN_SRC = scr_inf.c kbd_inf.c trm_cap.c
+TERMINFO_OR_TERMCAP = USE_TERMINFO
+SCREEN_OBJ = scr_inf.o kbd_poll.o trm_inf.o
+SCREEN_SRC = scr_inf.c kbd_poll.c trm_inf.c
+# TERMINFO_OR_TERMCAP = USE_TERMCAP
+# SCREEN_OBJ = scr_inf.o kbd_poll.o trm_cap.o
+# SCREEN_SRC = scr_inf.c kbd_poll.c trm_cap.c
+
 # SCREEN_OBJ = scr_cur.o
 # SCREEN_SRC = scr_cur.c
 # SCREEN_OBJ = scr_cap.o
 # SCREEN_SRC = scr_cap.c
 # SCREEN_OBJ = scr_tcp.o
 # SCREEN_SRC = scr_tcp.c
+# SCREEN_OBJ = scr_x11.o
+# SCREEN_SRC = scr_x11.c
+# SCREEN_OBJ = scr_win.o
+# SCREEN_SRC = scr_win.c
 
 MOBJ1 = hi.o
 POBJ1 = runerr.o option.o primitiv.o
@@ -94,38 +108,6 @@ hi.gp: $(OBJ)
 ../prg/hi:
 	ln -s ../src/hi ../prg
 
-scr_x11.o: scr_x11.c version.h scr_drv.h trm_drv.h
-	$(CC) $(CFLAGS) -c scr_x11.c
-
-scr_infi.o: scr_inf.c version.h scr_drv.h trm_drv.h
-	echo "#undef  USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c scr_inf.c
-	mv scr_inf.o scr_infi.o
-
-scr_infp.o: scr_inf.c version.h scr_drv.h trm_drv.h
-	echo "#define USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c scr_inf.c
-	mv scr_inf.o scr_infp.o
-
-kbd_infi.o: kbd_inf.c version.h kbd_drv.h trm_drv.h
-	echo "#undef  USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c kbd_inf.c
-	mv kbd_inf.o kbd_infi.o
-
-kbd_infp.o: kbd_inf.c version.h kbd_drv.h trm_drv.h
-	echo "#define USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c kbd_inf.c
-	mv kbd_inf.o kbd_infp.o
-
-trm_inf.o: trm_inf.c version.h trm_drv.h
-	$(CC) $(CFLAGS) -c trm_inf.c
-
-trm_cap.o: trm_cap.c version.h trm_drv.h
-	$(CC) $(CFLAGS) -c trm_cap.c
-
-scr_cur.o: scr_cur.c version.h scr_drv.h
-	$(CC) $(CFLAGS) -c scr_cur.c
-
 
 clear: clean
 
@@ -144,13 +126,12 @@ version.h:
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
 	echo "#define HAS_FIFO_FILES" >> version.h
+	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
+	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#undef  INCL_NCURSES_TERM" >> version.h
 	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
-	echo "#define INT64TYPE long long int" >> version.h
-	echo "#define UINT64TYPE unsigned long long" >> version.h
-	echo "#define INT64TYPE_SUFFIX_LL" >> version.h
 	echo "#define OS_PATH_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#define USE_LSEEK" >> version.h
@@ -161,6 +142,39 @@ version.h:
 	echo "int main (int argc, char **argv)" >> chkccomp.c
 	echo "{" >> chkccomp.c
 	echo "long number;" >> chkccomp.c
+	echo "if (sizeof(char *) == 4) {" >> chkccomp.c
+	echo "puts(\"#define POINTER_SIZE 32\");" >> chkccomp.c
+	echo "} else if (sizeof(char *) == 8) {" >> chkccomp.c
+	echo "puts(\"#define POINTER_SIZE 64\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "if (sizeof(int) == 4) {" >> chkccomp.c
+	echo "puts(\"#define INT32TYPE int\");" >> chkccomp.c
+	echo "puts(\"#define INT32TYPE_STRI \\\"int\\\"\");" >> chkccomp.c
+	echo "puts(\"#define UINT32TYPE unsigned int\");" >> chkccomp.c
+	echo "puts(\"#define UINT32TYPE_STRI \\\"unsigned int\\\"\");" >> chkccomp.c
+	echo "} else if (sizeof(long) == 4) {" >> chkccomp.c
+	echo "puts(\"#define INT32TYPE long\");" >> chkccomp.c
+	echo "puts(\"#define INT32TYPE_STRI \\\"long\\\"\");" >> chkccomp.c
+	echo "puts(\"#define UINT32TYPE unsigned long\");" >> chkccomp.c
+	echo "puts(\"#define UINT32TYPE_STRI \\\"unsigned long\\\"\");" >> chkccomp.c
+	echo "puts(\"#define INT32TYPE_SUFFIX_L\");" >> chkccomp.c
+	echo "puts(\"#define INT32TYPE_FORMAT_L\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "if (sizeof(long) == 8) {" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE long\");" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE_STRI \\\"long\\\"\");" >> chkccomp.c
+	echo "puts(\"#define UINT64TYPE unsigned long\");" >> chkccomp.c
+	echo "puts(\"#define UINT64TYPE_STRI \\\"unsigned long\\\"\");" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE_SUFFIX_L\");" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE_FORMAT_L\");" >> chkccomp.c
+	echo "} else if (sizeof(long long) == 8) {" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE long long\");" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE_STRI \\\"long long\\\"\");" >> chkccomp.c
+	echo "puts(\"#define UINT64TYPE unsigned long long\");" >> chkccomp.c
+	echo "puts(\"#define UINT64TYPE_STRI \\\"unsigned long long\\\"\");" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE_SUFFIX_LL\");" >> chkccomp.c
+	echo "puts(\"#define INT64TYPE_FORMAT_LL\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
 	echo "number = -1;" >> chkccomp.c
 	echo "if (number >> 1 == (long) -1) {" >> chkccomp.c
 	echo "puts(\"#define RSHIFT_DOES_SIGN_EXTEND\");" >> chkccomp.c

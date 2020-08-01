@@ -317,9 +317,9 @@ inttype port;
             printf("EAI_NONAME=%d  EAI_SERVICE=%d  EAI_SOCKTYPE=%d\n",
                 EAI_NONAME, EAI_SERVICE, EAI_SOCKTYPE);
             printf("EAI_SYSTEM=%d  EAI_OVERFLOW=%d\n",
-		EAI_SYSTEM, EAI_OVERFLOW);
+                EAI_SYSTEM, EAI_OVERFLOW);
             /* printf("EAI_ADDRFAMILY=%d  EAI_NODATA=%d\n",
-	        EAI_ADDRFAMILY, EAI_NODATA); */
+                EAI_ADDRFAMILY, EAI_NODATA); */
           }
         }
 #endif

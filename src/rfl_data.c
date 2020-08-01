@@ -176,6 +176,8 @@ listtype list_element;
 #endif
 
   { /* rflElem */
+    /* printf("rflElem(%lx, %lx)\n",
+        (unsigned long) searched_object, (unsigned long) list_element); */
     while (list_element != NULL && list_element->obj != searched_object) {
       list_element = list_element->next;
     } /* while */

@@ -1,1 +1,0 @@
-#undef  USE_TERMCAP

@@ -141,8 +141,8 @@ ustritype digits;
   /* based_value */
     okay = TRUE;
     intvalue = 0;
-    div_base = (inttype) (MAX_INTEGER / base);
-    mod_base = (inttype) (MAX_INTEGER % base);
+    div_base = (inttype) (INTTYPE_MAX / base);
+    mod_base = (inttype) (INTTYPE_MAX % base);
     position = 0;
     while (digits[position] != '\0') {
       digitval = digit_value[(int) digits[position]];

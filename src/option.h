@@ -26,27 +26,43 @@
 /********************************************************************/
 
 typedef struct {
-    const_cstritype source_file_name;
-    char *prot_file_name;
-    booltype analyze_only;
-    booltype execute_always;
-    booltype show_ident_table;
-    booltype get_infile_buffer;
-    booltype version_info;
-    booltype compilation_info;
-    booltype linecount_info;
-    booltype catch_signals;
-    unsigned int incr_message_line;
-    const_cstritype comp_trace_level;
-    const_cstritype exec_trace_level;
-    memsizetype argc;
-    char **argv;
-    objecttype arg_v;
+    const_cstritype   source_file_name;
+    char             *prot_file_name;
+    booltype          analyze_only;
+    booltype          execute_always;
+    booltype          show_ident_table;
+    booltype          get_infile_buffer;
+    booltype          version_info;
+    booltype          compilation_info;
+    booltype          linecount_info;
+    booltype          catch_signals;
+    unsigned int      incr_message_line;
+    const_cstritype   comp_trace_level;
+    const_cstritype   exec_trace_level;
+    memsizetype       argc;
+    char            **argv;
+    objecttype        arg_v;
   } opttype;
 
 #ifdef DO_INIT
-opttype option = {NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE,
-                  727, NULL, NULL, 0, NULL, NULL};
+opttype option = {
+    NULL,  /* source_file_name  */
+    NULL,  /* prot_file_name    */
+    FALSE, /* analyze_only      */
+    FALSE, /* execute_always    */
+    FALSE, /* show_ident_table  */
+    TRUE,  /* get_infile_buffer */
+    TRUE,  /* version_info      */
+    FALSE, /* compilation_info  */
+    TRUE,  /* linecount_info    */
+    TRUE,  /* catch_signals     */
+    16383, /* incr_message_line */
+    NULL,  /* comp_trace_level  */
+    NULL,  /* exec_trace_level  */
+    0,     /* argc              */
+    NULL,  /* argv              */
+    NULL,  /* arg_v             */
+  };
 #else
 EXTERN opttype option;
 #endif

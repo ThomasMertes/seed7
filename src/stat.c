@@ -91,7 +91,7 @@ void show_statistic ()
     heap_statistic();
 #else
 #ifdef DO_HEAPSIZE_COMPUTATION
-    printf("%6lu bytes\n", heapsize());
+    printf("%6lu bytes\n", (unsigned long) heapsize());
 #endif
 #endif
   } /* show_statistic */

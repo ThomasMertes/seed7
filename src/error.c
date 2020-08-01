@@ -259,14 +259,14 @@ static void write_symbol ()
     if (symbol.sycategory == PARENSYMBOL) {
       printf(" \"%c\"\n", symbol.name[0]);
     } else if (symbol.sycategory == INTLITERAL) {
-      printf(" \"%ld\"\n", symbol.intvalue);
+      printf(" \"%ld\"\n", (long) symbol.intvalue);
     } else if (symbol.sycategory == BIGINTLITERAL) {
       printf(" \"%s_\"\n", symbol.name);
     } else if (symbol.sycategory == CHARLITERAL) {
       if (symbol.charvalue >= ' ' && symbol.charvalue <= '~') {
         printf(" \"'%c'\"\n", (char) symbol.charvalue);
       } else {
-        printf(" \"'\\%lu\\'\"\n", symbol.charvalue);
+        printf(" \"'\\%lu\\'\"\n", (unsigned long) symbol.charvalue);
       } /* if */
     } else if (symbol.sycategory == STRILITERAL) {
       printf(" ");
@@ -709,13 +709,13 @@ objecttype obj_found;
         printf("Identifier expected found ");
         switch (CATEGORY_OF_OBJ(obj_found)) {
           case INTOBJECT:
-            printf("\"%ld\"", obj_found->value.intvalue);
+            printf("\"%ld\"", (long) obj_found->value.intvalue);
             break;
           case CHAROBJECT:
             if (obj_found->value.charvalue >= ' ' && obj_found->value.charvalue <= '~') {
               printf("\"'%c'\"\n", (char) obj_found->value.charvalue);
             } else {
-              printf("\"'\\%lu\\'\"\n", obj_found->value.charvalue);
+              printf("\"'\\%lu\\'\"\n", (unsigned long) obj_found->value.charvalue);
             } /* if */
             break;
           case STRIOBJECT:
@@ -1003,10 +1003,10 @@ inttype number;
     place_of_error(err);
     switch (err) {
       case BASE2TO36ALLOWED:
-        printf("Integer base \"%ld\" not between 2 and 36\n", number);
+        printf("Integer base \"%ld\" not between 2 and 36\n", (long) number);
         break;
       case ILLEGAL_PRIORITY:
-        printf("Statement priority \"%ld\" too big\n", number);
+        printf("Statement priority \"%ld\" too big\n", (long) number);
         break;
       default:
         undef_err();
@@ -1059,7 +1059,7 @@ int character;
     if (character >= ' ' && character <= '~') {
       printf("%c\"\n", character);
     } else {
-      printf("\\%d\\\"\n", character);
+      printf("\\%u\\\"\n", character);
     } /* if */
     print_error_line();
     display_compilation_info();
@@ -1088,9 +1088,9 @@ chartype character;
         break;
     } /* switch */
     if (character >= ' ' && character <= '~') {
-      printf("%c\"\n", (int) character);
+      printf("%c\"\n", (char) character);
     } else {
-      printf("\\%lu\\\"\n", character);
+      printf("\\%lu\\\"\n", (unsigned long) character);
     } /* if */
     print_error_line();
     display_compilation_info();

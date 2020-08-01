@@ -148,7 +148,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       result_array->min_position = 1;
-      result_array->max_position = result_size;
+      result_array->max_position = (inttype) result_size;
       if (!crea_array(result_array->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result_array, result_size);
         return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
@@ -186,7 +186,7 @@ listtype arguments;
       arr1 = take_array(arr_arg);
       result_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
       arr1->min_position = start_position;
-      arr1->max_position = start_position + result_size - 1;
+      arr1->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
       result = arr_arg;
       result->type_of = NULL;
       arg_4(arguments) = NULL;
@@ -197,7 +197,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       result_array->min_position = start_position;
-      result_array->max_position = start_position + result_size - 1;
+      result_array->max_position = (inttype) ((memsizetype) start_position + result_size - 1);
       if (!crea_array(result_array->arr, arr1->arr, result_size)) {
         FREE_ARRAY(result_array, result_size);
         return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
@@ -329,7 +329,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       result->min_position = arr1->min_position;
-      result->max_position = arr1->max_position + arr2_size;
+      result->max_position = (inttype) ((memsizetype) arr1->max_position + arr2_size);
       if (!crea_array(result->arr, arr1->arr, arr1_size)) {
         FREE_ARRAY(result, result_size);
         return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
@@ -1097,7 +1097,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
         result->min_position = 1;
-        result->max_position = result_size;
+        result->max_position = factor;
         elem_to = result->arr;
         if (result_size > 0) {
 /* printf("arr_times: ");

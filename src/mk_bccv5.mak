@@ -28,18 +28,27 @@ BIGINT_LIB = big_rtl
 # BIGINT_LIB_DEFINE = USE_BIG_GMP_LIBRARY
 # BIGINT_LIB = big_gmp
 
-# SCREEN_OBJ = scr_x11.obj
-# SCREEN_SRC = scr_x11.c
-# SCREEN_OBJ = scr_infi.obj kbd_infi.obj trm_inf.obj
+# TERMINFO_OR_TERMCAP = USE_TERMINFO
+# SCREEN_OBJ = scr_inf.obj kbd_inf.obj trm_inf.obj
 # SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
-# SCREEN_OBJ = scr_infp.obj kbd_infp.obj trm_cap.obj
+# TERMINFO_OR_TERMCAP = USE_TERMCAP
+# SCREEN_OBJ = scr_inf.obj kbd_inf.obj trm_cap.obj
 # SCREEN_SRC = scr_inf.c kbd_inf.c trm_cap.c
+# TERMINFO_OR_TERMCAP = USE_TERMINFO
+# SCREEN_OBJ = scr_inf.obj kbd_poll.obj trm_inf.obj
+# SCREEN_SRC = scr_inf.c kbd_poll.c trm_inf.c
+# TERMINFO_OR_TERMCAP = USE_TERMCAP
+# SCREEN_OBJ = scr_inf.obj kbd_poll.obj trm_cap.obj
+# SCREEN_SRC = scr_inf.c kbd_poll.c trm_cap.c
+
 # SCREEN_OBJ = scr_cur.obj
 # SCREEN_SRC = scr_cur.c
 # SCREEN_OBJ = scr_cap.obj
 # SCREEN_SRC = scr_cap.c
 # SCREEN_OBJ = scr_tcp.obj
 # SCREEN_SRC = scr_tcp.c
+# SCREEN_OBJ = scr_x11.obj
+# SCREEN_SRC = scr_x11.c
 SCREEN_OBJ = scr_win.obj
 SCREEN_SRC = scr_win.c
 
@@ -92,38 +101,6 @@ hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o/usr/local/bin/hi.gp
 	hi level
 
-scr_x11.obj: scr_x11.c version.h scr_drv.h trm_drv.h
-	$(CC) $(CFLAGS) -c scr_x11.c
-
-scr_infi.obj: scr_inf.c version.h scr_drv.h trm_drv.h
-	echo "#undef  USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c scr_inf.c
-	mv scr_inf.obj scr_infi.obj
-
-scr_infp.obj: scr_inf.c version.h scr_drv.h trm_drv.h
-	echo "#define USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c scr_inf.c
-	mv scr_inf.obj scr_infp.obj
-
-kbd_infi.obj: kbd_inf.c version.h kbd_drv.h trm_drv.h
-	echo "#undef  USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c kbd_inf.c
-	mv kbd_inf.obj kbd_infi.obj
-
-kbd_infp.obj: kbd_inf.c version.h kbd_drv.h trm_drv.h
-	echo "#define USE_TERMCAP" > inf_conf.h
-	$(CC) $(CFLAGS) -c kbd_inf.c
-	mv kbd_inf.obj kbd_infp.obj
-
-trm_inf.obj: trm_inf.c version.h trm_drv.h
-	$(CC) $(CFLAGS) -c trm_inf.c
-
-trm_cap.obj: trm_cap.c version.h trm_drv.h
-	$(CC) $(CFLAGS) -c trm_cap.c
-
-scr_cur.obj: scr_cur.c version.h scr_drv.h
-	$(CC) $(CFLAGS) -c scr_cur.c
-
 
 clear: clean
 
@@ -160,8 +137,6 @@ version.h:
 	cmd /S /C "echo #define ISNAN_WITH_UNDERLINE" >> version.h
 	cmd /S /C "echo #define CHECK_INT_DIV_BY_ZERO" >> version.h
 	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
-	cmd /S /C "echo #define INT64TYPE __int64" >> version.h
-	cmd /S /C "echo #define UINT64TYPE unsigned __int64" >> version.h
 	cmd /S /C "echo #define OS_PATH_WCHAR" >> version.h
 	cmd /S /C "echo #define OS_WIDE_DIR_INCLUDE_DIR_H" >> version.h
 	cmd /S /C "echo #define OS_CHMOD_INCLUDE_IO_H" >> version.h
@@ -210,6 +185,38 @@ version.h:
 	cmd /S /C "echo int main (int argc, char **argv)" >> chkccomp.c
 	cmd /S /C "echo {" >> chkccomp.c
 	cmd /S /C "echo long number;" >> chkccomp.c
+	cmd /S /C "echo if (sizeof(char *) == 4) { >> chkccomp.c
+	cmd /S /C "echo puts("\043define POINTER_SIZE 32");" >> chkccomp.c
+	cmd /S /C "echo } else if (sizeof(char *) == 8) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define POINTER_SIZE 64");" >> chkccomp.c
+	cmd /S /C "echo } >> chkccomp.c
+	cmd /S /C "echo if (sizeof(int) == 4) { >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT32TYPE int");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT32TYPE_STRI \"int\"");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT32TYPE unsigned int");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT32TYPE_STRI \"unsigned int\"");" >> chkccomp.c
+	cmd /S /C "echo } else if (sizeof(long) == 4) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT32TYPE long");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT32TYPE_STRI \"long\"");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT32TYPE unsigned long");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT32TYPE_STRI \"unsigned long\"");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT32TYPE_SUFFIX_L");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT32TYPE_FORMAT_L");" >> chkccomp.c
+	cmd /S /C "echo }" >> chkccomp.c
+	cmd /S /C "echo if (sizeof(long) == 8) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT64TYPE long");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT64TYPE_STRI \"long\"");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT64TYPE unsigned long");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT64TYPE_STRI \"unsigned long\"");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT64TYPE_SUFFIX_L");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT64TYPE_FORMAT_L");" >> chkccomp.c
+	cmd /S /C "echo } else if (sizeof(__int64) == 8) {" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT64TYPE __int64");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT64TYPE_STRI \"__int64\"");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT64TYPE unsigned __int64");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define UINT64TYPE_STRI \"unsigned __int64\"");" >> chkccomp.c
+	cmd /S /C "echo puts("\043define INT64TYPE_FORMAT_CAPITAL_L");" >> chkccomp.c
+	cmd /S /C "echo } >> chkccomp.c
 	cmd /S /C "echo number = -1;" >> chkccomp.c
 	cmd /S /C "echo if (number ^>^> 1 == (long) -1) {" >> chkccomp.c
 	cmd /S /C "echo puts("\043define RSHIFT_DOES_SIGN_EXTEND");" >> chkccomp.c
@@ -228,8 +235,8 @@ version.h:
 	cmd /S /C "echo #define OBJECT_FILE_EXTENSION ".obj"" >> version.h
 	cmd /S /C "echo #define EXECUTABLE_FILE_EXTENSION ".exe"" >> version.h
 	cmd /S /C "echo #define C_COMPILER "$(CC)"" >> version.h
-	cmd /S /C "echo #define CC_OPT_NO_WARNINGS "-w-"" >> version.h
 	cmd /S /C "echo #define CC_OPT_DEBUG_INFO "-y -v"" >> version.h
+	cmd /S /C "echo #define CC_OPT_NO_WARNINGS "-w-"" >> version.h
 	cmd /S /C "echo #define REDIRECT_C_ERRORS "\076"" >> version.h
 	cmd /S /C "echo #define LINKER_OPT_DEBUG_INFO "-v"" >> version.h
 	cmd /S /C "echo #define LINKER_FLAGS "$(LFLAGS)"" >> version.h

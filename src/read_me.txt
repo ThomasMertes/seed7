@@ -1,7 +1,7 @@
 COMPILING THE INTERPRETER
 =========================
 
-    The way to compile the interpreter is dependend on the
+    The way to compile the interpreter is dependent on the
   operating system and the development tools used. You need a
   stand alone C compiler and a make utility to compile the
   interpreter. A C compiler which is only usable from an IDE
@@ -174,6 +174,30 @@ COMPILING UNDER WINDOWS WITH CYGWIN
   maybe for some other symlinks as well).
 
 
+COMPILING UNTER MAC OS X
+
+    To compile under Mac OS X make sure that Xcode is installed.
+  The Xcode package contains a C compiler (gcc) and a 'make'
+  utility. To compile Seed7 start a command shell, go to the
+  'src' directory and type:
+
+    cp mk_osx.mak makefile
+    make depend
+    make
+
+  Under Mac OS X the X11 library is usually found in
+  '/usr/X11R6/lib'. For unknown reasons the Xcode (Mac OS X)
+  linker normally does not search libraries in '/usr/X11R6/lib'.
+  Therefore 'mk_osx.mak' defines the following linker flag:
+
+    LFLAGS = -L/usr/X11R6/lib 
+
+  Besides this 'mk_osx.mak' is almost identical to
+  'mk_linux.mak' and 'makefile'. When the X11 library is in a
+  different directory you need to change the LFLAGS value to
+  that directory.
+
+
 WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
     In most cases errors indicate that some development package
@@ -181,7 +205,8 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   linux, bsd or unix not all development packages with header
   files might be installed. In this case you get some errors
   after typing 'make depend'.
-  Errors such as
+
+ --- Errors such as
 
     scr_inf.c:57:18: error: term.h: No such file or directory
     kbd_inf.c:55:18: error: term.h: No such file or directory
@@ -195,7 +220,8 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   To execute programs you need also to install the non-developer
   package of curses/ncurses (in most cases it will already
   be installed because it is needed by other packages).
-  Errors such as
+
+ --- Errors such as
 
     drw_x11.c:38:19: error: X11/X.h: No such file or directory
     drw_x11.c:39:22: error: X11/Xlib.h: No such file or directory
@@ -211,7 +237,8 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   package with headers. If you use X11 in some way (you don't
   do everything from the text console) the non-developer package
   of X11 will already be installed.
-  Errors such as
+  
+ --- Errors such as
 
     echo char *getcwd(char *buf, size_t size); >> seed7lib.c
     /usr/bin/sh: -c: line 0: syntax error near unexpected token `('
@@ -222,14 +249,27 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   makefile which uses unix shell commands (e.g. mk_msys.mak or
   mk_cygw.mak) or take care that the 'make' program uses cmd.exe
   (or command.com) to execute the commands.
-  Errors such as
+
+ --- Errors such as
 
     hi.c:28:21: error: version.h: No such file or directory
 
   indicate that you forgot to run 'make depend' before running
   'make'. Since such an attempt produces several unneeded files it
   is necessary now to run 'make clean', 'make depend' and 'make'.
-  When using bcc32 an error like
+
+ --- The 'make' utility sometimes writes an error like
+
+    depend:1: *** multiple target patterns.  Stop.
+
+   This indicates that an old 'depend' file (probably a relict of
+   an earlier 'make' command with a different makefile) does not
+   fit to the current makefile. To get rid of this error remove
+   the files 'depend', 'a_depend', 'b_depend' and 'c_depend'.
+   After that the compilation process must be started from
+   scratch with 'make clean', 'make depend' and 'make'.
+
+ --- When using bcc32 an error like
 
     Error E2194: Could not find file 'Studio\7.0\bin\bcc32.exe'
 
@@ -243,6 +283,26 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   helps. As alternate solution 'bcc32.exe' and 'bcc32.cfg' can
   be copied to the 'src' directory (this solution should be
   avoided, since it does not consider updates of bcc32).
+
+ --- A linker error like
+
+    ld: library not found for -lX11
+
+  indicates that the linker was not able to find the X11 library.
+  The X11 library can have the name libX11.so (dynamic library)
+  or libX11.a (static library). You need to search for this
+  library (the dynamic library should normally be preferred).
+  After you found it the LFLAGS definition in your makefile must
+  be changed. E.g.: If you found libX11.so in '/usr/X11R6/lib'
+  the LFLAGS assignment should be changed from
+
+    LFLAGS =
+
+  to
+
+    LFLAGS = -L/usr/X11R6/lib 
+
+ --- Other errors
 
   When you got other errors I would like to know about. Please
   send a mail with detailed information (name and version) of

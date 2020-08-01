@@ -44,15 +44,26 @@ WHAT IS CONTAINED IN THIS PACKAGE?
 
 HOW TO COMPILE THE INTERPRETER?
 
-    To compile the interpreter just go to the 'src' directory
-  and type:
+    For Linux this is quite simple (to compile under other
+  operating systems see 'seed7/src/read_me.txt'). The 'makefile'
+  is prepared for Linux. First make sure that gcc, make and the
+  development packages for X11 and ncurses are installed. Then
+  go to the 'src' directory and type:
 
     make depend
     make
 
-  After the compilation the interpreter is linked to the prg/hi
-  file. The file seed7/src/read_me.txt contains a detailed
-  explanation of the compilation process.
+  After the compilation the interpreter is linked to the file
+  'seed7/prg/hi'. The file 'seed7/src/read_me.txt' contains a
+  detailed explanation of the compilation process.
+
+
+HOW TO COMPILE UNDER OTHER OPERATING SYSTEMS?
+
+    Seed7 supports several operating systems such as Windows,
+  Mac OS X and various Unix variants. How to compile under
+  this operating systems is explained in the file
+  'seed7/src/read_me.txt'.
 
 
 HOW TO EXECUTE A PROGRAM?
@@ -68,41 +79,6 @@ HOW TO EXECUTE A PROGRAM?
 
   A list of the program files with a short description can be
   found in the file: prg/files.
-
-
-HOW TO COMPILE UNDER WINDOWS?
-
-    You need gcc and gmake from MinGW. Use a console and
-  change the PATH variable to contain the MinGW tools. Then
-  go to the 'src' directory and type:
-
-    copy mk_mingw.mak makefile
-    gmake depend
-    gmake
-
-  To compile under MSYS (from the MinGW tools) go to the 'src'
-  directory and type:
-
-    cp mk_msys.mak makefile
-    gmake depend
-    gmake
-
-  To utilize nmake from windows and gcc from MinGW use a
-  console, go to the 'src' directory and type:
-
-    copy mk_nmake.mak makefile
-    nmake depend
-    nmake
-
-  To utilize the experimental compilation with nmake and cl
-  (the command line compiler of a big big software company)
-  use a console, go to the 'src' directory and type:
-
-    copy mk_msvc.mak makefile
-    nmake depend
-    nmake
-
-  After the compilation the interpreter is copied to prg/hi.exe.
 
 
 WHAT TO DO WHEN THERE ARE PROBLEMS WITH THE COMPILATION?

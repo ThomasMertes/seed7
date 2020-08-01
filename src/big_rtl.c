@@ -61,6 +61,7 @@
 #if BIGDIGIT_SIZE == 8
 
 /* typedef uint8type             bigdigittype; */
+typedef int8type                 signedbigdigittype;
 typedef uint16type               doublebigdigittype;
 #define digitMostSignificantBit  uint8MostSignificantBit
 #define digitLeastSignificantBit uint8LeastSignificantBit
@@ -74,6 +75,7 @@ typedef uint16type               doublebigdigittype;
 #elif BIGDIGIT_SIZE == 16
 
 /* typedef uint16type            bigdigittype; */
+typedef int16type                signedbigdigittype;
 typedef uint32type               doublebigdigittype;
 #define digitMostSignificantBit  uint16MostSignificantBit
 #define digitLeastSignificantBit uint16LeastSignificantBit
@@ -87,6 +89,7 @@ typedef uint32type               doublebigdigittype;
 #elif BIGDIGIT_SIZE == 32
 
 /* typedef uint32type            bigdigittype; */
+typedef int32type                signedbigdigittype;
 typedef uint64type               doublebigdigittype;
 #define digitMostSignificantBit  uint32MostSignificantBit
 #define digitLeastSignificantBit uint32LeastSignificantBit
@@ -162,7 +165,7 @@ biginttype big1;
 
   /* bigHexCStri */
     if (big1 != NULL && big1->size > 0) {
-      if (!ALLOC_CSTRI(result, big1->size * sizeof(bigdigittype) * 2 + 3)) {
+      if (!ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) * 2 + 3)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -175,10 +178,14 @@ biginttype big1;
 #elif BIGDIGIT_SIZE == 16
         sprintf(buffer, "%04hX", big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 32
+#ifdef INT32TYPE_FORMAT_L
         sprintf(buffer, "%08lX", big1->bigdigits[pos]);
+#else
+        sprintf(buffer, "%08X", big1->bigdigits[pos]);
+#endif
 #endif
         if (IS_NEGATIVE(big1->bigdigits[pos])) {
-          byteCount = sizeof(bigdigittype);
+          byteCount = BIGDIGIT_SIZE >> 3;
           while (byteCount > 1 && memcmp(buffer, "FF", 2) == 0 &&
             ((buffer[2] >= '8' && buffer[2] <= '9') ||
              (buffer[2] >= 'A' && buffer[2] <= 'F'))) {
@@ -186,7 +193,7 @@ biginttype big1;
             byteCount--;
           } /* while */
         } else {
-          byteCount = sizeof(bigdigittype);
+          byteCount = BIGDIGIT_SIZE >> 3;
           while (byteCount > 1 && memcmp(buffer, "00", 2) == 0 &&
             buffer[2] >= '0' && buffer[2] <= '7') {
             memmove(buffer, &buffer[2], strlen(&buffer[2]) + 1);
@@ -201,9 +208,13 @@ biginttype big1;
 #elif BIGDIGIT_SIZE == 16
           sprintf(buffer, "%04hX", big1->bigdigits[pos]);
 #elif BIGDIGIT_SIZE == 32
+#ifdef INT32TYPE_FORMAT_L
           sprintf(buffer, "%08lX", big1->bigdigits[pos]);
+#else
+          sprintf(buffer, "%08X", big1->bigdigits[pos]);
 #endif
-          buffer += sizeof(bigdigittype) * 2;
+#endif
+          buffer += (BIGDIGIT_SIZE >> 3) * 2;
         } /* while */
       } /* if */
     } else {
@@ -301,7 +312,7 @@ biginttype big1;
     do {
       carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big1->size);
   } /* negate_positive_big */
@@ -328,7 +339,7 @@ biginttype big1;
     do {
       carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       dest->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big1->size);
     if (IS_NEGATIVE(dest->bigdigits[pos - 1])) {
@@ -363,7 +374,7 @@ biginttype big1;
       do {
         carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big1->size);
       result->size = pos;
@@ -396,7 +407,7 @@ doublebigdigittype carry;
     do {
       carry += (doublebigdigittype) big1->bigdigits[pos] * 10;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big1->size);
     if (carry != 0) {
@@ -428,7 +439,7 @@ biginttype big1;
     pos = big1->size;
     do {
       pos--;
-      carry <<= 8 * sizeof(bigdigittype);
+      carry <<= BIGDIGIT_SIZE;
       carry += big1->bigdigits[pos];
       big1->bigdigits[pos] = (bigdigittype)
           ((carry / POWER_OF_10_IN_BIGDIGIT) & BIGDIGIT_MASK);
@@ -443,7 +454,7 @@ biginttype big1;
  *  Shifts the big integer big1 to the left by lshift bits.
  *  Bits which are shifted out at the left of big1 are lost.
  *  At the right of big1 zero bits are shifted in. The function
- *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
+ *  is called for 0 < rshift < BIGDIGIT_SIZE.
  */
 #ifdef ANSI_C
 
@@ -464,7 +475,7 @@ unsigned int lshift;
     do {
       carry |= ((doublebigdigittype) big1->bigdigits[pos]) << lshift;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big1->size);
   } /* uBigLShift */
@@ -476,7 +487,7 @@ unsigned int lshift;
  *  Shifts the big integer big1 to the left by lshift bits.
  *  Bits which are shifted out at the left of big1 are lost.
  *  At the right of big1 zero bits are shifted in. The function
- *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
+ *  is called for 0 < rshift < BIGDIGIT_SIZE.
  */
 #ifdef ANSI_C
 
@@ -489,7 +500,7 @@ unsigned int lshift;
 #endif
 
   {
-    unsigned int rshift = 8 * sizeof(bigdigittype) - lshift;
+    unsigned int rshift = BIGDIGIT_SIZE - lshift;
     bigdigittype low_digit;
     bigdigittype high_digit;
     memsizetype pos;
@@ -513,7 +524,7 @@ unsigned int lshift;
  *  Shifts the big integer big1 to the right by rshift bits.
  *  Bits which are shifted out at the right of big1 are lost.
  *  At the left of big1 zero bits are shifted in. The function
- *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
+ *  is called for 0 < rshift < BIGDIGIT_SIZE.
  */
 #ifdef ANSI_C
 
@@ -526,14 +537,14 @@ unsigned int rshift;
 #endif
 
   {
-    unsigned int lshift = 8 * sizeof(bigdigittype) - rshift;
+    unsigned int lshift = BIGDIGIT_SIZE - rshift;
     doublebigdigittype carry = 0;
     memsizetype pos;
 
   /* uBigRShift */
     pos = big1->size;
     do {
-      carry <<= 8 * sizeof(bigdigittype);
+      carry <<= BIGDIGIT_SIZE;
       carry |= ((doublebigdigittype) big1->bigdigits[pos]) << lshift;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
       pos--;
@@ -547,7 +558,7 @@ unsigned int rshift;
  *  Shifts the big integer big1 to the right by rshift bits.
  *  Bits which are shifted out at the right of big1 are lost.
  *  At the left of big1 zero bits are shifted in. The function
- *  is called for 0 < rshift < 8 * sizeof(bigdigittype).
+ *  is called for 0 < rshift < BIGDIGIT_SIZE.
  */
 #ifdef ANSI_C
 
@@ -560,7 +571,7 @@ unsigned int rshift;
 #endif
 
   {
-    unsigned int lshift = 8 * sizeof(bigdigittype) - rshift;
+    unsigned int lshift = BIGDIGIT_SIZE - rshift;
     bigdigittype low_digit;
     bigdigittype high_digit;
     memsizetype pos;
@@ -602,7 +613,7 @@ biginttype big1;
     do {
       carry += big1->bigdigits[pos];
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (carry != 0 && pos < big1->size);
   } /* uBigIncr */
@@ -631,7 +642,7 @@ biginttype big1;
     do {
       carry += (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (carry == 0 && pos < big1->size);
   } /* uBigDecr */
@@ -662,7 +673,7 @@ biginttype result;
     pos = big1->size;
     do {
       pos--;
-      carry <<= 8 * sizeof(bigdigittype);
+      carry <<= BIGDIGIT_SIZE;
       carry += big1->bigdigits[pos];
       result->bigdigits[pos] = (bigdigittype) ((carry / digit) & BIGDIGIT_MASK);
       carry %= digit;
@@ -814,20 +825,20 @@ memsizetype pos1;
       mult_carry += (doublebigdigittype) big2->bigdigits[pos] * multiplier;
       sbtr_carry += big1->bigdigits[pos1 + pos] + (~mult_carry & BIGDIGIT_MASK);
       big1->bigdigits[pos1 + pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
-      mult_carry >>= 8 * sizeof(bigdigittype);
-      sbtr_carry >>= 8 * sizeof(bigdigittype);
+      mult_carry >>= BIGDIGIT_SIZE;
+      sbtr_carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big2->size);
     for (pos += pos1; mult_carry != 0 && pos < big1->size; pos++) {
       sbtr_carry += big1->bigdigits[pos] + (~mult_carry & BIGDIGIT_MASK);
       big1->bigdigits[pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
-      mult_carry >>= 8 * sizeof(bigdigittype);
-      sbtr_carry >>= 8 * sizeof(bigdigittype);
+      mult_carry >>= BIGDIGIT_SIZE;
+      sbtr_carry >>= BIGDIGIT_SIZE;
     } /* for */
     for (; sbtr_carry == 0 && pos < big1->size; pos++) {
       sbtr_carry = (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
       big1->bigdigits[pos] = (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
-      sbtr_carry >>= 8 * sizeof(bigdigittype);
+      sbtr_carry >>= BIGDIGIT_SIZE;
     } /* for */
     return (bigdigittype) (sbtr_carry & BIGDIGIT_MASK);
   } /* uBigMultSub */
@@ -860,13 +871,13 @@ memsizetype pos1;
     do {
       carry += (doublebigdigittype) big1->bigdigits[pos1 + pos] + big2->bigdigits[pos];
       big1->bigdigits[pos1 + pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big2->size);
     for (pos += pos1; pos < big1->size; pos++) {
       carry += big1->bigdigits[pos];
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
     } /* for */
   } /* uBigAddTo */
 
@@ -907,8 +918,8 @@ biginttype result;
 
   /* uBigDiv */
     for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
-      twodigits = (((doublebigdigittype) big1->bigdigits[pos1]) <<
-          8 * sizeof(bigdigittype)) | big1->bigdigits[pos1 - 1];
+      twodigits = (((doublebigdigittype) big1->bigdigits[pos1]) << BIGDIGIT_SIZE) |
+          big1->bigdigits[pos1 - 1];
       if (big1->bigdigits[pos1] == big2->bigdigits[big2->size - 1]) {
         quotientdigit = BIGDIGIT_MASK;
       } else {
@@ -918,7 +929,7 @@ biginttype result;
           big2->bigdigits[big2->size - 1];
       while (remainder <= BIGDIGIT_MASK &&
           (doublebigdigittype) big2->bigdigits[big2->size - 2] * quotientdigit >
-          (remainder << 8 * sizeof(bigdigittype) | big1->bigdigits[pos1 - 2])) {
+          (remainder << BIGDIGIT_SIZE | big1->bigdigits[pos1 - 2])) {
         quotientdigit--;
         remainder = twodigits - (doublebigdigittype) quotientdigit *
             big2->bigdigits[big2->size - 1];
@@ -957,7 +968,7 @@ bigdigittype digit;
     pos = big1->size;
     do {
       pos--;
-      carry <<= 8 * sizeof(bigdigittype);
+      carry <<= BIGDIGIT_SIZE;
       carry += big1->bigdigits[pos];
       carry %= digit;
     } while (pos > 0);
@@ -1048,7 +1059,7 @@ biginttype result;
     pos = big1->size;
     do {
       pos--;
-      carry <<= 8 * sizeof(bigdigittype);
+      carry <<= BIGDIGIT_SIZE;
       carry += big1->bigdigits[pos];
       result->bigdigits[pos] = (bigdigittype) ((carry / digit) & BIGDIGIT_MASK);
       carry %= digit;
@@ -1298,14 +1309,14 @@ biginttype big2;
     do {
       carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < big2->size);
     big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
     for (; pos < big1->size; pos++) {
       carry += big1->bigdigits[pos] + big2_sign;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
     } /* for */
   } /* bigAddTo */
 
@@ -1421,8 +1432,8 @@ biginttype big2;
 
   /* uBigRem */
     for (pos1 = big1->size - 1; pos1 >= big2->size; pos1--) {
-      twodigits = (((doublebigdigittype) big1->bigdigits[pos1]) <<
-          8 * sizeof(bigdigittype)) | big1->bigdigits[pos1 - 1];
+      twodigits = (((doublebigdigittype) big1->bigdigits[pos1]) << BIGDIGIT_SIZE) |
+          big1->bigdigits[pos1 - 1];
       if (big1->bigdigits[pos1] == big2->bigdigits[big2->size - 1]) {
         quotientdigit = BIGDIGIT_MASK;
       } else {
@@ -1432,7 +1443,7 @@ biginttype big2;
           big2->bigdigits[big2->size - 1];
       while (remainder <= BIGDIGIT_MASK &&
           (doublebigdigittype) big2->bigdigits[big2->size - 2] * quotientdigit >
-          (remainder << 8 * sizeof(bigdigittype) | big1->bigdigits[pos1 - 2])) {
+          (remainder << BIGDIGIT_SIZE | big1->bigdigits[pos1 - 2])) {
         quotientdigit--;
         remainder = twodigits - (doublebigdigittype) quotientdigit *
             big2->bigdigits[big2->size - 1];
@@ -1469,13 +1480,13 @@ bigdigittype *result;
     do {
       carry += (doublebigdigittype) big1[pos] + big2[pos];
       result[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < size2);
     for (; pos < size1; pos++) {
       carry += big1[pos];
       result[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
     } /* for */
     result[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
   } /* uBigDigitAdd */
@@ -1505,13 +1516,13 @@ memsizetype size2;
       carry += (doublebigdigittype) big1[pos] +
           (~big2[pos] & BIGDIGIT_MASK);
       big1[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < size2);
     for (; carry == 0 && pos < size1; pos++) {
       carry = (doublebigdigittype) big1[pos] + BIGDIGIT_MASK;
       big1[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
     } /* for */
   } /* uBigDigitSbtrFrom */
 
@@ -1539,13 +1550,13 @@ memsizetype size2;
     do {
       carry += (doublebigdigittype) big1[pos] + big2[pos];
       big1[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (pos < size2);
     for (; carry != 0 && pos < size1; pos++) {
       carry += big1[pos];
       big1[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
     } /* for */
   } /* uBigDigitAddTo */
 
@@ -1575,7 +1586,7 @@ bigdigittype *result;
   /* uBigDigitMult */
     carry = (doublebigdigittype) big1[0] * big2[0];
     result[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
-    carry >>= 8 * sizeof(bigdigittype);
+    carry >>= BIGDIGIT_SIZE;
     for (pos1 = 1; pos1 < size; pos1++) {
       pos2 = 0;
       do {
@@ -1585,9 +1596,9 @@ bigdigittype *result;
         pos2++;
       } while (pos2 <= pos1);
       result[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
-      carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
-      carry2 >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
+      carry |= (carry2 & BIGDIGIT_MASK) << BIGDIGIT_SIZE;
+      carry2 >>= BIGDIGIT_SIZE;
     } /* for */
     for (; pos1 < size + size - 1; pos1++) {
       pos2 = pos1 - size + 1;
@@ -1598,9 +1609,9 @@ bigdigittype *result;
         pos2++;
       } while (pos2 < size);
       result[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
-      carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
-      carry2 >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
+      carry |= (carry2 & BIGDIGIT_MASK) << BIGDIGIT_SIZE;
+      carry2 >>= BIGDIGIT_SIZE;
     } /* for */
     result[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
   } /* uBigDigitMult */
@@ -1664,11 +1675,11 @@ biginttype result;
   /* uBigMultPositiveWithDigit */
     mult_carry = (doublebigdigittype) big1->bigdigits[0] * bigDigit;
     result->bigdigits[0] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
-    mult_carry >>= 8 * sizeof(bigdigittype);
+    mult_carry >>= BIGDIGIT_SIZE;
     for (pos = 1; pos < big1->size; pos++) {
       mult_carry += (doublebigdigittype) big1->bigdigits[pos] * bigDigit;
       result->bigdigits[pos] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
-      mult_carry >>= 8 * sizeof(bigdigittype);
+      mult_carry >>= BIGDIGIT_SIZE;
     } /* for */
     result->bigdigits[pos] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
   } /* uBigMultPositiveWithDigit */
@@ -1698,17 +1709,17 @@ biginttype result;
     mult_carry = (negate_carry & BIGDIGIT_MASK) * bigDigit;
     result_carry += ~(mult_carry & BIGDIGIT_MASK);
     result->bigdigits[0] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
-    negate_carry >>= 8 * sizeof(bigdigittype);
-    mult_carry >>= 8 * sizeof(bigdigittype);
-    result_carry >>= 8 * sizeof(bigdigittype);
+    negate_carry >>= BIGDIGIT_SIZE;
+    mult_carry >>= BIGDIGIT_SIZE;
+    result_carry >>= BIGDIGIT_SIZE;
     for (pos = 1; pos < big1->size; pos++) {
       negate_carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       mult_carry += (negate_carry & BIGDIGIT_MASK) * bigDigit;
       result_carry += ~(mult_carry & BIGDIGIT_MASK);
       result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
-      negate_carry >>= 8 * sizeof(bigdigittype);
-      mult_carry >>= 8 * sizeof(bigdigittype);
-      result_carry >>= 8 * sizeof(bigdigittype);
+      negate_carry >>= BIGDIGIT_SIZE;
+      mult_carry >>= BIGDIGIT_SIZE;
+      result_carry >>= BIGDIGIT_SIZE;
     } /* for */
     result_carry += ~(mult_carry & BIGDIGIT_MASK);
     result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
@@ -1737,14 +1748,14 @@ biginttype result;
     mult_carry = (doublebigdigittype) big1->bigdigits[0] * bigDigit;
     result_carry += ~(mult_carry & BIGDIGIT_MASK);
     result->bigdigits[0] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
-    mult_carry >>= 8 * sizeof(bigdigittype);
-    result_carry >>= 8 * sizeof(bigdigittype);
+    mult_carry >>= BIGDIGIT_SIZE;
+    result_carry >>= BIGDIGIT_SIZE;
     for (pos = 1; pos < big1->size; pos++) {
       mult_carry += (doublebigdigittype) big1->bigdigits[pos] * bigDigit;
       result_carry += ~(mult_carry & BIGDIGIT_MASK);
       result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
-      mult_carry >>= 8 * sizeof(bigdigittype);
-      result_carry >>= 8 * sizeof(bigdigittype);
+      mult_carry >>= BIGDIGIT_SIZE;
+      result_carry >>= BIGDIGIT_SIZE;
     } /* for */
     result_carry += ~(mult_carry & BIGDIGIT_MASK);
     result->bigdigits[pos] = (bigdigittype) (result_carry & BIGDIGIT_MASK);
@@ -1773,14 +1784,14 @@ biginttype result;
     negate_carry += ~big1->bigdigits[0] & BIGDIGIT_MASK;
     mult_carry = (negate_carry & BIGDIGIT_MASK) * bigDigit;
     result->bigdigits[0] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
-    negate_carry >>= 8 * sizeof(bigdigittype);
-    mult_carry >>= 8 * sizeof(bigdigittype);
+    negate_carry >>= BIGDIGIT_SIZE;
+    mult_carry >>= BIGDIGIT_SIZE;
     for (pos = 1; pos < big1->size; pos++) {
       negate_carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
       mult_carry += (negate_carry & BIGDIGIT_MASK) * bigDigit;
       result->bigdigits[pos] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
-      negate_carry >>= 8 * sizeof(bigdigittype);
-      mult_carry >>= 8 * sizeof(bigdigittype);
+      negate_carry >>= BIGDIGIT_SIZE;
+      mult_carry >>= BIGDIGIT_SIZE;
     } /* for */
     result->bigdigits[pos] = (bigdigittype) (mult_carry & BIGDIGIT_MASK);
   } /* uBigMultNegativeWithNegatedDigit */
@@ -1815,12 +1826,12 @@ biginttype result;
     } /* if */
     carry = (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[0];
     result->bigdigits[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
-    carry >>= 8 * sizeof(bigdigittype);
+    carry >>= BIGDIGIT_SIZE;
     if (big2->size == 1) {
       for (pos1 = 1; pos1 < big1->size; pos1++) {
         carry += (doublebigdigittype) big1->bigdigits[pos1] * big2->bigdigits[0];
         result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
       } /* for */
     } else {
       for (pos1 = 1; pos1 < big2->size; pos1++) {
@@ -1832,9 +1843,9 @@ biginttype result;
           pos2++;
         } while (pos2 <= pos1);
         result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-        carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
-        carry2 >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
+        carry |= (carry2 & BIGDIGIT_MASK) << BIGDIGIT_SIZE;
+        carry2 >>= BIGDIGIT_SIZE;
       } /* for */
       for (; pos1 < big1->size; pos1++) {
         pos2 = pos1 - big2->size + 1;
@@ -1845,9 +1856,9 @@ biginttype result;
           pos2++;
         } while (pos2 <= pos1);
         result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-        carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
-        carry2 >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
+        carry |= (carry2 & BIGDIGIT_MASK) << BIGDIGIT_SIZE;
+        carry2 >>= BIGDIGIT_SIZE;
       } /* for */
       for (; pos1 < big1->size + big2->size - 1; pos1++) {
         pos2 = pos1 - big2->size + 1;
@@ -1858,9 +1869,9 @@ biginttype result;
           pos2++;
         } while (pos2 < big1->size);
         result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-        carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
-        carry2 >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
+        carry |= (carry2 & BIGDIGIT_MASK) << BIGDIGIT_SIZE;
+        carry2 >>= BIGDIGIT_SIZE;
       } /* for */
     } /* if */
     result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
@@ -1891,7 +1902,7 @@ biginttype result;
   /* uBigMult */
     carry = (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[0];
     result->bigdigits[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
-    carry >>= 8 * sizeof(bigdigittype);
+    carry >>= BIGDIGIT_SIZE;
     for (pos1 = 1; pos1 < big1->size + big2->size - 1; pos1++) {
       if (pos1 < big2->size) {
         pos2 = 0;
@@ -1916,9 +1927,9 @@ biginttype result;
         pos2++;
       } while (pos2 < pos3);
       result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
-      carry |= (carry2 & BIGDIGIT_MASK) << 8 * sizeof(bigdigittype);
-      carry2 >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
+      carry |= (carry2 & BIGDIGIT_MASK) << BIGDIGIT_SIZE;
+      carry2 >>= BIGDIGIT_SIZE;
     } /* for */
     result->bigdigits[pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
   } /* uBigMult */
@@ -1949,7 +1960,7 @@ biginttype result;
     do {
       carry += (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[pos2];
       result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos2++;
     } while (pos2 < big2->size);
     result->bigdigits[big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
@@ -1960,7 +1971,7 @@ biginttype result;
         carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
             (doublebigdigittype) big1->bigdigits[pos1] * big2->bigdigits[pos2];
         result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos2++;
       } while (pos2 < big2->size);
       result->bigdigits[pos1 + big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
@@ -2169,13 +2180,13 @@ biginttype *big_help;
     digit = big1->bigdigits[0];
     carry = (doublebigdigittype) digit * digit;
     result->bigdigits[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
-    carry >>= 8 * sizeof(bigdigittype);
+    carry >>= BIGDIGIT_SIZE;
     for (pos2 = 1; pos2 < big1->size; pos2++) {
       product = (doublebigdigittype) digit * big1->bigdigits[pos2];
       carry += (product << 1) & BIGDIGIT_MASK;
       result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
-      carry += product >> (8 * sizeof(bigdigittype) - 1);
+      carry >>= BIGDIGIT_SIZE;
+      carry += product >> (BIGDIGIT_SIZE - 1);
     } /* for */
     result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
     for (pos1 = 1; pos1 < big1->size; pos1++) {
@@ -2183,14 +2194,14 @@ biginttype *big_help;
       carry = (doublebigdigittype) result->bigdigits[pos1 + pos1] +
           (doublebigdigittype) digit * digit;
       result->bigdigits[pos1 + pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       for (pos2 = pos1 + 1; pos2 < big1->size; pos2++) {
         product = (doublebigdigittype) digit * big1->bigdigits[pos2];
         carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
             ((product << 1) & BIGDIGIT_MASK);
         result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-        carry += product >> (8 * sizeof(bigdigittype) - 1);
+        carry >>= BIGDIGIT_SIZE;
+        carry += product >> (BIGDIGIT_SIZE - 1);
       } /* for */
       result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
     } /* for */
@@ -2236,7 +2247,7 @@ unsigned int bit_size;
 
   /* bigIPowN */
     /* printf("bigIPowN(%lu, %lu, %u)\n", base, exponent, bit_size); */
-    /* help_size = (bit_size * ((uinttype) exponent) - 1) / (8 * sizeof(bigdigittype)) + 2; */
+    /* help_size = (bit_size * ((uinttype) exponent) - 1) / BIGDIGIT_SIZE + 2; */
     /* printf("help_sizeA=%ld\n", help_size); */
     help_size = (uinttype) exponent + 1;
     /* printf("help_sizeB=%ld\n", help_size); */
@@ -2403,7 +2414,7 @@ biginttype big1;
         do {
           carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
           pos++;
         } while (pos < big1->size);
         if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
@@ -2464,14 +2475,14 @@ biginttype big2;
       do {
         carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big2->size);
       big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
       for (; pos < big1->size; pos++) {
         carry += big1->bigdigits[pos] + big2_sign;
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
       } /* for */
       if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
         big2_sign--;
@@ -2592,9 +2603,9 @@ biginttype big1;
     stritype result;
 
   /* bigCLit */
-    byteDigitCount = big1->size * sizeof(bigdigittype);
+    byteDigitCount = big1->size * (BIGDIGIT_SIZE >> 3);
     digit = big1->bigdigits[big1->size - 1];
-    byteNum = sizeof(bigdigittype) - 1;
+    byteNum = (BIGDIGIT_SIZE >> 3) - 1;
     if (IS_NEGATIVE(digit)) {
       while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
         byteDigitCount--;
@@ -2619,9 +2630,11 @@ biginttype big1;
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
-      sprintf(byteBuffer, "{0x%02lX,0x%02lX,0x%02lX,0x%02lX,",
-          (byteDigitCount >> 24) & 0xFF, (byteDigitCount >> 16) & 0xFF,
-          (byteDigitCount >>  8) & 0xFF,  byteDigitCount        & 0xFF);
+      sprintf(byteBuffer, "{0x%02X,0x%02X,0x%02X,0x%02X,",
+          (unsigned int) (byteDigitCount >> 24 & 0xFF),
+          (unsigned int) (byteDigitCount >> 16 & 0xFF),
+          (unsigned int) (byteDigitCount >>  8 & 0xFF),
+          (unsigned int) (byteDigitCount       & 0xFF));
       cstri_expand(result->mem, byteBuffer, 21);
       charIndex = 21;
       pos = big1->size;
@@ -2629,23 +2642,26 @@ biginttype big1;
         pos--;
         digit = big1->bigdigits[pos];
 #if BIGDIGIT_SIZE == 8
-        sprintf(byteBuffer, "0x%02hhX,",
-            digit &       0xFF);
+        sprintf(byteBuffer, "0x%02X,",
+            (unsigned int) (digit &       0xFF));
 #elif BIGDIGIT_SIZE == 16
         sprintf(byteBuffer, "0x%02X,0x%02X,",
-            digit >>  8 & 0xFF, digit       & 0xFF);
+            (unsigned int) (digit >>  8 & 0xFF),
+            (unsigned int) (digit       & 0xFF));
 #elif BIGDIGIT_SIZE == 32
-        sprintf(byteBuffer, "0x%02lX,0x%02lX,0x%02lX,0x%02lX,",
-            digit >> 24 & 0xFF, digit >> 16 & 0xFF,
-            digit >>  8 & 0xFF, digit       & 0xFF);
+        sprintf(byteBuffer, "0x%02X,0x%02X,0x%02X,0x%02X,",
+            (unsigned int) (digit >> 24 & 0xFF),
+            (unsigned int) (digit >> 16 & 0xFF),
+            (unsigned int) (digit >>  8 & 0xFF),
+            (unsigned int) (digit       & 0xFF));
 #endif
-        if ((pos + 1) * sizeof(bigdigittype) <= byteDigitCount) {
-          cstri_expand(&result->mem[charIndex], byteBuffer, 5 * sizeof(bigdigittype));
-          charIndex += 5 * sizeof(bigdigittype);
+        if ((pos + 1) * (BIGDIGIT_SIZE >> 3) <= byteDigitCount) {
+          cstri_expand(&result->mem[charIndex], byteBuffer, 5 * (BIGDIGIT_SIZE >> 3));
+          charIndex += 5 * (BIGDIGIT_SIZE >> 3);
         } else {
-          bufferDigitCount = byteDigitCount - pos * sizeof(bigdigittype);
+          bufferDigitCount = byteDigitCount - pos * (BIGDIGIT_SIZE >> 3);
           cstri_expand(&result->mem[charIndex],
-              &byteBuffer[5 * (sizeof(bigdigittype) - bufferDigitCount)],
+              &byteBuffer[5 * ((BIGDIGIT_SIZE >> 3) - bufferDigitCount)],
               5 * bufferDigitCount);
           charIndex += 5 * bufferDigitCount;
         } /* if */
@@ -2828,7 +2844,7 @@ biginttype *big_variable;
     do {
       carry += (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (carry == 0 && pos < big1->size);
     pos = big1->size;
@@ -2958,7 +2974,7 @@ biginttype big2;
             uBigDiv(big1_help, big2_help, result);
           } /* if */
         } else {
-          shift = 8 * sizeof(bigdigittype) - shift;
+          shift = BIGDIGIT_SIZE - shift;
           uBigLShift(big1_help, shift);
           uBigLShift(big2_help, shift);
           uBigDiv(big1_help, big2_help, result);
@@ -3012,7 +3028,7 @@ int32type number;
     biginttype result;
 
   /* bigFromInt32 */
-    result_size = sizeof(int32type) / sizeof(bigdigittype);
+    result_size = sizeof(int32type) / (BIGDIGIT_SIZE >> 3);
     if (!ALLOC_BIG(result, result_size)) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -3023,7 +3039,7 @@ int32type number;
         memsizetype pos;
 
         for (pos = 1; pos < result_size; pos++) {
-          number >>= 8 * sizeof(bigdigittype);
+          number >>= BIGDIGIT_SIZE;
           result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
         } /* for */
       }
@@ -3051,7 +3067,7 @@ int64type number;
     biginttype result;
 
   /* bigFromInt64 */
-    result_size = sizeof(int64type) / sizeof(bigdigittype);
+    result_size = sizeof(int64type) / (BIGDIGIT_SIZE >> 3);
     if (!ALLOC_BIG(result, result_size)) {
       raise_error(MEMORY_ERROR);
       return NULL;
@@ -3059,7 +3075,7 @@ int64type number;
       result->size = result_size;
       for (pos = 0; pos < result_size; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-        number >>= 8 * sizeof(bigdigittype);
+        number >>= BIGDIGIT_SIZE;
       } /* for */
       result = normalize(result);
       return result;
@@ -3083,7 +3099,7 @@ uint32type number;
     biginttype result;
 
   /* bigFromUInt32 */
-    result_size = sizeof(uint32type) / sizeof(bigdigittype) + 1;
+    result_size = sizeof(uint32type) / (BIGDIGIT_SIZE >> 3) + 1;
     if (!ALLOC_BIG(result, result_size)) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -3094,7 +3110,7 @@ uint32type number;
         memsizetype pos;
 
         for (pos = 1; pos < result_size - 1; pos++) {
-          number >>= 8 * sizeof(bigdigittype);
+          number >>= BIGDIGIT_SIZE;
           result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
         } /* for */
       }
@@ -3123,7 +3139,7 @@ uint64type number;
     biginttype result;
 
   /* bigFromUInt64 */
-    result_size = sizeof(uint64type) / sizeof(bigdigittype) + 1;
+    result_size = sizeof(uint64type) / (BIGDIGIT_SIZE >> 3) + 1;
     if (!ALLOC_BIG(result, result_size)) {
       raise_error(MEMORY_ERROR);
       return NULL;
@@ -3131,7 +3147,7 @@ uint64type number;
       result->size = result_size;
       for (pos = 0; pos < result_size - 1; pos++) {
         result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-        number >>= 8 * sizeof(bigdigittype);
+        number >>= BIGDIGIT_SIZE;
       } /* for */
       result->bigdigits[result_size - 1] = (bigdigittype) 0;
       result = normalize(result);
@@ -3256,21 +3272,21 @@ biginttype big2;
       do {
         carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big2->size);
       if (IS_NEGATIVE(big2->bigdigits[pos - 1])) {
         for (; carry == 0 && pos < big1->size; pos++) {
           carry = (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
         carry += BIGDIGIT_MASK;
       } else {
         for (; carry != 0 && pos < big1->size; pos++) {
           carry += big1->bigdigits[pos];
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
       } /* if */
       pos = big1->size;
@@ -3310,14 +3326,14 @@ biginttype big2;
         do {
           carry += (doublebigdigittype) big1->bigdigits[pos] + big2->bigdigits[pos];
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
           pos++;
         } while (pos < big1->size);
         big2_sign = IS_NEGATIVE(big2->bigdigits[big2->size - 1]) ? BIGDIGIT_MASK : 0;
         for (; pos < big2->size; pos++) {
           carry += big1_sign + big2->bigdigits[pos];
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
         carry += big1_sign + big2_sign;
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
@@ -3371,7 +3387,7 @@ ustritype buffer;
                      ((memsizetype) buffer[1]) << 16 |
                      ((memsizetype) buffer[2]) <<  8 |
                      ((memsizetype) buffer[3]);
-    result_size = (byteDigitCount + sizeof(bigdigittype) - 1) / sizeof(bigdigittype);
+    result_size = (byteDigitCount + (BIGDIGIT_SIZE >> 3) - 1) / (BIGDIGIT_SIZE >> 3);
     if (!ALLOC_BIG(result, result_size)) {
       raise_error(MEMORY_ERROR);
       return NULL;
@@ -3380,7 +3396,7 @@ ustritype buffer;
       byteIndex = byteDigitCount;
       for (pos = 0; pos < result_size; pos++) {
         digit = 0;
-        for (byteNum = 0; byteNum < sizeof(bigdigittype); byteNum++) {
+        for (byteNum = 0; byteNum < (BIGDIGIT_SIZE >> 3); byteNum++) {
           if (byteIndex > 0) {
             digit |= ((bigdigittype) buffer[3 + byteIndex]) << 8 * byteNum;
             byteIndex--;
@@ -3420,7 +3436,7 @@ biginttype *big_variable;
     do {
       carry += big1->bigdigits[pos];
       big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
+      carry >>= BIGDIGIT_SIZE;
       pos++;
     } while (carry != 0 && pos < big1->size);
     pos = big1->size;
@@ -3577,7 +3593,7 @@ biginttype big1;
       raise_error(NUMERIC_ERROR);
       result = 0;
     } else {
-      result_size = sizeof(inttype) / sizeof(bigdigittype) + 1;
+      result_size = sizeof(inttype) / (BIGDIGIT_SIZE >> 3) + 1;
       if (!ALLOC_BIG(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -3585,7 +3601,7 @@ biginttype big1;
         number = big1->size - 1;
         for (pos = 0; pos < result_size - 1; pos++) {
           result->bigdigits[pos] = (bigdigittype) (number & BIGDIGIT_MASK);
-          number >>= 8 * sizeof(bigdigittype);
+          number >>= BIGDIGIT_SIZE;
         } /* for */
         result->bigdigits[pos] = 0;
         uBigLShift(result, BIGDIGIT_LOG2_SIZE);
@@ -3688,7 +3704,7 @@ inttype lshift;
       } else {
         result_size = big1->size + ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1;
         digit_lshift = (uinttype) lshift & BIGDIGIT_SIZE_MASK;
-        digit_rshift = 8 * sizeof(bigdigittype) - digit_lshift;
+        digit_rshift = BIGDIGIT_SIZE - digit_lshift;
         size_reduction = 0;
         low_digit = big1->bigdigits[big1->size - 1];
         if (IS_NEGATIVE(low_digit)) {
@@ -3790,7 +3806,7 @@ inttype lshift;
       } else {
         result_size = big1->size + ((uinttype) lshift >> BIGDIGIT_LOG2_SIZE) + 1;
         digit_lshift = (uinttype) lshift & BIGDIGIT_SIZE_MASK;
-        digit_rshift = 8 * sizeof(bigdigittype) - digit_lshift;
+        digit_rshift = BIGDIGIT_SIZE - digit_lshift;
         size_reduction = 0;
         low_digit = big1->bigdigits[big1->size - 1];
         if (IS_NEGATIVE(low_digit)) {
@@ -3970,7 +3986,7 @@ biginttype big2;
             uBigDiv(big1_help, big2_help, result);
           } /* if */
         } else {
-          shift = 8 * sizeof(bigdigittype) - shift;
+          shift = BIGDIGIT_SIZE - shift;
           uBigLShift(big1_help, shift);
           uBigLShift(big2_help, shift);
           uBigDiv(big1_help, big2_help, result);
@@ -4016,7 +4032,7 @@ biginttype big1;
       do {
         carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big1->size);
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
@@ -4134,7 +4150,7 @@ biginttype big2;
         result->bigdigits[result->size] = 0;
         big2_help->size++;
       } else {
-        shift = 8 * sizeof(bigdigittype) - shift;
+        shift = BIGDIGIT_SIZE - shift;
         uBigLShift(result, shift);
         uBigLShift(big2_help, shift);
         uBigRem(result, big2_help);
@@ -4279,7 +4295,7 @@ biginttype big2;
       do {
         carry += (doublebigdigittype) big1->bigdigits[0] * big2->bigdigits[pos2];
         result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos2++;
       } while (pos2 < big2->size);
       result->bigdigits[big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
@@ -4290,7 +4306,7 @@ biginttype big2;
           carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
               (doublebigdigittype) big1->bigdigits[pos1] * big2->bigdigits[pos2];
           result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
           pos2++;
         } while (pos2 < big2->size);
         result->bigdigits[pos1 + big2->size] = (bigdigittype) (carry & BIGDIGIT_MASK);
@@ -4459,7 +4475,7 @@ biginttype big1;
       do {
         carry += (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big1->size);
       if (!IS_NEGATIVE(result->bigdigits[pos - 1])) {
@@ -4555,8 +4571,8 @@ biginttype upper_limit;
             (size_t) (result_size - scale_limit->size) * sizeof(bigdigittype));
         result->size = scale_limit->size;
         mask = ((bigdigittype) BIGDIGIT_MASK) >>
-            (8 * sizeof(bigdigittype) -
-	    (memsizetype) (digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) + 1));
+            (BIGDIGIT_SIZE -
+            (memsizetype) (digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) + 1));
         do {
           pos = 0;
           do {
@@ -4564,7 +4580,7 @@ biginttype upper_limit;
               random_number = rand_32();
             } /* if */
             result->bigdigits[pos] = (bigdigittype) (random_number & BIGDIGIT_MASK);
-            random_number >>= 8 * sizeof(bigdigittype);
+            random_number >>= BIGDIGIT_SIZE;
             pos++;
           } while (pos < scale_limit->size);
           result->bigdigits[pos - 1] &= mask;
@@ -4660,7 +4676,7 @@ biginttype big2;
         result->bigdigits[result->size] = 0;
         big2_help->size++;
       } else {
-        shift = 8 * sizeof(bigdigittype) - shift;
+        shift = BIGDIGIT_SIZE - shift;
         uBigLShift(result, shift);
         uBigLShift(big2_help, shift);
         uBigRem(result, big2_help);
@@ -4729,7 +4745,7 @@ inttype rshift;
       } else {
         result_size = big1->size - ((uinttype) rshift >> BIGDIGIT_LOG2_SIZE);
         digit_rshift = (uinttype) rshift & BIGDIGIT_SIZE_MASK;
-        digit_lshift = 8 * sizeof(bigdigittype) - digit_rshift;
+        digit_lshift = BIGDIGIT_SIZE - digit_rshift;
         if (result_size > 1) {
           high_digit = big1->bigdigits[big1->size - 1];
           if (IS_NEGATIVE(high_digit)) {
@@ -4827,7 +4843,7 @@ inttype rshift;
         } /* if */
       } else {
         digit_rshift = (uinttype) rshift & BIGDIGIT_SIZE_MASK;
-        digit_lshift = 8 * sizeof(bigdigittype) - digit_rshift;
+        digit_lshift = BIGDIGIT_SIZE - digit_rshift;
         source_digits = &big1->bigdigits[size_reduction];
         dest_digits = big1->bigdigits;
         high_digit = *source_digits++;
@@ -4928,14 +4944,14 @@ biginttype big2;
           carry += (doublebigdigittype) big1->bigdigits[pos] +
               (~big2->bigdigits[pos] & BIGDIGIT_MASK);
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
           pos++;
         } while (pos < big2->size);
         big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
         for (; pos < big1->size; pos++) {
           carry += big1->bigdigits[pos] + big2_sign;
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           big2_sign--;
@@ -4955,14 +4971,14 @@ biginttype big2;
           carry += (doublebigdigittype) big1->bigdigits[pos] +
               (~big2->bigdigits[pos] & BIGDIGIT_MASK);
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
           pos++;
         } while (pos < big1->size);
         big1_sign = IS_NEGATIVE(big1->bigdigits[pos - 1]) ? BIGDIGIT_MASK : 0;
         for (; pos < big2->size; pos++) {
           carry += big1_sign + (~big2->bigdigits[pos] & BIGDIGIT_MASK);
           result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
         big2_sign = IS_NEGATIVE(big2->bigdigits[pos - 1]) ? 0 : BIGDIGIT_MASK;
         if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
@@ -5035,20 +5051,20 @@ biginttype big2;
         carry += (doublebigdigittype) big1->bigdigits[pos] +
             (~big2->bigdigits[pos] & BIGDIGIT_MASK);
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big2->size);
       if (IS_NEGATIVE(big2->bigdigits[pos - 1])) {
         for (; carry != 0 && pos < big1->size; pos++) {
           carry += big1->bigdigits[pos];
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
       } else {
         for (; carry == 0 && pos < big1->size; pos++) {
           carry = (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
         carry += BIGDIGIT_MASK;
       } /* if */
@@ -5090,14 +5106,14 @@ biginttype big2;
           carry += (doublebigdigittype) big1->bigdigits[pos] +
               (~big2->bigdigits[pos] & BIGDIGIT_MASK);
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
           pos++;
         } while (pos < big1->size);
         big2_sign = IS_NEGATIVE(big2->bigdigits[big2->size - 1]) ? 0 : BIGDIGIT_MASK;
         for (; pos < big2->size; pos++) {
           carry += big1_sign + (~big2->bigdigits[pos] & BIGDIGIT_MASK);
           big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-          carry >>= 8 * sizeof(bigdigittype);
+          carry >>= BIGDIGIT_SIZE;
         } /* for */
         carry += big1_sign + big2_sign;
         big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
@@ -5241,7 +5257,7 @@ biginttype big1;
       do {
         carry += big1->bigdigits[pos];
         result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
+        carry >>= BIGDIGIT_SIZE;
         pos++;
       } while (pos < big1->size);
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
@@ -5311,9 +5327,9 @@ biginttype big1;
     bstritype result;
 
   /* bigToBStri */
-    result_size = big1->size * sizeof(bigdigittype);
+    result_size = big1->size * (BIGDIGIT_SIZE >> 3);
     digit = big1->bigdigits[big1->size - 1];
-    byteNum = sizeof(bigdigittype) - 1;
+    byteNum = (BIGDIGIT_SIZE >> 3) - 1;
     if (IS_NEGATIVE(digit)) {
       while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
         result_size--;
@@ -5342,8 +5358,8 @@ biginttype big1;
       while (pos > 0) {
         pos--;
         digit = big1->bigdigits[pos];
-        for (byteNum = sizeof(bigdigittype) - 1; byteNum >= 0; byteNum--) {
-          if (pos * sizeof(bigdigittype) + (memsizetype) byteNum < result_size) {
+        for (byteNum = (BIGDIGIT_SIZE >> 3) - 1; byteNum >= 0; byteNum--) {
+          if (pos * (BIGDIGIT_SIZE >> 3) + (memsizetype) byteNum < result_size) {
             result->mem[charIndex] = (uchartype) (digit >> byteNum * 8 & 0xFF);
             charIndex++;
           } /* if */
@@ -5369,16 +5385,16 @@ biginttype big1;
     int32type result;
 
   /* bigToInt32 */
-    if (big1->size > sizeof(int32type) / sizeof(bigdigittype)) {
+    if (big1->size > sizeof(int32type) / (BIGDIGIT_SIZE >> 3)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
       pos = big1->size - 1;
-      result = (int32type) big1->bigdigits[pos];
+      result = (int32type) (signedbigdigittype) big1->bigdigits[pos];
 #if BIGDIGIT_SIZE < 32
       while (pos > 0) {
         pos--;
-        result <<= 8 * sizeof(bigdigittype);
+        result <<= BIGDIGIT_SIZE;
         result |= (int32type) big1->bigdigits[pos];
       } /* while */
 #endif
@@ -5403,17 +5419,19 @@ biginttype big1;
     int64type result;
 
   /* bigToInt64 */
-    if (big1->size > sizeof(int64type) / sizeof(bigdigittype)) {
+    if (big1->size > sizeof(int64type) / (BIGDIGIT_SIZE >> 3)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
       pos = big1->size - 1;
-      result = big1->bigdigits[pos];
+      result = (int64type) (signedbigdigittype) big1->bigdigits[pos];
+#if BIGDIGIT_SIZE < 64
       while (pos > 0) {
         pos--;
-        result <<= 8 * sizeof(bigdigittype);
+        result <<= BIGDIGIT_SIZE;
         result |= (int64type) big1->bigdigits[pos];
       } /* while */
+#endif
       return result;
     } /* if */
   } /* bigToInt64 */

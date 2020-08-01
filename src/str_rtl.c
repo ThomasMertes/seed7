@@ -696,7 +696,7 @@ stritype stri;
         result->mem[pos] = (strelemtype) character;
         pos++;
       } else if (character < 256) {
-        sprintf(buffer, "\\%lo", character);
+        sprintf(buffer, "\\%o", (int) character);
         len = strlen(buffer);
         cstri_expand(&result->mem[pos], buffer, len);
         pos = pos + len;
@@ -1263,7 +1263,7 @@ stritype stri;
           pos = pos + len;
         } else if ((character >= 128 && character < 159) ||
             character >= 255) {
-          sprintf(buffer, "\\%lu\\", character);
+          sprintf(buffer, "\\%lu\\", (unsigned long) character);
           len = strlen(buffer);
           cstri_expand(&result->mem[pos], buffer, len);
           pos = pos + len;

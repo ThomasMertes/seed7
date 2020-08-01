@@ -190,7 +190,7 @@ filetype aFile;
           raise_error(FILE_ERROR);
           result = 0;
         } else {
-          if (file_length > MAX_INTEGER || file_length < (offsettype) 0) {
+          if (file_length > INTTYPE_MAX || file_length < (offsettype) 0) {
             raise_error(RANGE_ERROR);
             result = 0;
           } else {
@@ -216,7 +216,7 @@ filetype aFile;
         raise_error(FILE_ERROR);
         result = 0;
       } else {
-        if (file_length > MAX_INTEGER || file_length < (offsettype) 0) {
+        if (file_length > INTTYPE_MAX || file_length < (offsettype) 0) {
           raise_error(RANGE_ERROR);
           result = 0;
         } else {
@@ -693,7 +693,7 @@ filetype aFile;
     file_no = fileno(aFile);
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
         S_ISREG(stat_buf.st_mode)) {
-      if (stat_buf.st_size > MAX_INTEGER || stat_buf.st_size < 0) {
+      if (stat_buf.st_size > INTTYPE_MAX || stat_buf.st_size < 0) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {

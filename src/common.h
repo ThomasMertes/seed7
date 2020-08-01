@@ -93,42 +93,89 @@ typedef unsigned char      uint8type;
 typedef short int          int16type;
 typedef unsigned short int uint16type;
 
-typedef long int           int32type;
-typedef unsigned long int  uint32type;
+
+typedef INT32TYPE          int32type;
+typedef UINT32TYPE         uint32type;
+
+#ifdef INT32TYPE_SUFFIX_L
+#define INT32TYPE_LITERAL_SUFFIX "L"
+#ifdef TWOS_COMPLEMENT_INTTYPE
+#define INT32TYPE_MIN ((int32type) -2147483648L)
+#else
+#define INT32TYPE_MIN             (-2147483647L)
+#endif
+#define INT32TYPE_MAX               2147483647L
+#else
+#define INT32TYPE_LITERAL_SUFFIX ""
+#ifdef TWOS_COMPLEMENT_INTTYPE
+#define INT32TYPE_MIN ((int32type) -2147483648)
+#else
+#define INT32TYPE_MIN             (-2147483647)
+#endif
+#define INT32TYPE_MAX               2147483647
+#endif
+
+#if   defined INT32TYPE_FORMAT_L
+#define INT32TYPE_FORMAT "%ld"
+#else
+#define INT32TYPE_FORMAT "%d"
+#endif
+
 
 #ifdef INT64TYPE
 typedef INT64TYPE          int64type;
 typedef UINT64TYPE         uint64type;
+
+#if   defined INT64TYPE_SUFFIX_LL
+#define INT64TYPE_LITERAL_SUFFIX "LL"
+#define INT64TYPE_MAX 9223372036854775807LL
+#elif defined INT64TYPE_SUFFIX_L
+#define INT64TYPE_LITERAL_SUFFIX "L"
+#define INT64TYPE_MAX 9223372036854775807L
+#else
+#define INT64TYPE_LITERAL_SUFFIX ""
+#define INT64TYPE_MAX 9223372036854775807
 #endif
 
-#ifdef INTTYPE_64BIT
-#ifdef INT64TYPE
-typedef int64type          inttype;
-typedef uint64type         uinttype;
-#ifdef INT64TYPE_SUFFIX_LL
-#define INTTYPE_LITERAL_SUFFIX "LL"
-#define MAX_INTEGER 9223372036854775807LL
+#if   defined INT64TYPE_FORMAT_L
+#define INT64TYPE_FORMAT "%ld"
+#elif defined INT64TYPE_FORMAT_LL
+#define INT64TYPE_FORMAT "%lld"
+#elif defined INT64TYPE_FORMAT_CAPITAL_L
+#define INT64TYPE_FORMAT "%Ld"
+#elif defined INT64TYPE_FORMAT_I64
+#define INT64TYPE_FORMAT "%I64"
 #else
-#define INTTYPE_LITERAL_SUFFIX ""
-#define MAX_INTEGER 9223372036854775807
+#define INT64TYPE_FORMAT "%d"
 #endif
+#endif
+
+
+#ifdef INTTYPE_64BIT
+typedef int64type               inttype;
+typedef uint64type              uinttype;
+#define INTTYPE_LITERAL_SUFFIX  INT64TYPE_LITERAL_SUFFIX
+#define INTTYPE_MAX             INT64TYPE_MAX
+#define INTTYPE_FORMAT          INT64TYPE_FORMAT
 #define uintMostSignificantBit  uint64MostSignificantBit
 #define uintLeastSignificantBit uint64LeastSignificantBit
-#endif
 #else
-typedef int32type          inttype;
-typedef uint32type         uinttype;
-#define INTTYPE_LITERAL_SUFFIX "L"
-#define MAX_INTEGER 2147483647
+typedef int32type               inttype;
+typedef uint32type              uinttype;
+#define INTTYPE_LITERAL_SUFFIX  INT32TYPE_LITERAL_SUFFIX
+#define INTTYPE_MAX             INT32TYPE_MAX
+#define INTTYPE_FORMAT          INT32TYPE_FORMAT
 #define uintMostSignificantBit  uint32MostSignificantBit
 #define uintLeastSignificantBit uint32LeastSignificantBit
 #endif
+
 
 #ifdef INT64TYPE
 #define BIGDIGIT_SIZE 32
 #else
 #define BIGDIGIT_SIZE 16
 #endif
+
 
 #ifdef FLOATTYPE_DOUBLE
 typedef double             floattype;
@@ -146,9 +193,15 @@ typedef uint32type         strelemtype;
 typedef unsigned char      strelemtype;
 #endif
 
+#if POINTER_SIZE == 32
 typedef uint32type         memsizetype;
-#define MAX_MEMSIZETYPE 0xFFFFFFFF
-#define MAX_MEM_INDEX   2147483647
+#define MAX_MEMSIZETYPE    0xFFFFFFFF
+#define MAX_MEM_INDEX      INT32TYPE_MAX
+#elif POINTER_SIZE == 64
+typedef uint64type         memsizetype;
+#define MAX_MEMSIZETYPE    0xFFFFFFFFFFFFFFFF
+#define MAX_MEM_INDEX      INTTYPE_MAX
+#endif
 
 typedef int8type           smallpriortype;
 typedef int                prior_type;
@@ -164,8 +217,8 @@ typedef const char *           const_cstritype;
 typedef const unsigned char *  const_ustritype;
 typedef const uint16type *     const_wstritype;
 
-#define MAX_DIV_10 ((inttype) (MAX_INTEGER / 10))
-#define MAX_REM_10 ((inttype) (MAX_INTEGER % 10))
+#define MAX_DIV_10 ((inttype) (INTTYPE_MAX / 10))
+#define MAX_REM_10 ((inttype) (INTTYPE_MAX % 10))
 
 #ifndef CLOCKS_PER_SEC
 #define CLOCKS_PER_SEC 1000000

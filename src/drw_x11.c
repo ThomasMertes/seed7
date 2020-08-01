@@ -2630,8 +2630,8 @@ inttype blue_val;
     if (color_hash == NULL) {
       color_hash = (color_entry_type *) malloc(4096 * sizeof(color_entry_type));
       if (color_hash == NULL) {
-        printf("malloc color_hash failed for (%ld, %ld, %ld)\n",
-            red_val, green_val, blue_val);
+        printf("malloc color_hash failed for (%lu, %lu, %lu)\n",
+            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
         return(0);
       } /* if */
       memset(color_hash, 0, 4096 * sizeof(color_entry_type));
@@ -2716,8 +2716,8 @@ inttype blue_val;
         new_num_pixels = num_pixels + pixel_incr;
         new_pixels = (unsigned long *) realloc(pixels, new_num_pixels * sizeof(unsigned long));
         if (new_pixels == NULL) {
-          printf("malloc pixels %u failed for (%ld, %ld, %ld)\n",
-              new_num_pixels, red_val, green_val, blue_val);
+          printf("malloc pixels %u failed for (%lu, %lu, %lu)\n",
+              new_num_pixels, (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
         } else {
           memset(&new_pixels[num_pixels], 0, pixel_incr * sizeof(unsigned long));
           if (XAllocColorCells(mydisplay, cmap, 0, NULL, 0, &new_pixels[num_pixels], pixel_incr) == 0) {
@@ -2736,28 +2736,28 @@ inttype blue_val;
       col.pixel = pixels[act_pixel];
       act_pixel++;
       if (XStoreColor(mydisplay, cmap, &col) == 0) {
-        printf("XStoreColor(%ld, %ld, %ld) not okay\n",
-            red_val, green_val, blue_val);
+        printf("XStoreColor(%lu, %lu, %lu) not okay\n",
+            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
         okay = 0;
       } /* if */
     } else {
       if (nearest_entry != NULL) {
         printf("nearest_entry [%04lx, %04lx, %04lx] [%04x, %04x, %04x] color = %08lx\n",
-            red_val, green_val, blue_val,
+            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val,
             nearest_entry->red, nearest_entry->green, nearest_entry->blue,
             nearest_entry->pixel);
         return(nearest_entry->pixel);
       } else {
         printf("return black [%04lx, %04lx, %04lx] color = %x\n",
-            red_val, green_val, blue_val, 0);
+            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val, 0);
         return(0);
       } /* if */
     } /* if */
     if (!okay) {
       okay = 1;
       if (XAllocColor(mydisplay, cmap, &col) == 0) {
-        printf("XAllocColor(%ld, %ld, %ld) not okay\n",
-            red_val, green_val, blue_val);
+        printf("XAllocColor(%lu, %lu, %lu) not okay\n",
+            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
         okay = 0;
       } /* if */
     } /* if */
@@ -2778,7 +2778,7 @@ inttype blue_val;
       col.pixel = 0;
     } /* if */
     printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
-        red_val, green_val, blue_val, col.pixel);
+        (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val, col.pixel);
     return(col.pixel);
   } /* drwRgbColor */
 

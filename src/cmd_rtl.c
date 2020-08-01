@@ -621,7 +621,7 @@ errinfotype *err_info;
           default:
             /* printf("errno=%d\n", errno);
             printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
-	        EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
+                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
             *err_info = FILE_ERROR;
             break;
         } /* switch */
@@ -853,6 +853,7 @@ stritype name;
   {
     char opt_name[250];
     const_cstritype opt;
+    char buffer[4];
     stritype result;
 
   /* cmdConfigValue */
@@ -886,8 +887,21 @@ stritype name;
         opt = COMP_DATA_LIB;
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
         opt = COMPILER_LIB;
-      } else if (strcmp(opt_name, "INTTYPE_LITERAL_SUFFIX") == 0) {
-        opt = INTTYPE_LITERAL_SUFFIX;
+      } else if (strcmp(opt_name, "INT32TYPE") == 0) {
+        opt = INT32TYPE_STRI;
+      } else if (strcmp(opt_name, "UINT32TYPE") == 0) {
+        opt = UINT32TYPE_STRI;
+      } else if (strcmp(opt_name, "INT64TYPE") == 0) {
+        opt = INT64TYPE_STRI;
+      } else if (strcmp(opt_name, "UINT64TYPE") == 0) {
+        opt = UINT64TYPE_STRI;
+      } else if (strcmp(opt_name, "INT32TYPE_LITERAL_SUFFIX") == 0) {
+        opt = INT32TYPE_LITERAL_SUFFIX;
+      } else if (strcmp(opt_name, "INT64TYPE_LITERAL_SUFFIX") == 0) {
+        opt = INT64TYPE_LITERAL_SUFFIX;
+      } else if (strcmp(opt_name, "POINTER_SIZE") == 0) {
+        sprintf(buffer, "%d", POINTER_SIZE);
+        opt = buffer;
       } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
 #ifdef FLOATTYPE_DOUBLE
         opt = "TRUE";
@@ -1074,7 +1088,7 @@ stritype file_name;
     } else {
       stat_result = os_stat(os_path, &stat_buf);
       if (stat_result == 0 && S_ISREG(stat_buf.st_mode)) {
-        if (stat_buf.st_size > MAX_INTEGER || stat_buf.st_size < 0) {
+        if (stat_buf.st_size > INTTYPE_MAX || stat_buf.st_size < 0) {
           err_info = RANGE_ERROR;
           result = 0;
         } else {

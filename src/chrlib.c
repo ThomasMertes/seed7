@@ -62,7 +62,7 @@ listtype arguments;
     isit_int(arg_1(arguments));
     number = take_int(arg_1(arguments));
 #ifdef INTTYPE_64BIT
-    if (number < -2147483648LL || number > 2147483647LL) {
+    if (number < INT32TYPE_MIN || number > INT32TYPE_MAX) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
       return(bld_char_temp((chartype) number));

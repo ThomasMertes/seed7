@@ -35,16 +35,13 @@
 #include "stdio.h"
 #include "string.h"
 
-#include "inf_conf.h"
-
 #ifdef USE_MYUNISTD_H
 #include "myunistd.h"
 #else
 #include "unistd.h"
 #endif
 
-#ifndef USE_TERMCAP
-
+#ifdef USE_TERMINFO
 #ifdef INCL_CURSES_BEFORE_TERM
 /* The following includes are necessary for RM Machines. */
 #include "curses.h"

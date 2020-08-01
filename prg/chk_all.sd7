@@ -30,30 +30,31 @@ const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSIO
 const string: chkint_output is "\n\
   \Integer literals with exponent work correct.\n\
   \Based integer literals work correct.\n\
-  \-i is correct computed in the range -10 to 10\n\
-  \Addition works correct for selected values\n\
+  \-i is correct computed in the range -10 to 10.\n\
+  \Addition works correct for selected values.\n\
   \a div b is integer division and a rem b is integer remainder:\n\
   \for positive and negative a and b\n\
   \(a div b) * b + (a rem b) = a  holds for positive and negative a and b\n\
-  \Div and rem work correct for selected values\n\
-  \Mdiv and mod work correct for selected values\n\
-  \Div works correct for selected values\n\
-  \Rem works correct for selected values\n\
-  \Mdiv works correct for selected values\n\
-  \Mod works correct for selected values\n\
-  \odd(i) works correct in the range -20 to 20\n\
-  \!i works correct for i in the range 0 to 12\n\
-  \n ! k is correct for n <= 30\n\
-  \i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4\n\
-  \Integer sqrt is correct for values between 0 and 1000\n\
-  \Integer sqrt is correct for 11000 random values\n\
-  \log2 is correct for results between 0 and 30\n\
+  \Div and rem work correct for selected values.\n\
+  \Mdiv and mod work correct for selected values.\n\
+  \Div works correct for selected values.\n\
+  \Rem works correct for selected values.\n\
+  \Mdiv works correct for selected values.\n\
+  \Mod works correct for selected values.\n\
+  \odd(i) works correct in the range -20 to 20.\n\
+  \!i works correct for i in the range 0 to 12.\n\
+  \n ! k is correct for n <= 30.\n\
+  \i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4.\n\
+  \Computing powers of two works correct.\n\
+  \Integer sqrt is correct for values between 0 and 1000.\n\
+  \Integer sqrt is correct for 11000 random values.\n\
+  \log2 is correct for results between 0 and 30.\n\
   \The integer << and <<:= works correct.\n\
   \The integer >> and >>:= works correct.\n\
-  \Integer str does work correct\n\
-  \Integer parse does work correct\n\
-  \Integer lpad0 does work correct\n\
-  \Integer bitLength does work correct\n";
+  \Integer str does work correct.\n\
+  \Integer parse does work correct.\n\
+  \Integer lpad0 does work correct.\n\
+  \Integer bitLength does work correct.\n";
 
 const string: chkstr_output is "\n\
   \String literals work correct.\n\
@@ -78,6 +79,8 @@ const string: chkprc_output is "\n\
 
 const string: chkbig_output is "\n\
   \Decimal conversion of bigInteger works correct.\n\
+  \Conversion of bigInteger to integer works correct.\n\
+  \Conversion of integer to bigInteger works correct.\n\
   \The bigInteger negation works correct.\n\
   \The plus sign for bigInteger works correct.\n\
   \Successor of bigInteger works correct.\n\

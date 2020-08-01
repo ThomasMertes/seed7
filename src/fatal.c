@@ -65,15 +65,15 @@ int source_line;
     printf("\n*** %s(%1d): No more memory. Program terminated.\n",
         source_file, source_line);
 #ifdef DO_HEAPSIZE_COMPUTATION
-    printf("%6lu bytes in heap\n", hs);
-    printf("%6lu bytes used\n", heapsize());
-    printf("%6lu bytes in free lists\n", hs - heapsize());
+    printf("%6lu bytes in heap\n", (unsigned long) hs);
+    printf("%6lu bytes used\n", (unsigned long) heapsize());
+    printf("%6lu bytes in free lists\n", (unsigned long) (hs - heapsize()));
 #endif
 #ifdef USE_CHUNK_ALLOCS
-    printf("%6lu bytes in chunks\n", chunk.total_size);
+    printf("%6lu bytes in chunks\n", (unsigned long) chunk.total_size);
     printf("%6u unused bytes in last chunk\n",
         (unsigned) (chunk.beyond - chunk.freemem));
-    printf("%6lu lost bytes in chunks\n", chunk.lost_bytes);
+    printf("%6lu lost bytes in chunks\n", (unsigned long) chunk.lost_bytes);
 #endif
     shut_drivers();
 #ifdef TRACE_HEAPUTIL

@@ -324,16 +324,17 @@ For other cases several makefiles are prepared for various
 combinations of operating system, make utility, C compiler
 and shell:
 </p><pre>
-  makefile name|operating system |make prog|compiler|shell
-  -------------+-----------------+---------+--------+--------
-  mk_linux.mak | linux/unix/bsd  | (g)make | gcc    | sh
-  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc    | sh
-  mk_msys.mak  | windows (MinGW) | (g)make | gcc    | sh
-  mk_mingw.mak | windows (MinGW) | (g)make | gcc    | cmd.exe
-  mk_nmake.mak | windows (MinGW) | nmake   | gcc    | cmd.exe
-  mk_msvc.mak  | windows (MSVC)  | nmake   | cl     | cmd.exe
-  mk_bcc32.mak | windows (bcc32) | make    | bcc32  | cmd.exe
-  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc    | sh
+  makefile name|operating system |make prog|compiler    |shell
+  -------------+-----------------+---------+------------+--------
+  mk_linux.mak | linux/unix/bsd  | (g)make | gcc        | sh
+  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc        | sh
+  mk_msys.mak  | windows (MinGW) | (g)make | gcc        | sh
+  mk_mingw.mak | windows (MinGW) | (g)make | gcc        | cmd.exe
+  mk_nmake.mak | windows (MinGW) | nmake   | gcc        | cmd.exe
+  mk_msvc.mak  | windows (MSVC)  | nmake   | cl         | cmd.exe
+  mk_bcc32.mak | windows (bcc32) | make    | bcc32      | cmd.exe
+  mk_bccv5.mak | windows (bcc32) | make    | bcc32 V5.5 | cmd.exe
+  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc        | sh
 </pre><p>
   In the optimal case you just copy one of this files to
   'makefile' and do:

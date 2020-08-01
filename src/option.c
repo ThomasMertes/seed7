@@ -125,6 +125,7 @@ int start;
             case 'v':
               option.compilation_info = TRUE;
               option.linecount_info = TRUE;
+              option.incr_message_line = 0;
               break;
             case 'x':
               option.execute_always = TRUE;

@@ -273,8 +273,10 @@ biginttype big1;
       } else {
         result->size = result_size;
         sprintf(byteBuffer, "{0x%02X,0x%02X,0x%02X,0x%02X,",
-            (count >> 24) & 0xFF, (count >> 16) & 0xFF,
-            (count >>  8) & 0xFF,  count        & 0xFF);
+            (unsigned int) (count >> 24 & 0xFF),
+            (unsigned int) (count >> 16 & 0xFF),
+            (unsigned int) (count >>  8 & 0xFF),
+            (unsigned int) (count       & 0xFF));
         cstri_expand(result->mem, byteBuffer, 21);
         charIndex = 21;
         if (sign == 0) {
