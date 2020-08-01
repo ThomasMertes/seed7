@@ -168,6 +168,9 @@ const proc: close (in socket: aSocket) is func
   end func;
 
 
+(**
+ *  Flush the socket 'aSocket'.
+ *)
 const proc: flush (in socket: aSocket) is func
   begin
     noop; # flush(aSocket.sock);
@@ -183,6 +186,9 @@ const proc: write (in socket: aSocket, in string: stri) is func
   end func;
 
 
+(**
+ *  Write newline character ('\n') to 'aSocket'.
+ *)
 const proc: writeln (in socket: aSocket) is func
   begin
     write(aSocket.sock, "\n");
@@ -234,14 +240,25 @@ const func string: getln (inout socket: aSocket) is
   return line_read(aSocket.sock, aSocket.bufferChar);
 
 
+(**
+ *  Return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *  @return FALSE since a socket never reaches end-of-file.
+ *)
 const func boolean: eof (in socket: aSocket) is
   return FALSE; # eof(aSocket.sock);
 
 
+(**
+ *  Return FALSE if 'getc' would return EOF, TRUE otherwise.
+ *  @return TRUE since the next 'getc' will never return EOF.
+ *)
 const func boolean: hasNext (in socket: aSocket) is
   return TRUE; # hasNext(aSocket.sock);
 
 
+(**
+ *  Return the length of a socket.
+ *)
 const func integer: length (in socket: aSocket) is
   return 0; # length(aSocket.sock);
 
@@ -283,12 +300,18 @@ const func listener: openInetListener (in integer: portNumber) is func
   end func;
 
 
+(**
+ *  Listen for socket connections and limit the incoming queue.
+ *)
 const proc: listen (in listener: aListener, in integer: backlog) is func
   begin
     listen(aListener.sock, backlog);
   end func;
 
 
+(**
+ *  Return an new accepted connection socket on a 'aListener'.
+ *)
 const func file: accept (in listener: aListener) is func
   result
     var file: result is STD_NULL;

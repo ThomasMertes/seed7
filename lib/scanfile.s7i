@@ -166,36 +166,6 @@ const func string: getLineComment (inout file: inFile) is func
 
 
 (**
- *  Reads a white space delimited word from a 'file'.
- *  Before reading the word it skips whitespace characters. A word is
- *  a sequence of characters which does not contain a whitespace
- *  character. When the function is called it is assumed that
- *  inFile.bufferChar contains the first character to be handled.
- *  When the function is left inFile.bufferChar contains the
- *  character after the word.
- *  @return the word or "" when no word was found.
- *)
-const func string: getWord (inout file: inFile) is func
-  result
-    var string: symbol is "";
-  local
-    var char: character is ' ';
-  begin
-    character := inFile.bufferChar;
-    while character in white_space_char do
-      character := getc(inFile);
-    end while;
-    if character <> EOF then
-      repeat
-        symbol &:= str(character);
-        character := getc(inFile);
-      until character in white_space_char or character = EOF;
-    end if;
-    inFile.bufferChar := character;
-  end func;
-
-
-(**
  *  Reads a sequence of digits from a 'file'.
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
@@ -316,6 +286,33 @@ const func string: getNonDigits (inout file: inFile) is func
       end while;
       inFile.bufferChar := character;
     end if;
+  end func;
+
+
+(**
+ *  Reads a text quoted with " or ' from a 'file'.
+ *  The introducing and the closing character ( " or ' ) of the quoted
+ *  text must be identical. When the function is called it is assumed
+ *  that inFile.bufferChar contains the introducing " or ' . When the
+ *  function is left inFile.bufferChar contains the character after
+ *  the closing character.
+ *  @return the quoted text without introducing or closing
+ *          characters ( " or ' ).
+ *)
+const func string: getQuotedText (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: quoteChar is ' ';
+    var char: character is ' ';
+  begin
+    quoteChar := inFile.bufferChar;
+    character := getc(inFile);
+    while character <> quoteChar and character <> EOF do
+      symbol &:= str(character);
+      character := getc(inFile);
+    end while;
+    inFile.bufferChar := character;
   end func;
 
 
@@ -530,6 +527,36 @@ const func string: getWhiteSpace (inout file: inFile) is func
       symbol &:= str(inFile.bufferChar);
       inFile.bufferChar := getc(inFile);
     end while;
+  end func;
+
+
+(**
+ *  Reads a white space delimited word from a 'file'.
+ *  Before reading the word it skips whitespace characters. A word is
+ *  a sequence of characters which does not contain a whitespace
+ *  character. When the function is called it is assumed that
+ *  inFile.bufferChar contains the first character to be handled.
+ *  When the function is left inFile.bufferChar contains the
+ *  character after the word.
+ *  @return the word or "" when no word was found.
+ *)
+const func string: getWord (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  local
+    var char: character is ' ';
+  begin
+    character := inFile.bufferChar;
+    while character in white_space_char do
+      character := getc(inFile);
+    end while;
+    if character <> EOF then
+      repeat
+        symbol &:= str(character);
+        character := getc(inFile);
+      until character in white_space_char or character = EOF;
+    end if;
+    inFile.bufferChar := character;
   end func;
 
 
@@ -868,33 +895,6 @@ const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
     end case;
-  end func;
-
-
-(**
- *  Reads a text quoted with " or ' from a 'file'.
- *  The introducing and the closing character ( " or ' ) of the quoted
- *  text must be identical. When the function is called it is assumed
- *  that inFile.bufferChar contains the introducing " or ' . When the
- *  function is left inFile.bufferChar contains the character after
- *  the closing character.
- *  @return the string literal without introducing or closing
- *          characters ( " or ' ).
- *)
-const func string: getQuotedText (inout file: inFile) is func
-  result
-    var string: symbol is "";
-  local
-    var char: quoteChar is ' ';
-    var char: character is ' ';
-  begin
-    quoteChar := inFile.bufferChar;
-    character := getc(inFile);
-    while character <> quoteChar and character <> EOF do
-      symbol &:= str(character);
-      character := getc(inFile);
-    end while;
-    inFile.bufferChar := character;
   end func;
 
 

@@ -157,41 +157,6 @@ const func string: getLineComment (inout string: stri) is func
 
 
 (**
- *  Reads a white space delimited word from a 'string'.
- *  Before reading the word it skips whitespace characters. A word is
- *  a sequence of characters which does not contain a whitespace
- *  character. When the function is called it is assumed that 'stri'
- *  is empty or stri[1] contains the first character to be handled.
- *  When the function is left 'stri' is empty or stri[1] contains the
- *  character after the word.
- *  @return the word or "" when no word was found.
- *)
-const func string: getWord (inout string: stri) is func
-  result
-    var string: symbol is "";
-  local
-    var integer: leng is 0;
-    var integer: start is 1;
-    var integer: pos is 1;
-  begin
-    leng := length(stri);
-    while start <= leng and stri[start] in white_space_char do
-      incr(start);
-    end while;
-    if start <= leng then
-      pos := start;
-      repeat
-        incr(pos);
-      until pos > leng or stri[pos] in white_space_char;
-      symbol := stri[start .. pred(pos)];
-      stri := stri[pos ..];
-    else
-      stri := "";
-    end if;
-  end func;
-
-
-(**
  *  Reads a sequence of digits from a 'string'.
  *  When the function is called it is assumed that 'stri' is empty or
  *  stri[1] contains the first character to be handled. When the
@@ -297,6 +262,34 @@ const func string: getNonDigits (inout string: stri) is func
     end while;
     symbol := stri[.. pred(pos)];
     stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads a text quoted with " or ' from a 'string'.
+ *  The introducing and the closing character ( " or ' ) of the quoted
+ *  text must be identical. When the function is called it is assumed
+ *  that stri[1] contains the introducing " or ' . When the function
+ *  is left 'stri' is empty or stri[1] contains the character after
+ *  the closing character.
+ *  @return the string literal without introducing or closing
+ *          characters ( " or ' ).
+ *)
+const func string: getQuotedText (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var char: quoteChar is ' ';
+    var integer: pos is 1;
+  begin
+    quoteChar := stri[1];
+    leng := length(stri);
+    repeat
+      incr(pos);
+    until pos > leng or stri[pos] = quoteChar;
+    symbol := stri[2 .. pred(pos)];    
+    stri := stri[succ(pos) ..];
   end func;
 
 
@@ -542,6 +535,41 @@ const func string: getWhiteSpace (inout string: stri) is func
 
 
 (**
+ *  Reads a white space delimited word from a 'string'.
+ *  Before reading the word it skips whitespace characters. A word is
+ *  a sequence of characters which does not contain a whitespace
+ *  character. When the function is called it is assumed that 'stri'
+ *  is empty or stri[1] contains the first character to be handled.
+ *  When the function is left 'stri' is empty or stri[1] contains the
+ *  character after the word.
+ *  @return the word or "" when no word was found.
+ *)
+const func string: getWord (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 1;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while start <= leng and stri[start] in white_space_char do
+      incr(start);
+    end while;
+    if start <= leng then
+      pos := start;
+      repeat
+        incr(pos);
+      until pos > leng or stri[pos] in white_space_char;
+      symbol := stri[start .. pred(pos)];
+      stri := stri[pos ..];
+    else
+      stri := "";
+    end if;
+  end func;
+
+
+(**
  *  Skips a line from a 'string'.
  *  When the function is called it is assumed that 'stri' is empty or
  *  stri[1] contains the first character to be handled. When the
@@ -733,34 +761,6 @@ const func string: getSymbol (inout string: stri) is func
     else
       stri := "";
     end if;
-  end func;
-
-
-(**
- *  Reads a text quoted with " or ' from a 'string'.
- *  The introducing and the closing character ( " or ' ) of the quoted
- *  text must be identical. When the function is called it is assumed
- *  that stri[1] contains the introducing " or ' . When the function
- *  is left 'stri' is empty or stri[1] contains the character after
- *  the closing character.
- *  @return the string literal without introducing or closing
- *          characters ( " or ' ).
- *)
-const func string: getQuotedText (inout string: stri) is func
-  result
-    var string: symbol is "";
-  local
-    var integer: leng is 0;
-    var char: quoteChar is ' ';
-    var integer: pos is 1;
-  begin
-    quoteChar := stri[1];
-    leng := length(stri);
-    repeat
-      incr(pos);
-    until pos > leng or stri[pos] = quoteChar;
-    symbol := stri[2 .. pred(pos)];    
-    stri := stri[succ(pos) ..];
   end func;
 
 

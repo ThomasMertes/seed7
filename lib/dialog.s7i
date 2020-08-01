@@ -26,10 +26,10 @@
 (********************************************************************)
 
 
-const func PRIMITIVE_WINDOW: buttonWindow (ref KEYBOARD_FILE param) is DYNAMIC;
+const func PRIMITIVE_WINDOW: buttonWindow (ref keyboard_file param) is DYNAMIC;
 
 
-const func PRIMITIVE_WINDOW: buttonWindow (ref GRAPH_KEYBD_FILE param) is action "GKB_WINDOW";
+const func PRIMITIVE_WINDOW: buttonWindow (ref graph_keybd_file param) is action "GKB_WINDOW";
 
 
 const proc: writeButton (inout graph_file: messageFile,

@@ -2,7 +2,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2008  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2009  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation:  --><p></p><hr><p align="center"><big><b>Manual for the Seed7 programming language</b></big></p><hr><!--         *)
@@ -39,7 +39,7 @@
 <li><!--   4.2      --><a href="#while-statement"><b>while-statement</b></a></li>
 <li><!--   4.3      --><a href="#repeat-statement"><b>repeat-statement</b></a></li>
 <li><!--   4.4      --><a href="#for-statement"><b>for-statement</b></a></li>
-<li><!--   4.5      --><a href="#for-iterator-statement"><b>for-iterator-statement</b></a></li>
+<li><!--   4.5      --><a href="#for-each-statement"><b>for-each-statement</b></a></li>
 <li><!--   4.6      --><a href="#if-statement"><b>if-statement</b></a></li>
 <li><!--   4.7      --><a href="#case-statement"><b>case-statement</b></a></li></ol></li>
 <li><!--   5.     --><a href="#PREDEFINED_TYPES"><big><b>PREDEFINED TYPES</b></big></a><ol>
@@ -96,7 +96,10 @@
 <li><!--   8.4      --><a href="#Simple_read_and_write_statements"><b>Simple read and write statements</b></a></li>
 <li><!--   8.5      --><a href="#Standard_input_and_output_files"><b>Standard input and output files</b></a></li>
 <li><!--   8.6      --><a href="#Access_to_operating_system_files"><b>Access to operating system files</b></a></li>
-<li><!--   8.7      --><a href="#User_defined_file_types"><b>User defined file types</b></a></li></ol></li>
+<li><!--   8.7      --><a href="#Keyboard_file"><b>Keyboard file</b></a></li>
+<li><!--   8.8      --><a href="#Sockets"><b>Sockets</b></a></li>
+<li><!--   8.9      --><a href="#User_defined_file_types"><b>User defined file types</b></a></li>
+<li><!--   8.10     --><a href="#Scanning_a_file"><b>Scanning a file</b></a></li></ol></li>
 <li><!--   9.     --><a href="#STRUCTURED_SYNTAX_DEFINITION"><big><b>STRUCTURED SYNTAX DEFINITION</b></big></a><ol>
 <li><!--   9.1      --><a href="#The_Extended_Backus-Naur_Form"><b>The Extended Backus-Naur Form</b></a></li>
 <li><!--   9.2      --><a href="#The_syntax_of_a_statement"><b>The syntax of a statement</b></a></li>
@@ -109,15 +112,15 @@
 <li><!--   10.1     --><a href="#White_space"><b>White space</b></a><ol>
 <li><!--   10.1.1     --><a href="#Spaces"><b><i>Spaces</i></b></a></li>
 <li><!--   10.1.2     --><a href="#Comments"><b><i>Comments</i></b></a></li>
-<li><!--   10.1.3     --><a href="#Line comments"><b><i>Line comments</i></b></a></li></ol></li>
+<li><!--   10.1.3     --><a href="#Line_comments"><b><i>Line comments</i></b></a></li></ol></li>
 <li><!--   10.2     --><a href="#Identifiers"><b>Identifiers</b></a><ol>
-<li><!--   10.2.1     --><a href="#Name identifiers"><b><i>Name identifiers</i></b></a></li>
-<li><!--   10.2.2     --><a href="#Special identifiers"><b><i>Special identifiers</i></b></a></li>
+<li><!--   10.2.1     --><a href="#Name_identifiers"><b><i>Name identifiers</i></b></a></li>
+<li><!--   10.2.2     --><a href="#Special_identifiers"><b><i>Special identifiers</i></b></a></li>
 <li><!--   10.2.3     --><a href="#Parentheses"><b><i>Parentheses</i></b></a></li></ol></li>
 <li><!--   10.3     --><a href="#Literals"><b>Literals</b></a><ol>
-<li><!--   10.3.1     --><a href="#Integer literals"><b><i>Integer literals</i></b></a></li>
-<li><!--   10.3.2     --><a href="#String literals"><b><i>String literals</i></b></a></li>
-<li><!--   10.3.3     --><a href="#Character literals"><b><i>Character literals</i></b></a></li></ol></li></ol></li>
+<li><!--   10.3.1     --><a href="#Integer_literals"><b><i>Integer literals</i></b></a></li>
+<li><!--   10.3.2     --><a href="#String_literals"><b><i>String literals</i></b></a></li>
+<li><!--   10.3.3     --><a href="#Character_literals"><b><i>Character literals</i></b></a></li></ol></li></ol></li>
 <li><!--   11.    --><a href="#EXPRESSIONS"><big><b>EXPRESSIONS</b></big></a><ol>
 <li><!--   11.1     --><a href="#EXPRESSION_Parentheses"><b>Parentheses</b></a></li>
 <li><!--   11.2     --><a href="#Call_expressions"><b>Call expressions</b></a></li>
@@ -127,9 +130,17 @@
 <li><!--   12.2     --><a href="#Other_directory_operations"><b>Other directory operations</b></a></li>
 <li><!--   12.3     --><a href="#fileType"><b>fileType</b></a></li>
 <li><!--   12.4     --><a href="#fileSize"><b>fileSize</b></a></li>
-<li><!--   12.5     --><a href="#readlink"><b>readlink</b></a></li>
-<li><!--   12.6     --><a href="#symlink"><b>symlink</b></a></li>
-<li><!--   12.7     --><a href="#other_functions"><b>Other functions</b></a></li></ol></li>
+<li><!--   12.5     --><a href="#getATime"><b>getATime</b></a></li>
+<li><!--   12.6     --><a href="#getCTime"><b>getCTime</b></a></li>
+<li><!--   12.7     --><a href="#getMTime"><b>getMTime</b></a></li>
+<li><!--   12.8     --><a href="#setATime"><b>setATime</b></a></li>
+<li><!--   12.9     --><a href="#setMTime"><b>setMTime</b></a></li>
+<li><!--   12.10    --><a href="#readlink"><b>readlink</b></a></li>
+<li><!--   12.11    --><a href="#symlink"><b>symlink</b></a></li>
+<li><!--   12.12    --><a href="#removeAnyFile"><b>removeAnyFile</b></a></li>
+<li><!--   12.13    --><a href="#Other_functions"><b>Other functions</b></a></li>
+<li><!--   12.14    --><a href="#argv"><b>argv</b></a></li>
+<li><!--   12.15    --><a href="#getenv"><b>getenv</b></a></li></ol></li>
 <li><!--   13.    --><a href="#PRIMITIVE_ACTIONS"><big><b>PRIMITIVE ACTIONS</b></big></a><ol>
 <li><!--   13.1     --><a href="#ACTION"><b>Actions for the type ACTION</b></a></li>
 <li><!--   13.2     --><a href="#array"><b>Actions for array types</b></a></li>
@@ -1253,7 +1264,7 @@
     FOR_DECLS(<font color=red>boolean</font>);
 </pre><p></p>
 
-<a name="for-iterator-statement"><b>4.5 for-iterator-statement</b></a>
+<a name="for-each-statement"><b>4.5 for-each-statement</b></a>
 <p>
   For example:
 </p><pre>
@@ -1263,11 +1274,11 @@
 </pre><p></p><dl><dt>
   Semantics:</dt><dd>
     First the element list which stands behind <tt>'<font color=blue>range</font>'</tt> is evaluated.
-    If the element list is empty the for-list-statement is finished.
+    If the element list is empty the for-each-statement is finished.
     Otherwise the first element of the element list is assigned
     to the control variable which stands behind <tt>'<font color=blue>for</font>'</tt>. Then the
     statements behind <tt>'<font color=blue>do</font>'</tt> are executed. If there is no next element
-    in the element the for-list-statement is finished. Otherwise
+    in the element the for-each-statement is finished. Otherwise
     the next element of the element list is assigned to the control
     variable. This check for next element - execute cycle is repeated
     until there is no next element in the element list.
@@ -1668,6 +1679,15 @@
                     A >> 0 => A )
       !         Binomial coefficient
                   ( A ! B => !A <font color=blue>div</font> (!B * !(A - B)) )
+      <font color=blue>lpad</font>      Left padding with spaces
+                  ( 123 <font color=blue>lpad</font>  8 => <font color=maroon>"     123"</font>,
+                    123 <font color=blue>lpad</font>  4 => <font color=maroon>" 123"</font>,
+                    123 <font color=blue>lpad</font>  3 => <font color=maroon>"123"</font>,
+                    123 <font color=blue>lpad</font>  2 => <font color=maroon>"123"</font>,
+                    123 <font color=blue>lpad</font> -8 => <font color=maroon>"123"</font> )
+                    -12 <font color=blue>lpad</font>  4 => <font color=maroon>" -12"</font>,
+                    -12 <font color=blue>lpad</font>  3 => <font color=maroon>"-12"</font>,
+                    -12 <font color=blue>lpad</font>  2 => <font color=maroon>"-12"</font> )
       <font color=blue>lpad0</font>     Left padding with zeros
                   ( 123 <font color=blue>lpad0</font>  8 => <font color=maroon>"00000123"</font>,
                     123 <font color=blue>lpad0</font>  4 => <font color=maroon>"0123"</font>,
@@ -1677,6 +1697,15 @@
                     -12 <font color=blue>lpad0</font>  4 => <font color=maroon>"-012"</font>,
                     -12 <font color=blue>lpad0</font>  3 => <font color=maroon>"-12"</font>,
                     -12 <font color=blue>lpad0</font>  2 => <font color=maroon>"-12"</font> )
+      <font color=blue>lpad</font>      Left padding with spaces
+                  ( 123 <font color=blue>rpad</font>  8 => <font color=maroon>"123     "</font>,
+                    123 <font color=blue>rpad</font>  4 => <font color=maroon>"123 "</font>,
+                    123 <font color=blue>rpad</font>  3 => <font color=maroon>"123"</font>,
+                    123 <font color=blue>rpad</font>  2 => <font color=maroon>"123"</font>,
+                    123 <font color=blue>rpad</font> -8 => <font color=maroon>"123"</font> )
+                    -12 <font color=blue>rpad</font>  4 => <font color=maroon>"-12 "</font>,
+                    -12 <font color=blue>rpad</font>  3 => <font color=maroon>"-12"</font>,
+                    -12 <font color=blue>rpad</font>  2 => <font color=maroon>"-12"</font> )
       <font color=red>integer</font> <font color=blue>conv</font> A   Identity
                   ( <font color=red>integer</font> <font color=blue>conv</font> A => A )
       <font color=red>integer</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>integer</font>
@@ -2725,10 +2754,15 @@
 <a name="hash"><b>5.11 hash</b></a>
 <p>
     The type <tt>'<font color=red>hash [keyType] baseType</font>'</tt> describes hash tables with
-  elements of <tt>'<font color=red>baseType</font>'</tt> which can be accessed using an index of
+  elements of <tt>'<font color=red>baseType</font>'</tt>. The elements can be accessed with an index of
   <tt>'<font color=red>keyType</font>'</tt>.
-  For example: <tt>'<font color=red>hash [string] integer</font>'</tt> describes hash table of
-  integer elements with a <tt>'<font color=red>string</font>'</tt> key.
+</p><p>
+  For example: <tt>'<font color=red>hash [string] integer</font>'</tt> describes hash tables with
+  <tt>'<font color=red>integer</font>'</tt> elements and <tt>'<font color=red>string</font>'</tt> keys.
+</p><p>
+  The <tt>'<font color=red>keyType</font>'</tt> of a hash needs to provide the functions
+  <tt>'hashCode'</tt> and <tt>'compare'</tt>. Besides this the <tt>'<font color=red>keyType</font>'</tt>
+  can be any type.
 </p><pre>
     Constants:
       <font color=red>hashType</font>.EMPTY_HASH  Empty hashtable
@@ -2855,6 +2889,11 @@
                        Element >= X
                     for all X which are in the set.
                     min(<font color=red>setType</font>.EMPTY_SET) => EXCEPTION RANGE_ERROR )
+      str(A)    Conversion to <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font>,
+                    str(<font color=red>setType</font>.EMPTY_SET) => <font color=maroon>"{}"</font>,
+                    str({}) => <font color=maroon>"{}"</font> )
+                    str({1, 2}) => <font color=maroon>"{1, 2}"</font> )
       rand      Random element from a set
                 The random elements are uniform distributed.
                   ( Type of result: <font color=red>baseType</font>,
@@ -4752,7 +4791,7 @@
 </pre><p>
   In the previous examples all <tt>'read'</tt> statements read from the
   file IN and all <tt>'write'</tt> statements write to the file OUT. The
-  files IN and OUT are initialized with STD_IN and STD_OUT
+  files IN and OUT are initialized with <tt>'STD_IN'</tt> and <tt>'STD_OUT'</tt>
   which are the stdin and stdout files of the operating system.
   (Usually the keyboard and the screen). When we want to write
   to other files we use write statements with the file as first
@@ -4972,8 +5011,10 @@
 </p><p>
   The two basic I/O methods defined for the <tt>'<font color=red>null_file</font>'</tt> are
 </p><pre>
-    <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>ref</font> <font color=red>null_file</font> <font color=blue>param</font>, <font color=blue>in</font> <font color=red>string</font> <font color=blue>param</font>) <font color=blue>is</font> noop;
-    <font color=blue>const</font> <font color=red>string</font>: gets (<font color=blue>ref</font> <font color=red>null_file</font> <font color=blue>param</font>, <font color=blue>ref</font> <font color=red>integer</font> <font color=blue>param</font>) <font color=blue>is</font> <font color=maroon>""</font>;
+    <font color=blue>const</font> <font color=red>proc</font>: write (<font color=blue>ref</font> <font color=red>null_file</font> <font color=blue>param</font>, <font color=blue>in</font> <font color=red>string</font> <font color=blue>param</font>) <font
+ color=blue>is</font> noop;
+    <font color=blue>const</font> <font color=red>string</font>: gets (<font color=blue>ref</font> <font color=red>null_file</font> <font color=blue>param</font>, <font color=blue>ref</font> <font color=red>integer</font> <font color=blue>param</font>) <f
+ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p>
   This means that writing any string to the <tt>'<font color=red>null_file</font>'</tt> has
   no effect and reading any number of characters from the
@@ -5044,8 +5085,8 @@
   defined for every new user defined file-type.
 </p><p>
   Note that there is an assignment to the variable <tt>'bufferChar'</tt>.
-  This variable is a component of <tt>'<font color=red>null_file</font>'</tt> and therefore also
-  a component of all derived file types. This allows an
+  This variable is an element of <tt>'<font color=red>null_file</font>'</tt> and therefore also
+  an element of all derived file types. This allows an
   <tt>'eoln'</tt> function to test if the last <tt>'getwd'</tt> or <tt>'getln'</tt> reach the end
   of a line. Here is a definition of the <tt>'eoln'</tt> function:
 </p><pre>
@@ -5236,27 +5277,27 @@
     <font color=blue>var</font> <font color=red>file</font>: IN <font color=blue>is</font> STD_IN;
     <font color=blue>var</font> <font color=red>file</font>: OUT <font color=blue>is</font> STD_OUT;
 </pre><p>
-  STD_IN and STD_OUT are the standard input and output files of
-  the operating system (Usually the keyboard and the screen).
-  Because IN and OUT are variables redirection of standard input
-  or standard output can be done easily by assigning a new value
-  to them:
+  The files <tt>'STD_IN'</tt> and <tt>'STD_OUT'</tt> are the standard input and
+  output files of the operating system (Usually the keyboard and
+  the screen). Because IN and OUT are variables redirection of
+  standard input or standard output can be done easily by
+  assigning a new value to them:
 </p><pre>
     IN := OTHER_FILE;
 </pre><p>
   After that all <tt>'read'</tt> statements refer to OTHER_FILE.
   Most operating systems have also a stderr file which
-  can be accessed via the name STD_ERR. If you want to
+  can be accessed via the name <tt>'STD_ERR'</tt>. If you want to
   write error messages to the screen even when stdout
   is redirected elsewhere you can write:
 </p><pre>
     writeln(STD_ERR, <font color=maroon>"ERROR MESSAGE"</font>);
 </pre><p>
-  To redirect the standard output to STD_ERR you can write:
+  To redirect the standard output to <tt>'STD_ERR'</tt> you can write:
 </p><pre>
     OUT := STD_ERR;
 </pre><p>
-  There is also a file STD_NULL defined. Anything written to
+  There is also a file <tt>'STD_NULL'</tt> defined. Anything written to
   it is ignored. Reading from it does deliver empty strings.
   This file can be used to initialize file variables as in:
 </p><pre>
@@ -5268,19 +5309,19 @@
 
 <a name="Access_to_operating_system_files"><b>8.6 Access to operating system files</b></a>
 <p>
-    The access to operating system files is done via files of
-  the types <tt>'<font color=red>external_file</font>'</tt>, KEYBOARD_FILE and SCREEN_FILE.
-  The type <tt>'<font color=red>external_file</font>'</tt> is defined as:
+    The interface type <tt>'<font color=red>file</font>'</tt> is also used to access
+  operating system files. This is done with the implementation
+  type <tt>'<font color=red>external_file</font>'</tt>. The type <tt>'<font color=red>external_file</font>'</tt> is defined as:
 </p><pre>
     <font color=blue>const</font> <font color=red>type</font>: external_file <font color=blue>is sub</font> <font color=red>null_file</font> <font color=blue>struct</font>
         <font color=blue>var</font> <font color=red>PRIMITIVE_FILE</font>: ext_file <font color=blue>is</font> PRIMITIVE_null_file;
         <font color=blue>var</font> <font color=red>string</font>: name <font color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>end struct</font>;
 </pre><p>
-  This means that every data item of the type <tt>'external_file'</tt>
-  has the components from <tt>'<font color=red>null_file</font>'</tt> and additionally the
-  components ext_file and name. Note the type <tt>'<font color=red>PRIMITIVE_FILE</font>'</tt>
-  which points directly to an operating system file. Objects
+  This means that every data item of the type <tt>'<font color=red>external_file</font>'</tt>
+  has the elements from <tt>'<font color=red>null_file</font>'</tt> and additionally the
+  elements <tt>'ext_file'</tt> and <tt>'name'</tt>. The type <tt>'<font color=red>PRIMITIVE_FILE</font>'</tt>
+  points directly to an operating system file. Objects
   of type <tt>'<font color=red>PRIMITIVE_FILE</font>'</tt> can only have operating system
   files as values while objects of type <tt>'<font color=red>file</font>'</tt> can also have
   other files as values. To allow the implementation of the
@@ -5288,8 +5329,8 @@
   <tt>'<font color=red>PRIMITIVE_FILE</font>'</tt> are defined. But outside <tt>'<font color=red>external_file</font>'</tt> the
   type <tt>'<font color=red>PRIMITIVE_FILE</font>'</tt> and its operations should not be used.
 </p><p>
-  There are three predefined external files STD_IN, STD_OUT
-  and STD_ERR which have the following declarations:
+  There are three predefined external files <tt>'STD_IN'</tt>, <tt>'STD_OUT'</tt>
+  and <tt>'STD_ERR'</tt> which have the following declarations:
 </p><pre>
     <font color=blue>const</font> <font color=red>func external_file</font>: INIT_STD_FILE (<font color=blue>ref</font> <font color=red>PRIMITIVE_FILE</font>: primitive_file,
         <font color=blue>in</font> <font color=red>string</font>: file_name) <font color=blue>is func</font>
@@ -5307,60 +5348,164 @@
   It is possible to do I/O directly with them, but it is more wisely
   to use them only to initialize user defined file variables as in:
 </p><pre>
-    <font color=blue>var</font> <font color=red>file</font>: ERR <font color=blue>is</font> STD_ERR;
+    <font color=blue>var</font> <font color=red>file</font>: err <font color=blue>is</font> STD_ERR;
 </pre><p>
   In the rest of the program references to such a variable can be
   used:
 </p><pre>
-    writeln(ERR, <font color=maroon>"Some error occurred"</font>);
+    writeln(err, <font color=maroon>"Some error occurred"</font>);
 </pre><p>
-  In this case redirection of the ERR file can be done very easy.
+  In this case redirection of the file <tt>'err'</tt> can be done very easy.
   The second way to access external files is to use the <tt>'open'</tt>
   function. Usually a file variable is declared
 </p><pre>
-    <font color=blue>var</font> <font color=red>file</font>: MY_OUT <font color=blue>is</font> STD_NULL;
+    <font color=blue>var</font> <font color=red>file</font>: my_out <font color=blue>is</font> STD_NULL;
 </pre><p>
   and the result of the <tt>'open'</tt> function is assigned to this file
   variable
 </p><pre>
-    MY_OUT := open(<font color=maroon>"my_file"</font>, <font color=maroon>"w"</font>);
+    my_out := open(<font color=maroon>"my_file"</font>, <font color=maroon>"w"</font>);
 </pre><p>
-  If the <tt>'open'</tt> has failed it returns STD_NULL so we must check the
-  file variable to be on the save side
+  The first parameter of <tt>'open'</tt> is the path of the file to
+  be opened. Seed7 always uses the slash (<tt>'/'</tt>) as path
+  delimiter. The use of a backslash in a path may raise the
+  exception <tt>'RANGE_ERROR'</tt>. The second parameter of <tt>'open'</tt>
+  specifies the mode:
 </p><pre>
-    <font color=blue>if</font> MY_OUT &lt;> STD_NULL <font color=blue>then</font>
+    Binary mode:
+      <font color=maroon>"r"</font>   ... Open file for reading.
+      <font color=maroon>"w"</font>   ... Truncate to zero length or create file for writing.
+      <font color=maroon>"a"</font>   ... Append; open or create file for writing at end-of-file.
+      <font color=maroon>"r+"</font>  ... Open file for update (reading and writing).
+      <font color=maroon>"w+"</font>  ... Truncate to zero length or create file for update.
+      <font color=maroon>"a+"</font>  ... Append; open or create file for update, writing at end-of-file.
+    Text mode:
+      <font color=maroon>"rt"</font>  ... Open file for reading.
+      <font color=maroon>"wt"</font>  ... Truncate to zero length or create file for writing.
+      <font color=maroon>"at"</font>  ... Append; open or create file for writing at end-of-file.
+      <font color=maroon>"rt+"</font> ... Open file for update (reading and writing).
+      <font color=maroon>"wt+"</font> ... Truncate to zero length or create file for update.
+      <font color=maroon>"at+"</font> ... Append; open or create file for update, writing at end-of-file.
 </pre><p>
-  After that output to MY_OUT is possible with
+  The function <tt>'open'</tt> returns <tt>'STD_NULL'</tt> when it fails. So it is
+  necessary to check the file variable to be on the save side:
 </p><pre>
-    writeln(MY_OUT, <font color=maroon>"hi there"</font>);
+    <font color=blue>if</font> my_out &lt;> STD_NULL <font color=blue>then</font>
 </pre><p>
-  As stated earlier STD_IN provides an interface to the keyboard
-  which is line buffered and echoed on STD_OUT. This means that
-  you can see everything you typed in and correct it with BACKSPACE
-  until you press RETURN. But sometimes an unbuffered and unechoed
-  input is needed. This is provided with the file KEYBOARD.
-  This are the declaration of the type KEYBOARD_FILE and the file
-  KEYBOARD itself:
+  After that output to <tt>'my_out'</tt> is possible with
 </p><pre>
-    <font color=blue>const</font> <font color=red>type</font>: KEYBOARD_FILE <font color=blue>is</font> <font color=red>subtype file</font>;
+    writeln(my_out, <font color=maroon>"hi there"</font>);
+</pre><p>
+  Note that <tt>'<font color=red>external_file</font>'</tt> describes BYTE files. Writing
+  a character with an ordinal >= 256 such as
+</p><pre>
+    writeln(my_out, <font color=maroon>"illegal char: \256\"</font>);
+</pre><p>
+  results in the exception <tt>'RANGE_ERROR'</tt>. To write unicode
+  characters other file types must be used. The libraries
+  <font color=maroon>"utf8.s7i"</font> and <font color=maroon>"utf16.s7i"</font> provide access to UTF-8 and
+  UTF-16 files. The library <font color=maroon>"utf8.s7i"</font> defines the
+  implementation type <tt>'<font color=red>utf8_file</font>'</tt> as
+</p><pre>
+    <font color=blue>const</font> <font color=red>type</font>: utf8_file <font color=blue>is sub</font> <font color=red>external_file</font> <font color=blue>struct</font>
+      <font color=blue>end struct</font>;
+</pre><p>
+  and the function <tt>'open_utf8'</tt> which can be used the same
+  way as <tt>'open'</tt>:
+</p><pre>
+    my_out := open_utf8(<font color=maroon>"utf8_file"</font>, <font color=maroon>"w"</font>);
+</pre><p>
+  An UTF-8 file accepts all unicode characters. That way
+</p><pre>
+    writeln(my_out, <font color=maroon>"unicode char: \256\"</font>);
+</pre><p>
+  works without problems.
+</p>
 
-    <font color=blue>var</font> <font color=red>KEYBOARD_FILE</font>: KEYBOARD <font color=blue>is</font> SCREEN_KEYBOARD;
+<a name="Keyboard_file"><b>8.7 Keyboard file</b></a>
+<p>
+    As stated earlier <tt>'STD_IN'</tt> provides an interface to the keyboard
+  which is line buffered and echoed on <tt>'STD_OUT'</tt>. This means that
+  you can see everything you typed. Additionally you can correct
+  your input with BACKSPACE until you press RETURN. But sometimes
+  an unbuffered and unechoed input is needed. This is provided in
+  the library <font color=maroon>"keybd.s7i"</font> with the file <tt>'KEYBOARD'</tt>. The declaration
+  of the type <tt>'<font color=red>keyboard_file</font>'</tt> and the file <tt>'KEYBOARD'</tt> itself is as
+  follows:
+</p><pre>
+    <font color=blue>const</font> <font color=red>type</font>: keyboard_file <font color=blue>is</font> <font color=red>subtype file</font>;
+
+    <font color=blue>var</font> <font color=red>keyboard_file</font>: KEYBOARD <font color=blue>is</font> SCREEN_KEYBOARD;
 </pre><p>
-  Reading from KEYBOARD may deliver simple ASCII characters or
+  Reading from <tt>'KEYBOARD'</tt> may deliver UNICODE characters or
   special codes for function keys. These special codes can also
   be copied to a character variables because the type <tt>'<font color=red>char</font>'</tt> is
   not limited to 8 bits. For each function key exists a
-  predefined constant that can be used to test which key is
-  pressed.
-</p><p>
+  predefined constant that can be used to test which key was
+  pressed:
+</p><table border="1">
+    <tr><td>Key character constant</td>     <td>Description</td></tr>
+    <tr><td><tt>KEY_CTL_A</tt> to <tt>KEY_CTL_Z</tt></td>     <td>The control keys ctrl-a to ctrl-z</td></tr>
+    <tr><td><tt>KEY_ALT_A</tt> to <tt>KEY_ALT_Z</tt></td>     <td>The alternate keys alt-a to alt-z</td></tr>
+    <tr><td><tt>KEY_ALT_0</tt> to <tt>KEY_ALT_9</tt></td>     <td>The alternate keys alt-0 to alt-9</td></tr>
+    <tr><td><tt>KEY_F1</tt> to <tt>KEY_F10</tt></td>          <td>Function keys F1 to F10</td></tr>
+    <tr><td><tt>KEY_SFT_F1</tt> to <tt>KEY_SFT_F10</tt></td>  <td>Shifted function keys F1 to F10</td></tr>
+    <tr><td><tt>KEY_CTL_F1</tt> to <tt>KEY_CTL_F10</tt></td>  <td>Control function keys F1 to F10</td></tr>
+    <tr><td><tt>KEY_ALT_F1</tt> to <tt>KEY_ALT_F10</tt></td>  <td>Alternate function keys F1 to F10</td></tr>
+    <tr><td><tt>KEY_BS</tt></td>                     <td>Backspace (equal to KEY_CTL_H)</td></tr>
+    <tr><td><tt>KEY_TAB</tt></td>                    <td>Horizontal Tab (equal to KEY_CTL_H)</td></tr>
+    <tr><td><tt>KEY_NL</tt></td>                     <td>Newline (equal to KEY_CTL_J)</td></tr>
+    <tr><td><tt>KEY_CR</tt></td>                     <td>Carriage return (equal to KEY_CTL_M)</td></tr>
+    <tr><td><tt>KEY_ESC</tt></td>                    <td>Escape key</td></tr>
+    <tr><td><tt>KEY_NULCHAR</tt></td>                <td>Nul character key</td></tr>
+    <tr><td><tt>KEY_BACKTAB</tt></td>                <td>Horizontal back tab</td></tr>
+    <tr><td><tt>KEY_LEFT</tt></td>                   <td>Cursor left</td></tr>
+    <tr><td><tt>KEY_RIGHT</tt></td>                  <td>Cursor right</td></tr>
+    <tr><td><tt>KEY_UP</tt></td>                     <td>Cursor up</td></tr>
+    <tr><td><tt>KEY_DOWN</tt></td>                   <td>Cursor down</td></tr>
+    <tr><td><tt>KEY_HOME</tt></td>                   <td>Home key</td></tr>
+    <tr><td><tt>KEY_END</tt></td>                    <td>End key</td></tr>
+    <tr><td><tt>KEY_PGUP</tt></td>                   <td>Page up</td></tr>
+    <tr><td><tt>KEY_PGDN</tt></td>                   <td>Page down</td></tr>
+    <tr><td><tt>KEY_INS</tt></td>                    <td>Insert key</td></tr>
+    <tr><td><tt>KEY_DEL</tt></td>                    <td>Delete key</td></tr>
+    <tr><td><tt>KEY_PAD_CENTER</tt></td>             <td>Numeric keypad center key</td></tr>
+    <tr><td><tt>KEY_CTL_LEFT</tt></td>               <td>Control cursor left</td></tr>
+    <tr><td><tt>KEY_CTL_RIGHT</tt></td>              <td>Control cursor right</td></tr>
+    <tr><td><tt>KEY_CTL_UP</tt></td>                 <td>Control cursor up</td></tr>
+    <tr><td><tt>KEY_CTL_DOWN</tt></td>               <td>Control cursor down</td></tr>
+    <tr><td><tt>KEY_CTL_HOME</tt></td>               <td>Control home key</td></tr>
+    <tr><td><tt>KEY_CTL_END</tt></td>                <td>Control end key</td></tr>
+    <tr><td><tt>KEY_CTL_PGUP</tt></td>               <td>Control page up</td></tr>
+    <tr><td><tt>KEY_CTL_PGDN</tt></td>               <td>Control page down</td></tr>
+    <tr><td><tt>KEY_CTL_INS</tt></td>                <td>Control insert key</td></tr>
+    <tr><td><tt>KEY_CTL_DEL</tt></td>                <td>Control delete key</td></tr>
+    <tr><td><tt>KEY_SCRLUP</tt></td>                 <td>Scroll up key</td></tr>
+    <tr><td><tt>KEY_SCRLDN</tt></td>                 <td>Scroll down key</td></tr>
+    <tr><td><tt>KEY_INSLN</tt></td>                  <td>Insert line key</td></tr>
+    <tr><td><tt>KEY_DELLN</tt></td>                  <td>Delete line key</td></tr>
+    <tr><td><tt>KEY_ERASE</tt></td>                  <td>Erase key</td></tr>
+    <tr><td><tt>KEY_CTL_CR</tt></td>                 <td>Control carriage return</td></tr>
+    <tr><td><tt>KEY_NULLCMD</tt></td>                <td>Null command of window manager</td></tr>
+    <tr><td><tt>KEY_REDRAW</tt></td>                 <td>Redraw command of window manager</td></tr>
+    <tr><td><tt>KEY_NEWWINDOW</tt></td>              <td>New window command of window manager</td></tr>
+    <tr><td><tt>KEY_MOUSE1</tt></td>                 <td>Mouse key 1 (counted from left)</td></tr>
+    <tr><td><tt>KEY_MOUSE2</tt></td>                 <td>Mouse key 2 (counted from left)</td></tr>
+    <tr><td><tt>KEY_MOUSE3</tt></td>                 <td>Mouse key 3 (counted from left)</td></tr>
+    <tr><td><tt>KEY_MOUSE4</tt></td>                 <td>Mouse key 4 (counted from left)</td></tr>
+    <tr><td><tt>KEY_MOUSE5</tt></td>                 <td>Mouse key 5 (counted from left)</td></tr>
+    <tr><td><tt>KEY_UNDEF</tt></td>                  <td>Undefined key</td></tr>
+    <tr><td><tt>KEY_NONE</tt></td>                   <td>No key pressed (returned by busy_getc)</td></tr>
+</table><p>
   Additionally to the operations possible with other files there
-  are two functions that are applicable only for the file KEYBOARD.
-  The busy_getc(KEYBOARD) function delivers the next character
+  are two functions that are applicable only for the file <tt>'KEYBOARD'</tt>.
+  The <tt>'busy_getc(KEYBOARD)'</tt> function delivers the next character
   from the keyboard or the character KEY_NONE if no key has been
-  pressed. The busy_gets(KEYBOARD, integer) function delivers a
+  pressed. The <tt>'busy_gets(KEYBOARD, <font color=red>integer</font>)'</tt> function delivers a
   string consisting of the characters in the keyboard buffer but
-  with the maximum length which is specified in the second
-  parameter.
+  with the maximum length which is specified in the second parameter.
+  When no key was pressed <tt>'busy_gets(KEYBOARD, <font color=red>integer</font>)'</tt> returns
+  the empty string.
 </p><p>
   To allow random access output to a text screen (or text window)
   the type SCREEN_FILE is defined. The function
@@ -5370,7 +5515,35 @@
   returns a SCREEN_FILE.
 </p>
 
-<a name="User_defined_file_types"><b>8.7 User defined file types</b></a>
+<a name="Sockets"><b>8.8 Sockets</b></a>
+<p>
+    The library <font color=maroon>"socket.s7i"</font> defines types and functions to
+  access sockets. The implementation type for sockets is
+  <tt>'<font color=red>socket</font>'</tt>. As interface type <tt>'<font color=red>file</font>'</tt> is used:
+</p><pre>
+    <font color=blue>var</font> <font color=red>file</font>: mySocket <font color=blue>is</font> STD_NULL;
+</pre><p>
+  With <tt>'openInetSocket'</tt> an internet client socket can be opened:
+</p><pre>
+    mySocket := openInetSocket(<font color=maroon>"www.google.com"</font>, 80);
+</pre><p>
+  The function <tt>'openInetSocket'</tt> creates and connects a socket.
+  Opening an internet socket at the local host is done with:
+</p><pre>
+    mySocket := openInetSocket(1080);
+</pre><p>
+  Server sockets are supported with the type <tt>'<font color=red>listener</font>'</tt>.
+  The type <tt>'<font color=red>listener</font>'</tt> is used directly without interface
+  type:
+</p><pre>
+    <font color=blue>var</font> <font color=red>listener</font>: myListener <font color=blue>is</font> <font color=red>listener</font>.value;
+</pre><p>
+  The function <tt>'openInetListener'</tt> opens a listener:
+</p><pre>
+    myListener := openInetListener(1080);
+</pre><p></p>
+
+<a name="User_defined_file_types"><b>8.9 User defined file types</b></a>
 <p>
     In addition to the predefined file types it is often
   necessary to define a new type of file. Such a new file
@@ -5446,7 +5619,7 @@
       <font color=blue>end func</font>;
 </pre><p>
 
-<a name="Scanning_a_file"><b>8.8 Scanning a file</b></a>
+<a name="Scanning_a_file"><b>8.10 Scanning a file</b></a>
 <p>
     The I/O concept introduced in the previous chapters separates
   the input of data from its conversion. The <tt>'read'</tt>, <tt>'readln'</tt>,
@@ -5490,6 +5663,10 @@
       <dd>Reads a sequence of digits from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getNumber</dt>
       <dd>Reads a numeric literal from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getNonDigits</dt>
+      <dd>Reads a sequence of non digits from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getQuotedText</dt>
+      <dd>Reads a text quoted with " or ' from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getCharLiteral</dt>
       <dd>Reads a character literal from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getStringLiteral</dt>
@@ -5507,6 +5684,8 @@
       <dd>Skips whitespace characters from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getWhiteSpace</dt>
       <dd>Reads whitespace characters from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getWord</dt>
+      <dd>Reads a white space delimited word from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>skipLine</dt>
       <dd>Skips a line from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getLine</dt>
@@ -5519,10 +5698,26 @@
       <dd>Reads a symbol or a comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getSymbol</dt>
       <dd>Reads a symbol from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getSymbolWithHtmlEntities</dt>
+      <dd>Reads a symbol, where html entities are allowed, from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getHtmlTagSymbolOrComment</dt>
       <dd>Reads a HTML tag, a symbol or a comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
-    <dt>getHtmlTagOrContent</dt>
-      <dd>Reads a HTML tag or the HTML content text from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>skipXmlComment</dt>
+      <dd>Skips a XML comment from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getXmlTagOrContent</dt>
+      <dd>Reads a XML/HTML tag or the XML/HTML content text from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getXmlCharacterReference</dt>
+      <dd>Reads a predefined XML entity from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getXmlTagHeadOrContent</dt>
+      <dd>Reads a XML/HTML tag head or a XML/HTML content from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getSymbolInXmlTag</dt>
+      <dd>Reads a symbol which can appear inside a XML/HTML tag from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getNextXmlAttribute</dt>
+      <dd>Reads name and value of an attribute inside a XML tag from <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getHtmlAttributeValue</dt>
+      <dd>Reads a HTML tag attribute value from a <tt>'<font color=red>file</font>'</tt>.</dd>
+    <dt>getNextHtmlAttribute</dt>
+      <dd>Reads name and value of an attribute inside a HTML tag from a <tt>'<font color=red>file</font>'</tt>.</dd>
     <dt>getSimpleSymbol</dt>
       <dd>Reads a simple symbol from a <tt>'<font color=red>file</font>'</tt>.</dd>
 </dl><p>
@@ -6602,7 +6797,7 @@
       '(*' { any_character } '*)' .
 </pre><p></p>
 
-<a name="Line comments"><b><i>10.1.3 Line comments</i></b></a>
+<a name="Line_comments"><b><i>10.1.3 Line comments</i></b></a>
 <p>
     Line comments are introduced with the character <font color=green># and are
   terminated with the end of the line.</font><br>
@@ -6637,7 +6832,7 @@
       name_identifier | special_identifier | parenthesis .
 </pre><p></p>
 
-<a name="Name identifiers"><b><i>10.2.1 Name identifiers</i></b></a>
+<a name="Name_identifiers"><b><i>10.2.1 Name identifiers</i></b></a>
 <p>
     A name identifier is a sequence of letters, digits and
   underscores ( _ ). The first character must be a letter or an
@@ -6676,7 +6871,7 @@
       '_' .
 </pre><p></p>
 
-<a name="Special identifiers"><b><i>10.2.2 Special identifiers</i></b></a>
+<a name="Special_identifiers"><b><i>10.2.2 Special identifiers</i></b></a>
 <p>
     A special identifier is a sequence of special characters.
   Examples of special identifiers are:
@@ -6733,7 +6928,7 @@
       integer_literal | character_literal | string_literal .
 </pre><p></p>
 
-<a name="Integer literals"><b><i>10.3.1 Integer literals</i></b></a>
+<a name="Integer_literals"><b><i>10.3.1 Integer literals</i></b></a>
 <p>
     An integer literal is a sequence of digits which is taken to
   be decimal. The sequence of digits may be followed by the letter
@@ -6764,7 +6959,7 @@
       letter | digit .
 </pre><p></p>
 
-<a name="String literals"><b><i>10.3.2 String literals</i></b></a>
+<a name="String_literals"><b><i>10.3.2 String literals</i></b></a>
 <p>
     A string literal is a sequence of characters surrounded by
   double quotes. For example:
@@ -6812,7 +7007,7 @@
       '\' { space } '\' | '\' integer_literal '\' .
 </pre><p></p>
 
-<a name="Character literals"><b><i>10.3.3 Character literals</i></b></a>
+<a name="Character_literals"><b><i>10.3.3 Character literals</i></b></a>
 <p>
     A character literal is a character enclosed in single
   quotes. For example:
@@ -7087,7 +7282,7 @@
           <dd>It was not possible to determine the file size.</dd>
       </dl></dd></dl></p>
 
-<a name="getATime"><b>12.4 getATime</b></a>
+<a name="getATime"><b>12.5 getATime</b></a>
 <p>
     The access time of a file is returned by the function <tt>'getATime'</tt>:
 </p><pre>
@@ -7103,7 +7298,7 @@
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="getCTime"><b>12.4 getCTime</b></a>
+<a name="getCTime"><b>12.6 getCTime</b></a>
 <p>
     The change time of a file is returned by the function <tt>'getCTime'</tt>:
 </p><pre>
@@ -7119,7 +7314,7 @@
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="getMTime"><b>12.4 getMTime</b></a>
+<a name="getMTime"><b>12.7 getMTime</b></a>
 <p>
     The modification time of a file is returned by the function <tt>'getMTime'</tt>:
 </p><pre>
@@ -7135,7 +7330,7 @@
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="setATime"><b>12.4 setATime</b></a>
+<a name="setATime"><b>12.8 setATime</b></a>
 <p>
     The function <tt>'setATime'</tt> sets the access time of a file:
 </p><pre>
@@ -7151,7 +7346,7 @@
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="setMTime"><b>12.4 setMTime</b></a>
+<a name="setMTime"><b>12.9 setMTime</b></a>
 <p>
     The function <tt>'setMTime'</tt> sets the modification time of a file:
 </p><pre>
@@ -7167,7 +7362,7 @@
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="readlink"><b>12.5 readlink</b></a>
+<a name="readlink"><b>12.10 readlink</b></a>
 <p>
     The function <tt>'readlink'</tt> reads the destination of a symbolic link:
 </p><pre>
@@ -7187,7 +7382,7 @@
           <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
       </dl></dd></dl></p>
 
-<a name="symlink"><b>12.6 symlink</b></a>
+<a name="symlink"><b>12.11 symlink</b></a>
 <p>
     The function <tt>'symlink'</tt> creates a symbolic link called
     <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
@@ -7214,7 +7409,7 @@
           <dd>The system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="removeAnyFile"><b>12.7 removeAnyFile</b></a>
+<a name="removeAnyFile"><b>12.12 removeAnyFile</b></a>
 <p>
     The function <tt>'removeAnyFile'</tt> removes a file independend
     of its file type:
@@ -7231,7 +7426,7 @@
           <dd>A system function to remove a file or to read a directory returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="other_functions"><b>12.8 Other functions</b></a>
+<a name="Other_functions"><b>12.13 Other functions</b></a>
 <p>
     Other functions are:
 </p>
@@ -7241,7 +7436,18 @@
     copy(<font color=maroon>"from"</font>, <font color=maroon>"to"</font>);
 </pre>
 
-<a name="getenv"><b>12.9 getenv</b></a>
+<a name="argv"><b>12.14 argv</b></a>
+<p>
+    The function <tt>'argv(PROGRAM)'</tt> returns the argument
+    vector of the program as array of strings.
+</p><pre>
+      <font color=blue>const</font> <font color=red>func array string</font>: argv (PROGRAM) <font color=blue>is</font> ...
+</pre>
+    <p><dl><dt><p>Returns:</p></dt><dd>
+      An array of strings containing the argument vector.
+      </dd></dl></p>
+
+<a name="getenv"><b>12.15 getenv</b></a>
 <p>
     The function <tt>'getenv'</tt> determines the value of an
     environment variable.

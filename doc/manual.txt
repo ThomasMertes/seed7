@@ -2,7 +2,7 @@
 (*                                                                  *)
 (*  manual.txt                                                      *)
 (*                                                                  *)
-(*  Copyright (C) 1989 - 2008  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2009  Thomas Mertes                        *)
 (*  All rights reserved.                                            *)
 (*                                                                  *)
 (*  Documentation: Manual for the Seed7 programming language        *)
@@ -39,7 +39,7 @@ CONTENTS
   4.2     while-statement
   4.3     repeat-statement
   4.4     for-statement
-  4.5     for-iterator-statement
+  4.5     for-each-statement
   4.6     if-statement
   4.7     case-statement
   5.    PREDEFINED TYPES
@@ -96,7 +96,10 @@ CONTENTS
   8.4     Simple read and write statements
   8.5     Standard input and output files
   8.6     Access to operating system files
-  8.7     User defined file types
+  8.7     Keyboard file
+  8.8     Sockets
+  8.9     User defined file types
+  8.10    Scanning a file
   9.    STRUCTURED SYNTAX DEFINITION
   9.1     The Extended Backus-Naur Form
   9.2     The syntax of a statement
@@ -127,9 +130,17 @@ CONTENTS
   12.2    Other directory operations
   12.3    fileType
   12.4    fileSize
-  12.5    readlink
-  12.6    symlink
-  12.7    Other functions
+  12.5    getATime
+  12.6    getCTime
+  12.7    getMTime
+  12.8    setATime
+  12.9    setMTime
+  12.10   readlink
+  12.11   symlink
+  12.12   removeAnyFile
+  12.13   Other functions
+  12.14   argv
+  12.15   getenv
   13.   PRIMITIVE ACTIONS
   13.1    Actions for the type ACTION
   13.2    Actions for array types
@@ -1253,7 +1264,7 @@ CONTENTS
     FOR_DECLS(boolean);
 
 
-4.5 for-iterator-statement
+4.5 for-each-statement
 
   For example:
 
@@ -1263,11 +1274,11 @@ CONTENTS
 
   Semantics:
     First the element list which stands behind 'range' is evaluated.
-    If the element list is empty the for-list-statement is finished.
+    If the element list is empty the for-each-statement is finished.
     Otherwise the first element of the element list is assigned
     to the control variable which stands behind 'for'. Then the
     statements behind 'do' are executed. If there is no next element
-    in the element the for-list-statement is finished. Otherwise
+    in the element the for-each-statement is finished. Otherwise
     the next element of the element list is assigned to the control
     variable. This check for next element - execute cycle is repeated
     until there is no next element in the element list.
@@ -1668,6 +1679,15 @@ CONTENTS
                     A >> 0 => A )
       !         Binomial coefficient
                   ( A ! B => !A div (!B * !(A - B)) )
+      lpad      Left padding with spaces
+                  ( 123 lpad  8 => "     123",
+                    123 lpad  4 => " 123",
+                    123 lpad  3 => "123",
+                    123 lpad  2 => "123",
+                    123 lpad -8 => "123" )
+                    -12 lpad  4 => " -12",
+                    -12 lpad  3 => "-12",
+                    -12 lpad  2 => "-12" )
       lpad0     Left padding with zeros
                   ( 123 lpad0  8 => "00000123",
                     123 lpad0  4 => "0123",
@@ -1677,6 +1697,15 @@ CONTENTS
                     -12 lpad0  4 => "-012",
                     -12 lpad0  3 => "-12",
                     -12 lpad0  2 => "-12" )
+      lpad      Left padding with spaces
+                  ( 123 rpad  8 => "123     ",
+                    123 rpad  4 => "123 ",
+                    123 rpad  3 => "123",
+                    123 rpad  2 => "123",
+                    123 rpad -8 => "123" )
+                    -12 rpad  4 => "-12 ",
+                    -12 rpad  3 => "-12",
+                    -12 rpad  2 => "-12" )
       integer conv A   Identity
                   ( integer conv A => A )
       integer parse A   Conversion of string to integer
@@ -2725,10 +2754,15 @@ CONTENTS
 5.11 hash
 
     The type 'hash [keyType] baseType' describes hash tables with
-  elements of 'baseType' which can be accessed using an index of
+  elements of 'baseType'. The elements can be accessed with an index of
   'keyType'.
-  For example: 'hash [string] integer' describes hash table of
-  integer elements with a 'string' key.
+
+  For example: 'hash [string] integer' describes hash tables with
+  'integer' elements and 'string' keys.
+
+  The 'keyType' of a hash needs to provide the functions
+  'hashCode' and 'compare'. Besides this the 'keyType'
+  can be any type.
 
     Constants:
       hashType.EMPTY_HASH  Empty hashtable
@@ -2855,6 +2889,11 @@ CONTENTS
                        Element >= X
                     for all X which are in the set.
                     min(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
+      str(A)    Conversion to string
+                  ( Type of result: string,
+                    str(setType.EMPTY_SET) => "{}",
+                    str({}) => "{}" )
+                    str({1, 2}) => "{1, 2}" )
       rand      Random element from a set
                 The random elements are uniform distributed.
                   ( Type of result: baseType,
@@ -4752,7 +4791,7 @@ CONTENTS
 
   In the previous examples all 'read' statements read from the
   file IN and all 'write' statements write to the file OUT. The
-  files IN and OUT are initialized with STD_IN and STD_OUT
+  files IN and OUT are initialized with 'STD_IN' and 'STD_OUT'
   which are the stdin and stdout files of the operating system.
   (Usually the keyboard and the screen). When we want to write
   to other files we use write statements with the file as first
@@ -4972,8 +5011,10 @@ CONTENTS
 
   The two basic I/O methods defined for the 'null_file' are
 
-    const proc: write (ref null_file param, in string param) is noop;
-    const string: gets (ref null_file param, ref integer param) is "";
+    const proc: write (ref null_file param, in string param) <font
+ color=blue>is noop;
+    const string: gets (ref null_file param, ref integer param) <f
+ont color=blue>is "";
 
   This means that writing any string to the 'null_file' has
   no effect and reading any number of characters from the
@@ -5044,8 +5085,8 @@ CONTENTS
   defined for every new user defined file-type.
 
   Note that there is an assignment to the variable 'bufferChar'.
-  This variable is a component of 'null_file' and therefore also
-  a component of all derived file types. This allows an
+  This variable is an element of 'null_file' and therefore also
+  an element of all derived file types. This allows an
   'eoln' function to test if the last 'getwd' or 'getln' reach the end
   of a line. Here is a definition of the 'eoln' function:
 
@@ -5236,27 +5277,27 @@ CONTENTS
     var file: IN is STD_IN;
     var file: OUT is STD_OUT;
 
-  STD_IN and STD_OUT are the standard input and output files of
-  the operating system (Usually the keyboard and the screen).
-  Because IN and OUT are variables redirection of standard input
-  or standard output can be done easily by assigning a new value
-  to them:
+  The files 'STD_IN' and 'STD_OUT' are the standard input and
+  output files of the operating system (Usually the keyboard and
+  the screen). Because IN and OUT are variables redirection of
+  standard input or standard output can be done easily by
+  assigning a new value to them:
 
     IN := OTHER_FILE;
 
   After that all 'read' statements refer to OTHER_FILE.
   Most operating systems have also a stderr file which
-  can be accessed via the name STD_ERR. If you want to
+  can be accessed via the name 'STD_ERR'. If you want to
   write error messages to the screen even when stdout
   is redirected elsewhere you can write:
 
     writeln(STD_ERR, "ERROR MESSAGE");
 
-  To redirect the standard output to STD_ERR you can write:
+  To redirect the standard output to 'STD_ERR' you can write:
 
     OUT := STD_ERR;
 
-  There is also a file STD_NULL defined. Anything written to
+  There is also a file 'STD_NULL' defined. Anything written to
   it is ignored. Reading from it does deliver empty strings.
   This file can be used to initialize file variables as in:
 
@@ -5268,9 +5309,9 @@ CONTENTS
 
 8.6 Access to operating system files
 
-    The access to operating system files is done via files of
-  the types 'external_file', KEYBOARD_FILE and SCREEN_FILE.
-  The type 'external_file' is defined as:
+    The interface type 'file' is also used to access
+  operating system files. This is done with the implementation
+  type 'external_file'. The type 'external_file' is defined as:
 
     const type: external_file is sub null_file struct
         var PRIMITIVE_FILE: ext_file is PRIMITIVE_null_file;
@@ -5278,9 +5319,9 @@ CONTENTS
       end struct;
 
   This means that every data item of the type 'external_file'
-  has the components from 'null_file' and additionally the
-  components ext_file and name. Note the type 'PRIMITIVE_FILE'
-  which points directly to an operating system file. Objects
+  has the elements from 'null_file' and additionally the
+  elements 'ext_file' and 'name'. The type 'PRIMITIVE_FILE'
+  points directly to an operating system file. Objects
   of type 'PRIMITIVE_FILE' can only have operating system
   files as values while objects of type 'file' can also have
   other files as values. To allow the implementation of the
@@ -5288,8 +5329,8 @@ CONTENTS
   'PRIMITIVE_FILE' are defined. But outside 'external_file' the
   type 'PRIMITIVE_FILE' and its operations should not be used.
 
-  There are three predefined external files STD_IN, STD_OUT
-  and STD_ERR which have the following declarations:
+  There are three predefined external files 'STD_IN', 'STD_OUT'
+  and 'STD_ERR' which have the following declarations:
 
     const func external_file: INIT_STD_FILE (ref PRIMITIVE_FILE: primitive_file,
         in string: file_name) is func
@@ -5307,60 +5348,164 @@ CONTENTS
   It is possible to do I/O directly with them, but it is more wisely
   to use them only to initialize user defined file variables as in:
 
-    var file: ERR is STD_ERR;
+    var file: err is STD_ERR;
 
   In the rest of the program references to such a variable can be
   used:
 
-    writeln(ERR, "Some error occurred");
+    writeln(err, "Some error occurred");
 
-  In this case redirection of the ERR file can be done very easy.
+  In this case redirection of the file 'err' can be done very easy.
   The second way to access external files is to use the 'open'
   function. Usually a file variable is declared
 
-    var file: MY_OUT is STD_NULL;
+    var file: my_out is STD_NULL;
 
   and the result of the 'open' function is assigned to this file
   variable
 
-    MY_OUT := open("my_file", "w");
+    my_out := open("my_file", "w");
 
-  If the 'open' has failed it returns STD_NULL so we must check the
-  file variable to be on the save side
+  The first parameter of 'open' is the path of the file to
+  be opened. Seed7 always uses the slash ('/') as path
+  delimiter. The use of a backslash in a path may raise the
+  exception 'RANGE_ERROR'. The second parameter of 'open'
+  specifies the mode:
 
-    if MY_OUT <> STD_NULL then
+    Binary mode:
+      "r"   ... Open file for reading.
+      "w"   ... Truncate to zero length or create file for writing.
+      "a"   ... Append; open or create file for writing at end-of-file.
+      "r+"  ... Open file for update (reading and writing).
+      "w+"  ... Truncate to zero length or create file for update.
+      "a+"  ... Append; open or create file for update, writing at end-of-file.
+    Text mode:
+      "rt"  ... Open file for reading.
+      "wt"  ... Truncate to zero length or create file for writing.
+      "at"  ... Append; open or create file for writing at end-of-file.
+      "rt+" ... Open file for update (reading and writing).
+      "wt+" ... Truncate to zero length or create file for update.
+      "at+" ... Append; open or create file for update, writing at end-of-file.
 
-  After that output to MY_OUT is possible with
+  The function 'open' returns 'STD_NULL' when it fails. So it is
+  necessary to check the file variable to be on the save side:
 
-    writeln(MY_OUT, "hi there");
+    if my_out <> STD_NULL then
 
-  As stated earlier STD_IN provides an interface to the keyboard
-  which is line buffered and echoed on STD_OUT. This means that
-  you can see everything you typed in and correct it with BACKSPACE
-  until you press RETURN. But sometimes an unbuffered and unechoed
-  input is needed. This is provided with the file KEYBOARD.
-  This are the declaration of the type KEYBOARD_FILE and the file
-  KEYBOARD itself:
+  After that output to 'my_out' is possible with
 
-    const type: KEYBOARD_FILE is subtype file;
+    writeln(my_out, "hi there");
 
-    var KEYBOARD_FILE: KEYBOARD is SCREEN_KEYBOARD;
+  Note that 'external_file' describes BYTE files. Writing
+  a character with an ordinal >= 256 such as
 
-  Reading from KEYBOARD may deliver simple ASCII characters or
+    writeln(my_out, "illegal char: \256\");
+
+  results in the exception 'RANGE_ERROR'. To write unicode
+  characters other file types must be used. The libraries
+  "utf8.s7i" and "utf16.s7i" provide access to UTF-8 and
+  UTF-16 files. The library "utf8.s7i" defines the
+  implementation type 'utf8_file' as
+
+    const type: utf8_file is sub external_file struct
+      end struct;
+
+  and the function 'open_utf8' which can be used the same
+  way as 'open':
+
+    my_out := open_utf8("utf8_file", "w");
+
+  An UTF-8 file accepts all unicode characters. That way
+
+    writeln(my_out, "unicode char: \256\");
+
+  works without problems.
+
+
+8.7 Keyboard file
+
+    As stated earlier 'STD_IN' provides an interface to the keyboard
+  which is line buffered and echoed on 'STD_OUT'. This means that
+  you can see everything you typed. Additionally you can correct
+  your input with BACKSPACE until you press RETURN. But sometimes
+  an unbuffered and unechoed input is needed. This is provided in
+  the library "keybd.s7i" with the file 'KEYBOARD'. The declaration
+  of the type 'keyboard_file' and the file 'KEYBOARD' itself is as
+  follows:
+
+    const type: keyboard_file is subtype file;
+
+    var keyboard_file: KEYBOARD is SCREEN_KEYBOARD;
+
+  Reading from 'KEYBOARD' may deliver UNICODE characters or
   special codes for function keys. These special codes can also
   be copied to a character variables because the type 'char' is
   not limited to 8 bits. For each function key exists a
-  predefined constant that can be used to test which key is
-  pressed.
+  predefined constant that can be used to test which key was
+  pressed:
+
+    Key character constant     Description
+    KEY_CTL_A to KEY_CTL_Z     The control keys ctrl-a to ctrl-z
+    KEY_ALT_A to KEY_ALT_Z     The alternate keys alt-a to alt-z
+    KEY_ALT_0 to KEY_ALT_9     The alternate keys alt-0 to alt-9
+    KEY_F1 to KEY_F10          Function keys F1 to F10
+    KEY_SFT_F1 to KEY_SFT_F10  Shifted function keys F1 to F10
+    KEY_CTL_F1 to KEY_CTL_F10  Control function keys F1 to F10
+    KEY_ALT_F1 to KEY_ALT_F10  Alternate function keys F1 to F10
+    KEY_BS                     Backspace (equal to KEY_CTL_H)
+    KEY_TAB                    Horizontal Tab (equal to KEY_CTL_H)
+    KEY_NL                     Newline (equal to KEY_CTL_J)
+    KEY_CR                     Carriage return (equal to KEY_CTL_M)
+    KEY_ESC                    Escape key
+    KEY_NULCHAR                Nul character key
+    KEY_BACKTAB                Horizontal back tab
+    KEY_LEFT                   Cursor left
+    KEY_RIGHT                  Cursor right
+    KEY_UP                     Cursor up
+    KEY_DOWN                   Cursor down
+    KEY_HOME                   Home key
+    KEY_END                    End key
+    KEY_PGUP                   Page up
+    KEY_PGDN                   Page down
+    KEY_INS                    Insert key
+    KEY_DEL                    Delete key
+    KEY_PAD_CENTER             Numeric keypad center key
+    KEY_CTL_LEFT               Control cursor left
+    KEY_CTL_RIGHT              Control cursor right
+    KEY_CTL_UP                 Control cursor up
+    KEY_CTL_DOWN               Control cursor down
+    KEY_CTL_HOME               Control home key
+    KEY_CTL_END                Control end key
+    KEY_CTL_PGUP               Control page up
+    KEY_CTL_PGDN               Control page down
+    KEY_CTL_INS                Control insert key
+    KEY_CTL_DEL                Control delete key
+    KEY_SCRLUP                 Scroll up key
+    KEY_SCRLDN                 Scroll down key
+    KEY_INSLN                  Insert line key
+    KEY_DELLN                  Delete line key
+    KEY_ERASE                  Erase key
+    KEY_CTL_CR                 Control carriage return
+    KEY_NULLCMD                Null command of window manager
+    KEY_REDRAW                 Redraw command of window manager
+    KEY_NEWWINDOW              New window command of window manager
+    KEY_MOUSE1                 Mouse key 1 (counted from left)
+    KEY_MOUSE2                 Mouse key 2 (counted from left)
+    KEY_MOUSE3                 Mouse key 3 (counted from left)
+    KEY_MOUSE4                 Mouse key 4 (counted from left)
+    KEY_MOUSE5                 Mouse key 5 (counted from left)
+    KEY_UNDEF                  Undefined key
+    KEY_NONE                   No key pressed (returned by busy_getc)
 
   Additionally to the operations possible with other files there
-  are two functions that are applicable only for the file KEYBOARD.
-  The busy_getc(KEYBOARD) function delivers the next character
+  are two functions that are applicable only for the file 'KEYBOARD'.
+  The 'busy_getc(KEYBOARD)' function delivers the next character
   from the keyboard or the character KEY_NONE if no key has been
-  pressed. The busy_gets(KEYBOARD, integer) function delivers a
+  pressed. The 'busy_gets(KEYBOARD, integer)' function delivers a
   string consisting of the characters in the keyboard buffer but
-  with the maximum length which is specified in the second
-  parameter.
+  with the maximum length which is specified in the second parameter.
+  When no key was pressed 'busy_gets(KEYBOARD, integer)' returns
+  the empty string.
 
   To allow random access output to a text screen (or text window)
   the type SCREEN_FILE is defined. The function
@@ -5370,7 +5515,35 @@ CONTENTS
   returns a SCREEN_FILE.
 
 
-8.7 User defined file types
+8.8 Sockets
+
+    The library "socket.s7i" defines types and functions to
+  access sockets. The implementation type for sockets is
+  'socket'. As interface type 'file' is used:
+
+    var file: mySocket is STD_NULL;
+
+  With 'openInetSocket' an internet client socket can be opened:
+
+    mySocket := openInetSocket("www.google.com", 80);
+
+  The function 'openInetSocket' creates and connects a socket.
+  Opening an internet socket at the local host is done with:
+
+    mySocket := openInetSocket(1080);
+
+  Server sockets are supported with the type 'listener'.
+  The type 'listener' is used directly without interface
+  type:
+
+    var listener: myListener is listener.value;
+
+  The function 'openInetListener' opens a listener:
+
+    myListener := openInetListener(1080);
+
+
+8.9 User defined file types
 
     In addition to the predefined file types it is often
   necessary to define a new type of file. Such a new file
@@ -5446,7 +5619,7 @@ CONTENTS
       end func;
 
 
-8.8 Scanning a file
+8.10 Scanning a file
 
     The I/O concept introduced in the previous chapters separates
   the input of data from its conversion. The 'read', 'readln',
@@ -5490,6 +5663,10 @@ CONTENTS
       Reads a sequence of digits from a 'file'.
     getNumber
       Reads a numeric literal from a 'file'.
+    getNonDigits
+      Reads a sequence of non digits from a 'file'.
+    getQuotedText
+      Reads a text quoted with " or ' from a 'file'.
     getCharLiteral
       Reads a character literal from a 'file'.
     getStringLiteral
@@ -5507,6 +5684,8 @@ CONTENTS
       Skips whitespace characters from a 'file'.
     getWhiteSpace
       Reads whitespace characters from a 'file'.
+    getWord
+      Reads a white space delimited word from a 'file'.
     skipLine
       Skips a line from a 'file'.
     getLine
@@ -5519,10 +5698,26 @@ CONTENTS
       Reads a symbol or a comment from a 'file'.
     getSymbol
       Reads a symbol from a 'file'.
+    getSymbolWithHtmlEntities
+      Reads a symbol, where html entities are allowed, from a 'file'.
     getHtmlTagSymbolOrComment
       Reads a HTML tag, a symbol or a comment from a 'file'.
-    getHtmlTagOrContent
-      Reads a HTML tag or the HTML content text from a 'file'.
+    skipXmlComment
+      Skips a XML comment from a 'file'.
+    getXmlTagOrContent
+      Reads a XML/HTML tag or the XML/HTML content text from a 'file'.
+    getXmlCharacterReference
+      Reads a predefined XML entity from a 'file'.
+    getXmlTagHeadOrContent
+      Reads a XML/HTML tag head or a XML/HTML content from a 'file'.
+    getSymbolInXmlTag
+      Reads a symbol which can appear inside a XML/HTML tag from a 'file'.
+    getNextXmlAttribute
+      Reads name and value of an attribute inside a XML tag from 'file'.
+    getHtmlAttributeValue
+      Reads a HTML tag attribute value from a 'file'.
+    getNextHtmlAttribute
+      Reads name and value of an attribute inside a HTML tag from a 'file'.
     getSimpleSymbol
       Reads a simple symbol from a 'file'.
 
@@ -7087,7 +7282,7 @@ CONTENTS
           It was not possible to determine the file size.
       
 
-12.4 getATime
+12.5 getATime
 
     The access time of a file is returned by the function 'getATime':
 
@@ -7103,7 +7298,7 @@ CONTENTS
           The system returns an error.
       
 
-12.4 getCTime
+12.6 getCTime
 
     The change time of a file is returned by the function 'getCTime':
 
@@ -7119,7 +7314,7 @@ CONTENTS
           The system returns an error.
       
 
-12.4 getMTime
+12.7 getMTime
 
     The modification time of a file is returned by the function 'getMTime':
 
@@ -7135,7 +7330,7 @@ CONTENTS
           The system returns an error.
       
 
-12.4 setATime
+12.8 setATime
 
     The function 'setATime' sets the access time of a file:
 
@@ -7151,7 +7346,7 @@ CONTENTS
           The system returns an error.
       
 
-12.4 setMTime
+12.9 setMTime
 
     The function 'setMTime' sets the modification time of a file:
 
@@ -7167,7 +7362,7 @@ CONTENTS
           The system returns an error.
       
 
-12.5 readlink
+12.10 readlink
 
     The function 'readlink' reads the destination of a symbolic link:
 
@@ -7187,7 +7382,7 @@ CONTENTS
           The file described with 'filePath' does not exist or is not a symbolic link.
       
 
-12.6 symlink
+12.11 symlink
 
     The function 'symlink' creates a symbolic link called
     'dest' that contains the string referred by 'source':
@@ -7214,7 +7409,7 @@ CONTENTS
           The system function returns an error.
       
 
-12.7 removeAnyFile
+12.12 removeAnyFile
 
     The function 'removeAnyFile' removes a file independend
     of its file type:
@@ -7231,7 +7426,7 @@ CONTENTS
           A system function to remove a file or to read a directory returns an error.
       
 
-12.8 Other functions
+12.13 Other functions
 
     Other functions are:
 
@@ -7241,7 +7436,18 @@ CONTENTS
     copy("from", "to");
 
 
-12.9 getenv
+12.14 argv
+
+    The function 'argv(PROGRAM)' returns the argument
+    vector of the program as array of strings.
+
+      const func array string: argv (PROGRAM) is ...
+
+    Returns:
+      An array of strings containing the argument vector.
+      
+
+12.15 getenv
 
     The function 'getenv' determines the value of an
     environment variable.

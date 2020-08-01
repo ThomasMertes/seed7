@@ -1,3 +1,15 @@
+20090802:
+- The FAQ about static type checking was improved.
+- The chapters explaining the for-each statement and the types integer, hash and set in
+  the manual were improved.
+- The chapters explaining the file types external_file, utf8_file, keyboard_file and
+  socket in the manual were added or improved.
+- The chapters explaining file scanning and the function argv(PROGRAM) were improved.
+- Documentation comments were added to the functions flush, writeln, eof, hasNext,
+  length, listen and accept in socket.s7i .
+- The functions gets(utf16le_file, integer) and gets(utf16be_file, integer) in the
+  utf16.s7i library were improved.
+
 20090719:
 - The charsets.s7i library was improved to support the character sets armscii_8, geostd8,
   ns_4551_1, utf-16be, utf-16le and utf-7.

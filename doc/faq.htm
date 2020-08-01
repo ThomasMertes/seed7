@@ -539,11 +539,13 @@ type errors can be hidden in rarely executed code paths. Static type checking
 can find such errors easily. With dynamic type checking extensive tests are
 necessary to find all type errors. Even tests with 100% code coverage are not
 enough since the combination of all places where values are created and all
-places where these values are used must be taken into account. Additionally it
-would be necessary to repeat all this tests every time the program is changed.
-Naturally there are doubts that enough tests are done and that the tests are
-adjusted and repeated for every change in the program. Therefore it can be
-said that compile-time type checks increase the reliability of the program.
+places where these values are used must be taken into account. That means that
+testing cannot guarantee to find all type errors that a static type checker
+can find. Additionally it would be necessary to repeat all tests every time
+the program is changed. Naturally there are doubts that enough tests are done
+and that the tests are adjusted and repeated for every change in the program.
+Therefore it can be said that compile-time type checks increase the reliability
+of the program.
 </p><p>
 Seed7 makes sure that the object values always have the type of the object.
 This goal is reached with mechanisms like mandatory initialisation, runtime
@@ -571,11 +573,12 @@ functions granted by the interface type are defined for the implementation type.
 </b></a><hr><!-- ======================================== -->
 <p>
 No, especially when the time spent to debug a program is taken into account.
-All type errors found by a "nitpicking" compiler correspond to runtime type
-errors that can happen in a dynamically typed language under some circumstances.
-That way the compile-time type checks save the time necessary to find and debug
-those errors. The time that a compiler needs to find and flag type errors is
-so small that it can be ignored in this comparison.
+Except for artificial corner cases all type errors found by a "nitpicking"
+compiler correspond to runtime type errors that can happen in a dynamically
+typed language under some circumstances. That way the compile-time type checks
+save the time necessary to find and debug those errors. The time that a compiler
+needs to find and flag type errors is so small that it can be ignored in this
+comparison.
 </p><p>
 Some people claim, that adding type information to a program is a time consuming
 process. This is only true when the type information is added afterwards, but

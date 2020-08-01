@@ -1672,7 +1672,7 @@ bstritype point_list;
 #ifdef ANSI_C
 
 void drwPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+    inttype x1, inttype y1, bstritype point_list, inttype col)
 #else
 
 void drwPolyLine (actual_window, x1, y1, point_list, col)
@@ -1722,7 +1722,7 @@ inttype col;
 #ifdef ANSI_C
 
 void drwFPolyLine (const_wintype actual_window,
-    inttype x1, inttype y1, const_bstritype point_list, inttype col)
+    inttype x1, inttype y1, bstritype point_list, inttype col)
 #else
 
 void drwFPolyLine (actual_window, x1, y1, point_list, col)
@@ -1975,7 +1975,7 @@ inttype col;
 
 #ifdef ANSI_C
 
-void drwSetTransparentColor (const_wintype pixmap, inttype col)
+void drwSetTransparentColor (wintype pixmap, inttype col)
 #else
 
 void drwSetTransparentColor (pixmap, col)
@@ -2012,13 +2012,17 @@ inttype bkcol;
       strelemtype *strelem;
       memsizetype len;
 
-      stri_buffer = (wchar_t *) malloc(sizeof(WORD) * stri->size);
+      stri_buffer = (wchar_t *) malloc(sizeof(wchar_t) * stri->size);
       if (stri_buffer != NULL) {
         wstri = stri_buffer;
         strelem = stri->mem;
         len = stri->size;
         for (; len > 0; wstri++, strelem++, len--) {
-          *wstri = *strelem;
+          if (*strelem >= 65536) {
+            raise_error(RANGE_ERROR);
+            return;
+          } /* if */
+          *wstri = (wchar_t) *strelem;
         } /* while */
 
         SetTextColor(to_hdc(actual_window), (COLORREF) col);

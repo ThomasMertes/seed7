@@ -129,36 +129,59 @@ const func string: gets (in utf16le_file: aFile, in integer: leng) is func
   result
     var string: result is "";
   local
+    var integer: charsMissing is 0;
+    var boolean: partialRead is FALSE;
     var string: stri is "";
+    var string: surrogate_part is "";
     var integer: index is 0;
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    stri := gets(aFile.ext_file, 2 * leng);
-    for index range 1 to length(stri) div 2 do
-      ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
-      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
-        if index < length(stri) div 2 then
-          incr(index);
-          ch2 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+    charsMissing := leng;
+    repeat
+      stri := gets(aFile.ext_file, 2 * charsMissing);
+      if odd(length(stri)) then
+        raise RANGE_ERROR;
+      elsif length(stri) <> 2 * charsMissing then
+        partialRead := TRUE;
+      end if;
+      for index range 1 to length(stri) div 2 do
+        ch1 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+        if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
+          # ch1 introduces a surrogate pair
+          if index = length(stri) div 2 then
+            surrogate_part := gets(aFile.ext_file, 2);
+            if length(surrogate_part) = 2 then
+              ch2 := chr(ord(surrogate_part[2]) * 256 + ord(surrogate_part[1]));
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            incr(index);
+            ch2 := chr(ord(stri[index * 2]) * 256 + ord(stri[pred(index * 2)]));
+          end if;
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
+            # ch1 and ch2 are a surrogate pair
             result &:= str(chr((ord(ch1) - 16#D800) << 10 +
                                (ord(ch2) - 16#DC00) + 16#10000));
           else
             raise RANGE_ERROR;
           end if;
         else
-          raise RANGE_ERROR;
+          result &:= str(ch1);
         end if;
-      else
-        result &:= str(ch1);
-      end if;
-    end for;
+      end for;
+      charsMissing := leng - length(result);
+    until charsMissing = 0 or partialRead;
   end func;
 
 
 const func boolean: eof (in utf16le_file: aFile) is
   return eof(aFile.ext_file);
+
+
+const func boolean: hasNext (ref utf16le_file: aFile) is
+  return hasNext(aFile.ext_file);
 
 
 const func file: open_utf16be (in string: fileName, in string: access) is func
@@ -211,33 +234,56 @@ const func string: gets (in utf16be_file: aFile, in integer: leng) is func
   result
     var string: result is "";
   local
+    var integer: charsMissing is 0;
+    var boolean: partialRead is FALSE;
     var string: stri is "";
+    var string: surrogate_part is "";
     var integer: index is 0;
     var char: ch1 is ' ';
     var char: ch2 is ' ';
   begin
-    stri := gets(aFile.ext_file, 2 * leng);
-    for index range 1 to length(stri) div 2 do
-      ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
-      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
-        if index < length(stri) div 2 then
-          incr(index);
-          ch2 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+    charsMissing := leng;
+    repeat
+      stri := gets(aFile.ext_file, 2 * charsMissing);
+      if odd(length(stri)) then
+        raise RANGE_ERROR;
+      elsif length(stri) <> 2 * charsMissing then
+        partialRead := TRUE;
+      end if;
+      for index range 1 to length(stri) div 2 do
+        ch1 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+        if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
+          # ch1 introduces a surrogate pair
+          if index = length(stri) div 2 then
+            surrogate_part := gets(aFile.ext_file, 2);
+            if length(surrogate_part) = 2 then
+              ch2 := chr(ord(surrogate_part[1]) * 256 + ord(surrogate_part[2]));
+            else
+              raise RANGE_ERROR;
+            end if;
+          else
+            incr(index);
+            ch2 := chr(ord(stri[pred(index * 2)]) * 256 + ord(stri[index * 2]));
+          end if;
           if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
+            # ch1 and ch2 are a surrogate pair
             result &:= str(chr((ord(ch1) - 16#D800) << 10 +
                                (ord(ch2) - 16#DC00) + 16#10000));
           else
             raise RANGE_ERROR;
           end if;
         else
-          raise RANGE_ERROR;
+          result &:= str(ch1);
         end if;
-      else
-        result &:= str(ch1);
-      end if;
-    end for;
+      end for;
+      charsMissing := leng - length(result);
+    until charsMissing = 0 or partialRead;
   end func;
 
 
 const func boolean: eof (in utf16be_file: aFile) is
   return eof(aFile.ext_file);
+
+
+const func boolean: hasNext (ref utf16be_file: aFile) is
+  return hasNext(aFile.ext_file);

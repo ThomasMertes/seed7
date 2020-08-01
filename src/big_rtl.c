@@ -1443,11 +1443,11 @@ biginttype big2;
 
 
 /**
- *  Returns the sqare of the nonnegative big integer big1. The result
+ *  Returns the square of the nonnegative big integer big1. The result
  *  is written into big_help (which is a scratch variable and is
  *  assumed to contain enough memory). Before returning the result
  *  the variable big1 is assigned to big_help. This way it is possible
- *  to square a given base with base = uBigSqare(base, &big_help).
+ *  to square a given base with base = uBigSquare(base, &big_help).
  *  Note that the old base is in the scratch variable big_help
  *  afterwards. This squaring algorithm takes into account that
  *  digit1 * digit2 + digit2 * digit1 == (digit1 * digit2) << 1.
@@ -1458,10 +1458,10 @@ biginttype big2;
  */
 #ifdef ANSI_C
 
-static biginttype uBigSqare (const biginttype big1, biginttype *big_help)
+static biginttype uBigSquare (const biginttype big1, biginttype *big_help)
 #else
 
-static biginttype uBigSqare (big1, big_help)
+static biginttype uBigSquare (big1, big_help)
 biginttype big1;
 biginttype *big_help;
 #endif
@@ -1474,7 +1474,7 @@ biginttype *big_help;
     bigdigittype digit;
     biginttype result;
 
-  /* uBigSqare */
+  /* uBigSquare */
     result = *big_help;
     digit = big1->bigdigits[0];
     carry = (doublebigdigittype) digit * digit;
@@ -1520,7 +1520,7 @@ biginttype *big_help;
     result->size = pos1;
     *big_help = big1;
     return result;
-  } /* uBigSqare */
+  } /* uBigSquare */
 
 
 
@@ -3366,7 +3366,7 @@ inttype exponent;
             } /* if */
             exponent >>= 1;
             while (exponent != 0) {
-              square = uBigSqare(square, &big_help);
+              square = uBigSquare(square, &big_help);
               if (exponent & 1) {
                 result = uBigMultIntoHelp(result, square, &big_help);
               } /* if */

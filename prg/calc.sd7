@@ -52,7 +52,11 @@ const proc: main is func
         \  end func;\n\
         \");
       if prog_expr <> program.EMPTY then
-        execute(prog_expr);
+        if error_count(prog_expr) = 0 then
+          execute(prog_expr);
+        else
+          writeln("*** " <& error_count(prog_expr) <& " errors found");
+        end if;
       end if;
       write("command? ");
       readln(command);

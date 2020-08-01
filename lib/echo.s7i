@@ -29,7 +29,7 @@
 const type: echo_file is sub null_file struct
     var file: in_file is STD_NULL;
     var file: out_file is STD_NULL;
-    var integer: in_pos is 0;
+    var integer: in_pos is 1;
   end struct;
 
 
@@ -39,7 +39,7 @@ const func echo_file: open_echo (ref file: in_fil, ref file: out_fil) is func
   begin
     echo_fil.in_file := in_fil;
     echo_fil.out_file := out_fil;
-    echo_fil.in_pos := 0;
+    echo_fil.in_pos := 1;
   end func;
 
 
@@ -58,10 +58,10 @@ const func char: getc (inout echo_file: echo_fil) is func
         incr(echo_fil.in_pos);
         write(echo_fil.out_file, ch);
       elsif ch = '\n' then
-        echo_fil.in_pos := 0;
+        echo_fil.in_pos := 1;
         writeln(echo_fil.out_file);
       elsif ch = '\b' then
-        if echo_fil.in_pos > 0 then
+        if echo_fil.in_pos > 1 then
           decr(echo_fil.in_pos);
           backSpace(echo_fil.out_file);
         end if;
