@@ -40,6 +40,7 @@
 #include "io.h"
 #include "fcntl.h"
 #include "wchar.h"
+#include "errno.h"
 
 #include "common.h"
 #include "data_rtl.h"

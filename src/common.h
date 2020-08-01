@@ -226,8 +226,18 @@ typedef uint128Type               doubleUintType;
 
 #if TIME_T_SIZE == 32
 #define TIME_T_MAX INT32TYPE_MAX
+#if TIME_T_SIGNED
+#define FMT_T                     FMT_D32
+#else
+#define FMT_T                     FMT_U32
+#endif
 #elif TIME_T_SIZE == 64
 #define TIME_T_MAX INT64TYPE_MAX
+#if TIME_T_SIGNED
+#define FMT_T                     FMT_D64
+#else
+#define FMT_T                     FMT_U64
+#endif
 #endif
 
 

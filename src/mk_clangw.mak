@@ -29,11 +29,12 @@ SYSTEM_LIBS = -luser32 -lshell32 -lws2_32
 # SYSTEM_LIBS = -lm -lws2_32 -lgmp
 SYSTEM_CONSOLE_LIBS =
 SYSTEM_DRAW_LIBS = -lgdi32
-SEED7_LIB = seed7_05.a
-CONSOLE_LIB = s7_con.a
-DRAW_LIB = s7_draw.a
-COMP_DATA_LIB = s7_data.a
-COMPILER_LIB = s7_comp.a
+LIB_EXT = .lib
+SEED7_LIB = seed7_05$(LIB_EXT)
+CONSOLE_LIB = s7_con$(LIB_EXT)
+DRAW_LIB = s7_draw$(LIB_EXT)
+COMP_DATA_LIB = s7_data$(LIB_EXT)
+COMPILER_LIB = s7_comp$(LIB_EXT)
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(SEED7_LIB)
 # CC = g++
 CC = clang
@@ -117,7 +118,7 @@ clear: clean
 
 clean:
 	del *.o
-	del ..\bin\*.a
+	del ..\bin\*$(LIB_EXT)
 	del ..\bin\s7.exe
 	del ..\bin\s7c.exe
 	del ..\prg\s7.exe
@@ -197,7 +198,7 @@ version.h: chkccomp.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
-	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
+	echo #define LIBRARY_FILE_EXTENSION "$(LIB_EXT)" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h
 	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
@@ -205,6 +206,7 @@ version.h: chkccomp.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_FLAGS "-ffunction-sections -fdata-sections -ftrapv" >> version.h
 	echo #define CC_ERROR_FILDES 2 >> version.h
+	echo #define LINKER_OPT_DEBUG_INFO "-g" >> version.h
 	echo #define LINKER_OPT_NO_DEBUG_INFO "-Wl,--strip-debug" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h

@@ -1416,6 +1416,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
           stri->size = stri_size;
         } /* if */
       } else {
+        /* Assume that os_stri is encoded in Latin-1 instead of UTF-8. */
         stri->size = length;
         memcpy_to_strelem(stri->mem, (const_ustriType) os_stri, length);
       } /* if */

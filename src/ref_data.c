@@ -310,13 +310,13 @@ striType refFile (const const_objectType aReference)
 
   {
     fileNumType file_number;
-    striType result;
+    striType fileName;
 
   /* refFile */
     if (unlikely(aReference == NULL)) {
       logError(printf("refFile(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
-      result = NULL;
+      fileName = NULL;
     } else {
       if (HAS_POSINFO(aReference)) {
         file_number = GET_FILE_NUM(aReference);
@@ -330,12 +330,12 @@ striType refFile (const const_objectType aReference)
       } else {
         file_number = 0;
       } /* if */
-      result = get_file_name(file_number);
-      if (unlikely(result == NULL)) {
+      fileName = get_file_name(file_number);
+      if (unlikely(fileName == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
-    return result;
+    return fileName;
   } /* refFile */
 
 
@@ -437,16 +437,16 @@ objectType refItfToSct (const const_objectType aReference)
 intType refLine (const const_objectType aReference)
 
   {
-    intType result;
+    intType lineNumber;
 
   /* refLine */
     if (unlikely(aReference == NULL)) {
       logError(printf("refLine(NULL): Object is NULL.\n"););
       raise_error(RANGE_ERROR);
-      result = 0;
+      lineNumber = 0;
     } else if (HAS_POSINFO(aReference)) {
       /* GET_LINE_NUM delivers an unsigned integer in the range 0 to 1048575 */
-      result = (intType) GET_LINE_NUM(aReference);
+      lineNumber = (intType) GET_LINE_NUM(aReference);
     } else if (HAS_PROPERTY(aReference)) {
       /* trace1(aReference);
       printf(" %s %u %u\n",
@@ -454,11 +454,11 @@ intType refLine (const const_objectType aReference)
           aReference->descriptor.property->line,
           aReference->descriptor.property->syNumberInLine); */
       /* Cast to intType: The line is probably in the range 0 to 2147483647 */
-      result = (intType) aReference->descriptor.property->line;
+      lineNumber = (intType) aReference->descriptor.property->line;
     } else {
-      result = 0;
+      lineNumber = 0;
     } /* if */
-    return result;
+    return lineNumber;
   } /* refLine */
 
 
@@ -476,10 +476,10 @@ listType refLocalConsts (const const_objectType funcRef)
     listType local_elem;
     listType *list_insert_place;
     errInfoType err_info = OKAY_NO_ERROR;
-    listType result;
+    listType localConsts;
 
   /* refLocalConsts */
-    result = NULL;
+    localConsts = NULL;
     if (unlikely(funcRef == NULL ||
                  CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refLocalConsts(");
@@ -487,7 +487,7 @@ listType refLocalConsts (const const_objectType funcRef)
                printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      list_insert_place = &result;
+      list_insert_place = &localConsts;
       local_elem = funcRef->value.blockValue->local_consts;
       while (local_elem != NULL) {
         list_insert_place = append_element_to_list(list_insert_place,
@@ -495,12 +495,12 @@ listType refLocalConsts (const const_objectType funcRef)
         local_elem = local_elem->next;
       } /* while */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_list(result);
-        result = NULL;
+        free_list(localConsts);
+        localConsts = NULL;
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
-    return result;
+    return localConsts;
   } /* refLocalConsts */
 
 
@@ -518,10 +518,10 @@ listType refLocalVars (const const_objectType funcRef)
     locListType local_elem;
     listType *list_insert_place;
     errInfoType err_info = OKAY_NO_ERROR;
-    listType result;
+    listType localVars;
 
   /* refLocalVars */
-    result = NULL;
+    localVars = NULL;
     if (unlikely(funcRef == NULL ||
                  CATEGORY_OF_OBJ(funcRef) != BLOCKOBJECT)) {
       logError(printf("refLocalVars(");
@@ -529,7 +529,7 @@ listType refLocalVars (const const_objectType funcRef)
                printf("): Category is not BLOCKOBJECT.\n"););
       raise_error(RANGE_ERROR);
     } else {
-      list_insert_place = &result;
+      list_insert_place = &localVars;
       local_elem = funcRef->value.blockValue->local_vars;
       while (local_elem != NULL) {
         list_insert_place = append_element_to_list(list_insert_place,
@@ -537,12 +537,12 @@ listType refLocalVars (const const_objectType funcRef)
         local_elem = local_elem->next;
       } /* while */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        free_list(result);
-        result = NULL;
+        free_list(localVars);
+        localVars = NULL;
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
-    return result;
+    return localVars;
   } /* refLocalVars */
 
 

@@ -610,12 +610,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2016-10-31 the number of lines is:
+than 200000 lines of Seed7. For version 2016-12-04 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">130701</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10272</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">136568</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">134374</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">130908</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10281</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">136676</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">134468</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -847,6 +847,7 @@ compiling the compiler - okay
 chkint ........... okay
 chkovf ........... okay
 chkflt ........... okay
+chkbin ........... okay
 chkchr ........... okay
 chkstr ........... okay
 chkprc ........... okay
@@ -983,6 +984,7 @@ Possible options are
   <li><b>-t</b><span class="keywd">x</span>  Set runtime trace level to <span class="keywd">x</span>. Where <span class="keywd">x</span> is a string consisting
        of the following characters:<ul>
          <li><b>e</b> Trace exceptions and handlers</li>
+         <li><b>f</b> Trace functions</li>
          <li><b>s</b> Trace signals</li></ul></li>
 </ul></div>
 

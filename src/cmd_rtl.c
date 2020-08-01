@@ -200,9 +200,10 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
         current_entry = os_readdir(directory);
 /*      printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
         fflush(stdout); */
-      } while (current_entry != NULL &&
-          (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
-           memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
+      } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
+               (current_entry->d_name[1] == '\0' ||
+                (current_entry->d_name[1] == '.' &&
+                 current_entry->d_name[2] == '\0')));
       dir_name_size = os_stri_strlen(dir_name);
       while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
 /*      printf("!" FMT_S_OS "!\n", current_entry->d_name);
@@ -233,9 +234,10 @@ static void remove_dir (const const_os_striType dir_name, errInfoType *err_info)
           current_entry = os_readdir(directory);
 /*        printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
           fflush(stdout); */
-        } while (current_entry != NULL &&
-            (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
-             memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
+        } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
+                 (current_entry->d_name[1] == '\0' ||
+                  (current_entry->d_name[1] == '.' &&
+                   current_entry->d_name[2] == '\0')));
       } /* while */
       if (dir_path != NULL) {
         FREE_OS_STRI(dir_path);
@@ -431,9 +433,10 @@ static void copy_dir (const const_os_striType from_name,
           current_entry = os_readdir(directory);
           /* printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
              fflush(stdout); */
-        } while (current_entry != NULL &&
-            (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
-             memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
+        } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
+                 (current_entry->d_name[1] == '\0' ||
+                  (current_entry->d_name[1] == '.' &&
+                   current_entry->d_name[2] == '\0')));
         from_name_size = os_stri_strlen(from_name);
         to_name_size = os_stri_strlen(to_name);
         while (*err_info == OKAY_NO_ERROR && current_entry != NULL) {
@@ -480,9 +483,10 @@ static void copy_dir (const const_os_striType from_name,
             current_entry = os_readdir(directory);
             /* printf("$" FMT_U_MEM "$\n", (memSizeType) current_entry);
                fflush(stdout); */
-          } while (current_entry != NULL &&
-              (memcmp(current_entry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
-               memcmp(current_entry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
+          } while (current_entry != NULL && current_entry->d_name[0] == '.' &&
+                   (current_entry->d_name[1] == '\0' ||
+                    (current_entry->d_name[1] == '.' &&
+                     current_entry->d_name[2] == '\0')));
         } /* while */
         if (unlikely(*err_info != OKAY_NO_ERROR)) {
           remove_dir(to_name, err_info);
@@ -946,6 +950,7 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
       used_max_position = 0;
       path_environment_variable = os_getenv(path_variable);
       if (path_environment_variable != NULL) {
+        /* printf("path: " FMT_S_OS "\n", path_environment_variable); */
         path_length = os_stri_strlen(path_environment_variable);
         if (unlikely(!os_stri_alloc(path_copy, path_length))) {
           *err_info = MEMORY_ERROR;
@@ -978,11 +983,16 @@ static rtlArrayType getSearchPath (errInfoType *err_info)
           os_stri_free(path_copy);
         } /* if */
         os_getenv_string_free(path_environment_variable);
-        path_array = complete_stri_array(path_array, used_max_position, err_info);
       } /* if */
+      path_array = complete_stri_array(path_array, used_max_position, err_info);
     } else {
       *err_info = MEMORY_ERROR;
     } /* if */
+    logFunction(printf("getSearchPath --> " FMT_U_MEM
+                       " (size=" FMT_U_MEM ", err_info=%d)\n",
+                       (memSizeType) path_array,
+                       path_array != NULL ? arraySize(path_array) : 0,
+                       *err_info););
     return path_array;
   } /* getSearchPath */
 
@@ -1704,6 +1714,7 @@ rtlArrayType cmdEnvironment (void)
     rtlArrayType environment_array;
 
   /* cmdEnvironment */
+    logFunction(printf("cmdEnvironment()\n"););
 #if USE_GET_ENVIRONMENT
     os_environ = getEnvironment();
 #elif INITIALIZE_OS_ENVIRON
@@ -1719,6 +1730,7 @@ rtlArrayType cmdEnvironment (void)
       used_max_position = 0;
       if (os_environ != NULL) {
         for (nameStartPos = os_environ; *nameStartPos != NULL; ++nameStartPos) {
+          /* printf("nameStartPos: \"" FMT_S_OS "\"\n", *nameStartPos); */
           if ((*nameStartPos)[0] != '=' && (*nameStartPos)[0] != '\0') {
             nameEndPos = os_stri_strchr(*nameStartPos, '=');
             if (nameEndPos != NULL) {
@@ -1747,6 +1759,11 @@ rtlArrayType cmdEnvironment (void)
 #if USE_GET_ENVIRONMENT
     freeEnvironment(os_environ);
 #endif
+    logFunction(printf("cmdEnvironment --> " FMT_U_MEM
+                       " (size=" FMT_U_MEM ")\n",
+                       (memSizeType) environment_array,
+                       environment_array != NULL ?
+                       arraySize(environment_array) : 0););
     return environment_array;
   } /* cmdEnvironment */
 
@@ -2317,7 +2334,7 @@ void cmdGetATime (const const_striType filePath,
                         os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetATime: st_atime=%ld\n", stat_buf.st_atime); */
+        /* printf("cmdGetATime: st_atime=" FMT_T "\n", stat_buf.st_atime); */
         timFromTimestamp(stat_buf.st_atime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -2382,7 +2399,7 @@ void cmdGetCTime (const const_striType filePath,
                         os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetCTime: st_ctime=%ld\n", stat_buf.st_ctime); */
+        /* printf("cmdGetCTime: st_ctime=" FMT_T "\n", stat_buf.st_ctime); */
         timFromTimestamp(stat_buf.st_ctime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -2447,7 +2464,7 @@ void cmdGetMTime (const const_striType filePath,
                         os_path, errno, strerror(errno)););
         err_info = FILE_ERROR;
       } else {
-        /* printf("cmdGetMTime: st_mtime=%ld\n", stat_buf.st_mtime); */
+        /* printf("cmdGetMTime: st_mtime=" FMT_T "\n", stat_buf.st_mtime); */
         timFromTimestamp(stat_buf.st_mtime,
             year, month, day, hour,
             min, sec, micro_sec, time_zone, is_dst);
@@ -2477,6 +2494,7 @@ rtlArrayType cmdGetSearchPath (void)
     rtlArrayType result;
 
   /* cmdGetSearchPath */
+    logFunction(printf("cmdGetSearchPath()\n"););
     result = getSearchPath(&err_info);
     if (unlikely(result == NULL)) {
       logError(printf("cmdGetSearchPath: getSearchPath(*) failed:\n"
@@ -3059,7 +3077,7 @@ void cmdSetATime (const const_striType filePath,
       if (os_stat(os_path, &stat_buf) == 0) {
         utime_buf.actime = timToTimestamp(year, month, day, hour,
             min, sec, micro_sec, time_zone);
-        /* printf("cmdSetATime: actime=%ld\n", utime_buf.actime); */
+        /* printf("cmdSetATime: actime=" FMT_T "\n", utime_buf.actime); */
         utime_buf.modtime = stat_buf.st_mtime;
         if (utime_buf.actime == (time_t) -1) {
           logError(printf("cmdSetATime: timToTimestamp("
@@ -3181,7 +3199,7 @@ void cmdSetMTime (const const_striType filePath,
         utime_buf.actime = stat_buf.st_atime;
         utime_buf.modtime = timToTimestamp(year, month, day, hour,
             min, sec, micro_sec, time_zone);
-        /* printf("cmdSetMTime: modtime=%ld\n", utime_buf.modtime); */
+        /* printf("cmdSetMTime: modtime=" FMT_T "\n", utime_buf.modtime); */
         if (utime_buf.modtime == (time_t) -1) {
           logError(printf("cmdSetMTime: timToTimestamp("
                           F_D(04) "-" F_D(02) "-" F_D(02) " " F_D(02) ":"

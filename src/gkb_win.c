@@ -137,7 +137,7 @@ charType gkbGetc (void)
     /* printf("after GetMessage\n"); */
     while (result == K_NONE && bRet != 0) {
       if (bRet == -1) {
-        printf("GetMessage(&msg, NULL, 0, 0)=-1\n");
+        logError(printf("GetMessage(&msg, NULL, 0, 0)=-1\n"););
       } else {
         /* printf("gkbGetc message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
         if (msg.message == WM_KEYDOWN) {
@@ -477,9 +477,9 @@ boolType gkbKeyPressed (void)
               msg.wParam == VK_NUMLOCK || msg.wParam == VK_SCROLL) {
             bRet = GetMessage(&msg, NULL, 0, 0);
             if (bRet == 0) {
-              printf("GetMessage(&msg, NULL, 0, 0)=0\n");
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=0\n"););
             } else if (bRet == -1) {
-              printf("GetMessage(&msg, NULL, 0, 0)=-1\n");
+              logError(printf("GetMessage(&msg, NULL, 0, 0)=-1\n"););
             } else {
               /* printf("message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
               TranslateMessage(&msg);
@@ -504,9 +504,9 @@ boolType gkbKeyPressed (void)
           /* printf("gkbKeyPressed WM_NCLBUTTONDOWN\n"); */
           bRet = GetMessage(&msg, NULL, 0, 0);
           if (bRet == 0) {
-            printf("x GetMessage(&msg, NULL, 0, 0)=0\n");
+            logError(printf("x GetMessage(&msg, NULL, 0, 0)=0\n"););
           } else if (bRet == -1) {
-            printf("x GetMessage(&msg, NULL, 0, 0)=-1\n");
+            logError(printf("x GetMessage(&msg, NULL, 0, 0)=-1\n"););
           } else {
             /* printf("x message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             TranslateMessage(&msg);
@@ -524,18 +524,18 @@ boolType gkbKeyPressed (void)
           /* printf("gkbKeyPressed WM_SYSKEYUP\n"); */
           bRet = GetMessage(&msg, NULL, 0, 0);
           if (bRet == 0) {
-            printf("y GetMessage(&msg, NULL, 0, 0)=0\n");
+            logError(printf("y GetMessage(&msg, NULL, 0, 0)=0\n"););
           } else if (bRet == -1) {
-            printf("y GetMessage(&msg, NULL, 0, 0)=-1\n");
+            logError(printf("y GetMessage(&msg, NULL, 0, 0)=-1\n"););
           } /* if */
           msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
           break;
         default:
           bRet = GetMessage(&msg, NULL, 0, 0);
           if (bRet == 0) {
-            printf("GetMessage(&msg, NULL, 0, 0)=0\n");
+            logError(printf("GetMessage(&msg, NULL, 0, 0)=0\n"););
           } else if (bRet == -1) {
-            printf("GetMessage(&msg, NULL, 0, 0)=-1\n");
+            logError(printf("GetMessage(&msg, NULL, 0, 0)=-1\n"););
           } else {
             /* printf("message=%d %lu, %d, %u\n", msg.message, msg.hwnd, msg.wParam, msg.lParam); */
             TranslateMessage(&msg);

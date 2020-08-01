@@ -37,6 +37,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "sys/types.h"
+#include "sys/stat.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -55,8 +57,6 @@
 
 
 #ifdef OS_STRI_WCHAR
-const wchar_t dot[]           = {'.', 0};
-const wchar_t dotdot[]        = {'.', '.', 0};
 const wchar_t slash[]         = {'/', 0};
 #if OS_PATH_HAS_DRIVE_LETTERS
 /* Assume that drive letters are used only with a backslash as path delimiter. */
@@ -65,8 +65,6 @@ const wchar_t pathDelimiter[] = {'\\', 0};
 const wchar_t pathDelimiter[] = {'/', 0};
 #endif
 #else
-const char dot[]           = ".";
-const char dotdot[]        = "..";
 const char slash[]         = "/";
 #if OS_PATH_HAS_DRIVE_LETTERS
 /* Assume that drive letters are used only with a backslash as path delimiter. */
@@ -108,10 +106,10 @@ static striType readVolumeName (volumeListType *volumeList)
         /* printf("%c:\\\n", (char) ((int) 'a' + volumeList->currentDrive)); */
         os_path[PREFIX_LEN] = (os_charType) ((int) 'a' + volumeList->currentDrive);
         stat_result = os_stat(os_path, &stat_buf);
-        if (stat_result == 0) {
-          /* printf("%c:\\ st_mode=%u\n",
+        if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
+          /* printf("%c:\\ st_mode=0%o, ISDIR=%d\n",
               (char) ((int) 'a' + volumeList->currentDrive),
-              S_ISDIR(stat_buf.st_mode)); */
+              stat_buf.st_mode, S_ISDIR(stat_buf.st_mode)); */
           directory = os_opendir(os_path);
           if (directory != NULL) {
             os_closedir(directory);
@@ -248,9 +246,9 @@ striType dirRead (dirType directory)
 #endif
       do {
         dirEntry = os_readdir(directory);
-      } while (dirEntry != NULL &&
-          (memcmp(dirEntry->d_name, dot,    sizeof(os_charType) * 2) == 0 ||
-           memcmp(dirEntry->d_name, dotdot, sizeof(os_charType) * 3) == 0));
+      } while (dirEntry != NULL && dirEntry->d_name[0] == '.' &&
+               (dirEntry->d_name[1] == '\0' ||
+                (dirEntry->d_name[1] == '.' && dirEntry->d_name[2] == '\0')));
       if (dirEntry == NULL) {
         fileName = NULL;
       } else {

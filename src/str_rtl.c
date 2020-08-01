@@ -1599,18 +1599,18 @@ striType strCLit (const const_striType stri)
     register memSizeType position;
     memSizeType striSize;
     memSizeType pos;
-    striType resized_result;
-    striType result;
+    striType resized_literal;
+    striType literal;
 
   /* strCLit */
     logFunction(printf("strCLit(\"%s\")\n", striAsUnquotedCStri(stri)););
     striSize = stri->size;
     if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
-                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * striSize + numOfQuotes))) {
+                 !ALLOC_STRI_SIZE_OK(literal, escSequenceMax * striSize + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
+      literal = NULL;
     } else {
-      result->mem[0] = (strElemType) '"';
+      literal->mem[0] = (strElemType) '"';
       pos = 1;
       for (position = 0; position < striSize; position++) {
         character = stri->mem[position];
@@ -1622,18 +1622,18 @@ striType strCLit (const const_striType stri)
         /* leads to the int value -1 instead of the desired 255.    */
         if (character < 127) {
           if (character < ' ') {
-            result->mem[pos] = (strElemType) '\\';
+            literal->mem[pos] = (strElemType) '\\';
             if (cstri_escape_sequence[character][1] == '0') {
               /* Always write three octal digits to avoid errors when */
               /* the octal representation is followed by a digit.     */
-              result->mem[pos + 1] = (strElemType) '0';
+              literal->mem[pos + 1] = (strElemType) '0';
               /* Write the character as two octal digits. */
               /* This code is much faster than sprintf(). */
-              result->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
-              result->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
+              literal->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
+              literal->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
               pos += 4;
             } else {
-              result->mem[pos + 1] = (strElemType) cstri_escape_sequence[character][1];
+              literal->mem[pos + 1] = (strElemType) cstri_escape_sequence[character][1];
               pos += 2;
             } /* if */
 #if TRIGRAPH_SEQUENCES_ARE_REPLACED
@@ -1642,44 +1642,44 @@ striType strCLit (const const_striType stri)
 #else
           } else if (character == '\\' || character == '\"') {
 #endif
-            result->mem[pos]     = (strElemType) '\\';
-            result->mem[pos + 1] = character;
+            literal->mem[pos]     = (strElemType) '\\';
+            literal->mem[pos + 1] = character;
             pos += 2;
           } else {
-            result->mem[pos]     = character;
+            literal->mem[pos]     = character;
             pos++;
           } /* if */
         } else if (character < 256) {
-          result->mem[pos]     = (strElemType) '\\';
+          literal->mem[pos]     = (strElemType) '\\';
           /* Write the character as three octal digits. */
           /* This code is much faster than sprintf().   */
-          result->mem[pos + 1] = (strElemType) ((character >> 6 & 0x7) + '0');
-          result->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
-          result->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
+          literal->mem[pos + 1] = (strElemType) ((character >> 6 & 0x7) + '0');
+          literal->mem[pos + 2] = (strElemType) ((character >> 3 & 0x7) + '0');
+          literal->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
           pos += 4;
         } else {
-          FREE_STRI(result, escSequenceMax * striSize + numOfQuotes);
+          FREE_STRI(literal, escSequenceMax * striSize + numOfQuotes);
           logError(printf("strCLit(\"%s\"): Character > '\\255;' found.\n",
                           striAsUnquotedCStri(stri)););
           raise_error(RANGE_ERROR);
           return NULL;
         } /* if */
       } /* for */
-      result->mem[pos] = (strElemType) '"';
+      literal->mem[pos] = (strElemType) '"';
       pos++;
-      result->size = pos;
-      REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+      literal->size = pos;
+      REALLOC_STRI_SIZE_SMALLER(resized_literal, literal,
           escSequenceMax * striSize + numOfQuotes, pos);
-      if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, escSequenceMax * striSize + numOfQuotes);
+      if (unlikely(resized_literal == NULL)) {
+        FREE_STRI(literal, escSequenceMax * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        literal = NULL;
       } else {
-        result = resized_result;
+        literal = resized_literal;
         COUNT3_STRI(escSequenceMax * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
-    return result;
+    return literal;
   } /* strCLit */
 
 
@@ -2413,82 +2413,82 @@ striType strLit (const const_striType stri)
     memSizeType pos;
     char buffer[25];
     memSizeType len;
-    striType resized_result;
-    striType result;
+    striType resized_literal;
+    striType literal;
 
   /* strLit */
     striSize = stri->size;
     if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
-                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * striSize + numOfQuotes))) {
+                 !ALLOC_STRI_SIZE_OK(literal, escSequenceMax * striSize + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
-      result = NULL;
+      literal = NULL;
     } else {
-      result->mem[0] = (strElemType) '"';
+      literal->mem[0] = (strElemType) '"';
       pos = 1;
       for (position = 0; position < striSize; position++) {
         character = (strElemType) stri->mem[position];
         if (character < 127) {
           if (character < ' ') {
-            result->mem[pos] = (strElemType) '\\';
+            literal->mem[pos] = (strElemType) '\\';
             if (stri_escape_sequence[character][1] <= '9') {
               /* Numeric escape sequence with one or two digits. */
               if (character <= 9) {
-                result->mem[pos + 1] = character + '0';
-                result->mem[pos + 2] = (strElemType) ';';
+                literal->mem[pos + 1] = character + '0';
+                literal->mem[pos + 2] = (strElemType) ';';
                 pos += 3;
               } else {
-                result->mem[pos + 1] = (strElemType) stri_escape_sequence[character][1];
-                result->mem[pos + 2] = (strElemType) stri_escape_sequence[character][2];
-                result->mem[pos + 3] = (strElemType) ';';
+                literal->mem[pos + 1] = (strElemType) stri_escape_sequence[character][1];
+                literal->mem[pos + 2] = (strElemType) stri_escape_sequence[character][2];
+                literal->mem[pos + 3] = (strElemType) ';';
                 pos += 4;
               } /* if */
             } else {
               /* Character escape sequence. */
-              result->mem[pos + 1] = (strElemType) stri_escape_sequence[character][1];
+              literal->mem[pos + 1] = (strElemType) stri_escape_sequence[character][1];
               pos += 2;
             } /* if */
           } else if (character == '\\' || character == '\"') {
-            result->mem[pos]     = (strElemType) '\\';
-            result->mem[pos + 1] = character;
+            literal->mem[pos]     = (strElemType) '\\';
+            literal->mem[pos + 1] = character;
             pos += 2;
           } else {
-            result->mem[pos]     = character;
+            literal->mem[pos]     = character;
             pos++;
           } /* if */
         } else if (character <= 160) {
           /* Write characters between 128 and 160 as decimal. */
           /* This code is much faster than sprintf().         */
-          result->mem[pos]     = (strElemType) '\\';
-          result->mem[pos + 3] = character % 10 + '0';
+          literal->mem[pos]     = (strElemType) '\\';
+          literal->mem[pos + 3] = character % 10 + '0';
           character /= 10;
-          result->mem[pos + 2] = character % 10 + '0';
-          result->mem[pos + 1] = '1';
-          result->mem[pos + 4] = (strElemType) ';';
+          literal->mem[pos + 2] = character % 10 + '0';
+          literal->mem[pos + 1] = '1';
+          literal->mem[pos + 4] = (strElemType) ';';
           pos += 5;
         } else if (character >= 256) {
           len = (memSizeType) sprintf(buffer, "\\%lu;", (unsigned long) character);
-          memcpy_to_strelem(&result->mem[pos], (const_ustriType) buffer, len);
+          memcpy_to_strelem(&literal->mem[pos], (const_ustriType) buffer, len);
           pos += len;
         } else {
-          result->mem[pos] = character;
+          literal->mem[pos] = character;
           pos++;
         } /* if */
       } /* for */
-      result->mem[pos] = (strElemType) '"';
+      literal->mem[pos] = (strElemType) '"';
       pos++;
-      result->size = pos;
-      REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+      literal->size = pos;
+      REALLOC_STRI_SIZE_SMALLER(resized_literal, literal,
           escSequenceMax * striSize + numOfQuotes, pos);
-      if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, escSequenceMax * striSize + numOfQuotes);
+      if (unlikely(resized_literal == NULL)) {
+        FREE_STRI(literal, escSequenceMax * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
-        result = NULL;
+        literal = NULL;
       } else {
-        result = resized_result;
+        literal = resized_literal;
         COUNT3_STRI(escSequenceMax * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
-    return result;
+    return literal;
   } /* strLit */
 
 

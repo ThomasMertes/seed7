@@ -844,6 +844,8 @@ floatType fltParse (const const_striType stri)
       raise_error(err_info);
       result = 0.0;
     } /* if */
+    logFunction(printf("fltParse(\"%s\") --> " FMT_E "\n",
+                       striAsUnquotedCStri(stri), result););
     return result;
   } /* fltParse */
 

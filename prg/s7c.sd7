@@ -2289,6 +2289,12 @@ const proc: process_const_func_declaration (in reference: function,
       c_expr.expr &:= c_param_list.expr;
       c_expr.expr &:= ")\n";
       c_expr.expr &:= "{\n";
+      if trace_function then
+        c_expr.expr &:= "printf(\"-> ";
+        create_name(function, c_expr.expr);
+        c_expr.expr &:= "\\n\");\n";
+        c_expr.expr &:= "fflush(stdout);\n";
+      end if;
       if function_type <> proctype and result_object = NIL then
         process_expr(body(function), c_func_body);
         if c_param_list.temp_decls <> "" or c_func_body.temp_decls <> "" then
@@ -2316,9 +2322,21 @@ const proc: process_const_func_declaration (in reference: function,
           c_expr.expr &:= ");\n";
           appendWithDiagnostic(c_param_list.temp_frees, c_expr);
           appendWithDiagnostic(c_func_body.temp_frees, c_expr);
+          if trace_function then
+            c_expr.expr &:= "printf(\"<- ";
+            create_name(function, c_expr.expr);
+            c_expr.expr &:= "\\n\");\n";
+            c_expr.expr &:= "fflush(stdout);\n";
+          end if;
           setDiagnosticLine(c_expr);
           c_expr.expr &:= "return result;\n";
         else
+          if trace_function then
+            c_expr.expr &:= "printf(\"<- ";
+            create_name(function, c_expr.expr);
+            c_expr.expr &:= "\\n\");\n";
+            c_expr.expr &:= "fflush(stdout);\n";
+          end if;
           c_expr.expr &:= diagnosticLine(body(function));
           c_expr.expr &:= "return (";
           c_expr.expr &:= type_name(result_type);
@@ -2348,6 +2366,12 @@ const proc: process_const_func_declaration (in reference: function,
         appendWithDiagnostic(c_param_list.temp_frees, c_expr);
         appendWithDiagnostic(c_local_vars.temp_frees, c_expr);
         appendWithDiagnostic(c_func_body.temp_frees, c_expr);
+        if trace_function then
+          c_expr.expr &:= "printf(\"<- ";
+          create_name(function, c_expr.expr);
+          c_expr.expr &:= "\\n\");\n";
+          c_expr.expr &:= "fflush(stdout);\n";
+        end if;
         process_return(result_object, c_expr);
       end if;
       c_expr.expr &:= "}\n";
@@ -6916,6 +6940,9 @@ const proc: pass_1 (in string: source, inout program: prog,
         if pos(compiler_option["-t"], 'e') <> 0 then
           trace_exception := TRUE;
         end if;
+        if pos(compiler_option["-t"], 'f') <> 0 then
+          trace_function := TRUE;
+        end if;
         if pos(compiler_option["-t"], 's') <> 0 then
           trace_signal := TRUE;
         end if;
@@ -7373,6 +7400,7 @@ const proc: writeHelp is func
     writeln("         o Suppress the generation of integer overflow checks.");
     writeln("  -tx  Set runtime trace level to x. Where x is a string consisting of:");
     writeln("         e Trace exceptions and handlers");
+    writeln("         f Trace functions");
     writeln("         s Trace signals");
     writeln;
   end func;

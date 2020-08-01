@@ -134,22 +134,16 @@ const type: addSubElementType is new struct
 const type: addSubElementListType is array addSubElementType;
 
 
-const func addSubElementListType: getAddSubParamList (in ref_list: params,
-    in boolean: doAdd) is func
-  result
-    var addSubElementListType: addSubParamList is 0 times addSubElementType.value;
+const proc: generateAddSubParamList (inout addSubElementListType: addSubParamList,
+    in var reference: leftParam) is func
+
   local
-    var reference: leftParam is NIL;
-    var boolean: concatFound is FALSE;
+    var boolean: actionFound is FALSE;
     var ref_list: subExprParams is ref_list.EMPTY;
     var addSubElementType: addSubElement is addSubElementType.value;
   begin
-    leftParam := params[1];
-    addSubElement.doAdd := doAdd;
-    addSubElement.summand := params[3];
-    addSubParamList := [] (addSubElement);
     repeat
-      concatFound := FALSE;
+      actionFound := FALSE;
       if category(leftParam) = CALLOBJECT then
         subExprParams := getValue(leftParam, ref_list);
         if category(subExprParams[1]) = ACTOBJECT then
@@ -158,24 +152,76 @@ const func addSubElementListType: getAddSubParamList (in ref_list: params,
             addSubElement.doAdd := TRUE;
             addSubElement.summand := subExprParams[4];
             addSubParamList := [] (addSubElement) & addSubParamList;
-            concatFound := TRUE;
+            actionFound := TRUE;
           elsif str(getValue(subExprParams[1], ACTION)) = "INT_SBTR" then
             leftParam := subExprParams[2];
             addSubElement.doAdd := FALSE;
             addSubElement.summand := subExprParams[4];
             addSubParamList := [] (addSubElement) & addSubParamList;
-            concatFound := TRUE;
+            actionFound := TRUE;
           end if;
         end if;
       end if;
-    until not concatFound;
-    addSubElement.doAdd := TRUE;
-    addSubElement.summand := leftParam;
-    addSubParamList := [] (addSubElement) & addSubParamList;
+    until not actionFound;
+    if category(leftParam) = CALLOBJECT then
+      subExprParams := getValue(leftParam, ref_list);
+      if category(subExprParams[1]) = ACTOBJECT then
+        if str(getValue(subExprParams[1], ACTION)) = "INT_SUCC" then
+          addSubElement.doAdd := TRUE;
+          addSubElement.summand := NIL;
+          addSubElement.constSummand := 1;
+          addSubParamList := [] (addSubElement) & addSubParamList;
+          generateAddSubParamList(addSubParamList, subExprParams[2]);
+          actionFound := TRUE;
+        elsif str(getValue(subExprParams[1], ACTION)) = "INT_PRED" then
+          addSubElement.doAdd := FALSE;
+          addSubElement.summand := NIL;
+          addSubElement.constSummand := 1;
+          addSubParamList := [] (addSubElement) & addSubParamList;
+          generateAddSubParamList(addSubParamList, subExprParams[2]);
+          actionFound := TRUE;
+        end if;
+      end if;
+    end if;
+    if not actionFound then
+      addSubElement.doAdd := TRUE;
+      addSubElement.summand := leftParam;
+      addSubParamList := [] (addSubElement) & addSubParamList;
+    end if;
+  end func;
+
+
+const func addSubElementListType: getAddSubParamList (in ref_list: params,
+    in boolean: doAdd) is func
+
+  result
+    var addSubElementListType: addSubParamList is 0 times addSubElementType.value;
+  local
+    var addSubElementType: addSubElement is addSubElementType.value;
+  begin
+    addSubElement.doAdd := doAdd;
+    addSubElement.summand := params[3];
+    addSubParamList := [] (addSubElement);
+    generateAddSubParamList(addSubParamList, params[1]);
+  end func;
+
+
+const func addSubElementListType: getAddSubParamList (in reference: summand1,
+    in integer: summand2) is func
+
+  result
+    var addSubElementListType: addSubParamList is 0 times addSubElementType.value;
+  local
+    var addSubElementType: addSubElement is addSubElementType.value;
+  begin
+    addSubElement.constSummand := summand2;
+    addSubParamList := [] (addSubElement);
+    generateAddSubParamList(addSubParamList, summand1);
   end func;
 
 
 const proc: summarizeConstants (inout addSubElementListType: addSubParamList) is func
+
   local
     var integer: index is 1;
     var integer: paramValue is 0;
@@ -260,15 +306,22 @@ const proc: summarizeConstants (inout addSubElementListType: addSubParamList) is
 
 
 const proc: evaluateConstants (inout addSubElementListType: addSubParamList) is func
+
   local
     var integer: index is 1;
     var reference: evaluatedParam is NIL;
     var integer: paramValue is 0;
   begin
     for key index range addSubParamList do
-      if getConstant(addSubParamList[index].summand, INTOBJECT, evaluatedParam) then
-        paramValue := getValue(evaluatedParam, integer);
-        addSubParamList[index].summand := NIL;
+      if addSubParamList[index].summand <> NIL then
+        if getConstant(addSubParamList[index].summand, INTOBJECT, evaluatedParam) then
+          paramValue := getValue(evaluatedParam, integer);
+          addSubParamList[index].summand := NIL;
+        end if;
+      else
+        paramValue := addSubParamList[index].constSummand;
+      end if;
+      if addSubParamList[index].summand = NIL then
         if index > 1 and paramValue > integer.first and paramValue < 0 then
           addSubParamList[index].doAdd := not addSubParamList[index].doAdd;
           addSubParamList[index].constSummand := -paramValue;
@@ -281,6 +334,7 @@ const proc: evaluateConstants (inout addSubElementListType: addSubParamList) is 
 
 
 const proc: computeConstants (inout addSubElementListType: addSubParamList) is func
+
   begin
     summarizeConstants(addSubParamList);
     if length(addSubParamList) >= 2 and
@@ -802,9 +856,21 @@ const proc: optimize_int_add (in ref_list: params, in boolean: doAdd,
 
   local
     var addSubElementListType: addSubParamList is 0 times addSubElementType.value;
-    var integer: index is 0;
   begin
     addSubParamList := getAddSubParamList(params, doAdd);
+    evaluateConstants(addSubParamList);
+    computeConstants(addSubParamList);
+    optimize_int_add(addSubParamList, c_expr);
+  end func;
+
+
+const proc: optimize_int_add (in reference: summand1, in integer: summand2,
+    inout expr_type: c_expr) is func
+
+  local
+    var addSubElementListType: addSubParamList is 0 times addSubElementType.value;
+  begin
+    addSubParamList := getAddSubParamList(summand1, summand2);
     evaluateConstants(addSubParamList);
     computeConstants(addSubParamList);
     optimize_int_add(addSubParamList, c_expr);
@@ -3010,7 +3076,9 @@ const proc: process (INT_PRED, in reference: function,
     var string: number_name is "";
     var integer: number is 0;
   begin
-    if getConstant(params[1], INTOBJECT, evaluatedParam) then
+    if evaluate_const_expr >= 1 then
+      optimize_int_add(params[1], -1, c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
       number := getValue(evaluatedParam, integer);
       if number = integer.first then
@@ -3851,7 +3919,9 @@ const proc: process (INT_SUCC, in reference: function,
     var string: number_name is "";
     var integer: number is 0;
   begin
-    if getConstant(params[1], INTOBJECT, evaluatedParam) then
+    if evaluate_const_expr >= 1 then
+      optimize_int_add(params[1], 1, c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       incr(countOptimizations);
       number := getValue(evaluatedParam, integer);
       if number = integer.last then

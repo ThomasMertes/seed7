@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -375,19 +378,11 @@ objectType rfl_expr (listType arguments)
     listType result;
 
   /* rfl_expr */
-    /*
-    printf("\n");
-    printf("arg_1: ");
-    trace1(arg_1(arguments));
-    printf("\n");
-    */
     isit_list(arg_1(arguments));
     list1 = take_list(arg_1(arguments));
-    /*
-    printf("list: ");
-    prot_list(list1);
-    printf("\n");
-    */
+    logFunction(printf("rfl_expr(");
+                prot_list(list1);
+                printf(")\n"););
     result = NULL;
     if (list1 != NULL &&
         list1->next == NULL) {
@@ -410,18 +405,21 @@ objectType rfl_expr (listType arguments)
             okay = FALSE;
           } /* if */
         } else {
-          printf("not ok\n");
-          printf("list1: " FMT_X_MEM "\n",                   (memSizeType) list1);
-          printf("list1->next: " FMT_X_MEM "\n",             (memSizeType) list1->next);
-          printf("list1->next->next: " FMT_X_MEM "\n",       (memSizeType) list1->next->next);
-          printf("list1->next->next->next: " FMT_X_MEM "\n", (memSizeType) list1->next->next->next);
-          okay = FALSE;
+          logError(printf("rfl_expr: Not okay\n");
+                   printf("list1: " FMT_X_MEM "\n", (memSizeType) list1);
+                   printf("list1->next: " FMT_X_MEM "\n",
+                          (memSizeType) list1->next);
+                   printf("list1->next->next: " FMT_X_MEM "\n",
+                          (memSizeType) list1->next->next);
+                   printf("list1->next->next->next: " FMT_X_MEM "\n",
+                          (memSizeType) list1->next->next->next););
+          return raise_exception(SYS_RNG_EXCEPTION);
         } /* if */
       } while (okay);
     } /* if */
-    /* printf("result: ");
-    prot_list(result);
-    printf("\n"); */
+    logFunction(printf("rfl_expr --> ");
+                prot_list(result);
+                printf("\n"););
     return bld_reflist_temp(result);
   } /* rfl_expr */
 

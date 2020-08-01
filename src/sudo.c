@@ -64,7 +64,7 @@ int main (int argc, char *argv[])
           } /* for */
         } /* if */
         printf("%s %s\n", argv[1], parameters);
-        returnValue = (int) ShellExecute(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
+        returnValue = (int) ShellExecuteA(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
         /* printf("returnValue: %d\n", returnValue); */
         if (returnValue <= 32) {
           mainResult = -1;

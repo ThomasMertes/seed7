@@ -183,12 +183,24 @@ static const intType maxExponentOfBase[] = {
     62, 39, 31, 27, 24, 22, 20
   };
 
+/**
+ *  For an exponent between 0 and 22 minBaseOfExponent[exponent]
+ *  is used to detemine the minimum base. When a base is between
+ *  minBaseOfExponent[exponent] and maxBaseOfExponent[exponent] the
+ *  expression base ** exponent can be computed without overflow.
+ */
 static const intType minBaseOfExponent[] = {
     INTTYPE_MIN, INTTYPE_MIN,
     -INT_SUFFIX(3037000499), -2097152, -55108, -6208, -1448, -512, -234, -128,
     -78, -52, -38, -28, -22, -18, -15, -13, -11, -9, -8, -8, -7
   };
 
+/**
+ *  For an exponent between 0 and 22 maxBaseOfExponent[exponent]
+ *  is used to detemine the maximum base. When a base is between
+ *  minBaseOfExponent[exponent] and maxBaseOfExponent[exponent] the
+ *  expression base ** exponent can be computed without overflow.
+ */
 static const intType maxBaseOfExponent[] = {
     INTTYPE_MAX, INTTYPE_MAX,
     INT_SUFFIX(3037000499), 2097151, 55108, 6208, 1448,
@@ -276,7 +288,7 @@ void setupRand (void)
  *  @param product_high The address to return the high product.
  *  @return the low product
  */
-uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
+uintType uintMult (uintType factor1, uintType factor2, uintType *product_high)
 
   {
     uintType factor1_part[2];  /* parts 2 and 3 are not used */
@@ -288,8 +300,8 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
     uintType c5;  /* memory layout:   | part[3] | part[2] |  */
     uintType product_low;
 
-  /* uint_mult */
-    logFunction(printf("uint_mult(" F_X(08) ", " F_X(08) ")\n",
+  /* uintMult */
+    logFunction(printf("uintMult(" F_X(08) ", " F_X(08) ")\n",
                        factor1, factor2););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1);
@@ -304,10 +316,10 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
     /* c5 contains the high uintType of factor1 * factor2 */
     product_low = UINT_BITS(factor1 * factor2);
     *product_high = UINT_BITS(c5);
-    logFunction(printf("uint_mult --> " F_X(08) F_X(08) "\n",
+    logFunction(printf("uintMult --> " F_X(08) F_X(08) "\n",
                        *product_high, product_low););
     return product_low;
-  } /* uint_mult */
+  } /* uintMult */
 
 
 
@@ -355,7 +367,7 @@ uintType uintRand (void)
  *  @param product_high The address to return the high product.
  *  @return the low product
  */
-static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
+static inline uintType uint2Mult (uintType factor1_high, uintType factor1_low,
     uintType factor2_high, uintType factor2_low, uintType *product_high)
 
   {
@@ -368,8 +380,8 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
     uintType c5;  /* memory layout:   | part[3] | part[2] |  */
     uintType product_low;
 
-  /* uint2_mult */
-    logFunction(printf("uint2_mult(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
+  /* uint2Mult */
+    logFunction(printf("uint2Mult(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
                        factor1_high, factor1_low, factor2_high, factor2_low););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1_low);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1_low);
@@ -386,10 +398,10 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
     *product_high = UINT_BITS(factor1_low * factor2_high + factor1_high * factor2_low + c5);
     /* factor1_high * factor2_high is not computed. All bits of it  */
     /* would be discarded, since they are higher than product_high. */
-    logFunction(printf("uint2_mult --> " F_X(08) F_X(08) "\n",
+    logFunction(printf("uint2Mult --> " F_X(08) F_X(08) "\n",
                        *product_high, product_low););
     return product_low;
-  } /* uint2_mult */
+  } /* uint2Mult */
 
 
 
@@ -409,14 +421,14 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
  *  @param sum_high The address to return the high sum.
  *  @return the low sum
  */
-static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
+static inline uintType uint2Add (uintType summand1_high, uintType summand1_low,
     uintType summand2_high, uintType summand2_low, uintType *sum_high)
 
   {
     uintType sum_low;
 
-  /* uint2_add */
-    logFunction(printf("uint2_add(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
+  /* uint2Add */
+    logFunction(printf("uint2Add(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
                        summand1_high, summand1_low, summand2_high, summand2_low););
     sum_low = UINT_BITS(summand1_low + summand2_low);
     if (UINT_HIGHEST_BIT(summand1_low) + UINT_HIGHEST_BIT(summand2_low) +
@@ -426,10 +438,10 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
     } else {
       *sum_high = UINT_BITS(summand1_high + summand2_high);
     } /* if */
-    logFunction(printf("uint2_add --> " F_X(08) F_X(08) "\n",
+    logFunction(printf("uint2Add --> " F_X(08) F_X(08) "\n",
                        *sum_high, sum_low););
     return sum_low;
-  } /* uint2_add */
+  } /* uint2Add */
 
 
 
@@ -447,10 +459,10 @@ uintType uintRand (void)
   { /* uintRand */
     logFunction(printf("uintRand\n"););
     /* SEED = SEED * RAND_MULTIPLIER + RAND_INCREMENT */
-    low_seed = uint2_mult(high_seed, low_seed, (uintType) INT_SUFFIX(0),
-                          (uintType) INT_SUFFIX(RAND_MULTIPLIER), &high_seed);
-    low_seed = uint2_add(high_seed, low_seed, (uintType) INT_SUFFIX(0),
-                         (uintType) INT_SUFFIX(RAND_INCREMENT), &high_seed);
+    low_seed = uint2Mult(high_seed, low_seed, (uintType) INT_SUFFIX(0),
+                         (uintType) INT_SUFFIX(RAND_MULTIPLIER), &high_seed);
+    low_seed = uint2Add(high_seed, low_seed, (uintType) INT_SUFFIX(0),
+                        (uintType) INT_SUFFIX(RAND_INCREMENT), &high_seed);
     logFunction(printf("uintRand --> " F_X(08) "\n", high_seed););
     return high_seed;
   } /* uintRand */
@@ -458,6 +470,16 @@ uintType uintRand (void)
 
 
 
+/**
+ *  Compute a pseudo-random number in the range 0 .. rand_max.
+ *  The random values are uniform distributed.
+ *  This function is used by the compiler, when lower and upper bound
+ *  of a random number are known at compile time.
+ *  @param rand_max Maximum random number. Rand_max should be near to
+ *         UINTTYPE_MAX to avoid that the loop is traversed to often.
+ *  @return a random number such that 0 <= uintRandLimited(rand_max) and
+ *          uintRandLimited(rand_max) <= rand_max holds.
+*/
 uintType uintRandLimited (uintType rand_max)
 
   {
@@ -1648,6 +1670,19 @@ intType intLowestSetBit (intType number)
 
 
 
+/**
+ *  Convert integer to string and pad it with zeros at the left side.
+ *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
+ *   123 lpad0 5   returns "00123"
+ *   -123 lpad0 5  returns "-0123"
+ *   123 lpad0 2   returns "123"
+ *   -123 lpad0 2  returns "-123"
+ *  @param number Number to be converted to a [[string]].
+ *  @param length Minimum length of the result.
+ *  @return number as decimal string left padded with zeroes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 striType intLpad0 (intType number, const intType pad_size)
 
   {
@@ -2034,6 +2069,8 @@ intType intPowOvfChk (intType base, intType exponent)
  *  The conversion uses the numeral system with the given base.
  *  Digit values from 10 upward are encoded with letters.
  *  For negative numbers a minus sign is prepended.
+ *  @param number Number to be converted to a string.
+ *  @param base Base of the numeral system used for the conversion.
  *  @param upperCase Decides about the letter case.
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
@@ -2096,6 +2133,7 @@ striType intRadix (intType number, intType base, boolType upperCase)
  *  The base is a power of two and it is specified indirectly with
  *  shift and mask. Digit values from 10 upward are encoded with
  *  letters.
+ *  @param number Number to be converted to a string.
  *  @param shift Logarithm (log2) of the base (=number of bits in mask).
  *  @param mask Mask to get the bits of a digit (equivalent to base-1).
  *  @param upperCase Decides about the letter case.

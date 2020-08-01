@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -33,6 +36,7 @@
 #include "common.h"
 #include "data.h"
 #include "data_rtl.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "syvarutl.h"
 #include "striutl.h"
@@ -388,6 +392,11 @@ objectType pcs_start (listType arguments)
     isit_file(arg_3(arguments));
     isit_file(arg_4(arguments));
     isit_file(arg_5(arguments));
+    logFunction(printf("pcs_start(\"%s\", arr, %d, %d, %d)\n",
+                       striAsUnquotedCStri(take_stri(arg_1(arguments))),
+                       safe_fileno(take_file(arg_3(arguments))),
+                       safe_fileno(take_file(arg_4(arguments))),
+                       safe_fileno(take_file(arg_5(arguments)))););
     parameters = gen_rtl_array(take_array(arg_2(arguments)));
     if (parameters == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
@@ -398,6 +407,8 @@ objectType pcs_start (listType arguments)
                          take_file(arg_5(arguments)));
       FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
     } /* if */
+    logFunction(printf("pcs_start --> " FMT_U_MEM "\n",
+                       (memSizeType) process););
     return bld_process_temp(process);
   } /* pcs_start */
 

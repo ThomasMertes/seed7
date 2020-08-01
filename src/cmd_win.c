@@ -39,8 +39,6 @@
 #include "windows.h"
 #include "io.h"
 #include "fcntl.h"
-#include "sys/types.h"
-#include "sys/stat.h"
 #ifdef OS_STRI_WCHAR
 #include "wchar.h"
 #endif
@@ -327,16 +325,19 @@ os_striType *getEnvironment (void)
     os_striType *env;
 
   /* getEnvironment */
+    logFunction(printf("getEnvironment()"););
     envBuffer = GetEnvironmentStringsW();
     if (envBuffer == NULL) {
       env = NULL;
     } else {
+      /* printf("envBuffer: \"" FMT_S_OS "\"\n", envBuffer); */
       currPos = envBuffer;
       do {
         length = os_stri_strlen(currPos);
         currPos = &currPos[length + 1];
         numElems++;
       } while (length != 0);
+      /* printf("numElems: " FMT_U_MEM "\n", numElems); */
       env = (os_striType *) malloc(numElems * sizeof(os_striType));
       if (env != NULL) {
         currPos = envBuffer;

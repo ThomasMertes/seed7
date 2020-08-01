@@ -109,10 +109,10 @@ DIR *opendir (const char *dirName)
             printf(">%s<\n", directory->findData.cFileName); */
             directory->firstElement = 1;
           } else {
-            /* The file does not exist or it is not a directory. */
-            /* FindFirstFileA also returns INVALID_HANDLE_VALUE, */
-            /* when the path refers to an empty volume. All this */
-            /* cases are checked below.                          */
+            /* The file referred by dirName does not exist, or */
+            /* it is not a directory, or it is an empty volume */
+            /* respectively directory. All these cases are     */
+            /* checked below.                                  */
             if (nameLen == PREFIX_LEN + 4 &&
                 fileNamePattern[PREFIX_LEN + 1] == ':' &&
                 isalpha(fileNamePattern[PREFIX_LEN])) {
@@ -126,7 +126,7 @@ DIR *opendir (const char *dirName)
                               "before GetFileAttributesExA(\"%s\", *)\n",
                               fileNamePattern););
             if (GetFileAttributesExA(fileNamePattern, GetFileExInfoStandard,
-                                     &fileInfo)) {
+                                     &fileInfo) != 0) {
               if (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                 /* This is an empty directory. Probably an empty    */
                 /* volume. For nonempty directories FindFirstFileA  */
@@ -156,9 +156,9 @@ DIR *opendir (const char *dirName)
               errno = ENOENT;
             } /* if */
           } /* if */
-          if (unlikely(fileNamePattern != fileNameBuffer)) {
-            free(fileNamePattern);
-          } /* if */
+        } /* if */
+        if (unlikely(fileNamePattern != fileNameBuffer)) {
+          free(fileNamePattern);
         } /* if */
       } /* if */
     } /* if */
@@ -293,10 +293,10 @@ WDIR *wopendir (const wchar_t *dirName)
             printf(">%ls<\n", directory->findData.cFileName); */
             directory->firstElement = 1;
           } else {
-            /* The file does not exist or it is not a directory. */
-            /* FindFirstFileW also returns INVALID_HANDLE_VALUE, */
-            /* when the path refers to an empty volume. All this */
-            /* cases are checked below.                          */
+            /* The file referred by dirName does not exist, or */
+            /* it is not a directory, or it is an empty volume */
+            /* respectively directory. All these cases are     */
+            /* checked below.                                  */
             if (nameLen == PREFIX_LEN + 4 &&
                 fileNamePattern[PREFIX_LEN + 1] == ':' &&
                 ((fileNamePattern[PREFIX_LEN] >= 'a' &&
@@ -313,7 +313,7 @@ WDIR *wopendir (const wchar_t *dirName)
                               "before GetFileAttributesExW(\"%ls\", *)\n",
                               fileNamePattern););
             if (GetFileAttributesExW(fileNamePattern, GetFileExInfoStandard,
-                                     &fileInfo)) {
+                                     &fileInfo) != 0) {
               if (fileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
                 /* This is an empty directory. Probably an empty    */
                 /* volume. For nonempty directories FindFirstFileW  */
@@ -343,9 +343,9 @@ WDIR *wopendir (const wchar_t *dirName)
               errno = ENOENT;
             } /* if */
           } /* if */
-          if (unlikely(fileNamePattern != fileNameBuffer)) {
-            free(fileNamePattern);
-          } /* if */
+        } /* if */
+        if (unlikely(fileNamePattern != fileNameBuffer)) {
+          free(fileNamePattern);
         } /* if */
       } /* if */
     } /* if */

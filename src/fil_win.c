@@ -49,6 +49,7 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "stat_drv.h"
 #include "fil_rtl.h"
 #include "rtl_err.h"
 

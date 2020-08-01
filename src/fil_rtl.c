@@ -54,6 +54,7 @@
 #include "sigutl.h"
 #include "ut8_rtl.h"
 #include "cmd_rtl.h"
+#include "stat_drv.h"
 #include "big_drv.h"
 #include "rtl_err.h"
 
@@ -480,12 +481,12 @@ memSizeType remainingBytesInFile (fileType aFile)
     os_fstat_struct stat_buf;
     os_off_t file_length;
     os_off_t current_file_position;
-    memSizeType result;
+    memSizeType remainingBytes;
 
   /* remainingBytesInFile */
     current_file_position = offsetTell(aFile);
     if (current_file_position == (os_off_t) -1) {
-      result = 0;
+      remainingBytes = 0;
     } else {
       file_no = fileno(aFile);
       if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
@@ -495,16 +496,16 @@ memSizeType remainingBytesInFile (fileType aFile)
         file_length = seekFileLength(aFile);
       } /* if */
       if (file_length == (os_off_t) -1) {
-        result = 0;
+        remainingBytes = 0;
       } else if (file_length < current_file_position) {
-        result = 0;
+        remainingBytes = 0;
       } else if ((unsigned_os_off_t) (file_length - current_file_position) >= MAX_MEMSIZETYPE) {
-        result = MAX_MEMSIZETYPE;
+        remainingBytes = MAX_MEMSIZETYPE;
       } else {
-        result = (memSizeType) (file_length - current_file_position);
+        remainingBytes = (memSizeType) (file_length - current_file_position);
       } /* if */
     } /* if */
-    return result;
+    return remainingBytes;
   } /* remainingBytesInFile */
 
 

@@ -267,6 +267,19 @@ static void doRemove (const char *fileName)
 
 
 
+static void replaceNLBySpace (char *text)
+
+  { /* replaceNLBySpace */
+    while (*text != '\0') {
+      if (*text == '\n') {
+        *text = ' ';
+      } /* if */
+      text++;
+    } /* while */
+  } /* replaceNLBySpace */
+
+
+
 static void cleanUpCompilation (int testNumber)
 
   {
@@ -308,6 +321,7 @@ static int doCompileAndLink (const char *options, const char *linkerOptions, int
     sprintf(command, "%s %s ctest%d.c %s",
             c_compiler, options, testNumber, linkerOptions);
 #endif
+    replaceNLBySpace(command);
 #if !defined LINKER && defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
     sprintf(&command[strlen(command)], " %sctest%d%s",
             LINKER_OPT_OUTPUT_FILE, testNumber, EXECUTABLE_FILE_EXTENSION);
@@ -581,6 +595,10 @@ static void checkSignal (FILE *versionFile)
     } /* if */
     fprintf(versionFile, "#define HAS_SIGNAL %d\n", has_signal);
     if (compileAndLinkOk("#include <stdio.h>\n#include <signal.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "printf(\"%d\\n\",(int)sizeof(struct sigaction));\n"
+                         "return 0;}\n") &&
+        compileAndLinkOk("#include <stdio.h>\n#include <signal.h>\n"
                          "volatile int res=4;\n"
                          "void handleSig(int sig){res=1;}\n"
                          "int main(int argc, char *argv[]){\n"
@@ -2189,7 +2207,6 @@ static void determineOsDirAccess (FILE *versionFile)
   {
     char *dir_include = NULL;
     char *dir_define = NULL;
-    char buffer[BUFFER_SIZE];
 
   /* determineOsDirAccess */
     if (compileAndLinkOk("#include <stdio.h>\n#include <dirent.h>\n"
@@ -2517,19 +2534,6 @@ static void appendToFile (const char *fileName, const char *data)
       fclose(outFile);
     } /* if */
   } /* appendToFile */
-
-
-
-static void replaceNLBySpace (char *text)
-
-  { /* replaceNLBySpace */
-    while (*text != '\0') {
-      if (*text == '\n') {
-        *text = ' ';
-      } /* if */
-      text++;
-    } /* while */
-  } /* replaceNLBySpace */
 
 
 
@@ -2950,6 +2954,7 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
   {
     const char *optionPos;
     const char *optionEnd;
+    size_t optionLen;
     char includeDir[BUFFER_SIZE];
     char pgTypeFileName[BUFFER_SIZE];
     int found = 0;
@@ -2968,14 +2973,14 @@ static int findPgTypeInclude (const char *includeOption, const char *pgTypeInclu
           includeOption = optionEnd + 1;
         } /* if */
       } else {
-        optionEnd = strchr(&optionPos[2], ' ');
-        if (optionEnd == NULL) {
+        optionLen = strcspn(&optionPos[2], " \n");
+        if (optionLen == 0) {
           strcpy(includeDir, &optionPos[2]);
           includeOption = NULL;
         } else {
-          memcpy(includeDir, &optionPos[2], optionEnd - &optionPos[2]);
-          includeDir[optionEnd - &optionPos[2]] = '\0';
-          includeOption = optionEnd + 1;
+          memcpy(includeDir, &optionPos[2], optionLen);
+          includeDir[optionLen] = '\0';
+          includeOption = &optionPos[2] + optionLen + 1;
         } /* if */
       } /* if */
       /* fprintf(logFile, "includeDir: \"%s\"\n", includeDir); */

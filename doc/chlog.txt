@@ -1,3 +1,60 @@
+20161204:
+- A description, how compiler optimizations can reduce the potential
+  of integer overflow, has been added to the manual.
+- Documentation comments have been improved in cc_conf.s7i,
+  integer.s7i, int_rtl.c, stat_win.c and tim_win.c.
+- The compiler has been improved to optimize expressions, where
+  several terms are added or subtracted in combination with the
+  functions succ or pred. It is possible to combine adjacent constant
+  terms at compile time. This simplifies overflow checks.
+- The compiler has been improved to optionally generate programs,
+  that trace function calls. This is activated with the option -tf.
+- Checks have been added to chkint.sd7, where several terms are added
+  in combination with the functions succ or pred.
+- The functions wstati64Ext (in stat_win.c) and alternate_utime (in
+  tim_win.c) have been improved to avoid the strange time adjustments
+  of windows for Daylight Saving Time: For the same file different
+  times are retrieved respectively set in summer and winter. Now the
+  times do not depend on the time when they are retrieved or set.
+- In stat_win.c a check for wildcards in a path has been removed from
+  wstati64Ext.
+- The performance of dirRead in dir_rtl.c has been improved by 10%
+  (measured with gcc and valgrind). A smarter check for the
+  directories . and .. reduces the CPU time used.
+- In cmd_rtl.c the functions remove_dir and copy_dir have been
+  improved with a smarter check for the directories . and .. to
+  reduce the CPU time used.
+- The function getSearchPath in cmd_rtl.c has been improved to work
+  correctly, when there is no environment variable named PATH.
+- Definitions of macros to check the st_mode field of struct stat
+  (e.g. S_ISDIR, S_ISREG, etc.) have been moved from fil_rtl.h to
+  stat_drv.h.
+- The program chkccomp.c has been improved to work correct, when
+  C compiler options are separated by linefeeds (\n). In this case the
+  linefeeds are replaced by spaces. The linefeeds are used in
+  cc_conf.s7i to allow the definition of SYSTEM_DB_LIBS as an array of
+  database libraries.
+- In sudo.c the call of ShellExecute() has been replaced by a call of
+  ShellExecuteA().
+- A definition of FMT_T, a printf format for time_t values, has been
+  added to common.h.
+- The makefile mk_clangw.mak has been improved to use the library
+  extension ".lib".
+- Calls of logFunction and logError have been added or improved in
+  cmd_rtl.c, cmd_win.c, gkb_win.c, flt_rtl.c, int_rtl.c, pcslib.c,
+  reflib.c, rfllib.c, stat_win.c and tim_win.c.
+- In dir_rtl.c the function readVolumeName has been improved to
+  consider only directories as volumes.
+- In int_rtl.c the functions uint_mult, uint2_mult and uint2_add
+  have been renamed to uintMult, uint2Mult and uint2Add respectively.
+- In stat_win.c the functions filetime_to_unixtime and
+  fileattr_to_unixmode have been renamed to fileTime2UnixTime and
+  fileAttr2UnixMode respectively.
+- In tim_win.c the function alternate_utime has been improved to
+  avoid calling os_utime_orig, because the utime functions of Windows
+  do different time adjustments for the same time in summer and
+  winter.
+
 20161031:
 - The examples about multiple dispatch in the FAQ and in the manual
   have been changed.
@@ -92,7 +149,7 @@
   correctness of the functions float2Bits, bits2Float, float2MbfBits,
   mbfBits2Float, str, radix and RADIX.
 - Checks for the function decompose have been added to chkflt.sd7.
-- The compiler has been improved optimize expressions where several
+- The compiler has been improved to optimize expressions where several
   terms are added or subtracted. It is possible to combine adjacent
   constant terms at compile time. This simplifies overflow checks.
 - The compiler has been improved to store NaN values as bin64

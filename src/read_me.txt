@@ -445,6 +445,14 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   mspdb100.dll was not found, indicates also that vcvars32 was
   not executed.
 
+ --- When using clang under Windows an error like
+
+    chkccomp.c:60:10: fatal error: 'stdlib.h' file not found
+
+  indicates that the include file search path is not set up.
+  When clang is based on the VC toolchain it is necessary to
+  call vcvars32 from the commandline to set up the environment.
+
  --- A linker error like
 
     ld: library not found for -lX11
@@ -535,8 +543,9 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkint ........... okay
     chkovf ........... okay
     chkflt ........... okay
-    chkstr ........... okay
+    chkbin ........... okay
     chkchr ........... okay
+    chkstr ........... okay
     chkprc ........... okay
     chkbig ........... okay
     chkbool ........... okay

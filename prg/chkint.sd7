@@ -2390,6 +2390,86 @@ const proc: check_add is func
       okay := FALSE;
     end if;
 
+    if  succ(        2)  +         8   <> 11 or
+        succ(        2   +         8)  <> 11 or
+        succ(intExpr(2)) +         8   <> 11 or
+        succ(intExpr(2)  +         8)  <> 11 or
+        succ(        2)  + intExpr(8)  <> 11 or
+        succ(        2   + intExpr(8)) <> 11 or
+        succ(intExpr(2)) + intExpr(8)  <> 11 or
+        succ(intExpr(2)  + intExpr(8)) <> 11 then
+      writeln(" ***** Addition of summands and use of succ() does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  succ(        2)  +         8   +         16   <> 27 or
+        succ(        2   +         8)  +         16   <> 27 or
+        succ(        2   +         8   +         16)  <> 27 or
+        succ(intExpr(2)) +         8   +         16   <> 27 or
+        succ(intExpr(2)  +         8)  +         16   <> 27 or
+        succ(intExpr(2)  +         8   +         16)  <> 27 or
+        succ(        2)  + intExpr(8)  +         16   <> 27 or
+        succ(        2   + intExpr(8)) +         16   <> 27 or
+        succ(        2   + intExpr(8)  +         16)  <> 27 or
+        succ(intExpr(2)) + intExpr(8)  +         16   <> 27 or
+        succ(intExpr(2)  + intExpr(8)) +         16   <> 27 or
+        succ(intExpr(2)  + intExpr(8)  +         16)  <> 27 or
+        succ(        2)  +         8   + intExpr(16)  <> 27 or
+        succ(        2   +         8)  + intExpr(16)  <> 27 or
+        succ(        2   +         8   + intExpr(16)) <> 27 or
+        succ(intExpr(2)) +         8   + intExpr(16)  <> 27 or
+        succ(intExpr(2)  +         8)  + intExpr(16)  <> 27 or
+        succ(intExpr(2)  +         8   + intExpr(16)) <> 27 or
+        succ(        2)  + intExpr(8)  + intExpr(16)  <> 27 or
+        succ(        2   + intExpr(8)) + intExpr(16)  <> 27 or
+        succ(        2   + intExpr(8)  + intExpr(16)) <> 27 or
+        succ(intExpr(2)) + intExpr(8)  + intExpr(16)  <> 27 or
+        succ(intExpr(2)  + intExpr(8)) + intExpr(16)  <> 27 or
+        succ(intExpr(2)  + intExpr(8)  + intExpr(16)) <> 27 then
+      writeln(" ***** Addition of summands and use of succ() does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  pred(        2)  +         8   <> 9 or
+        pred(        2   +         8)  <> 9 or
+        pred(intExpr(2)) +         8   <> 9 or
+        pred(intExpr(2)  +         8)  <> 9 or
+        pred(        2)  + intExpr(8)  <> 9 or
+        pred(        2   + intExpr(8)) <> 9 or
+        pred(intExpr(2)) + intExpr(8)  <> 9 or
+        pred(intExpr(2)  + intExpr(8)) <> 9 then
+      writeln(" ***** Addition of summands and use of pred() does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  pred(        2)  +         8   +         16   <> 25 or
+        pred(        2   +         8)  +         16   <> 25 or
+        pred(        2   +         8   +         16)  <> 25 or
+        pred(intExpr(2)) +         8   +         16   <> 25 or
+        pred(intExpr(2)  +         8)  +         16   <> 25 or
+        pred(intExpr(2)  +         8   +         16)  <> 25 or
+        pred(        2)  + intExpr(8)  +         16   <> 25 or
+        pred(        2   + intExpr(8)) +         16   <> 25 or
+        pred(        2   + intExpr(8)  +         16)  <> 25 or
+        pred(intExpr(2)) + intExpr(8)  +         16   <> 25 or
+        pred(intExpr(2)  + intExpr(8)) +         16   <> 25 or
+        pred(intExpr(2)  + intExpr(8)  +         16)  <> 25 or
+        pred(        2)  +         8   + intExpr(16)  <> 25 or
+        pred(        2   +         8)  + intExpr(16)  <> 25 or
+        pred(        2   +         8   + intExpr(16)) <> 25 or
+        pred(intExpr(2)) +         8   + intExpr(16)  <> 25 or
+        pred(intExpr(2)  +         8)  + intExpr(16)  <> 25 or
+        pred(intExpr(2)  +         8   + intExpr(16)) <> 25 or
+        pred(        2)  + intExpr(8)  + intExpr(16)  <> 25 or
+        pred(        2   + intExpr(8)) + intExpr(16)  <> 25 or
+        pred(        2   + intExpr(8)  + intExpr(16)) <> 25 or
+        pred(intExpr(2)) + intExpr(8)  + intExpr(16)  <> 25 or
+        pred(intExpr(2)  + intExpr(8)) + intExpr(16)  <> 25 or
+        pred(intExpr(2)  + intExpr(8)  + intExpr(16)) <> 25 then
+      writeln(" ***** Addition of summands and use of pred() does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Addition works correct for selected values.");
     else
@@ -16182,5 +16262,5 @@ const proc: main is func
     check_parse;
     check_lpad0;
     check_bitLength;
-    check_lowestSetBit
+    check_lowestSetBit;
   end func;

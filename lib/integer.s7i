@@ -391,6 +391,7 @@ const func integer: (attr integer) conv (in integer: number)     is action "INT_
  *  Convert an ''integer'' number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
+ *  @param number Number to be converted to a [[string]].
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -401,6 +402,7 @@ const func string: str (in integer: number)                      is action "INT_
  *  Convert an ''integer'' number to a [[string]].
  *  The number is converted to a string with decimal representation.
  *  For negative numbers a minus sign is prepended.
+ *  @param number Number to be converted to a [[string]].
  *  @return the string result of the conversion.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
@@ -415,6 +417,8 @@ const func string: literal (in integer: number)                  is action "INT_
  *  For negative numbers a minus sign is prepended.
  *   48879 radix 16   returns "beef"
  *   -48879 radix 16  returns "-beef"
+ *  @param number Number to be converted to a [[string]].
+ *  @param base Base of the numeral system used for the conversion.
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -430,6 +434,8 @@ const func string: (in integer: number) radix (in integer: base) is action "INT_
  *  For negative numbers a minus sign is prepended.
  *   48879 RADIX 16   returns "BEEF"
  *   -48879 RADIX 16  returns "-BEEF"
+ *  @param number Number to be converted to a [[string]].
+ *  @param base Base of the numeral system used for the conversion.
  *  @return the string result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -437,6 +443,19 @@ const func string: (in integer: number) radix (in integer: base) is action "INT_
 const func string: (in integer: number) RADIX (in integer: base) is action "INT_RADIX";
 
 
+(**
+ *  Convert ''integer'' to [[string]] and pad it with zeros at the left side.
+ *  The number is converted to a string with decimal representation.
+ *  For negative numbers a minus sign is prepended.
+ *   123 lpad0 5   returns "00123"
+ *   -123 lpad0 5  returns "-0123"
+ *   123 lpad0 2   returns "123"
+ *   -123 lpad0 2  returns "-123"
+ *  @param number Number to be converted to a [[string]].
+ *  @param length Minimum length of the result.
+ *  @return number as decimal [[string]] left padded with zeroes.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
 const func string: (in integer: number) lpad0 (in integer: length) is action "INT_LPAD0";
 
 
@@ -529,6 +548,7 @@ const func integer: integer (in string: stri) is
  *   integer("-177", 8)      returns   -127
  *   integer("10101010", 2)  returns    170
  *   integer("Cafe", 16)     returns  51966
+ *  @param stri Numeric string to be converted to an integer.
  *  @param base Radix of the integer in the ''stri'' parameter.
  *  @return the ''integer'' result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
@@ -555,6 +575,7 @@ const func integer: integer (in string: stri, in integer: base)  is forward;
  *   2**62 sci 6     returns "4.611686e+18"
  *   -1 sci 3        returns "-1.000e+0"
  *   -0 sci 2        returns "0.00e+0"
+ *  @param number Number to be converted to a string.
  *  @param precision Number of digits after the decimal point.
  *         When the ''precision'' is zero the decimal point is omitted.
  *  @return the string result of the conversion.

@@ -307,14 +307,16 @@ const type: ccConfigType is new struct
     (**
      *  Name of a signed integer type that is 128 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''int128Type'' with INT128TYPE.
+     *  the type ''int128Type'' with INT128TYPE. Empty string when
+     *  there is no 128-bit signed integer type.
      *)
     var string: INT128TYPE                  is "";
 
     (**
      *  Name of an unsigned integer type that is 128 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''uint128Type'' with UINT128TYPE.
+     *  the type ''uint128Type'' with UINT128TYPE. Empty string when
+     *  there is no 128-bit unsigned integer type.
      *)
     var string: UINT128TYPE                 is "";
 

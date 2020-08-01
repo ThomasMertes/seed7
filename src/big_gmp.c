@@ -1086,7 +1086,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
     } else if (log2base <= 10 && exponent <= MAX_DIV_10) {
       power = bigLShiftOne(log2base * exponent);
     } else {
-      low_shift = uint_mult((uintType) log2base, (uintType) exponent, &high_shift);
+      low_shift = uintMult((uintType) log2base, (uintType) exponent, &high_shift);
       if (unlikely(high_shift != 0 || (intType) low_shift < 0)) {
         raise_error(MEMORY_ERROR);
         power = NULL;

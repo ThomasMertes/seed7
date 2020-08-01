@@ -49,6 +49,7 @@
 
 #include "common.h"
 #include "os_decls.h"
+#include "striutl.h"
 #include "tim_rtl.h"
 #include "fil_rtl.h"
 #include "stat_drv.h"
@@ -60,7 +61,10 @@
 
 
 /* Seconds between 1601-01-01 and 1970-01-01 */
-#define SECONDS_1601_1970 UINT64_SUFFIX(11644473600)
+#define SECONDS_1601_1970 INT64_SUFFIX(11644473600)
+#define WINDOWS_TICK UINT64_SUFFIX(10000000)
+
+#define USE_UTIME_ORIG 0
 
 
 
@@ -169,7 +173,8 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
   /* timNow */
     logFunction(printf("timNow\n"););
     GetSystemTimeAsFileTime(&utc_time.filetime);
-    utc_seconds = (time_t) (utc_time.nanosecs100 / 10000000 - SECONDS_1601_1970);
+    utc_seconds = (time_t) ((int64Type) (utc_time.nanosecs100 / WINDOWS_TICK) -
+        SECONDS_1601_1970);
 #if defined USE_LOCALTIME_R
     local_time = localtime_r(&utc_seconds, &tm_result);
 #elif defined USE_LOCALTIME_S
@@ -221,9 +226,9 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
   /* alternate_localtime_r */
     logFunction(printf("alternate_localtime_r(%ld)\n", *utc_seconds););
     if (time_zone_seconds == 1) {
-      utc_time.nanosecs100 = SECONDS_1601_1970 * 10000000;
+      utc_time.nanosecs100 = (uint64Type) SECONDS_1601_1970 * WINDOWS_TICK;
       /* FileTimeToLocalFileTime(&utc_time.filetime, &time_zone_delta.filetime);
-      time_zone_seconds = time_zone_delta.nanosecs100 / 10000000 - SECONDS_1601_1970; */
+      time_zone_seconds = time_zone_delta.nanosecs100 / WINDOWS_TICK - SECONDS_1601_1970; */
       if (unlikely(FileTimeToSystemTime(&utc_time.filetime, &utc_time_struct) == 0)) {
         return NULL;
       } else if (unlikely(SystemTimeToTzSpecificLocalTime(
@@ -240,7 +245,8 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
         /* printf("%ld\n", time_zone_seconds); */
       } /* if */
     } /* if */
-    utc_time.nanosecs100 = (*utc_seconds + SECONDS_1601_1970) * 10000000;
+    utc_time.nanosecs100 = (uint64Type) (
+        (int64Type) *utc_seconds + SECONDS_1601_1970) * WINDOWS_TICK;
     if (unlikely(FileTimeToSystemTime(&utc_time.filetime, &utc_time_struct) == 0)) {
       return NULL;
     } else if (unlikely(SystemTimeToTzSpecificLocalTime(
@@ -269,11 +275,16 @@ struct tm *alternate_localtime_r (time_t *utc_seconds, struct tm *tm_result)
  *  utime does not behave this way. Under windows utime fails with
  *  EACCES when it is called for a directory. In this case
  *  alternate_utime uses win32 functions to work for directories.
+ *  When the windows function utime is called for a volume it
+ *  fails with ENOENT. This case is recognized and alternate_utime
+ *  uses win32 functions to work for volumes.
  */
 int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
 
   {
+#if USE_UTIME_ORIG
     os_stat_struct stat_buf;
+#endif
     HANDLE filehandle;
     union {
       uint64Type nanosecs100; /*time since 1 Jan 1601 in 100ns units */
@@ -282,9 +293,16 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
     int result;
 
   /* alternate_utime */
-    /* printf("alternate_utime: actime=%ld\n", utime_buf->actime);
-       printf("alternate_utime: modtime=%ld\n", utime_buf->modtime); */
+    logFunction(printf("alternate_utime(\"%ls\", "
+                       "{actime=" FMT_T ", modtime=" FMT_T "})\n",
+                       os_path, utime_buf->actime, utime_buf->modtime););
+#if USE_UTIME_ORIG
     result = os_utime_orig(os_path, utime_buf);
+    logError(if (result != 0) {
+               printf("alternate_utime: os_utime_orig(\"%ls\", ...) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      os_path, errno, strerror(errno));
+             });
 #ifdef UTIME_ORIG_BUGGY_FOR_FAT_FILES
     /* A FAT filesystem has a mtime resolution of 2 seconds. */
     /* The error causes an even mtime to be set 2 seconds too big. */
@@ -299,33 +317,56 @@ int alternate_utime (const wchar_t *os_path, os_utimbuf_struct *utime_buf)
       } /* if */
     } /* if */
 #endif
-    if (result != 0 && errno == EACCES &&
-        os_stat(os_path, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode)) {
-      /* printf("old atime=%ld\n", stat_buf.st_atime);
-         printf("old mtime=%ld\n", stat_buf.st_mtime); */
+    if (result != 0 && 
+        ((errno == EACCES &&
+          os_stat(os_path, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode)) ||
+        (errno == ENOENT &&
+          ((os_path[PREFIX_LEN] >= 'a' && os_path[PREFIX_LEN] <= 'z') ||
+           (os_path[PREFIX_LEN] >= 'A' && os_path[PREFIX_LEN] <= 'Z')) &&
+          os_path[PREFIX_LEN + 1] == ':' && os_path[PREFIX_LEN + 2] == '\\' &&
+          os_path[PREFIX_LEN + 3] == '\0'))) {
+      /* printf("old atime=" FMT_T "\n", stat_buf.st_atime);
+         printf("old mtime=" FMT_T "\n", stat_buf.st_mtime); */
+#endif
       filehandle = CreateFileW(os_path, GENERIC_WRITE,
                                FILE_SHARE_READ | FILE_SHARE_DELETE, NULL,
                                OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-      if (filehandle != INVALID_HANDLE_VALUE) {
+      if (unlikely(filehandle == INVALID_HANDLE_VALUE)) {
+        logError(printf("alternate_utime: CreateFileW(\"%ls\", ...) failed:\n"
+                        "GetLastError=" FMT_U32 "\n",
+                        os_path, (uint32Type) GetLastError()););
+      } else {
         /* The case of utime_buf == NULL is not considered,   */
         /* since alternate_utime will never be used this way. */
 #if TIME_T_SIGNED
         actime.nanosecs100 = (uint64Type) (
-            (int64Type) utime_buf->actime + (int64Type) SECONDS_1601_1970) * 10000000;
+            (int64Type) utime_buf->actime + SECONDS_1601_1970) * WINDOWS_TICK;
         modtime.nanosecs100 = (uint64Type) (
-            (int64Type) utime_buf->modtime + (int64Type) SECONDS_1601_1970) * 10000000;
+            (int64Type) utime_buf->modtime + SECONDS_1601_1970) * WINDOWS_TICK;
 #else
-        actime.nanosecs100 = ((uint64Type) utime_buf->actime + SECONDS_1601_1970) * 10000000;
-        modtime.nanosecs100 = ((uint64Type) utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+        actime.nanosecs100 = ((uint64Type) utime_buf->actime +
+            (uint64Type) SECONDS_1601_1970) * WINDOWS_TICK;
+        modtime.nanosecs100 = ((uint64Type) utime_buf->modtime +
+            (uint64Type) SECONDS_1601_1970) * WINDOWS_TICK;
 #endif
-        /* printf("actime=%ld %Ld\n", utime_buf->actime, actime.nanosecs100);
-           printf("modtime=%ld %Ld\n", utime_buf->modtime, modtime.nanosecs100); */
-        if (SetFileTime(filehandle, NULL, &actime.filetime, &modtime.filetime) != 0) {
+        /* printf("actime=" FMT_T " " FMT_U64 "\n",
+                  utime_buf->actime, actime.nanosecs100);
+           printf("modtime=" FMT_T " " FMT_U64 "\n",
+                  utime_buf->modtime, modtime.nanosecs100); */
+        if (unlikely(SetFileTime(filehandle, NULL, &actime.filetime,
+                                 &modtime.filetime) == 0)) {
+          logError(printf("alternate_utime(\"%ls\", ...): SetFileTime() failed:\n"
+                          "GetLastError=" FMT_U32 "\n",
+                          os_path, (uint32Type) GetLastError()););
+        } else {
           result = 0;
         } /* if */
         CloseHandle(filehandle);
       } /* if */
+#if USE_UTIME_ORIG
     } /* if */
+#endif
+    logFunction(printf("alternate_utime --> %d\n", result););
     return result;
   } /* alternate_utime */
 #endif

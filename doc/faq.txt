@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2016-10-31 the number of lines is:
+than 200000 lines of Seed7. For version 2016-12-04 the number of lines is:
 
-  130701  C source files (*.c)
-   10272  C header files (*.h)
-  136568  Seed7 source files (*.sd7)
-  134374  Seed7 library/include files (*.s7i)
+  130908  C source files (*.c)
+   10281  C header files (*.h)
+  136676  Seed7 source files (*.sd7)
+  134468  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -477,6 +477,7 @@ information from the interpreter):
   chkint ........... okay
   chkovf ........... okay
   chkflt ........... okay
+  chkbin ........... okay
   chkchr ........... okay
   chkstr ........... okay
   chkprc ........... okay
@@ -613,6 +614,7 @@ Possible options are
   -tx  Set runtime trace level to x. Where x is a string consisting
        of the following characters:
          e Trace exceptions and handlers
+         f Trace functions
          s Trace signals
 
 

@@ -10612,6 +10612,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td>long long</td>           <td>When sizeof(long long) == 8</td></tr>
     <tr><td>__int64</td>             <td>When sizeof(__int64) == 8</td></tr>
     <tr><td><tt><a class="type" name="ffi_uint64Type">uint64Type</a></tt></td>   <td>unsigned int64Type</td>  <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_int64Type">int64Type</a></tt></td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_int128Type">int128Type</a></tt></td>   <td>__int128</td>            <td>When sizeof(__int128) == 16</td></tr>
+    <tr><td>__int128_t</td>          <td>When sizeof(__int128_t) == 16</td></tr>
+    <tr><td rowspan="2"><tt><a class="type" name="ffi_uint128Type">uint128Type</a></tt></td>  <td>unsigned __int128</td>   <td>When sizeof(unsigned __int128) == 16</td></tr>
+    <tr><td>__uint128_t</td>         <td>When sizeof(__uint128_t) == 16</td></tr>
     <tr><td><tt><a class="type" name="ffi_uintType">uintType</a></tt></td>     <td>unsigned intType</td>    <td>Unsigned integer type with the size of <tt><a class="type" href="#ffi_intType">intType</a></tt></td></tr>
     <tr><td><tt><a class="type" name="ffi_cstriType">cstriType</a></tt></td>    <td>char *</td>              <td>String type of the C compiler</td></tr>
     <tr><td><tt><a class="type" name="ffi_ustriType">ustriType</a></tt></td>    <td>unsigned char *</td>     <td>Helpful for unsigned comparisons</td></tr>
@@ -11433,6 +11437,28 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
   correspond to C situations, which have undefined behaviour. The
   overflow concept of Seed7 has been designed to allow, that simple
   C code is generated, when the overflow checks are switched off.
+</p><p>
+  <span class="link">Compiler</span> optimizations (e.g. with <b>-oc2</b> or <b>-oc3</b>) can reduce the
+  potential of overflow. In an optimized program an expression might
+  be rephrased, such that an overflow is avoided and the correct
+  result is computed instead. Consider the expression:
+</p><pre class="indent">
+number <span class="op">+</span> <a class="type" href="#types_integer">integer</a>.<span class="var">last</span> <span class="op">+</span> <a class="type" href="#types_integer">integer</a>.<span class="var">first</span>
+</pre><p>
+  When <tt>number</tt> is between <tt><span class="func">succ</span>(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>)</tt> and <tt>0</tt> the expression
+  can be evaluated and no overflow will occur. For other values of
+  <tt>number</tt> the exception <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised. When the expression
+  above is optimized it is rephrased to:
+</p><pre class="indent">
+<span class="func">pred</span>(number)
+</pre><p>
+  This expression only triggers <tt><span class="exception">OVERFLOW_ERROR</span></tt>, when number has the
+  value <a class="type" href="#types_integer">integer</a>.<span class="var">first</span>.
+</p><p>
+  With overflow checks it is guaranteed that an integer overflow
+  always raises <tt><span class="exception">OVERFLOW_ERROR</span></tt>. But you cannot rely on <tt><span class="exception">OVERFLOW_ERROR</span></tt>
+  being raised, when there is an alternate way to return the correct
+  result.
 </p>
 
 <a name="errors_RANGE_ERROR"><h4>15.2.4 RANGE_ERROR</h4></a>

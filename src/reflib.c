@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -491,9 +494,10 @@ objectType ref_issymb (listType arguments)
   /* ref_issymb */
     isit_reference(arg_1(arguments));
     symb_object = take_reference(arg_1(arguments));
-    /* printf("ref issymb %lu ", (long unsigned) GET_ENTITY(symb_object));
-    trace1(symb_object);
-    printf(":\n"); */
+    logFunction(printf("ref issymb(" FMT_U_MEM " ",
+                       (memSizeType) GET_ENTITY(symb_object));
+                trace1(symb_object);
+                printf(")\n"););
     if (HAS_ENTITY(symb_object) &&
         GET_ENTITY(symb_object)->syobject != NULL) {
       return SYS_TRUE_OBJECT;
@@ -935,20 +939,24 @@ objectType ref_symb (listType arguments)
   /* ref_symb */
     isit_reference(arg_2(arguments));
     symb_object = take_reference(arg_2(arguments));
-    /* printf("ref symb " FMT_U_MEM " ", (memSizeType) GET_ENTITY(symb_object));
-    trace1(symb_object);
-    printf(":\n"); */
+    logFunction(printf("ref symb(" FMT_U_MEM " ",
+                       (memSizeType) GET_ENTITY(symb_object));
+                trace1(symb_object);
+                printf(")\n"););
     if (HAS_ENTITY(symb_object) &&
         GET_ENTITY(symb_object)->syobject != NULL) {
       symb_object = GET_ENTITY(symb_object)->syobject;
     } else {
-      printf("ref symb " FMT_U_MEM " ", (memSizeType) GET_ENTITY(symb_object));
-      trace1(symb_object);
-      printf(":\n");
+      logError(printf("ref symb (" FMT_U_MEM " ",
+                      (memSizeType) GET_ENTITY(symb_object));
+               trace1(symb_object);
+               printf("): Error\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
     } /* if */
-    /* printf("ref symb " FMT_U_MEM " ", (memSizeType) GET_ENTITY(symb_object));
-    trace1(symb_object);
-    printf(":\n"); */
+    logFunction(printf("ref symb --> " FMT_U_MEM " ",
+                       (memSizeType) GET_ENTITY(symb_object));
+                trace1(symb_object);
+                printf("\n"););
     return bld_param_temp(symb_object);
   } /* ref_symb */
 

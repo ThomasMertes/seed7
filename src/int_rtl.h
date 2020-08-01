@@ -33,7 +33,7 @@ extern const const_ustriType digitTable[];
 
 
 void setupRand (void);
-uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high);
+uintType uintMult (uintType factor1, uintType factor2, uintType *product_high);
 uintType uintRand (void);
 uintType uintRandLimited (uintType rand_max);
 int uint8MostSignificantBit (uint8Type number);

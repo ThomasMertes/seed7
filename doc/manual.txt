@@ -10466,6 +10466,10 @@ CONTENTS
                  long long           When sizeof(long long) == 8
                  __int64             When sizeof(__int64) == 8
     uint64Type   unsigned int64Type  Unsigned integer type with the size of int64Type
+    int128Type   __int128            When sizeof(__int128) == 16
+                 __int128_t          When sizeof(__int128_t) == 16
+    uint128Type  unsigned __int128   When sizeof(unsigned __int128) == 16
+                 __uint128_t         When sizeof(__uint128_t) == 16
     uintType     unsigned intType    Unsigned integer type with the size of intType
     cstriType    char *              String type of the C compiler
     ustriType    unsigned char *     Helpful for unsigned comparisons
@@ -11287,6 +11291,28 @@ CONTENTS
   correspond to C situations, which have undefined behaviour. The
   overflow concept of Seed7 has been designed to allow, that simple
   C code is generated, when the overflow checks are switched off.
+
+  Compiler optimizations (e.g. with -oc2 or -oc3) can reduce the
+  potential of overflow. In an optimized program an expression might
+  be rephrased, such that an overflow is avoided and the correct
+  result is computed instead. Consider the expression:
+
+    number + integer.last + integer.first
+
+  When 'number' is between succ(integer.first) and 0 the expression
+  can be evaluated and no overflow will occur. For other values of
+  'number' the exception OVERFLOW_ERROR is raised. When the expression
+  above is optimized it is rephrased to:
+
+    pred(number)
+
+  This expression only triggers OVERFLOW_ERROR, when number has the
+  value integer.first.
+
+  With overflow checks it is guaranteed that an integer overflow
+  always raises OVERFLOW_ERROR. But you cannot rely on OVERFLOW_ERROR
+  being raised, when there is an alternate way to return the correct
+  result.
 
 
 15.2.4 RANGE_ERROR

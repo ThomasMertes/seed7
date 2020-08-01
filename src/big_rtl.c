@@ -325,7 +325,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
 
   {
     /* Length of the hex prefix (16#): */
-    const memSizeType hexPrefixLen = 3;
+    const memSizeType hexPrefixLen = STRLEN("16#");
     /* Number of hex digits in a byte: */
     const memSizeType hexDigitsInByte = 2;
     memSizeType pos;
@@ -345,7 +345,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
         return NULL;
       } else {
         buffer = result;
-        strcpy(buffer, "16#");
+        memcpy(buffer, "16#", hexPrefixLen);
         buffer += hexPrefixLen;
         pos = big1->size - 1;
 #if BIGDIGIT_SIZE == 8
@@ -5211,7 +5211,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
     } else if (log2base <= 10 && exponent <= MAX_DIV_10) {
       power = bigLShiftOne(log2base * exponent);
     } else {
-      low_shift = uint_mult((uintType) log2base, (uintType) exponent, &high_shift);
+      low_shift = uintMult((uintType) log2base, (uintType) exponent, &high_shift);
       if (unlikely(high_shift != 0 || (intType) low_shift < 0)) {
         raise_error(MEMORY_ERROR);
         power = NULL;
