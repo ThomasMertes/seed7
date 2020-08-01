@@ -1,3 +1,29 @@
+20110116:
+- The chapter explaining 'operating system access' in the manual was improved.
+- The standard path representation was changed to forbid drive letters
+  (instead of "C:" the standard path "/c" must be used).
+- The programs comanche.sd7, comp.sd7 and make7.sd7 were improved to work
+  with the new standard path representation.
+- The spacing between characters in the standard bitmap fonts was improved.
+- The example programs startrek.sd7, wiz.sd7, mind.sd7, wumpus.sd7 and
+  addup.sd7 were improved to use the operator <& instead of multiple calls
+  of write.
+- In the "seed7_05.s7i" library the functions toStdPath and convDosPath were
+  added and improved respectively.
+- The interpreter and the compiler were improved to support for-until loops
+  for the type 'ref_list'.
+- The recognition of constant expressions in the compiler was improved.
+- The initialisation of hash constants in the compiler was improved to
+  use the function hshEmpty when possible.
+- The initialisation of string constants in the compiler was improved to
+  use string slices which point to an array of characters.
+- The 'const' specifier and the macros 'likely' and 'unlikely' were added to
+  several *.c and *.h files.
+- The implemention of the function path(PROGRAM) in the interpreter was
+  improved.
+- The drawing functions for filled areas were improved in "drw_x11.c".
+- The function 'create_hash' in "hsh_rtl.c" was improved.
+
 20110102:
 - The function convDosPath was added to the "seed7_05.s7i" library. It
   converts a path with backslashes and drive letters to the standard path
@@ -7,7 +33,7 @@
   and return file paths with the standard path representation. The standard
   path representation uses a slash as path separator. Under Windows a
   standard path like "/c" is mapped to the drive letter "C:". Reading the
-  directory "/" unter Windows returns a list of available drives.
+  directory "/" under Windows returns a list of available drives.
 - The function path(PROGRAM), which returns the absolute path of the program,
   was added to the "seed7_05.s7i" library.
 - The function dir(PROGRAM), which returns the directory containing the

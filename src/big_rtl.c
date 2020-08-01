@@ -106,7 +106,7 @@ typedef uint64type               doublebigdigittype;
 #endif
 
 
-#define IS_NEGATIVE(digit) ((digit) & BIGDIGIT_SIGN)
+#define IS_NEGATIVE(digit) (((digit) & BIGDIGIT_SIGN) != 0)
 
 
 size_t sizeof_bigdigittype = sizeof(bigdigittype);
@@ -783,7 +783,7 @@ bigdigittype digit;
     biginttype result;
 
   /* bigDiv1 */
-    if (digit == 0) {
+    if (unlikely(digit == 0)) {
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -1080,7 +1080,7 @@ bigdigittype digit;
     biginttype remainder;
 
   /* bigRem1 */
-    if (digit == 0) {
+    if (unlikely(digit == 0)) {
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -1177,7 +1177,7 @@ bigdigittype digit;
     biginttype result;
 
   /* bigMDiv1 */
-    if (digit == 0) {
+    if (unlikely(digit == 0)) {
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -2666,7 +2666,7 @@ biginttype big1;
     inttype result;
 
   /* bigBitLength */
-    if (big1->size >= MAX_MEM_INDEX >> BIGDIGIT_LOG2_SIZE) {
+    if (unlikely(big1->size >= MAX_MEM_INDEX >> BIGDIGIT_LOG2_SIZE)) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -3795,7 +3795,7 @@ biginttype big1;
     biginttype result;
 
   /* bigLog2 */
-    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+    if (unlikely(IS_NEGATIVE(big1->bigdigits[big1->size - 1]))) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
@@ -3856,7 +3856,7 @@ biginttype big1;
     } /* while */
     if (pos < big1_size) {
       result = digitLeastSignificantBit(big1->bigdigits[pos]);
-      if (pos > (memsizetype) (MAX_MEM_INDEX - result) >> BIGDIGIT_LOG2_SIZE) {
+      if (unlikely(pos > (memsizetype) (MAX_MEM_INDEX - result) >> BIGDIGIT_LOG2_SIZE)) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
@@ -3894,7 +3894,7 @@ inttype lshift;
     biginttype result;
 
   /* bigLShift */
-    if (lshift < 0) {
+    if (unlikely(lshift < 0)) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (big1->size == 1 && big1->bigdigits[0] == 0) {
@@ -3998,7 +3998,7 @@ inttype lshift;
     biginttype result;
 
   /* bigLShiftAssign */
-    if (lshift < 0) {
+    if (unlikely(lshift < 0)) {
       raise_error(NUMERIC_ERROR);
     } else if (lshift != 0) {
       big1 = *big_variable;
@@ -4104,7 +4104,7 @@ inttype lshift;
     biginttype result;
 
   /* bigLShiftOne */
-    if (lshift < 0) {
+    if (unlikely(lshift < 0)) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (unlikely((((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1 > MAX_BIG_LEN)) {
@@ -4665,7 +4665,7 @@ stritype stri;
       if (position == 0 || position < stri->size) {
         okay = FALSE;
       } /* if */
-      if (okay) {
+      if (likely(okay)) {
         memset(&result->bigdigits[result->size], 0,
             (size_t) (result_size - result->size) * sizeof(bigdigittype));
         result->size = result_size;
@@ -4831,7 +4831,7 @@ biginttype upper_limit;
     biginttype result;
 
   /* bigRand */
-    if (bigCmp(lower_limit, upper_limit) > 0) {
+    if (unlikely(bigCmp(lower_limit, upper_limit) > 0)) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -4997,7 +4997,7 @@ inttype rshift;
     biginttype result;
 
   /* bigRShift */
-    if (rshift < 0) {
+    if (unlikely(rshift < 0)) {
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (big1->size <= (uinttype) rshift >> BIGDIGIT_LOG2_SIZE) {
@@ -5091,7 +5091,7 @@ inttype rshift;
     memsizetype pos;
 
   /* bigRShiftAssign */
-    if (rshift < 0) {
+    if (unlikely(rshift < 0)) {
       raise_error(NUMERIC_ERROR);
     } else {
       big1 = *big_variable;
@@ -5693,7 +5693,7 @@ biginttype big1;
     int32type result;
 
   /* bigToInt32 */
-    if (big1->size > sizeof(int32type) / (BIGDIGIT_SIZE >> 3)) {
+    if (unlikely(big1->size > sizeof(int32type) / (BIGDIGIT_SIZE >> 3))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -5727,7 +5727,7 @@ biginttype big1;
     int64type result;
 
   /* bigToInt64 */
-    if (big1->size > sizeof(int64type) / (BIGDIGIT_SIZE >> 3)) {
+    if (unlikely(big1->size > sizeof(int64type) / (BIGDIGIT_SIZE >> 3))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {

@@ -58,18 +58,12 @@ const proc: read_number (in string: prompt, in integer: low, in integer: up,
         block
           number := integer parse stri;
           if number < low or number > up then
-            write("This number is not between ");
-            write(low);
-            write(" and ");
-            write(up);
-            writeln(".");
+            writeln("This number is not between " <& low <& " and " <& up <& ".");
             okay := FALSE;
           end if;
         exception
           catch RANGE_ERROR:
-            write("\"");
-            write(stri);
-            writeln("\" is not a number.");
+            writeln("\"" <& stri <& "\" is not a number.");
             okay := FALSE;
         end block;
       end if;
@@ -88,9 +82,7 @@ const func guess: question (in integer: num, inout boolean: quit) is func
     new_guess.digit2 := (num div 10) rem 10;
     new_guess.digit3 := (num div 100) rem 10;
     new_guess.digit4 := num div 1000;
-    write("I guess ");
-    write(num);
-    writeln;
+    writeln("I guess " <& num);
     read_number("How many digits are right and at the right place? ",
         0, 4, new_guess.right_place, quit);
     if not quit then
@@ -324,18 +316,9 @@ const proc: verify (in integer: solution) is func
           searching := FALSE;
         end if;
       end while;
-      write("When I guessed ");
-      write(try);
-      write(" your answer was ");
-      write(guess_ref.right_place);
-      write(" ");
-      write(guess_ref.wrong_place);
-      writeln(".");
-      write("But the correct answer was ");
-      write(right);
-      write(" ");
-      write(wrong);
-      writeln(".");
+      writeln("When I guessed " <& try <& " your answer was " <&
+              guess_ref.right_place <& " " <& guess_ref.wrong_place <& ".");
+      writeln("But the correct answer was " <& right <& " " <& wrong <& ".");
     end if;
   end func;
 
@@ -367,9 +350,7 @@ const proc: round_computer_guesses is func
         if not quit_round then
           writeln;
           if current_guess.right_place = 4 then
-            write("I guessed it in ");
-            write(length(guesses) + 1);
-            writeln(" trys.");
+            writeln("I guessed it in " <& length(guesses) + 1 <& " trys.");
           else
             writeln("This is not possible.");
             writeln("Some of your answers must be wrong.");
@@ -406,22 +387,16 @@ const proc: round_human_guesses is func
       if not quit_round then
         incr(number_of_trys);
         compare(current_try, secret_number, right, wrong);
-        write(right);
-        writeln(" digits are right and at the right place.");
-        write(wrong);
-        writeln(" digits are right but at the wrong place.");
+        writeln(right <& " digits are right and at the right place.");
+        writeln(wrong <& " digits are right but at the wrong place.");
       end if;
     until right = 4 or quit_round;
     writeln;
     if quit_round then
-      write("The secret number was ");
-      write(secret_number);
-      writeln(".");
+      writeln("The secret number was " <& secret_number <& ".");
     else
       if number_of_trys > 1 then
-        write("You guessed it in ");
-        write(number_of_trys);
-        writeln(" trys.");
+        writeln("You guessed it in " <& number_of_trys <& " trys.");
       else
         writeln("You guessed it immediately, how lucky!");
       end if;

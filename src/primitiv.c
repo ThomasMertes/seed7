@@ -627,6 +627,7 @@ static primactrecord prim_act_table[] = {
     { "RFL_EXCL",            rfl_excl,            },
     { "RFL_EXPR",            rfl_expr,            },
     { "RFL_FOR",             rfl_for,             },
+    { "RFL_FOR_UNTIL",       rfl_for_until,       },
     { "RFL_HEAD",            rfl_head,            },
     { "RFL_IDX",             rfl_idx,             },
     { "RFL_INCL",            rfl_incl,            },

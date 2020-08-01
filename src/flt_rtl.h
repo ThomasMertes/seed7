@@ -41,7 +41,7 @@ inttype fltCmp (floattype number1, floattype number2);
 void fltCpy (floattype *dest, floattype source);
 stritype fltDgts (floattype number, inttype digits_precision);
 floattype fltIPow (floattype base, inttype exponent);
-floattype fltParse (stritype stri);
+floattype fltParse (const const_stritype stri);
 floattype fltRand (floattype lower_limit, floattype upper_limit);
 stritype fltStr (floattype number);
 

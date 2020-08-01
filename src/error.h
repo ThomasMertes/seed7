@@ -88,22 +88,22 @@ typedef enum {OUT_OF_HEAP_SPACE,
 void place_of_error (errortype err);
 void err_warning (errortype err);
 void err_num_stri (errortype err, int num_found, int num_expected,
-                   ustritype stri);
+                   const_ustritype stri);
 void err_ident (errortype err, const_identtype ident);
-void err_object (errortype err, objecttype obj_found);
+void err_object (errortype err, const_objecttype obj_found);
 void err_type (errortype err, const_typetype type_found);
 void err_expr_obj (errortype err, const_objecttype expr_object,
                    objecttype obj_found);
 void err_match (errortype err, objecttype obj_found);
-void err_string (errortype err, ustritype stri);
-void err_stri (errortype err, stritype stri);
+void err_string (errortype err, const_ustritype stri);
+void err_stri (errortype err, const_stritype stri);
 void err_integer (errortype err, inttype number);
 void err_cchar (errortype err, int character);
 void err_char (errortype err, chartype character);
 void err_at_line (errortype err, linenumtype line);
 void err_undeclared (errortype err, filenumtype file_num,
-                     linenumtype line, ustritype stri);
-void err_message (errortype err, stritype stri);
+                     linenumtype line, const_ustritype stri);
+void err_message (errortype err, const_stritype stri);
 
 #else
 

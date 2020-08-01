@@ -177,7 +177,7 @@ os_stritype *argv;
 #ifdef USE_WMAIN
 #ifdef ANSI_C
 
-rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0,
+rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
     stritype *exePath)
 #else
 
@@ -220,7 +220,7 @@ stritype *exePath;
 
 #ifdef ANSI_C
 
-rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0,
+rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
     stritype *exePath)
 #else
 
@@ -293,6 +293,7 @@ stritype *exePath;
 
 
 
+#ifndef OS_PATH_WCHAR
 #ifdef ANSI_C
 
 stritype examineSearchPath (const const_stritype fileName)
@@ -339,6 +340,7 @@ stritype fileName;
     } /* if */
     return result;
   } /* examineSearchPath */
+#endif
 
 
 

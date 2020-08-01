@@ -1403,7 +1403,7 @@ nodetype anynode;
 
 #ifdef ANSI_C
 
-void trace1 (objecttype traceobject)
+void trace1 (const_objecttype traceobject)
 #else
 
 void trace1 (traceobject)

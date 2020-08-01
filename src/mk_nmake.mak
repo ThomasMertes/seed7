@@ -119,7 +119,6 @@ version.h:
 	echo #define ANSI_C > version.h
 	echo #define USE_DIRENT >> version.h
 	echo #define PATH_DELIMITER '\\' >> version.h
-	echo #define ALLOW_DRIVE_LETTERS >> version.h
 	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define USE_ALTERNATE_UTIME >> version.h

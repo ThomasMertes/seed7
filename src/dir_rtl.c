@@ -85,7 +85,7 @@ dirtype directory;
 
 #ifdef ANSI_C
 
-dirtype dirOpen (stritype file_name)
+dirtype dirOpen (const const_stritype file_name)
 #else
 
 dirtype dirOpen (file_name)

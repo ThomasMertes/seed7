@@ -54,7 +54,8 @@ const string:  INT64TYPE_LITERAL_SUFFIX is configValue("INT64TYPE_LITERAL_SUFFIX
 
 var string: INTTYPE_LITERAL_SUFFIX is "";
 
-const integer: MAX_SHOWN_BIGINT_LITERAL is 256;
+const integer: MAX_SHOWN_BIGINT_LITERAL_BITLENGTH is 256;
+const integer: MAX_SHOWN_STRI_LITERAL_LENGTH is 256;
 
 const type: option_hash is hash [string] string;
 
@@ -602,6 +603,19 @@ const proc: process_raise_error (in string: exceptionName, in reference: functio
   end func;
 
 
+const func string: stringInComment (in string: stri) is func
+
+  result
+    var string: expr is "";
+  begin
+    if length(stri) <= MAX_SHOWN_STRI_LITERAL_LENGTH then
+      expr &:= " /* ";
+      expr &:= replace(literal(stri), "*/", "*\\/");
+      expr &:= " */";
+    end if;
+  end func;
+
+
 const func string: stringLiteral (in string: stri) is func
 
   result
@@ -612,9 +626,8 @@ const func string: stringLiteral (in string: stri) is func
     end if;
     expr := "str[";
     expr &:= str(stri_const_table[stri]);
-    expr &:= "] /* ";
-    expr &:= replace(literal(stri), "*/", "*\\/");
-    expr &:= " */";
+    expr &:= "]";
+    expr &:= stringInComment(stri);
   end func;
 
 
@@ -649,7 +662,7 @@ const func string: bigIntegerLiteral (in bigInteger: number) is func
     expr := "big[";
     expr &:= str(bigint_const_table[number]);
     expr &:= "]";
-    if bitLength(number) <= MAX_SHOWN_BIGINT_LITERAL then
+    if bitLength(number) <= MAX_SHOWN_BIGINT_LITERAL_BITLENGTH then
       expr &:= " /* ";
       expr &:= str(number);
       expr &:= " */";
@@ -1958,6 +1971,7 @@ const func boolean: isConstantCall (in reference: current_expression) is func
   result
     var boolean: result is FALSE;
   local
+    const set of string: nonConstantExpressionActions is {"FIL_PRINT", "PRC_RAISE", "TYP_GENTYPE"};
     var ref_list: params is ref_list.EMPTY;
     var reference: function is NIL;
     var category: functionCategory is category.value;
@@ -1970,11 +1984,11 @@ const func boolean: isConstantCall (in reference: current_expression) is func
     functionCategory := category(function);
     if functionCategory = ACTOBJECT then
       action_name := str(getValue(function, ACTION));
-      if action_name in {"FIL_PRINT", "PRC_RAISE", "TYP_GENTYPE"} then
+      if action_name in nonConstantExpressionActions then
         result := FALSE;
       else
         result := TRUE;
-        for obj range params do
+        for obj range params until not result do
           if not isConstant(obj) then
             result := FALSE;
           end if;
@@ -1992,19 +2006,19 @@ const func boolean: isConstant (in reference: current_expression) is func
   result
     var boolean: result is FALSE;
   local
+    const set of category: constantExpressionCategories is {
+        INTOBJECT, BIGINTOBJECT, CHAROBJECT,
+        STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
+        SETOBJECT, FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT,
+        WINOBJECT, ENUMLITERALOBJECT, SYMBOLOBJECT};
     var category: exprCategory is category.value;
   begin
     if not isVar(current_expression) then
       exprCategory := category(current_expression);
-      if exprCategory in {INTOBJECT, BIGINTOBJECT, CHAROBJECT,
-          STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT,
-          SETOBJECT, FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT,
-          WINOBJECT, ENUMLITERALOBJECT, SYMBOLOBJECT} then
+      if exprCategory = MATCHOBJECT or exprCategory = CALLOBJECT then
+        result := isConstantCall(current_expression);
+      elsif exprCategory in constantExpressionCategories then
         result := TRUE;
-      elsif exprCategory = MATCHOBJECT then
-        result := isConstantCall(current_expression);
-      elsif exprCategory = CALLOBJECT then
-        result := isConstantCall(current_expression);
       elsif exprCategory = BLOCKOBJECT then
         result := TRUE;
       elsif exprCategory = ACTOBJECT then
@@ -10307,7 +10321,7 @@ const proc: process_prg_ne (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_prg_path (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "exePath";
+    c_expr.expr &:= "programPath";
   end func;
 
 
@@ -11141,6 +11155,41 @@ const proc: process_rfl_for (in ref_list: params, inout expr_type: c_expr) is fu
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "->obj;\n";
     process_expr(params[6], c_expr);
+    c_expr.expr &:= "}\n}\n";
+  end func;
+
+
+const proc: process_rfl_for_until (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(c_expr.temp_num);
+    temp_num := c_expr.temp_num;
+    c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "listtype tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= ";\n";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "for (tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= " = ";
+    getAnyParamToExpr(params[4], c_expr);
+    c_expr.expr &:= "; tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= " != NULL && (";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= " = tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->obj, !(";
+    process_expr(params[6], c_expr);
+    c_expr.expr &:= ")); tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= " = tmp_elem_";
+    c_expr.expr &:= str(temp_num);
+    c_expr.expr &:= "->next) {\n";
+    process_expr(params[8], c_expr);
     c_expr.expr &:= "}\n}\n";
   end func;
 
@@ -15060,6 +15109,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_rfl_eq(params, c_expr);
       elsif action_name = "RFL_FOR" then
         process_rfl_for(params, c_expr);
+      elsif action_name = "RFL_FOR_UNTIL" then
+        process_rfl_for_until(params, c_expr);
       elsif action_name = "RFL_HEAD" then
         process_rfl_head(params, c_expr);
       elsif action_name = "RFL_IDX" then
@@ -15660,21 +15711,30 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       create_name(current_object, param_name);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
     elsif valueCategory = HASHOBJECT then
-      if object_value not in const_table then
-        const_table @:= [object_value] length(const_table);
+      if length(hash_key_to_list(object_value)) = 0 then
+        process_destr_declaration(objectType, global_c_expr);
+        incr(countOptimizations);
+        c_declaration.temp_assigns &:= diagnosticLine(current_object);
+        c_declaration.temp_assigns &:= "o_";
+        create_name(current_object, c_declaration.temp_assigns);
+        c_declaration.temp_assigns &:= "=hshEmpty();\n";
+      else
+        if object_value not in const_table then
+          const_table @:= [object_value] length(const_table);
+        end if;
+        process_create_declaration(objectType, global_c_expr);
+        process_destr_declaration(objectType, global_c_expr);
+        c_declaration.temp_assigns &:= diagnosticLine(current_object);
+        c_declaration.temp_assigns &:= "o_";
+        create_name(current_object, c_declaration.temp_assigns);
+        c_declaration.temp_assigns &:= "=";
+        param_value := "hsh[";
+        param_value &:= str(const_table[object_value]);
+        param_value &:= "]";
+        process_create_call(objectType,
+            param_value, c_declaration.temp_assigns);
+        c_declaration.temp_assigns &:= ";\n";
       end if;
-      process_create_declaration(objectType, global_c_expr);
-      process_destr_declaration(objectType, global_c_expr);
-      c_declaration.temp_assigns &:= diagnosticLine(current_object);
-      c_declaration.temp_assigns &:= "o_";
-      create_name(current_object, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= "=";
-      param_value := "hsh[";
-      param_value &:= str(const_table[object_value]);
-      param_value &:= "]";
-      process_create_call(objectType,
-          param_value, c_declaration.temp_assigns);
-      c_declaration.temp_assigns &:= ";\n";
       param_name := "o_";
       create_name(current_object, param_name);
       process_destr_call(objectType, param_name, c_declaration.temp_frees);
@@ -17230,7 +17290,7 @@ const proc: process_main_declaration (in reference: function,
     else
       main_prolog &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     end if;
-    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &exePath);\n";
+    main_prolog &:= "arg_v = getArgv(argc, argv, &arg_0, &programPath);\n";
     main_prolog &:= "setupFloat();\n";
     main_prolog &:= "init_values();\n";
     if not signal_exception then
@@ -19426,7 +19486,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef void (*destrfunctype) (generictype);");
     writeln(c_prog, "typedef void (*copyfunctype) (generictype *, generictype);");
     writeln(c_prog, "stritype       arg_0;");
-    writeln(c_prog, "stritype       exePath;");
+    writeln(c_prog, "stritype       programPath;");
     writeln(c_prog, "arraytype      arg_v;");
     writeln(c_prog, "biginttype    *big;");
     writeln(c_prog, "stritype       str[];");
@@ -20283,7 +20343,7 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
         c_expr.expr &:= "]=bigImport(big_";
         c_expr.expr &:= str(number);
         c_expr.expr &:= ");";
-        if bitLength(big1) <= MAX_SHOWN_BIGINT_LITERAL then
+        if bitLength(big1) <= MAX_SHOWN_BIGINT_LITERAL_BITLENGTH then
           c_expr.expr &:= " /* ";
           c_expr.expr &:= str(big1);
           c_expr.expr &:= " */";
@@ -20295,6 +20355,7 @@ const proc: assign_bigint_constants (inout expr_type: c_expr) is func
 
 
 const func string: int64AsTwoInt32 (in bigInteger: number) is func
+
   result
     var string: result is "";
   begin
@@ -20312,15 +20373,82 @@ const func string: int64AsTwoInt32 (in bigInteger: number) is func
   end func;
 
 
-const proc: init_string_constants (inout expr_type: c_expr) is func
+const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
+    inout expr_type: c_expr) is func
 
   local
-    var stri_index_hash: stri_index is stri_index_hash.EMPTY_HASH;
-    var string: stri is "";
     var integer: number is 0;
+    var string: stri is "";
+    var string: striChars is "";
+    var integer: striIndex is 0;
+    var integer: countChars is 0;
     var char: ch is ' ';
   begin
-    stri_index := flip(stri_const_table);
+    for number range sort(keys(stri_index)) do
+      stri := stri_index[number][1];
+      striIndex := pos(striChars, stri);
+      if striIndex = 0 then
+        striChars &:= stri;
+      end if;
+    end for;
+    c_expr.expr &:= "static strelemtype striChars[]={\n";
+    for ch range striChars do
+      c_expr.expr &:= c_literal(ch);
+      c_expr.expr &:= ",";
+      incr(countChars);
+      if countChars = 20 then
+        c_expr.expr &:= "\n";
+        countChars := 0;
+      end if;
+    end for;
+    c_expr.expr &:= "};\n\n";
+    for number range sort(keys(stri_index)) do
+      stri := stri_index[number][1];
+      c_expr.expr &:= "/* str[";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "] */ static struct stri stri_";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= "[]={";
+      c_expr.expr &:= str(length(stri));
+      c_expr.expr &:= ",";
+      if WITH_STRI_CAPACITY then
+        c_expr.expr &:= str(length(stri));
+        c_expr.expr &:= ",";
+      end if;
+      if stri = "" then
+        c_expr.expr &:= "NULL";
+      else
+        c_expr.expr &:= "&striChars[";
+        c_expr.expr &:= str(pred(pos(striChars, stri)));
+        c_expr.expr &:= "]";
+      end if;
+      c_expr.expr &:= "};\n";
+    end for;
+    c_expr.expr &:= "stritype str[]={\n";
+    if length(stri_const_table) > 0 then
+      for number range sort(keys(stri_index)) do
+        stri := stri_index[number][1];
+        c_expr.expr &:= "&stri_";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= ",";
+        c_expr.expr &:= stringInComment(stri);
+        c_expr.expr &:= "\n";
+      end for;
+    else
+      c_expr.expr &:= "(stritype) NULL";
+    end if;
+    c_expr.expr &:= "};\n\n";
+  end func;
+
+
+const proc: init_string_constants_no_slices (in stri_index_hash: stri_index,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: number is 0;
+    var string: stri is "";
+    var char: ch is ' ';
+  begin
     for number range sort(keys(stri_index)) do
       stri := stri_index[number][1];
       c_expr.expr &:= "/* str[";
@@ -20347,18 +20475,23 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
           c_expr.expr &:= int64AsTwoInt32(bigInteger conv 0);
         end if;
       end if;
-      for ch range stri do
-        c_expr.expr &:= c_literal(ch);
-        c_expr.expr &:= ",";
-      end for;
+      if ALLOW_STRITYPE_SLICES and POINTER_SIZE = 64 then
+        for ch range stri do
+          c_expr.expr &:= c_literal(ch);
+          c_expr.expr &:= ",";
+        end for;
+      end if;
       c_expr.expr &:= "};\n";
     end for;
     c_expr.expr &:= "stritype str[]={\n";
     if length(stri_const_table) > 0 then
       for number range sort(keys(stri_index)) do
+        stri := stri_index[number][1];
         c_expr.expr &:= "(stritype) stri_";
         c_expr.expr &:= str(number);
-        c_expr.expr &:= ",\n";
+        c_expr.expr &:= ",";
+        c_expr.expr &:= stringInComment(stri);
+        c_expr.expr &:= "\n";
       end for;
     else
       c_expr.expr &:= "(stritype) NULL";
@@ -20367,20 +20500,16 @@ const proc: init_string_constants (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: fix_string_constants (inout expr_type: c_expr) is func
+const proc: init_string_constants (inout expr_type: c_expr) is func
 
+  local
+    var stri_index_hash: stri_index is stri_index_hash.EMPTY_HASH;
   begin
+    stri_index := flip(stri_const_table);
     if ALLOW_STRITYPE_SLICES then
-      if length(stri_const_table) > 0 then
-        c_expr.expr &:= "{\n";
-        c_expr.expr &:= "  stritype *stri;\n";
-        c_expr.expr &:= "  for (stri=str; stri<&str[";
-        c_expr.expr &:= str(length(stri_const_table));
-        c_expr.expr &:= "]; stri++) {\n";
-        c_expr.expr &:= "    (*stri)->mem = (*stri)->mem1;\n";
-        c_expr.expr &:= "  }\n";
-        c_expr.expr &:= "}\n";
-      end if;
+      init_string_constants_with_slices(stri_index, c_expr);
+    else
+      init_string_constants_no_slices(stri_index, c_expr);
     end if;
   end func;
 
@@ -20808,7 +20937,6 @@ const proc: init_values (inout expr_type: c_expr) is func
 
     c_expr.expr &:= "void init_values (void)\n";
     c_expr.expr &:= "{\n";
-    fix_string_constants(c_expr);
     assign_bigint_constants(c_expr);
     c_expr.expr &:= "arr = (arraytype *)(malloc(";
     c_expr.expr &:= str(length(const_table));
@@ -21202,15 +21330,15 @@ const proc: pass_3 (in string: source, in program: prog,
         removeFile(cErrorFile);
       end if;
       if okay then
-        if fileType(SEED7_LIB) <> FILE_REGULAR then
+        if fileType(convDosPath(SEED7_LIB)) <> FILE_REGULAR then
           writeln("*** Seed7 library " <& literal(SEED7_LIB) <& " missing");
           okay := FALSE;
         end if;
-        if compilerLibraryUsed and fileType(COMPILER_LIB) <> FILE_REGULAR then
+        if compilerLibraryUsed and fileType(convDosPath(COMPILER_LIB)) <> FILE_REGULAR then
           writeln("*** Compiler library " <& literal(COMPILER_LIB) <& " missing");
           okay := FALSE;
         end if;
-        if compDataLibraryUsed and fileType(COMP_DATA_LIB) <> FILE_REGULAR then
+        if compDataLibraryUsed and fileType(convDosPath(COMP_DATA_LIB)) <> FILE_REGULAR then
           writeln("*** Compiler data library " <& literal(COMP_DATA_LIB) <& " missing");
           okay := FALSE;
         end if;

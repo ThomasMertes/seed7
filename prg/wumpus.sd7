@@ -131,13 +131,11 @@ const proc: check_hazards is func
       end if;
     end for;
 
-    write("You are in room ");
-    writeln(loc[PLAYER]);
+    writeln("You are in room " <& loc[PLAYER]);
 
     write("Tunnels lead to");
     for number range 1 to 3 do
-      write(" ");
-      write(cave[loc[PLAYER]][number]);
+      write(" " <& cave[loc[PLAYER]][number]);
     end for;
     writeln;
     writeln;

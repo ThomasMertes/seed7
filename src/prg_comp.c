@@ -195,7 +195,7 @@ progtype currentProg;
 
 #ifdef ANSI_C
 
-progtype prgFilParse (const_stritype stri)
+progtype prgFilParse (const const_stritype stri)
 #else
 
 progtype prgFilParse (stri)
@@ -306,7 +306,7 @@ listtype curr_expr;
 
 #ifdef ANSI_C
 
-progtype prgStrParse (const_stritype stri)
+progtype prgStrParse (const const_stritype stri)
 #else
 
 progtype prgStrParse (stri)

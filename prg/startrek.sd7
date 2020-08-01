@@ -310,13 +310,9 @@ const proc: init is func
       total_bases := 1;
     end if;
     klingons_in_game := total_klingons;
-    write("Objective: Destroy ");
-    write(total_klingons);
-    write(" Klingon battle cruisers in ");
-    write(endStardate - startStardate);
-    writeln(" stardates.");
-    write(" The number of starbases is ");
-    writeln(total_bases);
+    writeln("Objective: Destroy " <& total_klingons <& " Klingon battle cruisers in " <&
+            endStardate - startStardate <& " stardates.");
+    writeln(" The number of starbases is " <& total_bases);
   end func; (* init *)
 
 
@@ -399,18 +395,11 @@ const func string: get_condition is func
 
 
 const proc: write_phaser_hit (in integer: number, in float: unit_hit,
-    in string: target, in float: left) is func
+    in string: target, in float: energy_left) is func
   begin
-    write(unit_hit digits 3);
-    write(" unit hit on ");
-    write(target);
-    write(" sector ");
-    write(klingonRow[number]);
-    write(" - ");
-    write(klingonColumn[number]);
-    write("  (");
-    write(left digits 3);
-    writeln(" left)");
+    write(unit_hit digits 3 <& " unit hit on " <& target);
+    write(" sector " <& klingonRow[number] <& " - " <& klingonColumn[number]);
+    writeln("  (" <& energy_left digits 3 <& " left)");
   end func; (* write_phaser_hit *)
 
 
@@ -448,17 +437,14 @@ const proc: hits_from_klingons is func
 
 const proc: time_for_repair (in integer: equipment) is func
   begin
-    write(" Estimated time to repair ");
-    write(damage[equipment]);
-    writeln(" stardates.");
+    writeln(" Estimated time to repair " <& damage[equipment] <& " stardates.");
     writeln;
   end func; (* time_for_repair *)
 
 
 const proc: show_damage (in integer: equipment) is func
   begin
-    write(description[equipment]);
-    write(" damaged.");
+    write(description[equipment] <& " damaged.");
     time_for_repair(equipment);
   end func;  (* show_damage *)
 
@@ -512,10 +498,7 @@ const proc: move_ship (in float: course, in float: warp_factor,
           when {4}: write("starbase");
           when {5}: write("star");
         end case;
-        write(" at sector ");
-        write(row);
-        write(" - ");
-        writeln(column);
+        writeln(" at sector " <& row <& " - " <& column);
         row := trunc(y1 - delta_y);
         column := trunc(x1 - delta_x);
       end if;
@@ -552,19 +535,18 @@ const proc: short_range_sensors is func
     else
       for row range 1 to 8 do
         for column range 1 to 8 do
-          write(sector_description[sect[row][column]]);
-          write(" ");
+          write(sector_description[sect[row][column]] <& " ");
         end for;
         write("  ");
         case row of
-          when {1}: write("Stardate = ");  writeln(stardate);
-          when {2}: write("Condition: ");  writeln(cond);
-          when {3}: write("Quadrant = ");  write(quadrantRow); write(" - "); writeln(quadrantColumn);
-          when {4}: write("Sector = ");    write(sectorRow);   write(" - "); writeln(sectorColumn);
-          when {5}: write("Energy = ");    writeln(energy digits 3);
-          when {6}: write("Photon torpedoes = "); writeln(torpedoes);
-          when {7}: write("Klingons left = ");    writeln(total_klingons);
-          when {8}: write("Time left = ");        writeln(endStardate - stardate);
+          when {1}: writeln("Stardate = " <& stardate);
+          when {2}: writeln("Condition: " <& cond);
+          when {3}: writeln("Quadrant = " <& quadrantRow <& " - " <& quadrantColumn);
+          when {4}: writeln("Sector = "   <& sectorRow <& " - " <& sectorColumn);
+          when {5}: writeln("Energy = "   <& energy digits 3);
+          when {6}: writeln("Photon torpedoes = " <& torpedoes);
+          when {7}: writeln("Klingons left = "    <& total_klingons);
+          when {8}: writeln("Time left = "        <& endStardate - stardate);
         end case;
       end for;
     end if;
@@ -610,12 +592,9 @@ const proc: warp_engines is func
           block
             warp_factor := float parse command;
             if warp_factor > 12.0 then
-              write("   Chief engineer Scott: 'The engines won't take ");
-              write(command);
-              writeln("!'");
+              writeln("   Chief engineer Scott: 'The engines won't take " <& command <& "!'");
             elsif warp_factor > 0.2 and damage[WARP_ENGINES] > 0 then
-              write(description[WARP_ENGINES]);
-              write(" damaged, max is 0.2 ");
+              write(description[WARP_ENGINES] <& " damaged, max is 0.2 ");
               time_for_repair(WARP_ENGINES);
               warp_factor := 15.0;
             end if;
@@ -634,9 +613,7 @@ const proc: warp_engines is func
           equipment := rand(1, 6);
           if rand(0.0, 1.0) <= 0.5 then
             damage[equipment] +:= rand(1, 6);
-            write("**SPACE STORM, ");
-            write(upper(description[equipment]));
-            writeln(" DAMAGED**");
+            writeln("**SPACE STORM, " <& upper(description[equipment]) <& " DAMAGED**");
             time_for_repair(equipment);
             incr(damage[equipment]);
           else
@@ -664,8 +641,7 @@ const proc: warp_engines is func
             decr(damage[equipment]);
             if damage[equipment] <= 0 then
               damage[equipment] := 0;
-              write(description[equipment]);
-              writeln(" are fixed!");
+              writeln(description[equipment] <& " are fixed!");
             end if;
           end if;
         end for;
@@ -701,11 +677,8 @@ const proc: long_range_sensors is func
     if damage[LONG_RANGE_SENSORS] > 0 then
       show_damage(LONG_RANGE_SENSORS);
     else
-      write(description[LONG_RANGE_SENSORS]);
-      write(" for quadrant ");
-      write(quadrantRow);
-      write(" - ");
-      writeln(quadrantColumn);
+      writeln(description[LONG_RANGE_SENSORS] <& " for quadrant " <&
+              quadrantRow <& " - " <& quadrantColumn);
       for row range pred(quadrantRow) to succ(quadrantRow) do
         for column range pred(quadrantColumn) to succ(quadrantColumn) do
           write("   ");
@@ -737,8 +710,7 @@ const proc: phasers is func
         write("Phasers ready: Energy units to fire? ");
         readln(phaser_energy);
         if phaser_energy > 0.0 and phaser_energy > energy then
-          write("Only got ");
-          writeln(energy digits 3);
+          writeln("Only got " <& energy digits 3);
         end if;
       until phaser_energy <= 0.0 or phaser_energy <= energy;
       if phaser_energy > 0.0 then
@@ -793,11 +765,7 @@ const proc: torpedo_track (in float: course) is func
       if column < 1 or column > 8 or row < 1 or row > 8 then
         number := distance;
       else
-        write(" ");
-        write(row);
-        write(" - ");
-        write(column);
-        write("  ");
+        write(" " <& row <& " - " <& column <& "  ");
         if sect[row][column] <> 1 then (* Object hit by torpedo *)
           torpedo_hit := TRUE;
           number := distance;
@@ -894,13 +862,9 @@ const proc: galactic_records is func
             write(" *** ");
           else
             if row = quadrantRow and column = quadrantColumn then
-              write("<");
-              write(quadrant_description(row, column));
-              write(">");
+              write("<" <& quadrant_description(row, column) <& ">");
             else
-              write(" ");
-              write(quadrant_description(row, column));
-              write(" ");
+              write(" " <& quadrant_description(row, column) <& " ");
             end if;
           end if;
         end for;
@@ -913,8 +877,7 @@ const proc: galactic_records is func
 const proc: write_stardate is func
   begin
     writeln;
-    write("It is stardate ");
-    writeln(stardate);
+    writeln("It is stardate " <& stardate);
   end func; (* write_stardate *)
 
 
@@ -961,11 +924,8 @@ const proc: game is func
       rating := 1000 * klingons_in_game div (stardate - startStardate);
       writeln("The federation has been saved!");
       writeln("You are promoted to admiral.");
-      write(klingons_in_game);
-      write(" Klingons in ");
-      write(stardate - startStardate);
-      write(" stardates.  Rating = ");
-      writeln(rating);
+      writeln(klingons_in_game <& " Klingons in " <& stardate - startStardate <&
+              " stardates.  Rating = " <& rating);
     elsif energy <= 0.0 or stardate > endStardate or quit then
       if energy <= 0.0 then
         writeln("You ran out of energy!");
@@ -975,9 +935,7 @@ const proc: game is func
         writeln("You quit your job!");
       end if;
       writeln("Thanks to your bungling, the federation will be");
-      write("conquered by the remaining ");
-      write(total_klingons);
-      writeln(" Klingon cruisers!");
+      writeln("conquered by the remaining " <& total_klingons <& " Klingon cruisers!");
       writeln("You are demoted to cabin boy!");
     end if;
   end func; (* game *)

@@ -31,45 +31,47 @@
 
 #ifdef ANSI_C
 
-biginttype cmdBigFileSize (stritype file_name);
-void cmdChdir (stritype dir_name);
-void cmdCloneFile (stritype source_name, stritype dest_name);
-stritype cmdConfigValue (stritype name);
-void cmdCopyFile (stritype source_name, stritype dest_name);
-settype cmdFileMode (stritype file_name);
-inttype cmdFileSize (stritype file_name);
-inttype cmdFileType (stritype file_name);
-inttype cmdFileTypeSL (stritype file_name);
+stritype getProgramPath (const const_stritype source_file_name);
+biginttype cmdBigFileSize (const const_stritype file_name);
+void cmdChdir (const const_stritype dir_name);
+void cmdCloneFile (const const_stritype source_name, const const_stritype dest_name);
+stritype cmdConfigValue (const const_stritype name);
+void cmdCopyFile (const const_stritype source_name, const const_stritype dest_name);
+settype cmdFileMode (const const_stritype file_name);
+inttype cmdFileSize (const const_stritype file_name);
+inttype cmdFileType (const const_stritype file_name);
+inttype cmdFileTypeSL (const const_stritype file_name);
 stritype cmdGetcwd (void);
-void cmdGetATime (stritype file_name,
+void cmdGetATime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst);
-void cmdGetCTime (stritype file_name,
+void cmdGetCTime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst);
-void cmdGetMTime (stritype file_name,
+void cmdGetMTime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst);
-void cmdMkdir (stritype dir_name);
-void cmdMove (stritype source_name, stritype dest_name);
-stritype cmdReadlink (stritype link_name);
-void cmdRemove (stritype file_name);
-void cmdRemoveAnyFile (stritype file_name);
-void cmdSetATime (stritype file_name,
+void cmdMkdir (const const_stritype dir_name);
+void cmdMove (const const_stritype source_name, const const_stritype dest_name);
+stritype cmdReadlink (const const_stritype link_name);
+void cmdRemove (const const_stritype file_name);
+void cmdRemoveAnyFile (const const_stritype file_name);
+void cmdSetATime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
-void cmdSetFileMode (stritype file_name, settype mode);
-void cmdSetMTime (stritype file_name,
+void cmdSetFileMode (const const_stritype file_name, settype mode);
+void cmdSetMTime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone);
-inttype cmdShell (stritype command_stri);
-void cmdSymlink (stritype source_name, stritype dest_name);
+inttype cmdShell (const const_stritype command_stri);
+void cmdSymlink (const const_stritype source_name, const const_stritype dest_name);
 
 #else
 
+stritype getProgramPath ();
 biginttype cmdBigFileSize ();
 void cmdChdir ();
 void cmdCloneFile ();

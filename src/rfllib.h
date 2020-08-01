@@ -27,32 +27,33 @@
 
 #ifdef ANSI_C
 
-objecttype rfl_append   (listtype arguments);
-objecttype rfl_cat      (listtype arguments);
-objecttype rfl_cpy      (listtype arguments);
-objecttype rfl_create   (listtype arguments);
-objecttype rfl_destr    (listtype arguments);
-objecttype rfl_elem     (listtype arguments);
-objecttype rfl_elemcpy  (listtype arguments);
-objecttype rfl_empty    (listtype arguments);
-objecttype rfl_eq       (listtype arguments);
-objecttype rfl_excl     (listtype arguments);
-objecttype rfl_expr     (listtype arguments);
-objecttype rfl_for      (listtype arguments);
-objecttype rfl_head     (listtype arguments);
-objecttype rfl_idx      (listtype arguments);
-objecttype rfl_incl     (listtype arguments);
-objecttype rfl_ipos     (listtype arguments);
-objecttype rfl_lng      (listtype arguments);
-objecttype rfl_mklist   (listtype arguments);
-objecttype rfl_ne       (listtype arguments);
-objecttype rfl_not_elem (listtype arguments);
-objecttype rfl_pos      (listtype arguments);
-objecttype rfl_range    (listtype arguments);
-objecttype rfl_setvalue (listtype arguments);
-objecttype rfl_tail     (listtype arguments);
-objecttype rfl_trace    (listtype arguments);
-objecttype rfl_value    (listtype arguments);
+objecttype rfl_append    (listtype arguments);
+objecttype rfl_cat       (listtype arguments);
+objecttype rfl_cpy       (listtype arguments);
+objecttype rfl_create    (listtype arguments);
+objecttype rfl_destr     (listtype arguments);
+objecttype rfl_elem      (listtype arguments);
+objecttype rfl_elemcpy   (listtype arguments);
+objecttype rfl_empty     (listtype arguments);
+objecttype rfl_eq        (listtype arguments);
+objecttype rfl_excl      (listtype arguments);
+objecttype rfl_expr      (listtype arguments);
+objecttype rfl_for       (listtype arguments);
+objecttype rfl_for_until (listtype arguments);
+objecttype rfl_head      (listtype arguments);
+objecttype rfl_idx       (listtype arguments);
+objecttype rfl_incl      (listtype arguments);
+objecttype rfl_ipos      (listtype arguments);
+objecttype rfl_lng       (listtype arguments);
+objecttype rfl_mklist    (listtype arguments);
+objecttype rfl_ne        (listtype arguments);
+objecttype rfl_not_elem  (listtype arguments);
+objecttype rfl_pos       (listtype arguments);
+objecttype rfl_range     (listtype arguments);
+objecttype rfl_setvalue  (listtype arguments);
+objecttype rfl_tail      (listtype arguments);
+objecttype rfl_trace     (listtype arguments);
+objecttype rfl_value     (listtype arguments);
 
 #else
 
@@ -68,6 +69,7 @@ objecttype rfl_eq ();
 objecttype rfl_excl ();
 objecttype rfl_expr ();
 objecttype rfl_for ();
+objecttype rfl_for_until ();
 objecttype rfl_head ();
 objecttype rfl_idx ();
 objecttype rfl_incl ();

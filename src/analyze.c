@@ -61,6 +61,7 @@
 #include "doany.h"
 #include "option.h"
 #include "runerr.h"
+#include "cmd_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -399,7 +400,7 @@ nodetype objects;
 
 #ifdef ANSI_C
 
-static progtype analyze_prog (const_stritype source_file_name, errinfotype *err_info)
+static progtype analyze_prog (const const_stritype source_file_name, errinfotype *err_info)
 #else
 
 static progtype analyze_prog (source_file_name, err_info)
@@ -486,6 +487,7 @@ errinfotype *err_info;
         } /* if */
         clean_idents();
         resultProg->source_file_name = source_file_name_copy;
+        resultProg->source_file_path = getProgramPath(source_file_name_copy);
         resultProg->error_count      = prog.error_count;
         memcpy(&resultProg->ident,    &prog.ident, sizeof(idroottype));
         memcpy(&resultProg->id_for,   &prog.id_for, sizeof(findidtype));
@@ -525,7 +527,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze_file (const_stritype source_file_name, errinfotype *err_info)
+progtype analyze_file (const const_stritype source_file_name, errinfotype *err_info)
 #else
 
 progtype analyze_file (source_file_name, err_info)
@@ -592,7 +594,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-progtype analyze (const_stritype source_file_name)
+progtype analyze (const const_stritype source_file_name)
 #else
 
 progtype analyze (source_file_name)
@@ -623,7 +625,7 @@ stritype source_file_name;
 
 #ifdef ANSI_C
 
-progtype analyze_string (const_stritype input_string, errinfotype *err_info)
+progtype analyze_string (const const_stritype input_string, errinfotype *err_info)
 #else
 
 progtype analyze_string (input_string, err_info)

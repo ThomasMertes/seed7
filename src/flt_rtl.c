@@ -324,7 +324,7 @@ inttype exponent;
 
 #ifdef ANSI_C
 
-floattype fltParse (stritype stri)
+floattype fltParse (const const_stritype stri)
 #else
 
 floattype fltParse (stri)

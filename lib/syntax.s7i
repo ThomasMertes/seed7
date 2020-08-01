@@ -177,6 +177,7 @@ $ syntax expr: .for.().range.().downto.().do.().end.for is          -> 25;
 $ syntax expr: .for.().range.().to.().step.().do.().end.for is      -> 25;
 $ syntax expr: .for.().range.().downto.().step.().do.().end.for is  -> 25;
 $ syntax expr: .for.().range.().do.().end.for is                    -> 25;
+$ syntax expr: .for.().range.().until.().do.().end.for is           -> 25;
 $ syntax expr: .for.().key.().range.().do.().end.for is             -> 25;
 $ syntax expr: .for.key.().range.().do.().end.for is                -> 25;
 

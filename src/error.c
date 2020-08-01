@@ -569,7 +569,7 @@ errortype err;
 #ifdef ANSI_C
 
 void err_num_stri (errortype err, int num_found, int num_expected,
-    ustritype stri)
+    const_ustritype stri)
 #else
 
 void err_num_stri (err, num_found, num_expected, stri)
@@ -657,7 +657,7 @@ identtype ident;
 
 #ifdef ANSI_C
 
-void err_object (errortype err, objecttype obj_found)
+void err_object (errortype err, const_objecttype obj_found)
 #else
 
 void err_object (err, obj_found)
@@ -918,7 +918,7 @@ objecttype obj_found;
 
 #ifdef ANSI_C
 
-void err_string (errortype err, ustritype stri)
+void err_string (errortype err, const_ustritype stri)
 #else
 
 void err_string (err, stri)
@@ -953,7 +953,7 @@ ustritype stri;
 
 #ifdef ANSI_C
 
-void err_stri (errortype err, stritype stri)
+void err_stri (errortype err, const_stritype stri)
 #else
 
 void err_stri (err, stri)
@@ -1128,7 +1128,7 @@ linenumtype line;
 #ifdef ANSI_C
 
 void err_undeclared (errortype err, filenumtype file_num,
-    linenumtype line, ustritype stri)
+    linenumtype line, const_ustritype stri)
 #else
 
 void err_undeclared (err, file_num, line, stri)
@@ -1158,7 +1158,7 @@ ustritype stri;
 
 #ifdef ANSI_C
 
-void err_message (errortype err, stritype stri)
+void err_message (errortype err, const_stritype stri)
 #else
 
 void err_message (err, stri)

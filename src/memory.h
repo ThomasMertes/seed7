@@ -108,6 +108,7 @@
 #else
 #define isit_action(arg)
 #define isit_array(arg)
+#define isit_bigint(arg)
 #define isit_block(arg)
 #define isit_bool(arg)
 #define isit_bstri(arg)
@@ -120,6 +121,7 @@
 #define isit_hash(arg)
 #define isit_int(arg)
 #define isit_list(arg)
+#define isit_param(arg)
 #define isit_proc(arg)
 #define isit_prog(arg)
 #define isit_reference(arg)

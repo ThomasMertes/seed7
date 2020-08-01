@@ -62,7 +62,7 @@ void prot_name (const_listtype list);
 void trace_node (const_nodetype);
 void trace_nodes (void);
 void printnodes (const_nodetype);
-void trace1 (objecttype);
+void trace1 (const_objecttype);
 void trace_entity (const_entitytype);
 void trace_list (const_listtype);
 void traceelements (nodetype);

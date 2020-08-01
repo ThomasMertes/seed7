@@ -187,7 +187,7 @@ acttype *action_found;
 
 #ifdef ANSI_C
 
-booltype find_action (stritype action_name, acttype *action_found)
+booltype find_action (const const_stritype action_name, acttype *action_found)
 #else
 
 booltype find_action (action_name, action_found)

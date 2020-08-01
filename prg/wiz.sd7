@@ -1035,12 +1035,7 @@ const proc: writeRemark is func
 
 const proc: writePos (in roomref: a_room) is func
   begin (* writePos *)
-    write("(");
-    write(a_room->xPos);
-    write(", ");
-    write(a_room->yPos);
-    write(") Level: ");
-    writeln(a_room->zPos);
+    writeln("(" <& a_room->xPos <& ", " <& a_room->yPos <& ") Level: " <& a_room->zPos);
   end func; (* writePos *)
 
 
@@ -1083,8 +1078,7 @@ const proc: execute (LOOK) is func
           end case;
         when {WARP}:
           currentRoom := &LABYRINTH[rand(1, SIZE_LABY)][rand(1, SIZE_LABY)][rand(1, NUM_LEVELS)];
-          write("This room contains a warp. ");
-          write("You have been transferred to ");
+          write("This room contains a warp. You have been transferred to ");
           writePos(currentRoom);
       end case;
     until trans = NOTRANSFER;
@@ -1113,22 +1107,13 @@ const proc: execute (STATUS) is func
       writePos(currentRoom);
       writeln;
     end if;
-    write("STRENGTH = ");
-    write(strength);
-    write("  INTELLIGENCE = ");
-    write(intelligence);
-    write("  DEXTERITY = ");
-    writeln(dexterity);
-    write("OBJECTS = ");
-    write(count(OBJECTS));
-    write("  FLARES = ");
-    write(flares);
-    write("  GOLD PIECES = ");
-    writeln(goldPieces);
-    write("weapon = ");
-    write(weapon);
-    write("  armor = ");
-    writeln(armor);
+    writeln("STRENGTH = " <& strength <&
+            "  INTELLIGENCE = " <& intelligence <&
+            "  DEXTERITY = " <& dexterity);
+    writeln("OBJECTS = " <& count(OBJECTS) <&
+            "  FLARES = " <& flares <&
+            "  GOLD PIECES = " <& goldPieces);
+    writeln("weapon = " <& weapon <& "  armor = " <& armor);
   end func; (* execute (STATUS) *)
 
 
@@ -1139,14 +1124,11 @@ const proc: listInventory is func
   begin (* listInventory *)
     if weapon <> NOWEAPON then
       anythinglisted := TRUE;
-      write("  a ");
-      writeln(weapon);
+      writeln("  a " <& weapon);
     end if;
     if armor <> NOARMOR then
       anythinglisted := TRUE;
-      write("  ");
-      write(armor);
-      writeln(" armor");
+      writeln("  " <& armor <& " armor");
     end if;
     if flares > 0 then
       anythinglisted := TRUE;
@@ -1171,8 +1153,7 @@ const proc: listInventory is func
     for obj range list_of_objects do
       if obj->place = PLAYER then
         anythinglisted := TRUE;
-        write("  the ");
-        writeln(obj->name);
+        writeln("  the " <& obj->name);
       end if;
     end for;
     if not anythinglisted then
@@ -1248,10 +1229,7 @@ const proc: findNormalRoom (inout integer: x1, inout integer: y1, in integer: z1
       x1 := rand(1, SIZE_LABY);
       y1 := rand(1, SIZE_LABY);
 (*!!
-write(x1);
-write(" ");
-write(y1);
-write(" ");
+write(x1 <& " " <& y1 <& " ");
 TRACE(LABYRINTH[x1][y1][z1].contents);
 writeln;
 *)
@@ -1387,14 +1365,8 @@ const proc: initVars is func
       for y1 range 1 to SIZE_LABY do
         for z1 range 1 to NUM_LEVELS do
           a_room := &LABYRINTH[x1][y1][z1];
-          write(x1);
-          write(y1);
-          write(z1);
-          write(" ");
-          write(LABYRINTH[x1][y1][z1].contents);
-          write(" ");
-          write(a_room->connections);
-          writeln;
+          write(x1 <& y1 <& z1 <& " " <& LABYRINTH[x1][y1][z1].contents);
+          writeln(" " <& a_room->connections);
         end for;
       end for;
     end for;
@@ -1522,9 +1494,7 @@ const proc: readSex is func
           otherwise:
             okay := FALSE;
             writeln;
-            write("** Cute ");
-            write(species);
-            writeln(", real cute. Try M, F or Q.");
+            writeln("** Cute " <& species <& ", real cute. Try M, F or Q.");
         end case;
       until okay;
     end if;
@@ -1539,17 +1509,13 @@ const proc: riseAttribute (in string: attr_name, inout integer: attribute,
   begin (* riseAttribute *)
     repeat
       writeln;
-      write("How many points do you wish to add to your ");
-      write(attr_name);
-      write("? ");
+      write("How many points do you wish to add to your " <& attr_name <& "? ");
       readNumber(number, okay, quitProgram);
       if not quitProgram then
         if okay then
           if number > otherpoints then
             writeln;
-            write("** Dear ");
-            write(species);
-            write(", you have only ");
+            write("** Dear " <& species <& ", you have only ");
             numberName(otherpoints);
             if otherpoints = 1 then
               writeln(" point.");
@@ -1560,9 +1526,8 @@ const proc: riseAttribute (in string: attr_name, inout integer: attribute,
           end if;
         else
           writeln;
-          write("** Would you please be so kind to type a number or q, ");
-          write(species);
-          writeln(".");
+          writeln("** Would you please be so kind to type a number or q, " <&
+                  species <& ".");
         end if;
       end if;
     until okay or quitProgram;
@@ -1587,18 +1552,11 @@ const proc: readAttributes is func
         otherpoints := 8;
       end if;
       writeln;
-      write("Ok, ");
-      write(species);
-      writeln(", you have the following attributes:");
-      write("STRENGTH = ");
-      write(strength);
-      write("  INTELLIGENCE = ");
-      write(intelligence);
-      write("  DEXTERITY = ");
-      writeln(dexterity);
-      write("and ");
-      write(otherpoints);
-      writeln(" other points to allocate as you wish.");
+      writeln("Ok, " <& species <& ", you have the following attributes:");
+      writeln("STRENGTH = " <& strength <&
+              "  INTELLIGENCE = " <& intelligence <&
+              "  DEXTERITY = " <& dexterity);
+      writeln("and " <& otherpoints <& " other points to allocate as you wish.");
       riseAttribute("strength", strength, otherpoints);
       if not quitProgram and (otherpoints > 0) then
         riseAttribute("intelligence", intelligence, otherpoints);
@@ -1631,18 +1589,10 @@ const proc: buyAttribute (in string: attr_name, inout integer: attribute,
         repeat
           okay := TRUE;
           writeln;
-          write("Your ");
-          write(attr_name);
-          write(" is now ");
-          write(attribute);
-          write(" and you have ");
-          write(goldPieces);
-          writeln(" GP'S.");
-          write("Do you want to buy a potion of ");
-          write(attr_name);
-          write(" for ");
-          write(price);
-          write(" GP'S? ");
+          writeln("Your " <& attr_name <& " is now " <& attribute <&
+                  " and you have " <& goldPieces <& " GP'S.");
+          write("Do you want to buy a potion of " <& attr_name <&
+                " for " <& price <& " GP'S? ");
           readChar(ch);
           case ch of
             when {'Y'}:
@@ -1660,11 +1610,7 @@ const proc: buyAttribute (in string: attr_name, inout integer: attribute,
       until ch <> 'Y' or goldPieces < price;
       if ch <> 'Q' and goldPieces < price then
         writeln;
-        write("Your ");
-        write(attr_name);
-        write(" is now ");
-        write(attribute);
-        writeln(".");
+        writeln("Your " <& attr_name <& " is now " <& attribute <& ".");
       end if;
     end if;
   end func; (* buyAttribute *)
@@ -1681,30 +1627,19 @@ const proc: buyArmor (
   begin (* buyArmor *)
     if not quit and (goldPieces >= price_of_leather) then
       writeln;
-      write("Ok, ");
-      write(species);
-      write(", you have ");
-      write(goldPieces);
-      write(" gold pieces (GP'S) and ");
-      write(armor);
-      writeln(" armor.");
+      writeln("Ok, " <& species <& ", you have " <& goldPieces <&
+              " gold pieces (GP'S) and " <& armor <& " armor.");
       repeat
         okay := TRUE;
         writeln("These are the types of armor you can buy:");
         writeln;
         if goldPieces >= price_of_plate then
-          write("  P/LATE     ");
-          write(price_of_plate lpad 4); (* %4d *)
-          writeln(" GP'S");
+          writeln("  P/LATE     " <& price_of_plate lpad 4 <& " GP'S");
         end if;
         if goldPieces >= price_of_chainmail then
-          write("  C/HAINMAIL ");
-          write(price_of_chainmail lpad 4); (* %4d *)
-          writeln(" GP'S");
+          writeln("  C/HAINMAIL " <& price_of_chainmail lpad 4 <& " GP'S");
         end if;
-        write("  L/EATHER   ");
-        write(price_of_leather lpad 4); (* %4d *)
-        writeln(" GP'S");
+        writeln("  L/EATHER   " <& price_of_leather lpad 4 <& " GP'S");
         writeln("  N/OTHING      0 GP'S");
         readChoice(ch);
         if (ch <> 'P' or goldPieces < price_of_plate) and
@@ -1756,10 +1691,7 @@ const proc: buyWeapon (
       if armor <> NOARMOR then
         write("bold ");
       end if;
-      write(species);
-      write(", you have ");
-      write(goldPieces);
-      write(" GP'S left and ");
+      write(species <& ", you have " <& goldPieces <& " GP'S left and ");
       if weapon = NOWEAPON then
         writeln("no weapon.");
       else
@@ -1771,18 +1703,12 @@ const proc: buyWeapon (
         writeln("These are the types of weapons you can buy:");
         writeln;
         if goldPieces >= price_of_sword then
-          write("  S/WORD     ");
-          write(price_of_sword lpad 4); (* %4d *)
-          writeln(" GP'S");
+          writeln("  S/WORD     " <& price_of_sword lpad 4 <& " GP'S");
         end if;
         if goldPieces >= price_of_mace then
-          write("  M/ACE      ");
-          write(price_of_mace lpad 4); (* %4d *)
-          writeln(" GP'S");
+          writeln("  M/ACE      " <& price_of_mace lpad 4 <& " GP'S");
         end if;
-        write("  D/AGGER    ");
-        write(price_of_dagger lpad 4); (* %4d *)
-        writeln(" GP'S");
+        writeln("  D/AGGER    " <& price_of_dagger lpad 4 <& " GP'S");
         writeln("  N/OTHING      0 GP'S");
         readChoice(ch);
         if (ch <> 'S' or goldPieces < price_of_sword) and
@@ -1824,9 +1750,7 @@ const proc: buyLamp (in integer: price, inout boolean: quit) is func
       repeat
         okay := TRUE;
         writeln;
-        write("Do you want to buy a lamp for ");
-        write(price);
-        write(" GP'S? ");
+        write("Do you want to buy a lamp for " <& price <& " GP'S? ");
         readChar(ch);
         case ch of
           when {'Y'}:
@@ -1856,11 +1780,7 @@ const proc: readFlares is func
   begin (* readFlares *)
     if not quitProgram and (goldPieces >= 1) then
       writeln;
-      write("Ok, ");
-      write(species);
-      write(", you have ");
-      write(goldPieces);
-      writeln(" GP'S left.");
+      writeln("Ok, " <& species <& ", you have " <& goldPieces <& " GP'S left.");
       repeat
         writeln;
         write("Five flares cost 1 GP. How many do you want? ");
@@ -1869,9 +1789,7 @@ const proc: readFlares is func
           if okay then
             if number > 5 * goldPieces then
               writeln;
-              write("** You can afford only ");
-              write(5 * goldPieces);
-              writeln(".");
+              writeln("** You can afford only " <& 5 * goldPieces <& ".");
               okay := FALSE;
             end if;
           else
@@ -1902,11 +1820,8 @@ const proc: sellTreasures (inout boolean: quit) is func
         repeat
           okay := TRUE;
           writeln;
-          write("Do you want to sell the ");
-          write(obj->name);
-          write(" for ");
-          write(price);
-          write(" GP'S? ");
+          write("Do you want to sell the " <& obj->name <&
+                " for " <& price <& " GP'S? ");
           readChar(ch);
           case ch of
             when {'Y'}:
@@ -1941,11 +1856,8 @@ const proc: buyTreasures (inout boolean: quit) is func
           repeat
             okay := TRUE;
             writeln;
-            write("Do you want to buy the ");
-            write(obj->name);
-            write(" for ");
-            write(price);
-            write(" GP'S? ");
+            write("Do you want to buy the " <& obj->name <&
+                  " for " <& price <& " GP'S? ");
             readChar(ch);
             case ch of
               when {'Y'}:
@@ -2009,17 +1921,11 @@ const proc: execute (BUY) is func
         when { 7}:
           writeln("Your dungeon express card -  You left home without it.");
         when { 8}:
-          write("I don't give alms, ");
-          write(species);
-          writeln(".");
+          writeln("I don't give alms, " <& species <& ".");
         when { 9}:
-          write("You're too poor to trade, ");
-          write(species);
-          writeln(".");
+          writeln("You're too poor to trade, " <& species <& ".");
         when {10}:
-          write("I don't trade with a beggar, ");
-          write(species);
-          writeln(".");
+          writeln("I don't trade with a beggar, " <& species <& ".");
         when {11}:
           write("Even ");
           write_a(rand(animatetype));
@@ -2031,9 +1937,8 @@ const proc: execute (BUY) is func
         when {13}:
           write("It's typical for ");
           sexName(maleSex);
-          write(" ");
-          write(species);
-          writeln(" that they want to trade without enough money.");
+          writeln(" " <& species <&
+                  " that they want to trade without enough money.");
         when {14}:
           write("Sorry ");
           titleName(maleSex);
@@ -2117,9 +2022,7 @@ const proc: execute (MAP) is func
   begin (* execute (MAP) *)
     writeln;
     if blind then
-      write("** You are blind, you dumb ");
-      write(species);
-      writeln("!");
+      writeln("** You are blind, you dumb " <& species <& "!");
     else
       z1 := currentRoom->zPos;
       for x1 range 1 to SIZE_LABY do
@@ -2161,9 +2064,7 @@ const proc: execute (FLARE) is func
     if flares = 0 then
       writeln("** Hey, bright one, you're out of flares!");
     elsif blind then
-      write("** You can't see anything, you dumb ");
-      write(species);
-      writeln("!");
+      writeln("** You can't see anything, you dumb " <& species <& "!");
     else
       decr(flares);
       z1 := currentRoom->zPos;
@@ -2196,21 +2097,15 @@ const proc: execute (LIGHT) is func
   begin (* execute (LIGHT) *)
     writeln;
     if LAMP->place <> PLAYER then
-      write("** You don't have a lamp, ");
-      write(species);
-      writeln("!");
+      writeln("** You don't have a lamp, " <& species <& "!");
     elsif blind then
-      write("** You are blind, you dumb ");
-      write(species);
-      writeln("!");
+      writeln("** You are blind, you dumb " <& species <& "!");
     else
       write("Where do you want to shine the lamp (N, S, E, W)? ");
       readChar(ch);
       if not ch in {'N', 'S', 'E', 'W'} then
         writeln;
-        write("** That's not a direction, ");
-        write(species);
-        writeln("!");
+        writeln("** That's not a direction, " <& species <& "!");
       else
         x1 := currentRoom->xPos;
         y1 := currentRoom->yPos;
@@ -2294,9 +2189,7 @@ const proc: execute (DRINK) is func
           maleSex := not maleSex;
           write("turn into a ");
           sexName(maleSex);
-          write(" ");
-          write(species);
-          writeln(".");
+          writeln(" " <& species <& ".");
       end case;
     end if;
   end func; (* execute (DRINK) *)
@@ -2312,9 +2205,7 @@ const proc: execute (READ) is func
       case rand(1, 6) of
 
         when {1}:
-          write("Flash! Oh no! You are now a blind ");
-          write(species);
-          writeln("!");
+          writeln("Flash! Oh no! You are now a blind " <& species <& "!");
           blind := TRUE;
 
         when {2}:
@@ -2324,9 +2215,8 @@ const proc: execute (READ) is func
             when {2}:
               writeln("It's a manual of this game.");
             when {3}:
-              write("It's a story about a dumb ");
-              write(species);
-              writeln(" who finds a book and then dies.");
+              writeln("It's a story about a dumb " <& species <&
+                      " who finds a book and then dies.");
             when {4}:
               write("It's volume number ");
               numberName(rand(1, 20));
@@ -2334,9 +2224,7 @@ const proc: execute (READ) is func
           end case;
 
         when {3}:
-          write("It's an old copy of play ");
-          write(rand(speciestype));
-          writeln(".");
+          writeln("It's an old copy of play " <& rand(speciestype) <& ".");
 
         when {4}:
           writeln("It's a manual of dexterity!");
@@ -2391,9 +2279,7 @@ const proc: viewOrb is func
           when {10}:
             write("a ");
             sexName(not maleSex);
-            write(" ");
-            write(species);
-            writeln(" giving flowers on your grave!");
+            writeln(" " <& species <& " giving flowers on your grave!");
         end case;
         decr(strength);
         write("This message makes you weaker. Your strength is now ");
@@ -2492,9 +2378,7 @@ const proc: execute (GAZE) is func
   begin (* execute (GAZE) *)
     writeln;
     if blind then
-      write("** You can't see anything, you dumb ");
-      write(species);
-      writeln("!");
+      writeln("** You can't see anything, you dumb " <& species <& "!");
     elsif currentRoom->roomer = NOBODY then
       case currentRoom->contents of
         when {EMPTYROOM}:
@@ -2517,24 +2401,17 @@ const proc: execute (GAZE) is func
     elsif currentRoom->roomer = VENDOR then
       write("You are gazing at the Vendor. ");
       if maleSex then
-        write("But the Vendor does not like male ");
-        write(species);
-        writeln(".");
+        writeln("But the Vendor does not like male " <& species <& ".");
       else
         writeln("The Vendor smiles and shows his wedding-ring.");
       end if;
     else
-      write("The ");
-      write(currentRoom->roomer);
+      write("The " <& currentRoom->roomer);
       if maleSex then
-        write(" is shocked by the scowl of a strong male ");
-        write(species);
-        writeln(".");
+        writeln(" is shocked by the scowl of a strong male " <& species <& ".");
         activeMonster := FALSE;
       else
-        write(" cannot be shocked by the scowl of a female ");
-        write(species);
-        writeln(".");
+        writeln(" cannot be shocked by the scowl of a female " <& species <& ".");
       end if;
     end if;
   end func; (* execute (GAZE) *)
@@ -2546,14 +2423,10 @@ const proc: monsterDies (in animatetype: monster, inout boolean: livingMonster) 
   begin (* monsterDies *)
     livingMonster := FALSE;
     writeln;
-    write("The ");
-    write(monster);
-    writeln(" lies dead at your feet!");
+    writeln("The " <& monster <& " lies dead at your feet!");
     if mealHour + 60 <= turns then
       writeln;
-      write("You spend an hour eating ");
-      write(monster);
-      write(" ");
+      write("You spend an hour eating " <& monster <& " ");
       writeAnyFood();
       writeln(".");
       mealHour := turns;
@@ -2564,9 +2437,7 @@ const proc: monsterDies (in animatetype: monster, inout boolean: livingMonster) 
           (currentRoom->zPos = obj->zPos) and
           (obj->place = ANYROOM) then
         writeln("\a");
-        write("Great Zot! You've found the ");
-        write(obj->name);
-        writeln("!");
+        writeln("Great Zot! You've found the " <& obj->name <& "!");
         obj->place := PLAYER;
       end if;
     end for;
@@ -2608,8 +2479,7 @@ const proc: monsterAttacks (in animatetype: monster) is func
       end if;
     end if;
     writeln;
-    write("The ");
-    write(monster);
+    write("The " <& monster);
     if webCount > 0 then
       writeln(" is stuck and can't attack now!");
     elsif dexterity >= rand(3, 21) + 3 * ord(blind) then
@@ -2639,16 +2509,12 @@ const proc: attackMonster (in animatetype: monster, inout boolean: livingMonster
       writeln("You missed, too bad!");
     else
       writeln;
-      write("You hit the evil ");
-      write(monster);
-      writeln(".");
+      writeln("You hit the evil " <& monster <& ".");
       monsterStrength -:= ord(weapon);
       if (monster = GARGOYLE) or (monster = DRAGON) then
         if rand(1, 8) = 1 then
           writeln;
-          write("OH NO!  Your ");
-          write(weapon);
-          writeln(" broke!");
+          writeln("OH NO!  Your " <& weapon <& " broke!");
           weapon := NOWEAPON;
         end if;
       end if;
@@ -2682,9 +2548,7 @@ const proc: castSpell (in animatetype: monster, inout boolean: livingMonster) is
       else
         number := rand(2, 14);
         writeln;
-        write("It does ");
-        write(number);
-        writeln(" points worth of damage.");
+        writeln("It does " <& number <& " points worth of damage.");
         monsterStrength -:= number;
         if monsterStrength <= 0 then
           monsterDies(monster, livingMonster);
@@ -2738,9 +2602,7 @@ const proc: bribeMonster (in animatetype: monster, inout boolean: bribed) is fun
       repeat
         okay := TRUE;
         writeln;
-        write("I want the ");
-        write(obj->name);
-        write(". Will you give it to me? ");
+        write("I want the " <& obj->name <& ". Will you give it to me? ");
         readChar(ch);
         if not ch in {'Y', 'N', 'Q'} then
           okay := FALSE;
@@ -2810,17 +2672,12 @@ const proc: retreatFromMonster is func
             when {4}:
               writeln("What a furious trick. You escaped by doing nothing.");
             when {5}:
-              write("The ");
-              write(monster);
-              writeln(" stumbled and you escaped.");
+              writeln("The " <& monster <& " stumbled and you escaped.");
             when {6}:
-              write("You escaped by jumping over the ");
-              write(monster);
-              writeln("!");
+              writeln("You escaped by jumping over the " <& monster <& "!");
             when {7}:
-              write("You are lucky, you have escaped because the ");
-              write(monster);
-              writeln(" diverted by a cry.");
+              writeln("You are lucky, you have escaped because the " <& monster <&
+                      " was diverted by a cry.");
           end case;
         end if;
       end if;
@@ -2845,11 +2702,8 @@ const proc: meetMonster is func
           write("You're facing ");
           write_a(monster);
           writeln("!");
-          write("Your strength is ");
-          write(strength);
-          write(" and your dexterity is ");
-          write(dexterity);
-          writeln(".");
+          writeln("Your strength is " <& strength <&
+                  " and your dexterity is " <& dexterity <& ".");
         end if;
       end if;
     end if;
@@ -2925,12 +2779,7 @@ const proc: meetVendor is func
 const proc: enterRoom is func
   begin (* enterRoom *)
 (*!!
-    write(currentRoom->xPos);
-    write(" ");
-    write(currentRoom->yPos);
-    write(" ");
-    write(currentRoom->zPos);
-    writeln;
+    writeln(currentRoom->xPos <& " " <& currentRoom->yPos <& " " <& currentRoom->zPos);
 !!*)
     execute(LOOK);
     if currentRoom->roomer = VENDOR then
@@ -2947,23 +2796,17 @@ const proc: readCoordinate (in char: coordname, inout integer: coordinate) is fu
   begin (* readCoordinate *)
     repeat
       writeln;
-      write("Please enter the ");
-      write(coordname);
-      write("-coordinate? ");
+      write("Please enter the " <& coordname <& "-coordinate? ");
       readNumber(coordinate, okay, quitProgram);
       if okay then
         if coordinate < 1 or coordinate > SIZE_LABY then
           writeln;
-          write("** Try a number from 1 to ");
-          write(SIZE_LABY);
-          writeln(".");
+          writeln("** Try a number from 1 to " <& SIZE_LABY <& ".");
           okay := FALSE;
         end if;
       else
         writeln;
-        write("** Would you please be so kind to type a number, ");
-        write(species);
-        writeln(".");
+        writeln("** Would you please be so kind to type a number, " <& species <& ".");
       end if;
     until okay;
   end func; (* readCoordinate *)
@@ -3038,9 +2881,8 @@ const proc: openChest is func
     var directtype: direct is NORTH;
   begin (* openChest *)
     if currentRoom->roomer <> NOBODY then
-      write("The ");
-      write(currentRoom->roomer);
-      writeln(" does not allow to open the chest.");
+      writeln("The " <& currentRoom->roomer <&
+              " does not allow to open the chest.");
     else
       write("You open the chest and ");
       case rand(1, 2) of
@@ -3072,9 +2914,7 @@ const proc: openChest is func
             when {4}:
               turns +:= 20;
               direct := rand(DIRECTION);
-              write("...  GAS!!  You stagger from the room to the ");
-              write(direct);
-              writeln("!");
+              writeln("...  GAS!!  You stagger from the room to the " <& direct <& "!");
               currentRoom->contents := EMPTYCHEST;
               go(direct);
 
@@ -3082,9 +2922,8 @@ const proc: openChest is func
               write("find ");
               writeAnyAdjective();
               writeln(" skeleton.");
-              write("It seems that this ");
-              write(rand(speciestype));
-              writeln(" was also an adventurer.");
+              writeln("It seems that this " <& rand(speciestype) <&
+                      " was also an adventurer.");
               currentRoom->contents := CHESTWITHSKELETON;
 
             when {6}:
@@ -3096,9 +2935,7 @@ const proc: openChest is func
               if armor = NOARMOR then
                 armor := LEATHER;
               end if;
-              write("find a brand new ");
-              write(armor);
-              writeln(" armor.");
+              writeln("find a brand new " <& armor <& " armor.");
               armorStrength := ord(armor) * 7;
               currentRoom->contents := EMPTYCHEST;
           end case;
@@ -3121,9 +2958,7 @@ const proc: execute (OPEN) is func
 const proc: execute (ILLEGAL) is func
   begin (* execute *)
     writeln;
-    write("** Silly ");
-    write(species);
-    writeln(", that wasn't a valid command!");
+    writeln("** Silly " <& species <& ", that wasn't a valid command!");
   end func; (* execute *)
 
 
@@ -3305,16 +3140,13 @@ const proc: incident is func
       end if;
     end if;
     if (armor <> NOARMOR) and (currentRoom->occurance = STEALARMOR) then
-      write("You are knocked down from behind and somebody steals your ");
-      write(armor);
-      writeln(" armor.");
+      writeln("You are knocked down from behind and somebody steals your " <&
+              armor <& " armor.");
       currentRoom->occurance := NOOCCURANCE;
       armor := NOARMOR;
     end if;
     if (weapon <> NOWEAPON) and (currentRoom->occurance = STEALWEAPON) then
-      write("You realize that somebody has stolen your ");
-      write(weapon);
-      writeln(".");
+      writeln("You realize that somebody has stolen your " <& weapon <& ".");
       currentRoom->occurance := NOOCCURANCE;
       weapon := NOWEAPON;
     end if;
@@ -3331,9 +3163,7 @@ const proc: incident is func
     if currentRoom->occurance = STEALTREASURE then
       if count(TREASURES) <> 0 then
         obj := one_of_owned(TREASURES);
-        write("You realize that somebody has stolen the ");
-        write(obj->name);
-        writeln(".");
+        writeln("You realize that somebody has stolen the " <& obj->name <& ".");
         currentRoom->occurance := NOOCCURANCE;
         obj->place := NOWHERE;
       end if;
@@ -3345,9 +3175,8 @@ const proc: incident is func
       else
         write("Here are ");
         numberName(rand(2, 11));
-        write(" GP'S. But the ");
-        write(currentRoom->roomer);
-        writeln(" is faster and takes them.");
+        writeln(" GP'S. But the " <& currentRoom->roomer <&
+                " is faster and takes them.");
       end if;
       currentRoom->occurance := NOOCCURANCE;
     end if;
@@ -3358,9 +3187,8 @@ const proc: incident is func
       else
         write("Here are ");
         numberName(rand(2, 5));
-        write(" flares. But the ");
-        write(currentRoom->roomer);
-        writeln(" is faster and takes them.");
+        writeln(" flares. But the " <& currentRoom->roomer <&
+                " is faster and takes them.");
       end if;
       currentRoom->occurance := NOOCCURANCE;
     end if;
@@ -3401,9 +3229,7 @@ const proc: die is func
   begin (* die *)
     writeln("\a");
     writeln("*" mult 78);
-    write("A noble effort, oh formerly living ");
-    write(species);
-    writeln("!");
+    writeln("A noble effort, oh formerly living " <& species <& "!");
     writeln;
     write("You died due to lack of ");
     if strength < 1 then
@@ -3419,9 +3245,7 @@ const proc: die is func
     writeln("At the time you died, you had:");
     listInventory();
     writeln;
-    write("And it took you ");
-    write(turns);
-    writeln(" turns!");
+    writeln("And it took you " <& turns <& " turns!");
   end func; (* die *)
 
 
@@ -3448,9 +3272,7 @@ const proc: exitCastle is func
     end if;
     listInventory();
     writeln;
-    write("And it took you ");
-    write(turns);
-    writeln(" turns!");
+    writeln("And it took you " <& turns <& " turns!");
   end func; (* exitCastle *)
 
 
@@ -3471,9 +3293,7 @@ const proc: main is func
       readFlares();
       if not quitProgram then
         writeln;
-        write("Ok, ");
-        write(species);
-        writeln(", you are now entering the castle.");
+        writeln("Ok, " <& species <& ", you are now entering the castle.");
         writeln("Type H for help.");
         currentRoom := &LABYRINTH[1][4][1];
         enterRoom();
@@ -3501,13 +3321,9 @@ const proc: main is func
       until ch = 'Y' or ch = 'N';
       writeln;
       if ch = 'Y' then
-        write("Some ");
-        write(species);
-        writeln("s never learn!");
+        writeln("Some " <& species <& "s never learn!");
       else
-        write("Maybe dumb ");
-        write(species);
-        writeln(" is not so dumb after all!");
+        writeln("Maybe dumb " <& species <& " is not so dumb after all!");
       end if;
     until ch = 'N';
   end func; (* main *)

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  drw_x11.c     Graphic access using the X11 capabilitys.         */
-/*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_x11.c                                       */
-/*  Changes: 1994, 2000 - 2007  Thomas Mertes                       */
+/*  Changes: 1994, 2000 - 2011  Thomas Mertes                       */
 /*  Content: Graphic access using the X11 capabilitys.              */
 /*                                                                  */
 /********************************************************************/
@@ -1389,11 +1389,19 @@ floattype startAngle, sweepAngle;
     XSetArcMode(mydisplay, mygc, ArcChord);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
@@ -1428,11 +1436,19 @@ inttype col;
     XSetArcMode(mydisplay, mygc, ArcChord);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
@@ -1465,11 +1481,19 @@ floattype startAngle, sweepAngle;
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
@@ -1504,11 +1528,19 @@ inttype col;
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
+    XDrawArc(mydisplay, to_window(actual_window), mygc,
+        x - radius, y - radius,
+        (unsigned) (2 * radius), (unsigned) (2 * radius),
+        startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
         x - radius, y - radius,
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
+      XDrawArc(mydisplay, to_backup(actual_window), mygc,
+          x - radius, y - radius,
+          (unsigned) (2 * radius), (unsigned) (2 * radius),
+          startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
           x - radius, y - radius,
           (unsigned) (2 * radius), (unsigned) (2 * radius),
@@ -1755,9 +1787,13 @@ inttype x, y, width, height;
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
     } else {
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
       XFillArc(mydisplay, to_window(actual_window), mygc,
           x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
       if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
         XFillArc(mydisplay, to_backup(actual_window), mygc,
             x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
       } /* if */
@@ -1786,9 +1822,13 @@ inttype col;
       raise_error(RANGE_ERROR);
     } else {
       XSetForeground(mydisplay, mygc, (unsigned) col);
+      XDrawArc(mydisplay, to_window(actual_window), mygc,
+          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
       XFillArc(mydisplay, to_window(actual_window), mygc,
           x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
       if (to_backup(actual_window) != 0) {
+        XDrawArc(mydisplay, to_backup(actual_window), mygc,
+            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
         XFillArc(mydisplay, to_backup(actual_window), mygc,
             x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
       } /* if */
@@ -2640,9 +2680,11 @@ inttype col;
     points[0].x += x1;
     points[0].y += y1;
     XSetForeground(mydisplay, mygc, (unsigned) col);
+    XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
     XFillPolygon(mydisplay, to_window(actual_window), mygc, points, npoints,
         Nonconvex, CoordModePrevious);
     if (to_backup(actual_window) != 0) {
+      XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
       XFillPolygon(mydisplay, to_backup(actual_window), mygc, points, npoints,
           Nonconvex, CoordModePrevious);
     } /* if */

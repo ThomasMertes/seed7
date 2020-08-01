@@ -819,7 +819,7 @@ inttype pad_size;
 
 #ifdef ANSI_C
 
-inttype intParse (const_stritype stri)
+inttype intParse (const const_stritype stri)
 #else
 
 inttype intParse (stri)
@@ -1020,7 +1020,6 @@ inttype number;
     } /* if */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = length;
       buffer = &result->mem[length];
@@ -1030,8 +1029,8 @@ inttype number;
       if (negative) {
         result->mem[0] = (strelemtype) '-';
       } /* if */
-      return result;
     } /* if */
+    return result;
   } /* intStr */
 
 

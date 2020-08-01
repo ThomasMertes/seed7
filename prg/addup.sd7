@@ -43,9 +43,7 @@ const proc: human_move (in integer: max_step, inout integer: sum) is func
   begin
     okay := FALSE;
     repeat
-      write("The sum is ");
-      write(sum);
-      write(" Your number? ");
+      write("The sum is " <& sum <& " Your number? ");
       readln(answer);
       if upper(answer) = "Q" then
         quit := TRUE;
@@ -53,22 +51,16 @@ const proc: human_move (in integer: max_step, inout integer: sum) is func
         block
           human_step := integer parse answer;
           if human_step < 1 then
-            write(human_step);
-            writeln(" is less than 1.");
+            writeln(human_step <& " is less than 1.");
           elsif human_step > max_step then
-            write(human_step);
-            write(" is greater than ");
-            write(max_step);
-            writeln(".");
+            writeln(human_step <& " is greater than " <& max_step <& ".");
           else
             sum +:= human_step;
             okay := TRUE;
           end if;
         exception
           catch RANGE_ERROR:
-            write("\"");
-            write(answer);
-            writeln("\" is not a number.");
+            writeln("\"" <& answer <& "\" is not a number.");
         end block;
       end if;
     until okay or quit;
@@ -84,11 +76,7 @@ const proc: comp_move (in integer: max_step, inout integer: sum, in integer: goa
     if comp_step = 0 then
       comp_step := rand(1, max_step);
     end if;
-    write("The sum is ");
-    write(sum);
-    write(" My number is ");
-    write(comp_step);
-    writeln(".");
+    writeln("The sum is " <& sum <& " My number is " <& comp_step <& ".");
     sum +:= comp_step;
   end func;
 
@@ -107,11 +95,8 @@ const proc: game (in integer: goal, in integer: max_step) is func
     until answer = "C" or answer = "H" or quit;
     if not quit then
       writeln;
-      write("The sum to be reached is ");
-      write(goal);
-      write(" and valid numbers are between 1 and ");
-      write(max_step);
-      writeln(".");
+      writeln("The sum to be reached is " <& goal <&
+              " and valid numbers are between 1 and " <& max_step <& ".");
       sum := 0;
       if answer = "C" then
         comp_move(max_step, sum, goal);
@@ -120,15 +105,11 @@ const proc: game (in integer: goal, in integer: max_step) is func
         human_move(max_step, sum);
         if not quit then
           if sum >= goal then
-            write("The sum is ");
-            write(sum);
-            writeln(" You won. Congratulations!");
+            writeln("The sum is " <& sum <& " You won. Congratulations!");
           else
             comp_move(max_step, sum, goal);
             if sum >= goal then
-              write("The sum is ");
-              write(sum);
-              writeln(" You lost. Sorry!");
+              writeln("The sum is " <& sum <& " You lost. Sorry!");
             end if;
           end if;
         end if;

@@ -162,15 +162,15 @@ booltype filHasNext (filetype aFile);
 stritype filLineRead (filetype aFile, chartype *termination_char);
 stritype filLit (filetype aFile);
 inttype filLng (filetype aFile);
-filetype filOpen (stritype path, stritype mode);
+filetype filOpen (const const_stritype path, const const_stritype mode);
 void filPclose (filetype aFile);
-filetype filPopen (stritype command, stritype mode);
-void filPrint (stritype stri);
+filetype filPopen (const const_stritype command, const const_stritype mode);
+void filPrint (const const_stritype stri);
 void filSeek (filetype aFile, inttype file_position);
 void filSetbuf (filetype aFile, inttype mode, inttype size);
 inttype filTell (filetype aFile);
 stritype filWordRead (filetype aFile, chartype *termination_char);
-void filWrite (filetype aFile, stritype stri);
+void filWrite (filetype aFile, const const_stritype stri);
 
 #else
 

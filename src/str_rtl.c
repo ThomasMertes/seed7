@@ -221,7 +221,7 @@ stritype stri2;
            stri2->mem[startPos2 + 1] == (chartype) '.' &&
            stri2->mem[startPos2 + 2] == (chartype) '/') {
       slashPos = strRChIpos(stri1, (chartype) '/', (inttype) endPos1);
-      if (slashPos > 1) {
+      if (likely(slashPos > 1)) {
         endPos1 = (memsizetype) slashPos - 1;
       } else {
         raise_error(FILE_ERROR);

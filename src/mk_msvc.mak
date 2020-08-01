@@ -113,7 +113,6 @@ version.h:
 	echo #define USE_WMAIN >> version.h
 	echo #define USE_DIRWIN >> version.h
 	echo #define PATH_DELIMITER '\\' >> version.h
-	echo #define ALLOW_DRIVE_LETTERS >> version.h
 	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo #define NO_EMPTY_STRUCTS >> version.h
 	echo #define CATCH_SIGNALS >> version.h

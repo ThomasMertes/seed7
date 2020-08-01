@@ -655,7 +655,7 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static rtlArraytype read_dir (stritype dir_name, errinfotype *err_info)
+static rtlArraytype read_dir (const const_stritype dir_name, errinfotype *err_info)
 #else
 
 static rtlArraytype read_dir (dir_name, err_info)
@@ -739,7 +739,44 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-biginttype cmdBigFileSize (stritype file_name)
+stritype getProgramPath (const const_stritype source_file_name)
+#else
+
+stritype getProgramPath (source_file_name)
+stritype source_file_name;
+#endif
+
+  {
+    stritype cwd;
+    stritype result;
+
+  /* getProgramPath */
+    if (source_file_name->size >= 1 &&
+        source_file_name->mem[0] == (chartype) '/') {
+      result = strCreate(source_file_name);
+    } else {
+      cwd = cmdGetcwd();
+      result = concat_path(cwd, source_file_name);
+      FREE_STRI(cwd, cwd->size);
+    } /* if */
+    if (result->size <= 4 ||
+        result->mem[result->size - 4] != '.' ||
+        result->mem[result->size - 3] != 's' ||
+        result->mem[result->size - 2] != 'd' ||
+        result->mem[result->size - 1] != '7') {
+      strPush(&result, (chartype) '.');
+      strPush(&result, (chartype) 's');
+      strPush(&result, (chartype) 'd');
+      strPush(&result, (chartype) '7');
+    } /* if */
+    return result;
+  } /* getProgramPath */
+
+
+
+#ifdef ANSI_C
+
+biginttype cmdBigFileSize (const const_stritype file_name)
 #else
 
 biginttype cmdBigFileSize (file_name)
@@ -803,7 +840,7 @@ stritype file_name;
 
 #ifdef ANSI_C
 
-void cmdChdir (stritype dir_name)
+void cmdChdir (const const_stritype dir_name)
 #else
 
 void cmdChdir (dir_name)
@@ -832,7 +869,7 @@ stritype dir_name;
 
 #ifdef ANSI_C
 
-void cmdCloneFile (stritype source_name, stritype dest_name)
+void cmdCloneFile (const const_stritype source_name, const const_stritype dest_name)
 #else
 
 void cmdCloneFile (source_name, dest_name)
@@ -870,7 +907,7 @@ stritype dest_name;
 
 #ifdef ANSI_C
 
-stritype cmdConfigValue (stritype name)
+stritype cmdConfigValue (const const_stritype name)
 #else
 
 stritype cmdConfigValue (name)
@@ -1028,7 +1065,7 @@ stritype name;
 
 #ifdef ANSI_C
 
-void cmdCopyFile (stritype source_name, stritype dest_name)
+void cmdCopyFile (const const_stritype source_name, const const_stritype dest_name)
 #else
 
 void cmdCopyFile (source_name, dest_name)
@@ -1066,7 +1103,7 @@ stritype dest_name;
 
 #ifdef ANSI_C
 
-settype cmdFileMode (stritype file_name)
+settype cmdFileMode (const const_stritype file_name)
 #else
 
 settype cmdFileMode (file_name)
@@ -1123,7 +1160,7 @@ stritype file_name;
 
 #ifdef ANSI_C
 
-inttype cmdFileSize (stritype file_name)
+inttype cmdFileSize (const const_stritype file_name)
 #else
 
 inttype cmdFileSize (file_name)
@@ -1186,7 +1223,7 @@ stritype file_name;
 
 #ifdef ANSI_C
 
-inttype cmdFileType (stritype file_name)
+inttype cmdFileType (const const_stritype file_name)
 #else
 
 inttype cmdFileType (file_name)
@@ -1256,7 +1293,7 @@ stritype file_name;
 
 #ifdef ANSI_C
 
-inttype cmdFileTypeSL (stritype file_name)
+inttype cmdFileTypeSL (const const_stritype file_name)
 #else
 
 inttype cmdFileTypeSL (file_name)
@@ -1334,7 +1371,7 @@ stritype cmdGetcwd ()
 
   /* cmdGetcwd */
     if ((cwd = os_getcwd(buffer, PATH_MAX)) == NULL) {
-      raise_error(MEMORY_ERROR);
+      raise_error(FILE_ERROR);
       result = NULL;
     } else {
       result = cp_from_os_path(cwd);
@@ -1349,7 +1386,7 @@ stritype cmdGetcwd ()
 
 #ifdef ANSI_C
 
-void cmdGetATime (stritype file_name,
+void cmdGetATime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -1406,7 +1443,7 @@ booltype *is_dst;
 
 #ifdef ANSI_C
 
-void cmdGetCTime (stritype file_name,
+void cmdGetCTime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -1463,7 +1500,7 @@ booltype *is_dst;
 
 #ifdef ANSI_C
 
-void cmdGetMTime (stritype file_name,
+void cmdGetMTime (const const_stritype file_name,
     inttype *year, inttype *month, inttype *day, inttype *hour,
     inttype *min, inttype *sec, inttype *micro_sec, inttype *time_zone,
     booltype *is_dst)
@@ -1522,7 +1559,7 @@ booltype *is_dst;
 
 #ifdef ANSI_C
 
-rtlArraytype cmdLs (stritype dir_name)
+rtlArraytype cmdLs (const const_stritype dir_name)
 #else
 
 rtlArraytype cmdLs (dir_name)
@@ -1549,7 +1586,7 @@ stritype dir_name;
 
 #ifdef ANSI_C
 
-void cmdMkdir (stritype dir_name)
+void cmdMkdir (const const_stritype dir_name)
 #else
 
 void cmdMkdir (dir_name)
@@ -1578,7 +1615,7 @@ stritype dir_name;
 
 #ifdef ANSI_C
 
-void cmdMove (stritype source_name, stritype dest_name)
+void cmdMove (const const_stritype source_name, const const_stritype dest_name)
 #else
 
 void cmdMove (source_name, dest_name)
@@ -1610,7 +1647,7 @@ stritype dest_name;
 
 #ifdef ANSI_C
 
-stritype cmdReadlink (stritype link_name)
+stritype cmdReadlink (const const_stritype link_name)
 #else
 
 stritype cmdReadlink (link_name)
@@ -1671,7 +1708,7 @@ stritype link_name;
 
 #ifdef ANSI_C
 
-void cmdRemove (stritype file_name)
+void cmdRemove (const const_stritype file_name)
 #else
 
 void cmdRemove (file_name)
@@ -1729,7 +1766,7 @@ stritype file_name;
 
 #ifdef ANSI_C
 
-void cmdRemoveAnyFile (stritype file_name)
+void cmdRemoveAnyFile (const const_stritype file_name)
 #else
 
 void cmdRemoveAnyFile (file_name)
@@ -1761,7 +1798,7 @@ stritype file_name;
 
 #ifdef ANSI_C
 
-void cmdSetATime (stritype file_name,
+void cmdSetATime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
@@ -1815,7 +1852,7 @@ inttype time_zone;
 
 #ifdef ANSI_C
 
-void cmdSetFileMode (stritype file_name, settype mode)
+void cmdSetFileMode (const const_stritype file_name, settype mode)
 #else
 
 void cmdSetFileMode (file_name, mode)
@@ -1869,7 +1906,7 @@ settype mode;
 
 #ifdef ANSI_C
 
-void cmdSetMTime (stritype file_name,
+void cmdSetMTime (const const_stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype micro_sec, inttype time_zone)
 #else
@@ -1923,7 +1960,7 @@ inttype time_zone;
 
 #ifdef ANSI_C
 
-inttype cmdShell (stritype command_stri)
+inttype cmdShell (const const_stritype command_stri)
 #else
 
 inttype cmdShell (command_stri)
@@ -1951,7 +1988,7 @@ stritype command_stri;
 
 #ifdef ANSI_C
 
-void cmdSymlink (stritype source_name, stritype dest_name)
+void cmdSymlink (const const_stritype source_name, const const_stritype dest_name)
 #else
 
 void cmdSymlink (source_name, dest_name)

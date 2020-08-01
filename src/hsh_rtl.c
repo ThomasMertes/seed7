@@ -265,14 +265,18 @@ errinfotype *err_info;
       source_helem = &source_hash->table[0];
       dest_helem = &dest_hash->table[0];
       while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        if (*source_helem != NULL) {
-          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func, err_info);
-        } else {
+        while (number > 0 && *source_helem == NULL) {
           *dest_helem = NULL;
+          number--;
+          source_helem++;
+          dest_helem++;
+        } /* while */
+        if (number > 0 && *source_helem != NULL) {
+          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func, err_info);
+          number--;
+          source_helem++;
+          dest_helem++;
         } /* if */
-        number--;
-        source_helem++;
-        dest_helem++;
       } /* while */
     } /* if */
     return dest_hash;

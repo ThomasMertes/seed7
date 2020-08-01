@@ -55,6 +55,7 @@
 #define SIZE_IN_BUFFER 32768
 
 
+extern stritype programPath; /* defined in hi.c or in the executable of a program */
 static infiltype file_pointer = NULL;
 static filenumtype file_counter = 0;
 
@@ -613,6 +614,32 @@ errinfotype *err_info;
 
 
 
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+static void print_lib_path (void)
+#else
+
+static void print_lib_path ()
+#endif
+
+  {
+    memsizetype length;
+    memsizetype position;
+    stritype stri;
+
+  /* print_lib_path */
+    length = (memsizetype) (lib_path->max_position - lib_path->min_position + 1);
+    for (position = 0; position < length; position++) {
+      stri = lib_path->arr[position].value.strivalue;
+      prot_stri(stri);
+      prot_nl();
+    } /* for */
+  } /* print_lib_path */
+#endif
+
+
+
 #ifdef ANSI_C
 
 void append_to_lib_path (const_stritype path, errinfotype *err_info)
@@ -712,6 +739,7 @@ errinfotype *err_info;
         FREE_STRI(path, path->size);
       } /* if */
 
+#ifdef SEED7_LIBRARY
       /* Add the hardcoded library of the interpreter to the lib_path */
       path = stri_to_path(cstri_to_stri(SEED7_LIBRARY));
       if (path == NULL) {
@@ -720,6 +748,13 @@ errinfotype *err_info;
         append_to_lib_path(path, err_info);
         FREE_STRI(path, path->size);
       } /* if */
+#else
+      /* When the path to the current program ends with "prg": */
+      /* Replace it with "lib" and add it to the lib_path      */
+      prot_cstri("programPath: ");
+      prot_stri(programPath);
+      prot_nl();
+#endif
 
       /* Add the SEED7_LIBRARY environment variable to the lib_path */
       library_environment_variable = getenv("SEED7_LIBRARY");
@@ -733,6 +768,7 @@ errinfotype *err_info;
         } /* if */
       } /* if */
 
+      /* print_lib_path(); */
     } /* if */
 #ifdef TRACE_INFILE
     printf("END init_lib_path\n");

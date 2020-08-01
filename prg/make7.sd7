@@ -684,7 +684,7 @@ const proc: doCd (inout string: command, in boolean: doLog) is func
   begin
     skipWhiteSpace(command);
     if command <> "" then
-      parameter := getCommandParameter(command)
+      parameter := getCommandParameter(command);
       if doLog then
         write("cd " <& parameter);
       end if;
@@ -856,6 +856,8 @@ const func integer: processCommand (in var string: command, in boolean: doLog) i
           end if;
           writeln("> " & fileName);
         end if;
+        command := getWord(fullCommand);
+        fullCommand := convDosPath(command) & fullCommand;
         aFile := popen(fullCommand, "r");
         if aFile <> STD_NULL then
           commandOutput := gets(aFile, 999999999);
@@ -871,7 +873,8 @@ const func integer: processCommand (in var string: command, in boolean: doLog) i
           writeln(fullCommand);
           flush(STD_OUT);
         end if;
-        fullCommand := convDosPath(fullCommand, "\\", "/");
+        command := getWord(fullCommand);
+        fullCommand := convDosPath(command) & fullCommand;
         commandStatus := shell(fullCommand);
       end if;
     end if;

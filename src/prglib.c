@@ -412,30 +412,8 @@ objecttype prg_path (arguments)
 listtype arguments;
 #endif
 
-  {
-    stritype cwd;
-    stritype result;
-
-  /* prg_path */
-    if (prog.source_file_name->size >= 1 &&
-        prog.source_file_name->mem[0] == (chartype) '/') {
-      result = strCreate(prog.source_file_name);
-    } else {
-      cwd = cmdGetcwd();
-      result = concat_path(cwd, prog.source_file_name);
-      FREE_STRI(cwd, cwd->size);
-    } /* if */
-    if (result->size <= 4 ||
-        result->mem[result->size - 4] != '.' ||
-        result->mem[result->size - 3] != 's' ||
-        result->mem[result->size - 2] != 'd' ||
-        result->mem[result->size - 1] != '7') {
-      strPush(&result, (chartype) '.');
-      strPush(&result, (chartype) 's');
-      strPush(&result, (chartype) 'd');
-      strPush(&result, (chartype) '7');
-    } /* if */
-    return bld_stri_temp(result);
+  { /* prg_path */
+    return bld_stri_temp(strCreate(prog.source_file_path));
   } /* prg_path */
 
 

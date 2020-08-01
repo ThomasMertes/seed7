@@ -117,7 +117,7 @@ objectcategory category;
 
 #ifdef ANSI_C
 
-objectcategory category_value (cstritype stri)
+objectcategory category_value (const const_cstritype stri)
 #else
 
 objectcategory category_value (stri)

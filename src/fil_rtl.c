@@ -70,7 +70,7 @@ extern __int64 __cdecl _ftelli64(FILE *);
 
 #ifdef ANSI_C
 
-static void get_mode (os_chartype os_mode[4], stritype file_mode)
+static void get_mode (os_chartype os_mode[4], const const_stritype file_mode)
 #else
 
 static void get_mode (os_mode, file_mode)
@@ -1012,7 +1012,7 @@ filetype aFile;
  */
 #ifdef ANSI_C
 
-filetype filOpen (stritype path, stritype mode)
+filetype filOpen (const const_stritype path, const const_stritype mode)
 #else
 
 filetype filOpen (path, mode)
@@ -1105,7 +1105,7 @@ filetype aFile;
 
 #ifdef ANSI_C
 
-filetype filPopen (stritype command, stritype mode)
+filetype filPopen (const const_stritype command, const const_stritype mode)
 #else
 
 filetype filPopen (command, mode)
@@ -1149,7 +1149,7 @@ stritype mode;
 
 #ifdef ANSI_C
 
-void filPrint (stritype stri)
+void filPrint (const const_stritype stri)
 #else
 
 void filPrint (stri)
@@ -1319,7 +1319,7 @@ chartype *termination_char;
 
 #ifdef ANSI_C
 
-void filWrite (filetype aFile, stritype stri)
+void filWrite (filetype aFile, const const_stritype stri)
 #else
 
 void filWrite (aFile, stri)

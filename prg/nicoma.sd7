@@ -49,34 +49,19 @@ const proc: verify (in integer: guessed_number) is func
       writeln("Your number is not in the allowed range of 1 to 100.");
     else
       if number rem 3 <> rem_3 then
-        write("Your number (");
-        write(number);
-        write(") divided by 3 has a remainder of ");
-        write(number rem 3);
-        writeln(".");
-        write("But your answer was ");
-        write(rem_3);
-        writeln(".");
+        writeln("Your number (" <& number <& ") divided by 3 has a remainder of " <&
+                number rem 3 <& ".");
+        writeln("But your answer was " <& rem_3 <& ".");
       end if;
       if number rem 5 <> rem_5 then
-        write("Your number (");
-        write(number);
-        write(") divided by 5 has a remainder of ");
-        write(number rem 5);
-        writeln(".");
-        write("But your answer was ");
-        write(rem_5);
-        writeln(".");
+        writeln("Your number (" <& number <& ") divided by 5 has a remainder of " <&
+                number rem 5 <& ".");
+        writeln("But your answer was " <& rem_5 <& ".");
       end if;
       if number rem 7 <> rem_7 then
-        write("Your number (");
-        write(number);
-        write(") divided by 7 has a remainder of ");
-        write(number rem 7);
-        writeln(".");
-        write("But your answer was ");
-        write(rem_7);
-        writeln(".");
+        writeln("Your number (" <& number <& ") divided by 7 has a remainder of " <&
+                number rem 7 <& ".");
+        writeln("But your answer was " <& rem_7 <& ".");
       end if;
     end if;
   end func;
@@ -87,23 +72,17 @@ const func integer: read_remainder (in integer: divisor) is func
     var integer: remainder is 0;
   begin
     repeat
-      write("Your number divided by ");
-      write(divisor);
-      write(" has a remainder of ");
+      write("Your number divided by " <& divisor <& " has a remainder of ");
       read(remainder);
       if io_error(IN) then
         writeln(" *** Please enter a number.");
         remainder := divisor;
       elsif remainder < 0 then
-        write(" *** The remainer of a number devided by ");
-        write(divisor);
-        writeln(" cannot be negative.");
+        writeln(" *** The remainer of a number devided by " <& divisor <&
+                " cannot be negative.");
       elsif remainder >= divisor then
-        write(" *** The remainer of a number devided by ");
-        write(divisor);
-        write(" is always less than ");
-        write(divisor);
-        writeln(".");
+        writeln(" *** The remainer of a number devided by " <& divisor <&
+                " is always less than " <& divisor <& ".");
       end if;
     until remainder >= 0 and remainder < divisor;
     writeln;
@@ -124,9 +103,7 @@ const proc: guess_number is func
     writeln("Let me think a moment...");
     writeln;
     guessed_number := (70 * rem_3 + 21 * rem_5 + 15 * rem_7) rem 105;
-    write("Your number was ");
-    write(guessed_number);
-    write(", right? ");
+    write("Your number was " <& guessed_number <& ", right? ");
     repeat
       read(answer);
       answer := upper(answer);
@@ -136,9 +113,7 @@ const proc: guess_number is func
       elsif answer = "N" then
         verify(guessed_number);
       else
-        write("Eh? I don't understand '");
-        write(answer);
-        write("' try 'Y' or 'N'. ");
+        write("Eh? I don't understand '" <& answer <& "' try 'Y' or 'N'. ");
       end if;
     until answer = "Y" or answer = "N";
   end func;

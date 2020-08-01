@@ -32,10 +32,10 @@
 #ifdef ANSI_C
 
 #ifdef USE_WMAIN
-rtlArraytype getArgv (const int argc, const wstritype *argv, stritype *arg_0,
+rtlArraytype getArgv (const int argc, const wstritype *const argv, stritype *arg_0,
     stritype *exePath);
 #else
-rtlArraytype getArgv (const int argc, const cstritype *argv, stritype *arg_0,
+rtlArraytype getArgv (const int argc, const cstritype *const argv, stritype *arg_0,
     stritype *exePath);
 #endif
 stritype examineSearchPath (const const_stritype fileName);

@@ -486,8 +486,7 @@ listtype arguments;
     } else {
       listelement = helplist;
       result = SYS_EMPTY_OBJECT;
-      while (listelement != (listtype) NULL &&
-          result != (objecttype) NULL) {
+      while (listelement != NULL && result != NULL) {
         for_variable->value.objvalue = listelement->obj;
         result = evaluate(statement);
         listelement = listelement->next;
@@ -496,6 +495,74 @@ listtype arguments;
       return(result);
     } /* if */
   } /* rfl_for */
+
+
+
+#ifdef ANSI_C
+
+objecttype rfl_for_until (listtype arguments)
+#else
+
+objecttype rfl_for_until (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype for_variable;
+    objecttype elementlist;
+    objecttype statement;
+    objecttype condition;
+    objecttype cond_value;
+    booltype cond;
+    listtype helplist;
+    listtype listelement;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* rfl_for_until */
+/*  prot_list(take_list(arg_4(arguments))); */
+    for_variable = arg_2(arguments);
+    elementlist = arg_4(arguments);
+    condition = arg_6(arguments);
+    statement = arg_8(arguments);
+    isit_reference (for_variable);
+    isit_reflist(elementlist);
+    helplist = copy_list(take_list(elementlist), &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      listelement = helplist;
+      if (listelement != NULL) {
+        for_variable->value.objvalue = listelement->obj;
+        cond_value = evaluate(condition);
+        if (!fail_flag) {
+          isit_bool(cond_value);
+          cond = (booltype) (take_bool(cond_value) == SYS_FALSE_OBJECT);
+          if (TEMP_OBJECT(cond_value)) {
+            dump_any_temp(cond_value);
+          } /* if */
+          while (cond && listelement != NULL && !fail_flag) {
+            evaluate(statement);
+            if (!fail_flag) {
+              listelement = listelement->next;
+              if (listelement != NULL) {
+                for_variable->value.objvalue = listelement->obj;
+                cond_value = evaluate(condition);
+                if (!fail_flag) {
+                  isit_bool(cond_value);
+                  cond = (booltype) (take_bool(cond_value) == SYS_FALSE_OBJECT);
+                  if (TEMP_OBJECT(cond_value)) {
+                    dump_any_temp(cond_value);
+                  } /* if */
+                } /* if */
+              } /* if */
+            } /* if */
+          } /* while */
+        } /* if */
+      } /* if */
+      emptylist(helplist);
+      return(SYS_EMPTY_OBJECT);
+    } /* if */
+  } /* rfl_for_until */
 
 
 

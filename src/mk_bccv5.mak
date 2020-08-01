@@ -117,7 +117,6 @@ version.h:
 	echo ^#define ANSI_C > version.h
 	echo ^#define USE_DIRENT >> version.h
 	echo ^#define PATH_DELIMITER '\\' >> version.h
-	echo ^#define ALLOW_DRIVE_LETTERS >> version.h
 	echo ^#define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo ^#define NO_EMPTY_STRUCTS >> version.h
 	echo ^#define CATCH_SIGNALS >> version.h
@@ -145,7 +144,7 @@ version.h:
 	echo ^#define os_fstat _fstat >> version.h
 	echo ^#define os_lstat _wstat >> version.h
 	echo ^#define os_stat _wstat >> version.h
-	echo ^#define os_stat_struct struct stat >> version.h
+	echo ^#define os_stat_struct struct _stat >> version.h
 	echo ^#define os_chown(name,uid,gid) >> version.h
 	echo ^#define os_chmod _wchmod >> version.h
 	echo ^#define os_utime_orig _wutime >> version.h

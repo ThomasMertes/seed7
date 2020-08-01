@@ -200,6 +200,23 @@ const func text: openBitmapFontFile (in PRIMITIVE_WINDOW: win,
 const proc: setFont (inout text param, in font param) is DYNAMIC;
 
 
+const proc: cursor (ref pixmapFontFile: fontFile, ref boolean: active) is noop;
+const func integer: height (in pixmapFontFile: fontFile) is return fontFile.height;
+const func integer: width (in pixmapFontFile: fontFile) is return fontFile.width;
+
+
+const proc: clear (in pixmapFontFile: fontFile,
+    in integer: upper, in integer: left, in integer: lower, in integer: right) is func
+  begin
+    rectTo(curr_win,
+        fontFile.min_x + fontFile.font.column_delta * pred(left),
+        fontFile.min_y + fontFile.font.line_delta * pred(upper),
+        fontFile.min_x + pred(fontFile.font.column_delta * right),
+        fontFile.min_y + pred(fontFile.font.line_delta * lower),
+        fontFile.background);
+  end func;
+
+
 const proc: setPos (inout pixmapFontFile: fontFile,
     in integer: line, in integer: column) is func
   begin

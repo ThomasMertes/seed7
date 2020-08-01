@@ -368,6 +368,7 @@ typedef struct progstruct {
     uinttype usage_count;
     objecttype main_object;
     const_stritype source_file_name;
+    const_stritype source_file_path;
     unsigned int error_count;
     idroottype ident;
     findidtype id_for;

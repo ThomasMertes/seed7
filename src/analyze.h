@@ -27,9 +27,9 @@
 
 #ifdef ANSI_C
 
-progtype analyze_file (const_stritype source_file_name, errinfotype *err_info);
-progtype analyze (const_stritype source_file_name);
-progtype analyze_string (const_stritype input_string, errinfotype *err_info);
+progtype analyze_file (const const_stritype source_file_name, errinfotype *err_info);
+progtype analyze (const const_stritype source_file_name);
+progtype analyze_string (const const_stritype input_string, errinfotype *err_info);
 
 #else
 

@@ -51,7 +51,7 @@ COMPILING UNTER LINUX
     For Linux the compilation process is the simplest. The
   file 'makefile' is (almost) identical to 'mk_linux.mak' and
   that file is already prepared to compile under Linux.
-  Just type:
+  Go to the 'src' directory and type:
 
     make depend
     make
@@ -73,9 +73,8 @@ COMPILING UNDER BSD AND UNIX
 
 COMPILING UNDER WINDOWS WITH GCC
 
-    You need gcc and mingw32-make from MinGW. Use a console and
-  change the PATH variable to contain the MinGW tools. Then
-  go to the 'src' directory and type:
+    When gcc and mingw32-make from MinGW are installed use a
+  console, go to the 'src' directory and type:
 
     copy mk_mingw.mak makefile
     mingw32-make depend

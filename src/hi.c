@@ -51,7 +51,10 @@
 #include "level.h"
 #include "flt_rtl.h"
 #include "arr_rtl.h"
+#include "cmd_rtl.h"
 #include "scr_drv.h"
+
+stritype programPath;
 
 
 
@@ -255,6 +258,7 @@ char **argv;
         if (option.source_file_name == NULL) {
           printf("*** Sourcefile missing\n");
         } else {
+          programPath = getProgramPath(option.source_file_name);
           currentProg = analyze(option.source_file_name);
           if (!option.analyze_only && currentProg != NULL &&
               (currentProg->error_count == 0 || option.execute_always)) {

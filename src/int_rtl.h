@@ -51,7 +51,7 @@ void intCpy (inttype *dest, inttype source);
 inttype intLog2 (inttype number);
 inttype intLowestSetBit (inttype number);
 stritype intLpad0 (inttype number, const inttype pad_size);
-inttype intParse (const_stritype stri);
+inttype intParse (const const_stritype stri);
 inttype intPow (inttype base, inttype exponent);
 inttype intRand (inttype lower_limit, inttype upper_limit);
 inttype intSqrt (inttype number);
