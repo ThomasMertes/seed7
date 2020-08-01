@@ -818,6 +818,8 @@ createfunctype data_create_func;
     rtlGenerictype result;
 
   /* hshIdxWithDefault */
+    /* printf("hshIdxWithDefault(%lX, %llX, %lld, %llX, %lX, %lx, %lX)\n",
+       hash1, key, data, hashcode, cmp_func, key_create_func, data_create_func); */
     hashelem = hash1->table[hashcode & hash1->mask];
     if (hashelem == NULL) {
       result_hashelem = new_helem(key, data,
@@ -826,6 +828,7 @@ createfunctype data_create_func;
       hash1->size++;
     } else {
       do {
+        /* printf("key=%llX\n", hashelem->key.value.genericvalue); */
         cmp = cmp_func(hashelem->key.value.genericvalue, key);
         if (cmp < 0) {
           if (hashelem->next_less == NULL) {

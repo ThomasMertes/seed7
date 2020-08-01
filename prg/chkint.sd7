@@ -4268,6 +4268,7 @@ const proc: check_str is func
         str( 10000) <>   "10000" or
         str( 10001) <>   "10001" then
       writeln(" ***** Integer str is not correct computed");
+      okay := FALSE;
     end if;
     if okay then
       writeln("Integer str does work correct");
@@ -4318,6 +4319,7 @@ const proc: check_parse is func
         integer parse  "10000" <>  10000 or
         integer parse  "10001" <>  10001 then
       writeln(" ***** Integer parse is not correct computed");
+      okay := FALSE;
     end if;
     if okay then
       writeln("Integer parse does work correct");
@@ -4543,6 +4545,7 @@ const proc: check_lpad0 is func
        ( 10000 lpad0 5) <>  "10000" or
        ( 10001 lpad0 5) <>  "10001" then
       writeln(" ***** Integer lpad0 is not correct computed");
+      okay := FALSE;
     end if;
     if okay then
       writeln("Integer lpad0 does work correct");

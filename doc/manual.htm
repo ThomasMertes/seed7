@@ -53,23 +53,24 @@
 <li><!--   5.11     --><a href="#hash"><b>hash</b></a></li>
 <li><!--   5.12     --><a href="#set"><b>set</b></a></li>
 <li><!--   5.13     --><a href="#struct"><b>struct</b></a></li>
-<li><!--   5.14     --><a href="#reference"><b>reference</b></a></li>
-<li><!--   5.15     --><a href="#ref_list"><b>ref_list</b></a></li>
-<li><!--   5.16     --><a href="#program"><b>program</b></a></li>
-<li><!--   5.17     --><a href="#ptr"><b>ptr</b></a></li>
-<li><!--   5.18     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
-<li><!--   5.19     --><a href="#color"><b>color</b></a></li>
-<li><!--   5.20     --><a href="#time"><b>time</b></a></li>
-<li><!--   5.21     --><a href="#duration"><b>duration</b></a></li>
-<li><!--   5.22     --><a href="#file"><b>file</b></a></li>
-<li><!--   5.23     --><a href="#text"><b>text</b></a></li>
-<li><!--   5.24     --><a href="#func"><b>func</b></a></li>
-<li><!--   5.25     --><a href="#varfunc"><b>varfunc</b></a></li>
-<li><!--   5.26     --><a href="#void"><b>void</b></a></li>
-<li><!--   5.27     --><a href="#proc"><b>proc</b></a></li>
-<li><!--   5.28     --><a href="#type"><b>type</b></a></li>
-<li><!--   5.29     --><a href="#object"><b>object</b></a></li>
-<li><!--   5.30     --><a href="#expr"><b>expr</b></a></li></ol>
+<li><!--   5.14     --><a href="#category"><b>category</b></a></li>
+<li><!--   5.15     --><a href="#reference"><b>reference</b></a></li>
+<li><!--   5.16     --><a href="#ref_list"><b>ref_list</b></a></li>
+<li><!--   5.17     --><a href="#program"><b>program</b></a></li>
+<li><!--   5.18     --><a href="#ptr"><b>ptr</b></a></li>
+<li><!--   5.19     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
+<li><!--   5.20     --><a href="#color"><b>color</b></a></li>
+<li><!--   5.21     --><a href="#time"><b>time</b></a></li>
+<li><!--   5.22     --><a href="#duration"><b>duration</b></a></li>
+<li><!--   5.23     --><a href="#file"><b>file</b></a></li>
+<li><!--   5.24     --><a href="#text"><b>text</b></a></li>
+<li><!--   5.25     --><a href="#func"><b>func</b></a></li>
+<li><!--   5.26     --><a href="#varfunc"><b>varfunc</b></a></li>
+<li><!--   5.27     --><a href="#void"><b>void</b></a></li>
+<li><!--   5.28     --><a href="#proc"><b>proc</b></a></li>
+<li><!--   5.29     --><a href="#type"><b>type</b></a></li>
+<li><!--   5.30     --><a href="#object"><b>object</b></a></li>
+<li><!--   5.31     --><a href="#expr"><b>expr</b></a></li></ol>
 <li><!--   6.     --><a href="#PARAMETERS"><big><b>PARAMETERS</b></big></a></li><ol>
 <li><!--   6.1      --><a href="#val_parameter"><b>'val' parameter</b></a></li>
 <li><!--   6.2      --><a href="#ref_parameter"><b>'ref' parameter</b></a></li>
@@ -1499,9 +1500,9 @@
   the right operand. When the result of the operation can be
   determined after evaluation of the left operand the right
   operand is not evaluated. This can be used to check for
-  a boundary in a boolean expression. Note that this early
-  termination behaviour of the <tt>'<font color=blue>and</font>'</tt> and <tt>'<font color=blue>or</font>'</tt> operators also
-  has an influence when the right operand has side effects.
+  a boundary in a boolean expression. Naturally side effects
+  of the right operand of the <tt>'<font color=blue>and</font>'</tt> and <tt>'<font color=blue>or</font>'</tt> operator only
+  take place when the operand is executed.
 
 </p><p>
   Table for the behaviour of different boolean expressions:
@@ -2405,6 +2406,14 @@
                     <font color=maroon>"HELLO"</font> <font color=blue>lpad</font>  4 => <font color=maroon>"HELLO"</font>,
                     <font color=maroon>"HELLO"</font> <font color=blue>lpad</font>  0 => <font color=maroon>"HELLO"</font>,
                     <font color=maroon>"HELLO"</font> <font color=blue>lpad</font> -8 => <font color=maroon>"HELLO"</font> )
+      <font color=blue>lpad0</font>      Left padding with spaces
+                  ( Type of right operand: <font color=red>integer</font>,
+                    <font color=maroon>"12"</font> <font color=blue>lpad0</font>  5 => <font color=maroon>"00012"</font>,
+                    <font color=maroon>"12"</font> <font color=blue>lpad0</font>  3 => <font color=maroon>"012"</font>,
+                    <font color=maroon>"12"</font> <font color=blue>lpad0</font>  2 => <font color=maroon>"12"</font>,
+                    <font color=maroon>"12"</font> <font color=blue>lpad0</font>  1 => <font color=maroon>"12"</font>,
+                    <font color=maroon>"12"</font> <font color=blue>lpad0</font>  0 => <font color=maroon>"12"</font>,
+                    <font color=maroon>"12"</font> <font color=blue>lpad0</font> -5 => <font color=maroon>"12"</font> )
       <font color=blue>rpad</font>      Right padding with spaces
                   ( Type of right operand: <font color=red>integer</font>,
                     <font color=maroon>"HELLO"</font> <font color=blue>rpad</font>  8 => <font color=maroon>"HELLO   "</font>,
@@ -2701,14 +2710,14 @@
                     which the following condition holds:
                        Element &lt;= X
                     for all X which are in the set.
-                    min(<font color=red>setType</font>.EMPTY_SET) => ERROR )
+                    min(<font color=red>setType</font>.EMPTY_SET) => EXCEPTION RANGE_ERROR )
       max       Maximum element
                   ( Type of result: <font color=red>baseType</font></font>,
                     Delivers the element from the set for
                     which the following condition holds:
                        Element >= X
                     for all X which are in the set.
-                    min(<font color=red>setType</font>.EMPTY_SET) => ERROR )
+                    min(<font color=red>setType</font>.EMPTY_SET) => EXCEPTION RANGE_ERROR )
       compare(A, B) Compare function
                   ( Type of result: <font color=red>integer</font> )
       hashCode(A) Hash function
@@ -2768,7 +2777,37 @@
                   ( Type of argument B: <font color=red>reference</font> )
 </pre><p></p>
 
-<a name="reference"><b>5.14 reference</b></a>
+<a name="category"><b>5.14 category</b></a>
+<p>
+    The type <tt>'<font color=red>category</font>'</tt> describes the category of a <tt>'<font color=red>reference</font>'</tt>.
+</p><pre>
+    Constants:
+      SYMBOLOBJECT, DECLAREDOBJECT, FORWARDOBJECT, FWDREFOBJECT, BLOCKOBJECT,
+      CALLOBJECT,MATCHOBJECT, TYPEOBJECT, FORMPARAMOBJECT, INTOBJECT,
+      BIGINTOBJECT, CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT,
+      HASHOBJECT, STRUCTOBJECT, CLASSOBJECT, INTERFACEOBJECT, SETOBJECT,
+      FILEOBJECT, SOCKETOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT,
+      ENUMLITERALOBJECT, CONSTENUMOBJECT, VARENUMOBJECT, REFOBJECT,
+      REFLISTOBJECT, EXPROBJECT, ACTOBJECT, VALUEPARAMOBJECT, REFPARAMOBJECT,
+      RESULTOBJECT, LOCALVOBJECT, PROGOBJECT
+    Infix operators:
+      <font color=red>category</font> <font color=blue>conv</font> A   Conversion to <font color=red>category</font>
+                  ( Type of argument A: <font color=red>integer</font>,
+                    <font color=red>category</font> <font color=blue>conv</font> ord(INTOBJECT) => INTOBJECT )
+      <font color=red>category</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>category</font>
+                  ( Type of argument A: <font color=red>string</font>,
+                    <font color=red>category</font> <font color=blue>parse</font> <font color=maroon>"FLOATOBJECT"</font> => FLOATOBJECT )
+    Relations:
+      =, &lt;>
+    Functions:
+      ord(A)    Ordinal number
+                  ( Type of result: <font color=red>integer</font> )
+      str(A)    Conversion to <font color=red>string</font>
+                  ( Type of result: <font color=red>string</font>,
+                    str(CHAROBJECT) => <font color=maroon>"CHAROBJECT"</font> )
+</pre><p></p>
+
+<a name="reference"><b>5.15 reference</b></a>
 <p>
     The type <tt>'<font color=red>reference</font>'</tt> describes a reference to any
   object.
@@ -2798,6 +2837,21 @@
       func_result(A)     Gets the result object of a function
       func_res_init(A)   Gets the init value of the result
                          object of a function
+      array_to_list(A)   Return the array elements as list
+                  ( Type of result: <font color=red>ref_list</font> )
+      array_min_index(A) Return the minimal index of an array
+                  ( Type of result: <font color=red>integer</font> )
+      array_max_index(A) Return the maximal index of an array
+                  ( Type of result: <font color=red>integer</font> )
+      struct_to_list(A)  Return the struct elements as list
+                  ( Type of result: <font color=red>ref_list</font> )
+      interface_to_struct(A)  Return the struct to which the interface object points.
+      file(A)            File name of the referenced object
+                  ( Type of result: <font color=red>string</font> )
+      line(A)            Line number of the referenced object
+                  ( Type of result: <font color=red>integer</font> )
+      alloc(A)           Create a copy of the object referenced by A
+                         The object value of the copy is set to NULL
       getValue(A, <font color=red>reference</font>)       Dereference as <font color=red>reference</font>
                   ( Type of result: <font color=red>reference</font> )
       getValue(A, <font color=red>ref_list</font>)        Dereference as <font color=red>ref_list</font>
@@ -2837,7 +2891,7 @@
                   ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
-<a name="ref_list"><b>5.15 ref_list</b></a>
+<a name="ref_list"><b>5.16 ref_list</b></a>
 <p>
     The type <tt>'<font color=red>ref_list</font>'</tt> describes a list of <tt>'<font color=red>reference</font>'</tt> objects.
 </p><pre>
@@ -2898,7 +2952,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="program"><b>5.16 program</b></a>
+<a name="program"><b>5.17 program</b></a>
 <p>
     The type <tt>'<font color=red>program</font>'</tt> describes a Seed7 program.
 </p><pre>
@@ -2929,7 +2983,7 @@
       execute(A) Execute the program referred by A
 </pre><p></p>
 
-<a name="ptr"><b>5.17 ptr</b></a>
+<a name="ptr"><b>5.18 ptr</b></a>
 <p>
     The type <tt>'<font color=red>ptr baseType</font>'</tt> describes a pointer to an object
   of a <tt>'<font color=red>baseType</font>'</tt>. With
@@ -2956,7 +3010,7 @@
                   ( Type of argument <font color=red>ptrType</font>: <font color=red>type</font> )
 </pre><p></p>
 
-<a name="ENUMERATION"><b>5.18 ENUMERATION</b></a>
+<a name="ENUMERATION"><b>5.19 ENUMERATION</b></a>
 <p>
     With
 </p><pre>
@@ -2996,7 +3050,7 @@
                   ( decr(A) => A:=pred(A) )
 </pre><p></p>
 
-<a name="color"><b>5.19 color</b></a>
+<a name="color"><b>5.20 color</b></a>
 <p>
     The type <tt>'<font color=red>color</font>'</tt> describes colors.
 </p><pre>
@@ -3031,7 +3085,7 @@
                     Type of argument B: <font color=red>integer</font> )
 </pre><p></p>
 
-<a name="time"><b>5.20 time</b></a>
+<a name="time"><b>5.21 time</b></a>
 <p>
     The type <tt>'<font color=red>time</font>'</tt> describes times and dates.
 </p><pre>
@@ -3101,7 +3155,7 @@
       await(A)  Wait until the given time
 </pre><p></p>
 
-<a name="duration"><b>5.21 duration</b></a>
+<a name="duration"><b>5.22 duration</b></a>
 <p>
     The type <tt>'<font color=red>duration</font>'</tt> describes time and date durations.
 </p><pre>
@@ -3146,7 +3200,7 @@
       wait(A)   Wait for given duration
 </pre><p></p>
 
-<a name="file"><b>5.22 file</b></a>
+<a name="file"><b>5.23 file</b></a>
 <p>
     The type <tt>'<font color=red>file</font>'</tt> describes sequential files.
 </p><pre>
@@ -3238,7 +3292,7 @@
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="text"><b>5.23 text</b></a>
+<a name="text"><b>5.24 text</b></a>
 <p>
     The type <tt>'<font color=red>text</font>'</tt> describes two dimensional files.
 </p><pre>
@@ -3293,7 +3347,7 @@
       cursor_off(A) Make the cursor invisible
 </pre><p></p>
 
-<a name="func"><b>5.24 func</b></a>
+<a name="func"><b>5.25 func</b></a>
 <p>
     The type <tt>'<font color=red>func baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt>. For example: <tt>'<font color=red>func integer</font>'</tt> describes an <tt>'<font color=red>integer</font>'</tt>
@@ -3382,7 +3436,7 @@
   parameter is <tt>'TRUE'</tt>.
 </p>
 
-<a name="varfunc"><b>5.25 varfunc</b></a>
+<a name="varfunc"><b>5.26 varfunc</b></a>
 <p>
     The type <tt>'<font color=red>varfunc baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt> variable. For example: A function which returns an
@@ -3415,7 +3469,7 @@
   and <font color=red>struct</font>s can be used in the usual way. 
 </p>
 
-<a name="void"><b>5.26 void</b></a>
+<a name="void"><b>5.27 void</b></a>
 <p>
     The type <tt>'<font color=red>void</font>'</tt> describes the empty type.
 </p><pre>
@@ -3423,7 +3477,7 @@
       empty     This is the only value of the type <tt>'<font color=red>void</font>'</tt>.
 </pre><p></p>
 
-<a name="proc"><b>5.27 proc</b></a>
+<a name="proc"><b>5.28 proc</b></a>
 <p>
     The type <tt>'<font color=red>proc</font>'</tt> describes procedures. The type <tt>'<font color=red>proc</font>'</tt>
   is defined as <tt>'<font color=red>func void</font>'</tt>.
@@ -3460,7 +3514,7 @@
                     Type of result: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="type"><b>5.28 type</b></a>
+<a name="type"><b>5.29 type</b></a>
 <p>
     The type <tt>'<font color=red>type</font>'</tt> describes all types.
 </p><pre>
@@ -3517,7 +3571,7 @@
                 Declare variable 'name' with 'value'
 </pre><p></p>
 
-<a name="object"><b>5.29 object</b></a>
+<a name="object"><b>5.30 object</b></a>
 <p>
     The type <tt>'<font color=red>object</font>'</tt> is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -3530,7 +3584,7 @@
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="expr"><b>5.30 expr</b></a>
+<a name="expr"><b>5.31 expr</b></a>
 <p>
     The type <tt>'<font color=red>expr</font>'</tt> is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions

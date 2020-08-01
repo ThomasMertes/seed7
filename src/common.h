@@ -62,10 +62,8 @@ typedef int booltype;
 #undef  DO_HEAP_CHECK
 #define WIDE_CHAR_STRINGS
 #define WITH_STRI_CAPACITY
+#undef  INTTYPE_64BIT
 
-
-typedef long int           inttype;
-typedef unsigned long int  uinttype;
 
 #ifdef HAS_LONGTYPE_64
 #ifdef LONGTYPE_64_IS_INT64
@@ -77,8 +75,21 @@ typedef unsigned long long ulongtype;
 #endif
 #endif
 
+#ifdef INTTYPE_64BIT
+#ifdef HAS_LONGTYPE_64
+typedef longtype           inttype;
+typedef ulongtype          uinttype;
+#define INTTYPE_LITERAL_SUFFIX "LL"
+#endif
+#else
+typedef long int           inttype;
+typedef unsigned long int  uinttype;
+#define INTTYPE_LITERAL_SUFFIX "L"
+#endif
+
 typedef float              floattype;
 typedef unsigned long int  chartype;
+typedef long int           schartype;
 typedef uinttype           bitsettype;
 
 #ifdef WIDE_CHAR_STRINGS

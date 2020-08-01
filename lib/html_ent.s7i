@@ -40,6 +40,7 @@ const func htmlEntityType: genHtmlEntity (in string: entityName, in integer: cha
   end func;
 
 const array htmlEntityType: htmlEntityList is [] (
+  (* Latin 1 *)
     genHtmlEntity("nbsp",     160),
     genHtmlEntity("iexcl",    161),
     genHtmlEntity("cent",     162),
@@ -136,6 +137,7 @@ const array htmlEntityType: htmlEntityList is [] (
     genHtmlEntity("yacute",   253),
     genHtmlEntity("thorn",    254),
     genHtmlEntity("yuml",     255),
+  (* Latin Extended-B *)
     genHtmlEntity("fnof",     402),
   (* Greek *)
     genHtmlEntity("Alpha",    913),
@@ -231,6 +233,7 @@ const array htmlEntityType: htmlEntityList is [] (
     genHtmlEntity("radic",   8730),
     genHtmlEntity("prop",    8733),
     genHtmlEntity("infin",   8734),
+    genHtmlEntity("ang",     8736),
     genHtmlEntity("and",     8743),
     genHtmlEntity("or",      8744),
     genHtmlEntity("cap",     8745),
@@ -267,6 +270,7 @@ const array htmlEntityType: htmlEntityList is [] (
     genHtmlEntity("clubs",   9827),
     genHtmlEntity("hearts",  9829),
     genHtmlEntity("diams",   9830),
+  (* Basic Latin *)
     genHtmlEntity("quot",      34),
     genHtmlEntity("amp",       38),
     genHtmlEntity("lt",        60),

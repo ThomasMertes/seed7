@@ -720,6 +720,8 @@ stritype name;
         opt = COMP_DATA_LIB;
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
         opt = COMPILER_LIB;
+      } else if (strcmp(opt_name, "INTTYPE_LITERAL_SUFFIX") == 0) {
+        opt = INTTYPE_LITERAL_SUFFIX;
       } else if (strcmp(opt_name, "USE_SIGSETJMP") == 0) {
 #ifdef USE_SIGSETJMP
         opt = "TRUE";
@@ -734,6 +736,18 @@ stritype name;
 #endif
       } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
 #ifdef RSHIFT_DOES_SIGN_EXTEND
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "TWOS_COMPLEMENT_INTTYPE") == 0) {
+#ifdef TWOS_COMPLEMENT_INTTYPE
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "INTTYPE_64BIT") == 0) {
+#ifdef INTTYPE_64BIT
         opt = "TRUE";
 #else
         opt = "FALSE";

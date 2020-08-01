@@ -151,7 +151,7 @@ version.h:
 	echo "FILE *aFile;" >> chkftell.c
 	echo "aFile = popen(\"dir\",\"r\");" >> chkftell.c
 	echo "if (ftell(aFile) != -1) {" >> chkftell.c
-	echo "printf(\"\043define FTELL_WRONG_FOR_PIPE\n\");" >> chkftell.c
+	echo "puts(\"\043define FTELL_WRONG_FOR_PIPE\");" >> chkftell.c
 	echo "}" >> chkftell.c
 	echo "return 0;" >> chkftell.c
 	echo "}" >> chkftell.c
@@ -159,20 +159,23 @@ version.h:
 	./chkftell >> version.h
 	rm chkftell.c
 	rm chkftell.exe
-	echo "#include \"stdio.h\"" > chkshift.c
-	echo "int main (int argc, char **argv)" >> chkshift.c
-	echo "{" >> chkshift.c
-	echo "long number;" >> chkshift.c
-	echo "number = -1;" >> chkshift.c
-	echo "if (number >> 1 == (long) -1) {" >> chkshift.c
-	echo "printf(\"\043define RSHIFT_DOES_SIGN_EXTEND\n\");" >> chkshift.c
-	echo "}" >> chkshift.c
-	echo "return 0;" >> chkshift.c
-	echo "}" >> chkshift.c
-	$(CC) chkshift.c -o chkshift
-	./chkshift >> version.h
-	rm chkshift.c
-	rm chkshift.exe
+	echo "#include \"stdio.h\"" > chkccomp.c
+	echo "int main (int argc, char **argv)" >> chkccomp.c
+	echo "{" >> chkccomp.c
+	echo "long number;" >> chkccomp.c
+	echo "number = -1;" >> chkccomp.c
+	echo "if (number >> 1 == (long) -1) {" >> chkccomp.c
+	echo "puts(\"\043define RSHIFT_DOES_SIGN_EXTEND\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "if (~number == (long) 0) {" >> chkccomp.c
+	echo "puts(\"\043define TWOS_COMPLEMENT_INTTYPE\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "return 0;" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	$(CC) chkccomp.c -o chkccomp
+	./chkccomp >> version.h
+	rm chkccomp.c
+	rm chkccomp.exe
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h

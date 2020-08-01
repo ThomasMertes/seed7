@@ -1263,51 +1263,11 @@ objecttype str_mult (arguments)
 listtype arguments;
 #endif
 
-  {
-    inttype factor;
-    stritype stri;
-    memsizetype len;
-    inttype number;
-    strelemtype *result_pointer;
-    memsizetype result_size;
-    stritype result;
-
-  /* str_mult */
+  { /* str_mult */
     isit_stri(arg_1(arguments));
     isit_int(arg_3(arguments));
-    stri = take_stri(arg_1(arguments));
-    factor = take_int(arg_3(arguments));
-    if (factor < 0) {
-      return(raise_exception(SYS_RNG_EXCEPTION));
-    } else {
-      len = stri->size;
-      result_size = ((memsizetype) factor) * len;
-      if (!ALLOC_STRI(result, result_size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        result->size = result_size;
-        if (len != 0) {
-          if (len == 1) {
-#ifdef WIDE_CHAR_STRINGS
-            result_pointer = result->mem;
-            for (number = factor; number > 0; number--) {
-              *result_pointer++ = stri->mem[0];
-            } /* for */
-#else
-            memset(result->mem, (int) stri->mem[0], (SIZE_TYPE) factor);
-#endif
-          } else {
-            result_pointer = result->mem;
-            for (number = factor; number > 0; number--) {
-              memcpy(result_pointer, stri->mem,
-                  (SIZE_TYPE) len * sizeof(strelemtype));
-              result_pointer += (SIZE_TYPE) len;
-            } /* for */
-          } /* if */
-        } /* if */
-        return(bld_stri_temp(result));
-      } /* if */
-    } /* if */
+    return(bld_stri_temp(strMult(
+	take_stri(arg_1(arguments)), take_int(arg_3(arguments)))));
   } /* str_mult */
 
 

@@ -484,7 +484,7 @@ const array string: big_spades_sign is [](
   "      X X      ",
   "X    XX XX    X",
   "XXXXXX   XXXXXX",
-  "XXXXX     XXXXX", 
+  "XXXXX     XXXXX",
   "XXXXXXXXXXXXXXX",
   "XXXXXXXXXXXXXXX");
 
@@ -1171,9 +1171,6 @@ const func PRIMITIVE_WINDOW: genPixmap (in array string: pattern,
   local
     var integer: height is 0;
     var integer: width is 0;
-    var integer: line is 0;
-    var integer: column is 0;
-    var color: col is black;
   begin
     height := 2 * (length(pattern) + 12);
     width := length(pattern[1]) + 2 * 13;

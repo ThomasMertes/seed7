@@ -1,10 +1,26 @@
+20080817:
+- The FAQ about static type checking was improved and an FAQ about development speed
+  and type checking was added.
+- A chapter about the type 'category' was added to the manual.
+- The chapters about boolean, string, set and reference in the manual, were improved.
+- The functions toUuencoded and fromUuencoded were added to the encoding.s7i library.
+- The html entity 'ang' and several comments were added to the html_ent.s7i library.
+- The error management of the chkint.sd7 program was improved.
+- The 'configValue' function was improved to support values for TWOS_COMPLEMENT_INTTYPE,
+  INTTYPE_64BIT and INTTYPE_LITERAL_SUFFIX.
+- The function growStri was improved to work correctly in out of memory situations.
+- The makefiles makefile, mk_cygw.mak, mk_linux.mak, mk_mingw.mak, mk_msvc.mak,
+  mk_msys.mak and mk_nmake.mak were improved to define TWOS_COMPLEMENT_INTTYPE when
+  appropriate.
+- The file setlib.c was improved to work correctly with bitsettype's of different sizes.
+
 20080803:
 - The charsets.s7i library was renamed to chartype.s7i .
 - A new charsets.s7i library, which contains 44 codepages and the functions conv2unicode
   and conv2unicodeByName, was added.
 - The encoding.s7i library, which contains encoding and decoding functions for Base64
   and Quoted-printable, was added.
-- The functions 'ord' and 'conv' and the 'for' loop was added to the type 'category'
+- The functions 'ord' and 'conv' and a 'for' loop were added to the type 'category'
   defined in the progs.s7i library.
 - The functions getWord, getQuotedText and getHttpSymbol were added to the scanstri.s7i
   library.

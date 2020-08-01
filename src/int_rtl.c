@@ -231,9 +231,15 @@ uinttype number;
 
   /* most_significant_bit */
     result = 0;
+#ifdef INTTYPE_64BIT
+    if (number & 0xffffffff00000000) {
+      number >>= 32;
+      result = 32;
+    } /* if */
+#endif
     if (number & 0xffff0000) {
       number >>= 16;
-      result = 16;
+      result += 16;
     } /* if */
     if (number & 0xff00) {
       number >>= 8;
@@ -259,6 +265,12 @@ uinttype number;
 
   /* least_significant_bit */
     result = 0;
+#ifdef INTTYPE_64BIT
+    if ((number & 0xffffffff) == 0) {
+      number >>= 32;
+      result = 32;
+    } /* if */
+#endif
     if ((number & 0xffff) == 0) {
       number >>= 16;
       result += 16;

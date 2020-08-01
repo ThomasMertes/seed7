@@ -33,7 +33,7 @@
 /* cannot have struct value parameters rtlGenerictype  */
 /* is used in these cases instead of rtlObjecttype.    */
 
-typedef void *rtlGenerictype;
+typedef inttype rtlGenerictype;
 
 typedef struct rtlListstruct   *rtlListtype;
 typedef struct rtlArraystruct  *rtlArraytype;

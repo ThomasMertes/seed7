@@ -40,6 +40,7 @@ const color: dark_blue     is color(0, 0, 32768);         (* Navy    N *)
 const color: dark_magenta  is color(32768, 0, 32768);     (* Purple    *)
 const color: dark_cyan     is color(0, 65535, 65535);     (* Aqua      *)
 const color: light_gray    is color(49152, 49152, 49152); (* Silver  x *)
+const color: middle_gray   is color(32768, 32768, 32768);
 const color: dark_gray     is color(16384, 16384, 16384);
 const color: light_red     is color(65535, 0, 0);         (* Red     R *)
 const color: light_green   is color(0, 65535, 0);         (* Lime    G *)

@@ -101,7 +101,7 @@ listtype arguments;
         result->min_position = position;
         result->max_position = position;
         bit_index = ((unsigned int) number) & bitset_mask;
-        result->bitset[0] = (1 << bit_index);
+        result->bitset[0] = (((bitsettype) 1) << bit_index);
         for (number = 1; number < length; number++) {
           setIncl(&result, take_int(&arr1->arr[number]));
           if (fail_flag) {
@@ -141,7 +141,7 @@ listtype arguments;
       result->min_position = position;
       result->max_position = position;
       bit_index = ((unsigned int) number) & bitset_mask;
-      result->bitset[0] = (1 << bit_index);
+      result->bitset[0] = (((bitsettype) 1) << bit_index);
       return(bld_set_temp(result));
     } /* if */
   } /* set_baselit */
@@ -416,7 +416,7 @@ listtype arguments;
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (1 << bit_index)) {
+      if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return(SYS_TRUE_OBJECT);
       } else {
         return(SYS_FALSE_OBJECT);
@@ -502,7 +502,7 @@ listtype arguments;
     if (position >= set_dest->min_position && position <= set_dest->max_position) {
       bitset_index = (memsizetype) (position - set_dest->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      set_dest->bitset[bitset_index] &= ~((bitsettype)(1 << bit_index));
+      set_dest->bitset[bitset_index] &= ~(((bitsettype) 1) << bit_index);
 #ifdef OUT_OF_ORDER
       if (set_dest->bitset[bitset_index] == 0) {
         if 
@@ -644,7 +644,7 @@ listtype arguments;
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (1 << bit_index)) {
+      if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return(SYS_TRUE_OBJECT);
       } else {
         return(SYS_FALSE_OBJECT);
@@ -713,7 +713,7 @@ listtype arguments;
     } /* if */
     bitset_index = (memsizetype) (position - set_dest->min_position);
     bit_index = ((unsigned int) number) & bitset_mask;
-    set_dest->bitset[bitset_index] |= (1 << bit_index);
+    set_dest->bitset[bitset_index] |= (((bitsettype) 1) << bit_index);
     return(SYS_EMPTY_OBJECT);
   } /* set_incl */
 
@@ -859,7 +859,7 @@ listtype arguments;
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = (memsizetype) (position - set1->min_position);
       bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (1 << bit_index)) {
+      if (set1->bitset[bitset_index] & (((bitsettype) 1) << bit_index)) {
         return(SYS_FALSE_OBJECT);
       } else {
         return(SYS_TRUE_OBJECT);

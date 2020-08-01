@@ -42,7 +42,7 @@
 #include "sys/socket.h"
 #include "netinet/in.h"
 #endif
-/* #include "errno.h" */
+#include "errno.h"
 
 #include "common.h"
 #include "heaputl.h"

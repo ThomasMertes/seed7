@@ -102,8 +102,11 @@ strelemtype ch;
 SIZE_TYPE number;
 #endif
 
-  { /* search_strelem */
-    for (; number > 0; mem++, number--) {
+  {
+    const strelemtype *byond;
+
+  /* search_strelem */
+    for (byond = &mem[number]; mem != byond; mem++) {
       if (*mem == ch) {
         return(mem);
       } /* if */
@@ -333,7 +336,6 @@ inttype from_index;
 
   {
     const strelemtype *main_mem;
-    const strelemtype *search_start;
     const strelemtype *found_pos;
 
   /* strChIpos */
@@ -342,8 +344,7 @@ inttype from_index;
     } else {
       if (from_index <= main_stri->size) {
         main_mem = main_stri->mem;
-        search_start = &main_mem[from_index - 1];
-        found_pos = search_strelem(search_start, searched,
+        found_pos = search_strelem(&main_mem[from_index - 1], searched,
             (SIZE_TYPE) (main_stri->size - from_index + 1));
         if (found_pos != NULL) {
           return(((inttype) (found_pos - main_mem)) + 1);
@@ -1335,6 +1336,7 @@ inttype factor;
     memsizetype len;
     inttype number;
     strelemtype *result_pointer;
+    strelemtype ch;
     memsizetype result_size;
     stritype result;
 
@@ -1353,9 +1355,10 @@ inttype factor;
         if (len != 0) {
           if (len == 1) {
 #ifdef WIDE_CHAR_STRINGS
+            ch = stri->mem[0];
             result_pointer = result->mem;
             for (number = factor; number > 0; number--) {
-              *result_pointer++ = stri->mem[0];
+              *result_pointer++ = ch;
             } /* for */
 #else
             memset(result->mem, (int) stri->mem[0], (SIZE_TYPE) factor);

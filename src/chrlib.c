@@ -54,9 +54,21 @@ objecttype chr_chr (arguments)
 listtype arguments;
 #endif
 
-  { /* chr_chr */
+  {
+    inttype number;
+
+  /* chr_chr */
     isit_int(arg_1(arguments));
-    return(bld_char_temp((chartype) take_int(arg_1(arguments))));
+    number = take_int(arg_1(arguments));
+#ifdef INTTYPE_64BIT
+    if (number < -2147483648LL || number > 2147483647LL) {
+      return(raise_exception(SYS_RNG_EXCEPTION));
+    } else {
+      return(bld_char_temp((chartype) number));
+    } /* if */
+#else
+    return(bld_char_temp((chartype) number));
+#endif
   } /* chr_chr */
 
 
@@ -392,7 +404,7 @@ listtype arguments;
 
   { /* chr_ord */
     isit_char(arg_1(arguments));
-    return(bld_int_temp((inttype) take_char(arg_1(arguments))));
+    return(bld_int_temp((inttype) ((schartype) take_char(arg_1(arguments)))));
   } /* chr_ord */
 
 

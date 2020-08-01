@@ -45,7 +45,7 @@ const func string: toBase64 (in string: stri) is func
           ch := stri[subIndex];
           if ch >= '\256\' then
             raise RANGE_ERROR;
-          end if
+          end if;
         else
           ch := '\0\';
         end if;
@@ -200,4 +200,101 @@ const func string: fromQuotedPrintable (in string: stri) is func
       equalSignPos := pos(stri, "=", startPos);
     end while;
     result &:= stri[startPos ..];
+  end func;
+
+
+const func string: toUuencoded (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var char: ch is ' ';
+    var integer: threeBytes is 0;
+    var string: fourBytes is "    ";
+    var integer: posToAddNewline is 43;
+  begin
+    if length(stri) <> 0 then
+      if length(stri) < 45 then
+        result &:= str(chr(32 + length(stri)));
+      else
+        result &:= "M";
+      end if;
+      for index range 1 to length(stri) step 3 do
+        threeBytes := 0;
+        for subIndex range index to index + 2 do
+          if subIndex <= length(stri) then
+            ch := stri[subIndex];
+            if ch >= '\256\' then
+              raise RANGE_ERROR;
+            end if;
+          else
+            ch := '\0\';
+          end if;
+          threeBytes := (threeBytes << 8) + ord(ch);
+        end for;
+        fourBytes @:= [1] chr(32 + (threeBytes >> 18));
+        fourBytes @:= [2] chr(32 + (threeBytes >> 12) mod 64);
+        fourBytes @:= [3] chr(32 + (threeBytes >>  6) mod 64);
+        fourBytes @:= [4] chr(32 +  threeBytes        mod 64);
+        result &:= fourBytes;
+        if index = posToAddNewline then
+          if length(stri) <= index + 2 then
+            noop;
+          elsif length(stri) - index - 2 < 45 then
+            result &:= "\n" & str(chr(32 + length(stri) - index - 2));
+          else
+            result &:= "\nM";
+          end if;
+          posToAddNewline +:= 45;
+        end if;
+      end for;
+      result &:= "\n";
+    end if;
+    result &:= "`\n";
+  end func;
+
+
+const func string: fromUuencoded (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: lineLength is 1;
+    var integer: index is 1;
+    var integer: subIndex is 1;
+    var integer: number is 0;
+    var integer: fourBytes is 0;
+    var string: threeBytes is "   ";
+  begin
+    lineLength := ord(stri[1]) - 32;
+    while lineLength <> 0 and lineLength <> 64 do
+      incr(index);
+      while lineLength >= 1 do
+        fourBytes := 0;
+        for subIndex range index to index + 3 do
+          number := ord(stri[subIndex]) - 32;
+          if number = 64 then
+            number := 0;
+          elsif number < 0 or number > 64 then
+            raise RANGE_ERROR;
+          end if;
+          fourBytes := (fourBytes << 6) + number;
+        end for;
+        threeBytes @:= [1] chr( fourBytes >> 16);
+        threeBytes @:= [2] chr((fourBytes >>  8) mod 256);
+        threeBytes @:= [3] chr( fourBytes        mod 256);
+        result &:= threeBytes[ .. lineLength];
+        lineLength -:= 3;
+        index +:= 4;
+      end while;
+      while index <= length(stri) and stri[index] <> '\n' do
+        incr(index);
+      end while;
+      if index < length(stri) then
+        incr(index);
+        lineLength := ord(stri[index]) - 32;
+      else
+        lineLength := 0;
+      end if;
+    end while;
   end func;

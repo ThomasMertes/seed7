@@ -259,12 +259,12 @@ inttype aCategory;
 
 #ifdef ANSI_C
 
-inttype refCmp (objecttype obj_arg1, objecttype obj_arg2)
+inttype refCmp (rtlGenerictype obj_arg1, rtlGenerictype obj_arg2)
 #else
 
 inttype refCmp (obj_arg1, obj_arg2)
-objecttype obj_arg1;
-objecttype obj_arg2;
+rtlGenerictype obj_arg1;
+rtlGenerictype obj_arg2;
 #endif
 
   {
@@ -274,6 +274,7 @@ objecttype obj_arg2;
   /* refCmp */
     ref1 = (uinttype) obj_arg1;
     ref2 = (uinttype) obj_arg2;
+    /* printf("refCmp(%lx (%llx), %lx (%llx))\n", obj_arg1, ref1, obj_arg2, ref2); */
     if (ref1 < ref2) {
       return(-1);
     } else if (ref1 > ref2) {
@@ -303,11 +304,11 @@ objecttype source;
 
 #ifdef ANSI_C
 
-objecttype refCreate (objecttype source)
+rtlGenerictype refCreate (rtlGenerictype source)
 #else
 
-objecttype refCreate (source)
-objecttype source;
+rtlGenerictype refCreate (source)
+rtlGenerictype source;
 #endif
 
   { /* intCreate */
@@ -513,6 +514,7 @@ objecttype obj_arg;
     inttype result;
 
   /* refNum */
+    /* printf("refNum(%lX)\n", obj_arg); */
     if (obj_arg == NULL) {
       result = 0;
     } else {
@@ -523,7 +525,7 @@ objecttype obj_arg;
         raise_error(MEMORY_ERROR);
         result = 0;
       } else {
-        result = (inttype) hshIdxWithDefault(obj_table, obj_arg,
+        result = (inttype) hshIdxWithDefault(obj_table, (rtlGenerictype) obj_arg,
             (rtlGenerictype) next_free_number,
 	    ((inttype) obj_arg) >> 6, (comparetype) &refCmp,
             (createfunctype) &refCreate, (createfunctype) &intCreate);
@@ -532,6 +534,7 @@ objecttype obj_arg;
         } /* if */
       } /* if */
     } /* if */
+    /* printf("refNum => %lld\n", result); */
     return(result);
   } /* refNum */
 

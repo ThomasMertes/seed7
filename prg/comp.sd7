@@ -35,7 +35,9 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 const boolean: WITH_STRI_CAPACITY      is boolean parse configValue("WITH_STRI_CAPACITY");
 const boolean: RSHIFT_DOES_SIGN_EXTEND is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
 const boolean: USE_SIGSETJMP           is boolean parse configValue("USE_SIGSETJMP");
-const boolean: TWOS_COMPLEMENT_INTTYPE is TRUE;
+const boolean: TWOS_COMPLEMENT_INTTYPE is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
+const boolean: INTTYPE_64BIT           is boolean parse configValue("INTTYPE_64BIT");
+const string:  INTTYPE_LITERAL_SUFFIX  is configValue("INTTYPE_LITERAL_SUFFIX");
 
 const type: option_hash is hash [string] string;
 
@@ -256,7 +258,7 @@ const proc: declare_type_if_necessary (in type: aType, inout expr_type: c_expr) 
           noop;
         else
 *)
-          c_expr.expr &:= "typedef long ";
+          c_expr.expr &:= "typedef generictype ";
           c_expr.expr &:= type_name(aType);
           c_expr.expr &:= ";\n\n";
           if is_derived(aType) then
@@ -331,7 +333,8 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= " a;\n";
     c_expr.expr &:= "unsigned long i;\n";
     c_expr.expr &:= "unsigned long size = ((arraytype)b)->max_position - ((arraytype)b)->min_position + 1;\n";
-    c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(long) + size * sizeof(long));\n";
+    c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "  size * sizeof(rtlObjecttype));\n";
 #!    c_expr.expr &:= "ALLOC_RTL_ARRAY(a,size);\n";
     c_expr.expr &:= "if (a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
@@ -374,9 +377,9 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= "{\n";
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
-    c_expr.expr &:= "a=malloc(sizeof(struct structstruct) - sizeof(long) + ";
+    c_expr.expr &:= "a=malloc(sizeof(struct structstruct) - sizeof(rtlObjecttype) + \n  ";
     c_expr.expr &:= str(length(elements));
-    c_expr.expr &:= " * sizeof(long));\n";
+    c_expr.expr &:= " * sizeof(rtlObjecttype));\n";
     c_expr.expr &:= "if (a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
     c_expr.expr &:= "} else {\n";
@@ -712,7 +715,8 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= "size = size_a;\n";
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= "if (size_a < size_b) {\n";
-    c_expr.expr &:= "*a=realloc(*a, sizeof(struct arraystruct) - sizeof(long) + size_b * sizeof(long));\n";
+    c_expr.expr &:= "*a=realloc(*a, sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "  size_b * sizeof(rtlObjecttype));\n";
     c_expr.expr &:= "size = size_a;\n";
     c_expr.expr &:= "for (i = size_a; i < size_b; i++) {\n";
     c_expr.expr &:= "((arraytype)*a)->arr[i].value.intvalue=";
@@ -726,7 +730,8 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     process_destr_call(array_element[object_type],
         "((arraytype)*a)->arr[i].value.intvalue", c_expr.expr);
     c_expr.expr &:= "}\n";
-    c_expr.expr &:= "*a=realloc(*a, sizeof(struct arraystruct) - sizeof(long) + size_b * sizeof(long));\n";
+    c_expr.expr &:= "*a=realloc(*a, sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "  size_b * sizeof(rtlObjecttype));\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "for (i = 0; i < size; i++) {\n";
@@ -1096,7 +1101,7 @@ const proc: prepare_typed_result (in type: aType, inout expr_type: c_expr) is fu
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_decl := "long tmp_";
+    c_expr.result_decl := "generictype tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
     c_expr.result_decl &:= " = NULL;\n";
     process_destr_declaration(aType, global_c_expr);
@@ -2496,6 +2501,7 @@ const proc: process_const_big_cmp (in reference: param1, in bigInteger: number,
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ", ";
       c_expr.expr &:= str(number);
+      c_expr.expr &:= INTTYPE_LITERAL_SUFFIX;
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "bigCmp(";
@@ -3068,6 +3074,7 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
       c_expr.result_expr &:= str(log2(number));
+      c_expr.result_expr &:= INTTYPE_LITERAL_SUFFIX;
       c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
@@ -3165,6 +3172,7 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
       c_expr.result_expr &:= str(log2base);
+      c_expr.result_expr &:= INTTYPE_LITERAL_SUFFIX;
       c_expr.result_expr &:= ")";
     else
       if number not in bigint_const_table then
@@ -3608,12 +3616,50 @@ const proc: process_bst_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_const_chr_chr (in integer: number, inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if number < pred(-2147483647) or number > 2147483647 then
+      c_expr.expr &:= "(raise_error(RANGE_ERROR),0)";
+    else
+      c_expr.expr &:= "(chartype)";
+      c_expr.expr &:= str(number);
+    end if;
+  end func;
+
+
 const proc: process_chr_chr (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var integer: temp_num is 0;
   begin
-    c_expr.expr &:= "(chartype)(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    if category(params[1]) = INTOBJECT and not is_var(params[1]) then
+      process_const_chr_chr(getValue(params[1], integer), c_expr);
+    elsif INTTYPE_64BIT then
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= "),tmp_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "< -2147483648||tmp_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ">2147483647?(raise_error(RANGE_ERROR),0):(chartype)tmp_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(chartype)(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -3791,9 +3837,9 @@ const proc: process_chr_ne (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_chr_ord (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(inttype)(";
+    c_expr.expr &:= "(inttype)((schartype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= "))";
   end func;
 
 
@@ -6824,12 +6870,12 @@ const proc: process_const_int_pow (in integer: number, in reference: param3,
       c_expr.expr &:= ")<0?(raise_error(NUMERIC_ERROR),0):1)";
     elsif number = 2 then
       incr(countOptimizations);
-      c_expr.expr &:= "1<<(";
+      c_expr.expr &:= "1" & INTTYPE_LITERAL_SUFFIX <& "<<(";
       process_expr(param3, c_expr);
       c_expr.expr &:= ")";
     elsif number > 0 and 2 ** log2(number) = number then
       incr(countOptimizations);
-      c_expr.expr &:= "1<<";
+      c_expr.expr &:= "1" & INTTYPE_LITERAL_SUFFIX <& "<<";
       c_expr.expr &:= str(log2(number));
       c_expr.expr &:= "*(";
       process_expr(param3, c_expr);
@@ -7645,7 +7691,7 @@ const proc: process_ref_file (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_ref_hashcode (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(inttype)(((unsigned int)(";
+    c_expr.expr &:= "(inttype)(((uinttype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")) >> 6)";
   end func;
@@ -10317,7 +10363,7 @@ const proc: process_typ_eq (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_typ_hashcode (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(inttype)(((unsigned int)(";
+    c_expr.expr &:= "(inttype)(((uinttype)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")) >> 6)";
   end func;
@@ -12045,7 +12091,7 @@ const proc: push_macro_param (in reference: formal_param,
           else
             incr(c_expr.temp_num);
             temp_num := c_expr.temp_num;
-            c_expr.temp_decls &:= "long tmp_";
+            c_expr.temp_decls &:= "generictype tmp_";
             c_expr.temp_decls &:= str(temp_num);
             c_expr.temp_decls &:= ";\n";
             c_expr.expr &:= "(tmp_";
@@ -12211,7 +12257,7 @@ const proc: call_params (in ref_list: formal_params,
               c_expr.expr &:= " */";
               incr(c_expr.temp_num);
               temp_num := c_expr.temp_num;
-              c_expr.temp_decls &:= "long tmp_";
+              c_expr.temp_decls &:= "generictype tmp_";
               c_expr.temp_decls &:= str(temp_num);
               c_expr.temp_decls &:= ";\n";
               c_expr.expr &:= "(tmp_";
@@ -12472,7 +12518,7 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        c_expr.expr &:= str(getValue(current_expression, integer));
+        c_expr.expr &:= str(getValue(current_expression, integer)) & INTTYPE_LITERAL_SUFFIX;
       end if;
     elsif exprCategory = BIGINTOBJECT then
       if is_var(current_expression) then
@@ -14068,7 +14114,8 @@ const proc: process_arr_times_declaration (in reference: current_object,
     c_expr.expr &:= "if (n < 0) {\n";
     c_expr.expr &:= "raise_error(RANGE_ERROR);\n";
     c_expr.expr &:= "} else {\n";
-    c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(long) + n * sizeof(long));\n";
+    c_expr.expr &:= "a=malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "  n * sizeof(rtlObjecttype));\n";
 #!    c_expr.expr &:= "ALLOC_RTL_ARRAY(a,n);\n";
     c_expr.expr &:= "if (a == NULL) {\n";
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
@@ -14887,14 +14934,21 @@ const proc: write_file_head is func
 *)
     writeln(c_prog, "typedef long booltype;");
     writeln(c_prog, "typedef long typetype;");
-    writeln(c_prog, "typedef long int inttype;");
+    if INTTYPE_64BIT then
+      writeln(c_prog, "typedef long long int inttype;");
+      writeln(c_prog, "typedef unsigned long long int uinttype;");
+    else
+      writeln(c_prog, "typedef long int inttype;");
+      writeln(c_prog, "typedef unsigned long int uinttype;");
+    end if;
     writeln(c_prog, "typedef float floattype;");
     writeln(c_prog, "typedef unsigned long int chartype;");
+    writeln(c_prog, "typedef long int schartype;");
     writeln(c_prog, "typedef unsigned long int strelemtype;");
-    writeln(c_prog, "typedef unsigned long int bitsettype;");
+    writeln(c_prog, "typedef uinttype bitsettype;");
     writeln(c_prog, "typedef unsigned long int memsizetype;");
 #!    writeln(c_prog, "#include \"../src/heaputl.h\""); #!
-    writeln(c_prog, "typedef void *generictype;");
+    writeln(c_prog, "typedef inttype generictype;");
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  generictype genericvalue;");
     writeln(c_prog, "  inttype     intvalue;");
@@ -14960,7 +15014,7 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef struct {");
     writeln(c_prog, "  unsigned long usage_count;");
     writeln(c_prog, "} *wintype;");
-    writeln(c_prog, "typedef inttype progtype;");
+    writeln(c_prog, "typedef void *progtype;");
     writeln(c_prog, "typedef union {");
     writeln(c_prog, "  floattype floatvalue;");
     writeln(c_prog, "  inttype intvalue;");
@@ -15046,6 +15100,7 @@ const proc: write_file_head is func
     writeln(c_prog, "biginttype  bigAdd (biginttype, biginttype);");
     writeln(c_prog, "inttype     bigBitLength (biginttype);");
     writeln(c_prog, "inttype     bigCmp (biginttype, biginttype);");
+    writeln(c_prog, "inttype     bigCmpSignedDigit (biginttype, inttype);");
     writeln(c_prog, "void        bigCpy (biginttype *, biginttype);");
     writeln(c_prog, "biginttype  bigCreate (biginttype);");
     writeln(c_prog, "void        bigDecr (biginttype *);");
@@ -15174,6 +15229,7 @@ const proc: write_file_head is func
     writeln(c_prog, "stritype    kbdWordRead (chartype *);");
     writeln(c_prog, "inttype     heapsize (void);");
     writeln(c_prog, "void        prcNoop (void)                                {}");
+    writeln(c_prog, "void *      prgSysvar (progtype, stritype);");
     writeln(c_prog, "long        refAddr (void *a)                             {printf(\"refAddr\\n\");}");
     writeln(c_prog, "inttype     refCmp (void *, void *);");
     writeln(c_prog, "void        refCpy (void *, void *);");
@@ -15214,7 +15270,7 @@ const proc: write_file_head is func
     writeln(c_prog, "settype     setCreate (settype);");
     writeln(c_prog, "void        setDestr (settype);");
     writeln(c_prog, "settype     setDiff (settype, settype);");
-    writeln(c_prog, "inttype     setElem (inttype, settype);");
+    writeln(c_prog, "booltype    setElem (inttype, settype);");
     writeln(c_prog, "booltype    setEq (settype, settype);");
     writeln(c_prog, "void        setExcl (settype *, inttype);");
     writeln(c_prog, "booltype    setGe (settype, settype);");
@@ -15227,7 +15283,7 @@ const proc: write_file_head is func
     writeln(c_prog, "inttype     setMax (settype);");
     writeln(c_prog, "inttype     setMin (settype);");
     writeln(c_prog, "booltype    setNe (settype, settype);");
-    writeln(c_prog, "inttype     setNotElem (inttype, settype);");
+    writeln(c_prog, "booltype    setNotElem (inttype, settype);");
     writeln(c_prog, "inttype     setRand (settype);");
     writeln(c_prog, "inttype     strRChPos (stritype, chartype);");
     writeln(c_prog, "settype     setSymdiff (settype, settype);");
@@ -15782,7 +15838,8 @@ const proc: generate_main (in program: prog) is func
     end if;
 
     c_expr.expr &:= "arg_0 = cstri_to_stri(argv[0]);\n";
-    c_expr.expr &:= "arg_v = malloc(sizeof(struct arraystruct) - sizeof(long) + argc * sizeof(long));\n";
+    c_expr.expr &:= "arg_v = malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
+    c_expr.expr &:= "  argc * sizeof(rtlObjecttype));\n";
     c_expr.expr &:= "arg_v->min_position = 1;\n";
     c_expr.expr &:= "arg_v->max_position = argc - 1;\n";
     c_expr.expr &:= "{\n";
@@ -15804,9 +15861,9 @@ const proc: generate_main (in program: prog) is func
         array_list := array_to_list(const_object);
         c_expr.expr &:= "arr[";
         c_expr.expr &:= str(number);
-        c_expr.expr &:= "]=malloc(sizeof(struct arraystruct) - sizeof(long) + ";
+        c_expr.expr &:= "]=malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n  ";
         c_expr.expr &:= str(length(array_list));
-        c_expr.expr &:= " * sizeof(long));\n";
+        c_expr.expr &:= " * sizeof(rtlObjecttype));\n";
         c_expr.expr &:= "arr[";
         c_expr.expr &:= str(number);
         c_expr.expr &:= "]->min_position=";
@@ -15830,9 +15887,9 @@ const proc: generate_main (in program: prog) is func
         struct_list := struct_to_list(const_object);
         c_expr.expr &:= "sct[";
         c_expr.expr &:= str(number);
-        c_expr.expr &:= "]=malloc(sizeof(struct structstruct) - sizeof(long) + ";
+        c_expr.expr &:= "]=malloc(sizeof(struct structstruct) - sizeof(rtlObjecttype) +\n  ";
         c_expr.expr &:= str(length(struct_list));
-        c_expr.expr &:= " * sizeof(long));\n";
+        c_expr.expr &:= " * sizeof(rtlObjecttype));\n";
         c_expr.expr &:= "sct[";
         c_expr.expr &:= str(number);
         c_expr.expr &:= "]->type_num=";

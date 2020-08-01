@@ -48,6 +48,9 @@ Can I use something and declare it later?
 <li><a href="#static_type_checking"><b>
 Why does Seed7 use static type checking?
 </b></a></li>
+<li><a href="#development_speed_and_type_checking"><b>
+Is the program development slowed down with static type checking?
+</b></a></li>
 <li><a href="#type_inference"><b>
 Why does Seed7 not use type inference?
 </b></a></li>
@@ -495,21 +498,40 @@ Naturally there are doubts that enough tests are done and that the tests are
 adjusted and repeated for every change in the program. Therefore it can be
 said that compile-time type checks increase the reliability of the program.
 </p><p>
-Since static type checking makes run-time type checks unnecessary, the program
-execution can be more efficient. Type declarations can also serve as a form
-of documentation, because they can illustrate the intent of the programmer.
-Although static type checking is very helpful in finding type errors, it cannot
-replace a careful program design. Some operations, allowed by the static type
-system, can still be wrong because of different measurement units or other
-reasons. In the end there are also other possible sources of errors, such as
-range violations.
+Seed7 makes sure that the object values always have the type of the object.
+This goal is reached with mechanisms like mandatory initialisation, runtime
+checks and the impossibility to change arbitrary places in memory. When the
+generation of garbage values is avoided, it can be guaranteed that only legal
+values of the correct type are used as object values. This way runtime type
+checks are unnecessary and the program execution can be more efficient.
 </p><p>
-Interface types can be used when an object can have several types at run-time.
+Type declarations can also serve as a form of documentation, because they can
+illustrate the intent of the programmer. Although static type checking is very
+helpful in finding type errors, it cannot replace a careful program design.
+Some operations, allowed by the static type system, can still be wrong because
+of different measurement units or other reasons. In the end there are also
+other possible sources of errors, such as range violations.
+</p><p>
+Interface types can be used when an object can have several types at runtime.
 In this case the interface type of the object can be determined at compile-time
-and the type of the object value (implementation type) can vary at run-time.
+and the type of the object value (implementation type) can vary at runtime.
 The static type checking can still check the interface type and the presence
 of interface functions. Additionally the compiler can also check that all
 functions granted by the interface type are defined for the implementation type.
+</p></p>
+
+<p><br><a name="development_speed_and_type_checking"><b>Is the program development slowed down with static type checking?
+</b></a><hr><!-- ======================================== -->
+<p>
+No, especially when the time spent to debug a program is taken into account.
+All type errors found by a "nitpicking" compiler correspond to runtime type
+errors that can happen in a dynamically typed language under some circumstances.
+That way the compile-time type checks save the time necessary to find and debug
+those errors. The time that a compiler needs to find and flag type errors is
+so small that it can be ignored in this comparison. When comparing compile-time
+and runtime type checking it can be concluded that dynamic typed languages save
+some programming time by omitting type declarations, but this time must be payed
+back with massive interest rates to do the debugging.
 </p></p>
 
 <p><br><a name="type_inference"><b>Why does Seed7 not use type inference?

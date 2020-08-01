@@ -563,6 +563,8 @@ const func color: charColor (in char: ch) is func
       when {'c'}: result := light_cyan;
       when {'X'}: result := black;
       when {'x'}: result := light_gray;
+      when {'y'}: result := middle_gray;
+      when {'d'}: result := dark_gray;
       when {'b'}: result := brown;
       otherwise:  result := black;
     end case;

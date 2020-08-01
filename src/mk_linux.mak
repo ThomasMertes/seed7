@@ -6,8 +6,8 @@
 
 # CFLAGS =
 # CFLAGS = -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
@@ -150,20 +150,23 @@ version.h:
 	echo "#define USE_LSEEK" >> version.h
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
-	echo "#include \"stdio.h\"" > chkshift.c
-	echo "int main (int argc, char **argv)" >> chkshift.c
-	echo "{" >> chkshift.c
-	echo "long number;" >> chkshift.c
-	echo "number = -1;" >> chkshift.c
-	echo "if (number >> 1 == (long) -1) {" >> chkshift.c
-	echo "puts(\"#define RSHIFT_DOES_SIGN_EXTEND\");" >> chkshift.c
-	echo "}" >> chkshift.c
-	echo "return 0;" >> chkshift.c
-	echo "}" >> chkshift.c
-	$(CC) chkshift.c -o chkshift
-	./chkshift >> version.h
-	rm chkshift.c
-	rm chkshift
+	echo "#include \"stdio.h\"" > chkccomp.c
+	echo "int main (int argc, char **argv)" >> chkccomp.c
+	echo "{" >> chkccomp.c
+	echo "long number;" >> chkccomp.c
+	echo "number = -1;" >> chkccomp.c
+	echo "if (number >> 1 == (long) -1) {" >> chkccomp.c
+	echo "puts(\"#define RSHIFT_DOES_SIGN_EXTEND\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "if (~number == (long) 0) {" >> chkccomp.c
+	echo "puts(\"#define TWOS_COMPLEMENT_INTTYPE\");" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	echo "return 0;" >> chkccomp.c
+	echo "}" >> chkccomp.c
+	$(CC) chkccomp.c -o chkccomp
+	./chkccomp >> version.h
+	rm chkccomp.c
+	rm chkccomp
 	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
