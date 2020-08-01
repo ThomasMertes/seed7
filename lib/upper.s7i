@@ -50,21 +50,27 @@ const proc: page (ref upper_file: upper_fil) is func
 *)
 
 
+const proc: write (inout upper_file: upper_fil, in string: stri) is func
+  begin
+    write(upper_fil.destination_file, upper(stri));
+  end func;
+
+
 const proc: writeln (inout upper_file: upper_fil) is func
   begin
     writeln(upper_fil.destination_file);
   end func;
 
 
-const proc: backSpace (inout upper_file: upper_fil) is func
+const proc: writeln (inout upper_file: upper_fil, in string: stri) is func
   begin
-    backSpace(upper_fil.destination_file);
+    writeln(upper_fil.destination_file, upper(stri));
   end func;
 
 
-const proc: write (inout upper_file: upper_fil, in string: stri) is func
+const proc: backSpace (inout upper_file: upper_fil) is func
   begin
-    write(upper_fil.destination_file, upper(stri));
+    backSpace(upper_fil.destination_file);
   end func;
 
 

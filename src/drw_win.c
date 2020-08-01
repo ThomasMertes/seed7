@@ -370,6 +370,8 @@ chartype gkbGetc ()
               case VK_F8:       result = K_SFT_F8;     break;
               case VK_F9:       result = K_SFT_F9;     break;
               case VK_F10:      result = K_SFT_F10;    break;
+              case VK_F11:      result = K_SFT_F11;    break;
+              case VK_F12:      result = K_SFT_F12;    break;
               case VK_LEFT:     result = K_LEFT;       break;
               case VK_RIGHT:    result = K_RIGHT;      break;
               case VK_UP:       result = K_UP;         break;
@@ -407,6 +409,8 @@ chartype gkbGetc ()
               case VK_F8:       result = K_ALT_F8;     break;
               case VK_F9:       result = K_ALT_F9;     break;
               case VK_F10:      result = K_ALT_F10;    break;
+              case VK_F11:      result = K_ALT_F11;    break;
+              case VK_F12:      result = K_ALT_F12;    break;
               case VK_LEFT:     result = K_LEFT;       break;
               case VK_RIGHT:    result = K_RIGHT;      break;
               case VK_UP:       result = K_UP;         break;
@@ -443,6 +447,8 @@ chartype gkbGetc ()
               case VK_F8:       result = K_CTL_F8;     break;
               case VK_F9:       result = K_CTL_F9;     break;
               case VK_F10:      result = K_CTL_F10;    break;
+              case VK_F11:      result = K_CTL_F11;    break;
+              case VK_F12:      result = K_CTL_F12;    break;
               case VK_LEFT:     result = K_CTL_LEFT;   break;
               case VK_RIGHT:    result = K_CTL_RIGHT;  break;
               case VK_UP:       result = K_CTL_UP;     break;
@@ -479,6 +485,8 @@ chartype gkbGetc ()
               case VK_F8:       result = K_F8;         break;
               case VK_F9:       result = K_F9;         break;
               case VK_F10:      result = K_F10;        break;
+              case VK_F11:      result = K_F11;        break;
+              case VK_F12:      result = K_F12;        break;
               case VK_LEFT:     result = K_LEFT;       break;
               case VK_RIGHT:    result = K_RIGHT;      break;
               case VK_UP:       result = K_UP;         break;
@@ -600,6 +608,8 @@ chartype gkbGetc ()
                   result = K_F10;
                 } /* if */
                 break;
+              case VK_F11:      result = K_ALT_F11;    break;
+              case VK_F12:      result = K_ALT_F12;    break;
               case VK_SHIFT:
               case VK_CONTROL:
               case VK_MENU:
@@ -812,6 +822,8 @@ chartype button;
       case K_F8:  case K_SFT_F8:  case K_CTL_F8:  case K_ALT_F8:  vkey1 = VK_F8;  break;
       case K_F9:  case K_SFT_F9:  case K_CTL_F9:  case K_ALT_F9:  vkey1 = VK_F9;  break;
       case K_F10: case K_SFT_F10: case K_CTL_F10: case K_ALT_F10: vkey1 = VK_F10; break;
+      case K_F11: case K_SFT_F11: case K_CTL_F11: case K_ALT_F11: vkey1 = VK_F11; break;
+      case K_F12: case K_SFT_F12: case K_CTL_F12: case K_ALT_F12: vkey1 = VK_F12; break;
 
       case K_LEFT:  case K_CTL_LEFT:  vkey1 = VK_LEFT;   break;
       case K_RIGHT: case K_CTL_RIGHT: vkey1 = VK_RIGHT;  break;

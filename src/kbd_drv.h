@@ -59,121 +59,133 @@
 #define K_CTL_Y       25
 #define K_CTL_Z       26
 #define K_ESC         27
-#define K_ALT_A      257
-#define K_ALT_B      258
-#define K_ALT_C      259
-#define K_ALT_D      260
-#define K_ALT_E      261
-#define K_ALT_F      262
-#define K_ALT_G      263
-#define K_ALT_H      264
-#define K_ALT_I      265
-#define K_ALT_J      266
-#define K_ALT_K      267
-#define K_ALT_L      268
-#define K_ALT_M      269
-#define K_ALT_N      270
-#define K_ALT_O      271
-#define K_ALT_P      272
-#define K_ALT_Q      273
-#define K_ALT_R      274
-#define K_ALT_S      275
-#define K_ALT_T      276
-#define K_ALT_U      277
-#define K_ALT_V      278
-#define K_ALT_W      279
-#define K_ALT_X      280
-#define K_ALT_Y      281
-#define K_ALT_Z      282
-#define K_ALT_0      304
-#define K_ALT_1      305
-#define K_ALT_2      306
-#define K_ALT_3      307
-#define K_ALT_4      308
-#define K_ALT_5      309
-#define K_ALT_6      310
-#define K_ALT_7      311
-#define K_ALT_8      312
-#define K_ALT_9      313
-#define K_F1         320
-#define K_F2         321
-#define K_F3         322
-#define K_F4         323
-#define K_F5         324
-#define K_F6         325
-#define K_F7         326
-#define K_F8         327
-#define K_F9         328
-#define K_F10        329
-#define K_SFT_F1     336
-#define K_SFT_F2     337
-#define K_SFT_F3     338
-#define K_SFT_F4     339
-#define K_SFT_F5     340
-#define K_SFT_F6     341
-#define K_SFT_F7     342
-#define K_SFT_F8     343
-#define K_SFT_F9     344
-#define K_SFT_F10    345
-#define K_CTL_F1     352
-#define K_CTL_F2     353
-#define K_CTL_F3     354
-#define K_CTL_F4     355
-#define K_CTL_F5     356
-#define K_CTL_F6     357
-#define K_CTL_F7     358
-#define K_CTL_F8     359
-#define K_CTL_F9     360
-#define K_CTL_F10    361
-#define K_ALT_F1     368
-#define K_ALT_F2     369
-#define K_ALT_F3     370
-#define K_ALT_F4     371
-#define K_ALT_F5     372
-#define K_ALT_F6     373
-#define K_ALT_F7     374
-#define K_ALT_F8     375
-#define K_ALT_F9     376
-#define K_ALT_F10    377
-#define K_NULCHAR    400
-#define K_BACKTAB    401
-#define K_LEFT       416
-#define K_RIGHT      417
-#define K_UP         418
-#define K_DOWN       419
-#define K_HOME       420
-#define K_END        421
-#define K_PGUP       422
-#define K_PGDN       423
-#define K_INS        424
-#define K_DEL        425
-#define K_PAD_CENTER 426
-#define K_CTL_LEFT   480
-#define K_CTL_RIGHT  481
-#define K_CTL_UP     482
-#define K_CTL_DOWN   483
-#define K_CTL_HOME   484
-#define K_CTL_END    485
-#define K_CTL_PGUP   486
-#define K_CTL_PGDN   487
-#define K_CTL_INS    488
-#define K_CTL_DEL    489
-#define K_SCRLUP     490
-#define K_SCRLDN     491
-#define K_INSLN      492
-#define K_DELLN      493
-#define K_ERASE      494
-#define K_CTL_NL     495
-#define K_NULLCMD    500
-#define K_REDRAW     501
-#define K_NEWWINDOW  502
-#define K_MOUSE1     503
-#define K_MOUSE2     504
-#define K_MOUSE3     505
-#define K_MOUSE4     506
-#define K_MOUSE5     507
-#define K_UNDEF      511
-#define K_NONE       512
+
+/* KEYCODE_BASE is beyond the range of Unicode characters */
+#define KEYCODE_BASE 0x110000
+
+#define K_ALT_A      (KEYCODE_BASE +   1)
+#define K_ALT_B      (KEYCODE_BASE +   2)
+#define K_ALT_C      (KEYCODE_BASE +   3)
+#define K_ALT_D      (KEYCODE_BASE +   4)
+#define K_ALT_E      (KEYCODE_BASE +   5)
+#define K_ALT_F      (KEYCODE_BASE +   6)
+#define K_ALT_G      (KEYCODE_BASE +   7)
+#define K_ALT_H      (KEYCODE_BASE +   8)
+#define K_ALT_I      (KEYCODE_BASE +   9)
+#define K_ALT_J      (KEYCODE_BASE +  10)
+#define K_ALT_K      (KEYCODE_BASE +  11)
+#define K_ALT_L      (KEYCODE_BASE +  12)
+#define K_ALT_M      (KEYCODE_BASE +  13)
+#define K_ALT_N      (KEYCODE_BASE +  14)
+#define K_ALT_O      (KEYCODE_BASE +  15)
+#define K_ALT_P      (KEYCODE_BASE +  16)
+#define K_ALT_Q      (KEYCODE_BASE +  17)
+#define K_ALT_R      (KEYCODE_BASE +  18)
+#define K_ALT_S      (KEYCODE_BASE +  19)
+#define K_ALT_T      (KEYCODE_BASE +  20)
+#define K_ALT_U      (KEYCODE_BASE +  21)
+#define K_ALT_V      (KEYCODE_BASE +  22)
+#define K_ALT_W      (KEYCODE_BASE +  23)
+#define K_ALT_X      (KEYCODE_BASE +  24)
+#define K_ALT_Y      (KEYCODE_BASE +  25)
+#define K_ALT_Z      (KEYCODE_BASE +  26)
+#define K_ALT_0      (KEYCODE_BASE +  48)
+#define K_ALT_1      (KEYCODE_BASE +  49)
+#define K_ALT_2      (KEYCODE_BASE +  50)
+#define K_ALT_3      (KEYCODE_BASE +  51)
+#define K_ALT_4      (KEYCODE_BASE +  52)
+#define K_ALT_5      (KEYCODE_BASE +  53)
+#define K_ALT_6      (KEYCODE_BASE +  54)
+#define K_ALT_7      (KEYCODE_BASE +  55)
+#define K_ALT_8      (KEYCODE_BASE +  56)
+#define K_ALT_9      (KEYCODE_BASE +  57)
+#define K_F1         (KEYCODE_BASE +  64)
+#define K_F2         (KEYCODE_BASE +  65)
+#define K_F3         (KEYCODE_BASE +  66)
+#define K_F4         (KEYCODE_BASE +  67)
+#define K_F5         (KEYCODE_BASE +  68)
+#define K_F6         (KEYCODE_BASE +  69)
+#define K_F7         (KEYCODE_BASE +  70)
+#define K_F8         (KEYCODE_BASE +  71)
+#define K_F9         (KEYCODE_BASE +  72)
+#define K_F10        (KEYCODE_BASE +  73)
+#define K_F11        (KEYCODE_BASE +  74)
+#define K_F12        (KEYCODE_BASE +  75)
+#define K_SFT_F1     (KEYCODE_BASE +  80)
+#define K_SFT_F2     (KEYCODE_BASE +  81)
+#define K_SFT_F3     (KEYCODE_BASE +  82)
+#define K_SFT_F4     (KEYCODE_BASE +  83)
+#define K_SFT_F5     (KEYCODE_BASE +  84)
+#define K_SFT_F6     (KEYCODE_BASE +  85)
+#define K_SFT_F7     (KEYCODE_BASE +  86)
+#define K_SFT_F8     (KEYCODE_BASE +  87)
+#define K_SFT_F9     (KEYCODE_BASE +  88)
+#define K_SFT_F10    (KEYCODE_BASE +  89)
+#define K_SFT_F11    (KEYCODE_BASE +  90)
+#define K_SFT_F12    (KEYCODE_BASE +  91)
+#define K_CTL_F1     (KEYCODE_BASE +  96)
+#define K_CTL_F2     (KEYCODE_BASE +  97)
+#define K_CTL_F3     (KEYCODE_BASE +  98)
+#define K_CTL_F4     (KEYCODE_BASE +  99)
+#define K_CTL_F5     (KEYCODE_BASE + 100)
+#define K_CTL_F6     (KEYCODE_BASE + 101)
+#define K_CTL_F7     (KEYCODE_BASE + 102)
+#define K_CTL_F8     (KEYCODE_BASE + 103)
+#define K_CTL_F9     (KEYCODE_BASE + 104)
+#define K_CTL_F10    (KEYCODE_BASE + 105)
+#define K_CTL_F11    (KEYCODE_BASE + 106)
+#define K_CTL_F12    (KEYCODE_BASE + 107)
+#define K_ALT_F1     (KEYCODE_BASE + 112)
+#define K_ALT_F2     (KEYCODE_BASE + 113)
+#define K_ALT_F3     (KEYCODE_BASE + 114)
+#define K_ALT_F4     (KEYCODE_BASE + 115)
+#define K_ALT_F5     (KEYCODE_BASE + 116)
+#define K_ALT_F6     (KEYCODE_BASE + 117)
+#define K_ALT_F7     (KEYCODE_BASE + 118)
+#define K_ALT_F8     (KEYCODE_BASE + 119)
+#define K_ALT_F9     (KEYCODE_BASE + 120)
+#define K_ALT_F10    (KEYCODE_BASE + 121)
+#define K_ALT_F11    (KEYCODE_BASE + 122)
+#define K_ALT_F12    (KEYCODE_BASE + 123)
+#define K_NULCHAR    (KEYCODE_BASE + 144)
+#define K_BACKTAB    (KEYCODE_BASE + 145)
+#define K_LEFT       (KEYCODE_BASE + 160)
+#define K_RIGHT      (KEYCODE_BASE + 161)
+#define K_UP         (KEYCODE_BASE + 162)
+#define K_DOWN       (KEYCODE_BASE + 163)
+#define K_HOME       (KEYCODE_BASE + 164)
+#define K_END        (KEYCODE_BASE + 165)
+#define K_PGUP       (KEYCODE_BASE + 166)
+#define K_PGDN       (KEYCODE_BASE + 167)
+#define K_INS        (KEYCODE_BASE + 168)
+#define K_DEL        (KEYCODE_BASE + 169)
+#define K_PAD_CENTER (KEYCODE_BASE + 170)
+#define K_CTL_LEFT   (KEYCODE_BASE + 224)
+#define K_CTL_RIGHT  (KEYCODE_BASE + 225)
+#define K_CTL_UP     (KEYCODE_BASE + 226)
+#define K_CTL_DOWN   (KEYCODE_BASE + 227)
+#define K_CTL_HOME   (KEYCODE_BASE + 228)
+#define K_CTL_END    (KEYCODE_BASE + 229)
+#define K_CTL_PGUP   (KEYCODE_BASE + 230)
+#define K_CTL_PGDN   (KEYCODE_BASE + 231)
+#define K_CTL_INS    (KEYCODE_BASE + 232)
+#define K_CTL_DEL    (KEYCODE_BASE + 233)
+#define K_SCRLUP     (KEYCODE_BASE + 234)
+#define K_SCRLDN     (KEYCODE_BASE + 235)
+#define K_INSLN      (KEYCODE_BASE + 236)
+#define K_DELLN      (KEYCODE_BASE + 237)
+#define K_ERASE      (KEYCODE_BASE + 238)
+#define K_CTL_NL     (KEYCODE_BASE + 239)
+#define K_NULLCMD    (KEYCODE_BASE + 244)
+#define K_REDRAW     (KEYCODE_BASE + 245)
+#define K_NEWWINDOW  (KEYCODE_BASE + 246)
+#define K_MOUSE1     (KEYCODE_BASE + 247)
+#define K_MOUSE2     (KEYCODE_BASE + 248)
+#define K_MOUSE3     (KEYCODE_BASE + 249)
+#define K_MOUSE4     (KEYCODE_BASE + 250)
+#define K_MOUSE5     (KEYCODE_BASE + 251)
+#define K_UNDEF      (KEYCODE_BASE + 255)
+#define K_NONE       (KEYCODE_BASE + 256)
 
 /*
     MOUSE1ON,  MOUSE1OFF, MOUSE2ON,  MOUSE2OFF, MOUSE3ON,  MOUSE3OFF,

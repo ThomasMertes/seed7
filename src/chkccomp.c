@@ -186,7 +186,7 @@ void cleanUpCompilation (void)
 
 
 
-int compilationOkay (char *content)
+int compilationOkay (const char *content)
 
   {
     FILE *testFile;
@@ -276,23 +276,24 @@ void determineEnvironDefines (void)
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
-    if (compilationOkay("#include<stdlib.h>\n#include\"version.h\"\nint main(int argc,char *argv[])"
+    if (compilationOkay("#include <stdlib.h>\n#include \"version.h\"\nint main(int argc,char *argv[])"
                         "{os_environ;return 0;}\n")) {
-      strcat(buffer, "#include<stdlib.h>\n");
-    } else if (compilationOkay("#include<unistd.h>\n#include\"version.h\"\nint main(int argc,char *argv[])"
+      strcat(buffer, "#include <stdlib.h>\n");
+    } else if (compilationOkay("#include <unistd.h>\n#include \"version.h\"\nint main(int argc,char *argv[])"
                                "{os_environ;return 0;}\n")) {
-      strcat(buffer, "#include<unistd.h>\n");
+      strcat(buffer, "#include <unistd.h>\n");
     } else {
       printf("#define DEFINE_OS_ENVIRON\n");
       define_os_environ = 1;
     } /* if */
-    strcat(buffer, "#include\"version.h\"\n");
-    if (define_os_environ) {
+    strcat(buffer, "#include <stdio.h>\n");
+    strcat(buffer, "#include \"version.h\"\n");
 #ifdef OS_STRI_WCHAR
-      strcat(buffer, "typedef wchar_t *os_stritype;\n");
+    strcat(buffer, "typedef wchar_t *os_stritype;\n");
 #else
-      strcat(buffer, "typedef char *os_stritype;\n");
+    strcat(buffer, "typedef char *os_stritype;\n");
 #endif
+    if (define_os_environ) {
       strcat(buffer, "extern os_stritype *os_environ;\n");
     } /* if */
 #ifdef USE_WMAIN
@@ -300,7 +301,7 @@ void determineEnvironDefines (void)
 #else
     strcat(buffer, "int main(int argc,char *argv[])");
 #endif
-    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_stritype)0);return 0;}\n");
+    strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_stritype *)0);return 0;}\n");
     if (!compilationOkay(buffer) || doTest() == 1) {
       printf("#define INITIALIZE_OS_ENVIRON\n");
     } /* if */
@@ -329,7 +330,7 @@ int main (int argc, char **argv)
     float plusInf;
     float minusInf;
     int testResult;
-    char *define_read_buffer_empty;
+    const char *define_read_buffer_empty;
 
   /* main */
     prepareCompileCommand();

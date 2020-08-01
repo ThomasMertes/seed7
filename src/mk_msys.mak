@@ -161,6 +161,7 @@ version.h: chkccomp.h
 	echo "#define os_environ _wenviron" >> version.h
 	echo "#define os_getenv _wgetenv" >> version.h
 	echo "#define os_putenv _wputenv" >> version.h
+	echo "#define os_getch _getwch" >> version.h
 	echo "#define QUOTE_WHOLE_SHELL_COMMAND" >> version.h
 	echo "#define USE_WINSOCK" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h

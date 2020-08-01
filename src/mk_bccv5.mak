@@ -179,6 +179,8 @@ version.h: chkccomp.h
 	echo ^#define os_getenv wgetenv >> version.h
 	echo ^#define DEFINE_WSETENV >> version.h
 	echo ^#define os_setenv wsetenv >> version.h
+	echo ^#define os_getch getch >> version.h
+	echo ^#define OS_GETCH_READS_BYTES >> version.h
 	echo ^#define USE_WINSOCK >> version.h
 	echo ^#define QUOTE_WHOLE_SHELL_COMMAND >> version.h
 	echo ^#define $(BIGINT_LIB_DEFINE) >> version.h

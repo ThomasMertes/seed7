@@ -61,8 +61,7 @@ const proc: enable_output (in type: aType) is func
      *)
     const proc: writeln (inout file: aFile, in aType: aValue) is func
       begin
-        write(aFile, str(aValue));
-        writeln(aFile);
+        writeln(aFile, str(aValue));
       end func;
 
     (**
@@ -78,8 +77,7 @@ const proc: enable_output (in type: aType) is func
      *)
     const proc: writeln (in aType: aValue) is func
       begin
-        write(OUT, aValue);
-        writeln(OUT);
+        writeln(OUT, aValue);
       end func;
 
     (**

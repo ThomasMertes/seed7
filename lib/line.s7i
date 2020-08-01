@@ -59,6 +59,9 @@ const proc: write (inout line_file: line_fil, in string: stri) is func
   end func;
 
 
+(**
+ *  Write end-of-line to a ''line_file''.
+ *)
 const proc: writeln (inout line_file: line_fil) is func
   begin
     writeln(line_fil.baseFile, line_fil.line);

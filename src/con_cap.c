@@ -88,7 +88,7 @@ extern "C" int tgetnum (char *);
 extern "C" int tgetflag (char *);
 extern "C" char *tgetstr(char *, char **);
 extern "C" char *tgoto (char *, int, int);
-extern "C" int tputs (char *, int, int (*) (char CH));
+extern "C" int tputs (char *, int, int (*) (char ch));
 
 #else
 
@@ -97,7 +97,7 @@ int tgetnum (char *);
 int tgetflag (char *);
 char *tgetstr(char *, char **);
 char *tgoto (char *, int, int);
-int tputs (char *, int, int (*) (char CH));
+int tputs (char *, int, int (*) (char ch));
 
 #endif
 #else

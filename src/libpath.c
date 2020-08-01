@@ -38,6 +38,7 @@
 #include "heaputl.h"
 #include "striutl.h"
 #include "infile.h"
+#include "cmd_drv.h"
 
 #undef EXTERN
 #define EXTERN

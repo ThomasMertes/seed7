@@ -37,7 +37,7 @@ const type: file is sub object interface;
 
 
 (**
- *  Write a string to a file.
+ *  Write a [[string]] to a file.
  *)
 const proc: write (inout file: outFile, in string: stri)     is DYNAMIC;
 
@@ -45,10 +45,19 @@ const proc: write (inout file: outFile, in string: stri)     is DYNAMIC;
 (**
  *  Write end-of-line to a file.
  *  The implementation function decides how writing end-of-line is
- *  done. It can be done by writing "\n", but other solutions are also
+ *  done. It can be done by writing '\n', but other solutions are also
  *  possible.
  *)
 const proc: writeln (inout file: outFile)                    is DYNAMIC;
+
+
+(**
+ *  Write a [[string]] followed by end-of-line to a file.
+ *  The implementation function decides how writing end-of-line is
+ *  done. It can be done by writing '\n', but other solutions are also
+ *  possible.
+ *)
+const proc: writeln (inout file: outFile, in string: stri)   is DYNAMIC;
 
 
 const proc: backSpace (inout file: outFile)                  is DYNAMIC;
@@ -134,6 +143,7 @@ const func boolean: inputReady (in file: inFile)             is DYNAMIC;
  *  Obtain the length of a file.
  *  The file length is measured in bytes.
  *  @return the length of a file, or 0 if it cannot be obtained.
+ *  @exception FILE_ERROR The implementation type of ''aFile'' is not seekable.
  *)
 const func integer: length (in file: aFile)                  is DYNAMIC;
 
@@ -142,6 +152,7 @@ const func integer: length (in file: aFile)                  is DYNAMIC;
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
+ *  @exception FILE_ERROR The implementation type of ''aFile'' is not seekable.
  *)
 const proc: seek (inout file: aFile, in integer: position)   is DYNAMIC;
 
@@ -151,6 +162,7 @@ const proc: seek (inout file: aFile, in integer: position)   is DYNAMIC;
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
  *  @return the current file position.
+ *  @exception FILE_ERROR The implementation type of ''aFile'' is not seekable.
  *)
 const func integer: tell (in file: aFile)                    is DYNAMIC;
 
@@ -211,19 +223,6 @@ const proc: readln (inout file: inFile) is func
     stri := getln(inFile);
     inFile.io_empty := stri = "";
     inFile.io_ok := TRUE;
-  end func;
-
-
-(**
- *  Write a string followed by end-of-line to a file.
- *  The file implementation type of ''outFile'' decides how writing
- *  end-of-line is done. It can be done by writing '\n', but other
- *  solutions are also possible.
- *)
-const proc: writeln (inout file: outFile, in string: stri) is func
-  begin
-    write(outFile, stri);
-    writeln(outFile);
   end func;
 
 

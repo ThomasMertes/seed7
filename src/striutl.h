@@ -100,6 +100,7 @@ bstritype stri_to_bstri8 (const_stritype stri);
 bstritype stri_to_bstriw (const_stritype stri);
 #endif
 stritype cstri_to_stri (const_cstritype cstri);
+stritype cstri8_to_stri (const_cstritype cstri);
 stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
 stritype conv_from_os_stri (const const_os_stritype os_stri, memsizetype length);
 os_stritype stri_to_os_stri (const_stritype stri, errinfotype *err_info);
@@ -136,6 +137,7 @@ bstritype stri_to_bstri8 ();
 bstritype stri_to_bstriw ();
 #endif
 stritype cstri_to_stri ();
+stritype cstri8_to_stri ();
 stritype cstri8_or_cstri_to_stri ();
 stritype conv_from_os_stri ();
 os_stritype stri_to_os_stri ();

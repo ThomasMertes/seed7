@@ -34,9 +34,22 @@
 #define POLL_OUT     2
 #define POLL_INOUT   3
 
+typedef struct {
+    createfunctype incrUsageCount;
+    destrfunctype decrUsageCount;
+  } fileObjectOpType;
+
+#ifdef DO_INIT
+fileObjectOpType fileObjectOps = {NULL, NULL};
+#else
+EXTERN fileObjectOpType fileObjectOps;
+#endif
+
 
 #ifdef ANSI_C
 
+void initPollOperations (const createfunctype incrUsageCount,
+                         const destrfunctype decrUsageCount);
 void polAddCheck (const polltype pollData, const sockettype aSocket,
                   inttype eventsToCheck, const rtlGenerictype fileObj);
 void polClear (const polltype pollData);
@@ -56,6 +69,7 @@ void polRemoveCheck (const polltype pollData, const sockettype aSocket,
 
 #else
 
+void initPollOperations ();
 void polAddCheck ();
 void polClear ();
 void polCpy ();

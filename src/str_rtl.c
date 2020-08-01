@@ -341,20 +341,27 @@ stritype extension;
       new_size = stri_dest->size + extension_size;
 #ifdef WITH_STRI_CAPACITY
       if (new_size > stri_dest->capacity) {
-        extension_origin = GET_SLICE_ORIGIN(extension);
+        if (SLICE_OVERLAPPING(extension, stri_dest)) {
+          extension_origin = stri_dest->mem;
+        } else {
+          extension_origin = NULL;
+        } /* if */
         new_stri = growStri(stri_dest, new_size);
         if (unlikely(new_stri == NULL)) {
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          if (GET_STRI_ORIGIN(stri_dest) == extension_origin) {
-            /* It is possible that 'extension' is identical to   */
-            /* 'stri_dest' or a slice of it. This can be checked */
-            /* with the origin. In this case 'extension' must be */
-            /* corrected after realloc() enlarged 'stri_dest'.   */
+          if (extension_origin != NULL) {
+            /* It is possible that 'extension' is identical to    */
+            /* 'stri_dest' or a slice of it. This can be checked  */
+            /* with the origin. In this case 'extension_mem' must */
+            /* be corrected after realloc() enlarged 'stri_dest'. */
             extension_mem = &new_stri->mem[extension_mem - extension_origin];
-            /* Correcting the origin of extension is not necessary */
-            /* since extension will not be used afterwards.        */
+            /* Correcting extension->mem is not necessary, since  */
+            /* a slice will not be used afterwards. In case when  */
+            /* 'extension is identical to 'stri_dest' changing    */
+            /* extension->mem is dangerous since 'extension'      */
+            /* could have been released.                          */
           } /* if */
           stri_dest = new_stri;
           *destination = stri_dest;
@@ -365,19 +372,26 @@ stritype extension;
           extension_size * sizeof(strelemtype));
       stri_dest->size = new_size;
 #else
-      extension_origin = GET_SLICE_ORIGIN(extension);
+      if (SLICE_OVERLAPPING(extension, stri_dest)) {
+        extension_origin = stri_dest->mem;
+      } else {
+        extension_origin = NULL;
+      } /* if */
       GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
       if (unlikely(new_stri == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
-        if (GET_STRI_ORIGIN(stri_dest) == extension_origin) {
-          /* It is possible that 'extension' is identical to   */
-          /* 'stri_dest' or a slice of it. This can be checked */
-          /* with the origin. In this case 'extension' must be */
-          /* corrected after realloc() enlarged 'stri_dest'.   */
+        if (extension_origin != NULL) {
+          /* It is possible that 'extension' is identical to    */
+          /* 'stri_dest' or a slice of it. This can be checked  */
+          /* with the origin. In this case 'extension_mem' must */
+          /* be corrected after realloc() enlarged 'stri_dest'. */
           extension_mem = &new_stri->mem[extension_mem - extension_origin];
-          /* Correcting the origin of extension is not necessary */
-          /* since extension will not be used afterwards.        */
+          /* Correcting extension->mem is not necessary, since  */
+          /* a slice will not be used afterwards. In case when  */
+          /* 'extension is identical to 'stri_dest' changing    */
+          /* extension->mem is dangerous since 'extension'      */
+          /* could have been released.                          */
         } /* if */
         COUNT3_STRI(new_stri->size, new_size);
         memcpy(&new_stri->mem[new_stri->size], extension_mem,
@@ -1047,11 +1061,17 @@ stritype stri_from;
     new_size = stri_from->size;
 #ifdef WITH_STRI_CAPACITY
     if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
+      COUNT3_STRI(stri_dest->size, new_size);
       stri_dest->size = new_size;
       stri_from_mem = stri_from->mem;
 #else
     if (stri_dest->size > new_size) {
-      stri_from_origin = GET_SLICE_ORIGIN(stri_from);
+      stri_from_mem = stri_from->mem;
+      if (SLICE_OVERLAPPING(stri_from, stri_dest)) {
+        stri_from_origin = stri_dest->mem;
+      } else {
+        stri_from_origin = NULL;
+      } /* if */
       SHRINK_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
       /* printf("strCopy(old_size=%lu, new_size=%lu)\n", stri_dest->size, new_size); */
       if (unlikely(stri_dest == NULL)) {
@@ -1060,14 +1080,17 @@ stritype stri_from;
       } else {
         COUNT3_STRI(stri_dest->size, new_size);
         stri_dest->size = new_size;
-        if (GET_STRI_ORIGIN(*stri_to) == stri_from_origin) {
-          /* It is possible that 'stri_from' is identical to   */
-          /* '*stri_to' or a slice of it. This can be checked  */
-          /* with the origin. In this case 'stri_from' must be */
-          /* corrected after realloc() enlarged 'stri_dest'.   */
+        if (stri_from_origin != NULL) {
+          /* It is possible that 'stri_from' is identical to    */
+          /* '*stri_to' or a slice of it. This can be checked   */
+          /* with the origin. In this case 'stri_from_mem' must */
+          /* be corrected after realloc() enlarged 'stri_dest'. */
           stri_from_mem = &stri_dest->mem[stri_from_mem - stri_from_origin];
-          /* Correcting the origin of stri_from is not necessary */
-          /* since stri_from will not be used afterwards.        */
+          /* Correcting stri_from->mem is not necessary, since  */
+          /* a slice will not be used afterwards. In case when  */
+          /* 'stri_from' is identical to '*stri_to' changing    */
+          /* stri_from->mem is dangerous since 'stri_from'      */
+          /* could have been released.                          */
         } /* if */
         *stri_to = stri_dest;
       } /* if */
@@ -1340,7 +1363,7 @@ stritype slice;
   /* strHeadSlice */
     length = stri->size;
     if (stop >= 1 && length >= 1) {
-      SET_SLICE_ORIGIN(slice, stri->mem);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = stri->mem;
       if (length <= (uinttype) stop) {
         slice->size = length;
@@ -1348,7 +1371,7 @@ stritype slice;
         slice->size = (memsizetype) stop;
       } /* if */
     } else {
-      SET_SLICE_ORIGIN(slice, NULL);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
@@ -2246,7 +2269,7 @@ stritype slice;
     } /* if */
     if (stop >= 1 && stop >= start && (uinttype) start <= length &&
         length >= 1) {
-      SET_SLICE_ORIGIN(slice, stri->mem);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = &stri->mem[start - 1];
       if ((uinttype) stop > length) {
         slice->size = length - (memsizetype) start + 1;
@@ -2254,7 +2277,7 @@ stritype slice;
         slice->size = (memsizetype) stop - (memsizetype) start + 1;
       } /* if */
     } else {
-      SET_SLICE_ORIGIN(slice, NULL);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
@@ -2865,7 +2888,7 @@ stritype slice;
         len += start - 1;
         start = 1;
       } /* if */
-      SET_SLICE_ORIGIN(slice, stri->mem);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = &stri->mem[start - 1];
       if ((uinttype) start + (uinttype) len - 1 > length) {
         slice->size = length - (memsizetype) start + 1;
@@ -2873,7 +2896,7 @@ stritype slice;
         slice->size = (memsizetype) len;
       } /* if */
     } else {
-      SET_SLICE_ORIGIN(slice, NULL);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */
@@ -2955,11 +2978,11 @@ stritype slice;
       start = 1;
     } /* if */
     if ((uinttype) start <= length && length >= 1) {
-      SET_SLICE_ORIGIN(slice, stri->mem);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = &stri->mem[start - 1];
       slice->size = length - (memsizetype) start + 1;
     } else {
-      SET_SLICE_ORIGIN(slice, NULL);
+      SET_SLICE_CAPACITY(slice, 0);
       slice->mem = NULL;
       slice->size = 0;
     } /* if */

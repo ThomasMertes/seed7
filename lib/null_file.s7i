@@ -70,10 +70,36 @@ const file: (attr file) . value is STD_NULL;
 
 
 (**
- *  Write a string to a ''null_file''.
- *  Derived types of ''null_file'' need to override this function.
+ *  Write a [[string]] to a ''null_file''.
+ *  The parameter ''stri'' is just ignored. Derived types of
+ *  ''null_file'' need to override this function.
  *)
 const proc: write (in null_file: outFile, in string: stri) is noop;
+
+
+(**
+ *  Write end-of-line to ''outFile''.
+ *  This function writes the end-of-line marker '\n'. Derived types
+ *  can use this function. When a derived type does not use '\n'
+ *  as end-of-line marker it needs to override this function.
+ *)
+const proc: writeln (inout null_file: outFile) is func
+  begin
+    write(outFile, "\n");
+  end func;
+
+
+(**
+ *  Write a [[string]] followed by end-of-line to ''outFile''.
+ *  This function is based on write and writeln. Derived types
+ *  can use this function. This function must be overridden, when
+ *  it is necessary to write ''stri'' and '\n' together.
+ *)
+const proc: writeln (inout null_file: outFile, in string: stri) is func
+  begin
+    write(outFile, stri);
+    writeln(outFile);
+  end func;
 
 
 (**
@@ -109,7 +135,7 @@ const func char: getc (inout null_file: inFile) is func
 (**
  *  Read a word from a ''null_file''.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n" or [[char#EOF|EOF]]. The
+ *  accepts words ending with ' ', '\t', '\n' or [[char#EOF|EOF]]. The
  *  word ending characters are not copied into the string. When the
  *  function is left inFile.bufferChar contains ' ', '\t', '\n' or
  *  [[char#EOF|EOF]]. This function is based on the gets function.
@@ -142,7 +168,7 @@ const func string: getwd (inout null_file: inFile) is func
 
 (**
  *  Read a line from a ''null_file''.
- *  The function accepts lines ending with "\n" or [[char#EOF|EOF]].
+ *  The function accepts lines ending with '\n' or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string. When
  *  the function is left inFile.bufferChar contains '\n' or
  *  [[char#EOF|EOF]]. This function is based on the gets function.
@@ -167,12 +193,6 @@ const func string: getln (inout null_file: inFile) is func
     else
       inFile.bufferChar := buffer[1];
     end if;
-  end func;
-
-
-const proc: writeln (inout null_file: outFile) is func
-  begin
-    write(outFile, "\n");
   end func;
 
 

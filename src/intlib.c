@@ -826,7 +826,6 @@ listtype arguments;
 
 
 #ifdef ANSI_C
-#ifdef ANSI_C
 
 objecttype int_RADIX (listtype arguments)
 #else
@@ -844,6 +843,7 @@ listtype arguments;
 
 
 
+#ifdef ANSI_C
 
 objecttype int_rand (listtype arguments)
 #else

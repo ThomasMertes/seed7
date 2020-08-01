@@ -70,6 +70,7 @@ EXTERN char *keypad_local;           /* ke out of keypad transmit mode */
 EXTERN char *keypad_xmit;            /* ks put terminal in keypad transmit mode */
 EXTERN char *key_backspace;          /* kb sent by backspace key */
 EXTERN char *key_btab;               /* kB sent by back-tab key */
+EXTERN char *key_b2;                 /* K2 sent by center of keypad */
 EXTERN char *key_catab;              /* ka sent by clear-all-tabs key */
 EXTERN char *key_clear;              /* kC sent by clear screen or erase key */
 EXTERN char *key_ctab;               /* kt sent by clear tab key */
@@ -77,6 +78,8 @@ EXTERN char *key_dc;                 /* kD sent by delete character key */
 EXTERN char *key_dl;                 /* kL sent by delete line key */
 EXTERN char *key_down;               /* kd sent by terminal down arrow key */
 EXTERN char *key_eic;                /* kM sent by rmir or smir in insert mode */
+EXTERN char *key_end;                /* @7 sent by end key */
+EXTERN char *key_enter;              /* @8 sent by enter/send key */
 EXTERN char *key_eol;                /* kE sent by clear-to-end-of-line key */
 EXTERN char *key_eos;                /* kS sent by clear-to-end-of-screen key */
 EXTERN char *key_f0;                 /* k0 sent by function key f0 */
@@ -110,6 +113,40 @@ EXTERN char *key_f27;                /* FH sent by function key f27 */
 EXTERN char *key_f28;                /* FI sent by function key f28 */
 EXTERN char *key_f29;                /* FJ sent by function key f29 */
 EXTERN char *key_f30;                /* FK sent by function key f30 */
+EXTERN char *key_f31;                /* FL sent by function key f31 */
+EXTERN char *key_f32;                /* FM sent by function key f32 */
+EXTERN char *key_f33;                /* FN sent by function key f33 */
+EXTERN char *key_f34;                /* FO sent by function key f34 */
+EXTERN char *key_f35;                /* FP sent by function key f35 */
+EXTERN char *key_f36;                /* FQ sent by function key f36 */
+EXTERN char *key_f37;                /* FR sent by function key f37 */
+EXTERN char *key_f38;                /* FS sent by function key f38 */
+EXTERN char *key_f39;                /* FT sent by function key f39 */
+EXTERN char *key_f40;                /* FU sent by function key f40 */
+EXTERN char *key_f41;                /* FV sent by function key f41 */
+EXTERN char *key_f42;                /* FW sent by function key f42 */
+EXTERN char *key_f43;                /* FX sent by function key f43 */
+EXTERN char *key_f44;                /* FY sent by function key f44 */
+EXTERN char *key_f45;                /* FZ sent by function key f45 */
+EXTERN char *key_f46;                /* Fa sent by function key f46 */
+EXTERN char *key_f47;                /* Fb sent by function key f47 */
+EXTERN char *key_f48;                /* Fc sent by function key f48 */
+EXTERN char *key_f49;                /* Fd sent by function key f49 */
+EXTERN char *key_f50;                /* Fe sent by function key f50 */
+EXTERN char *key_f51;                /* Ff sent by function key f51 */
+EXTERN char *key_f52;                /* Fg sent by function key f52 */
+EXTERN char *key_f53;                /* Fh sent by function key f53 */
+EXTERN char *key_f54;                /* Fi sent by function key f54 */
+EXTERN char *key_f55;                /* Fj sent by function key f55 */
+EXTERN char *key_f56;                /* Fk sent by function key f56 */
+EXTERN char *key_f57;                /* Fl sent by function key f57 */
+EXTERN char *key_f58;                /* Fm sent by function key f58 */
+EXTERN char *key_f59;                /* Fn sent by function key f59 */
+EXTERN char *key_f60;                /* Fo sent by function key f60 */
+EXTERN char *key_f61;                /* Fp sent by function key f61 */
+EXTERN char *key_f62;                /* Fq sent by function key f62 */
+EXTERN char *key_f63;                /* Fr sent by function key f63 */
+EXTERN char *key_find;               /* @0 sent by find key */
 EXTERN char *key_home;               /* kh sent by home key */
 EXTERN char *key_ic;                 /* kI sent by ins char/enter ins mode key */
 EXTERN char *key_il;                 /* kA sent by insert line key */
@@ -118,9 +155,8 @@ EXTERN char *key_ll;                 /* kH sent by home-down key */
 EXTERN char *key_npage;              /* kN sent by next-page key */
 EXTERN char *key_ppage;              /* kP sent by previous-page key */
 EXTERN char *key_right;              /* kr sent by terminal right arrow key */
+EXTERN char *key_select;             /* *6 sent by select key */
 EXTERN char *key_sf;                 /* kF sent by scroll-forward/down key */
 EXTERN char *key_sr;                 /* kR sent by scroll-backward/up key */
 EXTERN char *key_stab;               /* kT sent by set-tab key */
 EXTERN char *key_up;                 /* ku sent by terminal up arrow key */
-EXTERN char *key_end;                /* @7 sent by end key */
-EXTERN char *key_b2;                 /* K2 sent by center of keypad */

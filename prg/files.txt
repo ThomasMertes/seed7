@@ -116,7 +116,7 @@ dir.s7i      Implementation type to read directories as files
 draw.s7i     Portable graphic library
 duration.s7i Time and date duration support library
 echo.s7i     Filter file which generates an echo of the input
-editline.s7i File type for linewise editing with history
+editline.s7i Filter file for linewise editing with history
 enable_input.s7i Templates to enable file output for a type
 enable_io.s7i Templates to enable file I/O for a given type
 enable_output.s7i Templates to enable file output for a type
@@ -144,6 +144,7 @@ image.s7i    Defines images, which are in a window
 inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 keybd.s7i    Read from keyboard without buffering and echo
+keydescr.s7i Descriptive text for function keys
 line.s7i     Filter file which reads the input linewise
 listener.s7i Support for inet listener
 lower.s7i    Filter file which turns characters to lower case

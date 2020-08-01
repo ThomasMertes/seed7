@@ -237,7 +237,7 @@ const proc: write (inout pixmapFontFile: fontFile, in string: stri) is func
 
 
 (**
- *  Write end-of-line to a ''pixmapFontFile''.
+ *  Write end-of-line to ''pixmapFontFile''.
  *  Set the current position to the beginning of the next line.
  *)
 const proc: writeln (inout pixmapFontFile: fontFile) is func

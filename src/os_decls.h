@@ -122,6 +122,14 @@
 #define os_mode_wb "wb"
 #endif
 
+#if OS_OFF_T_SIZE == 32
+#define unsigned_os_off_t uint32type
+#elif OS_OFF_T_SIZE == 64
+#define unsigned_os_off_t uint64type
+#else
+#error "sizeof(os_off_t) is neither 4 nor 8."
+#endif
+
 #ifdef DEFINE_WGETENV
 #define os_getenv_string_free(env_var) os_stri_free(env_var)
 #else

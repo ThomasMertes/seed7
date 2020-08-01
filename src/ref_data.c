@@ -223,7 +223,7 @@ stritype category_name;
       raise_error(MEMORY_ERROR);
       result = -1;
     } else {
-      result = (inttype) category_value(name);
+      result = category_value(name);
       free_cstri(name, category_name);
       if (result == -1) {
         raise_error(RANGE_ERROR);

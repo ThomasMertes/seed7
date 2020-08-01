@@ -74,7 +74,9 @@ typedef enum {
     REFPARAMOBJECT,      /* objvalue -    Formal ref parameter      */
     RESULTOBJECT,        /* objvalue -    Result of procedure       */
     LOCALVOBJECT,        /* objvalue -    Local variable            */
-    PROGOBJECT           /* progvalue -   Program                   */
+    PROGOBJECT,          /* progvalue -   Program                   */
+    DATABASEOBJECT,      /* databasevalue - Database                */
+    SQLSTMTOBJECT        /* sqlstmtvalue -  SQL statement           */
   } objectcategory;
 
 typedef enum {
@@ -194,33 +196,35 @@ typedef struct ownerstruct {
   } ownerrecord;
 
 typedef union {
-    postype    pos;          /* SYMBOLOBJECT */
-    nodetype   nodevalue;    /* MDULEOBJECT */
-    typetype   typevalue;    /* TYPEOBJECT */
-    inttype    intvalue;     /* INTOBJECT */
-    biginttype bigintvalue;  /* BIGINTOBJECT */
-    chartype   charvalue;    /* CHAROBJECT */
-    stritype   strivalue;    /* STRIOBJECT */
-    bstritype  bstrivalue;   /* BSTRIOBJECT */
-    arraytype  arrayvalue;   /* ARRAYOBJECT */
-    hashtype   hashvalue;    /* HASHOBJECT */
-    settype    setvalue;     /* SETOBJECT */
-    structtype structvalue;  /* STRUCTOBJECT */
-    filetype   filevalue;    /* FILEOBJECT */
-    sockettype socketvalue;  /* SOCKETOBJECT */
-    polltype   pollvalue;    /* POLLOBJECT */
-    listtype   listvalue;    /* LISTOBJECT, EXPROBJECT */
-    wintype    winvalue;     /* WINOBJECT */
-    objecttype objvalue;     /* ENUMLITERALOBJECT, CONSTENUMOBJECT */
-                             /* VARENUMOBJECT, VALUEPARAMOBJECT */
-                             /* REFPARAMOBJECT, RESULTOBJECT */
-                             /* LOCALVOBJECT, FORMPARAMOBJECT */
-                             /* INTERFACEOBJECT */
-    blocktype  blockvalue;   /* BLOCKOBJECT */
-    acttype    actvalue;     /* ACTOBJECT */
-    progtype   progvalue;    /* PROGOBJECT */
+    postype      pos;           /* SYMBOLOBJECT */
+    nodetype     nodevalue;     /* MDULEOBJECT */
+    typetype     typevalue;     /* TYPEOBJECT */
+    inttype      intvalue;      /* INTOBJECT */
+    biginttype   bigintvalue;   /* BIGINTOBJECT */
+    chartype     charvalue;     /* CHAROBJECT */
+    stritype     strivalue;     /* STRIOBJECT */
+    bstritype    bstrivalue;    /* BSTRIOBJECT */
+    arraytype    arrayvalue;    /* ARRAYOBJECT */
+    hashtype     hashvalue;     /* HASHOBJECT */
+    settype      setvalue;      /* SETOBJECT */
+    structtype   structvalue;   /* STRUCTOBJECT */
+    filetype     filevalue;     /* FILEOBJECT */
+    sockettype   socketvalue;   /* SOCKETOBJECT */
+    polltype     pollvalue;     /* POLLOBJECT */
+    listtype     listvalue;     /* LISTOBJECT, EXPROBJECT */
+    wintype      winvalue;      /* WINOBJECT */
+    objecttype   objvalue;      /* ENUMLITERALOBJECT, CONSTENUMOBJECT */
+                                /* VARENUMOBJECT, VALUEPARAMOBJECT */
+                                /* REFPARAMOBJECT, RESULTOBJECT */
+                                /* LOCALVOBJECT, FORMPARAMOBJECT */
+                                /* INTERFACEOBJECT */
+    blocktype    blockvalue;    /* BLOCKOBJECT */
+    acttype      actvalue;      /* ACTOBJECT */
+    progtype     progvalue;     /* PROGOBJECT */
+    databasetype databasevalue; /* DATABASEOBJECT */
+    sqlstmttype  sqlstmtvalue;  /* SQLSTMTOBJECT */
 #ifdef WITH_FLOAT
-    floattype  floatvalue;   /* FLOATOBJECT */
+    floattype    floatvalue;    /* FLOATOBJECT */
 #endif
   } valueunion;
 

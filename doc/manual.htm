@@ -2231,7 +2231,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( sqrt(A) is okay for A >= 0_
                     sqrt(A) <b>&rArr;</b> trunc(sqrt(flt(A))),
                     sqrt(-1_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a> )
-      <span class="func">modInverse(A, B)</span> Compute the modular multiplicative inverse of A modulo B
+      <span class="func">modInverse</span>(A, B) Compute the modular multiplicative inverse of A modulo B
       <span class="func">log2</span>(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
@@ -3028,10 +3028,23 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     rpos(<span class="stri">"ABCABC"</span>,<span class="stri">"BC"</span>, 4) <b>&rArr;</b> 2,
                     rpos(<span class="stri">"XYZYX"</span>,<span class="stri">"ZY"</span>, 2) <b>&rArr;</b> 0,
                     rpos(<span class="stri">"12345"</span>,<span class="stri">"34"</span>, 5) <b>&rArr;</b> 3 )
-      <span class="func">replace</span>(A,B,C) Replace all occurrences of <a class="type" href="#types_string">string</a> B in
-                <a class="type" href="#types_string">string</a> A by <a class="type" href="#types_string">string</a> C
-                  ( replace(<span class="stri">"old gold"</span>, <span class="stri">"old"</span>, <span class="stri">"one"</span>) <b>&rArr;</b> 
-                    <span class="stri">"one gone"</span> )
+      <span class="func">startsWith</span>(A,B) Determine if a string starts with a prefix.
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
+                    startsWith(<span class="stri">"tmp_s7c.c"</span>, <span class="stri">"tmp_"</span>) <b>&rArr;</b> <span class="var">TRUE</span>,
+                    startsWith(<span class="stri">"example"</span>, <span class="stri">"E"</span>) <b>&rArr;</b> <span class="var">FALSE</span> )
+      <span class="func">endsWith</span>(A,B) Determine if a string ends with a suffix.
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
+                    endsWith(<span class="stri">"hello.sd7"</span>, <span class="stri">".sd7"</span>) <b>&rArr;</b> <span class="var">TRUE</span>,
+                    endsWith(<span class="stri">"A string"</span>, <span class="stri">"\0\"</span>) <b>&rArr;</b> <span class="var">FALSE</span> )
+      <span class="func">equalAtIndex</span>(A,B,C) Check if A has the searched characters B starting from C. 
+                  ( Type of result: <a class="type" href="#types_boolean">boolean</a>,
+                    equalAtIndex(<span class="stri">"The quick brown fox"</span>, <span class="stri">"quick"</span>, 5) <b>&rArr;</b> <span class="var">TRUE</span>,
+                    equalAtIndex(<span class="stri">"axis"</span>, <span class="stri">"xi"</span>, 3) <b>&rArr;</b> <span class="var">FALSE</span> )
+      <span class="func">replace</span>(A,B,C) Search A for occurrences of B and replace them with C
+                  ( replace(<span class="stri">"old gold"</span>, <span class="stri">"old"</span>, <span class="stri">"one"</span>) <b>&rArr;</b> <span class="stri">"one gone"</span> )
+      <span class="func">replace2</span>(A,B,C,D) Search A for occurrences of B followed by C and
+                replace them with D.
+                  ( replace2(<span class="stri">"x := (*ord*) y;"</span>, <span class="stri">"(*"</span>, <span class="stri">"*)"</span>, <span class="stri">""</span>) <b>&rArr;</b> <span class="stri">"x :=  y;"</span> )
       split(A,B) Split A into strings delimited by B
                   ( Type of argument B: <a class="type" href="#types_char">char</a>,
                     Type of result: <a class="type" href="#types_array">array</a> <a class="type" href="#types_string">string</a>,
@@ -3053,11 +3066,11 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     Type of argument B: <a class="type" href="#types_string">string</a>,
                     join([](<span class="stri">"pro"</span>, <span class="stri">"gram"</span>), <span class="stri">""</span>) <b>&rArr;</b> <span class="stri">"program"</span> )
       <span class="func">trim</span>(A)   Removes leading and trailing spaces and control chars
-                  ( trim(<span class="stri">" /n xyz /r"</span>) = <span class="stri">"xyz"</span> )
+                  ( trim(<span class="stri">" /n xyz /r"</span>) <b>&rArr;</b> <span class="stri">"xyz"</span> )
       <span class="func">ltrim</span>(A)   Removes leading spaces and control chars
-                  ( trim(<span class="stri">" /n xyz /r"</span>) = <span class="stri">"xyz /r"</span> )
+                  ( ltrim(<span class="stri">" /n xyz /r"</span>) <b>&rArr;</b> <span class="stri">"xyz /r"</span> )
       <span class="func">rtrim</span>(A)   Removes trailing spaces and control chars
-                  ( trim(<span class="stri">" /n xyz /r"</span>) = <span class="stri">" /n xyz"</span> )
+                  ( rtrim(<span class="stri">" /n xyz /r"</span>) <b>&rArr;</b> <span class="stri">" /n xyz"</span> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(A) <b>&rArr;</b> A )
@@ -3989,12 +4002,11 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
     The type <tt><span class="type">file</span></tt> is the interface type for sequential files.
   The <tt><span class="type">file</span></tt> functions are defined in the library <span class="stri">"<span class="lib">file.s7i</span>"</span>.
 </p><pre class="tt">
-    Constants:
+    Variables:
       <span class="var">STD_NULL</span>  Standard null file
       <span class="var">STD_IN</span>    Standard input of the operating system
       <span class="var">STD_OUT</span>   Standard output of the operating system
       <span class="var">STD_ERR</span>   Standard error output of the operating system
-    Variables:
       <span class="var">IN</span>        Standard input file used for file input
                   operations when no file is specified
                   ( <span class="var">IN</span> is initialized with <span class="var">STD_IN</span> )
@@ -4016,7 +4028,7 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     Type of result: <a class="type" href="#types_file">file</a>,
                     Returns STD_NULL if open was not
                     possible )
-      <span class="func">open_utf8</span>(A, B) Open external UTF-16 <a class="type" href="#types_file">file</a>
+      <span class="func">open_utf16</span>(A, B) Open external UTF-16 <a class="type" href="#types_file">file</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
                     Type of argument B: <a class="type" href="#types_string">string</a>,
                     Type of result: <a class="type" href="#types_file">file</a>,
@@ -6157,7 +6169,7 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_ALT_F1</tt> to <tt>KEY_ALT_F10</tt></td>  <td>Alternate function keys F1 to F10</td></tr>
     <tr><td><tt>KEY_BS</tt></td>                     <td>Backspace (equal to KEY_CTL_H)</td></tr>
     <tr><td><tt>KEY_TAB</tt></td>                    <td>Horizontal Tab (equal to KEY_CTL_H)</td></tr>
-    <tr><td><tt>KEY_NL</tt></td>                     <td>Newline/Enter/Return key (equal to KEY_CTL_J)</td></tr>
+    <tr><td><tt>KEY_NL</tt></td>                     <td>Newline/enter/return key (equal to KEY_CTL_J)</td></tr>
     <tr><td><tt>KEY_CR</tt></td>                     <td>Carriage return (equal to KEY_CTL_M)</td></tr>
     <tr><td><tt>KEY_ESC</tt></td>                    <td>Escape key</td></tr>
     <tr><td><tt>KEY_NULCHAR</tt></td>                <td>Nul character key</td></tr>
@@ -6188,7 +6200,7 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     <tr><td><tt>KEY_INSLN</tt></td>                  <td>Insert line key</td></tr>
     <tr><td><tt>KEY_DELLN</tt></td>                  <td>Delete line key</td></tr>
     <tr><td><tt>KEY_ERASE</tt></td>                  <td>Erase key</td></tr>
-    <tr><td><tt>KEY_CTL_CR</tt></td>                 <td>Control carriage return</td></tr>
+    <tr><td><tt>KEY_CTL_NL</tt></td>                 <td>Control newline/enter/return key</td></tr>
     <tr><td><tt>KEY_NULLCMD</tt></td>                <td>Null command of window manager</td></tr>
     <tr><td><tt>KEY_REDRAW</tt></td>                 <td>Redraw command of window manager</td></tr>
     <tr><td><tt>KEY_NEWWINDOW</tt></td>              <td>New window command of window manager</td></tr>
@@ -10414,7 +10426,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
       The memory for the UTF-32 encoded Seed7 string is allocated.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
-        <dd><tt>cstri</tt> - null terminated ISO-8859-1 encoded C string.</dd>
+        <dd><tt>cstri</tt> - null terminated UTF-8 encoded C string.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string or

@@ -51,6 +51,22 @@ size_t sizeof_pollrecord = sizeof(pollrecord);
 
 #ifdef ANSI_C
 
+void initPollOperations (const createfunctype incrUsageCount,
+    const destrfunctype decrUsageCount)
+#else
+
+void initPollOperations (incrUsageCount, decrUsageCount)
+createfunctype incrUsageCount;
+destrfunctype decrUsageCount;
+#endif
+
+  { /* initPollOperations */
+  } /* initPollOperations */
+
+
+
+#ifdef ANSI_C
+
 void polAddCheck (const polltype pollData, const sockettype aSocket,
     inttype eventsToCheck, const rtlGenerictype fileObj)
 #else

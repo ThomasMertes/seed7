@@ -6012,6 +6012,8 @@ biginttype big1;
     bigdigittype digit;
     int digit_pos;
     memsizetype result_size;
+    memsizetype final_result_size;
+    stritype resized_result;
     stritype result;
 
   /* bigStr */
@@ -6065,14 +6067,26 @@ biginttype big1;
           FREE_BIG(help_big, big1->size + 1);
           pos++;
           if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-            result->size = result_size - pos + 1;
+            final_result_size = result_size - pos + 1;
             result->mem[0] = '-';
             memmove(&result->mem[1], &result->mem[pos],
                 (result_size - pos) * sizeof(strelemtype));
           } else {
-            result->size = result_size - pos;
+            final_result_size = result_size - pos;
             memmove(&result->mem[0], &result->mem[pos],
                 (result_size - pos) * sizeof(strelemtype));
+          } /* if */
+          if (final_result_size < result_size) {
+            REALLOC_STRI_SIZE_OK(resized_result, result, result_size, final_result_size);
+            if (unlikely(resized_result == NULL)) {
+              FREE_STRI(result, result_size);
+              raise_error(MEMORY_ERROR);
+              result = NULL;
+            } else {
+              result = resized_result;
+              COUNT3_STRI(result_size, final_result_size);
+              result->size = final_result_size;
+            } /* if */
           } /* if */
           return result;
         } /* if */

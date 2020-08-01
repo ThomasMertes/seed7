@@ -1136,6 +1136,7 @@ stritype stri;
 
   {
     errinfotype err_info = OKAY_NO_ERROR;
+    memsizetype wstri_size;
     bstritype resized_bstri;
     bstritype bstri;
 
@@ -1143,19 +1144,20 @@ stritype stri;
     if (stri->size > ((MAX_BSTRI_LEN / sizeof(os_chartype)) / 2)) {
       bstri = NULL;
     } else if (ALLOC_BSTRI_SIZE_OK(bstri, stri->size * 2 * sizeof(os_chartype))) {
-      bstri->size = stri_to_wstri((wstritype) bstri->mem, stri->mem, stri->size, &err_info);
+      wstri_size = stri_to_wstri((wstritype) bstri->mem, stri->mem, stri->size, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         FREE_BSTRI(bstri, stri->size * 2 * sizeof(os_chartype));
         bstri = NULL;
       } else {
         REALLOC_BSTRI_SIZE_OK(resized_bstri, bstri,
-            stri->size * 2 * sizeof(os_chartype), bstri->size);
+            stri->size * 2 * sizeof(os_chartype), wstri_size * sizeof(os_chartype));
         if (resized_bstri == NULL) {
           FREE_BSTRI(bstri, stri->size * 2 * sizeof(os_chartype));
           bstri = NULL;
         } else {
           bstri = resized_bstri;
-          COUNT3_BSTRI(stri->size * 2 * sizeof(os_chartype), bstri->size);
+          COUNT3_BSTRI(stri->size * 2 * sizeof(os_chartype), wstri_size * sizeof(os_chartype));
+          bstri->size = wstri_size * sizeof(os_chartype);
         } /* if */
       } /* if */
     } /* if */
@@ -1272,10 +1274,10 @@ cstritype cstri;
  */
 #ifdef ANSI_C
 
-static stritype cstri8_to_stri (const_cstritype cstri)
+stritype cstri8_to_stri (const_cstritype cstri)
 #else
 
-static stritype cstri8_to_stri (cstri)
+stritype cstri8_to_stri (cstri)
 cstritype cstri;
 #endif
 

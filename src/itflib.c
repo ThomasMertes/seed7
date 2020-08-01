@@ -408,15 +408,28 @@ listtype arguments;
       isit_struct(old_value);
       old_struct = take_struct(old_value);
       if (old_struct != NULL) {
-        /* printf("itf_destr: usage_count=%lu %lu\n", old_struct->usage_count, (unsigned long) old_struct); */
+        /* printf("itf_destr: usage_count=%lu %lu\n", old_struct->usage_count, (unsigned long) old_struct);
+        trace1(old_value);
+        printf("\n"); */
         if (old_struct->usage_count != 0) {
           old_struct->usage_count--;
           if (old_struct->usage_count == 0) {
             destr_struct(old_struct->stru, old_struct->size);
             /* printf("FREE_STRUCT 14 %lu\n", old_struct); */
             FREE_STRUCT(old_struct, old_struct->size);
-            arg_1(arguments)->value.structvalue = NULL;
-            FREE_OBJECT(old_value);
+            arg_1(arguments)->value.objvalue = NULL;
+            /* The function close_stack leaves HAS_PROPERTY intact to    */
+            /* allow checking for it here. Just objects without property */
+            /* are removed here. Objects with property will be removed   */
+            /* by close_stack or by other functions.                     */
+            if (HAS_PROPERTY(old_value)) {
+              old_value->value.structvalue = NULL;
+              /* printf("itf_destr: Struct object with property ");
+              trace1(old_value);
+              printf("\n"); */
+            } else {
+              FREE_OBJECT(old_value);
+            } /* if */
           } /* if */
         } /* if */
       } /* if */

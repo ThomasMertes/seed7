@@ -57,6 +57,7 @@ $ include "seed7_05.s7i";
   include "graph_file.s7i";
   include "window.s7i";
   include "keybd.s7i";
+  include "keydescr.s7i";
   include "echo.s7i";
   include "line.s7i";
   include "time.s7i";
@@ -1891,9 +1892,8 @@ const func string: exec_str_primary (
         exprResult := "";
       end if;
       write(log, "-> " <& literal(exprResult));
-      if exprResult <> "" and current_key >= '\0\' and
-          current_key <= chr(length(EVENT_DESCR)) then
-        write(log, " (" <& EVENT_DESCR[ord(current_key)] <& ")");
+      if exprResult <> "" and current_key in keyDescription then
+        write(log, " (" <& keyDescription[current_key] <& ")");
       end if;
       writeln(log);
     elsif symbol = "INPUT$" then

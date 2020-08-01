@@ -348,7 +348,7 @@ errinfotype *err_info;
 #ifdef USE_MMAP
         file_no = fileno(from_file);
         if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
-          if (file_stat.st_size < MAX_MEMSIZETYPE && file_stat.st_size >= 0) {
+          if (file_stat.st_size >= 0 && (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {
             file_length = (memsizetype) file_stat.st_size;
             if ((file_content = (ustritype) mmap(NULL, file_length,
                 PROT_READ, MAP_PRIVATE, fileno(from_file),
@@ -1406,7 +1406,7 @@ rtlArraytype cmdEnvironment ()
   /* cmdEnvironment */
 #ifdef INITIALIZE_OS_ENVIRON
     if (os_environ == NULL) {
-      os_getenv(empty_os_stri);
+      (void) os_getenv(empty_os_stri);
     } /* if */
 #endif
     if (ALLOC_RTL_ARRAY(environment_array, INITAL_ARRAY_SIZE)) {

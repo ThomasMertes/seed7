@@ -130,9 +130,11 @@ stritype stri;
   /* beyond the right border of the console. All console output     */
   /* must be done with this function.                               */
 
-  { /* conWrite */
+  {
+    memsizetype size;
+
+  /* conWrite */
     if (stri->size <= 256) {
-      memsizetype size;
 #ifdef CONSOLE_UTF8
       uchartype stri_buffer[MAX_UTF8_EXPANSION_FACTOR * 256];
 
@@ -160,7 +162,12 @@ stritype stri;
       bstri = stri_to_bstri(stri);
 #endif
       if (bstri != NULL) {
-        conText(cursor_line, cursor_column, (console_stritype) bstri->mem, bstri->size);
+#if defined CONSOLE_WCHAR
+        size = bstri->size / sizeof(os_chartype);
+#else
+        size = bstri->size;
+#endif
+        conText(cursor_line, cursor_column, (console_stritype) bstri->mem, size);
         FREE_BSTRI(bstri, bstri->size);
       } /* if */
     } /* if */

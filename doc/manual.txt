@@ -2906,10 +2906,23 @@ CONTENTS
                     rpos("ABCABC","BC", 4) => 2,
                     rpos("XYZYX","ZY", 2) => 0,
                     rpos("12345","34", 5) => 3 )
-      replace(A,B,C) Replace all occurrences of string B in
-                string A by string C
-                  ( replace("old gold", "old", "one") =>
-                    "one gone" )
+      startsWith(A,B) Determine if a string starts with a prefix.
+                  ( Type of result: boolean,
+                    startsWith("tmp_s7c.c", "tmp_") => TRUE,
+                    startsWith("example", "E") => FALSE )
+      endsWith(A,B) Determine if a string ends with a suffix.
+                  ( Type of result: boolean,
+                    endsWith("hello.sd7", ".sd7") => TRUE,
+                    endsWith("A string", "\0\") => FALSE )
+      equalAtIndex(A,B,C) Check if A has the searched characters B starting from C.
+                  ( Type of result: boolean,
+                    equalAtIndex("The quick brown fox", "quick", 5) => TRUE,
+                    equalAtIndex("axis", "xi", 3) => FALSE )
+      replace(A,B,C) Search A for occurrences of B and replace them with C
+                  ( replace("old gold", "old", "one") => "one gone" )
+      replace2(A,B,C,D) Search A for occurrences of B followed by C and
+                replace them with D.
+                  ( replace2("x := (*ord*) y;", "(*", "*)", "") => "x :=  y;" )
       split(A,B) Split A into strings delimited by B
                   ( Type of argument B: char,
                     Type of result: array string,
@@ -2931,11 +2944,11 @@ CONTENTS
                     Type of argument B: string,
                     join([]("pro", "gram"), "") => "program" )
       trim(A)   Removes leading and trailing spaces and control chars
-                  ( trim(" /n xyz /r") = "xyz" )
+                  ( trim(" /n xyz /r") => "xyz" )
       ltrim(A)   Removes leading spaces and control chars
-                  ( trim(" /n xyz /r") = "xyz /r" )
+                  ( ltrim(" /n xyz /r") => "xyz /r" )
       rtrim(A)   Removes trailing spaces and control chars
-                  ( trim(" /n xyz /r") = " /n xyz" )
+                  ( rtrim(" /n xyz /r") => " /n xyz" )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(A) => A )
@@ -3867,12 +3880,11 @@ CONTENTS
     The type 'file' is the interface type for sequential files.
   The 'file' functions are defined in the library "file.s7i".
 
-    Constants:
+    Variables:
       STD_NULL  Standard null file
       STD_IN    Standard input of the operating system
       STD_OUT   Standard output of the operating system
       STD_ERR   Standard error output of the operating system
-    Variables:
       IN        Standard input file used for file input
                   operations when no file is specified
                   ( IN is initialized with STD_IN )
@@ -3894,7 +3906,7 @@ CONTENTS
                     Type of result: file,
                     Returns STD_NULL if open was not
                     possible )
-      open_utf8(A, B) Open external UTF-16 file
+      open_utf16(A, B) Open external UTF-16 file
                   ( Type of argument A: string,
                     Type of argument B: string,
                     Type of result: file,
@@ -6035,7 +6047,7 @@ CONTENTS
     KEY_ALT_F1 to KEY_ALT_F10  Alternate function keys F1 to F10
     KEY_BS                     Backspace (equal to KEY_CTL_H)
     KEY_TAB                    Horizontal Tab (equal to KEY_CTL_H)
-    KEY_NL                     Newline/Enter/Return key (equal to KEY_CTL_J)
+    KEY_NL                     Newline/enter/return key (equal to KEY_CTL_J)
     KEY_CR                     Carriage return (equal to KEY_CTL_M)
     KEY_ESC                    Escape key
     KEY_NULCHAR                Nul character key
@@ -6066,7 +6078,7 @@ CONTENTS
     KEY_INSLN                  Insert line key
     KEY_DELLN                  Delete line key
     KEY_ERASE                  Erase key
-    KEY_CTL_CR                 Control carriage return
+    KEY_CTL_NL                 Control newline/enter/return key
     KEY_NULLCMD                Null command of window manager
     KEY_REDRAW                 Redraw command of window manager
     KEY_NEWWINDOW              New window command of window manager
@@ -10292,7 +10304,7 @@ CONTENTS
       The memory for the UTF-32 encoded Seed7 string is allocated.
 
       Parameters:
-        cstri - null terminated ISO-8859-1 encoded C string.
+        cstri - null terminated UTF-8 encoded C string.
 
       Returns:
         an UTF-32 encoded Seed7 string or

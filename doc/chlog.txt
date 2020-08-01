@@ -1,3 +1,72 @@
+20130401:
+- The FAQ explanations concerning, 'in' parameters and different
+  behavior of val and ref parameters, have been improved.
+- The keyboard read function getc(KEYBOARD) has been improved to
+  support more function keys and to accept Unicode characters also
+  under Windows.
+- The program calc.sd7 has been improved to accept and display
+  Unicode characters.
+- The automatic memory management has been improved to work also
+  for the files managed by pollData.
+- The function openEditLineLatin1 has been added to editline.s7i.
+  Only Latin-1 characters are accepted and written to ''outFile''.
+  Unicode characters beyond ISO Latin-1 (ISO-8859-1) are ignored.
+- In file.s7i the function writeln(file, string) has been defined as
+  DYNAMIC (virtual) function. This allows that the implementation
+  function writeln(socket, string) sends string and '\n' together.
+- The definition of keys in keybd.s7i have been changed such that
+  function keys are outside the range of Unicode characters.
+- The new library keydescr.s7i, which defines a hash table with
+  descriptive text for function keys, has been added.
+- The implementation function writeln(null_file, string) has been
+  added to null_file.s7i. This function is used by many derived
+  types.
+- An implementation function of writeln(socket, string) has been
+  added to socket.s7i. This function sends string and '\n' together.
+- Definitions of writeln (without string parameter) have been removed
+  from external_file.s7i, socket.s7i and utf8.s7i.
+- The example programs bas7.sd7, gkbd.sd7 and kbd.sd7 have been
+  changed to use the hash keyDescription (defined in keydescr.s7i).
+- Tests for string assignment and string append (operator &:= ) have
+  been added to chkstr.sd7.
+- The function bigStr in big_rtl.c has been improved to realloc the
+  string to the correct size.
+- The function determineEnvironDefines in chkccomp.c has been
+  improved.
+- The function itf_destr in itflib.c has been improved to cooperate
+  with the function close_stack (defined in name.c).
+- The function kbdKeyPressed in kbd_inf.c has been improved to never
+  wait for input (calls of tcsetattr() were fixed, see below). 
+- In pol_unx.c and pol_sel.c the functions addCheck, removeCheck,
+  polCpy, polCreate, polDestr and polClear have been improved to use
+  the function pointers incrUsageCount and decrUsageCount from
+  fileObjectOps.
+- The function initPollOperations has been added to pol_unx.c,
+  pol_sel.c and pol_dos.c.
+- In str_rtl.c the functions strAppend and strCopy have been changed
+  to use SLICE_OVERLAPPING instead of GET_SLICE_ORIGIN.
+- In str_rtl.c the functions strHeadSlice, strRangeSlice,
+  strSubstrSlice and strTailSlice have been improved to avoid
+  (mis)using the string capacity. Now the capacity of a slice is set
+  to zero. Before the origin of a slice was stored in the capacity.
+- The function print_real_value in traceutl.c has been improved to
+  print interface values with more detail.
+- Support for additional function keys has been added to kbd_inf.c,
+  kbd_poll.c, cap_def.h, trm_cap.c and trm_inf.c.
+- The files kbd_inf.c and kbd_poll.c have been improved to use read()
+  instead of fread().
+- The files kbd_inf.c and kbd_poll.c have been improved to take a
+  weakness of tcsetattr() into account. The function tcsetattr() may
+  return success, although not all changes could be carried out.
+  Now the calls of tcsetattr() are done via the new functions
+  term_descr_equal, tcset_term_descr and tcset_vmin_vtime.
+- The compiler has been improved to create and use cpy_... functions
+  for the interface assignment (action ITF_CPY).
+- The free list management for strings has been improved to allow
+  different maximum list lengths for strings with different capacity.
+- Definitions of databasetype and sqlstmttype have been added to
+  common.h. This are the first steps towards database support.
+
 20130317:
 - The FAQ explanations concerning, what kind of programs can be
   written in Seed7 and the automatic memory management of Seed7, have

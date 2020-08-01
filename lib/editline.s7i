@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  editline.s7i  File type for linewise editing with history       *)
+(*  editline.s7i  Filter file for linewise editing with history     *)
 (*  Copyright (C) 2013  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
@@ -37,6 +37,7 @@ include "keybd.s7i";
 const type: editLineFile is sub null_file struct
     var file: inFile is STD_NULL;
     var file: outFile is STD_NULL;
+    var boolean: allowUnicode is TRUE;
     var string: line is "";
     var boolean: lineFinished is TRUE;
     var array string: history is 0 times "";
@@ -44,7 +45,14 @@ const type: editLineFile is sub null_file struct
 
 
 (**
- *  Open an editLineFile.
+ *  Open an Unicode filter file for linewise editing with history.
+ *  Unicode characters and editing keys are read from ''inFile''.
+ *  All Unicode characters are accepted and written to ''outFile''.
+ *  To avoid RANGE_ERROR use an Unicode capable file as ''outFile''.
+ *  The following editing keys are accepted: Backspace, delete,
+ *  home, end and the cursor keys. The history is accessed with
+ *  the vertical cursor keys. Ctrl-C and ctrl-T allow terminating
+ *  the program. Other keys (e.g. function keys) are ignored.
  *  Call ''openEditLine'' with
  *   IN := openEditLine(KEYBOARD, OUT);
  *  to allow editing standard console input.
@@ -58,6 +66,34 @@ const func file: openEditLine (in file: inFile, in file: outFile) is func
   begin
     new_editLineFile.inFile := inFile;
     new_editLineFile.outFile := outFile;
+    newFile := toInterface(new_editLineFile);
+  end func;
+
+
+(**
+ *  Open a Latin-1 filter file for linewise editing with history.
+ *  Unicode characters and editing keys are read from ''inFile''.
+ *  Only Latin-1 characters are accepted and written to ''outFile''.
+ *  Unicode characters beyond ISO Latin-1 (ISO-8859-1) are ignored.
+ *  This allows that a normal byte file is used as ''outFile''.
+ *  The following editing keys are accepted: Backspace, delete,
+ *  home, end and the cursor keys. The history is accessed with
+ *  the vertical cursor keys. Ctrl-C and ctrl-T allow terminating
+ *  the program. Other keys (e.g. function keys) are ignored.
+ *  Call ''openEditLine'' with
+ *   IN := openEditLineLatin1(KEYBOARD, OUT);
+ *  to allow editing standard console input.
+ *  @return the file opened.
+ *)
+const func file: openEditLineLatin1 (in file: inFile, in file: outFile) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var editLineFile: new_editLineFile is editLineFile.value;
+  begin
+    new_editLineFile.inFile := inFile;
+    new_editLineFile.outFile := outFile;
+    new_editLineFile.allowUnicode := FALSE;
     newFile := toInterface(new_editLineFile);
   end func;
 
@@ -92,12 +128,7 @@ const func string: getln (inout editLineFile: inEditLine) is func
       repeat
         flush(inEditLine.outFile);
         ch := getc(inEditLine.inFile);
-        if ch >= ' ' and ch <= '~' then
-          line := line[.. pred(pos)] & str(ch) & line[pos ..];
-          write(inEditLine.outFile, line[pos ..]);
-          write(inEditLine.outFile, "\b" mult length(line) - pos);
-          incr(pos);
-        elsif ch = KEY_BS then
+        if ch = KEY_BS then
           if pos > 1 then
             decr(pos);
             line := line[.. pred(pos)] & line[succ(pos) ..];
@@ -171,6 +202,12 @@ const func string: getln (inout editLineFile: inEditLine) is func
             end if;
             write(inEditLine.outFile, "\b" mult 20);
           end if;
+        elsif ch >= ' ' and ch <= '~' or ch >= '\160\' and ch <= '\255\' or
+              ch >= '\256\' and ch <= '\16#10FFFF\' and inEditLine.allowUnicode then
+          line := line[.. pred(pos)] & str(ch) & line[pos ..];
+          write(inEditLine.outFile, line[pos ..]);
+          write(inEditLine.outFile, "\b" mult length(line) - pos);
+          incr(pos);
         end if;
       until ch = KEY_NL or ch = EOF;
       writeln(inEditLine.outFile);

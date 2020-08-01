@@ -102,7 +102,7 @@ size_t num;
 
 
 
-#ifdef OUT_OF_ORDER
+#ifdef USE_TERMCAP
 #ifdef ANSI_C
 #ifdef C_PLUS_PLUS
 
@@ -111,7 +111,7 @@ extern "C" int tgetnum (char *);
 extern "C" int tgetflag (char *);
 extern "C" char *tgetstr(char *, char **);
 extern "C" char *tgoto (char *, int, int);
-extern "C" int tputs (char *, int, int (*) (char CH));
+extern "C" int tputs (char *, int, int (*) (char ch));
 
 #else
 
@@ -120,7 +120,7 @@ int tgetnum (char *);
 int tgetflag (char *);
 char *tgetstr(char *, char **);
 char *tgoto (char *, int, int);
-void tputs (char *, int, int (*) (char CH));
+void tputs (char *, int, int (*) (char ch));
 
 #endif
 #else
@@ -465,21 +465,23 @@ void conFlush ()
 
   { /* conFlush */
     /* fprintf(stderr, "conFlush\n"); */
-    if (!cursor_on) {
-      if (cursor_invisible == NULL) {
-        putgoto(cursor_address, 0, 0); /* cursor motion */
-        cursor_position_okay = FALSE;
+    if (console_initialized) {
+      if (!cursor_on) {
+        if (cursor_invisible == NULL) {
+          putgoto(cursor_address, 0, 0); /* cursor motion */
+          cursor_position_okay = FALSE;
+        } /* if */
+      } else {
+        if (!cursor_position_okay) {
+          putgoto(cursor_address,
+              cursor_column - 1, cursor_line - 1); /* cursor motion */
+          cursor_position_okay = TRUE;
+        } /* if */
       } /* if */
-    } else {
-      if (!cursor_position_okay) {
-        putgoto(cursor_address,
-            cursor_column - 1, cursor_line - 1); /* cursor motion */
-        cursor_position_okay = TRUE;
-      } /* if */
+      changes = FALSE;
     } /* if */
     fflush(stdout);
     /* fsync(fileno(stdout)); */
-    changes = FALSE;
   } /* conFlush */
 
 
@@ -560,95 +562,99 @@ memsizetype length;
     unsigned char *new_attr;
 
   /* conText */
-    if (lin <= lines) {
-      new_line = &whole_screen[lin - 1][col - 1];
-      new_attr = &attributes[lin - 1][col - 1];
-      if (col + length - 1 <= columns) {
-        end_pos = length - 1;
-        while (end_pos >= 0 &&
-            new_line[end_pos] == stri[end_pos] &&
-            new_attr[end_pos] == curr_attr) {
-          end_pos--;
-        } /* while */
-        if (end_pos >= 0) {
-          start_pos = 0;
-          while (start_pos <= end_pos &&
-              new_line[start_pos] == stri[start_pos] &&
-              new_attr[start_pos] == curr_attr) {
-            start_pos++;
+    if (console_initialized) {
+      if (lin <= lines) {
+        new_line = &whole_screen[lin - 1][col - 1];
+        new_attr = &attributes[lin - 1][col - 1];
+        if (col + length - 1 <= columns) {
+          end_pos = length - 1;
+          while (end_pos >= 0 &&
+              new_line[end_pos] == stri[end_pos] &&
+              new_attr[end_pos] == curr_attr) {
+            end_pos--;
           } /* while */
-          if (start_pos <= end_pos) {
+          if (end_pos >= 0) {
+            start_pos = 0;
+            while (start_pos <= end_pos &&
+                new_line[start_pos] == stri[start_pos] &&
+                new_attr[start_pos] == curr_attr) {
+              start_pos++;
+            } /* while */
+            if (start_pos <= end_pos) {
 #ifdef MAP_CHARS
-            for (position = 0; position <= end_pos - start_pos; position++) {
-              new_line[start_pos + position] = map[stri[start_pos + position]];
-            } /* for */
-#else
-            memcpy(&new_line[start_pos], &stri[start_pos],
-                (size_t) (end_pos - start_pos + 1));
-#endif
-            if (cursor_position_okay &&
-                cursor_line == lin && cursor_column == col) {
-              start_pos = 0;
-            } else {
-              putgoto(cursor_address, col + start_pos - 1, lin - 1); /* cursor motion */
-            } /* if */
-            if (ceol_standout_glitch) {
               for (position = 0; position <= end_pos - start_pos; position++) {
-                if (new_attr[start_pos + position] != curr_attr) {
+                new_line[start_pos + position] = map[stri[start_pos + position]];
+              } /* for */
+#else
+              memcpy(&new_line[start_pos], &stri[start_pos],
+                  (size_t) (end_pos - start_pos + 1));
+#endif
+              if (cursor_position_okay &&
+                  cursor_line == lin && cursor_column == col) {
+                start_pos = 0;
+              } else {
+                putgoto(cursor_address, col + start_pos - 1, lin - 1); /* cursor motion */
+              } /* if */
+              if (ceol_standout_glitch) {
+                for (position = 0; position <= end_pos - start_pos; position++) {
+                  if (new_attr[start_pos + position] != curr_attr) {
+                    setattr(curr_attr);
+                  } /* if */
+                  fputc(new_line[start_pos + position], stdout);
+                } /* for */
+                if (col + end_pos < columns && new_attr[end_pos + 1] != curr_attr) {
+                  setattr(new_attr[end_pos + 1]);
+                } /* if */
+              } else {
+                if (curr_attr != TEXT_NORMAL) {
                   setattr(curr_attr);
                 } /* if */
-                fputc(new_line[start_pos + position], stdout);
-              } /* for */
-              if (col + end_pos < columns && new_attr[end_pos + 1] != curr_attr) {
-                setattr(new_attr[end_pos + 1]);
+                fwrite(&new_line[start_pos], 1,
+                    (size_t) (end_pos - start_pos + 1), stdout);
+                if (curr_attr != TEXT_NORMAL) {
+                  setattr(TEXT_NORMAL);
+                } /* if */
               } /* if */
+              memset(&new_attr[start_pos], curr_attr,
+                  (size_t) (end_pos - start_pos + 1));
+              cursor_position_okay = TRUE;
+              cursor_line = lin;
+              cursor_column = col + end_pos + 1;
+            } /* if */
+          } /* if */
+        } else {
+          if (col <= columns) {
+#ifdef MAP_CHARS
+            for (position = 0; position <= columns - col; position++) {
+              new_line[position] = map[stri[position]];
+            } /* for */
+#else
+            memcpy(new_line, stri, (size_t) (columns - col + 1));
+#endif
+            if (ceol_standout_glitch) {
+              for (position = 0; position <= columns - col; position++) {
+                if (new_attr[position] != curr_attr) {
+                  setattr(curr_attr);
+                } /* if */
+                fputc(new_line[position], stdout);
+              } /* for */
             } else {
+              putgoto(cursor_address, col - 1, lin - 1); /* cursor motion */
               if (curr_attr != TEXT_NORMAL) {
                 setattr(curr_attr);
               } /* if */
-              fwrite(&new_line[start_pos], 1,
-                  (size_t) (end_pos - start_pos + 1), stdout);
+              fwrite(new_line, 1, (size_t) (columns - col + 1), stdout);
               if (curr_attr != TEXT_NORMAL) {
                 setattr(TEXT_NORMAL);
               } /* if */
             } /* if */
-            memset(&new_attr[start_pos], curr_attr,
-                (size_t) (end_pos - start_pos + 1));
-            cursor_position_okay = TRUE;
-            cursor_line = lin;
-            cursor_column = col + end_pos + 1;
+            memset(new_attr, curr_attr, (size_t) (columns - col + 1));
           } /* if */
         } /* if */
-      } else {
-        if (col <= columns) {
-#ifdef MAP_CHARS
-          for (position = 0; position <= columns - col; position++) {
-            new_line[position] = map[stri[position]];
-          } /* for */
-#else
-          memcpy(new_line, stri, (size_t) (columns - col + 1));
-#endif
-          if (ceol_standout_glitch) {
-            for (position = 0; position <= columns - col; position++) {
-              if (new_attr[position] != curr_attr) {
-                setattr(curr_attr);
-              } /* if */
-              fputc(new_line[position], stdout);
-            } /* for */
-          } else {
-            putgoto(cursor_address, col - 1, lin - 1); /* cursor motion */
-            if (curr_attr != TEXT_NORMAL) {
-              setattr(curr_attr);
-            } /* if */
-            fwrite(new_line, 1, (size_t) (columns - col + 1), stdout);
-            if (curr_attr != TEXT_NORMAL) {
-              setattr(TEXT_NORMAL);
-            } /* if */
-          } /* if */
-          memset(new_attr, curr_attr, (size_t) (columns - col + 1));
-        } /* if */
+        changes = TRUE;
       } /* if */
-      changes = TRUE;
+    } else {
+      fwrite(stri, 1, (size_t) length, stdout);
     } /* if */
   } /* conText */
 

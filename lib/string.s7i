@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  string.s7i    String support library                            *)
-(*  Copyright (C) 1989 - 2011  Thomas Mertes                        *)
+(*  Copyright (C) 1989 - 2013  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -346,6 +346,7 @@ const func integer: rpos (in string: mainStri, in char: searched,
 
 (**
  *  Replace all occurrences of ''target'' in ''mainStri'' by ''replacement''.
+ *   replace("old gold", "old", "one")  returns "one gone"
  *  @return the result of the replacement.
  *)
 const func string: replace (in string: mainStri, in string: target,
@@ -353,12 +354,13 @@ const func string: replace (in string: mainStri, in string: target,
 
 
 (**
- *  Replace all occurrences of ''search1'' followed by ''search2''.
+ *  Replace all occurrences of ''search1'' followed by ''search2'' with ''replacement''.
  *  Searches ''mainStri'' for ''search1'' followed by ''search2''. The
  *  characters from the beginning of ''search1'' to the end of ''search2''
  *  are replaced by ''replacement''. Between ''search1'' and ''search2''
  *  can be zero or more characters. With ''replace2'' unnested comments
- *  can be removed: replace2(stri, "(*", "*)", "")
+ *  can be removed:
+ *   replace2("x := (*ord*) y;", "(*", "*)", "")  returns "x :=  y;"
  *  @return the result of the replacement.
  *)
 const func string: replace2 (in string: mainStri, in string: search1,
@@ -407,6 +409,7 @@ const func string: lower (in string: stri)                     is action "STR_LO
 (**
  *  Return string with leading and trailing whitespace omitted.
  *  All characters less than or equal to ' ' (space) count as whitespace.
+ *   trim(" /n xyz /r")  returns "xyz"
  *  @return string with leading and trailing whitespace omitted.
  *)
 const func string: trim (in string: stri)                      is action "STR_TRIM";
@@ -415,6 +418,7 @@ const func string: trim (in string: stri)                      is action "STR_TR
 (**
  *  Return string with leading whitespace omitted.
  *  All characters less than or equal to ' ' (space) count as whitespace.
+ *   ltrim(" /n xyz /r")  returns "xyz /r"
  *  @return string with leading whitespace omitted.
  *)
 const func string: ltrim (in string: stri)                     is action "STR_LTRIM";
@@ -423,6 +427,7 @@ const func string: ltrim (in string: stri)                     is action "STR_LT
 (**
  *  Return string with trailing whitespace omitted.
  *  All characters less than or equal to ' ' (space) count as whitespace.
+ *   rtrim(" /n xyz /r")  returns " /n xyz"
  *  @return string with trailing whitespace omitted.
  *)
 const func string: rtrim (in string: stri)                     is action "STR_RTRIM";
@@ -445,6 +450,8 @@ const func string: c_literal (in string: stri)                 is action "STR_CL
 
 (**
  *  Determine if a string starts with a ''prefix''.
+ *   startsWith("tmp_s7c.c", "tmp_")  returns TRUE
+ *   startsWith("example", "E")       returns FALSE
  *  @return TRUE if ''stri'' starts with ''prefix'',
  *          FALSE otherwise.
  *)
@@ -454,6 +461,8 @@ const func boolean: startsWith (in string: stri, in string: prefix) is
 
 (**
  *  Determine if a string ends with a ''suffix''.
+ *   endsWith("hello.sd7", ".sd7")  returns TRUE
+ *   endsWith("A string", "\0\")    returns FALSE
  *  @return TRUE if ''stri'' ends with ''suffix'',
  *          FALSE otherwise.
  *)
@@ -463,6 +472,8 @@ const func boolean: endsWith (in string: stri, in string: suffix) is
 
 (**
  *  Check if ''stri'' has the ''searched'' characters starting from ''index''.
+ *   equalAtIndex("The quick brown fox", "quick", 5)  returns TRUE
+ *   equalAtIndex("axis", "xi", 3)                    returns FALSE
  *  @return TRUE if ''stri'' has the ''searched'' characters starting from ''index'',
  *          FALSE otherwise.
  *)

@@ -268,18 +268,18 @@ const const_os_stritype os_stri;
         char buffer[51];
 
         for (; *stri != 0 && stri - os_stri <= 128; stri++) {
-          if (*stri <= (os_chartype) 31) {
-            sprintf(buffer, "\\%03lo", (unsigned long) (os_uchartype) *stri);
-          } else if (*stri == (os_chartype) '\\') {
+          if ((os_uchartype) *stri <= (os_uchartype) 31) {
+            sprintf(buffer, "\\%03o", (unsigned int) (os_uchartype) *stri);
+          } else if ((os_uchartype) *stri == (os_uchartype) '\\') {
             sprintf(buffer, "\\\\");
-          } else if (*stri == (os_chartype) '\"') {
+          } else if ((os_uchartype) *stri == (os_uchartype) '\"') {
             sprintf(buffer, "\\\"");
-          } else if (*stri <= (os_chartype) 127) {
+          } else if ((os_uchartype) *stri <= (os_uchartype) 127) {
             sprintf(buffer, "%c", (int) *stri);
-          } else if (*stri == (os_chartype) -1) {
+          } else if ((os_uchartype) *stri == (os_uchartype) -1) {
             sprintf(buffer, "\\EOF\\");
-          } else if (*stri <= (os_chartype) 255) {
-            sprintf(buffer, "\\%3lo", (unsigned long) (os_uchartype) *stri);
+          } else if ((os_uchartype) *stri <= (os_uchartype) 255) {
+            sprintf(buffer, "\\%3o", (unsigned int) (os_uchartype) *stri);
           } else {
             sprintf(buffer, "\\u%4lx\\", (unsigned long) (os_uchartype) *stri);
           } /* if */
@@ -607,7 +607,10 @@ static void print_real_value (anyobject)
 objecttype anyobject;
 #endif
 
-  { /* print_real_value */
+  {
+    structtype structvalue;
+
+  /* print_real_value */
 #ifdef TRACE_TRACE
     printf("BEGIN print_real_value\n");
 #endif
@@ -671,19 +674,55 @@ objecttype anyobject;
         } /* if */
         break;
       case STRUCTOBJECT:
-        if (anyobject->value.structvalue != NULL) {
+        structvalue = anyobject->value.structvalue;
+        if (structvalue != NULL) {
           prot_cstri("struct[");
-          prot_int((inttype) anyobject->value.structvalue->size);
+          prot_int((inttype) structvalue->size);
           prot_cstri("]");
-          if (anyobject->value.structvalue->usage_count != 0) {
+          if (structvalue->usage_count != 0) {
             prot_cstri("<");
-            prot_int((inttype) anyobject->value.structvalue->usage_count);
+            prot_int((inttype) structvalue->usage_count);
             prot_cstri(">");
           } /* if */
           prot_cstri(" ");
-          prot_ptr(anyobject->value.structvalue);
+          prot_ptr(structvalue);
         } else {
           prot_cstri(" *NULL_STRUCT* ");
+        } /* if */
+        break;
+      case INTERFACEOBJECT:
+        if (anyobject->value.objvalue != NULL) {
+          if (CATEGORY_OF_OBJ(anyobject->value.objvalue) == STRUCTOBJECT) {
+            structvalue = anyobject->value.objvalue->value.structvalue;
+            if (structvalue != NULL) {
+              prot_cstri("interface[");
+              prot_int((inttype) structvalue->size);
+              prot_cstri("]");
+              if (structvalue->usage_count != 0) {
+                prot_cstri("<");
+                prot_int((inttype) structvalue->usage_count);
+                prot_cstri(">");
+              } /* if */
+              prot_cstri(" ");
+              prot_ptr(structvalue);
+              prot_cstri(" ");
+              prot_ptr(anyobject);
+            } else {
+              prot_cstri(" *INTERFACE_NULL_STRUCT* ");
+            } /* if */
+          } else {
+            prot_cstri(" *INTERFACE_TO_");
+            printcategory(CATEGORY_OF_OBJ(anyobject->value.objvalue));
+            prot_cstri("* ");
+            prot_ptr(anyobject->value.objvalue);
+            prot_cstri(" ");
+            prot_ptr(anyobject);
+          } /* if */
+          prot_nl();
+          prot_cstri("  ");
+          trace1(anyobject->value.objvalue);
+        } else {
+          prot_cstri(" *NULL_INTERFACE* ");
         } /* if */
         break;
       case SETOBJECT:
@@ -820,6 +859,7 @@ objecttype anyobject;
         case ARRAYOBJECT:
         case HASHOBJECT:
         case STRUCTOBJECT:
+        case INTERFACEOBJECT:
         case SETOBJECT:
         case BLOCKOBJECT:
         case PROGOBJECT:
@@ -1023,6 +1063,7 @@ listtype list;
           case ARRAYOBJECT:
           case HASHOBJECT:
           case STRUCTOBJECT:
+          case INTERFACEOBJECT:
           case SETOBJECT:
           case ACTOBJECT:
           case BLOCKOBJECT:
@@ -1653,7 +1694,6 @@ objecttype traceobject;
       prot_cstri("> ");
       switch (CATEGORY_OF_OBJ(traceobject)) {
         case REFOBJECT:
-        case INTERFACEOBJECT:
         case ENUMLITERALOBJECT:
         case CONSTENUMOBJECT:
         case VARENUMOBJECT:
@@ -1707,6 +1747,7 @@ objecttype traceobject;
         case ARRAYOBJECT:
         case HASHOBJECT:
         case STRUCTOBJECT:
+        case INTERFACEOBJECT:
         case SETOBJECT:
         case ACTOBJECT:
         case BLOCKOBJECT:

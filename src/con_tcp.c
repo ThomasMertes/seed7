@@ -87,7 +87,7 @@ int tgetnum (char *);
 int tgetflag (char *);
 char *tgetstr(char *, char **);
 char *tgoto (char *, int, int);
-int tputs (char *, int, int (*) (char CH));
+int tputs (char *, int, int (*) (char ch));
 
 #else
 

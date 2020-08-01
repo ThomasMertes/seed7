@@ -59,6 +59,9 @@
 #include "sctlib.h"
 #include "setlib.h"
 #include "soclib.h"
+#ifdef WITH_SQL
+#include "sqllib.h"
+#endif
 #include "strlib.h"
 #include "timlib.h"
 #include "typlib.h"
@@ -772,6 +775,14 @@ static primactrecord prim_act_table[] = {
     { "SOC_SOCKET",              soc_socket,              },
     { "SOC_WORD_READ",           soc_word_read,           },
     { "SOC_WRITE",               soc_write,               },
+
+#ifdef WITH_SQL
+    { "SQL_OPEN",                sql_open,                },
+    { "SQL_PREPARE",             sql_prepare,             },
+    { "SQL_STEP",                sql_step,                },
+    { "SQL_COLUMN_INT",          sql_column_int,          },
+    { "SQL_COLUMN_STR",          sql_column_str,          },
+#endif
 
     { "STR_APPEND",              str_append,              },
     { "STR_CAT",                 str_cat,                 },

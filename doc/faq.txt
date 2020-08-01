@@ -199,12 +199,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 190000 lines of Seed7. For version 2013-03-17 the number of lines is:
+than 190000 lines of Seed7. For version 2013-04-01 the number of lines is:
 
-  105128  C source files (*.c)
-   10331  C header files (*.h)
-  112009  Seed7 source files (*.sd7)
-   82442  Seed7 library/include files (*.s7i)
+  106268  C source files (*.c)
+   10453  C header files (*.h)
+  112075  Seed7 source files (*.sd7)
+   82563  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -979,6 +979,142 @@ enable_output. The description of the Seed7 file system contains also a chapter
 about the conversion to strings and back.
 
 
+What types of parameters does Seed7 have?
+=========================================
+
+There are call-by-value and call-by-reference parameters. The formal parameter
+can be constant or variable. The combination of these features allows four types
+of parameters:
+
+  +-----------+---------------------+--------------+
+  | parameter | evaluation strategy | access right |
+  +-----------+---------------------+--------------+
+  | val       |    call-by-value    | const        |
+  | ref       |  call-by-reference  | const        |
+  | in var    |    call-by-value    | var          |
+  | inout     |  call-by-reference  | var          |
+  +-----------+---------------------+--------------+
+
+For call-by-value parameters ('val' and 'in var') the actual parameter value
+is copied, when the function is called. For call-by-refererence parameters
+('ref' and 'inout') the function uses a reference to the actual parameter value.
+Since a call-by-reference parameter is not copied it can provide better
+performance for structured types like strings, arrays, structs and hashs.
+
+
+What is an 'in' parameter?
+==========================
+
+An 'in' parameter describes, that the actual parameter value is going into
+the function. Inside the function an 'in' parameter cannot be changed.
+'In' parameters are the most commonly used evaluation strategy for parameters.
+
+An 'in' parameter is either a 'val' (call-by-value) parameter or a 'ref'
+(call-by-reference) parameter. Every type defines an 'in' parameter:
+
+ - For types with little memory requirements 'in' is a val (call-by-value) parameter:
+     boolean, integer, float, char, category, reference, enumeration,
+     clib_file, pixel, PRIMITIVE_SOCKET
+
+ - For types with bigger memory requirements 'in' is a ref (call-by-reference) parameter:
+     bigInteger, rational, bigRational, complex, string, array, hash,
+     set, bitset, struct, interface, ref_list, program, color, time,
+     duration, file, text, proc, type, object
+
+Usually it is not necessary to care, if an 'in' parameter uses call-by-value or
+call-by-reference. A programmer can just use 'in' parameters to specify, that
+the actual parameter value is going into the function. A programmer can use
+'val' or 'ref' to overrule this behavior in cases, where the default
+'in' parameter specified by a type is not desired.
+
+
+Is there an example where val and ref parameters have different behavior?
+=========================================================================
+
+Normally 'val' and 'ref' parameters behave the same. Only in corner cases
+their behavior differs. This is shown with the following example:
+
+  $ include "seed7_05.s7i";
+
+  var integer: aGlobal is 1;
+
+  const proc: aFunc (val integer: valParam, ref integer: refParam) is func
+    begin
+      writeln(valParam <& " " <& refParam);
+      aGlobal := 2;
+      writeln(valParam <& " " <& refParam);
+    end func;
+
+  const proc: main is func
+    begin
+      aFunc(aGlobal, aGlobal);
+    end func;
+
+The program above writes:
+
+  1 1
+  1 2
+
+The different behavior is triggered when 2 is assigned to the global variable
+aGlobal:
+
+ - The 'val' parameter (valParam) is unaffected by the change of aGlobal,
+   because the actual parameter value was copied when the function was called.
+ - The 'ref' parameter (refParam) changes when aGlobal is changed.
+
+The effect happens for any type, not just for 'integer' parameters. The same
+effect happens also, when an additional 'inout' parameter is used instead of
+a global variable and when the function is called with the same variable as
+actual parameter for all three parameters.
+
+When a programmer has to deal with such corner cases it is necessary
+to explicitely use 'val' or 'ref'.
+
+
+What is call-by-name?
+=====================
+
+Call-by-name is an evaluation strategy for parameters. The actual call-by-name
+parameter is not evaluated before the function is called. When the function is
+executed the call-by-name parameter might be executed once, many times or not at
+all. Examples of call-by-name parameters are:
+
+ - The conditions of while-loops
+ - The statements in loop bodies
+ - The statements that are conditionally executed in
+   an if-statement
+
+As can be seen, call-by-name parameters are used all the time, without realizing
+it. A call-by-name parameter is a function without parameters. Function types such
+as 'proc' or 'func boolean' are used as type of formal call-by-name parameters.
+An expression with the correct type is allowed as actual call-by-name parameter. This
+actual parameter expression is not evaluated when the function is called. Instead
+the call-by-name expression is evaluated every time the formal call-by-name
+parameter is used. A 'conditional' function (similar to the ?: operator from C)
+is defined with:
+
+  const func integer: conditional (in boolean: condition,
+      (in func integer: trueValue, in func integer: falseValue) is func
+    result
+      var integer: conditionalResult is 0;
+    begin
+      if condition then
+        conditionalResult := trueValue;
+      else
+        conditionalResult := falseValue;
+      end if;
+    end func;
+
+Seed7 does not require a special notation (like brackets) for actual call-by-name
+parameters, therefore the 'conditional' function can be called with:
+
+  conditional(a < 100.0, sqrt(a), a ** 2)
+
+Depending on the condition 'a < 100.0' only one of the expressions 'sqrt(a)' and
+'a ** 2' is evaluated. This evaluation takes place when 'trueValue' or 'falseValue'
+is assigned to 'result'.
+
+
 Is there a garbage collection?
 ==============================
 
@@ -1156,50 +1292,6 @@ The decision which '+' operator should be called at runtime is based on the
 implementation type ('Integer' or a 'Float') of both arguments of the '+'.
 
 
-What is a call-by-name?
-=======================
-
-Call-by-name is an evaluation strategy for parameters. The actual call-by-name
-parameter is not evaluated before the function is called. When the function is
-executed the call-by-name parameter might be executed once, many times or not at
-all. Examples of call-by-name parameters are:
-
- - The conditions of while-loops
- - The statements in loop bodies
- - The statements that are conditionally executed in
-   an if-statement
-
-As can be seen, call-by-name parameters are used all the time, without realizing
-it. A call-by-name parameter is a function without parameters. Function types such
-as 'proc' or 'func boolean' are used as type of formal call-by-name parameters.
-An expression with the correct type is allowed as actual call-by-name parameter. This
-actual parameter expression is not evaluated when the function is called. Instead
-the call-by-name expression is evaluated every time the formal call-by-name
-parameter is used. A 'conditional' function (similar to the ?: operator from C)
-is defined with:
-
-  const func integer: conditional (in boolean: condition,
-      (in func integer: trueValue, in func integer: falseValue) is func
-    result
-      var integer: conditionalResult is 0;
-    begin
-      if condition then
-        conditionalResult := trueValue;
-      else
-        conditionalResult := falseValue;
-      end if;
-    end func;
-
-Seed7 does not require a special notation (like brackets) for actual call-by-name
-parameters, therefore the 'conditional' function can be called with:
-
-  conditional(a < 100.0, sqrt(a), a ** 2)
-
-Depending on the condition 'a < 100.0' only one of the expressions 'sqrt(a)' and
-'a ** 2' is evaluated. This evaluation takes place when 'trueValue' or 'falseValue'
-is assigned to 'result'.
-
-
 What container classes do exist?
 ================================
 
@@ -1324,28 +1416,6 @@ with methods, this is just not true. Besides statements and operators in C++ and
 Java which are special even Smalltalk treats the assignment and the comparison
 special. Seed7 does not have such special treatment for the assignment and the
 comparison operators.
-
-
-What types of parameters does Seed7 have?
-=========================================
-
-There are value and reference parameters. The formal parameter can be constant or
-variable. The combination of these features allows four types of parameters:
-
-  +-----------+-----------+--------------+
-  | parameter |  call by  | access right |
-  +-----------+-----------+--------------+
-  | val       |   value   | const        |
-  | ref       | reference | const        |
-  | in var    |   value   | var          |
-  | inout     | reference | var          |
-  +-----------+-----------+--------------+
-
-Additionally every type defines an 'in' parameter which is either a 'val' or a
-'ref' parameter. Types with little memory requirements like 'integer', 'char'
-and 'boolean' use a 'val' parameter as 'in'. Other types like 'string', 'array'
-and 'struct' use a 'ref' parameter as 'in'. Usually it is not necessary to
-care if an 'in' parameter is by value or by reference.
 
 
 Where are the constructors?

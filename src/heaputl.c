@@ -157,9 +157,9 @@ void freeStriFreelist ()
         stri = (stritype) elem;
         elem = elem->next;
         HEAP_FREE_STRI(stri, capacity);
+        sflist_allowed[capacity]++;
       } /* while */
       sflist[capacity] = NULL;
-      sflist_len[capacity] = 0;
     } /* for */
 #else
     elem = sflist;
@@ -167,9 +167,9 @@ void freeStriFreelist ()
       stri = (stritype) elem;
       elem = elem->next;
       HEAP_FREE_STRI(stri, 1);
+      sflist_allowed++;
     } /* while */
     sflist = NULL;
-    sflist_len = 0;
 #endif
   } /* freeStriFreelist */
 #endif
@@ -187,11 +187,12 @@ void rtlHeapStatistic ()
 
   {
     memsizetype bytes_used;
+    memsizetype bytes_in_buffers;
     memsizetype bytes_total;
 
   /* rtlHeapStatistic */
 #ifdef TRACE_HEAPUTIL
-    printf("BEGIN heap_statistic\n");
+    printf("BEGIN rtlHeapStatistic\n");
 #endif
     bytes_used = 0;
     if (count.stri != 0) {
@@ -313,6 +314,14 @@ void rtlHeapStatistic ()
           (unsigned int) sizeof_winrecord);
       bytes_used += count.win * sizeof_winrecord;
     } /* if */
+    bytes_in_buffers =
+        count.fnam_bytes + count.fnam +
+        count.symb_bytes + count.symb +
+        count.byte;
+    if (bytes_in_buffers != 0) {
+      printf("%9lu bytes in buffers\n", bytes_in_buffers);
+      bytes_used += bytes_in_buffers;
+    } /* if */
     if (bytes_used != 0) {
       printf("%9lu bytes in use\n", bytes_used);
     } /* if */
@@ -324,16 +333,18 @@ void rtlHeapStatistic ()
     } /* if */
 #endif
 #ifdef USE_CHUNK_ALLOCS
-    printf("%9lu bytes in %8u chunks\n",
-        chunk.total_size, chunk.number_of_chunks);
-    printf("%9u unused bytes in last chunk\n",
-        (unsigned) (chunk.beyond - chunk.freemem));
-    printf("%9lu lost bytes in chunks\n", chunk.lost_bytes);
+    if (chunk.total_size != 0) {
+      printf("%9lu bytes in %8u chunks\n",
+          chunk.total_size, chunk.number_of_chunks);
+      printf("%9u unused bytes in last chunk\n",
+          (unsigned) (chunk.beyond - chunk.freemem));
+      printf("%9lu lost bytes in chunks\n", chunk.lost_bytes);
+    } /* if */
     printf("%9lu bytes total requested\n", bytes_total +
         (memsizetype) (chunk.beyond - chunk.freemem) + chunk.lost_bytes);
 #endif
 #ifdef TRACE_HEAPUTIL
-    printf("END heap_statistic\n");
+    printf("END rtlHeapStatistic\n");
 #endif
   } /* rtlHeapStatistic */
 #endif

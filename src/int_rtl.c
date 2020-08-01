@@ -339,12 +339,11 @@ uint16type number;
     int result;
 
   /* uint16MostSignificantBit */
-    result = 0;
     if (number & 0xff00) {
-      number >>= 8;
-      result += 8;
+      result = 8 + most_significant[number >> 8];
+    } else {
+      result = most_significant[number];
     } /* if */
-    result += most_significant[number];
     return result;
   } /* uint16MostSignificantBit */
 
@@ -448,12 +447,11 @@ uint16type number;
     int result;
 
   /* uint16LeastSignificantBit */
-    result = 0;
     if ((number & 0xff) == 0) {
-      number >>= 8;
-      result += 8;
+      result = 8 + least_significant[(number >> 8) & 0xff];
+    } else {
+      result = least_significant[number & 0xff];
     } /* if */
-    result += least_significant[number & 0xff];
     return result;
   } /* uint16LeastSignificantBit */
 

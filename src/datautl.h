@@ -28,13 +28,13 @@
 #ifdef ANSI_C
 
 const_cstritype category_cstri (objectcategory category);
-objectcategory category_value (const const_cstritype stri);
+inttype category_value (const const_cstritype stri);
 const_cstritype id_string (const_identtype actual_ident);
 
 #else
 
 cstritype category_cstri ();
-objectcategory category_value ();
+inttype category_value ();
 cstritype id_string ();
 
 #endif

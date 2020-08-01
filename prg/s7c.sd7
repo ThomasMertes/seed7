@@ -100,6 +100,7 @@ const category: VOIDOBJECT        is category conv 258;
 # Type variables which hold types from the program being compiled
 var type: proctype is void;
 var type: voidtype is void;
+var type: fileInterfaceType is void;
 
 var ref_list: declared_types is ref_list.EMPTY;
 
@@ -123,7 +124,7 @@ const type: expr_type is new struct
 
 var expr_type: global_c_expr is expr_type.value;
 
-var integer: declaration_count is 1;
+var integer: countDeclarations is 0;
 var expr_type: global_init is expr_type.value;
 
 const type: bigint_table_hash is hash [bigInteger] integer;
@@ -234,11 +235,9 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
 const proc: count_declarations is func
 
   begin
-    incr(declaration_count);
-    write(OUT, declaration_count);
-    write(OUT, " ");
-    write(OUT, heapsize(PROGRAM));
-    write(OUT, "     \r");
+    incr(countDeclarations);
+    write(OUT, countDeclarations);
+    write(OUT, "\r");
     flush(OUT);
   end func;
 
@@ -925,15 +924,7 @@ const proc: process_arr_create_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "  size * sizeof(rtlObjecttype)));\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "if (a == NULL) {\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= ")(arrMalloc(size));\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->min_position = b->min_position;\n";
     c_expr.expr &:= diagnosticLine;
@@ -947,8 +938,6 @@ const proc: process_arr_create_declaration (in type: object_type,
     process_create_call(array_element[object_type],
         "b->arr[i]" & select_value, c_expr.expr);
     c_expr.expr &:= ";\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
@@ -1206,7 +1195,7 @@ const proc: process_arr_destr_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "free((void *)(b));\n";
+    c_expr.expr &:= "arrFree((arraytype)(b));\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
@@ -1531,16 +1520,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "*a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "if (*a == NULL) {\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "} else {\n";
-    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= ")(arrRealloc((arraytype)(*a), size_a, size_b));\n";
     c_expr.expr &:= "size = size_a;\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "for (i = size_a; i < size_b; i++) {\n";
@@ -1551,8 +1531,6 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     process_create_call(array_element[object_type],
         "b->arr[i]" & select_value, c_expr.expr);
     c_expr.expr &:= ";\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
@@ -1569,15 +1547,7 @@ const proc: process_arr_cpy_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "*a=(";
     c_expr.expr &:= type_name(object_type);
-    c_expr.expr &:= ")(realloc((void *)(*a), sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "  size_b * sizeof(rtlObjecttype)));\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "if (*a == NULL) {\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
+    c_expr.expr &:= ")(arrRealloc((arraytype)(*a), size_a, size_b));\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
@@ -1681,6 +1651,42 @@ const proc: process_hsh_cpy_declaration (in type: object_type,
   end func;
 
 
+const proc: process_itf_cpy_declaration (in type: object_type,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: diagnosticLine is "";
+  begin
+    if object_type in copyFunction then
+      diagnosticLine := diagnosticLine(copyFunction[object_type]);
+    end if;
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "static void cpy_";
+    c_expr.expr &:= str(typeNumber(object_type));
+    c_expr.expr &:= " (";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " *a, ";
+    c_expr.expr &:= type_name(object_type);
+    c_expr.expr &:= " b)\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "interfacetype old_value = *a;\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "*a=b;\n";
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "if ((*a)->usage_count != 0) { (*a)->usage_count++; }\n";
+    process_destr_declaration(object_type, global_c_expr);
+    c_expr.expr &:= diagnosticLine;
+    process_destr_call(object_type, "old_value", c_expr.expr);
+    c_expr.expr &:= diagnosticLine;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= noDiagnosticLine;
+    c_expr.expr &:= "\n";
+    cpy_declared @:= [object_type] TRUE;
+  end func;
+
+
 const proc: process_cpy_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
@@ -1694,6 +1700,8 @@ const proc: process_cpy_declaration (in type: object_type,
             process_sct_cpy_declaration(object_type, c_expr);
           when {HASHOBJECT}:
             process_hsh_cpy_declaration(object_type, c_expr);
+          when {INTERFACEOBJECT}:
+            process_itf_cpy_declaration(object_type, c_expr);
           otherwise:
             cpy_declared @:= [object_type] TRUE;
         end case;
@@ -1715,7 +1723,7 @@ const proc: process_cpy_call (in type: object_type,
     if object_type in typeCategory then
       case typeCategory[object_type] of
         when {BOOLOBJECT, ENUMOBJECT, INTOBJECT, FLOATOBJECT, CHAROBJECT,
-              FILEOBJECT, SOCKETOBJECT, REFOBJECT, INTERFACEOBJECT,
+              FILEOBJECT, SOCKETOBJECT, REFOBJECT,
               TYPEOBJECT, ACTOBJECT, BLOCKOBJECT}:
                                 expr &:= param_a & "=" & param_b;
         when {BIGINTOBJECT}:    expr &:= "bigCpy(&(" & param_a & "), " & param_b & ")";
@@ -1726,7 +1734,7 @@ const proc: process_cpy_call (in type: object_type,
         when {REFLISTOBJECT}:   expr &:= "rflCpy(&(" & param_a & "), " & param_b & ")";
         when {WINOBJECT}:       expr &:= "drwCpy(&(" & param_a & "), " & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCpy(&(" & param_a & "), " & param_b & ")";
-        when {ARRAYOBJECT, HASHOBJECT}:
+        when {ARRAYOBJECT, HASHOBJECT, INTERFACEOBJECT}:
           expr &:= "cpy_";
           expr &:= str(typeNumber(object_type));
           expr &:= "((";
@@ -3706,9 +3714,9 @@ const proc: process_arr_head (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.temp_decls &:= "=NULL;\n";
       c_expr.temp_frees &:= "if (";
       c_expr.temp_frees &:= array_name;
-      c_expr.temp_frees &:= " != NULL) {free((void *)(";
+      c_expr.temp_frees &:= " != NULL) {arrFree(";
       c_expr.temp_frees &:= array_name;
-      c_expr.temp_frees &:= "));}\n";
+      c_expr.temp_frees &:= ");}\n";
       c_expr.temp_to_null &:= array_name;
       c_expr.temp_to_null &:= "=NULL;\n";
       c_expr.result_expr := "(";
@@ -4185,9 +4193,9 @@ const proc: process_arr_range (in ref_list: params, inout expr_type: c_expr) is 
       c_expr.temp_decls &:= "=NULL;\n";
       c_expr.temp_frees &:= "if (";
       c_expr.temp_frees &:= array_name;
-      c_expr.temp_frees &:= " != NULL) {free((void *)(";
+      c_expr.temp_frees &:= " != NULL) {arrFree(";
       c_expr.temp_frees &:= array_name;
-      c_expr.temp_frees &:= "));}\n";
+      c_expr.temp_frees &:= ");}\n";
       c_expr.temp_to_null &:= array_name;
       c_expr.temp_to_null &:= "=NULL;\n";
       c_expr.result_expr := "(";
@@ -4299,9 +4307,9 @@ const proc: process_arr_tail (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.temp_decls &:= "=NULL;\n";
       c_expr.temp_frees &:= "if (";
       c_expr.temp_frees &:= array_name;
-      c_expr.temp_frees &:= " != NULL) {free((void *)(";
+      c_expr.temp_frees &:= " != NULL) {arrFree(";
       c_expr.temp_frees &:= array_name;
-      c_expr.temp_frees &:= "));}\n";
+      c_expr.temp_frees &:= ");}\n";
       c_expr.temp_to_null &:= array_name;
       c_expr.temp_to_null &:= "=NULL;\n";
       c_expr.result_expr := "(";
@@ -11796,13 +11804,13 @@ const proc: process_itf_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= "=";
     else
-      c_expr.expr &:= "structtype *struct_ptr=&(";
+      c_expr.expr &:= "interfacetype *interface_ptr=&(";
       c_expr.expr &:= c_param1.expr;
       c_expr.expr &:= ");\n";
       setDiagnosticLine(c_expr);
-      c_expr.expr &:= "structtype old_struct=*struct_ptr;\n";
+      c_expr.expr &:= "structtype old_struct=*interface_ptr;\n";
       setDiagnosticLine(c_expr);
-      c_expr.expr &:= "*struct_ptr=";
+      c_expr.expr &:= "*interface_ptr=";
     end if;
     if c_param3.result_expr <> "" then
       c_expr.expr &:= c_param3.result_expr;
@@ -11817,7 +11825,7 @@ const proc: process_itf_cpy (in ref_list: params, inout expr_type: c_expr) is fu
         c_expr.expr &:= ")->usage_count != 0) {(";
         c_expr.expr &:= c_param1.expr;
       else
-        c_expr.expr &:= "if ((*struct_ptr)->usage_count != 0) {(*struct_ptr";
+        c_expr.expr &:= "if ((*interface_ptr)->usage_count != 0) {(*interface_ptr";
       end if;
       c_expr.expr &:= ")->usage_count++; }\n";
     end if;
@@ -11830,39 +11838,6 @@ const proc: process_itf_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       AppendWithDiagnostic(c_param3.temp_frees, c_expr);
     end if;
     c_expr.expr &:= "}\n";
-  end func;
-
-
-const proc: process_itf_cpy2 (in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var expr_type: c_param1 is expr_type.value;
-    var expr_type: c_param3 is expr_type.value;
-  begin
-    process_expr(params[1], c_param1);
-    c_param3.temp_num := c_param1.temp_num;
-    process_expr(params[3], c_param3);
-    if has_temp_values(c_param3) then
-      c_expr.expr &:= "{\n";
-      AppendWithDiagnostic(c_param1.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param3.temp_decls, c_expr);
-      AppendWithDiagnostic(c_param1.temp_assigns, c_expr);
-      AppendWithDiagnostic(c_param3.temp_assigns, c_expr);
-    end if;
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= c_param1.expr;
-    c_expr.expr &:= "=";
-    if c_param3.result_expr <> "" then
-      c_expr.expr &:= c_param3.result_expr;
-    else
-      c_expr.expr &:= c_param3.expr;
-    end if;
-    c_expr.expr &:= ";\n";
-    if has_temp_values(c_param3) then
-      AppendWithDiagnostic(c_param1.temp_frees, c_expr);
-      AppendWithDiagnostic(c_param3.temp_frees, c_expr);
-      c_expr.expr &:= "}\n";
-    end if;
   end func;
 
 
@@ -13020,6 +12995,7 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
           c_expr.expr &:= "if (sct->usage_count != 0) {\n";
           c_expr.expr &:= "printf(\"<%lu>\", sct->usage_count);\n";
           c_expr.expr &:= "}\n";
+          c_expr.expr &:= "printf(\" type_num=%lu %lx\", sct->type_num, sct);\n";
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
         when {INTERFACEOBJECT}:
@@ -15961,7 +15937,7 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
     else
       process_expr(param1, c_param1);
       c_param6.temp_num := c_param1.temp_num;
-      process_expr(param6, c_param6);
+      getAnyParamToExpr(param6, c_param6);
       c_expr.expr &:= "{\n";
       if c_param6.temp_num <> 0 then
         AppendWithDiagnostic(c_param1.temp_decls, c_expr);
@@ -16026,7 +16002,7 @@ const proc: process_str_poscpy (in reference: function, in ref_list: params, ino
       c_param4.temp_num := c_param1.temp_num;
       process_expr(params[4], c_param4);
       c_param6.temp_num := c_param4.temp_num;
-      process_expr(params[6], c_param6);
+      getAnyParamToExpr(params[6], c_param6);
       c_expr.expr &:= "{\n";
       if c_param6.temp_num <> 0 then
         AppendWithDiagnostic(c_param1.temp_decls, c_expr);
@@ -16854,6 +16830,7 @@ const proc: process_action (in reference: function, in ref_list: params,
   begin
     current_action := getValue(function, ACTION);
     action_name := str(current_action);
+    # c_expr.expr &:= "/* " <& action_name <& " */\n";
     action_prefix := action_name[ .. 3];
     if action_prefix = "ACT" then
       if action_name = "ACT_CPY" then
@@ -17686,7 +17663,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "ITF_CPY" then
         process_itf_cpy(params, c_expr);
       elsif action_name = "ITF_CPY2" then
-        process_itf_cpy2(params, c_expr);
+        process_itf_cpy(params, c_expr);
       elsif action_name = "ITF_EQ" then
         process_itf_eq(params, c_expr);
       elsif action_name = "ITF_HASHCODE" then
@@ -20477,7 +20454,12 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
   begin
     current_action := getValue(function, ACTION);
     action_name := str(current_action);
-    if action_name = "ARR_CREATE" then
+    if action_name = "ARR_CPY" then
+      object_type := getType(formalParams(function)[1]);
+      process_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&cpy_";
+      c_expr.expr &:= str(typeNumber(object_type));
+    elsif action_name = "ARR_CREATE" then
       object_type := getType(formalParams(function)[1]);
       typeCategory @:= [object_type] ARRAYOBJECT;
       process_create_declaration(object_type, global_c_expr);
@@ -20487,11 +20469,6 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       object_type := getType(formalParams(function)[1]);
       process_destr_declaration(object_type, global_c_expr);
       c_expr.expr &:= "&destr_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "ARR_CPY" then
-      object_type := getType(formalParams(function)[1]);
-      process_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "BIG_CMP" then
       c_expr.expr &:= "&bigCmpGeneric";
@@ -20542,9 +20519,12 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     elsif action_name = "ITF_CMP" then
       c_expr.expr &:= "&uintCmpGeneric";
     elsif action_name = "ITF_CPY" then
-      c_expr.expr &:= "&intCpy";
+      object_type := getType(formalParams(function)[1]);
+      process_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&cpy_";
+      c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "ITF_CREATE" then
-      c_expr.expr &:= "&intCreateGeneric";
+      c_expr.expr &:= "&itfCreate";
     elsif action_name = "ITF_DESTR" then
       object_type := getType(formalParams(function)[1]);
       process_destr_declaration(object_type, global_c_expr);
@@ -20568,6 +20548,11 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&rflCreateGeneric";
     elsif action_name = "RFL_DESTR" then
       c_expr.expr &:= "&rflDestr";
+    elsif action_name = "SCT_CPY" then
+      object_type := getType(formalParams(function)[1]);
+      process_generic_sct_cpy_declaration(object_type, global_c_expr);
+      c_expr.expr &:= "&generic_cpy_";
+      c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "SCT_CREATE" then
       object_type := getType(formalParams(function)[1]);
       typeCategory @:= [object_type] STRUCTOBJECT;
@@ -20578,11 +20563,6 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       object_type := getType(formalParams(function)[1]);
       process_destr_declaration(object_type, global_c_expr);
       c_expr.expr &:= "&destr_";
-      c_expr.expr &:= str(typeNumber(object_type));
-    elsif action_name = "SCT_CPY" then
-      object_type := getType(formalParams(function)[1]);
-      process_generic_sct_cpy_declaration(object_type, global_c_expr);
-      c_expr.expr &:= "&generic_cpy_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "SET_CMP" then
       c_expr.expr &:= "&setCmpGeneric";
@@ -21768,15 +21748,7 @@ const proc: process_arr_times_declaration (in reference: current_object,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "} else {\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "a=(arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "  (memsizetype)(n) * sizeof(rtlObjecttype)));\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "if (a == NULL) {\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= "a=arrMalloc((memsizetype)(n));\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->min_position = 1;\n";
     c_expr.expr &:= diagnosticLine;
@@ -21789,8 +21761,6 @@ const proc: process_arr_times_declaration (in reference: current_object,
     c_expr.expr &:= "=";
     process_create_call(object_type, "b", c_expr.expr);
     c_expr.expr &:= ";\n";
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
@@ -21850,6 +21820,13 @@ const proc: process_itf_cpy2_declaration (in reference: current_object,
     c_expr.expr &:= " := ";
     c_expr.expr &:= type_name2(implementationType);
     c_expr.expr &:= " */\n";
+  end func;
+
+
+const proc: process_itf_next_file_declaration (in reference: current_object) is func
+
+  begin
+    fileInterfaceType := resultType(getType(current_object));
   end func;
 
 
@@ -22083,14 +22060,14 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "ARR_TIMES" then
         process_arr_times_declaration(current_object, c_expr);
         count_declarations;
+      elsif action_name = "BIG_CPY" or action_name = "BIG_CREATE" then
+        defineParam1TypeCategory(current_object, BIGINTOBJECT);
+        count_declarations;
       elsif action_name = "BLN_CPY" then
         defineParam1TypeCategory(current_object, BOOLOBJECT);
         count_declarations;
-      elsif action_name = "ITF_CPY" then
-        defineParam1TypeCategory(current_object, INTERFACEOBJECT);
-        count_declarations;
-      elsif action_name = "ITF_CPY2" then
-        process_itf_cpy2_declaration(current_object, c_expr);
+      elsif action_name = "BST_CPY" or action_name = "BST_CREATE" then
+        defineParam1TypeCategory(current_object, BSTRIOBJECT);
         count_declarations;
       elsif action_name = "DRW_CPY" or action_name = "DRW_CREATE" then
         defineParam1TypeCategory(current_object, WINOBJECT);
@@ -22101,20 +22078,8 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "FIL_CPY" or action_name = "FIL_CREATE" then
         defineParam1TypeCategory(current_object, FILEOBJECT);
         count_declarations;
-      elsif action_name = "INT_CPY" or action_name = "INT_CREATE" then
-        defineParam1TypeCategory(current_object, INTOBJECT);
-        count_declarations;
-      elsif action_name = "BIG_CPY" or action_name = "BIG_CREATE" then
-        defineParam1TypeCategory(current_object, BIGINTOBJECT);
-        count_declarations;
       elsif action_name = "FLT_CPY" or action_name = "FLT_CREATE" then
         defineParam1TypeCategory(current_object, FLOATOBJECT);
-        count_declarations;
-      elsif action_name = "SOC_CPY" or action_name = "SOC_CREATE" then
-        defineParam1TypeCategory(current_object, SOCKETOBJECT);
-        count_declarations;
-      elsif action_name = "POL_CPY" or action_name = "POL_CREATE" then
-        defineParam1TypeCategory(current_object, POLLOBJECT);
         count_declarations;
       elsif action_name = "HSH_CPY" then
         process_hsh_cpy_declaration(current_object);
@@ -22124,6 +22089,21 @@ const proc: process_action_declaration (in reference: current_object,
         count_declarations;
       elsif action_name = "HSH_DESTR" then
         process_hsh_destr_declaration(current_object);
+        count_declarations;
+      elsif action_name = "INT_CPY" or action_name = "INT_CREATE" then
+        defineParam1TypeCategory(current_object, INTOBJECT);
+        count_declarations;
+      elsif action_name = "ITF_CPY" then
+        defineParam1TypeCategory(current_object, INTERFACEOBJECT);
+        count_declarations;
+      elsif action_name = "ITF_CPY2" then
+        process_itf_cpy2_declaration(current_object, c_expr);
+        count_declarations;
+      elsif action_name = "POL_CPY" or action_name = "POL_CREATE" then
+        defineParam1TypeCategory(current_object, POLLOBJECT);
+        count_declarations;
+      elsif action_name = "POL_NEXT_FILE" then
+        process_itf_next_file_declaration(current_object);
         count_declarations;
       elsif action_name = "PRG_CPY" or action_name = "PRG_CREATE" then
         defineParam1TypeCategory(current_object, PROGOBJECT);
@@ -22152,8 +22132,8 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "SET_CPY" or action_name = "SET_CREATE" then
         defineParam1TypeCategory(current_object, SETOBJECT);
         count_declarations;
-      elsif action_name = "BST_CPY" or action_name = "BST_CREATE" then
-        defineParam1TypeCategory(current_object, BSTRIOBJECT);
+      elsif action_name = "SOC_CPY" or action_name = "SOC_CREATE" then
+        defineParam1TypeCategory(current_object, SOCKETOBJECT);
         count_declarations;
 (*
       else
@@ -22778,13 +22758,16 @@ const proc: write_prototypes is func
     declareExtern("arraytype   arrBaselit2 (inttype, const generictype);");
     declareExtern("arraytype   arrCat (arraytype, const arraytype);");
     declareExtern("arraytype   arrExtend (arraytype, const generictype);");
+    declareExtern("void        arrFree (arraytype);");
     declareExtern("arraytype   arrGen (const generictype, const generictype);");
     declareExtern("arraytype   arrHead (const const_arraytype, inttype);");
     declareExtern("arraytype   arrHeadTemp (arraytype *, inttype);");
     declareExtern("generictype arrIdxTemp (arraytype *, inttype);");
+    declareExtern("arraytype   arrMalloc (memsizetype);");
     declareExtern("void        arrPush (arraytype *const, const generictype);");
     declareExtern("arraytype   arrRange (const const_arraytype, inttype, inttype);");
     declareExtern("arraytype   arrRangeTemp (arraytype *, inttype, inttype);");
+    declareExtern("arraytype   arrRealloc (arraytype, memsizetype, memsizetype);");
     declareExtern("generictype arrRemove (arraytype *, inttype);");
     declareExtern("arraytype   arrSort (arraytype, comparetype);");
     declareExtern("arraytype   arrTail (const const_arraytype, inttype);");
@@ -23291,6 +23274,7 @@ const proc: write_prototypes is func
     declareExtern("void        setupFloat (void);");
     declareExtern("void        init_values (void);");
     declareExtern("void        init_globals (void);");
+    declareExtern("void        initPollOperations (const createfunctype, const destrfunctype);");
     declareExtern("inttype     uintCmpGeneric (const generictype value1, const generictype value2);");
     declareExtern("void        raise_error2 (int, const char *, int);");
     writeln(c_prog, "#define raise_error(num) raise_error2(num, __FILE__, __LINE__)\n");
@@ -23409,6 +23393,19 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "}");
     writeln(c_prog);
     writeln(c_prog);
+  end func;
+
+
+const proc: initPollOperations (inout expr_type: c_expr) is func
+
+  begin
+    if fileInterfaceType <> void then
+      c_expr.expr &:= "initPollOperations((createfunctype)(&itfCreate), ";
+      process_destr_declaration(fileInterfaceType, global_c_expr);
+      c_expr.expr &:= "(destrfunctype)(&destr_";
+      c_expr.expr &:= str(typeNumber(fileInterfaceType));
+      c_expr.expr &:= "));\n";
+    end if;
   end func;
 
 
@@ -24001,24 +23998,16 @@ const proc: init_string_constants_no_slices (in stri_index_hash: stri_index,
           c_expr.expr &:= str(length(stri));
           c_expr.expr &:= ",";
         end if;
-        if ALLOW_STRITYPE_SLICES then
-          c_expr.expr &:= "0,";
-        end if;
       elsif POINTER_SIZE = 64 then
         c_expr.expr &:= int64AsTwoInt32(bigInteger conv length(stri));
         if WITH_STRI_CAPACITY then
           c_expr.expr &:= int64AsTwoInt32(bigInteger conv length(stri));
         end if;
-        if ALLOW_STRITYPE_SLICES then
-          c_expr.expr &:= int64AsTwoInt32(bigInteger conv 0);
-        end if;
       end if;
-      if ALLOW_STRITYPE_SLICES and POINTER_SIZE = 64 then
-        for ch range stri do
-          c_expr.expr &:= c_literal(ch);
-          c_expr.expr &:= ",";
-        end for;
-      end if;
+      for ch range stri do
+        c_expr.expr &:= c_literal(ch);
+        c_expr.expr &:= ",";
+      end for;
       c_expr.expr &:= "};\n";
     end for;
     c_expr.expr &:= "stritype str[]={\n";
@@ -24245,9 +24234,9 @@ const proc: init_array_constants (in reference: const_object, inout expr_type: c
     array_list := arrayToList(const_object);
     c_expr.expr &:= "arr[";
     c_expr.expr &:= str(number);
-    c_expr.expr &:= "]=(arraytype)(malloc(sizeof(struct rtlArraystruct) - sizeof(rtlObjecttype) +\n  ";
+    c_expr.expr &:= "]=arrMalloc(";
     c_expr.expr &:= str(length(array_list));
-    c_expr.expr &:= " * sizeof(rtlObjecttype)));\n";
+    c_expr.expr &:= ");\n";
     c_expr.expr &:= "arr[";
     c_expr.expr &:= str(number);
     c_expr.expr &:= "]->min_position=";
@@ -24488,6 +24477,7 @@ const proc: init_values (inout expr_type: c_expr) is func
 
     c_expr.expr &:= "void init_values (void)\n";
     c_expr.expr &:= "{\n";
+    initPollOperations(c_expr);
     assign_bigint_constants(c_expr);
     assign_win_constants(c_expr);
     c_expr.expr &:= "arr = (arraytype *)(malloc(";
@@ -24800,7 +24790,7 @@ const proc: pass_2 (in string: source, in program: prog,
             end for;
             process_global_declarations(prog);
             close(c_prog);
-            writeln;
+            writeln(countDeclarations  <& " declarations processed");
             writeln(countOptimizations <& " optimizations done");
             writeln(countEvaluations   <& " evaluations done");
           else
@@ -24844,6 +24834,7 @@ const proc: pass_3 (in string: source, in program: prog,
     var string: comp_data_lib  is "";
     var string: compiler_lib   is "";
     var string: cwd            is "";
+    var string: workDir        is "";
     var string: sourceFile     is "";
     var string: cSourceFile    is "";
     var string: cErrorFile     is "";
@@ -24877,6 +24868,7 @@ const proc: pass_3 (in string: source, in program: prog,
         else
           chdir(source[.. pred(rpos(source, "/"))]);
         end if;
+        workDir := source[.. rpos(source, "/")];
         sourceFile := source[succ(rpos(source, "/")) ..];
       end if;
       if generate_c_plus_plus then
@@ -24923,8 +24915,8 @@ const proc: pass_3 (in string: source, in program: prog,
       end if;
       if fileType(objectFile) <> FILE_REGULAR then
         if fileType(cErrorFile) = FILE_REGULAR then
-          writeln("*** Errors in " <& literal(cSourceFile) <&
-              " - see " <& literal(cErrorFile));
+          writeln("*** Errors in " <& literal(workDir & cSourceFile) <&
+              " - see " <& literal(workDir & cErrorFile));
         elsif REDIRECT_C_ERRORS = "" then
           writeln("*** Compilation terminated");
         else
@@ -25032,9 +25024,8 @@ const proc: pass_3 (in string: source, in program: prog,
                 removeFile(linkErrFile);
               end if;
               if fileType(linkErrFile) = FILE_REGULAR then
-                writeln("*** Linker errors with " <&
-                    literal(objectFile) <&
-                    " - see " <& literal(linkErrFile));
+                writeln("*** Linker errors with " <& literal(workDir & objectFile) <&
+                    " - see " <& literal(workDir & linkErrFile));
               elsif REDIRECT_C_ERRORS = "" then
                 writeln("*** Linking terminated");
               else

@@ -258,17 +258,21 @@ typedef int errinfotype;
 #endif
 
 
-typedef struct setstruct     *settype;
-typedef struct stristruct    *stritype;
-typedef struct bstristruct   *bstritype;
-typedef struct pollstruct    *polltype;
-typedef struct winstruct     *wintype;
+typedef struct setstruct      *settype;
+typedef struct stristruct     *stritype;
+typedef struct bstristruct    *bstritype;
+typedef struct pollstruct     *polltype;
+typedef struct winstruct      *wintype;
+typedef struct databasestruct *databasetype;
+typedef struct sqlstmtstruct  *sqlstmttype;
 
-typedef const struct setstruct     *const_settype;
-typedef const struct stristruct    *const_stritype;
-typedef const struct bstristruct   *const_bstritype;
-typedef const struct pollstruct    *const_polltype;
-typedef const struct winstruct     *const_wintype;
+typedef const struct setstruct      *const_settype;
+typedef const struct stristruct     *const_stritype;
+typedef const struct bstristruct    *const_bstritype;
+typedef const struct pollstruct     *const_polltype;
+typedef const struct winstruct      *const_wintype;
+typedef const struct databasestruct *const_databasetype;
+typedef const struct sqlstmtstruct  *const_sqlstmttype;
 
 typedef struct setstruct {
     inttype min_position;
@@ -309,6 +313,18 @@ typedef struct winstruct {
     uinttype usage_count;
     /* The rest of the structure is only accessable for the driver */
   } winrecord;
+
+typedef struct databasestruct {
+#ifdef NO_EMPTY_STRUCTS
+    int dummy;
+#endif
+  } databaserecord;
+
+typedef struct sqlstmtstruct {
+#ifdef NO_EMPTY_STRUCTS
+    int dummy;
+#endif
+  } sqlstmtrecord;
 
 typedef struct fliststruct {
     struct fliststruct *next;

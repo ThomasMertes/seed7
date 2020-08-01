@@ -66,7 +66,7 @@ extern "C" int tgetnum (char *);
 extern "C" int tgetflag (char *);
 extern "C" char *tgetstr(char *, char **);
 extern "C" char *tgoto (char *, int, int);
-extern "C" int tputs (char *, int, int (*) (char CH));
+extern "C" int tputs (char *, int, int (*) (char ch));
 
 #else
 
@@ -75,7 +75,7 @@ int tgetnum (char *);
 int tgetflag (char *);
 char *tgetstr(char *, char **);
 char *tgoto (char *, int, int);
-void tputs (char *, int, int (*) (char CH));
+void tputs (char *, int, int (*) (char ch));
 
 #endif
 #else
@@ -356,7 +356,40 @@ static void fix_capability ()
             assign_cap(cap_name, "kf27",  "FH", &key_f27,      cap_value) ||
             assign_cap(cap_name, "kf28",  "FI", &key_f28,      cap_value) ||
             assign_cap(cap_name, "kf29",  "FJ", &key_f29,      cap_value) ||
-            assign_cap(cap_name, "kf30",  "FK", &key_f30,      cap_value)) {
+            assign_cap(cap_name, "kf30",  "FK", &key_f30,      cap_value) ||
+            assign_cap(cap_name, "kf31",  "FL", &key_f31,      cap_value) ||
+            assign_cap(cap_name, "kf32",  "FM", &key_f32,      cap_value) ||
+            assign_cap(cap_name, "kf33",  "FN", &key_f33,      cap_value) ||
+            assign_cap(cap_name, "kf34",  "FO", &key_f34,      cap_value) ||
+            assign_cap(cap_name, "kf35",  "FP", &key_f35,      cap_value) ||
+            assign_cap(cap_name, "kf36",  "FQ", &key_f36,      cap_value) ||
+            assign_cap(cap_name, "kf37",  "FR", &key_f37,      cap_value) ||
+            assign_cap(cap_name, "kf38",  "FS", &key_f38,      cap_value) ||
+            assign_cap(cap_name, "kf39",  "FT", &key_f39,      cap_value) ||
+            assign_cap(cap_name, "kf40",  "FU", &key_f40,      cap_value) ||
+            assign_cap(cap_name, "kf41",  "FV", &key_f41,      cap_value) ||
+            assign_cap(cap_name, "kf42",  "FW", &key_f42,      cap_value) ||
+            assign_cap(cap_name, "kf43",  "FX", &key_f43,      cap_value) ||
+            assign_cap(cap_name, "kf44",  "FY", &key_f44,      cap_value) ||
+            assign_cap(cap_name, "kf45",  "FZ", &key_f45,      cap_value) ||
+            assign_cap(cap_name, "kf46",  "Fa", &key_f46,      cap_value) ||
+            assign_cap(cap_name, "kf47",  "Fb", &key_f47,      cap_value) ||
+            assign_cap(cap_name, "kf48",  "Fc", &key_f48,      cap_value) ||
+            assign_cap(cap_name, "kf49",  "Fd", &key_f49,      cap_value) ||
+            assign_cap(cap_name, "kf50",  "Fe", &key_f50,      cap_value) ||
+            assign_cap(cap_name, "kf51",  "Ff", &key_f51,      cap_value) ||
+            assign_cap(cap_name, "kf52",  "Fg", &key_f52,      cap_value) ||
+            assign_cap(cap_name, "kf53",  "Fh", &key_f53,      cap_value) ||
+            assign_cap(cap_name, "kf54",  "Fi", &key_f54,      cap_value) ||
+            assign_cap(cap_name, "kf55",  "Fj", &key_f55,      cap_value) ||
+            assign_cap(cap_name, "kf56",  "Fk", &key_f56,      cap_value) ||
+            assign_cap(cap_name, "kf57",  "Fl", &key_f57,      cap_value) ||
+            assign_cap(cap_name, "kf58",  "Fm", &key_f58,      cap_value) ||
+            assign_cap(cap_name, "kf59",  "Fn", &key_f59,      cap_value) ||
+            assign_cap(cap_name, "kf60",  "Fo", &key_f60,      cap_value) ||
+            assign_cap(cap_name, "kf61",  "Fp", &key_f61,      cap_value) ||
+            assign_cap(cap_name, "kf62",  "Fq", &key_f62,      cap_value) ||
+            assign_cap(cap_name, "kf63",  "Fr", &key_f63,      cap_value)) {
         } /* if */
         read_cap_name(fix_file, cap_name, &term_char);
 #ifdef TRACE_CAPS

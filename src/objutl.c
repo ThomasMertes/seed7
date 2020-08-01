@@ -287,6 +287,32 @@ chartype temp_char;
 
 #ifdef ANSI_C
 
+objecttype bld_database_temp (databasetype temp_database)
+#else
+
+objecttype bld_database_temp (temp_database)
+databasetype temp_database;
+#endif
+
+  {
+    register objecttype result;
+
+  /* bld_database_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, DATABASEOBJECT);
+      result->value.databasevalue = temp_database;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_database_temp */
+
+
+
+#ifdef ANSI_C
+
 objecttype bld_interface_temp (objecttype temp_interface)
 #else
 
@@ -620,6 +646,32 @@ sockettype temp_socket;
       return raise_exception(SYS_MEM_EXCEPTION);
     } /* if */
   } /* bld_socket_temp */
+
+
+
+#ifdef ANSI_C
+
+objecttype bld_sqlstmt_temp (sqlstmttype temp_sqlstmt)
+#else
+
+objecttype bld_sqlstmt_temp (temp_sqlstmt)
+sqlstmttype temp_sqlstmt;
+#endif
+
+  {
+    register objecttype result;
+
+  /* bld_sqlstmt_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, SQLSTMTOBJECT);
+      result->value.sqlstmtvalue = temp_sqlstmt;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_sqlstmt_temp */
 
 
 

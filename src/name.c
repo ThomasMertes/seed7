@@ -29,6 +29,7 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "common.h"
 #include "data.h"
@@ -561,6 +562,8 @@ progtype currentProg;
 #ifdef TRACE_NAME
     printf("BEGIN close_stack %d\n", data_depth);
 #endif
+    /* The list of objects is reversed to free the objects in    */
+    /* the opposite way of their definition.                     */
     list_element = currentProg->stack_data->local_object_list;
     if (list_element != NULL) {
       reversed_list = list_element;
@@ -579,11 +582,8 @@ progtype currentProg;
       trace1(list_element->obj);
       printf("\n"); */
       dump_temp_value(list_element->obj);
+      /* memset(&list_element->obj->value, 0, sizeof(valueunion)); */
       pop_object(currentProg, list_element->obj);
-      if (HAS_PROPERTY(list_element->obj) && list_element->obj->descriptor.property != currentProg->property.literal) {
-        free_params(list_element->obj->descriptor.property->params);
-        FREE_RECORD(list_element->obj->descriptor.property, propertyrecord, count.property);
-      } /* if */
       list_element = list_element->next;
     } /* while */
     list_element = reversed_list;
@@ -591,6 +591,13 @@ progtype currentProg;
     /* object data. In case of forward declared objects the      */
     /* category of a freed object would be accessed.             */
     while (list_element != NULL) {
+      if (HAS_PROPERTY(list_element->obj) && list_element->obj->descriptor.property != currentProg->property.literal) {
+        /* Properties are removed here because itf_destr uses    */
+        /* !HAS_PROPERTY to determine if an object can be freed. */
+        free_params(list_element->obj->descriptor.property->params);
+        FREE_RECORD(list_element->obj->descriptor.property, propertyrecord, count.property);
+        /* list_element->obj->descriptor.property = NULL; */
+      } /* if */
       FREE_OBJECT(list_element->obj);
       list_element = list_element->next;
     } /* while */

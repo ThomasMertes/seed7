@@ -106,17 +106,6 @@ const proc: write (in external_file: outFile, in string: stri) is func
   end func;
 
 
-(**
- *  Write end-of-line to an external_file.
- *  The function writes "n" to the file.
- *  @exception FILE_ERROR A system function returns an error.
- *)
-const proc: writeln (in external_file: outFile) is func
-  begin
-    write(outFile.ext_file, "\n");
-  end func;
-
-
 const proc: backSpace (in external_file: outFile) is func
   begin
     write(outFile.ext_file, "\b \b");
@@ -145,9 +134,9 @@ const func string: gets (in external_file: inFile, in integer: maxLength) is
 (**
  *  Read a word from an external_file.
  *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", "\n", "\r\n" or [[char#EOF|EOF]].
+ *  accepts words ending with ' ', '\t', '\n', "\r\n" or [[char#EOF|EOF]].
  *  The word ending characters are not copied into the string.
- *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains ' ',
  *  '\t', '\n' or [[char#EOF|EOF]].
  *  @return the word read.
@@ -160,9 +149,9 @@ const func string: getwd (inout external_file: inFile) is
 
 (**
  *  Read a line from an external_file.
- *  The function accepts lines ending with "\n", "\r\n" or [[char#EOF|EOF]].
+ *  The function accepts lines ending with '\n', "\r\n" or [[char#EOF|EOF]].
  *  The line ending characters are not copied into the string.
- *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  That means that the '\r' of a "\r\n" sequence is silently removed.
  *  When the function is left inFile.bufferChar contains '\n' or
  *  [[char#EOF|EOF]].
  *  @return the line read.

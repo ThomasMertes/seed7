@@ -421,7 +421,7 @@ filetype aFile;
         result = 0;
       } else if (file_length < current_file_position) {
         result = 0;
-      } else if (file_length - current_file_position >= MAX_MEMSIZETYPE) {
+      } else if ((unsigned_os_off_t) (file_length - current_file_position) >= MAX_MEMSIZETYPE) {
         result = MAX_MEMSIZETYPE;
       } else {
         result = (memsizetype) (file_length - current_file_position);

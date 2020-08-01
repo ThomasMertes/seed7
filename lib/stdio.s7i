@@ -85,6 +85,15 @@ var file: PROT_OUTFILE is STD_OUT;
 
 
 (**
+ *  Write a string to the standard output file ([[#OUT|OUT]]).
+ *)
+const proc: write (in string: stri) is func
+  begin
+    write(OUT, stri);
+  end func;
+
+
+(**
  *  Write end-of-line to the standard output file.
  *  The file type of [[#OUT|OUT]] decides how writing end-of-line is done.
  *  It can be done by writing '\n', but other solutions are also
@@ -93,6 +102,32 @@ var file: PROT_OUTFILE is STD_OUT;
 const proc: writeln is func
   begin
     writeln(OUT);
+  end func;
+
+
+(**
+ *  Write a string followed by end-of-line to the standard output.
+ *  The file type of [[#OUT|OUT]] decides how writing end-of-line is done.
+ *  It can be done by writing '\n', but other solutions are also
+ *  possible.
+ *)
+const proc: writeln (in string: stri) is func
+  begin
+    writeln(OUT, stri);
+  end func;
+
+
+(**
+ *  Read a word from the standard input file ([[#IN|IN]]).
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
+ *  The word ending characters are not copied into the string.
+ *  When the function is left [[#IN|IN]].bufferChar contains the
+ *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
+ *)
+const proc: read (inout string: stri) is func
+  begin
+    read(IN, stri);
   end func;
 
 
@@ -109,42 +144,6 @@ const proc: readln is func
     stri := getln(IN);
     IN.io_empty := stri = "";
     IN.io_ok := TRUE;
-  end func;
-
-
-(**
- *  Write a string to the standard output file ([[#OUT|OUT]]).
- *)
-const proc: write (in string: stri) is func
-  begin
-    write(OUT, stri);
-  end func;
-
-
-(**
- *  Write a string followed by end-of-line to the standard output.
- *  The file type of [[#OUT|OUT]] decides how writing end-of-line is done.
- *  It can be done by writing '\n', but other solutions are also
- *  possible.
- *)
-const proc: writeln (in string: stri) is func
-  begin
-    write(OUT, stri);
-    writeln(OUT);
-  end func;
-
-
-(**
- *  Read a word from the standard input file ([[#IN|IN]]).
- *  Before reading the word it skips spaces and tabs. The function
- *  accepts words ending with " ", "\t", end-of-line or [[char#EOF|EOF]].
- *  The word ending characters are not copied into the string.
- *  When the function is left [[#IN|IN]].bufferChar contains the
- *  word ending character (' ', '\t', '\n' or [[char#EOF|EOF]]).
- *)
-const proc: read (inout string: stri) is func
-  begin
-    read(IN, stri);
   end func;
 
 

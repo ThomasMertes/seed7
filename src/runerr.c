@@ -69,6 +69,9 @@ void continue_question ()
     if (ch == (int) '*') {
       shut_drivers();
       exit(1);
+    } else if (ch == (int) '/') {
+      position = 0;
+      printf("%d", 1 / position); /* trigger SIGFPE on purpose */
     } /* if */
     position = 0;
     while (ch >= (int) ' ' && ch <= (int) '~' && position < 9) {

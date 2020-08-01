@@ -118,23 +118,23 @@ objectcategory category;
 
 #ifdef ANSI_C
 
-objectcategory category_value (const const_cstritype stri)
+inttype category_value (const const_cstritype stri)
 #else
 
-objectcategory category_value (stri)
+inttype category_value (stri)
 cstritype stri;
 #endif
 
   {
-    int number;
+    inttype number;
 
   /* category_value */
     for (number = SYMBOLOBJECT; number <= PROGOBJECT; number++) {
       if (strcmp(stri, category_name[number]) == 0) {
-        return (objectcategory) number;
+        return number;
       } /* if */
     } /* for */
-    return (objectcategory) -1;
+    return -1;
   } /* category_value */
 
 

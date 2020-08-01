@@ -629,6 +629,25 @@ rtlGenerictype element;
 
 #ifdef ANSI_C
 
+void arrFree (rtlArraytype oldArray)
+#else
+
+void arrFree (oldArray)
+rtlArraytype oldArray;
+#endif
+
+  {
+    memsizetype size;
+
+  /* arrFree */
+    size = (uinttype) (oldArray->max_position - oldArray->min_position + 1);
+    FREE_RTL_ARRAY(oldArray, size);
+  } /* arrFree */
+
+
+
+#ifdef ANSI_C
+
 rtlArraytype arrGen (const rtlGenerictype element1, const rtlGenerictype element2)
 #else
 
@@ -803,6 +822,27 @@ inttype pos;
 
 #ifdef ANSI_C
 
+rtlArraytype arrMalloc (memsizetype size)
+#else
+
+rtlArraytype arrMalloc (size)
+memsizetype size;
+#endif
+
+  {
+    rtlArraytype result;
+
+  /* arrMalloc */
+    if (!ALLOC_RTL_ARRAY(result, size)) {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return result;
+  } /* arrMalloc */
+
+
+
+#ifdef ANSI_C
+
 void arrPush (rtlArraytype *const arr_variable, const rtlGenerictype element)
 #else
 
@@ -953,6 +993,34 @@ inttype stop;
     } /* if */
     return result;
   } /* arrRangeTemp */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype arrRealloc (rtlArraytype arr, memsizetype oldSize, memsizetype newSize)
+#else
+
+rtlArraytype arrRealloc (oldSize, newSize)
+memsizetype oldSize;
+memsizetype newSize;
+#endif
+
+  {
+    rtlArraytype resized_arr;
+
+  /* arrRealloc */
+    resized_arr = REALLOC_RTL_ARRAY(arr, oldSize, newSize);
+    if (unlikely(resized_arr == NULL)) {
+      if (oldSize >= newSize) {
+        resized_arr = arr;
+      } /* if */
+      raise_error(MEMORY_ERROR);
+    } else {
+      COUNT3_RTL_ARRAY(oldSize, newSize);
+    } /* if */
+    return resized_arr;
+  } /* arrRealloc */
 
 
 

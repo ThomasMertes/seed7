@@ -205,11 +205,12 @@ const proc: write (in socket: outSocket, in string: stri) is func
 
 
 (**
- *  Write newline character ('\n') to ''outSocket''.
+ *  Write a [[string]] followed by end-of-line to ''outSocket''.
+ *  This function assures that string and '\n' are sent together.
  *)
-const proc: writeln (in socket: outSocket) is func
+const proc: writeln (in socket: outSocket, in string: stri) is func
   begin
-    write(outSocket.sock, "\n");
+    write(outSocket.sock, stri <& "\n");
   end func;
 
 

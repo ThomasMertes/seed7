@@ -25,6 +25,7 @@
 $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "keybd.s7i";
+  include "keydescr.s7i";
 
 const proc: main is func
   local
@@ -34,8 +35,10 @@ const proc: main is func
     repeat
       ch := getc(KEYBOARD);
       write(ord(ch) <& " ");
-      if ord(ch) >= 1 and ord(ch) <= length(EVENT_DESCR) then
-        writeln(EVENT_DESCR[ord(ch)]);
+      if ch in keyDescription then
+        writeln(keyDescription[ch]);
+      elsif ch >= ' ' and ch <= '~' or ch >= '\160\' and ch <= '\255\' then
+        writeln(ch);
       else
         writeln;
       end if;

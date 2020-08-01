@@ -43,7 +43,16 @@ const type: console_file is sub null_file struct
 
 type_implements_interface(console_file, text);
 
-const console_file: STD_CONSOLE is console_file.value;
+
+(**
+ *  Standard console file of the current process.
+ *  When characters are written to ''STD_CONSOLE'' they are displayed
+ *  on the console/terminal (when it exists and is able to display them).
+ *  Unlike the byte file [[stdio#STD_OUT|STD_OUT]] ''STD_CONSOLE''
+ *  accepts also Unicode characters.
+ *)
+var console_file: STD_CONSOLE is console_file.value;
+
 
 const proc: CON_OPEN                                             is action "CON_OPEN";
 

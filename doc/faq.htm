@@ -211,7 +211,7 @@ Can functions be overloaded?
 <li><a class="link" href="#overload_result"><b>
 Can I overload two functions which just differ in the result type?
 </b></a></li>
-<li><a class="link" href="#variable_parameters"><b>
+<li><a class="link" href="#variable_parameter_list"><b>
 Can functions have variable parameter lists?
 </b></a></li>
 <li><a class="link" href="#initialize_variables"><b>
@@ -225,6 +225,18 @@ Why is the div operator used for integer divisions?
 </b></a></li>
 <li><a class="link" href="#concatenation_operators"><b>
 Why are &amp; and &lt;&amp; defined for string concatenation?
+</b></a></li>
+<li><a class="link" href="#types_of_parameters"><b>
+What types of parameters does Seed7 have?
+</b></a></li>
+<li><a class="link" href="#in_parameter"><b>
+What is an 'in' parameter?
+</b></a></li>
+<li><a class="link" href="#difference_val_and_ref_parameter"><b>
+Is there an example where val and ref parameters have different behavior?
+</b></a></li>
+<li><a class="link" href="#call_by_name"><b>
+What is call-by-name?
 </b></a></li>
 <li><a class="link" href="#garbage_collection"><b>
 Is there a garbage collection?
@@ -244,9 +256,6 @@ What is an abstract data type?
 <li><a class="link" href="#multiple_dispatch"><b>
 What is multiple dispatch?
 </b></a></li>
-<li><a class="link" href="#call_by_name"><b>
-What is call-by-name?
-</b></a></li>
 <li><a class="link" href="#container_classes"><b>
 What container classes do exist?
 </b></a></li>
@@ -264,9 +273,6 @@ How does the assignment work?
 </b></a></li>
 <li><a class="link" href="#two_forms_of_assignment"><b>
 Why are there two forms of assignment?
-</b></a></li>
-<li><a class="link" href="#types of parameters"><b>
-What types of parameters does Seed7 have?
 </b></a></li>
 <li><a class="link" href="#constructors"><b>
 Where are the constructors?
@@ -518,12 +524,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 190000 lines of Seed7. For version 2013-03-17 the number of lines is:
+than 190000 lines of Seed7. For version 2013-04-01 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">105128</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 10331</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">112009</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 82442</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">106268</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 10453</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">112075</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 82563</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1181,7 +1187,7 @@ In school it is usually considered wrong to just write 5 and let the teacher
 guess the measurement unit.
 </p></div>
 
-<div><br /><a name="variable_parameters"><h3>Can functions have variable parameter lists?
+<div><br /><a name="variable_parameter_list"><h3>Can functions have variable parameter lists?
 </h3></a><hr />
 <p>
 No, because functions with variable parameter list as the C printf function have
@@ -1296,6 +1302,142 @@ asdfFALSE
 The <tt><a class="op" href="libraries/enable_output.htm#(in_string)&lt;&amp;(in_aType)">&lt;&amp;</a></tt> operator can be defined for new types with <tt><a class="func" href="libraries/enable_io.htm#enable_io(in_type)">enable_io</a></tt> respectively
 <tt><a class="func" href="libraries/enable_output.htm#enable_output(in_type)">enable_output</a></tt>. The description of the <a class="link" href="manual/file.htm#THE_FILE_SYSTEM">Seed7 file system</a> contains also a chapter
 about the <a class="link" href="manual/file.htm#Conversion_to_strings_and_back">conversion to strings and back</a>.
+</p></div>
+
+<div><br /><a name="types_of_parameters"><h3>What types of parameters does Seed7 have?
+</h3></a><hr />
+<p>
+There are call-by-value and call-by-reference parameters. The formal parameter
+can be constant or variable. The combination of these features allows four types
+of parameters:
+</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
+  
+  <tr><th> parameter </th><th> evaluation strategy </th><th> access right </th></tr>
+  
+  <tr><td> val       </td><td align="center">    call-by-value    </td><td> const        </td></tr>
+  <tr><td> ref       </td><td align="center">  call-by-reference  </td><td> const        </td></tr>
+  <tr><td> in var    </td><td align="center">    call-by-value    </td><td> var          </td></tr>
+  <tr><td> inout     </td><td align="center">  call-by-reference  </td><td> var          </td></tr>
+  
+</table></dd></dl><p>
+For call-by-value parameters (<tt><span class="keywd">val</span></tt> and <tt><span class="keywd">in var</span></tt>) the actual parameter value
+is copied, when the function is called. For call-by-refererence parameters
+(<tt><span class="keywd">ref</span></tt> and <tt><span class="keywd">inout</span></tt>) the function uses a reference to the actual parameter value.
+Since a call-by-reference parameter is not copied it can provide better
+performance for structured types like strings, arrays, structs and hashs.
+</p></div>
+
+<div><br /><a name="in_parameter"><h3>What is an 'in' parameter?
+</h3></a><hr />
+<p>
+An <tt><span class="keywd">in</span></tt> parameter describes, that the actual parameter value is going into
+the function. Inside the function an <tt><span class="keywd">in</span></tt> parameter cannot be changed.
+<tt><span class="keywd">In</span></tt> parameters are the most commonly used evaluation strategy for parameters.
+</p><p>
+An <tt><span class="keywd">in</span></tt> parameter is either a <tt><span class="keywd">val</span></tt> (call-by-value) parameter or a <tt><span class="keywd">ref</span></tt>
+(call-by-reference) parameter. Every type defines an <tt><span class="keywd">in</span></tt> parameter:
+</p><ul>
+<li>For types with little memory requirements <tt><span class="keywd">in</span></tt> is a <tt><span class="keywd">val</span></tt> (call-by-value) parameter:<dl><dd>
+     <tt><a class="type" href="manual/types.htm#boolean">boolean</a></tt>, <tt><a class="type" href="manual/types.htm#integer">integer</a></tt>, <tt><a class="type" href="manual/types.htm#float">float</a></tt>, <tt><a class="type" href="manual/types.htm#char">char</a></tt>, <tt><a class="type" href="manual/types.htm#category">category</a></tt>, <tt><a class="type" href="manual/types.htm#reference">reference</a></tt>, <tt><a class="type" href="manual/types.htm#ENUMERATION">enumeration</a></tt>,
+     <tt><a class="type" href="libraries/clib_file.htm">clib_file</a></tt>, <tt><span class="type">pixel</span></tt>, <tt><span class="type">PRIMITIVE_SOCKET</span></tt></dd></dl></li>
+
+<li>For types with bigger memory requirements <tt><span class="keywd">in</span></tt> is a <tt><span class="keywd">ref</span></tt> (call-by-reference) parameter:<dl><dd>
+     <tt><a class="type" href="manual/types.htm#bigInteger">bigInteger</a></tt>, <tt><a class="type" href="manual/types.htm#rational">rational</a></tt>, <tt><a class="type" href="manual/types.htm#bigRational">bigRational</a></tt>, <tt><a class="type" href="manual/types.htm#complex">complex</a></tt>, <tt><a class="type" href="manual/types.htm#string">string</a></tt>, <tt><a class="type" href="manual/types.htm#array">array</a></tt>, <tt><a class="type" href="manual/types.htm#hash">hash</a></tt>,
+     <tt><a class="type" href="manual/types.htm#set">set</a></tt>, <tt><a class="type" href="libraries/bitset.htm">bitset</a></tt>, <tt><a class="type" href="manual/types.htm#struct">struct</a></tt>, <tt><span class="type">interface</span></tt>, <tt><a class="type" href="manual/types.htm#ref_list">ref_list</a></tt>, <tt><a class="type" href="manual/types.htm#program">program</a></tt>, <tt><a class="type" href="manual/types.htm#color">color</a></tt>, <tt><a class="type" href="manual/types.htm#time">time</a></tt>,
+     <tt><a class="type" href="manual/types.htm#duration">duration</a></tt>, <tt><a class="type" href="manual/types.htm#file">file</a></tt>, <tt><a class="type" href="manual/types.htm#text">text</a></tt>, <tt><a class="type" href="manual/types.htm#proc">proc</a></tt>, <tt><a class="type" href="manual/types.htm#type">type</a></tt>, <tt><a class="type" href="manual/types.htm#object">object</a></tt></dd></dl></li>
+</ul></p>
+Usually it is not necessary to care, if an <tt><span class="keywd">in</span></tt> parameter uses call-by-value or
+call-by-reference. A programmer can just use <tt><span class="keywd">in</span></tt> parameters to specify, that
+the actual parameter value is going into the function. A programmer can use
+<tt><span class="keywd">val</span></tt> or <tt><span class="keywd">ref</span></tt> to overrule this behavior in cases, where the default
+<tt><span class="keywd">in</span></tt> parameter specified by a type is not desired.
+</p></div>
+
+<div><br /><a name="difference_val_and_ref_parameter"><h3>Is there an example where val and ref parameters have different behavior?
+</h3></a><hr />
+<p>
+Normally <tt><span class="keywd">val</span></tt> and <tt><span class="keywd">ref</span></tt> parameters behave the same. Only in corner cases
+their behavior differs. This is shown with the following example:
+</p><pre class="indent">
+$ include <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">var</span> <span class="type">integer</span>: aGlobal <span class="keywd">is</span> 1;
+
+<span class="keywd">const</span> <span class="type">proc</span>: aFunc (<span class="keywd">val</span> <span class="type">integer</span>: valParam, <span class="keywd">ref</span> <span class="type">integer</span>: refParam) <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    writeln(valParam <& <span class="stri">" "</span> <& refParam);
+    aGlobal := 2;
+    writeln(valParam <& <span class="stri">" "</span> <& refParam);
+  <span class="keywd">end func</span>;
+
+<span class="keywd">const</span> proc: main <span class="keywd">is func</span>
+  <span class="keywd">begin</span>
+    aFunc(aGlobal, aGlobal);
+  <span class="keywd">end func</span>;
+</pre><p>
+The program above writes:
+</p><pre class="indent">
+1 1
+1 2
+</pre><p>
+The different behavior is triggered when <tt>2</tt> is assigned to the global variable
+<tt>aGlobal</tt>:
+</p><ul>
+<li>The <tt><span class="keywd">val</span></tt> parameter (<tt>valParam</tt>) is unaffected by the change of <tt>aGlobal</tt>,
+   because the actual parameter value was copied when the function was called.</li>
+<li>The <tt><span class="keywd">ref</span></tt> parameter (<tt>refParam</tt>) changes when <tt>aGlobal</tt> is changed.</li>
+</ul><p>
+The effect happens for any type, not just for <tt><a class="type" href="manual/types.htm#integer">integer</a></tt> parameters. The same
+effect happens also, when an additional <tt><span class="keywd">inout</span></tt> parameter is used instead of
+a global variable and when the function is called with the same variable as
+actual parameter for all three parameters.
+</p><p>
+When a programmer has to deal with such corner cases it is necessary
+to explicitely use <tt><span class="keywd">val</span></tt> or <tt><span class="keywd">ref</span></tt>.
+</p></div>
+
+<div><br /><a name="call_by_name"><h3>What is call-by-name?
+</h3></a><hr />
+<p>
+Call-by-name is an evaluation strategy for parameters. The actual call-by-name
+parameter is not evaluated before the function is called. When the function is
+executed the call-by-name parameter might be executed once, many times or not at
+all. Examples of call-by-name parameters are:
+</p><ul>
+<li>The conditions of <a class="link" href="manual/stats.htm#while-statement">while-loops</a></li>
+<li>The statements in loop bodies</li>
+<li>The statements that are conditionally executed in
+   an <a class="link" href="manual/stats.htm#if-statement">if-statement</a></li>
+</ul><p>
+As can be seen, call-by-name parameters are used all the time, without realizing
+it. A call-by-name parameter is a function without parameters. Function types such
+as <tt><a class="type" href="manual/types.htm#proc">proc</a></tt> or <tt><a class="type" href="manual/types.htm#func">func</a> <a class="type" href="manual/types.htm#boolean">boolean</a></tt> are used as type of formal call-by-name parameters.
+An expression with the correct type is allowed as actual call-by-name parameter. This
+actual parameter expression is not evaluated when the function is called. Instead
+the call-by-name expression is evaluated every time the formal call-by-name
+parameter is used. A <tt>'conditional'</tt> function (similar to the ?: operator from C)
+is defined with:
+</p><pre class="indent">
+<span class="keywd">const</span> <span class="type">func integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
+    (<span class="keywd">in</span> <span class="type">func integer</span>: trueValue, <span class="keywd">in</span> <span class="type">func integer</span>: falseValue) <span class="keywd">is func</span>
+  <span class="keywd">result</span>
+    <span class="keywd">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
+  <span class="keywd">begin</span>
+    <span class="keywd">if</span> condition <span class="keywd">then</span>
+      conditionalResult := trueValue;
+    <span class="keywd">else</span>
+      conditionalResult := falseValue;
+    <span class="keywd">end if</span>;
+  <span class="keywd">end func</span>;
+</pre><p>
+Seed7 does not require a special notation (like brackets) for actual call-by-name
+parameters, therefore the <tt>'conditional'</tt> function can be called with:
+</p><pre class="indent">
+conditional(a &lt; 100.0, sqrt(a), a ** 2)
+</pre><p>
+Depending on the condition <tt>'a &lt; 100.0'</tt> only one of the expressions <tt>'sqrt(a)'</tt> and
+<tt>'a ** 2'</tt> is evaluated. This evaluation takes place when <tt>'trueValue'</tt> or <tt>'falseValue'</tt>
+is assigned to <tt>'result'</tt>.
 </p></div>
 
 <div><br /><a name="garbage_collection"><h3>Is there a garbage collection?
@@ -1475,50 +1617,6 @@ The decision which <tt>'+'</tt> operator should be called at runtime is based on
 implementation type (<tt><span class="type">Integer</span></tt> or a <tt><span class="type">Float</span></tt>) of both arguments of the <tt>'+'</tt>.
 </p></div>
 
-<div><br /><a name="call_by_name"><h3>What is a call-by-name?
-</h3></a><hr />
-<p>
-Call-by-name is an evaluation strategy for parameters. The actual call-by-name
-parameter is not evaluated before the function is called. When the function is
-executed the call-by-name parameter might be executed once, many times or not at
-all. Examples of call-by-name parameters are:
-</p><ul>
-<li>The conditions of <a class="link" href="manual/stats.htm#while-statement">while-loops</a></li>
-<li>The statements in loop bodies</li>
-<li>The statements that are conditionally executed in
-   an <a class="link" href="manual/stats.htm#if-statement">if-statement</a></li>
-</ul><p>
-As can be seen, call-by-name parameters are used all the time, without realizing
-it. A call-by-name parameter is a function without parameters. Function types such
-as <tt><a class="type" href="manual/types.htm#proc">proc</a></tt> or <tt><a class="type" href="manual/types.htm#func">func</a> <a class="type" href="manual/types.htm#boolean">boolean</a></tt> are used as type of formal call-by-name parameters.
-An expression with the correct type is allowed as actual call-by-name parameter. This
-actual parameter expression is not evaluated when the function is called. Instead
-the call-by-name expression is evaluated every time the formal call-by-name
-parameter is used. A <tt>'conditional'</tt> function (similar to the ?: operator from C)
-is defined with:
-</p><pre class="indent">
-<span class="keywd">const</span> <span class="type">func integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
-    (<span class="keywd">in</span> <span class="type">func integer</span>: trueValue, <span class="keywd">in</span> <span class="type">func integer</span>: falseValue) <span class="keywd">is func</span>
-  <span class="keywd">result</span>
-    <span class="keywd">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
-  <span class="keywd">begin</span>
-    <span class="keywd">if</span> condition <span class="keywd">then</span>
-      conditionalResult := trueValue;
-    <span class="keywd">else</span>
-      conditionalResult := falseValue;
-    <span class="keywd">end if</span>;
-  <span class="keywd">end func</span>;
-</pre><p>
-Seed7 does not require a special notation (like brackets) for actual call-by-name
-parameters, therefore the <tt>'conditional'</tt> function can be called with:
-</p><pre class="indent">
-conditional(a &lt; 100.0, sqrt(a), a ** 2)
-</pre><p>
-Depending on the condition <tt>'a &lt; 100.0'</tt> only one of the expressions <tt>'sqrt(a)'</tt> and
-<tt>'a ** 2'</tt> is evaluated. This evaluation takes place when <tt>'trueValue'</tt> or <tt>'falseValue'</tt>
-is assigned to <tt>'result'</tt>.
-</p></div>
-
 <div><br /><a name="container_classes"><h3>What container classes do exist?
 </h3></a><hr />
 <p>
@@ -1643,28 +1741,6 @@ with methods, this is just not true. Besides statements and operators in C++ and
 Java which are special even Smalltalk treats the assignment and the comparison
 special. Seed7 does not have such special treatment for the assignment and the
 comparison operators.
-</p></div>
-
-<div><br /><a name="types of parameters"><h3>What types of parameters does Seed7 have?
-</h3></a><hr />
-<p>
-There are value and reference parameters. The formal parameter can be constant or
-variable. The combination of these features allows four types of parameters:
-</p><dl><dd><table border="1" cellspacing="0" cellpadding="5">
-  
-  <tr><th> parameter </th><th>  call by  </th><th> access right </th></tr>
-  
-  <tr><td> val       </td><td align="center">   value   </td><td> const        </td></tr>
-  <tr><td> ref       </td><td align="center"> reference </td><td> const        </td></tr>
-  <tr><td> in var    </td><td align="center">   value   </td><td> var          </td></tr>
-  <tr><td> inout     </td><td align="center"> reference </td><td> var          </td></tr>
-  
-</table></dd></dl><p>
-Additionally every type defines an <tt>'<span class="keywd">in</span>'</tt> parameter which is either a <tt>'<span class="keywd">val</span>'</tt> or a
-<tt>'<span class="keywd">ref</span>'</tt> parameter. Types with little memory requirements like <tt><a class="type" href="manual/types.htm#integer">integer</a></tt>, <tt><a class="type" href="manual/types.htm#char">char</a></tt>
-and <tt><a class="type" href="manual/types.htm#boolean">boolean</a></tt> use a <tt>'<span class="keywd">val</span>'</tt> parameter as <tt>'<span class="keywd">in</span>'</tt>. Other types like <tt><a class="type" href="manual/types.htm#string">string</a></tt>, <tt><a class="type" href="manual/types.htm#array">array</a></tt>
-and <tt><a class="type" href="manual/types.htm#struct">struct</a></tt> use a <tt>'<span class="keywd">ref</span>'</tt> parameter as <tt>'<span class="keywd">in</span>'</tt>. Usually it is not necessary to
-care if an <tt>'<span class="keywd">in</span>'</tt> parameter is by value or by reference.
 </p></div>
 
 <div><br /><a name="constructors"><h3>Where are the constructors?

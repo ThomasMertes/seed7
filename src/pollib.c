@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Library                                                 */
 /*  File: seed7/src/pollib.c                                        */
-/*  Changes: 2011  Thomas Mertes                                    */
+/*  Changes: 2011, 2013  Thomas Mertes                              */
 /*  Content: All primitive actions to support poll.                 */
 /*                                                                  */
 /********************************************************************/
@@ -29,15 +29,106 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "common.h"
 #include "data.h"
 #include "data_rtl.h"
 #include "heaputl.h"
+#include "flistutl.h"
 #include "syvarutl.h"
 #include "objutl.h"
+#include "executl.h"
 #include "runerr.h"
 #include "pol_drv.h"
+#include "rtl_err.h"
+
+#undef EXTERN
+#define EXTERN
+#include "pollib.h"
+
+
+
+#ifdef ANSI_C
+
+static rtlGenerictype incrUsageCount (const rtlGenerictype pollFile)
+#else
+
+static rtlGenerictype incrUsageCount (pollFile)
+rtlGenerictype pollFile;
+#endif
+
+  {
+    objecttype fileObject;
+    structtype fileStruct;
+    objecttype newFileOject;
+
+  /* incrUsageCount */
+    fileObject = (objecttype) pollFile;
+    if (CATEGORY_OF_OBJ(fileObject) != STRUCTOBJECT) {
+      run_error(STRUCTOBJECT, fileObject);
+      return 0;
+    } else {
+      fileStruct = take_struct(fileObject);
+      if (fileStruct == NULL) {
+        empty_value(fileObject);
+        return 0;
+      } else {
+        if (fileStruct->usage_count != 0) {
+          fileStruct->usage_count++;
+        } /* if */
+        if (TEMP_OBJECT(fileObject) || TEMP2_OBJECT(fileObject)) {
+          if (!ALLOC_OBJECT(newFileOject)) {
+            CLEAR_TEMP_FLAG(fileObject);
+            CLEAR_TEMP2_FLAG(fileObject);
+            raise_error(MEMORY_ERROR);
+          } else {
+            memcpy(newFileOject, fileObject, sizeof(objectrecord));
+            CLEAR_TEMP_FLAG(newFileOject);
+            CLEAR_TEMP2_FLAG(newFileOject);
+            fileObject = newFileOject;
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return (rtlGenerictype) fileObject;
+  } /* incrUsageCount */
+
+
+
+#ifdef ANSI_C
+
+static void decrUsageCount (const rtlGenerictype pollFile)
+#else
+
+static void decrUsageCount (pollFile)
+rtlGenerictype pollFile;
+#endif
+
+  {
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* decrUsageCount */
+    do_destroy((objecttype) pollFile, &err_info);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+  } /* decrUsageCount */
+
+
+
+#ifdef ANSI_C
+
+static void initPollOps (void)
+#else
+
+static void initPollOps ()
+#endif
+
+  { /* initPollOps */
+    fileObjectOps.incrUsageCount = incrUsageCount;
+    fileObjectOps.decrUsageCount = decrUsageCount;
+  } /* initPollOps */
 
 
 
@@ -55,6 +146,7 @@ listtype arguments;
     isit_socket(arg_2(arguments));
     isit_int(arg_3(arguments));
     isit_interface(arg_4(arguments));
+    isit_struct(take_interface(arg_4(arguments)));
     polAddCheck(take_poll(arg_1(arguments)),
                 take_socket(arg_2(arguments)),
                 take_int(arg_3(arguments)),
@@ -126,6 +218,9 @@ listtype arguments;
     objecttype poll_from;
 
   /* pol_create */
+    if (fileObjectOps.incrUsageCount == NULL) {
+      initPollOps();
+    } /* if */
     poll_to = arg_1(arguments);
     poll_from = arg_3(arguments);
     isit_poll(poll_from);
@@ -289,10 +384,26 @@ objecttype pol_nextFile (arguments)
 listtype arguments;
 #endif
 
-  { /* pol_nextFile */
+  {
+    objecttype nextFile;
+
+  /* pol_nextFile */
+    /* printf("pol_nextFile ");
+    trace1(arg_2(arguments));
+    printf("\n"); */
     isit_poll(arg_1(arguments));
-    return (objecttype) polNextFile(take_poll(arg_1(arguments)),
-                                    (rtlGenerictype) arg_2(arguments));
+    isit_interface(arg_2(arguments));
+    isit_struct(take_interface(arg_2(arguments)));
+    nextFile = (objecttype) polNextFile(take_poll(arg_1(arguments)),
+                                        (rtlGenerictype) take_interface(arg_2(arguments)));
+    isit_struct(nextFile);
+    if (nextFile->value.structvalue->usage_count != 0) {
+      nextFile->value.structvalue->usage_count++;
+    } /* if */
+    /* printf("pol_nextFile ->");
+    trace1(nextFile);
+    printf("\n"); */
+    return bld_interface_temp(nextFile);
   } /* pol_nextFile */
 
 

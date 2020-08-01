@@ -72,10 +72,10 @@ static unsigned int chunk_size[] = { 32768, 16384, 8192, 4096,
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-void check_obj_flist (objecttype object)
+booltype check_obj_flist (objecttype object)
 #else
 
-void check_obj_flist (object)
+booltype check_obj_flist (object)
 objecttype object;
 #endif
 
@@ -90,12 +90,16 @@ objecttype object;
       if (help_obj == object) {
         help_obj->value.objvalue = NULL;
         printf("****************************************\n");
-        printf("object in flist\n%lx ", (unsigned long int) help_obj);
+        printf("object in flist\n%ld %08lx ", refNum(help_obj), (unsigned long int) help_obj);
         trace1(help_obj);
         printf("\n");
+        help_obj->value.objvalue = next_obj;
+        /* printf("%d", 1/0); */
+        return FALSE;
       } /* if */
       help_obj = next_obj;
     } /* while */
+    return TRUE;
   } /* check_obj_flist */
 #endif
 
@@ -204,24 +208,58 @@ unsigned long *stri_chars
 #endif
 
   {
+#ifdef WITH_STRI_FREELIST
+    register flisttype help_elem;
+    register unsigned long num_elems;
+#endif
     register unsigned long num_stris = 0;
 
   /* stri_flist_count */
-    *stri_chars = 0;
 #ifdef WITH_STRI_FREELIST
 #ifdef WITH_STRI_CAPACITY
     {
       unsigned int index;
 
+      *stri_chars = 0;
       for (index = 0; index < STRI_FREELIST_ARRAY_SIZE; index++) {
-        num_stris += sflist_len[index];
-        *stri_chars += index * sflist_len[index];
-      } /* if */
+        num_elems = 0;
+        help_elem = sflist[index];
+        while (help_elem != NULL) {
+#if 0
+          stritype stri;
+          memsizetype saved_size;
+
+          stri = (stritype) help_elem;
+          saved_size = stri->size;
+          stri->size = stri->capacity;
+          prot_stri(stri);
+          prot_nl();
+          stri->size = saved_size;
+#endif
+          help_elem = help_elem->next;
+          num_elems++;
+        } /* while */
+        num_stris += num_elems;
+        *stri_chars += index * num_elems;
+        /* printf("sflist[%d]=%lu %lu\n", index, num_elems, index * num_elems); */
+      } /* for */
+      /* printf("num_stris=%lu\n", num_stris);
+         printf("stri_chars=%lu\n", *stri_chars);
+         printf("count.stri=%lu\n", count.stri);
+         printf("count.stri_elems=%lu\n", count.stri_elems); */
     }
 #else
-    num_stris += sflist_len;
-    *stri_chars += sflist_len;
+    num_elems = 0;
+    help_elem = sflist;
+    while (help_elem != NULL) {
+      help_elem = help_elem->next;
+      num_elems++;
+    } /* while */
+    num_stris = num_elems;
+    *stri_chars = num_elems;
 #endif
+#else
+    *stri_chars = 0;
 #endif
     return num_stris;
   } /* stri_flist_count */
@@ -278,7 +316,7 @@ void heap_statistic ()
           count.bstri,
           (unsigned int) SIZ_BSTRI(0));
       bytes_used += count.bstri * SIZ_BSTRI(0);
-      printf("%9lu bytes in %8lu bstrings of average  %4lu bytes\n",
+      printf("%9lu bytes in %8lu bstrings of average    %4lu bytes\n",
           count.bstri_elems * sizeof(uchartype),
           count.bstri,
           count.bstri_elems * sizeof(uchartype) / count.bstri);
@@ -667,6 +705,7 @@ memsizetype heapsize ()
     memsizetype result;
 
   /* heapsize */
+    /* rtlHeapStatistic(); */
 #ifdef DO_HEAPSIZE_COMPUTATION
     flist_bytes = object_flist_count() * sizeof(objectrecord);
     flist_bytes += list_elem_flist_count() * sizeof(listrecord);
@@ -886,23 +925,6 @@ long sizediff;
         count.fnam_bytes + ((memsizetype) count.fnam) +
         count.symb_bytes + ((memsizetype) count.symb) +
         count.byte;
-#ifdef WITH_STRI_FREELIST
-#ifdef WITH_STRI_CAPACITY
-    {
-      int index;
-
-      for (index = 0; index < STRI_FREELIST_ARRAY_SIZE; index++) {
-        if (sflist_len[index] > STRI_FREELIST_LENGTH_LIMIT) {
-          printf("sflist_len[%d]=%u\n", index, sflist_len[index]);
-        } /* if */
-      } /* if */
-    }
-#else
-    if (sflist_len > STRI_FREELIST_LENGTH_LIMIT) {
-      printf("sflist_len=%u\n", sflist_len);
-    } /* if */
-#endif
-#endif
     if (bytes_used != hs) {
       printf("*** %s(%u)\n%lu %lu %ld %ld \n",
           file_name, line_num, bytes_used, hs, bytes_used - hs, sizediff);
