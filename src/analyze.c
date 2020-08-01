@@ -170,9 +170,9 @@ static inline void include_file (void)
           scan_symbol();
         } else {
           find_include_file(include_file_name, &err_info);
-          if (err_info == MEMORY_ERROR) {
+          if (unlikely(err_info == MEMORY_ERROR)) {
             err_warning(OUT_OF_HEAP_SPACE);
-          } else if (err_info != OKAY_NO_ERROR) {
+          } else if (unlikely(err_info != OKAY_NO_ERROR)) {
             /* FILE_ERROR or RANGE_ERROR */
             err_stri(FILENOTFOUND, include_file_name);
           } else {
@@ -216,7 +216,7 @@ static void process_pragma (void)
             scan_symbol();
           } else {
             append_to_lib_path(symbol.striValue, &err_info);
-            if (err_info != OKAY_NO_ERROR) {
+            if (unlikely(err_info != OKAY_NO_ERROR)) {
               fatal_memory_error(SOURCE_POSITION(2111));
             } /* if */
           } /* if */
@@ -252,8 +252,8 @@ static void process_pragma (void)
 #ifdef WITH_COMPILATION_INFO
           if (in_file.write_line_numbers) {
             size_t number;
-            for (number = 1; number <= 7 + strlen((const_cstriType) in_file.name_ustri);
-                number++) {
+            for (number = 7 + strlen((const_cstriType) in_file.name_ustri);
+                number != 0; number--) {
               fputc(' ', stdout);
             } /* for */
             fputc('\r', stdout);
@@ -323,7 +323,7 @@ static inline void decl_any (nodeType objects)
             scan_symbol();
           } /* if */
         } /* if */
-        if (err_info != OKAY_NO_ERROR) {
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
           fatal_memory_error(SOURCE_POSITION(2112));
         } /* if */
       } else {

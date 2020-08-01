@@ -1,3 +1,49 @@
+20150823:
+- The example program raytrace.sd7 has been added. This program is a
+  raytracing demo.
+- The library vector3d.s7i, which supports 3D vectors, has been
+  added.
+- The compiler s7c has been improved to create code to manage free
+  lists for struct data. This avoids many calls of malloc() and
+  free(). The maximum length of the free lists is determined
+  automatically at run-time.
+- In color.s7i the elements of the type color have been renamed to
+  redLight, greenLight and blueLight. The files mahjong.sd7 and
+  draw.s7i have been changed to use the new element names of the
+  type color.
+- The functions doubleToCharBuffer, fltDgts and fltSci in flt_rtl.c
+  have been improved to work without calls of strlen().
+- The function bigHexCStri in big_rtl.c has been improved to use
+  fewer calls of memmove() and strlen().
+- The function process_pragma() in analyze.c has been improved to
+  use fewer calls of strlen().
+- The function opendir in dir_dos.c and dir_win.c has been improved
+  to work without calls of strcat().
+- The functions striAsUnquotedCStri and bstriAsUnquotedCStri in
+  striutl.c have been improved to use fewer calls of strlen().
+- The function cp_to_command in striutl.c has been improved to use
+  fewer calls of os_stri_strlen.
+- The function getcaps in trm_cap.c has been improved to use fewer
+  calls of strcat().
+- The function fix_capability in trm_inf.c has been improved to use
+  fewer calls of strcat().
+- The function strLit in str_rtl.c has been improved to work
+  without calls of strlen().
+- The functions calculate_output_length and print_stri in error.c
+  have been improved to use fewer calls of strlen().
+- The function prot_os_stri has been removed from traceutl.c.
+- The macros 'likely' and 'unlikely' have been added to functions in
+  act_comp.c, analyze.c, arr_rtl.c, big_gmp.c, big_rtl.c, chr_rtl.c,
+  cmd_rtl.c, cmd_unx.c, cmd_win.c, con_win.c, hshlib.c, hsh_rtl.c,
+  soc_rtl.c, striutl.c and traceutl.c.
+- Checks for err_info != OKAY_NO_ERROR have been replaced by checks
+  for pointer variables beeing NULL in cmd_win.c, dir_rtl.c,
+  fil_rtl.c, pcs_unx.c, pcs_win.c, striutl.c. Since references to
+  err_info are used this variable cannot be placed into a register.
+  The pointer variables used now can be placed into a register.
+- Variables in big_rtl.c, dir_rtl.c and striutl.c have been changed
+  to constants.
+
 20150802:
 - An explanation, how Seed7 programs can be debugged with Eclipse,
   has been added to the FAQ.

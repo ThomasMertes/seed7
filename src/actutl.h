@@ -31,10 +31,11 @@ typedef struct {
   } primActRecord;
 
 typedef primActRecord *primActType;
+typedef const primActRecord *const_primActType;
 
 typedef struct {
     unsigned int size;
-    primActType primitive;
+    const_primActType primitive;
   } actTableType;
 
 #ifdef DO_INIT
@@ -45,4 +46,4 @@ EXTERN actTableType act_table;
 
 
 boolType find_action (const const_striType action_name, actType *action_found);
-primActType get_primact (actType action_searched);
+const_primActType get_primact (actType action_searched);

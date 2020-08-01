@@ -177,8 +177,7 @@ static memSizeType calculate_output_length (striType stri)
             output_length += strlen(stri_escape_sequence[ch]);
           } /* if */
         } else {
-          sprintf(buffer, "\\" FMT_U32 ";", ch);
-          output_length += strlen(buffer);
+          output_length += (memSizeType) sprintf(buffer, "\\" FMT_U32 ";", ch);
         } /* if */
       } /* if */
     } /* for */
@@ -223,9 +222,8 @@ static void print_stri (striType stri)
             output_length += strlen(stri_escape_sequence[ch]);
           } /* if */
         } else {
-          sprintf(buffer, "\\" FMT_U32 ";", ch);
+          output_length += (memSizeType) sprintf(buffer, "\\" FMT_U32 ";", ch);
           prot_cstri(buffer);
-          output_length += strlen(buffer);
         } /* if */
       } /* if */
     } /* for */

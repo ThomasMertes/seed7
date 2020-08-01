@@ -58,7 +58,6 @@ void prot_bigint (const const_bigIntType bintvalue);
 void prot_float (floatType floatValue);
 #endif
 void prot_char (charType cvalue);
-/* void prot_os_stri (const const_os_striType os_stri); */
 void prot_string (const striType stri);
 void prot_stri_unquoted (const const_striType stri);
 void prot_stri (const const_striType stri);

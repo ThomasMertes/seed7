@@ -264,7 +264,7 @@ const proc: (inout complex: number) /:= (in complex: divisor) is func
  *  @return the absolute value.
  *)
 const func float: abs (in complex: number) is
-  return sqrt(number.re * number.re + number.im * number.im);
+  return sqrt(number.re ** 2 + number.im ** 2);
 
 
 (**
@@ -272,7 +272,7 @@ const func float: abs (in complex: number) is
  *  @return the square of the absolute value.
  *)
 const func float: sqrAbs (in complex: number) is
-  return number.re * number.re + number.im * number.im;
+  return number.re ** 2 + number.im ** 2;
 
 
 (**

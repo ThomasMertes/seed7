@@ -1340,8 +1340,8 @@ static void sqlBindInt (sqlStmtType sqlStatement, intType pos, intType value)
         case VARCHAROID:
           free(preparedStmt->paramValues[pos - 1]);
           preparedStmt->paramValues[pos - 1] = (cstriType) malloc(INTTYPE_DECIMAL_SIZE + 1);
-          sprintf(preparedStmt->paramValues[pos - 1], FMT_D, value);
-          preparedStmt->paramLengths[pos - 1] = (int) strlen(preparedStmt->paramValues[pos - 1]);
+          preparedStmt->paramLengths[pos - 1] =
+              (int) sprintf(preparedStmt->paramValues[pos - 1], FMT_D, value);
           preparedStmt->paramFormats[pos - 1] = 0;
           break;
         default:

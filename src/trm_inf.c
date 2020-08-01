@@ -221,14 +221,15 @@ static void fix_capability (void)
     terminal_name = getenv("TERM");
     if (home_dir_path != NULL) {
       strcpy(fix_file_name, home_dir_path);
+      len = strlen(fix_file_name);
     } else {
-      fix_file_name[0] = '\0';
+      len = 0;
     } /* if */
-    len = strlen(fix_file_name);
     if (len > 0 && fix_file_name[len - 1] != '/') {
-      strcat(fix_file_name, "/");
+      fix_file_name[len] = '/';
+      len++;
     } /* if */
-    strcat(fix_file_name, ".term");
+    strcpy(&fix_file_name[len], ".term");
     if (terminal_name != NULL) {
       strcat(fix_file_name, terminal_name);
     } /* if */

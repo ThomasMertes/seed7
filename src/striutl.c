@@ -52,7 +52,7 @@
 #include "striutl.h"
 
 
-const_cstriType stri_escape_sequence[] = {
+const const_cstriType stri_escape_sequence[] = {
     "\\0;",  "\\1;",  "\\2;",  "\\3;",  "\\4;",
     "\\5;",  "\\6;",  "\\a",   "\\b",   "\\t",
     "\\n",   "\\v",   "\\f",   "\\r",   "\\14;",
@@ -61,7 +61,7 @@ const_cstriType stri_escape_sequence[] = {
     "\\25;", "\\26;", "\\e",   "\\28;", "\\29;",
     "\\30;", "\\31;"};
 
-const_cstriType cstri_escape_sequence[] = {
+const const_cstriType cstri_escape_sequence[] = {
     "\\000", "\\001", "\\002", "\\003", "\\004",
     "\\005", "\\006", "\\007", "\\b",   "\\t",
     "\\n",   "\\013", "\\f",   "\\r",   "\\016",
@@ -70,11 +70,14 @@ const_cstriType cstri_escape_sequence[] = {
     "\\031", "\\032", "\\033", "\\034", "\\035",
     "\\036", "\\037"};
 
+const char null_string_marker[]      = "\\ *NULL_STRING* ";
+const char null_byte_string_marker[] = "\\ *NULL_BYTE_STRING* ";
+
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef EMULATE_ROOT_CWD
-os_striType current_emulated_cwd = NULL;
+const_os_striType current_emulated_cwd = NULL;
 #endif
-os_charType emulated_root[] = {'/', '\0'};
+const os_charType emulated_root[] = {'/', '\0'};
 #endif
 
 #define USE_DUFFS_UNROLLING
@@ -121,7 +124,7 @@ cstriType striAsUnquotedCStri (const const_striType stri)
     strElemType ch;
     memSizeType idx;
     memSizeType pos = 0;
-    static char buffer[2084];
+    static char buffer[2048];
 
   /* striAsUnquotedCStri */
     if (stri != NULL) {
@@ -165,17 +168,15 @@ cstriType striAsUnquotedCStri (const const_striType stri)
           memcpy(&buffer[pos], "\\-1;", 4);
           pos += 4;
         } else {
-          sprintf(&buffer[pos], "\\%lu;", (unsigned long) ch);
-          pos += strlen(&buffer[pos]);
+          pos += (memSizeType) sprintf(&buffer[pos], "\\%lu;", (unsigned long) ch);
         } /* if */
       } /* for */
       if (stri->size > 128) {
-        sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, stri->size);
-        pos += strlen(&buffer[pos]);
+        pos += (memSizeType) sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, stri->size);
       } /* if */
     } else {
-      strcpy(&buffer[pos], "\\ *NULL_STRING* ");
-      pos += strlen(&buffer[pos]);
+      strcpy(buffer, null_string_marker);
+      pos = STRLEN(null_string_marker);
     } /* if */
     buffer[pos] = '\0';
     return buffer;
@@ -215,17 +216,15 @@ cstriType bstriAsUnquotedCStri (const const_bstriType bstri)
             pos++;
           } /* if */
         } else {
-          sprintf(&buffer[pos], "\\%u;", (unsigned int) ch);
-          pos += strlen(&buffer[pos]);
+          pos += (memSizeType) sprintf(&buffer[pos], "\\%u;", (unsigned int) ch);
         } /* if */
       } /* for */
       if (bstri->size > 128) {
-        sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, bstri->size);
-        pos += strlen(&buffer[pos]);
+        pos += (memSizeType) sprintf(&buffer[pos], "\\ *AND_SO_ON* SIZE=" FMT_U_MEM, bstri->size);
       } /* if */
     } else {
-      strcpy(&buffer[pos], "\\ *NULL_BYTE_STRING* ");
-      pos += strlen(&buffer[pos]);
+      strcpy(buffer, null_byte_string_marker);
+      pos = STRLEN(null_byte_string_marker);
     } /* if */
     buffer[pos] = '\0';
     return buffer;
@@ -960,7 +959,7 @@ static inline void conv_to_os_stri (register os_striType os_stri,
 
 #elif defined OS_STRI_USES_CODE_PAGE
 
-static unsigned char map_to_437_160[] = {
+static const unsigned char map_to_437_160[] = {
 /*  160 */  255,  173,  155,  156,  '?',  157,  '?',  '?',  '?',  '?',
 /*  170 */  166,  174,  170,  '?',  '?',  '?',  248,  241,  253,  '?',
 /*  180 */  '?',  230,  '?',  250,  '?',  '?',  167,  175,  172,  171,
@@ -972,7 +971,7 @@ static unsigned char map_to_437_160[] = {
 /*  240 */  '?',  164,  149,  162,  147,  '?',  148,  246,  '?',  151,
 /*  250 */  163,  150,  129,  '?',  '?',  152};
 
-static unsigned char map_to_437_915[] = {
+static const unsigned char map_to_437_915[] = {
 /*  910 */                                226,  '?',  '?',  '?',  '?',
 /*  920 */  233,  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
 /*  930 */  '?',  228,  '?',  '?',  232,  '?',  '?',  234,  '?',  '?',
@@ -980,7 +979,7 @@ static unsigned char map_to_437_915[] = {
 /*  950 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
 /*  960 */  227,  '?',  '?',  229,  231,  '?',  237};
 
-static unsigned char map_to_437_9472[] = {
+static const unsigned char map_to_437_9472[] = {
 /* 9470 */              196,  '?',  179,  '?',  '?',  '?',  '?',  '?',
 /* 9480 */  '?',  '?',  '?',  '?',  218,  '?',  '?',  '?',  191,  '?',
 /* 9490 */  '?',  '?',  192,  '?',  '?',  '?',  217,  '?',  '?',  '?',
@@ -999,7 +998,7 @@ static unsigned char map_to_437_9472[] = {
 /* 9620 */  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',  '?',
 /* 9630 */  '?',  '?',  254};
 
-static unsigned char map_to_850_160[] = {
+static const unsigned char map_to_850_160[] = {
 /*  160 */  255,  173,  189,  156,  207,  190,  221,  245,  249,  184,
 /*  170 */  166,  174,  170,  240,  169,  238,  248,  241,  253,  252,
 /*  180 */  239,  230,  244,  250,  247,  251,  167,  175,  172,  171,
@@ -1011,7 +1010,7 @@ static unsigned char map_to_850_160[] = {
 /*  240 */  208,  164,  149,  162,  147,  228,  148,  246,  155,  151,
 /*  250 */  163,  150,  129,  236,  231,  152};
 
-static unsigned char map_to_850_9472[] = {
+static const unsigned char map_to_850_9472[] = {
 /* 9470 */              196,  '?',  179,  '?',  '?',  '?',  '?',  '?',
 /* 9480 */  '?',  '?',  '?',  '?',  218,  '?',  '?',  '?',  191,  '?',
 /* 9490 */  '?',  '?',  192,  '?',  '?',  '?',  217,  '?',  '?',  '?',
@@ -1231,7 +1230,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
 
 #elif defined OS_STRI_USES_CODE_PAGE
 
-static strElemType map_from_437[] = {
+static const strElemType map_from_437[] = {
 /*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
 /*  10 */   10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
 /*  20 */   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
@@ -1259,7 +1258,7 @@ static strElemType map_from_437[] = {
 /* 240 */ 8801,  177, 8805, 8804, 8992, 8993,  247, 8776,  176, 8729,
 /* 250 */  183, 8730, 8319,  178, 9632,  160};
 
-static strElemType map_from_850[] = {
+static const strElemType map_from_850[] = {
 /*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
 /*  10 */   10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
 /*  20 */   20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
@@ -1608,7 +1607,7 @@ bstriType stri_to_bstriw (const_striType stri)
       bstri = NULL;
     } else if (ALLOC_BSTRI_SIZE_OK(bstri, stri->size * 2 * sizeof(os_charType))) {
       wstri_size = stri_to_utf16((wstriType) bstri->mem, stri->mem, stri->size, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         FREE_BSTRI(bstri, stri->size * 2 * sizeof(os_charType));
         bstri = NULL;
       } else {
@@ -2048,6 +2047,21 @@ striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info)
 
 
 #ifdef EMULATE_ROOT_CWD
+void setEmulatedCwdToRoot (void)
+
+  { /* setEmulatedCwdToRoot */
+    logFunction(printf("setEmulatedCwdToRoot\n"););
+    if (current_emulated_cwd != NULL &&
+        current_emulated_cwd != emulated_root) {
+      FREE_OS_STRI((os_striType) current_emulated_cwd);
+    } /* if */
+    current_emulated_cwd = emulated_root;
+    logFunction(printf("setEmulatedCwdToRoot --> current_emulated_cwd=\"" FMT_S_OS "\"\n",
+                        current_emulated_cwd););
+  } /* setEmulatedCwdToRoot */
+
+
+
 void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
 
   {
@@ -2057,38 +2071,32 @@ void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
 
   /* setEmulatedCwd */
     logFunction(printf("setEmulatedCwd(\"" FMT_S_OS "\")\n", os_path););
-    if (IS_EMULATED_ROOT(os_path)) {
-      new_cwd = emulated_root;
+    cwd_len = os_stri_strlen(os_path);
+    if (unlikely(!ALLOC_OS_STRI(new_cwd, cwd_len))) {
+      *err_info = MEMORY_ERROR;
     } else {
-      cwd_len = os_stri_strlen(os_path);
-      if (unlikely(!ALLOC_OS_STRI(new_cwd, cwd_len))) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        memcpy(new_cwd, os_path, (cwd_len + 1) * sizeof(os_charType));
-        for (position = 0; new_cwd[position] != '\0'; position++) {
-          if (new_cwd[position] == '\\') {
-            new_cwd[position] = '/';
-          } /* if */
-        } /* for */
-        if (position >= 2 && new_cwd[position - 1] == '/') {
-          new_cwd[position - 1] = '\0';
+      memcpy(new_cwd, os_path, (cwd_len + 1) * sizeof(os_charType));
+      for (position = 0; new_cwd[position] != '\0'; position++) {
+        if (new_cwd[position] == '\\') {
+          new_cwd[position] = '/';
         } /* if */
-        if (((new_cwd[0] >= 'a' && new_cwd[0] <= 'z') ||
-             (new_cwd[0] >= 'A' && new_cwd[0] <= 'Z')) &&
-            new_cwd[1] == ':') {
-          new_cwd[1] = (os_charType) tolower(new_cwd[0]);
-          new_cwd[0] = '/';
-        } /* if */
+      } /* for */
+      if (position >= 2 && new_cwd[position - 1] == '/') {
+        new_cwd[position - 1] = '\0';
       } /* if */
-    } /* if */
-    if (new_cwd != NULL) {
+      if (((new_cwd[0] >= 'a' && new_cwd[0] <= 'z') ||
+           (new_cwd[0] >= 'A' && new_cwd[0] <= 'Z')) &&
+          new_cwd[1] == ':') {
+        new_cwd[1] = (os_charType) tolower(new_cwd[0]);
+        new_cwd[0] = '/';
+      } /* if */
       if (current_emulated_cwd != NULL &&
           current_emulated_cwd != emulated_root) {
-        FREE_OS_STRI(current_emulated_cwd);
+        FREE_OS_STRI((os_striType) current_emulated_cwd);
       } /* if */
       current_emulated_cwd = new_cwd;
     } /* if */
-    logFunction(printf("current_emulated_cwd=\"" FMT_S_OS "\"\n",
+    logFunction(printf("setEmulatedCwd --> current_emulated_cwd=\"" FMT_S_OS "\"\n",
                         current_emulated_cwd););
   } /* setEmulatedCwd */
 
@@ -2522,6 +2530,7 @@ os_striType cp_to_command (const const_striType commandPath,
   {
     os_striType os_commandPath;
     os_striType os_parameters;
+    memSizeType command_len;
     memSizeType param_len;
     memSizeType result_len;
     int path_info;
@@ -2537,28 +2546,28 @@ os_striType cp_to_command (const const_striType commandPath,
       os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
     } else if (unlikely(stri_charpos(commandPath, '\\') != NULL)) {
       *err_info = RANGE_ERROR;
-      result = NULL;
+      os_commandPath = NULL;
     } else {
       os_commandPath = stri_to_os_stri(commandPath, err_info);
     } /* if */
 #else
     os_commandPath = cp_to_os_path(commandPath, &path_info, err_info);
 #endif
-    if (unlikely(*err_info != OKAY_NO_ERROR)) {
+    if (unlikely(os_commandPath == NULL)) {
       result = NULL;
     } else {
       os_parameters = stri_to_os_stri(parameters, err_info);
       if (unlikely(os_parameters == NULL)) {
         result = NULL;
       } else {
+        command_len = os_stri_strlen(os_commandPath);
         param_len = os_stri_strlen(os_parameters);
         if (unlikely(MAX_OS_STRI_SIZE - 4 < param_len ||
-                     os_stri_strlen(os_commandPath) > (MAX_OS_STRI_SIZE - 4 - param_len) / 3)) {
+                     command_len > (MAX_OS_STRI_SIZE - 4 - param_len) / 3)) {
           *err_info = MEMORY_ERROR;
           result = NULL;
         } else {
-          result_len = 3 * os_stri_strlen(os_commandPath) +
-                       os_stri_strlen(os_parameters) + 4;
+          result_len = 3 * command_len + param_len + 4;
           if (unlikely(!ALLOC_OS_STRI(result, result_len))) {
             *err_info = MEMORY_ERROR;
           } else {
@@ -2633,8 +2642,8 @@ striType relativeToProgramPath (const const_striType basePath,
         memcpy_to_strelem(&result->mem[dir_path_size - 3],
             (const_ustriType) dir, len);
       } /* if */
-    } else {
-      result = cstri_to_stri("");
+    } else if (likely(ALLOC_STRI_SIZE_OK(result, 0))) {
+      result-> size = 0;
     } /* if */
     return result;
   } /* relativeToProgramPath */

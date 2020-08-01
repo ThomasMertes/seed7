@@ -2173,8 +2173,7 @@ striType strLit (const const_striType stri)
           result->mem[pos + 4] = (strElemType) ';';
           pos += 5;
         } else if (character >= 256) {
-          sprintf(buffer, "\\%lu;", (unsigned long) character);
-          len = strlen(buffer);
+          len = (memSizeType) sprintf(buffer, "\\%lu;", (unsigned long) character);
           memcpy_to_strelem(&result->mem[pos], (const_ustriType) buffer, len);
           pos += len;
         } else {

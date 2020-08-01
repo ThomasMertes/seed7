@@ -30,9 +30,9 @@
  *  Describes colors with red, green and blue.
  *)
 const type: color is new struct
-    var integer: red_part is 0;
-    var integer: green_part is 0;
-    var integer: blue_part is 0;
+    var integer: redLight is 0;
+    var integer: greenLight is 0;
+    var integer: blueLight is 0;
   end struct;
 
 
@@ -41,9 +41,9 @@ const type: color is new struct
  *  @return TRUE if both values are equal, FALSE otherwise.
  *)
 const func boolean: (in color: col1) = (in color: col2) is
-  return col1.red_part = col2.red_part and
-         col1.green_part = col2.green_part and
-         col1.blue_part = col2.blue_part;
+  return col1.redLight = col2.redLight and
+         col1.greenLight = col2.greenLight and
+         col1.blueLight = col2.blueLight;
 
 
 (**
@@ -51,9 +51,9 @@ const func boolean: (in color: col1) = (in color: col2) is
  *  @return FALSE if both values are equal, TRUE otherwise.
  *)
 const func boolean: (in color: col1) <> (in color: col2) is
-  return col1.red_part <> col2.red_part or
-         col1.green_part <> col2.green_part or
-         col1.blue_part <> col2.blue_part;
+  return col1.redLight <> col2.redLight or
+         col1.greenLight <> col2.greenLight or
+         col1.blueLight <> col2.blueLight;
 
 
 (**
@@ -64,9 +64,9 @@ const func color: (in color: col1) + (in color: col2) is func
   result
     var color: sum is color.value;
   begin
-    sum.red_part :=   (col1.red_part   + col2.red_part)   div 2;
-    sum.green_part := (col1.green_part + col2.green_part) div 2;
-    sum.blue_part :=  (col1.blue_part  + col2.blue_part)  div 2;
+    sum.redLight :=   (col1.redLight   + col2.redLight)   div 2;
+    sum.greenLight := (col1.greenLight + col2.greenLight) div 2;
+    sum.blueLight :=  (col1.blueLight  + col2.blueLight)  div 2;
   end func;
 
 
@@ -78,9 +78,9 @@ const func color: color (in integer: red, in integer: green, in integer: blue) i
   result
     var color: aColor is color.value;
   begin
-    aColor.red_part := red;
-    aColor.green_part := green;
-    aColor.blue_part := blue;
+    aColor.redLight := red;
+    aColor.greenLight := green;
+    aColor.blueLight := blue;
   end func;
 
 
@@ -92,9 +92,9 @@ const func color: gray (in integer: brightness) is func
   result
     var color: aColor is color.value;
   begin
-    aColor.red_part := brightness;
-    aColor.green_part := brightness;
-    aColor.blue_part := brightness;
+    aColor.redLight := brightness;
+    aColor.greenLight := brightness;
+    aColor.blueLight := brightness;
   end func;
 
 
@@ -108,17 +108,17 @@ const func integer: compare (in color: col1, in color: col2) is func
   result
     var integer: signumValue is 0;
   begin
-    if col1.red_part < col2.red_part then
+    if col1.redLight < col2.redLight then
       signumValue := -1;
-    elsif col1.red_part > col2.red_part then
+    elsif col1.redLight > col2.redLight then
       signumValue := 1;
-    elsif col1.green_part < col2.green_part then
+    elsif col1.greenLight < col2.greenLight then
       signumValue := -1;
-    elsif col1.green_part > col2.green_part then
+    elsif col1.greenLight > col2.greenLight then
       signumValue := 1;
-    elsif col1.blue_part < col2.blue_part then
+    elsif col1.blueLight < col2.blueLight then
       signumValue := -1;
-    elsif col1.blue_part > col2.blue_part then
+    elsif col1.blueLight > col2.blueLight then
       signumValue := 1;
     end if;
   end func;
@@ -129,7 +129,7 @@ const func integer: compare (in color: col1, in color: col2) is func
  *  @return the hash value.
  *)
 const func integer: hashCode (in color: col) is
-  return col.red_part + col.green_part + col.blue_part;
+  return col.redLight + col.greenLight + col.blueLight;
 
 
 const color: black         is color(0, 0, 0);             (* Black     *)

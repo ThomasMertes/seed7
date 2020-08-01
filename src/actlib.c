@@ -172,7 +172,7 @@ objectType act_ne (listType arguments)
 objectType act_ord (listType arguments)
 
   {
-    primActType primact;
+    const_primActType primact;
     intType result;
 
   /* act_ord */

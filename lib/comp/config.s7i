@@ -34,6 +34,7 @@ var boolean: trace_signal            is FALSE;
 var boolean: signal_exception        is FALSE;
 var integer: evaluate_const_expr     is 1;
 var boolean: inlineFunctions         is TRUE;
+var boolean: structFreelist          is TRUE;
 var boolean: declare_with_extern_c   is FALSE;
 var boolean: generate_c_plus_plus    is FALSE;
 

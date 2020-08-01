@@ -85,17 +85,19 @@ static const rtlValueUnion neg_zero_const =
 floatType negativeZero;
 
 #ifndef USE_VARIABLE_FORMATS
-static char *fmt_e[] = {"%1.0e", "%1.1e", "%1.2e", "%1.3e", "%1.4e",
-    "%1.5e",  "%1.6e",  "%1.7e",  "%1.8e",  "%1.9e",  "%1.10e",
-    "%1.11e", "%1.12e", "%1.13e", "%1.14e", "%1.15e", "%1.16e",
-    "%1.17e", "%1.18e", "%1.19e", "%1.20e", "%1.21e", "%1.22e",
-    "%1.23e", "%1.24e", "%1.25e", "%1.26e", "%1.27e", "%1.28e"};
+static const const_cstriType fmt_e[] = {
+    "%1.0e",  "%1.1e",  "%1.2e",  "%1.3e",  "%1.4e",  "%1.5e",
+    "%1.6e",  "%1.7e",  "%1.8e",  "%1.9e",  "%1.10e", "%1.11e",
+    "%1.12e", "%1.13e", "%1.14e", "%1.15e", "%1.16e", "%1.17e",
+    "%1.18e", "%1.19e", "%1.20e", "%1.21e", "%1.22e", "%1.23e",
+    "%1.24e", "%1.25e", "%1.26e", "%1.27e", "%1.28e"};
 
-static char *fmt_f[] = {"%1.0f", "%1.1f", "%1.2f", "%1.3f", "%1.4f",
-    "%1.5f",  "%1.6f",  "%1.7f",  "%1.8f",  "%1.9f",  "%1.10f",
-    "%1.11f", "%1.12f", "%1.13f", "%1.14f", "%1.15f", "%1.16f",
-    "%1.17f", "%1.18f", "%1.19f", "%1.20f", "%1.21f", "%1.22f",
-    "%1.23f", "%1.24f", "%1.25f", "%1.26f", "%1.27f", "%1.28f"};
+static const const_cstriType fmt_f[] = {
+    "%1.0f",  "%1.1f",  "%1.2f",  "%1.3f",  "%1.4f",  "%1.5f",
+    "%1.6f",  "%1.7f",  "%1.8f",  "%1.9f",  "%1.10f", "%1.11f",
+    "%1.12f", "%1.13f", "%1.14f", "%1.15f", "%1.16f", "%1.17f",
+    "%1.18f", "%1.19f", "%1.20f", "%1.21f", "%1.22f", "%1.23f",
+    "%1.24f", "%1.25f", "%1.26f", "%1.27f", "%1.28f"};
 #endif
 
 
@@ -179,12 +181,11 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
       memcpy(buffer, "0.0", 3);
       len = 3;
     } else if (doubleValue < -largeNumber || doubleValue > largeNumber) {
-      sprintf(buffer, "%1.1f", doubleValue);
-      len = strlen(buffer);
+      len = (memSizeType) sprintf(buffer, "%1.1f", doubleValue);
     } else {
-      sprintf(buffer, format, doubleValue);
+      len = (memSizeType) sprintf(buffer, format, doubleValue);
       /* printf("buffer: \"%s\"\n", buffer); */
-      len = strlen(buffer) - MIN_PRINTED_EXPONENT_DIGITS - 2;
+      len -= MIN_PRINTED_EXPONENT_DIGITS + 2;
       while (buffer[len] != 'e') {
         len--;
       } /* while */
@@ -321,6 +322,7 @@ striType fltDgts (floatType number, intType precision)
     /* The 5 additional chars below are for %1. f and \0. */
     char form_buffer[INTTYPE_DECIMAL_SIZE + 5];
     memSizeType pos;
+    memSizeType len;
     striType result;
 
   /* fltDgts */
@@ -337,32 +339,35 @@ striType fltDgts (floatType number, intType precision)
     } else {
       if (os_isnan(number)) {
         buffer_ptr = "NaN";
+        len = STRLEN("NaN");
       } else if (number == POSITIVE_INFINITY) {
         buffer_ptr = "Infinity";
+        len = STRLEN("Infinity");
       } else if (number == NEGATIVE_INFINITY) {
         buffer_ptr = "-Infinity";
+        len = STRLEN("-Infinity");
       } else {
 #ifdef USE_VARIABLE_FORMATS
         if (unlikely(precision > INT_MAX)) {
           sprintf(form_buffer, "%%1." FMT_D "f", precision);
-          sprintf(buffer, form_buffer, number);
+          len = (memSizeType) sprintf(buffer, form_buffer, number);
         } else {
-          sprintf(buffer, "%1.*f", (int) precision, number);
+          len = (memSizeType) sprintf(buffer, "%1.*f", (int) precision, number);
         } /* if */
 #else
         if (unlikely(precision >= sizeof(fmt_f) / sizeof(char *))) {
           sprintf(form_buffer, "%%1." FMT_D "f", precision);
-          sprintf(buffer, form_buffer, number);
+          len = (memSizeType) sprintf(buffer, form_buffer, number);
         } else {
-          sprintf(buffer, fmt_f[precision], number);
+          len = (memSizeType) sprintf(buffer, fmt_f[precision], number);
         } /* if */
 #endif
 #ifdef PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION
         if (precision > PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION) {
-          pos = strlen(buffer);
-          memset(&buffer[pos], '0',
+          memset(&buffer[len], '0',
                  (memSizeType) (precision - PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION));
-          buffer[pos + (memSizeType) (precision - PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION)] = '\0';
+          len += (memSizeType) (precision - PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION);
+          buffer[len] = '\0';
         } /* if */
 #endif
         buffer_ptr = buffer;
@@ -375,13 +380,15 @@ striType fltDgts (floatType number, intType precision)
             } /* while */
             if (buffer[pos] == '\0') {
               buffer_ptr++;
+              len--;
             } /* if */
           } else if (buffer[2] == '\0') {
             buffer_ptr++;
+            len--;
           } /* if */
         } /* if */
       } /* if */
-      result = cstri_to_stri(buffer_ptr);
+      result = cstri_buf_to_stri(buffer_ptr, len);
       if (buffer != buffer_1) {
         FREE_BYTES(buffer, precision + FLT_DGTS_LEN);
       } /* if */
@@ -962,33 +969,37 @@ striType fltSci (floatType number, intType precision)
     } else {
       if (os_isnan(number)) {
         buffer_ptr = "NaN";
+        len = STRLEN("NaN");
       } else if (number == POSITIVE_INFINITY) {
         buffer_ptr = "Infinity";
+        len = STRLEN("Infinity");
       } else if (number == NEGATIVE_INFINITY) {
         buffer_ptr = "-Infinity";
+        len = STRLEN("-Infinity");
       } else {
 #ifdef USE_VARIABLE_FORMATS
         if (unlikely(precision > INT_MAX)) {
           sprintf(form_buffer, "%%1." FMT_D "e", precision);
-          sprintf(buffer, form_buffer, number);
+          len = (memSizeType) sprintf(buffer, form_buffer, number);
         } else {
-          sprintf(buffer, "%1.*e", (int) precision, number);
+          len = (memSizeType) sprintf(buffer, "%1.*e", (int) precision, number);
         } /* if */
 #else
         if (unlikely(precision >= sizeof(fmt_e) / sizeof(char *))) {
           sprintf(form_buffer, "%%1." FMT_D "e", precision);
-          sprintf(buffer, form_buffer, number);
+          len = (memSizeType) sprintf(buffer, form_buffer, number);
         } else {
-          sprintf(buffer, fmt_e[precision], number);
+          len = (memSizeType) sprintf(buffer, fmt_e[precision], number);
         } /* if */
 #endif
 #ifdef PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION
         if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION) {
           pos = (memSizeType) (strchr(buffer, 'e') - buffer);
           memmove(&buffer[pos + (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION)],
-                  &buffer[pos], strlen(&buffer[pos]) + 1);
+                  &buffer[pos], len - pos + 1);
           memset(&buffer[pos], '0',
                  (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION));
+          len += (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION);
         } /* if */
 #endif
         startPos = 0;
@@ -1006,6 +1017,7 @@ striType fltSci (floatType number, intType precision)
               } /* while */
               if (buffer[pos] == '\0') {
                 startPos++;
+                len--;
               } /* if */
             } /* if */
           } else if (buffer[2] == 'e' && buffer[4] == '0') {
@@ -1015,10 +1027,10 @@ striType fltSci (floatType number, intType precision)
             } /* while */
             if (buffer[pos] == '\0') {
               startPos++;
+              len--;
             } /* if */
           } /* if */
         } /* if */
-        len = strlen(buffer);
         if (len > startPos) {
           pos = len;
           do {
@@ -1034,10 +1046,11 @@ striType fltSci (floatType number, intType precision)
           } /* if */
           memmove(&buffer[pos], &buffer[after_zeros],
               sizeof(char) * (len - after_zeros + 1));
+          len -= after_zeros - pos;
         } /* if */
         buffer_ptr = &buffer[startPos];
       } /* if */
-      result = cstri_to_stri(buffer_ptr);
+      result = cstri_buf_to_stri(buffer_ptr, len);
       if (buffer != buffer_1) {
         FREE_BYTES(buffer, precision + FLT_SCI_LEN);
       } /* if */

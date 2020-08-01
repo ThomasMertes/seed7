@@ -188,7 +188,7 @@ static rtlArrayType copyArgv (const int argc, const os_striType *const argv)
         arg_v->max_position = (intType) (arg_c);
         for (number = 0; number < arg_c; number++) {
           stri = os_stri_to_stri(argv[number], &err_info);
-          if (likely(err_info == OKAY_NO_ERROR)) {
+          if (likely(stri != NULL)) {
             arg_v->arr[number].value.striValue = stri;
           } else {
             while (number >= 1) {
@@ -238,7 +238,7 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
   /* getArgv */
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
                       "err_info=%d\n",
                       argc, err_info););
@@ -247,7 +247,7 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
     } else {
 #endif
       arg_0_temp = cp_from_os_path(argv[0], &err_info);
-      if (arg_0_temp == NULL) {
+      if (unlikely(arg_0_temp == NULL)) {
         logError(printf("getArgv(%d, ...): "
                         "cp_from_os_path(\"%ls\", *) failed:\n"
                         "err_info=%d\n",
@@ -271,11 +271,11 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
           FREE_STRI(arg_0_temp, arg_0_temp->size);
         } /* if */
       } /* if */
-      if (err_info == OKAY_NO_ERROR) {
-        arg_v = copyArgv(argc - 1, &argv[1]);
-      } else {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
         arg_v = NULL;
+      } else {
+        arg_v = copyArgv(argc - 1, &argv[1]);
       } /* if */
 #ifdef EMULATE_ROOT_CWD
     } /* if */
@@ -300,7 +300,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
   /* getArgv */
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
                       "err_info=%d\n",
                       argc, err_info););
@@ -309,12 +309,12 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
     } else {
 #endif
       w_argv = getUtf16Argv(&w_argc);
-      if (w_argv == NULL) {
+      if (unlikely(w_argv == NULL)) {
         raise_error(MEMORY_ERROR);
         arg_v = NULL;
       } else {
         arg_0_temp = cp_from_os_path(w_argv[0], &err_info);
-        if (arg_0_temp == NULL) {
+        if (unlikely(arg_0_temp == NULL)) {
           logError(printf("getArgv(%d, ...): "
                           "cp_from_os_path(\"" FMT_S_OS "\", *) failed:\n"
                           "err_info=%d\n",
@@ -338,11 +338,11 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
             FREE_STRI(arg_0_temp, arg_0_temp->size);
           } /* if */
         } /* if */
-        if (err_info == OKAY_NO_ERROR) {
-          arg_v = copyArgv(w_argc - 1, &w_argv[1]);
-        } else {
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(err_info);
           arg_v = NULL;
+        } else {
+          arg_v = copyArgv(w_argc - 1, &w_argv[1]);
         } /* if */
         freeUtf16Argv(w_argv);
       } /* if */
@@ -367,7 +367,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
   /* getArgv */
 #ifdef EMULATE_ROOT_CWD
     initEmulatedCwd(&err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       logError(printf("getArgv(%d, ...): initEmulatedCwd(*) failed:\n"
                       "err_info=%d\n",
                       argc, err_info););
@@ -376,7 +376,7 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
     } else {
 #endif
       arg_0_temp = cp_from_os_path(argv[0], &err_info);
-      if (arg_0_temp == NULL) {
+      if (unlikely(arg_0_temp == NULL)) {
         logError(printf("getArgv(%d, ...): "
                         "cp_from_os_path(\"%s\", *) failed:\n"
                         "err_info=%d\n",
@@ -400,11 +400,11 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
           FREE_STRI(arg_0_temp, arg_0_temp->size);
         } /* if */
       } /* if */
-      if (err_info == OKAY_NO_ERROR) {
-        arg_v = copyArgv(argc - 1, &argv[1]);
-      } else {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);
         arg_v = NULL;
+      } else {
+        arg_v = copyArgv(argc - 1, &argv[1]);
       } /* if */
 #ifdef EMULATE_ROOT_CWD
     } /* if */
@@ -476,13 +476,13 @@ void arrAppend (rtlArrayType *const arr_variable, const rtlArrayType extension)
     if (extension_size != 0) {
       arr_to = *arr_variable;
       arr_to_size = arraySize(arr_to);
-      if (arr_to_size > MAX_RTL_ARR_LEN - extension_size ||
-          arr_to->max_position > (intType) (MAX_MEM_INDEX - extension_size)) {
+      if (unlikely(arr_to_size > MAX_RTL_ARR_LEN - extension_size ||
+                   arr_to->max_position > (intType) (MAX_MEM_INDEX - extension_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         new_size = arr_to_size + extension_size;
         arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
-        if (arr_to == NULL) {
+        if (unlikely(arr_to == NULL)) {
           raise_error(MEMORY_ERROR);
         } else {
           COUNT3_RTL_ARRAY(arr_to_size, new_size);
@@ -505,9 +505,11 @@ rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
 
   /* arrArrlit2 */
     result_size = arraySize(arr1);
-    if (start_position < MIN_MEM_INDEX || start_position > MAX_MEM_INDEX ||
-        (result_size != 0 && start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
-        (result_size == 0 && start_position == MIN_MEM_INDEX)) {
+    if (unlikely(start_position < MIN_MEM_INDEX ||
+                 start_position > MAX_MEM_INDEX ||
+                 (result_size != 0 &&
+                  start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
+                 (result_size == 0 && start_position == MIN_MEM_INDEX))) {
       logError(printf("arrArrlit2(" FMT_D ", arr1 (size=" FMT_U_MEM ")): "
                       "Minimal or maximal index out of range.\n",
                       start_position, result_size););
@@ -530,7 +532,7 @@ rtlArrayType arrBaselit (const genericType element)
 
   /* arrBaselit */
     result_size = 1;
-    if (!ALLOC_RTL_ARRAY(result, result_size)) {
+    if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->min_position = 1;
@@ -550,7 +552,7 @@ rtlArrayType arrBaselit2 (intType start_position, const genericType element)
 
   /* arrBaselit2 */
     result_size = 1;
-    if (!ALLOC_RTL_ARRAY(result, result_size)) {
+    if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->min_position = start_position;
@@ -579,14 +581,14 @@ rtlArrayType arrCat (rtlArrayType arr1, const rtlArrayType arr2)
   /* arrCat */
     arr1_size = arraySize(arr1);
     arr2_size = arraySize(arr2);
-    if (arr1_size > MAX_RTL_ARR_LEN - arr2_size ||
-        arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size)) {
+    if (unlikely(arr1_size > MAX_RTL_ARR_LEN - arr2_size ||
+                 arr1->max_position > (intType) (MAX_MEM_INDEX - arr2_size))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       result_size = arr1_size + arr2_size;
       result = REALLOC_RTL_ARRAY(arr1, arr1_size, result_size);
-      if (result == NULL) {
+      if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
@@ -609,14 +611,14 @@ rtlArrayType arrExtend (rtlArrayType arr1, const genericType element)
 
   /* arrExtend */
     arr1_size = arraySize(arr1);
-    if (arr1_size > MAX_RTL_ARR_LEN - 1 ||
-        arr1->max_position > (intType) (MAX_MEM_INDEX - 1)) {
+    if (unlikely(arr1_size > MAX_RTL_ARR_LEN - 1 ||
+                 arr1->max_position > (intType) (MAX_MEM_INDEX - 1))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       result_size = arr1_size + 1;
       result = REALLOC_RTL_ARRAY(arr1, arr1_size, result_size);
-      if (result == NULL) {
+      if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr1_size, result_size);
@@ -649,7 +651,7 @@ rtlArrayType arrGen (const genericType element1, const genericType element2)
 
   /* arrGen */
     result_size = 2;
-    if (!ALLOC_RTL_ARRAY(result, result_size)) {
+    if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->min_position = 1;
@@ -681,7 +683,7 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
         stop = arr1->max_position;
       } /* if */
       result_size = arraySize2(arr1->min_position, stop);
-      if (!ALLOC_RTL_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -696,7 +698,7 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -733,7 +735,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
         *arr_temp = NULL;
       } else {
         result_size = arraySize2(arr1->min_position, stop);
-        if (!ALLOC_RTL_ARRAY(new_arr1, length - result_size)) {
+        if (unlikely(!ALLOC_RTL_ARRAY(new_arr1, length - result_size))) {
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
@@ -742,7 +744,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
           memcpy(new_arr1->arr, &arr1->arr[result_size],
               (size_t) ((length - result_size) * sizeof(rtlObjectType)));
           result = REALLOC_RTL_ARRAY(arr1, length, result_size);
-          if (result == NULL) {
+          if (unlikely(result == NULL)) {
             FREE_RTL_ARRAY(new_arr1, length - result_size);
             raise_error(MEMORY_ERROR);
           } else {
@@ -759,7 +761,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -790,7 +792,14 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
 
   /* arrIdxTemp */
     arr1 = *arr_temp;
-    if (position >= arr1->min_position && position <= arr1->max_position) {
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position)) {
+      logError(printf("arrIdxTemp(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
       length = arraySize(arr1);
       result = arr1->arr[position - arr1->min_position].value.genericValue;
       if (position != arr1->max_position) {
@@ -798,19 +807,13 @@ genericType arrIdxTemp (rtlArrayType *arr_temp, intType position)
             arr1->arr[length - 1].value.genericValue;
       } /* if */
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - 1);
-      if (resized_arr1 == NULL) {
+      if (unlikely(resized_arr1 == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(length, length - 1);
         resized_arr1->max_position--;
         *arr_temp = resized_arr1;
       } /* if */
-    } else {
-      logError(printf("arrIdxTemp(arr1, " FMT_D "): "
-                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
-                      position, arr1->min_position, arr1->max_position););
-      raise_error(RANGE_ERROR);
-      result = 0;
     } /* if */
     return result;
   } /* arrIdxTemp */
@@ -824,15 +827,18 @@ rtlArrayType arrMalloc (intType min_position, intType max_position)
     rtlArrayType result;
 
   /* arrMalloc */
-    if (min_position < MIN_MEM_INDEX || max_position > MAX_MEM_INDEX ||
-        (min_position == MIN_MEM_INDEX && max_position == MAX_MEM_INDEX) ||
-        (min_position > MIN_MEM_INDEX && min_position - 1 > max_position)) {
+    if (unlikely(min_position < MIN_MEM_INDEX ||
+                 max_position > MAX_MEM_INDEX ||
+                 (min_position == MIN_MEM_INDEX &&
+                  max_position == MAX_MEM_INDEX) ||
+                 (min_position > MIN_MEM_INDEX &&
+                  min_position - 1 > max_position))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       size = arraySize2(min_position, max_position);
-      if (size > MAX_RTL_ARR_LEN ||
-          !ALLOC_RTL_ARRAY(result, (memSizeType) size)) {
+      if (unlikely(size > MAX_RTL_ARR_LEN ||
+                   !ALLOC_RTL_ARRAY(result, (memSizeType) size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -860,13 +866,13 @@ void arrPush (rtlArrayType *const arr_variable, const genericType element)
   /* arrPush */
     arr_to = *arr_variable;
     arr_to_size = arraySize(arr_to);
-    if (arr_to_size > MAX_RTL_ARR_LEN - 1 ||
-        arr_to->max_position > (intType) (MAX_MEM_INDEX - 1)) {
+    if (unlikely(arr_to_size > MAX_RTL_ARR_LEN - 1 ||
+                 arr_to->max_position > (intType) (MAX_MEM_INDEX - 1))) {
       raise_error(MEMORY_ERROR);
     } else {
       new_size = arr_to_size + 1;
       arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
-      if (arr_to == NULL) {
+      if (unlikely(arr_to == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
         COUNT3_RTL_ARRAY(arr_to_size, new_size);
@@ -903,7 +909,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
         stop = arr1->max_position;
       } /* if */
       result_size = arraySize2(start, stop);
-      if (!ALLOC_RTL_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -919,7 +925,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -965,7 +971,7 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
         result = arr1;
         *arr_temp = NULL;
       } else {
-        if (!ALLOC_RTL_ARRAY(result, result_size)) {
+        if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->min_position = arr1->min_position;
@@ -977,7 +983,7 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
               (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-          if (resized_arr1 == NULL) {
+          if (unlikely(resized_arr1 == NULL)) {
             memcpy(&arr1->arr[length - result_size], result->arr,
                 (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
@@ -997,7 +1003,7 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -1046,7 +1052,14 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
 
   /* arrRemove */
     arr1 = *arr_to;
-    if (position >= arr1->min_position && position <= arr1->max_position) {
+    if (unlikely(position < arr1->min_position ||
+                 position > arr1->max_position)) {
+      logError(printf("arrRemove(arr1, " FMT_D "): "
+                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
+                      position, arr1->min_position, arr1->max_position););
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
       array_pointer = arr1->arr;
       result = array_pointer[position - arr1->min_position].value.genericValue;
       memmove(&array_pointer[position - arr1->min_position],
@@ -1071,12 +1084,6 @@ genericType arrRemove (rtlArrayType *arr_to, intType position)
         arr1->max_position--;
         *arr_to = arr1;
       } /* if */
-    } else {
-      logError(printf("arrRemove(arr1, " FMT_D "): "
-                      "Index out of range (" FMT_D " .. " FMT_D ").\n",
-                      position, arr1->min_position, arr1->max_position););
-      raise_error(RANGE_ERROR);
-      result = 0;
     } /* if */
     return result;
   } /* arrRemove */
@@ -1119,7 +1126,7 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
         len = arr1->max_position - start + 1;
       } /* if */
       result_size = (memSizeType) (uintType) (len);
-      if (!ALLOC_RTL_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -1135,7 +1142,7 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -1183,7 +1190,7 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
         result = arr1;
         *arr_temp = NULL;
       } else {
-        if (!ALLOC_RTL_ARRAY(result, result_size)) {
+        if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->min_position = arr1->min_position;
@@ -1195,7 +1202,7 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
           memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
               (size_t) ((length - stop_idx - 1) * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-          if (resized_arr1 == NULL) {
+          if (unlikely(resized_arr1 == NULL)) {
             memcpy(&arr1->arr[length - result_size], result->arr,
                 (size_t) (result_size * sizeof(rtlObjectType)));
             FREE_RTL_ARRAY(result, result_size);
@@ -1215,7 +1222,7 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -1247,7 +1254,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
         start = arr1->min_position;
       } /* if */
       result_size = arraySize2(start, arr1->max_position);
-      if (!ALLOC_RTL_ARRAY(result, result_size)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -1263,7 +1270,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;
@@ -1301,7 +1308,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
         *arr_temp = NULL;
       } else {
         result_size = arraySize2(start, arr1->max_position);
-        if (!ALLOC_RTL_ARRAY(result, result_size)) {
+        if (unlikely(!ALLOC_RTL_ARRAY(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->min_position = arr1->min_position;
@@ -1310,7 +1317,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
           memcpy(result->arr, &arr1->arr[start_idx],
               (size_t) (result_size * sizeof(rtlObjectType)));
           resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-          if (resized_arr1 == NULL) {
+          if (unlikely(resized_arr1 == NULL)) {
             FREE_RTL_ARRAY(result, result_size);
             raise_error(MEMORY_ERROR);
             result = NULL;
@@ -1328,7 +1335,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      if (!ALLOC_RTL_ARRAY(result, 0)) {
+      if (unlikely(!ALLOC_RTL_ARRAY(result, 0))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->min_position = arr1->min_position;

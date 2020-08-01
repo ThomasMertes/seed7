@@ -355,7 +355,7 @@ striType chrCLit (charType character)
     if (character < 127) {
       if (character < ' ') {
         len = strlen(cstri_escape_sequence[character]);
-        if (!ALLOC_STRI_SIZE_OK(result, len + 2)) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, len + 2))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = len + 2;
@@ -365,7 +365,7 @@ striType chrCLit (charType character)
           result->mem[len + 1] = '\'';
         } /* if */
       } else if (character == '\\' || character == '\'') {
-        if (!ALLOC_STRI_SIZE_OK(result, (memSizeType) 4)) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 4))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 4;
@@ -375,7 +375,7 @@ striType chrCLit (charType character)
           result->mem[3] = '\'';
         } /* if */
       } else {
-        if (!ALLOC_STRI_SIZE_OK(result, (memSizeType) 3)) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 3))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 3;
@@ -535,7 +535,7 @@ striType chrStr (charType ch)
     striType result;
 
   /* chrStr */
-    if (!ALLOC_STRI_SIZE_OK(result, (memSizeType) 1)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 1))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {

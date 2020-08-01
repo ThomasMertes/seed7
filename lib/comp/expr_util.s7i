@@ -471,12 +471,14 @@ const proc: doLocalDeclsOfStatement (in expr_type: statement, inout expr_type: c
 
   begin
     if statement.temp_num > 0 then
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "{\n";
       appendWithDiagnostic(statement.temp_decls, c_expr);
       appendWithDiagnostic(statement.temp_assigns, c_expr);
       appendWithDiagnostic(statement.expr, c_expr);
       appendWithDiagnostic(statement.temp_frees, c_expr);
       appendWithDiagnostic(statement.result_free, c_expr);
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "}\n";
     else
       appendWithDiagnostic(statement.expr, c_expr);

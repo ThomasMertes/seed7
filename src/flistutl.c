@@ -66,7 +66,7 @@
 
 
 #ifdef USE_CHUNK_ALLOCS
-static unsigned int chunk_size[] = { 32768, 16384, 8192, 4096,
+static const unsigned int chunk_size[] = { 32768, 16384, 8192, 4096,
     2048, 1024, 512, 256, 128, 64, 0 };
 #endif
 

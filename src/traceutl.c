@@ -263,52 +263,6 @@ void prot_char (charType cvalue)
 
 
 
-void prot_os_stri (const const_os_striType os_stri)
-
-  {
-    const_os_striType stri;
-
-  /* prot_os_stri */
-    if (os_stri != NULL) {
-      stri = os_stri;
-      prot_cstri("\"");
-      {
-        char buffer[51];
-
-        for (; *stri != 0 && stri - os_stri <= 128; stri++) {
-          if ((os_ucharType) *stri < (os_ucharType) 127) {
-            if ((os_ucharType) *stri < (os_ucharType) ' ') {
-              strcpy(buffer, cstri_escape_sequence[(os_ucharType) *stri]);
-            } else if ((os_ucharType) *stri == (os_ucharType) '\\') {
-              strcpy(buffer, "\\\\");
-            } else if ((os_ucharType) *stri == (os_ucharType) '\"') {
-              strcpy(buffer, "\\\"");
-            } else {
-              sprintf(buffer, "%c", (int) *stri);
-            } /* if */
-          } else if ((os_ucharType) *stri <= (os_ucharType) 255) {
-            sprintf(buffer, "\\%3o", (unsigned int) (os_ucharType) *stri);
-          } else {
-            sprintf(buffer, "\\u%4lx", (unsigned long) (os_ucharType) *stri);
-          } /* if */
-          prot_cstri(buffer);
-          /* putc((int) *stri, protfile); */
-        } /* for */
-      }
-      if (stri - os_stri > 128) {
-        prot_cstri("\\ *AND_SO_ON* SIZE=");
-        for (; *stri != 0; stri++) {
-        } /* for */
-        prot_int((intType) (stri - os_stri));
-      } /* if */
-      prot_cstri("\"");
-    } else {
-      prot_cstri(" *NULL_OS_STRING* ");
-    } /* if */
-  } /* prot_os_stri */
-
-
-
 void prot_string (const striType stri)
 
   {
@@ -1660,7 +1614,7 @@ void set_protfile_name (const const_striType protfile_name)
 #endif
     if (protfile_name != NULL && protfile_name->size != 0) {
       os_protfile_name = cp_to_os_path(protfile_name, &path_info, &err_info);
-      if (err_info == OKAY_NO_ERROR) {
+      if (unlikely(os_protfile_name != NULL)) {
         if (protfile != NULL && protfile != stdout) {
           fclose(protfile);
         } /* if */

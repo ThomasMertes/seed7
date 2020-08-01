@@ -32,6 +32,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -63,17 +66,18 @@ DIR *opendir (char *name)
   /* opendir */
     name_len = strlen(name);
     if (name_len == 0 || name_len > sizeof(dir_name) - 5) {
-      /* printf("opendir: Name too long %lu %lu\n", name_len, sizeof(dir_name) - 5); */
+      logError(printf("opendir(\"%s\"): Name too long "
+                      "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
+                      name, name_len, sizeof(dir_name) - 5););
       result = NULL;
     } else if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
       /* printf("opendir(%s);\n", name); */
       memcpy(dir_name, name, name_len);
-      dir_name[name_len] = '\0';
       if (name[name_len - 1] != '/' &&
           name[name_len - 1] != '\\') {
-        strcat(dir_name, "\\");
+        dir_name[name_len++] = '\\';
       } /* if */
-      strcat(dir_name, "*.*");
+      strcpy(&dir_name[name_len], "*.*");
 #ifdef DIR_WIN_DOS
       result->dir_handle = _findfirst(dir_name, &result->find_record);
       if (result->dir_handle != -1) {
@@ -85,7 +89,8 @@ DIR *opendir (char *name)
         printf(">%s<\n", result->find_record.name); */
         result->first_element = 1;
       } else {
-        /* printf("--> ERROR\n"); */
+        logError(printf("opendir(\"%s\"): findfirst() failed.\n",
+                        name););
         free(result);
         result = NULL;
       } /* if */

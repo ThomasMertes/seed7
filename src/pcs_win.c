@@ -93,6 +93,11 @@ typedef int64Type intPtrType;
 /**
  *  Create a command line string that can be used by CreateProcessW().
  *  The command line string must be freed with os_stri_free().
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when a memory allocation failed or
+ *                  RANGE_ERROR when the conversion of a parameter failed.
+ *  @return a null terminated os_striType command line or
+ *          NULL, when an error occurred.
  */
 static os_striType prepareCommandLine (const const_os_striType os_command_stri,
     const const_rtlArrayType parameters, errInfoType *err_info)
@@ -185,7 +190,7 @@ static os_striType prepareCommandLine (const const_os_striType os_command_stri,
       } else {
         *destChar = '\0';
       } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
         os_stri_free(command_line);
         command_line = NULL;
       } else {
@@ -393,9 +398,9 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     logFunction(printf("pcsPipe2(\"%s\", *)\n",
                        striAsUnquotedCStri(command)););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (likely(os_command_stri != NULL)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
-      if (likely(err_info == OKAY_NO_ERROR)) {
+      if (likely(command_line != NULL)) {
         /* printf("pcsPipe2(%ls, %ls)\n", os_command_stri, command_line); */
         saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
         saAttr.bInheritHandle = TRUE;
@@ -487,9 +492,9 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     logFunction(printf("pcsStart(\"%s\", *)\n",
                        striAsUnquotedCStri(command)););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (likely(os_command_stri != NULL)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
-      if (likely(err_info == OKAY_NO_ERROR)) {
+      if (likely(command_line != NULL)) {
         if (!ALLOC_RECORD(process, win_processRecord, count.process)) {
           err_info = MEMORY_ERROR;
         } else {
@@ -567,9 +572,9 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     logFunction(printf("pcsStartPipe(\"%s\", *)\n",
                        striAsUnquotedCStri(command)););
     os_command_stri = cp_to_os_path(command, &path_info, &err_info);
-    if (likely(err_info == OKAY_NO_ERROR)) {
+    if (likely(os_command_stri != NULL)) {
       command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
-      if (likely(err_info == OKAY_NO_ERROR)) {
+      if (likely(command_line != NULL)) {
         if (!ALLOC_RECORD(process, win_processRecord, count.process)) {
           err_info = MEMORY_ERROR;
         } else {
@@ -668,7 +673,7 @@ striType pcsStr (const const_processType process)
 
   /* pcsStr */
     if (process == NULL) {
-      result = cstri_to_stri("NULL");
+      result = cstri_buf_to_stri("NULL", 4);
       if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */

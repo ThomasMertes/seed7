@@ -828,7 +828,7 @@ striType socGetHostname (void)
 
   /* socGetHostname */
     check_initialization(NULL);
-    if (gethostname(name, 1024) != 0) {
+    if (unlikely(gethostname(name, 1024) != 0)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {

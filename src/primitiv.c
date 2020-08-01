@@ -73,7 +73,7 @@
 #include "primitiv.h"
 
 
-static primActRecord prim_act_table[] = {
+static const primActRecord prim_act_table[] = {
     { "ACT_ILLEGAL",             act_illegal,             },
 
     { "ACT_CPY",                 act_cpy,                 },

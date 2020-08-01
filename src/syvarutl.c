@@ -45,7 +45,7 @@
 
 #define MAX_CSTRI_BUFFER_LEN 25
 
-static const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
+static const const_cstriType sys_name[NUMBER_OF_SYSVARS] = {
     "empty",
     "memory_error",
     "numeric_error",

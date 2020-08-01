@@ -95,7 +95,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
     if (big1 != NULL) {
       count = (mpz_sizeinbase(big1, 2) + 7) / 8;
       buffer = (ustriType) malloc(count);
-      if (buffer == NULL) {
+      if (unlikely(buffer == NULL)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -116,7 +116,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
             (sign < 0 && buffer[0] <= 127)) {
           result_size += 2;
         } /* if */
-        if (!ALLOC_CSTRI(result, result_size)) {
+        if (unlikely(!ALLOC_CSTRI(result, result_size))) {
           raise_error(MEMORY_ERROR);
         } else {
           if (sign == 0) {
@@ -145,7 +145,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
       } /* if */
     } else {
       stri_ptr = " *NULL_BIGINT* ";
-      if (!ALLOC_CSTRI(result, strlen(stri_ptr))) {
+      if (unlikely(!ALLOC_CSTRI(result, strlen(stri_ptr)))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
@@ -1031,7 +1031,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
       result = bigLShiftOne(log2base * exponent);
     } else {
       low_shift = uint_mult((uintType) log2base, (uintType) exponent, &high_shift);
-      if (high_shift != 0 || (intType) low_shift < 0) {
+      if (unlikely(high_shift != 0 || (intType) low_shift < 0)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -1243,7 +1243,7 @@ bigIntType bigParse (const const_striType stri)
         mpz_result = mpz_init_set_str(result, cstri, 10);
       } /* if */
       free_cstri(cstri, stri);
-      if (mpz_result != 0) {
+      if (unlikely(mpz_result != 0)) {
         mpz_clear(result);
         FREE_BIG(result);
         logError(printf("bigParse: mpz_init_set_str(*, \"%s\", 10) failed.\n",
@@ -1300,7 +1300,7 @@ bigIntType bigParseBased (const const_striType stri, intType base)
           mpz_result = mpz_init_set_str(result, cstri, (int) base);
         } /* if */
         free_cstri(cstri, stri);
-        if (mpz_result != 0) {
+        if (unlikely(mpz_result != 0)) {
           mpz_clear(result);
           FREE_BIG(result);
           logError(printf("bigParseBased: "
@@ -1381,7 +1381,7 @@ striType bigRadix (const const_bigIntType big1, intType base,
       } /* if */
       result = cstri_to_stri(cstri);
       free(cstri);
-      if (result == NULL) {
+      if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
@@ -1409,7 +1409,7 @@ bigIntType bigRand (const const_bigIntType low,
   /* bigRand */
     mpz_init(range_limit);
     mpz_sub(range_limit, high, low);
-    if (mpz_sgn(range_limit) < 0) {
+    if (unlikely(mpz_sgn(range_limit) < 0)) {
       logError(printf("bigRand(%s, %s): "
                       "The range is empty (low > high holds).\n",
                       bigHexCStri(low), bigHexCStri(high)););
@@ -1585,7 +1585,7 @@ striType bigStr (const const_bigIntType big1)
     cstri = mpz_get_str(NULL, 10, big1);
     result = cstri_to_stri(cstri);
     free(cstri);
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;
@@ -1655,7 +1655,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
   /* bigToBStriBe */
     count = (mpz_sizeinbase(big1, 2) + 7) / 8;
     buffer = (ustriType) malloc(count);
-    if (buffer == NULL) {
+    if (unlikely(buffer == NULL)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1689,7 +1689,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
           result_size = count;
         } /* if */
       } /* if */
-      if (!ALLOC_BSTRI_CHECK_SIZE(result, result_size)) {
+      if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -1748,7 +1748,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
   /* bigToBStriLe */
     count = (mpz_sizeinbase(big1, 2) + 7) / 8;
     buffer = (ustriType) malloc(count);
-    if (buffer == NULL) {
+    if (unlikely(buffer == NULL)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1782,7 +1782,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
           result_size = count;
         } /* if */
       } /* if */
-      if (!ALLOC_BSTRI_CHECK_SIZE(result, result_size)) {
+      if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, result_size))) {
         raise_error(MEMORY_ERROR);
       } else {
         result->size = result_size;
@@ -1816,13 +1816,13 @@ int16Type bigToInt16 (const const_bigIntType big1)
     long int result;
 
   /* bigToInt16 */
-    if (!mpz_fits_slong_p(big1)) {
+    if (unlikely(!mpz_fits_slong_p(big1))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
       result = mpz_get_si(big1);
 #if LONG_SIZE > 16
-      if (result < INT16TYPE_MIN || result > INT16TYPE_MAX) {
+      if (unlikely(result < INT16TYPE_MIN || result > INT16TYPE_MAX)) {
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
@@ -1839,13 +1839,13 @@ int32Type bigToInt32 (const const_bigIntType big1)
     long int result;
 
   /* bigToInt32 */
-    if (!mpz_fits_slong_p(big1)) {
+    if (unlikely(!mpz_fits_slong_p(big1))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
       result = mpz_get_si(big1);
 #if LONG_SIZE > 32
-      if (result < INT32TYPE_MIN || result > INT32TYPE_MAX) {
+      if (unlikely(result < INT32TYPE_MIN || result > INT32TYPE_MAX)) {
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
@@ -1864,7 +1864,7 @@ int64Type bigToInt64 (const const_bigIntType big1)
 
   /* bigToInt64 */
 #if LONG_SIZE == 64
-    if (!mpz_fits_slong_p(big1)) {
+    if (unlikely(!mpz_fits_slong_p(big1))) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1876,7 +1876,7 @@ int64Type bigToInt64 (const const_bigIntType big1)
 
       mpz_init_set(help, big1);
       mpz_fdiv_q_2exp(help, help, 32);
-      if (!mpz_fits_slong_p(help)) {
+      if (unlikely(!mpz_fits_slong_p(help))) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {
@@ -1898,7 +1898,7 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
 
   /* bigToUInt64 */
 #if LONG_SIZE == 64
-    if (!mpz_fits_slong_p(big1)) {
+    if (unlikely(!mpz_fits_slong_p(big1))) {
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -1910,7 +1910,7 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
 
       mpz_init_set(help, big1);
       mpz_fdiv_q_2exp(help, help, 32);
-      if (!mpz_fits_slong_p(help)) {
+      if (unlikely(!mpz_fits_slong_p(help))) {
         raise_error(RANGE_ERROR);
         result = 0;
       } else {

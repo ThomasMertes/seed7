@@ -53,7 +53,7 @@ actType actIConv (intType ordinal)
     actType anAction;
 
   /* actIConv */
-    if (ordinal < 0 || (uintType) ordinal >= act_table.size) {
+    if (unlikely(ordinal < 0 || (uintType) ordinal >= act_table.size)) {
       logError(printf("actIConv(" FMT_D "): "
                       "Number not in allowed range of 0 .. %lu.\n",
                       ordinal, (unsigned long) (act_table.size - 1)););
@@ -86,7 +86,7 @@ striType actStr (actType anAction)
 
   /* actStr */
     result = cstri_to_stri(get_primact(anAction)->name);
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;

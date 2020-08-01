@@ -109,6 +109,10 @@ static void freeArgVector (os_striType *argv)
 /**
  *  Generate an argument vector that can be used by execv().
  *  The argument vector must be freed with freeArgVector().
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when a memory allocation failed or
+ *                  RANGE_ERROR when a conversion to os_striType failed.
+ *  @return the argument vector or NULL, when an error occurred.
  */
 static os_striType *genArgVector (const const_striType command,
     const const_rtlArrayType parameters, errInfoType *err_info)
@@ -126,7 +130,7 @@ static os_striType *genArgVector (const const_striType command,
       *err_info = MEMORY_ERROR;
     } else {
       argv[0] = cp_to_os_path(command, &path_info, err_info);
-      if (unlikely(*err_info != OKAY_NO_ERROR)) {
+      if (unlikely(argv[0] == NULL)) {
         logError(printf("genArgVector: cp_to_os_path(\"%s\", *, *) failed:\n"
                         "err_info=%d\n",
                         striAsUnquotedCStri(command), *err_info););
@@ -136,7 +140,7 @@ static os_striType *genArgVector (const const_striType command,
         /* fprintf(stderr, "argv[0]=" FMT_S_OS "\n", argv[0]); */
         for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
           argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.striValue, err_info);
-          if (unlikely(*err_info != OKAY_NO_ERROR)) {
+          if (unlikely(argv[pos + 1] == NULL)) {
             logError(printf("genArgVector: stri_to_os_stri(\"%s\", *) failed:\n"
                             "err_info=%d\n",
                             striAsUnquotedCStri(parameters->arr[pos].value.striValue),
@@ -362,7 +366,7 @@ void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters
     logFunction(printf("pcsPipe2(\"%s\", *)\n",
                        striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    if (unlikely(argv == NULL)) {
       raise_error(err_info);
     } else if (unlikely(access(argv[0], X_OK) != 0)) {
       logError(printf("pcsPipe2: No execute permission for " FMT_S_OS "\n", argv[0]););
@@ -457,7 +461,7 @@ void pcsPty (const const_striType command, const const_rtlArrayType parameters,
     logFunction(printf("pcsPty(\"%s\", *)\n",
                        striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    if (unlikely(argv == NULL)) {
       raise_error(err_info);
     } else if (unlikely(access(argv[0], X_OK) != 0)) {
       logError(printf("pcsPty: No execute permission for " FMT_S_OS "\n", argv[0]););
@@ -534,7 +538,7 @@ processType pcsStart (const const_striType command, const const_rtlArrayType par
     logFunction(printf("pcsStart(\"%s\", *)\n",
                        striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    if (unlikely(argv == NULL)) {
       raise_error(err_info);
       process = NULL;
     } else if (unlikely(access(argv[0], X_OK) != 0)) {
@@ -595,7 +599,7 @@ processType pcsStartPipe (const const_striType command, const const_rtlArrayType
     logFunction(printf("pcsStartPipe(\"%s\", *)\n",
                        striAsUnquotedCStri(command)););
     argv = genArgVector(command, parameters, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    if (unlikely(argv == NULL)) {
       raise_error(err_info);
       process = NULL;
     } else if (unlikely(access(argv[0], X_OK) != 0)) {
@@ -720,7 +724,7 @@ striType pcsStr (const const_processType process)
 
   /* pcsStr */
     if (process == NULL) {
-      result = cstri_to_stri("NULL");
+      result = cstri_buf_to_stri("NULL", 4);
       if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
       } /* if */

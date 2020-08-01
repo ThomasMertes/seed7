@@ -33,6 +33,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -65,24 +68,26 @@ DIR *opendir (const char *name)
   /* opendir */
     name_len = strlen(name);
     if (name_len == 0 || name_len > sizeof(dir_name) - 5) {
-      /* printf("opendir: Name too long %lu %lu\n", name_len, sizeof(dir_name) - 5); */
+      logError(printf("opendir(\"%s\"): Name too long "
+                      "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
+                      name, name_len, sizeof(dir_name) - 5););
       result = NULL;
     } else if ((result = (DIR *) malloc(sizeof(DIR))) != NULL) {
       /* printf("opendir(%s);\n", name); */
       memcpy(dir_name, name, name_len);
-      dir_name[name_len] = '\0';
       if (name[name_len - 1] != '/' &&
           name[name_len - 1] != '\\') {
-        strcat(dir_name, "\\");
+        dir_name[name_len++] = '\\';
       } /* if */
-      strcat(dir_name, "*.*");
+      strcpy(&dir_name[name_len], "*.*");
       result->dir_handle = FindFirstFileA(dir_name, &result->find_record);
       if (result->dir_handle != INVALID_HANDLE_VALUE) {
         /* printf("--> OK\n");
         printf(">%s<\n", result->find_record.cFileName); */
         result->first_element = 1;
       } else {
-        /* printf("--> ERROR\n"); */
+        logError(printf("opendir(\"%s\"): FindFirstFileA() failed.\n",
+                        name););
         free(result);
         result = NULL;
       } /* if */
@@ -162,8 +167,9 @@ WDIR *wopendir (const wchar_t *name)
     name_len = wcslen(name);
     if (name_len == 0 ||
         name_len > sizeof(dir_name) / sizeof(wchar_t) - 5) {
-      /* printf("opendir: Name too long %lu %lu\n", name_len,
-          sizeof(dir_name) / sizeof(wchar_t) - 5); */
+      logError(printf("wopendir(\"%ls\"): Name too long "
+                      "(length: " FMT_U_MEM ", max length: " FMT_U_MEM ")\n",
+                      name, name_len, sizeof(dir_name) / sizeof(wchar_t) - 5););
       result = NULL;
     } else if ((result = (WDIR *) malloc(sizeof(WDIR))) != NULL) {
       /* printf("wopendir(%ls);\n", name); */
@@ -182,7 +188,8 @@ WDIR *wopendir (const wchar_t *name)
         printf(">%ls<\n", result->find_record.cFileName); */
         result->first_element = 1;
       } else {
-        /* printf("--> ERROR\n"); */
+        logError(printf("wopendir(\"%ls\"): FindFirstFileW() failed.\n",
+                        name););
         free(result);
         result = NULL;
       } /* if */

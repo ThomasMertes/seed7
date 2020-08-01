@@ -39,7 +39,7 @@
 #include "datautl.h"
 
 
-static const_cstriType category_name[] = {
+static const const_cstriType category_name[] = {
     "SYMBOLOBJECT",      /* pos (file, line) - Symbol object        */
                          /*                    created by read_atom */
                          /*                    and read_name        */

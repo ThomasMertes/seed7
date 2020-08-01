@@ -67,6 +67,7 @@ printpi1.sd7 PI with 1000 digits using John Machin's formula
 printpi2.sd7 PI with 1000 digits (Bailey/Borwein/Plouffe)
 printpi3.sd7 Print 1000 digits of PI with Newtons formula
 rand.sd7     Floating point random numbers test
+raytrace.sd7 Raytracing demo program.
 rever.sd7    Reversi game
 roman.sd7    Write roman numerals
 s7c.sd7      Seed7 compiler - Compiles Seed7 to C
@@ -235,6 +236,7 @@ utf16.s7i    File implementation type for UTF-16 files
 utf8.s7i     File implementation type for UTF-8 files
 vecfont10.s7i Standard vector font with capHeight 10.
 vecfont18.s7i Standard vector font with capHeight 18.
+vector3d.s7i 3D vector support library
 vectorfont.s7i Defines the vector font type.
 window.s7i   Filter file for text windows with random access
 wrinum.s7i   Functions to write numbers

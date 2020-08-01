@@ -91,7 +91,7 @@ typedef int16Type                signedDoubleBigDigitType;
 #define FMT_D_DIG2 FMT_D16
 #define FMT_U_DIG2 FMT_U16
 #define FMT_X_DIG2 FMT_X16
-bigDigitType powerOfRadixInBigdigit[] = {
+const bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 128, 243,  64, 125, 216,
     /*  7 */  49,  64,  81, 100, 121,
     /* 12 */ 144, 169, 196, 225,  16,
@@ -100,7 +100,7 @@ bigDigitType powerOfRadixInBigdigit[] = {
     /* 27 */  27,  28,  29,  30,  31,
     /* 32 */  32,  33,  34,  35,  36
   };
-uint8Type radixDigitsInBigdigit[] = {
+const uint8Type radixDigitsInBigdigit[] = {
     /*  2 */  7,  5,  3,  3,  3,  2,  2,  2,  2,  2,
     /* 12 */  2,  2,  2,  2,  1,  1,  1,  1,  1,  1,
     /* 22 */  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -135,7 +135,7 @@ typedef int32Type                signedDoubleBigDigitType;
 #define FMT_D_DIG2 FMT_D32
 #define FMT_U_DIG2 FMT_U32
 #define FMT_X_DIG2 FMT_X32
-bigDigitType powerOfRadixInBigdigit[] = {
+const bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 32768, 59049, 16384, 15625, 46656,
     /*  7 */ 16807, 32768, 59049, 10000, 14641,
     /* 12 */ 20736, 28561, 38416, 50625,  4096,
@@ -144,7 +144,7 @@ bigDigitType powerOfRadixInBigdigit[] = {
     /* 27 */ 19683, 21952, 24389, 27000, 29791,
     /* 32 */ 32768, 35937, 39304, 42875, 46656
   };
-uint8Type radixDigitsInBigdigit[] = {
+const uint8Type radixDigitsInBigdigit[] = {
     /*  2 */ 15, 10,  7,  6,  6,  5,  5,  5,  4,  4,
     /* 12 */  4,  4,  4,  4,  3,  3,  3,  3,  3,  3,
     /* 22 */  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,
@@ -179,7 +179,7 @@ typedef int64Type                signedDoubleBigDigitType;
 #define FMT_D_DIG2 FMT_D64
 #define FMT_U_DIG2 FMT_U64
 #define FMT_X_DIG2 FMT_X64
-bigDigitType powerOfRadixInBigdigit[] = {
+const bigDigitType powerOfRadixInBigdigit[] = {
     /*  2 */ 2147483648u, 3486784401u, 1073741824u, 1220703125u, 2176782336u,
     /*  7 */ 1977326743u, 1073741824u, 3486784401u, 1000000000u, 2357947691u,
     /* 12 */  429981696u,  815730721u, 1475789056u, 2562890625u,  268435456u,
@@ -188,7 +188,7 @@ bigDigitType powerOfRadixInBigdigit[] = {
     /* 27 */  387420489u,  481890304u,  594823321u,  729000000u,  887503681u,
     /* 32 */ 1073741824u, 1291467969u, 1544804416u, 1838265625u, 2176782336u
   };
-uint8Type radixDigitsInBigdigit[] = {
+const uint8Type radixDigitsInBigdigit[] = {
     /*  2 */ 31, 20, 15, 13, 12, 11, 10, 10,  9,  9,
     /* 12 */  8,  8,  8,  8,  7,  7,  7,  7,  7,  7,
     /* 22 */  7,  7,  6,  6,  6,  6,  6,  6,  6,  6,
@@ -300,7 +300,8 @@ cstriType bigHexCStri (const const_bigIntType big1)
 
   {
     memSizeType pos;
-    memSizeType byteCount;
+    memSizeType digitPos;
+    memSizeType len;
     const_cstriType stri_ptr;
     cstriType buffer;
     cstriType result;
@@ -323,23 +324,24 @@ cstriType bigHexCStri (const const_bigIntType big1)
 #elif BIGDIGIT_SIZE == 32
         sprintf(buffer, F_X_DIG(08), big1->bigdigits[pos]);
 #endif
+        digitPos = 0;
         if (IS_NEGATIVE(big1->bigdigits[pos])) {
-          byteCount = BIGDIGIT_SIZE >> 3;
-          while (byteCount > 1 && memcmp(buffer, "ff", 2) == 0 &&
-            ((buffer[2] >= '8' && buffer[2] <= '9') ||
-             (buffer[2] >= 'a' && buffer[2] <= 'f'))) {
-            memmove(buffer, &buffer[2], strlen(&buffer[2]) + 1);
-            byteCount--;
+          while (digitPos < BIGDIGIT_SIZE >> 2 &&
+                 memcmp(&buffer[digitPos], "ff", 2) == 0 &&
+                 ((buffer[digitPos + 2] >= '8' && buffer[digitPos + 2] <= '9') ||
+                  (buffer[digitPos + 2] >= 'a' && buffer[digitPos + 2] <= 'f'))) {
+            digitPos += 2;
           } /* while */
         } else {
-          byteCount = BIGDIGIT_SIZE >> 3;
-          while (byteCount > 1 && memcmp(buffer, "00", 2) == 0 &&
-            buffer[2] >= '0' && buffer[2] <= '7') {
-            memmove(buffer, &buffer[2], strlen(&buffer[2]) + 1);
-            byteCount--;
+          while (digitPos < BIGDIGIT_SIZE >> 2 &&
+                 memcmp(&buffer[digitPos], "00", 2) == 0 &&
+                 buffer[digitPos + 2] >= '0' && buffer[digitPos + 2] <= '7') {
+            digitPos += 2;
           } /* while */
         } /* if */
-        buffer += strlen(buffer);
+        len = (BIGDIGIT_SIZE >> 2) - digitPos;
+        memmove(buffer, &buffer[digitPos], len + 1);
+        buffer += len;
         while (pos > 0) {
           pos--;
 #if BIGDIGIT_SIZE == 8
@@ -4621,19 +4623,19 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
     logFunction(printf("bigLowerBits(%s, " FMT_D ")\n",
                        bigHexCStri(big1), bits););
     if (unlikely(bits <= 0)) {
-      if (bits == 0) {
+      if (unlikely(bits != 0)) {
+        logError(printf("bigLowerBits(%s, " FMT_D "): "
+                        "Number of bits is negative.\n",
+                        bigHexCStri(big1), bits););
+        raise_error(NUMERIC_ERROR);
+        result = NULL;
+      } else {
         if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 1;
           result->bigdigits[0] = (bigDigitType) 0;
         } /* if */
-      } else {
-        logError(printf("bigLowerBits(%s, " FMT_D "): "
-                        "Number of bits is negative.\n",
-                        bigHexCStri(big1), bits););
-        raise_error(NUMERIC_ERROR);
-        result = NULL;
       } /* if */
     } else {
       big1_size = big1->size;
@@ -4718,19 +4720,19 @@ bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
     big1_size = big1->size;
     if (unlikely(bits <= 0)) {
       FREE_BIG(big1, big1_size);
-      if (bits == 0) {
+      if (unlikely(bits != 0)) {
+        logError(printf("bigLowerBitsTemp(%s, " FMT_D "): "
+                        "Number of bits is negative.\n",
+                        bigHexCStri(big1), bits););
+        raise_error(NUMERIC_ERROR);
+        result = NULL;
+      } else {
         if (unlikely(!ALLOC_BIG_CHECK_SIZE(result, 1))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 1;
           result->bigdigits[0] = (bigDigitType) 0;
         } /* if */
-      } else {
-        logError(printf("bigLowerBitsTemp(%s, " FMT_D "): "
-                        "Number of bits is negative.\n",
-                        bigHexCStri(big1), bits););
-        raise_error(NUMERIC_ERROR);
-        result = NULL;
       } /* if */
     } else {
       pos = (memSizeType) (bits - 1) >> BIGDIGIT_LOG2_SIZE;
@@ -5130,7 +5132,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
       result = bigLShiftOne(log2base * exponent);
     } else {
       low_shift = uint_mult((uintType) log2base, (uintType) exponent, &high_shift);
-      if (high_shift != 0 || (intType) low_shift < 0) {
+      if (unlikely(high_shift != 0 || (intType) low_shift < 0)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
@@ -7081,7 +7083,7 @@ int16Type bigToInt16 (const const_bigIntType big1)
       pos = big1->size - 1;
       result = (int32Type) (signedBigDigitType) big1->bigdigits[pos];
 #if BIGDIGIT_SIZE > 16
-      if (result < INT16TYPE_MIN || result > INT16TYPE_MAX) {
+      if (unlikely(result < INT16TYPE_MIN || result > INT16TYPE_MAX)) {
         logError(printf("bigToInt16(%s): Number too big or too small.\n",
                         bigHexCStri(big1)););
         raise_error(RANGE_ERROR);

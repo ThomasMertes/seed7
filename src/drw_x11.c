@@ -1643,7 +1643,7 @@ void drwPRect (const_winType actual_window,
 
 
 
-intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
+intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
 
   {
     static colorEntryType *color_hash = NULL;
@@ -1662,49 +1662,49 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
     int okay;
 
   /* drwRgbColor */
-    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n", red_val, green_val, blue_val););
+    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n", redLight, greenLight, blueLight););
     if (default_visual->c_class == TrueColor) {
       col.pixel =
-          ((((unsigned long) red_val)   << lshift_red   >> rshift_red)   & default_visual->red_mask)   |
-          ((((unsigned long) green_val) << lshift_green >> rshift_green) & default_visual->green_mask) |
-          ((((unsigned long) blue_val)  << lshift_blue  >> rshift_blue)  & default_visual->blue_mask);
+          ((((unsigned long) redLight)   << lshift_red   >> rshift_red)   & default_visual->red_mask)   |
+          ((((unsigned long) greenLight) << lshift_green >> rshift_green) & default_visual->green_mask) |
+          ((((unsigned long) blueLight)  << lshift_blue  >> rshift_blue)  & default_visual->blue_mask);
       /*
-      printf("((unsigned long) red_val): %08lx\n",
-          ((unsigned long) red_val));
-      printf("((unsigned long) red_val) << lshift_red: %08lx\n",
-          ((unsigned long) red_val) << lshift_red);
-      printf("((unsigned long) red_val) << lshift_red >> rshift_red: %08lx\n",
-          ((unsigned long) red_val) << lshift_red >> rshift_red);
-      printf("((unsigned long) green_val): %08lx\n",
-          ((unsigned long) green_val));
-      printf("((unsigned long) green_val) << lshift_green: %08lx\n",
-          ((unsigned long) green_val) << lshift_green);
-      printf("((unsigned long) green_val) << lshift_green >> rshift_green: %08lx\n",
-          ((unsigned long) green_val) << lshift_green >> rshift_green);
-      printf("((unsigned long) blue_val): %08lx\n",
-          ((unsigned long) blue_val));
-      printf("((unsigned long) blue_val) << lshift_blue: %08lx\n",
-          ((unsigned long) blue_val) << lshift_blue);
-      printf("((unsigned long) blue_val) << lshift_blue >> rshift_blue: %08lx\n",
-          ((unsigned long) blue_val) << lshift_blue >> rshift_blue);
+      printf("((unsigned long) redLight): %08lx\n",
+          ((unsigned long) redLight));
+      printf("((unsigned long) redLight) << lshift_red: %08lx\n",
+          ((unsigned long) redLight) << lshift_red);
+      printf("((unsigned long) redLight) << lshift_red >> rshift_red: %08lx\n",
+          ((unsigned long) redLight) << lshift_red >> rshift_red);
+      printf("((unsigned long) greenLight): %08lx\n",
+          ((unsigned long) greenLight));
+      printf("((unsigned long) greenLight) << lshift_green: %08lx\n",
+          ((unsigned long) greenLight) << lshift_green);
+      printf("((unsigned long) greenLight) << lshift_green >> rshift_green: %08lx\n",
+          ((unsigned long) greenLight) << lshift_green >> rshift_green);
+      printf("((unsigned long) blueLight): %08lx\n",
+          ((unsigned long) blueLight));
+      printf("((unsigned long) blueLight) << lshift_blue: %08lx\n",
+          ((unsigned long) blueLight) << lshift_blue);
+      printf("((unsigned long) blueLight) << lshift_blue >> rshift_blue: %08lx\n",
+          ((unsigned long) blueLight) << lshift_blue >> rshift_blue);
       printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
-          red_val, green_val, blue_val, col.pixel);
+          redLight, greenLight, blueLight, col.pixel);
       */
-      /* printf("drwRgbColor(%ld, %ld, %ld) --> %lx\n", red_val, green_val, blue_val, (intType) col.pixel); */
+      /* printf("drwRgbColor(%ld, %ld, %ld) --> %lx\n", redLight, greenLight, blueLight, (intType) col.pixel); */
       return (intType) col.pixel;
     } /* if */
     if (color_hash == NULL) {
       color_hash = (colorEntryType *) malloc(4096 * sizeof(colorEntryType));
       if (color_hash == NULL) {
         printf("malloc color_hash failed for (%lu, %lu, %lu)\n",
-            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
+            (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight);
         return 0;
       } /* if */
       memset(color_hash, 0, 4096 * sizeof(colorEntryType));
     } /* if */
-    col.red   = (short unsigned int) red_val;
-    col.green = (short unsigned int) green_val;
-    col.blue  = (short unsigned int) blue_val;
+    col.red   = (short unsigned int) redLight;
+    col.green = (short unsigned int) greenLight;
+    col.blue  = (short unsigned int) blueLight;
     hash_num = ((unsigned int) (col.red   & 0xF000) >>  4) ^
                ((unsigned int) (col.green & 0xF000) >>  8) ^
                ((unsigned int) (col.blue  & 0xF000) >> 12);
@@ -1736,7 +1736,7 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
         entry = entry->blue_greater;
       } else {
 /*        printf("found [%ld, %ld, %ld] color = %08lx\n",
-            red_val, green_val, blue_val, entry->pixel); */
+            redLight, greenLight, blueLight, entry->pixel); */
         return (intType) entry->pixel;
       } /* if */
     } /* while */
@@ -1783,7 +1783,7 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
         new_pixels = (unsigned long *) realloc(pixels, new_num_pixels * sizeof(unsigned long));
         if (new_pixels == NULL) {
           printf("malloc pixels %u failed for (%lu, %lu, %lu)\n",
-              new_num_pixels, (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
+              new_num_pixels, (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight);
         } else {
           memset(&new_pixels[num_pixels], 0, pixel_incr * sizeof(unsigned long));
           if (XAllocColorCells(mydisplay, cmap, 0, NULL, 0, &new_pixels[num_pixels], pixel_incr) == 0) {
@@ -1803,19 +1803,19 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
       act_pixel++;
       if (XStoreColor(mydisplay, cmap, &col) == 0) {
         printf("XStoreColor(%lu, %lu, %lu) not okay\n",
-            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
+            (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight);
         okay = 0;
       } /* if */
     } else {
       if (nearest_entry != NULL) {
         printf("nearest_entry [%04lx, %04lx, %04lx] [%04x, %04x, %04x] color = %08lx\n",
-            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val,
+            (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight,
             nearest_entry->red, nearest_entry->green, nearest_entry->blue,
             nearest_entry->pixel);
         return (intType) nearest_entry->pixel;
       } else {
         printf("return black [%04lx, %04lx, %04lx] color = %x\n",
-            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val, 0);
+            (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight, 0);
         return 0;
       } /* if */
     } /* if */
@@ -1823,7 +1823,7 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
       okay = 1;
       if (XAllocColor(mydisplay, cmap, &col) == 0) {
         printf("XAllocColor(%lu, %lu, %lu) not okay\n",
-            (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val);
+            (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight);
         okay = 0;
       } /* if */
     } /* if */
@@ -1834,9 +1834,9 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
         col.pixel = 0;
       } else {
         memset(entry, 0, sizeof(colorEntryRecord));
-        entry->red    = (unsigned short int) red_val;
-        entry->green  = (unsigned short int) green_val;
-        entry->blue   = (unsigned short int) blue_val;
+        entry->red    = (unsigned short int) redLight;
+        entry->green  = (unsigned short int) greenLight;
+        entry->blue   = (unsigned short int) blueLight;
         entry->pixel  = col.pixel;
         *insert_place = entry;
       } /* if */
@@ -1844,14 +1844,14 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
       col.pixel = 0;
     } /* if */
     printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
-        (unsigned long) red_val, (unsigned long) green_val, (unsigned long) blue_val, col.pixel);
+        (unsigned long) redLight, (unsigned long) greenLight, (unsigned long) blueLight, col.pixel);
     return (intType) col.pixel;
   } /* drwRgbColor */
 
 
 
 #ifdef OUT_OF_ORDER
-intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
+intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
 
   {
     Colormap cmap;
@@ -1860,13 +1860,13 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
 
   /* drwRgbColor */
     cmap = DefaultColormap(mydisplay, myscreen);
-    col.red = red_val;
-    col.green = green_val;
-    col.blue = blue_val;
+    col.red = redLight;
+    col.green = greenLight;
+    col.blue = blueLight;
     if (XAllocColor(mydisplay, cmap, &col) == 0) {
       /* handle failture */
       printf("XAllocColor(%ld, %ld, %ld) not okay\n",
-          red_val, green_val, blue_val);
+          redLight, greenLight, blueLight);
     } /* if */
 #ifdef OUT_OF_ORDER
     col.red = RED_VAL;
@@ -1888,7 +1888,7 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
 
 
 
-void drwPixelToRgb (intType col, intType *red_val, intType *green_val, intType *blue_val)
+void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType *blueLight)
 
   {
     Colormap cmap;
@@ -1896,18 +1896,18 @@ void drwPixelToRgb (intType col, intType *red_val, intType *green_val, intType *
 
   /* drwPixelToRgb */
     if (default_visual->c_class == TrueColor) {
-      *red_val   = (intType)(((unsigned long) col & default_visual->red_mask)   << rshift_red   >> lshift_red);
-      *green_val = (intType)(((unsigned long) col & default_visual->green_mask) << rshift_green >> lshift_green);
-      *blue_val  = (intType)(((unsigned long) col & default_visual->blue_mask)  << rshift_blue  >> lshift_blue);
+      *redLight   = (intType)(((unsigned long) col & default_visual->red_mask)   << rshift_red   >> lshift_red);
+      *greenLight = (intType)(((unsigned long) col & default_visual->green_mask) << rshift_green >> lshift_green);
+      *blueLight  = (intType)(((unsigned long) col & default_visual->blue_mask)  << rshift_blue  >> lshift_blue);
     } else {
       cmap = DefaultColormap(mydisplay, myscreen);
       color.pixel = (unsigned long) col;
       XQueryColor(mydisplay, cmap, &color);
-      *red_val   = color.red;
-      *green_val = color.green;
-      *blue_val  = color.blue;
+      *redLight   = color.red;
+      *greenLight = color.green;
+      *blueLight  = color.blue;
     } /* if */
-    /* printf("drwPixelToRgb(%lx) --> %ld %ld %ld\n", col, *red_val, *green_val, *blue_val); */
+    /* printf("drwPixelToRgb(%lx) --> %ld %ld %ld\n", col, *redLight, *greenLight, *blueLight); */
   } /* drwPixelToRgb */
 
 

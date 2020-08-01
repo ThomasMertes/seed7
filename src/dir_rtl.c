@@ -55,13 +55,13 @@
 
 
 #ifdef OS_STRI_WCHAR
-wchar_t dot[]    = {'.', 0};
-wchar_t dotdot[] = {'.', '.', 0};
-wchar_t slash[]  = {'/', 0};
+const wchar_t dot[]    = {'.', 0};
+const wchar_t dotdot[] = {'.', '.', 0};
+const wchar_t slash[]  = {'/', 0};
 #else
-char dot[]    = ".";
-char dotdot[] = "..";
-char slash[]  = "/";
+const char dot[]    = ".";
+const char dotdot[] = "..";
+const char slash[]  = "/";
 #endif
 
 
@@ -167,7 +167,7 @@ dirType dirOpen (const const_striType path)
   /* dirOpen */
     logFunction(printf("dirOpen(\"%s\")\n", striAsUnquotedCStri(path)););
     os_path = cp_to_os_path(path, &path_info, &err_info);
-    if (unlikely(err_info != OKAY_NO_ERROR)) {
+    if (unlikely(os_path == NULL)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
       if (path_info == PATH_IS_EMULATED_ROOT) {
         directory = (dirType) openVolumeList();
@@ -233,7 +233,7 @@ striType dirRead (dirType directory)
       } else {
         /* printf("os_readdir() -> \"" FMT_S_OS "\"\n", current_entry->d_name); */
         fileName = os_stri_to_stri(current_entry->d_name, &err_info);
-        if (unlikely(err_info != OKAY_NO_ERROR)) {
+        if (unlikely(fileName == NULL)) {
           raise_error(err_info);
         } /* if */
       } /* if */

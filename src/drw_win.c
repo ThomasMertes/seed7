@@ -1480,23 +1480,23 @@ void drwPRect (const_winType actual_window,
 
 
 
-intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
+intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
 
   { /* drwRgbColor */
-    logFunction(printf("drwRgbColor(%lu, %ld, %ld)\n", red_val, green_val, blue_val););
-    return (intType) RGB(((uintType) red_val) >> 8,
-                         ((uintType) green_val) >> 8,
-                         ((uintType) blue_val) >> 8);
+    logFunction(printf("drwRgbColor(%lu, %ld, %ld)\n", redLight, greenLight, blueLight););
+    return (intType) RGB(((uintType) redLight) >> 8,
+                         ((uintType) greenLight) >> 8,
+                         ((uintType) blueLight) >> 8);
   } /* drwRgbColor */
 
 
 
-void drwPixelToRgb (intType col, intType *red_val, intType *green_val, intType *blue_val)
+void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType *blueLight)
 
   { /* drwPixelToRgb */
-    *red_val   = GetRValue(col) << 8;
-    *green_val = GetGValue(col) << 8;
-    *blue_val  = GetBValue(col) << 8;
+    *redLight   = GetRValue(col) << 8;
+    *greenLight = GetGValue(col) << 8;
+    *blueLight  = GetBValue(col) << 8;
   } /* drwPixelToRgb */
 
 

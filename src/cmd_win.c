@@ -303,12 +303,12 @@ striType getExecutablePath (const const_striType arg_0)
     striType result;
 
   /* getExecutablePath */
-    if (GetModuleFileNameW(NULL, buffer, PATH_MAX) == 0) {
+    if (unlikely(GetModuleFileNameW(NULL, buffer, PATH_MAX) == 0)) {
       raise_error(FILE_ERROR);
       result = NULL;
     } else {
       result = cp_from_os_path(buffer, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(result == NULL)) {
         raise_error(err_info);
       } /* if */
     } /* if */

@@ -5018,6 +5018,9 @@ const proc: write_file_head is func
     writeln(c_prog, "  uint32Type type_num;");
     writeln(c_prog, "  rtlObjectType stru[1];");
     writeln(c_prog, "};");
+    writeln(c_prog, "typedef struct freeListElemStruct {");
+    writeln(c_prog, "  struct freeListElemStruct *next;");
+    writeln(c_prog, "} *freeListElemType;");
     writeln(c_prog, "typedef struct rtlHashElemStruct *hashElemType;");
     writeln(c_prog, "typedef const struct rtlHashElemStruct *const_hashElemType;");
     writeln(c_prog, "typedef struct rtlHashElemStruct *const hashElemType_const;");

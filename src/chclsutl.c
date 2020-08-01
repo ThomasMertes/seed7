@@ -38,6 +38,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -56,9 +59,7 @@ void init_chclass (void)
     int character;
 
   /* init_chclass */
-#ifdef TRACE_OPTION
-    printf("BEGIN init_chclass\n");
-#endif
+    logFunction(printf("init_chclass\n"););
     for (character = 0; character <= 255; character++) {
       char_class(character) = ILLEGALCHAR;
       name_character(character) = FALSE;
@@ -141,7 +142,5 @@ void init_chclass (void)
       digit_value[character] = (uintType) 10 +
           (uintType) character - (uintType) 'a';
     } /* for */
-#ifdef TRACE_OPTION
-    printf("END init_chclass\n");
-#endif
+    logFunction(printf("init_chclass -->\n"););
   } /* init_chclass */

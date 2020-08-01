@@ -75,7 +75,7 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
     intType width, intType height);
 bstriType drwGetImage (const_winType actual_window);
 intType drwGetPixel (const_winType actual_window, intType x, intType y);
-void drwPixelToRgb (intType col, intType *red_val, intType *green_val, intType *blue_val);
+void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType *blueLight);
 intType drwHeight (const_winType actual_window);
 winType drwImage (int32Type *image_data, memSizeType width, memSizeType height);
 void drwLine (const_winType actual_window,
@@ -103,7 +103,7 @@ void drwRect (const_winType actual_window,
     intType x, intType y, intType width, intType height);
 void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col);
-intType drwRgbColor (intType red_val, intType green_val, intType blue_val);
+intType drwRgbColor (intType redLight, intType greenLight, intType blueLight);
 void drwBackground (intType col);
 void drwColor (intType col);
 void drwSetContent (const_winType actual_window, const_winType pixmap);

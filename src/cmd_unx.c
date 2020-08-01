@@ -92,7 +92,7 @@ striType getExecutablePath (const const_striType arg_0)
     if (readlink_result != -1) {
       buffer[readlink_result] = '\0';
       result = cp_from_os_path(buffer, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(result == NULL)) {
         logError(printf("getExecutablePath: cp_from_os_path failed.\n"););
         raise_error(err_info);
 #ifdef APPEND_EXTENSION_TO_EXECUTABLE_PATH
@@ -113,7 +113,7 @@ striType getExecutablePath (const const_striType arg_0)
         result = concat_path(cwd, arg_0);
         FREE_STRI(cwd, cwd->size);
       } /* if */
-      if (result == NULL) {
+      if (unlikely(result == NULL)) {
         raise_error(MEMORY_ERROR);
 #if HAS_SYMBOLIC_LINKS
       } else {

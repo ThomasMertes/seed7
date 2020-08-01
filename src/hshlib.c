@@ -306,7 +306,7 @@ static arrayType keys_hash (hashType curr_hash, objectType key_create_func,
           key_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
         for (number = 0; number < arr_pos; number++) {
           param2_call(key_destr_func, &key_array->arr[number], SYS_DESTR_OBJECT);
         } /* for */
@@ -401,7 +401,7 @@ static arrayType values_hash (hashType curr_hash, objectType value_create_func,
           value_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
         for (number = 0; number < arr_pos; number++) {
           param2_call(value_destr_func, &value_array->arr[number], SYS_DESTR_OBJECT);
         } /* for */
@@ -668,7 +668,7 @@ objectType hsh_cpy (listType arguments)
     } else {
       hsh_to->value.hashValue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         free_hash(hsh_to->value.hashValue, key_destr_func,
             data_destr_func);
         hsh_to->value.hashValue = NULL;
@@ -711,7 +711,7 @@ objectType hsh_create (listType arguments)
     } else {
       hsh_to->value.hashValue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         free_hash(hsh_to->value.hashValue, key_destr_func,
             data_destr_func);
         hsh_to->value.hashValue = NULL;
@@ -750,7 +750,7 @@ objectType hsh_empty (listType arguments)
 
   /* hsh_empty */
     result = new_hash(TABLE_BITS);
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
       return bld_hash_temp(result);
@@ -947,12 +947,14 @@ objectType hsh_idx (listType arguments)
         hashelem = hashelem->next_greater;
       } /* if */
     } /* while */
-    if (result_hashelem != NULL) {
+    if (unlikely(result_hashelem == NULL)) {
+      result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
+    } else {
       if (TEMP2_OBJECT(arg_1(arguments))) {
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
-        if (!ALLOC_OBJECT(result)) {
+        if (unlikely(!ALLOC_OBJECT(result))) {
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
           memcpy(result, &result_hashelem->data, sizeof(objectRecord));
@@ -966,8 +968,6 @@ objectType hsh_idx (listType arguments)
       } else {
         result = &result_hashelem->data;
       } /* if */
-    } else {
-      result = raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } /* if */
     logFunction(printf("hsh_idx(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_U ", " FMT_X_MEM ") --> \n",
                        (memSizeType) aHashMap, (memSizeType) aKey, hashcode, cmp_func);
@@ -1033,7 +1033,7 @@ objectType hsh_idx2 (listType arguments)
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
-        if (!ALLOC_OBJECT(result)) {
+        if (unlikely(!ALLOC_OBJECT(result))) {
           result = raise_exception(SYS_MEM_EXCEPTION);
         } else {
           memcpy(result, &result_hashelem->data, sizeof(objectRecord));
@@ -1048,7 +1048,7 @@ objectType hsh_idx2 (listType arguments)
         result = &result_hashelem->data;
       } /* if */
     } else {
-      if (!ALLOC_OBJECT(result)) {
+      if (unlikely(!ALLOC_OBJECT(result))) {
         result = raise_exception(SYS_MEM_EXCEPTION);
       } else {
         result->type_of = defaultValue->type_of;
@@ -1134,12 +1134,12 @@ objectType hsh_idx2 (listType arguments)
         } /* if */
       } /* if */
     } /* while */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
       result = &result_hashelem->data;
-      if (TEMP_OBJECT(arg_1(arguments))) {
+      if (unlikely(TEMP_OBJECT(arg_1(arguments)))) {
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
@@ -1221,7 +1221,7 @@ objectType hsh_incl (listType arguments)
         } /* if */
       } while (hashelem != NULL);
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } else {
@@ -1307,9 +1307,9 @@ objectType hsh_refidx (listType arguments)
         hashelem = hashelem->next_greater;
       } /* if */
     } /* while */
-    if (result_hashelem != NULL) {
+    if (unlikely(result_hashelem != NULL)) {
       result = &result_hashelem->data;
-      if (TEMP_OBJECT(arg_1(arguments))) {
+      if (unlikely(TEMP_OBJECT(arg_1(arguments)))) {
         /* The hash will be destroyed after indexing. */
         /* Therefore it is necessary here to remove it */
         /* from the hashtable to avoid a crash !!!!! */
@@ -1394,7 +1394,7 @@ objectType hsh_update (listType arguments)
         } /* if */
       } while (hashelem != NULL);
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
       return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
     } /* if */

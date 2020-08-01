@@ -223,7 +223,7 @@ static void gen_act_ptr_table (void)
     act_ptr_table.size = act_table.size;
     if (ALLOC_TABLE(act_ptr_table.primitive_ptr, primActType, act_ptr_table.size)) {
       for (number = 0; number < act_ptr_table.size; number++) {
-        act_ptr_table.primitive_ptr[number] = &act_table.primitive[number];
+        act_ptr_table.primitive_ptr[number] = (primActType) &act_table.primitive[number];
       } /* for */
       qsort(act_ptr_table.primitive_ptr, act_ptr_table.size, sizeof(primActType),
           action_ptr_compare);
@@ -257,13 +257,13 @@ static void gen_act_ptr_table (void)
  *  Get an act_table entry that corresponds to an actType pointer.
  *  @return pointer to an act_table entry.
  */
-primActType get_primact (actType action_searched)
+const_primActType get_primact (actType action_searched)
 
   {
     int lower;
     int upper;
     int middle;
-    primActType result;
+    const_primActType result;
 
   /* get_primact */
     logFunction(printf("get_primact(" FMT_U_MEM ")\n",

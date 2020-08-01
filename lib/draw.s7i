@@ -38,14 +38,14 @@ var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
 
 
 const func pixel: colorPixel (in color: col) is
-  return rgbPixel(col.red_part, col.green_part, col.blue_part);
+  return rgbPixel(col.redLight, col.greenLight, col.blueLight);
 
 
 const func color: pixelToColor (in pixel: pix) is func
   result
     var color: col is color.value;
   begin
-    DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
+    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
@@ -608,7 +608,7 @@ const func color: getPixelColor (in PRIMITIVE_WINDOW: aWindow,
     var pixel: pix is pixel.value;
   begin
     pix := getPixel(aWindow, x, y);
-    DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
+    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
@@ -620,7 +620,7 @@ const func color: getPixelColor (in bstring: bImage, in integer: width,
     var pixel: pix is pixel.value;
   begin
     pix := getPixel(bImage, width, height, x, y);
-    DRAW_PIXEL_TO_RGB(pix, col.red_part, col.green_part, col.blue_part);
+    DRAW_PIXEL_TO_RGB(pix, col.redLight, col.greenLight, col.blueLight);
   end func;
 
 
@@ -717,9 +717,9 @@ const func string: str (in PRIMITIVE_WINDOW: image, BMP) is func
     for line range pred(height) downto 0 do
       for column range 0 to pred(width) do
         col := getPixelColor(bImage, width, height, column, line);
-        stri &:= chr(col.blue_part  div 256);
-        stri &:= chr(col.green_part div 256);
-        stri &:= chr(col.red_part   div 256);
+        stri &:= chr(col.blueLight  div 256);
+        stri &:= chr(col.greenLight div 256);
+        stri &:= chr(col.redLight   div 256);
         incr(index);
       end for;
       stri &:= "\0;" mult padding;

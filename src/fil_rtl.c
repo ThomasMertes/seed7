@@ -1739,7 +1739,7 @@ fileType filOpen (const const_striType path, const const_striType mode)
       result = NULL;
     } else {
       os_path = cp_to_os_path(path, &path_info, &err_info);
-      if (unlikely(err_info != OKAY_NO_ERROR)) {
+      if (unlikely(os_path == NULL)) {
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
         if (unlikely(path_info == PATH_IS_NORMAL))
 #endif

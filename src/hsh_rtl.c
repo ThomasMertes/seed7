@@ -338,7 +338,7 @@ static rtlArrayType keys_hash (const const_rtlHashType curr_hash,
           key_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
         for (number = 0; number < arr_pos; number++) {
           key_destr_func(key_array->arr[number].value.genericValue);
         } /* for */
@@ -430,7 +430,7 @@ static rtlArrayType values_hash (const const_rtlHashType curr_hash,
           value_array->max_position = (intType) arr_pos;
         } /* if */
       } /* if */
-      if (*err_info != OKAY_NO_ERROR) {
+      if (unlikely(*err_info != OKAY_NO_ERROR)) {
         for (number = 0; number < arr_pos; number++) {
           value_destr_func(value_array->arr[number].value.genericValue);
         } /* for */
@@ -547,7 +547,7 @@ void hshCpy (rtlHashType *const hash_to, const const_rtlHashType hash_from,
       *hash_to = create_hash(hash_from,
           key_create_func, data_create_func, &err_info);
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       free_hash(*hash_to, key_destr_func, data_destr_func);
       *hash_to = NULL;
       raise_error(MEMORY_ERROR);
@@ -567,7 +567,7 @@ rtlHashType hshCreate (const const_rtlHashType hash_from,
   /* hshCreate */
     result = create_hash(hash_from,
         key_create_func, data_create_func, &err_info);
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       free_hash(result, key_destr_func, data_destr_func);
       result = NULL;
       raise_error(MEMORY_ERROR);
@@ -595,7 +595,7 @@ rtlHashType hshEmpty (void)
 
   /* hshEmpty */
     result = new_hash(TABLE_BITS);
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;
@@ -689,14 +689,14 @@ genericType hshIdx (const const_rtlHashType aHashMap, const genericType aKey,
         hashelem = hashelem->next_greater;
       } /* if */
     } /* while */
-    if (result_hashelem != NULL) {
-      result = result_hashelem->data.value.genericValue;
-    } else {
+    if (unlikely(result_hashelem == NULL)) {
       logError(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
                       (memSizeType) aHashMap, aKey, hashcode););
       raise_error(RANGE_ERROR);
       result = 0;
+    } else {
+      result = result_hashelem->data.value.genericValue;
     } /* if */
     logFunction(printf("hshIdx(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") --> " FMT_X_GEN " (" FMT_X_GEN ")\n",
                        (memSizeType) aHashMap, aKey, hashcode, result,
@@ -740,14 +740,14 @@ rtlObjectType *hshIdxAddr (const const_rtlHashType aHashMap,
         hashelem = hashelem->next_greater;
       } /* if */
     } /* while */
-    if (result_hashelem != NULL) {
-      result = &result_hashelem->data;
-    } else {
+    if (unlikely(result_hashelem == NULL)) {
       logError(printf("hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U "): "
                       "Hashmap does not have an element with the key.\n",
                       (memSizeType) aHashMap, aKey, hashcode););
       raise_error(RANGE_ERROR);
       result = NULL;
+    } else {
+      result = &result_hashelem->data;
     } /* if */
     logFunction(printf("hshIdxAddr(" FMT_X_MEM ", " FMT_U_GEN ", " FMT_U ") --> " FMT_U_GEN " (" FMT_X_GEN ", %f)\n",
                        (memSizeType) aHashMap, aKey, hashcode, (memSizeType) result,
@@ -854,7 +854,7 @@ genericType hshIdxEnterDefault (const rtlHashType aHashMap, const genericType aK
         } /* if */
       } while (hashelem != NULL);
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
       raise_error(MEMORY_ERROR);
       result = 0;
@@ -957,7 +957,7 @@ void hshIncl (const rtlHashType aHashMap, const genericType aKey,
         } /* if */
       } while (hashelem != NULL);
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -1044,7 +1044,7 @@ genericType hshUpdate (const rtlHashType aHashMap, const genericType aKey,
         } /* if */
       } while (hashelem != NULL);
     } /* if */
-    if (err_info != OKAY_NO_ERROR) {
+    if (unlikely(err_info != OKAY_NO_ERROR)) {
       aHashMap->size--;
       raise_error(MEMORY_ERROR);
     } /* if */

@@ -29,8 +29,10 @@
 /*                                                                  */
 /********************************************************************/
 
-extern const_cstriType stri_escape_sequence[];
-extern const_cstriType cstri_escape_sequence[];
+#define STRLEN(s) (sizeof(s) / sizeof(s[0]) - 1)
+
+extern const const_cstriType stri_escape_sequence[];
+extern const const_cstriType cstri_escape_sequence[];
 
 #define MAX_UTF8_EXPANSION_FACTOR 6
 #define max_utf8_size(size) (MAX_UTF8_EXPANSION_FACTOR * (size))
@@ -110,9 +112,9 @@ EXTERN stackAllocType   stack_alloc;
 
 #ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
 #ifdef EMULATE_ROOT_CWD
-extern os_striType current_emulated_cwd;
+extern const_os_striType current_emulated_cwd;
 #endif
-extern os_charType emulated_root[];
+extern const os_charType emulated_root[];
 
 #define IS_EMULATED_ROOT(os_path) (os_path == emulated_root)
 #endif
@@ -172,6 +174,7 @@ striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info);
 striType stri_to_standard_path (const striType stri);
 striType cp_from_os_path (const_os_striType os_path, errInfoType *err_info);
 #ifdef EMULATE_ROOT_CWD
+void setEmulatedCwdToRoot (void);
 void setEmulatedCwd (const os_striType os_path, errInfoType *err_info);
 #endif
 os_striType cp_to_os_path (const_striType std_path, int *path_info,

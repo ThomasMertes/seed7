@@ -32,13 +32,13 @@
 typedef os_DIR *dirType;
 
 #ifdef OS_STRI_WCHAR
-extern wchar_t dot[];
-extern wchar_t dotdot[];
-extern wchar_t slash[];
+extern const wchar_t dot[];
+extern const wchar_t dotdot[];
+extern const wchar_t slash[];
 #else
-extern char dot[];
-extern char dotdot[];
-extern char slash[];
+extern const char dot[];
+extern const char dotdot[];
+extern const char slash[];
 #endif
 
 

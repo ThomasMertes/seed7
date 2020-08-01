@@ -398,7 +398,7 @@ void conSetCursor (intType line, intType column)
     COORD position;
 
   /* conSetCursor */
-    if (line <= 0 || column <= 0) {
+    if (unlikely(line <= 0 || column <= 0)) {
       raise_error(RANGE_ERROR);
     } else if (line <= INT16TYPE_MAX && column <= INT16TYPE_MAX) {
       if (console_initialized) {
@@ -434,17 +434,18 @@ static void doWriteConsole (HANDLE hConsole, const const_striType stri)
     /* fprintf(stderr, "doWriteConsole(%lx, ...)", (unsigned long) hConsole); */
     if (stri->size <= 256) {
       wstri_size = stri_to_utf16(wstri_buffer, stri->mem, stri->size, &err_info);
-      if (err_info != OKAY_NO_ERROR) {
+      if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(RANGE_ERROR);
       } else {
         WriteConsoleW(hConsole, wstri_buffer, (DWORD) wstri_size, &numchars, NULL);
       } /* if */
     } else {
-      if (stri->size > (MAX_WSTRI_LEN + 1) / 2) {
+      if (unlikely(stri->size > (MAX_WSTRI_LEN + 1) / 2 ||
+                   !ALLOC_WSTRI(wstri, stri->size * 2 - 1))) {
         raise_error(MEMORY_ERROR);
-      } else if (ALLOC_WSTRI(wstri, stri->size * 2 - 1)) {
+      } else {
         wstri_size = stri_to_utf16(wstri, stri->mem, stri->size, &err_info);
-        if (err_info != OKAY_NO_ERROR) {
+        if (unlikely(err_info != OKAY_NO_ERROR)) {
           raise_error(RANGE_ERROR);
         } else {
           wstri_part = wstri;
@@ -499,8 +500,8 @@ void conClear (intType startlin, intType startcol,
     DWORD numchars;
 
   /* conClear */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
+    if (unlikely(startlin <= 0 || startcol <= 0 ||
+                 stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
       if (stoplin > INT16TYPE_MAX) {
@@ -539,8 +540,8 @@ void conUpScroll (intType startlin, intType startcol,
     CHAR_INFO fillChar;
 
   /* conUpScroll */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
+    if (unlikely(startlin <= 0 || startcol <= 0 ||
+                 stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
       if (count > stoplin - startlin + 1) {
@@ -590,8 +591,8 @@ void conDownScroll (intType startlin, intType startcol,
     CHAR_INFO fillChar;
 
   /* conDownScroll */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
+    if (unlikely(startlin <= 0 || startcol <= 0 ||
+                 stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
       if (count > stoplin - startlin + 1) {
@@ -641,8 +642,8 @@ void conLeftScroll (intType startlin, intType startcol,
     CHAR_INFO fillChar;
 
   /* conLeftScroll */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
+    if (unlikely(startlin <= 0 || startcol <= 0 ||
+                 stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
       if (count > stopcol - startcol + 1) {
@@ -692,8 +693,8 @@ void conRightScroll (intType startlin, intType startcol,
     CHAR_INFO fillChar;
 
   /* conRightScroll */
-    if (startlin <= 0 || startcol <= 0 ||
-        stoplin < startlin || stopcol < startcol) {
+    if (unlikely(startlin <= 0 || startcol <= 0 ||
+                 stoplin < startlin || stopcol < startcol)) {
       raise_error(RANGE_ERROR);
     } else if (startlin <= INT16TYPE_MAX && startcol <= INT16TYPE_MAX) {
       if (count > stopcol - startcol + 1) {

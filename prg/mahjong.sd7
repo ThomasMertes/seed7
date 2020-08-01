@@ -81,13 +81,13 @@ const func array color: colorScale (in color: first, in color: second,
     var integer: number is 0;
   begin
     colorScale := length times color.value;
-    red_delta   := (second.red_part   - first.red_part)   div succ(length);
-    green_delta := (second.green_part - first.green_part) div succ(length);
-    blue_delta  := (second.blue_part  - first.blue_part)  div succ(length);
+    red_delta   := (second.redLight   - first.redLight)   div succ(length);
+    green_delta := (second.greenLight - first.greenLight) div succ(length);
+    blue_delta  := (second.blueLight  - first.blueLight)  div succ(length);
     for number range 1 to length do
-      colorScale[number].red_part   := first.red_part   + number * red_delta;
-      colorScale[number].green_part := first.green_part + number * green_delta;
-      colorScale[number].blue_part  := first.blue_part  + number * blue_delta;
+      colorScale[number].redLight   := first.redLight   + number * red_delta;
+      colorScale[number].greenLight := first.greenLight + number * green_delta;
+      colorScale[number].blueLight  := first.blueLight  + number * blue_delta;
     end for;
   end func;
 

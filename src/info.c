@@ -25,6 +25,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -46,16 +49,12 @@
 void display_compilation_info (void)
 
   { /* display_compilation_info */
-#ifdef TRACE_INFILE
-    printf("BEGIN display_compilation_info\n");
-#endif
+    logFunction(printf("display_compilation_info\n"););
     if (in_file.write_line_numbers) {
       CR_FIL_LIN_INFO();
       fflush(stdout);
     } /* if */
-#ifdef TRACE_INFILE
-    printf("END display_compilation_info\n");
-#endif
+    logFunction(printf("display_compilation_info -->\n"););
   } /* display_compilation_info */
 #endif
 
@@ -65,17 +64,13 @@ void display_compilation_info (void)
 void line_compilation_info (void)
 
   { /* line_compilation_info */
-#ifdef TRACE_INFILE
-    printf("BEGIN line_compilation_info\n");
-#endif
+    logFunction(printf("line_compilation_info\n"););
     if (in_file.write_line_numbers) {
       CR_LIN_INFO();
       fflush(stdout);
       in_file.next_msg_line = in_file.line + in_file.incr_message_line;
     } /* if */
-#ifdef TRACE_INFILE
-    printf("END line_compilation_info\n");
-#endif
+    logFunction(printf("line_compilation_info -->\n"););
   } /* line_compilation_info */
 #endif
 
@@ -90,9 +85,7 @@ void open_compilation_info (boolType write_library_names, boolType write_line_nu
     memSizeType number;
 
   /* open_compilation_info */
-#ifdef TRACE_INFILE
-    printf("BEGIN open_compilation_info\n");
-#endif
+    logFunction(printf("open_compilation_info\n"););
     in_file.write_library_names = write_library_names;
     in_file.write_line_numbers = write_line_numbers;
     if (write_line_numbers) {
@@ -114,8 +107,6 @@ void open_compilation_info (boolType write_library_names, boolType write_line_nu
       fputc('\r', stdout);
       fflush(stdout);
     } /* if */
-#ifdef TRACE_INFILE
-    printf("END open_compilation_info\n");
-#endif
+    logFunction(printf("open_compilation_info -->\n"););
   } /* open_compilation_info */
 #endif

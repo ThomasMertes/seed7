@@ -96,6 +96,7 @@ const proc: process_sct_create_declaration (in type: object_type,
     inout expr_type: c_expr) is func
 
   local
+    const integer: maxFlistLen is 1 << 16;
     var string: diagnosticLine is "";
     var number_element_hash: elements is number_element_hash.EMPTY_HASH;
     var integer: number is 0;
@@ -112,6 +113,20 @@ const proc: process_sct_create_declaration (in type: object_type,
       struct_elem := elements[number][1];
       process_create_declaration(struct_element_type[object_type][struct_elem], c_expr);
     end for;
+    if structFreelist then
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "static freeListElemType flist_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "=NULL;\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "static unsigned int flist_allowed_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "=1;\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "static boolType flist_was_full_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "=0;\n\n";
+    end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "static ";
     c_expr.expr &:= type_name(object_type);
@@ -125,6 +140,30 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= type_name(object_type);
     c_expr.expr &:= " a;\n";
+    if structFreelist then
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "if (flist_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= " != NULL) {\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "a=(";
+      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= ")(flist_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= ");\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "flist_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "=flist_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "->next;\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "flist_allowed_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "++;\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "} else {\n";
+    end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a=(";
     c_expr.expr &:= type_name(object_type);
@@ -134,13 +173,36 @@ const proc: process_sct_create_declaration (in type: object_type,
     c_expr.expr &:= str(length(elements));
     c_expr.expr &:= " * sizeof(rtlObjectType)));\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "if (a == NULL) {\n";
+    c_expr.expr &:= "if (unlikely(a == NULL)) {\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "raise_error(MEMORY_ERROR);\n";
     c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "} else {\n";
+    c_expr.expr &:= "}\n";
+    if structFreelist then
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "if (unlikely(flist_was_full_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= ")) {\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "flist_was_full_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "=0;\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "if (flist_allowed_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "<";
+      c_expr.expr &:= str(maxFlistLen);
+      c_expr.expr &:= ") {\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "flist_allowed_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= "<<=1;\n";
+      c_expr.expr &:= diagnosticLine;
+      c_expr.expr &:= "}}}\n";
+    end if;
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->usage_count = 1;\n";
+    c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "a->type_num = b->type_num;\n";
     for number range 0 to pred(length(elements)) do
       c_expr.expr &:= diagnosticLine;
@@ -151,8 +213,6 @@ const proc: process_sct_create_declaration (in type: object_type,
           "b->stru[" & str(number) & "]" & select_value, c_expr.expr);
       c_expr.expr &:= ";\n";
     end for;
-    c_expr.expr &:= diagnosticLine;
-    c_expr.expr &:= "}\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "return a;\n";
     c_expr.expr &:= diagnosticLine;

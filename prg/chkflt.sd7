@@ -2643,7 +2643,7 @@ const proc: check_parse is func
         (floatExpr(-Infinity) sci 6 exp 2)   <> "-Infinity"  or
         (floatExpr(NaN      ) sci 7 exp 2)   <> "NaN"        or
         (floatExpr(-0.004   ) sci 2 exp 2)   <> "-4.00e-03"  then
-      writeln(" ***** Sci poerator for float does not work correct.");
+      writeln(" ***** Sci operator for float does not work correct.");
       okay := FALSE;
     end if;
 

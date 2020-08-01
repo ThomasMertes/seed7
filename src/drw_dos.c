@@ -419,7 +419,7 @@ void drwPRect (const_winType actual_window,
 
 
 
-intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
+intType drwRgbColor (intType redLight, intType greenLight, intType blueLight)
 
   { /* drwRgbColor */
     return 0;
@@ -427,12 +427,12 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
 
 
 
-void drwPixelToRgb (intType col, intType *red_val, intType *green_val, intType *blue_val)
+void drwPixelToRgb (intType col, intType *redLight, intType *greenLight, intType *blueLight)
 
   { /* drwPixelToRgb */
-    *red_val   = 0;
-    *green_val = 0;
-    *blue_val  = 0;
+    *redLight   = 0;
+    *greenLight = 0;
+    *blueLight  = 0;
   } /* drwPixelToRgb */
 
 
