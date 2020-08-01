@@ -177,6 +177,7 @@ stritype str2;
   {
     cstritype file_name;
     cstritype file_mode;
+    char mode[4];
     filetype result;
 
   /* filOpen */
@@ -190,7 +191,58 @@ stritype str2;
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
-        result = fopen(file_name, file_mode);
+        mode[0] = '\0';
+        if (file_mode[0] == 'r' ||
+            file_mode[0] == 'w' ||
+            file_mode[0] == 'a') {
+          if (file_mode[1] == '\0') {
+            /* Binary mode
+               r ... Open file for reading. 
+               w ... Truncate to zero length or create file for writing. 
+               a ... Append; open or create file for writing at end-of-file. 
+            */
+            mode[0] = file_mode[0];
+            mode[1] = 'b';
+            mode[2] = '\0';
+          } else if (file_mode[1] == '+') {
+            if (file_mode[2] == '\0') {
+              /* Binary mode
+                 r+ ... Open file for update (reading and writing). 
+                 w+ ... Truncate to zero length or create file for update. 
+                 a+ ... Append; open or create file for update, writing at end-of-file. 
+              */
+              mode[0] = file_mode[0];
+              mode[1] = 'b';
+              mode[2] = '+';
+              mode[3] = '\0';
+            } /* if */
+          } else if (file_mode[1] == 't') {
+            if (file_mode[2] == '\0') {
+              /* Text mode
+                 rt ... Open file for reading. 
+                 wt ... Truncate to zero length or create file for writing. 
+                 at ... Append; open or create file for writing at end-of-file. 
+              */
+              mode[0] = file_mode[0];
+              mode[1] = '\0';
+            } else if (file_mode[2] == '+') {
+              /* Text mode
+                 rt+ ... Open file for update (reading and writing). 
+                 wt+ ... Truncate to zero length or create file for update. 
+                 at+ ... Append; open or create file for update, writing at end-of-file. 
+              */
+              mode[0] = file_mode[0];
+              mode[1] = '+';
+              mode[2] = '\0';
+            } /* if */
+          } /* if */
+        } /* if */
+        if (mode[0] == '\0') {
+          raise_error(RANGE_ERROR);
+          result = NULL;
+        } else {
+          result = fopen(file_name, mode);
+        } /* if */
         free_cstri(file_mode, str2);
       } /* if */
       free_cstri(file_name, str1);
@@ -352,7 +404,7 @@ stritype stri;
           len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
         for (ustri = buffer, buf_len = BUFFER_SIZE;
             buf_len > 0; str++, ustri++, buf_len--) {
-	  if (*str >= 256) {
+          if (*str >= 256) {
             raise_error(RANGE_ERROR);
             return;
           } /* if */
@@ -363,7 +415,7 @@ stritype stri;
       if (len > 0) {
         for (ustri = buffer, buf_len = len;
             buf_len > 0; str++, ustri++, buf_len--) {
-	  if (*str >= 256) {
+          if (*str >= 256) {
             raise_error(RANGE_ERROR);
             return;
           } /* if */

@@ -345,6 +345,6 @@ inttype *time_zone;
     *time_zone = this_time_zone.tz_minuteswest;
 #ifdef TRACE_TIM_UNX
     printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
-	*year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+        *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
 #endif
   } /* timNow */

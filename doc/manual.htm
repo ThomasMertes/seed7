@@ -49,19 +49,23 @@
 <li><!--   5.7      --><a href="#array"><b>array</b></a></li>
 <li><!--   5.8      --><a href="#hash"><b>hash</b></a></li>
 <li><!--   5.9      --><a href="#set"><b>set</b></a></li>
-<li><!--   5.10     --><a href="#reference"><b>reference</b></a></li>
-<li><!--   5.11     --><a href="#ref_list"><b>ref_list</b></a></li>
-<li><!--   5.12     --><a href="#ptr"><b>ptr</b></a></li>
-<li><!--   5.13     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
-<li><!--   5.14     --><a href="#color"><b>color</b></a></li>
-<li><!--   5.15     --><a href="#time"><b>time</b></a></li>
-<li><!--   5.16     --><a href="#duration"><b>duration</b></a></li>
-<li><!--   5.17     --><a href="#file"><b>file</b></a></li>
-<li><!--   5.18     --><a href="#text"><b>text</b></a></li>
-<li><!--   5.19     --><a href="#type"><b>type</b></a></li>
-<li><!--   5.20     --><a href="#struct"><b>struct</b></a></li>
-<li><!--   5.21     --><a href="#object"><b>object</b></a></li>
-<li><!--   5.22     --><a href="#expr"><b>expr</b></a></li></ol>
+<li><!--   5.10     --><a href="#struct"><b>struct</b></a></li>
+<li><!--   5.11     --><a href="#reference"><b>reference</b></a></li>
+<li><!--   5.12     --><a href="#ref_list"><b>ref_list</b></a></li>
+<li><!--   5.13     --><a href="#ptr"><b>ptr</b></a></li>
+<li><!--   5.14     --><a href="#ENUMERATION"><b>ENUMERATION</b></a></li>
+<li><!--   5.15     --><a href="#color"><b>color</b></a></li>
+<li><!--   5.16     --><a href="#time"><b>time</b></a></li>
+<li><!--   5.17     --><a href="#duration"><b>duration</b></a></li>
+<li><!--   5.18     --><a href="#file"><b>file</b></a></li>
+<li><!--   5.19     --><a href="#text"><b>text</b></a></li>
+<li><!--   5.20     --><a href="#func"><b>func</b></a></li>
+<li><!--   5.21     --><a href="#varfunc"><b>varfunc</b></a></li>
+<li><!--   5.22     --><a href="#void"><b>void</b></a></li>
+<li><!--   5.23     --><a href="#proc"><b>proc</b></a></li>
+<li><!--   5.24     --><a href="#type"><b>type</b></a></li>
+<li><!--   5.25     --><a href="#object"><b>object</b></a></li>
+<li><!--   5.26     --><a href="#expr"><b>expr</b></a></li></ol>
 <li><!--   6.     --><a href="#PARAMETERS"><big><b>PARAMETERS</b></big></a></li><ol>
 <li><!--   6.1      --><a href="#val_parameter"><b>'val' parameter</b></a></li>
 <li><!--   6.2      --><a href="#ref_parameter"><b>'ref' parameter</b></a></li>
@@ -1981,6 +1985,8 @@
                 <font color=red>string</font> A by <font color=red>string</font> C
                   ( replace(<font color=maroon>"old gold"</font>, <font color=maroon>"old"</font>, <font color=maroon>"one"</font>)=>
                     <font color=maroon>"one gone"</font> )
+      trim(A)   Removes leading and trailing spaces and control chars
+                  ( trim(<font color=maroon>" /n xyz /r"</font>) = <font color=maroon>"xyz"</font> )
       str(A)    Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font>,
                     str(A) => A )
@@ -2168,7 +2174,50 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="reference"><b>5.10 reference</b></a>
+<a name="struct"><b>5.10 struct</b></a>
+<p>
+    The type <tt>'<font color=red>struct</font>'</tt> describes all structured types.
+</p><pre>
+    Type generators:
+      <font color=blue>new struct</font>
+        <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value;
+        ...
+      <font color=blue>end struct</font>
+                Create new structure type
+
+      <font color=blue>new</font> <font color=red>metaType</font> <font color=blue>struct</font>
+        <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value;
+        ...
+      <font color=blue>end struct</font>
+                Create new structure type as subtype of <tt>'<font color=red>metaType</font>'</tt>,
+                which is not a structure
+
+      <font color=blue>sub</font> <font color=red>metaType</font> <font color=blue>struct</font>
+        <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value;
+        ...
+      <font color=blue>end struct</font>
+                Create new structure type as subtype of <tt>'<font color=red>metaType</font>'</tt>,
+                which is a structure type. The new stucture type inherits all
+		elements of the structure type <tt>'<font color=red>metaType</font>'</tt>.
+
+      <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value
+                Declare structure element 'name' with 'value'
+
+    Infixoperators:
+      .         Access Element of STRUCT
+                  ( example.element )
+      ->        Access Element of ptr STRUCT
+                  ( example->element )
+    Relations:
+      =, &lt;>
+    Funktions:
+      incl(A, B) Include element in MODULE
+                  ( Type of argument B: <font color=red>reference</font> )
+      excl(A, B) Exclude element from MODULE
+                  ( Type of argument B: <font color=red>reference</font> )
+</pre><p></p>
+
+<a name="reference"><b>5.11 reference</b></a>
 <p>
     The type <tt>'<font color=red>reference</font>'</tt> describes a reference to any
   object.
@@ -2196,7 +2245,7 @@
                   ( Type of result: <font color=red>ACTION</font> )
       <font color=red>type</font> <font color=blue>value</font> A       Dereference as <font color=red>type</font>
                   ( Type of result: <font color=red>type</font> )
-      <font color=red>reference</font> <font color=blue>parse</font> A  Conversion of <font color=red>string</font> to reference
+      <font color=red>reference</font> <font color=blue>parse</font> A  Conversion of <font color=red>string</font> to <font color=red>reference</font>
                   ( Type of argument A: <font color=red>string</font> )
     Relations:
       =, &lt;>
@@ -2225,7 +2274,7 @@
                   ( Type of result: <font color=red>integer</font> )
 </pre><p></p>
 
-<a name="ref_list"><b>5.11 ref_list</b></a>
+<a name="ref_list"><b>5.12 ref_list</b></a>
 <p>
     The type <tt>'<font color=red>ref_list</font>'</tt> describes a list of <tt>'<font color=red>reference</font>'</tt> objects.
 </p><pre>
@@ -2265,7 +2314,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="ptr"><b>5.12 ptr</b></a>
+<a name="ptr"><b>5.13 ptr</b></a>
 <p>
     The type <tt>'<font color=red>ptr baseType</font>'</tt> describes a pointer to an object
   of a <tt>'<font color=red>baseType</font>'</tt>. With
@@ -2292,7 +2341,7 @@
                   ( Type of argument <font color=red>ptrType</font>: <font color=red>type</font> )
 </pre><p></p>
 
-<a name="ENUMERATION"><b>5.13 ENUMERATION</b></a>
+<a name="ENUMERATION"><b>5.14 ENUMERATION</b></a>
 <p>
     With
 </p><pre>
@@ -2332,7 +2381,7 @@
                   ( decr(A) => A:=pred(A) )
 </pre><p></p>
 
-<a name="color"><b>5.14 color</b></a>
+<a name="color"><b>5.15 color</b></a>
 <p>
     The type <tt>'<font color=red>color</font>'</tt> describes colors.
 </p><pre>
@@ -2367,7 +2416,7 @@
                     Type of argument B: <font color=red>integer</font> )
 </pre><p></p>
 
-<a name="time"><b>5.15 time</b></a>
+<a name="time"><b>5.16 time</b></a>
 <p>
     The type <tt>'<font color=red>time</font>'</tt> describes times and dates.
 </p><pre>
@@ -2378,7 +2427,7 @@
                   ( Type of right operand: <font color=red>duration</font> )
       -         Subtract two times
                   ( Type of result: <font color=red>duration</font> )
-      <font color=red>time</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to time
+      <font color=red>time</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>time</font>
                   ( Type of argument A: <font color=red>string</font>,
                     <font color=red>time</font> <font color=blue>parse</font> <font color=maroon>"2005-02-28 12:00:01"</font> => 2005-02-28 12:00:01,
                     <font color=red>time</font> <font color=blue>parse</font> <font color=maroon>"2005-02-29 12:00:01"</font> => EXCEPTION RANGE_ERROR )
@@ -2422,7 +2471,7 @@
       await(A)  Wait until the given time
 </pre><p></p>
 
-<a name="duration"><b>5.16 duration</b></a>
+<a name="duration"><b>5.17 duration</b></a>
 <p>
     The type <tt>'<font color=red>duration</font>'</tt> describes time and date durations.
 </p><pre>
@@ -2436,9 +2485,27 @@
                   ( Type of left operand: <font color=red>integer</font> )
       *         Multiply a duration by an <font color=red>integer</font>
                   ( Type of right operand: <font color=red>integer</font> )
+      <font color=red>duration</font> <font color=blue>parse</font> A   Conversion of <font color=red>string</font> to <font color=red>duration</font>
+                  ( Type of argument A: <font color=red>string</font>,
+                    <font color=red>duration</font> <font color=blue>parse</font> <font color=maroon>"0-02-28 12:00:01"</font> => 0-02-28 12:00:01,
+                    <font color=red>duration</font> <font color=blue>parse</font> <font color=maroon>"0-13-29 12:00:01"</font> => EXCEPTION RANGE_ERROR )
     Relations:
-      =, &lt;>
+      =, &lt;>, &lt;, &lt;=, >, >=
     Functions:
+      years(A)  Years of the <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
+      months(A) Months of the <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
+      days(A)   Days of the <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
+      hours(A)  Hours of the <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
+      minutes(A) Minutes of the <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
+      seconds(A) Seconds of the <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
+      mycro_seconds(A)  Mycro seconds of the <font color=red>duration</font>
+                  ( Type of result: <font color=red>integer</font> )
       str(A)    Conversion to <font color=red>string</font>
                   ( Type of result: <font color=red>string</font> )
       compare(A, B) Compare function
@@ -2449,7 +2516,7 @@
       wait(A)   Wait for given duration
 </pre><p></p>
 
-<a name="file"><b>5.17 file</b></a>
+<a name="file"><b>5.18 file</b></a>
 <p>
     The type <tt>'<font color=red>file</font>'</tt> describes sequential files.
 </p><pre>
@@ -2524,7 +2591,7 @@
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="text"><b>5.18 text</b></a>
+<a name="text"><b>5.19 text</b></a>
 <p>
     The type <tt>'<font color=red>text</font>'</tt> describes two dimensional files.
 </p><pre>
@@ -2581,13 +2648,188 @@
       cursor_off(A) Make the cursor invisible
 </pre><p></p>
 
-<a name="type"><b>5.19 type</b></a>
+<a name="func"><b>5.20 func</b></a>
+<p>
+    The type <tt>'<font color=red>func baseType</font>'</tt> describes functions which return
+  a <tt>'<font color=red>baseType</font>'</tt>. For example: <tt>'<font color=red>func integer</font>'</tt> describes an <tt>'<font color=red>integer</font>'</tt>
+  function.
+</p><pre>
+    Values:
+      ord, str, abs, sqrt, rand, A + B, A * B, A ** B,
+      trunc, round, sin, cos, compare, hashCode, pos,
+      replace, trim, length, keys, color, dayOfWeek,
+      ...
+                Every function declared with <font color=blue>const</font> <font color=red>func</font> ... is a value
+
+    Prefix operators:
+      <font color=blue>func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>baseType</font>: result <font color=blue>is</font> <font color=red>baseType</font>.value;
+      <font color=blue>begin</font>
+        statements
+      <font color=blue>end func</font>
+                Create a <font color=red>baseType</font> function
+                  ( Type of <tt>'statements'</tt>: <font color=red>proc</font>,
+                    Type of result: <font color=red>func baseType</font> )
+
+      <font color=blue>func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>baseType</font>: result <font color=blue>is</font> <font color=red>baseType</font>.value;
+      <font color=blue>local</font>
+        declarations
+      <font color=blue>begin</font>
+        statements
+      <font color=blue>end func</font>
+                Create a <font color=red>baseType</font> function with local variables
+                  ( Type of <tt>'declarations'</tt>: <font color=red>proc</font>,
+                    Type of <tt>'statements'</tt>: <font color=red>proc</font>,
+                    Type of result: <font color=red>func baseType</font> )
+
+      <font color=blue>return</font> value
+                Create a function with the result type of value
+                  ( Type of value: <font color=red>anyType</font> - which means: any type,
+                    Type of result: <font color=red>func anyType</font> )
+</pre><p>
+  Functions are declared as constants with a <tt>'<font color=red>func</font>'</tt> type and
+  are initialized with a <tt>'<font color=blue>func result</font> ...'</tt> or <tt>'<font color=blue>return</font> ...'</tt> operator.
+  For example:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func integer</font>: tak (<font color=blue>in</font> <font color=red>integer</font>: x, <font color=blue>in</font> <font color=red>integer</font>: y, <font color=blue>in</font> <font color=red>integer</font>: z) <font color=blue>is func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>integer</font>: result <font color=blue>is</font> 0;
+      <font color=blue>begin</font>
+        <font color=blue>if</font> y >= x <font color=blue>then</font>
+          result := z;
+        <font color=blue>else</font>
+          result := tak(tak(pred(x), y, z),
+                        tak(pred(y), z, x),
+                        tak(pred(z), x, y));
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>
+</pre><p>
+  Another example using the <tt>'<font color=blue>return</font>'</tt> function:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func float</font>: convertRadianToDegree (<font color=blue>in</font> <font color=red>float</font>: x) <font color=blue>is</font>
+      <font color=blue>return</font> x * 57.295779513082320876798154814114;
+</pre><p>
+  This <tt>'<font color=blue>return</font>'</tt> function should not be confused with a <tt>'<font color=blue>return</font>'</tt>
+  statement. It is important to note that no <tt>'<font color=blue>return</font>'</tt> statement
+  exists. The declaration for the <tt>'<font color=blue>return</font>'</tt> function is as follows:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func func aType</font>: return (<font color=blue>ref</font> <font color=red>func aType</font> <font color=blue>param</font>)  <font color=blue>is action</font> <font color=maroon>"PRC_RETURN"</font>;
+    <font color=blue>const</font> <font color=red>func func aType</font>: return (<font color=blue>ref</font> <font color=red>aType</font> <font color=blue>param</font>)       <font color=blue>is action</font> <font color=maroon>"PRC_RETURN"</font>;
+</pre><p>
+  The <tt>'<font color=red>func</font>'</tt> types can also be used for parameters.
+  Functions which use a <tt>'<font color=red>func</font>'</tt> parameter do not evaluate this
+  parameter before the function call. Instead this parameter can
+  be evaluated zero or more times inside the function. For example:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func boolean</font>: (<font color=blue>in</font> <font color=red>boolean</font>: first) and (<font color=blue>in</font> <font color=red>func boolean</font>: second) <font color=blue>is func</font>
+      <font color=blue>result</font>
+        <font color=blue>var</font> <font color=red>boolean</font>: result <font color=blue>is</font> FALSE;
+      <font color=blue>begin</font>
+        <font color=blue>if</font> first <font color=blue>then</font>
+          result := second;
+        <font color=blue>end if</font>;
+      <font color=blue>end func</font>;
+</pre><p>
+  Here the second parameter is only evaluated when the first
+  parameter is <tt>'TRUE'</tt>.
+</p>
+
+<a name="varfunc"><b>5.21 varfunc</b></a>
+<p>
+    The type <tt>'<font color=red>varfunc baseType</font>'</tt> describes functions which return
+  a <tt>'<font color=red>baseType</font>'</tt> variable. For example: A function which returns an
+  <tt>'<font color=red>integer</font>'</tt> variable is described with <tt>'<font color=red>varfunc integer</font>'</tt>. A call 
+  of a <tt>'<font color=red>varfunc</font>'</tt> can be used at the left side of an assignment.
+  Generally a <tt>'<font color=red>varfunc</font>'</tt> can be used at places where an <tt>'<font color=blue>inout</font>'</tt>
+  parameter requests a variable.
+</p><pre>
+    Prefix operators:
+      <font color=blue>return var</font> value;
+                Create a varfunc which returns the variable <tt>'value'</tt>
+                  ( Type of value: <font color=red>anyType</font> - which means: any type,
+                    Accessright of value: <font color=blue>var</font> = A variable, an <tt>'<font color=blue>inout</font>'</tt> parameter or a <tt>'<font color=red>varfunc</font>'</tt>
+                    Type of result: <font color=red>varfunc anyType</font> )
+</pre><p>
+    Varfunctions are used to express <tt>'<font color=red>array</font>'</tt>, <tt>'<font color=red>hash</font>'</tt> and <tt>'<font color=red>struct</font>'</tt>
+  accesses which can be used at the left and right side of an
+  assignment. The access function for a <tt>'<font color=red>hash</font>'</tt> is defined as:
+</p><pre>
+    <font color=blue>const</font> <font color=red>func baseType</font>: (<font color=blue>in</font> <font color=red>hashType</font>: aHash) [ (<font color=blue>in</font> <font color=red>keyType</font>: aKey) ] <font color=blue>is</font>
+      <font color=blue>return</font> INDEX(aHash, aKey, hashCode(aKey), <font color=red>hashType</font>.keyCompare);
+
+    <font color=blue>const</font> <font color=red>varfunc baseType</font>: (<font color=blue>inout</font> <font color=red>hashType</font>: aHash) [ (<font color=blue>in</font> <font color=red>keyType</font>: aKey) ] <font color=blue>is</font>
+      <font color=blue>return var</font> INDEX(aHash, aKey, hashCode(aKey), <font color=red>hashType</font>.keyCompare);
+</pre><p>
+  The example above shows that functions with <tt>'<font color=blue>in</font>'</tt> and <tt>'<font color=blue>inout</font>'</tt>
+  parameters can be overloaded. At the right side of an assignment
+  the <tt>'<font color=red>func</font>'</tt> is called, while at the right side the <tt>'<font color=red>varfunc</font>'</tt>
+  is called. That way the access functions of <font color=red>array</font>s, <font color=red>hash</font>s
+  and <font color=red>struct</font>s can be used in the usual way. 
+</p>
+
+<a name="void"><b>5.22 void</b></a>
+<p>
+    The type <tt>'<font color=red>void</font>'</tt> describes the empty type.
+</p><pre>
+    Value:
+      empty     This is the only value of the type <tt>'<font color=red>void</font>'</tt>.
+</pre><p></p>
+
+<a name="proc"><b>5.23 proc</b></a>
+<p>
+    The type <tt>'<font color=red>proc</font>'</tt> describes procedures. The type <tt>'<font color=red>proc</font>'</tt>
+  is defined as <tt>'<font color=red>func void</font>'</tt>.
+</p><pre>
+    Values:
+      noop;
+      <font color=blue>while</font> ... <font color=blue>do</font> ... <font color=blue>end while</font>;
+      <font color=blue>repeat</font> ... <font color=blue>until</font> ... ;
+      writeln( ... );
+      A := B;
+      incr(A);
+      ...
+                Every procedure declared with <font color=blue>const</font> <font color=red>proc</font>: ... is a value
+                The procedure <tt>'noop'</tt> does nothing and is used as empty procedure.
+
+    Prefix operators:
+      <font color=blue>func</font>
+      <font color=blue>begin</font>
+        statements
+      <font color=blue>end func</font>
+                Create a procedure
+                  ( Type of <tt>'statements'</tt>: <font color=red>proc</font>,
+                    Type of result: <font color=red>proc</font> )
+
+      <font color=blue>func</font>
+      <font color=blue>local</font>
+        declarations
+      <font color=blue>begin</font>
+        statements
+      <font color=blue>end func</font>
+                Create a procedure with local variables
+                  ( Type of <tt>'declarations'</tt>: <font color=red>proc</font>,
+                    Type of <tt>'statements'</tt>: <font color=red>proc</font>,
+                    Type of result: <font color=red>proc</font> )
+</pre><p></p>
+
+<a name="type"><b>5.24 type</b></a>
 <p>
     The type <tt>'<font color=red>type</font>'</tt> describes all types.
 </p><pre>
+    Values:
+      <font color=red>void</font>, <font color=red>boolean</font>, <font color=red>integer</font>, <font color=red>rational</font>, <font color=red>float</font>, <font color=red>char</font>,
+      <font color=red>string</font>, <font color=red>reference</font>, <font color=red>ref_list</font>, <font color=red>color</font>, <font color=red>time</font>, <font color=red>duration</font>
+      <font color=red>file</font>, <font color=red>proc</font>, <font color=red>type</font>, ...
+                Every type declared with <font color=blue>const</font> <font color=red>type</font>: ... is a value
+                The type <tt>'<font color=red>void</font>'</tt> is used as empty type.
     Prefix operators:
-      func      Procedure type
-                  ( <font color=red>func char</font> => Function which returns <font color=red>char</font> )
+      func      Function type
+                  ( <font color=red>func char</font> => Function which returns a <font color=red>char</font> )
+      varfunc   Varfunc type
+                  ( <font color=red>varfunc char</font> => Function which returns a <font color=red>char</font> variable )
       ptr       Pointer type
                   ( <font color=red>ptr bitset</font> => Pointer to <font color=red>bitset</font> )
       array     Array type
@@ -2630,50 +2872,7 @@
                 Declare variable 'name' with 'value'
 </pre><p></p>
 
-<a name="struct"><b>5.20 struct</b></a>
-<p>
-    The type <tt>'<font color=red>struct</font>'</tt> describes all structured types.
-</p><pre>
-    Prefix operators:
-      <font color=blue>new struct</font>
-        <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value;
-        ...
-      <font color=blue>end struct</font>
-                Create new structure type
-
-      <font color=blue>new</font> <font color=red>metaType</font> <font color=blue>struct</font>
-        <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value;
-        ...
-      <font color=blue>end struct</font>
-                Create new structure type as subtype of <tt>'<font color=red>metaType</font>'</tt>,
-                which is not a structure
-
-      <font color=blue>sub</font> <font color=red>metaType</font> <font color=blue>struct</font>
-        <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value;
-        ...
-      <font color=blue>end struct</font>
-                Create new structure type as subtype of <tt>'<font color=red>metaType</font>'</tt>,
-                which is a structure type. The new stucture type inherits all
-		elements of the structure type <tt>'<font color=red>metaType</font>'</tt>.
-
-      <font color=blue>var</font> <font color=red>aType</font>: name <font color=blue>is</font> value
-                Declare structure element 'name' with 'value'
-
-    Infixoperators:
-      .         Access Element of STRUCT
-                  ( example.element )
-      ->        Access Element of ptr STRUCT
-                  ( example->element )
-    Relations:
-      =, &lt;>
-    Funktions:
-      incl(A, B) Include element in MODULE
-                  ( Type of argument B: <font color=red>reference</font> )
-      excl(A, B) Exclude element from MODULE
-                  ( Type of argument B: <font color=red>reference</font> )
-</pre><p></p>
-
-<a name="object"><b>5.21 object</b></a>
+<a name="object"><b>5.25 object</b></a>
 <p>
     The type <tt>'<font color=red>object</font>'</tt> is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -2686,7 +2885,7 @@
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="expr"><b>5.22 expr</b></a>
+<a name="expr"><b>5.26 expr</b></a>
 <p>
     The type <tt>'<font color=red>expr</font>'</tt> is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions

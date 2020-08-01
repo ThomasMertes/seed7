@@ -159,9 +159,9 @@ errinfotype *err_info;
         number = curr_hash->table_size;
         curr_helem = &curr_hash->table[0];
         while (number > 0 && *err_info == OKAY_NO_ERROR) {
-	  if (*curr_helem != NULL) {
+          if (*curr_helem != NULL) {
             keys_helem(&key_array, &arr_pos, *curr_helem, key_create_func, err_info);
-	  } /* if */
+          } /* if */
           number--;
           curr_helem++;
         } /* while */
@@ -170,11 +170,11 @@ errinfotype *err_info;
           for (number = 0; number < arr_pos; number++) {
             key_destr_func(&key_array->arr[number]);
           } /* for */
-	  FREE_ARRAY(key_array, array_size);
+          FREE_ARRAY(key_array, array_size);
           key_array = NULL;
         } else {
           if (!RESIZE_ARRAY(key_array, array_size, arr_pos)) {
-	    FREE_ARRAY(key_array, array_size);
+            FREE_ARRAY(key_array, array_size);
             key_array = NULL;
             *err_info = MEMORY_ERROR;
           } else {
@@ -292,7 +292,7 @@ hashtype hash;
       number = hash->table_size;
       curr_helem = &hash->table[0];
       while (number > 0) {
-	if (*curr_helem != NULL) {
+        if (*curr_helem != NULL) {
           result += size_helem(*curr_helem);
         } /* if */
         number--;

@@ -100,8 +100,8 @@ inttype time_zone;
       } /* if */
 #ifdef TRACE_TIM_WIN
       printf("%lu %lu < %lu %lu Sleep(%lu)\n",
-	  current_second, current_mycro_sec, await_second, mycro_sec,
-	  wait_milliseconds);
+          current_second, current_mycro_sec, await_second, mycro_sec,
+          wait_milliseconds);
 #endif
       Sleep(wait_milliseconds);
     } /* if */
@@ -162,6 +162,6 @@ inttype *time_zone;
         local_time.dwHighDateTime, local_time.dwLowDateTime,
         *time_zone, utc_seconds, local_seconds);
     printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
-	  *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+        *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
 #endif
   } /* timNow */

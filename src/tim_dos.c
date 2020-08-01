@@ -156,6 +156,6 @@ inttype *time_zone;
     } /* if */
 #ifdef TRACE_TIM_DOS
     printf("END timNow(%d, %d, %d, %d, %d, %d, %d, %d)\n",
-	*year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
+        *year, *month, *day, *hour, *min, *sec, *mycro_sec, *time_zone);
 #endif
   } /* timNow */

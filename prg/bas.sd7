@@ -3790,17 +3790,12 @@ const func boolean: load_prog (in string: name) is func
       repeat
         line := getln(infile);
         incr(file_line_number);
-        while line <> "" and line[length(line)] in {' ', '\r'} do
-          line := line[.. pred(length(line))];
-        end while;
         if pos(line, "\Z") <> 0 then
           (* Control-Z is used sometimes as end of file marker *)
           line := line[.. pred(pos(line, "\Z"))];
           control_z := TRUE;
         end if;
-        while line <> "" and line[1] = ' ' do
-          line := line[2 .. ];
-        end while;
+        line := trim(line);
         if line <> "" then
           if line[1] in digit_char then
             line_number := getint(line);

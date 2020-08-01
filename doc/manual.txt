@@ -49,19 +49,23 @@ CONTENTS
   5.7     array
   5.8     hash
   5.9     set
-  5.10    reference
-  5.11    ref_list
-  5.12    ptr
-  5.13    ENUMERATION
-  5.14    color
-  5.15    time
-  5.16    duration
-  5.17    file
-  5.18    text
-  5.19    type
-  5.20    struct
-  5.21    object
-  5.22    expr
+  5.10    struct
+  5.11    reference
+  5.12    ref_list
+  5.13    ptr
+  5.14    ENUMERATION
+  5.15    color
+  5.16    time
+  5.17    duration
+  5.18    file
+  5.19    text
+  5.20    func
+  5.21    varfunc
+  5.22    void
+  5.23    proc
+  5.24    type
+  5.25    object
+  5.26    expr
   6.    PARAMETERS
   6.1     'val' parameter
   6.2     'ref' parameter
@@ -1981,6 +1985,8 @@ CONTENTS
                 string A by string C
                   ( replace("old gold", "old", "one")=>
                     "one gone" )
+      trim(A)   Removes leading and trailing spaces and control chars
+                  ( trim(" /n xyz /r") = "xyz" )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(A) => A )
@@ -2168,7 +2174,50 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.10 reference
+5.10 struct
+
+    The type 'struct' describes all structured types.
+
+    Type generators:
+      new struct
+        var aType: name is value;
+        ...
+      end struct
+                Create new structure type
+
+      new metaType struct
+        var aType: name is value;
+        ...
+      end struct
+                Create new structure type as subtype of 'metaType',
+                which is not a structure
+
+      sub metaType struct
+        var aType: name is value;
+        ...
+      end struct
+                Create new structure type as subtype of 'metaType',
+                which is a structure type. The new stucture type inherits all
+		elements of the structure type 'metaType'.
+
+      var aType: name is value
+                Declare structure element 'name' with 'value'
+
+    Infixoperators:
+      .         Access Element of STRUCT
+                  ( example.element )
+      ->        Access Element of ptr STRUCT
+                  ( example->element )
+    Relations:
+      =, <>
+    Funktions:
+      incl(A, B) Include element in MODULE
+                  ( Type of argument B: reference )
+      excl(A, B) Exclude element from MODULE
+                  ( Type of argument B: reference )
+
+
+5.11 reference
 
     The type 'reference' describes a reference to any
   object.
@@ -2225,7 +2274,7 @@ CONTENTS
                   ( Type of result: integer )
 
 
-5.11 ref_list
+5.12 ref_list
 
     The type 'ref_list' describes a list of 'reference' objects.
 
@@ -2265,7 +2314,7 @@ CONTENTS
                     Type of argument C: proc )
 
 
-5.12 ptr
+5.13 ptr
 
     The type 'ptr baseType' describes a pointer to an object
   of a 'baseType'. With
@@ -2292,7 +2341,7 @@ CONTENTS
                   ( Type of argument ptrType: type )
 
 
-5.13 ENUMERATION
+5.14 ENUMERATION
 
     With
 
@@ -2332,7 +2381,7 @@ CONTENTS
                   ( decr(A) => A:=pred(A) )
 
 
-5.14 color
+5.15 color
 
     The type 'color' describes colors.
 
@@ -2367,7 +2416,7 @@ CONTENTS
                     Type of argument B: integer )
 
 
-5.15 time
+5.16 time
 
     The type 'time' describes times and dates.
 
@@ -2422,7 +2471,7 @@ CONTENTS
       await(A)  Wait until the given time
 
 
-5.16 duration
+5.17 duration
 
     The type 'duration' describes time and date durations.
 
@@ -2436,9 +2485,27 @@ CONTENTS
                   ( Type of left operand: integer )
       *         Multiply a duration by an integer
                   ( Type of right operand: integer )
+      duration parse A   Conversion of string to duration
+                  ( Type of argument A: string,
+                    duration parse "0-02-28 12:00:01" => 0-02-28 12:00:01,
+                    duration parse "0-13-29 12:00:01" => EXCEPTION RANGE_ERROR )
     Relations:
-      =, <>
+      =, <>, <, <=, >, >=
     Functions:
+      years(A)  Years of the duration
+                  ( Type of result: integer )
+      months(A) Months of the duration
+                  ( Type of result: integer )
+      days(A)   Days of the duration
+                  ( Type of result: integer )
+      hours(A)  Hours of the duration
+                  ( Type of result: integer )
+      minutes(A) Minutes of the duration
+                  ( Type of result: integer )
+      seconds(A) Seconds of the duration
+                  ( Type of result: integer )
+      mycro_seconds(A)  Mycro seconds of the duration
+                  ( Type of result: integer )
       str(A)    Conversion to string
                   ( Type of result: string )
       compare(A, B) Compare function
@@ -2449,7 +2516,7 @@ CONTENTS
       wait(A)   Wait for given duration
 
 
-5.17 file
+5.18 file
 
     The type 'file' describes sequential files.
 
@@ -2524,7 +2591,7 @@ CONTENTS
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 
 
-5.18 text
+5.19 text
 
     The type 'text' describes two dimensional files.
 
@@ -2581,13 +2648,188 @@ CONTENTS
       cursor_off(A) Make the cursor invisible
 
 
-5.19 type
+5.20 func
+
+    The type 'func baseType' describes functions which return
+  a 'baseType'. For example: 'func integer' describes an 'integer'
+  function.
+
+    Values:
+      ord, str, abs, sqrt, rand, A + B, A * B, A ** B,
+      trunc, round, sin, cos, compare, hashCode, pos,
+      replace, trim, length, keys, color, dayOfWeek,
+      ...
+                Every function declared with const func ... is a value
+
+    Prefix operators:
+      func
+      result
+        var baseType: result is baseType.value;
+      begin
+        statements
+      end func
+                Create a baseType function
+                  ( Type of 'statements': proc,
+                    Type of result: func baseType )
+
+      func
+      result
+        var baseType: result is baseType.value;
+      local
+        declarations
+      begin
+        statements
+      end func
+                Create a baseType function with local variables
+                  ( Type of 'declarations': proc,
+                    Type of 'statements': proc,
+                    Type of result: func baseType )
+
+      return value
+                Create a function with the result type of value
+                  ( Type of value: anyType - which means: any type,
+                    Type of result: func anyType )
+
+  Functions are declared as constants with a 'func' type and
+  are initialized with a 'func result ...' or 'return ...' operator.
+  For example:
+
+    const func integer: tak (in integer: x, in integer: y, in integer: z) is func
+      result
+        var integer: result is 0;
+      begin
+        if y >= x then
+          result := z;
+        else
+          result := tak(tak(pred(x), y, z),
+                        tak(pred(y), z, x),
+                        tak(pred(z), x, y));
+        end if;
+      end func
+
+  Another example using the 'return' function:
+
+    const func float: convertRadianToDegree (in float: x) is
+      return x * 57.295779513082320876798154814114;
+
+  This 'return' function should not be confused with a 'return'
+  statement. It is important to note that no 'return' statement
+  exists. The declaration for the 'return' function is as follows:
+
+    const func func aType: return (ref func aType param)  is action "PRC_RETURN";
+    const func func aType: return (ref aType param)       is action "PRC_RETURN";
+
+  The 'func' types can also be used for parameters.
+  Functions which use a 'func' parameter do not evaluate this
+  parameter before the function call. Instead this parameter can
+  be evaluated zero or more times inside the function. For example:
+
+    const func boolean: (in boolean: first) and (in func boolean: second) is func
+      result
+        var boolean: result is FALSE;
+      begin
+        if first then
+          result := second;
+        end if;
+      end func;
+
+  Here the second parameter is only evaluated when the first
+  parameter is 'TRUE'.
+
+
+5.21 varfunc
+
+    The type 'varfunc baseType' describes functions which return
+  a 'baseType' variable. For example: A function which returns an
+  'integer' variable is described with 'varfunc integer'. A call 
+  of a 'varfunc' can be used at the left side of an assignment.
+  Generally a 'varfunc' can be used at places where an 'inout'
+  parameter requests a variable.
+
+    Prefix operators:
+      return var value;
+                Create a varfunc which returns the variable 'value'
+                  ( Type of value: anyType - which means: any type,
+                    Accessright of value: var = A variable, an 'inout' parameter or a 'varfunc'
+                    Type of result: varfunc anyType )
+
+    Varfunctions are used to express 'array', 'hash' and 'struct'
+  accesses which can be used at the left and right side of an
+  assignment. The access function for a 'hash' is defined as:
+
+    const func baseType: (in hashType: aHash) [ (in keyType: aKey) ] is
+      return INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+
+    const varfunc baseType: (inout hashType: aHash) [ (in keyType: aKey) ] is
+      return var INDEX(aHash, aKey, hashCode(aKey), hashType.keyCompare);
+
+  The example above shows that functions with 'in' and 'inout'
+  parameters can be overloaded. At the right side of an assignment
+  the 'func' is called, while at the right side the 'varfunc'
+  is called. That way the access functions of arrays, hashs
+  and structs can be used in the usual way. 
+
+
+5.22 void
+
+    The type 'void' describes the empty type.
+
+    Value:
+      empty     This is the only value of the type 'void'.
+
+
+5.23 proc
+
+    The type 'proc' describes procedures. The type 'proc'
+  is defined as 'func void'.
+
+    Values:
+      noop;
+      while ... do ... end while;
+      repeat ... until ... ;
+      writeln( ... );
+      A := B;
+      incr(A);
+      ...
+                Every procedure declared with const proc: ... is a value
+                The procedure 'noop' does nothing and is used as empty procedure.
+
+    Prefix operators:
+      func
+      begin
+        statements
+      end func
+                Create a procedure
+                  ( Type of 'statements': proc,
+                    Type of result: proc )
+
+      func
+      local
+        declarations
+      begin
+        statements
+      end func
+                Create a procedure with local variables
+                  ( Type of 'declarations': proc,
+                    Type of 'statements': proc,
+                    Type of result: proc )
+
+
+5.24 type
 
     The type 'type' describes all types.
 
+    Values:
+      void, boolean, integer, rational, float, char,
+      string, reference, ref_list, color, time, duration
+      file, proc, type, ...
+                Every type declared with const type: ... is a value
+                The type 'void' is used as empty type.
     Prefix operators:
-      func      Procedure type
-                  ( func char => Function which returns char )
+      func      Function type
+                  ( func char => Function which returns a char )
+      varfunc   Varfunc type
+                  ( varfunc char => Function which returns a char variable )
       ptr       Pointer type
                   ( ptr bitset => Pointer to bitset )
       array     Array type
@@ -2630,50 +2872,7 @@ CONTENTS
                 Declare variable 'name' with 'value'
 
 
-5.20 struct
-
-    The type 'struct' describes all structured types.
-
-    Prefix operators:
-      new struct
-        var aType: name is value;
-        ...
-      end struct
-                Create new structure type
-
-      new metaType struct
-        var aType: name is value;
-        ...
-      end struct
-                Create new structure type as subtype of 'metaType',
-                which is not a structure
-
-      sub metaType struct
-        var aType: name is value;
-        ...
-      end struct
-                Create new structure type as subtype of 'metaType',
-                which is a structure type. The new stucture type inherits all
-		elements of the structure type 'metaType'.
-
-      var aType: name is value
-                Declare structure element 'name' with 'value'
-
-    Infixoperators:
-      .         Access Element of STRUCT
-                  ( example.element )
-      ->        Access Element of ptr STRUCT
-                  ( example->element )
-    Relations:
-      =, <>
-    Funktions:
-      incl(A, B) Include element in MODULE
-                  ( Type of argument B: reference )
-      excl(A, B) Exclude element from MODULE
-                  ( Type of argument B: reference )
-
-
-5.21 object
+5.25 object
 
     The type 'object' is used as meta type for various types.
   This allows to define common operations for all this types.
@@ -2686,7 +2885,7 @@ CONTENTS
       TRACE_OBJ(A)  Write internal information
 
 
-5.22 expr
+5.26 expr
 
     The type 'expr' is used to describe unmatched expressions.
   This are expressions where the recognizing of the functions

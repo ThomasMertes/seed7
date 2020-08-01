@@ -152,7 +152,7 @@ settype set2;
     bitset_index = 0;
     while (bitset_index < size) {
       if (*bitset1 != *bitset2) {
-	if (least_significant_bit(*bitset1) < least_significant_bit(*bitset2)) {
+        if (least_significant_bit(*bitset1) < least_significant_bit(*bitset2)) {
           return(-1);
         } else {
           return(1);

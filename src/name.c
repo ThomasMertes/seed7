@@ -131,7 +131,7 @@ errinfotype *err_info;
           forward_reference->descriptor.entity = NULL;
           INIT_CLASS_OF_OBJ(forward_reference, FWDREFOBJECT);
           forward_reference->value.objvalue = defined_object;
-	  replace_list_elem(prog.stack_current->local_object_list,
+          replace_list_elem(prog.stack_current->local_object_list,
               defined_object, forward_reference);
           prog.stack_current->object_list_insert_place = append_element_to_list(
               prog.stack_current->object_list_insert_place, defined_object, err_info);

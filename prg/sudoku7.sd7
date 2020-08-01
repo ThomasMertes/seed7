@@ -1631,7 +1631,7 @@ const proc: checkHiddenTriplesInRow (in integer: row,
                 tripleColumns := columnsWithDigit[digit1] | columnsWithDigit[digit2] |
                     columnsWithDigit[digit3];
                 if card(tripleColumns) = 3 then
-			tripleSet := {digit1, digit2, digit3};
+                  tripleSet := {digit1, digit2, digit3};
                   for column range tripleColumns do
                     if card(candidates[row][column] - tripleSet) <> 0 then
                       candidates[row][column] := candidates[row][column] -
@@ -1675,7 +1675,7 @@ const proc: checkHiddenTriplesInColumn (in integer: column,
                 tripleRows := rowsWithDigit[digit1] | rowsWithDigit[digit2] |
                     rowsWithDigit[digit3];
                 if card(tripleRows) = 3 then
-			tripleSet := {digit1, digit2, digit3};
+                  tripleSet := {digit1, digit2, digit3};
                   for row range tripleRows do
                     if card(candidates[row][column] - tripleSet) <> 0 then
                       candidates[row][column] := candidates[row][column] -
@@ -1722,7 +1722,7 @@ const proc: checkHiddenTriplesInBox (in integer: startRow, in integer: startColu
                 tripleCells := cellsWithDigit[digit1] | cellsWithDigit[digit2] |
                     cellsWithDigit[digit3];
                 if card(tripleCells) = 3 then
-			tripleSet := {digit1, digit2, digit3};
+                  tripleSet := {digit1, digit2, digit3};
                   for row range startRow to startRow + 2 do
                     for column range startColumn to startColumn + 2 do
                       if succ(pred(row) * 3 + pred(column)) in tripleCells then
@@ -1794,7 +1794,7 @@ const proc: checkHiddenQuadsInRow (in integer: row,
                     quadColumns := columnsWithDigit[digit1] | columnsWithDigit[digit2] |
                         columnsWithDigit[digit3] | columnsWithDigit[digit4];
                     if card(quadColumns) = 4 then
-	                quadSet := {digit1, digit2, digit3, digit4};
+                      quadSet := {digit1, digit2, digit3, digit4};
                       for column range quadColumns do
                         if card(candidates[row][column] - quadSet) <> 0 then
                           candidates[row][column] := candidates[row][column] -
@@ -1845,7 +1845,7 @@ const proc: checkHiddenQuadsInColumn (in integer: column,
                     quadRows := rowsWithDigit[digit1] | rowsWithDigit[digit2] |
                         rowsWithDigit[digit3] | rowsWithDigit[digit4];
                     if card(quadRows) = 4 then
-	                quadSet := {digit1, digit2, digit3, digit4};
+                      quadSet := {digit1, digit2, digit3, digit4};
                       for row range quadRows do
                         if card(candidates[row][column] - quadSet) <> 0 then
                           candidates[row][column] := candidates[row][column] -
@@ -1899,7 +1899,7 @@ const proc: checkHiddenQuadsInBox (in integer: startRow, in integer: startColumn
                     quadCells := cellsWithDigit[digit1] | cellsWithDigit[digit2] |
                         cellsWithDigit[digit3] | cellsWithDigit[digit4];
                     if card(quadCells) = 4 then
-	              quadSet := {digit1, digit2, digit3, digit4};
+                      quadSet := {digit1, digit2, digit3, digit4};
                       for row range startRow to startRow + 2 do
                         for column range startColumn to startColumn + 2 do
                           if succ(pred(row) * 3 + pred(column)) in quadCells then

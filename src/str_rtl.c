@@ -1202,8 +1202,8 @@ chartype delimiter;
   /* strSplit */
     if (ALLOC_ARRAY(result_array, 256)) {
       COUNT_ARRAY(256);
-	  result_array->min_position = 1;
-	  result_array->max_position = 256;
+          result_array->min_position = 1;
+          result_array->max_position = 256;
       used_max_position = 0;
       main_size = main_stri->size;
       if (main_size >= 1) {

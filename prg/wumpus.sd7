@@ -346,9 +346,9 @@ const proc: main is func
         repeat
           check_hazards();
           if shoot_or_move then
-	    shoot_arrow();
+            shoot_arrow();
           else
-	    move_player();
+            move_player();
           end if;
         until game_status <> PLAYING;
 
@@ -359,7 +359,7 @@ const proc: main is func
         end if;
 
         for j range 1 to LOCS do
-	  loc[j] := save[j];
+          loc[j] := save[j];
         end for;
 
         repeat

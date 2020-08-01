@@ -719,7 +719,7 @@ listtype arguments;
       } else if (err_info != OKAY_NO_ERROR) {
         err_warning(OUT_OF_HEAP_SPACE);
       } else {
-	scan_symbol();
+        scan_symbol();
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);

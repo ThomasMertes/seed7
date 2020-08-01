@@ -183,7 +183,7 @@ int ustri_len;
         if (fread(&ustri[ustri_len], 1, 1, stdin) == 1) {
           ustri[ustri_len + 1] = '\0';
         } else {
-	  ustri[ustri_len] = '\0';
+          ustri[ustri_len] = '\0';
         } /* if */
         term_descr.c_cc[VMIN] = 1;
         term_descr.c_cc[VTIME] = 0;
@@ -207,7 +207,7 @@ int ustri_len;
       } /* while */
       if (utf8_to_stri(stri, &dest_len, ustri, len) == 0 &&
           dest_len == 1) {
-	return(stri[0]);
+        return(stri[0]);
       } else {
         return(K_UNDEF);
       } /* if */
@@ -398,7 +398,7 @@ static void utf8_init ()
         ((s = getenv("LC_CTYPE")) && *s) ||
         ((s = getenv("LANG"))     && *s)) {
       if (strstr(s, "UTF-8")) {
-	utf8_mode = TRUE;
+        utf8_mode = TRUE;
       } /* if */ 
     } /* if */ 
   } /* utf8_init */

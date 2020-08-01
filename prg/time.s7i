@@ -35,8 +35,6 @@ const type: time is new object struct
     var integer: second is 0;
     var integer: mycro_second is 0;
     var integer: timezone is 0;
-(*  var WEEKDAYS: WEEKDAY is SUNDAY;
-    var integer: YEARDAY is 0; *)
     var boolean: is_daylight_saving_time is FALSE;
   end struct;
 
@@ -114,23 +112,29 @@ const func time: (attr time) parse (in var string: stri) is func
     end if;
     stri := stri[2 ..];
     result.day := integer parse getint(stri);
-    if stri[1] <> ' ' then
-      raise RANGE_ERROR;
-    end if;
-    stri := stri[2 ..];
-    result.hour := integer parse getint(stri);
-    if stri[1] <> ':' then
-      raise RANGE_ERROR;
-    end if;
-    stri := stri[2 ..];
-    result.minute := integer parse getint(stri);
-    if stri[1] <> ':' then
-      raise RANGE_ERROR;
-    end if;
-    stri := stri[2 ..];
-    result.second := integer parse getint(stri);
     if stri <> "" then
-      raise RANGE_ERROR;
+      if stri[1] <> ' ' then
+        raise RANGE_ERROR;
+      end if;
+      stri := stri[2 ..];
+      result.hour := integer parse getint(stri);
+      if stri <> "" then
+        if stri[1] <> ':' then
+          raise RANGE_ERROR;
+        end if;
+        stri := stri[2 ..];
+        result.minute := integer parse getint(stri);
+        if stri <> "" then
+          if stri[1] <> ':' then
+            raise RANGE_ERROR;
+          end if;
+          stri := stri[2 ..];
+          result.second := integer parse getint(stri);
+          if stri <> "" then
+            raise RANGE_ERROR;
+          end if;
+        end if;
+      end if;
     end if;
     result.mycro_second := 0;
     result.timezone := 0;
@@ -512,21 +516,13 @@ const type: duration is new object struct
   end struct;
 
 
-const func integer: year (in duration: aDuration) is func
-  result
-    var integer: NUM_YEARS is 0;
-  begin
-    NUM_YEARS := aDuration.year_365 + aDuration.year_366;
-  end func;
+const func integer: year (in duration: aDuration) is
+  return aDuration.year_365 + aDuration.year_366;
 
 
-const func integer: month (in duration: aDuration) is func
-  result
-    var integer: NUM_MONTHS is 0;
-  begin
-    NUM_MONTHS := aDuration.month_28 + aDuration.month_29 +
-        aDuration.month_30 + aDuration.month_31;
-  end func;
+const func integer: month (in duration: aDuration) is
+  return aDuration.month_28 + aDuration.month_29 +
+      aDuration.month_30 + aDuration.month_31;
 
 
 const func string: str (in duration: aDuration) is func
@@ -648,9 +644,7 @@ const func boolean: (in duration: dur1) >= (in duration: dur2) is func
               if dur1.second > dur2.second then
                 result := TRUE;
               elsif dur1.second = dur2.second then
-                if dur1.mycro_second > dur2.mycro_second then
-                  result := TRUE;
-                elsif dur1.mycro_second = dur2.mycro_second then
+                if dur1.mycro_second >= dur2.mycro_second then
                   result := TRUE;
                 end if;
               end if;
@@ -660,6 +654,50 @@ const func boolean: (in duration: dur1) >= (in duration: dur2) is func
       end if;
     end if;
   end func;
+
+
+const func boolean: (in duration: dur1) <= (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    if dur1.year_365 + dur1.year_366 < dur2.year_365 + dur2.year_366 then
+      result := TRUE;
+    elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
+      if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 <
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        result := TRUE;
+      elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        if dur1.day < dur2.day then
+          result := TRUE;
+        elsif dur1.day = dur2.day then
+          if dur1.hour < dur2.hour then
+            result := TRUE;
+          elsif dur1.hour = dur2.hour then
+            if dur1.minute < dur2.minute then
+              result := TRUE;
+            elsif dur1.minute = dur2.minute then
+              if dur1.second < dur2.second then
+                result := TRUE;
+              elsif dur1.second = dur2.second then
+                if dur1.mycro_second <= dur2.mycro_second then
+                  result := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: (in duration: dur1) < (in duration: dur2) is
+  return not dur1 >= dur2;
+
+
+const func boolean: (in duration: dur1) > (in duration: dur2) is
+  return not dur1 <= dur2;
 
 
 const func integer: compare (in duration: dur1, in duration: dur2) is func
@@ -706,27 +744,27 @@ const func integer: hashCode (in duration: dur) is
       dur.hour + dur.minute + dur.second + dur.mycro_second;
 
 
-const func duration: (in integer: YRS) . YEARS is func
+const func duration: (in integer: numYears) . YEARS is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.year_365 := YRS;
+    dur_val.year_365 := numYears;
   end func;
 
 
-const func duration: (in integer: MONS) . MONTHS is func
+const func duration: (in integer: numMonths) . MONTHS is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.month_30 := MONS;
+    dur_val.month_30 := numMonths;
   end func;
 
 
-const func duration: (in integer: DS) . DAYS is func
+const func duration: (in integer: numDays) . DAYS is func
   result
     var duration: dur_val is duration.value;
   begin
-    dur_val.day := DS;
+    dur_val.day := numDays;
   end func;
 
 
@@ -762,80 +800,51 @@ const func duration: (in integer: MY_SECS) . MYCRO_SECONDS is func
   end func;
 
 
-const func integer: YEARS (in duration: dur_val) is func
-  result
-    var integer: NUM_YEARS is 0;
-  begin
-    NUM_YEARS := dur_val.year_365 + dur_val.year_366;
-  end func;
+const func integer: years (in duration: dur_val) is
+  return dur_val.year_365 + dur_val.year_366;
 
 
-const func integer: MONTHS (in duration: dur_val) is func
-  result
-    var integer: NUM_MONTHS is 0;
-  begin
-    NUM_MONTHS := (dur_val.year_365 + dur_val.year_366) * 12 +
-        dur_val.month_28 +
-        dur_val.month_29 +
-        dur_val.month_30 +
-        dur_val.month_31;
-  end func;
+const func integer: months (in duration: dur_val) is
+  return (dur_val.year_365 + dur_val.year_366) * 12 +
+      dur_val.month_28 +
+      dur_val.month_29 +
+      dur_val.month_30 +
+      dur_val.month_31;
 
 
-const func integer: DAYS (in duration: dur_val) is func
-  result
-    var integer: NUM_DAYS is 0;
-  begin
-    NUM_DAYS := dur_val.year_365 * 365 +
-        dur_val.year_366 * 366 +
-        dur_val.month_28 * 28 +
-        dur_val.month_29 * 29 +
-        dur_val.month_30 * 30 +
-        dur_val.month_31 * 31 +
-        dur_val.day;
-  end func;
+const func integer: days (in duration: dur_val) is
+  return dur_val.year_365 * 365 +
+      dur_val.year_366 * 366 +
+      dur_val.month_28 * 28 +
+      dur_val.month_29 * 29 +
+      dur_val.month_30 * 30 +
+      dur_val.month_31 * 31 +
+      dur_val.day;
 
 
-const func integer: HOURS (in duration: dur_val) is func
-  result
-    var integer: NUM_HOURS is 0;
-  begin
-    NUM_HOURS := DAYS(dur_val) * 24 +
-        dur_val.hour;
-  end func;
+const func integer: hours (in duration: dur_val) is
+  return days(dur_val) * 24 + dur_val.hour;
 
 
-const func integer: MINUTES (in duration: dur_val) is func
-  result
-    var integer: NUM_MINUTES is 0;
-  begin
-    NUM_MINUTES := (DAYS(dur_val) * 24 +
-        dur_val.hour) * 60 +
-        dur_val.minute;
-  end func;
+const func integer: minutes (in duration: dur_val) is
+  return (days(dur_val) * 24 +
+      dur_val.hour) * 60 +
+      dur_val.minute;
 
 
-const func integer: SECONDS (in duration: dur_val) is func
-  result
-    var integer: NUM_SECONDS is 0;
-  begin
-    NUM_SECONDS := ((DAYS(dur_val) * 24 +
-        dur_val.hour) * 60 +
-        dur_val.minute) * 60 +
-        dur_val.second;
-  end func;
+const func integer: seconds (in duration: dur_val) is
+  return ((days(dur_val) * 24 +
+      dur_val.hour) * 60 +
+      dur_val.minute) * 60 +
+      dur_val.second;
 
 
-const func integer: MYCRO_SECONDS (in duration: dur_val) is func
-  result
-    var integer: NUM_MYCRO_SECONDS is 0;
-  begin
-    NUM_MYCRO_SECONDS := (((DAYS(dur_val) * 24 +
-        dur_val.hour) * 60 +
-        dur_val.minute) * 60 +
-        dur_val.second) * 1000000 +
-        dur_val.mycro_second;
-  end func;
+const func integer: mycro_seconds (in duration: dur_val) is
+  return (((days(dur_val) * 24 +
+      dur_val.hour) * 60 +
+      dur_val.minute) * 60 +
+      dur_val.second) * 1000000 +
+      dur_val.mycro_second;
 
 
 const proc: NORMALIZE (inout duration: aDuration) is func

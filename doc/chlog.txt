@@ -63,9 +63,15 @@
   was changed to support unicode characters.
 - A new example program (planets) was added.
 
-
 20060724:
 - A new example program (bifurcation) was added.
 - A trim function to remove leading and trailing spaces from strings was added.
 - The windows graphic driver was improved to support windows 98.
 - A changelog (chlog) was added.
+
+20060808:
+- A description of the 'func', 'varfunc' and 'proc' types was added to the manual.
+- The 'parse' operator for the type 'time' was improved.
+- The operators '<=', '>' and '<' were added for the type 'duration'.
+- The windows graphic driver was improved to use the SetPixel function.
+- The filOpen function was changed to open files in binary mode.

@@ -164,7 +164,7 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (paint_window != NULL && paint_window->backup_hdc != 0) {
           if (GetUpdateRect(paint_window->hWnd, &rect, FALSE) != 0) {
             /* printf("GetUpdateRect left=%ld, top=%ld, right=%ld, bottom=%ld\n",
-	       rect.left, rect.top, rect.right, rect.bottom); */
+               rect.left, rect.top, rect.right, rect.bottom); */
             BitBlt(to_hdc(paint_window), rect.left, rect.top,
                 rect.right - rect.left, rect.bottom - rect.top,
                 to_backup_hdc(paint_window), rect.left, rect.top, SRCCOPY);
@@ -439,7 +439,7 @@ chartype gkbGetc ()
                     result = K_F10;
                   } /* if */
                   break;
-	        default:
+                default:
                   /* printf("WM_SYSKEYDOWN %lu, %d %X\n", msg.hwnd, msg.wParam, msg.lParam); */
                   result = K_UNDEF;
                   break;
@@ -1221,11 +1221,13 @@ inttype col;
     old_pen = SelectObject(to_hdc(actual_window), current_pen);
     MoveToEx(to_hdc(actual_window), x1, y1, NULL);
     LineTo(to_hdc(actual_window), x2, y2);
+    SetPixel(to_hdc(actual_window), x2, y2, (COLORREF) col);
     SelectObject(to_hdc(actual_window), old_pen);
     if (to_backup_hdc(actual_window) != 0) {
       old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
       MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
       LineTo(to_backup_hdc(actual_window), x2, y2);
+      SetPixel(to_backup_hdc(actual_window), x2, y2, (COLORREF) col);
       SelectObject(to_backup_hdc(actual_window), old_pen);
     } /* if */
     DeleteObject(current_pen);
@@ -1432,30 +1434,14 @@ inttype x, y;
 inttype col;
 #endif
 
-  {
-    HPEN old_pen;
-    HPEN current_pen;
-
-  /* drwPPoint */
+  { /* drwPPoint */
 #ifdef TRACE_WIN
     printf("drwPPoint(%lu, %ld, %ld, %lx)\n", actual_window, x, y, col); 
 #endif
-    /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
-    current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
-    if (current_pen == NULL) {
-      printf("drwPPoint pen with color %lx is NULL\n", col);
-    } /* if */
-    old_pen = SelectObject(to_hdc(actual_window), current_pen);
-    MoveToEx(to_hdc(actual_window), x, y, NULL);
-    LineTo(to_hdc(actual_window), x + 1, y + 1);
-    SelectObject(to_hdc(actual_window), old_pen);
+    SetPixel(to_hdc(actual_window), x, y, (COLORREF) col);
     if (to_backup_hdc(actual_window) != 0) {
-      old_pen = SelectObject(to_backup_hdc(actual_window), current_pen);
-      MoveToEx(to_backup_hdc(actual_window), x, y, NULL);
-      LineTo(to_backup_hdc(actual_window), x + 1, y + 1);
-      SelectObject(to_backup_hdc(actual_window), old_pen);
+      SetPixel(to_backup_hdc(actual_window), x, y, (COLORREF) col);
     } /* if */
-    DeleteObject(current_pen);
   } /* drwPPoint */
 
 
@@ -1503,8 +1489,7 @@ inttype col;
     old_brush = SelectObject(to_hdc(actual_window), current_brush);
     if (length_x == 1) {
       if (length_y == 1) {
-        MoveToEx(to_hdc(actual_window), x1, y1, NULL);
-        LineTo(to_hdc(actual_window), x1 + 1, y1 + 1);
+        SetPixel(to_hdc(actual_window), x1, y1, (COLORREF) col);
       } else {
         MoveToEx(to_hdc(actual_window), x1, y1, NULL);
         LineTo(to_hdc(actual_window), x1, y1 + length_y);
@@ -1524,8 +1509,7 @@ inttype col;
       old_brush = SelectObject(to_backup_hdc(actual_window), current_brush);
       if (length_x == 1) {
         if (length_y == 1) {
-          MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
-          LineTo(to_backup_hdc(actual_window), x1 + 1, y1 + 1);
+          SetPixel(to_backup_hdc(actual_window), x1, y1, (COLORREF) col);
         } else {
           MoveToEx(to_backup_hdc(actual_window), x1, y1, NULL);
           LineTo(to_backup_hdc(actual_window), x1, y1 + length_y);

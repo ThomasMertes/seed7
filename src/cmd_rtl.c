@@ -642,7 +642,7 @@ stritype dest_name;
     } else {
       os_dest_name = cp_to_cstri(dest_name);
       if (os_dest_name == NULL) {
-	err_info = MEMORY_ERROR;
+        err_info = MEMORY_ERROR;
       } else {
         copy_any_file(os_source_name, os_dest_name, &err_info); /* SYS_FILE_EXCEPTION */
         free_cstri(os_dest_name, dest_name);
@@ -824,7 +824,7 @@ stritype dest_name;
     } else {
       os_dest_name = cp_to_cstri(dest_name);
       if (os_dest_name == NULL) {
-	err_info = MEMORY_ERROR;
+        err_info = MEMORY_ERROR;
       } else {
         move_any_file(os_source_name, os_dest_name, &err_info); /* SYS_FILE_EXCEPTION */
         free_cstri(os_dest_name, dest_name);
@@ -953,7 +953,7 @@ stritype dest_name;
     } else {
       os_dest_name = cp_to_cstri(dest_name);
       if (os_dest_name == NULL) {
-	err_info = MEMORY_ERROR;
+        err_info = MEMORY_ERROR;
       } else {
 #ifdef OUT_OF_ORDER
         if (symlink(os_source_name, os_dest_name) != 0) {

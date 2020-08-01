@@ -314,7 +314,7 @@ hashtype hash;
       number = hash->table_size;
       curr_helem = &hash->table[0];
       while (number > 0) {
-	if (*curr_helem != NULL) {
+        if (*curr_helem != NULL) {
           result += size_helem(*curr_helem);
         } /* if */
         number--;
