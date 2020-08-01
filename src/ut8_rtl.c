@@ -41,6 +41,7 @@
 #include "errno.h"
 
 #include "common.h"
+#include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "fil_rtl.h"
@@ -135,7 +136,7 @@ static memSizeType read_utf8_string (fileType inFile, striType stri, errInfoType
           BUFFER_SIZE, inFile);
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         logError(printf("read_utf8_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
-                        (memSizeType) BUFFER_SIZE, fileno(inFile)););
+                        (memSizeType) BUFFER_SIZE, safe_fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
         /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
@@ -152,7 +153,7 @@ static memSizeType read_utf8_string (fileType inFile, striType stri, errInfoType
       if (bytes_in_buffer == 0 && stri_pos == 0 && ferror(inFile)) {
         logError(printf("read_utf8_string: fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
                         chars_missing - state.chars_there + state.bytes_missing,
-                        fileno(inFile)););
+                        safe_fileno(inFile)););
         *err_info = FILE_ERROR;
       } else {
         /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
@@ -192,7 +193,8 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
     striType result;
 
   /* read_and_alloc_utf8_stri */
-    /* printf("read_and_alloc_utf8_stri(%d, " FMT_U_MEM ", *, *)\n", fileno(inFile), chars_missing); */
+    logFunction(printf("read_and_alloc_utf8_stri(%d, " FMT_U_MEM ", *, *)\n",
+                       safe_fileno(inFile), chars_missing););
     if (!ALLOC_STRI_SIZE_OK(result, GETS_STRI_SIZE_DELTA)) {
       *err_info = MEMORY_ERROR;
       result = NULL;
@@ -208,7 +210,7 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
         if (bytes_in_buffer == 0 && result_pos == 0 && ferror(inFile)) {
           logError(printf("read_and_alloc_utf8_stri: "
                           "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
-                          (memSizeType) LIST_BUFFER_SIZE, fileno(inFile)););
+                          (memSizeType) LIST_BUFFER_SIZE, safe_fileno(inFile)););
           *err_info = FILE_ERROR;
         } else {
           /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
@@ -238,7 +240,7 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
           logError(printf("read_and_alloc_utf8_stri: "
                           "fread(*, 1, " FMT_U_MEM ", %d) failed.\n",
                           chars_missing - state.chars_there + state.bytes_missing,
-                          fileno(inFile)););
+                          safe_fileno(inFile)););
           *err_info = FILE_ERROR;
         } else {
           /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
@@ -262,6 +264,8 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
       } /* for */
       *num_of_chars_read = result_pos;
     } /* if */
+    logFunction(printf("read_and_alloc_utf8_stri(%d, " FMT_U_MEM ", " FMT_U_MEM ", %d) -->\n",
+                       safe_fileno(inFile), chars_missing, *num_of_chars_read, *err_info););
     return result;
   } /* read_and_alloc_utf8_stri */
 
@@ -491,7 +495,7 @@ striType ut8Gets (fileType inFile, intType length)
     striType result;
 
   /* ut8Gets */
-    /* printf("ut8Gets(%d, " FMT_D ")\n", fileno(inFile), length); */
+    logFunction(printf("ut8Gets(%d, " FMT_D ")\n", safe_fileno(inFile), length););
     if (length < 0) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -557,9 +561,8 @@ striType ut8Gets (fileType inFile, intType length)
         } /* if */
       } /* if */
     } /* if */
-    /* printf("ut8Gets(%d, " FMT_D ") ==> ", fileno(inFile), length);
-        prot_stri(result);
-        printf("\n"); */
+    logFunction(printf("ut8Gets(%d, " FMT_D ") --> \"%s\"",
+                       safe_fileno(inFile), length, striAsUnquotedCStri(result)););
     return result;
   } /* ut8Gets */
 
@@ -671,23 +674,23 @@ void ut8Seek (fileType aFile, intType position)
     int ch;
 
   /* ut8Seek */
-    logFunction(printf("ut8Seek(%d, " FMT_D ")\n", fileno(aFile), position););
+    logFunction(printf("ut8Seek(%d, " FMT_D ")\n", safe_fileno(aFile), position););
     if (position <= 0) {
       logError(printf("ut8Seek(%d, " FMT_D "): Position <= 0.\n",
-                      fileno(aFile), position););
+                      safe_fileno(aFile), position););
       raise_error(RANGE_ERROR);
 #if OS_OFF_T_SIZE < INTTYPE_SIZE
 #if OS_OFF_T_SIZE == 32
     } else if (unlikely(position > INT32TYPE_MAX)) {
       logError(printf("ut8Seek(%d, " FMT_D "): "
                       "Position not representable in the system file position type.\n",
-                      fileno(aFile), position););
+                      safe_fileno(aFile), position););
       raise_error(RANGE_ERROR);
 #elif OS_OFF_T_SIZE == 64
     } else if (unlikely(position > INT64TYPE_MAX)) {
       logError(printf("ut8Seek(%d, " FMT_D "): "
                       "Position not representable in the system file position type.\n",
-                      fileno(aFile), position););
+                      safe_fileno(aFile), position););
       raise_error(RANGE_ERROR);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."
@@ -697,8 +700,8 @@ void ut8Seek (fileType aFile, intType position)
       logError(printf("ut8Seek(%d, " FMT_D "): "
                       "offsetSeek(%d, " FMT_D ", SEEK_SET) failed.\n"
                       "errno=%d\nerror: %s\n",
-                      fileno(aFile), position,
-                      fileno(aFile), position - 1,
+                      safe_fileno(aFile), position,
+                      safe_fileno(aFile), position - 1,
                       errno, strerror(errno)););
       raise_error(FILE_ERROR);
     } else {
@@ -709,8 +712,8 @@ void ut8Seek (fileType aFile, intType position)
           logError(printf("ut8Seek(%d, " FMT_D "): "
                           "offsetSeek(%d, -1, SEEK_CUR) failed.\n"
                           "errno=%d\nerror: %s\n",
-                          fileno(aFile), position,
-                          fileno(aFile),
+                          safe_fileno(aFile), position,
+                          safe_fileno(aFile),
                           errno, strerror(errno)););
           raise_error(FILE_ERROR);
         } /* if */

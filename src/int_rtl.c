@@ -217,6 +217,7 @@ void setupRand (void)
 #endif
 
   /* setupRand */
+    logFunction(printf("setupRand()\n"););
     micro_sec = (uintType) timMicroSec();
     high_seed = (uintType) time(NULL);
     high_seed = high_seed ^ (high_seed << 16);
@@ -236,81 +237,6 @@ void setupRand (void)
     seed = (doubleUintType) high_seed << INTTYPE_SIZE | (doubleUintType) low_seed;
 #endif
   } /* setupRand */
-
-
-
-#ifdef OUT_OF_ORDER
-/**
- *  Multiply two uintType factors to an uintType product.
- *  A uintType number is splitted into two halve uintType parts.
- *  The bits of an uintType have the following memory layout:
- *  +-------------------+
- *  |     uintType      |
- *  +---------+---------+
- *  |  part1  |  part0  |
- *  +---------+---------+
- *   ^ highest bit     ^ lowest bit
- *  @exception OVERFLOW_ERROR When the multiplication overflows.
- *  @return the product
- */
-static uintType uint_safe_mult (uintType factor1, uintType factor2)
-
-  {
-    uintType factor1_part0;
-    uintType factor1_part1;
-    uintType factor2_part0;
-    uintType factor2_part1;
-    uintType c1;  /* memory layout:   | part[1] | part[0] |  */
-    uintType c2;  /* memory layout:   | part[2] | part[1] |  */
-    uintType product;
-
-  /* uint_safe_mult */
-    factor1_part0 = LOWER_HALF_OF_UINT(factor1);
-    factor1_part1 = UPPER_HALF_OF_UINT(factor1);
-    factor2_part0 = LOWER_HALF_OF_UINT(factor2);
-    factor2_part1 = UPPER_HALF_OF_UINT(factor2);
-    if (factor1_part1 == 0) {
-      c1 = factor1_part0 * factor2_part1;
-    } else if (factor2_part1 == 0) {
-      c1 = factor1_part1 * factor2_part0;
-    } else {
-      raise_error(OVERFLOW_ERROR);
-      return 0;
-    } /* if */
-    if (unlikely(c1 > UINT_LOWER_HALF_BITS_SET)) {
-      raise_error(OVERFLOW_ERROR);
-      return 0;
-    } else {
-      c1 <<= 32;
-      c2 = factor1_part0 * factor2_part0;
-      if (unlikely(c1 > UINTTYPE_MAX - c2)) {
-        raise_error(OVERFLOW_ERROR);
-        return 0;
-      } else {
-        product = c1 + c2;
-      } /* if */
-    } /* if */
-    return product;
-  } /* uint_safe_mult */
-
-
-
-static uintType uint_safe_mult2 (uintType factor1, uintType factor2)
-
-  {
-    uintType product;
-
-  /* uint_safe_mult2 */
-    if (factor1 != 0) {
-      if (unlikely(factor2 > UINTTYPE_MAX / factor1)) {
-        raise_error(OVERFLOW_ERROR);
-        return 0;
-      } /* if */
-    } /* if */
-    product = factor1 * factor2;
-    return product;
-  } /* uint_safe_mult2 */
-#endif
 
 
 
@@ -346,8 +272,8 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
     uintType product_low;
 
   /* uint_mult */
-    logFunction(printf("uint_mult(%08x, %08x)\n",
-                       (unsigned int) factor1, (unsigned int) factor2););
+    logFunction(printf("uint_mult(" F_X(08) ", " F_X(08) ")\n",
+                       factor1, factor2););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1);
     factor2_part[0] = LOWER_HALF_OF_UINT(factor2);
@@ -361,8 +287,8 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
     /* c5 contains the high uintType of factor1 * factor2 */
     product_low = UINT_BITS(factor1 * factor2);
     *product_high = UINT_BITS(c5);
-    logFunction(printf("uint_mult --> %08x%08x\n",
-                       (unsigned int) *product_high, (unsigned int) product_low););
+    logFunction(printf("uint_mult --> " F_X(08) F_X(08) "\n",
+                       *product_high, product_low););
     return product_low;
   } /* uint_mult */
 
@@ -402,9 +328,8 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
     uintType product_low;
 
   /* uint2_mult */
-    logFunction(printf("uint2_mult(%08x%08x, %08x%08x)\n",
-                       (unsigned int) factor1_high, (unsigned int) factor1_low,
-                       (unsigned int) factor2_high, (unsigned int) factor2_low););
+    logFunction(printf("uint2_mult(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
+                       factor1_high, factor1_low, factor2_high, factor2_low););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1_low);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1_low);
     factor2_part[0] = LOWER_HALF_OF_UINT(factor2_low);
@@ -420,8 +345,8 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
     *product_high = UINT_BITS(factor1_low * factor2_high + factor1_high * factor2_low + c5);
     /* factor1_high * factor2_high is not computed. All bits of it  */
     /* would be discarded, since they are higher than product_high. */
-    logFunction(printf("uint2_mult --> %08x%08x\n",
-                       (unsigned int) *product_high, (unsigned int) product_low););
+    logFunction(printf("uint2_mult --> " F_X(08) F_X(08) "\n",
+                       *product_high, product_low););
     return product_low;
   } /* uint2_mult */
 
@@ -450,9 +375,8 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
     uintType sum_low;
 
   /* uint2_add */
-    logFunction(printf("uint2_add(%08x%08x, %08x%08x)\n",
-                       (unsigned int) summand1_high, (unsigned int) summand1_low,
-                       (unsigned int) summand2_high, (unsigned int) summand2_low););
+    logFunction(printf("uint2_add(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
+                       summand1_high, summand1_low, summand2_high, summand2_low););
     sum_low = UINT_BITS(summand1_low + summand2_low);
     if (UINT_HIGHEST_BIT(summand1_low) + UINT_HIGHEST_BIT(summand2_low) +
         UINT_HIGHEST_BIT(UINT_BITS_WITHOUT_HIGHEST_BIT(summand1_low) +
@@ -461,8 +385,8 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
     } else {
       *sum_high = UINT_BITS(summand1_high + summand2_high);
     } /* if */
-    logFunction(printf("uint2_add --> %08x%08x\n",
-                       (unsigned int) *sum_high, (unsigned int) sum_low););
+    logFunction(printf("uint2_add --> " F_X(08) F_X(08) "\n",
+                       *sum_high, sum_low););
     return sum_low;
   } /* uint2_add */
 
@@ -523,9 +447,11 @@ uintType uintRandLimited (uintType rand_max)
     uintType rand_val;
 
   /* uintRandLimited */
+    logFunction(printf("uintRandLimited(" FMT_U ")\n", rand_max););
     do {
       rand_val = uintRand();
     } while (rand_val > rand_max);
+    logFunction(printf("uintRandLimited --> " FMT_U "\n", rand_val););
     return rand_val;
   } /* uintRandLimited */
 
@@ -537,6 +463,8 @@ static uintType uintGcd (uintType number1, uintType number2)
     uintType temp;
 
   /* uintGcd */
+    logFunction(printf("uintGcd(" FMT_D ", " FMT_D ")\n",
+                       number1, number2););
     if (number2 < number1) {
       temp = number1;
       number1 = number2;
@@ -547,6 +475,7 @@ static uintType uintGcd (uintType number1, uintType number2)
       number2 = number1 % number2;
       number1 = temp;
     } /* while */
+    logFunction(printf("uintGcd --> " FMT_D "\n", number1););
     return number1;
   } /* uintGcd */
 
@@ -1659,6 +1588,8 @@ striType intLpad0 (intType number, const intType pad_size)
     striType result;
 
   /* intLpad0 */
+    logFunction(printf("intLpad0(" FMT_D ", " FMT_D ")\n",
+                       number, pad_size););
     negative = (number < 0);
     if (negative) {
       unsigned_number = (uintType) -number;
@@ -1681,7 +1612,6 @@ striType intLpad0 (intType number, const intType pad_size)
     } /* if */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = result_size;
       buffer = &result->mem[result_size];
@@ -1698,8 +1628,10 @@ striType intLpad0 (intType number, const intType pad_size)
           result->mem[0] = (strElemType) '0';
         } /* if */
       } /* if */
-      return result;
     } /* if */
+    logFunction(printf("intLpad0 --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
+    return result;
   } /* intLpad0 */
 
 
@@ -1743,22 +1675,32 @@ intType intParse (const const_striType stri)
         if (uint_value <= MAX_DIV_10) {
           uint_value = ((uintType) 10) * uint_value + digitval;
         } else {
+          logError(printf("intParse(\"%s\"): "
+                          "Absolute value of literal is too big.\n",
+                          striAsUnquotedCStri(stri)););
           okay = FALSE;
         } /* if */
         position++;
       } /* while */
     } /* if */
     if (position == 0 || position < stri->size) {
+      logError(printf("intParse(\"%s\"): "
+                      "Literal empty or contains an illegal character.\n",
+                      striAsUnquotedCStri(stri)););
       okay = FALSE;
     } /* if */
     if (likely(okay)) {
       if (negative) {
         if (uint_value > (uintType) INTTYPE_MAX + 1) {
+          logError(printf("intParse(\"%s\"): Literal too small.\n",
+                          striAsUnquotedCStri(stri)););
           okay = FALSE;
         } else {
           int_value = (intType) -uint_value;
         } /* if */
       } else if (uint_value > (uintType) INTTYPE_MAX) {
+        logError(printf("intParse(\"%s\"): Literal too big.\n",
+                        striAsUnquotedCStri(stri)););
         okay = FALSE;
       } else {
         int_value = (intType) uint_value;

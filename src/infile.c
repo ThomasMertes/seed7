@@ -118,8 +118,7 @@ static inline boolType speedup (void)
       if (file_stat.st_size >= 0 && (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {
         file_length = (memSizeType) file_stat.st_size;
         if ((in_file.start = (ustriType) mmap(NULL, file_length,
-            PROT_READ, MAP_PRIVATE, fileno(in_file.fil),
-            0)) != (ustriType) -1) {
+            PROT_READ, MAP_PRIVATE, file_no, 0)) != (ustriType) -1) {
           in_file.nextch = in_file.start;
           in_file.beyond = in_file.start + file_length;
           in_file.buffer_size = 0;

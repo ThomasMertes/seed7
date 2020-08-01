@@ -175,7 +175,7 @@ const func smtpConnection: openSmtp (in string: hostName,
 
 
 (**
- *  Login as ''user'' with ''password''. 
+ *  Login as ''user'' with ''password''.
  *  @param smtp Open smtp connection.
  *  @param user Username to be used for the login.
  *  @param password Password to be used for the login.

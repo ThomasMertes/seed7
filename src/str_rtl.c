@@ -1195,6 +1195,8 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
     rtlArrayType result_array;
 
   /* strChSplit */
+    logFunction(printf("strChSplit(\"%s\", '\\" FMT_U32 ";')\n",
+                       striAsUnquotedCStri(mainStri), delimiter););
     if (ALLOC_RTL_ARRAY(result_array, 256)) {
       result_array->min_position = 1;
       result_array->max_position = 256;
@@ -1427,10 +1429,9 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
   /* strConcatN */
     logFunction(printf("strConcatN(" FMT_U_MEM ")\n", arraySize););
     for (pos = arraySize; pos > 0; pos--) {
-      /* printf("arr[%lu]->size=%lu\n", pos, striArray[pos - 1]->size);
-      printf("arr[%lu]=(%08lx) ", pos, striArray[pos - 1]);
-      prot_stri(striArray[pos - 1]);
-      printf("\n"); */
+      /* printf("arr[" FMT_U_MEM "]->size=" FMT_U_MEM "\n", pos, striArray[pos - 1]->size);
+      printf("arr[" FMT_U_MEM "]=(" F_X_MEM(08) ") \"%s\"\n",
+      pos, striArray[pos - 1], striAsUnquotedCStri(striArray[pos - 1])); */
       if (unlikely(striArray[pos - 1]->size > size_limit)) {
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -1439,7 +1440,7 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
       } /* if */
     } /* for */
     result_size = MAX_STRI_LEN - size_limit;
-    /* printf("result_size=%lu\n", result_size); */
+    /* printf("result_size=" FMT_U_MEM "\n", result_size); */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -1471,6 +1472,9 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
     striType resized_stri1;
 
   /* strConcatTemp */
+    logFunction(printf("strConcatTemp(\"%s\", ", striAsUnquotedCStri(stri1));
+                printf("\"%s\")", striAsUnquotedCStri(stri2));
+                fflush(stdout););
     if (unlikely(stri1->size > MAX_STRI_LEN - stri2->size)) {
       /* number of bytes does not fit into memSizeType */
       FREE_STRI(stri1, stri1->size);
@@ -1508,6 +1512,7 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
       } /* if */
 #endif
     } /* if */
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(stri1)););
     return stri1;
   } /* strConcatTemp */
 
@@ -1660,6 +1665,8 @@ striType strCreate (const const_striType stri_from)
     striType result;
 
   /* strCreate */
+    logFunction(printf("strCreate(\"%s\")", striAsUnquotedCStri(stri_from));
+                fflush(stdout););
     new_size = stri_from->size;
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, new_size))) {
       raise_error(MEMORY_ERROR);
@@ -1669,6 +1676,7 @@ striType strCreate (const const_striType stri_from)
         memcpy(result->mem, stri_from->mem, new_size * sizeof(strElemType));
       } /* if */
     } /* if */
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strCreate */
 
@@ -1697,7 +1705,7 @@ genericType strCreateGeneric (const genericType from_value)
 void strDestr (const const_striType old_string)
 
   { /* strDestr */
-    /* printf("strDestr(%lX)\n", old_string); */
+    logFunction(printf("strDestr(\"%s\")\n", striAsUnquotedCStri(old_string)););
     if (old_string != NULL) {
       FREE_STRI(old_string, old_string->size);
     } /* if */
@@ -1725,11 +1733,14 @@ striType strEmpty (void)
     striType result;
 
   /* strEmpty */
+    logFunction(printf("strEmpty()");
+                fflush(stdout););
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, 0))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = 0;
     } /* if */
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strEmpty */
 
@@ -1832,6 +1843,9 @@ striType strHead (const const_striType stri, const intType stop)
     striType result;
 
   /* strHead */
+    logFunction(printf("strHead(\"%s\", " FMT_D ")",
+                       striAsUnquotedCStri(stri), stop);
+                fflush(stdout););
     striSize = stri->size;
     if (stop >= 1 && striSize >= 1) {
       if (striSize <= (uintType) stop) {
@@ -1852,6 +1866,7 @@ striType strHead (const const_striType stri, const intType stop)
         result->size = 0;
       } /* if */
     } /* if */
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strHead */
 
@@ -2642,6 +2657,9 @@ void strPush (striType *const destination, const charType extension)
     striType stri_dest;
 
   /* strPush */
+    logFunction(printf("strPush(\"%s\", '\\" FMT_U32 ";')\n",
+                       striAsUnquotedCStri(*destination), extension);
+                fflush(stdout););
     stri_dest = *destination;
     new_size = stri_dest->size + 1;
 #ifdef WITH_STRI_CAPACITY
@@ -2668,6 +2686,7 @@ void strPush (striType *const destination, const charType extension)
       *destination = stri_dest;
     } /* if */
 #endif
+    logFunction(printf(" --> \"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strPush */
 
 

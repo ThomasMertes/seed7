@@ -53,6 +53,8 @@
  *      The redirect command to redirect the errors of the C compiler to a file.
  *  LINKER_OPT_OUTPUT_FILE:
  *      Contains the linker option to provide the output filename (e.g.: "-o ").
+ *  SYSTEM_LIBS:
+ *      Contains system libraries for the stand-alone linker.
  */
 
 #include "stdlib.h"
@@ -242,7 +244,7 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
     int len;
     char fileName[1024];
     int returncode;
-    int result = 0;
+    int okay = 0;
 
   /* doCompileAndLink */
 #ifdef CC_FLAGS
@@ -252,7 +254,7 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
     sprintf(command, "%s %s ctest.c %s",
             c_compiler, options, linkerOptions);
 #endif
-#if defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
+#if !defined LINKER && defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
     sprintf(&command[strlen(command)], " %sctest%s",
             LINKER_OPT_OUTPUT_FILE, EXECUTABLE_FILE_EXTENSION);
 #endif
@@ -269,11 +271,21 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
       command[len + 2] = '\0';
     } /* if */
 #endif
+    /* fprintf(logFile, "command: %s\n", command); */
     returncode = system(command);
+#ifdef LINKER
+    if (returncode == 0) {
+      /* fprintf(logFile, "returncode: %d\n", returncode); */
+      sprintf(command, "%s ctest%s %s %sctest%s",
+              LINKER, OBJECT_FILE_EXTENSION, linkerOptions,
+              LINKER_OPT_OUTPUT_FILE, EXECUTABLE_FILE_EXTENSION);
+      returncode = system(command);
+    } /* if */
+#endif
     sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
     if (fileIsRegular(fileName)) {
       if (returncode == 0) {
-        result = 1;
+        okay = 1;
       } else {
         /* fprintf(logFile, " *** The compiler %s fails, but creates an executable.", c_compiler); */
       } /* if */
@@ -284,9 +296,9 @@ int doCompileAndLink (const char *options, const char *linkerOptions)
     if (returncode == -1) {
       fprintf(logFile, "errno: %d\nerror: %s\n", errno, strerror(errno));
     } /* if */
-    fprintf(logFile, "result: %d\n", result);
+    fprintf(logFile, "okay: %d\n", okay);
 #endif
-    return result;
+    return okay;
   } /* doCompileAndLink */
 
 
@@ -296,7 +308,7 @@ int compileAndLinkWithOptionsOk (const char *content, const char *options,
 
   {
     FILE *testFile;
-    int result = 0;
+    int okay = 0;
 
   /* compileAndLinkWithOptionsOk */
     /* fprintf(logFile, "compileAndLinkWithOptionsOk(%s)\n", content); */
@@ -305,13 +317,30 @@ int compileAndLinkWithOptionsOk (const char *content, const char *options,
     if (testFile != NULL) {
       fprintf(testFile, "%s", content);
       fclose(testFile);
-      result = doCompileAndLink(options, linkerOptions);
+      okay = doCompileAndLink(options, linkerOptions);
     } /* if */
 #ifdef DEBUG_CHKCCOMP
     fprintf(logFile, "content: %s\n", content);
 #endif
-    return result;
+    /* fprintf(logFile, "compileAndLinkWithOptionsOk --> %d\n", okay); */
+    return okay;
   } /* compileAndLinkWithOptionsOk */
+
+
+
+int assertCompAndLnkWithOptions (const char *content, const char *options,
+    const char *linkerOptions)
+
+  {
+    int okay;
+
+  /* assertCompAndLnkWithOptions */
+    okay = compileAndLinkWithOptionsOk(content, options, linkerOptions);
+    if (!okay) {
+      fprintf(logFile, " **** Compile and link failed for:\n%s\n", content);
+    } /* if */
+    return okay;
+  } /* assertCompAndLnkWithOptions */
 
 
 
@@ -323,10 +352,26 @@ int compileAndLinkOk (const char *content)
 
 
 
+int assertCompAndLnk (const char *content)
+
+  {
+    int okay;
+
+  /* assertCompAndLnk */
+    okay = compileAndLinkOk(content);
+    if (!okay) {
+      fprintf(logFile, " **** Compile and link failed for:\n%s\n", content);
+    } /* if */
+    return okay;
+  } /* assertCompAndLnk */
+
+
+
 int doTest (void)
 
   {
     char command[1024];
+    int returncode;
     FILE *outFile;
     int result = -1;
 
@@ -337,7 +382,8 @@ int doTest (void)
 #else
     sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
 #endif
-    if (system(command) != -1 && (outFile = fopen("ctest.out", "r")) != NULL) {
+    returncode = system(command);
+    if (returncode != -1 && (outFile = fopen("ctest.out", "r")) != NULL) {
       fscanf(outFile, "%d", &result);
       fclose(outFile);
     } /* if */
@@ -527,7 +573,7 @@ void checkPopen (FILE *versionFile)
                       LIST_DIRECTORY_CONTENTS
                       "\", \"rb\");\n"
                       "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
-      if (compileAndLinkOk(buffer)) {
+      if (assertCompAndLnk(buffer)) {
         binary_mode_supported = doTest() == 1;
         fprintf(versionFile, "#define POPEN_SUPPORTS_BINARY_MODE %d\n", binary_mode_supported);
         if (binary_mode_supported) {
@@ -540,7 +586,7 @@ void checkPopen (FILE *versionFile)
                       LIST_DIRECTORY_CONTENTS
                       "\", \"rt\");\n"
                       "printf(\"%%d\\n\", aFile != NULL); return 0;}\n", popen);
-      if (compileAndLinkOk(buffer)) {
+      if (assertCompAndLnk(buffer)) {
         fprintf(versionFile, "#define POPEN_SUPPORTS_TEXT_MODE %d\n", doTest() == 1);
       } /* if */
       sprintf(buffer, "#include <stdio.h>\nint main(int argc, char *argv[])\n"
@@ -548,7 +594,7 @@ void checkPopen (FILE *versionFile)
                       LIST_DIRECTORY_CONTENTS
                       "\", \"r\");\n"
                       "printf(\"%%d\\n\", ftell(aFile) != -1); return 0;}\n", popen);
-      if (compileAndLinkOk(buffer)) {
+      if (assertCompAndLnk(buffer)) {
         fprintf(versionFile, "#define FTELL_SUCCEEDS_FOR_PIPE %d\n", doTest() == 1);
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\n"
@@ -565,7 +611,7 @@ void checkPopen (FILE *versionFile)
                           "else printf(\"0\\n\"); return 0;}\n",
                           popen, PATH_DELIMITER == '\\' ? "\\" : "", PATH_DELIMITER,
                           EXECUTABLE_FILE_EXTENSION, binary_mode);
-          if (compileAndLinkOk(buffer)) {
+          if (assertCompAndLnk(buffer)) {
             fprintf(versionFile, "#define STDOUT_IS_IN_TEXT_MODE %d\n", doTest() == 1);
           } /* if */
           doRemove("ctest2" EXECUTABLE_FILE_EXTENSION);
@@ -643,6 +689,7 @@ int getSizeof (const char *typeName)
     sprintf(buffer, "#include <stdio.h>\n"
                     "#include <stddef.h>\n"
                     "#include <time.h>\n"
+                    "#include <sys/types.h>\n"
                     "#include \"tst_vers.h\"\n"
                     "int main(int argc, char *argv[])"
                     "{printf(\"%%d\\n\",(int)sizeof(%s));return 0;}\n",
@@ -984,14 +1031,7 @@ void numericProperties (FILE *versionFile)
   {
     int testResult;
     char buffer[4096];
-    int zero_divide_triggers_signal = 0;
-    float zero = 0.0;
-    float negativeZero;
-    float minusZero;
-    float nanValue1;
-    float nanValue2;
-    float plusInf;
-    float minusInf;
+    char computeValues[4096];
 
   /* numericProperties */
     fprintf(logFile, "Numeric properties:");
@@ -1030,7 +1070,7 @@ void numericProperties (FILE *versionFile)
                strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
       fputs("#define ROUND_HALF_UP\n", versionFile);
     } /* if */
-    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{int maxExp10;char buffer[128];\n"
                          "sprintf(buffer, \"%1.10e\", DBL_MAX);\n"
@@ -1038,7 +1078,7 @@ void numericProperties (FILE *versionFile)
                          "printf(\"%d\\n\",maxExp10);return 0;}\n")) {
       fprintf(versionFile, "#define DOUBLE_MAX_EXP10 %d\n", doTest());
     } /* if */
-    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{int maxExp10;char buffer[128];\n"
                          "sprintf(buffer, \"%1.10e\", DBL_MAX);\n"
@@ -1047,21 +1087,21 @@ void numericProperties (FILE *versionFile)
                          "printf(\"%d\\n\",(int)strlen(buffer));return 0;}\n")) {
       fprintf(versionFile, "#define DOUBLE_MAX_EXP10_DIGITS %u\n", doTest());
     } /* if */
-    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{char buffer[128];\n"
                          "sprintf(buffer, \"%1.14e\", 1.12345678901234);\n"
                          "printf(\"%d\\n\",(int)strlen(buffer)-18);return 0;}\n")) {
       fprintf(versionFile, "#define DOUBLE_MIN_EXP10_DIGITS %u\n", doTest());
     } /* if */
-    if (compileAndLinkOk("#include<stdio.h>\n#include<float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{printf(\"%d\\n\",FLT_DIG);return 0;}\n")) {
       testResult = doTest();
       fprintf(versionFile, "#define FLOAT_STR_FORMAT \"%%1.%de\"\n", testResult - 1);
       fprintf(versionFile, "#define FLOAT_STR_LARGE_NUMBER 1.0e%d\n", testResult);
     } /* if */
-    if (compileAndLinkOk("#include<stdio.h>\n#include<float.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[])\n"
                          "{printf(\"%d\\n\",DBL_DIG);return 0;}\n")) {
       testResult = doTest();
@@ -1081,6 +1121,13 @@ void numericProperties (FILE *versionFile)
                           "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
       fputs("#define FLOAT_ZERO_DIV_ERROR\n", versionFile);
     } /* if */
+    strcpy(computeValues,
+           "float zero = 0.0;\n"
+           "float negativeZero;\n"
+           "float nanValue1;\n"
+           "float nanValue2;\n"
+           "float plusInf;\n"
+           "float minusInf;\n");
     if (!compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
                           "void handleSig(int sig){puts(\"2\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
@@ -1090,62 +1137,89 @@ void numericProperties (FILE *versionFile)
 #endif
                           "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
                           "printf(\"%d\\n\",1.0/zero==0.0);return 0;}\n") || doTest() == 2) {
-      fputs("#define CHECK_FLOAT_DIV_BY_ZERO\n", versionFile);
-      zero_divide_triggers_signal = 1;
-      if (sizeof(float) == sizeof(int)) {
-        union {
-          unsigned int i;
-          float f;
-        } transfer;
-        transfer.i = 0xffc00000;
-        nanValue1 = transfer.f;
-        transfer.i = 0x7f800000;
-        plusInf = transfer.f;
-        transfer.i = 0xff800000;
-        minusInf = transfer.f;
-        transfer.i = 0x80000000;
-        negativeZero = transfer.f;
-      } else if (sizeof(float) == sizeof(long)) {
-        union {
-          unsigned long i;
-          float f;
-        } transfer;
-        transfer.i = 0xffc00000;
-        nanValue1 = transfer.f;
-        transfer.i = 0x7f800000;
-        plusInf = transfer.f;
-        transfer.i = 0xff800000;
-        minusInf = transfer.f;
-        transfer.i = 0x80000000;
-        negativeZero = transfer.f;
+      fputs("#define CHECK_FLOAT_DIV_BY_ZERO 1\n", versionFile);
+      fputs("#define USE_NEGATIVE_ZERO_BITPATTERN 1\n", versionFile);
+      if (getSizeof("float") == getSizeof("int")) {
+        strcat(computeValues,
+               "union {\n"
+               "  unsigned int i;\n"
+               "  float f;\n"
+               "} transfer;\n"
+#ifdef TURN_OFF_FP_EXCEPTIONS
+               "_control87(MCW_EM, MCW_EM);\n"
+#endif
+               "transfer.i = 0xffc00000;\n"
+               "nanValue1 = transfer.f;\n"
+               "transfer.i = 0x7f800000;\n"
+               "plusInf = transfer.f;\n"
+               "transfer.i = 0xff800000;\n"
+               "minusInf = transfer.f;\n"
+               "transfer.i = 0x80000000;\n"
+               "negativeZero = transfer.f;\n"
+               "nanValue2 = nanValue1;\n");
+      } else if (getSizeof("float") == getSizeof("long")) {
+        sprintf(computeValues,
+               "union {\n"
+               "  unsigned long i;\n"
+               "  float f;\n"
+               "} transfer;\n"
+#ifdef TURN_OFF_FP_EXCEPTIONS
+               "_control87(MCW_EM, MCW_EM);\n"
+#endif
+               "transfer.i = 0xffc00000;\n"
+               "nanValue1 = transfer.f;\n"
+               "transfer.i = 0x7f800000;\n"
+               "plusInf = transfer.f;\n"
+               "transfer.i = 0xff800000;\n"
+               "minusInf = transfer.f;\n"
+               "transfer.i = 0x80000000;\n"
+               "negativeZero = transfer.f;\n"
+               "nanValue2 = nanValue1;\n");
       } /* if */
-      nanValue2 = nanValue1;
     } else {
-      nanValue1 = 0.0 / zero;
-      nanValue2 = 0.0 / zero;
-      plusInf = 1.0 / zero;
-      minusInf = -plusInf;
-      negativeZero = -1.0 / plusInf;
-      if (plusInf == minusInf || -1.0 / zero != minusInf) {
-        fputs("#define CHECK_FLOAT_DIV_BY_ZERO\n", versionFile);
+      strcat(computeValues,
+#ifdef TURN_OFF_FP_EXCEPTIONS
+             "_control87(MCW_EM, MCW_EM);\n"
+#endif
+             "nanValue1 = 0.0 / zero;\n"
+             "nanValue2 = 0.0 / zero;\n"
+             "plusInf = 1.0 / zero;\n"
+             "minusInf = -plusInf;\n"
+             "negativeZero = -1.0 / plusInf;\n");
+      sprintf(buffer,
+              "#include<stdio.h>\n#include<float.h>\n"
+              "int main(int argc,char *argv[]){\n"
+              "float minusZero;\n"
+              "%s"
+              "printf(\"#define CHECK_FLOAT_DIV_BY_ZERO %%d\\n\",\n"
+              "    plusInf == minusInf || -1.0 / zero != minusInf);\n"
+              "minusZero = -zero;\n"
+              "printf(\"#define USE_NEGATIVE_ZERO_BITPATTERN %%d\\n\",\n"
+              "    memcmp(&negativeZero, &minusZero, sizeof(float)) != 0);\n"
+              "return 0;}\n", computeValues);
+      if (assertCompAndLnk(buffer)) {
+        testOutputToVersionFile(versionFile);
       } /* if */
     } /* if */
-    if (0.0 * plusInf != nanValue1 || 0.0 * minusInf != nanValue1 ||
-        plusInf * 0.0 != nanValue1 || minusInf * 0.0 != nanValue1) {
-      fputs("#define FLOAT_ZERO_TIMES_INFINITE_WRONG\n", versionFile);
-    } /* if */
-    if (nanValue1 == nanValue2 ||
-        nanValue1 <  nanValue2 || nanValue1 >  nanValue2 ||
-        nanValue1 <= nanValue2 || nanValue1 >= nanValue2) {
-      fputs("#define NAN_COMPARISON_WRONG\n", versionFile);
-    } /* if */
-    minusZero = -zero;
-    if (zero_divide_triggers_signal ||
-        memcmp(&negativeZero, &minusZero, sizeof(float)) != 0) {
-      fputs("#define USE_NEGATIVE_ZERO_BITPATTERN\n", versionFile);
-    } /* if */
-    if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {
-      fputs("#define POWER_OF_ZERO_WRONG\n", versionFile);
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "int main(int argc,char *argv[]){\n"
+            "%s"
+            "if (0.0 * plusInf != nanValue1 || 0.0 * minusInf != nanValue1 ||\n"
+            "    plusInf * 0.0 != nanValue1 || minusInf * 0.0 != nanValue1) {\n"
+            "  puts(\"#define FLOAT_ZERO_TIMES_INFINITE_WRONG\");\n"
+            "}\n"
+            "if (nanValue1 == nanValue2 ||\n"
+            "    nanValue1 <  nanValue2 || nanValue1 >  nanValue2 ||\n"
+            "    nanValue1 <= nanValue2 || nanValue1 >= nanValue2) {\n"
+            "  puts(\"#define NAN_COMPARISON_WRONG\");\n"
+            "}\n"
+            "if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {\n"
+            "  puts(\"#define POWER_OF_ZERO_WRONG\");\n"
+            "}\n"
+            "return 0;}\n", computeValues);
+    if (assertCompAndLnkWithOptions(buffer, "", SYSTEM_LIBS)) {
+      testOutputToVersionFile(versionFile);
     } /* if */
     if (!compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
                           "{float f=0.0; isnan(f); return 0;}\n") &&
@@ -1158,8 +1232,18 @@ void numericProperties (FILE *versionFile)
       if (compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
                            "{float f=0.0; _isinf(f); return 0;}\n")) {
         fputs("#define isinf _isinf\n", versionFile);
-      } else if (fabs(plusInf) > DBL_MAX && fabs(minusInf) > DBL_MAX) {
-        fputs("#define isinf(x) (fabs(x) > DBL_MAX)\n", versionFile);
+      } else {
+        sprintf(buffer,
+                "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+                "int main(int argc,char *argv[]){\n"
+                "%s"
+                "printf(\"%%d\\n\", fabs(plusInf) > DBL_MAX && fabs(minusInf) > DBL_MAX);\n"
+                "return 0;}\n", computeValues);
+        if (assertCompAndLnk(buffer)) {
+          if (doTest() == 1) {
+            fputs("#define isinf(x) (fabs(x) > DBL_MAX)\n", versionFile);
+          } /* if */
+        } /* if */
       } /* if */
     } /* if */
     if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
@@ -1183,9 +1267,12 @@ void numericProperties (FILE *versionFile)
         fprintf(versionFile, "#define FLOAT_TO_INT_OVERFLOW_GARBAGE %d\n", testResult);
       } /* if */
     } /* if */
-    if (compileAndLinkOk("#include<stdio.h>\n#include<float.h>\n"
+    if (assertCompAndLnkWithOptions("#include<stdio.h>\n#include<float.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "int floatRadixFactor;\n"
+#ifdef TURN_OFF_FP_EXCEPTIONS
+                         "_control87(MCW_EM, MCW_EM);\n"
+#endif
                          "if (FLT_RADIX == 2) floatRadixFactor = 1;\n"
                          "else if (FLT_RADIX == 4) floatRadixFactor = 2;\n"
                          "else if (FLT_RADIX == 8) floatRadixFactor = 3;\n"
@@ -1194,18 +1281,29 @@ void numericProperties (FILE *versionFile)
                          "printf(\"#define FLOAT_MANTISSA_SHIFT %u\\n\", FLT_MANT_DIG * floatRadixFactor);\n"
                          "printf(\"#define DOUBLE_MANTISSA_FACTOR %0.1f\\n\", pow((double) FLT_RADIX, (double) DBL_MANT_DIG));\n"
                          "printf(\"#define DOUBLE_MANTISSA_SHIFT %u\\n\", DBL_MANT_DIG * floatRadixFactor);\n"
-                         "return 0;}\n")) {
+				    "return 0;}\n", "", SYSTEM_LIBS)) {
       testOutputToVersionFile(versionFile);
     } /* if */
-    if (compileAndLinkOk("#include<stdio.h>\n#include<string.h>\n"
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[100003];\n"
-                         "sprintf(buffer, \"%1.100000f\", 1.0);\n"
-                         "printf(\"%lu\\n\",(unsigned long)strlen(buffer));\n"
+                         "sprintf(buffer, \"%1.100000e\", 1.0);\n"
+                         "printf(\"%lu\\n\", (unsigned long) (strchr(buffer, 'e') - buffer));\n"
                          "return 0;}\n")) {
       testResult = doTest();
       if (testResult >= 2 && testResult < 100002) {
-        fprintf(versionFile, "#define PRINTF_MAXIMUM_FLOAT_PRECISION %d\n", testResult - 2);
+        fprintf(versionFile, "#define PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION %d\n", testResult - 2);
+      } /* if */
+    } /* if */
+    if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "char buffer[100003];\n"
+                         "sprintf(buffer, \"%1.100000f\", 1.0);\n"
+                         "printf(\"%lu\\n\", (unsigned long) strlen(buffer));\n"
+                         "return 0;}\n")) {
+      testResult = doTest();
+      if (testResult >= 2 && testResult < 100002) {
+        fprintf(versionFile, "#define PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION %d\n", testResult - 2);
       } /* if */
     } /* if */
     fprintf(logFile, " determined\n");
@@ -1290,6 +1388,31 @@ void checkForLimitedStringLiteralLength (FILE *versionFile)
 
 
 
+void detemineStackDirection (FILE *versionFile)
+
+  {
+    int stackDir;
+
+  /* detemineStackDirection */
+    if (compileAndLinkOk("#include <stdio.h>\n"
+                         "char *stack_base;\n"
+                         "void subFunc()\n"
+                         "{char localVar;\n"
+                         "printf(\"%d\\n\",stack_base<&localVar);return;}\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{char mainVar;stack_base=&mainVar;\n"
+                         "subFunc();return 0;}\n") &&
+        (stackDir = doTest()) != -1) {
+      if (stackDir) {
+        fputs("#define STACK_GROWS_UPWARD\n", versionFile);
+      } else {
+        fputs("#define STACK_GROWS_DOWNWARD\n", versionFile);
+      } /* if */
+    } /* if */
+  } /* detemineStackDirection */
+
+
+
 void localtimeProperties (FILE *versionFile)
 
   { /* localtimeProperties */
@@ -1300,7 +1423,7 @@ void localtimeProperties (FILE *versionFile)
     if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
                          "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
       fputs("#define USE_LOCALTIME_R\n", versionFile);
-      if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
+      if (assertCompAndLnk("#include <stdio.h>\n#include<time.h>\n"
                            "int main(int argc,char *argv[])"
                            "{time_t ts=-2147483647-1;struct tm res;struct tm*lt;\n"
                            "lt=localtime_r(&ts,&res);\n"
@@ -1310,13 +1433,13 @@ void localtimeProperties (FILE *versionFile)
     } else if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
                                 "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
       fputs("#define USE_LOCALTIME_S\n", versionFile);
-      if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
+      if (assertCompAndLnk("#include <stdio.h>\n#include<time.h>\n"
                            "int main(int argc,char *argv[])"
                            "{time_t ts=-2147483647-1;struct tm res;\n"
                            "printf(\"%d\\n\",localtime_s(&res,&ts)==0&&res.tm_year==1);return 0;}\n")) {
         fprintf(versionFile, "#define LOCALTIME_WORKS_SIGNED %d\n", doTest() == 1);
       } /* if */
-    } else if (compileAndLinkOk("#include <stdio.h>\n#include<time.h>\n"
+    } else if (assertCompAndLnk("#include <stdio.h>\n#include<time.h>\n"
                                 "int main(int argc,char *argv[])"
                                 "{time_t ts=-2147483647-1;struct tm*lt;\n"
                                 "lt = localtime(&ts);\n"
@@ -1374,28 +1497,43 @@ void determineEnvironDefines (FILE *versionFile)
 
 
 
-void detemineStackDirection (FILE *versionFile)
+void determineGetaddrlimit (FILE *versionFile)
 
   {
-    int stackDir;
+    int has_getrlimit;
 
-  /* detemineStackDirection */
-    if (compileAndLinkOk("#include <stdio.h>\n"
-                         "char *stack_base;\n"
-                         "void subFunc()\n"
-                         "{char localVar;\n"
-                         "printf(\"%d\\n\",stack_base<&localVar);return;}\n"
-                         "int main(int argc, char *argv[])\n"
-                         "{char mainVar;stack_base=&mainVar;\n"
-                         "subFunc();return 0;}\n") &&
-        (stackDir = doTest()) != -1) {
-      if (stackDir) {
-        fputs("#define STACK_GROWS_UPWARD\n", versionFile);
-      } else {
-        fputs("#define STACK_GROWS_DOWNWARD\n", versionFile);
+  /* determineGetaddrlimit */
+    has_getrlimit = compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
+                                     "int main(int argc, char *argv[]){\n"
+                                     "struct rlimit rlim;\n"
+                                     "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
+                                     "return 0;}\n") && doTest() == 1;
+    fprintf(versionFile, "#define HAS_GETRLIMIT %d\n", has_getrlimit);
+    if (has_getrlimit) {
+      if (assertCompAndLnk("#include <stdio.h>\n#include <sys/resource.h>\n"
+                           "int main(int argc, char *argv[]){\n"
+                           "struct rlimit rlim;\n"
+                           "getrlimit(RLIMIT_STACK, &rlim);"
+                           "if (rlim.rlim_cur == RLIM_INFINITY)\n"
+                           "printf(\"0\\n\");\n"
+                           "else\n"
+                           "printf(\"%d\\n\", rlim.rlim_cur / 1024);\n"
+                           "return 0;}\n")) {
+        fprintf(versionFile, "#define SOFT_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
+      } /* if */
+      if (assertCompAndLnk("#include <stdio.h>\n#include <sys/resource.h>\n"
+                           "int main(int argc, char *argv[]){\n"
+                           "struct rlimit rlim;\n"
+                           "getrlimit(RLIMIT_STACK, &rlim);"
+                           "if (rlim.rlim_max == RLIM_INFINITY)\n"
+                           "printf(\"0\\n\");\n"
+                           "else\n"
+                           "printf(\"%d\\n\", rlim.rlim_max / 1024);\n"
+                           "return 0;}\n")) {
+        fprintf(versionFile, "#define HARD_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
       } /* if */
     } /* if */
-  } /* detemineStackDirection */
+  } /* determineGetaddrlimit */
 
 
 
@@ -2425,18 +2563,28 @@ int main (int argc, char **argv)
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
     checkPopen(versionFile);
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+#ifndef FILENO_WORKS_FOR_NULL
+    if (assertCompAndLnk("#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "FILE *aFile = NULL;\n"
+                         "signal(SIGSEGV,handleSig);\n"
+                         "printf(\"%d\\n\", fileno(aFile) == -1); return 0;}\n")) {
+      fprintf(versionFile, "#define FILENO_WORKS_FOR_NULL %d\n", doTest() == 1);
+    } /* if */
+#endif
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{printf(\"%d\\n\", fseek(stdin, 0,  SEEK_SET) == 0);\n"
                          "return 0;}\n")) {
       fprintf(versionFile, "#define FSEEK_SUCCEEDS_FOR_STDIN %d\n", doTest() == 1);
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{FILE *aFile; aFile=fopen(\".\",\"r\");\n"
                          "printf(\"%d\\n\",aFile!=NULL);\n"
                          "if(aFile!=NULL)fclose(aFile);return 0;}\n")) {
       fprintf(versionFile, "#define FOPEN_OPENS_DIRECTORIES %d\n", doTest() == 1);
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{int canWrite=0;FILE *aFile;\n"
                          "if((aFile=fopen(\"tmp_test_file\",\"w\"))!=NULL){\n"
                          " fwrite(\"asdf\",1,4,aFile);fclose(aFile);\n"
@@ -2561,7 +2709,7 @@ int main (int argc, char **argv)
     determineMallocAlignment(versionFile);
     if (compileAndLinkOk("#include<signal.h>\nint main(int argc, char *argv[]){\n"
                          "signal(SIGBUS,SIG_DFL); return 0;}\n")) {
-      if (compileAndLinkOk("#include<stdlib.h>\n#include <stdio.h>\n#include<signal.h>\n"
+      if (assertCompAndLnk("#include<stdlib.h>\n#include <stdio.h>\n#include<signal.h>\n"
                            "void handleSig(int sig){puts(\"2\");exit(0);}\n"
                            "int main(int argc, char *argv[]){\n"
                            "signal(SIGBUS,handleSig);\n"
@@ -2569,12 +2717,12 @@ int main (int argc, char **argv)
                            "printf(\"1\\n\"); return 0;}\n")) {
         fprintf(versionFile, "#define UNALIGNED_MEMORY_ACCESS_OKAY %d\n", doTest() == 1);
       } /* if */
-    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+    } else if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                                 "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
                                 "printf(\"1\\n\"); return 0;}\n")) {
       fprintf(versionFile, "#define UNALIGNED_MEMORY_ACCESS_OKAY %d\n", doTest() == 1);
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+    if (assertCompAndLnk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{union{char ch;unsigned long gen;}aUnion;\n"
                          "memset(&aUnion,0,sizeof(aUnion));aUnion.ch='X';\n"
                          "printf(\"%d\\n\",aUnion.ch==(char)aUnion.gen);return 0;}\n")) {
@@ -2590,7 +2738,7 @@ int main (int argc, char **argv)
                           "return 0;}\n")) {
       fputs("#define NO_EMPTY_STRUCTS\n", versionFile);
     } /* if */
-    if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+    if (assertCompAndLnk("#include <stdio.h>\n#include <string.h>\n"
                          "int main(int argc, char *argv[]){\n"
                          "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
                          "return 0;}\n")) {
@@ -2612,35 +2760,7 @@ int main (int argc, char **argv)
     copyFile(versionFileName, "tst_vers.h");
     versionFile = openVersionFile(versionFileName);
     determineEnvironDefines(versionFile);
-    if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
-                         "int main(int argc, char *argv[]){\n"
-                         "struct rlimit rlim;\n"
-                         "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
-                         "return 0;}\n")) {
-      fprintf(versionFile, "#define HAS_GETRLIMIT %d\n", doTest() == 1);
-      if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
-                           "int main(int argc, char *argv[]){\n"
-                           "struct rlimit rlim;\n"
-                           "getrlimit(RLIMIT_STACK, &rlim);"
-                           "if (rlim.rlim_cur == RLIM_INFINITY)\n"
-                           "printf(\"0\\n\");\n"
-                           "else\n"
-                           "printf(\"%d\\n\", rlim.rlim_cur / 1024);\n"
-                           "return 0;}\n")) {
-        fprintf(versionFile, "#define SOFT_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
-      } /* if */
-      if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
-                           "int main(int argc, char *argv[]){\n"
-                           "struct rlimit rlim;\n"
-                           "getrlimit(RLIMIT_STACK, &rlim);"
-                           "if (rlim.rlim_max == RLIM_INFINITY)\n"
-                           "printf(\"0\\n\");\n"
-                           "else\n"
-                           "printf(\"%d\\n\", rlim.rlim_max / 1024);\n"
-                           "return 0;}\n")) {
-        fprintf(versionFile, "#define HARD_STACK_LIMIT %lu\n", (unsigned long) doTest() * 1024);
-      } /* if */
-    } /* if */
+    determineGetaddrlimit(versionFile);
     fprintf(versionFile, "#define HAS_SETJMP %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
                          "int main(int argc, char *argv[]){\n"

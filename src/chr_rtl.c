@@ -301,7 +301,8 @@ static inline boolType is_nonspacing (charType ch)
     if (ch <= 0x00ffff) {
       ind = nonspacing_table_ind[ch >> 9];
       if (ind >= 0) {
-        return (nonspacing_table_data[8 * (unsigned int) ind + ((ch >> 6) & 7)] >> (ch & 63)) & 1;
+        return (boolType) (
+            (nonspacing_table_data[8 * (unsigned int) ind + ((ch >> 6) & 7)] >> (ch & 63)) & 1);
       } /* if */
     } /* if */
     return FALSE;
@@ -491,7 +492,8 @@ boolType chrIsLetter (charType ch)
     if (ch <= 0x02fbff) {
       ind = unicode_letters_ind[ch >> 9];
       if (ind >= 0) {
-        return (unicode_letters_data[8 * (unsigned int) ind + ((ch >> 6) & 7)] >> (ch & 63)) & 1;
+        return (boolType) (
+            (unicode_letters_data[8 * (unsigned int) ind + ((ch >> 6) & 7)] >> (ch & 63)) & 1);
       } else {
         return ~ind; /* -1 -> FALSE, -2 -> TRUE */
       } /* if */

@@ -28,6 +28,7 @@
 
 include "scanfile.s7i";
 include "xml_ent.s7i";
+include "strifile.s7i";
 include "html_ent.s7i";
 include "html.s7i";
 
@@ -41,10 +42,30 @@ const type: attrHashType is hash [string] string;
 const type: xmlNode is sub object interface;
 
 
+(**
+ *  Get the value of a specified attribute.
+ *)
 const func string: getAttrValue (in xmlNode: aNode, in string: attrName) is DYNAMIC;
+
+
+(**
+ *  Get the attributes of a node as hash table.
+ *)
 const func attrHashType: getAttributes (in xmlNode: aNode)               is DYNAMIC;
+
+
+(**
+ *  Get the sub-nodes of a given node.
+ *)
 const func array xmlNode: getSubNodes (in xmlNode: aNode)                is DYNAMIC;
+
+
+(**
+ *  Get the content of a given node.
+ *)
 const func string: getContent (in xmlNode: aNode)                        is DYNAMIC;
+
+
 const proc: writeXml (in xmlNode: aNode)                                 is DYNAMIC;
 const proc: writeXml (inout file: outFile, in xmlNode: aNode)            is DYNAMIC;
 const varfunc string:        (in xmlNode: aNode) . name                  is DYNAMIC;
@@ -279,6 +300,21 @@ const func xmlNode: readXml (inout file: inFile) is func
     end while;
     node := readXmlNode(inFile, symbol);
     # TRACE_OBJ(node); writeln;
+  end func;
+
+
+(**
+ *  Read XML data from a string.
+ *  @return an xmlNode containing the contents of the XML file.
+ *)
+const func xmlNode: readXml (in string: xmlStri) is func
+  result
+    var xmlNode: node is xmlNode.value;
+  local
+    var file: xmlFile is STD_NULL;
+  begin
+    xmlFile := openStrifile(xmlStri);
+    node := readXml(xmlFile);
   end func;
 
 

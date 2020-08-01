@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -55,7 +58,6 @@
 #define EXTERN
 #include "drw_drv.h"
 
-#undef TRACE_X11
 
 #ifndef C_PLUS_PLUS
 #define c_class class
@@ -150,10 +152,8 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
     int xClear, yClear, clearWidth, clearHeight;
 
   /* redraw */
-#ifdef TRACE_X11
-    printf("begin redraw(" FMT_U_MEM ", %d, %d, %d, %d)\n",
-           (memSizeType) redraw_window, xPos, yPos, width, height);
-#endif
+    logFunction(printf("redraw(" FMT_U_MEM ", %d, %d, %d, %d)\n",
+                       (memSizeType) redraw_window, xPos, yPos, width, height););
     expose_window = (x11_winType) redraw_window;
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
@@ -207,9 +207,7 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
             xPos, yClear, width, clearHeight);
       } /* if */
     } /* if */
-#ifdef TRACE_X11
-    printf("end redraw\n");
-#endif
+    logFunction(printf("redraw -->\n"););
   } /* redraw */
 
 
@@ -217,9 +215,7 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
 void doFlush (void)
 
   { /* doFlush */
-#ifdef TRACE_X11
-    printf("doFlush\n");
-#endif
+    logFunction(printf("doFlush\n"););
     XFlush(mydisplay);
     /* XSync(mydisplay, 0); */
   } /* doFlush */
@@ -249,9 +245,7 @@ void configure (XConfigureEvent *xconfigure)
     XEvent peekEvent;
 
   /* configure */
-#ifdef TRACE_X11
-    printf("begin configure\n");
-#endif
+    logFunction(printf("configure\n"););
     configure_window = (x11_winType) find_window(xconfigure->window);
     if (configure_window->actual_width != xconfigure->width ||
         configure_window->actual_height != xconfigure->height) {
@@ -281,9 +275,7 @@ void configure (XConfigureEvent *xconfigure)
       configure_window->actual_width = xconfigure->width;
       configure_window->actual_height = xconfigure->height;
     } /* if */
-#ifdef TRACE_X11
-    printf("end configure\n");
-#endif
+    logFunction(printf("configure -->\n"););
   } /* configure */
 #endif
 
@@ -320,9 +312,7 @@ static void dra_init (void)
 #endif
 
   /* dra_init */
-#ifdef TRACE_X11
-    printf("BEGIN dra_init()\n");
-#endif
+    logFunction(printf("dra_init()\n"););
     /* When linking with a profiling standard library XOpenDisplay */
     /* deadlocked. Be careful to avoid this situation.             */
     mydisplay = XOpenDisplay("");
@@ -393,9 +383,7 @@ static void dra_init (void)
 
       wm_delete_window = XInternAtom(mydisplay, "WM_DELETE_WINDOW", False);
     } /* if */
-#ifdef TRACE_X11
-    printf("END dra_init\n");
-#endif
+    logFunction(printf("dra_init -->\n"););
   } /* dra_init */
 
 
@@ -414,7 +402,7 @@ intType drwPointerXpos (const_winType actual_window)
                   &root_x, &root_y, &win_x, &win_y, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
-    /* printf("drwPointerXpos ==> %ld\n", win_x); */
+    /* printf("drwPointerXpos --> %ld\n", win_x); */
     return win_x;
   } /* drwPointerXpos */
 
@@ -434,7 +422,7 @@ intType drwPointerYpos (const_winType actual_window)
                   &root_x, &root_y, &win_x, &win_y, &keys_buttons);
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
-    /* printf("drwPointerYpos ==> %ld\n", win_y); */
+    /* printf("drwPointerYpos --> %ld\n", win_y); */
     return win_y;
   } /* drwPointerYpos */
 
@@ -447,10 +435,8 @@ void drwArc (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwArc */
-#ifdef TRACE_X11
-    printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-           (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle);
-#endif
+    logFunction(printf("drwArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
@@ -474,10 +460,8 @@ void drwPArc (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwPArc */
-#ifdef TRACE_X11
-    printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-           (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle);
-#endif
+    logFunction(printf("drwPArc(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
@@ -502,10 +486,8 @@ void drwFArcChord (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwFArcChord */
-#ifdef TRACE_X11
-    printf("drwPArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-           (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle);
-#endif
+    logFunction(printf("drwPArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
     XSetArcMode(mydisplay, mygc, ArcChord);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
@@ -538,10 +520,8 @@ void drwPFArcChord (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwPFArcChord */
-#ifdef TRACE_X11
-    printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-           (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle);
-#endif
+    logFunction(printf("drwPFArcChord(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     XSetArcMode(mydisplay, mygc, ArcChord);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -575,10 +555,8 @@ void drwFArcPieSlice (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwFArcPieSlice */
-#ifdef TRACE_X11
-    printf("drwFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-           (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle);
-#endif
+    logFunction(printf("drwFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
@@ -611,10 +589,8 @@ void drwPFArcPieSlice (const_winType actual_window, intType x, intType y,
     int startAng, sweepAng;
 
   /* drwPFArcPieSlice */
-#ifdef TRACE_X11
-    printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
-           (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle);
-#endif
+    logFunction(printf("drwPFArcPieSlice(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", %.4f, %.4f)\n",
+                       (memSizeType) actual_window, x, y, radius, startAngle, sweepAngle););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
@@ -664,10 +640,8 @@ void drwCircle (const_winType actual_window,
     intType x, intType y, intType radius)
 
   { /* drwCircle */
-#ifdef TRACE_X11
-    printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y, radius);
-#endif
+    logFunction(printf("drwCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, radius););
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
@@ -684,10 +658,8 @@ void drwPCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 
   { /* drwPCircle */
-#ifdef TRACE_X11
-    printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x, y, radius, col);
-#endif
+    logFunction(printf("drwPCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius, col););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         castToInt(x - radius), castToInt(y - radius),
@@ -704,10 +676,8 @@ void drwPCircle (const_winType actual_window,
 void drwClear (winType actual_window, intType col)
 
   { /* drwClear */
-#ifdef TRACE_X11
-    printf("drwClear(" FMT_U_MEM ", " F_X(08) ")\n",
-           (memSizeType) actual_window, col);
-#endif
+    logFunction(printf("drwClear(" FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, col););
     to_var_clear_col(actual_window) = col;
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     /* The main window is cleared with the real window size. */
@@ -726,12 +696,10 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType dest_x, intType dest_y)
 
   { /* drwCopyArea */
-#ifdef TRACE_X11
-    printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
-           FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) src_window, (memSizeType) dest_window,
-           src_x, src_y, width, height, dest_x, dest_y);
-#endif
+    logFunction(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
+                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) src_window, (memSizeType) dest_window,
+                       src_x, src_y, width, height, dest_x, dest_y););
     if (!inIntRange(src_x) || !inIntRange(src_y) ||
         !inIntRange(width) || !inIntRange(height) ||
         !inIntRange(dest_x) || !inIntRange(dest_y) ||
@@ -768,10 +736,8 @@ void drwFCircle (const_winType actual_window,
     intType x, intType y, intType radius)
 
   { /* drwFCircle */
-#ifdef TRACE_X11
-    printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y, radius);
-#endif
+    logFunction(printf("drwFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, radius););
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
@@ -794,10 +760,8 @@ void drwPFCircle (const_winType actual_window,
     intType x, intType y, intType radius, intType col)
 
   { /* drwPFCircle */
-#ifdef TRACE_X11
-    printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x, y, radius, col);
-#endif
+    logFunction(printf("drwPFCircle(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, radius, col););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     XDrawArc(mydisplay, to_window(actual_window), mygc,
         castToInt(x - radius), castToInt(y - radius),
@@ -821,10 +785,8 @@ void drwFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height)
 
   { /* drwFEllipse */
-#ifdef TRACE_X11
-    printf("drwFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y, width, height);
-#endif
+    logFunction(printf("drwFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, width, height););
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
     } else {
@@ -847,10 +809,8 @@ void drwPFEllipse (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 
   { /* drwPFEllipse */
-#ifdef TRACE_X11
-    printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y, width, height);
-#endif
+    logFunction(printf("drwPFEllipse(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, width, height););
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
     } else {
@@ -876,9 +836,7 @@ winType drwEmpty (void)
     x11_winType result;
 
   /* drwEmpty */
-#ifdef TRACE_X11
-    printf("BEGIN drwEmpty()\n");
-#endif
+    logFunction(printf("drwEmpty()\n"););
     if (!ALLOC_RECORD(result, x11_winRecord, count.win)) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -891,11 +849,9 @@ winType drwEmpty (void)
       result->width = 0;
       result->height = 0;
     } /* if */
-#ifdef TRACE_X11
-    printf("END drwEmpty ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwEmpty */
 
@@ -904,11 +860,9 @@ winType drwEmpty (void)
 void drwFree (winType old_window)
 
   { /* drwFree */
-#ifdef TRACE_X11
-    printf("drwFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) old_window,
-           old_window != NULL ? old_window->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) old_window,
+                       old_window != NULL ? old_window->usage_count : (uintType) 0););
     if (is_pixmap(old_window)) {
       XFreePixmap(mydisplay, to_window(old_window));
     } else {
@@ -927,10 +881,8 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
     x11_winType result;
 
   /* drwGet */
-#ifdef TRACE_X11
-    printf("BEGIN drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, left, upper, width, height);
-#endif
+    logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, left, upper, width, height););
     if (!inIntRange(left) || !inIntRange(upper) ||
         !inIntRange(width) || !inIntRange(height) ||
         width < 1 || height < 1) {
@@ -960,11 +912,9 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
       } /* if */
       /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
     } /* if */
-#ifdef TRACE_X11
-    printf("END drwGet ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwGet */
 
@@ -981,9 +931,7 @@ bstriType drwGetImage (const_winType actual_window)
     bstriType result;
 
   /* drwGetImage */
-#ifdef TRACE_X11
-    printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) actual_window);
-#endif
+    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) actual_window););
     if (to_backup(actual_window) != 0) {
       image = XGetImage(mydisplay, to_backup(actual_window),
                         0, 0, to_width(actual_window), to_height(actual_window),
@@ -997,7 +945,7 @@ bstriType drwGetImage (const_winType actual_window)
     } /* if */
     result_size = to_width(actual_window) * to_height(actual_window) * sizeof(int32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
-      raise_error(RANGE_ERROR);
+      raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
       image_data = (int32Type *) result->mem;
@@ -1023,10 +971,8 @@ intType drwGetPixel (const_winType actual_window, intType x, intType y)
     intType pixel;
 
   /* drwGetPixel */
-#ifdef TRACE_X11
-    printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y);
-#endif
+    logFunction(printf("drwGetPixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y););
     if (to_backup(actual_window) != 0) {
       image = XGetImage(mydisplay, to_backup(actual_window),
                         castToInt(x), castToInt(y), 1, 1,
@@ -1038,7 +984,7 @@ intType drwGetPixel (const_winType actual_window, intType x, intType y)
     } /* if */
     pixel = (intType) XGetPixel(image, 0, 0);
     XDestroyImage(image);
-    /* printf("drwGetPixel --> %lx\n", pixel); */
+    logFunction(printf("drwGetPixel --> " FMT_U "\n", pixel););
     return pixel;
   } /* drwGetPixel */
 
@@ -1063,10 +1009,8 @@ intType drwHeight (const_winType actual_window)
       raise_error(RANGE_ERROR);
       height = 0;
     } /* if */
-#ifdef TRACE_X11
-    printf("drwHeight(" FMT_U_MEM ") -> %u\n",
-           (memSizeType) actual_window, height);
-#endif
+    logFunction(printf("drwHeight(" FMT_U_MEM ") --> %u\n",
+                       (memSizeType) actual_window, height););
     return (intType) height;
   } /* drwHeight */
 
@@ -1079,9 +1023,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
     x11_winType result;
 
   /* drwImage */
-#ifdef TRACE_X11
-    printf("BEGIN drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height);
-#endif
+    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
     if (width < 1 || width > UINT_MAX ||
         height < 1 || height > UINT_MAX) {
       raise_error(RANGE_ERROR);
@@ -1119,11 +1061,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_X11
-    printf("END drwImage ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwImage --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwImage */
 
@@ -1133,10 +1073,8 @@ void drwLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2)
 
   { /* drwLine */
-#ifdef TRACE_X11
-    printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x1, y1, x2, y2);
-#endif
+    logFunction(printf("drwLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x1, y1, x2, y2););
     XDrawLine(mydisplay, to_window(actual_window), mygc,
               castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
     if (to_backup(actual_window) != 0) {
@@ -1151,10 +1089,8 @@ void drwPLine (const_winType actual_window,
     intType x1, intType y1, intType x2, intType y2, intType col)
 
   { /* drwPLine */
-#ifdef TRACE_X11
-    printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x1, y1, x2, y2, col);
-#endif
+    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x1, y1, x2, y2, col););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     XDrawLine(mydisplay, to_window(actual_window), mygc,
               castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
@@ -1172,9 +1108,7 @@ winType drwNewPixmap (intType width, intType height)
     x11_winType result;
 
   /* drwNewPixmap */
-#ifdef TRACE_X11
-    printf("BEGIN drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height);
-#endif
+    logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (!inIntRange(width) || !inIntRange(height) ||
         width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
@@ -1203,11 +1137,9 @@ winType drwNewPixmap (intType width, intType height)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_X11
-    printf("END drwNewPixmap ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwNewPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwNewPixmap */
 
@@ -1219,9 +1151,7 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
     x11_winType result;
 
   /* drwNewBitmap */
-#ifdef TRACE_X11
-    printf("BEGIN drwNewBitmap(%ld, %ld)\n", width, height);
-#endif
+    logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1238,11 +1168,9 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
       result->width = (unsigned int) width;
       result->height = (unsigned int) height;
     } /* if */
-#ifdef TRACE_X11
-    printf("END drwNewBitmap ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwNewBitmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwNewBitmap */
 
@@ -1260,10 +1188,8 @@ winType drwOpen (intType xPos, intType yPos,
     x11_winType result;
 
   /* drwOpen */
-#ifdef TRACE_X11
-    printf("BEGIN drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-        xPos, yPos, width, height);
-#endif
+    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       xPos, yPos, width, height););
     result = NULL;
     if (!inIntRange(xPos) || !inIntRange(yPos) ||
         !inIntRange(width) || !inIntRange(height) ||
@@ -1274,10 +1200,14 @@ winType drwOpen (intType xPos, intType yPos,
         dra_init();
       } /* if */
       if (mydisplay == NULL) {
+        logError(printf("drwOpen: dra_init() failed to open a display.\n"););
         raise_error(FILE_ERROR);
       } else {
         win_name = stri_to_cstri8(window_name, &err_info);
         if (win_name == NULL) {
+          logError(printf("drwOpen: stri_to_cstri8(\"%s\") failed:\n"
+                          "err_info=%d\n",
+                          striAsUnquotedCStri(window_name), err_info););
           raise_error(err_info);
         } else {
           if (ALLOC_RECORD(result, x11_winRecord, count.win)) {
@@ -1359,11 +1289,9 @@ winType drwOpen (intType xPos, intType yPos,
       } /* if */
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
-#ifdef TRACE_X11
-    printf("END drwOpen ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwOpen --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpen */
 
@@ -1379,10 +1307,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     x11_winType result;
 
   /* drwOpenSubWindow */
-#ifdef TRACE_X11
-    printf("BEGIN drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-        xPos, yPos, width, height);
-#endif
+    logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       xPos, yPos, width, height););
     result = NULL;
     if (!inIntRange(xPos) || !inIntRange(yPos) ||
         !inIntRange(width) || !inIntRange(height) ||
@@ -1469,11 +1395,9 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
       } /* if */
     } /* if */
     /* printf("result=%lu\n", (long unsigned) result); */
-#ifdef TRACE_X11
-    printf("END drwOpenSubWindow ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpenSubWindow */
 
@@ -1482,10 +1406,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
 void drwPoint (const_winType actual_window, intType x, intType y)
 
   { /* drwPoint */
-#ifdef TRACE_X11
-    printf("drwPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y);
-#endif
+    logFunction(printf("drwPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y););
     XDrawPoint(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y));
     if (to_backup(actual_window) != 0) {
       XDrawPoint(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y));
@@ -1497,10 +1419,8 @@ void drwPoint (const_winType actual_window, intType x, intType y)
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
   { /* drwPPoint */
-#ifdef TRACE_X11
-    printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x, y, col);
-#endif
+    logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, col););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     XDrawPoint(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y));
     if (to_backup(actual_window) != 0) {
@@ -1664,12 +1584,10 @@ void drwPut (const_winType actual_window, const_winType pixmap,
     intType x, intType y)
 
   { /* drwPut */
-#ifdef TRACE_X11
-    printf("drwPut(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, (memSizeType) pixmap, x, y);
+    logFunction(printf("drwPut(" FMT_U_MEM ", " FMT_U_MEM ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, (memSizeType) pixmap, x, y););
     /* printf("actual_window=%lu, pixmap=%lu\n", to_window(actual_window),
         pixmap != NULL ? to_window(pixmap) : NULL); */
-#endif
     /* A pixmap value of NULL or a pixmap with a window of 0 */
     /* is used to describe an empty pixmap. In this case     */
     /* nothing should be done.                               */
@@ -1696,10 +1614,8 @@ void drwRect (const_winType actual_window,
     intType x, intType y, intType width, intType height)
 
   { /* drwRect */
-#ifdef TRACE_X11
-    printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y, width, height);
-#endif
+    logFunction(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, width, height););
     XFillRectangle(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y),
         (unsigned) width, (unsigned) height);
     if (to_backup(actual_window) != 0) {
@@ -1714,10 +1630,8 @@ void drwPRect (const_winType actual_window,
     intType x, intType y, intType width, intType height, intType col)
 
   { /* drwPRect */
-#ifdef TRACE_X11
-    printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x, y, width, height, col);
-#endif
+    logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, width, height, col););
     XSetForeground(mydisplay, mygc, (unsigned long) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y),
         (unsigned) width, (unsigned) height);
@@ -1748,11 +1662,7 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
     int okay;
 
   /* drwRgbColor */
-#ifdef TRACE_X11
-    printf("drwRgbColor(%lu, %ld, %ld)\n", red_val, green_val, blue_val);
-#endif
-/*    printf("search [%ld, %ld, %ld]\n",
-        red_val, green_val, blue_val); */
+    logFunction(printf("drwRgbColor(" FMT_D ", " FMT_D ", " FMT_D ")\n", red_val, green_val, blue_val););
     if (default_visual->c_class == TrueColor) {
       col.pixel =
           ((((unsigned long) red_val)   << lshift_red   >> rshift_red)   & default_visual->red_mask)   |
@@ -1968,7 +1878,7 @@ intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
           RED_VAL, GREEN_VAL, BLUE_VAL);
     } /* if */
 #endif
-    printf("XParseColor(\"%s\" [%ld, %ld, %ld]) ==> [%ld, %ld, %ld]\n",
+    printf("XParseColor(\"%s\" [%ld, %ld, %ld]) --> [%ld, %ld, %ld]\n",
            color_string, RED_VAL, GREEN_VAL, BLUE_VAL,
         col.red, col.green, col.blue);
     printf("rgb color = %08lx\n", (long) col.pixel);
@@ -1997,7 +1907,7 @@ void drwPixelToRgb (intType col, intType *red_val, intType *green_val, intType *
       *green_val = color.green;
       *blue_val  = color.blue;
     } /* if */
-    /* printf("drwPixelToRgb(%lx) -> %ld %ld %ld\n", col, *red_val, *green_val, *blue_val); */
+    /* printf("drwPixelToRgb(%lx) --> %ld %ld %ld\n", col, *red_val, *green_val, *blue_val); */
   } /* drwPixelToRgb */
 
 
@@ -2023,10 +1933,8 @@ void drwColor (intType col)
 void drwSetContent (const_winType actual_window, const_winType pixmap)
 
   { /* drwSetContent */
-#ifdef TRACE_X11
-    printf("drwSetContent(" FMT_U_MEM ", " FMT_U_MEM ")\n",
-           (memSizeType) actual_window, (memSizeType) pixmap);
-#endif
+    logFunction(printf("drwSetContent(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) actual_window, (memSizeType) pixmap););
     /* printf("begin drwSetContent(%lu, %lu)\n",
         to_window(actual_window), to_window(pixmap)); */
     if (pixmap != NULL) {
@@ -2070,12 +1978,10 @@ void drwSetTransparentColor (winType pixmap, intType col)
     unsigned long plane_mask;
 
   /* drwSetTransparentColor */
-#ifdef TRACE_X11
-    printf("drwSetTransparentColor(" FMT_U_MEM ", " F_X(08) ")\n",
-           (memSizeType) pixmap, col);
-    printf("pixmap=" FMT_U_MEM "\n",
-           pixmap != NULL ? to_window(pixmap) : (memSizeType) 0);
-#endif
+    logFunction(printf("drwSetTransparentColor(" FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) pixmap, col);
+                printf("pixmap=" FMT_U_MEM "\n",
+                       pixmap != NULL ? to_window(pixmap) : (memSizeType) 0););
     /* A pixmap value of NULL or a pixmap with a window of 0 */
     /* is used to describe an empty pixmap. In this case     */
     /* nothing should be done.                               */
@@ -2131,10 +2037,8 @@ void drwText (const_winType actual_window, intType x, intType y,
     memSizeType len;
 
   /* drwText */
-#ifdef TRACE_X11
-    printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", ...)\n",
-           (memSizeType) actual_window, x, y);
-#endif
+    logFunction(printf("drwText(" FMT_U_MEM ", " FMT_D ", " FMT_D ", ...)\n",
+                       (memSizeType) actual_window, x, y););
     stri_buffer = (XChar2b *) malloc(sizeof(XChar2b) * stri->size);
     if (stri_buffer != NULL) {
       wstri = stri_buffer;
@@ -2202,10 +2106,8 @@ intType drwWidth (const_winType actual_window)
       raise_error(RANGE_ERROR);
       width = 0;
     } /* if */
-#ifdef TRACE_X11
-    printf("drwWidth(" FMT_U_MEM ") -> %u\n",
-           (memSizeType) actual_window, width);
-#endif
+    logFunction(printf("drwWidth(" FMT_U_MEM ") --> %u\n",
+                       (memSizeType) actual_window, width););
     return (intType) width;
   } /* drwWidth */
 
@@ -2226,10 +2128,8 @@ intType drwXPos (const_winType actual_window)
       raise_error(RANGE_ERROR);
       x = 0;
     } /* if */
-#ifdef TRACE_X11
-    printf("drwXPos(" FMT_U_MEM ") -> %d\n",
-           (memSizeType) actual_window, x);
-#endif
+    logFunction(printf("drwXPos(" FMT_U_MEM ") --> %d\n",
+                       (memSizeType) actual_window, x););
     return (intType) x;
   } /* drwXPos */
 
@@ -2250,9 +2150,7 @@ intType drwYPos (const_winType actual_window)
       raise_error(RANGE_ERROR);
       y = 0;
     } /* if */
-#ifdef TRACE_X11
-    printf("drwYPos(" FMT_U_MEM ") -> %d\n",
-           (memSizeType) actual_window, y);
-#endif
+    logFunction(printf("drwYPos(" FMT_U_MEM ") --> %d\n",
+                       (memSizeType) actual_window, y););
     return (intType) y;
   } /* drwYPos */

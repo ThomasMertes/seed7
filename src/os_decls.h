@@ -135,3 +135,9 @@
 #else
 #define os_getenv_string_free(env_var)
 #endif
+
+#if FILENO_WORKS_FOR_NULL
+#define safe_fileno(stream) fileno(stream)
+#else
+#define safe_fileno(stream) ((stream) == NULL ? -1 : fileno(stream))
+#endif

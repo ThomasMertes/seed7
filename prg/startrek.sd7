@@ -698,6 +698,7 @@ const proc: long_range_sensors is func
 
 const proc: phasers is func
   local
+    var string: command is "";
     var float: phaser_energy is 0.0;
     var integer: number is 0;
     var float: unit_hit is 0.0;
@@ -709,7 +710,19 @@ const proc: phasers is func
       repeat
         phaser_energy := 0.0;
         write("Phasers ready: Energy units to fire? ");
-        readln(phaser_energy);
+        readln(command);
+        if command <> "" then
+          block
+            phaser_energy := float parse command;
+            if phaser_energy < 0.0 then
+              raise RANGE_ERROR;
+            end if;
+          exception
+            catch RANGE_ERROR:
+              writeln("   Ensign Chekov: 'Incorrect phaser energy, sir!'");
+              phaser_energy := 0.0
+          end block;
+        end if;
         if phaser_energy > 0.0 and phaser_energy > energy then
           writeln("Only got " <& energy digits 3);
         end if;

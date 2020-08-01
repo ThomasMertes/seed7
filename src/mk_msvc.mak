@@ -166,6 +166,7 @@ version.h: chkccomp.h
 	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
 	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
 	echo #define CTRL_C_SENDS_EOF >> version.h
+	echo #define FILENO_WORKS_FOR_NULL 0 >> version.h
 	echo #define WITH_SQL >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
@@ -214,15 +215,15 @@ version.h: chkccomp.h
 	echo #define LINKER_OPT_DEBUG_INFO "-Z7" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
+	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) chkccomp.c
 	.\chkccomp.exe version.h
 	del chkccomp.obj
 	del chkccomp.exe
 	del cc_vers.txt
-	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
-	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
 	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h

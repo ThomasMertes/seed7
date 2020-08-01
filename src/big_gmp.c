@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -448,7 +451,9 @@ bigIntType bigDiv (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType quotient;
 
   /* bigDiv */
-    if (mpz_sgn(divisor) == 0) {
+    if (unlikely(mpz_sgn(divisor) == 0)) {
+      logError(printf("bigDiv(%s, %s): Division by zero.\n",
+                      bigHexCStri(dividend), bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       quotient = NULL;
     } else {
@@ -749,6 +754,9 @@ bigIntType bigIPow (const const_bigIntType base, intType exponent)
 
   /* bigIPow */
     if (unlikely(exponent < 0)) {
+      logError(printf("bigIPow(%s, " FMT_D "): "
+                      "Exponent is negative.\n",
+                      bigHexCStri(base), exponent););
       raise_error(NUMERIC_ERROR);
       power = NULL;
     } else {
@@ -774,6 +782,9 @@ bigIntType bigIPowSignedDigit (intType base, intType exponent)
 
   /* bigIPowSignedDigit */
     if (unlikely(exponent < 0)) {
+      logError(printf("bigIPowSignedDigit(" FMT_D ", " FMT_D "): "
+                      "Exponent is negative.\n",
+                      base, exponent););
       raise_error(NUMERIC_ERROR);
       power = NULL;
     } else {
@@ -801,7 +812,9 @@ bigIntType bigLog10 (const const_bigIntType big1)
 
   /* bigLog10 */
     sign = mpz_sgn(big1);
-    if (sign < 0) {
+    if (unlikely(sign < 0)) {
+      logError(printf("bigLog10(%s): Number is negative.\n",
+                      bigHexCStri(big1)););
       raise_error(NUMERIC_ERROR);
       logarithm = NULL;
     } else if (sign == 0) {
@@ -832,7 +845,9 @@ bigIntType bigLog2 (const const_bigIntType big1)
 
   /* bigLog2 */
     sign = mpz_sgn(big1);
-    if (sign < 0) {
+    if (unlikely(sign < 0)) {
+      logError(printf("bigLog2(%s): Number is negative.\n",
+                      bigHexCStri(big1)););
       raise_error(NUMERIC_ERROR);
       logarithm = NULL;
     } else if (sign == 0) {
@@ -853,6 +868,7 @@ bigIntType bigLog2 (const const_bigIntType big1)
  *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
  *  @param bits Number of lower bits to select from big1.
  *  @return a number in the range 0 .. pred(2_ ** bits).
+ *  @exception NUMERIC_ERROR The number of bits is negative.
  */
 bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
 
@@ -861,6 +877,9 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
 
   /* bigLowerBits */
     if (unlikely(bits < 0)) {
+      logError(printf("bigLowerBits(%s, " FMT_D "): "
+                      "Number of bits is negative.\n",
+                      bigHexCStri(big1), bits););
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else {
@@ -880,12 +899,16 @@ bigIntType bigLowerBits (const const_bigIntType big1, const intType bits)
  *   bigLowerBits(big1, bits)  corresponds to  big1 mod (2_ ** bits)
  *  @param bits Number of lower bits to select from big1.
  *  @return a number in the range 0 .. pred(2_ ** bits).
+ *  @exception NUMERIC_ERROR The number of bits is negative.
  */
 bigIntType bigLowerBitsTemp (const bigIntType big1, const intType bits)
 
   { /* bigLowerBitsTemp */
     if (unlikely(bits < 0)) {
       FREE_BIG(big1);
+      logError(printf("bigLowerBitsTemp(%s, " FMT_D "): "
+                      "Number of bits is negative.\n",
+                      bigHexCStri(big1), bits););
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -982,7 +1005,7 @@ bigIntType bigLShiftOne (const intType lshift)
 /**
  *  Exponentiation when the base is a power of two.
  *  @return (2 ** log2base) ** exponent
- *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception NUMERIC_ERROR When log2base or exponent is negative.
  */
 bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
 
@@ -993,6 +1016,9 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
 
   /* bigLog2BaseIPow */
     if (unlikely(log2base < 0 || exponent < 0)) {
+      logError(printf("bigLog2BaseIPow(" FMT_D ", " FMT_D "): "
+                      "Log2base or exponent is negative.\n",
+                      log2base, exponent););
       raise_error(NUMERIC_ERROR);
       result = NULL;
     } else if (likely(log2base == 1)) {
@@ -1026,7 +1052,9 @@ bigIntType bigMDiv (const const_bigIntType dividend, const const_bigIntType divi
     bigIntType quotient;
 
   /* bigMDiv */
-    if (mpz_sgn(divisor) == 0) {
+    if (unlikely(mpz_sgn(divisor) == 0)) {
+      logError(printf("bigMDiv(%s, %s): Division by zero.\n",
+                      bigHexCStri(dividend), bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       quotient = NULL;
     } else {
@@ -1051,7 +1079,9 @@ bigIntType bigMod (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType modulo;
 
   /* bigMod */
-    if (mpz_sgn(divisor) == 0) {
+    if (unlikely(mpz_sgn(divisor) == 0)) {
+      logError(printf("bigMod(%s, %s): Division by zero.\n",
+                      bigHexCStri(dividend), bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       modulo = NULL;
     } else {
@@ -1392,7 +1422,9 @@ bigIntType bigRem (const const_bigIntType dividend, const const_bigIntType divis
     bigIntType remainder;
 
   /* bigRem */
-    if (mpz_sgn(divisor) == 0) {
+    if (unlikely(mpz_sgn(divisor) == 0)) {
+      logError(printf("bigRem(%s, %s): Division by zero.\n",
+                      bigHexCStri(dividend), bigHexCStri(divisor)););
       raise_error(NUMERIC_ERROR);
       remainder = NULL;
     } else {

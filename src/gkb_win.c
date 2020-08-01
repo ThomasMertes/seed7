@@ -29,6 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
 
 #include "version.h"
 
@@ -40,7 +42,6 @@
 #include "hsh_rtl.h"
 #include "kbd_drv.h"
 
-#undef TRACE_KBD
 
 static intType button_x = 0;
 static intType button_y = 0;
@@ -127,9 +128,7 @@ charType gkbGetc (void)
     charType result;
 
   /* gkbGetc */
-#ifdef TRACE_KBD
-    printf("begin gkbGetc\n");
-#endif
+    logFunction(printf("gkbGetc\n"););
     result = K_NONE;
     /* printf("before GetMessage\n"); */
     bRet = GetMessage(&msg, NULL, 0, 0);
@@ -448,9 +447,7 @@ charType gkbGetc (void)
         /* printf("after GetMessage\n"); */
       } /* if */
     } /* while */
-#ifdef TRACE_KBD
-    printf("end gkbGetc --> %d\n", result);
-#endif
+    logFunction(printf("gkbGetc --> %d\n", result););
     return result;
   } /* gkbGetc */
 
@@ -465,9 +462,7 @@ boolType gkbKeyPressed (void)
     boolType result;
 
   /* gkbKeyPressed */
-#ifdef TRACE_KBD
-    printf("begin gkbKeyPressed\n");
-#endif
+    logFunction(printf("gkbKeyPressed\n"););
     result = FALSE;
     msg_present = PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
     while (msg_present) {
@@ -550,9 +545,7 @@ boolType gkbKeyPressed (void)
           break;
       } /* switch */
     } /* while */
-#ifdef TRACE_KBD
-    printf("end gkbKeyPressed ==> %d\n", result);
-#endif
+    logFunction(printf("gkbKeyPressed --> %d\n", result););
     return result;
   } /* gkbKeyPressed */
 
@@ -675,16 +668,12 @@ winType gkbWindow (void)
     winType result;
 
   /* gkbWindow */
-#ifdef TRACE_KBD
-    printf("begin gkbWindow\n");
-#endif
+    logFunction(printf("gkbWindow\n"););
     result = find_window(button_window);
     if (result != NULL) {
       result->usage_count++;
     } /* if */
-#ifdef TRACE_KBD
-    printf("end gkbWindow -> %lu\n", result);
-#endif
+    logFunction(printf("gkbWindow -> %lu\n", result););
     return result;
   } /* gkbWindow */
 

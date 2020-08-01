@@ -156,15 +156,15 @@ version.h: chkccomp.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
+	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	$(CC) chkccomp.c -lm -o chkccomp.exe
 	echo The following C compiler errors can be safely ignored
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
-	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
-	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
 	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h

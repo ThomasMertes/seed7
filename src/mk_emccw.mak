@@ -103,7 +103,10 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	copy ..\prg\s7c.js ..\bin /Y
 
 ..\prg\s7c.js: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
-	..\bin\s7 -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+	node ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+
+%.bc: %.c
+    $(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
 
 clear: clean
 
@@ -195,14 +198,14 @@ version.h: chkccomp.h
 	echo #define LINKER_OPT_NO_DEBUG_INFO "-Wl,--strip-debug" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
+	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	gcc chkccomp.c -lm -o chkccomp
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
-	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
-	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
 	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
 	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
 	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h

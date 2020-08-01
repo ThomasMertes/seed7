@@ -158,14 +158,14 @@ version.h: chkccomp.h
 	$(ECHO) "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
 	$(ECHO) "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	$(ECHO) "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
+	$(ECHO) "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
+	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
+	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
 	$(CC) chkccomp.c -lm -o chkccomp.exe
 	$(ECHO) "The following C compiler errors can be safely ignored"
 	.\chkccomp.exe version.h
 	del chkccomp.exe
 	del cc_vers.txt
-	$(ECHO) "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
-	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
-	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
 	$(ECHO) "#define SEED7_LIB \"$(SEED7_LIB)\"" >> version.h
 	$(ECHO) "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> version.h
 	$(ECHO) "#define DRAW_LIB \"$(DRAW_LIB)\"" >> version.h

@@ -139,7 +139,8 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     progRecord prog_backup;
 
   /* interpret */
-    logFunction(printf("interpret\n"););
+    logFunction(printf("interpret(\"%s\")\n",
+                       striAsUnquotedCStri(currentProg->program_path)););
     if (currentProg != NULL) {
       set_fail_flag(FALSE);
       fail_value = (objectType) NULL;
@@ -199,7 +200,8 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
         } /* if */
       } /* if */
     } /* if */
-    logFunction(printf("interpret -->\n"););
+    logFunction(printf("interpret(\"%s\") -->\n",
+                       striAsUnquotedCStri(currentProg->program_path)););
   } /* interpret */
 
 
@@ -336,13 +338,14 @@ progType prgFilParse (const const_striType fileName, const const_setType options
     progType result;
 
   /* prgFilParse */
-    /* printf("prgFilParse(");
-       prot_stri(fileName);
-       printf(")\n"); */
+    logFunction(printf("prgFilParse(\"%s\")\n", striAsUnquotedCStri(fileName)););
     int_options = (uintType) setSConv(options);
     /* printf("options: %03x\n", int_options); */
     result = analyze_file(fileName, int_options, libraryDirs, prot_file_name, &err_info);
     if (err_info != OKAY_NO_ERROR) {
+      logError(printf("prgFilParse(\"%s\"): analyze_file() failed:\n"
+                      "int_options=" F_X(03) "\nerr_info=%d\n",
+                      striAsUnquotedCStri(fileName), int_options, err_info););
       raise_error(err_info);
     } /* if */
     return result;
@@ -468,9 +471,13 @@ progType prgStrParse (const const_striType stri, const const_setType options,
     progType result;
 
   /* prgStrParse */
+    logFunction(printf("prgStrParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     int_options = (uintType) setSConv(options);
     result = analyze_string(stri, int_options, libraryDirs, prot_file_name, &err_info);
     if (err_info != OKAY_NO_ERROR) {
+      logError(printf("prgStrParse(\"%s\"): analyze_string() failed:\n"
+                      "int_options=" F_X(03) "\nerr_info=%d\n",
+                      striAsUnquotedCStri(stri), int_options, err_info););
       raise_error(err_info);
     } /* if */
     return result;

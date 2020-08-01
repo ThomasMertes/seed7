@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -69,7 +72,7 @@ const rtlValueUnion f_const[] =
 #endif
 #endif
 
-#ifdef USE_NEGATIVE_ZERO_BITPATTERN
+#if USE_NEGATIVE_ZERO_BITPATTERN
 static const rtlValueUnion neg_zero_const =
 #ifdef FLOATTYPE_DOUBLE
     {0x8000000000000000};
@@ -99,7 +102,7 @@ static char *fmt_f[] = {"%1.0f", "%1.1f", "%1.2f", "%1.3f", "%1.4f",
 void setupFloat (void)
 
   {
-#ifndef USE_NEGATIVE_ZERO_BITPATTERN
+#if !USE_NEGATIVE_ZERO_BITPATTERN
     floatType zero = 0.0;
     floatType plusInf;
 #endif
@@ -108,7 +111,7 @@ void setupFloat (void)
 #ifdef TURN_OFF_FP_EXCEPTIONS
     _control87(MCW_EM, MCW_EM);
 #endif
-#ifdef USE_NEGATIVE_ZERO_BITPATTERN
+#if USE_NEGATIVE_ZERO_BITPATTERN
     negativeZero = neg_zero_const.floatValue;
 #else
     plusInf = 1.0 / zero;
@@ -322,7 +325,10 @@ striType fltDgts (floatType number, intType precision)
     striType result;
 
   /* fltDgts */
+    logFunction(printf("fltDgts(" FMT_E ", " FMT_D ")\n", number, precision););
     if (unlikely(precision < 0)) {
+      logError(printf("fltDgts(" FMT_E ", " FMT_D "): Precision negative.\n",
+                      number, precision););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else if (unlikely(precision > PRECISION_BUFFER_LEN &&
@@ -352,12 +358,12 @@ striType fltDgts (floatType number, intType precision)
           sprintf(buffer, fmt_f[precision], number);
         } /* if */
 #endif
-#ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
-        if (precision > PRINTF_MAXIMUM_FLOAT_PRECISION) {
+#ifdef PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION
+        if (precision > PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION) {
           pos = strlen(buffer);
           memset(&buffer[pos], '0',
-                 (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION));
-          buffer[pos + (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION)] = '\0';
+                 (memSizeType) (precision - PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION));
+          buffer[pos + (memSizeType) (precision - PRINTF_FMT_F_MAXIMUM_FLOAT_PRECISION)] = '\0';
         } /* if */
 #endif
         buffer_ptr = buffer;
@@ -384,6 +390,8 @@ striType fltDgts (floatType number, intType precision)
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
+    logFunction(printf("fltDgts(" FMT_E ", " FMT_D ") --> \"%s\"\n",
+                       number, precision, striAsUnquotedCStri(result)););
     return result;
   } /* fltDgts */
 
@@ -468,7 +476,7 @@ floatType fltIPow (floatType base, intType exponent)
     floatType power;
 
   /* fltIPow */
-    /* printf("fltIPow(" FMT_E ", " FMT_D ")\n", base, exponent); */
+    logFunction(printf("fltIPow(" FMT_E ", " FMT_D ")\n", base, exponent););
 #ifdef IPOW_EXPONENTIATION_BY_SQUARING
     if (base == 0.0) {
       if (exponent < 0) {
@@ -505,7 +513,7 @@ floatType fltIPow (floatType base, intType exponent)
         unsignedExponent >>= 1;
       } /* while */
       if (neg_exp) {
-#ifdef CHECK_FLOAT_DIV_BY_ZERO
+#if CHECK_FLOAT_DIV_BY_ZERO
         if (power == 0.0) {
           if (fltIsNegativeZero(power)) {
             power = NEGATIVE_INFINITY;
@@ -543,7 +551,7 @@ floatType fltIPow (floatType base, intType exponent)
       power = pow(base, (floatType) exponent);
     } /* if */
 #endif
-    /* printf("fltIPow --> " FMT_E "\n", power); */
+    logFunction(printf("fltIPow --> " FMT_E "\n", power););
     return power;
   } /* fltIPow */
 
@@ -636,9 +644,7 @@ floatType fltParse (const const_striType stri)
     floatType result;
 
   /* fltParse */
-    /* printf("fltParse(");
-        prot_stri(stri);
-        printf(")\n"); */
+    logFunction(printf("fltParse(\"%s\")\n", striAsUnquotedCStri(stri)););
 #ifdef USE_STRTOD
     if (likely(stri->size <= MAX_CSTRI_BUFFER_LEN)) {
       cstri = NULL;
@@ -748,8 +754,11 @@ floatType fltRand (floatType low, floatType high)
     floatType result;
 
   /* fltRand */
-    /* printf("fltRand(%f, %f)\n", low, high); */
+    logFunction(printf("fltRand(" FMT_E ", " FMT_E ")\n", low, high););
     if (unlikely(low > high)) {
+      logError(printf("fltRand(" FMT_E ", " FMT_E "): "
+                      "The range is empty (low > high holds).\n",
+                      low, high););
       raise_error(RANGE_ERROR);
       return 0.0;
     } else {
@@ -800,7 +809,10 @@ striType fltSci (floatType number, intType precision)
     striType result;
 
   /* fltSci */
+    logFunction(printf("fltSci(" FMT_E ", " FMT_D ")\n", number, precision););
     if (unlikely(precision < 0)) {
+      logError(printf("fltSci(" FMT_E ", " FMT_D "): Precision negative.\n",
+                      number, precision););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else if (unlikely(precision > PRECISION_BUFFER_LEN &&
@@ -830,13 +842,13 @@ striType fltSci (floatType number, intType precision)
           sprintf(buffer, fmt_e[precision], number);
         } /* if */
 #endif
-#ifdef PRINTF_MAXIMUM_FLOAT_PRECISION
-        if (precision > PRINTF_MAXIMUM_FLOAT_PRECISION) {
+#ifdef PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION
+        if (precision > PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION) {
           pos = (memSizeType) (strchr(buffer, 'e') - buffer);
-          memmove(&buffer[pos + (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION)],
+          memmove(&buffer[pos + (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION)],
                   &buffer[pos], strlen(&buffer[pos]) + 1);
           memset(&buffer[pos], '0',
-                 (memSizeType) (precision - PRINTF_MAXIMUM_FLOAT_PRECISION));
+                 (memSizeType) (precision - PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION));
         } /* if */
 #endif
         startPos = 0;
@@ -893,6 +905,8 @@ striType fltSci (floatType number, intType precision)
         raise_error(MEMORY_ERROR);
       } /* if */
     } /* if */
+    logFunction(printf("fltSci(" FMT_E ", " FMT_D ") --> \"%s\"\n",
+                       number, precision, striAsUnquotedCStri(result)););
     return result;
   } /* fltSci */
 
@@ -913,6 +927,7 @@ striType fltStr (floatType number)
     striType result;
 
   /* fltStr */
+    logFunction(printf("fltStr(" FMT_E ")\n", number););
     if (isnan(number)) {
       strcpy(buffer, "NaN");
       len = 3;
@@ -937,5 +952,7 @@ striType fltStr (floatType number)
       result->size = len;
       memcpy_to_strelem(result->mem, (const_ustriType) buffer, len);
     } /* if */
+    logFunction(printf("fltStr(" FMT_E ") --> \"%s\"\n",
+                       number, striAsUnquotedCStri(result)););
     return result;
   } /* fltStr */

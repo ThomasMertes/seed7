@@ -50,6 +50,7 @@ const type: httpRequest is new struct
     var string: queryStri is "";
     var propertyType: queryParams is propertyType.value;
     var propertyType: properties is propertyType.value;
+    var string: header is "";
     var string: body is "";
   end struct;
 
@@ -102,6 +103,7 @@ const func httpRequest: processHttpRequest (inout httpServerConnection: conn) is
     if conn.readingHeader then
       lfPos := pos(conn.buffer, '\n');
       while lfPos <> 0 do
+        conn.request.header &:= conn.buffer[conn.readPos .. lfPos];
         if lfPos > 1 and conn.buffer[pred(lfPos)] = '\r' then
           line := conn.buffer[conn.readPos .. lfPos - 2];
         else

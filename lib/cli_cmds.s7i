@@ -123,8 +123,10 @@ const proc: doCopyCmd (in var array string: fileList,
                 copyFile(fileName, destFileName);
               end if;
             end if;
+          elsif fileType(fileName) = FILE_ABSENT then
+            writeln("Cannot copy non-existent file " <& fileName);
           else
-            writeln("Does not copy " <& fileName);
+            writeln("Cannot copy " <& fileName);
           end if;
         end for;
       elsif length(fileList) = 1 then
@@ -147,8 +149,10 @@ const proc: doCopyCmd (in var array string: fileList,
               copyFile(fileName, destFileName);
             end if;
           end if;
+        elsif fileType(fileName) = FILE_ABSENT then
+          writeln("Cannot copy non-existent file " <& fileName);
         else
-          writeln("Does not copy " <& fileName);
+          writeln("Cannot copy " <& fileName);
         end if;
       else
         writeln("Target " <& destination <& " is not a directory");
@@ -203,8 +207,10 @@ const proc: doMoveCmd (in var array string: fileList,
               # write("moveFile " <& fileName <& " " <& destination);
               moveFile(fileName, destFileName);
             end if;
+          elsif fileType(fileName) = FILE_ABSENT then
+            writeln("Cannot move non-existent file " <& fileName);
           else
-            writeln("Does not move " <& fileName);
+            writeln("Cannot move " <& fileName);
           end if;
         end for;
       elsif length(fileList) = 1 then
@@ -222,8 +228,10 @@ const proc: doMoveCmd (in var array string: fileList,
             # write("moveFile " <& fileName <& " " <& destination);
             moveFile(fileName, destFileName);
           end if;
+        elsif fileType(fileName) = FILE_ABSENT then
+          writeln("Cannot move non-existent file " <& fileName);
         else
-          writeln("Does not move " <& fileName);
+          writeln("Cannot move " <& fileName);
         end if;
       else
         writeln("Target " <& destination <& " is not a directory");

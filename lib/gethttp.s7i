@@ -360,20 +360,16 @@ const func httpLocation: getHttpLocation (in httpLocation: currentLocationData,
   end func;
 
 
-const func string: getHttp (in string: serverName, in integer: portNumber, in string: url) is func
+const func string: getHttp (in var httpLocation: locationData) is func
   result
     var string: data is "";
   local
-    var httpLocation: locationData is httpLocation.value;
     var file: sock is STD_NULL;
     var string: statusCode is "";
     var string: location is "";
     var boolean: okay is TRUE;
     var integer: repeatCount is 0;
   begin
-    locationData := getHttpLocation(url, httpDefaultPort);
-    locationData.serverName := serverName;
-    locationData.portNumber := portNumber;
     repeat
       okay := TRUE;
       sock := openHttp(locationData);
@@ -397,6 +393,19 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
   end func;
 
 
+const func string: getHttp (in string: serverName, in integer: portNumber, in string: url) is func
+  result
+    var string: data is "";
+  local
+    var httpLocation: locationData is httpLocation.value;
+  begin
+    locationData := getHttpLocation(url, httpDefaultPort);
+    locationData.serverName := serverName;
+    locationData.portNumber := portNumber;
+    data := getHttp(locationData);
+  end func;
+
+
 (**
  *  Get data specified by an URL using the HTTP protocol.
  *  @return the string of data found, or "" when nothing was found.
@@ -406,34 +415,11 @@ const func string: getHttp (in string: url) is func
     var string: data is "";
   local
     var httpLocation: locationData is httpLocation.value;
-    var file: sock is STD_NULL;
-    var string: statusCode is "";
-    var boolean: okay is TRUE;
-    var integer: repeatCount is 0;
   begin
     locationData := getHttpLocation(url, httpDefaultPort);
     if proxyServer <> "" then
       locationData.serverName := proxyServer;
       locationData.portNumber := proxyHttpPort;
     end if;
-    repeat
-      okay := TRUE;
-      sock := openHttp(locationData);
-      if sock <> STD_NULL then
-        statusCode := getHttpStatusCode(sock);
-        # writeln("statusCode: " <& statusCode);
-        if statusCode = "301" or statusCode = "302" or
-            statusCode = "303" or statusCode = "307" then
-          locationData := getHttpLocation(locationData, sock);
-          close(sock);
-          sock := STD_NULL;
-          okay := FALSE;
-          incr(repeatCount);
-        end if;
-      end if;
-    until okay or repeatCount > 5;
-    if sock <> STD_NULL then
-      data := getHttp(sock);
-      close(sock);
-    end if;
+    data := getHttp(locationData);
   end func;

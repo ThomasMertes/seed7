@@ -60,7 +60,7 @@ const proc: for (inout integer: aVar) range (in integer: upperLimit) downto (in 
  *  ''statements'' are executed repeatedly. After each repetition the
  *  variable ''aVar'' is incremented by ''incr_step''. After the
  *  ''statements'' were executed with ''upperLimit'' the for-loop is
- *  terminated. When ''lowerLimit'' is greater than ''upperLimit'' the 
+ *  terminated. When ''lowerLimit'' is greater than ''upperLimit'' the
  *  ''statements'' are not executed at all.
  *)
 const proc: for (inout integer: variable) range (in integer: lowerLimit) to (in integer: upperLimit)

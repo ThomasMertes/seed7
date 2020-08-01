@@ -1,3 +1,35 @@
+20150517:
+- Error messages in cli_cmds.s7i have been improved.
+- The function getHttp with a httpLocation parameter has been added
+  to gethttp.s7i.
+- The structure httpRequest in httpserv.s7i has been improved to
+  contain a field for the header.
+- Documentation comments have been added to the functions
+  getAttrValue, getAttributes, getSubNodes and getContent in
+  xmldom.s7i.
+- The function readXml with a string parameter has been added to
+  xmldom.s7i.
+- The comanche webserver has been improved to respond with 405
+  (Method Not Allowed), when the request method is unknown.
+- The check for phaser energy in startrek.sd7 has been improved.
+- The function fltSci in flt_rtl.c has been improved to check for
+  PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION.
+- Declarations of sqlite3_db_handle() and sqlite3_errmsg() have been
+  added to db_lite.h and sql_lite.c.
+- The functions assertCompAndLnk and assertCompAndLnkWithOptions
+  have been added to chkccomp.c.
+- The function numericProperties in chkccomp.c has been improved
+  to determine more values from test programs.
+- The makefiles have been changed to define the linker options for
+  libraries before chkccomp is executed.
+- The macro safe_fileno has been added to os_decls.h. This macro
+  is used in logging functions to avoid a segmentation violation,
+  when a FILE is NULL.
+- Calls of logFunction and logError have been added to big_gmp.c,
+  big_rtl.c, drw_rtl.c, drw_win.c, drw_x11.c, fil_rtl.c, flt_rtl.c,
+  gkb_win.c, gkb_x11.c, int_rtl.c, prg_comp.c, str_rtl.c and
+  ut8_rtl.c.
+
 20150503:
 - The example program cat.sd7 has been added. The program
   concatenates and prints files. Thanks go to Brian Callahan for

@@ -1380,6 +1380,8 @@ static bigIntType bigDiv1 (const_bigIntType dividend, bigDigitType divisor_digit
 
   /* bigDiv1 */
     if (unlikely(divisor_digit == 0)) {
+      logError(printf("bigDiv1(%s, " FMT_U_DIG "): Division by zero.\n",
+                      bigHexCStri(dividend), divisor_digit););
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -1632,6 +1634,8 @@ static bigIntType bigRem1 (const_bigIntType dividend, bigDigitType divisor_digit
 
   /* bigRem1 */
     if (unlikely(divisor_digit == 0)) {
+      logError(printf("bigRem1(%s, " FMT_U_DIG "): Division by zero.\n",
+                      bigHexCStri(dividend), divisor_digit););
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -1714,6 +1718,8 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
 
   /* bigMDiv1 */
     if (unlikely(divisor_digit == 0)) {
+      logError(printf("bigMDiv1(%s, " FMT_U_DIG "): Division by zero.\n",
+                      bigHexCStri(dividend), divisor_digit););
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
@@ -4443,7 +4449,7 @@ bigIntType bigLog10 (const const_bigIntType big1)
     bigIntType logarithm;
 
   /* bigLog10 */
-    if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
+    if (unlikely(IS_NEGATIVE(big1->bigdigits[big1->size - 1]))) {
       logError(printf("bigLog10(%s): Number is negative.\n",
                       bigHexCStri(big1)););
       raise_error(NUMERIC_ERROR);
@@ -5086,7 +5092,7 @@ bigIntType bigLShiftOne (const intType lshift)
 /**
  *  Exponentiation when the base is a power of two.
  *  @return (2 ** log2base) ** exponent
- *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception NUMERIC_ERROR When log2base or exponent is negative.
  */
 bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
 
@@ -5098,7 +5104,7 @@ bigIntType bigLog2BaseIPow (const intType log2base, const intType exponent)
   /* bigLog2BaseIPow */
     if (unlikely(log2base < 0 || exponent < 0)) {
       logError(printf("bigLog2BaseIPow(" FMT_D ", " FMT_D "): "
-                      "Exponent is negative.\n",
+                      "Log2base or exponent is negative.\n",
                       log2base, exponent););
       raise_error(NUMERIC_ERROR);
       result = NULL;
@@ -6620,6 +6626,7 @@ striType bigStr (const const_bigIntType big1)
     striType result;
 
   /* bigStr */
+    logFunction(printf("bigStr(%s)\n", bigHexCStri(big1)););
     if (unlikely((MAX_STRI_LEN <= (MAX_MEMSIZETYPE - 1) / 3 + 2 &&
                  big1->size > ((MAX_STRI_LEN - 2) * 3 + 1) / BIGDIGIT_SIZE) ||
                  big1->size > MAX_MEMSIZETYPE / BIGDIGIT_SIZE)) {
@@ -6695,6 +6702,7 @@ striType bigStr (const const_bigIntType big1)
         } /* if */
       } /* if */
     } /* if */
+    logFunction(printf("bigStr --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* bigStr */
 
@@ -7031,18 +7039,23 @@ int16Type bigToInt16 (const const_bigIntType big1)
     int32Type result;
 
   /* bigToInt16 */
+    logFunction(printf("bigToInt16(%s)\n", bigHexCStri(big1)););
 #if BIGDIGIT_SIZE > 16
     if (unlikely(big1->size > 1)) {
 #else
     if (unlikely(big1->size > sizeof(int16Type) / (BIGDIGIT_SIZE >> 3))) {
 #endif
+      logError(printf("bigToInt16(%s): Number too big or too small.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
-      return 0;
+      result = 0;
     } else {
       pos = big1->size - 1;
       result = (int32Type) (signedBigDigitType) big1->bigdigits[pos];
 #if BIGDIGIT_SIZE > 16
       if (result < INT16TYPE_MIN || result > INT16TYPE_MAX) {
+        logError(printf("bigToInt16(%s): Number too big or too small.\n",
+                        bigHexCStri(big1)););
         raise_error(RANGE_ERROR);
         result = 0;
       } /* if */
@@ -7053,8 +7066,9 @@ int16Type bigToInt16 (const const_bigIntType big1)
         result |= (int16Type) big1->bigdigits[pos];
       } /* while */
 #endif
-      return (int16Type) result;
     } /* if */
+    logFunction(printf("bigToInt16 --> " FMT_D32 "\n", result););
+    return (int16Type) result;
   } /* bigToInt16 */
 
 
@@ -7066,10 +7080,13 @@ int32Type bigToInt32 (const const_bigIntType big1)
     int32Type result;
 
   /* bigToInt32 */
+    logFunction(printf("bigToInt32(%s)\n", bigHexCStri(big1)););
     /* Assume that BIGDIGIT_SIZE <= 32 holds. */
     if (unlikely(big1->size > sizeof(int32Type) / (BIGDIGIT_SIZE >> 3))) {
+      logError(printf("bigToInt32(%s): Number too big or too small.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
-      return 0;
+      result = 0;
     } else {
       pos = big1->size - 1;
       result = (int32Type) (signedBigDigitType) big1->bigdigits[pos];
@@ -7080,8 +7097,9 @@ int32Type bigToInt32 (const const_bigIntType big1)
         result |= (int32Type) big1->bigdigits[pos];
       } /* while */
 #endif
-      return result;
     } /* if */
+    logFunction(printf("bigToInt32 --> " FMT_D32 "\n", result););
+    return result;
   } /* bigToInt32 */
 
 
@@ -7094,10 +7112,13 @@ int64Type bigToInt64 (const const_bigIntType big1)
     int64Type result;
 
   /* bigToInt64 */
+    logFunction(printf("bigToInt64(%s)\n", bigHexCStri(big1)););
     /* Assume that BIGDIGIT_SIZE <= 32 holds. */
     if (unlikely(big1->size > sizeof(int64Type) / (BIGDIGIT_SIZE >> 3))) {
+      logError(printf("bigToInt64(%s): Number too big or too small.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
-      return 0;
+      result = 0;
     } else {
       pos = big1->size - 1;
       result = (int64Type) (signedBigDigitType) big1->bigdigits[pos];
@@ -7108,8 +7129,9 @@ int64Type bigToInt64 (const const_bigIntType big1)
         result |= (int64Type) big1->bigdigits[pos];
       } /* while */
 #endif
-      return result;
     } /* if */
+    logFunction(printf("bigToInt64 --> " FMT_D64 "\n", result););
+    return result;
   } /* bigToInt64 */
 
 
@@ -7124,6 +7146,8 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
     logFunction(printf("bigToUInt64(%s)\n", bigHexCStri(big1)););
     pos = big1->size - 1;
     if (unlikely(IS_NEGATIVE(big1->bigdigits[pos]))) {
+      logError(printf("bigToUInt64(%s): Number is negative.\n",
+                      bigHexCStri(big1)););
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
@@ -7132,6 +7156,8 @@ uint64Type bigToUInt64 (const const_bigIntType big1)
         pos--;
       } /* if */
       if (unlikely(pos >= sizeof(int64Type) / (BIGDIGIT_SIZE >> 3))) {
+        logError(printf("bigToUInt64(%s): Number too big.\n",
+                        bigHexCStri(big1)););
         raise_error(RANGE_ERROR);
         result = 0;
       } else {

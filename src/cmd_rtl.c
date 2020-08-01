@@ -333,8 +333,7 @@ static void copy_file (const const_os_striType from_name,
           if (file_stat.st_size >= 0 && (unsigned_os_off_t) file_stat.st_size < MAX_MEMSIZETYPE) {
             file_length = (memSizeType) file_stat.st_size;
             if ((file_content = (ustriType) mmap(NULL, file_length,
-                PROT_READ, MAP_PRIVATE, fileno(from_file),
-                0)) != (ustriType) -1) {
+                PROT_READ, MAP_PRIVATE, file_no, 0)) != (ustriType) -1) {
               if (fwrite(file_content, 1, file_length, to_file) != file_length) {
                 *err_info = FILE_ERROR;
               } /* if */
@@ -1245,7 +1244,7 @@ striType cmdConfigValue (const const_striType name)
     const_cstriType opt;
     char buffer[4];
     errInfoType err_info = OKAY_NO_ERROR;
-    striType result;
+    striType result = NULL;
 
   /* cmdConfigValue */
     if (name->size > MAX_CSTRI_BUFFER_LEN) {
@@ -1379,7 +1378,9 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "CHECK_INT_REM_ZERO_BY_ZERO") == 0) {
         opt = CHECK_INT_REM_ZERO_BY_ZERO ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
-#ifdef CHECK_FLOAT_DIV_BY_ZERO
+        opt = CHECK_FLOAT_DIV_BY_ZERO ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "NAN_COMPARISON_WRONG") == 0) {
+#ifdef NAN_COMPARISON_WRONG
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -1416,12 +1417,6 @@ striType cmdConfigValue (const const_striType name)
 #endif
       } else if (strcmp(opt_name, "LITTLE_ENDIAN_INTTYPE") == 0) {
 #ifdef LITTLE_ENDIAN_INTTYPE
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
-      } else if (strcmp(opt_name, "NAN_COMPARISON_WRONG") == 0) {
-#ifdef NAN_COMPARISON_WRONG
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -1466,7 +1461,7 @@ striType cmdConfigValue (const const_striType name)
         opt = "";
       } /* if */
     } /* if */
-    if (opt != NULL) {
+    if (opt != NULL && result == NULL) {
       result = cstri8_or_cstri_to_stri(opt);
     } /* if */
     if (unlikely(result == NULL)) {

@@ -103,6 +103,8 @@ typedef sqlite3_int64 (*tp_sqlite3_column_int64) (sqlite3_stmt *pStmt, int iCol)
 typedef const char *(*tp_sqlite3_column_name) (sqlite3_stmt *pStmt, int N);
 typedef const unsigned char *(*tp_sqlite3_column_text) (sqlite3_stmt *pStmt, int iCol);
 typedef int (*tp_sqlite3_column_type) (sqlite3_stmt *pStmt, int iCol);
+typedef sqlite3 *(*tp_sqlite3_db_handle) (sqlite3_stmt *pStmt);
+typedef const char *(*tp_sqlite3_errmsg) (sqlite3 *db);
 typedef int (*tp_sqlite3_finalize) (sqlite3_stmt *pStmt);
 typedef int (*tp_sqlite3_open) (const char *filename, sqlite3 **ppDb);
 typedef int (*tp_sqlite3_prepare) (sqlite3 *db,
@@ -129,6 +131,8 @@ tp_sqlite3_column_int64  ptr_sqlite3_column_int64;
 tp_sqlite3_column_name   ptr_sqlite3_column_name;
 tp_sqlite3_column_text   ptr_sqlite3_column_text;
 tp_sqlite3_column_type   ptr_sqlite3_column_type;
+tp_sqlite3_db_handle     ptr_sqlite3_db_handle;
+tp_sqlite3_errmsg        ptr_sqlite3_errmsg;
 tp_sqlite3_finalize      ptr_sqlite3_finalize;
 tp_sqlite3_open          ptr_sqlite3_open;
 tp_sqlite3_prepare       ptr_sqlite3_prepare;
@@ -151,6 +155,8 @@ tp_sqlite3_step          ptr_sqlite3_step;
 #define sqlite3_column_name   ptr_sqlite3_column_name
 #define sqlite3_column_text   ptr_sqlite3_column_text
 #define sqlite3_column_type   ptr_sqlite3_column_type
+#define sqlite3_db_handle     ptr_sqlite3_db_handle
+#define sqlite3_errmsg        ptr_sqlite3_errmsg
 #define sqlite3_finalize      ptr_sqlite3_finalize
 #define sqlite3_open          ptr_sqlite3_open
 #define sqlite3_prepare       ptr_sqlite3_prepare
@@ -185,6 +191,8 @@ static boolType setupDll (const char *dllName)
             (sqlite3_column_name   = (tp_sqlite3_column_name)   dllSym(dbDll, "sqlite3_column_name"))   == NULL ||
             (sqlite3_column_text   = (tp_sqlite3_column_text)   dllSym(dbDll, "sqlite3_column_text"))   == NULL ||
             (sqlite3_column_type   = (tp_sqlite3_column_type)   dllSym(dbDll, "sqlite3_column_type"))   == NULL ||
+            (sqlite3_db_handle     = (tp_sqlite3_db_handle)     dllSym(dbDll, "sqlite3_db_handle"))     == NULL ||
+            (sqlite3_errmsg        = (tp_sqlite3_errmsg)        dllSym(dbDll, "sqlite3_errmsg"))        == NULL ||
             (sqlite3_finalize      = (tp_sqlite3_finalize)      dllSym(dbDll, "sqlite3_finalize"))      == NULL ||
             (sqlite3_open          = (tp_sqlite3_open)          dllSym(dbDll, "sqlite3_open"))          == NULL ||
             (sqlite3_prepare       = (tp_sqlite3_prepare)       dllSym(dbDll, "sqlite3_prepare"))       == NULL ||

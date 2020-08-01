@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -47,8 +50,6 @@
 #undef EXTERN
 #define EXTERN
 #include "drw_drv.h"
-
-#undef TRACE_WIN
 
 
 #define PI 3.141592653589793238462643383279502884197
@@ -514,10 +515,8 @@ void drwClear (winType actual_window, intType col)
     HBRUSH current_brush;
 
   /* drwClear */
-#ifdef TRACE_WIN
-    printf("drwClear(" FMT_U_MEM ", " F_X(08) ")\n",
-           (memSizeType) actual_window, col);
-#endif
+    logFunction(printf("drwClear(" FMT_U_MEM ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, col););
     to_clear_col(actual_window) = col;
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     current_brush = CreateSolidBrush((COLORREF) col);
@@ -551,12 +550,10 @@ void drwCopyArea (const_winType src_window, const_winType dest_window,
     intType dest_x, intType dest_y)
 
   { /* drwCopyArea */
-#ifdef TRACE_WIN
-    printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
-           FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) src_window, (memSizeType) dest_window,
-           src_x, src_y, width, height, dest_x, dest_y);
-#endif
+    logFunction(printf("drwCopyArea(" FMT_U_MEM ", " FMT_U_MEM ", "
+                       FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) src_window, (memSizeType) dest_window,
+                       src_x, src_y, width, height, dest_x, dest_y););
     if (!inIntRange(src_x) || !inIntRange(src_y) ||
         !inIntRange(width) || !inIntRange(height) ||
         !inIntRange(dest_x) || !inIntRange(dest_y) ||
@@ -677,9 +674,7 @@ winType drwEmpty (void)
     win_winType result;
 
   /* drwEmpty */
-#ifdef TRACE_WIN
-    printf("BEGIN drwEmpty()\n");
-#endif
+    logFunction(printf("drwEmpty()\n"););
     if (init_called == 0) {
       dra_init();
     } /* if */
@@ -699,11 +694,9 @@ winType drwEmpty (void)
       result->width = 0;
       result->height = 0;
     } /* if */
-#ifdef TRACE_WIN
-    printf("END drwEmpty ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwEmpty --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwEmpty */
 
@@ -719,11 +712,9 @@ void drwFlush (void)
 void drwFree (winType old_window)
 
   { /* drwFree */
-#ifdef TRACE_WIN
-    printf("drwFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) old_window,
-           old_window != NULL ? old_window->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwFree(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) old_window,
+                       old_window != NULL ? old_window->usage_count : (uintType) 0););
     if (is_pixmap(old_window)) {
       SelectObject(to_hdc(old_window), to_oldBitmap(old_window));
       DeleteObject(to_hBitmap(old_window));
@@ -747,10 +738,8 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
     win_winType result;
 
   /* drwGet */
-#ifdef TRACE_WIN
-    printf("BEGIN drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, left, upper, width, height);
-#endif
+    logFunction(printf("drwGet(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, left, upper, width, height););
     if (!inIntRange(left) || !inIntRange(upper) ||
         !inIntRange(width) || !inIntRange(height) ||
         width < 1 || height < 1) {
@@ -783,11 +772,9 @@ winType drwGet (const_winType actual_window, intType left, intType upper,
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_WIN
-    printf("END drwGet ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwGet --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwGet */
 
@@ -803,12 +790,10 @@ bstriType drwGetImage (const_winType actual_window)
     bstriType result;
 
   /* drwGetImage */
-#ifdef TRACE_WIN
-    printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) actual_window);
-#endif
+    logFunction(printf("drwGetImage(" FMT_U_MEM ")\n", (memSizeType) actual_window););
     result_size = to_width(actual_window) * to_height(actual_window) * sizeof(int32Type);
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, result_size))) {
-      raise_error(RANGE_ERROR);
+      raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
       image_data = (int32Type *) result->mem;
@@ -849,10 +834,8 @@ intType drwHeight (const_winType actual_window)
       height = (intType) ((unsigned int) (rect.bottom - rect.top) -
                          to_brutto_height_delta(actual_window));
     } /* if */
-#ifdef TRACE_WIN
-    printf("drwHeight(" FMT_U_MEM ") -> %u\n",
-           (memSizeType) actual_window, height);
-#endif
+    logFunction(printf("drwHeight(" FMT_U_MEM ") --> %u\n",
+                       (memSizeType) actual_window, height););
     return height;
   } /* drwHeight */
 
@@ -866,9 +849,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
     winType result;
 
   /* drwImage */
-#ifdef TRACE_WIN
-    printf("BEGIN drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height);
-#endif
+    logFunction(printf("drwImage(" FMT_U_MEM ", " FMT_U_MEM ")\n", width, height););
     if (width < 1 || width > INTTYPE_MAX ||
         height < 1 || height > INTTYPE_MAX) {
       raise_error(RANGE_ERROR);
@@ -886,11 +867,9 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
         } /* for */
       } /* if */
     } /* if */
-#ifdef TRACE_WIN
-    printf("END drwImage ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("END drwImage ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return result;
   } /* drwImage */
 
@@ -918,10 +897,8 @@ void drwPLine (const_winType actual_window,
     HPEN current_pen;
 
   /* drwPLine */
-#ifdef TRACE_WIN
-    printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x1, y1, x2, y2, col);
-#endif
+    logFunction(printf("drwPLine(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x1, y1, x2, y2, col););
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
     current_pen = CreatePen(PS_SOLID, 1, (COLORREF) col);
     if (current_pen == NULL) {
@@ -952,9 +929,7 @@ winType drwNewPixmap (intType width, intType height)
     win_winType result;
 
   /* drwNewPixmap */
-#ifdef TRACE_WIN
-    printf("BEGIN drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height);
-#endif
+    logFunction(printf("drwNewPixmap(" FMT_D ", " FMT_D ")\n", width, height););
     if (!inIntRange(width) || !inIntRange(height) ||
         width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
@@ -980,11 +955,9 @@ winType drwNewPixmap (intType width, intType height)
         result->height = (unsigned int) height;
       } /* if */
     } /* if */
-#ifdef TRACE_WIN
-    printf("END drwNewPixmap ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwNewPixmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwNewPixmap */
 
@@ -996,15 +969,11 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
     win_winType result;
 
   /* drwNewBitmap */
-#ifdef TRACE_WIN
-    printf("BEGIN drwNewBitmap(%ld, %ld)\n", width, height);
-#endif
+    logFunction(printf("drwNewBitmap(%ld, %ld)\n", width, height););
     result = NULL;
-#ifdef TRACE_WIN
-    printf("END drwNewBitmap ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwNewBitmap --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwNewBitmap */
 
@@ -1036,10 +1005,8 @@ winType drwOpen (intType xPos, intType yPos,
     win_winType result;
 
   /* drwOpen */
-#ifdef TRACE_WIN
-    printf("BEGIN drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-        xPos, yPos, width, height);
-#endif
+    logFunction(printf("drwOpen(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       xPos, yPos, width, height););
     result = NULL;
     if (!inIntRange(xPos) || !inIntRange(yPos) ||
         !inIntRange(width) || !inIntRange(height) ||
@@ -1113,11 +1080,9 @@ winType drwOpen (intType xPos, intType yPos,
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_WIN
-    printf("END drwOpen ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwOpen --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpen */
 
@@ -1131,10 +1096,8 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
     win_winType result;
 
   /* drwOpenSubWindow */
-#ifdef TRACE_WIN
-    printf("BEGIN drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-        xPos, yPos, width, height);
-#endif
+    logFunction(printf("drwOpenSubWindow(" FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       xPos, yPos, width, height););
     result = NULL;
     if (!inIntRange(xPos) || !inIntRange(yPos) ||
         !inIntRange(width) || !inIntRange(height) ||
@@ -1207,11 +1170,9 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_WIN
-    printf("END drwOpenSubWindow ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) result,
-           result != NULL ? result->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwOpenSubWindow --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) result,
+                       result != NULL ? result->usage_count : (uintType) 0););
     return (winType) result;
   } /* drwOpenSubWindow */
 
@@ -1233,10 +1194,8 @@ void drwPoint (const_winType actual_window, intType x, intType y)
 void drwPPoint (const_winType actual_window, intType x, intType y, intType col)
 
   { /* drwPPoint */
-#ifdef TRACE_WIN
-    printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x, y, col);
-#endif
+    logFunction(printf("drwPPoint(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, col););
     SetPixel(to_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
     if (to_backup_hdc(actual_window) != 0) {
       SetPixel(to_backup_hdc(actual_window), castToInt(x), castToInt(y), (COLORREF) col);
@@ -1434,10 +1393,8 @@ void drwRect (const_winType actual_window,
     intType x, intType y, intType width, intType height)
 
   { /* drwRect */
-#ifdef TRACE_WIN
-    printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-           (memSizeType) actual_window, x, y, width, height);
-#endif
+    logFunction(printf("drwRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) actual_window, x, y, width, height););
     Rectangle(to_hdc(actual_window), castToInt(x), castToInt(y),
               castToInt(x + width), castToInt(y + height));
     if (to_backup_hdc(actual_window) != 0) {
@@ -1458,10 +1415,8 @@ void drwPRect (const_winType actual_window,
     HBRUSH current_brush;
 
   /* drwPRect */
-#ifdef TRACE_WIN
-    printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
-           (memSizeType) actual_window, x, y, width, height, col);
-#endif
+    logFunction(printf("drwPRect(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ", " F_X(08) ")\n",
+                       (memSizeType) actual_window, x, y, width, height, col););
     /* SetDCPenColor(to_hdc(actual_window), (COLORREF) col); */
 #ifdef OUT_OF_ORDER
     if (width == 0 && height == 0) {
@@ -1526,9 +1481,7 @@ void drwPRect (const_winType actual_window,
 intType drwRgbColor (intType red_val, intType green_val, intType blue_val)
 
   { /* drwRgbColor */
-#ifdef TRACE_WIN
-    printf("drwRgbColor(%lu, %ld, %ld)\n", red_val, green_val, blue_val);
-#endif
+    logFunction(printf("drwRgbColor(%lu, %ld, %ld)\n", red_val, green_val, blue_val););
     return (intType) RGB(((uintType) red_val) >> 8,
                          ((uintType) green_val) >> 8,
                          ((uintType) blue_val) >> 8);
@@ -1681,10 +1634,8 @@ intType drwWidth (const_winType actual_window)
       width = (intType) ((unsigned int) (rect.right - rect.left) -
                         to_brutto_width_delta(actual_window));
     } /* if */
-#ifdef TRACE_WIN
-    printf("drwWidth(" FMT_U_MEM ") -> %u\n",
-           (memSizeType) actual_window, width);
-#endif
+    logFunction(printf("drwWidth(" FMT_U_MEM ") --> %u\n",
+                       (memSizeType) actual_window, width););
     return width;
   } /* drwWidth */
 
@@ -1707,10 +1658,8 @@ intType drwXPos (const_winType actual_window)
       ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
       xPos = point.x;
     } /* if */
-#ifdef TRACE_WIN
-    printf("drwXPos(" FMT_U_MEM ") -> " FMT_D "\n",
-           (memSizeType) actual_window, xPos);
-#endif
+    logFunction(printf("drwXPos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, xPos););
     return xPos;
   } /* drwXPos */
 
@@ -1733,9 +1682,7 @@ intType drwYPos (const_winType actual_window)
       ScreenToClient(GetParent(to_hwnd(actual_window)), &point);
       yPos = point.y;
     } /* if */
-#ifdef TRACE_WIN
-    printf("drwYPos(" FMT_U_MEM ") -> " FMT_D "\n",
-           (memSizeType) actual_window, yPos);
-#endif
+    logFunction(printf("drwYPos(" FMT_U_MEM ") --> " FMT_D "\n",
+                       (memSizeType) actual_window, yPos););
     return yPos;
   } /* drwYPos */

@@ -1411,7 +1411,7 @@ boolType socInputReady (socketType sock, intType seconds, intType micro_seconds)
                         "select(%d, [%d], NULL, NULL, [" FMT_D ", " FMT_D "]) failed:\n"
                         "errno=%d\nerror: %s\n",
                         sock, seconds, micro_seconds,
-                        ndfs, sock, seconds, micro_seconds,
+                        nfds, sock, seconds, micro_seconds,
                         ERROR_INFORMATION););
         raise_error(FILE_ERROR);
         result = FALSE;

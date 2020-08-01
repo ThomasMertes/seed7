@@ -362,7 +362,7 @@ static void print_error_line (void)
       } /* if */
       do {
         /* printf("buffer_start_position: %ld\n", buffer_start_position);
-	   printf("chars_to_read: %d\n", chars_to_read); */
+           printf("chars_to_read: %d\n", chars_to_read); */
         IN_FILE_SEEK(buffer_start_position);
         chars_in_buffer = 0;
         while (chars_in_buffer < chars_to_read && (ch = next_character()) != EOF) {
@@ -371,11 +371,11 @@ static void print_error_line (void)
         } /* if */
         /* prot_cstri("buf: ");
         fwrite(buffer, 1, (size_t) chars_in_buffer, stdout);
-	prot_nl(); */
+        prot_nl(); */
         start = chars_in_buffer - 1;
         while (start >= 0 && buffer[start] != '\n' &&
             buffer[start] != '\r') {
-	  /* printf("buffer[%d]=%d\n", start, buffer[start]); */
+          /* printf("buffer[%d]=%d\n", start, buffer[start]); */
           start--;
         } /* while */
         if (start < 0 && buffer_start_position != 0) {

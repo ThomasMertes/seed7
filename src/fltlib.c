@@ -312,7 +312,7 @@ objectType flt_div (listType arguments)
     isit_float(arg_3(arguments));
     dividend = take_float(arg_1(arguments));
     divisor = take_float(arg_3(arguments));
-#ifdef CHECK_FLOAT_DIV_BY_ZERO
+#if CHECK_FLOAT_DIV_BY_ZERO
     if (divisor == 0.0) {
       if (dividend == 0.0 || isnan(dividend)) {
         return bld_float_temp(NOT_A_NUMBER);
@@ -335,7 +335,7 @@ objectType flt_div_assign (listType arguments)
 
   {
     objectType flt_variable;
-#ifdef CHECK_FLOAT_DIV_BY_ZERO
+#if CHECK_FLOAT_DIV_BY_ZERO
     floatType dividend;
 #endif
     floatType divisor;
@@ -346,7 +346,7 @@ objectType flt_div_assign (listType arguments)
     is_variable(flt_variable);
     isit_float(arg_3(arguments));
     divisor = take_float(arg_3(arguments));
-#ifdef CHECK_FLOAT_DIV_BY_ZERO
+#if CHECK_FLOAT_DIV_BY_ZERO
     if (divisor == 0.0) {
       dividend = take_float(flt_variable);
       if (dividend == 0.0 || isnan(dividend)) {

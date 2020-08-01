@@ -29,6 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
 
 #include "version.h"
 
@@ -50,7 +52,6 @@
 #include "kbd_drv.h"
 
 #undef FLAG_EVENTS
-#undef TRACE_KBD
 
 #define ALLOW_REPARENT_NOTIFY
 
@@ -916,7 +917,7 @@ winType find_window (Window sys_window)
                             (intType) ((memSizeType) sys_window) >> 6,
                             (compareType) &genericCmp);
     } /* if */
-    /* printf("find_window(%lx) ==> %lx\n", (unsigned long) sys_window, (unsigned long) window); */
+    /* printf("find_window(%lx) --> %lx\n", (unsigned long) sys_window, (unsigned long) window); */
     return window;
   } /* find_window */
 
@@ -960,16 +961,12 @@ void handleExpose (XExposeEvent *xexpose)
     winType redraw_window;
 
   /* handleExpose */
-#ifdef TRACE_KBD
-    printf("begin handleExpose\n");
-#endif
+    logFunction(printf("handleExpose\n"););
     /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
         xexpose->x, xexpose->y, xexpose->width, xexpose->height, xexpose->count); */
     redraw_window = find_window(xexpose->window);
     redraw(redraw_window, xexpose->x, xexpose->y, xexpose->width, xexpose->height);
-#ifdef TRACE_KBD
-    printf("end handleExpose\n");
-#endif
+    logFunction(printf("handleExpose -->\n"););
   } /* handleExpose */
 
 
@@ -1011,9 +1008,7 @@ charType gkbGetc (void)
     charType result;
 
   /* gkbGetc */
-#ifdef TRACE_KBD
-    printf("begin gkbGetc\n");
-#endif
+    logFunction(printf("gkbGetc\n"););
     do {
       getNextChar = FALSE;
       flushBeforeRead();
@@ -1101,7 +1096,7 @@ charType gkbGetc (void)
 #ifdef FLAG_EVENTS
           printf("ButtonPress (%d, %d, %u %lu)\n",
               currentEvent.xbutton.x, currentEvent.xbutton.y,
-		 currentEvent.xbutton.button, (unsigned long) currentEvent.xbutton.window);
+              currentEvent.xbutton.button, (unsigned long) currentEvent.xbutton.window);
 #endif
           button_x = currentEvent.xbutton.x;
           button_y = currentEvent.xbutton.y;
@@ -1529,10 +1524,8 @@ charType gkbGetc (void)
           break;
       } /* switch */
     } while (getNextChar);
-#ifdef TRACE_KBD
-    printf("end gkbGetc key: \"%s\" %ld %lx %d\n",
-        buffer, (long) currentKey, (long) currentKey, result);
-#endif
+    logFunction(printf("gkbGetc --> key: \"%s\" %ld %lx %d\n",
+                       buffer, (long) currentKey, (long) currentKey, result););
     return result;
   } /* gkbGetc */
 
@@ -1548,9 +1541,7 @@ boolType processEvents (void)
     boolType result;
 
   /* processEvents */
-#ifdef TRACE_KBD
-    printf("begin processEvents\n");
-#endif
+    logFunction(printf("processEvents\n"););
     result = FALSE;
     if (!eventPresent) {
       num_events = XEventsQueued(mydisplay, QueuedAfterReading);
@@ -1649,9 +1640,7 @@ boolType processEvents (void)
         } /* switch */
       } /* while */
     } /* if */
-#ifdef TRACE_KBD
-    printf("end processEvents ==> %d\n", result);
-#endif
+    logFunction(printf("processEvents --> %d\n", result););
     return result;
   } /* processEvents */
 
@@ -1660,14 +1649,10 @@ boolType processEvents (void)
 boolType gkbKeyPressed (void)
 
   { /* gkbKeyPressed */
-#ifdef TRACE_KBD
-    printf("begin gkbKeyPressed\n");
-#endif
+    logFunction(printf("gkbKeyPressed\n"););
     flushBeforeRead();
     processEvents();
-#ifdef TRACE_KBD
-    printf("end gkbKeyPressed ==> %d\n", eventPresent);
-#endif
+    logFunction(printf("gkbKeyPressed --> %d\n", eventPresent););
     return eventPresent;
   } /* gkbKeyPressed */
 
@@ -1690,7 +1675,7 @@ static boolType mouseButtonPressed (unsigned int button_mask)
     /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
        root, child, root_x, root_y, win_x, win_y, keys_buttons); */
     result = (keys_buttons & button_mask) != 0;
-    /* printf("mouseButtonPressed(%d) ==> %d\n", button_mask, result); */
+    /* printf("mouseButtonPressed(%d) --> %d\n", button_mask, result); */
     return result;
   } /* mouseButtonPressed */
 
@@ -1770,7 +1755,7 @@ boolType gkbButtonPressed (charType button)
     boolType result;
 
   /* gkbButtonPressed */
-    /* printf("gkbButtonPressed(%04x)\n", button); */
+    logFunction(printf("gkbButtonPressed(%04x)\n", button););
     switch (button) {
       case K_CTL_A: case K_ALT_A: case 'A': case 'a': sym1 = 'A'; break;
       case K_CTL_B: case K_ALT_B: case 'B': case 'b': sym1 = 'B'; break;
@@ -1911,9 +1896,7 @@ boolType gkbButtonPressed (charType button)
         } /* if */
       } /* if */
     } /* if */
-#ifdef TRACE_KBD
-    printf("gkbButtonPressed -> %d\n", result);
-#endif
+    logFunction(printf("gkbButtonPressed -> %d\n", result););
     return result;
   } /* gkbButtonPressed */
 
@@ -1930,9 +1913,7 @@ charType gkbRawGetc (void)
 intType gkbButtonXpos (void)
 
   { /* gkbButtonXpos */
-#ifdef TRACE_KBD
-    printf("gkbButtonXpos -> " FMT_D "\n", button_x);
-#endif
+    logFunction(printf("gkbButtonXpos -> " FMT_D "\n", button_x););
     return button_x;
   } /* gkbButtonXpos */
 
@@ -1941,9 +1922,7 @@ intType gkbButtonXpos (void)
 intType gkbButtonYpos (void)
 
   { /* gkbButtonYpos */
-#ifdef TRACE_KBD
-    printf("gkbButtonYpos -> " FMT_D "\n", button_y);
-#endif
+    logFunction(printf("gkbButtonYpos -> " FMT_D "\n", button_y););
     return button_y;
   } /* gkbButtonYpos */
 
@@ -1955,16 +1934,12 @@ winType gkbWindow (void)
     winType result;
 
   /* gkbWindow */
-#ifdef TRACE_KBD
-    printf("begin gkbWindow\n");
-#endif
+    logFunction(printf("gkbWindow\n"););
     result = find_window(button_window);
     if (result != NULL) {
       result->usage_count++;
     } /* if */
-#ifdef TRACE_KBD
-    printf("end gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result);
-#endif
+    logFunction(printf("gkbWindow -> " FMT_U_MEM "\n", (memSizeType) result););
     return result;
   } /* gkbWindow */
 

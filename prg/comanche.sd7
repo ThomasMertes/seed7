@@ -80,22 +80,22 @@ const proc: sendHttpResponse (inout file: sock, in string: content,
   end func;
 
 
-const proc: sendClientError (inout file: sock, in string: message,
-    in string: explanation) is func
+const proc: sendClientError (inout file: sock, in integer: statuscode,
+    in string: message, in string: explanation) is func
   local
     var string: response is "";
     var string: htmlMessage is "";
   begin
     htmlMessage := "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n\
                    \<html><head>\n\
-                   \<title>" <& message <& "</title>\n\
+                   \<title>" <& statuscode <& " " <& message <& "</title>\n\
                    \</head><body>\n\
-                   \<h1>Not Found</h1>\n\
+                   \<h1>" <& message <& "</h1>\n\
                    \<p>" <& explanation <& "</p>\n\
                    \<hr>\n\
                    \<address>Comanche</address>\n\
                    \</body></html>\n";
-    response &:= "HTTP/1.1 " <& message <& "\r\n";
+    response &:= "HTTP/1.1 " <& statuscode <& " " <& message <& "\r\n";
     response &:= "Server: Comanche\r\n";
     response &:= "Transfer-Encoding: identity\r\n";
     response &:= "Content-Length: " <& length(htmlMessage) <& "\r\n";
@@ -211,7 +211,7 @@ const proc: processGet (inout httpRequest: request) is func
       end if;
     end if;
     if buffer = "" then
-      sendClientError(request.sock, "404 Not Found",
+      sendClientError(request.sock, 404, "Not Found",
           "The requested URL " <& request.path <&
           " was not found on this server.");
     end if;
@@ -236,7 +236,7 @@ const proc: processPost (inout httpRequest: request) is func
     if buffer <> "" then
       sendHttpResponse(request.sock, buffer, "", cgiHeader);
     else
-      sendClientError(request.sock, "404 Not Found",
+      sendClientError(request.sock, 404, "Not Found",
           "The requested URL " <& request.path <&
           " was not found on this server.");
     end if;
@@ -326,6 +326,9 @@ const proc: main is func
             processGet(request);
           elsif request.method = "POST" then
             processPost(request);
+          else
+            sendClientError(request.sock, 405, "Method Not Allowed",
+                "The HTTP-method " <& request.method <& " is not allowed.");
           end if;
           # process(request);
         end while;

@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdlib.h"
@@ -44,20 +47,16 @@
 #define EXTERN
 #include "drw_rtl.h"
 
-#undef TRACE_DRW
-
 
 
 void drwCpy (winType *const win_to, const winType win_from)
 
   { /* drwCpy */
-#ifdef TRACE_DRW
-    printf("BEGIN drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
-           (memSizeType) *win_to,
-           *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
-           (memSizeType) win_from,
-           win_from != NULL ? win_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
+                       (memSizeType) *win_to,
+                       *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
+                       (memSizeType) win_from,
+                       win_from != NULL ? win_from->usage_count : (uintType) 0););
     if (win_from != NULL) {
       win_from->usage_count++;
     } /* if */
@@ -68,13 +67,11 @@ void drwCpy (winType *const win_to, const winType win_from)
       } /* if */
     } /* if */
     *win_to = win_from;
-#ifdef TRACE_DRW
-    printf("END drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U "))\n",
-           (memSizeType) *win_to,
-           *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
-           (memSizeType) win_from,
-           win_from != NULL ? win_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), " FMT_U_MEM " (usage=" FMT_U ")) -->\n",
+                       (memSizeType) *win_to,
+                       *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
+                       (memSizeType) win_from,
+                       win_from != NULL ? win_from->usage_count : (uintType) 0););
   } /* drwCpy */
 
 
@@ -91,19 +88,15 @@ void drwCpyGeneric (genericType *const dest, const genericType source)
 winType drwCreate (const winType win_from)
 
   { /* drwCreate */
-#ifdef TRACE_DRW
-    printf("BEGIN drwCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) win_from,
-           win_from != NULL ? win_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwCreate(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) win_from,
+                       win_from != NULL ? win_from->usage_count : (uintType) 0););
     if (win_from != NULL) {
       win_from->usage_count++;
     } /* if */
-#ifdef TRACE_DRW
-    printf("END drwCreate ==> " FMT_U_MEM " (usage=" FMT_U ")\n",
-           (memSizeType) win_from,
-           win_from != NULL ? win_from->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwCreate --> " FMT_U_MEM " (usage=" FMT_U ")\n",
+                       (memSizeType) win_from,
+                       win_from != NULL ? win_from->usage_count : (uintType) 0););
     return win_from;
   } /* drwCreate */
 
@@ -132,11 +125,9 @@ genericType drwCreateGeneric (const genericType from_value)
 void drwDestr (const winType old_win)
 
   { /* drwDestr */
-#ifdef TRACE_DRW
-    printf("BEGIN drwDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
-           (memSizeType) old_win,
-           old_win != NULL ? old_win->usage_count : (uintType) 0);
-#endif
+    logFunction(printf("drwDestr(" FMT_U_MEM ") (usage=" FMT_U ")\n",
+                       (memSizeType) old_win,
+                       old_win != NULL ? old_win->usage_count : (uintType) 0););
     if (old_win != NULL) {
       old_win->usage_count--;
       if (old_win->usage_count == 0) {
@@ -170,10 +161,8 @@ intType drwGetImagePixel (const_bstriType image, intType width,
     intType pixel;
 
   /* drwGetImagePixel */
-#ifdef TRACE_DRW
-    printf("drwGetImagePixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
-        (memSizeType) image, width, height, x, y);
-#endif
+    logFunction(printf("drwGetImagePixel(" FMT_U_MEM ", " FMT_D ", " FMT_D ", " FMT_D ", " FMT_D ")\n",
+                       (memSizeType) image, width, height, x, y););
     if (unlikely(width  < 0 || x < 0 || x >= width ||
                  height < 0 || y < 0 || y >= height ||
                  (uintType) height >
