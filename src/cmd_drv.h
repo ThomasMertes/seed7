@@ -68,6 +68,8 @@ volumeListType *openVolumeList (void);
 #endif
 void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
     filetype *childStdin, filetype *childStdout);
+void cmdStartProcess (const const_stritype command,
+    const const_rtlArraytype parameters);
 
 #else
 
@@ -84,5 +86,6 @@ int wsetenv ();
 volumeListType *openVolumeList ();
 #endif
 void cmdPipe2 ();
+void cmdStartProcess ();
 
 #endif

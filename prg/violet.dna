@@ -55,7 +55,7 @@ const proc: dna (VIOLET) is func
       begin (* findMax *)
         maxDir := {HERE};
         xmax := field[HERE];
-        for fd range HERE to E do
+        for fd range HERE to EAST do
           if field[fd] > xmax then
             maxDir := {fd};
             xmax := field[fd];
@@ -75,9 +75,9 @@ const proc: dna (VIOLET) is func
         var directSet: maxDirSet is directSet.EMPTY_SET;
 
       begin (* getMax *)
-        maxDirSet := {N};
-        gmax := food(N);
-        for dir range S to SE do
+        maxDirSet := {NORTH};
+        gmax := food(NORTH);
+        for dir range SOUTH to SE do
           if food(dir) > gmax then
             maxDirSet := {dir};
             gmax := food(dir);
@@ -143,7 +143,7 @@ const proc: dna (VIOLET) is func
         needed2 := max(0, shrinkSize(ownSize2));
         diePrior[HERE] := food(HERE);
 
-        for dir range N to E do
+        for dir range NORTH to EAST do
 
           case view(dir) of
 

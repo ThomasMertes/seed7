@@ -96,43 +96,53 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
   a Windows console, you can use gmake totether with
   mk_msys.mak from a Windows console also.
 
-  To utilize nmake from Windows and gcc from MinGW use a
-  console, go to the 'src' directory and type:
+  To compile with gcc from MinGW and nmake from Windows use
+  a console, go to the 'src' directory and type:
 
     copy mk_nmake.mak makefile
     nmake depend
     nmake
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/hi.exe.
 
 
 COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
-    To utilize compilation with nmake and cl (the C compiler of
-  a big big software company) use a console, go to the 'src'
-  directory and type:
+    To compile Seed7 with cl and nmake (C compiler and make
+  utility from a big big software company) it is necessary, that
+  cl and nmake can be executed from a console window. Therefore
+  the directory ..Visual Studio../VC/bin (fill in the actual
+  absolute path of your MSVC installation) must be added to the
+  PATH variable. Afterwards you can start a new console and use
+  the command
+
+    vcvars32
+
+  to set up the environment for cl. In order to use cl in a new
+  console the command vcvars32 is always necessary. After the
+  setup you can go to the 'src' directory and type:
 
     copy mk_msvc.mak makefile
     nmake depend
     nmake
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/hi.exe.
 
 
 COMPILING UNDER WINDOWS WITH BCC32
 
-    To utilize compilation with make and bcc32 (the make utility
-  and the C compiler of a smaller software company) use a
-  console, go to the 'src' directory and type:
+    To compile Seed7 with bcc32 and make (C compiler and make
+  utility from a smaller software company) use a console, go
+  to the 'src' directory and type:
 
     copy mk_bcc32.mak makefile
     make depend
     make
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/hi.exe.
   For the older version of bcc32 (Version 5.5, which is available
   in the internet) use:
 
@@ -200,7 +210,8 @@ COMPILING UNDER DOS WITH DJGPP
     make
 
   After the compilation the interpreter executable can be found
-  in the 'bin' directory and is also copied to prg/hi.exe.
+  in the 'bin' directory and it is also copied to prg/hi.exe.
+  If your get errors you can try mk_djgp2.mak instead.
 
   Note that the DOS version of Seed7 currently supports neither
   graphics nor sockets.
@@ -320,6 +331,15 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   be copied to the 'src' directory (this solution should be
   avoided, since it does not consider updates of bcc32).
 
+ --- When using cl (msvc) an error like
+ 
+    NMAKE : fatal error U1077: 'cl' : return code '0xc0000135'
+	
+  indicates that you forgot to execute vcvars32 before executing
+  'make depend' or 'make'. A message box, which complains that
+  mspbd100.dll was not found, indicates also that vcvars32 was
+  not executed.
+  
  --- A linker error like
 
     ld: library not found for -lX11

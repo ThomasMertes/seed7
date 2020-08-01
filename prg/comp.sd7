@@ -6837,6 +6837,17 @@ const proc: process_cmd_shell (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_cmd_start_process (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdStartProcess(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_cmd_symlink (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -15905,6 +15916,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_set_mtime(params, c_expr);
       elsif action_name = "CMD_SHELL" then
         process_cmd_shell(params, c_expr);
+      elsif action_name = "CMD_START_PROCESS" then
+        process_cmd_start_process(params, c_expr);
       elsif action_name = "CMD_SYMLINK" then
         process_cmd_symlink(params, c_expr);
       elsif action_name = "CMD_TO_OS_PATH" then
@@ -21521,6 +21534,7 @@ const proc: write_prototypes is func
     declareExtern("void        cmdSetFileMode (const const_stritype, const const_settype);");
     declareExtern("void        cmdSetMTime (const const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("inttype     cmdShell (const const_stritype, const const_stritype);");
+    declareExtern("void        cmdStartProcess (const const_stritype, const const_arraytype);");
     declareExtern("void        cmdSymlink (const_stritype, const_stritype);");
     declareExtern("stritype    cmdToOsPath (const const_stritype);");
     declareExtern("void        conClear (inttype, inttype, inttype, inttype);");
@@ -23478,6 +23492,27 @@ const proc: pass_3 (in string: source, in program: prog,
   end func;
 
 
+const proc: writeHelp is func
+  begin
+    writeln("usage: comp [options] source");
+    writeln;
+    writeln("Options:");
+    writeln("  -O  and -O2 tell the C compiler to optimize.");
+    writeln("  -g  tells the C compiler to generate an executable with debug information.");
+    writeln("      This way the debugger will refer to Seed7 source files and line numbers.");
+    writeln("      To generate debug information which refers to the temporary C program");
+    writeln("      the option -g-debug_c can be used.");
+    writeln("  -te generates code to trace exceptions. This option works in the same way");
+    writeln("      as the interpreter option -te: Every exception will write a");
+    writeln("      message to stdout and the user will be ask to continue (with enter) or");
+    writeln("      to terminate (with * ).");
+    writeln("  -r  suppresses the generation of range checks for strings and arrays.");
+    writeln("  -e  generates code which sends a signal, when an uncaught exception occurs.");
+    writeln("      This option allows debuggers to handle uncaught Seed7 exceptions.");
+    writeln;
+  end func;
+
+
 const proc: main is func
 
   local
@@ -23490,13 +23525,21 @@ const proc: main is func
     OUT := STD_UTF8_OUT;
     writeln("SEED7 COMPILER Version 2.0  Copyright (c) 1990-2011 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Comp is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
       writeln("usage: comp [options] source");
+      writeln;
+      writeln("Use  comp -?  to get more information about comp.");
+      writeln;
     else
       number := 1;
       while number <= length(argv(PROGRAM)) do
         curr_arg := argv(PROGRAM)[number];
         if length(curr_arg) >= 2 and curr_arg[1] = '-' then
-          if curr_arg[.. 2] in {"-r", "-g", "-t", "-e", "-o", "-c", "-O"} then
+          if curr_arg[.. 2] in {"-?", "-r", "-g", "-t", "-e", "-o", "-c", "-O"} then
             compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
           else
             writeln("*** Ignore unsupported option: " <& curr_arg);
@@ -23508,7 +23551,9 @@ const proc: main is func
         end if;
         incr(number);
       end while;
-      if source = "" then
+      if "-?" in compiler_option then
+        writeHelp;
+      elsif source = "" then
         writeln("*** Sourcefile missing");
       else
         write("Source: ");

@@ -225,6 +225,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_SET_FILEMODE",    cmd_set_filemode,    },
     { "CMD_SET_MTIME",       cmd_set_mtime,       },
     { "CMD_SHELL",           cmd_shell,           },
+    { "CMD_START_PROCESS",   cmd_start_process,   },
     { "CMD_SYMLINK",         cmd_symlink,         },
     { "CMD_TO_OS_PATH",      cmd_to_os_path,      },
 

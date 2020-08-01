@@ -96,10 +96,10 @@ const func bigRational: + (in bigRational: number) is func
  *)
 const func bigRational: - (in bigRational: number) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: negatedValue is bigRational.value;
   begin
-    result.numerator := -number.numerator;
-    result.denominator := number.denominator;
+    negatedValue.numerator := -number.numerator;
+    negatedValue.denominator := number.denominator;
   end func;
 
 
@@ -228,15 +228,15 @@ const proc: (inout bigRational: number) /:= (in bigRational: divisor) is func
  *)
 const func bigRational: (in bigRational: base) ** (in integer: exponent) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: power is bigRational.value;
   begin
     if exponent >= 0 then
-      result.numerator := base.numerator ** exponent;
-      result.denominator := base.denominator ** exponent;
+      power.numerator := base.numerator ** exponent;
+      power.denominator := base.denominator ** exponent;
     else
-      result.numerator := base.denominator ** (-exponent);
-      result.denominator := base.numerator ** (-exponent);
-      normalize(result);
+      power.numerator := base.denominator ** (-exponent);
+      power.denominator := base.numerator ** (-exponent);
+      normalize(power);
     end if;
   end func;
 
@@ -371,10 +371,10 @@ const func bigRational: (attr bigRational) conv (in bigInteger: number) is func
  *)
 const func bigRational: abs (in bigRational: number) is func
   result
-    var bigRational: result is bigRational.value;
+    var bigRational: absoluteValue is bigRational.value;
   begin
-    result.numerator := abs(number.numerator);
-    result.denominator := number.denominator;
+    absoluteValue.numerator := abs(number.numerator);
+    absoluteValue.denominator := number.denominator;
   end func;
 
 

@@ -76,10 +76,10 @@ const func boolean: NOENEMY is func
     const colorSet: ACTSET is {CLEAR, EDGE, GREEN};
 
   begin (* NOENEMY *)
-    result := (view(N)  in ACTSET) and (view(S)  in ACTSET) and
-              (view(W)  in ACTSET) and (view(W)  in ACTSET) and
-              (view(NW) in ACTSET) and (view(SW) in ACTSET) and
-              (view(NE) in ACTSET) and (view(SE) in ACTSET);
+    result := (view(NORTH) in ACTSET) and (view(SOUTH) in ACTSET) and
+              (view(WEST)  in ACTSET) and (view(EAST)  in ACTSET) and
+              (view(NW)    in ACTSET) and (view(SW)    in ACTSET) and
+              (view(NE)    in ACTSET) and (view(SE)    in ACTSET);
   end func; (* NOENEMY *)
 
 
@@ -158,8 +158,8 @@ const func integer: menace (in power: str, in direction: actdir) is func
   begin (* menace *)
     newstr := newStrength(str, actdir);
     if actdir = HERE then
-      result := min(min(locMenace(newstr, N), locMenace(newstr, S)),
-                    min(locMenace(newstr, W), locMenace(newstr, E)));
+      result := min(min(locMenace(newstr, NORTH), locMenace(newstr, SOUTH)),
+                    min(locMenace(newstr, WEST),  locMenace(newstr, EAST)));
     else
       result := min(locMenace(newstr, left[actdir]),
                     locMenace(newstr, right[actdir]));
@@ -320,7 +320,7 @@ const proc: evaluate (inout bactAction: bestAct, inout direction: bestDir, inout
     bestDirs := directSet.EMPTY_SET;
     bestPri := 0;
     bestVal := 0.0;
-    for actdir range HERE to E do
+    for actdir range HERE to EAST do
       dirbPri := 0;
       dirbVal := 0.0;
       for actact range SINGLEACT to SPLITACT do
@@ -393,22 +393,22 @@ const proc: initData is func
     end if;
     strH := strength(HERE);
     shrH := shrinkSize(strH);
-    for actdir range HERE to E do
+    for actdir range HERE to EAST do
       for actact range SINGLEACT to SPLITACT do
         data[actdir][actact].priority := 0;
         data[actdir][actact].valued := 0.0;
         data[actdir][actact].quantity := 0;
       end for;
     end for;
-    for actdir range N to SE do
+    for actdir range NORTH to SE do
       neighbVal[actdir] := neighbourVal(actdir);
     end for;
-    for actdir range N to E do
+    for actdir range NORTH to EAST do
       nextVal[actdir] := MAXR(neighbVal[left[actdir]],
                               neighbVal[right[actdir]]);
     end for;
-    nextVal[HERE] := MAXR(MAXR(neighbVal[N], neighbVal[S]),
-                          MAXR(neighbVal[W], neighbVal[E]));
+    nextVal[HERE] := MAXR(MAXR(neighbVal[NORTH], neighbVal[SOUTH]),
+                          MAXR(neighbVal[WEST],  neighbVal[EAST]));
   end func; (* initData *)
 
 

@@ -255,7 +255,9 @@ errinfotype *err_info;
           /* printf("errno=%d\n", errno);
           printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
               EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-          printf("dir_name=\"%ls\"\n", dir_name); */
+          printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
+              EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
+          /* printf("dir_name=\"%s\"\n", dir_name); */
         } /* if */
       } /* if */
     } /* if */
@@ -383,13 +385,18 @@ errinfotype *err_info;
         /* printf("errno=%d\n", errno);
         printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
             EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
-        printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d\n",
-            EFAULT, EISDIR, ENAMETOOLONG, ENODEV); */
+        printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
+            EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
         /* printf("cannot open destination file: %s\n", to_name); */
         fclose(from_file);
         *err_info = FILE_ERROR;
       } /* if */
     } else {
+      /* printf("errno=%d\n", errno);
+      printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+          EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+      printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
+          EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
       /* printf("cannot open source file: %s\n", from_name); */
       *err_info = FILE_ERROR;
     } /* if */
@@ -1827,6 +1834,12 @@ stritype file_name;
           } /* if */
         } else {
           if (os_remove(os_file_name) != 0) {
+            /* printf("errno=%d\n", errno);
+            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+            printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
+                EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
+            /* printf("file_name=%s\n", os_file_name); */
             err_info = FILE_ERROR;
           } /* if */
         } /* if */

@@ -66,10 +66,10 @@ const proc: dna (WHITE) is func
         const colorSet: ACTSET is {CLEAR, EDGE, WHITE};
 
       begin
-        result := (view(N)  in ACTSET) and (view(S)  in ACTSET) and
-                  (view(W)  in ACTSET) and (view(E)  in ACTSET) and
-                  (view(NW) in ACTSET) and (view(SW) in ACTSET) and
-                  (view(NE) in ACTSET) and (view(SE) in ACTSET);
+        result := (view(NORTH) in ACTSET) and (view(SOUTH) in ACTSET) and
+                  (view(WEST)  in ACTSET) and (view(EAST)  in ACTSET) and
+                  (view(NW)    in ACTSET) and (view(SW)    in ACTSET) and
+                  (view(NE)    in ACTSET) and (view(SE)    in ACTSET);
       end func; (* noEnemy *)
 
 
@@ -81,7 +81,7 @@ const proc: dna (WHITE) is func
     dirSet := directSet.EMPTY_SET;
     initSplitSize := 0.25 * flt(foodReserve) + 4.5;
     splitSize := 0.153 * flt(foodReserve) + 4.7;
-    for movDir range HERE to E do
+    for movDir range HERE to EAST do
       if (view(movDir) = CLEAR or movDir = HERE) and
           food(movDir) >= maxFood then
         if food(movDir) = maxFood then
@@ -93,7 +93,7 @@ const proc: dna (WHITE) is func
         maxDir := movDir;
       end if;
     end for;
-    for movDir range N to E do
+    for movDir range NORTH to EAST do
       if not view(movDir) in {CLEAR, EDGE, WHITE} and
           strength(movDir) <= strength(HERE) then
         maxKill := strength(movDir);

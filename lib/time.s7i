@@ -545,7 +545,7 @@ const func time: truncToYear (in time: aTime) is func
  *)
 const func integer: dayOfWeek (in time: aDate) is func
   result
-    var integer: result is 0;
+    var integer: weekday is 0;
   local
     var integer: year is 0;
     var integer: month is 0;
@@ -556,7 +556,7 @@ const func integer: dayOfWeek (in time: aDate) is func
       decr(year);
       month +:= 12;
     end if;
-    result := succ(pred(year + year mdiv 4 - year mdiv 100 + year mdiv 400 +
+    weekday := succ(pred(year + year mdiv 4 - year mdiv 100 + year mdiv 400 +
         (31 * (month - 2)) mdiv 12 + aDate.day) mod 7);
   end func;
 
@@ -567,12 +567,12 @@ const func integer: dayOfWeek (in time: aDate) is func
  *)
 const func integer: dayOfYear (in time: aDate) is func
   result
-    var integer: result is 0;
+    var integer: dayOfYear is 0;
   begin
     if isLeapYear(aDate.year) then
-      result := [](0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335)[aDate.month] + aDate.day;
+      dayOfYear := [](0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335)[aDate.month] + aDate.day;
     else
-      result := [](0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)[aDate.month] + aDate.day;
+      dayOfYear := [](0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)[aDate.month] + aDate.day;
     end if;
   end func;
 
@@ -582,18 +582,18 @@ const func integer: dayOfYear (in time: aDate) is func
  *  According to ISO 8601: Week number 1 of every year contains the
  *  4. of january. Since 1st to 3rd of january might be in the
  *  previous week there can be also a week number 0.
- *  @return week numbers from 0 to 53 for weeks belonging to the year
+ *  @return a week number from 0 to 53 for weeks belonging to the year
  *          of the given date.
  *)
 const func integer: weekOfYear (in var integer: year, in integer: dayOfYear) is func
   result
-    var integer: result is 0;
+    var integer: weekNumber is 0;
   local
     var integer: weekDayOfJan4 is 0;
   begin
     year := pred(year);
     weekDayOfJan4 := succ(pred(year + year mdiv 4 - year mdiv 100 + year mdiv 400 + 32) mod 7);
-    result := (dayOfYear + weekDayOfJan4 - 5) mdiv 7 + 1;
+    weekNumber := (dayOfYear + weekDayOfJan4 - 5) mdiv 7 + 1;
   end func;
 
 
@@ -602,7 +602,7 @@ const func integer: weekOfYear (in var integer: year, in integer: dayOfYear) is 
  *  According to ISO 8601: Week number 1 of every year contains the
  *  4. of january. Since 1st to 3rd of january might be in the
  *  previous week there can be also a week number 0.
- *  @return week numbers from 0 to 53 for weeks belonging to the year
+ *  @return a week number from 0 to 53 for weeks belonging to the year
  *          of the given date.
  *)
 const func integer: weekOfYear (in time: aDate) is
@@ -621,12 +621,12 @@ const func integer: weekDateYear (in time: aDate) is func
   result
     var integer: weekDateYear is 0;
   local
-    var integer: weekNum is 0;
+    var integer: weekNumber is 0;
   begin
-    weekNum := weekOfYear(aDate.year, dayOfYear(aDate));
-    if weekNum <= 0 then
+    weekNumber := weekOfYear(aDate.year, dayOfYear(aDate));
+    if weekNumber <= 0 then
       weekDateYear := pred(aDate.year);
-    elsif weekNum >= 53 and aDate.day >= 29 and
+    elsif weekNumber >= 53 and aDate.day >= 29 and
         weekOfYear(succ(aDate.year), 31 - aDate.day) = 1 then
       weekDateYear := succ(aDate.year);
     else
@@ -644,14 +644,14 @@ const func integer: weekDateYear (in time: aDate) is func
  *)
 const func integer: weekDateWeek (in time: aDate) is func
   result
-    var integer: weekNum is 0;
+    var integer: weekNumber is 0;
   begin
-    weekNum := weekOfYear(aDate.year, dayOfYear(aDate));
-    if weekNum <= 0 then
-      weekNum := weekOfYear(pred(aDate.year), 366);
-    elsif weekNum >= 53 and aDate.day >= 29 and
+    weekNumber := weekOfYear(aDate.year, dayOfYear(aDate));
+    if weekNumber <= 0 then
+      weekNumber := weekOfYear(pred(aDate.year), 366);
+    elsif weekNumber >= 53 and aDate.day >= 29 and
         weekOfYear(succ(aDate.year), 31 - aDate.day) = 1 then
-      weekNum := 1;
+      weekNumber := 1;
     end if;
   end func;
 
@@ -699,12 +699,12 @@ const proc: NORMALIZE (inout time: tim) is func
  *)
 const func time: toUTC (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: timeInUTC is time.value;
   begin
-    result := aTime;
-    result.minute -:= aTime.timeZone;
-    result.timeZone := 0;
-    NORMALIZE(result);
+    timeInUTC := aTime;
+    timeInUTC.minute -:= aTime.timeZone;
+    timeInUTC.timeZone := 0;
+    NORMALIZE(timeInUTC);
   end func;
 
 
@@ -714,12 +714,12 @@ const func time: toUTC (in time: aTime) is func
  *)
 const func time: setLocalTZ (in time: aTime) is func
   result
-    var time: result is time.value;
+    var time: localTime is time.value;
   begin
-    result := aTime;
-    SET_LOCAL_TZ(result.year, result.month, result.day,
-        result.hour, result.minute, result.second,
-        result.timeZone, result.daylightSavingTime);
+    localTime := aTime;
+    SET_LOCAL_TZ(localTime.year, localTime.month, localTime.day,
+        localTime.hour, localTime.minute, localTime.second,
+        localTime.timeZone, localTime.daylightSavingTime);
   end func;
 
 
@@ -731,7 +731,7 @@ const func time: setLocalTZ (in time: aTime) is func
  *)
 const func integer: julianDayNumber (in time: aDate) is func
   result
-    var integer: result is 0;
+    var integer: julianDayNumber is 0;
   local
     var integer: year is 0;
     var integer: month is 0;
@@ -742,10 +742,10 @@ const func integer: julianDayNumber (in time: aDate) is func
       decr(year);
       month +:= 12;
     end if;
-    result := (1461 * (year + 4800)) mdiv 4 +
-          (367 * (month - 2)) mdiv 12 -
-          (3 * ((year + 4900) mdiv 100)) mdiv 4 +
-          aDate.day - 32075;
+    julianDayNumber := (1461 * (year + 4800)) mdiv 4 +
+                       (367 * (month - 2)) mdiv 12 -
+                       (3 * ((year + 4900) mdiv 100)) mdiv 4 +
+                       aDate.day - 32075;
   end func;
 
 

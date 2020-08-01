@@ -41,8 +41,8 @@ const type: mvChangeTyp is array [direction] array [direction] direction;
 
 const proc: dna (INDIGO) is func
   local
-    const direction: firstDir  is N;
-    const direction: lastDir   is E;
+    const direction: firstDir  is NORTH;
+    const direction: lastDir   is EAST;
     const direction: firstDiag is NW;
     const direction: lastDiag  is SE;
     const bactColor: SELF is INDIGO;
@@ -59,15 +59,15 @@ const proc: dna (INDIGO) is func
 
 
 
-    const mvChangeTyp: mvChange is (* new order of movement in Dir N .. E *)
-                                   (* HERE, N,    S,    W,    E,    NW,   NE,   SW,   SE *)
-              [direction]([direction](HERE, HERE, HERE, HERE, HERE, HERE, HERE, HERE, HERE), (* unused *)
-               (* N *)    [direction](N,    S,    HERE, NW,   NE,   SW,   SE,   W,    E),
-               (* W *)    [direction](S,    HERE, N,    SW,   SE,   W,    E,    NW,   NE),
-               (* S *)    [direction](W,    NW,   SW,   E,    HERE, NE,   N,    SE,   S),
-               (* E *)    [direction](E,    NE,   SE,   HERE, W,    N,    NW,   S,    SW));
+    const mvChangeTyp: mvChange is (* new order of movement in Dir NORTH .. EAST *)
+                                   (* HERE,  NORTH, SOUTH, WEST,  EAST,  NW,    NE,    SW,    SE *)
+              [direction]([direction](HERE,  HERE,  HERE,  HERE,  HERE,  HERE,  HERE,  HERE,  HERE), (* unused *)
+              (* NORTH *) [direction](NORTH, SOUTH, HERE,  NW,    NE,    SW,    SE,    WEST,  EAST),
+              (* WEST *)  [direction](SOUTH, HERE,  NORTH, SW,    SE,    WEST,  EAST,  NW,    NE),
+              (* SOUTH *) [direction](WEST,  NW,    SW,    EAST,  HERE,  NE,    NORTH, SE,    SOUTH),
+              (* EAST *)  [direction](EAST,  NE,    SE,    HERE,  WEST,  NORTH, NW,    SOUTH, SW));
 
-    const mainDirArr: oppositDir is [mainDir](HERE, S, N, E, W);
+    const mainDirArr: oppositDir is [mainDir](HERE, SOUTH, NORTH, EAST, WEST);
 
 
     var power: avFood is 0;

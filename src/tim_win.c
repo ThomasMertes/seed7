@@ -194,7 +194,7 @@ booltype *is_dst;
       FILETIME filetime;
     } utc_time;
     time_t utc_seconds;
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
     struct tm tm_result;
 #endif
     struct tm *local_time;
@@ -205,8 +205,14 @@ booltype *is_dst;
 #endif
     GetSystemTimeAsFileTime(&utc_time.filetime);
     utc_seconds = utc_time.nanosecs100 / 10000000 - SECONDS_1601_1970;
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R
     local_time = localtime_r(&utc_seconds, &tm_result);
+#elif defined USE_LOCALTIME_S
+    if (localtime_s(&tm_result, &utc_seconds) != 0) {
+      local_time = NULL;
+    } else {
+      local_time = &tm_result;
+    } /* if */
 #else
     local_time = localtime(&utc_seconds);
 #endif

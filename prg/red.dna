@@ -39,11 +39,11 @@ const func string: str (in directSet: a_set) is func
 
 
 const array [direction] array direction: gen2dirs is [direction](
-    [](HERE, N, S, W, E),
-    [](N, HERE, NW, NE),
-    [](S, HERE, SW, SE),
-    [](W, HERE, NW, SW),
-    [](E, HERE, NE, SE)
+    [](HERE,  NORTH, SOUTH, WEST,  EAST),
+    [](NORTH, HERE,  NW,    NE),
+    [](SOUTH, HERE,  SW,    SE),
+    [](WEST,  HERE,  NW,    SW),
+    [](EAST,  HERE,  NE,    SE)
   );
 
 
@@ -304,6 +304,3 @@ const proc: dna (RED) is func
       noop;
     end if;
   end func; (* dna (RED) *)
-
-
-

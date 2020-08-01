@@ -33,6 +33,7 @@ $ include "seed7_05.s7i";
   include "graph_file.s7i";
   include "window.s7i";
   include "stars.s7i";
+  include "math.s7i";
 
 var text: scr is STD_NULL;
 

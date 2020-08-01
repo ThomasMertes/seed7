@@ -140,23 +140,23 @@ const func complex: + (in complex: number) is func
  *)
 const func complex: - (in complex: number) is func
   result
-    var complex: result is complex.value;
+    var complex: negatedValue is complex.value;
   begin
-    result.re := -number.re;
-    result.im := -number.im;
+    negatedValue.re := -number.re;
+    negatedValue.im := -number.im;
   end func;
 
 
 (**
  *  Compute the conjugated value of a complex number.
- *  @return the conjugated value of the number.
+ *  @return the complex conjugate of the number.
  *)
 const func complex: conj (in complex: number) is func
   result
-    var complex: result is complex.value;
+    var complex: conjugate is complex.value;
   begin
-    result.re := number.re;
-    result.im := -number.im;
+    conjugate.re := number.re;
+    conjugate.im := -number.im;
   end func;
 
 
@@ -294,15 +294,15 @@ const func float: arg (in complex: number) is
  *)
 const func complex: (in complex: base) ** (in integer: exponent) is func
   result
-    var complex: result is complex.value;
+    var complex: power is complex.value;
   local
     var float: r is 0.0;
     var float: phi is 0.0;
   begin
     r := abs(base) ** exponent;
     phi := arg(base) * flt(exponent);
-    result.re := r * cos(phi);
-    result.im := r * sin(phi);
+    power.re := r * cos(phi);
+    power.im := r * sin(phi);
   end func;
 
 

@@ -28,7 +28,6 @@
 
 include "stdio.s7i";
 include "graph.s7i";
-include "math.s7i";
 include "binary.s7i";
 include "color.s7i";
 include "float.s7i";

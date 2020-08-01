@@ -56,6 +56,8 @@
 #define PATH_MAX 2048
 #endif
 
+#define MAXIMUM_COMMAND_LINE_LENGTH 32768
+
 
 
 #if defined OS_STRI_WCHAR && !defined USE_WMAIN
@@ -366,59 +368,104 @@ volumeListType *openVolumeList ()
 #endif
 
 
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-void cmdStartProcess (stritype command_stri, filetype childStdin,
-    filetype childStdout, filetype childStderr)
-#else
-
-void cmdStartProcess (command_stri, dest_name)
-stritype command_stri;
-filetype childStdin;
-filetype childStdout;
-filetype childStderr;
-#endif
+static os_stritype prepareCommandLine (const const_os_stritype os_command_stri,
+    const const_rtlArraytype parameters, errinfotype *err_info)
 
   {
-    os_stritype os_command_stri;
-    int childStdinFileno;
-    int childStdoutFileno;
-    int childStderrFileno;
-    STARTUPINFO startupInfo;
+    memsizetype arraySize;
+    memsizetype striSize;
+    memsizetype pos;
+    os_stritype argument;
+    os_chartype *sourceChar;
+    os_chartype *destChar;
+    os_chartype *beyondDest;
+    memsizetype countBackslash;
+    os_stritype command_line;
 
-  /* cmdStartProcess */
-    childStdinFileno = fileno(childStdin);
-    childStdoutFileno = fileno(childStdout);
-    childStderrFileno = fileno(childStderr);
-    if (childStdinFileno == -1 || childStdoutFileno == -1 || childStderrFileno == -1) {
-      raise_error(RANGE_ERROR);
+  /* prepareCommandLine */
+    arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+    if (unlikely(!os_stri_alloc(command_line, MAXIMUM_COMMAND_LINE_LENGTH - 1))) {
+      *err_info = MEMORY_ERROR;
     } else {
-      os_command_stri = cp_to_command(command_stri, &err_info);
-      if (os_command_stri == NULL) {
-        raise_error(RANGE_ERROR);
+      beyondDest = &command_line[MAXIMUM_COMMAND_LINE_LENGTH];
+      /* fprintf(stderr, "\ncommand_stri=\"%ls\"\n", os_command_stri); */
+      striSize = os_stri_strlen(command_line);
+      if (striSize > MAXIMUM_COMMAND_LINE_LENGTH ||
+          &command_line[striSize] > beyondDest) {
+        *err_info = MEMORY_ERROR;
+        destChar = beyondDest;
       } else {
-        startupInfo.dwFlags = STARTF_USESHOWWINDOW |STARTF_USESTDHANDLES;
-        startupInfo.wShowWindow = 0;
-        startupInfo.hStdInput = childStdinFileno;
-        startupInfo.hStdOutput = childStdoutFileno;
-        startupInfo.hStdError = childStderrFileno;
-        CreateProcessW(os_command_stri,
-                       NULL /* lpCommandLine */,
-                       NULL /* lpProcessAttributes */,
-                       NULL /* lpThreadAttributes */,
-                       false  /* bInheritHandles */,
-                       NULL /* dwCreationFlags */,
-                       NULL /* lpEnvironment */,
-                       NULL /* lpCurrentDirectory */,
-                       &startupInfo,
-                       NULL /* lpProcessInformation */);
-        os_stri_free(os_path);
+        memcpy(command_line, os_command_stri, sizeof(os_chartype) * striSize);
+        destChar = &command_line[striSize];
+      } /* if */
+      for (pos = 0; pos < arraySize && *err_info == OKAY_NO_ERROR; pos++) {
+        argument = stri_to_os_stri(parameters->arr[pos].value.strivalue, err_info);
+        if (argument != NULL) {
+          /* fprintf(stderr, "argument[%d]=%ls\n", pos + 1, argument); */
+          if (&destChar[2] > beyondDest) {
+            destChar = beyondDest;
+          } else {
+            *(destChar++) = ' ';
+            *(destChar++) = '"';
+          } /* if */
+          for (sourceChar = argument; *sourceChar != '\0' && destChar < beyondDest;
+              sourceChar++, destChar++) {
+            if (*sourceChar == '"') {
+              if (&destChar[2] > beyondDest) {
+                destChar = beyondDest;
+              } else {
+                *(destChar++) = '\\';
+                *destChar = *sourceChar;
+              } /* if */
+            } else if (*sourceChar == '\\') {
+              sourceChar++;
+              countBackslash = 1;
+              while (*sourceChar == '\\') {
+                sourceChar++;
+                countBackslash++;
+              } /* while */
+              /* fprintf(stderr, "countBackslash=%lu\n", countBackslash);
+                 fprintf(stderr, "sourceChar=%c\n", *sourceChar); */
+              if (*sourceChar == '"' || *sourceChar == '\0') {
+                countBackslash *= 2;
+              } /* if */
+              sourceChar--;
+              if (countBackslash > MAXIMUM_COMMAND_LINE_LENGTH ||
+                  &destChar[countBackslash] > beyondDest) {
+                destChar = beyondDest;
+              } else {
+                do {
+                  *(destChar++) = '\\';
+                  countBackslash--;
+                } while (countBackslash != 0);
+                destChar--;
+              } /* if */
+            } else {
+              *destChar = *sourceChar;
+            } /* if */
+          } /* for */
+          if (destChar >= beyondDest) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            *(destChar++) = '"';
+          } /* if */
+          os_stri_free(argument);
+        } /* if */
+      } /* for */
+      if (destChar >= beyondDest) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        *(destChar++) = '\0';
+      } /* if */
+      if (*err_info != OKAY_NO_ERROR) {
+        os_stri_free(command_line);
+        command_line = NULL;
+      } else {
+        /* fprintf(stderr, "command_line=%ls\n", command_line); */
       } /* if */
     } /* if */
-  } /* cmdStartProcess */
-#endif
+    return command_line;
+  } /* prepareCommandLine */
 
 
 
@@ -437,27 +484,91 @@ filetype *childStdout;
 
   {
     os_stritype os_command_stri;
-    STARTUPINFO startupInfo;
+    os_stritype command_line;
+    STARTUPINFOW startupInfo;
+    PROCESS_INFORMATION processInformation;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* cmdPipe2 */
-    raise_error(FILE_ERROR);
-#ifdef OUT_OF_ORDER
-    os_command_stri = cp_to_command(command, parameters, &err_info);
+    os_command_stri = cp_to_os_path(command, &err_info);
+    command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
+	printf("cmdPipe2(%ls, %ls, %d, %d)\n", os_command_stri,
+	    command_line, fileno(*childStdin), fileno(*childStdout));
+    memset(&startupInfo, 0, sizeof(startupInfo));
+    /* memset(&processInformation, 0, sizeof(processInformation)); */
+    startupInfo.cb = sizeof(startupInfo);
     startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
     startupInfo.wShowWindow = 0;
-    startupInfo.hStdInput
-    startupInfo.hStdOutput
-    startupInfo.hStdError
-    CreateProcessW(os_command_stri,
-                   NULL /* lpCommandLine */,
-                   NULL /* lpProcessAttributes */,
-                   NULL /* lpThreadAttributes */,
-                   false  /* bInheritHandles */,
-                   NULL /* dwCreationFlags */,
-                   NULL /* lpEnvironment */,
-                   NULL /* lpCurrentDirectory */,
-                   &startupInfo,
-                   NULL /* lpProcessInformation */);
+    startupInfo.hStdInput = *childStdin;
+    startupInfo.hStdOutput = *childStdout;
+    startupInfo.hStdError = stderr;
+    /* printf("before CreateProcessW\n"); */
+    if (err_info == OKAY_NO_ERROR &&
+        CreateProcessW(os_command_stri,
+                       command_line /* lpCommandLine */,
+                       NULL /* lpProcessAttributes */,
+                       NULL /* lpThreadAttributes */,
+                       0  /* bInheritHandles */,
+                       0 /* dwCreationFlags */,
+                       NULL /* lpEnvironment */,
+                       NULL /* lpCurrentDirectory */,
+                       &startupInfo,
+                       &processInformation) == 0) {
+      err_info = FILE_ERROR;
+    } /* if */
+    /* printf("after CreateProcessW\n"); */
     os_stri_free(os_command_stri);
-#endif
+    os_stri_free(command_line);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
   } /* cmdPipe2 */
+
+
+
+#ifdef ANSI_C
+
+void cmdStartProcess (const const_stritype command, const const_rtlArraytype parameters)
+#else
+
+void cmdStartProcess (command, parameters)
+stritype command;
+rtlArraytype parameters;
+#endif
+
+  {
+    os_stritype os_command_stri;
+    os_stritype command_line;
+    STARTUPINFOW startupInfo;
+    PROCESS_INFORMATION processInformation;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdStartProcess */
+    os_command_stri = cp_to_os_path(command, &err_info);
+    command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
+    memset(&startupInfo, 0, sizeof(startupInfo));
+    /* memset(&processInformation, 0, sizeof(processInformation)); */
+    startupInfo.cb = sizeof(startupInfo);
+    startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+    startupInfo.wShowWindow = 0;
+    /* printf("before CreateProcessW\n"); */
+    if (err_info == OKAY_NO_ERROR &&
+        CreateProcessW(os_command_stri,
+                       command_line /* lpCommandLine */,
+                       NULL /* lpProcessAttributes */,
+                       NULL /* lpThreadAttributes */,
+                       1  /* bInheritHandles */,
+                       0 /* dwCreationFlags */,
+                       NULL /* lpEnvironment */,
+                       NULL /* lpCurrentDirectory */,
+                       &startupInfo,
+                       &processInformation) == 0) {
+      err_info = FILE_ERROR;
+    } /* if */
+    /* printf("after CreateProcessW\n"); */
+    os_stri_free(os_command_stri);
+    os_stri_free(command_line);
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdStartProcess */

@@ -265,7 +265,9 @@ const proc: check (in string: progName, in string: referenceOutput) is func
         if fileType("tmp1_" & progName & OBJECT_FILE_EXTENSION) = FILE_REGULAR then
           removeFile("tmp1_" & progName & OBJECT_FILE_EXTENSION);
         end if;
-        moveFile("tmp_" & progName & OBJECT_FILE_EXTENSION, "tmp1_" & progName & OBJECT_FILE_EXTENSION);
+        if fileType("tmp_" & progName & OBJECT_FILE_EXTENSION) = FILE_REGULAR then
+          moveFile("tmp_" & progName & OBJECT_FILE_EXTENSION, "tmp1_" & progName & OBJECT_FILE_EXTENSION);
+        end if;
         if fileType("tmp1_" & progName & ".lerrs") = FILE_REGULAR then
           removeFile("tmp1_" & progName & ".lerrs");
         end if;

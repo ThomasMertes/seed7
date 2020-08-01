@@ -60,6 +60,7 @@ $ include "seed7_05.s7i";
   include "line.s7i";
   include "time.s7i";
   include "duration.s7i";
+  include "math.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 

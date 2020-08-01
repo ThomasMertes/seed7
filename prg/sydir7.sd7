@@ -212,8 +212,8 @@ const proc: main is func
       writeln("usage: sydir7 source destination");
       writeln;
     else
-      fromName := argv(PROGRAM)[1];
-      toName := argv(PROGRAM)[2];
+      fromName := convDosPath(argv(PROGRAM)[1]);
+      toName := convDosPath(argv(PROGRAM)[2]);
       syncFile(fromName, toName);
     end if;
   end func;

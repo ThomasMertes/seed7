@@ -569,7 +569,7 @@ booltype *is_dst;
 
   {
     struct timeval time_val;
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
     struct tm tm_result;
 #endif
     struct tm *local_time;
@@ -579,8 +579,14 @@ booltype *is_dst;
     printf("BEGIN timNow\n");
 #endif
     gettimeofday(&time_val, NULL);
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R
     local_time = localtime_r(&time_val.tv_sec, &tm_result);
+#elif defined USE_LOCALTIME_S
+    if (localtime_s(&tm_result, &time_val.tv_sec) != 0) {
+      local_time = NULL;
+    } else {
+      local_time = &tm_result;
+    } /* if */
 #else
     local_time = localtime(&time_val.tv_sec);
 #endif

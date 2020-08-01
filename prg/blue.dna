@@ -22,7 +22,7 @@
 (********************************************************************)
 
 
-const type: iField is array [direction] integer; (* array [HERE..E] of integer; *)
+const type: iField is array [direction] integer; (* array [HERE..EAST] of integer; *)
 
 
 const proc: dna (BLUE) is func
@@ -77,8 +77,8 @@ const proc: dna (BLUE) is func
         var power: gmax is 0;
 
       begin (* getMax *)
-        maxDirSet := {N};
-        gmax := food(N);
+        maxDirSet := {NORTH};
+        gmax := food(NORTH);
         for dir range MAIN_DIRECTIONS do
           if food(dir) > gmax then
             gmax := food(dir);

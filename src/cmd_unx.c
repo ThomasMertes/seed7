@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "sys/types.h"
+#include "errno.h"
 
 #ifdef USE_MYUNISTD_H
 #include "myunistd.h"
@@ -146,103 +147,8 @@ volumeListType *openVolumeList ()
   } /* openVolumeList */
 #endif
 
-
-
-#ifdef OUT_OF_ORDER
-#ifdef ANSI_C
-
-void cmdStartProcess (const const_stritype command, const const_stritype parameters,
-    filetype childStdin, filetype childStdout, filetype childStderr)
-#else
-
-void cmdStartProcess (command, parameters, childStdin, childStdout, childStderr)
-stritype command;
-stritype parameters;
-filetype childStdin;
-filetype childStdout;
-filetype childStderr;
-#endif
-
-  {
-    os_stritype os_command_stri;
-    booltype replaceStdin = FALSE;
-    booltype replaceStdout = FALSE;
-    booltype replaceStderr = FALSE;
-    int childStdinFileno;
-    int childStdoutFileno;
-    int childStderrFileno;
-    int savedStdin;
-    int savedStdout;
-    int savedStderr;
-    pid_t pid;
-
-  /* cmdStartProcess */
-    childStdinFileno = fileno(childStdin);
-    childStdoutFileno = fileno(childStdout);
-    childStderrFileno = fileno(childStderr);
-    if (childStdinFileno == -1 || childStdoutFileno == -1 || childStderrFileno == -1) {
-      raise_error(RANGE_ERROR);
-    } else {
-      os_command_stri = cp_to_command(command, parameters, &err_info);
-      if (os_command_stri == NULL) {
-        raise_error(RANGE_ERROR);
-      } else {
-        if (childStdinFileno != 0) {
-          replaceStdin = TRUE;
-          savedStdin = dup(0);
-          close(0);
-          dup2(childStdinFileno, 0);
-        } /* if */
-        if (childStdoutFileno != 1) {
-          replaceStdout = TRUE;
-          savedStdout = dup(1);
-          close(1);
-          dup2(childStdoutFileno, 1);
-        } /* if */
-        if (childStderrFileno != 2) {
-          replaceStderr = TRUE;
-          savedStderr = dup(2);
-          close(2);
-          dup2(childStderrFileno, 2);
-        } /* if */
-        pid = fork();
-        if (pid == 0) {
-          char *argv[]={os_command_stri, 0};
-          if (replaceStdin) {
-            close(savedStdin);
-            close(childStdinFileno);
-          } /* if */
-          if (replaceStdout) {
-            close(savedStdout);
-            close(childStdoutFileno);
-          } /* if */
-          if (replaceStderr) {
-            close(savedStderr);
-            close(childStderrFileno);
-          } /* if */
-          execv(argv[0], argv);
-        } else {
-          if (replaceStdin) {
-            close(0);
-            dup2(savedStdin, 0);
-          } /* if */
-          if (replaceStdout) {
-            close(1);
-            dup2(savedStdout, 1);
-          } /* if */
-          if (replaceStderr) {
-            close(2);
-            dup2(savedStderr, 2);
-          } /* if */
-        } /* if */
-        os_stri_free(os_path);
-      } /* if */
-    } /* if */
-  } /* cmdStartProcess */
-#endif
-
-
-
+  
+  
 #ifdef ANSI_C
 
 void cmdPipe2 (const const_stritype command, const const_rtlArraytype parameters,
@@ -271,6 +177,9 @@ filetype *childStdout;
     os_command_stri = cp_to_command(command, &emptyStri, &err_info);
     if (os_command_stri == NULL) {
       raise_error(err_info);
+    } else if (access(os_command_stri, X_OK) != 0) {
+      os_stri_free(os_command_stri);
+      raise_error(FILE_ERROR);
     } else {
       pipe(childStdinPipes);
       pipe(childStdoutPipes);
@@ -299,6 +208,12 @@ filetype *childStdout;
         close(childStdoutPipes[0]);
         close(childStdoutPipes[1]);
         execv(argv[0], argv);
+        /* printf("errno=%d\n", errno);
+        printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+            EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+        printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
+            EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
+        /* printf("cannot exec: %s\n",os_command_stri ); */
       } else {
         close(0); /* Restore the original std fds of parent */
         close(1);
@@ -312,3 +227,56 @@ filetype *childStdout;
       os_stri_free(os_command_stri);
     } /* if */
   } /* cmdPipe2 */
+
+
+
+#ifdef ANSI_C
+
+void cmdStartProcess (const const_stritype command, const const_rtlArraytype parameters)
+#else
+
+void cmdStartProcess (command, parameters)
+stritype command;
+rtlArraytype parameters;
+#endif
+
+  {
+    struct stristruct emptyStri;
+    os_stritype os_command_stri;
+    errinfotype err_info = OKAY_NO_ERROR;
+    pid_t pid;
+
+  /* cmdStartProcess */
+    emptyStri.size = 0;
+    os_command_stri = cp_to_os_path(command, &err_info);
+    if (os_command_stri == NULL) {
+      raise_error(err_info);
+    } else if (access(os_command_stri, X_OK) != 0) {
+      os_stri_free(os_command_stri);
+      raise_error(FILE_ERROR);
+    } else {
+      pid = fork();
+      if (pid == 0) {
+        os_stritype *argv;
+        memsizetype arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+        memsizetype pos;
+        argv = (os_stritype *) malloc(sizeof(os_stritype) * (arraySize + 2));
+        argv[0] = os_command_stri;
+        /* fprintf(stderr, "argv[0]=%s\n", argv[0]); */
+        for (pos = 0; pos < arraySize && err_info == OKAY_NO_ERROR; pos++) {
+          argv[pos + 1] = stri_to_os_stri(parameters->arr[pos].value.strivalue, &err_info);
+          /* fprintf(stderr, "argv[%d]=%s\n", pos + 1, argv[pos + 1]); */
+        } /* for */
+        argv[arraySize + 1] = NULL;
+        /* fprintf(stderr, "argv[%d]=NULL\n", arraySize + 1); */
+        execv(argv[0], argv);
+        /* printf("errno=%d\n", errno);
+        printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+            EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS);
+        printf("EFAULT=%d  EISDIR=%d  ENAMETOOLONG=%d  ENODEV=%d  EINVAL=%d\n",
+            EFAULT, EISDIR, ENAMETOOLONG, ENODEV, EINVAL); */
+        /* printf("cannot exec: %s\n",os_command_stri ); */
+      } /* if */
+      os_stri_free(os_command_stri);
+    } /* if */
+  } /* cmdStartProcess */

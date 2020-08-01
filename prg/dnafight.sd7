@@ -28,6 +28,7 @@ $ include "seed7_05.s7i";
   include "window.s7i";
   include "keybd.s7i";
   include "float.s7i";
+  include "bigint.s7i";
   include "draw.s7i";
   include "graph_file.s7i";
   include "field.s7i";
@@ -1079,7 +1080,7 @@ const proc: finalStatistics is func
     var bactColor: col3 is CLEAR;
     var killReason: reason is KHunger;
     var array [hue] hue: colField is hue times hue.value;
-    var array [hue] float: valueField is hue times 0.0;
+    var array [hue] bigInteger: valueField is hue times 0_;
 
   begin (* finalStatistics *)
     cardPlayerSet:= 0;
@@ -1087,11 +1088,9 @@ const proc: finalStatistics is func
     for col1 range FIRSTCOL to LASTCOL do
       if col1 in playerSet then
         incr(cardPlayerSet);
-        valueField[col1] := log(flt(abs(statValues[col1][TRUE].totalno) + 1)) +
-            log(flt(abs(statValues[col1][TRUE].totalmass) + 1)) +
-            log(flt(abs(statValues[col1][TRUE].deathtime) + 1));
-      else
-        valueField[col1] := 0.0;
+        valueField[col1] := bigInteger conv (abs(statValues[col1][TRUE].totalno) + 1) *
+            bigInteger conv (abs(statValues[col1][TRUE].totalmass) + 1) *
+            bigInteger conv (abs(statValues[col1][TRUE].deathtime) + 1);
       end if;
       colField[col1] := col1;
     end for;

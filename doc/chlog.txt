@@ -1,3 +1,33 @@
+20111204:
+- The makefile "mk_djgpp.mak" was improved to work for DJGPP under
+  DOS (thanks to "Rugxulo" for his help to improve "mk_djgpp.mak").
+- The old makefile "mk_djgpp.mak" was renamed to "mk_djgp2.mak".
+- The option -?, which writes helping information, was added to the
+  hi interpreter and to the compiler (comp.sd7).
+- The "ftp7.sd7" example program was improved to support the command
+  "help".
+- The "sydir7.sd7" example program was improved to accept Unix and
+  DOS paths.
+- The directions N, S, W, E were renamed to NORTH, SOUTH, WEST and
+  EAST in "dna_base.s7i", "blue.dna", "green.dna", "indigo.dna",
+  "red.dna", "tan.dna", "violet.dna" and "white.dna".
+- Result variables were renamed in "bigrat.s7i", "complex.s7i",
+  "rational.s7i" and "time.s7i".
+- Interpreter, compiler and runtime library (files "cmd_unx.c",
+  "cmd_win.c", "cmd_drv.h", "cmdlib.c", "cmdlib.h" and "primitiv.c")
+  were improved to support the new action "CMD_START_PROCESS".
+- A definition of the function 'startProcess' was added to the
+  "shell.s7i" library.
+- The function get_primact in "actutl.c" was improved to suppress
+  writing the list of actions, which are implemented by the same
+  function.
+- The function timNow() in "tim_dos.c", "tim_unx.c" and "tim_win.c"
+  and the functions timFromTimestamp() and timSetLocalTZ() in
+  "tim_rtl.c" were improved to use localtime_s(), when the
+  prepocessor macro USE_LOCALTIME_S is defined.
+- An include command for "math.s7i" was added to "bas7.sd7",
+  "lander.sd7" and "planets.sd7".
+
 20111111:
 - Documentation comments were improved in "dir.s7i", "stdio.s7i"
   and "enable_io.s7i".

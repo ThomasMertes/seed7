@@ -1,8 +1,8 @@
 # Makefile for make and gcc from DJGPP. Commands executed by: cmd.exe
 # To compile use a windows console and call:
-#   make -f mk_djgpp.mak depend
-#   make -f mk_djgpp.mak
-# If your get errors you can try mk_djgp2.mak instead.
+#   make -f mk_djgp2.mak depend
+#   make -f mk_djgp2.mak
+# If your get errors you can try mk_djgpp.mak instead.
 
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -102,52 +102,52 @@ strip:
 	strip ..\bin\hi.exe
 
 version.h:
-	echo "#define ANSI_C" > version.h
-	echo "#define USE_DIRENT" >> version.h
-	echo "#define PATH_DELIMITER 92 /* backslash (ASCII) */" >> version.h
-	echo "#define SEARCH_PATH_DELIMITER ';'" >> version.h
-	echo "#define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS" >> version.h
-	echo "#define CATCH_SIGNALS" >> version.h
-	echo "#define AWAIT_WITH_SELECT" >> version.h
-	echo "#define OS_STRI_USES_CODEPAGE" >> version.h
-	echo "#define os_lstat stat" >> version.h
-	echo "#define os_fseek fseek" >> version.h
-	echo "#define os_ftell ftell" >> version.h
-	echo "#define OS_FSEEK_OFFSET_BITS 32" >> version.h
-	echo "#define os_off_t off_t" >> version.h
-	echo "#define os_putenv putenv" >> version.h
-	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
-	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h
-	echo "#define unlikely(x) __builtin_expect((x),0)" >> version.h
-	echo "#include \"direct.h\"" > chkccomp.h
-	echo "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
-	echo "#define mkdir(path,mode) mkdir(path)" >> chkccomp.h
-	echo "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
-	echo "#define long_long_EXISTS" >> chkccomp.h
-	echo "#define long_long_SUFFIX_LL" >> chkccomp.h
+	echo #define ANSI_C > version.h
+	echo #define USE_DIRENT >> version.h
+	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ >> version.h
+	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
+	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
+	echo #define CATCH_SIGNALS >> version.h
+	echo #define AWAIT_WITH_SELECT >> version.h
+	echo #define OS_STRI_USES_CODEPAGE >> version.h
+	echo #define os_lstat stat >> version.h
+	echo #define os_fseek fseek >> version.h
+	echo #define os_ftell ftell >> version.h
+	echo #define OS_FSEEK_OFFSET_BITS 32 >> version.h
+	echo #define os_off_t off_t >> version.h
+	echo #define os_putenv putenv >> version.h
+	echo #define $(BIGINT_LIB_DEFINE) >> version.h
+	echo #define likely(x)   __builtin_expect((x),1) >> version.h
+	echo #define unlikely(x) __builtin_expect((x),0) >> version.h
+	$(GET_CC_VERSION_INFO) cc_vers.txt
+	echo #include "direct.h" > chkccomp.h
+	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
+	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define long_long_EXISTS >> chkccomp.h
+	echo #define long_long_SUFFIX_LL >> chkccomp.h
 	$(CC) chkccomp.c -lm -o chkccomp.exe
 	.\chkccomp.exe >> version.h
 	del chkccomp.h
 	del chkccomp.exe
 	del cc_vers.txt
-	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
-	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
-	echo "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
-	echo "#define C_COMPILER \"$(CC)\"" >> version.h
-	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
-	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
-	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
-	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
-	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
-	echo "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
-	echo "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
-	echo "#define SEED7_LIB \"$(SEED7_LIB)\"" >> version.h
-	echo "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> version.h
-	echo "#define DRAW_LIB \"$(DRAW_LIB)\"" >> version.h
-	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> version.h
-	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> version.h
-	echo "#define STACK_SIZE_DEFINITION unsigned _stklen = 4194304" >> version.h
+	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
+	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
+	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
+	echo #define C_COMPILER "$(CC)" >> version.h
+	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
+	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
+	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
+	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
+	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
+	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
+	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
+	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
+	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
+	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
+	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
+	echo #define STACK_SIZE_DEFINITION unsigned _stklen = 4194304 >> version.h
 	$(CC) setpaths.c -o setpaths.exe
 	.\setpaths.exe >> version.h
 	del setpaths.exe

@@ -28,6 +28,7 @@
 typedef struct {
     stritype          source_file_name;
     const_cstritype   prot_file_name;
+    booltype          write_help;
     booltype          analyze_only;
     booltype          execute_always;
     booltype          show_ident_table;
@@ -48,6 +49,7 @@ typedef struct {
 opttype option = {
     NULL,  /* source_file_name  */
     NULL,  /* prot_file_name    */
+    FALSE, /* write_help        */
     FALSE, /* analyze_only      */
     FALSE, /* execute_always    */
     FALSE, /* show_ident_table  */

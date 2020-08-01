@@ -77,6 +77,48 @@ int line;
 
 #ifdef ANSI_C
 
+static void writeHelp (void)
+#else
+
+static void writeHelp ()
+#endif
+
+  { /* writeHelp */
+    printf("usage: hi [options] sourcefile [parameters]\n\n");
+    printf("Options:\n");
+    printf("  -a   Analyze only and suppress the execution phase.\n");
+    printf("  -dx  Set compile-time trace level to x. Where x is a string consisting of:\n");
+    printf("         a Trace primitive actions\n");
+    printf("         c Do action check\n");
+    printf("         d Trace dynamic calls\n");
+    printf("         e Trace exceptions and handlers\n");
+    printf("         h Trace heap size (in combination with 'a')\n");
+    printf("  -d   Equivalent to -da\n");
+    printf("  -i   Show the identifier table after the analyzing phase.\n");
+    printf("  -m   Use less memory during the analyzing phase.\n");
+    printf("       If there is a \"No more memory\" error you can try this option.\n");
+    printf("  -q   Compile quiet. Line and file information and compilation\n");
+    printf("       statistics are suppressed.\n");
+    printf("  -tx  Set runtime trace level to x. Where x is a string consisting of:\n");
+    printf("         a Trace primitive actions\n");
+    printf("         c Do action check\n");
+    printf("         d Trace dynamic calls\n");
+    printf("         e Trace exceptions and handlers\n");
+    printf("         h Trace heap size (in combination with 'a')\n");
+    printf("  -t   Equivalent to -ta\n");
+    printf("  -vn  Set verbosity level of analyse phase to n. Where n is one of:\n");
+    printf("         0 Compile quiet (equivalent to -q)\n");
+    printf("         1 Write just the header with version information (default)\n");
+    printf("         2 Write a list of include libraries\n");
+    printf("         3 Write line numbers, while analyzing\n");
+    printf("  -v   Equivalent to -v2\n");
+    printf("  -x   Execute even when the program contains errors.\n\n");
+  } /* writeHelp */
+
+
+
+#ifdef ANSI_C
+
 static void processOptions (rtlArraytype arg_v)
 #else
 
@@ -123,6 +165,7 @@ rtlArraytype arg_v;
               break;
             case 'h':
             case '?':
+              option.write_help = TRUE;
               break;
             case 'i':
               option.show_ident_table = TRUE;
@@ -273,7 +316,13 @@ char **argv;
       } /* if */
 #endif
       if (argc == 1) {
-        printf("usage: hi [options] sourcefile [parameters]\n");
+        printf("This is free software; see the source for copying conditions.  There is NO\n");
+        printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+        printf("Homepage: http://seed7.sourceforge.net\n\n");
+        printf("usage: hi [options] sourcefile [parameters]\n\n");
+        printf("Use  hi -?  to get more information about hi.\n\n");
+      } else if (option.write_help) {
+        writeHelp();
       } else {
         setupFloat();
         /* printf("source_file_name: \"");

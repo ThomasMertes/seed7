@@ -30,6 +30,15 @@ $ include "seed7_05.s7i";
   include "line.s7i";
 
 
+const proc: writeHelp is func
+  begin
+    writeln("Accepted commands:");
+    writeln("  ascii, binary, bye, cd, exit, get, help, lcd, ls, ls -l, mkdir, modtime,");
+    writeln("  put, pwd, quit, rmdir, size");
+    writeln;
+  end func;
+
+	
 const proc: longFileListing (inout ftpConnection: ftp, in string: directory) is func
   local
     var array string: dir is 0 times "";
@@ -114,6 +123,8 @@ const proc: execute (inout ftpConnection: ftp, in string: command) is func
       else
         writeln(" ***** No such file.");
       end if;
+    elsif startsWith(command, "help") then
+      writeHelp;
     else
       writeln(" ***** Invalid command.");
     end if;
@@ -130,15 +141,12 @@ const proc: main is func
     writeln("Copyright (C) 2011 Thomas Mertes");
     writeln("This is free software; see the source for copying conditions.  There is NO");
     writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
-    writeln("Savehd7 is written in the Seed7 programming language");
+    writeln("Ftp7 is written in the Seed7 programming language");
     writeln("Homepage: http://seed7.sourceforge.net");
     writeln;
     writeln("usage: ftp7 host [port]");
     writeln;
-    writeln("Accepted commands:");
-    writeln("  ascii, binary, bye, cd, exit, get, lcd, ls, ls -l, mkdir, modtime, put,");
-    writeln("  pwd, quit, rmdir, size");
-    writeln;
+    writeHelp;
     IN := open_echo(KEYBOARD, OUT);
     IN := open_line(IN);
     if length(argv(PROGRAM)) >= 1 then

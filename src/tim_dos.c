@@ -159,7 +159,7 @@ booltype *is_dst;
 
   {
     struct timeb tstruct;
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
     struct tm tm_result;
 #endif
     struct tm *local_time;
@@ -169,8 +169,14 @@ booltype *is_dst;
     printf("BEGIN timNow\n");
 #endif
     ftime(&tstruct);
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R
     local_time = localtime_r(&tstruct.time, &tm_result);
+#elif defined USE_LOCALTIME_S
+    if (localtime_s(&tm_result, &tstruct.time) != 0) {
+      local_time = NULL;
+    } else {
+      local_time = &tm_result;
+    } /* if */
 #else
     local_time = localtime(&tstruct.time);
 #endif

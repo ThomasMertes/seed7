@@ -42,7 +42,7 @@ const proc: dna (TAN) is func
     maxEdFDir := directSet.EMPTY_SET;
     ownSize := strength(HERE);
 
-    for dir range N to E do
+    for dir range NORTH to EAST do
       localFood:= food(dir);
       localFoe:= strength(dir);
       case view(dir) of

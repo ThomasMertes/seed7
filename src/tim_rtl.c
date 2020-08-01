@@ -184,7 +184,7 @@ booltype *is_dst;
 #endif
 
   {
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
     struct tm tm_result;
 #endif
     struct tm *local_time;
@@ -193,8 +193,14 @@ booltype *is_dst;
 #ifdef TRACE_TIM_RTL
     printf("BEGIN timFromTimestamp(%ld)\n", timestamp);
 #endif
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R
     local_time = localtime_r(&timestamp, &tm_result);
+#elif defined USE_LOCALTIME_S
+    if (localtime_s(&tm_result, &timestamp) != 0) {
+      local_time = NULL;
+    } else {
+      local_time = &tm_result;
+    } /* if */
 #else
     local_time = localtime(&timestamp);
 #endif
@@ -353,7 +359,7 @@ booltype *is_dst;
   {
     struct tm tm_time;
     time_t timestamp;
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R || defined USE_LOCALTIME_S
     struct tm tm_result;
 #endif
     struct tm *local_time;
@@ -365,8 +371,14 @@ booltype *is_dst;
         year, month, day, hour, min, sec);
 #endif
     timestamp = 0;
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R
     local_time = localtime_r(&timestamp, &tm_result);
+#elif defined USE_LOCALTIME_S
+    if (localtime_s(&tm_result, &timestamp) != 0) {
+      local_time = NULL;
+    } else {
+      local_time = &tm_result;
+    } /* if */
 #else
     local_time = localtime(&timestamp);
 #endif
@@ -386,8 +398,14 @@ booltype *is_dst;
         raise_error(RANGE_ERROR);
       } else {
         timestamp -= time_zone_reference * 60;
-#ifdef USE_LOCALTIME_R
+#if defined USE_LOCALTIME_R
         local_time = localtime_r(&timestamp, &tm_result);
+#elif defined USE_LOCALTIME_S
+        if (localtime_s(&tm_result, &timestamp) != 0) {
+          local_time = NULL;
+        } else {
+          local_time = &tm_result;
+        } /* if */
 #else
         local_time = localtime(&timestamp);
 #endif

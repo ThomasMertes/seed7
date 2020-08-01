@@ -756,6 +756,42 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_start_process (listtype arguments)
+#else
+
+objecttype cmd_start_process (arguments)
+listtype arguments;
+#endif
+
+  {
+    arraytype parameters;
+    memsizetype arraySize;
+    rtlArraytype rtlParameters;
+    memsizetype pos;
+
+  /* cmd_start_process */
+    isit_stri(arg_1(arguments));
+    isit_array(arg_2(arguments));
+    parameters = take_array(arg_2(arguments));
+    arraySize = (uinttype) (parameters->max_position - parameters->min_position + 1);
+    if (!ALLOC_RTL_ARRAY(rtlParameters, arraySize)) {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } else {
+      rtlParameters->min_position = parameters->min_position;
+      rtlParameters->max_position = parameters->max_position;
+      for (pos = 0; pos < arraySize; pos++) {
+        rtlParameters->arr[pos].value.strivalue = parameters->arr[pos].value.strivalue;
+      } /* for */
+      cmdStartProcess(take_stri(arg_1(arguments)), rtlParameters);
+      FREE_RTL_ARRAY(rtlParameters, arraySize);
+    } /* if */
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_start_process */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_symlink (listtype arguments)
 #else
 

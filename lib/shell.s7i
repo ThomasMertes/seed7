@@ -260,3 +260,7 @@ const proc: pipe2 (in string: command, in array string: parameters,
       childStdout := malloc(new_ChildStdout);
     end if;
   end func;
+
+  
+  const proc: startProcess (in string: command,
+                            in array string: parameters) is action "CMD_START_PROCESS";

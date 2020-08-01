@@ -139,10 +139,10 @@ const func rational: + (in rational: number) is func
  *)
 const func rational: - (in rational: number) is func
   result
-    var rational: result is rational.value;
+    var rational: negatedValue is rational.value;
   begin
-    result.numerator := -number.numerator;
-    result.denominator := number.denominator;
+    negatedValue.numerator := -number.numerator;
+    negatedValue.denominator := number.denominator;
   end func;
 
 
@@ -271,15 +271,15 @@ const proc: (inout rational: number) /:= (in rational: divisor) is func
  *)
 const func rational: (in rational: base) ** (in integer: exponent) is func
   result
-    var rational: result is rational.value;
+    var rational: power is rational.value;
   begin
     if exponent >= 0 then
-      result.numerator := base.numerator ** exponent;
-      result.denominator := base.denominator ** exponent;
+      power.numerator := base.numerator ** exponent;
+      power.denominator := base.denominator ** exponent;
     else
-      result.numerator := base.denominator ** (-exponent);
-      result.denominator := base.numerator ** (-exponent);
-      normalize(result);
+      power.numerator := base.denominator ** (-exponent);
+      power.denominator := base.numerator ** (-exponent);
+      normalize(power);
     end if;
   end func;
 
@@ -402,10 +402,10 @@ const func rational: (attr rational) conv (ref integer: number) is func
  *)
 const func rational: abs (in rational: number) is func
   result
-    var rational: result is rational.value;
+    var rational: absoluteValue is rational.value;
   begin
-    result.numerator := abs(number.numerator);
-    result.denominator := number.denominator;
+    absoluteValue.numerator := abs(number.numerator);
+    absoluteValue.denominator := number.denominator;
   end func;
 
 

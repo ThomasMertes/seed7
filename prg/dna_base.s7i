@@ -43,12 +43,12 @@ const bactColor: FIRSTCOL is WHITE;
 const bactColor: LASTCOL  is PINK;
 
 const type: direction is new enum
-    HERE, N, S, W, E, NW, NE, SW, SE
+    HERE, NORTH, SOUTH, WEST, EAST, NW, NE, SW, SE
   end enum;
 
 const func string: str (in direction: aDirection) is
   return [] (
-    "HERE", "N", "S", "W", "E", "NW", "NE", "SW", "SE"
+    "HERE", "NORTH", "SOUTH", "WEST", "EAST", "NW", "NE", "SW", "SE"
   )[succ(ord(aDirection))];
 
 enable_output(direction);
@@ -64,13 +64,13 @@ const power: ALL is 1000000;
 const lifeSpan: MAXLIFESPAN is 3;
 
 const array [direction] direction: right is [direction] (
-    HERE, NE, SW, NW, SE, N, E, W, S);
+    HERE, NE, SW, NW, SE, NORTH, EAST, WEST, SOUTH);
 const array [direction] direction: left is [direction] (
-    HERE, NW, SE, SW, NE, W, N, S, E);
+    HERE, NW, SE, SW, NE, WEST, NORTH, SOUTH, EAST);
 
 const colorSet: ALL_COLORS is {WHITE, VIOLET, INDIGO, BLUE, CYAN,
     GREEN, YELLOW, AMBER, ORANGE, RED, SCARLET, TAN, LILIAC, PINK};
-const directSet: MAIN_DIRECTIONS is {N, S, W, E};
+const directSet: MAIN_DIRECTIONS is {NORTH, SOUTH, WEST, EAST};
 const directSet: DIAGONAL_DIRECTIONS is {NW, NE, SW, SE};
 
 const integer: defaultVal is 10; # Default value for initSize, foodReserve and shrinkage.
