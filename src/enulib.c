@@ -45,6 +45,22 @@
 
 #ifdef ANSI_C
 
+objecttype enu_conv (listtype arguments)
+#else
+
+objecttype enu_conv (arguments)
+listtype arguments;
+#endif
+
+  { /* enu_conv */
+    isit_enum(arg_3(arguments));
+    return(take_enum(arg_3(arguments)));
+  } /* enu_conv */
+
+
+
+#ifdef ANSI_C
+
 objecttype enu_cpy (listtype arguments)
 #else
 

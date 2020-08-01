@@ -720,6 +720,12 @@ stritype name;
         opt = COMP_DATA_LIB;
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
         opt = COMPILER_LIB;
+      } else if (strcmp(opt_name, "USE_SIGSETJMP") == 0) {
+#ifdef USE_SIGSETJMP
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else if (strcmp(opt_name, "WITH_STRI_CAPACITY") == 0) {
 #ifdef WITH_STRI_CAPACITY
         opt = "TRUE";

@@ -149,7 +149,7 @@ CONTENTS
   instead of bending everything into a small syntactic or
   semantic concept. The predefined constructs of Seed7 are
   defined in a way to be easy readable and understandable. This
-  practical approach can be subsumed as:
+  practical approach can be summarized as:
 
     "Programming should be fun"
 
@@ -1482,10 +1482,16 @@ CONTENTS
                     str(FALSE) => "FALSE",
                     str(TRUE) => "TRUE" )
       rand(A, B) Random value in the range [A, B]
+                 The random values are uniform distributed.
                   ( rand(A, B) returns a random value such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
                     rand(TRUE, FALSE) => EXCEPTION RANGE_ERROR )
+    Statements:
+      incr(A)   Increment
+                  ( incr(A) => A:=succ(A) )
+      decr(A)   Decrement
+                  ( decr(A) => A:=pred(A) )
 
 
     The logical operators 'and' and 'or' work strictly left
@@ -1527,16 +1533,8 @@ CONTENTS
 
     When the result of a boolean expression can be
   determined at compile time, the expression can be
-  replaced by a constant. Boolean relations ( =, <>, >, >=,
-  <, <= ) may also skip the evaluation of the right operand
-  when the result of the operation can be determined
-  after evaluation of the left operand. But this behaviour
-  is not enforced. The boolean relations may also evaluate
-  the right operand always. To be on the safe side it must
-  always be possible to evaluate the right side of a
-  boolean relation and there must be no side effects in
-  the right operand. Additionally the following equations
-  can be used:
+  replaced by a constant. Additionally the following
+  equations can be used:
 
     (A or  B) and (A or  C)  =  A or  (B and C)
     (A and B) or  (A and C)  =  A and (B or  C)
@@ -1560,8 +1558,8 @@ CONTENTS
 
     0   2147483647   1E6   2e+9   16#c0   16#FFFF   8#177777   2#1010101010
 
-  The result an 'integer' operation is undefined when it
-  overflows.
+  The result of an 'integer' operation is undefined when
+  it overflows.
 
     Prefix operators:
       +         Identity
@@ -1661,6 +1659,7 @@ CONTENTS
                     lowestSetBit(1) => 0,
                     lowestSetBit(2) => 1 )
       rand(A, B) Random number in the range [A, B]
+                 The random values are uniform distributed.
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
@@ -1857,6 +1856,7 @@ CONTENTS
                     lowestSetBit(1_) => 0,
                     lowestSetBit(2_) => 1 )
       rand(A, B) Random number in the range [A, B]
+                 The random values are uniform distributed.
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
@@ -1955,8 +1955,8 @@ CONTENTS
   represented with an 'integer' numerator and an 'integer'
   denominator. The values of the type 'rational' are
   finite and periodical decimal numbers. Rational literals
-  do not exist. The result an 'rational' operation is
-  undefined when it overflows.
+  do not exist. The result of a 'rational' operation
+  is undefined when it overflows.
 
     Prefix operators:
       +         Identity
@@ -2186,6 +2186,7 @@ CONTENTS
       cosh(A)   Hyperbolic cosine
       tanh(A)   Hyperbolic tangent
       rand(A, B) Random number in the range [A, B]
+                 The random values are uniform distributed.
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
@@ -2204,6 +2205,8 @@ CONTENTS
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A /:= B   Dividing copy
+                  ( A /:= B => A := A / B )
 
 
 5.7 complex
@@ -2262,6 +2265,8 @@ CONTENTS
                   ( A -:= B => A := A - B )
       A *:= B   Multiplying copy
                   ( A *:= B => A := A * B )
+      A /:= B   Dividing copy
+                  ( A /:= B => A := A / B )
 
 
 5.8 char
@@ -2327,6 +2332,7 @@ CONTENTS
                   ( lower('A') => 'a' )
                   ( lower('z') => 'z' )
       rand(A, B) Random character in the range [A, B]
+                 The random values are uniform distributed.
                   ( rand(A, B) returns a random character such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
                     rand(A, A) => A,
@@ -2584,6 +2590,7 @@ CONTENTS
                   ( Type of result: integer,
                     maxIdx(3 times TRUE) => 3 )
       rand(A)   Random element from an array
+                The random elements are uniform distributed.
                   ( Type of result:  baseType )
       remove(A,B) Remove element with index B from array A and
                   return the removed element
@@ -4985,7 +4992,7 @@ CONTENTS
       end func;
 
 
-8.7 Scanning a file
+8.8 Scanning a file
 
     The I/O concept introduced in the previous chapters separates
   the input of data from it's conversion. The 'read', 'readln',

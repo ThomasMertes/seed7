@@ -146,11 +146,11 @@ const func complex: (in complex: num1) / (in complex: num2) is func
   result
     var complex: result is complex.value;
   local
-    var float: help is 0.0;
+    var float: divisor is 0.0;
   begin
-    help := num2.re * num2.re + num2.im * num2.im;
-    result.re := (num1.re * num2.re + num1.im * num2.im) / help;
-    result.im := (num1.im * num2.re - num1.re * num2.im) / help;
+    divisor := num2.re * num2.re + num2.im * num2.im;
+    result.re := (num1.re * num2.re + num1.im * num2.im) / divisor;
+    result.im := (num1.im * num2.re - num1.re * num2.im) / divisor;
   end func;
 
 
@@ -182,8 +182,24 @@ const proc: (inout complex: num1) *:= (in complex: num2) is func
   local
     var float: help is 0.0;
   begin
-    help := num1.re * num2.re - num1.im * num2.im;
+    help    := num1.re * num2.re - num1.im * num2.im;
     num1.im := num1.re * num2.im + num1.im * num2.re;
+    num1.re := help;
+  end func;
+
+
+(**
+ *  Divide the complex number num1 by num2 and assign the
+ *  result to num1.
+ *)
+const proc: (inout complex: num1) /:= (in complex: num2) is func
+  local
+    var float: divisor is 0.0;
+    var float: help is 0.0;
+  begin
+    divisor := num2.re * num2.re + num2.im * num2.im;
+    help    := (num1.re * num2.re + num1.im * num2.im) / divisor;
+    num1.im := (num1.im * num2.re - num1.re * num2.im) / divisor;
     num1.re := help;
   end func;
 

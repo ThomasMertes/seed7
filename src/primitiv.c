@@ -267,6 +267,7 @@ static primactrecord prim_act_table[] = {
     { "DRW_WIDTH",           drw_width,           },
 #endif
 
+    { "ENU_CONV",            enu_conv,            },
     { "ENU_CPY",             enu_cpy,             },
     { "ENU_CREATE",          enu_create,          },
     { "ENU_EQ",              enu_eq,              },
@@ -321,6 +322,7 @@ static primactrecord prim_act_table[] = {
     { "FLT_CREATE",          flt_create,          },
     { "FLT_DGTS",            flt_dgts,            },
     { "FLT_DIV",             flt_div,             },
+    { "FLT_DIV_ASSIGN",      flt_div_assign,      },
     { "FLT_EQ",              flt_eq,              },
     { "FLT_EXP",             flt_exp,             },
     { "FLT_FLOOR",           flt_floor,           },
@@ -339,9 +341,9 @@ static primactrecord prim_act_table[] = {
     { "FLT_LOG",             flt_log,             },
     { "FLT_LOG10",           flt_log10,           },
     { "FLT_LT",              flt_lt,              },
-    { "FLT_MCPY",            flt_mcpy,            },
     { "FLT_MINUS",           flt_minus,           },
     { "FLT_MULT",            flt_mult,            },
+    { "FLT_MULT_ASSIGN",     flt_mult_assign,     },
     { "FLT_NE",              flt_ne,              },
     { "FLT_PARSE",           flt_parse,           },
     { "FLT_PLUS",            flt_plus,            },

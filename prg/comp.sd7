@@ -34,6 +34,7 @@ const string: temp_marker is "/* Seed7 compiler temp file */";
 
 const boolean: WITH_STRI_CAPACITY      is boolean parse configValue("WITH_STRI_CAPACITY");
 const boolean: RSHIFT_DOES_SIGN_EXTEND is boolean parse configValue("RSHIFT_DOES_SIGN_EXTEND");
+const boolean: USE_SIGSETJMP           is boolean parse configValue("USE_SIGSETJMP");
 
 const type: option_hash is hash [string] string;
 
@@ -1585,8 +1586,11 @@ const proc: process_prc_block (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.expr &:= "    catch_stack = resized_stack;\n";
     c_expr.expr &:= "  }\n";
     c_expr.expr &:= "}\n";
-    # c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], 1)) == 0) {\n";
-    c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
+    if USE_SIGSETJMP then
+      c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], -1)) == 0) {\n";
+    else
+      c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
+    end if;
     process_expr(params[2], c_expr);
     c_expr.expr &:= "} else {\n";
     # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
@@ -4567,6 +4571,15 @@ const proc: process_drw_width (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_enu_conv (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_enu_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -5105,6 +5118,34 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
+  begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
+    c_expr.expr &:= c_param1.expr;
+    c_expr.expr &:= "/=(";
+    c_expr.expr &:= c_param3.expr;
+    c_expr.expr &:= ");\n";
+    if c_param3.temp_num <> 0 then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
 const proc: process_flt_eq (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5293,7 +5334,27 @@ const proc: process_flt_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_flt_mcpy (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_flt_minus (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "-(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_mult (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ") * (";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_flt_mult_assign (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var expr_type: c_param1 is expr_type.value;
@@ -5318,26 +5379,6 @@ const proc: process_flt_mcpy (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= c_param3.temp_frees;
       c_expr.expr &:= "}\n";
     end if;
-  end func;
-
-
-const proc: process_flt_minus (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "-(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process_flt_mult (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") * (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
   end func;
 
 
@@ -6204,14 +6245,36 @@ const proc: process_int_le (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_const_int_lshift (in reference: param1, in integer: number,
+    inout expr_type: c_expr) is func
+
+  begin
+    incr(countOptimizations);
+    if number < 0 then
+      c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
+    elsif number >= 32 then
+      c_expr.expr &:= "0";
+    else
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ") << ";
+      c_expr.expr &:= str(number);
+    end if;
+  end func;
+
+
 const proc: process_int_lshift (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") << (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+      process_const_int_lshift(params[1], getValue(params[3], integer), c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") << (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -6767,39 +6830,89 @@ const proc: process_int_rem (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_const_int_rshift (in reference: param1, in integer: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if number < 0 then
+      c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
+    elsif number >= 32 then
+      c_expr.expr &:= "((";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ")<0?-1:0)";
+    else
+      if RSHIFT_DOES_SIGN_EXTEND then
+        c_expr.expr &:= "(";
+        process_expr(param1, c_expr);
+        c_expr.expr &:= ") >> ";
+        c_expr.expr &:= str(number);
+      else
+        incr(c_expr.temp_num);
+        temp_num := c_expr.temp_num;
+        c_expr.temp_decls &:= "inttype tmp_";
+        c_expr.temp_decls &:= str(temp_num);
+        c_expr.temp_decls &:= ";\n";
+        (* Formula used: (a<0?~(~a>>b):a>>b) *)
+        c_expr.expr &:= "(tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "=(";
+        process_expr(param1, c_expr);
+        c_expr.expr &:= "),tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "<0?~(~tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= " >> ";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "):tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= " >> ";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= ")";
+      end if;
+    end if;
+  end func;
+
+
 const proc: process_int_rshift (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var integer: temp_num is 0;
   begin
-    if RSHIFT_DOES_SIGN_EXTEND then
-      c_expr.expr &:= "(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= ") >> (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ")";
+    if category(params[3]) = INTOBJECT and not is_var(params[3]) then
+      process_const_int_rshift(params[1], getValue(params[3], integer), c_expr);
     else
-      incr(c_expr.temp_num);
-      temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "inttype tmp_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      (* Formula used: (a<0?~(~a>>b):a>>b) *)
-      c_expr.expr &:= "(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "=(";
-      process_expr(params[1], c_expr);
-      c_expr.expr &:= "),tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "<0?~(~tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= " >> (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= ")):tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= " >> (";
-      process_expr(params[3], c_expr);
-      c_expr.expr &:= "))";
+      if RSHIFT_DOES_SIGN_EXTEND then
+        c_expr.expr &:= "(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ") >> (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")";
+      else
+        incr(c_expr.temp_num);
+        temp_num := c_expr.temp_num;
+        c_expr.temp_decls &:= "inttype tmp_";
+        c_expr.temp_decls &:= str(temp_num);
+        c_expr.temp_decls &:= ";\n";
+        (* Formula used: (a<0?~(~a>>b):a>>b) *)
+        c_expr.expr &:= "(tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "=(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= "),tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "<0?~(~tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= " >> (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ")):tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= " >> (";
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= "))";
+      end if;
     end if;
   end func;
 
@@ -10530,7 +10643,9 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "ENU" then
-      if action_name = "ENU_CPY" then
+      if action_name = "ENU_CONV" then
+        process_enu_conv(params, c_expr);
+      elsif action_name = "ENU_CPY" then
         process_enu_cpy(params, c_expr);
       elsif action_name = "ENU_EQ" then
         process_enu_eq(params, c_expr);
@@ -10630,6 +10745,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_dgts(params, c_expr);
       elsif action_name = "FLT_DIV" then
         process_flt_div(params, c_expr);
+      elsif action_name = "FLT_DIV_ASSIGN" then
+        process_flt_div_assign(params, c_expr);
       elsif action_name = "FLT_EQ" then
         process_flt_eq(params, c_expr);
       elsif action_name = "FLT_EXP" then
@@ -10660,12 +10777,12 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_flt_log10(params, c_expr);
       elsif action_name = "FLT_LT" then
         process_flt_lt(params, c_expr);
-      elsif action_name = "FLT_MCPY" then
-        process_flt_mcpy(params, c_expr);
       elsif action_name = "FLT_MINUS" then
         process_flt_minus(params, c_expr);
       elsif action_name = "FLT_MULT" then
         process_flt_mult(params, c_expr);
+      elsif action_name = "FLT_MULT_ASSIGN" then
+        process_flt_mult_assign(params, c_expr);
       elsif action_name = "FLT_NE" then
         process_flt_ne(params, c_expr);
       elsif action_name = "FLT_PARSE" then
@@ -15023,7 +15140,9 @@ const proc: write_file_head is func
     writeln(c_prog, "static void handle_fpe_signal (int sig_num)");
     writeln(c_prog);
     writeln(c_prog, "  {");
-    writeln(c_prog, "    signal(SIGFPE, handle_fpe_signal);");
+    if not USE_SIGSETJMP then
+      writeln(c_prog, "    signal(SIGFPE, handle_fpe_signal);");
+    end if;
     writeln(c_prog, "    raise_error(NUMERIC_ERROR);");
     writeln(c_prog, "  }");
     writeln(c_prog);
@@ -15367,9 +15486,12 @@ const proc: generate_main (in program: prog) is func
     var ref_list: sorted_list is ref_list.EMPTY;
   begin
     if not compilerLibraryUsed then
-      c_expr.expr &:= "void raise_error (int a) {longjmp(catch_stack[catch_stack_pos], a); }\n";
+      if USE_SIGSETJMP then
+        c_expr.expr &:= "void raise_error (int a) {siglongjmp(catch_stack[catch_stack_pos], a); }\n";
+      else
+        c_expr.expr &:= "void raise_error (int a) {longjmp(catch_stack[catch_stack_pos], a); }\n";
+      end if;
 #     c_expr.expr &:= "void raise_error (int a) {raise(SIGINT); }\n";
-#     c_expr.expr &:= "void raise_error (int a) {siglongjmp(catch_stack[catch_stack_pos], a); }\n";
       c_expr.expr &:= "inttype heapsize (void) {return(0);}\n";
 #!    c_expr.expr &:= "inttype heapsize (void) {rtlHeapStatistic(); return(0);}\n";
       c_expr.expr &:= "inttype refType (void *a) {printf(\"refType\\n\");}\n";
@@ -15413,7 +15535,11 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "catch_stack_pos = 0;\n";
     c_expr.expr &:= "max_catch_stack = 128;\n";
     c_expr.expr &:= "catch_stack = malloc(max_catch_stack * sizeof(catch_type));\n";
-    c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
+    if USE_SIGSETJMP then
+      c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], -1)) == 0) {\n";
+    else
+      c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
+    end if;
 
     c_expr.expr &:= "arg_0 = cstri_to_stri(argv[0]);\n";
     c_expr.expr &:= "arg_v = malloc(sizeof(struct arraystruct) - sizeof(long) + argc * sizeof(long));\n";

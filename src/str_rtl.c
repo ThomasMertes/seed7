@@ -2006,3 +2006,106 @@ stritype stri;
     } /* for */
     return(stri);
   } /* strUpTemp */
+
+
+
+#ifdef ANSI_C
+
+stritype strUtf8ToStri (const_stritype stri8)
+#else
+
+stritype strUtf8ToStri (stri8)
+stritype stri8;
+#endif
+
+  {
+    memsizetype length;
+    memsizetype pos;
+    const strelemtype *stri8ptr;
+    inttype okay = TRUE;
+    stritype resized_result;
+    stritype result;
+
+  /* strUtf8ToStri */
+    length = stri8->size;
+    if (ALLOC_STRI(result, length)) {
+      stri8ptr = &stri8->mem[0];
+      pos = 0;
+      for (; length > 0; length--, pos++) {
+        if (*stri8ptr <= 0x7F) {
+          result->mem[pos] = *stri8ptr++;
+        } else if ((stri8ptr[0] & 0xE0) == 0xC0 && length > 1 &&
+                   (stri8ptr[1] & 0xC0) == 0x80) {
+          result->mem[pos] = (stri8ptr[0] & 0x1F) << 6 |
+                             (stri8ptr[1] & 0x3F);
+          stri8ptr += 2;
+          length--;
+        } else if ((stri8ptr[0] & 0xF0) == 0xE0 && length > 2 &&
+                   (stri8ptr[1] & 0xC0) == 0x80 &&
+                   (stri8ptr[2] & 0xC0) == 0x80) {
+          result->mem[pos] = (stri8ptr[0] & 0x0F) << 12 |
+                             (stri8ptr[1] & 0x3F) <<  6 |
+                             (stri8ptr[2] & 0x3F);
+          stri8ptr += 3;
+          length -= 2;
+        } else if ((stri8ptr[0] & 0xF8) == 0xF0 && length > 3 &&
+                   (stri8ptr[1] & 0xC0) == 0x80 &&
+                   (stri8ptr[2] & 0xC0) == 0x80 &&
+                   (stri8ptr[3] & 0xC0) == 0x80) {
+          result->mem[pos] = (stri8ptr[0] & 0x07) << 18 |
+                             (stri8ptr[1] & 0x3F) << 12 |
+                             (stri8ptr[2] & 0x3F) <<  6 |
+                             (stri8ptr[3] & 0x3F);
+          stri8ptr += 4;
+          length -= 3;
+        } else if ((stri8ptr[0] & 0xFC) == 0xF8 && length > 4 &&
+                   (stri8ptr[1] & 0xC0) == 0x80 &&
+                   (stri8ptr[2] & 0xC0) == 0x80 &&
+                   (stri8ptr[3] & 0xC0) == 0x80 &&
+                   (stri8ptr[4] & 0xC0) == 0x80) {
+          result->mem[pos] = (stri8ptr[0] & 0x03) << 24 |
+                             (stri8ptr[1] & 0x3F) << 18 |
+                             (stri8ptr[2] & 0x3F) << 12 |
+                             (stri8ptr[3] & 0x3F) <<  6 |
+                             (stri8ptr[4] & 0x3F);
+          stri8ptr += 5;
+          length -= 4;
+        } else if ((stri8ptr[0] & 0xFC) == 0xFC && length > 5 &&
+                   (stri8ptr[1] & 0xC0) == 0x80 &&
+                   (stri8ptr[2] & 0xC0) == 0x80 &&
+                   (stri8ptr[3] & 0xC0) == 0x80 &&
+                   (stri8ptr[4] & 0xC0) == 0x80 &&
+                   (stri8ptr[5] & 0xC0) == 0x80) {
+          result->mem[pos] = (stri8ptr[0] & 0x03) << 30 |
+                             (stri8ptr[1] & 0x3F) << 24 |
+                             (stri8ptr[2] & 0x3F) << 18 |
+                             (stri8ptr[3] & 0x3F) << 12 |
+                             (stri8ptr[4] & 0x3F) <<  6 |
+                             (stri8ptr[5] & 0x3F);
+          stri8ptr += 6;
+          length -= 5;
+        } else {
+          okay = FALSE;
+          length = 0;
+        } /* if */
+      } /* for */
+      if (okay) {
+        result->size = pos;
+        REALLOC_STRI(resized_result, result, stri8->size, result->size);
+        if (resized_result == NULL) {
+          FREE_STRI(result, stri8->size);
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result = resized_result;
+        } /* if */
+      } else {
+        FREE_STRI(result, stri8->size);
+        raise_error(RANGE_ERROR);
+        result = NULL;
+      } /* if */
+    } else {
+      raise_error(MEMORY_ERROR);
+    } /* if */
+    return(result);
+  } /* strUtf8ToStri */

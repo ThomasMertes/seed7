@@ -315,6 +315,29 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype flt_div_assign (listtype arguments)
+#else
+
+objecttype flt_div_assign (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype flt_variable;
+
+  /* flt_div_assign */
+    flt_variable = arg_1(arguments);
+    isit_float(flt_variable);
+    is_variable(flt_variable);
+    isit_float(arg_3(arguments));
+    flt_variable->value.floatvalue /= take_float(arg_3(arguments));
+    return(SYS_EMPTY_OBJECT);
+  } /* flt_div_assign */
+
+
+
+#ifdef ANSI_C
+
 objecttype flt_eq (listtype arguments)
 #else
 
@@ -649,29 +672,6 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype flt_mcpy (listtype arguments)
-#else
-
-objecttype flt_mcpy (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype flt_variable;
-
-  /* flt_mcpy */
-    flt_variable = arg_1(arguments);
-    isit_float(flt_variable);
-    is_variable(flt_variable);
-    isit_float(arg_3(arguments));
-    flt_variable->value.floatvalue *= take_float(arg_3(arguments));
-    return(SYS_EMPTY_OBJECT);
-  } /* flt_mcpy */
-
-
-
-#ifdef ANSI_C
-
 objecttype flt_minus (listtype arguments)
 #else
 
@@ -702,6 +702,29 @@ listtype arguments;
         (double) take_float(arg_1(arguments)) *
         (double) take_float(arg_3(arguments))));
   } /* flt_mult */
+
+
+
+#ifdef ANSI_C
+
+objecttype flt_mult_assign (listtype arguments)
+#else
+
+objecttype flt_mult_assign (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype flt_variable;
+
+  /* flt_mult_assign */
+    flt_variable = arg_1(arguments);
+    isit_float(flt_variable);
+    is_variable(flt_variable);
+    isit_float(arg_3(arguments));
+    flt_variable->value.floatvalue *= take_float(arg_3(arguments));
+    return(SYS_EMPTY_OBJECT);
+  } /* flt_mult_assign */
 
 
 

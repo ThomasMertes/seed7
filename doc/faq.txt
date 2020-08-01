@@ -204,10 +204,10 @@ operator symbols.
 Seed7 uses syntax declarations to specify the syntax of statements. A keyword
 is a name which is used somewhere in a syntax declaration. Syntax declarations
 reduce the possibilitys to use a keyword out of context. E.g: After the keyword
-'if' the lexer expects always an expression. This makes 'if' unusable as
+'if' the parser expects always an expression. This makes 'if' unusable as
 variable name. This way you get error messages when you try to use 'if' or
 other keywords as variable name. That behaviour is just the same as in other
-languages which have reserved words. It can be subsumed that Seed7 reaches
+languages which have reserved words. It can be summarized that Seed7 reaches
 the goal of avoiding the misuse of keywords in other ways and not by reserving
 them altogether.
 
@@ -820,15 +820,29 @@ example typeof(num).
 Are there generics / templates?
 ===============================
 
-In Ada, C++ and Java generics (templates) use a special syntax to express this feature.
-In Seed7 you get this functionality for free without special syntax or other magic:
+The generics (templates) of Ada, C++ and Java use a special
+syntax. In Seed7 you get this functionality for free without
+special syntax or other magic.
 
-In Seed7 a function can contain declarations which are executed when the function is called.
-This way objects can be declared by calling a function (which contains the actual
-declarations). Additionally types are first class objects which can be used in type
-variables, constants, parameters and functions with types as result.
+Generally all Seed7 functions can be executed at compile time
+or at runtime. The time of the function execution depends on
+the place of the call. A Seed7 program consists of a sequence
+of declarations, which are executed one by one at compile time.
+Since declarations are just a form of statement it can be
+concluded that other statements can as well be used at the top
+level.
 
-By combining this features the generic (template) functionality can be done easily.
+Seed7 uses the word template to describe a function which is
+executed at compile time and declares some things while
+executing (at compile time). Naturally a template function can
+have parameters. Specially types as parameters are useful with
+template functions. That way a template function can declare
+objects with the type value of a parameter.
+
+It is necessary to call template functions explicit.
+They are not invoked implicit as the C++ template functions.
+This explicit calls of template functions make it obvious
+what it is going on. This way the program is easier to read.
 
 
 Are there exceptions?

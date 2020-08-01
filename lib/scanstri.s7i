@@ -613,3 +613,54 @@ const func string: getSymbol (inout string: stri) is func
       end case;
     end if;
   end func;
+
+
+(**
+ *  Reads a symbol which can appear inside a html tag from a 'string'.
+ *  Before reading the symbol it skips whitespace characters.
+ *  A symbol inside a html tag can be a literal (numeric, string),
+ *  a name or a special symbol (sequence of special characters).
+ *  When the function is called it is assumed that 'stri' is empty or
+ *  stri[1] contains a whitespace character or the first character of
+ *  a symbol. When the function is left 'stri' is empty or stri[1]
+ *  contains the character after the symbol.
+ *  @return the symbol or "" when EOF was reached.
+ *)
+const func string: getSymbolInHtmlTag (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] in white_space_char do
+      incr(pos);
+    end while;
+    if pos <= leng then
+      case stri[pos] of
+        when name_start_char:
+          incr(pos);
+          while pos <= leng and stri[pos] in name_char do
+            incr(pos);
+          end while;
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+        when special_char:
+          incr(pos);
+          while pos <= leng and stri[pos] in special_char do
+            incr(pos);
+          end while;
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+        when digit_char:
+          symbol := getNumber(stri);
+        when quotation_char:
+          symbol := getStringLiteral(stri);
+        otherwise:
+          incr(pos);
+          symbol := stri[.. pred(pos)];
+          stri := stri[pos ..];
+      end case;
+    end if;
+  end func;

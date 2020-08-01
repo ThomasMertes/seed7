@@ -149,6 +149,7 @@ version.h:
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#define USE_LSEEK" >> version.h
 	echo "#define ESCAPE_SPACES_IN_COMMANDS" >> version.h
+	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#include \"stdio.h\"" > chkshift.c
 	echo "int main (int argc, char **argv)" >> chkshift.c
 	echo "{" >> chkshift.c

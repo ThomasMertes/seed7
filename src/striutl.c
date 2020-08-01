@@ -174,7 +174,7 @@ SIZE_TYPE len;
         *dest_len = stri - dest_stri;
         return(len);
       } /* if */
-    } /* while */
+    } /* for */
     *dest_len = stri - dest_stri;
     return(0);
   } /* utf8_to_stri */

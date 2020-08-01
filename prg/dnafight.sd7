@@ -67,10 +67,7 @@ const integer: YMAX           is MAX_LINE + 2;
 const type: xcoordinate is subtype integer; (* 1 .. XMAX *)
 const type: ycoordinate is subtype integer; (* 1 .. YMAX *)
 
-const type: hue is subtype bactColor; (* FIRSTCOL .. LASTCOL *)
-const hue: (attr hue) . first is FIRSTCOL;
-const hue: (attr hue) . last is LASTCOL;
-const hue: (attr hue) . value is FIRSTCOL;
+const type: hue is subrange FIRSTCOL .. LASTCOL;
 
 const type: bacterium is new struct
     var xcoordinate: xpos is 0;

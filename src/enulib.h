@@ -27,6 +27,7 @@
 
 #ifdef ANSI_C
 
+objecttype enu_conv (listtype);
 objecttype enu_cpy (listtype);
 objecttype enu_create (listtype);
 objecttype enu_eq (listtype);
@@ -39,6 +40,7 @@ objecttype enu_value (listtype);
 
 #else
 
+objecttype enu_conv ();
 objecttype enu_cpy ();
 objecttype enu_create ();
 objecttype enu_eq ();

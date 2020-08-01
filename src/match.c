@@ -203,6 +203,8 @@ objecttype expr_object;
   {
     listtype expr_list;
     objecttype current_element;
+    objecttype created_object;
+    errinfotype err_info = OKAY_NO_ERROR;
 
   /* update_owner */
 #ifdef TRACE_MATCH
@@ -221,10 +223,38 @@ objecttype expr_object;
       } else if (CATEGORY_OF_OBJ(current_element) == VALUEPARAMOBJECT ||
           CATEGORY_OF_OBJ(current_element) == REFPARAMOBJECT) {
         if (current_element->value.objvalue != NULL) {
-          /* printf("Parameter already has value: ");
+#ifdef TRACE_MATCH_extended
+          if (HAS_POSINFO(expr_object)) {
+            printf("%s(%u): ",
+		   file_name(GET_FILE_NUM(expr_object)),
+                   GET_LINE_NUM(expr_object));
+          }
+          printf("Parameter already has value: ");
+          prot_int((inttype) current_element);
+          prot_cstri(" ");
           trace1(current_element);
-          printf("\n"); */
-          expr_list->obj = current_element->value.objvalue;
+          printf("\n");
+#endif
+          current_element = current_element->value.objvalue;
+          if (ALLOC_OBJECT(created_object)) {
+            created_object->type_of = current_element->type_of;
+            created_object->descriptor.property = NULL;
+            INIT_CATEGORY_OF_OBJ(created_object, DECLAREDOBJECT);
+            created_object->value.objvalue = NULL;
+            do_create(created_object, current_element, &err_info);
+            if (err_info == CREATE_ERROR) {
+              printf("*** do_create failed ");
+              printf("\n");
+            } /* if */
+          } /* if */
+          expr_list->obj = created_object;
+#ifdef TRACE_MATCH_extended
+          printf("Value is now: ");
+          prot_int((inttype) expr_list->obj);
+          prot_cstri(" ");
+          trace1(expr_list->obj);
+          printf("\n");
+#endif
           if (CATEGORY_OF_OBJ(expr_list->obj) == VALUEPARAMOBJECT ||
               CATEGORY_OF_OBJ(expr_list->obj) == REFPARAMOBJECT) {
             if (expr_list->obj->value.objvalue != NULL) {
