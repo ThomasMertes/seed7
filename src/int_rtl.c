@@ -46,6 +46,9 @@
 #define EXTERN
 #include "int_rtl.h"
 
+#undef TRACE_INT_RTL
+#undef VERBOSE_EXCEPTIONS
+
 
 #define UINT_BITS(A)                     ((A) & UINTTYPE_MAX)
 #define UINT_BITS_WITHOUT_HIGHEST_BIT(A) ((A) & (UINTTYPE_MAX >> 1))
@@ -164,12 +167,37 @@ static const int least_significant[] = {
     4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0
   };
 
+const intType maxExponentOfBase[] = {
+    21, 22, 24, 27, 31, 39, 63,
+    INTTYPE_MAX, INTTYPE_MAX, INTTYPE_MAX,
+    62, 39, 31, 27, 24, 22, 20
+  };
+
+const intType minBaseOfExponent[] = {
+    INTTYPE_MIN, INTTYPE_MIN,
+    -INT_SUFFIX(3037000499), -2097152, -55108, -6208, -1448, -512, -234, -128,
+    -78, -52, -38, -28, -22, -18, -15, -13, -11, -9, -8, -8, -7
+  };
+
+const intType maxBaseOfExponent[] = {
+    INTTYPE_MAX, INTTYPE_MAX,
+    INT_SUFFIX(3037000499), 2097151, 55108, 6208, 1448,
+    511, 234, 127, 78, 52, 38, 28, 22, 18, 15, 13, 11, 9, 8, 7, 7
+};
+
 const char lcDigits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 const char ucDigits[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const const_cstriType digitTable[] = {lcDigits, ucDigits};
 
+#ifdef VERBOSE_EXCEPTIONS
+#define logError(logStatements) logStatements
+#else
+#define logError(logStatements)
+#endif
 
 
+
+#ifdef OUT_OF_ORDER
 /**
  *  Multiply two uintType factors to an uintType product.
  *  A uintType number is splitted into two halve uintType parts.
@@ -183,7 +211,7 @@ const const_cstriType digitTable[] = {lcDigits, ucDigits};
  *  @exception OVERFLOW_ERROR When the multiplication overflows.
  *  @return the product
  */
-uintType uint_safe_mult (uintType factor1, uintType factor2)
+static uintType uint_safe_mult (uintType factor1, uintType factor2)
 
   {
     uintType factor1_part0;
@@ -225,7 +253,7 @@ uintType uint_safe_mult (uintType factor1, uintType factor2)
 
 
 
-uintType uint_safe_mult2 (uintType factor1, uintType factor2)
+static uintType uint_safe_mult2 (uintType factor1, uintType factor2)
 
   {
     uintType product;
@@ -240,6 +268,7 @@ uintType uint_safe_mult2 (uintType factor1, uintType factor2)
     product = factor1 * factor2;
     return product;
   } /* uint_safe_mult2 */
+#endif
 
 
 
@@ -836,7 +865,9 @@ intType intBinom (intType n_number, intType k_number)
     intType result;
 
   /* intBinom */
-    /* printf("(%ld ! %ld) ", k_number, n_number); */
+#ifdef TRACE_INT_RTL
+    printf("intBinom(" FMT_D ", " FMT_D ")\n", k_number, n_number);
+#endif
     if (n_number > 0 && 2 * k_number > n_number) {
       k_number = n_number - k_number;
     } /* if */
@@ -865,7 +896,9 @@ intType intBinom (intType n_number, intType k_number)
           binom(n_number - 1, k_number);
 */
     } /* if */
-    /* printf("--> %ld\n", result); */
+#ifdef TRACE_INT_RTL
+    printf("intBinom --> " FMT_D "\n", result);
+#endif
     return result;
   } /* intBinom */
 
@@ -903,7 +936,7 @@ intType intBitLength (intType number)
  *         'number' is converted to a result where the most significant
  *         byte has an ordinal >= 128.
  *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
+ *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType intBytesBe (intType number, boolType isSigned)
@@ -914,7 +947,9 @@ striType intBytesBe (intType number, boolType isSigned)
     striType result;
 
   /* intBytesBe */
-    /* printf("intBytesBe(%016lx, %d)\n", number, isSigned); */
+#ifdef TRACE_INT_RTL
+    printf("intBytesBe(" FMT_D ", %d)\n", number, isSigned);
+#endif
     if (number >= 0) {
       do {
         pos--;
@@ -940,6 +975,9 @@ striType intBytesBe (intType number, boolType isSigned)
         buffer[pos] = 255;
       } /* if */
     } else {
+      logError(printf(" *** intBytesBe(" FMT_D ", %d): "
+                      "Negative number and isSigned is FALSE.\n",
+                      number, isSigned););
       raise_error(RANGE_ERROR);
       return NULL;
     } /* if */
@@ -950,6 +988,11 @@ striType intBytesBe (intType number, boolType isSigned)
       memcpy(result->mem, &buffer[pos],
              (memSizeType) (BYTE_BUFFER_SIZE - pos) * sizeof(strElemType));
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intBytesBe --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
     return result;
   } /* intBytesBe */
 
@@ -976,9 +1019,11 @@ intType intBytesBe2Int (const const_striType byteStri, boolType isSigned)
     intType result = 0;
 
   /* intBytesBe2Int */
-    /* printf("intBytesBe2Int(");
-       prot_stri(byteStri);
-       printf(", %d)\n", isSigned); */
+#ifdef TRACE_INT_RTL
+    printf("intBytesBe2Int(");
+    prot_stri(byteStri);
+    printf(", %d)\n", isSigned);
+#endif
     if (!isSigned || byteStri->size == 0 || byteStri->mem[0] <= 127) {
       if (unlikely(byteStri->size >= sizeof(intType))) {
         while (pos < byteStri->size && byteStri->mem[pos] == 0) {
@@ -1013,6 +1058,9 @@ intType intBytesBe2Int (const const_striType byteStri, boolType isSigned)
       result <<= 8;
       result += byteStri->mem[pos];
     } /* for */
+#ifdef TRACE_INT_RTL
+    printf("intBytesBe2Int --> " FMT_D "\n", result);
+#endif
     return result;
   } /* intBytesBe2Int */
 
@@ -1029,7 +1077,7 @@ intType intBytesBe2Int (const const_striType byteStri, boolType isSigned)
  *         'number' is converted to a result where the most significant
  *         byte has an ordinal >= 128.
  *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
+ *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 striType intBytesLe (intType number, boolType isSigned)
@@ -1040,7 +1088,9 @@ striType intBytesLe (intType number, boolType isSigned)
     striType result;
 
   /* intBytesLe */
-    /* printf("intBytesLe(%016lx, %d)\n", number, isSigned); */
+#ifdef TRACE_INT_RTL
+    printf("intBytesLe(" FMT_D ", %d)\n", number, isSigned);
+#endif
     if (number >= 0) {
       do {
         buffer[pos] = (ucharType) (number & 0xff);
@@ -1066,6 +1116,9 @@ striType intBytesLe (intType number, boolType isSigned)
         pos++;
       } /* if */
     } else {
+      logError(printf(" *** intBytesBe(" FMT_D ", %d): "
+                      "Negative number and isSigned is FALSE.\n",
+                      number, isSigned););
       raise_error(RANGE_ERROR);
       return NULL;
     } /* if */
@@ -1076,6 +1129,11 @@ striType intBytesLe (intType number, boolType isSigned)
       memcpy(result->mem, &buffer[0],
              (memSizeType) pos * sizeof(strElemType));
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intBytesLe --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
     return result;
   } /* intBytesLe */
 
@@ -1102,9 +1160,11 @@ intType intBytesLe2Int (const const_striType byteStri, boolType isSigned)
     intType result = 0;
 
   /* intBytesLe2Int */
-    /* printf("intBytesLe2Int(");
-       prot_stri(byteStri);
-       printf(", %d)\n", isSigned); */
+#ifdef TRACE_INT_RTL
+    printf("intBytesLe2Int(");
+    prot_stri(byteStri);
+    printf(", %d)\n", isSigned);
+#endif
     pos = byteStri->size;
     if (!isSigned || byteStri->size == 0 || byteStri->mem[pos - 1] <= 127) {
       if (unlikely(byteStri->size >= sizeof(intType))) {
@@ -1140,6 +1200,9 @@ intType intBytesLe2Int (const const_striType byteStri, boolType isSigned)
       result <<= 8;
       result += byteStri->mem[pos - 1];
     } /* for */
+#ifdef TRACE_INT_RTL
+    printf("intBytesLe2Int --> " FMT_D "\n", result);
+#endif
     return result;
   } /* intBytesLe2Int */
 
@@ -1192,7 +1255,12 @@ intType intLog10 (intType number)
     int logarithm;
 
   /* intLog10 */
+#ifdef TRACE_INT_RTL
+    printf("intLog10(" FMT_D ")\n", number);
+#endif
     if (unlikely(number < 0)) {
+      logError(printf(" *** intLog10(" FMT_D "): Number is negative.\n",
+                      number););
       raise_error(NUMERIC_ERROR);
       logarithm = 0;
     } else if (number == 0) {
@@ -1200,7 +1268,10 @@ intType intLog10 (intType number)
     } else {
       logarithm = DECIMAL_DIGITS((uintType) number) - 1;
     } /* if */
-    return logarithm;
+#ifdef TRACE_INT_RTL
+    printf("intLog10 --> %d\n", logarithm);
+#endif
+    return (intType) logarithm;
   } /* intLog10 */
 
 
@@ -1217,13 +1288,21 @@ intType intLog2 (intType number)
     int logarithm;
 
   /* intLog2 */
+#ifdef TRACE_INT_RTL
+    printf("intLog2(" FMT_D ")\n", number);
+#endif
     if (unlikely(number < 0)) {
+      logError(printf(" *** intLog2(" FMT_D "): Number is negative.\n",
+                      number););
       raise_error(NUMERIC_ERROR);
       logarithm = 0;
     } else {
       logarithm = uintMostSignificantBit((uintType) number);
     } /* if */
-    return logarithm;
+#ifdef TRACE_INT_RTL
+    printf("intLog2 --> %d\n", logarithm);
+#endif
+    return (intType) logarithm;
   } /* intLog2 */
 
 
@@ -1327,6 +1406,11 @@ intType intParse (const const_striType stri)
     intType int_value = 0;
 
   /* intParse */
+#ifdef TRACE_INT_RTL
+    printf("intParse(");
+    prot_stri(stri);
+    printf(")\n");
+#endif
     if (stri->size != 0) {
       if (stri->mem[0] == ((strElemType) '-')) {
         negative = TRUE;
@@ -1367,6 +1451,9 @@ intType intParse (const const_striType stri)
     if (unlikely(!okay)) {
       raise_error(RANGE_ERROR);
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intParse --> " FMT_D "\n", int_value);
+#endif
     return int_value;
   } /* intParse */
 
@@ -1383,7 +1470,13 @@ intType intPow (intType base, intType exponent)
     intType power;
 
   /* intPow */
+#ifdef TRACE_INT_RTL
+    printf("intPow(" FMT_D ", " FMT_D ")\n", base, exponent);
+#endif
     if (unlikely(exponent < 0)) {
+      logError(printf(" *** intPow(" FMT_D ", " FMT_D "): "
+                      "Exponent is negative.\n",
+                      base, exponent););
       raise_error(NUMERIC_ERROR);
       power = 0;
     } else {
@@ -1401,6 +1494,9 @@ intType intPow (intType base, intType exponent)
         exponent >>= 1;
       } /* while */
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intPow --> " FMT_D "\n", power);
+#endif
     return power;
   } /* intPow */
 
@@ -1409,85 +1505,73 @@ intType intPow (intType base, intType exponent)
 /**
  *  Compute the exponentiation of a integer base with an integer exponent.
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative or
- *                           when an integer overflow occurs.
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 intType intPowOvfChk (intType base, intType exponent)
 
   {
-    uintType unsignedBase;
-    boolType negative;
-    uintType unsignedPower;
     intType power;
 
   /* intPowOvfChk */
+#ifdef TRACE_INT_RTL
+    printf("intPowOvfChk(" FMT_D ", " FMT_D ")\n", base, exponent);
+#endif
     if (unlikely(exponent < 0)) {
+      logError(printf(" *** intPowOvfChk(" FMT_D ", " FMT_D "): "
+                      "Exponent is negative.\n",
+                      base, exponent););
       raise_error(NUMERIC_ERROR);
       power = 0;
     } else {
-      if (base < 0) {
-        /* The unsigned value is negated to avoid a signed integer */
-        /* overflow when the smallest signed integer is negated.   */
-        unsignedBase = -(uintType) base;
-        negative = exponent & 1;
-      } else {
-        unsignedBase = (uintType) base;
-        negative = FALSE;
+      if (exponent < sizeof(minBaseOfExponent) / sizeof(intType)) {
+        if (unlikely(base < minBaseOfExponent[exponent] ||
+                     base > maxBaseOfExponent[exponent])) {
+          logError(printf(" *** intPowOvfChk(" FMT_D ", " FMT_D "): "
+                          "Base wrong: ",
+                          base, exponent);
+                   if (base < minBaseOfExponent[exponent]) {
+                     printf(FMT_D " < " FMT_D "\n",
+                            base, minBaseOfExponent[exponent]);
+                   } else {
+                     printf(FMT_D " > " FMT_D "\n",
+                            base, maxBaseOfExponent[exponent]);
+                   });
+          raise_error(OVERFLOW_ERROR);
+          return 0;
+        } /* if */
+      } else if (unlikely(base < -8 || base > 8 ||
+                          exponent > maxExponentOfBase[base + 8])) {
+        logError(printf(" *** intPowOvfChk(" FMT_D ", " FMT_D "): ",
+                        base, exponent);
+                 if (base < -8) {
+                   printf("Base wrong: " FMT_D " < -8\n", base);
+                 } else if (base > 8) {
+                   printf("Base wrong: " FMT_D " > 8\n", base);
+                 } else {
+                   printf("Exponent wrong: " FMT_D " > " FMT_D "\n",
+                          exponent, maxExponentOfBase[base + 8]);
+                 });
+        raise_error(OVERFLOW_ERROR);
+        return 0;
       } /* if */
       if (exponent & 1) {
-        unsignedPower = unsignedBase;
+        power = base;
       } else {
-        unsignedPower = 1;
+        power = 1;
       } /* if */
       exponent >>= 1;
       while (exponent != 0) {
-        if (unlikely(unsignedBase > HALF_UINTTYPE_MAX)) {
-          raise_error(OVERFLOW_ERROR);
-          unsignedPower = 0;
-          exponent = 0;
-        } else {
-          unsignedBase *= unsignedBase;
-          if (exponent & 1) {
-#ifdef HAS_DOUBLE_INTTYPE
-            {
-              doubleUintType product;
-
-              product = (doubleUintType) unsignedPower * (doubleUintType) unsignedBase;
-              if (unlikely(product > UINTTYPE_MAX)) {
-                raise_error(OVERFLOW_ERROR);
-                exponent = 0;
-              } else {
-                unsignedPower = (uintType) product;
-              } /* if */
-            }
-#else
-            if (likely(unsignedPower <= HALF_UINTTYPE_MAX &&
-                       unsignedBase <= HALF_UINTTYPE_MAX)) {
-              unsignedPower *= unsignedBase;
-            } else {
-              unsignedPower = uint_safe_mult2(unsignedPower, unsignedBase);
-            } /* if */
-#endif
-          } /* if */
-          exponent >>= 1;
+        base *= base;
+        if (exponent & 1) {
+          power *= base;
         } /* if */
+        exponent >>= 1;
       } /* while */
-      if (negative) {
-        if (unlikely(unsignedPower > -(uintType) INTTYPE_MIN)) {
-          raise_error(OVERFLOW_ERROR);
-          power = 0;
-        } else {
-          power = (intType) -unsignedPower;
-        } /* if */
-      } else {
-        if (unlikely(unsignedPower > INTTYPE_MAX)) {
-          raise_error(OVERFLOW_ERROR);
-          power = 0;
-        } else {
-          power = (intType) unsignedPower;
-        } /* if */
-      } /* if */
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intPowOvfChk --> " FMT_D "\n", power);
+#endif
     return power;
   } /* intPowOvfChk */
 
@@ -1515,7 +1599,14 @@ striType intRadix (intType number, intType base, boolType upperCase)
     striType result;
 
   /* intRadix */
+#ifdef TRACE_INT_RTL
+    printf("intRadix(" FMT_D ", " FMT_D ", %d)\n",
+           number, base, upperCase);
+#endif
     if (unlikely(base < 2 || base > 36)) {
+      logError(printf(" *** intRadix(" FMT_D ", " FMT_D ", %d): "
+                      "base < 2 or base > 36.\n",
+                      number, base, upperCase););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
@@ -1543,6 +1634,11 @@ striType intRadix (intType number, intType base, boolType upperCase)
         memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
       } /* if */
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intRadix --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
     return result;
   } /* intRadix */
 
@@ -1572,6 +1668,10 @@ striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase)
     striType result;
 
   /* intRadixPow2 */
+#ifdef TRACE_INT_RTL
+    printf("intRadixPow2(" FMT_D ", %d, %x, %d)\n",
+           number, shift, mask, upperCase);
+#endif
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -1591,12 +1691,16 @@ striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase)
     length = (memSizeType) (&buffer_1[RADIX_BUFFER_SIZE] - buffer);
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, length))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       result->size = length;
       memcpy(result->mem, buffer, (size_t) (length * sizeof(strElemType)));
-      return result;
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intRadixPow2 --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
+    return result;
   } /* intRadixPow2 */
 
 
@@ -1614,15 +1718,18 @@ intType intRand (intType low, intType high)
     uintType scale_limit;
     uintType rand_max;
     uintType rand_val;
-    intType result;
+    intType randomNumber;
 
   /* intRand */
+#ifdef TRACE_INT_RTL
+    printf("intRand(" FMT_D ", " FMT_D ")\n", low, high);
+#endif
     if (unlikely(low >= high)) {
       if (low == high) {
-        result = low;
+        randomNumber = low;
       } else {
         raise_error(RANGE_ERROR);
-        result = 0;
+        randomNumber = 0;
       } /* if */
     } else {
       scale_limit = (uintType) high - (uintType) low;
@@ -1635,9 +1742,12 @@ intType intRand (intType low, intType high)
           rand_val = uint_rand();
         } while (rand_val > rand_max);
       } /* if */
-      result = (intType) ((uintType) low + rand_val % scale_limit);
+      randomNumber = (intType) ((uintType) low + rand_val % scale_limit);
     } /* if */
-    return result;
+#ifdef TRACE_INT_RTL
+    printf("intRand --> " FMT_D "\n", randomNumber);
+#endif
+    return randomNumber;
   } /* intRand */
 
 
@@ -1692,23 +1802,31 @@ intType intSafeMult (intType factor1, intType factor2)
 intType intSqrt (intType number)
 
   {
-    register uintType result;
-    register uintType res2;
+    register uintType root;
+    register uintType root2;
 
   /* intSqrt */
+#ifdef TRACE_INT_RTL
+    printf("intSqrt(" FMT_D ")\n", number);
+#endif
     if (unlikely(number < 0)) {
+      logError(printf(" *** intSqrt(" FMT_D "): Number is negative.\n",
+                      number););
       raise_error(NUMERIC_ERROR);
-      return 0;
+      root = 0;
     } else if (number == 0) {
-      return (intType) 0;
+      root = 0;
     } else {
-      res2 = (uintType) number;
+      root2 = (uintType) number;
       do {
-        result = res2;
-        res2 = (result + (uintType) number / result) >> 1;
-      } while (result > res2);
-      return (intType) result;
+        root = root2;
+        root2 = (root + (uintType) number / root) >> 1;
+      } while (root > root2);
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intSqrt --> " FMT_U "\n", root);
+#endif
+    return (intType) root;
   } /* intSqrt */
 
 
@@ -1730,6 +1848,9 @@ striType intStr (intType number)
     striType result;
 
   /* intStr */
+#ifdef TRACE_INT_RTL
+    printf("intStr(" FMT_D ")\n", number);
+#endif
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -1754,6 +1875,11 @@ striType intStr (intType number)
         result->mem[0] = (strElemType) '-';
       } /* if */
     } /* if */
+#ifdef TRACE_INT_RTL
+    printf("intStr --> ");
+    prot_stri(result);
+    printf("\n");
+#endif
     return result;
   } /* intStr */
 
@@ -1768,10 +1894,9 @@ striType intStrToBuffer (intType number, striType buffer)
     strElemType *bufferPtr;
 
   /* intStrToBuffer */
-    /* printf("intStrToBuffer(");
-    prot_int(number);
-    printf(")");
-    prot_flush(); */
+#ifdef TRACE_INT_RTL
+    printf("intStrToBuffer(" FMT_D ")\n", number);
+#endif
     negative = (number < 0);
     if (negative) {
       /* The unsigned value is negated to avoid a signed integer */
@@ -1789,9 +1914,11 @@ striType intStrToBuffer (intType number, striType buffer)
     } /* if */
     buffer->mem = bufferPtr;
     buffer->size = (memSizeType) (&buffer->mem1[INTTYPE_DECIMAL_SIZE] - bufferPtr);
-    /* printf(" --> ");
+#ifdef TRACE_INT_RTL
+    printf("intStrToBuffer --> ");
     prot_stri(buffer);
-    printf("\n"); */
+    printf("\n");
+#endif
     return buffer;
   } /* intStrToBuffer */
 #endif

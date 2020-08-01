@@ -32,6 +32,7 @@
 #include "string.h"
 
 #include "common.h"
+#include "sigutl.h"
 #include "data.h"
 #include "data_rtl.h"
 #include "heaputl.h"
@@ -139,7 +140,7 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
     printf("BEGIN interpret\n");
 #endif
     if (currentProg != NULL) {
-      fail_flag = FALSE;
+      set_fail_flag(FALSE);
       fail_value = (objectType) NULL;
       fail_expression = (listType) NULL;
       fail_stack = NULL;
@@ -322,7 +323,7 @@ void prgExec (const const_progType currentProg, const const_rtlArrayType argv,
   /* prgExec */
     int_options = (uintType) setSConv(options);
     interpret(currentProg, argv, 0, int_options, prot_file_name);
-    fail_flag = FALSE;
+    set_fail_flag(FALSE);
     fail_value = (objectType) NULL;
     fail_expression = (listType) NULL;
   } /* prgExec */

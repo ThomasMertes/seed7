@@ -307,6 +307,10 @@ const EXCEPTION: OVERFLOW_ERROR is enumlit;
 const EXCEPTION: RANGE_ERROR    is enumlit;
 const EXCEPTION: FILE_ERROR     is enumlit;
 const EXCEPTION: ILLEGAL_ACTION is enumlit;
+const EXCEPTION: CREATE_ERROR   is enumlit;
+const EXCEPTION: DESTROY_ERROR  is enumlit;
+const EXCEPTION: COPY_ERROR     is enumlit;
+const EXCEPTION: IN_ERROR       is enumlit;
 
 $ system "memory_error"   is MEMORY_ERROR;
 $ system "numeric_error"  is NUMERIC_ERROR;

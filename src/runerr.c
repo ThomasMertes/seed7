@@ -57,6 +57,7 @@ void continue_question (void)
     int ch;
     int position;
     char buffer[10];
+    long unsigned int exception_num;
 
   /* continue_question */
     printf("\n*** (Type RETURN to continue or '*' to terminate)\n");
@@ -65,12 +66,14 @@ void continue_question (void)
       shut_drivers();
       exit(1);
     } else if (ch == (int) '/') {
+      /* signal(SIGFPE, SIG_DFL); */
       position = 0;
 #ifdef DO_SIGFPE_WITH_DIV_BY_ZERO
       printf("%d", 1 / position); /* trigger SIGFPE on purpose */
 #else
       raise(SIGFPE);
 #endif
+      printf("\n*** Raising SIGFPE failed.\n");
     } /* if */
     position = 0;
     while (ch >= (int) ' ' && ch <= (int) '~' && position < 9) {
@@ -79,11 +82,18 @@ void continue_question (void)
       ch = fgetc(stdin);
     } /* while */
     buffer[position] = '\0';
-    if (position > 0) {
-      mapTraceFlags2(buffer, &prog.option_flags);
-      set_trace(prog.option_flags);
+    if (position > 0 && buffer[0] == '!') {
+      if (buffer[1] >= '0' && buffer[1] <= '9') {
+        exception_num = strtoul(&buffer[1], NULL, 10);
+        if (exception_num > OKAY_NO_ERROR && exception_num <= ACTION_ERROR) {
+          raise_exception(prog.sys_var[exception_num]);
+        } /* if */
+      } else {
+        mapTraceFlags2(&buffer[1], &prog.option_flags);
+        set_trace(prog.option_flags);
+      } /* if */
     } /* if */
-    while (ch != EOF && ch != (int) '\n') {
+    while (ch != EOF && ch != '\n') {
       ch = fgetc(stdin);
     } /* while */
   } /* continue_question */
@@ -158,6 +168,49 @@ void write_call_stack (const_listType stack_elem)
 
 
 
+static void write_curr_position (listType list)
+
+  { /* write_curr_position */
+    if (list == curr_argument_list) {
+      if (curr_action_object != NULL) {
+        if (HAS_POSINFO(curr_action_object)) {
+          printf(" at %s(%u)",
+              get_file_name_ustri(GET_FILE_NUM(curr_action_object)),
+              GET_LINE_NUM(curr_action_object));
+        } else if (HAS_PROPERTY(curr_action_object) &&
+            curr_action_object->descriptor.property->line != 0) {
+          printf(" at %s(%u)",
+              get_file_name_ustri(curr_action_object->descriptor.property->file_number),
+              curr_action_object->descriptor.property->line);
+        } /* if */
+      } /* if */
+      printf("\n");
+      prot_list(list);
+      if (curr_exec_object != NULL) {
+        if (HAS_POSINFO(curr_exec_object)) {
+          printf(" at %s(%u)",
+              get_file_name_ustri(GET_FILE_NUM(curr_exec_object)),
+              GET_LINE_NUM(curr_exec_object));
+        } else if (HAS_PROPERTY(curr_exec_object) &&
+            curr_exec_object->descriptor.property->line != 0) {
+          printf(" at %s(%u)",
+              get_file_name_ustri(curr_exec_object->descriptor.property->file_number),
+              curr_exec_object->descriptor.property->line);
+        } /* if */
+      } /* if */
+      printf("\n");
+      if (curr_action_object->value.actValue != NULL) {
+        printf("*** ACTION \"%s\"\n",
+            get_primact(curr_action_object->value.actValue)->name);
+      } /* if */
+    } else {
+      printf(" with\n");
+      prot_list(list);
+    } /* if */
+  } /* write_curr_position */
+
+
+
 objectType raise_with_arguments (objectType exception, listType list)
 
   {
@@ -176,42 +229,7 @@ objectType raise_with_arguments (objectType exception, listType list)
       prot_cstri("*** EXCEPTION ");
       printobject(exception);
       printf(" raised");
-      if (list == curr_argument_list) {
-        if (curr_action_object != NULL) {
-          if (HAS_POSINFO(curr_action_object)) {
-            printf(" at %s(%u)",
-                get_file_name_ustri(GET_FILE_NUM(curr_action_object)),
-                GET_LINE_NUM(curr_action_object));
-          } else if (HAS_PROPERTY(curr_action_object) &&
-              curr_action_object->descriptor.property->line != 0) {
-            printf(" at %s(%u)",
-                get_file_name_ustri(curr_action_object->descriptor.property->file_number),
-                curr_action_object->descriptor.property->line);
-          } /* if */
-        } /* if */
-        printf("\n");
-        prot_list(list);
-        if (curr_exec_object != NULL) {
-          if (HAS_POSINFO(curr_exec_object)) {
-            printf(" at %s(%u)",
-                get_file_name_ustri(GET_FILE_NUM(curr_exec_object)),
-                GET_LINE_NUM(curr_exec_object));
-          } else if (HAS_PROPERTY(curr_exec_object) &&
-              curr_exec_object->descriptor.property->line != 0) {
-            printf(" at %s(%u)",
-                get_file_name_ustri(curr_exec_object->descriptor.property->file_number),
-                curr_exec_object->descriptor.property->line);
-          } /* if */
-        } /* if */
-        printf("\n");
-        if (curr_action_object->value.actValue != NULL) {
-          printf("*** ACTION \"%s\"\n",
-              get_primact(curr_action_object->value.actValue)->name);
-        } /* if */
-      } else {
-        printf(" with\n");
-        prot_list(list);
-      } /* if */
+      write_curr_position(list);
       continue_question();
     } /* if */
 #endif
@@ -233,7 +251,7 @@ objectType raise_with_arguments (objectType exception, listType list)
       fail_value = exception;
       fail_expression = copy_list(list, &err_info);
     } /* if */
-    fail_flag = TRUE;
+    set_fail_flag(TRUE);
     return NULL;
   } /* raise_with_arguments */
 
@@ -252,6 +270,16 @@ void interprRaiseError (int exception_num, const_cstriType filename, int line)
   { /* interprRaiseError */
     (void) raise_exception(prog.sys_var[exception_num]);
   } /* interprRaiseError */
+
+
+
+void show_signal (void)
+
+  { /* show_signal */
+    interrupt_flag = FALSE;
+    printf("\n*** Program stopped with signal %s\n", signal_name(signal_number));
+    continue_question();
+  } /* show_signal */
 
 
 

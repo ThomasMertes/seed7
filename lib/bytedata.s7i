@@ -216,19 +216,19 @@ const func string: bytes (in integer: number, SIGNED, LE) is
  *   bytes(1413829460, SIGNED, BE)  returns "TEST"
  *   bytes(1497451343, SIGNED, LE)  returns "OKAY"
  *  @param number Integer number to be converted.
- *  @param sign Determines the [[#signedness|signedness]] of the result.
- *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *  @param signed Determines the [[#signedness|signedness]] of the result.
+ *         Possible values are UNSIGNED and SIGNED. When ''signed'' is SIGNED
  *         the result is encoded with the twos-complement representation.
  *         In this case a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianess|endianess]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a string with the shortest binary representation of ''number''.
- *  @exception RANGE_ERROR When ''sign'' is UNSIGNED and ''number'' is negative.
+ *  @exception RANGE_ERROR When ''number'' is negative and ''signed'' is UNSIGNED.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: bytes (in integer: number,
-    in signedness: sign, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianess: endian) is DYNAMIC;
 
 
 const func string: bytes (in bigInteger: number, UNSIGNED, BE) is
@@ -256,19 +256,19 @@ const func string: bytes (in bigInteger: number, SIGNED, LE) is
  *   bytes(-24410099243900992862068771469_, SIGNED, BE)    returns "± plus-minus"
  *   bytes(-24410099243900992862068771469_, UNSIGNED, LE)  raises RANGE_ERROR
  *  @param number BigInteger number to be converted.
- *  @param sign Determines the [[#signedness|signedness]] of the result.
- *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *  @param signed Determines the [[#signedness|signedness]] of the result.
+ *         Possible values are UNSIGNED and SIGNED. When ''signed'' is SIGNED
  *         the result is encoded with the twos-complement representation.
  *         In this case a negative ''number'' is converted to a result
  *         where the most significant byte has an ordinal >= 128.
  *  @param endian Determines the [[#endianess|endianess]] of the result.
  *         Possible values are LE for little-endian and BE for big-endian.
  *  @return a string with the shortest binary representation of ''number''.
- *  @exception RANGE_ERROR When ''sign'' is UNSIGNED and ''number'' is negative.
+ *  @exception RANGE_ERROR When ''number'' is negative and ''signed'' is UNSIGNED.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func string: bytes (in bigInteger: number,
-    in signedness: sign, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianess: endian) is DYNAMIC;
 
 
 const func integer: bytesBe2Int (in string: byteStri,
@@ -297,8 +297,8 @@ const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is
  *   bytes2Int(":\222;h\177;", UNSIGNED, BE)    returns   987654321
  *  @param byteStri String of bytes to be converted. The bytes are
  *         interpreted as binary representation with a base of 256.
- *  @param sign Determines the [[#signedness|signedness]] of ''byteStri''.
- *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *  @param signed Determines the [[#signedness|signedness]] of ''byteStri''.
+ *         Possible values are UNSIGNED and SIGNED. When ''signed'' is SIGNED
  *         ''bstri'' is interpreted as signed value in the twos-complement
  *         representation. In this case the result is negative when
  *         the most significant byte has an ordinal >= 128.
@@ -309,7 +309,7 @@ const func integer: bytes2Int (in string: byteStri, SIGNED, LE) is
  *             when the result value cannot be represented with an integer.
  *)
 const func integer: bytes2Int (in string: byteStri,
-    in signedness: sign, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianess: endian) is DYNAMIC;
 
 
 const func bigInteger: bytes2BigInt (in string: byteStri, UNSIGNED, BE) is
@@ -335,8 +335,8 @@ const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
  *   bytes2BigInt("\152;\3;\208;\139;", UNSIGNED, LE)  returns  2345665432_
  *  @param byteStri String of bytes to be converted. The bytes are
  *         interpreted as binary representation with a base of 256.
- *  @param sign Determines the [[#signedness|signedness]] of ''byteStri''.
- *         Possible values are UNSIGNED and SIGNED. When ''sign'' is SIGNED
+ *  @param signed Determines the [[#signedness|signedness]] of ''byteStri''.
+ *         Possible values are UNSIGNED and SIGNED. When ''signed'' is SIGNED
  *         ''bstri'' is interpreted as signed value in the twos-complement
  *         representation. In this case the result is negative when
  *         the most significant byte has an ordinal >= 128.
@@ -347,7 +347,7 @@ const func bigInteger: bytes2BigInt (in string: byteStri, SIGNED, LE) is
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  *)
 const func bigInteger: bytes2BigInt (in string: byteStri,
-    in signedness: sign, in endianess: endian) is DYNAMIC;
+    in signedness: signed, in endianess: endian) is DYNAMIC;
 
 
 (**

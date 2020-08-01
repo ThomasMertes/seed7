@@ -8476,6 +8476,10 @@ const proc: check_power is func
            (-2097152) **  1 <>             -2097152 or
            (-2097152) **  2 <>        4398046511104 or
            (-2097152) **  3 <>            INT64_MIN or
+           (-2097151) **  0 <>                    1 or
+           (-2097151) **  1 <>             -2097151 or
+           (-2097151) **  2 <>        4398042316801 or
+           (-2097151) **  3 <> -9223358842721533951 or
            (-1234577) **  0 <>                    1 or
            (-1234577) **  1 <>             -1234577 or
            (-1234577) **  2 <>        1524180368929 or
@@ -8520,6 +8524,14 @@ const proc: check_power is func
                (-512) **  5 <>      -35184372088832 or
                (-512) **  6 <>    18014398509481984 or
                (-512) **  7 <>            INT64_MIN or
+               (-511) **  0 <>                    1 or
+               (-511) **  1 <>                 -511 or
+               (-511) **  2 <>               261121 or
+               (-511) **  3 <>           -133432831 or
+               (-511) **  4 <>          68184176641 or
+               (-511) **  5 <>      -34842114263551 or
+               (-511) **  6 <>    17804320388674561 or
+               (-511) **  7 <> -9098007718612700671 or
                 (-97) **  0 <>                    1 or
                 (-97) **  1 <>                  -97 or
                 (-97) **  2 <>                 9409 or
@@ -8726,6 +8738,13 @@ const proc: check_power is func
                  511  **  5 <>       34842114263551 or
                  511  **  6 <>    17804320388674561 or
                  511  **  7 <>  9098007718612700671 or
+                 512  **  0 <>                    1 or
+                 512  **  1 <>                  512 or
+                 512  **  2 <>               262144 or
+                 512  **  3 <>            134217728 or
+                 512  **  4 <>          68719476736 or
+                 512  **  5 <>       35184372088832 or
+                 512  **  6 <>    18014398509481984 or
                 1448  **  0 <>                    1 or
                 1448  **  1 <>                 1448 or
                 1448  **  2 <>              2096704 or
@@ -8766,6 +8785,9 @@ const proc: check_power is func
              2097151  **  1 <>              2097151 or
              2097151  **  2 <>        4398042316801 or
              2097151  **  3 <>  9223358842721533951 or
+             2097152  **  0 <>                    1 or
+             2097152  **  1 <>              2097152 or
+             2097152  **  2 <>        4398046511104 or
           2147483648  **  0 <>                    1 or
           2147483648  **  1 <>           2147483648 or
           2147483648  **  2 <>  4611686018427387904 or
@@ -8786,6 +8808,10 @@ const proc: check_power is func
         intExpr(   -2097152) **  1 <>             -2097152 or
         intExpr(   -2097152) **  2 <>        4398046511104 or
         intExpr(   -2097152) **  3 <>            INT64_MIN or
+        intExpr(   -2097151) **  0 <>                    1 or
+        intExpr(   -2097151) **  1 <>             -2097151 or
+        intExpr(   -2097151) **  2 <>        4398042316801 or
+        intExpr(   -2097151) **  3 <> -9223358842721533951 or
         intExpr(   -1234577) **  0 <>                    1 or
         intExpr(   -1234577) **  1 <>             -1234577 or
         intExpr(   -1234577) **  2 <>        1524180368929 or
@@ -8830,6 +8856,14 @@ const proc: check_power is func
         intExpr(       -512) **  5 <>      -35184372088832 or
         intExpr(       -512) **  6 <>    18014398509481984 or
         intExpr(       -512) **  7 <>            INT64_MIN or
+        intExpr(       -511) **  0 <>                    1 or
+        intExpr(       -511) **  1 <>                 -511 or
+        intExpr(       -511) **  2 <>               261121 or
+        intExpr(       -511) **  3 <>           -133432831 or
+        intExpr(       -511) **  4 <>          68184176641 or
+        intExpr(       -511) **  5 <>      -34842114263551 or
+        intExpr(       -511) **  6 <>    17804320388674561 or
+        intExpr(       -511) **  7 <> -9098007718612700671 or
         intExpr(        -97) **  0 <>                    1 or
         intExpr(        -97) **  1 <>                  -97 or
         intExpr(        -97) **  2 <>                 9409 or
@@ -9036,6 +9070,13 @@ const proc: check_power is func
         intExpr(        511) **  5 <>       34842114263551 or
         intExpr(        511) **  6 <>    17804320388674561 or
         intExpr(        511) **  7 <>  9098007718612700671 or
+        intExpr(        512) **  0 <>                    1 or
+        intExpr(        512) **  1 <>                  512 or
+        intExpr(        512) **  2 <>               262144 or
+        intExpr(        512) **  3 <>            134217728 or
+        intExpr(        512) **  4 <>          68719476736 or
+        intExpr(        512) **  5 <>       35184372088832 or
+        intExpr(        512) **  6 <>    18014398509481984 or
         intExpr(       1448) **  0 <>                    1 or
         intExpr(       1448) **  1 <>                 1448 or
         intExpr(       1448) **  2 <>              2096704 or
@@ -9076,6 +9117,9 @@ const proc: check_power is func
         intExpr(    2097151) **  1 <>              2097151 or
         intExpr(    2097151) **  2 <>        4398042316801 or
         intExpr(    2097151) **  3 <>  9223358842721533951 or
+        intExpr(    2097152) **  0 <>                    1 or
+        intExpr(    2097152) **  1 <>              2097152 or
+        intExpr(    2097152) **  2 <>        4398046511104 or
         intExpr( 2147483648) **  0 <>                    1 or
         intExpr( 2147483648) **  1 <>           2147483648 or
         intExpr( 2147483648) **  2 <>  4611686018427387904 or
@@ -9096,6 +9140,10 @@ const proc: check_power is func
            (-2097152) ** intExpr( 1) <>             -2097152 or
            (-2097152) ** intExpr( 2) <>        4398046511104 or
            (-2097152) ** intExpr( 3) <>            INT64_MIN or
+           (-2097151) ** intExpr( 0) <>                    1 or
+           (-2097151) ** intExpr( 1) <>             -2097151 or
+           (-2097151) ** intExpr( 2) <>        4398042316801 or
+           (-2097151) ** intExpr( 3) <> -9223358842721533951 or
            (-1234577) ** intExpr( 0) <>                    1 or
            (-1234577) ** intExpr( 1) <>             -1234577 or
            (-1234577) ** intExpr( 2) <>        1524180368929 or
@@ -9140,6 +9188,14 @@ const proc: check_power is func
                (-512) ** intExpr( 5) <>      -35184372088832 or
                (-512) ** intExpr( 6) <>    18014398509481984 or
                (-512) ** intExpr( 7) <>            INT64_MIN or
+               (-511) ** intExpr( 0) <>                    1 or
+               (-511) ** intExpr( 1) <>                 -511 or
+               (-511) ** intExpr( 2) <>               261121 or
+               (-511) ** intExpr( 3) <>           -133432831 or
+               (-511) ** intExpr( 4) <>          68184176641 or
+               (-511) ** intExpr( 5) <>      -34842114263551 or
+               (-511) ** intExpr( 6) <>    17804320388674561 or
+               (-511) ** intExpr( 7) <> -9098007718612700671 or
                 (-97) ** intExpr( 0) <>                    1 or
                 (-97) ** intExpr( 1) <>                  -97 or
                 (-97) ** intExpr( 2) <>                 9409 or
@@ -9346,6 +9402,13 @@ const proc: check_power is func
                  511  ** intExpr( 5) <>       34842114263551 or
                  511  ** intExpr( 6) <>    17804320388674561 or
                  511  ** intExpr( 7) <>  9098007718612700671 or
+                 512  ** intExpr( 0) <>                    1 or
+                 512  ** intExpr( 1) <>                  512 or
+                 512  ** intExpr( 2) <>               262144 or
+                 512  ** intExpr( 3) <>            134217728 or
+                 512  ** intExpr( 4) <>          68719476736 or
+                 512  ** intExpr( 5) <>       35184372088832 or
+                 512  ** intExpr( 6) <>    18014398509481984 or
                 1448  ** intExpr( 0) <>                    1 or
                 1448  ** intExpr( 1) <>                 1448 or
                 1448  ** intExpr( 2) <>              2096704 or
@@ -9386,6 +9449,9 @@ const proc: check_power is func
              2097151  ** intExpr( 1) <>              2097151 or
              2097151  ** intExpr( 2) <>        4398042316801 or
              2097151  ** intExpr( 3) <>  9223358842721533951 or
+             2097152  ** intExpr( 0) <>                    1 or
+             2097152  ** intExpr( 1) <>              2097152 or
+             2097152  ** intExpr( 2) <>        4398046511104 or
           2147483648  ** intExpr( 0) <>                    1 or
           2147483648  ** intExpr( 1) <>           2147483648 or
           2147483648  ** intExpr( 2) <>  4611686018427387904 or
@@ -9406,6 +9472,10 @@ const proc: check_power is func
         intExpr(   -2097152) ** intExpr( 1) <>             -2097152 or
         intExpr(   -2097152) ** intExpr( 2) <>        4398046511104 or
         intExpr(   -2097152) ** intExpr( 3) <>            INT64_MIN or
+        intExpr(   -2097151) ** intExpr( 0) <>                    1 or
+        intExpr(   -2097151) ** intExpr( 1) <>             -2097151 or
+        intExpr(   -2097151) ** intExpr( 2) <>        4398042316801 or
+        intExpr(   -2097151) ** intExpr( 3) <> -9223358842721533951 or
         intExpr(   -1234577) ** intExpr( 0) <>                    1 or
         intExpr(   -1234577) ** intExpr( 1) <>             -1234577 or
         intExpr(   -1234577) ** intExpr( 2) <>        1524180368929 or
@@ -9450,6 +9520,14 @@ const proc: check_power is func
         intExpr(       -512) ** intExpr( 5) <>      -35184372088832 or
         intExpr(       -512) ** intExpr( 6) <>    18014398509481984 or
         intExpr(       -512) ** intExpr( 7) <>            INT64_MIN or
+        intExpr(       -511) ** intExpr( 0) <>                    1 or
+        intExpr(       -511) ** intExpr( 1) <>                 -511 or
+        intExpr(       -511) ** intExpr( 2) <>               261121 or
+        intExpr(       -511) ** intExpr( 3) <>           -133432831 or
+        intExpr(       -511) ** intExpr( 4) <>          68184176641 or
+        intExpr(       -511) ** intExpr( 5) <>      -34842114263551 or
+        intExpr(       -511) ** intExpr( 6) <>    17804320388674561 or
+        intExpr(       -511) ** intExpr( 7) <> -9098007718612700671 or
         intExpr(        -97) ** intExpr( 0) <>                    1 or
         intExpr(        -97) ** intExpr( 1) <>                  -97 or
         intExpr(        -97) ** intExpr( 2) <>                 9409 or
@@ -9656,6 +9734,13 @@ const proc: check_power is func
         intExpr(        511) ** intExpr( 5) <>       34842114263551 or
         intExpr(        511) ** intExpr( 6) <>    17804320388674561 or
         intExpr(        511) ** intExpr( 7) <>  9098007718612700671 or
+        intExpr(        512) ** intExpr( 0) <>                    1 or
+        intExpr(        512) ** intExpr( 1) <>                  512 or
+        intExpr(        512) ** intExpr( 2) <>               262144 or
+        intExpr(        512) ** intExpr( 3) <>            134217728 or
+        intExpr(        512) ** intExpr( 4) <>          68719476736 or
+        intExpr(        512) ** intExpr( 5) <>       35184372088832 or
+        intExpr(        512) ** intExpr( 6) <>    18014398509481984 or
         intExpr(       1448) ** intExpr( 0) <>                    1 or
         intExpr(       1448) ** intExpr( 1) <>                 1448 or
         intExpr(       1448) ** intExpr( 2) <>              2096704 or
@@ -9696,6 +9781,9 @@ const proc: check_power is func
         intExpr(    2097151) ** intExpr( 1) <>              2097151 or
         intExpr(    2097151) ** intExpr( 2) <>        4398042316801 or
         intExpr(    2097151) ** intExpr( 3) <>  9223358842721533951 or
+        intExpr(    2097152) ** intExpr( 0) <>                    1 or
+        intExpr(    2097152) ** intExpr( 1) <>              2097152 or
+        intExpr(    2097152) ** intExpr( 2) <>        4398046511104 or
         intExpr( 2147483648) ** intExpr( 0) <>                    1 or
         intExpr( 2147483648) ** intExpr( 1) <>           2147483648 or
         intExpr( 2147483648) ** intExpr( 2) <>  4611686018427387904 or

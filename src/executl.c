@@ -32,6 +32,7 @@
 #include "string.h"
 
 #include "common.h"
+#include "sigutl.h"
 #include "data.h"
 #include "heaputl.h"
 #include "flistutl.h"
@@ -353,7 +354,7 @@ static void old_do_create (objectType destination, objectType source,
     crea_expr[1].obj = SYS_CREA_OBJECT;
     crea_expr[2].obj = source;
     if (exec1(crea_expr) != SYS_EMPTY_OBJECT) {
-      fail_flag = FALSE;
+      set_fail_flag(FALSE);
       *err_info = CREATE_ERROR;
     } /* if */
     /* printf("free callobjects ");
@@ -431,7 +432,7 @@ void do_create (objectType destination, objectType source,
         /* printf("do_create: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
-          fail_flag = FALSE;
+          set_fail_flag(FALSE);
           *err_info = CREATE_ERROR;
         } /* if */
       } else {
@@ -513,7 +514,7 @@ void do_destroy (objectType old_obj, errInfoType *err_info)
       /* printf("do_destroy: after exec_call\n");
          fflush(stdout); */
       if (call_result != SYS_EMPTY_OBJECT) {
-        fail_flag = FALSE;
+        set_fail_flag(FALSE);
         *err_info = DESTROY_ERROR;
       } /* if */
     } else {
@@ -556,7 +557,7 @@ printf("\n");
     copy_expr[1].obj = SYS_ASSIGN_OBJECT;
     copy_expr[2].obj = source;
     if (exec1(copy_expr) != SYS_EMPTY_OBJECT) {
-      fail_flag = FALSE;
+      set_fail_flag(FALSE);
       *err_info = CREATE_ERROR;
     } /* if */
 #ifdef TRACE_EXECUTL
@@ -616,7 +617,7 @@ static void do_copy (objectType destination, objectType source,
         /* printf("copy_local_object: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
-          fail_flag = FALSE;
+          set_fail_flag(FALSE);
           *err_info = COPY_ERROR;
         } /* if */
       } else {
@@ -926,11 +927,11 @@ objectType create_return_object (const_locObjType local, objectType init_value,
       /* printf("create_return_object: after exec_call\n");
          fflush(stdout); */
       if (call_result != SYS_EMPTY_OBJECT) {
-        fail_flag = FALSE;
+        set_fail_flag(FALSE);
         *err_info = CREATE_ERROR;
       } /* if */
     } else {
-      fail_flag = FALSE;
+      set_fail_flag(FALSE);
       *err_info = MEMORY_ERROR;
     } /* if */
     return new_object;
@@ -977,13 +978,13 @@ void create_local_object (const_locObjType local, objectType init_value,
       /* printf("create_local_object: after exec_call\n");
          fflush(stdout); */
       if (call_result != SYS_EMPTY_OBJECT) {
-        fail_flag = FALSE;
+        set_fail_flag(FALSE);
         *err_info = CREATE_ERROR;
       } /* if */
 
       local->object->value.objValue = new_object;
     } else {
-      fail_flag = FALSE;
+      set_fail_flag(FALSE);
       *err_info = MEMORY_ERROR;
     } /* if */
   } /* create_local_object */
@@ -1037,7 +1038,7 @@ void destroy_local_object (const_locObjType local, errInfoType *err_info)
         /* printf("destroy_local_object: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
-          fail_flag = FALSE;
+          set_fail_flag(FALSE);
           *err_info = CREATE_ERROR;
         } /* if */
         break;
@@ -1092,7 +1093,7 @@ void destroy_local_init_value (const_locObjType local, errInfoType *err_info)
         /* printf("destroy_local_object: after exec_call\n");
            fflush(stdout); */
         if (call_result != SYS_EMPTY_OBJECT) {
-          fail_flag = FALSE;
+          set_fail_flag(FALSE);
           *err_info = CREATE_ERROR;
         } /* if */
         break;

@@ -73,15 +73,7 @@ int pause (void);
 
 
 #if defined AWAIT_WITH_SIGACTION || defined AWAIT_WITH_SIGNAL
-#ifdef HAS_SIGSETJMP
-#define do_setjmp(env)        sigsetjmp(env, 1)
-#define do_longjmp(env, val)  siglongjmp(env, val);
-sigjmp_buf wait_finished;
-#else
-#define do_setjmp(env)        setjmp(env)
-#define do_longjmp(env, val)  longjmp(env, val);
-jmp_buf wait_finished;
-#endif
+long_jump_position wait_finished;
 #endif
 
 

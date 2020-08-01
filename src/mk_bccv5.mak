@@ -118,6 +118,7 @@ clean:
 	del version.h
 	del calltlib.exe
 	del setwpath.exe
+	del sudo.exe
 	del *.tds
 	@echo.
 	@echo Use 'make depend' (with your make command) to create the dependencies.
@@ -129,8 +130,9 @@ distclean: clean
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 	@echo.
-	@echo Open a console as administrator, go to the directory seed7/src and
-	@echo use 'make install' (with your make command) to install Seed7.
+	@echo Use 'sudo make install' (with your make command) to install Seed7."
+	@echo Or open a console as administrator, go to the directory seed7/src
+	@echo and use 'make install' (with your make command) to install Seed7.
 	@echo.
 
 install: setwpath.exe
@@ -153,11 +155,13 @@ version.h: chkccomp.h
 	echo ^#define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo ^#define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo ^#define CATCH_SIGNALS >> version.h
+	echo ^#define INT64TYPE_NO_SUFFIX_BUT_CAST >> version.h
 	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
 	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h
 	echo ^#define TURN_OFF_FP_EXCEPTIONS >> version.h
 	echo ^#define DEFINE_MATHERR_FUNCTION >> version.h
 	echo ^#define DO_SIGFPE_WITH_DIV_BY_ZERO >> version.h
+	echo ^#define CTRL_C_SENDS_EOF >> version.h
 	echo ^#define CONSOLE_WCHAR >> version.h
 	echo ^#define OS_STRI_WCHAR >> version.h
 	echo ^#define OS_WIDE_DIR_INCLUDE_DIR_H >> version.h
@@ -253,6 +257,7 @@ version.h: chkccomp.h
 	del calltlib.obj
 	del calltlib.tds
 	$(CC) setwpath.c
+	$(CC) sudo.c
 
 .c.obj:
 	$(CC) $(CFLAGS) -c $<

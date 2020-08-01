@@ -78,6 +78,14 @@ span.lib     { color: maroon }
 span.prog    { color: darkgreen }
 span.func    { color: purple }
 span.var     { color: darkcyan }
+span.input   { color: green }
+
+span.box {
+  border: solid 1px black;
+  background-color: WhiteSmoke;
+  padding: 0px 1px 0px 1px;
+  margin: 4px 2px 6px 2px;
+}
 
 a.menu, a.head {
   text-decoration: none;
@@ -5491,9 +5499,9 @@ write(next_time &lt;&amp; <span class="stri">" \r"</span>);
 write(<span class="stri">"Amount? "</span>);
 read(amount);
 </pre><p>
-  The user is allowed to use backspace and sends the input
-  to the program with the RETURN-key. To let the user respond
-  with the RETURN-key we can write:
+  The user is allowed to use <span class="box">Backspace</span> and sends the input
+  to the program with the <span class="box">Return</span> key. To let the user respond
+  with the <span class="box">Return</span> key we can write:
 </p><pre class="indent">
 writeln(<span class="stri">"Type RETURN"</span>);
 readln;
@@ -6283,7 +6291,7 @@ writeln(err, <span class="stri">"Some error occurred"</span>);
     As stated earlier <tt><span class="var">STD_IN</span></tt> provides an interface to the keyboard
   which is line buffered and echoed on <tt><span class="var">STD_OUT</span></tt>. This means that
   you can see everything you typed. Additionally you can correct
-  your input with BACKSPACE until you press RETURN. But sometimes
+  your input with <span class="box">Backspace</span> until you press <span class="box">Return</span>. But sometimes
   an unbuffered and unechoed input is needed. This is provided in
   the library <span class="stri">"<span class="lib">keybd.s7i</span>"</span>, which defines the type <tt><span class="type">keyboard_file</span></tt>
   and the file <tt><span class="var">KEYBOARD</span></tt>. Characters typed at the keyboard are
@@ -6458,7 +6466,7 @@ terminate (y/n)?
 </p><p>
   Another helpful file type is <tt><span class="type">line_file</span></tt>, which is defined in the
   library <span class="stri">"<span class="lib">line.s7i</span>"</span>. A <tt><span class="type">line_file</span></tt> allows to correct the input with
-  BACKSPACE until a RETURN (represented with <tt><span class="stri">'\n'</span></tt>) is encountered.
+  <span class="box">Backspace</span> until a <span class="box">Return</span> (represented with <tt><span class="stri">'\n'</span></tt>) is encountered.
   In contrast to this editing feature the possibility to edit a line
   of <tt><span class="var">STD_IN</span></tt> is provided by the operating system. The following
   program uses <tt><span class="type">echo_file</span></tt> and <tt><span class="type">line_file</span></tt> to simulate input line
@@ -6482,7 +6490,7 @@ $ <span class="keywd">include</span> <span class="stri">"seed7_05.s7i"</span>;
   <span class="keywd">end func</span>;
 </pre><p>
   This program terminates when a line containing <tt><span class="stri">'!'</span></tt> is confirmed
-  with RETURN.
+  with <span class="box">Return</span>.
 </p>
 
 <a name="file_Files_with_line_structure"><h3>8.8 Files with line structure</h3></a>
@@ -11231,7 +11239,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
        E.g.: <tt>1 <span class="op">div</span> 0</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>. Note that a <tt><a class="type" href="#types_float">float</a></tt> division
        by zero does not raise <tt><span class="exception">NUMERIC_ERROR</span></tt> but returns <tt><span class="var">Infinity</span></tt> or
        <tt><span class="op">-</span><span class="var">Infinity</span></tt> instead.</li>
-    <li><span class="op">Exponentiation</span> (<span class="op">**</span>) when the exponent is negative.
+    <li><span class="op">Exponentiation</span> (<span class="op">**</span>) when the exponent is a negative <tt><a class="type" href="#types_integer">integer</a></tt>.
        E.g.: <tt>2 <span class="op">**</span> (-1)</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>.</li>
     <li>Functions (<span class="func">sqrt</span>, <span class="func">log2</span>, <span class="func">log10</span>, <span class="op">!</span>) that are only defined for
        positive arguments. E.g.: <tt><span class="func">sqrt</span>(-1)</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>.</li>

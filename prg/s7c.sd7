@@ -1720,7 +1720,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
     if evaluate_const_expr = 3 and isConstantExpr(current_expression) then
       block
         evaluated_expression := evaluate(prog, current_expression);
-        if evaluated_expression <> NIL then
+        if evaluated_expression <> NIL and evaluated_expression <> current_expression then
           incr(countEvaluations);
           c_expr.expr &:= "/* evaluate ";
           if category(getValue(current_expression, ref_list)[1]) = ACTOBJECT then
@@ -5249,16 +5249,18 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
-    writeln(c_prog, "static void handle_overflow_error (int sig_num)");
-    writeln(c_prog);
-    writeln(c_prog, "  {");
-    if not ccConf.HAS_SIGSETJMP then
-      writeln(c_prog, "    signal(SIGFPE, handle_overflow_error);");
+    if ccConf.OVERFLOW_SIGNAL <> "" then
+      writeln(c_prog, "static void handle_overflow_error (int sig_num)");
+      writeln(c_prog);
+      writeln(c_prog, "  {");
+      if not ccConf.HAS_SIGSETJMP then
+        writeln(c_prog, "    signal(" <& ccConf.OVERFLOW_SIGNAL <& ", handle_overflow_error);");
+      end if;
+      writeln(c_prog, "    raise_error(OVERFLOW_ERROR);");
+      writeln(c_prog, "  }");
+      writeln(c_prog);
+      writeln(c_prog);
     end if;
-    writeln(c_prog, "    raise_error(OVERFLOW_ERROR);");
-    writeln(c_prog, "  }");
-    writeln(c_prog);
-    writeln(c_prog);
     writeln(c_prog, "static void activate_signal_handlers (void)");
     writeln(c_prog);
     writeln(c_prog, "  {");

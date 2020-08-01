@@ -460,7 +460,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         c_expr.expr &:= index_name;
         c_expr.expr &:= "=(";
         process_expr(param3, c_expr);
-        c_expr.expr &:= ")-";
+        c_expr.expr &:= ")- ";
         c_expr.expr &:= str(arrayMinIdx(anArray));
         c_expr.expr &:= ", idxChk(";
         if not ccConf.TWOS_COMPLEMENT_INTTYPE then
@@ -478,7 +478,7 @@ const proc: process_const_arr_idx (in reference: function, in reference: anArray
         incr(countNoRangeChecks);
         c_expr.expr &:= "(";
         process_expr(param3, c_expr);
-        c_expr.expr &:= ")-";
+        c_expr.expr &:= ")- ";
         c_expr.expr &:= str(arrayMinIdx(anArray));
       end if;
       c_expr.expr &:= "]";

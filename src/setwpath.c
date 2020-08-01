@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  setwpath   Set the search path (PATH variable) under Windows.   */
+/*  setwpath.c   Set the search path (PATH variable) under Windows. */
 /*  Copyright (C) 2014  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */

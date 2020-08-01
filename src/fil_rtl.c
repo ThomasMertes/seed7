@@ -36,6 +36,8 @@
 #include "string.h"
 #include "sys/types.h"
 #include "sys/stat.h"
+#include "signal.h"
+#include "setjmp.h"
 
 #ifdef UNISTD_H_PRESENT
 #include "unistd.h"
@@ -47,6 +49,7 @@
 #include "os_decls.h"
 #include "heaputl.h"
 #include "striutl.h"
+#include "sigutl.h"
 #include "ut8_rtl.h"
 #include "big_drv.h"
 #include "rtl_err.h"
@@ -73,6 +76,9 @@ extern C __int64 __cdecl _ftelli64(FILE *);
 #ifdef DEFINE_WPOPEN_PROTOTYPE
 extern C FILE *_wpopen (const wchar_t *, const wchar_t *);
 #endif
+
+
+long_jump_position intr_jump_pos;
 
 
 #define BUFFER_SIZE             4096
@@ -617,6 +623,383 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
 
 
 
+#ifndef CTRL_C_SENDS_EOF
+static void handle_int_signal (int sig_num)
+
+  {
+#ifndef HAS_SIGACTION
+    signal(SIGINT, handle_int_signal);
+#endif
+    do_longjmp(intr_jump_pos, 1);
+  }
+
+
+static int readChar (fileType inFile, boolType *sigintReceived)
+
+  {
+#ifdef HAS_SIGACTION
+    struct sigaction sig_act;
+    struct sigaction old_sig_act;
+#else
+    void *old_handler;
+#endif
+    int ch = ' ';
+
+  /* readChar */
+#ifdef HAS_SIGACTION
+    sig_act.sa_handler = handle_int_signal;
+    sigemptyset(&sig_act.sa_mask);
+    sig_act.sa_flags = SA_RESTART;
+    if (unlikely(sigaction(SIGINT, &sig_act, &old_sig_act) != 0)) {
+#else
+    old_handler = signal(SIGINT, handle_int_signal);
+    if (unlikely(old_handler == SIG_ERR)) {
+#endif
+      raise_error(FILE_ERROR);
+    } else {
+      if (do_setjmp(intr_jump_pos) == 0) {
+        ch = getc(inFile);
+      } else {
+        *sigintReceived = TRUE;
+      } /* if */
+#ifdef HAS_SIGACTION
+      if (unlikely(sigaction(SIGINT, &old_sig_act, NULL) != 0)) {
+#else
+      if (unlikely(signal(SIGINT, old_handler) == SIG_ERR)) {
+#endif
+        raise_error(FILE_ERROR);
+      } /* if */
+    } /* if */
+    return ch;
+  } /* readChar */
+#endif
+
+
+
+#ifdef CTRL_C_SENDS_EOF
+static charType doGetcFromTerminal (fileType inFile)
+
+  {
+    charType ch;
+
+  /* doGetcFromTerminal */
+    ch = (charType) getc(inFile);
+    if (feof(inFile)) {
+      clearerr(inFile);
+      fflush(inFile);
+      ch = (charType) 3;
+    } /* if */
+    return ch;
+  } /* doGetcFromTerminal */
+
+#else
+
+
+
+static charType doGetcFromTerminal (fileType inFile)
+
+  {
+    boolType sigintReceived = FALSE;
+    charType ch;
+
+  /* doGetcFromTerminal */
+    ch = (charType) readChar(inFile, &sigintReceived);
+    if (unlikely(sigintReceived)) {
+      raise(SIGINT);
+      ch = (charType) 3;
+    } /* if */
+    return ch;
+  } /* doGetcFromTerminal */
+#endif
+
+
+
+#ifdef CTRL_C_SENDS_EOF
+static striType doGetsFromTerminal (fileType inFile, intType length)
+
+  {
+    int ch;
+    striType result;
+
+  /* doGetsFromTerminal */
+    ch = getc(inFile);
+    if (feof(inFile)) {
+      clearerr(inFile);
+      fflush(inFile);
+      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 0;
+      } /* if */
+    } else {
+      if (ch != EOF) {
+        ungetc(ch, inFile);
+      } /* if */
+      result = filGets(inFile, length);
+    } /* if */
+    return result;
+  } /* doGetsFromTerminal */
+
+#else
+
+
+
+static striType doGetsFromTerminal (fileType inFile, intType length)
+
+  {
+    boolType sigintReceived = FALSE;
+    int ch;
+    striType result;
+
+  /* doGetsFromTerminal */
+    ch = readChar(inFile, &sigintReceived);
+    if (unlikely(sigintReceived)) {
+      raise(SIGINT);
+      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 0;
+      } /* if */
+    } else {
+      if (ch != EOF) {
+        ungetc(ch, inFile);
+      } /* if */
+      result = filGets(inFile, length);
+    } /* if */
+    return result;
+  } /* doGetsFromTerminal */
+#endif
+
+
+
+static striType doLineRead (fileType inFile, register int ch, charType *terminationChar)
+
+  {
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
+
+  /* doLineRead */
+    memlength = READ_STRI_INIT_SIZE;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memory = result->mem;
+      position = 0;
+      while (ch != '\n' && ch != EOF) {
+        if (position >= memlength) {
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, memlength);
+            raise_error(MEMORY_ERROR);
+            return NULL;
+          } /* if */
+          result = resized_result;
+          COUNT3_STRI(memlength, newmemlength);
+          memory = result->mem;
+          memlength = newmemlength;
+        } /* if */
+        memory[position++] = (strElemType) ch;
+        ch = getc(inFile);
+      } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
+      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
+        FREE_STRI(result, memlength);
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+        if (unlikely(resized_result == NULL)) {
+          FREE_STRI(result, memlength);
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result = resized_result;
+          COUNT3_STRI(memlength, position);
+          result->size = position;
+          *terminationChar = (charType) ch;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* doLineRead */
+
+
+
+#ifdef CTRL_C_SENDS_EOF
+static striType doLineReadFromTerminal (fileType inFile, charType *terminationChar)
+
+  {
+    int ch;
+    striType result;
+
+  /* doLineReadFromTerminal */
+    ch = getc(inFile);
+    if (feof(inFile)) {
+      clearerr(inFile);
+      fflush(inFile);
+      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 0;
+      } /* if */
+    } else {
+      result = doLineRead(inFile, ch, terminationChar);
+    } /* if */
+    return result;
+  } /* doLineReadFromTerminal */
+
+#else
+
+
+
+static striType doLineReadFromTerminal (fileType inFile, charType *terminationChar)
+
+  {
+    boolType sigintReceived = FALSE;
+    int ch;
+    striType result;
+
+  /* doLineReadFromTerminal */
+    ch = readChar(inFile, &sigintReceived);
+    if (unlikely(sigintReceived)) {
+      raise(SIGINT);
+      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 0;
+      } /* if */
+    } else {
+      result = doLineRead(inFile, ch, terminationChar);
+    } /* if */
+    return result;
+  } /* doLineReadFromTerminal */
+#endif
+
+
+
+static striType doWordRead (fileType inFile, register int ch, charType *terminationChar)
+
+  {
+    register memSizeType position;
+    strElemType *memory;
+    memSizeType memlength;
+    memSizeType newmemlength;
+    striType resized_result;
+    striType result;
+
+  /* doWordRead */
+    memlength = READ_STRI_INIT_SIZE;
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      memory = result->mem;
+      position = 0;
+      while (ch == ' ' || ch == '\t') {
+        ch = getc(inFile);
+      } /* while */
+      while (ch != ' ' && ch != '\t' &&
+          ch != '\n' && ch != EOF) {
+        if (position >= memlength) {
+          newmemlength = memlength + READ_STRI_SIZE_DELTA;
+          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
+          if (unlikely(resized_result == NULL)) {
+            FREE_STRI(result, memlength);
+            raise_error(MEMORY_ERROR);
+            return NULL;
+          } /* if */
+          result = resized_result;
+          COUNT3_STRI(memlength, newmemlength);
+          memory = result->mem;
+          memlength = newmemlength;
+        } /* if */
+        memory[position++] = (strElemType) ch;
+        ch = getc(inFile);
+      } /* while */
+      if (ch == '\n' && position != 0 && memory[position - 1] == '\r') {
+        position--;
+      } /* if */
+      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
+        FREE_STRI(result, memlength);
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } else {
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
+        if (unlikely(resized_result == NULL)) {
+          FREE_STRI(result, memlength);
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          result = resized_result;
+          COUNT3_STRI(memlength, position);
+          result->size = position;
+          *terminationChar = (charType) ch;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* doWordRead */
+
+
+
+#ifdef CTRL_C_SENDS_EOF
+static striType doWordReadFromTerminal (fileType inFile, charType *terminationChar)
+
+  {
+    int ch;
+    striType result;
+
+  /* doWordReadFromTerminal */
+    ch = getc(inFile);
+    if (feof(inFile)) {
+      clearerr(inFile);
+      fflush(inFile);
+      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 0;
+      } /* if */
+    } else {
+      result = doWordRead(inFile, ch, terminationChar);
+    } /* if */
+    return result;
+  } /* doWordReadFromTerminal */
+
+#else
+
+
+
+static striType doWordReadFromTerminal (fileType inFile, charType *terminationChar)
+
+  {
+    boolType sigintReceived = FALSE;
+    int ch;
+    striType result;
+
+  /* doWordReadFromTerminal */
+    ch = readChar(inFile, &sigintReceived);
+    if (unlikely(sigintReceived)) {
+      raise(SIGINT);
+      if (!ALLOC_STRI_SIZE_OK(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = 0;
+      } /* if */
+    } else {
+      result = doWordRead(inFile, ch, terminationChar);
+    } /* if */
+    return result;
+  } /* doWordReadFromTerminal */
+#endif
+
+
+
 /**
  *  Determine the size of a file and return it as bigInteger.
  *  The file length is measured in bytes.
@@ -777,6 +1160,28 @@ intType filFileType (fileType aFile)
 
 
 /**
+ *  Read a character from a clib_file.
+ *  @return the character read, or EOF at the end of the file.
+ */
+charType filGetcChkCtrlC (fileType inFile)
+
+  {
+    int file_no;
+    charType result;
+
+  /* filGetcChkCtrlC */
+    file_no = fileno(inFile);
+    if (file_no != -1 && isatty(file_no)) {
+      result = doGetcFromTerminal(inFile);
+    } else {
+      result = (charType) getc(inFile);
+    } /* if */
+    return result;
+  } /* filGetcChkCtrlC */
+
+
+
+/**
  *  Read a string with 'length' characters from 'inFile'.
  *  In order to work reasonable good for the common case (reading
  *  just some characters), memory for 'length' characters is requested
@@ -842,7 +1247,7 @@ striType filGets (fileType inFile, intType length)
         } /* if */
       } /* if */
       if (result != NULL) {
-        /* We have allocated a buffer for the requested number of char
+        /* We have allocated a buffer for the requested number of chars
            or for the number of bytes which are available in the file */
         result->size = allocated_size;
         if (allocated_size <= BUFFER_SIZE) {
@@ -895,6 +1300,28 @@ striType filGets (fileType inFile, intType length)
 
 
 
+striType filGetsChkCtrlC (fileType inFile, intType length)
+
+  {
+    int file_no;
+    striType result;
+
+  /* filGetsChkCtrlC */
+    /* printf("filGets(%d, %d)\n", fileno(inFile), length); */
+    file_no = fileno(inFile);
+    if (file_no != -1 && isatty(file_no)) {
+      result = doGetsFromTerminal(inFile, length);
+    } else {
+      result = filGets(inFile, length);
+    } /* if */
+    /* printf("filGets(%d, %d) ==> ", fileno(inFile), length);
+       prot_stri(result);
+       printf("\n"); */
+    return result;
+  } /* filGetsChkCtrlC */
+
+
+
 /**
  *  Determine if at least one character can be read successfully.
  *  This function allows a file to be handled like an iterator.
@@ -928,6 +1355,40 @@ boolType filHasNext (fileType inFile)
 
 
 
+boolType filHasNextChkCtrlC (fileType inFile)
+
+  {
+    int file_no;
+    int next_char;
+    boolType result;
+
+  /* filHasNextChkCtrlC */
+    if (feof(inFile)) {
+      result = FALSE;
+    } else {
+      file_no = fileno(inFile);
+      if (file_no != -1 && isatty(file_no)) {
+        next_char = (int) (scharType) doGetcFromTerminal(inFile);
+      } else {
+        next_char = getc(inFile);
+      } /* if */
+      if (next_char != EOF) {
+        if (unlikely(ungetc(next_char, inFile) != next_char)) {
+          raise_error(FILE_ERROR);
+          result = FALSE;
+        } else {
+          result = TRUE;
+        } /* if */
+      } else {
+        clearerr(inFile);
+        result = FALSE;
+      } /* if */
+    } /* if */
+    return result;
+  } /* filHasNextChkCtrlC */
+
+
+
 /**
  *  Read a line from a clib_file.
  *  The function accepts lines ending with "\n", "\r\n" or EOF.
@@ -941,60 +1402,30 @@ boolType filHasNext (fileType inFile)
 striType filLineRead (fileType inFile, charType *terminationChar)
 
   {
-    register int ch;
-    register memSizeType position;
-    strElemType *memory;
-    memSizeType memlength;
-    memSizeType newmemlength;
-    striType resized_result;
     striType result;
 
   /* filLineRead */
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memory = result->mem;
-      position = 0;
-      while ((ch = getc(inFile)) != (int) '\n' && ch != EOF) {
-        if (position >= memlength) {
-          newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } /* if */
-          result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
-          memory = result->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strElemType) ch;
-      } /* while */
-      if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
-        FREE_STRI(result, memlength);
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, memlength);
-          raise_error(MEMORY_ERROR);
-          result = NULL;
-        } else {
-          result = resized_result;
-          COUNT3_STRI(memlength, position);
-          result->size = position;
-          *terminationChar = (charType) ch;
-        } /* if */
-      } /* if */
-    } /* if */
+    result = doLineRead(inFile, getc(inFile), terminationChar);
     return result;
   } /* filLineRead */
+
+
+
+striType filLineReadChkCtrlC (fileType inFile, charType *terminationChar)
+
+  {
+    int file_no;
+    striType result;
+
+  /* filLineReadChkCtrlC */
+    file_no = fileno(inFile);
+    if (file_no != -1 && isatty(file_no)) {
+      result = doLineReadFromTerminal(inFile, terminationChar);
+    } else {
+      result = doLineRead(inFile, getc(inFile), terminationChar);
+    } /* if */
+    return result;
+  } /* filLineReadChkCtrlC */
 
 
 
@@ -1340,65 +1771,30 @@ intType filTell (fileType aFile)
 striType filWordRead (fileType inFile, charType *terminationChar)
 
   {
-    register int ch;
-    register memSizeType position;
-    strElemType *memory;
-    memSizeType memlength;
-    memSizeType newmemlength;
-    striType resized_result;
     striType result;
 
   /* filWordRead */
-    memlength = READ_STRI_INIT_SIZE;
-    if (unlikely(!ALLOC_STRI_SIZE_OK(result, memlength))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      memory = result->mem;
-      position = 0;
-      do {
-        ch = getc(inFile);
-      } while (ch == (int) ' ' || ch == (int) '\t');
-      while (ch != (int) ' ' && ch != (int) '\t' &&
-          ch != (int) '\n' && ch != EOF) {
-        if (position >= memlength) {
-          newmemlength = memlength + READ_STRI_SIZE_DELTA;
-          REALLOC_STRI_CHECK_SIZE(resized_result, result, memlength, newmemlength);
-          if (unlikely(resized_result == NULL)) {
-            FREE_STRI(result, memlength);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } /* if */
-          result = resized_result;
-          COUNT3_STRI(memlength, newmemlength);
-          memory = result->mem;
-          memlength = newmemlength;
-        } /* if */
-        memory[position++] = (strElemType) ch;
-        ch = getc(inFile);
-      } /* while */
-      if (ch == (int) '\n' && position != 0 && memory[position - 1] == '\r') {
-        position--;
-      } /* if */
-      if (unlikely(ch == EOF && position == 0 && ferror(inFile))) {
-        FREE_STRI(result, memlength);
-        raise_error(FILE_ERROR);
-        result = NULL;
-      } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, memlength, position);
-        if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, memlength);
-          raise_error(MEMORY_ERROR);
-          result = NULL;
-        } else {
-          result = resized_result;
-          COUNT3_STRI(memlength, position);
-          result->size = position;
-          *terminationChar = (charType) ch;
-        } /* if */
-      } /* if */
-    } /* if */
+    result = doWordRead(inFile, getc(inFile), terminationChar);
     return result;
   } /* filWordRead */
+
+
+
+striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar)
+
+  {
+    int file_no;
+    striType result;
+
+  /* filWordReadChkCtrlC */
+    file_no = fileno(inFile);
+    if (file_no != -1 && isatty(file_no)) {
+      result = doWordReadFromTerminal(inFile, terminationChar);
+    } else {
+      result = doWordRead(inFile, getc(inFile), terminationChar);
+    } /* if */
+    return result;
+  } /* filWordReadChkCtrlC */
 
 
 

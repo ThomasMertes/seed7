@@ -113,6 +113,7 @@ clean:
 	del chkccomp.h
 	del version.h
 	del setwpath.exe
+	del sudo.exe
 
 distclean: clean
 	copy level_bk.h level.h /Y
@@ -121,10 +122,10 @@ test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
 
 install: setwpath.exe
-	.\setwpath.exe add ..\bin
+	.\sudo .\setwpath.exe add ..\bin
 
 uninstall: setwpath.exe
-	.\setwpath.exe remove ..\bin
+	.\sudo .\setwpath.exe remove ..\bin
 
 dep: depend
 
@@ -143,6 +144,7 @@ version.h: chkccomp.h
 	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
 	echo #define OS_PATH_HAS_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
+	echo #define CTRL_C_SENDS_EOF >> version.h
 	echo #define CONSOLE_WCHAR >> version.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h
@@ -207,6 +209,7 @@ version.h: chkccomp.h
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.exe
 	$(CC) setwpath.c -w -o setwpath
+	$(CC) sudo.c -w -o sudo
 
 depend: version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend

@@ -591,13 +591,13 @@ const proc: process (PRC_BLOCK, in reference: function,
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos++;\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "if (catch_stack_pos >= max_catch_stack) {\n";
+    c_expr.expr &:= "if (unlikely(catch_stack_pos >= max_catch_stack)) {\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "  resize_catch_stack();\n";
     setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "if ((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
+    c_expr.expr &:= "if (likely((fail_value = do_setjmp(catch_stack[catch_stack_pos])) == 0)) {\n";
     process_expr(params[2], c_expr);
     current_catch := params[4];
     catch_expr := getValue(current_catch, ref_list);
@@ -625,7 +625,7 @@ const proc: process (PRC_BLOCK, in reference: function,
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  catch_stack_pos--;\n";
         setDiagnosticLine(c_expr);
-        c_expr.expr &:= "  raise_error(fail_value);\n";
+        c_expr.expr &:= "  rtlRaiseError(fail_value, error_file, error_line);\n";
         current_catch := NIL;
       end if;
     end while;

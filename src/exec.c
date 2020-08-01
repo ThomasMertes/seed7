@@ -267,6 +267,7 @@ static inline void par_restore (const_locListType form_param,
     const_listType backup_form_params, const_listType evaluated_act_params)
 
   {
+    boolType save_interrupt_flag;
     boolType save_fail_flag;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -274,8 +275,9 @@ static inline void par_restore (const_locListType form_param,
 #ifdef TRACE_EXEC
     printf("BEGIN par_restore\n");
 #endif
+    save_interrupt_flag = interrupt_flag;
     save_fail_flag = fail_flag;
-    fail_flag = FALSE;
+    set_fail_flag(FALSE);
     while (form_param != NULL && err_info == OKAY_NO_ERROR) {
 #ifdef OUT_OF_ORDER
       if (trace.actions) {
@@ -311,6 +313,7 @@ static inline void par_restore (const_locListType form_param,
       backup_form_params = backup_form_params->next;
       evaluated_act_params = evaluated_act_params->next;
     } /* while */
+    interrupt_flag = save_interrupt_flag;
     fail_flag = save_fail_flag;
 #ifdef TRACE_EXEC
     printf("END par_restore\n");
@@ -348,6 +351,7 @@ static void loc_init (const_locListType loc_var, listType *backup_loc_var,
 static void loc_restore (const_locListType loc_var, const_listType backup_loc_var)
 
   {
+    boolType save_interrupt_flag;
     boolType save_fail_flag;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -355,8 +359,9 @@ static void loc_restore (const_locListType loc_var, const_listType backup_loc_va
 #ifdef TRACE_EXEC
     printf("BEGIN loc_restore\n");
 #endif
+    save_interrupt_flag = interrupt_flag;
     save_fail_flag = fail_flag;
-    fail_flag = FALSE;
+    set_fail_flag(FALSE);
     while (loc_var != NULL) {
       destroy_local_object(&loc_var->local, &err_info);
       if (IS_UNUSED(loc_var->local.object->value.objValue)) {
@@ -370,6 +375,7 @@ static void loc_restore (const_locListType loc_var, const_listType backup_loc_va
       loc_var = loc_var->next;
       backup_loc_var = backup_loc_var->next;
     } /* while */
+    interrupt_flag = save_interrupt_flag;
     fail_flag = save_fail_flag;
 #ifdef TRACE_EXEC
     printf("END loc_restore\n");
@@ -647,87 +653,97 @@ static objectType exec_action (const_objectType act_object,
 #endif
 #endif
     evaluated_act_params = eval_arg_list(act_param_list, &temp_bits);
-    if (fail_flag) {
-      free_list(evaluated_act_params);
-      result = fail_value;
-    } else {
-#ifdef WITH_ACTION_CHECK
-      if (trace.check_actions) {
-        if (get_primact(act_object->value.actValue) == &act_table.primitive[0]) {
-          result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
-              evaluated_act_params);
-        } /* if */
-      } /* if */
-#endif
-#ifdef WITH_PROTOCOL
-      if (trace.actions) {
-        /* heap_statistic(); */
-        if (trace.heapsize) {
-          prot_heapsize();
-          prot_cstri(" ");
-        } /* if */
-        prot_cstri(get_primact(act_object->value.actValue)->name);
-        /* prot_cstri("(");
-           prot_list(act_param_list);
-           prot_cstri(") "); */
-        prot_cstri("(");
-        prot_list(evaluated_act_params);
-        prot_cstri(") ");
-        prot_flush();
-        /* curr_action_object = act_object; */
+    if (interrupt_flag) {
+      if (!fail_flag) {
         curr_exec_object = object;
         curr_argument_list = evaluated_act_params;
-        result = (*(act_object->value.actValue))(evaluated_act_params);
-        if (act_object->type_of != NULL) {
-          if (act_object->type_of->result_type != NULL) {
-            if (result != NULL) {
-              if (result->type_of != act_object->type_of->result_type) {
-                prot_cstri("** correct action result type from \'");
-                if (result->type_of == NULL) {
-                  prot_cstri("*NULL_TYPE*");
-                } else {
-                  printobject(result->type_of->match_obj);
-                } /* if */
-                prot_cstri("\' to \'");
-                printobject(act_object->type_of->result_type->match_obj);
-                prot_cstri("\' act_object type is ");
-                printobject(act_object->type_of->match_obj);
-              } /* if */
+        show_signal();
+      } /* if */
+      if (fail_flag) {
+        free_list(evaluated_act_params);
+        result = fail_value;
+#ifdef TRACE_EXEC
+        printf("END exec_action fail_flag=%d\n", fail_flag);
+#endif
+        return result;
+      } /* if */
+    } /* if */
+#ifdef WITH_ACTION_CHECK
+    if (trace.check_actions) {
+      if (get_primact(act_object->value.actValue) == &act_table.primitive[0]) {
+        result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION,
+            evaluated_act_params);
+      } /* if */
+    } /* if */
+#endif
+#ifdef WITH_PROTOCOL
+    if (trace.actions) {
+      /* heap_statistic(); */
+      if (trace.heapsize) {
+        prot_heapsize();
+        prot_cstri(" ");
+      } /* if */
+      prot_cstri(get_primact(act_object->value.actValue)->name);
+      /* prot_cstri("(");
+         prot_list(act_param_list);
+         prot_cstri(") "); */
+      prot_cstri("(");
+      prot_list(evaluated_act_params);
+      prot_cstri(") ");
+      prot_flush();
+      /* curr_action_object = act_object; */
+      curr_exec_object = object;
+      curr_argument_list = evaluated_act_params;
+      result = (*(act_object->value.actValue))(evaluated_act_params);
+      if (act_object->type_of != NULL) {
+        if (act_object->type_of->result_type != NULL) {
+          if (result != NULL) {
+            if (result->type_of != act_object->type_of->result_type) {
+              prot_cstri("** correct action result type from \'");
               if (result->type_of == NULL) {
-                result->type_of = act_object->type_of->result_type;
+                prot_cstri("*NULL_TYPE*");
+              } else {
+                printobject(result->type_of->match_obj);
               } /* if */
-            } else {
-              prot_cstri("** result == NULL for action ");
-              prot_cstri(get_primact(act_object->value.actValue)->name);
+              prot_cstri("\' to \'");
+              printobject(act_object->type_of->result_type->match_obj);
+              prot_cstri("\' act_object type is ");
+              printobject(act_object->type_of->match_obj);
+            } /* if */
+            if (result->type_of == NULL) {
+              result->type_of = act_object->type_of->result_type;
             } /* if */
           } else {
-            prot_cstri("** act_object->type_of->result_type == NULL ");
+            prot_cstri("** result == NULL for action ");
+            prot_cstri(get_primact(act_object->value.actValue)->name);
           } /* if */
         } else {
-          prot_cstri("** act_object->type_of == NULL ");
+          prot_cstri("** act_object->type_of->result_type == NULL ");
         } /* if */
-        prot_cstri(" ==> ");
-        printobject(result);
-        if (trace.heapsize) {
-          prot_cstri(" ");
-          prot_heapsize();
-        } /* if */
-        prot_nl();
-        prot_flush();
       } else {
-#endif
-        /* curr_action_object = act_object; */
-        curr_exec_object = object;
-        curr_argument_list = evaluated_act_params;
-        result = (*(act_object->value.actValue))(evaluated_act_params);
-        if (result != NULL && result->type_of == NULL) {
-          result->type_of = act_object->type_of->result_type;
-        } /* if */
-#ifdef WITH_PROTOCOL
+        prot_cstri("** act_object->type_of == NULL ");
       } /* if */
+      prot_cstri(" ==> ");
+      printobject(result);
+      if (trace.heapsize) {
+        prot_cstri(" ");
+        prot_heapsize();
+      } /* if */
+      prot_nl();
+      prot_flush();
+    } else {
 #endif
-      dump_arg_list(evaluated_act_params, temp_bits);
+      /* curr_action_object = act_object; */
+      curr_exec_object = object;
+      curr_argument_list = evaluated_act_params;
+      result = (*(act_object->value.actValue))(evaluated_act_params);
+      if (result != NULL && result->type_of == NULL) {
+        result->type_of = act_object->type_of->result_type;
+      } /* if */
+#ifdef WITH_PROTOCOL
     } /* if */
+#endif
+    dump_arg_list(evaluated_act_params, temp_bits);
 #ifdef TRACE_EXEC
     printf("END exec_action fail_flag=%d\n", fail_flag);
 #endif
@@ -1144,7 +1160,7 @@ objectType exec_expr (const_progType currentProg, objectType object,
     printf("BEGIN exec_expr\n");
 #endif
     if (currentProg != NULL) {
-      fail_flag = FALSE;
+      set_fail_flag(FALSE);
       fail_value = (objectType) NULL;
       fail_expression = (listType) NULL;
       memcpy(&prog_backup, &prog, sizeof(progRecord));
@@ -1167,6 +1183,8 @@ objectType exec_expr (const_progType currentProg, objectType object,
           *err_info = MEMORY_ERROR;
         } else if (fail_value == SYS_NUM_EXCEPTION) {
           *err_info = NUMERIC_ERROR;
+        } else if (fail_value == SYS_OVF_EXCEPTION) {
+          *err_info = OVERFLOW_ERROR;
         } else if (fail_value == SYS_RNG_EXCEPTION) {
           *err_info = RANGE_ERROR;
         } else if (fail_value == SYS_FIL_EXCEPTION) {
@@ -1174,7 +1192,7 @@ objectType exec_expr (const_progType currentProg, objectType object,
         } else if (fail_value == SYS_ACT_ILLEGAL_EXCEPTION) {
           *err_info = ACTION_ERROR;
         } /* if */
-        fail_flag = FALSE;
+        set_fail_flag(FALSE);
         fail_value = (objectType) NULL;
         fail_expression = (listType) NULL;
       } /* if */
@@ -1183,7 +1201,9 @@ objectType exec_expr (const_progType currentProg, objectType object,
       result = NULL;
     } /* if */
 #ifdef TRACE_EXEC
-    printf("END exec_expr\n");
+    printf("END exec_expr --> ");
+    trace1(result);
+    printf("\n");
 #endif
     return result;
   } /* exec_expr */

@@ -78,6 +78,14 @@ span.lib     { color: maroon }
 span.prog    { color: darkgreen }
 span.func    { color: purple }
 span.var     { color: darkcyan }
+span.input   { color: green }
+
+span.box {
+  border: solid 1px black;
+  background-color: WhiteSmoke;
+  padding: 0px 1px 0px 1px;
+  margin: 4px 2px 6px 2px;
+}
 
 a.menu, a.head {
   text-decoration: none;
@@ -548,6 +556,7 @@ Several features of Seed7 are missing in Java:
   <tr><td><a class="link" href="#faq_initialize_data">Elegant way to express data structures</a>    </td><td> Property files and XML must be used instead </td></tr>
   <tr><td><a class="link" href="#faq_initialize_data">User defined functions to initialize data</a> </td><td> - </td></tr>
   <tr><td><a class="link" href="#faq_multiple_dispatch">Multiple dispatch</a>                         </td><td> - </td></tr>
+  <tr><td>Checking for <a class="link" href="#faq_integer_overflow">integer overflow</a>             </td><td> - </td></tr>
 </table></dd></dl><p>
 </p></div>
 
@@ -571,6 +580,7 @@ Seed7 can be used in various application areas:
    web server can be used to test CGI scripts).</li>
 <li>As language to describe <span class="link">algorithms</span>.</li>
 <li>Command line utilities. E.g.:<ul>
+<li><span class="link">A calculator that works like a read-eval-print loop (REPL)</span></li>
 <li><span class="link">A make utility capable to process Unix and Windows makefiles</span></li>
 <li><span class="link">A tar archiving utility</span></li>
 <li><span class="link">A program to save a potentially damaged harddisk partition to an image file</span></li></ul></li>
@@ -591,12 +601,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-07-20 the number of lines is:
+than 200000 lines of Seed7. For version 2014-08-03 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">101243</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8516</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">113630</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">121997</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">101906</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8556</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">114031</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">122166</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -840,9 +850,11 @@ This verifies that interpreter and compiler work correct.
 <div><br /><a name="faq_install"><h3>How can I install Seed7?
 </h3></a><hr />
 <p>
-The makefiles support the target install. You need appropriate
-privileges to do the installation. Depending on the operating
-system there are different strategies to get the privileges:
+After Seed7 interpreter and compiler have been <a class="link" href="#faq_compile_interpreter">compiled</a> and
+<a class="link" href="#faq_verify_interpreter">verified</a> they can be installed. The makefiles support the
+target install. You need appropriate privileges to do the
+installation. Depending on the operating system there are
+different strategies to get the privileges:
 </p><ol>
 <li><p>Unix-like operating systems
 </p><p>
@@ -1623,14 +1635,14 @@ is assigned to <tt>'result'</tt>.
 <div><br /><a name="faq_integer_overflow"><h3>What is an integer overflow?
 </h3></a><hr />
 <p>
-An integer overflow occurs when a calculation produces a result that
+An <span class="link">integer overflow</span> occurs when a calculation produces a result that
 cannot be stored in an integer variable. Very popular languages such as
 C, C++, Java, Objective-C and Go do not care about integer overflow.
 Programs in this languages continue to execute with a wrong value
 instead of the correct result. This wrong value can then trigger
 dangerous things. A program can make wrong decisions or produce wrong
 output, without any hint that an integer overflow occurred. In Seed7
-the exception <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised when an overflow occurs.
+the <span class="link">exception</span> <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised when an overflow occurs.
 When performance is important the overflow checking can be switched
 off with the <span class="link">compiler</span> option <b>-so</b>.
 </p></div>

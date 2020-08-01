@@ -138,6 +138,7 @@ version.h: chkccomp.h
 	$(ECHO) "#define SEARCH_PATH_DELIMITER ';'" >> version.h
 	$(ECHO) "#define OS_PATH_HAS_DRIVE_LETTERS" >> version.h
 	$(ECHO) "#define CATCH_SIGNALS" >> version.h
+	$(ECHO) "#define CTRL_C_SENDS_EOF" >> version.h
 	$(ECHO) "#define AWAIT_WITH_SELECT" >> version.h
 	$(ECHO) "#define IMPLEMENT_PTY_WITH_PIPE2" >> version.h
 	$(ECHO) "#define OS_STRI_USES_CODE_PAGE" >> version.h

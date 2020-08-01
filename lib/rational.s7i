@@ -728,3 +728,7 @@ const func rational: (attr rational) parse (in var string: stri) is func
 
 
 enable_io(rational);
+
+
+# Allows 'array rational' everywhere without extra type definition.
+const type: _rationalArray is array rational;

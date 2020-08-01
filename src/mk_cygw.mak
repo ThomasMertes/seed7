@@ -176,6 +176,7 @@ version.h: chkccomp.h
 	echo "#define AWAIT_WITH_SIGACTION" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define INCL_NCURSES_TERM" >> version.h
+	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h
 	echo "#define CONSOLE_UTF8" >> version.h
 	echo "#define OS_STRI_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  chkccomp   Check properties of C compiler and runtime.          */
+/*  chkccomp.c    Check properties of C compiler and runtime.       */
 /*  Copyright (C) 2010 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */

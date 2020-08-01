@@ -236,8 +236,8 @@ objectType fil_getc (listType arguments)
 
   { /* fil_getc */
     isit_file(arg_1(arguments));
-    return bld_char_temp((charType)
-        getc(take_file(arg_1(arguments))));
+    return bld_char_temp(
+        filGetcChkCtrlC(take_file(arg_1(arguments))));
   } /* fil_getc */
 
 
@@ -255,7 +255,8 @@ objectType fil_gets (listType arguments)
     isit_file(arg_1(arguments));
     isit_int(arg_2(arguments));
     return bld_stri_temp(
-        filGets(take_file(arg_1(arguments)), take_int(arg_2(arguments))));
+        filGetsChkCtrlC(take_file(arg_1(arguments)),
+                        take_int(arg_2(arguments))));
   } /* fil_gets */
 
 
@@ -269,7 +270,7 @@ objectType fil_has_next (listType arguments)
 
   { /* fil_has_next */
     isit_file(arg_1(arguments));
-    if (filHasNext(take_file(arg_1(arguments)))) {
+    if (filHasNextChkCtrlC(take_file(arg_1(arguments)))) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -321,8 +322,8 @@ objectType fil_line_read (listType arguments)
     isit_char(terminationChar);
     is_variable(terminationChar);
     return bld_stri_temp(
-        filLineRead(take_file(arg_1(arguments)),
-                    &terminationChar->value.charValue));
+        filLineReadChkCtrlC(take_file(arg_1(arguments)),
+                            &terminationChar->value.charValue));
   } /* fil_line_read */
 
 
@@ -571,8 +572,8 @@ objectType fil_word_read (listType arguments)
     isit_char(terminationChar);
     is_variable(terminationChar);
     return bld_stri_temp(
-        filWordRead(take_file(arg_1(arguments)),
-                    &terminationChar->value.charValue));
+        filWordReadChkCtrlC(take_file(arg_1(arguments)),
+                            &terminationChar->value.charValue));
   } /* fil_word_read */
 
 

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  sudo.c        Execute as administrator under Windows.           */
+/*  Copyright (C) 2014  Thomas Mertes                               */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -18,29 +18,36 @@
 /*  Free Software Foundation, Inc., 51 Franklin Street,             */
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
-/*  Module: Runtime                                                 */
-/*  File: seed7/src/runerr.h                                        */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Runtime error and exception handling procedures.       */
+/*  Module: Setwpath                                                */
+/*  File: seed7/src/setwpath.c                                      */
+/*  Changes: 2014  Thomas Mertes                                    */
+/*  Content: Set the search path (PATH variable) under Windows.     */
 /*                                                                  */
 /********************************************************************/
 
-EXTERN objectType curr_action_object;
-EXTERN objectType curr_exec_object;
-EXTERN listType curr_argument_list;
-EXTERN boolType fail_flag;
-EXTERN objectType fail_value;
-EXTERN listType fail_expression;
-EXTERN listType fail_stack;
-
-#define set_fail_flag(failValue) interrupt_flag = (failValue); fail_flag = (failValue);
+#include "stdio.h"
+#include "string.h"
+#include "windows.h"
+#include "shellapi.h"
 
 
-void continue_question(void);
-void run_error (objectCategory required, objectType argument);
-void empty_value (objectType argument);
-void var_required (objectType argument);
-void write_call_stack (const_listType stack_elem);
-objectType raise_with_arguments (objectType exception, listType list);
-objectType raise_exception (objectType exception);
-void show_signal (void);
+int main (int argc, char *argv[])
+
+  {
+    char parameters[4096];
+    int idx;
+
+  /* main */
+    if (argc >= 2) {
+      parameters[0] = '\0';
+      for (idx = 2; idx < argc; idx++) {
+        if (idx != 2) {
+          strcat(parameters, " ");
+        } /* if */
+        strcat(parameters, argv[idx]);
+      } /* for */
+      printf("%s %s\n", argv[1], parameters);
+      ShellExecute(NULL, "runas", argv[1], parameters, NULL, SW_HIDE);
+    } /* if */
+    return 0;
+  } /* main */

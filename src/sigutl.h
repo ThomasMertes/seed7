@@ -25,7 +25,16 @@
 /*                                                                  */
 /********************************************************************/
 
+#ifdef DO_INIT
+volatile boolType interrupt_flag = FALSE;
+#else
+EXTERN volatile boolType interrupt_flag;
+#endif
+EXTERN volatile int signal_number;
+
+
 void shut_drivers (void);
+const_cstriType signal_name (int sig_num);
 #ifdef CATCH_SIGNALS
 void activate_signal_handlers (void);
 #endif

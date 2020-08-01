@@ -1578,7 +1578,7 @@ bigIntType bigSuccTemp (bigIntType big1)
  *         'big1' is converted to a result where the most significant
  *         byte (the first byte) has an ordinal >= 128.
  *  @return a bstring with the big-endian representation.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
@@ -1669,7 +1669,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
  *         'big1' is converted to a result where the most significant
  *         byte (the last byte) has an ordinal >= 128.
  *  @return a bstring with the little-endian representation.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'big1' is negative.
+ *  @exception RANGE_ERROR When 'big1' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)

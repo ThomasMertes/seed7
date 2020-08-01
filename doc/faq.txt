@@ -192,6 +192,7 @@ Several features of Seed7 are missing in Java:
   Elegant way to express data structures    | Property files and XML must be used instead
   User defined functions to initialize data | -
   Multiple dispatch                         | -
+  Checking for integer overflow             | -
 
 
 
@@ -215,6 +216,7 @@ Seed7 can be used in various application areas:
    web server can be used to test CGI scripts).
  - As language to describe algorithms.
  - Command line utilities. E.g.:
+    - A calculator that works like a read-eval-print loop (REPL)
     - A make utility capable to process Unix and Windows makefiles
     - A tar archiving utility
     - A program to save a potentially damaged harddisk partition to an image file
@@ -235,12 +237,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-07-20 the number of lines is:
+than 200000 lines of Seed7. For version 2014-08-03 the number of lines is:
 
-  101243  C source files (*.c)
-    8516  C header files (*.h)
-  113630  Seed7 source files (*.sd7)
-  121997  Seed7 library/include files (*.s7i)
+  101906  C source files (*.c)
+    8556  C header files (*.h)
+  114031  Seed7 source files (*.sd7)
+  122166  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -484,9 +486,11 @@ This verifies that interpreter and compiler work correct.
 How can I install Seed7?
 ========================
 
-The makefiles support the target install. You need appropriate
-privileges to do the installation. Depending on the operating
-system there are different strategies to get the privileges:
+After Seed7 interpreter and compiler have been compiled and
+verified they can be installed. The makefiles support the
+target install. You need appropriate privileges to do the
+installation. Depending on the operating system there are
+different strategies to get the privileges:
 
  1. Unix-like operating systems
 

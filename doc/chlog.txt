@@ -1,3 +1,40 @@
+20140803:
+- The handling of ctrl-c has been changed to work better under
+  windows.
+- The runtime of the function intPowOvfChk in int_rtl.c has been
+  reduced to 57% (measured with gcc and valgrind).
+- The generation of code in the compiler for the action INT_POW has
+  been improved. When the base is a negative power of two the
+  exponentiation is done with a shift instead of a call of intPow
+  (respectively intPowOvfChk).
+- The overflow checking for INT_POW in the compiler has been
+  improved. When base or exponent is known the overflow checking is
+  done with inline code and intPow is called instead of intPowOvfChk.
+- Documentation comments have been added to bitsetof.s7i
+- Tests for ** have been added to chkint.sd7 and chkovf.st7
+- The tests for * and *:= in chkovf.st7 have been reorganized.
+- An interrupt_flag has been introduced in the interpreter. This flag
+  is used for exception handling and for signal handling. Exceptions
+  set interrupt_flag and fail_flag (with the macro set_fail_flag).
+  Signals set only the interrupt_flag (file sigutl.c). The
+  interrupt_flag is handled in exec_action (file exec.c).
+- The functions signal_name, handle_signals, handle_segv_signal,
+  handle_term_signal and activate_signal_handlers in sigutl.c have
+  been improved.
+- The functions continue_question, write_curr_position and
+  show_signal in runerr.c have been improved.
+- The functions handle_int_signal, readChar, doGetcFromTerminal,
+  doGetsFromTerminal, doLineRead, doLineReadFromTerminal, doWordRead,
+  doWordReadFromTerminal, filGetcChkCtrlC, filGetsChkCtrlC,
+  filHasNextChkCtrlC, filLineReadChkCtrlC and filWordReadChkCtrlC
+  have been added to fil_rtl.c. This functions support reading from
+  a terminal with a check for ctrl-c. This functions are used by the
+  interpreter (file intlib.c).
+- Tracing has been added to functions in int_rtl.c.
+- Configuration defines for CTRL_C_SENDS_EOF,
+  SIGNAL_HANDLER_CAN_DO_IO and INT64TYPE_NO_SUFFIX_BUT_CAST have been
+  added to makefiles.
+
 20140720:
 - The compiler has been improved to generate overflow checking code
   by default. The generation of overflow checking code can be
@@ -13,7 +50,7 @@
 - Checks for +, -, *, rem, mod, <<, +:=, -:=, *:=, succ, pred, incr
   and decr have been added to chkint.sd7.
 - Checks for the lpad operator have been added to chkstr.sd7.
-- The compiler option -r has been replace by the option -sr.
+- The compiler option -r has been replaced by the option -sr.
 - The program calc7.sd7 has been improved to report MEMORY_ERROR and
   OVERFLOW_ERROR.
 - The library make.s7i has been improved such that make7.sd7 accepts

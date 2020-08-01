@@ -51,19 +51,13 @@ void shut_drivers (void)
 
 
 
-#ifdef CATCH_SIGNALS
-static void handle_signals (int sig_num)
+const_cstriType signal_name (int sig_num)
 
   {
-    int ch;
+    static char buffer[20];
     const_cstriType sig_name;
-    char buffer[20];
 
-  /* handle_signals */
-#ifdef SIGALRM
-    signal(SIGALRM, SIG_IGN);
-#endif
-/*  shut_drivers(); */
+  /* signal_name */
     if (sig_num == SIGABRT) {
       sig_name = "ABORT";
     } else if (sig_num == SIGFPE) {
@@ -88,18 +82,60 @@ static void handle_signals (int sig_num)
       sprintf(buffer, "%d", sig_num);
       sig_name = buffer;
     } /* if */
-    printf("\n*** SIGNAL %s RAISED\n", sig_name);
-    printf("\n*** (Type RETURN to continue or '*' to terminate)\n");
+    return sig_name;
+  } /* signal_name */
+
+
+
+#ifdef CATCH_SIGNALS
+static void handle_signals (int sig_num)
+
+  {
+#ifdef DIALOG_IN_SIGNAL_HANDLER
+    int ch;
+#endif
+
+  /* handle_signals */
+#ifdef SIGALRM
+    signal(SIGALRM, SIG_IGN);
+#endif
+#ifdef DIALOG_IN_SIGNAL_HANDLER
+    printf("\n*** SIGNAL %s RAISED\n\n*** (Type RETURN to continue or '*' to terminate)\n",
+           signal_name(sig_num));
     ch = fgetc(stdin);
     if (ch == '*') {
       shut_drivers();
       exit(1);
+#ifdef CTRL_C_SENDS_EOF
+    } else if (ch == 'c' || ch == EOF) {
+#else
+    } else if (ch == 'c') {
+#endif
+      interrupt_flag = TRUE;
+      signal_number = sig_num;
     } /* if */
+    while (ch != EOF && ch != '\n') {
+      ch = fgetc(stdin);
+    } /* while */
+#else
+    interrupt_flag = TRUE;
+    signal_number = sig_num;
+#endif
 #ifndef HAS_SIGACTION
     activate_signal_handlers();
 #endif
-/*  exit(1); */
   } /* handle_signals */
+
+
+
+static void handle_segv_signal (int sig_num)
+
+  { /* handle_segv_signal */
+    shut_drivers();
+    printf("\n*** SIGNAL SEGV RAISED\n"
+           "\n*** Program terminated.\n");
+    exit(1);
+  } /* handle_segv_signal */
 
 
 
@@ -107,8 +143,8 @@ static void handle_term_signal (int sig_num)
 
   { /* handle_term_signal */
     shut_drivers();
-    printf("\n*** SIGNAL TERM RAISED\n");
-    printf("\n*** Program terminated\n");
+    printf("\n*** SIGNAL %s RAISED\n", signal_name(sig_num));
+    printf("\n*** Program terminated.\n");
     exit(1);
   } /* handle_term_signal */
 
@@ -120,19 +156,22 @@ void activate_signal_handlers (void)
 #ifdef HAS_SIGACTION
     {
       struct sigaction sig_act;
+      boolType okay;
 
       sig_act.sa_handler = handle_signals;
       sigemptyset(&sig_act.sa_mask);
       sig_act.sa_flags = SA_RESTART;
-      if (sigaction(SIGABRT,  &sig_act, NULL) == -1 ||
-          sigaction(SIGFPE,   &sig_act, NULL) == -1 ||
-          sigaction(SIGILL,   &sig_act, NULL) == -1 ||
-          sigaction(SIGINT,   &sig_act, NULL) == -1 ||
-          sigaction(SIGSEGV,  &sig_act, NULL) == -1) {
-        printf("\n*** Activating signal handlers failed.\n");
-      } /* if */
+      okay = sigaction(SIGABRT,  &sig_act, NULL) == 0 &&
+             sigaction(SIGFPE,   &sig_act, NULL) == 0 &&
+             sigaction(SIGILL,   &sig_act, NULL) == 0 &&
+             sigaction(SIGINT,   &sig_act, NULL) == 0;
+      sig_act.sa_handler = handle_segv_signal;
+      okay = okay &&
+             sigaction(SIGSEGV,  &sig_act, NULL) == 0;
       sig_act.sa_handler = handle_term_signal;
-      if (sigaction(SIGTERM,  &sig_act, NULL) == -1) {
+      okay = okay &&
+             sigaction(SIGTERM,  &sig_act, NULL) == 0;
+      if (!okay) {
         printf("\n*** Activating signal handlers failed.\n");
       } /* if */
     }
@@ -141,7 +180,7 @@ void activate_signal_handlers (void)
     signal(SIGFPE,  handle_signals);
     signal(SIGILL,  handle_signals);
     signal(SIGINT,  handle_signals);
-    signal(SIGSEGV, handle_signals);
+    signal(SIGSEGV, handle_segv_signal);
     signal(SIGTERM, handle_term_signal);
 #endif
 #ifdef SIGPIPE

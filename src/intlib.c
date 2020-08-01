@@ -208,7 +208,7 @@ objectType int_bit_length (listType arguments)
  *         'number' is converted to a result where the most significant
  *         byte has an ordinal >= 128.
  *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
+ *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_bytesBe (listType arguments)
@@ -260,7 +260,7 @@ objectType int_bytesBe2Int (listType arguments)
  *         'number' is converted to a result where the most significant
  *         byte has an ordinal >= 128.
  *  @return a string with the shortest binary representation of 'number'.
- *  @exception RANGE_ERROR When 'isSigned' is FALSE and 'number' is negative.
+ *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType int_bytesLe (listType arguments)

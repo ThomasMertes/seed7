@@ -107,7 +107,7 @@ s7c: ../bin/s7c.exe ../prg/s7c.exe
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend chkccomp.h version.h setwpath.exe
+	rm -f *.o ../bin/*.a ../bin/s7.exe ../bin/s7c.exe ../prg/s7.exe ../prg/s7c.exe depend chkccomp.h version.h setwpath.exe sudo.exe
 	@echo.
 	@echo "  Use 'make depend' (with your make command) to create the dependencies."
 	@echo.
@@ -118,8 +118,9 @@ distclean: clean
 test:
 	../bin/s7.exe -l ../lib ../prg/chk_all build
 	@echo.
-	@echo Open a console as administrator, go to the directory seed7/src and
-	@echo use 'make install' (with your make command) to install Seed7.
+	@echo Use 'sudo make install' (with your make command) to install Seed7."
+	@echo Or open a console as administrator, go to the directory seed7/src
+	@echo and use 'make install' (with your make command) to install Seed7.
 	@echo.
 
 install: setwpath.exe
@@ -146,6 +147,7 @@ version.h: chkccomp.h
 	echo "#define SEARCH_PATH_DELIMITER ';'" >> version.h
 	echo "#define OS_PATH_HAS_DRIVE_LETTERS" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define CTRL_C_SENDS_EOF" >> version.h
 	echo "#define CONSOLE_WCHAR" >> version.h
 	echo "#define OS_STRI_WCHAR" >> version.h
 	echo "#define os_chdir _wchdir" >> version.h
@@ -209,6 +211,7 @@ version.h: chkccomp.h
 	./setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths.exe
 	$(CC) setwpath.c -o setwpath
+	$(CC) sudo.c -w -o sudo
 
 depend: version.h
 	$(CC) $(CFLAGS) -M $(SRC) > depend

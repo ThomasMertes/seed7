@@ -38,6 +38,7 @@
 #include "string.h"
 
 #include "common.h"
+#include "sigutl.h"
 #include "data.h"
 #include "heaputl.h"
 #include "striutl.h"
@@ -143,7 +144,7 @@ boolType do_flush (objectType outfile)
     flush_expr[0].obj = outfile;
     flush_expr[1].obj = SYS_FLUSH_OBJECT;
     result = (boolType) (exec1(flush_expr) == SYS_EMPTY_OBJECT);
-    fail_flag = FALSE;
+    set_fail_flag(FALSE);
 #ifdef TRACE_DOANY
     printf("END do_flush\n");
 #endif
@@ -164,7 +165,7 @@ boolType do_wrnl (objectType outfile)
     wrnl_expr[0].obj = outfile;
     wrnl_expr[1].obj = SYS_WRLN_OBJECT;
     result = (boolType) (exec1(wrnl_expr) == SYS_EMPTY_OBJECT);
-    fail_flag = FALSE;
+    set_fail_flag(FALSE);
 #ifdef TRACE_DOANY
     printf("END do_wrnl\n");
 #endif
@@ -189,10 +190,10 @@ boolType do_wrstri (objectType outfile, striType stri)
       wrstri_expr[1].obj = out_stri;
       wrstri_expr[2].obj = SYS_WRITE_OBJECT;
       result = (boolType) (exec1(wrstri_expr) == SYS_EMPTY_OBJECT);
-      fail_flag = FALSE;
+      set_fail_flag(FALSE);
       FREE_OBJECT(out_stri);
     } /* if */
-    fail_flag = FALSE;
+    set_fail_flag(FALSE);
 #ifdef TRACE_DOANY
     printf("BEGIN do_wrstri\n");
 #endif

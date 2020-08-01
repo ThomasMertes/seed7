@@ -5353,9 +5353,9 @@ CONTENTS
     write("Amount? ");
     read(amount);
 
-  The user is allowed to use backspace and sends the input
-  to the program with the RETURN-key. To let the user respond
-  with the RETURN-key we can write:
+  The user is allowed to use Backspace and sends the input
+  to the program with the Return key. To let the user respond
+  with the Return key we can write:
 
     writeln("Type RETURN");
     readln;
@@ -6145,7 +6145,7 @@ CONTENTS
     As stated earlier 'STD_IN' provides an interface to the keyboard
   which is line buffered and echoed on 'STD_OUT'. This means that
   you can see everything you typed. Additionally you can correct
-  your input with BACKSPACE until you press RETURN. But sometimes
+  your input with Backspace until you press Return. But sometimes
   an unbuffered and unechoed input is needed. This is provided in
   the library "keybd.s7i", which defines the type 'keyboard_file'
   and the file 'KEYBOARD'. Characters typed at the keyboard are
@@ -6320,7 +6320,7 @@ CONTENTS
 
   Another helpful file type is 'line_file', which is defined in the
   library "line.s7i". A 'line_file' allows to correct the input with
-  BACKSPACE until a RETURN (represented with '\n') is encountered.
+  Backspace until a Return (represented with '\n') is encountered.
   In contrast to this editing feature the possibility to edit a line
   of 'STD_IN' is provided by the operating system. The following
   program uses 'echo_file' and 'line_file' to simulate input line
@@ -6344,7 +6344,7 @@ CONTENTS
       end func;
 
   This program terminates when a line containing '!' is confirmed
-  with RETURN.
+  with Return.
 
 
 8.8 Files with line structure
@@ -11093,7 +11093,7 @@ CONTENTS
        E.g.: 1 div 0 raises NUMERIC_ERROR. Note that a 'float' division
        by zero does not raise NUMERIC_ERROR but returns Infinity or
        -Infinity instead.
-     - Exponentiation (**) when the exponent is negative.
+     - Exponentiation (**) when the exponent is a negative 'integer'.
        E.g.: 2 ** (-1) raises NUMERIC_ERROR.
      - Functions (sqrt, log2, log10, !) that are only defined for
        positive arguments. E.g.: sqrt(-1) raises NUMERIC_ERROR.

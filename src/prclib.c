@@ -147,7 +147,7 @@ objectType prc_block (listType arguments)
         catch_value = arg_3(current_catch->value.listValue);
         if (catch_value == fail_value) {
           catch_statement = arg_5(current_catch->value.listValue);
-          fail_flag = FALSE;
+          set_fail_flag(FALSE);
           fail_value = NULL;
           free_list(fail_stack);
           fail_stack = NULL;
@@ -189,7 +189,7 @@ objectType prc_block_def (listType arguments)
         catch_value = arg_3(current_catch->value.listValue);
         if (catch_value == fail_value) {
           catch_statement = arg_5(current_catch->value.listValue);
-          fail_flag = FALSE;
+          set_fail_flag(FALSE);
           fail_value = NULL;
           evaluate(catch_statement);
           searching = FALSE;
@@ -203,7 +203,7 @@ objectType prc_block_def (listType arguments)
       } /* while */
       if (searching) {
         default_statement = arg_7(arguments);
-        fail_flag = FALSE;
+        set_fail_flag(FALSE);
         fail_value = NULL;
         evaluate(default_statement);
       } /* if */

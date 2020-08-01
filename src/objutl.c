@@ -32,6 +32,7 @@
 #include "string.h"
 
 #include "common.h"
+#include "sigutl.h"
 #include "data.h"
 #include "data_rtl.h"
 #include "heaputl.h"
@@ -584,6 +585,7 @@ objectType bld_win_temp (winType temp_win)
 void dump_temp_value (objectType object)
 
   {
+    boolType save_interrupt_flag;
     boolType save_fail_flag;
     errInfoType err_info = OKAY_NO_ERROR;
 
@@ -601,8 +603,9 @@ void dump_temp_value (objectType object)
       prot_nl();
     } /* if */
 #endif
+    save_interrupt_flag = interrupt_flag;
     save_fail_flag = fail_flag;
-    fail_flag = FALSE;
+    set_fail_flag(FALSE);
     switch (CATEGORY_OF_OBJ(object)) {
       case INTOBJECT:
       case CHAROBJECT:
@@ -761,6 +764,7 @@ void dump_temp_value (objectType object)
         do_destroy(object, &err_info); */
         break;
     } /* switch */
+    interrupt_flag = save_interrupt_flag;
     fail_flag = save_fail_flag;
 #ifdef TRACE_DUMP_TEMP_VALUE
     if (trace.actions) {

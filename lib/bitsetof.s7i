@@ -154,12 +154,6 @@ const func type: bitset (in type: baseType) is func
        *)
       const func integer: hashCode (in setType: aSet)                    is action "SET_HASHCODE";
 
-      (**
-       *  Compute the cardinality of a set.
-       *  @return the number of elements in ''aSet''.
-       *)
-      const func integer: card (in setType: aSet)                        is action "SET_CARD";
-
       const func bitset: (attr bitset) conv (in setType param)           is action "SET_CONV";
       const varfunc bitset: (attr bitset) varConv (inout setType param)  is action "TYP_VARCONV";
       const func setType: (attr setType) conv (in bitset param)          is action "SET_CONV";
@@ -203,12 +197,40 @@ const func type: bitset (in type: baseType) is func
           excl(bitset varConv aSet, ord(aValue));
         end func;
 
+      (**
+       *  Compute the cardinality of a set.
+       *  @return the number of elements in ''aSet''.
+       *)
+      const func integer: card (in setType: aSet)                        is action "SET_CARD";
+
+      (**
+       *  Compute pseudo-random number which is element of ''aSet''.
+       *  The random values are uniform distributed.
+       *  @return a random number such that rand(aSet) in aSet holds.
+       *  @exception RANGE_ERROR When ''aSet'' is empty.
+       *)
       const func baseType: rand (in setType: aSet) is
         return baseType conv rand(bitset conv aSet);
 
+      (**
+       *  Minimal element of a set.
+       *  Delivers the element from ''aSet'' for which the following condition holds:
+       *   element <= X
+       *  for all X which are in the set.
+       *  @return the minimum element of ''aSet''.
+       *  @exception RANGE_ERROR When ''aSet'' is the empty set.
+       *)
       const func baseType: min (in setType: aSet) is
         return baseType conv min(bitset conv aSet);
 
+      (**
+       *  Maximal element of a set.
+       *  Delivers the element from ''aSet'' for which the following condition holds:
+       *   element >= X
+       *  for all X which are in the set.
+       *  @return the maximal element of ''aSet''.
+       *  @exception RANGE_ERROR When ''aSet'' is the empty set.
+       *)
       const func baseType: max (in setType: aSet) is
         return baseType conv max(bitset conv aSet);
 

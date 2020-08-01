@@ -173,8 +173,12 @@ const proc: check_add is func
         not raisesOverflowError(                 -11 + -9223372036854775798) or
         not raisesOverflowError(                  -3 + -9223372036854775806) or
         not raisesOverflowError(                  -2 + -9223372036854775807) or
-        not raisesOverflowError(                  -1 +            INT64_MIN) or
-        not raisesOverflowError(intExpr(           INT64_MIN) +                   -1) or
+        not raisesOverflowError(                  -1 +            INT64_MIN) then
+      writeln(" ***** Addition underflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) +                   -1) or
         not raisesOverflowError(intExpr(-9223372036854775807) +                   -2) or
         not raisesOverflowError(intExpr(-9223372036854775806) +                   -3) or
         not raisesOverflowError(intExpr(-9223372036854775798) +                  -11) or
@@ -215,8 +219,12 @@ const proc: check_add is func
         not raisesOverflowError(intExpr(                 -11) + -9223372036854775798) or
         not raisesOverflowError(intExpr(                  -3) + -9223372036854775806) or
         not raisesOverflowError(intExpr(                  -2) + -9223372036854775807) or
-        not raisesOverflowError(intExpr(                  -1) +            INT64_MIN) or
-        not raisesOverflowError(           INT64_MIN + intExpr(                  -1)) or
+        not raisesOverflowError(intExpr(                  -1) +            INT64_MIN) then
+      writeln(" ***** Addition underflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(           INT64_MIN + intExpr(                  -1)) or
         not raisesOverflowError(-9223372036854775807 + intExpr(                  -2)) or
         not raisesOverflowError(-9223372036854775806 + intExpr(                  -3)) or
         not raisesOverflowError(-9223372036854775798 + intExpr(                 -11)) or
@@ -257,8 +265,12 @@ const proc: check_add is func
         not raisesOverflowError(                 -11 + intExpr(-9223372036854775798)) or
         not raisesOverflowError(                  -3 + intExpr(-9223372036854775806)) or
         not raisesOverflowError(                  -2 + intExpr(-9223372036854775807)) or
-        not raisesOverflowError(                  -1 + intExpr(           INT64_MIN)) or
-        not raisesOverflowError(intExpr(           INT64_MIN) + intExpr(                  -1)) or
+        not raisesOverflowError(                  -1 + intExpr(           INT64_MIN)) then
+      writeln(" ***** Addition underflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) + intExpr(                  -1)) or
         not raisesOverflowError(intExpr(-9223372036854775807) + intExpr(                  -2)) or
         not raisesOverflowError(intExpr(-9223372036854775806) + intExpr(                  -3)) or
         not raisesOverflowError(intExpr(-9223372036854775798) + intExpr(                 -11)) or
@@ -300,7 +312,7 @@ const proc: check_add is func
         not raisesOverflowError(intExpr(                  -3) + intExpr(-9223372036854775806)) or
         not raisesOverflowError(intExpr(                  -2) + intExpr(-9223372036854775807)) or
         not raisesOverflowError(intExpr(                  -1) + intExpr(           INT64_MIN)) then
-      writeln(" ***** Addition underflow by one does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Addition underflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -345,8 +357,12 @@ const proc: check_add is func
         not raisesOverflowError(                 11 + 9223372036854775797) or
         not raisesOverflowError(                  3 + 9223372036854775805) or
         not raisesOverflowError(                  2 + 9223372036854775806) or
-        not raisesOverflowError(                  1 + 9223372036854775807) or
-        not raisesOverflowError(intExpr(9223372036854775807) +                   1) or
+        not raisesOverflowError(                  1 + 9223372036854775807) then
+      writeln(" ***** Addition overflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(9223372036854775807) +                   1) or
         not raisesOverflowError(intExpr(9223372036854775806) +                   2) or
         not raisesOverflowError(intExpr(9223372036854775805) +                   3) or
         not raisesOverflowError(intExpr(9223372036854775797) +                  11) or
@@ -387,8 +403,12 @@ const proc: check_add is func
         not raisesOverflowError(intExpr(                 11) + 9223372036854775797) or
         not raisesOverflowError(intExpr(                  3) + 9223372036854775805) or
         not raisesOverflowError(intExpr(                  2) + 9223372036854775806) or
-        not raisesOverflowError(intExpr(                  1) + 9223372036854775807) or
-        not raisesOverflowError(9223372036854775807 + intExpr(                  1)) or
+        not raisesOverflowError(intExpr(                  1) + 9223372036854775807) then
+      writeln(" ***** Addition overflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(9223372036854775807 + intExpr(                  1)) or
         not raisesOverflowError(9223372036854775806 + intExpr(                  2)) or
         not raisesOverflowError(9223372036854775805 + intExpr(                  3)) or
         not raisesOverflowError(9223372036854775797 + intExpr(                 11)) or
@@ -429,8 +449,12 @@ const proc: check_add is func
         not raisesOverflowError(                 11 + intExpr(9223372036854775797)) or
         not raisesOverflowError(                  3 + intExpr(9223372036854775805)) or
         not raisesOverflowError(                  2 + intExpr(9223372036854775806)) or
-        not raisesOverflowError(                  1 + intExpr(9223372036854775807)) or
-        not raisesOverflowError(intExpr(9223372036854775807) + intExpr(                  1)) or
+        not raisesOverflowError(                  1 + intExpr(9223372036854775807)) then
+      writeln(" ***** Addition overflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(9223372036854775807) + intExpr(                  1)) or
         not raisesOverflowError(intExpr(9223372036854775806) + intExpr(                  2)) or
         not raisesOverflowError(intExpr(9223372036854775805) + intExpr(                  3)) or
         not raisesOverflowError(intExpr(9223372036854775797) + intExpr(                 11)) or
@@ -472,7 +496,7 @@ const proc: check_add is func
         not raisesOverflowError(intExpr(                  3) + intExpr(9223372036854775805)) or
         not raisesOverflowError(intExpr(                  2) + intExpr(9223372036854775806)) or
         not raisesOverflowError(intExpr(                  1) + intExpr(9223372036854775807)) then
-      writeln(" ***** Addition overflow by one does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Addition overflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -573,6 +597,12 @@ const proc: check_add_assign is func
     num :=                   -3; ok := ok and raisesOverflowError(num +:= -9223372036854775806);
     num :=                   -2; ok := ok and raisesOverflowError(num +:= -9223372036854775807);
     num :=                   -1; ok := ok and raisesOverflowError(num +:=            INT64_MIN);
+    if not ok then
+      writeln(" ***** Addition assignment underflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=            INT64_MIN; ok := ok and raisesOverflowError(num +:= intExpr(                  -1));
     num := -9223372036854775807; ok := ok and raisesOverflowError(num +:= intExpr(                  -2));
     num := -9223372036854775806; ok := ok and raisesOverflowError(num +:= intExpr(                  -3));
@@ -615,6 +645,12 @@ const proc: check_add_assign is func
     num :=                   -3; ok := ok and raisesOverflowError(num +:= intExpr(-9223372036854775806));
     num :=                   -2; ok := ok and raisesOverflowError(num +:= intExpr(-9223372036854775807));
     num :=                   -1; ok := ok and raisesOverflowError(num +:= intExpr(           INT64_MIN));
+    if not ok then
+      writeln(" ***** Addition assignment underflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] +:=                   -1);
     arr[1] := -9223372036854775807; ok := ok and raisesOverflowError(arr[1] +:=                   -2);
     arr[1] := -9223372036854775806; ok := ok and raisesOverflowError(arr[1] +:=                   -3);
@@ -657,6 +693,12 @@ const proc: check_add_assign is func
     arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] +:= -9223372036854775806);
     arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] +:= -9223372036854775807);
     arr[1] :=                   -1; ok := ok and raisesOverflowError(arr[1] +:=            INT64_MIN);
+    if not ok then
+      writeln(" ***** Addition assignment underflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] +:= intExpr(                  -1));
     arr[1] := -9223372036854775807; ok := ok and raisesOverflowError(arr[1] +:= intExpr(                  -2));
     arr[1] := -9223372036854775806; ok := ok and raisesOverflowError(arr[1] +:= intExpr(                  -3));
@@ -700,7 +742,7 @@ const proc: check_add_assign is func
     arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] +:= intExpr(-9223372036854775807));
     arr[1] :=                   -1; ok := ok and raisesOverflowError(arr[1] +:= intExpr(           INT64_MIN));
     if not ok then
-      writeln(" ***** Addition assignment underflow by one does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Addition assignment underflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -747,6 +789,12 @@ const proc: check_add_assign is func
     num :=                   3; ok := ok and raisesOverflowError(num +:= 9223372036854775805);
     num :=                   2; ok := ok and raisesOverflowError(num +:= 9223372036854775806);
     num :=                   1; ok := ok and raisesOverflowError(num +:= 9223372036854775807);
+    if not ok then
+      writeln(" ***** Addition assignment overflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num := 9223372036854775807; ok := ok and raisesOverflowError(num +:= intExpr(                  1));
     num := 9223372036854775806; ok := ok and raisesOverflowError(num +:= intExpr(                  2));
     num := 9223372036854775805; ok := ok and raisesOverflowError(num +:= intExpr(                  3));
@@ -789,6 +837,12 @@ const proc: check_add_assign is func
     num :=                   3; ok := ok and raisesOverflowError(num +:= intExpr(9223372036854775805));
     num :=                   2; ok := ok and raisesOverflowError(num +:= intExpr(9223372036854775806));
     num :=                   1; ok := ok and raisesOverflowError(num +:= intExpr(9223372036854775807));
+    if not ok then
+      writeln(" ***** Addition assignment overflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; ok := ok and raisesOverflowError(arr[1] +:=                   1);
     arr[1] := 9223372036854775806; ok := ok and raisesOverflowError(arr[1] +:=                   2);
     arr[1] := 9223372036854775805; ok := ok and raisesOverflowError(arr[1] +:=                   3);
@@ -831,6 +885,12 @@ const proc: check_add_assign is func
     arr[1] :=                   3; ok := ok and raisesOverflowError(arr[1] +:= 9223372036854775805);
     arr[1] :=                   2; ok := ok and raisesOverflowError(arr[1] +:= 9223372036854775806);
     arr[1] :=                   1; ok := ok and raisesOverflowError(arr[1] +:= 9223372036854775807);
+    if not ok then
+      writeln(" ***** Addition assignment overflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; ok := ok and raisesOverflowError(arr[1] +:= intExpr(                  1));
     arr[1] := 9223372036854775806; ok := ok and raisesOverflowError(arr[1] +:= intExpr(                  2));
     arr[1] := 9223372036854775805; ok := ok and raisesOverflowError(arr[1] +:= intExpr(                  3));
@@ -874,7 +934,7 @@ const proc: check_add_assign is func
     arr[1] :=                   2; ok := ok and raisesOverflowError(arr[1] +:= intExpr(9223372036854775806));
     arr[1] :=                   1; ok := ok and raisesOverflowError(arr[1] +:= intExpr(9223372036854775807));
     if not ok then
-      writeln(" ***** Addition assignment overflow by one does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Addition assignment overflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -974,8 +1034,12 @@ const proc: check_subtract is func
         not raisesOverflowError(                -857 - 9223372036854774952) or
         not raisesOverflowError(                 -11 - 9223372036854775798) or
         not raisesOverflowError(                  -3 - 9223372036854775806) or
-        not raisesOverflowError(                  -2 - 9223372036854775807) or
-        not raisesOverflowError(intExpr(           INT64_MIN) -                   1) or
+        not raisesOverflowError(                  -2 - 9223372036854775807) then
+      writeln(" ***** Subtraction underflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) -                   1) or
         not raisesOverflowError(intExpr(-9223372036854775807) -                   2) or
         not raisesOverflowError(intExpr(-9223372036854775806) -                   3) or
         not raisesOverflowError(intExpr(-9223372036854775798) -                  11) or
@@ -1015,8 +1079,12 @@ const proc: check_subtract is func
         not raisesOverflowError(intExpr(                -857) - 9223372036854774952) or
         not raisesOverflowError(intExpr(                 -11) - 9223372036854775798) or
         not raisesOverflowError(intExpr(                  -3) - 9223372036854775806) or
-        not raisesOverflowError(intExpr(                  -2) - 9223372036854775807) or
-        not raisesOverflowError(           INT64_MIN - intExpr(                  1)) or
+        not raisesOverflowError(intExpr(                  -2) - 9223372036854775807) then
+      writeln(" ***** Subtraction underflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(           INT64_MIN - intExpr(                  1)) or
         not raisesOverflowError(-9223372036854775807 - intExpr(                  2)) or
         not raisesOverflowError(-9223372036854775806 - intExpr(                  3)) or
         not raisesOverflowError(-9223372036854775798 - intExpr(                 11)) or
@@ -1056,8 +1124,12 @@ const proc: check_subtract is func
         not raisesOverflowError(                -857 - intExpr(9223372036854774952)) or
         not raisesOverflowError(                 -11 - intExpr(9223372036854775798)) or
         not raisesOverflowError(                  -3 - intExpr(9223372036854775806)) or
-        not raisesOverflowError(                  -2 - intExpr(9223372036854775807)) or
-        not raisesOverflowError(intExpr(           INT64_MIN) - intExpr(                  1)) or
+        not raisesOverflowError(                  -2 - intExpr(9223372036854775807)) then
+      writeln(" ***** Subtraction underflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) - intExpr(                  1)) or
         not raisesOverflowError(intExpr(-9223372036854775807) - intExpr(                  2)) or
         not raisesOverflowError(intExpr(-9223372036854775806) - intExpr(                  3)) or
         not raisesOverflowError(intExpr(-9223372036854775798) - intExpr(                 11)) or
@@ -1098,7 +1170,7 @@ const proc: check_subtract is func
         not raisesOverflowError(intExpr(                 -11) - intExpr(9223372036854775798)) or
         not raisesOverflowError(intExpr(                  -3) - intExpr(9223372036854775806)) or
         not raisesOverflowError(intExpr(                  -2) - intExpr(9223372036854775807)) then
-      writeln(" ***** Subtraction underflow by one does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Subtraction underflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -1144,7 +1216,12 @@ const proc: check_subtract is func
         not raisesOverflowError(                  3 - -9223372036854775805) or
         not raisesOverflowError(                  2 - -9223372036854775806) or
         not raisesOverflowError(                  1 - -9223372036854775807) or
-        not raisesOverflowError(intExpr(9223372036854775807) -                   -1) or
+        not raisesOverflowError(                  0 -            INT64_MIN) then
+      writeln(" ***** Subtraction overflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(9223372036854775807) -                   -1) or
         not raisesOverflowError(intExpr(9223372036854775806) -                   -2) or
         not raisesOverflowError(intExpr(9223372036854775805) -                   -3) or
         not raisesOverflowError(intExpr(9223372036854775797) -                  -11) or
@@ -1186,7 +1263,12 @@ const proc: check_subtract is func
         not raisesOverflowError(intExpr(                  3) - -9223372036854775805) or
         not raisesOverflowError(intExpr(                  2) - -9223372036854775806) or
         not raisesOverflowError(intExpr(                  1) - -9223372036854775807) or
-        not raisesOverflowError(9223372036854775807 - intExpr(                  -1)) or
+        not raisesOverflowError(intExpr(                  0) -            INT64_MIN) then
+      writeln(" ***** Subtraction overflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(9223372036854775807 - intExpr(                  -1)) or
         not raisesOverflowError(9223372036854775806 - intExpr(                  -2)) or
         not raisesOverflowError(9223372036854775805 - intExpr(                  -3)) or
         not raisesOverflowError(9223372036854775797 - intExpr(                 -11)) or
@@ -1228,7 +1310,12 @@ const proc: check_subtract is func
         not raisesOverflowError(                  3 - intExpr(-9223372036854775805)) or
         not raisesOverflowError(                  2 - intExpr(-9223372036854775806)) or
         not raisesOverflowError(                  1 - intExpr(-9223372036854775807)) or
-        not raisesOverflowError(intExpr(9223372036854775807) - intExpr(                  -1)) or
+        not raisesOverflowError(                  0 - intExpr(           INT64_MIN)) then
+      writeln(" ***** Subtraction overflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(9223372036854775807) - intExpr(                  -1)) or
         not raisesOverflowError(intExpr(9223372036854775806) - intExpr(                  -2)) or
         not raisesOverflowError(intExpr(9223372036854775805) - intExpr(                  -3)) or
         not raisesOverflowError(intExpr(9223372036854775797) - intExpr(                 -11)) or
@@ -1269,8 +1356,9 @@ const proc: check_subtract is func
         not raisesOverflowError(intExpr(                 11) - intExpr(-9223372036854775797)) or
         not raisesOverflowError(intExpr(                  3) - intExpr(-9223372036854775805)) or
         not raisesOverflowError(intExpr(                  2) - intExpr(-9223372036854775806)) or
-        not raisesOverflowError(intExpr(                  1) - intExpr(-9223372036854775807)) then
-      writeln(" ***** Subtraction overflow by one does not raise OVERFLOW_ERROR.");
+        not raisesOverflowError(intExpr(                  1) - intExpr(-9223372036854775807)) or
+        not raisesOverflowError(intExpr(                  0) - intExpr(           INT64_MIN)) then
+      writeln(" ***** Subtraction overflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -1370,6 +1458,12 @@ const proc: check_subtract_assign is func
     num :=                  -11; ok := ok and raisesOverflowError(num -:= 9223372036854775798);
     num :=                   -3; ok := ok and raisesOverflowError(num -:= 9223372036854775806);
     num :=                   -2; ok := ok and raisesOverflowError(num -:= 9223372036854775807);
+    if not ok then
+      writeln(" ***** Subtraction assignment underflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num :=            INT64_MIN; ok := ok and raisesOverflowError(num -:= intExpr(                  1));
     num := -9223372036854775807; ok := ok and raisesOverflowError(num -:= intExpr(                  2));
     num := -9223372036854775806; ok := ok and raisesOverflowError(num -:= intExpr(                  3));
@@ -1411,6 +1505,12 @@ const proc: check_subtract_assign is func
     num :=                  -11; ok := ok and raisesOverflowError(num -:= intExpr(9223372036854775798));
     num :=                   -3; ok := ok and raisesOverflowError(num -:= intExpr(9223372036854775806));
     num :=                   -2; ok := ok and raisesOverflowError(num -:= intExpr(9223372036854775807));
+    if not ok then
+      writeln(" ***** Subtraction assignment underflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] -:=                   1);
     arr[1] := -9223372036854775807; ok := ok and raisesOverflowError(arr[1] -:=                   2);
     arr[1] := -9223372036854775806; ok := ok and raisesOverflowError(arr[1] -:=                   3);
@@ -1452,6 +1552,12 @@ const proc: check_subtract_assign is func
     arr[1] :=                  -11; ok := ok and raisesOverflowError(arr[1] -:= 9223372036854775798);
     arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] -:= 9223372036854775806);
     arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] -:= 9223372036854775807);
+    if not ok then
+      writeln(" ***** Subtraction assignment underflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] -:= intExpr(                  1));
     arr[1] := -9223372036854775807; ok := ok and raisesOverflowError(arr[1] -:= intExpr(                  2));
     arr[1] := -9223372036854775806; ok := ok and raisesOverflowError(arr[1] -:= intExpr(                  3));
@@ -1494,7 +1600,7 @@ const proc: check_subtract_assign is func
     arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] -:= intExpr(9223372036854775806));
     arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] -:= intExpr(9223372036854775807));
     if not ok then
-      writeln(" ***** Subtraction assignment underflow by one does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Subtraction assignment underflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -1541,6 +1647,13 @@ const proc: check_subtract_assign is func
     num :=                   3; ok := ok and raisesOverflowError(num -:= -9223372036854775805);
     num :=                   2; ok := ok and raisesOverflowError(num -:= -9223372036854775806);
     num :=                   1; ok := ok and raisesOverflowError(num -:= -9223372036854775807);
+    num :=                   0; ok := ok and raisesOverflowError(num -:=            INT64_MIN);
+    if not ok then
+      writeln(" ***** Subtraction assignment overflow by one does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     num := 9223372036854775807; ok := ok and raisesOverflowError(num -:= intExpr(                  -1));
     num := 9223372036854775806; ok := ok and raisesOverflowError(num -:= intExpr(                  -2));
     num := 9223372036854775805; ok := ok and raisesOverflowError(num -:= intExpr(                  -3));
@@ -1583,6 +1696,13 @@ const proc: check_subtract_assign is func
     num :=                   3; ok := ok and raisesOverflowError(num -:= intExpr(-9223372036854775805));
     num :=                   2; ok := ok and raisesOverflowError(num -:= intExpr(-9223372036854775806));
     num :=                   1; ok := ok and raisesOverflowError(num -:= intExpr(-9223372036854775807));
+    num :=                   0; ok := ok and raisesOverflowError(num -:= intExpr(           INT64_MIN));
+    if not ok then
+      writeln(" ***** Subtraction assignment overflow by one does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; ok := ok and raisesOverflowError(arr[1] -:=                   -1);
     arr[1] := 9223372036854775806; ok := ok and raisesOverflowError(arr[1] -:=                   -2);
     arr[1] := 9223372036854775805; ok := ok and raisesOverflowError(arr[1] -:=                   -3);
@@ -1625,6 +1745,13 @@ const proc: check_subtract_assign is func
     arr[1] :=                   3; ok := ok and raisesOverflowError(arr[1] -:= -9223372036854775805);
     arr[1] :=                   2; ok := ok and raisesOverflowError(arr[1] -:= -9223372036854775806);
     arr[1] :=                   1; ok := ok and raisesOverflowError(arr[1] -:= -9223372036854775807);
+    arr[1] :=                   0; ok := ok and raisesOverflowError(arr[1] -:=            INT64_MIN);
+    if not ok then
+      writeln(" ***** Subtraction assignment overflow by one does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
     arr[1] := 9223372036854775807; ok := ok and raisesOverflowError(arr[1] -:= intExpr(                  -1));
     arr[1] := 9223372036854775806; ok := ok and raisesOverflowError(arr[1] -:= intExpr(                  -2));
     arr[1] := 9223372036854775805; ok := ok and raisesOverflowError(arr[1] -:= intExpr(                  -3));
@@ -1667,8 +1794,9 @@ const proc: check_subtract_assign is func
     arr[1] :=                   3; ok := ok and raisesOverflowError(arr[1] -:= intExpr(-9223372036854775805));
     arr[1] :=                   2; ok := ok and raisesOverflowError(arr[1] -:= intExpr(-9223372036854775806));
     arr[1] :=                   1; ok := ok and raisesOverflowError(arr[1] -:= intExpr(-9223372036854775807));
+    arr[1] :=                   0; ok := ok and raisesOverflowError(arr[1] -:= intExpr(           INT64_MIN));
     if not ok then
-      writeln(" ***** Subtraction assignment overflow by one does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Subtraction assignment overflow by one does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -1798,49 +1926,7 @@ const proc: check_mult is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError(           INT64_MIN *                   -1) or
-        not raisesOverflowError(-4611686018427387904 *                   -2) or
-        not raisesOverflowError(-4611686018427387903 *                   -3) or
-        not raisesOverflowError(-3074457345618258603 *                   -3) or
-        not raisesOverflowError(-3074457345618258602 *                   -4) or
-        not raisesOverflowError( -838488366986797801 *                  -11) or
-        not raisesOverflowError( -838488366986797800 *                  -12) or
-        not raisesOverflowError(  -10762394442070917 *                 -857) or
-        not raisesOverflowError(  -10762394442070916 *                 -858) or
-        not raisesOverflowError(   -1988224194191588 *                -4639) or
-        not raisesOverflowError(   -1988224194191587 *                -4640) or
-        not raisesOverflowError(    -240989001041329 *               -38273) or
-        not raisesOverflowError(    -240989001041328 *               -38274) or
-        not raisesOverflowError(     -14312161101688 *              -644443) or
-        not raisesOverflowError(     -14312161101687 *              -644444) or
-        not raisesOverflowError(       -933865493038 *             -9876553) or
-        not raisesOverflowError(       -933865493037 *             -9876554) or
-        not raisesOverflowError(       -747094709114 *            -12345653) or
-        not raisesOverflowError(       -747094709113 *            -12345654) or
-        not raisesOverflowError(        -74709312969 *           -123456791) or
-        not raisesOverflowError(        -74709312968 *           -123456792) or
-        not raisesOverflowError(         -3037000500 *          -3037000500) or
-        not raisesOverflowError(          -123456792 *         -74709312968) or
-        not raisesOverflowError(          -123456791 *         -74709312969) or
-        not raisesOverflowError(           -12345654 *        -747094709113) or
-        not raisesOverflowError(           -12345653 *        -747094709114) or
-        not raisesOverflowError(            -9876554 *        -933865493037) or
-        not raisesOverflowError(            -9876553 *        -933865493038) or
-        not raisesOverflowError(             -644444 *      -14312161101687) or
-        not raisesOverflowError(             -644443 *      -14312161101688) or
-        not raisesOverflowError(              -38274 *     -240989001041328) or
-        not raisesOverflowError(              -38273 *     -240989001041329) or
-        not raisesOverflowError(               -4640 *    -1988224194191587) or
-        not raisesOverflowError(               -4639 *    -1988224194191588) or
-        not raisesOverflowError(                -858 *   -10762394442070916) or
-        not raisesOverflowError(                -857 *   -10762394442070917) or
-        not raisesOverflowError(                 -12 *  -838488366986797800) or
-        not raisesOverflowError(                 -11 *  -838488366986797801) or
-        not raisesOverflowError(                  -4 * -3074457345618258602) or
-        not raisesOverflowError(                  -3 * -3074457345618258603) or
-        not raisesOverflowError(                  -3 * -4611686018427387903) or
-        not raisesOverflowError(                  -2 * -4611686018427387904) or
-        not raisesOverflowError(-4611686018427387905 *                    2) or
+    if  not raisesOverflowError(-4611686018427387905 *                    2) or
         not raisesOverflowError(-4611686018427387904 *                    3) or
         not raisesOverflowError(-3074457345618258603 *                    3) or
         not raisesOverflowError(-3074457345618258602 *                    4) or
@@ -1921,91 +2007,12 @@ const proc: check_mult is func
         not raisesOverflowError(                   4 * -3074457345618258602) or
         not raisesOverflowError(                   3 * -3074457345618258603) or
         not raisesOverflowError(                   3 * -4611686018427387904) or
-        not raisesOverflowError(                   2 * -4611686018427387905) or
-        not raisesOverflowError( 4611686018427387904 *                    2) or
-        not raisesOverflowError( 4611686018427387903 *                    3) or
-        not raisesOverflowError( 3074457345618258603 *                    3) or
-        not raisesOverflowError( 3074457345618258602 *                    4) or
-        not raisesOverflowError(  838488366986797801 *                   11) or
-        not raisesOverflowError(  838488366986797800 *                   12) or
-        not raisesOverflowError(   10762394442070917 *                  857) or
-        not raisesOverflowError(   10762394442070916 *                  858) or
-        not raisesOverflowError(    1988224194191588 *                 4639) or
-        not raisesOverflowError(    1988224194191587 *                 4640) or
-        not raisesOverflowError(     240989001041329 *                38273) or
-        not raisesOverflowError(     240989001041328 *                38274) or
-        not raisesOverflowError(      14312161101688 *               644443) or
-        not raisesOverflowError(      14312161101687 *               644444) or
-        not raisesOverflowError(        933865493038 *              9876553) or
-        not raisesOverflowError(        933865493037 *              9876554) or
-        not raisesOverflowError(        747094709114 *             12345653) or
-        not raisesOverflowError(        747094709113 *             12345654) or
-        not raisesOverflowError(         74709312969 *            123456791) or
-        not raisesOverflowError(         74709312968 *            123456792) or
-        not raisesOverflowError(          3037000500 *           3037000500) or
-        not raisesOverflowError(           123456792 *          74709312968) or
-        not raisesOverflowError(           123456791 *          74709312969) or
-        not raisesOverflowError(            12345654 *         747094709113) or
-        not raisesOverflowError(            12345653 *         747094709114) or
-        not raisesOverflowError(             9876554 *         933865493037) or
-        not raisesOverflowError(             9876553 *         933865493038) or
-        not raisesOverflowError(              644444 *       14312161101687) or
-        not raisesOverflowError(              644443 *       14312161101688) or
-        not raisesOverflowError(               38274 *      240989001041328) or
-        not raisesOverflowError(               38273 *      240989001041329) or
-        not raisesOverflowError(                4640 *     1988224194191587) or
-        not raisesOverflowError(                4639 *     1988224194191588) or
-        not raisesOverflowError(                 858 *    10762394442070916) or
-        not raisesOverflowError(                 857 *    10762394442070917) or
-        not raisesOverflowError(                  12 *   838488366986797800) or
-        not raisesOverflowError(                  11 *   838488366986797801) or
-        not raisesOverflowError(                   4 *  3074457345618258602) or
-        not raisesOverflowError(                   3 *  3074457345618258603) or
-        not raisesOverflowError(                   3 *  4611686018427387903) or
-        not raisesOverflowError(                   2 *  4611686018427387904) or
-        not raisesOverflowError(intExpr(           INT64_MIN) *                   -1) or
-        not raisesOverflowError(intExpr(-4611686018427387904) *                   -2) or
-        not raisesOverflowError(intExpr(-4611686018427387903) *                   -3) or
-        not raisesOverflowError(intExpr(-3074457345618258603) *                   -3) or
-        not raisesOverflowError(intExpr(-3074457345618258602) *                   -4) or
-        not raisesOverflowError(intExpr( -838488366986797801) *                  -11) or
-        not raisesOverflowError(intExpr( -838488366986797800) *                  -12) or
-        not raisesOverflowError(intExpr(  -10762394442070917) *                 -857) or
-        not raisesOverflowError(intExpr(  -10762394442070916) *                 -858) or
-        not raisesOverflowError(intExpr(   -1988224194191588) *                -4639) or
-        not raisesOverflowError(intExpr(   -1988224194191587) *                -4640) or
-        not raisesOverflowError(intExpr(    -240989001041329) *               -38273) or
-        not raisesOverflowError(intExpr(    -240989001041328) *               -38274) or
-        not raisesOverflowError(intExpr(     -14312161101688) *              -644443) or
-        not raisesOverflowError(intExpr(     -14312161101687) *              -644444) or
-        not raisesOverflowError(intExpr(       -933865493038) *             -9876553) or
-        not raisesOverflowError(intExpr(       -933865493037) *             -9876554) or
-        not raisesOverflowError(intExpr(       -747094709114) *            -12345653) or
-        not raisesOverflowError(intExpr(       -747094709113) *            -12345654) or
-        not raisesOverflowError(intExpr(        -74709312969) *           -123456791) or
-        not raisesOverflowError(intExpr(        -74709312968) *           -123456792) or
-        not raisesOverflowError(intExpr(         -3037000500) *          -3037000500) or
-        not raisesOverflowError(intExpr(          -123456792) *         -74709312968) or
-        not raisesOverflowError(intExpr(          -123456791) *         -74709312969) or
-        not raisesOverflowError(intExpr(           -12345654) *        -747094709113) or
-        not raisesOverflowError(intExpr(           -12345653) *        -747094709114) or
-        not raisesOverflowError(intExpr(            -9876554) *        -933865493037) or
-        not raisesOverflowError(intExpr(            -9876553) *        -933865493038) or
-        not raisesOverflowError(intExpr(             -644444) *      -14312161101687) or
-        not raisesOverflowError(intExpr(             -644443) *      -14312161101688) or
-        not raisesOverflowError(intExpr(              -38274) *     -240989001041328) or
-        not raisesOverflowError(intExpr(              -38273) *     -240989001041329) or
-        not raisesOverflowError(intExpr(               -4640) *    -1988224194191587) or
-        not raisesOverflowError(intExpr(               -4639) *    -1988224194191588) or
-        not raisesOverflowError(intExpr(                -858) *   -10762394442070916) or
-        not raisesOverflowError(intExpr(                -857) *   -10762394442070917) or
-        not raisesOverflowError(intExpr(                 -12) *  -838488366986797800) or
-        not raisesOverflowError(intExpr(                 -11) *  -838488366986797801) or
-        not raisesOverflowError(intExpr(                  -4) * -3074457345618258602) or
-        not raisesOverflowError(intExpr(                  -3) * -3074457345618258603) or
-        not raisesOverflowError(intExpr(                  -3) * -4611686018427387903) or
-        not raisesOverflowError(intExpr(                  -2) * -4611686018427387904) or
-        not raisesOverflowError(intExpr(-4611686018427387905) *                    2) or
+        not raisesOverflowError(                   2 * -4611686018427387905) then
+      writeln(" ***** Underflow when computing multiplication does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(-4611686018427387905) *                    2) or
         not raisesOverflowError(intExpr(-4611686018427387904) *                    3) or
         not raisesOverflowError(intExpr(-3074457345618258603) *                    3) or
         not raisesOverflowError(intExpr(-3074457345618258602) *                    4) or
@@ -2086,91 +2093,12 @@ const proc: check_mult is func
         not raisesOverflowError(intExpr(                   4) * -3074457345618258602) or
         not raisesOverflowError(intExpr(                   3) * -3074457345618258603) or
         not raisesOverflowError(intExpr(                   3) * -4611686018427387904) or
-        not raisesOverflowError(intExpr(                   2) * -4611686018427387905) or
-        not raisesOverflowError(intExpr( 4611686018427387904) *                    2) or
-        not raisesOverflowError(intExpr( 4611686018427387903) *                    3) or
-        not raisesOverflowError(intExpr( 3074457345618258603) *                    3) or
-        not raisesOverflowError(intExpr( 3074457345618258602) *                    4) or
-        not raisesOverflowError(intExpr(  838488366986797801) *                   11) or
-        not raisesOverflowError(intExpr(  838488366986797800) *                   12) or
-        not raisesOverflowError(intExpr(   10762394442070917) *                  857) or
-        not raisesOverflowError(intExpr(   10762394442070916) *                  858) or
-        not raisesOverflowError(intExpr(    1988224194191588) *                 4639) or
-        not raisesOverflowError(intExpr(    1988224194191587) *                 4640) or
-        not raisesOverflowError(intExpr(     240989001041329) *                38273) or
-        not raisesOverflowError(intExpr(     240989001041328) *                38274) or
-        not raisesOverflowError(intExpr(      14312161101688) *               644443) or
-        not raisesOverflowError(intExpr(      14312161101687) *               644444) or
-        not raisesOverflowError(intExpr(        933865493038) *              9876553) or
-        not raisesOverflowError(intExpr(        933865493037) *              9876554) or
-        not raisesOverflowError(intExpr(        747094709114) *             12345653) or
-        not raisesOverflowError(intExpr(        747094709113) *             12345654) or
-        not raisesOverflowError(intExpr(         74709312969) *            123456791) or
-        not raisesOverflowError(intExpr(         74709312968) *            123456792) or
-        not raisesOverflowError(intExpr(          3037000500) *           3037000500) or
-        not raisesOverflowError(intExpr(           123456792) *          74709312968) or
-        not raisesOverflowError(intExpr(           123456791) *          74709312969) or
-        not raisesOverflowError(intExpr(            12345654) *         747094709113) or
-        not raisesOverflowError(intExpr(            12345653) *         747094709114) or
-        not raisesOverflowError(intExpr(             9876554) *         933865493037) or
-        not raisesOverflowError(intExpr(             9876553) *         933865493038) or
-        not raisesOverflowError(intExpr(              644444) *       14312161101687) or
-        not raisesOverflowError(intExpr(              644443) *       14312161101688) or
-        not raisesOverflowError(intExpr(               38274) *      240989001041328) or
-        not raisesOverflowError(intExpr(               38273) *      240989001041329) or
-        not raisesOverflowError(intExpr(                4640) *     1988224194191587) or
-        not raisesOverflowError(intExpr(                4639) *     1988224194191588) or
-        not raisesOverflowError(intExpr(                 858) *    10762394442070916) or
-        not raisesOverflowError(intExpr(                 857) *    10762394442070917) or
-        not raisesOverflowError(intExpr(                  12) *   838488366986797800) or
-        not raisesOverflowError(intExpr(                  11) *   838488366986797801) or
-        not raisesOverflowError(intExpr(                   4) *  3074457345618258602) or
-        not raisesOverflowError(intExpr(                   3) *  3074457345618258603) or
-        not raisesOverflowError(intExpr(                   3) *  4611686018427387903) or
-        not raisesOverflowError(intExpr(                   2) *  4611686018427387904) or
-        not raisesOverflowError(           INT64_MIN * intExpr(                  -1)) or
-        not raisesOverflowError(-4611686018427387904 * intExpr(                  -2)) or
-        not raisesOverflowError(-4611686018427387903 * intExpr(                  -3)) or
-        not raisesOverflowError(-3074457345618258603 * intExpr(                  -3)) or
-        not raisesOverflowError(-3074457345618258602 * intExpr(                  -4)) or
-        not raisesOverflowError( -838488366986797801 * intExpr(                 -11)) or
-        not raisesOverflowError( -838488366986797800 * intExpr(                 -12)) or
-        not raisesOverflowError(  -10762394442070917 * intExpr(                -857)) or
-        not raisesOverflowError(  -10762394442070916 * intExpr(                -858)) or
-        not raisesOverflowError(   -1988224194191588 * intExpr(               -4639)) or
-        not raisesOverflowError(   -1988224194191587 * intExpr(               -4640)) or
-        not raisesOverflowError(    -240989001041329 * intExpr(              -38273)) or
-        not raisesOverflowError(    -240989001041328 * intExpr(              -38274)) or
-        not raisesOverflowError(     -14312161101688 * intExpr(             -644443)) or
-        not raisesOverflowError(     -14312161101687 * intExpr(             -644444)) or
-        not raisesOverflowError(       -933865493038 * intExpr(            -9876553)) or
-        not raisesOverflowError(       -933865493037 * intExpr(            -9876554)) or
-        not raisesOverflowError(       -747094709114 * intExpr(           -12345653)) or
-        not raisesOverflowError(       -747094709113 * intExpr(           -12345654)) or
-        not raisesOverflowError(        -74709312969 * intExpr(          -123456791)) or
-        not raisesOverflowError(        -74709312968 * intExpr(          -123456792)) or
-        not raisesOverflowError(         -3037000500 * intExpr(         -3037000500)) or
-        not raisesOverflowError(          -123456792 * intExpr(        -74709312968)) or
-        not raisesOverflowError(          -123456791 * intExpr(        -74709312969)) or
-        not raisesOverflowError(           -12345654 * intExpr(       -747094709113)) or
-        not raisesOverflowError(           -12345653 * intExpr(       -747094709114)) or
-        not raisesOverflowError(            -9876554 * intExpr(       -933865493037)) or
-        not raisesOverflowError(            -9876553 * intExpr(       -933865493038)) or
-        not raisesOverflowError(             -644444 * intExpr(     -14312161101687)) or
-        not raisesOverflowError(             -644443 * intExpr(     -14312161101688)) or
-        not raisesOverflowError(              -38274 * intExpr(    -240989001041328)) or
-        not raisesOverflowError(              -38273 * intExpr(    -240989001041329)) or
-        not raisesOverflowError(               -4640 * intExpr(   -1988224194191587)) or
-        not raisesOverflowError(               -4639 * intExpr(   -1988224194191588)) or
-        not raisesOverflowError(                -858 * intExpr(  -10762394442070916)) or
-        not raisesOverflowError(                -857 * intExpr(  -10762394442070917)) or
-        not raisesOverflowError(                 -12 * intExpr( -838488366986797800)) or
-        not raisesOverflowError(                 -11 * intExpr( -838488366986797801)) or
-        not raisesOverflowError(                  -4 * intExpr(-3074457345618258602)) or
-        not raisesOverflowError(                  -3 * intExpr(-3074457345618258603)) or
-        not raisesOverflowError(                  -3 * intExpr(-4611686018427387903)) or
-        not raisesOverflowError(                  -2 * intExpr(-4611686018427387904)) or
-        not raisesOverflowError(-4611686018427387905 * intExpr(                   2)) or
+        not raisesOverflowError(intExpr(                   2) * -4611686018427387905) then
+      writeln(" ***** Underflow when computing multiplication does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(-4611686018427387905 * intExpr(                   2)) or
         not raisesOverflowError(-4611686018427387904 * intExpr(                   3)) or
         not raisesOverflowError(-3074457345618258603 * intExpr(                   3)) or
         not raisesOverflowError(-3074457345618258602 * intExpr(                   4)) or
@@ -2251,91 +2179,12 @@ const proc: check_mult is func
         not raisesOverflowError(                   4 * intExpr(-3074457345618258602)) or
         not raisesOverflowError(                   3 * intExpr(-3074457345618258603)) or
         not raisesOverflowError(                   3 * intExpr(-4611686018427387904)) or
-        not raisesOverflowError(                   2 * intExpr(-4611686018427387905)) or
-        not raisesOverflowError( 4611686018427387904 * intExpr(                   2)) or
-        not raisesOverflowError( 4611686018427387903 * intExpr(                   3)) or
-        not raisesOverflowError( 3074457345618258603 * intExpr(                   3)) or
-        not raisesOverflowError( 3074457345618258602 * intExpr(                   4)) or
-        not raisesOverflowError(  838488366986797801 * intExpr(                  11)) or
-        not raisesOverflowError(  838488366986797800 * intExpr(                  12)) or
-        not raisesOverflowError(   10762394442070917 * intExpr(                 857)) or
-        not raisesOverflowError(   10762394442070916 * intExpr(                 858)) or
-        not raisesOverflowError(    1988224194191588 * intExpr(                4639)) or
-        not raisesOverflowError(    1988224194191587 * intExpr(                4640)) or
-        not raisesOverflowError(     240989001041329 * intExpr(               38273)) or
-        not raisesOverflowError(     240989001041328 * intExpr(               38274)) or
-        not raisesOverflowError(      14312161101688 * intExpr(              644443)) or
-        not raisesOverflowError(      14312161101687 * intExpr(              644444)) or
-        not raisesOverflowError(        933865493038 * intExpr(             9876553)) or
-        not raisesOverflowError(        933865493037 * intExpr(             9876554)) or
-        not raisesOverflowError(        747094709114 * intExpr(            12345653)) or
-        not raisesOverflowError(        747094709113 * intExpr(            12345654)) or
-        not raisesOverflowError(         74709312969 * intExpr(           123456791)) or
-        not raisesOverflowError(         74709312968 * intExpr(           123456792)) or
-        not raisesOverflowError(          3037000500 * intExpr(          3037000500)) or
-        not raisesOverflowError(           123456792 * intExpr(         74709312968)) or
-        not raisesOverflowError(           123456791 * intExpr(         74709312969)) or
-        not raisesOverflowError(            12345654 * intExpr(        747094709113)) or
-        not raisesOverflowError(            12345653 * intExpr(        747094709114)) or
-        not raisesOverflowError(             9876554 * intExpr(        933865493037)) or
-        not raisesOverflowError(             9876553 * intExpr(        933865493038)) or
-        not raisesOverflowError(              644444 * intExpr(      14312161101687)) or
-        not raisesOverflowError(              644443 * intExpr(      14312161101688)) or
-        not raisesOverflowError(               38274 * intExpr(     240989001041328)) or
-        not raisesOverflowError(               38273 * intExpr(     240989001041329)) or
-        not raisesOverflowError(                4640 * intExpr(    1988224194191587)) or
-        not raisesOverflowError(                4639 * intExpr(    1988224194191588)) or
-        not raisesOverflowError(                 858 * intExpr(   10762394442070916)) or
-        not raisesOverflowError(                 857 * intExpr(   10762394442070917)) or
-        not raisesOverflowError(                  12 * intExpr(  838488366986797800)) or
-        not raisesOverflowError(                  11 * intExpr(  838488366986797801)) or
-        not raisesOverflowError(                   4 * intExpr( 3074457345618258602)) or
-        not raisesOverflowError(                   3 * intExpr( 3074457345618258603)) or
-        not raisesOverflowError(                   3 * intExpr( 4611686018427387903)) or
-        not raisesOverflowError(                   2 * intExpr( 4611686018427387904)) or
-        not raisesOverflowError(intExpr(           INT64_MIN) * intExpr(                  -1)) or
-        not raisesOverflowError(intExpr(-4611686018427387904) * intExpr(                  -2)) or
-        not raisesOverflowError(intExpr(-4611686018427387903) * intExpr(                  -3)) or
-        not raisesOverflowError(intExpr(-3074457345618258603) * intExpr(                  -3)) or
-        not raisesOverflowError(intExpr(-3074457345618258602) * intExpr(                  -4)) or
-        not raisesOverflowError(intExpr( -838488366986797801) * intExpr(                 -11)) or
-        not raisesOverflowError(intExpr( -838488366986797800) * intExpr(                 -12)) or
-        not raisesOverflowError(intExpr(  -10762394442070917) * intExpr(                -857)) or
-        not raisesOverflowError(intExpr(  -10762394442070916) * intExpr(                -858)) or
-        not raisesOverflowError(intExpr(   -1988224194191588) * intExpr(               -4639)) or
-        not raisesOverflowError(intExpr(   -1988224194191587) * intExpr(               -4640)) or
-        not raisesOverflowError(intExpr(    -240989001041329) * intExpr(              -38273)) or
-        not raisesOverflowError(intExpr(    -240989001041328) * intExpr(              -38274)) or
-        not raisesOverflowError(intExpr(     -14312161101688) * intExpr(             -644443)) or
-        not raisesOverflowError(intExpr(     -14312161101687) * intExpr(             -644444)) or
-        not raisesOverflowError(intExpr(       -933865493038) * intExpr(            -9876553)) or
-        not raisesOverflowError(intExpr(       -933865493037) * intExpr(            -9876554)) or
-        not raisesOverflowError(intExpr(       -747094709114) * intExpr(           -12345653)) or
-        not raisesOverflowError(intExpr(       -747094709113) * intExpr(           -12345654)) or
-        not raisesOverflowError(intExpr(        -74709312969) * intExpr(          -123456791)) or
-        not raisesOverflowError(intExpr(        -74709312968) * intExpr(          -123456792)) or
-        not raisesOverflowError(intExpr(         -3037000500) * intExpr(         -3037000500)) or
-        not raisesOverflowError(intExpr(          -123456792) * intExpr(        -74709312968)) or
-        not raisesOverflowError(intExpr(          -123456791) * intExpr(        -74709312969)) or
-        not raisesOverflowError(intExpr(           -12345654) * intExpr(       -747094709113)) or
-        not raisesOverflowError(intExpr(           -12345653) * intExpr(       -747094709114)) or
-        not raisesOverflowError(intExpr(            -9876554) * intExpr(       -933865493037)) or
-        not raisesOverflowError(intExpr(            -9876553) * intExpr(       -933865493038)) or
-        not raisesOverflowError(intExpr(             -644444) * intExpr(     -14312161101687)) or
-        not raisesOverflowError(intExpr(             -644443) * intExpr(     -14312161101688)) or
-        not raisesOverflowError(intExpr(              -38274) * intExpr(    -240989001041328)) or
-        not raisesOverflowError(intExpr(              -38273) * intExpr(    -240989001041329)) or
-        not raisesOverflowError(intExpr(               -4640) * intExpr(   -1988224194191587)) or
-        not raisesOverflowError(intExpr(               -4639) * intExpr(   -1988224194191588)) or
-        not raisesOverflowError(intExpr(                -858) * intExpr(  -10762394442070916)) or
-        not raisesOverflowError(intExpr(                -857) * intExpr(  -10762394442070917)) or
-        not raisesOverflowError(intExpr(                 -12) * intExpr( -838488366986797800)) or
-        not raisesOverflowError(intExpr(                 -11) * intExpr( -838488366986797801)) or
-        not raisesOverflowError(intExpr(                  -4) * intExpr(-3074457345618258602)) or
-        not raisesOverflowError(intExpr(                  -3) * intExpr(-3074457345618258603)) or
-        not raisesOverflowError(intExpr(                  -3) * intExpr(-4611686018427387903)) or
-        not raisesOverflowError(intExpr(                  -2) * intExpr(-4611686018427387904)) or
-        not raisesOverflowError(intExpr(-4611686018427387905) * intExpr(                   2)) or
+        not raisesOverflowError(                   2 * intExpr(-4611686018427387905)) then
+      writeln(" ***** Underflow when computing multiplication does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(-4611686018427387905) * intExpr(                   2)) or
         not raisesOverflowError(intExpr(-4611686018427387904) * intExpr(                   3)) or
         not raisesOverflowError(intExpr(-3074457345618258603) * intExpr(                   3)) or
         not raisesOverflowError(intExpr(-3074457345618258602) * intExpr(                   4)) or
@@ -2416,7 +2265,314 @@ const proc: check_mult is func
         not raisesOverflowError(intExpr(                   4) * intExpr(-3074457345618258602)) or
         not raisesOverflowError(intExpr(                   3) * intExpr(-3074457345618258603)) or
         not raisesOverflowError(intExpr(                   3) * intExpr(-4611686018427387904)) or
-        not raisesOverflowError(intExpr(                   2) * intExpr(-4611686018427387905)) or
+        not raisesOverflowError(intExpr(                   2) * intExpr(-4611686018427387905)) then
+      writeln(" ***** Underflow when computing multiplication does not raise OVERFLOW_ERROR. (4)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(           INT64_MIN *                   -1) or
+        not raisesOverflowError(-4611686018427387904 *                   -2) or
+        not raisesOverflowError(-4611686018427387903 *                   -3) or
+        not raisesOverflowError(-3074457345618258603 *                   -3) or
+        not raisesOverflowError(-3074457345618258602 *                   -4) or
+        not raisesOverflowError( -838488366986797801 *                  -11) or
+        not raisesOverflowError( -838488366986797800 *                  -12) or
+        not raisesOverflowError(  -10762394442070917 *                 -857) or
+        not raisesOverflowError(  -10762394442070916 *                 -858) or
+        not raisesOverflowError(   -1988224194191588 *                -4639) or
+        not raisesOverflowError(   -1988224194191587 *                -4640) or
+        not raisesOverflowError(    -240989001041329 *               -38273) or
+        not raisesOverflowError(    -240989001041328 *               -38274) or
+        not raisesOverflowError(     -14312161101688 *              -644443) or
+        not raisesOverflowError(     -14312161101687 *              -644444) or
+        not raisesOverflowError(       -933865493038 *             -9876553) or
+        not raisesOverflowError(       -933865493037 *             -9876554) or
+        not raisesOverflowError(       -747094709114 *            -12345653) or
+        not raisesOverflowError(       -747094709113 *            -12345654) or
+        not raisesOverflowError(        -74709312969 *           -123456791) or
+        not raisesOverflowError(        -74709312968 *           -123456792) or
+        not raisesOverflowError(         -3037000500 *          -3037000500) or
+        not raisesOverflowError(          -123456792 *         -74709312968) or
+        not raisesOverflowError(          -123456791 *         -74709312969) or
+        not raisesOverflowError(           -12345654 *        -747094709113) or
+        not raisesOverflowError(           -12345653 *        -747094709114) or
+        not raisesOverflowError(            -9876554 *        -933865493037) or
+        not raisesOverflowError(            -9876553 *        -933865493038) or
+        not raisesOverflowError(             -644444 *      -14312161101687) or
+        not raisesOverflowError(             -644443 *      -14312161101688) or
+        not raisesOverflowError(              -38274 *     -240989001041328) or
+        not raisesOverflowError(              -38273 *     -240989001041329) or
+        not raisesOverflowError(               -4640 *    -1988224194191587) or
+        not raisesOverflowError(               -4639 *    -1988224194191588) or
+        not raisesOverflowError(                -858 *   -10762394442070916) or
+        not raisesOverflowError(                -857 *   -10762394442070917) or
+        not raisesOverflowError(                 -12 *  -838488366986797800) or
+        not raisesOverflowError(                 -11 *  -838488366986797801) or
+        not raisesOverflowError(                  -4 * -3074457345618258602) or
+        not raisesOverflowError(                  -3 * -3074457345618258603) or
+        not raisesOverflowError(                  -3 * -4611686018427387903) or
+        not raisesOverflowError(                  -2 * -4611686018427387904) or
+        not raisesOverflowError( 4611686018427387904 *                    2) or
+        not raisesOverflowError( 4611686018427387903 *                    3) or
+        not raisesOverflowError( 3074457345618258603 *                    3) or
+        not raisesOverflowError( 3074457345618258602 *                    4) or
+        not raisesOverflowError(  838488366986797801 *                   11) or
+        not raisesOverflowError(  838488366986797800 *                   12) or
+        not raisesOverflowError(   10762394442070917 *                  857) or
+        not raisesOverflowError(   10762394442070916 *                  858) or
+        not raisesOverflowError(    1988224194191588 *                 4639) or
+        not raisesOverflowError(    1988224194191587 *                 4640) or
+        not raisesOverflowError(     240989001041329 *                38273) or
+        not raisesOverflowError(     240989001041328 *                38274) or
+        not raisesOverflowError(      14312161101688 *               644443) or
+        not raisesOverflowError(      14312161101687 *               644444) or
+        not raisesOverflowError(        933865493038 *              9876553) or
+        not raisesOverflowError(        933865493037 *              9876554) or
+        not raisesOverflowError(        747094709114 *             12345653) or
+        not raisesOverflowError(        747094709113 *             12345654) or
+        not raisesOverflowError(         74709312969 *            123456791) or
+        not raisesOverflowError(         74709312968 *            123456792) or
+        not raisesOverflowError(          3037000500 *           3037000500) or
+        not raisesOverflowError(           123456792 *          74709312968) or
+        not raisesOverflowError(           123456791 *          74709312969) or
+        not raisesOverflowError(            12345654 *         747094709113) or
+        not raisesOverflowError(            12345653 *         747094709114) or
+        not raisesOverflowError(             9876554 *         933865493037) or
+        not raisesOverflowError(             9876553 *         933865493038) or
+        not raisesOverflowError(              644444 *       14312161101687) or
+        not raisesOverflowError(              644443 *       14312161101688) or
+        not raisesOverflowError(               38274 *      240989001041328) or
+        not raisesOverflowError(               38273 *      240989001041329) or
+        not raisesOverflowError(                4640 *     1988224194191587) or
+        not raisesOverflowError(                4639 *     1988224194191588) or
+        not raisesOverflowError(                 858 *    10762394442070916) or
+        not raisesOverflowError(                 857 *    10762394442070917) or
+        not raisesOverflowError(                  12 *   838488366986797800) or
+        not raisesOverflowError(                  11 *   838488366986797801) or
+        not raisesOverflowError(                   4 *  3074457345618258602) or
+        not raisesOverflowError(                   3 *  3074457345618258603) or
+        not raisesOverflowError(                   3 *  4611686018427387903) or
+        not raisesOverflowError(                   2 *  4611686018427387904) then
+      writeln(" ***** Overflow when computing multiplication does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) *                   -1) or
+        not raisesOverflowError(intExpr(-4611686018427387904) *                   -2) or
+        not raisesOverflowError(intExpr(-4611686018427387903) *                   -3) or
+        not raisesOverflowError(intExpr(-3074457345618258603) *                   -3) or
+        not raisesOverflowError(intExpr(-3074457345618258602) *                   -4) or
+        not raisesOverflowError(intExpr( -838488366986797801) *                  -11) or
+        not raisesOverflowError(intExpr( -838488366986797800) *                  -12) or
+        not raisesOverflowError(intExpr(  -10762394442070917) *                 -857) or
+        not raisesOverflowError(intExpr(  -10762394442070916) *                 -858) or
+        not raisesOverflowError(intExpr(   -1988224194191588) *                -4639) or
+        not raisesOverflowError(intExpr(   -1988224194191587) *                -4640) or
+        not raisesOverflowError(intExpr(    -240989001041329) *               -38273) or
+        not raisesOverflowError(intExpr(    -240989001041328) *               -38274) or
+        not raisesOverflowError(intExpr(     -14312161101688) *              -644443) or
+        not raisesOverflowError(intExpr(     -14312161101687) *              -644444) or
+        not raisesOverflowError(intExpr(       -933865493038) *             -9876553) or
+        not raisesOverflowError(intExpr(       -933865493037) *             -9876554) or
+        not raisesOverflowError(intExpr(       -747094709114) *            -12345653) or
+        not raisesOverflowError(intExpr(       -747094709113) *            -12345654) or
+        not raisesOverflowError(intExpr(        -74709312969) *           -123456791) or
+        not raisesOverflowError(intExpr(        -74709312968) *           -123456792) or
+        not raisesOverflowError(intExpr(         -3037000500) *          -3037000500) or
+        not raisesOverflowError(intExpr(          -123456792) *         -74709312968) or
+        not raisesOverflowError(intExpr(          -123456791) *         -74709312969) or
+        not raisesOverflowError(intExpr(           -12345654) *        -747094709113) or
+        not raisesOverflowError(intExpr(           -12345653) *        -747094709114) or
+        not raisesOverflowError(intExpr(            -9876554) *        -933865493037) or
+        not raisesOverflowError(intExpr(            -9876553) *        -933865493038) or
+        not raisesOverflowError(intExpr(             -644444) *      -14312161101687) or
+        not raisesOverflowError(intExpr(             -644443) *      -14312161101688) or
+        not raisesOverflowError(intExpr(              -38274) *     -240989001041328) or
+        not raisesOverflowError(intExpr(              -38273) *     -240989001041329) or
+        not raisesOverflowError(intExpr(               -4640) *    -1988224194191587) or
+        not raisesOverflowError(intExpr(               -4639) *    -1988224194191588) or
+        not raisesOverflowError(intExpr(                -858) *   -10762394442070916) or
+        not raisesOverflowError(intExpr(                -857) *   -10762394442070917) or
+        not raisesOverflowError(intExpr(                 -12) *  -838488366986797800) or
+        not raisesOverflowError(intExpr(                 -11) *  -838488366986797801) or
+        not raisesOverflowError(intExpr(                  -4) * -3074457345618258602) or
+        not raisesOverflowError(intExpr(                  -3) * -3074457345618258603) or
+        not raisesOverflowError(intExpr(                  -3) * -4611686018427387903) or
+        not raisesOverflowError(intExpr(                  -2) * -4611686018427387904) or
+        not raisesOverflowError(intExpr( 4611686018427387904) *                    2) or
+        not raisesOverflowError(intExpr( 4611686018427387903) *                    3) or
+        not raisesOverflowError(intExpr( 3074457345618258603) *                    3) or
+        not raisesOverflowError(intExpr( 3074457345618258602) *                    4) or
+        not raisesOverflowError(intExpr(  838488366986797801) *                   11) or
+        not raisesOverflowError(intExpr(  838488366986797800) *                   12) or
+        not raisesOverflowError(intExpr(   10762394442070917) *                  857) or
+        not raisesOverflowError(intExpr(   10762394442070916) *                  858) or
+        not raisesOverflowError(intExpr(    1988224194191588) *                 4639) or
+        not raisesOverflowError(intExpr(    1988224194191587) *                 4640) or
+        not raisesOverflowError(intExpr(     240989001041329) *                38273) or
+        not raisesOverflowError(intExpr(     240989001041328) *                38274) or
+        not raisesOverflowError(intExpr(      14312161101688) *               644443) or
+        not raisesOverflowError(intExpr(      14312161101687) *               644444) or
+        not raisesOverflowError(intExpr(        933865493038) *              9876553) or
+        not raisesOverflowError(intExpr(        933865493037) *              9876554) or
+        not raisesOverflowError(intExpr(        747094709114) *             12345653) or
+        not raisesOverflowError(intExpr(        747094709113) *             12345654) or
+        not raisesOverflowError(intExpr(         74709312969) *            123456791) or
+        not raisesOverflowError(intExpr(         74709312968) *            123456792) or
+        not raisesOverflowError(intExpr(          3037000500) *           3037000500) or
+        not raisesOverflowError(intExpr(           123456792) *          74709312968) or
+        not raisesOverflowError(intExpr(           123456791) *          74709312969) or
+        not raisesOverflowError(intExpr(            12345654) *         747094709113) or
+        not raisesOverflowError(intExpr(            12345653) *         747094709114) or
+        not raisesOverflowError(intExpr(             9876554) *         933865493037) or
+        not raisesOverflowError(intExpr(             9876553) *         933865493038) or
+        not raisesOverflowError(intExpr(              644444) *       14312161101687) or
+        not raisesOverflowError(intExpr(              644443) *       14312161101688) or
+        not raisesOverflowError(intExpr(               38274) *      240989001041328) or
+        not raisesOverflowError(intExpr(               38273) *      240989001041329) or
+        not raisesOverflowError(intExpr(                4640) *     1988224194191587) or
+        not raisesOverflowError(intExpr(                4639) *     1988224194191588) or
+        not raisesOverflowError(intExpr(                 858) *    10762394442070916) or
+        not raisesOverflowError(intExpr(                 857) *    10762394442070917) or
+        not raisesOverflowError(intExpr(                  12) *   838488366986797800) or
+        not raisesOverflowError(intExpr(                  11) *   838488366986797801) or
+        not raisesOverflowError(intExpr(                   4) *  3074457345618258602) or
+        not raisesOverflowError(intExpr(                   3) *  3074457345618258603) or
+        not raisesOverflowError(intExpr(                   3) *  4611686018427387903) or
+        not raisesOverflowError(intExpr(                   2) *  4611686018427387904) then
+      writeln(" ***** Overflow when computing multiplication does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(           INT64_MIN * intExpr(                  -1)) or
+        not raisesOverflowError(-4611686018427387904 * intExpr(                  -2)) or
+        not raisesOverflowError(-4611686018427387903 * intExpr(                  -3)) or
+        not raisesOverflowError(-3074457345618258603 * intExpr(                  -3)) or
+        not raisesOverflowError(-3074457345618258602 * intExpr(                  -4)) or
+        not raisesOverflowError( -838488366986797801 * intExpr(                 -11)) or
+        not raisesOverflowError( -838488366986797800 * intExpr(                 -12)) or
+        not raisesOverflowError(  -10762394442070917 * intExpr(                -857)) or
+        not raisesOverflowError(  -10762394442070916 * intExpr(                -858)) or
+        not raisesOverflowError(   -1988224194191588 * intExpr(               -4639)) or
+        not raisesOverflowError(   -1988224194191587 * intExpr(               -4640)) or
+        not raisesOverflowError(    -240989001041329 * intExpr(              -38273)) or
+        not raisesOverflowError(    -240989001041328 * intExpr(              -38274)) or
+        not raisesOverflowError(     -14312161101688 * intExpr(             -644443)) or
+        not raisesOverflowError(     -14312161101687 * intExpr(             -644444)) or
+        not raisesOverflowError(       -933865493038 * intExpr(            -9876553)) or
+        not raisesOverflowError(       -933865493037 * intExpr(            -9876554)) or
+        not raisesOverflowError(       -747094709114 * intExpr(           -12345653)) or
+        not raisesOverflowError(       -747094709113 * intExpr(           -12345654)) or
+        not raisesOverflowError(        -74709312969 * intExpr(          -123456791)) or
+        not raisesOverflowError(        -74709312968 * intExpr(          -123456792)) or
+        not raisesOverflowError(         -3037000500 * intExpr(         -3037000500)) or
+        not raisesOverflowError(          -123456792 * intExpr(        -74709312968)) or
+        not raisesOverflowError(          -123456791 * intExpr(        -74709312969)) or
+        not raisesOverflowError(           -12345654 * intExpr(       -747094709113)) or
+        not raisesOverflowError(           -12345653 * intExpr(       -747094709114)) or
+        not raisesOverflowError(            -9876554 * intExpr(       -933865493037)) or
+        not raisesOverflowError(            -9876553 * intExpr(       -933865493038)) or
+        not raisesOverflowError(             -644444 * intExpr(     -14312161101687)) or
+        not raisesOverflowError(             -644443 * intExpr(     -14312161101688)) or
+        not raisesOverflowError(              -38274 * intExpr(    -240989001041328)) or
+        not raisesOverflowError(              -38273 * intExpr(    -240989001041329)) or
+        not raisesOverflowError(               -4640 * intExpr(   -1988224194191587)) or
+        not raisesOverflowError(               -4639 * intExpr(   -1988224194191588)) or
+        not raisesOverflowError(                -858 * intExpr(  -10762394442070916)) or
+        not raisesOverflowError(                -857 * intExpr(  -10762394442070917)) or
+        not raisesOverflowError(                 -12 * intExpr( -838488366986797800)) or
+        not raisesOverflowError(                 -11 * intExpr( -838488366986797801)) or
+        not raisesOverflowError(                  -4 * intExpr(-3074457345618258602)) or
+        not raisesOverflowError(                  -3 * intExpr(-3074457345618258603)) or
+        not raisesOverflowError(                  -3 * intExpr(-4611686018427387903)) or
+        not raisesOverflowError(                  -2 * intExpr(-4611686018427387904)) or
+        not raisesOverflowError( 4611686018427387904 * intExpr(                   2)) or
+        not raisesOverflowError( 4611686018427387903 * intExpr(                   3)) or
+        not raisesOverflowError( 3074457345618258603 * intExpr(                   3)) or
+        not raisesOverflowError( 3074457345618258602 * intExpr(                   4)) or
+        not raisesOverflowError(  838488366986797801 * intExpr(                  11)) or
+        not raisesOverflowError(  838488366986797800 * intExpr(                  12)) or
+        not raisesOverflowError(   10762394442070917 * intExpr(                 857)) or
+        not raisesOverflowError(   10762394442070916 * intExpr(                 858)) or
+        not raisesOverflowError(    1988224194191588 * intExpr(                4639)) or
+        not raisesOverflowError(    1988224194191587 * intExpr(                4640)) or
+        not raisesOverflowError(     240989001041329 * intExpr(               38273)) or
+        not raisesOverflowError(     240989001041328 * intExpr(               38274)) or
+        not raisesOverflowError(      14312161101688 * intExpr(              644443)) or
+        not raisesOverflowError(      14312161101687 * intExpr(              644444)) or
+        not raisesOverflowError(        933865493038 * intExpr(             9876553)) or
+        not raisesOverflowError(        933865493037 * intExpr(             9876554)) or
+        not raisesOverflowError(        747094709114 * intExpr(            12345653)) or
+        not raisesOverflowError(        747094709113 * intExpr(            12345654)) or
+        not raisesOverflowError(         74709312969 * intExpr(           123456791)) or
+        not raisesOverflowError(         74709312968 * intExpr(           123456792)) or
+        not raisesOverflowError(          3037000500 * intExpr(          3037000500)) or
+        not raisesOverflowError(           123456792 * intExpr(         74709312968)) or
+        not raisesOverflowError(           123456791 * intExpr(         74709312969)) or
+        not raisesOverflowError(            12345654 * intExpr(        747094709113)) or
+        not raisesOverflowError(            12345653 * intExpr(        747094709114)) or
+        not raisesOverflowError(             9876554 * intExpr(        933865493037)) or
+        not raisesOverflowError(             9876553 * intExpr(        933865493038)) or
+        not raisesOverflowError(              644444 * intExpr(      14312161101687)) or
+        not raisesOverflowError(              644443 * intExpr(      14312161101688)) or
+        not raisesOverflowError(               38274 * intExpr(     240989001041328)) or
+        not raisesOverflowError(               38273 * intExpr(     240989001041329)) or
+        not raisesOverflowError(                4640 * intExpr(    1988224194191587)) or
+        not raisesOverflowError(                4639 * intExpr(    1988224194191588)) or
+        not raisesOverflowError(                 858 * intExpr(   10762394442070916)) or
+        not raisesOverflowError(                 857 * intExpr(   10762394442070917)) or
+        not raisesOverflowError(                  12 * intExpr(  838488366986797800)) or
+        not raisesOverflowError(                  11 * intExpr(  838488366986797801)) or
+        not raisesOverflowError(                   4 * intExpr( 3074457345618258602)) or
+        not raisesOverflowError(                   3 * intExpr( 3074457345618258603)) or
+        not raisesOverflowError(                   3 * intExpr( 4611686018427387903)) or
+        not raisesOverflowError(                   2 * intExpr( 4611686018427387904)) then
+      writeln(" ***** Overflow when computing multiplication does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) * intExpr(                  -1)) or
+        not raisesOverflowError(intExpr(-4611686018427387904) * intExpr(                  -2)) or
+        not raisesOverflowError(intExpr(-4611686018427387903) * intExpr(                  -3)) or
+        not raisesOverflowError(intExpr(-3074457345618258603) * intExpr(                  -3)) or
+        not raisesOverflowError(intExpr(-3074457345618258602) * intExpr(                  -4)) or
+        not raisesOverflowError(intExpr( -838488366986797801) * intExpr(                 -11)) or
+        not raisesOverflowError(intExpr( -838488366986797800) * intExpr(                 -12)) or
+        not raisesOverflowError(intExpr(  -10762394442070917) * intExpr(                -857)) or
+        not raisesOverflowError(intExpr(  -10762394442070916) * intExpr(                -858)) or
+        not raisesOverflowError(intExpr(   -1988224194191588) * intExpr(               -4639)) or
+        not raisesOverflowError(intExpr(   -1988224194191587) * intExpr(               -4640)) or
+        not raisesOverflowError(intExpr(    -240989001041329) * intExpr(              -38273)) or
+        not raisesOverflowError(intExpr(    -240989001041328) * intExpr(              -38274)) or
+        not raisesOverflowError(intExpr(     -14312161101688) * intExpr(             -644443)) or
+        not raisesOverflowError(intExpr(     -14312161101687) * intExpr(             -644444)) or
+        not raisesOverflowError(intExpr(       -933865493038) * intExpr(            -9876553)) or
+        not raisesOverflowError(intExpr(       -933865493037) * intExpr(            -9876554)) or
+        not raisesOverflowError(intExpr(       -747094709114) * intExpr(           -12345653)) or
+        not raisesOverflowError(intExpr(       -747094709113) * intExpr(           -12345654)) or
+        not raisesOverflowError(intExpr(        -74709312969) * intExpr(          -123456791)) or
+        not raisesOverflowError(intExpr(        -74709312968) * intExpr(          -123456792)) or
+        not raisesOverflowError(intExpr(         -3037000500) * intExpr(         -3037000500)) or
+        not raisesOverflowError(intExpr(          -123456792) * intExpr(        -74709312968)) or
+        not raisesOverflowError(intExpr(          -123456791) * intExpr(        -74709312969)) or
+        not raisesOverflowError(intExpr(           -12345654) * intExpr(       -747094709113)) or
+        not raisesOverflowError(intExpr(           -12345653) * intExpr(       -747094709114)) or
+        not raisesOverflowError(intExpr(            -9876554) * intExpr(       -933865493037)) or
+        not raisesOverflowError(intExpr(            -9876553) * intExpr(       -933865493038)) or
+        not raisesOverflowError(intExpr(             -644444) * intExpr(     -14312161101687)) or
+        not raisesOverflowError(intExpr(             -644443) * intExpr(     -14312161101688)) or
+        not raisesOverflowError(intExpr(              -38274) * intExpr(    -240989001041328)) or
+        not raisesOverflowError(intExpr(              -38273) * intExpr(    -240989001041329)) or
+        not raisesOverflowError(intExpr(               -4640) * intExpr(   -1988224194191587)) or
+        not raisesOverflowError(intExpr(               -4639) * intExpr(   -1988224194191588)) or
+        not raisesOverflowError(intExpr(                -858) * intExpr(  -10762394442070916)) or
+        not raisesOverflowError(intExpr(                -857) * intExpr(  -10762394442070917)) or
+        not raisesOverflowError(intExpr(                 -12) * intExpr( -838488366986797800)) or
+        not raisesOverflowError(intExpr(                 -11) * intExpr( -838488366986797801)) or
+        not raisesOverflowError(intExpr(                  -4) * intExpr(-3074457345618258602)) or
+        not raisesOverflowError(intExpr(                  -3) * intExpr(-3074457345618258603)) or
+        not raisesOverflowError(intExpr(                  -3) * intExpr(-4611686018427387903)) or
+        not raisesOverflowError(intExpr(                  -2) * intExpr(-4611686018427387904)) or
         not raisesOverflowError(intExpr( 4611686018427387904) * intExpr(                   2)) or
         not raisesOverflowError(intExpr( 4611686018427387903) * intExpr(                   3)) or
         not raisesOverflowError(intExpr( 3074457345618258603) * intExpr(                   3)) or
@@ -2458,7 +2614,7 @@ const proc: check_mult is func
         not raisesOverflowError(intExpr(                   3) * intExpr( 3074457345618258603)) or
         not raisesOverflowError(intExpr(                   3) * intExpr( 4611686018427387903)) or
         not raisesOverflowError(intExpr(                   2) * intExpr( 4611686018427387904)) then
-      writeln(" ***** Overflow when computing multiplication does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Overflow when computing multiplication does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -2477,48 +2633,6 @@ const proc: check_mult_assign is func
     var integer: num is 0;
     var array integer: arr is [] (0);
   begin
-    num :=            INT64_MIN; ok := ok and raisesOverflowError(num *:=                   -1);
-    num := -4611686018427387904; ok := ok and raisesOverflowError(num *:=                   -2);
-    num := -4611686018427387903; ok := ok and raisesOverflowError(num *:=                   -3);
-    num := -3074457345618258603; ok := ok and raisesOverflowError(num *:=                   -3);
-    num := -3074457345618258602; ok := ok and raisesOverflowError(num *:=                   -4);
-    num :=  -838488366986797801; ok := ok and raisesOverflowError(num *:=                  -11);
-    num :=  -838488366986797800; ok := ok and raisesOverflowError(num *:=                  -12);
-    num :=   -10762394442070917; ok := ok and raisesOverflowError(num *:=                 -857);
-    num :=   -10762394442070916; ok := ok and raisesOverflowError(num *:=                 -858);
-    num :=    -1988224194191588; ok := ok and raisesOverflowError(num *:=                -4639);
-    num :=    -1988224194191587; ok := ok and raisesOverflowError(num *:=                -4640);
-    num :=     -240989001041329; ok := ok and raisesOverflowError(num *:=               -38273);
-    num :=     -240989001041328; ok := ok and raisesOverflowError(num *:=               -38274);
-    num :=      -14312161101688; ok := ok and raisesOverflowError(num *:=              -644443);
-    num :=      -14312161101687; ok := ok and raisesOverflowError(num *:=              -644444);
-    num :=        -933865493038; ok := ok and raisesOverflowError(num *:=             -9876553);
-    num :=        -933865493037; ok := ok and raisesOverflowError(num *:=             -9876554);
-    num :=        -747094709114; ok := ok and raisesOverflowError(num *:=            -12345653);
-    num :=        -747094709113; ok := ok and raisesOverflowError(num *:=            -12345654);
-    num :=         -74709312969; ok := ok and raisesOverflowError(num *:=           -123456791);
-    num :=         -74709312968; ok := ok and raisesOverflowError(num *:=           -123456792);
-    num :=          -3037000500; ok := ok and raisesOverflowError(num *:=          -3037000500);
-    num :=           -123456792; ok := ok and raisesOverflowError(num *:=         -74709312968);
-    num :=           -123456791; ok := ok and raisesOverflowError(num *:=         -74709312969);
-    num :=            -12345654; ok := ok and raisesOverflowError(num *:=        -747094709113);
-    num :=            -12345653; ok := ok and raisesOverflowError(num *:=        -747094709114);
-    num :=             -9876554; ok := ok and raisesOverflowError(num *:=        -933865493037);
-    num :=             -9876553; ok := ok and raisesOverflowError(num *:=        -933865493038);
-    num :=              -644444; ok := ok and raisesOverflowError(num *:=      -14312161101687);
-    num :=              -644443; ok := ok and raisesOverflowError(num *:=      -14312161101688);
-    num :=               -38274; ok := ok and raisesOverflowError(num *:=     -240989001041328);
-    num :=               -38273; ok := ok and raisesOverflowError(num *:=     -240989001041329);
-    num :=                -4640; ok := ok and raisesOverflowError(num *:=    -1988224194191587);
-    num :=                -4639; ok := ok and raisesOverflowError(num *:=    -1988224194191588);
-    num :=                 -858; ok := ok and raisesOverflowError(num *:=   -10762394442070916);
-    num :=                 -857; ok := ok and raisesOverflowError(num *:=   -10762394442070917);
-    num :=                  -12; ok := ok and raisesOverflowError(num *:=  -838488366986797800);
-    num :=                  -11; ok := ok and raisesOverflowError(num *:=  -838488366986797801);
-    num :=                   -4; ok := ok and raisesOverflowError(num *:= -3074457345618258602);
-    num :=                   -3; ok := ok and raisesOverflowError(num *:= -3074457345618258603);
-    num :=                   -3; ok := ok and raisesOverflowError(num *:= -4611686018427387903);
-    num :=                   -2; ok := ok and raisesOverflowError(num *:= -4611686018427387904);
     num := -4611686018427387905; ok := ok and raisesOverflowError(num *:=                    2);
     num := -4611686018427387904; ok := ok and raisesOverflowError(num *:=                    3);
     num := -3074457345618258603; ok := ok and raisesOverflowError(num *:=                    3);
@@ -2601,89 +2715,11 @@ const proc: check_mult_assign is func
     num :=                    3; ok := ok and raisesOverflowError(num *:= -3074457345618258603);
     num :=                    3; ok := ok and raisesOverflowError(num *:= -4611686018427387904);
     num :=                    2; ok := ok and raisesOverflowError(num *:= -4611686018427387905);
-    num :=  4611686018427387904; ok := ok and raisesOverflowError(num *:=                    2);
-    num :=  4611686018427387903; ok := ok and raisesOverflowError(num *:=                    3);
-    num :=  3074457345618258603; ok := ok and raisesOverflowError(num *:=                    3);
-    num :=  3074457345618258602; ok := ok and raisesOverflowError(num *:=                    4);
-    num :=   838488366986797801; ok := ok and raisesOverflowError(num *:=                   11);
-    num :=   838488366986797800; ok := ok and raisesOverflowError(num *:=                   12);
-    num :=    10762394442070917; ok := ok and raisesOverflowError(num *:=                  857);
-    num :=    10762394442070916; ok := ok and raisesOverflowError(num *:=                  858);
-    num :=     1988224194191588; ok := ok and raisesOverflowError(num *:=                 4639);
-    num :=     1988224194191587; ok := ok and raisesOverflowError(num *:=                 4640);
-    num :=      240989001041329; ok := ok and raisesOverflowError(num *:=                38273);
-    num :=      240989001041328; ok := ok and raisesOverflowError(num *:=                38274);
-    num :=       14312161101688; ok := ok and raisesOverflowError(num *:=               644443);
-    num :=       14312161101687; ok := ok and raisesOverflowError(num *:=               644444);
-    num :=         933865493038; ok := ok and raisesOverflowError(num *:=              9876553);
-    num :=         933865493037; ok := ok and raisesOverflowError(num *:=              9876554);
-    num :=         747094709114; ok := ok and raisesOverflowError(num *:=             12345653);
-    num :=         747094709113; ok := ok and raisesOverflowError(num *:=             12345654);
-    num :=          74709312969; ok := ok and raisesOverflowError(num *:=            123456791);
-    num :=          74709312968; ok := ok and raisesOverflowError(num *:=            123456792);
-    num :=           3037000500; ok := ok and raisesOverflowError(num *:=           3037000500);
-    num :=            123456792; ok := ok and raisesOverflowError(num *:=          74709312968);
-    num :=            123456791; ok := ok and raisesOverflowError(num *:=          74709312969);
-    num :=             12345654; ok := ok and raisesOverflowError(num *:=         747094709113);
-    num :=             12345653; ok := ok and raisesOverflowError(num *:=         747094709114);
-    num :=              9876554; ok := ok and raisesOverflowError(num *:=         933865493037);
-    num :=              9876553; ok := ok and raisesOverflowError(num *:=         933865493038);
-    num :=               644444; ok := ok and raisesOverflowError(num *:=       14312161101687);
-    num :=               644443; ok := ok and raisesOverflowError(num *:=       14312161101688);
-    num :=                38274; ok := ok and raisesOverflowError(num *:=      240989001041328);
-    num :=                38273; ok := ok and raisesOverflowError(num *:=      240989001041329);
-    num :=                 4640; ok := ok and raisesOverflowError(num *:=     1988224194191587);
-    num :=                 4639; ok := ok and raisesOverflowError(num *:=     1988224194191588);
-    num :=                  858; ok := ok and raisesOverflowError(num *:=    10762394442070916);
-    num :=                  857; ok := ok and raisesOverflowError(num *:=    10762394442070917);
-    num :=                   12; ok := ok and raisesOverflowError(num *:=   838488366986797800);
-    num :=                   11; ok := ok and raisesOverflowError(num *:=   838488366986797801);
-    num :=                    4; ok := ok and raisesOverflowError(num *:=  3074457345618258602);
-    num :=                    3; ok := ok and raisesOverflowError(num *:=  3074457345618258603);
-    num :=                    3; ok := ok and raisesOverflowError(num *:=  4611686018427387903);
-    num :=                    2; ok := ok and raisesOverflowError(num *:=  4611686018427387904);
-    num :=            INT64_MIN; ok := ok and raisesOverflowError(num *:= intExpr(                  -1));
-    num := -4611686018427387904; ok := ok and raisesOverflowError(num *:= intExpr(                  -2));
-    num := -4611686018427387903; ok := ok and raisesOverflowError(num *:= intExpr(                  -3));
-    num := -3074457345618258603; ok := ok and raisesOverflowError(num *:= intExpr(                  -3));
-    num := -3074457345618258602; ok := ok and raisesOverflowError(num *:= intExpr(                  -4));
-    num :=  -838488366986797801; ok := ok and raisesOverflowError(num *:= intExpr(                 -11));
-    num :=  -838488366986797800; ok := ok and raisesOverflowError(num *:= intExpr(                 -12));
-    num :=   -10762394442070917; ok := ok and raisesOverflowError(num *:= intExpr(                -857));
-    num :=   -10762394442070916; ok := ok and raisesOverflowError(num *:= intExpr(                -858));
-    num :=    -1988224194191588; ok := ok and raisesOverflowError(num *:= intExpr(               -4639));
-    num :=    -1988224194191587; ok := ok and raisesOverflowError(num *:= intExpr(               -4640));
-    num :=     -240989001041329; ok := ok and raisesOverflowError(num *:= intExpr(              -38273));
-    num :=     -240989001041328; ok := ok and raisesOverflowError(num *:= intExpr(              -38274));
-    num :=      -14312161101688; ok := ok and raisesOverflowError(num *:= intExpr(             -644443));
-    num :=      -14312161101687; ok := ok and raisesOverflowError(num *:= intExpr(             -644444));
-    num :=        -933865493038; ok := ok and raisesOverflowError(num *:= intExpr(            -9876553));
-    num :=        -933865493037; ok := ok and raisesOverflowError(num *:= intExpr(            -9876554));
-    num :=        -747094709114; ok := ok and raisesOverflowError(num *:= intExpr(           -12345653));
-    num :=        -747094709113; ok := ok and raisesOverflowError(num *:= intExpr(           -12345654));
-    num :=         -74709312969; ok := ok and raisesOverflowError(num *:= intExpr(          -123456791));
-    num :=         -74709312968; ok := ok and raisesOverflowError(num *:= intExpr(          -123456792));
-    num :=          -3037000500; ok := ok and raisesOverflowError(num *:= intExpr(         -3037000500));
-    num :=           -123456792; ok := ok and raisesOverflowError(num *:= intExpr(        -74709312968));
-    num :=           -123456791; ok := ok and raisesOverflowError(num *:= intExpr(        -74709312969));
-    num :=            -12345654; ok := ok and raisesOverflowError(num *:= intExpr(       -747094709113));
-    num :=            -12345653; ok := ok and raisesOverflowError(num *:= intExpr(       -747094709114));
-    num :=             -9876554; ok := ok and raisesOverflowError(num *:= intExpr(       -933865493037));
-    num :=             -9876553; ok := ok and raisesOverflowError(num *:= intExpr(       -933865493038));
-    num :=              -644444; ok := ok and raisesOverflowError(num *:= intExpr(     -14312161101687));
-    num :=              -644443; ok := ok and raisesOverflowError(num *:= intExpr(     -14312161101688));
-    num :=               -38274; ok := ok and raisesOverflowError(num *:= intExpr(    -240989001041328));
-    num :=               -38273; ok := ok and raisesOverflowError(num *:= intExpr(    -240989001041329));
-    num :=                -4640; ok := ok and raisesOverflowError(num *:= intExpr(   -1988224194191587));
-    num :=                -4639; ok := ok and raisesOverflowError(num *:= intExpr(   -1988224194191588));
-    num :=                 -858; ok := ok and raisesOverflowError(num *:= intExpr(  -10762394442070916));
-    num :=                 -857; ok := ok and raisesOverflowError(num *:= intExpr(  -10762394442070917));
-    num :=                  -12; ok := ok and raisesOverflowError(num *:= intExpr( -838488366986797800));
-    num :=                  -11; ok := ok and raisesOverflowError(num *:= intExpr( -838488366986797801));
-    num :=                   -4; ok := ok and raisesOverflowError(num *:= intExpr(-3074457345618258602));
-    num :=                   -3; ok := ok and raisesOverflowError(num *:= intExpr(-3074457345618258603));
-    num :=                   -3; ok := ok and raisesOverflowError(num *:= intExpr(-4611686018427387903));
-    num :=                   -2; ok := ok and raisesOverflowError(num *:= intExpr(-4611686018427387904));
+    if not ok then
+      writeln(" ***** Underflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
     num := -4611686018427387905; ok := ok and raisesOverflowError(num *:= intExpr(                   2));
     num := -4611686018427387904; ok := ok and raisesOverflowError(num *:= intExpr(                   3));
     num := -3074457345618258603; ok := ok and raisesOverflowError(num *:= intExpr(                   3));
@@ -2766,89 +2802,11 @@ const proc: check_mult_assign is func
     num :=                    3; ok := ok and raisesOverflowError(num *:= intExpr(-3074457345618258603));
     num :=                    3; ok := ok and raisesOverflowError(num *:= intExpr(-4611686018427387904));
     num :=                    2; ok := ok and raisesOverflowError(num *:= intExpr(-4611686018427387905));
-    num :=  4611686018427387904; ok := ok and raisesOverflowError(num *:= intExpr(                   2));
-    num :=  4611686018427387903; ok := ok and raisesOverflowError(num *:= intExpr(                   3));
-    num :=  3074457345618258603; ok := ok and raisesOverflowError(num *:= intExpr(                   3));
-    num :=  3074457345618258602; ok := ok and raisesOverflowError(num *:= intExpr(                   4));
-    num :=   838488366986797801; ok := ok and raisesOverflowError(num *:= intExpr(                  11));
-    num :=   838488366986797800; ok := ok and raisesOverflowError(num *:= intExpr(                  12));
-    num :=    10762394442070917; ok := ok and raisesOverflowError(num *:= intExpr(                 857));
-    num :=    10762394442070916; ok := ok and raisesOverflowError(num *:= intExpr(                 858));
-    num :=     1988224194191588; ok := ok and raisesOverflowError(num *:= intExpr(                4639));
-    num :=     1988224194191587; ok := ok and raisesOverflowError(num *:= intExpr(                4640));
-    num :=      240989001041329; ok := ok and raisesOverflowError(num *:= intExpr(               38273));
-    num :=      240989001041328; ok := ok and raisesOverflowError(num *:= intExpr(               38274));
-    num :=       14312161101688; ok := ok and raisesOverflowError(num *:= intExpr(              644443));
-    num :=       14312161101687; ok := ok and raisesOverflowError(num *:= intExpr(              644444));
-    num :=         933865493038; ok := ok and raisesOverflowError(num *:= intExpr(             9876553));
-    num :=         933865493037; ok := ok and raisesOverflowError(num *:= intExpr(             9876554));
-    num :=         747094709114; ok := ok and raisesOverflowError(num *:= intExpr(            12345653));
-    num :=         747094709113; ok := ok and raisesOverflowError(num *:= intExpr(            12345654));
-    num :=          74709312969; ok := ok and raisesOverflowError(num *:= intExpr(           123456791));
-    num :=          74709312968; ok := ok and raisesOverflowError(num *:= intExpr(           123456792));
-    num :=           3037000500; ok := ok and raisesOverflowError(num *:= intExpr(          3037000500));
-    num :=            123456792; ok := ok and raisesOverflowError(num *:= intExpr(         74709312968));
-    num :=            123456791; ok := ok and raisesOverflowError(num *:= intExpr(         74709312969));
-    num :=             12345654; ok := ok and raisesOverflowError(num *:= intExpr(        747094709113));
-    num :=             12345653; ok := ok and raisesOverflowError(num *:= intExpr(        747094709114));
-    num :=              9876554; ok := ok and raisesOverflowError(num *:= intExpr(        933865493037));
-    num :=              9876553; ok := ok and raisesOverflowError(num *:= intExpr(        933865493038));
-    num :=               644444; ok := ok and raisesOverflowError(num *:= intExpr(      14312161101687));
-    num :=               644443; ok := ok and raisesOverflowError(num *:= intExpr(      14312161101688));
-    num :=                38274; ok := ok and raisesOverflowError(num *:= intExpr(     240989001041328));
-    num :=                38273; ok := ok and raisesOverflowError(num *:= intExpr(     240989001041329));
-    num :=                 4640; ok := ok and raisesOverflowError(num *:= intExpr(    1988224194191587));
-    num :=                 4639; ok := ok and raisesOverflowError(num *:= intExpr(    1988224194191588));
-    num :=                  858; ok := ok and raisesOverflowError(num *:= intExpr(   10762394442070916));
-    num :=                  857; ok := ok and raisesOverflowError(num *:= intExpr(   10762394442070917));
-    num :=                   12; ok := ok and raisesOverflowError(num *:= intExpr(  838488366986797800));
-    num :=                   11; ok := ok and raisesOverflowError(num *:= intExpr(  838488366986797801));
-    num :=                    4; ok := ok and raisesOverflowError(num *:= intExpr( 3074457345618258602));
-    num :=                    3; ok := ok and raisesOverflowError(num *:= intExpr( 3074457345618258603));
-    num :=                    3; ok := ok and raisesOverflowError(num *:= intExpr( 4611686018427387903));
-    num :=                    2; ok := ok and raisesOverflowError(num *:= intExpr( 4611686018427387904));
-    arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] *:=                   -1);
-    arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:=                   -2);
-    arr[1] := -4611686018427387903; ok := ok and raisesOverflowError(arr[1] *:=                   -3);
-    arr[1] := -3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:=                   -3);
-    arr[1] := -3074457345618258602; ok := ok and raisesOverflowError(arr[1] *:=                   -4);
-    arr[1] :=  -838488366986797801; ok := ok and raisesOverflowError(arr[1] *:=                  -11);
-    arr[1] :=  -838488366986797800; ok := ok and raisesOverflowError(arr[1] *:=                  -12);
-    arr[1] :=   -10762394442070917; ok := ok and raisesOverflowError(arr[1] *:=                 -857);
-    arr[1] :=   -10762394442070916; ok := ok and raisesOverflowError(arr[1] *:=                 -858);
-    arr[1] :=    -1988224194191588; ok := ok and raisesOverflowError(arr[1] *:=                -4639);
-    arr[1] :=    -1988224194191587; ok := ok and raisesOverflowError(arr[1] *:=                -4640);
-    arr[1] :=     -240989001041329; ok := ok and raisesOverflowError(arr[1] *:=               -38273);
-    arr[1] :=     -240989001041328; ok := ok and raisesOverflowError(arr[1] *:=               -38274);
-    arr[1] :=      -14312161101688; ok := ok and raisesOverflowError(arr[1] *:=              -644443);
-    arr[1] :=      -14312161101687; ok := ok and raisesOverflowError(arr[1] *:=              -644444);
-    arr[1] :=        -933865493038; ok := ok and raisesOverflowError(arr[1] *:=             -9876553);
-    arr[1] :=        -933865493037; ok := ok and raisesOverflowError(arr[1] *:=             -9876554);
-    arr[1] :=        -747094709114; ok := ok and raisesOverflowError(arr[1] *:=            -12345653);
-    arr[1] :=        -747094709113; ok := ok and raisesOverflowError(arr[1] *:=            -12345654);
-    arr[1] :=         -74709312969; ok := ok and raisesOverflowError(arr[1] *:=           -123456791);
-    arr[1] :=         -74709312968; ok := ok and raisesOverflowError(arr[1] *:=           -123456792);
-    arr[1] :=          -3037000500; ok := ok and raisesOverflowError(arr[1] *:=          -3037000500);
-    arr[1] :=           -123456792; ok := ok and raisesOverflowError(arr[1] *:=         -74709312968);
-    arr[1] :=           -123456791; ok := ok and raisesOverflowError(arr[1] *:=         -74709312969);
-    arr[1] :=            -12345654; ok := ok and raisesOverflowError(arr[1] *:=        -747094709113);
-    arr[1] :=            -12345653; ok := ok and raisesOverflowError(arr[1] *:=        -747094709114);
-    arr[1] :=             -9876554; ok := ok and raisesOverflowError(arr[1] *:=        -933865493037);
-    arr[1] :=             -9876553; ok := ok and raisesOverflowError(arr[1] *:=        -933865493038);
-    arr[1] :=              -644444; ok := ok and raisesOverflowError(arr[1] *:=      -14312161101687);
-    arr[1] :=              -644443; ok := ok and raisesOverflowError(arr[1] *:=      -14312161101688);
-    arr[1] :=               -38274; ok := ok and raisesOverflowError(arr[1] *:=     -240989001041328);
-    arr[1] :=               -38273; ok := ok and raisesOverflowError(arr[1] *:=     -240989001041329);
-    arr[1] :=                -4640; ok := ok and raisesOverflowError(arr[1] *:=    -1988224194191587);
-    arr[1] :=                -4639; ok := ok and raisesOverflowError(arr[1] *:=    -1988224194191588);
-    arr[1] :=                 -858; ok := ok and raisesOverflowError(arr[1] *:=   -10762394442070916);
-    arr[1] :=                 -857; ok := ok and raisesOverflowError(arr[1] *:=   -10762394442070917);
-    arr[1] :=                  -12; ok := ok and raisesOverflowError(arr[1] *:=  -838488366986797800);
-    arr[1] :=                  -11; ok := ok and raisesOverflowError(arr[1] *:=  -838488366986797801);
-    arr[1] :=                   -4; ok := ok and raisesOverflowError(arr[1] *:= -3074457345618258602);
-    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= -3074457345618258603);
-    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= -4611686018427387903);
-    arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] *:= -4611686018427387904);
+    if not ok then
+      writeln(" ***** Underflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
     arr[1] := -4611686018427387905; ok := ok and raisesOverflowError(arr[1] *:=                    2);
     arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:=                    3);
     arr[1] := -3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:=                    3);
@@ -2931,89 +2889,11 @@ const proc: check_mult_assign is func
     arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:= -3074457345618258603);
     arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:= -4611686018427387904);
     arr[1] :=                    2; ok := ok and raisesOverflowError(arr[1] *:= -4611686018427387905);
-    arr[1] :=  4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:=                    2);
-    arr[1] :=  4611686018427387903; ok := ok and raisesOverflowError(arr[1] *:=                    3);
-    arr[1] :=  3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:=                    3);
-    arr[1] :=  3074457345618258602; ok := ok and raisesOverflowError(arr[1] *:=                    4);
-    arr[1] :=   838488366986797801; ok := ok and raisesOverflowError(arr[1] *:=                   11);
-    arr[1] :=   838488366986797800; ok := ok and raisesOverflowError(arr[1] *:=                   12);
-    arr[1] :=    10762394442070917; ok := ok and raisesOverflowError(arr[1] *:=                  857);
-    arr[1] :=    10762394442070916; ok := ok and raisesOverflowError(arr[1] *:=                  858);
-    arr[1] :=     1988224194191588; ok := ok and raisesOverflowError(arr[1] *:=                 4639);
-    arr[1] :=     1988224194191587; ok := ok and raisesOverflowError(arr[1] *:=                 4640);
-    arr[1] :=      240989001041329; ok := ok and raisesOverflowError(arr[1] *:=                38273);
-    arr[1] :=      240989001041328; ok := ok and raisesOverflowError(arr[1] *:=                38274);
-    arr[1] :=       14312161101688; ok := ok and raisesOverflowError(arr[1] *:=               644443);
-    arr[1] :=       14312161101687; ok := ok and raisesOverflowError(arr[1] *:=               644444);
-    arr[1] :=         933865493038; ok := ok and raisesOverflowError(arr[1] *:=              9876553);
-    arr[1] :=         933865493037; ok := ok and raisesOverflowError(arr[1] *:=              9876554);
-    arr[1] :=         747094709114; ok := ok and raisesOverflowError(arr[1] *:=             12345653);
-    arr[1] :=         747094709113; ok := ok and raisesOverflowError(arr[1] *:=             12345654);
-    arr[1] :=          74709312969; ok := ok and raisesOverflowError(arr[1] *:=            123456791);
-    arr[1] :=          74709312968; ok := ok and raisesOverflowError(arr[1] *:=            123456792);
-    arr[1] :=           3037000500; ok := ok and raisesOverflowError(arr[1] *:=           3037000500);
-    arr[1] :=            123456792; ok := ok and raisesOverflowError(arr[1] *:=          74709312968);
-    arr[1] :=            123456791; ok := ok and raisesOverflowError(arr[1] *:=          74709312969);
-    arr[1] :=             12345654; ok := ok and raisesOverflowError(arr[1] *:=         747094709113);
-    arr[1] :=             12345653; ok := ok and raisesOverflowError(arr[1] *:=         747094709114);
-    arr[1] :=              9876554; ok := ok and raisesOverflowError(arr[1] *:=         933865493037);
-    arr[1] :=              9876553; ok := ok and raisesOverflowError(arr[1] *:=         933865493038);
-    arr[1] :=               644444; ok := ok and raisesOverflowError(arr[1] *:=       14312161101687);
-    arr[1] :=               644443; ok := ok and raisesOverflowError(arr[1] *:=       14312161101688);
-    arr[1] :=                38274; ok := ok and raisesOverflowError(arr[1] *:=      240989001041328);
-    arr[1] :=                38273; ok := ok and raisesOverflowError(arr[1] *:=      240989001041329);
-    arr[1] :=                 4640; ok := ok and raisesOverflowError(arr[1] *:=     1988224194191587);
-    arr[1] :=                 4639; ok := ok and raisesOverflowError(arr[1] *:=     1988224194191588);
-    arr[1] :=                  858; ok := ok and raisesOverflowError(arr[1] *:=    10762394442070916);
-    arr[1] :=                  857; ok := ok and raisesOverflowError(arr[1] *:=    10762394442070917);
-    arr[1] :=                   12; ok := ok and raisesOverflowError(arr[1] *:=   838488366986797800);
-    arr[1] :=                   11; ok := ok and raisesOverflowError(arr[1] *:=   838488366986797801);
-    arr[1] :=                    4; ok := ok and raisesOverflowError(arr[1] *:=  3074457345618258602);
-    arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:=  3074457345618258603);
-    arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:=  4611686018427387903);
-    arr[1] :=                    2; ok := ok and raisesOverflowError(arr[1] *:=  4611686018427387904);
-    arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -1));
-    arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -2));
-    arr[1] := -4611686018427387903; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -3));
-    arr[1] := -3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -3));
-    arr[1] := -3074457345618258602; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -4));
-    arr[1] :=  -838488366986797801; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                 -11));
-    arr[1] :=  -838488366986797800; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                 -12));
-    arr[1] :=   -10762394442070917; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                -857));
-    arr[1] :=   -10762394442070916; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                -858));
-    arr[1] :=    -1988224194191588; ok := ok and raisesOverflowError(arr[1] *:= intExpr(               -4639));
-    arr[1] :=    -1988224194191587; ok := ok and raisesOverflowError(arr[1] *:= intExpr(               -4640));
-    arr[1] :=     -240989001041329; ok := ok and raisesOverflowError(arr[1] *:= intExpr(              -38273));
-    arr[1] :=     -240989001041328; ok := ok and raisesOverflowError(arr[1] *:= intExpr(              -38274));
-    arr[1] :=      -14312161101688; ok := ok and raisesOverflowError(arr[1] *:= intExpr(             -644443));
-    arr[1] :=      -14312161101687; ok := ok and raisesOverflowError(arr[1] *:= intExpr(             -644444));
-    arr[1] :=        -933865493038; ok := ok and raisesOverflowError(arr[1] *:= intExpr(            -9876553));
-    arr[1] :=        -933865493037; ok := ok and raisesOverflowError(arr[1] *:= intExpr(            -9876554));
-    arr[1] :=        -747094709114; ok := ok and raisesOverflowError(arr[1] *:= intExpr(           -12345653));
-    arr[1] :=        -747094709113; ok := ok and raisesOverflowError(arr[1] *:= intExpr(           -12345654));
-    arr[1] :=         -74709312969; ok := ok and raisesOverflowError(arr[1] *:= intExpr(          -123456791));
-    arr[1] :=         -74709312968; ok := ok and raisesOverflowError(arr[1] *:= intExpr(          -123456792));
-    arr[1] :=          -3037000500; ok := ok and raisesOverflowError(arr[1] *:= intExpr(         -3037000500));
-    arr[1] :=           -123456792; ok := ok and raisesOverflowError(arr[1] *:= intExpr(        -74709312968));
-    arr[1] :=           -123456791; ok := ok and raisesOverflowError(arr[1] *:= intExpr(        -74709312969));
-    arr[1] :=            -12345654; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -747094709113));
-    arr[1] :=            -12345653; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -747094709114));
-    arr[1] :=             -9876554; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -933865493037));
-    arr[1] :=             -9876553; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -933865493038));
-    arr[1] :=              -644444; ok := ok and raisesOverflowError(arr[1] *:= intExpr(     -14312161101687));
-    arr[1] :=              -644443; ok := ok and raisesOverflowError(arr[1] *:= intExpr(     -14312161101688));
-    arr[1] :=               -38274; ok := ok and raisesOverflowError(arr[1] *:= intExpr(    -240989001041328));
-    arr[1] :=               -38273; ok := ok and raisesOverflowError(arr[1] *:= intExpr(    -240989001041329));
-    arr[1] :=                -4640; ok := ok and raisesOverflowError(arr[1] *:= intExpr(   -1988224194191587));
-    arr[1] :=                -4639; ok := ok and raisesOverflowError(arr[1] *:= intExpr(   -1988224194191588));
-    arr[1] :=                 -858; ok := ok and raisesOverflowError(arr[1] *:= intExpr(  -10762394442070916));
-    arr[1] :=                 -857; ok := ok and raisesOverflowError(arr[1] *:= intExpr(  -10762394442070917));
-    arr[1] :=                  -12; ok := ok and raisesOverflowError(arr[1] *:= intExpr( -838488366986797800));
-    arr[1] :=                  -11; ok := ok and raisesOverflowError(arr[1] *:= intExpr( -838488366986797801));
-    arr[1] :=                   -4; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-3074457345618258602));
-    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-3074457345618258603));
-    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-4611686018427387903));
-    arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-4611686018427387904));
+    if not ok then
+      writeln(" ***** Underflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
     arr[1] := -4611686018427387905; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                   2));
     arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                   3));
     arr[1] := -3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                   3));
@@ -3096,6 +2976,317 @@ const proc: check_mult_assign is func
     arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-3074457345618258603));
     arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-4611686018427387904));
     arr[1] :=                    2; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-4611686018427387905));
+    if not ok then
+      writeln(" ***** Underflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (4)");
+      okay := FALSE;
+    end if;
+
+    num :=            INT64_MIN; ok := ok and raisesOverflowError(num *:=                   -1);
+    num := -4611686018427387904; ok := ok and raisesOverflowError(num *:=                   -2);
+    num := -4611686018427387903; ok := ok and raisesOverflowError(num *:=                   -3);
+    num := -3074457345618258603; ok := ok and raisesOverflowError(num *:=                   -3);
+    num := -3074457345618258602; ok := ok and raisesOverflowError(num *:=                   -4);
+    num :=  -838488366986797801; ok := ok and raisesOverflowError(num *:=                  -11);
+    num :=  -838488366986797800; ok := ok and raisesOverflowError(num *:=                  -12);
+    num :=   -10762394442070917; ok := ok and raisesOverflowError(num *:=                 -857);
+    num :=   -10762394442070916; ok := ok and raisesOverflowError(num *:=                 -858);
+    num :=    -1988224194191588; ok := ok and raisesOverflowError(num *:=                -4639);
+    num :=    -1988224194191587; ok := ok and raisesOverflowError(num *:=                -4640);
+    num :=     -240989001041329; ok := ok and raisesOverflowError(num *:=               -38273);
+    num :=     -240989001041328; ok := ok and raisesOverflowError(num *:=               -38274);
+    num :=      -14312161101688; ok := ok and raisesOverflowError(num *:=              -644443);
+    num :=      -14312161101687; ok := ok and raisesOverflowError(num *:=              -644444);
+    num :=        -933865493038; ok := ok and raisesOverflowError(num *:=             -9876553);
+    num :=        -933865493037; ok := ok and raisesOverflowError(num *:=             -9876554);
+    num :=        -747094709114; ok := ok and raisesOverflowError(num *:=            -12345653);
+    num :=        -747094709113; ok := ok and raisesOverflowError(num *:=            -12345654);
+    num :=         -74709312969; ok := ok and raisesOverflowError(num *:=           -123456791);
+    num :=         -74709312968; ok := ok and raisesOverflowError(num *:=           -123456792);
+    num :=          -3037000500; ok := ok and raisesOverflowError(num *:=          -3037000500);
+    num :=           -123456792; ok := ok and raisesOverflowError(num *:=         -74709312968);
+    num :=           -123456791; ok := ok and raisesOverflowError(num *:=         -74709312969);
+    num :=            -12345654; ok := ok and raisesOverflowError(num *:=        -747094709113);
+    num :=            -12345653; ok := ok and raisesOverflowError(num *:=        -747094709114);
+    num :=             -9876554; ok := ok and raisesOverflowError(num *:=        -933865493037);
+    num :=             -9876553; ok := ok and raisesOverflowError(num *:=        -933865493038);
+    num :=              -644444; ok := ok and raisesOverflowError(num *:=      -14312161101687);
+    num :=              -644443; ok := ok and raisesOverflowError(num *:=      -14312161101688);
+    num :=               -38274; ok := ok and raisesOverflowError(num *:=     -240989001041328);
+    num :=               -38273; ok := ok and raisesOverflowError(num *:=     -240989001041329);
+    num :=                -4640; ok := ok and raisesOverflowError(num *:=    -1988224194191587);
+    num :=                -4639; ok := ok and raisesOverflowError(num *:=    -1988224194191588);
+    num :=                 -858; ok := ok and raisesOverflowError(num *:=   -10762394442070916);
+    num :=                 -857; ok := ok and raisesOverflowError(num *:=   -10762394442070917);
+    num :=                  -12; ok := ok and raisesOverflowError(num *:=  -838488366986797800);
+    num :=                  -11; ok := ok and raisesOverflowError(num *:=  -838488366986797801);
+    num :=                   -4; ok := ok and raisesOverflowError(num *:= -3074457345618258602);
+    num :=                   -3; ok := ok and raisesOverflowError(num *:= -3074457345618258603);
+    num :=                   -3; ok := ok and raisesOverflowError(num *:= -4611686018427387903);
+    num :=                   -2; ok := ok and raisesOverflowError(num *:= -4611686018427387904);
+    num :=  4611686018427387904; ok := ok and raisesOverflowError(num *:=                    2);
+    num :=  4611686018427387903; ok := ok and raisesOverflowError(num *:=                    3);
+    num :=  3074457345618258603; ok := ok and raisesOverflowError(num *:=                    3);
+    num :=  3074457345618258602; ok := ok and raisesOverflowError(num *:=                    4);
+    num :=   838488366986797801; ok := ok and raisesOverflowError(num *:=                   11);
+    num :=   838488366986797800; ok := ok and raisesOverflowError(num *:=                   12);
+    num :=    10762394442070917; ok := ok and raisesOverflowError(num *:=                  857);
+    num :=    10762394442070916; ok := ok and raisesOverflowError(num *:=                  858);
+    num :=     1988224194191588; ok := ok and raisesOverflowError(num *:=                 4639);
+    num :=     1988224194191587; ok := ok and raisesOverflowError(num *:=                 4640);
+    num :=      240989001041329; ok := ok and raisesOverflowError(num *:=                38273);
+    num :=      240989001041328; ok := ok and raisesOverflowError(num *:=                38274);
+    num :=       14312161101688; ok := ok and raisesOverflowError(num *:=               644443);
+    num :=       14312161101687; ok := ok and raisesOverflowError(num *:=               644444);
+    num :=         933865493038; ok := ok and raisesOverflowError(num *:=              9876553);
+    num :=         933865493037; ok := ok and raisesOverflowError(num *:=              9876554);
+    num :=         747094709114; ok := ok and raisesOverflowError(num *:=             12345653);
+    num :=         747094709113; ok := ok and raisesOverflowError(num *:=             12345654);
+    num :=          74709312969; ok := ok and raisesOverflowError(num *:=            123456791);
+    num :=          74709312968; ok := ok and raisesOverflowError(num *:=            123456792);
+    num :=           3037000500; ok := ok and raisesOverflowError(num *:=           3037000500);
+    num :=            123456792; ok := ok and raisesOverflowError(num *:=          74709312968);
+    num :=            123456791; ok := ok and raisesOverflowError(num *:=          74709312969);
+    num :=             12345654; ok := ok and raisesOverflowError(num *:=         747094709113);
+    num :=             12345653; ok := ok and raisesOverflowError(num *:=         747094709114);
+    num :=              9876554; ok := ok and raisesOverflowError(num *:=         933865493037);
+    num :=              9876553; ok := ok and raisesOverflowError(num *:=         933865493038);
+    num :=               644444; ok := ok and raisesOverflowError(num *:=       14312161101687);
+    num :=               644443; ok := ok and raisesOverflowError(num *:=       14312161101688);
+    num :=                38274; ok := ok and raisesOverflowError(num *:=      240989001041328);
+    num :=                38273; ok := ok and raisesOverflowError(num *:=      240989001041329);
+    num :=                 4640; ok := ok and raisesOverflowError(num *:=     1988224194191587);
+    num :=                 4639; ok := ok and raisesOverflowError(num *:=     1988224194191588);
+    num :=                  858; ok := ok and raisesOverflowError(num *:=    10762394442070916);
+    num :=                  857; ok := ok and raisesOverflowError(num *:=    10762394442070917);
+    num :=                   12; ok := ok and raisesOverflowError(num *:=   838488366986797800);
+    num :=                   11; ok := ok and raisesOverflowError(num *:=   838488366986797801);
+    num :=                    4; ok := ok and raisesOverflowError(num *:=  3074457345618258602);
+    num :=                    3; ok := ok and raisesOverflowError(num *:=  3074457345618258603);
+    num :=                    3; ok := ok and raisesOverflowError(num *:=  4611686018427387903);
+    num :=                    2; ok := ok and raisesOverflowError(num *:=  4611686018427387904);
+    if not ok then
+      writeln(" ***** Overflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    num :=            INT64_MIN; ok := ok and raisesOverflowError(num *:= intExpr(                  -1));
+    num := -4611686018427387904; ok := ok and raisesOverflowError(num *:= intExpr(                  -2));
+    num := -4611686018427387903; ok := ok and raisesOverflowError(num *:= intExpr(                  -3));
+    num := -3074457345618258603; ok := ok and raisesOverflowError(num *:= intExpr(                  -3));
+    num := -3074457345618258602; ok := ok and raisesOverflowError(num *:= intExpr(                  -4));
+    num :=  -838488366986797801; ok := ok and raisesOverflowError(num *:= intExpr(                 -11));
+    num :=  -838488366986797800; ok := ok and raisesOverflowError(num *:= intExpr(                 -12));
+    num :=   -10762394442070917; ok := ok and raisesOverflowError(num *:= intExpr(                -857));
+    num :=   -10762394442070916; ok := ok and raisesOverflowError(num *:= intExpr(                -858));
+    num :=    -1988224194191588; ok := ok and raisesOverflowError(num *:= intExpr(               -4639));
+    num :=    -1988224194191587; ok := ok and raisesOverflowError(num *:= intExpr(               -4640));
+    num :=     -240989001041329; ok := ok and raisesOverflowError(num *:= intExpr(              -38273));
+    num :=     -240989001041328; ok := ok and raisesOverflowError(num *:= intExpr(              -38274));
+    num :=      -14312161101688; ok := ok and raisesOverflowError(num *:= intExpr(             -644443));
+    num :=      -14312161101687; ok := ok and raisesOverflowError(num *:= intExpr(             -644444));
+    num :=        -933865493038; ok := ok and raisesOverflowError(num *:= intExpr(            -9876553));
+    num :=        -933865493037; ok := ok and raisesOverflowError(num *:= intExpr(            -9876554));
+    num :=        -747094709114; ok := ok and raisesOverflowError(num *:= intExpr(           -12345653));
+    num :=        -747094709113; ok := ok and raisesOverflowError(num *:= intExpr(           -12345654));
+    num :=         -74709312969; ok := ok and raisesOverflowError(num *:= intExpr(          -123456791));
+    num :=         -74709312968; ok := ok and raisesOverflowError(num *:= intExpr(          -123456792));
+    num :=          -3037000500; ok := ok and raisesOverflowError(num *:= intExpr(         -3037000500));
+    num :=           -123456792; ok := ok and raisesOverflowError(num *:= intExpr(        -74709312968));
+    num :=           -123456791; ok := ok and raisesOverflowError(num *:= intExpr(        -74709312969));
+    num :=            -12345654; ok := ok and raisesOverflowError(num *:= intExpr(       -747094709113));
+    num :=            -12345653; ok := ok and raisesOverflowError(num *:= intExpr(       -747094709114));
+    num :=             -9876554; ok := ok and raisesOverflowError(num *:= intExpr(       -933865493037));
+    num :=             -9876553; ok := ok and raisesOverflowError(num *:= intExpr(       -933865493038));
+    num :=              -644444; ok := ok and raisesOverflowError(num *:= intExpr(     -14312161101687));
+    num :=              -644443; ok := ok and raisesOverflowError(num *:= intExpr(     -14312161101688));
+    num :=               -38274; ok := ok and raisesOverflowError(num *:= intExpr(    -240989001041328));
+    num :=               -38273; ok := ok and raisesOverflowError(num *:= intExpr(    -240989001041329));
+    num :=                -4640; ok := ok and raisesOverflowError(num *:= intExpr(   -1988224194191587));
+    num :=                -4639; ok := ok and raisesOverflowError(num *:= intExpr(   -1988224194191588));
+    num :=                 -858; ok := ok and raisesOverflowError(num *:= intExpr(  -10762394442070916));
+    num :=                 -857; ok := ok and raisesOverflowError(num *:= intExpr(  -10762394442070917));
+    num :=                  -12; ok := ok and raisesOverflowError(num *:= intExpr( -838488366986797800));
+    num :=                  -11; ok := ok and raisesOverflowError(num *:= intExpr( -838488366986797801));
+    num :=                   -4; ok := ok and raisesOverflowError(num *:= intExpr(-3074457345618258602));
+    num :=                   -3; ok := ok and raisesOverflowError(num *:= intExpr(-3074457345618258603));
+    num :=                   -3; ok := ok and raisesOverflowError(num *:= intExpr(-4611686018427387903));
+    num :=                   -2; ok := ok and raisesOverflowError(num *:= intExpr(-4611686018427387904));
+    num :=  4611686018427387904; ok := ok and raisesOverflowError(num *:= intExpr(                   2));
+    num :=  4611686018427387903; ok := ok and raisesOverflowError(num *:= intExpr(                   3));
+    num :=  3074457345618258603; ok := ok and raisesOverflowError(num *:= intExpr(                   3));
+    num :=  3074457345618258602; ok := ok and raisesOverflowError(num *:= intExpr(                   4));
+    num :=   838488366986797801; ok := ok and raisesOverflowError(num *:= intExpr(                  11));
+    num :=   838488366986797800; ok := ok and raisesOverflowError(num *:= intExpr(                  12));
+    num :=    10762394442070917; ok := ok and raisesOverflowError(num *:= intExpr(                 857));
+    num :=    10762394442070916; ok := ok and raisesOverflowError(num *:= intExpr(                 858));
+    num :=     1988224194191588; ok := ok and raisesOverflowError(num *:= intExpr(                4639));
+    num :=     1988224194191587; ok := ok and raisesOverflowError(num *:= intExpr(                4640));
+    num :=      240989001041329; ok := ok and raisesOverflowError(num *:= intExpr(               38273));
+    num :=      240989001041328; ok := ok and raisesOverflowError(num *:= intExpr(               38274));
+    num :=       14312161101688; ok := ok and raisesOverflowError(num *:= intExpr(              644443));
+    num :=       14312161101687; ok := ok and raisesOverflowError(num *:= intExpr(              644444));
+    num :=         933865493038; ok := ok and raisesOverflowError(num *:= intExpr(             9876553));
+    num :=         933865493037; ok := ok and raisesOverflowError(num *:= intExpr(             9876554));
+    num :=         747094709114; ok := ok and raisesOverflowError(num *:= intExpr(            12345653));
+    num :=         747094709113; ok := ok and raisesOverflowError(num *:= intExpr(            12345654));
+    num :=          74709312969; ok := ok and raisesOverflowError(num *:= intExpr(           123456791));
+    num :=          74709312968; ok := ok and raisesOverflowError(num *:= intExpr(           123456792));
+    num :=           3037000500; ok := ok and raisesOverflowError(num *:= intExpr(          3037000500));
+    num :=            123456792; ok := ok and raisesOverflowError(num *:= intExpr(         74709312968));
+    num :=            123456791; ok := ok and raisesOverflowError(num *:= intExpr(         74709312969));
+    num :=             12345654; ok := ok and raisesOverflowError(num *:= intExpr(        747094709113));
+    num :=             12345653; ok := ok and raisesOverflowError(num *:= intExpr(        747094709114));
+    num :=              9876554; ok := ok and raisesOverflowError(num *:= intExpr(        933865493037));
+    num :=              9876553; ok := ok and raisesOverflowError(num *:= intExpr(        933865493038));
+    num :=               644444; ok := ok and raisesOverflowError(num *:= intExpr(      14312161101687));
+    num :=               644443; ok := ok and raisesOverflowError(num *:= intExpr(      14312161101688));
+    num :=                38274; ok := ok and raisesOverflowError(num *:= intExpr(     240989001041328));
+    num :=                38273; ok := ok and raisesOverflowError(num *:= intExpr(     240989001041329));
+    num :=                 4640; ok := ok and raisesOverflowError(num *:= intExpr(    1988224194191587));
+    num :=                 4639; ok := ok and raisesOverflowError(num *:= intExpr(    1988224194191588));
+    num :=                  858; ok := ok and raisesOverflowError(num *:= intExpr(   10762394442070916));
+    num :=                  857; ok := ok and raisesOverflowError(num *:= intExpr(   10762394442070917));
+    num :=                   12; ok := ok and raisesOverflowError(num *:= intExpr(  838488366986797800));
+    num :=                   11; ok := ok and raisesOverflowError(num *:= intExpr(  838488366986797801));
+    num :=                    4; ok := ok and raisesOverflowError(num *:= intExpr( 3074457345618258602));
+    num :=                    3; ok := ok and raisesOverflowError(num *:= intExpr( 3074457345618258603));
+    num :=                    3; ok := ok and raisesOverflowError(num *:= intExpr( 4611686018427387903));
+    num :=                    2; ok := ok and raisesOverflowError(num *:= intExpr( 4611686018427387904));
+    if not ok then
+      writeln(" ***** Overflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] *:=                   -1);
+    arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:=                   -2);
+    arr[1] := -4611686018427387903; ok := ok and raisesOverflowError(arr[1] *:=                   -3);
+    arr[1] := -3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:=                   -3);
+    arr[1] := -3074457345618258602; ok := ok and raisesOverflowError(arr[1] *:=                   -4);
+    arr[1] :=  -838488366986797801; ok := ok and raisesOverflowError(arr[1] *:=                  -11);
+    arr[1] :=  -838488366986797800; ok := ok and raisesOverflowError(arr[1] *:=                  -12);
+    arr[1] :=   -10762394442070917; ok := ok and raisesOverflowError(arr[1] *:=                 -857);
+    arr[1] :=   -10762394442070916; ok := ok and raisesOverflowError(arr[1] *:=                 -858);
+    arr[1] :=    -1988224194191588; ok := ok and raisesOverflowError(arr[1] *:=                -4639);
+    arr[1] :=    -1988224194191587; ok := ok and raisesOverflowError(arr[1] *:=                -4640);
+    arr[1] :=     -240989001041329; ok := ok and raisesOverflowError(arr[1] *:=               -38273);
+    arr[1] :=     -240989001041328; ok := ok and raisesOverflowError(arr[1] *:=               -38274);
+    arr[1] :=      -14312161101688; ok := ok and raisesOverflowError(arr[1] *:=              -644443);
+    arr[1] :=      -14312161101687; ok := ok and raisesOverflowError(arr[1] *:=              -644444);
+    arr[1] :=        -933865493038; ok := ok and raisesOverflowError(arr[1] *:=             -9876553);
+    arr[1] :=        -933865493037; ok := ok and raisesOverflowError(arr[1] *:=             -9876554);
+    arr[1] :=        -747094709114; ok := ok and raisesOverflowError(arr[1] *:=            -12345653);
+    arr[1] :=        -747094709113; ok := ok and raisesOverflowError(arr[1] *:=            -12345654);
+    arr[1] :=         -74709312969; ok := ok and raisesOverflowError(arr[1] *:=           -123456791);
+    arr[1] :=         -74709312968; ok := ok and raisesOverflowError(arr[1] *:=           -123456792);
+    arr[1] :=          -3037000500; ok := ok and raisesOverflowError(arr[1] *:=          -3037000500);
+    arr[1] :=           -123456792; ok := ok and raisesOverflowError(arr[1] *:=         -74709312968);
+    arr[1] :=           -123456791; ok := ok and raisesOverflowError(arr[1] *:=         -74709312969);
+    arr[1] :=            -12345654; ok := ok and raisesOverflowError(arr[1] *:=        -747094709113);
+    arr[1] :=            -12345653; ok := ok and raisesOverflowError(arr[1] *:=        -747094709114);
+    arr[1] :=             -9876554; ok := ok and raisesOverflowError(arr[1] *:=        -933865493037);
+    arr[1] :=             -9876553; ok := ok and raisesOverflowError(arr[1] *:=        -933865493038);
+    arr[1] :=              -644444; ok := ok and raisesOverflowError(arr[1] *:=      -14312161101687);
+    arr[1] :=              -644443; ok := ok and raisesOverflowError(arr[1] *:=      -14312161101688);
+    arr[1] :=               -38274; ok := ok and raisesOverflowError(arr[1] *:=     -240989001041328);
+    arr[1] :=               -38273; ok := ok and raisesOverflowError(arr[1] *:=     -240989001041329);
+    arr[1] :=                -4640; ok := ok and raisesOverflowError(arr[1] *:=    -1988224194191587);
+    arr[1] :=                -4639; ok := ok and raisesOverflowError(arr[1] *:=    -1988224194191588);
+    arr[1] :=                 -858; ok := ok and raisesOverflowError(arr[1] *:=   -10762394442070916);
+    arr[1] :=                 -857; ok := ok and raisesOverflowError(arr[1] *:=   -10762394442070917);
+    arr[1] :=                  -12; ok := ok and raisesOverflowError(arr[1] *:=  -838488366986797800);
+    arr[1] :=                  -11; ok := ok and raisesOverflowError(arr[1] *:=  -838488366986797801);
+    arr[1] :=                   -4; ok := ok and raisesOverflowError(arr[1] *:= -3074457345618258602);
+    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= -3074457345618258603);
+    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= -4611686018427387903);
+    arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] *:= -4611686018427387904);
+    arr[1] :=  4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:=                    2);
+    arr[1] :=  4611686018427387903; ok := ok and raisesOverflowError(arr[1] *:=                    3);
+    arr[1] :=  3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:=                    3);
+    arr[1] :=  3074457345618258602; ok := ok and raisesOverflowError(arr[1] *:=                    4);
+    arr[1] :=   838488366986797801; ok := ok and raisesOverflowError(arr[1] *:=                   11);
+    arr[1] :=   838488366986797800; ok := ok and raisesOverflowError(arr[1] *:=                   12);
+    arr[1] :=    10762394442070917; ok := ok and raisesOverflowError(arr[1] *:=                  857);
+    arr[1] :=    10762394442070916; ok := ok and raisesOverflowError(arr[1] *:=                  858);
+    arr[1] :=     1988224194191588; ok := ok and raisesOverflowError(arr[1] *:=                 4639);
+    arr[1] :=     1988224194191587; ok := ok and raisesOverflowError(arr[1] *:=                 4640);
+    arr[1] :=      240989001041329; ok := ok and raisesOverflowError(arr[1] *:=                38273);
+    arr[1] :=      240989001041328; ok := ok and raisesOverflowError(arr[1] *:=                38274);
+    arr[1] :=       14312161101688; ok := ok and raisesOverflowError(arr[1] *:=               644443);
+    arr[1] :=       14312161101687; ok := ok and raisesOverflowError(arr[1] *:=               644444);
+    arr[1] :=         933865493038; ok := ok and raisesOverflowError(arr[1] *:=              9876553);
+    arr[1] :=         933865493037; ok := ok and raisesOverflowError(arr[1] *:=              9876554);
+    arr[1] :=         747094709114; ok := ok and raisesOverflowError(arr[1] *:=             12345653);
+    arr[1] :=         747094709113; ok := ok and raisesOverflowError(arr[1] *:=             12345654);
+    arr[1] :=          74709312969; ok := ok and raisesOverflowError(arr[1] *:=            123456791);
+    arr[1] :=          74709312968; ok := ok and raisesOverflowError(arr[1] *:=            123456792);
+    arr[1] :=           3037000500; ok := ok and raisesOverflowError(arr[1] *:=           3037000500);
+    arr[1] :=            123456792; ok := ok and raisesOverflowError(arr[1] *:=          74709312968);
+    arr[1] :=            123456791; ok := ok and raisesOverflowError(arr[1] *:=          74709312969);
+    arr[1] :=             12345654; ok := ok and raisesOverflowError(arr[1] *:=         747094709113);
+    arr[1] :=             12345653; ok := ok and raisesOverflowError(arr[1] *:=         747094709114);
+    arr[1] :=              9876554; ok := ok and raisesOverflowError(arr[1] *:=         933865493037);
+    arr[1] :=              9876553; ok := ok and raisesOverflowError(arr[1] *:=         933865493038);
+    arr[1] :=               644444; ok := ok and raisesOverflowError(arr[1] *:=       14312161101687);
+    arr[1] :=               644443; ok := ok and raisesOverflowError(arr[1] *:=       14312161101688);
+    arr[1] :=                38274; ok := ok and raisesOverflowError(arr[1] *:=      240989001041328);
+    arr[1] :=                38273; ok := ok and raisesOverflowError(arr[1] *:=      240989001041329);
+    arr[1] :=                 4640; ok := ok and raisesOverflowError(arr[1] *:=     1988224194191587);
+    arr[1] :=                 4639; ok := ok and raisesOverflowError(arr[1] *:=     1988224194191588);
+    arr[1] :=                  858; ok := ok and raisesOverflowError(arr[1] *:=    10762394442070916);
+    arr[1] :=                  857; ok := ok and raisesOverflowError(arr[1] *:=    10762394442070917);
+    arr[1] :=                   12; ok := ok and raisesOverflowError(arr[1] *:=   838488366986797800);
+    arr[1] :=                   11; ok := ok and raisesOverflowError(arr[1] *:=   838488366986797801);
+    arr[1] :=                    4; ok := ok and raisesOverflowError(arr[1] *:=  3074457345618258602);
+    arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:=  3074457345618258603);
+    arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:=  4611686018427387903);
+    arr[1] :=                    2; ok := ok and raisesOverflowError(arr[1] *:=  4611686018427387904);
+    if not ok then
+      writeln(" ***** Overflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    arr[1] :=            INT64_MIN; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -1));
+    arr[1] := -4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -2));
+    arr[1] := -4611686018427387903; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -3));
+    arr[1] := -3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -3));
+    arr[1] := -3074457345618258602; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                  -4));
+    arr[1] :=  -838488366986797801; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                 -11));
+    arr[1] :=  -838488366986797800; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                 -12));
+    arr[1] :=   -10762394442070917; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                -857));
+    arr[1] :=   -10762394442070916; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                -858));
+    arr[1] :=    -1988224194191588; ok := ok and raisesOverflowError(arr[1] *:= intExpr(               -4639));
+    arr[1] :=    -1988224194191587; ok := ok and raisesOverflowError(arr[1] *:= intExpr(               -4640));
+    arr[1] :=     -240989001041329; ok := ok and raisesOverflowError(arr[1] *:= intExpr(              -38273));
+    arr[1] :=     -240989001041328; ok := ok and raisesOverflowError(arr[1] *:= intExpr(              -38274));
+    arr[1] :=      -14312161101688; ok := ok and raisesOverflowError(arr[1] *:= intExpr(             -644443));
+    arr[1] :=      -14312161101687; ok := ok and raisesOverflowError(arr[1] *:= intExpr(             -644444));
+    arr[1] :=        -933865493038; ok := ok and raisesOverflowError(arr[1] *:= intExpr(            -9876553));
+    arr[1] :=        -933865493037; ok := ok and raisesOverflowError(arr[1] *:= intExpr(            -9876554));
+    arr[1] :=        -747094709114; ok := ok and raisesOverflowError(arr[1] *:= intExpr(           -12345653));
+    arr[1] :=        -747094709113; ok := ok and raisesOverflowError(arr[1] *:= intExpr(           -12345654));
+    arr[1] :=         -74709312969; ok := ok and raisesOverflowError(arr[1] *:= intExpr(          -123456791));
+    arr[1] :=         -74709312968; ok := ok and raisesOverflowError(arr[1] *:= intExpr(          -123456792));
+    arr[1] :=          -3037000500; ok := ok and raisesOverflowError(arr[1] *:= intExpr(         -3037000500));
+    arr[1] :=           -123456792; ok := ok and raisesOverflowError(arr[1] *:= intExpr(        -74709312968));
+    arr[1] :=           -123456791; ok := ok and raisesOverflowError(arr[1] *:= intExpr(        -74709312969));
+    arr[1] :=            -12345654; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -747094709113));
+    arr[1] :=            -12345653; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -747094709114));
+    arr[1] :=             -9876554; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -933865493037));
+    arr[1] :=             -9876553; ok := ok and raisesOverflowError(arr[1] *:= intExpr(       -933865493038));
+    arr[1] :=              -644444; ok := ok and raisesOverflowError(arr[1] *:= intExpr(     -14312161101687));
+    arr[1] :=              -644443; ok := ok and raisesOverflowError(arr[1] *:= intExpr(     -14312161101688));
+    arr[1] :=               -38274; ok := ok and raisesOverflowError(arr[1] *:= intExpr(    -240989001041328));
+    arr[1] :=               -38273; ok := ok and raisesOverflowError(arr[1] *:= intExpr(    -240989001041329));
+    arr[1] :=                -4640; ok := ok and raisesOverflowError(arr[1] *:= intExpr(   -1988224194191587));
+    arr[1] :=                -4639; ok := ok and raisesOverflowError(arr[1] *:= intExpr(   -1988224194191588));
+    arr[1] :=                 -858; ok := ok and raisesOverflowError(arr[1] *:= intExpr(  -10762394442070916));
+    arr[1] :=                 -857; ok := ok and raisesOverflowError(arr[1] *:= intExpr(  -10762394442070917));
+    arr[1] :=                  -12; ok := ok and raisesOverflowError(arr[1] *:= intExpr( -838488366986797800));
+    arr[1] :=                  -11; ok := ok and raisesOverflowError(arr[1] *:= intExpr( -838488366986797801));
+    arr[1] :=                   -4; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-3074457345618258602));
+    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-3074457345618258603));
+    arr[1] :=                   -3; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-4611686018427387903));
+    arr[1] :=                   -2; ok := ok and raisesOverflowError(arr[1] *:= intExpr(-4611686018427387904));
     arr[1] :=  4611686018427387904; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                   2));
     arr[1] :=  4611686018427387903; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                   3));
     arr[1] :=  3074457345618258603; ok := ok and raisesOverflowError(arr[1] *:= intExpr(                   3));
@@ -3138,7 +3329,7 @@ const proc: check_mult_assign is func
     arr[1] :=                    3; ok := ok and raisesOverflowError(arr[1] *:= intExpr( 4611686018427387903));
     arr[1] :=                    2; ok := ok and raisesOverflowError(arr[1] *:= intExpr( 4611686018427387904));
     if not ok then
-      writeln(" ***** Overflow when computing multiplication assignment does not raise OVERFLOW_ERROR.");
+      writeln(" ***** Overflow when computing multiplication assignment does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 
@@ -3186,7 +3377,7 @@ const proc: check_rem is func
         not raisesOverflowError(intExpr((-9223372036854775807-1)) rem         -1 ) or
         not raisesOverflowError(        (-9223372036854775807-1)  rem intExpr(-1)) or
         not raisesOverflowError(intExpr((-9223372036854775807-1)) rem intExpr(-1)) then
-      writeln(" ***** Computing -9223372036854775808 rem -1 does not work correct.");
+      writeln(" ***** Computing -9223372036854775808 rem -1 does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;
 
@@ -3234,7 +3425,7 @@ const proc: check_mod is func
         not raisesOverflowError(intExpr((-9223372036854775807-1)) mod         -1 ) or
         not raisesOverflowError(        (-9223372036854775807-1)  mod intExpr(-1)) or
         not raisesOverflowError(intExpr((-9223372036854775807-1)) mod intExpr(-1)) then
-      writeln(" ***** Computing -9223372036854775808 mod -1 does not work correct.");
+      writeln(" ***** Computing -9223372036854775808 mod -1 does not raise OVERFLOW_ERROR.");
       okay := FALSE;
     end if;
 
@@ -4636,183 +4827,303 @@ const proc: check_power is func
   local
     var boolean: okay is TRUE;
   begin
-    if  not raisesOverflowError((-3037000500) **  2) or
-        not raisesOverflowError((-3037000499) **  3) or
-        not raisesOverflowError((-2147483648) **  3) or
-        not raisesOverflowError(   (-2097153) **  3) or
-        not raisesOverflowError(   (-2097152) **  4) or
-        not raisesOverflowError(   (-2097151) **  4) or
-        not raisesOverflowError(   (-1234577) **  4) or
-        not raisesOverflowError(    (-123457) **  4) or
-        not raisesOverflowError(     (-55109) **  4) or
-        not raisesOverflowError(     (-55108) **  5) or
-        not raisesOverflowError(     (-32768) **  5) or
-        not raisesOverflowError(     (-32767) **  5) or
-        not raisesOverflowError(      (-6209) **  5) or
-        not raisesOverflowError(      (-6208) **  6) or
-        not raisesOverflowError(      (-1449) **  6) or
-        not raisesOverflowError(      (-1448) **  7) or
-        not raisesOverflowError(       (-513) **  7) or
-        not raisesOverflowError(       (-512) **  8) or
-        not raisesOverflowError(       (-511) **  8) or
-        not raisesOverflowError(        (-97) ** 10) or
-        not raisesOverflowError(         (-3) ** 40) or
-        not raisesOverflowError(         (-2) ** 64) or
-        not raisesOverflowError(           2  ** 63) or
-        not raisesOverflowError(           3  ** 40) or
-        not raisesOverflowError(          97  ** 10) or
-        not raisesOverflowError(         511  **  8) or
-        not raisesOverflowError(         512  **  7) or
-        not raisesOverflowError(         513  **  7) or
-        not raisesOverflowError(        1448  **  7) or
-        not raisesOverflowError(        1449  **  6) or
-        not raisesOverflowError(        6208  **  6) or
-        not raisesOverflowError(        6209  **  5) or
-        not raisesOverflowError(       32767  **  5) or
-        not raisesOverflowError(       32768  **  5) or
-        not raisesOverflowError(       55108  **  5) or
-        not raisesOverflowError(       55109  **  4) or
-        not raisesOverflowError(      123457  **  4) or
-        not raisesOverflowError(     1234577  **  4) or
-        not raisesOverflowError(     2097151  **  4) or
-        not raisesOverflowError(     2097152  **  3) or
-        not raisesOverflowError(     2097153  **  3) or
-        not raisesOverflowError(  2147483648  **  3) or
-        not raisesOverflowError(  3037000499  **  3) or
-        not raisesOverflowError(  3037000500  **  2) or
-        not raisesOverflowError(intExpr(-3037000500) **  2) or
-        not raisesOverflowError(intExpr(-3037000499) **  3) or
-        not raisesOverflowError(intExpr(-2147483648) **  3) or
-        not raisesOverflowError(intExpr(   -2097153) **  3) or
-        not raisesOverflowError(intExpr(   -2097152) **  4) or
-        not raisesOverflowError(intExpr(   -2097151) **  4) or
-        not raisesOverflowError(intExpr(   -1234577) **  4) or
-        not raisesOverflowError(intExpr(    -123457) **  4) or
-        not raisesOverflowError(intExpr(     -55109) **  4) or
-        not raisesOverflowError(intExpr(     -55108) **  5) or
-        not raisesOverflowError(intExpr(     -32768) **  5) or
-        not raisesOverflowError(intExpr(     -32767) **  5) or
-        not raisesOverflowError(intExpr(      -6209) **  5) or
-        not raisesOverflowError(intExpr(      -6208) **  6) or
-        not raisesOverflowError(intExpr(      -1449) **  6) or
-        not raisesOverflowError(intExpr(      -1448) **  7) or
-        not raisesOverflowError(intExpr(       -513) **  7) or
-        not raisesOverflowError(intExpr(       -512) **  8) or
-        not raisesOverflowError(intExpr(       -511) **  8) or
-        not raisesOverflowError(intExpr(        -97) ** 10) or
-        not raisesOverflowError(intExpr(         -3) ** 40) or
-        not raisesOverflowError(intExpr(         -2) ** 64) or
-        not raisesOverflowError(intExpr(          2) ** 63) or
-        not raisesOverflowError(intExpr(          3) ** 40) or
-        not raisesOverflowError(intExpr(         97) ** 10) or
-        not raisesOverflowError(intExpr(        511) **  8) or
-        not raisesOverflowError(intExpr(        512) **  7) or
-        not raisesOverflowError(intExpr(        513) **  7) or
-        not raisesOverflowError(intExpr(       1448) **  7) or
-        not raisesOverflowError(intExpr(       1449) **  6) or
-        not raisesOverflowError(intExpr(       6208) **  6) or
-        not raisesOverflowError(intExpr(       6209) **  5) or
-        not raisesOverflowError(intExpr(      32767) **  5) or
-        not raisesOverflowError(intExpr(      32768) **  5) or
-        not raisesOverflowError(intExpr(      55108) **  5) or
-        not raisesOverflowError(intExpr(      55109) **  4) or
-        not raisesOverflowError(intExpr(     123457) **  4) or
-        not raisesOverflowError(intExpr(    1234577) **  4) or
-        not raisesOverflowError(intExpr(    2097151) **  4) or
-        not raisesOverflowError(intExpr(    2097152) **  3) or
-        not raisesOverflowError(intExpr(    2097153) **  3) or
-        not raisesOverflowError(intExpr( 2147483648) **  3) or
-        not raisesOverflowError(intExpr( 3037000499) **  3) or
-        not raisesOverflowError(intExpr( 3037000500) **  2) or
-        not raisesOverflowError((-3037000500) ** intExpr( 2)) or
-        not raisesOverflowError((-3037000499) ** intExpr( 3)) or
-        not raisesOverflowError((-2147483648) ** intExpr( 3)) or
-        not raisesOverflowError(   (-2097153) ** intExpr( 3)) or
-        not raisesOverflowError(   (-2097152) ** intExpr( 4)) or
-        not raisesOverflowError(   (-2097151) ** intExpr( 4)) or
-        not raisesOverflowError(   (-1234577) ** intExpr( 4)) or
-        not raisesOverflowError(    (-123457) ** intExpr( 4)) or
-        not raisesOverflowError(     (-55109) ** intExpr( 4)) or
-        not raisesOverflowError(     (-55108) ** intExpr( 5)) or
-        not raisesOverflowError(     (-32768) ** intExpr( 5)) or
-        not raisesOverflowError(     (-32767) ** intExpr( 5)) or
-        not raisesOverflowError(      (-6209) ** intExpr( 5)) or
-        not raisesOverflowError(      (-6208) ** intExpr( 6)) or
-        not raisesOverflowError(      (-1449) ** intExpr( 6)) or
-        not raisesOverflowError(      (-1448) ** intExpr( 7)) or
-        not raisesOverflowError(       (-513) ** intExpr( 7)) or
-        not raisesOverflowError(       (-512) ** intExpr( 8)) or
-        not raisesOverflowError(       (-511) ** intExpr( 8)) or
-        not raisesOverflowError(        (-97) ** intExpr(10)) or
-        not raisesOverflowError(         (-3) ** intExpr(40)) or
-        not raisesOverflowError(         (-2) ** intExpr(64)) or
-        not raisesOverflowError(           2  ** intExpr(63)) or
-        not raisesOverflowError(           3  ** intExpr(40)) or
-        not raisesOverflowError(          97  ** intExpr(10)) or
-        not raisesOverflowError(         511  ** intExpr( 8)) or
-        not raisesOverflowError(         512  ** intExpr( 7)) or
-        not raisesOverflowError(         513  ** intExpr( 7)) or
-        not raisesOverflowError(        1448  ** intExpr( 7)) or
-        not raisesOverflowError(        1449  ** intExpr( 6)) or
-        not raisesOverflowError(        6208  ** intExpr( 6)) or
-        not raisesOverflowError(        6209  ** intExpr( 5)) or
-        not raisesOverflowError(       32767  ** intExpr( 5)) or
-        not raisesOverflowError(       32768  ** intExpr( 5)) or
-        not raisesOverflowError(       55108  ** intExpr( 5)) or
-        not raisesOverflowError(       55109  ** intExpr( 4)) or
-        not raisesOverflowError(      123457  ** intExpr( 4)) or
-        not raisesOverflowError(     1234577  ** intExpr( 4)) or
-        not raisesOverflowError(     2097151  ** intExpr( 4)) or
-        not raisesOverflowError(     2097152  ** intExpr( 3)) or
-        not raisesOverflowError(     2097153  ** intExpr( 3)) or
-        not raisesOverflowError(  2147483648  ** intExpr( 3)) or
-        not raisesOverflowError(  3037000499  ** intExpr( 3)) or
-        not raisesOverflowError(  3037000500  ** intExpr( 2)) or
-        not raisesOverflowError(intExpr(-3037000500) ** intExpr( 2)) or
-        not raisesOverflowError(intExpr(-3037000499) ** intExpr( 3)) or
-        not raisesOverflowError(intExpr(-2147483648) ** intExpr( 3)) or
-        not raisesOverflowError(intExpr(   -2097153) ** intExpr( 3)) or
-        not raisesOverflowError(intExpr(   -2097152) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(   -2097151) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(   -1234577) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(    -123457) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(     -55109) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(     -55108) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(     -32768) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(     -32767) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(      -6209) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(      -6208) ** intExpr( 6)) or
-        not raisesOverflowError(intExpr(      -1449) ** intExpr( 6)) or
-        not raisesOverflowError(intExpr(      -1448) ** intExpr( 7)) or
-        not raisesOverflowError(intExpr(       -513) ** intExpr( 7)) or
-        not raisesOverflowError(intExpr(       -512) ** intExpr( 8)) or
-        not raisesOverflowError(intExpr(       -511) ** intExpr( 8)) or
-        not raisesOverflowError(intExpr(        -97) ** intExpr(10)) or
-        not raisesOverflowError(intExpr(         -3) ** intExpr(40)) or
-        not raisesOverflowError(intExpr(         -2) ** intExpr(64)) or
-        not raisesOverflowError(intExpr(          2) ** intExpr(63)) or
-        not raisesOverflowError(intExpr(          3) ** intExpr(40)) or
-        not raisesOverflowError(intExpr(         97) ** intExpr(10)) or
-        not raisesOverflowError(intExpr(        511) ** intExpr( 8)) or
-        not raisesOverflowError(intExpr(        512) ** intExpr( 7)) or
-        not raisesOverflowError(intExpr(        513) ** intExpr( 7)) or
-        not raisesOverflowError(intExpr(       1448) ** intExpr( 7)) or
-        not raisesOverflowError(intExpr(       1449) ** intExpr( 6)) or
-        not raisesOverflowError(intExpr(       6208) ** intExpr( 6)) or
-        not raisesOverflowError(intExpr(       6209) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(      32767) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(      32768) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(      55108) ** intExpr( 5)) or
-        not raisesOverflowError(intExpr(      55109) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(     123457) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(    1234577) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(    2097151) ** intExpr( 4)) or
-        not raisesOverflowError(intExpr(    2097152) ** intExpr( 3)) or
-        not raisesOverflowError(intExpr(    2097153) ** intExpr( 3)) or
-        not raisesOverflowError(intExpr( 2147483648) ** intExpr( 3)) or
-        not raisesOverflowError(intExpr( 3037000499) ** intExpr( 3)) or
-        not raisesOverflowError(intExpr( 3037000500) ** intExpr( 2)) then
-      writeln(" ***** Overflow when computing power does not raise OVERFLOW_ERROR.");
+    if  not raisesOverflowError(            INT64_MIN  **  2) or
+        not raisesOverflowError((-9223372036854775807) **  2) or
+        not raisesOverflowError(         (-3037000500) **  2) or
+        not raisesOverflowError(         (-3037000499) **  3) or
+        not raisesOverflowError(         (-2147483648) **  3) or
+        not raisesOverflowError(            (-2097153) **  3) or
+        not raisesOverflowError(            (-2097152) **  4) or
+        not raisesOverflowError(            (-2097151) **  4) or
+        not raisesOverflowError(            (-1234577) **  4) or
+        not raisesOverflowError(             (-123457) **  4) or
+        not raisesOverflowError(              (-55109) **  4) or
+        not raisesOverflowError(              (-55108) **  5) or
+        not raisesOverflowError(              (-32768) **  5) or
+        not raisesOverflowError(              (-32767) **  5) or
+        not raisesOverflowError(               (-6209) **  5) or
+        not raisesOverflowError(               (-6208) **  6) or
+        not raisesOverflowError(               (-1449) **  6) or
+        not raisesOverflowError(               (-1448) **  7) or
+        not raisesOverflowError(                (-513) **  7) or
+        not raisesOverflowError(                (-512) **  8) or
+        not raisesOverflowError(                (-511) **  8) or
+        not raisesOverflowError(                (-235) **  8) or
+        not raisesOverflowError(                (-234) **  9) or
+        not raisesOverflowError(                (-129) **  9) or
+        not raisesOverflowError(                (-128) ** 10) or
+        not raisesOverflowError(                (-127) ** 10) or
+        not raisesOverflowError(                 (-97) ** 10) or
+        not raisesOverflowError(                 (-10) ** 19) or
+        not raisesOverflowError(                  (-9) ** 20) or
+        not raisesOverflowError(                  (-8) ** 22) or
+        not raisesOverflowError(                  (-7) ** 23) or
+        not raisesOverflowError(                  (-6) ** 25) or
+        not raisesOverflowError(                  (-5) ** 28) or
+        not raisesOverflowError(                  (-4) ** 32) or
+        not raisesOverflowError(                  (-3) ** 40) or
+        not raisesOverflowError(                  (-2) ** 64) or
+        not raisesOverflowError(                    2  ** 63) or
+        not raisesOverflowError(                    3  ** 40) or
+        not raisesOverflowError(                    4  ** 32) or
+        not raisesOverflowError(                    5  ** 28) or
+        not raisesOverflowError(                    6  ** 25) or
+        not raisesOverflowError(                    7  ** 23) or
+        not raisesOverflowError(                    8  ** 21) or
+        not raisesOverflowError(                    9  ** 20) or
+        not raisesOverflowError(                   10  ** 19) or
+        not raisesOverflowError(                   97  ** 10) or
+        not raisesOverflowError(                  127  ** 10) or
+        not raisesOverflowError(                  128  **  9) or
+        not raisesOverflowError(                  129  **  9) or
+        not raisesOverflowError(                  234  **  9) or
+        not raisesOverflowError(                  235  **  8) or
+        not raisesOverflowError(                  511  **  8) or
+        not raisesOverflowError(                  512  **  7) or
+        not raisesOverflowError(                  513  **  7) or
+        not raisesOverflowError(                 1448  **  7) or
+        not raisesOverflowError(                 1449  **  6) or
+        not raisesOverflowError(                 6208  **  6) or
+        not raisesOverflowError(                 6209  **  5) or
+        not raisesOverflowError(                32767  **  5) or
+        not raisesOverflowError(                32768  **  5) or
+        not raisesOverflowError(                55108  **  5) or
+        not raisesOverflowError(                55109  **  4) or
+        not raisesOverflowError(               123457  **  4) or
+        not raisesOverflowError(              1234577  **  4) or
+        not raisesOverflowError(              2097151  **  4) or
+        not raisesOverflowError(              2097152  **  3) or
+        not raisesOverflowError(              2097153  **  3) or
+        not raisesOverflowError(           2147483648  **  3) or
+        not raisesOverflowError(           3037000499  **  3) or
+        not raisesOverflowError(           3037000500  **  2) or
+        not raisesOverflowError(  9223372036854775807  **  2) then
+      writeln(" ***** Overflow when computing power does not raise OVERFLOW_ERROR. (1)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) **  2) or
+        not raisesOverflowError(intExpr(-9223372036854775807) **  2) or
+        not raisesOverflowError(intExpr(         -3037000500) **  2) or
+        not raisesOverflowError(intExpr(         -3037000499) **  3) or
+        not raisesOverflowError(intExpr(         -2147483648) **  3) or
+        not raisesOverflowError(intExpr(            -2097153) **  3) or
+        not raisesOverflowError(intExpr(            -2097152) **  4) or
+        not raisesOverflowError(intExpr(            -2097151) **  4) or
+        not raisesOverflowError(intExpr(            -1234577) **  4) or
+        not raisesOverflowError(intExpr(             -123457) **  4) or
+        not raisesOverflowError(intExpr(              -55109) **  4) or
+        not raisesOverflowError(intExpr(              -55108) **  5) or
+        not raisesOverflowError(intExpr(              -32768) **  5) or
+        not raisesOverflowError(intExpr(              -32767) **  5) or
+        not raisesOverflowError(intExpr(               -6209) **  5) or
+        not raisesOverflowError(intExpr(               -6208) **  6) or
+        not raisesOverflowError(intExpr(               -1449) **  6) or
+        not raisesOverflowError(intExpr(               -1448) **  7) or
+        not raisesOverflowError(intExpr(                -513) **  7) or
+        not raisesOverflowError(intExpr(                -512) **  8) or
+        not raisesOverflowError(intExpr(                -511) **  8) or
+        not raisesOverflowError(intExpr(                -235) **  8) or
+        not raisesOverflowError(intExpr(                -234) **  9) or
+        not raisesOverflowError(intExpr(                -129) **  9) or
+        not raisesOverflowError(intExpr(                -128) ** 10) or
+        not raisesOverflowError(intExpr(                -127) ** 10) or
+        not raisesOverflowError(intExpr(                 -97) ** 10) or
+        not raisesOverflowError(intExpr(                 -10) ** 19) or
+        not raisesOverflowError(intExpr(                  -9) ** 20) or
+        not raisesOverflowError(intExpr(                  -8) ** 22) or
+        not raisesOverflowError(intExpr(                  -7) ** 23) or
+        not raisesOverflowError(intExpr(                  -6) ** 25) or
+        not raisesOverflowError(intExpr(                  -5) ** 28) or
+        not raisesOverflowError(intExpr(                  -4) ** 32) or
+        not raisesOverflowError(intExpr(                  -3) ** 40) or
+        not raisesOverflowError(intExpr(                  -2) ** 64) or
+        not raisesOverflowError(intExpr(                   2) ** 63) or
+        not raisesOverflowError(intExpr(                   3) ** 40) or
+        not raisesOverflowError(intExpr(                   4) ** 32) or
+        not raisesOverflowError(intExpr(                   5) ** 28) or
+        not raisesOverflowError(intExpr(                   6) ** 25) or
+        not raisesOverflowError(intExpr(                   7) ** 23) or
+        not raisesOverflowError(intExpr(                   8) ** 21) or
+        not raisesOverflowError(intExpr(                   9) ** 20) or
+        not raisesOverflowError(intExpr(                  10) ** 19) or
+        not raisesOverflowError(intExpr(                  97) ** 10) or
+        not raisesOverflowError(intExpr(                 127) ** 10) or
+        not raisesOverflowError(intExpr(                 128) **  9) or
+        not raisesOverflowError(intExpr(                 129) **  9) or
+        not raisesOverflowError(intExpr(                 234) **  9) or
+        not raisesOverflowError(intExpr(                 235) **  8) or
+        not raisesOverflowError(intExpr(                 511) **  8) or
+        not raisesOverflowError(intExpr(                 512) **  7) or
+        not raisesOverflowError(intExpr(                 513) **  7) or
+        not raisesOverflowError(intExpr(                1448) **  7) or
+        not raisesOverflowError(intExpr(                1449) **  6) or
+        not raisesOverflowError(intExpr(                6208) **  6) or
+        not raisesOverflowError(intExpr(                6209) **  5) or
+        not raisesOverflowError(intExpr(               32767) **  5) or
+        not raisesOverflowError(intExpr(               32768) **  5) or
+        not raisesOverflowError(intExpr(               55108) **  5) or
+        not raisesOverflowError(intExpr(               55109) **  4) or
+        not raisesOverflowError(intExpr(              123457) **  4) or
+        not raisesOverflowError(intExpr(             1234577) **  4) or
+        not raisesOverflowError(intExpr(             2097151) **  4) or
+        not raisesOverflowError(intExpr(             2097152) **  3) or
+        not raisesOverflowError(intExpr(             2097153) **  3) or
+        not raisesOverflowError(intExpr(          2147483648) **  3) or
+        not raisesOverflowError(intExpr(          3037000499) **  3) or
+        not raisesOverflowError(intExpr(          3037000500) **  2) or
+        not raisesOverflowError(intExpr( 9223372036854775807) **  2) then
+      writeln(" ***** Overflow when computing power does not raise OVERFLOW_ERROR. (2)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(            INT64_MIN  ** intExpr( 2)) or
+        not raisesOverflowError((-9223372036854775807) ** intExpr( 2)) or
+        not raisesOverflowError(         (-3037000500) ** intExpr( 2)) or
+        not raisesOverflowError(         (-3037000499) ** intExpr( 3)) or
+        not raisesOverflowError(         (-2147483648) ** intExpr( 3)) or
+        not raisesOverflowError(            (-2097153) ** intExpr( 3)) or
+        not raisesOverflowError(            (-2097152) ** intExpr( 4)) or
+        not raisesOverflowError(            (-2097151) ** intExpr( 4)) or
+        not raisesOverflowError(            (-1234577) ** intExpr( 4)) or
+        not raisesOverflowError(             (-123457) ** intExpr( 4)) or
+        not raisesOverflowError(              (-55109) ** intExpr( 4)) or
+        not raisesOverflowError(              (-55108) ** intExpr( 5)) or
+        not raisesOverflowError(              (-32768) ** intExpr( 5)) or
+        not raisesOverflowError(              (-32767) ** intExpr( 5)) or
+        not raisesOverflowError(               (-6209) ** intExpr( 5)) or
+        not raisesOverflowError(               (-6208) ** intExpr( 6)) or
+        not raisesOverflowError(               (-1449) ** intExpr( 6)) or
+        not raisesOverflowError(               (-1448) ** intExpr( 7)) or
+        not raisesOverflowError(                (-513) ** intExpr( 7)) or
+        not raisesOverflowError(                (-512) ** intExpr( 8)) or
+        not raisesOverflowError(                (-511) ** intExpr( 8)) or
+        not raisesOverflowError(                (-235) ** intExpr( 8)) or
+        not raisesOverflowError(                (-234) ** intExpr( 9)) or
+        not raisesOverflowError(                (-129) ** intExpr( 9)) or
+        not raisesOverflowError(                (-128) ** intExpr(10)) or
+        not raisesOverflowError(                (-127) ** intExpr(10)) or
+        not raisesOverflowError(                 (-97) ** intExpr(10)) or
+        not raisesOverflowError(                 (-10) ** intExpr(19)) or
+        not raisesOverflowError(                  (-9) ** intExpr(20)) or
+        not raisesOverflowError(                  (-8) ** intExpr(22)) or
+        not raisesOverflowError(                  (-7) ** intExpr(23)) or
+        not raisesOverflowError(                  (-6) ** intExpr(25)) or
+        not raisesOverflowError(                  (-5) ** intExpr(28)) or
+        not raisesOverflowError(                  (-4) ** intExpr(32)) or
+        not raisesOverflowError(                  (-3) ** intExpr(40)) or
+        not raisesOverflowError(                  (-2) ** intExpr(64)) or
+        not raisesOverflowError(                    2  ** intExpr(63)) or
+        not raisesOverflowError(                    3  ** intExpr(40)) or
+        not raisesOverflowError(                    4  ** intExpr(32)) or
+        not raisesOverflowError(                    5  ** intExpr(28)) or
+        not raisesOverflowError(                    6  ** intExpr(25)) or
+        not raisesOverflowError(                    7  ** intExpr(23)) or
+        not raisesOverflowError(                    8  ** intExpr(21)) or
+        not raisesOverflowError(                    9  ** intExpr(20)) or
+        not raisesOverflowError(                   10  ** intExpr(19)) or
+        not raisesOverflowError(                   97  ** intExpr(10)) or
+        not raisesOverflowError(                  127  ** intExpr(10)) or
+        not raisesOverflowError(                  128  ** intExpr( 9)) or
+        not raisesOverflowError(                  129  ** intExpr( 9)) or
+        not raisesOverflowError(                  234  ** intExpr( 9)) or
+        not raisesOverflowError(                  235  ** intExpr( 8)) or
+        not raisesOverflowError(                  511  ** intExpr( 8)) or
+        not raisesOverflowError(                  512  ** intExpr( 7)) or
+        not raisesOverflowError(                  513  ** intExpr( 7)) or
+        not raisesOverflowError(                 1448  ** intExpr( 7)) or
+        not raisesOverflowError(                 1449  ** intExpr( 6)) or
+        not raisesOverflowError(                 6208  ** intExpr( 6)) or
+        not raisesOverflowError(                 6209  ** intExpr( 5)) or
+        not raisesOverflowError(                32767  ** intExpr( 5)) or
+        not raisesOverflowError(                32768  ** intExpr( 5)) or
+        not raisesOverflowError(                55108  ** intExpr( 5)) or
+        not raisesOverflowError(                55109  ** intExpr( 4)) or
+        not raisesOverflowError(               123457  ** intExpr( 4)) or
+        not raisesOverflowError(              1234577  ** intExpr( 4)) or
+        not raisesOverflowError(              2097151  ** intExpr( 4)) or
+        not raisesOverflowError(              2097152  ** intExpr( 3)) or
+        not raisesOverflowError(              2097153  ** intExpr( 3)) or
+        not raisesOverflowError(           2147483648  ** intExpr( 3)) or
+        not raisesOverflowError(           3037000499  ** intExpr( 3)) or
+        not raisesOverflowError(           3037000500  ** intExpr( 2)) or
+        not raisesOverflowError(  9223372036854775807  ** intExpr( 2)) then
+      writeln(" ***** Overflow when computing power does not raise OVERFLOW_ERROR. (3)");
+      okay := FALSE;
+    end if;
+
+    if  not raisesOverflowError(intExpr(           INT64_MIN) ** intExpr( 2)) or
+        not raisesOverflowError(intExpr(-9223372036854775807) ** intExpr( 2)) or
+        not raisesOverflowError(intExpr(         -3037000500) ** intExpr( 2)) or
+        not raisesOverflowError(intExpr(         -3037000499) ** intExpr( 3)) or
+        not raisesOverflowError(intExpr(         -2147483648) ** intExpr( 3)) or
+        not raisesOverflowError(intExpr(            -2097153) ** intExpr( 3)) or
+        not raisesOverflowError(intExpr(            -2097152) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(            -2097151) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(            -1234577) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(             -123457) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(              -55109) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(              -55108) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(              -32768) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(              -32767) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(               -6209) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(               -6208) ** intExpr( 6)) or
+        not raisesOverflowError(intExpr(               -1449) ** intExpr( 6)) or
+        not raisesOverflowError(intExpr(               -1448) ** intExpr( 7)) or
+        not raisesOverflowError(intExpr(                -513) ** intExpr( 7)) or
+        not raisesOverflowError(intExpr(                -512) ** intExpr( 8)) or
+        not raisesOverflowError(intExpr(                -511) ** intExpr( 8)) or
+        not raisesOverflowError(intExpr(                -235) ** intExpr( 8)) or
+        not raisesOverflowError(intExpr(                -234) ** intExpr( 9)) or
+        not raisesOverflowError(intExpr(                -129) ** intExpr( 9)) or
+        not raisesOverflowError(intExpr(                -128) ** intExpr(10)) or
+        not raisesOverflowError(intExpr(                -127) ** intExpr(10)) or
+        not raisesOverflowError(intExpr(                 -97) ** intExpr(10)) or
+        not raisesOverflowError(intExpr(                 -10) ** intExpr(19)) or
+        not raisesOverflowError(intExpr(                  -9) ** intExpr(20)) or
+        not raisesOverflowError(intExpr(                  -8) ** intExpr(22)) or
+        not raisesOverflowError(intExpr(                  -7) ** intExpr(23)) or
+        not raisesOverflowError(intExpr(                  -6) ** intExpr(25)) or
+        not raisesOverflowError(intExpr(                  -5) ** intExpr(28)) or
+        not raisesOverflowError(intExpr(                  -4) ** intExpr(32)) or
+        not raisesOverflowError(intExpr(                  -3) ** intExpr(40)) or
+        not raisesOverflowError(intExpr(                  -2) ** intExpr(64)) or
+        not raisesOverflowError(intExpr(                   2) ** intExpr(63)) or
+        not raisesOverflowError(intExpr(                   3) ** intExpr(40)) or
+        not raisesOverflowError(intExpr(                   4) ** intExpr(32)) or
+        not raisesOverflowError(intExpr(                   5) ** intExpr(28)) or
+        not raisesOverflowError(intExpr(                   6) ** intExpr(25)) or
+        not raisesOverflowError(intExpr(                   7) ** intExpr(23)) or
+        not raisesOverflowError(intExpr(                   8) ** intExpr(21)) or
+        not raisesOverflowError(intExpr(                   9) ** intExpr(20)) or
+        not raisesOverflowError(intExpr(                  10) ** intExpr(19)) or
+        not raisesOverflowError(intExpr(                  97) ** intExpr(10)) or
+        not raisesOverflowError(intExpr(                 127) ** intExpr(10)) or
+        not raisesOverflowError(intExpr(                 128) ** intExpr( 9)) or
+        not raisesOverflowError(intExpr(                 129) ** intExpr( 9)) or
+        not raisesOverflowError(intExpr(                 234) ** intExpr( 9)) or
+        not raisesOverflowError(intExpr(                 235) ** intExpr( 8)) or
+        not raisesOverflowError(intExpr(                 511) ** intExpr( 8)) or
+        not raisesOverflowError(intExpr(                 512) ** intExpr( 7)) or
+        not raisesOverflowError(intExpr(                 513) ** intExpr( 7)) or
+        not raisesOverflowError(intExpr(                1448) ** intExpr( 7)) or
+        not raisesOverflowError(intExpr(                1449) ** intExpr( 6)) or
+        not raisesOverflowError(intExpr(                6208) ** intExpr( 6)) or
+        not raisesOverflowError(intExpr(                6209) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(               32767) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(               32768) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(               55108) ** intExpr( 5)) or
+        not raisesOverflowError(intExpr(               55109) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(              123457) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(             1234577) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(             2097151) ** intExpr( 4)) or
+        not raisesOverflowError(intExpr(             2097152) ** intExpr( 3)) or
+        not raisesOverflowError(intExpr(             2097153) ** intExpr( 3)) or
+        not raisesOverflowError(intExpr(          2147483648) ** intExpr( 3)) or
+        not raisesOverflowError(intExpr(          3037000499) ** intExpr( 3)) or
+        not raisesOverflowError(intExpr(          3037000500) ** intExpr( 2)) or
+        not raisesOverflowError(intExpr( 9223372036854775807) ** intExpr( 2)) then
+      writeln(" ***** Overflow when computing power does not raise OVERFLOW_ERROR. (4)");
       okay := FALSE;
     end if;
 

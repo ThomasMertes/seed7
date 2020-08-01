@@ -344,11 +344,11 @@ static inline void decl_any (nodeType objects)
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
-        fail_flag = FALSE;
+        set_fail_flag(FALSE);
         evaluate(decl_expression);
         if (fail_flag) {
           err_object(EXCEPTION_RAISED, fail_value);
-          fail_flag = FALSE;
+          set_fail_flag(FALSE);
         } /* if */
         free_expression(decl_expression);
         if (current_ident == prog.id_for.semicolon) {

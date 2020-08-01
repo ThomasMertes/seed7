@@ -754,3 +754,7 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
 
 
 enable_io(bigRational);
+
+
+# Allows 'array bigRational' everywhere without extra type definition.
+const type: _bigRationalArray is array bigRational;

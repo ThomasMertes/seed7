@@ -151,6 +151,17 @@ typedef UINT64TYPE         uint64Type;
 #define INT64TYPE_MIN               (-9223372036854775807L)
 #endif
 #define UINT64TYPE_MAX ((uint64Type)   0xffffffffffffffffL)
+#elif defined INT64TYPE_NO_SUFFIX_BUT_CAST
+#define INT64_SUFFIX(num)  ((int64Type) num)
+#define UINT64_SUFFIX(num) ((uint64Type) num ## U)
+#define INT64TYPE_LITERAL_SUFFIX ""
+#define INT64TYPE_MAX   ((int64Type)  9223372036854775807)
+#ifdef TWOS_COMPLEMENT_INTTYPE
+#define INT64TYPE_MIN   ((int64Type) (-INT64TYPE_MAX - 1))
+#else
+#define INT64TYPE_MIN   ((int64Type) -9223372036854775807)
+#endif
+#define UINT64TYPE_MAX  ((uint64Type)  0xffffffffffffffff)
 #else
 #define INT64_SUFFIX(num)  num
 #define UINT64_SUFFIX(num) num ## U
@@ -452,6 +463,17 @@ typedef int errInfoType;
 #define DESTROY_ERROR   8
 #define COPY_ERROR      9
 #define IN_ERROR       10
+
+
+#ifdef HAS_SIGSETJMP
+#define do_setjmp(env)        sigsetjmp(env, 1)
+#define do_longjmp(env, val)  siglongjmp(env, val);
+#define long_jump_position sigjmp_buf
+#else
+#define do_setjmp(env)        setjmp(env)
+#define do_longjmp(env, val)  longjmp(env, val);
+#define long_jump_position jmp_buf
+#endif
 
 
 #ifndef likely
