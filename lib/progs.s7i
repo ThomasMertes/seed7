@@ -68,7 +68,7 @@ const func boolean: (in program: prog1) <> (in program: prog2)           is acti
 
 
 (**
- *  Returns the name of the program without path and extension.
+ *  Returns the name of ''aProgram'' without path and extension.
  *  This function does not follow symbolic links.
  *  It determines, with which name a program was called.
  *  When a symbolic link refers to a program, the name of
@@ -79,7 +79,7 @@ const func string: name (in program: aProgram)                           is acti
 
 
 (**
- *  Return the absolute path of the program.
+ *  Return the absolute path of the program ''aProgram''.
  *  This function does follow symbolic links.
  *  @return the absolute path of the program.
  *)

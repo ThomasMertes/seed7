@@ -1731,25 +1731,31 @@ objectType str_utf8tostri (listType arguments)
 
 
 
+/**
+ *  Get 'string' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'string' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> STRIOBJECT holds.
+ */
 objectType str_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
     striType stri;
     striType result;
 
   /* str_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != STRIOBJECT ||
-                 take_stri(obj_arg) == NULL)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != STRIOBJECT ||
+                 take_stri(aReference) == NULL)) {
       logError(printf("str_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not STRIOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      stri = take_stri(obj_arg);
+      stri = take_stri(aReference);
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, stri->size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {

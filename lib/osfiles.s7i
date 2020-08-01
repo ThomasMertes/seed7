@@ -191,6 +191,8 @@ const func string: homeDir                                   is action "CMD_HOME
  *  Determine the type of a file.
  *  The function does follow symbolic links. When the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
+ *  When a symbolic link refers to a place where the permission
+ *  is denied the function returns 'FILE_SYMLINK'.
  *  A return value of ''FILE_ABSENT'' does not imply that a file
  *  with this name can be created, since missing directories and
  *  illegal file names cause also ''FILE_ABSENT''.
@@ -494,6 +496,68 @@ const proc: cloneFile (in string: sourcePath, in string: destPath) is action "CM
  *             already exists or a system function returns an error.
  *)
 const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CMD_MOVE";
+
+
+(**
+ *  Determine the absolute path for a given ''path''.
+ *   toAbsolute(getcwd, "aFile")    -->  Returns e.g. "/home/myuser/aFile"
+ *   toAbsolute(".", "aFile")       -->  Returns e.g. "/home/myuser/aFile"
+ *   toAbsolute("/usr", "include")  -->  Returns "/usr/include"
+ *  @param basePath Path of the base location. The relative ''path'' is
+ *         relative to this location. 
+ *  @param path Absolute or relative path for which the absolute path should
+ *         be determined:
+ *  @return ''path'' if ''path'' is already absolute, or
+ *          concatenate ''basePath'' with ''path''.
+ *)
+const func string: toAbsPath (in string: basePath, in string: path) is func
+  result
+    var string: absolutePath is "";
+  local
+    var integer: dotdotPos is 0;
+    var integer: slashPos is 0;
+  begin
+    if startsWith(path, "/") then
+      absolutePath := path;
+    elsif basePath = "/" then
+      absolutePath := "/" & path;
+    elsif startsWith(basePath, "/") then
+      absolutePath := basePath & "/" & path;
+    else
+      absolutePath := getcwd & "/" & basePath & "/" & path;
+    end if;
+    dotdotPos := pos(absolutePath, "/..");
+    while dotdotPos <> 0 do
+      slashPos := rpos(absolutePath, '/', pred(dotdotPos));
+      if length(absolutePath) = dotdotPos + 2 then
+        if slashPos <= 1 then
+          absolutePath := "/";
+        else
+          absolutePath := absolutePath[.. pred(slashPos)];
+        end if;
+        dotdotPos := 0;
+      elsif absolutePath[dotdotPos + 3] = '/' then
+        if slashPos <> 0 then
+          absolutePath := absolutePath[.. pred(slashPos)] & absolutePath[dotdotPos + 3 ..];
+        else
+          absolutePath := absolutePath[dotdotPos + 3 ..];
+        end if;
+        dotdotPos := pos(absolutePath, "/..");
+      else
+        dotdotPos := pos(absolutePath, "/..", succ(dotdotPos));
+      end if;
+    end while;
+    absolutePath := replace(absolutePath, "/./", "/");
+    if endsWith(absolutePath, "/.") then
+      if absolutePath = "/." then
+        absolutePath := "/";
+      else
+        absolutePath := absolutePath[.. length(absolutePath) - 2];
+      end if;
+    end if;
+    # writeln("toAbsPath(" <& literal(basePath) <& ", " <& literal(path) <&
+    #         ") --> " <& literal(absolutePath));
+  end func;
 
 
 const func string: parentDir (in string: path) is func

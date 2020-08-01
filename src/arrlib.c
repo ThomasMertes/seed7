@@ -187,6 +187,9 @@ objectType arr_append (listType arguments)
 
 
 
+/**
+ *  Generate an array literal from a tuple.
+ */
 objectType arr_arrlit (listType arguments)
 
   {

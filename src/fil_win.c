@@ -53,6 +53,15 @@
 #include "rtl_err.h"
 
 
+#ifndef INTPTR_T_DEFINED
+#if POINTER_SIZE == 32
+typedef int32Type  intptr_t;
+#elif POINTER_SIZE == 64
+typedef int64Type  intptr_t;
+#endif
+#endif
+
+
 
 boolType filInputReady (fileType aFile)
 

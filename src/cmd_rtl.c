@@ -1910,6 +1910,8 @@ intType cmdFileSize (const const_striType filePath)
  *  Determine the type of a file.
  *  The function does follow symbolic links. When the chain of
  *  symbolic links is too long the function returns 'FILE_SYMLINK'.
+ *  When a symbolic link refers to a place where the permission
+ *  is denied the function returns 'FILE_SYMLINK'.
  *  A return value of 'FILE_ABSENT' does not imply that a file
  *  with this name can be created, since missing directories and
  *  illegal file names cause also 'FILE_ABSENT'.
@@ -1980,6 +1982,12 @@ intType cmdFileType (const const_striType filePath)
       } else if (unlikely(saved_errno == ELOOP)) {
         type_of_file = FILE_SYMLINK;
 #endif
+      } else if (unlikely(saved_errno == EACCES) &&
+          os_lstat(os_path, &stat_buf) == 0 &&
+          S_ISLNK(stat_buf.st_mode)) {
+        /* Symbolic link that refers to a place where */
+        /* the permission is denied. */
+        type_of_file = FILE_SYMLINK;
       } else {
         type_of_file = FILE_ABSENT;
         if (unlikely(filePath->size != 0 && saved_errno != ENOENT &&

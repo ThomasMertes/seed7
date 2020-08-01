@@ -36,6 +36,7 @@
 #include "time.h"
 #include "math.h"
 #include "float.h"
+#include "limits.h"
 
 #include "common.h"
 #include "data.h"
@@ -831,6 +832,38 @@ objectType flt_log2 (listType arguments)
 
 
 /**
+ *  Multiply number/arg_1 by 2 raised to the power of exponent/arg_3.
+ *  In other words: A << B is equivalent to A * 2.0 ** B
+ *  If the result underflows zero is returned.
+ *  If the result overflows Infinity or -Infinity is returned,
+ *  depending on the sign of number/arg_1.
+ *  When the argument number/arg_1 is a NaN, Infinity or -Infinity the
+ *  unchanged argument is returned.
+ *  @return number * 2.0 ** exponent
+ */
+objectType flt_lshift (listType arguments)
+
+  {
+    intType exponent;
+
+  /* flt_lshift */
+    isit_float(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    exponent = take_int(arg_3(arguments));
+#if INT_SIZE < INTTYPE_SIZE
+    if (unlikely(exponent > INT_MAX)) {
+      exponent = INT_MAX;
+    } else if (unlikely(exponent < INT_MIN)) {
+      exponent = INT_MIN;
+    } /* if */
+#endif
+    return bld_float_temp(
+        ldexp(take_float(arg_1(arguments)), (int) exponent));
+  } /* flt_lshift */
+
+
+
+/**
  *  Check if 'number1' is less than 'number2'.
  *  According to IEEE 754 a NaN is neither less than,
  *  equal to, nor greater than any value, including itself.
@@ -1047,6 +1080,44 @@ objectType flt_round (listType arguments)
       return bld_int_temp(rounded);
     } /* if */
   } /* flt_round */
+
+
+
+/**
+ *  Divide number/arg_1 by 2 raised to the power of exponent/arg_3.
+ *  In other words: A >> B is equivalent to A / 2.0 ** B
+ *  If the result underflows zero is returned.
+ *  If the result overflows Infinity or -Infinity is returned,
+ *  depending on the sign of number/arg_1.
+ *  When the argument number/arg_1 is a NaN, Infinity or -Infinity the
+ *  unchanged argument is returned.
+ *  @return number / 2.0 ** exponent
+ */
+objectType flt_rshift (listType arguments)
+
+  {
+    intType exponent;
+
+  /* flt_rshift */
+    isit_float(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    exponent = take_int(arg_3(arguments));
+#if INT_SIZE < INTTYPE_SIZE
+    if (unlikely(exponent > INT_MAX)) {
+      exponent = INT_MAX;
+    } else
+#endif
+#if INT_SIZE <= INTTYPE_SIZE
+    if (unlikely(exponent <= INT_MIN)) {
+      /* Avoid that negating the exponent overflows in   */
+      /* case we have twos complement integers. Changing */
+      /* the exponent does not change the result.        */
+      exponent = -INT_MAX;
+    } /* if */
+#endif
+    return bld_float_temp(
+        ldexp(take_float(arg_1(arguments)), (int) -exponent));
+  } /* flt_rshift */
 
 
 
@@ -1274,18 +1345,18 @@ objectType flt_trunc (listType arguments)
 objectType flt_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
 
   /* flt_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != FLOATOBJECT)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != FLOATOBJECT)) {
       logError(printf("flt_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not FLOATOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_float_temp(take_float(obj_arg));
+      return bld_float_temp(take_float(aReference));
     } /* if */
   } /* flt_value */

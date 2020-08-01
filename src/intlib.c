@@ -1516,18 +1516,18 @@ objectType int_succ (listType arguments)
 objectType int_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
 
   /* int_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != INTOBJECT)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != INTOBJECT)) {
       logError(printf("int_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not INTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_int_temp(take_int(obj_arg));
+      return bld_int_temp(take_int(aReference));
     } /* if */
   } /* int_value */

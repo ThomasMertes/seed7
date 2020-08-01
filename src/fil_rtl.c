@@ -1816,6 +1816,7 @@ fileType filPopen (const const_striType command,
     logFunction(printf("filPopen(\"%s\", ", striAsUnquotedCStri(command));
                 printf("\"%s\", ", striAsUnquotedCStri(parameters));
                 printf("\"%s\")\n", striAsUnquotedCStri(mode)););
+#if HAS_POPEN
     os_command = cp_to_command(command, parameters, &err_info);
     if (unlikely(os_command == NULL)) {
       logError(printf("filPopen: cp_to_command(\"%s\", ",
@@ -1838,12 +1839,12 @@ fileType filPopen (const const_striType command,
            mode->mem[0] == 'w') &&
            mode->mem[1] == 't') {
         os_mode[mode_pos++] = (os_charType) mode->mem[0];
-#ifdef POPEN_SUPPORTS_TEXT_MODE
+#if POPEN_SUPPORTS_TEXT_MODE
         os_mode[mode_pos++] = 't';
 #endif
       } /* if */
-#ifdef POPEN_SUPPORTS_CLOEXEC_MODE
-        os_mode[mode_pos++] = 'e';
+#if POPEN_SUPPORTS_CLOEXEC_MODE
+      os_mode[mode_pos++] = 'e';
 #endif
       os_mode[mode_pos++] = '\0';
       if (unlikely(os_mode[0] == '\0')) {
@@ -1852,19 +1853,18 @@ fileType filPopen (const const_striType command,
         raise_error(RANGE_ERROR);
         result = NULL;
       } else {
-#if HAS_POPEN
 #if defined USE_EXTENDED_LENGTH_PATH && USE_EXTENDED_LENGTH_PATH
         adjustCwdForShell(&err_info);
 #endif
         logMessage(printf("popen(\"" FMT_S_OS "\", \"" FMT_S_OS "\")\n",
                           os_command, os_mode););
         result = os_popen(os_command, os_mode);
-#else
-        result = NULL;
-#endif
       } /* if */
       FREE_OS_STRI(os_command);
     } /* if */
+#else
+    result = NULL;
+#endif
     logFunction(printf("filPopen(\"%s\", ", striAsUnquotedCStri(command));
                 printf("\"%s\", ", striAsUnquotedCStri(parameters));
                 printf("\"%s\") --> %d\n",

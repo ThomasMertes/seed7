@@ -238,6 +238,8 @@ bstriType bstCreate (const const_bstriType source)
     bstriType result;
 
   /* bstCreate */
+    logFunction(printf("bstCreate(\"%s\")", bstriAsUnquotedCStri(source));
+                fflush(stdout););
     new_size = source->size;
     if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, new_size))) {
       raise_error(MEMORY_ERROR);
@@ -246,6 +248,7 @@ bstriType bstCreate (const const_bstriType source)
       memcpy(result->mem, source->mem,
           (size_t) new_size * sizeof(ucharType));
     } /* if */
+    logFunctionResult(printf("\"%s\"\n", bstriAsUnquotedCStri(result)););
     return result;
   } /* bstCreate */
 
@@ -333,6 +336,7 @@ bstriType bstParse (const const_striType stri)
     bstriType result;
 
   /* bstParse */
+    logFunction(printf("bstParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     if (unlikely(!ALLOC_BSTRI_CHECK_SIZE(result, stri->size))) {
       raise_error(MEMORY_ERROR);
     } else {
@@ -345,6 +349,7 @@ bstriType bstParse (const const_striType stri)
         return NULL;
       } /* if */
     } /* if */
+    logFunction(printf("bstParse --> \"%s\"\n", bstriAsUnquotedCStri(result)););
     return result;
   } /* bstParse */
 
@@ -361,12 +366,14 @@ striType bstStr (const const_bstriType bstri)
     striType result;
 
   /* bstStr */
+    logFunction(printf("bstStr(\"%s\")\n", bstriAsUnquotedCStri(bstri)););
     if (unlikely(!ALLOC_STRI_CHECK_SIZE(result, bstri->size))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = bstri->size;
       memcpy_to_strelem(result->mem, bstri->mem, bstri->size);
     } /* if */
+    logFunction(printf("bstStr --> \"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* bstStr */
 

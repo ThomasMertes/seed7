@@ -585,22 +585,28 @@ objectType fil_tell (listType arguments)
 
 
 
+/**
+ *  Get 'clib_file' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'clib_file' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> FILEOBJECT holds.
+ */
 objectType fil_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
 
   /* fil_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != FILEOBJECT)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != FILEOBJECT)) {
       logError(printf("fil_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not FILEOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_file_temp(take_file(obj_arg));
+      return bld_file_temp(take_file(aReference));
     } /* if */
   } /* fil_value */
 

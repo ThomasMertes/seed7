@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2005  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2013  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -19,8 +19,8 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Library                                                 */
-/*  File: seed7/src/reflib.c                                        */
-/*  Changes: 1991, 1992, 1993, 1994  Thomas Mertes                  */
+/*  File: seed7/src/prglib.c                                        */
+/*  Changes: 1991 - 1994, 2008, 2013  Thomas Mertes                 */
 /*  Content: All primitive actions for the program type.            */
 /*                                                                  */
 /********************************************************************/
@@ -132,17 +132,28 @@ objectType prg_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_prog/arg_1'.
+ *  After prg_destr is left 'old_prog/arg_1' is NULL.
+ *  The memory where 'old_prog/arg_1' is stored can be
+ *  freed afterwards.
+ */
 objectType prg_destr (listType arguments)
 
   { /* prg_destr */
     isit_prog(arg_1(arguments));
     prgDestr(take_prog(arg_1(arguments)));
+    arg_1(arguments)->value.progValue = NULL;
     SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* prg_destr */
 
 
 
+/**
+ *  Get an empty program (a program that does not exist).
+ *  @return an empty program.
+ */
 objectType prg_empty (listType arguments)
 
   { /* prg_empty */
@@ -151,6 +162,10 @@ objectType prg_empty (listType arguments)
 
 
 
+/**
+ *  Check if two program values are equal.
+ *  @return TRUE if both values are equal, FALSE otherwise.
+ */
 objectType prg_eq (listType arguments)
 
   { /* prg_eq */
@@ -165,6 +180,10 @@ objectType prg_eq (listType arguments)
 
 
 
+/**
+ *  Determine the number of errors in 'aProgram/arg_1'.
+ *  @return the number of errors.
+ */
 objectType prg_error_count (listType arguments)
 
   { /* prg_error_count */
@@ -175,6 +194,10 @@ objectType prg_error_count (listType arguments)
 
 
 
+/**
+ *  Evaluate 'anExpression/arg_2' which is part of 'aProgram/arg_1'.
+ *  @return the result of the evaluation.
+ */
 objectType prg_eval (listType arguments)
 
   {
@@ -199,6 +222,9 @@ objectType prg_eval (listType arguments)
 
 
 
+/**
+ *  Execute the program referred by 'aProgram/arg_1'.
+ */
 objectType prg_exec (listType arguments)
 
   {
@@ -224,6 +250,18 @@ objectType prg_exec (listType arguments)
 
 
 
+/**
+ *  Parse the file with the name 'fileName/arg_1'.
+ *  @param fileName/arg_1 File name of the file to be parsed.
+ *  @param options/arg_2 Options to be used when the file is parsed.
+ *  @param libraryDirs/arg_3 Search path for include/library files.
+ *  @param protFileName/arg_4 Name of the protocol file.
+ *  @return the parsed program.
+ *  @exception RANGE_ERROR 'fileName/arg_1' does not use the standard path
+ *             representation or 'fileName/arg_1' is not representable in
+ *             the system path type.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 objectType prg_fil_parse (listType arguments)
 
   {
@@ -250,6 +288,13 @@ objectType prg_fil_parse (listType arguments)
 
 
 
+/**
+ *  Determine the list of global defined objects in 'aProgram/arg_1'.
+ *  The returned list contains constant and variable objects
+ *  in the same order as the definitions of the source program.
+ *  Literal objects and local objects are not part of this list.
+ *  @return the list of global defined objects.
+ */
 objectType prg_global_objects (listType arguments)
 
   { /* prg_global_objects */
@@ -282,6 +327,14 @@ objectType prg_match_expr (listType arguments)
 
 
 
+/**
+ *  Returns the name of 'aProg/arg_1' without path and extension.
+ *  This function does not follow symbolic links.
+ *  It determines, with which name a program was called.
+ *  When a symbolic link refers to a program, the name of
+ *  the symbolic link is returned.
+ *  @return the name of the program.
+ */
 objectType prg_name (listType arguments)
 
   { /* prg_name */
@@ -291,6 +344,10 @@ objectType prg_name (listType arguments)
 
 
 
+/**
+ *  Check if two program values are not equal.
+ *  @return FALSE if both values are equal, TRUE otherwise.
+ */
 objectType prg_ne (listType arguments)
 
   { /* prg_ne */
@@ -305,6 +362,14 @@ objectType prg_ne (listType arguments)
 
 
 
+/**
+ *  Returns the name of the program without path and extension.
+ *  This function does not follow symbolic links.
+ *  It determines, with which name a program was called.
+ *  When a symbolic link refers to a program, the name of
+ *  the symbolic link is returned.
+ *  @return the name of the program.
+ */
 objectType prg_own_name (listType arguments)
 
   { /* prg_own_name */
@@ -313,6 +378,13 @@ objectType prg_own_name (listType arguments)
 
 
 
+/**
+ *  Return the absolute path of the program.
+ *  For an interpreted program this is the absolute path of the source file.
+ *  For a compiled program this is the absolute path of the executable.
+ *  The function 'prg_own_path' does follow symbolic links.
+ *  @return the absolute path of the program.
+ */
 objectType prg_own_path (listType arguments)
 
   { /* prg_own_path */
@@ -321,6 +393,11 @@ objectType prg_own_path (listType arguments)
 
 
 
+/**
+ *  Return the absolute path of the program 'aProg/arg_1'.
+ *  This function does follow symbolic links.
+ *  @return the absolute path of the program.
+ */
 objectType prg_path (listType arguments)
 
   { /* prg_path */
@@ -330,14 +407,15 @@ objectType prg_path (listType arguments)
 
 
 
-objectType prg_prog (listType arguments)
-
-  { /* prg_prog */
-    return bld_prog_temp(NULL);
-  } /* prg_prog */
-
-
-
+/**
+ *  Parse the given string 'stri/arg_1'.
+ *  @param stri/arg_1 'String' to be parsed.
+ *  @param options/arg_2 Options to be used when the file is parsed.
+ *  @param libraryDirs/arg_3 Search path for include/library files.
+ *  @param protFileName/arg_4 Name of the protocol file.
+ *  @return the parsed program.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ */
 objectType prg_str_parse (listType arguments)
 
   {
@@ -364,6 +442,12 @@ objectType prg_str_parse (listType arguments)
 
 
 
+/**
+ *  Determine object with 'syobjectName/arg_2' from program 'aProgram/arg_1'.
+ *  @return a reference to the object or NIL when no object 'syobjectName/arg_2' exists.
+ *  @exception MEMORY_ERROR When 'syobjectName/arg_2' cannot be converted to
+ *             the internal representation.
+ */
 objectType prg_syobject (listType arguments)
 
   { /* prg_syobject */
@@ -375,6 +459,11 @@ objectType prg_syobject (listType arguments)
 
 
 
+/**
+ *  Determine the value of the system variable 'name/arg_2' in 'aProgram/arg_1'.
+ *  @return a reference to the value of the system variable or
+ *          NIL when no system variable 'name/arg_2' exists.
+ */
 objectType prg_sysvar (listType arguments)
 
   { /* prg_sysvar */
@@ -386,21 +475,27 @@ objectType prg_sysvar (listType arguments)
 
 
 
+/**
+ *  Get 'program' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'program' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> PROGOBJECT holds.
+ */
 objectType prg_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
 
   /* prg_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != PROGOBJECT)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != PROGOBJECT)) {
       logError(printf("prg_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not PROGOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_prog_temp(take_prog(obj_arg));
+      return bld_prog_temp(take_prog(aReference));
     } /* if */
   } /* prg_value */

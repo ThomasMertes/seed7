@@ -1004,21 +1004,27 @@ objectType big_toBStriLe (listType arguments)
 
 
 
+/**
+ *  Get 'bigInteger' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'bigInteger' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> BIGINTOBJECT holds.
+ */
 objectType big_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
 
   /* big_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != BIGINTOBJECT)) {
       logError(printf("big_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not BIGINTOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      return bld_bigint_temp(bigCreate(take_bigint(obj_arg)));
+      return bld_bigint_temp(bigCreate(take_bigint(aReference)));
     } /* if */
   } /* big_value */

@@ -40,6 +40,7 @@ eliza.sd7    The computer psychiatrist
 err.sd7      Test for almost all possible compile time errors
 fannkuch.sd7 Fannkuch-redux benchmark program
 fib.sd7      Compute fibonacci numbers
+find7.sd7    Utility to search for files and file contents.
 fractree.sd7 Draw a fractal tree
 ftp7.sd7     FTP internet file transfer program
 ftpserv.sd7  FTP (file transfer protocol) server

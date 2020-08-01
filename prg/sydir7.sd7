@@ -180,7 +180,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
         # writeln(getMTime(destPath));
         if getMTime(sourcePath) > getMTime(destPath) + 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
-            writeln(" *** Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+            writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
             setMTime(destPath, getMTime(sourcePath));
           else
             writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
@@ -189,7 +189,7 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
           end if;
         elsif getMTime(sourcePath) < getMTime(destPath) - 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
-            writeln(" *** Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
+            writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
             setMTime(destPath, getMTime(sourcePath));
           elsif flags.overwriteNewerDestFiles then
             writeln("replace newer dest file " <& literal(sourcePath) <& " to " <& literal(destPath));

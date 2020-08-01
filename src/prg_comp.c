@@ -510,7 +510,7 @@ const_striType prgName (const const_progType aProg)
 
 
 /**
- *  Return the absolute path of the program.
+ *  Return the absolute path of the program 'aProg'.
  *  This function does follow symbolic links.
  *  @return the absolute path of the program.
  */

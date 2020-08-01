@@ -725,8 +725,8 @@ objectType drw_image (listType arguments)
     arr_image = take_array(arg_1(arguments));
     height = arraySize(arr_image);
     if (height == 0) {
-      logError(printf("drw_image(arr1 (size=" FMT_U_MEM "): "
-                      "Hight zero.", len););
+      logError(printf("drw_image(arr1 (height=" FMT_U_MEM "): "
+                      "Hight zero.", height););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
       curr_line = &arr_image->arr[0];
@@ -734,8 +734,8 @@ objectType drw_image (listType arguments)
       arr_line = take_array(curr_line);
       width = arraySize(arr_line);
       if (width == 0) {
-        logError(printf("drw_image(arr1 (size=" FMT_U_MEM "): "
-                        "Width zero.", len););
+        logError(printf("drw_image(arr1 (height=" FMT_U_MEM "): "
+                        "Width zero.", height););
         return raise_exception(SYS_RNG_EXCEPTION);
       } else {
         curr_column = &arr_line->arr[0];

@@ -81,6 +81,11 @@ static void fix_posinfo (objectType block_body, const const_objectType block_bod
 
 
 
+/**
+ *  Return the argument vector of the program as array of strings.
+ *  The name of the program is not part of the argument vector.
+ *  @return an array of strings containing the argument vector.
+ */
 objectType prc_args (listType arguments)
 
   { /* prc_args */
@@ -625,7 +630,7 @@ objectType prc_for_downto (listType arguments)
     lower_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
     if (lower_limit == INTTYPE_MIN) {
-      logError(printf("prc_for_downto(var1, " FMT_D ", " FMT_ D "): "
+      logError(printf("prc_for_downto(var1, " FMT_D ", " FMT_D "): "
                       "Lower limit of integer.first not allowed.\n",
                       upper_limit, lower_limit););
       return raise_exception(SYS_RNG_EXCEPTION);
@@ -693,7 +698,7 @@ objectType prc_for_to (listType arguments)
     upper_limit = take_int(arg_6(arguments));
     statement = arg_8(arguments);
     if (upper_limit == INTTYPE_MAX) {
-      logError(printf("prc_for_to(var1, " FMT_D ", " FMT_ D "): "
+      logError(printf("prc_for_to(var1, " FMT_D ", " FMT_D "): "
                       "Upper limit of integer.last not allowed.\n",
                       lower_limit, upper_limit););
       return raise_exception(SYS_RNG_EXCEPTION);

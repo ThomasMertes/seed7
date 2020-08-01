@@ -419,23 +419,29 @@ objectType pcs_str (listType arguments)
 
 
 
+/**
+ *  Get 'process' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'process' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> PROCESSOBJECT holds.
+ */
 objectType pcs_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
     processType process_value;
 
   /* pcs_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != PROCESSOBJECT)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != PROCESSOBJECT)) {
       logError(printf("pcs_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not PROCESSOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      process_value = take_process(obj_arg);
+      process_value = take_process(aReference);
       if (process_value != NULL) {
         process_value->usage_count++;
       } /* if */

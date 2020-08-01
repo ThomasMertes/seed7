@@ -801,6 +801,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_LOG10, function, params, c_expr);
       elsif action_name = "FLT_LOG2" then
         process(FLT_LOG2, function, params, c_expr);
+      elsif action_name = "FLT_LSHIFT" then
+        process(FLT_LSHIFT, function, params, c_expr);
       elsif action_name = "FLT_LT" then
         process(FLT_LT, function, params, c_expr);
       elsif action_name = "FLT_MULT" then
@@ -821,6 +823,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_RAND, function, params, c_expr);
       elsif action_name = "FLT_ROUND" then
         process(FLT_ROUND, function, params, c_expr);
+      elsif action_name = "FLT_RSHIFT" then
+        process(FLT_RSHIFT, function, params, c_expr);
       elsif action_name = "FLT_SBTR" then
         process(FLT_SBTR, function, params, c_expr);
       elsif action_name = "FLT_SBTR_ASSIGN" then

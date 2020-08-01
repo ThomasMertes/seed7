@@ -1,3 +1,16 @@
+20161002:
+- Definitions of float shift operators << and >> have been added to
+  float.s7i (A << B is equivalent to A * 2.0 ** B and A >> B is
+  equivalent to A / 2.0 ** B).
+- Checks for the operators << and >> have been added to chflt.sd7.
+- Interpreter and compiler have been improved to support the primitiv
+  actions FLT_LSHIFT and FLT_RSHIFT.
+- The example program find7.sd7 has been added. This program is an
+  utility to search for files and file contents.
+- Documentation comments have been added to arrlib.c, biglib.c,
+  blnlib.c, bstlib.c, fillib.c, pcslib.c, prclib.c, prglib.c and
+  strlib.c.
+
 20160831:
 - The Seed7 runtime library has been improved to allow paths longer
   than PATH_MAX (260) characters under Windows.

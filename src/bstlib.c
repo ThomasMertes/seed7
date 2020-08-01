@@ -485,25 +485,31 @@ objectType bst_str (listType arguments)
 
 
 
+/**
+ *  Get 'bstring' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'bstring' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             category(aReference) <> BSTRIOBJECT holds.
+ */
 objectType bst_value (listType arguments)
 
   {
-    objectType obj_arg;
+    objectType aReference;
     bstriType bstri;
     bstriType result;
 
   /* bst_value */
     isit_reference(arg_1(arguments));
-    obj_arg = take_reference(arg_1(arguments));
-    if (unlikely(obj_arg == NULL ||
-                 CATEGORY_OF_OBJ(obj_arg) != BSTRIOBJECT ||
-                 take_bstri(obj_arg) == NULL)) {
+    aReference = take_reference(arg_1(arguments));
+    if (unlikely(aReference == NULL ||
+                 CATEGORY_OF_OBJ(aReference) != BSTRIOBJECT ||
+                 take_bstri(aReference) == NULL)) {
       logError(printf("bst_value(");
-               trace1(obj_arg);
+               trace1(aReference);
                printf("): Category is not BSTRIOBJECT.\n"););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
-      bstri = take_bstri(obj_arg);
+      bstri = take_bstri(aReference);
       if (unlikely(!ALLOC_BSTRI_SIZE_OK(result, bstri->size))) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } else {

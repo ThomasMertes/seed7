@@ -327,6 +327,12 @@ objectType bln_ord (listType arguments)
 
 
 
+/**
+ *  Get 'boolean' value of the object referenced by 'aReference/arg_1'.
+ *  @return the 'boolean' value of the referenced object.
+ *  @exception RANGE_ERROR When 'aReference/arg_1' is NIL or
+ *             when the value is not TRUE_OBJECT or FALSE_OBJECT.
+ */
 objectType bln_value (listType arguments)
 
   {

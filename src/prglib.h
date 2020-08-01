@@ -42,7 +42,6 @@ objectType prg_ne             (listType arguments);
 objectType prg_own_name       (listType arguments);
 objectType prg_own_path       (listType arguments);
 objectType prg_path           (listType arguments);
-objectType prg_prog           (listType arguments);
 objectType prg_str_parse      (listType arguments);
 objectType prg_syobject       (listType arguments);
 objectType prg_sysvar         (listType arguments);

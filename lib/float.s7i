@@ -126,6 +126,32 @@ const func float: (in float: base) ** (in float: exponent)     is action "FLT_PO
 
 
 (**
+ *  Multiply ''number'' by 2 raised to the power of ''exponent''.
+ *  In other words: A << B is equivalent to A * 2.0 ** B
+ *  If the result underflows zero is returned.
+ *  If the result overflows Infinity or -Infinity is returned,
+ *  depending on the sign of ''number''.
+ *  When the argument ''number'' is a NaN, Infinity or -Infinity the
+ *  unchanged argument is returned.
+ *  @return number * 2.0 ** exponent
+ *)
+const func float: (in float: number) << (in integer: exponent) is action "FLT_LSHIFT";
+
+
+(**
+ *  Divide ''number'' by 2 raised to the power of ''exponent''.
+ *  In other words: A >> B is equivalent to A / 2.0 ** B
+ *  If the result underflows zero is returned.
+ *  If the result overflows Infinity or -Infinity is returned,
+ *  depending on the sign of ''number''.
+ *  When the argument ''number'' is a NaN, Infinity or -Infinity the
+ *  unchanged argument is returned.
+ *  @return number / 2.0 ** exponent
+ *)
+const func float: (in float: number) >> (in integer: exponent) is action "FLT_RSHIFT";
+
+
+(**
  *  Increment a float ''number'' by a ''delta''.
  *)
 const proc: (inout float: number) +:= (in float: delta)        is action "FLT_ADD_ASSIGN";

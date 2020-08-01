@@ -1077,6 +1077,10 @@ static void numericSizes (FILE *versionFile)
       fprintf(versionFile, "#define UINT128TYPE %s\n", uint128TypeStri);
       fprintf(versionFile, "#define UINT128TYPE_STRI \"%s\"\n", uint128TypeStri);
     } /* if */
+    if (compileAndLinkOk("#include <stdint.h>\nint main(int argc, char *argv[])"
+                         "{intptr_t intptr = &argc;return 0;}\n")) {
+      fputs("#define INTPTR_T_DEFINED\n", versionFile);
+    } /* if */
     fprintf(logFile, " determined\n");
   } /* numericSizes */
 
