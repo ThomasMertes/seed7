@@ -3820,8 +3820,7 @@ biginttype bigLog2BaseLShift (const inttype log2base, const inttype lshift)
     } else if (log2base <= 10 && lshift <= 214748364) {
       result = bigLShiftOne(log2base * lshift);
     } else {
-      uint2_mult((uinttype) 0L, (uinttype) log2base, (uinttype) 0L, (uinttype) lshift,
-          &high_shift, &low_shift);
+      uint_mult((uinttype) log2base, (uinttype) lshift, &high_shift, &low_shift);
       if (high_shift != 0 || (inttype) low_shift < 0) {
         raise_error(MEMORY_ERROR);
         result = NULL;

@@ -76,7 +76,7 @@ const func string: int32AsFourBytesLe (in integer: number) is
  *  Convert 64 lower bits of an integer into eight little endian chars.
  *  @return a string of length eight with the little endian representation.
  *)
-const func string: int64AsBytesBytesLe (in integer: number) is
+const func string: int64AsEightBytesLe (in integer: number) is
   return str(chr( number        mod 256)) &
          str(chr((number >>  8) mod 256)) &
          str(chr((number >> 16) mod 256)) &
@@ -139,6 +139,28 @@ const func integer: bytesBeAsInt (in string: byteStri) is func
         raise RANGE_ERROR;
       end if;
       number +:= ord(ch);
+    end for;
+  end func;
+
+
+(**
+ *  Convert a string of bytes (interpreted as little-endian) to an integer.
+ *  @return an integer created from the little-endian bytes.
+ *  @exception RANGE_ERROR When characters beyond '\255\' are present.
+ *)
+const func integer: bytesLeAsInt (in string: byteStri) is func
+  result
+    var integer: number is 0;
+  local
+    var char: ch is ' ';
+    var integer: shift is 0;
+  begin
+    for ch range byteStri do
+      if ch > '\255\' then
+        raise RANGE_ERROR;
+      end if;
+      number +:= ord(ch) << shift;
+      shift +:= 8;
     end for;
   end func;
 

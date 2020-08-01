@@ -449,12 +449,12 @@ static void dump_helem (const_rtlHelemtype curr_helem)
 
   { /* dump_helem */
     printf("key: %ld, %lx, %f / value: %ld, %lx, %f\n",
-	   curr_helem->key.value.intvalue,
-	   curr_helem->key.value.genericvalue,
-	   curr_helem->key.value.floatvalue,
-	   curr_helem->data.value.intvalue,
-	   curr_helem->data.value.genericvalue,
-	   curr_helem->data.value.floatvalue);
+           curr_helem->key.value.intvalue,
+           curr_helem->key.value.genericvalue,
+           curr_helem->key.value.floatvalue,
+           curr_helem->data.value.intvalue,
+           curr_helem->data.value.genericvalue,
+           curr_helem->data.value.floatvalue);
     if (curr_helem->next_less != NULL) {
       dump_helem(curr_helem->next_less);
     } /* if */

@@ -1,3 +1,23 @@
+20130820:
+- The library sha1.s7i has been renamed to msgdigest.s7i.
+- The message digest and secure hash functions md4, md5, sha224 and
+  sha256 have been added to msgdigest.s7i.
+- The new library propertyfile.s7i, which defines functions to
+  read a property file into a hash table, has been added.
+- The performance of the random number generator has been improved.
+  The function uint2_mult in int_rtl.c is now defined as inline
+  function. The macro 'unlikely' has been added to describe that the
+  initialisation of the random number generator is unlikely.
+- The function uint_mult has been added to int_rtl.c and used in
+  big_rtl.c.
+- The macro 'unlikely' has been added to functions in flt_rtl.c.
+- The function bytesLeAsInt has been added to the library
+  bytedata.s7i.
+- In bytedata.s7i the function int64AsBytesBytesLe has been renamed
+  to int64AsEightBytesLe.
+- A variant of the function skipWhiteSpace has been added to the
+  library scanfile.s7i.
+
 20130805:
 - The functions hashCode in complex.s7i, duration.s7i, rational.s7i
   and time.s7i have been improved to avoid an integer overflow.

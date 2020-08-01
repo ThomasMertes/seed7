@@ -160,7 +160,44 @@ static const const_cstritype digitTable[] = {lcDigits, ucDigits};
 
 
 
-void uint2_mult (uinttype a_high, uinttype a_low,
+void uint_mult (uinttype a, uinttype b, uinttype *c_high, uinttype *c_low)
+
+  {
+    uinttype a1;
+    uinttype a2;
+    uinttype b1;
+    uinttype b2;
+    uinttype c1;
+    uinttype c2;
+    uinttype c3;
+    uinttype c4;
+
+  /* uint_mult */
+#ifdef TRACE_RANDOM
+    printf("BEGIN uint_mult(%08x, %08x%08x)\n",
+        (unsigned int) a, (unsigned int) b);
+#endif
+    a1 = LOWER_HALVE_OF_UINT(a);
+    a2 = UPPER_HALVE_OF_UINT(a);
+    b1 = LOWER_HALVE_OF_UINT(b);
+    b2 = UPPER_HALVE_OF_UINT(b);
+    c1 = UPPER_HALVE_OF_UINT(a1 * b1);
+    c2 = a1 * b2;
+    c3 = a2 * b1;
+    c4 = UPPER_HALVE_OF_UINT(c1 + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3)) +
+        UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) +
+        a2 * b2;
+    *c_low = UINT_BITS(a * b);
+    *c_high = UINT_BITS(c4);
+#ifdef TRACE_RANDOM
+    printf("END uint_mult ==> %08x%08x\n",
+        (unsigned int) *c_high, (unsigned int) *c_low);
+#endif
+  } /* uint_mult */
+
+
+
+static INLINE void uint2_mult (uinttype a_high, uinttype a_low,
     uinttype b_high, uinttype b_low,
     uinttype *c_high, uinttype *c_low)
 
@@ -237,7 +274,7 @@ uinttype uint_rand (void)
 #ifdef TRACE_RANDOM
     printf("BEGIN uint_rand\n");
 #endif
-    if (seed_necessary) {
+    if (unlikely(seed_necessary)) {
       uinttype micro_sec = (uinttype) timMicroSec();
 
       high_seed = (uinttype) time(NULL);

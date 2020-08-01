@@ -251,7 +251,7 @@ stritype fltDgts (floattype number, inttype digits_precision)
       } /* if */
     } /* if */
     result = cstri_to_stri(buffer_ptr);
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;
@@ -528,7 +528,7 @@ floattype fltParse (const const_stritype stri)
       okay = FALSE;
     } /* if */
 #endif
-    if (okay) {
+    if (likely(okay)) {
       return result;
     } else {
       raise_error(RANGE_ERROR);
@@ -584,7 +584,7 @@ floattype fltRand (floattype low, floattype high)
 
   /* fltRand */
     /* printf("fltRand(%f, %f)\n", low, high); */
-    if (low > high) {
+    if (unlikely(low > high)) {
       raise_error(RANGE_ERROR);
       return 0.0;
     } else {
@@ -702,7 +702,7 @@ stritype fltSci (floattype number, inttype precision)
       buffer_ptr = &buffer[startPos];
     } /* if */
     result = cstri_to_stri(buffer_ptr);
-    if (result == NULL) {
+    if (unlikely(result == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
     return result;
@@ -747,7 +747,7 @@ stritype fltStr (floattype number)
       memcpy(buffer, "0.0", 3);
       len = 3;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, len)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, len))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {

@@ -29,9 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
-void uint2_mult (uinttype a_high, uinttype a_low,
-                 uinttype b_high, uinttype b_low,
-                 uinttype *c_high, uinttype *c_low);
+void uint_mult (uinttype a, uinttype b, uinttype *c_high, uinttype *c_low);
 uinttype uint_rand (void);
 int uint8MostSignificantBit (uint8type number);
 int uint16MostSignificantBit (uint16type number);

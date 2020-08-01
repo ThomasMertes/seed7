@@ -557,6 +557,21 @@ const proc: skipWhiteSpace (inout file: inFile) is func
 
 
 (**
+ *  Skips characters from the set ''whiteSpaceChar'' from a [[file]].
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar contains the character after the
+ *  whitespace characters.
+ *)
+const proc: skipWhiteSpace (inout file: inFile, in set of char: whiteSpaceChar) is func
+  begin
+    while inFile.bufferChar in whiteSpaceChar do
+      inFile.bufferChar := getc(inFile);
+    end while;
+  end func;
+
+
+(**
  *  Reads whitespace characters from a [[file]].
  *  When the function is called it is assumed that inFile.bufferChar
  *  contains the first character to be handled. When the function is
