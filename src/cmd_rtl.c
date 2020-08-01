@@ -1899,6 +1899,7 @@ intType cmdFileSize (const const_striType filePath)
       } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
         size_of_file = 0;
       } else {
+        /* printf("stat_result=%d\nerrno=%d\n", stat_result, errno); */
         aFile = os_fopen(os_path, os_mode_rb);
         if (aFile == NULL) {
           logError(printf("cmdFileSize: "
@@ -1907,8 +1908,8 @@ intType cmdFileSize (const const_striType filePath)
                           os_path, os_mode_rb, errno, strerror(errno)););
           /* if (stat_result == 0) {
             printf("stat_buf.st_blksize=%lu\n", stat_buf.st_blksize);
-            printf("stat_buf.st_blocks=%llu\n", stat_buf.st_blocks);
-            printf("stat_buf.st_size=%llu\n", stat_buf.st_size);
+            printf("stat_buf.st_blocks=" FMT_U64 "\n", (uint64Type) stat_buf.st_blocks);
+            printf("stat_buf.st_size=" FMT_U64 "\n", (uint64Type) stat_buf.st_size);
           } */
           err_info = FILE_ERROR;
           size_of_file = 0;

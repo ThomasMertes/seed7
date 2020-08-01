@@ -84,6 +84,24 @@ const func bin32: bin32 (in char: ch) is
 
 
 (**
+ *  Convert to bin32.
+ *  Get bits in IEEE 754 single-precision representation from a float.
+ *  @param number Float value to be converted to bin32.
+ *  @return 32 bits in IEEE 754 single-precision float representation.
+ *)
+const func bin32: bin32 (in float: number)                     is action "FLT_SINGLE2BITS";
+
+
+(**
+ *  Convert to float.
+ *  Get a float from bits in IEEE 754 single-precision representation.
+ *  @param bits Bits to be converted to a float.
+ *  @return a float from bits in single-precision float representation.
+ *)
+const func float: float (in bin32: bits)                       is action "FLT_BITS2SINGLE";
+
+
+(**
  *  Compare two bin32 values.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the

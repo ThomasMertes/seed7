@@ -333,6 +333,13 @@ const proc: TRACE_PROC (in proc: traceobject)      is action "REF_TRACE";
 const proc: DECLS                                  is action "PRC_DECLS";
 
 
+(* void *)
+
+const proc: (ref void: dest) ::= (in void: source) is noop;
+const proc: destroy (ref void: aVoid)              is noop;
+const void: (attr void) . value                    is empty;
+
+
 (* boolean *)
 
 $ include "boolean.s7i";
@@ -352,6 +359,7 @@ const func boolean: isDerived (in type: aType)                    is action "TYP
 const func type: meta (in type: aType)                            is action "TYP_META";
 const proc: addInterface (in type: aType, in type: interfaceType) is action "TYP_ADDINTERFACE";
 
+
 (* IF *)
 
 const type: ELSIF_RESULT is newtype;
@@ -360,6 +368,9 @@ const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
 const type: ELSIF_PROC                                 is func ELSIF_RESULT;
 # IN_PARAM_IS_REFERENCE(ELSIF_PROC);
 const proc: (ref ELSIF_PROC: dest) ::= (ref ELSIF_RESULT: source) is action "ENU_CREATE";
+
+const proc:       if (in boolean: condition) then
+                  end if                               is noop;
 
 const proc:       if (in boolean: condition) then
                     (in proc: statements)
@@ -460,6 +471,8 @@ const func boolean: (attr boolean) parse (in string: stri) is func
       raise RANGE_ERROR;
     end if;
   end func;
+
+const string: str (in void: aVoid) is "empty";
 
 const func string: str (in boolean: aBool) is func
   result
@@ -766,7 +779,7 @@ $ include "hashsetof.s7i";
 $ include "set.s7i";
 
 
-const func integer: integer (in var string: stri, in integer: base) is func
+const func integer: integer (in string: stri, in integer: base) is func
   result
     var integer: anInteger is 0;
   local
@@ -784,18 +797,19 @@ const func integer: integer (in var string: stri, in integer: base) is func
   begin
     if stri <> "" and base >= 2 and base <= 36 then
       if stri[1] = '-' then
-        stri := stri[2 ..];
         negative := TRUE;
+        incr(pos);
       elsif stri[1] = '+' then
-        stri := stri[2 ..];
+        incr(pos);
       end if;
-      for pos range 1 to length(stri) do
+      while pos <= length(stri) do
         digit := digitval[ord(stri[pos]) - ord('0') + 1];
         if digit = -1 or digit >= base then
           raise RANGE_ERROR;
         end if;
         anInteger := anInteger * base + digit;
-      end for;
+        incr(pos);
+      end while;
       if negative then
         anInteger := -anInteger;
       end if;

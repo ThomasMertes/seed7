@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  zip.s7i       Zip compression support library                   *)
-(*  Copyright (C) 2009, 2016  Thomas Mertes                         *)
+(*  Copyright (C) 2009, 2016, 2017  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -29,66 +29,114 @@
 include "stdio.s7i";
 include "osfiles.s7i";
 include "inflate.s7i";
+include "inflatefile.s7i";
 include "bytedata.s7i";
+include "bin32.s7i";
 include "time.s7i";
+include "crc32.s7i";
+include "filesys.s7i";
 
 
-const func integer: rposOfMagic (inout file: inFile, in string: stri,
-    in integer: recLen) is func
+const string: CENTRAL_HEADER_SIGNATURE           is "PK\1;\2;";
+const string: LOCAL_HEADER_SIGNATURE             is "PK\3;\4;";
+const string: END_OF_CENTRAL_DIRECTORY_SIGNATURE is "PK\5;\6;";
+const string: DATA_DESCRIPTOR_SIGNATURE          is "PK\7;\8;";
+
+const integer: CENTRAL_HEADER_FIXED_SIZE           is 46;
+const integer: LOCAL_HEADER_FIXED_SIZE             is 30;
+const integer: END_OF_CENTRAL_DIRECTORY_FIXED_SIZE is 22;
+
+# Bits of the general_purpose_bit_flag:
+const bin32: HAS_DATA_DESCRIPTOR is bin32(2#1000);
+const bin32: DATA_DESCRIPTOR_SIGNATURE_VALUE is
+    bin32(bytes2Int(DATA_DESCRIPTOR_SIGNATURE, UNSIGNED, LE));
+
+
+const func integer: rposOfMagic (inout file: inFile, in string: magic,
+    in integer: minRecLen, in integer: maxRecLen) is func
   result
     var integer: posFound is 0;
   local
     var integer: pos is 0;
-    var string: test is "";
+    var string: data is "";
+    var integer: magicPos is 0;
   begin
-    pos := length(inFile) - recLen + 1;
-    while pos > 0 and posFound = 0 do
-      seek(inFile, pos);
-      test := gets(inFile, length(stri));
-      # writeln(literal(test));
-      if test = stri then
-        posFound := pos;
-      end if;
-      decr(pos);
+    pos := length(inFile) - maxRecLen + 1;
+    if pos <= 0 then
+      pos := 1;
+    end if;
+    seek(inFile, pos);
+    data := gets(inFile, maxRecLen);
+    magicPos := rpos(data, magic);
+    if magicPos <> 0 then
+      posFound := pos + magicPos - 1;
+    end if;
+  end func;
+
+
+const type: zipExtraFieldType is hash [integer] string;
+
+
+const func zipExtraFieldType: getExtraFieldMap (in string: field) is func
+  result
+    var zipExtraFieldType: extraFieldMap is zipExtraFieldType.value;
+  local
+    var integer: pos is 1;
+    var integer: id is 0;
+    var integer: length is 0;
+    var string: value is "";
+  begin
+    while pos <= length(field) - 3 do
+      id := ord(field[pos]) + ord(field[succ(pos)]) * 256;
+      length := ord(field[pos + 2]) + ord(field[pos + 3]) * 256;
+      value := field[pos + 4 len length];
+      extraFieldMap @:= [id] value;
+      pos +:= 4 + length;
     end while;
   end func;
 
 
 const type: local_file_header is new struct
-    var string:  signature                  is "";  # 4 bytes ("PK\3;\4;")
-    var integer: version_needed_to_extract  is 0;   # 2 bytes
-    var integer: general_purpose_bit_flag   is 0;   # 2 bytes
-    var integer: compression_method         is 0;   # 2 bytes
-    var integer: last_mod_file_time         is 0;   # 2 bytes
-    var integer: last_mod_file_date         is 0;   # 2 bytes
-    var integer: crc_32                     is 0;   # 4 bytes
-    var integer: compressed_size            is 0;   # 4 bytes
-    var integer: uncompressed_size          is 0;   # 4 bytes
-    var integer: file_name_length           is 0;   # 2 bytes
-    var integer: extra_field_length         is 0;   # 2 bytes
-    var string:  file_name                  is "";  # variable size
-    var string:  extra_field                is "";  # variable size
+    var string:  signature                  is "";       # 4 bytes ("PK\3;\4;")
+    var integer: version_needed_to_extract  is 0;        # 2 bytes
+    var bin32:   general_purpose_bit_flag   is bin32(0); # 2 bytes
+    var integer: compression_method         is 0;        # 2 bytes
+    var integer: last_mod_file_time         is 0;        # 2 bytes
+    var integer: last_mod_file_date         is 0;        # 2 bytes
+    var bin32:   crc_32                     is bin32(0); # 4 bytes
+    var integer: compressed_size            is 0;        # 4 bytes
+    var integer: uncompressed_size          is 0;        # 4 bytes
+    var integer: file_name_length           is 0;        # 2 bytes
+    var integer: extra_field_length         is 0;        # 2 bytes
+    var string:  file_name                  is "";       # variable size
+    var string:  extra_field                is "";       # variable size
+    var zipExtraFieldType: extraFieldMap is zipExtraFieldType.value;
   end struct;
 
 
 const func local_file_header: get_local_header (inout file: inFile) is func
   result
     var local_file_header: header is local_file_header.value;
+  local
+    var string: stri is "";
   begin
-    header.signature := gets(inFile, 4);
-    if header.signature = "PK\3;\4;" then
-      header.version_needed_to_extract   := getUInt16Le(inFile);
-      header.general_purpose_bit_flag    := getUInt16Le(inFile);
-      header.compression_method          := getUInt16Le(inFile);
-      header.last_mod_file_time          := getUInt16Le(inFile);
-      header.last_mod_file_date          := getUInt16Le(inFile);
-      header.crc_32                      := getUInt32Le(inFile);
-      header.compressed_size             := getUInt32Le(inFile);
-      header.uncompressed_size           := getUInt32Le(inFile);
-      header.file_name_length            := getUInt16Le(inFile);
-      header.extra_field_length          := getUInt16Le(inFile);
-      header.file_name                   := gets(inFile, header.file_name_length);
-      header.extra_field                 := gets(inFile, header.extra_field_length);
+    stri := gets(inFile, LOCAL_HEADER_FIXED_SIZE);
+    if length(stri) = LOCAL_HEADER_FIXED_SIZE and
+        stri[.. 4] = LOCAL_HEADER_SIGNATURE then
+      header.signature := LOCAL_HEADER_SIGNATURE;
+      header.version_needed_to_extract       := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
+      header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 7 len 2], UNSIGNED, LE));
+      header.compression_method              := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
+      header.last_mod_file_time              := bytes2Int(stri[11 len 2], UNSIGNED, LE);
+      header.last_mod_file_date              := bytes2Int(stri[13 len 2], UNSIGNED, LE);
+      header.crc_32                    := bin32(bytes2Int(stri[15 len 4], UNSIGNED, LE));
+      header.compressed_size                 := bytes2Int(stri[19 len 4], UNSIGNED, LE);
+      header.uncompressed_size               := bytes2Int(stri[23 len 4], UNSIGNED, LE);
+      header.file_name_length                := bytes2Int(stri[27 len 2], UNSIGNED, LE);
+      header.extra_field_length              := bytes2Int(stri[29 len 2], UNSIGNED, LE);
+      header.file_name                       := gets(inFile, header.file_name_length);
+      header.extra_field                     := gets(inFile, header.extra_field_length);
+      header.extraFieldMap := getExtraFieldMap(header.extra_field);
     end if;
   end func;
 
@@ -101,8 +149,8 @@ const proc: writeExtraField (in string: field) is func
     var string: value is "";
   begin
     while pos <= length(field) - 3 do
-      id := ord(field[pos]) * 256 + ord(field[succ(pos)]);
-      length := ord(field[pos + 2]) * 256 + ord(field[pos + 3]);
+      id := ord(field[pos]) + ord(field[succ(pos)]) * 256;
+      length := ord(field[pos + 2]) + ord(field[pos + 3]) * 256;
       value := field[pos + 4 len length];
       writeln("field: " <& id radix 16 lpad0 4 <& " " <& length <& " " <& literal(value));
       pos +:= 4 + length;
@@ -114,7 +162,7 @@ const proc: write (in local_file_header: header) is func
   begin
     writeln("signature: "                 rpad 50 <& literal(header.signature) lpad 10);
     writeln("version_needed_to_extract: " rpad 50 <& header.version_needed_to_extract lpad 10);
-    writeln("general_purpose_bit_flag: "  rpad 50 <& header.general_purpose_bit_flag lpad 10);
+    writeln("general_purpose_bit_flag: "  rpad 50 <& header.general_purpose_bit_flag radix 2 lpad0 16);
     writeln("compression_method: "        rpad 50 <& header.compression_method lpad 10);
     writeln("last_mod_file_time: "        rpad 50 <& header.last_mod_file_time lpad 10);
     writeln("last_mod_file_date: "        rpad 50 <& header.last_mod_file_date lpad 10);
@@ -145,17 +193,21 @@ const type: end_of_central_directory is new struct
 const func end_of_central_directory: get_end_of_central_directory (inout file: inFile) is func
   result
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
+  local
+    var string: stri is "";
   begin
-    endOfCentDir.signature := gets(inFile, 4);
-    if endOfCentDir.signature = "PK\5;\6;" then
-      endOfCentDir.number_of_this_disk                          := getUInt16Le(inFile);
-      endOfCentDir.disk_number_with_start_of_central_directory  := getUInt16Le(inFile);
-      endOfCentDir.entries_in_central_directory_on_this_disk    := getUInt16Le(inFile);
-      endOfCentDir.entries_in_central_directory                 := getUInt16Le(inFile);
-      endOfCentDir.size_of_central_directory                    := getUInt32Le(inFile);
-      endOfCentDir.offset_of_start_of_central_directory         := getUInt32Le(inFile);
-      endOfCentDir.file_comment_length                          := getUInt16Le(inFile);
-      endOfCentDir.file_comment                                 := gets(inFile, endOfCentDir.file_comment_length);
+    stri := gets(inFile, END_OF_CENTRAL_DIRECTORY_FIXED_SIZE);
+    if length(stri) = END_OF_CENTRAL_DIRECTORY_FIXED_SIZE and
+        stri[.. 4] = END_OF_CENTRAL_DIRECTORY_SIGNATURE then
+      endOfCentDir.signature := END_OF_CENTRAL_DIRECTORY_SIGNATURE;
+      endOfCentDir.number_of_this_disk                         := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
+      endOfCentDir.disk_number_with_start_of_central_directory := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory_on_this_disk   := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
+      endOfCentDir.entries_in_central_directory                := bytes2Int(stri[11 len 2], UNSIGNED, LE);
+      endOfCentDir.size_of_central_directory                   := bytes2Int(stri[13 len 4], UNSIGNED, LE);
+      endOfCentDir.offset_of_start_of_central_directory        := bytes2Int(stri[17 len 4], UNSIGNED, LE);
+      endOfCentDir.file_comment_length                         := bytes2Int(stri[21 len 2], UNSIGNED, LE);
+      endOfCentDir.file_comment                                := gets(inFile, endOfCentDir.file_comment_length);
     end if;
   end func;
 
@@ -178,66 +230,78 @@ const func end_of_central_directory: read_end_of_central_directory (inout file: 
   result
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
   local
-    const integer: END_OF_CENTRAL_DIRECTORY_RECORD_LEN is 18;
+    const integer: MIN_RECORD_LEN is 22;
+    const integer: MAX_RECORD_LEN is MIN_RECORD_LEN + 2**16 - 1;
     var integer: pos is 0;
   begin
-    pos := rposOfMagic(inFile, "PK\5;\6;", END_OF_CENTRAL_DIRECTORY_RECORD_LEN);
+    pos := rposOfMagic(inFile, END_OF_CENTRAL_DIRECTORY_SIGNATURE, MIN_RECORD_LEN, MAX_RECORD_LEN);
     if pos <> 0 then
       seek(inFile, pos);
       endOfCentDir := get_end_of_central_directory(inFile);
+      if tell(inFile) <> succ(length(inFile)) then
+        # The end_of_central_directory record is not at the end of the file.
+        # writeln("curr pos: " <& tell(inFile) <& " length: " <& length(inFile));
+        endOfCentDir := end_of_central_directory.value;
+      end if;
     end if;
   end func;
 
 
 const type: central_file_header is new struct
-    var string: signature                        is "";  # 4 bytes ("PK\1;\2;")
-    var integer: version_made_by                 is 0;   # 2 bytes
-    var integer: version_needed_to_extract       is 0;   # 2 bytes
-    var integer: general_purpose_bit_flag        is 0;   # 2 bytes
-    var integer: compression_method              is 0;   # 2 bytes
-    var integer: last_mod_file_time              is 0;   # 2 bytes
-    var integer: last_mod_file_date              is 0;   # 2 bytes
-    var integer: crc_32                          is 0;   # 4 bytes
-    var integer: compressed_size                 is 0;   # 4 bytes
-    var integer: uncompressed_size               is 0;   # 4 bytes
-    var integer: file_name_length                is 0;   # 2 bytes
-    var integer: extra_field_length              is 0;   # 2 bytes
-    var integer: file_comment_length             is 0;   # 2 bytes
-    var integer: disk_number_start               is 0;   # 2 bytes
-    var integer: internal_file_attributes        is 0;   # 2 bytes
-    var integer: external_file_attributes        is 0;   # 4 bytes
-    var integer: relative_offset_of_local_header is 0;   # 4 bytes
-    var string: file_name                        is "";  # variable size
-    var string: extra_field                      is "";  # variable size
-    var string: file_comment                     is "";  # variable size
+    var string: signature                        is "";       # 4 bytes ("PK\1;\2;")
+    var integer: version_made_by                 is 0;        # 2 bytes
+    var integer: version_needed_to_extract       is 0;        # 2 bytes
+    var bin32:   general_purpose_bit_flag        is bin32(0); # 2 bytes
+    var integer: compression_method              is 0;        # 2 bytes
+    var integer: last_mod_file_time              is 0;        # 2 bytes
+    var integer: last_mod_file_date              is 0;        # 2 bytes
+    var bin32:   crc_32                          is bin32(0); # 4 bytes
+    var integer: compressed_size                 is 0;        # 4 bytes
+    var integer: uncompressed_size               is 0;        # 4 bytes
+    var integer: file_name_length                is 0;        # 2 bytes
+    var integer: extra_field_length              is 0;        # 2 bytes
+    var integer: file_comment_length             is 0;        # 2 bytes
+    var integer: disk_number_start               is 0;        # 2 bytes
+    var integer: internal_file_attributes        is 0;        # 2 bytes
+    var integer: external_file_attributes        is 0;        # 4 bytes
+    var integer: relative_offset_of_local_header is 0;        # 4 bytes
+    var string: file_name                        is "";       # variable size
+    var string: extra_field                      is "";       # variable size
+    var string: file_comment                     is "";       # variable size
+    var zipExtraFieldType: extraFieldMap is zipExtraFieldType.value;
   end struct;
 
 
 const func central_file_header: get_central_header (inout file: inFile) is func
   result
-    var central_file_header: centralHeader is central_file_header.value;
+    var central_file_header: header is central_file_header.value;
+  local
+    var string: stri is "";
   begin
-    centralHeader.signature := gets(inFile, 4);
-    if centralHeader.signature = "PK\1;\2;" then
-      centralHeader.version_made_by                 := getUInt16Le(inFile);
-      centralHeader.version_needed_to_extract       := getUInt16Le(inFile);
-      centralHeader.general_purpose_bit_flag        := getUInt16Le(inFile);
-      centralHeader.compression_method              := getUInt16Le(inFile);
-      centralHeader.last_mod_file_time              := getUInt16Le(inFile);
-      centralHeader.last_mod_file_date              := getUInt16Le(inFile);
-      centralHeader.crc_32                          := getUInt32Le(inFile);
-      centralHeader.compressed_size                 := getUInt32Le(inFile);
-      centralHeader.uncompressed_size               := getUInt32Le(inFile);
-      centralHeader.file_name_length                := getUInt16Le(inFile);
-      centralHeader.extra_field_length              := getUInt16Le(inFile);
-      centralHeader.file_comment_length             := getUInt16Le(inFile);
-      centralHeader.disk_number_start               := getUInt16Le(inFile);
-      centralHeader.internal_file_attributes        := getUInt16Le(inFile);
-      centralHeader.external_file_attributes        := getUInt32Le(inFile);
-      centralHeader.relative_offset_of_local_header := getUInt32Le(inFile);
-      centralHeader.file_name                       := gets(inFile, centralHeader.file_name_length);
-      centralHeader.extra_field                     := gets(inFile, centralHeader.extra_field_length);
-      centralHeader.file_comment                    := gets(inFile, centralHeader.file_comment_length);
+    stri := gets(inFile, CENTRAL_HEADER_FIXED_SIZE);
+    if length(stri) = CENTRAL_HEADER_FIXED_SIZE and
+        stri[.. 4] = CENTRAL_HEADER_SIGNATURE then
+      header.signature := CENTRAL_HEADER_SIGNATURE;
+      header.version_made_by                 := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
+      header.version_needed_to_extract       := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
+      header.general_purpose_bit_flag  := bin32(bytes2Int(stri[ 9 len 2], UNSIGNED, LE));
+      header.compression_method              := bytes2Int(stri[11 len 2], UNSIGNED, LE);
+      header.last_mod_file_time              := bytes2Int(stri[13 len 2], UNSIGNED, LE);
+      header.last_mod_file_date              := bytes2Int(stri[15 len 2], UNSIGNED, LE);
+      header.crc_32                    := bin32(bytes2Int(stri[17 len 4], UNSIGNED, LE));
+      header.compressed_size                 := bytes2Int(stri[21 len 4], UNSIGNED, LE);
+      header.uncompressed_size               := bytes2Int(stri[25 len 4], UNSIGNED, LE);
+      header.file_name_length                := bytes2Int(stri[29 len 2], UNSIGNED, LE);
+      header.extra_field_length              := bytes2Int(stri[31 len 2], UNSIGNED, LE);
+      header.file_comment_length             := bytes2Int(stri[33 len 2], UNSIGNED, LE);
+      header.disk_number_start               := bytes2Int(stri[35 len 2], UNSIGNED, LE);
+      header.internal_file_attributes        := bytes2Int(stri[37 len 2], UNSIGNED, LE);
+      header.external_file_attributes        := bytes2Int(stri[39 len 4], UNSIGNED, LE);
+      header.relative_offset_of_local_header := bytes2Int(stri[43 len 4], UNSIGNED, LE);
+      header.file_name                       := gets(inFile, header.file_name_length);
+      header.extra_field                     := gets(inFile, header.extra_field_length);
+      header.file_comment                    := gets(inFile, header.file_comment_length);
+      header.extraFieldMap := getExtraFieldMap(header.extra_field);
     end if;
   end func;
 
@@ -245,9 +309,9 @@ const func central_file_header: get_central_header (inout file: inFile) is func
 const proc: write (in central_file_header: header) is func
   begin
     writeln("signature: "                       rpad 50 <& literal(header.signature) lpad 10);
-    writeln("version_made_by: "                 rpad 50 <& header.version_made_by lpad 10);
+    writeln("version_made_by: "                 rpad 50 <& header.version_made_by radix 16 lpad0 4);
     writeln("version_needed_to_extract: "       rpad 50 <& header.version_needed_to_extract lpad 10);
-    writeln("general_purpose_bit_flag: "        rpad 50 <& header.general_purpose_bit_flag lpad 10);
+    writeln("general_purpose_bit_flag: "        rpad 50 <& header.general_purpose_bit_flag radix 2 lpad0 16);
     writeln("compression_method: "              rpad 50 <& header.compression_method lpad 10);
     writeln("last_mod_file_time: "              rpad 50 <& header.last_mod_file_time lpad 10);
     writeln("last_mod_file_date: "              rpad 50 <& header.last_mod_file_date lpad 10);
@@ -259,7 +323,7 @@ const proc: write (in central_file_header: header) is func
     writeln("file_comment_length: "             rpad 50 <& header.file_comment_length lpad 10);
     writeln("disk_number_start: "               rpad 50 <& header.disk_number_start lpad 10);
     writeln("internal_file_attributes: "        rpad 50 <& header.internal_file_attributes lpad 10);
-    writeln("external_file_attributes: "        rpad 50 <& header.external_file_attributes lpad 10);
+    writeln("external_file_attributes: "        rpad 50 <& header.external_file_attributes radix 16 lpad 10);
     writeln("relative_offset_of_local_header: " rpad 50 <& header.relative_offset_of_local_header lpad 10);
     writeln("file_name: "                       rpad 50 <& literal(header.file_name) lpad 10);
     writeln("extra_field: "                     rpad 50 <& literal(header.extra_field) lpad 10);
@@ -272,18 +336,17 @@ const func string: get_central_header_file_name (inout file: inFile) is func
   result
     var string: file_name is "";
   local
-    var string: signature is "";
+    var string: stri is "";
     var integer: file_name_length is 0;
     var integer: extra_field_length is 0;
     var integer: file_comment_length is 0;
   begin
-    signature := gets(inFile, 4);
-    if signature = "PK\1;\2;" then
-      seek(inFile, tell(inFile) + 24); # ignore(gets(inFile, 24));
-      file_name_length    := getUInt16Le(inFile);
-      extra_field_length  := getUInt16Le(inFile);
-      file_comment_length := getUInt16Le(inFile);
-      seek(inFile, tell(inFile) + 12); # ignore(gets(inFile, 12));
+    stri := gets(inFile, CENTRAL_HEADER_FIXED_SIZE);
+    if length(stri) = CENTRAL_HEADER_FIXED_SIZE and
+        stri[.. 4] = CENTRAL_HEADER_SIGNATURE then
+      file_name_length    := bytes2Int(stri[29 len 2], UNSIGNED, LE);
+      extra_field_length  := bytes2Int(stri[31 len 2], UNSIGNED, LE);
+      file_comment_length := bytes2Int(stri[33 len 2], UNSIGNED, LE);
       file_name := gets(inFile, file_name_length);
       # seek(inFile, tell(inFile) + extra_field_length + file_comment_length);
       ignore(gets(inFile, extra_field_length));
@@ -300,9 +363,12 @@ const type: zipCatalogType is hash [string] central_file_header;
 
 
 (**
- *  Describes a ZIP archive.
+ *  [[filesys#fileSys|FileSys]] implementation type to access ZIP and JAR archives.
+ *  The zip file system does not support the concept of a current
+ *  working directory. The functions chdir and getcwd are not supported
+ *  by the zip file system. The root path of a zip file system is "".
  *)
-const type: zipArchive is new struct
+const type: zipArchive is sub emptyFileSys struct
     var file: zipFile is STD_NULL;
     var zipRegisterType: register is zipRegisterType.value;
     var zipCatalogType: catalog is zipCatalogType.value;
@@ -312,41 +378,45 @@ const type: zipArchive is new struct
 (**
  *  Open a ZIP archive with the given zipFile.
  *  @param zipFile File that contains a ZIP archive.
+ *  @return a file system that accesses the ZIP archive.
  *)
-const func zipArchive: openZip (inout file: zipFile) is func
+const func fileSys: openZip (inout file: zipFile) is func
   result
-    var zipArchive: zip is zipArchive.value;
+    var fileSys: newFileSys is fileSys.value;
   local
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
-    var string: fileName is "";
+    var string: filePath is "";
     var integer: centralHeaderPos is 0;
+    var zipArchive: zip is zipArchive.value;
   begin
     if zipFile <> STD_NULL then
       endOfCentDir := read_end_of_central_directory(zipFile);
-      if endOfCentDir.signature = "PK\5;\6;" then
+      if endOfCentDir.signature = END_OF_CENTRAL_DIRECTORY_SIGNATURE then
         zip.zipFile := zipFile;
         # write(endOfCentDir);
         centralHeaderPos := succ(endOfCentDir.offset_of_start_of_central_directory);
         seek(zip.zipFile, centralHeaderPos);
-        fileName := get_central_header_file_name(zip.zipFile);
-        while fileName <> "" do
-          # writeln(fileName <& " " <& centralHeaderPos);
-          zip.register @:= [fileName] centralHeaderPos;
+        filePath := get_central_header_file_name(zip.zipFile);
+        while filePath <> "" do
+          # writeln(filePath <& " " <& centralHeaderPos);
+          zip.register @:= [filePath] centralHeaderPos;
           centralHeaderPos := tell(zip.zipFile);
-          fileName := get_central_header_file_name(zip.zipFile);
+          filePath := get_central_header_file_name(zip.zipFile);
         end while;
+        newFileSys := toInterface(zip);
       end if;
     end if;
   end func;
 
 
 (**
- *  Open a ZIP archive with the given zipFile.
+ *  Open a ZIP archive with the given zipFileName.
  *  @param zipFileName Name of the ZIP archive to be opened.
+ *  @return a file system that accesses the ZIP archive.
  *)
-const func zipArchive: openZip (in string: zipFileName) is func
+const func fileSys: openZip (in string: zipFileName) is func
   result
-    var zipArchive: zip is zipArchive.value;
+    var fileSys: zip is fileSys.value;
   local
     var file: zipFile is STD_NULL;
   begin
@@ -365,17 +435,32 @@ const proc: close (inout zipArchive: zip) is func
   end func;
 
 
-const func boolean: implizitDir (inout zipArchive: zip, in var string: dirPath) is func
+const func boolean: implizitDir (inout zipArchive: zip, in string: dirPath) is func
   result
     var boolean: implizitDir is FALSE;
   local
     var string: filePath is "";
   begin
-    for key filePath range zip.register do
-      if startsWith(filePath, dirPath) then
-        implizitDir := TRUE;
-      end if;
-    end for;
+    if dirPath <> "" then
+      for key filePath range zip.register do
+        if startsWith(filePath, dirPath) and
+            length(filePath) > length(dirPath) and
+            (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
+          implizitDir := TRUE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func central_file_header: addImplizitDir (inout zipArchive: zip,
+    in string: dirPath) is func
+  result
+    var central_file_header: header is central_file_header.value;
+  begin
+    header.file_name := dirPath & "/";
+    header.relative_offset_of_local_header := -1;
+    zip.catalog @:= [dirPath] header;
   end func;
 
 
@@ -386,20 +471,22 @@ const func boolean: implizitDir (inout zipArchive: zip, in var string: dirPath) 
  *  @param zip Open ZIP archive.
  *  @param dirPath path of a directory in the ZIP archive.
  *  @return an array with the file names.
- *  @exception FILE_ERROR The file triggers an error.
- *  @exception RANGE_ERROR DirPath ends with a slash.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''dirPath'' is not present in the ZIP archive.
  *)
 const func array string: readDir (inout zipArchive: zip, in var string: dirPath) is func
   result
     var array string: fileNames is 0 times "";
   local
     var string: filePath is "";
+    var boolean: dirExists is FALSE;
     var set of string: fileNameSet is (set of string).value;
     var string: fileName is "";
     var integer: slashPos is 0;
   begin
     if endsWith(dirPath, "/") then
-      raise RANGE_ERROR
+      raise RANGE_ERROR;
     elsif zip.zipFile <> STD_NULL then
       if dirPath = "." then
         dirPath := "";
@@ -407,7 +494,9 @@ const func array string: readDir (inout zipArchive: zip, in var string: dirPath)
       for key filePath range zip.register do
         if startsWith(filePath, dirPath) then
           fileName := filePath[succ(length(dirPath)) ..];
-          if startsWith(fileName, "/") then
+          if fileName = "" then
+            dirExists := TRUE;
+          elsif startsWith(fileName, "/") then
             fileName := fileName[2 ..];
           elsif dirPath <> "" then
             fileName := "";  # A file name <> dirPath starts with dirPath.
@@ -418,24 +507,16 @@ const func array string: readDir (inout zipArchive: zip, in var string: dirPath)
           end if;
           if fileName <> "" and fileName not in fileNameSet then
             incl(fileNameSet, fileName);
+            dirExists := TRUE;
           end if;
         end if;
       end for;
+      if dirPath <> "" and not dirExists then
+        raise FILE_ERROR;
+      end if;
       fileNames := sort(toArray(fileNameSet));
     end if;
   end func;
-
-
-(**
- *  Determine the file names in the top directory of a ZIP archive.
- *  Note that the function returns only the file names.
- *  Additional information must be obtained with other calls.
- *  @param zip Open ZIP archive.
- *  @return an array with the file names.
- *  @exception FILE_ERROR The file triggers an error.
- *)
-const func array string: readDir (inout zipArchive: zip) is
-  return readDir(zip, "");
 
 
 (**
@@ -466,7 +547,7 @@ const func fileType: fileType (inout zipArchive: zip, in string: filePath) is fu
     var char: typeflag is ' ';
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
-      raise RANGE_ERROR
+      raise RANGE_ERROR;
     else
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
@@ -475,8 +556,7 @@ const func fileType: fileType (inout zipArchive: zip, in string: filePath) is fu
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
       elsif implizitDir(zip, filePath) then
-        header.file_name := filePath & "/";
-        zip.catalog @:= [filePath] header;
+        header := addImplizitDir(zip, filePath);
       else
         aFileType := FILE_ABSENT;
       end if;
@@ -508,7 +588,7 @@ const func fileType: fileTypeSL (inout zipArchive: zip, in string: filePath) is 
     var char: typeflag is ' ';
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
-      raise RANGE_ERROR
+      raise RANGE_ERROR;
     else
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
@@ -517,8 +597,7 @@ const func fileType: fileTypeSL (inout zipArchive: zip, in string: filePath) is 
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
       elsif implizitDir(zip, filePath) then
-        header.file_name := filePath & "/";
-        zip.catalog @:= [filePath] header;
+        header := addImplizitDir(zip, filePath);
       else
         aFileType := FILE_ABSENT;
       end if;
@@ -537,17 +616,28 @@ const func fileType: fileTypeSL (inout zipArchive: zip, in string: filePath) is 
  *  Determine the file mode (permissions) of a file in a ZIP archive.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it is not present in the ZIP archive.
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive.
  *)
 const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
   local
+    const integer: HOST_SYSTEM_MS_DOS is 0;
+    const integer: HOST_SYSTEM_UNIX   is 3;
+    const bin32: FAT_READ_ONLY    is bin32(16#01);
+    const bin32: FAT_HIDDEN       is bin32(16#02);
+    const bin32: FAT_SYSTEM       is bin32(16#04);
+    const bin32: FAT_VOLUME_LABEL is bin32(16#08);
+    const bin32: FAT_DIRECTORY    is bin32(16#10);
+    const bin32: FAT_ARCHIVE      is bin32(16#20);
+    const bin32: FAT_DEVICE       is bin32(16#40);
     var central_file_header: header is central_file_header.value;
     var local_file_header: localHeader is local_file_header.value;
+    var string: extension is "";
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
-      raise RANGE_ERROR
+      raise RANGE_ERROR;
     else
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
@@ -556,19 +646,33 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
       elsif implizitDir(zip, filePath) then
-        header.file_name := filePath & "/";
-        zip.catalog @:= [filePath] header;
+        header := addImplizitDir(zip, filePath);
       else
-        raise RANGE_ERROR;
+        raise FILE_ERROR;
       end if;
-      mode := {READ_USER, WRITE_USER};
-      (*
-      write(header);
-      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
-      localHeader := get_local_header(zip.zipFile);
-      writeln("+++++++++");
-      write(localHeader);
-      *)
+      case header.version_made_by >> 8 of
+        when {HOST_SYSTEM_MS_DOS}:
+          mode := {READ_USER, READ_GROUP, READ_OTHER};
+          if bin32(header.external_file_attributes) & FAT_READ_ONLY = bin32(0) then
+            mode |:= {WRITE_USER, WRITE_GROUP, WRITE_OTHER};
+          end if;
+          if bin32(header.external_file_attributes) & FAT_DIRECTORY <> bin32(0) then
+            mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
+          end if;
+          extension := lower(header.file_name[length(header.file_name) - 3 ..]);
+          if extension in {".bat", ".cmd", ".com", ".exe"} then
+            mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
+          end if;
+        when {HOST_SYSTEM_UNIX}:
+          # The unix mode is in the high 16 bits of the attributes.
+          mode := fileMode conv (header.external_file_attributes >> 16);
+        otherwise:
+          mode := {READ_USER, READ_GROUP, READ_OTHER,
+                   WRITE_USER, WRITE_GROUP, WRITE_OTHER};
+          if endsWith(header.file_name, "/") then
+            mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
+          end if;
+      end case;
     end if;
   end func;
 
@@ -579,7 +683,8 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
  *  For directories a size of 0 is returned.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it is not present in the ZIP archive.
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive.
  *)
 const func integer: fileSize (inout zipArchive: zip, in string: filePath) is func
   result
@@ -588,7 +693,7 @@ const func integer: fileSize (inout zipArchive: zip, in string: filePath) is fun
     var central_file_header: header is central_file_header.value;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
-      raise RANGE_ERROR
+      raise RANGE_ERROR;
     else
       if filePath in zip.catalog then
         size := zip.catalog[filePath].uncompressed_size;
@@ -598,10 +703,9 @@ const func integer: fileSize (inout zipArchive: zip, in string: filePath) is fun
         size := header.uncompressed_size;
         zip.catalog @:= [filePath] header;
       elsif implizitDir(zip, filePath) then
-        header.file_name := filePath & "/";
-        zip.catalog @:= [filePath] header;
+        header := addImplizitDir(zip, filePath);
       else
-        raise RANGE_ERROR;
+        raise FILE_ERROR;
       end if;
     end if;
   end func;
@@ -611,16 +715,18 @@ const func integer: fileSize (inout zipArchive: zip, in string: filePath) is fun
  *  Determine the modification time of a file in a ZIP archive.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
- *             representation or it is not present in the ZIP archive.
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive.
  *)
 const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
   result
     var time: modificationTime is time.value;
   local
     var central_file_header: header is central_file_header.value;
+    var integer: timestamp is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
-      raise RANGE_ERROR
+      raise RANGE_ERROR;
     else
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
@@ -629,102 +735,100 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
       elsif implizitDir(zip, filePath) then
-        header.file_name := filePath & "/";
-        zip.catalog @:= [filePath] header;
+        header := addImplizitDir(zip, filePath);
       else
-        raise RANGE_ERROR;
+        raise FILE_ERROR;
       end if;
-      modificationTime.year   := (header.last_mod_file_date >>  9) + 1980;
-      modificationTime.month  := (header.last_mod_file_date >>  5) mod 16;
-      modificationTime.day    :=  header.last_mod_file_date        mod 32;
-      modificationTime.hour   :=  header.last_mod_file_time >> 11;
-      modificationTime.minute := (header.last_mod_file_time >>  5) mod 64;
-      modificationTime.second := (header.last_mod_file_time        mod 32) * 2;
+      if 16#5455 in header.extraFieldMap then
+        # Extended Timestamp Extra Field:
+        timestamp := bytes2Int(header.extraFieldMap[16#5455][2 len 4], UNSIGNED, LE);
+        modificationTime := timestamp1970ToTime(timestamp);
+      elsif 16#000d in header.extraFieldMap then
+        # UNIX Extra Field
+        timestamp := bytes2Int(header.extraFieldMap[16#000d][5 len 4], UNSIGNED, LE);
+        modificationTime := timestamp1970ToTime(timestamp);
+      elsif 16#000a in header.extraFieldMap then
+        # NTFS Extra Field:
+        timestamp := bytes2Int(header.extraFieldMap[16#000a][9 len 8], UNSIGNED, LE);
+        modificationTime := timestamp1601ToTime(timestamp);
+      else
+        modificationTime.year   := (header.last_mod_file_date >>  9) + 1980;
+        modificationTime.month  := (header.last_mod_file_date >>  5) mod 16;
+        modificationTime.day    :=  header.last_mod_file_date        mod 32;
+        modificationTime.hour   :=  header.last_mod_file_time >> 11;
+        modificationTime.minute := (header.last_mod_file_time >>  5) mod 64;
+        modificationTime.second := (header.last_mod_file_time        mod 32) * 2;
+        modificationTime := setLocalTZ(modificationTime);
+      end if;
     end if;
   end func;
 
 
 (**
- *  Determine the file names in a directory inside a ZIP archive.
- *  Note that the function returns only the file names.
- *  Additional information must be obtained with other calls.
- *  @param zipFilePath Path of the ZIP archive
- *  @param dirPath path of a directory in the ZIP archive.
- *  @return an array with the file names.
- *  @exception FILE_ERROR The file triggers an error.
- *  @exception RANGE_ERROR DirPath ends with a slash.
+ *  Get the contents of a file in a ZIP archive.
+ *  @return the specified file as string.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive,
+ *             or the crc-32 checksum is not okay.
  *)
-const func array string: readZipDir (in string: zipFilePath, in string: dirPath) is func
+const func string: getFile (inout zipArchive: zip, in string: filePath) is func
   result
-    var array string: fileNames is 0 times "";
-  local
-    var zipArchive: zip is zipArchive.value;
-  begin
-    zip := openZip(zipFilePath);
-    fileNames := readDir(zip, dirPath);
-    close(zip);
-  end func;
-
-
-(**
- *  Determine the file names in the top directory of a ZIP archive.
- *  Note that the function returns only the file names.
- *  Additional information must be obtained with other calls.
- *  @param zipFilePath Path of the ZIP archive
- *  @return an array with the file names.
- *  @exception FILE_ERROR The file triggers an error.
- *)
-const func array string: readZipDir (in string: zipFilePath) is
-  return readZipDir(zipFilePath, "");
-
-
-(**
- *  Determine the file paths in a ZIP archive.
- *  Note that the function returns only the file paths.
- *  Additional information must be obtained with other calls.
- *)
-const func array string: readZipDir (in string: zipFilePath, RECURSIVE) is func
-  result
-    var array string: filePaths is 0 times "";
-  local
-    var zipArchive: zip is zipArchive.value;
-  begin
-    zip := openZip(zipFilePath);
-    filePaths := readDir(zip, RECURSIVE);
-    close(zip);
-  end func;
-
-
-const func string: getContent (inout zipArchive: zip, in string: filePath) is func
-  result
-    var string: content is "";
-  local
-    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
-    var central_file_header: centralHeader is central_file_header.value;
-    var local_file_header: header is local_file_header.value;
-    var boolean: found is FALSE;
     var string: fileData is "";
+  local
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+    var integer: localHeaderPos is 0;
   begin
-    endOfCentDir := read_end_of_central_directory(zip.zipFile);
-    seek(zip.zipFile, succ(endOfCentDir.offset_of_start_of_central_directory));
-    centralHeader := get_central_header(zip.zipFile);
-    while centralHeader.signature = "PK\1;\2;" and not found do
-      centralHeader := get_central_header(zip.zipFile);
-      if centralHeader.file_name = filePath then
-        found := TRUE;
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      if filePath in zip.catalog then
+        localHeaderPos := succ(zip.catalog[filePath].relative_offset_of_local_header);
+      elsif filePath in zip.register then
+        seek(zip.zipFile, zip.register[filePath]);
+        header := get_central_header(zip.zipFile);
+        localHeaderPos := succ(header.relative_offset_of_local_header);
+        zip.catalog @:= [filePath] header;
+      elsif implizitDir(zip, filePath) then
+        header := addImplizitDir(zip, filePath);
+      else
+        raise FILE_ERROR;
       end if;
-    end while;
-    if found then
-      seek(zip.zipFile, succ(centralHeader.relative_offset_of_local_header));
-      header := get_local_header(zip.zipFile);
-      # write(header);
-      fileData := gets(zip.zipFile, header.compressed_size);
-      if header.compression_method = 0 then
-        content := fileData;
-      elsif header.compression_method = 8 then
-        # writeln(literal(fileData[ .. 50]));
-        content := inflate(fileData);
-        # writeln(literal(content[ .. 50]));
+    end if;
+    if localHeaderPos <> 0 then
+      seek(zip.zipFile, localHeaderPos);
+      localHeader := get_local_header(zip.zipFile);
+      # write(localHeader);
+      if localHeader.compression_method = 0 then
+        # The file is stored (no compression).
+        fileData := gets(zip.zipFile, localHeader.compressed_size);
+      elsif localHeader.compression_method = 8 then
+        # The file is Deflated.
+        if localHeader.general_purpose_bit_flag & HAS_DATA_DESCRIPTOR <> bin32(0) then
+          # The fields crc_32, compressed_size and uncompressed_size are 0.
+          # Instead there is a data descriptor after the compressed data.
+          fileData := inflate(zip.zipFile);
+          localHeader.crc_32            := bin32(getUInt32Le(zip.zipFile));
+          if localHeader.crc_32 = DATA_DESCRIPTOR_SIGNATURE_VALUE then
+            # Optional signature value for the data descriptor record. 
+            localHeader.crc_32          := bin32(getUInt32Le(zip.zipFile));
+          end if;
+          localHeader.compressed_size   := getUInt32Le(zip.zipFile);
+          localHeader.uncompressed_size := getUInt32Le(zip.zipFile);
+        else
+          fileData := gets(zip.zipFile, localHeader.compressed_size);
+          fileData := inflate(fileData);
+        end if;
+      end if;
+      if localHeader.uncompressed_size <> length(fileData) or
+          localHeader.crc_32 <> crc32(fileData) then
+        # writeln("uncompressed_size: " <& localHeader.uncompressed_size <&
+        #         " actual size: " <& length(fileData) radix 16);
+        # writeln("crc_32: " <& localHeader.crc_32 radix 16 <&
+        #         " actual crc_32: " <& crc32(fileData) radix 16);
+        # write(localHeader);
+        raise FILE_ERROR;
       end if;
     end if;
   end func;
@@ -734,11 +838,24 @@ const func string: getZipContent (in string: zipFilePath, in string: filePath) i
   result
     var string: content is "";
   local
-    var zipArchive: zip is zipArchive.value;
+    var fileSys: zip is fileSys.value;
   begin
     zip := openZip(zipFilePath);
-    if zip.zipFile <> STD_NULL then
-      content := getContent(zip, filePath);
+    if zip <> fileSys.value then
+      content := getFile(zip, filePath);
       close(zip);
     end if;
+  end func;
+
+
+(**
+ *  For-loop which loops recursively over the paths in a ZIP archive.
+ *)
+const proc: for (inout string: filePath) range (inout zipArchive: zip) do
+              (in proc: statements)
+            end for is func
+  begin
+    for key filePath range zip.register do
+      statements;
+    end for;
   end func;

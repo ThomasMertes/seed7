@@ -28,6 +28,7 @@ const ACTION: BIN_AND                 is action "BIN_AND";
 const ACTION: BIN_AND_ASSIGN          is action "BIN_AND_ASSIGN";
 const ACTION: BIN_BIG                 is action "BIN_BIG";
 const ACTION: BIN_BINARY              is action "BIN_BINARY";
+const ACTION: BIN_CARD                is action "BIN_CARD";
 const ACTION: BIN_CMP                 is action "BIN_CMP";
 const ACTION: BIN_GET_BINARY_FROM_SET is action "BIN_GET_BINARY_FROM_SET";
 const ACTION: BIN_LSHIFT              is action "BIN_LSHIFT";
@@ -47,6 +48,7 @@ const proc: bin_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "uintType    setToUInt (const const_setType, const intType);");
+    declareExtern(c_prog, "intType     uintCard (uintType);");
     declareExtern(c_prog, "intType     uintCmp (uintType, uintType);");
     declareExtern(c_prog, "intType     uintCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "striType    uintRadix (uintType, intType, boolType);");
@@ -98,6 +100,16 @@ const proc: process (BIN_BINARY, in reference: function,
   begin
     c_expr.expr &:= "bigToUInt64(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_CARD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "uintCard(";
+    process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 

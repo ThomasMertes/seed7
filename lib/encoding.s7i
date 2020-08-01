@@ -85,6 +85,8 @@ const func string: toBase64 (in string: byteStri) is func
 
 (**
  *  Decode a Base64 encoded string.
+ *  @param base64 Base64 encoded string without leading or trailing
+ *         whitespace characters.
  *  @return the decoded string.
  *  @exception RANGE_ERROR When ''base64'' is not in Base64 format.
  *)

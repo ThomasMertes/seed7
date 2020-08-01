@@ -43,6 +43,7 @@
 #include "syvarutl.h"
 #include "striutl.h"
 #include "objutl.h"
+#include "exec.h"
 #include "runerr.h"
 #include "str_rtl.h"
 #include "rtl_err.h"
@@ -642,6 +643,30 @@ objectType str_eq (listType arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* str_eq */
+
+
+
+objectType str_for (listType arguments)
+
+  {
+    objectType for_variable;
+    striType stri;
+    objectType statement;
+    memSizeType pos;
+
+  /* str_for */
+    for_variable = arg_2(arguments);
+    isit_char(for_variable);
+    is_variable(for_variable);
+    isit_stri(arg_4(arguments));
+    stri = take_stri(arg_4(arguments));
+    statement = arg_6(arguments);
+    for (pos = 0; pos < stri->size && !fail_flag; pos++) {
+      for_variable->value.charValue = stri->mem[pos];
+      evaluate(statement);
+    } /* for */
+    return SYS_EMPTY_OBJECT;
+  } /* str_for */
 
 
 

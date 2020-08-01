@@ -34,6 +34,7 @@ const ACTION: STR_CMP         is action "STR_CMP";
 const ACTION: STR_CPY         is action "STR_CPY";
 const ACTION: STR_ELEMCPY     is action "STR_ELEMCPY";
 const ACTION: STR_EQ          is action "STR_EQ";
+const ACTION: STR_FOR         is action "STR_FOR";
 const ACTION: STR_GE          is action "STR_GE";
 const ACTION: STR_GT          is action "STR_GT";
 const ACTION: STR_HASHCODE    is action "STR_HASHCODE";
@@ -986,6 +987,45 @@ const proc: process (STR_EQ, in reference: function,
       c_expr.expr &:= stri_a_name;
       c_expr.expr &:= "->size*sizeof(strElemType))==0)";
     end if;
+  end func;
+
+
+const proc: process (STR_FOR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: size_name is "";
+    var string: index_name is "";
+    var string: char_name is "";
+    var string: stri_name is "";
+    var expr_type: statement is expr_type.value;
+  begin
+    size_name := defineTempVariable("memSizeType", "size_", statement);
+    index_name := defineTempVariable("memSizeType", "index_", statement);
+    char_name := getParameterAsVariable("charType", "ch_", params[2], statement);
+    stri_name := getParameterAsVariable("const_striType", "stri_", params[4], statement);
+    statement.expr &:= "for (";
+    statement.expr &:= size_name;
+    statement.expr &:= "=";
+    statement.expr &:= stri_name;
+    statement.expr &:= "->size,";
+    statement.expr &:= index_name;
+    statement.expr &:= "=0; ";
+    statement.expr &:= index_name;
+    statement.expr &:= "<";
+    statement.expr &:= size_name;
+    statement.expr &:= "; (";
+    statement.expr &:= index_name;
+    statement.expr &:= ")++) {\n";
+    statement.expr &:= char_name;
+    statement.expr &:= "=";
+    statement.expr &:= stri_name;
+    statement.expr &:= "->mem[";
+    statement.expr &:= index_name;
+    statement.expr &:= "];\n";
+    process_expr(params[6], statement);
+    statement.expr &:= "}\n";
+    doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
 
@@ -2214,14 +2254,89 @@ const proc: process (STR_PUSH, in reference: function,
   end func;
 
 
-const proc: process (STR_RANGE, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_inline_str_range (in ref_list: params, in string: slice_name,
+    inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
     var string: stri_name is "";
     var string: start_name is "";
     var string: stop_name is "";
+    var integer: start_value is 0;
+    var boolean: start_is_variable is TRUE;
+  begin
+    stri_name := getParameterAsVariable("const_striType", "stri_", params[1], c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      start_is_variable := FALSE;
+      start_value := getValue(evaluatedParam, integer);
+      if start_value < 1 then
+        start_value := 1;
+      end if;
+      start_name := integerLiteral(start_value);
+    else
+      start_name := getTempVariable("intType", "start_", params[3], c_expr);
+    end if;
+    stop_name := getParameterAsVariable("intType", "stop_", params[5], c_expr);
+    if start_is_variable then
+      (* Formula used: start<1 ? start=1 : 0 *)
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "<1 ? ";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "=1 : 0, ";
+    end if;
+    (* Formula used: slice.capacity=0,
+                     stop>=start && (uintType)start <= stri->size ?
+                     (slice.mem = &stri->mem[start-1],
+                     (uintType)stop > stri->size ?
+                     slice.size = stri->size-(memSizeType)start+1 :
+                     (slice.size = (memSizeType)stop-(memSizeType)start+1)) :
+                     (slice.mem = NULL,slice.size = 0) *)
+    if ccConf.WITH_STRI_CAPACITY then
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".capacity=0, ";
+    end if;
+    c_expr.expr &:= stop_name;
+    c_expr.expr &:= ">=";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= " && (uintType)";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= "<=";
+    c_expr.expr &:= stri_name;
+    c_expr.expr &:= "->size ? (";
+    c_expr.expr &:= slice_name;
+    c_expr.expr &:= ".mem = &";
+    c_expr.expr &:= stri_name;
+    c_expr.expr &:= "->mem[";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= "-1], (uintType)";
+    c_expr.expr &:= stop_name;
+    c_expr.expr &:= " > ";
+    c_expr.expr &:= stri_name;
+    c_expr.expr &:= "->size ? ";
+    c_expr.expr &:= slice_name;
+    c_expr.expr &:= ".size = ";
+    c_expr.expr &:= stri_name;
+    c_expr.expr &:= "->size-(memSizeType)";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= "+1 : (";
+    c_expr.expr &:= slice_name;
+    c_expr.expr &:= ".size = (memSizeType)";
+    c_expr.expr &:= stop_name;
+    c_expr.expr &:= "-(memSizeType)";
+    c_expr.expr &:= start_name;
+    c_expr.expr &:= "+1)) : (";
+    c_expr.expr &:= slice_name;
+    c_expr.expr &:= ".mem = NULL,";
+    c_expr.expr &:= slice_name;
+    c_expr.expr &:= ".size = 0)";
+  end func;
+
+
+const proc: process (STR_RANGE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
     var string: slice_name is "";
   begin
     if getConstant(params[1], STRIOBJECT, evaluatedParam) and
@@ -2247,59 +2362,7 @@ const proc: process (STR_RANGE, in reference: function,
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
       if inlineFunctions then
-        stri_name := getParameterAsVariable("const_striType", "stri_", params[1], c_expr);
-        start_name := getTempVariable("intType", "start_", params[3], c_expr);
-        stop_name := getParameterAsVariable("intType", "stop_", params[5], c_expr);
-        (* Formula used: start<1 ? start=1 : 0 *)
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "<1 ? ";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "=1 : 0, ";
-        (* Formula used: slice.capacity=0,
-                         stop>=start && (uintType)start <= stri->size ?
-                         (slice.mem = &stri->mem[start-1],
-                         (uintType)stop > stri->size ?
-                         slice.size = stri->size-(memSizeType)start+1 :
-                         (slice.size = (memSizeType)stop-(memSizeType)start+1)) :
-                         (slice.mem = NULL,slice.size = 0) *)
-        if ccConf.WITH_STRI_CAPACITY then
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".capacity=0, ";
-        end if;
-        c_expr.expr &:= stop_name;
-        c_expr.expr &:= ">=";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= " && (uintType)";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "<=";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->size ? (";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".mem = &";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->mem[";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "-1], (uintType)";
-        c_expr.expr &:= stop_name;
-        c_expr.expr &:= " > ";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->size ? ";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".size = ";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->size-(memSizeType)";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "+1 : (";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".size = (memSizeType)";
-        c_expr.expr &:= stop_name;
-        c_expr.expr &:= "-(memSizeType)";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "+1)) : (";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".mem = NULL,";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".size = 0)";
+        process_inline_str_range(params, slice_name, c_expr);
       else
         c_expr.expr &:= "strRangeSlice(";
         getAnyParamToExpr(params[1], c_expr);
@@ -2530,14 +2593,143 @@ const proc: process_str_substr1 (in reference: param1, in reference: param3,
   end func;
 
 
-const proc: process (STR_SUBSTR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_inline_str_substr (in ref_list: params, in string: slice_name,
+    inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
     var string: stri_name is "";
     var string: start_name is "";
     var string: length_name is "";
+    var integer: start_value is 0;
+    var boolean: start_is_const is FALSE;
+    var integer: length_value is 0;
+    var boolean: length_is_const is FALSE;
+  begin
+    stri_name := getParameterAsVariable("const_striType", "stri_", params[1], c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      start_value := getValue(evaluatedParam, integer);
+      start_is_const := TRUE;
+    end if;
+    if getConstant(params[5], INTOBJECT, evaluatedParam) then
+      length_value := getValue(evaluatedParam, integer);
+      length_is_const := TRUE;
+    end if;
+    if start_is_const then
+      if length_is_const then
+        if start_value < 1 then
+          if length_value >= 1 and start_value > 1 - length_value then
+            length_value +:= start_value - 1;
+            start_value := 1;
+          else
+            length_value := 0;
+          end if;
+        end if;
+        start_name := integerLiteral(start_value);
+        length_name := integerLiteral(length_value);
+      else
+        if start_value < 1 then
+          start_is_const := FALSE;
+        else
+          start_name := integerLiteral(start_value);
+        end if;
+      end if;
+    elsif length_is_const then
+      length_name := getTempVariable("intType", "length_", params[5], c_expr);
+    end if;
+    if not start_is_const then
+      start_name := getTempVariable("intType", "start_", params[3], c_expr);
+    end if;
+    if not length_is_const then
+      length_name := getTempVariable("intType", "length_", params[5], c_expr);
+    end if;
+    if not start_is_const then
+      (* Formula used: start<1 ? (length>=1 && start>1-length ? (length+=start-1, start=1) : (length=0)) : 0 *)
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "<1 ? (";
+      if length_is_const then
+        # This function is only called if length >= 1 holds.
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(1-length_value);
+      else
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= ">=1 && ";
+        c_expr.expr &:= start_name;
+        c_expr.expr &:= ">1-";
+        c_expr.expr &:= length_name;
+      end if;
+      c_expr.expr &:= " ? (";
+      c_expr.expr &:= length_name;
+      c_expr.expr &:= "+=";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "-1, ";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "=1) : (";
+      c_expr.expr &:= length_name;
+      c_expr.expr &:= "=0)) : 0, ";
+    end if;
+    (* Formula used: slice.capacity=0,
+                     length>=1 && (uintType)start<=stri->size ?
+                     (slice.mem = &stri->mem[start-1],
+                     (uintType)length > stri->size-(memSizeType)start+1 ?
+                     slice.size = stri->size-(memSizeType)start+1 :
+                     (slice.size = (memSizeType)length)) :
+                     (slice.mem = NULL, slice.size = 0) *)
+    if ccConf.WITH_STRI_CAPACITY then
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".capacity=0, ";
+    end if;
+    if start_is_const and length_is_const and length_value = 0 then
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".mem = NULL, ";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".size = 0";
+    else
+      if not start_is_const or not length_is_const then
+        c_expr.expr &:= length_name;
+        c_expr.expr &:= ">=1 && ";
+      end if;
+      c_expr.expr &:= "(uintType)";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "<=";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size ? (";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".mem = &";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->mem[";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "-1], (uintType)";
+      c_expr.expr &:= length_name;
+      c_expr.expr &:= " > ";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size-(memSizeType)";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "+1 ? ";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".size = ";
+      c_expr.expr &:= stri_name;
+      c_expr.expr &:= "->size-(memSizeType)";
+      c_expr.expr &:= start_name;
+      c_expr.expr &:= "+1 : (";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".size = (memSizeType)";
+      c_expr.expr &:= length_name;
+      c_expr.expr &:= ")) : (";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".mem = NULL, ";
+      c_expr.expr &:= slice_name;
+      c_expr.expr &:= ".size = 0)";
+    end if;
+  end func;
+
+
+const proc: process (STR_SUBSTR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
     var string: slice_name is "";
   begin
     if getConstant(params[1], STRIOBJECT, evaluatedParam) and
@@ -2556,8 +2748,18 @@ const proc: process (STR_SUBSTR, in reference: function,
       incr(countOptimizations);
       process_str_head(params[1], params[5], c_expr);
     elsif getConstant(params[5], INTOBJECT, evaluatedParam) and
-        getValue(evaluatedParam, integer) = 1 then
-      process_str_substr1(params[1], params[3], c_expr);
+        getValue(evaluatedParam, integer) <= 1 then
+      if getValue(evaluatedParam, integer) = 1 then
+        process_str_substr1(params[1], params[3], c_expr);
+      else
+        incr(countOptimizations);
+        c_expr.expr &:= "/* string[m len 0] */ (";
+        # The index expressions could have a side effect or raise an exception
+        process_expr(params[3], c_expr);
+        c_expr.expr &:= ",";
+        c_expr.expr &:= stringLiteral("");
+        c_expr.expr &:= ")";
+      end if;
     elsif ccConf.ALLOW_STRITYPE_SLICES then
       c_expr.expr &:= "(";
       incr(c_expr.temp_num);
@@ -2566,69 +2768,7 @@ const proc: process (STR_SUBSTR, in reference: function,
       c_expr.temp_decls &:= slice_name;
       c_expr.temp_decls &:= ";\n";
       if inlineFunctions then
-        stri_name := getParameterAsVariable("const_striType", "stri_", params[1], c_expr);
-        start_name := getTempVariable("intType", "start_", params[3], c_expr);
-        length_name := getTempVariable("intType", "length_", params[5], c_expr);
-        (* Formula used: start<1 ? (length>=1 && start>1-length ? (length+=start-1, start=1) : (length=0)) : 0 *)
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "<1 ? (";
-        c_expr.expr &:= length_name;
-        c_expr.expr &:= ">=1 && ";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= ">1-";
-        c_expr.expr &:= length_name;
-        c_expr.expr &:= " ? (";
-        c_expr.expr &:= length_name;
-        c_expr.expr &:= "+=";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "-1, ";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "=1) : (";
-        c_expr.expr &:= length_name;
-        c_expr.expr &:= "=0)) : 0, ";
-        (* Formula used: slice.capacity=0,
-                         length>=1 && (uintType)start<=stri->size ?
-                         (slice.mem = &stri->mem[start-1],
-                         (uintType)length > stri->size-(memSizeType)start+1 ?
-                         slice.size = stri->size-(memSizeType)start+1 :
-                         (slice.size = (memSizeType)length)) :
-                         (slice.mem = NULL, slice.size = 0) *)
-        if ccConf.WITH_STRI_CAPACITY then
-          c_expr.expr &:= slice_name;
-          c_expr.expr &:= ".capacity=0, ";
-        end if;
-        c_expr.expr &:= length_name;
-        c_expr.expr &:= ">=1 && (uintType)";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "<=";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->size ? (";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".mem = &";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->mem[";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "-1], (uintType)";
-        c_expr.expr &:= length_name;
-        c_expr.expr &:= " > ";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->size-(memSizeType)";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "+1 ? ";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".size = ";
-        c_expr.expr &:= stri_name;
-        c_expr.expr &:= "->size-(memSizeType)";
-        c_expr.expr &:= start_name;
-        c_expr.expr &:= "+1 : (";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".size = (memSizeType)";
-        c_expr.expr &:= length_name;
-        c_expr.expr &:= ")) : (";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".mem = NULL, ";
-        c_expr.expr &:= slice_name;
-        c_expr.expr &:= ".size = 0)";
+        process_inline_str_substr(params, slice_name, c_expr);
       else
         c_expr.expr &:= "strSubstrSlice(";
         getAnyParamToExpr(params[1], c_expr);

@@ -152,13 +152,12 @@ static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
   /* fileAttr2UnixMode */
     logFunction(printf("fileAttr2UnixMode(" FMT_X32 ", \"%ls\")\n",
                        attr, path););
-    if (attr & FILE_ATTRIBUTE_READONLY) {
-      mode |= S_IRUSR;
-    } else {
-      mode |= S_IRUSR | S_IWUSR;
+    mode = S_IRUSR | S_IRGRP | S_IROTH;
+    if ((attr & FILE_ATTRIBUTE_READONLY) == 0) {
+      mode |= S_IWUSR | S_IWGRP | S_IWOTH;
     } /* if */
-    if (attr & FILE_ATTRIBUTE_DIRECTORY) {
-      mode |= S_IFDIR | S_IEXEC;
+    if ((attr & FILE_ATTRIBUTE_DIRECTORY) != 0) {
+      mode |= S_IFDIR | S_IXUSR | S_IXGRP | S_IXOTH;
     } else {
       mode |= S_IFREG;
     } /* if */
@@ -170,12 +169,10 @@ static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
             _wcsicmp(end, L".cmd") == 0 ||
             _wcsicmp(end, L".com") == 0 ||
             _wcsicmp(end, L".exe") == 0) {
-          mode |= S_IEXEC;
+          mode |= S_IXUSR | S_IXGRP | S_IXOTH;
         } /* if */
       } /* if */
     } /* if */
-    mode |= (mode & S_IRWXU) >> 3;
-    mode |= (mode & S_IRWXU) >> 6;
     logFunction(printf("fileAttr2UnixMode --> 0%o\n", mode););
     return mode;
   } /* fileAttr2UnixMode */

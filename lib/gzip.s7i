@@ -316,8 +316,7 @@ const func file: gunzip (inout file: aFile) is func
  *  Gzip uses the DEFLATE compression algorithm. DEFLATE uses
  *  a combination of the LZ77 algorithm and Huffman coding.
  *  Additionally to DEFLATE gzip uses a magic number and a header.
- *  @return the uncompressed string.
- *  @exception RANGE_ERROR When ''compressed'' is not in gzip format.
+ *  @return the compressed string.
  *)
 const func string: gzip (in string: uncompressed) is func
   result

@@ -75,6 +75,13 @@ const func bitset: (in bitset: set1) - (in bitset: set2)        is action "SET_D
 
 
 (**
+ *  Assign the union of delta and dest to dest.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ *)
+const proc: (inout bitset: dest) |:= (in bitset: delta)         is action "SET_UNION_ASSIGN";
+
+
+(**
  *  Check if two sets are equal.
  *  @return TRUE if the two sets are equal,
  *          FALSE otherwise.
@@ -203,6 +210,7 @@ const proc: (inout bitset: aSet) @:= [ (in integer: number) ] (in boolean: isEle
       excl(aSet, number);
     end if;
   end func;
+
 
 (**
  *  Compute the cardinality of a set.

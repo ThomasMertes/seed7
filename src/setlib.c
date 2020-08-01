@@ -840,6 +840,26 @@ objectType set_union (listType arguments)
 
 
 
+/**
+ *  Assign the union of delta/arg_3 and dest/arg_1 to dest/arg_1.
+ *  @exception MEMORY_ERROR Not enough memory to create dest/arg_1.
+ */
+objectType set_union_assign (listType arguments)
+
+  {
+    objectType set_variable;
+
+  /* set_union_assign */
+    set_variable = arg_1(arguments);
+    isit_set(set_variable);
+    is_variable(set_variable);
+    isit_set(arg_3(arguments));
+    setUnionAssign(&set_variable->value.setValue, take_set(arg_3(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* set_union_assign */
+
+
+
 objectType set_value (listType arguments)
 
   {

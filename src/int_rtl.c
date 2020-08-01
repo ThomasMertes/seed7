@@ -673,6 +673,32 @@ int uint64LeastSignificantBit (uint64Type number)
 
 
 /**
+ *  Determine the number of one bits in an unsigned number.
+ *  The function uses a combination of sideways additions and
+ *  a multiplication to count the bits set in a number element.
+ *  @return the number of one bits.
+ */
+intType uintCard (uintType number)
+
+  { /* uintCard */
+#if INTTYPE_SIZE == 32
+    number -= (number >> 1) & UINT32_SUFFIX(0x55555555);
+    number =  (number       & UINT32_SUFFIX(0x33333333)) +
+             ((number >> 2) & UINT32_SUFFIX(0x33333333));
+    number = (number + (number >> 4)) & UINT32_SUFFIX(0x0f0f0f0f);
+    return (intType) ((number * UINT32_SUFFIX(0x01010101)) >> 24);
+#elif INTTYPE_SIZE == 64
+    number -= (number >> 1) & UINT64_SUFFIX(0x5555555555555555);
+    number =  (number       & UINT64_SUFFIX(0x3333333333333333)) +
+             ((number >> 2) & UINT64_SUFFIX(0x3333333333333333));
+    number = (number + (number >> 4)) & UINT64_SUFFIX(0x0f0f0f0f0f0f0f0f);
+    return (intType) ((number * UINT64_SUFFIX(0x0101010101010101)) >> 56);
+#endif
+  } /* uintCard */
+
+
+
+/**
  *  Compare two unsigned integer numbers.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the
@@ -1488,7 +1514,7 @@ intType intBytesLe2Int (const const_striType byteStri)
         logError(printf("intBytesLe2Int(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
-                        byteStri->mem[pos]););
+                        byteStri->mem[pos - 1]););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */
@@ -1540,7 +1566,7 @@ intType intBytesLe2UInt (const const_striType byteStri)
         logError(printf("intBytesLe2UInt(\"%s\"): "
                         "Character '\\%d;' is beyond '\\255;'.\n",
                         striAsUnquotedCStri(byteStri),
-                        byteStri->mem[pos]););
+                        byteStri->mem[pos - 1]););
         raise_error(RANGE_ERROR);
         return 0;
       } /* if */

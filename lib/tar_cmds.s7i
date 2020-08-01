@@ -1,0 +1,287 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tar_cmds.s7   Commands of the tar program.                      *)
+(*  Copyright (C) 1994, 2004, 2005, 2010, 2014, 2017  Thomas Mertes *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "tar.s7i";
+include "osfiles.s7i";
+include "getf.s7i";
+include "gzip.s7i";
+
+
+const proc: setUpHead (in string: basePath, in string: filePath,
+    in string: filePathSuffix, inout tarHeader: header) is func
+  begin
+    header.name     := (filePath & filePathSuffix)[.. 100];
+    header.mode     := fileMode(basePath & filePath);
+    header.uid      := 100;
+    header.gid      := 100;
+    header.size     := 0;
+    header.mtime    := timestamp1970(getMTime(basePath & filePath));
+    header.chksum   := 0;  # Filled later
+    header.typeflag := REGTYPE;
+    header.linkname := "";
+    header.magic    := TMAGIC;
+    header.version  := "  ";
+    header.uname    := "";
+    header.gname    := "";
+    header.devmajor := 0;
+    header.devminor := 0;
+    header.prefix   := "";
+    header.filePath := filePath;
+    header.filePathSuffix := filePathSuffix;
+  end func;
+
+
+const proc: tarTell (inout file: inFile, in array string: arg_list,
+    in boolean: do_view) is func
+  local
+    var tarHeader: header is tarHeader.value;
+    var time: modTime is time.value;
+  begin
+    readHead(inFile, header);
+    while header.filePath <> "" and (header.magic = TMAGIC or header.magic = NOMAGIC) do
+      if do_view then
+        if header.typeflag = DIRTYPE then
+          write("d");
+        else
+          write("-");
+        end if;
+        write(header.mode);
+        write(" ");
+        if header.uname <> "" then
+          write(header.uname);
+        else
+          write(header.uid);
+        end if;
+        write("/");
+        if header.gname <> "" then
+          write(header.gname);
+        else
+          write(header.gid);
+        end if;
+        write(header.size lpad 14);
+        write(" ");
+        modTime := timestamp1970ToTime(header.mtime);
+        write(strDate(modTime));
+        write(" ");
+        write(str_hh_mm(modTime, ":"));
+        write(" ");
+        # write(strTimeZone(modTime) rpad 12);
+      end if;
+      writeln(header.filePath <& header.filePathSuffix);
+      if header.size <> 0 then
+        seek(inFile, tell(inFile) + succ(pred(header.size) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
+      end if;
+      readHead(inFile, header);
+    end while;
+  end func;
+
+
+const proc: tarTell (in string: inFileName, in array string: arg_list,
+    in boolean: do_view, in boolean: do_unzip) is func
+  local
+    var file: inFile is STD_NULL;
+    var string: magicBytes is "";
+  begin
+    inFile := open(inFileName, "r");
+    if inFile <> STD_NULL then
+      magicBytes := gets(inFile, 2);
+      seek(inFile, 1);
+      if magicBytes = "\31;\139;" then
+        inFile := gunzip(inFile);
+      elsif do_unzip then
+        write("tar7: File \"");
+        write(inFileName);
+        writeln("\" not in gzip format.");
+      end if;
+    end if;
+    if inFile <> STD_NULL then
+      tarTell(inFile, arg_list, do_view);
+    else
+      write("tar7: Cannot open \"");
+      write(inFileName);
+      writeln("\".");
+    end if;
+  end func;
+
+
+const proc: tarXtract (inout file: inFile, in array string: arg_list,
+    in boolean: do_view) is func
+  local
+    var string: stri is "";
+    var tarHeader: header is tarHeader.value;
+    var time: modTime is time.value;
+    var array tarHeader: dirHeaderList is 0 times tarHeader.value;
+    var integer: index is 0;
+    var boolean: okay is TRUE;
+  begin
+    readHead(inFile, header);
+    while header.filePath <> "" and (header.magic = TMAGIC or header.magic = NOMAGIC) and okay do
+      if do_view then
+        write("x ");
+        writeln(header.filePath <& header.filePathSuffix);
+      end if;
+      if header.typeflag = DIRTYPE then
+        if fileType(header.filePath) = FILE_DIR then
+          dirHeaderList &:= [] (header);
+        elsif fileType(header.filePath) = FILE_ABSENT then
+          mkdir(header.filePath);
+          dirHeaderList &:= [] (header);
+        else
+          writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a directory");
+          okay := FALSE;
+        end if;
+      elsif header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
+        if header.size <> 0 then
+          stri := gets(inFile, succ(pred(header.size) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE);
+          if fileType(header.filePath) = FILE_REGULAR then
+            removeFile(header.filePath);
+          end if;
+          if fileType(header.filePath) = FILE_ABSENT then
+            putf(header.filePath, stri[ .. header.size]);
+            setFileMode(header.filePath, header.mode);
+            modTime := timestamp1970ToTime(header.mtime);
+            setMTime(header.filePath, modTime);
+          else
+            writeln("*** The file " <& literal(header.filePath) <& " exists, but is not a regular file");
+            okay := FALSE;
+          end if;
+        end if;
+      end if;
+      readHead(inFile, header);
+    end while;
+    for index range length(dirHeaderList) downto 1 do
+      setFileMode(dirHeaderList[index].filePath, dirHeaderList[index].mode);
+      modTime := timestamp1970ToTime(dirHeaderList[index].mtime);
+      setMTime(dirHeaderList[index].filePath, modTime);
+    end for;
+  end func;
+
+
+const proc: tarXtract (in string: inFileName, in array string: arg_list,
+    in boolean: do_view, in boolean: do_unzip) is func
+  local
+    var file: inFile is STD_NULL;
+    var string: magicBytes is "";
+  begin
+    inFile := open(inFileName, "r");
+    if inFile <> STD_NULL then
+      magicBytes := gets(inFile, 2);
+      seek(inFile, 1);
+      if magicBytes = "\31;\139;" then
+        inFile := gunzip(inFile);
+      elsif do_unzip then
+        write("tar7: File \"");
+        write(inFileName);
+        writeln("\" not in gzip format.");
+      end if;
+    end if;
+    if inFile <> STD_NULL then
+      tarXtract(inFile, arg_list, do_view);
+    else
+      write("tar7: Cannot open \"");
+      write(inFileName);
+      writeln("\".");
+    end if;
+  end func;
+
+
+const proc: tarXtract (in string: inFileName, in boolean: do_view) is func
+  begin
+    tarXtract(inFileName, 0 times "", do_view, FALSE);
+  end func;
+
+
+const proc: tarXtract (in string: inFileName) is func
+  begin
+    tarXtract(inFileName, 0 times "", FALSE, FALSE);
+  end func;
+
+
+const proc: tarCreate (inout file: outFile, in string: basePath, in string: pathFromBase,
+    in array string: arg_list, in boolean: do_view) is func
+  local
+    var string: name is "";
+    var array string: dir_content is 0 times "";
+    var string: stri is "";
+    var tarHeader: header is tarHeader.value;
+  begin
+    for name range arg_list do
+      name := pathFromBase & name;
+      if do_view then
+        write("c ");
+        writeln(name);
+      end if;
+      if fileType(basePath & name) = FILE_DIR then
+        dir_content := readDir(basePath & name);
+        setUpHead(basePath, name, "/", header);
+        header.typeflag := DIRTYPE;
+        writeHead(outFile, header);
+        tarCreate(outFile, basePath, name & "/", dir_content, do_view);
+      else
+        stri := getf(basePath & name);
+        setUpHead(basePath, name, "", header);
+        header.size := length(stri);
+        writeHead(outFile, header);
+        write(outFile, stri);
+        write(outFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
+      end if;
+    end for;
+  end func;
+
+
+const proc: tarCreate (in string: outFileName, in array string: arg_list,
+    in boolean: do_view, in boolean: do_zip) is func
+  local
+    var file: outFile is STD_NULL;
+    var string: name is "";
+    var string: uncompressed is "";
+  begin
+    outFile := open(outFileName, "w");
+    if outFile <> STD_NULL and do_zip then
+      outFile := openGzipFile(outFile);
+    end if;
+    if outFile <> STD_NULL then
+      for name range arg_list do
+        tarCreate(outFile, "", "", [] name, do_view);
+      end for;
+      close(outFile);
+    end if;
+  end func;
+
+
+const proc: tarCreate (in string: outFileName, in array string: arg_list,
+    in boolean: do_view) is func
+  begin
+    tarCreate(outFileName, arg_list, do_view, FALSE);
+  end func;
+
+
+const proc: tarCreate (in string: outFileName, in array string: arg_list) is func
+  begin
+    tarCreate(outFileName, arg_list, FALSE, FALSE);
+  end func;

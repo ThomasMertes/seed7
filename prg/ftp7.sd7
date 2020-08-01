@@ -39,7 +39,7 @@ const proc: writeHelp is func
   end func;
 
 
-const proc: longFileListing (inout ftpConnection: ftp, in var string: directory) is func
+const proc: longFileListing (inout ftpFileSys: ftp, in var string: directory) is func
   local
     var array string: dir is 0 times "";
     var integer: currentYear is 0;
@@ -89,7 +89,7 @@ const proc: longFileListing (inout ftpConnection: ftp, in var string: directory)
   end func;
 
 
-const proc: fileListing (inout ftpConnection: ftp, in string: directory) is func
+const proc: fileListing (inout ftpFileSys: ftp, in string: directory) is func
   local
     var array string: dir is 0 times "";
     var string: name is "";
@@ -112,7 +112,7 @@ const proc: fileListing (inout ftpConnection: ftp, in string: directory) is func
   end func;
 
 
-const proc: directoryListing (inout ftpConnection: ftp, in string: directory) is func
+const proc: directoryListing (inout ftpFileSys: ftp, in string: directory) is func
   local
     var array string: dir is 0 times "";
     var string: line is "";
@@ -135,7 +135,33 @@ const proc: directoryListing (inout ftpConnection: ftp, in string: directory) is
   end func;
 
 
-const proc: execute (inout ftpConnection: ftp, in string: command) is func
+const proc: copyFtpFile (inout fileSys: sourceSys, in string: sourcePath,
+    inout fileSys: destSys, in string: destPath, in boolean: asciiTransfer) is func
+  local
+    var string: asciiMode is "";
+    var file: source is STD_NULL;
+    var file: dest is STD_NULL;
+  begin
+    if asciiTransfer then
+      asciiMode := "t";
+    end if;
+    source := open(sourceSys, sourcePath, "r" & asciiMode);
+    if source <> STD_NULL then
+      dest := open(destSys, destPath, "w" & asciiMode);
+      if dest <> STD_NULL then
+        copyFile(source, dest);
+        close(dest);
+      else
+        writeln(" ***** Cannot open destination: " <& destPath);
+      end if;
+      close(source);
+    else
+      writeln(" ***** Cannot open source: " <& sourcePath);
+    end if;
+  end func;
+
+
+const proc: execute (inout ftpFileSys: ftp, in string: command) is func
   local
     var array string: dir is 0 times "";
     var string: name is "";
@@ -178,17 +204,15 @@ const proc: execute (inout ftpConnection: ftp, in string: command) is func
     elsif startsWith(command, "lcd ") then
       chdir(trim(command[5 ..]));
     elsif startsWith(command, "ascii") then
-      transferTypeAscii(ftp);
+      setAsciiTransfer(ftp, TRUE);
     elsif startsWith(command, "binary") then
-      transferTypeBinary(ftp);
+      setAsciiTransfer(ftp, FALSE);
     elsif startsWith(command, "get ") then
-      retrieve(ftp, trim(command[5 ..]), trim(command[5 ..]));
+      copyFtpFile(ftp, trim(command[5 ..]), osFiles, trim(command[5 ..]),
+          getAsciiTransfer(ftp));
     elsif startsWith(command, "put ") then
-      if fileType(trim(command[5 ..])) = FILE_REGULAR then
-        store(ftp, trim(command[5 ..]), trim(command[5 ..]));
-      else
-        writeln(" ***** No such file.");
-      end if;
+      copyFtpFile(osFiles, trim(command[5 ..]), ftp, trim(command[5 ..]),
+          getAsciiTransfer(ftp));
     elsif startsWith(command, "help") then
       writeHelp;
     elsif command <> "" then
@@ -201,7 +225,7 @@ const proc: main is func
   local
     var string: command is "";
     var integer: ftpControlPort is defaultFtpControlPort;
-    var ftpConnection: ftp is ftpConnection.value;
+    var ftpFileSys: ftp is fileSys.value;
   begin
     writeln("Ftp7 Version 1.0 - FTP internet file transfer program");
     writeln("Copyright (C) 2011 Thomas Mertes");
@@ -230,8 +254,8 @@ const proc: main is func
         end block;
       end if;
       ftp := openFtp(argv(PROGRAM)[1], ftpControlPort);
-      # ftp.active := TRUE;
-      if ftp.control = STD_NULL then
+      # setActiveMode(ftp, TRUE);
+      if ftp = fileSys.value then
         writeln(" ***** Could not connect to " <& argv(PROGRAM)[1] <&
                 " at port " <& ftpControlPort <& ".");
       else

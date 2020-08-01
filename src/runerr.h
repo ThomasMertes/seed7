@@ -36,7 +36,6 @@ EXTERN listType fail_stack;
 #define set_fail_flag(failValue) interrupt_flag = (failValue); fail_flag = (failValue);
 
 
-void continue_question(void);
 void run_error (objectCategory required, objectType argument);
 void empty_value (objectType argument);
 void var_required (objectType argument);

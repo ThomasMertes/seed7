@@ -1,3 +1,88 @@
+20170129:
+- The new library filesys.s7i has been added. It defines the interface
+  fileSys. Files of TAR, ZIP and JAR achives and files from FTP and
+  the operating system can be accessed via the fileSys interface. The
+  file system changes are work in progress.
+- The libraries tar.s7i, zip.s7i, ftp.s7i and osfiles.s7i have been
+  adjusted to implement the new interface fileSys.
+- Definitions of the types fileType, filePermission and fileMode have
+  been moved from osfiles.s7i to the new library filesys.s7i.
+- A definition of the file system osFiles has been added to
+  osfiles.s7i.
+- In ftp.s7i the interface ftpFileSys has been added. This interface
+  extends fileSys with the functions listDir, getActiveMode,
+  setActiveMode, getAsciiTransfer and setAsciiTransfer.
+- The functions retrieve and store have been removed from ftp.s7i and
+  the function open (to open a file) has been added.
+- The new library ftpserv.s7i has been created. This library allows,
+  that the backend of an FTP server is also a file system. Most of
+  the contents of ftpserv.s7i has been moved from ftpserv.sd7.
+- The functions setUpHead, tarTell, tarXtract and tarCreate have been
+  moved from tar.s7i to the new library tar_cmds.s7i.
+- The conversion functions bin32 and float have been added to
+  bin32.s7i. This functions convert values between single precision
+  float and bin32.
+- The conversion functions bin64 and float have been added to
+  bin64.s7i. This functions convert values between double precision
+  float and bin64.
+- The functions getBitLsb and getBitsLsb have been added to
+  bitdata.s7i. This functions read bits from a file in the direction
+  from LSB (least significant bit) to MSB (most significant bit).
+- The operator |:= has been added to the libraries bitsetof.s7i and
+  bitset.s7i.
+- The type void has been improved to allow writing a void value.
+  This allows that calc7.sd7 can execute procedures.
+- The new library inflatefile.s7i has been added. It allows to
+  uncompress data from a file with the Inflate algorithm. In contrast
+  to inflatefile.s7i the functions from inflate.s7i assume that the
+  compressed data is in a string.
+- A test of the tar header checksum has been added to tar.s7i.
+- A support for long link paths has been added to tar.s7i.
+- The function readMinimumOfHead has been added to tar.s7i. With this
+  function opening a tar archive can be done faster.
+- The functions fileMode and getMTime in zip.s7i have been improved
+  to recognize modes and times from different operating systems.
+- In zip.s7i the function rposOfMagic has been improved to work with
+  one call of seek() and one gets(). This way the function is faster,
+  when the file is not a ZIP file.
+- In zip.s7i the functions get_local_header, get_central_header and
+  get_end_of_central_directory have been improved to read the fixed
+  size part of the header with one statement and to convert the data
+  afterwards. This improves the performance of get_central_header by
+  about 10%.
+- In zip.s7i a map of extra header fields has been introduced.
+- In zip.s7i the function getContent has been renamed to getFile.
+  Additionally the function has been improved to work when the local
+  header does not contain the compressed size. In this case the new
+  library inflatefile.s7i is used.
+- The function timestamp1601ToTime has been added to time.s7i.
+- A test for the operator |:= has been added to chkset.sd7.
+- The function filGets in fil_rtl.c has been improved to recognize a
+  request to read zero characters earlier. This improves this special
+  case a little bit, without a negative effect on the normal case.
+- The function uintCard has been added to int_rtl.c.
+- The computation of the mode in the function fileAttr2UnixMode in
+  stat_win.c has been improved.
+- The program ftp7.sd7 has been improved to work with the new
+  ftpFileSys interface.
+- The program ftpserv.sd7 has been improved to work with the new
+  library ftpserv.s7i.
+- In seed7_05.s7i the function to convert an integer to a string with
+  a given base has been improved.
+- Interpreter and compiler have been improved to support the actions
+  BIN_CARD, SET_UNION_ASSIGN and STR_FOR.
+- In the compiler (s7c) the generation of inline code for the actions
+  STR_RANGE and STR_SUBSTR has been improved. When some parameters are
+  constant checks can be done at compile-time instead of run-time.
+- In drw_x11.c the function redraw() has been improved and the new
+  function setupBackup() has been added. This changes have been done
+  to handle EXPOSE events correctly, when backing store has the value
+  WhenMapped.
+- In runerr.c the functions continue_question, run_error, empty_value
+  and var_required have been changed to allow the repacement of the
+  current exception with a new one.
+- The function str_for has been added to strlib.c.
+
 20161231:
 - The function toArray has been added to the libraries bitset.s7i,
   bitsetof.s7i and hashsetof.s7i. This function creates an array

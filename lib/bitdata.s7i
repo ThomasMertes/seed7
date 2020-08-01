@@ -422,3 +422,73 @@ const proc: putBitsMsb (inout string: stri, inout integer: bitPos, in var intege
       end if;
     end if;
   end func;
+
+
+(**
+ *  Get one bit in LSB-First order from ''inFile''.
+ *  The bit is read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by one bit. The read
+ *  direction is from LSB (least significant bit) to MSB (most significant bit).
+ *  @param inFile File of bytes from which the bit is read.
+ *  @param bitPos Current bit position between 0 and 8.
+ *                0 = LSB, 7 = MSB, 8 = A bitPos of 0 (=LSB) in the next byte.
+ *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *)
+const func integer: getBitLsb (inout file: inFile, inout integer: bitPos) is func
+  result
+    var integer: resultBit is 0;
+  begin
+    if bitPos = 8 then
+      bitPos := 0;
+      inFile.bufferChar := getc(inFile);
+    end if;
+    resultBit := (ord(inFile.bufferChar) >> bitPos) mod 2;
+    incr(bitPos);
+  end func;
+
+
+(**
+ *  Get ''bitWidth'' bits in LSB-First order from ''inFile''.
+ *  The bits are read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by ''bitWidth'' bits. The read
+ *  direction is from LSB (least significant bit) to MSB (most significant bit).
+ *  When bits from the next byte(s) are read a byte order of little-endian
+ *  is used.
+ *  @param inFile File of bytes from which the bits are read.
+ *  @param bitPos Current bit position between 0 and 8.
+ *                0 = LSB, 7 = MSB, 8 = A bitPos of 0 (=LSB) in the next byte.
+ *  @param bitWidth Number of bits requested.
+ *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *)
+const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
+    in var integer: bitWidth) is func
+  result
+    var integer: resultBits is 0;
+  local
+    var integer: bitsInByte is 0;
+    var integer: bitsInResult is 0;
+  begin
+    if bitPos = 8 then
+      bitPos := 0;
+      inFile.bufferChar := getc(inFile);
+    end if;
+    bitsInByte := 8 - bitPos;
+    if bitsInByte >= bitWidth then
+      resultBits := (ord(inFile.bufferChar) >> bitPos) rem (1 << bitWidth);
+      bitPos +:= bitWidth;
+    else
+      resultBits := ord(inFile.bufferChar) mod 256 >> bitPos;
+      bitPos := 0;
+      inFile.bufferChar := getc(inFile);
+      bitWidth -:= bitsInByte;
+      bitsInResult := bitsInByte;
+      while bitWidth > 8 do
+        resultBits +:= ord(inFile.bufferChar) << bitsInResult;
+        inFile.bufferChar := getc(inFile);
+        bitWidth -:= 8;
+        bitsInResult +:= 8;
+      end while;
+      resultBits +:= ord(inFile.bufferChar) rem (1 << bitWidth) << bitsInResult;
+      bitPos := bitWidth;
+    end if;
+  end func;

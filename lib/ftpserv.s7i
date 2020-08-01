@@ -1,0 +1,622 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ftpserv.s7i   FTP (file transfer protocol) server library.      *)
+(*  Copyright (C) 2011, 2012, 2017  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "socket.s7i";
+include "listener.s7i";
+include "unicode.s7i";
+include "osfiles.s7i";
+include "time.s7i";
+include "bigfile.s7i";
+include "getf.s7i";
+
+
+const type: ftpServer is new struct
+    var string: startDirectory is "";
+    var integer: ftpControlPort is 2021;
+    var fileSys: backendSys is fileSys.value;
+  end struct;
+
+const type: ftpServerConnection is new struct
+    var fileSys: backendSys is fileSys.value;
+    var file: control is STD_NULL;
+    var file: data is STD_NULL;
+    var string: currentDirectory is "";
+    var string: ownIpAddress is "";
+    var string: renameFromFile is "";
+    var boolean: renameFilePending is FALSE;
+  end struct;
+
+const type: ftpConnectionHash is hash [file] ftpServerConnection;
+
+var ftpConnectionHash: ftpSessions is ftpConnectionHash.value;
+
+
+const proc: ftpResponse (inout file: control, in string: response) is func
+  begin
+    # writeln("<- " <& response);
+    write(control, response <& "\r\n");
+  end func;
+
+
+const func file: openActiveData (in string: parameter) is func
+  result
+    var file: data is STD_NULL;
+  local
+    var array string: addrAndPort is 0 times "";
+    var integer: dataPort is 0;
+  begin
+    addrAndPort := split(parameter, ",");
+    if length(addrAndPort) = 6 then
+      dataPort := integer parse (addrAndPort[5]) * 256 + integer parse (addrAndPort[6]);
+      # writeln(dataPort);
+      data := openInetSocket(join(addrAndPort[ .. 4], "."), dataPort);
+      # writeln(data <> STD_NULL);
+    end if;
+  end func;
+
+
+const func file: openPassiveData (inout file: control, in string: ownIpAddress) is func
+  result
+    var file: data is STD_NULL;
+  local
+    var integer: dataPort is 0;
+    var listener: dataPortListener is listener.value;
+    var boolean: listenerOpen is TRUE;
+  begin
+    repeat
+      dataPort := rand(1024, 65535);
+      block
+        dataPortListener := openInetListener(dataPort);
+        listenerOpen := TRUE;
+      exception
+        catch FILE_ERROR:
+          listenerOpen := FALSE;
+      end block;
+    until listenerOpen;
+    listen(dataPortListener, 1);
+    ftpResponse(control, "227 Entering Passive Mode (" <&
+                     replace(ownIpAddress, ".", ",") <& "," <&
+                     dataPort mdiv 256 <& "," <& dataPort mod 256 <& ")");
+    data := accept(dataPortListener);
+    # writeln("++++++++");
+    close(dataPortListener);
+    # writeln("--------");
+  end func;
+
+
+const func string: getPathArgument (in string: argument) is func
+  result
+    var string: aPath is "";
+  begin
+    aPath := trim(argument);
+    block
+      aPath := utf8ToStri(aPath);
+    exception
+      catch RANGE_ERROR:
+        noop;
+    end block;
+    aPath := toStdPath(aPath);
+    # writeln("argument: " <& literal(aPath));
+  end func;
+
+
+const func string: toQuotedUtf8 (in string: stri) is
+  return "\"" <& striToUtf8(replace(stri, "\"", "\"\"")) <& "\"";
+
+
+const proc: listOneFile (inout file: data, in string: fileName,
+    inout fileSys: backendSys, in string: filePath, in integer: currentYear) is func
+  local
+    var fileType: currFileType is FILE_ABSENT;
+    var string: line is "";
+    var time: modificationTime is time.value;
+    const string: fileTypeIndicator is "?-dcbfls";
+    const array string: monthName is [1] (
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+  begin
+    currFileType := fileTypeSL(backendSys, filePath);
+    line := fileTypeIndicator[ord(currFileType) len 1];
+    if currFileType = FILE_SYMLINK then
+      line &:= "rwxrwxrwx 1 user users ";
+      line &:= length(readlink(backendSys, filePath)) lpad 10 <& " ";
+      if fileType(backendSys, filePath) = FILE_ABSENT then
+        modificationTime := time.value;
+      else
+        modificationTime := getMTime(backendSys, filePath);
+      end if;
+    else
+      line &:= str(fileMode(backendSys, filePath));
+      line &:= " 1 user users ";
+      line &:= bigFileSize(backendSys, filePath) lpad 10 <& " ";
+      modificationTime := getMTime(backendSys, filePath);
+    end if;
+    line &:= monthName[modificationTime.month];
+    line &:= modificationTime.day lpad 3;
+    if modificationTime.year = currentYear then
+      line &:= modificationTime.hour lpad 3 <& ":";
+      line &:= modificationTime.minute lpad0 2;
+    else
+      line &:= modificationTime.year lpad 6;
+    end if;
+    line &:= " ";
+    line &:= striToUtf8(fileName);
+    # writeln("D> " <& line);
+    write(data, line <& "\r\n");
+  end func;
+
+
+const proc: listFiles (inout ftpServerConnection: ftp, in string: filePath,
+    in boolean: showAll) is func
+  local
+    var fileType: aFileType is FILE_ABSENT;
+    var array string: dirContent is 0 times "";
+    var integer: slashPos is 0;
+    var string: fileName is "";
+    var integer: currentYear is 0;
+  begin
+    currentYear := time(NOW).year;
+    block
+      aFileType := fileType(ftp.backendSys, filePath);
+      if aFileType = FILE_DIR then
+        ftpResponse(ftp.control, "150 Here comes the directory listing.");
+        dirContent := readDir(ftp.backendSys, filePath);
+        if showAll then
+          listOneFile(ftp.data, ".", ftp.backendSys, filePath & "/.", currentYear);
+          listOneFile(ftp.data, "..", ftp.backendSys, filePath & "/..", currentYear);
+        end if;
+        for fileName range dirContent do
+          if showAll or not startsWith(fileName, ".") then
+            listOneFile(ftp.data, fileName, ftp.backendSys, filePath & "/" & fileName, currentYear);
+          end if;
+        end for;
+        ftpResponse(ftp.control, "226 Directory send OK.");
+      elsif aFileType <> FILE_ABSENT then
+        ftpResponse(ftp.control, "150 Here comes the directory listing.");
+        slashPos := rpos(filePath, '/');
+        if slashPos <> 0 then
+          listOneFile(ftp.data, filePath[succ(slashPos) ..], ftp.backendSys, filePath, currentYear);
+        else
+          listOneFile(ftp.data, filePath, ftp.backendSys, filePath, currentYear);
+        end if;
+        ftpResponse(ftp.control, "226 Directory send OK.");
+      else
+        ftpResponse(ftp.control, "450 File unavailable.");
+      end if;
+    exception
+      catch RANGE_ERROR: noop;
+      catch FILE_ERROR: noop;
+    end block;
+    close(ftp.data);
+  end func;
+
+
+const proc: nameListFiles (inout ftpServerConnection: ftp, in string: filePath) is func
+  local
+    var fileType: aFileType is FILE_ABSENT;
+    var array string: dirContent is 0 times "";
+    var boolean: okay is TRUE;
+    var string: fileName is "";
+  begin
+    block
+      aFileType := fileType(ftp.backendSys, filePath);
+      if aFileType = FILE_DIR then
+        ftpResponse(ftp.control, "150 Here comes the directory listing.");
+        dirContent := readDir(ftp.backendSys, filePath);
+        for fileName range dirContent do
+          write(ftp.data, striToUtf8(fileName) <& "\r\n");
+        end for;
+        ftpResponse(ftp.control, "226 Directory send OK.");
+      elsif aFileType <> FILE_ABSENT then
+        ftpResponse(ftp.control, "150 Here comes the directory listing.");
+        write(ftp.data, striToUtf8(filePath) <& "\r\n");
+        ftpResponse(ftp.control, "226 Directory send OK.");
+      else
+        ftpResponse(ftp.control, "450 File unavailable.");
+      end if;
+    exception
+      catch RANGE_ERROR: okay := FALSE;
+      catch FILE_ERROR: okay := FALSE;
+    end block;
+    close(ftp.data);
+  end func;
+
+
+const proc: mlsdFileList (inout ftpServerConnection: ftp, in string: dirName) is func
+  local
+    var array string: dirContent is 0 times "";
+    var boolean: okay is TRUE;
+    var string: fileName is "";
+    var string: filePath is "";
+    var time: modificationTime is time.value;
+  begin
+    block
+      dirContent := readDir(ftp.backendSys, dirName);
+    exception
+      catch RANGE_ERROR: okay := FALSE;
+      catch FILE_ERROR: okay := FALSE;
+    end block;
+    if okay then
+      ftpResponse(ftp.control, "150 Here comes the directory listing.");
+      for fileName range dirContent do
+        filePath := dirName & "/" & fileName;
+        if fileType(ftp.backendSys, filePath) = FILE_DIR then
+          write(ftp.data, "type=dir;");
+        else
+          write(ftp.data, "type=file;");
+        end if;
+        write(ftp.data, "size=" <& bigFileSize(ftp.backendSys, filePath) <& ";");
+        modificationTime := toUTC(getMTime(ftp.backendSys, filePath));
+        write(ftp.data, "modify=" <& modificationTime.year   lpad0 4 <&
+                                     modificationTime.month  lpad0 2 <&
+                                     modificationTime.day    lpad0 2 <&
+                                     modificationTime.hour   lpad0 2 <&
+                                     modificationTime.minute lpad0 2 <&
+                                     modificationTime.second lpad0 2 <& ";");
+        write(ftp.data, " " <& striToUtf8(fileName) <& "\r\n");
+      end for;
+      ftpResponse(ftp.control, "226 Directory send OK.");
+    else
+      ftpResponse(ftp.control, "450 File unavailable.");
+    end if;
+    close(ftp.data);
+  end func;
+
+
+const proc: retrieveFile (inout ftpServerConnection: ftp, in string: filePath) is func
+  local
+    var file: localFile is STD_NULL;
+  begin
+    localFile := open(ftp.backendSys, filePath, "r");
+    if localFile <> STD_NULL then
+      ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
+          striToUtf8(filePath) <& " (" <& bigLength(localFile) <& " bytes).");
+      copyFile(localFile, ftp.data);
+      close(localFile);
+      ftpResponse(ftp.control, "226 Transfer complete.");
+    else
+      ftpResponse(ftp.control, "550 Failed to open file.");
+    end if;
+    close(ftp.data);
+  end func;
+
+
+const proc: storeFile (inout ftpServerConnection: ftp, in string: filePath) is func
+  local
+    var file: localFile is STD_NULL;
+  begin
+    localFile := open(ftp.backendSys, filePath, "w");
+    if localFile <> STD_NULL then
+      ftpResponse(ftp.control, "150 Opening BINARY mode data connection for " <&
+          striToUtf8(filePath));
+      copyFile(ftp.data, localFile);
+      close(localFile);
+      ftpResponse(ftp.control, "226 Transfer complete.");
+    else
+      ftpResponse(ftp.control, "550 Failed to open file.");
+    end if;
+    close(ftp.data);
+  end func;
+
+
+const proc: openFtpSession (inout ftpServer: ftpServ, inout file: control) is func
+  local
+    var ftpServerConnection: ftp is ftpServerConnection.value;
+  begin
+    ftp.backendSys := ftpServ.backendSys;
+    ftp.control := control;
+    ftp.currentDirectory := ftpServ.startDirectory;
+    ftp.ownIpAddress := numericAddress(localAddress(control));
+    ftpSessions @:= [ftp.control] ftp;
+    ftpResponse(ftp.control, "220 Welcome to ftpserv");
+  end func;
+
+
+const proc: closeFtpSession (inout ftpServerConnection: ftp) is func
+  begin
+    close(ftp.control);
+    excl(ftpSessions, ftp.control);
+  end func;
+
+
+const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: request) is func
+  local
+    var time: modificationTime is time.value;
+    var string: argument is "";
+    var string: response is "";
+  begin
+    if ftp.renameFilePending and not startsWith(request, "RNTO ") then
+      ftp.renameFilePending := FALSE;
+    end if;
+    if startsWith(request, "USER ") then
+      ftpResponse(ftp.control, "331 Please specify the password.");
+    elsif startsWith(request, "PASS ") then
+      ftpResponse(ftp.control, "230 Welcome to the FTP server of Seed7.");
+    elsif startsWith(request, "SYST") then
+      ftpResponse(ftp.control, "215 UNIX Type: L8");
+    elsif startsWith(request, "FEAT") then
+      ftpResponse(ftp.control, "211-Extensions supported:");
+      ftpResponse(ftp.control, " SIZE");
+      ftpResponse(ftp.control, " MDTM");
+      ftpResponse(ftp.control, " MLST type;size;modify;");
+      ftpResponse(ftp.control, "211 END");
+    elsif startsWith(request, "PASV") then
+      ftp.data := openPassiveData(ftp.control, ftp.ownIpAddress);
+    elsif startsWith(request, "PORT ") then
+      ftp.data := openActiveData(request[6 ..]);
+      if ftp.data <> STD_NULL then
+        ftpResponse(ftp.control, "200 PORT command successful. Consider using PASV.");
+      else
+        ftpResponse(ftp.control, "500 Illegal PORT command.");
+      end if;
+    elsif startsWith(request, "LIST") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        argument := getPathArgument(request[6 ..]);
+        chdir(ftp.backendSys, ftp.currentDirectory);
+        if argument = "" then
+          listFiles(ftp, ".", FALSE);
+        elsif startsWith(argument, "-a") or startsWith(argument, "-la") then
+          argument := trim(argument[4 ..]);
+          if argument = "" then
+            listFiles(ftp, ".", TRUE);
+          else
+            listFiles(ftp, argument, TRUE);
+          end if;
+        else
+          listFiles(ftp, argument, FALSE);
+        end if;
+      end if;
+    elsif startsWith(request, "NLST") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        argument := getPathArgument(request[6 ..]);
+        chdir(ftp.backendSys, ftp.currentDirectory);
+        if argument = "" then
+          nameListFiles(ftp, ".");
+        else
+          nameListFiles(ftp, argument);
+        end if;
+      end if;
+    elsif startsWith(request, "MLSD") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        argument := getPathArgument(request[6 ..]);
+        chdir(ftp.backendSys, ftp.currentDirectory);
+        if argument = "" or fileType(ftp.backendSys, argument) = FILE_DIR then
+          if argument = "" then
+            mlsdFileList(ftp, ".");
+          else
+            mlsdFileList(ftp, argument);
+          end if;
+        else
+          ftpResponse(ftp.control, "501 MLSD only lists directory contents.");
+        end if;
+      end if;
+    elsif startsWith(request, "MLST") then
+      argument := getPathArgument(request[6 ..]);
+      if argument = "" then
+        argument := ".";
+      end if;
+      chdir(ftp.backendSys, ftp.currentDirectory);
+      if fileType(ftp.backendSys, argument) <> FILE_ABSENT then
+        ftpResponse(ftp.control, "250- Listing " <& striToUtf8(argument));
+        response := " ";
+        if fileType(ftp.backendSys, argument) = FILE_DIR then
+          response &:= "type=dir;";
+        else
+          response &:= "type=file;";
+        end if;
+        response &:= "size=" <& bigFileSize(ftp.backendSys, argument) <& ";";
+        modificationTime := toUTC(getMTime(ftp.backendSys, argument));
+        response &:= "modify=" <& modificationTime.year   lpad0 4 <&
+                                  modificationTime.month  lpad0 2 <&
+                                  modificationTime.day    lpad0 2 <&
+                                  modificationTime.hour   lpad0 2 <&
+                                  modificationTime.minute lpad0 2 <&
+                                  modificationTime.second lpad0 2 <& ";";
+        response &:= " " <& striToUtf8(argument);
+        ftpResponse(ftp.control, response);
+        ftpResponse(ftp.control, "250 End");
+      else
+        ftpResponse(ftp.control, "550 Could not list file.");
+      end if;
+    elsif startsWith(request, "RETR ") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        argument := getPathArgument(request[6 ..]);
+        chdir(ftp.backendSys, ftp.currentDirectory);
+        retrieveFile(ftp, argument);
+      end if;
+    elsif startsWith(request, "STOR ") then
+      if ftp.data = STD_NULL then
+        ftpResponse(ftp.control, "425 Use PORT or PASV first.");
+      else
+        argument := getPathArgument(request[6 ..]);
+        chdir(ftp.backendSys, ftp.currentDirectory);
+        storeFile(ftp, argument);
+      end if;
+    elsif startsWith(request, "DELE ") then
+      argument := getPathArgument(request[6 ..]);
+      chdir(ftp.backendSys, ftp.currentDirectory);
+      block
+        removeFile(ftp.backendSys, argument);
+        ftpResponse(ftp.control, "257 Delete command successful.");
+      exception
+        catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
+      end block;
+    elsif startsWith(request, "SIZE ") then
+      argument := getPathArgument(request[6 ..]);
+      chdir(ftp.backendSys, ftp.currentDirectory);
+      if fileType(ftp.backendSys, argument) = FILE_REGULAR then
+        ftpResponse(ftp.control, "213 " <& bigFileSize(ftp.backendSys, argument));
+      else
+        ftpResponse(ftp.control, "550 Could not get file size.");
+      end if;
+    elsif startsWith(request, "MDTM ") then
+      argument := getPathArgument(request[6 ..]);
+      chdir(ftp.backendSys, ftp.currentDirectory);
+      if fileType(ftp.backendSys, argument) <> FILE_ABSENT then
+        modificationTime := toUTC(getMTime(ftp.backendSys, argument));
+        ftpResponse(ftp.control, "213 " <& modificationTime.year   lpad0 4 <&
+                                   modificationTime.month  lpad0 2 <&
+                                   modificationTime.day    lpad0 2 <&
+                                   modificationTime.hour   lpad0 2 <&
+                                   modificationTime.minute lpad0 2 <&
+                                   modificationTime.second lpad0 2);
+      else
+        ftpResponse(ftp.control, "550 Could not get file modification time.");
+      end if;
+    elsif startsWith(request, "CWD ") then
+      argument := getPathArgument(request[5 ..]);
+      chdir(ftp.backendSys, ftp.currentDirectory);
+      if fileType(ftp.backendSys, argument) = FILE_DIR then
+        chdir(ftp.backendSys, argument);
+        ftp.currentDirectory := getcwd(ftp.backendSys);
+        ftpResponse(ftp.control, "250 Directory successfully changed.");
+      else
+        ftpResponse(ftp.control, "550 Failed to change directory.");
+      end if;
+    elsif startsWith(request, "CDUP") then
+      chdir(ftp.backendSys, ftp.currentDirectory & "/..");
+      ftp.currentDirectory := getcwd(ftp.backendSys);
+      ftpResponse(ftp.control, "250 Directory successfully changed.");
+    elsif startsWith(request, "PWD") then
+      ftpResponse(ftp.control, "257 " <& toQuotedUtf8(ftp.currentDirectory));
+    elsif startsWith(request, "MKD ") then
+      argument := getPathArgument(request[5 ..]);
+      chdir(ftp.backendSys, ftp.currentDirectory);
+      block
+        mkdir(ftp.backendSys, argument);
+        ftpResponse(ftp.control, "257 " <& toQuotedUtf8(argument) <&
+            " - Directory successfully created.");
+      exception
+        catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
+      end block;
+    elsif startsWith(request, "RMD ") then
+      argument := getPathArgument(request[5 ..]);
+      chdir(ftp.backendSys, ftp.currentDirectory);
+      block
+        removeFile(ftp.backendSys, argument);
+        ftpResponse(ftp.control, "257 Rmdir command successful.");
+      exception
+        catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
+      end block;
+    elsif startsWith(request, "RNFR ") then
+      ftp.renameFromFile := getPathArgument(request[6 ..]);
+      ftp.renameFilePending := TRUE;
+      ftpResponse(ftp.control, "350 Requested file action pending further information.");
+    elsif startsWith(request, "RNTO ") then
+      argument := getPathArgument(request[6 ..]);
+      if ftp.renameFilePending then
+        chdir(ftp.backendSys, ftp.currentDirectory);
+        block
+          moveFile(ftp.backendSys, ftp.renameFromFile, argument);
+          ftpResponse(ftp.control, "250 Requested file action okay, completed.");
+        exception
+          catch FILE_ERROR: ftpResponse(ftp.control, "550 Permission denied.");
+        end block;
+      else
+        ftpResponse(ftp.control, "503 Bad sequence of commands.");
+      end if;
+    elsif startsWith(request, "TYPE ") then
+      if request[6 len 1] = "A" then
+        ftpResponse(ftp.control, "200 Switching to ASCII mode.");
+      elsif request[6 len 1] = "I" then
+        ftpResponse(ftp.control, "200 Switching to Binary mode.");
+      else
+        ftpResponse(ftp.control, "500 Unrecognised TYPE command.");
+      end if;
+    elsif startsWith(request, "MODE ") then
+      if request[6 len 1] = "S" then
+        ftpResponse(ftp.control, "200 Mode set to S.");
+      else
+        ftpResponse(ftp.control, "504 Bad MODE command.");
+      end if;
+    elsif startsWith(request, "STRU ") then
+      if request[6 len 1] = "F" then
+        ftpResponse(ftp.control, "200 Structure set to F.");
+      else
+        ftpResponse(ftp.control, "504 Bad STRU command.");
+      end if;
+    elsif startsWith(request, "QUIT") then
+      ftpResponse(ftp.control, "221 Goodbye.");
+      closeFtpSession(ftp);
+    else
+      ftpResponse(ftp.control, "500 Unknown command.");
+    end if;
+  end func;
+
+
+const proc: processFtpRequest (inout ftpServerConnection: ftp) is func
+  local
+    var string: request is "";
+  begin
+    request := getln(ftp.control);
+    # writeln("-> " <& request);
+    if eof(ftp.control) then
+      closeFtpSession(ftp);
+    else
+      processFtpRequest(ftp, request);
+    end if;
+  end func;
+
+
+const proc: processFtpRequest (inout file: control) is func
+  begin
+    if control in ftpSessions then
+      block
+        processFtpRequest(ftpSessions[control]);
+      exception
+        catch FILE_ERROR:
+          noop;
+      end block;
+    else
+      writeln(" ***** Unknown session");
+    end if;
+  end func;
+
+
+const proc: runServer (inout ftpServer: ftpServ) is func
+  local
+    var listener: aListener is listener.value;
+    var file: existingConnection is STD_NULL;
+    var file: newConnection is STD_NULL;
+  begin
+    aListener := openInetListener(ftpServ.ftpControlPort);
+    listen(aListener, 10);
+    while TRUE do
+      waitForRequest(aListener, existingConnection, newConnection);
+      if existingConnection <> STD_NULL then
+        processFtpRequest(existingConnection);
+      end if;
+      if newConnection <> STD_NULL then
+        openFtpSession(ftpServ, newConnection);
+      end if;
+    end while;
+  end func;

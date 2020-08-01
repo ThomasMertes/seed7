@@ -37,6 +37,7 @@ objectType str_create     (listType arguments);
 objectType str_destr      (listType arguments);
 objectType str_elemcpy    (listType arguments);
 objectType str_eq         (listType arguments);
+objectType str_for        (listType arguments);
 objectType str_ge         (listType arguments);
 objectType str_gt         (listType arguments);
 objectType str_hashcode   (listType arguments);

@@ -24,35 +24,36 @@
 (********************************************************************)
 
 
-const ACTION: SET_ARRLIT     is action "SET_ARRLIT";
-const ACTION: SET_BASELIT    is action "SET_BASELIT";
-const ACTION: SET_CARD       is action "SET_CARD";
-const ACTION: SET_CMP        is action "SET_CMP";
-const ACTION: SET_CONV       is action "SET_CONV";
-const ACTION: SET_CPY        is action "SET_CPY";
-const ACTION: SET_DIFF       is action "SET_DIFF";
-const ACTION: SET_ELEM       is action "SET_ELEM";
-const ACTION: SET_EQ         is action "SET_EQ";
-const ACTION: SET_EXCL       is action "SET_EXCL";
-const ACTION: SET_GE         is action "SET_GE";
-const ACTION: SET_GT         is action "SET_GT";
-const ACTION: SET_HASHCODE   is action "SET_HASHCODE";
-const ACTION: SET_ICONV      is action "SET_ICONV";
-const ACTION: SET_INCL       is action "SET_INCL";
-const ACTION: SET_INTERSECT  is action "SET_INTERSECT";
-const ACTION: SET_LE         is action "SET_LE";
-const ACTION: SET_LT         is action "SET_LT";
-const ACTION: SET_MAX        is action "SET_MAX";
-const ACTION: SET_MIN        is action "SET_MIN";
-const ACTION: SET_NE         is action "SET_NE";
-const ACTION: SET_NEXT       is action "SET_NEXT";
-const ACTION: SET_NOT_ELEM   is action "SET_NOT_ELEM";
-const ACTION: SET_RAND       is action "SET_RAND";
-const ACTION: SET_RANGELIT   is action "SET_RANGELIT";
-const ACTION: SET_SCONV      is action "SET_SCONV";
-const ACTION: SET_SYMDIFF    is action "SET_SYMDIFF";
-const ACTION: SET_UNION      is action "SET_UNION";
-const ACTION: SET_VALUE      is action "SET_VALUE";
+const ACTION: SET_ARRLIT       is action "SET_ARRLIT";
+const ACTION: SET_BASELIT      is action "SET_BASELIT";
+const ACTION: SET_CARD         is action "SET_CARD";
+const ACTION: SET_CMP          is action "SET_CMP";
+const ACTION: SET_CONV         is action "SET_CONV";
+const ACTION: SET_CPY          is action "SET_CPY";
+const ACTION: SET_DIFF         is action "SET_DIFF";
+const ACTION: SET_ELEM         is action "SET_ELEM";
+const ACTION: SET_EQ           is action "SET_EQ";
+const ACTION: SET_EXCL         is action "SET_EXCL";
+const ACTION: SET_GE           is action "SET_GE";
+const ACTION: SET_GT           is action "SET_GT";
+const ACTION: SET_HASHCODE     is action "SET_HASHCODE";
+const ACTION: SET_ICONV        is action "SET_ICONV";
+const ACTION: SET_INCL         is action "SET_INCL";
+const ACTION: SET_INTERSECT    is action "SET_INTERSECT";
+const ACTION: SET_LE           is action "SET_LE";
+const ACTION: SET_LT           is action "SET_LT";
+const ACTION: SET_MAX          is action "SET_MAX";
+const ACTION: SET_MIN          is action "SET_MIN";
+const ACTION: SET_NE           is action "SET_NE";
+const ACTION: SET_NEXT         is action "SET_NEXT";
+const ACTION: SET_NOT_ELEM     is action "SET_NOT_ELEM";
+const ACTION: SET_RAND         is action "SET_RAND";
+const ACTION: SET_RANGELIT     is action "SET_RANGELIT";
+const ACTION: SET_SCONV        is action "SET_SCONV";
+const ACTION: SET_SYMDIFF      is action "SET_SYMDIFF";
+const ACTION: SET_UNION        is action "SET_UNION";
+const ACTION: SET_UNION_ASSIGN is action "SET_UNION_ASSIGN";
+const ACTION: SET_VALUE        is action "SET_VALUE";
 
 
 const func integer: bitset_pos (in integer: number) is
@@ -92,6 +93,7 @@ const proc: set_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "intType     setSConv (const const_setType);");
     declareExtern(c_prog, "setType     setSymdiff (const const_setType, const const_setType);");
     declareExtern(c_prog, "setType     setUnion (const const_setType, const const_setType);");
+    declareExtern(c_prog, "void        setUnionAssign (setType *const, const const_setType);");
     declareExtern(c_prog, "setType     setValue (const const_objRefType);");
   end func;
 
@@ -802,6 +804,28 @@ const proc: process (SET_UNION, in reference: function,
       c_expr.result_expr &:= ", ";
       getAnyParamToResultExpr(params[3], c_expr);
       c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (SET_UNION_ASSIGN, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var expr_type: statement is expr_type.value;
+  begin
+    if getConstant(params[3], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET then
+      incr(countOptimizations);
+      c_expr.result_expr &:= "/* ignore set |:= EMPTY_SET */\n";
+    else
+      statement.expr := "setUnionAssign(&(";
+      process_expr(params[1], statement);
+      statement.expr &:= "), ";
+      getAnyParamToExpr(params[3], statement);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
     end if;
   end func;
 

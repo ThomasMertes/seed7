@@ -67,3 +67,4 @@ intType setSConv (const const_setType set1);
 setType setSymdiff (const const_setType set1, const const_setType set2);
 uintType setToUInt (const const_setType set1, const intType lowestBitNum);
 setType setUnion (const const_setType set1, const const_setType set2);
+void setUnionAssign (setType *const dest, const const_setType delta);

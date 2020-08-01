@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  ftp.s7i       Support for FTP (file transfer protocol)          *)
-(*  Copyright (C) 2011, 2014  Thomas Mertes                         *)
+(*  Copyright (C) 2011, 2014, 2017  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -38,19 +38,46 @@ const integer: defaultFtpControlPort is 21;
 
 
 (**
- *  Describes a FTP connection to a remote FTP server.
+ *  Extended [[filesys#fileSys|FileSys]] interface type for FTP file systems.
+ *  This interface type allows access to FTP specific methods:
+ *  [[#listDir(inout_ftpConnection,in_string)| listDir]],
+ *  [[#getActiveMode(in_ftpConnection)|getActiveMode]],
+ *  [[#setActiveMode(inout_ftpConnection,in_boolean)|setActiveMode]],
+ *  [[#getAsciiTransfer(in_ftpConnection)|getAsciiTransfer]],
+ *  [[#setAsciiTransfer(inout_ftpConnection,in_boolean)|setAsciiTransfer]].
+ *  If this methods are not needed the interface type fileSys
+ *  can be used instead.
  *)
-const type: ftpConnection is new struct
+const type: ftpFileSys is sub fileSys interface;
+
+
+const func array string: listDir (inout ftpFileSys: fileSystem, in string: dirPath) is DYNAMIC;
+const func boolean: getActiveMode (in ftpFileSys: fileSystem) is DYNAMIC;
+const proc: setActiveMode (inout ftpFileSys: fileSystem, in boolean: active) is DYNAMIC;
+const func boolean: getAsciiTransfer (in ftpFileSys: fileSystem) is DYNAMIC;
+const proc: setAsciiTransfer (inout ftpFileSys: fileSystem, in boolean: asciiTransfer) is DYNAMIC;
+const proc: closeFtpData (inout ftpFileSys: fileSystem) is DYNAMIC;
+const proc: ftpResponse (inout ftpFileSys: fileSystem) is DYNAMIC;
+
+
+(**
+ *  [[#ftpFileSys|ftpFileSys]] implementation type for a connection to a FTP server.
+ *  The file system methods trigger requests to the FTP server.
+ *)
+const type: ftpConnection is sub emptyFileSys struct
     var file: control is STD_NULL;
     var file: data is STD_NULL;
     var string: response is "";
     var string: responseContent is "";
     var boolean: mlstCommandAvailable is TRUE;
     var string: ownIpAddress is "";
-    var boolean: active is FALSE;
+    var boolean: activeMode is FALSE;
+    var boolean: asciiTransfer is FALSE;
     var boolean: openDataSucceeded is FALSE;
     var listener: dataPortListener is listener.value;
   end struct;
+
+type_implements_interface(ftpConnection, ftpFileSys);
 
 
 const proc: ftpCommand (inout ftpConnection: ftp, in string: command) is func
@@ -97,7 +124,7 @@ const func string: allowUtf8 (in string: inStri) is func
 
 
 (**
- *  Open a FTP connection to the specified host, user and port.
+ *  Open a FTP file system at the specified host, user and port.
  *  @param hostName Either a host name ("e.g.: "www.example.org"),
  *                  or an IPv4 address in standard dot notation
  *                  (e.g.: "192.0.2.235"), or an IPv6 address in
@@ -107,11 +134,15 @@ const func string: allowUtf8 (in string: inStri) is func
  *  @param ftpControlPort Port to be used for the control connection.
  *                        FTP usually uses the port 21, but other
  *                        ports can also be specified.
- *  @return the FTP connection.
+ *  @return a file system that uses the FTP connection, or
+ *          fileSys.value if the connection to the remote host
+ *          could not be established.
  *)
-const func ftpConnection: openFtp (in string: hostName, in string: user,
+const func ftpFileSys: openFtp (in string: hostName, in string: user,
     in string: password, in integer: ftpControlPort) is func
   result
+    var ftpFileSys: newFileSys is fileSys.value;
+  local
     var ftpConnection: ftp is ftpConnection.value;
   begin
     if ftpControlPort >= 0 and ftpControlPort <= 65535 then
@@ -126,10 +157,16 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
             ftpCommand(ftp, "PASS " <& password);
             ftpResponse(ftp);
           end if;
-          if not startsWith(ftp.response, "230") then
-            close(ftp.control);
-            ftp.control := STD_NULL;
+          if startsWith(ftp.response, "230") then
+            ftpCommand(ftp, "TYPE I");
+            ftpResponse(ftp);
+            if startsWith(ftp.response, "200") then
+              newFileSys := toInterface(ftp);
+            end if;
           end if;
+        end if;
+        if newFileSys = fileSys.value then
+          close(ftp.control);
         end if;
       end if;
     end if;
@@ -137,7 +174,7 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
 
 
 (**
- *  Open a FTP connection to the specified host and user.
+ *  Open a FTP file system at the specified host and user.
  *  This function uses port 21.
  *  @param hostName Either a host name ("e.g.: "www.example.org"),
  *                  or an IPv4 address in standard dot notation
@@ -145,15 +182,17 @@ const func ftpConnection: openFtp (in string: hostName, in string: user,
  *                  colon notation.
  *  @param user Username to be used for the login.
  *  @param password Password to be used for the login.
- *  @return the FTP connection.
+ *  @return a file system that uses the FTP connection, or
+ *          fileSys.value if the connection to the remote host
+ *          could not be established.
  *)
-const func ftpConnection: openFtp (in string: hostName,
+const func ftpFileSys: openFtp (in string: hostName,
     in string: user, in string: password) is
   return openFtp(hostName, user, password, defaultFtpControlPort);
 
 
 (**
- *  Open a FTP connection to the specified ''connectStri'' and port.
+ *  Open a FTP file system with the specified ''connectStri'' and port.
  *  The ''connectStri'' should be in the form
  *   user:password@hostName
  *  to specify user and password. If no password is specified the
@@ -170,11 +209,13 @@ const func ftpConnection: openFtp (in string: hostName,
  *         user:password@hostName user@hostName or hostName
  *         When no user is specified the user "anonymous" is used.
  *         When no password is specified the password "anonymous" is used.
- *  @return the FTP connection.
+ *  @return a file system that uses the FTP connection, or
+ *          fileSys.value if the connection to the remote host
+ *          could not be established.
  *)
-const func ftpConnection: openFtp (in string: connectStri, in integer: ftpControlPort) is func
+const func ftpFileSys: openFtp (in string: connectStri, in integer: ftpControlPort) is func
   result
-    var ftpConnection: ftp is ftpConnection.value;
+    var ftpFileSys: ftp is fileSys.value;
   local
     var string: hostName is "";
     var string: user is "anonymous";
@@ -202,7 +243,7 @@ const func ftpConnection: openFtp (in string: connectStri, in integer: ftpContro
 
 
 (**
- *  Open a FTP connection to the specified ''connectStri''.
+ *  Open a FTP file system with the specified ''connectStri''.
  *  The ''connectStri'' should be in the form
  *   user:password@hostName
  *  to specify user and password. If no password is specified the
@@ -220,9 +261,11 @@ const func ftpConnection: openFtp (in string: connectStri, in integer: ftpContro
  *         user:password@hostName user@hostName or hostName
  *         When no user is specified the user "anomymous" is used.
  *         When no password is specified the password "anomymous" is used.
- *  @return the FTP connection.
+ *  @return a file system that uses the FTP connection, or
+ *          fileSys.value if the connection to the remote host
+ *          could not be established.
  *)
-const func ftpConnection: openFtp (in string: connectStri) is
+const func ftpFileSys: openFtp (in string: connectStri) is
   return openFtp(connectStri, defaultFtpControlPort);
 
 
@@ -282,7 +325,7 @@ const proc: openPassiveFtpData (inout ftpConnection: ftp) is func
 
 const proc: openFtpData (inout ftpConnection: ftp) is func
   begin
-    if ftp.active then
+    if ftp.activeMode then
       openActiveFtpData(ftp);
     else
       openPassiveFtpData(ftp);
@@ -292,7 +335,7 @@ const proc: openFtpData (inout ftpConnection: ftp) is func
 
 const proc: prepareFtpDataCommunication (inout ftpConnection: ftp) is func
   begin
-    if ftp.active then
+    if ftp.activeMode then
       # writeln("wwwwwww");
       ftp.data := accept(ftp.dataPortListener);
       # writeln("xxxxxxx");
@@ -302,7 +345,7 @@ const proc: prepareFtpDataCommunication (inout ftpConnection: ftp) is func
 
 const proc: closeFtpData (inout ftpConnection: ftp) is func
   begin
-    if ftp.active then
+    if ftp.activeMode then
       close(ftp.dataPortListener);
     end if;
     close(ftp.data);
@@ -414,186 +457,6 @@ const func array string: listDir (inout ftpConnection: ftp, in string: dirPath) 
 
 
 (**
- *  Retrive a ''source'' file to a ''destPath'', using a FTP connection.
- *  If the file exists already, it is overwritten.
- *  @exception FILE_ERROR The remote host returns an error or
- *             the destination file cannot be opened.
- *)
-const proc: retrieve (inout ftpConnection: ftp, in string: source,
-    in string: destPath) is func
-  local
-    var file: destFile is STD_NULL;
-    var string: buffer is "";
-  begin
-    destFile := open(destPath, "w");
-    if destFile <> STD_NULL then
-      openFtpData(ftp);
-      if ftp.openDataSucceeded then
-        ftpCommand(ftp, "RETR " <& striToUtf8(source));
-        ftpResponse(ftp);
-        if  startsWith(ftp.response, "125") or
-            startsWith(ftp.response, "150") then
-          prepareFtpDataCommunication(ftp);
-          copyFile(ftp.data, destFile);
-          close(destFile);
-          closeFtpData(ftp);
-          ftpResponse(ftp);
-          if not startsWith(ftp.response, "226") then
-            raise FILE_ERROR;
-          end if;
-        else
-          close(destFile);
-          closeFtpData(ftp);
-          raise FILE_ERROR;
-        end if;
-      end if;
-    else
-      raise FILE_ERROR;
-    end if;
-  end func;
-
-
-(**
- *  Store a ''sourcePath'' file to a ''destination'', using a FTP connection.
- *  If the file exists already, it is overwritten.
- *  @exception FILE_ERROR The remote host returns an error.
- *)
-const proc: store (inout ftpConnection: ftp, in string: sourcePath,
-    in string: destination) is func
-  local
-    var file: sourceFile is STD_NULL;
-    var string: buffer is "";
-  begin
-    sourceFile := open(sourcePath, "r");
-    if sourceFile <> STD_NULL then
-      openFtpData(ftp);
-      if ftp.openDataSucceeded then
-        ftpCommand(ftp, "STOR " <& striToUtf8(destination));
-        ftpResponse(ftp);
-        if  startsWith(ftp.response, "125") or
-            startsWith(ftp.response, "150") then
-          prepareFtpDataCommunication(ftp);
-          copyFile(sourceFile, ftp.data);
-          close(sourceFile);
-          closeFtpData(ftp);
-          ftpResponse(ftp);
-          if not startsWith(ftp.response, "226") then
-            raise FILE_ERROR;
-          end if;
-        else
-          close(sourceFile);
-          closeFtpData(ftp);
-          raise FILE_ERROR;
-        end if;
-      end if;
-    end if;
-  end func;
-
-
-(**
- *  Get the contents of file ''fileName'' using a FTP connection.
- *  @return the specified file as string.
- *  @exception FILE_ERROR The remote host returns an error.
- *)
-const func string: getFile (inout ftpConnection: ftp, in string: fileName) is func
-  result
-    var string: fileContent is "";
-  local
-    var string: buffer is "";
-  begin
-    openFtpData(ftp);
-    if ftp.openDataSucceeded then
-      ftpCommand(ftp, "RETR " <& striToUtf8(fileName));
-      ftpResponse(ftp);
-      if  startsWith(ftp.response, "125") or
-          startsWith(ftp.response, "150") then
-        prepareFtpDataCommunication(ftp);
-        buffer := gets(ftp.data, 1000000);
-        while buffer <> "" do
-          # writeln(literal(buffer));
-          # writeln(length(buffer));
-          fileContent &:= buffer;
-          buffer := gets(ftp.data, 1000000);
-        end while;
-        # writeln(literal(fileContent));
-        # writeln(length(fileContent));
-        closeFtpData(ftp);
-        ftpResponse(ftp);
-        if not startsWith(ftp.response, "226") then
-          raise FILE_ERROR;
-        end if;
-      else
-        closeFtpData(ftp);
-        raise FILE_ERROR;
-      end if;
-    end if;
-  end func;
-
-
-(**
- *  Write ''stri'' to remote file ''fileName'' using a FTP connection.
- *  If the file exists already, it is overwritten.
- *  @exception FILE_ERROR The remote host returns an error.
- *)
-const proc: putFile (inout ftpConnection: ftp, in string: fileName,
-    in string: stri) is func
-  begin
-    openFtpData(ftp);
-    if ftp.openDataSucceeded then
-      ftpCommand(ftp, "STOR " <& striToUtf8(fileName));
-      ftpResponse(ftp);
-      if  startsWith(ftp.response, "125") or
-          startsWith(ftp.response, "150") then
-        prepareFtpDataCommunication(ftp);
-        write(ftp.data, stri);
-        closeFtpData(ftp);
-        ftpResponse(ftp);
-        if not startsWith(ftp.response, "226") then
-          raise FILE_ERROR;
-        end if;
-      else
-        closeFtpData(ftp);
-        raise FILE_ERROR;
-      end if;
-    end if;
-  end func;
-
-
-(**
- *  Remove a file using a FTP connection.
- *  @exception FILE_ERROR The remote host returns an error.
- *)
-const proc: removeFile (inout ftpConnection: ftp, in string: fileName) is func
-  begin
-    ftpCommand(ftp, "DELE " <& striToUtf8(fileName));
-    ftpResponse(ftp);
-    if not startsWith(ftp.response, "257") then
-      raise FILE_ERROR;
-    end if;
-  end func;
-
-
-(**
- *  Rename a file using a FTP connection.
- *  @exception FILE_ERROR The remote host returns an error.
- *)
-const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string: destPath) is func
-  begin
-    ftpCommand(ftp, "RNFR " <& striToUtf8(sourcePath));
-    ftpResponse(ftp);
-    if not startsWith(ftp.response, "350") then
-      raise FILE_ERROR;
-    else
-      ftpCommand(ftp, "RNTO " <& striToUtf8(destPath));
-      ftpResponse(ftp);
-      if not startsWith(ftp.response, "250") then
-        raise FILE_ERROR;
-      end if;
-    end if;
-  end func;
-
-
-(**
  *  Change the current working directory of a FTP connection.
  *  @exception FILE_ERROR The remote host returns an error.
  *)
@@ -606,34 +469,6 @@ const proc: chdir (inout ftpConnection: ftp, in string: dirName) is func
     end if;
     ftpResponse(ftp);
     if not startsWith(ftp.response, "250") then
-      raise FILE_ERROR;
-    end if;
-  end func;
-
-
-(**
- *  Creates a directory on a remote host using a FTP connection.
- *  @exception FILE_ERROR The remote host returns an error.
- *)
-const proc: mkdir (inout ftpConnection: ftp, in string: dirName) is func
-  begin
-    ftpCommand(ftp, "MKD " <& striToUtf8(dirName));
-    ftpResponse(ftp);
-    if not startsWith(ftp.response, "257") then
-      raise FILE_ERROR;
-    end if;
-  end func;
-
-
-(**
- *  Deletes an empty directory using a FTP connection.
- *  @exception FILE_ERROR The remote host returns an error.
- *)
-const proc: rmdir (inout ftpConnection: ftp, in string: dirName) is func
-  begin
-    ftpCommand(ftp, "RMD " <& striToUtf8(dirName));
-    ftpResponse(ftp);
-    if not startsWith(ftp.response, "257") then
       raise FILE_ERROR;
     end if;
   end func;
@@ -676,7 +511,7 @@ const func string: getcwd (inout ftpConnection: ftp) is func
  *)
 const func fileType: fileType (inout ftpConnection: ftp, in string: fileName) is func
   result
-    var fileType: aFileType is FILE_UNKNOWN;
+    var fileType: aFileType is FILE_ABSENT;
   local
     var string: lowerCaseReponseContent is "";
     var string: workingDir is "";
@@ -691,6 +526,8 @@ const func fileType: fileType (inout ftpConnection: ftp, in string: fileName) is
           aFileType := FILE_DIR;
         elsif pos(lowerCaseReponseContent, "type=file") <> 0 then
           aFileType := FILE_REGULAR;
+        else
+          aFileType := FILE_UNKNOWN;
         end if;
       elsif startsWith(ftp.response, "500") then
         ftp.mlstCommandAvailable := FALSE;
@@ -711,8 +548,6 @@ const func fileType: fileType (inout ftpConnection: ftp, in string: fileName) is
           ftpResponse(ftp);
         end if;
       end if;
-    else
-      aFileType := FILE_ABSENT;
     end if;
   end func;
 
@@ -796,22 +631,278 @@ const func time: getMTime (inout ftpConnection: ftp, in string: fileName) is fun
 
 
 (**
- *  Set the transfer type of the FTP connection to ASCII.
+ *  Get the the data transfer mode.
+ *  @return TRUE, when the transfer mode is active, or
+ *          FALSE, when the transfer mode is passive.
  *)
-const proc: transferTypeAscii (inout ftpConnection: ftp) is func
+const func boolean: getActiveMode (in ftpConnection: ftp) is
+  return ftp.activeMode;
+
+
+(**
+ *  Set the the data transfer mode to active (=TRUE) or passive (=FALSE).
+ *  By default passive mode is used.
+ *)
+const proc: setActiveMode (inout ftpConnection: ftp, in boolean: activeMode) is func
   begin
-    ftpCommand(ftp, "TYPE A");
-    ftpResponse(ftp);
+    ftp.activeMode := activeMode;
   end func;
 
 
 (**
- *  Set the transfer type of the FTP connection to BINARY.
+ *  Get the file transfer type.
+ *  @return TRUE, when the file transfer type is ASCII, or
+ *          FALSE, when the file transfer type is BINARY.
  *)
-const proc: transferTypeBinary (inout ftpConnection: ftp) is func
+const func boolean: getAsciiTransfer (in ftpConnection: ftp) is
+  return ftp.asciiTransfer;
+
+
+(**
+ *  Set the file transfer type to ASCII (=TRUE) or BINARY (=FALSE).
+ *  By default binary transfer is used.
+ *)
+const proc: setAsciiTransfer (inout ftpConnection: ftp, in boolean: asciiTransfer) is func
   begin
-    ftpCommand(ftp, "TYPE I");
+    if asciiTransfer then
+      if not ftp.asciiTransfer then
+        ftpCommand(ftp, "TYPE A");
+        ftpResponse(ftp);
+        if startsWith(ftp.response, "200") then
+          ftp.asciiTransfer := TRUE;
+        end if;
+      end if;
+    else
+      if ftp.asciiTransfer then
+        ftpCommand(ftp, "TYPE I");
+        ftpResponse(ftp);
+        if startsWith(ftp.response, "200") then
+          ftp.asciiTransfer := FALSE;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const type: ftpDataFile is sub socket struct
+    var ftpFileSys: ftp is ftpFileSys.value;
+  end struct;
+
+
+const func ftpDataFile: ftpDataFile (in socket: aSocket) is func
+  result
+    var ftpDataFile: dataFile is ftpDataFile.value;
+  begin
+    dataFile.sock         := aSocket.sock;
+    dataFile.addr         := aSocket.addr;
+    dataFile.service      := aSocket.service;
+    dataFile.acceptedFrom := aSocket.acceptedFrom;
+  end func;
+
+
+const proc: close (inout ftpDataFile: dataFile) is func
+  begin
+    closeFtpData(dataFile.ftp);
+    ftpResponse(dataFile.ftp);
+    if not startsWith(ftpConnection conv (dataFile.ftp).response, "226") then
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Open a file with ''filePath'' and ''mode'' using a FTP connection.
+ *  There are text modes and binary modes:
+ *  *Binary modes:
+ *  ** "r"   Open file for reading.
+ *  ** "w"   Truncate to zero length or create file for writing.
+ *  *Text modes:
+ *  ** "rt"  Open file for reading.
+ *  ** "wt"  Truncate to zero length or create file for writing.
+ *  No other FTP functions can be used while reading and writing
+ *  this file is going on. After this file has been closed other
+ *  FTP functions can be used.
+ *  @exception RANGE_ERROR The ''mode'' is not one of the allowed
+ *             values or ''path'' does not use the standard path
+ *             representation
+ *)
+const func file: open (inout ftpConnection: ftp, in string: filePath,
+    in string: mode) is func
+  result
+    var file: dataFile is STD_NULL;
+  local
+    var boolean: textMode is FALSE;
+    var boolean: openForReading is TRUE;
+    var ftpDataFile: new_file is ftpDataFile.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      if mode = "r" then
+        noop;
+      elsif mode = "w" then
+        openForReading := FALSE;
+      elsif mode = "rt" then
+        textMode := TRUE;
+      elsif mode = "wt" then
+        textMode := TRUE;
+        openForReading := FALSE;
+      else
+        raise RANGE_ERROR;
+      end if;
+      setAsciiTransfer(ftp, textMode);
+      openFtpData(ftp);
+      if ftp.openDataSucceeded then
+        if openForReading then
+          ftpCommand(ftp, "RETR " <& striToUtf8(filePath));
+        else
+          ftpCommand(ftp, "STOR " <& striToUtf8(filePath));
+        end if;
+        ftpResponse(ftp);
+        if  startsWith(ftp.response, "125") or
+            startsWith(ftp.response, "150") then
+          prepareFtpDataCommunication(ftp);
+          new_file := ftpDataFile(socket conv (ftp.data));
+          new_file.ftp := ftp;
+          dataFile := toInterface(new_file);
+        else
+          closeFtpData(ftp);
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get the contents of file ''filePath'' using a FTP connection.
+ *  @return the specified file as string.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const func string: getFile (inout ftpConnection: ftp, in string: filePath) is func
+  result
+    var string: fileContent is "";
+  local
+    var string: buffer is "";
+  begin
+    setAsciiTransfer(ftp, FALSE);
+    openFtpData(ftp);
+    if ftp.openDataSucceeded then
+      ftpCommand(ftp, "RETR " <& striToUtf8(filePath));
+      ftpResponse(ftp);
+      if  startsWith(ftp.response, "125") or
+          startsWith(ftp.response, "150") then
+        prepareFtpDataCommunication(ftp);
+        buffer := gets(ftp.data, 1000000);
+        while buffer <> "" do
+          # writeln(literal(buffer));
+          # writeln(length(buffer));
+          fileContent &:= buffer;
+          buffer := gets(ftp.data, 1000000);
+        end while;
+        # writeln(literal(fileContent));
+        # writeln(length(fileContent));
+        closeFtpData(ftp);
+        ftpResponse(ftp);
+        if not startsWith(ftp.response, "226") then
+          raise FILE_ERROR;
+        end if;
+      else
+        closeFtpData(ftp);
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Write ''stri'' to remote file ''filePath'' using a FTP connection.
+ *  If the file exists already, it is overwritten.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const proc: putFile (inout ftpConnection: ftp, in string: filePath,
+    in string: stri) is func
+  begin
+    setAsciiTransfer(ftp, FALSE);
+    openFtpData(ftp);
+    if ftp.openDataSucceeded then
+      ftpCommand(ftp, "STOR " <& striToUtf8(filePath));
+      ftpResponse(ftp);
+      if  startsWith(ftp.response, "125") or
+          startsWith(ftp.response, "150") then
+        prepareFtpDataCommunication(ftp);
+        write(ftp.data, stri);
+        closeFtpData(ftp);
+        ftpResponse(ftp);
+        if not startsWith(ftp.response, "226") then
+          raise FILE_ERROR;
+        end if;
+      else
+        closeFtpData(ftp);
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Remove a file using a FTP connection.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const proc: removeFile (inout ftpConnection: ftp, in string: fileName) is func
+  begin
+    ftpCommand(ftp, "DELE " <& striToUtf8(fileName));
     ftpResponse(ftp);
+    if not startsWith(ftp.response, "257") then
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Rename a file using a FTP connection.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const proc: moveFile (inout ftpConnection: ftp, in string: sourcePath, in string: destPath) is func
+  begin
+    ftpCommand(ftp, "RNFR " <& striToUtf8(sourcePath));
+    ftpResponse(ftp);
+    if not startsWith(ftp.response, "350") then
+      raise FILE_ERROR;
+    else
+      ftpCommand(ftp, "RNTO " <& striToUtf8(destPath));
+      ftpResponse(ftp);
+      if not startsWith(ftp.response, "250") then
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Creates a directory on a remote host using a FTP connection.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const proc: mkdir (inout ftpConnection: ftp, in string: dirName) is func
+  begin
+    ftpCommand(ftp, "MKD " <& striToUtf8(dirName));
+    ftpResponse(ftp);
+    if not startsWith(ftp.response, "257") then
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Deletes an empty directory using a FTP connection.
+ *  @exception FILE_ERROR The remote host returns an error.
+ *)
+const proc: rmdir (inout ftpConnection: ftp, in string: dirName) is func
+  begin
+    ftpCommand(ftp, "RMD " <& striToUtf8(dirName));
+    ftpResponse(ftp);
+    if not startsWith(ftp.response, "257") then
+      raise FILE_ERROR;
+    end if;
   end func;
 
 
@@ -844,11 +935,10 @@ const func string: getFtp (in string: connectStri, in integer: portNumber, in st
   result
     var string: fileContent is "";
   local
-    var ftpConnection: ftp is ftpConnection.value;
+    var ftpFileSys: ftp is fileSys.value;
   begin
     ftp := openFtp(connectStri, portNumber);
-    if ftp.control <> STD_NULL then
-      transferTypeBinary(ftp);
+    if ftp <> fileSys.value then
       fileContent := getFile(ftp, path);
       close(ftp);
     end if;

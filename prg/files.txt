@@ -151,10 +151,12 @@ environment.s7i Support for program arguments and environment.
 external_file.s7i File implementation type describing OS files
 field.s7i    Filter file which reads the input fieldwise
 file.s7i     Interface type describing sequential files
+filesys.s7i  Interface for file systems (os, tar, zip, ...)
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
 forloop.s7i  For-loop and templates to define for-loop
 ftp.s7i      Support for FTP (file transfer protocol)
+ftpserv.s7i  FTP (file transfer protocol) server library.
 getf.s7i     Read and write whole files into and from strings
 gethttp.s7i  Support to get data with the HTTP protocol
 gethttps.s7i Support to get data with the HTTPS protocol
@@ -171,6 +173,7 @@ httpserv.s7i Support for HTTP server and HTTP requests.
 idxarray.s7i Support for arrays with non-integer index
 image.s7i    Defines images, which are in a window
 inflate.s7i  Inflate uncompression algorithm
+inflatefile.s7i Uncompress data from a file with Inflate
 inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 keybd.s7i    Read from keyboard without buffering and echo
@@ -231,6 +234,7 @@ struct.s7i   Struct support library
 subrange.s7i Subrange support library
 syntax.s7i   Syntax definition of the standard Seed7 library
 tar.s7i      Tar archive library
+tar_cmds.s7i Commands of the tar program.
 tdes.s7i     TDES (Triple DES) cipher support.
 tee.s7i      Filter file which emulates the tee functionality
 text.s7i     Interface type for line/column oriented files

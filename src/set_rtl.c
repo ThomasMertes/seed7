@@ -1550,3 +1550,91 @@ setType setUnion (const const_setType set1, const const_setType set2)
                 printf("\n"););
     return result;
   } /* setUnion */
+
+
+
+/**
+ *  Assign the union of delta and *dest to *dest.
+ *  @exception MEMORY_ERROR Not enough memory to create dest.
+ */
+void setUnionAssign (setType *const dest, const const_setType delta)
+
+  {
+    setType set1;
+    intType position;
+    intType min_position;
+    intType max_position;
+    intType start_position;
+    intType stop_position;
+    setType new_dest;
+
+  /* setUnionAssign */
+    set1 = *dest;
+    if (set1->min_position < delta->min_position) {
+      min_position = set1->min_position;
+      start_position = delta->min_position;
+    } else {
+      min_position = delta->min_position;
+      start_position = set1->min_position;
+    } /* if */
+    if (set1->max_position > delta->max_position) {
+      max_position = set1->max_position;
+      stop_position = delta->max_position;
+    } else {
+      max_position = delta->max_position;
+      stop_position = set1->max_position;
+    } /* if */
+    if (set1->min_position == min_position &&
+        set1->max_position == max_position) {
+      for (position = start_position; position <= stop_position; position++) {
+        set1->bitset[position - min_position] |=
+            delta->bitset[position - delta->min_position];
+      } /* for */
+    } else {
+      if (unlikely((uintType) (max_position - min_position + 1) > MAX_SET_LEN ||
+          !ALLOC_SET(new_dest, (uintType) (max_position - min_position + 1)))) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        new_dest->min_position = min_position;
+        new_dest->max_position = max_position;
+        if (set1->max_position < delta->min_position ||
+            set1->min_position > delta->max_position) {
+          memcpy(&new_dest->bitset[set1->min_position - min_position], set1->bitset,
+                 bitsetSize(set1) * sizeof(bitSetType));
+          memcpy(&new_dest->bitset[delta->min_position - min_position], delta->bitset,
+                 bitsetSize(delta) * sizeof(bitSetType));
+          memset(&new_dest->bitset[stop_position - min_position + 1], 0,
+                 (size_t) (uintType) (start_position - stop_position - 1) *
+                 sizeof(bitSetType));
+        } else {
+          if (delta->min_position > set1->min_position) {
+            memcpy(&new_dest->bitset[set1->min_position - min_position], set1->bitset,
+                   (size_t) (uintType) (delta->min_position - set1->min_position) *
+                   sizeof(bitSetType));
+          } else {
+            memcpy(&new_dest->bitset[delta->min_position - min_position], delta->bitset,
+                   (size_t) (uintType) (set1->min_position - delta->min_position) *
+                   sizeof(bitSetType));
+          } /* if */
+          if (delta->max_position > set1->max_position) {
+            memcpy(&new_dest->bitset[set1->max_position - min_position + 1],
+                   &delta->bitset[set1->max_position - delta->min_position + 1],
+                   (size_t) (uintType) (delta->max_position - set1->max_position) *
+                   sizeof(bitSetType));
+          } else {
+            memcpy(&new_dest->bitset[delta->max_position - min_position + 1],
+                   &set1->bitset[delta->max_position - set1->min_position + 1],
+                   (size_t) (uintType) (set1->max_position - delta->max_position) *
+                   sizeof(bitSetType));
+          } /* if */
+          for (position = start_position; position <= stop_position; position++) {
+            new_dest->bitset[position - min_position] =
+                set1->bitset[position - set1->min_position] |
+                delta->bitset[position - delta->min_position];
+          } /* for */
+        } /* if */
+        *dest = new_dest;
+        FREE_SET(set1, bitsetSize(set1));
+      } /* if */
+    } /* if */
+ } /* setUnionAssign */

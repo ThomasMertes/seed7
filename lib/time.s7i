@@ -883,6 +883,19 @@ const func time: timestamp1970ToTime (in integer: timestamp) is func
   end func;
 
 
+const func time: timestamp1601ToTime (in integer: timestamp) is func
+  result
+    var time: aTime is time.value;
+  local
+    const integer: SECONDS_1601_1970 is 11644473600;
+    const integer: NANOSECS100_TICK is 10000000;
+    var integer: utcSeconds is 0;
+  begin
+    utcSeconds := timestamp div NANOSECS100_TICK - SECONDS_1601_1970;
+    aTime := timestamp1970ToTime(utcSeconds);
+  end func;
+
+
 (*
 (*####
  *  Convert a timestamp into Coordinated Universal Time (UTC).

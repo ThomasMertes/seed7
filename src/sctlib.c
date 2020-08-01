@@ -200,8 +200,8 @@ objectType sct_cpy (listType arguments)
   {
     objectType dest;
     objectType source;
-    memSizeType new_size;
-    structType new_stru;
+    memSizeType source_size;
+    structType dest_struct;
 
   /* sct_cpy */
     dest = arg_1(arguments);
@@ -209,25 +209,25 @@ objectType sct_cpy (listType arguments)
     isit_struct(dest);
     isit_struct(source);
     is_variable(dest);
-    new_stru = take_struct(dest);
+    dest_struct = take_struct(dest);
     if (TEMP_OBJECT(source)) {
-      destr_struct(new_stru->stru, new_stru->size);
-      /* printf("FREE_STRUCT 6 %lu\n", new_stru); */
-      FREE_STRUCT(new_stru, new_stru->size);
+      destr_struct(dest_struct->stru, dest_struct->size);
+      /* printf("FREE_STRUCT 6 %lu\n", dest_struct); */
+      FREE_STRUCT(dest_struct, dest_struct->size);
       dest->value.structValue = take_struct(source);
       source->value.structValue = NULL;
     } else {
-      new_size = take_struct(source)->size;
-      if (new_stru->size != new_size) {
-        if (!ALLOC_STRUCT(new_stru, new_size)) {
+      source_size = take_struct(source)->size;
+      if (dest_struct->size != source_size) {
+        if (!ALLOC_STRUCT(dest_struct, source_size)) {
           return raise_exception(SYS_MEM_EXCEPTION);
         } else {
-          new_stru->usage_count = 1;
-          new_stru->size = new_size;
-          if (!crea_struct(new_stru->stru,
-              take_struct(source)->stru, new_size)) {
-            /* printf("FREE_STRUCT 7 %lu\n", new_stru); */
-            FREE_STRUCT(new_stru, new_size);
+          dest_struct->usage_count = 1;
+          dest_struct->size = source_size;
+          if (!crea_struct(dest_struct->stru,
+              take_struct(source)->stru, source_size)) {
+            /* printf("FREE_STRUCT 7 %lu\n", dest_struct); */
+            FREE_STRUCT(dest_struct, source_size);
             return raise_with_arguments(SYS_MEM_EXCEPTION, arguments);
           } /* if */
           destr_struct(take_struct(dest)->stru,
@@ -235,12 +235,12 @@ objectType sct_cpy (listType arguments)
           /* printf("FREE_STRUCT 8 %lu\n", take_struct(dest)); */
           FREE_STRUCT(take_struct(dest),
               take_struct(dest)->size);
-          dest->value.structValue = new_stru;
+          dest->value.structValue = dest_struct;
         } /* if */
       } else {
         /* The usage_count is left unchanged for a deep copy. */
-        cpy_array(new_stru->stru, take_struct(source)->stru,
-            new_size);
+        cpy_array(dest_struct->stru, take_struct(source)->stru,
+            source_size);
       } /* if */
     } /* if */
     return SYS_EMPTY_OBJECT;

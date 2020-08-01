@@ -1,0 +1,361 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  filesys.s7i   Interface for file systems (os, tar, zip, ...)    *)
+(*  Copyright (C) 2017  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "bigint.s7i";
+include "time.s7i";
+
+
+(**
+ *  Type to describe the type of a file.
+ *  Possible values are ''FILE_ABSENT'', ''FILE_UNKNOWN'',
+ *  ''FILE_REGULAR'', ''FILE_DIR'', ''FILE_CHAR'', ''FILE_BLOCK'',
+ *  ''FILE_FIFO'', ''FILE_SYMLINK'' and ''FILE_SOCKET''. The value
+ *  ''FILE_ABSENT'' is used to describe a nonexistent file.
+ *)
+const type: fileType is integer;
+
+const fileType: FILE_ABSENT  is 0; # A component of path does not exist
+const fileType: FILE_UNKNOWN is 1; # File exists but has an unknown type
+const fileType: FILE_REGULAR is 2;
+const fileType: FILE_DIR     is 3;
+const fileType: FILE_CHAR    is 4;
+const fileType: FILE_BLOCK   is 5;
+const fileType: FILE_FIFO    is 6;
+const fileType: FILE_SYMLINK is 7;
+const fileType: FILE_SOCKET  is 8;
+
+(**
+ *  Type to describe one file permission.
+ *  Possible values are ''EXEC_OTHER'', ''WRITE_OTHER'', ''READ_OTHER'',
+ *  ''EXEC_GROUP'', ''WRITE_GROUP'', ''READ_GROUP'', ''EXEC_USER'' and
+ *  ''WRITE_USER'' and ''READ_USER''.
+ *)
+const type: filePermission is new enum
+    EXEC_OTHER,
+    WRITE_OTHER,
+    READ_OTHER,
+    EXEC_GROUP,
+    WRITE_GROUP,
+    READ_GROUP,
+    EXEC_USER,
+    WRITE_USER,
+    READ_USER
+  end enum;
+
+(**
+ *  Type to describe the mode (all permissions) of a file.
+ *  A ''fileMode'' is a set of [[#filePermission|filePermission]].
+ *  A test for a permission is a set mempership test. E.g.:
+ *   EXEC_USER in aFileMode
+ *)
+const type: fileMode is set of filePermission;
+
+const func integer: (attr integer) conv (in fileMode: mode) is
+  return integer conv (bitset conv mode);
+
+const func fileMode: (attr fileMode) conv (in integer: int_mode) is
+  return fileMode conv (bitset conv int_mode);
+
+const func string: str (in fileMode: aFileMode) is func
+  result
+    var string: permissions is "rwxrwxrwx";
+  local
+    var filePermission: aPermission is READ_USER;
+  begin
+    for aPermission range READ_USER downto EXEC_OTHER do
+      if aPermission not in aFileMode then
+        permissions @:= [9 - ord(aPermission)] '-';
+      end if;
+    end for;
+  end func;
+
+enable_output(fileMode);
+
+
+(**
+ *  Interface type for file systems ([[osfiles#osFileSys|os]], [[tar#tarArchive|tar]], [[zip#zipArchive|zip]], [[zip#zipArchive|jar]], [[ftp#ftpConnection|ftp]], ...).
+ *)
+const type: fileSys is sub object interface;
+
+
+(**
+ *  Close a file system.
+ *)
+const proc: close (inout fileSys: fileSystem) is DYNAMIC;
+
+
+(**
+ *  Determine the filenames in a directory of a file system.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param fileSystem File system in which the directory is searched for.
+ *  @param dirPath Path of a directory in the file system.
+ *  @return an array with the file names.
+ *)
+const func array string: readDir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
+
+
+(**
+ *  Paths of files in a directory and its subdirectories inside a file system.
+ *  The function returns the file paths relative to the given directory.
+ *  @param fileSystem File system in which the directory is searched for.
+ *  @param dirPath Path of a directory in the file system.
+ *  @return an array with the file paths.
+ *)
+const func array string: readDir (inout fileSys: fileSystem, in string: dirPath,
+    RECURSIVE) is DYNAMIC;
+
+
+(**
+ *  Determine the file names in the top directory of a file system.
+ *  @return an array with the file names.
+ *)
+const func array string: readDir (inout fileSys: fileSystem) is
+  return readDir(fileSystem, ".");
+
+
+(**
+ *  Determine all file paths in a file system.
+ *  @return an array with the file paths.
+ *)
+const func array string: readDir (inout fileSys: fileSystem, RECURSIVE) is DYNAMIC;
+
+
+(**
+ *  Determine the type of a file.
+ *  The function does follow symbolic links. Therefore it never
+ *  returns ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *)
+const func fileType: fileType (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Determine the type of a file.
+ *  The function does not follow symbolic links. Therefore it may
+ *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *)
+const func fileType: fileTypeSL (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Determine the file mode (permissions) of a file.
+ *  @return the file mode.
+ *)
+const func fileMode: fileMode (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Change the file mode (permissions) of a file.
+ *  Not all file systems support this function.
+ *)
+const proc: setFileMode (inout fileSys: fileSystem, in string: filePath,
+    in fileMode: mode) is DYNAMIC;
+
+
+(**
+ *  Determine the file size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *)
+const func integer: fileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Determine the file size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *)
+const func bigInteger: bigFileSize (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Determine the modification time of a file.
+ *  @return the modification time of the file.
+ *)
+const func time: getMTime (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Set the modification time of a file in a TAR archive.
+ *)
+const proc: setMTime (inout fileSys: fileSystem, in string: filePath,
+    in time: modificationTime) is DYNAMIC;
+
+
+(**
+ *  Open a file with ''filePath'' and ''mode'' in the file system.
+ *)
+const func file: open (inout fileSys: fileSystem, in string: filePath,
+    in string: mode) is DYNAMIC;
+
+
+(**
+ *  Get the contents of file ''filePath'' in the file system.
+ *  @return the specified file as string.
+ *)
+const func string: getFile (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Write ''stri'' to the file ''filePath'' using the file system.
+ *  If the file exists already, it is overwritten.
+ *  Not all file systems support this function.
+ *)
+const proc: putFile (inout fileSys: fileSystem, in string: filePath, in string: stri) is DYNAMIC;
+
+
+(**
+ *  Reads the destination of a symbolic link.
+ *  Not all file systems support this function.
+ *  @return The destination refered by the symbolic link.
+ *)
+const func string: readlink (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Remove a file (except nonempty directories), from a file system.
+ *  Not all file systems support this function.
+ *)
+const proc: removeFile (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Remove a file of any type inclusive a directory tree, from a file system.
+ *  Not all file systems support this function.
+ *)
+const proc: removeTree (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
+
+
+(**
+ *  Move and rename a file or directory tree in a file system.
+ *  Not all file systems support this function.
+ *)
+const proc: moveFile (inout fileSys: fileSystem, in string: sourcePath, in string: destPath) is DYNAMIC;
+
+
+(**
+ *  Creates a directory on a remote host using the file system.
+ *  Not all file systems support this function.
+ *)
+const proc: mkdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
+
+
+(**
+ *  Deletes an empty directory using the file system.
+ *  Not all file systems support this function.
+ *)
+const proc: rmdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
+
+
+(**
+ *  Determine the current working directory of the file system.
+ *  Not all file systems support this function.
+ *  @return the current working directory as absolute path.
+ *)
+const func string: getcwd (inout fileSys: fileSystem) is DYNAMIC;
+
+
+(**
+ *  Change the current working directory of the file system.
+ *  Not all file systems support this function.
+ *)
+const proc: chdir (inout fileSys: fileSystem, in string: dirPath) is DYNAMIC;
+
+
+(**
+ *  Describes an empty file system.
+ *)
+const type: emptyFileSys is new struct
+  end struct;
+
+
+type_implements_interface(emptyFileSys, fileSys);
+
+const fileSys: (attr fileSys) . value is emptyFileSys.value;
+
+
+(**
+ *  Paths of files in a directory and its subdirectories inside a file system.
+ *  The function returns the file paths relative to the given directory.
+ *  @param fileSystem File system in which the directory is searched for.
+ *  @param dirPath Path of a directory in the file system.
+ *  @return an array with the file paths.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''dirPath'' is not present in the file system.
+ *)
+const func array string: readDir (inout emptyFileSys: fileSystem,
+    in var string: dirPath, RECURSIVE) is func
+  result
+    var array string: filePaths is 0 times "";
+  local
+    var array string: pathsInDir is 0 times "";
+    var string: path is "";
+    var string: base is "";
+    var string: subPath is "";
+  begin
+    if dirPath <> "/" and endsWith(dirPath, "/") then
+      raise RANGE_ERROR;
+    else
+      pathsInDir := readDir(fileSystem, dirPath);
+      if dirPath <> "/" then
+        dirPath &:= "/";
+      end if;
+      for path range pathsInDir do
+        filePaths &:= path;
+        if endsWith(path, "/") then
+          base := path;
+        else
+          base := path & "/";
+        end if;
+        if fileType(fileSystem, dirPath & path) = FILE_DIR then
+          for subPath range readDir(fileSystem, dirPath & path) do
+            filePaths &:= base & subPath;
+          end for;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file size of a file.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *)
+const func bigInteger: bigFileSize (inout emptyFileSys: fileSystem, in string: filePath) is
+  return bigInteger conv (fileSize(fileSystem, filePath));

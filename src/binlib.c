@@ -98,6 +98,20 @@ objectType bin_binary (listType arguments)
 
 
 /**
+ *  Determine the number of one bits in a binary value.
+ *  @return the number of one bits.
+ */
+objectType bin_card (listType arguments)
+
+  { /* bin_card */
+    isit_binary(arg_1(arguments));
+    return bld_int_temp(
+        uintCard(take_binary(arg_1(arguments))));
+  } /* bin_card */
+
+
+
+/**
  *  Compare two binary values.
  *  @return -1, 0 or 1 if the first argument is considered to be
  *          respectively less than, equal to, or greater than the

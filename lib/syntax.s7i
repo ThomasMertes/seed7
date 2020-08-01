@@ -195,6 +195,7 @@ $ syntax expr: .for.().key.().range.().until.().do.().end.for    is  -> 25;
 $ syntax expr: .for.key.().range.().do.().end.for                is  -> 25;
 $ syntax expr: .for.key.().range.().until.().do.().end.for       is  -> 25;
 
+$ syntax expr: .if.().then.end.if                                is  -> 25;
 $ syntax expr: .if.().then.().end.if                             is  -> 25;
 $ syntax expr: .if.().then.().().end.if                          is  -> 25;
 

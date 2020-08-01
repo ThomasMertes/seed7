@@ -29,6 +29,7 @@
 include "enable_io.s7i";
 include "time.s7i";
 include "bigint.s7i";
+include "filesys.s7i";
 
 
 const proc: GET_ATIME (in string: filePath, inout integer: year,
@@ -56,73 +57,6 @@ const proc: SET_MTIME (in string: filePath, in integer: year, in integer: month,
 
 
 (**
- *  Type to describe the type of a file.
- *  Possible values are ''FILE_ABSENT'', ''FILE_UNKNOWN'',
- *  ''FILE_REGULAR'', ''FILE_DIR'', ''FILE_CHAR'', ''FILE_BLOCK'',
- *  ''FILE_FIFO'', ''FILE_SYMLINK'' and ''FILE_SOCKET''. The value
- *  ''FILE_ABSENT'' is used to describe a nonexistent file.
- *)
-const type: fileType is integer;
-
-const fileType: FILE_ABSENT  is 0; # A component of path does not exist
-const fileType: FILE_UNKNOWN is 1; # File exists but has an unknown type
-const fileType: FILE_REGULAR is 2;
-const fileType: FILE_DIR     is 3;
-const fileType: FILE_CHAR    is 4;
-const fileType: FILE_BLOCK   is 5;
-const fileType: FILE_FIFO    is 6;
-const fileType: FILE_SYMLINK is 7;
-const fileType: FILE_SOCKET  is 8;
-
-(**
- *  Type to describe one file permission.
- *  Possible values are ''EXEC_OTHER'', ''WRITE_OTHER'', ''READ_OTHER'',
- *  ''EXEC_GROUP'', ''WRITE_GROUP'', ''READ_GROUP'', ''EXEC_USER'' and
- *  ''WRITE_USER'' and ''READ_USER''.
- *)
-const type: filePermission is new enum
-    EXEC_OTHER,
-    WRITE_OTHER,
-    READ_OTHER,
-    EXEC_GROUP,
-    WRITE_GROUP,
-    READ_GROUP,
-    EXEC_USER,
-    WRITE_USER,
-    READ_USER
-  end enum;
-
-(**
- *  Type to describe the mode (all permissions) of a file.
- *  A ''fileMode'' is a set of [[#filePermission|filePermission]].
- *  A test for a permission is a set mempership test. E.g.:
- *   EXEC_USER in aFileMode
- *)
-const type: fileMode is set of filePermission;
-
-const func integer: (attr integer) conv (in fileMode: mode) is
-  return integer conv (bitset conv mode);
-
-const func fileMode: (attr fileMode) conv (in integer: int_mode) is
-  return fileMode conv (bitset conv int_mode);
-
-const func string: str (in fileMode: aFileMode) is func
-  result
-    var string: permissions is "rwxrwxrwx";
-  local
-    var filePermission: aPermission is READ_USER;
-  begin
-    for aPermission range READ_USER downto EXEC_OTHER do
-      if aPermission not in aFileMode then
-        permissions @:= [9 - ord(aPermission)] '-';
-      end if;
-    end for;
-  end func;
-
-enable_output(fileMode);
-
-
-(**
  *  Determine the filenames in a directory.
  *  The files "." and ".." are left out from the result.
  *  Note that the function returns only the filenames.
@@ -137,54 +71,6 @@ enable_output(fileMode);
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const func array string: readDir (in string: dirPath)        is action "CMD_LS";
-
-
-(**
- *  Determine the current working directory of the calling process.
- *  @return The absolute path of the current working directory.
- *  @exception MEMORY_ERROR Not enough memory to represent the
- *             result [[string]].
- *  @exception FILE_ERROR The system function returns an error.
- *)
-const func string: getcwd                                    is action "CMD_GETCWD";
-
-
-(**
- *  Changes the current working directory of the calling process.
- *  @exception MEMORY_ERROR Not enough memory to convert ''dirPath'' to
- *             the system path type.
- *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- *)
-const proc: chdir (in string: dirPath)                          is action "CMD_CHDIR";
-
-
-(**
- *  Creates a new directory.
- *  @exception MEMORY_ERROR Not enough memory to convert ''dirPath'' to
- *             the system path type.
- *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
- *             representation or it cannot be converted to the system
- *             path type.
- *  @exception FILE_ERROR A system function returns an error.
- *)
-const proc: mkdir (in string: dirPath)                          is action "CMD_MKDIR";
-
-
-(**
- *  Determine the home directory of the user.
- *  This function should be preferred over the use of an environment
- *  variable such as $HOME. $HOME is not supported under all operating
- *  systems and it is not guaranteed, that it uses the standard path
- *  representation.
- *  @return The absolute path of the home directory.
- *  @exception MEMORY_ERROR Not enough memory to represent the
- *             result [[string]].
- *  @exception FILE_ERROR Not able to determine the home directory.
- *)
-const func string: homeDir                                   is action "CMD_HOME_DIR";
 
 
 (**
@@ -499,6 +385,54 @@ const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CM
 
 
 (**
+ *  Creates a new directory.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''dirPath'' to
+ *             the system path type.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: mkdir (in string: dirPath)                          is action "CMD_MKDIR";
+
+
+(**
+ *  Determine the current working directory of the calling process.
+ *  @return The absolute path of the current working directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result [[string]].
+ *  @exception FILE_ERROR The system function returns an error.
+ *)
+const func string: getcwd                                    is action "CMD_GETCWD";
+
+
+(**
+ *  Changes the current working directory of the calling process.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''dirPath'' to
+ *             the system path type.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: chdir (in string: dirPath)                          is action "CMD_CHDIR";
+
+
+(**
+ *  Determine the home directory of the user.
+ *  This function should be preferred over the use of an environment
+ *  variable such as $HOME. $HOME is not supported under all operating
+ *  systems and it is not guaranteed, that it uses the standard path
+ *  representation.
+ *  @return The absolute path of the home directory.
+ *  @exception MEMORY_ERROR Not enough memory to represent the
+ *             result [[string]].
+ *  @exception FILE_ERROR Not able to determine the home directory.
+ *)
+const func string: homeDir                                   is action "CMD_HOME_DIR";
+
+
+(**
  *  Determine the absolute path for a given ''path''.
  *   toAbsolute(getcwd, "aFile")    -->  Returns e.g. "/home/myuser/aFile"
  *   toAbsolute(".", "aFile")       -->  Returns e.g. "/home/myuser/aFile"
@@ -609,4 +543,85 @@ const func string: toStdPath (in string: path) is func
     while stdPath <> "/" and endsWith(stdPath, "/") do
       stdPath := stdPath[.. pred(length(stdPath))];
     end while;
+  end func;
+
+
+(**
+ *  [[filesys#fileSys|FileSys]] implementation type to access operating system files.
+ *)
+const type: osFileSys is sub emptyFileSys struct
+  end struct;
+
+
+type_implements_interface(osFileSys, fileSys);
+
+
+const func fileSys: openOsFileSys is func
+  result
+    var fileSys: newFileSys is fileSys.value;
+  local
+    var osFileSys: osFiles is osFileSys.value;
+  begin
+    newFileSys := toInterface(osFiles);
+  end func;
+
+
+(**
+ *  [[filesys#fileSys|File system]] of the operating system files.
+ *)
+var fileSys: osFiles is openOsFileSys;
+
+
+const proc: close (inout osFileSys: fileSystem) is noop;
+
+const func array string: readDir (inout osFileSys: fileSystem, in string: dirPath) is
+  return readDir(dirPath);
+
+const func fileType: fileType (inout osFileSys: fileSystem, in string: filePath) is
+  return fileType(filePath);
+
+const func fileType: fileTypeSL (inout osFileSys: fileSystem, in string: filePath) is
+  return fileTypeSL(filePath);
+
+const func fileMode: fileMode (inout osFileSys: fileSystem, in string: filePath) is
+  return fileMode(filePath);
+
+const proc: setFileMode (inout osFileSys: fileSystem, in string: filePath,
+    in fileMode: mode) is func
+  begin
+    setFileMode(filePath, mode);
+  end func;
+
+const func integer: fileSize (inout osFileSys: fileSystem, in string: filePath) is
+  return fileSize(filePath);
+
+const func bigInteger: bigFileSize (inout osFileSys: fileSystem, in string: filePath) is
+  return bigFileSize(filePath);
+
+const func time: getMTime (inout osFileSys: fileSystem, in string: filePath) is
+  return getMTime(filePath);
+
+const proc: setMTime (inout osFileSys: fileSystem, in string: filePath,
+    in time: modificationTime) is func
+  begin
+    setMTime(filePath, modificationTime);
+  end func;
+
+const func file: open (inout osFileSys: fileSystem, in string: filePath, in string: mode) is
+  return open(filePath, mode);
+
+const func string: readlink (inout osFileSys: fileSystem, in string: filePath) is
+  return readlink(filePath);
+
+const proc: mkdir (inout osFileSys: fileSystem, in string: dirPath) is func
+  begin
+    mkdir(dirPath);
+  end func;
+
+const func string: getcwd (inout osFileSys: fileSystem) is
+  return getcwd;
+
+const proc: chdir (inout osFileSys: fileSystem, in string: dirPath) is func
+  begin
+    chdir(dirPath);
   end func;

@@ -48,6 +48,7 @@ int uint32LeastSignificantBit (uint32Type number);
 #ifdef INT64TYPE
 int uint64LeastSignificantBit (uint64Type number);
 #endif
+intType uintCard (uintType number);
 striType uintRadix (uintType number, intType base, boolType upperCase);
 striType uintRadixPow2 (uintType number, int shift, int mask, boolType upperCase);
 striType uintStr (uintType number);

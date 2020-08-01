@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  s7c.sd7       Seed7 compiler - Compiles Seed7 to C              *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2016  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2017  Thomas Mertes           *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -1489,7 +1489,7 @@ const proc: call_params (in ref_list: formal_params,
           c_expr.expr &:= " ";
           c_expr.expr &:= str(getValue(formal_param, type));
           c_expr.expr &:= "*/ ";
-        else
+        elsif getType(formal_param) <> voidtype then
           if first_element then
             first_element := FALSE;
           else
@@ -2049,8 +2049,12 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
     elsif exprCategory = ENUMLITERALOBJECT then
-      c_expr.expr &:= "o_";
-      create_name(current_expression, c_expr.expr);
+      if getType(current_expression) = voidtype then
+        c_expr.expr &:= "/* empty */\n";
+      else
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      end if;
     elsif exprCategory = EXPROBJECT then
       c_expr.expr &:= "o_";
       create_name(current_expression, c_expr.expr);
@@ -2157,7 +2161,7 @@ const proc: process_param_list_declaration (in ref_list: formal_params, inout ex
           c_expr.expr &:= " ";
           c_expr.expr &:= str(getValue(formal_param, type));
           c_expr.expr &:= "*/ ";
-        else
+        elsif getType(formal_param) <> voidtype then
           if first_element then
             first_element := FALSE;
           else
@@ -7480,7 +7484,7 @@ const proc: main is func
 
   begin
     OUT := STD_UTF8_OUT;
-    writeln("SEED7 COMPILER Version 3.0  Copyright (c) 1990-2016 Thomas Mertes");
+    writeln("SEED7 COMPILER Version 3.0  Copyright (c) 1990-2017 Thomas Mertes");
     if length(argv(PROGRAM)) = 0 then
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");

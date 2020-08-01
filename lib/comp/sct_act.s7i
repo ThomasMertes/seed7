@@ -52,6 +52,14 @@ const proc: process (SCT_ALLOC, in reference: function,
   end func;
 
 
+const proc: process (SCT_CONV, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_expr(params[3], c_expr);
+  end func;
+
+
 const proc: process (SCT_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

@@ -156,14 +156,15 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
        getchar(); */
-    if (expose_window != NULL && expose_window->backup != 0) {
-      XCopyArea(mydisplay, expose_window->backup,
-          expose_window->window, mygc, xPos, yPos,
-          width, height, xPos, yPos);
-      /* printf("xPos + width=%d, to_width(expose_window)=%d\n",
-             xPos + width, to_width(expose_window));
-         printf("yPos + height=%d, to_height(expose_window)=%d\n",
-             yPos + height, to_height(expose_window)); */
+    if (expose_window != NULL) {
+      if (expose_window->backup != 0 &&
+          xPos < to_width(expose_window) && yPos < to_height(expose_window)) {
+        /* printf("XCopyArea: xPos=%d, yPos=%d, width=%d, height=%d\n",
+            xPos, yPos, width, height); */
+        XCopyArea(mydisplay, expose_window->backup,
+            expose_window->window, mygc, xPos, yPos,
+            width, height, xPos, yPos);
+      } /* if */
       if (xPos + width > to_width(expose_window)) {
         XSetForeground(mydisplay, mygc,
             (unsigned long) to_clear_col(redraw_window));
@@ -305,15 +306,15 @@ static int get_highest_bit (unsigned long number)
 
 
 
-static void dra_init (void)
+static void drawInit (void)
 
   {
 #ifdef OUT_OF_ORDER
     const_cstriType class_text;
 #endif
 
-  /* dra_init */
-    logFunction(printf("dra_init()\n"););
+  /* drawInit */
+    logFunction(printf("drawInit()\n"););
     /* When linking with a profiling standard library XOpenDisplay */
     /* deadlocked. Be careful to avoid this situation.             */
     mydisplay = XOpenDisplay("");
@@ -384,8 +385,41 @@ static void dra_init (void)
 
       wm_delete_window = XInternAtom(mydisplay, "WM_DELETE_WINDOW", False);
     } /* if */
-    logFunction(printf("dra_init -->\n"););
-  } /* dra_init */
+    logFunction(printf("drawInit -->\n"););
+  } /* drawInit */
+
+
+
+static void setupBackup (x11_winType result)
+
+  {
+    Screen *x_screen;
+    XSetWindowAttributes attributes;
+    XWindowAttributes attribs;
+
+  /* setupBackup */
+    x_screen = XScreenOfDisplay(mydisplay, myscreen);
+    /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
+        x_screen->backing_store, NotUseful, WhenMapped, Always); */
+    if (x_screen->backing_store != NotUseful) {
+      attributes.backing_store = x_screen->backing_store;
+      XChangeWindowAttributes(mydisplay, result->window,
+          CWBackingStore, &attributes);
+      if (XGetWindowAttributes(mydisplay, result->window, &attribs) == 0 ||
+          attribs.backing_store != Always) {
+        /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
+        result->backup = XCreatePixmap(mydisplay, result->window,
+            result->width, result->height,
+            (unsigned int) DefaultDepth(mydisplay, myscreen));
+        /* printf("backup=%lu\n", (long unsigned) result->backup); */
+      } /* if */
+    } else {
+      result->backup = XCreatePixmap(mydisplay, result->window,
+          result->width, result->height,
+          (unsigned int) DefaultDepth(mydisplay, myscreen));
+      /* printf("backup=%lu\n", (long unsigned) result->backup); */
+    } /* if */
+  } /* setupBackup */
 
 
 
@@ -1034,7 +1068,7 @@ winType drwImage (int32Type *image_data, memSizeType width, memSizeType height)
       result = NULL;
     } else {
       if (mydisplay == NULL) {
-        dra_init();
+        drawInit();
       } /* if */
       if (unlikely(mydisplay == NULL)) {
         raise_error(FILE_ERROR);
@@ -1119,7 +1153,7 @@ winType drwNewPixmap (intType width, intType height)
       result = NULL;
     } else {
       if (mydisplay == NULL) {
-        dra_init();
+        drawInit();
       } /* if */
       if (unlikely(mydisplay == NULL)) {
         raise_error(FILE_ERROR);
@@ -1187,9 +1221,7 @@ winType drwOpen (intType xPos, intType yPos,
     char *win_name;
     XSizeHints myhint;
     XWMHints mywmhint;
-    Screen *x_screen;
     XSetWindowAttributes attributes;
-    XWindowAttributes attribs;
     errInfoType err_info = OKAY_NO_ERROR;
     x11_winType result;
 
@@ -1203,10 +1235,10 @@ winType drwOpen (intType xPos, intType yPos,
       raise_error(RANGE_ERROR);
     } else {
       if (mydisplay == NULL) {
-        dra_init();
+        drawInit();
       } /* if */
       if (unlikely(mydisplay == NULL)) {
-        logError(printf("drwOpen: dra_init() failed to open a display.\n"););
+        logError(printf("drwOpen: drawInit() failed to open a display.\n"););
         raise_error(FILE_ERROR);
       } else {
         win_name = stri_to_cstri8(window_name, &err_info);
@@ -1247,29 +1279,7 @@ winType drwOpen (intType xPos, intType yPos,
 
             XSetWMProtocols(mydisplay, result->window, &wm_delete_window, 1);
 
-            x_screen = XScreenOfDisplay(mydisplay, myscreen);
-            /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
-                x_screen->backing_store, NotUseful, WhenMapped, Always); */
-            if (x_screen->backing_store != NotUseful) {
-              attributes.backing_store = Always;
-              XChangeWindowAttributes(mydisplay, result->window,
-                  CWBackingStore, &attributes);
-
-              /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
-              XGetWindowAttributes(mydisplay, result->window, &attribs);
-              /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
-              if (attribs.backing_store != Always) {
-                result->backup = XCreatePixmap(mydisplay, result->window,
-                    (unsigned int) width, (unsigned int) height,
-                    (unsigned int) DefaultDepth(mydisplay, myscreen));
-                /* printf("backup=%lu\n", (long unsigned) result->backup); */
-              } /* if */
-            } else {
-              result->backup = XCreatePixmap(mydisplay, result->window,
-                  (unsigned int) width, (unsigned int) height,
-                  (unsigned int) DefaultDepth(mydisplay, myscreen));
-              /* printf("backup=%lu\n", (long unsigned) result->backup); */
-            } /* if */
+            setupBackup(result);
 
             /* Avoid Expose events for the whole window when */
             /* it is resized:                                */
@@ -1309,9 +1319,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
   {
     XSizeHints myhint;
     /* XWMHints mywmhint; */
-    Screen *x_screen;
     XSetWindowAttributes attributes;
-    XWindowAttributes attribs;
     x11_winType result;
 
   /* drwOpenSubWindow */
@@ -1324,7 +1332,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
       raise_error(RANGE_ERROR);
     } else {
       if (mydisplay == NULL) {
-        dra_init();
+        drawInit();
       } /* if */
       if (unlikely(mydisplay == NULL)) {
         raise_error(FILE_ERROR);
@@ -1358,29 +1366,7 @@ winType drwOpenSubWindow (const_winType parent_window, intType xPos, intType yPo
               None, /* argv, argc, */ NULL, 0, &myhint);
           /* XSetWMHints(mydisplay, result->window, &mywmhint); */
 
-          x_screen = XScreenOfDisplay(mydisplay, myscreen);
-          /* printf("backing_store=%d (NotUseful=%d/WhenMapped=%d/Always=%d)\n",
-              x_screen->backing_store, NotUseful, WhenMapped, Always); */
-          if (x_screen->backing_store != NotUseful) {
-            attributes.backing_store = Always;
-            XChangeWindowAttributes(mydisplay, result->window,
-                CWBackingStore, &attributes);
-
-            /* printf("backing_store=%d %d\n", attributes.backing_store, Always); */
-            XGetWindowAttributes(mydisplay, result->window, &attribs);
-            /* printf("backing_store=%d %d\n", attribs.backing_store, Always); */
-            if (attribs.backing_store != Always) {
-              result->backup = XCreatePixmap(mydisplay, result->window,
-                  (unsigned int) width, (unsigned int) height,
-                  (unsigned int) DefaultDepth(mydisplay, myscreen));
-              /* printf("backup=%lu\n", (long unsigned) result->backup); */
-            } /* if */
-          } else {
-            result->backup = XCreatePixmap(mydisplay, result->window,
-                (unsigned int) width, (unsigned int) height,
-                (unsigned int) DefaultDepth(mydisplay, myscreen));
-            /* printf("backup=%lu\n", (long unsigned) result->backup); */
-          } /* if */
+          setupBackup(result);
 
           /* Avoid Expose events for the whole window when */
           /* it is resized:                                */

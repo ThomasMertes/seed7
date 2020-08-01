@@ -58,7 +58,7 @@ static long_jump_position sigsegv_occurred;
 
 
 
-void continue_question (void)
+static void continue_question (objectType *exception)
 
   {
     int ch;
@@ -97,7 +97,11 @@ void continue_question (void)
       if (buffer[1] >= '0' && buffer[1] <= '9') {
         exception_num = strtoul(&buffer[1], NULL, 10);
         if (exception_num > OKAY_NO_ERROR && exception_num <= ACTION_ERROR) {
-          raise_error((int) exception_num);
+          if (exception != NULL) {
+            *exception = prog->sys_var[exception_num];
+          } else {
+            raise_error((int) exception_num);
+          } /* if */
         } /* if */
       } else {
         mapTraceFlags2(&buffer[1], &prog->option_flags);
@@ -287,7 +291,7 @@ objectType raise_with_arguments (objectType exception, listType list)
       printobject(exception);
       prot_cstri(" raised");
       write_curr_position(list);
-      continue_question();
+      continue_question(&exception);
     } /* if */
 #endif
 #ifndef USE_CHUNK_ALLOCS
@@ -335,7 +339,7 @@ void show_signal (void)
   { /* show_signal */
     interrupt_flag = FALSE;
     printf("\n*** Program stopped with signal %s\n", signal_name(signal_number));
-    continue_question();
+    continue_question(NULL);
   } /* show_signal */
 
 
@@ -343,27 +347,27 @@ void show_signal (void)
 void run_error (objectCategory required, objectType argument)
 
   { /* run_error */
-    if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listValue->obj;
-    } /* if */
-    printf("\n*** ACTION $");
-    if (curr_action_object->value.actValue != NULL) {
-      printf("%s", getActEntry(curr_action_object->value.actValue)->name);
-    } else {
-      printf("NULL");
-    } /* if */
-    prot_cstri(" ");
-    write_position_info(curr_action_object, FALSE);
-    printf(" requires ");
-    printcategory(required);
-    printf(" not ");
-    printcategory(CATEGORY_OF_OBJ(argument));
-    printf("\n");
-    trace1(argument);
-    printf("\n");
-    prot_list(curr_argument_list);
-    continue_question();
     if (!fail_flag) {
+      if (curr_exec_object != NULL) {
+        curr_action_object = curr_exec_object->value.listValue->obj;
+      } /* if */
+      printf("\n*** ACTION $");
+      if (curr_action_object->value.actValue != NULL) {
+        printf("%s", getActEntry(curr_action_object->value.actValue)->name);
+      } else {
+        printf("NULL");
+      } /* if */
+      prot_cstri(" ");
+      write_position_info(curr_action_object, FALSE);
+      printf(" requires ");
+      printcategory(required);
+      printf(" not ");
+      printcategory(CATEGORY_OF_OBJ(argument));
+      printf("\n");
+      trace1(argument);
+      printf("\n");
+      prot_list(curr_argument_list);
+      continue_question(NULL);
       raise_error(RANGE_ERROR);
     } /* if */
   } /* run_error */
@@ -373,21 +377,21 @@ void run_error (objectCategory required, objectType argument)
 void empty_value (objectType argument)
 
   { /* empty_value */
-    if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listValue->obj;
-    } /* if */
-    printf("\n*** ACTION $");
-    if (curr_action_object->value.actValue != NULL) {
-      printf("%s", getActEntry(curr_action_object->value.actValue)->name);
-    } else {
-      printf("NULL");
-    } /* if */
-    printf(" WITH EMPTY VALUE\n");
-    trace1(argument);
-    printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
-    prot_list(curr_argument_list);
-    continue_question();
     if (!fail_flag) {
+      if (curr_exec_object != NULL) {
+        curr_action_object = curr_exec_object->value.listValue->obj;
+      } /* if */
+      printf("\n*** ACTION $");
+      if (curr_action_object->value.actValue != NULL) {
+        printf("%s", getActEntry(curr_action_object->value.actValue)->name);
+      } else {
+        printf("NULL");
+      } /* if */
+      printf(" WITH EMPTY VALUE\n");
+      trace1(argument);
+      printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
+      prot_list(curr_argument_list);
+      continue_question(NULL);
       raise_error(RANGE_ERROR);
     } /* if */
   } /* empty_value */
@@ -397,23 +401,23 @@ void empty_value (objectType argument)
 void var_required (objectType argument)
 
   { /* var_required */
-    if (curr_exec_object != NULL) {
-      curr_action_object = curr_exec_object->value.listValue->obj;
-    } /* if */
-    printf("\n*** ACTION $");
-    if (curr_action_object->value.actValue != NULL) {
-      printf("%s", getActEntry(curr_action_object->value.actValue)->name);
-    } else {
-      printf("NULL");
-    } /* if */
-    printf(" REQUIRES VARIABLE ");
-    printcategory(CATEGORY_OF_OBJ(argument));
-    printf(" NOT CONSTANT\n");
-    trace1(argument);
-    printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
-    prot_list(curr_argument_list);
-    continue_question();
     if (!fail_flag) {
+      if (curr_exec_object != NULL) {
+        curr_action_object = curr_exec_object->value.listValue->obj;
+      } /* if */
+      printf("\n*** ACTION $");
+      if (curr_action_object->value.actValue != NULL) {
+        printf("%s", getActEntry(curr_action_object->value.actValue)->name);
+      } else {
+        printf("NULL");
+      } /* if */
+      printf(" REQUIRES VARIABLE ");
+      printcategory(CATEGORY_OF_OBJ(argument));
+      printf(" NOT CONSTANT\n");
+      trace1(argument);
+      printf("\nobject_ptr=" FMT_X_MEM "\n", (memSizeType) argument);
+      prot_list(curr_argument_list);
+      continue_question(NULL);
       raise_error(RANGE_ERROR);
     } /* if */
   } /* var_required */

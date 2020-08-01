@@ -170,6 +170,7 @@ static const actEntryRecord actEntryTable[] = {
     { "BIN_AND_ASSIGN",          bin_and_assign,          },
     { "BIN_BIG",                 bin_big,                 },
     { "BIN_BINARY",              bin_binary,              },
+    { "BIN_CARD",                bin_card,                },
     { "BIN_CMP",                 bin_cmp,                 },
     { "BIN_GET_BINARY_FROM_SET", bin_getBinaryFromSet     },
     { "BIN_LSHIFT",              bin_lshift,              },
@@ -824,6 +825,7 @@ static const actEntryRecord actEntryTable[] = {
     { "SET_SCONV",               set_sconv,               },
     { "SET_SYMDIFF",             set_symdiff,             },
     { "SET_UNION",               set_union,               },
+    { "SET_UNION_ASSIGN",        set_union_assign,        },
     { "SET_VALUE",               set_value,               },
 
     { "SOC_ACCEPT",              soc_accept,              },
@@ -912,6 +914,7 @@ static const actEntryRecord actEntryTable[] = {
     { "STR_DESTR",               str_destr,               },
     { "STR_ELEMCPY",             str_elemcpy,             },
     { "STR_EQ",                  str_eq,                  },
+    { "STR_FOR",                 str_for,                 },
     { "STR_GE",                  str_ge,                  },
     { "STR_GT",                  str_gt,                  },
     { "STR_HASHCODE",            str_hashcode,            },

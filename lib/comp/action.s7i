@@ -283,6 +283,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIN_BIG, function, params, c_expr);
       elsif action_name = "BIN_BINARY" then
         process(BIN_BINARY, function, params, c_expr);
+      elsif action_name = "BIN_CARD" then
+        process(BIN_CARD, function, params, c_expr);
       elsif action_name = "BIN_CMP" then
         process(BIN_CMP, function, params, c_expr);
       elsif action_name = "BIN_GET_BINARY_FROM_SET" then
@@ -1353,6 +1355,8 @@ const proc: process_action (in reference: function, in ref_list: params,
     elsif action_prefix = "SCT" then
       if action_name = "SCT_ALLOC" then
         process(SCT_ALLOC, function, params, c_expr);
+      elsif action_name = "SCT_CONV" then
+        process(SCT_CONV, function, params, c_expr);
       elsif action_name = "SCT_CPY" then
         process(SCT_CPY, function, params, c_expr);
       elsif action_name = "SCT_SELECT" then
@@ -1417,6 +1421,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SET_SYMDIFF, function, params, c_expr);
       elsif action_name = "SET_UNION" then
         process(SET_UNION, function, params, c_expr);
+      elsif action_name = "SET_UNION_ASSIGN" then
+        process(SET_UNION_ASSIGN, function, params, c_expr);
       elsif action_name = "SET_VALUE" then
         process(SET_VALUE, function, params, c_expr);
       else
@@ -1569,6 +1575,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(STR_ELEMCPY, function, params, c_expr);
       elsif action_name = "STR_EQ" then
         process(STR_EQ, function, params, c_expr);
+      elsif action_name = "STR_FOR" then
+        process(STR_FOR, function, params, c_expr);
       elsif action_name = "STR_GE" then
         process(STR_GE, function, params, c_expr);
       elsif action_name = "STR_GT" then

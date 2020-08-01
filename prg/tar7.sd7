@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-  include "tar.s7i";
+  include "tar_cmds.s7i";
 
 
 const proc: main is func
