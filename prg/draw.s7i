@@ -291,22 +291,19 @@ const proc: fellipse (in integer: x, in integer: y,
 
 const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
   begin
-    SET_COLOR(colorPixel(col));
-    DRAW_CLEAR(win);
+    DRAW_CLEAR(win, colorPixel(col));
   end func;
 
 
 const proc: clear (inout PRIMITIVE_WINDOW: win) is func
   begin
-    SET_COLOR(colorPixel(black));
-    DRAW_CLEAR(win);
+    DRAW_CLEAR(win, colorPixel(black));
   end func;
 
 
 const proc: clear is func
   begin
-    SET_COLOR(colorPixel(black));
-    DRAW_CLEAR(curr_win);
+    DRAW_CLEAR(curr_win, colorPixel(black));
   end func;
 
 

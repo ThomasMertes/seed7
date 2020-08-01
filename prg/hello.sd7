@@ -28,5 +28,3 @@ const proc: main is func
   begin
     writeln("hello world");
   end func;
-
-$ system "main" is main;

@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-include "float.s7i";
+  include "float.s7i";
 
 const proc: main is func
   local
@@ -38,5 +38,3 @@ const proc: main is func
       writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
     end for;
   end func;
-
-$ system "main" is main;

@@ -78,7 +78,8 @@ const proc: DRAW_PRECT (inout PRIMITIVE_WINDOW param,
 const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param) is                              action "DRW_CIRCLE";
-const proc: DRAW_CLEAR(inout PRIMITIVE_WINDOW param) is  action "DRW_CLEAR";
+const proc: DRAW_CLEAR(inout PRIMITIVE_WINDOW param,
+    ref pixel param) is                                action "DRW_CLEAR";
 const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param,
     ref integer param) is                              action "DRW_FCIRCLE";

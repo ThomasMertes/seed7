@@ -2847,6 +2847,9 @@ const proc: enable_output (in type: aType) is func
     const func string: (in string: stri) <& (in aType: aValue) is
       return stri & str(aValue);
 
+    const func string: (in aType: aValue) <& (in string: stri) is
+      return str(aValue) & stri;
+
   end func;
 
 const proc: enable_io (in type: aType) is func
@@ -2923,3 +2926,7 @@ const proc: include (in string param) is                 action "PRC_INCLUDE";
 (*
 const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";
 *)
+
+const proc: main is forward;
+
+$ system "main" is main;

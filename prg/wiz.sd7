@@ -3512,5 +3512,3 @@ const proc: main is func
       end if;
     until ch = 'N';
   end func; (* main *)
-
-$ system "main" is main;

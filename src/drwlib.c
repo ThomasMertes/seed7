@@ -385,7 +385,8 @@ listtype arguments;
 
   { /* drw_clear */
     isit_win(arg_1(arguments));
-    drwClear(take_win(arg_1(arguments)));
+    isit_int(arg_2(arguments));
+    drwClear(take_win(arg_1(arguments)), take_int(arg_2(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* drw_clear */
 

@@ -23,11 +23,11 @@
 
 
 $ include "seed7_05.s7i";
-include "time.s7i";
-include "float.s7i";
-include "keybd.s7i";
-include "graph.s7i";
-include "draw.s7i";
+  include "time.s7i";
+  include "float.s7i";
+  include "keybd.s7i";
+  include "graph.s7i";
+  include "draw.s7i";
 
 
 const integer: NUM_LEVELS is 6;
@@ -2671,16 +2671,22 @@ const proc: main is func
     clear(curr_win, black);
     KEYBOARD := GRAPH_KEYBOARD;
     scr := open(curr_win);
-    setPos(scr, 6, 44);
+    setPos(scr, 2, 44);
     writeln(scr, "P A N I C");
-    setPos(scr, 8, 29);
+    setPos(scr, 5, 29);
     writeln(scr, "Copyright (C) 2004, 2005  Thomas Mertes");
-    setPos(scr, 10, 29);
+    setPos(scr, 7, 29);
     writeln(scr, "This program is free software under the");
-    setPos(scr, 11, 29);
+    setPos(scr, 8, 29);
     writeln(scr, "terms of the GNU General Public License");
+    setPos(scr, 10, 24);
+    writeln(scr, "Panic is written in the Seed7 programming language");
+    setPos(scr, 11, 26);
+    writeln(scr, "Homepage:    http://seed7.sourceforge.net");
+    setPos(scr, 12, 26);
+    writeln(scr, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
     setPos(scr, 16, 14);
-    writeln(scr, "Keys used:");
+    writeln(scr, "Dig holes and pount the apples through the holes");
     setPos(scr, 18, 14);
     writeln(scr, "cursor keys: Move your man");
     setPos(scr, 19, 14);
@@ -2715,5 +2721,3 @@ const proc: main is func
       until game.quit;
     end if;
   end func;
-
-$ system "main" is main;

@@ -23,11 +23,11 @@
 
 	
 $ include "seed7_05.s7i";
-include "float.s7i";
-include "graph.s7i";
-include "draw.s7i";
-include "keybd.s7i";
-include "time.s7i";
+  include "float.s7i";
+  include "graph.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "time.s7i";
 
 
 var text: screen is STD_NULL;
@@ -3125,11 +3125,8 @@ const proc: selectSize is func
           line := (line - UPPER_BORDER) div FIELD_STEP + 1;
           column := (column - LEFT_BORDER) div FIELD_STEP + 1;
           if line = 1 and column >= 1 and column <= length(size_descr) then
-            for index range 1 to length(size_descr) do
-              rect(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(index),
-                  UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(1), CARD_SIZE, CARD_SIZE, white);
-            end for;
-            (* draw(OPPONENT_XPOS + 128 + 8, COMPUTER_HIT_YPOS + 64 + 8, size_descr[column]); *)
+            clear(curr_win, white);
+            put(OPPONENT_XPOS, 12, opponent, PSET);
             dealCards(size_list[column][1], size_list[column][2]);
             selected := TRUE;
           end if;
@@ -3141,6 +3138,7 @@ const proc: selectSize is func
 
 const proc: main is func
   local
+    var text: scr is STD_NULL;
     var boolean: done is FALSE;
     var char: command is ' ';
     var integer: line is 0;
@@ -3150,6 +3148,20 @@ const proc: main is func
     screen(1024, 768);
     clear(curr_win, white);
     screen := open(curr_win, 16);
+    scr := open(curr_win);
+    color(scr, black, white);
+    setPos(scr, 2, 44);
+    writeln(scr, "M E M O R Y");
+    setPos(scr, 4, 44);
+    writeln(scr, "Copyright (C) 2005  Thomas Mertes");
+    setPos(scr, 6, 44);
+    writeln(scr, "This program is free software under the terms of the GNU General Public License.");
+    setPos(scr, 8, 44);
+    writeln(scr, "Memory is written in the Seed7 programming language");
+    setPos(scr, 9, 46);
+    writeln(scr, "Homepage:    http://seed7.sourceforge.net");
+    setPos(scr, 10, 46);
+    writeln(scr, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
     KEYBOARD := GRAPH_KEYBOARD;
     digit_pixmap := [0](
       create_pixmap(zero,  2),
@@ -3188,5 +3200,3 @@ const proc: main is func
       command := getc(KEYBOARD);
     end if;
   end func;
-
-$ system "main" is main;

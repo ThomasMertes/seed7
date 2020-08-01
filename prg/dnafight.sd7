@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  dna.sd7       Bacterial fight                                   *)
+(*  dnafight.sd7  Bacterial dna fight programming game              *)
 (*  Copyright (C) 1985, 1986, 2005  Thomas Mertes                   *)
 (*  Copyright (C) 1985, 1986,       Markus Stumptner                *)
 (*  Copyright (C) 1985, 1986, 1991  Johannes Gritsch                *)
@@ -24,28 +24,28 @@
 (********************************************************************)
 
 
-$include "seed7_05.s7i";
-include "window.s7i";
-include "keybd.s7i";
-include "float.s7i";
-include "graph.s7i";
-include "draw.s7i";
-include "field.s7i";
-include "dna_base.s7i";
+$ include "seed7_05.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+  include "float.s7i";
+  include "graph.s7i";
+  include "draw.s7i";
+  include "field.s7i";
+  include "dna_base.s7i";
 
-include "white.dna";
-include "violet.dna";
-include "indigo.dna";
-include "blue.dna";
-include "green.dna";
-include "orange.dna";
-include "red.dna";
-include "tan.dna";
+  include "white.dna";
+  include "violet.dna";
+  include "indigo.dna";
+  include "blue.dna";
+  include "green.dna";
+  include "orange.dna";
+  include "red.dna";
+  include "tan.dna";
 
 
 const string:   Version     is   "5.3";
 
-var text: SCR is STD_NULL;
+var text: scr is STD_NULL;
 var text: field is STD_NULL;
 var text: INFO is STD_NULL;
 var text: STAT is STD_NULL;
@@ -174,8 +174,8 @@ const func char: lower_char (in COLOUR: aColour) is
     'l', 'p'
   )[succ(ord(aColour))];
 
-const color: StdTextCol   is white;     (* Colour of Text *)
-const color: StdBackGrCol is dark_blue; (* Colour of BackGround *)
+const color: stdTextCol   is white;     (* Colour of Text *)
+const color: stdBackGrCol is dark_blue; (* Colour of BackGround *)
 const char: emptyarea     is '.';       (* indicating Clear area with food *)
 
 var array file: fieldWin is 3 times STD_NULL;
@@ -290,11 +290,11 @@ const proc: initScreen is func
     const string: DOT_LINE is " ." mult YMAX & " ";
 
   begin (* initScreen *)
-    field := open_window(SCR, 3, 2, XMAX, 2 * YMAX + 1);
-    INFO := open_window(SCR, 2, 48, 34, 58);
+    field := open_window(scr, 3, 2, XMAX, 2 * YMAX + 1);
+    INFO := open_window(scr, 2, 48, 34, 58);
     STAT := INFO;
     FSTAT := INFO;
-    color(SCR, white, dark_blue);
+    color(scr, white, dark_blue);
     box(field);
     box(INFO);
     writeInfo(1, 1);
@@ -302,13 +302,49 @@ const proc: initScreen is func
       writeln(field, DOT_LINE);
     end for;
     write(field, DOT_LINE);
-    setPos(SCR, 25, 1);
-    color(SCR, black, dark_cyan);
-    write(SCR, " F1 ");
-    color(SCR, white, black);
-    write(SCR, " brings bacteria to life ");
-    setPos(SCR, 1, 1);
-    color(SCR, StdTextCol, StdBackGrCol)
+    setPos(scr, 25, 1);
+    color(scr, black, dark_cyan);
+    write(scr, " F1 ");
+    color(scr, white, black);
+    write(scr, " brings bacteria to life ");
+
+    setPos(scr, 27, 2);
+    color(scr, white, stdBackGrCol);
+    write(scr, " W White   ");
+    color(scr, dark_magenta, stdBackGrCol);
+    write(scr, " V Violet  ");
+    color(scr, white, stdBackGrCol);
+    write(scr, " I Indigo  ");
+    color(scr, light_blue, stdBackGrCol);
+    write(scr, " B Blue   ");
+    setPos(scr, 28, 2);
+    color(scr, dark_cyan, stdBackGrCol);
+    write(scr, " C Cyan    ");
+    color(scr, light_green, stdBackGrCol);
+    write(scr, " G Green   ");
+    color(scr, yellow, stdBackGrCol);
+    write(scr, " Y Yellow  ");
+    color(scr, amber, stdBackGrCol);
+    write(scr, " Y Amber  ");
+    setPos(scr, 29, 2);
+    color(scr, orange, stdBackGrCol);
+    write(scr, " O Orange  ");
+    color(scr, light_red, stdBackGrCol);
+    write(scr, " R Red     ");
+    color(scr, dark_red, stdBackGrCol);
+    write(scr, " S Scarlet ");
+    color(scr, brown, stdBackGrCol);
+    write(scr, " T Tan    ");
+    setPos(scr, 30, 2);
+    color(scr, light_magenta, stdBackGrCol);
+    write(scr, " L Lilac   ");
+    color(scr, pink, stdBackGrCol);
+    write(scr, " P Pink    ");
+    write(scr, "           ");
+    write(scr, "          ");
+
+    setPos(scr, 1, 1);
+    color(scr, stdTextCol, stdBackGrCol)
   end func; (* initScreen *)
 
 
@@ -483,8 +519,8 @@ const proc: initDisplay is func
     fieldWin[2] := open_field(KEYBOARD, INFO, 2,  7, 5, "   10");
     fieldWin[3] := open_field(KEYBOARD, INFO, 3, 11, 3, " 10");
 (*
-    color(SCR, StdTextCol, StdBackGrCol);
-    clear(SCR);
+    color(scr, stdTextCol, stdBackGrCol);
+    clear(scr);
 *)
   end func; (* initDisplay *)
 
@@ -1127,12 +1163,12 @@ const proc: execute (ref microbe: individuum) is func
       when {RED}:     dna(RED);
       when {TAN}:     dna(TAN);
 (*
-      when {CYAN}:    Cyandna;
-      when {YELLOW}:  Yellowdna;
-      when {AMBER}:   Amberdna;
-      when {SCARLET}: Scarletdna;
-      when {LILIAC}:  Lilacdna;
-      when {PINK}:    Pinkdna;
+      when {CYAN}:    dna(CYAN);
+      when {YELLOW}:  dna(YELLOW);
+      when {AMBER}:   dna(AMBER);
+      when {SCARLET}: dna(SCARLET);
+      when {LILIAC}:  dna(LILIAC);
+      when {PINK}:    dna(PINK);
 *)
     end case;
     flush(field);
@@ -1166,37 +1202,66 @@ const proc: generation is func
 const proc: main is func
   begin (* main *)
 (*
-    SCR := open(SCREEN);
+    scr := open(SCREEN);
 *)
     screen(640, 480);
     clear(curr_win, white);
-    color(white, black);
+    color(black, white);
     KEYBOARD := GRAPH_KEYBOARD;
-    SCR := open(curr_win);
+    scr := open(curr_win);
+    color(scr, black, white);
+    setPos(scr, 4, 47);
+    writeln(scr, "D N A F I G H T");
+    setPos(scr, 6, 31);
+    writeln(scr, "Copyright (C) 1985, 1986, 2005  Thomas Mertes");
+    setPos(scr, 7, 31);
+    writeln(scr, "Copyright (C) 1985, 1986,       Markus Stumptner");
+    setPos(scr, 8, 31);
+    writeln(scr, "Copyright (C) 1985, 1986, 1991  Johannes Gritsch");
+    setPos(scr, 10, 35);
+    writeln(scr, "This program is free software under the");
+    setPos(scr, 11, 35);
+    writeln(scr, "terms of the GNU General Public License");
+    setPos(scr, 13, 30);
+    writeln(scr, "Dnafight is written in the Seed7 programming language");
+    setPos(scr, 14, 32);
+    writeln(scr, "Homepage:    http://seed7.sourceforge.net");
+    setPos(scr, 15, 32);
+    writeln(scr, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
+    setPos(scr, 19, 1);
+    writeln(scr, " DNAFIGHT is a programming game in which bacterials fight \
+         \aggainst each other. Each bacterium is");
+    writeln(scr, " controlled by a DNA program written in Seed7. The different \
+         \types of bacteria are named with colors");
+    writeln(scr, " and have corresponding DNA programs for each color. There \
+         \are two ways to play this game:");
+    writeln(scr);
+    writeln(scr, "  1. Place some bacterials on the plate and let them fight \
+         \aggainst each other.");
+    writeln(scr, "  2. Write an DNA for a new bacterium and measure your \
+         \programming skills.");
+    if upper(getc(KEYBOARD)) <> 'Q' then
+      clear(curr_win, white);
+      setPos(scr, 1, 1);
+      write(scr, "DNAFIGHT V");
+      writeln(scr, Version);
+      repeat
+        initScreen;
+        initDisplay;
+        initArea;
+        initStatistics;
+        genNr := 0;
 
-    write(SCR, "DNA V");
-    writeln(SCR, Version);
+        while length(animates) <> 0 and busy_getc(KEYBOARD) = KEY_NONE do
+          generation;
+          incr(genNr);
+          if genNr mod STATTIME = 0 then
+            statistics(genNr);
+          end if;
+          (* readln(KEYBOARD); *)
+        end while;
 
-    repeat
-      initScreen;
-      initDisplay;
-      initArea;
-      initStatistics;
-      genNr := 0;
-
-      while length(animates) <> 0 and busy_getc(KEYBOARD) = KEY_NONE do
-        generation;
-        incr(genNr);
-        if genNr mod STATTIME = 0 then
-          statistics(genNr);
-        end if;
-        (* readln(KEYBOARD); *)
-      end while;
-
-      finalStatistics;
-
-    until not continue(GAME);
-
+        finalStatistics;
+      until not continue(GAME);
+    end if;
   end func; (* main *)
-
-$ system "main" is main;

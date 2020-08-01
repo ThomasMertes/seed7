@@ -55,5 +55,3 @@ const proc: main is func
     writeln;
     hanoi(4);
   end func;
-
-$ system "main" is main;

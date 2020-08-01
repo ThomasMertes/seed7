@@ -23,9 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-(* include "time.s7i"; *)
-include "keybd.s7i";
-include "screen.s7i";
+  include "keybd.s7i";
 
 var integer: position is 0;
 
@@ -56,7 +54,6 @@ const proc: main is func
   local
     var integer: number is 0;
   begin
-(*    SCR_OPEN; *)
     write("       2       3       5       7");
     position := 4;
     number := 11;
@@ -70,9 +67,6 @@ const proc: main is func
         end if;
       end if;
       incr(number);
-(*    until FALSE; *)
-    until busy_getc(KEYBOARD) <> KEY_NONE;
+    until keypressed(KEYBOARD);
     writeln;
   end func;
-
-$ system "main" is main;

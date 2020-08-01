@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-include "float.s7i";
+  include "float.s7i";
 
 
 const func integer: test_func (in integer: number) is func
@@ -338,5 +338,3 @@ const proc: main is func
       catch RANGE_ERROR:   writeln("1 div 0 in repeat raises RANGE_ERROR");
     end block;
   end func;
-
-$ system "main" is main;

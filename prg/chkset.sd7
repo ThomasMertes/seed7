@@ -890,5 +890,3 @@ const proc: main is func
     check_min;
     check_max;
   end func;
-
-$ system "main" is main;

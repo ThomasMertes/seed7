@@ -69,8 +69,8 @@ KeySym mykey;
 XSizeHints myhint;
 XWMHints mywmhint;
 int myscreen;
-static inttype button_y = 0;
 static inttype button_x = 0;
+static inttype button_y = 0;
 
 
 typedef struct x11_winstruct {
@@ -220,8 +220,8 @@ chartype gkbGetc ()
         printf("ButtonPress (%d, %d, %u)\n",
             myevent.xbutton.x, myevent.xbutton.y, myevent.xbutton.button);
 #endif
-        button_y = myevent.xbutton.y;
         button_x = myevent.xbutton.x;
+        button_y = myevent.xbutton.y;
         if (myevent.xbutton.button >= 1 && myevent.xbutton.button <= 5) {
           result = myevent.xbutton.button + K_MOUSE1 - 1;
         } else {
@@ -850,17 +850,19 @@ inttype x, y, radius;
 
 #ifdef ANSI_C
 
-void drwClear (wintype actual_window)
+void drwClear (wintype actual_window, inttype col)
 #else
 
-void drwClear (actual_window)
+void drwClear (actual_window, col)
 wintype actual_window;
+inttype col;
 #endif
 
   { /* drwClear */
 #ifdef TRACE_X11
     printf("clear(%lu)\n", actual_window);
 #endif
+    XSetForeground(mydisplay, mygc, (unsigned) col);
     XFillRectangle(mydisplay, to_window(actual_window), mygc, 0, 0,
         to_width(actual_window), to_height(actual_window));
     if (to_backup(actual_window) != 0) {

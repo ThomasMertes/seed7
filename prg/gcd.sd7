@@ -57,5 +57,3 @@ const proc: main is func
       end if;
     end for;
   end func;
-
-$ system "main" is main;

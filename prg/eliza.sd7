@@ -292,5 +292,3 @@ const proc: main is func
       last_input := user_input;
     until FALSE;
   end func;
-
-$ system "main" is main;

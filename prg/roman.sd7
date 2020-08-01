@@ -61,5 +61,3 @@ const proc: main is func
       writeln;
     end for;
   end func;
-
-$ system "main" is main;

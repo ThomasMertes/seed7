@@ -22,10 +22,9 @@
 (********************************************************************)
 
 
-$ info off;
 $ include "seed7_05.s7i";
-include "time.s7i";
-include "keybd.s7i";
+  include "time.s7i";
+  include "keybd.s7i";
 
 const proc: main is func
   local
@@ -36,12 +35,9 @@ const proc: main is func
     while not keypressed(KEYBOARD) do
       next_time +:= 1 . SECONDS;
       await(next_time);
-      write(next_time);
-      write(" \r");
+      write(next_time <& " \r");
       flush(OUT);
     end while;
     writeln;
     writeln;
   end func;
-
-$ system "main" is main;

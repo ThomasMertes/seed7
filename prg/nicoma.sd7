@@ -159,5 +159,3 @@ const proc: main is func
       answer := upper(answer);
     until answer <> "Y";
   end func;
-
-$ system "main" is main;

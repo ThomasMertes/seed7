@@ -1283,5 +1283,3 @@ const proc: main is func
     check_case_int();
     check_case_char();
   end func;
-
-$ system "main" is main;

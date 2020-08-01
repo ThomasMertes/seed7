@@ -208,5 +208,3 @@ const proc: main is func
     until quit;
     writeln("Goodbye");
   end func;
-
-$ system "main" is main;

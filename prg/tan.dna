@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  dna.sd7       Bacterial fight                                   *)
+(*  dnafight.sd7  Bacterial dna fight programming game              *)
 (*  Copyright (C) 1985  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
@@ -35,7 +35,7 @@ const proc: dna (TAN) is func
     var directSet: maxEdFDir is directSet.EMPTY_SET;
     var direction: dir is HERE;
 
-  begin
+  begin (* dna (TAN) *)
     maxFood := food(HERE);
     maxFDir := {HERE};
     maxEdFoe := 0;

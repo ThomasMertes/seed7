@@ -142,5 +142,3 @@ const proc: main is func
       end for;
     end if;
   end func;
-
-$ system "main" is main;

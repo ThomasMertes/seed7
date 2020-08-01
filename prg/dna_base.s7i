@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  dna_base.s7i  Bacterial fight dna interface                     *)
+(*  dna_base.s7i  Bacterial dna fight programming game interface    *)
 (*  Copyright (C) 1985, 1986, 2005  Thomas Mertes                   *)
 (*  Copyright (C) 1985, 1986,       Markus Stumptner                *)
 (*  Copyright (C) 1985, 1986, 1991  Johannes Gritsch                *)

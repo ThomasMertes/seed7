@@ -373,7 +373,11 @@ errinfotype *err_info;
       if (*err_info == NO_ERROR) {
         set_trace(option.comp_trace_level, -1, option.prot_file_name);
         decl_any(prog.declaration_root);
-        if (SYS_MAIN_OBJECT != NULL) {
+        if (SYS_MAIN_OBJECT == NULL) {
+          printf("*** System declaration for main missing\n");
+        } else if (CLASS_OF_OBJ(SYS_MAIN_OBJECT) == FORWARDOBJECT) {
+          printf("*** Declaration for main missing\n");
+        } else {
 /*          printf("main defined as: ");
           trace1(SYS_MAIN_OBJECT);
           printf("\n"); */
@@ -397,8 +401,6 @@ errinfotype *err_info;
           } else {
             printf("SYS_MAIN_OBJECT->entity == NULL\n");
           } /* if */
-        } else {
-          printf("*** System declaration for main missing\n");
         } /* if */
         /* close_stack(&prog); * can be used when no matching is done during the runtime */
         /* close_declaration_root(&prog); * can be used when no matching is done during the runtime */

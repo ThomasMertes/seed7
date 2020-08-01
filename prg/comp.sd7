@@ -25,8 +25,8 @@
 $ info off;
 $ message "Compiling the compiler ...";
 $ include "seed7_05.s7i";
-include "float.s7i";
-include "progs.s7i";
+  include "float.s7i";
+  include "progs.s7i";
 
 var program: prog is program.EMPTY;
 var file: c_prog is STD_NULL;
@@ -7531,5 +7531,3 @@ const proc: main is func
     pass_2(source, prog, okay);
     pass_3(source, prog, okay);
   end func;
-
-$ system "main" is main;

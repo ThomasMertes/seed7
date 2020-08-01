@@ -23,9 +23,9 @@
 
 
 $ include "seed7_05.s7i";
-include "screen.s7i";
-include "window.s7i";
-include "keybd.s7i";
+  include "screen.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
 
 
 var text: scr is STD_NULL;
@@ -634,5 +634,3 @@ const proc: main is func
     end while;
     setPos(scr, 24, 1);
   end func;
-
-$ system "main" is main;

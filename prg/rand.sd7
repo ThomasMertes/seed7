@@ -23,8 +23,8 @@
 
 
 $ include "seed7_05.s7i";
-include "float.s7i";
-include "keybd.s7i";
+  include "float.s7i";
+  include "keybd.s7i";
 
 const proc: rand_test_1 is func
   local
@@ -132,5 +132,3 @@ const proc: main is func
     rand_test_3;
     writeln;
   end func;
-
-$ system "main" is main;

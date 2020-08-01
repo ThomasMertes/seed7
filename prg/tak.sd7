@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-include "time.s7i";
+  include "time.s7i";
 
 var time: before is time.value;
 var time: after is time.value;
@@ -61,5 +61,3 @@ const proc: main is func
     write(" ");
     writeln(diff.mycro_second lpad 6);
   end func;
-
-$ system "main" is main;

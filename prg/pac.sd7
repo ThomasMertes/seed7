@@ -23,11 +23,11 @@
 
 
 $ include "seed7_05.s7i";
-include "screen.s7i";
-include "window.s7i";
-include "keybd.s7i";
-include "float.s7i";
-include "time.s7i";
+  include "screen.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+  include "float.s7i";
+  include "time.s7i";
 
 
 var text: scr is STD_NULL;
@@ -725,5 +725,3 @@ const proc: main is func
       end if;
     end while;
   end func; (* main *)
-
-$ system "main" is main;

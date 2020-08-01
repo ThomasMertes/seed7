@@ -23,20 +23,20 @@
 
 
 $ include "seed7_05.s7i";
-include "time.s7i";
-include "screen.s7i";
-include "window.s7i";
-include "keybd.s7i";
+  include "time.s7i";
+  include "screen.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
 
-const char: BLANK   is ' ';
-const char: BODY is '*';
+const char: BLANK is ' ';
+const char: BODY  is '*';
 
 const type: direction_type is new enum
     STAY, UP, DOWN, LEFT, RIGHT
   end enum;
 
-var integer: MAX_LINE is 0;
-var integer: MAX_COLUMN is 0;
+var integer: max_line is 0;
+var integer: max_column is 0;
 
 const type: char_line is array char;
 const type: pos_type is array integer;
@@ -94,8 +94,8 @@ const proc: set_position (inout screen_object: scr_object) is func
     var char: ch is ' ';
   begin
     repeat
-      lin := rand(1, MAX_LINE - 2);
-      col := rand(1, MAX_COLUMN - 2);
+      lin := rand(1, max_line - 2);
+      col := rand(1, max_column - 2);
       ch := FIELD[lin][col];
     until ch = BLANK;
     setPos(win, lin, col);
@@ -109,7 +109,7 @@ const proc: set_position (inout screen_object: scr_object) is func
 const proc: show_status is func
 
   begin
-    setPos(status, 1, MAX_COLUMN div 2 - 3);
+    setPos(status, 1, max_column div 2 - 3);
     status << " ";
     status << SNAKE.length;
     status << " ";
@@ -178,7 +178,7 @@ const proc: move (SNAKE, UP) is func
 const proc: move (SNAKE, DOWN) is func
 
   begin
-    if SNAKE.line < MAX_LINE then
+    if SNAKE.line < max_line then
       incr(SNAKE.line);
     else
       SNAKE.fence_movement := TRUE;
@@ -200,7 +200,7 @@ const proc: move (SNAKE, LEFT) is func
 const proc: move (SNAKE, RIGHT) is func
 
   begin
-    if SNAKE.column < MAX_COLUMN then
+    if SNAKE.column < max_column then
       incr(SNAKE.column);
     else
       SNAKE.fence_movement := TRUE;
@@ -586,8 +586,8 @@ const proc: main is func
     win := open_window(scr, 2, 2, 21, 78);
     status := open_window(scr, 23, 2, 1, 78);
 
-    MAX_LINE := 21; (* height(win); *)
-    MAX_COLUMN := 78; (* width(win); *)
+    max_line := 21; (* height(win); *)
+    max_column := 78; (* width(win); *)
 
     repeat
       box(win);
@@ -623,5 +623,3 @@ const proc: main is func
 
     until getc(KEYBOARD) = 'q';
   end func;
-
-$ system "main" is main;

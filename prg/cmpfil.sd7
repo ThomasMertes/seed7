@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-include "getf.s7i";
+  include "getf.s7i";
 
 const proc: main is func
 
@@ -81,5 +81,3 @@ const proc: main is func
       end for;
     end if;
   end func;
-
-$ system "main" is main;

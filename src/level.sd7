@@ -32,6 +32,3 @@ const proc: main is func
       writeln("*** Cannot write to \"level.h\" !");
     end if;
   end func;
-
-$ system "main" is main;
-

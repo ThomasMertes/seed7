@@ -16,7 +16,7 @@ cmpfil.sd7   Compares two files in main memory
 comp.sd7     Compiler from Seed7 to C                          
 dirx.sd7     Make a directory listing                          
 dirtst.sd7   Test reading a directory as file                  
-dna.sd7      Bacterial fight                                   
+dnafight.sd7 Bacterial dna fight programming game              
 echo.sd7     Write the arguments of the program                
 eliza.sd7    The computer psychiatrist                         
 err.sd7      Test for almost all possible compile time errors  
@@ -48,13 +48,13 @@ tch.sd7      The hitchhikers guide ...
 tet.sd7      Tetris game with text output                      
 tetg.sd7     Tetris game with graphical output                 
 wiz.sd7      Find treasures and fight monsters labyrinth game  
-wordcnt.sd7   Count the words in a file                        
+wordcnt.sd7  Count the words in a file                         
 wrinum.sd7   Write numbers as english text                     
 wumpus.sd7   Hunt the Wumpus game                              
 
   Seed7 include files:
 dir.s7i      Read directorys as files                          
-dna_base.s7i Bacterial fight dna interface                     
+dna_base.s7i Bacterial dna fight programming game interface    
 draw.s7i     Graphic library                                   
 echo.s7i     Filter file which generates an echo of the input  
 field.s7i    Filter file which reads the input fieldwise       

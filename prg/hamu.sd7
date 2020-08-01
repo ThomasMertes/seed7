@@ -604,5 +604,3 @@ const proc: main is func
       until answer = "Y" or answer = "N" or answer = "Q";
     until answer = "N" or answer = "Q";
   end func; (* main *)
-
-$ system "main" is main;

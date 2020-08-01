@@ -24,7 +24,7 @@
 
 $ info off;
 $ include "seed7_05.s7i";
-include "progs.s7i";
+  include "progs.s7i";
 
 
 const proc: main is func
@@ -55,5 +55,3 @@ const proc: main is func
       readln(command);
     end while;
   end func;
-
-$ system "main" is main;

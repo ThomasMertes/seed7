@@ -645,5 +645,3 @@ const proc: main is func
     check_sqrt();
     check_ld();
   end func;
-
-$ system "main" is main;

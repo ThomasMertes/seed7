@@ -1585,5 +1585,3 @@ const proc: main is func
     end if;
 !*)
   end func;
-
-$ system "main" is main;

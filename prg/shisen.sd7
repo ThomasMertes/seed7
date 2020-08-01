@@ -23,11 +23,11 @@
 
 	
 $ include "seed7_05.s7i";
-include "float.s7i";
-include "graph.s7i";
-include "draw.s7i";
-include "keybd.s7i";
-include "time.s7i";
+  include "float.s7i";
+  include "graph.s7i";
+  include "draw.s7i";
+  include "keybd.s7i";
+  include "time.s7i";
 
 
 var text: screen is STD_NULL;
@@ -2237,8 +2237,8 @@ const proc: playerMove (inout integer: line1, inout integer: column1,
     var boolean: moveFinished is FALSE;
   begin
     repeat
-      command := getc(KEYBOARD);
-      if upper(command) = 'H' then
+      command := upper(getc(KEYBOARD));
+      if command = 'H' then
         help;
       elsif command <> KEY_MOUSE1 then
         moveFinished := TRUE;
@@ -2372,19 +2372,20 @@ const func boolean: solvable is func
 
 const proc: dealCards is func
   local
+    const integer: NUMBER_OF_CARDS is FIELD_LINES * FIELD_COLUMNS div 4;
     var integer: line is 0;
     var integer: column is 0;
     var integer: cardNumber is 0;
   begin
     repeat
-      for cardNumber range 1 to FIELD_LINES * FIELD_COLUMNS div 4 do
+      for cardNumber range 1 to NUMBER_OF_CARDS do
         cards[cardNumber].number := 0;
       end for;
       field := FIELD_LINES times FIELD_COLUMNS times fieldType.value;
       for line range 1 to FIELD_LINES do
         for column range 1 to FIELD_COLUMNS do
           repeat
-            cardNumber := rand(1, FIELD_LINES * FIELD_COLUMNS div 4);
+            cardNumber := rand(1, NUMBER_OF_CARDS);
           until cards[cardNumber].number < 4;
           field[line][column].cardNumber := cardNumber;
           incr(cards[cardNumber].number);
@@ -2409,6 +2410,22 @@ const proc: main is func
     clear(curr_win, white);
     screen := open(curr_win, 16);
     KEYBOARD := GRAPH_KEYBOARD;
+    color(screen, black, white);
+    setPos(screen, 2, 49);
+    writeln(screen, "S H I S E N");
+    setPos(screen, 3, 37);
+    writeln(screen, "Copyright (C) 2005  Thomas Mertes");
+    setPos(screen, 4, 34);
+    writeln(screen, "This program is free software under the");
+    setPos(screen, 5, 34);
+    writeln(screen, "terms of the GNU General Public License");
+    setPos(screen, 3, 85);
+    writeln(screen, "Shisen is written in the Seed7 programming language");
+    setPos(screen, 4, 87);
+    writeln(screen, "Homepage:    http://seed7.sourceforge.net");
+    setPos(screen, 5, 87);
+    writeln(screen, "Wikipedia:   http://en.wikipedia.org/wiki/Seed7");
+    DRAW_FLUSH;
     digit_pixmap := [0](
       create_pixmap(zero,  2),
       create_pixmap(one,   2),
@@ -2421,16 +2438,21 @@ const proc: main is func
       create_pixmap(eight, 2),
       create_pixmap(nine,  2));
 
-    repeat
-      dealCards;
-
+    dealCards;
+    setPos(screen, 45, 70);
+    writeln(screen, "Press any key to start game");
+    command := upper(getc(KEYBOARD));
+    rect(0, 0, width(curr_win), 80, white);
+    rect(0, height(curr_win) - 80, width(curr_win), 80, white);
+    while command <> 'Q' do
       repeat
         playerTurn(command);
-      until countCards = 0 or upper(command) = 'N' or upper(command) = 'Q';
-      if upper(command) <> 'N' and upper(command) <> 'Q' then
-        command := getc(KEYBOARD);
+      until countCards = 0 or command = 'N' or command = 'Q';
+      if command <> 'N' and command <> 'Q' then
+        command := upper(getc(KEYBOARD));
       end if;
-    until upper(command) = 'Q';
+      if command <> 'Q' then
+        dealCards;
+      end if;
+    end while;
   end func;
-
-$ system "main" is main;

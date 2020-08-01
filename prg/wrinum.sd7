@@ -39,5 +39,3 @@ const proc: main is func
         writeln(str_1E9(number));
       end for;
     end func;
-
-$ system "main" is main;

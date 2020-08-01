@@ -37,15 +37,15 @@
 
 
 $ include "seed7_05.s7i";
-include "float.s7i";
-include "screen.s7i";
-include "graph.s7i";
-include "draw.s7i";
-include "window.s7i";
-include "keybd.s7i";
-include "echo.s7i";
-include "line.s7i";
-include "time.s7i";
+  include "float.s7i";
+  include "screen.s7i";
+  include "graph.s7i";
+  include "draw.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
+  include "echo.s7i";
+  include "line.s7i";
+  include "time.s7i";
 
 const set of char: letter_char is {'A' .. 'Z'} | {'a' .. 'z'};
 const set of char: digit_char is {'0' .. '9'};
@@ -3593,5 +3593,3 @@ const proc: main is func
       end if;
     end if;
   end func;
-
-$ system "main" is main;

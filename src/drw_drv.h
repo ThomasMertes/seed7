@@ -41,7 +41,7 @@ void drwFArcChord (wintype, inttype, inttype, inttype, floattype, floattype);
 void drwFArcPieSlice (wintype, inttype, inttype, inttype, floattype, floattype);
 void drwArc2 (wintype, inttype, inttype, inttype, inttype, inttype);
 void drwCircle (wintype, inttype, inttype, inttype);
-void drwClear (wintype);
+void drwClear (wintype, inttype);
 void drwFCircle (wintype, inttype, inttype, inttype);
 void drwFEllipse (wintype, inttype, inttype, inttype, inttype);
 void drwFlush (void);

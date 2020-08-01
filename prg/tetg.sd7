@@ -23,19 +23,19 @@
 
 
 $ include "seed7_05.s7i";
-include "time.s7i";
-include "float.s7i";
-include "graph.s7i";
-include "draw.s7i";
-include "window.s7i";
-include "keybd.s7i";
+  include "time.s7i";
+  include "float.s7i";
+  include "graph.s7i";
+  include "draw.s7i";
+  include "window.s7i";
+  include "keybd.s7i";
 
 const integer: FIELD_HEIGHT is 20;
 const integer: FIELD_WIDTH is 10;
 const integer: FIELD_X_START is 8;
 const integer: FIELD_Y_START is 8;
 const integer: BLOCK_SIZE is 32;
-const integer: WINDOW_WIDTH is 640;
+const integer: WINDOW_WIDTH is 660;
 const integer: WINDOW_HEIGHT is FIELD_HEIGHT * BLOCK_SIZE + 2 * FIELD_Y_START;
 const integer: AREA_WIDTH is FIELD_WIDTH * BLOCK_SIZE + 2 * FIELD_X_START;
 
@@ -405,11 +405,11 @@ const proc: set_piece (inout piece: actual_piece) is func
       score +:= level + ord(actual_piece);
       if score > 1000 * level then
         incr(level);
-        setPos(info_sheet, 5, 10);
+        setPos(info_sheet, 16, 10);
         info_sheet << level;
         decr(counter_start);
       end if;
-      setPos(info_sheet, 3, 10);
+      setPos(info_sheet, 14, 10);
       info_sheet << score;
       flush(info_sheet);
     else
@@ -452,8 +452,8 @@ const proc: main is func
     clear(curr_win, white);
     color(white, black);
     KEYBOARD := GRAPH_KEYBOARD;
-    scr := open(curr_win, AREA_WIDTH, 0);
-    info_sheet := open_window(scr, 2, 2, 20, 30);
+    scr := open(curr_win, AREA_WIDTH, FIELD_Y_START);
+    info_sheet := open_window(scr, 1, 1, 30, 53);
     repeat
       quit_round := FALSE;
       score := 0;
@@ -462,14 +462,26 @@ const proc: main is func
       color(info_sheet, black, white);
       clear(info_sheet);
       setPos(info_sheet, 1, 1);
-      info_sheet << " T E T R I S";
+      info_sheet << "T E T R I S";
       setPos(info_sheet, 3, 1);
-      info_sheet << " Score: ";
-      setPos(info_sheet, 3, 10);
-      info_sheet << score;
+      info_sheet << "Copyright (C) 1993, 1994, 2004  Thomas Mertes";
       setPos(info_sheet, 5, 1);
+      info_sheet << "This program is free software under the";
+      setPos(info_sheet, 6, 1);
+      info_sheet << "terms of the GNU General Public License.";
+      setPos(info_sheet, 8, 1);
+      info_sheet << "Tetris is written in the Seed7 programming language";
+      setPos(info_sheet, 9, 3);
+      info_sheet << "Homepage:    http://seed7.sourceforge.net";
+      setPos(info_sheet, 10, 3);
+      info_sheet << "Wikipedia:   http://en.wikipedia.org/wiki/Seed7";
+      setPos(info_sheet, 14, 1);
+      info_sheet << " Score: ";
+      setPos(info_sheet, 14, 10);
+      info_sheet << score;
+      setPos(info_sheet, 16, 1);
       info_sheet << " Level: ";
-      setPos(info_sheet, 5, 10);
+      setPos(info_sheet, 16, 10);
       info_sheet << level;
       flush(info_sheet);
       occupied := FIELD_HEIGHT times
@@ -483,14 +495,12 @@ const proc: main is func
         set_piece(piece_list[rand(1, length(piece_list))]);
         remove_full_lines;
       until quit_round;
-      setPos(info_sheet, 15, 2);
+      setPos(info_sheet, 20, 2);
       info_sheet << "Another round? ";
       repeat
         ch := upper(getc(KEYBOARD));
       until ch = 'Y' or ch = 'N';
-      setPos(info_sheet, 15, 2);
+      setPos(info_sheet, 20, 2);
       info_sheet << "               ";
     until ch = 'N';
   end func;
-
-$ system "main" is main;

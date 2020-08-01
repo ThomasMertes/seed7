@@ -806,5 +806,3 @@ const proc: main is func
       final_result();
     end if;
   end func; (* main *)
-
-$ system "main" is main;

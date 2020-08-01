@@ -108,9 +108,9 @@
 <li><!--   13.2     --><a href="#Exceptions"><b>Exceptions</b></a></li>
 <li><!--   13.3     --><a href="#Handlers"><b>Handlers</b></a></li>
 <li><!--   13.4     --><a href="#Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol>
-</ol></p>
+</ol></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="INTRODUCTION"><big><b>1. INTRODUCTION</b></big></a>
 <!-- =============== -->
 <p></p>
@@ -184,24 +184,26 @@
 <p>
   Seed7 has the following features
 </p><ul>
-    <li><!-- -  -->It is object oriented</li>
+    <li><!-- -  -->User defined statements and operators.</li>
 
-    <li><!-- -  -->User defined statements and operators</li>
+    <li><!-- -  -->Types are first class objects and therefore templates and
+      generics can be defined easily without special syntax.</li>
+
+    <li><!-- -  -->Predefined constructs like arrays or for-loops are
+      declared in the language itself.</li>
+
+    <li><!-- -  -->Object orientation is used where it brings advantages and
+      not in places where other solutions are more obvious.</li>
+
+    <li><!-- -  -->Strong typing</li>
 
     <li><!-- -  -->exception handling</li>
 
     <li><!-- -  -->overloading of procedures/functions/operators/statements</li>
 
-    <li><!-- -  -->templates/generics (in the form of functions with
-      type results and type parameters)</li>
-
-    <li><!-- -  -->Resizable arrays</li>
-
-    <li><!-- -  -->Bitsets</li>
-
-    <li><!-- -  -->Strong typing</li>
+    <li><!-- -  -->Various predefined types like resizable arrays, hashes,
+      bitsets, structs, etc.</li>
 </ul><p>
-
   But a new programming language differs not only from existing
   ones by new features. The real advantage comes from omitting
   features which are outdated.
@@ -323,9 +325,9 @@
   and chapter 4 contains various examples of syntax and semantic
   declarations. The primary parts of the syntax are described in
   the chapters 9 and 10.
-</p>
+</p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="TUTORIAL"><big><b>2. TUTORIAL</b></big></a>
 <!-- =========== -->
 <p>
@@ -371,16 +373,13 @@
       <font color=blue>begin</font>
         writeln(<font color=maroon>"hello world"</font>);
       <font color=blue>end func</font>;
-
-    $ <font color=blue>system</font> <font color=maroon>"main"</font> is main;
 </pre><p>
   The first line includes all definitions of the standard
   library. In contrast to other standard libraries the seed7_05.s7i
   library contains not only function declarations but also
   declarations of statements and operators.
-</p><p>
-  The last line specifies that in this program the object
-  <tt>'main'</tt> should be executed.
+  Additionally the seed7_05.s7i library defines the '<tt>main</tt>' function
+  as entry point for a Seed7 program.
 </p><p>
   If you write this program in a file called hello.sd7
   and execute the command
@@ -433,8 +432,6 @@
           fahr := fahr + increment;
         <font color=blue>end while</font>;
       <font color=blue>end func</font>;
-
-    $ <font color=blue>system</font> <font color=maroon>"main"</font> <font color=blue>is</font> main;
 </pre><p>
   Everything between <font color=green>(* and *)</font> is a comment which is ignored.
   This program contains local constants and variables of the
@@ -487,8 +484,6 @@
           writeln(fahr <font color=blue>lpad</font> 3 <& <font color=maroon>" "</font> <& celsius <font color=blue>digits</font> 2 <font color=blue>lpad</font> 6);
         <font color=blue>end for</font>;
       <font color=blue>end func</font>;
-
-    $ <font color=blue>system</font> <font color=maroon>"main"</font> <font color=blue>is</font> main;
 </pre><p>
   To use the type <tt>'<font color=red>float</font>'</tt> it is necessary to include
   <tt><font color=maroon>"float.s7i"</font></tt>. The <tt>'<font color=red>float</font>'</tt> variable <tt>'celsius'</tt> must be
@@ -653,8 +648,6 @@
         <font color=blue>end for</font>;
         writeln;
       <font color=blue>end func</font>;
-
-    $ <font color=blue>system</font> <font color=maroon>"main"</font> <font color=blue>is</font> main;
 </pre><p>
   The <tt>'<font color=blue>for</font>'</tt> statement iterates over <tt>'argv(PROGRAM)'</tt>.
   The <tt>'argv(PROGRAM)'</tt> function returns an <tt>'<font color=red>array string</font>'</tt>
@@ -691,13 +684,13 @@
     <font color=blue>const</font> <font color=red>proc</font>: FOR_DECLS (<font color=blue>in</font> <font color=red>type</font>: aType) <font color=blue>is func</font>
       <font color=blue>begin</font>
 
-        <font color=blue>const</font> <font color=red>proc</font>: for (<font color=blue>inout</font> <font color=red>aType</font>: variable) range (<font color=blue>in</font> <font color=red>aType</font>: lower_limit) to (<font color=blue>in</font> <font color=red>aType</font>: upper_limit) do
+        <font color=blue>const</font> <font color=red>proc</font>: for (<font color=blue>inout</font> <font color=red>aType</font>: variable) range (<font color=blue>in</font> <font color=red>aType</font>: low) to (<font color=blue>in</font> <font color=red>aType</font>: high) do
             (<font color=blue>in</font> <font color=red>proc</font>: statements) end for <font color=blue>is func</font>
           <font color=blue>begin</font>
-            variable := lower_limit;
-            <font color=blue>if</font> variable <= upper_limit <font color=blue>then</font>
+            variable := low;
+            <font color=blue>if</font> variable <= high <font color=blue>then</font>
               statements;
-              <font color=blue>while</font> variable < upper_limit <font color=blue>do</font>
+              <font color=blue>while</font> variable < high <font color=blue>do</font>
                 incr(variable);
                 statements;
               <font color=blue>end while</font>;
@@ -714,8 +707,9 @@
   <font color=red>char</font> and <font color=red>boolean</font> as parameter creates corresponding declarations
   of <tt>'<font color=blue>for</font>'</tt> statements. The example above is a simplified part of
   the standard Seed7 library <font color=maroon>"seed7_05.s7i"</font>.
+</p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="SYNTAX"><big><b>3. SYNTAX</b></big></a>
 <!-- ========= -->
 <p>
@@ -922,9 +916,9 @@
   Note that the second line of syntax description is different
   to the syntax description of the previous example. The 'else'
   is taken out to form an expression of its own.
-</p>
+</p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="PREDEFINED_STATEMENTS"><big><b>4. PREDEFINED STATEMENTS</b></big></a>
 <!-- ======================== -->
 <p>
@@ -1412,9 +1406,9 @@
 
     CASE_DECLS(<font color=red>integer</font>);
     CASE_DECLS(<font color=red>char</font>);
-</pre><p></p>
+</pre><p></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="PREDEFINED_TYPES"><big><b>5. PREDEFINED TYPES</b></big></a>
 <!-- =================== -->
 <p>
@@ -2674,9 +2668,9 @@
     Functions:
       WRITE_EXPR(A)
                 Write expr A to FILE OUT
-</pre><p></p>
+</pre><p></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="PARAMETERS"><big><b>6. PARAMETERS</b></big></a>
 <!-- ============= -->
 <p>
@@ -3000,9 +2994,9 @@
 </p><pre>
    symbol_parameter ::=
       name_identifier | special_identifier .
-</pre><p></p>
+</pre><p></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="THE_FILE_SYSTEM"><big><b>7. THE FILE SYSTEM</b></big></a>
 <!-- ================== -->
 <p>
@@ -3028,8 +3022,15 @@
 </p><pre>
     writeln(<font color=maroon>"result = "</font> <& number <font color=blue>div</font> 5 <& <font color=maroon>" "</font> <& <font color=blue>not</font> error);
 </pre><p>
-  The <tt>'<&'</tt> operator requests a <tt>'<font color=blue>string</font>'</tt> as left operand and
-  is overloaded for various types as right operand.
+  The <tt>'<&'</tt> operator needs a <tt>'<font color=blue>string</font>'</tt> as left operand and
+  is overloaded for various types as right operand. To allow things like
+</p><pre>
+    write(next_time <& <font color=maroon>" \r"</font>);
+</pre><p>
+  the <tt>'<&'</tt> operator is also overloaded for various types as
+  left operand and a <tt>'<font color=blue>string</font>'</tt> as right operand.
+  This allows you to concatenate several objects with <tt>'<&'</tt> when
+  at least the first or the second object is a <tt>'<font color=blue>string</font>'</tt>.
   We can also read data from the keyboard:
 </p><pre>
     write(<font color=maroon>"Amount? "</font>);
@@ -3765,9 +3766,9 @@
         <font color=green>(* Statements that do the input *)</font>
         ...
       <font color=blue>end func</font>;
-</pre><p></p>
+</pre><p></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="DECLARATIONS"><big><b>8. DECLARATIONS</b></big></a>
 <!-- =============== -->
 <p>
@@ -3994,9 +3995,9 @@
   is already defined. To allow the declaration of objects of a
   new user defined type the constructor operation for this type
   must be defined.
-</p>
+</p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="TOKENS"><big><b>9. TOKENS</b></big></a>
 <!-- ========= -->
 <p>
@@ -4293,9 +4294,9 @@
       '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |
       '\\' | '\''' | '\"' | '\' upper_case_letter |
       '\' { space } '\' | '\' integer_literal '\' .
-</pre><p></p>
+</pre><p></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="EXPRESSIONS"><big><b>10. EXPRESSIONS</b></big></a>
 <!-- =============== -->
 <p>
@@ -4396,9 +4397,9 @@
 </p><pre>
     dot_expression ::=
       [ '.' ] call_expression { '.' call_expression } .
-</pre><p></p>
+</pre><p></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="OPERATING_SYSTEM_ACCESS"><big><b>11. OPERATING SYSTEM ACCESS</b></big></a>
 <!-- =========================== -->
 <p>
@@ -4481,9 +4482,9 @@
     remove(<font color=maroon>"file"</font>);
     rename(<font color=maroon>"old_name"</font>, <font color=maroon>"new_name"</font>);
     copy(<font color=maroon>"from"</font>, <font color=maroon>"to"</font>);
-</pre><p></p>
+</pre><p></p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="PRIMITIVE_ACTIONS"><big><b>12. PRIMITIVE ACTIONS</b></big></a>
 <!-- ===================== -->
 <p>
@@ -4580,9 +4581,9 @@
 </pre><p>
   If you are interested in the primitive actions just look into
   the file seed7_05.s7i .
-</p>
+</p><hr>
 
-<hr><p></p>
+<p></p>
 <a name="ERRORS"><big><b>13. ERRORS</b></big></a>
 <!-- ========== -->
 <p></p>

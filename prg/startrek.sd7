@@ -23,7 +23,7 @@
 
 
 $ include "seed7_05.s7i";
-include "float.s7i";
+  include "float.s7i";
 
 const float: max_energy is 4000.0;
 const integer: max_torpedoes is 10;
@@ -1003,17 +1003,3 @@ const proc: main is func
       until finished;
     end if;
   end func; (* main *)
-
-$ system "main" is main;
-
-
-
-
-
-
-
-
-
-
-
-

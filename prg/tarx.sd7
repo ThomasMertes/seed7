@@ -23,8 +23,8 @@
 
 
 $ include "seed7_05.s7i";
-include "time.s7i";
-include "getf.s7i";
+  include "time.s7i";
+  include "getf.s7i";
 
 
 const type: header is new struct
@@ -526,5 +526,3 @@ const proc: main is func
       writeln("tarx: One of the options 't', 'x' or 'c' must be specified.");
     end if;
   end func;
-
-$ system "main" is main;

@@ -184,23 +184,25 @@ CONTENTS
 
   Seed7 has the following features
 
-    - It is object oriented
+    - User defined statements and operators.
 
-    - User defined statements and operators
+    - Types are first class objects and therefore templates and
+      generics can be defined easily without special syntax.
+
+    - Predefined constructs like arrays or for-loops are
+      declared in the language itself.
+
+    - Object orientation is used where it brings advantages and
+      not in places where other solutions are more obvious.
+
+    - Strong typing
 
     - exception handling
 
     - overloading of procedures/functions/operators/statements
 
-    - templates/generics (in the form of functions with
-      type results and type parameters)
-
-    - Resizable arrays
-
-    - Bitsets
-
-    - Strong typing
-
+    - Various predefined types like resizable arrays, hashes,
+      bitsets, structs, etc.
 
   But a new programming language differs not only from existing
   ones by new features. The real advantage comes from omitting
@@ -372,15 +374,12 @@ CONTENTS
         writeln("hello world");
       end func;
 
-    $ system "main" is main;
-
   The first line includes all definitions of the standard
   library. In contrast to other standard libraries the seed7_05.s7i
   library contains not only function declarations but also
   declarations of statements and operators.
-
-  The last line specifies that in this program the object
-  'main' should be executed.
+  Additionally the seed7_05.s7i library defines the 'main' function
+  as entry point for a Seed7 program.
 
   If you write this program in a file called hello.sd7
   and execute the command
@@ -434,8 +433,6 @@ CONTENTS
         end while;
       end func;
 
-    $ system "main" is main;
-
   Everything between (* and *) is a comment which is ignored.
   This program contains local constants and variables of the
   type 'integer'. The constants and variables must be
@@ -487,8 +484,6 @@ CONTENTS
           writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
         end for;
       end func;
-
-    $ system "main" is main;
 
   To use the type 'float' it is necessary to include
   "float.s7i". The 'float' variable 'celsius' must be
@@ -654,8 +649,6 @@ CONTENTS
         writeln;
       end func;
 
-    $ system "main" is main;
-
   The 'for' statement iterates over 'argv(PROGRAM)'.
   The 'argv(PROGRAM)' function returns an 'array string'
   (=array of string elements). The 'for' statement is overloaded
@@ -691,13 +684,13 @@ CONTENTS
     const proc: FOR_DECLS (in type: aType) is func
       begin
 
-        const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit) do
+        const proc: for (inout aType: variable) range (in aType: low) to (in aType: high) do
             (in proc: statements) end for is func
           begin
-            variable := lower_limit;
-            if variable <= upper_limit then
+            variable := low;
+            if variable <= high then
               statements;
-              while variable < upper_limit do
+              while variable < high do
                 incr(variable);
                 statements;
               end while;
@@ -714,6 +707,7 @@ CONTENTS
   char and boolean as parameter creates corresponding declarations
   of 'for' statements. The example above is a simplified part of
   the standard Seed7 library "seed7_05.s7i".
+
 
 
 3. SYNTAX
@@ -3028,8 +3022,15 @@ CONTENTS
 
     writeln("result = " <& number div 5 <& " " <& not error);
 
-  The '<&' operator requests a 'string' as left operand and
-  is overloaded for various types as right operand.
+  The '<&' operator needs a 'string' as left operand and
+  is overloaded for various types as right operand. To allow things like
+
+    write(next_time <& " \r");
+
+  the '<&' operator is also overloaded for various types as
+  left operand and a 'string' as right operand.
+  This allows you to concatenate several objects with '<&' when
+  at least the first or the second object is a 'string'.
   We can also read data from the keyboard:
 
     write("Amount? ");

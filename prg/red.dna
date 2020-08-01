@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  dna.sd7       Bacterial fight                                   *)
+(*  dnafight.sd7  Bacterial dna fight programming game              *)
 (*  Copyright (C) 1985  Thomas Mertes                               *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)

@@ -370,5 +370,3 @@ const proc: main is func
       until command <> 'Y';
     until command = 'Q'
   end func;
-
-$ system "main" is main;

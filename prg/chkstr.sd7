@@ -1732,5 +1732,3 @@ const proc: main is func
     check_string_funcs();
     check_string_append();
   end func;
-
-$ system "main" is main;
