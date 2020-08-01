@@ -314,13 +314,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static objecttype decl_name (nodetype node_level, booltype prog_level,
-    errinfotype *err_info)
+static objecttype decl_name (nodetype node_level, errinfotype *err_info)
 #else
 
-static objecttype decl_name (node_level, prog_level, err_info)
+static objecttype decl_name (node_level, err_info)
 nodetype node_level;
-booltype prog_level;
 errinfotype *err_info;
 #endif
 
@@ -372,13 +370,11 @@ if (CLASS_OF_OBJ(object_name) == EXPROBJECT) {
 
 #ifdef ANSI_C
 
-void decl_const (nodetype node_level, booltype prog_level,
-    errinfotype *err_info)
+void decl_const (nodetype node_level, errinfotype *err_info)
 #else
 
-void decl_const (node_level, prog_level, err_info)
+void decl_const (node_level, err_info)
 nodetype node_level;
-booltype prog_level;
 errinfotype *err_info;
 #endif
 
@@ -395,7 +391,7 @@ errinfotype *err_info;
     grow_stack(err_info);
     if (*err_info == OKAY_NO_ERROR) {
       typeof_object = decl_type(&is_dollar_type, err_info);
-      declared_object = decl_name(node_level, prog_level, err_info);
+      declared_object = decl_name(node_level, err_info);
       if (*err_info == OKAY_NO_ERROR) {
 /*        printf("decl_name ");
         trace_entity(declared_object->descriptor.entity); */

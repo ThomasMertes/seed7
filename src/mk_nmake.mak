@@ -106,6 +106,8 @@ scr_cur.o: scr_cur.c version.h scr_drv.h
 clear:
 	del *.o
 	del *.a
+	del depend
+	del a_depend
 	del version.h
 
 dep: depend

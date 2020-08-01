@@ -59,7 +59,7 @@ HOW TO EXECUTE A PROGRAM?
     After compiling the interpreter you can make the first test.
   Switch to the 'prg' directory and type:
 
-    hi hello
+    ./hi hello
 
   This executes the hello world program which is in the
   'hello.sd7' file. Every file with the '.sd7' extension can be
@@ -76,7 +76,6 @@ HOW TO COMPILE UNDER WINDOWS?
   go to the 'src' directory and type:
 
     copy mk_mingw.mak makefile
-    del version.h
     gmake depend
     gmake
 
@@ -84,7 +83,6 @@ HOW TO COMPILE UNDER WINDOWS?
   directory and type:
 
     cp mk_msys.mak makefile
-    rm version.h
     gmake depend
     gmake
 

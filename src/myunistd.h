@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -18,19 +18,9 @@
 /*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
 /*  MA 02111-1307 USA                                               */
 /*                                                                  */
-/*  Module: Analyzer - Parser                                       */
-/*  File: seed7/src/parser.h                                        */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
-/*  Content: Main procedures of the parser.                         */
+/*  Module: Main                                                    */
+/*  File: seed7/src/myunistd.h                                      */
+/*  Changes: 2007  Thomas Mertes                                    */
+/*  Content: File to replace unistd.h when it is missing.           */
 /*                                                                  */
 /********************************************************************/
-
-#ifdef ANSI_C
-
-void decl_const (nodetype, errinfotype *);
-
-#else
-
-void decl_const ();
-
-#endif

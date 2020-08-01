@@ -22,8 +22,8 @@ INSTALLATION
   directorys 'src', 'prg', 'lib'  and 'doc' from the tar file.
   To compile the interpreter just go to the 'src' directory and type:
 
-    gmake depend
-    gmake
+    make depend
+    make
 
   When the interpreter is compiled just go to the 'prg' directory
   and start a program like hello.sd7 with:
@@ -61,8 +61,8 @@ INSTALLATION
     2. Compile the interpreter at this place:
 
          cd /usr/local/src/seed7/src
-         gmake depend
-         gmake
+         make depend
+         make
 
        The hi interpreter has now the path to the 'lib' directory
        hardcoded as /usr/local/src/seed7/lib. If the 'hi'

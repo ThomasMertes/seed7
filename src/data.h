@@ -86,7 +86,6 @@ typedef unsigned long      postype;
 typedef unsigned int       linenumtype;
 typedef unsigned int       filenumtype;
 typedef unsigned int       classtype;
-/* typedef unsigned long int  wintype; */
 
 typedef struct identstruct    *identtype;
 typedef struct tokenstruct    *tokentype;

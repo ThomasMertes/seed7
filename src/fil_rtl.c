@@ -35,13 +35,18 @@
 #include "stdio.h"
 #include "string.h"
 #include "sys/types.h"
-#include "unistd.h"
 
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
 #include "big_rtl.h"
 #include "rtl_err.h"
+
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
 
 #undef EXTERN
 #define EXTERN
@@ -113,7 +118,7 @@ filetype fil1;
         raise_error(FILE_ERROR);
         return(NULL);
       } else if (sizeof(offsettype) == 8) {
-	/* printf("file_length %lld\n", file_length); */
+        /* printf("file_length %lld\n", file_length); */
         return(bigULConv(file_length));
       } else {
         return(bigUIConv(file_length));

@@ -243,3 +243,12 @@
 - The makefiles mk_mingw.mak, mk_msys.mak and mk_nmake.mak were added for compilation under MinGW.
 - The bigInteger multiplication was changed to use Karatsuba multiplication for bigger integers.
 - Several constant types were defined in common.h.
+
+20070524:
+- The file version.h was removed to force the creation of it with the "make depend" command.
+- The read_me was changed such that a "rm version.h" is not necessary to compile.
+- Several constant types were defined in data_rtl.h.
+- The files str_rtl.c, str_rtl.h, set_rtl.c and set_rtl.h were changed to use constant types.
+- A bug with compare functions for array sorts and hash tables was fixed.
+- The makefile mk_linux.mak was added as copy of 'makefile'.
+- The makefile mk_msvc.mak was added to allow experimental compilation with nmake and cl.

@@ -157,7 +157,7 @@ objecttype cmp_func;
         less_elem = begin_sort - 1;
         do {
           less_elem++;
-          cmp_obj = param2_call(cmp_func, less_elem, &compare_elem);
+          cmp_obj = param3_call(cmp_func, less_elem, &compare_elem, cmp_func);
           isit_int(cmp_obj);
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
@@ -175,14 +175,14 @@ objecttype cmp_func;
       do {
         do {
           less_elem++;
-          cmp_obj = param2_call(cmp_func, less_elem, &compare_elem);
+          cmp_obj = param3_call(cmp_func, less_elem, &compare_elem, cmp_func);
           isit_int(cmp_obj);
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp < 0);
         do {
           greater_elem--;
-          cmp_obj = param2_call(cmp_func, greater_elem, &compare_elem);
+          cmp_obj = param3_call(cmp_func, greater_elem, &compare_elem, cmp_func);
           isit_int(cmp_obj);
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);

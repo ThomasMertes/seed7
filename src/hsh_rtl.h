@@ -31,21 +31,22 @@
 
 #ifdef ANSI_C
 
-booltype hshContains (rtlHashtype, rtlGenerictype, inttype, comparetype);
-void hshCpy (rtlHashtype *, rtlHashtype, createfunctype, createfunctype,
-             destrfunctype, destrfunctype);
-rtlHashtype hshCreate (rtlHashtype, createfunctype, createfunctype,
+booltype hshContains (const const_rtlHashtype, const rtlGenerictype,
+                      inttype, comparetype);
+void hshCpy (rtlHashtype *const, const const_rtlHashtype,
+             createfunctype, createfunctype, destrfunctype, destrfunctype);
+rtlHashtype hshCreate (const const_rtlHashtype, createfunctype, createfunctype,
                        destrfunctype, destrfunctype);
-void hshDestr (rtlHashtype, destrfunctype, destrfunctype);
+void hshDestr (const const_rtlHashtype, destrfunctype, destrfunctype);
 rtlHashtype hshEmpty (void);
-void hshExcl (rtlHashtype, rtlGenerictype, inttype,
+void hshExcl (const rtlHashtype, const rtlGenerictype, inttype,
               comparetype, destrfunctype, destrfunctype);
-rtlGenerictype hshIdx (rtlHashtype, rtlGenerictype, inttype, comparetype);
-rtlObjecttype *hshIdxAddr (rtlHashtype, rtlGenerictype, inttype, comparetype);
-void hshIncl (rtlHashtype, rtlGenerictype, rtlGenerictype , inttype,
+rtlGenerictype hshIdx (const const_rtlHashtype, const rtlGenerictype, inttype, comparetype);
+rtlObjecttype *hshIdxAddr (const const_rtlHashtype, const rtlGenerictype, inttype, comparetype);
+void hshIncl (const rtlHashtype, rtlGenerictype, rtlGenerictype , inttype,
 	      comparetype, createfunctype, createfunctype, copyfunctype);
-rtlArraytype hshKeys (rtlHashtype, createfunctype, destrfunctype);
-rtlArraytype hshValues (rtlHashtype, createfunctype, destrfunctype);
+rtlArraytype hshKeys (const const_rtlHashtype, createfunctype, destrfunctype);
+rtlArraytype hshValues (const const_rtlHashtype, createfunctype, destrfunctype);
 
 #else
 

@@ -738,7 +738,7 @@ listtype arguments;
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
-      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -995,7 +995,7 @@ listtype arguments;
     delete_pos = &hash1->table[hashcode & hash1->mask];
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
-      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1150,7 +1150,7 @@ listtype arguments;
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
-      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1217,7 +1217,7 @@ listtype arguments;
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
-      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);
@@ -1305,7 +1305,7 @@ listtype arguments;
       hash1->size++;
     } else {
       do {
-        cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+        cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
         isit_int(cmp_obj);
         cmp = take_int(cmp_obj);
         FREE_OBJECT(cmp_obj);
@@ -1419,7 +1419,7 @@ listtype arguments;
     result_hashelem = NULL;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
-      cmp_obj = param2_call(cmp_func, &hashelem->key, key);
+      cmp_obj = param3_call(cmp_func, &hashelem->key, key, cmp_func);
       isit_int(cmp_obj);
       cmp = take_int(cmp_obj);
       FREE_OBJECT(cmp_obj);

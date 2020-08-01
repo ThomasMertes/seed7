@@ -40,6 +40,11 @@ typedef struct rtlArraystruct  *rtlArraytype;
 typedef struct rtlHelemstruct  *rtlHelemtype;
 typedef struct rtlHashstruct   *rtlHashtype;
 
+typedef const struct rtlListstruct   *const_rtlListtype;
+typedef const struct rtlArraystruct  *const_rtlArraytype;
+typedef const struct rtlHelemstruct  *const_rtlHelemtype;
+typedef const struct rtlHashstruct   *const_rtlHashtype;
+
 typedef union {
     rtlGenerictype genericvalue;
 /*    postype    pos;          ** SYMBOLOBJECT */

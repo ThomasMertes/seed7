@@ -36,30 +36,30 @@
 
 #ifdef ANSI_C
 
-settype setBaselit (inttype);
-inttype setCard (settype);
-inttype setCmp (settype, settype);
-void setCpy (settype *, settype);
-settype setCreate (settype);
-void setDestr (settype);
-settype setDiff (settype, settype);
-booltype setElem (inttype, settype);
-booltype setEq (settype, settype);
-void setExcl (settype *, inttype);
-booltype setGe (settype, settype);
-booltype setGt (settype, settype);
-inttype setHashCode (settype);
-void setIncl (settype *, inttype);
-settype setIntersect (settype, settype);
-booltype setLe (settype, settype);
-booltype setLt (settype, settype);
-inttype setMax (settype);
-inttype setMin (settype);
-booltype setNe (settype, settype);
-booltype setNotElem (inttype, settype);
-inttype setRand (settype);
-settype setSymdiff (settype, settype);
-settype setUnion (settype, settype);
+settype setBaselit (const inttype);
+inttype setCard (const const_settype);
+inttype setCmp (const const_settype, const const_settype);
+void setCpy (settype *const, const const_settype);
+settype setCreate (const const_settype);
+void setDestr (const const_settype);
+settype setDiff (const const_settype, const const_settype);
+booltype setElem (const inttype, const const_settype);
+booltype setEq (const const_settype, const const_settype);
+void setExcl (settype *const, const inttype);
+booltype setGe (const const_settype, const const_settype);
+booltype setGt (const const_settype, const const_settype);
+inttype setHashCode (const const_settype);
+void setIncl (settype *const, const inttype);
+settype setIntersect (const const_settype, const const_settype);
+booltype setLe (const const_settype, const const_settype);
+booltype setLt (const const_settype, const const_settype);
+inttype setMax (const const_settype);
+inttype setMin (const const_settype);
+booltype setNe (const const_settype, const const_settype);
+booltype setNotElem (const inttype, const const_settype);
+inttype setRand (const const_settype);
+settype setSymdiff (const const_settype, const const_settype);
+settype setUnion (const const_settype, const const_settype);
 
 #else
 

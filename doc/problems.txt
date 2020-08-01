@@ -32,7 +32,7 @@ There are a lot of minor problems ...
 
     This division and all other operations for RATIONAL numbers
     are defined in the file rational.s7i.
-    The constant RAT_ZERO can be used instead of 0/1 .
+    The constant rational.value can be used instead of 0/1 .
 
   - The notation to write periodical decimal numbers is
     not implemented now.

@@ -34,9 +34,14 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#include "unistd.h"
 
 #include "inf_conf.h"
+
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
 
 #ifndef USE_TERMCAP
 

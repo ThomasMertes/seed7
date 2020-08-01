@@ -31,34 +31,34 @@
 
 #ifdef ANSI_C
 
-void strAppend (stritype *, stritype);
-/* rtlArraytype strChSplit (stritype, chartype); */
-inttype strCompare (stritype, stritype);
-stritype strConcat (stritype, stritype);
-void strCopy (stritype *, stritype);
-stritype strCreate (stritype);
-void strDestr (stritype);
-booltype strGe (stritype, stritype);
-booltype strGt (stritype, stritype);
-inttype strHashCode (stritype);
-stritype strHead (stritype, inttype);
-inttype strIpos (stritype, stritype, inttype);
-booltype strLe (stritype, stritype);
-stritype strLit (stritype);
-stritype strLow (stritype);
-stritype strLpad (stritype, inttype);
-booltype strLt (stritype, stritype);
-stritype strMult (stritype, inttype);
-inttype strPos (stritype, stritype);
-stritype strRange (stritype, inttype, inttype);
-stritype strRepl (stritype, stritype, stritype);
-stritype strRpad (stritype, inttype);
-inttype strRpos (stritype, stritype);
-/* rtlArraytype strSplit (stritype, stritype); */
-stritype strSubstr (stritype, inttype, inttype);
-stritype strTail (stritype, inttype);
-stritype strTrim (stritype);
-stritype strUp (stritype);
+void strAppend (stritype *const, const const_stritype);
+/* rtlArraytype strChSplit (const const_stritype, const chartype); */
+inttype strCompare (const const_stritype, const const_stritype);
+stritype strConcat (const const_stritype, const const_stritype);
+void strCopy (stritype *const, const const_stritype);
+stritype strCreate (const const_stritype);
+void strDestr (const const_stritype);
+booltype strGe (const const_stritype, const const_stritype);
+booltype strGt (const const_stritype, const const_stritype);
+inttype strHashCode (const const_stritype);
+stritype strHead (const const_stritype, const inttype);
+inttype strIpos (const const_stritype, const const_stritype, const inttype);
+booltype strLe (const const_stritype, const const_stritype);
+stritype strLit (const const_stritype);
+stritype strLow (const const_stritype);
+stritype strLpad (const const_stritype, const inttype);
+booltype strLt (const const_stritype, const const_stritype);
+stritype strMult (const const_stritype, const inttype);
+inttype strPos (const const_stritype, const const_stritype);
+stritype strRange (const const_stritype, inttype, inttype);
+stritype strRepl (const const_stritype, const const_stritype, const const_stritype);
+stritype strRpad (const const_stritype, const inttype);
+inttype strRpos (const const_stritype, const const_stritype);
+/* rtlArraytype strSplit (const const_stritype, const const_stritype); */
+stritype strSubstr (const const_stritype, inttype, inttype);
+stritype strTail (const const_stritype, inttype);
+stritype strTrim (const const_stritype);
+stritype strUp (const const_stritype);
 
 #else
 

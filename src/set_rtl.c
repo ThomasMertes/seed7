@@ -120,7 +120,7 @@ rtlArraytype arr1;
 
 #ifdef ANSI_C
 
-settype setBaselit (inttype number)
+settype setBaselit (const inttype number)
 #else
 
 settype setBaselit (number)
@@ -151,7 +151,7 @@ inttype number;
 
 #ifdef ANSI_C
 
-inttype setCard (settype set1)
+inttype setCard (const const_settype set1)
 #else
 
 inttype setCard (set1)
@@ -191,7 +191,7 @@ settype set1;
 
 #ifdef ANSI_C
 
-inttype setCmp (settype set1, settype set2)
+inttype setCmp (const const_settype set1, const const_settype set2)
 #else
 
 inttype setCmp (set1, set2)
@@ -204,8 +204,8 @@ settype set2;
     memsizetype min2_index;
     memsizetype bitset_index;
     memsizetype size;
-    bitsettype *bitset1;
-    bitsettype *bitset2;
+    const bitsettype *bitset1;
+    const bitsettype *bitset2;
 
   /* setCmp */
     if (set1->min_position <= set2->min_position) {
@@ -267,7 +267,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-void setCpy (settype *set_to, settype set_from)
+void setCpy (settype *const set_to, const const_settype set_from)
 #else
 
 void setCpy (set_to, set_from)
@@ -307,7 +307,7 @@ settype set_from;
 
 #ifdef ANSI_C
 
-settype setCreate (settype set_from)
+settype setCreate (const const_settype set_from)
 #else
 
 settype setCreate (set_from)
@@ -336,7 +336,7 @@ settype set_from;
 
 #ifdef ANSI_C
 
-void setDestr (settype old_set)
+void setDestr (const const_settype old_set)
 #else
 
 void setDestr (old_set)
@@ -353,7 +353,7 @@ settype old_set;
 
 #ifdef ANSI_C
 
-settype setDiff (settype set1, settype set2)
+settype setDiff (const const_settype set1, const const_settype set2)
 #else
 
 settype setDiff (set1, set2)
@@ -406,7 +406,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-booltype setElem (inttype number, settype set1)
+booltype setElem (const inttype number, const const_settype set1)
 #else
 
 booltype setElem (number, set1)
@@ -438,7 +438,7 @@ settype set1;
 
 #ifdef ANSI_C
 
-booltype setEq (settype set1, settype set2)
+booltype setEq (const const_settype set1, const const_settype set2)
 #else
 
 booltype setEq (set1, set2)
@@ -502,7 +502,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-void setExcl (settype *set_to, inttype number)
+void setExcl (settype *const set_to, const inttype number)
 #else
 
 void setExcl (set_to, number)
@@ -535,7 +535,7 @@ inttype number;
 
 #ifdef ANSI_C
 
-booltype setGe (settype set1, settype set2)
+booltype setGe (const const_settype set1, const const_settype set2)
 #else
 
 booltype setGe (set1, set2)
@@ -548,8 +548,8 @@ settype set2;
     memsizetype min2_index;
     memsizetype bitset_index;
     memsizetype size;
-    bitsettype *bitset1;
-    bitsettype *bitset2;
+    const bitsettype *bitset1;
+    const bitsettype *bitset2;
     booltype greater_equal;
 
   /* setGe */
@@ -597,7 +597,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-booltype setGt (settype set1, settype set2)
+booltype setGt (const const_settype set1, const const_settype set2)
 #else
 
 booltype setGt (set1, set2)
@@ -610,8 +610,8 @@ settype set2;
     memsizetype min2_index;
     memsizetype bitset_index;
     memsizetype size;
-    bitsettype *bitset1;
-    bitsettype *bitset2;
+    const bitsettype *bitset1;
+    const bitsettype *bitset2;
     booltype greater_equal;
     booltype equal;
 
@@ -675,7 +675,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-inttype setHashCode (settype set1)
+inttype setHashCode (const const_settype set1)
 #else
 
 inttype setHashCode (set1)
@@ -699,7 +699,7 @@ settype set1;
 
 #ifdef ANSI_C
 
-void setIncl (settype *set_to, inttype number)
+void setIncl (settype *const set_to, const inttype number)
 #else
 
 void setIncl (set_to, number)
@@ -757,7 +757,7 @@ inttype number;
 
 #ifdef ANSI_C
 
-settype setIntersect (settype set1, settype set2)
+settype setIntersect (const const_settype set1, const const_settype set2)
 #else
 
 settype setIntersect (set1, set2)
@@ -822,7 +822,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-booltype setLe (settype set1, settype set2)
+booltype setLe (const const_settype set1, const const_settype set2)
 #else
 
 booltype setLe (set1, set2)
@@ -835,8 +835,8 @@ settype set2;
     memsizetype min2_index;
     memsizetype bitset_index;
     memsizetype size;
-    bitsettype *bitset1;
-    bitsettype *bitset2;
+    const bitsettype *bitset1;
+    const bitsettype *bitset2;
     booltype less_equal;
 
   /* setLe */
@@ -884,7 +884,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-booltype setLt (settype set1, settype set2)
+booltype setLt (const const_settype set1, const const_settype set2)
 #else
 
 booltype setLt (set1, set2)
@@ -897,8 +897,8 @@ settype set2;
     memsizetype min2_index;
     memsizetype bitset_index;
     memsizetype size;
-    bitsettype *bitset1;
-    bitsettype *bitset2;
+    const bitsettype *bitset1;
+    const bitsettype *bitset2;
     booltype less_equal;
     booltype equal;
 
@@ -962,7 +962,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-inttype setMax (settype set1)
+inttype setMax (const const_settype set1)
 #else
 
 inttype setMax (set1)
@@ -993,7 +993,7 @@ settype set1;
 
 #ifdef ANSI_C
 
-inttype setMin (settype set1)
+inttype setMin (const const_settype set1)
 #else
 
 inttype setMin (set1)
@@ -1026,7 +1026,7 @@ settype set1;
 
 #ifdef ANSI_C
 
-booltype setNe (settype set1, settype set2)
+booltype setNe (const const_settype set1, const const_settype set2)
 #else
 
 booltype setNe (set1, set2)
@@ -1090,7 +1090,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-booltype setNotElem (inttype number, settype set1)
+booltype setNotElem (const inttype number, const const_settype set1)
 #else
 
 booltype setNotElem (number, set1)
@@ -1122,7 +1122,7 @@ settype set1;
 
 #ifdef ANSI_C
 
-inttype setRand (settype set1)
+inttype setRand (const const_settype set1)
 #else
 
 inttype setRand (set1)
@@ -1168,7 +1168,7 @@ settype set1;
 
 #ifdef ANSI_C
 
-settype setSymdiff (settype set1, settype set2)
+settype setSymdiff (const const_settype set1, const const_settype set2)
 #else
 
 settype setSymdiff (set1, set2)
@@ -1234,7 +1234,7 @@ settype set2;
 
 #ifdef ANSI_C
 
-settype setUnion (settype set1, settype set2)
+settype setUnion (const const_settype set1, const const_settype set2)
 #else
 
 settype setUnion (set1, set2)

@@ -69,11 +69,10 @@
 
 #ifdef ANSI_C
 
-static INLINE void system_var (nodetype objects)
+static INLINE void system_var (void)
 #else
 
-static INLINE void system_var (objects)
-nodetype objects;
+static INLINE void system_var ()
 #endif
 
   {
@@ -301,11 +300,11 @@ nodetype objects;
         err_info = OKAY_NO_ERROR;
         scan_symbol();
         if (current_ident == prog.id_for.constant) {
-          decl_const(objects, TRUE, &err_info);
+          decl_const(objects, &err_info);
         } else if (current_ident == prog.id_for.syntax) {
           decl_syntax();
         } else if (current_ident == prog.id_for.system) {
-          system_var(objects);
+          system_var();
         } else if (current_ident == prog.id_for.include) {
           include_file();
         } else {

@@ -1,47 +1,47 @@
-# Makefile for gmake (for older gmake versions) and gcc from MinGW.
+# Makefile for nmake from windows and msvc.
 # To compile use a windows console and call:
-#   gmake -f mk_mingw.mak depend
-#   gmake -f mk_mingw.mak
-# If your version of gmake does not support dos commands use MSYS with mk_msys.mak or mk_nmake.mak.
+#   nmake /f mk_msvc.mak depend
+#   nmake /f mk_msvc.mak
+# If you use MinGW you should use mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 
-# CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
-CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
-# CFLAGS = -O2 -funroll-loops -Wall -pg
+# CFLAGS = -AL -Ozax -Gr -Gs -Gm -G0 -W4
+CFLAGS = -O2 -W4
+# CFLAGS = /O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = /O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = /O2 -funroll-loops -Wall -pg
 LFLAGS = -O2
 # LFLAGS = -O2 -pg
-LIBS = -lm -lgdi32
-CC = gcc
+LIBS = user32.lib gdi32.lib
+CC = cl
 
-# SCREEN_OBJ = scr_x11.o
+# SCREEN_OBJ = scr_x11.obj
 # SCREEN_SRC = scr_x11.c
-# SCREEN_OBJ = scr_infi.o kbd_infi.o trm_inf.o
+# SCREEN_OBJ = scr_infi.obj kbd_infi.obj trm_inf.obj
 # SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
-# SCREEN_OBJ = scr_infp.o kbd_infp.o trm_cap.o
+# SCREEN_OBJ = scr_infp.obj kbd_infp.obj trm_cap.obj
 # SCREEN_SRC = scr_inf.c kbd_inf.c trm_cap.c
-# SCREEN_OBJ = scr_cur.o
+# SCREEN_OBJ = scr_cur.obj
 # SCREEN_SRC = scr_cur.c
-# SCREEN_OBJ = scr_cap.o
+# SCREEN_OBJ = scr_cap.obj
 # SCREEN_SRC = scr_cap.c
-# SCREEN_OBJ = scr_tcp.o
+# SCREEN_OBJ = scr_tcp.obj
 # SCREEN_SRC = scr_tcp.c
-SCREEN_OBJ = scr_win.o
+SCREEN_OBJ = scr_win.obj
 SCREEN_SRC = scr_win.c
 
-MOBJ1 = hi.o option.o primitiv.o
-LOBJ1 = actlib.o arrlib.o biglib.o blnlib.o chrlib.o clslib.o cmdlib.o dcllib.o drwlib.o
-LOBJ2 = enulib.o fillib.o fltlib.o hshlib.o intlib.o kbdlib.o lstlib.o prclib.o prglib.o
-LOBJ3 = reflib.o rfllib.o scrlib.o sctlib.o setlib.o strlib.o timlib.o typlib.o ut8lib.o
-EOBJ1 = exec.o doany.o memory.o runerr.o
-AOBJ1 = analyze.o syntax.o token.o parser.o name.o type.o
-AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
-AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
-GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o arrutl.o executl.o blockutl.o
-GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
-ROBJ1 = arr_rtl.o big_rtl.o bln_rtl.o chr_rtl.o cmd_rtl.o fil_rtl.o flt_rtl.o hsh_rtl.o
-ROBJ2 = int_rtl.o kbd_rtl.o scr_rtl.o set_rtl.o str_rtl.o ut8_rtl.o heaputl.o striutl.o
-DOBJ1 = $(SCREEN_OBJ) tim_win.o drw_win.o
+MOBJ1 = hi.obj option.obj primitiv.obj
+LOBJ1 = actlib.obj arrlib.obj biglib.obj blnlib.obj chrlib.obj clslib.obj cmdlib.obj dcllib.obj drwlib.obj
+LOBJ2 = enulib.obj fillib.obj fltlib.obj hshlib.obj intlib.obj kbdlib.obj lstlib.obj prclib.obj prglib.obj
+LOBJ3 = reflib.obj rfllib.obj scrlib.obj sctlib.obj setlib.obj strlib.obj timlib.obj typlib.obj ut8lib.obj
+EOBJ1 = exec.obj doany.obj memory.obj runerr.obj
+AOBJ1 = analyze.obj syntax.obj token.obj parser.obj name.obj type.obj
+AOBJ2 = expr.obj atom.obj object.obj scanner.obj literal.obj numlit.obj findid.obj
+AOBJ3 = error.obj infile.obj symbol.obj info.obj stat.obj fatal.obj match.obj
+GOBJ1 = syvarutl.obj traceutl.obj actutl.obj listutl.obj arrutl.obj executl.obj blockutl.obj
+GOBJ2 = typeutl.obj entutl.obj identutl.obj chclsutl.obj flistutl.obj sigutl.obj
+ROBJ1 = arr_rtl.obj big_rtl.obj bln_rtl.obj chr_rtl.obj cmd_rtl.obj fil_rtl.obj flt_rtl.obj hsh_rtl.obj
+ROBJ2 = int_rtl.obj kbd_rtl.obj scr_rtl.obj set_rtl.obj str_rtl.obj ut8_rtl.obj heaputl.obj striutl.obj
+DOBJ1 = $(SCREEN_OBJ) tim_win.obj drw_win.obj dir_win.obj
 OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 A_OBJ = $(ROBJ1) $(ROBJ2) $(DOBJ1)
 
@@ -61,8 +61,8 @@ DSRC1 = $(SCREEN_SRC) tim_win.c drw_win.c
 SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 A_SRC = $(RSRC1) $(RSRC2) $(DSRC1)
 
-hi: $(OBJ) seed7_05.a
-	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
+hi: $(OBJ) seed7_05.lib
+	$(CC) $(LFLAGS) $(OBJ) seed7_05.lib $(LIBS) -o hi
 	copy hi.exe ..\prg /Y
 	.\hi level
 
@@ -70,42 +70,42 @@ hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
 
-scr_x11.o: scr_x11.c version.h scr_drv.h trm_drv.h
+scr_x11.obj: scr_x11.c version.h scr_drv.h trm_drv.h
 	$(CC) $(CFLAGS) -c scr_x11.c
 
-scr_infi.o: scr_inf.c version.h scr_drv.h trm_drv.h
+scr_infi.obj: scr_inf.c version.h scr_drv.h trm_drv.h
 	echo "#undef  USE_TERMCAP" > inf_conf.h
 	$(CC) $(CFLAGS) -c scr_inf.c
-	mv scr_inf.o scr_infi.o
+	mv scr_inf.obj scr_infi.obj
 
-scr_infp.o: scr_inf.c version.h scr_drv.h trm_drv.h
+scr_infp.obj: scr_inf.c version.h scr_drv.h trm_drv.h
 	echo "#define USE_TERMCAP" > inf_conf.h
 	$(CC) $(CFLAGS) -c scr_inf.c
-	mv scr_inf.o scr_infp.o
+	mv scr_inf.obj scr_infp.obj
 
-kbd_infi.o: kbd_inf.c version.h kbd_drv.h trm_drv.h
+kbd_infi.obj: kbd_inf.c version.h kbd_drv.h trm_drv.h
 	echo "#undef  USE_TERMCAP" > inf_conf.h
 	$(CC) $(CFLAGS) -c kbd_inf.c
-	mv kbd_inf.o kbd_infi.o
+	mv kbd_inf.obj kbd_infi.obj
 
-kbd_infp.o: kbd_inf.c version.h kbd_drv.h trm_drv.h
+kbd_infp.obj: kbd_inf.c version.h kbd_drv.h trm_drv.h
 	echo "#define USE_TERMCAP" > inf_conf.h
 	$(CC) $(CFLAGS) -c kbd_inf.c
-	mv kbd_inf.o kbd_infp.o
+	mv kbd_inf.obj kbd_infp.obj
 
-trm_inf.o: trm_inf.c version.h trm_drv.h
+trm_inf.obj: trm_inf.c version.h trm_drv.h
 	$(CC) $(CFLAGS) -c trm_inf.c
 
-trm_cap.o: trm_cap.c version.h trm_drv.h
+trm_cap.obj: trm_cap.c version.h trm_drv.h
 	$(CC) $(CFLAGS) -c trm_cap.c
 
-scr_cur.o: scr_cur.c version.h scr_drv.h
+scr_cur.obj: scr_cur.c version.h scr_drv.h
 	$(CC) $(CFLAGS) -c scr_cur.c
 
 
 clear:
-	del *.o
-	del *.a
+	del *.obj
+	del *.lib
 	del depend
 	del a_depend
 	del version.h
@@ -117,7 +117,7 @@ strip:
 
 version.h:
 	echo #define ANSI_C > version.h
-	echo #define USE_DIRENT >> version.h
+	echo #define USE_DIRWIN >> version.h
 	echo #define PATH_DELIMITER '/' >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #undef  USE_MMAP >> version.h
@@ -126,7 +126,10 @@ version.h:
 	echo #define MKDIR_WITH_ONE_PARAMETER >> version.h
 	echo #define CHOWN_MISSING >> version.h
 	echo #undef  CHMOD_MISSING >> version.h
-	echo #define USE_FSEEKO64 >> version.h
+	echo #define DEFINE_IEEE_754_STUFF >> version.h
+	echo #define FLOAT_ZERO_DIV_ERROR >> version.h
+	echo #define USE_MYUNISTD_H >> version.h
+	echo #undef  USE_FSEEKO64 >> version.h
 	echo #define LINKER_LIBS "$(LIBS)" >> version.h
 	echo #include "stdio.h" > libpath.c
 	echo #include "stddef.h" >> libpath.c
@@ -148,20 +151,23 @@ version.h:
 	$(CC) libpath.c -o libpath
 	libpath >> ..\src\version.h
 	del libpath.c
+	del libpath.obj
 	del libpath.exe
 
-hi.o: hi.c
+hi.obj: hi.c
 	$(CC) $(CFLAGS) -c hi.c
 
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
 depend: version.h
-	$(CC) -M $(SRC) > depend
-	$(CC) -M $(A_SRC) > a_depend
+	echo Working without dependency file
 
 level.h:
 	hi level
 
-seed7_05.a: $(A_OBJ)
-	ar r seed7_05.a $(A_OBJ)
+seed7_05.lib: $(A_OBJ)
+	lib /out:seed7_05.lib $(A_OBJ)
 
 wc: $(SRC)
 	wc $(GSRC1) $(GSRC2)
@@ -178,8 +184,3 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(LIBS)
-
-ifeq (depend,$(wildcard depend))
-include depend
-include a_depend
-endif

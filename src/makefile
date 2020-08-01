@@ -1,7 +1,7 @@
 # Makefile for linux/bsd/unix and gcc.
 # To compile use a command shell and call:
-#   nmake depend
-#   nmake
+#   make depend
+#   make
 # If you are under windows you should use MinGW with mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 
 # CFLAGS =
@@ -111,6 +111,8 @@ scr_cur.o: scr_cur.c version.h scr_drv.h
 clear:
 	rm *.o
 	rm *.a
+	rm depend
+	rm a_depend
 	rm version.h
 
 dep: depend

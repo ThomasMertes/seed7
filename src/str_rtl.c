@@ -60,8 +60,8 @@ static char *stri_escape_sequence[] = {
 #ifdef WIDE_CHAR_STRINGS
 #ifdef ANSI_C
 
-static INLINE int strelem_memcmp (strelemtype *mem1, strelemtype *mem2,
-    SIZE_TYPE number)
+static INLINE int strelem_memcmp (const strelemtype *mem1,
+    const strelemtype *mem2, SIZE_TYPE number)
 #else
 
 static INLINE int strelem_memcmp (mem1, mem2, number)
@@ -83,8 +83,8 @@ SIZE_TYPE number;
 
 #ifdef ANSI_C
 
-static INLINE strelemtype *search_strelem (strelemtype *mem, strelemtype ch,
-    SIZE_TYPE number)
+static INLINE const strelemtype *search_strelem (const strelemtype *mem,
+    strelemtype ch, SIZE_TYPE number)
 #else
 
 static INLINE strelemtype *search_strelem (mem, ch, number)
@@ -107,7 +107,7 @@ SIZE_TYPE number;
 #else
 
 #define strelem_memcmp(mem1,mem2,len) memcmp(mem1, mem2, (len) * sizeof(strelemtype))
-#define search_strelem memchr
+#define search_strelem (const strelemtype *) memchr
 
 #endif
 
@@ -115,8 +115,8 @@ SIZE_TYPE number;
 
 #ifdef ANSI_C
 
-static INLINE strelemtype *rsearch_strelem (strelemtype *mem, strelemtype ch,
-    SIZE_TYPE number)
+static INLINE const strelemtype *rsearch_strelem (const strelemtype *mem,
+    strelemtype ch, SIZE_TYPE number)
 #else
 
 static INLINE strelemtype *rsearch_strelem (mem, ch, number)
@@ -138,8 +138,8 @@ SIZE_TYPE number;
 
 #ifdef ANSI_C
 
-static rtlArraytype add_stri_to_array (strelemtype *stri_elems, memsizetype length,
-    rtlArraytype work_array, memsizetype *used_max_position)
+static rtlArraytype add_stri_to_array (const strelemtype *stri_elems,
+    memsizetype length, rtlArraytype work_array, memsizetype *used_max_position)
 #else
 
 static rtlArraytype add_stri_to_array (stri_elems, length,
@@ -189,7 +189,7 @@ memsizetype *used_max_position;
 
 #ifdef ANSI_C
 
-void strAppend (stritype *stri_to, stritype stri_from)
+void strAppend (stritype *const stri_to, const const_stritype stri_from)
 #else
 
 void strAppend (stri_to, stri_from)
@@ -221,7 +221,7 @@ stritype stri_from;
 
 #ifdef ANSI_C
 
-rtlArraytype strChSplit (stritype main_stri, chartype delimiter)
+rtlArraytype strChSplit (const const_stritype main_stri, const chartype delimiter)
 #else
 
 rtlArraytype strChSplit (main_stri, delimiter)
@@ -231,9 +231,9 @@ chartype delimiter;
 
   {
     memsizetype used_max_position;
-    strelemtype *search_start;
-    strelemtype *search_end;
-    strelemtype *found_pos;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
+    const strelemtype *found_pos;
     memsizetype pos;
     rtlArraytype result_array;
 
@@ -245,7 +245,7 @@ chartype delimiter;
       used_max_position = 0;
       search_start = main_stri->mem;
       search_end = &main_stri->mem[main_stri->size];
-      while ((found_pos = (strelemtype *) search_strelem(search_start,
+      while ((found_pos = search_strelem(search_start,
           delimiter, (SIZE_TYPE) (search_end - search_start))) != NULL &&
           result_array != NULL) {
         result_array = add_stri_to_array(search_start,
@@ -355,7 +355,7 @@ stritype str1;
 
 #ifdef ANSI_C
 
-inttype strCompare (stritype stri1, stritype stri2)
+inttype strCompare (const const_stritype stri1, const const_stritype stri2)
 #else
 
 inttype strCompare (stri1, stri2)
@@ -397,7 +397,7 @@ stritype stri2;
 
 #ifdef ANSI_C
 
-stritype strConcat (stritype stri1, stritype stri2)
+stritype strConcat (const const_stritype stri1, const const_stritype stri2)
 #else
 
 stritype strConcat (stri1, stri2)
@@ -429,7 +429,7 @@ stritype stri2;
 
 #ifdef ANSI_C
 
-void strCopy (stritype *stri_to, stritype stri_from)
+void strCopy (stritype *const stri_to, const const_stritype stri_from)
 #else
 
 void strCopy (stri_to, stri_from)
@@ -465,7 +465,7 @@ stritype stri_from;
 
 #ifdef ANSI_C
 
-stritype strCreate (stritype stri_from)
+stritype strCreate (const const_stritype stri_from)
 #else
 
 stritype strCreate (stri_from)
@@ -493,7 +493,7 @@ stritype stri_from;
 
 #ifdef ANSI_C
 
-void strDestr (stritype old_string)
+void strDestr (const const_stritype old_string)
 #else
 
 void strDestr (old_string)
@@ -510,7 +510,7 @@ stritype old_string;
 
 #ifdef ANSI_C
 
-booltype strGe (stritype stri1, stritype stri2)
+booltype strGe (const const_stritype stri1, const const_stritype stri2)
 #else
 
 booltype strGe (stri1, stri2)
@@ -540,7 +540,7 @@ stritype stri2;
 
 #ifdef ANSI_C
 
-booltype strGt (stritype stri1, stritype stri2)
+booltype strGt (const const_stritype stri1, const const_stritype stri2)
 #else
 
 booltype strGt (stri1, stri2)
@@ -570,7 +570,7 @@ stritype stri2;
 
 #ifdef ANSI_C
 
-inttype strHashCode (stritype stri)
+inttype strHashCode (const const_stritype stri)
 #else
 
 inttype strHashCode (stri)
@@ -593,7 +593,7 @@ stritype stri;
 
 #ifdef ANSI_C
 
-stritype strHead (stritype stri, inttype stop)
+stritype strHead (const const_stritype stri, const inttype stop)
 #else
 
 stritype strHead (stri, stop)
@@ -637,7 +637,8 @@ inttype stop;
 
 #ifdef ANSI_C
 
-inttype strIpos (stritype main_stri, stritype searched, inttype from_index)
+inttype strIpos (const const_stritype main_stri, const const_stritype searched,
+    const inttype from_index)
 #else
 
 inttype strIpos (main_stri, searched, from_index)
@@ -650,10 +651,10 @@ inttype from_index;
     memsizetype main_size;
     memsizetype searched_size;
     strelemtype ch_1;
-    strelemtype *main_mem;
-    strelemtype *searched_mem;
-    strelemtype *search_start;
-    strelemtype *search_end;
+    const strelemtype *main_mem;
+    const strelemtype *searched_mem;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
 
   /* strIpos */
     if (from_index <= 0) {
@@ -668,7 +669,7 @@ inttype from_index;
         main_size -= from_index;
         search_start = main_mem;
         search_end = &main_mem[main_size - searched_size + 1];
-        while ((search_start = (strelemtype *) search_strelem(search_start,
+        while ((search_start = search_strelem(search_start,
             ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
           if (memcmp(search_start, searched_mem,
               (SIZE_TYPE) searched_size * sizeof(strelemtype)) == 0) {
@@ -686,7 +687,7 @@ inttype from_index;
 
 #ifdef ANSI_C
 
-booltype strLe (stritype stri1, stritype stri2)
+booltype strLe (const const_stritype stri1, const const_stritype stri2)
 #else
 
 booltype strLe (stri1, stri2)
@@ -716,7 +717,7 @@ stritype stri2;
 
 #ifdef ANSI_C
 
-stritype strLit (stritype stri)
+stritype strLit (const const_stritype stri)
 #else
 
 stritype strLit (stri)
@@ -780,7 +781,7 @@ stritype stri;
 
 #ifdef ANSI_C
 
-stritype strLow (stritype stri)
+stritype strLow (const const_stritype stri)
 #else
 
 stritype strLow (stri)
@@ -819,7 +820,7 @@ stritype stri;
 
 #ifdef ANSI_C
 
-stritype strLpad (stritype stri, inttype pad_size)
+stritype strLpad (const const_stritype stri, const inttype pad_size)
 #else
 
 stritype strLpad (stri, pad_size)
@@ -873,7 +874,7 @@ inttype pad_size;
 
 #ifdef ANSI_C
 
-booltype strLt (stritype stri1, stritype stri2)
+booltype strLt (const const_stritype stri1, const const_stritype stri2)
 #else
 
 booltype strLt (stri1, stri2)
@@ -903,7 +904,7 @@ stritype stri2;
 
 #ifdef ANSI_C
 
-stritype strMult (stritype stri, inttype factor)
+stritype strMult (const const_stritype stri, const inttype factor)
 #else
 
 stritype strMult (stri, factor)
@@ -959,7 +960,7 @@ inttype factor;
 
 #ifdef ANSI_C
 
-inttype strPos (stritype main_stri, stritype searched)
+inttype strPos (const const_stritype main_stri, const const_stritype searched)
 #else
 
 inttype strPos (main_stri, searched)
@@ -971,10 +972,10 @@ stritype searched;
     memsizetype main_size;
     memsizetype searched_size;
     strelemtype ch_1;
-    strelemtype *main_mem;
-    strelemtype *searched_mem;
-    strelemtype *search_start;
-    strelemtype *search_end;
+    const strelemtype *main_mem;
+    const strelemtype *searched_mem;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
 
   /* strPos */
     main_size = main_stri->size;
@@ -985,7 +986,7 @@ stritype searched;
       main_mem = main_stri->mem;
       search_start = main_mem;
       search_end = &main_mem[main_size - searched_size + 1];
-      while ((search_start = (strelemtype *) search_strelem(search_start,
+      while ((search_start = search_strelem(search_start,
           ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
         if (memcmp(search_start, searched_mem,
             (SIZE_TYPE) searched_size * sizeof(strelemtype)) == 0) {
@@ -1002,7 +1003,7 @@ stritype searched;
 
 #ifdef ANSI_C
 
-stritype strRange (stritype stri, inttype start, inttype stop)
+stritype strRange (const const_stritype stri, inttype start, inttype stop)
 #else
 
 stritype strRange (stri, start, stop)
@@ -1056,7 +1057,8 @@ inttype stop;
 
 #ifdef ANSI_C
 
-stritype strRepl (stritype main_stri, stritype searched, stritype replace)
+stritype strRepl (const const_stritype main_stri,
+    const const_stritype searched, const const_stritype replace)
 #else
 
 stritype strRepl (main_stri, searched, replace)
@@ -1070,11 +1072,11 @@ stritype replace;
     memsizetype searched_size;
     memsizetype guessed_result_size;
     strelemtype ch_1;
-    strelemtype *main_mem;
-    strelemtype *searched_mem;
-    strelemtype *search_start;
-    strelemtype *search_end;
-    strelemtype *copy_start;
+    const strelemtype *main_mem;
+    const strelemtype *searched_mem;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
+    const strelemtype *copy_start;
     strelemtype *result_end;
     stritype result;
 
@@ -1102,7 +1104,7 @@ stritype replace;
       search_start = main_mem;
       search_end = &main_mem[main_size - searched_size + 1];
       while (search_start < search_end &&
-          (search_start = (strelemtype *) search_strelem(search_start,
+          (search_start = search_strelem(search_start,
           ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
         if (memcmp(search_start, searched_mem,
             (SIZE_TYPE) searched_size * sizeof(strelemtype)) == 0) {
@@ -1139,7 +1141,7 @@ stritype replace;
 
 #ifdef ANSI_C
 
-stritype strRpad (stritype stri, inttype pad_size)
+stritype strRpad (const const_stritype stri, const inttype pad_size)
 #else
 
 stritype strRpad (stri, pad_size)
@@ -1194,7 +1196,7 @@ inttype pad_size;
 
 #ifdef ANSI_C
 
-inttype strRpos (stritype main_stri, stritype searched)
+inttype strRpos (const const_stritype main_stri, const const_stritype searched)
 #else
 
 inttype strRpos (main_stri, searched)
@@ -1206,10 +1208,10 @@ stritype searched;
     memsizetype main_size;
     memsizetype searched_size;
     strelemtype ch_1;
-    strelemtype *main_mem;
-    strelemtype *searched_mem;
-    strelemtype *search_start;
-    strelemtype *search_end;
+    const strelemtype *main_mem;
+    const strelemtype *searched_mem;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
 
   /* strRpos */
     main_size = main_stri->size;
@@ -1238,7 +1240,7 @@ stritype searched;
 #ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
-arraytype strSplit (stritype main_stri, chartype delimiter)
+arraytype strSplit (const const_stritype main_stri, chartype delimiter)
 #else
 
 arraytype strSplit (main_stri, delimiter)
@@ -1252,10 +1254,10 @@ chartype delimiter;
     errinfotype err_info = OKAY_NO_ERROR;
 
     memsizetype main_size;
-    strelemtype *main_mem;
-    strelemtype *search_start;
-    strelemtype *search_end;
-    strelemtype *found_pos;
+    const strelemtype *main_mem;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
+    const strelemtype *found_pos;
     memsizetype length;
     stritype dest;
 
@@ -1270,7 +1272,7 @@ chartype delimiter;
         main_mem = main_stri->mem;
         search_start = main_mem;
         search_end = &main_mem[main_size];
-        while ((found_pos = (strelemtype *) search_strelem(search_start,
+        while ((found_pos = search_strelem(search_start,
             delimiter, (SIZE_TYPE) (search_end - search_start))) != NULL) {
           add_stri_to_array(search_start, found_pos - search_start,
               result_array, &used_max_position, &err_info);
@@ -1291,7 +1293,7 @@ chartype delimiter;
 
 #ifdef ANSI_C
 
-arraytype strSplit (stritype stri, stritype delimiter)
+arraytype strSplit (const const_stritype stri, const const_stritype delimiter)
 #else
 
 arraytype strSplit (stri, delimiter)
@@ -1303,11 +1305,11 @@ stritype delimiter;
     memsizetype main_size;
     memsizetype delimiter_size;
     strelemtype ch_1;
-    strelemtype *main_mem;
-    strelemtype *delimiter_mem;
-    strelemtype *search_start;
-    strelemtype *search_end;
-    strelemtype *found_pos;
+    const strelemtype *main_mem;
+    const strelemtype *delimiter_mem;
+    const strelemtype *search_start;
+    const strelemtype *search_end;
+    const strelemtype *found_pos;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* strSplit */
@@ -1320,7 +1322,7 @@ stritype delimiter;
         main_mem = main_stri->mem;
         search_start = main_mem;
         search_end = &main_mem[main_size - delimiter_size + 1];
-        while ((found_pos = (strelemtype *) search_strelem(search_start,
+        while ((found_pos = search_strelem(search_start,
             ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
           memcpy(dest, search_start, found_pos - search_start);
           search_start = found_pos + 1
@@ -1333,7 +1335,7 @@ stritype delimiter;
         main_mem = main_stri->mem;
         search_start = main_mem;
         search_end = &main_mem[main_size - delimiter_size + 1];
-        while ((found_pos = (strelemtype *) search_strelem(search_start,
+        while ((found_pos = search_strelem(search_start,
             ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL) {
           if (memcmp(search_start, delimiter_mem,
               (SIZE_TYPE) delimiter_size * sizeof(strelemtype)) == 0) {
@@ -1352,7 +1354,8 @@ stritype delimiter;
 
 #ifdef ANSI_C
 
-rtlArraytype strSplit (stritype main_stri, stritype delimiter)
+rtlArraytype strSplit (const const_stritype main_stri,
+    const const_stritype delimiter)
 #else
 
 rtlArraytype strSplit (main_stri, delimiter)
@@ -1362,13 +1365,13 @@ stritype delimiter;
 
   {
     memsizetype delimiter_size;
-    strelemtype *delimiter_mem;
+    const strelemtype *delimiter_mem;
     strelemtype ch_1;
     memsizetype used_max_position;
-    strelemtype *search_start;
-    strelemtype *segment_start;
-    strelemtype *search_end;
-    strelemtype *found_pos;
+    const strelemtype *search_start;
+    const strelemtype *segment_start;
+    const strelemtype *search_end;
+    const strelemtype *found_pos;
     memsizetype pos;
     rtlArraytype result_array;
 
@@ -1385,7 +1388,7 @@ stritype delimiter;
       segment_start = search_start;
       if (delimiter_size != 0 && main_stri->size >= delimiter_size) {
         search_end = &main_stri->mem[main_stri->size - delimiter_size + 1];
-        while ((found_pos = (strelemtype *) search_strelem(search_start,
+        while ((found_pos = search_strelem(search_start,
             ch_1, (SIZE_TYPE) (search_end - search_start))) != NULL &&
             result_array != NULL) {
           if (memcmp(found_pos, delimiter_mem,
@@ -1430,7 +1433,7 @@ stritype delimiter;
 
 #ifdef ANSI_C
 
-stritype strSubstr (stritype stri, inttype start, inttype len)
+stritype strSubstr (const const_stritype stri, inttype start, inttype len)
 #else
 
 stritype strSubstr (stri, start, len)
@@ -1480,7 +1483,7 @@ inttype len;
 
 #ifdef ANSI_C
 
-stritype strTail (stritype stri, inttype start)
+stritype strTail (const const_stritype stri, inttype start)
 #else
 
 stritype strTail (stri, start)
@@ -1529,7 +1532,7 @@ inttype start;
 
 #ifdef ANSI_C
 
-stritype strTrim (stritype stri)
+stritype strTrim (const const_stritype stri)
 #else
 
 stritype strTrim (stri)
@@ -1569,7 +1572,7 @@ stritype stri;
 
 #ifdef ANSI_C
 
-stritype strUp (stritype stri)
+stritype strUp (const const_stritype stri)
 #else
 
 stritype strUp (stri)

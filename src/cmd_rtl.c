@@ -35,7 +35,6 @@
 #include "stdio.h"
 #include "string.h"
 #include "limits.h"
-#include "unistd.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "errno.h"
@@ -47,6 +46,12 @@
 #include "str_rtl.h"
 #include "rtl_err.h"
 #include "dir_drv.h"
+
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
 
 #ifdef USE_MMAP
 #include "sys/mman.h"
