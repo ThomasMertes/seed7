@@ -1422,6 +1422,7 @@ objecttype traceobject;
           } /* if */
           break;
         case INTOBJECT:
+        case BIGINTOBJECT:
         case CHAROBJECT:
         case STRIOBJECT:
         case FILEOBJECT:

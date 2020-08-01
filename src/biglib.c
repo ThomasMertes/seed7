@@ -194,38 +194,12 @@ listtype arguments;
 
   {
     objecttype big_variable;
-    int carry = 1;
 
   /* big_decr */
-#ifdef OUT_OF_ORDER
     big_variable = arg_1(arguments);
     isit_bigint(big_variable);
     is_variable(big_variable);
-    big1 = take_bigint(big_variable);
-    for (pos = 0; pos < big1->size; pos++) {
-      if (carry) {
-        if (big1->bigdigits[pos] == 0) {
-          big1->bigdigits[pos] = BIGDIGIT_MAX;
-        } else {
-          big1->bigdigits[pos]--;
-          carry = 0;
-        } /* if */
-      } /* if */
-    } /* for */
-    if (carry) {
-      if (big1->sign == 0) {
-        big1->sign = BIGDIGIT_MAX;
-      } else {
-        if (!RESIZE_BIG(big1, big1->size, big1->size + 1)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } else {
-          big1->bigdigits[pos] = BIGDIGIT_MAX - 1;
-          big1->size++;
-          big_variable->value.bigvalue = big1;
-        } /* if */
-      } /* if */
-    } /* if */
-#endif
+    bigDecr(&take_bigint(big_variable));
     return(SYS_EMPTY_OBJECT);
   } /* big_decr */
 
@@ -304,6 +278,50 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype big_ge (listtype arguments)
+#else
+
+objecttype big_ge (arguments)
+listtype arguments;
+#endif
+
+  { /* big_ge */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    if (bigCmp(take_bigint(arg_1(arguments)),
+        take_bigint(arg_3(arguments))) >= 0) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* big_ge */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_gt (listtype arguments)
+#else
+
+objecttype big_gt (arguments)
+listtype arguments;
+#endif
+
+  { /* big_gt */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    if (bigCmp(take_bigint(arg_1(arguments)),
+        take_bigint(arg_3(arguments))) > 0) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* big_gt */
+
+
+
+#ifdef ANSI_C
+
 objecttype big_hashcode (listtype arguments)
 #else
 
@@ -335,40 +353,76 @@ listtype arguments;
 
   {
     objecttype big_variable;
-    int carry = 1;
 
   /* big_incr */
-#ifdef OUT_OF_ORDER
     big_variable = arg_1(arguments);
     isit_bigint(big_variable);
     is_variable(big_variable);
-    big1 = take_bigint(big_variable);
-    for (pos = 0; pos < big1->size; pos++) {
-      if (carry) {
-        if (big1->bigdigits[pos] == BIGDIGIT_MAX) {
-          big1->bigdigits[pos] = 0;
-        } else {
-          big1->bigdigits[pos]++;
-          carry = 0;
-        } /* if */
-      } /* if */
-    } /* for */
-    if (carry) {
-      if (big1->sign != 0) {
-        big1->sign = 0;
-      } else {
-        if (!RESIZE_BIG(big1, big1->size, big1->size + 1)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } else {
-          big1->bigdigits[pos] = 1;
-          big1->size++;
-          big_variable->value.bigvalue = big1;
-        } /* if */
-      } /* if */
-    } /* if */
-#endif
+    bigIncr(&take_bigint(big_variable));
     return(SYS_EMPTY_OBJECT);
   } /* big_incr */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_ipow (listtype arguments)
+#else
+
+objecttype big_ipow (arguments)
+listtype arguments;
+#endif
+
+  { /* big_ipow */
+    isit_bigint(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    return(bld_bigint_temp(
+        bigIPow(take_bigint(arg_1(arguments)), take_int(arg_3(arguments)))));
+  } /* big_ipow */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_le (listtype arguments)
+#else
+
+objecttype big_le (arguments)
+listtype arguments;
+#endif
+
+  { /* big_le */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    if (bigCmp(take_bigint(arg_1(arguments)),
+        take_bigint(arg_3(arguments))) <= 0) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* big_le */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_lt (listtype arguments)
+#else
+
+objecttype big_lt (arguments)
+listtype arguments;
+#endif
+
+  { /* big_lt */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    if (bigCmp(take_bigint(arg_1(arguments)),
+        take_bigint(arg_3(arguments))) < 0) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* big_lt */
 
 
 
@@ -386,6 +440,24 @@ listtype arguments;
     return(bld_bigint_temp(
         bigMinus(take_bigint(arg_2(arguments)))));
   } /* big_minus */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_mod (listtype arguments)
+#else
+
+objecttype big_mod (arguments)
+listtype arguments;
+#endif
+
+  { /* big_mod */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_3(arguments));
+    return(bld_bigint_temp(
+        bigMod(take_bigint(arg_1(arguments)), take_bigint(arg_3(arguments)))));
+  } /* big_mod */
 
 
 

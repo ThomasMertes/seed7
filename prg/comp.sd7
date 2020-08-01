@@ -537,7 +537,7 @@ const proc: process_object_value (in reference: current_object,
       c_expr.expr &:= "=";
       c_expr.expr &:= str(integer value object_value);
     elsif objclass = "BIGINTOBJECT" then
-      c_expr.expr &:= "=";
+      c_expr.expr &:= "/* initialisation missing = */";
       # c_expr.expr &:= str(bigInteger value object_value);
     elsif objclass = "CHAROBJECT" then
       c_expr.expr &:= "=";
@@ -1566,6 +1566,15 @@ const proc: process_big_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_big_decr (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigDecr(&(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
 const proc: process_big_div (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -1589,12 +1598,89 @@ const proc: process_big_eq (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_big_ge (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(bigCmp(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ") >= 0)";
+  end func;
+
+
+const proc: process_big_gt (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(bigCmp(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ") > 0)";
+  end func;
+
+
+const proc: process_big_incr (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "bigIncr(&(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process_big_ipow (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigIPow(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_std_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_le (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(bigCmp(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ") <= 0)";
+  end func;
+
+
+const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "(bigCmp(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_arg(params[3], c_expr);
+    c_expr.expr &:= ") < 0)";
+  end func;
+
+
 const proc: process_big_minus (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     prepare_bigint_result(c_expr);
     c_expr.result_expr := "bigMinus(";
     get_bigint_arg(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_mod (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigMod(";
+    get_bigint_arg(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    get_bigint_arg(params[3], c_expr);
     c_expr.result_expr &:= ")";
   end func;
 
@@ -1625,9 +1711,10 @@ const proc: process_big_ne (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_big_parse (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "bigParse(";
-    process_arg(params[3], c_expr);
-    c_expr.expr &:= ")";
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigParse(";
+    get_stri_arg(params[3], c_expr);
+    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -5684,723 +5771,852 @@ const proc: process_ut8_write (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_unknown_action (in string: action_name, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "/* ACTOBJECT { ";
+    c_expr.expr &:= action_name;
+    c_expr.expr &:= " }*/";
+  end func;
+
+
 const proc: process_action (in reference: procedure, in ref_list: params,
     inout expr_type: c_expr) is func
 
   local
     var ACTION: current_action is action "PRC_NOOP";
     var string: action_name is "";
+    var string: action_prefix is "";
   begin
     current_action := ACTION value procedure;
     action_name := str(current_action);
-    if action_name = "ACT_CPY" then
-      process_act_cpy(params, c_expr);
-    elsif action_name = "ACT_STR" then
-      process_act_str(params, c_expr);
-    elsif action_name = "ACT_VALUE" then
-      process_act_value(params, c_expr);
-    elsif action_name = "ARR_APPEND" then
-      process_arr_append(params, c_expr);
-    elsif action_name = "ARR_ARRLIT" then
-      process_arr_arrlit(params, c_expr);
-    elsif action_name = "ARR_ARRLIT2" then
-      process_arr_arrlit2(params, c_expr);
-    elsif action_name = "ARR_BASELIT" then
-      process_arr_baselit(params, c_expr);
-    elsif action_name = "ARR_BASELIT2" then
-      process_arr_baselit2(params, c_expr);
-    elsif action_name = "ARR_CAT" then
-      process_arr_cat(params, c_expr);
-    elsif action_name = "ARR_CONV" then
-      process_arr_conv(params, c_expr);
-    elsif action_name = "ARR_CPY" then
-      process_arr_cpy(procedure, params, c_expr);
-    elsif action_name = "ARR_CREATE" then
-      process_arr_create(procedure, params, c_expr);
-    elsif action_name = "ARR_DESTR" then
-      process_arr_destr(params, c_expr);
-    elsif action_name = "ARR_EXTEND" then
-      process_arr_extend(params, c_expr);
-    elsif action_name = "ARR_GEN" then
-      process_arr_gen(params, c_expr);
-    elsif action_name = "ARR_HEAD" then
-      process_arr_head(params, c_expr);
-    elsif action_name = "ARR_IDX" then
-      process_arr_idx(params, c_expr);
-    elsif action_name = "ARR_LNG" then
-      process_arr_lng(params, c_expr);
-    elsif action_name = "ARR_RANGE" then
-      process_arr_range(params, c_expr);
-    elsif action_name = "ARR_SORT" then
-      process_arr_sort(params, c_expr);
-    elsif action_name = "ARR_TIMES" then
-      process_arr_times(params, c_expr);
-    elsif action_name = "ARR_TAIL" then
-      process_arr_tail(params, c_expr);
-    elsif action_name = "BIG_ADD" then
-      process_big_add(params, c_expr);
-    elsif action_name = "BIG_CMP" then
-      process_big_cmp(params, c_expr);
-    elsif action_name = "BIG_CPY" then
-      process_big_cpy(params, c_expr);
-    elsif action_name = "BIG_DIV" then
-      process_big_div(params, c_expr);
-    elsif action_name = "BIG_EQ" then
-      process_big_eq(params, c_expr);
-    elsif action_name = "BIG_MINUS" then
-      process_big_minus(params, c_expr);
-    elsif action_name = "BIG_MULT" then
-      process_big_mult(params, c_expr);
-    elsif action_name = "BIG_NE" then
-      process_big_ne(params, c_expr);
-    elsif action_name = "BIG_PARSE" then
-      process_big_parse(params, c_expr);
-    elsif action_name = "BIG_SBTR" then
-      process_big_sbtr(params, c_expr);
-    elsif action_name = "BIG_PRED" then
-      process_big_pred(params, c_expr);
-    elsif action_name = "BIG_REM" then
-      process_big_rem(params, c_expr);
-    elsif action_name = "BIG_STR" then
-      process_big_str(params, c_expr);
-    elsif action_name = "BIG_SUCC" then
-      process_big_succ(params, c_expr);
-    elsif action_name = "BLN_AND" then
-      process_bln_and(params, c_expr);
-    elsif action_name = "BLN_CPY" then
-      process_bln_cpy(params, c_expr);
-    elsif action_name = "BLN_EQ" then
-      process_bln_eq(params, c_expr);
-    elsif action_name = "BLN_GE" then
-      process_bln_ge(params, c_expr);
-    elsif action_name = "BLN_GT" then
-      process_bln_gt(params, c_expr);
-    elsif action_name = "BLN_ICONV" then
-      process_bln_iconv(params, c_expr);
-    elsif action_name = "BLN_LE" then
-      process_bln_le(params, c_expr);
-    elsif action_name = "BLN_LT" then
-      process_bln_lt(params, c_expr);
-    elsif action_name = "BLN_NE" then
-      process_bln_ne(params, c_expr);
-    elsif action_name = "BLN_NOT" then
-      process_bln_not(params, c_expr);
-    elsif action_name = "BLN_OR" then
-      process_bln_or(params, c_expr);
-    elsif action_name = "BLN_ORD" then
-      process_bln_ord(params, c_expr);
-    elsif action_name = "CHR_CHR" then
-      process_chr_chr(params, c_expr);
-    elsif action_name = "CHR_CPY" then
-      process_chr_cpy(params, c_expr);
-    elsif action_name = "CHR_EQ" then
-      process_chr_eq(params, c_expr);
-    elsif action_name = "CHR_DECR" then
-      process_chr_decr(params, c_expr);
-    elsif action_name = "CHR_GE" then
-      process_chr_ge(params, c_expr);
-    elsif action_name = "CHR_GROW" then
-      process_chr_grow(params, c_expr);
-    elsif action_name = "CHR_GT" then
-      process_chr_gt(params, c_expr);
-    elsif action_name = "CHR_HASHCODE" then
-      process_chr_hashcode(params, c_expr);
-    elsif action_name = "CHR_ICONV" then
-      process_chr_iconv(params, c_expr);
-    elsif action_name = "CHR_INCR" then
-      process_chr_incr(params, c_expr);
-    elsif action_name = "CHR_LE" then
-      process_chr_le(params, c_expr);
-    elsif action_name = "CHR_LOW" then
-      process_chr_low(params, c_expr);
-    elsif action_name = "CHR_LT" then
-      process_chr_lt(params, c_expr);
-    elsif action_name = "CHR_NE" then
-      process_chr_ne(params, c_expr);
-    elsif action_name = "CHR_ORD" then
-      process_chr_ord(params, c_expr);
-    elsif action_name = "CHR_PRED" then
-      process_chr_pred(params, c_expr);
-    elsif action_name = "CHR_SHRINK" then
-      process_chr_shrink(params, c_expr);
-    elsif action_name = "CHR_STR" then
-      process_chr_str(params, c_expr);
-    elsif action_name = "CHR_SUCC" then
-      process_chr_succ(params, c_expr);
-    elsif action_name = "CHR_UP" then
-      process_chr_up(params, c_expr);
-    elsif action_name = "CHR_VALUE" then
-      process_chr_value(params, c_expr);
-    elsif action_name = "CLS_CONV2" then
-      process_cls_conv2(params, c_expr);
-    elsif action_name = "CLS_CPY" then
-      process_cls_cpy(params, c_expr);
-    elsif action_name = "CLS_CPY2" then
-      process_cls_cpy2(params, c_expr);
-    elsif action_name = "CMD_COPY" then
-      process_cmd_copy(params, c_expr);
-    elsif action_name = "CMD_GETCWD" then
-      process_cmd_getcwd(params, c_expr);
-    elsif action_name = "CMD_LNG" then
-      process_cmd_lng(params, c_expr);
-    elsif action_name = "CMD_LS" then
-      process_cmd_ls(params, c_expr);
-    elsif action_name = "CMD_MOVE" then
-      process_cmd_move(params, c_expr);
-    elsif action_name = "CMD_REMOVE" then
-      process_cmd_remove(params, c_expr);
-    elsif action_name = "CMD_SH" then
-      process_cmd_sh(params, c_expr);
-    elsif action_name = "DRW_ARC" then
-      process_drw_arc(params, c_expr);
-    elsif action_name = "DRW_ARC2" then
-      process_drw_arc2(params, c_expr);
-    elsif action_name = "DRW_BACKGROUND" then
-      process_drw_background(params, c_expr);
-    elsif action_name = "DRW_CIRCLE" then
-      process_drw_circle(params, c_expr);
-    elsif action_name = "DRW_CLEAR" then
-      process_drw_clear(params, c_expr);
-    elsif action_name = "DRW_COLOR" then
-      process_drw_color(params, c_expr);
-    elsif action_name = "DRW_COPYAREA" then
-      process_drw_copyarea(params, c_expr);
-    elsif action_name = "DRW_CPY" then
-      process_drw_cpy(params, c_expr);
-    elsif action_name = "DRW_EQ" then
-      process_drw_eq(params, c_expr);
-    elsif action_name = "DRW_FARCCHORD" then
-      process_drw_farcchord(params, c_expr);
-    elsif action_name = "DRW_FARCPIESLICE" then
-      process_drw_farcpieslice(params, c_expr);
-    elsif action_name = "DRW_FCIRCLE" then
-      process_drw_fcircle(params, c_expr);
-    elsif action_name = "DRW_FELLIPSE" then
-      process_drw_fellipse(params, c_expr);
-    elsif action_name = "DRW_FLUSH" then
-      process_drw_flush(params, c_expr);
-    elsif action_name = "DRW_GET" then
-      process_drw_get(params, c_expr);
-    elsif action_name = "DRW_HEIGHT" then
-      process_drw_height(params, c_expr);
-    elsif action_name = "DRW_IMAGE" then
-      process_drw_image(params, c_expr);
-    elsif action_name = "DRW_LINE" then
-      process_drw_line(params, c_expr);
-    elsif action_name = "DRW_NE" then
-      process_drw_ne(params, c_expr);
-    elsif action_name = "DRW_NEW_PIXMAP" then
-      process_drw_new_pixmap(params, c_expr);
-    elsif action_name = "DRW_OPEN" then
-      process_drw_open(params, c_expr);
-    elsif action_name = "DRW_PFCIRCLE" then
-      process_drw_pfcircle(params, c_expr);
-    elsif action_name = "DRW_PLINE" then
-      process_drw_pline(params, c_expr);
-    elsif action_name = "DRW_POINT" then
-      process_drw_point(params, c_expr);
-    elsif action_name = "DRW_PPOINT" then
-      process_drw_ppoint(params, c_expr);
-    elsif action_name = "DRW_PRECT" then
-      process_drw_prect(params, c_expr);
-    elsif action_name = "DRW_PUT" then
-      process_drw_put(params, c_expr);
-    elsif action_name = "DRW_RECT" then
-      process_drw_rect(params, c_expr);
-    elsif action_name = "DRW_RGBCOL" then
-      process_drw_rgbcol(params, c_expr);
-    elsif action_name = "DRW_TEXT" then
-      process_drw_text(params, c_expr);
-    elsif action_name = "DRW_WIDTH" then
-      process_drw_width(params, c_expr);
-    elsif action_name = "ENU_CPY" then
-      process_enu_cpy(params, c_expr);
-    elsif action_name = "ENU_EQ" then
-      process_enu_eq(params, c_expr);
-    elsif action_name = "ENU_NE" then
-      process_enu_ne(params, c_expr);
-    elsif action_name = "ENU_VALUE" then
-      process_enu_value(params, c_expr);
-    elsif action_name = "FIL_CLOSE" then
-      process_fil_close(params, c_expr);
-    elsif action_name = "FIL_CPY" then
-      process_fil_cpy(params, c_expr);
-    elsif action_name = "FIL_EQ" then
-      process_fil_eq(params, c_expr);
-    elsif action_name = "FIL_EOF" then
-      process_fil_eof(params, c_expr);
-    elsif action_name = "FIL_FLUSH" then
-      process_fil_flush(params, c_expr);
-    elsif action_name = "FIL_GETC" then
-      process_fil_getc(params, c_expr);
-    elsif action_name = "FIL_L_RD" then
-      process_fil_l_rd(params, c_expr);
-    elsif action_name = "FIL_LIT" then
-      process_fil_lit(params, c_expr);
-    elsif action_name = "FIL_LNG" then
-      process_fil_lng(params, c_expr);
-    elsif action_name = "FIL_NE" then
-      process_fil_ne(params, c_expr);
-    elsif action_name = "FIL_NIL" then
-      process_fil_nil(params, c_expr);
-    elsif action_name = "FIL_OPEN" then
-      process_fil_open(params, c_expr);
-    elsif action_name = "FIL_STRI_READ" then
-      process_fil_stri_read(params, c_expr);
-    elsif action_name = "FIL_SEEK" then
-      process_fil_seek(params, c_expr);
-    elsif action_name = "FIL_TELL" then
-      process_fil_tell(params, c_expr);
-    elsif action_name = "FIL_WRITE" then
-      process_fil_write(params, c_expr);
-    elsif action_name = "FIL_WORD_READ" then
-      process_fil_word_read(params, c_expr);
-    elsif action_name = "FLT_A2TAN" then
-      process_flt_a2tan(params, c_expr);
-    elsif action_name = "FLT_ABS" then
-      process_flt_abs(params, c_expr);
-    elsif action_name = "FLT_ADD" then
-      process_flt_add(params, c_expr);
-    elsif action_name = "FLT_ACOS" then
-      process_flt_acos(params, c_expr);
-    elsif action_name = "FLT_ASIN" then
-      process_flt_asin(params, c_expr);
-    elsif action_name = "FLT_ATAN" then
-      process_flt_atan(params, c_expr);
-    elsif action_name = "FLT_CEIL" then
-      process_flt_ceil(params, c_expr);
-    elsif action_name = "FLT_CMP" then
-      process_flt_cmp(params, c_expr);
-    elsif action_name = "FLT_COS" then
-      process_flt_cos(params, c_expr);
-    elsif action_name = "FLT_CPY" then
-      process_flt_cpy(params, c_expr); 
-    elsif action_name = "FLT_DGTS" then
-      process_flt_dgts(params, c_expr);
-    elsif action_name = "FLT_DIV" then
-      process_flt_div(params, c_expr);
-    elsif action_name = "FLT_EQ" then
-      process_flt_eq(params, c_expr);
-    elsif action_name = "FLT_EXP" then
-      process_flt_exp(params, c_expr);
-    elsif action_name = "FLT_FLOOR" then
-      process_flt_floor(params, c_expr);
-    elsif action_name = "FLT_GE" then
-      process_flt_ge(params, c_expr);
-    elsif action_name = "FLT_GT" then
-      process_flt_gt(params, c_expr);
-    elsif action_name = "FLT_HASHCODE" then
-      process_flt_hashcode(params, c_expr);
-    elsif action_name = "FLT_IFLT" then
-      process_flt_iflt(params, c_expr);
-    elsif action_name = "FLT_IPOW" then
-      process_flt_ipow(params, c_expr);
-    elsif action_name = "FLT_LE" then
-      process_flt_le(params, c_expr);
-    elsif action_name = "FLT_LOG" then
-      process_flt_log(params, c_expr);
-    elsif action_name = "FLT_LT" then
-      process_flt_lt(params, c_expr);
-    elsif action_name = "FLT_MINUS" then
-      process_flt_minus(params, c_expr);
-    elsif action_name = "FLT_MULT" then
-      process_flt_mult(params, c_expr);
-    elsif action_name = "FLT_NE" then
-      process_flt_ne(params, c_expr);
-    elsif action_name = "FLT_PARSE" then
-      process_flt_parse(params, c_expr);
-    elsif action_name = "FLT_POW" then
-      process_flt_pow(params, c_expr);
-    elsif action_name = "FLT_RAND" then
-      process_flt_rand(params, c_expr);
-    elsif action_name = "FLT_ROUND" then
-      process_flt_round(params, c_expr);
-    elsif action_name = "FLT_SBTR" then
-      process_flt_sbtr(params, c_expr);
-    elsif action_name = "FLT_SIN" then
-      process_flt_sin(params, c_expr);
-    elsif action_name = "FLT_SQRT" then
-      process_flt_sqrt(params, c_expr);
-    elsif action_name = "FLT_STR" then
-      process_flt_str(params, c_expr);
-    elsif action_name = "FLT_TAN" then
-      process_flt_tan(params, c_expr);
-    elsif action_name = "FLT_TRUNC" then
-      process_flt_trunc(params, c_expr);
-    elsif action_name = "FLT_VALUE" then
-      process_flt_value(params, c_expr);
-    elsif action_name = "GKB_GETC" then
-      process_gkb_getc(params, c_expr);
-    elsif action_name = "GKB_KEYPRESSED" then
-      process_gkb_keypressed(params, c_expr);
-    elsif action_name = "GKB_LINE_READ" then
-      process_gkb_line_read(params, c_expr);
-    elsif action_name = "GKB_RAW_GETC" then
-      process_gkb_raw_getc(params, c_expr);
-    elsif action_name = "GKB_WORD_READ" then
-      process_gkb_word_read(params, c_expr);
-    elsif action_name = "HSH_CONTAINS" then
-      process_hsh_contains(params, c_expr);
-    elsif action_name = "HSH_CPY" then
-      process_hsh_cpy(params, c_expr);
-    elsif action_name = "HSH_CREATE" then
-      process_hsh_create(params, c_expr);
-    elsif action_name = "HSH_DESTR" then
-      process_hsh_destr(params, c_expr);
-    elsif action_name = "HSH_EXCL" then
-      process_hsh_excl(params, c_expr);
-    elsif action_name = "HSH_IDX" then
-      process_hsh_idx(params, c_expr);
-    elsif action_name = "HSH_INCL" then
-      process_hsh_incl(params, c_expr);
-    elsif action_name = "HSH_KEYS" then
-      process_hsh_keys(params, c_expr);
-    elsif action_name = "HSH_LNG" then
-      process_hsh_lng(params, c_expr);
-    elsif action_name = "HSH_VALUES" then
-      process_hsh_values(params, c_expr);
-    elsif action_name = "INT_ABS" then
-      process_int_abs(params, c_expr);
-    elsif action_name = "INT_ADD" then
-      process_int_add(params, c_expr);
-    elsif action_name = "INT_BINOM" then
-      process_int_binom(params, c_expr);
-    elsif action_name = "INT_CMP" then
-      process_int_cmp(params, c_expr);
-    elsif action_name = "INT_CONV" then
-      process_int_conv(params, c_expr);
-    elsif action_name = "INT_CPY" then
-      process_int_cpy(params, c_expr);
-    elsif action_name = "INT_DECR" then
-      process_int_decr(params, c_expr);
-    elsif action_name = "INT_DIV" then
-      process_int_div(params, c_expr);
-    elsif action_name = "INT_EQ" then
-      process_int_eq(params, c_expr);
-    elsif action_name = "INT_FACT" then
-      process_int_fact(params, c_expr);
-    elsif action_name = "INT_GE" then
-      process_int_ge(params, c_expr);
-    elsif action_name = "INT_GROW" then
-      process_int_grow(params, c_expr);
-    elsif action_name = "INT_GT" then
-      process_int_gt(params, c_expr);
-    elsif action_name = "INT_HASHCODE" then
-      process_int_hashcode(params, c_expr);
-    elsif action_name = "INT_HSIZE" then
-      process_int_hsize(params, c_expr);
-    elsif action_name = "INT_INCR" then
-      process_int_incr(params, c_expr);
-    elsif action_name = "INT_LD" then
-      process_int_ld(params, c_expr);
-    elsif action_name = "INT_LE" then
-      process_int_le(params, c_expr);
-    elsif action_name = "INT_LT" then
-      process_int_lt(params, c_expr);
-    elsif action_name = "INT_MDIV" then
-      process_int_mdiv(params, c_expr);
-    elsif action_name = "INT_MINUS" then
-      process_int_minus(params, c_expr);
-    elsif action_name = "INT_MOD" then
-      process_int_mod(params, c_expr);
-    elsif action_name = "INT_MULT" then
-      process_int_mult(params, c_expr);
-    elsif action_name = "INT_NE" then
-      process_int_ne(params, c_expr);
-    elsif action_name = "INT_ODD" then
-      process_int_odd(params, c_expr);
-    elsif action_name = "INT_ORD" then
-      process_int_ord(params, c_expr);
-    elsif action_name = "INT_PARSE" then
-      process_int_parse(params, c_expr);
-    elsif action_name = "INT_RAND" then
-      process_int_rand(params, c_expr);
-    elsif action_name = "INT_POW" then
-      process_int_pow(params, c_expr);
-    elsif action_name = "INT_PRED" then
-      process_int_pred(params, c_expr);
-    elsif action_name = "INT_REM" then
-      process_int_rem(params, c_expr);
-    elsif action_name = "INT_SBTR" then
-      process_int_sbtr(params, c_expr);
-    elsif action_name = "INT_SHRINK" then
-      process_int_shrink(params, c_expr);
-    elsif action_name = "INT_SQRT" then
-      process_int_sqrt(params, c_expr);
-    elsif action_name = "INT_STR" then
-      process_int_str(params, c_expr);
-    elsif action_name = "INT_SUCC" then
-      process_int_succ(params, c_expr);
-    elsif action_name = "INT_VALUE" then
-      process_int_value(params, c_expr);
-    elsif action_name = "KBD_GETC" then
-      process_kbd_getc(params, c_expr);
-    elsif action_name = "KBD_KEYPRESSED" then
-      process_kbd_keypressed(params, c_expr);
-    elsif action_name = "KBD_LINE_READ" then
-      process_kbd_line_read(params, c_expr);
-    elsif action_name = "KBD_RAW_GETC" then
-      process_kbd_raw_getc(params, c_expr);
-    elsif action_name = "KBD_WORD_READ" then
-      process_kbd_word_read(params, c_expr);
-    elsif action_name = "PRC_ARGS" then
-      process_prc_args(params, c_expr);
-    elsif action_name = "PRC_BLOCK" then
-      process_prc_block(params, c_expr);
-    elsif action_name = "PRC_CASE" then
-      process_prc_case(params, c_expr);
-    elsif action_name = "PRC_CASE_DEF" then
-      process_prc_case_def(params, c_expr);
-    elsif action_name = "PRC_DYNAMIC" then
-      process_prc_dynamic(procedure, params, c_expr);
-    elsif action_name = "PRC_EXIT" then
-      process_prc_exit(params, c_expr);
-    elsif action_name = "PRC_FOR_DOWNTO" then
-      process_prc_for_downto(params, c_expr);
-    elsif action_name = "PRC_FOR_TO" then
-      process_prc_for_to(params, c_expr);
-    elsif action_name = "PRC_IF" then
-      process_prc_if(params, c_expr);
-    elsif action_name = "PRC_IF_ELSIF" then
-      process_prc_if_elsif(params, c_expr);
-    elsif action_name = "PRC_NOOP" then
-      process_prc_noop(procedure, params, c_expr);
-    elsif action_name = "PRC_PRINT" then
-      process_prc_print(params, c_expr);
-    elsif action_name = "PRC_REPEAT" then
-      process_prc_repeat(params, c_expr);
-    elsif action_name = "PRC_WHILE" then
-      process_prc_while(params, c_expr);
-    elsif action_name = "PRG_DECL_OBJECTS" then
-      process_prg_decl_objects(params, c_expr);
-    elsif action_name = "PRG_EQ" then
-      process_prg_eq(params, c_expr);
-    elsif action_name = "PRG_EVAL" then
-      process_prg_eval(params, c_expr);
-    elsif action_name = "PRG_NAME" then
-      process_prg_name(params, c_expr);
-    elsif action_name = "PRG_NE" then
-      process_prg_ne(params, c_expr);
-    elsif action_name = "PRG_SYSVAR" then
-      process_prg_sysvar(params, c_expr);
-    elsif action_name = "PRG_VALUE" then
-      process_prg_value(params, c_expr);
-    elsif action_name = "REF_ADDR" then
-      process_ref_addr(params, c_expr);
-    elsif action_name = "REF_ARRTOLIST" then
-      process_ref_arrtolist(params, c_expr);
-    elsif action_name = "REF_BODY" then
-      process_ref_body(params, c_expr);
-    elsif action_name = "REF_CPY" then
-      process_ref_cpy(params, c_expr);
-    elsif action_name = "REF_DEREF" then
-      process_ref_deref(params, c_expr);
-    elsif action_name = "REF_EQ" then
-      process_ref_eq(params, c_expr);
-    elsif action_name = "REF_HASHCODE" then
-      process_ref_hashcode(params, c_expr);
-    elsif action_name = "REF_ISVAR" then
-      process_ref_isvar(params, c_expr);
-    elsif action_name = "REF_LOCALS" then
-      process_ref_locals(params, c_expr);
-    elsif action_name = "REF_NE" then
-      process_ref_ne(params, c_expr);
-    elsif action_name = "REF_NUM" then
-      process_ref_num(params, c_expr);
-    elsif action_name = "REF_OBJCLASS" then
-      process_ref_objclass(params, c_expr);
-    elsif action_name = "REF_PARAMS" then
-      process_ref_params(params, c_expr);
-    elsif action_name = "REF_RESINI" then
-      process_ref_resini(params, c_expr);
-    elsif action_name = "REF_RESULT" then
-      process_ref_result(params, c_expr);
-    elsif action_name = "REF_SCTTOLIST" then
-      process_ref_scttolist(params, c_expr);
-    elsif action_name = "REF_SELECT" then
-      process_ref_select(procedure, params, c_expr);
-    elsif action_name = "REF_STR" then
-      process_ref_str(params, c_expr);
-    elsif action_name = "REF_TYPE" then
-      process_ref_type(params, c_expr);
-    elsif action_name = "REF_VALUE" then
-      process_ref_value(params, c_expr);
-    elsif action_name = "RFL_CPY" then
-      process_rfl_cpy(params, c_expr);
-    elsif action_name = "RFL_ELEM" then
-      process_rfl_elem(params, c_expr);
-    elsif action_name = "RFL_IDX" then
-      process_rfl_idx(params, c_expr);
-    elsif action_name = "RFL_LNG" then
-      process_rfl_lng(params, c_expr);
-    elsif action_name = "RFL_TAIL" then
-      process_rfl_tail(params, c_expr);
-    elsif action_name = "RFL_VALUE" then
-      process_rfl_value(params, c_expr);
-    elsif action_name = "SCR_CLEAR" then
-      process_scr_clear(params, c_expr);
-    elsif action_name = "SCR_HEIGHT" then
-      process_scr_height(params, c_expr);
-    elsif action_name = "SCR_OPEN" then
-      process_scr_open(params, c_expr);
-    elsif action_name = "SCR_WIDTH" then
-      process_scr_width(params, c_expr);
-    elsif action_name = "SCR_WRITE" then
-      process_scr_write(params, c_expr);
-    elsif action_name = "SCT_CPY" then
-      process_sct_cpy(params, c_expr);
-    elsif action_name = "SCT_SELECT" then
-      process_sct_select(procedure, params, c_expr);
-    elsif action_name = "SET_BASELIT" then
-      process_set_baselit(params, c_expr);
-    elsif action_name = "SET_CARD" then
-      process_set_card(params, c_expr);
-    elsif action_name = "SET_CONV" then
-      process_set_conv(params, c_expr);
-    elsif action_name = "SET_CPY" then
-      process_set_cpy(params, c_expr);
-    elsif action_name = "SET_DIFF" then
-      process_set_diff(params, c_expr);
-    elsif action_name = "SET_ELEM" then
-      process_set_elem(params, c_expr);
-    elsif action_name = "SET_EQ" then
-      process_set_eq(params, c_expr);
-    elsif action_name = "SET_EXCL" then
-      process_set_excl(params, c_expr);
-    elsif action_name = "SET_GE" then
-      process_set_ge(params, c_expr);
-    elsif action_name = "SET_GT" then
-      process_set_gt(params, c_expr);
-    elsif action_name = "SET_HASHCODE" then
-      process_set_hashcode(params, c_expr);
-    elsif action_name = "SET_INCL" then
-      process_set_incl(params, c_expr);
-    elsif action_name = "SET_INTERSECT" then
-      process_set_intersect(params, c_expr);
-    elsif action_name = "SET_LE" then
-      process_set_le(params, c_expr);
-    elsif action_name = "SET_LT" then
-      process_set_lt(params, c_expr);
-    elsif action_name = "SET_MAX" then
-      process_set_max(params, c_expr);
-    elsif action_name = "SET_MIN" then
-      process_set_min(params, c_expr);
-    elsif action_name = "SET_NE" then
-      process_set_ne(params, c_expr);
-    elsif action_name = "SET_NOT_ELEM" then
-      process_set_not_elem(params, c_expr);
-    elsif action_name = "SET_RAND" then
-      process_set_rand(params, c_expr);
-    elsif action_name = "SET_SYMDIFF" then
-      process_set_symdiff(params, c_expr);
-    elsif action_name = "SET_UNION" then
-      process_set_union(params, c_expr);
-    elsif action_name = "SET_VALUE" then
-      process_set_value(params, c_expr);
-    elsif action_name = "STR_APPEND" then
-      process_str_append(params, c_expr);
-    elsif action_name = "STR_CAT" then
-      process_str_cat(params, c_expr);
-    elsif action_name = "STR_CLIT" then
-      process_str_clit(params, c_expr);
-    elsif action_name = "STR_CMP" then
-      process_str_cmp(params, c_expr);
-    elsif action_name = "STR_CPY" then
-      process_str_cpy(params, c_expr);
-    elsif action_name = "STR_ELEMCPY" then
-      process_str_elemcpy(params, c_expr);
-    elsif action_name = "STR_EQ" then
-      process_str_eq(params, c_expr);
-    elsif action_name = "STR_GE" then
-      process_str_ge(params, c_expr);
-    elsif action_name = "STR_GT" then
-      process_str_gt(params, c_expr);
-    elsif action_name = "STR_HASHCODE" then
-      process_str_hashcode(params, c_expr);
-    elsif action_name = "STR_HEAD" then
-      process_str_head(params, c_expr);
-    elsif action_name = "STR_IDX" then
-      process_str_idx(params, c_expr);
-    elsif action_name = "STR_IPOS" then
-      process_str_ipos(params, c_expr);
-    elsif action_name = "STR_LE" then
-      process_str_le(params, c_expr);
-    elsif action_name = "STR_LIT" then
-      process_str_lit(params, c_expr);
-    elsif action_name = "STR_LNG" then
-      process_str_lng(params, c_expr);
-    elsif action_name = "STR_LOW" then
-      process_str_low(params, c_expr);
-    elsif action_name = "STR_LPAD" then
-      process_str_lpad(params, c_expr);
-    elsif action_name = "STR_LT" then
-      process_str_lt(params, c_expr);
-    elsif action_name = "STR_MULT" then
-      process_str_mult(params, c_expr);
-    elsif action_name = "STR_NE" then
-      process_str_ne(params, c_expr);
-    elsif action_name = "STR_POS" then
-      process_str_pos(params, c_expr);
-    elsif action_name = "STR_RANGE" then
-      process_str_range(params, c_expr);
-    elsif action_name = "STR_REPL" then
-      process_str_repl(params, c_expr);
-    elsif action_name = "STR_RPAD" then
-      process_str_rpad(params, c_expr);
-    elsif action_name = "STR_RPOS" then
-      process_str_rpos(params, c_expr);
-    elsif action_name = "STR_SUBSTR" then
-      process_str_substr(params, c_expr);
-    elsif action_name = "STR_TAIL" then
-      process_str_tail(params, c_expr);
-    elsif action_name = "STR_UP" then
-      process_str_up(params, c_expr);
-    elsif action_name = "STR_VALUE" then
-      process_str_value(params, c_expr);
-    elsif action_name = "TIM_AWAIT" then
-      process_tim_await(params, c_expr);
-    elsif action_name = "TIM_NOW" then
-      process_tim_now(params, c_expr);
-    elsif action_name = "TYP_CPY" then
-      process_typ_cpy(params, c_expr);
-    elsif action_name = "TYP_EQ" then
-      process_typ_eq(params, c_expr);
-    elsif action_name = "TYP_HASHCODE" then
-      process_typ_hashcode(params, c_expr);
-    elsif action_name = "TYP_ISFUNC" then
-      process_typ_isfunc(params, c_expr);
-    elsif action_name = "TYP_ISVARFUNC" then
-      process_typ_isvarfunc(params, c_expr);
-    elsif action_name = "TYP_MATCHOBJ" then
-      process_typ_matchobj(params, c_expr);
-    elsif action_name = "TYP_NE" then
-      process_typ_ne(params, c_expr);
-    elsif action_name = "TYP_NUM" then
-      process_typ_num(params, c_expr);
-    elsif action_name = "TYP_RESULT" then
-      process_typ_result(params, c_expr);
-    elsif action_name = "TYP_STR" then
-      process_typ_str(params, c_expr);
-    elsif action_name = "TYP_VALUE" then
-      process_typ_value(params, c_expr);
-    elsif action_name = "TYP_VARCONV" then
-      process_typ_varconv(params, c_expr);
-    elsif action_name = "UT8_GETC" then
-      process_ut8_getc(params, c_expr);
-    elsif action_name = "UT8_L_RD" then
-      process_ut8_l_rd(params, c_expr);
-    elsif action_name = "UT8_SEEK" then
-      process_ut8_seek(params, c_expr);
-    elsif action_name = "UT8_STRI_READ" then
-      process_ut8_stri_read(params, c_expr);
-    elsif action_name = "UT8_WORD_READ" then
-      process_ut8_word_read(params, c_expr);
-    elsif action_name = "UT8_WRITE" then
-      process_ut8_write(params, c_expr);
+    action_prefix := action_name[ .. 3];
+    if action_prefix = "ACT" then
+      if action_name = "ACT_CPY" then
+        process_act_cpy(params, c_expr);
+      elsif action_name = "ACT_STR" then
+        process_act_str(params, c_expr);
+      elsif action_name = "ACT_VALUE" then
+        process_act_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "ARR" then
+      if action_name = "ARR_APPEND" then
+        process_arr_append(params, c_expr);
+      elsif action_name = "ARR_ARRLIT" then
+        process_arr_arrlit(params, c_expr);
+      elsif action_name = "ARR_ARRLIT2" then
+        process_arr_arrlit2(params, c_expr);
+      elsif action_name = "ARR_BASELIT" then
+        process_arr_baselit(params, c_expr);
+      elsif action_name = "ARR_BASELIT2" then
+        process_arr_baselit2(params, c_expr);
+      elsif action_name = "ARR_CAT" then
+        process_arr_cat(params, c_expr);
+      elsif action_name = "ARR_CONV" then
+        process_arr_conv(params, c_expr);
+      elsif action_name = "ARR_CPY" then
+        process_arr_cpy(procedure, params, c_expr);
+      elsif action_name = "ARR_CREATE" then
+        process_arr_create(procedure, params, c_expr);
+      elsif action_name = "ARR_DESTR" then
+        process_arr_destr(params, c_expr);
+      elsif action_name = "ARR_EXTEND" then
+        process_arr_extend(params, c_expr);
+      elsif action_name = "ARR_GEN" then
+        process_arr_gen(params, c_expr);
+      elsif action_name = "ARR_HEAD" then
+        process_arr_head(params, c_expr);
+      elsif action_name = "ARR_IDX" then
+        process_arr_idx(params, c_expr);
+      elsif action_name = "ARR_LNG" then
+        process_arr_lng(params, c_expr);
+      elsif action_name = "ARR_RANGE" then
+        process_arr_range(params, c_expr);
+      elsif action_name = "ARR_SORT" then
+        process_arr_sort(params, c_expr);
+      elsif action_name = "ARR_TIMES" then
+        process_arr_times(params, c_expr);
+      elsif action_name = "ARR_TAIL" then
+        process_arr_tail(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "BIG" then
+      if action_name = "BIG_ADD" then
+        process_big_add(params, c_expr);
+      elsif action_name = "BIG_CMP" then
+        process_big_cmp(params, c_expr);
+      elsif action_name = "BIG_CPY" then
+        process_big_cpy(params, c_expr);
+      elsif action_name = "BIG_DECR" then
+        process_big_decr(params, c_expr);
+      elsif action_name = "BIG_DIV" then
+        process_big_div(params, c_expr);
+      elsif action_name = "BIG_EQ" then
+        process_big_eq(params, c_expr);
+      elsif action_name = "BIG_GE" then
+        process_big_ge(params, c_expr);
+      elsif action_name = "BIG_GT" then
+        process_big_gt(params, c_expr);
+      elsif action_name = "BIG_INCR" then
+        process_big_incr(params, c_expr);
+      elsif action_name = "BIG_IPOW" then
+        process_big_ipow(params, c_expr);
+      elsif action_name = "BIG_LE" then
+        process_big_le(params, c_expr);
+      elsif action_name = "BIG_LT" then
+        process_big_lt(params, c_expr);
+      elsif action_name = "BIG_MINUS" then
+        process_big_minus(params, c_expr);
+      elsif action_name = "BIG_MOD" then
+        process_big_mod(params, c_expr);
+      elsif action_name = "BIG_MULT" then
+        process_big_mult(params, c_expr);
+      elsif action_name = "BIG_NE" then
+        process_big_ne(params, c_expr);
+      elsif action_name = "BIG_PARSE" then
+        process_big_parse(params, c_expr);
+      elsif action_name = "BIG_SBTR" then
+        process_big_sbtr(params, c_expr);
+      elsif action_name = "BIG_PRED" then
+        process_big_pred(params, c_expr);
+      elsif action_name = "BIG_REM" then
+        process_big_rem(params, c_expr);
+      elsif action_name = "BIG_STR" then
+        process_big_str(params, c_expr);
+      elsif action_name = "BIG_SUCC" then
+        process_big_succ(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "BLN" then
+      if action_name = "BLN_AND" then
+        process_bln_and(params, c_expr);
+      elsif action_name = "BLN_CPY" then
+        process_bln_cpy(params, c_expr);
+      elsif action_name = "BLN_EQ" then
+        process_bln_eq(params, c_expr);
+      elsif action_name = "BLN_GE" then
+        process_bln_ge(params, c_expr);
+      elsif action_name = "BLN_GT" then
+        process_bln_gt(params, c_expr);
+      elsif action_name = "BLN_ICONV" then
+        process_bln_iconv(params, c_expr);
+      elsif action_name = "BLN_LE" then
+        process_bln_le(params, c_expr);
+      elsif action_name = "BLN_LT" then
+        process_bln_lt(params, c_expr);
+      elsif action_name = "BLN_NE" then
+        process_bln_ne(params, c_expr);
+      elsif action_name = "BLN_NOT" then
+        process_bln_not(params, c_expr);
+      elsif action_name = "BLN_OR" then
+        process_bln_or(params, c_expr);
+      elsif action_name = "BLN_ORD" then
+        process_bln_ord(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "CHR" then
+      if action_name = "CHR_CHR" then
+        process_chr_chr(params, c_expr);
+      elsif action_name = "CHR_CPY" then
+        process_chr_cpy(params, c_expr);
+      elsif action_name = "CHR_EQ" then
+        process_chr_eq(params, c_expr);
+      elsif action_name = "CHR_DECR" then
+        process_chr_decr(params, c_expr);
+      elsif action_name = "CHR_GE" then
+        process_chr_ge(params, c_expr);
+      elsif action_name = "CHR_GROW" then
+        process_chr_grow(params, c_expr);
+      elsif action_name = "CHR_GT" then
+        process_chr_gt(params, c_expr);
+      elsif action_name = "CHR_HASHCODE" then
+        process_chr_hashcode(params, c_expr);
+      elsif action_name = "CHR_ICONV" then
+        process_chr_iconv(params, c_expr);
+      elsif action_name = "CHR_INCR" then
+        process_chr_incr(params, c_expr);
+      elsif action_name = "CHR_LE" then
+        process_chr_le(params, c_expr);
+      elsif action_name = "CHR_LOW" then
+        process_chr_low(params, c_expr);
+      elsif action_name = "CHR_LT" then
+        process_chr_lt(params, c_expr);
+      elsif action_name = "CHR_NE" then
+        process_chr_ne(params, c_expr);
+      elsif action_name = "CHR_ORD" then
+        process_chr_ord(params, c_expr);
+      elsif action_name = "CHR_PRED" then
+        process_chr_pred(params, c_expr);
+      elsif action_name = "CHR_SHRINK" then
+        process_chr_shrink(params, c_expr);
+      elsif action_name = "CHR_STR" then
+        process_chr_str(params, c_expr);
+      elsif action_name = "CHR_SUCC" then
+        process_chr_succ(params, c_expr);
+      elsif action_name = "CHR_UP" then
+        process_chr_up(params, c_expr);
+      elsif action_name = "CHR_VALUE" then
+        process_chr_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "CLS" then
+      if action_name = "CLS_CONV2" then
+        process_cls_conv2(params, c_expr);
+      elsif action_name = "CLS_CPY" then
+        process_cls_cpy(params, c_expr);
+      elsif action_name = "CLS_CPY2" then
+        process_cls_cpy2(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "CMD" then
+      if action_name = "CMD_COPY" then
+        process_cmd_copy(params, c_expr);
+      elsif action_name = "CMD_GETCWD" then
+        process_cmd_getcwd(params, c_expr);
+      elsif action_name = "CMD_LNG" then
+        process_cmd_lng(params, c_expr);
+      elsif action_name = "CMD_LS" then
+        process_cmd_ls(params, c_expr);
+      elsif action_name = "CMD_MOVE" then
+        process_cmd_move(params, c_expr);
+      elsif action_name = "CMD_REMOVE" then
+        process_cmd_remove(params, c_expr);
+      elsif action_name = "CMD_SH" then
+        process_cmd_sh(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "DRW" then
+      if action_name = "DRW_ARC" then
+        process_drw_arc(params, c_expr);
+      elsif action_name = "DRW_ARC2" then
+        process_drw_arc2(params, c_expr);
+      elsif action_name = "DRW_BACKGROUND" then
+        process_drw_background(params, c_expr);
+      elsif action_name = "DRW_CIRCLE" then
+        process_drw_circle(params, c_expr);
+      elsif action_name = "DRW_CLEAR" then
+        process_drw_clear(params, c_expr);
+      elsif action_name = "DRW_COLOR" then
+        process_drw_color(params, c_expr);
+      elsif action_name = "DRW_COPYAREA" then
+        process_drw_copyarea(params, c_expr);
+      elsif action_name = "DRW_CPY" then
+        process_drw_cpy(params, c_expr);
+      elsif action_name = "DRW_EQ" then
+        process_drw_eq(params, c_expr);
+      elsif action_name = "DRW_FARCCHORD" then
+        process_drw_farcchord(params, c_expr);
+      elsif action_name = "DRW_FARCPIESLICE" then
+        process_drw_farcpieslice(params, c_expr);
+      elsif action_name = "DRW_FCIRCLE" then
+        process_drw_fcircle(params, c_expr);
+      elsif action_name = "DRW_FELLIPSE" then
+        process_drw_fellipse(params, c_expr);
+      elsif action_name = "DRW_FLUSH" then
+        process_drw_flush(params, c_expr);
+      elsif action_name = "DRW_GET" then
+        process_drw_get(params, c_expr);
+      elsif action_name = "DRW_HEIGHT" then
+        process_drw_height(params, c_expr);
+      elsif action_name = "DRW_IMAGE" then
+        process_drw_image(params, c_expr);
+      elsif action_name = "DRW_LINE" then
+        process_drw_line(params, c_expr);
+      elsif action_name = "DRW_NE" then
+        process_drw_ne(params, c_expr);
+      elsif action_name = "DRW_NEW_PIXMAP" then
+        process_drw_new_pixmap(params, c_expr);
+      elsif action_name = "DRW_OPEN" then
+        process_drw_open(params, c_expr);
+      elsif action_name = "DRW_PFCIRCLE" then
+        process_drw_pfcircle(params, c_expr);
+      elsif action_name = "DRW_PLINE" then
+        process_drw_pline(params, c_expr);
+      elsif action_name = "DRW_POINT" then
+        process_drw_point(params, c_expr);
+      elsif action_name = "DRW_PPOINT" then
+        process_drw_ppoint(params, c_expr);
+      elsif action_name = "DRW_PRECT" then
+        process_drw_prect(params, c_expr);
+      elsif action_name = "DRW_PUT" then
+        process_drw_put(params, c_expr);
+      elsif action_name = "DRW_RECT" then
+        process_drw_rect(params, c_expr);
+      elsif action_name = "DRW_RGBCOL" then
+        process_drw_rgbcol(params, c_expr);
+      elsif action_name = "DRW_TEXT" then
+        process_drw_text(params, c_expr);
+      elsif action_name = "DRW_WIDTH" then
+        process_drw_width(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "ENU" then
+      if action_name = "ENU_CPY" then
+        process_enu_cpy(params, c_expr);
+      elsif action_name = "ENU_EQ" then
+        process_enu_eq(params, c_expr);
+      elsif action_name = "ENU_NE" then
+        process_enu_ne(params, c_expr);
+      elsif action_name = "ENU_VALUE" then
+        process_enu_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "FIL" then
+      if action_name = "FIL_CLOSE" then
+        process_fil_close(params, c_expr);
+      elsif action_name = "FIL_CPY" then
+        process_fil_cpy(params, c_expr);
+      elsif action_name = "FIL_EQ" then
+        process_fil_eq(params, c_expr);
+      elsif action_name = "FIL_EOF" then
+        process_fil_eof(params, c_expr);
+      elsif action_name = "FIL_FLUSH" then
+        process_fil_flush(params, c_expr);
+      elsif action_name = "FIL_GETC" then
+        process_fil_getc(params, c_expr);
+      elsif action_name = "FIL_L_RD" then
+        process_fil_l_rd(params, c_expr);
+      elsif action_name = "FIL_LIT" then
+        process_fil_lit(params, c_expr);
+      elsif action_name = "FIL_LNG" then
+        process_fil_lng(params, c_expr);
+      elsif action_name = "FIL_NE" then
+        process_fil_ne(params, c_expr);
+      elsif action_name = "FIL_NIL" then
+        process_fil_nil(params, c_expr);
+      elsif action_name = "FIL_OPEN" then
+        process_fil_open(params, c_expr);
+      elsif action_name = "FIL_STRI_READ" then
+        process_fil_stri_read(params, c_expr);
+      elsif action_name = "FIL_SEEK" then
+        process_fil_seek(params, c_expr);
+      elsif action_name = "FIL_TELL" then
+        process_fil_tell(params, c_expr);
+      elsif action_name = "FIL_WRITE" then
+        process_fil_write(params, c_expr);
+      elsif action_name = "FIL_WORD_READ" then
+        process_fil_word_read(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "FLT" then
+      if action_name = "FLT_A2TAN" then
+        process_flt_a2tan(params, c_expr);
+      elsif action_name = "FLT_ABS" then
+        process_flt_abs(params, c_expr);
+      elsif action_name = "FLT_ADD" then
+        process_flt_add(params, c_expr);
+      elsif action_name = "FLT_ACOS" then
+        process_flt_acos(params, c_expr);
+      elsif action_name = "FLT_ASIN" then
+        process_flt_asin(params, c_expr);
+      elsif action_name = "FLT_ATAN" then
+        process_flt_atan(params, c_expr);
+      elsif action_name = "FLT_CEIL" then
+        process_flt_ceil(params, c_expr);
+      elsif action_name = "FLT_CMP" then
+        process_flt_cmp(params, c_expr);
+      elsif action_name = "FLT_COS" then
+        process_flt_cos(params, c_expr);
+      elsif action_name = "FLT_CPY" then
+        process_flt_cpy(params, c_expr); 
+      elsif action_name = "FLT_DGTS" then
+        process_flt_dgts(params, c_expr);
+      elsif action_name = "FLT_DIV" then
+        process_flt_div(params, c_expr);
+      elsif action_name = "FLT_EQ" then
+        process_flt_eq(params, c_expr);
+      elsif action_name = "FLT_EXP" then
+        process_flt_exp(params, c_expr);
+      elsif action_name = "FLT_FLOOR" then
+        process_flt_floor(params, c_expr);
+      elsif action_name = "FLT_GE" then
+        process_flt_ge(params, c_expr);
+      elsif action_name = "FLT_GT" then
+        process_flt_gt(params, c_expr);
+      elsif action_name = "FLT_HASHCODE" then
+        process_flt_hashcode(params, c_expr);
+      elsif action_name = "FLT_IFLT" then
+        process_flt_iflt(params, c_expr);
+      elsif action_name = "FLT_IPOW" then
+        process_flt_ipow(params, c_expr);
+      elsif action_name = "FLT_LE" then
+        process_flt_le(params, c_expr);
+      elsif action_name = "FLT_LOG" then
+        process_flt_log(params, c_expr);
+      elsif action_name = "FLT_LT" then
+        process_flt_lt(params, c_expr);
+      elsif action_name = "FLT_MINUS" then
+        process_flt_minus(params, c_expr);
+      elsif action_name = "FLT_MULT" then
+        process_flt_mult(params, c_expr);
+      elsif action_name = "FLT_NE" then
+        process_flt_ne(params, c_expr);
+      elsif action_name = "FLT_PARSE" then
+        process_flt_parse(params, c_expr);
+      elsif action_name = "FLT_POW" then
+        process_flt_pow(params, c_expr);
+      elsif action_name = "FLT_RAND" then
+        process_flt_rand(params, c_expr);
+      elsif action_name = "FLT_ROUND" then
+        process_flt_round(params, c_expr);
+      elsif action_name = "FLT_SBTR" then
+        process_flt_sbtr(params, c_expr);
+      elsif action_name = "FLT_SIN" then
+        process_flt_sin(params, c_expr);
+      elsif action_name = "FLT_SQRT" then
+        process_flt_sqrt(params, c_expr);
+      elsif action_name = "FLT_STR" then
+        process_flt_str(params, c_expr);
+      elsif action_name = "FLT_TAN" then
+        process_flt_tan(params, c_expr);
+      elsif action_name = "FLT_TRUNC" then
+        process_flt_trunc(params, c_expr);
+      elsif action_name = "FLT_VALUE" then
+        process_flt_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "GKB" then
+      if action_name = "GKB_GETC" then
+        process_gkb_getc(params, c_expr);
+      elsif action_name = "GKB_KEYPRESSED" then
+        process_gkb_keypressed(params, c_expr);
+      elsif action_name = "GKB_LINE_READ" then
+        process_gkb_line_read(params, c_expr);
+      elsif action_name = "GKB_RAW_GETC" then
+        process_gkb_raw_getc(params, c_expr);
+      elsif action_name = "GKB_WORD_READ" then
+        process_gkb_word_read(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "HSH" then
+      if action_name = "HSH_CONTAINS" then
+        process_hsh_contains(params, c_expr);
+      elsif action_name = "HSH_CPY" then
+        process_hsh_cpy(params, c_expr);
+      elsif action_name = "HSH_CREATE" then
+        process_hsh_create(params, c_expr);
+      elsif action_name = "HSH_DESTR" then
+        process_hsh_destr(params, c_expr);
+      elsif action_name = "HSH_EXCL" then
+        process_hsh_excl(params, c_expr);
+      elsif action_name = "HSH_IDX" then
+        process_hsh_idx(params, c_expr);
+      elsif action_name = "HSH_INCL" then
+        process_hsh_incl(params, c_expr);
+      elsif action_name = "HSH_KEYS" then
+        process_hsh_keys(params, c_expr);
+      elsif action_name = "HSH_LNG" then
+        process_hsh_lng(params, c_expr);
+      elsif action_name = "HSH_VALUES" then
+        process_hsh_values(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "INT" then
+      if action_name = "INT_ABS" then
+        process_int_abs(params, c_expr);
+      elsif action_name = "INT_ADD" then
+        process_int_add(params, c_expr);
+      elsif action_name = "INT_BINOM" then
+        process_int_binom(params, c_expr);
+      elsif action_name = "INT_CMP" then
+        process_int_cmp(params, c_expr);
+      elsif action_name = "INT_CONV" then
+        process_int_conv(params, c_expr);
+      elsif action_name = "INT_CPY" then
+        process_int_cpy(params, c_expr);
+      elsif action_name = "INT_DECR" then
+        process_int_decr(params, c_expr);
+      elsif action_name = "INT_DIV" then
+        process_int_div(params, c_expr);
+      elsif action_name = "INT_EQ" then
+        process_int_eq(params, c_expr);
+      elsif action_name = "INT_FACT" then
+        process_int_fact(params, c_expr);
+      elsif action_name = "INT_GE" then
+        process_int_ge(params, c_expr);
+      elsif action_name = "INT_GROW" then
+        process_int_grow(params, c_expr);
+      elsif action_name = "INT_GT" then
+        process_int_gt(params, c_expr);
+      elsif action_name = "INT_HASHCODE" then
+        process_int_hashcode(params, c_expr);
+      elsif action_name = "INT_HSIZE" then
+        process_int_hsize(params, c_expr);
+      elsif action_name = "INT_INCR" then
+        process_int_incr(params, c_expr);
+      elsif action_name = "INT_LD" then
+        process_int_ld(params, c_expr);
+      elsif action_name = "INT_LE" then
+        process_int_le(params, c_expr);
+      elsif action_name = "INT_LT" then
+        process_int_lt(params, c_expr);
+      elsif action_name = "INT_MDIV" then
+        process_int_mdiv(params, c_expr);
+      elsif action_name = "INT_MINUS" then
+        process_int_minus(params, c_expr);
+      elsif action_name = "INT_MOD" then
+        process_int_mod(params, c_expr);
+      elsif action_name = "INT_MULT" then
+        process_int_mult(params, c_expr);
+      elsif action_name = "INT_NE" then
+        process_int_ne(params, c_expr);
+      elsif action_name = "INT_ODD" then
+        process_int_odd(params, c_expr);
+      elsif action_name = "INT_ORD" then
+        process_int_ord(params, c_expr);
+      elsif action_name = "INT_PARSE" then
+        process_int_parse(params, c_expr);
+      elsif action_name = "INT_RAND" then
+        process_int_rand(params, c_expr);
+      elsif action_name = "INT_POW" then
+        process_int_pow(params, c_expr);
+      elsif action_name = "INT_PRED" then
+        process_int_pred(params, c_expr);
+      elsif action_name = "INT_REM" then
+        process_int_rem(params, c_expr);
+      elsif action_name = "INT_SBTR" then
+        process_int_sbtr(params, c_expr);
+      elsif action_name = "INT_SHRINK" then
+        process_int_shrink(params, c_expr);
+      elsif action_name = "INT_SQRT" then
+        process_int_sqrt(params, c_expr);
+      elsif action_name = "INT_STR" then
+        process_int_str(params, c_expr);
+      elsif action_name = "INT_SUCC" then
+        process_int_succ(params, c_expr);
+      elsif action_name = "INT_VALUE" then
+        process_int_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "KBD" then
+      if action_name = "KBD_GETC" then
+        process_kbd_getc(params, c_expr);
+      elsif action_name = "KBD_KEYPRESSED" then
+        process_kbd_keypressed(params, c_expr);
+      elsif action_name = "KBD_LINE_READ" then
+        process_kbd_line_read(params, c_expr);
+      elsif action_name = "KBD_RAW_GETC" then
+        process_kbd_raw_getc(params, c_expr);
+      elsif action_name = "KBD_WORD_READ" then
+        process_kbd_word_read(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "PRC" then
+      if action_name = "PRC_ARGS" then
+        process_prc_args(params, c_expr);
+      elsif action_name = "PRC_BLOCK" then
+        process_prc_block(params, c_expr);
+      elsif action_name = "PRC_CASE" then
+        process_prc_case(params, c_expr);
+      elsif action_name = "PRC_CASE_DEF" then
+        process_prc_case_def(params, c_expr);
+      elsif action_name = "PRC_DYNAMIC" then
+        process_prc_dynamic(procedure, params, c_expr);
+      elsif action_name = "PRC_EXIT" then
+        process_prc_exit(params, c_expr);
+      elsif action_name = "PRC_FOR_DOWNTO" then
+        process_prc_for_downto(params, c_expr);
+      elsif action_name = "PRC_FOR_TO" then
+        process_prc_for_to(params, c_expr);
+      elsif action_name = "PRC_IF" then
+        process_prc_if(params, c_expr);
+      elsif action_name = "PRC_IF_ELSIF" then
+        process_prc_if_elsif(params, c_expr);
+      elsif action_name = "PRC_NOOP" then
+        process_prc_noop(procedure, params, c_expr);
+      elsif action_name = "PRC_PRINT" then
+        process_prc_print(params, c_expr);
+      elsif action_name = "PRC_REPEAT" then
+        process_prc_repeat(params, c_expr);
+      elsif action_name = "PRC_WHILE" then
+        process_prc_while(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "PRG" then
+      if action_name = "PRG_DECL_OBJECTS" then
+        process_prg_decl_objects(params, c_expr);
+      elsif action_name = "PRG_EQ" then
+        process_prg_eq(params, c_expr);
+      elsif action_name = "PRG_EVAL" then
+        process_prg_eval(params, c_expr);
+      elsif action_name = "PRG_NAME" then
+        process_prg_name(params, c_expr);
+      elsif action_name = "PRG_NE" then
+        process_prg_ne(params, c_expr);
+      elsif action_name = "PRG_SYSVAR" then
+        process_prg_sysvar(params, c_expr);
+      elsif action_name = "PRG_VALUE" then
+        process_prg_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "REF" then
+      if action_name = "REF_ADDR" then
+        process_ref_addr(params, c_expr);
+      elsif action_name = "REF_ARRTOLIST" then
+        process_ref_arrtolist(params, c_expr);
+      elsif action_name = "REF_BODY" then
+        process_ref_body(params, c_expr);
+      elsif action_name = "REF_CPY" then
+        process_ref_cpy(params, c_expr);
+      elsif action_name = "REF_DEREF" then
+        process_ref_deref(params, c_expr);
+      elsif action_name = "REF_EQ" then
+        process_ref_eq(params, c_expr);
+      elsif action_name = "REF_HASHCODE" then
+        process_ref_hashcode(params, c_expr);
+      elsif action_name = "REF_ISVAR" then
+        process_ref_isvar(params, c_expr);
+      elsif action_name = "REF_LOCALS" then
+        process_ref_locals(params, c_expr);
+      elsif action_name = "REF_NE" then
+        process_ref_ne(params, c_expr);
+      elsif action_name = "REF_NUM" then
+        process_ref_num(params, c_expr);
+      elsif action_name = "REF_OBJCLASS" then
+        process_ref_objclass(params, c_expr);
+      elsif action_name = "REF_PARAMS" then
+        process_ref_params(params, c_expr);
+      elsif action_name = "REF_RESINI" then
+        process_ref_resini(params, c_expr);
+      elsif action_name = "REF_RESULT" then
+        process_ref_result(params, c_expr);
+      elsif action_name = "REF_SCTTOLIST" then
+        process_ref_scttolist(params, c_expr);
+      elsif action_name = "REF_SELECT" then
+        process_ref_select(procedure, params, c_expr);
+      elsif action_name = "REF_STR" then
+        process_ref_str(params, c_expr);
+      elsif action_name = "REF_TYPE" then
+        process_ref_type(params, c_expr);
+      elsif action_name = "REF_VALUE" then
+        process_ref_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "RFL" then
+      if action_name = "RFL_CPY" then
+        process_rfl_cpy(params, c_expr);
+      elsif action_name = "RFL_ELEM" then
+        process_rfl_elem(params, c_expr);
+      elsif action_name = "RFL_IDX" then
+        process_rfl_idx(params, c_expr);
+      elsif action_name = "RFL_LNG" then
+        process_rfl_lng(params, c_expr);
+      elsif action_name = "RFL_TAIL" then
+        process_rfl_tail(params, c_expr);
+      elsif action_name = "RFL_VALUE" then
+        process_rfl_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "SCR" then
+      if action_name = "SCR_CLEAR" then
+        process_scr_clear(params, c_expr);
+      elsif action_name = "SCR_HEIGHT" then
+        process_scr_height(params, c_expr);
+      elsif action_name = "SCR_OPEN" then
+        process_scr_open(params, c_expr);
+      elsif action_name = "SCR_WIDTH" then
+        process_scr_width(params, c_expr);
+      elsif action_name = "SCR_WRITE" then
+        process_scr_write(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "SCT" then
+      if action_name = "SCT_CPY" then
+        process_sct_cpy(params, c_expr);
+      elsif action_name = "SCT_SELECT" then
+        process_sct_select(procedure, params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "SET" then
+      if action_name = "SET_BASELIT" then
+        process_set_baselit(params, c_expr);
+      elsif action_name = "SET_CARD" then
+        process_set_card(params, c_expr);
+      elsif action_name = "SET_CONV" then
+        process_set_conv(params, c_expr);
+      elsif action_name = "SET_CPY" then
+        process_set_cpy(params, c_expr);
+      elsif action_name = "SET_DIFF" then
+        process_set_diff(params, c_expr);
+      elsif action_name = "SET_ELEM" then
+        process_set_elem(params, c_expr);
+      elsif action_name = "SET_EQ" then
+        process_set_eq(params, c_expr);
+      elsif action_name = "SET_EXCL" then
+        process_set_excl(params, c_expr);
+      elsif action_name = "SET_GE" then
+        process_set_ge(params, c_expr);
+      elsif action_name = "SET_GT" then
+        process_set_gt(params, c_expr);
+      elsif action_name = "SET_HASHCODE" then
+        process_set_hashcode(params, c_expr);
+      elsif action_name = "SET_INCL" then
+        process_set_incl(params, c_expr);
+      elsif action_name = "SET_INTERSECT" then
+        process_set_intersect(params, c_expr);
+      elsif action_name = "SET_LE" then
+        process_set_le(params, c_expr);
+      elsif action_name = "SET_LT" then
+        process_set_lt(params, c_expr);
+      elsif action_name = "SET_MAX" then
+        process_set_max(params, c_expr);
+      elsif action_name = "SET_MIN" then
+        process_set_min(params, c_expr);
+      elsif action_name = "SET_NE" then
+        process_set_ne(params, c_expr);
+      elsif action_name = "SET_NOT_ELEM" then
+        process_set_not_elem(params, c_expr);
+      elsif action_name = "SET_RAND" then
+        process_set_rand(params, c_expr);
+      elsif action_name = "SET_SYMDIFF" then
+        process_set_symdiff(params, c_expr);
+      elsif action_name = "SET_UNION" then
+        process_set_union(params, c_expr);
+      elsif action_name = "SET_VALUE" then
+        process_set_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "STR" then
+      if action_name = "STR_APPEND" then
+        process_str_append(params, c_expr);
+      elsif action_name = "STR_CAT" then
+        process_str_cat(params, c_expr);
+      elsif action_name = "STR_CLIT" then
+        process_str_clit(params, c_expr);
+      elsif action_name = "STR_CMP" then
+        process_str_cmp(params, c_expr);
+      elsif action_name = "STR_CPY" then
+        process_str_cpy(params, c_expr);
+      elsif action_name = "STR_ELEMCPY" then
+        process_str_elemcpy(params, c_expr);
+      elsif action_name = "STR_EQ" then
+        process_str_eq(params, c_expr);
+      elsif action_name = "STR_GE" then
+        process_str_ge(params, c_expr);
+      elsif action_name = "STR_GT" then
+        process_str_gt(params, c_expr);
+      elsif action_name = "STR_HASHCODE" then
+        process_str_hashcode(params, c_expr);
+      elsif action_name = "STR_HEAD" then
+        process_str_head(params, c_expr);
+      elsif action_name = "STR_IDX" then
+        process_str_idx(params, c_expr);
+      elsif action_name = "STR_IPOS" then
+        process_str_ipos(params, c_expr);
+      elsif action_name = "STR_LE" then
+        process_str_le(params, c_expr);
+      elsif action_name = "STR_LIT" then
+        process_str_lit(params, c_expr);
+      elsif action_name = "STR_LNG" then
+        process_str_lng(params, c_expr);
+      elsif action_name = "STR_LOW" then
+        process_str_low(params, c_expr);
+      elsif action_name = "STR_LPAD" then
+        process_str_lpad(params, c_expr);
+      elsif action_name = "STR_LT" then
+        process_str_lt(params, c_expr);
+      elsif action_name = "STR_MULT" then
+        process_str_mult(params, c_expr);
+      elsif action_name = "STR_NE" then
+        process_str_ne(params, c_expr);
+      elsif action_name = "STR_POS" then
+        process_str_pos(params, c_expr);
+      elsif action_name = "STR_RANGE" then
+        process_str_range(params, c_expr);
+      elsif action_name = "STR_REPL" then
+        process_str_repl(params, c_expr);
+      elsif action_name = "STR_RPAD" then
+        process_str_rpad(params, c_expr);
+      elsif action_name = "STR_RPOS" then
+        process_str_rpos(params, c_expr);
+      elsif action_name = "STR_SUBSTR" then
+        process_str_substr(params, c_expr);
+      elsif action_name = "STR_TAIL" then
+        process_str_tail(params, c_expr);
+      elsif action_name = "STR_UP" then
+        process_str_up(params, c_expr);
+      elsif action_name = "STR_VALUE" then
+        process_str_value(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "TIM" then
+      if action_name = "TIM_AWAIT" then
+        process_tim_await(params, c_expr);
+      elsif action_name = "TIM_NOW" then
+        process_tim_now(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "TYP" then
+      if action_name = "TYP_CPY" then
+        process_typ_cpy(params, c_expr);
+      elsif action_name = "TYP_EQ" then
+        process_typ_eq(params, c_expr);
+      elsif action_name = "TYP_HASHCODE" then
+        process_typ_hashcode(params, c_expr);
+      elsif action_name = "TYP_ISFUNC" then
+        process_typ_isfunc(params, c_expr);
+      elsif action_name = "TYP_ISVARFUNC" then
+        process_typ_isvarfunc(params, c_expr);
+      elsif action_name = "TYP_MATCHOBJ" then
+        process_typ_matchobj(params, c_expr);
+      elsif action_name = "TYP_NE" then
+        process_typ_ne(params, c_expr);
+      elsif action_name = "TYP_NUM" then
+        process_typ_num(params, c_expr);
+      elsif action_name = "TYP_RESULT" then
+        process_typ_result(params, c_expr);
+      elsif action_name = "TYP_STR" then
+        process_typ_str(params, c_expr);
+      elsif action_name = "TYP_VALUE" then
+        process_typ_value(params, c_expr);
+      elsif action_name = "TYP_VARCONV" then
+        process_typ_varconv(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "UT8" then
+      if action_name = "UT8_GETC" then
+        process_ut8_getc(params, c_expr);
+      elsif action_name = "UT8_L_RD" then
+        process_ut8_l_rd(params, c_expr);
+      elsif action_name = "UT8_SEEK" then
+        process_ut8_seek(params, c_expr);
+      elsif action_name = "UT8_STRI_READ" then
+        process_ut8_stri_read(params, c_expr);
+      elsif action_name = "UT8_WORD_READ" then
+        process_ut8_word_read(params, c_expr);
+      elsif action_name = "UT8_WRITE" then
+        process_ut8_write(params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
     else
-      c_expr.expr &:= "/* ACTOBJECT { ";
-      c_expr.expr &:= action_name;
-      c_expr.expr &:= " }*/";
+      process_unknown_action(action_name, c_expr);
     end if;
   end func;
 
@@ -6790,6 +7006,8 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
       process_expr(procedure, c_expr);
     elsif objclass = "INTOBJECT" then
       process_expr(procedure, c_expr);
+    elsif objclass = "BIGINTOBJECT" then
+      process_expr(procedure, c_expr);
     elsif objclass = "CHAROBJECT" then
       process_expr(procedure, c_expr);
     elsif objclass = "STRIOBJECT" then
@@ -6899,19 +7117,19 @@ const proc: process_expr (in reference: current_expression, inout expr_type: c_e
       else
         c_expr.expr &:= str(integer value current_expression);
       end if;
-    elsif objclass = "FLOATOBJECT" then
-      if is_var(current_expression) then
-        c_expr.expr &:= "o_";
-        create_name(current_expression, c_expr);
-      else
-        c_expr.expr &:= str(float value current_expression);
-      end if;
     elsif objclass = "BIGINTOBJECT" then
       if is_var(current_expression) then
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr);
       else
         c_expr.expr &:= "/* process_expr - BIGINTOBJECT */";
+      end if;
+    elsif objclass = "FLOATOBJECT" then
+      if is_var(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr);
+      else
+        c_expr.expr &:= str(float value current_expression);
       end if;
     elsif objclass = "CHAROBJECT" then
       if is_var(current_expression) then

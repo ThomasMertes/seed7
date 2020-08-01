@@ -271,6 +271,7 @@ objecttype object;
       case BLOCKOBJECT:
       case TYPEOBJECT:
       case INTOBJECT:
+      case BIGINTOBJECT:
       case CHAROBJECT:
       case STRIOBJECT:
       case ARRAYOBJECT:
@@ -353,6 +354,7 @@ objecttype expr_object;
       case BLOCKOBJECT:
       case TYPEOBJECT:
       case INTOBJECT:
+      case BIGINTOBJECT:
       case CHAROBJECT:
       case STRIOBJECT:
       case ARRAYOBJECT:

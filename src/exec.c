@@ -115,6 +115,7 @@ register objecttype object;
       case BLOCKOBJECT:
       case TYPEOBJECT:
       case INTOBJECT:
+      case BIGINTOBJECT:
       case CHAROBJECT:
       case STRIOBJECT:
       case ARRAYOBJECT:
@@ -828,6 +829,7 @@ objecttype object;
         result = subroutine_object->value.objvalue;
         break;
       case INTOBJECT:
+      case BIGINTOBJECT:
       case CHAROBJECT:
       case STRIOBJECT:
       case ARRAYOBJECT:

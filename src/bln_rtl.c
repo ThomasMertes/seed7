@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  bln_rtl.c     Primitive actions for the integer type.           */
+/*  bln_rtl.c     Primitive actions for the boolean type.           */
 /*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */

@@ -50,7 +50,7 @@
 #include "syntax.h"
 
 
-typedef enum {XFX, XFY, YFX, YFY} ASSOCTYPE;
+typedef enum {XFX, XFY, YFX, YFY} assoctype;
 
 
 
@@ -311,14 +311,14 @@ ustritype name_of_last_sy_token;
 #ifdef ANSI_C
 
 static INLINE tokentype def_infix_syntax (listtype statement_syntax,
-    prior_type statement_priority, ASSOCTYPE statement_associativity)
+    prior_type statement_priority, assoctype statement_associativity)
 #else
 
 static INLINE tokentype def_infix_syntax (statement_syntax,
     statement_priority, statement_associativity)
 listtype statement_syntax;
 prior_type statement_priority;
-ASSOCTYPE statement_associativity;
+assoctype statement_associativity;
 #endif
 
   {
@@ -374,14 +374,14 @@ ASSOCTYPE statement_associativity;
 #ifdef ANSI_C
 
 static INLINE tokentype def_prefix_syntax (listtype statement_syntax,
-    prior_type statement_priority, ASSOCTYPE statement_associativity)
+    prior_type statement_priority, assoctype statement_associativity)
 #else
 
 static INLINE tokentype def_prefix_syntax (statement_syntax,
     statement_priority, statement_associativity)
 listtype statement_syntax;
 prior_type statement_priority;
-ASSOCTYPE statement_associativity;
+assoctype statement_associativity;
 #endif
 
   {
@@ -425,14 +425,14 @@ ASSOCTYPE statement_associativity;
 #ifdef ANSI_C
 
 static INLINE tokentype def_statement_syntax (objecttype syntax_expression,
-    prior_type statement_priority, ASSOCTYPE statement_associativity)
+    prior_type statement_priority, assoctype statement_associativity)
 #else
 
 static INLINE tokentype def_statement_syntax (syntax_expression,
     statement_priority, statement_associativity)
 objecttype syntax_expression;
 prior_type statement_priority;
-ASSOCTYPE statement_associativity;
+assoctype statement_associativity;
 #endif
 
   {
@@ -509,7 +509,7 @@ void decl_syntax ()
     objecttype type_object;
     typetype typeof_object;
     objecttype expression;
-    ASSOCTYPE assoc;
+    assoctype assoc;
     tokentype token_list_end;
 
   /* decl_syntax */

@@ -169,7 +169,6 @@ x11_wintype curr_window;
       win_addr = &window->next;
       window = window->next;
     } /* while */
-    return(NULL);
   } /* remove_window */
 
 

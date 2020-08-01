@@ -98,3 +98,10 @@
 - The bigInteger library was improved to support division and remainder.
 - Testcases for division and remainder were added to the chkbig.sd7 program.
 - The compiler was improved to support bigInteger division and remainder.
+
+20061023:
+- The bigInteger library was improved to support modulo, power and
+  several comparisons (<, >, <=, >=).
+- Testcases for incr, decr, modulo, power and compare were added to
+  the chkbig.sd7 program.
+- The compiler was improved to support the new bigInteger functionality.

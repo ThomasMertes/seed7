@@ -1417,6 +1417,718 @@ const proc: chkPred is func
   end func;
 
 
+const func bigInteger: testIncr (in var bigInteger: number) is func
+  result
+    var bigInteger: result is bigInteger.value;
+  begin
+    incr(number);
+    result := number;
+  end func;
+
+
+const proc: chkIncr is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  testIncr(bigInteger parse                         "0") <> bigInteger parse                         "1" or
+        testIncr(bigInteger parse                         "1") <> bigInteger parse                         "2" or
+        testIncr(bigInteger parse                         "2") <> bigInteger parse                         "3" or
+        testIncr(bigInteger parse                         "8") <> bigInteger parse                         "9" or
+        testIncr(bigInteger parse                         "9") <> bigInteger parse                        "10" or
+        testIncr(bigInteger parse                        "10") <> bigInteger parse                        "11" or
+        testIncr(bigInteger parse                        "11") <> bigInteger parse                        "12" or
+        testIncr(bigInteger parse                        "12") <> bigInteger parse                        "13" or
+        testIncr(bigInteger parse                        "98") <> bigInteger parse                        "99" or
+        testIncr(bigInteger parse                        "99") <> bigInteger parse                       "100" or
+        testIncr(bigInteger parse                       "100") <> bigInteger parse                       "101" or
+        testIncr(bigInteger parse                       "101") <> bigInteger parse                       "102" or
+        testIncr(bigInteger parse                       "102") <> bigInteger parse                       "103" or
+        testIncr(bigInteger parse                       "126") <> bigInteger parse                       "127" or
+        testIncr(bigInteger parse                       "127") <> bigInteger parse                       "128" or
+        testIncr(bigInteger parse                       "128") <> bigInteger parse                       "129" or
+        testIncr(bigInteger parse                       "129") <> bigInteger parse                       "130" or
+        testIncr(bigInteger parse                       "130") <> bigInteger parse                       "131" or
+        testIncr(bigInteger parse                       "254") <> bigInteger parse                       "255" or
+        testIncr(bigInteger parse                       "255") <> bigInteger parse                       "256" or
+        testIncr(bigInteger parse                       "256") <> bigInteger parse                       "257" or
+        testIncr(bigInteger parse                       "257") <> bigInteger parse                       "258" or
+        testIncr(bigInteger parse                       "258") <> bigInteger parse                       "259" or
+        testIncr(bigInteger parse                       "998") <> bigInteger parse                       "999" or
+        testIncr(bigInteger parse                       "999") <> bigInteger parse                      "1000" or
+        testIncr(bigInteger parse                      "1000") <> bigInteger parse                      "1001" or
+        testIncr(bigInteger parse                      "1001") <> bigInteger parse                      "1002" or
+        testIncr(bigInteger parse                      "1002") <> bigInteger parse                      "1003" or
+        testIncr(bigInteger parse                      "9998") <> bigInteger parse                      "9999" or
+        testIncr(bigInteger parse                      "9999") <> bigInteger parse                     "10000" or
+        testIncr(bigInteger parse                     "10000") <> bigInteger parse                     "10001" or
+        testIncr(bigInteger parse                     "10001") <> bigInteger parse                     "10002" or
+        testIncr(bigInteger parse                     "10002") <> bigInteger parse                     "10003" or
+        testIncr(bigInteger parse                     "32766") <> bigInteger parse                     "32767" or
+        testIncr(bigInteger parse                     "32767") <> bigInteger parse                     "32768" or
+        testIncr(bigInteger parse                     "32768") <> bigInteger parse                     "32769" or
+        testIncr(bigInteger parse                     "32769") <> bigInteger parse                     "32770" or
+        testIncr(bigInteger parse                     "32770") <> bigInteger parse                     "32771" or
+        testIncr(bigInteger parse                     "65534") <> bigInteger parse                     "65535" or
+        testIncr(bigInteger parse                     "65535") <> bigInteger parse                     "65536" or
+        testIncr(bigInteger parse                     "65536") <> bigInteger parse                     "65537" or
+        testIncr(bigInteger parse                     "65537") <> bigInteger parse                     "65538" or
+        testIncr(bigInteger parse                     "65538") <> bigInteger parse                     "65539" or
+        testIncr(bigInteger parse                     "99998") <> bigInteger parse                     "99999" or
+        testIncr(bigInteger parse                     "99999") <> bigInteger parse                    "100000" or
+        testIncr(bigInteger parse                    "100000") <> bigInteger parse                    "100001" or
+        testIncr(bigInteger parse                    "100001") <> bigInteger parse                    "100002" or
+        testIncr(bigInteger parse                    "100002") <> bigInteger parse                    "100003" or
+        testIncr(bigInteger parse                    "999998") <> bigInteger parse                    "999999" or
+        testIncr(bigInteger parse                    "999999") <> bigInteger parse                   "1000000" or
+        testIncr(bigInteger parse                   "1000000") <> bigInteger parse                   "1000001" or
+        testIncr(bigInteger parse                   "1000001") <> bigInteger parse                   "1000002" or
+        testIncr(bigInteger parse                   "1000002") <> bigInteger parse                   "1000003" or
+        testIncr(bigInteger parse                   "8388606") <> bigInteger parse                   "8388607" or
+        testIncr(bigInteger parse                   "8388607") <> bigInteger parse                   "8388608" or
+        testIncr(bigInteger parse                   "8388608") <> bigInteger parse                   "8388609" or
+        testIncr(bigInteger parse                   "8388609") <> bigInteger parse                   "8388610" or
+        testIncr(bigInteger parse                   "8388610") <> bigInteger parse                   "8388611" or
+        testIncr(bigInteger parse                   "9999998") <> bigInteger parse                   "9999999" or
+        testIncr(bigInteger parse                   "9999999") <> bigInteger parse                  "10000000" or
+        testIncr(bigInteger parse                  "10000000") <> bigInteger parse                  "10000001" or
+        testIncr(bigInteger parse                  "10000001") <> bigInteger parse                  "10000002" or
+        testIncr(bigInteger parse                  "10000002") <> bigInteger parse                  "10000003" or
+        testIncr(bigInteger parse                  "16777214") <> bigInteger parse                  "16777215" or
+        testIncr(bigInteger parse                  "16777215") <> bigInteger parse                  "16777216" or
+        testIncr(bigInteger parse                  "16777216") <> bigInteger parse                  "16777217" or
+        testIncr(bigInteger parse                  "16777217") <> bigInteger parse                  "16777218" or
+        testIncr(bigInteger parse                  "16777218") <> bigInteger parse                  "16777219" or
+        testIncr(bigInteger parse                  "99999998") <> bigInteger parse                  "99999999" or
+        testIncr(bigInteger parse                  "99999999") <> bigInteger parse                 "100000000" or
+        testIncr(bigInteger parse                 "100000000") <> bigInteger parse                 "100000001" or
+        testIncr(bigInteger parse                 "100000001") <> bigInteger parse                 "100000002" or
+        testIncr(bigInteger parse                 "100000002") <> bigInteger parse                 "100000003" or
+        testIncr(bigInteger parse                 "999999998") <> bigInteger parse                 "999999999" or
+        testIncr(bigInteger parse                 "999999999") <> bigInteger parse                "1000000000" or
+        testIncr(bigInteger parse                "1000000000") <> bigInteger parse                "1000000001" or
+        testIncr(bigInteger parse                "1000000001") <> bigInteger parse                "1000000002" or
+        testIncr(bigInteger parse                "1000000002") <> bigInteger parse                "1000000003" or
+        testIncr(bigInteger parse                "2147483646") <> bigInteger parse                "2147483647" or
+        testIncr(bigInteger parse                "2147483647") <> bigInteger parse                "2147483648" or
+        testIncr(bigInteger parse                "2147483648") <> bigInteger parse                "2147483649" or
+        testIncr(bigInteger parse                "2147483649") <> bigInteger parse                "2147483650" or
+        testIncr(bigInteger parse                "2147483650") <> bigInteger parse                "2147483651" or
+        testIncr(bigInteger parse                "4294967294") <> bigInteger parse                "4294967295" or
+        testIncr(bigInteger parse                "4294967295") <> bigInteger parse                "4294967296" or
+        testIncr(bigInteger parse                "4294967296") <> bigInteger parse                "4294967297" or
+        testIncr(bigInteger parse                "4294967297") <> bigInteger parse                "4294967298" or
+        testIncr(bigInteger parse                "4294967298") <> bigInteger parse                "4294967299" or
+        testIncr(bigInteger parse                "9999999998") <> bigInteger parse                "9999999999" or
+        testIncr(bigInteger parse                "9999999999") <> bigInteger parse               "10000000000" or
+        testIncr(bigInteger parse               "10000000000") <> bigInteger parse               "10000000001" or
+        testIncr(bigInteger parse               "10000000001") <> bigInteger parse               "10000000002" or
+        testIncr(bigInteger parse               "10000000002") <> bigInteger parse               "10000000003" or
+        testIncr(bigInteger parse               "99999999998") <> bigInteger parse               "99999999999" or
+        testIncr(bigInteger parse               "99999999999") <> bigInteger parse              "100000000000" or
+        testIncr(bigInteger parse              "100000000000") <> bigInteger parse              "100000000001" or
+        testIncr(bigInteger parse              "100000000001") <> bigInteger parse              "100000000002" or
+        testIncr(bigInteger parse              "100000000002") <> bigInteger parse              "100000000003" or
+        testIncr(bigInteger parse              "549755813886") <> bigInteger parse              "549755813887" or
+        testIncr(bigInteger parse              "549755813887") <> bigInteger parse              "549755813888" or
+        testIncr(bigInteger parse              "549755813888") <> bigInteger parse              "549755813889" or
+        testIncr(bigInteger parse              "549755813889") <> bigInteger parse              "549755813890" or
+        testIncr(bigInteger parse              "549755813890") <> bigInteger parse              "549755813891" or
+        testIncr(bigInteger parse              "999999999998") <> bigInteger parse              "999999999999" or
+        testIncr(bigInteger parse              "999999999999") <> bigInteger parse             "1000000000000" or
+        testIncr(bigInteger parse             "1000000000000") <> bigInteger parse             "1000000000001" or
+        testIncr(bigInteger parse             "1000000000001") <> bigInteger parse             "1000000000002" or
+        testIncr(bigInteger parse             "1000000000002") <> bigInteger parse             "1000000000003" or
+        testIncr(bigInteger parse             "1099511627774") <> bigInteger parse             "1099511627775" or
+        testIncr(bigInteger parse             "1099511627775") <> bigInteger parse             "1099511627776" or
+        testIncr(bigInteger parse             "1099511627776") <> bigInteger parse             "1099511627777" or
+        testIncr(bigInteger parse             "1099511627777") <> bigInteger parse             "1099511627778" or
+        testIncr(bigInteger parse             "1099511627778") <> bigInteger parse             "1099511627779" or
+        testIncr(bigInteger parse           "140737488355326") <> bigInteger parse           "140737488355327" or
+        testIncr(bigInteger parse           "140737488355327") <> bigInteger parse           "140737488355328" or
+        testIncr(bigInteger parse           "140737488355328") <> bigInteger parse           "140737488355329" or
+        testIncr(bigInteger parse           "140737488355329") <> bigInteger parse           "140737488355330" or
+        testIncr(bigInteger parse           "140737488355330") <> bigInteger parse           "140737488355331" or
+        testIncr(bigInteger parse           "281474976710654") <> bigInteger parse           "281474976710655" or
+        testIncr(bigInteger parse           "281474976710655") <> bigInteger parse           "281474976710656" or
+        testIncr(bigInteger parse           "281474976710656") <> bigInteger parse           "281474976710657" or
+        testIncr(bigInteger parse           "281474976710657") <> bigInteger parse           "281474976710658" or
+        testIncr(bigInteger parse           "281474976710658") <> bigInteger parse           "281474976710659" or
+        testIncr(bigInteger parse         "36028797018963966") <> bigInteger parse         "36028797018963967" or
+        testIncr(bigInteger parse         "36028797018963967") <> bigInteger parse         "36028797018963968" or
+        testIncr(bigInteger parse         "36028797018963968") <> bigInteger parse         "36028797018963969" or
+        testIncr(bigInteger parse         "36028797018963969") <> bigInteger parse         "36028797018963970" or
+        testIncr(bigInteger parse         "36028797018963970") <> bigInteger parse         "36028797018963971" or
+        testIncr(bigInteger parse         "72057594037927934") <> bigInteger parse         "72057594037927935" or
+        testIncr(bigInteger parse         "72057594037927935") <> bigInteger parse         "72057594037927936" or
+        testIncr(bigInteger parse         "72057594037927936") <> bigInteger parse         "72057594037927937" or
+        testIncr(bigInteger parse         "72057594037927937") <> bigInteger parse         "72057594037927938" or
+        testIncr(bigInteger parse         "72057594037927938") <> bigInteger parse         "72057594037927939" or
+        testIncr(bigInteger parse       "9223372036854775806") <> bigInteger parse       "9223372036854775807" or
+        testIncr(bigInteger parse       "9223372036854775807") <> bigInteger parse       "9223372036854775808" or
+        testIncr(bigInteger parse       "9223372036854775808") <> bigInteger parse       "9223372036854775809" or
+        testIncr(bigInteger parse       "9223372036854775809") <> bigInteger parse       "9223372036854775810" or
+        testIncr(bigInteger parse       "9223372036854775810") <> bigInteger parse       "9223372036854775811" or
+        testIncr(bigInteger parse      "18446744073709551614") <> bigInteger parse      "18446744073709551615" or
+        testIncr(bigInteger parse      "18446744073709551615") <> bigInteger parse      "18446744073709551616" or
+        testIncr(bigInteger parse      "18446744073709551616") <> bigInteger parse      "18446744073709551617" or
+        testIncr(bigInteger parse      "18446744073709551617") <> bigInteger parse      "18446744073709551618" or
+        testIncr(bigInteger parse      "18446744073709551618") <> bigInteger parse      "18446744073709551619" or
+        testIncr(bigInteger parse    "2361183241434822606846") <> bigInteger parse    "2361183241434822606847" or
+        testIncr(bigInteger parse    "2361183241434822606847") <> bigInteger parse    "2361183241434822606848" or
+        testIncr(bigInteger parse    "2361183241434822606848") <> bigInteger parse    "2361183241434822606849" or
+        testIncr(bigInteger parse    "2361183241434822606849") <> bigInteger parse    "2361183241434822606850" or
+        testIncr(bigInteger parse    "2361183241434822606850") <> bigInteger parse    "2361183241434822606851" or
+        testIncr(bigInteger parse    "4722366482869645213694") <> bigInteger parse    "4722366482869645213695" or
+        testIncr(bigInteger parse    "4722366482869645213695") <> bigInteger parse    "4722366482869645213696" or
+        testIncr(bigInteger parse    "4722366482869645213696") <> bigInteger parse    "4722366482869645213697" or
+        testIncr(bigInteger parse    "4722366482869645213697") <> bigInteger parse    "4722366482869645213698" or
+        testIncr(bigInteger parse    "4722366482869645213698") <> bigInteger parse    "4722366482869645213699" or
+        testIncr(bigInteger parse  "604462909807314587353086") <> bigInteger parse  "604462909807314587353087" or
+        testIncr(bigInteger parse  "604462909807314587353087") <> bigInteger parse  "604462909807314587353088" or
+        testIncr(bigInteger parse  "604462909807314587353088") <> bigInteger parse  "604462909807314587353089" or
+        testIncr(bigInteger parse  "604462909807314587353089") <> bigInteger parse  "604462909807314587353090" or
+        testIncr(bigInteger parse  "604462909807314587353090") <> bigInteger parse  "604462909807314587353091" or
+        testIncr(bigInteger parse "1208925819614629174706174") <> bigInteger parse "1208925819614629174706175" or
+        testIncr(bigInteger parse "1208925819614629174706175") <> bigInteger parse "1208925819614629174706176" or
+        testIncr(bigInteger parse "1208925819614629174706176") <> bigInteger parse "1208925819614629174706177" or
+        testIncr(bigInteger parse "1208925819614629174706177") <> bigInteger parse "1208925819614629174706178" or
+        testIncr(bigInteger parse "1208925819614629174706178") <> bigInteger parse "1208925819614629174706179" then
+      writeln("Increment of a positive bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  testIncr(bigInteger parse                         "-0") <> bigInteger parse                          "1" or
+        testIncr(bigInteger parse                         "-1") <> bigInteger parse                          "0" or
+        testIncr(bigInteger parse                         "-2") <> bigInteger parse                         "-1" or
+        testIncr(bigInteger parse                         "-8") <> bigInteger parse                         "-7" or
+        testIncr(bigInteger parse                         "-9") <> bigInteger parse                         "-8" or
+        testIncr(bigInteger parse                        "-10") <> bigInteger parse                         "-9" or
+        testIncr(bigInteger parse                        "-11") <> bigInteger parse                        "-10" or
+        testIncr(bigInteger parse                        "-12") <> bigInteger parse                        "-11" or
+        testIncr(bigInteger parse                        "-98") <> bigInteger parse                        "-97" or
+        testIncr(bigInteger parse                        "-99") <> bigInteger parse                        "-98" or
+        testIncr(bigInteger parse                       "-100") <> bigInteger parse                        "-99" or
+        testIncr(bigInteger parse                       "-101") <> bigInteger parse                       "-100" or
+        testIncr(bigInteger parse                       "-102") <> bigInteger parse                       "-101" or
+        testIncr(bigInteger parse                       "-126") <> bigInteger parse                       "-125" or
+        testIncr(bigInteger parse                       "-127") <> bigInteger parse                       "-126" or
+        testIncr(bigInteger parse                       "-128") <> bigInteger parse                       "-127" or
+        testIncr(bigInteger parse                       "-129") <> bigInteger parse                       "-128" or
+        testIncr(bigInteger parse                       "-130") <> bigInteger parse                       "-129" or
+        testIncr(bigInteger parse                       "-254") <> bigInteger parse                       "-253" or
+        testIncr(bigInteger parse                       "-255") <> bigInteger parse                       "-254" or
+        testIncr(bigInteger parse                       "-256") <> bigInteger parse                       "-255" or
+        testIncr(bigInteger parse                       "-257") <> bigInteger parse                       "-256" or
+        testIncr(bigInteger parse                       "-258") <> bigInteger parse                       "-257" or
+        testIncr(bigInteger parse                       "-998") <> bigInteger parse                       "-997" or
+        testIncr(bigInteger parse                       "-999") <> bigInteger parse                       "-998" or
+        testIncr(bigInteger parse                      "-1000") <> bigInteger parse                       "-999" or
+        testIncr(bigInteger parse                      "-1001") <> bigInteger parse                      "-1000" or
+        testIncr(bigInteger parse                      "-1002") <> bigInteger parse                      "-1001" or
+        testIncr(bigInteger parse                      "-9998") <> bigInteger parse                      "-9997" or
+        testIncr(bigInteger parse                      "-9999") <> bigInteger parse                      "-9998" or
+        testIncr(bigInteger parse                     "-10000") <> bigInteger parse                      "-9999" or
+        testIncr(bigInteger parse                     "-10001") <> bigInteger parse                     "-10000" or
+        testIncr(bigInteger parse                     "-10002") <> bigInteger parse                     "-10001" or
+        testIncr(bigInteger parse                     "-32766") <> bigInteger parse                     "-32765" or
+        testIncr(bigInteger parse                     "-32767") <> bigInteger parse                     "-32766" or
+        testIncr(bigInteger parse                     "-32768") <> bigInteger parse                     "-32767" or
+        testIncr(bigInteger parse                     "-32769") <> bigInteger parse                     "-32768" or
+        testIncr(bigInteger parse                     "-32770") <> bigInteger parse                     "-32769" or
+        testIncr(bigInteger parse                     "-65534") <> bigInteger parse                     "-65533" or
+        testIncr(bigInteger parse                     "-65535") <> bigInteger parse                     "-65534" or
+        testIncr(bigInteger parse                     "-65536") <> bigInteger parse                     "-65535" or
+        testIncr(bigInteger parse                     "-65537") <> bigInteger parse                     "-65536" or
+        testIncr(bigInteger parse                     "-65538") <> bigInteger parse                     "-65537" or
+        testIncr(bigInteger parse                     "-99998") <> bigInteger parse                     "-99997" or
+        testIncr(bigInteger parse                     "-99999") <> bigInteger parse                     "-99998" or
+        testIncr(bigInteger parse                    "-100000") <> bigInteger parse                     "-99999" or
+        testIncr(bigInteger parse                    "-100001") <> bigInteger parse                    "-100000" or
+        testIncr(bigInteger parse                    "-100002") <> bigInteger parse                    "-100001" or
+        testIncr(bigInteger parse                    "-999998") <> bigInteger parse                    "-999997" or
+        testIncr(bigInteger parse                    "-999999") <> bigInteger parse                    "-999998" or
+        testIncr(bigInteger parse                   "-1000000") <> bigInteger parse                    "-999999" or
+        testIncr(bigInteger parse                   "-1000001") <> bigInteger parse                   "-1000000" or
+        testIncr(bigInteger parse                   "-1000002") <> bigInteger parse                   "-1000001" or
+        testIncr(bigInteger parse                   "-8388606") <> bigInteger parse                   "-8388605" or
+        testIncr(bigInteger parse                   "-8388607") <> bigInteger parse                   "-8388606" or
+        testIncr(bigInteger parse                   "-8388608") <> bigInteger parse                   "-8388607" or
+        testIncr(bigInteger parse                   "-8388609") <> bigInteger parse                   "-8388608" or
+        testIncr(bigInteger parse                   "-8388610") <> bigInteger parse                   "-8388609" or
+        testIncr(bigInteger parse                   "-9999998") <> bigInteger parse                   "-9999997" or
+        testIncr(bigInteger parse                   "-9999999") <> bigInteger parse                   "-9999998" or
+        testIncr(bigInteger parse                  "-10000000") <> bigInteger parse                   "-9999999" or
+        testIncr(bigInteger parse                  "-10000001") <> bigInteger parse                  "-10000000" or
+        testIncr(bigInteger parse                  "-10000002") <> bigInteger parse                  "-10000001" or
+        testIncr(bigInteger parse                  "-16777214") <> bigInteger parse                  "-16777213" or
+        testIncr(bigInteger parse                  "-16777215") <> bigInteger parse                  "-16777214" or
+        testIncr(bigInteger parse                  "-16777216") <> bigInteger parse                  "-16777215" or
+        testIncr(bigInteger parse                  "-16777217") <> bigInteger parse                  "-16777216" or
+        testIncr(bigInteger parse                  "-16777218") <> bigInteger parse                  "-16777217" or
+        testIncr(bigInteger parse                  "-99999998") <> bigInteger parse                  "-99999997" or
+        testIncr(bigInteger parse                  "-99999999") <> bigInteger parse                  "-99999998" or
+        testIncr(bigInteger parse                 "-100000000") <> bigInteger parse                  "-99999999" or
+        testIncr(bigInteger parse                 "-100000001") <> bigInteger parse                 "-100000000" or
+        testIncr(bigInteger parse                 "-100000002") <> bigInteger parse                 "-100000001" or
+        testIncr(bigInteger parse                 "-999999998") <> bigInteger parse                 "-999999997" or
+        testIncr(bigInteger parse                 "-999999999") <> bigInteger parse                 "-999999998" or
+        testIncr(bigInteger parse                "-1000000000") <> bigInteger parse                 "-999999999" or
+        testIncr(bigInteger parse                "-1000000001") <> bigInteger parse                "-1000000000" or
+        testIncr(bigInteger parse                "-1000000002") <> bigInteger parse                "-1000000001" or
+        testIncr(bigInteger parse                "-2147483646") <> bigInteger parse                "-2147483645" or
+        testIncr(bigInteger parse                "-2147483647") <> bigInteger parse                "-2147483646" or
+        testIncr(bigInteger parse                "-2147483648") <> bigInteger parse                "-2147483647" or
+        testIncr(bigInteger parse                "-2147483649") <> bigInteger parse                "-2147483648" or
+        testIncr(bigInteger parse                "-2147483650") <> bigInteger parse                "-2147483649" or
+        testIncr(bigInteger parse                "-4294967294") <> bigInteger parse                "-4294967293" or
+        testIncr(bigInteger parse                "-4294967295") <> bigInteger parse                "-4294967294" or
+        testIncr(bigInteger parse                "-4294967296") <> bigInteger parse                "-4294967295" or
+        testIncr(bigInteger parse                "-4294967297") <> bigInteger parse                "-4294967296" or
+        testIncr(bigInteger parse                "-4294967298") <> bigInteger parse                "-4294967297" or
+        testIncr(bigInteger parse                "-9999999998") <> bigInteger parse                "-9999999997" or
+        testIncr(bigInteger parse                "-9999999999") <> bigInteger parse                "-9999999998" or
+        testIncr(bigInteger parse               "-10000000000") <> bigInteger parse                "-9999999999" or
+        testIncr(bigInteger parse               "-10000000001") <> bigInteger parse               "-10000000000" or
+        testIncr(bigInteger parse               "-10000000002") <> bigInteger parse               "-10000000001" or
+        testIncr(bigInteger parse               "-99999999998") <> bigInteger parse               "-99999999997" or
+        testIncr(bigInteger parse               "-99999999999") <> bigInteger parse               "-99999999998" or
+        testIncr(bigInteger parse              "-100000000000") <> bigInteger parse               "-99999999999" or
+        testIncr(bigInteger parse              "-100000000001") <> bigInteger parse              "-100000000000" or
+        testIncr(bigInteger parse              "-100000000002") <> bigInteger parse              "-100000000001" or
+        testIncr(bigInteger parse              "-549755813886") <> bigInteger parse              "-549755813885" or
+        testIncr(bigInteger parse              "-549755813887") <> bigInteger parse              "-549755813886" or
+        testIncr(bigInteger parse              "-549755813888") <> bigInteger parse              "-549755813887" or
+        testIncr(bigInteger parse              "-549755813889") <> bigInteger parse              "-549755813888" or
+        testIncr(bigInteger parse              "-549755813890") <> bigInteger parse              "-549755813889" or
+        testIncr(bigInteger parse              "-999999999998") <> bigInteger parse              "-999999999997" or
+        testIncr(bigInteger parse              "-999999999999") <> bigInteger parse              "-999999999998" or
+        testIncr(bigInteger parse             "-1000000000000") <> bigInteger parse              "-999999999999" or
+        testIncr(bigInteger parse             "-1000000000001") <> bigInteger parse             "-1000000000000" or
+        testIncr(bigInteger parse             "-1000000000002") <> bigInteger parse             "-1000000000001" or
+        testIncr(bigInteger parse             "-1099511627774") <> bigInteger parse             "-1099511627773" or
+        testIncr(bigInteger parse             "-1099511627775") <> bigInteger parse             "-1099511627774" or
+        testIncr(bigInteger parse             "-1099511627776") <> bigInteger parse             "-1099511627775" or
+        testIncr(bigInteger parse             "-1099511627777") <> bigInteger parse             "-1099511627776" or
+        testIncr(bigInteger parse             "-1099511627778") <> bigInteger parse             "-1099511627777" or
+        testIncr(bigInteger parse           "-140737488355326") <> bigInteger parse           "-140737488355325" or
+        testIncr(bigInteger parse           "-140737488355327") <> bigInteger parse           "-140737488355326" or
+        testIncr(bigInteger parse           "-140737488355328") <> bigInteger parse           "-140737488355327" or
+        testIncr(bigInteger parse           "-140737488355329") <> bigInteger parse           "-140737488355328" or
+        testIncr(bigInteger parse           "-140737488355330") <> bigInteger parse           "-140737488355329" or
+        testIncr(bigInteger parse           "-281474976710654") <> bigInteger parse           "-281474976710653" or
+        testIncr(bigInteger parse           "-281474976710655") <> bigInteger parse           "-281474976710654" or
+        testIncr(bigInteger parse           "-281474976710656") <> bigInteger parse           "-281474976710655" or
+        testIncr(bigInteger parse           "-281474976710657") <> bigInteger parse           "-281474976710656" or
+        testIncr(bigInteger parse           "-281474976710658") <> bigInteger parse           "-281474976710657" or
+        testIncr(bigInteger parse         "-36028797018963966") <> bigInteger parse         "-36028797018963965" or
+        testIncr(bigInteger parse         "-36028797018963967") <> bigInteger parse         "-36028797018963966" or
+        testIncr(bigInteger parse         "-36028797018963968") <> bigInteger parse         "-36028797018963967" or
+        testIncr(bigInteger parse         "-36028797018963969") <> bigInteger parse         "-36028797018963968" or
+        testIncr(bigInteger parse         "-36028797018963970") <> bigInteger parse         "-36028797018963969" or
+        testIncr(bigInteger parse         "-72057594037927934") <> bigInteger parse         "-72057594037927933" or
+        testIncr(bigInteger parse         "-72057594037927935") <> bigInteger parse         "-72057594037927934" or
+        testIncr(bigInteger parse         "-72057594037927936") <> bigInteger parse         "-72057594037927935" or
+        testIncr(bigInteger parse         "-72057594037927937") <> bigInteger parse         "-72057594037927936" or
+        testIncr(bigInteger parse         "-72057594037927938") <> bigInteger parse         "-72057594037927937" or
+        testIncr(bigInteger parse       "-9223372036854775806") <> bigInteger parse       "-9223372036854775805" or
+        testIncr(bigInteger parse       "-9223372036854775807") <> bigInteger parse       "-9223372036854775806" or
+        testIncr(bigInteger parse       "-9223372036854775808") <> bigInteger parse       "-9223372036854775807" or
+        testIncr(bigInteger parse       "-9223372036854775809") <> bigInteger parse       "-9223372036854775808" or
+        testIncr(bigInteger parse       "-9223372036854775810") <> bigInteger parse       "-9223372036854775809" or
+        testIncr(bigInteger parse      "-18446744073709551614") <> bigInteger parse      "-18446744073709551613" or
+        testIncr(bigInteger parse      "-18446744073709551615") <> bigInteger parse      "-18446744073709551614" or
+        testIncr(bigInteger parse      "-18446744073709551616") <> bigInteger parse      "-18446744073709551615" or
+        testIncr(bigInteger parse      "-18446744073709551617") <> bigInteger parse      "-18446744073709551616" or
+        testIncr(bigInteger parse      "-18446744073709551618") <> bigInteger parse      "-18446744073709551617" or
+        testIncr(bigInteger parse    "-2361183241434822606846") <> bigInteger parse    "-2361183241434822606845" or
+        testIncr(bigInteger parse    "-2361183241434822606847") <> bigInteger parse    "-2361183241434822606846" or
+        testIncr(bigInteger parse    "-2361183241434822606848") <> bigInteger parse    "-2361183241434822606847" or
+        testIncr(bigInteger parse    "-2361183241434822606849") <> bigInteger parse    "-2361183241434822606848" or
+        testIncr(bigInteger parse    "-2361183241434822606850") <> bigInteger parse    "-2361183241434822606849" or
+        testIncr(bigInteger parse    "-4722366482869645213694") <> bigInteger parse    "-4722366482869645213693" or
+        testIncr(bigInteger parse    "-4722366482869645213695") <> bigInteger parse    "-4722366482869645213694" or
+        testIncr(bigInteger parse    "-4722366482869645213696") <> bigInteger parse    "-4722366482869645213695" or
+        testIncr(bigInteger parse    "-4722366482869645213697") <> bigInteger parse    "-4722366482869645213696" or
+        testIncr(bigInteger parse    "-4722366482869645213698") <> bigInteger parse    "-4722366482869645213697" or
+        testIncr(bigInteger parse  "-604462909807314587353086") <> bigInteger parse  "-604462909807314587353085" or
+        testIncr(bigInteger parse  "-604462909807314587353087") <> bigInteger parse  "-604462909807314587353086" or
+        testIncr(bigInteger parse  "-604462909807314587353088") <> bigInteger parse  "-604462909807314587353087" or
+        testIncr(bigInteger parse  "-604462909807314587353089") <> bigInteger parse  "-604462909807314587353088" or
+        testIncr(bigInteger parse  "-604462909807314587353090") <> bigInteger parse  "-604462909807314587353089" or
+        testIncr(bigInteger parse "-1208925819614629174706174") <> bigInteger parse "-1208925819614629174706173" or
+        testIncr(bigInteger parse "-1208925819614629174706175") <> bigInteger parse "-1208925819614629174706174" or
+        testIncr(bigInteger parse "-1208925819614629174706176") <> bigInteger parse "-1208925819614629174706175" or
+        testIncr(bigInteger parse "-1208925819614629174706177") <> bigInteger parse "-1208925819614629174706176" or
+        testIncr(bigInteger parse "-1208925819614629174706178") <> bigInteger parse "-1208925819614629174706177" then
+      writeln("Increment of a negative bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Increment of bigInteger works correct.");
+    else
+      writeln(" ***** Increment of bigInteger does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const func bigInteger: testDecr (in var bigInteger: number) is func
+  result
+    var bigInteger: result is bigInteger.value;
+  begin
+    decr(number);
+    result := number;
+  end func;
+
+
+const proc: chkDecr is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  testDecr(bigInteger parse                         "0") <> bigInteger parse                        "-1" or
+        testDecr(bigInteger parse                         "1") <> bigInteger parse                         "0" or
+        testDecr(bigInteger parse                         "2") <> bigInteger parse                         "1" or
+        testDecr(bigInteger parse                         "8") <> bigInteger parse                         "7" or
+        testDecr(bigInteger parse                         "9") <> bigInteger parse                         "8" or
+        testDecr(bigInteger parse                        "10") <> bigInteger parse                         "9" or
+        testDecr(bigInteger parse                        "11") <> bigInteger parse                        "10" or
+        testDecr(bigInteger parse                        "12") <> bigInteger parse                        "11" or
+        testDecr(bigInteger parse                        "98") <> bigInteger parse                        "97" or
+        testDecr(bigInteger parse                        "99") <> bigInteger parse                        "98" or
+        testDecr(bigInteger parse                       "100") <> bigInteger parse                        "99" or
+        testDecr(bigInteger parse                       "101") <> bigInteger parse                       "100" or
+        testDecr(bigInteger parse                       "102") <> bigInteger parse                       "101" or
+        testDecr(bigInteger parse                       "126") <> bigInteger parse                       "125" or
+        testDecr(bigInteger parse                       "127") <> bigInteger parse                       "126" or
+        testDecr(bigInteger parse                       "128") <> bigInteger parse                       "127" or
+        testDecr(bigInteger parse                       "129") <> bigInteger parse                       "128" or
+        testDecr(bigInteger parse                       "130") <> bigInteger parse                       "129" or
+        testDecr(bigInteger parse                       "254") <> bigInteger parse                       "253" or
+        testDecr(bigInteger parse                       "255") <> bigInteger parse                       "254" or
+        testDecr(bigInteger parse                       "256") <> bigInteger parse                       "255" or
+        testDecr(bigInteger parse                       "257") <> bigInteger parse                       "256" or
+        testDecr(bigInteger parse                       "258") <> bigInteger parse                       "257" or
+        testDecr(bigInteger parse                       "998") <> bigInteger parse                       "997" or
+        testDecr(bigInteger parse                       "999") <> bigInteger parse                       "998" or
+        testDecr(bigInteger parse                      "1000") <> bigInteger parse                       "999" or
+        testDecr(bigInteger parse                      "1001") <> bigInteger parse                      "1000" or
+        testDecr(bigInteger parse                      "1002") <> bigInteger parse                      "1001" or
+        testDecr(bigInteger parse                      "9998") <> bigInteger parse                      "9997" or
+        testDecr(bigInteger parse                      "9999") <> bigInteger parse                      "9998" or
+        testDecr(bigInteger parse                     "10000") <> bigInteger parse                      "9999" or
+        testDecr(bigInteger parse                     "10001") <> bigInteger parse                     "10000" or
+        testDecr(bigInteger parse                     "10002") <> bigInteger parse                     "10001" or
+        testDecr(bigInteger parse                     "32766") <> bigInteger parse                     "32765" or
+        testDecr(bigInteger parse                     "32767") <> bigInteger parse                     "32766" or
+        testDecr(bigInteger parse                     "32768") <> bigInteger parse                     "32767" or
+        testDecr(bigInteger parse                     "32769") <> bigInteger parse                     "32768" or
+        testDecr(bigInteger parse                     "32770") <> bigInteger parse                     "32769" or
+        testDecr(bigInteger parse                     "65534") <> bigInteger parse                     "65533" or
+        testDecr(bigInteger parse                     "65535") <> bigInteger parse                     "65534" or
+        testDecr(bigInteger parse                     "65536") <> bigInteger parse                     "65535" or
+        testDecr(bigInteger parse                     "65537") <> bigInteger parse                     "65536" or
+        testDecr(bigInteger parse                     "65538") <> bigInteger parse                     "65537" or
+        testDecr(bigInteger parse                     "99998") <> bigInteger parse                     "99997" or
+        testDecr(bigInteger parse                     "99999") <> bigInteger parse                     "99998" or
+        testDecr(bigInteger parse                    "100000") <> bigInteger parse                     "99999" or
+        testDecr(bigInteger parse                    "100001") <> bigInteger parse                    "100000" or
+        testDecr(bigInteger parse                    "100002") <> bigInteger parse                    "100001" or
+        testDecr(bigInteger parse                    "999998") <> bigInteger parse                    "999997" or
+        testDecr(bigInteger parse                    "999999") <> bigInteger parse                    "999998" or
+        testDecr(bigInteger parse                   "1000000") <> bigInteger parse                    "999999" or
+        testDecr(bigInteger parse                   "1000001") <> bigInteger parse                   "1000000" or
+        testDecr(bigInteger parse                   "1000002") <> bigInteger parse                   "1000001" or
+        testDecr(bigInteger parse                   "8388606") <> bigInteger parse                   "8388605" or
+        testDecr(bigInteger parse                   "8388607") <> bigInteger parse                   "8388606" or
+        testDecr(bigInteger parse                   "8388608") <> bigInteger parse                   "8388607" or
+        testDecr(bigInteger parse                   "8388609") <> bigInteger parse                   "8388608" or
+        testDecr(bigInteger parse                   "8388610") <> bigInteger parse                   "8388609" or
+        testDecr(bigInteger parse                   "9999998") <> bigInteger parse                   "9999997" or
+        testDecr(bigInteger parse                   "9999999") <> bigInteger parse                   "9999998" or
+        testDecr(bigInteger parse                  "10000000") <> bigInteger parse                   "9999999" or
+        testDecr(bigInteger parse                  "10000001") <> bigInteger parse                  "10000000" or
+        testDecr(bigInteger parse                  "10000002") <> bigInteger parse                  "10000001" or
+        testDecr(bigInteger parse                  "16777214") <> bigInteger parse                  "16777213" or
+        testDecr(bigInteger parse                  "16777215") <> bigInteger parse                  "16777214" or
+        testDecr(bigInteger parse                  "16777216") <> bigInteger parse                  "16777215" or
+        testDecr(bigInteger parse                  "16777217") <> bigInteger parse                  "16777216" or
+        testDecr(bigInteger parse                  "16777218") <> bigInteger parse                  "16777217" or
+        testDecr(bigInteger parse                  "99999998") <> bigInteger parse                  "99999997" or
+        testDecr(bigInteger parse                  "99999999") <> bigInteger parse                  "99999998" or
+        testDecr(bigInteger parse                 "100000000") <> bigInteger parse                  "99999999" or
+        testDecr(bigInteger parse                 "100000001") <> bigInteger parse                 "100000000" or
+        testDecr(bigInteger parse                 "100000002") <> bigInteger parse                 "100000001" or
+        testDecr(bigInteger parse                 "999999998") <> bigInteger parse                 "999999997" or
+        testDecr(bigInteger parse                 "999999999") <> bigInteger parse                 "999999998" or
+        testDecr(bigInteger parse                "1000000000") <> bigInteger parse                 "999999999" or
+        testDecr(bigInteger parse                "1000000001") <> bigInteger parse                "1000000000" or
+        testDecr(bigInteger parse                "1000000002") <> bigInteger parse                "1000000001" or
+        testDecr(bigInteger parse                "2147483646") <> bigInteger parse                "2147483645" or
+        testDecr(bigInteger parse                "2147483647") <> bigInteger parse                "2147483646" or
+        testDecr(bigInteger parse                "2147483648") <> bigInteger parse                "2147483647" or
+        testDecr(bigInteger parse                "2147483649") <> bigInteger parse                "2147483648" or
+        testDecr(bigInteger parse                "2147483650") <> bigInteger parse                "2147483649" or
+        testDecr(bigInteger parse                "4294967294") <> bigInteger parse                "4294967293" or
+        testDecr(bigInteger parse                "4294967295") <> bigInteger parse                "4294967294" or
+        testDecr(bigInteger parse                "4294967296") <> bigInteger parse                "4294967295" or
+        testDecr(bigInteger parse                "4294967297") <> bigInteger parse                "4294967296" or
+        testDecr(bigInteger parse                "4294967298") <> bigInteger parse                "4294967297" or
+        testDecr(bigInteger parse                "9999999998") <> bigInteger parse                "9999999997" or
+        testDecr(bigInteger parse                "9999999999") <> bigInteger parse                "9999999998" or
+        testDecr(bigInteger parse               "10000000000") <> bigInteger parse                "9999999999" or
+        testDecr(bigInteger parse               "10000000001") <> bigInteger parse               "10000000000" or
+        testDecr(bigInteger parse               "10000000002") <> bigInteger parse               "10000000001" or
+        testDecr(bigInteger parse               "99999999998") <> bigInteger parse               "99999999997" or
+        testDecr(bigInteger parse               "99999999999") <> bigInteger parse               "99999999998" or
+        testDecr(bigInteger parse              "100000000000") <> bigInteger parse               "99999999999" or
+        testDecr(bigInteger parse              "100000000001") <> bigInteger parse              "100000000000" or
+        testDecr(bigInteger parse              "100000000002") <> bigInteger parse              "100000000001" or
+        testDecr(bigInteger parse              "549755813886") <> bigInteger parse              "549755813885" or
+        testDecr(bigInteger parse              "549755813887") <> bigInteger parse              "549755813886" or
+        testDecr(bigInteger parse              "549755813888") <> bigInteger parse              "549755813887" or
+        testDecr(bigInteger parse              "549755813889") <> bigInteger parse              "549755813888" or
+        testDecr(bigInteger parse              "549755813890") <> bigInteger parse              "549755813889" or
+        testDecr(bigInteger parse              "999999999998") <> bigInteger parse              "999999999997" or
+        testDecr(bigInteger parse              "999999999999") <> bigInteger parse              "999999999998" or
+        testDecr(bigInteger parse             "1000000000000") <> bigInteger parse              "999999999999" or
+        testDecr(bigInteger parse             "1000000000001") <> bigInteger parse             "1000000000000" or
+        testDecr(bigInteger parse             "1000000000002") <> bigInteger parse             "1000000000001" or
+        testDecr(bigInteger parse             "1099511627774") <> bigInteger parse             "1099511627773" or
+        testDecr(bigInteger parse             "1099511627775") <> bigInteger parse             "1099511627774" or
+        testDecr(bigInteger parse             "1099511627776") <> bigInteger parse             "1099511627775" or
+        testDecr(bigInteger parse             "1099511627777") <> bigInteger parse             "1099511627776" or
+        testDecr(bigInteger parse             "1099511627778") <> bigInteger parse             "1099511627777" or
+        testDecr(bigInteger parse           "140737488355326") <> bigInteger parse           "140737488355325" or
+        testDecr(bigInteger parse           "140737488355327") <> bigInteger parse           "140737488355326" or
+        testDecr(bigInteger parse           "140737488355328") <> bigInteger parse           "140737488355327" or
+        testDecr(bigInteger parse           "140737488355329") <> bigInteger parse           "140737488355328" or
+        testDecr(bigInteger parse           "140737488355330") <> bigInteger parse           "140737488355329" or
+        testDecr(bigInteger parse           "281474976710654") <> bigInteger parse           "281474976710653" or
+        testDecr(bigInteger parse           "281474976710655") <> bigInteger parse           "281474976710654" or
+        testDecr(bigInteger parse           "281474976710656") <> bigInteger parse           "281474976710655" or
+        testDecr(bigInteger parse           "281474976710657") <> bigInteger parse           "281474976710656" or
+        testDecr(bigInteger parse           "281474976710658") <> bigInteger parse           "281474976710657" or
+        testDecr(bigInteger parse         "36028797018963966") <> bigInteger parse         "36028797018963965" or
+        testDecr(bigInteger parse         "36028797018963967") <> bigInteger parse         "36028797018963966" or
+        testDecr(bigInteger parse         "36028797018963968") <> bigInteger parse         "36028797018963967" or
+        testDecr(bigInteger parse         "36028797018963969") <> bigInteger parse         "36028797018963968" or
+        testDecr(bigInteger parse         "36028797018963970") <> bigInteger parse         "36028797018963969" or
+        testDecr(bigInteger parse         "72057594037927934") <> bigInteger parse         "72057594037927933" or
+        testDecr(bigInteger parse         "72057594037927935") <> bigInteger parse         "72057594037927934" or
+        testDecr(bigInteger parse         "72057594037927936") <> bigInteger parse         "72057594037927935" or
+        testDecr(bigInteger parse         "72057594037927937") <> bigInteger parse         "72057594037927936" or
+        testDecr(bigInteger parse         "72057594037927938") <> bigInteger parse         "72057594037927937" or
+        testDecr(bigInteger parse       "9223372036854775806") <> bigInteger parse       "9223372036854775805" or
+        testDecr(bigInteger parse       "9223372036854775807") <> bigInteger parse       "9223372036854775806" or
+        testDecr(bigInteger parse       "9223372036854775808") <> bigInteger parse       "9223372036854775807" or
+        testDecr(bigInteger parse       "9223372036854775809") <> bigInteger parse       "9223372036854775808" or
+        testDecr(bigInteger parse       "9223372036854775810") <> bigInteger parse       "9223372036854775809" or
+        testDecr(bigInteger parse      "18446744073709551614") <> bigInteger parse      "18446744073709551613" or
+        testDecr(bigInteger parse      "18446744073709551615") <> bigInteger parse      "18446744073709551614" or
+        testDecr(bigInteger parse      "18446744073709551616") <> bigInteger parse      "18446744073709551615" or
+        testDecr(bigInteger parse      "18446744073709551617") <> bigInteger parse      "18446744073709551616" or
+        testDecr(bigInteger parse      "18446744073709551618") <> bigInteger parse      "18446744073709551617" or
+        testDecr(bigInteger parse    "2361183241434822606846") <> bigInteger parse    "2361183241434822606845" or
+        testDecr(bigInteger parse    "2361183241434822606847") <> bigInteger parse    "2361183241434822606846" or
+        testDecr(bigInteger parse    "2361183241434822606848") <> bigInteger parse    "2361183241434822606847" or
+        testDecr(bigInteger parse    "2361183241434822606849") <> bigInteger parse    "2361183241434822606848" or
+        testDecr(bigInteger parse    "2361183241434822606850") <> bigInteger parse    "2361183241434822606849" or
+        testDecr(bigInteger parse    "4722366482869645213694") <> bigInteger parse    "4722366482869645213693" or
+        testDecr(bigInteger parse    "4722366482869645213695") <> bigInteger parse    "4722366482869645213694" or
+        testDecr(bigInteger parse    "4722366482869645213696") <> bigInteger parse    "4722366482869645213695" or
+        testDecr(bigInteger parse    "4722366482869645213697") <> bigInteger parse    "4722366482869645213696" or
+        testDecr(bigInteger parse    "4722366482869645213698") <> bigInteger parse    "4722366482869645213697" or
+        testDecr(bigInteger parse  "604462909807314587353086") <> bigInteger parse  "604462909807314587353085" or
+        testDecr(bigInteger parse  "604462909807314587353087") <> bigInteger parse  "604462909807314587353086" or
+        testDecr(bigInteger parse  "604462909807314587353088") <> bigInteger parse  "604462909807314587353087" or
+        testDecr(bigInteger parse  "604462909807314587353089") <> bigInteger parse  "604462909807314587353088" or
+        testDecr(bigInteger parse  "604462909807314587353090") <> bigInteger parse  "604462909807314587353089" or
+        testDecr(bigInteger parse "1208925819614629174706174") <> bigInteger parse "1208925819614629174706173" or
+        testDecr(bigInteger parse "1208925819614629174706175") <> bigInteger parse "1208925819614629174706174" or
+        testDecr(bigInteger parse "1208925819614629174706176") <> bigInteger parse "1208925819614629174706175" or
+        testDecr(bigInteger parse "1208925819614629174706177") <> bigInteger parse "1208925819614629174706176" or
+        testDecr(bigInteger parse "1208925819614629174706178") <> bigInteger parse "1208925819614629174706177" then
+      writeln("Decrement of a positive bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  testDecr(bigInteger parse                         "-0") <> bigInteger parse                         "-1" or
+        testDecr(bigInteger parse                         "-1") <> bigInteger parse                         "-2" or
+        testDecr(bigInteger parse                         "-2") <> bigInteger parse                         "-3" or
+        testDecr(bigInteger parse                         "-8") <> bigInteger parse                         "-9" or
+        testDecr(bigInteger parse                         "-9") <> bigInteger parse                        "-10" or
+        testDecr(bigInteger parse                        "-10") <> bigInteger parse                        "-11" or
+        testDecr(bigInteger parse                        "-11") <> bigInteger parse                        "-12" or
+        testDecr(bigInteger parse                        "-12") <> bigInteger parse                        "-13" or
+        testDecr(bigInteger parse                        "-98") <> bigInteger parse                        "-99" or
+        testDecr(bigInteger parse                        "-99") <> bigInteger parse                       "-100" or
+        testDecr(bigInteger parse                       "-100") <> bigInteger parse                       "-101" or
+        testDecr(bigInteger parse                       "-101") <> bigInteger parse                       "-102" or
+        testDecr(bigInteger parse                       "-102") <> bigInteger parse                       "-103" or
+        testDecr(bigInteger parse                       "-126") <> bigInteger parse                       "-127" or
+        testDecr(bigInteger parse                       "-127") <> bigInteger parse                       "-128" or
+        testDecr(bigInteger parse                       "-128") <> bigInteger parse                       "-129" or
+        testDecr(bigInteger parse                       "-129") <> bigInteger parse                       "-130" or
+        testDecr(bigInteger parse                       "-130") <> bigInteger parse                       "-131" or
+        testDecr(bigInteger parse                       "-254") <> bigInteger parse                       "-255" or
+        testDecr(bigInteger parse                       "-255") <> bigInteger parse                       "-256" or
+        testDecr(bigInteger parse                       "-256") <> bigInteger parse                       "-257" or
+        testDecr(bigInteger parse                       "-257") <> bigInteger parse                       "-258" or
+        testDecr(bigInteger parse                       "-258") <> bigInteger parse                       "-259" or
+        testDecr(bigInteger parse                       "-998") <> bigInteger parse                       "-999" or
+        testDecr(bigInteger parse                       "-999") <> bigInteger parse                      "-1000" or
+        testDecr(bigInteger parse                      "-1000") <> bigInteger parse                      "-1001" or
+        testDecr(bigInteger parse                      "-1001") <> bigInteger parse                      "-1002" or
+        testDecr(bigInteger parse                      "-1002") <> bigInteger parse                      "-1003" or
+        testDecr(bigInteger parse                      "-9998") <> bigInteger parse                      "-9999" or
+        testDecr(bigInteger parse                      "-9999") <> bigInteger parse                     "-10000" or
+        testDecr(bigInteger parse                     "-10000") <> bigInteger parse                     "-10001" or
+        testDecr(bigInteger parse                     "-10001") <> bigInteger parse                     "-10002" or
+        testDecr(bigInteger parse                     "-10002") <> bigInteger parse                     "-10003" or
+        testDecr(bigInteger parse                     "-32766") <> bigInteger parse                     "-32767" or
+        testDecr(bigInteger parse                     "-32767") <> bigInteger parse                     "-32768" or
+        testDecr(bigInteger parse                     "-32768") <> bigInteger parse                     "-32769" or
+        testDecr(bigInteger parse                     "-32769") <> bigInteger parse                     "-32770" or
+        testDecr(bigInteger parse                     "-32770") <> bigInteger parse                     "-32771" or
+        testDecr(bigInteger parse                     "-65534") <> bigInteger parse                     "-65535" or
+        testDecr(bigInteger parse                     "-65535") <> bigInteger parse                     "-65536" or
+        testDecr(bigInteger parse                     "-65536") <> bigInteger parse                     "-65537" or
+        testDecr(bigInteger parse                     "-65537") <> bigInteger parse                     "-65538" or
+        testDecr(bigInteger parse                     "-65538") <> bigInteger parse                     "-65539" or
+        testDecr(bigInteger parse                     "-99998") <> bigInteger parse                     "-99999" or
+        testDecr(bigInteger parse                     "-99999") <> bigInteger parse                    "-100000" or
+        testDecr(bigInteger parse                    "-100000") <> bigInteger parse                    "-100001" or
+        testDecr(bigInteger parse                    "-100001") <> bigInteger parse                    "-100002" or
+        testDecr(bigInteger parse                    "-100002") <> bigInteger parse                    "-100003" or
+        testDecr(bigInteger parse                    "-999998") <> bigInteger parse                    "-999999" or
+        testDecr(bigInteger parse                    "-999999") <> bigInteger parse                   "-1000000" or
+        testDecr(bigInteger parse                   "-1000000") <> bigInteger parse                   "-1000001" or
+        testDecr(bigInteger parse                   "-1000001") <> bigInteger parse                   "-1000002" or
+        testDecr(bigInteger parse                   "-1000002") <> bigInteger parse                   "-1000003" or
+        testDecr(bigInteger parse                   "-8388606") <> bigInteger parse                   "-8388607" or
+        testDecr(bigInteger parse                   "-8388607") <> bigInteger parse                   "-8388608" or
+        testDecr(bigInteger parse                   "-8388608") <> bigInteger parse                   "-8388609" or
+        testDecr(bigInteger parse                   "-8388609") <> bigInteger parse                   "-8388610" or
+        testDecr(bigInteger parse                   "-8388610") <> bigInteger parse                   "-8388611" or
+        testDecr(bigInteger parse                   "-9999998") <> bigInteger parse                   "-9999999" or
+        testDecr(bigInteger parse                   "-9999999") <> bigInteger parse                  "-10000000" or
+        testDecr(bigInteger parse                  "-10000000") <> bigInteger parse                  "-10000001" or
+        testDecr(bigInteger parse                  "-10000001") <> bigInteger parse                  "-10000002" or
+        testDecr(bigInteger parse                  "-10000002") <> bigInteger parse                  "-10000003" or
+        testDecr(bigInteger parse                  "-16777214") <> bigInteger parse                  "-16777215" or
+        testDecr(bigInteger parse                  "-16777215") <> bigInteger parse                  "-16777216" or
+        testDecr(bigInteger parse                  "-16777216") <> bigInteger parse                  "-16777217" or
+        testDecr(bigInteger parse                  "-16777217") <> bigInteger parse                  "-16777218" or
+        testDecr(bigInteger parse                  "-16777218") <> bigInteger parse                  "-16777219" or
+        testDecr(bigInteger parse                  "-99999998") <> bigInteger parse                  "-99999999" or
+        testDecr(bigInteger parse                  "-99999999") <> bigInteger parse                 "-100000000" or
+        testDecr(bigInteger parse                 "-100000000") <> bigInteger parse                 "-100000001" or
+        testDecr(bigInteger parse                 "-100000001") <> bigInteger parse                 "-100000002" or
+        testDecr(bigInteger parse                 "-100000002") <> bigInteger parse                 "-100000003" or
+        testDecr(bigInteger parse                 "-999999998") <> bigInteger parse                 "-999999999" or
+        testDecr(bigInteger parse                 "-999999999") <> bigInteger parse                "-1000000000" or
+        testDecr(bigInteger parse                "-1000000000") <> bigInteger parse                "-1000000001" or
+        testDecr(bigInteger parse                "-1000000001") <> bigInteger parse                "-1000000002" or
+        testDecr(bigInteger parse                "-1000000002") <> bigInteger parse                "-1000000003" or
+        testDecr(bigInteger parse                "-2147483646") <> bigInteger parse                "-2147483647" or
+        testDecr(bigInteger parse                "-2147483647") <> bigInteger parse                "-2147483648" or
+        testDecr(bigInteger parse                "-2147483648") <> bigInteger parse                "-2147483649" or
+        testDecr(bigInteger parse                "-2147483649") <> bigInteger parse                "-2147483650" or
+        testDecr(bigInteger parse                "-2147483650") <> bigInteger parse                "-2147483651" or
+        testDecr(bigInteger parse                "-4294967294") <> bigInteger parse                "-4294967295" or
+        testDecr(bigInteger parse                "-4294967295") <> bigInteger parse                "-4294967296" or
+        testDecr(bigInteger parse                "-4294967296") <> bigInteger parse                "-4294967297" or
+        testDecr(bigInteger parse                "-4294967297") <> bigInteger parse                "-4294967298" or
+        testDecr(bigInteger parse                "-4294967298") <> bigInteger parse                "-4294967299" or
+        testDecr(bigInteger parse                "-9999999998") <> bigInteger parse                "-9999999999" or
+        testDecr(bigInteger parse                "-9999999999") <> bigInteger parse               "-10000000000" or
+        testDecr(bigInteger parse               "-10000000000") <> bigInteger parse               "-10000000001" or
+        testDecr(bigInteger parse               "-10000000001") <> bigInteger parse               "-10000000002" or
+        testDecr(bigInteger parse               "-10000000002") <> bigInteger parse               "-10000000003" or
+        testDecr(bigInteger parse               "-99999999998") <> bigInteger parse               "-99999999999" or
+        testDecr(bigInteger parse               "-99999999999") <> bigInteger parse              "-100000000000" or
+        testDecr(bigInteger parse              "-100000000000") <> bigInteger parse              "-100000000001" or
+        testDecr(bigInteger parse              "-100000000001") <> bigInteger parse              "-100000000002" or
+        testDecr(bigInteger parse              "-100000000002") <> bigInteger parse              "-100000000003" or
+        testDecr(bigInteger parse              "-549755813886") <> bigInteger parse              "-549755813887" or
+        testDecr(bigInteger parse              "-549755813887") <> bigInteger parse              "-549755813888" or
+        testDecr(bigInteger parse              "-549755813888") <> bigInteger parse              "-549755813889" or
+        testDecr(bigInteger parse              "-549755813889") <> bigInteger parse              "-549755813890" or
+        testDecr(bigInteger parse              "-549755813890") <> bigInteger parse              "-549755813891" or
+        testDecr(bigInteger parse              "-999999999998") <> bigInteger parse              "-999999999999" or
+        testDecr(bigInteger parse              "-999999999999") <> bigInteger parse             "-1000000000000" or
+        testDecr(bigInteger parse             "-1000000000000") <> bigInteger parse             "-1000000000001" or
+        testDecr(bigInteger parse             "-1000000000001") <> bigInteger parse             "-1000000000002" or
+        testDecr(bigInteger parse             "-1000000000002") <> bigInteger parse             "-1000000000003" or
+        testDecr(bigInteger parse             "-1099511627774") <> bigInteger parse             "-1099511627775" or
+        testDecr(bigInteger parse             "-1099511627775") <> bigInteger parse             "-1099511627776" or
+        testDecr(bigInteger parse             "-1099511627776") <> bigInteger parse             "-1099511627777" or
+        testDecr(bigInteger parse             "-1099511627777") <> bigInteger parse             "-1099511627778" or
+        testDecr(bigInteger parse             "-1099511627778") <> bigInteger parse             "-1099511627779" or
+        testDecr(bigInteger parse           "-140737488355326") <> bigInteger parse           "-140737488355327" or
+        testDecr(bigInteger parse           "-140737488355327") <> bigInteger parse           "-140737488355328" or
+        testDecr(bigInteger parse           "-140737488355328") <> bigInteger parse           "-140737488355329" or
+        testDecr(bigInteger parse           "-140737488355329") <> bigInteger parse           "-140737488355330" or
+        testDecr(bigInteger parse           "-140737488355330") <> bigInteger parse           "-140737488355331" or
+        testDecr(bigInteger parse           "-281474976710654") <> bigInteger parse           "-281474976710655" or
+        testDecr(bigInteger parse           "-281474976710655") <> bigInteger parse           "-281474976710656" or
+        testDecr(bigInteger parse           "-281474976710656") <> bigInteger parse           "-281474976710657" or
+        testDecr(bigInteger parse           "-281474976710657") <> bigInteger parse           "-281474976710658" or
+        testDecr(bigInteger parse           "-281474976710658") <> bigInteger parse           "-281474976710659" or
+        testDecr(bigInteger parse         "-36028797018963966") <> bigInteger parse         "-36028797018963967" or
+        testDecr(bigInteger parse         "-36028797018963967") <> bigInteger parse         "-36028797018963968" or
+        testDecr(bigInteger parse         "-36028797018963968") <> bigInteger parse         "-36028797018963969" or
+        testDecr(bigInteger parse         "-36028797018963969") <> bigInteger parse         "-36028797018963970" or
+        testDecr(bigInteger parse         "-36028797018963970") <> bigInteger parse         "-36028797018963971" or
+        testDecr(bigInteger parse         "-72057594037927934") <> bigInteger parse         "-72057594037927935" or
+        testDecr(bigInteger parse         "-72057594037927935") <> bigInteger parse         "-72057594037927936" or
+        testDecr(bigInteger parse         "-72057594037927936") <> bigInteger parse         "-72057594037927937" or
+        testDecr(bigInteger parse         "-72057594037927937") <> bigInteger parse         "-72057594037927938" or
+        testDecr(bigInteger parse         "-72057594037927938") <> bigInteger parse         "-72057594037927939" or
+        testDecr(bigInteger parse       "-9223372036854775806") <> bigInteger parse       "-9223372036854775807" or
+        testDecr(bigInteger parse       "-9223372036854775807") <> bigInteger parse       "-9223372036854775808" or
+        testDecr(bigInteger parse       "-9223372036854775808") <> bigInteger parse       "-9223372036854775809" or
+        testDecr(bigInteger parse       "-9223372036854775809") <> bigInteger parse       "-9223372036854775810" or
+        testDecr(bigInteger parse       "-9223372036854775810") <> bigInteger parse       "-9223372036854775811" or
+        testDecr(bigInteger parse      "-18446744073709551614") <> bigInteger parse      "-18446744073709551615" or
+        testDecr(bigInteger parse      "-18446744073709551615") <> bigInteger parse      "-18446744073709551616" or
+        testDecr(bigInteger parse      "-18446744073709551616") <> bigInteger parse      "-18446744073709551617" or
+        testDecr(bigInteger parse      "-18446744073709551617") <> bigInteger parse      "-18446744073709551618" or
+        testDecr(bigInteger parse      "-18446744073709551618") <> bigInteger parse      "-18446744073709551619" or
+        testDecr(bigInteger parse    "-2361183241434822606846") <> bigInteger parse    "-2361183241434822606847" or
+        testDecr(bigInteger parse    "-2361183241434822606847") <> bigInteger parse    "-2361183241434822606848" or
+        testDecr(bigInteger parse    "-2361183241434822606848") <> bigInteger parse    "-2361183241434822606849" or
+        testDecr(bigInteger parse    "-2361183241434822606849") <> bigInteger parse    "-2361183241434822606850" or
+        testDecr(bigInteger parse    "-2361183241434822606850") <> bigInteger parse    "-2361183241434822606851" or
+        testDecr(bigInteger parse    "-4722366482869645213694") <> bigInteger parse    "-4722366482869645213695" or
+        testDecr(bigInteger parse    "-4722366482869645213695") <> bigInteger parse    "-4722366482869645213696" or
+        testDecr(bigInteger parse    "-4722366482869645213696") <> bigInteger parse    "-4722366482869645213697" or
+        testDecr(bigInteger parse    "-4722366482869645213697") <> bigInteger parse    "-4722366482869645213698" or
+        testDecr(bigInteger parse    "-4722366482869645213698") <> bigInteger parse    "-4722366482869645213699" or
+        testDecr(bigInteger parse  "-604462909807314587353086") <> bigInteger parse  "-604462909807314587353087" or
+        testDecr(bigInteger parse  "-604462909807314587353087") <> bigInteger parse  "-604462909807314587353088" or
+        testDecr(bigInteger parse  "-604462909807314587353088") <> bigInteger parse  "-604462909807314587353089" or
+        testDecr(bigInteger parse  "-604462909807314587353089") <> bigInteger parse  "-604462909807314587353090" or
+        testDecr(bigInteger parse  "-604462909807314587353090") <> bigInteger parse  "-604462909807314587353091" or
+        testDecr(bigInteger parse "-1208925819614629174706174") <> bigInteger parse "-1208925819614629174706175" or
+        testDecr(bigInteger parse "-1208925819614629174706175") <> bigInteger parse "-1208925819614629174706176" or
+        testDecr(bigInteger parse "-1208925819614629174706176") <> bigInteger parse "-1208925819614629174706177" or
+        testDecr(bigInteger parse "-1208925819614629174706177") <> bigInteger parse "-1208925819614629174706178" or
+        testDecr(bigInteger parse "-1208925819614629174706178") <> bigInteger parse "-1208925819614629174706179" then
+      writeln("Decrement of a negative bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Decrement of bigInteger works correct.");
+    else
+      writeln(" ***** Decrement of bigInteger does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkAddition is func
   local
     var boolean: okay is TRUE;
@@ -3807,46 +4519,592 @@ const proc: chkRemainder is func
   end func;
 
 
+const proc: chkModulo is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bigInteger parse                 "32766" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" mod bigInteger parse   "32766" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" mod bigInteger parse   "32767" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" mod bigInteger parse   "32768" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" mod bigInteger parse   "32769" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" mod bigInteger parse   "32770" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" mod bigInteger parse   "65534" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" mod bigInteger parse   "65535" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" mod bigInteger parse   "65536" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" mod bigInteger parse   "65537" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" mod bigInteger parse   "65538" <> bigInteger parse   "0" or
+        bigInteger parse                 "32765" mod bigInteger parse   "32766" <> bigInteger parse   "32765" or
+        bigInteger parse                 "32766" mod bigInteger parse   "32767" <> bigInteger parse   "32766" or
+        bigInteger parse                 "32767" mod bigInteger parse   "32768" <> bigInteger parse   "32767" or
+        bigInteger parse                 "32768" mod bigInteger parse   "32769" <> bigInteger parse   "32768" or
+        bigInteger parse                 "32769" mod bigInteger parse   "32770" <> bigInteger parse   "32769" or
+        bigInteger parse                 "65533" mod bigInteger parse   "65534" <> bigInteger parse   "65533" or
+        bigInteger parse                 "65534" mod bigInteger parse   "65535" <> bigInteger parse   "65534" or
+        bigInteger parse                 "65535" mod bigInteger parse   "65536" <> bigInteger parse   "65535" or
+        bigInteger parse                 "65536" mod bigInteger parse   "65537" <> bigInteger parse   "65536" or
+        bigInteger parse                 "65537" mod bigInteger parse   "65538" <> bigInteger parse   "65537" or
+        bigInteger parse                 "32766" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "32766" or
+        bigInteger parse                 "32767" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "32767" or
+        bigInteger parse                 "32768" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "32768" or
+        bigInteger parse                 "32769" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "32769" or
+        bigInteger parse                 "32770" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "32770" or
+        bigInteger parse                 "65534" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "65534" or
+        bigInteger parse                 "65535" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "65535" or
+        bigInteger parse                 "65536" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "65536" or
+        bigInteger parse                 "65537" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "65537" or
+        bigInteger parse                 "65538" mod bigInteger parse  "18446744073709551616" <> bigInteger parse   "65538" or
+        bigInteger parse            "2147483647" mod bigInteger parse  "2147483648" <> bigInteger parse  "2147483647" or
+        bigInteger parse            "2147483648" mod bigInteger parse  "2147483648" <> bigInteger parse           "0" or
+        bigInteger parse            "2147483648" mod bigInteger parse  "2147483649" <> bigInteger parse  "2147483648" or
+        bigInteger parse       "140737488355327" mod bigInteger parse  "140737488355328" <> bigInteger parse  "140737488355327" or
+        bigInteger parse       "140737488355328" mod bigInteger parse  "140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse       "140737488355328" mod bigInteger parse  "140737488355329" <> bigInteger parse  "140737488355328" or
+        bigInteger parse   "9223372036854775807" mod bigInteger parse   "32768" <> bigInteger parse            "32767" or
+        bigInteger parse  "18446744073709551616" mod bigInteger parse   "32767" <> bigInteger parse               "16" or
+        bigInteger parse   "9223090561878065152" mod bigInteger parse   "32767" <> bigInteger parse                "0" or
+        bigInteger parse            "4295229444" mod bigInteger parse   "65538" <> bigInteger parse                "0" or
+        bigInteger parse  "18446744073709551616" mod bigInteger parse   "65535" <> bigInteger parse                "1" or
+        bigInteger parse  "18446744073709551616" mod bigInteger parse  "131071" <> bigInteger parse             "8192" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse  "140737488355329" <> bigInteger parse  "140737488289793" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse  "140737488420863" <> bigInteger parse  "140733193519103" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse  "140737488420864" <> bigInteger parse  "140733193453568" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse  "140741783322623" <> bigInteger parse       "8590000126" or
+        bigInteger parse   "1152921504606846976" mod bigInteger parse   "17596481011711" <> bigInteger parse      "68719542256" or
+        bigInteger parse   "9223231303661387776" mod bigInteger parse  "140739636002821" <> bigInteger parse  "140737488519183" or
+
+        bigInteger parse                 "32766" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                 "32766" mod bigInteger parse  "-32766" <> bigInteger parse   "0" or
+        bigInteger parse                 "32767" mod bigInteger parse  "-32767" <> bigInteger parse   "0" or
+        bigInteger parse                 "32768" mod bigInteger parse  "-32768" <> bigInteger parse   "0" or
+        bigInteger parse                 "32769" mod bigInteger parse  "-32769" <> bigInteger parse   "0" or
+        bigInteger parse                 "32770" mod bigInteger parse  "-32770" <> bigInteger parse   "0" or
+        bigInteger parse                 "65534" mod bigInteger parse  "-65534" <> bigInteger parse   "0" or
+        bigInteger parse                 "65535" mod bigInteger parse  "-65535" <> bigInteger parse   "0" or
+        bigInteger parse                 "65536" mod bigInteger parse  "-65536" <> bigInteger parse   "0" or
+        bigInteger parse                 "65537" mod bigInteger parse  "-65537" <> bigInteger parse   "0" or
+        bigInteger parse                 "65538" mod bigInteger parse  "-65538" <> bigInteger parse   "0" or
+        bigInteger parse                 "32765" mod bigInteger parse  "-32766" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32766" mod bigInteger parse  "-32767" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32767" mod bigInteger parse  "-32768" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32768" mod bigInteger parse  "-32769" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32769" mod bigInteger parse  "-32770" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65533" mod bigInteger parse  "-65534" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65534" mod bigInteger parse  "-65535" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65535" mod bigInteger parse  "-65536" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65536" mod bigInteger parse  "-65537" <> bigInteger parse  "-1" or
+        bigInteger parse                 "65537" mod bigInteger parse  "-65538" <> bigInteger parse  "-1" or
+        bigInteger parse                 "32766" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709518850" or
+        bigInteger parse                 "32767" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709518849" or
+        bigInteger parse                 "32768" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709518848" or
+        bigInteger parse                 "32769" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709518847" or
+        bigInteger parse                 "32770" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709518846" or
+        bigInteger parse                 "65534" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709486082" or
+        bigInteger parse                 "65535" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709486081" or
+        bigInteger parse                 "65536" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709486080" or
+        bigInteger parse                 "65537" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709486079" or
+        bigInteger parse                 "65538" mod bigInteger parse "-18446744073709551616" <> bigInteger parse "-18446744073709486078" or
+        bigInteger parse            "2147483647" mod bigInteger parse "-2147483648" <> bigInteger parse          "-1" or
+        bigInteger parse            "2147483648" mod bigInteger parse "-2147483648" <> bigInteger parse           "0" or
+        bigInteger parse            "2147483648" mod bigInteger parse "-2147483649" <> bigInteger parse          "-1" or
+        bigInteger parse       "140737488355327" mod bigInteger parse "-140737488355328" <> bigInteger parse               "-1" or
+        bigInteger parse       "140737488355328" mod bigInteger parse "-140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse       "140737488355328" mod bigInteger parse "-140737488355329" <> bigInteger parse               "-1" or
+        bigInteger parse   "9223372036854775807" mod bigInteger parse  "-32768" <> bigInteger parse               "-1" or
+        bigInteger parse  "18446744073709551616" mod bigInteger parse  "-32767" <> bigInteger parse           "-32751" or
+        bigInteger parse   "9223090561878065152" mod bigInteger parse  "-32767" <> bigInteger parse                "0" or
+        bigInteger parse            "4295229444" mod bigInteger parse  "-65538" <> bigInteger parse                "0" or
+        bigInteger parse  "18446744073709551616" mod bigInteger parse  "-65535" <> bigInteger parse           "-65534" or
+        bigInteger parse  "18446744073709551616" mod bigInteger parse "-131071" <> bigInteger parse          "-122879" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse "-140737488355329" <> bigInteger parse           "-65536" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse "-140737488420863" <> bigInteger parse      "-4294901760" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse "-140737488420864" <> bigInteger parse      "-4294967296" or
+        bigInteger parse   "9223372036854775808" mod bigInteger parse "-140741783322623" <> bigInteger parse "-140733193322497" or
+        bigInteger parse   "1152921504606846976" mod bigInteger parse  "-17596481011711" <> bigInteger parse  "-17527761469455" or
+        bigInteger parse   "9223231303661387776" mod bigInteger parse "-140739636002821" <> bigInteger parse      "-2147483638" or
+
+        bigInteger parse                "-32766" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" mod bigInteger parse       "1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" mod bigInteger parse   "32766" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" mod bigInteger parse   "32767" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" mod bigInteger parse   "32768" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" mod bigInteger parse   "32769" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" mod bigInteger parse   "32770" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" mod bigInteger parse   "65534" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" mod bigInteger parse   "65535" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" mod bigInteger parse   "65536" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" mod bigInteger parse   "65537" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" mod bigInteger parse   "65538" <> bigInteger parse   "0" or
+        bigInteger parse                "-32765" mod bigInteger parse   "32766" <> bigInteger parse   "1" or
+        bigInteger parse                "-32766" mod bigInteger parse   "32767" <> bigInteger parse   "1" or
+        bigInteger parse                "-32767" mod bigInteger parse   "32768" <> bigInteger parse   "1" or
+        bigInteger parse                "-32768" mod bigInteger parse   "32769" <> bigInteger parse   "1" or
+        bigInteger parse                "-32769" mod bigInteger parse   "32770" <> bigInteger parse   "1" or
+        bigInteger parse                "-65533" mod bigInteger parse   "65534" <> bigInteger parse   "1" or
+        bigInteger parse                "-65534" mod bigInteger parse   "65535" <> bigInteger parse   "1" or
+        bigInteger parse                "-65535" mod bigInteger parse   "65536" <> bigInteger parse   "1" or
+        bigInteger parse                "-65536" mod bigInteger parse   "65537" <> bigInteger parse   "1" or
+        bigInteger parse                "-65537" mod bigInteger parse   "65538" <> bigInteger parse   "1" or
+        bigInteger parse                "-32766" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709518850" or
+        bigInteger parse                "-32767" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709518849" or
+        bigInteger parse                "-32768" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709518848" or
+        bigInteger parse                "-32769" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709518847" or
+        bigInteger parse                "-32770" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709518846" or
+        bigInteger parse                "-65534" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709486082" or
+        bigInteger parse                "-65535" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709486081" or
+        bigInteger parse                "-65536" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709486080" or
+        bigInteger parse                "-65537" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709486079" or
+        bigInteger parse                "-65538" mod bigInteger parse  "18446744073709551616" <> bigInteger parse  "18446744073709486078" or
+        bigInteger parse           "-2147483647" mod bigInteger parse  "2147483648" <> bigInteger parse           "1" or
+        bigInteger parse           "-2147483648" mod bigInteger parse  "2147483648" <> bigInteger parse           "0" or
+        bigInteger parse           "-2147483648" mod bigInteger parse  "2147483649" <> bigInteger parse           "1" or
+        bigInteger parse      "-140737488355327" mod bigInteger parse  "140737488355328" <> bigInteger parse                "1" or
+        bigInteger parse      "-140737488355328" mod bigInteger parse  "140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse      "-140737488355328" mod bigInteger parse  "140737488355329" <> bigInteger parse                "1" or
+        bigInteger parse  "-9223372036854775807" mod bigInteger parse   "32768" <> bigInteger parse                "1" or
+        bigInteger parse "-18446744073709551616" mod bigInteger parse   "32767" <> bigInteger parse            "32751" or
+        bigInteger parse  "-9223090561878065152" mod bigInteger parse   "32767" <> bigInteger parse                "0" or
+        bigInteger parse           "-4295229444" mod bigInteger parse   "65538" <> bigInteger parse                "0" or
+        bigInteger parse "-18446744073709551616" mod bigInteger parse   "65535" <> bigInteger parse            "65534" or
+        bigInteger parse "-18446744073709551616" mod bigInteger parse  "131071" <> bigInteger parse           "122879" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse  "140737488355329" <> bigInteger parse            "65536" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse  "140737488420863" <> bigInteger parse       "4294901760" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse  "140737488420864" <> bigInteger parse       "4294967296" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse  "140741783322623" <> bigInteger parse  "140733193322497" or
+        bigInteger parse  "-1152921504606846976" mod bigInteger parse   "17596481011711" <> bigInteger parse   "17527761469455" or
+        bigInteger parse  "-9223231303661387776" mod bigInteger parse  "140739636002821" <> bigInteger parse       "2147483638" or
+
+        bigInteger parse                "-32766" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" mod bigInteger parse      "-1" <> bigInteger parse   "0" or
+        bigInteger parse                "-32766" mod bigInteger parse  "-32766" <> bigInteger parse   "0" or
+        bigInteger parse                "-32767" mod bigInteger parse  "-32767" <> bigInteger parse   "0" or
+        bigInteger parse                "-32768" mod bigInteger parse  "-32768" <> bigInteger parse   "0" or
+        bigInteger parse                "-32769" mod bigInteger parse  "-32769" <> bigInteger parse   "0" or
+        bigInteger parse                "-32770" mod bigInteger parse  "-32770" <> bigInteger parse   "0" or
+        bigInteger parse                "-65534" mod bigInteger parse  "-65534" <> bigInteger parse   "0" or
+        bigInteger parse                "-65535" mod bigInteger parse  "-65535" <> bigInteger parse   "0" or
+        bigInteger parse                "-65536" mod bigInteger parse  "-65536" <> bigInteger parse   "0" or
+        bigInteger parse                "-65537" mod bigInteger parse  "-65537" <> bigInteger parse   "0" or
+        bigInteger parse                "-65538" mod bigInteger parse  "-65538" <> bigInteger parse   "0" or
+        bigInteger parse                "-32765" mod bigInteger parse  "-32766" <> bigInteger parse  "-32765" or
+        bigInteger parse                "-32766" mod bigInteger parse  "-32767" <> bigInteger parse  "-32766" or
+        bigInteger parse                "-32767" mod bigInteger parse  "-32768" <> bigInteger parse  "-32767" or
+        bigInteger parse                "-32768" mod bigInteger parse  "-32769" <> bigInteger parse  "-32768" or
+        bigInteger parse                "-32769" mod bigInteger parse  "-32770" <> bigInteger parse  "-32769" or
+        bigInteger parse                "-65533" mod bigInteger parse  "-65534" <> bigInteger parse  "-65533" or
+        bigInteger parse                "-65534" mod bigInteger parse  "-65535" <> bigInteger parse  "-65534" or
+        bigInteger parse                "-65535" mod bigInteger parse  "-65536" <> bigInteger parse  "-65535" or
+        bigInteger parse                "-65536" mod bigInteger parse  "-65537" <> bigInteger parse  "-65536" or
+        bigInteger parse                "-65537" mod bigInteger parse  "-65538" <> bigInteger parse  "-65537" or
+        bigInteger parse                "-32766" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32766" or
+        bigInteger parse                "-32767" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32767" or
+        bigInteger parse                "-32768" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32768" or
+        bigInteger parse                "-32769" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32769" or
+        bigInteger parse                "-32770" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-32770" or
+        bigInteger parse                "-65534" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65534" or
+        bigInteger parse                "-65535" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65535" or
+        bigInteger parse                "-65536" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65536" or
+        bigInteger parse                "-65537" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65537" or
+        bigInteger parse                "-65538" mod bigInteger parse "-18446744073709551616" <> bigInteger parse  "-65538" or
+        bigInteger parse           "-2147483647" mod bigInteger parse "-2147483648" <> bigInteger parse "-2147483647" or
+        bigInteger parse           "-2147483648" mod bigInteger parse "-2147483648" <> bigInteger parse           "0" or
+        bigInteger parse           "-2147483648" mod bigInteger parse "-2147483649" <> bigInteger parse "-2147483648" or
+        bigInteger parse      "-140737488355327" mod bigInteger parse "-140737488355328" <> bigInteger parse "-140737488355327" or
+        bigInteger parse      "-140737488355328" mod bigInteger parse "-140737488355328" <> bigInteger parse                "0" or
+        bigInteger parse      "-140737488355328" mod bigInteger parse "-140737488355329" <> bigInteger parse "-140737488355328" or
+        bigInteger parse  "-9223372036854775807" mod bigInteger parse  "-32768" <> bigInteger parse           "-32767" or
+        bigInteger parse "-18446744073709551616" mod bigInteger parse  "-32767" <> bigInteger parse              "-16" or
+        bigInteger parse  "-9223090561878065152" mod bigInteger parse  "-32767" <> bigInteger parse                "0" or
+        bigInteger parse           "-4295229444" mod bigInteger parse  "-65538" <> bigInteger parse                "0" or
+        bigInteger parse "-18446744073709551616" mod bigInteger parse  "-65535" <> bigInteger parse               "-1" or
+        bigInteger parse "-18446744073709551616" mod bigInteger parse "-131071" <> bigInteger parse            "-8192" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse "-140737488355329" <> bigInteger parse "-140737488289793" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse "-140737488420863" <> bigInteger parse "-140733193519103" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse "-140737488420864" <> bigInteger parse "-140733193453568" or
+        bigInteger parse  "-9223372036854775808" mod bigInteger parse "-140741783322623" <> bigInteger parse      "-8590000126" or
+        bigInteger parse  "-1152921504606846976" mod bigInteger parse  "-17596481011711" <> bigInteger parse     "-68719542256" or
+        bigInteger parse  "-9223231303661387776" mod bigInteger parse "-140739636002821" <> bigInteger parse "-140737488519183" then
+
+      writeln("Modulo of bigInteger division does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Modulo of bigInteger division works correct.");
+    else
+      writeln(" ***** Modulo of bigInteger division does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chkPower is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    # writeln(bigInteger parse "2" ** 267);
+    # writeln(bigInteger parse "2" ** 2677);
+    # writeln(bigInteger parse "2" ** 26770);
+    # writeln(bigInteger parse "2" ** 267709);
+    if  bigInteger parse      "0" **  1 <> bigInteger parse                                       "0" or
+        bigInteger parse      "0" **  2 <> bigInteger parse                                       "0" or
+        bigInteger parse      "0" ** 15 <> bigInteger parse                                       "0" or
+        bigInteger parse      "0" ** 64 <> bigInteger parse                                       "0" or
+        bigInteger parse      "0" ** 99 <> bigInteger parse                                       "0" or
+
+        bigInteger parse      "2" ** 64 <> bigInteger parse                    "18446744073709551616" or
+        bigInteger parse      "2" ** 99 <> bigInteger parse          "633825300114114700748351602688" or
+
+        bigInteger parse    "255" **  0 <> bigInteger parse                                       "1" or
+        bigInteger parse    "255" **  1 <> bigInteger parse                                     "255" or
+        bigInteger parse    "255" **  2 <> bigInteger parse                                   "65025" or
+        bigInteger parse    "255" **  3 <> bigInteger parse                                "16581375" or
+        bigInteger parse    "255" **  4 <> bigInteger parse                              "4228250625" or
+        bigInteger parse    "255" **  5 <> bigInteger parse                           "1078203909375" or
+        bigInteger parse    "255" **  6 <> bigInteger parse                         "274941996890625" or
+        bigInteger parse    "255" **  7 <> bigInteger parse                       "70110209207109375" or
+        bigInteger parse    "255" **  8 <> bigInteger parse                    "17878103347812890625" or
+        bigInteger parse    "255" **  9 <> bigInteger parse                  "4558916353692287109375" or
+        bigInteger parse    "255" ** 10 <> bigInteger parse               "1162523670191533212890625" or
+        bigInteger parse    "255" ** 11 <> bigInteger parse             "296443535898840969287109375" or
+        bigInteger parse    "255" ** 12 <> bigInteger parse           "75593101654204447168212890625" or
+        bigInteger parse    "255" ** 13 <> bigInteger parse        "19276240921822134027894287109375" or
+        bigInteger parse    "255" ** 14 <> bigInteger parse      "4915441435064644177113043212890625" or
+        bigInteger parse    "255" ** 15 <> bigInteger parse   "1253437565941484265163826019287109375" or
+        bigInteger parse    "255" ** 16 <> bigInteger parse "319626579315078487616775634918212890625" or
+
+        bigInteger parse    "256" **  0 <> bigInteger parse                                       "1" or
+        bigInteger parse    "256" **  1 <> bigInteger parse                                     "256" or
+        bigInteger parse    "256" **  2 <> bigInteger parse                                   "65536" or
+        bigInteger parse    "256" **  3 <> bigInteger parse                                "16777216" or
+        bigInteger parse    "256" **  4 <> bigInteger parse                              "4294967296" or
+        bigInteger parse    "256" **  5 <> bigInteger parse                           "1099511627776" or
+        bigInteger parse    "256" **  6 <> bigInteger parse                         "281474976710656" or
+        bigInteger parse    "256" **  7 <> bigInteger parse                       "72057594037927936" or
+        bigInteger parse    "256" **  8 <> bigInteger parse                    "18446744073709551616" or
+        bigInteger parse    "256" **  9 <> bigInteger parse                  "4722366482869645213696" or
+        bigInteger parse    "256" ** 10 <> bigInteger parse               "1208925819614629174706176" or
+        bigInteger parse    "256" ** 11 <> bigInteger parse             "309485009821345068724781056" or
+        bigInteger parse    "256" ** 12 <> bigInteger parse           "79228162514264337593543950336" or
+        bigInteger parse    "256" ** 13 <> bigInteger parse        "20282409603651670423947251286016" or
+        bigInteger parse    "256" ** 14 <> bigInteger parse      "5192296858534827628530496329220096" or
+        bigInteger parse    "256" ** 15 <> bigInteger parse   "1329227995784915872903807060280344576" or
+        bigInteger parse    "256" ** 16 <> bigInteger parse "340282366920938463463374607431768211456" or
+
+        bigInteger parse  "32767" **  0 <> bigInteger parse                                       "1" or
+        bigInteger parse  "32767" **  1 <> bigInteger parse                                   "32767" or
+        bigInteger parse  "32767" **  2 <> bigInteger parse                              "1073676289" or
+        bigInteger parse  "32767" **  3 <> bigInteger parse                          "35181150961663" or
+        bigInteger parse  "32767" **  4 <> bigInteger parse                     "1152780773560811521" or
+        bigInteger parse  "32767" **  5 <> bigInteger parse                 "37773167607267111108607" or
+        bigInteger parse  "32767" **  6 <> bigInteger parse            "1237713382987321429695725569" or
+        bigInteger parse  "32767" **  7 <> bigInteger parse        "40556154420345561286839839719423" or
+        bigInteger parse  "32767" **  8 <> bigInteger parse   "1328903511891463006685881028086333441" or
+
+        bigInteger parse  "32768" **  0 <> bigInteger parse                                       "1" or
+        bigInteger parse  "32768" **  1 <> bigInteger parse                                   "32768" or
+        bigInteger parse  "32768" **  2 <> bigInteger parse                              "1073741824" or
+        bigInteger parse  "32768" **  3 <> bigInteger parse                          "35184372088832" or
+        bigInteger parse  "32768" **  4 <> bigInteger parse                     "1152921504606846976" or
+        bigInteger parse  "32768" **  5 <> bigInteger parse                 "37778931862957161709568" or
+        bigInteger parse  "32768" **  6 <> bigInteger parse            "1237940039285380274899124224" or
+        bigInteger parse  "32768" **  7 <> bigInteger parse        "40564819207303340847894502572032" or
+        bigInteger parse  "32768" **  8 <> bigInteger parse   "1329227995784915872903807060280344576" or
+
+        bigInteger parse  "65535" **  0 <> bigInteger parse                                       "1" or
+        bigInteger parse  "65535" **  1 <> bigInteger parse                                   "65535" or
+        bigInteger parse  "65535" **  2 <> bigInteger parse                              "4294836225" or
+        bigInteger parse  "65535" **  3 <> bigInteger parse                         "281462092005375" or
+        bigInteger parse  "65535" **  4 <> bigInteger parse                    "18445618199572250625" or
+        bigInteger parse  "65535" **  5 <> bigInteger parse               "1208833588708967444709375" or
+        bigInteger parse  "65535" **  6 <> bigInteger parse           "79220909236042181489028890625" or
+        bigInteger parse  "65535" **  7 <> bigInteger parse      "5191742286784024363883508347109375" or
+        bigInteger parse  "65535" **  8 <> bigInteger parse "340240830764391036687105719527812890625" or
+        bigInteger parse "-65535" **  0 <> bigInteger parse                                       "1" or
+        bigInteger parse "-65535" **  1 <> bigInteger parse                                  "-65535" or
+        bigInteger parse "-65535" **  2 <> bigInteger parse                              "4294836225" or
+        bigInteger parse "-65535" **  3 <> bigInteger parse                        "-281462092005375" or
+        bigInteger parse "-65535" **  4 <> bigInteger parse                    "18445618199572250625" or
+        bigInteger parse "-65535" **  5 <> bigInteger parse              "-1208833588708967444709375" or
+        bigInteger parse "-65535" **  6 <> bigInteger parse           "79220909236042181489028890625" or
+        bigInteger parse "-65535" **  7 <> bigInteger parse     "-5191742286784024363883508347109375" or
+        bigInteger parse "-65535" **  8 <> bigInteger parse "340240830764391036687105719527812890625" then
+      writeln("Power of bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Power of bigInteger works correct.");
+    else
+      writeln(" ***** Power of bigInteger does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkCompare is func
   local
     var boolean: okay is TRUE;
   begin
-    if  compare(bigInteger parse "-4294967296", bigInteger parse "-4294967296") <>  0 or
+    if  compare(bigInteger parse "-4294967298", bigInteger parse "-4294967298") <>  0 or
+        compare(bigInteger parse "-4294967298", bigInteger parse "-4294967297") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse "-4294967296") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse "-4294967295") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse "-4294967294") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse          "-2") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse          "-1") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse           "0") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse  "4294967295") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse "-4294967298", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse "-4294967297") <>  0 or
+        compare(bigInteger parse "-4294967297", bigInteger parse "-4294967296") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse "-4294967295") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse "-4294967294") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse          "-2") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse          "-1") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse           "0") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse  "4294967295") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse "-4294967297", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse "-4294967296") <>  0 or
+        compare(bigInteger parse "-4294967296", bigInteger parse "-4294967295") <> -1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse "-4294967294") <> -1 or
         compare(bigInteger parse "-4294967296", bigInteger parse          "-2") <> -1 or
         compare(bigInteger parse "-4294967296", bigInteger parse          "-1") <> -1 or
         compare(bigInteger parse "-4294967296", bigInteger parse           "0") <> -1 or
         compare(bigInteger parse "-4294967296", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse  "4294967295") <> -1 or
         compare(bigInteger parse "-4294967296", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse "-4294967296", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse "-4294967295") <>  0 or
+        compare(bigInteger parse "-4294967295", bigInteger parse "-4294967294") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse          "-2") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse          "-1") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse           "0") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse  "4294967295") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse "-4294967295", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse "-4294967294") <>  0 or
+        compare(bigInteger parse "-4294967294", bigInteger parse          "-2") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse          "-1") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse           "0") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse  "4294967295") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse "-4294967294", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse          "-2", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse          "-2", bigInteger parse "-4294967297") <>  1 or
         compare(bigInteger parse          "-2", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse          "-2", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse          "-2", bigInteger parse "-4294967294") <>  1 or
         compare(bigInteger parse          "-2", bigInteger parse          "-2") <>  0 or
         compare(bigInteger parse          "-2", bigInteger parse          "-1") <> -1 or
         compare(bigInteger parse          "-2", bigInteger parse           "0") <> -1 or
         compare(bigInteger parse          "-2", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse          "-2", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse          "-2", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse          "-2", bigInteger parse  "4294967295") <> -1 or
         compare(bigInteger parse          "-2", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse          "-2", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse          "-2", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse          "-1", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse          "-1", bigInteger parse "-4294967297") <>  1 or
         compare(bigInteger parse          "-1", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse          "-1", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse          "-1", bigInteger parse "-4294967294") <>  1 or
         compare(bigInteger parse          "-1", bigInteger parse          "-2") <>  1 or
         compare(bigInteger parse          "-1", bigInteger parse          "-1") <>  0 or
         compare(bigInteger parse          "-1", bigInteger parse           "0") <> -1 or
         compare(bigInteger parse          "-1", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse          "-1", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse          "-1", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse          "-1", bigInteger parse  "4294967295") <> -1 or
         compare(bigInteger parse          "-1", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse          "-1", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse          "-1", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse           "0", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse           "0", bigInteger parse "-4294967297") <>  1 or
         compare(bigInteger parse           "0", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse           "0", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse           "0", bigInteger parse "-4294967294") <>  1 or
         compare(bigInteger parse           "0", bigInteger parse          "-2") <>  1 or
         compare(bigInteger parse           "0", bigInteger parse          "-1") <>  1 or
         compare(bigInteger parse           "0", bigInteger parse           "0") <>  0 or
         compare(bigInteger parse           "0", bigInteger parse           "1") <> -1 or
+        compare(bigInteger parse           "0", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse           "0", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse           "0", bigInteger parse  "4294967295") <> -1 or
         compare(bigInteger parse           "0", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse           "0", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse           "0", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse           "1", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse           "1", bigInteger parse "-4294967297") <>  1 or
         compare(bigInteger parse           "1", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse           "1", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse           "1", bigInteger parse "-4294967294") <>  1 or
         compare(bigInteger parse           "1", bigInteger parse          "-2") <>  1 or
         compare(bigInteger parse           "1", bigInteger parse          "-1") <>  1 or
         compare(bigInteger parse           "1", bigInteger parse           "0") <>  1 or
         compare(bigInteger parse           "1", bigInteger parse           "1") <>  0 or
+        compare(bigInteger parse           "1", bigInteger parse           "2") <> -1 or
+        compare(bigInteger parse           "1", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse           "1", bigInteger parse  "4294967295") <> -1 or
         compare(bigInteger parse           "1", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse           "1", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse           "1", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse           "2", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse "-4294967294") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse          "-2") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse          "-1") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse           "0") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse           "1") <>  1 or
+        compare(bigInteger parse           "2", bigInteger parse           "2") <>  0 or
+        compare(bigInteger parse           "2", bigInteger parse  "4294967294") <> -1 or
+        compare(bigInteger parse           "2", bigInteger parse  "4294967295") <> -1 or
+        compare(bigInteger parse           "2", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse           "2", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse           "2", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse "-4294967294") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse          "-2") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse          "-1") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse           "0") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse           "1") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse           "2") <>  1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse  "4294967294") <>  0 or
+        compare(bigInteger parse  "4294967294", bigInteger parse  "4294967295") <> -1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse  "4294967294", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse "-4294967294") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse          "-2") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse          "-1") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse           "0") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse           "1") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse           "2") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse  "4294967294") <>  1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse  "4294967295") <>  0 or
+        compare(bigInteger parse  "4294967295", bigInteger parse  "4294967296") <> -1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse  "4294967295", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse "-4294967297") <>  1 or
         compare(bigInteger parse  "4294967296", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse "-4294967294") <>  1 or
         compare(bigInteger parse  "4294967296", bigInteger parse          "-2") <>  1 or
         compare(bigInteger parse  "4294967296", bigInteger parse          "-1") <>  1 or
         compare(bigInteger parse  "4294967296", bigInteger parse           "0") <>  1 or
         compare(bigInteger parse  "4294967296", bigInteger parse           "1") <>  1 or
-        compare(bigInteger parse  "4294967296", bigInteger parse  "4294967296") <>  0 then
+        compare(bigInteger parse  "4294967296", bigInteger parse           "2") <>  1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse  "4294967294") <>  1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse  "4294967295") <>  1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse  "4294967296") <>  0 or
+        compare(bigInteger parse  "4294967296", bigInteger parse  "4294967297") <> -1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse "-4294967294") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse          "-2") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse          "-1") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse           "0") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse           "1") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse           "2") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse  "4294967294") <>  1 or
+        compare(bigInteger parse  "4294967296", bigInteger parse  "4294967295") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse  "4294967296") <>  1 or
+        compare(bigInteger parse  "4294967297", bigInteger parse  "4294967297") <>  0 or
+        compare(bigInteger parse  "4294967297", bigInteger parse  "4294967298") <> -1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse "-4294967298") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse "-4294967297") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse "-4294967296") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse "-4294967295") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse "-4294967294") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse          "-2") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse          "-1") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse           "0") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse           "1") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse           "2") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse  "4294967294") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse  "4294967295") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse  "4294967296") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse  "4294967297") <>  1 or
+        compare(bigInteger parse  "4294967298", bigInteger parse  "4294967298") <>  0 then
       writeln("The bigInteger compare does not work correct.");
       okay := FALSE;
     end if;
@@ -3922,11 +5180,15 @@ const proc: main is func
     chkMinus;
     chkSucc;
     chkPred;
+    chkIncr;
+    chkDecr;
     chkAddition;
     chkSubtraction;
     chkMultiplication;
     chkDivision;
     chkRemainder;
+    chkModulo;
+    chkPower;
     chkCompare;
     # testConversion(10);
   end func;
