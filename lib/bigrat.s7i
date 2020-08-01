@@ -99,6 +99,9 @@ const func bigInteger: gcd2 (in bigInteger: numerator, in bigInteger: denominato
   end func;
 
 
+(**
+ *  Return the given bigRational number.
+ *)
 const func bigRational: + (in bigRational: rat) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -108,6 +111,9 @@ const func bigRational: + (in bigRational: rat) is func
   end func;
 
 
+(**
+ *  Return the negated value of a bigRational number.
+ *)
 const func bigRational: - (in bigRational: rat) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -117,6 +123,9 @@ const func bigRational: - (in bigRational: rat) is func
   end func;
 
 
+(**
+ *  Return the sum of two bigRational numbers.
+ *)
 const func bigRational: (in bigRational: rat1) + (in bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -130,6 +139,9 @@ const func bigRational: (in bigRational: rat1) + (in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Return the difference of two bigRational numbers.
+ *)
 const func bigRational: (in bigRational: rat1) - (in bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -143,6 +155,9 @@ const func bigRational: (in bigRational: rat1) - (in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Return the product of two bigRational numbers.
+ *)
 const func bigRational: (in bigRational: rat1) * (in bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -157,6 +172,9 @@ const func bigRational: (in bigRational: rat1) * (in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Return the quotient of two bigRational numbers.
+ *)
 const func bigRational: (in bigRational: rat1) / (in bigRational: rat2) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -168,6 +186,9 @@ const func bigRational: (in bigRational: rat1) / (in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Increment the bigRational number rat1 by rat2.
+ *)
 const proc: (inout bigRational: rat1) +:= (in bigRational: rat2) is func
   local
     var bigInteger: gcd_denominator is 0_;
@@ -179,6 +200,9 @@ const proc: (inout bigRational: rat1) +:= (in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Decrement the bigRational number rat1 by rat2.
+ *)
 const proc: (inout bigRational: rat1) -:= (in bigRational: rat2) is func
   local
     var bigInteger: gcd_denominator is 0_;
@@ -190,6 +214,10 @@ const proc: (inout bigRational: rat1) -:= (in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Multiply the bigRational number rat1 by rat2 and assign the
+ *  result to rat1.
+ *)
 const proc: (inout bigRational: rat1) *:= (in bigRational: rat2) is func
   begin
     rat1.numerator *:= rat2.numerator;
@@ -198,6 +226,9 @@ const proc: (inout bigRational: rat1) *:= (in bigRational: rat2) is func
   end func;
 
 
+(**
+ *  Create a bigRational number from its numerator and denominator.
+ *)
 const func bigRational: (in bigInteger: int1) / (in bigInteger: int2) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -209,6 +240,9 @@ const func bigRational: (in bigInteger: int1) / (in bigInteger: int2) is func
   end func;
 
 
+(**
+ *  Return rat1 to the power of int2.
+ *)
 const func bigRational: (in bigRational: rat1) ** (in integer: int2) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -254,6 +288,10 @@ const func boolean: (in bigRational: rat1) <> (in bigRational: rat2) is
          rat1.denominator <> rat2.denominator;
 
 
+(**
+ *  Returns -1, 0 or 1 if the first argument is considered to be
+ *  respectively less than, equal to, or greater than the second.
+ *)
 const func integer: compare (in bigRational: rat1, in bigRational: rat2) is func
   result
     var integer: result is 0;
@@ -272,6 +310,9 @@ const func integer: hashCode (in bigRational: rat) is
   return hashCode(rat.numerator) * hashCode(rat.denominator);
 
 
+(**
+ *  Return a bigInteger number converted to a bigRational number.
+ *)
 const func bigRational: rat (in bigInteger: number) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -281,6 +322,9 @@ const func bigRational: rat (in bigInteger: number) is func
   end func;
 
 
+(**
+ *  Return the absolute value of a bigRational number.
+ *)
 const func bigRational: abs (in bigRational: rat1) is func
   result
     var bigRational: rat_val is bigRational.value;
@@ -290,26 +334,38 @@ const func bigRational: abs (in bigRational: rat1) is func
   end func;
 
 
-const func string: (in bigRational: rat1) digits (in integer: number) is func
+(**
+ *  Return the conversion of a bigRational number to a string.
+ *)
+const func string: str (in bigRational: rat1) is func
   result
     var string: result is "";
   begin
-    result := str((rat1.numerator * 10_ ** number) div rat1.denominator);
-    if number + 1 - length(result) > 0 then
-      result := "0" mult (number + 1 - length(result)) & result;
-    end if;
-    result := result[ .. length(result) - number] & "." & result[length(result) - number + 1 .. ];
+    result := str(rat1.numerator) & "/" & str(rat1.denominator);
   end func;
 
 
-const func string: str (in bigRational: rat1) is func
+(**
+ *  Return the conversion of a bigRational number to a string.
+ *  The numDigits parameter specifies the number of digits
+ *  after the decimal point.
+ *)
+const func string: (in bigRational: rat1) digits (in integer: numDigits) is func
   result
-    var string: str_val is "";
+    var string: result is "";
   begin
-    str_val := str(rat1.numerator) & "/" & str(rat1.denominator);
+    result := str((rat1.numerator * 10_ ** numDigits) div rat1.denominator);
+    if numDigits + 1 - length(result) > 0 then
+      result := "0" mult (numDigits + 1 - length(result)) & result;
+    end if;
+    result := result[ .. length(result) - numDigits] & "." &
+        result[length(result) - numDigits + 1 .. ];
   end func;
 
 
+(**
+ *  Return the conversion of a string to a bigRational number.
+ *)
 const func bigRational: (attr bigRational) parse (in var string: stri) is func
   result
     var bigRational: result is bigRational.value;
@@ -326,6 +382,9 @@ const func bigRational: (attr bigRational) parse (in var string: stri) is func
 enable_io(bigRational);
 
 
+(**
+ *  Return a bigRational number truncated towards negative infinity.
+ *)
 const func bigInteger: floor (ref bigRational: rat1) is func
   result
     var bigInteger: int_val is 0_;
@@ -334,6 +393,9 @@ const func bigInteger: floor (ref bigRational: rat1) is func
   end func;
 
 
+(**
+ *  Return a bigRational number rounded up towards positive infinity.
+ *)
 const func bigInteger: ceil (ref bigRational: rat1) is func
   result
     var bigInteger: int_val is 0_;
@@ -342,6 +404,9 @@ const func bigInteger: ceil (ref bigRational: rat1) is func
   end func;
 
 
+(**
+ *  Return a bigRational number truncated towards zero.
+ *)
 const func bigInteger: trunc (ref bigRational: rat1) is func
   result
     var bigInteger: int_val is 0_;
@@ -350,6 +415,9 @@ const func bigInteger: trunc (ref bigRational: rat1) is func
   end func;
 
 
+(**
+ *  Return a bigRational number rounded towards zero.
+ *)
 const func bigInteger: round (ref bigRational: rat1) is func
   result
     var bigInteger: int_val is 0;

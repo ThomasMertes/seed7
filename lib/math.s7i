@@ -1,0 +1,140 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  math.s7i      Mathematical functions and constants              *)
+(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const float: PI is 3.1415926535897932384626433832795028841972;
+# const float: E  is 2.7182818284590452353602874713526624977572;
+
+
+(**
+ *  Returns the trigonometric sine of an angle.
+ *)
+const func float: sin (ref float param) is                         action "FLT_SIN";
+
+
+(**
+ *  Returns the trigonometric cosine of an angle.
+ *)
+const func float: cos (ref float param) is                         action "FLT_COS";
+
+
+(**
+ *  Returns the trigonometric tangent of an angle.
+ *)
+const func float: tan (ref float param) is                         action "FLT_TAN";
+
+
+(**
+ *  Returns the arc sine of a value. The returned angle is in the
+ *  range -PI/2 through PI/2.
+ *)
+const func float: asin (ref float param) is                        action "FLT_ASIN";
+
+
+(**
+ *  Returns the arc cosine of a value. The returned angle is in the
+ *  range 0.0 through PI.
+ *)
+const func float: acos (ref float param) is                        action "FLT_ACOS";
+
+
+(**
+ *  Returns the arc tangent of a value. The returned angle is in the
+ *  range -PI/2 through PI/2.
+ *)
+const func float: atan (ref float param) is                        action "FLT_ATAN";
+
+
+(**
+ *  Returns the angle theta from the conversion of rectangular
+ *  coordinates (x, y) to polar coordinates (r, theta).
+ *)
+const func float: atan2 (ref float param, ref float param) is      action "FLT_A2TAN";
+
+
+(**
+ *  Returns the hyperbolic sine of a value.
+ *)
+const func float: sinh (ref float param) is                        action "FLT_HSIN";
+
+
+(**
+ *  Returns the hyperbolic cosine of a value.
+ *)
+const func float: cosh (ref float param) is                        action "FLT_HCOS";
+
+
+(**
+ *  Returns the hyperbolic tangent of a value.
+ *)
+const func float: tanh (ref float param) is                        action "FLT_HTAN";
+
+
+(**
+ *  Returns Euler's number e raised to the power of a value.
+ *)
+const func float: exp (ref float param) is                         action "FLT_EXP";
+
+
+(**
+ *  Returns the natural logarithm (base e) of a value.
+ *)
+const func float: log (ref float param) is                         action "FLT_LOG";
+
+
+(**
+ *  Returns the base 10 logarithm of a value.
+ *)
+const func float: log10 (ref float param) is                       action "FLT_LOG10";
+
+
+(**
+ *  Returns the non-negative square root of a value.
+ *)
+const func float: sqrt (ref float param) is                        action "FLT_SQRT";
+
+
+(**
+ *  Returns the smallest (closest to negative infinity) value that
+ *  is greater than or equal to the argument and is equal to a
+ *  mathematical integer.
+ *)
+const func float: ceil (ref float param) is                        action "FLT_CEIL";
+
+
+(**
+ *  Returns the largest (closest to positive infinity) value that
+ *  is less than or equal to the argument and is equal to a
+ *  mathematical integer.
+ *)
+const func float: floor (ref float param) is                       action "FLT_FLOOR";
+
+
+(**
+ *  Returns the absolute value of a value.
+ *)
+const func float: abs (ref float param) is                         action "FLT_ABS";

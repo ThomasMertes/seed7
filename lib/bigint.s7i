@@ -73,6 +73,10 @@ const func bigInteger: (attr bigInteger) parse (in string param) is        actio
 
 const bigInteger: (attr bigInteger) . value is bigInteger parse "0";
 
+
+(**
+ *  Return the integer square root of a bigInteger number.
+ *)
 const func bigInteger: sqrt (in var bigInteger: number) is func
   result
     var bigInteger: result is 0_;

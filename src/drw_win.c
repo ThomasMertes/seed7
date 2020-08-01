@@ -1243,6 +1243,8 @@ inttype height;
   /* drwGet */
     if (!ALLOC_RECORD(result, win_winrecord, count.win)) {
       raise_error(MEMORY_ERROR);
+    } else if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
     } else {
       memset(result, 0, sizeof(struct win_winstruct));
       result->usage_count = 1;

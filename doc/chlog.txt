@@ -1,3 +1,16 @@
+20080106:
+- Documentation comments were added to the functions of the librarys bigint.s7i,
+  bigrat.s7i, complex.s7i, float.s7i, getf.s7i, keybd.s7i, rational.s7i, scanner.s7i,
+  socket.s7i, stritext.s7i, time.s7i and dna_base.s7i.
+- The bas.sd7 (basic interpreter) example program was improved.
+- The include mechanism was improved to avoid multiple includes.
+- Part of the float.s7i library was moved to the new math.s7i library.
+- The library html_ent.s7i, which contains functions to replace HTML entities by
+  characters and vice versa, was added.
+- A new example program (chkhent.sd7) to check the new HTML functions was added.
+- The compiler (comp.sd7) was improved to support the new 'rpos' function.
+- The getHtmlTagOrContent function was added to the scanner.s7i library.
+
 20071227:
 - The library cards.s7i which contains the card pictures of a french deck was added.
 - The documentation of the draw.s7i library was improved.

@@ -99,6 +99,9 @@ const func integer: gcd2 (in integer: numerator, in integer: denominator) is fun
   end func;
 
 
+(**
+ *  Return the given rational number.
+ *)
 const func rational: + (in rational: rat) is func
   result
     var rational: rat_val is rational.value;
@@ -108,6 +111,9 @@ const func rational: + (in rational: rat) is func
   end func;
 
 
+(**
+ *  Return the negated value of a rational number.
+ *)
 const func rational: - (in rational: rat) is func
   result
     var rational: rat_val is rational.value;
@@ -117,6 +123,9 @@ const func rational: - (in rational: rat) is func
   end func;
 
 
+(**
+ *  Return the sum of two rational numbers.
+ *)
 const func rational: (in rational: rat1) + (in rational: rat2) is func
   result
     var rational: rat_val is rational.value;
@@ -130,6 +139,9 @@ const func rational: (in rational: rat1) + (in rational: rat2) is func
   end func;
 
 
+(**
+ *  Return the difference of two rational numbers.
+ *)
 const func rational: (in rational: rat1) - (in rational: rat2) is func
   result
     var rational: rat_val is rational.value;
@@ -143,6 +155,9 @@ const func rational: (in rational: rat1) - (in rational: rat2) is func
   end func;
 
 
+(**
+ *  Return the product of two rational numbers.
+ *)
 const func rational: (in rational: rat1) * (in rational: rat2) is func
   result
     var rational: rat_val is rational.value;
@@ -157,6 +172,9 @@ const func rational: (in rational: rat1) * (in rational: rat2) is func
   end func;
 
 
+(**
+ *  Return the quotient of two rational numbers.
+ *)
 const func rational: (in rational: rat1) / (in rational: rat2) is func
   result
     var rational: rat_val is rational.value;
@@ -168,6 +186,9 @@ const func rational: (in rational: rat1) / (in rational: rat2) is func
   end func;
 
 
+(**
+ *  Increment the rational number rat1 by rat2.
+ *)
 const proc: (inout rational: rat1) +:= (in rational: rat2) is func
   local
     var integer: gcd_denominator is 0;
@@ -179,6 +200,9 @@ const proc: (inout rational: rat1) +:= (in rational: rat2) is func
   end func;
 
 
+(**
+ *  Decrement the rational number rat1 by rat2.
+ *)
 const proc: (inout rational: rat1) -:= (in rational: rat2) is func
   local
     var integer: gcd_denominator is 0;
@@ -190,6 +214,10 @@ const proc: (inout rational: rat1) -:= (in rational: rat2) is func
   end func;
 
 
+(**
+ *  Multiply the rational number rat1 by rat2 and assign the
+ *  result to rat1.
+ *)
 const proc: (inout rational: rat1) *:= (in rational: rat2) is func
   begin
     rat1.numerator *:= rat2.numerator;
@@ -198,6 +226,9 @@ const proc: (inout rational: rat1) *:= (in rational: rat2) is func
   end func;
 
 
+(**
+ *  Create a rational number from its numerator and denominator.
+ *)
 const func rational: (in integer: int1) / (in integer: int2) is func
   result
     var rational: rat_val is rational.value;
@@ -209,6 +240,9 @@ const func rational: (in integer: int1) / (in integer: int2) is func
   end func;
 
 
+(**
+ *  Return rat1 to the power of int2.
+ *)
 const func rational: (in rational: rat1) ** (in integer: int2) is func
   result
     var rational: rat_val is rational.value;
@@ -254,6 +288,10 @@ const func boolean: (in rational: rat1) <> (in rational: rat2) is
          rat1.denominator <> rat2.denominator;
 
 
+(**
+ *  Returns -1, 0 or 1 if the first argument is considered to be
+ *  respectively less than, equal to, or greater than the second.
+ *)
 const func integer: compare (in rational: rat1, in rational: rat2) is func
   result
     var integer: result is 0;
@@ -272,6 +310,9 @@ const func integer: hashCode (in rational: rat) is
   return rat.numerator * rat.denominator;
 
 
+(**
+ *  Return a integer number converted to a rational number.
+ *)
 const func rational: rat (in integer: number) is func
   result
     var rational: rat_val is rational.value;
@@ -281,6 +322,9 @@ const func rational: rat (in integer: number) is func
   end func;
 
 
+(**
+ *  Return the absolute value of a rational number.
+ *)
 const func rational: abs (in rational: rat1) is func
   result
     var rational: rat_val is rational.value;
@@ -290,26 +334,38 @@ const func rational: abs (in rational: rat1) is func
   end func;
 
 
-const func string: (in rational: rat1) digits (in integer: number) is func
+(**
+ *  Return the conversion of a rational number to a string.
+ *)
+const func string: str (in rational: rat1) is func
   result
     var string: result is "";
   begin
-    result := str((rat1.numerator * 10 ** number) div rat1.denominator);
-    if number + 1 - length(result) > 0 then
-      result := "0" mult (number + 1 - length(result)) & result;
-    end if;
-    result := result[ .. length(result) - number] & "." & result[length(result) - number + 1 .. ];
+    result := str(rat1.numerator) & "/" & str(rat1.denominator);
   end func;
 
 
-const func string: str (in rational: rat1) is func
+(**
+ *  Return the conversion of a rational number to a string.
+ *  The numDigits parameter specifies the number of digits
+ *  after the decimal point.
+ *)
+const func string: (in rational: rat1) digits (in integer: numDigits) is func
   result
-    var string: str_val is "";
+    var string: result is "";
   begin
-    str_val := str(rat1.numerator) & "/" & str(rat1.denominator);
+    result := str((rat1.numerator * 10 ** numDigits) div rat1.denominator);
+    if numDigits + 1 - length(result) > 0 then
+      result := "0" mult (numDigits + 1 - length(result)) & result;
+    end if;
+    result := result[ .. length(result) - numDigits] & "." &
+        result[length(result) - numDigits + 1 .. ];
   end func;
 
 
+(**
+ *  Return the conversion of a string to a rational number.
+ *)
 const func rational: (attr rational) parse (in var string: stri) is func
   result
     var rational: result is rational.value;
@@ -326,6 +382,9 @@ const func rational: (attr rational) parse (in var string: stri) is func
 enable_io(rational);
 
 
+(**
+ *  Return a rational number truncated towards negative infinity.
+ *)
 const func integer: floor (ref rational: rat1) is func
   result
     var integer: int_val is 0;
@@ -334,6 +393,9 @@ const func integer: floor (ref rational: rat1) is func
   end func;
 
 
+(**
+ *  Return a rational number rounded up towards positive infinity.
+ *)
 const func integer: ceil (ref rational: rat1) is func
   result
     var integer: int_val is 0;
@@ -342,6 +404,9 @@ const func integer: ceil (ref rational: rat1) is func
   end func;
 
 
+(**
+ *  Return a rational number truncated towards zero.
+ *)
 const func integer: trunc (ref rational: rat1) is func
   result
     var integer: int_val is 0;
@@ -350,6 +415,9 @@ const func integer: trunc (ref rational: rat1) is func
   end func;
 
 
+(**
+ *  Return a rational number rounded towards zero.
+ *)
 const func integer: round (ref rational: rat1) is func
   result
     var integer: int_val is 0;

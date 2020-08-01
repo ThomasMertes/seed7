@@ -75,19 +75,85 @@ const directSet: DIAGONAL_DIRECTIONS is {NW, NE, SW, SE};
 
 const integer: defaultVal is 10; # Default value for initSize, foodReserve and shrinkage.
 
-var power: initSize is defaultVal;
-var power: foodReserve is defaultVal;
-var percent: shrinkage is defaultVal;
+var power: initSize is defaultVal;    # Initial size of the bacterials.
+var power: foodReserve is defaultVal; # Initial amount of food at all fields.
+var percent: shrinkage is defaultVal; # Percentage by which bacterials shrink in every move.
 
-const func integer: min (in integer: a, in integer: b) is forward;
-const func integer: max (in integer: a, in integer: b) is forward;
-const func direction: ranDir (in directSet: dirset) is forward;
-const func power: shrinkSize (in power: size) is forward;
-const func power: nextSize (in power: ownsize, in power: foodmass, in lifeSpan: ownHunger) is forward;
-const func power: strength (in direction: direct) is forward;
+
+(**
+ *  Returns the content (color of a bacterium, CLEAR or EDGE) of a cell.
+ *)
 const func bactColor: view (in direction: direct) is forward;
+
+
+(**
+ *  Returns the strength/size of a bacterium or 0 for CLEAR and EDGE fields.
+ *)
+const func power: strength (in direction: direct) is forward;
+
+
+(**
+ *  Returns the amount of food at a field or 0 for EDGE fields.
+ *)
 const func power: food (in direction: direct) is forward;
-const func lifeSpan: hunger is forward;
+
+
+(**
+ *  Moves a bacterium and it eats the given quantity of food.
+ *  If the direction is not HERE the destination field must be CLEAR.
+ *)
 const proc: eat (in direction: direct, in power: quantity) is forward;
+
+
+(**
+ *  Moves a bacterium and it kills/eats another bacterium at the new position.
+ *  The other bacterium must be of the same size or smaller.
+ *)
 const proc: kill (in direction: direct) is forward;
+
+
+(**
+ *  Splits a bacterium in two (one moves in the given direction).
+ *  The two bacteria eat the given amounts of food.
+ *  The direction must not be HERE and the destination field must be CLEAR.
+ *)
 const proc: split (in direction: direct, in power: quantity1, in power: quantity2) is forward;
+
+
+(**
+ *  Computes the size by which a bacterium with the given
+ *  size would shrink (when the bacterium does nothing).
+ *)
+const func power: shrinkSize (in power: size) is forward;
+
+
+(**
+ *  Computes how many moves a bacterium survives a hunger situation.
+ *)
+const func lifeSpan: hunger is forward;
+
+
+(**
+ *  Computes the new size of a bacterium. As input it has
+ *  the current size, the food it plans to ingest and the current hunger.
+ *)
+const func power: nextSize (in power: ownsize, in power: foodmass, in lifeSpan: ownHunger) is forward;
+
+
+(**
+ *  Returns the minimum of the two integers.
+ *)
+const func integer: min (in integer: a, in integer: b) is forward;
+
+
+(**
+ *  Returns the maximum of the two integers.
+ *)
+const func integer: max (in integer: a, in integer: b) is forward;
+
+
+(**
+ *  Returns a random direction from the given dirset.
+ *  When the dirset is empty it returns HERE.
+ *)
+const func direction: ranDir (in directSet: dirset) is forward;

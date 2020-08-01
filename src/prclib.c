@@ -760,8 +760,8 @@ listtype arguments;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* prc_include */
-    isit_stri(arg_2(arguments));
-    include_file_name = take_stri(arg_2(arguments));
+    isit_stri(arg_1(arguments));
+    include_file_name = take_stri(arg_1(arguments));
     if (stri_charpos(include_file_name, '\\') != NULL) {
       err_warning(WRONG_PATH_DELIMITER);
     } else {

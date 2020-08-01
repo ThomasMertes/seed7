@@ -11,6 +11,7 @@ chkbig.sd7   Checks bigInteger literals and operations
 chkbool.sd7  Checks boolean operations                         
 chkexc.sd7   Checks exceptions                                 
 chkflt.sd7   Checks float literals and operations              
+chkhent.sd7  Checks the HTML entity handling functions         
 chkint.sd7   Checks integer literals and operations            
 chkprc.sd7   Checks procedures and statements                  
 chkscan.sd7  Checks the scanner functions                      

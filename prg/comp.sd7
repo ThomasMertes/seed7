@@ -7577,6 +7577,17 @@ const proc: process_str_range (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_str_rchpos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "strRChPos(";
+    process_arg(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_str_repl (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -8959,6 +8970,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_str_pos(params, c_expr);
       elsif action_name = "STR_RANGE" then
         process_str_range(params, c_expr);
+      elsif action_name = "STR_RCHPOS" then
+        process_str_rchpos(params, c_expr);
       elsif action_name = "STR_REPL" then
         process_str_repl(params, c_expr);
       elsif action_name = "STR_RPAD" then
@@ -12321,6 +12334,7 @@ const proc: write_file_head is func
     c_prog << "booltype    setNe (settype, settype);\n";
     c_prog << "inttype     setNotElem (inttype, settype);\n";
     c_prog << "inttype     setRand (settype);\n";
+    c_prog << "inttype     strRChPos (stritype, chartype);\n";
     c_prog << "settype     setSymdiff (settype, settype);\n";
     c_prog << "settype     setUnion (settype, settype);\n";
     c_prog << "void        strAppend (stritype *, stritype);\n";

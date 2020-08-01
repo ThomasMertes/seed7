@@ -60,6 +60,9 @@ const proc: close (in stritext: aStritext) is noop;
 const proc: flush (in stritext: aStritext) is noop;
 
 
+(**
+ *  Write the string 'stri' to 'aStritext'.
+ *)
 const proc: write (inout stritext: aStritext, in string: stri) is func
   begin
     if aStritext.line > length(aStritext.content) then
@@ -112,6 +115,9 @@ const proc: backSpace (inout stritext: aStritext) is func
   end func;
 
 
+(**
+ *  Return a character read from 'aStritext'.
+ *)
 const func char: getc (inout stritext: aStritext) is func
   result
     var char: result is ' ';
@@ -131,6 +137,10 @@ const func char: getc (inout stritext: aStritext) is func
   end func;
 
 
+(**
+ *  Return a string read with a maximum length 'leng' from
+ *  'aStritext'.
+ *)
 const func string: gets (inout stritext: aStritext, in var integer: leng) is func
   result
     var string: stri is "";
@@ -170,6 +180,13 @@ const func string: getwd (inout stritext: aStritext) is func
   end func;
 
 
+(**
+ *  Return a line read from 'aStritext'.
+ *  A stritext works as if all lines end with '\n'.
+ *  The line ending character is not copied into the string.
+ *  When the function is left the inFile.bufferChar contains '\n' or
+ *  EOF.
+ *)
 const func string: getln (inout stritext: aStritext) is func
   result
     var string: stri is "";
@@ -189,6 +206,7 @@ const func string: getln (inout stritext: aStritext) is func
 const func boolean: eof (in stritext: aStritext) is
   return aStritext.line > length(aStritext.content);
 
+
 const func integer: length (in stritext: aStritext) is func
   result
     var integer: result is 0;
@@ -203,8 +221,7 @@ const func integer: length (in stritext: aStritext) is func
 
 const proc: seek (in stritext: aStritext, in integer: pos) is func
   begin
-    # seek(aStritext.sock, pos);
-    noop;
+    noop; # todo
   end func;
 
 

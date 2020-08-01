@@ -1,0 +1,402 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  html_ent.s7i  HTML entity handling library                      *)
+(*  Copyright (C) 2008  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: htmlEntityType is new struct
+    var string: entityName is "";
+    var char: charValue is ' ';
+  end struct;
+
+const func htmlEntityType: genHtmlEntity (in string: entityName, in integer: charOrdNum) is func
+  result
+    var htmlEntityType: result is htmlEntityType.value;
+  begin
+    result.entityName := entityName;
+    result.charValue := chr(charOrdNum);
+  end func;
+
+const array htmlEntityType: htmlEntityList is [] (
+    genHtmlEntity("nbsp",     160),
+    genHtmlEntity("iexcl",    161),
+    genHtmlEntity("cent",     162),
+    genHtmlEntity("pound",    163),
+    genHtmlEntity("curren",   164),
+    genHtmlEntity("yen",      165),
+    genHtmlEntity("brvbar",   166),
+    genHtmlEntity("sect",     167),
+    genHtmlEntity("uml",      168),
+    genHtmlEntity("copy",     169),
+    genHtmlEntity("ordf",     170),
+    genHtmlEntity("laquo",    171),
+    genHtmlEntity("not",      172),
+    genHtmlEntity("shy",      173),
+    genHtmlEntity("reg",      174),
+    genHtmlEntity("macr",     175),
+    genHtmlEntity("deg",      176),
+    genHtmlEntity("plusmn",   177),
+    genHtmlEntity("sup2",     178),
+    genHtmlEntity("sup3",     179),
+    genHtmlEntity("acute",    180),
+    genHtmlEntity("micro",    181),
+    genHtmlEntity("para",     182),
+    genHtmlEntity("middot",   183),
+    genHtmlEntity("cedil",    184),
+    genHtmlEntity("sup1",     185),
+    genHtmlEntity("ordm",     186),
+    genHtmlEntity("raquo",    187),
+    genHtmlEntity("frac14",   188),
+    genHtmlEntity("frac12",   189),
+    genHtmlEntity("frac34",   190),
+    genHtmlEntity("iquest",   191),
+    genHtmlEntity("Agrave",   192),
+    genHtmlEntity("Aacute",   193),
+    genHtmlEntity("Acirc",    194),
+    genHtmlEntity("Atilde",   195),
+    genHtmlEntity("Auml",     196),
+    genHtmlEntity("Aring",    197),
+    genHtmlEntity("AElig",    198),
+    genHtmlEntity("Ccedil",   199),
+    genHtmlEntity("Egrave",   200),
+    genHtmlEntity("Eacute",   201),
+    genHtmlEntity("Ecirc",    202),
+    genHtmlEntity("Euml",     203),
+    genHtmlEntity("Igrave",   204),
+    genHtmlEntity("Iacute",   205),
+    genHtmlEntity("Icirc",    206),
+    genHtmlEntity("Iuml",     207),
+    genHtmlEntity("ETH",      208),
+    genHtmlEntity("Ntilde",   209),
+    genHtmlEntity("Ograve",   210),
+    genHtmlEntity("Oacute",   211),
+    genHtmlEntity("Ocirc",    212),
+    genHtmlEntity("Otilde",   213),
+    genHtmlEntity("Ouml",     214),
+    genHtmlEntity("times",    215),
+    genHtmlEntity("Oslash",   216),
+    genHtmlEntity("Ugrave",   217),
+    genHtmlEntity("Uacute",   218),
+    genHtmlEntity("Ucirc",    219),
+    genHtmlEntity("Uuml",     220),
+    genHtmlEntity("Yacute",   221),
+    genHtmlEntity("THORN",    222),
+    genHtmlEntity("szlig",    223),
+    genHtmlEntity("agrave",   224),
+    genHtmlEntity("aacute",   225),
+    genHtmlEntity("acirc",    226),
+    genHtmlEntity("atilde",   227),
+    genHtmlEntity("auml",     228),
+    genHtmlEntity("aring",    229),
+    genHtmlEntity("aelig",    230),
+    genHtmlEntity("ccedil",   231),
+    genHtmlEntity("egrave",   232),
+    genHtmlEntity("eacute",   233),
+    genHtmlEntity("ecirc",    234),
+    genHtmlEntity("euml",     235),
+    genHtmlEntity("igrave",   236),
+    genHtmlEntity("iacute",   237),
+    genHtmlEntity("icirc",    238),
+    genHtmlEntity("iuml",     239),
+    genHtmlEntity("eth",      240),
+    genHtmlEntity("ntilde",   241),
+    genHtmlEntity("ograve",   242),
+    genHtmlEntity("oacute",   243),
+    genHtmlEntity("ocirc",    244),
+    genHtmlEntity("otilde",   245),
+    genHtmlEntity("ouml",     246),
+    genHtmlEntity("divide",   247),
+    genHtmlEntity("oslash",   248),
+    genHtmlEntity("ugrave",   249),
+    genHtmlEntity("uacute",   250),
+    genHtmlEntity("ucirc",    251),
+    genHtmlEntity("uuml",     252),
+    genHtmlEntity("yacute",   253),
+    genHtmlEntity("thorn",    254),
+    genHtmlEntity("yuml",     255),
+    genHtmlEntity("fnof",     402),
+  (* Greek *)
+    genHtmlEntity("Alpha",    913),
+    genHtmlEntity("Beta",     914),
+    genHtmlEntity("Gamma",    915),
+    genHtmlEntity("Delta",    916),
+    genHtmlEntity("Epsilon",  917),
+    genHtmlEntity("Zeta",     918),
+    genHtmlEntity("Eta",      919),
+    genHtmlEntity("Theta",    920),
+    genHtmlEntity("Iota",     921),
+    genHtmlEntity("Kappa",    922),
+    genHtmlEntity("Lambda",   923),
+    genHtmlEntity("Mu",       924),
+    genHtmlEntity("Nu",       925),
+    genHtmlEntity("Xi",       926),
+    genHtmlEntity("Omicron",  927),
+    genHtmlEntity("Pi",       928),
+    genHtmlEntity("Rho",      929),
+    genHtmlEntity("Sigma",    931),
+    genHtmlEntity("Tau",      932),
+    genHtmlEntity("Upsilon",  933),
+    genHtmlEntity("Phi",      934),
+    genHtmlEntity("Chi",      935),
+    genHtmlEntity("Psi",      936),
+    genHtmlEntity("Omega",    937),
+    genHtmlEntity("alpha",    945),
+    genHtmlEntity("beta",     946),
+    genHtmlEntity("gamma",    947),
+    genHtmlEntity("delta",    948),
+    genHtmlEntity("epsilon",  949),
+    genHtmlEntity("zeta",     950),
+    genHtmlEntity("eta",      951),
+    genHtmlEntity("theta",    952),
+    genHtmlEntity("iota",     953),
+    genHtmlEntity("kappa",    954),
+    genHtmlEntity("lambda",   955),
+    genHtmlEntity("mu",       956),
+    genHtmlEntity("nu",       957),
+    genHtmlEntity("xi",       958),
+    genHtmlEntity("omicron",  959),
+    genHtmlEntity("pi",       960),
+    genHtmlEntity("rho",      961),
+    genHtmlEntity("sigmaf",   962),
+    genHtmlEntity("sigma",    963),
+    genHtmlEntity("tau",      964),
+    genHtmlEntity("upsilon",  965),
+    genHtmlEntity("phi",      966),
+    genHtmlEntity("chi",      967),
+    genHtmlEntity("psi",      968),
+    genHtmlEntity("omega",    969),
+    genHtmlEntity("thetasym", 977),
+    genHtmlEntity("upsih",    978),
+    genHtmlEntity("piv",      982),
+  (* General Punctuation *)
+    genHtmlEntity("bull",    8226),
+    genHtmlEntity("hellip",  8230),
+    genHtmlEntity("prime",   8242),
+    genHtmlEntity("Prime",   8243),
+    genHtmlEntity("oline",   8254),
+    genHtmlEntity("frasl",   8260),
+  (* Letterlike Symbols *)
+    genHtmlEntity("weierp",  8472),
+    genHtmlEntity("image",   8465),
+    genHtmlEntity("real",    8476),
+    genHtmlEntity("trade",   8482),
+    genHtmlEntity("alefsym", 8501),
+  (* Arrows *)
+    genHtmlEntity("larr",    8592),
+    genHtmlEntity("uarr",    8593),
+    genHtmlEntity("rarr",    8594),
+    genHtmlEntity("darr",    8595),
+    genHtmlEntity("harr",    8596),
+    genHtmlEntity("crarr",   8629),
+    genHtmlEntity("lArr",    8656),
+    genHtmlEntity("uArr",    8657),
+    genHtmlEntity("rArr",    8658),
+    genHtmlEntity("dArr",    8659),
+    genHtmlEntity("hArr",    8660),
+  (* Mathematical Operators *)
+    genHtmlEntity("forall",  8704),
+    genHtmlEntity("part",    8706),
+    genHtmlEntity("exist",   8707),
+    genHtmlEntity("empty",   8709),
+    genHtmlEntity("nabla",   8711),
+    genHtmlEntity("isin",    8712),
+    genHtmlEntity("notin",   8713),
+    genHtmlEntity("ni",      8715),
+    genHtmlEntity("prod",    8719),
+    genHtmlEntity("sum",     8721),
+    genHtmlEntity("minus",   8722),
+    genHtmlEntity("lowast",  8727),
+    genHtmlEntity("radic",   8730),
+    genHtmlEntity("prop",    8733),
+    genHtmlEntity("infin",   8734),
+    genHtmlEntity("and",     8743),
+    genHtmlEntity("or",      8744),
+    genHtmlEntity("cap",     8745),
+    genHtmlEntity("cup",     8746),
+    genHtmlEntity("int",     8747),
+    genHtmlEntity("there4",  8756),
+    genHtmlEntity("sim",     8764),
+    genHtmlEntity("cong",    8773),
+    genHtmlEntity("asymp",   8776),
+    genHtmlEntity("ne",      8800),
+    genHtmlEntity("equiv",   8801),
+    genHtmlEntity("le",      8804),
+    genHtmlEntity("ge",      8805),
+    genHtmlEntity("sub",     8834),
+    genHtmlEntity("sup",     8835),
+    genHtmlEntity("nsub",    8836),
+    genHtmlEntity("sube",    8838),
+    genHtmlEntity("supe",    8839),
+    genHtmlEntity("oplus",   8853),
+    genHtmlEntity("otimes",  8855),
+    genHtmlEntity("perp",    8869),
+    genHtmlEntity("sdot",    8901),
+  (* Miscellaneous Technical *)
+    genHtmlEntity("lceil",   8968),
+    genHtmlEntity("rceil",   8969),
+    genHtmlEntity("lfloor",  8970),
+    genHtmlEntity("rfloor",  8971),
+    genHtmlEntity("lang",    9001),
+    genHtmlEntity("rang",    9002),
+  (* Geometric Shapes *)
+    genHtmlEntity("loz",     9674),
+  (* Miscellaneous Symbols *)
+    genHtmlEntity("spades",  9824),
+    genHtmlEntity("clubs",   9827),
+    genHtmlEntity("hearts",  9829),
+    genHtmlEntity("diams",   9830),
+    genHtmlEntity("quot",      34),
+    genHtmlEntity("amp",       38),
+    genHtmlEntity("lt",        60),
+    genHtmlEntity("gt",        62),
+  (* Latin Extended-A *)
+    genHtmlEntity("OElig",    338),
+    genHtmlEntity("oelig",    339),
+    genHtmlEntity("Scaron",   352),
+    genHtmlEntity("scaron",   353),
+    genHtmlEntity("Yuml",     376),
+  (* Spacing Modifier Letters *)
+    genHtmlEntity("circ",     710),
+    genHtmlEntity("tilde",    732),
+  (* General Punctuation *)
+    genHtmlEntity("ensp",    8194),
+    genHtmlEntity("emsp",    8195),
+    genHtmlEntity("thinsp",  8201),
+    genHtmlEntity("zwnj",    8204),
+    genHtmlEntity("zwj",     8205),
+    genHtmlEntity("lrm",     8206),
+    genHtmlEntity("rlm",     8207),
+    genHtmlEntity("ndash",   8211),
+    genHtmlEntity("mdash",   8212),
+    genHtmlEntity("lsquo",   8216),
+    genHtmlEntity("rsquo",   8217),
+    genHtmlEntity("sbquo",   8218),
+    genHtmlEntity("ldquo",   8220),
+    genHtmlEntity("rdquo",   8221),
+    genHtmlEntity("bdquo",   8222),
+    genHtmlEntity("dagger",  8224),
+    genHtmlEntity("Dagger",  8225),
+    genHtmlEntity("permil",  8240),
+    genHtmlEntity("lsaquo",  8249),
+    genHtmlEntity("rsaquo",  8250),
+    genHtmlEntity("euro",    8364));
+
+const type: htmlEntityHashType is hash [string] char;
+
+const func htmlEntityHashType: genHtmlEntityHash (in array htmlEntityType: htmlEntityList) is func
+  result
+    var htmlEntityHashType: result is htmlEntityHashType.value;
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(htmlEntityList) do
+      result @:= [htmlEntityList[number].entityName] htmlEntityList[number].charValue;
+    end for;
+  end func;
+
+const htmlEntityHashType: htmlEntityHash is genHtmlEntityHash(htmlEntityList);
+
+const type: htmlCharNameHashType is hash [char] string;
+
+const func htmlCharNameHashType: genHtmlCharNameHash (in array htmlEntityType: htmlEntityList) is func
+  result
+    var htmlCharNameHashType: result is htmlCharNameHashType.value;
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(htmlEntityList) do
+      result @:= [htmlEntityList[number].charValue] htmlEntityList[number].entityName;
+    end for;
+  end func;
+
+const htmlCharNameHashType: htmlCharNameHash is genHtmlCharNameHash(htmlEntityList);
+
+
+(**
+ *  Return a string with all HTML entities of the argument replaced by
+ *  the corresponding characters.
+ *)
+const func string: decodeHtmlEntities (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: old_pos is 1;
+    var integer: new_pos is 0;
+    var integer: semicol_pos is 0;
+    var string: entityName is "";
+    var char: charValue is ' ';
+  begin
+    new_pos := pos(stri, '&');
+    while new_pos <> 0 do
+      semicol_pos := pos(stri, ';', succ(new_pos));
+      if semicol_pos <> 0 then
+        entityName := stri[succ(new_pos) .. pred(semicol_pos)];
+        if length(entityName) >= 2 and entityName[1] = '#' and
+            isDigitString(entityName[2 ..]) then
+          charValue := chr(integer parse (entityName[2 ..]));
+          result &:= stri[old_pos .. pred(new_pos)];
+          result &:= str(charValue);
+          old_pos := succ(semicol_pos);
+        elsif entityName in htmlEntityHash then
+          charValue := htmlEntityHash[entityName];
+          result &:= stri[old_pos .. pred(new_pos)];
+          result &:= str(charValue);
+          old_pos := succ(semicol_pos);
+        else
+          result &:= stri[old_pos .. new_pos];
+          old_pos := succ(new_pos);
+        end if;
+      else
+        result &:= stri[old_pos .. new_pos];
+        old_pos := succ(new_pos);
+      end if;
+      new_pos := pos(stri, '&', old_pos);
+    end while;
+    result &:= stri[old_pos ..];
+  end func;
+
+
+(**
+ *  Return a string which has all argument characters which can be
+ *  described as HTML entities by the corresponding HTML entity.
+ *)
+const func string: encodeHtmlEntities (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: old_pos is 1;
+    var integer: index is 0;
+    var char: ch is ' ';
+  begin
+    for index range 1 to length(stri) do
+      ch := stri[index];
+      if ch in htmlCharNameHash then
+        result &:= stri[old_pos .. pred(index)];
+        result &:= "&" & htmlCharNameHash[ch] & ";";
+        old_pos := succ(index);
+      end if;
+    end for;
+    result &:= stri[old_pos ..];
+  end func;

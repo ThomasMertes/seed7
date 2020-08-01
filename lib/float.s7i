@@ -35,9 +35,6 @@ IN_PARAM_IS_VALUE(float);
 
 const float: (attr float) . value is 0.0;
 
-const float: PI is 3.1415926535897932384626433832795028841972;
-(* const float: E  is 2.7182818284590452353602874713526624977572; *)
-
 const func float: + (ref float param) is                           action "FLT_PLUS";
 const func float: - (ref float param) is                           action "FLT_MINUS";
 
@@ -58,35 +55,71 @@ const func boolean: (ref float param) > (ref float param) is       action "FLT_G
 const func boolean: (ref float param) <= (ref float param) is      action "FLT_LE";
 const func boolean: (ref float param) >= (ref float param) is      action "FLT_GE";
 const func boolean: (ref float param) <> (ref float param) is      action "FLT_NE";
+
+
+(**
+ *  Returns -1, 0 or 1 if the first argument is considered to be
+ *  respectively less than, equal to, or greater than the second.
+ *)
 const func integer: compare (in float param, in float param) is    action "FLT_CMP";
+
+
+(**
+ *  Return a hash value for a float.
+ *)
 const func integer: hashCode (in float param) is                   action "FLT_HASHCODE";
 
-const func float: flt (ref integer param) is                       action "FLT_IFLT";
-const func float: sin (ref float param) is                         action "FLT_SIN";
-const func float: cos (ref float param) is                         action "FLT_COS";
-const func float: tan (ref float param) is                         action "FLT_TAN";
-const func float: asin (ref float param) is                        action "FLT_ASIN";
-const func float: acos (ref float param) is                        action "FLT_ACOS";
-const func float: atan (ref float param) is                        action "FLT_ATAN";
-const func float: atan2 (ref float param, ref float param) is      action "FLT_A2TAN";
-const func float: sinh (ref float param) is                        action "FLT_HSIN";
-const func float: cosh (ref float param) is                        action "FLT_HCOS";
-const func float: tanh (ref float param) is                        action "FLT_HTAN";
-const func float: sqrt (ref float param) is                        action "FLT_SQRT";
-const func float: exp (ref float param) is                         action "FLT_EXP";
-const func float: log (ref float param) is                         action "FLT_LOG";
-const func float: log10 (ref float param) is                       action "FLT_LOG10";
-const func float: ceil (ref float param) is                        action "FLT_CEIL";
-const func float: floor (ref float param) is                       action "FLT_FLOOR";
-const func float: abs (ref float param) is                         action "FLT_ABS";
+
+(**
+ *  Return the conversion of a float to a string.
+ *)
 const func string: str (ref float param) is                        action "FLT_STR";
+
+
+(**
+ *  Return the conversion of a string to a float.
+ *)
 const func float: (attr float) parse (in string param) is          action "FLT_PARSE";
+
+
+(**
+ *  Return the conversion of an integer to a float.
+ *)
+const func float: flt (ref integer param) is                       action "FLT_IFLT";
+
+
+(**
+ *  Returns the nearest integer to the argument. Halfway cases are
+ *  rounded away from zero.
+ *)
 const func integer: round (ref float param) is                     action "FLT_ROUND";
+
+
+(**
+ *  Returns the nearest integer not larger in absolute value than the
+ *  argument.
+ *)
 const func integer: trunc (ref float param) is                     action "FLT_TRUNC";
+
+
+(**
+ *  Returns TRUE if the specified number is a Not-a-Number (NaN)
+ *  value, FALSE otherwise.
+ *)
 const func boolean: isnan (ref float param) is                     action "FLT_ISNAN";
+
+
+(**
+ *  Return the conversion of a string to a float.
+ *)
 const func string: literal (ref float param) is                    action "FLT_STR";
 
+
+(**
+ *  Return a random number in the range [A, B].
+ *)
 const func float: rand (ref float param, ref float param) is       action "FLT_RAND";
+
 
 const float: Infinity is 1.0 / 0.0;
 const float: NaN is 0.0 / 0.0;

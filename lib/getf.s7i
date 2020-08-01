@@ -26,6 +26,10 @@
 (********************************************************************)
 
 
+(**
+ *  Read the file with the given 'file_name' into a string and return
+ *  the string.
+ *)
 const func string: getf (in string: file_name) is func
   result
     var string: result is "";
@@ -40,6 +44,10 @@ const func string: getf (in string: file_name) is func
   end func;
 
 
+(**
+ *  Write the string 'stri' to the file with the name 'file_name'.
+ *  If the file exists already, it is overwritten.
+ *)
 const proc: putf (in string: file_name, in string: stri) is func
   local
     var file: work_file is STD_NULL;
@@ -54,6 +62,13 @@ const proc: putf (in string: file_name, in string: stri) is func
   end func;
 
 
+(**
+ *  Read the file with the name 'file_name' into an array of strings
+ *  and return this string array.
+ *  The function accepts lines ending with LF or with CR LF. The line
+ *  endings are not copied into the strings. The last line of the
+ *  file needs not to be terminated with a LF.
+ *)
 const func array string: readf (in string: file_name) is func
   result
     var array string: result is 0 times "";
@@ -74,6 +89,14 @@ const func array string: readf (in string: file_name) is func
   end func;
 
 
+(**
+ *  Write the string array 'data' to the file with the name
+ *  'file_name'.
+ *  The elements of the array are written as lines to the file. The
+ *  function uses LF as line ending and the last line is also
+ *  terminated with a LF. If the file exists already, it is
+ *  overwritten.
+ *)
 const proc: writef (in string: file_name, in array string: data) is func
   local
     var file: work_file is STD_NULL;

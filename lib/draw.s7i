@@ -27,6 +27,7 @@
 
 
 include "graph.s7i";
+include "math.s7i";
 
 
 var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;

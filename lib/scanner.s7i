@@ -80,6 +80,13 @@ const array string: esc_tab is [](
     (* r *) "\r", (* s *) " ",  (* t *) "\t", (* u *) " ",  (* v *) "\v");
 
 
+(**
+ *  Skips a possibly nested comment from the 'inFile'.
+ *  The comment starts with (* and ends with *) . When the function is
+ *  called it is assumed that the '*' is in inFile.bufferChar. When
+ *  the function is left the character after the ')' is in
+ *  inFile.bufferChar.
+ *)
 const proc: skipComment (inout file: inFile) is func
   local
     var char: character is ' ';
@@ -110,6 +117,15 @@ const proc: skipComment (inout file: inFile) is func
   end func; # skipComment
 
 
+(**
+ *  Reads a possibly nested comment from the 'inFile'.
+ *  The comment starts with (* and ends with *) . When the function is
+ *  called it is assumed that the '*' is in inFile.bufferChar. When
+ *  the function is left the character after the ')' is in
+ *  inFile.bufferChar.
+ *  @return the content of the comment, including the introducing (*
+ *          and the ending *) .
+ *)
 const func string: getComment (inout file: inFile) is func
   result
     var string: symbol is "(*";
@@ -147,6 +163,13 @@ const func string: getComment (inout file: inFile) is func
   end func; # getComment
 
 
+(**
+ *  Skips a line comment from the 'inFile'.
+ *  A line comment starts with # and ends with the end of the line.
+ *  When the function is called it is assumed that the '#' is in
+ *  inFile.bufferChar. When the function is left the line end
+ *  character ('\n' or EOF) is in inFile.bufferChar.
+ *)
 const proc: skipLineComment (inout file: inFile) is func
   local
     var char: character is ' ';
@@ -158,6 +181,15 @@ const proc: skipLineComment (inout file: inFile) is func
   end func; # skipLineComment
 
 
+(**
+ *  Reads a line comment from the 'inFile'.
+ *  A line comment starts with # and ends with the end of the line.
+ *  When the function is called it is assumed that the '#' is in
+ *  inFile.bufferChar. When the function is left the line end
+ *  character ('\n' or EOF) is in inFile.bufferChar.
+ *  @return the content of the comment, including the start
+ *          marker # but without the line end character.
+ *)
 const func string: getLineComment (inout file: inFile) is func
   result
     var string: symbol is "#";
@@ -173,6 +205,13 @@ const func string: getLineComment (inout file: inFile) is func
   end func; # getLineComment
 
 
+(**
+ *  Reads a numeric literal from the 'inFile'.
+ *  When the function is called it is assumed that the introducing
+ *  digit is in inFile.bufferChar. When the function is left the
+ *  character after the literal is in inFile.bufferChar.
+ *  @return The function returns the numeric literal.
+ *)
 const func string: getNumber (inout file: inFile) is func
   result
     var string: symbol is "";
@@ -240,6 +279,15 @@ const func string: getNumber (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads an escape sequence from 'inFile' and appends it to 'symbol'.
+ *  The function accepts escape sequences from character end string
+ *  literals. When the function is called it is assumed that the
+ *  introducing \ is in inFile.bufferChar. When the function is left
+ *  the character after the escape sequence is in inFile.bufferChar.
+ *  The complete escape sequence including the introducing \ is
+ *  appended to 'symbol'.
+ *)
 const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
   local
     var char: character is ' ';
@@ -271,6 +319,14 @@ const proc: getEscapeSequence (inout file: inFile, inout string: symbol) is func
   end func;
 
 
+(**
+ *  Reads a character literal from the 'inFile'.
+ *  When the function is called it is assumed that the introducing '
+ *  is in inFile.bufferChar. When the function is left the character
+ *  after the closing ' is in inFile.bufferChar.
+ *  @return the character literal including the introducing ' and
+ *          the closing ' .
+ *)
 const func string: getChar (inout file: inFile) is func
   result
     var string: symbol is "'";
@@ -311,6 +367,14 @@ const func string: getChar (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads a string literal from the 'inFile'.
+ *  When the function is called it is assumed that the introducing "
+ *  is in inFile.bufferChar. When the function is left the character
+ *  after the closing " is in inFile.bufferChar.
+ *  @return the string literal including the introducing " and the
+ *          closing " .
+ *)
 const func string: getString (inout file: inFile) is func
   result
     var string: symbol is "\"";
@@ -349,6 +413,13 @@ const func string: getString (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads whitespace characters from the 'inFile'.
+ *  When the function is called it is assumed that inFile.bufferChar
+ *  contains the first character to be handled. When the function is
+ *  left inFile.bufferChar does not contain a whitespace character.
+ *  @return the string of whitespace characters.
+ *)
 const func string: getWhiteSpace (inout file: inFile) is func
   result
     var string: symbol is "";
@@ -360,6 +431,18 @@ const func string: getWhiteSpace (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads a symbol or a comment from the 'inFile'.
+ *  Before reading the symbol or comment it skips whitespace
+ *  characters. A symbol can be a literal (numeric, character or
+ *  string), a name, a special symbol (sequence of special characters)
+ *  or a parenthesis. A comment can be a normal comment or a line
+ *  comment. When the function is called it is assumed that
+ *  inFile.bufferChar contains a whitespace character or the first
+ *  character of a symbol or comment. When the function is left the
+ *  character after the symbol or comment is in inFile.bufferChar.
+ *  @return the symbol, comment or "" when EOF was reached.
+ *)
 const func string: getSymbolOrComment (inout file: inFile) is func
   result
     var string: symbol is "";
@@ -409,6 +492,18 @@ const func string: getSymbolOrComment (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads a symbol from the 'inFile'.
+ *  Before reading the symbol it skips whitespace characters and
+ *  comments (normal comments and line comments). A symbol can be a
+ *  literal (numeric, character or string), a name, a special symbol
+ *  (sequence of special characters) or a parenthesis. When the
+ *  function is called it is assumed that inFile.bufferChar contains
+ *  a whitespace character or the first character of a symbol or
+ *  comment. When the function is left the character after the symbol
+ *  is in inFile.bufferChar.
+ *  @return the symbol or "" when EOF was reached.
+ *)
 const func string: getSymbol (inout file: inFile) is func
   result
     var string: symbol is "";
@@ -460,7 +555,21 @@ const func string: getSymbol (inout file: inFile) is func
   end func;
 
 
-const func string: getHtmlSymbolOrComment (inout file: inFile) is func
+(**
+ *  Reads a HTML tag, a symbol or a comment from the 'inFile'.
+ *  Before reading the HTML tag, symbol or comment it skips whitespace
+ *  characters. A HTML tag starts with < and ends with > . A symbol
+ *  can be a literal (numeric, character or string), a name, a special
+ *  symbol (sequence of special characters) or a parenthesis.
+ *  A comment can be a normal comment or a line comment. When the
+ *  function is called it is assumed that inFile.bufferChar contains
+ *  a whitespace character, an introducing < of a HTML tag or the
+ *  first character of a symbol or a comment. When the function is
+ *  left the character after the HTML tag, symbol or comment is in
+ *  inFile.bufferChar.
+ *  @return the HTML tag, symbol, comment or "" when EOF was reached.
+ *)
+const func string: getHtmlTagSymbolOrComment (inout file: inFile) is func
   result
     var string: symbol is "";
   begin
@@ -505,12 +614,10 @@ const func string: getHtmlSymbolOrComment (inout file: inFile) is func
         symbol := str(inFile.bufferChar);
         inFile.bufferChar := getc(inFile);
       when angle_bracket:
-        symbol &:= str(inFile.bufferChar);
-        inFile.bufferChar := getc(inFile);
-        while inFile.bufferChar <> '>' and inFile.bufferChar <> EOF do
+        repeat
           symbol &:= str(inFile.bufferChar);
           inFile.bufferChar := getc(inFile);
-        end while;
+        until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
         if inFile.bufferChar <> EOF then
           symbol &:= str(inFile.bufferChar);
           inFile.bufferChar := getc(inFile);
@@ -532,6 +639,50 @@ const func string: getHtmlSymbolOrComment (inout file: inFile) is func
   end func;
 
 
+(**
+ *  Reads a HTML tag or the HTML content text from the 'inFile'.
+ *  A HTML tag starts with < and ends with > . The content text starts
+ *  with everything else and ends just before a < or with EOF. When
+ *  the function is called it is assumed that inFile.bufferChar
+ *  contains the introducing < of a HTML tag or the first charater of
+ *  the content text. When the function is left the character after
+ *  the HTML tag or the content text is in inFile.bufferChar.
+ *  @return the HTML tag, HTML content text or "" when EOF was
+ *          reached.
+ *)
+const func string: getHtmlTagOrContent (inout file: inFile) is func
+  result
+    var string: symbol is "";
+  begin
+    if inFile.bufferChar = '<' then
+      repeat
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      until inFile.bufferChar = '>' or inFile.bufferChar = EOF;
+      if inFile.bufferChar <> EOF then
+        symbol &:= str(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+      end if;
+    else
+      if inFile.bufferChar <> EOF then
+        repeat
+          symbol &:= str(inFile.bufferChar);
+          inFile.bufferChar := getc(inFile);
+        until inFile.bufferChar = '<' or inFile.bufferChar = EOF;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Reads a simple symbol from the 'inFile'.
+ *  Before reading the simple symbol it skips whitespace characters.
+ *  A simple symbol can be an integer literal, a name, a special
+ *  symbol (sequence of special characters) or a parenthesis.
+ *  Note that string, char and float literals are not recognized as
+ *  simple symbol.
+ *  @return the simple symbol or "" when EOF was reached.
+ *)
 const func string: getSimpleSymbol (inout file: inFile) is func
   result
     var string: symbol is "";

@@ -3344,7 +3344,24 @@ const func string: configValue (in string param) is       action "CMD_CONFIG_VAL
 
 const proc: heapstat (PROGRAM) is                         action "PRC_HEAPSTAT";
 const func integer: heapsize (PROGRAM) is                 action "PRC_HSIZE";
-const proc: include (in string param) is                  action "PRC_INCLUDE";
+const proc: PRIMITIVE_INCLUDE (in string param) is        action "PRC_INCLUDE";
+
+var set of string: INCLUDED_LIBRARY_LIST is (set of string).value;
+
+const proc: include (in string: library) is func
+  local
+    var string: libraryName is "";
+  begin
+    if rpos(library, '/') <> 0 then
+      libraryName := library[succ(rpos(library, '/')) ..];
+    else
+      libraryName := library;
+    end if;
+    if libraryName not in INCLUDED_LIBRARY_LIST then
+      incl(INCLUDED_LIBRARY_LIST, libraryName);
+      PRIMITIVE_INCLUDE(library);
+    end if;
+  end func;
 
 (*
 const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";

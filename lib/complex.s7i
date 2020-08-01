@@ -26,12 +26,18 @@
 (********************************************************************)
 
 
+include "math.s7i";
+
+
 const type: complex is new object struct
     var float: re is 0.0;
     var float: im is 0.0;
   end struct;
 
 
+(**
+ *  Create a complex number from its real and imaginary part.
+ *)
 const func complex: complex (in float: re, in float: im) is func
   result
     var complex: result is complex.value;
@@ -41,6 +47,9 @@ const func complex: complex (in float: re, in float: im) is func
   end func;
 
 
+(**
+ *  Return the given complex number.
+ *)
 const func complex: + (in complex: num1) is func
   result
     var complex: result is complex.value;
@@ -50,6 +59,9 @@ const func complex: + (in complex: num1) is func
   end func;
 
 
+(**
+ *  Return the negated value of a complex number.
+ *)
 const func complex: - (in complex: num1) is func
   result
     var complex: result is complex.value;
@@ -59,6 +71,9 @@ const func complex: - (in complex: num1) is func
   end func;
 
 
+(**
+ *  Return the sum of two complex numbers.
+ *)
 const func complex: (in complex: num1) + (in complex: num2) is func
   result
     var complex: result is complex.value;
@@ -68,6 +83,9 @@ const func complex: (in complex: num1) + (in complex: num2) is func
   end func;
 
 
+(**
+ *  Return the difference of two complex numbers.
+ *)
 const func complex: (in complex: num1) - (in complex: num2) is func
   result
     var complex: result is complex.value;
@@ -77,6 +95,9 @@ const func complex: (in complex: num1) - (in complex: num2) is func
   end func;
 
 
+(**
+ *  Return the product of two complex numbers.
+ *)
 const func complex: (in complex: num1) * (in complex: num2) is func
   result
     var complex: result is complex.value;
@@ -86,6 +107,9 @@ const func complex: (in complex: num1) * (in complex: num2) is func
   end func;
 
 
+(**
+ *  Return the quotient of two complex numbers.
+ *)
 const func complex: (in complex: num1) / (in complex: num2) is func
   result
     var complex: result is complex.value;
@@ -98,6 +122,9 @@ const func complex: (in complex: num1) / (in complex: num2) is func
   end func;
 
 
+(**
+ *  Increment the complex number num1 by num2.
+ *)
 const proc: (inout complex: num1) +:= (in complex: num2) is func
   begin
     num1.re +:= num2.re;
@@ -105,6 +132,9 @@ const proc: (inout complex: num1) +:= (in complex: num2) is func
   end func;
 
 
+(**
+ *  Decrement the complex number num1 by num2.
+ *)
 const proc: (inout complex: num1) -:= (in complex: num2) is func
   begin
     num1.re -:= num2.re;
@@ -112,6 +142,10 @@ const proc: (inout complex: num1) -:= (in complex: num2) is func
   end func;
 
 
+(**
+ *  Multiply the complex number num1 by num2 and assign the
+ *  result to num1.
+ *)
 const proc: (inout complex: num1) *:= (in complex: num2) is func
   local
     var float: help is 0.0;
@@ -122,18 +156,31 @@ const proc: (inout complex: num1) *:= (in complex: num2) is func
   end func;
 
 
+(**
+ *  Return the square of the absolute value of a complex number.
+ *)
 const func float: sqrAbs (in complex: num1) is
   return num1.re * num1.re + num1.im * num1.im;
 
 
+(**
+ *  Return the absolute value of a complex number.
+ *)
 const func float: abs (in complex: num1) is
   return sqrt(num1.re * num1.re + num1.im * num1.im);
 
 
+(**
+ *  Return the argument of a complex number.
+ *  This is the angle of the polar form of the complex number.
+ *)
 const func float: arg (in complex: num1) is
   return atan2(num1.im, num1.re);
 
 
+(**
+ *  Return num1 to the power of int2.
+ *)
 const func complex: (in complex: num1) ** (in integer: int2) is func
   result
     var complex: result is complex.value;
@@ -148,6 +195,9 @@ const func complex: (in complex: num1) ** (in integer: int2) is func
   end func;
 
 
+(**
+ *  Return the conversion of a complex number to a string.
+ *)
 const func string: str (in complex: num) is func
   result
     var string: result is "";
@@ -160,6 +210,11 @@ const func string: str (in complex: num) is func
   end func;
 
 
+(**
+ *  Return the conversion of a complex number to a string.
+ *  The numDigits parameter specifies the number of digits
+ *  after the decimal point.
+ *)
 const func string: (in complex: num) digits (in integer: numDigits) is func
   result
     var string: result is "";

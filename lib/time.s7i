@@ -48,10 +48,17 @@ const proc: AWAIT_TIME (ref integer param, ref integer param, ref integer param,
     ref integer param) is action "TIM_AWAIT";
 
 
+(**
+ *  Return TRUE if a given year is a leap year in the Gregorian
+ *  calendar, FALSE otherwise. 
+ *)
 const func boolean: isLeapYear (in integer: year) is
   return (year rem 4 = 0 and year rem 100 <> 0) or year rem 400 = 0;
 
 
+(**
+ *  Return the number of days in the 'month' of the given 'year'.
+ *)
 const func integer: daysInMonth (in integer: year, in integer: month) is func
   result
     var integer: leng is 0;
@@ -94,10 +101,22 @@ const func string: str_time (in time: aTime) is
   return str2(aTime.hour) & ":" & str2(aTime.minute) & ":" & str2(aTime.second);
 
 
+(**
+ *  Return the conversion of a time to a string.
+ *)
 const func string: str (in time: aTime) is
   return str_date(aTime) & " " & str_time(aTime);
 
 
+(**
+ *  Return the conversion of a string in the ISO 8601 date format to
+ *  a time.
+ *  The accepted ISO 8601 date formats are YYYY-MM, YYYY-MM-DD,
+ *  YYYY-MM-DDTHH, YYYY-MM-DDTHH:MM, YYYY-MM-DDTHH:MM:SS
+ *  Additionally a space is also allowed to seperate the date and the
+ *  time representations: YYYY-MM-DD HH, YYYY-MM-DD HH:MM,
+ *  YYYY-MM-DD HH:MM:SS
+ *)
 const func time: (attr time) parse (in var string: stri) is func
   result
     var time: result is time.value;
@@ -108,31 +127,33 @@ const func time: (attr time) parse (in var string: stri) is func
     end if;
     stri := stri[2 ..];
     result.month := integer parse getint(stri);
-    if stri[1] <> '-' then
-      raise RANGE_ERROR;
-    end if;
-    stri := stri[2 ..];
-    result.day := integer parse getint(stri);
     if stri <> "" then
-      if stri[1] <> ' ' then
+      if stri[1] <> '-' then
         raise RANGE_ERROR;
       end if;
       stri := stri[2 ..];
-      result.hour := integer parse getint(stri);
+      result.day := integer parse getint(stri);
       if stri <> "" then
-        if stri[1] <> ':' then
+        if stri[1] <> ' ' and stri[1] <> 'T' then
           raise RANGE_ERROR;
         end if;
         stri := stri[2 ..];
-        result.minute := integer parse getint(stri);
+        result.hour := integer parse getint(stri);
         if stri <> "" then
           if stri[1] <> ':' then
             raise RANGE_ERROR;
           end if;
           stri := stri[2 ..];
-          result.second := integer parse getint(stri);
+          result.minute := integer parse getint(stri);
           if stri <> "" then
-            raise RANGE_ERROR;
+            if stri[1] <> ':' then
+              raise RANGE_ERROR;
+            end if;
+            stri := stri[2 ..];
+            result.second := integer parse getint(stri);
+            if stri <> "" then
+              raise RANGE_ERROR;
+            end if;
           end if;
         end if;
       end if;
@@ -251,6 +272,10 @@ const func boolean: (in time: tim1) > (in time: tim2) is
   return not tim1 <= tim2;
 
 
+(**
+ *  Returns -1, 0 or 1 if the first argument is considered to be
+ *  respectively less than, equal to, or greater than the second.
+ *)
 const func integer: compare (in time: tim1, in time: tim2) is func
   result
     var integer: result is 0;
@@ -287,46 +312,61 @@ const func integer: compare (in time: tim1, in time: tim2) is func
   end func;
 
 
-const func integer: hashCode (in time: tim) is
-  return tim.year + tim.month + tim.day +
-      tim.hour + tim.minute + tim.second + tim.mycro_second;
+(**
+ *  Return a hash value for 'aTime'.
+ *)
+const func integer: hashCode (in time: aTime) is
+  return aTime.year + aTime.month + aTime.day +
+      aTime.hour + aTime.minute + aTime.second + aTime.mycro_second;
 
 
-const func time: truncToSecond (in time: tim) is func
+(**
+ *  Returns the time 'aTime' truncated to the beginning of a second.
+ *)
+const func time: truncToSecond (in time: aTime) is func
   result
     var time: result is time.value;
   begin
-    result := tim;
+    result := aTime;
     result.mycro_second := 0;
   end func;
     
 
-const func time: truncToMinute (in time: tim) is func
+(**
+ *  Returns the time 'aTime' truncated to the beginning of a minute.
+ *)
+const func time: truncToMinute (in time: aTime) is func
   result
     var time: result is time.value;
   begin
-    result := tim;
+    result := aTime;
     result.second := 0;
     result.mycro_second := 0;
   end func;
     
 
-const func time: truncToHour (in time: tim) is func
+(**
+ *  Returns the time 'aTime' truncated to the beginning of a hour.
+ *)
+const func time: truncToHour (in time: aTime) is func
   result
     var time: result is time.value;
   begin
-    result := tim;
+    result := aTime;
     result.minute := 0;
     result.second := 0;
     result.mycro_second := 0;
   end func;
     
 
-const func time: truncToDay (in time: tim) is func
+(**
+ *  Returns the time 'aTime' truncated to the beginning of a day.
+ *)
+const func time: truncToDay (in time: aTime) is func
   result
     var time: result is time.value;
   begin
-    result := tim;
+    result := aTime;
     result.hour := 0;
     result.minute := 0;
     result.second := 0;
@@ -334,11 +374,15 @@ const func time: truncToDay (in time: tim) is func
   end func;
     
 
-const func time: truncToMonth (in time: tim) is func
+(**
+ *  Returns the time 'aTime' truncated to the beginning of the first
+ *  day in the month.
+ *)
+const func time: truncToMonth (in time: aTime) is func
   result
     var time: result is time.value;
   begin
-    result := tim;
+    result := aTime;
     result.day := 1;
     result.hour := 0;
     result.minute := 0;
@@ -347,11 +391,15 @@ const func time: truncToMonth (in time: tim) is func
   end func;
     
 
-const func time: truncToYear (in time: tim) is func
+(**
+ *  Returns the time 'aTime' truncated to the beginning of the first
+ *  day in the year.
+ *)
+const func time: truncToYear (in time: aTime) is func
   result
     var time: result is time.value;
   begin
-    result := tim;
+    result := aTime;
     result.month := 1;
     result.day := 1;
     result.hour := 0;
@@ -361,36 +409,52 @@ const func time: truncToYear (in time: tim) is func
   end func;
 
 
-const func integer: dayOfWeek (in time: aTime) is func
+(**
+ *  Return the weekday number of 'aDate'.
+ *  @return 1 for monday, 2 for tuesday, and so on up to 7 for sunday. 
+ *)
+const func integer: dayOfWeek (in time: aDate) is func
   result
     var integer: result is 0;
   local
     var integer: year is 0;
     var integer: month is 0;
   begin
-    year := aTime.year;
-    month := aTime.month;
+    year := aDate.year;
+    month := aDate.month;
     if month <= 2 then
       decr(year);
       month +:= 12;
     end if;
     result := succ(pred(year + year mdiv 4 - year mdiv 100 + year mdiv 400 +
-        (31 * (month - 2)) mdiv 12 + aTime.day) mod 7);
+        (31 * (month - 2)) mdiv 12 + aDate.day) mod 7);
   end func;
 
 
-const func integer: dayOfYear (in time: tim) is func
+(**
+ *  Return the day number in the year of 'aDate'.
+ *  @return 1 for the 1. of january and successive values up to 366. 
+ *)
+const func integer: dayOfYear (in time: aDate) is func
   result
     var integer: result is 0;
   begin
-    if isLeapYear(tim.year) then
-      result := [](0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335)[tim.month] + tim.day;
+    if isLeapYear(aDate.year) then
+      result := [](0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335)[aDate.month] + aDate.day;
     else
-      result := [](0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)[tim.month] + tim.day;
+      result := [](0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334)[aDate.month] + aDate.day;
     end if;
   end func;
 
 
+(**
+ *  Return the week number of the 'year' for the 'dayOfYear'.
+ *  According to ISO 8601: Week number 1 of every year contains the
+ *  4. of january. Since 1st to 3rd of january might be in the
+ *  previous week there can be also a week number 0.
+ *  @return week numbers from 0 to 53 for weeks belonging to the year
+ *          of the given date.
+ *)
 const func integer: weekOfYear (in var integer: year, in integer: dayOfYear) is func
   result
     var integer: result is 0;
@@ -403,37 +467,60 @@ const func integer: weekOfYear (in var integer: year, in integer: dayOfYear) is 
   end func;
 
 
-const func integer: weekOfYear (in time: tim) is
-  return weekOfYear(tim.year, dayOfYear(tim));
+(**
+ *  Return the week number of the year for 'aDate'.
+ *  According to ISO 8601: Week number 1 of every year contains the
+ *  4. of january. Since 1st to 3rd of january might be in the
+ *  previous week there can be also a week number 0.
+ *  @return week numbers from 0 to 53 for weeks belonging to the year
+ *          of the given date.
+ *)
+const func integer: weekOfYear (in time: aDate) is
+  return weekOfYear(aDate.year, dayOfYear(aDate));
 
 
-const func integer: weekDateYear (in time: tim) is func
+(**
+ *  Return the year of the ISO 8601 week date for 'aDate'.
+ *  At the beginning and the end of an Gregorian calendar year there
+ *  might be days which belong to a week of the previous or next year.
+ *  For example 2005-01-01 is 2004-W53-6 and 2007-12-31 is 2008-W01-1.
+ *  @return the year in the range 'pred(aDate.year)' to
+ *          'succ(aDate.year)'.
+ *)
+const func integer: weekDateYear (in time: aDate) is func
   result
     var integer: weekDateYear is 0;
   local
     var integer: weekNum is 0;
   begin
-    weekNum := weekOfYear(tim.year, dayOfYear(tim));
+    weekNum := weekOfYear(aDate.year, dayOfYear(aDate));
     if weekNum <= 0 then
-      weekDateYear := pred(tim.year);
-    elsif weekNum >= 53 and tim.day >= 29 and
-        weekOfYear(succ(tim.year), 31 - tim.day) = 1 then
-      weekDateYear := succ(tim.year);
+      weekDateYear := pred(aDate.year);
+    elsif weekNum >= 53 and aDate.day >= 29 and
+        weekOfYear(succ(aDate.year), 31 - aDate.day) = 1 then
+      weekDateYear := succ(aDate.year);
     else
-      weekDateYear := tim.year;
+      weekDateYear := aDate.year;
     end if;
   end func;
 
 
-const func integer: weekDateWeek (in time: tim) is func
+(**
+ *  Return the week number of the ISO 8601 week date for 'aDate'.
+ *  At the beginning and the end of an Gregorian calendar year there
+ *  might be days which belong to a week of the previous or next year.
+ *  For example 2005-01-01 is 2004-W53-6 and 2007-12-31 is 2008-W01-1.
+ *  @return the week number in the range 1 to 53.
+ *)
+const func integer: weekDateWeek (in time: aDate) is func
   result
     var integer: weekNum is 0;
   begin
-    weekNum := weekOfYear(tim.year, dayOfYear(tim));
+    weekNum := weekOfYear(aDate.year, dayOfYear(aDate));
     if weekNum <= 0 then
-      weekNum := weekOfYear(pred(tim.year), 366);
-    elsif weekNum >= 53 and tim.day >= 29 and
-        weekOfYear(succ(tim.year), 31 - tim.day) = 1 then
+      weekNum := weekOfYear(pred(aDate.year), 366);
+    elsif weekNum >= 53 and aDate.day >= 29 and
+        weekOfYear(succ(aDate.year), 31 - aDate.day) = 1 then
       weekNum := 1;
     end if;
   end func;
@@ -478,6 +565,9 @@ const proc: NORMALIZE (inout time: tim) is func
   end func;
 
 
+(**
+ *  Convert a time to Greenwich Mean Time.
+ *)
 const func time: toGMT (in time: tim) is func
   result
     var time: result is time.value;
@@ -488,16 +578,21 @@ const func time: toGMT (in time: tim) is func
     NORMALIZE(result);
   end func;
 
-  
-const func integer: julianDayNumber (in time: aTime) is func
+
+(**
+ *  Return the julian day number of 'aDate'.
+ *  The julian day number is the number of days that have elapsed
+ *  since January 1, 4713 BC in the proleptic Julian calendar.
+ *)
+const func integer: julianDayNumber (in time: aDate) is func
   result
     var integer: result is 0;
   local
     var integer: year is 0;
     var integer: month is 0;
   begin
-    year := aTime.year;
-    month := aTime.month;
+    year := aDate.year;
+    month := aDate.month;
     if month <= 2 then
       decr(year);
       month +:= 12;
@@ -505,10 +600,16 @@ const func integer: julianDayNumber (in time: aTime) is func
     result := (1461 * (year + 4800)) mdiv 4 +
           (367 * (month - 2)) mdiv 12 -
           (3 * ((year + 4900) mdiv 100)) mdiv 4 +
-          aTime.day - 32075;
+          aDate.day - 32075;
   end func;
 
 
+(**
+ *  Return the time of a 'julianDayNumber'.
+ *  The julian day number is the number of days that have elapsed
+ *  since January 1, 4713 BC in the proleptic Julian calendar.
+ *  @return the time 0:00:00 at the day with the 'julianDayNumber'.
+ *)
 const func time: julianDayNumToTime (in integer: julianDayNumber) is func
   result
     var time: result is time.value;
@@ -531,6 +632,9 @@ const func time: julianDayNumToTime (in integer: julianDayNumber) is func
   end func;
 
 
+(**
+ *  Return the current time.
+ *)
 const func time: time (NOW) is func
   result
     var time: result is time.value;
@@ -543,10 +647,13 @@ const func time: time (NOW) is func
   end func;
 
 
-const proc: await (ref time: tim) is func
+(**
+ *  Wait until 'aTime' is reached
+ *)
+const proc: await (ref time: aTime) is func
   begin
-    AWAIT_TIME(tim.year, tim.month, tim.day,
-        tim.hour, tim.minute, tim.second, tim.mycro_second, tim.timezone);
+    AWAIT_TIME(aTime.year, aTime.month, aTime.day,
+        aTime.hour, aTime.minute, aTime.second, aTime.mycro_second, aTime.timezone);
   end func;
 
 
@@ -574,6 +681,9 @@ const func integer: month (in duration: aDuration) is
       aDuration.month_30 + aDuration.month_31;
 
 
+(**
+ *  Return the conversion of a duration to a string.
+ *)
 const func string: str (in duration: aDuration) is func
   result
     var string: stri is "";
@@ -584,6 +694,9 @@ const func string: str (in duration: aDuration) is func
   end func;
 
 
+(**
+ *  Return the conversion of a string to a duration.
+ *)
 const func duration: (attr duration) parse (in var string: stri) is func
   result
     var duration: result is duration.value;
@@ -749,6 +862,10 @@ const func boolean: (in duration: dur1) > (in duration: dur2) is
   return not dur1 <= dur2;
 
 
+(**
+ *  Returns -1, 0 or 1 if the first argument is considered to be
+ *  respectively less than, equal to, or greater than the second.
+ *)
 const func integer: compare (in duration: dur1, in duration: dur2) is func
   result
     var integer: result is 0;
@@ -787,10 +904,14 @@ const func integer: compare (in duration: dur1, in duration: dur2) is func
   end func;
 
 
-const func integer: hashCode (in duration: dur) is
-  return dur.year_365 + dur.year_366 +
-      dur.month_28 + dur.month_29 + dur.month_30 + dur.month_31 + dur.day +
-      dur.hour + dur.minute + dur.second + dur.mycro_second;
+(**
+ *  Return a hash value for 'aDuration'.
+ *)
+const func integer: hashCode (in duration: aDuration) is
+  return aDuration.year_365 + aDuration.year_366 +
+      aDuration.month_28 + aDuration.month_29 + aDuration.month_30 + aDuration.month_31 +
+      aDuration.day + aDuration.hour + aDuration.minute + aDuration.second +
+      aDuration.mycro_second;
 
 
 const func duration: (in integer: numYears) . YEARS is func
@@ -849,51 +970,72 @@ const func duration: (in integer: MY_SECS) . MYCRO_SECONDS is func
   end func;
 
 
-const func integer: years (in duration: dur_val) is
-  return dur_val.year_365 + dur_val.year_366;
+(**
+ *  Return the total years of 'aDuration'.
+ *)
+const func integer: years (in duration: aDuration) is
+  return aDuration.year_365 + aDuration.year_366;
 
 
-const func integer: months (in duration: dur_val) is
-  return (dur_val.year_365 + dur_val.year_366) * 12 +
-      dur_val.month_28 +
-      dur_val.month_29 +
-      dur_val.month_30 +
-      dur_val.month_31;
+(**
+ *  Return the total months of 'aDuration'.
+ *)
+const func integer: months (in duration: aDuration) is
+  return (aDuration.year_365 + aDuration.year_366) * 12 +
+      aDuration.month_28 +
+      aDuration.month_29 +
+      aDuration.month_30 +
+      aDuration.month_31;
 
 
-const func integer: days (in duration: dur_val) is
-  return dur_val.year_365 * 365 +
-      dur_val.year_366 * 366 +
-      dur_val.month_28 * 28 +
-      dur_val.month_29 * 29 +
-      dur_val.month_30 * 30 +
-      dur_val.month_31 * 31 +
-      dur_val.day;
+(**
+ *  Return the total days of 'aDuration'.
+ *)
+const func integer: days (in duration: aDuration) is
+  return aDuration.year_365 * 365 +
+      aDuration.year_366 * 366 +
+      aDuration.month_28 * 28 +
+      aDuration.month_29 * 29 +
+      aDuration.month_30 * 30 +
+      aDuration.month_31 * 31 +
+      aDuration.day;
 
 
-const func integer: hours (in duration: dur_val) is
-  return days(dur_val) * 24 + dur_val.hour;
+(**
+ *  Return the total hours of 'aDuration'.
+ *)
+const func integer: hours (in duration: aDuration) is
+  return days(aDuration) * 24 + aDuration.hour;
 
 
-const func integer: minutes (in duration: dur_val) is
-  return (days(dur_val) * 24 +
-      dur_val.hour) * 60 +
-      dur_val.minute;
+(**
+ *  Return the total minutes of 'aDuration'.
+ *)
+const func integer: minutes (in duration: aDuration) is
+  return (days(aDuration) * 24 +
+      aDuration.hour) * 60 +
+      aDuration.minute;
 
 
-const func integer: seconds (in duration: dur_val) is
-  return ((days(dur_val) * 24 +
-      dur_val.hour) * 60 +
-      dur_val.minute) * 60 +
-      dur_val.second;
+(**
+ *  Return the total seconds of 'aDuration'.
+ *)
+const func integer: seconds (in duration: aDuration) is
+  return ((days(aDuration) * 24 +
+      aDuration.hour) * 60 +
+      aDuration.minute) * 60 +
+      aDuration.second;
 
 
-const func integer: mycro_seconds (in duration: dur_val) is
-  return (((days(dur_val) * 24 +
-      dur_val.hour) * 60 +
-      dur_val.minute) * 60 +
-      dur_val.second) * 1000000 +
-      dur_val.mycro_second;
+(**
+ *  Return the total mycro seconds of 'aDuration'.
+ *)
+const func integer: mycro_seconds (in duration: aDuration) is
+  return (((days(aDuration) * 24 +
+      aDuration.hour) * 60 +
+      aDuration.minute) * 60 +
+      aDuration.second) * 1000000 +
+      aDuration.mycro_second;
 
 
 const proc: NORMALIZE (inout duration: aDuration) is func

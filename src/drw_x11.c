@@ -1344,10 +1344,12 @@ inttype height;
 
   /* drwGet */
 #ifdef TRACE_X11
-    printf("get(%lu, %ld, %ld, %ld, %ld)\n", actual_window, left, upper, width, height);
+    printf("drwGet(%lu, %ld, %ld, %ld, %ld)\n", actual_window, left, upper, width, height);
 #endif
     if (!ALLOC_RECORD(result, x11_winrecord, count.win)) {
       raise_error(MEMORY_ERROR);
+    } else if (width < 1 || height < 1) {
+      raise_error(RANGE_ERROR);
     } else {
       memset(result, 0, sizeof(struct x11_winstruct));
       result->usage_count = 1;
