@@ -59,3 +59,5 @@ int wunsetenv (const const_os_striType name);
 #endif
 striType cmdGetGroup (const const_striType filePath);
 striType cmdGetOwner (const const_striType filePath);
+void cmdSetGroup (const const_striType filePath, striType group);
+void cmdSetOwner (const const_striType filePath, striType owner);

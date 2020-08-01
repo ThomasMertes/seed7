@@ -304,7 +304,7 @@ uintType uintMult (uintType factor1, uintType factor2, uintType *product_high)
     uintType product_low;
 
   /* uintMult */
-    logFunction(printf("uintMult(" F_X(08) ", " F_X(08) ")\n",
+    logFunction(printf("uintMult(" F_X(016) ", " F_X(016) ")\n",
                        factor1, factor2););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1);
@@ -319,7 +319,7 @@ uintType uintMult (uintType factor1, uintType factor2, uintType *product_high)
     /* c5 contains the high uintType of factor1 * factor2 */
     product_low = UINT_BITS(factor1 * factor2);
     *product_high = UINT_BITS(c5);
-    logFunction(printf("uintMult --> " F_X(08) F_X(08) "\n",
+    logFunction(printf("uintMult --> " F_X(016) F_X(016) "\n",
                        *product_high, product_low););
     return product_low;
   } /* uintMult */
@@ -341,7 +341,7 @@ uintType uintRand (void)
   { /* uintRand */
     logFunction(printf("uintRand\n"););
     seed = seed * RAND_MULTIPLIER + RAND_INCREMENT;
-    logFunction(printf("uintRand --> " F_X(08) "\n",
+    logFunction(printf("uintRand --> " F_X(016) "\n",
                        (uintType) (seed >> INTTYPE_SIZE)););
     return (uintType) (seed >> INTTYPE_SIZE);
   } /* uintRand */
@@ -384,7 +384,7 @@ static inline uintType uint2Mult (uintType factor1_high, uintType factor1_low,
     uintType product_low;
 
   /* uint2Mult */
-    logFunction(printf("uint2Mult(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
+    logFunction(printf("uint2Mult(" F_X(016) F_X(016) ", " F_X(016) F_X(016) ")\n",
                        factor1_high, factor1_low, factor2_high, factor2_low););
     factor1_part[0] = LOWER_HALF_OF_UINT(factor1_low);
     factor1_part[1] = UPPER_HALF_OF_UINT(factor1_low);
@@ -401,7 +401,7 @@ static inline uintType uint2Mult (uintType factor1_high, uintType factor1_low,
     *product_high = UINT_BITS(factor1_low * factor2_high + factor1_high * factor2_low + c5);
     /* factor1_high * factor2_high is not computed. All bits of it  */
     /* would be discarded, since they are higher than product_high. */
-    logFunction(printf("uint2Mult --> " F_X(08) F_X(08) "\n",
+    logFunction(printf("uint2Mult --> " F_X(016) F_X(016) "\n",
                        *product_high, product_low););
     return product_low;
   } /* uint2Mult */
@@ -431,7 +431,7 @@ static inline uintType uint2Add (uintType summand1_high, uintType summand1_low,
     uintType sum_low;
 
   /* uint2Add */
-    logFunction(printf("uint2Add(" F_X(08) F_X(08) ", " F_X(08) F_X(08) ")\n",
+    logFunction(printf("uint2Add(" F_X(016) F_X(016) ", " F_X(016) F_X(016) ")\n",
                        summand1_high, summand1_low, summand2_high, summand2_low););
     sum_low = UINT_BITS(summand1_low + summand2_low);
     if (UINT_HIGHEST_BIT(summand1_low) + UINT_HIGHEST_BIT(summand2_low) +
@@ -441,7 +441,7 @@ static inline uintType uint2Add (uintType summand1_high, uintType summand1_low,
     } else {
       *sum_high = UINT_BITS(summand1_high + summand2_high);
     } /* if */
-    logFunction(printf("uint2Add --> " F_X(08) F_X(08) "\n",
+    logFunction(printf("uint2Add --> " F_X(016) F_X(016) "\n",
                        *sum_high, sum_low););
     return sum_low;
   } /* uint2Add */
@@ -466,7 +466,7 @@ uintType uintRand (void)
                          (uintType) INT_SUFFIX(RAND_MULTIPLIER), &high_seed);
     low_seed = uint2Add(high_seed, low_seed, (uintType) INT_SUFFIX(0),
                         (uintType) INT_SUFFIX(RAND_INCREMENT), &high_seed);
-    logFunction(printf("uintRand --> " F_X(08) "\n", high_seed););
+    logFunction(printf("uintRand --> " F_X(016) "\n", high_seed););
     return high_seed;
   } /* uintRand */
 #endif

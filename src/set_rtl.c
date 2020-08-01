@@ -579,29 +579,6 @@ boolType setElem (const intType number, const const_setType aSet)
 
 
 /**
- *  Create an empty set.
- *  @return an empty set.
- *  @exception MEMORY_ERROR Not enough memory for the result.
- */
-setType setEmpty (void)
-
-  {
-    setType emtpySet;
-
-  /* setEmpty */
-    if (unlikely(!ALLOC_SET(emtpySet, 1))) {
-      raise_error(MEMORY_ERROR);
-    } else {
-      emtpySet->min_position = 0;
-      emtpySet->max_position = 0;
-      emtpySet->bitset[0] = (bitSetType) 0;
-    } /* if */
-    return emtpySet;
-  } /* setEmpty */
-
-
-
-/**
  *  Check if two sets are equal.
  *  @return TRUE if the two sets are equal,
  *          FALSE otherwise.
@@ -1237,7 +1214,7 @@ boolType setIsSubset (const const_setType set1, const const_setType set2)
 
 
 /**
- *  Maximal element of a set.
+ *  Maximum element of a set.
  *  Delivers the element from 'aSet' for which the following condition holds:
  *   element >= X
  *  for all X which are in the set.
@@ -1270,7 +1247,7 @@ intType setMax (const const_setType aSet)
 
 
 /**
- *  Minimal element of a set.
+ *  Minimum element of a set.
  *  Delivers the element from 'aSet' for which the following condition holds:
  *   element <= X
  *  for all X which are in the set.
@@ -1305,7 +1282,7 @@ intType setMin (const const_setType aSet)
 
 
 /**
- *  Minimal element of 'aSet' that is larger than 'number'.
+ *  Minimum element of 'aSet' that is larger than 'number'.
  *  @return the minimum element of 'aSet' that is larger than 'number'.
  *  @exception RANGE_ERROR If 'aSet' has no element larger than 'number'.
  */
@@ -1318,41 +1295,58 @@ intType setNext (const const_setType aSet, const intType number)
     unsigned int bit_index;
     bitSetType curr_bitset;
     const bitSetType *bitset_ptr;
-    intType result;
+    intType nextNumber;
 
   /* setNext */
-    position = bitset_pos(number);
-    if (position < aSet->min_position) {
-      position = aSet->min_position;
-    } /* if */
-    bitset_size = bitsetSize(aSet);
-    bitset_index = bitsetIndex(aSet, position);
-    if (bitset_index < bitset_size) {
-      bit_index = ((unsigned int) number) & bitset_mask;
-      curr_bitset = aSet->bitset[bitset_index] & (~(bitSetType) 1 << bit_index);
-      if (curr_bitset != 0) {
-        result = bitsetLeastSignificantBit(curr_bitset);
-        result += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
-        return result;
+    logFunction(printf("setNext(");
+                prot_set(aSet);
+                printf(", " FMT_D ")\n", number););
+    if (unlikely(number == INTTYPE_MAX)) {
+      logError(printf("setNext(aSet, " FMT_D "): "
+                      "The maximum integer has no successor.\n",
+                      number););
+      raise_error(RANGE_ERROR);
+      nextNumber = 0;
+    } else {
+      position = bitset_pos(number + 1);
+      if (position < aSet->min_position) {
+        position = aSet->min_position;
+        bit_index = 0;
+      } else {
+        bit_index = ((unsigned int) (number + 1)) & bitset_mask;
       } /* if */
-      bitset_index++;
-      /* printf("min_position=%ld\n", aSet->min_position);
-         printf("max_position=%ld\n", aSet->max_position);
-         printf("index=" FMT_U_MEM "\n", bitset_index);
-         printf("size=" FMT_U_MEM "\n", bitset_size - bitset_index); */
-      bitset_ptr = bitsetNonZero(&aSet->bitset[bitset_index], bitset_size - bitset_index);
-      if (bitset_ptr != NULL) {
-        bitset_index = (memSizeType) (bitset_ptr - aSet->bitset);
-        result = bitsetLeastSignificantBit(*bitset_ptr);
-        result += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
-        return result;
+      bitset_size = bitsetSize(aSet);
+      bitset_index = bitsetIndex(aSet, position);
+      if (unlikely(bitset_index >= bitset_size)) {
+        logError(printf("setNext(aSet, " FMT_D "): "
+                        "The number is beyond the maximum element of the set.\n",
+                        number););
+        raise_error(RANGE_ERROR);
+        nextNumber = 0;
+      } else {
+        curr_bitset = (aSet->bitset[bitset_index] >> bit_index) << bit_index;
+        if (curr_bitset != 0) {
+          nextNumber = bitsetLeastSignificantBit(curr_bitset);
+          nextNumber += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
+        } else {
+          bitset_index++;
+          bitset_ptr = bitsetNonZero(&aSet->bitset[bitset_index], bitset_size - bitset_index);
+          if (unlikely(bitset_ptr == NULL)) {
+            logError(printf("setNext(aSet, " FMT_D "): "
+                            "The maximum element of a set has no next element.\n",
+                            number););
+            raise_error(RANGE_ERROR);
+            nextNumber = 0;
+          } else {
+            bitset_index = (memSizeType) (bitset_ptr - aSet->bitset);
+            nextNumber = bitsetLeastSignificantBit(*bitset_ptr);
+            nextNumber += lowestBitsetPosAsInteger(aSet->min_position + (intType) bitset_index);
+          } /* if */
+        } /* if */
       } /* if */
     } /* if */
-    logError(printf("setNext(aSet, " FMT_D "): "
-                    "The maximal element of a set has no next element.\n",
-                    number););
-    raise_error(RANGE_ERROR);
-    return 0;
+    logFunction(printf("setNext --> " FMT_D "\n", nextNumber););
+    return nextNumber;
   } /* setNext */
 
 
@@ -1400,6 +1394,8 @@ intType setRand (const const_setType aSet)
           curr_bitset &= curr_bitset - 1;
         } /* while */
       } /* for */
+      /* This place should never be reached, since the */
+      /* check for an empty set has been done before.  */
     } /* if */
     raise_error(RANGE_ERROR);
     return 0;
@@ -1602,28 +1598,38 @@ uintType setToUInt (const const_setType set1, const intType lowestBitNum)
     intType position;
     memSizeType bitset_index;
     unsigned int bit_index;
+    uintType bitPattern;
 
   /* setToUInt */
+    logFunction(printf("setToUInt(");
+                prot_set(set1);
+                printf(", " FMT_D ")\n", lowestBitNum););
     position = bitset_pos(lowestBitNum);
     if (position >= set1->min_position && position <= set1->max_position) {
       bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
       if (bit_index == 0) {
-        return (uintType) set1->bitset[bitset_index];
+        bitPattern = (uintType) set1->bitset[bitset_index];
       } else if (position < set1->max_position) {
-        return (uintType) (set1->bitset[bitset_index] >> bit_index |
+        bitPattern = (uintType) (set1->bitset[bitset_index] >> bit_index |
             set1->bitset[bitset_index + 1] << (CHAR_BIT * sizeof(bitSetType) - bit_index));
       } else {
-        return (uintType) (set1->bitset[bitset_index] >> bit_index);
+        bitPattern = (uintType) (set1->bitset[bitset_index] >> bit_index);
       } /* if */
     } else if (position == set1->min_position - 1) {
       bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
-      return (uintType)
-          (set1->bitset[bitset_index + 1] << (CHAR_BIT * sizeof(bitSetType) - bit_index));
+      if (bit_index == 0) {
+        bitPattern = 0;
+      } else {
+        bitPattern = (uintType)
+            (set1->bitset[bitset_index + 1] << (CHAR_BIT * sizeof(bitSetType) - bit_index));
+      } /* if */
     } else {
-      return 0;
+      bitPattern = 0;
     } /* if */
+    logFunction(printf("setToUInt --> 0x" F_X(016) "\n", bitPattern););
+    return bitPattern;
   } /* setToUInt */
 
 

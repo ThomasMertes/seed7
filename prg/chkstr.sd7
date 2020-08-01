@@ -17189,6 +17189,50 @@ const proc: check_string_mult is func
       okay := FALSE;
     end if;
 
+    if  "\0;" mult   0 <> "" or
+        "\0;" mult   1 <> "\0;" or
+        "\0;" mult   2 <> "\0;\0;" or
+        "\0;" mult   3 <> "\0;\0;\0;" or
+        "\0;" mult   4 <> "\0;\0;\0;\0;" or
+        "\0;" mult   5 <> "\0;\0;\0;\0;\0;" or
+        "\0;" mult 100 <> "\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                          \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                          \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                          \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;" or
+        "\0;" mult intExpr(  0) <> "" or
+        "\0;" mult intExpr(  1) <> "\0;" or
+        "\0;" mult intExpr(  2) <> "\0;\0;" or
+        "\0;" mult intExpr(  3) <> "\0;\0;\0;" or
+        "\0;" mult intExpr(  4) <> "\0;\0;\0;\0;" or
+        "\0;" mult intExpr(  5) <> "\0;\0;\0;\0;\0;" or
+        "\0;" mult intExpr(100) <> "\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                   \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                   \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                   \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;" or
+        striExpr("\0;") mult   0 <> "" or
+        striExpr("\0;") mult   1 <> "\0;" or
+        striExpr("\0;") mult   2 <> "\0;\0;" or
+        striExpr("\0;") mult   3 <> "\0;\0;\0;" or
+        striExpr("\0;") mult   4 <> "\0;\0;\0;\0;" or
+        striExpr("\0;") mult   5 <> "\0;\0;\0;\0;\0;" or
+        striExpr("\0;") mult 100 <> "\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                    \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                    \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                    \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;" or
+        striExpr("\0;") mult intExpr(  0) <> "" or
+        striExpr("\0;") mult intExpr(  1) <> "\0;" or
+        striExpr("\0;") mult intExpr(  2) <> "\0;\0;" or
+        striExpr("\0;") mult intExpr(  3) <> "\0;\0;\0;" or
+        striExpr("\0;") mult intExpr(  4) <> "\0;\0;\0;\0;" or
+        striExpr("\0;") mult intExpr(  5) <> "\0;\0;\0;\0;\0;" or
+        striExpr("\0;") mult intExpr(100) <> "\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                             \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                             \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\
+                                             \\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;\0;" then
+      writeln(" ***** STRING mult integer with zero byte does not work correct.");
+      okay := FALSE;
+    end if;
+
     if  str('a') mult 0 <> "" or
         str('a') mult 1 <> "a" or
         str('a') mult 2 <> "aa" or
@@ -17622,7 +17666,358 @@ const proc: check_string_ops is func
       writeln(" ***** string lpad integer does not work correct.");
       okay := FALSE;
     end if;
-    if ("" rpad -10) <> "" or
+
+    if  ("" lpad0 -10) <> "" or
+        ("" lpad0 -5) <> "" or
+        ("" lpad0 -2) <> "" or
+        ("" lpad0 -1) <> "" or
+        ("" lpad0 0) <> "" or
+        ("" lpad0 1) <> "0" or
+        ("" lpad0 2) <> "00" or
+        ("" lpad0 5) <> "00000" or
+        ("" lpad0 10) <> "0000000000" or
+        ("a" lpad0 -10) <> "a" or
+        ("a" lpad0 -5) <> "a" or
+        ("a" lpad0 -2) <> "a" or
+        ("a" lpad0 -1) <> "a" or
+        ("a" lpad0 0) <> "a" or
+        ("a" lpad0 1) <> "a" or
+        ("a" lpad0 2) <> "0a" or
+        ("a" lpad0 5) <> "0000a" or
+        ("a" lpad0 10) <> "000000000a" or
+        ("ab" lpad0 -10) <> "ab" or
+        ("ab" lpad0 -5) <> "ab" or
+        ("ab" lpad0 -2) <> "ab" or
+        ("ab" lpad0 -1) <> "ab" or
+        ("ab" lpad0 0) <> "ab" or
+        ("ab" lpad0 1) <> "ab" or
+        ("ab" lpad0 2) <> "ab" or
+        ("ab" lpad0 5) <> "000ab" or
+        ("ab" lpad0 10) <> "00000000ab" or
+        ("abcd" lpad0 -10) <> "abcd" or
+        ("abcd" lpad0 -5) <> "abcd" or
+        ("abcd" lpad0 -2) <> "abcd" or
+        ("abcd" lpad0 -1) <> "abcd" or
+        ("abcd" lpad0 0) <> "abcd" or
+        ("abcd" lpad0 1) <> "abcd" or
+        ("abcd" lpad0 2) <> "abcd" or
+        ("abcd" lpad0 5) <> "0abcd" or
+        ("abcd" lpad0 10) <> "000000abcd" or
+        ("abcde" lpad0 -10) <> "abcde" or
+        ("abcde" lpad0 -5) <> "abcde" or
+        ("abcde" lpad0 -2) <> "abcde" or
+        ("abcde" lpad0 -1) <> "abcde" or
+        ("abcde" lpad0 0) <> "abcde" or
+        ("abcde" lpad0 1) <> "abcde" or
+        ("abcde" lpad0 2) <> "abcde" or
+        ("abcde" lpad0 5) <> "abcde" or
+        ("abcde" lpad0 10) <> "00000abcde" or
+        ("abcdef" lpad0 -10) <> "abcdef" or
+        ("abcdef" lpad0 -5) <> "abcdef" or
+        ("abcdef" lpad0 -2) <> "abcdef" or
+        ("abcdef" lpad0 -1) <> "abcdef" or
+        ("abcdef" lpad0 0) <> "abcdef" or
+        ("abcdef" lpad0 1) <> "abcdef" or
+        ("abcdef" lpad0 2) <> "abcdef" or
+        ("abcdef" lpad0 5) <> "abcdef" or
+        ("abcdef" lpad0 10) <> "0000abcdef" or
+        ("abcdefghi" lpad0 -10) <> "abcdefghi" or
+        ("abcdefghi" lpad0 -5) <> "abcdefghi" or
+        ("abcdefghi" lpad0 -2) <> "abcdefghi" or
+        ("abcdefghi" lpad0 -1) <> "abcdefghi" or
+        ("abcdefghi" lpad0 0) <> "abcdefghi" or
+        ("abcdefghi" lpad0 1) <> "abcdefghi" or
+        ("abcdefghi" lpad0 2) <> "abcdefghi" or
+        ("abcdefghi" lpad0 5) <> "abcdefghi" or
+        ("abcdefghi" lpad0 10) <> "0abcdefghi" or
+        ("abcdefghij" lpad0 -10) <> "abcdefghij" or
+        ("abcdefghij" lpad0 -5) <> "abcdefghij" or
+        ("abcdefghij" lpad0 -2) <> "abcdefghij" or
+        ("abcdefghij" lpad0 -1) <> "abcdefghij" or
+        ("abcdefghij" lpad0 0) <> "abcdefghij" or
+        ("abcdefghij" lpad0 1) <> "abcdefghij" or
+        ("abcdefghij" lpad0 2) <> "abcdefghij" or
+        ("abcdefghij" lpad0 5) <> "abcdefghij" or
+        ("abcdefghij" lpad0 10) <> "abcdefghij" or
+        ("abcdefghijk" lpad0 -10) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 -5) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 -2) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 -1) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 0) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 1) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 2) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 5) <> "abcdefghijk" or
+        ("abcdefghijk" lpad0 10) <> "abcdefghijk" or
+        (striExpr("") lpad0 -10) <> "" or
+        (striExpr("") lpad0 -5) <> "" or
+        (striExpr("") lpad0 -2) <> "" or
+        (striExpr("") lpad0 -1) <> "" or
+        (striExpr("") lpad0 0) <> "" or
+        (striExpr("") lpad0 1) <> "0" or
+        (striExpr("") lpad0 2) <> "00" or
+        (striExpr("") lpad0 5) <> "00000" or
+        (striExpr("") lpad0 10) <> "0000000000" or
+        (striExpr("a") lpad0 -10) <> "a" or
+        (striExpr("a") lpad0 -5) <> "a" or
+        (striExpr("a") lpad0 -2) <> "a" or
+        (striExpr("a") lpad0 -1) <> "a" or
+        (striExpr("a") lpad0 0) <> "a" or
+        (striExpr("a") lpad0 1) <> "a" or
+        (striExpr("a") lpad0 2) <> "0a" or
+        (striExpr("a") lpad0 5) <> "0000a" or
+        (striExpr("a") lpad0 10) <> "000000000a" or
+        (striExpr("ab") lpad0 -10) <> "ab" or
+        (striExpr("ab") lpad0 -5) <> "ab" or
+        (striExpr("ab") lpad0 -2) <> "ab" or
+        (striExpr("ab") lpad0 -1) <> "ab" or
+        (striExpr("ab") lpad0 0) <> "ab" or
+        (striExpr("ab") lpad0 1) <> "ab" or
+        (striExpr("ab") lpad0 2) <> "ab" or
+        (striExpr("ab") lpad0 5) <> "000ab" or
+        (striExpr("ab") lpad0 10) <> "00000000ab" or
+        (striExpr("abcd") lpad0 -10) <> "abcd" or
+        (striExpr("abcd") lpad0 -5) <> "abcd" or
+        (striExpr("abcd") lpad0 -2) <> "abcd" or
+        (striExpr("abcd") lpad0 -1) <> "abcd" or
+        (striExpr("abcd") lpad0 0) <> "abcd" or
+        (striExpr("abcd") lpad0 1) <> "abcd" or
+        (striExpr("abcd") lpad0 2) <> "abcd" or
+        (striExpr("abcd") lpad0 5) <> "0abcd" or
+        (striExpr("abcd") lpad0 10) <> "000000abcd" or
+        (striExpr("abcde") lpad0 -10) <> "abcde" or
+        (striExpr("abcde") lpad0 -5) <> "abcde" or
+        (striExpr("abcde") lpad0 -2) <> "abcde" or
+        (striExpr("abcde") lpad0 -1) <> "abcde" or
+        (striExpr("abcde") lpad0 0) <> "abcde" or
+        (striExpr("abcde") lpad0 1) <> "abcde" or
+        (striExpr("abcde") lpad0 2) <> "abcde" or
+        (striExpr("abcde") lpad0 5) <> "abcde" or
+        (striExpr("abcde") lpad0 10) <> "00000abcde" or
+        (striExpr("abcdef") lpad0 -10) <> "abcdef" or
+        (striExpr("abcdef") lpad0 -5) <> "abcdef" or
+        (striExpr("abcdef") lpad0 -2) <> "abcdef" or
+        (striExpr("abcdef") lpad0 -1) <> "abcdef" or
+        (striExpr("abcdef") lpad0 0) <> "abcdef" or
+        (striExpr("abcdef") lpad0 1) <> "abcdef" or
+        (striExpr("abcdef") lpad0 2) <> "abcdef" or
+        (striExpr("abcdef") lpad0 5) <> "abcdef" or
+        (striExpr("abcdef") lpad0 10) <> "0000abcdef" or
+        (striExpr("abcdefghi") lpad0 -10) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 -5) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 -2) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 -1) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 0) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 1) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 2) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 5) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad0 10) <> "0abcdefghi" or
+        (striExpr("abcdefghij") lpad0 -10) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 -5) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 -2) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 -1) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 0) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 1) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 2) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 5) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad0 10) <> "abcdefghij" or
+        (striExpr("abcdefghijk") lpad0 -10) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 -5) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 -2) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 -1) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 0) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 1) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 2) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 5) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad0 10) <> "abcdefghijk" then
+      writeln(" ***** string lpad0 integer does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  ("+" lpad0 integer.first) <> "+" or
+        ("+" lpad0            -2) <> "+" or
+        ("+" lpad0            -1) <> "+" or
+        ("+" lpad0             0) <> "+" or
+        ("+" lpad0             1) <> "+" or
+        ("+" lpad0             2) <> "+0" or
+        ("+" lpad0             3) <> "+00" or
+        ("+" lpad0             4) <> "+000" or
+        ("+" lpad0            10) <> "+000000000" or
+        ("+0" lpad0 integer.first) <> "+0" or
+        ("+0" lpad0            -2) <> "+0" or
+        ("+0" lpad0            -1) <> "+0" or
+        ("+0" lpad0             0) <> "+0" or
+        ("+0" lpad0             1) <> "+0" or
+        ("+0" lpad0             2) <> "+0" or
+        ("+0" lpad0             3) <> "+00" or
+        ("+0" lpad0             4) <> "+000" or
+        ("+0" lpad0            10) <> "+000000000" or
+        ("+1" lpad0 integer.first) <> "+1" or
+        ("+1" lpad0            -2) <> "+1" or
+        ("+1" lpad0            -1) <> "+1" or
+        ("+1" lpad0             0) <> "+1" or
+        ("+1" lpad0             1) <> "+1" or
+        ("+1" lpad0             2) <> "+1" or
+        ("+1" lpad0             3) <> "+01" or
+        ("+1" lpad0             4) <> "+001" or
+        ("+1" lpad0            10) <> "+000000001" or
+        ("+00" lpad0 integer.first) <> "+00" or
+        ("+00" lpad0            -2) <> "+00" or
+        ("+00" lpad0            -1) <> "+00" or
+        ("+00" lpad0             0) <> "+00" or
+        ("+00" lpad0             1) <> "+00" or
+        ("+00" lpad0             2) <> "+00" or
+        ("+00" lpad0             3) <> "+00" or
+        ("+00" lpad0             4) <> "+000" or
+        ("+00" lpad0            10) <> "+000000000" or
+        ("+10" lpad0 integer.first) <> "+10" or
+        ("+10" lpad0            -2) <> "+10" or
+        ("+10" lpad0            -1) <> "+10" or
+        ("+10" lpad0             0) <> "+10" or
+        ("+10" lpad0             1) <> "+10" or
+        ("+10" lpad0             2) <> "+10" or
+        ("+10" lpad0             3) <> "+10" or
+        ("+10" lpad0             4) <> "+010" or
+        ("+10" lpad0            10) <> "+000000010" or
+        ("-" lpad0 integer.first) <> "-" or
+        ("-" lpad0            -2) <> "-" or
+        ("-" lpad0            -1) <> "-" or
+        ("-" lpad0             0) <> "-" or
+        ("-" lpad0             1) <> "-" or
+        ("-" lpad0             2) <> "-0" or
+        ("-" lpad0             3) <> "-00" or
+        ("-" lpad0             4) <> "-000" or
+        ("-" lpad0            10) <> "-000000000" or
+        ("-0" lpad0 integer.first) <> "-0" or
+        ("-0" lpad0            -2) <> "-0" or
+        ("-0" lpad0            -1) <> "-0" or
+        ("-0" lpad0             0) <> "-0" or
+        ("-0" lpad0             1) <> "-0" or
+        ("-0" lpad0             2) <> "-0" or
+        ("-0" lpad0             3) <> "-00" or
+        ("-0" lpad0             4) <> "-000" or
+        ("-0" lpad0            10) <> "-000000000" or
+        ("-1" lpad0 integer.first) <> "-1" or
+        ("-1" lpad0            -2) <> "-1" or
+        ("-1" lpad0            -1) <> "-1" or
+        ("-1" lpad0             0) <> "-1" or
+        ("-1" lpad0             1) <> "-1" or
+        ("-1" lpad0             2) <> "-1" or
+        ("-1" lpad0             3) <> "-01" or
+        ("-1" lpad0             4) <> "-001" or
+        ("-1" lpad0            10) <> "-000000001" or
+        ("-00" lpad0 integer.first) <> "-00" or
+        ("-00" lpad0            -2) <> "-00" or
+        ("-00" lpad0            -1) <> "-00" or
+        ("-00" lpad0             0) <> "-00" or
+        ("-00" lpad0             1) <> "-00" or
+        ("-00" lpad0             2) <> "-00" or
+        ("-00" lpad0             3) <> "-00" or
+        ("-00" lpad0             4) <> "-000" or
+        ("-00" lpad0            10) <> "-000000000" or
+        ("-10" lpad0 integer.first) <> "-10" or
+        ("-10" lpad0            -2) <> "-10" or
+        ("-10" lpad0            -1) <> "-10" or
+        ("-10" lpad0             0) <> "-10" or
+        ("-10" lpad0             1) <> "-10" or
+        ("-10" lpad0             2) <> "-10" or
+        ("-10" lpad0             3) <> "-10" or
+        ("-10" lpad0             4) <> "-010" or
+        ("-10" lpad0            10) <> "-000000010" or
+        (striExpr("+") lpad0 integer.first) <> "+" or
+        (striExpr("+") lpad0            -2) <> "+" or
+        (striExpr("+") lpad0            -1) <> "+" or
+        (striExpr("+") lpad0             0) <> "+" or
+        (striExpr("+") lpad0             1) <> "+" or
+        (striExpr("+") lpad0             2) <> "+0" or
+        (striExpr("+") lpad0             3) <> "+00" or
+        (striExpr("+") lpad0             4) <> "+000" or
+        (striExpr("+") lpad0            10) <> "+000000000" or
+        (striExpr("+0") lpad0 integer.first) <> "+0" or
+        (striExpr("+0") lpad0            -2) <> "+0" or
+        (striExpr("+0") lpad0            -1) <> "+0" or
+        (striExpr("+0") lpad0             0) <> "+0" or
+        (striExpr("+0") lpad0             1) <> "+0" or
+        (striExpr("+0") lpad0             2) <> "+0" or
+        (striExpr("+0") lpad0             3) <> "+00" or
+        (striExpr("+0") lpad0             4) <> "+000" or
+        (striExpr("+0") lpad0            10) <> "+000000000" or
+        (striExpr("+1") lpad0 integer.first) <> "+1" or
+        (striExpr("+1") lpad0            -2) <> "+1" or
+        (striExpr("+1") lpad0            -1) <> "+1" or
+        (striExpr("+1") lpad0             0) <> "+1" or
+        (striExpr("+1") lpad0             1) <> "+1" or
+        (striExpr("+1") lpad0             2) <> "+1" or
+        (striExpr("+1") lpad0             3) <> "+01" or
+        (striExpr("+1") lpad0             4) <> "+001" or
+        (striExpr("+1") lpad0            10) <> "+000000001" or
+        (striExpr("+00") lpad0 integer.first) <> "+00" or
+        (striExpr("+00") lpad0            -2) <> "+00" or
+        (striExpr("+00") lpad0            -1) <> "+00" or
+        (striExpr("+00") lpad0             0) <> "+00" or
+        (striExpr("+00") lpad0             1) <> "+00" or
+        (striExpr("+00") lpad0             2) <> "+00" or
+        (striExpr("+00") lpad0             3) <> "+00" or
+        (striExpr("+00") lpad0             4) <> "+000" or
+        (striExpr("+00") lpad0            10) <> "+000000000" or
+        (striExpr("+10") lpad0 integer.first) <> "+10" or
+        (striExpr("+10") lpad0            -2) <> "+10" or
+        (striExpr("+10") lpad0            -1) <> "+10" or
+        (striExpr("+10") lpad0             0) <> "+10" or
+        (striExpr("+10") lpad0             1) <> "+10" or
+        (striExpr("+10") lpad0             2) <> "+10" or
+        (striExpr("+10") lpad0             3) <> "+10" or
+        (striExpr("+10") lpad0             4) <> "+010" or
+        (striExpr("+10") lpad0            10) <> "+000000010" or
+        (striExpr("-") lpad0 integer.first) <> "-" or
+        (striExpr("-") lpad0            -2) <> "-" or
+        (striExpr("-") lpad0            -1) <> "-" or
+        (striExpr("-") lpad0             0) <> "-" or
+        (striExpr("-") lpad0             1) <> "-" or
+        (striExpr("-") lpad0             2) <> "-0" or
+        (striExpr("-") lpad0             3) <> "-00" or
+        (striExpr("-") lpad0             4) <> "-000" or
+        (striExpr("-") lpad0            10) <> "-000000000" or
+        (striExpr("-0") lpad0 integer.first) <> "-0" or
+        (striExpr("-0") lpad0            -2) <> "-0" or
+        (striExpr("-0") lpad0            -1) <> "-0" or
+        (striExpr("-0") lpad0             0) <> "-0" or
+        (striExpr("-0") lpad0             1) <> "-0" or
+        (striExpr("-0") lpad0             2) <> "-0" or
+        (striExpr("-0") lpad0             3) <> "-00" or
+        (striExpr("-0") lpad0             4) <> "-000" or
+        (striExpr("-0") lpad0            10) <> "-000000000" or
+        (striExpr("-1") lpad0 integer.first) <> "-1" or
+        (striExpr("-1") lpad0            -2) <> "-1" or
+        (striExpr("-1") lpad0            -1) <> "-1" or
+        (striExpr("-1") lpad0             0) <> "-1" or
+        (striExpr("-1") lpad0             1) <> "-1" or
+        (striExpr("-1") lpad0             2) <> "-1" or
+        (striExpr("-1") lpad0             3) <> "-01" or
+        (striExpr("-1") lpad0             4) <> "-001" or
+        (striExpr("-1") lpad0            10) <> "-000000001" or
+        (striExpr("-00") lpad0 integer.first) <> "-00" or
+        (striExpr("-00") lpad0            -2) <> "-00" or
+        (striExpr("-00") lpad0            -1) <> "-00" or
+        (striExpr("-00") lpad0             0) <> "-00" or
+        (striExpr("-00") lpad0             1) <> "-00" or
+        (striExpr("-00") lpad0             2) <> "-00" or
+        (striExpr("-00") lpad0             3) <> "-00" or
+        (striExpr("-00") lpad0             4) <> "-000" or
+        (striExpr("-00") lpad0            10) <> "-000000000" or
+        (striExpr("-10") lpad0 integer.first) <> "-10" or
+        (striExpr("-10") lpad0            -2) <> "-10" or
+        (striExpr("-10") lpad0            -1) <> "-10" or
+        (striExpr("-10") lpad0             0) <> "-10" or
+        (striExpr("-10") lpad0             1) <> "-10" or
+        (striExpr("-10") lpad0             2) <> "-10" or
+        (striExpr("-10") lpad0             3) <> "-10" or
+        (striExpr("-10") lpad0             4) <> "-010" or
+        (striExpr("-10") lpad0            10) <> "-000000010" then
+      writeln(" ***** string lpad0 integer with sign does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  ("" rpad -10) <> "" or
         ("" rpad -5) <> "" or
         ("" rpad -2) <> "" or
         ("" rpad -1) <> "" or
@@ -17702,10 +18097,92 @@ const proc: check_string_ops is func
         ("abcdefghijk" rpad 1) <> "abcdefghijk" or
         ("abcdefghijk" rpad 2) <> "abcdefghijk" or
         ("abcdefghijk" rpad 5) <> "abcdefghijk" or
-        ("abcdefghijk" rpad 10) <> "abcdefghijk" then
+        ("abcdefghijk" rpad 10) <> "abcdefghijk" or
+        (striExpr("") rpad -10) <> "" or
+        (striExpr("") rpad -5) <> "" or
+        (striExpr("") rpad -2) <> "" or
+        (striExpr("") rpad -1) <> "" or
+        (striExpr("") rpad 0) <> "" or
+        (striExpr("") rpad 1) <> " " or
+        (striExpr("") rpad 2) <> "  " or
+        (striExpr("") rpad 5) <> "     " or
+        (striExpr("") rpad 10) <> "          " or
+        (striExpr("a") rpad -10) <> "a" or
+        (striExpr("a") rpad -5) <> "a" or
+        (striExpr("a") rpad -2) <> "a" or
+        (striExpr("a") rpad -1) <> "a" or
+        (striExpr("a") rpad 0) <> "a" or
+        (striExpr("a") rpad 1) <> "a" or
+        (striExpr("a") rpad 2) <> "a " or
+        (striExpr("a") rpad 5) <> "a    " or
+        (striExpr("a") rpad 10) <> "a         " or
+        (striExpr("ab") rpad -10) <> "ab" or
+        (striExpr("ab") rpad -5) <> "ab" or
+        (striExpr("ab") rpad -2) <> "ab" or
+        (striExpr("ab") rpad -1) <> "ab" or
+        (striExpr("ab") rpad 0) <> "ab" or
+        (striExpr("ab") rpad 1) <> "ab" or
+        (striExpr("ab") rpad 2) <> "ab" or
+        (striExpr("ab") rpad 5) <> "ab   " or
+        (striExpr("ab") rpad 10) <> "ab        " or
+        (striExpr("abcd") rpad -10) <> "abcd" or
+        (striExpr("abcd") rpad -5) <> "abcd" or
+        (striExpr("abcd") rpad -2) <> "abcd" or
+        (striExpr("abcd") rpad -1) <> "abcd" or
+        (striExpr("abcd") rpad 0) <> "abcd" or
+        (striExpr("abcd") rpad 1) <> "abcd" or
+        (striExpr("abcd") rpad 2) <> "abcd" or
+        (striExpr("abcd") rpad 5) <> "abcd " or
+        (striExpr("abcd") rpad 10) <> "abcd      " or
+        (striExpr("abcde") rpad -10) <> "abcde" or
+        (striExpr("abcde") rpad -5) <> "abcde" or
+        (striExpr("abcde") rpad -2) <> "abcde" or
+        (striExpr("abcde") rpad -1) <> "abcde" or
+        (striExpr("abcde") rpad 0) <> "abcde" or
+        (striExpr("abcde") rpad 1) <> "abcde" or
+        (striExpr("abcde") rpad 2) <> "abcde" or
+        (striExpr("abcde") rpad 5) <> "abcde" or
+        (striExpr("abcde") rpad 10) <> "abcde     " or
+        (striExpr("abcdef") rpad -10) <> "abcdef" or
+        (striExpr("abcdef") rpad -5) <> "abcdef" or
+        (striExpr("abcdef") rpad -2) <> "abcdef" or
+        (striExpr("abcdef") rpad -1) <> "abcdef" or
+        (striExpr("abcdef") rpad 0) <> "abcdef" or
+        (striExpr("abcdef") rpad 1) <> "abcdef" or
+        (striExpr("abcdef") rpad 2) <> "abcdef" or
+        (striExpr("abcdef") rpad 5) <> "abcdef" or
+        (striExpr("abcdef") rpad 10) <> "abcdef    " or
+        (striExpr("abcdefghi") rpad -10) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad -5) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad -2) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad -1) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad 0) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad 1) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad 2) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad 5) <> "abcdefghi" or
+        (striExpr("abcdefghi") rpad 10) <> "abcdefghi " or
+        (striExpr("abcdefghij") rpad -10) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad -5) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad -2) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad -1) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad 0) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad 1) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad 2) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad 5) <> "abcdefghij" or
+        (striExpr("abcdefghij") rpad 10) <> "abcdefghij" or
+        (striExpr("abcdefghijk") rpad -10) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad -5) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad -2) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad -1) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad 0) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad 1) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad 2) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad 5) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") rpad 10) <> "abcdefghijk" then
       writeln(" ***** string rpad integer does not work correct.");
       okay := FALSE;
     end if;
+
     if okay then
       writeln("String operations work correct.");
     end if;
@@ -22015,6 +22492,7 @@ const proc: check_string_replace is func
         replace(         "abcd",               "b",                "b")   <> "abcd" or
         replace(         "abcd",               "b",                "d")   <> "adcd" or
         replace(         "abcd",               "p",                "b")   <> "abcd" or
+        replace(         "abcd",               "b",                "pp")  <> "appcd" or
         replace(         "abcd",               "bc",               "bc")  <> "abcd" or
         replace(         "abcd",               "bc",               "de")  <> "aded" or
         replace(         "abcd",               "cb",               "ad")  <> "abcd" or
@@ -22036,6 +22514,7 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"),              "b",                "b")   <> "abcd" or
         replace(striExpr("abcd"),              "b",                "d")   <> "adcd" or
         replace(striExpr("abcd"),              "p",                "b")   <> "abcd" or
+        replace(striExpr("abcd"),              "b",                "pp")  <> "appcd" or
         replace(striExpr("abcd"),              "bc",               "bc")  <> "abcd" or
         replace(striExpr("abcd"),              "bc",               "de")  <> "aded" or
         replace(striExpr("abcd"),              "cb",               "ad")  <> "abcd" or
@@ -22057,6 +22536,7 @@ const proc: check_string_replace is func
         replace(         "abcd",  striExpr(             "b"),                "b")   <> "abcd" or
         replace(         "abcd",  striExpr(             "b"),                "d")   <> "adcd" or
         replace(         "abcd",  striExpr(             "p"),                "b")   <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),                "pp")  <> "appcd" or
         replace(         "abcd",  striExpr(             "bc"),               "bc")  <> "abcd" or
         replace(         "abcd",  striExpr(             "bc"),               "de")  <> "aded" or
         replace(         "abcd",  striExpr(             "cb"),               "ad")  <> "abcd" or
@@ -22078,6 +22558,7 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"), striExpr(             "b"),                "b")   <> "abcd" or
         replace(striExpr("abcd"), striExpr(             "b"),                "d")   <> "adcd" or
         replace(striExpr("abcd"), striExpr(             "p"),                "b")   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),                "pp")  <> "appcd" or
         replace(striExpr("abcd"), striExpr(             "bc"),               "bc")  <> "abcd" or
         replace(striExpr("abcd"), striExpr(             "bc"),               "de")  <> "aded" or
         replace(striExpr("abcd"), striExpr(             "cb"),               "ad")  <> "abcd" or
@@ -22099,6 +22580,7 @@ const proc: check_string_replace is func
         replace(         "abcd",               "b",   striExpr(             "b"))   <> "abcd" or
         replace(         "abcd",               "b",   striExpr(             "d"))   <> "adcd" or
         replace(         "abcd",               "p",   striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",               "b",   striExpr(             "pp"))  <> "appcd" or
         replace(         "abcd",               "bc",  striExpr(             "bc"))  <> "abcd" or
         replace(         "abcd",               "bc",  striExpr(             "de"))  <> "aded" or
         replace(         "abcd",               "cb",  striExpr(             "ad"))  <> "abcd" or
@@ -22120,6 +22602,7 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"),              "b",   striExpr(             "b"))   <> "abcd" or
         replace(striExpr("abcd"),              "b",   striExpr(             "d"))   <> "adcd" or
         replace(striExpr("abcd"),              "p",   striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"),              "b",   striExpr(             "pp"))  <> "appcd" or
         replace(striExpr("abcd"),              "bc",  striExpr(             "bc"))  <> "abcd" or
         replace(striExpr("abcd"),              "bc",  striExpr(             "de"))  <> "aded" or
         replace(striExpr("abcd"),              "cb",  striExpr(             "ad"))  <> "abcd" or
@@ -22141,6 +22624,7 @@ const proc: check_string_replace is func
         replace(         "abcd",  striExpr(             "b"),   striExpr(             "b"))   <> "abcd" or
         replace(         "abcd",  striExpr(             "b"),   striExpr(             "d"))   <> "adcd" or
         replace(         "abcd",  striExpr(             "p"),   striExpr(             "b"))   <> "abcd" or
+        replace(         "abcd",  striExpr(             "b"),   striExpr(             "pp"))  <> "appcd" or
         replace(         "abcd",  striExpr(             "bc"),  striExpr(             "bc"))  <> "abcd" or
         replace(         "abcd",  striExpr(             "bc"),  striExpr(             "de"))  <> "aded" or
         replace(         "abcd",  striExpr(             "cb"),  striExpr(             "ad"))  <> "abcd" or
@@ -22162,6 +22646,7 @@ const proc: check_string_replace is func
         replace(striExpr("abcd"), striExpr(             "b"),   striExpr(             "b"))   <> "abcd" or
         replace(striExpr("abcd"), striExpr(             "b"),   striExpr(             "d"))   <> "adcd" or
         replace(striExpr("abcd"), striExpr(             "p"),   striExpr(             "b"))   <> "abcd" or
+        replace(striExpr("abcd"), striExpr(             "b"),   striExpr(             "pp"))  <> "appcd" or
         replace(striExpr("abcd"), striExpr(             "bc"),  striExpr(             "bc"))  <> "abcd" or
         replace(striExpr("abcd"), striExpr(             "bc"),  striExpr(             "de"))  <> "aded" or
         replace(striExpr("abcd"), striExpr(             "cb"),  striExpr(             "ad"))  <> "abcd" or
@@ -22245,6 +22730,7 @@ const proc: check_string_funcs is func
       writeln(" ***** lower(STRING) does not work correct.");
       okay := FALSE;
     end if;
+
     if  upper("") <> "" or
         upper("a") <> "A" or
         upper("A") <> "A" or
@@ -22298,16 +22784,10 @@ const proc: check_string_funcs is func
       writeln(" ***** upper(STRING) does not work correct.");
       okay := FALSE;
     end if;
-    if  trim(""          ) <> "" then
-      writeln(" ***** trim(\"\") does not work correct.");
-      okay := FALSE;
-    end if;
-    if
-        trim(" "         ) <> "" then
-      writeln(" ***** trim(\" \") does not work correct.");
-      okay := FALSE;
-    end if;
-    if  trim("  "        ) <> "" or
+
+    if  trim(""          ) <> "" or
+        trim(" "         ) <> "" or
+        trim("  "        ) <> "" or
         trim("   "       ) <> "" or
         trim("      "    ) <> "" or
         trim("\t"        ) <> "" or
@@ -22339,10 +22819,46 @@ const proc: check_string_funcs is func
         trim("\n \n "    ) <> "" or
         trim(" \n \n"    ) <> "" or
         trim(" \n \n "   ) <> "" or
-        trim("  \n \n  " ) <> "" then
-      writeln(" ***** trim(STRING) does not work correct.");
+        trim("  \n \n  " ) <> "" or
+        trim(striExpr(""          )) <> "" or
+        trim(striExpr(" "         )) <> "" or
+        trim(striExpr("  "        )) <> "" or
+        trim(striExpr("   "       )) <> "" or
+        trim(striExpr("      "    )) <> "" or
+        trim(striExpr("\t"        )) <> "" or
+        trim(striExpr("\t "       )) <> "" or
+        trim(striExpr(" \t"       )) <> "" or
+        trim(striExpr(" \t "      )) <> "" or
+        trim(striExpr("  \t  "    )) <> "" or
+        trim(striExpr("\t\t"      )) <> "" or
+        trim(striExpr("\t\t "     )) <> "" or
+        trim(striExpr(" \t\t"     )) <> "" or
+        trim(striExpr(" \t\t "    )) <> "" or
+        trim(striExpr("  \t\t  "  )) <> "" or
+        trim(striExpr("\t \t"     )) <> "" or
+        trim(striExpr("\t \t "    )) <> "" or
+        trim(striExpr(" \t \t"    )) <> "" or
+        trim(striExpr(" \t \t "   )) <> "" or
+        trim(striExpr("  \t \t  " )) <> "" or
+        trim(striExpr("\n"        )) <> "" or
+        trim(striExpr("\n "       )) <> "" or
+        trim(striExpr(" \n"       )) <> "" or
+        trim(striExpr(" \n "      )) <> "" or
+        trim(striExpr("  \n  "    )) <> "" or
+        trim(striExpr("\n\n"      )) <> "" or
+        trim(striExpr("\n\n "     )) <> "" or
+        trim(striExpr(" \n\n"     )) <> "" or
+        trim(striExpr(" \n\n "    )) <> "" or
+        trim(striExpr("  \n\n  "  )) <> "" or
+        trim(striExpr("\n \n"     )) <> "" or
+        trim(striExpr("\n \n "    )) <> "" or
+        trim(striExpr(" \n \n"    )) <> "" or
+        trim(striExpr(" \n \n "   )) <> "" or
+        trim(striExpr("  \n \n  " )) <> "" then
+      writeln(" ***** trim(STRING) does not work correct. (1)");
       okay := FALSE;
     end if;
+
     if  trim("A"         ) <> "A" or
         trim("A "        ) <> "A" or
         trim(" A"        ) <> "A" or
@@ -22406,20 +22922,78 @@ const proc: check_string_funcs is func
         trim("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x\
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "x" or
         trim("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
-              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" then
-      writeln(" ***** trim(STRING) does not work correct.");
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" or
+        trim(striExpr("A"         )) <> "A" or
+        trim(striExpr("A "        )) <> "A" or
+        trim(striExpr(" A"        )) <> "A" or
+        trim(striExpr(" A "       )) <> "A" or
+        trim(striExpr(" A  "      )) <> "A" or
+        trim(striExpr("  A "      )) <> "A" or
+        trim(striExpr("  A  "     )) <> "A" or
+        trim(striExpr("  A   "    )) <> "A" or
+        trim(striExpr("   A  "    )) <> "A" or
+        trim(striExpr("   A   "   )) <> "A" or
+        trim(striExpr("AB"        )) <> "AB" or
+        trim(striExpr("AB "       )) <> "AB" or
+        trim(striExpr(" AB"       )) <> "AB" or
+        trim(striExpr(" AB "      )) <> "AB" or
+        trim(striExpr(" AB  "     )) <> "AB" or
+        trim(striExpr("  AB "     )) <> "AB" or
+        trim(striExpr("  AB  "    )) <> "AB" or
+        trim(striExpr("  AB   "   )) <> "AB" or
+        trim(striExpr("   AB  "   )) <> "AB" or
+        trim(striExpr("   AB   "  )) <> "AB" or
+        trim(striExpr("A B"       )) <> "A B" or
+        trim(striExpr("A B "      )) <> "A B" or
+        trim(striExpr(" A B"      )) <> "A B" or
+        trim(striExpr(" A B "     )) <> "A B" or
+        trim(striExpr(" A B  "    )) <> "A B" or
+        trim(striExpr("  A B "    )) <> "A B" or
+        trim(striExpr("  A B  "   )) <> "A B" or
+        trim(striExpr("  A B   "  )) <> "A B" or
+        trim(striExpr("   A B  "  )) <> "A B" or
+        trim(striExpr("   A B   " )) <> "A B" or
+        trim(striExpr("A9 B"      )) <> "A9 B" or
+        trim(striExpr("A9 B "     )) <> "A9 B" or
+        trim(striExpr(" A9 B"     )) <> "A9 B" or
+        trim(striExpr(" A9 B "    )) <> "A9 B" or
+        trim(striExpr(" A9 B  "   )) <> "A9 B" or
+        trim(striExpr("  A9 B "   )) <> "A9 B" or
+        trim(striExpr("  A9 B  "  )) <> "A9 B" or
+        trim(striExpr("  A9 B   " )) <> "A9 B" or
+        trim(striExpr("   A9 B  " )) <> "A9 B" or
+        trim(striExpr("   A9 B   ")) <> "A9 B" or
+        trim(striExpr("A B9"      )) <> "A B9" or
+        trim(striExpr("A B9 "     )) <> "A B9" or
+        trim(striExpr(" A B9"     )) <> "A B9" or
+        trim(striExpr(" A B9 "    )) <> "A B9" or
+        trim(striExpr(" A B9  "   )) <> "A B9" or
+        trim(striExpr("  A B9 "   )) <> "A B9" or
+        trim(striExpr("  A B9  "  )) <> "A B9" or
+        trim(striExpr("  A B9   " )) <> "A B9" or
+        trim(striExpr("   A B9  " )) <> "A B9" or
+        trim(striExpr("   A B9   ")) <> "A B9" or
+        trim(striExpr("! !"       )) <> "! !" or
+        trim(striExpr("! ! "      )) <> "! !" or
+        trim(striExpr(" ! !"      )) <> "! !" or
+        trim(striExpr(" ! ! "     )) <> "! !" or
+        trim(striExpr(" ! !  "    )) <> "! !" or
+        trim(striExpr("  ! ! "    )) <> "! !" or
+        trim(striExpr("  ! !  "   )) <> "! !" or
+        trim(striExpr("  ! !   "  )) <> "! !" or
+        trim(striExpr("   ! !  "  )) <> "! !" or
+        trim(striExpr("   ! !   " )) <> "! !" or
+        trim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x\
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "x" or
+        trim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "" then
+      writeln(" ***** trim(STRING) does not work correct. (2)");
       okay := FALSE;
     end if;
-    if  ltrim(""          ) <> "" then
-      writeln(" ***** ltrim(\"\") does not work correct.");
-      okay := FALSE;
-    end if;
-    if
-        ltrim(" "         ) <> "" then
-      writeln(" ***** ltrim(\" \") does not work correct.");
-      okay := FALSE;
-    end if;
-    if  ltrim("  "        ) <> "" or
+
+    if  ltrim(""          ) <> "" or
+        ltrim(" "         ) <> "" or
+        ltrim("  "        ) <> "" or
         ltrim("   "       ) <> "" or
         ltrim("      "    ) <> "" or
         ltrim("\t"        ) <> "" or
@@ -22451,10 +23025,46 @@ const proc: check_string_funcs is func
         ltrim("\n \n "    ) <> "" or
         ltrim(" \n \n"    ) <> "" or
         ltrim(" \n \n "   ) <> "" or
-        ltrim("  \n \n  " ) <> "" then
-      writeln(" ***** ltrim(STRING) does not work correct.");
+        ltrim("  \n \n  " ) <> "" or
+        ltrim(striExpr(""          )) <> "" or
+        ltrim(striExpr(" "         )) <> "" or
+        ltrim(striExpr("  "        )) <> "" or
+        ltrim(striExpr("   "       )) <> "" or
+        ltrim(striExpr("      "    )) <> "" or
+        ltrim(striExpr("\t"        )) <> "" or
+        ltrim(striExpr("\t "       )) <> "" or
+        ltrim(striExpr(" \t"       )) <> "" or
+        ltrim(striExpr(" \t "      )) <> "" or
+        ltrim(striExpr("  \t  "    )) <> "" or
+        ltrim(striExpr("\t\t"      )) <> "" or
+        ltrim(striExpr("\t\t "     )) <> "" or
+        ltrim(striExpr(" \t\t"     )) <> "" or
+        ltrim(striExpr(" \t\t "    )) <> "" or
+        ltrim(striExpr("  \t\t  "  )) <> "" or
+        ltrim(striExpr("\t \t"     )) <> "" or
+        ltrim(striExpr("\t \t "    )) <> "" or
+        ltrim(striExpr(" \t \t"    )) <> "" or
+        ltrim(striExpr(" \t \t "   )) <> "" or
+        ltrim(striExpr("  \t \t  " )) <> "" or
+        ltrim(striExpr("\n"        )) <> "" or
+        ltrim(striExpr("\n "       )) <> "" or
+        ltrim(striExpr(" \n"       )) <> "" or
+        ltrim(striExpr(" \n "      )) <> "" or
+        ltrim(striExpr("  \n  "    )) <> "" or
+        ltrim(striExpr("\n\n"      )) <> "" or
+        ltrim(striExpr("\n\n "     )) <> "" or
+        ltrim(striExpr(" \n\n"     )) <> "" or
+        ltrim(striExpr(" \n\n "    )) <> "" or
+        ltrim(striExpr("  \n\n  "  )) <> "" or
+        ltrim(striExpr("\n \n"     )) <> "" or
+        ltrim(striExpr("\n \n "    )) <> "" or
+        ltrim(striExpr(" \n \n"    )) <> "" or
+        ltrim(striExpr(" \n \n "   )) <> "" or
+        ltrim(striExpr("  \n \n  " )) <> "" then
+      writeln(" ***** ltrim(STRING) does not work correct. (1)");
       okay := FALSE;
     end if;
+
     if  ltrim("A"         ) <> "A" or
         ltrim("A "        ) <> "A " or
         ltrim(" A"        ) <> "A" or
@@ -22519,20 +23129,79 @@ const proc: check_string_funcs is func
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <>
               "x\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;" or
         ltrim("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
-              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" then
-      writeln(" ***** ltrim(STRING) does not work correct.");
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" or
+        ltrim(striExpr("A"         )) <> "A" or
+        ltrim(striExpr("A "        )) <> "A " or
+        ltrim(striExpr(" A"        )) <> "A" or
+        ltrim(striExpr(" A "       )) <> "A " or
+        ltrim(striExpr(" A  "      )) <> "A  " or
+        ltrim(striExpr("  A "      )) <> "A " or
+        ltrim(striExpr("  A  "     )) <> "A  " or
+        ltrim(striExpr("  A   "    )) <> "A   " or
+        ltrim(striExpr("   A  "    )) <> "A  " or
+        ltrim(striExpr("   A   "   )) <> "A   " or
+        ltrim(striExpr("AB"        )) <> "AB" or
+        ltrim(striExpr("AB "       )) <> "AB " or
+        ltrim(striExpr(" AB"       )) <> "AB" or
+        ltrim(striExpr(" AB "      )) <> "AB " or
+        ltrim(striExpr(" AB  "     )) <> "AB  " or
+        ltrim(striExpr("  AB "     )) <> "AB " or
+        ltrim(striExpr("  AB  "    )) <> "AB  " or
+        ltrim(striExpr("  AB   "   )) <> "AB   " or
+        ltrim(striExpr("   AB  "   )) <> "AB  " or
+        ltrim(striExpr("   AB   "  )) <> "AB   " or
+        ltrim(striExpr("A B"       )) <> "A B" or
+        ltrim(striExpr("A B "      )) <> "A B " or
+        ltrim(striExpr(" A B"      )) <> "A B" or
+        ltrim(striExpr(" A B "     )) <> "A B " or
+        ltrim(striExpr(" A B  "    )) <> "A B  " or
+        ltrim(striExpr("  A B "    )) <> "A B " or
+        ltrim(striExpr("  A B  "   )) <> "A B  " or
+        ltrim(striExpr("  A B   "  )) <> "A B   " or
+        ltrim(striExpr("   A B  "  )) <> "A B  " or
+        ltrim(striExpr("   A B   " )) <> "A B   " or
+        ltrim(striExpr("A9 B"      )) <> "A9 B" or
+        ltrim(striExpr("A9 B "     )) <> "A9 B " or
+        ltrim(striExpr(" A9 B"     )) <> "A9 B" or
+        ltrim(striExpr(" A9 B "    )) <> "A9 B " or
+        ltrim(striExpr(" A9 B  "   )) <> "A9 B  " or
+        ltrim(striExpr("  A9 B "   )) <> "A9 B " or
+        ltrim(striExpr("  A9 B  "  )) <> "A9 B  " or
+        ltrim(striExpr("  A9 B   " )) <> "A9 B   " or
+        ltrim(striExpr("   A9 B  " )) <> "A9 B  " or
+        ltrim(striExpr("   A9 B   ")) <> "A9 B   " or
+        ltrim(striExpr("A B9"      )) <> "A B9" or
+        ltrim(striExpr("A B9 "     )) <> "A B9 " or
+        ltrim(striExpr(" A B9"     )) <> "A B9" or
+        ltrim(striExpr(" A B9 "    )) <> "A B9 " or
+        ltrim(striExpr(" A B9  "   )) <> "A B9  " or
+        ltrim(striExpr("  A B9 "   )) <> "A B9 " or
+        ltrim(striExpr("  A B9  "  )) <> "A B9  " or
+        ltrim(striExpr("  A B9   " )) <> "A B9   " or
+        ltrim(striExpr("   A B9  " )) <> "A B9  " or
+        ltrim(striExpr("   A B9   ")) <> "A B9   " or
+        ltrim(striExpr("! !"       )) <> "! !" or
+        ltrim(striExpr("! ! "      )) <> "! ! " or
+        ltrim(striExpr(" ! !"      )) <> "! !" or
+        ltrim(striExpr(" ! ! "     )) <> "! ! " or
+        ltrim(striExpr(" ! !  "    )) <> "! !  " or
+        ltrim(striExpr("  ! ! "    )) <> "! ! " or
+        ltrim(striExpr("  ! !  "   )) <> "! !  " or
+        ltrim(striExpr("  ! !   "  )) <> "! !   " or
+        ltrim(striExpr("   ! !  "  )) <> "! !  " or
+        ltrim(striExpr("   ! !   " )) <> "! !   " or
+        ltrim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x\
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <>
+              "x\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;" or
+        ltrim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "" then
+      writeln(" ***** ltrim(STRING) does not work correct. (2)");
       okay := FALSE;
     end if;
-    if  rtrim(""          ) <> "" then
-      writeln(" ***** rtrim(\"\") does not work correct.");
-      okay := FALSE;
-    end if;
-    if
-        rtrim(" "         ) <> "" then
-      writeln(" ***** rtrim(\" \") does not work correct.");
-      okay := FALSE;
-    end if;
-    if  rtrim("  "        ) <> "" or
+
+    if  rtrim(""          ) <> "" or
+        rtrim(" "         ) <> "" or
+        rtrim("  "        ) <> "" or
         rtrim("   "       ) <> "" or
         rtrim("      "    ) <> "" or
         rtrim("\t"        ) <> "" or
@@ -22564,10 +23233,46 @@ const proc: check_string_funcs is func
         rtrim("\n \n "    ) <> "" or
         rtrim(" \n \n"    ) <> "" or
         rtrim(" \n \n "   ) <> "" or
-        rtrim("  \n \n  " ) <> "" then
-      writeln(" ***** rtrim(STRING) does not work correct.");
+        rtrim("  \n \n  " ) <> "" or
+        rtrim(striExpr(""          )) <> "" or
+        rtrim(striExpr(" "         )) <> "" or
+        rtrim(striExpr("  "        )) <> "" or
+        rtrim(striExpr("   "       )) <> "" or
+        rtrim(striExpr("      "    )) <> "" or
+        rtrim(striExpr("\t"        )) <> "" or
+        rtrim(striExpr("\t "       )) <> "" or
+        rtrim(striExpr(" \t"       )) <> "" or
+        rtrim(striExpr(" \t "      )) <> "" or
+        rtrim(striExpr("  \t  "    )) <> "" or
+        rtrim(striExpr("\t\t"      )) <> "" or
+        rtrim(striExpr("\t\t "     )) <> "" or
+        rtrim(striExpr(" \t\t"     )) <> "" or
+        rtrim(striExpr(" \t\t "    )) <> "" or
+        rtrim(striExpr("  \t\t  "  )) <> "" or
+        rtrim(striExpr("\t \t"     )) <> "" or
+        rtrim(striExpr("\t \t "    )) <> "" or
+        rtrim(striExpr(" \t \t"    )) <> "" or
+        rtrim(striExpr(" \t \t "   )) <> "" or
+        rtrim(striExpr("  \t \t  " )) <> "" or
+        rtrim(striExpr("\n"        )) <> "" or
+        rtrim(striExpr("\n "       )) <> "" or
+        rtrim(striExpr(" \n"       )) <> "" or
+        rtrim(striExpr(" \n "      )) <> "" or
+        rtrim(striExpr("  \n  "    )) <> "" or
+        rtrim(striExpr("\n\n"      )) <> "" or
+        rtrim(striExpr("\n\n "     )) <> "" or
+        rtrim(striExpr(" \n\n"     )) <> "" or
+        rtrim(striExpr(" \n\n "    )) <> "" or
+        rtrim(striExpr("  \n\n  "  )) <> "" or
+        rtrim(striExpr("\n \n"     )) <> "" or
+        rtrim(striExpr("\n \n "    )) <> "" or
+        rtrim(striExpr(" \n \n"    )) <> "" or
+        rtrim(striExpr(" \n \n "   )) <> "" or
+        rtrim(striExpr("  \n \n  " )) <> "" then
+      writeln(" ***** rtrim(STRING) does not work correct. (1)");
       okay := FALSE;
     end if;
+
     if  rtrim("A"         ) <> "A" or
         rtrim("A "        ) <> "A" or
         rtrim(" A"        ) <> " A" or
@@ -22632,10 +23337,76 @@ const proc: check_string_funcs is func
               \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <>
               "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x" or
         rtrim("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
-              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" then
-      writeln(" ***** rtrim(STRING) does not work correct.");
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;") <> "" or
+        rtrim(striExpr("A"         )) <> "A" or
+        rtrim(striExpr("A "        )) <> "A" or
+        rtrim(striExpr(" A"        )) <> " A" or
+        rtrim(striExpr(" A "       )) <> " A" or
+        rtrim(striExpr(" A  "      )) <> " A" or
+        rtrim(striExpr("  A "      )) <> "  A" or
+        rtrim(striExpr("  A  "     )) <> "  A" or
+        rtrim(striExpr("  A   "    )) <> "  A" or
+        rtrim(striExpr("   A  "    )) <> "   A" or
+        rtrim(striExpr("   A   "   )) <> "   A" or
+        rtrim(striExpr("AB"        )) <> "AB" or
+        rtrim(striExpr("AB "       )) <> "AB" or
+        rtrim(striExpr(" AB"       )) <> " AB" or
+        rtrim(striExpr(" AB "      )) <> " AB" or
+        rtrim(striExpr(" AB  "     )) <> " AB" or
+        rtrim(striExpr("  AB "     )) <> "  AB" or
+        rtrim(striExpr("  AB  "    )) <> "  AB" or
+        rtrim(striExpr("  AB   "   )) <> "  AB" or
+        rtrim(striExpr("   AB  "   )) <> "   AB" or
+        rtrim(striExpr("   AB   "  )) <> "   AB" or
+        rtrim(striExpr("A B"       )) <> "A B" or
+        rtrim(striExpr("A B "      )) <> "A B" or
+        rtrim(striExpr(" A B"      )) <> " A B" or
+        rtrim(striExpr(" A B "     )) <> " A B" or
+        rtrim(striExpr(" A B  "    )) <> " A B" or
+        rtrim(striExpr("  A B "    )) <> "  A B" or
+        rtrim(striExpr("  A B  "   )) <> "  A B" or
+        rtrim(striExpr("  A B   "  )) <> "  A B" or
+        rtrim(striExpr("   A B  "  )) <> "   A B" or
+        rtrim(striExpr("   A B   " )) <> "   A B" or
+        rtrim(striExpr("A9 B"      )) <> "A9 B" or
+        rtrim(striExpr("A9 B "     )) <> "A9 B" or
+        rtrim(striExpr(" A9 B"     )) <> " A9 B" or
+        rtrim(striExpr(" A9 B "    )) <> " A9 B" or
+        rtrim(striExpr(" A9 B  "   )) <> " A9 B" or
+        rtrim(striExpr("  A9 B "   )) <> "  A9 B" or
+        rtrim(striExpr("  A9 B  "  )) <> "  A9 B" or
+        rtrim(striExpr("  A9 B   " )) <> "  A9 B" or
+        rtrim(striExpr("   A9 B  " )) <> "   A9 B" or
+        rtrim(striExpr("   A9 B   ")) <> "   A9 B" or
+        rtrim(striExpr("A B9"      )) <> "A B9" or
+        rtrim(striExpr("A B9 "     )) <> "A B9" or
+        rtrim(striExpr(" A B9"     )) <> " A B9" or
+        rtrim(striExpr(" A B9 "    )) <> " A B9" or
+        rtrim(striExpr(" A B9  "   )) <> " A B9" or
+        rtrim(striExpr("  A B9 "   )) <> "  A B9" or
+        rtrim(striExpr("  A B9  "  )) <> "  A B9" or
+        rtrim(striExpr("  A B9   " )) <> "  A B9" or
+        rtrim(striExpr("   A B9  " )) <> "   A B9" or
+        rtrim(striExpr("   A B9   ")) <> "   A B9" or
+        rtrim(striExpr("! !"       )) <> "! !" or
+        rtrim(striExpr("! ! "      )) <> "! !" or
+        rtrim(striExpr(" ! !"      )) <> " ! !" or
+        rtrim(striExpr(" ! ! "     )) <> " ! !" or
+        rtrim(striExpr(" ! !  "    )) <> " ! !" or
+        rtrim(striExpr("  ! ! "    )) <> "  ! !" or
+        rtrim(striExpr("  ! !  "   )) <> "  ! !" or
+        rtrim(striExpr("  ! !   "  )) <> "  ! !" or
+        rtrim(striExpr("   ! !  "  )) <> "   ! !" or
+        rtrim(striExpr("   ! !   " )) <> "   ! !" or
+        rtrim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x\
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <>
+              "\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;x" or
+        rtrim(striExpr("\1;\2;\3;\4;\5;\6;\7;\8;\9;\10;\11;\12;\13;\14;\15;\16;\
+              \\17;\18;\19;\20;\21;\22;\23;\24;\25;\26;\27;\28;\29;\30;\31;\32;")) <> "" then
+      writeln(" ***** rtrim(STRING) does not work correct. (2)");
       okay := FALSE;
     end if;
+
     if okay then
       writeln("String functions work correct.");
     end if;
@@ -22904,6 +23675,7 @@ const proc: check_string_split is func
       writeln(" ***** split(string, char) does not work correct.");
       okay := FALSE;
     end if;
+
     if  split("", "") <> [] ("") or
         split("", "+") <> [] ("") or
         split("A", "") <> [] ("A") or
@@ -23170,6 +23942,90 @@ const proc: check_string_split is func
       writeln(" ***** split(string, string) does not work correct.");
       okay := FALSE;
     end if;
+
+    if  split("", "+-") <> [] ("") or
+        split("+", "+-") <> [] ("+") or
+        split("+-", "+-") <> [] ("", "") or
+        split("A", "+-") <> [] ("A") or
+        split("++", "+-") <> [] ("++") or
+        split("+-+", "+-") <> [] ("", "+") or
+        split("++-", "+-") <> [] ("+", "") or
+        split("+-+-", "+-") <> [] ("", "", "") or
+        split("+A", "+-") <> [] ("+A") or
+        split("+-A", "+-") <> [] ("", "A") or
+        split("A+", "+-") <> [] ("A+") or
+        split("A+-", "+-") <> [] ("A", "") or
+        split("AB", "+-") <> [] ("AB") or
+        split("+++", "+-") <> [] ("+++") or
+        split("+-++", "+-") <> [] ("", "++") or
+        split("++-+", "+-") <> [] ("+", "+") or
+        split("+++-", "+-") <> [] ("++", "") or
+        split("+-+-+", "+-") <> [] ("", "", "+") or
+        split("+-++-", "+-") <> [] ("", "+", "") or
+        split("++-+-", "+-") <> [] ("+", "", "") or
+        split("+-+-+-", "+-") <> [] ("", "", "", "") or
+        split("A++", "+-") <> [] ("A++") or
+        split("A+-", "+-") <> [] ("A", "") or
+        split("A++-", "+-") <> [] ("A+", "") or
+        split("A+-+", "+-") <> [] ("A", "+") or
+        split("A+-+-", "+-") <> [] ("A", "", "") or
+        split("+A+", "+-") <> [] ("+A+") or
+        split("+-A+", "+-") <> [] ("", "A+") or
+        split("+A+-", "+-") <> [] ("+A", "") or
+        split("++A", "+-") <> [] ("++A") or
+        split("+-A", "+-") <> [] ("", "A") or
+        split("+-+A", "+-") <> [] ("", "+A") or
+        split("++-A", "+-") <> [] ("+", "A") or
+        split("+-+-A", "+-") <> [] ("", "", "A") or
+        split("AB+", "+-") <> [] ("AB+") or
+        split("AB+-", "+-") <> [] ("AB", "") or
+        split("A+B", "+-") <> [] ("A+B") or
+        split("A+-B", "+-") <> [] ("A", "B") or
+        split("+AB", "+-") <> [] ("+AB") or
+        split("+-AB", "+-") <> [] ("", "AB") or
+        split("ABC", "+-") <> [] ("ABC") then
+      writeln(" ***** split(string, string) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if join(split("\0;\A\0;\B\0;\C\0;\D\0;\E\0;\F\0;\G\0;\H\0;\I\0;\J\0;\K\0;\L\0;\M\0;\N\0;\O\
+                  \\0;\P\0;\Q\0;\R\0;\S\0;\T\0;\U\0;\V\0;\W\0;\X\0;\Y\0;\Z\0;\e\0;\28;\0;\29;\0;\30;\0;\31;\
+                  \\0; \0;!\0;\"\0;#\0;$\0;%\0;&\0;'\0;(\0;)\0;*\0;+\0;,\0;-\0;.\0;/\
+                  \\0;0\0;1\0;2\0;3\0;4\0;5\0;6\0;7\0;8\0;9\0;:\0;;\0;<\0;=\0;>\0;?\
+                  \\0;@\0;A\0;B\0;C\0;D\0;E\0;F\0;G\0;H\0;I\0;J\0;K\0;L\0;M\0;N\0;O\
+                  \\0;P\0;Q\0;R\0;S\0;T\0;U\0;V\0;W\0;X\0;Y\0;Z\0;[\0;\\\0;]\0;^\0;_\
+                  \\0;`\0;a\0;b\0;c\0;d\0;e\0;f\0;g\0;h\0;i\0;j\0;k\0;l\0;m\0;n\0;o\
+                  \\0;p\0;q\0;r\0;s\0;t\0;u\0;v\0;w\0;x\0;y\0;z\0;{\0;|\0;}\0;~\0;\127;\
+                  \\0;\128;\0;\129;\0;\130;\0;\131;\0;\132;\0;\133;\0;\134;\0;\135;\
+                  \\0;\136;\0;\137;\0;\138;\0;\139;\0;\140;\0;\141;\0;\142;\0;\143;\
+                  \\0;\144;\0;\145;\0;\146;\0;\147;\0;\148;\0;\149;\0;\150;\0;\151;\
+                  \\0;\152;\0;\153;\0;\154;\0;\155;\0;\156;\0;\157;\0;\158;\0;\159;\
+                  \\0;\160;\0;¡\0;¢\0;£\0;¤\0;¥\0;¦\0;§\0;¨\0;©\0;ª\0;«\0;¬\0;­\0;®\0;¯\
+                  \\0;°\0;±\0;²\0;³\0;´\0;µ\0;¶\0;·\0;¸\0;¹\0;º\0;»\0;¼\0;½\0;¾\0;¿\
+                  \\0;À\0;Á\0;Â\0;Ã\0;Ä\0;Å\0;Æ\0;Ç\0;È\0;É\0;Ê\0;Ë\0;Ì\0;Í\0;Î\0;Ï\
+                  \\0;Ð\0;Ñ\0;Ò\0;Ó\0;Ô\0;Õ\0;Ö\0;×\0;Ø\0;Ù\0;Ú\0;Û\0;Ü\0;Ý\0;Þ\0;ß\
+                  \\0;à\0;á\0;â\0;ã\0;ä\0;å\0;æ\0;ç\0;è\0;é\0;ê\0;ë\0;ì\0;í\0;î\0;ï\
+                  \\0;ð\0;ñ\0;ò\0;ó\0;ô\0;õ\0;ö\0;÷\0;ø\0;ù\0;ú\0;û\0;ü\0;ý\0;þ\0;ÿ\0;", '\0;'), "") <>
+        "\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+        \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+        \ !\"#$%&'()*+,-./\
+        \0123456789:;<=>?\
+        \@ABCDEFGHIJKLMNO\
+        \PQRSTUVWXYZ[\\]^_\
+        \`abcdefghijklmno\
+        \pqrstuvwxyz{|}~\127;\
+        \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+        \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+        \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+        \°±²³´µ¶·¸¹º»¼½¾¿\
+        \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+        \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+        \àáâãäåæçèéêëìíîï\
+        \ðñòóôõö÷øùúûüýþÿ" then
+      writeln(" ***** split(string, string) with longer result does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("split(string) works correct.");
     end if;
@@ -23684,6 +24540,15 @@ const func boolean: check_string_append_to_empty is func
   end func;
 
 
+const func string: returnStringWithCapacity (in string: stri, in integer: capacity) is func
+  result
+    var string: stringWithCapacity is "";
+  begin
+    stringWithCapacity := "x" mult capacity;
+    stringWithCapacity := stri;
+  end func;
+
+
 const proc: check_string_append is func
   local
     var boolean: okay is TRUE;
@@ -24061,6 +24926,9 @@ const proc: check_string_append is func
     stri := "12345"; stri &:= str(chr(48))  & "456";        ok := ok and stri = "123450456";
     stri := "12345"; stri &:= str(chr(48))  & str(chr(48)); ok := ok and stri = "1234500";
 
+    stri := "1";  stri &:= returnStringWithCapacity("234", 4); ok := ok and stri = "1234";
+    stri := "12"; stri &:= returnStringWithCapacity("345", 4); ok := ok and stri = "12345";
+
     ok := ok and check_string_append_self_ref1;
     ok := ok and check_string_append_self_ref2_short;
     ok := ok and check_string_append_self_ref2_long;
@@ -24276,10 +25144,10 @@ const proc: check_string_assign_at is func
     stri := "a";    index := 1; stri @:= [index] "";     ok := ok and stri = "a";
     stri := "a";    index := 2; stri @:= [index] "";     ok := ok and stri = "a";
     stri := "a";    index := 1; stri @:= [index] "X";    ok := ok and stri = "X";
-    stri := "ab";   index := 1; stri @:= [index] "X";    ok := ok and stri = "Xb";
     stri := "ab";   index := 1; stri @:= [index] "";     ok := ok and stri = "ab";
     stri := "ab";   index := 2; stri @:= [index] "";     ok := ok and stri = "ab";
     stri := "ab";   index := 3; stri @:= [index] "";     ok := ok and stri = "ab";
+    stri := "ab";   index := 1; stri @:= [index] "X";    ok := ok and stri = "Xb";
     stri := "ab";   index := 2; stri @:= [index] "X";    ok := ok and stri = "aX";
     stri := "ab";   index := 1; stri @:= [index] "XY";   ok := ok and stri = "XY";
     stri := "abc";  index := 1; stri @:= [index] "";     ok := ok and stri = "abc";
@@ -24312,10 +25180,10 @@ const proc: check_string_assign_at is func
     stri := "a";    index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "a";
     stri := "a";    index := 2; stri @:= [index] striExpr("");     ok := ok and stri = "a";
     stri := "a";    index := 1; stri @:= [index] striExpr("X");    ok := ok and stri = "X";
-    stri := "ab";   index := 1; stri @:= [index] striExpr("X");    ok := ok and stri = "Xb";
     stri := "ab";   index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "ab";
     stri := "ab";   index := 2; stri @:= [index] striExpr("");     ok := ok and stri = "ab";
     stri := "ab";   index := 3; stri @:= [index] striExpr("");     ok := ok and stri = "ab";
+    stri := "ab";   index := 1; stri @:= [index] striExpr("X");    ok := ok and stri = "Xb";
     stri := "ab";   index := 2; stri @:= [index] striExpr("X");    ok := ok and stri = "aX";
     stri := "ab";   index := 1; stri @:= [index] striExpr("XY");   ok := ok and stri = "XY";
     stri := "abc";  index := 1; stri @:= [index] striExpr("");     ok := ok and stri = "abc";

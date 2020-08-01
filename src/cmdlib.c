@@ -779,6 +779,18 @@ objectType cmd_set_filemode (listType arguments)
 
 
 
+objectType cmd_set_group (listType arguments)
+
+  { /* cmd_set_group */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdSetGroup(take_stri(arg_1(arguments)),
+                take_stri(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_set_group */
+
+
+
 /**
  *  Set the modification time of a file.
  *  @exception MEMORY_ERROR Not enough memory to convert 'filePath'
@@ -813,6 +825,18 @@ objectType cmd_set_mtime (listType arguments)
                 take_int(arg_9(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* cmd_set_mtime */
+
+
+
+objectType cmd_set_owner (listType arguments)
+
+  { /* cmd_set_owner */
+    isit_stri(arg_1(arguments));
+    isit_stri(arg_2(arguments));
+    cmdSetOwner(take_stri(arg_1(arguments)),
+                take_stri(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* cmd_set_owner */
 
 
 

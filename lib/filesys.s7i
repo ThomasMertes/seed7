@@ -230,6 +230,9 @@ const proc: setMTime (inout fileSys: fileSystem, in string: filePath,
 const func string: getOwner (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
 
+(**
+ *  Set the owner of a file.
+ *)
 const proc: setOwner (inout fileSys: fileSystem, in string: filePath,
     in string: owner) is DYNAMIC;
 
@@ -241,6 +244,9 @@ const proc: setOwner (inout fileSys: fileSystem, in string: filePath,
 const func string: getGroup (inout fileSys: fileSystem, in string: filePath) is DYNAMIC;
 
 
+(**
+ *  Set the group of a file.
+ *)
 const proc: setGroup (inout fileSys: fileSystem, in string: filePath,
     in string: group) is DYNAMIC;
 

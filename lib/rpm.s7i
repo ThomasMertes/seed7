@@ -84,65 +84,64 @@ const integer: RPM_BIN_TYPE          is 7;  # Size 1
 const integer: RPM_STRING_ARRAY_TYPE is 8;  # Variable, vector of NULL-terminated strings
 const integer: RPM_I18NSTRING_TYPE   is 9;  # Variable, vector of NULL-terminated strings
 
-const integer: RPMTAG_HEADERSIGNATURES   is   62;  # BIN          Optional
 const integer: RPMTAG_HEADERIMMUTABLE    is   63;  # BIN          Optional
-const integer: RPMTAG_HEADERI18NTABLE    is  100;  # STRING_ARRAY Required
-const integer: RPMTAG_NAME               is 1000;  # STRING       Required
-const integer: RPMTAG_VERSION            is 1001;  # STRING       Required
-const integer: RPMTAG_RELEASE            is 1002;  # STRING       Required
-const integer: RPMTAG_EPOCH              is 1003;
-const integer: RPMTAG_SUMMARY            is 1004;  # I18NSTRING   Required
-const integer: RPMTAG_DESCRIPTION        is 1005;  # I18NSTRING   Required
-const integer: RPMTAG_BUILDTIME          is 1006;  # INT32        Optional
-const integer: RPMTAG_BUILDHOST          is 1007;  # STRING       Optional
+const integer: RPMTAG_HEADERI18NTABLE    is  100;  # STRING_ARRAY Required  Constains a list of locales for which strings are provided
+const integer: RPMTAG_NAME               is 1000;  # STRING       Required  Name of package
+const integer: RPMTAG_VERSION            is 1001;  # STRING       Required  Version of package
+const integer: RPMTAG_RELEASE            is 1002;  # STRING       Required  Release of package
+const integer: RPMTAG_EPOCH              is 1003;  #                        Epoch of package
+const integer: RPMTAG_SUMMARY            is 1004;  # I18NSTRING   Required  Summary description of the package
+const integer: RPMTAG_DESCRIPTION        is 1005;  # I18NSTRING   Required  Full description of the package
+const integer: RPMTAG_BUILDTIME          is 1006;  # INT32        Optional  Seconds since epoch when pkg built
+const integer: RPMTAG_BUILDHOST          is 1007;  # STRING       Optional  Host package was built on
 const integer: RPMTAG_INSTALLTIME        is 1008;
-const integer: RPMTAG_SIZE               is 1009;  # INT32        Required
-const integer: RPMTAG_DISTRIBUTION       is 1010;
+const integer: RPMTAG_SIZE               is 1009;  # INT32        Required  Sum of sizes of regular files in archive
+const integer: RPMTAG_DISTRIBUTION       is 1010;  # STRING
 const integer: RPMTAG_VENDOR             is 1011;
 const integer: RPMTAG_GIF                is 1012;
 const integer: RPMTAG_XPM                is 1013;
-const integer: RPMTAG_LICENSE            is 1014;  # STRING       Required
+const integer: RPMTAG_LICENSE            is 1014;  # STRING       Required  Package license
 const integer: RPMTAG_PACKAGER           is 1015;
-const integer: RPMTAG_GROUP              is 1016;  # I18NSTRING   Required
+const integer: RPMTAG_GROUP              is 1016;  # I18NSTRING   Required  Package group
 const integer: RPMTAG_CHANGELOG          is 1017;
 const integer: RPMTAG_SOURCE             is 1018;
 const integer: RPMTAG_PATCH              is 1019;
 const integer: RPMTAG_URL                is 1020;
 const integer: RPMTAG_OS                 is 1021;  # STRING       Required
-const integer: RPMTAG_ARCH               is 1022;  # STRING       Required
-const integer: RPMTAG_PREIN              is 1023;
-const integer: RPMTAG_POSTIN             is 1024;
-const integer: RPMTAG_PREUN              is 1025;
-const integer: RPMTAG_POSTUN             is 1026;
-const integer: RPMTAG_OLDFILENAMES       is 1027;  # STRING_ARRAY Optional
-const integer: RPMTAG_FILESIZES          is 1028;
-const integer: RPMTAG_FILESTATES         is 1029;
-const integer: RPMTAG_FILEMODES          is 1030;
+const integer: RPMTAG_ARCH               is 1022;  # STRING       Required  Architecture of package
+const integer: RPMTAG_PREIN              is 1023;  # STRING
+const integer: RPMTAG_POSTIN             is 1024;  # STRING
+const integer: RPMTAG_PREUN              is 1025;  # STRING
+const integer: RPMTAG_POSTUN             is 1026;  # STRING
+const integer: RPMTAG_OLDFILENAMES       is 1027;  # STRING_ARRAY Optional  Filenames when not in "compressed format"
+const integer: RPMTAG_FILESIZES          is 1028;  # INT32      Size of each file [indexed]
+const integer: RPMTAG_FILESTATES         is 1029;  # CHAR       (only after installed)
+const integer: RPMTAG_FILEMODES          is 1030;  # INT16      Mode of each file [indexed]
 const integer: RPMTAG_FILEUIDS           is 1031;
 const integer: RPMTAG_FILEGIDS           is 1032;
-const integer: RPMTAG_FILERDEVS          is 1033;
-const integer: RPMTAG_FILEMTIMES         is 1034;
-const integer: RPMTAG_FILEMD5S           is 1035;
-const integer: RPMTAG_FILELINKTOS        is 1036;
-const integer: RPMTAG_FILEFLAGS          is 1037;
+const integer: RPMTAG_FILERDEVS          is 1033;  # INT16      Device number from which the file was copied [indexed]
+const integer: RPMTAG_FILEMTIMES         is 1034;  # INT32      Modification time seconds since epoch [indexed]
+const integer: RPMTAG_FILEMD5S           is 1035;  # STRING_ARRAY  MD5 sum of each file [indexed] (blank if not regular file)
+const integer: RPMTAG_FILELINKTOS        is 1036;  # STRING_ARRAY  Target for symlink [indexed]
+const integer: RPMTAG_FILEFLAGS          is 1037;  # INT32 (bits)  Bits that classify and control how files installed [indexed]
 const integer: RPMTAG_ROOT               is 1038;
-const integer: RPMTAG_FILEUSERNAME       is 1039;
-const integer: RPMTAG_FILEGROUPNAME      is 1040;
+const integer: RPMTAG_FILEUSERNAME       is 1039;  # STRING_ARRAY  Owner name of file [indexed]
+const integer: RPMTAG_FILEGROUPNAME      is 1040;  # STRING_ARRAY  Group name of file [indexed]
 const integer: RPMTAG_EXCLUDE            is 1041;
 const integer: RPMTAG_EXCLUSIVE          is 1042;
 const integer: RPMTAG_ICON               is 1043;
-const integer: RPMTAG_SOURCERPM          is 1044;  # STRING       Optional
-const integer: RPMTAG_FILEVERIFYFLAGS    is 1045;  # INT32        Optional
-const integer: RPMTAG_ARCHIVESIZE        is 1046;  # INT32        Optional
-const integer: RPMTAG_PROVIDENAME        is 1047;
-const integer: RPMTAG_REQUIREFLAGS       is 1048;
-const integer: RPMTAG_REQUIRENAME        is 1049;
-const integer: RPMTAG_REQUIREVERSION     is 1050;
+const integer: RPMTAG_SOURCERPM          is 1044;  # STRING       Optional  Name of associated source rpm
+const integer: RPMTAG_FILEVERIFYFLAGS    is 1045;  # INT32 (bits) Optional  Bits that control how files are to be verified after install [indexed]
+const integer: RPMTAG_ARCHIVESIZE        is 1046;  # INT32        Optional  Uncompressed size of the payload archive
+const integer: RPMTAG_PROVIDENAME        is 1047;  # STRING_ARRAY  List of dependency names [index]
+const integer: RPMTAG_REQUIREFLAGS       is 1048;  # INT32 (bits)  Bits to specify the dependency range and context [indexed]
+const integer: RPMTAG_REQUIRENAME        is 1049;  # STRING_ARRAY  List of requirement names [index]
+const integer: RPMTAG_REQUIREVERSION     is 1050;  # STRING_ARRAY  Version associated with Requirename [indexed]
 const integer: RPMTAG_NOSOURCE           is 1051;
 const integer: RPMTAG_NOPATCH            is 1052;
-const integer: RPMTAG_CONFLICTFLAGS      is 1053;
-const integer: RPMTAG_CONFLICTNAME       is 1054;
-const integer: RPMTAG_CONFLICTVERSION    is 1055;
+const integer: RPMTAG_CONFLICTFLAGS      is 1053;  # INT32 (bits)  Bits to specify the conflict range and context [indexed]
+const integer: RPMTAG_CONFLICTNAME       is 1054;  # STRING_ARRAY  List of conflict names [index]
+const integer: RPMTAG_CONFLICTVERSION    is 1055;  # STRING_ARRAY  Version associated with Versioname [indexed]
 const integer: RPMTAG_DEFAULTPREFIX      is 1056;
 const integer: RPMTAG_BUILDROOT          is 1057;
 const integer: RPMTAG_INSTALLPREFIX      is 1058;
@@ -151,32 +150,32 @@ const integer: RPMTAG_EXCLUDEOS          is 1060;
 const integer: RPMTAG_EXCLUSIVEARCH      is 1061;
 const integer: RPMTAG_EXCLUSIVEOS        is 1062;
 const integer: RPMTAG_AUTOREQPROV        is 1063;
-const integer: RPMTAG_RPMVERSION         is 1064;  # STRING       Optional
+const integer: RPMTAG_RPMVERSION         is 1064;  # STRING       Optional  Version of the RPM tool used to build package
 const integer: RPMTAG_TRIGGERSCRIPTS     is 1065;
 const integer: RPMTAG_TRIGGERNAME        is 1066;
 const integer: RPMTAG_TRIGGERVERSION     is 1067;
 const integer: RPMTAG_TRIGGERFLAGS       is 1068;
 const integer: RPMTAG_TRIGGERINDEX       is 1069;
 const integer: RPMTAG_VERIFYSCRIPT       is 1079;
-const integer: RPMTAG_CHANGELOGTIME      is 1080;  # INT32        Optional
-const integer: RPMTAG_CHANGELOGNAME      is 1081;  # STRING_ARRAY Optional
-const integer: RPMTAG_CHANGELOGTEXT      is 1082;  # STRING_ARRAY Optional
+const integer: RPMTAG_CHANGELOGTIME      is 1080;  # INT32        Optional  Seconds since epoch for changelog entry
+const integer: RPMTAG_CHANGELOGNAME      is 1081;  # STRING_ARRAY Optional  Name line of changelog entry
+const integer: RPMTAG_CHANGELOGTEXT      is 1082;  # STRING_ARRAY Optional  Text of changelog entry
 const integer: RPMTAG_BROKENMD5          is 1083;
 const integer: RPMTAG_PREREQ             is 1084;
-const integer: RPMTAG_PREINPROG          is 1085;
-const integer: RPMTAG_POSTINPROG         is 1086;
-const integer: RPMTAG_PREUNPROG          is 1087;
-const integer: RPMTAG_POSTUNPROG         is 1088;
+const integer: RPMTAG_PREINPROG          is 1085;  # STRING  Interpreter for prein scripts
+const integer: RPMTAG_POSTINPROG         is 1086;  # STRING  Interpreter for postin scripts
+const integer: RPMTAG_PREUNPROG          is 1087;  # STRING  Interpreter for preun scripts
+const integer: RPMTAG_POSTUNPROG         is 1088;  # STRING  Interpreter for postun scripts
 const integer: RPMTAG_BUILDARCHS         is 1089;
-const integer: RPMTAG_OBSOLETENAME       is 1090;
+const integer: RPMTAG_OBSOLETENAME       is 1090;  # STRING_ARRAY  List of obsoleted dependency names [index]
 const integer: RPMTAG_VERIFYSCRIPTPROG   is 1091;
 const integer: RPMTAG_TRIGGERSCRIPTPROG  is 1092;
 const integer: RPMTAG_DOCDIR             is 1093;
 const integer: RPMTAG_COOKIE             is 1094;  # STRING       Optional
-const integer: RPMTAG_FILEDEVICES        is 1095;
-const integer: RPMTAG_FILEINODES         is 1096;
-const integer: RPMTAG_FILELANGS          is 1097;
-const integer: RPMTAG_PREFIXES           is 1098;
+const integer: RPMTAG_FILEDEVICES        is 1095;  # INT32  16-bit device number from which the file was copied [indexed]
+const integer: RPMTAG_FILEINODES         is 1096;  # INT32  Inode value from the original file on build host [indexed]
+const integer: RPMTAG_FILELANGS          is 1097;  # STRING_ARRAY  Per-file locale marker [indexed]
+const integer: RPMTAG_PREFIXES           is 1098;  # STRING_ARRAY  Relocation prefixes
 const integer: RPMTAG_INSTPREFIXES       is 1099;
 const integer: RPMTAG_TRIGGERIN          is 1100;
 const integer: RPMTAG_TRIGGERUN          is 1101;
@@ -190,21 +189,21 @@ const integer: RPMTAG_BUILDPREREQ        is 1108;
 const integer: RPMTAG_BUILDREQUIRES      is 1109;
 const integer: RPMTAG_BUILDCONFLICTS     is 1110;
 const integer: RPMTAG_BUILDMACROS        is 1111;
-const integer: RPMTAG_PROVIDEFLAGS       is 1112;
-const integer: RPMTAG_PROVIDEVERSION     is 1113;
-const integer: RPMTAG_OBSOLETEFLAGS      is 1114;
-const integer: RPMTAG_OBSOLETEVERSION    is 1115;
-const integer: RPMTAG_DIRINDEXES         is 1116;  # STRING_ARRAY Optional
-const integer: RPMTAG_BASENAMES          is 1117;  # STRING_ARRAY Optional
-const integer: RPMTAG_DIRNAMES           is 1118;  # STRING_ARRAY Optional
+const integer: RPMTAG_PROVIDEFLAGS       is 1112;  # INT32 (bits)  Bits to specify the provide range and context [indexed]
+const integer: RPMTAG_PROVIDEVERSION     is 1113;  # STRING_ARRAY  Version associated with provide names [indexed]
+const integer: RPMTAG_OBSOLETEFLAGS      is 1114;  # INT32 (bits)  Bits to specify the obsolete range and context [indexed]
+const integer: RPMTAG_OBSOLETEVERSION    is 1115;  # STRING_ARRAY  Version associated with the obsolete names [indexed]
+const integer: RPMTAG_DIRINDEXES         is 1116;  # INT32        Optional  Specifies the index for the file into the dirnames array [indexed]
+const integer: RPMTAG_BASENAMES          is 1117;  # STRING_ARRAY Optional  Specified the base portion of the filename [index]
+const integer: RPMTAG_DIRNAMES           is 1118;  # STRING_ARRAY Optional  The directory portion of the filename [indexed]
 const integer: RPMTAG_ORIGDIRINDEXES     is 1119;
 const integer: RPMTAG_ORIGBASENAMES      is 1120;
 const integer: RPMTAG_ORIGDIRNAMES       is 1121;
-const integer: RPMTAG_OPTFLAGS           is 1122;  # STRING       Optional
+const integer: RPMTAG_OPTFLAGS           is 1122;  # STRING       Optional  Additional flags passed when compiling the package
 const integer: RPMTAG_DISTURL            is 1123;
-const integer: RPMTAG_PAYLOADFORMAT      is 1124;  # STRING       Required
-const integer: RPMTAG_PAYLOADCOMPRESSOR  is 1125;  # STRING       Required
-const integer: RPMTAG_PAYLOADFLAGS       is 1126;  # STRING       Required
+const integer: RPMTAG_PAYLOADFORMAT      is 1124;  # STRING       Required  Format of the archive section. E.g.: "cpio"
+const integer: RPMTAG_PAYLOADCOMPRESSOR  is 1125;  # STRING       Required  Format of the compression of the archive. E.g.: "gzip"
+const integer: RPMTAG_PAYLOADFLAGS       is 1126;  # STRING       Required  Specifies the compression level of package "9"
 const integer: RPMTAG_INSTALLCOLOR       is 1127;
 const integer: RPMTAG_INSTALLTID         is 1128;
 const integer: RPMTAG_REMOVETID          is 1129;
@@ -218,12 +217,12 @@ const integer: RPMTAG_CACHECTIME         is 1136;
 const integer: RPMTAG_CACHEPKGPATH       is 1137;
 const integer: RPMTAG_CACHEPKGSIZE       is 1138;
 const integer: RPMTAG_CACHEPKGMTIME      is 1139;
-const integer: RPMTAG_FILECOLORS         is 1140;
-const integer: RPMTAG_FILECLASS          is 1141;
-const integer: RPMTAG_CLASSDICT          is 1142;
-const integer: RPMTAG_FILEDEPENDSX       is 1143;
-const integer: RPMTAG_FILEDEPENDSN       is 1144;
-const integer: RPMTAG_DEPENDSDICT        is 1145;
+const integer: RPMTAG_FILECOLORS         is 1140;  # INT32 (bits)  "color" (type) of the file [indexed]
+const integer: RPMTAG_FILECLASS          is 1141;  # INT  Index into class dictionary [indexed]
+const integer: RPMTAG_CLASSDICT          is 1142;  # STRING_ARRAY  List of file classes (output of the "file" command)
+const integer: RPMTAG_FILEDEPENDSX       is 1143;  # INT  Size of the entries in DependsDict [indexed]
+const integer: RPMTAG_FILEDEPENDSN       is 1144;  # INT  Index into the entries in DependsDict [indexed]
+const integer: RPMTAG_DEPENDSDICT        is 1145;  # INT32  Type/Index into Requires/Provides/Conflicts/Obsoletes
 const integer: RPMTAG_SOURCEPKGID        is 1146;
 const integer: RPMTAG_FILECONTEXTS       is 1147;
 const integer: RPMTAG_FSCONTEXTS         is 1148;
@@ -373,14 +372,18 @@ const integer: RPMTAG_IDENTITY                    is 5095;  # s reservation (uni
 const integer: RPMTAG_MODULARITYLABEL             is 5096;  # s
 const integer: RPMTAG_PAYLOADDIGESTALT            is 5097;  # s[]
 
-const integer: SIGTAG_SIGSIZE     is 1000;  # INT32  Required
-const integer: SIGTAG_PGP         is 1002;  # BIN    Optional
-const integer: SIGTAG_MD5         is 1004;  # BIN    Required
-const integer: SIGTAG_GPG         is 1005;  # BIN    Optional
-const integer: SIGTAG_PAYLOADSIZE is 1007;  # INT32  Optional
-const integer: SIGTAG_SHA1HEADER  is 1010;  # STRING Optional
-const integer: SIGTAG_DSAHEADER   is 1011;  # BIN    Optional
-const integer: SIGTAG_RSAHEADER   is 1012;  # BIN    Optional
+const integer: RPMSIGTAG_HEADERSIGNATURES is   62;  # BIN    Optional
+const integer: RPMSIGTAG_SIZE             is 1000;  # INT32  Required  Byte count for the header section plus the compressed payload.
+const integer: RPMSIGTAG_PGP              is 1002;  # BIN    Optional
+const integer: RPMSIGTAG_MD5              is 1004;  # BIN    Required  MD5 checksum over the header section plus the payload.
+const integer: RPMSIGTAG_GPG              is 1005;  # BIN    Optional
+const integer: RPMSIGTAG_PAYLOADSIZE      is 1007;  # INT32  Optional  Byte count for the uncompressed payload.
+const integer: RPMSIGTAG_RESERVEDSPACE    is 1008;  # BIN
+const integer: RPMSIGTAG_SHA1HEADER       is 1010;  # STRING Optional
+const integer: RPMSIGTAG_DSAHEADER        is 1011;  # BIN    Optional
+const integer: RPMSIGTAG_RSAHEADER        is 1012;  # BIN    Optional
+const integer: RPMSIGTAG_SHA1             is  269;  # STRING
+const integer: RPMSIGTAG_SHA256HEADER     is  273;  # STRING 
 
 const integer: RPM_DIGESTALGO_MD5         is  1;
 const integer: RPM_DIGESTALGO_SHA1        is  2;
@@ -843,6 +846,32 @@ const proc: read (inout file: rpmFile, inout rpmLead: lead) is func
   end func;
 
 
+const func string: str (in rpmLead: lead) is
+  return lead.magic <&
+         chr(lead.majorVersion) <&
+         chr(lead.minorVersion) <&
+         int16AsTwoBytesBe(lead.fileType) <&
+         int16AsTwoBytesBe(lead.arch) <&
+         lead.name rpad 66 <&
+         int16AsTwoBytesBe(lead.os) <&
+         int16AsTwoBytesBe(lead.sig) <&
+         "\0;" mult 16;
+
+
+const proc: writeLead (inout file: outFile, inout rpmLead: lead) is func
+  begin
+    lead.magic := RPM_LEAD_MAGIC;
+    lead.majorVersion := 3;
+    lead.minorVersion := 0;
+    lead.fileType := 1;
+    lead.arch := 1;
+    lead.name := "";
+    lead.os := 1;
+    lead.sig := 5;
+    write(outFile, str(lead));
+  end func;
+
+
 const proc: read (inout file: rpmFile, inout rpmHeader: header) is func
   begin
     header.magic := gets(rpmFile, 3);
@@ -856,6 +885,14 @@ const proc: read (inout file: rpmFile, inout rpmHeader: header) is func
   end func;
 
 
+const func string: str (in rpmHeader: header) is
+  return header.magic <&
+         chr(header.version) <&
+	 "\0;" mult 4 <&
+         int32AsFourBytesBe(header.indexCount) <&
+	 int32AsFourBytesBe(header.storeSize);
+
+
 const proc: read (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
   begin
     indexEntry.tag := getUInt32Be(rpmFile);
@@ -863,6 +900,13 @@ const proc: read (inout file: rpmFile, inout rpmIndexEntry: indexEntry) is func
     indexEntry.offset := getUInt32Be(rpmFile);
     indexEntry.count := getUInt32Be(rpmFile);
   end func;
+
+
+const func string: str (in rpmIndexEntry: indexEntry) is
+  return int32AsFourBytesBe(indexEntry.tag) <&
+         int32AsFourBytesBe(indexEntry.dataType) <&
+         int32AsFourBytesBe(indexEntry.offset) <&
+         int32AsFourBytesBe(indexEntry.count);
 
 
 const type: rpmCatalogEntry is new struct
@@ -927,6 +971,12 @@ const proc: write (in rpmCatalogEntry: catalogEntry) is func
 const type: rpmRegisterType is set of string;
 const type: rpmCatalogType is hash [string] rpmCatalogEntry;
 
+const type: rpmSection is new struct
+    var rpmHeader: head is rpmHeader.value;
+    var rpmTagMap: tagMap is rpmTagMap.value;
+    var string: store is "";
+  end struct;
+
 
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access a RPM archive.
@@ -946,17 +996,13 @@ const type: rpmCatalogType is hash [string] rpmCatalogEntry;
 const type: rpmArchive is sub emptyFileSys struct
     var file: rpmFile is STD_NULL;
     var rpmLead: lead is rpmLead.value;
-    var rpmHeader: signatureHead is rpmHeader.value;
-    var rpmTagMap: signature is rpmTagMap.value;
-    var string: signatureStore is "";
-    var rpmHeader: metadataHead is rpmHeader.value;
-    var rpmTagMap: metadata is rpmTagMap.value;
-    var integer: metadataStorePos is 0;
-    var string: metadataStore is "";
+    var rpmSection: signature is rpmSection.value;
+    var rpmSection: header is rpmSection.value;
     var integer: payloadPos is 0;
     var rpmRegisterType: register is rpmRegisterType.value;
     var rpmCatalogType: catalog is rpmCatalogType.value;
     var integer: fileDigestAlgo is RPM_DIGESTALGO_MD5;
+    var array string: dirNameList is 0 times "";
     var array string: classDict is 0 times "";
     var file: payloadFile is STD_NULL;
     var fileSys: archive is fileSys.value;
@@ -971,12 +1017,12 @@ const func array string: getStringArray (in rpmArchive: rpm, in integer: tag) is
     var integer: stringPos is 0;
     var integer: index is 0;
   begin
-    if tag in rpm.metadata then
-      stringArrayIndex := rpm.metadata[tag];
+    if tag in rpm.header.tagMap then
+      stringArrayIndex := rpm.header.tagMap[tag];
       stringPos := succ(stringArrayIndex.offset);
       stringArray := stringArrayIndex.count times "";
       for index range 1 to stringArrayIndex.count do
-        stringArray[index] := getAsciiz(rpm.metadataStore, stringPos);
+        stringArray[index] := getAsciiz(rpm.header.store, stringPos);
         # writeln(rpmtagName(tag) <& "[" <& index <& "]: " <& stringArray[index]);
       end for;
     end if;
@@ -985,7 +1031,6 @@ const func array string: getStringArray (in rpmArchive: rpm, in integer: tag) is
 
 const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
   local
-    var array string: dirNameList is 0 times "";
     var integer: oldFileNamePos is 0;
     var integer: dirIndexPos is 0;
     var integer: baseNamePos is 0;
@@ -999,31 +1044,28 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
     var integer: index is 0;
   begin
-    if RPMTAG_OLDFILENAMES in rpm.metadata then
-      oldFileNamePos := succ(rpm.metadata[RPMTAG_OLDFILENAMES].offset);
+    if RPMTAG_OLDFILENAMES in rpm.header.tagMap then
+      oldFileNamePos := succ(rpm.header.tagMap[RPMTAG_OLDFILENAMES].offset);
     else
-      dirNameList := getStringArray(rpm, RPMTAG_DIRNAMES);
-      dirIndexPos := succ(rpm.metadata[RPMTAG_DIRINDEXES].offset);
-      baseNamePos := succ(rpm.metadata[RPMTAG_BASENAMES].offset);
+      rpm.dirNameList := getStringArray(rpm, RPMTAG_DIRNAMES);
+      dirIndexPos := succ(rpm.header.tagMap[RPMTAG_DIRINDEXES].offset);
+      baseNamePos := succ(rpm.header.tagMap[RPMTAG_BASENAMES].offset);
     end if;
-    digestPos := succ(rpm.metadata[RPMTAG_FILEMD5S].offset);
-    linkToPos := succ(rpm.metadata[RPMTAG_FILELINKTOS].offset);
-    userNamePos := succ(rpm.metadata[RPMTAG_FILEUSERNAME].offset);
-    groupNamePos := succ(rpm.metadata[RPMTAG_FILEGROUPNAME].offset);
-    langPos := succ(rpm.metadata[RPMTAG_FILELANGS].offset);
-    numberOfFiles := rpm.metadata[RPMTAG_FILESIZES].count;
+    digestPos := succ(rpm.header.tagMap[RPMTAG_FILEMD5S].offset);
+    linkToPos := succ(rpm.header.tagMap[RPMTAG_FILELINKTOS].offset);
+    userNamePos := succ(rpm.header.tagMap[RPMTAG_FILEUSERNAME].offset);
+    groupNamePos := succ(rpm.header.tagMap[RPMTAG_FILEGROUPNAME].offset);
+    langPos := succ(rpm.header.tagMap[RPMTAG_FILELANGS].offset);
+    numberOfFiles := rpm.header.tagMap[RPMTAG_FILESIZES].count;
     for index range 1 to numberOfFiles do
       if oldFileNamePos <> 0 then
-        filePath8 := getAsciiz(rpm.metadataStore, oldFileNamePos);
+        filePath8 := getAsciiz(rpm.header.store, oldFileNamePos);
       else
-        catalogEntry.dirIndex := succ(bytes2Int(rpm.metadataStore[dirIndexPos len 4], SIGNED, BE));
+        catalogEntry.dirIndex := succ(bytes2Int(rpm.header.store[dirIndexPos len 4], SIGNED, BE));
         dirIndexPos +:= 4;
-        catalogEntry.baseName := getAsciiz(rpm.metadataStore, baseNamePos);
-        filePath8 := dirNameList[catalogEntry.dirIndex];
+        catalogEntry.baseName := getAsciiz(rpm.header.store, baseNamePos);
+        filePath8 := rpm.dirNameList[catalogEntry.dirIndex];
         # writeln("dirName[" <& index <& "]: " <& filePath8);
-        if filePath8 <> "" and not endsWith(filePath8, "/") then
-          filePath8 &:= "/";
-        end if;
         filePath8 &:= catalogEntry.baseName;
       end if;
       block
@@ -1032,11 +1074,11 @@ const proc: createMinimumOfCatalog (inout rpmArchive: rpm) is func
         catch RANGE_ERROR:
           catalogEntry.filePath := filePath8;
       end block;
-      catalogEntry.digest := getAsciiz(rpm.metadataStore, digestPos);
-      catalogEntry.linkTo := getAsciiz(rpm.metadataStore, linkToPos);
-      catalogEntry.userName  := getAsciiz(rpm.metadataStore, userNamePos);
-      catalogEntry.groupName := getAsciiz(rpm.metadataStore, groupNamePos);
-      catalogEntry.lang := getAsciiz(rpm.metadataStore, langPos);
+      catalogEntry.digest := getAsciiz(rpm.header.store, digestPos);
+      catalogEntry.linkTo := getAsciiz(rpm.header.store, linkToPos);
+      catalogEntry.userName  := getAsciiz(rpm.header.store, userNamePos);
+      catalogEntry.groupName := getAsciiz(rpm.header.store, groupNamePos);
+      catalogEntry.lang := getAsciiz(rpm.header.store, langPos);
       catalogEntry.fileNumber := index;
       rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
     end for;
@@ -1061,23 +1103,23 @@ const func integer: getInt (in rpmArchive: rpm, in integer: tag, in integer: ind
     var integer: offset is 0;
     var integer: pos is 0;
   begin
-    if tag in rpm.metadata then
-      indexEntry := rpm.metadata[tag];
+    if tag in rpm.header.tagMap then
+      indexEntry := rpm.header.tagMap[tag];
       if index <= indexEntry.count then
         offset := succ(indexEntry.offset);
         case indexEntry.dataType of
           when {RPM_INT8_TYPE}:
             pos := offset + pred(index);
-            number := bytes2Int(rpm.metadataStore[pos len 1], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos len 1], UNSIGNED, BE);
           when {RPM_INT16_TYPE}:
             pos := offset + pred(index) * 2;
-            number := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos len 2], UNSIGNED, BE);
           when {RPM_INT32_TYPE}:
             pos := offset + pred(index) * 4;
-            number := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos len 4], UNSIGNED, BE);
           when {RPM_INT64_TYPE}:
             pos := offset + pred(index) * 8;
-            number := bytes2Int(rpm.metadataStore[pos len 8], UNSIGNED, BE);
+            number := bytes2Int(rpm.header.store[pos len 8], UNSIGNED, BE);
           otherwise:
             raise RANGE_ERROR;
         end case;
@@ -1117,6 +1159,76 @@ const proc: readCatalogEntry (inout rpmArchive: rpm, inout rpmCatalogEntry: cata
   end func;
 
 
+const proc: updateIndexEntry (inout rpmSection: section, in integer: tag,
+    in integer: dataType, in integer: value) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+  begin
+    if tag in section.tagMap then
+      indexEntry := section.tagMap[tag];
+    else
+      indexEntry.tag := tag;
+      indexEntry.dataType := dataType;
+      indexEntry.count := 1;
+    end if;
+    case indexEntry.dataType of
+      when {RPM_INT8_TYPE}:
+        indexEntry.striValue := str(chr(value));
+      when {RPM_INT16_TYPE}:
+        indexEntry.striValue := int16AsTwoBytesBe(value);
+      when {RPM_INT32_TYPE}:
+        indexEntry.striValue := int32AsFourBytesBe(value);
+      when {RPM_INT64_TYPE}:
+        indexEntry.striValue := int64AsEightBytesBe(value);
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+    section.tagMap @:= [tag] indexEntry;
+  end func;
+
+
+const proc: updateIndexEntry (inout rpmSection: section, in integer: tag,
+    in integer: dataType, in string: value) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+  begin
+    if tag in section.tagMap then
+      indexEntry := section.tagMap[tag];
+    else
+      indexEntry.tag := tag;
+      indexEntry.dataType := dataType;
+    end if;
+    case indexEntry.dataType of
+      when {RPM_STRING_TYPE}:
+        indexEntry.count := 1;
+        indexEntry.striValue := value;
+      when {RPM_BIN_TYPE}:
+        indexEntry.count := length(value);
+        indexEntry.striValue := value;
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
+    section.tagMap @:= [tag] indexEntry;
+  end func;
+
+
+const proc: updateIndexEntry (inout rpmSection: section, in integer: tag,
+    in integer: dataType, in array string: value) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+  begin
+    if tag in section.tagMap then
+      indexEntry := section.tagMap[tag];
+    else
+      indexEntry.tag := tag;
+      indexEntry.dataType := dataType;
+      indexEntry.count := length(value);
+    end if;
+    indexEntry.arrayValue := value;
+    section.tagMap @:= [tag] indexEntry;
+  end func;
+
+
 const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
     in integer: dataType, in integer: fileNumber, in integer: value) is func
   local
@@ -1124,8 +1236,8 @@ const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
     var integer: dataSize is 0;
     var string: data is "";
   begin
-    if tag in rpm.metadata then
-      indexEntry := rpm.metadata[tag];
+    if tag in rpm.header.tagMap then
+      indexEntry := rpm.header.tagMap[tag];
     else
       indexEntry.tag := tag;
       indexEntry.dataType := dataType;
@@ -1151,7 +1263,7 @@ const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
       indexEntry.count := fileNumber;
     end if;
     indexEntry.striValue @:= [succ(pred(fileNumber) * dataSize)] data;
-    rpm.metadata @:= [tag] indexEntry;
+    rpm.header.tagMap @:= [tag] indexEntry;
   end func;
 
 
@@ -1161,8 +1273,8 @@ const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
     var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
     var string: data is "";
   begin
-    if tag in rpm.metadata then
-      indexEntry := rpm.metadata[tag];
+    if tag in rpm.header.tagMap then
+      indexEntry := rpm.header.tagMap[tag];
     else
       indexEntry.tag := tag;
       indexEntry.dataType := dataType;
@@ -1178,11 +1290,11 @@ const proc: updateIndexEntry (inout rpmArchive: rpm, in integer: tag,
       indexEntry.count := fileNumber;
     end if;
     indexEntry.arrayValue[fileNumber] := data;
-    rpm.metadata @:= [tag] indexEntry;
+    rpm.header.tagMap @:= [tag] indexEntry;
   end func;
 
 
-const proc: updateMetadata (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntry) is func
+const proc: updateHeader (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEntry) is func
   begin
     updateIndexEntry(rpm, RPMTAG_FILESIZES, RPM_INT32_TYPE,
                      catalogEntry.fileNumber, catalogEntry.fileSize);
@@ -1212,6 +1324,10 @@ const proc: updateMetadata (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEn
                      catalogEntry.fileNumber, catalogEntry.inode);
     updateIndexEntry(rpm, RPMTAG_FILELANGS, RPM_STRING_ARRAY_TYPE,
                      catalogEntry.fileNumber, catalogEntry.lang);
+    updateIndexEntry(rpm, RPMTAG_DIRINDEXES, RPM_INT32_TYPE,
+                     catalogEntry.fileNumber, pred(catalogEntry.dirIndex));
+    updateIndexEntry(rpm, RPMTAG_BASENAMES, RPM_STRING_ARRAY_TYPE,
+                     catalogEntry.fileNumber, catalogEntry.baseName);
     updateIndexEntry(rpm, RPMTAG_FILECOLORS, RPM_INT32_TYPE,
                      catalogEntry.fileNumber, catalogEntry.color);
     updateIndexEntry(rpm, RPMTAG_FILECLASS, RPM_INT32_TYPE,
@@ -1223,42 +1339,178 @@ const proc: updateMetadata (inout rpmArchive: rpm, in rpmCatalogEntry: catalogEn
   end func;
 
 
-const proc: updateMetadata (inout rpmArchive: rpm) is func
+const func integer: findDirIndex (in array string: dirNameList, in string: dirName) is func
+  result
+    var integer: dirIndex is 0;
+  local
+    var integer: index is 0;
+  begin
+    for key index range dirNameList until dirIndex <> 0 do
+      if dirNameList[index] = dirName then
+        dirIndex := index;
+      end if;
+    end for;
+  end func;
+
+
+const proc: updateHeader (inout rpmArchive: rpm) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
-    var string: store is "";
+    var integer: slashPos is 0;
+    var string: dirName is "";
+    var integer: dirIndex is 0;
   begin
-    if rpm.metadataStore <> "" then
-      for indexEntry range rpm.metadata do
+    for catalogEntry range rpm.catalog do
+      if catalogEntry.dirty then
+        # writeln("updateHeader " <& catalogEntry.filePath);
+        slashPos := rpos(catalogEntry.filePath, "/");
+        if slashPos <> 0 then
+          dirName := catalogEntry.filePath[.. slashPos];
+          catalogEntry.baseName := catalogEntry.filePath[succ(slashPos) ..];
+        else
+          dirName := "";
+          catalogEntry.baseName := catalogEntry.filePath;
+        end if;
+        dirIndex := findDirIndex(rpm.dirNameList, dirName);
+	if dirIndex = 0 then
+          rpm.dirNameList &:= dirName;
+          dirIndex := length(rpm.dirNameList);
+	end if;
+        catalogEntry.dirIndex := dirIndex;
+        rpm.catalog @:= [catalogEntry.filePath] catalogEntry;
+        updateHeader(rpm, catalogEntry);     
+      end if;
+    end for;
+  end func;
+
+
+const func boolean: isDirty (in rpmArchive: rpm) is func
+  result
+    var boolean: isDirty is FALSE;
+  local
+    var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
+  begin
+    for catalogEntry range rpm.catalog do
+      if catalogEntry.dirty then
+        isDirty := TRUE;
+      end if;
+    end for;
+  end func;
+
+
+const proc: readSection (inout file: rpmFile, inout rpmSection: section) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+  begin
+    read(rpmFile, section.head);
+    if section.head.magic = RPM_HEADER_MAGIC then
+      # show(section.head);
+      for section.head.indexCount do
+        read(rpmFile, indexEntry);
+        section.tagMap @:= [indexEntry.tag] indexEntry;
+      end for;
+      # sectionStorePos := tell(rpmFile);
+      section.store := gets(rpmFile, section.head.storeSize);
+      # writeln("length(section.store): " <& length(section.store));
+    end if;
+  end func;
+
+
+const func string: sectionStri (inout rpmSection: section, in integer: sectionTag) is func
+  result
+    var string: sectionStri is "";
+  local
+    var rpmIndexEntry: sectionIndexEntry is rpmIndexEntry.value;
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+  begin
+    section.head.magic := RPM_HEADER_MAGIC;
+    section.head.version := 1;
+    section.head.indexCount := succ(length(section.tagMap));
+    section.head.storeSize := length(section.store) + 16;
+    sectionStri := str(section.head);
+    # The first entry in the index array must be the sectionTag (regionTag) entry.
+    sectionIndexEntry.tag := sectionTag;
+    sectionIndexEntry.dataType := RPM_BIN_TYPE;
+    # The data of the sectionTag must be after all other data in the section store.
+    sectionIndexEntry.offset := length(section.store);
+    sectionIndexEntry.count := 16;
+    sectionStri &:= str(sectionIndexEntry);
+    for indexEntry range section.tagMap do
+      # writeln("indexEntry: " <& literal(str(indexEntry)));
+      sectionStri &:= str(indexEntry);
+    end for;
+    # section.store does not contain the data of the sectionTag index entry.
+    sectionStri &:= section.store;
+    # The data of the sectionTag entry is itself an index entry with the sectionTag.
+    # The negative offset of this index entry refers back to the original sectionTag index entry.
+    sectionIndexEntry.offset := -succ(length(section.tagMap)) * 16;
+    sectionStri &:= str(sectionIndexEntry);
+  end func;
+
+
+const proc: assignIndexValues (inout rpmSection: section) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+  begin
+    if section.store <> "" then
+      for indexEntry range section.tagMap do
         case indexEntry.dataType of
-          when {RPM_INT8_TYPE, RPM_INT16_TYPE, RPM_INT32_TYPE, RPM_INT64_TYPE}:
+          when {RPM_INT8_TYPE, RPM_INT16_TYPE, RPM_INT32_TYPE, RPM_INT64_TYPE,
+                RPM_STRING_TYPE, RPM_BIN_TYPE}:
             if indexEntry.striValue = "" then
-              indexEntry.striValue := getStriValue(rpm.metadataStore, indexEntry);
+              indexEntry.striValue := getStriValue(section.store, indexEntry);
             end if;
           when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
             if length(indexEntry.arrayValue) = 0 then
-              indexEntry.arrayValue := getArrayValue(rpm.metadataStore, indexEntry);
+              indexEntry.arrayValue := getArrayValue(section.store, indexEntry);
             end if;
         end case;
       end for;
     end if;
-    for catalogEntry range rpm.catalog do
-      if catalogEntry.dirty then
-        updateMetadata(rpm, catalogEntry);     
-      end if;
-    end for;
-    for indexEntry range rpm.metadata do
+  end func;
+
+
+const proc: updateStore (inout rpmSection: section) is func
+  local
+    var rpmIndexEntry: indexEntry is rpmIndexEntry.value;
+    var string: store is "";
+  begin
+    for indexEntry range section.tagMap do
       indexEntry.offset := length(store);
-      rpm.metadata @:= [indexEntry.tag] indexEntry;
       case indexEntry.dataType of
-        when {RPM_INT8_TYPE, RPM_INT16_TYPE, RPM_INT32_TYPE, RPM_INT64_TYPE}:
+        when {RPM_INT8_TYPE}:
+          store &:= indexEntry.striValue;
+        when {RPM_INT16_TYPE}:
+          # Align to 2 bytes
+	  if odd(length(store)) then
+            store &:= "\0;";
+          end if;
+          indexEntry.offset := length(store);
+          store &:= indexEntry.striValue;
+        when {RPM_INT32_TYPE}:
+          # Align to 4 bytes
+	  if length(store) mod 4 <> 0 then
+            store &:= "\0;" mult (4 - length(store) mod 4);
+          end if;
+          indexEntry.offset := length(store);
+          store &:= indexEntry.striValue;
+        when {RPM_INT64_TYPE}:
+          # Align to 8 bytes
+	  if length(store) mod 8 <> 0 then
+            store &:= "\0;" mult (8 - length(store) mod 4);
+          end if;
+          indexEntry.offset := length(store);
+          store &:= indexEntry.striValue;
+        when {RPM_STRING_TYPE}:
+          store &:= indexEntry.striValue & "\0;";
+        when {RPM_BIN_TYPE}:
           store &:= indexEntry.striValue;
         when {RPM_STRING_ARRAY_TYPE, RPM_I18NSTRING_TYPE}:
           store &:= join(indexEntry.arrayValue, "\0;") & "\0;";
       end case;
+      section.tagMap @:= [indexEntry.tag] indexEntry;
     end for;
-    rpm.metadataStore := store;
+    section.store := store;
   end func;
 
 
@@ -1267,9 +1519,9 @@ const proc: doSettings (inout rpmArchive: rpm) is func
     var rpmIndexEntry: fileDigestAlgo is rpmIndexEntry.value;
   begin
     if rpm.fileDigestAlgo = RPM_DIGESTALGO_MD5 and
-        RPMTAG_FILEDIGESTALGO in rpm.metadata then
-      fileDigestAlgo := rpm.metadata[RPMTAG_FILEDIGESTALGO];
-      rpm.fileDigestAlgo := bytes2Int(rpm.metadataStore[
+        RPMTAG_FILEDIGESTALGO in rpm.header.tagMap then
+      fileDigestAlgo := rpm.header.tagMap[RPMTAG_FILEDIGESTALGO];
+      rpm.fileDigestAlgo := bytes2Int(rpm.header.store[
           succ(fileDigestAlgo.offset) len 4], SIGNED, BE);
       # writeln("fileDigestAlgo: " <& rpm.fileDigestAlgo);
     end if;
@@ -1306,9 +1558,9 @@ const proc: checkPayloadDigest (inout rpmArchive: rpm) is func
   begin
     seek(rpm.rpmFile, rpm.payloadPos);
     payloadContent := gets(rpm.rpmFile, integer.last);
-    digestPos := succ(rpm.metadata[RPMTAG_PAYLOADDIGEST].offset);
-    referenceDigest := getAsciiz(rpm.metadataStore, digestPos);
-    digestAlgo := getIntValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADDIGESTALGO]);
+    digestPos := succ(rpm.header.tagMap[RPMTAG_PAYLOADDIGEST].offset);
+    referenceDigest := getAsciiz(rpm.header.store, digestPos);
+    digestAlgo := getIntValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADDIGESTALGO]);
     # writeln("length(payloadContent): " <& length(payloadContent));
     computedDigest := hex(getDigest(payloadContent, digestAlgo));
     if referenceDigest <> computedDigest then
@@ -1326,15 +1578,15 @@ const proc: getArchive (inout rpmArchive: rpm) is func
     var string: format is "";
     var file: payload is STD_NULL;
   begin
-    if RPMTAG_PAYLOADDIGEST in rpm.metadata and RPMTAG_PAYLOADDIGESTALGO in rpm.metadata then
+    if RPMTAG_PAYLOADDIGEST in rpm.header.tagMap and RPMTAG_PAYLOADDIGESTALGO in rpm.header.tagMap then
       checkPayloadDigest(rpm);
     end if;
     if rpm.payloadPos = 0 then
       rpm.payloadFile := openStrifile();
     else
       seek(rpm.rpmFile, rpm.payloadPos);
-      if RPMTAG_PAYLOADCOMPRESSOR in rpm.metadata then
-        compressor := getStriValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADCOMPRESSOR]);
+      if RPMTAG_PAYLOADCOMPRESSOR in rpm.header.tagMap then
+        compressor := getStriValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADCOMPRESSOR]);
         # writeln("compressor: " <& compressor);
         case compressor of
           when {"gzip"}: payload := openGunzipFile(rpm.rpmFile);
@@ -1350,8 +1602,8 @@ const proc: getArchive (inout rpmArchive: rpm) is func
       end if;
     end if;
     if rpm.payloadFile <> STD_NULL then
-      if RPMTAG_PAYLOADFORMAT in rpm.metadata then
-        format := getStriValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADFORMAT]);
+      if RPMTAG_PAYLOADFORMAT in rpm.header.tagMap then
+        format := getStriValue(rpm.header.store, rpm.header.tagMap[RPMTAG_PAYLOADFORMAT]);
         # writeln("format: " <& format);
         case format of
           when {"cpio"}: rpm.archive := openCpio(rpm.payloadFile);
@@ -1385,51 +1637,20 @@ const func fileSys: openRpm (inout file: rpmFile) is func
   result
     var fileSys: newFileSys is fileSys.value;
   local
-    var rpmHeader: header is rpmHeader.value;
-    var integer: headPos is 1;
-    var array rpmIndexEntry: signature is 0 times rpmIndexEntry.value;
-    var array rpmIndexEntry: metadata is 0 times rpmIndexEntry.value;
-    var integer: idx is 0;
-    var string: compressor is "";
-    var string: format is "";
-    var file: payload is STD_NULL;
-    var fileSys: archive is fileSys.value;
     var rpmArchive: rpm is rpmArchive.value;
   begin
     if length(rpmFile) = 0 then
       rpm.rpmFile := rpmFile;
       newFileSys := toInterface(rpm);
     else
-      seek(rpmFile, headPos);
+      seek(rpmFile, 1);
       read(rpmFile, rpm.lead);
       if rpm.lead.magic = RPM_LEAD_MAGIC then
         rpm.rpmFile := rpmFile;
-        read(rpmFile, rpm.signatureHead);
-        if rpm.signatureHead.magic = RPM_HEADER_MAGIC then
-          # show(rpm.signatureHead);
-          signature := rpm.signatureHead.indexCount times rpmIndexEntry.value;
-          for idx range 1 to rpm.signatureHead.indexCount do
-            read(rpmFile, signature[idx]);
-            rpm.signature @:= [signature[idx].tag] signature[idx];
-          end for;
-          rpm.signatureStore := gets(rpmFile, rpm.signatureHead.storeSize);
-          # writeln("length(rpm.signatureStore): " <& length(rpm.signatureStore));
-          ignore(gets(rpmFile, 7 - pred(rpm.signatureHead.storeSize) mod 8));
-        end if;
-        read(rpmFile, rpm.metadataHead);
-        if rpm.metadataHead.magic = RPM_HEADER_MAGIC then
-          # show(rpm.metadataHead);
-          metadata := rpm.metadataHead.indexCount times rpmIndexEntry.value;
-          for idx range 1 to rpm.metadataHead.indexCount do
-            read(rpmFile, metadata[idx]);
-            rpm.metadata @:= [metadata[idx].tag] metadata[idx];
-          end for;
-          rpm.metadataStorePos := tell(rpmFile);
-          rpm.metadataStore := gets(rpmFile, rpm.metadataHead.storeSize);
-          # writeln("length(rpm.metadataStore): " <& length(rpm.metadataStore));
-          # writeln("don't skip: " <& 7 - pred(rpm.metadataHead.storeSize) mod 8);
-          # ignore(gets(rpmFile, 7 - pred(rpm.metadataHead.storeSize) mod 8));
-        end if;
+        readSection(rpmFile, rpm.signature);
+        ignore(gets(rpmFile, 7 - pred(rpm.signature.head.storeSize) mod 8));
+        readSection(rpmFile, rpm.header);
+        # ignore(gets(rpmFile, 7 - pred(rpm.header.head.storeSize) mod 8));
         rpm.payloadPos := tell(rpmFile);
         doSettings(rpm);
         createMinimumOfCatalog(rpm);
@@ -1460,11 +1681,57 @@ const func fileSys: openRpm (in string: rpmFileName) is func
  *  Close a RPM archive.
  *)
 const proc: close (inout rpmArchive: rpm) is func
+  local
+    var string: signatureSection is "";
+    var string: headerSection is "";
+    var string: payload is "";
   begin
+    if isDirty(rpm) then
+      writeln("in close");
+      if length(rpm.rpmFile) = 0 then
+        writeLead(rpm.rpmFile, rpm.lead);
+      end if;
+
+      writeln("prepare payload:");
+      if rpm.archive <> fileSys.value then
+        seek(rpm.payloadFile, 1);
+        payload := gzip(gets(rpm.payloadFile, integer.last));
+      end if;
+
+      writeln("prepare header:");
+      assignIndexValues(rpm.header);
+      updateHeader(rpm);
+      updateIndexEntry(rpm.header, RPMTAG_ARCHIVESIZE, RPM_INT32_TYPE,
+                       length(rpm.payloadFile));
+      updateIndexEntry(rpm.header, RPMTAG_DIRNAMES, RPM_STRING_ARRAY_TYPE, rpm.dirNameList);
+      updateIndexEntry(rpm.header, RPMTAG_PAYLOADCOMPRESSOR, RPM_STRING_TYPE, "gzip");
+      updateIndexEntry(rpm.header, RPMTAG_PAYLOADFORMAT, RPM_STRING_TYPE, "cpio");
+      updateStore(rpm.header);
+      headerSection := sectionStri(rpm.header, RPMTAG_HEADERIMMUTABLE);
+
+      writeln("prepare signature:");
+      updateIndexEntry(rpm.signature, RPMSIGTAG_SIZE, RPM_INT32_TYPE,
+                       length(headerSection) + length(payload));
+      updateIndexEntry(rpm.signature, RPMSIGTAG_PAYLOADSIZE, RPM_INT32_TYPE,
+                       length(rpm.payloadFile));
+      updateIndexEntry(rpm.signature, RPMSIGTAG_SHA1, RPM_STRING_TYPE,
+                       hex(sha1(headerSection)));
+      updateIndexEntry(rpm.signature, RPMSIGTAG_MD5, RPM_BIN_TYPE,
+                       md5(headerSection & payload));
+      assignIndexValues(rpm.signature);
+      updateStore(rpm.signature);
+      signatureSection := sectionStri(rpm.signature, RPMSIGTAG_HEADERSIGNATURES);
+
+      write(rpm.rpmFile, signatureSection);
+      write(rpm.rpmFile, "\0;" mult (7 - pred(length(signatureSection)) mod 8));
+      write(rpm.rpmFile, headerSection);
+      write(rpm.rpmFile, payload);
+      truncate(rpm.rpmFile, pred(tell(rpm.rpmFile)));
+      # close(rpm.rpmFile);
+    end if;
     if rpm.archive <> fileSys.value then
       close(rpm.archive);
     end if;
-    close(rpm.rpmFile);
     rpm.rpmFile := STD_NULL;
   end func;
 
@@ -2140,7 +2407,6 @@ const proc: putFile (inout rpmArchive: rpm, in string: filePath,
 const proc: mkdir (inout rpmArchive: rpm, in string: filePath) is func
   local
     var rpmCatalogEntry: catalogEntry is rpmCatalogEntry.value;
-    var rpmHeader: header is rpmHeader.value;
     var boolean: fileExists is TRUE;
     var integer: fileNumber is 0;
     var integer: length is 0;

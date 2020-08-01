@@ -722,7 +722,7 @@ objectType set_lt (listType arguments)
 
 
 /**
- *  Maximal element of a set.
+ *  Maximum element of a set.
  *  Delivers the element from 'aSet' for which the following condition holds:
  *   element >= X
  *  for all X which are in the set.
@@ -740,7 +740,7 @@ objectType set_max (listType arguments)
 
 
 /**
- *  Minimal element of a set.
+ *  Minimum element of a set.
  *  Delivers the element from 'aSet' for which the following condition holds:
  *   element <= X
  *  for all X which are in the set.
@@ -777,7 +777,7 @@ objectType set_ne (listType arguments)
 
 
 /**
- *  Minimal element of aSet/arg_1 that is larger than number/arg_2.
+ *  Minimum element of aSet/arg_1 that is larger than number/arg_2.
  *  @return the minimum element of aSet/arg_1 that is larger than number/arg_2.
  *  @exception RANGE_ERROR If aSet/arg_1 has no element larger than number/arg_2.
  */

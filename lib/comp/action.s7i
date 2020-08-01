@@ -459,8 +459,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SET_ATIME, function, params, c_expr);
       when {"CMD_SET_FILEMODE"}:
         process(CMD_SET_FILEMODE, function, params, c_expr);
+      when {"CMD_SET_GROUP"}:
+        process(CMD_SET_GROUP, function, params, c_expr);
       when {"CMD_SET_MTIME"}:
         process(CMD_SET_MTIME, function, params, c_expr);
+      when {"CMD_SET_OWNER"}:
+        process(CMD_SET_OWNER, function, params, c_expr);
       when {"CMD_SET_SEARCH_PATH"}:
         process(CMD_SET_SEARCH_PATH, function, params, c_expr);
       when {"CMD_SHELL"}:

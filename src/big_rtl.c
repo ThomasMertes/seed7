@@ -2137,53 +2137,35 @@ static bigIntType bigMDiv1 (const_bigIntType dividend, bigDigitType divisor_digi
 /**
  *  Computes a modulo integer division of dividend by divisor for signed
  *  big integers if dividend has less digits than divisor. The memory for
- *  the quotient is requested and the normalized quotient is returned. Normally
- *  dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  If abs(dividend) < abs(divisor) holds the quotient is 0 or -1. The cases
- *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
- *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
- *  and divisor = 0x00008000 (0x000080000000...). In this cases the
- *  quotient is -1. In the cases if the quotient is 0 or -1 the
- *  following check is done: If dividend and divisor have different signs
- *  the quotient is -1 otherwise the quotient is 0.
+ *  the quotient is requested and the normalized quotient is returned.
+ *  If the dividend is zero the quotient is always zero. Otherwise if
+ *  the signs of dividend and divisor differ the quotient is -1.
+ *  In all other cases the quotient is zero.
  *  @return the quotient of the integer division.
  */
 static bigIntType bigMDivSizeLess (const const_bigIntType dividend,
     const const_bigIntType divisor)
 
   {
-    memSizeType pos;
     bigIntType quotient;
 
   /* bigMDivSizeLess */
+    logFunction(printf("bigMDivSizeLess(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
     if (unlikely(!ALLOC_BIG_SIZE_OK(quotient, 1))) {
       raise_error(MEMORY_ERROR);
-      return NULL;
     } else {
       quotient->size = 1;
-      if (unlikely(dividend->size + 1 == divisor->size &&
-                   dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
-                   divisor->bigdigits[divisor->size - 1] == 0 &&
-                   divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN)) {
-        quotient->bigdigits[0] = BIGDIGIT_MASK;
-        pos = dividend->size - 1;
-        while (pos > 0) {
-          pos--;
-          if (likely(dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0)) {
-            quotient->bigdigits[0] = 0;
-            pos = 0;
-          } /* if */
-        } /* while */
-      } else {
-        quotient->bigdigits[0] = 0;
-      } /* if */
-      if (quotient->bigdigits[0] == 0 &&
-          IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) !=
+      if ((dividend->size == 1 && dividend->bigdigits[0] == 0) ||
+          IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) ==
           IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
+        quotient->bigdigits[0] = 0;
+      } else {
         quotient->bigdigits[0] = BIGDIGIT_MASK;
       } /* if */
-      return quotient;
     } /* if */
+    logFunction(printf("bigMDivSizeLess --> %s\n", bigHexCStri(quotient)););
+    return quotient;
   } /* bigMDivSizeLess */
 
 
@@ -2297,65 +2279,45 @@ static void bigAddTo (const bigIntType big1, const const_bigIntType big2)
  *  Computes the modulo of the integer division dividend by divisor for
  *  signed big integers if dividend has less digits than divisor. The memory
  *  for the modulo is requested and the normalized modulo is returned.
- *  Normally dividend->size < divisor->size implies abs(dividend) < abs(divisor).
- *  If abs(dividend) < abs(divisor) holds the division gives 0. The cases
- *  dividend->size < divisor->size and abs(dividend) = abs(divisor) are if
- *  dividend->size + 1 == divisor->size and dividend = 0x8000 (0x80000000...)
- *  and divisor = 0x00008000 (0x000080000000...). In this cases the
- *  modulo is 0. In all other cases the modulo is dividend or dividend +
- *  divisor if dividend and divisor have different signs.
+ *  There are two cases: If the modulo division (see bigMDivSizeLess() )
+ *  would compute a quotient of zero the modulo is equal to the dividend.
+ *  In all other cases the quotient would be -1 and the modulo is computed
+ *  as divisor + dividend.
+ *  @return the modulo of the integer division.
  */
 static bigIntType bigModSizeLess (const const_bigIntType dividend,
     const const_bigIntType divisor)
 
   {
-    memSizeType pos;
-    boolType moduloIs0;
     bigIntType modulo;
 
   /* bigModSizeLess */
-    if (dividend->size + 1 == divisor->size &&
-        dividend->bigdigits[dividend->size - 1] == BIGDIGIT_SIGN &&
-        divisor->bigdigits[divisor->size - 1] == 0 &&
-        divisor->bigdigits[divisor->size - 2] == BIGDIGIT_SIGN) {
-      moduloIs0 = TRUE;
-      for (pos = 0; pos < dividend->size - 1; pos++) {
-        if (dividend->bigdigits[pos] != 0 || divisor->bigdigits[pos] != 0) {
-          moduloIs0 = FALSE;
-        } /* if */
-      } /* for */
-    } else {
-      moduloIs0 = FALSE;
-    } /* if */
-    if (moduloIs0) {
-      if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, 1))) {
+    logFunction(printf("bigModSizeLess(%s,", bigHexCStri(dividend));
+                printf("%s)\n", bigHexCStri(divisor)););
+    if ((dividend->size == 1 && dividend->bigdigits[0] == 0) ||
+        IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) ==
+        IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
+      /* The quotient is zero. */
+      if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, dividend->size))) {
         raise_error(MEMORY_ERROR);
       } else {
-        modulo->size = 1;
-        modulo->bigdigits[0] = 0;
+        modulo->size = dividend->size;
+        memcpy(modulo->bigdigits, dividend->bigdigits,
+               (size_t) dividend->size * sizeof(bigDigitType));
       } /* if */
     } else {
-      if (IS_NEGATIVE(dividend->bigdigits[dividend->size - 1]) !=
-          IS_NEGATIVE(divisor->bigdigits[divisor->size - 1])) {
-        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, divisor->size))) {
-          raise_error(MEMORY_ERROR);
-        } else {
-          modulo->size = divisor->size;
-          memcpy(modulo->bigdigits, divisor->bigdigits,
-                 (size_t) divisor->size * sizeof(bigDigitType));
-          bigAddTo(modulo, dividend);
-          modulo = normalize(modulo);
-        } /* if */
+      /* The quotient is -1. */
+      if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, divisor->size))) {
+        raise_error(MEMORY_ERROR);
       } else {
-        if (unlikely(!ALLOC_BIG_SIZE_OK(modulo, dividend->size))) {
-          raise_error(MEMORY_ERROR);
-        } else {
-          modulo->size = dividend->size;
-          memcpy(modulo->bigdigits, dividend->bigdigits,
-                 (size_t) dividend->size * sizeof(bigDigitType));
-        } /* if */
+        modulo->size = divisor->size;
+        memcpy(modulo->bigdigits, divisor->bigdigits,
+               (size_t) divisor->size * sizeof(bigDigitType));
+        bigAddTo(modulo, dividend);
+        modulo = normalize(modulo);
       } /* if */
     } /* if */
+    logFunction(printf("bigModSizeLess --> %s\n", bigHexCStri(quotient)););
     return modulo;
   } /* bigModSizeLess */
 

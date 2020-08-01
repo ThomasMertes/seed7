@@ -207,9 +207,7 @@ const proc: process (SET_CONV1, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
   end func;
 
 
@@ -217,9 +215,7 @@ const proc: process (SET_CONV3, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "(";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
   end func;
 
 

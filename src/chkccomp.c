@@ -7697,6 +7697,24 @@ int main (int argc, char **argv)
                          "grpResult = getgrgid((gid_t) 0);\n"
                          "printf(\"%d\\n\", grpResult!=NULL);\n"
                          "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETGRNAM_R %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <grp.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "int funcRes; struct group grp;\n"
+                         "char buffer[2048]; struct group *grpResult;\n"
+                         "funcRes = getgrnam_r(\"root\", &grp,\n"
+                         "buffer, sizeof(buffer), &grpResult);\n"
+                         "printf(\"%d\\n\", funcRes==0 && grpResult==&grp);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETGRNAM %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <grp.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "struct group *grpResult;\n"
+                         "grpResult = getgrnam(\"root\");\n"
+                         "printf(\"%d\\n\", grpResult!=NULL);\n"
+                         "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_GETPWUID_R %d\n",
         compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
                          "#include <pwd.h>\n"
@@ -7713,6 +7731,24 @@ int main (int argc, char **argv)
                          "int main(int argc, char *argv[]){\n"
                          "struct passwd *pwdResult;\n"
                          "pwdResult = getpwuid((uid_t) 0);\n"
+                         "printf(\"%d\\n\", pwdResult!=NULL);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETPWNAM_R %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <pwd.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "int funcRes; struct passwd pwd;\n"
+                         "char buffer[2048]; struct passwd *pwdResult;\n"
+                         "funcRes = getpwnam_r(\"root\", &pwd,\n"
+                         "buffer, sizeof(buffer), &pwdResult);\n"
+                         "printf(\"%d\\n\", funcRes==0 && pwdResult==&pwd);\n"
+                         "return 0;}\n") && doTest() == 1);
+    fprintf(versionFile, "#define HAS_GETPWNAM %d\n",
+        compileAndLinkOk("#include <stdio.h>\n#include <sys/types.h>\n"
+                         "#include <pwd.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "struct passwd *pwdResult;\n"
+                         "pwdResult = getpwnam(\"root\");\n"
                          "printf(\"%d\\n\", pwdResult!=NULL);\n"
                          "return 0;}\n") && doTest() == 1);
     fprintf(versionFile, "#define HAS_SETJMP %d\n",

@@ -1401,6 +1401,7 @@ floatType fltRand (floatType low, floatType high)
 
   {
     double factor;
+    rtlValueUnion conv;
     floatType randomNumber;
 
   /* fltRand */
@@ -1415,8 +1416,9 @@ floatType fltRand (floatType low, floatType high)
       factor = high - low;
       if (factor == POSITIVE_INFINITY) {
         do {
-          randomNumber = (floatType) uintRand();
-        } while (randomNumber < low || randomNumber > high);
+          conv.binaryValue = uintRand();
+          randomNumber = conv.floatValue;
+        } while (os_isnan(randomNumber) || randomNumber < low || randomNumber > high);
       } else {
         do {
           randomNumber = ((floatType) uintRand()) / ((floatType) UINTTYPE_MAX);

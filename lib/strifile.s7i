@@ -74,12 +74,16 @@ const proc: write (inout strifile: outStrifile, in string: stri) is func
     if outStrifile.position = succ(length(outStrifile.content)) then
       outStrifile.content &:= stri;
     elsif outStrifile.position <= length(outStrifile.content) then
-      outStrifile.content := outStrifile.content[.. pred(outStrifile.position)] &
-          stri & outStrifile.content[outStrifile.position + length(stri) ..];
+      if pred(outStrifile.position) <= length(outStrifile.content) - length(stri) then
+        outStrifile.content @:= [outStrifile.position] stri;
+      else
+        outStrifile.content := outStrifile.content[.. pred(outStrifile.position)];
+        outStrifile.content &:= stri;
+      end if;
     elsif outStrifile.position > length(outStrifile.content) then
       outStrifile.content &:=
-        " " mult pred(outStrifile.position - length(outStrifile.content)) &
-        stri;
+          "\0;" mult pred(outStrifile.position - length(outStrifile.content)) &
+          stri;
     end if;
     outStrifile.position +:= length(stri);
   end func;

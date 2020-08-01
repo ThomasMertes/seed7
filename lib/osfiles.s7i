@@ -279,6 +279,18 @@ const func string: getOwner (in string: filePath)            is action "CMD_GET_
 
 
 (**
+ *  Set the owner of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: setOwner (in string: filePath, in string: owner) is action "CMD_SET_OWNER";
+
+
+(**
  *  Determine the name of the group (GID) to which a file belongs.
  *  @return the name of the file group.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -287,6 +299,18 @@ const func string: getOwner (in string: filePath)            is action "CMD_GET_
  *  @exception FILE_ERROR A system function returns an error.
  *)
 const func string: getGroup (in string: filePath)            is action "CMD_GET_GROUP";
+
+
+(**
+ *  Set the group of a file.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''filePath''
+ *             to the system path type.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation or it cannot be converted to the system
+ *             path type.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: setGroup (in string: filePath, in string: group) is action "CMD_SET_GROUP";
 
 
 (**
@@ -665,8 +689,20 @@ const proc: setMTime (inout osFileSys: fileSystem, in string: filePath,
 const func string: getOwner (inout osFileSys: fileSystem, in string: filePath) is
   return getOwner(filePath);
 
+const proc: setOwner (inout osFileSys: fileSystem, in string: filePath,
+    in string: owner) is func
+  begin
+    setOwner(filePath, owner);
+  end func;
+
 const func string: getGroup (inout osFileSys: fileSystem, in string: filePath) is
   return getGroup(filePath);
+
+const proc: setGroup (inout osFileSys: fileSystem, in string: filePath,
+    in string: group) is func
+  begin
+    setGroup(filePath, group);
+  end func;
 
 const func file: open (inout osFileSys: fileSystem, in string: filePath, in string: mode) is
   return open(filePath, mode);

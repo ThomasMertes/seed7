@@ -24,35 +24,55 @@ a.navigation:link    { color: purple; text-decoration: none; background-color: s
 a.navigation:hover   { color: red;    text-decoration: none; background-color: silver }
 a.navigation:active  { color: green;  text-decoration: none; background-color: silver }
 
-a.type:visited { color: red; text-decoration: underline  }
-a.type:link    { color: red; text-decoration: underline  }
+a.type:visited { color: red; text-decoration: underline }
+a.type:link    { color: red; text-decoration: underline }
 a.type:hover   { color: navy }
 a.type:active  { color: gold }
 
-a.keywd:visited { color: blue; text-decoration: underline  }
-a.keywd:link    { color: blue; text-decoration: underline  }
+a.type_no_ul:visited { color: red; text-decoration: none }
+a.type_no_ul:link    { color: red; text-decoration: none }
+a.type_no_ul:hover   { color: navy; text-decoration: underline }
+a.type_no_ul:active  { color: gold; text-decoration: underline }
+
+a.keywd:visited { color: blue; text-decoration: underline }
+a.keywd:link    { color: blue; text-decoration: underline }
 a.keywd:hover   { color: orange }
 a.keywd:active  { color: green }
 
-a.op:visited { color: blue; text-decoration: underline  }
-a.op:link    { color: blue; text-decoration: underline  }
+a.keywd_no_ul:visited { color: blue; text-decoration: none }
+a.keywd_no_ul:link    { color: blue; text-decoration: none }
+a.keywd_no_ul:hover   { color: orange; text-decoration: underline }
+a.keywd_no_ul:active  { color: green; text-decoration: underline }
+
+a.op:visited { color: blue; text-decoration: underline }
+a.op:link    { color: blue; text-decoration: underline }
 a.op:hover   { color: orange }
 a.op:active  { color: green }
 
-a.lib:visited { color: maroon; text-decoration: underline  }
-a.lib:link    { color: maroon; text-decoration: underline  }
+a.op_no_ul:visited { color: blue; text-decoration: none }
+a.op_no_ul:link    { color: blue; text-decoration: none }
+a.op_no_ul:hover   { color: orange; text-decoration: underline }
+a.op_no_ul:active  { color: green; text-decoration: underline }
+
+a.lib:visited { color: maroon; text-decoration: underline }
+a.lib:link    { color: maroon; text-decoration: underline }
 a.lib:hover   { color: blue }
 a.lib:active  { color: orange }
 
-a.prog:visited { color: darkgreen; text-decoration: underline  }
-a.prog:link    { color: darkgreen; text-decoration: underline  }
+a.prog:visited { color: darkgreen; text-decoration: underline }
+a.prog:link    { color: darkgreen; text-decoration: underline }
 a.prog:hover   { color: darkorange }
 a.prog:active  { color: orange }
 
-a.func:visited { color: purple; text-decoration: underline  }
-a.func:link    { color: purple; text-decoration: underline  }
+a.func:visited { color: purple; text-decoration: underline }
+a.func:link    { color: purple; text-decoration: underline }
 a.func:hover   { color: magenta }
 a.func:active  { color: olive }
+
+a.func_no_ul:visited { color: black; text-decoration: none }
+a.func_no_ul:link    { color: black; text-decoration: none }
+a.func_no_ul:hover   { color: magenta; text-decoration: underline }
+a.func_no_ul:active  { color: olive; text-decoration: underline }
 
 a.var:visited { color: darkcyan; text-decoration: underline  }
 a.var:link    { color: darkcyan; text-decoration: underline  }
@@ -172,6 +192,7 @@ pre.indent {
 <li><a class="link" href="#intro_How_to_read_the_manual"><b>How to read the manual</b></a></li></ol></li>
 <li><a class="link" href="#tutorial_file_start"><big><b>TUTORIAL</b></big></a><ol>
 <li><a class="link" href="#tutorial_Hello_world"><b>Hello world</b></a></li>
+<li><a class="link" href="#tutorial_Greeting"><b>Greeting</b></a></li>
 <li><a class="link" href="#tutorial_Local_declarations_and_expressions"><b>Local declarations and expressions</b></a></li>
 <li><a class="link" href="#tutorial_For_loop_and_float_expressions"><b>For loop and float expressions</b></a></li>
 <li><a class="link" href="#tutorial_Parameters"><b>Parameters</b></a></li>
@@ -605,30 +626,51 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 <a name="tutorial_TUTORIAL"><h2>2. TUTORIAL</h2></a>
 
 <p>
-    We begin with a tutorial introduction to Seed7. In
-  this chapter we want to show the principal ideas that
-  make Seed7 work. At this point, we are not trying to be
-  complete or precise. We just want to give a clear view
-  to the primary philosophic ideas of Seed7. When the
-  primary ideas are understood a complete and precise
-  reference can be learned easier.
+    At the beginning we show how the basic features, that every programming
+  language has, look like in Seed7.
 </p>
 
 <a name="tutorial_Hello_world"><h3>2.1 Hello world</h3></a>
 <p>
-    A Seed7 program consists of a sequence of declarations.
-  With each declaration a <tt><a class="type" href="#types_type">type</a></tt> and a name is attached to the
-  new object. In addition every new declared object gets an
-  initial value.
-</p><p>
-  Here is an example of an object declaration:
+    Below is the hello world program of Seed7:
 </p><pre class="indent">
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
   <span class="keywd">begin</span>
-    writeln(<span class="stri">"hello world"</span>);
+    <span class="func_no_ul">writeln</span>(<span class="stri">"hello world"</span>);
   <span class="keywd">end func</span>;
 </pre><p>
-  The object <tt>'main'</tt> is declared as constant and <tt><a class="type" href="#types_proc">proc</a></tt>
+  Save this program to the file hello.sd7 and start it in a console with:
+</p><pre class="indent">
+s7 hello
+</pre><p>
+  The Seed7 interpreter writes something like
+</p><pre class="indent">
+SEED7 INTERPRETER Version 5.0.11428  Copyright (c) 1990-2020 Thomas Mertes
+hello world
+</pre><p>
+  You get information about the Seed7 interpreter and
+  the output of the hello.sd7 program:
+</p><pre class="indent">
+hello world
+</pre><p>
+  The the option <b>-q</b> can be used to suppress the line
+  with information about the Seed7 interpreter:
+</p><pre class="indent">
+s7 -q hello
+</pre><p>
+  The first line of the program
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+</pre><p>
+  includes all definitions of the standard library. In contrast to
+  other libraries the seed7_05.s7i library contains not only function
+  declarations but also declarations of statements and operators.
+  Additionally the seed7_05.s7i library defines the '<tt>main</tt>' function
+  as entry point for a Seed7 program.
+</p><p>
+  In the example above <tt>'main'</tt> is declared as constant and <tt><a class="type" href="#types_proc">proc</a></tt>
   is the type of <tt>'main'</tt>. Declaring <tt>'main'</tt> with the type
   <tt><a class="type" href="#types_proc">proc</a></tt> makes a procedure out of it. The object <tt>'main'</tt> gets a
 </p><pre class="indent">
@@ -638,45 +680,118 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
   <tt><span class="keywd">begin</span> ... <span class="keywd">end</span></tt> in PASCAL and <tt>{ ... }</tt> in C. Inside the <tt>'<span class="keywd">func</span>'</tt> is a
   <tt><span class="func">writeln</span></tt> statement with the <tt><span class="stri">"hello world"</span></tt> string. The
   <tt><span class="func">writeln</span></tt> statement is used to write a <tt><a class="type" href="#types_string">string</a></tt> followed by a
-  newline character. To use this declaration as the standard
-  hello world example program, we have to add a few things:
+  newline character.
+</p><p>
+
+<a name="tutorial_Greeting"><h3>2.2 Greeting</h3></a>
+<p>
+    The program below starts a little dialog:
 </p><pre class="indent">
 $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<span class="keywd">const</span> <span class="type">proc</span>: main <span class="keywd">is func</span>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
   <span class="keywd">begin</span>
-    writeln(<span class="stri">"hello world"</span>);
+    <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+    <span class="func_no_ul">readln</span>(name);
+    <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
   <span class="keywd">end func</span>;
 </pre><p>
-  The first line includes all definitions of the standard
-  library. In contrast to other standard libraries the seed7_05.s7i
-  library contains not only function declarations but also
-  declarations of statements and operators.
-  Additionally the seed7_05.s7i library defines the '<tt>main</tt>' function
-  as entry point for a Seed7 program.
+  Save this program to the file greeting.sd7 and start it in a console
+  with:
+</p><pre class="indent">
+s7 greeting
+</pre><p>
+  The program asks you for your name with:
+</p><pre class="indent">
+What's your name?
+</pre><p>
+  After you entered your name and pressed enter it will greet you.
+  This program uses the variable <tt>'name'</tt> to store the name you entered.
+  Variables must be defined. This happens after the keyword <span class="keywd">local</span> with:
+</p><pre class="indent">
+    <span class="keywd">var</span> <span class="type">string</span>: name <span class="keywd">is</span> <span class="stri">""</span>;
+</pre><p>
+  This defines the <tt><a class="type" href="#types_string">string</a></tt> variable <tt>'name'</tt>. This definition assigns
+  also the initial value <span class="stri">""</span> to <tt>'name'</tt>. In Seed7 variables must be
+  defined and always get an initial value. This seems unnecessary in
+  small programs, but if programs grow bigger it helps readability a lot.
 </p><p>
-  If you write this program in a file called hello.sd7
-  and execute the command
+  The <tt><span class="func">write</span></tt> statement is similar to <tt><span class="func">writeln</span></tt>, but it does not write
+  a newline character. The <tt><span class="func">readln</span></tt> statement reads a line from the
+  standard input file and assigns this line to the given variable.
+  This function allows the usage of backspace the correct the input.
+  By pressing enter the line is sent to the program. The final
+  <tt><span class="func">writeln</span></tt> statement contains the operator <tt><span class="op">&lt;&amp;</span></tt> to concatenate strings.
+  If necessary the <tt><span class="op">&lt;&amp;</span></tt> operator converts values to <tt><a class="type" href="#types_string">string</a></tt>.
+</p><p>
+  The greeting program above has a problem. If someone refuses to
+  type his name and just presses enter the program writes:
 </p><pre class="indent">
-s7 hello
+Hi !
 </pre><p>
-  The Seed7 interpreter writes something like
+  To avoid this we improve the program to check for special cases:
 </p><pre class="indent">
-SEED7 INTERPRETER Version 5.0.4  Copyright (c) 1990-2013 Thomas Mertes
-hello world
-</pre><p>
-  You get information about the Seed7 interpreter and
-  the output of the world.sd7 program:
-</p><pre class="indent">
-hello world
-</pre><p>
-  The the option <b>-q</b> can be used to suppress the line
-  with information about the Seed7 interpreter:
-</p><pre class="indent">
-s7 -q hello
-</pre><p></p>
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 
-<a name="tutorial_Local_declarations_and_expressions"><h3>2.2 Local declarations and expressions</h3></a>
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+    <span class="func_no_ul">readln</span>(name);
+    <a class="keywd_no_ul" href="#stats_if-statement">if</a> name <span class="op_no_ul">=</span> <span class="stri">""</span> <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      <span class="func_no_ul">writeln</span>(<span class="stri">"Greetings to the person who pressed enter!"</span>);
+    <a class="keywd_no_ul" href="#stats_if-statement">elsif</a> name <span class="op_no_ul">=</span> <span class="stri">"name"</span> <a class="keywd_no_ul" href="#stats_if-statement">then</a>
+      <span class="func_no_ul">writeln</span>(<span class="stri">"Interesting, your name is name."</span>);
+    <a class="keywd_no_ul" href="#stats_if-statement">else</a>
+      <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
+    <a class="keywd_no_ul" href="#stats_if-statement">end if</a>;
+  <span class="keywd">end func</span>;
+</pre><p>
+  There can be zero or more <tt><span class="keywd">elsif</span></tt> parts, and the <tt><span class="keywd">else</span></tt> part
+  is optional. Alternatively we can use a loop to insist on
+  entering a name:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    <a class="keywd_no_ul" href="#stats_repeat-statement">repeat</a>
+      <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+      <span class="func_no_ul">readln</span>(name);
+    <a class="keywd_no_ul" href="#stats_repeat-statement">until</a> name <span class="op_no_ul">(in_string)">&lt;&gt;</span> <span class="stri">""</span>;
+    <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
+  <span class="keywd">end func</span>;
+</pre><p>
+  The <tt><span class="keywd">repeat</span> ... <span class="keywd">until</span></tt> loop repeats the statements
+  between the two keywords until the condition <tt><span class="op">(in_string)">&lt;&gt;</span> <span class="stri">""</span></tt> is true.
+  Note that the statements in the <tt><a class="keywd" href="#stats_repeat-statement">repeat</a></tt> loop are executed
+  at least once. A solution with a <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop is:
+</p><pre class="indent">
+$ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
+
+<span class="keywd">const</span> <a class="type_no_ul" href="#types_proc">proc</a>: main <span class="keywd">is func</span>
+  <span class="keywd">local</span>
+    <span class="keywd">var</span> <a class="type_no_ul" href="#types_string">string</a>: name <span class="keywd">is</span> <span class="stri">""</span>;
+  <span class="keywd">begin</span>
+    <span class="func_no_ul">write</span>(<span class="stri">"What's your name? "</span>);
+    <span class="func_no_ul">readln</span>(name);
+    <a class="keywd_no_ul" href="#stats_while-statement">while</a> name <span class="op_no_ul">=</span> <span class="stri">""</span> <a class="keywd_no_ul" href="#stats_while-statement">do</a>
+      <span class="func_no_ul">write</span>(<span class="stri">"Just pressing enter is not okay. What's your name? "</span>);
+      <span class="func_no_ul">readln</span>(name);
+    <a class="keywd_no_ul" href="#stats_while-statement">end while</a>;
+    <span class="func_no_ul">writeln</span>(<span class="stri">"Hi "</span> <span class="op_no_ul">&lt;&amp;</span> name <span class="op_no_ul">&lt;&amp;</span> <span class="stri">"!"</span>);
+  <span class="keywd">end func</span>;
+</pre><p>
+  If a non-empty name is entered for the first time the <tt><a class="keywd" href="#stats_while-statement">while</a></tt> loop
+  is not entered at all.
+</p>
+
+<a name="tutorial_Local_declarations_and_expressions"><h3>2.3 Local declarations and expressions</h3></a>
 <p>
     To write a Fahrenheit to Celsius conversion table we use
   the following program:
@@ -734,7 +849,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
 300 148
 </pre><p></p>
 
-<a name="tutorial_For_loop_and_float_expressions"><h3>2.3 For loop and float expressions</h3></a>
+<a name="tutorial_For_loop_and_float_expressions"><h3>2.4 For loop and float expressions</h3></a>
 <p>
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
@@ -793,7 +908,7 @@ $ <span class="keywd">include</span> <span class="lib">"seed7_05.s7i"</span>;
   of 6.
 </p>
 
-<a name="tutorial_Parameters"><h3>2.4 Parameters</h3></a>
+<a name="tutorial_Parameters"><h3>2.5 Parameters</h3></a>
 <p>
     Most parameters are not changed inside a function. Seed7
   uses <tt>'<span class="keywd">in</span>'</tt> parameters to describe this situation:
@@ -921,7 +1036,7 @@ reset(8);
   over an explicit <tt>'<span class="keywd">val</span>'</tt> and <tt>'<span class="keywd">ref</span>'</tt> parameter.
 </p>
 
-<a name="tutorial_Declare_a_statement"><h3>2.5 Declare a statement</h3></a>
+<a name="tutorial_Declare_a_statement"><h3>2.6 Declare a statement</h3></a>
 <p>
     This example program writes its arguments
 </p><pre class="indent">
@@ -964,7 +1079,7 @@ $ <span class="keywd">syntax</span> <span class="type">expr</span>: .for.().rang
   Because of these powerful features Seed7 does not need iterators.
 </p>
 
-<a name="tutorial_Template_declaring_a_statement"><h3>2.6 Template declaring a statement</h3></a>
+<a name="tutorial_Template_declaring_a_statement"><h3>2.7 Template declaring a statement</h3></a>
 <p>
   Templates are just normal functions with <a class="type" href="#types_type">type</a>s as parameters.
   The following template function declares <tt><a class="link" href="#stats_for-statement">for-statements</a></tt>:
@@ -3232,12 +3347,12 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
 
 <a name="types_string"><h3>5.9 string</h3></a>
 <p>
-    The type <tt><a class="type" href="#types_string">string</a></tt> describes sequences of Unicode characters
-  (including the empty string). The characters in the <tt><a class="type" href="#types_string">string</a></tt>
+    The type <tt><span class="type">string</span></tt> describes sequences of Unicode characters
+  (including the empty string). The characters in the <tt><span class="type">string</span></tt>
   use the UTF-32 encoding. Strings are not <tt><span class="stri">'\0;'</span></tt> terminated.
-  Therefore they can also contain binary data. Although <tt><a class="type" href="#types_string">string</a></tt>s
+  Therefore they can also contain binary data. Although <tt><span class="type">string</span></tt>s
   are allowed to grow very big, it can happen that there is not
-  enough memory to represent a <tt><a class="type" href="#types_string">string</a></tt> value. In this case the
+  enough memory to represent a <tt><span class="type">string</span></tt> value. In this case the
   exception <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt> is raised. In the source file a <a class="link" href="#tokens_String_literals">string
   literal</a> is a sequence of UTF-8 encoded Unicode characters
   surrounded by double quotes.
@@ -13015,7 +13130,7 @@ Program received signal SIGFPE, Arithmetic exception.
        the statics of a bridge wrong.</li>
 </ul><p>
   Undefined behavior is a term used in the language specification
-  of C and other programming languages. Undefined behavior usually
+  of C and in other programming languages. Undefined behavior usually
   means that the behavior of the program is unpredictable. Normally
   Seed7 has a well defined behavior in all situations. Even in
   situations where the language specification of C refers to

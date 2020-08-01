@@ -114,9 +114,10 @@ const func file: openNullDevice is func
  *  Close an external_file.
  *  @exception FILE_ERROR A system function returns an error.
  *)
-const proc: close (in external_file: aFile) is func
+const proc: close (inout external_file: aFile) is func
   begin
     close(aFile.ext_file);
+    aFile.ext_file := CLIB_NULL_FILE;
   end func;
 
 

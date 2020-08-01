@@ -67,6 +67,13 @@ const func integer: ord (in bin64: binValue)                   is action "INT_IC
 
 
 (**
+ *  Convert to integer.
+ *  @return the unchanged value as integer.
+ *)
+const func integer: integer (in bin64: binValue)               is action "INT_ICONV1";
+
+
+(**
  *  Convert to bin64.
  *  @return the unchanged value as bin64.
  *)

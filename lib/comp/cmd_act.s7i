@@ -52,7 +52,9 @@ const ACTION: CMD_REMOVE_TREE      is action "CMD_REMOVE_TREE";
 const ACTION: CMD_SETENV           is action "CMD_SETENV";
 const ACTION: CMD_SET_ATIME        is action "CMD_SET_ATIME";
 const ACTION: CMD_SET_FILEMODE     is action "CMD_SET_FILEMODE";
+const ACTION: CMD_SET_GROUP        is action "CMD_SET_GROUP";
 const ACTION: CMD_SET_MTIME        is action "CMD_SET_MTIME";
+const ACTION: CMD_SET_OWNER        is action "CMD_SET_OWNER";
 const ACTION: CMD_SET_SEARCH_PATH  is action "CMD_SET_SEARCH_PATH";
 const ACTION: CMD_SHELL            is action "CMD_SHELL";
 const ACTION: CMD_SHELL_ESCAPE     is action "CMD_SHELL_ESCAPE";
@@ -92,7 +94,9 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        cmdSetenv (const const_striType, const const_striType);");
     declareExtern(c_prog, "void        cmdSetATime (const const_striType, intType, intType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "void        cmdSetFileMode (const const_striType, const const_setType);");
+    declareExtern(c_prog, "void        cmdSetGroup (const const_striType, striType);");
     declareExtern(c_prog, "void        cmdSetMTime (const const_striType, intType, intType, intType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        cmdSetOwner (const const_striType, striType);");
     declareExtern(c_prog, "intType     cmdShell (const const_striType, const const_striType);");
     declareExtern(c_prog, "striType    cmdShellEscape (const const_striType);");
     declareExtern(c_prog, "void        cmdSymlink (const_striType, const_striType);");
@@ -484,6 +488,19 @@ const proc: process (CMD_SET_FILEMODE, in reference: function,
   end func;
 
 
+const proc: process (CMD_SET_GROUP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSetGroup(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process (CMD_SET_MTIME, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -507,6 +524,19 @@ const proc: process (CMD_SET_MTIME, in reference: function,
     process_expr(params[8], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[9], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process (CMD_SET_OWNER, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "cmdSetOwner(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 

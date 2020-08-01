@@ -1,0 +1,525 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkbst.sd7    Checks byte string operations                     *)
+(*  Copyright (C) 2010, 2020  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the           *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+  include "bstring.s7i";
+
+
+const proc: (inout bstring: destination) &:= (ref bstring: extension)    is action "BST_APPEND";
+
+
+const func bstring: bstriExpr (in bstring: bstri) is
+  return bstri;
+
+
+const func integer: intExpr (in integer: number) is
+  return number + length(str(rand(1, 9))[2 ..]);
+
+
+const func boolean: raisesIndexError (ref func char: expression) is func
+  result
+    var boolean: raisesIndexError is FALSE;
+  local
+    var char: exprResult is ' ';
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch INDEX_ERROR:
+        raisesIndexError := TRUE;
+    end block;
+  end func;
+
+
+const func boolean: raisesRangeError (ref func bstring: expression) is func
+  result
+    var boolean: raisesRangeError is FALSE;
+  local
+    var bstring: exprResult is bstring("");
+  begin
+    block
+      exprResult := expression;
+    exception
+      catch RANGE_ERROR:
+        raisesRangeError := TRUE;
+    end block;
+  end func;
+
+
+const proc: check_bstring_parse is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  string(bstring(""))      <> "" or
+        string(bstring("\0;"))   <> "\0;" or
+        string(bstring("\a"))    <> "\a" or
+        string(bstring("\b"))    <> "\b" or
+        string(bstring("\t"))    <> "\t" or
+        string(bstring("\n"))    <> "\n" or
+        string(bstring("\e"))    <> "\e" or
+        string(bstring(" "))     <> " " or
+        string(bstring("!"))     <> "!" or
+        string(bstring("~"))     <> "~" or
+        string(bstring("\128;")) <> "\128;" or
+        string(bstring("\255;")) <> "\255;" or
+        string(bstring("\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+                       \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+                       \ !\"#$%&'()*+,-./\
+                       \0123456789:;<=>?\
+                       \@ABCDEFGHIJKLMNO\
+                       \PQRSTUVWXYZ[\\]^_\
+                       \`abcdefghijklmno\
+                       \pqrstuvwxyz{|}~\127;\
+                       \\128;\129;\130;\131;\132;\133;\134;\135;\
+                       \\136;\137;\138;\139;\140;\141;\142;\143;\
+                       \\144;\145;\146;\147;\148;\149;\150;\151;\
+                       \\152;\153;\154;\155;\156;\157;\158;\159;\
+                       \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+                       \°±²³´µ¶·¸¹º»¼½¾¿\
+                       \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+                       \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+                       \àáâãäåæçèéêëìíîï\
+                       \ðñòóôõö÷øùúûüýþÿ")) <>
+            "\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+            \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+            \ !\"#$%&'()*+,-./\
+            \0123456789:;<=>?\
+            \@ABCDEFGHIJKLMNO\
+            \PQRSTUVWXYZ[\\]^_\
+            \`abcdefghijklmno\
+            \pqrstuvwxyz{|}~\127;\
+            \\128;\129;\130;\131;\132;\133;\134;\135;\
+            \\136;\137;\138;\139;\140;\141;\142;\143;\
+            \\144;\145;\146;\147;\148;\149;\150;\151;\
+            \\152;\153;\154;\155;\156;\157;\158;\159;\
+            \\160;¡¢£¤¥¦§¨©ª«¬­®¯\
+            \°±²³´µ¶·¸¹º»¼½¾¿\
+            \ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ\
+            \ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß\
+            \àáâãäåæçèéêëìíîï\
+            \ðñòóôõö÷øùúûüýþÿ" then
+      writeln(" ***** Bstring parse does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(bstring("\256;")) or
+        not raisesRangeError(bstring("\1114111;")) or
+        not raisesRangeError(bstring("abcdefghijklmnopqrstuvwxyz\256;")) or
+        not raisesRangeError(bstring("abcdefghijklmnopqrstuvwxyz\1114111;")) then
+      writeln(" ***** Bstring parse does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Bstring parse works correct.");
+    end if;
+  end func;
+
+
+(**
+ *  Test the case where source and destination of an assignment
+ *  are identical.
+ *)
+const proc: do_assign (inout bstring: dest, ref bstring: source) is func
+  begin
+    dest := source;
+  end func;
+
+
+const proc: check_bstring_assign is func
+  local
+    var boolean: okay is TRUE;
+    var bstring: bstri is bstring.value;
+  begin
+    okay := TRUE;
+    bstri := bstring parse "asdf";
+    if bstri <> bstring parse "asdf" then
+      writeln(" ***** 'bstri := bstring parse \"asdf\"' does not work correct.");
+      okay := FALSE;
+    end if;
+    bstri := bstri;
+    if bstri <> bstring parse "asdf" then
+      writeln(" ***** 'bstri := bstri' does not work correct.");
+      okay := FALSE;
+    end if;
+    do_assign(bstri, bstri);
+    if bstri <> bstring parse "asdf" then
+      writeln(" ***** 'bstri := bstri' does not work correct.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Bstring assignment works correct.");
+    end if;
+  end func;
+
+
+(**
+ *  Test the case where source and destination of an append
+ *  are identical.
+ *)
+const proc: do_append (inout bstring: dest, ref bstring: source) is func
+  begin
+    dest &:= source;
+  end func;
+
+
+const proc: check_bstring_append is func
+  local
+    var boolean: okay is TRUE;
+    var bstring: bstri is bstring.value;
+    var bstring: bstri2 is bstring.value;
+    var bstring: bstri3 is bstring.value;
+  begin
+    okay := TRUE;
+    bstri := bstring parse "123";
+    bstri &:= bstring parse "456";
+    if bstri <> bstring parse "123456" then
+      writeln(" ***** 'bstring &:= bstring' does not work correct.");
+      okay := FALSE;
+    end if;
+    bstri2 := bstring parse "1234567890";
+    bstri2 &:= bstri2;
+    if bstri2 <> bstring parse "12345678901234567890" then
+      writeln(" ***** 'bstring &:= bstring' does not work correct.");
+      okay := FALSE;
+    end if;
+    bstri3 := bstring parse "1234567890";
+    do_append(bstri3, bstri3);
+    if bstri3 <> bstring parse "12345678901234567890" then
+      writeln(" ***** 'bstring &:= bstring' does not work correct.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Bstring append works correct.");
+    end if;
+  end func;
+
+
+const proc: check_bstring_comparisons is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  not (bstring parse "" = bstring parse "") or
+        not (bstring parse "a" = bstring parse "a") or
+        not (bstring parse "b" = bstring parse "b") or
+        not (bstring parse "aa" = bstring parse "aa") or
+        not (bstring parse "ab" = bstring parse "ab") or
+        not (bstring parse "ba" = bstring parse "ba") or
+        not (bstring parse "aaa" = bstring parse "aaa") or
+        not (bstring parse "abc" = bstring parse "abc") or
+        not (bstring parse "cbc" = bstring parse "cbc") or
+        not (bstring parse "123456789" = bstring parse "123456789") or
+        not (bstring parse "1234567890" = bstring parse "1234567890") or
+        not (bstring parse "abcdefghijklmnopqrstuvwxyz" = bstring parse "abcdefghijklmnopqrstuvwxyz") or
+        bstring parse "" = bstring parse "a" or
+        bstring parse "" = bstring parse "123456789" or
+        bstring parse "a" = bstring parse "" or
+        bstring parse "a" = bstring parse "b" or
+        bstring parse "a" = bstring parse "aa" or
+        bstring parse "a" = bstring parse "ab" or
+        bstring parse "a" = bstring parse "123456789" or
+        bstring parse "b" = bstring parse "a" or
+        bstring parse "aa" = bstring parse "a" or
+        bstring parse "aa" = bstring parse "ab" or
+        bstring parse "aa" = bstring parse "ba" or
+        bstring parse "aa" = bstring parse "aaa" or
+        bstring parse "ab" = bstring parse "a" or
+        bstring parse "ab" = bstring parse "aa" or
+        bstring parse "ab" = bstring parse "ba" or
+        bstring parse "ba" = bstring parse "aa" or
+        bstring parse "ba" = bstring parse "ab" or
+        bstring parse "aaa" = bstring parse "aa" or
+        bstring parse "abc" = bstring parse "cbc" or
+        bstring parse "cbc" = bstring parse "abc" or
+        bstring parse "123456789" = bstring parse "" or
+        bstring parse "123456789" = bstring parse "a" or
+        bstring parse "123456789" = bstring parse "1234567890" or
+        bstring parse "123456789" = bstring parse "abcdefghijklmnopqrstuvwxyz" or
+        bstring parse "1234567890" = bstring parse "123456789" or
+        bstring parse "abcdefghijklmnopqrstuvwxyz" = bstring parse "123456789" then
+      writeln(" ***** BSTRING = BSTRING does not work correct.");
+      okay := FALSE;
+    end if;
+    if  bstring parse "" <> bstring parse "" or
+        bstring parse "a" <> bstring parse "a" or
+        bstring parse "b" <> bstring parse "b" or
+        bstring parse "aa" <> bstring parse "aa" or
+        bstring parse "ab" <> bstring parse "ab" or
+        bstring parse "ba" <> bstring parse "ba" or
+        bstring parse "aaa" <> bstring parse "aaa" or
+        bstring parse "abc" <> bstring parse "abc" or
+        bstring parse "cbc" <> bstring parse "cbc" or
+        bstring parse "123456789" <> bstring parse "123456789" or
+        bstring parse "1234567890" <> bstring parse "1234567890" or
+        bstring parse "abcdefghijklmnopqrstuvwxyz" <> bstring parse "abcdefghijklmnopqrstuvwxyz" or
+        not (bstring parse "" <> bstring parse "a") or
+        not (bstring parse "" <> bstring parse "123456789") or
+        not (bstring parse "a" <> bstring parse "") or
+        not (bstring parse "a" <> bstring parse "b") or
+        not (bstring parse "a" <> bstring parse "aa") or
+        not (bstring parse "a" <> bstring parse "ab") or
+        not (bstring parse "a" <> bstring parse "123456789") or
+        not (bstring parse "b" <> bstring parse "a") or
+        not (bstring parse "aa" <> bstring parse "a") or
+        not (bstring parse "aa" <> bstring parse "ab") or
+        not (bstring parse "aa" <> bstring parse "ba") or
+        not (bstring parse "aa" <> bstring parse "aaa") or
+        not (bstring parse "ab" <> bstring parse "a") or
+        not (bstring parse "ab" <> bstring parse "aa") or
+        not (bstring parse "ab" <> bstring parse "ba") or
+        not (bstring parse "ba" <> bstring parse "aa") or
+        not (bstring parse "ba" <> bstring parse "ab") or
+        not (bstring parse "aaa" <> bstring parse "aa") or
+        not (bstring parse "abc" <> bstring parse "cbc") or
+        not (bstring parse "cbc" <> bstring parse "abc") or
+        not (bstring parse "123456789" <> bstring parse "") or
+        not (bstring parse "123456789" <> bstring parse "a") or
+        not (bstring parse "123456789" <> bstring parse "1234567890") or
+        not (bstring parse "123456789" <> bstring parse "abcdefghijklmnopqrstuvwxyz") or
+        not (bstring parse "1234567890" <> bstring parse "123456789") or
+        not (bstring parse "abcdefghijklmnopqrstuvwxyz" <> bstring parse "123456789") then
+      writeln(" ***** BSTRING <> BSTRING does not work correct.");
+      okay := FALSE;
+    end if;
+    if  compare(bstring parse "",      bstring parse "")       <>  0 or
+        compare(bstring parse "",      bstring parse "0")      <> -1 or
+        compare(bstring parse "",      bstring parse "00")     <> -1 or
+        compare(bstring parse "",      bstring parse "01")     <> -1 or
+        compare(bstring parse "",      bstring parse "02")     <> -1 or
+        compare(bstring parse "",      bstring parse "1")      <> -1 or
+        compare(bstring parse "",      bstring parse "10")     <> -1 or
+        compare(bstring parse "",      bstring parse "11")     <> -1 or
+        compare(bstring parse "",      bstring parse "12")     <> -1 or
+        compare(bstring parse "",      bstring parse "2")      <> -1 or
+        compare(bstring parse "",      bstring parse "20")     <> -1 or
+        compare(bstring parse "",      bstring parse "21")     <> -1 or
+        compare(bstring parse "",      bstring parse "22")     <> -1 or
+        compare(bstring parse "",      bstring parse "22222")  <> -1 or
+        compare(bstring parse "1",     bstring parse "")       <>  1 or
+        compare(bstring parse "1",     bstring parse "0")      <>  1 or
+        compare(bstring parse "1",     bstring parse "00")     <>  1 or
+        compare(bstring parse "1",     bstring parse "01")     <>  1 or
+        compare(bstring parse "1",     bstring parse "02")     <>  1 or
+        compare(bstring parse "1",     bstring parse "0234")   <>  1 or
+        compare(bstring parse "1",     bstring parse "1")      <>  0 or
+        compare(bstring parse "1",     bstring parse "10")     <> -1 or
+        compare(bstring parse "1",     bstring parse "11")     <> -1 or
+        compare(bstring parse "1",     bstring parse "110")    <> -1 or
+        compare(bstring parse "1",     bstring parse "111")    <> -1 or
+        compare(bstring parse "1",     bstring parse "112")    <> -1 or
+        compare(bstring parse "1",     bstring parse "12")     <> -1 or
+        compare(bstring parse "1",     bstring parse "2")      <> -1 or
+        compare(bstring parse "1",     bstring parse "20")     <> -1 or
+        compare(bstring parse "1",     bstring parse "21")     <> -1 or
+        compare(bstring parse "1",     bstring parse "22")     <> -1 or
+        compare(bstring parse "123",   bstring parse "")       <>  1 or
+        compare(bstring parse "123",   bstring parse "0")      <>  1 or
+        compare(bstring parse "123",   bstring parse "1")      <>  1 or
+        compare(bstring parse "123",   bstring parse "11")     <>  1 or
+        compare(bstring parse "123",   bstring parse "12")     <>  1 or
+        compare(bstring parse "123",   bstring parse "122")    <>  1 or
+        compare(bstring parse "123",   bstring parse "1222")   <>  1 or
+        compare(bstring parse "123",   bstring parse "1223")   <>  1 or
+        compare(bstring parse "123",   bstring parse "1224")   <>  1 or
+        compare(bstring parse "123",   bstring parse "123")    <>  0 or
+        compare(bstring parse "123",   bstring parse "1230")   <> -1 or
+        compare(bstring parse "123",   bstring parse "1231")   <> -1 or
+        compare(bstring parse "123",   bstring parse "1232")   <> -1 or
+        compare(bstring parse "123",   bstring parse "1233")   <> -1 or
+        compare(bstring parse "123",   bstring parse "1234")   <> -1 or
+        compare(bstring parse "123",   bstring parse "124")    <> -1 or
+        compare(bstring parse "123",   bstring parse "13")     <> -1 or
+        compare(bstring parse "123",   bstring parse "2")      <> -1 or
+        compare(bstring parse "123",   bstring parse "21")     <> -1 or
+        compare(bstring parse "123",   bstring parse "22")     <> -1 or
+        compare(bstring parse "123",   bstring parse "222")    <> -1 or
+        compare(bstring parse "123",   bstring parse "2222")   <> -1 or
+        compare(bstring parse "",      bstring parse "")       <>  0 or
+        compare(bstring parse "0",     bstring parse "")       <>  1 or
+        compare(bstring parse "00",    bstring parse "")       <>  1 or
+        compare(bstring parse "01",    bstring parse "")       <>  1 or
+        compare(bstring parse "02",    bstring parse "")       <>  1 or
+        compare(bstring parse "1",     bstring parse "")       <>  1 or
+        compare(bstring parse "10",    bstring parse "")       <>  1 or
+        compare(bstring parse "11",    bstring parse "")       <>  1 or
+        compare(bstring parse "12",    bstring parse "")       <>  1 or
+        compare(bstring parse "2",     bstring parse "")       <>  1 or
+        compare(bstring parse "20",    bstring parse "")       <>  1 or
+        compare(bstring parse "21",    bstring parse "")       <>  1 or
+        compare(bstring parse "22",    bstring parse "")       <>  1 or
+        compare(bstring parse "22222", bstring parse "")       <>  1 or
+        compare(bstring parse "",      bstring parse "1")      <> -1 or
+        compare(bstring parse "0",     bstring parse "1")      <> -1 or
+        compare(bstring parse "00",    bstring parse "1")      <> -1 or
+        compare(bstring parse "01",    bstring parse "1")      <> -1 or
+        compare(bstring parse "02",    bstring parse "1")      <> -1 or
+        compare(bstring parse "0234",  bstring parse "1")      <> -1 or
+        compare(bstring parse "1",     bstring parse "1")      <>  0 or
+        compare(bstring parse "10",    bstring parse "1")      <>  1 or
+        compare(bstring parse "11",    bstring parse "1")      <>  1 or
+        compare(bstring parse "110",   bstring parse "1")      <>  1 or
+        compare(bstring parse "111",   bstring parse "1")      <>  1 or
+        compare(bstring parse "112",   bstring parse "1")      <>  1 or
+        compare(bstring parse "12",    bstring parse "1")      <>  1 or
+        compare(bstring parse "2",     bstring parse "1")      <>  1 or
+        compare(bstring parse "20",    bstring parse "1")      <>  1 or
+        compare(bstring parse "21",    bstring parse "1")      <>  1 or
+        compare(bstring parse "22",    bstring parse "1")      <>  1 or
+        compare(bstring parse "",      bstring parse "123")    <> -1 or
+        compare(bstring parse "0",     bstring parse "123")    <> -1 or
+        compare(bstring parse "1",     bstring parse "123")    <> -1 or
+        compare(bstring parse "11",    bstring parse "123")    <> -1 or
+        compare(bstring parse "12",    bstring parse "123")    <> -1 or
+        compare(bstring parse "122",   bstring parse "123")    <> -1 or
+        compare(bstring parse "1222",  bstring parse "123")    <> -1 or
+        compare(bstring parse "1223",  bstring parse "123")    <> -1 or
+        compare(bstring parse "1224",  bstring parse "123")    <> -1 or
+        compare(bstring parse "123",   bstring parse "123")    <>  0 or
+        compare(bstring parse "1230",  bstring parse "123")    <>  1 or
+        compare(bstring parse "1231",  bstring parse "123")    <>  1 or
+        compare(bstring parse "1232",  bstring parse "123")    <>  1 or
+        compare(bstring parse "1233",  bstring parse "123")    <>  1 or
+        compare(bstring parse "1234",  bstring parse "123")    <>  1 or
+        compare(bstring parse "124",   bstring parse "123")    <>  1 or
+        compare(bstring parse "13",    bstring parse "123")    <>  1 or
+        compare(bstring parse "2",     bstring parse "123")    <>  1 or
+        compare(bstring parse "21",    bstring parse "123")    <>  1 or
+        compare(bstring parse "22",    bstring parse "123")    <>  1 or
+        compare(bstring parse "222",   bstring parse "123")    <>  1 or
+        compare(bstring parse "2222",  bstring parse "123")    <>  1 then
+      writeln(" ***** compare(BSTRING, BSTRING) does not work correct.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Bstring comparisons work correct.");
+    end if;
+  end func;
+
+
+const proc: check_bstring_index is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if  bstring("1234567890") [  1 ] <> '1' or
+        bstring("1234567890") [  2 ] <> '2' or
+        bstring("1234567890") [  3 ] <> '3' or
+        bstring("1234567890") [  4 ] <> '4' or
+        bstring("1234567890") [  5 ] <> '5' or
+        bstring("1234567890") [  6 ] <> '6' or
+        bstring("1234567890") [  7 ] <> '7' or
+        bstring("1234567890") [  8 ] <> '8' or
+        bstring("1234567890") [  9 ] <> '9' or
+        bstring("1234567890") [ 10 ] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
+      okay := FALSE;
+    end if;
+    if  bstriExpr(bstring("1234567890")) [  1 ] <> '1' or
+        bstriExpr(bstring("1234567890")) [  2 ] <> '2' or
+        bstriExpr(bstring("1234567890")) [  3 ] <> '3' or
+        bstriExpr(bstring("1234567890")) [  4 ] <> '4' or
+        bstriExpr(bstring("1234567890")) [  5 ] <> '5' or
+        bstriExpr(bstring("1234567890")) [  6 ] <> '6' or
+        bstriExpr(bstring("1234567890")) [  7 ] <> '7' or
+        bstriExpr(bstring("1234567890")) [  8 ] <> '8' or
+        bstriExpr(bstring("1234567890")) [  9 ] <> '9' or
+        bstriExpr(bstring("1234567890")) [ 10 ] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
+      okay := FALSE;
+    end if;
+    if  bstring("1234567890") [intExpr(  1 )] <> '1' or
+        bstring("1234567890") [intExpr(  2 )] <> '2' or
+        bstring("1234567890") [intExpr(  3 )] <> '3' or
+        bstring("1234567890") [intExpr(  4 )] <> '4' or
+        bstring("1234567890") [intExpr(  5 )] <> '5' or
+        bstring("1234567890") [intExpr(  6 )] <> '6' or
+        bstring("1234567890") [intExpr(  7 )] <> '7' or
+        bstring("1234567890") [intExpr(  8 )] <> '8' or
+        bstring("1234567890") [intExpr(  9 )] <> '9' or
+        bstring("1234567890") [intExpr( 10 )] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
+      okay := FALSE;
+    end if;
+    if  bstriExpr(bstring("1234567890")) [intExpr(  1 )] <> '1' or
+        bstriExpr(bstring("1234567890")) [intExpr(  2 )] <> '2' or
+        bstriExpr(bstring("1234567890")) [intExpr(  3 )] <> '3' or
+        bstriExpr(bstring("1234567890")) [intExpr(  4 )] <> '4' or
+        bstriExpr(bstring("1234567890")) [intExpr(  5 )] <> '5' or
+        bstriExpr(bstring("1234567890")) [intExpr(  6 )] <> '6' or
+        bstriExpr(bstring("1234567890")) [intExpr(  7 )] <> '7' or
+        bstriExpr(bstring("1234567890")) [intExpr(  8 )] <> '8' or
+        bstriExpr(bstring("1234567890")) [intExpr(  9 )] <> '9' or
+        bstriExpr(bstring("1234567890")) [intExpr( 10 )] <> '0' then
+      writeln(" ***** STRING [ INDEX ] does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesIndexError(bstring("1234567890") [integer.first]) or
+        not raisesIndexError(bstring("1234567890") [           -2]) or
+        not raisesIndexError(bstring("1234567890") [           -1]) or
+        not raisesIndexError(bstring("1234567890") [            0]) or
+        not raisesIndexError(bstring("1234567890") [           11]) or
+        not raisesIndexError(bstring("1234567890") [           12]) or
+        not raisesIndexError(bstring("1234567890") [ integer.last]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [integer.first]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [           -2]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [           -1]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [            0]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [           11]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [           12]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [ integer.last]) or
+        not raisesIndexError(bstring("1234567890") [intExpr(integer.first)]) or
+        not raisesIndexError(bstring("1234567890") [intExpr(           -2)]) or
+        not raisesIndexError(bstring("1234567890") [intExpr(           -1)]) or
+        not raisesIndexError(bstring("1234567890") [intExpr(            0)]) or
+        not raisesIndexError(bstring("1234567890") [intExpr(           11)]) or
+        not raisesIndexError(bstring("1234567890") [intExpr(           12)]) or
+        not raisesIndexError(bstring("1234567890") [intExpr( integer.last)]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [intExpr(integer.first)]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [intExpr(           -2)]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [intExpr(           -1)]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [intExpr(            0)]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [intExpr(           11)]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [intExpr(           12)]) or
+        not raisesIndexError(bstriExpr(bstring("1234567890")) [intExpr( integer.last)]) then
+      writeln(" ***** String indexing outside of string does not raise INDEX_ERROR.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("String indices work correct.");
+    end if;
+  end func;
+
+
+const proc: main is func
+
+  begin
+    writeln;
+    check_bstring_parse;
+    check_bstring_assign;
+    check_bstring_append;
+    check_bstring_comparisons;
+    check_bstring_index;
+  end func;

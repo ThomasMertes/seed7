@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_unx.c     Command functions which call the Unix API.        */
-/*  Copyright (C) 1989 - 2016, 2018, 2019  Thomas Mertes            */
+/*  Copyright (C) 1989 - 2016, 2018 - 2020  Thomas Mertes           */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_unx.c                                       */
-/*  Changes: 2010, 2012  Thomas Mertes                              */
+/*  Changes: 2010 - 2016, 2018 - 2020  Thomas Mertes                */
 /*  Content: Command functions which call the Unix API.             */
 /*                                                                  */
 /********************************************************************/
@@ -38,6 +38,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #include "fcntl.h"
@@ -48,11 +49,11 @@
 #include "unistd.h"
 #endif
 
-#if HAS_GETGRGID_R || HAS_GETGRGID
+#if HAS_GETGRGID_R || HAS_GETGRGID || HAS_GETGRNAM_R || HAS_GETGRNAM
 #include "grp.h"
 #endif
 
-#if HAS_GETPWUID_R || HAS_GETPWUID
+#if HAS_GETPWUID_R || HAS_GETPWUID || HAS_GETPWNAM_R || HAS_GETPWNAM
 #include "pwd.h"
 #endif
 
@@ -277,18 +278,11 @@ static striType getGroupFromGid (gid_t gid)
                       gid, errno, strerror(errno)););
       raise_error(FILE_ERROR);
       group = NULL;
-    }
+    } else
 #else
     grpResult = getgrgid(gid);
-    if (unlikely(grpResult == NULL)) {
-      logError(printf("getGroupFromGid: getgrgid(" FMT_U32 ") failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      gid, errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-      group = NULL;
-    }
 #endif
-    else if (grpResult != NULL) {
+    if (grpResult != NULL) {
       group = cstri8_or_cstri_to_stri(grpResult->gr_name);
       if (unlikely(group == NULL)) {
         raise_error(MEMORY_ERROR);
@@ -301,6 +295,72 @@ static striType getGroupFromGid (gid_t gid)
 #endif
     return group;
   } /* getGroupFromGid */
+
+
+
+static gid_t getGidFromGroup (striType group, errInfoType *err_info)
+
+  {
+    os_striType os_group;
+#if HAS_GETGRNAM_R || HAS_GETGRNAM
+#if HAS_GETGRNAM_R
+    int getgrnam_result;
+    struct group grp;
+    char buffer[2048];
+#endif
+    struct group *grpResult;
+#endif
+    unsigned long gidNum;
+    char *endptr;
+    gid_t gid;
+
+  /* getGidFromGroup */
+    logFunction(printf("getGidFromGroup(\"%s\", %d)\n",
+                       striAsUnquotedCStri(group), *err_info););
+    os_group = stri_to_os_stri(group, err_info);
+    if (unlikely(os_group == NULL)) {
+      logError(printf("getGidFromGroup: stri_to_os_stri(\"%s\", *, *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(group), *err_info););
+      gid = (gid_t) -1;
+    } else {
+#if HAS_GETGRNAM_R || HAS_GETGRNAM
+#if HAS_GETGRNAM_R
+      getgrnam_result = getgrnam_r(os_group, &grp, buffer,
+                                   sizeof(buffer), &grpResult);
+      if (unlikely(getgrnam_result != 0)) {
+        logError(printf("getGidFromGroup: getgrnam_r(\"%s\", ...) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_group, errno, strerror(errno)););
+        os_stri_free(os_group);
+        *err_info = FILE_ERROR;
+        gid = (gid_t) -1;
+      } else
+#elif HAS_GETGRNAM
+      grpResult = getgrgid(gid);
+#endif
+      if (grpResult != NULL) {
+        gid = grpResult->gr_gid;
+      } else
+#endif
+      if (os_group[0] >= 0 && os_group[0] <= '9') {
+        gidNum = strtoul(os_group, &endptr, 10);
+        if (gidNum != ULONG_MAX && endptr[0] == '\0' &&
+            (long) (gid_t) gidNum == gidNum) {
+          gid = (gid_t) gidNum;
+        } else {
+          *err_info = RANGE_ERROR;
+          gid = (gid_t) -1;
+        } /* if */
+      } else {
+        *err_info = RANGE_ERROR;
+        gid = (gid_t) -1;
+      } /* if */
+      os_stri_free(os_group);
+    } /* if */
+    logFunction(printf("getGidFromGroup --> %ld\n", (long) gid););
+    return gid;
+  } /* getGidFromGroup */
 
 
 
@@ -328,18 +388,11 @@ static striType getUserFromUid (uid_t uid)
                       uid, errno, strerror(errno)););
       raise_error(FILE_ERROR);
       user = NULL;
-    }
+    } else
 #else
     pwdResult = getpwuid(uid);
-    if (unlikely(pwdResult == NULL)) {
-      logError(printf("getUserFromUid: getpwuid(" FMT_U32 ") failed:\n"
-                      "errno=%d\nerror: %s\n",
-                      uid, errno, strerror(errno)););
-      raise_error(FILE_ERROR);
-      user = NULL;
-    }
 #endif
-    else if (pwdResult != NULL) {
+    if (pwdResult != NULL) {
       user = cstri8_or_cstri_to_stri(pwdResult->pw_name);
       if (unlikely(user == NULL)) {
         raise_error(MEMORY_ERROR);
@@ -352,6 +405,72 @@ static striType getUserFromUid (uid_t uid)
 #endif
     return user;
   } /* getUserFromUid */
+
+
+
+static uid_t getUidFromUser (striType user, errInfoType *err_info)
+
+  {
+    os_striType os_user;
+#if HAS_GETPWNAM_R || HAS_GETPWNAM
+#if HAS_GETPWNAM_R
+    int getpwnam_result;
+    struct passwd pwd;
+    char buffer[2048];
+#endif
+    struct passwd *pwdResult;
+#endif
+    unsigned long uidNum;
+    char *endptr;
+    uid_t uid;
+
+  /* getUidFromUser */
+    logFunction(printf("getUidFromUser(\"%s\", %d)\n",
+                       striAsUnquotedCStri(user), *err_info););
+    os_user = stri_to_os_stri(user, err_info);
+    if (unlikely(os_user == NULL)) {
+      logError(printf("getUidFromUser: stri_to_os_stri(\"%s\", *, *) failed:\n"
+                      "err_info=%d\n",
+                      striAsUnquotedCStri(user), *err_info););
+      uid = (uid_t) -1;
+    } else {
+#if HAS_GETPWNAM_R || HAS_GETPWNAM
+#if HAS_GETPWNAM_R
+      getpwnam_result = getpwnam_r(os_user, &pwd, buffer,
+                                   sizeof(buffer), &pwdResult);
+      if (unlikely(getpwnam_result != 0)) {
+        logError(printf("getUidFromUser: getpwnam_r(\"%s\", ...) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        os_user, errno, strerror(errno)););
+        os_stri_free(os_user);
+        *err_info = FILE_ERROR;
+        uid = (uid_t) -1;
+      } else
+#elif HAS_GETPWNAM
+      pwdResult = getpwuid(uid);
+#endif
+      if (pwdResult != NULL) {
+        uid = pwdResult->pw_uid;
+      } else
+#endif
+      if (os_user[0] >= 0 && os_user[0] <= '9') {
+        uidNum = strtoul(os_user, &endptr, 10);
+        if (uidNum != ULONG_MAX && endptr[0] == '\0' &&
+            (long) (uid_t) uidNum == uidNum) {
+          uid = (uid_t) uidNum;
+        } else {
+          *err_info = RANGE_ERROR;
+          uid = (uid_t) -1;
+        } /* if */
+      } else {
+        *err_info = RANGE_ERROR;
+        uid = (uid_t) -1;
+      } /* if */
+      os_stri_free(os_user);
+    } /* if */
+    logFunction(printf("getUidFromUser --> %ld\n", (long) uid););
+    return uid;
+  } /* getUidFromUser */
 
 
 
@@ -428,12 +547,86 @@ striType cmdGetOwner (const const_striType filePath)
       } else {
         os_stri_free(os_path);
         /* printf("cmdGetOwner: st_uid=" FMT_U32 "\n", stat_buf.st_uid); */
-	owner = getUserFromUid(stat_buf.st_uid);
+        owner = getUserFromUid(stat_buf.st_uid);
       } /* if */
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
     return owner;
   } /* cmdGetOwner */
+
+
+
+void cmdSetGroup (const const_striType filePath, striType group)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    gid_t gid;
+
+  /* cmdSetGroup */
+    logFunction(printf("cmdSetGroup(\"%s\", ", striAsUnquotedCStri(filePath));
+                printf("\"%s\")\n", striAsUnquotedCStri(group)));
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      raise_error(err_info);
+    } else {
+      gid = getGidFromGroup(group, &err_info);
+      if (unlikely(gid == (gid_t) -1)) {
+        os_stri_free(os_path);
+        raise_error(err_info);
+      } else {
+        if (unlikely(os_chown(os_path, (gid_t) -1, gid) != 0)) {
+          logError(printf("cmdSetGroup: chown(\"" FMT_S_OS "\", -1, %ld) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, (long) gid, errno, strerror(errno)););
+          os_stri_free(os_path);
+          raise_error(FILE_ERROR);
+        } /* if */
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+  } /* cmdSetGroup */
+
+
+
+void cmdSetOwner (const const_striType filePath, striType owner)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    uid_t uid;
+
+  /* cmdSetOwner */
+    logFunction(printf("cmdSetOwner(\"%s\", ", striAsUnquotedCStri(filePath));
+                printf("\"%s\")\n", striAsUnquotedCStri(owner)));
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      raise_error(err_info);
+    } else {
+      uid = getUidFromUser(owner, &err_info);
+      if (unlikely(uid == (uid_t) -1)) {
+        os_stri_free(os_path);
+        raise_error(err_info);
+      } else {
+        if (unlikely(os_chown(os_path, uid, (gid_t) -1) != 0)) {
+          logError(printf("cmdSetOwner: chown(\"" FMT_S_OS "\", %ld, -1) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          os_path, (long) uid, errno, strerror(errno)););
+          os_stri_free(os_path);
+          raise_error(FILE_ERROR);
+        } /* if */
+      } /* if */
+      os_stri_free(os_path);
+    } /* if */
+  } /* cmdSetOwner */
 
 
 

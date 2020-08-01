@@ -33,6 +33,7 @@ include "fileutil.s7i";
 include "gzip.s7i";
 include "lzma.s7i";
 include "xz.s7i";
+include "zstd.s7i";
 
 
 const proc: setUpHead (in string: basePath, in string: filePath,
@@ -56,6 +57,41 @@ const proc: setUpHead (in string: basePath, in string: filePath,
     header.prefix   := "";
     header.filePath := filePath;
     header.filePathSuffix := filePathSuffix;
+  end func;
+
+
+const func file: openTarFileWithMagic (in string: inFileName, in boolean: do_unzip) is func
+  result
+    var file: inFile is STD_NULL;
+  local
+    var string: magicBytes is "";
+  begin
+    inFile := open(inFileName, "r");
+    if inFile <> STD_NULL then
+      magicBytes := gets(inFile, length(GZIP_MAGIC));
+      if magicBytes = GZIP_MAGIC then
+        seek(inFile, 1);
+        inFile := openGunzipFile(inFile);
+      else
+        magicBytes &:= gets(inFile, length(ZSTD_MAGIC) - length(GZIP_MAGIC));
+        if magicBytes = ZSTD_MAGIC then
+          seek(inFile, 1);
+          inFile := openZstdFile(inFile);
+        else
+          magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(ZSTD_MAGIC));
+          seek(inFile, 1);
+          if magicBytes = XZ_MAGIC then
+            inFile := openXzFile(inFile);
+          elsif endsWith(inFileName, ".lzma") then
+            inFile := openLzmaFile(inFile);
+          elsif do_unzip then
+            write("tar7: File \"");
+            write(inFileName);
+            writeln("\" not in gzip format.");
+          end if;
+        end if;
+      end if;
+    end if;
   end func;
 
 
@@ -108,28 +144,8 @@ const proc: tarTell (in string: inFileName, in array string: arg_list,
     in boolean: do_view, in boolean: do_unzip) is func
   local
     var file: inFile is STD_NULL;
-    var string: magicBytes is "";
   begin
-    inFile := open(inFileName, "r");
-    if inFile <> STD_NULL then
-      magicBytes := gets(inFile, length(GZIP_MAGIC));
-      if magicBytes = GZIP_MAGIC then
-        seek(inFile, 1);
-        inFile := openGunzipFile(inFile);
-      else
-        magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(GZIP_MAGIC));
-        seek(inFile, 1);
-        if magicBytes = XZ_MAGIC then
-          inFile := openXzFile(inFile);
-        elsif endsWith(inFileName, ".lzma") then
-          inFile := openLzmaFile(inFile);
-        elsif do_unzip then
-          write("tar7: File \"");
-          write(inFileName);
-          writeln("\" not in gzip format.");
-        end if;
-      end if;
-    end if;
+    inFile := openTarFileWithMagic(inFileName, do_unzip);
     if inFile <> STD_NULL then
       tarTell(inFile, arg_list, do_view);
     else
@@ -208,28 +224,8 @@ const proc: tarXtract (in string: inFileName, in array string: arg_list,
     in boolean: do_view, in boolean: do_unzip) is func
   local
     var file: inFile is STD_NULL;
-    var string: magicBytes is "";
   begin
-    inFile := open(inFileName, "r");
-    if inFile <> STD_NULL then
-      magicBytes := gets(inFile, length(GZIP_MAGIC));
-      if magicBytes = GZIP_MAGIC then
-        seek(inFile, 1);
-        inFile := openGunzipFile(inFile);
-      else
-        magicBytes &:= gets(inFile, length(XZ_MAGIC) - length(GZIP_MAGIC));
-        seek(inFile, 1);
-        if magicBytes = XZ_MAGIC then
-          inFile := openXzFile(inFile);
-        elsif endsWith(inFileName, ".lzma") then
-          inFile := openLzmaFile(inFile);
-        elsif do_unzip then
-          write("tar7: File \"");
-          write(inFileName);
-          writeln("\" not in gzip format.");
-        end if;
-      end if;
-    end if;
+    inFile := openTarFileWithMagic(inFileName, do_unzip);
     if inFile <> STD_NULL then
       tarXtract(inFile, arg_list, do_view);
     else
@@ -300,18 +296,23 @@ const proc: tarCreate (in string: outFileName, in array string: arg_list,
     in boolean: do_view, in boolean: do_zip) is func
   local
     var file: outFile is STD_NULL;
+    var file: compressedFile is STD_NULL;
     var string: name is "";
     var string: uncompressed is "";
   begin
     outFile := open(outFileName, "w");
     if outFile <> STD_NULL and do_zip then
-      outFile := openGzipFile(outFile);
+      compressedFile := outFile;
+      outFile := openGzipFile(compressedFile);
     end if;
     if outFile <> STD_NULL then
       for name range arg_list do
         tarCreate(outFile, "", "", [] name, do_view);
       end for;
       close(outFile);
+    end if;
+    if compressedFile <> STD_NULL then
+      close(compressedFile);
     end if;
   end func;
 

@@ -16,10 +16,12 @@ chkbig.sd7   Checks bigInteger literals and operations
 chkbin.sd7   Checks bin32 and bin64 operations.
 chkbitdata.sd7 Checks functions from the bitdata.s7i library.
 chkbool.sd7  Checks boolean operations
+chkbst.sd7   Checks byte string operations
 chkchr.sd7   Checks character properties
 chkcmd.sd7   Check functions that manipulate files.
 chkdb.sd7    Checks the database interface.
 chkexc.sd7   Checks exceptions
+chkfil.sd7   Checks file operations
 chkflt.sd7   Checks float literals and operations
 chkhent.sd7  Checks the HTML entity handling functions
 chkhsh.sd7   Checks hash table operations

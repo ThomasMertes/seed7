@@ -3889,6 +3889,9 @@ rtlArrayType strSplit (const const_striType mainStri,
             used_max_position++;
             search_start = found_pos + delimiter_size;
             segment_start = search_start;
+            if (search_start > search_end) {
+              search_start = search_end;
+            } /* if */
           } else {
             search_start = found_pos + 1;
           } /* if */

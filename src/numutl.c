@@ -362,10 +362,15 @@ intType getDecimalInt (const const_ustriType decimal, memSizeType length)
     } else {
       uintValue = 0;
       okay = TRUE;
+#if TWOS_COMPLEMENT_INTTYPE
+      while (position < length &&
+             (digitval = ((uintType) decimal[position]) - ((uintType) '0')) <= 9) {
+#else
       while (position < length &&
           decimal[position] >= '0' &&
           decimal[position] <= '9' && okay) {
         digitval = ((uintType) decimal[position]) - ((uintType) '0');
+#endif
         if (unlikely(uintValue > MAX_DIV_10)) {
           okay = FALSE;
         } else {

@@ -419,7 +419,6 @@ const proc: close (inout gzipFile: aFile) is func
     aFile.compressed &:= int32AsFourBytesLe(ord(crc32(aFile.uncompressed, aFile.crc32)));
     aFile.compressed &:= int32AsFourBytesLe(length(aFile.uncompressed) + aFile.uncompressedLength);
     write(aFile.destFile, aFile.compressed);
-    close(aFile.destFile);
   end func;
 
 

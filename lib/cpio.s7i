@@ -475,7 +475,7 @@ const func fileSys: openCpio (in string: cpioFileName) is func
  *)
 const proc: close (inout cpioArchive: cpio) is func
   begin
-    close(cpio.cpioFile);
+    # close(cpio.cpioFile);
     cpio.cpioFile := STD_NULL;
   end func;
 
@@ -910,6 +910,31 @@ const func string: getOwner (inout cpioArchive: cpio, in string: filePath) is fu
   end func;
 
 
+const proc: setOwner (inout cpioArchive: cpio, in string: filePath,
+    in string: owner) is func
+  local
+    var cpioHeader: header is cpioHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(cpio, filePath);
+      if header.filePath in cpio.register then
+        if isDigitString(owner) then
+          header.uid := integer(owner);
+        else
+          header.uid := 0;
+        end if;
+        cpio.catalog @:= [header.filePath] header;
+        seek(cpio.cpioFile, cpio.register[header.filePath]);
+        writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
+    end if;
+  end func;
+
+
 (**
  *  Determine the name of the group (GID) of a file in a CPIO archive.
  *  The function follows symbolic links.
@@ -927,6 +952,31 @@ const func string: getGroup (inout cpioArchive: cpio, in string: filePath) is fu
       raise RANGE_ERROR;
     else
       group := str(followSymlink(cpio, filePath).gid);
+    end if;
+  end func;
+
+
+const proc: setGroup (inout cpioArchive: cpio, in string: filePath,
+    in string: group) is func
+  local
+    var cpioHeader: header is cpioHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      header := followSymlink(cpio, filePath);
+      if header.filePath in cpio.register then
+        if isDigitString(group) then
+          header.gid := integer(group);
+        else
+          header.gid := 0;
+        end if;
+        cpio.catalog @:= [header.filePath] header;
+        seek(cpio.cpioFile, cpio.register[header.filePath]);
+        writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
   end func;
 

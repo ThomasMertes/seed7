@@ -26,11 +26,12 @@ CONTENTS
   1.4     How to read the manual
   2.    TUTORIAL
   2.1     Hello world
-  2.2     Local declarations and expressions
-  2.3     For loop and float expressions
-  2.4     Parameters
-  2.5     Declare a statement
-  2.6     Template declaring a statement
+  2.2     Greeting
+  2.3     Local declarations and expressions
+  2.4     For loop and float expressions
+  2.5     Parameters
+  2.6     Declare a statement
+  2.7     Template declaring a statement
   3.    DECLARATIONS
   3.1     Normal declarations
   3.2     Syntax declarations
@@ -459,30 +460,51 @@ CONTENTS
 2. TUTORIAL
 ===========
 
-    We begin with a tutorial introduction to Seed7. In
-  this chapter we want to show the principal ideas that
-  make Seed7 work. At this point, we are not trying to be
-  complete or precise. We just want to give a clear view
-  to the primary philosophic ideas of Seed7. When the
-  primary ideas are understood a complete and precise
-  reference can be learned easier.
+    At the beginning we show how the basic features, that every programming
+  language has, look like in Seed7.
 
 
 2.1 Hello world
 
-    A Seed7 program consists of a sequence of declarations.
-  With each declaration a type and a name is attached to the
-  new object. In addition every new declared object gets an
-  initial value.
+    Below is the hello world program of Seed7:
 
-  Here is an example of an object declaration:
+    $ include "seed7_05.s7i";
 
     const proc: main is func
       begin
         writeln("hello world");
       end func;
 
-  The object 'main' is declared as constant and 'proc'
+  Save this program to the file hello.sd7 and start it in a console with:
+
+    s7 hello
+
+  The Seed7 interpreter writes something like
+
+    SEED7 INTERPRETER Version 5.0.11428  Copyright (c) 1990-2020 Thomas Mertes
+    hello world
+
+  You get information about the Seed7 interpreter and
+  the output of the hello.sd7 program:
+
+    hello world
+
+  The the option -q can be used to suppress the line
+  with information about the Seed7 interpreter:
+
+    s7 -q hello
+
+  The first line of the program
+
+    $ include "seed7_05.s7i";
+
+  includes all definitions of the standard library. In contrast to
+  other libraries the seed7_05.s7i library contains not only function
+  declarations but also declarations of statements and operators.
+  Additionally the seed7_05.s7i library defines the 'main' function
+  as entry point for a Seed7 program.
+
+  In the example above 'main' is declared as constant and 'proc'
   is the type of 'main'. Declaring 'main' with the type
   'proc' makes a procedure out of it. The object 'main' gets a
 
@@ -492,45 +514,118 @@ CONTENTS
   begin ... end in PASCAL and { ... } in C. Inside the 'func' is a
   'writeln' statement with the "hello world" string. The
   'writeln' statement is used to write a 'string' followed by a
-  newline character. To use this declaration as the standard
-  hello world example program, we have to add a few things:
+  newline character.
+
+
+2.2 Greeting
+
+    The program below starts a little dialog:
 
     $ include "seed7_05.s7i";
 
     const proc: main is func
+      local
+        var string: name is "";
       begin
-        writeln("hello world");
+        write("What's your name? ");
+        readln(name);
+        writeln("Hi " <& name <& "!");
       end func;
 
-  The first line includes all definitions of the standard
-  library. In contrast to other standard libraries the seed7_05.s7i
-  library contains not only function declarations but also
-  declarations of statements and operators.
-  Additionally the seed7_05.s7i library defines the 'main' function
-  as entry point for a Seed7 program.
+  Save this program to the file greeting.sd7 and start it in a console
+  with:
 
-  If you write this program in a file called hello.sd7
-  and execute the command
+    s7 greeting
 
-    s7 hello
+  The program asks you for your name with:
 
-  The Seed7 interpreter writes something like
+    What's your name?
 
-    SEED7 INTERPRETER Version 5.0.4  Copyright (c) 1990-2013 Thomas Mertes
-    hello world
+  After you entered your name and pressed enter it will greet you.
+  This program uses the variable 'name' to store the name you entered.
+  Variables must be defined. This happens after the keyword local with:
 
-  You get information about the Seed7 interpreter and
-  the output of the world.sd7 program:
+        var string: name is "";
 
-    hello world
+  This defines the 'string' variable 'name'. This definition assigns
+  also the initial value "" to 'name'. In Seed7 variables must be
+  defined and always get an initial value. This seems unnecessary in
+  small programs, but if programs grow bigger it helps readability a lot.
 
-  The the option -q can be used to suppress the line
-  with information about the Seed7 interpreter:
+  The 'write' statement is similar to 'writeln', but it does not write
+  a newline character. The 'readln' statement reads a line from the
+  standard input file and assigns this line to the given variable.
+  This function allows the usage of backspace the correct the input.
+  By pressing enter the line is sent to the program. The final
+  'writeln' statement contains the operator <& to concatenate strings.
+  If necessary the <& operator converts values to 'string'.
 
-    s7 -q hello
+  The greeting program above has a problem. If someone refuses to
+  type his name and just presses enter the program writes:
+
+    Hi !
+
+  To avoid this we improve the program to check for special cases:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var string: name is "";
+      begin
+        write("What's your name? ");
+        readln(name);
+        if name = "" then
+          writeln("Greetings to the person who pressed enter!");
+        elsif name = "name" then
+          writeln("Interesting, your name is name.");
+        else
+          writeln("Hi " <& name <& "!");
+        end if;
+      end func;
+
+  There can be zero or more 'elsif' parts, and the 'else' part
+  is optional. Alternatively we can use a loop to insist on
+  entering a name:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var string: name is "";
+      begin
+        repeat
+          write("What's your name? ");
+          readln(name);
+        until name (in_string)"><> "";
+        writeln("Hi " <& name <& "!");
+      end func;
+
+  The repeat ... until loop repeats the statements
+  between the two keywords until the condition (in_string)"><> "" is true.
+  Note that the statements in the repeat loop are executed
+  at least once. A solution with a while loop is:
+
+    $ include "seed7_05.s7i";
+
+    const proc: main is func
+      local
+        var string: name is "";
+      begin
+        write("What's your name? ");
+        readln(name);
+        while name = "" do
+          write("Just pressing enter is not okay. What's your name? ");
+          readln(name);
+        end while;
+        writeln("Hi " <& name <& "!");
+      end func;
+
+  If a non-empty name is entered for the first time the while loop
+  is not entered at all.
 
 
-2.2 Local declarations and expressions
+2.3 Local declarations and expressions
 
     To write a Fahrenheit to Celsius conversion table we use
   the following program:
@@ -588,7 +683,7 @@ CONTENTS
     300 148
 
 
-2.3 For loop and float expressions
+2.4 For loop and float expressions
 
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
@@ -647,7 +742,7 @@ CONTENTS
   of 6.
 
 
-2.4 Parameters
+2.5 Parameters
 
     Most parameters are not changed inside a function. Seed7
   uses 'in' parameters to describe this situation:
@@ -775,7 +870,7 @@ CONTENTS
   over an explicit 'val' and 'ref' parameter.
 
 
-2.5 Declare a statement
+2.6 Declare a statement
 
     This example program writes its arguments
 
@@ -818,7 +913,7 @@ CONTENTS
   Because of these powerful features Seed7 does not need iterators.
 
 
-2.6 Template declaring a statement
+2.7 Template declaring a statement
 
   Templates are just normal functions with types as parameters.
   The following template function declares for-statements:
@@ -12869,7 +12964,7 @@ CONTENTS
        the statics of a bridge wrong.
 
   Undefined behavior is a term used in the language specification
-  of C and other programming languages. Undefined behavior usually
+  of C and in other programming languages. Undefined behavior usually
   means that the behavior of the program is unpredictable. Normally
   Seed7 has a well defined behavior in all situations. Even in
   situations where the language specification of C refers to

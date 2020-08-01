@@ -2613,6 +2613,12 @@ const proc: check_negation is func
         okay := FALSE;
       end if;
       decr(neg_number);
+      if +number <> number then
+        write(" ***** +");
+        write(number);
+        writeln(" is not correct computed.");
+        okay := FALSE;
+      end if;
     end for;
     if okay then
       writeln("-i is correct computed in the range -10 to 10.");
@@ -15578,6 +15584,7 @@ const proc: check_rand is func
       random := rand(8, 15);
       okay := okay and random >= 8 and random <= 15;
     end for;
+
     random := rand(-576460752303423487, 576460752303423487);
     okay := okay and random >= -576460752303423487 and random <= 576460752303423487;
     random := rand(-576460752303423488, 576460752303423487);
@@ -15606,6 +15613,15 @@ const proc: check_rand is func
     okay := okay and random >= -9223372036854775807 and random <= 9223372036854775807;
     random := rand(-9223372036854775807 - 1, 9223372036854775807);
     okay := okay and random >= integer.first and random <= 9223372036854775807;
+
+    if  not raisesRangeError(rand(        1,          0 )) or
+        not raisesRangeError(rand(        1,  intExpr(0))) or
+        not raisesRangeError(rand(intExpr(1),         0 )) or
+        not raisesRangeError(rand(intExpr(1), intExpr(0))) then
+      writeln(" ***** Integer rand with empty range does not raise RANGE_ERROR.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Integer rand is correct for selected values.");
     else

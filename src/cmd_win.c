@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_win.c     Command functions which call the Windows API.     */
-/*  Copyright (C) 1989 - 2013  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2016, 2020 Thomas Mertes                   */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_win.c                                       */
-/*  Changes: 2010, 2012 - 2013  Thomas Mertes                       */
+/*  Changes: 2010 - 2016, 2020  Thomas Mertes                       */
 /*  Content: Command functions which call the Windows API.          */
 /*                                                                  */
 /********************************************************************/
@@ -452,18 +452,18 @@ int wunsetenv (const const_os_striType name)
 static striType getNameFromSid (PSID sid)
 
   {
-    LPWSTR AcctName = NULL;
-    DWORD dwAcctName = 1;
-    LPWSTR DomainName = NULL;
-    DWORD dwDomainName = 1;
+    LPWSTR AcctName;
+    DWORD dwAcctName = 0;
+    LPWSTR DomainName;
+    DWORD dwDomainName = 0;
     SID_NAME_USE eUse = SidTypeUnknown;
     errInfoType err_info = OKAY_NO_ERROR;
     striType name;
 
   /* getNameFromSid */
     LookupAccountSidW(NULL, sid,
-                      AcctName, (LPDWORD) &dwAcctName,
-                      DomainName, (LPDWORD) &dwDomainName, &eUse);
+                      NULL, (LPDWORD) &dwAcctName,
+                      NULL, (LPDWORD) &dwDomainName, &eUse);
     AcctName = (LPWSTR) GlobalAlloc(GMEM_FIXED, dwAcctName * sizeof(os_charType));
     DomainName = (LPWSTR) GlobalAlloc(GMEM_FIXED, dwDomainName * sizeof(os_charType));
     if (unlikely(AcctName == NULL || DomainName == NULL)) {
@@ -476,10 +476,10 @@ static striType getNameFromSid (PSID sid)
       raise_error(MEMORY_ERROR);
       name = NULL;
     } else if (unlikely(
-        LookupAccountSidW(NULL, sid,
-                          AcctName, (LPDWORD) &dwAcctName,
-                          DomainName, (LPDWORD) &dwDomainName,
-                          &eUse) == FALSE)) {
+      LookupAccountSidW(NULL, sid,
+                        AcctName, (LPDWORD) &dwAcctName,
+                        DomainName, (LPDWORD) &dwDomainName,
+                        &eUse) == FALSE)) {
       logError(printf("getNameFromSid: LookupAccountSidW() failed:\n"
                       "lastError=" FMT_U32 "\n",
                       (uint32Type) GetLastError()););
@@ -497,6 +497,49 @@ static striType getNameFromSid (PSID sid)
     } /* if */
     return name;
   } /* getNameFromSid */
+
+
+
+static PSID getSidFromName (striType name, errInfoType *err_info)
+
+  {
+    os_striType accountName;
+    DWORD numberOfBytesForSid = 0;
+    DWORD numberOfCharsForDomainName = 0;
+    os_striType domainName;
+    SID_NAME_USE sidNameUse = SidTypeInvalid;
+    PSID sid = NULL;
+
+  /* getSidFromName */
+    logFunction(printf("getSidFromName(\"%s\", %d)\n",
+                       striAsUnquotedCStri(name), *err_info););
+    accountName = stri_to_os_stri(name, err_info);
+    if (likely(accountName != NULL)) {
+      LookupAccountNameW(NULL, accountName, NULL, &numberOfBytesForSid,
+                         NULL, &numberOfCharsForDomainName, &sidNameUse);
+      sid = (PSID) malloc(numberOfBytesForSid);
+      if (unlikely(sid == NULL)) {
+        *err_info = MEMORY_ERROR;
+      } else if (unlikely(!ALLOC_OS_STRI(domainName, numberOfCharsForDomainName))) {
+        free(sid);
+        *err_info = MEMORY_ERROR;
+        sid = NULL;
+      } else {
+        if (unlikely(LookupAccountNameW(NULL, accountName, sid, &numberOfBytesForSid,
+                                        domainName, &numberOfCharsForDomainName, &sidNameUse) == 0)) {
+          logError(printf("getSidFromName: LookupAccountNameW failed:\n"
+                          "lastError=" FMT_U32 "\n",
+                          (uint32Type) GetLastError()););
+          free(sid);
+          *err_info = FILE_ERROR;
+          sid = NULL;
+        } /* if */
+        FREE_OS_STRI(domainName);
+      } /* if */
+      os_stri_free(accountName);
+    } /* if */
+    return sid;
+  } /* getSidFromName */
 
 
 
@@ -521,9 +564,9 @@ striType cmdGetGroup (const const_striType filePath)
       raise_error(err_info);
       group = NULL;
     } else if (unlikely(
-        GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                              GROUP_SECURITY_INFORMATION, NULL,
-                              &pSidGroup, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+      GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                            GROUP_SECURITY_INFORMATION, NULL,
+                            &pSidGroup, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
       logError(printf("cmdGetGroup: "
                       "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
                       "lastError=" FMT_U32 "\n",
@@ -534,6 +577,10 @@ striType cmdGetGroup (const const_striType filePath)
     } else {
       os_stri_free(os_path);
       group = getNameFromSid(pSidGroup);
+      /* The SID referenced by pSidOwner is located */
+      /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+      /* Therefore it is freed toghether with pSD.  */
+      LocalFree(pSD);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(group)););
     return group;
@@ -562,9 +609,9 @@ striType cmdGetOwner (const const_striType filePath)
       raise_error(err_info);
       owner = NULL;
     } else if (unlikely(
-        GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
-                              OWNER_SECURITY_INFORMATION, &pSidOwner,
-                              NULL, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
+      GetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                            OWNER_SECURITY_INFORMATION, &pSidOwner,
+                            NULL, NULL, NULL, &pSD) != ERROR_SUCCESS)) {
       logError(printf("cmdGetOwner: "
                       "GetNamedSecurityInfoW(\"" FMT_S_OS "\", ...) failed:\n"
                       "lastError=" FMT_U32 "\n",
@@ -575,10 +622,82 @@ striType cmdGetOwner (const const_striType filePath)
     } else {
       os_stri_free(os_path);
       owner = getNameFromSid(pSidOwner);
+      /* The SID referenced by pSidOwner is located */
+      /* inside of the PSECURITY_DESCRIPTOR pSD.    */
+      /* Therefore it is freed toghether with pSD.  */
+      LocalFree(pSD);
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(owner)););
     return owner;
   } /* cmdGetOwner */
+
+
+
+void cmdSetGroup (const const_striType filePath, striType group)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    PSID pSidGroup;
+
+  /* cmdSetGroup */
+    logFunction(printf("cmdSetGroup(\"%s\", ", striAsUnquotedCStri(filePath));
+                printf("\"%s\")\n", striAsUnquotedCStri(group)));
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetGroup: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      raise_error(err_info);
+    } else {
+      pSidGroup = getSidFromName(group, &err_info);
+      if (unlikely(pSidGroup == NULL)) {
+        os_stri_free(os_path);
+        raise_error(err_info);
+      } else {
+        SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                              GROUP_SECURITY_INFORMATION, NULL,
+			      pSidGroup, NULL, NULL);
+        free(pSidGroup);
+        os_stri_free(os_path);
+      } /* if */
+    } /* if */
+  } /* cmdSetGroup */
+
+
+
+void cmdSetOwner (const const_striType filePath, striType owner)
+
+  {
+    os_striType os_path;
+    int path_info = PATH_IS_NORMAL;
+    errInfoType err_info = OKAY_NO_ERROR;
+    PSID pSidOwner;
+
+  /* cmdSetOwner */
+    logFunction(printf("cmdSetOwner(\"%s\", ", striAsUnquotedCStri(filePath));
+                printf("\"%s\")\n", striAsUnquotedCStri(owner)));
+    os_path = cp_to_os_path(filePath, &path_info, &err_info);
+    if (unlikely(os_path == NULL)) {
+      logError(printf("cmdSetOwner: cp_to_os_path(\"%s\", *, *) failed:\n"
+                      "path_info=%d, err_info=%d\n",
+                      striAsUnquotedCStri(filePath), path_info, err_info););
+      raise_error(err_info);
+    } else {
+      pSidOwner = getSidFromName(owner, &err_info);
+      if (unlikely(pSidOwner == NULL)) {
+        os_stri_free(os_path);
+        raise_error(err_info);
+      } else {
+        SetNamedSecurityInfoW(os_path, SE_FILE_OBJECT,
+                              OWNER_SECURITY_INFORMATION, pSidOwner,
+                              NULL, NULL, NULL);
+        free(pSidOwner);
+        os_stri_free(os_path);
+      } /* if */
+    } /* if */
+  } /* cmdSetOwner */
 
 
 

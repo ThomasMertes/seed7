@@ -24,35 +24,55 @@ a.navigation:link    { color: purple; text-decoration: none; background-color: s
 a.navigation:hover   { color: red;    text-decoration: none; background-color: silver }
 a.navigation:active  { color: green;  text-decoration: none; background-color: silver }
 
-a.type:visited { color: red; text-decoration: underline  }
-a.type:link    { color: red; text-decoration: underline  }
+a.type:visited { color: red; text-decoration: underline }
+a.type:link    { color: red; text-decoration: underline }
 a.type:hover   { color: navy }
 a.type:active  { color: gold }
 
-a.keywd:visited { color: blue; text-decoration: underline  }
-a.keywd:link    { color: blue; text-decoration: underline  }
+a.type_no_ul:visited { color: red; text-decoration: none }
+a.type_no_ul:link    { color: red; text-decoration: none }
+a.type_no_ul:hover   { color: navy; text-decoration: underline }
+a.type_no_ul:active  { color: gold; text-decoration: underline }
+
+a.keywd:visited { color: blue; text-decoration: underline }
+a.keywd:link    { color: blue; text-decoration: underline }
 a.keywd:hover   { color: orange }
 a.keywd:active  { color: green }
 
-a.op:visited { color: blue; text-decoration: underline  }
-a.op:link    { color: blue; text-decoration: underline  }
+a.keywd_no_ul:visited { color: blue; text-decoration: none }
+a.keywd_no_ul:link    { color: blue; text-decoration: none }
+a.keywd_no_ul:hover   { color: orange; text-decoration: underline }
+a.keywd_no_ul:active  { color: green; text-decoration: underline }
+
+a.op:visited { color: blue; text-decoration: underline }
+a.op:link    { color: blue; text-decoration: underline }
 a.op:hover   { color: orange }
 a.op:active  { color: green }
 
-a.lib:visited { color: maroon; text-decoration: underline  }
-a.lib:link    { color: maroon; text-decoration: underline  }
+a.op_no_ul:visited { color: blue; text-decoration: none }
+a.op_no_ul:link    { color: blue; text-decoration: none }
+a.op_no_ul:hover   { color: orange; text-decoration: underline }
+a.op_no_ul:active  { color: green; text-decoration: underline }
+
+a.lib:visited { color: maroon; text-decoration: underline }
+a.lib:link    { color: maroon; text-decoration: underline }
 a.lib:hover   { color: blue }
 a.lib:active  { color: orange }
 
-a.prog:visited { color: darkgreen; text-decoration: underline  }
-a.prog:link    { color: darkgreen; text-decoration: underline  }
+a.prog:visited { color: darkgreen; text-decoration: underline }
+a.prog:link    { color: darkgreen; text-decoration: underline }
 a.prog:hover   { color: darkorange }
 a.prog:active  { color: orange }
 
-a.func:visited { color: purple; text-decoration: underline  }
-a.func:link    { color: purple; text-decoration: underline  }
+a.func:visited { color: purple; text-decoration: underline }
+a.func:link    { color: purple; text-decoration: underline }
 a.func:hover   { color: magenta }
 a.func:active  { color: olive }
+
+a.func_no_ul:visited { color: black; text-decoration: none }
+a.func_no_ul:link    { color: black; text-decoration: none }
+a.func_no_ul:hover   { color: magenta; text-decoration: underline }
+a.func_no_ul:active  { color: olive; text-decoration: underline }
 
 a.var:visited { color: darkcyan; text-decoration: underline  }
 a.var:link    { color: darkcyan; text-decoration: underline  }
@@ -338,6 +358,9 @@ Are there static methods / class methods?
 <li><a class="link" href="#faq_generics"><b>
 Are there generics / templates?
 </b></a></li>
+<li><a class="link" href="#faq_undefined_behavior"><p>
+What means the term undefined behavior?
+</b></a></li>
 <li><a class="link" href="#faq_exceptions"><b>
 Are there exceptions?
 </b></a></li>
@@ -427,13 +450,20 @@ The design principles are:
    trigger an exception.</dd>
 
 <dt>Source code portability:</dt><dd>
-   Programs can be <a class="link" href="#faq_portable">executed without changes</a>. Even the path delimiter
+   Most programming languages claim to be source code portable, but
+   often you need considerable effort to actually write portable
+   code. In Seed7 it is hard to write unportable code. Seed7 programs
+   can be <a class="link" href="#faq_portable">executed without changes</a>. Even the path delimiter
    (/) and database connection strings are standardized. Seed7 has
    drivers for graphic, console, etc. to compensate for different
    operating systems.</dd>
 
 <dt>Readability:</dt><dd>
    Programs are more often read than written.</dd>
+
+<dt>Well defined behavior:</dt><dd>
+   Seed7 has a well defined behavior in all situations.
+   <a class="link" href="#faq_undefined_behavior">Undefined behavior</a> like in C does not exist.</dd>
 
 <dt>Extensibility:</dt><dd>
    Every programmer can <a class="link" href="#faq_extensible_programming">define new statements and operators</a>. This
@@ -460,31 +490,43 @@ The design principles are:
    This removes another dependency.</dd>
 
 <dt>An interpreter that starts quickly:</dt><dd>
-   This allows a quick edit-test cycle. On my computer the
-   interpreter reads 400000 lines per second or more.</dd>
+   This allows a quick edit-test cycle. Often the interpreter
+   reads 400000 lines per second or more.</dd>
 
 <dt>No artificial restrictions:</dt><dd>
    There is no limit for length of an identifier or string, for
    the number of variables or number of nesting levels, etc.
    Nowadays this is no problem, but old programming languages
-   have lots of this limits.</dd>
+   have lots of these limits.</dd>
 
 <dt>Independent of databases:</dt><dd>
    The <a class="link" href="#faq_database_access">database</a> drivers of Seed7 consist of 30000 lines of C.
    This way many differences are abstracted away.</dd>
 
 <dt>Possibility to work without IDE:</dt><dd>
-   IDEs are great, but they have an overhead. Sometimes a simple
-   editor makes more sense.</dd>
+   IDEs are great, but some programming languages have been
+   designed in a way that makes it hard to use them without
+   IDE. Programming language features should be designed in a way
+   that makes it possible to work also with a simple text editor.</dd>
 
-<dt>Minimal dependency on external tools and libraries:</dt><dd>
+<dt>Minimal dependency on external tools:</dt><dd>
    To <a class="link" href="#faq_compile_interpreter">compile Seed7</a> you just need a C compiler and a make utility.
-   Most of the libraries of Seed7 are written in Seed7. They do
-   not need external C libraries, which might be missing on a
-   different computer.</dd>
+   The Seed7 libraries avoid calling external tools also.</dd>
 
 <dt>Comprehensive libraries:</dt><dd>
    The <span class="link">libraries</span> of Seed7 cover many areas.</dd>
+
+<dt>Own implementations of libraries:</dt><dd>   
+   Many languages have no own implementation for essential library
+   functions. Instead C, C++ or Java libraries are used. In Seed7
+   most of the libraries are written in Seed7. This reduces the
+   dependency on external libraries. The source code of external
+   libraries is sometimes hard to find and in most cases hard to
+   read.</dd>
+
+<dt>Reliable solutions:</dt><dd>
+   Simple and reliable solutions are preferred over complex
+   solutions, that may fail for various reasons.</dd>
 </dl></div>
 
 <div><br /><a name="faq_extensible_programming"><h3>What is an extensible programming language?
@@ -697,12 +739,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-06-28 the number of lines is:
+than 300000 lines of Seed7. For version 2020-07-26 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">159072</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12638</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">177043</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">159368</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">159436</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12642</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">180506</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">159775</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1009,12 +1051,14 @@ chkflt ........... okay
 chkbin ........... okay
 chkchr ........... okay
 chkstr ........... okay
+chkbst ........... okay
 chkprc ........... okay
 chkbig ........... okay
 chkbool ........... okay
 chkbitdata ........... okay
 chkset ........... okay
 chkhsh ........... okay
+chkfil ........... okay
 chkexc ........... okay
 </pre><p>
 This verifies that interpreter and compiler work correct.
@@ -2349,6 +2393,19 @@ type value of a parameter.
 It is necessary to call template functions explicit. They are not invoked implicit
 as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
+</p></div>
+
+<div><br /><a name="faq_undefined_behavior"><h3>What means the term undefined behavior?
+</h3></a><hr />
+<p>
+Undefined behavior is a term used in the language specification
+of C and in other programming languages. Undefined behavior usually
+means that the behavior of the program is unpredictable. In C
+dividing by zero, accessing an array out of bounds, dereferencing
+NULL or a signed integer overflow all trigger undefined behavior.
+Seed7 has a well defined behavior in all situations. Even in
+situations where the language specification of C refers to
+undefined behavior.
 </p></div>
 
 <div><br /><a name="faq_exceptions"><h3>Are there exceptions?

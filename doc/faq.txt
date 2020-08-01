@@ -45,13 +45,20 @@ The design principles are:
    trigger an exception.
 
  - Source code portability:
-   Programs can be executed without changes. Even the path delimiter
+   Most programming languages claim to be source code portable, but
+   often you need considerable effort to actually write portable
+   code. In Seed7 it is hard to write unportable code. Seed7 programs
+   can be executed without changes. Even the path delimiter
    (/) and database connection strings are standardized. Seed7 has
    drivers for graphic, console, etc. to compensate for different
    operating systems.
 
  - Readability:
    Programs are more often read than written.
+
+ - Well defined behavior:
+   Seed7 has a well defined behavior in all situations.
+   Undefined behavior like in C does not exist.
 
  - Extensibility:
    Every programmer can define new statements and operators. This
@@ -78,31 +85,43 @@ The design principles are:
    This removes another dependency.
 
  - An interpreter that starts quickly:
-   This allows a quick edit-test cycle. On my computer the
-   interpreter reads 400000 lines per second or more.
+   This allows a quick edit-test cycle. Often the interpreter
+   reads 400000 lines per second or more.
 
  - No artificial restrictions:
    There is no limit for length of an identifier or string, for
    the number of variables or number of nesting levels, etc.
    Nowadays this is no problem, but old programming languages
-   have lots of this limits.
+   have lots of these limits.
 
  - Independent of databases:
    The database drivers of Seed7 consist of 30000 lines of C.
    This way many differences are abstracted away.
 
  - Possibility to work without IDE:
-   IDEs are great, but they have an overhead. Sometimes a simple
-   editor makes more sense.
+   IDEs are great, but some programming languages have been
+   designed in a way that makes it hard to use them without
+   IDE. Programming language features should be designed in a way
+   that makes it possible to work also with a simple text editor.
 
- - Minimal dependency on external tools and libraries:
+ - Minimal dependency on external tools:
    To compile Seed7 you just need a C compiler and a make utility.
-   Most of the libraries of Seed7 are written in Seed7. They do
-   not need external C libraries, which might be missing on a
-   different computer.
+   The Seed7 libraries avoid calling external tools also.
 
  - Comprehensive libraries:
    The libraries of Seed7 cover many areas.
+
+ - Own implementations of libraries:
+   Many languages have no own implementation for essential library
+   functions. Instead C, C++ or Java libraries are used. In Seed7
+   most of the libraries are written in Seed7. This reduces the
+   dependency on external libraries. The source code of external
+   libraries is sometimes hard to find and in most cases hard to
+   read.
+
+ - Reliable solutions:
+   Simple and reliable solutions are preferred over complex
+   solutions, that may fail for various reasons.
 
 
 What is an extensible programming language?
@@ -315,12 +334,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-06-28 the number of lines is:
+than 300000 lines of Seed7. For version 2020-07-26 the number of lines is:
 
-  159072  C source files (*.c)
-   12638  C header files (*.h)
-  177043  Seed7 source files (*.sd7)
-  159368  Seed7 library/include files (*.s7i)
+  159436  C source files (*.c)
+   12642  C header files (*.h)
+  180506  Seed7 source files (*.sd7)
+  159775  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -627,12 +646,14 @@ information from the interpreter):
   chkbin ........... okay
   chkchr ........... okay
   chkstr ........... okay
+  chkbst ........... okay
   chkprc ........... okay
   chkbig ........... okay
   chkbool ........... okay
   chkbitdata ........... okay
   chkset ........... okay
   chkhsh ........... okay
+  chkfil ........... okay
   chkexc ........... okay
 
 This verifies that interpreter and compiler work correct.
@@ -1967,6 +1988,19 @@ type value of a parameter.
 It is necessary to call template functions explicit. They are not invoked implicit
 as the C++ template functions. The explicit calls of template functions make it
 obvious what it is going on. This way the program is easier to read.
+
+
+What means the term undefined behavior?
+=======================================
+
+Undefined behavior is a term used in the language specification
+of C and in other programming languages. Undefined behavior usually
+means that the behavior of the program is unpredictable. In C
+dividing by zero, accessing an array out of bounds, dereferencing
+NULL or a signed integer overflow all trigger undefined behavior.
+Seed7 has a well defined behavior in all situations. Even in
+situations where the language specification of C refers to
+undefined behavior.
 
 
 Are there exceptions?

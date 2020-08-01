@@ -2762,6 +2762,7 @@ const proc: check_parse is func
         not raisesRangeError(float parse            "0X1" ) or
         not raisesRangeError(float parse          "0x1.2" ) or
         not raisesRangeError(float parse          "0X1.3" ) or
+        not raisesRangeError(float parse              "€" ) or
         not raisesRangeError(float parse striExpr( " 0.0")) or
         not raisesRangeError(float parse striExpr( "asdf")) or
         not raisesRangeError(float parse striExpr( "0.0a")) or
@@ -2769,7 +2770,8 @@ const proc: check_parse is func
         not raisesRangeError(float parse striExpr(  "0x1")) or
         not raisesRangeError(float parse striExpr(  "0X1")) or
         not raisesRangeError(float parse striExpr("0x1.2")) or
-        not raisesRangeError(float parse striExpr("0X1.3")) then
+        not raisesRangeError(float parse striExpr("0X1.3")) or
+        not raisesRangeError(float parse striExpr(    "€")) then
       writeln(" ***** Parse operator for float with illegal literal does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -3245,6 +3247,7 @@ const proc: check_parse is func
         not raisesRangeError(float(           "0X1" )) or
         not raisesRangeError(float(         "0x1.2" )) or
         not raisesRangeError(float(         "0X1.3" )) or
+        not raisesRangeError(float(             "€" )) or
         not raisesRangeError(float(striExpr( " 0.0"))) or
         not raisesRangeError(float(striExpr( "asdf"))) or
         not raisesRangeError(float(striExpr( "0.0a"))) or
@@ -3252,7 +3255,8 @@ const proc: check_parse is func
         not raisesRangeError(float(striExpr(  "0x1"))) or
         not raisesRangeError(float(striExpr(  "0X1"))) or
         not raisesRangeError(float(striExpr("0x1.2"))) or
-        not raisesRangeError(float(striExpr("0X1.3"))) then
+        not raisesRangeError(float(striExpr("0X1.3"))) or
+        not raisesRangeError(float(striExpr(    "€"))) then
       writeln(" ***** Parse operator for float with illegal literal does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
@@ -3598,6 +3602,7 @@ const proc: check_str is func
         (          -Infinity  digits 6)      <> "-Infinity"  or
         (          NaN        digits 7)      <> "NaN"        or
         (          -0.004     digits 2)      <> "0.00"       or
+        (          -0.0       digits 0)      <> "0"          or
         (floatExpr(0.012345 ) digits 4)      <> "0.0123"     or
         (floatExpr(1.2468   ) digits 2)      <> "1.25"       or
         (floatExpr(3.1415   ) digits 0)      <> "3"          or
@@ -3606,7 +3611,8 @@ const proc: check_str is func
         (floatExpr(Infinity ) digits 5)      <> "Infinity"   or
         (floatExpr(-Infinity) digits 6)      <> "-Infinity"  or
         (floatExpr(NaN      ) digits 7)      <> "NaN"        or
-        (floatExpr(-0.004   ) digits 2)      <> "0.00"       then
+        (floatExpr(-0.004   ) digits 2)      <> "0.00"       or
+        (floatExpr(-0.0     ) digits 0)      <> "0"          then
       writeln(" ***** Digits operator for float does not work correct.");
       okay := FALSE;
     end if;
@@ -3704,6 +3710,8 @@ const proc: check_str is func
         (          -Infinity  sci 6)         <> "-Infinity"  or
         (          NaN        sci 7)         <> "NaN"        or
         (          -0.004     sci 2)         <> "-4.00e-3"   or
+        (          -0.0       sci 2)         <> "0.00e+0"    or
+        (          -0.0       sci 0)         <> "0e+0"       or
         (floatExpr(0.012345 ) sci 4)         <> "1.2345e-2"  or
         (floatExpr(1.2468   ) sci 2)         <> "1.25e+0"    or
         (floatExpr(3.1415   ) sci 0)         <> "3e+0"       or
@@ -3713,6 +3721,8 @@ const proc: check_str is func
         (floatExpr(-Infinity) sci 6)         <> "-Infinity"  or
         (floatExpr(NaN      ) sci 7)         <> "NaN"        or
         (floatExpr(-0.004   ) sci 2)         <> "-4.00e-3"   or
+        (floatExpr(-0.0     ) sci 2)         <> "0.00e+0"    or
+        (floatExpr(-0.0     ) sci 0)         <> "0e+0"       or
         (          0.012345   sci 4 exp 2)   <> "1.2345e-02" or
         (          1.2468e15  sci 2 exp 1)   <> "1.25e+15"   or
         (          3.1415     sci 0 exp 3)   <> "3e+000"     or
@@ -3722,6 +3732,8 @@ const proc: check_str is func
         (          -Infinity  sci 6 exp 2)   <> "-Infinity"  or
         (          NaN        sci 7 exp 2)   <> "NaN"        or
         (          -0.004     sci 2 exp 2)   <> "-4.00e-03"  or
+        (          -0.0       sci 2 exp 2)   <> "0.00e+00"   or
+        (          -0.0       sci 0 exp 2)   <> "0e+00"      or
         (floatExpr(0.012345 ) sci 4 exp 2)   <> "1.2345e-02" or
         (floatExpr(1.2468e15) sci 2 exp 1)   <> "1.25e+15"   or
         (floatExpr(3.1415   ) sci 0 exp 3)   <> "3e+000"     or
@@ -3730,7 +3742,9 @@ const proc: check_str is func
         (floatExpr(Infinity ) sci 5 exp 2)   <> "Infinity"   or
         (floatExpr(-Infinity) sci 6 exp 2)   <> "-Infinity"  or
         (floatExpr(NaN      ) sci 7 exp 2)   <> "NaN"        or
-        (floatExpr(-0.004   ) sci 2 exp 2)   <> "-4.00e-03"  then
+        (floatExpr(-0.004   ) sci 2 exp 2)   <> "-4.00e-03"  or
+        (floatExpr(-0.0     ) sci 2 exp 2)   <> "0.00e+00"   or
+        (floatExpr(-0.0     ) sci 0 exp 2)   <> "0e+00"      then
       writeln(" ***** Sci operator for float does not work correct.");
       okay := FALSE;
     end if;
@@ -4914,23 +4928,53 @@ const proc: check_round is func
 
 
 const proc: check_add is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+    var float: num is 0.0;
   begin
-    if           0.0 +          0.0 =          0.0 and
-                 2.0 +          3.0 =          5.0 and
-               127.0 +        127.0 =        254.0 and
-               255.0 +        255.0 =        510.0 and
-             18341.0 +      26783.0 =      45124.0 and
-             32767.0 +      32767.0 =      65534.0 and
-             35759.0 +      58537.0 =      94296.0 and
-             65535.0 +      65535.0 =     131070.0 and
-             73819.0 +     124303.0 =     198122.0 and
-        2147483647.0 +          0.0 = 2147483647.0 and
-                 0.0 + 2147483647.0 = 2147483647.0 and
-                 0.1 +          0.0 =          0.1 and
-                 0.0 +          0.1 =          0.1 and
-                 2.3 +          3.2 =          5.5 and
-             390.625 +     195.3125 =     585.9375 and
-             0.78125 +      0.15625 =       0.9375 then
+    if           0.0 +          0.0 <>          0.0 or
+                 2.0 +          3.0 <>          5.0 or
+               127.0 +        127.0 <>        254.0 or
+               255.0 +        255.0 <>        510.0 or
+             18341.0 +      26783.0 <>      45124.0 or
+             32767.0 +      32767.0 <>      65534.0 or
+             35759.0 +      58537.0 <>      94296.0 or
+             65535.0 +      65535.0 <>     131070.0 or
+             73819.0 +     124303.0 <>     198122.0 or
+        2147483647.0 +          0.0 <> 2147483647.0 or
+                 0.0 + 2147483647.0 <> 2147483647.0 or
+                 0.1 +          0.0 <>          0.1 or
+                 0.0 +          0.1 <>          0.1 or
+                 2.3 +          3.2 <>          5.5 or
+             390.625 +     195.3125 <>     585.9375 or
+             0.78125 +      0.15625 <>       0.9375 then
+      writeln(" ***** Addition with selected values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    num :=          0.0; num +:=          0.0; ok := ok and num =          0.0;
+    num :=          2.0; num +:=          3.0; ok := ok and num =          5.0;
+    num :=        127.0; num +:=        127.0; ok := ok and num =        254.0;
+    num :=        255.0; num +:=        255.0; ok := ok and num =        510.0;
+    num :=      18341.0; num +:=      26783.0; ok := ok and num =      45124.0;
+    num :=      32767.0; num +:=      32767.0; ok := ok and num =      65534.0;
+    num :=      35759.0; num +:=      58537.0; ok := ok and num =      94296.0;
+    num :=      65535.0; num +:=      65535.0; ok := ok and num =     131070.0;
+    num :=      73819.0; num +:=     124303.0; ok := ok and num =     198122.0;
+    num := 2147483647.0; num +:=          0.0; ok := ok and num = 2147483647.0;
+    num :=          0.0; num +:= 2147483647.0; ok := ok and num = 2147483647.0;
+    num :=          0.1; num +:=          0.0; ok := ok and num =          0.1;
+    num :=          0.0; num +:=          0.1; ok := ok and num =          0.1;
+    num :=          2.3; num +:=          3.2; ok := ok and num =          5.5;
+    num :=      390.625; num +:=     195.3125; ok := ok and num =     585.9375;
+    num :=      0.78125; num +:=      0.15625; ok := ok and num =       0.9375;
+    if not ok then
+      writeln(" ***** Addition assignment with selected values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
       writeln("Addition works correct for selected values.");
     else
       writeln(" ***** Addition does not work correct.");
@@ -12652,20 +12696,49 @@ const proc: check_nan is func
 const proc: check_rand is func
 
   local
-    var float: floatNum is 0.0;
-    var boolean: raised is FALSE;
-    var boolean: continued is FALSE;
+    var float: number is 0.0;
+    var boolean: nanPresent is FALSE;
+    var boolean: negativePresent is FALSE;
+    var boolean: positivePresent is FALSE;
     var boolean: okay is TRUE;
   begin
-    block
-      floatNum := rand(1.0, 0.0);
-      continued := TRUE;
-    exception
-      catch RANGE_ERROR:
-        raised := TRUE;
-    end block;
-    if not raised or continued then
-      writeln(" ***** rand(1.0, 0.0) did not raise RANGE_ERROR.");
+    if  rand(          0.0,            0.0 ) <> 0.0 or
+        rand(          0.0,  floatExpr(0.0)) <> 0.0 or
+        rand(floatExpr(0.0),           0.0 ) <> 0.0 or
+        rand(floatExpr(0.0), floatExpr(0.0)) <> 0.0 then
+      writeln(" ***** rand(0.0, 0.0) does not work correct.");
+      okay := FALSE;
+    end if;
+
+    for 10000 do
+      number := rand(-Infinity, Infinity);
+      if isNaN(number) then
+        nanPresent := TRUE;
+      elsif number < 0.0 then
+        negativePresent := TRUE;
+      elsif number > 0.0 then
+        positivePresent := TRUE;
+      end if;
+    end for;
+
+    if nanPresent then
+      writeln(" ***** rand(-Infinity, Infinity) returns NaN.");
+      okay := FALSE;
+    end if;
+    if not negativePresent then
+      writeln(" ***** rand(-Infinity, Infinity) returns only positive values.");
+      okay := FALSE;
+    end if;
+    if not positivePresent then
+      writeln(" ***** rand(-Infinity, Infinity) returns only negative values.");
+      okay := FALSE;
+    end if;
+
+    if  not raisesRangeError(rand(          1.0,            0.0 )) or
+        not raisesRangeError(rand(          1.0,  floatExpr(0.0))) or
+        not raisesRangeError(rand(floatExpr(1.0),           0.0 )) or
+        not raisesRangeError(rand(floatExpr(1.0), floatExpr(0.0))) then
+      writeln(" ***** rand(1.0, 0.0) does not raise RANGE_ERROR.");
       okay := FALSE;
     end if;
 
@@ -12746,5 +12819,6 @@ const proc: main is func
     check_negative_zero;
     check_inf;
     check_nan;
+    check_rand;
     check_decompose;
   end func;

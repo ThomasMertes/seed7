@@ -730,12 +730,14 @@ HOW TO VERIFY THAT THE INTERPRETER WORKS CORRECT?
     chkbin ........... okay
     chkchr ........... okay
     chkstr ........... okay
+    chkbst ........... okay
     chkprc ........... okay
     chkbig ........... okay
     chkbool ........... okay
     chkbitdata ........... okay
     chkset ........... okay
     chkhsh ........... okay
+    chkfil ........... okay
     chkexc ........... okay
 
 

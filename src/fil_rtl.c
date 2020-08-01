@@ -129,6 +129,8 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
     int mode_pos = 0;
 
   /* get_mode */
+    logFunction(printf("get_mode(*, \"%s\")\n",
+                       striAsUnquotedCStri(file_mode)););
     if (file_mode->size >= 1 &&
         (file_mode->mem[0] == 'r' ||
          file_mode->mem[0] == 'w' ||
@@ -171,11 +173,15 @@ static void get_mode (os_charType os_mode[MAX_MODE_LEN], const const_striType fi
           os_mode[mode_pos++] = '+';
         } /* if */
       } /* if */
-    } /* if */
 #if FOPEN_SUPPORTS_CLOEXEC_MODE
-    os_mode[mode_pos++] = 'e';
+      if (mode_pos != 0) {
+        os_mode[mode_pos++] = 'e';
+      } /* if */
 #endif
+    } /* if */
     os_mode[mode_pos++] = '\0';
+    logFunction(printf("get_mode(\"%s\", \"%s\") -->\n",
+                       os_mode, striAsUnquotedCStri(file_mode)););
   } /* get_mode */
 
 
@@ -965,7 +971,10 @@ void filClose (fileType aFile)
 
   { /* filClose */
     logFunction(printf("filClose(%d)\n", safe_fileno(aFile)););
-    if (unlikely(fclose(aFile) != 0)) {
+    if (unlikely(aFile == NULL)) {
+      logError(printf("filClose: fclose(NULL)\n"););
+      raise_error(FILE_ERROR);
+    } else if (unlikely(fclose(aFile) != 0)) {
       logError(printf("filClose: fclose(%d) failed:\n"
                       "errno=%d\nerror: %s\n",
                       safe_fileno(aFile), errno, strerror(errno)););

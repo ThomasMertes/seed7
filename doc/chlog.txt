@@ -1,3 +1,62 @@
+20200726:
+- The library rpm.s7i has been improved to write changes to the
+  archive file, when the archive is closed.
+- The library tar_cmds.s7i has been improved to support Zstandard
+  compressed tar archives.
+- The functions setOwner() and setGroup() have been added to cpio.s7i
+  and osfiles.s7i.
+- The test programs chkbig.sd7, chkbin.sd7, chkflt.sd7, chkhsh.sd7,
+  chkint.sd7, chkset.sd7 and chkstr.sd7 have been improved to increase
+  the code coverage of the Seed7 run-time library.
+- The example program chkfil.sd7 has been added. This program checks
+  the correctness of file operations.
+- The example program chkbst.sd7 has been added. This program checks
+  the correctness of bstring functions.
+- The program chk_all.sd7 has been improved to call the new programs
+  chkbst.sd7 and chkfil.sd7. It also has been adjusted to the changes
+  in the check programs.
+- In strifile.s7i the function write() has been improved to use @:=
+  if a file is overwritten. This is much quicker that the previous
+  approach, that used several string concatenations.
+- The function openTarFileWithMagic() has been added to tar_cmds.s7i.
+  This function is used by tarTell() and tarXtract().
+- In cpio.s7i the function to close the CPIO archive has been changed
+  to leave the underlying file open.
+- In external_file.s7i the function close has been changed to set the
+  underlying clib file to NULL.
+- In gzip.s7i the function to close a gzipFile has been changed to
+  leave the destination file open.
+- The conversion function integer() has been added to bin32.s7i and
+  bin64.s7i.
+- The compiler (s7c.sd7) has been improved (in set_act.s7i) to produce
+  correct code for the actions SET_CONV1 and SET_CONV3 (independent
+  if a normal expression or a result expression is converted).
+- Interpreter and compiler have been improved to support the actions
+  CMD_SET_GROUP and CMD_SET_OWNER.
+- The functions cmd_set_group() and cmd_set_owner() have been added to
+  cmdlib.c.
+- The functions getGidFromGroup(), getUidFromUser(), cmdSetGroup() and
+  cmdSetOwner() have been added to cmd_unx.c. The functions
+  getGroupFromGid() and getUserFromUid() have been improved.
+- The functions getSidFromName(), cmdSetGroup() and cmdSetOwner() have
+  been added to cmd_win.c. The functions getNameFromSid(),
+  cmdGetGroup() and cmdGetOwner() have been improved.
+- In big_rtl.c the functions bigMDivSizeLess() and bigModSizeLess()
+  have been simplified. A bug triggered by a zero dividend has been
+  fixed also.
+- In flt_rtl.c the function fltRand() has been fixed to work correct
+  for rand(-Infinity, Infinity).
+- In numutl.c the function getDecimalInt() has been improved.
+- The function setEmpty() has been removed from set_rtl.c.
+- In set_rtl.c the functions setNext() and setToUInt() have been fixed
+  to work correct.
+- In strlib.c and str_rtl.c the function strSplit() has been fixed to
+  work correct, if the delimiter consists of two or more characters.
+- In fil_rtl.c the functions get_mode() and filClose() have been
+  improved.
+- The program chkccomp.c has been improved to determine the values
+  HAS_GETGRNAM_R, HAS_GETGRNAM, HAS_GETPWNAM_R and HAS_GETPWNAM.
+
 20200628:
 - The new library zstd.s7i has been added. This library supports
   Zstandard compressed files.

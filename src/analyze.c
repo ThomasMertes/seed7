@@ -437,7 +437,7 @@ static progType analyzeProg (const const_striType sourceFileArgument,
   /* analyzeProg */
     logFunction(printf("analyzeProg(\"%s\", ",
                        striAsUnquotedCStri(sourceFileArgument));
-                printf("\"%s\", 0x" F_X(08) ", *, ",
+                printf("\"%s\", 0x" F_X(016) ", *, ",
                        striAsUnquotedCStri(sourceFilePath), options);
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(protFileName)););
@@ -554,7 +554,7 @@ progType analyzeFile (const const_striType sourceFileArgument, uintType options,
     progType resultProg;
 
   /* analyzeFile */
-    logFunction(printf("analyzeFile(\"%s\", 0x" F_X(08) ", *, ",
+    logFunction(printf("analyzeFile(\"%s\", 0x" F_X(016) ", *, ",
                        striAsUnquotedCStri(sourceFileArgument), options);
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(protFileName)););
@@ -624,7 +624,7 @@ progType analyze (const const_striType sourceFileArgument, uintType options,
     progType resultProg;
 
   /* analyze */
-    logFunction(printf("analyze(\"%s\", 0x" F_X(08) ", *, ",
+    logFunction(printf("analyze(\"%s\", 0x" F_X(016) ", *, ",
                        striAsUnquotedCStri(sourceFileArgument), options);
                 printf("\"%s\")\n",
                        striAsUnquotedCStri(protFileName)););
@@ -652,7 +652,7 @@ progType analyzeString (const const_striType input_string, uintType options,
     progType resultProg;
 
   /* analyzeString */
-    logFunction(printf("analyzeString(\"%s\", 0x" F_X(08) ", *, ",
+    logFunction(printf("analyzeString(\"%s\", 0x" F_X(016) ", *, ",
                        striAsUnquotedCStri(input_string), options);
                 printf("\"%s\", *)\n",
                        striAsUnquotedCStri(protFileName)););

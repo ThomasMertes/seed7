@@ -24,6 +24,7 @@
 
 $ include "seed7_05.s7i";
   include "osfiles.s7i";
+  include "fileutil.s7i";
   include "ftp.s7i";
   include "keybd.s7i";
   include "console.s7i";

@@ -1349,6 +1349,36 @@ const proc: chkKeysFunction is func
   end func;
 
 
+const proc: chkValuesFunction is func
+  local
+    var boolean: okay is TRUE;
+    var integerIntegerHash: aHash is integerIntegerHash.value;
+    var array integer: hashValues is 0 times 0;
+    var integer: number is 0;
+  begin
+    for number range 1 to 50000 do
+      aHash @:= [number] number;
+    end for;
+    hashValues := values(aHash);
+    if length(hashValues) <> 50000 then
+      okay := FALSE;
+    else
+      hashValues := sort(hashValues);
+      for number range 1 to 50000 do
+        if hashValues[number] <> number then
+          okay := FALSE;
+        end if;
+      end for;
+    end if;
+    if okay then
+      writeln("The values function for hash tables works correct.");
+    else
+      writeln(" ***** The values function for hash tables does not work correct.");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: chkForLoop is func
   local
     var boolean: okay is TRUE;
@@ -1426,6 +1456,7 @@ const proc: main is func
     chkCharHash;
     chkStringHash;
     chkKeysFunction;
+    chkValuesFunction;
     chkForLoop;
     chkAssignmentToItself;
   end func;
