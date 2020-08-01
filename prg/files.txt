@@ -11,6 +11,7 @@ cellauto.sd7 Simulate a one-dimensional cellular automaton
 celsius.sd7  Print a Fahrenheit-Celsius table
 chk_all.sd7  Runs interpreted and compiled checks.
 chkbig.sd7   Checks bigInteger literals and operations
+chkbin.sd7   Checks bin32 and bin64 operations.
 chkbool.sd7  Checks boolean operations
 chkchr.sd7   Checks character properties
 chkcmd.sd7   Check functions that manipulate files.

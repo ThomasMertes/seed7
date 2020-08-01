@@ -1,3 +1,50 @@
+20160731:
+- The bas7.sd7 (basic interpreter) example program has been improved.
+  Support for CVD, CVDMBF, CVS, CVSMBF, HPLOT, MKD$, MKDMBF$, MKS$,
+  MKSMBF$, PLOT, SCREEN, SHARED and VARPTR$ has been improved.
+  Creating Cga, Ega and Vga images from arrays has been improved to
+  work also for float and double arrays.
+- The functions bin32, compare, hashCode, float2Bits, bits2Float,
+  float2MbfBits and mbfBits2Float have been added to bin32.s7i. The
+  functions fourBytesLeToBin32 and fourBytesBeToBin32 have been
+  removed (The new function bin32 can be used instead).
+- The functions bin64, compare, hashCode, float2Bits, bits2Float,
+  float2MbfBits and mbfBits2Float have been added to bin64.s7i. The
+  functions eightBytesLeToBin64 and eightBytesBeToBin64 have been
+  removed (The new function bin64 can be used instead).
+- The program chkbin.sd7 has been added. This program checks the
+  correctness of the functions float2Bits, bits2Float, float2MbfBits,
+  mbfBits2Float, str, radix and RADIX.
+- Checks for the function decompose have been added to chkflt.sd7.
+- The compiler has been improved optimize expressions where several
+  terms are added or subtracted. It is possible to combine adjacent
+  constant terms at compile time. This simplifies overflow checks.
+- The compiler has been improved to store NaN values as bin64
+  literals.
+- The calc7 example program has been improved to support bin32 and
+  bin64 functions.
+- The function decompose and the type floatElements have been added
+  to the library float.s7i. The function decompose splits a float into
+  a normalized fraction and an integral exponent for 2. The result
+  of decompose uses the type floatElements.
+- The function integer (it converts a string to an integer) has been
+  added to integer.s7i.
+- In the library seed7_05.s7i the undocumented function xalloc has
+  been replaced by the function create.
+- The functions uintCmp and uintCmpGeneric have been added to
+  int_rtl.c.
+- The configuration value FREXP_INFINITY_NAN_OKAY has been added to
+  cc_conf.s7i.
+- The primitive action FLT_A2TAN has been renamed to FLT_ATAN2 in
+  interpreter, compiler and runtime library.
+- Documentation comments have been improved in bitdata.s7i, arrlib.c,
+  binlib.c, bstlib.c, bst_rtl.c, fillib.c, kbdlib.c, literal.c.
+- Interpreter and compiler have been improved to support the primitiv
+  actions BIN_CMP, FLT_BITS2DOUBLE, FLT_BITS2SINGLE, FLT_DECOMPOSE,
+  FLT_DOUBLE2BITS and FLT_SINGLE2BITS.
+- The program chkccomp.c has been improved to define
+  FREXP_INFINITY_NAN_OKAY and to work for PostgreSQL version 9.5.
+
 20160630:
 - The bas7.sd7 (basic interpreter) example program has been improved.
   Support for CVSMBF, CVDMBF, FLASH, FRE, GR, HGR, HOME, HTAB,

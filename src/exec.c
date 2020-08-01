@@ -910,7 +910,7 @@ objectType evaluate (objectType object)
         prot_cstri("evaluate unknown ");
         trace1(object);
         prot_nl();
-        result = object;
+        result = raise_with_arguments(SYS_ACT_ILLEGAL_EXCEPTION, NULL);
         break;
     } /* switch */
     logFunction(printf("evaluate --> ");

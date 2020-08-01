@@ -283,6 +283,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(BIN_BIG, function, params, c_expr);
       elsif action_name = "BIN_BINARY" then
         process(BIN_BINARY, function, params, c_expr);
+      elsif action_name = "BIN_CMP" then
+        process(BIN_CMP, function, params, c_expr);
       elsif action_name = "BIN_GET_BINARY_FROM_SET" then
         process(BIN_GET_BINARY_FROM_SET, function, params, c_expr);
       elsif action_name = "BIN_LSHIFT" then
@@ -727,9 +729,7 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "FLT" then
-      if action_name = "FLT_A2TAN" then
-        process(FLT_A2TAN, function, params, c_expr);
-      elsif action_name = "FLT_ABS" then
+      if action_name = "FLT_ABS" then
         process(FLT_ABS, function, params, c_expr);
       elsif action_name = "FLT_ACOS" then
         process(FLT_ACOS, function, params, c_expr);
@@ -741,6 +741,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_ASIN, function, params, c_expr);
       elsif action_name = "FLT_ATAN" then
         process(FLT_ATAN, function, params, c_expr);
+      elsif action_name = "FLT_ATAN2" then
+        process(FLT_ATAN2, function, params, c_expr);
+      elsif action_name = "FLT_BITS2DOUBLE" then
+        process(FLT_BITS2DOUBLE, function, params, c_expr);
+      elsif action_name = "FLT_BITS2SINGLE" then
+        process(FLT_BITS2SINGLE, function, params, c_expr);
       elsif action_name = "FLT_CAST" then
         process(FLT_CAST, function, params, c_expr);
       elsif action_name = "FLT_CEIL" then
@@ -753,12 +759,16 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_COSH, function, params, c_expr);
       elsif action_name = "FLT_CPY" then
         process(FLT_CPY, function, params, c_expr);
+      elsif action_name = "FLT_DECOMPOSE" then
+        process(FLT_DECOMPOSE, function, params, c_expr);
       elsif action_name = "FLT_DGTS" then
         process(FLT_DGTS, function, params, c_expr);
       elsif action_name = "FLT_DIV" then
         process(FLT_DIV, function, params, c_expr);
       elsif action_name = "FLT_DIV_ASSIGN" then
         process(FLT_DIV_ASSIGN, function, params, c_expr);
+      elsif action_name = "FLT_DOUBLE2BITS" then
+        process(FLT_DOUBLE2BITS, function, params, c_expr);
       elsif action_name = "FLT_EQ" then
         process(FLT_EQ, function, params, c_expr);
       elsif action_name = "FLT_EXP" then
@@ -819,6 +829,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(FLT_SCI, function, params, c_expr);
       elsif action_name = "FLT_SIN" then
         process(FLT_SIN, function, params, c_expr);
+      elsif action_name = "FLT_SINGLE2BITS" then
+        process(FLT_SINGLE2BITS, function, params, c_expr);
       elsif action_name = "FLT_SINH" then
         process(FLT_SINH, function, params, c_expr);
       elsif action_name = "FLT_SQRT" then

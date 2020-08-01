@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -54,24 +54,19 @@
 /* Natural logarithm of 2: */
 #define LN2 0.693147180559945309417232121458176568075500134360255254120680009493393
 
+typedef union {
+#if FLOAT_SIZE == 32
+  uint32Type bits;
+#endif
+  float aFloat;
+} float2BitsType;
 
-
-/**
- *  Compute the arc tangent of y/x.
- *  The signs of x and y are used to determine the quadrant of the result.
- *  It determines the angle theta from the conversion of rectangular
- *  coordinates (x, y) to polar coordinates (r, theta).
- *  @return the arc tangent of y/x in radians. The returned angle is in
- *          the range [-PI, PI].
- */
-objectType flt_a2tan (listType arguments)
-
-  { /* flt_a2tan */
-    isit_float(arg_1(arguments));
-    isit_float(arg_2(arguments));
-    return bld_float_temp(
-        atan2(take_float(arg_1(arguments)), take_float(arg_2(arguments))));
-  } /* flt_a2tan */
+typedef union {
+#if DOUBLE_SIZE == 64
+  uint64Type bits;
+#endif
+  double aDouble;
+} double2BitsType;
 
 
 
@@ -172,6 +167,77 @@ objectType flt_atan (listType arguments)
     return bld_float_temp(
         atan(take_float(arg_1(arguments))));
   } /* flt_atan */
+
+
+
+/**
+ *  Compute the arc tangent of y/x.
+ *  The signs of x and y are used to determine the quadrant of the result.
+ *  It determines the angle theta from the conversion of rectangular
+ *  coordinates (x, y) to polar coordinates (r, theta).
+ *  @return the arc tangent of y/x in radians. The returned angle is in
+ *          the range [-PI, PI].
+ */
+objectType flt_atan2 (listType arguments)
+
+  { /* flt_atan2 */
+    isit_float(arg_1(arguments));
+    isit_float(arg_2(arguments));
+    return bld_float_temp(
+        atan2(take_float(arg_1(arguments)), take_float(arg_2(arguments))));
+  } /* flt_atan2 */
+
+
+
+/**
+ *  Get a float from bits in IEEE 754 double-precision representation.
+ *  @param bits(arg_1 Bits to be converted to a float.
+ *  @return a float from bits in double-precision float representation.
+ */
+objectType flt_bits2Double (listType arguments)
+
+  {
+    double2BitsType conv;
+    floatType number;
+
+  /* flt_bits2Double */
+    isit_int(arg_1(arguments));
+    conv.bits = (uintType) take_int(arg_1(arguments));
+    number = conv.aDouble;
+    logFunction(printf("flt_bits2Double(" FMT_D ") --> " FMT_E "\n",
+                       take_int(arg_1(arguments)), number););
+    return bld_float_temp(number);
+  } /* flt_bits2Double */
+
+
+
+/**
+ *  Get a float from bits in IEEE 754 single-precision representation.
+ *  @param bits/arg_1 Bits to be converted to a float.
+ *  @return a float from bits in single-precision float representation.
+ */
+objectType flt_bits2Single (listType arguments)
+
+  {
+    intType bits;
+    float2BitsType conv;
+    floatType number;
+
+  /* flt_bits2Single */
+    isit_int(arg_1(arguments));
+    bits = take_int(arg_1(arguments));
+    if (unlikely((uintType) bits > UINT32TYPE_MAX)) {
+      logError(printf("flt_singleBits2Float(" FMT_D
+                      "): Argument does not fit in 32 bits.\n"););
+      return raise_exception(SYS_RNG_EXCEPTION);
+    } else {
+      conv.bits = (uint32Type) bits;
+      number = conv.aFloat;
+      logFunction(printf("flt_bits2Single(" FMT_D ") --> " FMT_E "\n",
+                         bits, number););
+      return bld_float_temp(number);
+    } /* if */
+  } /* flt_bits2Single */
 
 
 
@@ -291,6 +357,56 @@ objectType flt_create (listType arguments)
 
 
 /**
+ *  Decompose float into normalized fraction and integral exponent for 2.
+ *  If the argument (number) is 0.0, -0.0, Infinity, -Infinity or NaN the
+ *  fraction is set to the argument and the exponent is set to 0.
+ *  For all other arguments the fraction is set to an absolute value
+ *  between 0.5(included) and 1.0(excluded) and the exponent is set such
+ *  that number = fraction * 2.0 ** exponent holds.
+ *  @param number Number to be decomposed into fraction and exponent.
+ *  @return floatElements with fraction and exponent set.
+ */
+objectType flt_decompose (listType arguments)
+
+  {
+    objectType fraction_var;
+    objectType exponent_var;
+    floatType number;
+    floatType fraction;
+    int exponent;
+
+  /* flt_decompose */
+    isit_float(arg_1(arguments));
+    fraction_var = arg_2(arguments);
+    isit_float(fraction_var);
+    is_variable(fraction_var);
+    exponent_var = arg_3(arguments);
+    isit_int(exponent_var);
+    is_variable(exponent_var);
+    number = take_float(arg_1(arguments));
+    logFunction(printf("flt_decompose(" FMT_E ", ...)\n", number););
+#if FREXP_INFINITY_NAN_OKAY
+    fraction = frexp(number, &exponent);
+#else
+    if (unlikely(os_isnan(number) ||
+                 number == POSITIVE_INFINITY ||
+                 number == NEGATIVE_INFINITY)) {
+      fraction = number;
+      exponent = 0;
+    } else {
+      fraction = frexp(number, &exponent);
+    } /* if */
+#endif
+    fraction_var->value.floatValue = fraction;
+    exponent_var->value.intValue = (intType) exponent;
+    logFunction(printf("flt_decompose --> " FMT_E ", %d\n",
+                       fraction, exponent););
+    return SYS_EMPTY_OBJECT;
+  } /* flt_decompose */
+
+
+
+/**
  *  Convert a float to a string in decimal fixed point notation.
  *  The number is rounded to the specified number of digits ('precision').
  *  Halfway cases are rounded away from zero. Except for a 'precision' of
@@ -382,6 +498,30 @@ objectType flt_div_assign (listType arguments)
 #endif
     return SYS_EMPTY_OBJECT;
   } /* flt_div_assign */
+
+
+
+/**
+ *  Get bits in IEEE 754 double-precision representation from a float.
+ *  @param number/arg_1 Float value to be converted to bin64.
+ *  @return 64 bits in IEEE 754 double-precision float representation.
+ */
+objectType flt_double2Bits (listType arguments)
+
+  {
+    floatType number;
+    double2BitsType conv;
+    intType bits;
+
+  /* flt_double2Bits */
+    isit_float(arg_1(arguments));
+    number = take_float(arg_1(arguments));
+    conv.aDouble = number;
+    bits = (intType) (uintType) conv.bits;
+    logFunction(printf("flt_double2Bits(" FMT_E ") --> " FMT_D "\n",
+                       number, bits););
+    return bld_int_temp(bits);
+  } /* flt_double2Bits */
 
 
 
@@ -983,6 +1123,30 @@ objectType flt_sin (listType arguments)
     return bld_float_temp(
         sin(take_float(arg_1(arguments))));
   } /* flt_sin */
+
+
+
+/**
+ *  Get bits in IEEE 754 single-precision representation from a float.
+ *  @param number/arg_1 Float value to be converted to bin32.
+ *  @return 32 bits in IEEE 754 single-precision float representation.
+ */
+objectType flt_single2Bits (listType arguments)
+
+  {
+    floatType number;
+    float2BitsType conv;
+    intType bits;
+
+  /* flt_single2Bits */
+    isit_float(arg_1(arguments));
+    number = take_float(arg_1(arguments));
+    conv.aFloat = (float) number;
+    bits = (intType) (uintType) conv.bits;
+    logFunction(printf("flt_single2Bits(" FMT_E ") --> " FMT_D "\n",
+                       number, bits););
+    return bld_int_temp(bits);;
+  } /* flt_single2Bits */
 
 
 

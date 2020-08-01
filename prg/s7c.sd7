@@ -2717,6 +2717,8 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&bigCreateGeneric";
     elsif action_name = "BIG_DESTR" then
       c_expr.expr &:= "&bigDestrGeneric";
+    elsif action_name = "BIN_CMP" then
+      c_expr.expr &:= "&uintCmpGeneric";
     elsif action_name = "BLN_CPY" then
       c_expr.expr &:= "&genericCpy";
     elsif action_name = "BLN_CREATE" then
@@ -5053,6 +5055,14 @@ const proc: write_file_head is func
     writeln(c_prog, "  struct hashElemListStruct *next;");
     writeln(c_prog, "  hashElemType obj;");
     writeln(c_prog, "} *hashElemListType;");
+    writeln(c_prog, "typedef union {");
+    writeln(c_prog, "  uint32Type bits;");
+    writeln(c_prog, "  float aFloat;");
+    writeln(c_prog, "} float2BitsUnion;");
+    writeln(c_prog, "typedef union {");
+    writeln(c_prog, "  uint64Type bits;");
+    writeln(c_prog, "  double aDouble;");
+    writeln(c_prog, "} double2BitsUnion;");
     writeln(c_prog, "typedef intType (*compareType) (genericType, genericType);");
     writeln(c_prog, "typedef genericType (*createFuncType) (genericType);");
     writeln(c_prog, "typedef void (*destrFuncType) (genericType);");
@@ -5078,15 +5088,16 @@ const proc: write_file_head is func
     else
       writeln(c_prog, "extern bstriType  bst[];");
     end if;
-    writeln(c_prog, "extern setType    set[];");
-    writeln(c_prog, "extern typeType   typ[];");
-    writeln(c_prog, "bigIntType       *big;");
-    writeln(c_prog, "winType          *win;");
-    writeln(c_prog, "arrayType        *arr;");
-    writeln(c_prog, "structType       *sct;");
-    writeln(c_prog, "hashType         *hsh;");
-    writeln(c_prog, "interfaceType    *itf;");
-    writeln(c_prog, "rtlValueUnion     flt2int;");
+    writeln(c_prog, "extern setType          set[];");
+    writeln(c_prog, "extern typeType         typ[];");
+    writeln(c_prog, "extern double2BitsUnion nanValue[];");
+    writeln(c_prog, "bigIntType             *big;");
+    writeln(c_prog, "winType                *win;");
+    writeln(c_prog, "arrayType              *arr;");
+    writeln(c_prog, "structType             *sct;");
+    writeln(c_prog, "hashType               *hsh;");
+    writeln(c_prog, "interfaceType          *itf;");
+    writeln(c_prog, "rtlValueUnion           flt2int;");
     writeln(c_prog, "extern memSizeType hs;");
     writeln(c_prog);
     writeln(c_prog, "static const intType fact[] = {");
@@ -6577,6 +6588,29 @@ const proc: init_interface_constants (in reference: const_object, inout expr_typ
   end func;
 
 
+const proc: init_nan_constants (inout expr_type: c_expr) is func
+
+  local
+    var nan_index_hash: nan_index is nan_index_hash.EMPTY_HASH;
+    var integer: number is 0;
+    var bin64: bits is bin64(0);
+  begin
+    c_expr.expr &:= "double2BitsUnion nanValue[] = {\n";
+    if length(nan_const_table) > 0 then
+      nan_index := flip(nan_const_table);
+      for number range sort(keys(nan_index)) do
+        bits := nan_index[number][1];
+        c_expr.expr &:= "{0x";
+        c_expr.expr &:= bits radix 16 lpad0 16;
+        c_expr.expr &:= "},\n";
+      end for;
+    else
+      c_expr.expr &:= "{0}";
+    end if;
+    c_expr.expr &:= "};\n\n";
+  end func;
+
+
 const proc: init_values (inout expr_type: c_expr) is func
 
   local
@@ -6667,6 +6701,7 @@ const proc: init_values (inout expr_type: c_expr) is func
       end if;
     end for;
     c_expr.expr &:= "}\n\n";
+    init_nan_constants(c_expr);
   end func;
 
 

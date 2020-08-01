@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  s7   Seed7 interpreter                                          */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2016  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -25,13 +25,15 @@
 /*                                                                  */
 /********************************************************************/
 
-objectType flt_a2tan          (listType arguments);
 objectType flt_abs            (listType arguments);
 objectType flt_acos           (listType arguments);
 objectType flt_add            (listType arguments);
 objectType flt_add_assign     (listType arguments);
 objectType flt_asin           (listType arguments);
 objectType flt_atan           (listType arguments);
+objectType flt_atan2          (listType arguments);
+objectType flt_bits2Double    (listType arguments);
+objectType flt_bits2Single    (listType arguments);
 objectType flt_cast           (listType arguments);
 objectType flt_ceil           (listType arguments);
 objectType flt_cmp            (listType arguments);
@@ -39,9 +41,11 @@ objectType flt_cos            (listType arguments);
 objectType flt_cosh           (listType arguments);
 objectType flt_cpy            (listType arguments);
 objectType flt_create         (listType arguments);
+objectType flt_decompose      (listType arguments);
 objectType flt_dgts           (listType arguments);
 objectType flt_div            (listType arguments);
 objectType flt_div_assign     (listType arguments);
+objectType flt_double2Bits    (listType arguments);
 objectType flt_eq             (listType arguments);
 objectType flt_exp            (listType arguments);
 objectType flt_floor          (listType arguments);
@@ -72,6 +76,7 @@ objectType flt_sbtr           (listType arguments);
 objectType flt_sbtr_assign    (listType arguments);
 objectType flt_sci            (listType arguments);
 objectType flt_sin            (listType arguments);
+objectType flt_single2Bits    (listType arguments);
 objectType flt_sinh           (listType arguments);
 objectType flt_sqrt           (listType arguments);
 objectType flt_str            (listType arguments);

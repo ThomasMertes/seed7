@@ -47,6 +47,11 @@ const type: bstri_index_hash is hash [integer] array bstring;
 
 var bstri_table_hash: bstri_const_table is bstri_table_hash.EMPTY_HASH;
 
+const type: nan_table_hash is hash [bin64] integer;
+const type: nan_index_hash is hash [integer] array bin64;
+
+var nan_table_hash: nan_const_table is nan_table_hash.EMPTY_HASH;
+
 const type: set_table_hash is hash [bitset] integer;
 const type: set_index_hash is hash [integer] array bitset;
 
@@ -194,11 +199,18 @@ const func string: floatLiteral (in float: aFloat) is func
   result
     var string: expr is "";
   local
+    var bin64: bits is bin64(0);
     var integer: exponentPos is 0;
     var integer: pos is 0;
   begin
     if isNaN(aFloat) then
-      expr := "NOT_A_NUMBER";
+      bits := float2Bits(aFloat, DOUBLE);
+      if bits not in nan_const_table then
+        nan_const_table @:= [bits] length(nan_const_table);
+      end if;
+      expr := "nanValue[";
+      expr &:= str(nan_const_table[bits]);
+      expr &:= "].aDouble";
     elsif aFloat = Infinity then
       expr := "POSITIVE_INFINITY";
     elsif aFloat = -Infinity then

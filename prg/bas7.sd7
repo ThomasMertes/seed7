@@ -25,25 +25,26 @@
 (*                                                                  *)
 (*  ABS, ASC, ATN, **BEEP, BLOAD, **CALL, CASE, CDBL, CHAIN, CHR$,  *)
 (*  CINT, **CIRCLE, CLEAR, CLNG, CLOSE, CLS, **COLOR, **COMMON,     *)
-(*  CONST, COS, CSNG, CSRLIN, CVI, CVL, CVSMBF, CVDMBF, DATA,       *)
-(*  DATE$, **DECLARE, DECR, DEF FN, **DEF SEG, DEFDBL, DEFINT,      *)
-(*  DEFLNG, DEFSNG, DEFSTR, DELAY, DIM, DO, DO UNTIL, DO WHILE,     *)
-(*  **DRAW, ELSE, ELSEIF, END, EOF, **ERASE, ERR, ERROR, EXIT DO,   *)
-(*  EXIT FOR, EXP, FIELD, FIX, **FLASH, FOR, FRE, FREEFILE,         *)
-(*  **FUNCTION, GET, GET#, GOSUB, GOSUB OF, GOTO, GOTO OF, GR,      *)
-(*  HEX$, HGR, HOME, HTAB, IF, INCR, INKEY$, **INP, INPUT, INPUT#,  *)
-(*  INPUT$, INSTR, INT, **INVERSE, **KEY, LBOUND, LCASE$, LEFT$,    *)
-(*  LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP,      *)
-(*  LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKI$, MKL$, NEXT,   *)
-(*  **NORMAL, OCT$, ON ERROR, ON GOSUB, ON GOTO, **ON KEY,          *)
-(*  **ON TIMER, OPEN, OPTION BASE, **OUT, **PAINT, **PALETTE,       *)
-(*  **PEEK, **PLAY, **POINT, **POKE, POS, PRESET, PRINT, PRINT#,    *)
-(*  PRINT USING, **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM,    *)
-(*  REM, RESET, RESTORE, RESUME, RETURN, RIGHT$, RND, RSET, RTRIM$, *)
-(*  **RUN, SCREEN, SEEK#, SELECT, SGN, SIN, SLEEP, **SOUND, SPACE$, *)
-(*  SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, SWAP, SYSTEM,    *)
-(*  TAB, TAN, TEXT, TIME$, TIMER, **TYPE, UBOUND, UCASE$, VAL,      *)
-(*  VTAB, WEND, WHILE, WRITE, WRITE#                                *)
+(*  CONST, COS, CSNG, CSRLIN, CVD, CVDMBF, CVI, CVL, CVS, CVSMBF,   *)
+(*  DATA, DATE$, **DECLARE, DECR, DEF FN, **DEF SEG, DEFDBL,        *)
+(*  DEFINT, DEFLNG, DEFSNG, DEFSTR, DELAY, DIM, DO, DO UNTIL,       *)
+(*  DO WHILE, **DRAW, ELSE, ELSEIF, END, EOF, **ERASE, ERR, ERROR,  *)
+(*  EXIT DO, EXIT FOR, EXP, FIELD, FIX, **FLASH, FOR, FRE,          *)
+(*  FREEFILE, **FUNCTION, GET, GET#, GOSUB, GOSUB OF, GOTO,         *)
+(*  GOTO OF, GR, HEX$, HGR, HOME, HPLOT, HTAB, IF, INCR, INKEY$,    *)
+(*  **INP, INPUT, INPUT#, INPUT$, INSTR, INT, **INVERSE, **KEY,     *)
+(*  LBOUND, LCASE$, LEFT$, LEN, LET, LINE INPUT, LINE INPUT#,       *)
+(*  LOCATE, LOF, LOG, LOOP, LOOP UNTIL, LOOP WHILE, LSET, LTRIM$,   *)
+(*  MID$, MKD$, MKDMBF$, MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, *)
+(*  OCT$, ON ERROR, ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN,  *)
+(*  OPTION BASE, **OUT, **PAINT, **PALETTE, **PEEK, **PLAY, PLOT,   *)
+(*  **POINT, **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING,       *)
+(*  **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET,     *)
+(*  RESTORE, RESUME, RETURN, RIGHT$, RND, RSET, RTRIM$, **RUN,      *)
+(*  SCREEN, SEEK#, SELECT, SGN, SIN, SLEEP, **SOUND, SPACE$, SPC,   *)
+(*  SQR, STOP, STR$, **STRIG, STRING$, **SUB, SWAP, SYSTEM, TAB,    *)
+(*  TAN, TEXT, TIME$, TIMER, **TYPE, UBOUND, UCASE$, VAL, VTAB,     *)
+(*  WEND, WHILE, WRITE, WRITE#                                      *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -66,13 +67,15 @@ $ include "seed7_05.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "math.s7i";
+  include "bin32.s7i";
+  include "bin64.s7i";
 
 const integer: MAX_LINENUM is 2147483647;
 const integer: TEXT_LINES is 25;
 const integer: TEXT_COLUMNS is 80;
 
 const set of char: basic_name_char is alphanum_char | {'.'};
-const set of char: number_suffix is {'!', '#', '&'};
+const set of char: number_suffix is {'%', '!', '#', '&'};
 const set of char: numeric_var_suffix is {'%', '!', '#'};
 
 const type: lineType is new struct
@@ -109,9 +112,10 @@ var label_hash: subprogram is label_hash.EMPTY_HASH;
 var label_hash: subfunction is label_hash.EMPTY_HASH;
 var label_hash: sub_declared is label_hash.EMPTY_HASH;
 
-const type: usedLabelType is set of string;
-enable_output(usedLabelType);
-var usedLabelType: usedLabel is usedLabelType.value;
+const type: stringSet is set of string;
+enable_output(stringSet);
+var stringSet: usedLabel is stringSet.value;
+var stringSet: usedAsStatement is stringSet.value;
 
 const type: fileLineList is array integer;
 const type: multipleDefinedType is hash [string] fileLineList;
@@ -138,6 +142,7 @@ var numeric_hash: numeric_var is numeric_hash.EMPTY_HASH;
 
 const type: string_hash is hash [string] string;
 var string_hash: string_var is string_hash.EMPTY_HASH;
+var stringSet: string_var_name is stringSet.value;
 
 const type: image_hash is hash [string] PRIMITIVE_WINDOW;
 var image_hash: image_var is image_hash.EMPTY_HASH;
@@ -233,6 +238,34 @@ const set of string: not_allowed_as_label is {
     "REDIM",     "REM",       "RESET",     "RESTORE",   "RESUME",    "RETURN",
     "RUN",       "SCREEN",    "SEEK",      "SELECT",    "SLEEP",     "STOP",
     "SUB",       "SYSTEM",    "WEND",      "WRITE"};
+
+const array color: loresColor is [0] (
+    black,
+    color(16#9000, 16#1700, 16#4000), # Deep Red
+    color(16#4000, 16#2c00, 16#a500), # Dark Blue
+    color(16#d000, 16#4300, 16#e500), # Purple
+    color(16#0000, 16#6900, 16#4000), # Dark Green
+    color(16#8000, 16#8000, 16#8000), # Gray 1
+    color(16#2f00, 16#9500, 16#e500), # Medium Blue
+    color(16#bf00, 16#ab00, 16#ff00), # Light Blue
+    color(16#4000, 16#2400, 16#0000), # Brown
+    color(16#d000, 16#6a00, 16#1a00), # Orange
+    color(16#8000, 16#8000, 16#8000), # Gray 2
+    color(16#ff00, 16#9600, 16#bf00), # Pink
+    color(16#2f00, 16#bc00, 16#1a00), # Light Green
+    color(16#bf00, 16#d300, 16#5a00), # Yellow
+    color(16#6f00, 16#e800, 16#bf00), # Aquamarine
+    white);
+
+const array color: hiresColor is [0] (
+    black,                            # Black 1
+    color(16#2f00, 16#bc00, 16#1a00), # Green
+    color(16#d000, 16#4300, 16#e500), # Violet
+    white,                            # White 1
+    black,                            # Black 2
+    color(16#d000, 16#6a00, 16#1a00), # Orange
+    color(16#2f00, 16#9500, 16#e500), # Medium Blue
+    white);                           # White 2
 
 
 const proc: sleep (in integer: secs) is func
@@ -593,19 +626,22 @@ const func boolean: ignoreRestOfLine (in string: symbol) is
 
 
 const func boolean: isStringExpr (in string: symbol) is
-  return symbol <> "" and
+  return symbol in string_var_name or
+         symbol <> "" and
         (symbol[length(symbol)] = '$' or symbol[1] = '\"' or symbol[1] in defstr_var and
          not symbol[length(symbol)] in numeric_var_suffix);
 
 
 const func boolean: isStringVar (in string: symbol) is
-  return symbol <> "" and
+  return symbol in string_var_name or
+         symbol <> "" and
         (symbol[length(symbol)] = '$' or symbol[1] in defstr_var and
          not symbol[length(symbol)] in numeric_var_suffix);
 
 
 const func boolean: isNumericVar (in string: symbol) is
-  return symbol <> "" and
+  return symbol not in string_var_name or
+         symbol <> "" and
         (symbol[1] in letter_char - defstr_var or
          symbol[length(symbol)] in numeric_var_suffix);
 
@@ -651,6 +687,17 @@ const func integer: varptr (in string: variable_name) is func
     end if;
     address := varptr_value[variable_name];
     varname_value @:= [address] variable_name;
+  end func;
+
+
+const func string: varptrStri (in string: variable_name) is func
+  result
+    var string: addrStri is "";
+  local
+    var integer: address is 0;
+  begin
+    address := varptr(variable_name);
+    addrStri := "\3;" & bytes(address, UNSIGNED, LE);
   end func;
 
 
@@ -1974,6 +2021,53 @@ const func string: exec_str_primary (
                     str(chr(index1 mdiv    65536 mod 256)) &
                     str(chr(index1 mdiv 16777216 mod 256));
       writeln(log, "MKL$(" <& index1 <& ") -> " <& literal(exprResult));
+    elsif symbol = "MKS$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      exprResult := bin32AsFourBytesLe(float2Bits(num1, SINGLE));
+      writeln(log, "MKS$(" <& num1 <& ") -> " <& literal(exprResult));
+    elsif symbol = "MKD$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      exprResult := bin64AsEightBytesLe(float2Bits(num1, DOUBLE));
+      writeln(log, "MKD$(" <& num1 <& ") -> " <& literal(exprResult));
+    elsif symbol = "MKSMBF$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      block
+        exprResult := bin32AsFourBytesLe(float2MbfBits(num1, SINGLE));
+      writeln(log, "MKSMBF$(" <& num1 <& ") -> " <& literal(exprResult));
+      exception
+        catch RANGE_ERROR:
+          error_marker;
+          writeln(err, "MKSMBF$(" <& num1 <& ") FAILED");
+      end block
+    elsif symbol = "MKDMBF$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      block
+        exprResult := bin64AsEightBytesLe(float2MbfBits(num1, DOUBLE));
+        writeln(log, "MKDMBF$(" <& num1 <& ") -> " <& literal(exprResult));
+      exception
+        catch RANGE_ERROR:
+          error_marker;
+          writeln(err, "MKDMBF$(" <& num1 <& ") FAILED");
+      end block
+    elsif symbol = "VARPTR$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      variable_name := get_name(symbol, line);
+      expect(")", symbol, line);
+      exprResult := varptrStri(variable_name);
+      writeln(log, "VARPTR$(" <& variable_name <& ") -> " <& literal(exprResult));
     elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
       if symbol in def_fn_list then
         func_name := symbol;
@@ -2095,46 +2189,6 @@ const func float: exec_function (in defFnType: defFn, inout string: symbol, inou
       end if;
       formal_param := get_symbol(formal_params);
     end while;
-  end func;
-
-
-const func float: cvsmbf (in string: stri) is func
-  result
-    var float: result is 0.0;
-  local
-    const integer: mantissaBytes is 3;
-    const integer: mantissaBits is 23;
-    const integer: mantissaSign is 2 ** mantissaBits;
-    const integer: exponentByte is 4;
-  begin
-    if stri[4] <> '\0;' then
-      # Ignore sign bit and set implicit leading one bit of mantissa instead.
-      result := flt(mantissaSign + bytes2Int(stri[.. mantissaBytes], UNSIGNED, LE) mod mantissaSign);
-      if ord(stri[mantissaBytes]) >= 128 then
-        result := -result;
-      end if;
-      result := result * 2.0 ** (ord(stri[exponentByte]) - 129 - mantissaBits);
-    end if;
-  end func;
-
-
-const func float: cvdmbf (in string: stri) is func
-  result
-    var float: result is 0.0;
-  local
-    const integer: mantissaBytes is 7;
-    const integer: mantissaBits is 55;
-    const integer: mantissaSign is 2 ** mantissaBits;
-    const integer: exponentByte is 8;
-  begin
-    if stri[4] <> '\0;' then
-      # Ignore sign bit and set implicit leading one bit of mantissa instead.
-      result := flt(mantissaSign + bytes2Int(stri[.. mantissaBytes], UNSIGNED, LE) mod mantissaSign);
-      if ord(stri[mantissaBytes]) >= 128 then
-        result := -result;
-      end if;
-      result := result * 2.0 ** (ord(stri[exponentByte]) - 129 - mantissaBits);
-    end if;
   end func;
 
 
@@ -2560,13 +2614,39 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         writeln(err, "CVL(" <& literal(stri1) <& ") IS ILLEGAL.");
         exprResult := 0.0;
       end if;
+    elsif symbol = "CVS" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      if length(stri1) >= 4 then
+        exprResult := bits2Float(bin32(stri1[.. 4], LE));
+        writeln(log, "CVS(" <& literal(stri1) <& ") -> " <& exprResult);
+      else
+        error_marker;
+        writeln(err, "CVS(" <& literal(stri1) <& ") IS ILLEGAL.");
+        exprResult := 0.0;
+      end if;
+    elsif symbol = "CVD" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      if length(stri1) >= 8 then
+        exprResult := bits2Float(bin64(stri1[.. 8], LE));
+        writeln(log, "CVD(" <& literal(stri1) <& ") -> " <& exprResult);
+      else
+        error_marker;
+        writeln(err, "CVD(" <& literal(stri1) <& ") IS ILLEGAL.");
+        exprResult := 0.0;
+      end if;
     elsif symbol = "CVSMBF" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
       if length(stri1) >= 4 then
-        exprResult := cvsmbf(stri1);
+        exprResult := mbfBits2Float(bin32(stri1[.. 4], LE));
         writeln(log, "CVSMBF(" <& literal(stri1) <& ") -> " <& exprResult);
       else
         error_marker;
@@ -2579,7 +2659,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       stri1 := exec_str_expr(symbol, line, unused_name);
       expect(")", symbol, line);
       if length(stri1) >= 8 then
-        exprResult := cvdmbf(stri1);
+        exprResult := mbfBits2Float(bin64(stri1[.. 8], LE));
         writeln(log, "CVDMBF(" <& literal(stri1) <& ") -> " <& exprResult);
       else
         error_marker;
@@ -5976,6 +6056,8 @@ const proc: exec_file_get (inout string: symbol, inout string: line) is func
             end if;
           end if;
           if reclen <> 0 then
+            # writeln(log, "seek(succ(prd(" <& position <& ") * " <& reclen <& ")) " <&
+            #         succ(pred(position) * reclen));
             seek(inFile, succ(pred(position) * reclen));
           end if;
         else
@@ -6103,6 +6185,18 @@ const proc: exec_clear (inout string: symbol, inout string: line) is func
   end func;
 
 
+const func string: parseType (inout string: symbol, inout string: line) is func
+  result
+    var string: typeName is "";
+  begin
+    typeName := get_symbol(line);
+    if typeName = "SHARED" then
+      typeName := get_symbol(line);
+    end if;
+    symbol := get_symbol(line);
+  end func;
+
+
 const proc: initArray (in var string: arrayName, in boolean: isStringVar,
     in integer: dimension, in dimensionType: dimensionBounds) is func
   local
@@ -6134,6 +6228,7 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
     var string: variableName is "";
     var dimensionType: dimensionBounds is 0 times boundsType.value;
     var boundsType: bounds is boundsType.value;
+    var string: typeName is "";
     var integer: dimension is 0;
     var boolean: finished is FALSE;
   begin
@@ -6161,6 +6256,14 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
           until symbol <> ",";
           if symbol =")" or symbol = "]" then
             symbol := get_symbol(line);
+            if symbol = "AS" then
+              typeName := parseType(symbol, line);
+              if typeName = "STRING" then
+                incl(string_var_name, variableName);
+              end if;
+            else
+              typeName := "";
+            end if;
             initArray(variableName, isStringVar(variableName), 1, dimensionBounds);
             # writeln(log, "addr=" <& varptr(variableName) <& " name=" <& variableName);
             ignore(varptr(variableName));
@@ -6168,22 +6271,33 @@ const proc: exec_dim (inout string: symbol, inout string: line) is func
             write(log, "DIM " <& variableName <& "(");
             for dimension range 1 to length(dimensionBounds) do
               if dimension <> 1 then
-                write(log, ",");
+                write(log, ", ");
               end if;
               write(log, dimensionBounds[dimension].lbound <& " TO " <&
                   dimensionBounds[dimension].ubound);
             end for;
-            writeln(log, ")");
+            write(log, ")");
+            if typeName <> "" then
+              write(log, " AS " <& typeName);
+            end if;
+            writeln(log);
           end if;
         else
+          if symbol = "AS" then
+            typeName := parseType(symbol, line);
+            if typeName = "STRING" then
+              incl(string_var_name, variableName);
+            end if;
+          else
+            typeName := "";
+          end if;
           line_marker;
-          writeln(log, "DIM " <& variableName);
+          write(log, "DIM " <& variableName);
+          if typeName <> "" then
+            write(log, " AS " <& typeName);
+          end if;
+          writeln(log);
         end if;
-      end if;
-      if symbol = "AS" then
-        repeat
-          symbol := get_symbol(line);
-        until symbol = "," or endOfStatement(symbol);
       end if;
       if symbol = "," then
         symbol := get_symbol(line);
@@ -6439,8 +6553,7 @@ const proc: exec_bload (inout string: symbol, inout string: line) is func
   end func;
 
 
-const func PRIMITIVE_WINDOW: getCga2ImageFromArray (in string: name_start,
-    in string: name_end, in integer: lbound, in integer: ubound) is func
+const func PRIMITIVE_WINDOW: getCga2ImageFromBytes (in string: bytes) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
   local
@@ -6451,13 +6564,12 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromArray (in string: name_start,
     var integer: xPos is 0;
     var integer: yPos is 0;
     var integer: byteIndex is 0;
-    var integer: imageWord is 0;
     var integer: imageByte is 0;
     var integer: colorNum is 0;
   begin
-    if ubound - lbound >= 1 then
-      width := round(getNumericVar(name_start & str(lbound) & name_end));
-      height := round(getNumericVar(name_start & str(succ(lbound)) & name_end));
+    if bytes <> "" then
+      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
+      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
       writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := pred(width) mdiv 8 + 1;
@@ -6466,13 +6578,7 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromArray (in string: name_start,
         for xPos range 0 to pred(width) do
           colorNum := 0;
           byteIndex := lineStartByte + xPos mdiv 8;
-          imageWord := round(getNumericVar(name_start & str(lbound + 2 + byteIndex div 2) & name_end));
-          # writeln(log, name_start <& str(lbound + 2 + byteIndex div 2) <& name_end <& "=" <& imageWord);
-          if odd(byteIndex) then
-            imageByte := (imageWord >> 8) mod 16#100;
-          else
-            imageByte := imageWord mod 16#100;
-          end if;
+          imageByte := ord(bytes[5 + byteIndex]);
           if (imageByte >> (7 - xPos mod 8)) mod 2 = 1 then
             point(image, xPos, yPos, white);
             write(log, " ");
@@ -6485,8 +6591,7 @@ const func PRIMITIVE_WINDOW: getCga2ImageFromArray (in string: name_start,
   end func;
 
 
-const func PRIMITIVE_WINDOW: getCga4ImageFromArray (in string: name_start,
-    in string: name_end, in integer: lbound, in integer: ubound) is func
+const func PRIMITIVE_WINDOW: getCga4ImageFromBytes (in string: bytes) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
   local
@@ -6497,14 +6602,13 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromArray (in string: name_start,
     var integer: xPos is 0;
     var integer: yPos is 0;
     var integer: byteIndex is 0;
-    var integer: imageWord is 0;
     var integer: imageByte is 0;
     var integer: colorNum is 0;
     const array color: palette1 is [] (black, light_green, light_red, brown);
   begin
-    if ubound - lbound >= 1 then
-      width := round(getNumericVar(name_start & str(lbound) & name_end));
-      height := round(getNumericVar(name_start & str(succ(lbound)) & name_end));
+    if bytes <> "" then
+      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
+      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
       writeln(log, "width=" <& width <& " height=" <& height);
       width := width div 2;
       image := newPixmap(width, height);
@@ -6514,13 +6618,7 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromArray (in string: name_start,
         for xPos range 0 to pred(width) do
           colorNum := 0;
           byteIndex := lineStartByte + xPos mdiv 4;
-          imageWord := round(getNumericVar(name_start & str(lbound + 2 + byteIndex div 2) & name_end));
-          # writeln(log, name_start <& str(lbound + 2 + byteIndex div 2) <& name_end <& "=" <& imageWord);
-          if odd(byteIndex) then
-            imageByte := (imageWord >> 8) mod 16#100;
-          else
-            imageByte := imageWord mod 16#100;
-          end if;
+          imageByte := ord(bytes[5 + byteIndex]);
           colorNum := (imageByte >> (6 - xPos mod 4 * 2)) mod 4;
           point(image, xPos, yPos, palette1[succ(colorNum)]);
         end for;
@@ -6529,8 +6627,7 @@ const func PRIMITIVE_WINDOW: getCga4ImageFromArray (in string: name_start,
   end func;
 
 
-const func PRIMITIVE_WINDOW: getEgaImageFromArray (in string: name_start,
-    in string: name_end, in integer: lbound, in integer: ubound) is func
+const func PRIMITIVE_WINDOW: getEgaImageFromBytes (in string: bytes) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
   local
@@ -6542,14 +6639,13 @@ const func PRIMITIVE_WINDOW: getEgaImageFromArray (in string: name_start,
     var integer: yPos is 0;
     var integer: colorBitNum is 0;
     var integer: byteIndex is 0;
-    var integer: imageWord is 0;
     var integer: imageByte is 0;
     var integer: colorNum is 0;
   begin
-    if ubound - lbound >= 1 then
-      width := round(getNumericVar(name_start & str(lbound) & name_end));
-      height := round(getNumericVar(name_start & str(succ(lbound)) & name_end));
-      # writeln(log, "width=" <& width <& " height=" <& height);
+    if bytes <> "" then
+      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE);
+      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
+      writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := pred(width) mdiv 8 + 1;
       for yPos range 0 to pred(height) do
@@ -6558,13 +6654,7 @@ const func PRIMITIVE_WINDOW: getEgaImageFromArray (in string: name_start,
           colorNum := 0;
           for colorBitNum range 0 to 3 do
             byteIndex := lineStartByte + colorBitNum * bytesPerLine + xPos mdiv 8;
-            imageWord := round(getNumericVar(name_start & str(lbound + 2 + byteIndex div 2) & name_end));
-            # writeln(log, name_start <& str(lbound + 2 + byteIndex div 2) <& name_end <& "=" <& imageWord);
-            if odd(byteIndex) then
-              imageByte := (imageWord >> 8) mod 16#100;
-            else
-              imageByte := imageWord mod 16#100;
-            end if;
+            imageByte := ord(bytes[5 + byteIndex]);
             colorNum +:= ((imageByte >> (7 - xPos mod 8)) mod 2) << colorBitNum;
           end for;
           point(image, xPos, yPos, color_num(colorNum));
@@ -6574,8 +6664,7 @@ const func PRIMITIVE_WINDOW: getEgaImageFromArray (in string: name_start,
   end func;
 
 
-const func PRIMITIVE_WINDOW: getVgaImageFromArray (in string: name_start,
-    in string: name_end, in integer: lbound, in integer: ubound) is func
+const func PRIMITIVE_WINDOW: getVgaImageFromBytes (in string: bytes) is func
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
   local
@@ -6586,12 +6675,11 @@ const func PRIMITIVE_WINDOW: getVgaImageFromArray (in string: name_start,
     var integer: xPos is 0;
     var integer: yPos is 0;
     var integer: byteIndex is 0;
-    var integer: imageWord is 0;
     var integer: imageByte is 0;
   begin
-    if ubound - lbound >= 1 then
-      width := round(getNumericVar(name_start & str(lbound) & name_end)) div 8;
-      height := round(getNumericVar(name_start & str(succ(lbound)) & name_end));
+    if bytes <> "" then
+      width := bytes2Int(bytes[1 len 2], UNSIGNED, LE) div 8;
+      height := bytes2Int(bytes[3 len 2], UNSIGNED, LE);
       # writeln(log, "width=" <& width <& " height=" <& height);
       image := newPixmap(width, height);
       bytesPerLine := width;
@@ -6599,16 +6687,52 @@ const func PRIMITIVE_WINDOW: getVgaImageFromArray (in string: name_start,
         lineStartByte := yPos * bytesPerLine;
         for xPos range 0 to pred(width) do
           byteIndex := lineStartByte + xPos;
-          imageWord := round(getNumericVar(name_start & str(lbound + 2 + byteIndex div 2) & name_end));
-          if odd(byteIndex) then
-            imageByte := (imageWord >> 8) mod 16#100;
-          else
-            imageByte := imageWord mod 16#100;
-          end if;
+          imageByte := ord(bytes[5 + byteIndex]);
           point(image, xPos, yPos, color_num(imageByte));
         end for;
       end for;
     end if;
+  end func;
+
+
+const func string: getBytesFromArray (in string: name_start,
+    in string: name_end, in integer: lbound, in integer: ubound) is func
+  result
+    var string: bytes is "";
+  local
+    var integer: index is 0;
+    var float: element is 0.0;
+    var string: bytesFromInt2 is "";
+    var string: bytesFromFlt4 is "";
+    var string: bytesFromDbl8 is "";
+    var boolean: allInteger is TRUE;
+    var boolean: allFloat is TRUE;
+  begin
+    # writeln(log, "getBytesFromArray(" <& literal(name_start) <& ", " <&
+    #         literal(name_end) <& ", " <& lbound <& ", " <& ubound <& ")");
+    for index range lbound to ubound do
+      element := getNumericVar(name_start & str(index) & name_end);
+      if element >= -32768.0 and element <= 65535.0 then
+        bytesFromInt2 &:= int16AsTwoBytesLe(round(element));
+      else
+        allInteger := FALSE;
+      end if;
+      if element >= -3.4028235e38 and element <= 3.4028235e38 or
+          abs(element) = Infinity or isNaN(element) then
+        bytesFromFlt4 &:= bin32AsFourBytesLe(float2Bits(element, SINGLE));
+      else
+        allFloat := FALSE;
+      end if;
+      bytesFromDbl8 &:= bin64AsEightBytesLe(float2Bits(element, DOUBLE));
+    end for;
+    if allInteger then
+      bytes := bytesFromInt2;
+    elsif allFloat then
+      bytes := bytesFromFlt4;
+    else
+      bytes := bytesFromDbl8;
+    end if;
+    # writeln(log, "getBytesFromArray -> " <& literal(bytes));
   end func;
 
 
@@ -6617,16 +6741,23 @@ const func PRIMITIVE_WINDOW: getImageFromArray (in string: name_start,
   result
     var PRIMITIVE_WINDOW: image is PRIMITIVE_WINDOW.value;
   begin
-    # writeln(log, screenMode);
+    # writeln(log, "getImageFromArray: " <& screenMode);
     case screenMode of
       when {1}:
-        image := getCga4ImageFromArray(name_start, name_end, lbound, ubound);
+        image := getCga4ImageFromBytes(
+            getBytesFromArray(name_start, name_end, lbound, ubound));
       when {2, 3}:
-        image := getCga2ImageFromArray(name_start, name_end, lbound, ubound);
+        image := getCga2ImageFromBytes(
+            getBytesFromArray(name_start, name_end, lbound, ubound));
       when {4, 7, 8}:
-        image := getEgaImageFromArray(name_start, name_end, lbound, ubound);
+        image := getEgaImageFromBytes(
+            getBytesFromArray(name_start, name_end, lbound, ubound));
       when {13}:
-        image := getVgaImageFromArray(name_start, name_end, lbound, ubound);
+        image := getVgaImageFromBytes(
+            getBytesFromArray(name_start, name_end, lbound, ubound));
+      otherwise:
+        error_marker;
+        writeln(err, "CANNOT GET IMAGE FOR MODE: " <& screenMode);
     end case;
   end func;
 
@@ -6658,12 +6789,28 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
   local
     var integer: newScreenMode is 0;
     var integer: colorswitch is 0;
+    var integer: active is 0;
+    var integer: visible is 0;
   begin
     symbol := get_symbol(line);
     newScreenMode := round(exec_expr(symbol, line));
     if symbol = "," then
       symbol := get_symbol(line);
-      colorswitch := round(exec_expr(symbol, line));
+      if symbol <> "," then
+        colorswitch := round(exec_expr(symbol, line));
+      end if;
+    end if;
+    if symbol = "," then
+      symbol := get_symbol(line);
+      if symbol <> "," then
+        active := round(exec_expr(symbol, line));
+      end if;
+    end if;
+    if symbol = "," then
+      symbol := get_symbol(line);
+      if symbol <> "," then
+        visible := round(exec_expr(symbol, line));
+      end if;
     end if;
     if newScreenMode <> screenMode then
       case newScreenMode of
@@ -6739,7 +6886,7 @@ const proc: exec_screen (inout string: symbol, inout string: line) is func
     end if;
     line_marker;
     writeln(log, "SCREEN " <& newScreenMode <& ", " <&
-        colorswitch <& " " <& line);
+        colorswitch <& ", " <& active <& ", " <& visible);
     while not endOfStatement(symbol) do
       symbol := get_symbol(line);
     end while;
@@ -6972,9 +7119,12 @@ const proc: exec_put (inout string: symbol, inout string: line) is func
     else
       image := getImageFromArray(variable_name);
       if image <> PRIMITIVE_WINDOW.value then
-        error_marker;
-        writeln(err, "LOAD IMAGE VARIABLE FROM ARRAY " <& literal(variable_name));
+        line_marker;
+        writeln(log, "LOAD IMAGE VARIABLE FROM ARRAY " <& literal(variable_name));
         image_var @:= [variable_name] image;
+      else
+        error_marker;
+        writeln(err, "CANNOT LOAD IMAGE VARIABLE FROM ARRAY " <& literal(variable_name));
       end if;
     end if;
     if image <> PRIMITIVE_WINDOW.value then
@@ -7246,10 +7396,68 @@ const proc: exec_draw (inout string: symbol, inout string: line) is func
               writeln(log, "TURN ANGLE " <& turn_factor);
             end if;
           end if;
+        when {'\3;'}:
+          num1 := bytes2Int(cmdStri[1 len 2], UNSIGNED, LE);
+          param1 := varname(num1);
+          cmdStri := getStringVar(param1) & cmdStri[3 ..];
+          writeln(log, "VARPTR$(" <& param1 <& ")");
       end case;
       pen_down := TRUE;
       move_back := FALSE;
     end while;
+  end func;
+
+
+const proc: exec_plot (inout string: symbol, inout string: line) is func
+  local
+    var integer: currX is 0;
+    var integer: currY is 0;
+    var integer: col is 0;
+  begin
+    currX := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    currY := round(exec_expr(symbol, line));
+    col := round(getNumericVar("COLOR"));
+    point(currX, currY, loresColor[col mod length(loresColor)]);
+    DRAW_FLUSH;
+    line_marker;
+    writeln(log, "PLOT " <& currX <& ", " <& currY);
+  end func;
+
+
+const proc: exec_hplot (inout string: symbol, inout string: line) is func
+  local
+    var integer: col is 0;
+    var integer: currX is 0;
+    var integer: currY is 0;
+    var integer: destX is 0;
+    var integer: destY is 0;
+  begin
+    col := round(getNumericVar("HCOLOR"));
+    currX := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    currY := round(exec_expr(symbol, line));
+    if symbol = "TO" then
+      repeat
+        symbol := get_symbol(line);
+        destX := round(exec_expr(symbol, line));
+        expect(",", symbol, line);
+        destY := round(exec_expr(symbol, line));
+        lineTo(currX, currY, destX, destY,
+               hiresColor[col mod length(hiresColor)]);
+        DRAW_FLUSH;
+        line_marker;
+        writeln(log, "HPLOT " <& currX <& ", " <& currY <&
+                " TO " <& destX <& ", " <& destY);
+        currX := destX;
+        currY := destY;
+      until symbol <> "TO";
+    else
+      point(currX, currY, hiresColor[col mod length(hiresColor)]);
+      DRAW_FLUSH;
+      line_marker;
+      writeln(log, "HPLOT " <& currX <& ", " <& currY);
+    end if;
   end func;
 
 
@@ -7425,6 +7633,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         elsif symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("GO", symbol, line);
         elsif symbol = ":" and "GO" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: GO");
         else
           error_marker;
@@ -7716,6 +7925,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("COLOR", symbol, line);
         elsif symbol = ":" and "COLOR" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: COLOR");
         else
           if symbol <> "," then
@@ -7887,6 +8097,12 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
       elsif symbol = "REDIM" then
         line_marker;
         writeln(log, "REDIM " <& line);
+        repeat
+          symbol := get_symbol(line);
+        until endOfStatement(symbol);
+      elsif symbol = "SHARED" then
+        line_marker;
+        writeln(log, "SHARED " <& line);
         repeat
           symbol := get_symbol(line);
         until endOfStatement(symbol);
@@ -8151,6 +8367,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("PRI", symbol, line);
         elsif symbol = ":" and "PRI" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: PRI");
         else
           exec_print(symbol, line);
@@ -8160,6 +8377,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("INP", symbol, line);
         elsif symbol = ":" and "INP" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: INP");
         else
           exec_input(symbol, line);
@@ -8169,6 +8387,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("DELAY", symbol, line);
         elsif symbol = ":" and "DELAY" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: DELAY");
         else
           num1 := exec_expr(symbol, line);
@@ -8184,6 +8403,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         else
           symbol := get_symbol(line);
           if symbol = ":" and "HTAB" in usedLabel then
+            line_marker;
             writeln(log, "SKIP LABEL: HTAB");
           else
             index1 := line(win);
@@ -8200,6 +8420,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         else
           symbol := get_symbol(line);
           if symbol = ":" and "VTAB" in usedLabel then
+            line_marker;
             writeln(log, "SKIP LABEL: VTAB");
           else
             index1 := round(exec_expr(symbol, line));
@@ -8209,18 +8430,39 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             writeln(log, "VTAB " <& index1);
           end if;
         end if;
+      elsif symbol = "PLOT" then
+        symbol := get_symbol(line);
+        if symbol = "=" or symbol = "("  or symbol = "[" then
+          exec_let("PLOT", symbol, line);
+        elsif symbol = ":" and "PLOT" in usedLabel then
+          line_marker;
+          writeln(log, "SKIP LABEL: PLOT");
+        else
+          exec_plot(symbol, line);
+        end if;
+      elsif symbol = "HPLOT" then
+        symbol := get_symbol(line);
+        if symbol = "=" or symbol = "("  or symbol = "[" then
+          exec_let("HPLOT", symbol, line);
+        elsif symbol = ":" and "HPLOT" in usedLabel then
+          line_marker;
+          writeln(log, "SKIP LABEL: HPLOT");
+        else
+          exec_hplot(symbol, line);
+        end if;
       elsif symbol = "GR" then
         symbol := get_symbol(line);
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("GR", symbol, line);
         elsif symbol = ":" and "GR" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: GR");
         else
           # Lo-Res Graphics
           screen(320, 200);
           win := open(curr_win, 8);
           if curr_win <> PRIMITIVE_WINDOW.value then
-            clear(curr_win, white);
+            clear(curr_win, black);
             color(white, black);
             scr := open(curr_win);
             KEYBOARD := GRAPH_KEYBOARD;
@@ -8236,13 +8478,14 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("HGR", symbol, line);
         elsif symbol = ":" and "HGR" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: HGR");
         else
           # Hi-Res Graphics
           screen(320, 200);
           win := open(curr_win, 8);
           if curr_win <> PRIMITIVE_WINDOW.value then
-            clear(curr_win, white);
+            clear(curr_win, black);
             color(white, black);
             scr := open(curr_win);
             KEYBOARD := GRAPH_KEYBOARD;
@@ -8258,6 +8501,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("TEXT", symbol, line);
         elsif symbol = ":" and "TEXT" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: TEXT");
         else
           scr := open(CONSOLE);
@@ -8274,6 +8518,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("HOME", symbol, line);
         elsif symbol = ":" and "HOME" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: HOME");
         else
           clear(win);
@@ -8286,6 +8531,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("NORMAL", symbol, line);
         elsif symbol = ":" and "NORMAL" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: NORMAL");
         else
           line_marker;
@@ -8296,6 +8542,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("INVERSE", symbol, line);
         elsif symbol = ":" and "INVERSE" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: INVERSE");
         else
           line_marker;
@@ -8306,6 +8553,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("FLASH", symbol, line);
         elsif symbol = ":" and "FLASH" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: FLASH");
         else
           line_marker;
@@ -8320,6 +8568,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("PR", symbol, line);
         elsif symbol = ":" and "PR" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: PR");
         elsif symbol = "#" then
           symbol := get_symbol(line);
@@ -8615,6 +8864,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("INCR", symbol, line);
         elsif symbol = ":" and "INCR" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: INCR");
         else
           variable_name := get_name(symbol, line);
@@ -8633,6 +8883,7 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
         if symbol = "=" or symbol = "("  or symbol = "[" then
           exec_let("DECR", symbol, line);
         elsif symbol = ":" and "DECR" in usedLabel then
+          line_marker;
           writeln(log, "SKIP LABEL: DECR");
         else
           variable_name := get_name(symbol, line);
@@ -8746,11 +8997,28 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
       elsif symbol = ":" then
         error_marker;
         writeln(err, "UNEXPECTED \":\" - IGNORED.");
+      elsif symbol in usedLabel then
+        param1 := symbol;
+        symbol := get_symbol(line);
+        if symbol = "=" or symbol = "("  or symbol = "[" then
+          exec_let(param1, symbol, line);
+        elsif symbol = ":" then
+          line_marker;
+          writeln(log, "SKIP LABEL: " <& param1);
+        else
+          error_marker;
+          writeln(err, "COLON EXPECTED AFTER LABEL " <& param1 <&
+                  " - FOUND " <& literal(symbol) <& ".");
+        end if;
       elsif symbol <> "" then
         exec_let(symbol, line, process_next);
       end if;
       if symbol = ":" then
         symbol := get_symbol(line);
+        if symbol = ":" then
+          # Allow :: as statement separator.
+          symbol := get_symbol(line);
+        end if;
         process_next := TRUE;
       end if;
     until not process_next;
@@ -8912,6 +9180,7 @@ const proc: preprocessLine (in var string: line) is func
       end if;
       if symbol = ":" then
         symbol := get_symbol(line);
+        incl(usedAsStatement, symbol);
       end if;
     end while;
   end func;
@@ -8941,6 +9210,13 @@ const proc: checkLabels is func
         end for;
         writeln(err);
       end if;
+    end for;
+    for key aLabel range subprogram do
+      excl(usedLabel, aLabel);
+    end for;
+    usedLabel := usedLabel - usedAsStatement;
+    for aLabel range usedAsStatement do
+      excl(label, aLabel);
     end for;
     for aLabel range usedLabel do
       if aLabel not in label then
@@ -9187,6 +9463,9 @@ const func boolean: runOrChain (in string: cmd, in string: name) is func
       subprogram := label_hash.EMPTY_HASH;
       subfunction := label_hash.EMPTY_HASH;
       sub_declared := label_hash.EMPTY_HASH;
+      usedLabel := stringSet.value;
+      usedAsStatement := stringSet.value;
+      multipleDefinedLabel := multipleDefinedType.value;
       loadProg(name, infile);
       prepareLoops;
       close(infile);

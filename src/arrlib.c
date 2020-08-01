@@ -587,6 +587,11 @@ objectType arr_destr (listType arguments)
 
 
 
+/**
+ *  Get an empty array (an array without elements).
+ *  @return an empty array.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType arr_empty (listType arguments)
 
   {

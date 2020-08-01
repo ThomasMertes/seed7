@@ -213,7 +213,7 @@ static inline void scan_eof (void)
 
 
 
-void scan_symbol_utf8 (int character, register sySizeType position)
+static void scan_symbol_utf8 (int character, register sySizeType position)
 
   {
     charType unicode_char;

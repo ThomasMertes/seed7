@@ -1590,6 +1590,37 @@ static void numericProperties (FILE *versionFile)
     fprintf(versionFile, "#define HAS_EXP10 %d\n",
         compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS) && doTest() == 1);
     sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n#include<math.h>\n"
+            "%s\n"
+            "int main(int argc,char *argv[]){\n"
+            "int exponent1 = 999999;\n"
+            "int exponent2 = 999999;\n"
+            "int exponent3 = 999999;\n"
+            "int exponent4 = 999999;\n"
+            "int exponent5 = 999999;\n"
+            "int exponent6 = 999999;\n"
+            "int frexp_okay = 1;\n"
+            "%s\n"
+            "if (frexp(floatMinusInf,  &exponent1) != doubleMinusInf ||\n"
+            "    frexp(doubleMinusInf, &exponent2) != doubleMinusInf ||\n"
+            "    frexp(floatPlusInf,   &exponent3) != doublePlusInf  ||\n"
+            "    frexp(doublePlusInf,  &exponent4) != doublePlusInf  ||\n"
+            "    !os_isnan(frexp(floatNanValue1,  &exponent5)) ||\n"
+            "    !os_isnan(frexp(doubleNanValue1, &exponent6))) {\n"
+            "  frexp_okay = 0;\n"
+            "}\n"
+            "if (exponent1 != 0 || exponent2 != 0 ||\n"
+            "    exponent3 != 0 || exponent4 != 0 ||\n"
+            "    exponent5 != 0 || exponent6 != 0) {\n"
+            "  frexp_okay = 0;\n"
+            "}\n"
+            "printf(\"%%d\\n\", frexp_okay);\n"
+            "return 0;}\n",
+            os_isnan_definition, computeValues);
+    if (compileAndLinkWithOptionsOk(buffer, "", SYSTEM_LIBS)) {
+      fprintf(versionFile, "#define FREXP_INFINITY_NAN_OKAY %d\n", doTest());
+    } /* if */
+    sprintf(buffer,
             "#include<stdio.h>\n#include<string.h>\n"
             "#include<float.h>\n#include<math.h>\n"
             "%s\n"
@@ -3010,9 +3041,9 @@ static void determinePostgresDefines (FILE *versionFile,
     char *include_options, char *system_db_libs)
 
   {
-    const char *dbHomeSys[] = {"PostgreSQL/9.4", "PostgreSQL/9.3", "PostgreSQL/9.2",
-                               "PostgreSQL/9.1", "PostgreSQL/9.0", "PostgreSQL/8.4",
-                               "PostgreSQL/8.3"};
+    const char *dbHomeSys[] = {"PostgreSQL/9.5", "PostgreSQL/9.4", "PostgreSQL/9.3",
+                               "PostgreSQL/9.2", "PostgreSQL/9.1", "PostgreSQL/9.0",
+                               "PostgreSQL/8.4", "PostgreSQL/8.3"};
 #ifdef POSTGRESQL_DLL
     const char *dllNameList[] = { POSTGRESQL_DLL };
 #else

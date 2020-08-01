@@ -201,7 +201,7 @@ static striType read_and_alloc_utf8_stri (fileType inFile, memSizeType chars_mis
   /* read_and_alloc_utf8_stri */
     logFunction(printf("read_and_alloc_utf8_stri(%d, " FMT_U_MEM ", *, *)\n",
                        safe_fileno(inFile), chars_missing););
-    if (!ALLOC_STRI_SIZE_OK(result, GETS_STRI_SIZE_DELTA)) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, GETS_STRI_SIZE_DELTA))) {
       *err_info = MEMORY_ERROR;
       result = NULL;
     } else {

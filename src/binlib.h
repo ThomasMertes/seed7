@@ -29,6 +29,7 @@ objectType bin_and              (listType arguments);
 objectType bin_and_assign       (listType arguments);
 objectType bin_big              (listType arguments);
 objectType bin_binary           (listType arguments);
+objectType bin_cmp              (listType arguments);
 objectType bin_getBinaryFromSet (listType arguments);
 objectType bin_lshift           (listType arguments);
 objectType bin_lshift_assign    (listType arguments);

@@ -172,6 +172,11 @@ objectType fil_create (listType arguments)
 
 
 
+/**
+ *  Get a NULL file.
+ *  Functions to open a file return NULL, when the open failed.
+ *  @return NULL.
+ */
 objectType fil_empty (listType arguments)
 
   { /* fil_empty */

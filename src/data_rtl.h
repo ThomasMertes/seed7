@@ -109,6 +109,7 @@ typedef union {
     rtlHashType      hashValue;      /* HASHOBJECT */
     setType          setValue;       /* SETOBJECT */
     rtlStructType    structValue;    /* STRUCTOBJECT */
+    uintType         binaryValue;    /* INTOBJECT */
     rtlInterfaceType interfaceValue; /* INTERFACEOBJECT */
     fileType         fileValue;      /* FILEOBJECT */
     fileDesType      fileDesValue;   /* FILEDESOBJECT */

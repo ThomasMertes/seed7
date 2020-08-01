@@ -93,7 +93,7 @@ const func float: atan (in float: x)                           is action "FLT_AT
  *  @return the arc tangent of y/x in radians. The returned angle is in
  *          the range [-PI, PI].
  *)
-const func float: atan2 (in float: y, in float: x)             is action "FLT_A2TAN";
+const func float: atan2 (in float: y, in float: x)             is action "FLT_ATAN2";
 
 
 (**

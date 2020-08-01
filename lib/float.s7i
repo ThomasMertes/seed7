@@ -508,6 +508,34 @@ const func float: max (in float: value1, in float: value2) is func
   end func;
 
 
+const proc: decompose (in float: number, inout float: fraction,
+                       inout integer: exponent)                is action "FLT_DECOMPOSE";
+
+
+const type: floatElements is new struct
+    var float: fraction is 0.0;
+    var integer: exponent is 0;
+  end struct;
+
+
+(**
+ *  Decompose float into normalized fraction and integral exponent for 2.
+ *  If the argument (number) is 0.0, -0.0, Infinity, -Infinity or NaN the
+ *  fraction is set to the argument and the exponent is set to 0.
+ *  For all other arguments the fraction is set to an absolute value
+ *  between 0.5(included) and 1.0(excluded). For all values of number holds:
+ *   number = fraction * 2.0 ** exponent
+ *  @param number Number to be decomposed into fraction and exponent.
+ *  @return floatElements with fraction and exponent set.
+ *)
+const func floatElements: decompose (in float: number) is func
+  result
+    var floatElements: elements is floatElements.value;
+  begin
+    decompose(number, elements.fraction, elements.exponent);
+  end func;
+
+
 # Allows 'array float' everywhere without extra type definition.
 const type: _floatArray is array float;
 

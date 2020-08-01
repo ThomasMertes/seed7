@@ -1528,6 +1528,8 @@ striType cmdConfigValue (const const_striType name)
         opt = LITTLE_ENDIAN_INTTYPE ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "POW_FUNCTION_OKAY") == 0) {
         opt = POW_FUNCTION_OKAY ? "TRUE" : "FALSE";
+      } else if (strcmp(opt_name, "FREXP_INFINITY_NAN_OKAY") == 0) {
+        opt = FREXP_INFINITY_NAN_OKAY ? "TRUE" : "FALSE";
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
 #ifdef FLOAT_ZERO_DIV_ERROR
         opt = "TRUE";

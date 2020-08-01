@@ -27,6 +27,7 @@
 
 
 include "bigint.s7i";
+include "float.s7i";
 
 
 (**
@@ -95,6 +96,22 @@ const func bin64: bin64 (in bigInteger: number)                is action "BIN_BI
  *)
 const func bin64: bin64 (in char: ch) is
   return bin64(ord(ch));
+
+
+(**
+ *  Compare two bin64 values.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in bin64: number1, in bin64: number2) is action "BIN_CMP";
+
+
+(**
+ *  Compute the hash value of a bin64 value.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in bin64: number)                is action "INT_HASHCODE";
 
 
 (**
@@ -263,10 +280,103 @@ const func bin64: getBinary (in bitset: set1,
 
 
 (**
+ *  Get bits in IEEE 754 double-precision representation from a float.
+ *  @param number Float value to be converted to bin64.
+ *  @return 64 bits in IEEE 754 double-precision float representation.
+ *)
+const func bin64: float2Bits (in float: number, DOUBLE)        is action "FLT_DOUBLE2BITS";
+
+
+(**
+ *  Get a float from bits in IEEE 754 double-precision representation.
+ *  @param bits Bits to be converted to a float.
+ *  @return a float from bits in double-precision float representation.
+ *)
+const func float: bits2Float (in bin64: bits)                  is action "FLT_BITS2DOUBLE";
+
+
+(**
+ *  Get bits in MBF double-precision representation from a float.
+ *  Microsoft Binary Format (MBF) is a format for floating point numbers.
+ *  The double-precision version of MBF has a 8 bit exponent, a sign bit
+ *  and a 55 bit mantissa.
+ *  @param number Float value to be converted to bin64.
+ *  @return 64 bits in MBF double-precision float representation.
+ *  @exception RANGE_ERROR When number is not representable in MBF.
+ *             NaN, Infinity and -Infinity are not representable
+ *             in MBF. Numbers with an absolut value larger than
+ *             1.7014118346046921e+38 are also not representable
+ *             in MBF.
+ *)
+const func bin64: float2MbfBits (in float: number, DOUBLE) is func
+  result
+    var bin64: bits is bin64(0);
+  local
+    const integer: ieeeExponentBits is 11;
+    const integer: ieeeMantissaBits is 52;
+    const bin64: ieeeSignMask is bin64(1) << (ieeeExponentBits + ieeeMantissaBits);
+    const bin64: ieeeMantissaMask is bin64(pred(1 << ieeeMantissaBits));
+    const integer: mbfExponentBits is 8;
+    const integer: mbfMantissaBits is 55;
+    const integer: mbfMaxExponent is pred(2 ** mbfExponentBits);
+    const integer: mbfExponentBias is 129;
+    var floatElements: ieeeElements is floatElements.value;
+    var bin64: fractionBits is bin64(0);
+    var integer: mbfExponent is 0;
+  begin
+    if isNaN(number) or abs(number) = Infinity then
+      raise RANGE_ERROR;
+    elsif number <> 0.0 then
+      ieeeElements := decompose(number);
+      fractionBits := float2Bits(ieeeElements.fraction, DOUBLE);
+      mbfExponent := ieeeElements.exponent - 1 + mbfExponentBias;
+      if mbfExponent > mbfMaxExponent then
+        raise RANGE_ERROR;
+      elsif mbfExponent > 0 then
+        bits := (bin64(mbfExponent) << succ(mbfMantissaBits)) |
+                ((fractionBits & ieeeSignMask) >> mbfExponentBits) |
+                ((fractionBits & ieeeMantissaMask) << (mbfMantissaBits - ieeeMantissaBits));
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get a float from bits in MBF double-precision representation.
+ *  Microsoft Binary Format (MBF) is a format for floating point numbers.
+ *  The double-precision version of MBF has a 8 bit exponent, a sign bit
+ *  and a 55 bit mantissa.
+ *  @param bits Bits to be converted to a float.
+ *  @return a float from bits in double-precision float representation.
+ *)
+const func float: mbfBits2Float (in bin64: bits) is func
+  result
+    var float: result is 0.0;
+  local
+    const integer: mantissaBits is 55;
+    const bin64: mantissaMask is bin64(pred(1 << mantissaBits));
+    const bin64: mantissaSign is bin64(1 << mantissaBits);
+    const integer: exponentBias is 129;
+    var integer: exponent is 0;
+  begin
+    exponent := ord(bits >> succ(mantissaBits));
+    if exponent <> 0 then
+      # Ignore sign bit and set implicit leading one bit of mantissa instead.
+      result := flt(ord(mantissaSign | bits & mantissaMask));
+      # Check sign bit.
+      if ord(bits & mantissaSign) <> 0 then
+        result := -result;
+      end if;
+      result := result * 2.0 ** (exponent - exponentBias - mantissaBits);
+    end if;
+  end func;
+
+
+(**
  *  Convert a string of eight little-endian bytes to a bin64 value.
  *  @return the bin64 value.
  *)
-const func bin64: eightBytesLeToBin64 (in string: eightBytes) is
+const func bin64: bin64 (in string: eightBytes, LE) is
   return bin64(eightBytes[1])       |
          bin64(eightBytes[2]) <<  8 |
          bin64(eightBytes[3]) << 16 |
@@ -281,7 +391,7 @@ const func bin64: eightBytesLeToBin64 (in string: eightBytes) is
  *  Convert a string of eight big-endian bytes to a bin64 value.
  *  @return the bin64 value.
  *)
-const func bin64: eightBytesBeToBin64 (in string: eightBytes) is
+const func bin64: bin64 (in string: eightBytes, BE) is
   return bin64(eightBytes[1]) << 56 |
          bin64(eightBytes[2]) << 48 |
          bin64(eightBytes[3]) << 40 |

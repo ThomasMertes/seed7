@@ -395,6 +395,11 @@ charType utf8_char (register int character)
 
 
 
+/**
+ *  Read a character literal.
+ *  The function assumes that the next character in in_file
+ *  is the character after the introducing apostrophe (').
+ */
 void lit_char (void)
 
   {
@@ -465,6 +470,11 @@ void lit_char (void)
 
 
 
+/**
+ *  Read a string literal.
+ *  The function assumes that the next character in in_file
+ *  is the character after the introducing quotation (").
+ */
 void lit_string (void)
 
   {                                                             /*  0.05% */

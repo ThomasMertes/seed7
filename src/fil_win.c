@@ -174,7 +174,7 @@ void filPipe (fileType *inFile, fileType *outFile)
       } else if (unlikely((pipeWriteFildes =
           _open_osfhandle((intptr_t) (pipeWriteHandle), _O_TEXT)) == -1)) {
         logError(printf("filPipe: _open_osfhandle() failed:\n"););
-        close(pipeReadFildes);
+        _close(pipeReadFildes);
         CloseHandle(pipeWriteHandle);
         *inFile = NULL;
         *outFile = NULL;
@@ -183,8 +183,8 @@ void filPipe (fileType *inFile, fileType *outFile)
         logError(printf("filPipe: fdopen(%d, \"rb\") failed:\n"
                       "errno=%d\nerror: %s\n",
                       pipeReadFildes, errno, strerror(errno)););
-        close(pipeReadFildes);
-        close(pipeWriteFildes);
+        _close(pipeReadFildes);
+        _close(pipeWriteFildes);
         *outFile = NULL;
         raise_error(FILE_ERROR);
       } else if (unlikely((*outFile = fdopen(pipeWriteFildes, "wb")) == NULL)) {
@@ -193,7 +193,7 @@ void filPipe (fileType *inFile, fileType *outFile)
                       pipeWriteFildes, errno, strerror(errno)););
         fclose(*inFile);
         *inFile = NULL;
-        close(pipeWriteFildes);
+        _close(pipeWriteFildes);
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */

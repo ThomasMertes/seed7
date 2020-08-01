@@ -9510,6 +9510,51 @@ const proc: check_rand is func
   end func;
 
 
+const proc: check_decompose is func
+  local
+    var floatElements: elems is floatElements.value;
+    var boolean: okay is TRUE;
+    var boolean: ok is TRUE;
+  begin
+    elems := decompose(0.0); ok := ok and elems.fraction = 0.0 and elems.exponent = 0;
+    elems := decompose(0.5); ok := ok and elems.fraction = 0.5 and elems.exponent = 0;
+    elems := decompose(1.0); ok := ok and elems.fraction = 0.5 and elems.exponent = 1;
+    elems := decompose( 5.0e-324);                ok := ok and elems.fraction = 0.5 and
+                                                               elems.exponent = -1073;  # Min subnormal positive double.
+    elems := decompose( 2.2250738585072009e-308); ok := ok and elems.fraction = 0.9999999999999998 and
+                                                               elems.exponent = -1022;  # Max subnormal positive double
+    elems := decompose( 2.2250738585072014e-308); ok := ok and elems.fraction = 0.5 and
+                                                               elems.exponent = -1021;  # Min normalized positive double
+    elems := decompose( 1.4012984643248171e-45);  ok := ok and elems.fraction = 0.5 and
+                                                               elems.exponent = -148;   # Min subnormal positive single.
+    elems := decompose( 1.1754942106924411e-38);  ok := ok and elems.fraction = 0.9999998807907105 and
+                                                               elems.exponent = -126;   # Max subnormal positive single
+    elems := decompose( 1.1754943508222875e-38);  ok := ok and elems.fraction = 0.5 and
+                                                               elems.exponent = -125;   # Min normalized positive single.
+    elems := decompose( 3.4028234663852886e+38);  ok := ok and elems.fraction = 0.9999999403953552 and
+                                                               elems.exponent = 128;    # Max finite positive single.
+    elems := decompose( 1.7976931348623157e+308); ok := ok and elems.fraction = 0.9999999999999999 and
+                                                               elems.exponent = 1024;   # Max finite positive double
+    if not ok then
+      writeln(" ***** Decompose for normal values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    ok := TRUE;
+    elems := decompose( Infinity); ok := ok and elems.fraction =  Infinity and elems.exponent = 0;
+    elems := decompose(-Infinity); ok := ok and elems.fraction = -Infinity and elems.exponent = 0;
+    elems := decompose( NaN);      ok := ok and isNaN(elems.fraction)      and elems.exponent = 0;
+    if not ok then
+      writeln(" ***** Decompose for special values does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Decompose works correct for selected values.");
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -9527,4 +9572,5 @@ const proc: main is func
     check_negative_zero;
     check_inf;
     check_nan;
+    check_decompose;
   end func;

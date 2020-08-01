@@ -49,6 +49,11 @@
 
 
 
+/**
+ *  Read a char from keyboard, but don't wait when no key was pressed.
+ *  @return the char read from the console keyboard file or
+ *          KEY_NONE when no char is available.
+ */
 objectType kbd_busy_getc (listType arguments)
 
   { /* kbd_busy_getc */
@@ -61,6 +66,10 @@ objectType kbd_busy_getc (listType arguments)
 
 
 
+/**
+ *  Read a character from the console keyboard file.
+ *  @return the character read.
+ */
 objectType kbd_getc (listType arguments)
 
   { /* kbd_getc */
@@ -69,6 +78,10 @@ objectType kbd_getc (listType arguments)
 
 
 
+/**
+ *  Read a string with maximum length from the console keyboard file.
+ *  @return the string read.
+ */
 objectType kbd_gets (listType arguments)
 
   { /* kbd_gets */
@@ -79,6 +92,11 @@ objectType kbd_gets (listType arguments)
 
 
 
+/**
+ *  Determine if at least one character can be read without waiting.
+ *  @return TRUE if a character is available at the console keyboard file
+ *          FALSE otherwise.
+ */
 objectType kbd_keypressed (listType arguments)
 
   { /* kbd_keypressed */
@@ -91,6 +109,14 @@ objectType kbd_keypressed (listType arguments)
 
 
 
+/**
+ *  Read a line from the console keyboard file.
+ *  The function accepts lines ending with "\n", "\r\n" or EOF.
+ *  The line ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar/arg_2 contains '\n' or EOF.
+ *  @return the line read.
+ */
 objectType kbd_line_read (listType arguments)
 
   {
@@ -114,6 +140,16 @@ objectType kbd_raw_getc (listType arguments)
 
 
 
+/**
+ *  Read a word from the console keyboard file.
+ *  Before reading the word it skips spaces and tabs. The function
+ *  accepts words ending with " ", "\t", "\n", "\r\n" or EOF.
+ *  The word ending characters are not copied into the string.
+ *  That means that the "\r" of a "\r\n" sequence is silently removed.
+ *  When the function is left terminationChar/arg_2 contains ' ',
+ *  '\t', '\n' or EOF.
+ *  @return the word read.
+ */
 objectType kbd_word_read (listType arguments)
 
   {

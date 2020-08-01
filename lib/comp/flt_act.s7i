@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  flt_act.s7i   Generate code for actions of the type float.      *)
-(*  Copyright (C) 1990 - 1994, 2004 - 2014  Thomas Mertes           *)
+(*  Copyright (C) 1990 - 1994, 2004 - 2016  Thomas Mertes           *)
 (*                                                                  *)
 (*  This file is part of the Seed7 compiler.                        *)
 (*                                                                  *)
@@ -24,22 +24,26 @@
 (********************************************************************)
 
 
-const ACTION: FLT_A2TAN           is action "FLT_A2TAN";
 const ACTION: FLT_ABS             is action "FLT_ABS";
 const ACTION: FLT_ACOS            is action "FLT_ACOS";
 const ACTION: FLT_ADD             is action "FLT_ADD";
 const ACTION: FLT_ADD_ASSIGN      is action "FLT_ADD_ASSIGN";
 const ACTION: FLT_ASIN            is action "FLT_ASIN";
 const ACTION: FLT_ATAN            is action "FLT_ATAN";
+const ACTION: FLT_ATAN2           is action "FLT_ATAN2";
+const ACTION: FLT_BITS2DOUBLE     is action "FLT_BITS2DOUBLE";
+const ACTION: FLT_BITS2SINGLE     is action "FLT_BITS2SINGLE";
 const ACTION: FLT_CAST            is action "FLT_CAST";
 const ACTION: FLT_CEIL            is action "FLT_CEIL";
 const ACTION: FLT_CMP             is action "FLT_CMP";
 const ACTION: FLT_COS             is action "FLT_COS";
 const ACTION: FLT_COSH            is action "FLT_COSH";
 const ACTION: FLT_CPY             is action "FLT_CPY";
+const ACTION: FLT_DECOMPOSE       is action "FLT_DECOMPOSE";
 const ACTION: FLT_DGTS            is action "FLT_DGTS";
 const ACTION: FLT_DIV             is action "FLT_DIV";
 const ACTION: FLT_DIV_ASSIGN      is action "FLT_DIV_ASSIGN";
+const ACTION: FLT_DOUBLE2BITS     is action "FLT_DOUBLE2BITS";
 const ACTION: FLT_EQ              is action "FLT_EQ";
 const ACTION: FLT_EXP             is action "FLT_EXP";
 const ACTION: FLT_FLOOR           is action "FLT_FLOOR";
@@ -70,6 +74,7 @@ const ACTION: FLT_SBTR            is action "FLT_SBTR";
 const ACTION: FLT_SBTR_ASSIGN     is action "FLT_SBTR_ASSIGN";
 const ACTION: FLT_SCI             is action "FLT_SCI";
 const ACTION: FLT_SIN             is action "FLT_SIN";
+const ACTION: FLT_SINGLE2BITS     is action "FLT_SINGLE2BITS";
 const ACTION: FLT_SINH            is action "FLT_SINH";
 const ACTION: FLT_SQRT            is action "FLT_SQRT";
 const ACTION: FLT_STR             is action "FLT_STR";
@@ -112,18 +117,6 @@ const proc: flt_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    fltSci (floatType, intType);");
     declareExtern(c_prog, "striType    fltStr (floatType);");
     declareExtern(c_prog, "floatType   fltValue (const const_objRefType);");
-  end func;
-
-
-const proc: process (FLT_A2TAN, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "atan2(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
   end func;
 
 
@@ -193,19 +186,74 @@ const proc: process (FLT_ATAN, in reference: function,
   end func;
 
 
-const proc: process (FLT_CAST, in reference: function,
+const proc: process (FLT_ATAN2, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "atan2(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FLT_BITS2DOUBLE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: union_name is "";
+  begin
+    union_name := defineTempVariable("double2BitsUnion", "conv_", c_expr);
+    c_expr.expr &:= "(";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".bits=(uintType)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "),";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".aDouble)";
+  end func;
+
+
+const proc: process (FLT_BITS2SINGLE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var string: temp_name is "";
+    var string: union_name is "";
   begin
-    temp_name := defineTempVariable("rtlValueUnion", "tmp_", c_expr);
     c_expr.expr &:= "(";
+    temp_name := getTempVariable("intType", "tmp_", params[1], c_expr);
+    union_name := defineTempVariable("float2BitsUnion", "conv_", c_expr);
+    c_expr.expr &:= "rngChk(";
     c_expr.expr &:= temp_name;
+    c_expr.expr &:= ">";
+    c_expr.expr &:= integerLiteral(pred(2**32));
+    c_expr.expr &:= ")?";
+    c_expr.expr &:= intRaiseError("RANGE_ERROR");
+    c_expr.expr &:= ":(";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".bits=(uint32Type)(";
+    c_expr.expr &:= temp_name;
+    c_expr.expr &:= "),";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".aFloat))";
+  end func;
+
+
+const proc: process (FLT_CAST, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: union_name is "";
+  begin
+    union_name := defineTempVariable("rtlValueUnion", "conv_", c_expr);
+    c_expr.expr &:= "(";
+    c_expr.expr &:= union_name;
     c_expr.expr &:= ".floatValue=";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ",";
-    c_expr.expr &:= temp_name;
+    c_expr.expr &:= union_name;
     c_expr.expr &:= ".intValue)";
   end func;
 
@@ -262,6 +310,60 @@ const proc: process (FLT_CPY, in reference: function,
     statement.expr &:= "=";
     process_expr(params[3], statement);
     statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
+const proc: process (FLT_DECOMPOSE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var string: numberName is "";
+    var string: exponentName is "";
+  begin
+    if not ccConf.FREXP_INFINITY_NAN_OKAY then
+      if isNormalVariable(params[1]) then
+        numberName := normalVariable(params[1], statement);
+      else
+        numberName := defineTempVariable("floatType", "number_", statement);
+        statement.expr &:= numberName;
+        statement.expr &:= " = ";
+        process_expr(params[1], statement);
+        statement.expr &:= ";\n";
+      end if;
+      statement.expr &:= "if(os_isnan(";
+      statement.expr &:= numberName;
+      statement.expr &:= ")||";
+      statement.expr &:= numberName;
+      statement.expr &:= "==POSITIVE_INFINITY||";
+      statement.expr &:= numberName;
+      statement.expr &:= "==NEGATIVE_INFINITY){\n";
+      process_expr(params[2], statement);
+      statement.expr &:= " = ";
+      statement.expr &:= numberName;
+      statement.expr &:= ";\n";
+      process_expr(params[3], statement);
+      statement.expr &:= " = 0;\n}else{\n";
+    end if;
+    exponentName := defineTempVariable("int", "exponent_", statement);
+    process_expr(params[2], statement);
+    statement.expr &:= " = frexp(";
+    if ccConf.FREXP_INFINITY_NAN_OKAY then
+      process_expr(params[1], statement);
+    else
+      statement.expr &:= numberName;
+    end if;
+    statement.expr &:= ", &";
+    statement.expr &:= exponentName;
+    statement.expr &:= ");\n";
+    process_expr(params[3], statement);
+    statement.expr &:= " = (intType)(";
+    statement.expr &:= exponentName;
+    statement.expr &:= ");\n";
+    if not ccConf.FREXP_INFINITY_NAN_OKAY then
+      statement.expr &:= "}\n";
+    end if;
     doLocalDeclsOfStatement(statement, c_expr);
   end func;
 
@@ -480,6 +582,23 @@ const proc: process (FLT_DIV_ASSIGN, in reference: function,
   end func;
 
 
+const proc: process (FLT_DOUBLE2BITS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: union_name is "";
+  begin
+    union_name := defineTempVariable("double2BitsUnion", "conv_", c_expr);
+    c_expr.expr &:= "(";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".aDouble=";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ",(intType)(uintType)(";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".bits))";
+  end func;
+
+
 const proc: process_const_flt_eq (in float: number, in reference: param3,
     inout expr_type: c_expr) is func
 
@@ -692,15 +811,15 @@ const proc: process (FLT_ICAST, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
-    var string: temp_name is "";
+    var string: union_name is "";
   begin
-    temp_name := defineTempVariable("rtlValueUnion", "tmp_", c_expr);
+    union_name := defineTempVariable("rtlValueUnion", "conv_", c_expr);
     c_expr.expr &:= "(";
-    c_expr.expr &:= temp_name;
+    c_expr.expr &:= union_name;
     c_expr.expr &:= ".intValue=";
     process_expr(params[3], c_expr);
     c_expr.expr &:= ",";
-    c_expr.expr &:= temp_name;
+    c_expr.expr &:= union_name;
     c_expr.expr &:= ".floatValue)";
   end func;
 
@@ -1619,6 +1738,23 @@ const proc: process (FLT_SIN, in reference: function,
     c_expr.expr &:= "sin(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FLT_SINGLE2BITS, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: union_name is "";
+  begin
+    union_name := defineTempVariable("float2BitsUnion", "conv_", c_expr);
+    c_expr.expr &:= "(";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".aFloat=(float)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "),(intType)(uintType)(";
+    c_expr.expr &:= union_name;
+    c_expr.expr &:= ".bits))";
   end func;
 
 

@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "float.s7i";
+
+
 (**
  *  Binary values with 32 bits.
  *  This type is intended for bit operations that are not defined
@@ -78,6 +81,22 @@ const bin32: (attr bin32) . value   is bin32(0);
  *)
 const func bin32: bin32 (in char: ch) is
   return bin32(ord(ch));
+
+
+(**
+ *  Compare two bin32 values.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in bin32: number1, in bin32: number2) is action "BIN_CMP";
+
+
+(**
+ *  Compute the hash value of a bin32 value.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in bin32: number)                is action "INT_HASHCODE";
 
 
 (**
@@ -237,10 +256,106 @@ const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
 
 
 (**
+ *  Get bits in IEEE 754 single-precision representation from a float.
+ *  @param number Float value to be converted to bin32.
+ *  @return 32 bits in IEEE 754 single-precision float representation.
+ *)
+const func bin32: float2Bits (in float: number, SINGLE)      is action "FLT_SINGLE2BITS";
+
+
+(**
+ *  Get a float from bits in IEEE 754 single-precision representation.
+ *  @param bits Bits to be converted to a float.
+ *  @return a float from bits in single-precision float representation.
+ *)
+const func float: bits2Float (in bin32: bits)                is action "FLT_BITS2SINGLE";
+
+
+(**
+ *  Get bits in MBF single-precision representation from a float.
+ *  Microsoft Binary Format (MBF) is a format for floating point numbers.
+ *  The single-precision version of MBF has a 8 bit exponent, a sign bit
+ *  and a 23 bit mantissa.
+ *  @param number Float value to be converted to bin32.
+ *  @return 32 bits in MBF single-precision float representation.
+ *  @exception RANGE_ERROR When number is not representable in MBF.
+ *             NaN, Infinity and -Infinity are not representable
+ *             in MBF. Numbers with an absolut value larger than
+ *             1.7014117331926443e+38 are also not representable
+ *             in MBF.
+ *)
+const func bin32: float2MbfBits (in float: number, SINGLE) is func
+  result
+    var bin32: bits is bin32(0);
+  local
+    const integer: exponentBits is 8;
+    const integer: mantissaBits is 23;
+    const bin32: ieeeSignMask is bin32(1) << (exponentBits + mantissaBits);
+    const bin32: mantissaMask is bin32(pred(1 << mantissaBits));
+    const integer: maxExponent is pred(2 ** exponentBits);
+    const integer: mbfExponentBias is 129;
+    var floatElements: ieeeElements is floatElements.value;
+    var bin32: fractionBits is bin32(0);
+    var integer: mbfExponent is 0;
+  begin
+    if isNaN(number) or abs(number) = Infinity then
+      raise RANGE_ERROR;
+    elsif number <> 0.0 then
+      ieeeElements := decompose(number);
+      fractionBits := float2Bits(ieeeElements.fraction, SINGLE);
+      if abs(bits2Float(fractionBits)) = 1.0 then
+        # Because of the rounding to single the fraction could be 1.0.
+        incr(ieeeElements.exponent);
+        # Interpret the mantissa as 0.5.
+      end if;
+      mbfExponent := ieeeElements.exponent - 1 + mbfExponentBias;
+      if mbfExponent > maxExponent then
+        raise RANGE_ERROR;
+      elsif mbfExponent > 0 then
+        bits := (bin32(mbfExponent) << succ(mantissaBits)) |
+                ((fractionBits & ieeeSignMask) >> exponentBits) |
+                fractionBits & mantissaMask;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get a float from bits in MBF single-precision representation.
+ *  Microsoft Binary Format (MBF) is a format for floating point numbers.
+ *  The single-precision version of MBF has a 8 bit exponent, a sign bit
+ *  and a 23 bit mantissa.
+ *  @param bits Bits to be converted to a float.
+ *  @return a float from bits in MBF single-precision float representation.
+ *)
+const func float: mbfBits2Float (in bin32: bits) is func
+  result
+    var float: result is 0.0;
+  local
+    const integer: mantissaBits is 23;
+    const bin32: mantissaMask is bin32(pred(1 << mantissaBits));
+    const bin32: mantissaSign is bin32(1 << mantissaBits);
+    const integer: exponentBias is 129;
+    var integer: exponent is 0;
+  begin
+    exponent := ord(bits >> succ(mantissaBits));
+    if exponent <> 0 then
+      # Ignore sign bit and set implicit leading one bit of mantissa instead.
+      result := flt(ord(mantissaSign | bits & mantissaMask));
+      # Check sign bit.
+      if ord(bits & mantissaSign) <> 0 then
+        result := -result;
+      end if;
+      result := result * 2.0 ** (exponent - exponentBias - mantissaBits);
+    end if;
+  end func;
+
+
+(**
  *  Convert a string of four little-endian bytes to a bin32 value.
  *  @return the bin32 value.
  *)
-const func bin32: fourBytesLeToBin32 (in string: fourBytes) is
+const func bin32: bin32 (in string: fourBytes, LE) is
   return bin32(fourBytes[1])       |
          bin32(fourBytes[2]) <<  8 |
          bin32(fourBytes[3]) << 16 |
@@ -251,7 +366,7 @@ const func bin32: fourBytesLeToBin32 (in string: fourBytes) is
  *  Convert a string of four big-endian bytes to a bin32 value.
  *  @return the bin32 value.
  *)
-const func bin32: fourBytesBeToBin32 (in string: fourBytes) is
+const func bin32: bin32 (in string: fourBytes, BE) is
   return bin32(fourBytes[1]) << 24 |
          bin32(fourBytes[2]) << 16 |
          bin32(fourBytes[3]) <<  8 |
@@ -264,7 +379,7 @@ const func bin32: fourBytesBeToBin32 (in string: fourBytes) is
  *)
 const func string: bin32AsFourBytesLe (in bin32: binValue) is func
   result
-    var string: fourBytes is "\0;" mult 8;
+    var string: fourBytes is "\0;" mult 4;
   begin
     fourBytes @:= [1] chr(ord( binValue        & bin32(255)));
     fourBytes @:= [2] chr(ord((binValue >>  8) & bin32(255)));
@@ -279,7 +394,7 @@ const func string: bin32AsFourBytesLe (in bin32: binValue) is func
  *)
 const func string: bin32AsFourBytesBe (in bin32: binValue) is func
   result
-    var string: fourBytes is "\0;" mult 8;
+    var string: fourBytes is "\0;" mult 4;
   begin
     fourBytes @:= [1] chr(ord((binValue >> 24) & bin32(255)));
     fourBytes @:= [2] chr(ord((binValue >> 16) & bin32(255)));

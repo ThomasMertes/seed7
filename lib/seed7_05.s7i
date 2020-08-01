@@ -909,6 +909,22 @@ const proc: type_implements_interface (in type: aType, in type: interfaceType) i
       end func;
 
     addInterface(aType, interfaceType);
+
+    const func interfaceType: create (attr aType) is func
+      result
+        var interfaceType: allocated is aType.value;
+      local
+        var aType: newStuct is aType.value;
+      begin
+        allocated := toInterface(newStuct);
+      end func;
+
+    const func interfaceType: create (in aType: newStuct) is func
+      result
+        var interfaceType: allocated is aType.value;
+      begin
+        allocated := toInterface(newStuct);
+      end func;
   end func;
 
 

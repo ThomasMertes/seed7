@@ -429,7 +429,7 @@ static striType receive_and_alloc_stri (socketType inSocket, memSizeType chars_m
       } /* if */
     } /* if */
     if (likely(*err_info == OKAY_NO_ERROR)) {
-      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         logError(printf("receive_and_alloc_stri(%d, " FMT_U_MEM ", *): "
                         "ALLOC_STRI_SIZE_OK(*, " FMT_U_MEM ") failed.\n",
                         inSocket, chars_missing, result_size););

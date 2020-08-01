@@ -28,6 +28,7 @@ const ACTION: BIN_AND                 is action "BIN_AND";
 const ACTION: BIN_AND_ASSIGN          is action "BIN_AND_ASSIGN";
 const ACTION: BIN_BIG                 is action "BIN_BIG";
 const ACTION: BIN_BINARY              is action "BIN_BINARY";
+const ACTION: BIN_CMP                 is action "BIN_CMP";
 const ACTION: BIN_GET_BINARY_FROM_SET is action "BIN_GET_BINARY_FROM_SET";
 const ACTION: BIN_LSHIFT              is action "BIN_LSHIFT";
 const ACTION: BIN_LSHIFT_ASSIGN       is action "BIN_LSHIFT_ASSIGN";
@@ -46,6 +47,8 @@ const proc: bin_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "uintType    setToUInt (const const_setType, const intType);");
+    declareExtern(c_prog, "intType     uintCmp (uintType, uintType);");
+    declareExtern(c_prog, "intType     uintCmpGeneric (const genericType, const genericType);");
     declareExtern(c_prog, "striType    uintRadix (uintType, intType, boolType);");
     declareExtern(c_prog, "striType    uintRadixPow2 (uintType, int, int, boolType);");
     declareExtern(c_prog, "striType    uintStr (uintType);");
@@ -96,6 +99,35 @@ const proc: process (BIN_BINARY, in reference: function,
     c_expr.expr &:= "bigToUInt64(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (BIN_CMP, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var string: number1_name is "";
+    var string: number2_name is "";
+  begin
+    if inlineFunctions then
+      c_expr.expr &:= "(";
+      number1_name := getParameterAsVariable("uintType", "num1_", params[1], c_expr);
+      number2_name := getParameterAsVariable("uintType", "num2_", params[2], c_expr);
+      c_expr.expr &:= number1_name;
+      c_expr.expr &:= "<";
+      c_expr.expr &:= number2_name;
+      c_expr.expr &:= "? -1 : ";
+      c_expr.expr &:= number1_name;
+      c_expr.expr &:= ">";
+      c_expr.expr &:= number2_name;
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "uintCmp(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", ";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 

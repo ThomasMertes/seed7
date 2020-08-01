@@ -152,7 +152,7 @@ const func integer: getBitLsb (in string: stri, inout integer: bytePos,
  *   #           011           10
  *   #       lower bits    higher bits
  *   #        of result     of result
- *   getBitsLsb(stri, bytePos, bitPos)  returns  2#10011 (bytePos=2, bitPos=2)
+ *   getBitsLsb(stri, bytePos, bitPos, 5)  returns  2#10011 (bytePos=2, bitPos=2)
  *  @param stri String of bytes from which the bits are read.
  *  @param bytePos Current byte position in ''stri''.
  *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
@@ -307,7 +307,7 @@ const func integer: getBitMsb (in string: stri, inout integer: bytePos,
  *   #                100    11
  *   #         higher bits  lower bits
  *   #          of result    of result
- *   getBitsMsb(stri, bytePos, bitPos)  returns  2#10011 (bytePos=2, bitPos=2)
+ *   getBitsMsb(stri, bytePos, bitPos, 5)  returns  2#10011 (bytePos=2, bitPos=2)
  *  @param stri String of bytes from which the bits are read.
  *  @param bytePos Current byte position in ''stri''.
  *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).

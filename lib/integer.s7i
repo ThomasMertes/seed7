@@ -502,6 +502,21 @@ const func integer: (attr integer) parse (in string: stri)       is action "INT_
 
 
 (**
+ *  Convert a [[string]] to an ''integer'' number.
+ *  The [[string]] must contain an integer literal consisting of an
+ *  optional + or - sign, followed by a sequence of digits. Other
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed. The sequence of digits is taken to be decimal.
+ *  @return the ''integer'' result of the conversion.
+ *  @exception RANGE_ERROR When the string is empty or it does not contain
+ *             an integer literal or when the integer literal is too big
+ *             or too small to be represented as ''integer'' value.
+ *)
+const func integer: integer (in string: stri) is
+    return integer parse stri;
+
+
+(**
  *  Convert a numeric [[string]], with a specified radix, to an ''integer''.
  *  The numeric [[string]] must contain the representation of an integer
  *  in the specified radix. It consists of an optional + or - sign,

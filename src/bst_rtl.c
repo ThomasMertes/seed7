@@ -271,6 +271,11 @@ genericType bstCreateGeneric (const genericType from_value)
 
 
 
+/**
+ *  Free the memory referred by 'old_bstring'.
+ *  After bstDestr is left 'old_bstring' refers to not existing memory.
+ *  The memory where 'old_bstring' is stored can be freed afterwards.
+ */
 void bstDestr (const const_bstriType old_bstring)
 
   { /* bstDestr */

@@ -690,7 +690,7 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
     memSizeType position;
 
   /* add_stri_to_array */
-    if (ALLOC_STRI_SIZE_OK(new_stri, length)) {
+    if (likely(ALLOC_STRI_SIZE_OK(new_stri, length))) {
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems, length * sizeof(strElemType));
       if (*used_max_position >= work_array->max_position) {
@@ -711,7 +711,7 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
         } /* if */
       } /* if */
     } /* if */
-    if (new_stri != NULL) {
+    if (likely(new_stri != NULL)) {
       work_array->arr[*used_max_position].value.striValue = new_stri;
       (*used_max_position)++;
     } else {
@@ -1537,7 +1537,7 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
   /* strChSplit */
     logFunction(printf("strChSplit(\"%s\", '\\" FMT_U32 ";')\n",
                        striAsUnquotedCStri(mainStri), delimiter););
-    if (ALLOC_RTL_ARRAY(result_array, 256)) {
+    if (likely(ALLOC_RTL_ARRAY(result_array, 256))) {
       result_array->min_position = 1;
       result_array->max_position = 256;
       used_max_position = 0;

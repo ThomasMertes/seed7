@@ -89,6 +89,14 @@ const type: ccConfigType is new struct
     var boolean: POW_FUNCTION_OKAY          is FALSE;
 
     (**
+     *  TRUE, when frexp(Infinity, &exponent), frexp(-Infinity, &exponent)
+     *  and frexp(NaN, &exponent) return the first argument and set the
+     *  exponent to 0.
+     *  If it is FALSE checks for this special cases must be done.
+     *)
+    var boolean: FREXP_INFINITY_NAN_OKAY    is FALSE;
+
+    (**
      *  TRUE, when the functions sigsetjmp() and siglongjmp() are available.
      *  When it is FALSE the functions setjmp() and longjmp() must
      *  be used instead.
@@ -539,6 +547,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.LITTLE_ENDIAN_INTTYPE      := boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
     conf.NAN_COMPARISON_OKAY        := boolean parse configValue("NAN_COMPARISON_OKAY");
     conf.POW_FUNCTION_OKAY          := boolean parse configValue("POW_FUNCTION_OKAY");
+    conf.FREXP_INFINITY_NAN_OKAY    := boolean parse configValue("FREXP_INFINITY_NAN_OKAY");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
     conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
     conf.DO_SIGFPE_WITH_DIV_BY_ZERO := boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");

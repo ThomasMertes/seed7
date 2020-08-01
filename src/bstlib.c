@@ -279,6 +279,12 @@ objectType bst_create (listType arguments)
 
 
 
+/**
+ *  Free the memory referred by 'old_bstring/arg_1'.
+ *  After bst_destr is left 'old_bstring/arg_1' is NULL.
+ *  The memory where 'old_bstring/arg_1' is stored can be
+ *  freed afterwards.
+ */
 objectType bst_destr (listType arguments)
 
   {
@@ -297,6 +303,11 @@ objectType bst_destr (listType arguments)
 
 
 
+/**
+ *  Get an empty bstring.
+ *  @return an empty bstring.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ */
 objectType bst_empty (listType arguments)
 
   {
@@ -447,7 +458,7 @@ objectType bst_ne (listType arguments)
  *  Convert a string to a 'bstring' value.
  *  @return the 'bstring' result of the conversion.
  *  @exception RANGE_ERROR When characters beyond '\255;' are present.
- *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType bst_parse (listType arguments)
 
@@ -462,7 +473,7 @@ objectType bst_parse (listType arguments)
 /**
  *  Convert a 'bstring' value to a string.
  *  @return the string result of the conversion.
- *  @exception MEMORY_ERROR  Not enough memory to represent the result.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
  */
 objectType bst_str (listType arguments)
 

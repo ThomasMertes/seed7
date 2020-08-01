@@ -622,7 +622,7 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
       } /* if */
     } /* if */
     if (likely(*err_info == OKAY_NO_ERROR)) {
-      if (!ALLOC_STRI_SIZE_OK(result, result_size)) {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         logError(printf("read_and_alloc_stri(%d, " FMT_U_MEM ", *, *): "
                         "ALLOC_STRI_SIZE_OK(*, " FMT_U_MEM ") failed.\n",
                         safe_fileno(inFile), chars_missing, result_size););

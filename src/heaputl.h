@@ -515,6 +515,12 @@ EXTERN unsigned int sflist_allowed;
 #define COUNT3_STRUCT(len1,len2)    CNT3(CNT2_SCT(len1, SIZ_SCT(len1)), CNT1_SCT(len2, SIZ_SCT(len2)))
 
 
+#define ALLOC_RTL_STRUCT(var,len)       (ALLOC_HEAP(var, rtlStructType, SIZ_SCT(len))?CNT(CNT1_SCT(len, SIZ_SCT(len))) TRUE:FALSE)
+#define FREE_RTL_STRUCT(var,len)        (CNT(CNT2_SCT(len, SIZ_SCT(len))) FREE_HEAP(var, SIZ_SCT(len)))
+#define REALLOC_RTL_STRUCT(var,ln1,ln2) REALLOC_HEAP(var, rtlStructType, SIZ_SCT(ln2))
+#define COUNT3_RTL_STRUCT(len1,len2)    CNT3(CNT2_SCT(len1, SIZ_SCT(len1)), CNT1_SCT(len2, SIZ_SCT(len2)))
+
+
 #define ALLOC_RECORD(var,rec,cnt)  (ALLOC_HEAP(var, rec*, SIZ_REC(rec))?CNT(CNT1_REC(SIZ_REC(rec), cnt)) TRUE:FALSE)
 #define FREE_RECORD(var,rec,cnt)   (CNT(CNT2_REC(SIZ_REC(rec), cnt)) FREE_HEAP(var, SIZ_REC(rec)))
 

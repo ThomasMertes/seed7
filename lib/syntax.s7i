@@ -151,6 +151,7 @@ $ syntax expr: .().radix.()                  is  -> 16;
 $ syntax expr: .().RADIX.()                  is  -> 16;
 $ syntax expr: .().digits.()                 is  -> 16;
 $ syntax expr: .().sci.()                    is  -> 16;
+$ syntax expr: .(). ? .(). : .()             is  -> 16;
 $ syntax expr: .().exp.()                    is  -> 17;
 $ syntax expr: .().lpad.()                   is  -> 17;
 $ syntax expr: .().rpad.()                   is  -> 17;
