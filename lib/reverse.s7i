@@ -76,8 +76,18 @@ const proc: writeln (inout reverse_file: reverse_fil) is func
   end func;
 
 
-const proc: backSpace (inout reverse_file: reverse_fil) is func
+const proc: moveLeft (inout reverse_file: reverse_fil, in string: stri) is func
+  local
+    var integer: index is 0;
   begin
-    write(reverse_fil.out_file, "  ");
+    for index range length(stri) downto 1 do
+      write(reverse_fil.out_file, stri[index]);
+    end for;
+  end func;
+
+
+const proc: erase (inout reverse_file: reverse_fil, in string: stri) is func
+  begin
+    moveLeft(reverse_fil.out_file, stri);
     write(reverse_fil.out_file, "\b");
   end func;

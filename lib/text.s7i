@@ -130,7 +130,5 @@ const proc: setColumn (in text: aText, in integer: column) is DYNAMIC;
 
 
 const proc: cursor (ref text param, ref boolean param) is DYNAMIC;
-const proc: cursor_on (ref text param) is DYNAMIC;
-const proc: cursor_off (ref text param) is DYNAMIC;
 const proc: box (ref text param) is DYNAMIC;
 const proc: clear_box (ref text param) is DYNAMIC;

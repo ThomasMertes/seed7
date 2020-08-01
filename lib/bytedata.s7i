@@ -1,7 +1,7 @@
 
 (********************************************************************)
 (*                                                                  *)
-(*  bytedata.s7i  Convert to and from strings with byte data        *)
+(*  bytedata.s7i  Convert byte data to and from strings             *)
 (*  Copyright (C) 2009, 2013  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)

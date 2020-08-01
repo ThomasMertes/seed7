@@ -45,6 +45,7 @@ const type: graph_file is sub null_file struct
     var integer: column is 0;
     var integer: min_x is 0;
     var integer: min_y is 0;
+    var integer: lineStartX is 0;
     var integer: curr_x is 0;
     var integer: curr_y is 0;
     var color: foreground is white;
@@ -73,6 +74,7 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win) is func
     aGraphFile.column := 1;
     aGraphFile.min_x := 0;
     aGraphFile.min_y := 0;
+    aGraphFile.lineStartX := 0;
     aGraphFile.curr_x := 0;
     aGraphFile.curr_y := 11;
   end func;
@@ -97,6 +99,7 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
     aGraphFile.column := 1;
     aGraphFile.min_x := min_x;
     aGraphFile.min_y := min_y;
+    aGraphFile.lineStartX := min_x;
     aGraphFile.curr_x := 0;
     aGraphFile.curr_y := 11;
   end func;
@@ -121,6 +124,7 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win,
     aGraphFile.column := 1;
     aGraphFile.min_x := min_x;
     aGraphFile.min_y := min_y;
+    aGraphFile.lineStartX := min_x;
     aGraphFile.curr_x := 0;
     aGraphFile.curr_y := 11;
   end func;
@@ -139,6 +143,7 @@ const func graph_file: open (in PRIMITIVE_WINDOW: graph_win, in integer: lin_del
     aGraphFile.column := 1;
     aGraphFile.min_x := 0;
     aGraphFile.min_y := 0;
+    aGraphFile.lineStartX := 0;
     aGraphFile.curr_x := 0;
     aGraphFile.curr_y := 11;
   end func;
@@ -230,6 +235,7 @@ const proc: clear (inout graph_file: aGraphFile,
         aGraphFile.background);
     aGraphFile.line := upper;
     aGraphFile.column := left;
+    aGraphFile.lineStartX := aGraphFile.min_x;
     aGraphFile.curr_x := aGraphFile.min_x + aGraphFile.column_delta * left - 6;
     aGraphFile.curr_y := aGraphFile.min_y + aGraphFile.line_delta * upper - 2;
   end func;
@@ -306,6 +312,7 @@ const proc: setPos (inout graph_file: aGraphFile, in integer: line, in integer: 
   begin
     aGraphFile.line := line;
     aGraphFile.column := column;
+    aGraphFile.lineStartX := aGraphFile.min_x;
     aGraphFile.curr_x := aGraphFile.min_x + aGraphFile.column_delta * column - 6;
     aGraphFile.curr_y := aGraphFile.min_y + aGraphFile.line_delta * line - 2;
   end func;
@@ -317,6 +324,7 @@ const proc: setPos (inout graph_file: aGraphFile, in integer: line, in integer: 
  *)
 const proc: setPosXY (inout graph_file: aGraphFile, in integer: xPos, in integer: yPos) is func
   begin
+    aGraphFile.lineStartX := aGraphFile.min_x + xPos;
     aGraphFile.curr_x := aGraphFile.min_x + xPos;
     aGraphFile.curr_y := aGraphFile.min_y + yPos;
     aGraphFile.line := (aGraphFile.curr_y + 2) div aGraphFile.line_delta;
@@ -364,20 +372,39 @@ const proc: writeln (inout graph_file: aGraphFile) is func
   begin
     incr(aGraphFile.line);
     aGraphFile.column := 1;
-    aGraphFile.curr_x := aGraphFile.min_x + aGraphFile.column_delta - 6;
+    aGraphFile.curr_x := aGraphFile.lineStartX;
+    # aGraphFile.curr_x := aGraphFile.min_x + aGraphFile.column_delta - 6;
     aGraphFile.curr_y +:= aGraphFile.line_delta;
   end func;
 
 
-const proc: cursor_on (inout graph_file: aGraphFile) is func
+const proc: moveLeft (inout graph_file: aGraphFile, in string: stri) is func
   begin
-    write(aGraphFile, "_");
+    aGraphFile.column -:= length(stri);
+    aGraphFile.curr_x -:= aGraphFile.column_delta * length(stri);
   end func;
 
 
-const proc: cursor_off (inout graph_file: aGraphFile) is func
+const proc: erase (inout graph_file: aGraphFile, in string: stri) is func
   begin
-    write(aGraphFile, " ");
+    DRAW_TEXT(aGraphFile.win, aGraphFile.curr_x, aGraphFile.curr_y, "" lpad length(stri),
+        colorPixel(aGraphFile.foreground), colorPixel(aGraphFile.background));
+    aGraphFile.column +:= length(stri);
+    aGraphFile.curr_x +:= aGraphFile.column_delta * length(stri);
+  end func;
+
+
+const proc: cursorOn (inout graph_file: aGraphFile, in char: cursorChar) is func
+  begin
+    DRAW_TEXT(aGraphFile.win, aGraphFile.curr_x, aGraphFile.curr_y, str(cursorChar),
+        colorPixel(aGraphFile.background), colorPixel(aGraphFile.foreground));
+  end func;
+
+
+const proc: cursorOff (inout graph_file: aGraphFile, in char: cursorChar) is func
+  begin
+    DRAW_TEXT(aGraphFile.win, aGraphFile.curr_x, aGraphFile.curr_y, str(cursorChar),
+        colorPixel(aGraphFile.foreground), colorPixel(aGraphFile.background));
   end func;
 
 

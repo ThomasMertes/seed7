@@ -85,12 +85,6 @@ const proc: write (in utf8_file: outFile, in string: stri) is func
   end func;
 
 
-const proc: backSpace (in utf8_file: outFile) is func
-  begin
-    utf8_write(outFile.ext_file, "\b \b");
-  end func;
-
-
 (**
  *  Read a character from an UTF-8 file.
  *  @return the character read, or [[char#EOF|EOF]] at the end of the file.

@@ -82,7 +82,7 @@ const func char: getc (inout echo_file: echo_fil) is func
       elsif charRead = '\b' then
         if echo_fil.in_pos > 1 then
           decr(echo_fil.in_pos);
-          backSpace(echo_fil.out_file);
+          backSpace(echo_fil.out_file, " ");
         end if;
       elsif charRead = '\C' or charRead = '\T' then
         write(echo_fil.out_file, " terminate (y/n)? ");
@@ -93,9 +93,7 @@ const func char: getc (inout echo_file: echo_fil) is func
           writeln(echo_fil.out_file, "*** PROGRAM TERMINATED BY USER");
           exit(PROGRAM);
         else
-          for number range 1 to 18 do
-            backSpace(echo_fil.out_file);
-          end for;
+          backSpace(echo_fil.out_file, " terminate (y/n)? ");
         end if;
       elsif charRead <> EOF then
         incr(echo_fil.in_pos);

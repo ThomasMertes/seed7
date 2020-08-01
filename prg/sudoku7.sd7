@@ -27,15 +27,19 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "float.s7i";
   include "draw.s7i";
+  include "stdfont9.s7i";
+  include "pixmap_file.s7i";
   include "dialog.s7i";
   include "pic16.s7i";
 
-const integer: STRETCH_FACTOR    is 68;
-const integer: PIXMAP_SIZE       is 32;
-const integer: SMALL_PIXMAP_SIZE is 16;
-const integer: FIELD_XPOS        is  8;
-const integer: FIELD_YPOS        is 64;
-const integer: FIELD_BORDER      is  3;
+const integer: WINDOW_WIDTH      is 896;
+const integer: WINDOW_HEIGHT     is 704;
+const integer: STRETCH_FACTOR    is  68;
+const integer: PIXMAP_SIZE       is  32;
+const integer: SMALL_PIXMAP_SIZE is  16;
+const integer: FIELD_XPOS        is   8;
+const integer: FIELD_YPOS        is  64;
+const integer: FIELD_BORDER      is   3;
 
 const integer: X_SHIFT        is FIELD_XPOS + FIELD_BORDER - STRETCH_FACTOR * 2;
 const integer: Y_SHIFT        is FIELD_YPOS + FIELD_BORDER - STRETCH_FACTOR * 2;
@@ -55,7 +59,6 @@ const integer: EXIT_BUTTON_X      is 850;
 const color: BACKGROUND is black;
 const color: FOREGROUND is white;
 
-var text: scr is STD_NULL;
 var text: info is STD_NULL;
 var array PRIMITIVE_WINDOW: blue_digits is 0 times PRIMITIVE_WINDOW.value;
 var array PRIMITIVE_WINDOW: red_digits is 0 times PRIMITIVE_WINDOW.value;
@@ -2266,10 +2269,10 @@ const proc: showStrategyCheckboxes is func
     var integer: number is 0;
     var boolean: button_is_on is FALSE;
   begin
-    rect(RIGHT_BUTTON_X, RIGHT_BUTTON_MIN_Y + 4 + 39 * 2, 250, 39 * 11, black);
+    rect(RIGHT_BUTTON_X - 6, RIGHT_BUTTON_MIN_Y - 3 + 39 * 2, 256, 39 * 11, black);
     for number range 3 to 13 do
       box(RIGHT_BUTTON_X + 4, RIGHT_BUTTON_MIN_Y + 4 + 39 * pred(number), 24, 24, FOREGROUND);
-      setPos(info, 4 + number * 3, 45);
+      setPosXY(info, 45, RIGHT_BUTTON_MIN_Y + 18 + 39 * pred(number));
       case number of
         when {3}:
           write(info, "singles");
@@ -2318,7 +2321,7 @@ const proc: showStrategyCheckboxes is func
 
 const proc: hideStrategyCheckboxes is func
   begin
-    rect(RIGHT_BUTTON_X, RIGHT_BUTTON_MIN_Y + 4 + 39 * 2, 250, 39 * 11, black);
+    rect(RIGHT_BUTTON_X - 6, RIGHT_BUTTON_MIN_Y - 3 + 39 * 2, 256, 39 * 11, black);
   end func;
 
 
@@ -2346,7 +2349,7 @@ const proc: showButtons is func
     put(EXIT_BUTTON_X, TOP_BUTTON_Y, exit_pixmap, PSET);
     for number range 1 to 2 do
       box(RIGHT_BUTTON_X + 4, RIGHT_BUTTON_MIN_Y + 4 + 39 * pred(number), 24, 24, FOREGROUND);
-      setPos(info, 4 + number * 3, 45);
+      setPosXY(info, 45, RIGHT_BUTTON_MIN_Y + 18 + 39 * pred(number));
       case number of
         when {1}:
           write(info, "show candidates");
@@ -2630,27 +2633,29 @@ const proc: processCommand is func
   end func;
 
 
+const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri) is func
+  begin
+    setPosXY(screen, (WINDOW_WIDTH - 632 - width(stdFont9, stri)) div 2, yPos);
+    writeln(screen, stri);
+  end func;
+
+
 const proc: main is func
   begin
-    screen(896, 704);
+    screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(BACKGROUND);
-    scr := open(curr_win);
-    info := open_window(scr, 1, 70, height(scr), width(scr) - 70);
+    info := openPixmapFontFile(curr_win, 630, 0);
+    setFont(info, stdFont9);
+    # info := open(curr_win, 630, 0);
+    color(info, white, black);
     KEYBOARD := GRAPH_KEYBOARD;
-    setPos(info, 20, 52);
-    writeln(info, "S U D O K U 7");
-    setPos(info, 23, 42);
-    writeln(info, "Copyright (C) 2006  Thomas Mertes");
-    setPos(info, 25, 39);
-    writeln(info, "This program is free software under the");
-    setPos(info, 26, 39);
-    writeln(info, "terms of the GNU General Public License");
-    setPos(info, 29, 46);
-    writeln(info, "Sudoku7 is written in the");
-    setPos(info, 30, 45);
-    writeln(info, "Seed7 programming language.");
-    setPos(info, 32, 39);
-    writeln(info, "Homepage:  http://seed7.sourceforge.net");
+    writeCentered(info, 280, "S U D O K U 7");
+    writeCentered(info, 312, "Copyright (C) 2006  Thomas Mertes");
+    writeCentered(info, 344, "This program is free software under the");
+    writeCentered(info, 360, "terms of the GNU General Public License");
+    writeCentered(info, 392, "Sudoku7 is written in the");
+    writeCentered(info, 408, "Seed7 programming language.");
+    writeCentered(info, 440, "Homepage:  http://seed7.sourceforge.net");
     initGrid;
     blue_digits := [0](
       create_pixmap(blue_zero,  2),

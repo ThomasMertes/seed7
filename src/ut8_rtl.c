@@ -251,8 +251,12 @@ chartype ut8Getc (filetype inFile)
           /* character range 0x80 to 0xBF (128 to 191) */
           result |= character & 0x3F;
           if (result <= 0x7F) {
+            /* Overlong encodings are illegal */
             raise_error(RANGE_ERROR);
             return 0;
+          } else {
+            /* correct encodings are in the range */
+            /* 0x80 to 0x07FF (128 to 2047)       */
           } /* if */
         } else {
           raise_error(RANGE_ERROR);
@@ -269,8 +273,12 @@ chartype ut8Getc (filetype inFile)
           if ((character & 0xC0) == 0x80) {
             result |= character & 0x3F;
             if (result <= 0x7FF) {  /* (result >= 0xD800 && result <= 0xDFFF)) */
+              /* Overlong encodings are illegal */
               raise_error(RANGE_ERROR);
               return 0;
+            } else {
+              /* correct encodings are in the range */
+              /* 0x800 to 0xFFFF (2048 to 65535)    */
             } /* if */
           } else {
             raise_error(RANGE_ERROR);
@@ -294,8 +302,14 @@ chartype ut8Getc (filetype inFile)
             if ((character & 0xC0) == 0x80) {
               result |= character & 0x3F;
               if (result <= 0xFFFF) {
+                /* Overlong encodings are illegal */
                 raise_error(RANGE_ERROR);
                 return 0;
+              } else {
+                /* correct encodings are in the range        */
+                /* 0x10000 to 0x10FFFF (65536 to 1114111)    */
+                /* allowed encodings are in the range        */
+                /* 0x110000 to 0x1FFFFF (1114112 to 2097151) */
               } /* if */
             } else {
               raise_error(RANGE_ERROR);
@@ -326,8 +340,12 @@ chartype ut8Getc (filetype inFile)
               if ((character & 0xC0) == 0x80) {
                 result |= character & 0x3F;
                 if (result <= 0x1FFFFF) {
+                  /* Overlong encodings are illegal */
                   raise_error(RANGE_ERROR);
                   return 0;
+                } else {
+                  /* allowed encodings are in the range          */
+                  /* 0x200000 to 0x3FFFFFF (2097152 to 67108863) */
                 } /* if */
               } else {
                 raise_error(RANGE_ERROR);
@@ -365,8 +383,12 @@ chartype ut8Getc (filetype inFile)
                 if ((character & 0xC0) == 0x80) {
                   result |= character & 0x3F;
                   if (result <= 0x3FFFFFF) {
+                    /* Overlong encodings are illegal */
                     raise_error(RANGE_ERROR);
                     return 0;
+                  } else {
+                    /* allowed encodings are in the range               */
+                    /* 0x4000000 to 0xFFFFFFFF (67108864 to 4294967295) */
                   } /* if */
                 } else {
                   raise_error(RANGE_ERROR);

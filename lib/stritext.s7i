@@ -96,7 +96,7 @@ const proc: writeln (inout stritext: outStritext) is func
   end func;
 
 
-const proc: backSpace (inout stritext: outStritext) is func
+const proc: moveLeft (inout stritext: outStritext) is func
   begin
     if outStritext.column > 1 then
       decr(outStritext.column);

@@ -302,7 +302,12 @@ type_implements_interface(gzipFile, file);
 
 
 (**
- *  Open a ''gzipFile'' to decompress a compressed string.
+ *  Open a ''gzipFile'' to compress data to the gzip format.
+ *  A ''gzipFile'' compresses data that is written to it. The
+ *  compressed data is written to ''destFile'' in the gzip
+ *  format. Gzip uses the DEFLATE compression algorithm. DEFLATE
+ *  uses a combination of the LZ77 algorithm and Huffman coding.
+ *  Additionally to DEFLATE gzip uses a magic number and a header.
  *  @return the file opened.
  *)
 const func file: openGzipFile (inout file: destFile) is func

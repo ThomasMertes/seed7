@@ -902,6 +902,9 @@ void err_cchar (errortype err, int character)
       case STRINGESCAPE:
         printf("Illegal string escape \"\\");
         break;
+      case UTF8_CONTINUATION_BYTE_EXPECTED:
+        printf("UTF-8 continuation byte expected found \"");
+        break;
       default:
         undef_err();
         break;
@@ -909,7 +912,7 @@ void err_cchar (errortype err, int character)
     if (character >= ' ' && character <= '~') {
       printf("%c\"\n", character);
     } else {
-      printf("\\%u\\\"\n", character);
+      printf("\\%u\\\" (U+%04x)\n", character, character);
     } /* if */
     print_error_line();
     display_compilation_info();
@@ -925,6 +928,15 @@ void err_char (errortype err, chartype character)
       case CHAR_ILLEGAL:
         printf("Illegal character in text \"");
         break;
+      case OVERLONG_UTF8_ENCODING:
+        printf("Overlong UTF-8 encoding used for character \"");
+        break;
+      case UTF16_SURROGATE_CHAR_FOUND:
+        printf("UTF-16 surrogate character found in UTF-8 encoding \"");
+        break;
+      case CHAR_NOT_UNICODE:
+        printf("Non Unicode character found \"");
+        break;
       default:
         undef_err();
         break;
@@ -932,7 +944,7 @@ void err_char (errortype err, chartype character)
     if (character >= ' ' && character <= '~') {
       printf("%c\"\n", (char) character);
     } else {
-      printf("\\%lu\\\"\n", (unsigned long) character);
+      printf("\\%lu\\\" (U+%04lx)\n", (unsigned long) character, (unsigned long) character);
     } /* if */
     print_error_line();
     display_compilation_info();

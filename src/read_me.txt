@@ -920,7 +920,7 @@ THE VERSION.H FILE
 
   TIME_T_SIZE: Size of time_t in bits.
 
-  USE_WINSOCK: Use thw winsocket functions instead of the
+  USE_WINSOCK: Use the winsocket functions instead of the
                normal Unix socket functions.
 
   PATH_DELIMITER: This is the path delimiter character used by

@@ -26,15 +26,14 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "text.s7i";
   include "draw.s7i";
-  include "graph_file.s7i";
+  include "stdfont9.s7i";
+  include "pixmap_file.s7i";
   include "keybd.s7i";
   include "chartype.s7i";
   include "time.s7i";
   include "duration.s7i";
   include "pic32.s7i";
 
-
-var text: screen is STD_NULL;
 
 const integer: WINDOW_WIDTH is 992;
 const integer: WINDOW_HEIGHT is 704;
@@ -1982,18 +1981,17 @@ const proc: main is func
   begin
     screen(WINDOW_WIDTH, WINDOW_HEIGHT);
     clear(curr_win, white);
-    screen := open(curr_win, 16);
-    scr := open(curr_win);
+    scr := openPixmapFontFile(curr_win, 250, 0);
+    setFont(scr, stdFont9);
     color(scr, black, white);
-    setPos(scr, 2, 44);
+    writeln(scr);
     writeln(scr, "P A I R S   -   Concentration game");
-    setPos(scr, 4, 44);
+    writeln(scr);
     writeln(scr, "Copyright (C) 2005  Thomas Mertes");
-    setPos(scr, 6, 44);
+    writeln(scr);
     writeln(scr, "This program is free software under the terms of the GNU General Public License.");
-    setPos(scr, 8, 44);
+    writeln(scr);
     writeln(scr, "Pairs is written in the Seed7 programming language");
-    setPos(scr, 9, 46);
     writeln(scr, "Homepage:    http://seed7.sourceforge.net");
     KEYBOARD := GRAPH_KEYBOARD;
     digit_pixmap := [0](

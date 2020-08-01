@@ -192,6 +192,7 @@ memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
         len -= 5;
       } else {
         /* ustri[0] not in range 0xC0 to 0xFF (192 to 255) */
+        /* or not enough continuation bytes found          */
         *dest_len = (memsizetype) (stri - dest_stri);
         return len;
       } /* if */

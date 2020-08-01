@@ -1,3 +1,55 @@
+20130704:
+- A wordfile for Ultraedit and a syntax definition file for Textpad
+  has been added. Many thanks to Renato Lenzi for providing it. This
+  files can be found also on his great italian page about Seed7.
+- A compilation problem with DJGPP in fil_rtl.c has been fixed
+  (thanks to "Rugxulo" for pointing it out).
+- The keyboard read function getc(KEYBOARD) has been improved to
+  accept all Unicode characters also under Linux/Unix/BSD. Up do now
+  the function did only accept Latin-1 characters.
+- The keyboard read function getc(KEYBOARD) has been improved to
+  accept usages of the mouse wheel also under Windows.
+- Checks for correct UTF-8 encoding of the program source have been
+  added. Overlong UTF-8 encodings, UTF-16 surrogate characters and
+  missing UTF-8 continuation bytes result in a compile time error.
+- The example program err.sd7, which checks compile time error
+  messages, has been improved.
+- The FAQ explanations concerning Unicode and automatic casts have
+  been improved.
+- Documentation comments have been added to gzip.s7i and make.s7i.
+- The example programs gkbd.sd7 and kbd.sd7 have been improved to
+  write the character, if it is printable.
+- The example programs pairs.sd7, panic.sd7, tetg.sd7, sokoban.sd7,
+  sudoku7.sd7, mandelbr.sd7 and wator.sd7 have been changed to use
+  proportional Seed7 pixmap fonts.
+- Tests for the functions lower and upper with cyrillic letters have
+  been added to chkstr.sd7.
+- The libraries console.s7i, pixmap_file.s7i, graph_file.s7i,
+  file.s7i, editline.s7i, echo.s7i, null_file.s7i, external_file.s7i,
+  strifile.s7i, stritext.s7i, tee.s7i, window.s7i, reverse.s7i,
+  lower.s7i and upper.s7i, have been improved to work with
+  proportional fonts. Proportional font support uses the functions
+  moveLeft, erase, backSpace, cursorOn and cursorOff.
+- The vector font cronos16 has been improved to look more similar to
+  the font cronos27.
+- The bitmap fonts stdFont10, stdFont12, stdFont14, stdFont16,
+  stdFont18, stdFont20 and stdFont24 have been improved.
+- The vector fonts vecFont10 and vecFont18 have been adjusted to look
+  like the corresponding bitmap fonts.
+- The fonts stdFont8, stdFont9 and cronos27 have been improved to use
+  less spacing between the characters.
+- In graph_file.s7i the logic of a writeln after a setPosXY has been
+  changed. Now the writeln moves one line downward relative to the
+  position given with setPosXY.
+- A description of the subrange operator, which gets an array slice
+  from a position with maximum length, has been added to the manual.
+- A table to map keysym values to Unicode and the function
+  mapKeysymToUnicode, which does a binary search in this table, have
+  been added to gkb_x11.c.
+- The function gkbGetc in gkb_x11.c has been improved to work without
+  recursion, to use mapKeysymToUnicode and to recognize cursor keys
+  in combination with ALT, NUMLOCK and SHIFT.
+
 20130616:
 - Documentation comments have been added or improved in bigfile.s7i,
   char.s7i, clib_file.s7i, complex.s7i, external_file.s7i, file.s7i,
@@ -46,8 +98,8 @@
 - The macro hashCode has been defined in str_rtl.h and used in
   str_rtl.c (function strHashCode) and strlib.c (function
   str_hashcode).
-- The program chkccomp.c was improved to write a definition of the
-  macro INLINE to version.h
+- The program chkccomp.c has been improved to write a definition of
+  the macro INLINE to version.h
 - The deprecated function 'read_dir' has been removed from the
   library "osfiles.s7i". The replacement of 'read_dir' is 'readDir'.
 - The functions arrHeadTemp, arrRangeTemp and arrSubarrTemp in

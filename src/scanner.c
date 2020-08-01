@@ -162,6 +162,7 @@ static void scan_illegal (void)
     printf("BEGIN scan_illegal\n");
 #endif
     if ((in_file.character & 0xC0) == 0xC0) {
+      /* character range 0xC0 to 0xFF (192 to 255) */
       unicode_char = utf8_char(in_file.character);
       err_char(CHAR_ILLEGAL, unicode_char);
       while (char_class(in_file.character) == ILLEGALCHAR) {

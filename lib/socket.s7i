@@ -214,12 +214,6 @@ const proc: writeln (in socket: outSocket, in string: stri) is func
   end func;
 
 
-const proc: backSpace (in socket: outSocket) is func
-  begin
-    write(outSocket.sock, "\b \b");
-  end func;
-
-
 (**
  *  Read a character from ''inSocket''.
  *  @return the character read.

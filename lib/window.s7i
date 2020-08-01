@@ -370,6 +370,36 @@ const proc: writeln (inout window_file: window_fil) is func
   end func;
 
 
+const proc: moveLeft (inout window_file: window_fil, in string: stri) is func
+  begin
+    window_fil.curr_column -:= length(stri);
+  end func;
+
+
+const proc: erase (inout window_file: window_fil, in string: stri) is func
+  begin
+    if window_fil.curr_line >= 1 and
+        window_fil.curr_line <= window_fil.height and
+        window_fil.curr_column <= window_fil.width then
+      if window_fil.curr_column >= 1 then
+        setPos(window_fil.out_file,
+            pred(window_fil.upper_border + window_fil.curr_line),
+            pred(window_fil.left_border + window_fil.curr_column));
+        erase(window_fil.out_file,
+            stri[.. succ(window_fil.width - window_fil.curr_column)]);
+      elsif length(stri) >= 2 - window_fil.curr_column then
+        setPos(window_fil.out_file,
+            pred(window_fil.upper_border + window_fil.curr_line),
+            window_fil.left_border);
+        erase(window_fil.out_file,
+            stri[2 - window_fil.curr_column ..
+            succ(window_fil.width - window_fil.curr_column)]);
+      end if;
+    end if;
+    window_fil.curr_column +:= length(stri);
+  end func;
+
+
 const proc: backSpace (inout window_file: window_fil) is func
   begin
     if window_fil.curr_column > 1 then
@@ -387,7 +417,7 @@ const proc: backSpace (inout window_file: window_fil) is func
   end func;
 
 
-const proc: cursor_on (inout window_file: window_fil) is func
+const proc: cursorOn (inout window_file: window_fil, in char: cursorChar) is func
   begin
     if window_fil.curr_line >= 1 and
         window_fil.curr_line <= window_fil.height and
@@ -396,12 +426,12 @@ const proc: cursor_on (inout window_file: window_fil) is func
       setPos(window_fil.out_file,
           window_fil.upper_border + window_fil.curr_line - 1,
           window_fil.left_border + window_fil.curr_column - 1);
-      cursor_on(window_fil.out_file);
+      cursorOn(window_fil.out_file, cursorChar);
     end if;
   end func;
 
 
-const proc: cursor_off (inout window_file: window_fil) is func
+const proc: cursorOff (inout window_file: window_fil, in char: cursorChar) is func
   begin
     if window_fil.curr_line >= 1 and
         window_fil.curr_line <= window_fil.height and
@@ -410,6 +440,6 @@ const proc: cursor_off (inout window_file: window_fil) is func
       setPos(window_fil.out_file,
           window_fil.upper_border + window_fil.curr_line - 1,
           window_fil.left_border + window_fil.curr_column - 1);
-      cursor_off(window_fil.out_file);
+      cursorOff(window_fil.out_file, cursorChar);
     end if;
   end func;

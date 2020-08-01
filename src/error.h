@@ -25,7 +25,8 @@
 /*                                                                  */
 /********************************************************************/
 
-typedef enum {OUT_OF_HEAP_SPACE,
+typedef enum {
+    OUT_OF_HEAP_SPACE,
     NO_SOURCEFILE,
     FILENOTFOUND,
     EOF_ENCOUNTERED,
@@ -80,7 +81,12 @@ typedef enum {OUT_OF_HEAP_SPACE,
     TYPE_EXPECTED,
     PROC_EXPECTED,
     PARAM_SPECIFIER_EXPECTED,
-    EVAL_TYPE_FAILED} errortype;
+    EVAL_TYPE_FAILED,
+    OVERLONG_UTF8_ENCODING,
+    UTF16_SURROGATE_CHAR_FOUND,
+    CHAR_NOT_UNICODE,
+    UTF8_CONTINUATION_BYTE_EXPECTED
+  } errortype;
 
 
 void place_of_error (errortype err);

@@ -3172,11 +3172,13 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                     A[maxIdx(A)] <b>&rArr;</b> Last element,
                     A[pred(minIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a>,
                     A[succ(maxIdx(A))] <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
-      <span class="op">[</span> A .. B ] Access a sub array
+      <span class="op">[</span> A .. B ]  Get a sub array from the position A to the position B 
                   ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
-      <span class="op">[</span> A .. ]  Access a sub array beginning at position A
+      <span class="op">[</span> A <span class="keywd">len</span> B ]  Get a sub array from the position A with maximum length B 
+                  ( Type of arguments A and B: <a class="type" href="#types_integer">integer</a> )
+      <span class="op">[</span> A .. ]  Get a sub array beginning at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
-      <span class="op">[</span> .. A ]  Access a sub array ending at position A
+      <span class="op">[</span> .. A ]  Get a sub array ending at position A
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a> )
     Relations:
       =, &lt;>
@@ -10873,6 +10875,10 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right">54:</td> <td width="10"></td><td>Procedure expected found %s expression</td></tr>
     <tr><td align="right">55:</td> <td width="10"></td><td>Parameter specifier expected found "%s"</td></tr>
     <tr><td align="right">56:</td> <td width="10"></td><td>Evaluate type expression %s failed</td></tr>
+    <tr><td align="right">57:</td> <td width="10"></td><td>Overlong UTF-8 encoding used for character "%s" (U+%04x)</td></tr>
+    <tr><td align="right">58:</td> <td width="10"></td><td>UTF-16 surrogate character found in UTF-8 encoding "%s" (U+%04x)</td></tr>
+    <tr><td align="right">59:</td> <td width="10"></td><td>Non Unicode character found "%s" (U+%04x)</td></tr>
+    <tr><td align="right">60:</td> <td width="10"></td><td>UTF-8 continuation byte expected found "%s" (U+%04x)</td></tr>
     <tr><td align="right">   </td> <td width="10"></td><td>Undefined error</td></tr>
 </table></dd></dl><p></p>
 

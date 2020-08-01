@@ -258,3 +258,93 @@ const proc: writeln (inout pixmapFontFile: fontFile) is func
       fontFile.currTopY +:= line_delta(fontFile.font);
     end if;
   end func;
+
+
+const proc: moveLeft (inout pixmapFontFile: fontFile, in string: stri) is func
+  local
+    var char: ch is ' ';
+    var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
+  begin
+    for ch range stri do
+      # Actually the reverse order should be used, but
+      # the sequence of characters is not significant.
+      if ch in fontFile.font.pixmap then
+        charPixmap := fontFile.font.pixmap[ch];
+      else
+        charPixmap := getFontCharPixmap(fontFile.font, ch);
+      end if;
+      fontFile.currLeftX -:= width(charPixmap) + characterSpacing(fontFile.font);
+    end for;
+  end func;
+
+
+const proc: erase (inout pixmapFontFile: fontFile, in string: stri) is func
+  local
+    var char: ch is ' ';
+    var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
+    var integer: width is 0;
+    var integer: height is 0;
+  begin
+    if stri <> "" then
+      if fontFile.useBaseY then
+        fontFile.currTopY := fontFile.currBaseY - baseLineDelta(fontFile.font);
+      else
+        fontFile.currBaseY := fontFile.currTopY + baseLineDelta(fontFile.font);
+        fontFile.useBaseY := TRUE;
+      end if;
+      for ch range stri do
+        if ch in fontFile.font.pixmap then
+          charPixmap := fontFile.font.pixmap[ch];
+        else
+          charPixmap := getFontCharPixmap(fontFile.font, ch);
+        end if;
+        width +:= width(charPixmap);
+        height := max(height, height(charPixmap));
+      end for;
+      width +:= characterSpacing(fontFile.font) * length(stri);
+      rect(fontFile.currLeftX, fontFile.currTopY, width, height,
+          background(fontFile.font));
+      fontFile.currLeftX +:= width;
+    end if;
+  end func;
+
+
+const proc: cursorOn (inout pixmapFontFile: fontFile, in char: cursorChar) is func
+  local
+    var activeFont: font is activeFont.value;
+    var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
+  begin
+    if fontFile.useBaseY then
+      fontFile.currTopY := fontFile.currBaseY - baseLineDelta(fontFile.font);
+    else
+      fontFile.currBaseY := fontFile.currTopY + baseLineDelta(fontFile.font);
+      fontFile.useBaseY := TRUE;
+    end if;
+    font := getFont(fontFile.font.baseFont, fontSize(fontFile.font),
+        scale(fontFile.font), background(fontFile.font), foreground(fontFile.font));
+    if cursorChar in font.pixmap then
+      charPixmap := font.pixmap[cursorChar];
+    else
+      charPixmap := getFontCharPixmap(font, cursorChar);
+    end if;
+    put(fontFile.currLeftX, fontFile.currTopY, charPixmap, PSET);
+  end func;
+
+
+const proc: cursorOff (inout pixmapFontFile: fontFile, in char: cursorChar) is func
+  local
+    var PRIMITIVE_WINDOW: charPixmap is PRIMITIVE_WINDOW.value;
+  begin
+    if fontFile.useBaseY then
+      fontFile.currTopY := fontFile.currBaseY - baseLineDelta(fontFile.font);
+    else
+      fontFile.currBaseY := fontFile.currTopY + baseLineDelta(fontFile.font);
+      fontFile.useBaseY := TRUE;
+    end if;
+    if cursorChar in fontFile.font.pixmap then
+      charPixmap := fontFile.font.pixmap[cursorChar];
+    else
+      charPixmap := getFontCharPixmap(fontFile.font, cursorChar);
+    end if;
+    put(fontFile.currLeftX, fontFile.currTopY, charPixmap, PSET);
+  end func;

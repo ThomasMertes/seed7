@@ -106,9 +106,15 @@ const proc: write (in external_file: outFile, in string: stri) is func
   end func;
 
 
-const proc: backSpace (in external_file: outFile) is func
+const proc: moveLeft (in external_file: outFile, in string: stri) is func
   begin
-    write(outFile.ext_file, "\b \b");
+    write(outFile.ext_file, "\b" mult length(stri));
+  end func;
+
+
+const proc: erase (in external_file: outFile, in string: stri) is func
+  begin
+    write(outFile.ext_file, " " mult length(stri));
   end func;
 
 

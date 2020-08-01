@@ -99,7 +99,7 @@ bitset.s7i   Support for sets of integer numbers
 bitsetof.s7i Support for bitsets of a base type
 boolean.s7i  Boolean support library
 bstring.s7i  Byte string support library
-bytedata.s7i Convert to and from strings with byte data
+bytedata.s7i Convert byte data to and from strings
 cards.s7i    Playing card pictures of a french deck
 category.s7i Category support library
 cgi.s7i      Support for the Common Gateway Interface

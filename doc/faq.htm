@@ -524,12 +524,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-06-16 the number of lines is:
+than 200000 lines of Seed7. For version 2013-07-04 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 92113</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8123</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">114982</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 90010</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 93089</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8129</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">115055</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 90442</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -553,7 +553,7 @@ Seed7 runs on the following operating systems:
    Linux)</li>
 <li>Unix (I used Seed7 also under various Unix variants, so it is probably
    easy to port Seed7 to a Unix variant)</li>
-<li>BSD (there is a <a class="link" href="http://www.freebsd.org/cgi/cvsweb.cgi/ports/lang/seed7">FreeBSD port</a>)</li>
+<li>BSD (there is a <a class="link" href="http://www.freshports.org/lang/seed7">FreeBSD port</a>)</li>
 <li>Windows is supported with several compilers:<ul>
 <li>MinGW GCC (the binary Windows release of Seed7 uses MinGW)</li>
 <li>Cygwin GCC (the X11 graphics needs Cygwin/X)</li>
@@ -1017,8 +1017,8 @@ Normally such 'statements' still use the list notation with lots of parentheses.
 The read macros of Lisp could be used to define the syntax of a statement, but
 read macros make no type checks at compile time. Any type checking must be written
 by the programmer and is not mandated by Lisp. The type checks will be performed
-at runtime and might issue warnings at compile time (this is implementation
-dependent). In general: Lisp 'statement' declarations do not force compile time
+at runtime. Depending on the implementation there might be warnings issued at
+compile time. In general: Lisp 'statement' declarations do not force compile time
 checks and look less elegant. Seed7 statement declarations force a type check at
 compile time.
 </p><p>
@@ -1121,8 +1121,8 @@ type variables and type expressions are used in the <a class="link" href="scrsho
 <p>
 Seed7 has a basic principle that would break if type inference would be used:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
-  &nbsp;For every expression (and sub expression) you know its type at&nbsp;<br />
-  &nbsp;compile time without knowing where this expression is used.&nbsp;
+  &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
+  &nbsp;This is independend from the place where this expression is used.&nbsp;
 </td></tr></table></dd></dl><p>
 It is exactly the violation of this principle that makes type inference possible.
 As long as this principle holds you need to know the global and local declarations
@@ -1137,10 +1137,16 @@ that is very bad since a program is more often read than written.
 <div><br /><a name="automatic_casts"><h3>Are there automatic casts to the right type?
 </h3></a><hr />
 <p>
-No, because Seed7 is strong typed. This means that for every expression (and sub
-expression) you know its type at compile time without knowing where this expression
-is used. Although this means that you have to convert types explicit (for example
-from <tt><a class="type" href="manual/types.htm#integer">integer</a></tt> to <tt><a class="type" href="manual/types.htm#float">float</a></tt>) it has more advantages than disadvantages:
+Seed7 cannot read the mind of the programmer. It is hard to find out what the
+programmer considers as "right type". A conversion can lose information. Apart
+from truncating integers also seemingly safe conversions may lose information.
+E.g. Not all 64-bit integer values can be represented as 64-bit float values.
+It can also lead to unplanned behaviour, when the programmer is not aware of an
+automatic conversion. It improves readability when conversions are done explicit.
+Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
+<tt><a class="type" href="manual/types.htm#integer">integer</a></tt> to <tt><a class="type" href="manual/types.htm#float">float</a></tt> is done with the function <tt><a class="func" href="libraries/float.htm#flt(in_integer)">flt</a></tt>. Conversions from <tt><a class="type" href="manual/types.htm#float">float</a></tt>
+to <tt><a class="type" href="manual/types.htm#integer">integer</a></tt> are done with <tt><a class="func" href="libraries/float.htm#round(in_float)">round</a></tt> or <tt><a class="func" href="libraries/float.htm#trunc(in_float)">trunc</a></tt>. Explicit conversions have more
+advantages than disadvantages:
 </p><ol>
 <li>The overloading rules are much simpler.</li>
 <li>An expression can be understood without its calling context.</li>
@@ -1175,8 +1181,8 @@ No, it is not possible to overload functions (operators, statements) which have
 the same parameter types and just differ in the result type. This type of
 overloading has a big advantage:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
-  &nbsp;For every expression (and sub expression) you know its type at&nbsp;<br />
-  &nbsp;compile time without knowing where this expression is used.&nbsp;
+  &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
+  &nbsp;This is independend from the place where this expression is used.&nbsp;
 </td></tr></table></dd></dl><p>
 Therefore it is not possible to overload something which has no parameters (like
 a variable or a literal). As a consequence it is sometimes necessary to cast a
@@ -1232,6 +1238,12 @@ strings with the operating system automatically convert the strings
 to and from UTF-32. It is possible to read and write files with <a class="link" href="libraries/external_file.htm">Latin-1</a>,
 <a class="link" href="libraries/utf8.htm">UTF-8</a> and <a class="link" href="libraries/utf16.htm">UTF-16</a> encoding. Functions to <a class="link" href="libraries/charsets.htm">deal with codepages</a> and functions
 to convert between different Unicode encodings are also available.
+</p><p>
+Conversions to <a class="func" href="libraries/string.htm#upper(in_string)">upper</a> and to <a class="func" href="libraries/string.htm#lower(in_string)">lower</a> case use the default Unicode case mapping,
+where each character is considered in isolation. Characters without case
+mapping are left unchanged. The mapping is independend from the locale.
+Individual character case mappings cannot be reversed, because some
+characters have multiple characters that map to them. 
 </p><p>
 Seed7 source code allows Unicode in <a class="link" href="manual/tokens.htm#Character_literals">char literals</a>, <a class="link" href="manual/tokens.htm#String_literals">string literals</a>, <a class="link" href="manual/tokens.htm#Comments">block comments</a>
 and <a class="link" href="manual/tokens.htm#Line_comments">line comments</a>. Interpreter and <a class="link" href="scrshots/s7c.htm">compiler</a> assume that a Seed7 program is written
@@ -1420,7 +1432,7 @@ parameter is used. A <tt>'conditional'</tt> function (similar to the ?: operator
 is defined with:
 </p><pre class="indent">
 <span class="keywd">const</span> <span class="type">func integer</span>: conditional (<span class="keywd">in</span> <span class="type">boolean</span>: condition,
-    (<span class="keywd">in</span> <span class="type">func integer</span>: trueValue, <span class="keywd">in</span> <span class="type">func integer</span>: falseValue) <span class="keywd">is func</span>
+    <span class="keywd">ref</span> <span class="type">func integer</span>: trueValue, <span class="keywd">ref</span> <span class="type">func integer</span>: falseValue) <span class="keywd">is func</span>
   <span class="keywd">result</span>
     <span class="keywd">var</span> <span class="type">integer</span>: conditionalResult <span class="keywd">is</span> 0;
   <span class="keywd">begin</span>
@@ -1434,10 +1446,10 @@ is defined with:
 Seed7 does not require a special notation (like brackets) for actual call-by-name
 parameters, therefore the <tt>'conditional'</tt> function can be called with:
 </p><pre class="indent">
-conditional(a &lt; 100.0, sqrt(a), a ** 2)
+conditional(a <a class="op" href="libraries/integer.htm#(in_integer)&gt;=(in_integer)">&gt;=</a> 0, <a class="func" href="libraries/integer.htm#sqrt(in_integer)">sqrt</a>(a), a <a class="op" href="libraries/integer.htm#(in_integer)**(in_integer)">**</a> 2)
 </pre><p>
-Depending on the condition <tt>'a &lt; 100.0'</tt> only one of the expressions <tt>'sqrt(a)'</tt> and
-<tt>'a ** 2'</tt> is evaluated. This evaluation takes place when <tt>'trueValue'</tt> or <tt>'falseValue'</tt>
+Depending on the condition <tt>'a <a class="op" href="libraries/integer.htm#(in_integer)&gt;=(in_integer)">&gt;=</a> 0'</tt> only one of the expressions <tt>'<a class="func" href="libraries/integer.htm#sqrt(in_integer)">sqrt</a>(a)'</tt> and
+<tt>'a <a class="op" href="libraries/integer.htm#(in_integer)**(in_integer)">**</a> 2'</tt> is evaluated. This evaluation takes place when <tt>'trueValue'</tt> or <tt>'falseValue'</tt>
 is assigned to <tt>'result'</tt>.
 </p></div>
 
@@ -1465,7 +1477,7 @@ memory management is used:
    intermediate result and just assign it to the variable. This way it is not
    always necessary to copy arbitrary complex values. All this things can be
    decided by the compiler.</li>
-<li>Strings, arrays, hashes and other containers manage their memory. E.g.:
+<li><a class="link" href="manual/types.htm#string">Strings</a>, <a class="link" href="manual/types.htm#array">arrays</a>, <a class="link" href="manual/types.htm#hash">hashes</a> and other containers manage their memory. E.g.:
    When an element is removed from a hash table the memory used by the element
    is freed as well as the hash table internal data.</li>
 <li>A struct value can be referred by one struct variable and by several
@@ -2087,7 +2099,7 @@ statement adds new defined objects to the internal database.
 <div><br /><a name="compile_call_by_name"><h3>How does the compiler implement call-by-name parameters?
 </h3></a><hr />
 <p>
-Every function with call-by-name parameters is searched for recursive calls.
+Every function with <a class="link" href="#call_by_name">call-by-name</a> parameters is searched for recursive calls.
 When no recursive call of the function is present it can be implemented with
 code inlining. In this case every call of the function is inlined and the actual
 call-by-name parameters replace all occurrences of the formal call-by-name

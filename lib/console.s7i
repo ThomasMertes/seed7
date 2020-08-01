@@ -154,31 +154,23 @@ const proc: writeln (in console_file: aConsoleFile) is func
       setPos(aConsoleFile, succ(LINE(aConsoleFile)), 1);
     end if;
   end func;
-
-
-const proc: backSpace (in console_file: aConsoleFile) is func
-  begin
-    if COLUMN(aConsoleFile) > 1 then
-      setPos(aConsoleFile, LINE(aConsoleFile); pred(COLUMN(aConsoleFile)));
-      if COLUMN(aConsoleFile) <= width(aConsoleFile) then
-        write(aConsoleFile.OUT_FILE, " ");
-        setPos(aConsoleFile, LINE(aConsoleFile); pred(COLUMN(aConsoleFile)));
-      end if;
-    end if;
-  end func;
 *)
 
 
-const proc: cursor_on (inout console_file: aConsoleFile) is func
+const proc: moveLeft (in console_file: aConsoleFile, in string: stri) is func
   begin
-    write(aConsoleFile, "_");
+    write(aConsoleFile, "\b" mult length(stri));
   end func;
 
 
-const proc: cursor_off (inout console_file: aConsoleFile) is func
+const proc: erase (in console_file: aConsoleFile, in string: stri) is func
   begin
-    write(aConsoleFile, " ");
+    write(aConsoleFile, " " mult length(stri));
   end func;
+
+
+const proc: cursorOn (in console_file: aConsoleFile, in char: cursorChar) is noop;
+const proc: cursorOff (in console_file: aConsoleFile, in char: cursorChar) is noop;
 
 
 const proc: box (in console_file: aConsoleFile)       is noop;

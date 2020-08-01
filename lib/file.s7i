@@ -60,7 +60,20 @@ const proc: writeln (inout file: outFile)                    is DYNAMIC;
 const proc: writeln (inout file: outFile, in string: stri)   is DYNAMIC;
 
 
-const proc: backSpace (inout file: outFile)                  is DYNAMIC;
+const proc: moveLeft (inout file: outFile, in string: stri)  is DYNAMIC;
+const proc: erase (inout file: outFile, in string: stri)     is DYNAMIC;
+
+
+const proc: backSpace (inout file: outFile, in string: stri) is func
+  begin
+    moveLeft(outFile, stri);
+    erase(outFile, stri);
+    moveLeft(outFile, stri);
+  end func;
+
+
+const proc: cursorOn (inout file: outFile, in char: ch) is DYNAMIC;
+const proc: cursorOff (inout file: outFile, in char: ch) is DYNAMIC;
 
 
 (**

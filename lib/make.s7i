@@ -917,6 +917,14 @@ const proc: processRule (inout makeDataType: makeData, in string: targetName) is
   end func;
 
 
+(**
+ *  Use rules and commands from a makefile to create the specified ''targets''.
+ *  @param makefile Path of the makefile which contains rules and commands
+ *                  in the usual makefile syntax.
+ *  @param targets The targets that should be made.
+ *  @param flags Options which affect command execution
+ *  @param macros Predefined make macros.
+ *)
 const proc: make (in string: makefile, in array string: targets, in makeFlags: flags,
     in stringHash: macros) is func
   local
@@ -977,12 +985,27 @@ const proc: make (in string: makefile, in array string: targets, in makeFlags: f
   end func;
 
 
+(**
+ *  Use rules and commands from a makefile to create the specified ''targets''.
+ *  @param makefile Path of the makefile which contains rules and commands
+ *                  in the usual makefile syntax.
+ *  @param targets The targets that should be made.
+ *  @param flags Options which affect command execution
+ *)
 const proc: make (in string: makefile, in array string: targets, in makeFlags: flags) is func
   begin
     make(makefile, targets, flags, stringHash.value);
   end func;
 
 
+(**
+ *  Use rules and commands from a makefile to create the specified ''target''.
+ *  @param makefile Path of the makefile which contains rules and commands
+ *                  in the usual makefile syntax.
+ *  @param target The target that should be made.
+ *  @param flags Options which affect command execution
+ *  @param macros Predefined make macros.
+ *)
 const proc: make (in string: makefile, in string: target, in makeFlags: flags, in stringHash: macros) is func
   begin
     if target = "" then
@@ -993,6 +1016,13 @@ const proc: make (in string: makefile, in string: target, in makeFlags: flags, i
   end func;
 
 
+(**
+ *  Use rules and commands from a makefile to create the specified ''target''.
+ *  @param makefile Path of the makefile which contains rules and commands
+ *                  in the usual makefile syntax.
+ *  @param target The target that should be made.
+ *  @param flags Options which affect command execution
+ *)
 const proc: make (in string: makefile, in string: target, in makeFlags: flags) is func
   begin
     make(makefile, target, flags, stringHash.value);

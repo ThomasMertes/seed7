@@ -46,7 +46,7 @@ const func integer:           characterSpacing (in activeFont: actFont) is DYNAM
 (**
  *  Type to describe a font, based on pixmap images.
  *  Pixmap images are rectangular off screen windows, which are
- *  supported by graphic system of the operating system.
+ *  supported by the graphic system of the operating system.
  *)
 const type: pixmapFontType is new struct
     var pixmapHashType: pixmap is pixmapHashType.value;

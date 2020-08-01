@@ -85,7 +85,7 @@ const proc: write (inout strifile: outStrifile, in string: stri) is func
   end func;
 
 
-const proc: backSpace (inout strifile: outStrifile) is func
+const proc: moveLeft (inout strifile: outStrifile) is func
   begin
     if outStrifile.position > 1 then
       decr(outStrifile.position);

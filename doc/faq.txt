@@ -199,12 +199,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-06-16 the number of lines is:
+than 200000 lines of Seed7. For version 2013-07-04 the number of lines is:
 
-   92113  C source files (*.c)
-    8123  C header files (*.h)
-  114982  Seed7 source files (*.sd7)
-   90010  Seed7 library/include files (*.s7i)
+   93089  C source files (*.c)
+    8129  C header files (*.h)
+  115055  Seed7 source files (*.sd7)
+   90442  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -692,8 +692,8 @@ Normally such 'statements' still use the list notation with lots of parentheses.
 The read macros of Lisp could be used to define the syntax of a statement, but
 read macros make no type checks at compile time. Any type checking must be written
 by the programmer and is not mandated by Lisp. The type checks will be performed
-at runtime and might issue warnings at compile time (this is implementation
-dependent). In general: Lisp 'statement' declarations do not force compile time
+at runtime. Depending on the implementation there might be warnings issued at
+compile time. In general: Lisp 'statement' declarations do not force compile time
 checks and look less elegant. Seed7 statement declarations force a type check at
 compile time.
 
@@ -796,8 +796,8 @@ Why does Seed7 not use type inference?
 
 Seed7 has a basic principle that would break if type inference would be used:
 
-   For every expression (and sub expression) you know its type at
-   compile time without knowing where this expression is used.
+   The type of every expression (and sub expression) is known at compile time.
+   This is independend from the place where this expression is used.
 
 It is exactly the violation of this principle that makes type inference possible.
 As long as this principle holds you need to know the global and local declarations
@@ -812,10 +812,16 @@ that is very bad since a program is more often read than written.
 Are there automatic casts to the right type?
 ============================================
 
-No, because Seed7 is strong typed. This means that for every expression (and sub
-expression) you know its type at compile time without knowing where this expression
-is used. Although this means that you have to convert types explicit (for example
-from 'integer' to 'float') it has more advantages than disadvantages:
+Seed7 cannot read the mind of the programmer. It is hard to find out what the
+programmer considers as "right type". A conversion can lose information. Apart
+from truncating integers also seemingly safe conversions may lose information.
+E.g. Not all 64-bit integer values can be represented as 64-bit float values.
+It can also lead to unplanned behaviour, when the programmer is not aware of an
+automatic conversion. It improves readability when conversions are done explicit.
+Seed7 is strong typed and uses explicit conversions. E.g.: The conversion from
+'integer' to 'float' is done with the function 'flt'. Conversions from 'float'
+to 'integer' are done with 'round' or 'trunc'. Explicit conversions have more
+advantages than disadvantages:
 
  1. The overloading rules are much simpler.
  2. An expression can be understood without its calling context.
@@ -850,8 +856,8 @@ No, it is not possible to overload functions (operators, statements) which have
 the same parameter types and just differ in the result type. This type of
 overloading has a big advantage:
 
-   For every expression (and sub expression) you know its type at
-   compile time without knowing where this expression is used.
+   The type of every expression (and sub expression) is known at compile time.
+   This is independend from the place where this expression is used.
 
 Therefore it is not possible to overload something which has no parameters (like
 a variable or a literal). As a consequence it is sometimes necessary to cast a
@@ -907,6 +913,12 @@ strings with the operating system automatically convert the strings
 to and from UTF-32. It is possible to read and write files with Latin-1,
 UTF-8 and UTF-16 encoding. Functions to deal with codepages and functions
 to convert between different Unicode encodings are also available.
+
+Conversions to upper and to lower case use the default Unicode case mapping,
+where each character is considered in isolation. Characters without case
+mapping are left unchanged. The mapping is independend from the locale.
+Individual character case mappings cannot be reversed, because some
+characters have multiple characters that map to them.
 
 Seed7 source code allows Unicode in char literals, string literals, block comments
 and line comments. Interpreter and compiler assume that a Seed7 program is written
@@ -1095,7 +1107,7 @@ parameter is used. A 'conditional' function (similar to the ?: operator from C)
 is defined with:
 
   const func integer: conditional (in boolean: condition,
-      (in func integer: trueValue, in func integer: falseValue) is func
+      ref func integer: trueValue, ref func integer: falseValue) is func
     result
       var integer: conditionalResult is 0;
     begin
@@ -1109,9 +1121,9 @@ is defined with:
 Seed7 does not require a special notation (like brackets) for actual call-by-name
 parameters, therefore the 'conditional' function can be called with:
 
-  conditional(a < 100.0, sqrt(a), a ** 2)
+  conditional(a >= 0, sqrt(a), a ** 2)
 
-Depending on the condition 'a < 100.0' only one of the expressions 'sqrt(a)' and
+Depending on the condition 'a >= 0' only one of the expressions 'sqrt(a)' and
 'a ** 2' is evaluated. This evaluation takes place when 'trueValue' or 'falseValue'
 is assigned to 'result'.
 

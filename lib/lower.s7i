@@ -68,9 +68,27 @@ const proc: writeln (inout lower_file: lower_fil, in string: stri) is func
   end func;
 
 
-const proc: backSpace (inout lower_file: lower_fil) is func
+const proc: moveLeft (inout lower_file: lower_fil, in string: stri) is func
   begin
-    backSpace(lower_fil.destination_file);
+    moveLeft(lower_fil.destination_file, stri);
+  end func;
+
+
+const proc: erase (inout lower_file: lower_fil, in string: stri) is func
+  begin
+    erase(lower_fil.destination_file, stri);
+  end func;
+
+
+const proc: cursorOn (inout lower_file: lower_fil, in char: cursorChar) is func
+  begin
+    cursorOn(lower_fil.destination_file, cursorChar);
+  end func;
+
+
+const proc: cursorOff (inout lower_file: lower_fil, in char: cursorChar) is func
+  begin
+    cursorOff(lower_fil.destination_file, cursorChar);
   end func;
 
 
@@ -80,17 +98,3 @@ const func string: gets (inout lower_file: lower_fil, in integer: maxLength) is 
   begin
     stri := lower(gets(lower_fil.destination_file, maxLength));
   end func;
-
-
-(*
-const proc: cursor_on (ref lower_file: lower_fil) is func
-  begin
-    cursor_on(lower_fil.destination_file);
-  end func;
-
-
-const proc: cursor_off (ref lower_file: lower_fil) is func
-  begin
-    cursor_off(lower_fil.destination_file);
-  end func;
-*)

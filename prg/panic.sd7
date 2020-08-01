@@ -29,6 +29,8 @@ $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "draw.s7i";
   include "dialog.s7i";
+  include "stdfont9.s7i";
+  include "pixmap_file.s7i";
 
 
 const integer: NUM_LEVELS is 6;
@@ -837,7 +839,7 @@ const proc: init_pictures is func
   end func;
 
 
-const proc: pause_game (in boolean: blankWindow) is func
+const proc: pause_game (in boolean: blankWindow, in boolean: exitWithAnyKey) is func
   local
     var boolean: exitPause is FALSE;
     var time: pause_time is time.value;
@@ -856,7 +858,7 @@ const proc: pause_game (in boolean: blankWindow) is func
       elsif cmd = KEY_ESC then
         bossMode(game.quit);
       else
-        exitPause := cmd in {'P', 'p'};
+        exitPause := exitWithAnyKey or cmd in {'P', 'p'};
       end if;
     end while;
     pause_duration := time(NOW) - pause_time;
@@ -882,9 +884,9 @@ const proc: game_command (in char: cmd) is func
       when {'Y', 'y'}:
         writeln(heapsize(PROGRAM));
       when {KEY_ESC}:
-        pause_game(TRUE);
+        pause_game(TRUE, FALSE);
       when {'P', 'p'}:
-        pause_game(FALSE);
+        pause_game(FALSE, FALSE);
     end case;
   end func;
 
@@ -2464,6 +2466,13 @@ const proc: play_game is func
   end func;
 
 
+const proc: writeCentered (inout text: screen, in integer: yPos, in string: stri) is func
+  begin
+    setPosXY(screen, (WIN_WIDTH - width(stdFont9, stri)) div 2, yPos);
+    writeln(screen, stri);
+  end func;
+
+
 const proc: main is func
   local
     var char: cmd is ' ';
@@ -2471,39 +2480,38 @@ const proc: main is func
     screen(WIN_WIDTH, WIN_HEIGHT);
     clear(curr_win, black);
     KEYBOARD := GRAPH_KEYBOARD;
-    scr := open(curr_win);
-    setPos(scr, 2, 44);
-    writeln(scr, "P A N I C");
-    setPos(scr, 5, 29);
-    writeln(scr, "Copyright (C) 2004, 2005  Thomas Mertes");
-    setPos(scr, 7, 29);
-    writeln(scr, "This program is free software under the");
-    setPos(scr, 8, 29);
-    writeln(scr, "terms of the GNU General Public License");
-    setPos(scr, 10, 24);
-    writeln(scr, "Panic is written in the Seed7 programming language");
-    setPos(scr, 11, 28);
-    writeln(scr, "Homepage:    http://seed7.sourceforge.net");
-    setPos(scr, 16, 14);
+    scr := openPixmapFontFile(curr_win);
+    setFont(scr, stdFont9);
+    color(scr, white, black);
+    writeCentered(scr, 22, "P A N I C");
+    writeCentered(scr, 66, "Copyright (C) 2004, 2005  Thomas Mertes");
+    writeCentered(scr, 93, "This program is free software under the");
+    writeCentered(scr, 108, "terms of the GNU General Public License");
+    writeCentered(scr, 135, "Panic is written in the Seed7 programming language");
+    writeCentered(scr, 150, "Homepage:    http://seed7.sourceforge.net");
+    setPosXY(scr, 65, 205);
     writeln(scr, "Dig holes and pound the apples through the holes");
-    setPos(scr, 18, 14);
-    writeln(scr, "cursor keys: Move your man");
-    setPos(scr, 19, 14);
-    writeln(scr, "space:       Stop moving");
-    setPos(scr, 20, 14);
-    writeln(scr, "A:           Dig hole");
-    setPos(scr, 21, 14);
-    writeln(scr, "S:           Pound apples, shut hole and");
-    setPos(scr, 22, 14);
-    writeln(scr, "             play aggain when the game is over");
-    setPos(scr, 23, 14);
-    writeln(scr, "ESC or P:    Pause game");
-    setPos(scr, 24, 14);
-    writeln(scr, "ctrl-R:      Restart game");
-    setPos(scr, 25, 14);
-    writeln(scr, "Q:           Quit game");
-    setPos(scr, 29, 35);
-    writeln(scr, "     Wait for a moment     ");
+    writeln(scr);
+    writeln(scr, "cursor keys:");
+    writeln(scr, "space:");
+    writeln(scr, "A:");
+    writeln(scr, "S:");
+    writeln(scr);
+    writeln(scr, "ESC or P:");
+    writeln(scr, "ctrl-R:");
+    writeln(scr, "Q:");
+    setPosXY(scr, 175, 205);
+    writeln(scr);
+    writeln(scr);
+    writeln(scr, "Move your man");
+    writeln(scr, "Stop moving");
+    writeln(scr, "Dig hole");
+    writeln(scr, "Pound apples, shut hole and");
+    writeln(scr, "play aggain when the game is over");
+    writeln(scr, "Pause game (press P to continue)");
+    writeln(scr, "Restart game");
+    writeln(scr, "Quit game");
+    writeCentered(scr, 378, "     Wait for a moment     ");
     draw_level(level_line[1]);
     draw_level(level_line[3]);
     draw_base_level(level_line[6]);
@@ -2511,14 +2519,13 @@ const proc: main is func
     draw_ladder(level_line[1], level_line[6], 260);
     DRAW_FLUSH;
     init_pictures;
-    setPos(scr, 29, 35);
-    writeln(scr, "Press any key to start game");
+    writeCentered(scr, 378, "Press any key to start game");
     DRAW_FLUSH;
     cmd := getc(KEYBOARD);
     if cmd in {'Q', 'q'} then
       game.quit := TRUE;
     elsif cmd = KEY_ESC then
-      pause_game(TRUE);
+      pause_game(TRUE, TRUE);
     end if;
     while not game.quit do
       play_game;

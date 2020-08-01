@@ -21874,7 +21874,7 @@ const proc: process_dynamic_condition (in reference: current_object,
               create_name(formal_param, c_expr.expr);
               c_expr.expr &:= ")->type_num);\n";
               *)
-           elsif param_type in enum_literal then
+            elsif param_type in enum_literal then
               c_expr.expr &:= "raise_error(ACTION_ERROR);\n";
               (*
               c_expr.expr &:= "printf(\"literal_num=%d\\n\", ";
@@ -24457,7 +24457,11 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
         c_expr.expr &:= "\n";
       end for;
     else
-      c_expr.expr &:= "(struct stristruct) 0";
+      c_expr.expr &:= "/* dummy */ {0,";
+      if WITH_STRI_CAPACITY then
+        c_expr.expr &:= "0,";
+      end if;
+      c_expr.expr &:= "NULL}";
     end if;
     c_expr.expr &:= "};\n\n";
   end func;
@@ -25079,8 +25083,8 @@ const proc: process_global_declarations (in program: prog) is func
   begin
     if not compDataLibraryUsed then
       declareExtern("inttype heapsize (void) {return 0;}");
-      declareExtern("inttype refType (objreftype a) {printf(\"refType\\n\");}");
-      declareExtern("inttype typValue (objreftype a) {printf(\"typValue\\n\");}");
+      declareExtern("typetype refType (objreftype a) {printf(\"refType\\n\"); return NULL;}");
+      declareExtern("typetype typValue (objreftype a) {printf(\"typValue\\n\"); return NULL;}");
       writeln(c_prog);
     end if;
     if compDataLibraryUsed and not compilerLibraryUsed then

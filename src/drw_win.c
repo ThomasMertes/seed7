@@ -508,6 +508,16 @@ chartype gkbGetc (void)
           button_y = HIWORD(msg.lParam);
           button_window = msg.hwnd;
           result = K_MOUSE3;
+        } else if (msg.message == WM_MOUSEWHEEL) {
+          /* printf("WM_MOUSEWHEEL %lu, %d, %u\n", msg.hwnd, msg.wParam, msg.lParam); */
+          button_x = LOWORD(msg.lParam);
+          button_y = HIWORD(msg.lParam);
+          button_window = msg.hwnd;
+          if ((INT_PTR) msg.wParam > 0) {
+            result = K_MOUSE4;
+          } else {
+            result = K_MOUSE5;
+          } /* if */
         } else if (msg.message == WM_SYSKEYDOWN) {
           /* printf("WM_SYSKEYDOWN %lu, %d, %u %d\n", msg.hwnd, msg.wParam, msg.lParam, msg.lParam & 0x20000000); */
           /* printf("GetKeyState(VK_SHIFT)=%hx\n",   GetKeyState(VK_SHIFT));
@@ -665,6 +675,7 @@ booltype gkbKeyPressed (void)
         case WM_LBUTTONDOWN:
         case WM_MBUTTONDOWN:
         case WM_RBUTTONDOWN:
+        case WM_MOUSEWHEEL:
           /* printf("gkbKeyPressed ==> TRUE for message %d\n", msg.message); */
           msg_present = 0;
           result = TRUE;

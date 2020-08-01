@@ -26,9 +26,10 @@ $ include "seed7_05.s7i";
   include "float.s7i";
   include "text.s7i";
   include "draw.s7i";
-  include "graph_file.s7i";
+  include "stdfont9.s7i";
+  include "pixmap_file.s7i";
   include "keybd.s7i";
-  include "window.s7i";
+  include "editline.s7i";
   include "echo.s7i";
   include "line.s7i";
   include "sokoban1.s7i";
@@ -58,7 +59,6 @@ var array array fieldType: levelMap is 0 times 0 times fieldType.value;
 
 var char: keyChar is ' ';
 
-var text: screen is STD_NULL;
 var text: win is STD_NULL;
 
 
@@ -351,9 +351,20 @@ const proc: introduction is func
     writeln(win, "This program is free software under the");
     writeln(win, "terms of the GNU General Public License");
     writeln(win);
-    writeln(win, "Sokoban is written in the Seed7 programming language");
-    writeln(win, "  Homepage: http://seed7.sourceforge.net");
+    writeln(win, "Sokoban is written in the Seed7");
+    writeln(win, "programming language");
     writeln(win);
+    writeln(win, "Homepage:  http://seed7.sourceforge.net");
+    setPos(win, 20, 1);
+    writeln(win, "The following commands are accepted:");
+    writeln(win, "  cursor keys to move");
+    writeln(win, "  u to undo a move");
+    writeln(win, "  r to redo a move which was undone");
+    writeln(win, "  q to quit the game");
+    writeln(win, "  n for next level");
+    writeln(win, "  p for previous level");
+    writeln(win, "  s to restart current level");
+    writeln(win, "  l to select other level");
   end func;
 
 
@@ -369,12 +380,23 @@ const proc: loadPixmaps is func
 
 
 const proc: readLevel is func
+  local
+    var integer: newLevel is 0;
+    var boolean: okay is FALSE;
+    var integer: tries is 0;
   begin
+    setPos(win, 30, 1);
+    write(win, "Indicate which level to play (1-" <& length(levels) <& ") ");
     repeat
-      writeln(win);
-      write(win, " Indicate which level to play (1-" <& length(levels) <& ") ");
-      read(levelNumber);
-    until levelNumber >= 1 and levelNumber <= length(levels);
+      incr(tries);
+      read(newLevel);
+      if newLevel >= 1 and newLevel <= length(levels) then
+        levelNumber := newLevel;
+        okay := TRUE;
+      else
+        write(win, "This is not a correct level. Try again ");
+      end if;
+    until okay or tries >= 2;
   end func;
 
 
@@ -475,27 +497,12 @@ const proc: readLevelMap (in integer: levelNumber) is func
 
 const proc: writeStatus is func
   begin
-    introduction;
-    # setPos(win, 3, 1);
-    # write(win, "moveNumber = " <& moveNumber <& " ");
-    # setPos(win, 4, 1);
-    # write(win, "length(playerMoves) = " <& length(playerMoves) <& " ");
-    setPos(win, 11, 1);
+    setPos(win, 14, 1);
     writeln(win, "Level = " <& levelNumber);
     writeln(win, "Packets = " <& numberOfPackets);
     writeln(win, "Saved Packets = " <& savedPackets <& " ");
     writeln(win, "Movements = " <& numberOfMoves <& " ");
     writeln(win, "Pushes = " <& numberOfPushes <& " ");
-    writeln(win);
-    writeln(win, "The following commands are accepted:");
-    writeln(win, "  cursor keys to move");
-    writeln(win, "  u to undo a move");
-    writeln(win, "  r to redo a move which was undone");
-    writeln(win, "  q to quit the game");
-    writeln(win, "  n for next level");
-    writeln(win, "  p for previous level");
-    writeln(win, "  s to restart current level");
-    writeln(win, "  l to select other level");
   end func;
 
 
@@ -689,6 +696,7 @@ const proc: playLevel is func
     playerMoves := 0 times  moveType.value;
     moveNumber := 0;
     clear;
+    introduction;
     writeStatus;
     drawMap;
     repeat
@@ -741,15 +749,14 @@ const proc: playLevel is func
         levelFinished := TRUE;
       elsif keyChar = 'u' then
         if savedPackets = numberOfPackets then
-          setPos(win, 26, 1);
+          setPos(win, 31, 1);
+          erase(win, "C O N G R A T U L A T I O N");
           writeln(win);
           writeln(win);
-          writeln(win, "                           ");
-          writeln(win);
-          writeln(win, "                       ");
+          erase(win, "    The level is solved");
           writeln(win);
           writeln(win);
-          write(win,   "                           ");
+          erase(win,   "Press n for the next level ");
         end if;
         undoMove;
         writeStatus;
@@ -764,28 +771,30 @@ const proc: playLevel is func
         readLevel;
         levelFinished := TRUE;
       elsif keyChar = 'n' then
-        if levelNumber < length(levels) then
+        while levelNumber < length(levels) and keyChar = 'n' do
           incr(levelNumber);
           levelFinished := TRUE;
-        end if;
+          keyChar := busy_getc(KEYBOARD);
+        end while;
       elsif keyChar = 'p' then
-        if levelNumber > 1 then
+        while levelNumber > 1 and keyChar = 'p' do
           decr(levelNumber);
           levelFinished := TRUE;
-        end if;
+          keyChar := busy_getc(KEYBOARD);
+        end while;
       end if;
       if savedPackets = numberOfPackets then
-        setPos(win, 26, 1);
-        writeln(win);
-        writeln(win);
+        setPos(win, 31, 1);
         writeln(win, "C O N G R A T U L A T I O N");
         writeln(win);
         writeln(win, "    The level is solved");
         writeln(win);
-        writeln(win);
         write(win,   "Press n for the next level ");
       end if;
     until levelFinished;
+    while keypressed(KEYBOARD) do
+      ignore(getc(KEYBOARD));
+    end while;
   end func;
 
 
@@ -793,10 +802,10 @@ const proc: main is func
   begin
     screen(992, 544);
     KEYBOARD := GRAPH_KEYBOARD;
-    screen := open(curr_win, 16);
-    win := open_window(screen, 1, 109, 50, 80);
-    IN := open_echo(KEYBOARD, win);
-    IN := open_line(IN);
+    win := openPixmapFontFile(curr_win, 650, 4);
+    setFont(win, stdFont9);
+    color(win, white, black);
+    IN := openEditLine(KEYBOARD, win);
     loadPixmaps;
     clear;
     repeat

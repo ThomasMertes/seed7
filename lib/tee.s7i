@@ -58,24 +58,29 @@ const proc: writeln (inout tee_file: tee_fil) is func
   end func;
 
 
-const proc: backSpace (inout tee_file: tee_fil) is func
+const proc: moveLeft (inout tee_file: tee_fil, in string: stri) is func
   begin
-    backSpace(tee_fil.out_file1);
-    backSpace(tee_fil.out_file2);
+    moveLeft(tee_fil.out_file1, stri);
+    moveLeft(tee_fil.out_file2, stri);
   end func;
 
 
-(*
-const proc: cursor_on (ref tee_file: tee_fil) is func
+const proc: erase (inout tee_file: tee_fil, in string: stri) is func
   begin
-    cursor_on(tee_fil.out_file1);
-    cursor_on(tee_fil.out_file2);
+    erase(tee_fil.out_file1, stri);
+    erase(tee_fil.out_file2, stri);
   end func;
 
 
-const proc: cursor_off (ref tee_file: tee_fil) is func
+const proc: cursorOn (inout tee_file: tee_fil, in char: cursorChar) is func
   begin
-    cursor_off(tee_fil.out_file1);
-    cursor_off(tee_fil.out_file2);
+    cursorOn(tee_fil.out_file1, cursorChar);
+    cursorOn(tee_fil.out_file2, cursorChar);
   end func;
-*)
+
+
+const proc: cursorOff (inout tee_file: tee_fil, in char: cursorChar) is func
+  begin
+    cursorOff(tee_fil.out_file1, cursorChar);
+    cursorOff(tee_fil.out_file2, cursorChar);
+  end func;

@@ -1273,10 +1273,10 @@ void filSeek (filetype aFile, inttype position)
       raise_error(RANGE_ERROR);
 #if OS_OFF_T_SIZE < INTTYPE_SIZE
 #if OS_OFF_T_SIZE == 32
-    } else if (unlikely(position > INT32TYPE_MAX))
+    } else if (unlikely(position > INT32TYPE_MAX)) {
       raise_error(RANGE_ERROR);
 #elif OS_OFF_T_SIZE == 64
-    } else if (unlikely(position > INT64TYPE_MAX))
+    } else if (unlikely(position > INT64TYPE_MAX)) {
       raise_error(RANGE_ERROR);
 #else
 #error "sizeof(os_off_t) is neither 4 nor 8."

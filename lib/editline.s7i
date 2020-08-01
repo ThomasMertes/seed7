@@ -117,33 +117,47 @@ const func string: getln (inout editLineFile: inEditLine) is func
     var string: line is "";
   local
     var char: ch is ' ';
+    var char: response is ' ';
     var integer: pos is 1;
     var array string: history is 0 times "";
     var integer: historyPos is 0;
-    var integer: length is 0;
   begin
     if inEditLine.line = "" then
       history := inEditLine.history & [] ("");
       historyPos := length(history);
       repeat
+        if pos <= length(line) then
+          cursorOn(inEditLine.outFile, line[pos]);
+        else
+          cursorOn(inEditLine.outFile, ' ');
+        end if;
         flush(inEditLine.outFile);
         ch := getc(inEditLine.inFile);
+        if pos <= length(line) then
+          cursorOff(inEditLine.outFile, line[pos]);
+        else
+          cursorOff(inEditLine.outFile, ' ');
+        end if;
         if ch = KEY_BS then
           if pos > 1 then
             decr(pos);
+            moveLeft(inEditLine.outFile, line[pos len 1]);
+            erase(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
             line := line[.. pred(pos)] & line[succ(pos) ..];
-            write(inEditLine.outFile, '\b');
-            write(inEditLine.outFile, line[pos ..] & " ");
-            write(inEditLine.outFile, "\b" mult length(line) + 2 - pos);
+            write(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
           end if;
         elsif ch = KEY_DEL then
           if pos <= length(line) then
+            erase(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
             line := line[.. pred(pos)] & line[succ(pos) ..];
-            write(inEditLine.outFile, line[pos ..] & " ");
-            write(inEditLine.outFile, "\b" mult length(line) + 2 - pos);
+            write(inEditLine.outFile, line[pos ..]);
+            moveLeft(inEditLine.outFile, line[pos ..]);
           end if;
         elsif ch = KEY_HOME then
-          write(inEditLine.outFile, "\b" mult pred(pos));
+          moveLeft(inEditLine.outFile, line[.. pred(pos)]);
           pos := 1;
         elsif ch = KEY_END then
           write(inEditLine.outFile, line[pos ..]);
@@ -151,7 +165,7 @@ const func string: getln (inout editLineFile: inEditLine) is func
         elsif ch = KEY_LEFT then
           if pos > 1 then
             decr(pos);
-            write(inEditLine.outFile, '\b');
+            moveLeft(inEditLine.outFile, line[pos len 1]);
           end if;
         elsif ch = KEY_RIGHT then
           if pos <= length(line) then
@@ -160,53 +174,48 @@ const func string: getln (inout editLineFile: inEditLine) is func
           end if;
         elsif ch = KEY_UP then
           if historyPos > 1 then
-            write(inEditLine.outFile, "\b" mult pred(pos));
-            length := length(line);
+            moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+            erase(inEditLine.outFile, line);
+            moveLeft(inEditLine.outFile, line);
             history[historyPos] := line;
             decr(historyPos);
             line := history[historyPos];
             write(inEditLine.outFile, line);
-            if length > length(line) then
-              write(inEditLine.outFile, " " mult length - length(line));
-              write(inEditLine.outFile, "\b" mult length - length(line));
-            end if;
             pos := succ(length(line));
           end if;
         elsif ch = KEY_DOWN then
           if historyPos < length(history) then
-            write(inEditLine.outFile, "\b" mult pred(pos));
-            length := length(line);
+            moveLeft(inEditLine.outFile, line[.. pred(pos)]);
+            erase(inEditLine.outFile, line);
+            moveLeft(inEditLine.outFile, line);
             history[historyPos] := line;
             incr(historyPos);
             line := history[historyPos];
             write(inEditLine.outFile, line);
-            if length > length(line) then
-              write(inEditLine.outFile, " " mult length - length(line));
-              write(inEditLine.outFile, "\b" mult length - length(line));
-            end if;
             pos := succ(length(line));
           end if;
         elsif ch = '\C' or ch = '\T' then
-          write(inEditLine.outFile, " terminate (y/n)?   \b\b");
+          write(inEditLine.outFile, " terminate (y/n)?   ");
+          moveLeft(inEditLine.outFile, "  ");
+          cursorOn(inEditLine.outFile, ' ');
           flush(inEditLine.outFile);
-          if lower(getc(inEditLine.inFile)) = 'y' then
+          response := getc(inEditLine.inFile);
+          cursorOff(inEditLine.outFile, ' ');
+          if lower(response) = 'y' then
             writeln(inEditLine.outFile, "yes  ");
             writeln(inEditLine.outFile);
             writeln(inEditLine.outFile, "*** PROGRAM TERMINATED BY USER");
             exit(PROGRAM);
           else
-            write(inEditLine.outFile, "\b" mult 18);
+            backSpace(inEditLine.outFile, " terminate (y/n)? ");
             write(inEditLine.outFile, line[pos len 20]);
-            if succ(length(line)) - pos < 20 then
-              write(inEditLine.outFile, " " mult 20 + pos - succ(length(line)));
-            end if;
-            write(inEditLine.outFile, "\b" mult 20);
+            moveLeft(inEditLine.outFile, line[pos len 20]);
           end if;
         elsif ch >= ' ' and ch <= '~' or ch >= '\160\' and ch <= '\255\' or
               ch >= '\256\' and ch <= '\16#10FFFF\' and inEditLine.allowUnicode then
           line := line[.. pred(pos)] & str(ch) & line[pos ..];
           write(inEditLine.outFile, line[pos ..]);
-          write(inEditLine.outFile, "\b" mult length(line) - pos);
+          moveLeft(inEditLine.outFile, line[succ(pos) ..]);
           incr(pos);
         end if;
       until ch = KEY_NL or ch = EOF;
@@ -259,6 +268,9 @@ const func string: gets (inout editLineFile: inEditLine, in integer: length) is 
     if length < 0 then
       raise RANGE_ERROR;
     else
+      if inEditLine.lineFinished then
+        inEditLine.line := getln(inEditLine);
+      end if;
       stri := inEditLine.line[.. length];
       inEditLine.line := inEditLine.line[succ(length) ..];
       while length(stri) < length do

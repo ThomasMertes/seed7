@@ -262,7 +262,16 @@ const func integer: tell (in null_file: aFile) is func
   end func;
 
 
-const proc: backSpace (in null_file: outFile) is noop;
+const proc: moveLeft (in null_file: outFile, in string: stri) is func
+  begin
+    raise FILE_ERROR;
+  end func;
+
+
+const proc: erase (in null_file: outFile, in string: stri) is func
+  begin
+    raise FILE_ERROR;
+  end func;
 
 
 (**

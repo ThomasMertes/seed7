@@ -26,18 +26,20 @@ $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "keybd.s7i";
   include "keydescr.s7i";
+  include "console.s7i";
 
 const proc: main is func
   local
     var char: ch is ' ';
   begin
+    OUT := STD_CONSOLE;
     writeln("Keyboard test program. Type ! to terminate the program");
     repeat
       ch := getc(KEYBOARD);
       write(ord(ch) <& " ");
       if ch in keyDescription then
         writeln(keyDescription[ch]);
-      elsif ch >= ' ' and ch <= '~' or ch >= '\160\' and ch <= '\255\' then
+      elsif ch >= ' ' and ch <= '~' or ch >= '\160\' then
         writeln(ch);
       else
         writeln;

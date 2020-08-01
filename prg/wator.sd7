@@ -26,11 +26,11 @@ $ include "seed7_05.s7i";
   include "console.s7i";
   include "window.s7i";
   include "keybd.s7i";
-  include "echo.s7i";
-  include "line.s7i";
   include "float.s7i";
   include "draw.s7i";
-  include "graph_file.s7i";
+  include "stdfont9.s7i";
+  include "pixmap_file.s7i";
+  include "editline.s7i";
 
 const integer: MAX_LINE is 100;
 const integer: MAX_COLUMN is 100;
@@ -42,9 +42,9 @@ const integer: GRAPH_BOTTOM is 478;
 
 var integer: nfish     is 0;
 var integer: nsharks   is 0;
-var integer: fbreed    is 0;
-var integer: sbreed    is 0;
-var integer: slife     is 0;
+var integer: fbreed    is 1;
+var integer: sbreed    is 1;
+var integer: slife     is 1;
 
 var integer: cycle     is 0;
 
@@ -79,20 +79,21 @@ const proc: introduction is func
   local
     var text: intro is STD_NULL;
   begin
-    intro := open_window(scr, 1, 12, height(scr), width(scr) - 12);
-    setPos(intro, 2, 38);
+    # intro := open_window(scr, 1, 12, height(scr), width(scr) - 12);
+    intro := scr;
+    setPos(intro, 1, 1);
     writeln(intro, "W A T O R");
-    setPos(intro, 4, 26);
+    setPos(intro, 3, 1);
     writeln(intro, "Copyright (C) 2006  Thomas Mertes");
-    setPos(intro, 6, 23);
+    setPos(intro, 5, 1);
     writeln(intro, "This program is free software under the");
-    setPos(intro, 7, 23);
+    setPos(intro, 6, 1);
     writeln(intro, "terms of the GNU General Public License");
-    setPos(intro, 9, 18);
+    setPos(intro, 8, 1);
     writeln(intro, "Wator is written in the Seed7 programming language");
-    setPos(intro, 10, 22);
+    setPos(intro, 9, 1);
     writeln(intro, "Homepage:    http://seed7.sourceforge.net");
-    setPos(intro, 14, 1);
+    setPos(intro, 12, 1);
     writeln(intro, "This program simulates the planet WATOR as described in Scientific American Computer");
     writeln(intro, "Recreations column, Dec 1984.  WATOR (or Wa-Tor) is a toroidal (donut-shaped) planet");
     writeln(intro, "inhabited by fish and sharks.  The fish feed on a ubiquitous plankton and the sharks");
@@ -150,29 +151,50 @@ const proc: display is func
 
 const proc: writeInfo is func
   begin
+    rect(CELL_SIZE * succ(MAX_LINE) + 60, 8 * lineHeight(stdFont9),
+         40, lineHeight(stdFont9), black);
+    setPosXY(info, 90 - width(stdFont9, str(sumContent[FISH])),
+                   8 * lineHeight(stdFont9) + baseLineDelta(stdFont9));
+    write(info, sumContent[FISH]);
     if sumContent[FISH] < minfish then
       minfish := sumContent[FISH];
+      rect(CELL_SIZE * succ(MAX_LINE) + 60, 9 * lineHeight(stdFont9),
+           40, lineHeight(stdFont9), black);
+      setPosXY(info, 90 - width(stdFont9, str(minfish)),
+                     9 * lineHeight(stdFont9) + baseLineDelta(stdFont9));
+      write(info, minfish);
     elsif sumContent[FISH] > maxfish then
       maxfish := sumContent[FISH];
+      rect(CELL_SIZE * succ(MAX_LINE) + 60, 10 * lineHeight(stdFont9),
+           40, lineHeight(stdFont9), black);
+      setPosXY(info, 90 - width(stdFont9, str(maxfish)),
+                     10 * lineHeight(stdFont9) + baseLineDelta(stdFont9));
+      write(info, maxfish);
     end if;
+      rect(CELL_SIZE * succ(MAX_LINE) + 60, 12 * lineHeight(stdFont9),
+           40, lineHeight(stdFont9), black);
+    setPosXY(info, 90 - width(stdFont9, str(sumContent[SHARK])),
+                   12 * lineHeight(stdFont9) + baseLineDelta(stdFont9));
+    write(info, sumContent[SHARK]);
     if sumContent[SHARK] < minsharks then
       minsharks := sumContent[SHARK];
+      rect(CELL_SIZE * succ(MAX_LINE) + 60, 13 * lineHeight(stdFont9),
+           40, lineHeight(stdFont9), black);
+      setPosXY(info, 90 - width(stdFont9, str(minsharks)),
+                     13 * lineHeight(stdFont9) + baseLineDelta(stdFont9));
+      write(info, minsharks);
     elsif sumContent[SHARK] > maxsharks then
       maxsharks := sumContent[SHARK];
+      rect(CELL_SIZE * succ(MAX_LINE) + 60, 14 * lineHeight(stdFont9),
+           40, lineHeight(stdFont9), black);
+      setPosXY(info, 90 - width(stdFont9, str(maxsharks)),
+                     14 * lineHeight(stdFont9) + baseLineDelta(stdFont9));
+      write(info, maxsharks);
     end if;
-    setPos(info, 9, 8);
-    writeln(info, sumContent[FISH] lpad 5);
-    setPos(info, 10, 8);
-    writeln(info, minfish lpad 5);
-    setPos(info, 11, 8);
-    writeln(info, maxfish lpad 5);
-    setPos(info, 13, 8);
-    writeln(info, sumContent[SHARK] lpad 5);
-    setPos(info, 14, 8);
-    writeln(info, minsharks lpad 5);
-    setPos(info, 15, 8);
-    writeln(info, maxsharks lpad 5);
-    setPos(info, 17, 13);
+    rect(CELL_SIZE * succ(MAX_LINE) + 90, 16 * lineHeight(stdFont9),
+         50, lineHeight(stdFont9), black);
+    setPosXY(info, 130 - width(stdFont9, str(cycle)),
+                   16 * lineHeight(stdFont9) + baseLineDelta(stdFont9));
     write(info, cycle);
   end func;
 
@@ -544,14 +566,16 @@ const proc: main is func
     var integer: newFishGraph is 0;
     var integer: newSharkGraph is 0;
   begin
-    # scr := open(CONSOLE);
     screen(640, 480);
     clear(black);
-    scr := open(curr_win);
-    info := open_window(scr, 1, 70, height(scr), width(scr) - 70);
+    scr := openPixmapFontFile(curr_win, 35, 10);
+    setFont(scr, stdFont9);
+    color(scr, white, black);
+    info := openPixmapFontFile(curr_win, CELL_SIZE * succ(MAX_LINE) + 10, 0);
+    setFont(info, stdFont9);
+    color(info, white, black);
     KEYBOARD := GRAPH_KEYBOARD;
-    IN := open_echo(KEYBOARD, info);
-    IN := open_line(IN);
+    IN := openEditLine(KEYBOARD, info);
     introduction;
     inchar := upper(getc(KEYBOARD));
     while inchar <> 'Q' and inchar <> KEY_ESC do
@@ -561,17 +585,20 @@ const proc: main is func
       oldSharkGraph := GRAPH_BOTTOM - sumContent[SHARK] div SCALE_SHARKS;
       point(cycle rem 640, oldFishGraph, light_green);
       point(cycle rem 640, oldSharkGraph, light_blue);
-      setPos(info, 28, 1);
+      setPos(info, 26, 1);
       writeln(info, "Simulation prepared. Press");
       writeln(info, " Enter to start");
       writeln(info, " N to start a new simulation");
       writeln(info, " Q to Quit");
       inchar := upper(getc(KEYBOARD));
-      setPos(info, 28, 1);
-      writeln(info, " " mult 30);
-      writeln(info, " " mult 30);
-      writeln(info, " " mult 30);
-      writeln(info, " " mult 30);
+      setPos(info, 26, 1);
+      erase(info, "Simulation prepared. Press");
+      writeln(info);
+      erase(info, " Enter to start");
+      writeln(info);
+      erase(info, " N to start a new simulation");
+      writeln(info);
+      erase(info, " Q to Quit");
       while inchar not in {'N', 'Q', KEY_ESC} do
         moveAllFish;
         moveAllSharks;
@@ -600,17 +627,20 @@ const proc: main is func
           repeat
             inchar := getc(KEYBOARD);
           until not keypressed(KEYBOARD);
-          setPos(info, 28, 1);
+          setPos(info, 26, 1);
           writeln(info, "Simulation interrupted. Press");
           writeln(info, " Enter to continue");
           writeln(info, " N to start a new simulation");
           writeln(info, " Q to Quit");
           inchar := upper(getc(KEYBOARD));
-          setPos(info, 28, 1);
-          writeln(info, " " mult 30);
-          writeln(info, " " mult 30);
-          writeln(info, " " mult 30);
-          writeln(info, " " mult 30);
+          setPos(info, 26, 1);
+          erase(info, "Simulation interrupted. Press");
+          writeln(info);
+          erase(info, " Enter to continue");
+          writeln(info);
+          erase(info, " N to start a new simulation");
+          writeln(info);
+          erase(info, " Q to Quit");
         end if;
       end while;
     end while;
