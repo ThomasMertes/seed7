@@ -943,24 +943,6 @@ biginttype bigMDiv (const const_biginttype dividend, const const_biginttype divi
 
 
 /**
- *  Minus sign, negate a 'bigInteger' number.
- *  @return the negated value of the number.
- */
-biginttype bigMinus (const const_biginttype big1)
-
-  {
-    biginttype result;
-
-  /* bigMinus */
-    ALLOC_BIG(result);
-    mpz_init(result);
-    mpz_neg(result, big1);
-    return result;
-  } /* bigMinus */
-
-
-
-/**
  *  Compute the modulo (remainder) of the integer division bigMDiv.
  *  The modulo has the same sign as the divisor.
  *  @return the modulo of the integer division.
@@ -1025,6 +1007,38 @@ biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
     mpz_mul_si(result, big1, number);
     return result;
   } /* bigMultSignedDigit */
+
+
+
+/**
+ *  Minus sign, negate a 'bigInteger' number.
+ *  @return the negated value of the number.
+ */
+biginttype bigNegate (const const_biginttype big1)
+
+  {
+    biginttype result;
+
+  /* bigNegate */
+    ALLOC_BIG(result);
+    mpz_init(result);
+    mpz_neg(result, big1);
+    return result;
+  } /* bigNegate */
+
+
+
+/**
+ *  Minus sign, negate a 'bigInteger' number.
+ *  Big1 is assumed to be a temporary value which is reused.
+ *  @return the negated value of the number.
+ */
+biginttype bigNegateTemp (biginttype big1)
+
+  { /* bigNegateTemp */
+    mpz_neg(big1, big1);
+    return big1;
+  } /* bigNegateTemp */
 
 
 

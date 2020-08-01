@@ -536,20 +536,6 @@ objecttype big_mdiv (listtype arguments)
 
 
 /**
- *  Minus sign, negate a 'bigInteger' number.
- *  @return the negated value of the number.
- */
-objecttype big_minus (listtype arguments)
-
-  { /* big_minus */
-    isit_bigint(arg_2(arguments));
-    return bld_bigint_temp(
-        bigMinus(take_bigint(arg_2(arguments))));
-  } /* big_minus */
-
-
-
-/**
  *  Compute the modulo (remainder) of the integer division big_mdiv.
  *  The modulo has the same sign as the divisor.
  *  @return the modulo of the integer division.
@@ -613,6 +599,20 @@ objecttype big_ne (listtype arguments)
       return SYS_TRUE_OBJECT;
     } /* if */
   } /* big_ne */
+
+
+
+/**
+ *  Minus sign, negate a 'bigInteger' number.
+ *  @return the negated value of the number.
+ */
+objecttype big_negate (listtype arguments)
+
+  { /* big_negate */
+    isit_bigint(arg_2(arguments));
+    return bld_bigint_temp(
+        bigNegate(take_bigint(arg_2(arguments))));
+  } /* big_negate */
 
 
 

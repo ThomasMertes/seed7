@@ -485,9 +485,9 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
 </ul><p>
   There are several concepts which are also used by other languages:
 </p><ul>
-    <li>Block comments start with <span class="comment">(* and end with *)</span> and may be nested.</li>
+    <li><a class="link" href="#tokens_Comments">Block comments</a> start with <span class="comment">(* and end with *)</span> and may be nested.</li>
 
-    <li>Line comments start with <span class="comment"># and are terminated with the end of the line.</span></li>
+    <li><a class="link" href="#tokens_Line_comments">Line comments</a> start with <span class="comment"># and are terminated with the end of the line.</span></li>
 </ul><p>
   There are several concepts which are new
 </p><ul>
@@ -518,13 +518,13 @@ v1: = v2 <span class="op">cross</span> v3;   write(v1 * v2);
     <li>The number of parameters and local variables is not
       limited.</li>
 
-    <li>Strings can contain any characters (also the NUL character)
+    <li><a class="link" href="#types_string">Strings</a> can contain any characters (also the NUL character)
       This allows holding binary information in strings.</li>
 
     <li>Although strings are not NUL terminated they have
       no size limitation. (Except there is no more memory)</li>
 
-    <li>String literals can have any length.</li>
+    <li><a class="link" href="#tokens_String_literals">String literals</a> can have any length.</li>
 
     <li>There is no limitation in the length of a source line.</li>
 
@@ -2907,8 +2907,8 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
 <p>
     The type <tt><a class="type" href="#types_string">string</a></tt> describes sequences of Unicode characters
   (including the empty string). The characters in the <tt><a class="type" href="#types_string">string</a></tt>
-  use the UTF-32 encoding. Strings are not <tt><span class="stri">'\0\'</span></tt> terminated
-  and therefore can also contain binary data. Although <tt><a class="type" href="#types_string">string</a></tt>s
+  use the UTF-32 encoding. Strings are not <tt><span class="stri">'\0\'</span></tt> terminated.
+  Therefore they can also contain binary data. Although <tt><a class="type" href="#types_string">string</a></tt>s
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a <tt><a class="type" href="#types_string">string</a></tt> value. In this case the
   exception <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt> is raised. In the source file a <a class="link" href="#tokens_String_literals">string
@@ -7399,7 +7399,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 
     <li>Finally the priority of the syntax construct is defined with
       a integer literal like <tt>'6'</tt>. The priority <tt>'6'</tt> is used for the
-      operators <tt>'*'</tt>, <tt>'/'</tt>, <tt><span class="keywd">div</span></tt>, <tt><span class="keywd">rem</span></tt>, <tt><span class="keywd">mdiv</span></tt> and <tt><span class="keywd">mod</span></tt>.</li>
+      operators <tt><span class="keywd">*</span></tt>, <tt><span class="keywd">/</span></tt>, <tt><span class="keywd">div</span></tt>, <tt><span class="keywd">rem</span></tt>, <tt><span class="keywd">mdiv</span></tt> and <tt><span class="keywd">mod</span></tt>.</li>
 </ul><p></p>
 
 <a name="syntax_Syntax_of_predefined_statements"><h3>9.5 Syntax of predefined statements</h3></a>
@@ -9025,10 +9025,10 @@ TYPE_ACTION
     <tr><td>_LSHIFT   <td width="20"></td><td>Shift left</td></tr>
     <tr><td>_LT       <td width="20"></td><td>Less than</td></tr>
     <tr><td>_MDIV     <td width="20"></td><td>Modulo division (Integer division truncated towards negative infinity)</td></tr>
-    <tr><td>_MINUS    <td width="20"></td><td>Change sign</td></tr>
     <tr><td>_MOD      <td width="20"></td><td>Modulo (Reminder of _MDIV integer division)</td></tr>
     <tr><td>_MULT     <td width="20"></td><td>Multiply</td></tr>
     <tr><td>_NE       <td width="20"></td><td>Not equal</td></tr>
+    <tr><td>_NEGATE   <td width="20"></td><td>Change sign</td></tr>
     <tr><td>_ODD      <td width="20"></td><td>Odd number</td></tr>
     <tr><td>_ORD      <td width="20"></td><td>Ordinal number</td></tr>
     <tr><td>_PARSE    <td width="20"></td><td>Conversion of <tt><a class="type" href="#types_string">string</a></tt> to another type</td></tr>
@@ -9319,11 +9319,11 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>BIG_LSHIFT_ASSIGN</td>   <td>big_lshift_assign</td>   <td>bigLShiftAssign</td></tr>
     <tr><td>BIG_LT</td>              <td>big_lt</td>              <td>bigCmp < 0</td></tr>
     <tr><td>BIG_MDIV</td>            <td>big_mdiv</td>            <td>bigMDiv</td></tr>
-    <tr><td>BIG_MINUS</td>           <td>big_minus</td>           <td>bigMinus</td></tr>
     <tr><td>BIG_MOD</td>             <td>big_mod</td>             <td>bigMod</td></tr>
     <tr><td>BIG_MULT</td>            <td>big_mult</td>            <td>bigMult</td></tr>
     <tr><td>BIG_MULT_ASSIGN</td>     <td>big_mult_assign</td>     <td>bigMultAssign</td></tr>
     <tr><td>BIG_NE</td>              <td>big_ne</td>              <td>bigNe</td></tr>
+    <tr><td>BIG_NEGATE</td>          <td>big_negate</td>          <td>bigNegate</td></tr>
     <tr><td>BIG_ODD</td>             <td>big_odd</td>             <td>bigOdd</td></tr>
     <tr><td>BIG_ORD</td>             <td>big_ord</td>             <td>bigOrd</td></tr>
     <tr><td>BIG_PARSE</td>           <td>big_parse</td>           <td>bigParse</td></tr>
@@ -9629,10 +9629,10 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>FLT_LOG</td>             <td>flt_log</td>             <td>log</td></tr>
     <tr><td>FLT_LOG10</td>           <td>flt_log10</td>           <td>log10</td></tr>
     <tr><td>FLT_LT</td>              <td>flt_lt</td>              <td>&lt;</td></tr>
-    <tr><td>FLT_MINUS</td>           <td>flt_minus</td>           <td>-</td></tr>
     <tr><td>FLT_MULT</td>            <td>flt_mult</td>            <td>*</td></tr>
     <tr><td>FLT_MULT_ASSIGN</td>     <td>flt_mult_assign</td>     <td>*=</td></tr>
     <tr><td>FLT_NE</td>              <td>flt_ne</td>              <td>!=</td></tr>
+    <tr><td>FLT_NEGATE</td>          <td>flt_negate</td>          <td>-</td></tr>
     <tr><td>FLT_PARSE</td>           <td>flt_parse</td>           <td>fltParse</td></tr>
     <tr><td>FLT_PLUS</td>            <td>flt_plus</td>            <td>(noop)</td></tr>
     <tr><td>FLT_POW</td>             <td>flt_pow</td>             <td>pow</td></tr>
@@ -9716,11 +9716,11 @@ declareExtern(<span class="stri">"inttype     intLog2 (inttype);"</span>);
     <tr><td>INT_LSHIFT_ASSIGN</td>   <td>int_lshift_assign</td>   <td>&lt;&lt;=</td></tr>
     <tr><td>INT_LT</td>              <td>int_lt</td>              <td>&lt;</td></tr>
     <tr><td>INT_MDIV</td>            <td>int_mdiv</td>            <td>a&gt;0&amp;&amp;b&lt;0 ? (a-1)/b-1 : a&lt;0&amp;&amp;b&gt;0 ? (a+1)/b-1 : a/b</td></tr>
-    <tr><td>INT_MINUS</td>           <td>int_minus</td>           <td>-</td></tr>
     <tr><td>INT_MOD</td>             <td>int_mod</td>             <td>c=a%b, ((a&gt;0&amp;&amp;b&lt;0) || (a&lt;0&amp;&amp;b&gt;0)) &amp;&amp; c!=0 ? c+b : c</td></tr>
     <tr><td>INT_MULT</td>            <td>int_mult</td>            <td>*</td></tr>
     <tr><td>INT_MULT_ASSIGN</td>     <td>int_mult_assign</td>     <td>*=</td></tr>
     <tr><td>INT_NE</td>              <td>int_ne</td>              <td>!=</td></tr>
+    <tr><td>INT_NEGATE</td>          <td>int_negate</td>          <td>-</td></tr>
     <tr><td>INT_ODD</td>             <td>int_odd</td>             <td>&amp;1</td></tr>
     <tr><td>INT_ORD</td>             <td>int_ord</td>             <td>(noop)</td></tr>
     <tr><td>INT_PARSE</td>           <td>int_parse</td>           <td>intParse</td></tr>

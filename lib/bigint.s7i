@@ -61,7 +61,7 @@ const func bigInteger: + (in bigInteger: number)                         is acti
  *  Minus sign, negate a ''bigInteger'' number.
  *  @return the negated value of the number.
  *)
-const func bigInteger: - (in bigInteger: number)                         is action "BIG_MINUS";
+const func bigInteger: - (in bigInteger: number)                         is action "BIG_NEGATE";
 
 
 (**

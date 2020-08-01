@@ -671,20 +671,6 @@ objecttype flt_lt (listtype arguments)
 
 
 /**
- *  Minus sign, negate a float 'number'.
- *  @return the negated value of the number.
- */
-objecttype flt_minus (listtype arguments)
-
-  { /* flt_minus */
-    isit_float(arg_2(arguments));
-    return bld_float_temp(
-        -(double) take_float(arg_2(arguments)));
-  } /* flt_minus */
-
-
-
-/**
  *  Multiply two float numbers.
  *  @return the product of the two numbers.
  */
@@ -743,6 +729,20 @@ objecttype flt_ne (listtype arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* flt_ne */
+
+
+
+/**
+ *  Minus sign, negate a float 'number'.
+ *  @return the negated value of the number.
+ */
+objecttype flt_negate (listtype arguments)
+
+  { /* flt_negate */
+    isit_float(arg_2(arguments));
+    return bld_float_temp(
+        -(double) take_float(arg_2(arguments)));
+  } /* flt_negate */
 
 
 

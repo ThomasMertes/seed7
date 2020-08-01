@@ -43,8 +43,6 @@ const func string: md4 (in var string: message) is func
   result
     var string: digest is "";
   local
-    const func bin32: leftrotate (in bin32: x, in integer: shiftCount) is
-        return (x << shiftCount | x >> (32 - shiftCount)) & bin32(16#ffffffff);
     # Specify the per-round shift amounts
     const array integer: shiftAmount is [] (
         3,  7, 11, 19,  3,  7, 11, 19,  3,  7, 11, 19,  3,  7, 11, 19,
@@ -102,8 +100,8 @@ const func string: md4 (in var string: message) is func
         temp := d;
         d := c;
         c := b;
-        b := leftrotate(bin32((ord(a) + ord(f) + ord(m[g])) mod 16#100000000),
-                            shiftAmount[index]);
+        b := rotLeft(bin32((ord(a) + ord(f) + ord(m[g])) mod 16#100000000),
+                     shiftAmount[index]);
         a := temp;
       end for;
 
@@ -146,8 +144,6 @@ const func string: md5 (in var string: message) is func
   result
     var string: digest is "";
   local
-    const func bin32: leftrotate (in bin32: x, in integer: shiftCount) is
-        return (x << shiftCount | x >> (32 - shiftCount)) & bin32(16#ffffffff);
     # Specify the per-round shift amounts
     const array integer: shiftAmount is [] (
         7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
@@ -210,8 +206,8 @@ const func string: md5 (in var string: message) is func
         d := c;
         c := b;
         b := bin32((ord(b) +
-             ord(leftrotate(bin32((ord(a) + ord(f) + k[index] + ord(m[g])) mod 16#100000000),
-                            shiftAmount[index]))) mod 16#100000000);
+             ord(rotLeft(bin32((ord(a) + ord(f) + k[index] + ord(m[g])) mod 16#100000000),
+                         shiftAmount[index]))) mod 16#100000000);
         a := temp;
       end for;
 
@@ -335,8 +331,6 @@ const func string: sha224 (in var string: message) is func
   result
     var string: digest is "";
   local
-    const func bin32: rightrotate (in bin32: x, in integer: shiftCount) is
-        return (x >> shiftCount | x << (32 - shiftCount)) & bin32(16#ffffffff);
     # Initialize array of round constants with the first 32 bits of
     # the fractional parts of the cube roots of the first 64 primes 2..311.
     const array integer: k is [] (
@@ -395,9 +389,9 @@ const func string: sha224 (in var string: message) is func
       # Extend the first 16 words into the remaining 48 words of message schedule array:
       for index range 17 to 64 do
         w[index] := bin32(ord(w[index-16]) +
-                          ord(rightrotate(w[index-15], 7) >< rightrotate(w[index-15], 18) >< (w[index-15] >> 3)) +
+                          ord(rotRight(w[index-15], 7) >< rotRight(w[index-15], 18) >< (w[index-15] >> 3)) +
                           ord(w[index-7]) +
-                          ord(rightrotate(w[index-2], 17) >< rightrotate(w[index-2], 19) >< (w[index-2] >> 10))) &
+                          ord(rotRight(w[index-2], 17) >< rotRight(w[index-2], 19) >< (w[index-2] >> 10))) &
                     bin32(16#ffffffff);
       end for;
 
@@ -413,10 +407,10 @@ const func string: sha224 (in var string: message) is func
 
       # Compression function main loop:
       for index range 1 to 64 do
-        s1 := rightrotate(e, 6) >< rightrotate(e, 11) >< rightrotate(e, 25);
+        s1 := rotRight(e, 6) >< rotRight(e, 11) >< rotRight(e, 25);
         ch := (e & f) >< ((bin32(16#FFFFFFFF) >< e) & g);
         temp1 := ord(h) + ord(s1) + ord(ch) + k[index] + ord(w[index]);
-        s0 := rightrotate(a, 2) >< rightrotate(a, 13) >< rightrotate(a, 22);
+        s0 := rotRight(a, 2) >< rotRight(a, 13) >< rotRight(a, 22);
         maj := (a & b) >< (a & c) >< (b & c);
         temp2 := ord(s0) + ord(maj);
 
@@ -461,8 +455,6 @@ const func string: sha256 (in var string: message) is func
   result
     var string: digest is "";
   local
-    const func bin32: rightrotate (in bin32: x, in integer: shiftCount) is
-        return (x >> shiftCount | x << (32 - shiftCount)) & bin32(16#ffffffff);
     # Initialize array of round constants with the first 32 bits of
     # the fractional parts of the cube roots of the first 64 primes 2..311.
     const array integer: k is [] (
@@ -521,9 +513,9 @@ const func string: sha256 (in var string: message) is func
       # Extend the first 16 words into the remaining 48 words of message schedule array:
       for index range 17 to 64 do
         w[index] := bin32(ord(w[index-16]) +
-                          ord(rightrotate(w[index-15], 7) >< rightrotate(w[index-15], 18) >< (w[index-15] >> 3)) +
+                          ord(rotRight(w[index-15], 7) >< rotRight(w[index-15], 18) >< (w[index-15] >> 3)) +
                           ord(w[index-7]) +
-                          ord(rightrotate(w[index-2], 17) >< rightrotate(w[index-2], 19) >< (w[index-2] >> 10))) &
+                          ord(rotRight(w[index-2], 17) >< rotRight(w[index-2], 19) >< (w[index-2] >> 10))) &
                     bin32(16#ffffffff);
       end for;
 
@@ -539,10 +531,10 @@ const func string: sha256 (in var string: message) is func
 
       # Compression function main loop:
       for index range 1 to 64 do
-        s1 := rightrotate(e, 6) >< rightrotate(e, 11) >< rightrotate(e, 25);
+        s1 := rotRight(e, 6) >< rotRight(e, 11) >< rotRight(e, 25);
         ch := (e & f) >< ((bin32(16#FFFFFFFF) >< e) & g);
         temp1 := ord(h) + ord(s1) + ord(ch) + k[index] + ord(w[index]);
-        s0 := rightrotate(a, 2) >< rightrotate(a, 13) >< rightrotate(a, 22);
+        s0 := rotRight(a, 2) >< rotRight(a, 13) >< rotRight(a, 22);
         maj := (a & b) >< (a & c) >< (b & c);
         temp2 := ord(s0) + ord(maj);
 

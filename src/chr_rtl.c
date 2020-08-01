@@ -97,6 +97,49 @@ stritype chrCLit (chartype character)
 
 
 
+#ifdef ALLOW_STRITYPE_SLICES
+stritype chrCLitToBuffer (chartype character, stritype buffer)
+
+  { /* chrCLitToBuffer */
+    /* printf("chrCLitToBuffer(%lu)\n", (unsigned long) character); */
+    if (character < 127) {
+      buffer->mem = buffer->mem1;
+      buffer->mem1[0] = (strelemtype) '\'';
+      if (character < ' ') {
+        buffer->mem1[1] = (strelemtype) '\\';
+        if (cstri_escape_sequence[character][1] == '0') {
+          /* Always write three octal digits as strCLit does. */
+          buffer->mem1[2] = (strelemtype) '0';
+          /* Write the character as two octal digits. */
+          /* This code is much faster than sprintf(). */
+          buffer->mem1[3] = (strelemtype) ((character >> 3 & 0x7) + '0');
+          buffer->mem1[4] = (strelemtype) ((character      & 0x7) + '0');
+          buffer->mem1[5] = (strelemtype) '\'';
+          buffer->size = 6;
+        } else {
+          buffer->mem1[2] = (strelemtype) cstri_escape_sequence[character][1];
+          buffer->mem1[3] = (strelemtype) '\'';
+          buffer->size = 4;
+        } /* if */
+      } else if (character == '\\' || character == '\'') {
+        buffer->mem1[1] = (strelemtype) '\\';
+        buffer->mem1[2] = (strelemtype) character;
+        buffer->mem1[3] = (strelemtype) '\'';
+        buffer->size = 4;
+      } else {
+        buffer->mem1[1] = (strelemtype) character;
+        buffer->mem1[2] = (strelemtype) '\'';
+        buffer->size = 3;
+      } /* if */
+    } else {
+      intStrToBuffer((inttype) character, buffer);
+    } /* if */
+    return buffer;
+  } /* chrCLitToBuffer */
+#endif
+
+
+
 /**
  *  Compare two characters.
  *  @return -1, 0 or 1 if the first argument is considered to be

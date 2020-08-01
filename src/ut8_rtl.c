@@ -244,12 +244,12 @@ chartype ut8Getc (filetype inFile)
     character = getc(inFile);
     if (character != EOF && character > 0x7F) {
       /* character range 0x80 to 0xFF (128 to 255) */
-      if ((character & 0xE0) == 0xC0) {
-        /* character range 0xC0 to 0xDF (192 to 223) */
+      if (character >= 0xC0 && character <= 0xDF) {
+        /* character range 192 to 223 (leading bits 110.....) */
         result = (chartype) (character & 0x1F) << 6;
         character = getc(inFile);
-        if ((character & 0xC0) == 0x80) {
-          /* character range 0x80 to 0xBF (128 to 191) */
+        if (character >= 0x80 && character <= 0xBF) {
+          /* character range 128 to 191 (leading bits 10......) */
           result |= character & 0x3F;
           if (result <= 0x7F) {
             /* Overlong encodings are illegal */
@@ -263,15 +263,15 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if ((character & 0xF0) == 0xE0) {
-        /* character range 0xE0 to 0xEF (224 to 239) */
+      } else if (character >= 0xE0 && character <= 0xEF) {
+        /* character range 224 to 239 (leading bits 1110....) */
         result = (chartype) (character & 0x0F) << 12;
         character = getc(inFile);
-        if ((character & 0xC0) == 0x80) {
-          /* character range 0x80 to 0xBF (128 to 191) */
+        if (character >= 0x80 && character <= 0xBF) {
+          /* character range 128 to 191 (leading bits 10......) */
           result |= (chartype) (character & 0x3F) << 6;
           character = getc(inFile);
-          if ((character & 0xC0) == 0x80) {
+          if (character >= 0x80 && character <= 0xBF) {
             result |= character & 0x3F;
             if (result <= 0x7FF) {  /* (result >= 0xD800 && result <= 0xDFFF)) */
               /* Overlong encodings are illegal */
@@ -289,18 +289,18 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if ((character & 0xF8) == 0xF0) {
-        /* character range 0xF0 to 0xF7 (240 to 247) */
+      } else if (character >= 0xF0 && character <= 0xF7) {
+        /* character range 240 to 247 (leading bits 11110...) */
         result = (chartype) (character & 0x07) << 18;
         character = getc(inFile);
-        if ((character & 0xC0) == 0x80) {
-          /* character range 0x80 to 0xBF (128 to 191) */
+        if (character >= 0x80 && character <= 0xBF) {
+          /* character range 128 to 191 (leading bits 10......) */
           result |= (chartype) (character & 0x3F) << 12;
           character = getc(inFile);
-          if ((character & 0xC0) == 0x80) {
+          if (character >= 0x80 && character <= 0xBF) {
             result |= (chartype) (character & 0x3F) << 6;
             character = getc(inFile);
-            if ((character & 0xC0) == 0x80) {
+            if (character >= 0x80 && character <= 0xBF) {
               result |= character & 0x3F;
               if (result <= 0xFFFF) {
                 /* Overlong encodings are illegal */
@@ -324,21 +324,21 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if ((character & 0xFC) == 0xF8) {
-        /* character range 0xF8 to 0xFB (248 to 251) */
+      } else if (character >= 0xF8 && character <= 0xFB) {
+        /* character range 248 to 251 (leading bits 111110..) */
         result = (chartype) (character & 0x03) << 24;
         character = getc(inFile);
-        if ((character & 0xC0) == 0x80) {
-          /* character range 0x80 to 0xBF (128 to 191) */
+        if (character >= 0x80 && character <= 0xBF) {
+          /* character range 128 to 191 (leading bits 10......) */
           result |= (chartype) (character & 0x3F) << 18;
           character = getc(inFile);
-          if ((character & 0xC0) == 0x80) {
+          if (character >= 0x80 && character <= 0xBF) {
             result |= (chartype) (character & 0x3F) << 12;
             character = getc(inFile);
-            if ((character & 0xC0) == 0x80) {
+            if (character >= 0x80 && character <= 0xBF) {
               result |= (chartype) (character & 0x3F) << 6;
               character = getc(inFile);
-              if ((character & 0xC0) == 0x80) {
+              if (character >= 0x80 && character <= 0xBF) {
                 result |= character & 0x3F;
                 if (result <= 0x1FFFFF) {
                   /* Overlong encodings are illegal */
@@ -364,24 +364,24 @@ chartype ut8Getc (filetype inFile)
           raise_error(RANGE_ERROR);
           return 0;
         } /* if */
-      } else if ((character & 0xFC) == 0xFC) {
-        /* character range 0xFC to 0xFF (252 to 255) */
+      } else if (character >= 0xFC && character <= 0xFF) {
+        /* character range 252 to 255 (leading bits 111111..) */
         result = (chartype) (character & 0x03) << 30;
         character = getc(inFile);
-        if ((character & 0xC0) == 0x80) {
-          /* character range 0x80 to 0xBF (128 to 191) */
+        if (character >= 0x80 && character <= 0xBF) {
+          /* character range 128 to 191 (leading bits 10......) */
           result |= (chartype) (character & 0x3F) << 24;
           character = getc(inFile);
-          if ((character & 0xC0) == 0x80) {
+          if (character >= 0x80 && character <= 0xBF) {
             result |= (chartype) (character & 0x3F) << 18;
             character = getc(inFile);
-            if ((character & 0xC0) == 0x80) {
+            if (character >= 0x80 && character <= 0xBF) {
               result |= (chartype) (character & 0x3F) << 12;
               character = getc(inFile);
-              if ((character & 0xC0) == 0x80) {
+              if (character >= 0x80 && character <= 0xBF) {
                 result |= (chartype) (character & 0x3F) <<  6;
                 character = getc(inFile);
-                if ((character & 0xC0) == 0x80) {
+                if (character >= 0x80 && character <= 0xBF) {
                   result |= character & 0x3F;
                   if (result <= 0x3FFFFFF) {
                     /* Overlong encodings are illegal */
@@ -634,7 +634,7 @@ void ut8Seek (filetype aFile, inttype file_position)
       raise_error(RANGE_ERROR);
     } else if (offsetSeek(aFile, (os_off_t) (file_position - 1), SEEK_SET) == 0) {
       while ((ch = getc(aFile)) != EOF &&
-             (ch & 0xC0) == 0x80) ;
+             ch >= 0x80 && ch <= 0xBF) ;
       if (ch != EOF) {
         if (offsetSeek(aFile, (os_off_t) -1, SEEK_CUR) != 0) {
           raise_error(FILE_ERROR);

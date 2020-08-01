@@ -2769,8 +2769,8 @@ CONTENTS
 
     The type 'string' describes sequences of Unicode characters
   (including the empty string). The characters in the 'string'
-  use the UTF-32 encoding. Strings are not '\0\' terminated
-  and therefore can also contain binary data. Although 'string's
+  use the UTF-32 encoding. Strings are not '\0\' terminated.
+  Therefore they can also contain binary data. Although 'string's
   are allowed to grow very big, it can happen that there is not
   enough memory to represent a 'string' value. In this case the
   exception MEMORY_ERROR is raised. In the source file a string
@@ -8887,10 +8887,10 @@ CONTENTS
     _LSHIFT   Shift left
     _LT       Less than
     _MDIV     Modulo division (Integer division truncated towards negative infinity)
-    _MINUS    Change sign
     _MOD      Modulo (Reminder of _MDIV integer division)
     _MULT     Multiply
     _NE       Not equal
+    _NEGATE   Change sign
     _ODD      Odd number
     _ORD      Ordinal number
     _PARSE    Conversion of 'string' to another type
@@ -9181,11 +9181,11 @@ CONTENTS
     BIG_LSHIFT_ASSIGN   big_lshift_assign   bigLShiftAssign
     BIG_LT              big_lt              bigCmp < 0
     BIG_MDIV            big_mdiv            bigMDiv
-    BIG_MINUS           big_minus           bigMinus
     BIG_MOD             big_mod             bigMod
     BIG_MULT            big_mult            bigMult
     BIG_MULT_ASSIGN     big_mult_assign     bigMultAssign
     BIG_NE              big_ne              bigNe
+    BIG_NEGATE          big_negate          bigNegate
     BIG_ODD             big_odd             bigOdd
     BIG_ORD             big_ord             bigOrd
     BIG_PARSE           big_parse           bigParse
@@ -9491,10 +9491,10 @@ CONTENTS
     FLT_LOG             flt_log             log
     FLT_LOG10           flt_log10           log10
     FLT_LT              flt_lt              <
-    FLT_MINUS           flt_minus           -
     FLT_MULT            flt_mult            *
     FLT_MULT_ASSIGN     flt_mult_assign     *=
     FLT_NE              flt_ne              !=
+    FLT_NEGATE          flt_negate          -
     FLT_PARSE           flt_parse           fltParse
     FLT_PLUS            flt_plus            (noop)
     FLT_POW             flt_pow             pow
@@ -9578,11 +9578,11 @@ CONTENTS
     INT_LSHIFT_ASSIGN   int_lshift_assign   <<=
     INT_LT              int_lt              <
     INT_MDIV            int_mdiv            a>0&&b<0 ? (a-1)/b-1 : a<0&&b>0 ? (a+1)/b-1 : a/b
-    INT_MINUS           int_minus           -
     INT_MOD             int_mod             c=a%b, ((a>0&&b<0) || (a<0&&b>0)) && c!=0 ? c+b : c
     INT_MULT            int_mult            *
     INT_MULT_ASSIGN     int_mult_assign     *=
     INT_NE              int_ne              !=
+    INT_NEGATE          int_negate          -
     INT_ODD             int_odd             &1
     INT_ORD             int_ord             (noop)
     INT_PARSE           int_parse           intParse

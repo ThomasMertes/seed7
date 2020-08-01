@@ -447,8 +447,14 @@ int main (int argc, char **argv)
       puts("#define UNISTD_H_PRESENT");
     } /* if */
     if (!compilationOkay("static inline int test(int a){return 2*a;}\n"
-                        "int main(int argc,char *argv[]){return test(argc);}\n")) {
+                         "int main(int argc,char *argv[]){return test(argc);}\n")) {
       puts("#define inline");
+    } /* if */
+    if (!compilationOkay("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
+                         "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA+ptrB;}\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
+      puts("#define restrict");
     } /* if */
     if (compilationOkay("#include <stdio.h>\nint main(int argc,char *argv[])\n"
                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {

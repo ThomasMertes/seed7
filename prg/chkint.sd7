@@ -2823,7 +2823,7 @@ const proc: check_mdiv is func
         intExpr( -8) mdiv -5 <>  1 or
         intExpr( -9) mdiv -5 <>  1 or
         intExpr(-10) mdiv -5 <>  2 then
-      writeln(" *****) mdiv with an expression and a constant does not work correct");
+      writeln(" ***** mdiv with an expression and a constant does not work correct");
       okay := FALSE;
     end if;
     if   10 mdiv intExpr( 5) <>  2 or

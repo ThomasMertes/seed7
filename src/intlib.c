@@ -576,20 +576,6 @@ objecttype int_mdiv (listtype arguments)
 
 
 /**
- *  Minus sign, negate an integer number.
- *  @return the negated value of the number.
- */
-objecttype int_minus (listtype arguments)
-
-  { /* int_minus */
-    isit_int(arg_2(arguments));
-    return bld_int_temp(
-        -take_int(arg_2(arguments)));
-  } /* int_minus */
-
-
-
-/**
  *  Compute the modulo (remainder) of the integer division int_mdiv.
  *  The modulo has the same sign as the divisor.
  *  @return the modulo of the integer division.
@@ -671,6 +657,20 @@ objecttype int_ne (listtype arguments)
       return SYS_FALSE_OBJECT;
     } /* if */
   } /* int_ne */
+
+
+
+/**
+ *  Minus sign, negate an integer number.
+ *  @return the negated value of the number.
+ */
+objecttype int_negate (listtype arguments)
+
+  { /* int_negate */
+    isit_int(arg_2(arguments));
+    return bld_int_temp(
+        -take_int(arg_2(arguments)));
+  } /* int_negate */
 
 
 
@@ -1137,3 +1137,22 @@ objecttype int_xor (listtype arguments)
     return bld_int_temp(
         take_int(arg_1(arguments)) ^ take_int(arg_3(arguments)));
   } /* int_xor */
+
+
+
+/**
+ *  Compute a bitwise exclusive or ('xor') and assign the result back.
+ */
+objecttype int_xor_assign (listtype arguments)
+
+  {
+    objecttype int_variable;
+
+  /* int_xor_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    int_variable->value.intvalue ^= take_int(arg_3(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* int_xor_assign */

@@ -27,6 +27,7 @@ $ include "seed7_05.s7i";
   include "stdio.s7i";
   include "osfiles.s7i";
   include "scanstri.s7i";
+  include "unicode.s7i";
   include "bigint.s7i";
   include "float.s7i";
   include "keybd.s7i";
@@ -695,6 +696,10 @@ const func string: stringLiteral (in string: stri) is func
     expr &:= "]";
     expr &:= stringInComment(stri);
   end func;
+
+
+const func string: charLiteral (in char: ch) is
+  return "(chartype) " & c_literal(ch);
 
 
 const func string: integerLiteral (in integer: number) is func
@@ -1924,7 +1929,7 @@ const proc: process_str_create_call (in string: stri, inout string: expr) is fun
     elsif length(stri) = 1 then
       incr(countOptimizations);
       expr &:= "chrStr(";
-      expr &:= c_literal(stri[1]);
+      expr &:= charLiteral(stri[1]);
       expr &:= "); /* ";
       expr &:= literal(stri);
       expr &:= " */\n";
@@ -2728,7 +2733,7 @@ const func boolean: isPureFunction (in reference: function) is func
          "BIG_ABS", "BIG_ADD", "BIG_BIT_LENGTH", "BIG_CLIT", "BIG_CMP", "BIG_DIV",
          "BIG_EQ", "BIG_GCD", "BIG_GE", "BIG_GT", "BIG_HASHCODE", "BIG_ICONV",
          "BIG_IPOW", "BIG_LE", "BIG_LOG2", "BIG_LOWEST_SET_BIT", "BIG_LSHIFT",
-         "BIG_LT", "BIG_MDIV", "BIG_MINUS", "BIG_MOD", "BIG_MULT", "BIG_NE",
+         "BIG_LT", "BIG_MDIV", "BIG_MOD", "BIG_MULT", "BIG_NE", "BIG_NEGATE",
          "BIG_ODD", "BIG_ORD", "BIG_PARSE", "BIG_PLUS", "BIG_PRED", "BIG_REM",
          "BIG_RSHIFT", "BIG_SBTR", "BIG_STR", "BIG_SUCC", "BIG_VALUE",
          "BLN_AND", "BLN_GE", "BLN_GT", "BLN_ICONV", "BLN_LE", "BLN_LT",
@@ -2745,7 +2750,7 @@ const func boolean: isPureFunction (in reference: function) is func
          "FLT_CEIL", "FLT_CMP", "FLT_COS", "FLT_COSH", "FLT_DGTS", "FLT_DIV",
          "FLT_EQ", "FLT_EXP", "FLT_FLOOR", "FLT_GE", "FLT_GT", "FLT_HASHCODE",
          "FLT_ICONV", "FLT_IFLT", "FLT_IPOW", "FLT_ISNAN", "FLT_LE", "FLT_LOG",
-         "FLT_LOG10", "FLT_LT", "FLT_MINUS", "FLT_MULT", "FLT_NE", "FLT_PARSE",
+         "FLT_LOG10", "FLT_LT", "FLT_MULT", "FLT_NE", "FLT_NEGATE", "FLT_PARSE",
          "FLT_PLUS", "FLT_POW", "FLT_ROUND", "FLT_SBTR", "FLT_SCI", "FLT_SIN",
          "FLT_SINH", "FLT_SQRT", "FLT_STR", "FLT_TAN", "FLT_TANH", "FLT_TRUNC",
          "FLT_VALUE",
@@ -2754,8 +2759,8 @@ const func boolean: isPureFunction (in reference: function) is func
          "INT_ABS", "INT_ADD", "INT_AND", "INT_BINOM", "INT_BIT_LENGTH", "INT_CMP",
          "INT_CONV", "INT_DIV", "INT_EQ", "INT_FACT", "INT_GE", "INT_GT",
          "INT_HASHCODE", "INT_LE", "INT_LOG2", "INT_LOWEST_SET_BIT", "INT_LPAD0",
-         "INT_LSHIFT", "INT_LT", "INT_MDIV", "INT_MINUS", "INT_MOD", "INT_MULT",
-         "INT_NE", "INT_ODD", "INT_OR", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW",
+         "INT_LSHIFT", "INT_LT", "INT_MDIV", "INT_MOD", "INT_MULT", "INT_NE",
+         "INT_NEGATE", "INT_ODD", "INT_OR", "INT_ORD", "INT_PARSE", "INT_PLUS", "INT_POW",
          "INT_PRED", "INT_radix", "INT_RADIX", "INT_REM", "INT_RSHIFT", "INT_SBTR",
          "INT_SQRT", "INT_STR", "INT_SUCC", "INT_URSHIFT", "INT_VALUE", "INT_XOR",
          "ITF_CMP", "ITF_EQ", "ITF_HASHCODE", "ITF_NE",
@@ -4771,7 +4776,7 @@ const proc: process_big_add (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.result_expr &:= ", 1)";
     else
       prepare_bigint_result(c_expr);
-      if isActionExpression(params[1], "BIG_MINUS") then
+      if isActionExpression(params[1], "BIG_NEGATE") then
         incr(countOptimizations);
         prepareAnyParamTemporarys(params[3], c_param3, c_expr);
         if c_param3.result_expr <> "" then
@@ -4958,15 +4963,57 @@ const proc: process_big_decr (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_const_big_div (in reference: param1, in bigInteger: divisor,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var bigInteger: bigNumber is 0_;
+  begin
+    if divisor = 0_ then
+      incr(countOptimizations);
+      c_expr.expr &:= "(biginttype)(raise_error(NUMERIC_ERROR),NULL)";
+    elsif getConstant(param1, BIGINTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      bigNumber := getValue(evaluatedParam, bigInteger) div divisor;
+      c_expr.expr &:= bigIntegerLiteral(bigNumber);
+    elsif divisor = 1_ then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ")";
+    elsif divisor = -1_ then
+      incr(countOptimizations);
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigNegate(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ")";
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigDiv(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= bigIntegerLiteral(divisor);
+      c_expr.result_expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process_big_div (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigDiv(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if getConstant(params[3], BIGINTOBJECT, evaluatedParam) then
+      process_const_big_div(params[1], getValue(evaluatedParam, bigInteger), c_expr);
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigDiv(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -5362,19 +5409,75 @@ const proc: process_const_big_lshift (in bigInteger: number, in reference: param
   end func;
 
 
+const proc: process_const_big_lshift (in reference: param1, in integer: lshift,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: bigint_name is "";
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    prepare_bigint_result(c_expr);
+    prepareAnyParamTemporarys(param1, c_param1, c_expr);
+    if c_param1.result_expr <> "" then
+      incr(c_expr.temp_num);
+      bigint_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "biginttype ";
+      c_expr.temp_decls &:= bigint_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr &:= "(bigLShiftAssign((";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "=";
+      c_expr.result_expr &:= c_param1.result_expr;
+      c_expr.result_expr &:= ", &";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= integerLiteral(lshift);
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= bigint_name;
+    else
+      c_expr.result_expr := "bigLShift(";
+      c_expr.result_expr &:= c_param1.expr;
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(lshift);
+    end if;
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_big_lshift (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
+    var string: bigint_name is "";
+    var expr_type: c_param1 is expr_type.value;
   begin
     if getConstant(params[1], BIGINTOBJECT, evaluatedParam) then
       process_const_big_lshift(getValue(evaluatedParam, bigInteger), params[3], c_expr);
     else
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigLShift(";
-      getAnyParamToResultExpr(params[1], c_expr);
-      c_expr.result_expr &:= ", ";
-      getStdParamToResultExpr(params[3], c_expr);
+      prepareAnyParamTemporarys(params[1], c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        incr(c_expr.temp_num);
+        bigint_name := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "biginttype ";
+        c_expr.temp_decls &:= bigint_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.result_expr := "(bigLShiftAssign((";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "=";
+        c_expr.result_expr &:= c_param1.result_expr;
+        c_expr.result_expr &:= ", &";
+        c_expr.result_expr &:= bigint_name;
+        c_expr.result_expr &:= "), ";
+        getStdParamToResultExpr(params[3], c_expr);
+        c_expr.result_expr &:= "), ";
+        c_expr.result_expr &:= bigint_name;
+      else
+        c_expr.result_expr := "bigLShift(";
+        c_expr.result_expr &:= c_param1.expr;
+        c_expr.result_expr &:= ", ";
+        getStdParamToResultExpr(params[3], c_expr);
+      end if;
       c_expr.result_expr &:= ")";
     end if;
   end func;
@@ -5414,6 +5517,41 @@ const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_const_big_rshift (in reference: param1, in integer: rshift,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: bigint_name is "";
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    prepare_bigint_result(c_expr);
+    prepareAnyParamTemporarys(param1, c_param1, c_expr);
+    if c_param1.result_expr <> "" then
+      incr(c_expr.temp_num);
+      bigint_name := "tmp_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "biginttype ";
+      c_expr.temp_decls &:= bigint_name;
+      c_expr.temp_decls &:= ";\n";
+      c_expr.result_expr &:= "(bigRShiftAssign((";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "=";
+      c_expr.result_expr &:= c_param1.result_expr;
+      c_expr.result_expr &:= ", &";
+      c_expr.result_expr &:= bigint_name;
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= integerLiteral(rshift);
+      c_expr.result_expr &:= "), ";
+      c_expr.result_expr &:= bigint_name;
+    else
+      c_expr.result_expr := "bigRShift(";
+      c_expr.result_expr &:= c_param1.expr;
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= integerLiteral(rshift);
+    end if;
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor,
     inout expr_type: c_expr) is func
 
@@ -5438,36 +5576,18 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
     elsif divisor = -1_ then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigMinus(";
+      c_expr.result_expr := "bigNegate(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ")";
     elsif divisor > 0_ and log2(divisor) <= 2147483647_ and
         2_ ** ord(log2(divisor)) = divisor then
       incr(countOptimizations);
-      prepare_bigint_result(c_expr);
-      prepareAnyParamTemporarys(param1, c_param1, c_expr);
-      if c_param1.result_expr <> "" then
-        incr(c_expr.temp_num);
-        bigint_name := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "biginttype ";
-        c_expr.temp_decls &:= bigint_name;
-        c_expr.temp_decls &:= ";\n";
-        c_expr.result_expr := "(bigRShiftAssign((";
-        c_expr.result_expr &:= bigint_name;
-        c_expr.result_expr &:= "=";
-        c_expr.result_expr &:= c_param1.result_expr;
-        c_expr.result_expr &:= ", &";
-        c_expr.result_expr &:= bigint_name;
-        c_expr.result_expr &:= "), ";
-        c_expr.result_expr &:= integerLiteral(ord(log2(divisor)));
-        c_expr.result_expr &:= "), ";
-        c_expr.result_expr &:= bigint_name;
-      else
-        c_expr.result_expr := "bigRShift(";
-        c_expr.result_expr &:= c_param1.expr;
-        c_expr.result_expr &:= ", ";
-        c_expr.result_expr &:= integerLiteral(ord(log2(divisor)));
-      end if;
+      process_const_big_rshift(param1, ord(log2(divisor)), c_expr);
+    elsif divisor < 0_ and log2(-divisor) <= 2147483647_ and
+        2_ ** ord(log2(-divisor)) = -divisor then
+      incr(countOptimizations);
+      c_expr.result_expr := "bigNegateTemp(";
+      process_const_big_rshift(param1, ord(log2(-divisor)), c_expr);
       c_expr.result_expr &:= ")";
     else
       prepare_bigint_result(c_expr);
@@ -5498,25 +5618,6 @@ const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_big_minus (in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var reference: evaluatedParam is NIL;
-    var bigInteger: bigNumber is 0_;
-  begin
-    if getConstant(params[2], BIGINTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
-      bigNumber := -getValue(evaluatedParam, bigInteger);
-      c_expr.expr &:= bigIntegerLiteral(bigNumber);
-    else
-      prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigMinus(";
-      getAnyParamToResultExpr(params[2], c_expr);
-      c_expr.result_expr &:= ")";
-    end if;
-  end func;
-
-
 const proc: process_big_mod (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5535,7 +5636,6 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
   local
     var reference: evaluatedParam is NIL;
     var bigInteger: bigNumber is 0_;
-    var integer: log2base is 0;
   begin
     if getConstant(param1, BIGINTOBJECT, evaluatedParam) then
       incr(countOptimizations);
@@ -5544,7 +5644,7 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
     elsif number = -1_ then
       incr(countOptimizations);
       prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigMinus(";
+      c_expr.result_expr := "bigNegate(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ")";
     elsif number = 0_ then
@@ -5556,12 +5656,12 @@ const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
     elsif number > 1_ and log2(number) <= 2147483647_ and
         2_ ** ord(log2(number)) = number then
       incr(countOptimizations);
-      log2base := ord(log2(number));
-      prepare_bigint_result(c_expr);
-      c_expr.result_expr := "bigLShift(";
-      getAnyParamToResultExpr(param1, c_expr);
-      c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= integerLiteral(log2base);
+      process_const_big_lshift(param1, ord(log2(number)), c_expr);
+    elsif number < 1_ and log2(-number) <= 2147483647_ and
+        2_ ** ord(log2(-number)) = -number then
+      incr(countOptimizations);
+      c_expr.result_expr := "bigNegateTemp(";
+      process_const_big_lshift(param1, ord(log2(-number)), c_expr);
       c_expr.result_expr &:= ")";
     elsif abs(number) <= 256_ then
       incr(countOptimizations);
@@ -5671,6 +5771,32 @@ const proc: process_big_ne (in ref_list: params, inout expr_type: c_expr) is fun
   begin
     c_expr.expr &:= "!";
     process_big_eq(params, c_expr);
+  end func;
+
+
+const proc: process_big_negate (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var bigInteger: bigNumber is 0_;
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if getConstant(params[2], BIGINTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      bigNumber := -getValue(evaluatedParam, bigInteger);
+      c_expr.expr &:= bigIntegerLiteral(bigNumber);
+    else
+      prepare_bigint_result(c_expr);
+      prepareAnyParamTemporarys(params[2], c_param1, c_expr);
+      if c_param1.result_expr <> "" then
+        c_expr.result_expr := "bigNegateTemp(";
+        c_expr.result_expr &:= c_param1.result_expr;
+      else
+        c_expr.result_expr := "bigNegate(";
+        c_expr.result_expr &:= c_param1.expr;
+      end if;
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -6279,7 +6405,7 @@ const proc: process_const_bst_idx (in reference: function, in bstring: bstri,
       if index < 1 or index > length(bstri) then
         process_raise_error("RANGE_ERROR", function, c_expr);
       else
-        c_expr.expr &:= c_literal(bstri[index]);
+        c_expr.expr &:= charLiteral(bstri[index]);
       end if;
     else
       c_expr.expr &:= bstriLiteral(bstri);
@@ -6499,7 +6625,7 @@ const proc: process_const_chr_chr (in reference: function, in integer: number, i
     if number < pred(-2147483647) or number > 2147483647 then
       process_raise_error("RANGE_ERROR", function, c_expr);
     else
-      c_expr.expr &:= "(chartype)";
+      c_expr.expr &:= "(chartype) ";
       c_expr.expr &:= str(number);
     end if;
   end func;
@@ -6534,11 +6660,32 @@ const proc: process_chr_chr (in reference: function, in ref_list: params, inout 
 
 const proc: process_chr_clit (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: buffer_name is "";
   begin
-    prepare_stri_result(c_expr);
-    c_expr.result_expr := "chrCLit(";
-    getStdParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
+    if ccConf.ALLOW_STRITYPE_SLICES then
+      incr(c_expr.temp_num);
+      buffer_name := "buffer_" & str(c_expr.temp_num);
+      c_expr.temp_decls &:= "char ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= "[sizeof(struct stristruct) + ";
+      if ccConf.INTTYPE_SIZE = 64 then
+        c_expr.temp_decls &:= "19";
+      elsif ccConf.INTTYPE_SIZE = 32 then
+        c_expr.temp_decls &:= "10";
+      end if;
+      c_expr.temp_decls &:= " * sizeof(strelemtype)];\n";
+      c_expr.expr &:= "chrCLitToBuffer(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", (stritype) &";
+      c_expr.expr &:= buffer_name;
+      c_expr.expr &:= ")";
+    else
+      prepare_stri_result(c_expr);
+      c_expr.result_expr := "chrCLit(";
+      getStdParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -6599,11 +6746,11 @@ const proc: process_chr_eq (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_chr_ge (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "((chartype)(";
+    c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")) >= ((chartype)(";
+    c_expr.expr &:= ") >= (";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -6623,11 +6770,11 @@ const proc: process_chr_grow (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_chr_gt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "((chartype)(";
+    c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")) > ((chartype)(";
+    c_expr.expr &:= ") > (";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -6662,11 +6809,11 @@ const proc: process_chr_incr (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_chr_le (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "((chartype)(";
+    c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")) <= ((chartype)(";
+    c_expr.expr &:= ") <= (";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -6682,11 +6829,11 @@ const proc: process_chr_low (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_chr_lt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "((chartype)(";
+    c_expr.expr &:= "(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")) < ((chartype)(";
+    c_expr.expr &:= ") < (";
     process_expr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -8783,7 +8930,7 @@ const proc: process_flt_div (in ref_list: params, inout expr_type: c_expr) is fu
   begin
     if getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_div(params[1], getValue(evaluatedParam, float), c_expr);
-    elsif ccConf.FLOAT_ZERO_DIV_ERROR and isActionExpression(params[3], "FLT_MINUS") and
+    elsif ccConf.FLOAT_ZERO_DIV_ERROR and isActionExpression(params[3], "FLT_NEGATE") and
         category(getActionParameter(params[3], 2)) = FLOATOBJECT and
         not isVar(getActionParameter(params[3], 2)) then
       process_const_flt_div(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
@@ -8872,7 +9019,7 @@ const proc: process_flt_div_assign (in ref_list: params, inout expr_type: c_expr
   begin
     if getConstant(params[3], FLOATOBJECT, evaluatedParam) then
       process_const_flt_div_assign(params[1], getValue(evaluatedParam, float), c_expr);
-    elsif ccConf.FLOAT_ZERO_DIV_ERROR and isActionExpression(params[3], "FLT_MINUS") and
+    elsif ccConf.FLOAT_ZERO_DIV_ERROR and isActionExpression(params[3], "FLT_NEGATE") and
         category(getActionParameter(params[3], 2)) = FLOATOBJECT and
         not isVar(getActionParameter(params[3], 2)) then
       process_const_flt_div_assign(params[1], getValue(evaluate(prog, params[3]), float), c_expr);
@@ -9345,22 +9492,6 @@ const proc: process_flt_lt (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_flt_minus (in ref_list: params, inout expr_type: c_expr) is func
-
-  local
-    var reference: evaluatedParam is NIL;
-  begin
-    if getConstant(params[2], FLOATOBJECT, evaluatedParam) then
-      incr(countOptimizations);
-      c_expr.expr &:= floatLiteral(-getValue(evaluatedParam, float));
-    else
-      c_expr.expr &:= "-(";
-      process_expr(params[2], c_expr);
-      c_expr.expr &:= ")";
-    end if;
-  end func;
-
-
 const proc: process_flt_mult (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -9437,6 +9568,22 @@ const proc: process_flt_ne (in ref_list: params, inout expr_type: c_expr) is fun
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") != (";
       process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_flt_negate (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if getConstant(params[2], FLOATOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      c_expr.expr &:= floatLiteral(-getValue(evaluatedParam, float));
+    else
+      c_expr.expr &:= "-(";
+      process_expr(params[2], c_expr);
       c_expr.expr &:= ")";
     end if;
   end func;
@@ -9614,7 +9761,7 @@ const proc: process_gkb_busy_getc (in ref_list: params, inout expr_type: c_expr)
 
   begin
     c_expr.expr &:= "(gkbKeyPressed() ? gkbGetc() : ";
-    c_expr.expr &:= c_literal(KEY_NONE);
+    c_expr.expr &:= charLiteral(KEY_NONE);
     c_expr.expr &:= ")";
   end func;
 
@@ -10803,15 +10950,6 @@ const proc: process_int_mdiv (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_int_minus (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "-(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
-  end func;
-
-
 const proc: process_const_int_mod (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
@@ -11042,6 +11180,15 @@ const proc: process_int_ne (in ref_list: params, inout expr_type: c_expr) is fun
     process_expr(params[1], c_expr);
     c_expr.expr &:= ") != (";
     process_expr(params[3], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_int_negate (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "-(";
+    process_expr(params[2], c_expr);
     c_expr.expr &:= ")";
   end func;
 
@@ -11743,6 +11890,19 @@ const proc: process_int_xor (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_int_xor_assign (in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+  begin
+    process_expr(params[1], statement);
+    statement.expr &:= "^=";
+    process_expr(params[3], statement);
+    statement.expr &:= ";\n";
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process_itf_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -11886,7 +12046,7 @@ const proc: process_kbd_busy_getc (in ref_list: params, inout expr_type: c_expr)
 
   begin
     c_expr.expr &:= "(kbdKeyPressed() ? kbdGetc() : ";
-    c_expr.expr &:= c_literal(KEY_NONE);
+    c_expr.expr &:= charLiteral(KEY_NONE);
     c_expr.expr &:= ")";
   end func;
 
@@ -14520,7 +14680,7 @@ const proc: process_const_inline_str_push (in reference: param1, in char: ch,
     statement.expr &:= "strPush(&(";
     statement.expr &:= stri_name;
     statement.expr &:= "), ";
-    statement.expr &:= c_literal(ch);
+    statement.expr &:= charLiteral(ch);
     statement.expr &:= ");\n";
     statement.expr &:= "} else {\n";
     statement.expr &:= "(";
@@ -14528,7 +14688,7 @@ const proc: process_const_inline_str_push (in reference: param1, in char: ch,
     statement.expr &:= ")->mem[(";
     statement.expr &:= stri_name;
     statement.expr &:= ")->size]=";
-    statement.expr &:= c_literal(ch);
+    statement.expr &:= charLiteral(ch);
     statement.expr &:= ";\n";
     statement.expr &:= "(";
     statement.expr &:= stri_name;
@@ -14548,7 +14708,7 @@ const proc: process_const_str_push (in reference: param1, in char: ch,
       c_expr.expr &:= "strPush(&(";
       process_expr(param1, c_expr);
       c_expr.expr &:= "), ";
-      c_expr.expr &:= c_literal(ch);
+      c_expr.expr &:= charLiteral(ch);
       c_expr.expr &:= ");\n";
     end if;
   end func;
@@ -15117,9 +15277,9 @@ const proc: process_const_str_eq (in reference: param1, in string: stri_b,
         c_expr.expr &:= stri_a_name;
         c_expr.expr &:= "->size==1&&";
         c_expr.expr &:= stri_a_name;
-        c_expr.expr &:= "->mem[0]==";
+        c_expr.expr &:= "->mem[0]==(strelemtype)(";
         c_expr.expr &:= c_literal(stri_b[1]);
-        c_expr.expr &:= " /* ";
+        c_expr.expr &:= ") /* ";
         c_expr.expr &:= literal(stri_b);
         c_expr.expr &:= " */)";
       else
@@ -15377,7 +15537,7 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
       if index < 1 or index > length(stri) then
         process_raise_error("RANGE_ERROR", function, c_expr);
       else
-        c_expr.expr &:= c_literal(stri[index]);
+        c_expr.expr &:= charLiteral(stri[index]);
       end if;
     else
       c_expr.expr &:= "(";
@@ -15553,7 +15713,7 @@ const proc: process_str_ipos (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= "strChIPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
+      c_expr.expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ", ";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")";
@@ -15720,7 +15880,7 @@ const proc: process_str_mult (in ref_list: params, inout expr_type: c_expr) is f
     if getConstant(params[1], STRIOBJECT, evaluatedParam) and
         length(getValue(evaluatedParam, string)) = 1 then
       c_expr.result_expr := "strChMult(";
-      c_expr.result_expr &:= c_literal(getValue(evaluatedParam, string)[1]);
+      c_expr.result_expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
     else
       c_expr.result_expr := "strMult(";
       getAnyParamToResultExpr(params[1], c_expr);
@@ -15762,9 +15922,9 @@ const proc: process_const_str_ne (in reference: param1, in string: stri_b,
         c_expr.expr &:= stri_a_name;
         c_expr.expr &:= "->size!=1||";
         c_expr.expr &:= stri_a_name;
-        c_expr.expr &:= "->mem[0]!=";
+        c_expr.expr &:= "->mem[0]!=(strelemtype)(";
         c_expr.expr &:= c_literal(stri_b[1]);
-        c_expr.expr &:= " /* ";
+        c_expr.expr &:= ") /* ";
         c_expr.expr &:= literal(stri_b);
         c_expr.expr &:= " */)";
       else
@@ -15827,7 +15987,7 @@ const proc: process_str_pos (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= "strChPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
+      c_expr.expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "strPos(";
@@ -16215,7 +16375,7 @@ const proc: process_str_ripos (in ref_list: params, inout expr_type: c_expr) is 
       c_expr.expr &:= "strRChIPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
+      c_expr.expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ", ";
       process_expr(params[3], c_expr);
       c_expr.expr &:= ")";
@@ -16254,7 +16414,7 @@ const proc: process_str_rpos (in ref_list: params, inout expr_type: c_expr) is f
       c_expr.expr &:= "strRChPos(";
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= c_literal(getValue(evaluatedParam, string)[1]);
+      c_expr.expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "strRPos(";
@@ -16288,7 +16448,7 @@ const proc: process_str_split (in ref_list: params, inout expr_type: c_expr) is 
       c_expr.result_expr := "strChSplit(";
       getAnyParamToResultExpr(params[1], c_expr);
       c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= c_literal(getValue(evaluatedParam, string)[1]);
+      c_expr.result_expr &:= charLiteral(getValue(evaluatedParam, string)[1]);
       c_expr.result_expr &:= ")";
     else
       c_expr.result_expr := "strSplit(";
@@ -17077,8 +17237,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_big_lt(params, c_expr);
       elsif action_name = "BIG_MDIV" then
         process_big_mdiv(params, c_expr);
-      elsif action_name = "BIG_MINUS" then
-        process_big_minus(params, c_expr);
       elsif action_name = "BIG_MOD" then
         process_big_mod(params, c_expr);
       elsif action_name = "BIG_MULT" then
@@ -17087,6 +17245,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_big_mult_assign(params, c_expr);
       elsif action_name = "BIG_NE" then
         process_big_ne(params, c_expr);
+      elsif action_name = "BIG_NEGATE" then
+        process_big_negate(params, c_expr);
       elsif action_name = "BIG_ODD" then
         process_big_odd(params, c_expr);
       elsif action_name = "BIG_ORD" then
@@ -17613,14 +17773,14 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_flt_log10(params, c_expr);
       elsif action_name = "FLT_LT" then
         process_flt_lt(params, c_expr);
-      elsif action_name = "FLT_MINUS" then
-        process_flt_minus(params, c_expr);
       elsif action_name = "FLT_MULT" then
         process_flt_mult(params, c_expr);
       elsif action_name = "FLT_MULT_ASSIGN" then
         process_flt_mult_assign(params, c_expr);
       elsif action_name = "FLT_NE" then
         process_flt_ne(params, c_expr);
+      elsif action_name = "FLT_NEGATE" then
+        process_flt_negate(params, c_expr);
       elsif action_name = "FLT_PARSE" then
         process_flt_parse(params, c_expr);
       elsif action_name = "FLT_PLUS" then
@@ -17770,8 +17930,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_lt(params, c_expr);
       elsif action_name = "INT_MDIV" then
         process_int_mdiv(params, c_expr);
-      elsif action_name = "INT_MINUS" then
-        process_int_minus(params, c_expr);
       elsif action_name = "INT_MOD" then
         process_int_mod(params, c_expr);
       elsif action_name = "INT_MULT" then
@@ -17780,6 +17938,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_mult_assign(params, c_expr);
       elsif action_name = "INT_NE" then
         process_int_ne(params, c_expr);
+      elsif action_name = "INT_NEGATE" then
+        process_int_negate(params, c_expr);
       elsif action_name = "INT_ODD" then
         process_int_odd(params, c_expr);
       elsif action_name = "INT_OR" then
@@ -17830,6 +17990,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_int_value(params, c_expr);
       elsif action_name = "INT_XOR" then
         process_int_xor(params, c_expr);
+      elsif action_name = "INT_XOR_ASSIGN" then
+        process_int_xor_assign(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -18587,7 +18749,7 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_frees &:= ");\n";
     elsif valueCategory = CHAROBJECT then
       c_declaration.temp_decls &:= "=";
-      c_declaration.temp_decls &:= c_literal(getValue(object_value, char));
+      c_declaration.temp_decls &:= charLiteral(getValue(object_value, char));
     elsif valueCategory = FLOATOBJECT then
       c_declaration.temp_decls &:= "=";
       c_declaration.temp_decls &:= floatLiteral(getValue(object_value, float));
@@ -19918,7 +20080,7 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         c_expr.expr &:= "o_";
         create_name(current_expression, c_expr.expr);
       else
-        c_expr.expr &:= c_literal(getValue(current_expression, char));
+        c_expr.expr &:= charLiteral(getValue(current_expression, char));
       end if;
     elsif exprCategory = STRIOBJECT then
       if isVar(current_expression) then
@@ -20602,7 +20764,7 @@ const proc: process_char_declaration (in reference: current_object,
       c_expr.expr &:= "chartype o_";
       create_name(current_object, c_expr.expr);
       c_expr.expr &:= "=";
-      c_expr.expr &:= c_literal(getValue(current_object, char));
+      c_expr.expr &:= charLiteral(getValue(current_object, char));
       c_expr.expr &:= ";\n\n";
       count_declarations;
     end if;
@@ -23098,11 +23260,12 @@ const proc: write_prototypes is func
     declareExtern("biginttype  bigLShiftOne (const inttype);");
     declareExtern("biginttype  bigLog2BaseLShift (const inttype, const inttype);");
     declareExtern("biginttype  bigMDiv (const const_biginttype, const const_biginttype);");
-    declareExtern("biginttype  bigMinus (const const_biginttype);");
     declareExtern("biginttype  bigMod (const const_biginttype, const const_biginttype);");
     declareExtern("biginttype  bigMult (const_biginttype, const_biginttype);");
     declareExtern("void        bigMultAssign (biginttype *const, const_biginttype);");
     declareExtern("biginttype  bigMultSignedDigit (const_biginttype, inttype);");
+    declareExtern("biginttype  bigNegate (const const_biginttype);");
+    declareExtern("biginttype  bigNegateTemp (biginttype);");
     declareExtern("booltype    bigOdd (const const_biginttype);");
     if ccConf.INTTYPE_SIZE = 64 then
       declareExtern("inttype     bigToInt64 (const const_biginttype);");
@@ -23148,6 +23311,7 @@ const proc: write_prototypes is func
     declareExtern("stritype    bstStr (const const_bstritype);");
     declareExtern("bstritype   bstValue (objreftype);");
     declareExtern("stritype    chrCLit (chartype);");
+    declareExtern("stritype    chrCLitToBuffer (chartype, stritype);");
     declareExtern("inttype     chrCmp (chartype, chartype);");
     declareExtern("inttype     chrCmpGeneric (const generictype, const generictype);");
     declareExtern("void        chrCpy (chartype *, chartype);");
@@ -23940,7 +24104,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
       c_expr.expr &:= bigIntegerLiteral(getValue(current_object, bigInteger));
     elsif objectCategory = CHAROBJECT then
       c_expr.expr &:= ".value.charvalue=";
-      c_expr.expr &:= c_literal(getValue(current_object, char));
+      c_expr.expr &:= charLiteral(getValue(current_object, char));
     elsif objectCategory = STRIOBJECT then
       c_expr.expr &:= ".value.strivalue=";
       c_expr.expr &:= stringLiteral(getValue(current_object, string));
@@ -24089,18 +24253,25 @@ const proc: init_bigint_constants (inout expr_type: c_expr) is func
 
   local
     var bigint_index_hash: bigint_index is bigint_index_hash.EMPTY_HASH;
-    var bigInteger: big1 is bigInteger.value;
     var integer: number is 0;
+    var bigInteger: big1 is bigInteger.value;
+    var string: literal is "";
+    var integer: pos is 0;
   begin
     bigint_index := flip(bigint_const_table);
     for number range sort(keys(bigint_index)) do
       big1 := bigint_index[number][1];
+      literal := c_literal(big1);
       c_expr.expr &:= "/* big[";
       c_expr.expr &:= str(number);
       c_expr.expr &:= "] */ static const unsigned char big_";
       c_expr.expr &:= str(number);
       c_expr.expr &:= "[]=";
-      c_expr.expr &:= c_literal(big1);
+      c_expr.expr &:= literal[.. 41];
+      for pos range 42 to length(literal) step 80 do
+        c_expr.expr &:= "\n";
+        c_expr.expr &:= literal[pos len 80];
+      end for;
       c_expr.expr &:= ";\n";
     end for;
   end func;
@@ -24374,7 +24545,7 @@ const proc: init_bstri_constants (inout expr_type: c_expr) is func
       bstri := bstri_index[number][1];
       c_expr.expr &:= "/* bst[";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "] */ static unsigned char bstri_";
+      c_expr.expr &:= "] */ static const unsigned char bstri_";
       c_expr.expr &:= str(number);
       if ccConf.POINTER_SIZE = 32 then
         lengthAsChars := int32AsFourBytes(length(bstri));

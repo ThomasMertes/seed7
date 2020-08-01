@@ -38,9 +38,17 @@ const type: cipherState is sub object interface;
 
 
 (**
+ *  Block size used by the given [[cipher#cipherAlgorithm|cipherAlgorithm]].
+ *  Stream ciphers have a block size of 0.
+ *  @return the block size used by the ''cipherAlgorithm''.
+ *)
+const func integer: blockSize (in cipherAlgorithm: cipherAlg) is DYNAMIC;
+
+
+(**
  *  Set key and initialization vector for the given [[cipher#cipherAlgorithm|cipherAlgorithm]].
  *  @param cipherAlg The [[cipher#cipherAlgorithm|cipherAlgorithm]] to be used.
- *  @return the ''cipherState'' of the ''cipherAlgorithm''
+ *  @return the ''cipherState'' of the ''cipherAlgorithm''.
  *)
 const func cipherState: setCipherKey (in cipherAlgorithm: cipherAlg,
     in string: cipherKey, in string: initializationVector) is DYNAMIC;
@@ -51,6 +59,13 @@ const func cipherState: setCipherKey (in cipherAlgorithm: cipherAlg,
  *  @return the encoded string.
  *)
 const func string: encode (inout cipherState: state, in string: plaintext) is DYNAMIC;
+
+
+(**
+ *  Decode a string with the ''state'' of the selected cipher algorithm.
+ *  @return the decoded string.
+ *)
+const func string: decode (inout cipherState: state, in string: encoded) is DYNAMIC;
 
 
 (* NO_CIPHER *)
@@ -66,6 +81,9 @@ type_implements_interface(noCipherState, cipherState);
 const cipherState: (attr cipherState) . value is noCipherState.value;
 
 
+const func integer: blockSize (NO_CIPHER) is 0;
+
+
 const func cipherState: setCipherKey (NO_CIPHER, in string: cipherKey,
     in string: initializationVector) is func
   result
@@ -79,3 +97,7 @@ const func cipherState: setCipherKey (NO_CIPHER, in string: cipherKey,
 
 const func string: encode (inout noCipherState: state, in string: plaintext) is
   return plaintext;
+
+
+const func string: decode (inout noCipherState: state, in string: encoded) is
+  return encoded;

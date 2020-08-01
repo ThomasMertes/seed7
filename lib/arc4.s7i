@@ -41,6 +41,13 @@ type_implements_interface(arc4State, cipherState);
 
 
 (**
+ *  Block size used by the ARC4 (Alleged RC4) stream cipher.
+ *  @return the block size used by the ARC4 cipher.
+ *)
+const func integer: blockSize (RC4) is 0;
+
+
+(**
  *  Set the key for the ARC4 (Alleged RC4) stream cipher.
  *  @return the ARC4 cipher state.
  *)
@@ -103,5 +110,23 @@ const func string: encode (inout arc4State: state, in string: plaintext) is func
     for ch range plaintext do
       keystreamChar := getArc4PseudoRandomByte(state);
       encoded &:= chr(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
+    end for;
+  end func;
+
+
+(**
+ *  Decode a string with the ARC4 (Alleged RC4) stream cipher.
+ *  @return the decoded string.
+ *)
+const func string: decode (inout arc4State: state, in string: encoded) is func
+  result
+    var string: plaintext is "";
+  local
+    var char: ch is ' ';
+    var char: keystreamChar is ' ';
+  begin
+    for ch range encoded do
+      keystreamChar := getArc4PseudoRandomByte(state);
+      plaintext &:= chr(ord(bin32(ord(ch)) >< bin32(ord(keystreamChar))));
     end for;
   end func;

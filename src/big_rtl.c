@@ -186,7 +186,7 @@ void bigGrow (biginttype *const big_variable, const const_biginttype delta);
 inttype bigLowestSetBit (const const_biginttype big1);
 biginttype bigLShift (const const_biginttype big1, const inttype lshift);
 void bigLShiftAssign (biginttype *const big_variable, inttype lshift);
-biginttype bigMinus (const const_biginttype big1);
+biginttype bigNegate (const const_biginttype big1);
 biginttype bigRem (const const_biginttype dividend, const const_biginttype divisor);
 void bigRShiftAssign (biginttype *const big_variable, inttype rshift);
 biginttype bigSbtr (const const_biginttype minuend, const const_biginttype subtrahend);
@@ -2548,8 +2548,8 @@ stritype bigCLit (const const_biginttype big1)
 inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
 
   {
-    bigdigittype big1_negative;
-    bigdigittype big2_negative;
+    booltype big1_negative;
+    booltype big2_negative;
     memsizetype pos;
 
   /* bigCmp */
@@ -2558,7 +2558,7 @@ inttype bigCmp (const const_biginttype big1, const const_biginttype big2)
     if (big1_negative != big2_negative) {
       return big1_negative ? -1 : 1;
     } else if (big1->size != big2->size) {
-      return (big1->size < big2->size) != (big1_negative != 0) ? -1 : 1;
+      return (big1->size < big2->size) != big1_negative ? -1 : 1;
     } else {
       pos = big1->size;
       do {
@@ -2718,7 +2718,7 @@ void bigDecr (biginttype *const big_variable)
   {
     biginttype big1;
     memsizetype pos;
-    bigdigittype negative;
+    booltype negative;
     biginttype resized_big1;
 
   /* bigDecr */
@@ -3264,12 +3264,12 @@ biginttype bigGcd (const const_biginttype big1,
       result = bigCreate(big1);
     } else {
       if (IS_NEGATIVE(big1->bigdigits[big1->size - 1])) {
-        big1_help = bigMinus(big1);
+        big1_help = bigNegate(big1);
       } else {
         big1_help = bigCreate(big1);
       } /* if */
       if (IS_NEGATIVE(big2->bigdigits[big2->size - 1])) {
-        big2_help = bigMinus(big2);
+        big2_help = bigNegate(big2);
       } else {
         big2_help = bigCreate(big2);
       } /* if */
@@ -3460,7 +3460,7 @@ void bigIncr (biginttype *const big_variable)
   {
     biginttype big1;
     memsizetype pos;
-    bigdigittype negative;
+    booltype negative;
     biginttype resized_big1;
 
   /* bigIncr */
@@ -4093,62 +4093,6 @@ biginttype bigMDiv (const const_biginttype dividend, const const_biginttype divi
 
 
 /**
- *  Minus sign, negate a 'bigInteger' number.
- *  @return the negated value of the number.
- */
-biginttype bigMinus (const const_biginttype big1)
-
-  {
-    memsizetype pos;
-    doublebigdigittype carry = 1;
-    biginttype resized_result;
-    biginttype result;
-
-  /* bigMinus */
-    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
-      raise_error(MEMORY_ERROR);
-      return NULL;
-    } else {
-      result->size = big1->size;
-      pos = 0;
-      do {
-        carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
-        result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= BIGDIGIT_SIZE;
-        pos++;
-      } while (pos < big1->size);
-      if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
-        if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
-          REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
-          if (unlikely(resized_result == NULL)) {
-            FREE_BIG(result, pos);
-            raise_error(MEMORY_ERROR);
-            return NULL;
-          } else {
-            result = resized_result;
-            COUNT3_BIG(pos, pos + 1);
-            result->size++;
-            result->bigdigits[pos] = 0;
-          } /* if */
-        } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
-            pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
-          REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
-          /* Avoid a MEMORY_ERROR in the strange case     */
-          /* when a 'realloc' which shrinks memory fails. */
-          if (likely(resized_result != NULL)) {
-            result = resized_result;
-          } /* if */
-          COUNT3_BIG(pos, pos - 1);
-          result->size--;
-        } /* if */
-      } /* if */
-      return result;
-    } /* if */
-  } /* bigMinus */
-
-
-
-/**
  *  Compute the modulo (remainder) of the integer division bigMDiv.
  *  The modulo has the same sign as the divisor. The memory for the result
  *  is requested and the normalized result is returned. When divisor has
@@ -4427,6 +4371,114 @@ biginttype bigMultSignedDigit (const_biginttype big1, inttype number)
     } /* if */
     return result;
   } /* bigMultSignedDigit */
+
+
+
+/**
+ *  Minus sign, negate a 'bigInteger' number.
+ *  @return the negated value of the number.
+ */
+biginttype bigNegate (const const_biginttype big1)
+
+  {
+    memsizetype pos;
+    doublebigdigittype carry = 1;
+    biginttype resized_result;
+    biginttype result;
+
+  /* bigNegate */
+    if (unlikely(!ALLOC_BIG_SIZE_OK(result, big1->size))) {
+      raise_error(MEMORY_ERROR);
+      return NULL;
+    } else {
+      result->size = big1->size;
+      pos = 0;
+      do {
+        carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
+        result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        carry >>= BIGDIGIT_SIZE;
+        pos++;
+      } while (pos < big1->size);
+      if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
+        if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
+          REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
+          if (unlikely(resized_result == NULL)) {
+            FREE_BIG(result, pos);
+            raise_error(MEMORY_ERROR);
+            return NULL;
+          } else {
+            result = resized_result;
+            COUNT3_BIG(pos, pos + 1);
+            result->size++;
+            result->bigdigits[pos] = 0;
+          } /* if */
+        } else if (result->bigdigits[pos - 1] == BIGDIGIT_MASK &&
+            pos >= 2 && IS_NEGATIVE(result->bigdigits[pos - 2])) {
+          REALLOC_BIG_SIZE_OK(resized_result, result, pos, pos - 1);
+          /* Avoid a MEMORY_ERROR in the strange case     */
+          /* when a 'realloc' which shrinks memory fails. */
+          if (likely(resized_result != NULL)) {
+            result = resized_result;
+          } /* if */
+          COUNT3_BIG(pos, pos - 1);
+          result->size--;
+        } /* if */
+      } /* if */
+      return result;
+    } /* if */
+  } /* bigNegate */
+
+
+
+/**
+ *  Minus sign, negate a 'bigInteger' number.
+ *  Big1 is assumed to be a temporary value which is reused.
+ *  @return the negated value of the number.
+ */
+biginttype bigNegateTemp (biginttype big1)
+
+  {
+    memsizetype pos;
+    doublebigdigittype carry = 1;
+    booltype negative;
+    biginttype resized_big1;
+
+  /* bigNegateTemp */
+    negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
+    pos = 0;
+    do {
+      carry += ~big1->bigdigits[pos] & BIGDIGIT_MASK;
+      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= BIGDIGIT_SIZE;
+      pos++;
+    } while (pos < big1->size);
+    if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
+      if (negative) {
+        REALLOC_BIG_CHECK_SIZE(resized_big1, big1, pos, pos + 1);
+        if (unlikely(resized_big1 == NULL)) {
+          FREE_BIG(big1, pos);
+          raise_error(MEMORY_ERROR);
+          return NULL;
+        } else {
+          big1 = resized_big1;
+          COUNT3_BIG(pos, pos + 1);
+          big1->size++;
+          big1->bigdigits[pos] = 0;
+        } /* if */
+      } else if (big1->bigdigits[pos - 1] == BIGDIGIT_MASK &&
+          pos >= 2 && IS_NEGATIVE(big1->bigdigits[pos - 2])) {
+        REALLOC_BIG_SIZE_OK(resized_big1, big1, pos, pos - 1);
+        /* Avoid a MEMORY_ERROR in the strange case     */
+        /* when a 'realloc' which shrinks memory fails. */
+        if (likely(resized_big1 != NULL)) {
+          big1 = resized_big1;
+        } /* if */
+        COUNT3_BIG(pos, pos - 1);
+        big1->size--;
+      } /* if */
+    } /* if */
+    return big1;
+  } /* bigNegateTemp */
 
 
 
@@ -4760,7 +4812,7 @@ biginttype bigPredTemp (biginttype big1)
 
   {
     memsizetype pos;
-    bigdigittype negative;
+    booltype negative;
     biginttype resized_big1;
 
   /* bigPredTemp */
@@ -5598,7 +5650,7 @@ biginttype bigSuccTemp (biginttype big1)
 
   {
     memsizetype pos;
-    bigdigittype negative;
+    booltype negative;
     biginttype resized_big1;
 
   /* bigSuccTemp */

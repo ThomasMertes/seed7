@@ -47,7 +47,7 @@ const func integer: + (in integer: number)                          is action "I
  *  Minus sign, negate an integer number.
  *  @return the negated value of the number.
  *)
-const func integer: - (in integer: number)                          is action "INT_MINUS";
+const func integer: - (in integer: number)                          is action "INT_NEGATE";
 
 
 (**

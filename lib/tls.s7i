@@ -31,6 +31,7 @@ include "x509cert.s7i";
 include "hmac.s7i";
 include "cipher.s7i";
 include "arc4.s7i";
+include "des.s7i";
 
 
 const type: cipherSuite is new enum
@@ -86,7 +87,8 @@ const type: cipherSuite is new enum
 
 const array cipherSuite: supportedCiphers is [] (
     TLS_RSA_WITH_RC4_128_SHA,
-    TLS_RSA_WITH_RC4_128_MD5
+    TLS_RSA_WITH_RC4_128_MD5,
+    TLS_RSA_WITH_DES_CBC_SHA
   );
 
 const string: SSL_3_0 is "\3\\0\";
@@ -101,7 +103,7 @@ const type: securityParameters is new struct
     var boolean:             block_cipher            is FALSE;
     var integer:             key_size                is 0;
     var integer:             key_material_length     is 0;
-    var integer:             iv_size                 is 0;
+    var integer:             block_size              is 0;
     var boolean:             is_exportable           is FALSE;
     var digestAlgorithm:     mac_algorithm           is NO_DIGEST;
     var integer:             hash_size               is 0;
@@ -498,22 +500,24 @@ const proc: storeCipherSuite (inout securityParameters: parameters) is func
     if parameters.cipher_suite = TLS_NULL_WITH_NULL_NULL then
       parameters.bulk_cipher_algorithm := NO_CIPHER;
       parameters.key_material_length := 0;
-      parameters.iv_size := 0;
       parameters.mac_algorithm := NO_DIGEST;
     elsif parameters.cipher_suite = TLS_RSA_WITH_RC4_128_MD5 then
       parameters.bulk_cipher_algorithm := RC4;
       parameters.key_material_length := 16;
-      parameters.iv_size := 0;
       parameters.mac_algorithm := MD5;
     elsif parameters.cipher_suite = TLS_RSA_WITH_RC4_128_SHA then
       parameters.bulk_cipher_algorithm := RC4;
       parameters.key_material_length := 16;
-      parameters.iv_size := 0;
+      parameters.mac_algorithm := SHA1;
+    elsif parameters.cipher_suite = TLS_RSA_WITH_DES_CBC_SHA then
+      parameters.bulk_cipher_algorithm := DES;
+      parameters.key_material_length := 8;
       parameters.mac_algorithm := SHA1;
     else
       writeln("Unsupported cipher_suite: " <& ord(parameters.cipher_suite) radix 16 lpad0 4);
       # raise RANGE_ERROR;
     end if;
+    parameters.block_size := blockSize(parameters.bulk_cipher_algorithm);
     parameters.hash_size := digestSize(parameters.mac_algorithm);
   end func;
 
@@ -521,6 +525,7 @@ const proc: storeCipherSuite (inout securityParameters: parameters) is func
 const proc: storeKeys (inout securityParameters: parameters) is func
   local
     var string: key_block is "";
+    var integer: key_block_pos is 1;
     var string: client_write_MAC_secret is "";
     var string: server_write_MAC_secret is "";
     var string: client_write_key is "";
@@ -536,34 +541,34 @@ const proc: storeKeys (inout securityParameters: parameters) is func
           parameters.client_random & parameters.server_random, 48);
       key_block := keyBlockFunction(parameters.master_secret,
           parameters.server_random & parameters.client_random,
-          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.iv_size);
+          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
     elsif parameters.tls_version = TLS_1_2 then
       parameters.master_secret := p_hash(SHA256, parameters.pre_master_secret,
           "master secret" & parameters.client_random & parameters.server_random, 48);
       key_block := p_hash(SHA256, parameters.master_secret,
           "key expansion" & parameters.server_random & parameters.client_random,
-          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.iv_size);
+          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
     else
       parameters.master_secret := pseudoRandomFunction(parameters.pre_master_secret,
           "master secret", parameters.client_random & parameters.server_random, 48);
       key_block := pseudoRandomFunction(parameters.master_secret,
           "key expansion", parameters.server_random & parameters.client_random,
-          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.iv_size);
+          2 * parameters.hash_size + 2 * parameters.key_material_length + 2 * parameters.block_size);
     end if;
     # writeln("master_secret: " <& hex(parameters.master_secret));
     # writeln("key_block: " <& hex(key_block));
     # writeln("length(key_block): " <& length(key_block));
-    client_write_MAC_secret := key_block[.. parameters.hash_size];
-    key_block := key_block[succ(parameters.hash_size) ..];
-    server_write_MAC_secret := key_block[.. parameters.hash_size];
-    key_block := key_block[succ(parameters.hash_size) ..];
-    client_write_key := key_block[.. parameters.key_material_length];
-    key_block := key_block[succ(parameters.key_material_length) ..];
-    server_write_key := key_block[.. parameters.key_material_length];
-    key_block := key_block[succ(parameters.key_material_length) ..];
-    client_initialization_vector := key_block[.. parameters.iv_size];
-    key_block := key_block[succ(parameters.key_material_length) ..];
-    server_initialization_vector := key_block[.. parameters.iv_size];
+    client_write_MAC_secret := key_block[key_block_pos len parameters.hash_size];
+    key_block_pos +:= parameters.hash_size;
+    server_write_MAC_secret := key_block[key_block_pos len parameters.hash_size];
+    key_block_pos +:= parameters.hash_size;
+    client_write_key := key_block[key_block_pos len parameters.key_material_length];
+    key_block_pos +:= parameters.key_material_length;
+    server_write_key := key_block[key_block_pos len parameters.key_material_length];
+    key_block_pos +:= parameters.key_material_length;
+    client_initialization_vector := key_block[key_block_pos len parameters.block_size];
+    key_block_pos +:= parameters.block_size;
+    server_initialization_vector := key_block[key_block_pos len parameters.block_size];
     # writeln("client_write_MAC_secret: " <& hex(client_write_MAC_secret));
     # writeln("server_write_MAC_secret: " <& hex(server_write_MAC_secret));
     # writeln("client_write_key: " <& hex(client_write_key));
@@ -1076,6 +1081,8 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
   local
     var string: content is "";
     var string: mac is "";
+    var integer: padding_length is 0;
+    var string: padding is "";
     var string: encoded is "";
     var integer: length is 0;
   begin
@@ -1096,10 +1103,16 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
                   int64AsEightBytesBe(parameters.writeSequenceNumber) & plain);
     end if;
     content := plain[6 ..];
+    if parameters.block_size <> 0 then
+      padding_length := parameters.block_size - 1 -
+                        (length(content) + length(mac)) mod parameters.block_size;
+      # writeln("padding_length: " <& padding_length);
+      padding := str(chr(padding_length)) mult succ(padding_length);
+    end if;
     # writeln("bulk_cipher_algorithm: " <& ord(parameters.bulk_cipher_algorithm));
     # writeln("data: " <& hex(content));
     # writeln("mac: " <& hex(mac));
-    encoded := encode(parameters.writeCipherState, content & mac);
+    encoded := encode(parameters.writeCipherState, content & mac & padding);
     # writeln("encoded: " <& literal(encoded));
     # writeln("length(encoded): " <& length(encoded));
     encrypted &:= encoded;
@@ -1114,6 +1127,7 @@ const func string: tlsEncryptRecord (inout securityParameters: parameters, in st
 const proc: tlsDecryptRecord (inout securityParameters: parameters, inout tlsParseState: state) is func
   local
     var string: decoded is "";
+    var integer: padding_length is 0;
     var string: content is "";
     var string: mac is "";
     var string: verify is "";
@@ -1121,7 +1135,18 @@ const proc: tlsDecryptRecord (inout securityParameters: parameters, inout tlsPar
   begin
     # writeln("tlsDecryptRecord");
     # writeln("Version: " <& ord(state.message[2]) <& "." <& ord(state.message[3]));
-    decoded := encode(parameters.readCipherState, state.message[state.pos len state.length]);
+    # writeln("message: " <& literal(state.message));
+    decoded := decode(parameters.readCipherState, state.message[state.pos len state.length]);
+    if parameters.block_size <> 0 then
+      padding_length := ord(decoded[length(decoded)]);
+      if decoded[length(decoded) - padding_length ..] =
+          str(chr(padding_length)) mult succ(padding_length) then
+        decoded := decoded[.. length(decoded) - succ(padding_length)];
+      else
+        writeln("Padding wrong");
+        raise RANGE_ERROR;
+      end if;
+    end if;
     content := decoded[.. length(decoded) - digestSize(parameters.mac_algorithm)];
     mac := decoded[length(decoded) - digestSize(parameters.mac_algorithm) + 1 ..];
     plain := state.message[.. 3];

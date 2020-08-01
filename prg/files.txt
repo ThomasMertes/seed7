@@ -118,6 +118,7 @@ crc32.s7i    CRC-32 cyclic redundancy check support library
 cronos16.s7i Cronos vector font with capHeight 16.
 cronos27.s7i Cronos vector font with capHeight 27.
 deflate.s7i  Deflate compression algorithm
+des.s7i      DES (Data Encryption Standard) cipher support.
 dialog.s7i   Dialog support library
 dir.s7i      Implementation type to read directories as files
 draw.s7i     Portable graphic library
@@ -212,6 +213,7 @@ tee.s7i      Filter file which emulates the tee functionality
 text.s7i     Interface type for line/column oriented files
 time.s7i     Time and date library
 tls.s7i      Support for Transport Layer Security (TLS/SSL).
+unicode.s7i  Functions to convert between Unicode encodings.
 upper.s7i    Filter file which turns characters to upper case
 utf16.s7i    File implementation type for UTF-16 files
 utf8.s7i     File implementation type for UTF-8 files

@@ -28,6 +28,7 @@
 
 include "chartype.s7i";
 include "file.s7i";
+include "unicode.s7i";
 include "encoding.s7i";
 
 

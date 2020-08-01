@@ -28,6 +28,9 @@
 (********************************************************************)
 
 
+include "unicode.s7i";
+
+
 (**
  *  Conversion table from code page 437 to Unicode.
  *  Code page 437 is the character set of the original IBM PC.
@@ -954,7 +957,7 @@ const string: cp_1255 is "\
     \ְֱֲֳִֵֶַָֹ?ֻּֽ־ֿ\
     \׀ׁׂ׃װױײ׳״???????\
     \אבגדהוזחטיךכלםמן\
-    \נסעףפץצקרשת??\16#200E\\16#200F\?";
+    \נסעףפץצקרשת??\16#200e\\16#200f\?";
 
 (**
  *  Conversion table from code page 1256 to Unicode.
@@ -976,7 +979,7 @@ const string: cp_1256 is "\
     \ہءآأؤإئابةتثجحخد\
     \ذرزسشصض×طظعغـفقك\
     \àلâمنهوçèéêëىيîï\
-    \ًٌٍَôُِ÷ّùْûü\16#200E\\16#200F\ے";
+    \ًٌٍَôُِ÷ّùْûü\16#200e\\16#200f\ے";
 
 (**
  *  Conversion table from code page 1257 to Unicode.
@@ -1209,7 +1212,7 @@ const string: iso_8859_8 is "\
     \????????????????\
     \???????????????‗\
     \אבגדהוזחטיךכלםמן\
-    \נסעףפץצקרשת??\16#200E\\16#200F\?";
+    \נסעףפץצקרשת??\16#200e\\16#200f\?";
 
 (**
  *  Conversion table from ISO-8859-9 (Latin-5) to Unicode.
@@ -1815,207 +1818,6 @@ const proc: conv2unicode (inout string: stri, in string: codePage) is func
     for index range 1 to length(stri) do
       stri @:= [index] codePage[succ(ord(stri[index]))];
     end for;
-  end func;
-
-
-(**
- *  Convert a [[string]] with bytes in UTF-16BE encoding to UTF-32.
- *  The parameter ''utf16be'' is assumed to be a [[string]] of bytes.
- *  The byte sequence in ''utf16be'' is encoded with UTF-16 in
- *  big endian byte order.
- *  @return ''utf16be'' converted to a normal (UTF-32) [[string]].
- *  @exception RANGE_ERROR If an illegal surrogate pair is found.
- *)
-const func string: utf16beToStri (in string: utf16be) is func
-  result
-    var string: stri is "";
-  local
-    var integer: index is 0;
-    var char: ch1 is ' ';
-    var char: ch2 is ' ';
-  begin
-    for index range 1 to length(utf16be) div 2 do
-      ch1 := chr(ord(utf16be[pred(index * 2)]) * 256 + ord(utf16be[index * 2]));
-      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
-        if index < length(utf16be) div 2 then
-          incr(index);
-          ch2 := chr(ord(utf16be[pred(index * 2)]) * 256 + ord(utf16be[index * 2]));
-          if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
-            stri &:= str(chr((ord(ch1) - 16#D800) << 10 +
-                               (ord(ch2) - 16#DC00) + 16#10000));
-          else
-            raise RANGE_ERROR;
-          end if;
-        else
-          raise RANGE_ERROR;
-        end if;
-      else
-        stri &:= str(ch1);
-      end if;
-    end for;
-  end func;
-
-
-(**
- *  Convert a [[string]] with bytes in UTF-16LE encoding to UTF-32.
- *  The parameter ''utf16le'' is assumed to be a [[string]] of bytes.
- *  The byte sequence in ''utf16le'' is encoded with UTF-16 in
- *  little endian byte order.
- *  @return ''utf16le'' converted to a normal (UTF-32) [[string]].
- *  @exception RANGE_ERROR If an illegal surrogate pair is found.
- *)
-const func string: utf16leToStri (in string: utf16le) is func
-  result
-    var string: stri is "";
-  local
-    var integer: index is 0;
-    var char: ch1 is ' ';
-    var char: ch2 is ' ';
-  begin
-    for index range 1 to length(utf16le) div 2 do
-      ch1 := chr(ord(utf16le[index * 2]) * 256 + ord(utf16le[pred(index * 2)]));
-      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
-        if index < length(utf16le) div 2 then
-          incr(index);
-          ch2 := chr(ord(utf16le[index * 2]) * 256 + ord(utf16le[pred(index * 2)]));
-          if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
-            stri &:= str(chr((ord(ch1) - 16#D800) << 10 +
-                               (ord(ch2) - 16#DC00) + 16#10000));
-          else
-            raise RANGE_ERROR;
-          end if;
-        else
-          raise RANGE_ERROR;
-        end if;
-      else
-        stri &:= str(ch1);
-      end if;
-    end for;
-  end func;
-
-
-(**
- *  Return [[string]] where all surrogate pairs are replaced by single chars.
- *  The parameter ''stri'' is assumed to be a [[string]] of UTF-16 or
- *  UTF-32 Unicode characters, which may contain surrogate pairs.
- *  @return ''stri'' with all surrogate pairs replaced by single UTF-32 chars.
- *  @exception RANGE_ERROR If an illegal surrogate pair is found.
- *)
-const func string: replaceUtf16SurrogatePairs (in string: stri) is func
-  result
-    var string: resultStri is "";
-  local
-    var integer: index is 0;
-    var integer: startPos is 1;
-    var char: ch1 is ' ';
-    var char: ch2 is ' ';
-  begin
-    for index range 1 to length(stri) do
-      ch1 := stri[index];
-      if ch1 >= '\16#D800\' and ch1 <= '\16#DBFF\' then
-        if index < length(stri) then
-          ch2 := stri[succ(index)];
-          if ch2 >= '\16#DC00\' and ch2 <= '\16#DFFF\' then
-            resultStri &:= stri[startPos .. pred(index)];
-            resultStri &:= str(chr((ord(ch1) - 16#D800) << 10 +
-                                   (ord(ch2) - 16#DC00) + 16#10000));
-            startPos := succ(index);
-            incr(index);
-          else
-            raise RANGE_ERROR;
-          end if;
-        else
-          raise RANGE_ERROR;
-        end if;
-      end if;
-    end for;
-    resultStri &:= stri[startPos ..];
-  end func;
-
-
-(**
- *  Convert a [[string]] from an UTF-7 encoding to UTF-32.
- *  The parameter ''stri7'' is assumed to be a [[string]] of bytes.
- *  The byte sequence in ''stri7'' is encoded with UTF-7.
- *  @return ''stri7'' converted a to normal (UTF-32) [[string]].
- *  @exception RANGE_ERROR The [[string]] is not UTF-7 encoded.
- *)
-const func string: utf7ToStri (in string: stri7) is func
-  result
-    var string: resultStri is "";
-  local
-    const array integer: decode is [] (                      # -1 is illegal
-        62, -1, -1, -1, 63,                                  # + /
-        52, 53, 54, 55, 56, 57, 58, 59, 60, 61,              # 0 - 9
-        -1, -1, -1, -1, -1, -1, -1,                          # =
-         0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,  # A - M
-        13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,  # N - Z
-        -1, -1, -1, -1, -1, -1,
-        26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,  # a - m
-        39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51); # n - z
-    var integer: startPos is 1;
-    var integer: plusPos is 0;
-    var integer: minusPos is 0;
-    var integer: index is 0;
-    var char: ch is ' ';
-    var integer: charNum is 0;
-    var integer: accumulator is 0;
-    var integer: numBits is 0;
-    var integer: number is 0;
-    var boolean: okay is FALSE;
-    var string: unicodeStri is "";
-  begin
-    plusPos := pos(stri7, "+");
-    while plusPos <> 0 do
-      resultStri &:= stri7[startPos .. pred(plusPos)];
-      minusPos := pos(stri7, "-", succ(plusPos));
-      if minusPos = 0 then
-        resultStri &:= "+";
-        minusPos := plusPos;
-      elsif minusPos = succ(plusPos) then
-        resultStri &:= "+";
-      else
-        okay := TRUE;
-        unicodeStri := "";
-        accumulator := 0;
-        numBits := 0;
-        for index range succ(plusPos) to pred(minusPos) do
-          ch := stri7[index];
-          if ch >= '+' and ch <= 'z' then
-            number := decode[ord(stri7[index]) - ord(pred('+'))];
-            if number >= 0 then
-              accumulator := (accumulator << 6) + number;
-              numBits +:= 6;
-              if numBits >= 16 then
-                numBits -:= 16;
-                charNum := accumulator >> numBits;
-                accumulator -:= charNum << numBits;
-                unicodeStri &:= str(chr(charNum));
-              end if;
-            else
-              okay := FALSE;
-              index := minusPos;
-            end if;
-          else
-            okay := FALSE;
-            index := minusPos;
-          end if;
-        end for;
-        if okay then
-          if accumulator <> 0 then
-            raise RANGE_ERROR;
-          else
-            resultStri &:= replaceUtf16SurrogatePairs(unicodeStri);
-          end if;
-        else
-          resultStri &:= "+";
-          minusPos := plusPos;
-        end if;
-      end if;
-      startPos := succ(minusPos);
-      plusPos := pos(stri7, "+", startPos);
-    end while;
-    resultStri &:= stri7[startPos ..];
   end func;
 
 

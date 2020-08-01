@@ -119,7 +119,7 @@ static const strelemtype *stri_charpos (const_stritype stri, strelemtype ch)
 
 
 
-memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
+memsizetype utf8_to_stri (strelemtype *const dest_stri, memsizetype *const dest_len,
     const_ustritype ustri, size_t len)
 
   {
@@ -130,43 +130,43 @@ memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
     for (; len > 0; len--) {
       if (*ustri <= 0x7F) {
         *stri++ = (strelemtype) *ustri++;
-      } else if ((ustri[0] & 0xE0) == 0xC0 && len > 1 &&
-                 (ustri[1] & 0xC0) == 0x80) {
-        /* ustri[0]   range 0xC0 to 0xDF (192 to 223) */
-        /* ustri[1]   range 0x80 to 0xBF (128 to 191) */
+      } else if (ustri[0] >= 0xC0 && ustri[0] <= 0xDF && len >= 2 &&
+                 ustri[1] >= 0x80 && ustri[1] <= 0xBF) {
+        /* ustri[0]   range 192 to 223 (leading bits 110.....) */
+        /* ustri[1]   range 128 to 191 (leading bits 10......) */
         *stri++ = (strelemtype) (ustri[0] & 0x1F) << 6 |
                   (strelemtype) (ustri[1] & 0x3F);
         ustri += 2;
         len--;
-      } else if ((ustri[0] & 0xF0) == 0xE0 && len > 2 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80) {
-        /* ustri[0]   range 0xE0 to 0xEF (224 to 239) */
-        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
+      } else if (ustri[0] >= 0xE0 && ustri[0] <= 0xEF && len >= 3 &&
+                 ustri[1] >= 0x80 && ustri[1] <= 0xBF &&
+                 ustri[2] >= 0x80 && ustri[2] <= 0xBF) {
+        /* ustri[0]   range 224 to 239 (leading bits 1110....) */
+        /* ustri[1..] range 128 to 191 (leading bits 10......) */
         *stri++ = (strelemtype) (ustri[0] & 0x0F) << 12 |
                   (strelemtype) (ustri[1] & 0x3F) <<  6 |
                   (strelemtype) (ustri[2] & 0x3F);
         ustri += 3;
         len -= 2;
-      } else if ((ustri[0] & 0xF8) == 0xF0 && len > 3 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80) {
-        /* ustri[0]   range 0xF0 to 0xF7 (240 to 247) */
-        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
+      } else if (ustri[0] >= 0xF0 && ustri[0] <= 0xF7 && len >= 4 &&
+                 ustri[1] >= 0x80 && ustri[1] <= 0xBF &&
+                 ustri[2] >= 0x80 && ustri[2] <= 0xBF &&
+                 ustri[3] >= 0x80 && ustri[3] <= 0xBF) {
+        /* ustri[0]   range 240 to 247 (leading bits 11110...) */
+        /* ustri[1..] range 128 to 191 (leading bits 10......) */
         *stri++ = (strelemtype) (ustri[0] & 0x07) << 18 |
                   (strelemtype) (ustri[1] & 0x3F) << 12 |
                   (strelemtype) (ustri[2] & 0x3F) <<  6 |
                   (strelemtype) (ustri[3] & 0x3F);
         ustri += 4;
         len -= 3;
-      } else if ((ustri[0] & 0xFC) == 0xF8 && len > 4 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80 &&
-                 (ustri[4] & 0xC0) == 0x80) {
-        /* ustri[0]   range 0xF8 to 0xFB (248 to 251) */
-        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
+      } else if (ustri[0] >= 0xF8 && ustri[0] <= 0xFB && len >= 5 &&
+                 ustri[1] >= 0x80 && ustri[1] <= 0xBF &&
+                 ustri[2] >= 0x80 && ustri[2] <= 0xBF &&
+                 ustri[3] >= 0x80 && ustri[3] <= 0xBF &&
+                 ustri[4] >= 0x80 && ustri[4] <= 0xBF) {
+        /* ustri[0]   range 248 to 251 (leading bits 111110..) */
+        /* ustri[1..] range 128 to 191 (leading bits 10......) */
         *stri++ = (strelemtype) (ustri[0] & 0x03) << 24 |
                   (strelemtype) (ustri[1] & 0x3F) << 18 |
                   (strelemtype) (ustri[2] & 0x3F) << 12 |
@@ -174,14 +174,14 @@ memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
                   (strelemtype) (ustri[4] & 0x3F);
         ustri += 5;
         len -= 4;
-      } else if ((ustri[0] & 0xFC) == 0xFC && len > 5 &&
-                 (ustri[1] & 0xC0) == 0x80 &&
-                 (ustri[2] & 0xC0) == 0x80 &&
-                 (ustri[3] & 0xC0) == 0x80 &&
-                 (ustri[4] & 0xC0) == 0x80 &&
-                 (ustri[5] & 0xC0) == 0x80) {
-        /* ustri[0]   range 0xFC to 0xFF (252 to 255) */
-        /* ustri[1..] range 0x80 to 0xBF (128 to 191) */
+      } else if (ustri[0] >= 0xFC && ustri[0] <= 0xFF && len >= 6 &&
+                 ustri[1] >= 0x80 && ustri[1] <= 0xBF &&
+                 ustri[2] >= 0x80 && ustri[2] <= 0xBF &&
+                 ustri[3] >= 0x80 && ustri[3] <= 0xBF &&
+                 ustri[4] >= 0x80 && ustri[4] <= 0xBF &&
+                 ustri[5] >= 0x80 && ustri[5] <= 0xBF) {
+        /* ustri[0]   range 252 to 255 (leading bits 111111..) */
+        /* ustri[1..] range 128 to 191 (leading bits 10......) */
         *stri++ = (strelemtype) (ustri[0] & 0x03) << 30 |
                   (strelemtype) (ustri[1] & 0x3F) << 24 |
                   (strelemtype) (ustri[2] & 0x3F) << 18 |
@@ -192,7 +192,7 @@ memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
         len -= 5;
       } else {
         /* ustri[0] not in range 0xC0 to 0xFF (192 to 255) */
-        /* or not enough continuation bytes found          */
+        /* or not enough continuation bytes found.         */
         *dest_len = (memsizetype) (stri - dest_stri);
         return len;
       } /* if */
@@ -203,7 +203,7 @@ memsizetype utf8_to_stri (strelemtype *dest_stri, memsizetype *dest_len,
 
 
 
-memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len)
+memsizetype utf8_bytes_missing (const const_ustritype ustri, const size_t len)
 
   {
     memsizetype result;
@@ -211,59 +211,68 @@ memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len)
   /* utf8_bytes_missing */
     result = 0;
     if (len >= 1 && *ustri > 0x7F) {
-      if ((ustri[0] & 0xE0) == 0xC0) {
+      if (ustri[0] >= 0xC0 && ustri[0] <= 0xDF) {
+        /* ustri[0]   range 192 to 223 (leading bits 110.....) */
         if (len == 1) {
           result = 1;
         } /* if */
-      } else if ((ustri[0] & 0xF0) == 0xE0) {
+      } else if (ustri[0] >= 0xE0 && ustri[0] <= 0xEF) {
+        /* ustri[0]   range 224 to 239 (leading bits 1110....) */
         if (len == 1) {
           result = 2;
-        } else if ((ustri[1] & 0xC0) == 0x80) {
+        } else if (ustri[1] >= 0x80 && ustri[1] <= 0xBF) {
+          /* ustri[1]   range 128 to 191 (leading bits 10......) */
           if (len == 2) {
             result = 1;
           } /* if */
         } /* if */
-      } else if ((ustri[0] & 0xF8) == 0xF0) {
+      } else if (ustri[0] >= 0xF0 && ustri[0] <= 0xF7) {
+        /* ustri[0]   range 240 to 247 (leading bits 11110...) */
         if (len == 1) {
           result = 3;
-        } else if ((ustri[1] & 0xC0) == 0x80) {
+        } else if (ustri[1] >= 0x80 && ustri[1] <= 0xBF) {
+          /* ustri[1]   range 128 to 191 (leading bits 10......) */
           if (len == 2) {
             result = 2;
-          } else if ((ustri[2] & 0xC0) == 0x80) {
+          } else if (ustri[2] >= 0x80 && ustri[2] <= 0xBF) {
             if (len == 3) {
               result = 1;
             } /* if */
           } /* if */
         } /* if */
-      } else if ((ustri[0] & 0xFC) == 0xF8) {
+      } else if (ustri[0] >= 0xF8 && ustri[0] <= 0xFB) {
+        /* ustri[0]   range 248 to 251 (leading bits 111110..) */
         if (len == 1) {
           result = 4;
-        } else if ((ustri[1] & 0xC0) == 0x80) {
+        } else if (ustri[1] >= 0x80 && ustri[1] <= 0xBF) {
+          /* ustri[1]   range 128 to 191 (leading bits 10......) */
           if (len == 2) {
             result = 3;
-          } else if ((ustri[2] & 0xC0) == 0x80) {
+          } else if (ustri[2] >= 0x80 && ustri[2] <= 0xBF) {
             if (len == 3) {
               result = 2;
-            } else if ((ustri[3] & 0xC0) == 0x80) {
+            } else if (ustri[3] >= 0x80 && ustri[3] <= 0xBF) {
               if (len == 4) {
                 result = 1;
               } /* if */
             } /* if */
           } /* if */
         } /* if */
-      } else if ((ustri[0] & 0xFC) == 0xFC) {
+      } else if (ustri[0] >= 0xFC && ustri[0] <= 0xFF) {
+        /* ustri[0]   range 252 to 255 (leading bits 111111..) */
         if (len == 1) {
           result = 5;
-        } else if ((ustri[1] & 0xC0) == 0x80) {
+        } else if (ustri[1] >= 0x80 && ustri[1] <= 0xBF) {
+          /* ustri[1]   range 128 to 191 (leading bits 10......) */
           if (len == 2) {
             result = 4;
-          } else if ((ustri[2] & 0xC0) == 0x80) {
+          } else if (ustri[2] >= 0x80 && ustri[2] <= 0xBF) {
             if (len == 3) {
               result = 3;
-            } else if ((ustri[3] & 0xC0) == 0x80) {
+            } else if (ustri[3] >= 0x80 && ustri[3] <= 0xBF) {
               if (len == 4) {
                 result = 2;
-              } else if ((ustri[4] & 0xC0) == 0x80) {
+              } else if (ustri[4] >= 0x80 && ustri[4] <= 0xBF) {
                 if (len == 5) {
                   result = 1;
                 } /* if */
@@ -278,8 +287,8 @@ memsizetype utf8_bytes_missing (const_ustritype ustri, size_t len)
 
 
 
-memsizetype stri_to_utf8 (ustritype out_stri, register const strelemtype *strelem,
-    memsizetype len)
+memsizetype stri_to_utf8 (const ustritype out_stri,
+    register const strelemtype *strelem, memsizetype len)
 
   {
     register ustritype ustri;
@@ -331,6 +340,20 @@ void ustri_expand (strelemtype *stri, const_ustritype ustri, size_t len)
 
 
 
+size_t ustri_expand2 (strelemtype *const stri, const_ustritype ustri)
+
+  {
+    size_t pos = 0;
+
+  /* ustri_expand2 */
+    for (; *ustri != '\0'; ustri++, pos++) {
+      stri[pos] = (strelemtype) *ustri;
+    } /* while */
+    return pos;
+  } /* ustri_expand2 */
+
+
+
 void stri_compress (ustritype ustri, const strelemtype *stri, size_t len)
 
   { /* stri_compress */
@@ -355,7 +378,7 @@ void stri_compress (ustritype ustri, const strelemtype *stri, size_t len)
  *  function is useful, when in_stri->size is somehow limited,
  *  such that a fixed size 'out_stri' buffer can be used.
  */
-void stri_export_utf8 (ustritype out_stri, const_stritype in_stri)
+void stri_export_utf8 (ustritype out_stri, const const_stritype in_stri)
 
   {
     memsizetype len;
@@ -368,8 +391,9 @@ void stri_export_utf8 (ustritype out_stri, const_stritype in_stri)
 
 
 #ifdef OS_STRI_WCHAR
-memsizetype stri_to_wstri (wstritype out_wstri, register const strelemtype *strelem,
-    memsizetype len, errinfotype *err_info)
+memsizetype stri_to_wstri (const wstritype out_wstri,
+    register const strelemtype *strelem, memsizetype len,
+    errinfotype *const err_info)
 
   {
     register wstritype wstri;
@@ -394,8 +418,9 @@ memsizetype stri_to_wstri (wstritype out_wstri, register const strelemtype *stre
 
 
 
-static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
-    memsizetype len, errinfotype *err_info)
+static inline void conv_to_os_stri (const os_stritype os_stri,
+    const strelemtype *const strelem, const memsizetype len,
+    errinfotype *err_info)
 
   {
     memsizetype length;
@@ -481,8 +506,8 @@ static unsigned char map_to_850_9472[] = {
 
 
 
-static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
-    memsizetype len, errinfotype *err_info)
+static inline void conv_to_os_stri (os_stritype os_stri,
+    const strelemtype *strelem, memsizetype len, errinfotype *err_info)
 
   {
     unsigned char ch;
@@ -562,8 +587,9 @@ static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *stre
 
 
 
-static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
-    memsizetype len, errinfotype *err_info)
+static inline void conv_to_os_stri (const os_stritype os_stri,
+    const strelemtype *const strelem, const memsizetype len,
+    errinfotype *err_info)
 
   {
     memsizetype length;
@@ -577,8 +603,8 @@ static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *stre
 
 
 
-static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
-    memsizetype len, errinfotype *err_info)
+static inline void conv_to_os_stri (os_stritype os_stri,
+    const strelemtype *strelem, memsizetype len, errinfotype *err_info)
 
   { /* conv_to_os_stri */
     for (; len > 0; strelem++, os_stri++, len--) {
@@ -595,7 +621,8 @@ static inline void conv_to_os_stri (os_stritype os_stri, const strelemtype *stre
 
 
 #if defined OS_STRI_WCHAR
-static memsizetype wstri_expand (strelemtype *dest_stri, const_wstritype wstri, memsizetype len)
+static memsizetype wstri_expand (const strelemtype *dest_stri,
+    const_wstritype wstri, memsizetype len)
 
   {
     strelemtype *stri;
@@ -853,7 +880,7 @@ stritype conv_from_os_stri (const const_os_stritype os_stri,
  *  @return an UTF-8 encoded null terminated C string or
  *          NULL, when the memory allocation failed.
  */
-cstritype cp_to_cstri8 (const_stritype stri)
+cstritype cp_to_cstri8 (const const_stritype stri)
 
   {
     cstritype cstri;
@@ -1196,7 +1223,7 @@ stritype os_stri_to_stri (const_os_stritype os_stri, errinfotype *err_info)
 
 
 
-stritype stri_to_standard_path (stritype stri)
+stritype stri_to_standard_path (const stritype stri)
 
   {
     stritype result;
@@ -1799,7 +1826,7 @@ stritype relativeToProgramPath (const const_stritype basePath,
       if (likely(ALLOC_STRI_SIZE_OK(result, dir_path_size - 3 + strlen(dir)))) {
         result->size = dir_path_size - 3 + strlen(dir);
         memcpy(result->mem, basePath->mem, (dir_path_size - 3) * sizeof(strelemtype));
-        cstri_expand(&result->mem[dir_path_size - 3], dir, strlen(dir));
+        cstri_expand2(&result->mem[dir_path_size - 3], dir);
       } /* if */
     } else {
       result = cstri_to_stri("");

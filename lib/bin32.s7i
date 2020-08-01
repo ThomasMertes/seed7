@@ -81,6 +81,39 @@ const func bin32: bin32 (in char: ch) is
 
 
 (**
+ *  Convert an ''bin32'' value to a [[string]].
+ *  The values is converted to a string with decimal representation.
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in bin32: number)                      is action "INT_STR";
+
+
+(**
+ *  Convert an ''bin32'' value to a [[string]] using a radix.
+ *  The conversion uses the numeral system with the given ''base''.
+ *  Digit values from 10 upward are encoded with lower case letters.
+ *  E.g.: 10 is encoded with a, 11 with b, etc.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in bin32: number) radix (in integer: base) is action "INT_radix";
+
+
+(**
+ *  Convert an ''bin32'' value to a [[string]] using a radix.
+ *  The conversion uses the numeral system with the given ''base''.
+ *  Digit values from 10 upward are encoded with upper case letters.
+ *  E.g.: 10 is encoded with A, 11 with B, etc.
+ *  @return the string result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: (in bin32: number) RADIX (in integer: base) is action "INT_RADIX";
+
+
+(**
  *  Check if two bin32 values are equal.
  *  @return TRUE if the two values are equal,
  *          FALSE otherwise.
@@ -111,10 +144,18 @@ const func bin32: (in bin32: binary1) | (in bin32: binary2)    is action "INT_OR
 
 
 (**
- *  Compute a bitwise ''xor'' of two bin32 values.
+ *  Compute a bitwise exclusive or (''xor'') of two bin32 values.
  *  @return the bitwise ''xor'' of the two values.
  *)
 const func bin32: (in bin32: binary1) >< (in bin32: binary2)   is action "INT_XOR";
+
+
+(**
+ *  Compute a bitwise ''not'' of a bin32 value.
+ *  @return the bitwise ''not'' of the value.
+ *)
+const func bin32: ~ (in bin32: aBinary) is
+  return aBinary >< bin32(16#ffffffff);
 
 
 (**
@@ -152,9 +193,41 @@ const proc: (inout bin32: binary1) &:= (in bin32: binary2)     is action "INT_AN
 
 
 (**
- *  Compute a bitwise ''or'' and assign the result back to ''binary1''.
+ *  Compute a bitwise inclusive ''or'' and assign the result back to ''binary1''.
  *)
 const proc: (inout bin32: binary1) |:= (in bin32: binary2)     is action "INT_OR_ASSIGN";
 
 
+(**
+ *  Compute a bitwise exclusive or (''xor'') and assign the result back to ''binary1''.
+ *)
+const proc: (inout bin32: binary1) ><:= (in bin32: binary2)    is action "INT_XOR_ASSIGN";
+
+
+(**
+ *  Rotate the bits of a bin32 value left by shiftCount bits.
+ *  The vacant bit positions at the right side are filled in with
+ *  the bits that are shifted out at the left side.
+ *  @return the left rotated value.
+ *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *)
+const func bin32: rotLeft (in bin32: x, in integer: shiftCount) is
+  return (x << shiftCount | x >> (32 - shiftCount)) & bin32(16#ffffffff);
+
+
+(**
+ *  Rotate the bits of a bin32 value right by shiftCount bits.
+ *  The vacant bit positions at the left side are filled in with
+ *  the bits that are shifted out at the right side.
+ *  @return the right rotated value.
+ *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *)
+const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
+  return (x >> shiftCount | x << (32 - shiftCount)) & bin32(16#ffffffff);
+
+
+# Allows 'array bin32' everywhere without extra type definition.
 const type: _bin32Array is array bin32;
+
+
+enable_output(bin32);

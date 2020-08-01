@@ -58,7 +58,7 @@ const func float: + (in float: number)                         is action "FLT_PL
  *  Minus sign, negate a float ''number''.
  *  @return the negated value of the number.
  *)
-const func float: - (in float: number)                         is action "FLT_MINUS";
+const func float: - (in float: number)                         is action "FLT_NEGATE";
 
 
 (**

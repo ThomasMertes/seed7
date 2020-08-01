@@ -179,10 +179,10 @@ const func integer: bytesBe2Int (in string: byteStri) is func
     var char: ch is ' ';
   begin
     for ch range byteStri do
-      number <<:= 8;
       if ch > '\255\' then
         raise RANGE_ERROR;
       end if;
+      number <<:= 8;
       number +:= ord(ch);
     end for;
   end func;

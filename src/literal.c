@@ -160,12 +160,12 @@ chartype utf8_char (register int character)
     chartype result;
 
   /* utf8_char */
-    if ((character & 0xE0) == 0xC0) {
-      /* character range 0xC0 to 0xDF (192 to 223) */
+    if (character >= 0xC0 && character <= 0xDF) {
+      /* character range 192 to 223 (leading bits 110.....) */
       result = (chartype) (character & 0x1F) << 6;
       character = next_character();
-      if ((character & 0xC0) == 0x80) {
-        /* character range 0x80 to 0xBF (128 to 191) */
+      if (character >= 0x80 && character <= 0xBF) {
+        /* character range 128 to 191 (leading bits 10......) */
         result |= character & 0x3F;
         if (result <= 0x7F) {
           /* Overlong encodings are illegal */
@@ -180,15 +180,15 @@ chartype utf8_char (register int character)
         err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
-    } else if ((character & 0xF0) == 0xE0) {
-      /* character range 0xE0 to 0xEF (224 to 239) */
+    } else if (character >= 0xE0 && character <= 0xEF) {
+      /* character range 224 to 239 (leading bits 1110....) */
       result = (chartype) (character & 0x0F) << 12;
       character = next_character();
-      if ((character & 0xC0) == 0x80) {
-        /* character range 0x80 to 0xBF (128 to 191) */
+      if (character >= 0x80 && character <= 0xBF) {
+        /* character range 128 to 191 (leading bits 10......) */
         result |= (chartype) (character & 0x3F) << 6;
         character = next_character();
-        if ((character & 0xC0) == 0x80) {
+        if (character >= 0x80 && character <= 0xBF) {
           result |= character & 0x3F;
           if (result <= 0x7FF) {
             /* Overlong encodings are illegal */
@@ -211,18 +211,18 @@ chartype utf8_char (register int character)
         err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
-    } else if ((character & 0xF8) == 0xF0) {
-      /* character range 0xF0 to 0xF7 (240 to 247) */
+    } else if (character >= 0xF0 && character <= 0xF7) {
+      /* character range 240 to 247 (leading bits 11110...) */
       result = (chartype) (character & 0x07) << 18;
       character = next_character();
-      if ((character & 0xC0) == 0x80) {
-        /* character range 0x80 to 0xBF (128 to 191) */
+      if (character >= 0x80 && character <= 0xBF) {
+        /* character range 128 to 191 (leading bits 10......) */
         result |= (chartype) (character & 0x3F) << 12;
         character = next_character();
-        if ((character & 0xC0) == 0x80) {
+        if (character >= 0x80 && character <= 0xBF) {
           result |= (chartype) (character & 0x3F) << 6;
           character = next_character();
-          if ((character & 0xC0) == 0x80) {
+          if (character >= 0x80 && character <= 0xBF) {
             result |= character & 0x3F;
             if (result <= 0xFFFF) {
               /* Overlong encodings are illegal */
@@ -250,21 +250,21 @@ chartype utf8_char (register int character)
         err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
-    } else if ((character & 0xFC) == 0xF8) {
-      /* character range 0xF8 to 0xFB (248 to 251) */
+    } else if (character >= 0xF8 && character <= 0xFB) {
+      /* character range 248 to 251 (leading bits 111110..) */
       result = (chartype) (character & 0x03) << 24;
       character = next_character();
-      if ((character & 0xC0) == 0x80) {
-        /* character range 0x80 to 0xBF (128 to 191) */
+      if (character >= 0x80 && character <= 0xBF) {
+        /* character range 128 to 191 (leading bits 10......) */
         result |= (chartype) (character & 0x3F) << 18;
         character = next_character();
-        if ((character & 0xC0) == 0x80) {
+        if (character >= 0x80 && character <= 0xBF) {
           result |= (chartype) (character & 0x3F) << 12;
           character = next_character();
-          if ((character & 0xC0) == 0x80) {
+          if (character >= 0x80 && character <= 0xBF) {
             result |= (chartype) (character & 0x3F) << 6;
             character = next_character();
-            if ((character & 0xC0) == 0x80) {
+            if (character >= 0x80 && character <= 0xBF) {
               result |= character & 0x3F;
               if (result <= 0x1FFFFF) {
                 /* Overlong encodings are illegal */
@@ -294,24 +294,24 @@ chartype utf8_char (register int character)
         err_char(CHAR_ILLEGAL, result);
         in_file.character = character;
       } /* if */
-    } else if ((character & 0xFC) == 0xFC) {
-      /* character range 0xFC to 0xFF (252 to 255) */
+    } else if (character >= 0xFC && character <= 0xFF) {
+      /* character range 252 to 255 (leading bits 111111..) */
       result = (chartype) (character & 0x03) << 30;
       character = next_character();
-      if ((character & 0xC0) == 0x80) {
-        /* character range 0x80 to 0xBF (128 to 191) */
+      if (character >= 0x80 && character <= 0xBF) {
+        /* character range 128 to 191 (leading bits 10......) */
         result |= (chartype) (character & 0x3F) << 24;
         character = next_character();
-        if ((character & 0xC0) == 0x80) {
+        if (character >= 0x80 && character <= 0xBF) {
           result |= (chartype) (character & 0x3F) << 18;
           character = next_character();
-          if ((character & 0xC0) == 0x80) {
+          if (character >= 0x80 && character <= 0xBF) {
             result |= (chartype) (character & 0x3F) << 12;
             character = next_character();
-            if ((character & 0xC0) == 0x80) {
+            if (character >= 0x80 && character <= 0xBF) {
               result |= (chartype) (character & 0x3F) << 6;
               character = next_character();
-              if ((character & 0xC0) == 0x80) {
+              if (character >= 0x80 && character <= 0xBF) {
                 result |= character & 0x3F;
                 if (result <= 0x3FFFFFF) {
                   /* Overlong encodings are illegal */

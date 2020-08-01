@@ -119,4 +119,4 @@ stritype strToUtf8 (const const_stritype stri);
 stritype strTrim (const const_stritype stri);
 stritype strUp (const const_stritype stri);
 stritype strUpTemp (const stritype stri);
-stritype strUtf8ToStri (const_stritype stri8);
+stritype strUtf8ToStri (const_stritype utf8);

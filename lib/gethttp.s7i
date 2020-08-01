@@ -39,6 +39,7 @@ const integer: httpsDefaultPort is 443;
 
 
 const type: httpLocation is new struct
+    var boolean: httpsProtocol is FALSE;
     var string: serverName is "";
     var integer: portNumber is 0;
     var string: hostName is "";
@@ -160,7 +161,9 @@ const func file: openHttp (in httpLocation: locationData) is func
     # writeln("openHttp: " <& literal(locationData.serverName) <& " " <& locationData.portNumber);
     # writeln(locationData.hostName <& ":" <& locationData.portNumber <& "/" <& locationData.path);
     # writeln("params=" <& locationData.params);
-    sock := openInetSocket(locationData.serverName, locationData.portNumber);
+    if not locationData.httpsProtocol then
+      sock := openInetSocket(locationData.serverName, locationData.portNumber);
+    end if;
     if sock <> STD_NULL then
       sendGet(sock, locationData);
     end if;
@@ -323,11 +326,13 @@ const func httpLocation: getHttpLocation (in httpLocation: currentLocationData,
             location := location[2 ..];
           end while;
           locationData := getHttpLocation(location, httpsDefaultPort);
+          locationData.httpsProtocol := TRUE;
         else
           if not startsWith(location, "/") then
             location := currentLocationData.path & "/" & location;
           end if;
           locationData := getHttpLocation(location, currentLocationData.portNumber);
+          locationData.httpsProtocol := currentLocationData.httpsProtocol;
           locationData.serverName := currentLocationData.serverName;
           locationData.hostName := currentLocationData.hostName;
         end if;

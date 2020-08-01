@@ -1,3 +1,47 @@
+20140105:
+- The library des.s7i with DES (Data Encryption Standard) cipher
+  support has been added.
+- The library tls.s7i has been improved to support block ciphers
+  and encoding with DES.
+- The functions blockSize and decode have been added to cipher.s7i
+  and arc4.s7i.
+- The the functions str, rotLeft and rotRight and the operators
+  radix, RADIX, ~ and ><:= have been added to bin32.s7i.
+- Support to write bin32 values has been added to bin32.s7i.
+- The new library unicode.s7i, with functions to convert between
+  Unicode encodings, has been added.
+- The functions utf16beToStri, utf16leToStri, utf7ToStri and
+  replaceUtf16SurrogatePairs have been improved and moved from
+  charsets.s7i to unicode.s7i. The functions striToUtf8 and
+  utf8ToStri have been moved from string.s7i to unicode.s7i. The
+  functions striToUtf16be and striToUtf16le have been added to
+  unicode.s7i.
+- The actions FLT_MINUS, INT_MINUS and BIG_MINUS have been renamed
+  to FLT_NEGATE, INT_NEGATE and BIG_NEGATE respectively.
+- The library gethttps.s7i has been improved to accept links to
+  HTTP.
+- The operator symbols ~ and ><:= have been added to syntax.s7i.
+- Checks for -, mdiv, << and >> have been added to chkbig.sd7.
+- The compiler (s7c) has been improved to do more optimizations for
+  the actions BIG_DIV, BIG_LSHIFT, BIG_RSHIFT, BIG_MDIV, BIG_MULT,
+  BIG_NEGATE and CHR_CLIT.
+- The function charLiteral has been added to the compiler.
+- The compiler has been improved to avoid the generation of long
+  lines for bigInteger literals.
+- The function bigMinus has been renamed bigNegate and the function
+  bigNegateTemp has been added to big_gmp.c and big_rtl.c.
+- A check for the keyword 'restrict' has been added to chkccomp.c.
+- The function chrCLitToBuffer has been added to chr_rtl.c.
+- Interpreter, compiler and runtime library have been improved to
+  support the action INT_XOR_ASSIGN.
+- The functions utf8_char (literal.c), utf8_to_stri (striutl.c),
+  utf8_bytes_missing (striutl.c), strUtf8ToStri (str_rtl.c) and
+  ut8Getc (in ut8_rtl.c) have been improved to check for ranges
+  of characters instead of bit patterns. This improves the
+  performance of UTF-8 conversions by up to 6%.
+- The functions freeArgVector and genArgVector have been added to
+  cmd_unx.c.
+
 20131222:
 - Consecutive calls of write in bas7.sd7 have been combined into
   single calls of write respectively writeln.

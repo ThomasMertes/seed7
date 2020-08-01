@@ -150,7 +150,7 @@ inttype drwGetImagePixel (const_bstritype image, inttype width,
       raise_error(RANGE_ERROR);
       pixel = 0;
     } else {
-      idx = y * width + x;
+      idx = (uinttype) y * (uinttype) width + (uinttype) x;
       if (unlikely(idx < 0 || idx >= image->size / sizeof(int32type))) {
         raise_error(RANGE_ERROR);
         pixel = 0;

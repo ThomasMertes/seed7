@@ -30,6 +30,9 @@
 /********************************************************************/
 
 stritype chrCLit (chartype character);
+#ifdef ALLOW_STRITYPE_SLICES
+stritype chrCLitToBuffer (chartype character, stritype buffer);
+#endif
 inttype chrCmp (chartype char1, chartype char2);
 void chrCpy (chartype *dest, chartype source);
 chartype chrLow (chartype ch);

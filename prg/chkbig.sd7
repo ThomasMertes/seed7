@@ -2246,340 +2246,685 @@ const proc: chkBytesLe2BigInt is func
   end func;
 
 
-const proc: chkMinus is func
+const func boolean: chkNegate (in bigInteger: big1,  in bigInteger: checkValue) is func
+  result
+    var boolean: wrong is FALSE;
+  begin
+    wrong := -big1 <> checkValue;
+    if not wrong then
+      wrong := -bigintExpr(big1) <> checkValue;
+    end if;
+  end func;
+
+
+const proc: chkNegate is func
   local
     var boolean: okay is TRUE;
   begin
-    if  -bigInteger parse                         "0" <> bigInteger parse                         "-0" or
-        -bigInteger parse                         "1" <> bigInteger parse                         "-1" or
-        -bigInteger parse                         "2" <> bigInteger parse                         "-2" or
-        -bigInteger parse                         "8" <> bigInteger parse                         "-8" or
-        -bigInteger parse                         "9" <> bigInteger parse                         "-9" or
-        -bigInteger parse                        "10" <> bigInteger parse                        "-10" or
-        -bigInteger parse                        "11" <> bigInteger parse                        "-11" or
-        -bigInteger parse                        "12" <> bigInteger parse                        "-12" or
-        -bigInteger parse                        "98" <> bigInteger parse                        "-98" or
-        -bigInteger parse                        "99" <> bigInteger parse                        "-99" or
-        -bigInteger parse                       "100" <> bigInteger parse                       "-100" or
-        -bigInteger parse                       "101" <> bigInteger parse                       "-101" or
-        -bigInteger parse                       "102" <> bigInteger parse                       "-102" or
-        -bigInteger parse                       "126" <> bigInteger parse                       "-126" or
-        -bigInteger parse                       "127" <> bigInteger parse                       "-127" or
-        -bigInteger parse                       "128" <> bigInteger parse                       "-128" or
-        -bigInteger parse                       "129" <> bigInteger parse                       "-129" or
-        -bigInteger parse                       "130" <> bigInteger parse                       "-130" or
-        -bigInteger parse                       "254" <> bigInteger parse                       "-254" or
-        -bigInteger parse                       "255" <> bigInteger parse                       "-255" or
-        -bigInteger parse                       "256" <> bigInteger parse                       "-256" or
-        -bigInteger parse                       "257" <> bigInteger parse                       "-257" or
-        -bigInteger parse                       "258" <> bigInteger parse                       "-258" or
-        -bigInteger parse                       "998" <> bigInteger parse                       "-998" or
-        -bigInteger parse                       "999" <> bigInteger parse                       "-999" or
-        -bigInteger parse                      "1000" <> bigInteger parse                      "-1000" or
-        -bigInteger parse                      "1001" <> bigInteger parse                      "-1001" or
-        -bigInteger parse                      "1002" <> bigInteger parse                      "-1002" or
-        -bigInteger parse                      "9998" <> bigInteger parse                      "-9998" or
-        -bigInteger parse                      "9999" <> bigInteger parse                      "-9999" or
-        -bigInteger parse                     "10000" <> bigInteger parse                     "-10000" or
-        -bigInteger parse                     "10001" <> bigInteger parse                     "-10001" or
-        -bigInteger parse                     "10002" <> bigInteger parse                     "-10002" or
-        -bigInteger parse                     "32766" <> bigInteger parse                     "-32766" or
-        -bigInteger parse                     "32767" <> bigInteger parse                     "-32767" or
-        -bigInteger parse                     "32768" <> bigInteger parse                     "-32768" or
-        -bigInteger parse                     "32769" <> bigInteger parse                     "-32769" or
-        -bigInteger parse                     "32770" <> bigInteger parse                     "-32770" or
-        -bigInteger parse                     "65534" <> bigInteger parse                     "-65534" or
-        -bigInteger parse                     "65535" <> bigInteger parse                     "-65535" or
-        -bigInteger parse                     "65536" <> bigInteger parse                     "-65536" or
-        -bigInteger parse                     "65537" <> bigInteger parse                     "-65537" or
-        -bigInteger parse                     "65538" <> bigInteger parse                     "-65538" or
-        -bigInteger parse                     "99998" <> bigInteger parse                     "-99998" or
-        -bigInteger parse                     "99999" <> bigInteger parse                     "-99999" or
-        -bigInteger parse                    "100000" <> bigInteger parse                    "-100000" or
-        -bigInteger parse                    "100001" <> bigInteger parse                    "-100001" or
-        -bigInteger parse                    "100002" <> bigInteger parse                    "-100002" or
-        -bigInteger parse                    "999998" <> bigInteger parse                    "-999998" or
-        -bigInteger parse                    "999999" <> bigInteger parse                    "-999999" or
-        -bigInteger parse                   "1000000" <> bigInteger parse                   "-1000000" or
-        -bigInteger parse                   "1000001" <> bigInteger parse                   "-1000001" or
-        -bigInteger parse                   "1000002" <> bigInteger parse                   "-1000002" or
-        -bigInteger parse                   "8388606" <> bigInteger parse                   "-8388606" or
-        -bigInteger parse                   "8388607" <> bigInteger parse                   "-8388607" or
-        -bigInteger parse                   "8388608" <> bigInteger parse                   "-8388608" or
-        -bigInteger parse                   "8388609" <> bigInteger parse                   "-8388609" or
-        -bigInteger parse                   "8388610" <> bigInteger parse                   "-8388610" or
-        -bigInteger parse                   "9999998" <> bigInteger parse                   "-9999998" or
-        -bigInteger parse                   "9999999" <> bigInteger parse                   "-9999999" or
-        -bigInteger parse                  "10000000" <> bigInteger parse                  "-10000000" or
-        -bigInteger parse                  "10000001" <> bigInteger parse                  "-10000001" or
-        -bigInteger parse                  "10000002" <> bigInteger parse                  "-10000002" or
-        -bigInteger parse                  "16777214" <> bigInteger parse                  "-16777214" or
-        -bigInteger parse                  "16777215" <> bigInteger parse                  "-16777215" or
-        -bigInteger parse                  "16777216" <> bigInteger parse                  "-16777216" or
-        -bigInteger parse                  "16777217" <> bigInteger parse                  "-16777217" or
-        -bigInteger parse                  "16777218" <> bigInteger parse                  "-16777218" or
-        -bigInteger parse                  "99999998" <> bigInteger parse                  "-99999998" or
-        -bigInteger parse                  "99999999" <> bigInteger parse                  "-99999999" or
-        -bigInteger parse                 "100000000" <> bigInteger parse                 "-100000000" or
-        -bigInteger parse                 "100000001" <> bigInteger parse                 "-100000001" or
-        -bigInteger parse                 "100000002" <> bigInteger parse                 "-100000002" or
-        -bigInteger parse                 "999999998" <> bigInteger parse                 "-999999998" or
-        -bigInteger parse                 "999999999" <> bigInteger parse                 "-999999999" or
-        -bigInteger parse                "1000000000" <> bigInteger parse                "-1000000000" or
-        -bigInteger parse                "1000000001" <> bigInteger parse                "-1000000001" or
-        -bigInteger parse                "1000000002" <> bigInteger parse                "-1000000002" or
-        -bigInteger parse                "2147483646" <> bigInteger parse                "-2147483646" or
-        -bigInteger parse                "2147483647" <> bigInteger parse                "-2147483647" or
-        -bigInteger parse                "2147483648" <> bigInteger parse                "-2147483648" or
-        -bigInteger parse                "2147483649" <> bigInteger parse                "-2147483649" or
-        -bigInteger parse                "2147483650" <> bigInteger parse                "-2147483650" or
-        -bigInteger parse                "4294967294" <> bigInteger parse                "-4294967294" or
-        -bigInteger parse                "4294967295" <> bigInteger parse                "-4294967295" or
-        -bigInteger parse                "4294967296" <> bigInteger parse                "-4294967296" or
-        -bigInteger parse                "4294967297" <> bigInteger parse                "-4294967297" or
-        -bigInteger parse                "4294967298" <> bigInteger parse                "-4294967298" or
-        -bigInteger parse                "9999999998" <> bigInteger parse                "-9999999998" or
-        -bigInteger parse                "9999999999" <> bigInteger parse                "-9999999999" or
-        -bigInteger parse               "10000000000" <> bigInteger parse               "-10000000000" or
-        -bigInteger parse               "10000000001" <> bigInteger parse               "-10000000001" or
-        -bigInteger parse               "10000000002" <> bigInteger parse               "-10000000002" or
-        -bigInteger parse               "99999999998" <> bigInteger parse               "-99999999998" or
-        -bigInteger parse               "99999999999" <> bigInteger parse               "-99999999999" or
-        -bigInteger parse              "100000000000" <> bigInteger parse              "-100000000000" or
-        -bigInteger parse              "100000000001" <> bigInteger parse              "-100000000001" or
-        -bigInteger parse              "100000000002" <> bigInteger parse              "-100000000002" or
-        -bigInteger parse              "549755813886" <> bigInteger parse              "-549755813886" or
-        -bigInteger parse              "549755813887" <> bigInteger parse              "-549755813887" or
-        -bigInteger parse              "549755813888" <> bigInteger parse              "-549755813888" or
-        -bigInteger parse              "549755813889" <> bigInteger parse              "-549755813889" or
-        -bigInteger parse              "549755813890" <> bigInteger parse              "-549755813890" or
-        -bigInteger parse              "999999999998" <> bigInteger parse              "-999999999998" or
-        -bigInteger parse              "999999999999" <> bigInteger parse              "-999999999999" or
-        -bigInteger parse             "1000000000000" <> bigInteger parse             "-1000000000000" or
-        -bigInteger parse             "1000000000001" <> bigInteger parse             "-1000000000001" or
-        -bigInteger parse             "1000000000002" <> bigInteger parse             "-1000000000002" or
-        -bigInteger parse             "1099511627774" <> bigInteger parse             "-1099511627774" or
-        -bigInteger parse             "1099511627775" <> bigInteger parse             "-1099511627775" or
-        -bigInteger parse             "1099511627776" <> bigInteger parse             "-1099511627776" or
-        -bigInteger parse             "1099511627777" <> bigInteger parse             "-1099511627777" or
-        -bigInteger parse             "1099511627778" <> bigInteger parse             "-1099511627778" or
-        -bigInteger parse           "140737488355326" <> bigInteger parse           "-140737488355326" or
-        -bigInteger parse           "140737488355327" <> bigInteger parse           "-140737488355327" or
-        -bigInteger parse           "140737488355328" <> bigInteger parse           "-140737488355328" or
-        -bigInteger parse           "140737488355329" <> bigInteger parse           "-140737488355329" or
-        -bigInteger parse           "140737488355330" <> bigInteger parse           "-140737488355330" or
-        -bigInteger parse           "281474976710654" <> bigInteger parse           "-281474976710654" or
-        -bigInteger parse           "281474976710655" <> bigInteger parse           "-281474976710655" or
-        -bigInteger parse           "281474976710656" <> bigInteger parse           "-281474976710656" or
-        -bigInteger parse           "281474976710657" <> bigInteger parse           "-281474976710657" or
-        -bigInteger parse           "281474976710658" <> bigInteger parse           "-281474976710658" or
-        -bigInteger parse         "36028797018963966" <> bigInteger parse         "-36028797018963966" or
-        -bigInteger parse         "36028797018963967" <> bigInteger parse         "-36028797018963967" or
-        -bigInteger parse         "36028797018963968" <> bigInteger parse         "-36028797018963968" or
-        -bigInteger parse         "36028797018963969" <> bigInteger parse         "-36028797018963969" or
-        -bigInteger parse         "36028797018963970" <> bigInteger parse         "-36028797018963970" or
-        -bigInteger parse         "72057594037927934" <> bigInteger parse         "-72057594037927934" or
-        -bigInteger parse         "72057594037927935" <> bigInteger parse         "-72057594037927935" or
-        -bigInteger parse         "72057594037927936" <> bigInteger parse         "-72057594037927936" or
-        -bigInteger parse         "72057594037927937" <> bigInteger parse         "-72057594037927937" or
-        -bigInteger parse         "72057594037927938" <> bigInteger parse         "-72057594037927938" or
-        -bigInteger parse       "9223372036854775806" <> bigInteger parse       "-9223372036854775806" or
-        -bigInteger parse       "9223372036854775807" <> bigInteger parse       "-9223372036854775807" or
-        -bigInteger parse       "9223372036854775808" <> bigInteger parse       "-9223372036854775808" or
-        -bigInteger parse       "9223372036854775809" <> bigInteger parse       "-9223372036854775809" or
-        -bigInteger parse       "9223372036854775810" <> bigInteger parse       "-9223372036854775810" or
-        -bigInteger parse      "18446744073709551614" <> bigInteger parse      "-18446744073709551614" or
-        -bigInteger parse      "18446744073709551615" <> bigInteger parse      "-18446744073709551615" or
-        -bigInteger parse      "18446744073709551616" <> bigInteger parse      "-18446744073709551616" or
-        -bigInteger parse      "18446744073709551617" <> bigInteger parse      "-18446744073709551617" or
-        -bigInteger parse      "18446744073709551618" <> bigInteger parse      "-18446744073709551618" or
-        -bigInteger parse    "2361183241434822606846" <> bigInteger parse    "-2361183241434822606846" or
-        -bigInteger parse    "2361183241434822606847" <> bigInteger parse    "-2361183241434822606847" or
-        -bigInteger parse    "2361183241434822606848" <> bigInteger parse    "-2361183241434822606848" or
-        -bigInteger parse    "2361183241434822606849" <> bigInteger parse    "-2361183241434822606849" or
-        -bigInteger parse    "2361183241434822606850" <> bigInteger parse    "-2361183241434822606850" or
-        -bigInteger parse    "4722366482869645213694" <> bigInteger parse    "-4722366482869645213694" or
-        -bigInteger parse    "4722366482869645213695" <> bigInteger parse    "-4722366482869645213695" or
-        -bigInteger parse    "4722366482869645213696" <> bigInteger parse    "-4722366482869645213696" or
-        -bigInteger parse    "4722366482869645213697" <> bigInteger parse    "-4722366482869645213697" or
-        -bigInteger parse    "4722366482869645213698" <> bigInteger parse    "-4722366482869645213698" or
-        -bigInteger parse  "604462909807314587353086" <> bigInteger parse  "-604462909807314587353086" or
-        -bigInteger parse  "604462909807314587353087" <> bigInteger parse  "-604462909807314587353087" or
-        -bigInteger parse  "604462909807314587353088" <> bigInteger parse  "-604462909807314587353088" or
-        -bigInteger parse  "604462909807314587353089" <> bigInteger parse  "-604462909807314587353089" or
-        -bigInteger parse  "604462909807314587353090" <> bigInteger parse  "-604462909807314587353090" or
-        -bigInteger parse "1208925819614629174706174" <> bigInteger parse "-1208925819614629174706174" or
-        -bigInteger parse "1208925819614629174706175" <> bigInteger parse "-1208925819614629174706175" or
-        -bigInteger parse "1208925819614629174706176" <> bigInteger parse "-1208925819614629174706176" or
-        -bigInteger parse "1208925819614629174706177" <> bigInteger parse "-1208925819614629174706177" or
-        -bigInteger parse "1208925819614629174706178" <> bigInteger parse "-1208925819614629174706178" then
+    if  chkNegate(                        0_, bigInteger parse                         "-0") or
+        chkNegate(                        1_, bigInteger parse                         "-1") or
+        chkNegate(                        2_, bigInteger parse                         "-2") or
+        chkNegate(                        8_, bigInteger parse                         "-8") or
+        chkNegate(                        9_, bigInteger parse                         "-9") or
+        chkNegate(                       10_, bigInteger parse                        "-10") or
+        chkNegate(                       11_, bigInteger parse                        "-11") or
+        chkNegate(                       12_, bigInteger parse                        "-12") or
+        chkNegate(                       98_, bigInteger parse                        "-98") or
+        chkNegate(                       99_, bigInteger parse                        "-99") or
+        chkNegate(                      100_, bigInteger parse                       "-100") or
+        chkNegate(                      101_, bigInteger parse                       "-101") or
+        chkNegate(                      102_, bigInteger parse                       "-102") or
+        chkNegate(                      126_, bigInteger parse                       "-126") or
+        chkNegate(                      127_, bigInteger parse                       "-127") or
+        chkNegate(                      128_, bigInteger parse                       "-128") or
+        chkNegate(                      129_, bigInteger parse                       "-129") or
+        chkNegate(                      130_, bigInteger parse                       "-130") or
+        chkNegate(                      254_, bigInteger parse                       "-254") or
+        chkNegate(                      255_, bigInteger parse                       "-255") or
+        chkNegate(                      256_, bigInteger parse                       "-256") or
+        chkNegate(                      257_, bigInteger parse                       "-257") or
+        chkNegate(                      258_, bigInteger parse                       "-258") or
+        chkNegate(                      998_, bigInteger parse                       "-998") or
+        chkNegate(                      999_, bigInteger parse                       "-999") or
+        chkNegate(                     1000_, bigInteger parse                      "-1000") or
+        chkNegate(                     1001_, bigInteger parse                      "-1001") or
+        chkNegate(                     1002_, bigInteger parse                      "-1002") or
+        chkNegate(                     9998_, bigInteger parse                      "-9998") or
+        chkNegate(                     9999_, bigInteger parse                      "-9999") or
+        chkNegate(                    10000_, bigInteger parse                     "-10000") or
+        chkNegate(                    10001_, bigInteger parse                     "-10001") or
+        chkNegate(                    10002_, bigInteger parse                     "-10002") or
+        chkNegate(                    32766_, bigInteger parse                     "-32766") or
+        chkNegate(                    32767_, bigInteger parse                     "-32767") or
+        chkNegate(                    32768_, bigInteger parse                     "-32768") or
+        chkNegate(                    32769_, bigInteger parse                     "-32769") or
+        chkNegate(                    32770_, bigInteger parse                     "-32770") or
+        chkNegate(                    65534_, bigInteger parse                     "-65534") or
+        chkNegate(                    65535_, bigInteger parse                     "-65535") or
+        chkNegate(                    65536_, bigInteger parse                     "-65536") or
+        chkNegate(                    65537_, bigInteger parse                     "-65537") or
+        chkNegate(                    65538_, bigInteger parse                     "-65538") or
+        chkNegate(                    99998_, bigInteger parse                     "-99998") or
+        chkNegate(                    99999_, bigInteger parse                     "-99999") or
+        chkNegate(                   100000_, bigInteger parse                    "-100000") or
+        chkNegate(                   100001_, bigInteger parse                    "-100001") or
+        chkNegate(                   100002_, bigInteger parse                    "-100002") or
+        chkNegate(                   999998_, bigInteger parse                    "-999998") or
+        chkNegate(                   999999_, bigInteger parse                    "-999999") or
+        chkNegate(                  1000000_, bigInteger parse                   "-1000000") or
+        chkNegate(                  1000001_, bigInteger parse                   "-1000001") or
+        chkNegate(                  1000002_, bigInteger parse                   "-1000002") or
+        chkNegate(                  8388606_, bigInteger parse                   "-8388606") or
+        chkNegate(                  8388607_, bigInteger parse                   "-8388607") or
+        chkNegate(                  8388608_, bigInteger parse                   "-8388608") or
+        chkNegate(                  8388609_, bigInteger parse                   "-8388609") or
+        chkNegate(                  8388610_, bigInteger parse                   "-8388610") or
+        chkNegate(                  9999998_, bigInteger parse                   "-9999998") or
+        chkNegate(                  9999999_, bigInteger parse                   "-9999999") or
+        chkNegate(                 10000000_, bigInteger parse                  "-10000000") or
+        chkNegate(                 10000001_, bigInteger parse                  "-10000001") or
+        chkNegate(                 10000002_, bigInteger parse                  "-10000002") or
+        chkNegate(                 16777214_, bigInteger parse                  "-16777214") or
+        chkNegate(                 16777215_, bigInteger parse                  "-16777215") or
+        chkNegate(                 16777216_, bigInteger parse                  "-16777216") or
+        chkNegate(                 16777217_, bigInteger parse                  "-16777217") or
+        chkNegate(                 16777218_, bigInteger parse                  "-16777218") or
+        chkNegate(                 99999998_, bigInteger parse                  "-99999998") or
+        chkNegate(                 99999999_, bigInteger parse                  "-99999999") or
+        chkNegate(                100000000_, bigInteger parse                 "-100000000") or
+        chkNegate(                100000001_, bigInteger parse                 "-100000001") or
+        chkNegate(                100000002_, bigInteger parse                 "-100000002") or
+        chkNegate(                999999998_, bigInteger parse                 "-999999998") or
+        chkNegate(                999999999_, bigInteger parse                 "-999999999") or
+        chkNegate(               1000000000_, bigInteger parse                "-1000000000") or
+        chkNegate(               1000000001_, bigInteger parse                "-1000000001") or
+        chkNegate(               1000000002_, bigInteger parse                "-1000000002") or
+        chkNegate(               2147483646_, bigInteger parse                "-2147483646") or
+        chkNegate(               2147483647_, bigInteger parse                "-2147483647") or
+        chkNegate(               2147483648_, bigInteger parse                "-2147483648") or
+        chkNegate(               2147483649_, bigInteger parse                "-2147483649") or
+        chkNegate(               2147483650_, bigInteger parse                "-2147483650") or
+        chkNegate(               4294967294_, bigInteger parse                "-4294967294") or
+        chkNegate(               4294967295_, bigInteger parse                "-4294967295") or
+        chkNegate(               4294967296_, bigInteger parse                "-4294967296") or
+        chkNegate(               4294967297_, bigInteger parse                "-4294967297") or
+        chkNegate(               4294967298_, bigInteger parse                "-4294967298") or
+        chkNegate(               9999999998_, bigInteger parse                "-9999999998") or
+        chkNegate(               9999999999_, bigInteger parse                "-9999999999") or
+        chkNegate(              10000000000_, bigInteger parse               "-10000000000") or
+        chkNegate(              10000000001_, bigInteger parse               "-10000000001") or
+        chkNegate(              10000000002_, bigInteger parse               "-10000000002") or
+        chkNegate(              99999999998_, bigInteger parse               "-99999999998") or
+        chkNegate(              99999999999_, bigInteger parse               "-99999999999") or
+        chkNegate(             100000000000_, bigInteger parse              "-100000000000") or
+        chkNegate(             100000000001_, bigInteger parse              "-100000000001") or
+        chkNegate(             100000000002_, bigInteger parse              "-100000000002") or
+        chkNegate(             549755813886_, bigInteger parse              "-549755813886") or
+        chkNegate(             549755813887_, bigInteger parse              "-549755813887") or
+        chkNegate(             549755813888_, bigInteger parse              "-549755813888") or
+        chkNegate(             549755813889_, bigInteger parse              "-549755813889") or
+        chkNegate(             549755813890_, bigInteger parse              "-549755813890") or
+        chkNegate(             999999999998_, bigInteger parse              "-999999999998") or
+        chkNegate(             999999999999_, bigInteger parse              "-999999999999") or
+        chkNegate(            1000000000000_, bigInteger parse             "-1000000000000") or
+        chkNegate(            1000000000001_, bigInteger parse             "-1000000000001") or
+        chkNegate(            1000000000002_, bigInteger parse             "-1000000000002") or
+        chkNegate(            1099511627774_, bigInteger parse             "-1099511627774") or
+        chkNegate(            1099511627775_, bigInteger parse             "-1099511627775") or
+        chkNegate(            1099511627776_, bigInteger parse             "-1099511627776") or
+        chkNegate(            1099511627777_, bigInteger parse             "-1099511627777") or
+        chkNegate(            1099511627778_, bigInteger parse             "-1099511627778") or
+        chkNegate(          140737488355326_, bigInteger parse           "-140737488355326") or
+        chkNegate(          140737488355327_, bigInteger parse           "-140737488355327") or
+        chkNegate(          140737488355328_, bigInteger parse           "-140737488355328") or
+        chkNegate(          140737488355329_, bigInteger parse           "-140737488355329") or
+        chkNegate(          140737488355330_, bigInteger parse           "-140737488355330") or
+        chkNegate(          281474976710654_, bigInteger parse           "-281474976710654") or
+        chkNegate(          281474976710655_, bigInteger parse           "-281474976710655") or
+        chkNegate(          281474976710656_, bigInteger parse           "-281474976710656") or
+        chkNegate(          281474976710657_, bigInteger parse           "-281474976710657") or
+        chkNegate(          281474976710658_, bigInteger parse           "-281474976710658") or
+        chkNegate(        36028797018963966_, bigInteger parse         "-36028797018963966") or
+        chkNegate(        36028797018963967_, bigInteger parse         "-36028797018963967") or
+        chkNegate(        36028797018963968_, bigInteger parse         "-36028797018963968") or
+        chkNegate(        36028797018963969_, bigInteger parse         "-36028797018963969") or
+        chkNegate(        36028797018963970_, bigInteger parse         "-36028797018963970") or
+        chkNegate(        72057594037927934_, bigInteger parse         "-72057594037927934") or
+        chkNegate(        72057594037927935_, bigInteger parse         "-72057594037927935") or
+        chkNegate(        72057594037927936_, bigInteger parse         "-72057594037927936") or
+        chkNegate(        72057594037927937_, bigInteger parse         "-72057594037927937") or
+        chkNegate(        72057594037927938_, bigInteger parse         "-72057594037927938") or
+        chkNegate(      9223372036854775806_, bigInteger parse       "-9223372036854775806") or
+        chkNegate(      9223372036854775807_, bigInteger parse       "-9223372036854775807") or
+        chkNegate(      9223372036854775808_, bigInteger parse       "-9223372036854775808") or
+        chkNegate(      9223372036854775809_, bigInteger parse       "-9223372036854775809") or
+        chkNegate(      9223372036854775810_, bigInteger parse       "-9223372036854775810") or
+        chkNegate(     18446744073709551614_, bigInteger parse      "-18446744073709551614") or
+        chkNegate(     18446744073709551615_, bigInteger parse      "-18446744073709551615") or
+        chkNegate(     18446744073709551616_, bigInteger parse      "-18446744073709551616") or
+        chkNegate(     18446744073709551617_, bigInteger parse      "-18446744073709551617") or
+        chkNegate(     18446744073709551618_, bigInteger parse      "-18446744073709551618") or
+        chkNegate(   2361183241434822606846_, bigInteger parse    "-2361183241434822606846") or
+        chkNegate(   2361183241434822606847_, bigInteger parse    "-2361183241434822606847") or
+        chkNegate(   2361183241434822606848_, bigInteger parse    "-2361183241434822606848") or
+        chkNegate(   2361183241434822606849_, bigInteger parse    "-2361183241434822606849") or
+        chkNegate(   2361183241434822606850_, bigInteger parse    "-2361183241434822606850") or
+        chkNegate(   4722366482869645213694_, bigInteger parse    "-4722366482869645213694") or
+        chkNegate(   4722366482869645213695_, bigInteger parse    "-4722366482869645213695") or
+        chkNegate(   4722366482869645213696_, bigInteger parse    "-4722366482869645213696") or
+        chkNegate(   4722366482869645213697_, bigInteger parse    "-4722366482869645213697") or
+        chkNegate(   4722366482869645213698_, bigInteger parse    "-4722366482869645213698") or
+        chkNegate( 604462909807314587353086_, bigInteger parse  "-604462909807314587353086") or
+        chkNegate( 604462909807314587353087_, bigInteger parse  "-604462909807314587353087") or
+        chkNegate( 604462909807314587353088_, bigInteger parse  "-604462909807314587353088") or
+        chkNegate( 604462909807314587353089_, bigInteger parse  "-604462909807314587353089") or
+        chkNegate( 604462909807314587353090_, bigInteger parse  "-604462909807314587353090") or
+        chkNegate(1208925819614629174706174_, bigInteger parse "-1208925819614629174706174") or
+        chkNegate(1208925819614629174706175_, bigInteger parse "-1208925819614629174706175") or
+        chkNegate(1208925819614629174706176_, bigInteger parse "-1208925819614629174706176") or
+        chkNegate(1208925819614629174706177_, bigInteger parse "-1208925819614629174706177") or
+        chkNegate(1208925819614629174706178_, bigInteger parse "-1208925819614629174706178") then
       writeln("Negation of a positive bigInteger does not work correct.");
       okay := FALSE;
     end if;
 
-    if  -bigInteger parse                         "-0" <> bigInteger parse                         "0" or
-        -bigInteger parse                         "-1" <> bigInteger parse                         "1" or
-        -bigInteger parse                         "-2" <> bigInteger parse                         "2" or
-        -bigInteger parse                         "-8" <> bigInteger parse                         "8" or
-        -bigInteger parse                         "-9" <> bigInteger parse                         "9" or
-        -bigInteger parse                        "-10" <> bigInteger parse                        "10" or
-        -bigInteger parse                        "-11" <> bigInteger parse                        "11" or
-        -bigInteger parse                        "-12" <> bigInteger parse                        "12" or
-        -bigInteger parse                        "-98" <> bigInteger parse                        "98" or
-        -bigInteger parse                        "-99" <> bigInteger parse                        "99" or
-        -bigInteger parse                       "-100" <> bigInteger parse                       "100" or
-        -bigInteger parse                       "-101" <> bigInteger parse                       "101" or
-        -bigInteger parse                       "-102" <> bigInteger parse                       "102" or
-        -bigInteger parse                       "-126" <> bigInteger parse                       "126" or
-        -bigInteger parse                       "-127" <> bigInteger parse                       "127" or
-        -bigInteger parse                       "-128" <> bigInteger parse                       "128" or
-        -bigInteger parse                       "-129" <> bigInteger parse                       "129" or
-        -bigInteger parse                       "-130" <> bigInteger parse                       "130" or
-        -bigInteger parse                       "-254" <> bigInteger parse                       "254" or
-        -bigInteger parse                       "-255" <> bigInteger parse                       "255" or
-        -bigInteger parse                       "-256" <> bigInteger parse                       "256" or
-        -bigInteger parse                       "-257" <> bigInteger parse                       "257" or
-        -bigInteger parse                       "-258" <> bigInteger parse                       "258" or
-        -bigInteger parse                       "-998" <> bigInteger parse                       "998" or
-        -bigInteger parse                       "-999" <> bigInteger parse                       "999" or
-        -bigInteger parse                      "-1000" <> bigInteger parse                      "1000" or
-        -bigInteger parse                      "-1001" <> bigInteger parse                      "1001" or
-        -bigInteger parse                      "-1002" <> bigInteger parse                      "1002" or
-        -bigInteger parse                      "-9998" <> bigInteger parse                      "9998" or
-        -bigInteger parse                      "-9999" <> bigInteger parse                      "9999" or
-        -bigInteger parse                     "-10000" <> bigInteger parse                     "10000" or
-        -bigInteger parse                     "-10001" <> bigInteger parse                     "10001" or
-        -bigInteger parse                     "-10002" <> bigInteger parse                     "10002" or
-        -bigInteger parse                     "-32766" <> bigInteger parse                     "32766" or
-        -bigInteger parse                     "-32767" <> bigInteger parse                     "32767" or
-        -bigInteger parse                     "-32768" <> bigInteger parse                     "32768" or
-        -bigInteger parse                     "-32769" <> bigInteger parse                     "32769" or
-        -bigInteger parse                     "-32770" <> bigInteger parse                     "32770" or
-        -bigInteger parse                     "-65534" <> bigInteger parse                     "65534" or
-        -bigInteger parse                     "-65535" <> bigInteger parse                     "65535" or
-        -bigInteger parse                     "-65536" <> bigInteger parse                     "65536" or
-        -bigInteger parse                     "-65537" <> bigInteger parse                     "65537" or
-        -bigInteger parse                     "-65538" <> bigInteger parse                     "65538" or
-        -bigInteger parse                     "-99998" <> bigInteger parse                     "99998" or
-        -bigInteger parse                     "-99999" <> bigInteger parse                     "99999" or
-        -bigInteger parse                    "-100000" <> bigInteger parse                    "100000" or
-        -bigInteger parse                    "-100001" <> bigInteger parse                    "100001" or
-        -bigInteger parse                    "-100002" <> bigInteger parse                    "100002" or
-        -bigInteger parse                    "-999998" <> bigInteger parse                    "999998" or
-        -bigInteger parse                    "-999999" <> bigInteger parse                    "999999" or
-        -bigInteger parse                   "-1000000" <> bigInteger parse                   "1000000" or
-        -bigInteger parse                   "-1000001" <> bigInteger parse                   "1000001" or
-        -bigInteger parse                   "-1000002" <> bigInteger parse                   "1000002" or
-        -bigInteger parse                   "-8388606" <> bigInteger parse                   "8388606" or
-        -bigInteger parse                   "-8388607" <> bigInteger parse                   "8388607" or
-        -bigInteger parse                   "-8388608" <> bigInteger parse                   "8388608" or
-        -bigInteger parse                   "-8388609" <> bigInteger parse                   "8388609" or
-        -bigInteger parse                   "-8388610" <> bigInteger parse                   "8388610" or
-        -bigInteger parse                   "-9999998" <> bigInteger parse                   "9999998" or
-        -bigInteger parse                   "-9999999" <> bigInteger parse                   "9999999" or
-        -bigInteger parse                  "-10000000" <> bigInteger parse                  "10000000" or
-        -bigInteger parse                  "-10000001" <> bigInteger parse                  "10000001" or
-        -bigInteger parse                  "-10000002" <> bigInteger parse                  "10000002" or
-        -bigInteger parse                  "-16777214" <> bigInteger parse                  "16777214" or
-        -bigInteger parse                  "-16777215" <> bigInteger parse                  "16777215" or
-        -bigInteger parse                  "-16777216" <> bigInteger parse                  "16777216" or
-        -bigInteger parse                  "-16777217" <> bigInteger parse                  "16777217" or
-        -bigInteger parse                  "-16777218" <> bigInteger parse                  "16777218" or
-        -bigInteger parse                  "-99999998" <> bigInteger parse                  "99999998" or
-        -bigInteger parse                  "-99999999" <> bigInteger parse                  "99999999" or
-        -bigInteger parse                 "-100000000" <> bigInteger parse                 "100000000" or
-        -bigInteger parse                 "-100000001" <> bigInteger parse                 "100000001" or
-        -bigInteger parse                 "-100000002" <> bigInteger parse                 "100000002" or
-        -bigInteger parse                 "-999999998" <> bigInteger parse                 "999999998" or
-        -bigInteger parse                 "-999999999" <> bigInteger parse                 "999999999" or
-        -bigInteger parse                "-1000000000" <> bigInteger parse                "1000000000" or
-        -bigInteger parse                "-1000000001" <> bigInteger parse                "1000000001" or
-        -bigInteger parse                "-1000000002" <> bigInteger parse                "1000000002" or
-        -bigInteger parse                "-2147483646" <> bigInteger parse                "2147483646" or
-        -bigInteger parse                "-2147483647" <> bigInteger parse                "2147483647" or
-        -bigInteger parse                "-2147483648" <> bigInteger parse                "2147483648" or
-        -bigInteger parse                "-2147483649" <> bigInteger parse                "2147483649" or
-        -bigInteger parse                "-2147483650" <> bigInteger parse                "2147483650" or
-        -bigInteger parse                "-4294967294" <> bigInteger parse                "4294967294" or
-        -bigInteger parse                "-4294967295" <> bigInteger parse                "4294967295" or
-        -bigInteger parse                "-4294967296" <> bigInteger parse                "4294967296" or
-        -bigInteger parse                "-4294967297" <> bigInteger parse                "4294967297" or
-        -bigInteger parse                "-4294967298" <> bigInteger parse                "4294967298" or
-        -bigInteger parse                "-9999999998" <> bigInteger parse                "9999999998" or
-        -bigInteger parse                "-9999999999" <> bigInteger parse                "9999999999" or
-        -bigInteger parse               "-10000000000" <> bigInteger parse               "10000000000" or
-        -bigInteger parse               "-10000000001" <> bigInteger parse               "10000000001" or
-        -bigInteger parse               "-10000000002" <> bigInteger parse               "10000000002" or
-        -bigInteger parse               "-99999999998" <> bigInteger parse               "99999999998" or
-        -bigInteger parse               "-99999999999" <> bigInteger parse               "99999999999" or
-        -bigInteger parse              "-100000000000" <> bigInteger parse              "100000000000" or
-        -bigInteger parse              "-100000000001" <> bigInteger parse              "100000000001" or
-        -bigInteger parse              "-100000000002" <> bigInteger parse              "100000000002" or
-        -bigInteger parse              "-549755813886" <> bigInteger parse              "549755813886" or
-        -bigInteger parse              "-549755813887" <> bigInteger parse              "549755813887" or
-        -bigInteger parse              "-549755813888" <> bigInteger parse              "549755813888" or
-        -bigInteger parse              "-549755813889" <> bigInteger parse              "549755813889" or
-        -bigInteger parse              "-549755813890" <> bigInteger parse              "549755813890" or
-        -bigInteger parse              "-999999999998" <> bigInteger parse              "999999999998" or
-        -bigInteger parse              "-999999999999" <> bigInteger parse              "999999999999" or
-        -bigInteger parse             "-1000000000000" <> bigInteger parse             "1000000000000" or
-        -bigInteger parse             "-1000000000001" <> bigInteger parse             "1000000000001" or
-        -bigInteger parse             "-1000000000002" <> bigInteger parse             "1000000000002" or
-        -bigInteger parse             "-1099511627774" <> bigInteger parse             "1099511627774" or
-        -bigInteger parse             "-1099511627775" <> bigInteger parse             "1099511627775" or
-        -bigInteger parse             "-1099511627776" <> bigInteger parse             "1099511627776" or
-        -bigInteger parse             "-1099511627777" <> bigInteger parse             "1099511627777" or
-        -bigInteger parse             "-1099511627778" <> bigInteger parse             "1099511627778" or
-        -bigInteger parse           "-140737488355326" <> bigInteger parse           "140737488355326" or
-        -bigInteger parse           "-140737488355327" <> bigInteger parse           "140737488355327" or
-        -bigInteger parse           "-140737488355328" <> bigInteger parse           "140737488355328" or
-        -bigInteger parse           "-140737488355329" <> bigInteger parse           "140737488355329" or
-        -bigInteger parse           "-140737488355330" <> bigInteger parse           "140737488355330" or
-        -bigInteger parse           "-281474976710654" <> bigInteger parse           "281474976710654" or
-        -bigInteger parse           "-281474976710655" <> bigInteger parse           "281474976710655" or
-        -bigInteger parse           "-281474976710656" <> bigInteger parse           "281474976710656" or
-        -bigInteger parse           "-281474976710657" <> bigInteger parse           "281474976710657" or
-        -bigInteger parse           "-281474976710658" <> bigInteger parse           "281474976710658" or
-        -bigInteger parse         "-36028797018963966" <> bigInteger parse         "36028797018963966" or
-        -bigInteger parse         "-36028797018963967" <> bigInteger parse         "36028797018963967" or
-        -bigInteger parse         "-36028797018963968" <> bigInteger parse         "36028797018963968" or
-        -bigInteger parse         "-36028797018963969" <> bigInteger parse         "36028797018963969" or
-        -bigInteger parse         "-36028797018963970" <> bigInteger parse         "36028797018963970" or
-        -bigInteger parse         "-72057594037927934" <> bigInteger parse         "72057594037927934" or
-        -bigInteger parse         "-72057594037927935" <> bigInteger parse         "72057594037927935" or
-        -bigInteger parse         "-72057594037927936" <> bigInteger parse         "72057594037927936" or
-        -bigInteger parse         "-72057594037927937" <> bigInteger parse         "72057594037927937" or
-        -bigInteger parse         "-72057594037927938" <> bigInteger parse         "72057594037927938" or
-        -bigInteger parse       "-9223372036854775806" <> bigInteger parse       "9223372036854775806" or
-        -bigInteger parse       "-9223372036854775807" <> bigInteger parse       "9223372036854775807" or
-        -bigInteger parse       "-9223372036854775808" <> bigInteger parse       "9223372036854775808" or
-        -bigInteger parse       "-9223372036854775809" <> bigInteger parse       "9223372036854775809" or
-        -bigInteger parse       "-9223372036854775810" <> bigInteger parse       "9223372036854775810" or
-        -bigInteger parse      "-18446744073709551614" <> bigInteger parse      "18446744073709551614" or
-        -bigInteger parse      "-18446744073709551615" <> bigInteger parse      "18446744073709551615" or
-        -bigInteger parse      "-18446744073709551616" <> bigInteger parse      "18446744073709551616" or
-        -bigInteger parse      "-18446744073709551617" <> bigInteger parse      "18446744073709551617" or
-        -bigInteger parse      "-18446744073709551618" <> bigInteger parse      "18446744073709551618" or
-        -bigInteger parse    "-2361183241434822606846" <> bigInteger parse    "2361183241434822606846" or
-        -bigInteger parse    "-2361183241434822606847" <> bigInteger parse    "2361183241434822606847" or
-        -bigInteger parse    "-2361183241434822606848" <> bigInteger parse    "2361183241434822606848" or
-        -bigInteger parse    "-2361183241434822606849" <> bigInteger parse    "2361183241434822606849" or
-        -bigInteger parse    "-2361183241434822606850" <> bigInteger parse    "2361183241434822606850" or
-        -bigInteger parse    "-4722366482869645213694" <> bigInteger parse    "4722366482869645213694" or
-        -bigInteger parse    "-4722366482869645213695" <> bigInteger parse    "4722366482869645213695" or
-        -bigInteger parse    "-4722366482869645213696" <> bigInteger parse    "4722366482869645213696" or
-        -bigInteger parse    "-4722366482869645213697" <> bigInteger parse    "4722366482869645213697" or
-        -bigInteger parse    "-4722366482869645213698" <> bigInteger parse    "4722366482869645213698" or
-        -bigInteger parse  "-604462909807314587353086" <> bigInteger parse  "604462909807314587353086" or
-        -bigInteger parse  "-604462909807314587353087" <> bigInteger parse  "604462909807314587353087" or
-        -bigInteger parse  "-604462909807314587353088" <> bigInteger parse  "604462909807314587353088" or
-        -bigInteger parse  "-604462909807314587353089" <> bigInteger parse  "604462909807314587353089" or
-        -bigInteger parse  "-604462909807314587353090" <> bigInteger parse  "604462909807314587353090" or
-        -bigInteger parse "-1208925819614629174706174" <> bigInteger parse "1208925819614629174706174" or
-        -bigInteger parse "-1208925819614629174706175" <> bigInteger parse "1208925819614629174706175" or
-        -bigInteger parse "-1208925819614629174706176" <> bigInteger parse "1208925819614629174706176" or
-        -bigInteger parse "-1208925819614629174706177" <> bigInteger parse "1208925819614629174706177" or
-        -bigInteger parse "-1208925819614629174706178" <> bigInteger parse "1208925819614629174706178" then
+    if  chkNegate(bigInteger parse                         "-0",                         0_) or
+        chkNegate(bigInteger parse                         "-1",                         1_) or
+        chkNegate(bigInteger parse                         "-2",                         2_) or
+        chkNegate(bigInteger parse                         "-8",                         8_) or
+        chkNegate(bigInteger parse                         "-9",                         9_) or
+        chkNegate(bigInteger parse                        "-10",                        10_) or
+        chkNegate(bigInteger parse                        "-11",                        11_) or
+        chkNegate(bigInteger parse                        "-12",                        12_) or
+        chkNegate(bigInteger parse                        "-98",                        98_) or
+        chkNegate(bigInteger parse                        "-99",                        99_) or
+        chkNegate(bigInteger parse                       "-100",                       100_) or
+        chkNegate(bigInteger parse                       "-101",                       101_) or
+        chkNegate(bigInteger parse                       "-102",                       102_) or
+        chkNegate(bigInteger parse                       "-126",                       126_) or
+        chkNegate(bigInteger parse                       "-127",                       127_) or
+        chkNegate(bigInteger parse                       "-128",                       128_) or
+        chkNegate(bigInteger parse                       "-129",                       129_) or
+        chkNegate(bigInteger parse                       "-130",                       130_) or
+        chkNegate(bigInteger parse                       "-254",                       254_) or
+        chkNegate(bigInteger parse                       "-255",                       255_) or
+        chkNegate(bigInteger parse                       "-256",                       256_) or
+        chkNegate(bigInteger parse                       "-257",                       257_) or
+        chkNegate(bigInteger parse                       "-258",                       258_) or
+        chkNegate(bigInteger parse                       "-998",                       998_) or
+        chkNegate(bigInteger parse                       "-999",                       999_) or
+        chkNegate(bigInteger parse                      "-1000",                      1000_) or
+        chkNegate(bigInteger parse                      "-1001",                      1001_) or
+        chkNegate(bigInteger parse                      "-1002",                      1002_) or
+        chkNegate(bigInteger parse                      "-9998",                      9998_) or
+        chkNegate(bigInteger parse                      "-9999",                      9999_) or
+        chkNegate(bigInteger parse                     "-10000",                     10000_) or
+        chkNegate(bigInteger parse                     "-10001",                     10001_) or
+        chkNegate(bigInteger parse                     "-10002",                     10002_) or
+        chkNegate(bigInteger parse                     "-32766",                     32766_) or
+        chkNegate(bigInteger parse                     "-32767",                     32767_) or
+        chkNegate(bigInteger parse                     "-32768",                     32768_) or
+        chkNegate(bigInteger parse                     "-32769",                     32769_) or
+        chkNegate(bigInteger parse                     "-32770",                     32770_) or
+        chkNegate(bigInteger parse                     "-65534",                     65534_) or
+        chkNegate(bigInteger parse                     "-65535",                     65535_) or
+        chkNegate(bigInteger parse                     "-65536",                     65536_) or
+        chkNegate(bigInteger parse                     "-65537",                     65537_) or
+        chkNegate(bigInteger parse                     "-65538",                     65538_) or
+        chkNegate(bigInteger parse                     "-99998",                     99998_) or
+        chkNegate(bigInteger parse                     "-99999",                     99999_) or
+        chkNegate(bigInteger parse                    "-100000",                    100000_) or
+        chkNegate(bigInteger parse                    "-100001",                    100001_) or
+        chkNegate(bigInteger parse                    "-100002",                    100002_) or
+        chkNegate(bigInteger parse                    "-999998",                    999998_) or
+        chkNegate(bigInteger parse                    "-999999",                    999999_) or
+        chkNegate(bigInteger parse                   "-1000000",                   1000000_) or
+        chkNegate(bigInteger parse                   "-1000001",                   1000001_) or
+        chkNegate(bigInteger parse                   "-1000002",                   1000002_) or
+        chkNegate(bigInteger parse                   "-8388606",                   8388606_) or
+        chkNegate(bigInteger parse                   "-8388607",                   8388607_) or
+        chkNegate(bigInteger parse                   "-8388608",                   8388608_) or
+        chkNegate(bigInteger parse                   "-8388609",                   8388609_) or
+        chkNegate(bigInteger parse                   "-8388610",                   8388610_) or
+        chkNegate(bigInteger parse                   "-9999998",                   9999998_) or
+        chkNegate(bigInteger parse                   "-9999999",                   9999999_) or
+        chkNegate(bigInteger parse                  "-10000000",                  10000000_) or
+        chkNegate(bigInteger parse                  "-10000001",                  10000001_) or
+        chkNegate(bigInteger parse                  "-10000002",                  10000002_) or
+        chkNegate(bigInteger parse                  "-16777214",                  16777214_) or
+        chkNegate(bigInteger parse                  "-16777215",                  16777215_) or
+        chkNegate(bigInteger parse                  "-16777216",                  16777216_) or
+        chkNegate(bigInteger parse                  "-16777217",                  16777217_) or
+        chkNegate(bigInteger parse                  "-16777218",                  16777218_) or
+        chkNegate(bigInteger parse                  "-99999998",                  99999998_) or
+        chkNegate(bigInteger parse                  "-99999999",                  99999999_) or
+        chkNegate(bigInteger parse                 "-100000000",                 100000000_) or
+        chkNegate(bigInteger parse                 "-100000001",                 100000001_) or
+        chkNegate(bigInteger parse                 "-100000002",                 100000002_) or
+        chkNegate(bigInteger parse                 "-999999998",                 999999998_) or
+        chkNegate(bigInteger parse                 "-999999999",                 999999999_) or
+        chkNegate(bigInteger parse                "-1000000000",                1000000000_) or
+        chkNegate(bigInteger parse                "-1000000001",                1000000001_) or
+        chkNegate(bigInteger parse                "-1000000002",                1000000002_) or
+        chkNegate(bigInteger parse                "-2147483646",                2147483646_) or
+        chkNegate(bigInteger parse                "-2147483647",                2147483647_) or
+        chkNegate(bigInteger parse                "-2147483648",                2147483648_) or
+        chkNegate(bigInteger parse                "-2147483649",                2147483649_) or
+        chkNegate(bigInteger parse                "-2147483650",                2147483650_) or
+        chkNegate(bigInteger parse                "-4294967294",                4294967294_) or
+        chkNegate(bigInteger parse                "-4294967295",                4294967295_) or
+        chkNegate(bigInteger parse                "-4294967296",                4294967296_) or
+        chkNegate(bigInteger parse                "-4294967297",                4294967297_) or
+        chkNegate(bigInteger parse                "-4294967298",                4294967298_) or
+        chkNegate(bigInteger parse                "-9999999998",                9999999998_) or
+        chkNegate(bigInteger parse                "-9999999999",                9999999999_) or
+        chkNegate(bigInteger parse               "-10000000000",               10000000000_) or
+        chkNegate(bigInteger parse               "-10000000001",               10000000001_) or
+        chkNegate(bigInteger parse               "-10000000002",               10000000002_) or
+        chkNegate(bigInteger parse               "-99999999998",               99999999998_) or
+        chkNegate(bigInteger parse               "-99999999999",               99999999999_) or
+        chkNegate(bigInteger parse              "-100000000000",              100000000000_) or
+        chkNegate(bigInteger parse              "-100000000001",              100000000001_) or
+        chkNegate(bigInteger parse              "-100000000002",              100000000002_) or
+        chkNegate(bigInteger parse              "-549755813886",              549755813886_) or
+        chkNegate(bigInteger parse              "-549755813887",              549755813887_) or
+        chkNegate(bigInteger parse              "-549755813888",              549755813888_) or
+        chkNegate(bigInteger parse              "-549755813889",              549755813889_) or
+        chkNegate(bigInteger parse              "-549755813890",              549755813890_) or
+        chkNegate(bigInteger parse              "-999999999998",              999999999998_) or
+        chkNegate(bigInteger parse              "-999999999999",              999999999999_) or
+        chkNegate(bigInteger parse             "-1000000000000",             1000000000000_) or
+        chkNegate(bigInteger parse             "-1000000000001",             1000000000001_) or
+        chkNegate(bigInteger parse             "-1000000000002",             1000000000002_) or
+        chkNegate(bigInteger parse             "-1099511627774",             1099511627774_) or
+        chkNegate(bigInteger parse             "-1099511627775",             1099511627775_) or
+        chkNegate(bigInteger parse             "-1099511627776",             1099511627776_) or
+        chkNegate(bigInteger parse             "-1099511627777",             1099511627777_) or
+        chkNegate(bigInteger parse             "-1099511627778",             1099511627778_) or
+        chkNegate(bigInteger parse           "-140737488355326",           140737488355326_) or
+        chkNegate(bigInteger parse           "-140737488355327",           140737488355327_) or
+        chkNegate(bigInteger parse           "-140737488355328",           140737488355328_) or
+        chkNegate(bigInteger parse           "-140737488355329",           140737488355329_) or
+        chkNegate(bigInteger parse           "-140737488355330",           140737488355330_) or
+        chkNegate(bigInteger parse           "-281474976710654",           281474976710654_) or
+        chkNegate(bigInteger parse           "-281474976710655",           281474976710655_) or
+        chkNegate(bigInteger parse           "-281474976710656",           281474976710656_) or
+        chkNegate(bigInteger parse           "-281474976710657",           281474976710657_) or
+        chkNegate(bigInteger parse           "-281474976710658",           281474976710658_) or
+        chkNegate(bigInteger parse         "-36028797018963966",         36028797018963966_) or
+        chkNegate(bigInteger parse         "-36028797018963967",         36028797018963967_) or
+        chkNegate(bigInteger parse         "-36028797018963968",         36028797018963968_) or
+        chkNegate(bigInteger parse         "-36028797018963969",         36028797018963969_) or
+        chkNegate(bigInteger parse         "-36028797018963970",         36028797018963970_) or
+        chkNegate(bigInteger parse         "-72057594037927934",         72057594037927934_) or
+        chkNegate(bigInteger parse         "-72057594037927935",         72057594037927935_) or
+        chkNegate(bigInteger parse         "-72057594037927936",         72057594037927936_) or
+        chkNegate(bigInteger parse         "-72057594037927937",         72057594037927937_) or
+        chkNegate(bigInteger parse         "-72057594037927938",         72057594037927938_) or
+        chkNegate(bigInteger parse       "-9223372036854775806",       9223372036854775806_) or
+        chkNegate(bigInteger parse       "-9223372036854775807",       9223372036854775807_) or
+        chkNegate(bigInteger parse       "-9223372036854775808",       9223372036854775808_) or
+        chkNegate(bigInteger parse       "-9223372036854775809",       9223372036854775809_) or
+        chkNegate(bigInteger parse       "-9223372036854775810",       9223372036854775810_) or
+        chkNegate(bigInteger parse      "-18446744073709551614",      18446744073709551614_) or
+        chkNegate(bigInteger parse      "-18446744073709551615",      18446744073709551615_) or
+        chkNegate(bigInteger parse      "-18446744073709551616",      18446744073709551616_) or
+        chkNegate(bigInteger parse      "-18446744073709551617",      18446744073709551617_) or
+        chkNegate(bigInteger parse      "-18446744073709551618",      18446744073709551618_) or
+        chkNegate(bigInteger parse    "-2361183241434822606846",    2361183241434822606846_) or
+        chkNegate(bigInteger parse    "-2361183241434822606847",    2361183241434822606847_) or
+        chkNegate(bigInteger parse    "-2361183241434822606848",    2361183241434822606848_) or
+        chkNegate(bigInteger parse    "-2361183241434822606849",    2361183241434822606849_) or
+        chkNegate(bigInteger parse    "-2361183241434822606850",    2361183241434822606850_) or
+        chkNegate(bigInteger parse    "-4722366482869645213694",    4722366482869645213694_) or
+        chkNegate(bigInteger parse    "-4722366482869645213695",    4722366482869645213695_) or
+        chkNegate(bigInteger parse    "-4722366482869645213696",    4722366482869645213696_) or
+        chkNegate(bigInteger parse    "-4722366482869645213697",    4722366482869645213697_) or
+        chkNegate(bigInteger parse    "-4722366482869645213698",    4722366482869645213698_) or
+        chkNegate(bigInteger parse  "-604462909807314587353086",  604462909807314587353086_) or
+        chkNegate(bigInteger parse  "-604462909807314587353087",  604462909807314587353087_) or
+        chkNegate(bigInteger parse  "-604462909807314587353088",  604462909807314587353088_) or
+        chkNegate(bigInteger parse  "-604462909807314587353089",  604462909807314587353089_) or
+        chkNegate(bigInteger parse  "-604462909807314587353090",  604462909807314587353090_) or
+        chkNegate(bigInteger parse "-1208925819614629174706174", 1208925819614629174706174_) or
+        chkNegate(bigInteger parse "-1208925819614629174706175", 1208925819614629174706175_) or
+        chkNegate(bigInteger parse "-1208925819614629174706176", 1208925819614629174706176_) or
+        chkNegate(bigInteger parse "-1208925819614629174706177", 1208925819614629174706177_) or
+        chkNegate(bigInteger parse "-1208925819614629174706178", 1208925819614629174706178_) then
+      writeln("Negation of a negative bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if                          -0_ <> bigInteger parse                         "-0" or
+                                -1_ <> bigInteger parse                         "-1" or
+                                -2_ <> bigInteger parse                         "-2" or
+                                -8_ <> bigInteger parse                         "-8" or
+                                -9_ <> bigInteger parse                         "-9" or
+                               -10_ <> bigInteger parse                        "-10" or
+                               -11_ <> bigInteger parse                        "-11" or
+                               -12_ <> bigInteger parse                        "-12" or
+                               -98_ <> bigInteger parse                        "-98" or
+                               -99_ <> bigInteger parse                        "-99" or
+                              -100_ <> bigInteger parse                       "-100" or
+                              -101_ <> bigInteger parse                       "-101" or
+                              -102_ <> bigInteger parse                       "-102" or
+                              -126_ <> bigInteger parse                       "-126" or
+                              -127_ <> bigInteger parse                       "-127" or
+                              -128_ <> bigInteger parse                       "-128" or
+                              -129_ <> bigInteger parse                       "-129" or
+                              -130_ <> bigInteger parse                       "-130" or
+                              -254_ <> bigInteger parse                       "-254" or
+                              -255_ <> bigInteger parse                       "-255" or
+                              -256_ <> bigInteger parse                       "-256" or
+                              -257_ <> bigInteger parse                       "-257" or
+                              -258_ <> bigInteger parse                       "-258" or
+                              -998_ <> bigInteger parse                       "-998" or
+                              -999_ <> bigInteger parse                       "-999" or
+                             -1000_ <> bigInteger parse                      "-1000" or
+                             -1001_ <> bigInteger parse                      "-1001" or
+                             -1002_ <> bigInteger parse                      "-1002" or
+                             -9998_ <> bigInteger parse                      "-9998" or
+                             -9999_ <> bigInteger parse                      "-9999" or
+                            -10000_ <> bigInteger parse                     "-10000" or
+                            -10001_ <> bigInteger parse                     "-10001" or
+                            -10002_ <> bigInteger parse                     "-10002" or
+                            -32766_ <> bigInteger parse                     "-32766" or
+                            -32767_ <> bigInteger parse                     "-32767" or
+                            -32768_ <> bigInteger parse                     "-32768" or
+                            -32769_ <> bigInteger parse                     "-32769" or
+                            -32770_ <> bigInteger parse                     "-32770" or
+                            -65534_ <> bigInteger parse                     "-65534" or
+                            -65535_ <> bigInteger parse                     "-65535" or
+                            -65536_ <> bigInteger parse                     "-65536" or
+                            -65537_ <> bigInteger parse                     "-65537" or
+                            -65538_ <> bigInteger parse                     "-65538" or
+                            -99998_ <> bigInteger parse                     "-99998" or
+                            -99999_ <> bigInteger parse                     "-99999" or
+                           -100000_ <> bigInteger parse                    "-100000" or
+                           -100001_ <> bigInteger parse                    "-100001" or
+                           -100002_ <> bigInteger parse                    "-100002" or
+                           -999998_ <> bigInteger parse                    "-999998" or
+                           -999999_ <> bigInteger parse                    "-999999" or
+                          -1000000_ <> bigInteger parse                   "-1000000" or
+                          -1000001_ <> bigInteger parse                   "-1000001" or
+                          -1000002_ <> bigInteger parse                   "-1000002" or
+                          -8388606_ <> bigInteger parse                   "-8388606" or
+                          -8388607_ <> bigInteger parse                   "-8388607" or
+                          -8388608_ <> bigInteger parse                   "-8388608" or
+                          -8388609_ <> bigInteger parse                   "-8388609" or
+                          -8388610_ <> bigInteger parse                   "-8388610" or
+                          -9999998_ <> bigInteger parse                   "-9999998" or
+                          -9999999_ <> bigInteger parse                   "-9999999" or
+                         -10000000_ <> bigInteger parse                  "-10000000" or
+                         -10000001_ <> bigInteger parse                  "-10000001" or
+                         -10000002_ <> bigInteger parse                  "-10000002" or
+                         -16777214_ <> bigInteger parse                  "-16777214" or
+                         -16777215_ <> bigInteger parse                  "-16777215" or
+                         -16777216_ <> bigInteger parse                  "-16777216" or
+                         -16777217_ <> bigInteger parse                  "-16777217" or
+                         -16777218_ <> bigInteger parse                  "-16777218" or
+                         -99999998_ <> bigInteger parse                  "-99999998" or
+                         -99999999_ <> bigInteger parse                  "-99999999" or
+                        -100000000_ <> bigInteger parse                 "-100000000" or
+                        -100000001_ <> bigInteger parse                 "-100000001" or
+                        -100000002_ <> bigInteger parse                 "-100000002" or
+                        -999999998_ <> bigInteger parse                 "-999999998" or
+                        -999999999_ <> bigInteger parse                 "-999999999" or
+                       -1000000000_ <> bigInteger parse                "-1000000000" or
+                       -1000000001_ <> bigInteger parse                "-1000000001" or
+                       -1000000002_ <> bigInteger parse                "-1000000002" or
+                       -2147483646_ <> bigInteger parse                "-2147483646" or
+                       -2147483647_ <> bigInteger parse                "-2147483647" or
+                       -2147483648_ <> bigInteger parse                "-2147483648" or
+                       -2147483649_ <> bigInteger parse                "-2147483649" or
+                       -2147483650_ <> bigInteger parse                "-2147483650" or
+                       -4294967294_ <> bigInteger parse                "-4294967294" or
+                       -4294967295_ <> bigInteger parse                "-4294967295" or
+                       -4294967296_ <> bigInteger parse                "-4294967296" or
+                       -4294967297_ <> bigInteger parse                "-4294967297" or
+                       -4294967298_ <> bigInteger parse                "-4294967298" or
+                       -9999999998_ <> bigInteger parse                "-9999999998" or
+                       -9999999999_ <> bigInteger parse                "-9999999999" or
+                      -10000000000_ <> bigInteger parse               "-10000000000" or
+                      -10000000001_ <> bigInteger parse               "-10000000001" or
+                      -10000000002_ <> bigInteger parse               "-10000000002" or
+                      -99999999998_ <> bigInteger parse               "-99999999998" or
+                      -99999999999_ <> bigInteger parse               "-99999999999" or
+                     -100000000000_ <> bigInteger parse              "-100000000000" or
+                     -100000000001_ <> bigInteger parse              "-100000000001" or
+                     -100000000002_ <> bigInteger parse              "-100000000002" or
+                     -549755813886_ <> bigInteger parse              "-549755813886" or
+                     -549755813887_ <> bigInteger parse              "-549755813887" or
+                     -549755813888_ <> bigInteger parse              "-549755813888" or
+                     -549755813889_ <> bigInteger parse              "-549755813889" or
+                     -549755813890_ <> bigInteger parse              "-549755813890" or
+                     -999999999998_ <> bigInteger parse              "-999999999998" or
+                     -999999999999_ <> bigInteger parse              "-999999999999" or
+                    -1000000000000_ <> bigInteger parse             "-1000000000000" or
+                    -1000000000001_ <> bigInteger parse             "-1000000000001" or
+                    -1000000000002_ <> bigInteger parse             "-1000000000002" or
+                    -1099511627774_ <> bigInteger parse             "-1099511627774" or
+                    -1099511627775_ <> bigInteger parse             "-1099511627775" or
+                    -1099511627776_ <> bigInteger parse             "-1099511627776" or
+                    -1099511627777_ <> bigInteger parse             "-1099511627777" or
+                    -1099511627778_ <> bigInteger parse             "-1099511627778" or
+                  -140737488355326_ <> bigInteger parse           "-140737488355326" or
+                  -140737488355327_ <> bigInteger parse           "-140737488355327" or
+                  -140737488355328_ <> bigInteger parse           "-140737488355328" or
+                  -140737488355329_ <> bigInteger parse           "-140737488355329" or
+                  -140737488355330_ <> bigInteger parse           "-140737488355330" or
+                  -281474976710654_ <> bigInteger parse           "-281474976710654" or
+                  -281474976710655_ <> bigInteger parse           "-281474976710655" or
+                  -281474976710656_ <> bigInteger parse           "-281474976710656" or
+                  -281474976710657_ <> bigInteger parse           "-281474976710657" or
+                  -281474976710658_ <> bigInteger parse           "-281474976710658" or
+                -36028797018963966_ <> bigInteger parse         "-36028797018963966" or
+                -36028797018963967_ <> bigInteger parse         "-36028797018963967" or
+                -36028797018963968_ <> bigInteger parse         "-36028797018963968" or
+                -36028797018963969_ <> bigInteger parse         "-36028797018963969" or
+                -36028797018963970_ <> bigInteger parse         "-36028797018963970" or
+                -72057594037927934_ <> bigInteger parse         "-72057594037927934" or
+                -72057594037927935_ <> bigInteger parse         "-72057594037927935" or
+                -72057594037927936_ <> bigInteger parse         "-72057594037927936" or
+                -72057594037927937_ <> bigInteger parse         "-72057594037927937" or
+                -72057594037927938_ <> bigInteger parse         "-72057594037927938" or
+              -9223372036854775806_ <> bigInteger parse       "-9223372036854775806" or
+              -9223372036854775807_ <> bigInteger parse       "-9223372036854775807" or
+              -9223372036854775808_ <> bigInteger parse       "-9223372036854775808" or
+              -9223372036854775809_ <> bigInteger parse       "-9223372036854775809" or
+              -9223372036854775810_ <> bigInteger parse       "-9223372036854775810" or
+             -18446744073709551614_ <> bigInteger parse      "-18446744073709551614" or
+             -18446744073709551615_ <> bigInteger parse      "-18446744073709551615" or
+             -18446744073709551616_ <> bigInteger parse      "-18446744073709551616" or
+             -18446744073709551617_ <> bigInteger parse      "-18446744073709551617" or
+             -18446744073709551618_ <> bigInteger parse      "-18446744073709551618" or
+           -2361183241434822606846_ <> bigInteger parse    "-2361183241434822606846" or
+           -2361183241434822606847_ <> bigInteger parse    "-2361183241434822606847" or
+           -2361183241434822606848_ <> bigInteger parse    "-2361183241434822606848" or
+           -2361183241434822606849_ <> bigInteger parse    "-2361183241434822606849" or
+           -2361183241434822606850_ <> bigInteger parse    "-2361183241434822606850" or
+           -4722366482869645213694_ <> bigInteger parse    "-4722366482869645213694" or
+           -4722366482869645213695_ <> bigInteger parse    "-4722366482869645213695" or
+           -4722366482869645213696_ <> bigInteger parse    "-4722366482869645213696" or
+           -4722366482869645213697_ <> bigInteger parse    "-4722366482869645213697" or
+           -4722366482869645213698_ <> bigInteger parse    "-4722366482869645213698" or
+         -604462909807314587353086_ <> bigInteger parse  "-604462909807314587353086" or
+         -604462909807314587353087_ <> bigInteger parse  "-604462909807314587353087" or
+         -604462909807314587353088_ <> bigInteger parse  "-604462909807314587353088" or
+         -604462909807314587353089_ <> bigInteger parse  "-604462909807314587353089" or
+         -604462909807314587353090_ <> bigInteger parse  "-604462909807314587353090" or
+        -1208925819614629174706174_ <> bigInteger parse "-1208925819614629174706174" or
+        -1208925819614629174706175_ <> bigInteger parse "-1208925819614629174706175" or
+        -1208925819614629174706176_ <> bigInteger parse "-1208925819614629174706176" or
+        -1208925819614629174706177_ <> bigInteger parse "-1208925819614629174706177" or
+        -1208925819614629174706178_ <> bigInteger parse "-1208925819614629174706178" then
+      writeln("Negation of a positive bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  -                         -0_ <>                         0_ or
+        -                         -1_ <>                         1_ or
+        -                         -2_ <>                         2_ or
+        -                         -8_ <>                         8_ or
+        -                         -9_ <>                         9_ or
+        -                        -10_ <>                        10_ or
+        -                        -11_ <>                        11_ or
+        -                        -12_ <>                        12_ or
+        -                        -98_ <>                        98_ or
+        -                        -99_ <>                        99_ or
+        -                       -100_ <>                       100_ or
+        -                       -101_ <>                       101_ or
+        -                       -102_ <>                       102_ or
+        -                       -126_ <>                       126_ or
+        -                       -127_ <>                       127_ or
+        -                       -128_ <>                       128_ or
+        -                       -129_ <>                       129_ or
+        -                       -130_ <>                       130_ or
+        -                       -254_ <>                       254_ or
+        -                       -255_ <>                       255_ or
+        -                       -256_ <>                       256_ or
+        -                       -257_ <>                       257_ or
+        -                       -258_ <>                       258_ or
+        -                       -998_ <>                       998_ or
+        -                       -999_ <>                       999_ or
+        -                      -1000_ <>                      1000_ or
+        -                      -1001_ <>                      1001_ or
+        -                      -1002_ <>                      1002_ or
+        -                      -9998_ <>                      9998_ or
+        -                      -9999_ <>                      9999_ or
+        -                     -10000_ <>                     10000_ or
+        -                     -10001_ <>                     10001_ or
+        -                     -10002_ <>                     10002_ or
+        -                     -32766_ <>                     32766_ or
+        -                     -32767_ <>                     32767_ or
+        -                     -32768_ <>                     32768_ or
+        -                     -32769_ <>                     32769_ or
+        -                     -32770_ <>                     32770_ or
+        -                     -65534_ <>                     65534_ or
+        -                     -65535_ <>                     65535_ or
+        -                     -65536_ <>                     65536_ or
+        -                     -65537_ <>                     65537_ or
+        -                     -65538_ <>                     65538_ or
+        -                     -99998_ <>                     99998_ or
+        -                     -99999_ <>                     99999_ or
+        -                    -100000_ <>                    100000_ or
+        -                    -100001_ <>                    100001_ or
+        -                    -100002_ <>                    100002_ or
+        -                    -999998_ <>                    999998_ or
+        -                    -999999_ <>                    999999_ or
+        -                   -1000000_ <>                   1000000_ or
+        -                   -1000001_ <>                   1000001_ or
+        -                   -1000002_ <>                   1000002_ or
+        -                   -8388606_ <>                   8388606_ or
+        -                   -8388607_ <>                   8388607_ or
+        -                   -8388608_ <>                   8388608_ or
+        -                   -8388609_ <>                   8388609_ or
+        -                   -8388610_ <>                   8388610_ or
+        -                   -9999998_ <>                   9999998_ or
+        -                   -9999999_ <>                   9999999_ or
+        -                  -10000000_ <>                  10000000_ or
+        -                  -10000001_ <>                  10000001_ or
+        -                  -10000002_ <>                  10000002_ or
+        -                  -16777214_ <>                  16777214_ or
+        -                  -16777215_ <>                  16777215_ or
+        -                  -16777216_ <>                  16777216_ or
+        -                  -16777217_ <>                  16777217_ or
+        -                  -16777218_ <>                  16777218_ or
+        -                  -99999998_ <>                  99999998_ or
+        -                  -99999999_ <>                  99999999_ or
+        -                 -100000000_ <>                 100000000_ or
+        -                 -100000001_ <>                 100000001_ or
+        -                 -100000002_ <>                 100000002_ or
+        -                 -999999998_ <>                 999999998_ or
+        -                 -999999999_ <>                 999999999_ or
+        -                -1000000000_ <>                1000000000_ or
+        -                -1000000001_ <>                1000000001_ or
+        -                -1000000002_ <>                1000000002_ or
+        -                -2147483646_ <>                2147483646_ or
+        -                -2147483647_ <>                2147483647_ or
+        -                -2147483648_ <>                2147483648_ or
+        -                -2147483649_ <>                2147483649_ or
+        -                -2147483650_ <>                2147483650_ or
+        -                -4294967294_ <>                4294967294_ or
+        -                -4294967295_ <>                4294967295_ or
+        -                -4294967296_ <>                4294967296_ or
+        -                -4294967297_ <>                4294967297_ or
+        -                -4294967298_ <>                4294967298_ or
+        -                -9999999998_ <>                9999999998_ or
+        -                -9999999999_ <>                9999999999_ or
+        -               -10000000000_ <>               10000000000_ or
+        -               -10000000001_ <>               10000000001_ or
+        -               -10000000002_ <>               10000000002_ or
+        -               -99999999998_ <>               99999999998_ or
+        -               -99999999999_ <>               99999999999_ or
+        -              -100000000000_ <>              100000000000_ or
+        -              -100000000001_ <>              100000000001_ or
+        -              -100000000002_ <>              100000000002_ or
+        -              -549755813886_ <>              549755813886_ or
+        -              -549755813887_ <>              549755813887_ or
+        -              -549755813888_ <>              549755813888_ or
+        -              -549755813889_ <>              549755813889_ or
+        -              -549755813890_ <>              549755813890_ or
+        -              -999999999998_ <>              999999999998_ or
+        -              -999999999999_ <>              999999999999_ or
+        -             -1000000000000_ <>             1000000000000_ or
+        -             -1000000000001_ <>             1000000000001_ or
+        -             -1000000000002_ <>             1000000000002_ or
+        -             -1099511627774_ <>             1099511627774_ or
+        -             -1099511627775_ <>             1099511627775_ or
+        -             -1099511627776_ <>             1099511627776_ or
+        -             -1099511627777_ <>             1099511627777_ or
+        -             -1099511627778_ <>             1099511627778_ or
+        -           -140737488355326_ <>           140737488355326_ or
+        -           -140737488355327_ <>           140737488355327_ or
+        -           -140737488355328_ <>           140737488355328_ or
+        -           -140737488355329_ <>           140737488355329_ or
+        -           -140737488355330_ <>           140737488355330_ or
+        -           -281474976710654_ <>           281474976710654_ or
+        -           -281474976710655_ <>           281474976710655_ or
+        -           -281474976710656_ <>           281474976710656_ or
+        -           -281474976710657_ <>           281474976710657_ or
+        -           -281474976710658_ <>           281474976710658_ or
+        -         -36028797018963966_ <>         36028797018963966_ or
+        -         -36028797018963967_ <>         36028797018963967_ or
+        -         -36028797018963968_ <>         36028797018963968_ or
+        -         -36028797018963969_ <>         36028797018963969_ or
+        -         -36028797018963970_ <>         36028797018963970_ or
+        -         -72057594037927934_ <>         72057594037927934_ or
+        -         -72057594037927935_ <>         72057594037927935_ or
+        -         -72057594037927936_ <>         72057594037927936_ or
+        -         -72057594037927937_ <>         72057594037927937_ or
+        -         -72057594037927938_ <>         72057594037927938_ or
+        -       -9223372036854775806_ <>       9223372036854775806_ or
+        -       -9223372036854775807_ <>       9223372036854775807_ or
+        -       -9223372036854775808_ <>       9223372036854775808_ or
+        -       -9223372036854775809_ <>       9223372036854775809_ or
+        -       -9223372036854775810_ <>       9223372036854775810_ or
+        -      -18446744073709551614_ <>      18446744073709551614_ or
+        -      -18446744073709551615_ <>      18446744073709551615_ or
+        -      -18446744073709551616_ <>      18446744073709551616_ or
+        -      -18446744073709551617_ <>      18446744073709551617_ or
+        -      -18446744073709551618_ <>      18446744073709551618_ or
+        -    -2361183241434822606846_ <>    2361183241434822606846_ or
+        -    -2361183241434822606847_ <>    2361183241434822606847_ or
+        -    -2361183241434822606848_ <>    2361183241434822606848_ or
+        -    -2361183241434822606849_ <>    2361183241434822606849_ or
+        -    -2361183241434822606850_ <>    2361183241434822606850_ or
+        -    -4722366482869645213694_ <>    4722366482869645213694_ or
+        -    -4722366482869645213695_ <>    4722366482869645213695_ or
+        -    -4722366482869645213696_ <>    4722366482869645213696_ or
+        -    -4722366482869645213697_ <>    4722366482869645213697_ or
+        -    -4722366482869645213698_ <>    4722366482869645213698_ or
+        -  -604462909807314587353086_ <>  604462909807314587353086_ or
+        -  -604462909807314587353087_ <>  604462909807314587353087_ or
+        -  -604462909807314587353088_ <>  604462909807314587353088_ or
+        -  -604462909807314587353089_ <>  604462909807314587353089_ or
+        -  -604462909807314587353090_ <>  604462909807314587353090_ or
+        - -1208925819614629174706174_ <> 1208925819614629174706174_ or
+        - -1208925819614629174706175_ <> 1208925819614629174706175_ or
+        - -1208925819614629174706176_ <> 1208925819614629174706176_ or
+        - -1208925819614629174706177_ <> 1208925819614629174706177_ or
+        - -1208925819614629174706178_ <> 1208925819614629174706178_ then
       writeln("Negation of a negative bigInteger does not work correct.");
       okay := FALSE;
     end if;
@@ -8825,6 +9170,83 @@ const proc: chkModDivision is func
       okay := FALSE;
     end if;
 
+    if   280223983525050_ mdiv                     2_ <>  140111991762525_ or
+         280223983525050_ mdiv                     4_ <>   70055995881262_ or
+         280223983525050_ mdiv                     8_ <>   35027997940631_ or
+         280223983525050_ mdiv                  1024_ <>     273656233911_ or
+         280223983525050_ mdiv               1048576_ <>        267242415_ or
+         280223983525050_ mdiv            1073741824_ <>           260978_ or
+         280223983525050_ mdiv            2147483648_ <>           130489_ or
+         280223983525050_ mdiv            4294967296_ <>            65244_ or
+         280223983525050_ mdiv         1099511627776_ <>              254_ or
+         280223983525050_ mdiv                    -2_ <> -140111991762525_ or
+         280223983525050_ mdiv                    -4_ <>  -70055995881263_ or
+         280223983525050_ mdiv                    -8_ <>  -35027997940632_ or
+         280223983525050_ mdiv                 -1024_ <>    -273656233912_ or
+         280223983525050_ mdiv              -1048576_ <>       -267242416_ or
+         280223983525050_ mdiv           -1073741824_ <>          -260979_ or
+         280223983525050_ mdiv           -2147483648_ <>          -130490_ or
+         280223983525050_ mdiv           -4294967296_ <>           -65245_ or
+         280223983525050_ mdiv        -1099511627776_ <>             -255_ or
+        -280223983525050_ mdiv                     2_ <> -140111991762525_ or
+        -280223983525050_ mdiv                     4_ <>  -70055995881263_ or
+        -280223983525050_ mdiv                     8_ <>  -35027997940632_ or
+        -280223983525050_ mdiv                  1024_ <>    -273656233912_ or
+        -280223983525050_ mdiv               1048576_ <>       -267242416_ or
+        -280223983525050_ mdiv            1073741824_ <>          -260979_ or
+        -280223983525050_ mdiv            2147483648_ <>          -130490_ or
+        -280223983525050_ mdiv            4294967296_ <>           -65245_ or
+        -280223983525050_ mdiv         1099511627776_ <>             -255_ or
+        -280223983525050_ mdiv                    -2_ <>  140111991762525_ or
+        -280223983525050_ mdiv                    -4_ <>   70055995881262_ or
+        -280223983525050_ mdiv                    -8_ <>   35027997940631_ or
+        -280223983525050_ mdiv                 -1024_ <>     273656233911_ or
+        -280223983525050_ mdiv              -1048576_ <>        267242415_ or
+        -280223983525050_ mdiv           -1073741824_ <>           260978_ or
+        -280223983525050_ mdiv           -2147483648_ <>           130489_ or
+        -280223983525050_ mdiv           -4294967296_ <>            65244_ or
+        -280223983525050_ mdiv        -1099511627776_ <>              254_ or
+
+        bigintExpr( 280223983525050_) mdiv                     2_ <>  140111991762525_ or
+        bigintExpr( 280223983525050_) mdiv                     4_ <>   70055995881262_ or
+        bigintExpr( 280223983525050_) mdiv                     8_ <>   35027997940631_ or
+        bigintExpr( 280223983525050_) mdiv                  1024_ <>     273656233911_ or
+        bigintExpr( 280223983525050_) mdiv               1048576_ <>        267242415_ or
+        bigintExpr( 280223983525050_) mdiv            1073741824_ <>           260978_ or
+        bigintExpr( 280223983525050_) mdiv            2147483648_ <>           130489_ or
+        bigintExpr( 280223983525050_) mdiv            4294967296_ <>            65244_ or
+        bigintExpr( 280223983525050_) mdiv         1099511627776_ <>              254_ or
+        bigintExpr( 280223983525050_) mdiv                    -2_ <> -140111991762525_ or
+        bigintExpr( 280223983525050_) mdiv                    -4_ <>  -70055995881263_ or
+        bigintExpr( 280223983525050_) mdiv                    -8_ <>  -35027997940632_ or
+        bigintExpr( 280223983525050_) mdiv                 -1024_ <>    -273656233912_ or
+        bigintExpr( 280223983525050_) mdiv              -1048576_ <>       -267242416_ or
+        bigintExpr( 280223983525050_) mdiv           -1073741824_ <>          -260979_ or
+        bigintExpr( 280223983525050_) mdiv           -2147483648_ <>          -130490_ or
+        bigintExpr( 280223983525050_) mdiv           -4294967296_ <>           -65245_ or
+        bigintExpr( 280223983525050_) mdiv        -1099511627776_ <>             -255_ or
+        bigintExpr(-280223983525050_) mdiv                     2_ <> -140111991762525_ or
+        bigintExpr(-280223983525050_) mdiv                     4_ <>  -70055995881263_ or
+        bigintExpr(-280223983525050_) mdiv                     8_ <>  -35027997940632_ or
+        bigintExpr(-280223983525050_) mdiv                  1024_ <>    -273656233912_ or
+        bigintExpr(-280223983525050_) mdiv               1048576_ <>       -267242416_ or
+        bigintExpr(-280223983525050_) mdiv            1073741824_ <>          -260979_ or
+        bigintExpr(-280223983525050_) mdiv            2147483648_ <>          -130490_ or
+        bigintExpr(-280223983525050_) mdiv            4294967296_ <>           -65245_ or
+        bigintExpr(-280223983525050_) mdiv         1099511627776_ <>             -255_ or
+        bigintExpr(-280223983525050_) mdiv                    -2_ <>  140111991762525_ or
+        bigintExpr(-280223983525050_) mdiv                    -4_ <>   70055995881262_ or
+        bigintExpr(-280223983525050_) mdiv                    -8_ <>   35027997940631_ or
+        bigintExpr(-280223983525050_) mdiv                 -1024_ <>     273656233911_ or
+        bigintExpr(-280223983525050_) mdiv              -1048576_ <>        267242415_ or
+        bigintExpr(-280223983525050_) mdiv           -1073741824_ <>           260978_ or
+        bigintExpr(-280223983525050_) mdiv           -2147483648_ <>           130489_ or
+        bigintExpr(-280223983525050_) mdiv           -4294967296_ <>            65244_ or
+        bigintExpr(-280223983525050_) mdiv        -1099511627776_ <>              254_ then
+      writeln("Modulo division of bigInteger by power of two does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Modulo division of bigInteger works correct.");
     else
@@ -12075,7 +12497,9 @@ const func boolean: chkLShift (in bigInteger: big1, in integer: lshift,
     var bigInteger: bigVar is 0_;
   begin
     wrong := big1 <<  lshift <> checkValue or
-             big1 >> -lshift <> checkValue;
+             big1 >> -lshift <> checkValue or
+             bigintExpr(big1) <<  lshift <> checkValue or
+             bigintExpr(big1) >> -lshift <> checkValue;
     if not wrong then
       bigVar := big1;
       bigVar <<:= lshift;
@@ -12412,23 +12836,25 @@ const proc: chkLShift is func
 
 
 const func boolean: chkRShift (in bigInteger: big1, in integer: rshift,
-    in bigInteger: check) is func
+    in bigInteger: checkValue) is func
   result
     var boolean: wrong is FALSE;
   local
     var bigInteger: bigVar is 0_;
   begin
-    wrong := big1 >>  rshift <> check or
-             big1 << -rshift <> check;
+    wrong := big1 >>  rshift <> checkValue or
+             big1 << -rshift <> checkValue or
+             bigintExpr(big1) >>  rshift <> checkValue or
+             bigintExpr(big1) << -rshift <> checkValue;
     if not wrong then
       bigVar := big1;
       bigVar >>:= rshift;
-      wrong := bigVar <> check;
+      wrong := bigVar <> checkValue;
     end if;
     if not wrong then
       bigVar := big1;
       bigVar <<:= -rshift;
-      wrong := bigVar <> check;
+      wrong := bigVar <> checkValue;
     end if;
   end func;
 
@@ -13019,7 +13445,7 @@ const proc: main is func
     chkBytesLe;
     chkBytesBe2BigInt;
     chkBytesLe2BigInt;
-    chkMinus;
+    chkNegate;
     chkPlus;
     chkSucc;
     chkPred;

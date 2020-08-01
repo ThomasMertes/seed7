@@ -441,10 +441,6 @@ const func string: ltrim (in string: stri)                     is action "STR_LT
 const func string: rtrim (in string: stri)                     is action "STR_RTRIM";
 
 
-const func string: striToUtf8 (in string: stri)                is action "STR_TOUTF8";
-const func string: utf8ToStri (in string: stri8)               is action "STR_UTF8TOSTRI";
-
-
 (**
  *  Convert to a string.
  *  @return its parameter unchanged.
