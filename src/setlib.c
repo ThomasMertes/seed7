@@ -513,7 +513,7 @@ listtype arguments;
   { /* set_ge */
     isit_set(arg_1(arguments));
     isit_set(arg_3(arguments));
-    if (setGe(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
+    if (setIsSubset(take_set(arg_3(arguments)), take_set(arg_1(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -534,7 +534,7 @@ listtype arguments;
   { /* set_gt */
     isit_set(arg_1(arguments));
     isit_set(arg_3(arguments));
-    if (setGt(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
+    if (setIsProperSubset(take_set(arg_3(arguments)), take_set(arg_1(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -707,7 +707,7 @@ listtype arguments;
   { /* set_le */
     isit_set(arg_1(arguments));
     isit_set(arg_3(arguments));
-    if (setLe(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
+    if (setIsSubset(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -728,7 +728,7 @@ listtype arguments;
   { /* set_lt */
     isit_set(arg_1(arguments));
     isit_set(arg_3(arguments));
-    if (setLt(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
+    if (setIsProperSubset(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -783,10 +783,10 @@ listtype arguments;
   { /* set_ne */
     isit_set(arg_1(arguments));
     isit_set(arg_3(arguments));
-    if (setNe(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
-      return(SYS_TRUE_OBJECT);
-    } else {
+    if (setEq(take_set(arg_1(arguments)), take_set(arg_3(arguments)))) {
       return(SYS_FALSE_OBJECT);
+    } else {
+      return(SYS_TRUE_OBJECT);
     } /* if */
   } /* set_ne */
 

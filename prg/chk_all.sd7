@@ -117,6 +117,8 @@ const string: chkbool_output is "\n\
 const string: chkset_output is "\n\
   \card(bitset) works correct.\n\
   \incl(bitset, integer) works correct.\n\
+  \set compare works correct.\n\
+  \set relations work correct.\n\
   \set union works correct.\n\
   \set intersection works correct.\n\
   \min(bitset) works correct.\n\

@@ -62,6 +62,42 @@ const string: cp_437g is "\
     \αßΓπΣσµτΦΘΩδ∞φε∩\
     \≡±≥≤⌠⌡÷≈°∙·√ⁿ²■\160\";
 
+const string: cp_720 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \??éâ?à?çêëèïî???\
+    \?ّْô¤ـûùءآأؤ£إئا\
+    \بةتثجحخدذرزسشص«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \ضطظعغفµقكلمنهوىي\
+    \≡ًٌٍَُِ≈°∙·√ⁿ²■\160\";
+
+const string: cp_720g is "\
+    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \??éâ?à?çêëèïî???\
+    \?ّْô¤ـûùءآأؤ£إئا\
+    \بةتثجحخدذرزسشص«»\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \ضطظعغفµقكلمنهوىي\
+    \≡ًٌٍَُِ≈°∙·√ⁿ²■\160\";
+
 const string: cp_737 is "\
     \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
     \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
@@ -530,6 +566,42 @@ const string: cp_869g is "\
     \ζηθικλμνξοπρσςτ΄\
     \­±υφχ§ψ΅°¨ωϋΰώ■\160\";
 
+const string: cp_1125 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \рстуфхцчшщъыьэюя\
+    \ЁёҐґЄєІіЇї÷±№€■\160\";
+
+const string: cp_1125g is "\
+    \\0\☺☻♥♦♣♠●◘\t\n♂♀\r♫☼\
+    \►◄↕‼¶§▬↨↑↓→←∟↔▲▼\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~⌂\
+    \АБВГДЕЖЗИЙКЛМНОП\
+    \РСТУФХЦЧШЩЪЫЬЭЮЯ\
+    \абвгдежзийклмноп\
+    \░▒▓│┤╡╢╖╕╣║╗╝╜╛┐\
+    \└┴┬├─┼╞╟╚╔╩╦╠═╬╧\
+    \╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀\
+    \рстуфхцчшщъыьэюя\
+    \ЁёҐґЄєІіЇї÷±№€■ \160\";
+
 const string: cp_1250 is "\
     \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
     \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
@@ -620,6 +692,42 @@ const string: cp_1254 is "\
     \àáâãäåæçèéêëìíîï\
     \ğñòóôõö÷øùúûüışÿ";
 
+const string: cp_1255 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \€?‚ƒ„…†‡ˆ‰?‹????\
+    \?‘’“”•–—˜™?›????\
+    \\160\¡¢£₪¥¦§¨©×«¬­®¯\
+    \°±²³´µ¶·¸¹÷»¼½¾¿\
+    \ְֱֲֳִֵֶַָֹ?ֻּֽ־ֿ\
+    \׀ׁׂ׃װױײ׳״???????\
+    \אבגדהוזחטיךכלםמן\
+    \נסעףפץצקרשת??\16#200E\\16#200F\?";
+
+const string: cp_1256 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \€پ‚ƒ„…†‡ˆ‰ٹ‹Œچژڈ\
+    \گ‘’“”•–—ک™ڑ›œ‌‍ں\
+    \\160\،¢£¤¥¦§¨©ھ«¬­®¯\
+    \°±²³´µ¶·¸¹؛»¼½¾؟\
+    \ہءآأؤإئابةتثجحخد\
+    \ذرزسشصض×طظعغـفقك\
+    \àلâمنهوçèéêëىيîï\
+    \ًٌٍَôُِ÷ّùْûü\16#200E\\16#200F\ے";
+
 const string: cp_1257 is "\
     \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
     \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
@@ -637,6 +745,24 @@ const string: cp_1257 is "\
     \ŠŃŅÓŌÕÖ×ŲŁŚŪÜŻŽß\
     \ąįāćäåęēčéźėģķīļ\
     \šńņóōõö÷ųłśūüżž˙";
+
+const string: cp_1258 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \€?‚ƒ„…†‡ˆ‰?‹Œ???\
+    \?‘’“”•–—˜™?›œ??Ÿ\
+    \\160\¡¢£¤¥¦§¨©ª«¬­®¯\
+    \°±²³´µ¶·¸¹º»¼½¾¿\
+    \ÀÁÂĂÄÅÆÇÈÉÊË\16#300\ÍÎÏ\
+    \ĐÑ\16#309\ÓÔƠÖ×ØÙÚÛÜƯ\16#303\ß\
+    \àáâăäåæçèéêë\16#301\íîï\
+    \đñ\16#323\óôơö÷øùúûüư₫ÿ";
 
 const string: iso_8859_1 is "\
     \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
@@ -728,6 +854,24 @@ const string: iso_8859_5 is "\
     \рстуфхцчшщъыьэюя\
     \№ёђѓєѕіїјљњћќ§ўџ";
 
+const string: iso_8859_6 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\\
+    \\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\\
+    \\160\???¤???????،­??\
+    \???????????؛???؟\
+    \?ءآأؤإئابةتثجحخد\
+    \ذرزسشصضطظعغ?????\
+    \ـفقكلمنهوىيًٌٍَُ\
+    \ِّْ?????????????";
+
 const string: iso_8859_7 is "\
     \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
     \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
@@ -745,6 +889,24 @@ const string: iso_8859_7 is "\
     \ΠΡ?ΣΤΥΦΧΨΩΪΫάέήί\
     \ΰαβγδεζηθικλμνξο\
     \πρςστυφχψωϊϋόύώ?";
+
+const string: iso_8859_8 is "\
+    \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28\\29\\30\\31\\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[\\]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}~\127\\
+    \\128\\129\\130\\131\\132\\133\\134\\135\\136\\137\\138\\139\\140\\141\\142\\143\\
+    \\144\\145\\146\\147\\148\\149\\150\\151\\152\\153\\154\\155\\156\\157\\158\\159\\
+    \\160\?¢£¤¥¦§¨©×«¬­®¯\
+    \°±²³´µ¶·¸¹÷»¼½¾?\
+    \????????????????\
+    \???????????????‗\
+    \אבגדהוזחטיךכלםמן\
+    \נסעףפץצקרשת??\16#200E\\16#200F\?";
 
 const string: iso_8859_9 is "\
     \\0\\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
@@ -1126,8 +1288,12 @@ const proc: conv2unicodeByName (inout string: stri,
       conv2unicode(stri, iso_8859_4);
     elsif charset =     "ISO-8859-5" then
       conv2unicode(stri, iso_8859_5);
+    elsif charset =     "ISO-8859-6" then
+      conv2unicode(stri, iso_8859_6);
     elsif charset =     "ISO-8859-7" then
       conv2unicode(stri, iso_8859_7);
+    elsif charset =     "ISO-8859-8" then
+      conv2unicode(stri, iso_8859_8);
     elsif charset =     "ISO-8859-9" then
       conv2unicode(stri, iso_8859_9);
     elsif charset =     "ISO-8859-10" then
@@ -1150,8 +1316,14 @@ const proc: conv2unicodeByName (inout string: stri,
       conv2unicode(stri, cp_1253);
     elsif charset = "WINDOWS-1254" then
       conv2unicode(stri, cp_1254);
+    elsif charset = "WINDOWS-1255" then
+      conv2unicode(stri, cp_1255);
+    elsif charset = "WINDOWS-1256" then
+      conv2unicode(stri, cp_1256);
     elsif charset = "WINDOWS-1257" then
       conv2unicode(stri, cp_1257);
+    elsif charset = "WINDOWS-1258" then
+      conv2unicode(stri, cp_1258);
     elsif charset =     "IBM437" or
           charset =     "CP437" then
       conv2unicode(stri, cp_437);

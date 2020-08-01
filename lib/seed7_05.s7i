@@ -358,7 +358,11 @@ const func string: str (in ACTION param) is action "ACT_STR";
 const ACTION: DYNAMIC is action "PRC_DYNAMIC";
 
 
-const proc: exit (PROGRAM) is                  action "PRC_EXIT";
+const proc: exit (in integer param) is         action "PRC_EXIT";
+const proc: exit (PROGRAM) is func
+  begin
+    exit(0);
+  end func;
 
 const proc: TRACE_OPTIONS (in string param) is action "PRC_SETTRACE";
 const proc: TRACE_OBJ (in object param) is     action "REF_TRACE";

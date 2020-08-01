@@ -136,7 +136,7 @@ acttype *action_found;
     unsigned int middle;
     int comparison;
 #endif
-    int action_number;
+    unsigned int action_number;
     booltype result;
 
   /* search_action */
@@ -146,7 +146,7 @@ acttype *action_found;
 #ifdef USE_BSEARCH
     if ((found = (primacttype) bsearch(stri, &act_table.primitive[1],
         act_table.size - 1, sizeof(primactrecord), act_strcmp)) != NULL) {
-      action_number = found - &act_table.primitive[0];
+      action_number = (unsigned int) (found - &act_table.primitive[0]);
     } else {
       action_number = 0;
     } /* if */

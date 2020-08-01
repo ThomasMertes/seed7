@@ -82,7 +82,7 @@ size_t number;
   { /* strelem_memcmp */
     for (; number > 0; mem1++, mem2++, number--) {
       if (*mem1 != *mem2) {
-        return(*mem1 - *mem2);
+        return(*mem1 < *mem2 ? -1 : 1);
       } /* if */
     } /* for */
     return(0);
@@ -171,7 +171,7 @@ inttype *used_max_position;
     if (ALLOC_STRI(new_stri, length)) {
       new_stri->size = length;
       memcpy(new_stri->mem, stri_elems,
-          (size_t) length * sizeof(strelemtype));
+          length * sizeof(strelemtype));
       if (*used_max_position >= work_array->max_position) {
         if (work_array->max_position >= MAX_MEM_INDEX - 256) {
           resized_work_array = NULL;
@@ -228,7 +228,7 @@ stritype stri_from;
     } else {
       COUNT3_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
-          (size_t) stri_from->size * sizeof(strelemtype));
+          stri_from->size * sizeof(strelemtype));
       stri_dest->size = new_size;
       *stri_to = stri_dest;
     } /* if */
@@ -278,7 +278,7 @@ chartype escape;
             while (curr_pos != search_end && *curr_pos != delimiter && *curr_pos != escape) {
               curr_pos++;
             } /* while */
-            memcpy(stri_pos, old_pos, curr_pos - old_pos);
+            memcpy(stri_pos, old_pos, (memsizetype) (curr_pos - old_pos));
             stri_pos += curr_pos - old_pos;
             if (curr_pos != search_end && *curr_pos == escape) {
               curr_pos++;
@@ -347,7 +347,7 @@ inttype from_index;
       if ((uinttype) from_index <= main_stri->size) {
         main_mem = main_stri->mem;
         found_pos = search_strelem(&main_mem[from_index - 1], searched,
-            (size_t) (main_stri->size - from_index + 1));
+            main_stri->size - (uinttype) from_index + 1);
         if (found_pos != NULL) {
           return(((inttype) (found_pos - main_mem)) + 1);
         } /* if */
@@ -376,7 +376,7 @@ chartype searched;
     if (main_stri->size >= 1) {
       main_mem = main_stri->mem;
       found_pos = search_strelem(main_mem, searched,
-          (size_t) (main_stri->size));
+          main_stri->size);
       if (found_pos != NULL) {
         return(((inttype) (found_pos - main_mem)) + 1);
       } /* if */
@@ -413,7 +413,7 @@ chartype delimiter;
       search_start = main_stri->mem;
       search_end = &main_stri->mem[main_stri->size];
       while ((found_pos = search_strelem(search_start,
-          delimiter, (size_t) (search_end - search_start))) != NULL &&
+          delimiter, (memsizetype) (search_end - search_start))) != NULL &&
           result_array != NULL) {
         result_array = add_stri_to_array(search_start,
             (memsizetype) (found_pos - search_start), result_array,
@@ -537,22 +537,19 @@ stritype stri2;
 
   /* strCompare */
     if (stri1->size < stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri1->size) <= 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
         result = -1;
       } else {
         result = 1;
       } /* if */
     } else if (stri1->size > stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri2->size) >= 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
         result = 1;
       } else {
         result = -1;
       } /* if */
     } else {
-      result = strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri1->size);
+      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
       if (result > 0) {
         result = 1;
       } else if (result < 0) {
@@ -586,9 +583,9 @@ stritype stri2;
     } else {
       result->size = result_size;
       memcpy(result->mem, stri1->mem,
-          (size_t) stri1->size * sizeof(strelemtype));
+          stri1->size * sizeof(strelemtype));
       memcpy(&result->mem[stri1->size], stri2->mem,
-          (size_t) stri2->size * sizeof(strelemtype));
+          stri2->size * sizeof(strelemtype));
       return(result);
     } /* if */
   } /* strConcat */
@@ -626,7 +623,7 @@ stritype stri2;
       stri1 = resized_stri1;
       COUNT3_STRI(stri1->size, result_size);
       memcpy(&stri1->mem[stri1->size], stri2->mem,
-          (size_t) stri2->size * sizeof(strelemtype));
+          stri2->size * sizeof(strelemtype));
       stri1->size = result_size;
       return(stri1);
     } /* if */
@@ -664,7 +661,7 @@ stritype stri_from;
       } /* if */
     } /* if */
     memcpy(stri_dest->mem, stri_from->mem,
-        (size_t) new_size * sizeof(strelemtype));
+        new_size * sizeof(strelemtype));
   } /* strCopy */
 
 
@@ -690,7 +687,7 @@ stritype stri_from;
       result->size = new_size;
       if (new_size != 0) {
         memcpy(result->mem, stri_from->mem,
-            (size_t) new_size * sizeof(strelemtype));
+            new_size * sizeof(strelemtype));
       } /* if */
     } /* if */
     return(result);
@@ -750,15 +747,13 @@ stritype stri2;
 
   { /* strGe */
     if (stri1->size >= stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri2->size) >= 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
         return(TRUE);
       } else {
         return(FALSE);
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri1->size) > 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
         return(TRUE);
       } else {
         return(FALSE);
@@ -812,15 +807,13 @@ stritype stri2;
 
   { /* strGt */
     if (stri1->size > stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri2->size) >= 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) >= 0) {
         return(TRUE);
       } else {
         return(FALSE);
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri1->size) > 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) > 0) {
         return(TRUE);
       } else {
         return(FALSE);
@@ -882,7 +875,7 @@ inttype stop;
       } /* if */
       result->size = result_size;
       memcpy(result->mem, stri->mem,
-          (size_t) result_size * sizeof(strelemtype));
+          result_size * sizeof(strelemtype));
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
@@ -931,9 +924,9 @@ inttype from_index;
         search_start = main_mem;
         search_end = &main_mem[main_size - searched_size + 1];
         while ((search_start = search_strelem(search_start,
-            ch_1, (size_t) (search_end - search_start))) != NULL) {
+            ch_1, (memsizetype) (search_end - search_start))) != NULL) {
           if (memcmp(search_start, searched_mem,
-              (size_t) searched_size * sizeof(strelemtype)) == 0) {
+              searched_size * sizeof(strelemtype)) == 0) {
             return(((inttype) (search_start - main_mem)) + from_index);
           } else {
             search_start++;
@@ -958,15 +951,13 @@ stritype stri2;
 
   { /* strLe */
     if (stri1->size <= stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri1->size) <= 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
         return(TRUE);
       } else {
         return(FALSE);
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri2->size) < 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
         return(TRUE);
       } else {
         return(FALSE);
@@ -1140,10 +1131,10 @@ inttype pad_size;
           } /* while */
         }
 #else
-        memset(result->mem, ' ', (size_t) (f_size - length));
+        memset(result->mem, ' ', f_size - length);
 #endif
         memcpy(&result->mem[f_size - length], stri->mem,
-            (size_t) length * sizeof(strelemtype));
+            length * sizeof(strelemtype));
       } /* if */
     } else {
       if (!ALLOC_STRI(result, length)) {
@@ -1151,7 +1142,7 @@ inttype pad_size;
       } else {
         result->size = length;
         memcpy(result->mem, stri->mem,
-            (size_t) length * sizeof(strelemtype));
+            length * sizeof(strelemtype));
       } /* if */
     } /* if */
     return(result);
@@ -1192,10 +1183,10 @@ inttype pad_size;
           } /* while */
         }
 #else
-        memset(result->mem, '0', (size_t) (f_size - length));
+        memset(result->mem, '0', f_size - length);
 #endif
         memcpy(&result->mem[f_size - length], stri->mem,
-            (size_t) length * sizeof(strelemtype));
+            length * sizeof(strelemtype));
       } /* if */
     } else {
       if (!ALLOC_STRI(result, length)) {
@@ -1203,7 +1194,7 @@ inttype pad_size;
       } else {
         result->size = length;
         memcpy(result->mem, stri->mem,
-            (size_t) length * sizeof(strelemtype));
+            length * sizeof(strelemtype));
       } /* if */
     } /* if */
     return(result);
@@ -1244,10 +1235,10 @@ inttype pad_size;
           } /* while */
         }
 #else
-        memset(result->mem, '0', (size_t) (f_size - length));
+        memset(result->mem, '0', f_size - length);
 #endif
         memcpy(&result->mem[f_size - length], stri->mem,
-            (size_t) length * sizeof(strelemtype));
+            length * sizeof(strelemtype));
         FREE_STRI(stri, length);
       } /* if */
     } else {
@@ -1270,15 +1261,13 @@ stritype stri2;
 
   { /* strLt */
     if (stri1->size < stri2->size) {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri1->size) <= 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri1->size) <= 0) {
         return(TRUE);
       } else {
         return(FALSE);
       } /* if */
     } else {
-      if (strelem_memcmp(stri1->mem, stri2->mem,
-          (size_t) stri2->size) < 0) {
+      if (strelem_memcmp(stri1->mem, stri2->mem, stri2->size) < 0) {
         return(TRUE);
       } else {
         return(FALSE);
@@ -1317,7 +1306,7 @@ stritype stri;
     } else {
       result->size = length;
       memcpy(result->mem, &stri->mem[start],
-          (size_t) length * sizeof(strelemtype));
+          length * sizeof(strelemtype));
       return(result);
     } /* if */
   } /* strLtrim */
@@ -1362,14 +1351,14 @@ inttype factor;
             *result_pointer++ = ch;
           } /* for */
 #else
-          memset(result->mem, (int) stri->mem[0], (size_t) factor);
+          memset(result->mem, (int) stri->mem[0], (uinttype) factor);
 #endif
         } else if (len != 0) {
           result_pointer = result->mem;
           for (number = factor; number > 0; number--) {
             memcpy(result_pointer, stri->mem,
-                (size_t) len * sizeof(strelemtype));
-            result_pointer += (size_t) len;
+                len * sizeof(strelemtype));
+            result_pointer += len;
           } /* for */
         } /* if */
         return(result);
@@ -1408,9 +1397,9 @@ stritype searched;
       search_start = main_mem;
       search_end = &main_mem[main_size - searched_size + 1];
       while ((search_start = search_strelem(search_start,
-          ch_1, (size_t) (search_end - search_start))) != NULL) {
+          ch_1, (memsizetype) (search_end - search_start))) != NULL) {
         if (memcmp(search_start, searched_mem,
-            (size_t) searched_size * sizeof(strelemtype)) == 0) {
+            searched_size * sizeof(strelemtype)) == 0) {
           return(((inttype) (search_start - main_mem)) + 1);
         } else {
           search_start++;
@@ -1499,7 +1488,7 @@ inttype stop;
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          (size_t) result_size * sizeof(strelemtype));
+          result_size * sizeof(strelemtype));
       result->size = result_size;
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
@@ -1531,7 +1520,7 @@ chartype searched;
     if (main_stri->size >= 1) {
       main_mem = main_stri->mem;
       found_pos = rsearch_strelem(&main_mem[main_stri->size - 1], searched,
-          (size_t) (main_stri->size));
+          main_stri->size);
       if (found_pos != NULL) {
         return(((inttype) (found_pos - main_mem)) + 1);
       } /* if */
@@ -1590,14 +1579,14 @@ stritype replace;
         search_end = &main_mem[main_size - searched_size + 1];
         while (search_start < search_end &&
             (search_start = search_strelem(search_start,
-            ch_1, (size_t) (search_end - search_start))) != NULL) {
+            ch_1, (memsizetype) (search_end - search_start))) != NULL) {
           if (memcmp(search_start, searched_mem,
-              (size_t) searched_size * sizeof(strelemtype)) == 0) {
+              searched_size * sizeof(strelemtype)) == 0) {
             memcpy(result_end, copy_start,
-                (size_t) (search_start - copy_start) * sizeof(strelemtype));
+                (memsizetype) (search_start - copy_start) * sizeof(strelemtype));
             result_end += search_start - copy_start;
             memcpy(result_end, replace->mem,
-                (size_t) replace->size * sizeof(strelemtype));
+                replace->size * sizeof(strelemtype));
             result_end += replace->size;
             search_start += searched_size;
             copy_start = search_start;
@@ -1607,7 +1596,7 @@ stritype replace;
         } /* if */
       } /* if */
       memcpy(result_end, copy_start,
-          (size_t) (&main_stri->mem[main_size] - copy_start) * sizeof(strelemtype));
+          (memsizetype) (&main_stri->mem[main_size] - copy_start) * sizeof(strelemtype));
       result_end += &main_stri->mem[main_size] - copy_start;
       result->size = (memsizetype) (result_end - result->mem);
       /* printf("result=%lu, guessed_result_size=%ld, result->size=%ld\n",
@@ -1648,24 +1637,23 @@ inttype pad_size;
       f_size = (uinttype) pad_size;
       if (!ALLOC_STRI(result, f_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
-      } /* if */
-      result->size = f_size;
-      memcpy(result->mem, stri->mem,
-          (size_t) length * sizeof(strelemtype));
+      } else {
+        result->size = f_size;
+        memcpy(result->mem, stri->mem,
+            length * sizeof(strelemtype));
 #ifdef UTF32_STRINGS
-      {
-        strelemtype *elem = &result->mem[length];
-        memsizetype len = f_size - length;
+        {
+          strelemtype *elem = &result->mem[length];
+          memsizetype len = f_size - length;
 
-        while (len--) {
-          *elem++ = (strelemtype) ' ';
-        } /* while */
-      }
+          while (len--) {
+            *elem++ = (strelemtype) ' ';
+          } /* while */
+        }
 #else
-      memset(&result->mem[length], ' ',
-          (size_t) (f_size - length));
+        memset(&result->mem[length], ' ', f_size - length);
 #endif
+      } /* if */
     } else {
       if (!ALLOC_STRI(result, length)) {
         raise_error(MEMORY_ERROR);
@@ -1673,7 +1661,7 @@ inttype pad_size;
       } /* if */
       result->size = length;
       memcpy(result->mem, stri->mem,
-          (size_t) length * sizeof(strelemtype));
+          length * sizeof(strelemtype));
     } /* if */
     return(result);
   } /* strRpad */
@@ -1709,9 +1697,9 @@ stritype searched;
       search_start = &main_mem[main_size - searched_size];
       search_end = main_mem - 1;
       while ((search_start = rsearch_strelem(search_start,
-          ch_1, (size_t) (search_start - search_end))) != NULL) {
+          ch_1, (memsizetype) (search_start - search_end))) != NULL) {
         if (memcmp(search_start, searched_mem,
-            (size_t) searched_size * sizeof(strelemtype)) == 0) {
+            searched_size * sizeof(strelemtype)) == 0) {
           return(((inttype) (search_start - main_mem)) + 1);
         } else {
           search_start--;
@@ -1747,7 +1735,7 @@ stritype stri;
     } else {
       result->size = length;
       memcpy(result->mem, stri->mem,
-          (size_t) length * sizeof(strelemtype));
+          length * sizeof(strelemtype));
       return(result);
     } /* if */
   } /* strRtrim */
@@ -1789,7 +1777,7 @@ chartype delimiter;
         search_start = main_mem;
         search_end = &main_mem[main_size];
         while ((found_pos = search_strelem(search_start,
-            delimiter, (size_t) (search_end - search_start))) != NULL) {
+            delimiter, (memsizetype) (search_end - search_start))) != NULL) {
           add_stri_to_array(search_start, found_pos - search_start,
               result_array, &used_max_position, &err_info);
           search_start = found_pos + 1
@@ -1839,8 +1827,8 @@ stritype delimiter;
         search_start = main_mem;
         search_end = &main_mem[main_size - delimiter_size + 1];
         while ((found_pos = search_strelem(search_start,
-            ch_1, (size_t) (search_end - search_start))) != NULL) {
-          memcpy(dest, search_start, found_pos - search_start);
+            ch_1, (memsizetype) (search_end - search_start))) != NULL) {
+          memcpy(dest, search_start, (memsizetype) (found_pos - search_start));
           search_start = found_pos + 1
         } /* while */
       } /* if */
@@ -1852,9 +1840,9 @@ stritype delimiter;
         search_start = main_mem;
         search_end = &main_mem[main_size - delimiter_size + 1];
         while ((found_pos = search_strelem(search_start,
-            ch_1, (size_t) (search_end - search_start))) != NULL) {
+            ch_1, (memsizetype) (search_end - search_start))) != NULL) {
           if (memcmp(search_start, delimiter_mem,
-              (size_t) delimiter_size * sizeof(strelemtype)) == 0) {
+              delimiter_size * sizeof(strelemtype)) == 0) {
             
             search_start = found_pos + delimiter_size;
           } else {
@@ -1905,10 +1893,10 @@ stritype delimiter;
       if (delimiter_size != 0 && main_stri->size >= delimiter_size) {
         search_end = &main_stri->mem[main_stri->size - delimiter_size + 1];
         while ((found_pos = search_strelem(search_start,
-            ch_1, (size_t) (search_end - search_start))) != NULL &&
+            ch_1, (memsizetype) (search_end - search_start))) != NULL &&
             result_array != NULL) {
           if (memcmp(found_pos, delimiter_mem,
-              (size_t) delimiter_size * sizeof(strelemtype)) == 0) {
+              delimiter_size * sizeof(strelemtype)) == 0) {
             result_array = add_stri_to_array(segment_start,
                 (memsizetype) (found_pos - segment_start), result_array,
                 &used_max_position);
@@ -1983,7 +1971,7 @@ inttype len;
         return(NULL);
       } /* if */
       memcpy(result->mem, &stri->mem[start - 1],
-          (size_t) result_size * sizeof(strelemtype));
+          result_size * sizeof(strelemtype));
       result->size = result_size;
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
@@ -2030,7 +2018,7 @@ inttype start;
       /* two statements make no difference to the logic of the  */
       /* program.                                               */
       memcpy(result->mem, &stri->mem[start - 1],
-          (size_t) result_size * sizeof(strelemtype));
+          result_size * sizeof(strelemtype));
       result->size = result_size;
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
@@ -2144,7 +2132,7 @@ stritype stri;
     } else {
       result->size = length;
       memcpy(result->mem, &stri->mem[start],
-          (size_t) length * sizeof(strelemtype));
+          length * sizeof(strelemtype));
       return(result);
     } /* if */
   } /* strTrim */

@@ -2808,7 +2808,7 @@ rtlBiginttype big2;
       } else {
         result->size = big1_help->size - big2_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
-        shift = digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+        shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
         if (shift == 0) {
           /* The most significant digit of big2_help is 0. Just ignore it */
           big1_help->size--;
@@ -3340,7 +3340,7 @@ inttype exponent;
       raise_error(NUMERIC_ERROR);
       return NULL;
     } else {
-      help_size = base->size * (exponent + 1);
+      help_size = base->size * ((uinttype) exponent + 1);
       if (!ALLOC_BIG(square, help_size)) {
         raise_error(MEMORY_ERROR);
         return NULL;
@@ -3753,7 +3753,7 @@ rtlBiginttype big2;
       } else {
         result->size = big1_help->size - big2_help->size + 1;
         result->bigdigits[result->size - 1] = 0;
-        shift = digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+        shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
         if (shift == 0) {
           /* The most significant digit of big2_help is 0. Just ignore it */
           big1_help->size--;
@@ -3913,7 +3913,7 @@ rtlBiginttype big2;
               (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      shift = digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+      shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
       if (shift == 0) {
         /* The most significant digit of big2_help is 0. Just ignore it */
         result->size--;
@@ -4463,7 +4463,7 @@ rtlBiginttype big2;
               (size_t) big2->size * sizeof(bigdigittype));
         } /* if */
       } /* if */
-      shift = digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1;
+      shift = (unsigned int) (digitMostSignificantBit(big2_help->bigdigits[big2_help->size - 1]) + 1);
       if (shift == 0) {
         /* The most significant digit of big2_help is 0. Just ignore it */
         result->size--;

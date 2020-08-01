@@ -84,7 +84,7 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
           less_elem++;
           cmp = cmp_func(less_elem->value.genericvalue, compare_elem);
         } while (cmp < 0);
-        memmove(&less_elem[1], less_elem, (middle_elem - less_elem) * sizeof(rtlObjecttype));
+        memmove(&less_elem[1], less_elem, (memsizetype) (middle_elem - less_elem) * sizeof(rtlObjecttype));
         less_elem->value.genericvalue = compare_elem;
       } /* for */
     } else {
@@ -373,8 +373,8 @@ inttype stop;
         return(NULL);
       } /* if */
       result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position + result_size - 1;
-      stop_idx = stop - arr1->min_position;
+      result->max_position = stop;
+      stop_idx = (uinttype) (stop - arr1->min_position);
       memcpy(result->arr, arr1->arr,
           (size_t) (result_size * sizeof(rtlObjecttype)));
       memcpy(arr1->arr, &arr1->arr[stop_idx + 1],
@@ -435,9 +435,9 @@ inttype stop;
         return(NULL);
       } /* if */
       result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position + result_size - 1;
-      start_idx = start - arr1->min_position;
-      stop_idx = stop - arr1->min_position;
+      result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+      start_idx = (uinttype) (start - arr1->min_position);
+      stop_idx = (uinttype) (stop - arr1->min_position);
       memcpy(result->arr, &arr1->arr[start_idx],
           (size_t) (result_size * sizeof(rtlObjecttype)));
       memcpy(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
@@ -487,7 +487,7 @@ inttype position;
       result = array_pointer[position - arr1->min_position].value.genericvalue;
       memcpy(&array_pointer[position - arr1->min_position],
           &array_pointer[position - arr1->min_position + 1],
-          (arr1->max_position - position) * sizeof(rtlObjecttype));
+          (uinttype) (arr1->max_position - position) * sizeof(rtlObjecttype));
       arr1->max_position--;
       arr1_size = (uinttype) (arr1->max_position - arr1->min_position + 1);
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, arr1_size + 1, arr1_size);
@@ -555,8 +555,8 @@ inttype start;
         return(NULL);
       } /* if */
       result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position + result_size - 1;
-      start_idx = start - arr1->min_position;
+      result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+      start_idx = (uinttype) (start - arr1->min_position);
       memcpy(result->arr, &arr1->arr[start_idx],
           (size_t) (result_size * sizeof(rtlObjecttype)));
       resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);

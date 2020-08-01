@@ -1417,8 +1417,8 @@ inttype height;
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
-      result->width = width;
-      result->height = height;
+      result->width = (unsigned int) width;
+      result->height = (unsigned int) height;
       result->next = NULL;
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_backup(actual_window),
@@ -1502,8 +1502,8 @@ inttype height;
           result->backup = 0;
           result->clip_mask = 0;
           result->is_pixmap = TRUE;
-          result->width = width;
-          result->height = height;
+          result->width = (unsigned int) width;
+          result->height = (unsigned int) height;
           result->next = NULL;
           XPutImage(mydisplay, result->window, mygc, image, 0, 0, 0, 0,
               (unsigned int) width, (unsigned int) height);
@@ -1596,8 +1596,8 @@ inttype height;
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
-      result->width = width;
-      result->height = height;
+      result->width = (unsigned int) width;
+      result->height = (unsigned int) height;
       result->next = NULL;
     } /* if */
     return((wintype) result);
@@ -1636,8 +1636,8 @@ inttype height;
       result->backup = 0;
       result->clip_mask = 0;
       result->is_pixmap = TRUE;
-      result->width = width;
-      result->height = height;
+      result->width = (unsigned int) width;
+      result->height = (unsigned int) height;
       result->next = NULL;
     } /* if */
     return((wintype) result);
@@ -1792,8 +1792,8 @@ stritype window_name;
             result->backup = 0;
             result->clip_mask = 0;
             result->is_pixmap = FALSE;
-            result->width = width;
-            result->height = height;
+            result->width = (unsigned int) width;
+            result->height = (unsigned int) height;
 
             XSetStandardProperties(mydisplay, result->window,
                 win_name, win_name,

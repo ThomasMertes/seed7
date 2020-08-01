@@ -68,33 +68,33 @@ stritype in_stri;
       if (*stri <= 0x7F) {
         *ustri++ = (uchartype) *stri;
       } else if (*stri <= 0x7FF) {
-        *ustri++ = 0xC0 | (uchartype) (*stri >> 6);
-        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
+        *ustri++ = (uchartype) (0xC0 | (*stri >>  6));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
       } else if (*stri <= 0xFFFF) {
-        *ustri++ = 0xE0 | (uchartype) (*stri >> 12);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
+        *ustri++ = (uchartype) (0xE0 | (*stri >> 12));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
       } else if (*stri <= 0x1FFFFF) {
-        *ustri++ = 0xF0 | (uchartype) (*stri >> 18);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 12) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
+        *ustri++ = (uchartype) (0xF0 | (*stri >> 18));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
       } else if (*stri <= 0x3FFFFFF) {
-        *ustri++ = 0xF8 | (uchartype) (*stri >> 24);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 18) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 12) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
+        *ustri++ = (uchartype) (0xF8 | (*stri >> 24));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 18) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
       } else {
-        *ustri++ = 0xFC | (uchartype) (*stri >> 30);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 24) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 18) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 12) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) ((*stri >> 6) & 0x3F);
-        *ustri++ = 0x80 | (uchartype) (*stri & 0x3F);
+        *ustri++ = (uchartype) (0xFC | (*stri >> 30));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 24) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 18) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >> 12) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |((*stri >>  6) & 0x3F));
+        *ustri++ = (uchartype) (0x80 |( *stri        & 0x3F));
       } /* if */
     } /* for */
-    return(ustri - out_stri);
+    return((memsizetype) (ustri - out_stri));
   } /* stri_to_utf8 */
 
 
@@ -171,11 +171,11 @@ size_t len;
         ustri += 6;
         len -= 5;
       } else {
-        *dest_len = stri - dest_stri;
+        *dest_len = (memsizetype) (stri - dest_stri);
         return(len);
       } /* if */
     } /* for */
-    *dest_len = stri - dest_stri;
+    *dest_len = (memsizetype) (stri - dest_stri);
     return(0);
   } /* utf8_to_stri */
 

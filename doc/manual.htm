@@ -2783,10 +2783,12 @@
 <a name="set"><b>5.12 set</b></a>
 <p>
     The type <tt>'<font color=red>set of baseType</font>'</tt> describes a set of elements of a
-  <tt>'<font color=red>baseType</font>'</tt>. (including the empty set).
+  <tt>'<font color=red>baseType</font>'</tt>. (including the empty set). The type <tt>'<font color=red>bitset</font>'</tt> is
+  defined as <tt>'<font color=red>set of integer</font>'</tt>.
 </p><pre>
     Constants:
       <font color=red>setType</font>.EMPTY_SET  Empty set
+      EMPTY_SET  Empty set of the type <font color=red>bitset</font>
     Infix operators:
       |         Union 
       &         Intersection
@@ -2799,11 +2801,46 @@
                   ( Left argument: <font color=red>baseType</font>,
                     Type of result: <font color=red>boolean</font> )
     Relations:
-      =, &lt;>, &lt;, &lt;=, >, >=
+      =, &lt;>     Equal and not equal
+                  ( Type of result: <font color=red>boolean</font></font> )
+      &lt;=        Subset
+                  ( Type of result: <font color=red>boolean</font></font>,
+                    A &lt;= B => TRUE when no element X exists for which
+                       X <font color=blue>in</font> A <font color=blue>and</font> X <font color=blue>not in</font> B
+                    holds.
+                    A &lt;= B => FALSE when an element X exists for which
+                       X <font color=blue>in</font> A <font color=blue>and</font> X <font color=blue>not in</font> B
+                    holds.
+                    <font color=red>setType</font>.EMPTY_SET &lt;= A => TRUE,
+                    A &lt;= <font color=red>setType</font>.EMPTY_SET => FALSE for A &lt;> EMPTY_SET,
+                    A &lt;= B => B >= A )
+      &lt;         Proper subset
+                  ( Type of result: <font color=red>boolean</font></font>,
+                    A &lt; B => A &lt;= B <font color=blue>and</font> <font color=blue>not</font> A = B,
+                    <font color=red>setType</font>.EMPTY_SET &lt; A => TRUE for A &lt;> EMPTY_SET,
+                    A &lt; <font color=red>setType</font>.EMPTY_SET => FALSE,
+                    A &lt; B => B > A )
+      >=        Superset
+                  ( Type of result: <font color=red>boolean</font></font>,
+                    A >= B => TRUE when no element X exists for which
+                       X <font color=blue>in</font> B <font color=blue>and</font> X <font color=blue>not in</font> A
+                    holds.
+                    A >= B => FALSE when an element X exists for which
+                       X <font color=blue>in</font> B <font color=blue>and</font> X <font color=blue>not in</font> A
+                    holds.
+                    A >= <font color=red>setType</font>.EMPTY_SET => TRUE,
+                    <font color=red>setType</font>.EMPTY_SET >= A => FALSE for A &lt;> EMPTY_SET,
+                    A >= B => B &lt;= A )
+      >         Proper superset
+                  ( Type of result: <font color=red>boolean</font></font>,
+                    A > B => A >= B <font color=blue>and</font> <font color=blue>not</font> A = B,
+                    A > <font color=red>setType</font>.EMPTY_SET => TRUE for A &lt;> EMPTY_SET,
+                    <font color=red>setType</font>.EMPTY_SET > A => FALSE,
+                    A > B => B &lt; A )
     Functions:
       card      Cardinality of a set
                   ( Type of result: <font color=red>integer</font>,
-                    card(<font color=red>setType</font>.EMPTY_SET) = 0  )
+                    card(<font color=red>setType</font>.EMPTY_SET) => 0  )
       min       Minimal element
                   ( Type of result: <font color=red>baseType</font>,
                     Delivers the element from the set for
@@ -2818,6 +2855,10 @@
                        Element >= X
                     for all X which are in the set.
                     min(<font color=red>setType</font>.EMPTY_SET) => EXCEPTION RANGE_ERROR )
+      rand      Random element from a set
+                The random elements are uniform distributed.
+                  ( Type of result: <font color=red>baseType</font>,
+                    rand(<font color=red>setType</font>.EMPTY_SET) => EXCEPTION RANGE_ERROR )
       compare(A, B) Compare function
                   ( Type of result: <font color=red>integer</font> )
       hashCode(A) Hash function
@@ -7662,17 +7703,27 @@
 <a name="commands"><b>13.7 Actions for various directory, file and other commands</b></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>cmdlib.c function</td>   <td>cmd_rtl.c function</td></tr>
+    <tr><td>CMD_BIG_FILESIZE</td>    <td>cmd_big_filesize</td>    <td>cmdBigFileSize</td></tr>
     <tr><td>CMD_CHDIR</td>           <td>cmd_chdir</td>           <td>cmdChdir</td></tr>
+    <tr><td>CMD_CLONE_FILE</td>      <td>cmd_clone_file</td>      <td>cmdCloneFile</td></tr>
     <tr><td>CMD_CONFIG_VALUE</td>    <td>cmd_config_value</td>    <td>cmdConfigValue</td></tr>
-    <tr><td>CMD_COPY</td>            <td>cmd_copy</td>            <td>cmdCopy</td></tr>
+    <tr><td>CMD_COPY_FILE</td>       <td>cmd_copy_file</td>       <td>cmdCopyFile</td></tr>
+    <tr><td>CMD_FILESIZE</td>        <td>cmd_filesize</td>        <td>cmdFileSize</td></tr>
     <tr><td>CMD_FILETYPE</td>        <td>cmd_filetype</td>        <td>cmdFileType</td></tr>
+    <tr><td>CMD_FILETYPE_SL</td>     <td>cmd_filetype_sl</td>     <td>cmdFileTypeSL</td></tr>
     <tr><td>CMD_GETCWD</td>          <td>cmd_getcwd</td>          <td>cmdGetcwd</td></tr>
-    <tr><td>CMD_LNG</td>             <td>cmd_lng</td>             <td>cmdLng</td></tr>
+    <tr><td>CMD_GET_ATIME</td>       <td>cmd_get_atime</td>       <td>cmdGetATime</td></tr>
+    <tr><td>CMD_GET_CTIME</td>       <td>cmd_get_ctime</td>       <td>cmdGetCTime</td></tr>
+    <tr><td>CMD_GET_MTIME</td>       <td>cmd_get_mtime</td>       <td>cmdGetMTime</td></tr>
     <tr><td>CMD_LS</td>              <td>cmd_ls</td>              <td>cmdLs</td></tr>
     <tr><td>CMD_MKDIR</td>           <td>cmd_mkdir</td>           <td>cmdMkdir</td></tr>
     <tr><td>CMD_MOVE</td>            <td>cmd_move</td>            <td>cmdMove</td></tr>
+    <tr><td>CMD_READLINK</td>        <td>cmd_readlink</td>        <td>cmdReadlink</td></tr>
     <tr><td>CMD_REMOVE</td>          <td>cmd_remove</td>          <td>cmdRemove</td></tr>
-    <tr><td>CMD_SH</td>              <td>cmd_sh</td>              <td>cmdSh</td></tr>
+    <tr><td>CMD_REMOVE_ANY_FILE</td> <td>cmd_remove_any_file</td> <td>cmdRemoveAnyFile</td></tr>
+    <tr><td>CMD_SET_ATIME</td>       <td>cmd_set_atime</td>       <td>cmdSetATime</td></tr>
+    <tr><td>CMD_SET_MTIME</td>       <td>cmd_set_mtime</td>       <td>cmdSetMTime</td></tr>
+    <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
 </table><p></p>
 <a name="declarations"><b>13.8 Actions for declarations</b></a>
@@ -8155,14 +8206,14 @@
     <tr><td>SET_EMPTY</td>           <td>set_empty</td>           <td></td></tr>
     <tr><td>SET_EQ</td>              <td>set_eq</td>              <td>setEq</td></tr>
     <tr><td>SET_EXCL</td>            <td>set_excl</td>            <td>setExcl</td></tr>
-    <tr><td>SET_GE</td>              <td>set_ge</td>              <td>setGe</td></tr>
-    <tr><td>SET_GT</td>              <td>set_gt</td>              <td>setGt</td></tr>
+    <tr><td>SET_GE</td>              <td>set_ge</td>              <td>setIsSubset(b, a)</td></tr>
+    <tr><td>SET_GT</td>              <td>set_gt</td>              <td>setIsProperSubset(b, a)</td></tr>
     <tr><td>SET_HASHCODE</td>        <td>set_hashcode</td>        <td>setHashCode</td></tr>
     <tr><td>SET_ICONV</td>           <td>set_iconv</td>           <td>setIConv</td></tr>
     <tr><td>SET_INCL</td>            <td>set_incl</td>            <td>setIncl</td></tr>
     <tr><td>SET_INTERSECT</td>       <td>set_intersect</td>       <td>setIntersect</td></tr>
-    <tr><td>SET_LE</td>              <td>set_le</td>              <td>setLe</td></tr>
-    <tr><td>SET_LT</td>              <td>set_lt</td>              <td>setLt</td></tr>
+    <tr><td>SET_LE</td>              <td>set_le</td>              <td>setIsSubset</td></tr>
+    <tr><td>SET_LT</td>              <td>set_lt</td>              <td>setIsProperSubset</td></tr>
     <tr><td>SET_MAX</td>             <td>set_max</td>             <td>setMax</td></tr>
     <tr><td>SET_MIN</td>             <td>set_min</td>             <td>setMin</td></tr>
     <tr><td>SET_NE</td>              <td>set_ne</td>              <td>setNe</td></tr>

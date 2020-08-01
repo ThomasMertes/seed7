@@ -2783,10 +2783,12 @@ CONTENTS
 5.12 set
 
     The type 'set of baseType' describes a set of elements of a
-  'baseType'. (including the empty set).
+  'baseType'. (including the empty set). The type 'bitset' is
+  defined as 'set of integer'.
 
     Constants:
       setType.EMPTY_SET  Empty set
+      EMPTY_SET  Empty set of the type bitset
     Infix operators:
       |         Union 
       &         Intersection
@@ -2799,11 +2801,46 @@ CONTENTS
                   ( Left argument: baseType,
                     Type of result: boolean )
     Relations:
-      =, <>, <, <=, >, >=
+      =, <>     Equal and not equal
+                  ( Type of result: boolean )
+      <=        Subset
+                  ( Type of result: boolean,
+                    A <= B => TRUE when no element X exists for which
+                       X in A and X not in B
+                    holds.
+                    A <= B => FALSE when an element X exists for which
+                       X in A and X not in B
+                    holds.
+                    setType.EMPTY_SET <= A => TRUE,
+                    A <= setType.EMPTY_SET => FALSE for A <> EMPTY_SET,
+                    A <= B => B >= A )
+      <         Proper subset
+                  ( Type of result: boolean,
+                    A < B => A <= B and not A = B,
+                    setType.EMPTY_SET < A => TRUE for A <> EMPTY_SET,
+                    A < setType.EMPTY_SET => FALSE,
+                    A < B => B > A )
+      >=        Superset
+                  ( Type of result: boolean,
+                    A >= B => TRUE when no element X exists for which
+                       X in B and X not in A
+                    holds.
+                    A >= B => FALSE when an element X exists for which
+                       X in B and X not in A
+                    holds.
+                    A >= setType.EMPTY_SET => TRUE,
+                    setType.EMPTY_SET >= A => FALSE for A <> EMPTY_SET,
+                    A >= B => B <= A )
+      >         Proper superset
+                  ( Type of result: boolean,
+                    A > B => A >= B and not A = B,
+                    A > setType.EMPTY_SET => TRUE for A <> EMPTY_SET,
+                    setType.EMPTY_SET > A => FALSE,
+                    A > B => B < A )
     Functions:
       card      Cardinality of a set
                   ( Type of result: integer,
-                    card(setType.EMPTY_SET) = 0  )
+                    card(setType.EMPTY_SET) => 0  )
       min       Minimal element
                   ( Type of result: baseType,
                     Delivers the element from the set for
@@ -2818,6 +2855,10 @@ CONTENTS
                        Element >= X
                     for all X which are in the set.
                     min(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
+      rand      Random element from a set
+                The random elements are uniform distributed.
+                  ( Type of result: baseType,
+                    rand(setType.EMPTY_SET) => EXCEPTION RANGE_ERROR )
       compare(A, B) Compare function
                   ( Type of result: integer )
       hashCode(A) Hash function
@@ -7662,17 +7703,27 @@ CONTENTS
 13.7 Actions for various directory, file and other commands
 
     Action name         cmdlib.c function   cmd_rtl.c function
+    CMD_BIG_FILESIZE    cmd_big_filesize    cmdBigFileSize
     CMD_CHDIR           cmd_chdir           cmdChdir
+    CMD_CLONE_FILE      cmd_clone_file      cmdCloneFile
     CMD_CONFIG_VALUE    cmd_config_value    cmdConfigValue
-    CMD_COPY            cmd_copy            cmdCopy
+    CMD_COPY_FILE       cmd_copy_file       cmdCopyFile
+    CMD_FILESIZE        cmd_filesize        cmdFileSize
     CMD_FILETYPE        cmd_filetype        cmdFileType
+    CMD_FILETYPE_SL     cmd_filetype_sl     cmdFileTypeSL
     CMD_GETCWD          cmd_getcwd          cmdGetcwd
-    CMD_LNG             cmd_lng             cmdLng
+    CMD_GET_ATIME       cmd_get_atime       cmdGetATime
+    CMD_GET_CTIME       cmd_get_ctime       cmdGetCTime
+    CMD_GET_MTIME       cmd_get_mtime       cmdGetMTime
     CMD_LS              cmd_ls              cmdLs
     CMD_MKDIR           cmd_mkdir           cmdMkdir
     CMD_MOVE            cmd_move            cmdMove
+    CMD_READLINK        cmd_readlink        cmdReadlink
     CMD_REMOVE          cmd_remove          cmdRemove
-    CMD_SH              cmd_sh              cmdSh
+    CMD_REMOVE_ANY_FILE cmd_remove_any_file cmdRemoveAnyFile
+    CMD_SET_ATIME       cmd_set_atime       cmdSetATime
+    CMD_SET_MTIME       cmd_set_mtime       cmdSetMTime
+    CMD_SHELL           cmd_shell           cmdShell
     CMD_SYMLINK         cmd_symlink         cmdSymlink
 
 13.8 Actions for declarations
@@ -8155,14 +8206,14 @@ CONTENTS
     SET_EMPTY           set_empty           
     SET_EQ              set_eq              setEq
     SET_EXCL            set_excl            setExcl
-    SET_GE              set_ge              setGe
-    SET_GT              set_gt              setGt
+    SET_GE              set_ge              setIsSubset(b, a)
+    SET_GT              set_gt              setIsProperSubset(b, a)
     SET_HASHCODE        set_hashcode        setHashCode
     SET_ICONV           set_iconv           setIConv
     SET_INCL            set_incl            setIncl
     SET_INTERSECT       set_intersect       setIntersect
-    SET_LE              set_le              setLe
-    SET_LT              set_lt              setLt
+    SET_LE              set_le              setIsSubset
+    SET_LT              set_lt              setIsProperSubset
     SET_MAX             set_max             setMax
     SET_MIN             set_min             setMin
     SET_NE              set_ne              setNe

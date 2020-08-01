@@ -1156,20 +1156,25 @@ const proc: prepare_list_result (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: prepare_set_result (inout expr_type: c_expr) is func
+const proc: prepare_set_result (in type: set_type, inout expr_type: c_expr) is func
 
   begin
     incr(c_expr.temp_num);
-    c_expr.result_decl := "settype tmp_";
+    c_expr.result_decl := type_name(set_type);
+    c_expr.result_decl &:= " tmp_";
     c_expr.result_decl &:= str(c_expr.temp_num);
-    c_expr.result_decl &:= " = NULL;\n";
-    c_expr.result_free := "setDestr(tmp_";
+    c_expr.result_decl &:= " = (";
+    c_expr.result_decl &:= type_name(set_type);
+    c_expr.result_decl &:= ")(NULL);\n";
+    c_expr.result_free := "setDestr((settype)(tmp_";
     c_expr.result_free &:= str(c_expr.temp_num);
-    c_expr.result_free &:= ");\n";
+    c_expr.result_free &:= "));\n";
     c_expr.result_intro := "(tmp_";
     c_expr.result_intro &:= str(c_expr.temp_num);
-    c_expr.result_intro &:= "=";
-    c_expr.result_finish := ")";
+    c_expr.result_intro &:= "=(";
+    c_expr.result_intro &:= type_name(set_type);
+    c_expr.result_intro &:= ")(";
+    c_expr.result_finish := "))";
   end func;
 
 
@@ -1479,9 +1484,9 @@ const func boolean: isConstantCall (in reference: current_expression) is func
             result := FALSE;
           end if;
         end for;
-        if result then
-          writeln(action_name);
-        end if;
+        # if result then
+        #   writeln(action_name);
+        # end if;
       end if;
     end if;
   end func;
@@ -1869,7 +1874,9 @@ const proc: process_prc_dynamic (in reference: function, in ref_list: params,
 const proc: process_prc_exit (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "exit(0);\n";
+    c_expr.expr &:= "exit(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ");\n";
   end func;
 
 
@@ -4690,7 +4697,7 @@ const proc: process_drw_genpointlist (in ref_list: params, inout expr_type: c_ex
     c_expr.result_expr &:= "), drwGenPointList(";
     c_expr.result_expr &:= "tmp_";
     c_expr.result_expr &:= str(temp_num);
-    c_expr.result_expr &:= "->arr, (uinttype) (tmp_";
+    c_expr.result_expr &:= "->arr, (uinttype)(tmp_";
     c_expr.result_expr &:= str(temp_num);
     c_expr.result_expr &:= "->max_position - tmp_";
     c_expr.result_expr &:= str(temp_num);
@@ -9387,20 +9394,22 @@ const proc: process_sct_select (in reference: function, in ref_list: params,
   end func;
 
 
-const proc: process_set_arrlit (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_set_arrlit (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
-    prepare_set_result(c_expr);
+    prepare_set_result(result_type(getType(function)), c_expr);
     c_expr.result_expr := "setArrlit((inttype)(";
     getAnyParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= "))";
   end func;
 
 
-const proc: process_set_baselit (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_set_baselit (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
-    prepare_set_result(c_expr);
+    prepare_set_result(result_type(getType(function)), c_expr);
     c_expr.result_expr := "setBaselit(";
     getStdParamToResultExpr(params[2], c_expr);
     c_expr.result_expr &:= ")";
@@ -9412,6 +9421,17 @@ const proc: process_set_card (in ref_list: params, inout expr_type: c_expr) is f
   begin
     c_expr.expr &:= "setCard((settype)(";
     getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
+const proc: process_set_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "setCmp((settype)(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= "), (settype)(";
+    getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= "))";
   end func;
 
@@ -9470,7 +9490,7 @@ const proc: process_set_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_set_diff (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_set_result(c_expr);
+    prepare_set_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "setDiff((settype)(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), (settype)(";
@@ -9533,10 +9553,10 @@ const proc: process_set_excl (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_set_ge (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setGe((settype)(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= "), (settype)(";
+    c_expr.expr &:= "setIsSubset((settype)(";
     getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= "), (settype)(";
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "))";
   end func;
 
@@ -9544,10 +9564,10 @@ const proc: process_set_ge (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_set_gt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setGt((settype)(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= "), (settype)(";
+    c_expr.expr &:= "setIsProperSubset((settype)(";
     getAnyParamToExpr(params[3], c_expr);
+    c_expr.expr &:= "), (settype)(";
+    getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "))";
   end func;
 
@@ -9602,7 +9622,7 @@ const proc: process_set_incl (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_set_intersect (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_set_result(c_expr);
+    prepare_set_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "setIntersect((settype)(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), (settype)(";
@@ -9614,7 +9634,7 @@ const proc: process_set_intersect (in ref_list: params, inout expr_type: c_expr)
 const proc: process_set_le (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setLe((settype)(";
+    c_expr.expr &:= "setIsSubset((settype)(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "), (settype)(";
     getAnyParamToExpr(params[3], c_expr);
@@ -9625,7 +9645,7 @@ const proc: process_set_le (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_set_lt (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setLt((settype)(";
+    c_expr.expr &:= "setIsProperSubset((settype)(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "), (settype)(";
     getAnyParamToExpr(params[3], c_expr);
@@ -9654,11 +9674,11 @@ const proc: process_set_min (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_set_ne (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setNe((settype)(";
+    c_expr.expr &:= "(!setEq((settype)(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= "), (settype)(";
     getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    c_expr.expr &:= ")))";
   end func;
 
 
@@ -9694,7 +9714,7 @@ const proc: process_set_sconv (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_set_symdiff (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_set_result(c_expr);
+    prepare_set_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "setSymdiff(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ", ";
@@ -9706,7 +9726,7 @@ const proc: process_set_symdiff (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_set_union (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_set_result(c_expr);
+    prepare_set_result(getExprResultType(params[1]), c_expr);
     c_expr.result_expr := "setUnion((settype)(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= "), (settype)(";
@@ -12371,11 +12391,13 @@ const proc: process_action (in reference: function, in ref_list: params,
       end if;
     elsif action_prefix = "SET" then
       if action_name = "SET_ARRLIT" then
-        process_set_arrlit(params, c_expr);
+        process_set_arrlit(function, params, c_expr);
       elsif action_name = "SET_BASELIT" then
-        process_set_baselit(params, c_expr);
+        process_set_baselit(function, params, c_expr);
       elsif action_name = "SET_CARD" then
         process_set_card(params, c_expr);
+      elsif action_name = "SET_CMP" then
+        process_set_cmp(params, c_expr);
       elsif action_name = "SET_CONV" then
         process_set_conv(params, c_expr);
       elsif action_name = "SET_CPY" then
@@ -16421,16 +16443,13 @@ const proc: write_prototypes is func
     writeln(c_prog, "booltype    setElem (inttype, settype);");
     writeln(c_prog, "booltype    setEq (settype, settype);");
     writeln(c_prog, "void        setExcl (settype *, inttype);");
-    writeln(c_prog, "booltype    setGe (settype, settype);");
-    writeln(c_prog, "booltype    setGt (settype, settype);");
     writeln(c_prog, "inttype     setHashCode (settype);");
     writeln(c_prog, "void        setIncl (settype *, inttype);");
     writeln(c_prog, "settype     setIntersect (settype, settype);");
-    writeln(c_prog, "booltype    setLe (settype, settype);");
-    writeln(c_prog, "booltype    setLt (settype, settype);");
+    writeln(c_prog, "booltype    setIsProperSubset (settype, settype);");
+    writeln(c_prog, "booltype    setIsSubset (settype, settype);");
     writeln(c_prog, "inttype     setMax (settype);");
     writeln(c_prog, "inttype     setMin (settype);");
-    writeln(c_prog, "booltype    setNe (settype, settype);");
     writeln(c_prog, "booltype    setNotElem (inttype, settype);");
     writeln(c_prog, "inttype     setRand (settype);");
     writeln(c_prog, "settype     setSymdiff (settype, settype);");

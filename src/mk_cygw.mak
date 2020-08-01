@@ -11,16 +11,16 @@ CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversio
 # CFLAGS = -O2 -g -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LFLAGS =
+LFLAGS = -Wl,--stack,4194304
 # LFLAGS = -pg
 # LFLAGS = -pg -lc_p
-# LIBS = /usr/Xlib/libX11.so -lncurses -lm
-LIBS = -L/usr/X11R6/lib libX11.dll.a -lncurses -lm
-# LIBS = -L/usr/X11R6/lib libX11.dll.a -lncurses -lm -lgmp
+# LIBS = -L/usr/X11R6/lib libX11.dll.a -lncurses -lm
+LIBS = -lX11 -lncurses -lm
+# LIBS = -lX11 -lncurses -lm -lgmp
 SEED7_LIB = seed7_05.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
-CC = gcc
+CC = gcc-4
 
 USE_BIG_RTL_LIBRARY = define
 BIGINT_LIB = big_rtl
@@ -82,16 +82,13 @@ COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2
 
 hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
-	$(MAKE) ../prg/hi
+	cp hi.exe ../prg
 	./hi level
 #	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
-
-../prg/hi:
-	ln -s ../src/hi ../prg
 
 scr_x11.o: scr_x11.c version.h scr_drv.h trm_drv.h
 	$(CC) $(CFLAGS) -c scr_x11.c
@@ -139,7 +136,7 @@ strip:
 version.h:
 	echo "#define ANSI_C" > version.h
 	echo "#define USE_DIRENT" >> version.h
-	echo "#define PATH_DELIMITER '\\\\'" >> version.h
+	echo "#define PATH_DELIMITER '/'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define HAS_SYMLINKS" >> version.h
 	echo "#define USE_MMAP" >> version.h
@@ -149,6 +146,7 @@ version.h:
 	echo "#define UINT64TYPE unsigned long long" >> version.h
 	echo "#define INT64TYPE_SUFFIX_LL" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
+	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#$(USE_BIG_RTL_LIBRARY) USE_BIG_RTL_LIBRARY" >> version.h
 	echo "#include \"stdio.h\"" > chkftell.c
 	echo "int main (int argc, char **argv)" >> chkftell.c

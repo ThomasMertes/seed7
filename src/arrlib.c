@@ -754,7 +754,7 @@ listtype arguments;
               (uinttype) (position - arr1->min_position));
           destr_array(&array_pointer[position - arr1->min_position + 1],
               (uinttype) (arr1->max_position - position));
-          FREE_ARRAY(arr1, arr1->max_position - arr1->min_position + 1);
+          FREE_ARRAY(arr1, (uinttype) (arr1->max_position - arr1->min_position + 1));
           arg_1(arguments)->value.arrayvalue = NULL;
           /* code to avoid destr_array:
           if (position != arr1->max_position) {
@@ -875,7 +875,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position + result_size - 1;
+      result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
       start_idx = (uinttype) (start - arr1->min_position);
       stop_idx = (uinttype) (stop - arr1->min_position);
       if (TEMP_OBJECT(arg_1(arguments))) {
@@ -1028,7 +1028,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position + result_size - 1;
+      result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
       if (TEMP_OBJECT(arg_1(arguments))) {
         memcpy(result->arr, &arr1->arr[start - arr1->min_position],
             (size_t) (result_size * sizeof(objectrecord)));

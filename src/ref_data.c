@@ -1167,7 +1167,7 @@ objecttype obj_arg;
       result = NULL;
     } else {
       set1 = take_set(obj_arg);
-      set_size = set1->max_position - set1->min_position + 1;
+      set_size = (uinttype) (set1->max_position - set1->min_position + 1);
       if (!ALLOC_SET(result, set_size)) {
         raise_error(MEMORY_ERROR);
       } else {

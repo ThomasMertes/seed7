@@ -401,7 +401,7 @@ errinfotype *err_info;
 #ifdef TRACE_RUNLIST
     printf("BEGIN array_to_list\n");
 #endif
-    arr_from_size = arr_from->max_position - arr_from->min_position + 1;
+    arr_from_size = (uinttype) (arr_from->max_position - arr_from->min_position + 1);
     if (arr_from_size != 0 && *err_info == OKAY_NO_ERROR) {
       if (flist.list_elems != NULL) {
         help_element = flist.list_elems;

@@ -111,6 +111,2384 @@ const proc: check_incl is func
   end func;
 
 
+const func boolean: compareTest (in bitset: set1, in bitset: set2,
+    in integer: expectedResult) is
+  return compare(set1, set2) <> expectedResult and
+         compare(set2, set1) <> -expectedResult;
+
+
+const proc: check_compare is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  compareTest(EMPTY_SET, EMPTY_SET,        0) or
+        compareTest(EMPTY_SET, {-901},          -1) or
+        compareTest(EMPTY_SET, {-900},          -1) or
+        compareTest(EMPTY_SET, {-2},            -1) or
+        compareTest(EMPTY_SET, {-1},            -1) or
+        compareTest(EMPTY_SET, {0},             -1) or
+        compareTest(EMPTY_SET, {1},             -1) or
+        compareTest(EMPTY_SET, {900},           -1) or
+        compareTest(EMPTY_SET, {901},           -1) or
+        compareTest(EMPTY_SET, {-901, -900},    -1) or
+        compareTest(EMPTY_SET, {-900, -1},      -1) or
+        compareTest(EMPTY_SET, {-900, 0},       -1) or
+        compareTest(EMPTY_SET, {-900, 900},     -1) or
+        compareTest(EMPTY_SET, {-2, -1},        -1) or
+        compareTest(EMPTY_SET, {-1, 0},         -1) or
+        compareTest(EMPTY_SET, {-1, 900},       -1) or
+        compareTest(EMPTY_SET, {0, 1},          -1) or
+        compareTest(EMPTY_SET, {0, 900},        -1) or
+        compareTest(EMPTY_SET, {1, 900},        -1) or
+        compareTest(EMPTY_SET, {900, 901},      -1) or
+        compareTest(EMPTY_SET, {900, 1800},     -1) or
+        compareTest(EMPTY_SET, {-2, -1, 900},   -1) or
+        compareTest(EMPTY_SET, {-1, 0, 900},    -1) or
+        compareTest(EMPTY_SET, {-1, 900, 901},  -1) or
+        compareTest(EMPTY_SET, {0, 1, 900},     -1) or
+        compareTest(EMPTY_SET, {0, 900, 901},   -1) or
+
+        compareTest({-900}, {-901},              1) or
+        compareTest({-900}, {-900},              0) or
+        compareTest({-900}, {-2},               -1) or
+        compareTest({-900}, {-1},               -1) or
+        compareTest({-900}, {0},                -1) or
+        compareTest({-900}, {1},                -1) or
+        compareTest({-900}, {900},              -1) or
+        compareTest({-900}, {901},              -1) or
+        compareTest({-900}, {-901, -900},       -1) or
+        compareTest({-900}, {-900, -1},         -1) or
+        compareTest({-900}, {-900, 0},          -1) or
+        compareTest({-900}, {-900, 900},        -1) or
+        compareTest({-900}, {-2, -1},           -1) or
+        compareTest({-900}, {-1, 0},            -1) or
+        compareTest({-900}, {-1, 900},          -1) or
+        compareTest({-900}, {0, 1},             -1) or
+        compareTest({-900}, {0, 900},           -1) or
+        compareTest({-900}, {900, 901},         -1) or
+        compareTest({-900}, {-902, -901, -900}, -1) or
+        compareTest({-900}, {-901, -900, -1},   -1) or
+        compareTest({-900}, {-901, -900, 0},    -1) or
+        compareTest({-900}, {-901, -900, 900},  -1) or
+        compareTest({-900}, {-900, -2, -1},     -1) or
+        compareTest({-900}, {-900, -1, 0},      -1) or
+        compareTest({-900}, {-900, -1, 900},    -1) or
+        compareTest({-900}, {-900, 0, 1},       -1) or
+        compareTest({-900}, {-900, 0, 900},     -1) or
+        compareTest({-900}, {-900, 900, 901},   -1) or
+        compareTest({-900}, {-3, -2, -1},       -1) or
+        compareTest({-900}, {-2, -1, 0},        -1) or
+        compareTest({-900}, {-2, -1, 900},      -1) or
+        compareTest({-900}, {-1, 0, 1},         -1) or
+        compareTest({-900}, {-1, 0, 900},       -1) or
+        compareTest({-900}, {-1, 900, 901},     -1) or
+        compareTest({-900}, {0, 1, 2},          -1) or
+        compareTest({-900}, {0, 1, 900},        -1) or
+        compareTest({-900}, {0, 900, 901},      -1) or
+        compareTest({-900}, {900, 901, 902},    -1) or
+
+        compareTest({-2},   {-901},              1) or
+        compareTest({-2},   {-900},              1) or
+        compareTest({-2},   {-2},                0) or
+        compareTest({-2},   {-1},               -1) or
+        compareTest({-2},   {0},                -1) or
+        compareTest({-2},   {1},                -1) or
+        compareTest({-2},   {900},              -1) or
+        compareTest({-2},   {901},              -1) or
+        compareTest({-2},   {-901, -900},        1) or
+        compareTest({-2},   {-900, -1},         -1) or
+        compareTest({-2},   {-900, 0},          -1) or
+        compareTest({-2},   {-900, 900},        -1) or
+        compareTest({-2},   {-2, -1},           -1) or
+        compareTest({-2},   {-1, 0},            -1) or
+        compareTest({-2},   {-1, 900},          -1) or
+        compareTest({-2},   {0, 1},             -1) or
+        compareTest({-2},   {0, 900},           -1) or
+        compareTest({-2},   {900, 901},         -1) or
+        compareTest({-2},   {-902, -901, -900},  1) or
+        compareTest({-2},   {-901, -900, -1},   -1) or
+        compareTest({-2},   {-901, -900, 0},    -1) or
+        compareTest({-2},   {-901, -900, 900},  -1) or
+        compareTest({-2},   {-900, -2, -1},     -1) or
+        compareTest({-2},   {-900, -1, 0},      -1) or
+        compareTest({-2},   {-900, -1, 900},    -1) or
+        compareTest({-2},   {-900, 0, 1},       -1) or
+        compareTest({-2},   {-900, 0, 900},     -1) or
+        compareTest({-2},   {-900, 900, 901},   -1) or
+        compareTest({-2},   {-3, -2, -1},       -1) or
+        compareTest({-2},   {-2, -1, 0},        -1) or
+        compareTest({-2},   {-2, -1, 900},      -1) or
+        compareTest({-2},   {-1, 0, 1},         -1) or
+        compareTest({-2},   {-1, 0, 900},       -1) or
+        compareTest({-2},   {-1, 900, 901},     -1) or
+        compareTest({-2},   {0, 1, 2},          -1) or
+        compareTest({-2},   {0, 1, 900},        -1) or
+        compareTest({-2},   {0, 900, 901},      -1) or
+        compareTest({-2},   {900, 901, 902},    -1) or
+
+        compareTest({-1},   {-901},              1) or
+        compareTest({-1},   {-900},              1) or
+        compareTest({-1},   {-2},                1) or
+        compareTest({-1},   {-1},                0) or
+        compareTest({-1},   {0},                -1) or
+        compareTest({-1},   {1},                -1) or
+        compareTest({-1},   {900},              -1) or
+        compareTest({-1},   {901},              -1) or
+        compareTest({-1},   {-901, -900},        1) or
+        compareTest({-1},   {-900, -1},         -1) or
+        compareTest({-1},   {-900, 0},          -1) or
+        compareTest({-1},   {-900, 900},        -1) or
+        compareTest({-1},   {-2, -1},           -1) or
+        compareTest({-1},   {-1, 0},            -1) or
+        compareTest({-1},   {-1, 900},          -1) or
+        compareTest({-1},   {0, 1},             -1) or
+        compareTest({-1},   {0, 900},           -1) or
+        compareTest({-1},   {900, 901},         -1) or
+        compareTest({-1},   {-902, -901, -900},  1) or
+        compareTest({-1},   {-901, -900, -1},   -1) or
+        compareTest({-1},   {-901, -900, 0},    -1) or
+        compareTest({-1},   {-901, -900, 900},  -1) or
+        compareTest({-1},   {-900, -2, -1},     -1) or
+        compareTest({-1},   {-900, -1, 0},      -1) or
+        compareTest({-1},   {-900, -1, 900},    -1) or
+        compareTest({-1},   {-900, 0, 1},       -1) or
+        compareTest({-1},   {-900, 0, 900},     -1) or
+        compareTest({-1},   {-900, 900, 901},   -1) or
+        compareTest({-1},   {-3, -2, -1},       -1) or
+        compareTest({-1},   {-2, -1, 0},        -1) or
+        compareTest({-1},   {-2, -1, 900},      -1) or
+        compareTest({-1},   {-1, 0, 1},         -1) or
+        compareTest({-1},   {-1, 0, 900},       -1) or
+        compareTest({-1},   {-1, 900, 901},     -1) or
+        compareTest({-1},   {0, 1, 2},          -1) or
+        compareTest({-1},   {0, 1, 900},        -1) or
+        compareTest({-1},   {0, 900, 901},      -1) or
+        compareTest({-1},   {900, 901, 902},    -1) or
+
+        compareTest({0},    {-901},              1) or
+        compareTest({0},    {-900},              1) or
+        compareTest({0},    {-2},                1) or
+        compareTest({0},    {-1},                1) or
+        compareTest({0},    {0},                 0) or
+        compareTest({0},    {1},                -1) or
+        compareTest({0},    {900},              -1) or
+        compareTest({0},    {901},              -1) or
+        compareTest({0},    {-901, -900},        1) or
+        compareTest({0},    {-900, -1},          1) or
+        compareTest({0},    {-900, 0},          -1) or
+        compareTest({0},    {-900, 900},        -1) or
+        compareTest({0},    {-2, -1},            1) or
+        compareTest({0},    {-1, 0},            -1) or
+        compareTest({0},    {-1, 900},          -1) or
+        compareTest({0},    {0, 1},             -1) or
+        compareTest({0},    {0, 900},           -1) or
+        compareTest({0},    {900, 901},         -1) or
+        compareTest({0},    {-902, -901, -900},  1) or
+        compareTest({0},    {-901, -900, -1},    1) or
+        compareTest({0},    {-901, -900, 0},    -1) or
+        compareTest({0},    {-901, -900, 900},  -1) or
+        compareTest({0},    {-900, -2, -1},      1) or
+        compareTest({0},    {-900, -1, 0},      -1) or
+        compareTest({0},    {-900, -1, 900},    -1) or
+        compareTest({0},    {-900, 0, 1},       -1) or
+        compareTest({0},    {-900, 0, 900},     -1) or
+        compareTest({0},    {-900, 900, 901},   -1) or
+        compareTest({0},    {-3, -2, -1},        1) or
+        compareTest({0},    {-2, -1, 0},        -1) or
+        compareTest({0},    {-2, -1, 900},      -1) or
+        compareTest({0},    {-1, 0, 1},         -1) or
+        compareTest({0},    {-1, 0, 900},       -1) or
+        compareTest({0},    {-1, 900, 901},     -1) or
+        compareTest({0},    {0, 1, 2},          -1) or
+        compareTest({0},    {0, 1, 900},        -1) or
+        compareTest({0},    {0, 900, 901},      -1) or
+        compareTest({0},    {900, 901, 902},    -1) or
+
+        compareTest({1},    {-901},              1) or
+        compareTest({1},    {-900},              1) or
+        compareTest({1},    {-2},                1) or
+        compareTest({1},    {-1},                1) or
+        compareTest({1},    {0},                 1) or
+        compareTest({1},    {1},                 0) or
+        compareTest({1},    {900},              -1) or
+        compareTest({1},    {901},              -1) or
+        compareTest({1},    {-901, -900},        1) or
+        compareTest({1},    {-900, -1},          1) or
+        compareTest({1},    {-900, 0},           1) or
+        compareTest({1},    {-900, 900},        -1) or
+        compareTest({1},    {-2, -1},            1) or
+        compareTest({1},    {-1, 0},             1) or
+        compareTest({1},    {-1, 900},          -1) or
+        compareTest({1},    {0, 1},             -1) or
+        compareTest({1},    {0, 900},           -1) or
+        compareTest({1},    {900, 901},         -1) or
+        compareTest({1},    {-902, -901, -900},  1) or
+        compareTest({1},    {-901, -900, -1},    1) or
+        compareTest({1},    {-901, -900, 0},     1) or
+        compareTest({1},    {-901, -900, 900},  -1) or
+        compareTest({1},    {-900, -2, -1},      1) or
+        compareTest({1},    {-900, -1, 0},       1) or
+        compareTest({1},    {-900, -1, 900},    -1) or
+        compareTest({1},    {-900, 0, 1},       -1) or
+        compareTest({1},    {-900, 0, 900},     -1) or
+        compareTest({1},    {-900, 900, 901},   -1) or
+        compareTest({1},    {-3, -2, -1},        1) or
+        compareTest({1},    {-2, -1, 0},         1) or
+        compareTest({1},    {-2, -1, 900},      -1) or
+        compareTest({1},    {-1, 0, 1},         -1) or
+        compareTest({1},    {-1, 0, 900},       -1) or
+        compareTest({1},    {-1, 900, 901},     -1) or
+        compareTest({1},    {0, 1, 2},          -1) or
+        compareTest({1},    {0, 1, 900},        -1) or
+        compareTest({1},    {0, 900, 901},      -1) or
+        compareTest({1},    {900, 901, 902},    -1) or
+
+        compareTest({900},  {-901},              1) or
+        compareTest({900},  {-900},              1) or
+        compareTest({900},  {-2},                1) or
+        compareTest({900},  {-1},                1) or
+        compareTest({900},  {0},                 1) or
+        compareTest({900},  {1},                 1) or
+        compareTest({900},  {900},               0) or
+        compareTest({900},  {901},              -1) or
+        compareTest({900},  {-901, -900},        1) or
+        compareTest({900},  {-900, -1},          1) or
+        compareTest({900},  {-900, 0},           1) or
+        compareTest({900},  {-900, 900},        -1) or
+        compareTest({900},  {-2, -1},            1) or
+        compareTest({900},  {-1, 0},             1) or
+        compareTest({900},  {-1, 900},          -1) or
+        compareTest({900},  {0, 1},              1) or
+        compareTest({900},  {0, 900},           -1) or
+        compareTest({900},  {900, 901},         -1) or
+        compareTest({900},  {-902, -901, -900},  1) or
+        compareTest({900},  {-901, -900, -1},    1) or
+        compareTest({900},  {-901, -900, 0},     1) or
+        compareTest({900},  {-901, -900, 900},  -1) or
+        compareTest({900},  {-900, -2, -1},      1) or
+        compareTest({900},  {-900, -1, 0},       1) or
+        compareTest({900},  {-900, -1, 900},    -1) or
+        compareTest({900},  {-900, 0, 1},        1) or
+        compareTest({900},  {-900, 0, 900},     -1) or
+        compareTest({900},  {-900, 900, 901},   -1) or
+        compareTest({900},  {-3, -2, -1},        1) or
+        compareTest({900},  {-2, -1, 0},         1) or
+        compareTest({900},  {-2, -1, 900},      -1) or
+        compareTest({900},  {-1, 0, 1},          1) or
+        compareTest({900},  {-1, 0, 900},       -1) or
+        compareTest({900},  {-1, 900, 901},     -1) or
+        compareTest({900},  {0, 1, 2},           1) or
+        compareTest({900},  {0, 1, 900},        -1) or
+        compareTest({900},  {0, 900, 901},      -1) or
+        compareTest({900},  {900, 901, 902},    -1) or
+
+        compareTest({-901, -900}, {-901, -900},        0) or
+        compareTest({-901, -900}, {-900, -1},         -1) or
+        compareTest({-901, -900}, {-900, 0},          -1) or
+        compareTest({-901, -900}, {-900, 900},        -1) or
+        compareTest({-901, -900}, {-2, -1},           -1) or
+        compareTest({-901, -900}, {-1, 0},            -1) or
+        compareTest({-901, -900}, {-1, 900},          -1) or
+        compareTest({-901, -900}, {0, 1},             -1) or
+        compareTest({-901, -900}, {0, 900},           -1) or
+        compareTest({-901, -900}, {900, 901},         -1) or
+        compareTest({-901, -900}, {-902, -901, -900}, -1) or
+        compareTest({-901, -900}, {-901, -900, -1},   -1) or
+        compareTest({-901, -900}, {-901, -900, 0},    -1) or
+        compareTest({-901, -900}, {-901, -900, 900},  -1) or
+        compareTest({-901, -900}, {-900, -2, -1},     -1) or
+        compareTest({-901, -900}, {-900, -1, 0},      -1) or
+        compareTest({-901, -900}, {-900, -1, 900},    -1) or
+        compareTest({-901, -900}, {-900, 0, 1},       -1) or
+        compareTest({-901, -900}, {-900, 0, 900},     -1) or
+        compareTest({-901, -900}, {-900, 900, 901},   -1) or
+        compareTest({-901, -900}, {-3, -2, -1},       -1) or
+        compareTest({-901, -900}, {-2, -1, 0},        -1) or
+        compareTest({-901, -900}, {-2, -1, 900},      -1) or
+        compareTest({-901, -900}, {-1, 0, 1},         -1) or
+        compareTest({-901, -900}, {-1, 0, 900},       -1) or
+        compareTest({-901, -900}, {-1, 900, 901},     -1) or
+        compareTest({-901, -900}, {0, 1, 2},          -1) or
+        compareTest({-901, -900}, {0, 1, 900},        -1) or
+        compareTest({-901, -900}, {0, 900, 901},      -1) or
+        compareTest({-901, -900}, {900, 901, 902},    -1) or
+
+        compareTest({-900, -1},   {-900, -1},          0) or
+        compareTest({-900, -1},   {-900, 0},          -1) or
+        compareTest({-900, -1},   {-900, 900},        -1) or
+        compareTest({-900, -1},   {-2, -1},           -1) or
+        compareTest({-900, -1},   {-1, 0},            -1) or
+        compareTest({-900, -1},   {-1, 900},          -1) or
+        compareTest({-900, -1},   {0, 1},             -1) or
+        compareTest({-900, -1},   {0, 900},           -1) or
+        compareTest({-900, -1},   {900, 901},         -1) or
+        compareTest({-900, -1},   {-902, -901, -900},  1) or
+        compareTest({-900, -1},   {-901, -900, -1},   -1) or
+        compareTest({-900, -1},   {-901, -900, 0},    -1) or
+        compareTest({-900, -1},   {-901, -900, 900},  -1) or
+        compareTest({-900, -1},   {-900, -2, -1},     -1) or
+        compareTest({-900, -1},   {-900, -1, 0},      -1) or
+        compareTest({-900, -1},   {-900, -1, 900},    -1) or
+        compareTest({-900, -1},   {-900, 0, 1},       -1) or
+        compareTest({-900, -1},   {-900, 0, 900},     -1) or
+        compareTest({-900, -1},   {-900, 900, 901},   -1) or
+        compareTest({-900, -1},   {-3, -2, -1},       -1) or
+        compareTest({-900, -1},   {-2, -1, 0},        -1) or
+        compareTest({-900, -1},   {-2, -1, 900},      -1) or
+        compareTest({-900, -1},   {-1, 0, 1},         -1) or
+        compareTest({-900, -1},   {-1, 0, 900},       -1) or
+        compareTest({-900, -1},   {-1, 900, 901},     -1) or
+        compareTest({-900, -1},   {0, 1, 2},          -1) or
+        compareTest({-900, -1},   {0, 1, 900},        -1) or
+        compareTest({-900, -1},   {0, 900, 901},      -1) or
+        compareTest({-900, -1},   {900, 901, 902},    -1) or
+
+        compareTest({-900, 0},    {-900, 0},           0) or
+        compareTest({-900, 0},    {-900, 900},        -1) or
+        compareTest({-900, 0},    {-2, -1},            1) or
+        compareTest({-900, 0},    {-1, 0},            -1) or
+        compareTest({-900, 0},    {-1, 900},          -1) or
+        compareTest({-900, 0},    {0, 1},             -1) or
+        compareTest({-900, 0},    {0, 900},           -1) or
+        compareTest({-900, 0},    {900, 901},         -1) or
+        compareTest({-900, 0},    {-902, -901, -900},  1) or
+        compareTest({-900, 0},    {-901, -900, -1},    1) or
+        compareTest({-900, 0},    {-901, -900, 0},    -1) or
+        compareTest({-900, 0},    {-901, -900, 900},  -1) or
+        compareTest({-900, 0},    {-900, -2, -1},      1) or
+        compareTest({-900, 0},    {-900, -1, 0},      -1) or
+        compareTest({-900, 0},    {-900, -1, 900},    -1) or
+        compareTest({-900, 0},    {-900, 0, 1},       -1) or
+        compareTest({-900, 0},    {-900, 0, 900},     -1) or
+        compareTest({-900, 0},    {-900, 900, 901},   -1) or
+        compareTest({-900, 0},    {-3, -2, -1},        1) or
+        compareTest({-900, 0},    {-2, -1, 0},        -1) or
+        compareTest({-900, 0},    {-2, -1, 900},      -1) or
+        compareTest({-900, 0},    {-1, 0, 1},         -1) or
+        compareTest({-900, 0},    {-1, 0, 900},       -1) or
+        compareTest({-900, 0},    {-1, 900, 901},     -1) or
+        compareTest({-900, 0},    {0, 1, 2},          -1) or
+        compareTest({-900, 0},    {0, 1, 900},        -1) or
+        compareTest({-900, 0},    {0, 900, 901},      -1) or
+        compareTest({-900, 0},    {900, 901, 902},    -1) or
+
+        compareTest({-900, 900},  {-900, 900},         0) or
+        compareTest({-900, 900},  {-2, -1},            1) or
+        compareTest({-900, 900},  {-1, 0},             1) or
+        compareTest({-900, 900},  {-1, 900},          -1) or
+        compareTest({-900, 900},  {0, 1},              1) or
+        compareTest({-900, 900},  {0, 900},           -1) or
+        compareTest({-900, 900},  {900, 901},         -1) or
+        compareTest({-900, 900},  {-902, -901, -900},  1) or
+        compareTest({-900, 900},  {-901, -900, -1},    1) or
+        compareTest({-900, 900},  {-901, -900, 0},     1) or
+        compareTest({-900, 900},  {-901, -900, 900},  -1) or
+        compareTest({-900, 900},  {-900, -2, -1},      1) or
+        compareTest({-900, 900},  {-900, -1, 0},       1) or
+        compareTest({-900, 900},  {-900, -1, 900},    -1) or
+        compareTest({-900, 900},  {-900, 0, 1},        1) or
+        compareTest({-900, 900},  {-900, 0, 900},     -1) or
+        compareTest({-900, 900},  {-900, 900, 901},   -1) or
+        compareTest({-900, 900},  {-3, -2, -1},        1) or
+        compareTest({-900, 900},  {-2, -1, 0},         1) or
+        compareTest({-900, 900},  {-2, -1, 900},      -1) or
+        compareTest({-900, 900},  {-1, 0, 1},          1) or
+        compareTest({-900, 900},  {-1, 0, 900},       -1) or
+        compareTest({-900, 900},  {-1, 900, 901},     -1) or
+        compareTest({-900, 900},  {0, 1, 2},           1) or
+        compareTest({-900, 900},  {0, 1, 900},        -1) or
+        compareTest({-900, 900},  {0, 900, 901},      -1) or
+        compareTest({-900, 900},  {900, 901, 902},    -1) or
+
+        compareTest({-2, -1},     {-2, -1},            0) or
+        compareTest({-2, -1},     {-1, 0},            -1) or
+        compareTest({-2, -1},     {-1, 900},          -1) or
+        compareTest({-2, -1},     {0, 1},             -1) or
+        compareTest({-2, -1},     {0, 900},           -1) or
+        compareTest({-2, -1},     {900, 901},         -1) or
+        compareTest({-2, -1},     {-902, -901, -900},  1) or
+        compareTest({-2, -1},     {-901, -900, -1},    1) or
+        compareTest({-2, -1},     {-901, -900, 0},    -1) or
+        compareTest({-2, -1},     {-901, -900, 900},  -1) or
+        compareTest({-2, -1},     {-900, -2, -1},     -1) or
+        compareTest({-2, -1},     {-900, -1, 0},      -1) or
+        compareTest({-2, -1},     {-900, -1, 900},    -1) or
+        compareTest({-2, -1},     {-900, 0, 1},       -1) or
+        compareTest({-2, -1},     {-900, 0, 900},     -1) or
+        compareTest({-2, -1},     {-900, 900, 901},   -1) or
+        compareTest({-2, -1},     {-3, -2, -1},       -1) or
+        compareTest({-2, -1},     {-2, -1, 0},        -1) or
+        compareTest({-2, -1},     {-2, -1, 900},      -1) or
+        compareTest({-2, -1},     {-1, 0, 1},         -1) or
+        compareTest({-2, -1},     {-1, 0, 900},       -1) or
+        compareTest({-2, -1},     {-1, 900, 901},     -1) or
+        compareTest({-2, -1},     {0, 1, 2},          -1) or
+        compareTest({-2, -1},     {0, 1, 900},        -1) or
+        compareTest({-2, -1},     {0, 900, 901},      -1) or
+        compareTest({-2, -1},     {900, 901, 902},    -1) or
+
+        compareTest({-1, 0},      {-1, 0},             0) or
+        compareTest({-1, 0},      {-1, 900},          -1) or
+        compareTest({-1, 0},      {0, 1},             -1) or
+        compareTest({-1, 0},      {0, 900},           -1) or
+        compareTest({-1, 0},      {900, 901},         -1) or
+        compareTest({-1, 0},      {-902, -901, -900},  1) or
+        compareTest({-1, 0},      {-901, -900, -1},    1) or
+        compareTest({-1, 0},      {-901, -900, 0},     1) or
+        compareTest({-1, 0},      {-901, -900, 900},  -1) or
+        compareTest({-1, 0},      {-900, -2, -1},      1) or
+        compareTest({-1, 0},      {-900, -1, 0},      -1) or
+        compareTest({-1, 0},      {-900, -1, 900},    -1) or
+        compareTest({-1, 0},      {-900, 0, 1},       -1) or
+        compareTest({-1, 0},      {-900, 0, 900},     -1) or
+        compareTest({-1, 0},      {-900, 900, 901},   -1) or
+        compareTest({-1, 0},      {-3, -2, -1},        1) or
+        compareTest({-1, 0},      {-2, -1, 0},        -1) or
+        compareTest({-1, 0},      {-2, -1, 900},      -1) or
+        compareTest({-1, 0},      {-1, 0, 1},         -1) or
+        compareTest({-1, 0},      {-1, 0, 900},       -1) or
+        compareTest({-1, 0},      {-1, 900, 901},     -1) or
+        compareTest({-1, 0},      {0, 1, 2},          -1) or
+        compareTest({-1, 0},      {0, 1, 900},        -1) or
+        compareTest({-1, 0},      {0, 900, 901},      -1) or
+        compareTest({-1, 0},      {900, 901, 902},    -1) or
+
+        compareTest({-1, 900},    {-1, 900},           0) or
+        compareTest({-1, 900},    {0, 1},              1) or
+        compareTest({-1, 900},    {0, 900},           -1) or
+        compareTest({-1, 900},    {900, 901},         -1) or
+        compareTest({-1, 900},    {-902, -901, -900},  1) or
+        compareTest({-1, 900},    {-901, -900, -1},    1) or
+        compareTest({-1, 900},    {-901, -900, 0},     1) or
+        compareTest({-1, 900},    {-901, -900, 900},   1) or
+        compareTest({-1, 900},    {-900, -2, -1},      1) or
+        compareTest({-1, 900},    {-900, -1, 0},       1) or
+        compareTest({-1, 900},    {-900, -1, 900},    -1) or
+        compareTest({-1, 900},    {-900, 0, 1},        1) or
+        compareTest({-1, 900},    {-900, 0, 900},     -1) or
+        compareTest({-1, 900},    {-900, 900, 901},   -1) or
+        compareTest({-1, 900},    {-3, -2, -1},        1) or
+        compareTest({-1, 900},    {-2, -1, 0},         1) or
+        compareTest({-1, 900},    {-2, -1, 900},      -1) or
+        compareTest({-1, 900},    {-1, 0, 1},          1) or
+        compareTest({-1, 900},    {-1, 0, 900},       -1) or
+        compareTest({-1, 900},    {-1, 900, 901},     -1) or
+        compareTest({-1, 900},    {0, 1, 2},           1) or
+        compareTest({-1, 900},    {0, 1, 900},        -1) or
+        compareTest({-1, 900},    {0, 900, 901},      -1) or
+        compareTest({-1, 900},    {900, 901, 902},    -1) or
+
+        compareTest({0, 1},       {0, 1},              0) or
+        compareTest({0, 1},       {0, 900},           -1) or
+        compareTest({0, 1},       {900, 901},         -1) or
+        compareTest({0, 1},       {-902, -901, -900},  1) or
+        compareTest({0, 1},       {-901, -900, -1},    1) or
+        compareTest({0, 1},       {-901, -900, 0},     1) or
+        compareTest({0, 1},       {-901, -900, 900},  -1) or
+        compareTest({0, 1},       {-900, -2, -1},      1) or
+        compareTest({0, 1},       {-900, -1, 0},       1) or
+        compareTest({0, 1},       {-900, -1, 900},    -1) or
+        compareTest({0, 1},       {-900, 0, 1},       -1) or
+        compareTest({0, 1},       {-900, 0, 900},     -1) or
+        compareTest({0, 1},       {-900, 900, 901},   -1) or
+        compareTest({0, 1},       {-3, -2, -1},        1) or
+        compareTest({0, 1},       {-2, -1, 0},         1) or
+        compareTest({0, 1},       {-2, -1, 900},      -1) or
+        compareTest({0, 1},       {-1, 0, 1},         -1) or
+        compareTest({0, 1},       {-1, 0, 900},       -1) or
+        compareTest({0, 1},       {-1, 900, 901},     -1) or
+        compareTest({0, 1},       {0, 1, 2},          -1) or
+        compareTest({0, 1},       {0, 1, 900},        -1) or
+        compareTest({0, 1},       {0, 900, 901},      -1) or
+        compareTest({0, 1},       {900, 901, 902},    -1) or
+
+        compareTest({0, 900},     {0, 900},            0) or
+        compareTest({0, 900},     {900, 901},         -1) or
+        compareTest({0, 900},     {-902, -901, -900},  1) or
+        compareTest({0, 900},     {-901, -900, -1},    1) or
+        compareTest({0, 900},     {-901, -900, 0},     1) or
+        compareTest({0, 900},     {-901, -900, 900},   1) or
+        compareTest({0, 900},     {-900, -2, -1},      1) or
+        compareTest({0, 900},     {-900, -1, 0},       1) or
+        compareTest({0, 900},     {-900, -1, 900},     1) or
+        compareTest({0, 900},     {-900, 0, 1},        1) or
+        compareTest({0, 900},     {-900, 0, 900},     -1) or
+        compareTest({0, 900},     {-900, 900, 901},   -1) or
+        compareTest({0, 900},     {-3, -2, -1},        1) or
+        compareTest({0, 900},     {-2, -1, 0},         1) or
+        compareTest({0, 900},     {-2, -1, 900},       1) or
+        compareTest({0, 900},     {-1, 0, 1},          1) or
+        compareTest({0, 900},     {-1, 0, 900},       -1) or
+        compareTest({0, 900},     {-1, 900, 901},     -1) or
+        compareTest({0, 900},     {0, 1, 2},           1) or
+        compareTest({0, 900},     {0, 1, 900},        -1) or
+        compareTest({0, 900},     {0, 900, 901},      -1) or
+        compareTest({0, 900},     {900, 901, 902},    -1) or
+
+        compareTest({900, 901},   {900, 901},   0) or
+        compareTest({900, 901},   {-902, -901, -900},  1) or
+        compareTest({900, 901},   {-901, -900, -1},    1) or
+        compareTest({900, 901},   {-901, -900, 0},     1) or
+        compareTest({900, 901},   {-901, -900, 900},   1) or
+        compareTest({900, 901},   {-900, -2, -1},      1) or
+        compareTest({900, 901},   {-900, -1, 0},       1) or
+        compareTest({900, 901},   {-900, -1, 900},     1) or
+        compareTest({900, 901},   {-900, 0, 1},        1) or
+        compareTest({900, 901},   {-900, 0, 900},      1) or
+        compareTest({900, 901},   {-900, 900, 901},   -1) or
+        compareTest({900, 901},   {-3, -2, -1},        1) or
+        compareTest({900, 901},   {-2, -1, 0},         1) or
+        compareTest({900, 901},   {-2, -1, 900},       1) or
+        compareTest({900, 901},   {-1, 0, 1},          1) or
+        compareTest({900, 901},   {-1, 0, 900},        1) or
+        compareTest({900, 901},   {-1, 900, 901},     -1) or
+        compareTest({900, 901},   {0, 1, 2},           1) or
+        compareTest({900, 901},   {0, 1, 900},         1) or
+        compareTest({900, 901},   {0, 900, 901},      -1) or
+        compareTest({900, 901},   {900, 901, 902},    -1) or
+
+        compareTest({-902, -901, -900}, {-902, -901, -900},  0) or
+        compareTest({-902, -901, -900}, {-901, -900, -1},   -1) or
+        compareTest({-902, -901, -900}, {-901, -900, 0},    -1) or
+        compareTest({-902, -901, -900}, {-901, -900, 900},  -1) or
+        compareTest({-902, -901, -900}, {-900, -2, -1},     -1) or
+        compareTest({-902, -901, -900}, {-900, -1, 0},      -1) or
+        compareTest({-902, -901, -900}, {-900, -1, 900},    -1) or
+        compareTest({-902, -901, -900}, {-900, 0, 1},       -1) or
+        compareTest({-902, -901, -900}, {-900, 0, 900},     -1) or
+        compareTest({-902, -901, -900}, {-900, 900, 901},   -1) or
+        compareTest({-902, -901, -900}, {-3, -2, -1},       -1) or
+        compareTest({-902, -901, -900}, {-2, -1, 0},        -1) or
+        compareTest({-902, -901, -900}, {-2, -1, 900},      -1) or
+        compareTest({-902, -901, -900}, {-1, 0, 1},         -1) or
+        compareTest({-902, -901, -900}, {-1, 0, 900},       -1) or
+        compareTest({-902, -901, -900}, {-1, 900, 901},     -1) or
+        compareTest({-902, -901, -900}, {0, 1, 2},          -1) or
+        compareTest({-902, -901, -900}, {0, 1, 900},        -1) or
+        compareTest({-902, -901, -900}, {0, 900, 901},      -1) or
+        compareTest({-902, -901, -900}, {900, 901, 902},    -1) or
+
+        compareTest({-901, -900, -1},   {-901, -900, -1},    0) or
+        compareTest({-901, -900, -1},   {-901, -900, 0},    -1) or
+        compareTest({-901, -900, -1},   {-901, -900, 900},  -1) or
+        compareTest({-901, -900, -1},   {-900, -2, -1},     -1) or
+        compareTest({-901, -900, -1},   {-900, -1, 0},      -1) or
+        compareTest({-901, -900, -1},   {-900, -1, 900},    -1) or
+        compareTest({-901, -900, -1},   {-900, 0, 1},       -1) or
+        compareTest({-901, -900, -1},   {-900, 0, 900},     -1) or
+        compareTest({-901, -900, -1},   {-900, 900, 901},   -1) or
+        compareTest({-901, -900, -1},   {-3, -2, -1},       -1) or
+        compareTest({-901, -900, -1},   {-2, -1, 0},        -1) or
+        compareTest({-901, -900, -1},   {-2, -1, 900},      -1) or
+        compareTest({-901, -900, -1},   {-1, 0, 1},         -1) or
+        compareTest({-901, -900, -1},   {-1, 0, 900},       -1) or
+        compareTest({-901, -900, -1},   {-1, 900, 901},     -1) or
+        compareTest({-901, -900, -1},   {0, 1, 2},          -1) or
+        compareTest({-901, -900, -1},   {0, 1, 900},        -1) or
+        compareTest({-901, -900, -1},   {0, 900, 901},      -1) or
+        compareTest({-901, -900, -1},   {900, 901, 902},    -1) or
+
+        compareTest({-901, -900, 0},    {-901, -900, 0},     0) or
+        compareTest({-901, -900, 0},    {-901, -900, 900},  -1) or
+        compareTest({-901, -900, 0},    {-900, -2, -1},      1) or
+        compareTest({-901, -900, 0},    {-900, -1, 0},      -1) or
+        compareTest({-901, -900, 0},    {-900, -1, 900},    -1) or
+        compareTest({-901, -900, 0},    {-900, 0, 1},       -1) or
+        compareTest({-901, -900, 0},    {-900, 0, 900},     -1) or
+        compareTest({-901, -900, 0},    {-900, 900, 901},   -1) or
+        compareTest({-901, -900, 0},    {-3, -2, -1},        1) or
+        compareTest({-901, -900, 0},    {-2, -1, 0},        -1) or
+        compareTest({-901, -900, 0},    {-2, -1, 900},      -1) or
+        compareTest({-901, -900, 0},    {-1, 0, 1},         -1) or
+        compareTest({-901, -900, 0},    {-1, 0, 900},       -1) or
+        compareTest({-901, -900, 0},    {-1, 900, 901},     -1) or
+        compareTest({-901, -900, 0},    {0, 1, 2},          -1) or
+        compareTest({-901, -900, 0},    {0, 1, 900},        -1) or
+        compareTest({-901, -900, 0},    {0, 900, 901},      -1) or
+        compareTest({-901, -900, 0},    {900, 901, 902},    -1) or
+
+        compareTest({-901, -900, 900},  {-901, -900, 900},   0) or
+        compareTest({-901, -900, 900},  {-900, -2, -1},      1) or
+        compareTest({-901, -900, 900},  {-900, -1, 0},       1) or
+        compareTest({-901, -900, 900},  {-900, -1, 900},    -1) or
+        compareTest({-901, -900, 900},  {-900, 0, 1},        1) or
+        compareTest({-901, -900, 900},  {-900, 0, 900},     -1) or
+        compareTest({-901, -900, 900},  {-900, 900, 901},   -1) or
+        compareTest({-901, -900, 900},  {-3, -2, -1},        1) or
+        compareTest({-901, -900, 900},  {-2, -1, 0},         1) or
+        compareTest({-901, -900, 900},  {-2, -1, 900},      -1) or
+        compareTest({-901, -900, 900},  {-1, 0, 1},          1) or
+        compareTest({-901, -900, 900},  {-1, 0, 900},       -1) or
+        compareTest({-901, -900, 900},  {-1, 900, 901},     -1) or
+        compareTest({-901, -900, 900},  {0, 1, 2},           1) or
+        compareTest({-901, -900, 900},  {0, 1, 900},        -1) or
+        compareTest({-901, -900, 900},  {0, 900, 901},      -1) or
+        compareTest({-901, -900, 900},  {900, 901, 902},    -1) or
+
+        compareTest({-900, -2, -1},     {-900, -2, -1},      0) or
+        compareTest({-900, -2, -1},     {-900, -1, 0},      -1) or
+        compareTest({-900, -2, -1},     {-900, -1, 900},    -1) or
+        compareTest({-900, -2, -1},     {-900, 0, 1},       -1) or
+        compareTest({-900, -2, -1},     {-900, 0, 900},     -1) or
+        compareTest({-900, -2, -1},     {-900, 900, 901},   -1) or
+        compareTest({-900, -2, -1},     {-3, -2, -1},       -1) or
+        compareTest({-900, -2, -1},     {-2, -1, 0},        -1) or
+        compareTest({-900, -2, -1},     {-2, -1, 900},      -1) or
+        compareTest({-900, -2, -1},     {-1, 0, 1},         -1) or
+        compareTest({-900, -2, -1},     {-1, 0, 900},       -1) or
+        compareTest({-900, -2, -1},     {-1, 900, 901},     -1) or
+        compareTest({-900, -2, -1},     {0, 1, 2},          -1) or
+        compareTest({-900, -2, -1},     {0, 1, 900},        -1) or
+        compareTest({-900, -2, -1},     {0, 900, 901},      -1) or
+        compareTest({-900, -2, -1},     {900, 901, 902},    -1) or
+
+        compareTest({-900, -1, 0},      {-900, -1, 0},       0) or
+        compareTest({-900, -1, 0},      {-900, -1, 900},    -1) or
+        compareTest({-900, -1, 0},      {-900, 0, 1},       -1) or
+        compareTest({-900, -1, 0},      {-900, 0, 900},     -1) or
+        compareTest({-900, -1, 0},      {-900, 900, 901},   -1) or
+        compareTest({-900, -1, 0},      {-3, -2, -1},        1) or
+        compareTest({-900, -1, 0},      {-2, -1, 0},        -1) or
+        compareTest({-900, -1, 0},      {-2, -1, 900},      -1) or
+        compareTest({-900, -1, 0},      {-1, 0, 1},         -1) or
+        compareTest({-900, -1, 0},      {-1, 0, 900},       -1) or
+        compareTest({-900, -1, 0},      {-1, 900, 901},     -1) or
+        compareTest({-900, -1, 0},      {0, 1, 2},          -1) or
+        compareTest({-900, -1, 0},      {0, 1, 900},        -1) or
+        compareTest({-900, -1, 0},      {0, 900, 901},      -1) or
+        compareTest({-900, -1, 0},      {900, 901, 902},    -1) or
+
+        compareTest({-900, -1, 900},    {-900, -1, 900},     0) or
+        compareTest({-900, -1, 900},    {-900, 0, 1},        1) or
+        compareTest({-900, -1, 900},    {-900, 0, 900},     -1) or
+        compareTest({-900, -1, 900},    {-900, 900, 901},   -1) or
+        compareTest({-900, -1, 900},    {-3, -2, -1},        1) or
+        compareTest({-900, -1, 900},    {-2, -1, 0},         1) or
+        compareTest({-900, -1, 900},    {-2, -1, 900},      -1) or
+        compareTest({-900, -1, 900},    {-1, 0, 1},          1) or
+        compareTest({-900, -1, 900},    {-1, 0, 900},       -1) or
+        compareTest({-900, -1, 900},    {-1, 900, 901},     -1) or
+        compareTest({-900, -1, 900},    {0, 1, 2},           1) or
+        compareTest({-900, -1, 900},    {0, 1, 900},        -1) or
+        compareTest({-900, -1, 900},    {0, 900, 901},      -1) or
+        compareTest({-900, -1, 900},    {900, 901, 902},    -1) or
+
+        compareTest({-900, 0, 1},       {-900, 0, 1},        0) or
+        compareTest({-900, 0, 1},       {-900, 0, 900},     -1) or
+        compareTest({-900, 0, 1},       {-900, 900, 901},   -1) or
+        compareTest({-900, 0, 1},       {-3, -2, -1},        1) or
+        compareTest({-900, 0, 1},       {-2, -1, 0},         1) or
+        compareTest({-900, 0, 1},       {-2, -1, 900},      -1) or
+        compareTest({-900, 0, 1},       {-1, 0, 1},         -1) or
+        compareTest({-900, 0, 1},       {-1, 0, 900},       -1) or
+        compareTest({-900, 0, 1},       {-1, 900, 901},     -1) or
+        compareTest({-900, 0, 1},       {0, 1, 2},          -1) or
+        compareTest({-900, 0, 1},       {0, 1, 900},        -1) or
+        compareTest({-900, 0, 1},       {0, 900, 901},      -1) or
+        compareTest({-900, 0, 1},       {900, 901, 902},    -1) or
+
+        compareTest({-900, 0, 900},     {-900, 0, 900},      0) or
+        compareTest({-900, 0, 900},     {-900, 900, 901},   -1) or
+        compareTest({-900, 0, 900},     {-3, -2, -1},        1) or
+        compareTest({-900, 0, 900},     {-2, -1, 0},         1) or
+        compareTest({-900, 0, 900},     {-2, -1, 900},       1) or
+        compareTest({-900, 0, 900},     {-1, 0, 1},          1) or
+        compareTest({-900, 0, 900},     {-1, 0, 900},       -1) or
+        compareTest({-900, 0, 900},     {-1, 900, 901},     -1) or
+        compareTest({-900, 0, 900},     {0, 1, 2},           1) or
+        compareTest({-900, 0, 900},     {0, 1, 900},        -1) or
+        compareTest({-900, 0, 900},     {0, 900, 901},      -1) or
+        compareTest({-900, 0, 900},     {900, 901, 902},    -1) or
+
+        compareTest({-900, 900, 901},   {-900, 900, 901},    0) or
+        compareTest({-900, 900, 901},   {-3, -2, -1},        1) or
+        compareTest({-900, 900, 901},   {-2, -1, 0},         1) or
+        compareTest({-900, 900, 901},   {-2, -1, 900},       1) or
+        compareTest({-900, 900, 901},   {-1, 0, 1},          1) or
+        compareTest({-900, 900, 901},   {-1, 0, 900},        1) or
+        compareTest({-900, 900, 901},   {-1, 900, 901},     -1) or
+        compareTest({-900, 900, 901},   {0, 1, 2},           1) or
+        compareTest({-900, 900, 901},   {0, 1, 900},         1) or
+        compareTest({-900, 900, 901},   {0, 900, 901},      -1) or
+        compareTest({-900, 900, 901},   {900, 901, 902},    -1) or
+
+        compareTest({-3, -2, -1},       {-3, -2, -1},        0) or
+        compareTest({-3, -2, -1},       {-2, -1, 0},        -1) or
+        compareTest({-3, -2, -1},       {-2, -1, 900},      -1) or
+        compareTest({-3, -2, -1},       {-1, 0, 1},         -1) or
+        compareTest({-3, -2, -1},       {-1, 0, 900},       -1) or
+        compareTest({-3, -2, -1},       {-1, 900, 901},     -1) or
+        compareTest({-3, -2, -1},       {0, 1, 2},          -1) or
+        compareTest({-3, -2, -1},       {0, 1, 900},        -1) or
+        compareTest({-3, -2, -1},       {0, 900, 901},      -1) or
+        compareTest({-3, -2, -1},       {900, 901, 902},    -1) or
+
+        compareTest({-2, -1, 0},        {-2, -1, 0},         0) or
+        compareTest({-2, -1, 0},        {-2, -1, 900},      -1) or
+        compareTest({-2, -1, 0},        {-1, 0, 1},         -1) or
+        compareTest({-2, -1, 0},        {-1, 0, 900},       -1) or
+        compareTest({-2, -1, 0},        {-1, 900, 901},     -1) or
+        compareTest({-2, -1, 0},        {0, 1, 2},          -1) or
+        compareTest({-2, -1, 0},        {0, 1, 900},        -1) or
+        compareTest({-2, -1, 0},        {0, 900, 901},      -1) or
+        compareTest({-2, -1, 0},        {900, 901, 902},    -1) or
+
+        compareTest({-2, -1, 900},      {-2, -1, 900},       0) or
+        compareTest({-2, -1, 900},      {-1, 0, 1},          1) or
+        compareTest({-2, -1, 900},      {-1, 0, 900},       -1) or
+        compareTest({-2, -1, 900},      {-1, 900, 901},     -1) or
+        compareTest({-2, -1, 900},      {0, 1, 2},           1) or
+        compareTest({-2, -1, 900},      {0, 1, 900},        -1) or
+        compareTest({-2, -1, 900},      {0, 900, 901},      -1) or
+        compareTest({-2, -1, 900},      {900, 901, 902},    -1) or
+
+        compareTest({-1, 0, 1},         {-1, 0, 1},          0) or
+        compareTest({-1, 0, 1},         {-1, 0, 900},       -1) or
+        compareTest({-1, 0, 1},         {-1, 900, 901},     -1) or
+        compareTest({-1, 0, 1},         {0, 1, 2},          -1) or
+        compareTest({-1, 0, 1},         {0, 1, 900},        -1) or
+        compareTest({-1, 0, 1},         {0, 900, 901},      -1) or
+        compareTest({-1, 0, 1},         {900, 901, 902},    -1) or
+
+        compareTest({-1, 0, 900},       {-1, 0, 900},        0) or
+        compareTest({-1, 0, 900},       {-1, 900, 901},     -1) or
+        compareTest({-1, 0, 900},       {0, 1, 2},           1) or
+        compareTest({-1, 0, 900},       {0, 1, 900},        -1) or
+        compareTest({-1, 0, 900},       {0, 900, 901},      -1) or
+        compareTest({-1, 0, 900},       {900, 901, 902},    -1) or
+
+        compareTest({-1, 900, 901},     {-1, 900, 901},      0) or
+        compareTest({-1, 900, 901},     {0, 1, 2},           1) or
+        compareTest({-1, 900, 901},     {0, 1, 900},         1) or
+        compareTest({-1, 900, 901},     {0, 900, 901},      -1) or
+        compareTest({-1, 900, 901},     {900, 901, 902},    -1) or
+
+        compareTest({0, 1, 2},          {0, 1, 2},           0) or
+        compareTest({0, 1, 2},          {0, 1, 900},        -1) or
+        compareTest({0, 1, 2},          {0, 900, 901},      -1) or
+        compareTest({0, 1, 2},          {900, 901, 902},    -1) or
+
+        compareTest({0, 1, 900},        {0, 1, 900},         0) or
+        compareTest({0, 1, 900},        {0, 900, 901},      -1) or
+        compareTest({0, 1, 900},        {900, 901, 902},    -1) or
+
+        compareTest({0, 900, 901},      {0, 900, 901},       0) or
+        compareTest({0, 900, 901},      {900, 901, 902},    -1) or
+
+        compareTest({900, 901, 902},    {900, 901, 902},     0) then
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("set compare works correct.");
+    else
+      writeln(" ***** set compare does not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const func boolean: relationTest (in bitset: set1, in bitset: set2,
+    in boolean: expectedResult, in boolean: setsAreEqual) is
+  return (set1 >= set2) <> expectedResult or
+         (set2 <= set1) <> expectedResult or
+         (set1 > set2) <> (expectedResult and not setsAreEqual) or
+         (set2 < set1) <> (expectedResult and not setsAreEqual) or
+         (set1 = set2) <> setsAreEqual or
+         (set2 = set1) <> setsAreEqual or
+         (set1 <> set2) = setsAreEqual or
+         (set2 <> set1) = setsAreEqual;
+
+
+const func boolean: relationTests1 is
+  return
+        relationTest(EMPTY_SET, EMPTY_SET,          TRUE,  TRUE)  or
+        relationTest(EMPTY_SET, {-901},             FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900},             FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-2},               FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-1},               FALSE, FALSE) or
+        relationTest(EMPTY_SET, {0},                FALSE, FALSE) or
+        relationTest(EMPTY_SET, {1},                FALSE, FALSE) or
+        relationTest(EMPTY_SET, {900},              FALSE, FALSE) or
+        relationTest(EMPTY_SET, {901},              FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-901, -900},       FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, -1},         FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, 0},          FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, 900},        FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-2, -1},           FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-1, 0},            FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-1, 900},          FALSE, FALSE) or
+        relationTest(EMPTY_SET, {0, 1},             FALSE, FALSE) or
+        relationTest(EMPTY_SET, {0, 900},           FALSE, FALSE) or
+        relationTest(EMPTY_SET, {900, 901},         FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-902, -901, -900}, FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-901, -900, -1},   FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-901, -900, 0},    FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-901, -900, 900},  FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, -2, -1},     FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, -1, 0},      FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, -1, 900},    FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, 0, 1},       FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, 0, 900},     FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-900, 900, 901},   FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-3, -2, -1},       FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-2, -1, 0},        FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-2, -1, 900},      FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-1, 0, 1},         FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-1, 0, 900},       FALSE, FALSE) or
+        relationTest(EMPTY_SET, {-1, 900, 901},     FALSE, FALSE) or
+        relationTest(EMPTY_SET, {0, 1, 2},          FALSE, FALSE) or
+        relationTest(EMPTY_SET, {0, 1, 900},        FALSE, FALSE) or
+        relationTest(EMPTY_SET, {0, 900, 901},      FALSE, FALSE) or
+        relationTest(EMPTY_SET, {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900}, EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900}, {-901},             FALSE, FALSE) or
+        relationTest({-900}, {-900},             TRUE,  TRUE)  or
+        relationTest({-900}, {-2},               FALSE, FALSE) or
+        relationTest({-900}, {-1},               FALSE, FALSE) or
+        relationTest({-900}, {0},                FALSE, FALSE) or
+        relationTest({-900}, {1},                FALSE, FALSE) or
+        relationTest({-900}, {900},              FALSE, FALSE) or
+        relationTest({-900}, {901},              FALSE, FALSE) or
+        relationTest({-900}, {-901, -900},       FALSE, FALSE) or
+        relationTest({-900}, {-900, -1},         FALSE, FALSE) or
+        relationTest({-900}, {-900, 0},          FALSE, FALSE) or
+        relationTest({-900}, {-900, 900},        FALSE, FALSE) or
+        relationTest({-900}, {-2, -1},           FALSE, FALSE) or
+        relationTest({-900}, {-1, 0},            FALSE, FALSE) or
+        relationTest({-900}, {-1, 900},          FALSE, FALSE) or
+        relationTest({-900}, {0, 1},             FALSE, FALSE) or
+        relationTest({-900}, {0, 900},           FALSE, FALSE) or
+        relationTest({-900}, {900, 901},         FALSE, FALSE) or
+        relationTest({-900}, {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900}, {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900}, {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900}, {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900}, {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900}, {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900}, {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900}, {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900}, {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900}, {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900}, {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900}, {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900}, {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900}, {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900}, {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900}, {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900}, {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900}, {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900}, {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900}, {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-2},   EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-2},   {-901},             FALSE, FALSE) or
+        relationTest({-2},   {-900},             FALSE, FALSE) or
+        relationTest({-2},   {-2},               TRUE,  TRUE)  or
+        relationTest({-2},   {-1},               FALSE, FALSE) or
+        relationTest({-2},   {0},                FALSE, FALSE) or
+        relationTest({-2},   {1},                FALSE, FALSE) or
+        relationTest({-2},   {900},              FALSE, FALSE) or
+        relationTest({-2},   {901},              FALSE, FALSE) or
+        relationTest({-2},   {-901, -900},       FALSE, FALSE) or
+        relationTest({-2},   {-900, -1},         FALSE, FALSE) or
+        relationTest({-2},   {-900, 0},          FALSE, FALSE) or
+        relationTest({-2},   {-900, 900},        FALSE, FALSE) or
+        relationTest({-2},   {-2, -1},           FALSE, FALSE) or
+        relationTest({-2},   {-1, 0},            FALSE, FALSE) or
+        relationTest({-2},   {-1, 900},          FALSE, FALSE) or
+        relationTest({-2},   {0, 1},             FALSE, FALSE) or
+        relationTest({-2},   {0, 900},           FALSE, FALSE) or
+        relationTest({-2},   {900, 901},         FALSE, FALSE) or
+        relationTest({-2},   {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-2},   {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-2},   {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-2},   {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-2},   {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-2},   {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-2},   {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-2},   {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-2},   {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-2},   {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-2},   {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-2},   {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-2},   {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-2},   {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-2},   {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-2},   {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-2},   {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-2},   {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-2},   {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-2},   {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-1},   EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-1},   {-901},             FALSE, FALSE) or
+        relationTest({-1},   {-900},             FALSE, FALSE) or
+        relationTest({-1},   {-2},               FALSE, FALSE) or
+        relationTest({-1},   {-1},               TRUE,  TRUE)  or
+        relationTest({-1},   {0},                FALSE, FALSE) or
+        relationTest({-1},   {1},                FALSE, FALSE) or
+        relationTest({-1},   {900},              FALSE, FALSE) or
+        relationTest({-1},   {901},              FALSE, FALSE) or
+        relationTest({-1},   {-901, -900},       FALSE, FALSE) or
+        relationTest({-1},   {-900, -1},         FALSE, FALSE) or
+        relationTest({-1},   {-900, 0},          FALSE, FALSE) or
+        relationTest({-1},   {-900, 900},        FALSE, FALSE) or
+        relationTest({-1},   {-2, -1},           FALSE, FALSE) or
+        relationTest({-1},   {-1, 0},            FALSE, FALSE) or
+        relationTest({-1},   {-1, 900},          FALSE, FALSE) or
+        relationTest({-1},   {0, 1},             FALSE, FALSE) or
+        relationTest({-1},   {0, 900},           FALSE, FALSE) or
+        relationTest({-1},   {900, 901},         FALSE, FALSE) or
+        relationTest({-1},   {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-1},   {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-1},   {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-1},   {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-1},   {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-1},   {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-1},   {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-1},   {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-1},   {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-1},   {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-1},   {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-1},   {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-1},   {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-1},   {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-1},   {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-1},   {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-1},   {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-1},   {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-1},   {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-1},   {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({0},    EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({0},    {-901},             FALSE, FALSE) or
+        relationTest({0},    {-900},             FALSE, FALSE) or
+        relationTest({0},    {-2},               FALSE, FALSE) or
+        relationTest({0},    {-1},               FALSE, FALSE) or
+        relationTest({0},    {0},                TRUE,  TRUE)  or
+        relationTest({0},    {1},                FALSE, FALSE) or
+        relationTest({0},    {900},              FALSE, FALSE) or
+        relationTest({0},    {901},              FALSE, FALSE) or
+        relationTest({0},    {-901, -900},       FALSE, FALSE) or
+        relationTest({0},    {-900, -1},         FALSE, FALSE) or
+        relationTest({0},    {-900, 0},          FALSE, FALSE) or
+        relationTest({0},    {-900, 900},        FALSE, FALSE) or
+        relationTest({0},    {-2, -1},           FALSE, FALSE) or
+        relationTest({0},    {-1, 0},            FALSE, FALSE) or
+        relationTest({0},    {-1, 900},          FALSE, FALSE) or
+        relationTest({0},    {0, 1},             FALSE, FALSE) or
+        relationTest({0},    {0, 900},           FALSE, FALSE) or
+        relationTest({0},    {900, 901},         FALSE, FALSE) or
+        relationTest({0},    {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({0},    {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({0},    {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({0},    {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({0},    {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({0},    {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({0},    {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({0},    {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({0},    {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({0},    {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({0},    {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({0},    {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({0},    {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({0},    {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({0},    {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({0},    {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({0},    {0, 1, 2},          FALSE, FALSE) or
+        relationTest({0},    {0, 1, 900},        FALSE, FALSE) or
+        relationTest({0},    {0, 900, 901},      FALSE, FALSE) or
+        relationTest({0},    {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({1},    EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({1},    {-901},             FALSE, FALSE) or
+        relationTest({1},    {-900},             FALSE, FALSE) or
+        relationTest({1},    {-2},               FALSE, FALSE) or
+        relationTest({1},    {-1},               FALSE, FALSE) or
+        relationTest({1},    {0},                FALSE, FALSE) or
+        relationTest({1},    {1},                TRUE,  TRUE)  or
+        relationTest({1},    {900},              FALSE, FALSE) or
+        relationTest({1},    {901},              FALSE, FALSE) or
+        relationTest({1},    {-901, -900},       FALSE, FALSE) or
+        relationTest({1},    {-900, -1},         FALSE, FALSE) or
+        relationTest({1},    {-900, 0},          FALSE, FALSE) or
+        relationTest({1},    {-900, 900},        FALSE, FALSE) or
+        relationTest({1},    {-2, -1},           FALSE, FALSE) or
+        relationTest({1},    {-1, 0},            FALSE, FALSE) or
+        relationTest({1},    {-1, 900},          FALSE, FALSE) or
+        relationTest({1},    {0, 1},             FALSE, FALSE) or
+        relationTest({1},    {0, 900},           FALSE, FALSE) or
+        relationTest({1},    {900, 901},         FALSE, FALSE) or
+        relationTest({1},    {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({1},    {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({1},    {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({1},    {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({1},    {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({1},    {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({1},    {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({1},    {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({1},    {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({1},    {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({1},    {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({1},    {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({1},    {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({1},    {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({1},    {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({1},    {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({1},    {0, 1, 2},          FALSE, FALSE) or
+        relationTest({1},    {0, 1, 900},        FALSE, FALSE) or
+        relationTest({1},    {0, 900, 901},      FALSE, FALSE) or
+        relationTest({1},    {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({900},  EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({900},  {-901},             FALSE, FALSE) or
+        relationTest({900},  {-900},             FALSE, FALSE) or
+        relationTest({900},  {-2},               FALSE, FALSE) or
+        relationTest({900},  {-1},               FALSE, FALSE) or
+        relationTest({900},  {0},                FALSE, FALSE) or
+        relationTest({900},  {1},                FALSE, FALSE) or
+        relationTest({900},  {900},              TRUE,  TRUE)  or
+        relationTest({900},  {901},              FALSE, FALSE) or
+        relationTest({900},  {-901, -900},       FALSE, FALSE) or
+        relationTest({900},  {-900, -1},         FALSE, FALSE) or
+        relationTest({900},  {-900, 0},          FALSE, FALSE) or
+        relationTest({900},  {-900, 900},        FALSE, FALSE) or
+        relationTest({900},  {-2, -1},           FALSE, FALSE) or
+        relationTest({900},  {-1, 0},            FALSE, FALSE) or
+        relationTest({900},  {-1, 900},          FALSE, FALSE) or
+        relationTest({900},  {0, 1},             FALSE, FALSE) or
+        relationTest({900},  {0, 900},           FALSE, FALSE) or
+        relationTest({900},  {900, 901},         FALSE, FALSE) or
+        relationTest({900},  {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({900},  {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({900},  {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({900},  {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({900},  {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({900},  {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({900},  {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({900},  {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({900},  {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({900},  {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({900},  {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({900},  {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({900},  {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({900},  {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({900},  {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({900},  {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({900},  {0, 1, 2},          FALSE, FALSE) or
+        relationTest({900},  {0, 1, 900},        FALSE, FALSE) or
+        relationTest({900},  {0, 900, 901},      FALSE, FALSE) or
+        relationTest({900},  {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-901, -900}, EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-901, -900}, {-901},             TRUE,  FALSE) or
+        relationTest({-901, -900}, {-900},             TRUE,  FALSE) or
+        relationTest({-901, -900}, {-2},               FALSE, FALSE) or
+        relationTest({-901, -900}, {-1},               FALSE, FALSE) or
+        relationTest({-901, -900}, {0},                FALSE, FALSE) or
+        relationTest({-901, -900}, {1},                FALSE, FALSE) or
+        relationTest({-901, -900}, {900},              FALSE, FALSE) or
+        relationTest({-901, -900}, {901},              FALSE, FALSE) or
+        relationTest({-901, -900}, {-901, -900},       TRUE,  TRUE)  or
+        relationTest({-901, -900}, {-900, -1},         FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, 0},          FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, 900},        FALSE, FALSE) or
+        relationTest({-901, -900}, {-2, -1},           FALSE, FALSE) or
+        relationTest({-901, -900}, {-1, 0},            FALSE, FALSE) or
+        relationTest({-901, -900}, {-1, 900},          FALSE, FALSE) or
+        relationTest({-901, -900}, {0, 1},             FALSE, FALSE) or
+        relationTest({-901, -900}, {0, 900},           FALSE, FALSE) or
+        relationTest({-901, -900}, {900, 901},         FALSE, FALSE) or
+        relationTest({-901, -900}, {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-901, -900}, {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-901, -900}, {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-901, -900}, {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-901, -900}, {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-901, -900}, {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-901, -900}, {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-901, -900}, {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-901, -900}, {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-901, -900}, {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-901, -900}, {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-901, -900}, {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-901, -900}, {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-901, -900}, {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-901, -900}, {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, -1},   EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, -1},   {-901},             FALSE, FALSE) or
+        relationTest({-900, -1},   {-900},             TRUE,  FALSE) or
+        relationTest({-900, -1},   {-2},               FALSE, FALSE) or
+        relationTest({-900, -1},   {-1},               TRUE,  FALSE) or
+        relationTest({-900, -1},   {0},                FALSE, FALSE) or
+        relationTest({-900, -1},   {1},                FALSE, FALSE) or
+        relationTest({-900, -1},   {900},              FALSE, FALSE) or
+        relationTest({-900, -1},   {901},              FALSE, FALSE) or
+        relationTest({-900, -1},   {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, -1},         TRUE,  TRUE)  or
+        relationTest({-900, -1},   {-900, 0},          FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, 900},        FALSE, FALSE) or
+        relationTest({-900, -1},   {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, -1},   {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, -1},   {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, -1},   {0, 1},             FALSE, FALSE) or
+        relationTest({-900, -1},   {0, 900},           FALSE, FALSE) or
+        relationTest({-900, -1},   {900, 901},         FALSE, FALSE) or
+        relationTest({-900, -1},   {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, -1},   {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, -1},   {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, -1},   {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, -1},   {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, -1},   {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, -1},   {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, -1},   {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, -1},   {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, -1},   {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, -1},   {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, -1},   {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, -1},   {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, -1},   {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, -1},   {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, 0},    EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, 0},    {-901},             FALSE, FALSE) or
+        relationTest({-900, 0},    {-900},             TRUE,  FALSE) or
+        relationTest({-900, 0},    {-2},               FALSE, FALSE) or
+        relationTest({-900, 0},    {-1},               FALSE, FALSE) or
+        relationTest({-900, 0},    {0},                TRUE,  FALSE) or
+        relationTest({-900, 0},    {1},                FALSE, FALSE) or
+        relationTest({-900, 0},    {900},              FALSE, FALSE) or
+        relationTest({-900, 0},    {901},              FALSE, FALSE) or
+        relationTest({-900, 0},    {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, -1},         FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, 0},          TRUE,  TRUE)  or
+        relationTest({-900, 0},    {-900, 900},        FALSE, FALSE) or
+        relationTest({-900, 0},    {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, 0},    {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, 0},    {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, 0},    {0, 1},             FALSE, FALSE) or
+        relationTest({-900, 0},    {0, 900},           FALSE, FALSE) or
+        relationTest({-900, 0},    {900, 901},         FALSE, FALSE) or
+        relationTest({-900, 0},    {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, 0},    {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, 0},    {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, 0},    {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, 0},    {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, 0},    {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, 0},    {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, 0},    {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, 0},    {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, 0},    {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, 0},    {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, 0},    {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, 0},    {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, 0},    {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, 0},    {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, 900},  EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, 900},  {-901},             FALSE, FALSE) or
+        relationTest({-900, 900},  {-900},             TRUE,  FALSE) or
+        relationTest({-900, 900},  {-2},               FALSE, FALSE) or
+        relationTest({-900, 900},  {-1},               FALSE, FALSE) or
+        relationTest({-900, 900},  {0},                FALSE, FALSE) or
+        relationTest({-900, 900},  {1},                FALSE, FALSE) or
+        relationTest({-900, 900},  {900},              TRUE,  FALSE) or
+        relationTest({-900, 900},  {901},              FALSE, FALSE) or
+        relationTest({-900, 900},  {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, -1},         FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, 0},          FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, 900},        TRUE,  TRUE)  or
+        relationTest({-900, 900},  {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, 900},  {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, 900},  {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, 900},  {0, 1},             FALSE, FALSE) or
+        relationTest({-900, 900},  {0, 900},           FALSE, FALSE) or
+        relationTest({-900, 900},  {900, 901},         FALSE, FALSE) or
+        relationTest({-900, 900},  {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, 900},  {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, 900},  {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, 900},  {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, 900},  {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, 900},  {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, 900},  {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, 900},  {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, 900},  {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, 900},  {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, 900},  {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, 900},  {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, 900},  {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, 900},  {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, 900},  {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-2, -1},     EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-2, -1},     {-901},             FALSE, FALSE) or
+        relationTest({-2, -1},     {-900},             FALSE, FALSE) or
+        relationTest({-2, -1},     {-2},               TRUE,  FALSE) or
+        relationTest({-2, -1},     {-1},               TRUE,  FALSE) or
+        relationTest({-2, -1},     {0},                FALSE, FALSE) or
+        relationTest({-2, -1},     {1},                FALSE, FALSE) or
+        relationTest({-2, -1},     {900},              FALSE, FALSE) or
+        relationTest({-2, -1},     {901},              FALSE, FALSE) or
+        relationTest({-2, -1},     {-901, -900},       FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, -1},         FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, 0},          FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, 900},        FALSE, FALSE) or
+        relationTest({-2, -1},     {-2, -1},           TRUE,  TRUE)  or
+        relationTest({-2, -1},     {-1, 0},            FALSE, FALSE) or
+        relationTest({-2, -1},     {-1, 900},          FALSE, FALSE) or
+        relationTest({-2, -1},     {0, 1},             FALSE, FALSE) or
+        relationTest({-2, -1},     {0, 900},           FALSE, FALSE) or
+        relationTest({-2, -1},     {900, 901},         FALSE, FALSE) or
+        relationTest({-2, -1},     {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-2, -1},     {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-2, -1},     {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-2, -1},     {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-2, -1},     {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-2, -1},     {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-2, -1},     {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-2, -1},     {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-2, -1},     {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-2, -1},     {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-2, -1},     {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-2, -1},     {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-2, -1},     {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-2, -1},     {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-2, -1},     {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-1, 0},      EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-1, 0},      {-901},             FALSE, FALSE) or
+        relationTest({-1, 0},      {-900},             FALSE, FALSE) or
+        relationTest({-1, 0},      {-2},               FALSE, FALSE) or
+        relationTest({-1, 0},      {-1},               TRUE,  FALSE) or
+        relationTest({-1, 0},      {0},                TRUE,  FALSE) or
+        relationTest({-1, 0},      {1},                FALSE, FALSE) or
+        relationTest({-1, 0},      {900},              FALSE, FALSE) or
+        relationTest({-1, 0},      {901},              FALSE, FALSE) or
+        relationTest({-1, 0},      {-901, -900},       FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, -1},         FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, 0},          FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, 900},        FALSE, FALSE) or
+        relationTest({-1, 0},      {-2, -1},           FALSE, FALSE) or
+        relationTest({-1, 0},      {-1, 0},            TRUE,  TRUE)  or
+        relationTest({-1, 0},      {-1, 900},          FALSE, FALSE) or
+        relationTest({-1, 0},      {0, 1},             FALSE, FALSE) or
+        relationTest({-1, 0},      {0, 900},           FALSE, FALSE) or
+        relationTest({-1, 0},      {900, 901},         FALSE, FALSE) or
+        relationTest({-1, 0},      {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-1, 0},      {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-1, 0},      {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-1, 0},      {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-1, 0},      {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-1, 0},      {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-1, 0},      {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-1, 0},      {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-1, 0},      {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-1, 0},      {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-1, 0},      {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-1, 0},      {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-1, 0},      {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-1, 0},      {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-1, 0},      {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-1, 900},    EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-1, 900},    {-901},             FALSE, FALSE) or
+        relationTest({-1, 900},    {-900},             FALSE, FALSE) or
+        relationTest({-1, 900},    {-2},               FALSE, FALSE) or
+        relationTest({-1, 900},    {-1},               TRUE,  FALSE) or
+        relationTest({-1, 900},    {0},                FALSE, FALSE) or
+        relationTest({-1, 900},    {1},                FALSE, FALSE) or
+        relationTest({-1, 900},    {900},              TRUE,  FALSE) or
+        relationTest({-1, 900},    {901},              FALSE, FALSE) or
+        relationTest({-1, 900},    {-901, -900},       FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, -1},         FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, 0},          FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, 900},        FALSE, FALSE) or
+        relationTest({-1, 900},    {-2, -1},           FALSE, FALSE) or
+        relationTest({-1, 900},    {-1, 0},            FALSE, FALSE) or
+        relationTest({-1, 900},    {-1, 900},          TRUE,  TRUE)  or
+        relationTest({-1, 900},    {0, 1},             FALSE, FALSE) or
+        relationTest({-1, 900},    {0, 900},           FALSE, FALSE) or
+        relationTest({-1, 900},    {900, 901},         FALSE, FALSE) or
+        relationTest({-1, 900},    {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-1, 900},    {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-1, 900},    {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-1, 900},    {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-1, 900},    {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-1, 900},    {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-1, 900},    {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-1, 900},    {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-1, 900},    {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-1, 900},    {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-1, 900},    {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-1, 900},    {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-1, 900},    {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-1, 900},    {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-1, 900},    {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({0, 1},       EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({0, 1},       {-901},             FALSE, FALSE) or
+        relationTest({0, 1},       {-900},             FALSE, FALSE) or
+        relationTest({0, 1},       {-2},               FALSE, FALSE) or
+        relationTest({0, 1},       {-1},               FALSE, FALSE) or
+        relationTest({0, 1},       {0},                TRUE,  FALSE) or
+        relationTest({0, 1},       {1},                TRUE,  FALSE) or
+        relationTest({0, 1},       {900},              FALSE, FALSE) or
+        relationTest({0, 1},       {901},              FALSE, FALSE) or
+        relationTest({0, 1},       {-901, -900},       FALSE, FALSE) or
+        relationTest({0, 1},       {-900, -1},         FALSE, FALSE) or
+        relationTest({0, 1},       {-900, 0},          FALSE, FALSE) or
+        relationTest({0, 1},       {-900, 900},        FALSE, FALSE) or
+        relationTest({0, 1},       {-2, -1},           FALSE, FALSE) or
+        relationTest({0, 1},       {-1, 0},            FALSE, FALSE) or
+        relationTest({0, 1},       {-1, 900},          FALSE, FALSE) or
+        relationTest({0, 1},       {0, 1},             TRUE,  TRUE)  or
+        relationTest({0, 1},       {0, 900},           FALSE, FALSE) or
+        relationTest({0, 1},       {900, 901},         FALSE, FALSE) or
+        relationTest({0, 1},       {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({0, 1},       {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({0, 1},       {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({0, 1},       {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({0, 1},       {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({0, 1},       {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({0, 1},       {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({0, 1},       {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({0, 1},       {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({0, 1},       {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({0, 1},       {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({0, 1},       {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({0, 1},       {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({0, 1},       {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({0, 1},       {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({0, 1},       {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({0, 1},       {0, 1, 2},          FALSE, FALSE) or
+        relationTest({0, 1},       {0, 1, 900},        FALSE, FALSE) or
+        relationTest({0, 1},       {0, 900, 901},      FALSE, FALSE) or
+        relationTest({0, 1},       {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({0, 900},     EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({0, 900},     {-901},             FALSE, FALSE) or
+        relationTest({0, 900},     {-900},             FALSE, FALSE) or
+        relationTest({0, 900},     {-2},               FALSE, FALSE) or
+        relationTest({0, 900},     {-1},               FALSE, FALSE) or
+        relationTest({0, 900},     {0},                TRUE,  FALSE) or
+        relationTest({0, 900},     {1},                FALSE, FALSE) or
+        relationTest({0, 900},     {900},              TRUE,  FALSE) or
+        relationTest({0, 900},     {901},              FALSE, FALSE) or
+        relationTest({0, 900},     {-901, -900},       FALSE, FALSE) or
+        relationTest({0, 900},     {-900, -1},         FALSE, FALSE) or
+        relationTest({0, 900},     {-900, 0},          FALSE, FALSE) or
+        relationTest({0, 900},     {-900, 900},        FALSE, FALSE) or
+        relationTest({0, 900},     {-2, -1},           FALSE, FALSE) or
+        relationTest({0, 900},     {-1, 0},            FALSE, FALSE) or
+        relationTest({0, 900},     {-1, 900},          FALSE, FALSE) or
+        relationTest({0, 900},     {0, 1},             FALSE, FALSE) or
+        relationTest({0, 900},     {0, 900},           TRUE,  TRUE)  or
+        relationTest({0, 900},     {900, 901},         FALSE, FALSE) or
+        relationTest({0, 900},     {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({0, 900},     {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({0, 900},     {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({0, 900},     {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({0, 900},     {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({0, 900},     {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({0, 900},     {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({0, 900},     {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({0, 900},     {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({0, 900},     {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({0, 900},     {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({0, 900},     {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({0, 900},     {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({0, 900},     {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({0, 900},     {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({0, 900},     {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({0, 900},     {0, 1, 2},          FALSE, FALSE) or
+        relationTest({0, 900},     {0, 1, 900},        FALSE, FALSE) or
+        relationTest({0, 900},     {0, 900, 901},      FALSE, FALSE) or
+        relationTest({0, 900},     {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({900, 901},   EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({900, 901},   {-901},             FALSE, FALSE) or
+        relationTest({900, 901},   {-900},             FALSE, FALSE) or
+        relationTest({900, 901},   {-2},               FALSE, FALSE) or
+        relationTest({900, 901},   {-1},               FALSE, FALSE) or
+        relationTest({900, 901},   {0},                FALSE, FALSE) or
+        relationTest({900, 901},   {1},                FALSE, FALSE) or
+        relationTest({900, 901},   {900},              TRUE,  FALSE) or
+        relationTest({900, 901},   {901},              TRUE,  FALSE) or
+        relationTest({900, 901},   {-901, -900},       FALSE, FALSE) or
+        relationTest({900, 901},   {-900, -1},         FALSE, FALSE) or
+        relationTest({900, 901},   {-900, 0},          FALSE, FALSE) or
+        relationTest({900, 901},   {-900, 900},        FALSE, FALSE) or
+        relationTest({900, 901},   {-2, -1},           FALSE, FALSE) or
+        relationTest({900, 901},   {-1, 0},            FALSE, FALSE) or
+        relationTest({900, 901},   {-1, 900},          FALSE, FALSE) or
+        relationTest({900, 901},   {0, 1},             FALSE, FALSE) or
+        relationTest({900, 901},   {0, 900},           FALSE, FALSE) or
+        relationTest({900, 901},   {900, 901},         TRUE,  TRUE)  or
+        relationTest({900, 901},   {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({900, 901},   {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({900, 901},   {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({900, 901},   {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({900, 901},   {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({900, 901},   {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({900, 901},   {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({900, 901},   {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({900, 901},   {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({900, 901},   {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({900, 901},   {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({900, 901},   {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({900, 901},   {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({900, 901},   {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({900, 901},   {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({900, 901},   {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({900, 901},   {0, 1, 2},          FALSE, FALSE) or
+        relationTest({900, 901},   {0, 1, 900},        FALSE, FALSE) or
+        relationTest({900, 901},   {0, 900, 901},      FALSE, FALSE) or
+        relationTest({900, 901},   {900, 901, 902},    FALSE, FALSE);
+
+
+const func boolean: relationTests2 is
+  return
+        relationTest({-902, -901, -900}, EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-902, -901, -900}, {-901},             TRUE,  FALSE) or
+        relationTest({-902, -901, -900}, {-900},             TRUE,  FALSE) or
+        relationTest({-902, -901, -900}, {-2},               FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-1},               FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {0},                FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {1},                FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {900},              FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {901},              FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-901, -900},       TRUE,  FALSE) or
+        relationTest({-902, -901, -900}, {-900, -1},         FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, 0},          FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, 900},        FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-2, -1},           FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-1, 0},            FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-1, 900},          FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {0, 1},             FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {0, 900},           FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {900, 901},         FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-902, -901, -900}, TRUE,  TRUE)  or
+        relationTest({-902, -901, -900}, {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-902, -901, -900}, {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-901, -900, -1},   EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-901, -900, -1},   {-901},             TRUE,  FALSE) or
+        relationTest({-901, -900, -1},   {-900},             TRUE,  FALSE) or
+        relationTest({-901, -900, -1},   {-2},               FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-1},               TRUE,  FALSE) or
+        relationTest({-901, -900, -1},   {0},                FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {1},                FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {900},              FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {901},              FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-901, -900},       TRUE,  FALSE) or
+        relationTest({-901, -900, -1},   {-900, -1},         TRUE,  FALSE) or
+        relationTest({-901, -900, -1},   {-900, 0},          FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-900, 900},        FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-2, -1},           FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-1, 0},            FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-1, 900},          FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {0, 1},             FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {0, 900},           FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {900, 901},         FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-901, -900, -1},   TRUE,  TRUE)  or
+        relationTest({-901, -900, -1},   {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-901, -900, -1},   {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-901, -900, 0},    EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-901, -900, 0},    {-901},             TRUE,  FALSE) or
+        relationTest({-901, -900, 0},    {-900},             TRUE,  FALSE) or
+        relationTest({-901, -900, 0},    {-2},               FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-1},               FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {0},                TRUE,  FALSE) or
+        relationTest({-901, -900, 0},    {1},                FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {900},              FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {901},              FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-901, -900},       TRUE,  FALSE) or
+        relationTest({-901, -900, 0},    {-900, -1},         FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-900, 0},          TRUE,  FALSE) or
+        relationTest({-901, -900, 0},    {-900, 900},        FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-2, -1},           FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-1, 0},            FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-1, 900},          FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {0, 1},             FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {0, 900},           FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {900, 901},         FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-901, -900, 0},    TRUE,  TRUE)  or
+        relationTest({-901, -900, 0},    {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-901, -900, 0},    {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-901, -900, 900},  EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-901, -900, 900},  {-901},             TRUE,  FALSE) or
+        relationTest({-901, -900, 900},  {-900},             TRUE,  FALSE) or
+        relationTest({-901, -900, 900},  {-2},               FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-1},               FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {0},                FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {1},                FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {900},              TRUE,  FALSE) or
+        relationTest({-901, -900, 900},  {901},              FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-901, -900},       TRUE,  FALSE) or
+        relationTest({-901, -900, 900},  {-900, -1},         FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-900, 0},          FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-900, 900},        TRUE,  FALSE) or
+        relationTest({-901, -900, 900},  {-2, -1},           FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-1, 0},            FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-1, 900},          FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {0, 1},             FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {0, 900},           FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {900, 901},         FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-901, -900, 900},  TRUE,  TRUE)  or
+        relationTest({-901, -900, 900},  {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-901, -900, 900},  {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, -2, -1},     EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, -2, -1},     {-901},             FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900},             TRUE,  FALSE) or
+        relationTest({-900, -2, -1},     {-2},               TRUE,  FALSE) or
+        relationTest({-900, -2, -1},     {-1},               TRUE,  FALSE) or
+        relationTest({-900, -2, -1},     {0},                FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {1},                FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {900},              FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {901},              FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900, -1},         TRUE,  FALSE) or
+        relationTest({-900, -2, -1},     {-900, 0},          FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900, 900},        FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-2, -1},           TRUE,  FALSE) or
+        relationTest({-900, -2, -1},     {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {0, 1},             FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {0, 900},           FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {900, 901},         FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900, -2, -1},     TRUE,  TRUE)  or
+        relationTest({-900, -2, -1},     {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, -2, -1},     {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, -1, 0},      EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, -1, 0},      {-901},             FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-900},             TRUE,  FALSE) or
+        relationTest({-900, -1, 0},      {-2},               FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-1},               TRUE,  FALSE) or
+        relationTest({-900, -1, 0},      {0},                TRUE,  FALSE) or
+        relationTest({-900, -1, 0},      {1},                FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {900},              FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {901},              FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-900, -1},         TRUE,  FALSE) or
+        relationTest({-900, -1, 0},      {-900, 0},          TRUE,  FALSE) or
+        relationTest({-900, -1, 0},      {-900, 900},        FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-1, 0},            TRUE,  FALSE) or
+        relationTest({-900, -1, 0},      {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {0, 1},             FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {0, 900},           FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {900, 901},         FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-900, -1, 0},      TRUE,  TRUE)  or
+        relationTest({-900, -1, 0},      {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, -1, 0},      {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, -1, 900},    EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, -1, 900},    {-901},             FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900},             TRUE,  FALSE) or
+        relationTest({-900, -1, 900},    {-2},               FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-1},               TRUE,  FALSE) or
+        relationTest({-900, -1, 900},    {0},                FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {1},                FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {900},              TRUE,  FALSE) or
+        relationTest({-900, -1, 900},    {901},              FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900, -1},         TRUE,  FALSE) or
+        relationTest({-900, -1, 900},    {-900, 0},          FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900, 900},        TRUE,  FALSE) or
+        relationTest({-900, -1, 900},    {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-1, 900},          TRUE,  FALSE) or
+        relationTest({-900, -1, 900},    {0, 1},             FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {0, 900},           FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {900, 901},         FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900, -1, 900},    TRUE,  TRUE)  or
+        relationTest({-900, -1, 900},    {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, -1, 900},    {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, 0, 1},       EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, 0, 1},       {-901},             FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900},             TRUE,  FALSE) or
+        relationTest({-900, 0, 1},       {-2},               FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-1},               FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {0},                TRUE,  FALSE) or
+        relationTest({-900, 0, 1},       {1},                TRUE,  FALSE) or
+        relationTest({-900, 0, 1},       {900},              FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {901},              FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900, -1},         FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900, 0},          TRUE,  FALSE) or
+        relationTest({-900, 0, 1},       {-900, 900},        FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {0, 1},             TRUE,  FALSE) or
+        relationTest({-900, 0, 1},       {0, 900},           FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {900, 901},         FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900, 0, 1},       TRUE,  TRUE)  or
+        relationTest({-900, 0, 1},       {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, 0, 1},       {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, 0, 900},     EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, 0, 900},     {-901},             FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900},             TRUE,  FALSE) or
+        relationTest({-900, 0, 900},     {-2},               FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-1},               FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {0},                TRUE,  FALSE) or
+        relationTest({-900, 0, 900},     {1},                FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {900},              TRUE,  FALSE) or
+        relationTest({-900, 0, 900},     {901},              FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900, -1},         FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900, 0},          TRUE,  FALSE) or
+        relationTest({-900, 0, 900},     {-900, 900},        TRUE,  FALSE) or
+        relationTest({-900, 0, 900},     {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {0, 1},             FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {0, 900},           TRUE,  FALSE) or
+        relationTest({-900, 0, 900},     {900, 901},         FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-900, 0, 900},     TRUE,  TRUE)  or
+        relationTest({-900, 0, 900},     {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, 0, 900},     {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-900, 900, 901},   EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-900, 900, 901},   {-901},             FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900},             TRUE,  FALSE) or
+        relationTest({-900, 900, 901},   {-2},               FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-1},               FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {0},                FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {1},                FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {900},              TRUE,  FALSE) or
+        relationTest({-900, 900, 901},   {901},              TRUE,  FALSE) or
+        relationTest({-900, 900, 901},   {-901, -900},       FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, -1},         FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, 0},          FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, 900},        TRUE,  FALSE) or
+        relationTest({-900, 900, 901},   {-2, -1},           FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-1, 0},            FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-1, 900},          FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {0, 1},             FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {0, 900},           FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {900, 901},         TRUE,  FALSE) or
+        relationTest({-900, 900, 901},   {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-900, 900, 901},   TRUE,  TRUE)  or
+        relationTest({-900, 900, 901},   {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-900, 900, 901},   {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-3, -2, -1},       EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-3, -2, -1},       {-901},             FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900},             FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-2},               TRUE,  FALSE) or
+        relationTest({-3, -2, -1},       {-1},               TRUE,  FALSE) or
+        relationTest({-3, -2, -1},       {0},                FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {1},                FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {900},              FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {901},              FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-901, -900},       FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, -1},         FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, 0},          FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, 900},        FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-2, -1},           TRUE,  FALSE) or
+        relationTest({-3, -2, -1},       {-1, 0},            FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-1, 900},          FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {0, 1},             FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {0, 900},           FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {900, 901},         FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-3, -2, -1},       TRUE,  TRUE)  or
+        relationTest({-3, -2, -1},       {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-3, -2, -1},       {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-2, -1, 0},        EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-2, -1, 0},        {-901},             FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900},             FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-2},               TRUE,  FALSE) or
+        relationTest({-2, -1, 0},        {-1},               TRUE,  FALSE) or
+        relationTest({-2, -1, 0},        {0},                TRUE,  FALSE) or
+        relationTest({-2, -1, 0},        {1},                FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {900},              FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {901},              FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-901, -900},       FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, -1},         FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, 0},          FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, 900},        FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-2, -1},           TRUE,  FALSE) or
+        relationTest({-2, -1, 0},        {-1, 0},            TRUE,  FALSE) or
+        relationTest({-2, -1, 0},        {-1, 900},          FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {0, 1},             FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {0, 900},           FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {900, 901},         FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-2, -1, 0},        TRUE,  TRUE)  or
+        relationTest({-2, -1, 0},        {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-2, -1, 0},        {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-2, -1, 900},      EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-2, -1, 900},      {-901},             FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900},             FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-2},               TRUE,  FALSE) or
+        relationTest({-2, -1, 900},      {-1},               TRUE,  FALSE) or
+        relationTest({-2, -1, 900},      {0},                FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {1},                FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {900},              TRUE,  FALSE) or
+        relationTest({-2, -1, 900},      {901},              FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-901, -900},       FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, -1},         FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, 0},          FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, 900},        FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-2, -1},           TRUE,  FALSE) or
+        relationTest({-2, -1, 900},      {-1, 0},            FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-1, 900},          TRUE,  FALSE) or
+        relationTest({-2, -1, 900},      {0, 1},             FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {0, 900},           FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {900, 901},         FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-2, -1, 900},      TRUE,  TRUE)  or
+        relationTest({-2, -1, 900},      {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-2, -1, 900},      {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-1, 0, 1},         EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-1, 0, 1},         {-901},             FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900},             FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-2},               FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-1},               TRUE,  FALSE) or
+        relationTest({-1, 0, 1},         {0},                TRUE,  FALSE) or
+        relationTest({-1, 0, 1},         {1},                TRUE,  FALSE) or
+        relationTest({-1, 0, 1},         {900},              FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {901},              FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-901, -900},       FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, -1},         FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, 0},          FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, 900},        FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-2, -1},           FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-1, 0},            TRUE,  FALSE) or
+        relationTest({-1, 0, 1},         {-1, 900},          FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {0, 1},             TRUE,  FALSE) or
+        relationTest({-1, 0, 1},         {0, 900},           FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {900, 901},         FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-1, 0, 1},         TRUE,  TRUE)  or
+        relationTest({-1, 0, 1},         {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-1, 0, 1},         {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-1, 0, 900},       EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-1, 0, 900},       {-901},             FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900},             FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-2},               FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-1},               TRUE,  FALSE) or
+        relationTest({-1, 0, 900},       {0},                TRUE,  FALSE) or
+        relationTest({-1, 0, 900},       {1},                FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {900},              TRUE,  FALSE) or
+        relationTest({-1, 0, 900},       {901},              FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-901, -900},       FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, -1},         FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, 0},          FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, 900},        FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-2, -1},           FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-1, 0},            TRUE,  FALSE) or
+        relationTest({-1, 0, 900},       {-1, 900},          TRUE,  FALSE) or
+        relationTest({-1, 0, 900},       {0, 1},             FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {0, 900},           TRUE,  FALSE) or
+        relationTest({-1, 0, 900},       {900, 901},         FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {-1, 0, 900},       TRUE,  TRUE)  or
+        relationTest({-1, 0, 900},       {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-1, 0, 900},       {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({-1, 900, 901},     EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({-1, 900, 901},     {-901},             FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900},             FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-2},               FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-1},               TRUE,  FALSE) or
+        relationTest({-1, 900, 901},     {0},                FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {1},                FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {900},              TRUE,  FALSE) or
+        relationTest({-1, 900, 901},     {901},              TRUE,  FALSE) or
+        relationTest({-1, 900, 901},     {-901, -900},       FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, -1},         FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, 0},          FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, 900},        FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-2, -1},           FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-1, 0},            FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-1, 900},          TRUE,  FALSE) or
+        relationTest({-1, 900, 901},     {0, 1},             FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {0, 900},           FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {900, 901},         TRUE,  FALSE) or
+        relationTest({-1, 900, 901},     {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {-1, 900, 901},     TRUE,  TRUE)  or
+        relationTest({-1, 900, 901},     {0, 1, 2},          FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {0, 1, 900},        FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {0, 900, 901},      FALSE, FALSE) or
+        relationTest({-1, 900, 901},     {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({0, 1, 2},          EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({0, 1, 2},          {-901},             FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900},             FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-2},               FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-1},               FALSE, FALSE) or
+        relationTest({0, 1, 2},          {0},                TRUE,  FALSE) or
+        relationTest({0, 1, 2},          {1},                TRUE,  FALSE) or
+        relationTest({0, 1, 2},          {900},              FALSE, FALSE) or
+        relationTest({0, 1, 2},          {901},              FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-901, -900},       FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, -1},         FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, 0},          FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, 900},        FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-2, -1},           FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-1, 0},            FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-1, 900},          FALSE, FALSE) or
+        relationTest({0, 1, 2},          {0, 1},             TRUE,  FALSE) or
+        relationTest({0, 1, 2},          {0, 900},           FALSE, FALSE) or
+        relationTest({0, 1, 2},          {900, 901},         FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({0, 1, 2},          {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({0, 1, 2},          {0, 1, 2},          TRUE,  TRUE)  or
+        relationTest({0, 1, 2},          {0, 1, 900},        FALSE, FALSE) or
+        relationTest({0, 1, 2},          {0, 900, 901},      FALSE, FALSE) or
+        relationTest({0, 1, 2},          {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({0, 1, 900},        EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({0, 1, 900},        {-901},             FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900},             FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-2},               FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-1},               FALSE, FALSE) or
+        relationTest({0, 1, 900},        {0},                TRUE,  FALSE) or
+        relationTest({0, 1, 900},        {1},                TRUE,  FALSE) or
+        relationTest({0, 1, 900},        {900},              TRUE,  FALSE) or
+        relationTest({0, 1, 900},        {901},              FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-901, -900},       FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, -1},         FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, 0},          FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, 900},        FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-2, -1},           FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-1, 0},            FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-1, 900},          FALSE, FALSE) or
+        relationTest({0, 1, 900},        {0, 1},             TRUE,  FALSE) or
+        relationTest({0, 1, 900},        {0, 900},           TRUE,  FALSE) or
+        relationTest({0, 1, 900},        {900, 901},         FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({0, 1, 900},        {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({0, 1, 900},        {0, 1, 2},          FALSE, FALSE) or
+        relationTest({0, 1, 900},        {0, 1, 900},        TRUE,  TRUE)  or
+        relationTest({0, 1, 900},        {0, 900, 901},      FALSE, FALSE) or
+        relationTest({0, 1, 900},        {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({0, 900, 901},      EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({0, 900, 901},      {-901},             FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900},             FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-2},               FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-1},               FALSE, FALSE) or
+        relationTest({0, 900, 901},      {0},                TRUE,  FALSE) or
+        relationTest({0, 900, 901},      {1},                FALSE, FALSE) or
+        relationTest({0, 900, 901},      {900},              TRUE,  FALSE) or
+        relationTest({0, 900, 901},      {901},              TRUE,  FALSE) or
+        relationTest({0, 900, 901},      {-901, -900},       FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, -1},         FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, 0},          FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, 900},        FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-2, -1},           FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-1, 0},            FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-1, 900},          FALSE, FALSE) or
+        relationTest({0, 900, 901},      {0, 1},             FALSE, FALSE) or
+        relationTest({0, 900, 901},      {0, 900},           TRUE,  FALSE) or
+        relationTest({0, 900, 901},      {900, 901},         TRUE,  FALSE) or
+        relationTest({0, 900, 901},      {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({0, 900, 901},      {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({0, 900, 901},      {0, 1, 2},          FALSE, FALSE) or
+        relationTest({0, 900, 901},      {0, 1, 900},        FALSE, FALSE) or
+        relationTest({0, 900, 901},      {0, 900, 901},      TRUE,  TRUE)  or
+        relationTest({0, 900, 901},      {900, 901, 902},    FALSE, FALSE) or
+
+        relationTest({900, 901, 902},    EMPTY_SET,          TRUE,  FALSE) or
+        relationTest({900, 901, 902},    {-901},             FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900},             FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-2},               FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-1},               FALSE, FALSE) or
+        relationTest({900, 901, 902},    {0},                FALSE, FALSE) or
+        relationTest({900, 901, 902},    {1},                FALSE, FALSE) or
+        relationTest({900, 901, 902},    {900},              TRUE,  FALSE) or
+        relationTest({900, 901, 902},    {901},              TRUE,  FALSE) or
+        relationTest({900, 901, 902},    {-901, -900},       FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, -1},         FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, 0},          FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, 900},        FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-2, -1},           FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-1, 0},            FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-1, 900},          FALSE, FALSE) or
+        relationTest({900, 901, 902},    {0, 1},             FALSE, FALSE) or
+        relationTest({900, 901, 902},    {0, 900},           FALSE, FALSE) or
+        relationTest({900, 901, 902},    {900, 901},         TRUE,  FALSE) or
+        relationTest({900, 901, 902},    {-902, -901, -900}, FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-901, -900, -1},   FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-901, -900, 0},    FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-901, -900, 900},  FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, -2, -1},     FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, -1, 0},      FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, -1, 900},    FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, 0, 1},       FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, 0, 900},     FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-900, 900, 901},   FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-3, -2, -1},       FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-2, -1, 0},        FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-2, -1, 900},      FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-1, 0, 1},         FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-1, 0, 900},       FALSE, FALSE) or
+        relationTest({900, 901, 902},    {-1, 900, 901},     FALSE, FALSE) or
+        relationTest({900, 901, 902},    {0, 1, 2},          FALSE, FALSE) or
+        relationTest({900, 901, 902},    {0, 1, 900},        FALSE, FALSE) or
+        relationTest({900, 901, 902},    {0, 900, 901},      FALSE, FALSE) or
+        relationTest({900, 901, 902},    {900, 901, 902},    TRUE,  TRUE);
+
+
+const proc: check_relations is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if  not (EMPTY_SET          = EMPTY_SET)          or
+        not ({-900}             = {-900})             or
+        not ({-1}               = {-1})               or
+        not ({0}                = {0})                or
+        not ({1}                = {1})                or
+        not ({900}              = {900})              or
+        not ({1800}             = {1800})             or
+        not ({-901, -900}       = {-901, -900})       or
+        not ({-900, -1}         = {-900, -1})         or
+        not ({-900, 0}          = {-900, 0})          or
+        not ({-900, 1}          = {-900, 1})          or
+        not ({-900, 900}        = {-900, 900})        or
+        not ({-900, 1800}       = {-900, 1800})       or
+        not ({-2, -1}           = {-2, -1})           or
+        not ({-1, 0}            = {-1, 0})            or
+        not ({-1, 1}            = {-1, 1})            or
+        not ({-1, 900}          = {-1, 900})          or
+        not ({-1, 1800}         = {-1, 1800})         or
+        not ({0, 1}             = {0, 1})             or
+        not ({0, 2}             = {0, 2})             or
+        not ({0, 900}           = {0, 900})           or
+        not ({0, 1800}          = {0, 1800})          or
+        not ({1, 2}             = {1, 2})             or
+        not ({1, 900}           = {1, 900})           or
+        not ({1, 1800}          = {1, 1800})          or
+        not ({900, 901}         = {900, 901})         or
+        not ({900, 1800}        = {900, 1800})        or
+        not ({1800, 1801}       = {1800, 1801})       or
+        not ({-902, -901, -900} = {-902, -901, -900}) or
+        not ({-901, -900, -1}   = {-901, -900, -1})   or
+        not ({-901, -900, 0}    = {-901, -900, 0})    or
+        not ({-901, -900, 1}    = {-901, -900, 1})    or
+        not ({-901, -900, 900}  = {-901, -900, 900})  or
+        not ({-901, -900, 1800} = {-901, -900, 1800}) or
+        not ({-900, -2, -1}     = {-900, -2, -1})     or
+        not ({-900, -1, 0}      = {-900, -1, 0})      or
+        not ({-900, -1, 1}      = {-900, -1, 1})      or
+        not ({-900, -1, 900}    = {-900, -1, 900})    or
+        not ({-900, -1, 1800}   = {-900, -1, 1800})   or
+        not ({-900, 0, 1}       = {-900, 0, 1})       or
+        not ({-900, 0, 2}       = {-900, 0, 2})       or
+        not ({-900, 0, 900}     = {-900, 0, 900})     or
+        not ({-900, 0, 1800}    = {-900, 0, 1800})    or
+        not ({-900, 1, 2}       = {-900, 1, 2})       or
+        not ({-900, 1, 900}     = {-900, 1, 900})     or
+        not ({-900, 1, 1800}    = {-900, 1, 1800})    or
+        not ({-900, 900, 901}   = {-900, 900, 901})   or
+        not ({-900, 900, 1800}  = {-900, 900, 1800})  or
+        not ({-900, 1800, 1801} = {-900, 1800, 1801}) or
+        not ({-3, -2, -1}       = {-3, -2, -1})       or
+        not ({-2, -1, 0}        = {-2, -1, 0})        or
+        not ({-2, -1, 1}        = {-2, -1, 1})        or
+        not ({-2, -1, 900}      = {-2, -1, 900})      or
+        not ({-2, -1, 1800}     = {-2, -1, 1800})     or
+        not ({-1, 0, 1}         = {-1, 0, 1})         or
+        not ({-1, 0, 2}         = {-1, 0, 2})         or
+        not ({-1, 0, 900}       = {-1, 0, 900})       or
+        not ({-1, 0, 1800}      = {-1, 0, 1800})      or
+        not ({-1, 1, 2}         = {-1, 1, 2})         or
+        not ({-1, 1, 900}       = {-1, 1, 900})       or
+        not ({-1, 1, 1800}      = {-1, 1, 1800})      or
+        not ({-1, 900, 901}     = {-1, 900, 901})     or
+        not ({-1, 900, 1800}    = {-1, 900, 1800})    or
+        not ({-1, 1800, 1801}   = {-1, 1800, 1801})   or
+        not ({0, 1, 2}          = {0, 1, 2})          or
+        not ({0, 1, 900}        = {0, 1, 900})        or
+        not ({0, 1, 1800}       = {0, 1, 1800})       or
+        not ({0, 900, 901}      = {0, 900, 901})      or
+        not ({0, 900, 1800}     = {0, 900, 1800})     or
+        not ({0, 1800, 1801}    = {0, 1800, 1801})    or
+        not ({1, 2, 3}          = {1, 2, 3})          or
+        not ({1, 2, 900}        = {1, 2, 900})        or
+        not ({1, 2, 1800}       = {1, 2, 1800})       or
+        not ({1, 900, 901}      = {1, 900, 901})      or
+        not ({1, 900, 1800}     = {1, 900, 1800})     or
+        not ({1, 1800, 1801}    = {1, 1800, 1801})    or
+        not ({900, 901, 902}    = {900, 901, 902})    or
+        not ({900, 901, 1800}   = {900, 901, 1800})   or
+        not ({900, 1800, 1801}  = {900, 1800, 1801})  or
+        not ({1800, 1801, 1802} = {1800, 1801, 1802}) or
+
+             EMPTY_SET          = {-1}                or
+
+             relationTests1 or
+             relationTests2 then
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("set relations work correct.");
+    else
+      writeln(" ***** set relations do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_union is func
   local
     var boolean: okay is TRUE;
@@ -885,6 +3263,8 @@ const proc: main is func
 *)
     check_card;
     check_incl;
+    check_compare;
+    check_relations;
     check_union;
     check_intersection;
     check_min;

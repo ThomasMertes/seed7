@@ -162,7 +162,8 @@ objecttype cmp_func;
           cmp = take_int(cmp_obj);
           FREE_OBJECT(cmp_obj);
         } while (cmp < 0);
-        memmove(&less_elem[1], less_elem, (middle_elem - less_elem) * sizeof(objectrecord));
+        memmove(&less_elem[1], less_elem,
+            (memsizetype) (middle_elem - less_elem) * sizeof(objectrecord));
         memcpy(less_elem, &compare_elem, sizeof(objectrecord));
       } /* for */
     } else {

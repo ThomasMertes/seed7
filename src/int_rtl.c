@@ -823,7 +823,7 @@ inttype upper_limit;
             high_factor, low_factor,
             &high_rand, &low_rand);
       } while (high_rand > scale_limit);
-      result = lower_limit + high_rand;
+      result = (inttype) ((uinttype) lower_limit + high_rand);
       return(result);
     } /* if */
   } /* intRand */

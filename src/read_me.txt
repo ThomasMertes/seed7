@@ -125,6 +125,48 @@ COMPILING UNDER WINDOWS WITH BCC32
   After the compilation the interpreter is copied to prg/hi.exe.
 
 
+COMPILING UNDER WINDOWS WITH CYGWIN
+
+    To compile Seed7 with cygwin several cygwin packages need to
+  be installed. From the category Devel the following packages are
+  needed: binutils, gcc4, gcc4-core, libncurses-devel and make.
+  From category X11 the package libX11-devel is needed. To test
+  the installation start a cygwin window and do:
+
+    make --version
+    gcc-4 --version
+
+  If the cygwin gcc does not have the name gcc-4 it is necessary
+  to edit the file mk_cygw.mak . The line containing
+
+    CC = gcc-4
+
+  must be changed to define the name of your gcc. When gcc and
+  make work well change to the seed7/src directory and do:
+
+    make -f mk_cygw.mak depend
+    make -f mk_cygw.mak
+
+  Cygwin sometimes has problems with symlinks. This is indicated
+  by an error message which ends with:
+
+    bin/as.exe: cannot execute binary file
+
+  The presence of a cygwin symlink problem can be checked in
+  the directory /usr/i686-pc-cygwin/bin (or the corresponding
+  directory mentioned in the error message). When the file
+  /usr/i686-pc-cygwin/bin/as.exe is a small file with less than
+  100 bytes and starts with
+
+    !<symlink>
+
+  it is some cygwin symlink. To fix this error just copy the
+  symlink destination over the file as.exe (after making a
+  backup of the original symlink file as.exe). Additionally
+  it might also be necessary to do the same for ld.exe (and
+  maybe for some other symlinks as well).
+
+
 WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
 
     In most cases errors indicate that some development package

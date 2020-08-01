@@ -92,6 +92,7 @@ chartype.s7i Character type definitions
 complex.s7i  Complex support library                           
 dialog.s7i   Dialog support library                            
 dir.s7i      Read directorys as files                          
+dom.s7i      Simple dom parser                                 
 draw.s7i     Graphic library                                   
 echo.s7i     Filter file which generates an echo of the input  
 encoding.s7i Encoding and decoding functions                   

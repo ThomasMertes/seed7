@@ -556,8 +556,9 @@ listtype arguments;
 #endif
 
   { /* prc_exit */
+    isit_int(arg_1(arguments));
     shut_drivers();
-    exit(1);
+    exit(take_int(arg_1(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* prc_exit */
 
