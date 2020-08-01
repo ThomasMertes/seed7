@@ -15,6 +15,9 @@ But Java and C# are also free?
 <li><a href="#os"><b>
 On which operating systems does Seed7 run?
 </b></a></li>
+<li><a href="#uncompress"><b>
+How do I uncompress the *.tgz file from the release?
+</b></a></li>
 <li><a href="#errors"><b>
 I got errors when compiling Seed7. What should I do?
 </b></a></li>
@@ -186,6 +189,31 @@ for screen (=text console), graphics, time or other aspects of Seed7.
 The package contains various older driver modules which are not up to date,
 but can be used as base to write such driver modules. For more detailed
 information look at the 'seed7/read_me' and 'seed7/src/read_me.txt' files.
+</p>
+
+<a name="uncompress"><b>How do I uncompress the *.tgz file from the release?
+</b></a><hr><!-- ==================================================== -->
+<p>
+When you have a gnu <tt>'tar'</tt> program available you can just do
+</p><pre>
+  $ tar -xvzf seed7_05_yyyymmdd.tgz
+</pre><p>
+If your <tt>'tar'</tt> command does not accept the <tt>'z'</tt> option
+you need to uncompress the file first with <tt>'gunzip'</tt>:
+</p><pre>
+  $ gunzip seed7_05_yyyymmdd.tgz
+  $ tar -xvf seed7_05_yyyymmdd.tar
+</pre><p>
+Sometimes the browser downloads a *.gz file instead of a *.tgz file.
+In that case you could also use <tt>'gunzip'</tt> as shown above. As
+an alternative you can also use <tt>'zcat'</tt>:
+</p><pre>
+  $ zcat seed7_05_yyyymmdd.gz > s7.tar
+  $ tar -xvf s7.tar
+</pre><p>
+Under windows you can use the 7-Zip compression/decompression utility
+(there is no relationship to Seed7). 7-Zip is open source software and is
+available at: <a href="http://www.7-zip.org">www.7-zip.org</a>.
 </p>
 
 <a name="errors"><b>I got errors when compiling Seed7. What should I do?

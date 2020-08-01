@@ -37,7 +37,7 @@
 #include "syvarutl.h"
 #include "runerr.h"
 #include "memory.h"
-#include "big_rtl.h"
+#include "big_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -144,8 +144,6 @@ listtype arguments;
   {
     objecttype big_to;
     objecttype big_from;
-    memsizetype new_size;
-    biginttype new_big;
 
   /* big_cpy */
     big_to = arg_1(arguments);
@@ -153,24 +151,12 @@ listtype arguments;
     isit_bigint(big_to);
     isit_bigint(big_from);
     is_variable(big_to);
-    new_big = take_bigint(big_to);
     if (TEMP_OBJECT(big_from)) {
-      FREE_BIG(new_big, new_big->size);
+      bigDestr(take_bigint(big_to));
       big_to->value.bigintvalue = take_bigint(big_from);
       big_from->value.bigintvalue = NULL;
     } else {
-      new_size = take_bigint(big_from)->size;
-      if (new_big->size != new_size) {
-        if (!ALLOC_BIG(new_big, new_size)) {
-          return(raise_exception(SYS_MEM_EXCEPTION));
-        } else {
-          FREE_BIG(take_bigint(big_to), take_bigint(big_to)->size);
-          big_to->value.bigintvalue = new_big;
-          new_big->size = new_size;
-        } /* if */
-      } /* if */
-      memcpy(new_big->bigdigits, take_bigint(big_from)->bigdigits,
-          (SIZE_TYPE) new_size * sizeof(bigdigittype));
+      bigCpy(&big_to->value.bigintvalue, take_bigint(big_from));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* big_cpy */
@@ -189,8 +175,6 @@ listtype arguments;
   {
     objecttype big_to;
     objecttype big_from;
-    memsizetype new_size;
-    biginttype new_big;
 
   /* big_create */
     big_to = arg_1(arguments);
@@ -201,15 +185,7 @@ listtype arguments;
       big_to->value.bigintvalue = take_bigint(big_from);
       big_from->value.bigintvalue = NULL;
     } else {
-      new_size = take_bigint(big_from)->size;
-      if (!ALLOC_BIG(new_big, new_size)) {
-        big_to->value.bigintvalue = NULL;
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } /* if */
-      big_to->value.bigintvalue = new_big;
-      new_big->size = new_size;
-      memcpy(new_big->bigdigits, take_bigint(big_from)->bigdigits,
-          (SIZE_TYPE) new_size * sizeof(bigdigittype));
+      big_to->value.bigintvalue = bigCreate(take_bigint(big_from));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* big_create */
@@ -247,16 +223,10 @@ objecttype big_destr (arguments)
 listtype arguments;
 #endif
 
-  {
-    biginttype old_bigint;
-
-  /* big_destr */
+  { /* big_destr */
     isit_bigint(arg_1(arguments));
-    old_bigint = take_bigint(arg_1(arguments));
-    if (old_bigint != NULL) {
-      FREE_BIG(old_bigint, old_bigint->size);
-      arg_1(arguments)->value.bigintvalue = NULL;
-    } /* if */
+    bigDestr(take_bigint(arg_1(arguments)));
+    arg_1(arguments)->value.bigintvalue = NULL;
     return(SYS_EMPTY_OBJECT);
   } /* big_destr */
 
@@ -289,23 +259,34 @@ objecttype big_eq (arguments)
 listtype arguments;
 #endif
 
-  {
-    biginttype big1;
-    biginttype big2;
-
-  /* big_eq */
+  { /* big_eq */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    big1 = take_bigint(arg_1(arguments));
-    big2 = take_bigint(arg_3(arguments));
-    if (big1->size == big2->size &&
-        memcmp(big1->bigdigits, big2->bigdigits,
-        (SIZE_TYPE) big1->size * sizeof(bigdigittype)) == 0) {
+    if (bigEq(take_bigint(arg_1(arguments)),
+        take_bigint(arg_3(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
     } /* if */
   } /* big_eq */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_gcd (listtype arguments)
+#else
+
+objecttype big_gcd (arguments)
+listtype arguments;
+#endif
+
+  { /* big_gcd */
+    isit_bigint(arg_1(arguments));
+    isit_bigint(arg_2(arguments));
+    return(bld_bigint_temp(
+        bigGcd(take_bigint(arg_1(arguments)), take_bigint(arg_2(arguments)))));
+  } /* big_gcd */
 
 
 
@@ -381,15 +362,10 @@ objecttype big_hashcode (arguments)
 listtype arguments;
 #endif
 
-  {
-    biginttype big1;
-    inttype result;
-
-  /* big_hashcode */
+  { /* big_hashcode */
     isit_bigint(arg_1(arguments));
-    big1 = take_bigint(arg_1(arguments));
-    result = big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1];
-    return(bld_int_temp(result));
+    return(bld_int_temp(bigHashCode(
+        take_bigint(arg_1(arguments)))));
   } /* big_hashcode */
 
 
@@ -664,18 +640,11 @@ objecttype big_ne (arguments)
 listtype arguments;
 #endif
 
-  {
-    biginttype big1;
-    biginttype big2;
-
-  /* big_ne */
+  { /* big_ne */
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
-    big1 = take_bigint(arg_1(arguments));
-    big2 = take_bigint(arg_3(arguments));
-    if (big1->size != big2->size ||
-        memcmp(big1->bigdigits, big2->bigdigits,
-        (SIZE_TYPE) big1->size * sizeof(bigdigittype)) != 0) {
+    if (bigNe(take_bigint(arg_1(arguments)),
+        take_bigint(arg_3(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -695,7 +664,7 @@ listtype arguments;
 
   { /* big_odd */
     isit_bigint(arg_1(arguments));
-    if (take_bigint(arg_1(arguments))->bigdigits[0] & 1) {
+    if (bigOdd(take_bigint(arg_1(arguments)))) {
       return(SYS_TRUE_OBJECT);
     } else {
       return(SYS_FALSE_OBJECT);
@@ -748,26 +717,17 @@ listtype arguments;
 #endif
 
   {
-    biginttype big1;
     biginttype result;
 
   /* big_plus */
     isit_bigint(arg_2(arguments));
-    big1 = take_bigint(arg_2(arguments));
     if (TEMP_OBJECT(arg_2(arguments))) {
-      result = big1;
+      result = take_bigint(arg_2(arguments));
       arg_2(arguments)->value.bigintvalue = NULL;
-      return(bld_bigint_temp(result));
     } else {
-      if (!ALLOC_BIG(result, big1->size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        result->size = big1->size;
-        memcpy(result->bigdigits, big1->bigdigits,
-            (SIZE_TYPE) big1->size * sizeof(bigdigittype));
-        return(bld_bigint_temp(result));
-      } /* if */
+      result = bigCreate(take_bigint(arg_2(arguments)));
     } /* if */
+    return(bld_bigint_temp(result));
   } /* big_plus */
 
 
@@ -944,8 +904,6 @@ listtype arguments;
 
   {
     objecttype obj_arg;
-    biginttype big1;
-    biginttype result;
 
   /* big_value */
     isit_reference(arg_1(arguments));
@@ -953,14 +911,6 @@ listtype arguments;
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
       return(raise_exception(SYS_RNG_EXCEPTION));
     } else {
-      big1 = take_bigint(obj_arg);
-      if (!ALLOC_BIG(result, big1->size)) {
-        return(raise_exception(SYS_MEM_EXCEPTION));
-      } else {
-        result->size = big1->size;
-        memcpy(result->bigdigits, big1->bigdigits,
-            (SIZE_TYPE) (result->size * sizeof(bigdigittype)));
-        return(bld_bigint_temp(result));
-      } /* if */
+      return(bld_bigint_temp(bigCreate(take_bigint(obj_arg))));
     } /* if */
   } /* big_value */

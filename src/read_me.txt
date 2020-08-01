@@ -6,7 +6,7 @@ COMPILING THE INTERPRETER
   stand alone C compiler and a make utility to compile the
   interpreter. A C compiler which is only usable from an IDE
   is not so useful, since some Seed7 programs (e.g. The
-  Seed7 to C compiler comp.sd7) needs to call the C compiler
+  Seed7 to C compiler comp.sd7) need to call the C compiler
   as well.
 
 
@@ -158,6 +158,87 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   your operating system, distribution, compiler, the version of
   Seed7 you wanted to compile and the complete log of error
   messages to seed7-users@lists.sourceforge.net .
+
+
+WHAT ABOUT THE WARNINGS THAT HAPPEN DURING THE COMPILATION?
+
+    The warnings can usually be ignored. Seed7 is compiled with
+  the higest warning level (-Wall). Additionally there are also
+  some warnings requested (such as -Wstrict-prototypes) which are
+  not part of -Wall. The warnings can be classified to the
+  following cases:
+
+   - Warnings about float used instead of double because of the
+     prototype: There are functions which use float parameters or
+     return float values. Gcc has the opinion that only double
+     parameters and double results should be used and warns about
+     that.
+   - Warnings about signed/unsigned instead of unsigned/signed
+     because of the prototype.
+   - Warnings about 'variablename' may be used uninitialized:
+     This are false complaints. Interestingly gcc is not able to
+     recognize when the states of two variables are connected.
+     Such as a global fail_flag variable and a local condition
+     variable (cond). The connection is: As long as fail_flag is 
+     FALSE the cond variable is initialised. When the fail_flag
+     is TRUE the cond variable is not used and therefore it could
+     be in an uninitialized state. At several places I use such
+     connected variable states which are not recognized by the
+     gcc optimizer and are therefore flagged with a warning. I
+     accept such warnings in performance critical paths. I am not
+     willing to do "unnecessary" initialisations in performance
+     critical paths of the program. At places that are not
+     performance critical I do some of this "unnecessary"
+     initialisations just to avoid such warnings.
+
+
+HOW TO USE THE GMP LIBRARY?
+
+    The functions to operate with bigInteger values are defined
+  in the file 'big_rtl.c'. This functions provide reasonable
+  performance for the usual bigInteger computations. If for some
+  reason the bigInteger performance of 'big_rtl.c' is not enough
+  it is possible to replace 'big_rtl.c' with 'big_gmp.c'.
+  The file 'big_gmp.c' uses the GMP library to do the bigInteger
+  computations. To use the GMP library use the following steps:
+
+  You need the GMP library (one of gmp.lib/gmp.dll/gmp.a/gmp.so)
+  and the gmp.h include file.
+
+  Every makefile contains a line which defines the C 'LIBS' to
+  be used when the 'hi' interpreter is linked. E.g.:
+
+    LIBS = -lX11 -lncurses -lm
+
+  The next line starts with # (which means it is commented out)
+  and additionally contains the command to add the gmp library:
+
+    # LIBS = -lX11 -lncurses -lm -lgmp
+
+  The old 'LIBS' line needs to be commented out and the line
+  which links also 'gmp' needs to be activated:
+
+    # LIBS = -lX11 -lncurses -lm
+    LIBS = -lX11 -lncurses -lm -lgmp
+
+  There are also two lines which define which files contain
+  the interface functions for bigInteger:
+
+    BIGINT = big_rtl
+    # BIGINT = big_gmp
+
+  This two lines must be changed to
+
+    # BIGINT = big_rtl
+    BIGINT = big_gmp
+
+  After the makefile changes it is necessary to start the
+  compilation process from scratch with (use the corresponding
+  make command (gmake, nmake, ...) for your make tool):
+
+    make clear
+    make depend
+    make
 
 
 THE VERSION.H FILE

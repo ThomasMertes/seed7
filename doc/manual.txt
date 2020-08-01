@@ -1626,8 +1626,10 @@ CONTENTS
       log2(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
+                    log2(2 ** A) = A for A >= 0,
                     log2(0) => -1,
                     log2(1) => 0,
+                    log2(2) => 1,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
       bitLength(A) Number of bits in the minimal two's-complement
                    representation, excluding the sign bit.
@@ -1637,9 +1639,9 @@ CONTENTS
                       For A <> 0 this is equal to to number of
                       lowest-order zero bits.
                   ( A >> B << B = A for A <> 0 and B = lowestSetBit(A),
-                    lowestSetBit(0) = -1,
-                    lowestSetBit(1) = 0,
-                    lowestSetBit(2) = 1 )
+                    lowestSetBit(0) => -1,
+                    lowestSetBit(1) => 0,
+                    lowestSetBit(2) => 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
@@ -1669,11 +1671,14 @@ CONTENTS
   For the operations 'div' and 'rem' holds for all A:
     (A div B) * B + A rem B = A         when B <> 0
     -A div B = -(A div B)               when B <> 0
+    A rem B >= 0                        when B <> 0 and A >= 0
+    A rem B <= 0                        when B <> 0 and A <= 0
 
   For the operations 'mdiv' and 'mod' holds for all A:
     (A mdiv B) * B + A mod B = A        when B <> 0
-    (A mod B) >= 0 and (A mod B) < B    when B > 0
-    (A mod B) <= 0 and (A mod B) > B    when B < 0
+    A mdiv -B = -(A mdiv B)             when B <> 0
+    A mod B >= 0                        when B > 0
+    A mod B <= 0                        when B < 0
 
   For the operation 'mdiv' holds:
     A mdiv B = A div B - 1          When A and B have different
@@ -1806,9 +1811,15 @@ CONTENTS
       log2(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
-                    log2(0) => -1,
-                    log2(1) => 0,
+                    log2(2_ ** A) = A for A >= 0,
+                    log2(0_) => -1_,
+                    log2(1_) => 0_,
+                    log2(2_) => 1_,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
+      gcd(A, B) Greatest common divisor of A and B.
+                  ( gcd(A, B) = gcd(B, A),
+                    gcd(A, B) = gcd(-A, B),
+                    gcd(A, 0) = abs(A) )
       bitLength(A) Number of bits in the minimal two's-complement
                    representation, excluding the sign bit.
                   ( Type of result: integer,
@@ -1819,9 +1830,9 @@ CONTENTS
                       lowest-order zero bits.
                   ( Type of result: integer,
                     A >> B << B = A for A <> 0_ and B = lowestSetBit(A),
-                    lowestSetBit(0_) = -1,
-                    lowestSetBit(1_) = 0,
-                    lowestSetBit(2_) = 1 )
+                    lowestSetBit(0_) => -1,
+                    lowestSetBit(1_) => 0,
+                    lowestSetBit(2_) => 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A <= rand(A, B) and rand(A, B) <= B holds.
@@ -1853,11 +1864,14 @@ CONTENTS
   For the operations 'div' and 'rem' holds for all A:
     (A div B) * B + A rem B = A         when B <> 0_
     -A div B = -(A div B)               when B <> 0_
+    A rem B >= 0_                       when B <> 0_ and A >= 0_
+    A rem B <= 0_                       when B <> 0_ and A <= 0_
 
   For the operations 'mdiv' and 'mod' holds for all A:
     (A mdiv B) * B + A mod B = A        when B <> 0_
-    (A mod B) >= 0_ and (A mod B) < B   when B > 0
-    (A mod B) <= 0_ and (A mod B) > B   when B < 0
+    A mdiv -B = -(A mdiv B)             when B <> 0_
+    A mod B >= 0_                       when B > 0_
+    A mod B <= 0_                       when B < 0_
 
   For the operation 'mdiv' holds:
     A mdiv B = A div B - 1_         When A and B have different

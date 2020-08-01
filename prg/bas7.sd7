@@ -727,7 +727,7 @@ const func string: get_data_line is func
           line_marker;
           write(log, "DATA STATEMENT CORRECTED FROM ");
           write(log, literal(prg[data_line_number].line));
-          writeln(log, " TO " <&literal("DATA " & data_line));
+          writeln(log, " TO " <& literal("DATA " & data_line));
           flush(log);
         end if;
         if data_symbol = "DATA" then

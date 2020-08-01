@@ -48,6 +48,9 @@ pairs.sd7    Concentration game
 panic.sd7    Catch aliens in traps game                        
 planets.sd7  Display information about the planets             
 prime.sd7    Write a list of prime numbers                     
+printpi1.sd7 PI with 1000 digits using John Machin's formula   
+printpi2.sd7 PI with 1000 digits (Bailey/Borwein/Plouffe)      
+printpi3.sd7 Print 1000 digits of PI with Newtons formula      
 rand.sd7     Floating point random numbers test                
 rever.sd7    Reversi game                                      
 roman.sd7    Write roman numbers                               

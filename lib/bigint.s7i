@@ -73,6 +73,7 @@ const func bigInteger: abs (in bigInteger param) is                        actio
 const func bigInteger: log2 (in bigInteger param) is                       action "BIG_LOG2";
 const func boolean: odd (in bigInteger param) is                           action "BIG_ODD";
 const func integer: ord (in bigInteger param) is                           action "BIG_ORD";
+const func bigInteger: gcd (in bigInteger param, in bigInteger param) is   action "BIG_GCD";
 const func bigInteger: (attr bigInteger) conv (in integer param) is        action "BIG_ICONV";
 const func string: str (ref bigInteger param) is                           action "BIG_STR";
 const func string: c_literal (in bigInteger param) is                      action "BIG_CLIT";
@@ -82,6 +83,12 @@ const func integer: lowestSetBit (in bigInteger param) is                  actio
 const func bigInteger: (attr bigInteger) parse (in string param) is        action "BIG_PARSE";
 
 const bigInteger: (attr bigInteger) . value is bigInteger parse "0";
+
+const proc: incr (inout bigInteger param) is                               action "BIG_INCR";
+const proc: decr (inout bigInteger param) is                               action "BIG_DECR";
+
+enable_io(bigInteger);
+FOR_DECLS(bigInteger);
 
 
 (**
@@ -99,11 +106,57 @@ const func bigInteger: sqrt (in var bigInteger: number) is func
         result := res2;
         res2 := (result + number div result) div 2_;
       until result <= res2;
+    else
+      raise NUMERIC_ERROR;
     end if;
   end func;
 
-const proc: incr (inout bigInteger param) is                               action "BIG_INCR";
-const proc: decr (inout bigInteger param) is                               action "BIG_DECR";
 
-enable_io(bigInteger);
-FOR_DECLS(bigInteger);
+(**
+ *  Return the modular multiplicative inverse of a modulo b.
+ *  If a and b are not coprime (gcd(a, b) <> 1) the exception
+ *  RANGE_ERROR is raised.
+ *)
+const func bigInteger: modInverse (in var bigInteger: a,
+    in var bigInteger: b) is func
+  result
+    var bigInteger: result is 0_;
+  local
+    var bigInteger: b_bak is 0_;
+    var bigInteger: x is 0_;
+    var bigInteger: y is 1_;
+    var bigInteger: lastx is 1_;
+    var bigInteger: lasty is 0_;
+    var bigInteger: temp is 0_;
+    var bigInteger: quotient is 0_;
+  begin
+    if b < 0_ then
+      raise RANGE_ERROR;
+    end if;
+    if a < 0_ and b <> 0_ then
+      a := a mod b;
+    end if;
+    b_bak := b;
+    while b <> 0_ do
+      temp := b;
+      quotient := a div b;
+      b := a rem b;
+      a := temp;
+
+      temp := x;
+      x := lastx - quotient * x;
+      lastx := temp;
+
+      temp := y;
+      y := lasty - quotient * y;
+      lasty := temp;
+    end while;
+    if a = 1_ then
+      result := lastx;
+      if result < 0_ then
+        result +:= b_bak;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;

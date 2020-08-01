@@ -392,7 +392,7 @@ stritype in_stri;
 
 #ifdef ANSI_C
 
-cstritype cp_to_cstri (stritype stri)
+cstritype cp_to_cstri (const_stritype stri)
 #else
 
 cstritype cp_to_cstri (stri)

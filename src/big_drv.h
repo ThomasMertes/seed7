@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  big_rtl.h     Primitive actions for the bigInteger type.        */
+/*  big_drv.h     Driver functions for the bigInteger type.         */
 /*  Copyright (C) 1989 - 2008  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -23,9 +23,9 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/big_rtl.h                                       */
-/*  Changes: 2005, 2006  Thomas Mertes                              */
-/*  Content: Primitive actions for the bigInteger type.             */
+/*  File: seed7/src/big_drv.h                                       */
+/*  Changes: 2005, 2006, 2008  Thomas Mertes                        */
+/*  Content: Driver functions for the bigInteger type.              */
 /*                                                                  */
 /********************************************************************/
 
@@ -37,18 +37,21 @@
 
 #ifdef ANSI_C
 
+cstritype bigHexCStri (const_biginttype big1);
 biginttype bigAbs (const const_biginttype);
 biginttype bigAdd (const_biginttype, const_biginttype);
 biginttype bigAddTemp (biginttype, const_biginttype);
 inttype bigBitLength (const const_biginttype);
 stritype bigCLit (const const_biginttype);
 inttype bigCmp (const const_biginttype, const const_biginttype);
+inttype bigCmpSignedDigit (const const_biginttype big1, inttype number);
 void bigCpy (biginttype *const, const const_biginttype);
 biginttype bigCreate (const const_biginttype);
 void bigDecr (biginttype *const);
-void bigDestr (const const_biginttype);
+void bigDestr (const biginttype);
 biginttype bigDiv (const const_biginttype, const const_biginttype);
 booltype bigEq (const const_biginttype, const const_biginttype);
+biginttype bigGcd (const const_biginttype, const const_biginttype);
 void bigGrow (biginttype *const, const const_biginttype);
 inttype bigHashCode (const const_biginttype);
 biginttype bigIConv (inttype);
@@ -70,6 +73,7 @@ biginttype bigMinus (const const_biginttype);
 biginttype bigMod (const const_biginttype, const const_biginttype);
 biginttype bigMult (const_biginttype, const_biginttype);
 booltype bigNe (const const_biginttype, const const_biginttype);
+booltype bigOdd (const const_biginttype big1);
 inttype bigOrd (const const_biginttype);
 biginttype bigParse (const const_stritype);
 biginttype bigPred (const const_biginttype);
@@ -89,18 +93,21 @@ biginttype bigUIConv (uinttype);
 
 #else
 
+cstritype bigHexCStri ();
 biginttype bigAbs ();
 biginttype bigAdd ();
 biginttype bigAddTemp ();
 inttype bigBitLength ();
 stritype bigCLit ();
 inttype bigCmp ();
+inttype bigCmpSignedDigit ();
 void bigCpy ();
 biginttype bigCreate ();
 void bigDecr ();
 void bigDestr ();
 biginttype bigDiv ();
 booltype bigEq ();
+biginttype bigGcd ();
 void bigGrow ();
 inttype bigHashCode ();
 biginttype bigIConv ();
@@ -122,6 +129,7 @@ biginttype bigMinus ();
 biginttype bigMod ();
 biginttype bigMult ();
 booltype bigNe ();
+booltype bigOdd ();
 inttype bigOrd ();
 biginttype bigParse ();
 biginttype bigPred ();

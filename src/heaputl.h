@@ -377,12 +377,6 @@ EXTERN memsizetype hs;
 #define COUNT3_STRUCT(len1,len2)    CNT3(CNT2_SCT(len1, SIZ_SCT(len1)) CNT1_SCT(len2, SIZ_SCT(len2)))
 
 
-#define ALLOC_BIG(var,len)         (ALLOC_HEAP(var, biginttype, SIZ_BIG(len))?CNT1_BIG(len, SIZ_BIG(len)), TRUE:FALSE)
-#define FREE_BIG(var,len)          (CNT2_BIG(len, SIZ_BIG(len)) FREE_HEAP(var, SIZ_BIG(len)))
-#define REALLOC_BIG(var,ln1,ln2)   REALLOC_HEAP(var, biginttype, SIZ_BIG(ln2))
-#define COUNT3_BIG(len1,len2)      CNT3(CNT2_BIG(len1, SIZ_BIG(len1)) CNT1_BIG(len2, SIZ_BIG(len2)))
-
-
 #define ALLOC_RECORD(var,rec,cnt)  (ALLOC_HEAP(var, rec*, SIZ_REC(rec))?CNT1_REC(SIZ_REC(rec), cnt), TRUE:FALSE)
 #define FREE_RECORD(var,rec,cnt)   (CNT2_REC(SIZ_REC(rec), cnt) FREE_HEAP(var, SIZ_REC(rec)))
 

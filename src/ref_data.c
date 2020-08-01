@@ -46,6 +46,7 @@
 #include "blockutl.h"  /* from the compiler library */
 #include "hsh_rtl.h"
 #include "int_rtl.h"
+#include "big_drv.h"
 #include "rtl_err.h"
 
 #undef EXTERN
@@ -847,25 +848,13 @@ biginttype bigValue (obj_arg)
 objecttype obj_arg;
 #endif
 
-  {
-    biginttype big1;
-    biginttype result;
-
-  /* bigValue */
+  { /* bigValue */
     if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != BIGINTOBJECT) {
       raise_error(RANGE_ERROR);
-      result = NULL;
+      return(NULL);
     } else {
-      big1 = take_bigint(obj_arg);
-      if (!ALLOC_BIG(result, big1->size)) {
-        raise_error(MEMORY_ERROR);
-      } else {
-        result->size = big1->size;
-        memcpy(result->bigdigits, big1->bigdigits,
-            (SIZE_TYPE) (result->size * sizeof(bigdigittype)));
-      } /* if */
+      return(bigCreate(take_bigint(obj_arg)));
     } /* if */
-    return(result);
   } /* bigValue */
 
 

@@ -38,7 +38,7 @@
 memsizetype stri_to_utf8 (ustritype, const_stritype);
 memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, SIZE_TYPE);
 memsizetype utf8_bytes_missing (const_ustritype, SIZE_TYPE);
-cstritype cp_to_cstri (stritype);
+cstritype cp_to_cstri (const_stritype);
 wchar_t *cp_to_wstri (stritype);
 bstritype stri_to_bstri (stritype);
 bstritype stri_to_bstri8 (const_stritype);

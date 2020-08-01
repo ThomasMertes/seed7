@@ -44,6 +44,7 @@
 #include "infile.h"
 #include "findid.h"
 #include "doany.h"
+#include "big_drv.h"
 
 #undef EXTERN
 #define EXTERN
@@ -180,38 +181,12 @@ biginttype bintvalue;
 #endif
 
   {
-    memsizetype pos;
-    char buffer[21];
+    cstritype cstri;
 
   /* prot_bigint */
-    if (bintvalue != NULL) {
-      if (bintvalue->size > 0) {
-        pos = bintvalue->size - 1;
-#if BIGDIGIT_SIZE == 8
-        sprintf(buffer, "0x%02hhX", bintvalue->bigdigits[pos]);
-#elif BIGDIGIT_SIZE == 16
-        sprintf(buffer, "0x%04hX", bintvalue->bigdigits[pos]);
-#elif BIGDIGIT_SIZE == 32
-        sprintf(buffer, "0x%08lX", bintvalue->bigdigits[pos]);
-#endif
-        prot_cstri(buffer);
-        while (pos > 0) {
-          pos--;
-#if BIGDIGIT_SIZE == 8
-          sprintf(buffer, "%02hhX", bintvalue->bigdigits[pos]);
-#elif BIGDIGIT_SIZE == 16
-          sprintf(buffer, "%04hX", bintvalue->bigdigits[pos]);
-#elif BIGDIGIT_SIZE == 32
-          sprintf(buffer, "%08lX", bintvalue->bigdigits[pos]);
-#endif
-          prot_cstri(buffer);
-        } /* while */
-      } else {
-        prot_cstri(" *ZERO_SIZE_BIGINT* ");
-      } /* if */
-    } else {
-      prot_cstri(" *NULL_BIGINT* ");
-    } /* if */
+    cstri = bigHexCStri(bintvalue);
+    prot_cstri(cstri);
+    UNALLOC_CSTRI(cstri, strlen(cstri));
   } /* prot_bigint */
 
 
@@ -487,9 +462,9 @@ typetype anytype;
       } else {
         prot_cstri(" *ANONYM_TYPE* ");
       } /* if */
-      prot_cstri(" <");
+      /* prot_cstri(" <");
       prot_cstri(obj_ptr(anytype->match_obj));
-      prot_cstri(">");
+      prot_cstri(">"); */
     } else {
       prot_cstri(" *NULL_TYPE* ");
     } /* if */

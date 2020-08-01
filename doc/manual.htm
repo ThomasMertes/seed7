@@ -1626,8 +1626,10 @@
       log2(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
+                    log2(2 ** A) = A for A >= 0,
                     log2(0) => -1,
                     log2(1) => 0,
+                    log2(2) => 1,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
       bitLength(A) Number of bits in the minimal two's-complement
                    representation, excluding the sign bit.
@@ -1637,9 +1639,9 @@
                       For A <> 0 this is equal to to number of
                       lowest-order zero bits.
                   ( A >> B &lt;&lt; B = A for A <> 0 and B = lowestSetBit(A),
-                    lowestSetBit(0) = -1,
-                    lowestSetBit(1) = 0,
-                    lowestSetBit(2) = 1 )
+                    lowestSetBit(0) => -1,
+                    lowestSetBit(1) => 0,
+                    lowestSetBit(2) => 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A &lt;= rand(A, B) <font color=blue>and</font> rand(A, B) &lt;= B holds.
@@ -1669,11 +1671,14 @@
   For the operations <tt>'<font color=blue>div</font>'</tt> and <tt>'<font color=blue>rem</font>'</tt> holds for all A:</p><pre>
     (A <font color=blue>div</font> B) * B + A <font color=blue>rem</font> B = A         when B &lt;> 0
     -A <font color=blue>div</font> B = -(A <font color=blue>div</font> B)               when B &lt;> 0
+    A <font color=blue>rem</font> B >= 0                        when B &lt;> 0 and A >= 0
+    A <font color=blue>rem</font> B &lt;= 0                        when B &lt;> 0 and A &lt;= 0
 </pre><p>
   For the operations <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt> holds for all A:</p><pre>
     (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A        when B &lt;> 0
-    (A <font color=blue>mod</font> B) >= 0 <font color=blue>and</font> (A <font color=blue>mod</font> B) &lt; B    when B > 0
-    (A <font color=blue>mod</font> B) &lt;= 0 <font color=blue>and</font> (A <font color=blue>mod</font> B) > B    when B &lt; 0
+    A <font color=blue>mdiv</font> -B = -(A <font color=blue>mdiv</font> B)             when B &lt;> 0
+    A <font color=blue>mod</font> B >= 0                        when B > 0
+    A <font color=blue>mod</font> B &lt;= 0                        when B &lt; 0
 </pre><p>
   For the operation <tt>'<font color=blue>mdiv</font>'</tt> holds:</p><pre>
     A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1          When A and B have different
@@ -1806,9 +1811,15 @@
       log2(A)   Truncated base 2 logarithm
                   ( log2(A) returns the position of the
                     highest bit set. It is defined for A >= 0
-                    log2(0) => -1,
-                    log2(1) => 0,
+                    log2(2_ ** A) = A for A >= 0,
+                    log2(0_) => -1_,
+                    log2(1_) => 0_,
+                    log2(2_) => 1_,
                     log2(-1) => EXCEPTION NUMERIC_ERROR )
+      gcd(A, B) Greatest common divisor of A and B.
+                  ( gcd(A, B) = gcd(B, A),
+                    gcd(A, B) = gcd(-A, B),
+                    gcd(A, 0) = abs(A) )
       bitLength(A) Number of bits in the minimal two's-complement
                    representation, excluding the sign bit.
                   ( Type of result: <font color=red>integer</font>,
@@ -1819,9 +1830,9 @@
                       lowest-order zero bits.
                   ( Type of result: <font color=red>integer</font>,
                     A >> B &lt;&lt; B = A for A <> 0_ and B = lowestSetBit(A),
-                    lowestSetBit(0_) = -1,
-                    lowestSetBit(1_) = 0,
-                    lowestSetBit(2_) = 1 )
+                    lowestSetBit(0_) => -1,
+                    lowestSetBit(1_) => 0,
+                    lowestSetBit(2_) => 1 )
       rand(A, B) Random number in the range [A, B]
                   ( rand(A, B) returns a random number such that
                     A &lt;= rand(A, B) <font color=blue>and</font> rand(A, B) &lt;= B holds.
@@ -1853,11 +1864,14 @@
   For the operations <tt>'<font color=blue>div</font>'</tt> and <tt>'<font color=blue>rem</font>'</tt> holds for all A:</p><pre>
     (A <font color=blue>div</font> B) * B + A <font color=blue>rem</font> B = A         when B &lt;> 0_
     -A <font color=blue>div</font> B = -(A <font color=blue>div</font> B)               when B &lt;> 0_
+    A <font color=blue>rem</font> B >= 0_                       when B &lt;> 0_ and A >= 0_
+    A <font color=blue>rem</font> B &lt;= 0_                       when B &lt;> 0_ and A &lt;= 0_
 </pre><p>
   For the operations <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt> holds for all A:</p><pre>
     (A <font color=blue>mdiv</font> B) * B + A <font color=blue>mod</font> B = A        when B &lt;> 0_
-    (A <font color=blue>mod</font> B) >= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) &lt; B   when B > 0
-    (A <font color=blue>mod</font> B) &lt;= 0_ <font color=blue>and</font> (A <font color=blue>mod</font> B) > B   when B &lt; 0
+    A <font color=blue>mdiv</font> -B = -(A <font color=blue>mdiv</font> B)             when B &lt;> 0_
+    A <font color=blue>mod</font> B >= 0_                       when B > 0_
+    A <font color=blue>mod</font> B &lt;= 0_                       when B &lt; 0_
 </pre><p>
   For the operation <tt>'<font color=blue>mdiv</font>'</tt> holds:</p><pre>
     A <font color=blue>mdiv</font> B = A <font color=blue>div</font> B - 1_         When A and B have different

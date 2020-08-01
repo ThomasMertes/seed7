@@ -62,7 +62,6 @@ typedef int booltype;
 #undef  DO_HEAP_CHECK
 #define WIDE_CHAR_STRINGS
 #define WITH_STRI_CAPACITY
-#define BIGDIGIT_SIZE 16
 
 
 typedef long int           inttype;
@@ -86,17 +85,6 @@ typedef uinttype           bitsettype;
 typedef unsigned long int  strelemtype;
 #else
 typedef unsigned char      strelemtype;
-#endif
-
-#if BIGDIGIT_SIZE == 8
-typedef unsigned char      bigdigittype;
-typedef unsigned short int doublebigdigittype;
-#elif BIGDIGIT_SIZE == 16
-typedef unsigned short int bigdigittype;
-typedef unsigned long int  doublebigdigittype;
-#elif BIGDIGIT_SIZE == 32
-typedef unsigned long int  bigdigittype;
-typedef unsigned long long doublebigdigittype;
 #endif
 
 typedef unsigned long int  memsizetype;
@@ -194,6 +182,4 @@ typedef struct winstruct {
   } winrecord;
 
 typedef struct bigintstruct {
-    memsizetype size;
-    bigdigittype bigdigits[1];
   } bigintrecord;

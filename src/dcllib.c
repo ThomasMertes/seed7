@@ -143,6 +143,7 @@ listtype arguments;
               printf("\n");
 #endif
             } /* if */
+#ifdef TRACE_DCL
           } else {
             printf("match value failed: ");
             trace1(value);
@@ -156,6 +157,7 @@ listtype arguments;
             printf("name_expr: ");
             trace1(name_expr);
             printf("\n");
+#endif
           } /* if */
         } else {
           do_create(current_object, value, &err_info);

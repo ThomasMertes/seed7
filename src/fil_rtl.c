@@ -43,8 +43,8 @@
 #include "common.h"
 #include "heaputl.h"
 #include "striutl.h"
-#include "big_rtl.h"
 #include "cmd_rtl.h"
+#include "big_drv.h"
 #include "rtl_err.h"
 
 #ifdef USE_MYUNISTD_H

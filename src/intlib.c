@@ -595,16 +595,13 @@ listtype arguments;
     if (denominator == 0) {
       return(raise_exception(SYS_NUM_EXCEPTION));
     } else {
-      result = numerator / denominator;
-      if (((numerator > 0 && denominator < 0) ||
-          (numerator < 0 && denominator > 0)) &&
-          numerator % denominator != 0) {
-        result--;
+      if (numerator > 0 && denominator < 0) {
+        result = (numerator - 1) / denominator - 1;
+      } else if (numerator < 0 && denominator > 0) {
+        result = (numerator + 1) / denominator - 1;
+      } else {
+        result = numerator / denominator;
       } /* if */
-/*
-      printf("<%ld|%ld|%ld>", result,
-          (long) (((unsigned long) numerator) / ((unsigned long) denominator)),
-          (long) ((numerator + 1024) / (denominator + 1024))); */
       return(bld_int_temp(result));
     } /* if */
   } /* int_mdiv */

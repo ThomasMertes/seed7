@@ -80,6 +80,7 @@ const string: chkprc_output is "\n\
 const string: chkbig_output is "\n\
   \Decimal conversion of bigInteger works correct.\n\
   \The bigInteger negation works correct.\n\
+  \The plus sign for bigInteger works correct.\n\
   \Successor of bigInteger works correct.\n\
   \Predecessor of bigInteger works correct.\n\
   \Increment of bigInteger works correct.\n\
@@ -99,7 +100,8 @@ const string: chkbig_output is "\n\
   \The bigInteger log2 function works correct.\n\
   \The bigInteger lowestSetBit function works correct.\n\
   \The bigInteger << and <<:= works correct.\n\
-  \The bigInteger >> and >>:= works correct.\n";
+  \The bigInteger >> and >>:= works correct.\n\
+  \The bigInteger constants work correct.\n";
 
 
 const string: chkbool_output is "\n\
@@ -127,6 +129,7 @@ const string: chkset_output is "\n\
 
 const string: chkexc_output is "\n\
   \Integer exceptions work correct.\n\
+  \BigInteger exceptions work correct.\n\
   \Floating point exceptions work correct.\n\
   \String exceptions work correct.\n\
   \Array exceptions work correct.\n\

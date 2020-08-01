@@ -2364,13 +2364,18 @@ const proc: process_big_clit (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_const_big_cmp (in reference: param1, in bigInteger: number,
     inout expr_type: c_expr) is func
 
-  local
-    var integer: temp_num is 0;
   begin
     if category(param1) = BIGINTOBJECT and not is_var(param1) then
       incr(countOptimizations);
       c_expr.expr &:= str(compare(getValue(param1, bigInteger), number));
-    elsif abs(number) >= 128_ then
+    elsif abs(number) <= 127_ then
+      incr(countOptimizations);
+      c_expr.expr &:= "bigCmpSignedDigit(";
+      getAnyParamToExpr(param1, c_expr);
+      c_expr.expr &:= ", ";
+      c_expr.expr &:= str(number);
+      c_expr.expr &:= ")";
+    else
       c_expr.expr &:= "bigCmp(";
       getAnyParamToExpr(param1, c_expr);
       c_expr.expr &:= ", ";
@@ -2382,38 +2387,6 @@ const proc: process_const_big_cmp (in reference: param1, in bigInteger: number,
       c_expr.expr &:= "] /* ";
       c_expr.expr &:= str(number);
       c_expr.expr &:= " */)";
-    else
-      incr(countOptimizations);
-      incr(c_expr.temp_num);
-      temp_num := c_expr.temp_num;
-      c_expr.temp_decls &:= "biginttype tmp_";
-      c_expr.temp_decls &:= str(temp_num);
-      c_expr.temp_decls &:= ";\n";
-      c_expr.expr &:= "(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "=(";
-      getAnyParamToExpr(param1, c_expr);
-      c_expr.expr &:= "),((signedbigdigittype)(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "->bigdigits[tmp_";
-      c_expr.expr &:= str(temp_num);
-      if number < 0_ then
-        c_expr.expr &:= "->size-1]))>=0?1:tmp_";
-        c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "->size!=1?-1:tmp_";
-      else
-        c_expr.expr &:= "->size-1]))<0?-1:tmp_";
-        c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "->size!=1?1:tmp_";
-      end if;
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "->bigdigits[0]!=";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "?(tmp_";
-      c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "->bigdigits[0]<(bigdigittype)";
-      c_expr.expr &:= str(number);
-      c_expr.expr &:= "?-1:1):0)";
     end if;
   end func;
 
@@ -2518,6 +2491,18 @@ const proc: process_big_eq (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_big_gcd (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigGcd(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getAnyParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_big_ge (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -2538,12 +2523,38 @@ const proc: process_big_ge (in ref_list: params, inout expr_type: c_expr) is fun
 
 const proc: process_big_grow (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param3.result_decl;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
     c_expr.expr &:= "bigGrow(&(";
-    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
-    getAnyParamToExpr(params[3], c_expr);
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_intro;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= c_param3.result_finish;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= c_param3.result_free;
+      c_expr.expr &:= "}\n";
+    end if;
   end func;
 
 
@@ -2600,8 +2611,11 @@ const proc: process_const_big_ipow (in reference: param1, in integer: number,
     var bigInteger: bigNumber is 0_;
     var integer: temp_num is 0;
   begin
-    incr(countOptimizations);
-    if category(param1) = BIGINTOBJECT and not is_var(param1) then
+    if number < 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
+    elsif category(param1) = BIGINTOBJECT and not is_var(param1) then
+      incr(countOptimizations);
       bigNumber := getValue(param1, bigInteger) ** number;
       if bigNumber not in bigint_const_table then
         bigint_const_table @:= [bigNumber] length(bigint_const_table);
@@ -2612,17 +2626,18 @@ const proc: process_const_big_ipow (in reference: param1, in integer: number,
       c_expr.expr &:= str(bigNumber);
       c_expr.expr &:= " */";
     elsif number = 0 then
-      bigNumber := 1_;
-      if bigNumber not in bigint_const_table then
-        bigint_const_table @:= [bigNumber] length(bigint_const_table);
+      incr(countOptimizations);
+      if 1_ not in bigint_const_table then
+        bigint_const_table @:= [1_] length(bigint_const_table);
       end if;
       c_expr.expr &:= "big[";
-      c_expr.expr &:= str(bigint_const_table[bigNumber]);
+      c_expr.expr &:= str(bigint_const_table[1_]);
       c_expr.expr &:= "] /* ";
-      c_expr.expr &:= str(bigNumber);
+      c_expr.expr &:= str(1_);
       c_expr.expr &:= " */";
     elsif number = 1 then
-      getAnyParamToResultExpr(param1, c_expr);
+      incr(countOptimizations);
+      process_expr(param1, c_expr);
     elsif number = 2 then
       incr(countOptimizations);
       incr(c_expr.temp_num);
@@ -2662,14 +2677,17 @@ const proc: process_const_big_ipow (in bigInteger: number, in reference: param3,
   begin
     if number = 1_ then
       incr(countOptimizations);
-      if bigNum1 not in bigint_const_table then
-        bigint_const_table @:= [bigNum1] length(bigint_const_table);
+      c_expr.expr &:= "((";
+      process_expr(param3, c_expr);
+      c_expr.expr &:= ")<0?(raise_error(NUMERIC_ERROR),0):";
+      if 1_ not in bigint_const_table then
+        bigint_const_table @:= [1_] length(bigint_const_table);
       end if;
       c_expr.expr &:= "big[";
-      c_expr.expr &:= str(bigint_const_table[bigNum1]);
+      c_expr.expr &:= str(bigint_const_table[1_]);
       c_expr.expr &:= "] /* ";
-      c_expr.expr &:= str(bigNum1);
-      c_expr.expr &:= " */";
+      c_expr.expr &:= str(1_);
+      c_expr.expr &:= " */)";
     elsif number = 2_ then
       incr(countOptimizations);
       if bigNum1 not in bigint_const_table then
@@ -2806,12 +2824,34 @@ const proc: process_big_lshift (in ref_list: params, inout expr_type: c_expr) is
 
 const proc: process_big_lshift_assign (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
     c_expr.expr &:= "bigLShiftAssign(&(";
-    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
-    process_expr(params[3], c_expr);
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
   end func;
 
 
@@ -2835,24 +2875,109 @@ const proc: process_big_lt (in ref_list: params, inout expr_type: c_expr) is fun
 
 const proc: process_big_mcpy (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param3.result_decl;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
     c_expr.expr &:= "bigMCpy(&(";
-    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
-    getAnyParamToExpr(params[3], c_expr);
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_intro;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= c_param3.result_finish;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= c_param3.result_free;
+      c_expr.expr &:= "}\n";
+    end if;
+  end func;
+
+
+const proc: process_const_big_mdiv (in reference: param1, in bigInteger: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var bigInteger: bigNumber is 0_;
+    var integer: temp_num is 0;
+  begin
+    incr(countOptimizations);
+    if number = 0_ then
+      c_expr.expr &:= "(raise_error(NUMERIC_ERROR), 0)";
+    elsif category(param1) = BIGINTOBJECT and not is_var(param1) then
+      bigNumber := getValue(param1, bigInteger) mdiv number;
+      if bigNumber not in bigint_const_table then
+        bigint_const_table @:= [bigNumber] length(bigint_const_table);
+      end if;
+      c_expr.expr &:= "big[";
+      c_expr.expr &:= str(bigint_const_table[bigNumber]);
+      c_expr.expr &:= "] /* ";
+      c_expr.expr &:= str(bigNumber);
+      c_expr.expr &:= " */";
+    elsif number = 1_ then
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ")";
+    elsif number = -1_ then
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMinus(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ")";
+    elsif number > 0_ and log2(number) <= 2147483647_ and
+        2_ ** ord(log2(number)) = number then
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigRShift(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= str(log2(number));
+      c_expr.result_expr &:= ")";
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMDiv(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      if number not in bigint_const_table then
+        bigint_const_table @:= [number] length(bigint_const_table);
+      end if;
+      c_expr.result_expr &:= "big[";
+      c_expr.result_expr &:= str(bigint_const_table[number]);
+      c_expr.result_expr &:= "] /* ";
+      c_expr.result_expr &:= str(number);
+      c_expr.result_expr &:= " */";
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
 const proc: process_big_mdiv (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigMDiv(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+      process_const_big_mdiv(params[1], getValue(params[3], bigInteger), c_expr);
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMDiv(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -2878,15 +3003,78 @@ const proc: process_big_mod (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
+const proc: process_const_big_mult (in reference: param1, in bigInteger: number,
+    inout expr_type: c_expr) is func
+
+  local
+    var bigInteger: bigNumber is 0_;
+    var integer: log2base is 0;
+  begin
+    if category(param1) = BIGINTOBJECT and not is_var(param1) then
+      incr(countOptimizations);
+      bigNumber := getValue(param1, bigInteger) * number;
+      if bigNumber not in bigint_const_table then
+        bigint_const_table @:= [bigNumber] length(bigint_const_table);
+      end if;
+      c_expr.expr &:= "big[";
+      c_expr.expr &:= str(bigint_const_table[bigNumber]);
+      c_expr.expr &:= "] /* ";
+      c_expr.expr &:= str(bigNumber);
+      c_expr.expr &:= " */";
+    elsif number = 0_ then
+      incr(countOptimizations);
+      if 0_ not in bigint_const_table then
+        bigint_const_table @:= [0_] length(bigint_const_table);
+      end if;
+      c_expr.expr &:= "big[";
+      c_expr.expr &:= str(bigint_const_table[0_]);
+      c_expr.expr &:= "] /* ";
+      c_expr.expr &:= str(0_);
+      c_expr.expr &:= " */";
+    elsif number = 1_ then
+      incr(countOptimizations);
+      process_expr(param1, c_expr);
+    elsif number > 1_ and log2(number) <= 2147483647_ and
+        2_ ** ord(log2(number)) = number then
+      incr(countOptimizations);
+      log2base := ord(log2(number));
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigLShift(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", ";
+      c_expr.result_expr &:= str(log2base);
+      c_expr.result_expr &:= ")";
+    else
+      if number not in bigint_const_table then
+        bigint_const_table @:= [number] length(bigint_const_table);
+      end if;
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMult(";
+      getAnyParamToResultExpr(param1, c_expr);
+      c_expr.result_expr &:= ", big[";
+      c_expr.result_expr &:= str(bigint_const_table[number]);
+      c_expr.result_expr &:= "] /* ";
+      c_expr.result_expr &:= str(number);
+      c_expr.result_expr &:= " */)";
+    end if;
+  end func;
+
+
 const proc: process_big_mult (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_bigint_result(c_expr);
-    c_expr.result_expr := "bigMult(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if category(params[3]) = BIGINTOBJECT and not is_var(params[3]) then
+      process_const_big_mult(params[1], getValue(params[3], bigInteger), c_expr);
+    elsif category(params[1]) = BIGINTOBJECT and not is_var(params[1]) then
+      process_const_big_mult(params[3], getValue(params[1], bigInteger), c_expr);
+    else
+      prepare_bigint_result(c_expr);
+      c_expr.result_expr := "bigMult(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -2904,9 +3092,9 @@ const proc: process_big_ne (in ref_list: params, inout expr_type: c_expr) is fun
 const proc: process_big_odd (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr := "(((biginttype)(";
+    c_expr.expr &:= "bigOdd(";
     getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= "))->bigdigits[0] & 1)";
+    c_expr.expr &:= ")";
   end func;
 
 
@@ -2926,6 +3114,13 @@ const proc: process_big_parse (in ref_list: params, inout expr_type: c_expr) is 
     c_expr.result_expr := "bigParse(";
     getAnyParamToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= ")";
+  end func;
+
+
+const proc: process_big_plus (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    process_expr(params[2], c_expr);
   end func;
 
 
@@ -2977,12 +3172,34 @@ const proc: process_big_rshift (in ref_list: params, inout expr_type: c_expr) is
 
 const proc: process_big_rshift_assign (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
     c_expr.expr &:= "bigRShiftAssign(&(";
-    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
-    process_expr(params[3], c_expr);
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_expr;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= "}\n";
+    end if;
   end func;
 
 
@@ -3015,12 +3232,38 @@ const proc: process_big_sbtr (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_big_shrink (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var expr_type: c_param3 is expr_type.value;
   begin
+    process_expr(params[1], c_param1);
+    c_param3.temp_num := c_param1.temp_num;
+    process_expr(params[3], c_param3);
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= c_param1.temp_decls;
+      c_expr.expr &:= c_param3.temp_decls;
+      c_expr.expr &:= c_param3.result_decl;
+      c_expr.expr &:= c_param1.temp_assigns;
+      c_expr.expr &:= c_param3.temp_assigns;
+    end if;
     c_expr.expr &:= "bigShrink(&(";
-    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= c_param1.expr;
     c_expr.expr &:= "), ";
-    getAnyParamToExpr(params[3], c_expr);
+    if c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param3.result_intro;
+      c_expr.expr &:= c_param3.result_expr;
+      c_expr.expr &:= c_param3.result_finish;
+    else
+      c_expr.expr &:= c_param3.expr;
+    end if;
     c_expr.expr &:= ");\n";
+    if has_temp_values(c_param3) or c_param3.result_expr <> "" then
+      c_expr.expr &:= c_param1.temp_frees;
+      c_expr.expr &:= c_param3.temp_frees;
+      c_expr.expr &:= c_param3.result_free;
+      c_expr.expr &:= "}\n";
+    end if;
   end func;
 
 
@@ -9765,6 +10008,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_div(params, c_expr);
       elsif action_name = "BIG_EQ" then
         process_big_eq(params, c_expr);
+      elsif action_name = "BIG_GCD" then
+        process_big_gcd(params, c_expr);
       elsif action_name = "BIG_GE" then
         process_big_ge(params, c_expr);
       elsif action_name = "BIG_GROW" then
@@ -9809,6 +10054,8 @@ const proc: process_action (in reference: procedure, in ref_list: params,
         process_big_ord(params, c_expr);
       elsif action_name = "BIG_PARSE" then
         process_big_parse(params, c_expr);
+      elsif action_name = "BIG_PLUS" then
+        process_big_plus(params, c_expr);
       elsif action_name = "BIG_SBTR" then
         process_big_sbtr(params, c_expr);
       elsif action_name = "BIG_SHRINK" then
@@ -13854,8 +14101,6 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef long int inttype;");
     writeln(c_prog, "typedef float floattype;");
     writeln(c_prog, "typedef unsigned long int chartype;");
-    writeln(c_prog, "typedef unsigned short int bigdigittype;");
-    writeln(c_prog, "typedef short int signedbigdigittype;");
     writeln(c_prog, "typedef unsigned long int strelemtype;");
     writeln(c_prog, "typedef unsigned long int bitsettype;");
     writeln(c_prog, "typedef unsigned long int memsizetype;");
@@ -13876,8 +14121,6 @@ const proc: write_file_head is func
     writeln(c_prog, "  long obj;");
     writeln(c_prog, "} *listtype;");
     writeln(c_prog, "typedef struct {");
-    writeln(c_prog, "  memsizetype size;");
-    writeln(c_prog, "  bigdigittype bigdigits[1];");
     writeln(c_prog, "} *biginttype;");
     writeln(c_prog, "typedef struct stri {");
     writeln(c_prog, "  memsizetype size;");
@@ -13935,7 +14178,7 @@ const proc: write_file_head is func
     writeln(c_prog, "} float2int;");
     writeln(c_prog, "stritype       arg_0;");
     writeln(c_prog, "arraytype      arg_v;");
-    writeln(c_prog, "biginttype     big[];");
+    writeln(c_prog, "biginttype    *big;");
     writeln(c_prog, "stritype       str[];");
     writeln(c_prog, "settype        set[];");
     writeln(c_prog, "arraytype     *arr;");
@@ -14528,27 +14771,42 @@ const proc: init_bigint_constants (inout expr_type: c_expr) is func
     var bigint_index_hash: bigint_index is bigint_index_hash.EMPTY_HASH;
     var bigInteger: big1 is bigInteger.value;
     var integer: number is 0;
-    var char: ch is ' ';
   begin
     bigint_index := flip(bigint_const_table);
     for number range sort(keys(bigint_index)) do
       big1 := bigint_index[number][1];
       c_expr.expr &:= "/* big[";
       c_expr.expr &:= str(number);
-      c_expr.expr &:= "] */ static bigdigittype big_";
+      c_expr.expr &:= "] */ static unsigned char big_";
       c_expr.expr &:= str(number);
       c_expr.expr &:= "[]=";
       c_expr.expr &:= c_literal(big1);
       c_expr.expr &:= ";\n";
     end for;
+  end func;
+
+
+const proc: assign_bigint_constants (inout expr_type: c_expr) is func
+  local
+    var bigint_index_hash: bigint_index is bigint_index_hash.EMPTY_HASH;
+    var bigInteger: big1 is bigInteger.value;
+    var integer: number is 0;
+  begin
+    c_expr.expr &:= "big = malloc(";
+    c_expr.expr &:= str(length(bigint_const_table));
+    c_expr.expr &:= " * sizeof(biginttype));\n";
+    bigint_index := flip(bigint_const_table);
     if length(bigint_const_table) > 0 then
-      c_expr.expr &:= "biginttype big[]={\n";
       for number range sort(keys(bigint_index)) do
-        c_expr.expr &:= "(biginttype) big_";
+        big1 := bigint_index[number][1];
+        c_expr.expr &:= "big[";
         c_expr.expr &:= str(number);
-        c_expr.expr &:= ",\n";
+        c_expr.expr &:= "]=bigImport(big_";
+        c_expr.expr &:= str(number);
+        c_expr.expr &:= "); /* ";
+        c_expr.expr &:= str(big1);
+        c_expr.expr &:= " */\n";
       end for;
-      c_expr.expr &:= "};\n\n";
     end if;
   end func;
 
@@ -14733,6 +14991,7 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "  }\n";
     c_expr.expr &:= "}\n";
 
+    assign_bigint_constants(c_expr);
     c_expr.expr &:= "arr = malloc(";
     c_expr.expr &:= str(length(const_table));
     c_expr.expr &:= " * sizeof(arraytype));\n";

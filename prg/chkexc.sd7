@@ -23,6 +23,7 @@
 
 
 $ include "seed7_05.s7i";
+  include "bigint.s7i";
   include "float.s7i";
   include "math.s7i";
 
@@ -64,6 +65,7 @@ const proc: check_integer is func
     var boolean: okay is TRUE;
     var integer: number is 0;
     var integer: i_num is 0;
+    const integer: int2m is -2;
   begin
     block
       i_num := 1 div 0;
@@ -152,6 +154,24 @@ const proc: check_integer is func
     end block;
 
     block
+      i_num := 0 ** int2m;
+      writeln(" ***** 0 ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1 ** int2m;
+      writeln(" ***** 1 ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
       i_num  := integer parse "asdf";
       writeln(" ***** integer parse \"asdf\" did not raise RANGE_ERROR");
       okay := FALSE;
@@ -206,10 +226,185 @@ const proc: check_integer is func
         incr(number);
     end block;
 
-    if okay and number = 14 then
+    if okay and number = 16 then
       writeln("Integer exceptions work correct.");
     else
       writeln(" ***** Integer exceptions do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_bigInteger is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var bigInteger: i_num is 0_;
+    const integer: int2m is -2;
+  begin
+    block
+      i_num := 1_ div 0_;
+      writeln(" ***** 1_ div 0_ did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1_ rem 0_;
+      writeln(" ***** 1_ rem 0_ did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1_ mdiv 0_;
+      writeln(" ***** 1_ mdiv 0_ did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1_ mod 0_;
+      writeln(" ***** 1_ mod 0_ did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    (* block
+      i_num := ! (-1_);
+      writeln(" ***** ! (-1_) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block; *)
+
+    block
+      i_num := log2(-1_);
+      writeln(" ***** log2(-1_) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0_ ** 0;
+      if i_num = 1_ then
+        incr(number);
+      else
+        writeln(" ***** 0_ ** 0 did not deliver 1");
+        okay := FALSE;
+      end if;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** 0_ ** 0 did raise NUMERIC_ERROR");
+        okay := FALSE;
+    end block;
+
+    block
+      i_num := 0_ ** (-2);
+      writeln(" ***** 0_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1_ ** (-2);
+      writeln(" ***** 1_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 0_ ** int2m;
+      writeln(" ***** 0_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := 1_ ** int2m;
+      writeln(" ***** 1_ ** (-2) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num  := bigInteger parse "asdf";
+      writeln(" ***** bigInteger parse \"asdf\" did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num := rand(1_, 0_);
+      writeln(" ***** rand(1_, 0_) did not raise RANGE_ERROR");
+      okay := FALSE;
+    exception
+      catch RANGE_ERROR:
+        incr(number);
+    end block;
+
+    block
+      i_num  := sqrt(-1_);
+      writeln(" ***** sqrt(-1_) did not raise NUMERIC_ERROR");
+      okay := FALSE;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    block
+      block
+        i_num := 1_ div 0_;
+        writeln(" ***** 1_ div 0_ did not raise NUMERIC_ERROR");
+        okay := FALSE;
+      exception
+        catch NUMERIC_ERROR:
+          incr(number);
+      end block;
+    exception
+      catch NUMERIC_ERROR:
+        writeln(" ***** NUMERIC_ERROR catched at wrong level");
+    end block;
+
+    block
+      block
+        i_num := 1_ div 0_;
+        writeln(" ***** 1_ div 0_ did not raise NUMERIC_ERROR");
+        okay := FALSE;
+      exception
+        catch RANGE_ERROR:
+          writeln(" ***** NUMERIC_ERROR catched at wrong level");
+      end block;
+    exception
+      catch NUMERIC_ERROR:
+        incr(number);
+    end block;
+
+    if okay and number = 15 then
+      writeln("BigInteger exceptions work correct.");
+    else
+      writeln(" ***** BigInteger exceptions do not work correct");
       writeln;
     end if;
   end func;
@@ -715,6 +910,7 @@ const proc: main is func
     # f4(6);
     writeln;
     check_integer;
+    check_bigInteger;
     check_float;
     check_string;
     check_array;

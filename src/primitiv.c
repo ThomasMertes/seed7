@@ -109,6 +109,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_DESTR",           big_destr,           },
     { "BIG_DIV",             big_div,             },
     { "BIG_EQ",              big_eq,              },
+    { "BIG_GCD",             big_gcd,             },
     { "BIG_GE",              big_ge,              },
     { "BIG_GROW",            big_grow,            },
     { "BIG_GT",              big_gt,              },

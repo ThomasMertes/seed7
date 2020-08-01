@@ -43,59 +43,11 @@ const proc: normalize (inout bigRational: rat) is func
 
 const proc: reduce (inout bigRational: rat) is func
   local
-    var bigInteger: a is 0_;
-    var bigInteger: b is 0_;
-    var bigInteger: help is 0_;
+    var bigInteger: gcd is 0_;
   begin
-    if rat.numerator >= 0_ then
-      a := rat.numerator;
-    else
-      a := -rat.numerator;
-    end if;
-    b := rat.denominator;
-    while a <> 0_ do
-      help := b rem a;
-      b := a;
-      a := help;
-    end while;
-    rat.numerator := rat.numerator div b;
-    rat.denominator := rat.denominator div b;
-  end func;
-
-
-const func bigInteger: gcd1 (in var bigInteger: a, in var bigInteger: b) is func
-  result
-    var bigInteger: result is 0_;
-  local
-    var bigInteger: help is 0_;
-  begin
-    while a <> 0_ do
-      help := b rem a;
-      b := a;
-      a := help;
-    end while;
-    result := b;
-  end func;
-
-
-const func bigInteger: gcd2 (in bigInteger: numerator, in bigInteger: denominator) is func
-  result
-    var bigInteger: b is 0_;
-  local
-    var bigInteger: a is 0_;
-    var bigInteger: help is 0_;
-  begin
-    if numerator >= 0_ then
-      a := numerator;
-    else
-      a := -numerator;
-    end if;
-    b := denominator;
-    while a <> 0_ do
-      help := b rem a;
-      b := a;
-      a := help;
-    end while;
+    gcd := gcd(rat.numerator, rat.denominator);
+    rat.numerator := rat.numerator div gcd;
+    rat.denominator := rat.denominator div gcd;
   end func;
 
 
@@ -132,7 +84,7 @@ const func bigRational: (in bigRational: rat1) + (in bigRational: rat2) is func
   local
     var bigInteger: gcd_denominator is 0_;
   begin
-    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    gcd_denominator := gcd(rat1.denominator, rat2.denominator);
     rat_val.numerator := (rat1.numerator * rat2.denominator +
         rat2.numerator * rat1.denominator) div gcd_denominator;
     rat_val.denominator := rat1.denominator div gcd_denominator * rat2.denominator;
@@ -148,7 +100,7 @@ const func bigRational: (in bigRational: rat1) - (in bigRational: rat2) is func
   local
     var bigInteger: gcd_denominator is 0_;
   begin
-    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    gcd_denominator := gcd(rat1.denominator, rat2.denominator);
     rat_val.numerator := (rat1.numerator * rat2.denominator -
         rat2.numerator * rat1.denominator) div gcd_denominator;
     rat_val.denominator := rat1.denominator div gcd_denominator * rat2.denominator;
@@ -165,8 +117,8 @@ const func bigRational: (in bigRational: rat1) * (in bigRational: rat2) is func
     var bigInteger: gcd1 is 0_;
     var bigInteger: gcd2 is 0_;
   begin
-    gcd1 := gcd2(rat1.numerator, rat2.denominator);
-    gcd2 := gcd2(rat2.numerator, rat1.denominator);
+    gcd1 := gcd(rat1.numerator, rat2.denominator);
+    gcd2 := gcd(rat2.numerator, rat1.denominator);
     rat_val.numerator := (rat1.numerator div gcd1) * (rat2.numerator div gcd2);
     rat_val.denominator := (rat1.denominator div gcd2) * (rat2.denominator div gcd1);
   end func;
@@ -193,7 +145,7 @@ const proc: (inout bigRational: rat1) +:= (in bigRational: rat2) is func
   local
     var bigInteger: gcd_denominator is 0_;
   begin
-    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    gcd_denominator := gcd(rat1.denominator, rat2.denominator);
     rat1.numerator := (rat1.numerator * rat2.denominator +
         rat2.numerator * rat1.denominator) div gcd_denominator;
     rat1.denominator *:= rat2.denominator div gcd_denominator;
@@ -207,7 +159,7 @@ const proc: (inout bigRational: rat1) -:= (in bigRational: rat2) is func
   local
     var bigInteger: gcd_denominator is 0_;
   begin
-    gcd_denominator := gcd1(rat1.denominator, rat2.denominator);
+    gcd_denominator := gcd(rat1.denominator, rat2.denominator);
     rat1.numerator := (rat1.numerator * rat2.denominator -
         rat2.numerator * rat1.denominator) div gcd_denominator;
     rat1.denominator *:= rat2.denominator div gcd_denominator;

@@ -294,6 +294,7 @@ static void fix_capability ()
       fprintf(stderr, "cap \"%s\" ", cap_name);
 #endif
       while (term_char != EOF) {
+        cap_value = NULL;
         switch (term_char) {
           case ',':
           case ':':

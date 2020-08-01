@@ -74,19 +74,15 @@ typedef struct typestruct {
 #if 0
 #ifdef ANSI_C
 
-inttype typHashCode (const const_biginttype big1)
+inttype typHashCode (typetype type1)
 #else
 
 inttype typHashCode (big1)
-biginttype big1;
+typetype type1;
 #endif
 
-  {
-    inttype result;
-
-  /* typHashCode */
-    result = big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1];
-    return(result);
+  { /* typHashCode */
+    return((inttype) type1);
   } /* typHashCode */
 
 

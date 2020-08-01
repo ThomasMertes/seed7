@@ -44,6 +44,7 @@
 #include "entutl.h"
 #include "name.h"
 #include "runerr.h"
+#include "big_drv.h"
 #include "drw_drv.h"
 
 #undef EXTERN
@@ -738,9 +739,7 @@ objecttype object;
         FREE_OBJECT(object);
         break;
       case BIGINTOBJECT:
-        if (object->value.bigintvalue != NULL) {
-          FREE_BIG(object->value.bigintvalue, object->value.bigintvalue->size);
-        } /* if */
+        bigDestr(object->value.bigintvalue);
         FREE_OBJECT(object);
         break;
       case STRIOBJECT:

@@ -1,3 +1,36 @@
+20080420:
+- An explatation how to uncompress the Seed7 package was added to the FAQ.
+- The descriptions of the functions log2, gcd, lowestSetBit, 'rem', 'mdiv' and
+  'mod' in the manual were added or improved.
+- The functions gcd and modInverse were added to the bigint.s7i library.
+- The bigrat.s7i library was changed to use the gcd function from the bigint.s7i library.
+- The chkbig.sd7 program was improved with additional checks for the monadic plus, 'div',
+  'rem', 'mdiv', 'mod' and bigInteger constants.
+- The chkexc.sd7 program was improved with additional checks for bigInteger functions.
+- The chk_all.sd7 program was improved to take the new checks into account.
+- The compiler (comp.sd7) was improved to work also with GMP's bigInteger's.
+- The compiler was improved to support big_plus and big_gcd.
+- The handling of +:=, -:=, *:=, <<:= and >>:= in the compiler was improved to
+  avoid memory leaks.
+- The handling of the bigInteger 'mdiv' and * in the compiler was improved to do some
+  optimisations like using shift operations instead.
+- Three example programs printpi1.sd7, printpi2.sd7 and printpi3.sd7 were added.
+- The big_gmp.c interface library was added to allow bigInteger computations based
+  on the mpz_ functions of the GMP library.
+- The file big_rtl.h was renamed to big_drv.h.
+- The file biglib.c was change to allow working with big_rtl.c or big_gmp.c .
+- The file big_rtl.c was improved to work with a BIGDIGIT_SIZE of 32.
+- The functions bigHexCStri, uBigMultSub, uBigSqare, bigClit, bigCmpSignedDigit, bigDiv,
+  bigGcd, bigGrow, bigImport, bigLShift, bigLShiftAssign, bigMDiv, bigMod, bigOdd, bigRem,
+  bigRShift, bigShrink and bigToBStri of the file big_rtl.c were added or improved.
+- An error message about "match value failed" was suppressed in dcllib.c .
+- The int_mdiv action (defined in intlib.c) was improved for speed.
+- The function prot_bigint (defined in traceutl.c) was changed to use bigHexCStri.
+- The function printtype (defined in traceutl.c) was changed to avoid writing a pointer value.
+- A bug in the function typHashCode (defined in typ_data.c) was fixed.
+- The file read_me.txt was improved to contain a chapter about warnings and a chapter
+  which explains how use the GMP library.
+
 20080406:
 - The interpreter and the compiler (comp.sd7) were improved to support the functions
   bitLength, lowestSetBit, <<, <<:=, >> and >>:= for the types integer and bigInteger

@@ -40,7 +40,7 @@
 #include "infile.h"
 #include "stat.h"
 #include "findid.h"
-#include "big_rtl.h"
+#include "big_drv.h"
 
 #undef EXTERN
 #define EXTERN
