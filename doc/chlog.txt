@@ -1,3 +1,8 @@
+20200727:
+- In ut8_rtl.c the function ut8Seek() has been improved such that
+  a call of ut8Seek() can be directly followed by a statement to write
+  to the file.
+
 20200726:
 - The library rpm.s7i has been improved to write changes to the
   archive file, when the archive is closed.

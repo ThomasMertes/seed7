@@ -784,6 +784,7 @@ void ut8Seek (fileType aFile, intType position)
 
   {
     int ch;
+    int seekCorrection;
 
   /* ut8Seek */
     logFunction(printf("ut8Seek(%d, " FMT_D ")\n", safe_fileno(aFile), position););
@@ -820,15 +821,23 @@ void ut8Seek (fileType aFile, intType position)
       while ((ch = getc(aFile)) != EOF &&
              ch >= 0x80 && ch <= 0xBF) ;
       if (ch != EOF) {
-        if (unlikely(offsetSeek(aFile, (os_off_t) -1, SEEK_CUR) != 0)) {
-          logError(printf("ut8Seek(%d, " FMT_D "): "
-                          "offsetSeek(%d, -1, SEEK_CUR) failed.\n"
-                          "errno=%d\nerror: %s\n",
-                          safe_fileno(aFile), position,
-                          safe_fileno(aFile),
-                          errno, strerror(errno)););
-          raise_error(FILE_ERROR);
-        } /* if */
+        seekCorrection = -1;
+      } else {
+        seekCorrection = 0;
+      } /* if */
+      /* According to the specification of file I/O input   */
+      /* shall not be directly followed by output without   */
+      /* an intervening call to a file positioning function */
+      /* (e.g. fseek()). For this reason a seek is done to  */
+      /* allow that a write can directly follow ut8Seek().  */
+      if (unlikely(offsetSeek(aFile, (os_off_t) seekCorrection, SEEK_CUR) != 0)) {
+        logError(printf("ut8Seek(%d, " FMT_D "): "
+                        "offsetSeek(%d, %d, SEEK_CUR) failed.\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(aFile), position,
+                        safe_fileno(aFile), seekCorrection,
+                        errno, strerror(errno)););
+        raise_error(FILE_ERROR);
       } /* if */
     } /* if */
   } /* ut8Seek */
