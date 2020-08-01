@@ -2206,6 +2206,9 @@ CONTENTS
       ord(A)    Ordinal number
                   ( Type of result: integer )
                     ord(99999999999999999999_) => EXCEPTION RANGE_ERROR )
+      integer(A)  Ordinal number
+                  ( Type of result: integer )
+                    integer(99999999999999999999_) => EXCEPTION RANGE_ERROR )
       succ(A)   Successor
                   ( succ(A) => A+1_ )
       pred(A)   Predecessor
@@ -2752,6 +2755,11 @@ CONTENTS
       flt(A)    Conversion of integer to float
                   ( Type of argument A: integer,
                     flt(1) => 1.0 )
+      float(A)  Conversion of integer to float
+                  ( Type of argument A: integer,
+                    float(1) => 1.0 )
+      float(A)  Conversion of string to float
+                  ( Type of argument A: string )
       floor(A)  Truncation towards negative infinity
                   ( floor( 1.8) =>  1.0, floor( 1.0) =>  1.0,
                     floor(-1.0) => -1.0, floor(-1.2) => -2.0,
@@ -2963,8 +2971,14 @@ CONTENTS
     Functions:
       ord(A)    Ordinal number
                   ( Type of result: integer )
+      integer(A)  Ordinal number
+                  ( Type of result: integer )
       chr(A)    Conversion of integer to char
                   ( Type of argument: integer )
+      char(A)   Conversion of integer to char
+                  ( Type of argument: integer )
+      char(A)   Conversion of string to char
+                  ( Type of argument A: string )
       succ(A)   Successor
                   ( succ(A) => chr(succ(ord(A))) )
       pred(A)   Predecessor
@@ -3580,9 +3594,16 @@ CONTENTS
     Functions:
       ord(A)    Ordinal number
                   ( Type of result: integer )
+      category(A)  Conversion of integer to category
+                  ( Type of argument A: integer,
+                    category(ord(INTOBJECT)) => INTOBJECT )
       str(A)    Conversion to string
                   ( Type of result: string,
                     str(CHAROBJECT) => "CHAROBJECT" )
+      category(A)  Conversion of string to category
+                  ( Type of argument A: string,
+                    category("FLOATOBJECT") => FLOATOBJECT,
+                    category("does not exist") => EXCEPTION RANGE_ERROR )
     Statements:
       for A range B to C do
         D
@@ -3988,6 +4009,10 @@ CONTENTS
       =, <>, <, <=, >, >=
     Functions:
       time(NOW)  Gets the current time
+      time(A)  Conversion of string to time
+                  ( Type of argument A: string,
+                    time("2005-02-28 12:00:01") => 2005-02-28 12:00:01,
+                    time("2005-02-29 12:00:01") => EXCEPTION RANGE_ERROR )
       str(A)    Conversion to string
                   ( Type of result: string )
       strDate(A)  Conversion of the date to string
@@ -4084,11 +4109,15 @@ CONTENTS
                     Type of right operand: time )
       duration parse A   Conversion of string to duration
                   ( Type of argument A: string,
-                    duration parse "0-02-28 12:00:01" => 0-02-28 12:00:01,
-                    duration parse "0-13-29 12:00:01" => EXCEPTION RANGE_ERROR )
+                    duration parse "P2M28DT12H1S" => P2M28DT12H1S,
+                    duration parse "P13M28DT12H1S" => EXCEPTION RANGE_ERROR )
     Relations:
       =, <>, <, <=, >, >=
     Functions:
+      duration(A)  Conversion of string to duration
+                  ( Type of argument A: string,
+                    duration("P2M28DT12H1S") => P2M28DT12H1S,
+                    duration("P13M28DT12H1S") => EXCEPTION RANGE_ERROR )
       getYears(A)  Obtains the years of a duration
                   ( Type of result: integer )
       getMonths(A) Obtains the months of a duration

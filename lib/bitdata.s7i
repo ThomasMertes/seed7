@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  bitdata.s7i   Read and write bits to and from strings           *)
-(*  Copyright (C) 2015  Thomas Mertes                               *)
+(*  Copyright (C) 2015, 2017, 2019  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -480,7 +480,6 @@ const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
       bitPos +:= bitWidth;
     else
       resultBits := ord(inFile.bufferChar) mod 256 >> bitPos;
-      bitPos := 0;
       inFile.bufferChar := getc(inFile);
       bitWidth -:= bitsInByte;
       bitsInResult := bitsInByte;
@@ -492,5 +491,205 @@ const func integer: getBitsLsb (inout file: inFile, inout integer: bitPos,
       end while;
       resultBits +:= ord(inFile.bufferChar) rem (1 << bitWidth) << bitsInResult;
       bitPos := bitWidth;
+    end if;
+  end func;
+
+
+(**
+ *  Write one bit in LSB-First order to ''outFile''.
+ *  The bit is appended to ''outFile'' at the current bit position.
+ *  Afterwards the bit position is advanced by one bit. The append
+ *  direction is from LSB (least significant bit) to MSB (most significant bit).
+ *  Bits are cached in outFile.bufferChar until a complete byte is present.
+ *  Complete bytes in outFile.bufferChar are written to ''outFile''.
+ *  @param outFile File of bytes to which the ''bit'' is written.
+ *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
+ *  @param bit Bit to be written to ''outFile''.
+ *)
+const proc: putBitLsb (inout file: outFile, inout integer: bitPos, in integer: bit) is func
+  begin
+    if bitPos = 7 then
+      write(outFile, chr(ord(outFile.bufferChar) + (bit << bitPos)));
+      outFile.bufferChar := '\0;';
+      bitPos := 0;
+    else
+      outFile.bufferChar := chr(ord(outFile.bufferChar) + (bit << bitPos));
+      incr(bitPos);
+    end if;
+  end func;
+
+
+(**
+ *  Write ''bitWidth'' bits in LSB-First order to ''outFile''.
+ *  The bits are appended to ''outFile'' at the current bit position.
+ *  Afterwards the bit position is advanced by ''bitWidth'' bits. The append
+ *  direction is from LSB (least significant bit) to MSB (most significant bit).
+ *  Bits are cached in outFile.bufferChar until a complete byte is present.
+ *  Complete bytes in outFile.bufferChar are written to ''outFile''.
+ *  @param outFile File of bytes to which the ''bits'' is written.
+ *  @param bitPos Current bit position between 0 (=LSB) and 7 (=MSB).
+ *  @param bits Bits to be written to ''outFile''.
+ *  @param bitWidth Number of bits to be written (width of ''bits'').
+ *)
+const proc: putBitsLsb (inout file: outFile, inout integer: bitPos, in var integer: bits,
+    in var integer: bitWidth) is func
+  local
+    var integer: bitsFree is 0;
+  begin
+    bitsFree := 8 - bitPos;
+    if bitsFree > bitWidth then
+      outFile.bufferChar := chr(ord(outFile.bufferChar) + (bits << bitPos));
+      bitPos +:= bitWidth;
+    else
+      write(outFile, chr(ord(outFile.bufferChar) + ((bits rem (1 << bitsFree)) << bitPos)));
+      bits >>:= bitsFree;
+      bitWidth -:= bitsFree;
+      while bitWidth >= 8 do
+        write(outFile, chr(bits rem 256));
+        bits >>:= 8;
+        bitWidth -:= 8;
+      end while;
+      if bitWidth >= 1 then
+        outFile.bufferChar := chr(bits);
+        bitPos := bitWidth;
+      else
+        outFile.bufferChar := '\0;';
+        bitPos := 0;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Get one bit in MSB-First order from ''inFile''.
+ *  The bit is read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by one bit. The read
+ *  direction is from MSB (most significant bit) to LSB (least significant bit).
+ *  @param inFile File of bytes from which the bit is read.
+ *  @param bitPos Current bit position between 0 and 8.
+ *                0 = MSB, 7 = LSB, 8 = A bitPos of 0 (=MSB) in the next byte.
+ *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *)
+const func integer: getBitMsb (inout file: inFile, inout integer: bitPos) is func
+  result
+    var integer: resultBit is 0;
+  begin
+    if bitPos = 8 then
+      inFile.bufferChar := getc(inFile);
+      resultBit := (ord(inFile.bufferChar) >> 7) mod 2;
+      bitPos := 1;
+    else
+      resultBit := (ord(inFile.bufferChar) >> (7 - bitPos)) mod 2;
+      incr(bitPos);
+    end if;
+  end func;
+
+
+(**
+ *  Get ''bitWidth'' bits in MSB-First order from ''inFile''.
+ *  The bits are read at the current byte and bit position. Afterwards
+ *  byte and bit position are advanced by ''bitWidth'' bits. The read
+ *  direction is from MSB (most significant bit) to LSB (least significant bit).
+ *  When bits from the next byte(s) are read a byte order of big-endian
+ *  is used.
+ *  @param inFile File of bytes from which the bits are read.
+ *  @param bitPos Current bit position between 0 and 8.
+ *                0 = MSB, 7 = LSB, 8 = A bitPos of 0 (=MSB) in the next byte.
+ *  @param bitWidth Number of bits requested.
+ *  @exception FILE_ERROR When reading from ''inFile'' fails.
+ *)
+const func integer: getBitsMsb (inout file: inFile, inout integer: bitPos,
+    in var integer: bitWidth) is func
+  result
+    var integer: resultBits is 0;
+  local
+    var integer: bitsInByte is 0;
+  begin
+    if bitPos = 8 then
+      bitPos := 0;
+      inFile.bufferChar := getc(inFile);
+    end if;
+    bitsInByte := 8 - bitPos;
+    if bitsInByte >= bitWidth then
+      resultBits := (ord(inFile.bufferChar) >> (bitsInByte - bitWidth)) rem (1 << bitWidth);
+      bitPos +:= bitWidth;
+    else
+      resultBits := ord(inFile.bufferChar) rem (1 << bitsInByte);
+      inFile.bufferChar := getc(inFile);
+      bitWidth -:= bitsInByte;
+      while bitWidth > 8 do
+        resultBits <<:= 8;
+        resultBits +:= ord(inFile.bufferChar);
+        inFile.bufferChar := getc(inFile);
+        bitWidth -:= 8;
+      end while;
+      resultBits <<:= bitWidth;
+      resultBits +:= (ord(inFile.bufferChar) >> (8 - bitWidth));
+      bitPos := bitWidth;
+    end if;
+  end func;
+
+
+(**
+ *  Write one bit in MSB-First order to ''outFile''.
+ *  The bit is appended to ''outFile'' at the current bit position.
+ *  Afterwards the bit position is advanced by one bit. The append
+ *  direction is from MSB (most significant bit) to LSB (least significant bit).
+ *  Bits are cached in outFile.bufferChar until a complete byte is present.
+ *  Complete bytes in outFile.bufferChar are written to ''outFile''.
+ *  @param outFile File of bytes to which the ''bit'' is written.
+ *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
+ *  @param bit Bit to be written to ''outFile''.
+ *)
+const proc: putBitMsb (inout file: outFile, inout integer: bitPos, in integer: bit) is func
+  begin
+    if bitPos = 7 then
+      write(outFile, chr(ord(outFile.bufferChar) + bit));
+      outFile.bufferChar := '\0;';
+      bitPos := 0;
+    else
+      outFile.bufferChar := chr(ord(outFile.bufferChar) + (bit << (7 - bitPos)));
+      incr(bitPos);
+    end if;
+  end func;
+
+
+(**
+ *  Write ''bitWidth'' bits in MSB-First order to ''outFile''.
+ *  The bits are appended to ''outFile'' at the current bit position.
+ *  Afterwards the bit position is advanced by ''bitWidth'' bits. The append
+ *  direction is from MSB (most significant bit) to LSB (least significant bit).
+ *  Bits are cached in outFile.bufferChar until a complete byte is present.
+ *  Complete bytes in outFile.bufferChar are written to ''outFile''.
+ *  @param outFile File of bytes to which the ''bits'' is written.
+ *  @param bitPos Current bit position between 0 (=MSB) and 7 (=LSB).
+ *  @param bits Bits to be written to ''outFile''.
+ *  @param bitWidth Number of bits to be written (width of ''bits'').
+ *)
+const proc: putBitsMsb (inout file: outFile, inout integer: bitPos, in var integer: bits,
+    in var integer: bitWidth) is func
+  local
+    var integer: bitsFree is 0;
+  begin
+    bitsFree := 8 - bitPos;
+    if bitsFree > bitWidth then
+      outFile.bufferChar := chr(ord(outFile.bufferChar) + (bits << (bitsFree - bitWidth)));
+      bitPos +:= bitWidth;
+    else
+      bitWidth -:= bitsFree;
+      write(outFile, chr(ord(outFile.bufferChar) + (bits >> bitWidth)));
+      bits := bits rem (1 << bitWidth);
+      while bitWidth >= 8 do
+        bitWidth -:= 8;
+        write(outFile, chr(bits >> bitWidth));
+        bits := bits rem (1 << bitWidth);
+      end while;
+      if bitWidth >= 1 then
+        outFile.bufferChar := chr(bits << (8 - bitWidth));
+        bitPos := bitWidth;
+      else
+        outFile.bufferChar := '\0;';
+        bitPos := 0;
+      end if;
     end if;
   end func;

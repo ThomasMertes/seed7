@@ -60,6 +60,7 @@
 
 #include "signal.h"
 #include "sys/ioctl.h"
+#include "errno.h"
 
 #include "common.h"
 #include "os_decls.h"
@@ -226,6 +227,7 @@ static consoleType create_console (int height, int width)
     consoleType new_con;
 
   /* create_console */
+    logFunction(printf("create_console(%d, %d)\n", height, width););
     new_con = (consoleType) malloc(sizeof(consoleRecord));
     if (new_con != NULL) {
       new_con->char_data = (strElemType *)
@@ -256,6 +258,8 @@ static consoleType create_console (int height, int width)
         new_con = NULL;
       } /* if */
     } /* if */
+    logFunction(printf("create_console --> " FMT_U_MEM "\n",
+                       (memSizeType) new_con););
     return new_con;
   } /* create_console */
 
@@ -1347,11 +1351,17 @@ int conOpen (void)
           sigemptyset(&sigAct.sa_mask);
           sigAct.sa_flags = SA_RESTART;
           if (unlikely(sigaction(SIGWINCH, &sigAct, NULL) != 0)) {
+            logError(printf("conOpen: sigaction(SIGWINCH, &sigAct, NULL) failed:\n"
+                            "errno=%d\nerror: %s\n",
+                            errno, strerror(errno)););
             raise_error(FILE_ERROR);
           } /* if */
         }
 #elif HAS_SIGNAL
         if (unlikely(signal(SIGWINCH, handle_winch_signal) == SIG_ERR)) {
+          logError(printf("conOpen: signal(SIGWINCH, handle_winch_signal) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          errno, strerror(errno)););
           raise_error(FILE_ERROR);
         } /* if */
 #endif

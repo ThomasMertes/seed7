@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  sydir7.sd7    Utility to syncronize directory trees             *)
-(*  Copyright (C) 2009 - 2016  Thomas Mertes                        *)
+(*  Copyright (C) 2009 - 2019  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -31,6 +31,7 @@ $ include "seed7_05.s7i";
 const type: syncFlags is new struct
     var boolean: removeFilesAtDest is FALSE;
     var boolean: overwriteNewerDestFiles is FALSE;
+    var boolean: doChanges is TRUE;
   end struct;
 
 
@@ -93,7 +94,9 @@ const proc: syncDir (in string: sourcePath, in string: destPath,
     end while;
     if updateMtime then
       # writeln("update mtime " <& literal(sourcePath) <& " to " <& literal(destPath));
-      setMTime(destPath, getMTime(sourcePath));
+      if flags.doChanges then
+        setMTime(destPath, getMTime(sourcePath));
+      end if;
     end if;
   end func;
 
@@ -140,13 +143,17 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
       if destType <> FILE_ABSENT then
         if flags.removeFilesAtDest then
           writeln("remove file " <& literal(destPath));
-          removeTree(destPath);
+          if flags.doChanges then
+            removeTree(destPath);
+          end if;
         end if;
       end if;
     elsif sourceType = FILE_SYMLINK then
       if destType = FILE_ABSENT then
         block
-          cloneFile(sourcePath, destPath);
+          if flags.doChanges then
+            cloneFile(sourcePath, destPath);
+          end if;
           writeln("copy symlink " <& literal(sourcePath) <& " to " <& literal(destPath));
         exception
           catch FILE_ERROR:
@@ -164,9 +171,11 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
     elsif sourceType = FILE_DIR then
       if destType = FILE_ABSENT then
         writeln("copy directory " <& literal(sourcePath) <& " to " <& literal(destPath));
-        mkdir(destPath);
-        syncDir(sourcePath, destPath, flags);
-        setMTime(destPath, getMTime(sourcePath));
+        if flags.doChanges then
+          mkdir(destPath);
+          syncDir(sourcePath, destPath, flags);
+          setMTime(destPath, getMTime(sourcePath));
+        end if;
       elsif destType = FILE_DIR then
         syncDir(sourcePath, destPath, flags);
       else
@@ -175,7 +184,9 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
     elsif sourceType = FILE_REGULAR then
       if destType = FILE_ABSENT then
         block
-          cloneFile(sourcePath, destPath);
+          if flags.doChanges then
+            cloneFile(sourcePath, destPath);
+          end if;
           writeln("copy file " <& literal(sourcePath) <& " to " <& literal(destPath));
         exception
           catch FILE_ERROR:
@@ -189,28 +200,38 @@ const proc: syncFile (in string: sourcePath, in string: destPath,
         if sourceTime > destTime + 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
             writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
-            setMTime(destPath, sourceTime);
+            if flags.doChanges then
+              setMTime(destPath, sourceTime);
+            end if;
           else
             writeln("update file " <& literal(sourcePath) <& " to " <& literal(destPath));
-            removeFile(destPath);
-            cloneFile(sourcePath, destPath);
+            if flags.doChanges then
+              removeFile(destPath);
+              cloneFile(sourcePath, destPath);
+            end if;
           end if;
         elsif sourceTime < destTime - 1 . SECONDS then
           if fileSize(sourcePath) = fileSize(destPath) and equalFileContent(sourcePath, destPath) then
             writeln("Correct time of identical files " <& literal(sourcePath) <& " - " <& literal(destPath));
-            setMTime(destPath, sourceTime);
+            if flags.doChanges then
+              setMTime(destPath, sourceTime);
+            end if;
           elsif flags.overwriteNewerDestFiles then
             writeln("replace newer dest file " <& literal(sourcePath) <& " to " <& literal(destPath));
-            removeFile(destPath);
-            cloneFile(sourcePath, destPath);
+            if flags.doChanges then
+              removeFile(destPath);
+              cloneFile(sourcePath, destPath);
+            end if;
           else
             writeln(" *** Destination newer " <& literal(sourcePath) <& " - " <& literal(destPath));
             # writeln(sourceTime <& "   " <& destTime <& "   " <& destTime - 1 . SECONDS);
           end if;
         elsif fileSize(sourcePath) <> fileSize(destPath) then
           writeln("Correct file " <& literal(sourcePath) <& " to " <& literal(destPath));
-          removeFile(destPath);
-          cloneFile(sourcePath, destPath);
+          if flags.doChanges then
+            removeFile(destPath);
+            cloneFile(sourcePath, destPath);
+          end if;
         end if;
       else
         writeln(" *** Destination " <& literal(destPath) <& " is not a regular file");
@@ -232,17 +253,19 @@ const proc: main is func
   begin
     if length(argv(PROGRAM)) < 2 then
       writeln("Sydir7 Version 1.0 - Utility to syncronize directory trees");
-      writeln("Copyright (C) 2009 - 2016 Thomas Mertes");
+      writeln("Copyright (C) 2009 - 2019 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Sydir7 is written in the Seed7 programming language");
       writeln("Homepage: http://seed7.sourceforge.net");
       writeln;
-      writeln("usage: sydir7 [-c] source destination");
+      writeln("usage: sydir7 {-c|-n} source destination");
       writeln;
       writeln("Options:");
       writeln("  -c Copy files. Remove destination files, when they are missing in");
       writeln("     source. Overwrite newer destination files with older source files.");
+      writeln("  -n No change. Write, what should be done to sync, but do not change");
+      writeln("     anything.");
       writeln;
     else
       for parameter range argv(PROGRAM) do
@@ -250,6 +273,8 @@ const proc: main is func
           if parameter = "-c" then
             flags.removeFilesAtDest := TRUE;
             flags.overwriteNewerDestFiles := TRUE;
+	  elsif parameter = "-n" then
+            flags.doChanges := FALSE;
           else
             writeln(" *** Unknown option: " <& parameter);
             error := TRUE;

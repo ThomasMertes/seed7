@@ -72,6 +72,24 @@
  *      Defined when an integer division by zero may trigger a popup window.
  *      Consequently chkccomp.c defines CHECK_INT_DIV_BY_ZERO, to avoid the
  *      popup.
+ *  DO_SIGFPE_WITH_DIV_BY_ZERO:
+ *      TRUE, when SIGFPE should be raised with an integer division by zero.
+ *      When it is FALSE raise(SIGFPE) can be called instead. Under Windows
+ *      it is necessary to trigger SIGFPE this way, to assure that the debugger
+ *      can catch it.
+ *  PRINTF_MAXIMUM_FLOAT_PRECISION:
+ *      Precision up to which writing a float with printf (using format %e or
+ *      %f) will always work ok. This can be defined in a makefile and is
+ *      used only in chkccomp.c.
+ *  USE_ALTERNATE_LOCALTIME_R:
+ *      Defined when the function alternate_localtime_r() should be used
+ *      instead of localtime().
+ *  FILENO_WORKS_FOR_NULL:
+ *      TRUE, when the fileno() function works for NULL and returns -1.
+ *  LINKER_OPT_STATIC_LINKING:
+ *      Contains the linker option to force static linking (e.g.: "-static").
+ *  STAT_MISSING:
+ *      Defined when the function stat() is missing.
  */
 
 #include "stdlib.h"
@@ -131,9 +149,6 @@
 #ifndef REDIRECT_FILDES_2
 #define REDIRECT_FILDES_2 "2>"
 #endif
-
-#define xstr(s) str(s)
-#define str(s) #s
 
 #define NAME_SIZE    1024
 #define COMMAND_SIZE 1024
@@ -3218,7 +3233,7 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
 /**
  *  Determine values for DECLARE_OS_ENVIRON, USE_GET_ENVIRONMENT,
  *  INITIALIZE_OS_ENVIRON, DEFINE_WGETENV, DEFINE_WSETENV, os_environ.
- *  os_getenv, os_setenv os_putenv and DELETE_PUTENV_STRING.
+ *  os_getenv, os_setenv, os_putenv and DELETE_PUTENV_STRING.
  */
 static void determineEnvironDefines (FILE *versionFile)
 
@@ -4963,7 +4978,7 @@ static void determineOciDefines (FILE *versionFile,
            incl_dir_idx++) {
         sprintf(incl_path, "%s%s/oci.h", oracle_home, oci_incl_dir[incl_dir_idx]);
         if (fileIsRegular(incl_path)) {
-          sprintf(includeOption, "-I%s%s", oracle_home, oci_incl_dir[incl_dir_idx]);
+          sprintf(includeOption, "-I\"%s%s\"", oracle_home, oci_incl_dir[incl_dir_idx]);
           if (compileAndLinkWithOptionsOk("#include \"oci.h\"\n"
                                           "int main(int argc,char *argv[]){"
                                           "OCIEnv *oci_environment; return 0;}\n",

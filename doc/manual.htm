@@ -2352,6 +2352,9 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">ord</span>(A)    Ordinal number
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
                     ord(99999999999999999999_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+      <span class="func">integer</span>(A)  Ordinal number
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+                    integer(99999999999999999999_) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">succ</span>(A)   Successor
                   ( succ(A) <b>&rArr;</b> A+1_ )
       <span class="func">pred</span>(A)   Predecessor
@@ -2898,6 +2901,11 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="func">flt</span>(A)    Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_float">float</a>
                   ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
                     flt(1) <b>&rArr;</b> 1.0 )
+      <span class="func">float</span>(A)  Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_float">float</a>
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    float(1) <b>&rArr;</b> 1.0 )
+      <span class="func">float</span>(A)  Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_float">float</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a> )
       <span class="func">floor</span>(A)  Truncation towards negative infinity
                   ( floor( 1.8) <b>&rArr;</b>  1.0, floor( 1.0) <b>&rArr;</b>  1.0,
                     floor(-1.0) <b>&rArr;</b> -1.0, floor(-1.2) <b>&rArr;</b> -2.0,
@@ -3109,8 +3117,14 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     Functions:
       <span class="func">ord</span>(A)    Ordinal number
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">integer</span>(A)  Ordinal number
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">chr</span>(A)    Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_char">char</a>
                   ( Type of argument: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">char</span>(A)   Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_char">char</a>
+                  ( Type of argument: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">char</span>(A)   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_char">char</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a> )
       <span class="func">succ</span>(A)   Successor
                   ( succ(A) <b>&rArr;</b> chr(succ(ord(A))) )
       <span class="func">pred</span>(A)   Predecessor
@@ -3726,9 +3740,16 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
     Functions:
       <span class="func">ord</span>(A)    Ordinal number
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">category</span>(A)  Conversion of <a class="type" href="#types_integer">integer</a> to <a class="type" href="#types_category">category</a>
+                  ( Type of argument A: <a class="type" href="#types_integer">integer</a>,
+                    <span class="func">category</span>(ord(INTOBJECT)) <b>&rArr;</b> INTOBJECT )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a>,
                     str(CHAROBJECT) <b>&rArr;</b> <span class="stri">"CHAROBJECT"</span> )
+      <span class="func">category</span>(A)  Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_category">category</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    <span class="func">category</span>(<span class="stri">"FLOATOBJECT"</span>) <b>&rArr;</b> FLOATOBJECT,
+                    <span class="func">category</span>(<span class="stri">"does not exist"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Statements:
       <span class="keywd">for</span> A <span class="keywd">range</span> B <span class="keywd">to</span> C <span class="keywd">do</span>
         D
@@ -4134,6 +4155,10 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
       <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
       <span class="func">time</span>(NOW)  Gets the current time
+      <span class="func">time</span>(A)  Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_time">time</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    <span class="func">time</span>(<span class="stri">"2005-02-28 12:00:01"</span>) <b>&rArr;</b> 2005-02-28 12:00:01,
+                    <span class="func">time</span>(<span class="stri">"2005-02-29 12:00:01"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">str</span>(A)    Conversion to <a class="type" href="#types_string">string</a>
                   ( Type of result: <a class="type" href="#types_string">string</a> )
       <span class="func">strDate</span>(A)  Conversion of the date to <a class="type" href="#types_string">string</a>
@@ -4230,11 +4255,15 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     Type of right operand: <a class="type" href="#types_time">time</a> )
       <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> A   Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_duration">duration</a>
                   ( Type of argument A: <a class="type" href="#types_string">string</a>,
-                    <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> <span class="stri">"0-02-28 12:00:01"</span> <b>&rArr;</b> 0-02-28 12:00:01,
-                    <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> <span class="stri">"0-13-29 12:00:01"</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
+                    <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> <span class="stri">"P2M28DT12H1S"</span> <b>&rArr;</b> P2M28DT12H1S,
+                    <a class="type" href="#types_duration">duration</a> <span class="op">parse</span> <span class="stri">"P13M28DT12H1S"</span> <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
     Relations:
       <span class="op">=</span>, <span class="op">&lt;></span>, <span class="op">&lt;</span>, <span class="op">&lt;=</span>, <span class="op">></span>, <span class="op">>=</span>
     Functions:
+      <span class="func">duration</span>(A)  Conversion of <a class="type" href="#types_string">string</a> to <a class="type" href="#types_duration">duration</a>
+                  ( Type of argument A: <a class="type" href="#types_string">string</a>,
+                    <span class="func">duration</span>(<span class="stri">"P2M28DT12H1S"</span>) <b>&rArr;</b> P2M28DT12H1S,
+                    <span class="func">duration</span>(<span class="stri">"P13M28DT12H1S"</span>) <b>&rArr;</b> EXCEPTION <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> )
       <span class="func">getYears</span>(A)  Obtains the years of a <a class="type" href="#types_duration">duration</a>
                   ( Type of result: <a class="type" href="#types_integer">integer</a> )
       <span class="func">getMonths</span>(A) Obtains the months of a <a class="type" href="#types_duration">duration</a>

@@ -3,6 +3,7 @@
 addup.sd7    Game of adding numbers to reach a goal number
 bas7.sd7     Basic interpreter
 bifurk.sd7   Display the bifurcation diagram
+bigfiles.sd7 Utility to search for big files.
 brainf7.sd7  Brainfuck interpreter
 calc7.sd7    Calculator
 carddemo.sd7 Demonstate the playing cards of the french deck
@@ -13,6 +14,7 @@ celsius.sd7  Print a Fahrenheit-Celsius table
 chk_all.sd7  Runs interpreted and compiled checks.
 chkbig.sd7   Checks bigInteger literals and operations
 chkbin.sd7   Checks bin32 and bin64 operations.
+chkbitdata.sd7 Checks functions from the bitdata.s7i library.
 chkbool.sd7  Checks boolean operations
 chkchr.sd7   Checks character properties
 chkcmd.sd7   Check functions that manipulate files.
@@ -189,6 +191,7 @@ integer.s7i  Integer support library
 iobuffer.s7i Implementation type for a buffered file.
 keybd.s7i    Read from keyboard without buffering and echo
 keydescr.s7i Descriptive text for function keys
+leb128.s7i   Convert integers to and from LEB128 encoding.
 line.s7i     Filter file which reads the input linewise
 listener.s7i Support for inet listener
 logfile.s7i  Interface type describing log files.

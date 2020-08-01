@@ -119,6 +119,32 @@ const func string: hex (in string: stri) is func
 
 
 (**
+ *  Convert a [[string]] with hexadecimal digits to a string of bytes.
+ *  Each byte in the result is represented by two hexadecimal digits in ''hex''.
+ *   hexToBytes("6d")        returns "m"
+ *   hexToBytes("213b4d6e")  returns "!;Mn"
+ *  @return the byte [[string]] that corresponds to the given
+ *          hexadecimal string ''hex''.
+ *  @exception RANGE_ERROR When the length of ''hex'' is odd or
+ *             when ''hex'' contains other characters than hexadecimal digits.
+ *)
+const func string: hex2Bytes (in string: hex) is func
+  result
+    var string: stri is "";
+  local
+    var integer: index is 0;
+  begin
+    if odd(length(hex)) then
+      raise RANGE_ERROR;
+    else
+      for index range 1 to length(hex) step 2 do
+        stri &:= char(integer(hex[index len 2], 16));
+      end for;
+    end if;
+  end func;
+
+
+(**
  *  Convert 16 lower bits of an integer into two little-endian chars.
  *  @return a string of length two with the little-endian representation.
  *)

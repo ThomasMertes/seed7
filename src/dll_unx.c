@@ -29,10 +29,15 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
+#include "string.h"
 #include "dlfcn.h"
+#include "errno.h"
 
 #include "common.h"
 #include "dll_drv.h"
@@ -45,8 +50,17 @@
  */
 void *dllOpen (const char *dllName)
 
-  { /* dllOpen */
-    return dlopen(dllName, RTLD_LAZY);
+  {
+    void *aDll;
+
+  /* dllOpen */
+    aDll = dlopen(dllName, RTLD_LAZY);
+    logError(if (unlikely(aDll == NULL)) {
+               printf("dllOpen: dlopen(\"%s\", RTLD_LAZY) failed:\n"
+                      "errno=%d\nerror: %s\n",
+                      dllName, errno, strerror(errno));
+             });
+    return aDll;
   } /* dllOpen */
 
 

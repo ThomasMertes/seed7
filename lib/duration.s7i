@@ -112,6 +112,7 @@ const func integer: getMicroSeconds (in duration: aDuration) is
  *  Convert a duration to a string.
  *  The duration format is P[nY][nM][nD][T[nH][nM][n[.n]S]], where
  *  n is a signed decimal of a date or time element.
+ *   str(duration("P1Y2M3DT4H5M6S"))  returns  "P1Y2M3DT4H5M6S"
  *  @return the result of the conversion.
  *)
 const func string: str (in duration: aDuration) is func

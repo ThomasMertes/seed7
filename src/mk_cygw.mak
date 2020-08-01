@@ -138,6 +138,7 @@ clean:
 
 distclean: clean
 	cp level_bk.h level.h
+	rm -f vers_cygw.h
 
 test:
 	../bin/s7.exe -l ../lib ../prg/chk_all build
@@ -225,6 +226,7 @@ version.h: chkccomp.h
 	./setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths.exe
 	$(CC) wrdepend.c -o wrdepend
+	cp version.h vers_cygw.h
 
 depend: version.h
 	./wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
@@ -260,11 +262,14 @@ level.h:
 	mv $(<:.sd7=.exe) ../bin
 
 bas7: ../bin/bas7.exe
+bigfiles: ../bin/bigfiles.exe
 calc7: ../bin/calc7.exe
 cat: ../bin/cat.exe
 comanche: ../bin/comanche.exe
+db7: ../bin/db7.exe
 diff7: ../bin/diff7.exe
 find7: ../bin/find7.exe
+findchar: ../bin/findchar.exe
 ftp7: ../bin/ftp7.exe
 ftpserv: ../bin/ftpserv.exe
 hd: ../bin/hd.exe
@@ -275,9 +280,9 @@ tar7: ../bin/tar7.exe
 toutf8: ../bin/toutf8.exe
 which: ../bin/which.exe
 
-utils: ../bin/bas7.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe ../bin/diff7.exe \
-       ../bin/find7.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe ../bin/make7.exe \
-       ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
+utils: ../bin/bas7.exe ../bin/bigfiles.exe ../bin/calc7.exe ../bin/cat.exe ../bin/comanche.exe ../bin/db7.exe \
+       ../bin/diff7.exe ../bin/find7.exe ../bin/findchar.exe ../bin/ftp7.exe ../bin/ftpserv.exe ../bin/hd.exe \
+       ../bin/make7.exe ../bin/sql7.exe ../bin/sydir7.exe ../bin/tar7.exe ../bin/toutf8.exe ../bin/which.exe
 
 wc: $(SRC)
 	@echo SRC:

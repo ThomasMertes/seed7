@@ -578,3 +578,109 @@ const func string: fromAscii85 (in string: ascii85) is func
       decoded &:= int32AsFourBytesBe(base85Number)[.. pred(digitIndex)];
     end if;
   end func;
+
+
+(**
+ *  Encode a string of bytes with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  Leading zero bytes in ''byteStri'' are converted into leading
+ *  zero digits in the encoded string.
+ *  @param byteStri String of bytes to be encoded.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *)
+const func string: toBase (in string: byteStri, in string: digits) is func
+  result
+    var string: encoded is "";
+  local
+    var bigInteger: base is 0_;
+    var quotRem: quotientAndRemainder is quotRem.value;
+    var integer: index is 1;
+  begin
+    base := bigInteger(length(digits));
+    quotientAndRemainder.quotient := bytes2BigInt(byteStri, UNSIGNED, BE);
+    while quotientAndRemainder.quotient <> 0_ do
+      quotientAndRemainder := quotientAndRemainder.quotient divRem base;
+      encoded &:= digits[succ(ord(quotientAndRemainder.remainder))];
+    end while;
+    while index <= length(byteStri) and byteStri[index] = '\0;' do
+      incr(index);
+    end while;
+    if index >= 1 then
+      encoded &:= "1" mult pred(index);
+    end if;
+    encoded := reverse(encoded);
+  end func;
+
+
+(**
+ *  Decode a string that has been encoded with a positional numeric system.
+ *  The encoded string starts with the most significant digit.
+ *  Leading zero digits in the encoded string are converted into leading
+ *  zero bytes in the decoded string.
+ *  @param encoded String containing the encoded data.
+ *  @param digits The digits used by the positional numeric system.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR When characters are present, that are not found
+ *                         in ''digits''.
+ *)
+const func string: fromBase (in string: encoded, in string: digits) is func
+  result
+    var string: decoded is "";
+  local
+    var bigInteger: base is 0_;
+    var bigInteger: number is 0_;
+    var bigInteger: factor is 1_;
+    var integer: index is 0;
+    var integer: digit is 0;
+  begin
+    base := bigInteger(length(digits));
+    for index range length(encoded) downto 1 do
+      digit := pred(pos(digits, encoded[index]));
+      if digit = -1 then
+        raise RANGE_ERROR;
+      else
+        number +:= factor * bigInteger(digit);
+        factor *:= base;
+      end if;
+    end for;
+    if number <> 0_ then
+      decoded := bytes(number, UNSIGNED, BE);
+    end if;
+    index := 1;
+    while index <= length(encoded) and encoded[index] = '1' do
+      incr(index);
+    end while;
+    if index >= 1 then
+      decoded := "\0;" mult pred(index) & decoded;
+    end if;
+  end func;
+
+
+const string: defaultBase58Digits is "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+
+(**
+ *  Encode a string with the Base58 encoding used by Bitcoin.
+ *  Leading zero bytes ('\0;') in ''byteStri'' are converted into
+ *  leading zero digits ('1') in the encoded string.
+ *  @param byteStri String of bytes to be encoded.
+ *  @return the encoded string.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *)
+const func string: toBase58 (in string: byteStri) is
+  return toBase(byteStri, defaultBase58Digits);
+
+
+(**
+ *  Decode a Base58 enncoded string.
+ *  Leading '1' characters in ''base58'' are converted into
+ *  leading zero bytes ('\0;') in the decoded string.
+ *  @param base58 String containing Base58 encoded data.
+ *  @return the decoded string.
+ *  @exception RANGE_ERROR When characters are present, that are not valid
+ *                         in the Base58 encoding used by Bitcoin.
+ *)
+const func string: fromBase58 (in string: base58) is
+  return fromBase(base58, defaultBase58Digits);

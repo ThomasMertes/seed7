@@ -490,7 +490,8 @@ should be no need to <span class="link">call foreign C functions</span>, or to <
    windows manipulation and bitmap <span class="link">fonts</span>. Events to redraw a window
    and other annoyances are managed in the graphics library.</li>
 <li>A <span class="link">database access library</span> provides the possibility to connect to
-   MySql/MariaDb, SQLLite, PostgreSQL, Oracle and Odbc databases.</li>
+   MySql, MariaDb, SQLLite, PostgreSQL, Oracle, Odbc, Firebird and
+   Interbase databases.</li>
 <li>Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory <span class="link">access</span> and <span class="link">modification times</span> also
@@ -610,12 +611,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2019-03-03 the number of lines is:
+than 200000 lines of Seed7. For version 2019-05-06 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">146213</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">146264</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
   <tr><td align="right"> 11070</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">158019</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">142977</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">161814</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">143721</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -691,13 +692,15 @@ available at: <span class="link">www.7-zip.org</span>.
 </h3></a><hr />
 <p>
 The way to compile the interpreter depends on the operating system and the
-development tools used. You need a stand-alone C compiler and a make utility to
-compile the interpreter. A C compiler, which is only usable from an IDE, is not so
-useful, since some Seed7 programs (e.g. The Seed7 compiler <tt><span class="prog">s7c</span></tt>) need to call the
-C compiler as well. In case a make utility is missing under Windows the program
-<tt><span class="prog">make7</span></tt> can be used instead.
-To compile the interpreter under Linux just go to the <nobr><span class="lib">src</span></nobr>
-directory and type:
+development tools used. You need a stand-alone C compiler and a make utility
+to compile the interpreter. A C compiler, which is only usable from an IDE,
+is not so useful, since some Seed7 programs (e.g. The Seed7 compiler <tt><span class="prog">s7c</span></tt>)
+need to call the C compiler as well.
+</p><p>
+In case a make utility is missing the program <tt><span class="prog">make7</span></tt> can be used instead.
+You can download <span class="link">make7.exe</span>, which is a binary version of make7 for Windows.
+</p><p>
+To compile the interpreter under Linux just go to the <nobr><span class="lib">src</span></nobr> directory and type:
 </p><pre class="indent">
 make depend
 make
@@ -2315,23 +2318,26 @@ Compiling <span class="link">s7c</span> with a make command should be preferred.
 <div><br /><a name="faq_compile_with_database_connectons"><h3>What is necessary to compile Seed7 with database connections?
 </h3></a><hr />
 <p>
-The Seed7 runtime library provides the possibility to connect to
-MySql/MariaDb, SQLLite, PostgreSQL, Oracle and Odbc databases. During
-the compilation of the Seed7 interpreter the program <tt><span class="stri">"chkccomp.c"</span></tt>
+The Seed7 runtime library provides the possibility to connect to MySql,
+MariaDb, SQLLite, PostgreSQL, Oracle, Odbc, Firebird and Interbase databases.
+During the compilation of the Seed7 interpreter the program <tt><span class="stri">"chkccomp.c"</span></tt>
 searches for the availability of database connectors. It searches for
 database include files and for database libraries. Some database
-configuration settings (MYSQL_LIBS, SQLITE3_LIBS, POSTGRESQL_LIBS, ODBC_LIBS)
-come from the makefile. For Oracle it is assumed that the environment
-variable ORACLE_HOME has been set. Only when database include files and
-libraries are found the corresponding database connection part of Seed7
-(sql_my.c, sql_ite.c, sql_post.c, sql_oci.c or sql_odbc.c) is added to
-the Seed7 runtime library. For a Seed7 package this means, that the
-packages for database connection must be installed during the compilation
-of the Seed7 interpreter.
+configuration settings (MYSQL_LIBS, SQLITE_LIBS, POSTGRESQL_LIBS, OCI_LIBS,
+ODBC_LIBS, FIRE_LIBS) come from the makefile. For Oracle it is assumed
+that the environment variable ORACLE_HOME has been set. In case a database
+include file cannot be found Seed7 uses its own database include file
+(db_my.h, db_lite.h, db_post.h, db_oci.h, db_odbc.h, db_fire.h), with all
+definitions needed by Seed7. The Seed7 part of the database connection can
+work with static or dynamic database connector libraries. When possible,
+the Seed7 part of the database connection (sql_my.c, sql_lite.c, sql_post.c,
+sql_oci.c, sql_odbc.c, sql_file.c) is added to the Seed7 runtime library.
+For a Seed7 package this means, that the packages for database connection
+should be installed during the compilation of the Seed7 interpreter.
 </p><p>
-Depending on the configuration the database library is linked statically
-or dynamically. When a dynamic database library cannot be found at runtime
-the function <tt><span class="func">openDatabase</span></tt> returns <tt><span class="func">database</span>.value</tt>.
+Depending on the configuration the database connector library is linked
+statically or dynamically. When a dynamic database library cannot be found
+at runtime the function <tt><span class="func">openDatabase</span></tt> returns <tt><span class="func">database</span>.value</tt>.
 </p></div>
 
 <div><br /><a name="faq_bytecode"><h3>Does the interpreter use bytecode?

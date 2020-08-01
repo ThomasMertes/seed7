@@ -29,6 +29,9 @@
 /*                                                                  */
 /********************************************************************/
 
+#define LOG_FUNCTIONS 0
+#define VERBOSE_EXCEPTIONS 0
+
 #include "version.h"
 
 #include "stdio.h"
@@ -45,8 +48,17 @@
  */
 void *dllOpen (const char *dllName)
 
-  { /* dllOpen */
-    return (void *) LoadLibrary(dllName);
+  {
+    void *aDll;
+
+  /* dllOpen */
+    aDll = (void *) LoadLibrary(dllName);
+    logError(if (unlikely(aDll == NULL)) {
+               printf("LoadLibrary(\"%s\") failed:\n"
+                      "error: " FMT_U32 "\n",
+                      dllName, GetLastError());
+             });
+    return aDll;
   } /* dllOpen */
 
 

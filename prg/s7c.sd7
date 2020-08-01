@@ -6148,8 +6148,14 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
       else
         min_position := min(set1) mdiv ccConf.INTTYPE_SIZE;
         max_position := max(set1) mdiv ccConf.INTTYPE_SIZE;
+        if min_position < 0 then
+          c_expr.expr &:= "(bitSetType)";
+        end if;
         c_expr.expr &:= str(min_position);
         c_expr.expr &:= ",";
+        if max_position < 0 then
+          c_expr.expr &:= "(bitSetType)";
+        end if;
         c_expr.expr &:= str(max_position);
         c_expr.expr &:= ",";
         columnsFree := 4;

@@ -36,7 +36,7 @@ intType refArrMinIdx (const const_objectType aReference);
 listType refArrToList (const const_objectType aReference);
 objectType refBody (const const_objectType funcRef);
 intType refCategory (const const_objectType aReference);
-intType refCatParse (striType category_name);
+intType refCatParse (const const_striType category_name);
 striType refCatStr (intType aCategory);
 striType refFile (const const_objectType aReference1);
 listType refHshDataToList (const const_objectType aReference);

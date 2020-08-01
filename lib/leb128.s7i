@@ -1,0 +1,215 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  leb128.s7i    Convert integers to and from LEB128 encoding.     *)
+(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Read a LEB128 encoded number from a ''inFile''.
+ *  @param inFile File from which the LEB128 encoded number is read.
+ *  @return the LEB128 encoded number as [[string]].
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *)
+const func string: getLeb128 (inout file: inFile) is func
+  result
+    var string: resultStri is "";
+  local
+    var char: ch is ' ';
+  begin
+    ch := getc(inFile);
+    while ch >= '\128;' and ch <= '\255;' do
+      resultStri &:= ch;
+      ch := getc(inFile);
+    end while;
+    if ch >= '\0;' and ch <= '\127;' then
+      resultStri &:= ch;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Decode a LEB128 encoded [[integer]] from a [[string]].
+ *  @param stri String that starts with an LEB128 encoded integer.
+ *  @param pos When the function is called the LEB128 number starts with ''pos''.
+ *             When the function is left pos refers to the character
+ *             after the LEB128 number.
+ *  @return the decoded LEB128 number.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *             with an integer.
+ *)
+const func integer: leb128ToInt (in string: stri, inout integer: pos) is func
+  result
+    var integer: anInt is 0;
+  local
+    var char: ch is ' ';
+    var integer: lshift is 0;
+  begin
+    ch := stri[pos];
+    while ch >= '\128;' and ch <= '\255;' do
+      anInt +:= (ord(ch) - 128) << lshift;
+      lshift +:= 7;
+      incr(pos);
+      ch := stri[pos];
+    end while;
+    if ch >= '\0;' and ch <= '\63;' then
+      anInt +:= ord(ch) << lshift;
+    elsif ch >= '\64;' and ch <= '\127;' then
+      if lshift = 0 then
+        anInt := ord(ch) - 128;
+      else
+        anInt := anInt + ((-2) << pred(lshift));
+        anInt +:= (ord(ch) - 127) << lshift;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
+    incr(pos);
+  end func;
+
+
+(**
+ *  Decode a LEB128 encoded [[integer]] from a [[string]].
+ *  @param stri String that starts with an LEB128 encoded integer.
+ *  @return the decoded LEB128 number.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *             with an integer.
+ *)
+const func integer: leb128ToInt (in string: stri) is func
+  result
+    var integer: anInt is 0;
+  local
+    var integer: pos is 1;
+  begin
+    anInt := leb128ToInt(stri, pos);
+  end func;
+
+
+(**
+ *  Decode an unsigned LEB128 encoded [[integer]] from a [[string]].
+ *  @param stri String that starts with an unsigned LEB128 encoded integer.
+ *  @param pos When the function is called the LEB128 number starts with ''pos''.
+ *             When the function is left pos refers to the character
+ *             after the LEB128 number.
+ *  @return the decoded unsigned LEB128 number.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *             with an integer.
+ *)
+const func integer: uLeb128ToInt (in string: stri, inout integer: pos) is func
+  result
+    var integer: anInt is 0;
+  local
+    var char: ch is ' ';
+    var integer: lshift is 0;
+  begin
+    ch := stri[pos];
+    while ch >= '\128;' and ch <= '\255;' do
+      anInt +:= (ord(ch) - 128) << lshift;
+      lshift +:= 7;
+      incr(pos);
+      ch := stri[pos];
+    end while;
+    if ch >= '\0;' and ch <= '\127;' then
+      anInt +:= ord(ch) << lshift;
+    else
+      raise RANGE_ERROR;
+    end if;
+    incr(pos);
+  end func;
+
+
+(**
+ *  Decode an unsigned LEB128 encoded [[integer]] from a [[string]].
+ *  @param stri String that starts with an unsigned LEB128 encoded integer.
+ *  @return the decoded unsigned LEB128 number.
+ *  @exception RANGE_ERROR When characters beyond '\255;' are present.
+ *  @exception OVERFLOW_ERROR When the result value cannot be represented
+ *             with an integer.
+ *)
+const func integer: uLeb128ToInt (in string: stri) is func
+  result
+    var integer: anInt is 0;
+  local
+    var integer: pos is 1;
+  begin
+    anInt := uLeb128ToInt(stri, pos);
+  end func;
+
+
+(**
+ *  Encode an [[integer]] with LEB128 encoding.
+ *  @param number The number to be encoded.
+ *  @return the LEB128 encoded number as [[string]].
+ *)
+const func string: leb128 (in var integer: number) is func
+  result
+    var string: leb128 is "";
+  local
+    var boolean: more is TRUE;
+    var integer: aByte is 0;
+  begin
+    while more do
+      aByte := number mod 128;
+      number >>:= 7;
+      # Sign bit of aByte is second high order bit (16#40) */
+      if (number = 0 and aByte < 16#40) or
+          (number = -1 and aByte >= 16#40) then
+        more := FALSE;
+      else
+        aByte +:= 128;  # Set high order bit
+      end if;
+      leb128 &:= char(aByte);
+    end while;
+  end func;
+
+
+(**
+ *  Encode an [[integer]] with unsigned LEB128 encoding.
+ *  @param number The number to be encoded.
+ *  @return the unsigned LEB128 encoded number as [[string]].
+ *)
+const func string: uLeb128 (in var integer: number) is func
+  result
+    var string: uLeb128 is "";
+  local
+    var integer: aByte is 0;
+  begin
+    if number < 0 then
+      raise RANGE_ERROR;
+    else
+      repeat
+        aByte := number mod 128;
+        number >>:= 7;
+        if number <> 0 then
+          aByte +:= 128;  # Set high order bit
+        end if;
+        uLeb128 &:= char(aByte);
+      until number = 0;
+    end if;
+  end func;

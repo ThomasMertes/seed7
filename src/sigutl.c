@@ -100,7 +100,9 @@ const_cstriType signalName (int signalNum)
 void triggerSigfpe (void)
 
   {
+#if DO_SIGFPE_WITH_DIV_BY_ZERO
     int number;
+#endif
 
   /* triggerSigfpe */
 #if HAS_SIGACTION
@@ -114,8 +116,8 @@ void triggerSigfpe (void)
 #elif HAS_SIGNAL
     signal(SIGFPE, SIG_DFL);
 #endif
-    number = 0;
 #if DO_SIGFPE_WITH_DIV_BY_ZERO
+    number = 0;
     /* Under Windows it is necessary to trigger SIGFPE    */
     /* this way to assure that the debugger can catch it. */
     printf("%d", 1 / number); /* trigger SIGFPE on purpose */

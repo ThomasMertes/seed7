@@ -1004,7 +1004,8 @@ static bigIntType getConversionDivisor (unsigned int base, unsigned int exponent
     if (exponent < size) {
       divisor = divisorCache[exponent];
     } else {
-      divisorCache = realloc(divisorCache, (exponent + 1) * sizeof(bigIntType));
+      divisorCache = (bigIntType *) realloc(divisorCache,
+          (exponent + 1) * sizeof(bigIntType));
       if (unlikely(divisorCache == NULL)) {
         raise_error(MEMORY_ERROR);
         divisor = NULL;
@@ -2915,29 +2916,29 @@ static void uBigMult (const const_bigIntType factor1, const const_bigIntType fac
     const bigIntType product)
 
   {
-    memSizeType pos1;
-    memSizeType pos2 = 0;
+    memSizeType pos1 = 0;
+    memSizeType pos2;
     doubleBigDigitType carry = 0;
 
   /* uBigMult */
     do {
-      carry += (doubleBigDigitType) factor1->bigdigits[0] * factor2->bigdigits[pos2];
-      product->bigdigits[pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
+      carry += (doubleBigDigitType) factor1->bigdigits[pos1] * factor2->bigdigits[0];
+      product->bigdigits[pos1] = (bigDigitType) (carry & BIGDIGIT_MASK);
       carry >>= BIGDIGIT_SIZE;
-      pos2++;
-    } while (pos2 < factor2->size);
-    product->bigdigits[factor2->size] = (bigDigitType) (carry & BIGDIGIT_MASK);
-    for (pos1 = 1; pos1 < factor1->size; pos1++) {
+      pos1++;
+    } while (pos1 < factor1->size);
+    product->bigdigits[factor1->size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+    for (pos2 = 1; pos2 < factor2->size; pos2++) {
       carry = 0;
-      pos2 = 0;
+      pos1 = 0;
       do {
         carry += (doubleBigDigitType) product->bigdigits[pos1 + pos2] +
             (doubleBigDigitType) factor1->bigdigits[pos1] * factor2->bigdigits[pos2];
         product->bigdigits[pos1 + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
         carry >>= BIGDIGIT_SIZE;
-        pos2++;
-      } while (pos2 < factor2->size);
-      product->bigdigits[pos1 + factor2->size] = (bigDigitType) (carry & BIGDIGIT_MASK);
+        pos1++;
+      } while (pos1 < factor1->size);
+      product->bigdigits[factor1->size + pos2] = (bigDigitType) (carry & BIGDIGIT_MASK);
     } /* for */
   } /* uBigMult */
 
@@ -3010,13 +3011,13 @@ static bigIntType uBigMultK (const_bigIntType factor1, const_bigIntType factor2,
   /* uBigMultK */
     logFunction(printf("uBigMultK(size= " FMT_U_MEM ", size=" FMT_U_MEM ", *)\n",
                        factor1->size, factor2->size););
+    if (factor2->size > factor1->size) {
+      help_big = factor1;
+      factor1 = factor2;
+      factor2 = help_big;
+    } /* if */
     if (factor1->size >= KARATSUBA_MULT_THRESHOLD &&
         factor2->size >= KARATSUBA_MULT_THRESHOLD) {
-      if (factor2->size > factor1->size) {
-        help_big = factor1;
-        factor1 = factor2;
-        factor2 = help_big;
-      } /* if */
       if (factor2->size << 1 <= factor1->size) {
         if (unlikely(!ALLOC_BIG_SIZE_OK(factor2_help, factor1->size - (factor1->size >> 1)))) {
           product = NULL;

@@ -344,9 +344,24 @@ const proc: processPatternRule (inout makeDataType: makeData, in string: targetN
       if numberOfRulesFound = 1 then
         patternRule := makeData.patternRules[ruleNameFound][ruleIndexFound];
         actualRule.name := targetName;
-        for dependency range patternRule.dependencies do
-          actualRule.dependencies &:= replace(dependency, "%", stemFound);
-        end for;
+        if stemFound = targetName then
+          # Avoid rule recursion.
+          for dependency range patternRule.dependencies do
+            if pos(dependency, "%") <> 0 then
+              actualDependency := replace(dependency, "%", stemFound);
+              if fileType(convDosPath(actualDependency)) <> FILE_ABSENT or
+                  actualDependency in makeData.rules then
+                actualRule.dependencies &:= actualDependency;
+              end if;
+            else
+              actualRule.dependencies &:= dependency;
+            end if;
+          end for;
+        else
+          for dependency range patternRule.dependencies do
+            actualRule.dependencies &:= replace(dependency, "%", stemFound);
+          end for;
+        end if;
         for dependency range dependencyRule.dependencies do
           actualRule.dependencies &:= dependency;
         end for;

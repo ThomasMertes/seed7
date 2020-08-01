@@ -645,14 +645,10 @@ const func dbCategory: driver (in database: db) is
   return dbCategory conv DRIVER_NUM(db);
 
 
-const func array string: getTableNames (in database: currDb,
+const func string: tableNamesCommand (in database: currDb,
     in dbCategory: databaseKind) is func
   result
-    var array string: tableNames is 0 times "";
-  local
     var string: getTableNames is "";
-    var sqlStatement: tableList is sqlStatement.value;
-    var string: tableName is "";
   begin
     case databaseKind of
       when {DB_MYSQL}:      getTableNames := "show tables";
@@ -663,6 +659,19 @@ const func array string: getTableNames (in database: currDb,
       when {DB_FIRE}:       getTableNames := "SELECT rdb$relation_name FROM rdb$relations \
                                              \WHERE rdb$view_blr IS NULL AND (rdb$system_flag IS NULL OR rdb$system_flag = 0)";
     end case;
+  end func;
+
+
+const func array string: getTableNames (in database: currDb,
+    in dbCategory: databaseKind) is func
+  result
+    var array string: tableNames is 0 times "";
+  local
+    var string: getTableNames is "";
+    var sqlStatement: tableList is sqlStatement.value;
+    var string: tableName is "";
+  begin
+    getTableNames := tableNamesCommand(currDb, databaseKind);
     tableList := prepare(currDb, getTableNames);
     execute(tableList);
     while fetch(tableList) do

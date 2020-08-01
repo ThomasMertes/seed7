@@ -1261,6 +1261,9 @@ MACROS WRITTEN TO VERSION.H BY THE MAKEFILE
                           such option exists the definition of
                           LINKER_OPT_OUTPUT_FILE should be omitted.
 
+  LINKER_OPT_STATIC_LINKING: Contains the linker option to force
+                             static linking (e.g.: "-static").
+
   LINKER_FLAGS: Contains options for the stand-alone linker to link
                 a compiled Seed7 program.
 
@@ -1478,15 +1481,19 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
             used.
 
   os_pclose: Function to be used instead of pclose() under the
-            target operating system. If not defined pclose() is
-            used.
+             target operating system. If not defined pclose() is
+             used.
 
   DEFINE_WGETENV: Defined when an own implementation of wgetenv
                   should be used.
 
   os_getenv: Function to be used instead of getenv() under the
-            target operating system. If not defined getenv() is
-            used.
+             target operating system. If not defined getenv() is
+             used.
+
+  os_setenv: Function to be used instead of setenv() under the
+             target operating system. If not defined setenv() is
+             used.
 
   FILENO_WORKS_FOR_NULL: TRUE, when the fileno() function works
                          for NULL and returns -1.
@@ -1507,6 +1514,9 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
   HAS_VSNPRINTF: TRUE, when the function vsnprintf() is available.
 
   HAS_POPEN: TRUE, when the function popen() is available.
+
+  STAT_MISSING: Defined when the function stat() is missing.
+                This macro is only used in chkccomp.c.
 
   os_fstat: Function to be used instead of fstat() under the
             target operating system. If not defined fstat()
@@ -1719,7 +1729,7 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                               When it is FALSE raise(SIGFPE) can
                               be called instead. Under Windows it
                               is necessary to trigger SIGFPE this
-                              way to assure that the debugger can
+                              way, to assure that the debugger can
                               catch it. When the compiler (s7c)
                               is called with the option -e the
                               function triggerSigfpe() is used to
@@ -1846,6 +1856,12 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
                            should, when executed, return Infinity,
                            -Infinity or NaN instead of doing the
                            divide operation.
+
+  PRINTF_MAXIMUM_FLOAT_PRECISION: Precision up to which writing a
+                                  float with printf (using format
+                                  %e or %f) will always work ok.
+                                  This can be defined in a makefile
+                                  and is used only in chkccomp.c.
 
   PRINTF_FMT_E_MAXIMUM_FLOAT_PRECISION: Precision up to which
                                         writing a float with printf

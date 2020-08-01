@@ -270,7 +270,7 @@ intType refCategory (const const_objectType aReference)
  *  @return the 'category' result fo the conversion.
  *  @exception RANGE_ERROR When there is no corresponding 'category'.
  */
-intType refCatParse (striType catName)
+intType refCatParse (const const_striType catName)
 
   {
     char name[MAX_CSTRI_BUFFER_LEN + NULL_TERMINATION_LEN];

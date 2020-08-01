@@ -11,7 +11,7 @@ CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -W
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = -Wl,--gc-sections -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1
+LDFLAGS = -Wl,--gc-sections -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_METHODS=['ccall','cwrap']
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
@@ -105,10 +105,10 @@ s7c: ../bin/s7c.js ../prg/s7c.js
 	node ../bin/s7.js -l ../lib ../prg/s7c -l ../lib -b ../bin -O2 ../prg/s7c
 
 sql_%.o: sql_%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
 
 big_%.o: big_%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
 
 clear: clean
 
@@ -122,6 +122,7 @@ clean:
 
 distclean: clean
 	cp level_bk.h level.h
+	rm -f vers_emccl.h
 
 test:
 	node ../bin/s7.js -l ../lib ../prg/chk_all build
@@ -177,6 +178,7 @@ version.h: chkccomp.h
 	echo "#define MOUNT_NODEFS" >> version.h
 	echo "#define INTERPRETER_FOR_EXECUTABLE \"node\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
+	echo "#define CPLUSPLUS_COMPILER \"em++\"" >> version.h
 	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
@@ -203,6 +205,7 @@ version.h: chkccomp.h
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths
 	gcc wrdepend.c -o wrdepend
+	cp version.h vers_emccl.h
 
 depend: version.h
 	./wrdepend $(CFLAGS) -M $(SRC) "> depend"

@@ -222,6 +222,7 @@ const proc: doCatalog (inout browserConnection: browser, in database: currDb) is
     var selection: tableList is selection.value;
     var textField: numOfLines is textField("", 10);
     var textField: maxColumnWidth is textField("", 10);
+    var boolean: failed is FALSE;
     var integer: numLines is 10;
     var integer: maxWidth is 50;
     var submitButton: execute is submitButton(dialogColumn(image(createPixmap(execute_pic,   1, light_gray)) & label("Execute")));
@@ -229,45 +230,57 @@ const proc: doCatalog (inout browserConnection: browser, in database: currDb) is
     var resetButton: reset is resetButton(dialogColumn(image(createPixmap(reset_pic, 1, light_gray)) & label("Reset")));
     var webPage: catalogWebPage is webPage.value;
   begin
-    tableNames := sort(getTableNames(currDb, driver(currDb)));
-    tableList := selection(min(20, length(tableNames)), tableNames);
-    catalogWebPage := webForm("DB7",
-        dialogColumn(
-          image(readBmp("header3.bmp")) &
-          header(1, "Database Inspector 7") &
-          header(2, "Catalog") &
-          vspace(20) &
-          dialogSequence(execute & returnButton & reset & logout & exit) &
-          vspace(20) &
-          dialogRow(tableList &
-                    space(10) &
-                    dialogColumn(dialogSequence(label("Number of rows:") & numOfLines) &
-                                 vspace(20) &
-                                 dialogSequence(label("Maximum column width:") & maxColumnWidth) &
-                                 vspace(160)
-                                )
-                   )
-        ));
-    repeat
-      numOfLines.content := str(numLines);
-      maxColumnWidth.content := str(maxWidth);
-      display(browser, catalogWebPage);
-      if not succeeds(numLines := integer(numOfLines.content)) then
-        displayMessage(browser, "Error", "Number of rows is not a number.");
-        execute.activated := FALSE;
-      end if;
-      if not succeeds(maxWidth := integer(maxColumnWidth.content)) then
-        displayMessage(browser, "Error", "Maximum column width is not a number.");
-        execute.activated := FALSE;
-      end if;
-      if numLines <= 0 then
-        displayMessage(browser, "Error", "Number of rows is less than or equal 0.");
-      elsif maxWidth <= 0 then
-        displayMessage(browser, "Error", "Maximum column width is less than or equal 0.");
-      elsif execute.activated then
-        doExecute(browser, currDb, "SELECT * FROM " & tableList.selected, numLines, maxWidth);
-      end if;
-    until returnButton.activated or logout.activated or exit.activated;
+    block
+      tableNames := sort(getTableNames(currDb, driver(currDb)));
+    exception
+      catch DATABASE_ERROR:
+        displayMessage(browser, "Database error",
+            tableNamesCommand(currDb, driver(currDb)), errMessage(DATABASE_ERROR));
+        failed := TRUE;
+      otherwise:
+        displayMessage(browser, "Error", "Error occurred");
+        failed := TRUE;
+    end block;
+    if not failed then
+      tableList := selection(min(20, length(tableNames)), tableNames);
+      catalogWebPage := webForm("DB7",
+          dialogColumn(
+            image(readBmp("header3.bmp")) &
+            header(1, "Database Inspector 7") &
+            header(2, "Catalog") &
+            vspace(20) &
+            dialogSequence(execute & returnButton & reset & logout & exit) &
+            vspace(20) &
+            dialogRow(tableList &
+                      space(10) &
+                      dialogColumn(dialogSequence(label("Number of rows:") & numOfLines) &
+                                   vspace(20) &
+                                   dialogSequence(label("Maximum column width:") & maxColumnWidth) &
+                                   vspace(160)
+                                  )
+                     )
+          ));
+      repeat
+        numOfLines.content := str(numLines);
+        maxColumnWidth.content := str(maxWidth);
+        display(browser, catalogWebPage);
+        if not succeeds(numLines := integer(numOfLines.content)) then
+          displayMessage(browser, "Error", "Number of rows is not a number.");
+          execute.activated := FALSE;
+        end if;
+        if not succeeds(maxWidth := integer(maxColumnWidth.content)) then
+          displayMessage(browser, "Error", "Maximum column width is not a number.");
+          execute.activated := FALSE;
+        end if;
+        if numLines <= 0 then
+          displayMessage(browser, "Error", "Number of rows is less than or equal 0.");
+        elsif maxWidth <= 0 then
+          displayMessage(browser, "Error", "Maximum column width is less than or equal 0.");
+        elsif execute.activated then
+          doExecute(browser, currDb, "SELECT * FROM " & tableList.selected, numLines, maxWidth);
+        end if;
+      until returnButton.activated or logout.activated or exit.activated;
+    end if;
   end func;
 
 

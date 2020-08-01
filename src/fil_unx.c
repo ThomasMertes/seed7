@@ -324,6 +324,17 @@ void filPipe (fileType *inFile, fileType *outFile)
 
 
 
+#ifdef SETUP_NODE_ENVIRONMENT
+EMSCRIPTEN_KEEPALIVE void setEnvironmentVar (char *key, char *value)
+
+  { /* setEnvironmentVar */
+    logFunction(printf("setEnvironmentVar(\"%s\", \"%s\")\n", key, value););
+    os_setenv(key, value, 1);
+  } /* setEnvironmentVar */
+#endif
+
+
+
 void setupFiles (void)
 
   { /* setupFiles */
@@ -360,6 +371,13 @@ void setupFiles (void)
           FS.mount(NODEFS, { root: mountPoint }, mountDir);
           FS.chdir(workDir);
         }
+#ifdef SETUP_NODE_ENVIRONMENT
+        // Setup environment
+        let setEnvVar = Module.cwrap('setEnvironmentVar', 'number', ['string', 'string']);
+        Object.keys(process.env).forEach(function(key) {
+          setEnvVar(key, process.env[key]);
+        });
+#endif
       }
     );
 #endif

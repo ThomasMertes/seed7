@@ -1941,11 +1941,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 
 static void sqlCommit (databaseType database)
 
-  {
-    dbType db;
-
-  /* sqlCommit */
-    db = (dbType) database;
+  { /* sqlCommit */
   } /* sqlCommit */
 
 

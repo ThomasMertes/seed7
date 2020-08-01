@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  msgdigest.s7i  Message digest and secure hash algorithms.       *)
-(*  Copyright (C) 2013, 2014, 2017  Thomas Mertes                   *)
+(*  Copyright (C) 2013, 2014, 2017 - 2019  Thomas Mertes            *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -226,6 +226,141 @@ const func string: md5 (in var string: message) is func
               int32AsFourBytesLe(b0) &
               int32AsFourBytesLe(c0) &
               int32AsFourBytesLe(d0);
+  end func;
+
+
+(**
+ *  Compute a message digest with the RIPEMD-160 message digest algorithm.
+ *  @return the RIPEMD-160 message digest (a string of 20 bytes).
+ *  @exception RANGE_ERROR When ''message'' contains a character beyond '\255;'.
+ *)
+const func string: ripemd160 (in var string: message) is func
+  result
+    var string: digest is "";
+  local
+    const array integer: k1 is [] (16#00000000, 16#5a827999, 16#6ed9eba1, 16#8f1bbcdc, 16#a953fd4e);
+    const array integer: k2 is [] (16#50a28be6, 16#5c4dd124, 16#6d703ef3, 16#7a6d76e9, 16#00000000);
+    const array integer: r1 is [] (
+         1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16,
+         8,  5, 14,  2, 11,  7, 16,  4, 13,  1, 10,  6,  3, 15, 12,  9,
+         4, 11, 15,  5, 10, 16,  9,  2,  3,  8,  1,  7, 14, 12,  6, 13,
+         2, 10, 12, 11,  1,  9, 13,  5, 14,  4,  8, 16, 15,  6,  7,  3,
+         5,  1,  6, 10,  8, 13,  3, 11, 15,  2,  4,  9, 12,  7, 16, 14);
+    const array integer: r2 is [] (
+         6, 15,  8,  1, 10,  3, 12,  5, 14,  7, 16,  9,  2, 11,  4, 13,
+         7, 12,  4,  8,  1, 14,  6, 11, 15, 16,  9, 13,  5, 10,  2,  3,
+        16,  6,  2,  4,  8, 15,  7, 10, 12,  9, 13,  3, 11,  1,  5, 14,
+         9,  7,  5,  2,  4, 12, 16,  1,  6, 13,  3, 14, 10,  8, 11, 15,
+        13, 16, 11,  5,  2,  6,  9,  8,  7,  3, 14, 15,  1,  4, 10, 12);
+    const array integer: s1 is [] (
+        11, 14, 15, 12,  5,  8,  7,  9, 11, 13, 14, 15,  6,  7,  9,  8,
+         7,  6,  8, 13, 11,  9,  7, 15,  7, 12, 15,  9, 11,  7, 13, 12,
+        11, 13,  6,  7, 14,  9, 13, 15, 14,  8, 13,  6,  5, 12,  7,  5,
+        11, 12, 14, 15, 14, 15,  9,  8,  9, 14,  5,  6,  8,  6,  5, 12,
+         9, 15,  5, 11,  6,  8, 13, 12,  5, 12, 13, 14, 11,  8,  5,  6);
+    const array integer: s2 is [] (
+         8,  9,  9, 11, 13, 15, 15,  5,  7,  7,  8, 11, 14, 14, 12,  6,
+         9, 13, 15,  7, 12,  8,  9, 11,  7,  7, 12,  7,  6, 15, 13, 11,
+         9,  7, 15, 11,  8,  6,  6, 14, 12, 13,  5, 14, 13, 13,  7,  5,
+        15,  5,  8, 11, 14, 14,  6, 14,  6,  9, 12,  9, 12,  5, 15,  8,
+         8,  5, 12,  9, 12,  5, 14,  6,  8, 13,  6,  5, 15, 13, 11, 11);
+    var integer: length is 0;
+    var integer: wordIndex is 1;
+    var integer: index is 0;
+    var array integer: x is 16 times 0;
+    var integer: h0 is 16#67452301;
+    var integer: h1 is 16#efcdab89;
+    var integer: h2 is 16#98badcfe;
+    var integer: h3 is 16#10325476;
+    var integer: h4 is 16#c3d2e1f0;
+    var bin32: a1 is bin32(0);
+    var bin32: b1 is bin32(0);
+    var bin32: c1 is bin32(0);
+    var bin32: d1 is bin32(0);
+    var bin32: e1 is bin32(0);
+    var bin32: a2 is bin32(0);
+    var bin32: b2 is bin32(0);
+    var bin32: c2 is bin32(0);
+    var bin32: d2 is bin32(0);
+    var bin32: e2 is bin32(0);
+    var integer: t1 is 0;
+    var integer: t2 is 0;
+  begin
+    length := length(message);
+    # Append the bit '1' to the message.
+    message &:= '\16#80;';
+    # Append '0' bits, so that the resulting bit length is congruent to 448 (mod 512).
+    message &:= "\0;" mult 63 - (length + 8) mod 64;
+    # Append length of message (before pre-processing), in bits, as 64-bit little-endian integer.
+    message &:= int64AsEightBytesLe(8 * length);
+
+    # Process the message in successive 512-bit chunks:
+    while wordIndex <= length(message) do
+      # Break chunk into sixteen 32-bit little-endian words.
+      for index range 1 to 16 do
+        x[index] := bytes2Int(message[wordIndex len 4], UNSIGNED, LE);
+        wordIndex +:= 4;
+      end for;
+ 
+      a1 := bin32(h0);
+      b1 := bin32(h1);
+      c1 := bin32(h2);
+      d1 := bin32(h3);
+      e1 := bin32(h4);
+      a2 := bin32(h0);
+      b2 := bin32(h1);
+      c2 := bin32(h2);
+      d2 := bin32(h3);
+      e2 := bin32(h4);
+ 
+      for index range 1 to 80 do
+        case index of
+          when {1 .. 16}:
+            t1 := ord(b1 >< c1 >< d1);  # + k1[1];
+            t2 := ord(b2 >< (c2 | ~d2)) + k2[1];
+          when {17 .. 32}:
+            t1 := ord((b1 & c1) | (~b1 & d1)) + k1[2];
+            t2 := ord((b2 & d2) | (c2 & ~d2)) + k2[2];
+          when {33 .. 48}:
+            t1 := ord((b1 | ~c1) >< d1) + k1[3];
+            t2 := ord((b2 | ~c2) >< d2) + k2[3];
+          when {49 .. 64}:
+            t1 := ord((b1 & d1) | (c1 & ~d1)) + k1[4];
+            t2 := ord((b2 & c2) | (~b2 & d2)) + k2[4];
+          when {65 .. 80}:
+            t1 := ord(b1 >< (c1 | ~d1)) + k1[5];
+            t2 := ord(b2 >< c2 >< d2);  # + k2[5];
+        end case;
+        t1 +:= ord(a1) + x[r1[index]];
+        t1 := ord(rotLeft(bin32(t1 mod 16#100000000), s1[index])) + ord(e1);
+        a1 := e1;
+        e1 := d1;
+        d1 := rotLeft(c1, 10);
+        c1 := b1;
+        b1 := bin32(t1 mod 16#100000000);
+        t2 +:= ord(a2) + x[r2[index]];
+        t2 := ord(rotLeft(bin32(t2 mod 16#100000000), s2[index])) + ord(e2);
+        a2 := e2;
+        e2 := d2;
+        d2 := rotLeft(c2, 10);
+        c2 := b2;
+        b2 := bin32(t2 mod 16#100000000);
+      end for;
+
+      t1 := (h1 + ord(c1) + ord(d2)) mod 16#100000000;
+      h1 := (h2 + ord(d1) + ord(e2)) mod 16#100000000;
+      h2 := (h3 + ord(e1) + ord(a2)) mod 16#100000000;
+      h3 := (h4 + ord(a1) + ord(b2)) mod 16#100000000;
+      h4 := (h0 + ord(b1) + ord(c2)) mod 16#100000000;
+      h0 := t1;
+    end while;
+
+    # Produce the final hash value:
+    digest := int32AsFourBytesLe(h0) &
+              int32AsFourBytesLe(h1) &
+              int32AsFourBytesLe(h2) &
+              int32AsFourBytesLe(h3) &
+              int32AsFourBytesLe(h4);
   end func;
 
 
@@ -873,10 +1008,10 @@ const func string: sha512 (in var string: message) is func
 
 (**
  *  Enumeration of message digest algorithms.
- *  Defines: NO_DIGEST, MD4, MD5, SHA1, SHA224, SHA256, SHA384 and SHA512.
+ *  Defines: NO_DIGEST, MD4, MD5, RIPEMD160, SHA1, SHA224, SHA256, SHA384 and SHA512.
  *)
 const type: digestAlgorithm is new enum
-    NO_DIGEST, MD4, MD5, SHA1, SHA224, SHA256, SHA384, SHA512
+    NO_DIGEST, MD4, MD5, RIPEMD160, SHA1, SHA224, SHA256, SHA384, SHA512
   end enum;
 
 
@@ -891,6 +1026,7 @@ const func string: msgDigest (in digestAlgorithm: digestAlg, in string: message)
 const func string: msgDigest (NO_DIGEST, in string: message) is return "";
 const func string: msgDigest (MD4, in string: message)       is return md4(message);
 const func string: msgDigest (MD5, in string: message)       is return md5(message);
+const func string: msgDigest (RIPEMD160, in string: message) is return ripemd160(message);
 const func string: msgDigest (SHA1, in string: message)      is return sha1(message);
 const func string: msgDigest (SHA224, in string: message)    is return sha224(message);
 const func string: msgDigest (SHA256, in string: message)    is return sha256(message);
@@ -907,6 +1043,7 @@ const func integer: blockSize (in digestAlgorithm: digestAlg) is DYNAMIC;
 const func integer: blockSize (NO_DIGEST) is   0;
 const func integer: blockSize (MD4)       is  64;
 const func integer: blockSize (MD5)       is  64;
+const func integer: blockSize (RIPEMD160) is  64;
 const func integer: blockSize (SHA1)      is  64;
 const func integer: blockSize (SHA224)    is  64;
 const func integer: blockSize (SHA256)    is  64;
@@ -923,6 +1060,7 @@ const func integer: digestSize (in digestAlgorithm: digestAlg) is DYNAMIC;
 const func integer: digestSize (NO_DIGEST) is  0;
 const func integer: digestSize (MD4)       is 16;
 const func integer: digestSize (MD5)       is 16;
+const func integer: digestSize (RIPEMD160) is 20;
 const func integer: digestSize (SHA1)      is 20;
 const func integer: digestSize (SHA224)    is 28;
 const func integer: digestSize (SHA256)    is 32;

@@ -1,3 +1,55 @@
+20190506:
+- The utility program bigfiles.sd7 has been added. Bigfiles is an
+  utility program to search for big files. This is useful, when the
+  disk is almost full and files must be removed to get more space.
+- The utility program sydir7.sd7 has been improved. Now it supports the
+  option -n, which assures that no changes are done.
+- The program db7.sd7 (Database Inspector) has been improved to write
+  an error message, when reading the catalog of database tables fails.
+- The program chkbitdata.sd7 has been added. This program checks
+  functions from the bitdata.s7i library.
+- In the FAQ the explanation, how Seed7 is compiled, has been improved.
+- The description of several conversion functions in the manual has
+  been improved.
+- The function ripemd160 has been added to msgdigest.s7i. This function
+  computes a message digest with the RIPEMD-160 algorithm.
+- The functions toBase58, fromBase58, toBase and fromBase have been
+  added to encoding.s7i. This functions support Base58 encoding and
+  similar other encodings with a positional numeric system.
+- The functions putBitLsb, putBitsLsb, getBitMsb, getBitsMsb, putBitMsb
+  and putBitsMsb have been added to bitdata.s7i. This functions read
+  and write bits from and to a file.
+- The new library leb128.s7i has been added. This library supports the
+  conversion of integers to and from LEB128 encoding. LEB128 is a
+  variable-length encoding for integers. It is used e.g. by the DWARF
+  debug file format and by WebAssembly.
+- Tests for the functions leb128ToInt(), uLeb128ToInt(), leb128() and
+  uLeb128() have been added to chkint.sd7.
+- The library make.s7i has been improved to avoid a makefile rule
+  recursion.
+- The function hex2Bytes has been added to bytedata.s7i. This function
+  converts a string with hexadecimal digits to a string of bytes.
+- The function reverse has been added to string.s7i and seed7_05.s7i.
+- The function tableNamesCommand has been added to sql_base.s7i.
+- Conversion functions have been added to char.s7i
+- In big_rtl.c the function uBigMult has been changed to be faster,
+  when the size of factor2 is 1.
+- In con_inf.c code to copy the environment for Emscripten and node.js
+  has been added. This code is deactivated, because of a limitation
+  in the Emscripten implementations of getenv() and setenv().
+- The makefiles have been improved to copy the file version.h to a
+  name that corresponds to the makefile. E.g.: The makefile
+  mk_linux.mak copies version.h to vers_linux.h. This helps comparing
+  different version.h files.
+- Documentation has been added to chkccomp.c and read_me.txt.
+- The prototype of the function refCatParse has been changed in
+  ref_data.c, ref_data.h and ref_act.s7i. The compiler (s7c.sd7) has
+  been changed to add a cast in the function init_set_constants().
+  In sql_odbc.c casts have been added. This changes avoid C++
+  compilation errors.
+- Calls of logFunction and logError have been added in con_inf.c,
+  dll_unx.c and dll_win.c.
+
 20190407:
 - The program db7.sd7 (Database Inspector) has been improved to use a
   scrollable list of tables instead of radio buttons for the selection
@@ -7,7 +59,7 @@
 - The new library iobuffer.s7i has been added. This library supports
   buffering of files.
 - The new library mixarith.s7i has been added. This library supports
-  mixing of arithmethic operations between numeric types.
+  mixing of arithmetic operations between numeric types.
 - The file type fileInTar has been added to the library tar.s7i. This
   file type allows that a specific file from a tar archive can be
   opened. The functions open, getc, gets, eof, hasNext, length, seek,
@@ -102,7 +154,7 @@
   signal() nor sigaction() are present.
 - Log functions have been added or improved in con_emc.c, con_inf.c,
   sql_my.c, sql_post.c and timlib.c.
-- Exprerimental code has been added to con_emc.c.
+- Experimental code has been added to con_emc.c.
 
 20190303:
 - The makefile mk_tcc_l.mak has been added. This makefile supports
@@ -676,7 +728,7 @@
   the function copyQuotedPart has been added. Now the command line
   created for CreateProcessW() has fewer quoted parameters. Now
   parameters that contain a space or a quotation (") or a control
-  character or a character byond ASCII are quoted. All other parameters
+  character or a character beyond ASCII are quoted. All other parameters
   are not quoted.
 - Definitions of USE_MMAP, os_environ, os_fstat, DEFINE_WSTATI64_EXT,
   os_lstat, os_stat, os_stat_orig, os_stat_struct, os_fstat_struct,
@@ -1381,7 +1433,7 @@
 - The functions retrieve and store have been removed from ftp.s7i and
   the function open (to open a file) has been added.
 - The new library ftpserv.s7i has been created. This library allows,
-  that the backend of an FTP server is also a file system. Most of
+  that the back end of an FTP server is also a file system. Most of
   the contents of ftpserv.s7i has been moved from ftpserv.sd7.
 - The functions setUpHead, tarTell, tarXtract and tarCreate have been
   moved from tar.s7i to the new library tar_cmds.s7i.
@@ -1457,7 +1509,7 @@
   have been added to tar.s7i and zip.s7i. This is work in progress, so
   the API might change.
 - The compiler has been improved to work correctly with a C++ compiler
-  backend (Now it uses strRaiseError insead of intRaiseError) for the
+  back end (Now it uses strRaiseError insead of intRaiseError) for the
   code generated for BIN_RADIX and INT_RADIX.
 - The compiler has been improved to use sigaction(), when available
   (HAS_SIGACTION is TRUE).
@@ -2178,7 +2230,7 @@
 - The chapters describing statements and object orientation in the
   manual have been improved.
 - The library tls.s7i has been improved to use explicit
-  initialisation vectors (IVs) for block ciphers, when the TLS
+  initialization vectors (IVs) for block ciphers, when the TLS
   version is 1.1 or higher.
 - The library tls.s7i has been improved to avoid raising exceptions,
   when the handshake fails.
@@ -2819,7 +2871,7 @@
 - The function fltIPow in flt_rtl.c has been improved to return
   -Infinity for (-0.0) ** n when n is negative.
 - The function uint_rand (in int_rtl.c) has been renamed to uintRand
-  and changed to omit the initialisation of the random seed.
+  and changed to omit the initialization of the random seed.
 - The function setupRand has been added to int_rtl.c. This function
   initializes the random seed of uintRand.
 - The function uintRandLimited has been added to int_rtl.c.
@@ -3493,7 +3545,7 @@
 - In tar.s7i the functions getoct, putspc and putoct have been
   improved. The computation of the size of padding data has also
   been improved.
-- The compiler has been improved to optimize string initialisations
+- The compiler has been improved to optimize string initializations
   with the function strZero. StrZero creates a string of arbitrary
   length with '\0;' (zero) bytes.
 - The compiler has been improved to optimize integer exponentiation
@@ -3981,7 +4033,7 @@
   chkbig.sd7.
 - Checks for set membership in character sets have been added to
   chkset.sd7.
-- The readability of the bitset initialisation in the compiler (s7c)
+- The readability of the bitset initialization in the compiler (s7c)
   has been improved.
 - Interpreter and compiler have been improved to support the new
   actions BIG_FROM_BSTRI_BE, BIG_FROM_BSTRI_LE, BIG_TO_BSTRI_BE and
@@ -4010,7 +4062,7 @@
 - The performance of the random number generator has been improved.
   The function uint2_mult in int_rtl.c is now defined as inline
   function. The macro 'unlikely' has been added to describe that the
-  initialisation of the random number generator is unlikely.
+  initialization of the random number generator is unlikely.
 - The function uint_mult has been added to int_rtl.c and used in
   big_rtl.c.
 - The macro 'unlikely' has been added to functions in flt_rtl.c.
@@ -4464,8 +4516,8 @@
 - Usages of the function stri_charpos in analyze.c and prclib.c have
   been replaced by calls of strChPos.
 - In executl.c the function crea_struct has been introduced and the
-  function any_var_initialisation has been replaced by the functions
-  sct_elem_initialisation and arr_elem_initialisation.
+  function any_var_initialization has been replaced by the functions
+  sct_elem_initialization and arr_elem_initialization.
 - The function prot_block has been added to traceutl.c.
 
 20130303:
@@ -4554,7 +4606,7 @@
 - In executl.c the function destroy_local_init_value has been added
   and the function destroy_object_list has been removed.
 - The parameter dest_type has been added to the function
-  any_var_initialisation (file executl.c).
+  any_var_initialization (file executl.c).
 - The functions heap_statistic (in flistutl.c) and rtlHeapStatistic
   (in heaputl.c) have been improved to write information about
   pollData elements.
@@ -4707,7 +4759,7 @@
 - The Seed7 compiler (s7c) was improved to support constant pixmaps
   (constants with the type PRIMITIVE_WINDOW).
 - The Seed7 compiler was improved to omit array constant
-  declarations and initialisations for unused array constants.
+  declarations and initializations for unused array constants.
 - Result variables were renamed in various libraries and example
   programs.
 - The function DRAW_GETPIXEL in graph.s7i was renamed to getPixel.
@@ -5885,8 +5937,8 @@
 
 20110403:
 - The compiler (comp.sd7) was improved to generate less code to initialize
-  arrays. Repeated elements in array initialisations are recognized and
-  the initialisation is done with loops instead of individual assignments.
+  arrays. Repeated elements in array initializations are recognized and
+  the initialization is done with loops instead of individual assignments.
   When compiling panic.sd7 this optimization reduces the size of the
   generated C program by 77% and the size of the executable by 69%.
 - The compiler (comp.sd7) was improved to generate string literals with
@@ -5955,7 +6007,7 @@
   the element of an array that was the result of another computation.
 - The compiler (comp.sd7) was improved to generate code with fewer temporary
   variables for the actions ARR_IDX, ARR_LNG, STR_EQ and STR_NE.
-- The initialisation of string constants in the compiler was improved.
+- The initialization of string constants in the compiler was improved.
 
 20110203:
 - Many thanks to Bogdan Lisovich for his help to investigate and fix a
@@ -6005,9 +6057,9 @@
 - The interpreter and the compiler were improved to support for-until loops
   for the type 'ref_list'.
 - The recognition of constant expressions in the compiler was improved.
-- The initialisation of hash constants in the compiler was improved to
+- The initialization of hash constants in the compiler was improved to
   use the function hshEmpty when possible.
-- The initialisation of string constants in the compiler was improved to
+- The initialization of string constants in the compiler was improved to
   use string slices which point to an array of characters.
 - The 'const' specifier and the macros 'likely' and 'unlikely' were added to
   several *.c and *.h files.
@@ -6185,7 +6237,7 @@
 - The standard bitmap font was defined for the sizes 10, 12, 14, 16, 18 and 24.
 - A new example program (testfont.sd7), which writes with the standard font
   in various sizes, was added.
-- The initialisation of the random number generator in the function
+- The initialization of the random number generator in the function
   uint_rand in "int_rtl.c" was improved.
 - The function timMycroSec was defined in "tim_unx.c" and "tim_win.c".
 
@@ -7779,7 +7831,7 @@
 - Support for multiple dispatch of interface (DYNAMIC) functions was added to the compiler.
 - The handling of parameters in the dispatch functions generated by the compiler was improved.
 - Variable global arrays and structs in compiled programs are now initialized
-  with a copy of the initialisation value.
+  with a copy of the initialization value.
 - The compiler was improved to produce better code for the primitive actions
   arr_idx, chr_ge, chr_gt, chr_le, chr_lt, fil_seek, set_cpy, str_cpy,
   prc_option, prg_match, ref_itftosct, typ_isderived and typ_meta.

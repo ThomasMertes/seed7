@@ -1170,6 +1170,7 @@ static void printBuffer (uint16Type buffer_type, memSizeType length, void *buffe
 
 
 
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
 static const char *nameOfBufferType (uint16Type buffer_type)
 
   {
@@ -1221,6 +1222,7 @@ static const char *nameOfBufferType (uint16Type buffer_type)
     logFunction(printf("nameOfBufferType --> %s\n", typeName););
     return typeName;
   } /* nameOfBufferType */
+#endif
 
 
 

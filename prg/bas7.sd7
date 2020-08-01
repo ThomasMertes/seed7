@@ -789,7 +789,7 @@ const proc: line_marker is func
 
 const proc: line_marker (in integer: line_number) is func
   begin
-    if line_number <= length(prg) then
+    if line_number >= 1 and line_number <= length(prg) then
       if prg[line_number].label <> "" then
         write(log, prg[line_number].label);
       elsif prg[line_number].linenum <> "" then

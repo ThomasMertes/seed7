@@ -519,6 +519,14 @@ const func string: lower (in string: stri)                     is action "STR_LO
 
 
 (**
+ *  Reverse the characters in a string.
+ *   reverse("ABC")  returns "CBA"
+ *  @return the reversed string.
+ *)
+const func string: reverse (in string: stri) is forward;
+
+
+(**
  *  Return string with leading and trailing whitespace omitted.
  *  All characters less than or equal to ' ' (space) count as whitespace.
  *   trim(" /n xyz /r")  returns "xyz"

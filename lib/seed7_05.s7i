@@ -642,6 +642,22 @@ const func type: varptr (in type: baseType) is func
 $ include "forloop.s7i";
 
 
+const func string: reverse (in string: stri) is func
+  result
+    var string: reversed is "";
+  local
+    var char: ch is ' ';
+    var integer: index is 0;
+  begin
+    reversed := " " mult length(stri);
+    index := length(stri);
+    for ch range stri do
+      reversed @:= [index] ch;
+      decr(index);
+    end for;
+  end func;
+
+
 (**
  *  Get string with question marks (?) instead of control characters.
  *  @return the string without control characters.

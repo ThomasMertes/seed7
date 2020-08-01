@@ -146,6 +146,7 @@ clean:
 
 distclean: clean
 	cp level_bk.h level.h
+	rm -f vers_clang.h
 
 test:
 	../bin/s7 -l ../lib ../prg/chk_all build
@@ -230,6 +231,7 @@ version.h: chkccomp.h
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths
 	$(CC) wrdepend.c -o wrdepend
+	cp version.h vers_clang.h
 
 depend: version.h
 	./wrdepend $(CFLAGS) -M $(SRC) "> depend"
@@ -265,11 +267,14 @@ level.h:
 	mv $(<:.sd7=) ../bin
 
 bas7: ../bin/bas7
+bigfiles: ../bin/bigfiles
 calc7: ../bin/calc7
 cat: ../bin/cat
 comanche: ../bin/comanche
+db7: ../bin/db7
 diff7: ../bin/diff7
 find7: ../bin/find7
+findchar: ../bin/findchar
 ftp7: ../bin/ftp7
 ftpserv: ../bin/ftpserv
 hd: ../bin/hd
@@ -280,9 +285,9 @@ tar7: ../bin/tar7
 toutf8: ../bin/toutf8
 which: ../bin/which
 
-utils: ../bin/bas7 ../bin/calc7 ../bin/cat ../bin/comanche ../bin/diff7 \
-       ../bin/find7 ../bin/ftp7 ../bin/ftpserv ../bin/hd ../bin/make7 \
-       ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
+utils: ../bin/bas7 ../bin/bigfiles ../bin/calc7 ../bin/cat ../bin/comanche ../bin/db7 \
+       ../bin/diff7 ../bin/find7 ../bin/findchar ../bin/ftp7 ../bin/ftpserv ../bin/hd \
+       ../bin/make7 ../bin/sql7 ../bin/sydir7 ../bin/tar7 ../bin/toutf8 ../bin/which
 
 wc: $(SRC)
 	@echo SRC:

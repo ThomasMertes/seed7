@@ -120,6 +120,7 @@ clean:
 
 distclean: clean
 	copy level_bk.h level.h /Y
+	del vers_tcc_w.h
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
@@ -195,6 +196,7 @@ version.h: chkccomp.h
 	del setpaths.exe
 	$(CC) -o setwpath.exe setwpath.c -luser32 -ladvapi32
 	$(CC) -o wrdepend.exe wrdepend.c
+	copy version.h vers_tcc_w.h /Y
 
 depend: version.h
 	@echo Working without C header dependency checks.
@@ -225,6 +227,11 @@ level.h:
 	copy ..\prg\bas7.exe ..\bin /Y
 	del ..\prg\bas7.exe
 
+..\bin\bigfiles.exe: ..\prg\bigfiles.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bigfiles
+	copy ..\prg\bigfiles.exe ..\bin /Y
+	del ..\prg\bigfiles.exe
+
 ..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
 	copy ..\prg\calc7.exe ..\bin /Y
@@ -240,6 +247,11 @@ level.h:
 	copy ..\prg\comanche.exe ..\bin /Y
 	del ..\prg\comanche.exe
 
+..\bin\db7.exe: ..\prg\db7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\db7
+	copy ..\prg\db7.exe ..\bin /Y
+	del ..\prg\db7.exe
+
 ..\bin\diff7.exe: ..\prg\diff7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\diff7
 	copy ..\prg\diff7.exe ..\bin /Y
@@ -249,6 +261,11 @@ level.h:
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
 	copy ..\prg\find7.exe ..\bin /Y
 	del ..\prg\find7.exe
+
+..\bin\findchar.exe: ..\prg\findchar.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\findchar
+	copy ..\prg\findchar.exe ..\bin /Y
+	del ..\prg\findchar.exe
 
 ..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
@@ -296,11 +313,14 @@ level.h:
 	del ..\prg\which.exe
 
 bas7: ..\bin\bas7.exe
+bigfiles: ..\bin\bigfiles.exe
 calc7: ..\bin\calc7.exe
 cat: ..\bin\cat.exe
 comanche: ..\bin\comanche.exe
+db7: ..\bin\db7.exe
 diff7: ..\bin\diff7.exe
 find7: ..\bin\find7.exe
+findchar: ..\bin\findchar.exe
 ftp7: ..\bin\ftp7.exe
 ftpserv: ..\bin\ftpserv.exe
 hd: ..\bin\hd.exe
@@ -311,9 +331,9 @@ tar7: ..\bin\tar7.exe
 toutf8: ..\bin\toutf8.exe
 which: ..\bin\which.exe
 
-utils: ..\bin\bas7.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\diff7.exe \
-       ..\bin\find7.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe ..\bin\make7.exe \
-       ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
+utils: ..\bin\bas7.exe ..\bin\bigfiles.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\db7.exe \
+       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe \
+       ..\bin\make7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
 	@echo SRC:

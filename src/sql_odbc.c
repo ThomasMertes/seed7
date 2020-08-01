@@ -2132,8 +2132,6 @@ static memSizeType setDecimalBigRat (void **buffer,
     SQLSMALLINT decimalDigits, errInfoType *err_info)
 
   {
-    char *dotPos;
-    memSizeType scale;
     memSizeType length;
 
   /* setDecimalBigRat */
@@ -2142,20 +2140,6 @@ static memSizeType setDecimalBigRat (void **buffer,
     } /* if */
     *buffer = bigRatToDecimal(numerator, denominator, DEFAULT_DECIMAL_SCALE,
                               &length, err_info);
-#if 0
-    if (*err_info == OKAY_NO_ERROR) {
-      dotPos = strchr(*buffer, '.');
-      if (dotPos != NULL) {
-        scale = length - (memSizeType) (dotPos - (char *) *buffer) - 1;
-        if (scale > decimalDigits) {
-          logError(printf("setDecimalBigRat: More decimal digits ("
-                          FMT_U_MEM ") than allowed in the database ("
-                          FMT_D16 ").\n", scale, decimalDigits););
-          *err_info = RANGE_ERROR;
-        } /* if */
-      } /* if */
-    } /* if */
-#endif
     return length;
   } /* setDecimalBigRat */
 
@@ -2343,7 +2327,8 @@ static errInfoType getBlob (preparedStmtType preparedStmt, intType column,
       } else {
         /* printf("totalLength=" FMT_D64 "\n", totalLength); */
         if (unlikely((SQLULEN) totalLength > MAX_CSTRI_LEN ||
-                     (buffer = malloc(SIZ_CSTRI((SQLULEN) totalLength))) == NULL)) {
+                     (buffer = (cstriType) malloc(
+                          SIZ_CSTRI((SQLULEN) totalLength))) == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
           returnCode= SQLGetData(preparedStmt->ppStmt,
@@ -2422,7 +2407,7 @@ static errInfoType getWClob (preparedStmtType preparedStmt, intType column,
         /* printf("totalLength=" FMT_D64 "\n", totalLength); */
         wstriLength = (memSizeType) totalLength / sizeof(wcharType);
         if (unlikely(wstriLength > MAX_WSTRI_LEN ||
-                     (wstri = malloc(SIZ_WSTRI(wstriLength))) == NULL)) {
+                     (wstri = (wstriType) malloc(SIZ_WSTRI(wstriLength))) == NULL)) {
           err_info = MEMORY_ERROR;
         } else {
           returnCode= SQLGetData(preparedStmt->ppStmt,
@@ -4871,11 +4856,7 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
 
 static void sqlCommit (databaseType database)
 
-  {
-    dbType db;
-
-  /* sqlCommit */
-    db = (dbType) database;
+  { /* sqlCommit */
   } /* sqlCommit */
 
 

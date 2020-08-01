@@ -80,6 +80,7 @@ const proc: ref_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "listType    refArrToList (const const_objRefType);");
     declareExtern(c_prog, "objRefType  refBody (const const_objRefType);");
     declareExtern(c_prog, "intType     refCategory (const const_objRefType);");
+    declareExtern(c_prog, "intType     refCatParse (const const_striType);");
     declareExtern(c_prog, "striType    refCatStr (intType);");
     declareExtern(c_prog, "striType    refFile (const const_objRefType);");
     declareExtern(c_prog, "listType    refHshDataToList (const const_objRefType);");

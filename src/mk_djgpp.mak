@@ -120,6 +120,7 @@ clean:
 
 distclean: clean
 	copy level_bk.h level.h /Y
+	del vers_djgpp.h
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
@@ -170,6 +171,7 @@ version.h: chkccomp.h
 	$(CC) setpaths.c -o setpaths.exe
 	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe
+	copy version.h vers_djgpp.h /Y
 
 depend: version.h
 	@$(ECHO) "Working without C header dependency checks."
@@ -195,12 +197,118 @@ level.h:
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
 	ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
-make7: ..\bin\make7.exe
+..\bin\bas7.exe: ..\prg\bas7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bas7
+	copy ..\prg\bas7.exe ..\bin /Y
+	del ..\prg\bas7.exe
+
+..\bin\bigfiles.exe: ..\prg\bigfiles.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\bigfiles
+	copy ..\prg\bigfiles.exe ..\bin /Y
+	del ..\prg\bigfiles.exe
+
+..\bin\calc7.exe: ..\prg\calc7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\calc7
+	copy ..\prg\calc7.exe ..\bin /Y
+	del ..\prg\calc7.exe
+
+..\bin\cat.exe: ..\prg\cat.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\cat
+	copy ..\prg\cat.exe ..\bin /Y
+	del ..\prg\cat.exe
+
+..\bin\comanche.exe: ..\prg\comanche.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\comanche
+	copy ..\prg\comanche.exe ..\bin /Y
+	del ..\prg\comanche.exe
+
+..\bin\db7.exe: ..\prg\db7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\db7
+	copy ..\prg\db7.exe ..\bin /Y
+	del ..\prg\db7.exe
+
+..\bin\diff7.exe: ..\prg\diff7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\diff7
+	copy ..\prg\diff7.exe ..\bin /Y
+	del ..\prg\diff7.exe
+
+..\bin\find7.exe: ..\prg\find7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\find7
+	copy ..\prg\find7.exe ..\bin /Y
+	del ..\prg\find7.exe
+
+..\bin\findchar.exe: ..\prg\findchar.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\findchar
+	copy ..\prg\findchar.exe ..\bin /Y
+	del ..\prg\findchar.exe
+
+..\bin\ftp7.exe: ..\prg\ftp7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftp7
+	copy ..\prg\ftp7.exe ..\bin /Y
+	del ..\prg\ftp7.exe
+
+..\bin\ftpserv.exe: ..\prg\ftpserv.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\ftpserv
+	copy ..\prg\ftpserv.exe ..\bin /Y
+	del ..\prg\ftpserv.exe
+
+..\bin\hd.exe: ..\prg\hd.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\hd
+	copy ..\prg\hd.exe ..\bin /Y
+	del ..\prg\hd.exe
 
 ..\bin\make7.exe: ..\prg\make7.sd7 ..\bin\s7c.exe
 	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\make7
 	copy ..\prg\make7.exe ..\bin /Y
 	del ..\prg\make7.exe
+
+..\bin\sql7.exe: ..\prg\sql7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sql7
+	copy ..\prg\sql7.exe ..\bin /Y
+	del ..\prg\sql7.exe
+
+..\bin\sydir7.exe: ..\prg\sydir7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\sydir7
+	copy ..\prg\sydir7.exe ..\bin /Y
+	del ..\prg\sydir7.exe
+
+..\bin\tar7.exe: ..\prg\tar7.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\tar7
+	copy ..\prg\tar7.exe ..\bin /Y
+	del ..\prg\tar7.exe
+
+..\bin\toutf8.exe: ..\prg\toutf8.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\toutf8
+	copy ..\prg\toutf8.exe ..\bin /Y
+	del ..\prg\toutf8.exe
+
+..\bin\which.exe: ..\prg\which.sd7 ..\bin\s7c.exe
+	..\bin\s7c.exe -l ..\lib -b ..\bin -O2 ..\prg\which
+	copy ..\prg\which.exe ..\bin /Y
+	del ..\prg\which.exe
+
+bas7: ..\bin\bas7.exe
+bigfiles: ..\bin\bigfiles.exe
+calc7: ..\bin\calc7.exe
+cat: ..\bin\cat.exe
+comanche: ..\bin\comanche.exe
+db7: ..\bin\db7.exe
+diff7: ..\bin\diff7.exe
+find7: ..\bin\find7.exe
+findchar: ..\bin\findchar.exe
+ftp7: ..\bin\ftp7.exe
+ftpserv: ..\bin\ftpserv.exe
+hd: ..\bin\hd.exe
+make7: ..\bin\make7.exe
+sql7: ..\bin\sql7.exe
+sydir7: ..\bin\sydir7.exe
+tar7: ..\bin\tar7.exe
+toutf8: ..\bin\toutf8.exe
+which: ..\bin\which.exe
+
+utils: ..\bin\bas7.exe ..\bin\bigfiles.exe ..\bin\calc7.exe ..\bin\cat.exe ..\bin\comanche.exe ..\bin\db7.exe \
+       ..\bin\diff7.exe ..\bin\find7.exe ..\bin\findchar.exe ..\bin\ftp7.exe ..\bin\ftpserv.exe ..\bin\hd.exe \
+       ..\bin\make7.exe ..\bin\sql7.exe ..\bin\sydir7.exe ..\bin\tar7.exe ..\bin\toutf8.exe ..\bin\which.exe
 
 wc: $(SRC)
 	@$(ECHO) SRC:

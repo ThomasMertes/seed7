@@ -120,7 +120,8 @@ should be no need to call foreign C functions, or to execute shell
    windows manipulation and bitmap fonts. Events to redraw a window
    and other annoyances are managed in the graphics library.
  - A database access library provides the possibility to connect to
-   MySql/MariaDb, SQLLite, PostgreSQL, Oracle and Odbc databases.
+   MySql, MariaDb, SQLLite, PostgreSQL, Oracle, Odbc, Firebird and
+   Interbase databases.
  - Weaknesses of operating systems are hidden (E.g.: The windows
    function utime() does not work on directories, but Seed7 allows
    the modification of directory access and modification times also
@@ -240,12 +241,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2019-03-03 the number of lines is:
+than 200000 lines of Seed7. For version 2019-05-06 the number of lines is:
 
-  146213  C source files (*.c)
+  146264  C source files (*.c)
    11070  C header files (*.h)
-  158019  Seed7 source files (*.sd7)
-  142977  Seed7 library/include files (*.s7i)
+  161814  Seed7 source files (*.sd7)
+  143721  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -321,13 +322,15 @@ How do I compile the Seed7 interpreter?
 =======================================
 
 The way to compile the interpreter depends on the operating system and the
-development tools used. You need a stand-alone C compiler and a make utility to
-compile the interpreter. A C compiler, which is only usable from an IDE, is not so
-useful, since some Seed7 programs (e.g. The Seed7 compiler s7c) need to call the
-C compiler as well. In case a make utility is missing under Windows the program
-make7 can be used instead.
-To compile the interpreter under Linux just go to the 'src'
-directory and type:
+development tools used. You need a stand-alone C compiler and a make utility
+to compile the interpreter. A C compiler, which is only usable from an IDE,
+is not so useful, since some Seed7 programs (e.g. The Seed7 compiler s7c)
+need to call the C compiler as well.
+
+In case a make utility is missing the program make7 can be used instead.
+You can download make7.exe, which is a binary version of make7 for Windows.
+
+To compile the interpreter under Linux just go to the 'src' directory and type:
 
   make depend
   make
@@ -1945,23 +1948,26 @@ Compiling s7c with a make command should be preferred.
 What is necessary to compile Seed7 with database connections?
 =============================================================
 
-The Seed7 runtime library provides the possibility to connect to
-MySql/MariaDb, SQLLite, PostgreSQL, Oracle and Odbc databases. During
-the compilation of the Seed7 interpreter the program "chkccomp.c"
+The Seed7 runtime library provides the possibility to connect to MySql,
+MariaDb, SQLLite, PostgreSQL, Oracle, Odbc, Firebird and Interbase databases.
+During the compilation of the Seed7 interpreter the program "chkccomp.c"
 searches for the availability of database connectors. It searches for
 database include files and for database libraries. Some database
-configuration settings (MYSQL_LIBS, SQLITE3_LIBS, POSTGRESQL_LIBS, ODBC_LIBS)
-come from the makefile. For Oracle it is assumed that the environment
-variable ORACLE_HOME has been set. Only when database include files and
-libraries are found the corresponding database connection part of Seed7
-(sql_my.c, sql_ite.c, sql_post.c, sql_oci.c or sql_odbc.c) is added to
-the Seed7 runtime library. For a Seed7 package this means, that the
-packages for database connection must be installed during the compilation
-of the Seed7 interpreter.
+configuration settings (MYSQL_LIBS, SQLITE_LIBS, POSTGRESQL_LIBS, OCI_LIBS,
+ODBC_LIBS, FIRE_LIBS) come from the makefile. For Oracle it is assumed
+that the environment variable ORACLE_HOME has been set. In case a database
+include file cannot be found Seed7 uses its own database include file
+(db_my.h, db_lite.h, db_post.h, db_oci.h, db_odbc.h, db_fire.h), with all
+definitions needed by Seed7. The Seed7 part of the database connection can
+work with static or dynamic database connector libraries. When possible,
+the Seed7 part of the database connection (sql_my.c, sql_lite.c, sql_post.c,
+sql_oci.c, sql_odbc.c, sql_file.c) is added to the Seed7 runtime library.
+For a Seed7 package this means, that the packages for database connection
+should be installed during the compilation of the Seed7 interpreter.
 
-Depending on the configuration the database library is linked statically
-or dynamically. When a dynamic database library cannot be found at runtime
-the function openDatabase returns database.value.
+Depending on the configuration the database connector library is linked
+statically or dynamically. When a dynamic database library cannot be found
+at runtime the function openDatabase returns database.value.
 
 
 Does the interpreter use bytecode?

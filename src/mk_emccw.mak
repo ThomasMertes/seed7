@@ -105,10 +105,10 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	node ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 sql_%.o: sql_%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
 
 big_%.o: big_%.c
-	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) -c $< -o $@
 
 clear: clean
 
@@ -136,6 +136,7 @@ clean:
 
 distclean: clean
 	copy level_bk.h level.h /Y
+	del vers_emccw.h
 
 test:
 	node ..\bin\s7.js -l ..\lib ..\prg\chk_all build
@@ -188,6 +189,7 @@ version.h: chkccomp.h
 	echo #define MOUNT_NODEFS >> version.h
 	echo #define INTERPRETER_FOR_EXECUTABLE "node" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h
+	echo #define CPLUSPLUS_COMPILER "em++" >> version.h
 	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
@@ -216,6 +218,7 @@ version.h: chkccomp.h
 	gcc setwpath.c -o setwpath
 	gcc wrdepend.c -o wrdepend
 	gcc sudo.c -w -o sudo
+	copy version.h vers_emccw.h /Y
 
 depend: version.h
 	.\wrdepend.exe $(CFLAGS) -M $(SRC) "> depend"
