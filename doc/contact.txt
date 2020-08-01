@@ -1,8 +1,0 @@
-Seed7 contact information
-
-Homepage:      http://seed7.sourceforge.net
-Project page:  http://sourceforge.net/projects/seed7
-
-Email address: thomas.mertes@gmx.at
-
-Please mention Seed7 in the subject to distinguish your mail from spam.
