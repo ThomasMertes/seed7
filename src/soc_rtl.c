@@ -249,7 +249,11 @@ inttype length;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      bytes_requested = (memsizetype) length;
+      if ((uinttype) (length) > MAX_MEMSIZETYPE) {
+        bytes_requested = MAX_MEMSIZETYPE;
+      } else {
+        bytes_requested = (memsizetype) length;
+      } /* if */
       if (!ALLOC_STRI(result, bytes_requested)) {
         raise_error(MEMORY_ERROR);
         return NULL;

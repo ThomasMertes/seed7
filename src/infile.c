@@ -128,7 +128,7 @@ static INLINE booltype speedup ()
     file_no = fileno(in_file.fil);
     if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
       if (file_stat.st_size < MAX_MEMSIZETYPE && file_stat.st_size >= 0) {
-	file_length = (memsizetype) file_stat.st_size;
+        file_length = (memsizetype) file_stat.st_size;
         if ((in_file.start = (ustritype) mmap(NULL, file_length,
             PROT_READ, MAP_PRIVATE, fileno(in_file.fil),
             0)) != (ustritype) -1) {

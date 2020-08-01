@@ -149,7 +149,7 @@
 
 #ifdef ANSI_C
 
-memsizetype remainingBytesInFile (filetype aFile, errinfotype *err_info);
+memsizetype remainingBytesInFile (filetype aFile);
 inttype getFileLengthUsingSeek (filetype aFile);
 biginttype getBigFileLengthUsingSeek (filetype aFile);
 biginttype filBigLng (filetype aFile);

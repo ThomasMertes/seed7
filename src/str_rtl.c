@@ -1638,36 +1638,40 @@ inttype factor;
   /* strMult */
     if (factor < 0) {
       raise_error(RANGE_ERROR);
-      return NULL;
+      result = NULL;
     } else {
       len = stri->size;
-      result_size = (uinttype) factor * len;
-      if (!ALLOC_STRI(result, result_size)) {
+      if (len != 0 && (memsizetype) factor > MAX_MEMSIZETYPE / len) {
         raise_error(MEMORY_ERROR);
-        return NULL;
+        result = NULL;
       } else {
-        result->size = result_size;
-        if (len == 1) {
+        result_size = (memsizetype) factor * len;
+        if (!ALLOC_STRI(result, result_size)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = result_size;
+          if (len == 1) {
 #ifdef UTF32_STRINGS
-          ch = stri->mem[0];
-          result_pointer = result->mem;
-          for (number = factor; number > 0; number--) {
-            *result_pointer++ = ch;
-          } /* for */
+            ch = stri->mem[0];
+            result_pointer = result->mem;
+            for (number = factor; number > 0; number--) {
+              *result_pointer++ = ch;
+            } /* for */
 #else
-          memset(result->mem, (int) stri->mem[0], (uinttype) factor);
+            memset(result->mem, (int) stri->mem[0], (uinttype) factor);
 #endif
-        } else if (len != 0) {
-          result_pointer = result->mem;
-          for (number = factor; number > 0; number--) {
-            memcpy(result_pointer, stri->mem,
-                len * sizeof(strelemtype));
-            result_pointer += len;
-          } /* for */
+          } else if (len != 0) {
+            result_pointer = result->mem;
+            for (number = factor; number > 0; number--) {
+              memcpy(result_pointer, stri->mem,
+                  len * sizeof(strelemtype));
+              result_pointer += len;
+            } /* for */
+          } /* if */
         } /* if */
-        return result;
       } /* if */
     } /* if */
+    return result;
   } /* strMult */
 
 

@@ -70,7 +70,7 @@ Can I use something and declare it later?
 Can functions be overloaded?
 </b></a></li>
 <li><a href="#overload_result"><b>
-Can I overload two functions which just differ by the result type?
+Can I overload two functions which just differ in the result type?
 </b></a></li>
 <li><a href="#variable_parameters"><b>
 Can functions have variable parameter lists?
@@ -719,13 +719,23 @@ Yes, functions, operators and statements can be overloaded. Additionally it is p
 to define new operators and statements.
 </p></p>
 
-<p><br><a name="overload_result"><h3>Can I overload two functions which just differ by the result type?
+<p><br><a name="overload_result"><h3>Can I overload two functions which just differ in the result type?
 </h3></a><hr><!-- ================================================================== -->
 <p>
-No, it is not possible to overload a function (operator, statement) which has
-the same parameter types and just a different result type as another function. This is
-necessary to reach the goal of knowing the type of every expression without knowing
-where the expression is used.
+No, it is not possible to overload functions (operators, statements) which have
+the same parameter types and just differ in the result type. This type of overloading
+has a big advantage:
+</p><pre>
+  For every expression (and sub expression) you know its type at
+  compile time without knowing where this expression is used.
+</pre><p>
+Therefore it is not possible to overload something which has no parameters (like
+a variable or a literal). As a consequence it is sometimes necessary to cast a
+literal to get an unambiguous expression. This concept parallels the approach
+used in mathematics where it is also required to specify measurement units.
+Obviously there is a difference between 5 seconds, 5 square meters and 5 apples.
+In school it is usually considered wrong to just write 5 and let the teacher
+guess the measurement unit. 
 </p></p>
 
 <p><br><a name="variable_parameters"><h3>Can functions have variable parameter lists?

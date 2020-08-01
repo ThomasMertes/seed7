@@ -149,9 +149,9 @@ version.h:
 	cmd /S /C "echo #define os_DIR wDIR" >> version.h
 	cmd /S /C "echo #define os_dirent_struct struct wdirent >> version.h
 	cmd /S /C "echo #define os_fstat _fstat" >> version.h
-	cmd /S /C "echo #define os_lstat _wstat" >> version.h
-	cmd /S /C "echo #define os_stat _wstat" >> version.h
-	cmd /S /C "echo #define os_stat_struct struct _stat" >> version.h
+	cmd /S /C "echo #define os_lstat _wstati64" >> version.h
+	cmd /S /C "echo #define os_stat _wstati64" >> version.h
+	cmd /S /C "echo #define os_stat_struct struct stati64" >> version.h
 	cmd /S /C "echo #define os_chown(NAME,UID,GID)" >> version.h
 	cmd /S /C "echo #define os_chmod _wchmod" >> version.h
 	cmd /S /C "echo #define os_utime_orig _wutime" >> version.h

@@ -238,6 +238,8 @@ EXTERN memsizetype hs;
 #define SIZ_RTL_ARR(len) ((sizeof(rtlArrayrecord) - sizeof(rtlObjecttype)) + (len) * sizeof(rtlObjecttype))
 #define SIZ_RTL_HSH(len) ((sizeof(rtlHashrecord)  - sizeof(rtlHelemtype))  + (len) * sizeof(rtlHelemtype))
 
+#define MAX_STRI_LEN ((MAX_MEMSIZETYPE - sizeof(strirecord) + sizeof(strelemtype)) / sizeof(strelemtype))
+
 
 #ifdef DO_HEAPSIZE_COMPUTATION
 #define CNT1_USTRI(L,S,C,B)    (HS_ADD(S)    USTRI_ADD(L,C,B) H_LOG1(S))
@@ -321,17 +323,16 @@ EXTERN memsizetype hs;
 
 #ifndef WITH_STRI_FLIST
 #ifdef WITH_STRI_CAPACITY
-#define ALLOC_STRI(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = len, CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
+#define ALLOC_STRI(var,len)        ((len) <= MAX_STRI_LEN?(ALLOC_HEAP(var, stritype, SIZ_STRI(len))?((var)->capacity = (len), CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE):(var=NULL,FALSE))
 #define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
-#define REALLOC_STRI(v1,v2,l1,l2)  ((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))!=NULL?(v1)->capacity=l2:0)
+#define REALLOC_STRI(v1,v2,l1,l2)  ((l2) <= MAX_STRI_LEN?((v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)))!=NULL?((v1)->capacity=l2,0):0):(v1=NULL,0))
 #define GROW_STRI(v1,v2,l1,l2)     ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
 #define SHRINK_STRI(v1,v2,l1,l2)   ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
 #else
-#define ALLOC_STRI(var,len)        (ALLOC_HEAP(var, stritype, SIZ_STRI(len))?(CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE)
+#define ALLOC_STRI(var,len)        ((len) <= MAX_STRI_LEN?(ALLOC_HEAP(var, stritype, SIZ_STRI(len))?(CNT1_STRI(len, SIZ_STRI(len)), TRUE):FALSE):(var=NULL,FALSE))
 #define FREE_STRI(var,len)         (CNT2_STRI(len, SIZ_STRI(len)) FREE_HEAP(var, SIZ_STRI(len)))
-#define REALLOC1_STRI(v1,v2,l1,l2) v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2))
-#define REALLOC_STRI(v1,v2,l1,l2)  v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2))
-#define GROW_STRI(v1,v2,l1,l2)     v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2))
+#define REALLOC_STRI(v1,v2,l1,l2)  ((l2) <= MAX_STRI_LEN?v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)):(v1=NULL))
+#define GROW_STRI(v1,v2,l1,l2)     ((l2) <= MAX_STRI_LEN?v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2)):(v1=NULL))
 #define SHRINK_STRI(v1,v2,l1,l2)   v1=REALLOC_HEAP(v2, stritype, SIZ_STRI(l2))
 #endif
 #endif

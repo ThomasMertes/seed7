@@ -117,6 +117,8 @@ const proc: for (inout category param) range (in category param) downto (in cate
               (in proc param)
             end for is                                                     action "PRC_FOR_DOWNTO";
 
+CASE_DECLS(category);
+
 
 const type: bstring is newtype;
 IN_PARAM_IS_REFERENCE(bstring);

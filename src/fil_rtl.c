@@ -92,7 +92,7 @@ typedef long               offsettype;
 
 #define GETS_DEFAULT_SIZE 1048576
 #define BUFFER_SIZE 4096
-#define READ_BLOCK_SIZE 4096
+#define GETS_STRI_SIZE_DELTA 4096
 
 
 
@@ -311,18 +311,19 @@ offsettype file_position;
 
 
 /**
- *  Determine how many bytes can be read from the current position.
- *  Returns MAX_MEMSIZETYPE when the file is not seekable
- *  or when the result does not fit into memsizetype.
+ *  Compute how many bytes can be read from the current position.
+ *  Returns 0 when the current position or the file size cannot be
+ *  determined or when the current position is byond the filesize.
+ *  Returns MAX_MEMSIZETYPE when the result does not fit into
+ *  memsizetype.
  */
 #ifdef ANSI_C
 
-memsizetype remainingBytesInFile (filetype aFile, errinfotype *err_info)
+memsizetype remainingBytesInFile (filetype aFile)
 #else
 
-memsizetype remainingBytesInFile (aFile, err_info)
+memsizetype remainingBytesInFile (aFile)
 filetype aFile;
-errinfotype *err_info;
 #endif
 
   {
@@ -335,7 +336,7 @@ errinfotype *err_info;
   /* remainingBytesInFile */
     current_file_position = offsetTell(aFile);
     if (current_file_position == (offsettype) -1) {
-      result = MAX_MEMSIZETYPE;
+      result = 0;
     } else {
       file_no = fileno(aFile);
       if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0 &&
@@ -345,10 +346,10 @@ errinfotype *err_info;
         file_length = seekFileLength(aFile);
       } /* if */
       if (file_length == (offsettype) -1) {
-        *err_info = FILE_ERROR;
         result = 0;
-      } else if (file_length < current_file_position ||
-          file_length - current_file_position >= MAX_MEMSIZETYPE) {
+      } else if (file_length < current_file_position) {
+        result = 0;
+      } else if (file_length - current_file_position >= MAX_MEMSIZETYPE) {
         result = MAX_MEMSIZETYPE;
       } else {
         result = (memsizetype) (file_length - current_file_position);
@@ -416,6 +417,150 @@ filetype aFile;
     } /* if */
     return result;
   } /* getBigFileLengthUsingSeek */
+
+
+
+#ifdef ANSI_C
+
+static memsizetype read_string (filetype aFile, stritype stri)
+#else
+
+static memsizetype read_string (aFile, stri)
+filetype aFile;
+stritype stri;
+#endif
+
+  {
+    uchartype buffer[BUFFER_SIZE];
+    memsizetype bytes_in_buffer = 1;
+    memsizetype result_pos;
+    register uchartype *from;
+    register strelemtype *to;
+    register memsizetype number;
+
+  /* read_string */
+    /* printf("stri->size=%lu\n", stri->size); */
+    for (result_pos = 0;
+        stri->size - result_pos >= BUFFER_SIZE && bytes_in_buffer > 0;
+        result_pos += bytes_in_buffer) {
+      /* printf("read_size=%ld\n", BUFFER_SIZE); */
+      bytes_in_buffer = (memsizetype) fread(buffer, 1, BUFFER_SIZE, aFile);
+      /* printf("#A# bytes_in_buffer=%d result_pos=%d\n",
+          bytes_in_buffer, result_pos); */
+      from = buffer;
+      to = &stri->mem[result_pos];
+      number = bytes_in_buffer;
+      for (; number > 0; from++, to++, number--) {
+        *to = *from;
+      } /* for */
+    } /* for */
+    if (stri->size > result_pos && bytes_in_buffer > 0) {
+      /* printf("read_size=%ld\n", stri->size - result_pos); */
+      bytes_in_buffer = (memsizetype) fread(buffer, 1, stri->size - result_pos, aFile);
+      /* printf("#B# bytes_in_buffer=%d result_pos=%d\n",
+          bytes_in_buffer, result_pos); */
+      from = buffer;
+      to = &stri->mem[result_pos];
+      number = bytes_in_buffer;
+      for (; number > 0; from++, to++, number--) {
+        *to = *from;
+      } /* for */
+      result_pos += bytes_in_buffer;
+    } /* if */
+    /* printf("result_pos=%lu\n", result_pos); */
+    return result_pos;
+  } /* read_string */
+
+
+
+#ifdef ANSI_C
+
+static stritype read_and_alloc_stri (filetype aFile, memsizetype chars_missing,
+    memsizetype *num_of_chars_read, errinfotype *err_info)
+#else
+
+static stritype read_and_alloc_stri (aFile, chars_missing, num_of_chars_read, err_info)
+filetype aFile;
+memsizetype chars_missing;
+memsizetype *num_of_chars_read;
+errinfotype *err_info;
+#endif
+
+  {
+    uchartype buffer[BUFFER_SIZE];
+    memsizetype bytes_in_buffer = 1;
+    memsizetype result_pos;
+    register uchartype *from;
+    register strelemtype *to;
+    register memsizetype number;
+    memsizetype new_size;
+    stritype resized_result;
+    stritype result;
+
+  /* read_and_alloc_stri */
+    /* printf("read_and_alloc_utf8_stri(%d, %d, *, *)\n", fileno(aFile), chars_missing); */
+    if (!ALLOC_STRI(result, GETS_STRI_SIZE_DELTA)) {
+      *err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      result->size = GETS_STRI_SIZE_DELTA;
+      /* printf("chars_missing=%lu\n", chars_missing); */
+      for (result_pos = 0;
+          chars_missing - result_pos >= BUFFER_SIZE && bytes_in_buffer > 0;
+          result_pos += bytes_in_buffer) {
+        /* printf("read_size=%ld\n", BUFFER_SIZE); */
+        bytes_in_buffer = (memsizetype) fread(buffer, 1, BUFFER_SIZE, aFile);
+        /* printf("#A# bytes_in_buffer=%d result_pos=%d\n",
+            bytes_in_buffer, result_pos); */
+        if (result_pos + bytes_in_buffer > result->size) {
+          new_size = result->size + GETS_STRI_SIZE_DELTA;
+          REALLOC_STRI(resized_result, result, result->size, new_size);
+          if (resized_result == NULL) {
+            *err_info = MEMORY_ERROR;
+            return result;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(result->size, new_size);
+            result->size = new_size;
+          } /* if */
+        } /* if */
+        from = buffer;
+        to = &result->mem[result_pos];
+        number = bytes_in_buffer;
+        for (; number > 0; from++, to++, number--) {
+          *to = *from;
+        } /* for */
+      } /* for */
+      if (chars_missing > result_pos && bytes_in_buffer > 0) {
+        /* printf("read_size=%ld\n", chars_missing - result_pos); */
+        bytes_in_buffer = (memsizetype) fread(buffer, 1, chars_missing - result_pos, aFile);
+        /* printf("#B# bytes_in_buffer=%d result_pos=%d\n",
+            bytes_in_buffer, result_pos); */
+        if (result_pos + bytes_in_buffer > result->size) {
+          new_size = result->size + GETS_STRI_SIZE_DELTA;
+          REALLOC_STRI(resized_result, result, result->size, new_size);
+          if (resized_result == NULL) {
+            *err_info = MEMORY_ERROR;
+            return result;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(result->size, new_size);
+            result->size = new_size;
+          } /* if */
+        } /* if */
+        from = buffer;
+        to = &result->mem[result_pos];
+        number = bytes_in_buffer;
+        for (; number > 0; from++, to++, number--) {
+          *to = *from;
+        } /* for */
+        result_pos += bytes_in_buffer;
+      } /* if */
+      /* printf("result_pos=%lu\n", result_pos); */
+      *num_of_chars_read = result_pos;
+    } /* if */
+    return result;
+  } /* read_and_alloc_stri */
 
 
 
@@ -553,14 +698,11 @@ inttype length;
 #endif
 
   {
-    memsizetype bytes_requested;
+    memsizetype chars_requested;
     memsizetype bytes_there;
-    memsizetype read_size_requested;
-    memsizetype block_size_read;
     memsizetype allocated_size;
-    memsizetype result_size;
-    ustritype memory;
     errinfotype err_info = OKAY_NO_ERROR;
+    memsizetype num_of_chars_read;
     stritype resized_result;
     stritype result;
 
@@ -570,98 +712,83 @@ inttype length;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      bytes_requested = (memsizetype) length;
-      if (bytes_requested > GETS_DEFAULT_SIZE) {
+      if ((uinttype) (length) > MAX_MEMSIZETYPE) {
+        chars_requested = MAX_MEMSIZETYPE;
+      } else {
+        chars_requested = (memsizetype) length;
+      } /* if */
+      if (chars_requested > GETS_DEFAULT_SIZE) {
         /* Avoid requesting too much */
         result = NULL;
       } else {
-        allocated_size = bytes_requested;
+        allocated_size = chars_requested;
         ALLOC_STRI(result, allocated_size);
       } /* if */
       if (result == NULL) {
-        bytes_there = remainingBytesInFile(aFile, &err_info);
+        bytes_there = remainingBytesInFile(aFile);
         /* printf("bytes_there=%lu\n", bytes_there); */
-        if (err_info != OKAY_NO_ERROR) {
-          raise_error(err_info);
-          return NULL;
-        } else if (bytes_there != MAX_MEMSIZETYPE) {
+        if (bytes_there != 0) {
           /* Now we know that bytes_there bytes are available in aFile */
-          if (bytes_there < bytes_requested) {
+          if (chars_requested <= bytes_there) {
+            allocated_size = chars_requested;
+          } else {
             allocated_size = bytes_there;
-            if (!ALLOC_STRI(result, allocated_size)) {
-              raise_error(MEMORY_ERROR);
-              return NULL;
-            } /* if */
-          } else if (bytes_requested <= GETS_DEFAULT_SIZE) {
-            /* The request for memory already failed */
+          } /* if */
+          /* printf("allocated_size=%lu\n", allocated_size); */
+          if (!ALLOC_STRI(result, allocated_size)) {
+            /* printf("MAX_STRI_LEN=%lu, SIZ_STRI(MAX_STRI_LEN)=%lu\n",
+                MAX_STRI_LEN, SIZ_STRI(MAX_STRI_LEN)); */
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
         } /* if */
       } /* if */
       if (result != NULL) {
-        /* We have allocated a buffer for the requested number of bytes
+        /* We have allocated a buffer for the requested number of char
            or for the number of bytes which are available in the file */
-        result_size = (memsizetype) fread(result->mem, 1,
+        result->size = allocated_size;
+#ifndef UTF32_STRINGS
+        num_of_chars_read = (memsizetype) fread(result->mem, 1,
             (size_t) allocated_size, aFile);
+#else
+        if (allocated_size <= BUFFER_SIZE) {
+          num_of_chars_read = (memsizetype) fread(result->mem, 1,
+              (size_t) allocated_size, aFile);
+          {
+            uchartype *from = &((uchartype *) result->mem)[num_of_chars_read - 1];
+            strelemtype *to = &result->mem[num_of_chars_read - 1];
+            memsizetype number = num_of_chars_read;
+
+            for (; number > 0; from--, to--, number--) {
+              *to = *from;
+            } /* for */
+          }
+        } else {
+          num_of_chars_read = read_string(aFile, result);
+        } /* if */
+#endif
       } else {
         /* We do not know how many bytes are avaliable therefore
-           we read blocks of READ_BLOCK_SIZE until we have read
-           enough or we reach EOF */
-        allocated_size = READ_BLOCK_SIZE;
-        if (!ALLOC_STRI(result, allocated_size)) {
-          raise_error(MEMORY_ERROR);
-          return NULL;
-        } else {
-          read_size_requested = READ_BLOCK_SIZE;
-          if (read_size_requested > bytes_requested) {
-            read_size_requested = bytes_requested;
-          } /* if */
-          block_size_read = fread(result->mem, 1, read_size_requested, aFile);
-          result_size = block_size_read;
-          while (block_size_read == READ_BLOCK_SIZE && result_size < bytes_requested) {
-            allocated_size = result_size + READ_BLOCK_SIZE;
-            REALLOC_STRI(resized_result, result, result_size, allocated_size);
-            if (resized_result == NULL) {
-              FREE_STRI(result, result_size);
-              raise_error(MEMORY_ERROR);
-              return NULL;
-            } else {
-              result = resized_result;
-              COUNT3_STRI(result_size, allocated_size);
-              memory = (ustritype) result->mem;
-              read_size_requested = READ_BLOCK_SIZE;
-              if (result_size + read_size_requested > bytes_requested) {
-                read_size_requested = bytes_requested - result_size;
-              } /* if */
-              block_size_read = fread(&memory[result_size], 1,
-                  read_size_requested, aFile);
-              result_size += block_size_read;
-            } /* if */
-          } /* while */
+           result is resized with GETS_STRI_SIZE_DELTA until we
+           have read enough or we reach EOF */
+        result = read_and_alloc_stri(aFile, chars_requested, &num_of_chars_read, &err_info);
+      } /* if */
+      if (err_info != OKAY_NO_ERROR) {
+        if (result != NULL) {
+          FREE_STRI(result, result->size);
         } /* if */
-      } /* if */
-#ifdef UTF32_STRINGS
-      if (result_size > 0) {
-        uchartype *from = &((uchartype *) result->mem)[result_size - 1];
-        strelemtype *to = &result->mem[result_size - 1];
-        memsizetype number = result_size;
-
-        for (; number > 0; from--, to--, number--) {
-          *to = *from;
-        } /* for */
-      } /* if */
-#endif
-      result->size = result_size;
-      if (result_size < allocated_size) {
-        REALLOC_STRI(resized_result, result, allocated_size, result_size);
+        raise_error(err_info);
+        result = NULL;
+      } else if (num_of_chars_read < result->size) {
+        REALLOC_STRI(resized_result, result, result->size, num_of_chars_read);
         if (resized_result == NULL) {
-          FREE_STRI(result, allocated_size);
+          FREE_STRI(result, result->size);
           raise_error(MEMORY_ERROR);
-          return NULL;
+          result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(allocated_size, result_size);
+          COUNT3_STRI(result->size, num_of_chars_read);
+          result->size = num_of_chars_read;
         } /* if */
       } /* if */
     } /* if */

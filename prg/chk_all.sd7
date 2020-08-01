@@ -218,6 +218,9 @@ const proc: check (in string: progName, in string: referenceOutput) is func
       writeln(interpretedOutput);
       okay := FALSE;
     end if;
+    if fileType(progName & EXECUTABLE_FILE_EXTENSION) <> FILE_ABSENT then
+      removeFile(progName & EXECUTABLE_FILE_EXTENSION);
+    end if;
     compilerOutput := cmdOutput("./hi comp " & progName);
     if fileType(progName & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
       compiledOutput := cmdOutput("./" & progName);

@@ -280,6 +280,29 @@ const func complex: (in complex: num1) ** (in integer: int2) is func
 
 
 (**
+ *  Compares two complex numbers in lexicographic order.
+ *  Returns -1, 0 or 1 if the first argument is considered to be
+ *  respectively less than, equal to, or greater than the second.
+ *)
+const func integer: compare (in complex: num1, in complex: num2) is func
+  result
+    var integer: result is 0;
+  begin
+    result := compare(num1.re, num2.re);
+    if result = 0 then
+      result := compare(num1.im, num2.im);
+    end if;
+  end func;
+
+
+(**
+ *  Return the hash value of a complex number.
+ *)
+const func integer: hashCode (in complex: num) is
+  return hashCode(num.re) + hashCode(num.im);
+
+
+(**
  *  Return the conversion of a complex number to a string.
  *)
 const func string: str (in complex: num) is func

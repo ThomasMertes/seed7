@@ -1,3 +1,26 @@
+20100516:
+- Seed7 now supports the 64-bit versions of Linux and Mac OS X. Many thanks
+  to "Mensanator" for his help to reach this goal.
+- The compiler (comp.sd7) was improved to generate C programs with fewer
+  casts and with no parentheses around the right hand side of assignments.
+- The compiler was improved to use the hash 'typeCategory' and 'category'
+  values instead of various hashes like 'bigint_types'.
+- The functions 'compare' and 'hashCode' were added to the "complex.s7i"
+  library to allow complex numbers as keys for hash tables.
+- The "progs.s7i" library was improved to allow 'case' statements for
+  'category' values.
+- The FAQ, explaining function and operator overloading, was improved.
+- The "chk_all.sd7" example program was improved to remove an old executable
+  before calling the compiler.
+- The 'gets' function for UTF-8 files was improved to work correctly when
+  reading from a pipe (see functions 'ut8Gets', 'read_and_alloc_utf8_stri'
+  and 'read_utf8_string' in "ut8_rtl.c").
+- The functions 'remainingBytesInFile', 'read_string', 'read_and_alloc_stri'
+  and 'filGets' in "fil_rtl.c" were added or improved.
+- The macros 'ALLOC_STRI' and 'REALLOC_STRI' and the functions 'growStri',
+  'strMult', 'filGets', 'ut8Gets' and 'socGets' were improved to avoid
+  overflows when the size of a memory request is computed.
+
 20100502:
 - The "chk_all.sd7" example program was improved to write detailed information
   when tests fail.

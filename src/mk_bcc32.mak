@@ -153,7 +153,7 @@ version.h:
 	cmd /S /C "echo #define os_closedir wclosedir" >> version.h
 	cmd /S /C "echo #define os_DIR wDIR" >> version.h
 	cmd /S /C "echo #define os_dirent_struct struct wdirent >> version.h
-	cmd /S /C "echo #define os_fstat _fstat" >> version.h
+	cmd /S /C "echo #define os_fstat _fstati64" >> version.h
 	cmd /S /C "echo #define os_lstat _wstati64" >> version.h
 	cmd /S /C "echo #define os_stat _wstati64" >> version.h
 	cmd /S /C "echo #define os_stat_struct struct stati64" >> version.h

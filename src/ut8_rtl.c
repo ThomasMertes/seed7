@@ -46,8 +46,9 @@
 #include "ut8_rtl.h"
 
 
-#define GETS_DEFAULT_SIZE 0x1FFFFFFF
+#define GETS_DEFAULT_SIZE 1048576
 #define BUFFER_SIZE 2048
+#define GETS_STRI_SIZE_DELTA 4096
 
 
 typedef struct {
@@ -111,48 +112,131 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static memsizetype read_strelements (filetype aFile, memsizetype chars_requested,
-    stritype result, errinfotype *err_info)
+static memsizetype read_utf8_string (filetype aFile, stritype stri, errinfotype *err_info)
 #else
 
-static memsizetype read_strelements (aFile, chars_requested, result, err_info)
+static memsizetype read_utf8_string (aFile, stri, err_info)
 filetype aFile;
-memsizetype chars_requested;
-stritype result;
+stritype stri;
 errinfotype *err_info;
 #endif
 
   {
-    memsizetype chars_missing;
     uchartype buffer[BUFFER_SIZE + 6];
     memsizetype bytes_in_buffer;
+    memsizetype chars_missing;
     strelemtype *stri_dest;
     read_state state = {0, 0, 1, 0};
 
-  /* read_strelements */
-    for (stri_dest = result->mem, chars_missing = chars_requested;
+  /* read_utf8_string */
+    for (stri_dest = stri->mem, chars_missing = stri->size;
         chars_missing >= BUFFER_SIZE - state.bytes_missing + state.chars_there &&
-        (state.chars_read > 0 || state.chars_there);
+        (state.chars_read > 0 || state.chars_there) &&
+        *err_info == OKAY_NO_ERROR;
         stri_dest += state.chars_read, chars_missing -= state.chars_read) {
       bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
           BUFFER_SIZE, aFile);
       /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
-          bytes_in_buffer, (memsizetype) (stri_dest - result->mem)); */
+          bytes_in_buffer, (memsizetype) (stri_dest - stri->mem)); */
       bytes_to_strelements(buffer, bytes_in_buffer, stri_dest,
            &state, err_info);
     } /* for */
-    for (; chars_missing > 0 && (state.chars_read > 0 || state.chars_there);
+    for (; chars_missing > 0 && (state.chars_read > 0 || state.chars_there) &&
+        *err_info == OKAY_NO_ERROR;
         stri_dest += state.chars_read, chars_missing -= state.chars_read) {
       bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
           chars_missing - state.chars_there + state.bytes_missing, aFile);
       /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
           bytes_in_buffer, chars_missing, chars_read, chars_there,
-          state.bytes_missing, (memsizetype) (stri_dest - result->mem)); */
+          state.bytes_missing, (memsizetype) (stri_dest - stri->mem)); */
       bytes_to_strelements(buffer, bytes_in_buffer, stri_dest,
            &state, err_info);
     } /* for */
-    return (memsizetype) (stri_dest - result->mem);
-  } /* read_strelements */
+    return (memsizetype) (stri_dest - stri->mem);
+  } /* read_utf8_string */
+
+
+
+#ifdef ANSI_C
+
+static stritype read_and_alloc_utf8_stri (filetype aFile, memsizetype chars_missing,
+    memsizetype *num_of_chars_read, errinfotype *err_info)
+#else
+
+static stritype read_and_alloc_utf8_stri (aFile, chars_missing, num_of_chars_read, err_info)
+filetype aFile;
+memsizetype chars_missing;
+memsizetype *num_of_chars_read;
+errinfotype *err_info;
+#endif
+
+  {
+    uchartype buffer[BUFFER_SIZE + 6];
+    memsizetype bytes_in_buffer;
+    memsizetype result_pos;
+    memsizetype new_size;
+    stritype resized_result;
+    read_state state = {0, 0, 1, 0};
+    stritype result;
+
+  /* read_and_alloc_utf8_stri */
+    /* printf("read_and_alloc_utf8_stri(%d, %d, *, *)\n", fileno(aFile), chars_missing); */
+    if (!ALLOC_STRI(result, GETS_STRI_SIZE_DELTA)) {
+      *err_info = MEMORY_ERROR;
+      result = NULL;
+    } else {
+      result->size = GETS_STRI_SIZE_DELTA;
+      for (result_pos = 0;
+          chars_missing >= BUFFER_SIZE - state.bytes_missing + state.chars_there &&
+          (state.chars_read > 0 || state.chars_there) &&
+          *err_info == OKAY_NO_ERROR;
+          result_pos += state.chars_read, chars_missing -= state.chars_read) {
+        bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
+            BUFFER_SIZE, aFile);
+        /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
+            bytes_in_buffer, result_pos); */
+        if (result_pos + bytes_in_buffer > result->size) {
+          new_size = result->size + GETS_STRI_SIZE_DELTA;
+          REALLOC_STRI(resized_result, result, result->size, new_size);
+          if (resized_result == NULL) {
+            *err_info = MEMORY_ERROR;
+            return result;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(result->size, new_size);
+            result->size = new_size;
+          } /* if */
+        } /* if */
+        bytes_to_strelements(buffer, bytes_in_buffer, &result->mem[result_pos],
+             &state, err_info);
+      } /* for */
+      for (; chars_missing > 0 && (state.chars_read > 0 || state.chars_there) &&
+          *err_info == OKAY_NO_ERROR;
+          result_pos += state.chars_read, chars_missing -= state.chars_read) {
+        bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
+            chars_missing - state.chars_there + state.bytes_missing, aFile);
+        /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
+            bytes_in_buffer, chars_missing, chars_read, chars_there,
+            state.bytes_missing, result_pos); */
+        if (result_pos + bytes_in_buffer > result->size) {
+          new_size = result->size + GETS_STRI_SIZE_DELTA;
+          REALLOC_STRI(resized_result, result, result->size, new_size);
+          if (resized_result == NULL) {
+            *err_info = MEMORY_ERROR;
+            return result;
+          } else {
+            result = resized_result;
+            COUNT3_STRI(result->size, new_size);
+            result->size = new_size;
+          } /* if */
+        } /* if */
+        bytes_to_strelements(buffer, bytes_in_buffer, &result->mem[result_pos],
+             &state, err_info);
+      } /* for */
+      *num_of_chars_read = result_pos;
+    } /* if */
+    return result;
+  } /* read_and_alloc_utf8_stri */
 
 
 
@@ -326,6 +410,19 @@ filetype aFile;
 
 
 
+/**
+ *  Return a string with 'length' characters read from an UTF-8 file.
+ *  In order to work reasonable good for the common case (reading
+ *  just some characters) memory for 'length' characters is requested
+ *  with malloc(). After the data is read the result string is
+ *  shrinked to the actual size (with realloc()). When 'length' is
+ *  larger than GETS_DEFAULT_SIZE or the memory cannot be requested
+ *  a different strategy is used. In this case the function trys to
+ *  find out the number of available characters (this is possible
+ *  for a regular file but not for a pipe). If this fails a third
+ *  strategy is used. In this case a smaller block is requested. This
+ *  block is filled with data, resized and filled in a loop.
+ */
 #ifdef ANSI_C
 
 stritype ut8Gets (filetype aFile, inttype length)
@@ -337,8 +434,9 @@ inttype length;
 #endif
 
   {
-    memsizetype bytes_there;
     memsizetype chars_requested;
+    memsizetype bytes_there;
+    memsizetype allocated_size;
     errinfotype err_info = OKAY_NO_ERROR;
     memsizetype num_of_chars_read;
     stritype resized_result;
@@ -350,29 +448,32 @@ inttype length;
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      chars_requested = (memsizetype) length;
+      if ((uinttype) (length) > MAX_MEMSIZETYPE) {
+        chars_requested = MAX_MEMSIZETYPE;
+      } else {
+        chars_requested = (memsizetype) length;
+      } /* if */
       if (chars_requested > GETS_DEFAULT_SIZE) {
         /* Avoid requesting too much */
         result = NULL;
       } else {
-        ALLOC_STRI(result, chars_requested);
+        allocated_size = chars_requested;
+        ALLOC_STRI(result, allocated_size);
       } /* if */
       if (result == NULL) {
-        bytes_there = remainingBytesInFile(aFile, &err_info);
+        bytes_there = remainingBytesInFile(aFile);
         /* printf("bytes_there=%lu\n", bytes_there); */
-        if (err_info != OKAY_NO_ERROR) {
-          raise_error(err_info);
-          return NULL;
-        } else if (bytes_there != MAX_MEMSIZETYPE) {
+        if (bytes_there != 0) {
           /* Now we know that bytes_there bytes are available in aFile */
-          if (bytes_there < chars_requested) {
-            chars_requested = bytes_there;
-            if (!ALLOC_STRI(result, chars_requested)) {
-              raise_error(MEMORY_ERROR);
-              return NULL;
-            } /* if */
-          } else if (chars_requested <= GETS_DEFAULT_SIZE) {
-            /* The request for memory already failed */
+          if (chars_requested <= bytes_there) {
+            allocated_size = chars_requested;
+          } else {
+            allocated_size = bytes_there;
+          } /* if */
+          /* printf("allocated_size=%lu\n", allocated_size); */
+          if (!ALLOC_STRI(result, allocated_size)) {
+            /* printf("MAX_STRI_LEN=%lu, SIZ_STRI(MAX_STRI_LEN)=%lu\n",
+                MAX_STRI_LEN, SIZ_STRI(MAX_STRI_LEN)); */
             raise_error(MEMORY_ERROR);
             return NULL;
           } /* if */
@@ -381,30 +482,34 @@ inttype length;
       if (result != NULL) {
         /* We have allocated a buffer for the requested number of chars
            or for the number of bytes which are available in the file */
-        result->size = chars_requested;
-        num_of_chars_read = read_strelements(aFile, chars_requested, result, &err_info);
+        result->size = allocated_size;
+        num_of_chars_read = read_utf8_string(aFile, result, &err_info);
       } else {
-        raise_error(MEMORY_ERROR);
-        return NULL;
+        /* We do not know how many bytes are avaliable therefore
+           result is resized with GETS_STRI_SIZE_DELTA until we
+           have read enough or we reach EOF */
+        result = read_and_alloc_utf8_stri(aFile, chars_requested, &num_of_chars_read, &err_info);
       } /* if */
       if (err_info != OKAY_NO_ERROR) {
-        FREE_STRI(result, chars_requested);
+        if (result != NULL) {
+          FREE_STRI(result, result->size);
+        } /* if */
         raise_error(err_info);
         result = NULL;
-      } else {
-        REALLOC_STRI(resized_result, result, chars_requested, num_of_chars_read);
+      } else if (num_of_chars_read < result->size) {
+        REALLOC_STRI(resized_result, result, result->size, num_of_chars_read);
         if (resized_result == NULL) {
-          FREE_STRI(result, chars_requested);
+          FREE_STRI(result, result->size);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(chars_requested, num_of_chars_read);
+          COUNT3_STRI(result->size, num_of_chars_read);
           result->size = num_of_chars_read;
         } /* if */
       } /* if */
     } /* if */
-    /* printf("filGets(%d, %d) ==> ", fileno(aFile), length);
+    /* printf("ut8Gets(%d, %d) ==> ", fileno(aFile), length);
        prot_stri(result);
        printf("\n"); */
     return result;
