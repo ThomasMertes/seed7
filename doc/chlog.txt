@@ -1,4 +1,40 @@
-20201107:
+20101121:
+- The chapters explaining integer and bigInteger in the manual were improved.
+- Several improvements and a bugfix were done in the "gzip.s7i" library.
+- The function openGunzipFile and other functions to support a gunzipFile
+  were added to the "gzip.s7i" library.
+- The "tar7.sd7" (tar archiving utility) example program was improved.
+- The function getCStringLiteralText was added to the "scanstri.s7i" library.
+- The function timeInTimeZone was added to the "time.s7i" library.
+- Several tests of the integer power operator (**) were added to the
+  "chkexc.sd7" program.
+- The function check_power in the "chkint.sd7" program was improved.
+- The compiler (comp.sd7) was improved to generate better code for the
+  actions INT_POW and BIG_IPOW.
+- The compiler was improved to use string slices for the actions STR_HEAD,
+  STR_RANGE, STR_SUBSTR and STR_TAIL.
+- The compiler and the files "seed7_05.s7i", "arrlib.c" and "arr_rtl.c" were
+  improved to allow appending an element to an array with the &:= operator.
+- String and array indexing functions in the compiler were improved.
+- The file "seed7/read_me" was renamed to "seed7/read_me.txt".
+- The function cmdConfigValue in "cmd_rtl.c" was improved to support the config
+  values ALLOW_STRITYPE_SLICES and CC_SOURCE_UTF8.
+- Several makefiles were changed such that #undef commands are not written
+  to the file "version.h".
+- Alternate versions of strAppend and strCopy, which support string slices,
+  were added to the file "str_rtl.c".
+- The functions strHeadSlice, strRangeSlice, strSubstrSlice and strTailSlice
+  were added to the file "str_rtl.c".
+- The memory management of strings in the files "heaputl.c" and "heaputl.h" was
+  improved to support string slices.
+- The files "ref_data.c", "reflib.c", "infile.c", "infile.h", "error.h",
+  "info.c", "info.h", "match.c" and "runerr.c" were changed to improve the
+  action REF_FILE.
+- Parameter names were added to the prototypes in the *lib.h files.
+- The function strLpadTemp was added to the file "str_rtl.c" and used in the
+  compiler.
+
+20101107:
 - The chapter explaining exception handling in the manual was improved.
 - The support for bitmap fonts was improved to use fontProperties as base type.
 - The '-' function, which computes the differance of two 'time' values (with a

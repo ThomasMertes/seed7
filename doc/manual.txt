@@ -1685,11 +1685,11 @@ CONTENTS
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A << B    Shift left
                   ( A << B is okay for B >= 0 and B <= 31,
-                    A << B => A * 2_ ** B,
+                    A << B => A * 2 ** B,
                     A << 0 => A )
       A >> B    Arithmetic shift right
                   ( A >> B is okay for B >= 0 and B <= 31,
-                    A >> B => A mdiv 2_ ** B  for B <= 30,
+                    A >> B => A mdiv 2 ** B  for B <= 30,
                     A >> B => C for A >= 0 holds: C >= 0
                     A >> B => C for A < 0 holds: C < 0
                     A >> B => 0 for A >= 0 and B > ord(log2(A)),
@@ -1821,6 +1821,7 @@ CONTENTS
                                       sign or A rem B = 0 holds.
     A mdiv B = (A - 1) div B - 1      when A > 0 and B < 0 holds.
     A mdiv B = (A + 1) div B - 1      when A < 0 and B > 0 holds.
+    A mdiv 2 ** B = A >> B            when B >= 0 holds
 
   For the operation 'mod' holds:
     A mod B = A rem B + B      when A and B have different
@@ -2022,6 +2023,7 @@ CONTENTS
                                       sign or A rem B = 0_ holds.
     A mdiv B = (A - 1_) div B - 1_    when A > 0_ and B < 0_ holds.
     A mdiv B = (A + 1_) div B - 1_    when A < 0_ and B > 0_ holds.
+    A mdiv 2_ ** B = A >> B           when B >= 0 holds
 
   For the operation 'mod' holds:
     A mod B = A rem B + B      when A and B have different

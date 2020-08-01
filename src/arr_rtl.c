@@ -487,6 +487,42 @@ inttype pos;
 
 #ifdef ANSI_C
 
+void arrPush (rtlArraytype *arr_variable, const rtlGenerictype element)
+#else
+
+void arrPush (arr_variable, element)
+rtlArraytype *arr_variable;
+rtlGenerictype element;
+#endif
+
+  {
+    rtlArraytype arr_to;
+    memsizetype new_size;
+    memsizetype arr_to_size;
+
+  /* arrPush */
+    arr_to = *arr_variable;
+    arr_to_size = (uinttype) (arr_to->max_position - arr_to->min_position + 1);
+    if (arr_to->max_position > (inttype) (MAX_MEM_INDEX - 1)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      new_size = arr_to_size + 1;
+      arr_to = REALLOC_RTL_ARRAY(arr_to, arr_to_size, new_size);
+      if (arr_to == NULL) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT3_RTL_ARRAY(arr_to_size, new_size);
+        *arr_variable = arr_to;
+        arr_to->max_position ++;
+        arr_to->arr[arr_to_size].value.genericvalue = element;
+      } /* if */
+    } /* if */
+  } /* arrPush */
+
+
+
+#ifdef ANSI_C
+
 rtlArraytype arrRange (rtlArraytype arr1, inttype start, inttype stop)
 #else
 

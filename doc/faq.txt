@@ -140,7 +140,7 @@ the BDS (bcc32.exe). For other operating systems it might be necessary to
 write driver modules for screen (=text console), graphics, time or other
 aspects of Seed7. The package contains various older driver modules
 which are not up to date, but can be used as base to write such driver
-modules. For more detailed information look at the files 'seed7/read_me'
+modules. For more detailed information look at the files 'seed7/read_me.txt'
 and 'seed7/src/read_me.txt'.
 
 

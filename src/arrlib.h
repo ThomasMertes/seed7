@@ -27,29 +27,30 @@
 
 #ifdef ANSI_C
 
-objecttype arr_append (listtype);
-objecttype arr_arrlit (listtype);
-objecttype arr_arrlit2 (listtype);
-objecttype arr_baselit (listtype);
-objecttype arr_baselit2 (listtype);
-objecttype arr_cat (listtype);
-objecttype arr_conv (listtype);
-objecttype arr_cpy (listtype);
-objecttype arr_create (listtype);
-objecttype arr_destr (listtype);
-objecttype arr_empty (listtype);
-objecttype arr_extend (listtype);
-objecttype arr_gen (listtype);
-objecttype arr_head (listtype);
-objecttype arr_idx (listtype);
-objecttype arr_lng (listtype);
-objecttype arr_maxidx (listtype);
-objecttype arr_minidx (listtype);
-objecttype arr_range (listtype);
-objecttype arr_remove (listtype);
-objecttype arr_sort (listtype);
-objecttype arr_tail (listtype);
-objecttype arr_times (listtype);
+objecttype arr_append   (listtype arguments);
+objecttype arr_arrlit   (listtype arguments);
+objecttype arr_arrlit2  (listtype arguments);
+objecttype arr_baselit  (listtype arguments);
+objecttype arr_baselit2 (listtype arguments);
+objecttype arr_cat      (listtype arguments);
+objecttype arr_conv     (listtype arguments);
+objecttype arr_cpy      (listtype arguments);
+objecttype arr_create   (listtype arguments);
+objecttype arr_destr    (listtype arguments);
+objecttype arr_empty    (listtype arguments);
+objecttype arr_extend   (listtype arguments);
+objecttype arr_gen      (listtype arguments);
+objecttype arr_head     (listtype arguments);
+objecttype arr_idx      (listtype arguments);
+objecttype arr_lng      (listtype arguments);
+objecttype arr_maxidx   (listtype arguments);
+objecttype arr_minidx   (listtype arguments);
+objecttype arr_push     (listtype arguments);
+objecttype arr_range    (listtype arguments);
+objecttype arr_remove   (listtype arguments);
+objecttype arr_sort     (listtype arguments);
+objecttype arr_tail     (listtype arguments);
+objecttype arr_times    (listtype arguments);
 
 #else
 
@@ -71,6 +72,7 @@ objecttype arr_idx ();
 objecttype arr_lng ();
 objecttype arr_maxidx ();
 objecttype arr_minidx ();
+objecttype arr_push ();
 objecttype arr_range ();
 objecttype arr_remove ();
 objecttype arr_sort ();

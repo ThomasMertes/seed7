@@ -277,7 +277,7 @@ static void process_pragma ()
 #ifdef WITH_COMPILATION_INFO
           if (option.compilation_info) {
             size_t number;
-            for (number = 1; number <= 7 + strlen((const_cstritype) in_file.name);
+            for (number = 1; number <= 7 + strlen((const_cstritype) in_file.name_ustri);
                 number++) {
               fputc(' ', stdout);
             } /* for */

@@ -1685,11 +1685,11 @@
                     A ** -1 => EXCEPTION NUMERIC_ERROR )
       A &lt;&lt; B    Shift left
                   ( A &lt;&lt; B is okay for B >= 0 and B <= 31,
-                    A &lt;&lt; B => A * 2_ ** B,
+                    A &lt;&lt; B => A * 2 ** B,
                     A &lt;&lt; 0 => A )
       A >> B    Arithmetic shift right
                   ( A >> B is okay for B >= 0 and B <= 31,
-                    A >> B => A <font color=blue>mdiv</font> 2_ ** B  for B <= 30,
+                    A >> B => A <font color=blue>mdiv</font> 2 ** B  for B <= 30,
                     A >> B => C for A >= 0 holds: C >= 0
                     A >> B => C for A < 0 holds: C < 0
                     A >> B => 0 for A >= 0 and B > ord(log2(A)),
@@ -1821,6 +1821,7 @@
                                       sign or A <font color=blue>rem</font> B = 0 holds.
     A <font color=blue>mdiv</font> B = (A - 1) <font color=blue>div</font> B - 1      when A > 0 and B &lt; 0 holds.
     A <font color=blue>mdiv</font> B = (A + 1) <font color=blue>div</font> B - 1      when A &lt; 0 and B > 0 holds.
+    A <font color=blue>mdiv</font> 2 ** B = A >> B            when B >= 0 holds
 </pre><p>
   For the operation <tt>'<font color=blue>mod</font>'</tt> holds:</p><pre>
     A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B      when A and B have different
@@ -2022,6 +2023,7 @@
                                       sign or A <font color=blue>rem</font> B = 0_ holds.
     A <font color=blue>mdiv</font> B = (A - 1_) <font color=blue>div</font> B - 1_    when A > 0_ and B &lt; 0_ holds.
     A <font color=blue>mdiv</font> B = (A + 1_) <font color=blue>div</font> B - 1_    when A &lt; 0_ and B > 0_ holds.
+    A <font color=blue>mdiv</font> 2_ ** B = A >> B           when B >= 0 holds
 </pre><p>
   For the operation <tt>'<font color=blue>mod</font>'</tt> holds:</p><pre>
     A <font color=blue>mod</font> B = A <font color=blue>rem</font> B + B      when A and B have different

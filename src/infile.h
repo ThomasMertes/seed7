@@ -60,7 +60,7 @@
 
 #ifdef DO_INIT
 infilrecord in_file = {
-    NULL, NULL,
+    NULL, NULL, NULL,
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
     NULL, NULL, NULL, 0,
 #else
@@ -85,7 +85,8 @@ void close_infile (void);
 void open_string (bstritype input_string, errinfotype *err_info);
 void next_file (void);
 int next_line (void);
-const_ustritype file_name (filenumtype file_num);
+const_stritype file_name (filenumtype file_num);
+const_ustritype file_name_ustri (filenumtype file_num);
 void find_include_file (const_stritype include_file_name, errinfotype *err_info);
 void append_to_lib_path (const_stritype path, errinfotype *err_info);
 void init_lib_path (const_stritype source_file_name, errinfotype *err_info);
@@ -99,7 +100,8 @@ void close_infile ();
 void open_string ();
 void next_file ();
 int next_line ();
-ustritype file_name ();
+const_stritype file_name ();
+ustritype file_name_ustri ();
 void find_include_file ();
 void append_to_lib_path ();
 void init_lib_path ();

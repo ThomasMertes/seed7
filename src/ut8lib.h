@@ -27,12 +27,12 @@
 
 #ifdef ANSI_C
 
-objecttype ut8_getc (listtype arguments);
-objecttype ut8_gets (listtype arguments);
+objecttype ut8_getc      (listtype arguments);
+objecttype ut8_gets      (listtype arguments);
 objecttype ut8_line_read (listtype arguments);
-objecttype ut8_seek (listtype arguments);
+objecttype ut8_seek      (listtype arguments);
 objecttype ut8_word_read (listtype arguments);
-objecttype ut8_write (listtype arguments);
+objecttype ut8_write     (listtype arguments);
 
 #else
 

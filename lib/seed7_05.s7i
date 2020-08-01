@@ -541,55 +541,55 @@ const proc: global (in proc param) end global is                              ac
 
 const integer: (attr integer) . value is 0;
 
-const func integer: + (in integer param) is                         action "INT_PLUS";
-const func integer: - (in integer param) is                         action "INT_MINUS";
-const func integer: ! (in integer param) is                         action "INT_FACT";
+const func integer: + (in integer param)                         is action "INT_PLUS";
+const func integer: - (in integer param)                         is action "INT_MINUS";
+const func integer: ! (in integer param)                         is action "INT_FACT";
 
-const proc: (inout integer param) := (in integer param) is          action "INT_CPY";
-const proc: (inout integer param) +:= (in integer param) is         action "INT_GROW";
-const proc: (inout integer param) -:= (in integer param) is         action "INT_SHRINK";
-const proc: (inout integer param) *:= (in integer param) is         action "INT_MULT_ASSIGN";
-const proc: (inout integer param) <<:= (in integer param) is        action "INT_LSHIFT_ASSIGN";
-const proc: (inout integer param) >>:= (in integer param) is        action "INT_RSHIFT_ASSIGN";
-const func integer: (in integer param) + (in integer param) is      action "INT_ADD";
-const func integer: (in integer param) - (in integer param) is      action "INT_SBTR";
-const func integer: (in integer param) * (in integer param) is      action "INT_MULT";
-const func integer: (in integer param) div (in integer param) is    action "INT_DIV";
-const func integer: (in integer param) rem (in integer param) is    action "INT_REM";
-const func integer: (in integer param) mdiv (in integer param) is   action "INT_MDIV";
-const func integer: (in integer param) mod (in integer param) is    action "INT_MOD";
-const func integer: (in integer param) ** (in integer param) is     action "INT_POW";
-const func integer: (in integer param) << (in integer param) is     action "INT_LSHIFT";
-const func integer: (in integer param) >> (in integer param) is     action "INT_RSHIFT";
-const func integer: (in integer param) ! (in integer param) is      action "INT_BINOM";
-const func boolean: (in integer param) = (in integer param) is      action "INT_EQ";
-const func boolean: (in integer param) < (in integer param) is      action "INT_LT";
-const func boolean: (in integer param) > (in integer param) is      action "INT_GT";
-const func boolean: (in integer param) <= (in integer param) is     action "INT_LE";
-const func boolean: (in integer param) >= (in integer param) is     action "INT_GE";
-const func boolean: (in integer param) <> (in integer param) is     action "INT_NE";
+const proc: (inout integer param) := (in integer param)          is action "INT_CPY";
+const proc: (inout integer param) +:= (in integer param)         is action "INT_GROW";
+const proc: (inout integer param) -:= (in integer param)         is action "INT_SHRINK";
+const proc: (inout integer param) *:= (in integer param)         is action "INT_MULT_ASSIGN";
+const proc: (inout integer param) <<:= (in integer param)        is action "INT_LSHIFT_ASSIGN";
+const proc: (inout integer param) >>:= (in integer param)        is action "INT_RSHIFT_ASSIGN";
+const func integer: (in integer param) + (in integer param)      is action "INT_ADD";
+const func integer: (in integer param) - (in integer param)      is action "INT_SBTR";
+const func integer: (in integer param) * (in integer param)      is action "INT_MULT";
+const func integer: (in integer param) div (in integer param)    is action "INT_DIV";
+const func integer: (in integer param) rem (in integer param)    is action "INT_REM";
+const func integer: (in integer param) mdiv (in integer param)   is action "INT_MDIV";
+const func integer: (in integer param) mod (in integer param)    is action "INT_MOD";
+const func integer: (in integer param) ** (in integer param)     is action "INT_POW";
+const func integer: (in integer param) << (in integer param)     is action "INT_LSHIFT";
+const func integer: (in integer param) >> (in integer param)     is action "INT_RSHIFT";
+const func integer: (in integer param) ! (in integer param)      is action "INT_BINOM";
+const func boolean: (in integer param) = (in integer param)      is action "INT_EQ";
+const func boolean: (in integer param) < (in integer param)      is action "INT_LT";
+const func boolean: (in integer param) > (in integer param)      is action "INT_GT";
+const func boolean: (in integer param) <= (in integer param)     is action "INT_LE";
+const func boolean: (in integer param) >= (in integer param)     is action "INT_GE";
+const func boolean: (in integer param) <> (in integer param)     is action "INT_NE";
 const func integer: compare (in integer param, in integer param) is action "INT_CMP";
-const func integer: hashCode (in integer param) is                  action "INT_HASHCODE";
+const func integer: hashCode (in integer param)                  is action "INT_HASHCODE";
 
-const func integer: succ (in integer param) is                      action "INT_SUCC";
-const func integer: pred (in integer param) is                      action "INT_PRED";
-const func integer: abs (in integer param) is                       action "INT_ABS";
-const func integer: sqrt (in integer param) is                      action "INT_SQRT";
-const func integer: log2 (in integer param) is                      action "INT_LOG2";
-const func boolean: odd (in integer param) is                       action "INT_ODD";
-const func integer: ord (in integer param) is                       action "INT_ORD";
-const func integer: (attr integer) conv (in integer param) is       action "INT_CONV";
-const func string: str (in integer param) is                        action "INT_STR";
-const func string: literal (in integer param) is                    action "INT_STR";
-const func string: str (in integer param, in integer param) is      action "INT_STR_BASED";
-const func string: (in integer param) lpad0 (in integer param) is   action "INT_LPAD0";
-const proc: incr (inout integer param) is                           action "INT_INCR";
-const proc: decr (inout integer param) is                           action "INT_DECR";
+const func integer: succ (in integer param)                      is action "INT_SUCC";
+const func integer: pred (in integer param)                      is action "INT_PRED";
+const func integer: abs (in integer param)                       is action "INT_ABS";
+const func integer: sqrt (in integer param)                      is action "INT_SQRT";
+const func integer: log2 (in integer param)                      is action "INT_LOG2";
+const func boolean: odd (in integer param)                       is action "INT_ODD";
+const func integer: ord (in integer param)                       is action "INT_ORD";
+const func integer: (attr integer) conv (in integer param)       is action "INT_CONV";
+const func string: str (in integer param)                        is action "INT_STR";
+const func string: literal (in integer param)                    is action "INT_STR";
+const func string: str (in integer param, in integer param)      is action "INT_STR_BASED";
+const func string: (in integer param) lpad0 (in integer param)   is action "INT_LPAD0";
+const proc: incr (inout integer param)                           is action "INT_INCR";
+const proc: decr (inout integer param)                           is action "INT_DECR";
 
-const func integer: rand (in integer param, in integer param) is    action "INT_RAND";
-const func integer: bitLength (in integer param) is                 action "INT_BIT_LENGTH";
-const func integer: lowestSetBit (in integer param) is              action "INT_LOWEST_SET_BIT";
-const func integer: (attr integer) parse (in string param) is       action "INT_PARSE";
+const func integer: rand (in integer param, in integer param)    is action "INT_RAND";
+const func integer: bitLength (in integer param)                 is action "INT_BIT_LENGTH";
+const func integer: lowestSetBit (in integer param)              is action "INT_LOWEST_SET_BIT";
+const func integer: (attr integer) parse (in string param)       is action "INT_PARSE";
 
 const func boolean: rand (in boolean: low, in boolean: high) is
   return odd(rand(ord(low), ord(high)));
@@ -604,28 +604,28 @@ const char: (attr char) . value is ' ';
 const char: (attr char) . first is '\0\';
 const char: (attr char) . last is  '\512\';
 
-const proc: (inout char param) := (in char param) is             action "CHR_CPY";
-const func boolean: (in char param) = (in char param) is         action "CHR_EQ";
-const func boolean: (in char param) < (in char param) is         action "CHR_LT";
-const func boolean: (in char param) > (in char param) is         action "CHR_GT";
-const func boolean: (in char param) <= (in char param) is        action "CHR_LE";
-const func boolean: (in char param) >= (in char param) is        action "CHR_GE";
-const func boolean: (in char param) <> (in char param) is        action "CHR_NE";
-const func integer: compare (in char param, in char param) is    action "CHR_CMP";
-const func integer: hashCode (in char param) is                  action "CHR_HASHCODE";
+const proc: (inout char param) := (in char param)             is action "CHR_CPY";
+const func boolean: (in char param) = (in char param)         is action "CHR_EQ";
+const func boolean: (in char param) < (in char param)         is action "CHR_LT";
+const func boolean: (in char param) > (in char param)         is action "CHR_GT";
+const func boolean: (in char param) <= (in char param)        is action "CHR_LE";
+const func boolean: (in char param) >= (in char param)        is action "CHR_GE";
+const func boolean: (in char param) <> (in char param)        is action "CHR_NE";
+const func integer: compare (in char param, in char param)    is action "CHR_CMP";
+const func integer: hashCode (in char param)                  is action "CHR_HASHCODE";
 
-const func integer: ord (in char param) is                       action "CHR_ORD";
-const func char: (attr char) conv (in integer param) is          action "CHR_ICONV";
+const func integer: ord (in char param)                       is action "CHR_ORD";
+const func char: (attr char) conv (in integer param)          is action "CHR_ICONV";
 const varfunc char: (attr char) varConv (inout integer param) is action "TYP_VARCONV";
-const func char: chr (in integer param) is                       action "CHR_CHR";
-const func char: succ (in char param) is                         action "CHR_SUCC";
-const func char: pred (in char param) is                         action "CHR_PRED";
-const func string: str (in char param) is                        action "CHR_STR";
-const func char: lower (in char param) is                        action "CHR_LOW";
-const func char: upper (in char param) is                        action "CHR_UP";
-const proc: incr (inout char param) is                           action "CHR_INCR";
-const proc: decr (inout char param) is                           action "CHR_DECR";
-const func string: c_literal (in char: ch) is                    action "CHR_CLIT";
+const func char: chr (in integer param)                       is action "CHR_CHR";
+const func char: succ (in char param)                         is action "CHR_SUCC";
+const func char: pred (in char param)                         is action "CHR_PRED";
+const func string: str (in char param)                        is action "CHR_STR";
+const func char: lower (in char param)                        is action "CHR_LOW";
+const func char: upper (in char param)                        is action "CHR_UP";
+const proc: incr (inout char param)                           is action "CHR_INCR";
+const proc: decr (inout char param)                           is action "CHR_DECR";
+const func string: c_literal (in char: ch)                    is action "CHR_CLIT";
 
 const func char: rand (in char: low, in char: high) is
   return chr(rand(ord(low), ord(high)));
@@ -639,53 +639,53 @@ const func char: rand (in char: low, in char: high) is
 
 const string: (attr string) . value is "";
 
-const func string: (in string param) mult (in integer param) is   action "STR_MULT";
+const func string: (in string param) mult (in integer param)   is action "STR_MULT";
 
-const proc: (inout string param) := (in string param) is          action "STR_CPY";
-const proc: (inout string param) &:= (in string param) is         action "STR_APPEND";
-const proc: (inout string param) &:= (in char param) is           action "STR_PUSH";
+const proc: (inout string param) := (in string param)          is action "STR_CPY";
+const proc: (inout string param) &:= (in string param)         is action "STR_APPEND";
+const proc: (inout string param) &:= (in char param)           is action "STR_PUSH";
 const proc: (inout string param) @:= [ (in integer param) ] (in char param) is action "STR_ELEMCPY";
-const func string: (in string param) lpad (in integer param) is   action "STR_LPAD";
-const func string: (in string param) lpad0 (in integer param) is  action "STR_LPAD0";
-const func string: (in string param) rpad (in integer param) is   action "STR_RPAD";
-const func string: (in string param) <& (in string param) is      action "STR_CAT";
-const func char: (in string param) [ (in integer param) ] is      action "STR_IDX";
+const func string: (in string param) lpad (in integer param)   is action "STR_LPAD";
+const func string: (in string param) lpad0 (in integer param)  is action "STR_LPAD0";
+const func string: (in string param) rpad (in integer param)   is action "STR_RPAD";
+const func string: (in string param) <& (in string param)      is action "STR_CAT";
+const func char: (in string param) [ (in integer param) ]      is action "STR_IDX";
 const func string: (in string param) [ (in integer param) .. ] is action "STR_TAIL";
 const func string: (in string param) [ .. (in integer param) ] is action "STR_HEAD";
 const func string: (in string param) [ (in integer param) ..
-                                       (in integer param) ] is    action "STR_RANGE";
+                                       (in integer param) ]    is action "STR_RANGE";
 const func string: (in string param) [ (in integer param) len
-                                       (in integer param) ] is    action "STR_SUBSTR";
-const func boolean: (in string param) = (in string param) is      action "STR_EQ";
-const func boolean: (in string param) < (in string param) is      action "STR_LT";
-const func boolean: (in string param) > (in string param) is      action "STR_GT";
-const func boolean: (in string param) <= (in string param) is     action "STR_LE";
-const func boolean: (in string param) >= (in string param) is     action "STR_GE";
-const func boolean: (in string param) <> (in string param) is     action "STR_NE";
+                                       (in integer param) ]    is action "STR_SUBSTR";
+const func boolean: (in string param) = (in string param)      is action "STR_EQ";
+const func boolean: (in string param) < (in string param)      is action "STR_LT";
+const func boolean: (in string param) > (in string param)      is action "STR_GT";
+const func boolean: (in string param) <= (in string param)     is action "STR_LE";
+const func boolean: (in string param) >= (in string param)     is action "STR_GE";
+const func boolean: (in string param) <> (in string param)     is action "STR_NE";
 const func integer: compare (in string param, in string param) is action "STR_CMP";
-const func integer: hashCode (in string param) is                 action "STR_HASHCODE";
+const func integer: hashCode (in string param)                 is action "STR_HASHCODE";
 
-const func integer: length (in string param) is                   action "STR_LNG";
-const func integer: pos (in string param, in string param) is     action "STR_POS";
-const func integer: pos (in string param, in char param) is       action "STR_CHPOS";
+const func integer: length (in string param)                   is action "STR_LNG";
+const func integer: pos (in string param, in string param)     is action "STR_POS";
+const func integer: pos (in string param, in char param)       is action "STR_CHPOS";
 const func integer: pos (in string param, in string param,
-                         in integer param) is                     action "STR_IPOS";
+                         in integer param)                     is action "STR_IPOS";
 const func integer: pos (in string param, in char param,
-                         in integer param) is                     action "STR_CHIPOS";
-const func integer: rpos (in string param, in string param) is    action "STR_RPOS";
-const func integer: rpos (in string param, in char param) is      action "STR_RCHPOS";
+                         in integer param)                     is action "STR_CHIPOS";
+const func integer: rpos (in string param, in string param)    is action "STR_RPOS";
+const func integer: rpos (in string param, in char param)      is action "STR_RCHPOS";
 const func integer: rpos (in string param, in char param,
-                          in integer param) is                    action "STR_RCHIPOS";
-(* const proc: count (in string param, in string param) is        action "STR_CNT"; *)
+                          in integer param)                    is action "STR_RCHIPOS";
+(* const proc: count (in string param, in string param)        is action "STR_CNT"; *)
 const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
-const func string: upper (in string param) is                     action "STR_UP";
-const func string: lower (in string param) is                     action "STR_LOW";
-const func string: trim (in string param) is                      action "STR_TRIM";
-const func string: striToUtf8 (in string param) is                action "STR_TOUTF8";
-const func string: utf8ToStri (in string param) is                action "STR_UTF8TOSTRI";
-const func string: str (in string param) is                       action "STR_STR";
-const func string: literal (in string param) is                   action "STR_LIT";
-const func string: c_literal (in string param) is                 action "STR_CLIT";
+const func string: upper (in string param)                     is action "STR_UP";
+const func string: lower (in string param)                     is action "STR_LOW";
+const func string: trim (in string param)                      is action "STR_TRIM";
+const func string: striToUtf8 (in string param)                is action "STR_TOUTF8";
+const func string: utf8ToStri (in string param)                is action "STR_UTF8TOSTRI";
+const func string: str (in string param)                       is action "STR_STR";
+const func string: literal (in string param)                   is action "STR_LIT";
+const func string: c_literal (in string param)                 is action "STR_CLIT";
 
 const func string: replace2 (in string: main_stri, in string: search1,
     in string: search2, in string: repl_stri) is func
@@ -750,16 +750,8 @@ const func string: (attr string) parse (in string: stri) is func
     result := stri;
   end func;
 
-const func char: (attr char) parse (in string: stri) is func
-  result
-    var char: result is ' ';
-  begin
-    if length(stri) >= 1 then
-      result := stri[1];
-    else
-      raise RANGE_ERROR;
-    end if;
-  end func;
+const func char: (attr char) parse (in string: stri) is
+  return stri[1];
 
 const func boolean: (attr boolean) parse (in string: stri) is func
   result
@@ -1338,10 +1330,10 @@ const func type: tuple (in type: baseType) is func
       tupleType := newtype;
       IN_PARAM_IS_REFERENCE(tupleType);
       const type: tuple (attr baseType) is tupleType;
-      const proc: (ref tupleType param) ::= (in tupleType param) is         action "ARR_CREATE";
-      const proc: destroy (ref tupleType param) is                          action "ARR_DESTR";
-      const func tupleType: (in baseType param) , (in baseType param) is    action "ARR_GEN";
-      const func tupleType: (in tupleType param) , (in baseType param) is   action "ARR_EXTEND";
+      const proc: (ref tupleType param) ::= (in tupleType param)         is action "ARR_CREATE";
+      const proc: destroy (ref tupleType param)                          is action "ARR_DESTR";
+      const func tupleType: (in baseType param) , (in baseType param)    is action "ARR_GEN";
+      const func tupleType: (in tupleType param) , (in baseType param)   is action "ARR_EXTEND";
 (*
       const func tupleType: (in baseType: lower_limit) .. (in baseType: upper_limit) is func
         result
@@ -1395,35 +1387,36 @@ const func type: array (in type: baseType) is func
       arrayType := newtype;
       IN_PARAM_IS_REFERENCE(arrayType);
       tupleType := tuple(baseType);
-      const type: array (attr baseType) is                                       arrayType;
-      const type: base_type (attr arrayType) is                                  baseType;
+      const type: array (attr baseType)                                       is arrayType;
+      const type: base_type (attr arrayType)                                  is baseType;
 
-      const proc: (ref arrayType param) ::= (in arrayType param) is              action "ARR_CREATE";
-      const proc: destroy (ref arrayType param) is                               action "ARR_DESTR";
-      const proc: (inout arrayType param) := (in arrayType param) is             action "ARR_CPY";
-      const proc: (inout arrayType param) &:= (in arrayType param) is            action "ARR_APPEND";
+      const proc: (ref arrayType param) ::= (in arrayType param)              is action "ARR_CREATE";
+      const proc: destroy (ref arrayType param)                               is action "ARR_DESTR";
+      const proc: (inout arrayType param) := (in arrayType param)             is action "ARR_CPY";
+      const proc: (inout arrayType param) &:= (in arrayType param)            is action "ARR_APPEND";
+      const proc: (inout arrayType: arr) &:= (in baseType: element)           is action "ARR_PUSH";
 
-      const func arrayType: [] (in tupleType param) is                           action "ARR_ARRLIT";
-      const func arrayType: [] (in baseType param) is                            action "ARR_BASELIT";
-      const func arrayType: [ (in integer param) ] (in tupleType param) is       action "ARR_ARRLIT2";
-      const func arrayType: [ (in integer param) ] (in baseType param) is        action "ARR_BASELIT2";
+      const func arrayType: [] (in tupleType param)                           is action "ARR_ARRLIT";
+      const func arrayType: [] (in baseType param)                            is action "ARR_BASELIT";
+      const func arrayType: [ (in integer param) ] (in tupleType param)       is action "ARR_ARRLIT2";
+      const func arrayType: [ (in integer param) ] (in baseType param)        is action "ARR_BASELIT2";
 
-      const func arrayType: (in arrayType param) & (in arrayType param) is       action "ARR_CAT";
-      const func baseType: (in arrayType param) [ (in integer param) ] is        action "ARR_IDX";
-      const varfunc baseType: (inout arrayType param) [ (in integer param) ] is  action "ARR_IDX";
-      const func arrayType: (in arrayType param) [ (in integer param) .. ] is    action "ARR_TAIL";
-      const func arrayType: (in arrayType param) [ .. (in integer param) ] is    action "ARR_HEAD";
+      const func arrayType: (in arrayType param) & (in arrayType param)       is action "ARR_CAT";
+      const func baseType: (in arrayType param) [ (in integer param) ]        is action "ARR_IDX";
+      const varfunc baseType: (inout arrayType param) [ (in integer param) ]  is action "ARR_IDX";
+      const func arrayType: (in arrayType param) [ (in integer param) .. ]    is action "ARR_TAIL";
+      const func arrayType: (in arrayType param) [ .. (in integer param) ]    is action "ARR_HEAD";
       const func arrayType: (in arrayType param) [ (in integer param) ..
-                                                   (in integer param) ] is       action "ARR_RANGE";
-      const func baseType: remove (inout arrayType param, in integer param) is   action "ARR_REMOVE";
-      const func integer: length (in arrayType param) is                         action "ARR_LNG";
-      const func integer: minIdx (in arrayType param) is                         action "ARR_MINIDX";
-      const func integer: maxIdx (in arrayType param) is                         action "ARR_MAXIDX";
-      const func arrayType: (in integer param) times (in baseType param) is      action "ARR_TIMES";
-      const func arrayType: (attr arrayType) . _GENERATE_EMPTY_ARRAY is          action "ARR_EMPTY";
-      const arrayType: (attr arrayType) . value is                               arrayType._GENERATE_EMPTY_ARRAY;
+                                                   (in integer param) ]       is action "ARR_RANGE";
+      const func baseType: remove (inout arrayType param, in integer param)   is action "ARR_REMOVE";
+      const func integer: length (in arrayType param)                         is action "ARR_LNG";
+      const func integer: minIdx (in arrayType param)                         is action "ARR_MINIDX";
+      const func integer: maxIdx (in arrayType param)                         is action "ARR_MAXIDX";
+      const func arrayType: (in integer param) times (in baseType param)      is action "ARR_TIMES";
+      const func arrayType: (attr arrayType) . _GENERATE_EMPTY_ARRAY          is action "ARR_EMPTY";
+      const arrayType: (attr arrayType) . value                               is arrayType._GENERATE_EMPTY_ARRAY;
 
-      const func tupleType: (attr tupleType) conv (in arrayType param) is        action "ARR_CONV";
+      const func tupleType: (attr tupleType) conv (in arrayType param)        is action "ARR_CONV";
 
       const func arrayType: (in ARRAY_IDX_RANGE: arrayIdxRange) times
           (in baseType: base_value) is func
@@ -1684,7 +1677,7 @@ const func string: join (in array string: striArray, in char: delimiter) is func
   begin
     result := striArray[minIdx(striArray)];
     for pos range succ(minIdx(striArray)) to maxIdx(striArray) do
-      result &:= str(delimiter);
+      result &:= delimiter;
       result &:= striArray[pos];
     end for;
   end func;
@@ -1963,7 +1956,7 @@ const func type: hash [ (in type: keyType) ] (in type: baseType) is func
           begin
             for aValue key aKey range aHash do
               if aValue in result then
-                result[aValue] &:= [] (aKey);
+                result[aValue] &:= aKey;
               else
                 result @:= [aValue] [] (aKey);
               end if;

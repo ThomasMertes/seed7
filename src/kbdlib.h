@@ -27,13 +27,13 @@
 
 #ifdef ANSI_C
 
-objecttype kbd_busy_getc (listtype);
-objecttype kbd_getc (listtype);
-objecttype kbd_gets (listtype);
-objecttype kbd_keypressed (listtype);
-objecttype kbd_line_read (listtype);
-objecttype kbd_raw_getc (listtype);
-objecttype kbd_word_read (listtype);
+objecttype kbd_busy_getc  (listtype arguments);
+objecttype kbd_getc       (listtype arguments);
+objecttype kbd_gets       (listtype arguments);
+objecttype kbd_keypressed (listtype arguments);
+objecttype kbd_line_read  (listtype arguments);
+objecttype kbd_raw_getc   (listtype arguments);
+objecttype kbd_word_read  (listtype arguments);
 
 #else
 

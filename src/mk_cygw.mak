@@ -97,12 +97,10 @@ hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
 	cp hi.exe ../prg
 	./hi level
-#	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
-
 
 clear: clean
 
@@ -124,7 +122,6 @@ version.h:
 	echo "#define USE_MMAP" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define INCL_NCURSES_TERM" >> version.h
-	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#define os_fseek fseeko" >> version.h
 	echo "#define os_ftell ftello" >> version.h

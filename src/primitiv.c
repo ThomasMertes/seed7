@@ -94,6 +94,7 @@ static primactrecord prim_act_table[] = {
     { "ARR_LNG",             arr_lng,             },
     { "ARR_MAXIDX",          arr_maxidx,          },
     { "ARR_MINIDX",          arr_minidx,          },
+    { "ARR_PUSH",            arr_push,            },
     { "ARR_RANGE",           arr_range,           },
     { "ARR_REMOVE",          arr_remove,          },
     { "ARR_SORT",            arr_sort,            },

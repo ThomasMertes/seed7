@@ -93,15 +93,16 @@ SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
+hi.exe: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
 	copy hi.exe ..\prg /Y
 	.\hi level
 
+hi: hi.exe
+
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o/usr/local/bin/hi.gp
 	hi level
-
 
 clear: clean
 
@@ -118,223 +119,220 @@ strip:
 	strip /usr/local/bin/hi
 
 version.h:
-	cmd /S /C "echo #define ANSI_C" > version.h
-	cmd /S /C "echo #define USE_DIRENT" >> version.h
-	cmd /S /C "echo #define PATH_DELIMITER '\\'" >> version.h
-	cmd /S /C "echo #define ALLOW_DRIVE_LETTERS" >> version.h
-	cmd /S /C "echo #define NO_EMPTY_STRUCTS" >> version.h
-	cmd /S /C "echo #define CATCH_SIGNALS" >> version.h
-	cmd /S /C "echo #define USE_LOCALTIME_R" >> version.h
-	cmd /S /C "echo #define USE_ALTERNATE_LOCALTIME_R" >> version.h
-	cmd /S /C "echo #define USE_ALTERNATE_UTIME" >> version.h
-	cmd /S /C "echo #define UTIME_ORIG_BUGGY_FOR_FAT_FILES" >> version.h
-	cmd /S /C "echo #undef  USE_MMAP" >> version.h
-	cmd /S /C "echo #undef  INCL_NCURSES_TERM" >> version.h
-	cmd /S /C "echo #undef  INCL_CURSES_BEFORE_TERM" >> version.h
-	cmd /S /C "echo #define REMOVE_FAILS_FOR_EMPTY_DIRS" >> version.h
-	cmd /S /C "echo #define TURN_OFF_FP_EXCEPTIONS" >> version.h
-	cmd /S /C "echo #define DEFINE_MATHERR_FUNCTION" >> version.h
-	cmd /S /C "echo #define ISNAN_WITH_UNDERLINE" >> version.h
-	cmd /S /C "echo #define CHECK_INT_DIV_BY_ZERO" >> version.h
-	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
-	cmd /S /C "echo #define OS_PATH_WCHAR" >> version.h
-	cmd /S /C "echo #define OS_WIDE_DIR_INCLUDE_DIR_H" >> version.h
-	cmd /S /C "echo #define OS_CHMOD_INCLUDE_IO_H" >> version.h
-	cmd /S /C "echo #define os_chdir _wchdir" >> version.h
-	cmd /S /C "echo #define os_getcwd _wgetcwd" >> version.h
-	cmd /S /C "echo #define os_mkdir(path,mode) _wmkdir(path)" >> version.h
-	cmd /S /C "echo #define os_rmdir _wrmdir" >> version.h
-	cmd /S /C "echo #define os_opendir wopendir" >> version.h
-	cmd /S /C "echo #define os_readdir wreaddir" >> version.h
-	cmd /S /C "echo #define os_closedir wclosedir" >> version.h
-	cmd /S /C "echo #define os_DIR wDIR" >> version.h
-	cmd /S /C "echo #define os_dirent_struct struct wdirent >> version.h
-	cmd /S /C "echo #define os_fstat _fstat" >> version.h
-	cmd /S /C "echo #define os_lstat _wstat" >> version.h
-	cmd /S /C "echo #define os_stat _wstat" >> version.h
-	cmd /S /C "echo #define os_stat_struct struct stat" >> version.h
-	cmd /S /C "echo #define os_chown(name,uid,gid)" >> version.h
-	cmd /S /C "echo #define os_chmod _wchmod" >> version.h
-	cmd /S /C "echo #define os_utime_orig _wutime" >> version.h
-	cmd /S /C "echo #define os_utime alternate_utime" >> version.h
-	cmd /S /C "echo #define os_utimbuf_struct struct utimbuf" >> version.h
-	cmd /S /C "echo #define os_remove _wremove" >> version.h
-	cmd /S /C "echo #define os_rename _wrename" >> version.h
-	cmd /S /C "echo #define os_system _wsystem" >> version.h
-	cmd /S /C "echo #define os_pclose _pclose" >> version.h
-	cmd /S /C "echo #define os_popen _wpopen" >> version.h
-	cmd /S /C "echo #define wide_fopen _wfopen" >> version.h
-	cmd /S /C "echo #define os_off_t long" >> version.h
-	cmd /S /C "echo #define USE_WINSOCK" >> version.h
-	cmd /S /C "echo #define $(BIGINT_LIB_DEFINE)" >> version.h
-	cmd /S /C "echo bcc32.exe %*" > bcc32.bat
+	echo ^#define ANSI_C > version.h
+	echo ^#define USE_DIRENT >> version.h
+	echo ^#define PATH_DELIMITER '\\' >> version.h
+	echo ^#define ALLOW_DRIVE_LETTERS >> version.h
+	echo ^#define NO_EMPTY_STRUCTS >> version.h
+	echo ^#define CATCH_SIGNALS >> version.h
+	echo ^#define USE_LOCALTIME_R >> version.h
+	echo ^#define USE_ALTERNATE_LOCALTIME_R >> version.h
+	echo ^#define USE_ALTERNATE_UTIME >> version.h
+	echo ^#define UTIME_ORIG_BUGGY_FOR_FAT_FILES >> version.h
+	echo ^#define REMOVE_FAILS_FOR_EMPTY_DIRS >> version.h
+	echo ^#define TURN_OFF_FP_EXCEPTIONS >> version.h
+	echo ^#define DEFINE_MATHERR_FUNCTION >> version.h
+	echo ^#define ISNAN_WITH_UNDERLINE >> version.h
+	echo ^#define CHECK_INT_DIV_BY_ZERO >> version.h
+	echo ^#define USE_MYUNISTD_H >> version.h
+	echo ^#define OS_PATH_WCHAR >> version.h
+	echo ^#define OS_WIDE_DIR_INCLUDE_DIR_H >> version.h
+	echo ^#define OS_CHMOD_INCLUDE_IO_H >> version.h
+	echo ^#define os_chdir _wchdir >> version.h
+	echo ^#define os_getcwd _wgetcwd >> version.h
+	echo ^#define os_mkdir(path,mode) _wmkdir(path) >> version.h
+	echo ^#define os_rmdir _wrmdir >> version.h
+	echo ^#define os_opendir wopendir >> version.h
+	echo ^#define os_readdir wreaddir >> version.h
+	echo ^#define os_closedir wclosedir >> version.h
+	echo ^#define os_DIR wDIR >> version.h
+	echo ^#define os_dirent_struct struct wdirent >> version.h
+	echo ^#define os_fstat _fstat >> version.h
+	echo ^#define os_lstat _wstat >> version.h
+	echo ^#define os_stat _wstat >> version.h
+	echo ^#define os_stat_struct struct stat >> version.h
+	echo ^#define os_chown(name,uid,gid) >> version.h
+	echo ^#define os_chmod _wchmod >> version.h
+	echo ^#define os_utime_orig _wutime >> version.h
+	echo ^#define os_utime alternate_utime >> version.h
+	echo ^#define os_utimbuf_struct struct utimbuf >> version.h
+	echo ^#define os_remove _wremove >> version.h
+	echo ^#define os_rename _wrename >> version.h
+	echo ^#define os_system _wsystem >> version.h
+	echo ^#define os_pclose _pclose >> version.h
+	echo ^#define os_popen _wpopen >> version.h
+	echo ^#define wide_fopen _wfopen >> version.h
+	echo ^#define os_off_t long >> version.h
+	echo ^#define USE_WINSOCK >> version.h
+	echo ^#define $(BIGINT_LIB_DEFINE) >> version.h
+	echo bcc32.exe %* > bcc32.bat
 	$(GET_CC_VERSION_INFO) cc_version
-	cmd /S /C "echo #include "stdlib.h"" > chkccomp.c
-	cmd /S /C "echo #include "stdio.h"" >> chkccomp.c
-	cmd /S /C "echo #include "time.h"" >> chkccomp.c
-	cmd /S /C "echo int main (int argc, char **argv)" >> chkccomp.c
-	cmd /S /C "echo {" >> chkccomp.c
-	cmd /S /C "echo FILE *aFile;" >> chkccomp.c
-	cmd /S /C "echo time_t timestamp;" >> chkccomp.c
-	cmd /S /C "echo struct tm *local_time;" >> chkccomp.c
-	cmd /S /C "echo long number;" >> chkccomp.c
-	cmd /S /C "echo int ch;" >> chkccomp.c
-	cmd /S /C "echo aFile = fopen("cc_version","r");" >> chkccomp.c
-	cmd /S /C "echo printf("\043define C_COMPILER_VERSION \042");" >> chkccomp.c
-	cmd /S /C "echo for (ch=getc(aFile); ch!=EOF ^&^& ch!=10 ^&^& ch!=13; ch=getc(aFile)) {" >> chkccomp.c
-	cmd /S /C "echo if (ch^>=' ' ^&^& ch^<='~') {" >> chkccomp.c
-	cmd /S /C "echo if (ch==34 ^|^| ch==39 ^|^| ch==92) putchar(92);" >> chkccomp.c
-	cmd /S /C "echo putchar(ch);" >> chkccomp.c
-	cmd /S /C "echo } else {" >> chkccomp.c
-	cmd /S /C "echo putchar(92);" >> chkccomp.c
-	cmd /S /C "echo printf("%3o", ch);" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo puts("\042");" >> chkccomp.c
-	cmd /S /C "echo fclose(aFile);" >> chkccomp.c
-	cmd /S /C "echo aFile = _popen("dir","r");" >> chkccomp.c
-	cmd /S /C "echo if (ftell(aFile) != -1) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define FTELL_WRONG_FOR_PIPE");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo if ((aFile = fopen("tmp_test_file","w")) != NULL) {" >> chkccomp.c
-	cmd /S /C "echo fwrite("asdf",1,4,aFile);" >> chkccomp.c
-	cmd /S /C "echo fclose(aFile);" >> chkccomp.c
-	cmd /S /C "echo if ((aFile = fopen("tmp_test_file","r")) != NULL) {" >> chkccomp.c
-	cmd /S /C "echo if (fwrite("qwert",1,5,aFile) != 0) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define FWRITE_WRONG_FOR_READ_ONLY_FILES");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo fclose(aFile);" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo remove("tmp_test_file");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo printf("\043define POINTER_SIZE %d", 8 * sizeof(char *));" >> chkccomp.c
-	cmd /S /C "echo puts("");" >> chkccomp.c
-	cmd /S /C "echo printf("\043define FLOAT_SIZE %d", 8 * sizeof(float));" >> chkccomp.c
-	cmd /S /C "echo puts("");" >> chkccomp.c
-	cmd /S /C "echo printf("\043define DOUBLE_SIZE %d", 8 * sizeof(double));" >> chkccomp.c
-	cmd /S /C "echo puts("");" >> chkccomp.c
-	cmd /S /C "echo printf("\043define TIME_T_SIZE %d", 8 * sizeof(time_t));" >> chkccomp.c
-	cmd /S /C "echo puts("");" >> chkccomp.c
-	cmd /S /C "echo timestamp = -2147483648;" >> chkccomp.c
-	cmd /S /C "echo local_time = localtime(^&timestamp);" >> chkccomp.c
-	cmd /S /C "echo if (local_time != NULL ^&^& local_time-^>tm_year == 1) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define TIME_T_SIGNED");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo if (sizeof(int) == 4) { >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT32TYPE int");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT32TYPE_STRI \"int\"");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT32TYPE unsigned int");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT32TYPE_STRI \"unsigned int\"");" >> chkccomp.c
-	cmd /S /C "echo } else if (sizeof(long) == 4) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT32TYPE long");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT32TYPE_STRI \"long\"");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT32TYPE unsigned long");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT32TYPE_STRI \"unsigned long\"");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT32TYPE_SUFFIX_L");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT32TYPE_FORMAT_L");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo if (sizeof(long) == 8) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT64TYPE long");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT64TYPE_STRI \"long\"");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT64TYPE unsigned long");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT64TYPE_STRI \"unsigned long\"");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT64TYPE_SUFFIX_L");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT64TYPE_FORMAT_L");" >> chkccomp.c
-	cmd /S /C "echo } else if (sizeof(__int64) == 8) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT64TYPE __int64");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT64TYPE_STRI \"__int64\"");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT64TYPE unsigned __int64");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define UINT64TYPE_STRI \"unsigned __int64\"");" >> chkccomp.c
-	cmd /S /C "echo puts("\043define INT64TYPE_FORMAT_CAPITAL_L");" >> chkccomp.c
-	cmd /S /C "echo } >> chkccomp.c
-	cmd /S /C "echo number = -1;" >> chkccomp.c
-	cmd /S /C "echo if (number ^>^> 1 == (long) -1) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define RSHIFT_DOES_SIGN_EXTEND");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo if (~number == (long) 0) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define TWOS_COMPLEMENT_INTTYPE");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo number = 1;" >> chkccomp.c
-	cmd /S /C "echo if (((char *) ^&number)[0] == 1) {" >> chkccomp.c
-	cmd /S /C "echo puts("\043define LITTLE_ENDIAN_INTTYPE");" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
-	cmd /S /C "echo return 0;" >> chkccomp.c
-	cmd /S /C "echo }" >> chkccomp.c
+	echo ^#include "stdlib.h" > chkccomp.c
+	echo ^#include "stdio.h" >> chkccomp.c
+	echo ^#include "time.h" >> chkccomp.c
+	echo int main (int argc, char **argv) >> chkccomp.c
+	echo { >> chkccomp.c
+	echo FILE *aFile; >> chkccomp.c
+	echo time_t timestamp; >> chkccomp.c
+	echo struct tm *local_time; >> chkccomp.c
+	echo long number; >> chkccomp.c
+	echo int ch; >> chkccomp.c
+	echo aFile = fopen("cc_version","r"); >> chkccomp.c
+	echo printf("\043define C_COMPILER_VERSION \042"); >> chkccomp.c
+	"echo for (ch=getc(aFile); ch!=EOF ^&^& ch!=10 ^&^& ch!=13; ch=getc(aFile)) {" >> chkccomp.c
+	"echo if (ch^>=' ' ^&^& ch^<='~') {" >> chkccomp.c
+	"echo if (ch==34 ^|^| ch==39 ^|^| ch==92) putchar(92);" >> chkccomp.c
+	echo putchar(ch); >> chkccomp.c
+	echo } else { >> chkccomp.c
+	echo putchar(92); >> chkccomp.c
+	echo printf("%3o", ch); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo } >> chkccomp.c
+	echo puts("\042"); >> chkccomp.c
+	echo fclose(aFile); >> chkccomp.c
+	echo aFile = _popen("dir","r"); >> chkccomp.c
+	echo if (ftell(aFile) != -1) { >> chkccomp.c
+	echo puts("\043define FTELL_WRONG_FOR_PIPE"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo if ((aFile = fopen("tmp_test_file","w")) != NULL) { >> chkccomp.c
+	echo fwrite("asdf",1,4,aFile); >> chkccomp.c
+	echo fclose(aFile); >> chkccomp.c
+	echo if ((aFile = fopen("tmp_test_file","r")) != NULL) { >> chkccomp.c
+	echo if (fwrite("qwert",1,5,aFile) != 0) { >> chkccomp.c
+	echo puts("\043define FWRITE_WRONG_FOR_READ_ONLY_FILES"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo fclose(aFile); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo remove("tmp_test_file"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo printf("\043define POINTER_SIZE %d", 8 * sizeof(char *)); >> chkccomp.c
+	echo puts(""); >> chkccomp.c
+	echo printf("\043define FLOAT_SIZE %d", 8 * sizeof(float)); >> chkccomp.c
+	echo puts(""); >> chkccomp.c
+	echo printf("\043define DOUBLE_SIZE %d", 8 * sizeof(double)); >> chkccomp.c
+	echo puts(""); >> chkccomp.c
+	echo printf("\043define TIME_T_SIZE %d", 8 * sizeof(time_t)); >> chkccomp.c
+	echo puts(""); >> chkccomp.c
+	echo timestamp = -2147483648; >> chkccomp.c
+	"echo local_time = localtime(^&timestamp);" >> chkccomp.c
+	"echo if (local_time != NULL ^&^& local_time-^>tm_year == 1) {" >> chkccomp.c
+	echo puts("\043define TIME_T_SIGNED"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo if (sizeof(int) == 4) { >> chkccomp.c
+	echo puts("\043define INT32TYPE int"); >> chkccomp.c
+	echo puts("\043define INT32TYPE_STRI \"int\""); >> chkccomp.c
+	echo puts("\043define UINT32TYPE unsigned int"); >> chkccomp.c
+	echo puts("\043define UINT32TYPE_STRI \"unsigned int\""); >> chkccomp.c
+	echo } else if (sizeof(long) == 4) { >> chkccomp.c
+	echo puts("\043define INT32TYPE long"); >> chkccomp.c
+	echo puts("\043define INT32TYPE_STRI \"long\""); >> chkccomp.c
+	echo puts("\043define UINT32TYPE unsigned long"); >> chkccomp.c
+	echo puts("\043define UINT32TYPE_STRI \"unsigned long\""); >> chkccomp.c
+	echo puts("\043define INT32TYPE_SUFFIX_L"); >> chkccomp.c
+	echo puts("\043define INT32TYPE_FORMAT_L"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo if (sizeof(long) == 8) { >> chkccomp.c
+	echo puts("\043define INT64TYPE long"); >> chkccomp.c
+	echo puts("\043define INT64TYPE_STRI \"long\""); >> chkccomp.c
+	echo puts("\043define UINT64TYPE unsigned long"); >> chkccomp.c
+	echo puts("\043define UINT64TYPE_STRI \"unsigned long\""); >> chkccomp.c
+	echo puts("\043define INT64TYPE_SUFFIX_L"); >> chkccomp.c
+	echo puts("\043define INT64TYPE_FORMAT_L"); >> chkccomp.c
+	echo } else if (sizeof(__int64) == 8) { >> chkccomp.c
+	echo puts("\043define INT64TYPE __int64"); >> chkccomp.c
+	echo puts("\043define INT64TYPE_STRI \"__int64\""); >> chkccomp.c
+	echo puts("\043define UINT64TYPE unsigned __int64"); >> chkccomp.c
+	echo puts("\043define UINT64TYPE_STRI \"unsigned __int64\""); >> chkccomp.c
+	echo puts("\043define INT64TYPE_FORMAT_CAPITAL_L"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo number = -1; >> chkccomp.c
+	echo if (number ^>^> 1 == (long) -1) { >> chkccomp.c
+	echo puts("\043define RSHIFT_DOES_SIGN_EXTEND"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo if (~number == (long) 0) { >> chkccomp.c
+	echo puts("\043define TWOS_COMPLEMENT_INTTYPE"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo number = 1; >> chkccomp.c
+	"echo if (((char *) ^&number)[0] == 1) {" >> chkccomp.c
+	echo puts("\043define LITTLE_ENDIAN_INTTYPE"); >> chkccomp.c
+	echo } >> chkccomp.c
+	echo return 0; >> chkccomp.c
+	echo } >> chkccomp.c
 	$(CC) chkccomp.c
-	chkccomp >> version.h
+	chkccomp.exe >> version.h
 	del chkccomp.c
 	del chkccomp.obj
 	del chkccomp.tds
 	del chkccomp.exe
 	del cc_version
-	cmd /S /C "echo #define OBJECT_FILE_EXTENSION ".obj"" >> version.h
-	cmd /S /C "echo #define EXECUTABLE_FILE_EXTENSION ".exe"" >> version.h
-	cmd /S /C "echo #define C_COMPILER "$(CC)"" >> version.h
-	cmd /S /C "echo #define GET_CC_VERSION_INFO "bcc32.exe \076"" >> version.h
-	cmd /S /C "echo #define CC_OPT_DEBUG_INFO "-y -v"" >> version.h
-	cmd /S /C "echo #define CC_OPT_NO_WARNINGS "-w-"" >> version.h
-	cmd /S /C "echo #define REDIRECT_C_ERRORS "\076"" >> version.h
-	cmd /S /C "echo #define LINKER_OPT_DEBUG_INFO "-v"" >> version.h
-	cmd /S /C "echo #define LINKER_FLAGS "$(LFLAGS)"" >> version.h
-	cmd /S /C "echo #define SYSTEM_LIBS "$(LIBS)"" >> version.h
-	cmd /S /C "echo #include "stdio.h"" > setpaths.c
-	cmd /S /C "echo #include "stddef.h"" >> setpaths.c
-	cmd /S /C "echo int chdir(char *path);" >> setpaths.c
-	cmd /S /C "echo char *getcwd(char *buf, size_t size);" >> setpaths.c
-	cmd /S /C "echo int main (int argc, char **argv)" >> setpaths.c
-	cmd /S /C "echo {" >> setpaths.c
-	cmd /S /C "echo char buffer[4096];" >> setpaths.c
-	cmd /S /C "echo int position;" >> setpaths.c
-	cmd /S /C "echo getcwd(buffer, sizeof(buffer));" >> setpaths.c
-	cmd /S /C "echo printf("\043define SEED7_LIB \042");" >> setpaths.c
-	cmd /S /C "echo for (position = 0; buffer[position] != '\0'; position++) {" >> setpaths.c
-	cmd /S /C "echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]);" >> setpaths.c
-	cmd /S /C "echo }" >> setpaths.c
-	cmd /S /C "echo printf("/$(SEED7_LIB)\042\n");" >> setpaths.c
-	cmd /S /C "echo getcwd(buffer, sizeof(buffer));" >> setpaths.c
-	cmd /S /C "echo printf("\043define COMP_DATA_LIB \042");" >> setpaths.c
-	cmd /S /C "echo for (position = 0; buffer[position] != '\0'; position++) {" >> setpaths.c
-	cmd /S /C "echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]);" >> setpaths.c
-	cmd /S /C "echo }" >> setpaths.c
-	cmd /S /C "echo printf("/$(COMP_DATA_LIB)\042\n");" >> setpaths.c
-	cmd /S /C "echo getcwd(buffer, sizeof(buffer));" >> setpaths.c
-	cmd /S /C "echo printf("\043define COMPILER_LIB \042");" >> setpaths.c
-	cmd /S /C "echo for (position = 0; buffer[position] != '\0'; position++) {" >> setpaths.c
-	cmd /S /C "echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]);" >> setpaths.c
-	cmd /S /C "echo }" >> setpaths.c
-	cmd /S /C "echo printf("/$(COMPILER_LIB)\042\n");" >> setpaths.c
-	cmd /S /C "echo chdir("../lib");" >> setpaths.c
-	cmd /S /C "echo getcwd(buffer, sizeof(buffer));" >> setpaths.c
-	cmd /S /C "echo printf("\043define SEED7_LIBRARY \042");" >> setpaths.c
-	cmd /S /C "echo for (position = 0; buffer[position] != '\0'; position++) {" >> setpaths.c
-	cmd /S /C "echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]);" >> setpaths.c
-	cmd /S /C "echo }" >> setpaths.c
-	cmd /S /C "echo printf("\042\n");" >> setpaths.c
-	cmd /S /C "echo return 0;" >> setpaths.c
-	cmd /S /C "echo }" >> setpaths.c
+	echo ^#define OBJECT_FILE_EXTENSION ".obj" >> version.h
+	echo ^#define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
+	echo ^#define C_COMPILER "$(CC)" >> version.h
+	echo ^#define GET_CC_VERSION_INFO "bcc32.exe \076" >> version.h
+	echo ^#define CC_OPT_DEBUG_INFO "-y -v" >> version.h
+	echo ^#define CC_OPT_NO_WARNINGS "-w-" >> version.h
+	echo ^#define REDIRECT_C_ERRORS "\076" >> version.h
+	echo ^#define LINKER_OPT_DEBUG_INFO "-v" >> version.h
+	echo ^#define LINKER_FLAGS "$(LFLAGS)" >> version.h
+	echo ^#define SYSTEM_LIBS "$(LIBS)" >> version.h
+	echo ^#include "stdio.h" > setpaths.c
+	echo ^#include "stddef.h" >> setpaths.c
+	echo int chdir(char *path); >> setpaths.c
+	echo char *getcwd(char *buf, size_t size); >> setpaths.c
+	echo int main (int argc, char **argv) >> setpaths.c
+	echo { >> setpaths.c
+	echo char buffer[4096]; >> setpaths.c
+	echo int position; >> setpaths.c
+	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
+	echo printf("\043define SEED7_LIB \042"); >> setpaths.c
+	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
+	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo } >> setpaths.c
+	echo printf("/$(SEED7_LIB)\042\n"); >> setpaths.c
+	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
+	echo printf("\043define COMP_DATA_LIB \042"); >> setpaths.c
+	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
+	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo } >> setpaths.c
+	echo printf("/$(COMP_DATA_LIB)\042\n"); >> setpaths.c
+	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
+	echo printf("\043define COMPILER_LIB \042"); >> setpaths.c
+	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
+	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo } >> setpaths.c
+	echo printf("/$(COMPILER_LIB)\042\n"); >> setpaths.c
+	echo chdir("../lib"); >> setpaths.c
+	echo getcwd(buffer, sizeof(buffer)); >> setpaths.c
+	echo printf("\043define SEED7_LIBRARY \042"); >> setpaths.c
+	echo for (position = 0; buffer[position] != '\0'; position++) { >> setpaths.c
+	echo   putchar(buffer[position] == '\\' ? '/' : buffer[position]); >> setpaths.c
+	echo } >> setpaths.c
+	echo printf("\042\n"); >> setpaths.c
+	echo return 0; >> setpaths.c
+	echo } >> setpaths.c
 	$(CC) setpaths.c
-	setpaths >> version.h
+	setpaths.exe >> version.h
 	del setpaths.c
 	del setpaths.obj
 	del setpaths.tds
 	del setpaths.exe
-	cmd /S /C "echo #include "stdio.h"" > calltlib.c
-	cmd /S /C "echo #include "string.h"" >> calltlib.c
-	cmd /S /C "echo int main (int argc, char **argv)" >> calltlib.c
-	cmd /S /C "echo {" >> calltlib.c
-	cmd /S /C "echo char buffer[4096];" >> calltlib.c
-	cmd /S /C "echo int number;" >> calltlib.c
-	cmd /S /C "echo strcpy(buffer, "tlib /C ");" >> calltlib.c
-	cmd /S /C "echo strcat(buffer, argv[1]);" >> calltlib.c
-	cmd /S /C "echo strcat(buffer, " ");" >> calltlib.c
-	cmd /S /C "echo for (number = 2; number ^< argc; number++) {" >> calltlib.c
-	cmd /S /C "echo   strcat(buffer, "-+");" >> calltlib.c
-	cmd /S /C "echo   strcat(buffer, argv[number]);" >> calltlib.c
-	cmd /S /C "echo }" >> calltlib.c
-	cmd /S /C "echo puts(buffer);" >> calltlib.c
-	cmd /S /C "echo system(buffer);" >> calltlib.c
-	cmd /S /C "echo return 0;" >> calltlib.c
-	cmd /S /C "echo }" >> calltlib.c
+	echo ^#include "stdio.h" > calltlib.c
+	echo ^#include "string.h" >> calltlib.c
+	echo int main (int argc, char **argv) >> calltlib.c
+	echo { >> calltlib.c
+	echo char buffer[4096]; >> calltlib.c
+	echo int number; >> calltlib.c
+	echo strcpy(buffer, "tlib /C "); >> calltlib.c
+	echo strcat(buffer, argv[1]); >> calltlib.c
+	echo strcat(buffer, " "); >> calltlib.c
+	"echo for (number = 2; number ^< argc; number++) {" >> calltlib.c
+	echo   strcat(buffer, "-+"); >> calltlib.c
+	echo   strcat(buffer, argv[number]); >> calltlib.c
+	echo } >> calltlib.c
+	echo puts(buffer); >> calltlib.c
+	echo system(buffer); >> calltlib.c
+	echo return 0; >> calltlib.c
+	echo } >> calltlib.c
 	$(CC) calltlib.c
 	del calltlib.c
 	del calltlib.obj

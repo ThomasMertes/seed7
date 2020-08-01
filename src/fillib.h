@@ -27,36 +27,36 @@
 
 #ifdef ANSI_C
 
-objecttype fil_big_lng (listtype);
-objecttype fil_big_seek (listtype);
-objecttype fil_big_tell (listtype);
-objecttype fil_close (listtype);
-objecttype fil_cpy (listtype);
-objecttype fil_create (listtype);
-objecttype fil_empty (listtype);
-objecttype fil_eof (listtype);
-objecttype fil_eq (listtype);
-objecttype fil_err (listtype);
-objecttype fil_flush (listtype);
-objecttype fil_getc (listtype);
-objecttype fil_gets (listtype);
-objecttype fil_has_next (listtype);
-objecttype fil_in (listtype);
-objecttype fil_line_read (listtype);
-objecttype fil_lit (listtype);
-objecttype fil_lng (listtype);
-objecttype fil_ne (listtype);
-objecttype fil_open (listtype);
-objecttype fil_out (listtype);
-objecttype fil_pclose (listtype);
-objecttype fil_popen (listtype);
-objecttype fil_print (listtype);
-objecttype fil_seek (listtype);
-objecttype fil_setbuf (listtype);
-objecttype fil_tell (listtype);
-objecttype fil_value (listtype);
-objecttype fil_word_read (listtype);
-objecttype fil_write (listtype);
+objecttype fil_big_lng   (listtype arguments);
+objecttype fil_big_seek  (listtype arguments);
+objecttype fil_big_tell  (listtype arguments);
+objecttype fil_close     (listtype arguments);
+objecttype fil_cpy       (listtype arguments);
+objecttype fil_create    (listtype arguments);
+objecttype fil_empty     (listtype arguments);
+objecttype fil_eof       (listtype arguments);
+objecttype fil_eq        (listtype arguments);
+objecttype fil_err       (listtype arguments);
+objecttype fil_flush     (listtype arguments);
+objecttype fil_getc      (listtype arguments);
+objecttype fil_gets      (listtype arguments);
+objecttype fil_has_next  (listtype arguments);
+objecttype fil_in        (listtype arguments);
+objecttype fil_line_read (listtype arguments);
+objecttype fil_lit       (listtype arguments);
+objecttype fil_lng       (listtype arguments);
+objecttype fil_ne        (listtype arguments);
+objecttype fil_open      (listtype arguments);
+objecttype fil_out       (listtype arguments);
+objecttype fil_pclose    (listtype arguments);
+objecttype fil_popen     (listtype arguments);
+objecttype fil_print     (listtype arguments);
+objecttype fil_seek      (listtype arguments);
+objecttype fil_setbuf    (listtype arguments);
+objecttype fil_tell      (listtype arguments);
+objecttype fil_value     (listtype arguments);
+objecttype fil_word_read (listtype arguments);
+objecttype fil_write     (listtype arguments);
 
 #else
 

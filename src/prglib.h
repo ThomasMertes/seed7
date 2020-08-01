@@ -27,26 +27,26 @@
 
 #ifdef ANSI_C
 
-objecttype prg_cpy (listtype);
-objecttype prg_create (listtype);
-objecttype prg_decl_objects (listtype);
-objecttype prg_destr (listtype);
-objecttype prg_empty (listtype);
-objecttype prg_eq (listtype);
-objecttype prg_error_count (listtype);
-objecttype prg_eval (listtype);
-objecttype prg_exec (listtype);
-objecttype prg_fil_parse (listtype);
-objecttype prg_find (listtype);
-objecttype prg_match (listtype);
-objecttype prg_match_expr (listtype);
-objecttype prg_name (listtype);
-objecttype prg_ne (listtype);
-objecttype prg_prog (listtype);
-objecttype prg_str_parse (listtype);
-objecttype prg_syobject (listtype);
-objecttype prg_sysvar (listtype);
-objecttype prg_value (listtype);
+objecttype prg_cpy          (listtype arguments);
+objecttype prg_create       (listtype arguments);
+objecttype prg_decl_objects (listtype arguments);
+objecttype prg_destr        (listtype arguments);
+objecttype prg_empty        (listtype arguments);
+objecttype prg_eq           (listtype arguments);
+objecttype prg_error_count  (listtype arguments);
+objecttype prg_eval         (listtype arguments);
+objecttype prg_exec         (listtype arguments);
+objecttype prg_fil_parse    (listtype arguments);
+objecttype prg_find         (listtype arguments);
+objecttype prg_match        (listtype arguments);
+objecttype prg_match_expr   (listtype arguments);
+objecttype prg_name         (listtype arguments);
+objecttype prg_ne           (listtype arguments);
+objecttype prg_prog         (listtype arguments);
+objecttype prg_str_parse    (listtype arguments);
+objecttype prg_syobject     (listtype arguments);
+objecttype prg_sysvar       (listtype arguments);
+objecttype prg_value        (listtype arguments);
 
 #else
 

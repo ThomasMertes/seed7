@@ -27,30 +27,30 @@
 
 #ifdef ANSI_C
 
-objecttype typ_addinterface (listtype);
-objecttype typ_cmp (listtype);
-objecttype typ_cpy (listtype);
-objecttype typ_create (listtype);
-objecttype typ_destr (listtype);
-objecttype typ_eq (listtype);
-objecttype typ_func (listtype);
-objecttype typ_gensub (listtype);
-objecttype typ_gentype (listtype);
-objecttype typ_hashcode (listtype);
-objecttype typ_isdeclared (listtype);
-objecttype typ_isderived (listtype);
-objecttype typ_isforward (listtype);
-objecttype typ_isfunc (listtype);
-objecttype typ_isvarfunc (listtype);
-objecttype typ_matchobj (listtype);
-objecttype typ_meta (listtype);
-objecttype typ_ne (listtype);
-objecttype typ_num (listtype);
-objecttype typ_result (listtype);
-objecttype typ_str (listtype);
-objecttype typ_value (listtype);
-objecttype typ_varconv (listtype);
-objecttype typ_varfunc (listtype);
+objecttype typ_addinterface (listtype arguments);
+objecttype typ_cmp          (listtype arguments);
+objecttype typ_cpy          (listtype arguments);
+objecttype typ_create       (listtype arguments);
+objecttype typ_destr        (listtype arguments);
+objecttype typ_eq           (listtype arguments);
+objecttype typ_func         (listtype arguments);
+objecttype typ_gensub       (listtype arguments);
+objecttype typ_gentype      (listtype arguments);
+objecttype typ_hashcode     (listtype arguments);
+objecttype typ_isdeclared   (listtype arguments);
+objecttype typ_isderived    (listtype arguments);
+objecttype typ_isforward    (listtype arguments);
+objecttype typ_isfunc       (listtype arguments);
+objecttype typ_isvarfunc    (listtype arguments);
+objecttype typ_matchobj     (listtype arguments);
+objecttype typ_meta         (listtype arguments);
+objecttype typ_ne           (listtype arguments);
+objecttype typ_num          (listtype arguments);
+objecttype typ_result       (listtype arguments);
+objecttype typ_str          (listtype arguments);
+objecttype typ_value        (listtype arguments);
+objecttype typ_varconv      (listtype arguments);
+objecttype typ_varfunc      (listtype arguments);
 
 #else
 

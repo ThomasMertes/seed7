@@ -35,8 +35,8 @@
 
 #define CR_LIN_INFO()      printf("%6u\r", in_file.line)
 #define NL_LIN_INFO()      printf("%6u\n", in_file.line)
-#define CR_FIL_LIN_INFO()  printf("%6u %s\r", in_file.line, in_file.name)
-#define NL_FIL_LIN_INFO()  printf("%6u %s\n", in_file.line, in_file.name)
+#define CR_FIL_LIN_INFO()  printf("%6u %s\r", in_file.line, in_file.name_ustri)
+#define NL_FIL_LIN_INFO()  printf("%6u %s\n", in_file.line, in_file.name_ustri)
 
 
 #ifdef WITH_COMPILATION_INFO

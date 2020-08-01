@@ -380,7 +380,8 @@ typedef struct progstruct {
 
 typedef struct infilstruct {
     FILE *fil;
-    const_ustritype name;
+    const_ustritype name_ustri;
+    stritype name;
 #ifdef USE_ALTERNATE_NEXT_CHARACTER
     ustritype start;
     const_ustritype nextch;

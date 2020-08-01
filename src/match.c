@@ -228,7 +228,7 @@ objecttype expr_object;
 #ifdef TRACE_MATCH_extended
           if (HAS_POSINFO(expr_object)) {
             printf("%s(%u): ",
-                   file_name(GET_FILE_NUM(expr_object)),
+                   file_name_ustri(GET_FILE_NUM(expr_object)),
                    GET_LINE_NUM(expr_object));
           }
           printf("Parameter already has value: ");

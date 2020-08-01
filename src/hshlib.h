@@ -27,23 +27,23 @@
 
 #ifdef ANSI_C
 
-objecttype hsh_contains (listtype);
-objecttype hsh_conv (listtype);
-objecttype hsh_cpy (listtype);
-objecttype hsh_create (listtype);
-objecttype hsh_destr (listtype);
-objecttype hsh_empty (listtype);
-objecttype hsh_excl (listtype);
-objecttype hsh_for (listtype);
-objecttype hsh_for_data_key (listtype);
-objecttype hsh_for_key (listtype);
-objecttype hsh_idx (listtype);
-objecttype hsh_idx2 (listtype);
-objecttype hsh_incl (listtype);
-objecttype hsh_keys (listtype);
-objecttype hsh_lng (listtype);
-objecttype hsh_refidx (listtype);
-objecttype hsh_values (listtype);
+objecttype hsh_contains     (listtype arguments);
+objecttype hsh_conv         (listtype arguments);
+objecttype hsh_cpy          (listtype arguments);
+objecttype hsh_create       (listtype arguments);
+objecttype hsh_destr        (listtype arguments);
+objecttype hsh_empty        (listtype arguments);
+objecttype hsh_excl         (listtype arguments);
+objecttype hsh_for          (listtype arguments);
+objecttype hsh_for_data_key (listtype arguments);
+objecttype hsh_for_key      (listtype arguments);
+objecttype hsh_idx          (listtype arguments);
+objecttype hsh_idx2         (listtype arguments);
+objecttype hsh_incl         (listtype arguments);
+objecttype hsh_keys         (listtype arguments);
+objecttype hsh_lng          (listtype arguments);
+objecttype hsh_refidx       (listtype arguments);
+objecttype hsh_values       (listtype arguments);
 
 #else
 

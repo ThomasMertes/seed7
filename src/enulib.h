@@ -27,16 +27,16 @@
 
 #ifdef ANSI_C
 
-objecttype enu_conv (listtype);
-objecttype enu_cpy (listtype);
-objecttype enu_create (listtype);
-objecttype enu_eq (listtype);
-objecttype enu_genlit (listtype);
-objecttype enu_iconv2 (listtype);
-objecttype enu_ne (listtype);
-objecttype enu_ord2 (listtype);
-objecttype enu_size (listtype);
-objecttype enu_value (listtype);
+objecttype enu_conv   (listtype arguments);
+objecttype enu_cpy    (listtype arguments);
+objecttype enu_create (listtype arguments);
+objecttype enu_eq     (listtype arguments);
+objecttype enu_genlit (listtype arguments);
+objecttype enu_iconv2 (listtype arguments);
+objecttype enu_ne     (listtype arguments);
+objecttype enu_ord2   (listtype arguments);
+objecttype enu_size   (listtype arguments);
+objecttype enu_value  (listtype arguments);
 
 #else
 

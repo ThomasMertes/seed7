@@ -27,37 +27,37 @@
 
 #ifdef ANSI_C
 
-objecttype prc_args (listtype);
-objecttype prc_begin (listtype);
-objecttype prc_block (listtype);
-objecttype prc_block_def (listtype);
-objecttype prc_case (listtype);
-objecttype prc_case_def (listtype);
-objecttype prc_cpy (listtype);
-objecttype prc_create (listtype);
-objecttype prc_decls (listtype);
-objecttype prc_dynamic (listtype);
-objecttype prc_exit (listtype);
-objecttype prc_for_downto (listtype);
-objecttype prc_for_to (listtype);
-objecttype prc_heapstat (listtype);
-objecttype prc_hsize (listtype);
-objecttype prc_if (listtype);
-objecttype prc_if_elsif (listtype);
-objecttype prc_include (listtype);
-objecttype prc_local (listtype);
-objecttype prc_noop (listtype);
-objecttype prc_raise (listtype);
-objecttype prc_repeat (listtype);
-objecttype prc_res_begin (listtype);
-objecttype prc_res_local (listtype);
-objecttype prc_return (listtype);
-objecttype prc_return2 (listtype);
-objecttype prc_settrace (listtype);
-objecttype prc_trace (listtype);
-objecttype prc_varfunc (listtype);
-objecttype prc_varfunc2 (listtype);
-objecttype prc_while (listtype);
+objecttype prc_args       (listtype arguments);
+objecttype prc_begin      (listtype arguments);
+objecttype prc_block      (listtype arguments);
+objecttype prc_block_def  (listtype arguments);
+objecttype prc_case       (listtype arguments);
+objecttype prc_case_def   (listtype arguments);
+objecttype prc_cpy        (listtype arguments);
+objecttype prc_create     (listtype arguments);
+objecttype prc_decls      (listtype arguments);
+objecttype prc_dynamic    (listtype arguments);
+objecttype prc_exit       (listtype arguments);
+objecttype prc_for_downto (listtype arguments);
+objecttype prc_for_to     (listtype arguments);
+objecttype prc_heapstat   (listtype arguments);
+objecttype prc_hsize      (listtype arguments);
+objecttype prc_if         (listtype arguments);
+objecttype prc_if_elsif   (listtype arguments);
+objecttype prc_include    (listtype arguments);
+objecttype prc_local      (listtype arguments);
+objecttype prc_noop       (listtype arguments);
+objecttype prc_raise      (listtype arguments);
+objecttype prc_repeat     (listtype arguments);
+objecttype prc_res_begin  (listtype arguments);
+objecttype prc_res_local  (listtype arguments);
+objecttype prc_return     (listtype arguments);
+objecttype prc_return2    (listtype arguments);
+objecttype prc_settrace   (listtype arguments);
+objecttype prc_trace      (listtype arguments);
+objecttype prc_varfunc    (listtype arguments);
+objecttype prc_varfunc2   (listtype arguments);
+objecttype prc_while      (listtype arguments);
 
 #else
 

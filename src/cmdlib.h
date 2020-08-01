@@ -27,30 +27,30 @@
 
 #ifdef ANSI_C
 
-objecttype cmd_big_filesize (listtype);
-objecttype cmd_chdir (listtype);
-objecttype cmd_clone_file (listtype);
-objecttype cmd_config_value (listtype);
-objecttype cmd_copy_file (listtype);
-objecttype cmd_filemode (listtype);
-objecttype cmd_filesize (listtype);
-objecttype cmd_filetype (listtype);
-objecttype cmd_filetype_sl (listtype);
-objecttype cmd_getcwd (listtype);
-objecttype cmd_get_atime (listtype);
-objecttype cmd_get_ctime (listtype);
-objecttype cmd_get_mtime (listtype);
-objecttype cmd_ls (listtype);
-objecttype cmd_mkdir (listtype);
-objecttype cmd_move (listtype);
-objecttype cmd_readlink (listtype);
-objecttype cmd_remove (listtype);
-objecttype cmd_remove_any_file (listtype);
-objecttype cmd_set_atime (listtype);
-objecttype cmd_set_filemode (listtype);
-objecttype cmd_set_mtime (listtype);
-objecttype cmd_shell (listtype);
-objecttype cmd_symlink (listtype);
+objecttype cmd_big_filesize    (listtype arguments);
+objecttype cmd_chdir           (listtype arguments);
+objecttype cmd_clone_file      (listtype arguments);
+objecttype cmd_config_value    (listtype arguments);
+objecttype cmd_copy_file       (listtype arguments);
+objecttype cmd_filemode        (listtype arguments);
+objecttype cmd_filesize        (listtype arguments);
+objecttype cmd_filetype        (listtype arguments);
+objecttype cmd_filetype_sl     (listtype arguments);
+objecttype cmd_getcwd          (listtype arguments);
+objecttype cmd_get_atime       (listtype arguments);
+objecttype cmd_get_ctime       (listtype arguments);
+objecttype cmd_get_mtime       (listtype arguments);
+objecttype cmd_ls              (listtype arguments);
+objecttype cmd_mkdir           (listtype arguments);
+objecttype cmd_move            (listtype arguments);
+objecttype cmd_readlink        (listtype arguments);
+objecttype cmd_remove          (listtype arguments);
+objecttype cmd_remove_any_file (listtype arguments);
+objecttype cmd_set_atime       (listtype arguments);
+objecttype cmd_set_filemode    (listtype arguments);
+objecttype cmd_set_mtime       (listtype arguments);
+objecttype cmd_shell           (listtype arguments);
+objecttype cmd_symlink         (listtype arguments);
 
 #else
 

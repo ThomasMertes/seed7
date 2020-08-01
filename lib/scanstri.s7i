@@ -314,12 +314,12 @@ const proc: getEscapeSequence (in string: stri, inout integer: pos, inout string
     if pos <= leng then
       if stri[pos] = '\n' or stri[pos] = ' ' or stri[pos] = '\t' or stri[pos] = '\r' then
         repeat
-          symbol &:= str(stri[pos]);
+          symbol &:= stri[pos];
           incr(pos);
         until pos > leng or
             stri[pos] <> '\n' and stri[pos] <> ' ' and stri[pos] <> '\t' and stri[pos] <> '\r';
         if pos <= leng and stri[pos] = '\\' then
-          symbol &:= str(stri[pos]);
+          symbol &:= stri[pos];
           incr(pos);
         end if;
       elsif stri[pos] in digit_char then
@@ -333,7 +333,7 @@ const proc: getEscapeSequence (in string: stri, inout integer: pos, inout string
           pos := backslashPos - length(numberStri);
         end if;
       else
-        symbol &:= str(stri[pos]);
+        symbol &:= stri[pos];
         incr(pos);
       end if;
     end if;
@@ -362,25 +362,25 @@ const func string: getCharLiteral (inout string: stri) is func
           getEscapeSequence(stri, pos, symbol);
         until stri[pos] <> '\\';
       else
-        symbol &:= str(stri[pos]);
+        symbol &:= stri[pos];
         incr(pos);
       end if;
       if pos > leng or stri[pos] <> '\'' then
         if stri[pos] <> '\n' and stri[pos] <> '\r' and stri[pos] <> EOF then
           repeat
-            symbol &:= str(stri[pos]);
+            symbol &:= stri[pos];
             incr(pos);
           until pos > leng or
               stri[pos] = '\'' or
               stri[pos] = '\n' or
               stri[pos] = '\r';
           if pos <= leng and stri[pos] = '\'' then
-            symbol &:= str(stri[pos]);
+            symbol &:= stri[pos];
             incr(pos);
           end if;
         end if;
       else
-        symbol &:= str(stri[pos]);
+        symbol &:= stri[pos];
         incr(pos);
       end if;
     end if;
@@ -408,16 +408,16 @@ const func string: getStringLiteral (inout string: stri) is func
     incr(pos);
     repeat
       while pos <= leng and stri[pos] in no_escape_char do
-        symbol &:= str(stri[pos]);
+        symbol &:= stri[pos];
         incr(pos);
       end while;
       if pos > leng or stri[pos] = '\n' or stri[pos] = '\r' then
         reading_string := FALSE;
       elsif stri[pos] = '\"' then
-        symbol &:= str(stri[pos]);
+        symbol &:= stri[pos];
         incr(pos);
         if pos <= leng and stri[pos] = '\"' then
-          symbol &:= str(stri[pos]);
+          symbol &:= stri[pos];
           incr(pos);
         else
           reading_string := FALSE;
@@ -426,7 +426,115 @@ const func string: getStringLiteral (inout string: stri) is func
         getEscapeSequence(stri, pos, symbol);
       else
         repeat
-          symbol &:= str(stri[pos]);
+          symbol &:= stri[pos];
+          incr(pos);
+        until pos > leng or stri[pos] >= ' ' or stri[pos] <= '~';
+      end if;
+    until not reading_string;
+    stri := stri[pos ..];
+  end func;
+
+
+(**
+ *  Reads the text of a string literal from a 'string'.
+ *  When the function is called it is assumed that stri[1] contains
+ *  the introducing " . When the function is left 'stri' is empty or
+ *  stri[1] contains the character after the closing " .
+ *  @return the text of the string literal without introducing or
+ *          closing " .
+ *)
+const func string: getCStringLiteralText (inout string: stri) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: startPos is 2;
+    var integer: pos is 2;
+    var boolean: reading_string is TRUE;
+    var integer: charValue is 0;
+  begin
+    leng := length(stri);
+    repeat
+      startPos := pos;
+      while pos <= leng and stri[pos] in no_escape_char do
+        incr(pos);
+      end while;
+      symbol &:= stri[startPos .. pred(pos)];
+      if pos > leng or stri[pos] = '\n' or stri[pos] = '\r' then
+        reading_string := FALSE;
+      elsif stri[pos] = '\"' then
+        incr(pos);
+        if pos <= leng and stri[pos] = '\"' then
+          symbol &:= stri[pos];
+          incr(pos);
+        else
+          reading_string := FALSE;
+        end if;
+      elsif stri[pos] = '\\' then
+        incr(pos);
+        if pos <= leng then
+          case stri[pos] of
+            when {'a'}:
+              symbol &:= "\a";
+              incr(pos);
+            when {'b'}:
+              symbol &:= "\b";
+              incr(pos);
+            when {'f'}:
+              symbol &:= "\f";
+              incr(pos);
+            when {'n'}:
+              symbol &:= "\n";
+              incr(pos);
+            when {'r'}:
+              symbol &:= "\r";
+              incr(pos);
+            when {'t'}:
+              symbol &:= "\t";
+              incr(pos);
+            when {'v'}:
+              symbol &:= "\v";
+              incr(pos);
+            when {'\\', '?', ''', '"'}:
+              symbol &:= stri[pos];
+              incr(pos);
+            when octdigit_char:
+              incr(pos);
+              if pos <= leng and stri[pos] in octdigit_char then
+                incr(pos);
+                if pos <= leng and stri[pos] in octdigit_char then
+                  charValue := toInt(stri[pos - 2 len 3], 8);
+                  incr(pos);
+                else
+                  charValue := toInt(stri[pos - 2 len 2], 8);
+                end if;
+              else
+                charValue := toInt(stri[pred(pos) len 1], 8);
+              end if;
+              symbol &:= chr(charValue);
+            when {'x'}:
+              incr(pos);
+              if pos <= leng and stri[pos] in hexdigit_char then
+                incr(pos);
+                if pos <= leng and stri[pos] in hexdigit_char then
+                  charValue := toInt(stri[pred(pos) len 2], 16);
+                  incr(pos);
+                else
+                  charValue := toInt(stri[pred(pos) len 1], 16);
+                end if;
+                symbol &:= chr(charValue);
+              else
+                symbol &:= "\\x";
+              end if;
+            otherwise:
+              symbol &:= "\\";
+          end case;
+        else
+          symbol &:= "\\";
+        end if;
+      else
+        repeat
+          symbol &:= stri[pos];
           incr(pos);
         until pos > leng or stri[pos] >= ' ' or stri[pos] <= '~';
       end if;

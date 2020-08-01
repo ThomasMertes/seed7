@@ -27,32 +27,32 @@
 
 #ifdef ANSI_C
 
-objecttype rfl_append (listtype);
-objecttype rfl_cat (listtype);
-objecttype rfl_cpy (listtype);
-objecttype rfl_create (listtype);
-objecttype rfl_destr (listtype);
-objecttype rfl_elem (listtype);
-objecttype rfl_elemcpy (listtype);
-objecttype rfl_empty (listtype);
-objecttype rfl_eq (listtype);
-objecttype rfl_excl (listtype);
-objecttype rfl_expr (listtype);
-objecttype rfl_for (listtype);
-objecttype rfl_head (listtype);
-objecttype rfl_idx (listtype);
-objecttype rfl_incl (listtype);
-objecttype rfl_ipos (listtype);
-objecttype rfl_lng (listtype);
-objecttype rfl_mklist (listtype);
-objecttype rfl_ne (listtype);
-objecttype rfl_not_elem (listtype);
-objecttype rfl_pos (listtype);
-objecttype rfl_range (listtype);
-objecttype rfl_setvalue (listtype);
-objecttype rfl_tail (listtype);
-objecttype rfl_trace (listtype);
-objecttype rfl_value (listtype);
+objecttype rfl_append   (listtype arguments);
+objecttype rfl_cat      (listtype arguments);
+objecttype rfl_cpy      (listtype arguments);
+objecttype rfl_create   (listtype arguments);
+objecttype rfl_destr    (listtype arguments);
+objecttype rfl_elem     (listtype arguments);
+objecttype rfl_elemcpy  (listtype arguments);
+objecttype rfl_empty    (listtype arguments);
+objecttype rfl_eq       (listtype arguments);
+objecttype rfl_excl     (listtype arguments);
+objecttype rfl_expr     (listtype arguments);
+objecttype rfl_for      (listtype arguments);
+objecttype rfl_head     (listtype arguments);
+objecttype rfl_idx      (listtype arguments);
+objecttype rfl_incl     (listtype arguments);
+objecttype rfl_ipos     (listtype arguments);
+objecttype rfl_lng      (listtype arguments);
+objecttype rfl_mklist   (listtype arguments);
+objecttype rfl_ne       (listtype arguments);
+objecttype rfl_not_elem (listtype arguments);
+objecttype rfl_pos      (listtype arguments);
+objecttype rfl_range    (listtype arguments);
+objecttype rfl_setvalue (listtype arguments);
+objecttype rfl_tail     (listtype arguments);
+objecttype rfl_trace    (listtype arguments);
+objecttype rfl_value    (listtype arguments);
 
 #else
 

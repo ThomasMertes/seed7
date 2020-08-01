@@ -256,6 +256,88 @@ char **argv;
 
 
 
+#ifdef ALLOW_STRITYPE_SLICES
+#ifdef ANSI_C
+
+void strAppend (stritype *const stri_to, const_stritype stri_from)
+#else
+
+void strAppend (stri_to, stri_from)
+stritype *stri_to;
+stritype stri_from;
+#endif
+
+  {
+    memsizetype new_size;
+    stritype stri_dest;
+    stritype new_stri;
+    memsizetype stri_from_size;
+    strelemtype *stri_from_mem;
+    const strelemtype *stri_from_origin;
+
+  /* strAppend */
+    stri_dest = *stri_to;
+    stri_from_size = stri_from->size;
+    stri_from_mem = stri_from->mem;
+    if (unlikely(stri_dest->size > MAX_STRI_LEN - stri_from_size)) {
+      /* number of bytes does not fit into memsizetype */
+      raise_error(MEMORY_ERROR);
+    } else {
+      new_size = stri_dest->size + stri_from_size;
+#ifdef WITH_STRI_CAPACITY
+      if (new_size > stri_dest->capacity) {
+        stri_from_origin = GET_SLICE_ORIGIN(stri_from);
+        new_stri = growStri(stri_dest, new_size);
+        if (unlikely(new_stri == NULL)) {
+          raise_error(MEMORY_ERROR);
+          return;
+        } else {
+          if (GET_STRI_ORIGIN(stri_dest) == stri_from_origin) {
+            /* It is possible that 'stri_from' is identical to   */
+            /* 'stri_dest' or a slice of it. This can be checked */
+            /* with the origin. In this case 'stri_from' must be */
+            /* corrected after realloc() enlarged 'stri_dest'.   */
+            stri_from_mem = &new_stri->mem[stri_from_mem - stri_from_origin];
+            /* Correcting the origin of stri_from is not necessary */
+            /* since stri_from will not be used afterwards.        */
+          } /* if */
+          stri_dest = new_stri;
+          *stri_to = stri_dest;
+        } /* if */
+      } /* if */
+      COUNT3_STRI(stri_dest->size, new_size);
+      memcpy(&stri_dest->mem[stri_dest->size], stri_from_mem,
+          stri_from_size * sizeof(strelemtype));
+      stri_dest->size = new_size;
+#else
+      stri_from_origin = GET_SLICE_ORIGIN(stri_from);
+      GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
+      if (unlikely(new_stri == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        if (GET_STRI_ORIGIN(stri_dest) == stri_from_origin) {
+          /* It is possible that 'stri_from' is identical to   */
+          /* 'stri_dest' or a slice of it. This can be checked */
+          /* with the origin. In this case 'stri_from' must be */
+          /* corrected after realloc() enlarged 'stri_dest'.   */
+          stri_from_mem = &new_stri->mem[stri_from_mem - stri_from_origin];
+          /* Correcting the origin of stri_from is not necessary */
+          /* since stri_from will not be used afterwards.        */
+        } /* if */
+        COUNT3_STRI(new_stri->size, new_size);
+        memcpy(&new_stri->mem[new_stri->size], stri_from_mem,
+            stri_from_size * sizeof(strelemtype));
+        new_stri->size = new_size;
+        *stri_to = new_stri;
+      } /* if */
+#endif
+    } /* if */
+  } /* strAppend */
+
+#else
+
+
+
 #ifdef ANSI_C
 
 void strAppend (stritype *const stri_to, const_stritype stri_from)
@@ -319,6 +401,8 @@ stritype stri_from;
 #endif
     } /* if */
   } /* strAppend */
+
+#endif
 
 
 
@@ -843,6 +927,81 @@ stritype stri2;
 
 
 
+#ifdef ALLOW_STRITYPE_SLICES
+#ifdef ANSI_C
+
+void strCopy (stritype *const stri_to, const const_stritype stri_from)
+#else
+
+void strCopy (stri_to, stri_from)
+stritype *stri_to;
+stritype stri_from;
+#endif
+
+  {
+    memsizetype new_size;
+    stritype stri_dest;
+    strelemtype *stri_from_mem;
+#ifndef WITH_STRI_CAPACITY
+    const strelemtype *stri_from_origin;
+#endif
+
+  /* strCopy */
+    /* printf("begin strCopy(");
+    filWrite(stdout, *stri_to);
+    printf(", %ld)\n", stri_from->size); */
+    stri_dest = *stri_to;
+    new_size = stri_from->size;
+#ifdef WITH_STRI_CAPACITY
+    if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
+      stri_dest->size = new_size;
+      stri_from_mem = stri_from->mem;
+#else
+    if (stri_dest->size > new_size) {
+      stri_from_origin = GET_SLICE_ORIGIN(stri_from);
+      SHRINK_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+      /* printf("strCopy(old_size=%lu, new_size=%lu)\n", stri_dest->size, new_size); */
+      if (unlikely(stri_dest == NULL)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        COUNT3_STRI(stri_dest->size, new_size);
+        stri_dest->size = new_size;
+        if (GET_STRI_ORIGIN(*stri_to) == stri_from_origin) {
+          /* It is possible that 'stri_from' is identical to   */
+          /* '*stri_to' or a slice of it. This can be checked  */
+          /* with the origin. In this case 'stri_from' must be */
+          /* corrected after realloc() enlarged 'stri_dest'.   */
+          stri_from_mem = &stri_dest->mem[stri_from_mem - stri_from_origin];
+          /* Correcting the origin of stri_from is not necessary */
+          /* since stri_from will not be used afterwards.        */
+        } /* if */
+        *stri_to = stri_dest;
+      } /* if */
+#endif
+      /* It is possible that stri_dest == stri_from overlap. */
+      /* The behavior of memcpy() is undefined when source    */
+      /* and destination areas overlap (or are identical).    */
+      /* Therefore memmove() is used instead of memcpy().     */
+      memmove(stri_dest->mem, stri_from_mem,
+          new_size * sizeof(strelemtype));
+    } else {
+      if (unlikely(!ALLOC_STRI_SIZE_OK(stri_dest, new_size))) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        stri_dest->size = new_size;
+        memcpy(stri_dest->mem, stri_from->mem,
+          new_size * sizeof(strelemtype));
+        FREE_STRI(*stri_to, (*stri_to)->size);
+        *stri_to = stri_dest;
+      } /* if */
+    } /* if */
+  } /* strCopy */
+
+#else
+
+
 #ifdef ANSI_C
 
 void strCopy (stritype *const stri_to, const const_stritype stri_from)
@@ -897,6 +1056,8 @@ stritype stri_from;
     memmove(stri_dest->mem, stri_from->mem,
         new_size * sizeof(strelemtype));
   } /* strCopy */
+
+#endif
 
 
 
@@ -1101,6 +1262,43 @@ stritype stri;
 
 
 
+#ifdef ALLOW_STRITYPE_SLICES
+#ifdef ANSI_C
+
+stritype strHeadSlice (const const_stritype stri, const inttype stop, stritype slice)
+#else
+
+stritype strHeadSlice (stri, stop, slice)
+stritype stri;
+inttype stop;
+stritype slice;
+#endif
+
+  {
+    memsizetype length;
+
+  /* strHeadSlice */
+    length = stri->size;
+    if (stop >= 1 && length >= 1) {
+      SET_SLICE_ORIGIN(slice, stri->mem);
+      slice->mem = stri->mem;
+      if (length <= (uinttype) stop) {
+        slice->size = length;
+      } else {
+        slice->size = (memsizetype) stop;
+      } /* if */
+    } else {
+      SET_SLICE_ORIGIN(slice, NULL);
+      slice->mem = NULL;
+      slice->size = 0;
+    } /* if */
+    return slice;
+  } /* strHeadSlice */
+
+#else
+
+
+
 #ifdef ANSI_C
 
 stritype strHead (const const_stritype stri, const inttype stop)
@@ -1140,6 +1338,8 @@ inttype stop;
     } /* if */
     return result;
   } /* strHead */
+
+#endif
 
 
 
@@ -1313,7 +1513,7 @@ stritype stri;
           cstri_expand(&result->mem[pos],
               stri_escape_sequence[character], len);
           pos = pos + len;
-        } else if ((character >= 128 && character < 159) ||
+        } else if ((character >= 127 && character < 159) ||
             character >= 255) {
           sprintf(buffer, "\\%lu\\", (unsigned long) character);
           len = strlen(buffer);
@@ -1459,6 +1659,53 @@ inttype pad_size;
     } /* if */
     return result;
   } /* strLpad */
+
+
+
+#ifdef ANSI_C
+
+stritype strLpadTemp (const stritype stri, const inttype pad_size)
+#else
+
+stritype strLpadTemp (stri, pad_size)
+stritype stri;
+inttype pad_size;
+#endif
+
+  {
+    memsizetype length;
+    stritype result;
+
+  /* strLpadTemp */
+    length = stri->size;
+    if (pad_size > 0 && (uinttype) pad_size > length) {
+      if (unlikely((uinttype) pad_size > MAX_STRI_LEN ||
+                   !ALLOC_STRI_SIZE_OK(result, (memsizetype) pad_size))) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result->size = (memsizetype) pad_size;
+#ifdef UTF32_STRINGS
+        {
+          strelemtype *elem = result->mem;
+          memsizetype len = (memsizetype) pad_size - length;
+
+          while (len--) {
+            *elem++ = (strelemtype) ' ';
+          } /* while */
+        }
+#else
+        memset(result->mem, ' ', (memsizetype) pad_size - length);
+#endif
+        memcpy(&result->mem[(memsizetype) pad_size - length], stri->mem,
+            length * sizeof(strelemtype));
+        FREE_STRI(stri, length);
+      } /* if */
+    } else {
+      result = stri;
+    } /* if */
+    return result;
+  } /* strLpadTemp */
 
 
 
@@ -1782,6 +2029,48 @@ chartype char_from;
 
 
 
+#ifdef ALLOW_STRITYPE_SLICES
+#ifdef ANSI_C
+
+stritype strRangeSlice (const const_stritype stri, inttype start, inttype stop, stritype slice)
+#else
+
+stritype strRangeSlice (stri, start, stop, slice)
+stritype stri;
+inttype start;
+inttype stop;
+stritype slice;
+#endif
+
+  {
+    memsizetype length;
+
+  /* strRangeSlice */
+    length = stri->size;
+    if (start < 1) {
+      start = 1;
+    } /* if */
+    if (stop >= 1 && stop >= start && (uinttype) start <= length &&
+        length >= 1) {
+      SET_SLICE_ORIGIN(slice, stri->mem);
+      slice->mem = &stri->mem[start - 1];
+      if ((uinttype) stop > length) {
+        slice->size = length - (memsizetype) start + 1;
+      } else {
+        slice->size = (memsizetype) stop - (memsizetype) start + 1;
+      } /* if */
+    } else {
+      SET_SLICE_ORIGIN(slice, NULL);
+      slice->mem = NULL;
+      slice->size = 0;
+    } /* if */
+    return slice;
+  } /* strRangeSlice */
+
+#else
+
+
+
 #ifdef ANSI_C
 
 stritype strRange (const const_stritype stri, inttype start, inttype stop)
@@ -1833,12 +2122,14 @@ inttype stop;
     return result;
   } /* strRange */
 
+#endif
+
 
 
 #ifdef ANSI_C
 
 inttype strRChIpos (const const_stritype main_stri, const chartype searched,
-    inttype from_index)
+    const inttype from_index)
 #else
 
 inttype strRChIpos (main_stri, searched, from_index)
@@ -1848,6 +2139,7 @@ inttype from_index;
 #endif
 
   {
+    memsizetype start_index;
     const strelemtype *main_mem;
     const strelemtype *found_pos;
 
@@ -1856,12 +2148,14 @@ inttype from_index;
       raise_error(RANGE_ERROR);
     } else {
       if (main_stri->size >= 1) {
-        if (from_index > main_stri->size) {
-          from_index = main_stri->size;
+        if ((uinttype) from_index > main_stri->size) {
+          start_index = main_stri->size;
+        } else {
+          start_index = (memsizetype) from_index;
         } /* if */
         main_mem = main_stri->mem;
-        found_pos = rsearch_strelem(&main_mem[from_index - 1], searched,
-            from_index);
+        found_pos = rsearch_strelem(&main_mem[start_index - 1], searched,
+            start_index);
         if (found_pos != NULL) {
           return ((inttype) (found_pos - main_mem)) + 1;
         } /* if */
@@ -2312,6 +2606,49 @@ stritype delimiter;
 
 
 
+#ifdef ALLOW_STRITYPE_SLICES
+#ifdef ANSI_C
+
+stritype strSubstrSlice (const const_stritype stri, inttype start, inttype len, stritype slice)
+#else
+
+stritype strSubstrSlice (stri, start, len, slice)
+stritype stri;
+inttype start;
+inttype len;
+stritype slice;
+#endif
+
+  {
+    memsizetype length;
+
+  /* strSubstrSlice */
+    length = stri->size;
+    if (len >= 1 && start > 1 - len && (start < 1 || (uinttype) start <= length) &&
+        length >= 1) {
+      if (start < 1) {
+        len += start - 1;
+        start = 1;
+      } /* if */
+      SET_SLICE_ORIGIN(slice, stri->mem);
+      slice->mem = &stri->mem[start - 1];
+      if ((uinttype) start + (uinttype) len - 1 > length) {
+        slice->size = length - (memsizetype) start + 1;
+      } else {
+        slice->size = (memsizetype) len;
+      } /* if */
+    } else {
+      SET_SLICE_ORIGIN(slice, NULL);
+      slice->mem = NULL;
+      slice->size = 0;
+    } /* if */
+    return slice;
+  } /* strSubstrSlice */
+
+#else
+
+
+
 #ifdef ANSI_C
 
 stritype strSubstr (const const_stritype stri, inttype start, inttype len)
@@ -2357,6 +2694,44 @@ inttype len;
     } /* if */
     return result;
   } /* strSubstr */
+
+#endif
+
+
+
+#ifdef ALLOW_STRITYPE_SLICES
+#ifdef ANSI_C
+
+stritype strTailSlice (const const_stritype stri, inttype start, stritype slice)
+#else
+
+stritype strTailSlice (stri, start, slice)
+stritype stri;
+inttype start;
+stritype slice;
+#endif
+
+  {
+    memsizetype length;
+
+  /* strTailSlice */
+    length = stri->size;
+    if (start < 1) {
+      start = 1;
+    } /* if */
+    if ((uinttype) start <= length && length >= 1) {
+      SET_SLICE_ORIGIN(slice, stri->mem);
+      slice->mem = &stri->mem[start - 1];
+      slice->size = length - (memsizetype) start + 1;
+    } else {
+      SET_SLICE_ORIGIN(slice, NULL);
+      slice->mem = NULL;
+      slice->size = 0;
+    } /* if */
+    return slice;
+  } /* strTailSlice */
+
+#else
 
 
 
@@ -2404,6 +2779,8 @@ inttype start;
     } /* if */
     return result;
   } /* strTail */
+
+#endif
 
 
 

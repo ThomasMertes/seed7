@@ -918,6 +918,65 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype arr_push (listtype arguments)
+#else
+
+objecttype arr_push (arguments)
+listtype arguments;
+#endif
+
+  {
+    objecttype arr_variable;
+    arraytype arr_to;
+    objecttype element;
+    arraytype new_arr;
+    memsizetype new_size;
+    memsizetype arr_to_size;
+
+  /* arr_push */
+    /* printf("begin arr_push %lu\n", heapsize()); */
+    arr_variable = arg_1(arguments);
+    isit_array(arr_variable);
+    is_variable(arr_variable);
+    arr_to = take_array(arr_variable);
+    element = arg_3(arguments);
+    arr_to_size = (uinttype) (arr_to->max_position - arr_to->min_position + 1);
+    new_size = arr_to_size + 1;
+    new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
+    if (new_arr == NULL) {
+      return(raise_exception(SYS_MEM_EXCEPTION));
+    } else {
+      COUNT3_ARRAY(arr_to_size, new_size);
+      arr_variable->value.arrayvalue = new_arr;
+      if (TEMP_OBJECT(element)) {
+        CLEAR_TEMP_FLAG(element);
+        SET_VAR_FLAG(element);
+        memcpy(&new_arr->arr[arr_to_size], element, sizeof(objectrecord));
+        new_arr->max_position ++;
+        FREE_OBJECT(element);
+        arg_3(arguments) = NULL;
+      } else {
+        if (!any_var_initialisation(&new_arr->arr[arr_to_size], element)) {
+          arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
+          if (arr_to == NULL) {
+            return(raise_exception(SYS_MEM_EXCEPTION));
+          } /* if */
+          COUNT3_ARRAY(new_size, arr_to_size);
+          arr_variable->value.arrayvalue = arr_to;
+          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+        } else {
+          new_arr->max_position ++;
+        } /* if */
+      } /* if */
+    } /* if */
+    /* printf("end   arr_push %lu\n", heapsize()); */
+    return(SYS_EMPTY_OBJECT);
+  } /* arr_push */
+
+
+
+#ifdef ANSI_C
+
 objecttype arr_range (listtype arguments)
 #else
 

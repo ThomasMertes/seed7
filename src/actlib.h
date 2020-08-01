@@ -27,12 +27,12 @@
 
 #ifdef ANSI_C
 
-objecttype act_cpy (listtype);
-objecttype act_create (listtype);
-objecttype act_gen (listtype);
-objecttype act_illegal (listtype);
-objecttype act_str (listtype);
-objecttype act_value (listtype);
+objecttype act_cpy     (listtype arguments);
+objecttype act_create  (listtype arguments);
+objecttype act_gen     (listtype arguments);
+objecttype act_illegal (listtype arguments);
+objecttype act_str     (listtype arguments);
+objecttype act_value   (listtype arguments);
 
 #else
 

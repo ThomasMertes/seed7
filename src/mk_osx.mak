@@ -100,7 +100,6 @@ hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
 	$(MAKE) ../prg/hi
 	./hi level
-#	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
@@ -108,7 +107,6 @@ hi.gp: $(OBJ)
 
 ../prg/hi:
 	ln -s ../src/hi ../prg
-
 
 clear: clean
 
@@ -130,8 +128,6 @@ version.h:
 	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
-	echo "#undef  INCL_NCURSES_TERM" >> version.h
-	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
 	echo "#define OS_PATH_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h

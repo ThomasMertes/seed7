@@ -80,7 +80,7 @@ linenumtype err_line;
 
   /* print_line */
     /* printf("err_line=%lu in_file.line=%lu\n", err_line, in_file.line); */
-    if (in_file.name != NULL && in_file.curr_infile != NULL &&
+    if (in_file.name_ustri != NULL && in_file.curr_infile != NULL &&
         (current_position = IN_FILE_TELL()) >= 0L) {
       /* printf("current_position=%lu in_file.character=%d\n",
          current_position, in_file.character); */
@@ -162,7 +162,7 @@ static void print_error_line ()
     int ch;
 
   /* print_error_line */
-    if (in_file.name != NULL && in_file.curr_infile != NULL &&
+    if (in_file.name_ustri != NULL && in_file.curr_infile != NULL &&
         (current_position = IN_FILE_TELL()) >= 0L) {
       if (current_position >= 512) {
         buffer_start_position = current_position - 512;
@@ -224,8 +224,8 @@ errortype err;
   { /* place_of_error */
 /*  print_error_line(); */
     prog.error_count++;
-    if (in_file.name != NULL) {
-      printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+    if (in_file.name_ustri != NULL) {
+      printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
     } else {
       printf("*** ");
     } /* if */
@@ -669,10 +669,10 @@ objecttype obj_found;
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(obj_found)){
-      printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
+      printf("*** %s(%1u):%d: ", file_name_ustri(GET_FILE_NUM(obj_found)),
           GET_LINE_NUM(obj_found), ((int) err) + 1);
-    } else if (in_file.name != NULL) {
-      printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+    } else if (in_file.name_ustri != NULL) {
+      printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
     } else {
       printf("*** ");
     } /* if */
@@ -812,10 +812,10 @@ objecttype obj_found;
     /* place_of_error(err); */
     prog.error_count++;
     if (HAS_POSINFO(expr_object)){
-      printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(expr_object)),
+      printf("*** %s(%1u):%d: ", file_name_ustri(GET_FILE_NUM(expr_object)),
           GET_LINE_NUM(expr_object), ((int) err) + 1);
-    } else if (in_file.name != NULL) {
-      printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+    } else if (in_file.name_ustri != NULL) {
+      printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
     } else {
       printf("*** ");
     } /* if */
@@ -887,10 +887,10 @@ objecttype obj_found;
       /* place_of_error(err); */
       prog.error_count++;
       if (HAS_POSINFO(obj_found)){
-        printf("*** %s(%1u):%d: ", file_name(GET_FILE_NUM(obj_found)),
+        printf("*** %s(%1u):%d: ", file_name_ustri(GET_FILE_NUM(obj_found)),
             GET_LINE_NUM(obj_found), ((int) err) + 1);
-      } else if (in_file.name != NULL) {
-        printf("*** %s(%1u):%d: ", in_file.name, in_file.line, ((int) err) + 1);
+      } else if (in_file.name_ustri != NULL) {
+        printf("*** %s(%1u):%d: ", in_file.name_ustri, in_file.line, ((int) err) + 1);
       } else {
         printf("*** ");
       } /* if */
@@ -1110,7 +1110,7 @@ linenumtype line;
 
   { /* err_at_line */
     prog.error_count++;
-    printf("*** %s(%1u):%d: ", in_file.name, line, ((int) err) + 1);
+    printf("*** %s(%1u):%d: ", in_file.name_ustri, line, ((int) err) + 1);
     switch (err) {
       case COMMENTOPEN:
         printf("Unclosed comment\n");
@@ -1140,7 +1140,7 @@ ustritype stri;
 
   { /* err_undeclared */
     prog.error_count++;
-    printf("*** %s(%1u):%d: ", file_name(file_num),
+    printf("*** %s(%1u):%d: ", file_name_ustri(file_num),
         line, ((int) err) + 1);
     switch (err) {
       case OBJUNDECLARED:

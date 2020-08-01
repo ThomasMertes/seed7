@@ -96,12 +96,10 @@ hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
 	cp hi.exe ../prg
 	./hi.exe level
-#	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
 	hi level
-
 
 clear: clean
 
@@ -120,9 +118,6 @@ version.h:
 	echo "#define ALLOW_DRIVE_LETTERS" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
 	echo "#define USE_ALTERNATE_UTIME" >> version.h
-	echo "#undef  USE_MMAP" >> version.h
-	echo "#undef  INCL_NCURSES_TERM" >> version.h
-	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define REMOVE_FAILS_FOR_EMPTY_DIRS" >> version.h
 	echo "#define OS_PATH_WCHAR" >> version.h
 	echo "#define os_chdir _wchdir" >> version.h
@@ -250,7 +245,7 @@ version.h:
 	echo "return 0;" >> chkccomp.c
 	echo "}" >> chkccomp.c
 	$(CC) chkccomp.c -o chkccomp
-	./chkccomp >> version.h
+	./chkccomp.exe >> version.h
 	rm chkccomp.c
 	rm chkccomp.exe
 	rm cc_version
@@ -267,7 +262,7 @@ version.h:
 	echo "#define SEED7_LIB \"`pwd -W`/$(SEED7_LIB)\"" >> version.h
 	echo "#define COMP_DATA_LIB \"`pwd -W`/$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"`pwd -W`/$(COMPILER_LIB)\"" >> version.h
-	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd -W`\" >> ../src/version.h; cd ../src
+	cd ../lib; echo "#define SEED7_LIBRARY \"`pwd -W`\"" >> ../src/version.h; cd ../src
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c

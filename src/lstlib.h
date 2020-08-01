@@ -27,19 +27,19 @@
 
 #ifdef ANSI_C
 
-objecttype lst_cat (listtype);
-objecttype lst_cpy (listtype);
-objecttype lst_create (listtype);
-objecttype lst_destr (listtype);
-objecttype lst_elem (listtype);
-objecttype lst_empty (listtype);
-objecttype lst_excl (listtype);
-objecttype lst_head (listtype);
-objecttype lst_idx (listtype);
-objecttype lst_incl (listtype);
-objecttype lst_lng (listtype);
-objecttype lst_range (listtype);
-objecttype lst_tail (listtype);
+objecttype lst_cat    (listtype arguments);
+objecttype lst_cpy    (listtype arguments);
+objecttype lst_create (listtype arguments);
+objecttype lst_destr  (listtype arguments);
+objecttype lst_elem   (listtype arguments);
+objecttype lst_empty  (listtype arguments);
+objecttype lst_excl   (listtype arguments);
+objecttype lst_head   (listtype arguments);
+objecttype lst_idx    (listtype arguments);
+objecttype lst_incl   (listtype arguments);
+objecttype lst_lng    (listtype arguments);
+objecttype lst_range  (listtype arguments);
+objecttype lst_tail   (listtype arguments);
 
 #else
 

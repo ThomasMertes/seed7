@@ -29,28 +29,52 @@
 include "binary.s7i";
 
 
-const func integer: getBitsLe (in string: stri,
-    inout integer: bytePos, inout integer: bitPos, in var integer: bitsNeeded) is func
+const func integer: getBitLe (in string: stri, inout integer: bytePos,
+    inout integer: bitPos) is func
+  result
+    var integer: result is 0;
+  begin
+    result := (ord(stri[bytePos]) >> bitPos) mod 2;
+    if bitPos = 7 then
+      bitPos := 0;
+      incr(bytePos);
+    else
+      incr(bitPos);
+    end if;
+  end func;
+
+
+const func integer: getBitsLe (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, in var integer: bitsNeeded) is func
   result
     var integer: result is 0;
   local
     var integer: bitsInByte is 0;
     var integer: bitsInResult is 0;
   begin
-    while bitsNeeded <> 0 do
-      bitsInByte := 8 - bitPos;
-      if bitsInByte > bitsNeeded then
-        bitsInByte := bitsNeeded;
+    bitsInByte := 8 - bitPos;
+    if bitsInByte > bitsNeeded then
+      result := (ord(stri[bytePos]) >> bitPos) rem (1 << bitsNeeded);
+      bitPos +:= bitsNeeded;
+    else
+      result := ord(stri[bytePos]) mod 256 >> bitPos;
+      bitPos := 0;
+      incr(bytePos);
+      if bitsInByte <> bitsNeeded then
+        bitsNeeded -:= bitsInByte;
+        bitsInResult := bitsInByte;
+        while bitsNeeded >= 8 do
+          result +:= ord(stri[bytePos]) << bitsInResult;
+          incr(bytePos);
+          bitsNeeded -:= 8;
+          bitsInResult +:= 8;
+        end while;
+        if bitsNeeded <> 0 then
+          result +:= ord(stri[bytePos]) rem (1 << bitsNeeded) << bitsInResult;
+          bitPos := bitsNeeded;
+        end if;
       end if;
-      result +:= (ord(stri[bytePos]) >> bitPos) rem (1 << bitsInByte) << bitsInResult;
-      bitPos +:= bitsInByte;
-      if bitPos = 8 then
-        bitPos := 0;
-        incr(bytePos);
-      end if;
-      bitsNeeded -:= bitsInByte;
-      bitsInResult +:= bitsInByte;
-    end while;
+    end if;
   end func;
 
 
@@ -79,29 +103,29 @@ const func integer: decodeLiteralOrLengthValue (in string: stri,
       resultValue +:= 256;
     else
       resultValue <<:= 1;
-      resultValue +:= getBitsLe(stri, bytePos, bitPos, 1);
+      resultValue +:= getBitLe(stri, bytePos, bitPos);
       if resultValue <= 2#10111111 then
         resultValue -:= 2#00110000;
       elsif resultValue <= 2#11000111 then
         resultValue +:= 280 - 2#11000000;
       else
         resultValue <<:= 1;
-        resultValue +:= getBitsLe(stri, bytePos, bitPos, 1);
+        resultValue +:= getBitLe(stri, bytePos, bitPos);
         resultValue -:= 2#110010000 - 144;
       end if;
     end if;
   end func;
 
 
-const func integer: decodeLengthValue (in string: stri,
-    inout integer: bytePos, inout integer: bitPos, in integer: code) is func
+const func integer: decodeLengthValue (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, in integer: code) is func
   result
     var integer: lengthValue is 0;
   begin
     if code <= 264 then
       lengthValue := code - 254;
     elsif code <= 268 then
-      lengthValue := 11 + ((code - 265) << 1) + getBitsLe(stri, bytePos, bitPos, 1);
+      lengthValue := 11 + ((code - 265) << 1) + getBitLe(stri, bytePos, bitPos);
     elsif code <= 272 then
       lengthValue := 19 + ((code - 269) << 2) + getBitsLe(stri, bytePos, bitPos, 2);
     elsif code <= 276 then
@@ -118,47 +142,48 @@ const func integer: decodeLengthValue (in string: stri,
   end func;
 
 
-const func integer: decodeDistanceValue (in string: stri,
-    inout integer: bytePos, inout integer: bitPos, in integer: code) is func
+const func integer: decodeDistanceValue (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, in integer: code) is func
   result
     var integer: distanceValue is 0;
   begin
-    if code <= 3 then
-      distanceValue := succ(code);
-    elsif code <= 5 then
-      distanceValue := 5 + ((code - 4) << 1) + getBitsLe(stri, bytePos, bitPos, 1);
-    elsif code <= 7 then
-      distanceValue := 9 + ((code - 6) << 2) + getBitsLe(stri, bytePos, bitPos, 2);
-    elsif code <= 9 then
-      distanceValue := 17 + ((code - 8) << 3) + getBitsLe(stri, bytePos, bitPos, 3);
-    elsif code <= 11 then
-      distanceValue := 33 + ((code - 10) << 4) + getBitsLe(stri, bytePos, bitPos, 4);
-    elsif code <= 13 then
-      distanceValue := 65 + ((code - 12) << 5) + getBitsLe(stri, bytePos, bitPos, 5);
-    elsif code <= 15 then
-      distanceValue := 129 + ((code - 14) << 6) + getBitsLe(stri, bytePos, bitPos, 6);
-    elsif code <= 17 then
-      distanceValue := 257 + ((code - 16) << 7) + getBitsLe(stri, bytePos, bitPos, 7);
-    elsif code <= 19 then
-      distanceValue := 513 + ((code - 18) << 8) + getBitsLe(stri, bytePos, bitPos, 8);
-    elsif code <= 21 then
-      distanceValue := 1025 + ((code - 20) << 9) + getBitsLe(stri, bytePos, bitPos, 9);
-    elsif code <= 23 then
-      distanceValue := 2049 + ((code - 22) << 10) + getBitsLe(stri, bytePos, bitPos, 10);
-    elsif code <= 25 then
-      distanceValue := 4097 + ((code - 24) << 11) + getBitsLe(stri, bytePos, bitPos, 11);
-    elsif code <= 27 then
-      distanceValue := 8193 + ((code - 26) << 12) + getBitsLe(stri, bytePos, bitPos, 12);
-    elsif code <= 29 then
-      distanceValue := 16385 + ((code - 28) << 13) + getBitsLe(stri, bytePos, bitPos, 13);
-    else
-      raise RANGE_ERROR;
-    end if;
+    case code of
+      when {0, 1, 2, 3}:
+        distanceValue := succ(code);
+      when {4, 5}:
+        distanceValue := 5 + ((code - 4) << 1) + getBitLe(stri, bytePos, bitPos);
+      when {6, 7}:
+        distanceValue := 9 + ((code - 6) << 2) + getBitsLe(stri, bytePos, bitPos, 2);
+      when {8, 9}:
+        distanceValue := 17 + ((code - 8) << 3) + getBitsLe(stri, bytePos, bitPos, 3);
+      when {10, 11}:
+        distanceValue := 33 + ((code - 10) << 4) + getBitsLe(stri, bytePos, bitPos, 4);
+      when {12, 13}:
+        distanceValue := 65 + ((code - 12) << 5) + getBitsLe(stri, bytePos, bitPos, 5);
+      when {14, 15}:
+        distanceValue := 129 + ((code - 14) << 6) + getBitsLe(stri, bytePos, bitPos, 6);
+      when {16, 17}:
+        distanceValue := 257 + ((code - 16) << 7) + getBitsLe(stri, bytePos, bitPos, 7);
+      when {18, 19}:
+        distanceValue := 513 + ((code - 18) << 8) + getBitsLe(stri, bytePos, bitPos, 8);
+      when {20, 21}:
+        distanceValue := 1025 + ((code - 20) << 9) + getBitsLe(stri, bytePos, bitPos, 9);
+      when {22, 23}:
+        distanceValue := 2049 + ((code - 22) << 10) + getBitsLe(stri, bytePos, bitPos, 10);
+      when {24, 25}:
+        distanceValue := 4097 + ((code - 24) << 11) + getBitsLe(stri, bytePos, bitPos, 11);
+      when {26, 27}:
+        distanceValue := 8193 + ((code - 26) << 12) + getBitsLe(stri, bytePos, bitPos, 12);
+      when {28, 29}:
+        distanceValue := 16385 + ((code - 28) << 13) + getBitsLe(stri, bytePos, bitPos, 13);
+      otherwise:
+        raise RANGE_ERROR;
+    end case;
   end func;
 
 
-const proc: decodeFixedHuffmanCodes (in string: stri,
-    inout integer: bytePos, inout integer: bitPos, inout string: result) is func
+const proc: decodeFixedHuffmanCodes (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, inout string: result) is func
   local
     var integer: literalOrLength is 0;
     var integer: length is 0;
@@ -169,20 +194,22 @@ const proc: decodeFixedHuffmanCodes (in string: stri,
     literalOrLength := decodeLiteralOrLengthValue(stri, bytePos, bitPos);
     while literalOrLength <> 256 do
       if literalOrLength < 256 then
-        result &:= str(chr(literalOrLength));
+        result &:= chr(literalOrLength);
       else
         length := decodeLengthValue(stri, bytePos, bitPos, literalOrLength);
         distance := getBitsLe(stri, bytePos, bitPos, 5);
         distance := decodeDistanceValue(stri, bytePos, bitPos, distance);
         if length > distance then
           nextPos := succ(length(result));
+          # write("(*" <& nextPos <& "*)");
           result &:= "\0\" mult length;
           for number range nextPos to nextPos + length - 1 do
-            write(result[number - distance]);
+            # write(" number=" <& number <& ", distance=" <& distance <& " ");
+            # write(result[number - distance]);
             result @:= [number] result[number - distance];
           end for;
         else # hopefully length(result) >= distance holds
-          write(result[succ(length(result)) - distance len length]);
+          # write(result[succ(length(result)) - distance len length]);
           result &:= result[succ(length(result)) - distance len length];
         end if;
       end if;
@@ -199,42 +226,23 @@ const type: conversionEntry is new struct
 const type: conversionTableType is array conversionEntry;
 
 
-const func integer: getHuffmanValue (in string: stri,
-    inout integer: bytePos, inout integer: bitPos,
-    in conversionTableType: conversionTable) is func
+const func integer: getHuffmanValue (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, in conversionTableType: conversionTable) is func
   result
     var integer: result is 0;
   local
     var integer: bitLength is 1;
-    var integer: limit is 0;
     var integer: code is 0;
   begin
     # writeln("--- " <& bytePos <& " " <& bitPos);
-    while conversionTable[bitLength].limit = 0 do
+    repeat
       code <<:= 1;
-      code +:= getBitsLe(stri, bytePos, bitPos, 1);
+      code +:= getBitLe(stri, bytePos, bitPos);
       incr(bitLength);
-    end while;
-    limit := conversionTable[bitLength].limit >> 1;
-    # code := getBitsLe(stri, bytePos, bitPos, pred(bitLength));
-    # writeln("code=" <& code <& " " <& str(code, 2) lpad0 pred(bitLength) <& " limit=" <& limit);
-    while code >= limit do
-      code <<:= 1;
-      code +:= getBitsLe(stri, bytePos, bitPos, 1);
-      incr(bitLength);
-      if bitLength <= length(conversionTable) then
-        limit := conversionTable[bitLength].limit >> 1;
-      else
-        # writeln("****");
-        limit := code + 1;
-      end if;
-      # writeln("code=" <& code <& " " <& str(code, 2) lpad0 pred(bitLength) <& " limit=" <& limit);
-    end while;
-    decr(bitLength);
-    # write("bitLength=" <& bitLength <& " code=" <& code <& " " <&
-    #      str(code, 2) lpad0 pred(bitLength) <& " limit=" <& conversionTable[bitLength].limit);
-    # writeln(" result=" <& conversionTable[bitLength].table[code - conversionTable[bitLength].limit + 1]);
-    result := conversionTable[bitLength].table[code - conversionTable[bitLength].limit + 1];
+    until code < conversionTable[bitLength].limit;
+    # writeln("--- " <& bytePos <& " " <& bitPos <& " " <&
+    #         bitLength <& " " <& str(code, 2) lpad0 pred(bitLength));
+    result := conversionTable[pred(bitLength)].table[code];
     # writeln("result=" <& result);
   end func;
 
@@ -276,18 +284,21 @@ const func conversionTableType: computeConversionTable (in array integer: codeLe
       write(" " <& bl_count[bits]);
     end for;
     writeln;
+    writeln;
 *)
     code := 0;
     bl_count[0] := 0;
     nextCode := maxBits times 0;
-    conversionTable := maxBits times conversionEntry.value;
+    conversionTable := succ(maxBits) times conversionEntry.value;
     for bits range 1 to maxBits do
-      code := (code + bl_count[bits-1]) << 1;
-      conversionTable[bits].limit := code;
-      # write(" " <& code);
-      nextCode[bits] := conversionTable[bits].limit;
+      code := (code + bl_count[pred(bits)]) << 1;
+      conversionTable[bits].limit := code >> 1;
+      conversionTable[bits].table := [code .. pred(code)] times 0;
+      nextCode[bits] := code;
+      # writeln(bits lpad 4 <& " " <& code);
     end for;
     # writeln;
+    conversionTable[succ(maxBits)].limit := 1 << maxBits;
 (*
     for number range minIdx(codeLengths) to maxIdx(codeLengths) do
       if codeLengths[number] <> 0 and
@@ -300,36 +311,50 @@ const func conversionTableType: computeConversionTable (in array integer: codeLe
     end for;
     writeln;
 *)
+    # writeln("num  bits  code  dec  code  limit");
     codeValues := [minIdx(codeLengths) .. maxIdx(codeLengths)] times 0;
     for number range minIdx(codeLengths) to maxIdx(codeLengths) do
       length := codeLengths[number];
       if length <> 0 then
         codeValues[number] := nextCode[length];
         incr(nextCode[length]);
-        conversionTable[length].table &:= [] (number);
+        conversionTable[length].table &:= number;
       end if;
-      # write(number lpad 4 <& " " <&
-      #     str(codeValues[number], 2) lpad0 codeLengths[number] lpad maxBits);
-      # writeln(" " <& codeValues[number] lpad 5 <& " " <&
-      #     literal(str(codeValues[number], 2)));
+(*
+      write(number lpad 4 <& "  " <& codeLengths[number] lpad 3 <& "  " <&
+          str(codeValues[number], 2) lpad0 codeLengths[number] lpad maxBits);
+      write("  " <& codeValues[number] lpad 5 <& "  " <&
+          literal(str(codeValues[number], 2) lpad0 codeLengths[number]) rpad maxBits + 2);
+      if codeLengths[number] <> 0 then
+        write("  " <& conversionTable[codeLengths[number]].limit lpad 4);
+      end if;
+      writeln;
+*)
     end for;
     # writeln;
 (*
+    writeln(" num  bits   " <& "code" lpad maxBits <& "   dec   " <& "code" rpad maxBits + 2 <& " limit");
     for bits range 1 to maxBits do
       for number range minIdx(conversionTable[bits].table) to maxIdx(conversionTable[bits].table) do
-        write(conversionTable[bits].table[number] lpad 4 <& " " <&
-            str(conversionTable[bits].limit + number - 1, 2) lpad0 bits lpad maxBits);
-        writeln(" " <& conversionTable[bits].limit + number - 1 lpad 5 <& " " <&
-            literal(str(conversionTable[bits].limit + number - 1, 2)));
+        write(conversionTable[bits].table[number] lpad 4 <& "  " <& bits lpad 4 <& "   " <&
+            str(number, 2) lpad0 bits lpad maxBits);
+        writeln(" " <& number lpad 5 <& "  " <&
+            literal(str(number, 2) lpad0 bits) rpad maxBits + 2 <&
+            "  " <& conversionTable[bits].limit lpad 4);
       end for;
     end for;
+    write(" " lpad 6 <& succ(maxBits) lpad 4 <& " " <&
+        str(1 << succ(maxBits), 2) lpad0 bits lpad maxBits);
+    writeln(" " <& 1 << succ(maxBits) lpad 5 <& "  " <&
+        literal(str(1 << succ(maxBits), 2) lpad0 succ(maxBits)) rpad maxBits + 2 <&
+        conversionTable[succ(maxBits)].limit lpad 4);
     writeln;
 *)
   end func;
 
 
-const proc: decodeDynamicHuffmanCodes (in string: stri,
-    inout integer: bytePos, inout integer: bitPos, inout string: result) is func
+const proc: decodeDynamicHuffmanCodes (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, inout string: result) is func
   local
     const array integer: codeLengthAlphabet is []
         (16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15);
@@ -365,11 +390,12 @@ const proc: decodeDynamicHuffmanCodes (in string: stri,
     # writeln;
     lengthConversionTable := computeConversionTable(lengthCodeLengths);
     number := 1;
+    # writeln("number  codeLength");
     while number <= hlit + 257 + hdist + 1 do
       codeLength := getHuffmanValue(stri, bytePos, bitPos, lengthConversionTable);
-      # write(" " <& codeLength);
+      # writeln(number lpad 6 <& "  " <& codeLength);
       if codeLength <= 15 then
-        combinedCodeLengths &:= [] (codeLength);
+        combinedCodeLengths &:= codeLength;
         incr(number);
       elsif codeLength = 16 then
         factor := getBitsLe(stri, bytePos, bitPos, 2) + 3;
@@ -396,7 +422,7 @@ const proc: decodeDynamicHuffmanCodes (in string: stri,
     while literalOrLength <> 256 do
       if literalOrLength < 256 then
         # write(chr(literalOrLength));
-        result &:= str(chr(literalOrLength));
+        result &:= chr(literalOrLength);
       else
         # write("<" <& literalOrLength <& ">");
         length := decodeLengthValue(stri, bytePos, bitPos, literalOrLength);
@@ -407,8 +433,10 @@ const proc: decodeDynamicHuffmanCodes (in string: stri,
         # write("{" <& distance <& "}");
         if length > distance then
           nextPos := succ(length(result));
+          # write("(*" <& nextPos <& "*)");
           result &:= "\0\" mult length;
           for number range nextPos to nextPos + length - 1 do
+            # write(" number=" <& number <& ", distance=" <& distance <& " ");
             # write(result[number - distance]);
             result @:= [number] result[number - distance];
           end for;
@@ -423,13 +451,13 @@ const proc: decodeDynamicHuffmanCodes (in string: stri,
   end func;
 
 
-const proc: processCompressedBlock (in string: stri,
-    inout integer: bytePos, inout integer: bitPos, inout string: result,
-    inout boolean: bfinal) is func
+const proc: processCompressedBlock (in string: stri, inout integer: bytePos,
+    inout integer: bitPos, inout string: result, inout boolean: bfinal) is func
   local
     var integer: btype is 0;
   begin
-    bfinal := odd(getBitsLe(stri, bytePos, bitPos, 1));
+    # writeln("bytePos=" <& bytePos <& ", bitPos=" <& bitPos);
+    bfinal := odd(getBitLe(stri, bytePos, bitPos));
     btype := getBitsLe(stri, bytePos, bitPos, 2);
     # writeln("bfinal=" <& bfinal <& " btype=" <& btype);
     case btype of
@@ -463,9 +491,7 @@ const func string: inflate (in string: stri) is func
   end func;
 
 
-const func string: gunzip (in string: stri) is func
-  result
-    var string: result is "";
+const proc: readGzipHeader (in string: stri, inout integer: bytePos) is func
   local
     var integer: compressionMethod is 0;
     var integer: flags is 0;
@@ -477,47 +503,188 @@ const func string: gunzip (in string: stri) is func
     var integer: mtime is 0;
     var integer: extraFlags is 0;
     var integer: operatingSystem is 0;
-    var integer: bytePos is 0;
-    var integer: bitPos is 0;
     var integer: extraLength is 0;
     var string: originalFileName is "";
     var string: fileComment is "";
     var integer: crc16 is 0;
+  begin
+    compressionMethod := ord(stri[3]);
+    # writeln("CM=" <& compressionMethod);
+    flags := ord(stri[4]);
+    flagFtext    := odd(flags);
+    flagFhcrc    := odd(flags >> 1);
+    flagFextra   := odd(flags >> 2);
+    flagFname    := odd(flags >> 3);
+    flagFcomment := odd(flags >> 4);
+    # writeln(flagFtext <& " " <& flagFhcrc <& " " <& flagFextra <& " " <&
+    #     flagFname <& " " <& flagFcomment);
+    mtime := ord(stri[5]) + (ord(stri[6]) << 8) + (ord(stri[7]) << 16) + (ord(stri[8]) << 24);
+    # writeln(mtime);
+    extraFlags := ord(stri[9]);
+    operatingSystem := ord(stri[10]);
+    # writeln(extraFlags <& " " <& operatingSystem);
+    bytePos := 11;
+    if flagFextra then
+      extraLength := ord(stri[11]) + (ord(stri[12]) << 8);
+      bytePos +:= 2 + extraLength;
+    end if;
+    if flagFname then
+      originalFileName := get_asciiz(stri, bytePos);
+    end if;
+    if flagFcomment then
+      fileComment := get_asciiz(stri, bytePos);
+    end if;
+    if flagFhcrc then
+      crc16 := ord(stri[11]) + (ord(stri[12]) << 8);
+    end if;
+  end func;
+
+
+const func string: gunzip (in string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: bytePos is 0;
+    var integer: bitPos is 0;
     var boolean: bfinal is FALSE;
   begin
     if stri[1 len 2] = "\31\\139\" then
-      compressionMethod := ord(stri[3]);
-      # writeln("CM=" <& compressionMethod);
-      flags := ord(stri[4]);
-      flagFtext    := odd(flags);
-      flagFhcrc    := odd(flags >> 1);
-      flagFextra   := odd(flags >> 2);
-      flagFname    := odd(flags >> 3);
-      flagFcomment := odd(flags >> 4);
-      # writeln(flagFtext <& " " <& flagFhcrc <& " " <& flagFextra <& " " <&
-      #     flagFname <& " " <& flagFcomment);
-      mtime := ord(stri[5]) + (ord(stri[6]) << 8) + (ord(stri[7]) << 16) + (ord(stri[8]) << 24);
-      # writeln(mtime);
-      extraFlags := ord(stri[9]);
-      operatingSystem := ord(stri[10]);
-      # writeln(extraFlags <& " " <& operatingSystem);
-      bytePos := 11;
-      bitPos := 0;
-      if flagFextra then
-        extraLength := ord(stri[11]) + (ord(stri[12]) << 8);
-        bytePos +:= 2 + extraLength;
-      end if;
-      if flagFname then
-        originalFileName := get_asciiz(stri, bytePos);
-      end if;
-      if flagFcomment then
-        fileComment := get_asciiz(stri, bytePos);
-      end if;
-      if flagFhcrc then
-        crc16 := ord(stri[11]) + (ord(stri[12]) << 8);
-      end if;
+      readGzipHeader(stri, bytePos);
       repeat
         processCompressedBlock(stri, bytePos, bitPos, result, bfinal);
       until bfinal;
+    end if;
+  end func;
+
+
+const type: gunzipFile is sub null_file struct
+    var string: compressed is "";
+    var integer: bytePos is 0;
+    var integer: bitPos is 0;
+    var boolean: bfinal is FALSE;
+    var string: uncompressed is "";
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(gunzipFile, file);
+
+
+const func gunzipFile: malloc (in gunzipFile: aFile) is func
+  result
+    var gunzipFile: result is gunzipFile.value;
+  begin
+    result := aFile;
+  end func;
+
+
+const func file: openGunzipFile (in string: compressed) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var gunzipFile: new_gunzipFile is gunzipFile.value;
+  begin
+    if compressed[1 len 2] = "\31\\139\" then
+      new_gunzipFile.compressed := compressed;
+      readGzipHeader(new_gunzipFile.compressed, new_gunzipFile.bytePos);
+      result := malloc(new_gunzipFile);
+    end if;
+  end func;
+
+
+const proc: close (in gunzipFile: aFile) is noop;
+
+
+(**
+ *  Return a character read from 'aFile'.
+ *)
+const func char: getc (inout gunzipFile: aFile) is func
+  result
+    var char: result is ' ';
+  begin
+    while aFile.position > length(aFile.uncompressed) and
+        not aFile.bfinal do
+      processCompressedBlock(aFile.compressed, aFile.bytePos, aFile.bitPos,
+          aFile.uncompressed, aFile.bfinal);
+    end while;
+    if aFile.position <= length(aFile.uncompressed) then
+      result := aFile.uncompressed[aFile.position];
+      incr(aFile.position);
+    else
+      result := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Return a string read with a maximum length 'leng' from
+ *  'aFile'.
+ *)
+const func string: gets (inout gunzipFile: aFile, in var integer: leng) is func
+  result
+    var string: result is "";
+  begin
+    while pred(aFile.position + leng) > length(aFile.uncompressed) and
+        not aFile.bfinal do
+      processCompressedBlock(aFile.compressed, aFile.bytePos, aFile.bitPos,
+          aFile.uncompressed, aFile.bfinal);
+    end while;
+    if pred(aFile.position + leng) <= length(aFile.uncompressed) then
+      result := aFile.uncompressed[aFile.position len leng];
+      aFile.position +:= leng;
+    else
+      result := aFile.uncompressed[aFile.position ..];
+      aFile.position := succ(length(aFile.uncompressed));
+    end if;
+  end func;
+
+
+const func boolean: eof (in gunzipFile: aFile) is
+  return aFile.position > length(aFile.uncompressed) and aFile.bfinal;
+
+
+const func boolean: hasNext (inout gunzipFile: aFile) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    while aFile.position > length(aFile.uncompressed) and
+        not aFile.bfinal do
+      processCompressedBlock(aFile.compressed, aFile.bytePos, aFile.bitPos,
+          aFile.uncompressed, aFile.bfinal);
+    end while;
+    result := aFile.position <= length(aFile.uncompressed);
+  end func;      
+
+
+const func integer: length (inout gunzipFile: aFile) is func
+  result
+    var integer: result is 0;
+  begin
+    while not aFile.bfinal do
+      processCompressedBlock(aFile.compressed, aFile.bytePos, aFile.bitPos,
+          aFile.uncompressed, aFile.bfinal);
+    end while;
+    result := length(aFile.uncompressed);
+  end func;
+
+
+const proc: seek (inout gunzipFile: aFile, in integer: pos) is func
+  begin
+    aFile.position := pos;
+  end func;
+
+
+const func integer: tell (in gunzipFile: aFile) is
+  return aFile.position;
+
+
+const func file: gunzip (inout file: aFile) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(aFile, length(aFile) - tell(aFile) + 1);
+    if stri <> "" then
+      result := openGunzipFile(stri);
     end if;
   end func;

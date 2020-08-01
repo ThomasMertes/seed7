@@ -27,17 +27,17 @@
 
 #ifdef ANSI_C
 
-objecttype bln_and (listtype);
-objecttype bln_cpy (listtype);
-objecttype bln_create (listtype);
-objecttype bln_ge (listtype);
-objecttype bln_gt (listtype);
-objecttype bln_iconv (listtype);
-objecttype bln_le (listtype);
-objecttype bln_lt (listtype);
-objecttype bln_not (listtype);
-objecttype bln_or (listtype);
-objecttype bln_ord  (listtype);
+objecttype bln_and    (listtype arguments);
+objecttype bln_cpy    (listtype arguments);
+objecttype bln_create (listtype arguments);
+objecttype bln_ge     (listtype arguments);
+objecttype bln_gt     (listtype arguments);
+objecttype bln_iconv  (listtype arguments);
+objecttype bln_le     (listtype arguments);
+objecttype bln_lt     (listtype arguments);
+objecttype bln_not    (listtype arguments);
+objecttype bln_or     (listtype arguments);
+objecttype bln_ord    (listtype arguments);
 
 #else
 

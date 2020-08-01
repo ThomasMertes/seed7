@@ -27,16 +27,16 @@
 
 #ifdef ANSI_C
 
-objecttype scr_clear (listtype);
-objecttype scr_cursor (listtype);
-objecttype scr_flush (listtype);
-objecttype scr_height (listtype);
-objecttype scr_h_scl (listtype);
-objecttype scr_open (listtype);
-objecttype scr_setpos (listtype);
-objecttype scr_v_scl (listtype);
-objecttype scr_width (listtype);
-objecttype scr_write (listtype);
+objecttype scr_clear  (listtype arguments);
+objecttype scr_cursor (listtype arguments);
+objecttype scr_flush  (listtype arguments);
+objecttype scr_height (listtype arguments);
+objecttype scr_h_scl  (listtype arguments);
+objecttype scr_open   (listtype arguments);
+objecttype scr_setpos (listtype arguments);
+objecttype scr_v_scl  (listtype arguments);
+objecttype scr_width  (listtype arguments);
+objecttype scr_write  (listtype arguments);
 
 #else
 

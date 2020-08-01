@@ -27,20 +27,20 @@
 
 #ifdef ANSI_C
 
-objecttype bst_append (listtype);
-objecttype bst_cat (listtype);
-objecttype bst_cmp (listtype);
-objecttype bst_cpy (listtype);
-objecttype bst_create (listtype);
-objecttype bst_destr (listtype);
-objecttype bst_empty (listtype);
-objecttype bst_eq (listtype);
-objecttype bst_hashcode (listtype);
-objecttype bst_idx (listtype);
-objecttype bst_lng (listtype);
-objecttype bst_ne (listtype);
-objecttype bst_parse (listtype);
-objecttype bst_value (listtype);
+objecttype bst_append   (listtype arguments);
+objecttype bst_cat      (listtype arguments);
+objecttype bst_cmp      (listtype arguments);
+objecttype bst_cpy      (listtype arguments);
+objecttype bst_create   (listtype arguments);
+objecttype bst_destr    (listtype arguments);
+objecttype bst_empty    (listtype arguments);
+objecttype bst_eq       (listtype arguments);
+objecttype bst_hashcode (listtype arguments);
+objecttype bst_idx      (listtype arguments);
+objecttype bst_lng      (listtype arguments);
+objecttype bst_ne       (listtype arguments);
+objecttype bst_parse    (listtype arguments);
+objecttype bst_value    (listtype arguments);
 
 #else
 

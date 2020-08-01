@@ -209,7 +209,8 @@ errinfotype *err_info;
     os_stritype os_path;
     infiltype new_file;
     FILE *in_fil;
-    ustritype in_name;
+    ustritype name_ustri;
+    stritype in_name;
 
   /* open_infile */
 #ifdef TRACE_INFILE
@@ -231,18 +232,25 @@ errinfotype *err_info;
           fclose(in_file.fil);
           *err_info = MEMORY_ERROR;
         } else {
-          in_name = (ustritype) cp_to_cstri(source_file_name);
-          if (in_name == NULL) {
+          name_ustri = (ustritype) cp_to_cstri(source_file_name);
+          if (name_ustri == NULL) {
+            fclose(in_file.fil);
+            *err_info = MEMORY_ERROR;
+          } else if (!ALLOC_STRI_CHECK_SIZE(in_name, source_file_name->size)) {
+            free_cstri(name_ustri, source_file_name);
             fclose(in_file.fil);
             *err_info = MEMORY_ERROR;
           } else {
+            in_name->size = source_file_name->size;
+            memcpy(in_name->mem, source_file_name->mem, source_file_name->size * sizeof(strelemtype));
             if (in_file.curr_infile != NULL) {
               memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
             } /* if */
             in_file.fil = in_fil;
             if (!speedup()) {
               fclose(in_file.fil);
-              free_cstri(in_name, source_file_name);
+              free_cstri(name_ustri, source_file_name);
+              FREE_STRI(in_name, source_file_name->size);
               if (in_file.curr_infile != NULL) {
                 memcpy(&in_file, in_file.curr_infile, sizeof(infilrecord));
               } else {
@@ -250,6 +258,7 @@ errinfotype *err_info;
               } /* if */
               *err_info = FILE_ERROR;
             } else {
+              in_file.name_ustri = name_ustri;
               in_file.name = in_name;
               in_file.character = next_character();
               in_file.line = 1;
@@ -355,7 +364,8 @@ errinfotype *err_info;
     const_cstritype source_file_name = "STRING";
     infiltype new_file;
     unsigned int name_length;
-    ustritype in_name;
+    ustritype name_ustri;
+    stritype in_name;
 
   /* open_string */
 #ifdef TRACE_INFILE
@@ -367,15 +377,21 @@ errinfotype *err_info;
         *err_info = MEMORY_ERROR;
       } else {
         name_length = strlen(source_file_name);
-        if (!ALLOC_USTRI(in_name, name_length)) {
+        if (!ALLOC_USTRI(name_ustri, name_length)) {
+          *err_info = MEMORY_ERROR;
+        } else if (!ALLOC_STRI_SIZE_OK(in_name, name_length)) {
+          free_cstri(name_ustri, name_length);
           *err_info = MEMORY_ERROR;
         } else {
           COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-          strcpy((cstritype) in_name, source_file_name);
+          strcpy((cstritype) name_ustri, source_file_name);
+          in_name->size = name_length;
+          ustri_expand(in_name->mem, name_ustri, name_length);
           if (in_file.curr_infile != NULL) {
             memcpy(in_file.curr_infile, &in_file, sizeof(infilrecord));
           } /* if */
           in_file.fil = NULL;
+          in_file.name_ustri = name_ustri;
           in_file.name = in_name;
           in_file.start = input_string->mem;
           in_file.nextch = in_file.start;
@@ -458,22 +474,23 @@ int next_line ()
 
 #ifdef ANSI_C
 
-const_ustritype file_name (filenumtype file_num)
+const_stritype file_name (filenumtype file_num)
 #else
 
-ustritype file_name (file_num)
+stritype file_name (file_num)
 filenumtype file_num;
 #endif
 
   {
+    static const_stritype question_mark = NULL;
     infiltype help_file;
-    const_ustritype result;
+    const_stritype result;
 
   /* file_name */
 #ifdef TRACE_INFILE
     printf("BEGIN file_name\n");
 #endif
-    result = (const_ustritype) "?";
+    result = NULL;
     help_file = file_pointer;
     while (help_file != NULL) {
       if (help_file->file_number == file_num) {
@@ -481,11 +498,50 @@ filenumtype file_num;
       } /* if */
       help_file = help_file->next;
     } /* while */
+    if (result == NULL) {
+      if (question_mark == NULL) {
+        question_mark = cstri_to_stri("?");
+      } /* if */
+      result = question_mark;
+    } /* if */
 #ifdef TRACE_INFILE
     printf("END file_name\n");
 #endif
     return(result);
   } /* file_name */
+
+
+
+#ifdef ANSI_C
+
+const_ustritype file_name_ustri (filenumtype file_num)
+#else
+
+ustritype file_name_ustri (file_num)
+filenumtype file_num;
+#endif
+
+  {
+    infiltype help_file;
+    const_ustritype result;
+
+  /* file_name_ustri */
+#ifdef TRACE_INFILE
+    printf("BEGIN file_name\n");
+#endif
+    result = (const_ustritype) "?";
+    help_file = file_pointer;
+    while (help_file != NULL) {
+      if (help_file->file_number == file_num) {
+        result = help_file->name_ustri;
+      } /* if */
+      help_file = help_file->next;
+    } /* while */
+#ifdef TRACE_INFILE
+    printf("END file_name\n");
+#endif
+    return(result);
+  } /* file_name_ustri */
 
 
 

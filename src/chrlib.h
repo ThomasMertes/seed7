@@ -27,29 +27,29 @@
 
 #ifdef ANSI_C
 
-objecttype chr_chr (listtype);
-objecttype chr_clit (listtype);
-objecttype chr_cmp (listtype);
-objecttype chr_conv (listtype);
-objecttype chr_cpy (listtype);
-objecttype chr_create (listtype);
-objecttype chr_decr (listtype);
-objecttype chr_eq (listtype);
-objecttype chr_ge (listtype);
-objecttype chr_gt (listtype);
-objecttype chr_hashcode (listtype);
-objecttype chr_iconv (listtype);
-objecttype chr_incr (listtype);
-objecttype chr_le (listtype);
-objecttype chr_low (listtype);
-objecttype chr_lt (listtype);
-objecttype chr_ne (listtype);
-objecttype chr_ord (listtype);
-objecttype chr_pred (listtype);
-objecttype chr_str (listtype);
-objecttype chr_succ (listtype);
-objecttype chr_up (listtype);
-objecttype chr_value (listtype);
+objecttype chr_chr      (listtype arguments);
+objecttype chr_clit     (listtype arguments);
+objecttype chr_cmp      (listtype arguments);
+objecttype chr_conv     (listtype arguments);
+objecttype chr_cpy      (listtype arguments);
+objecttype chr_create   (listtype arguments);
+objecttype chr_decr     (listtype arguments);
+objecttype chr_eq       (listtype arguments);
+objecttype chr_ge       (listtype arguments);
+objecttype chr_gt       (listtype arguments);
+objecttype chr_hashcode (listtype arguments);
+objecttype chr_iconv    (listtype arguments);
+objecttype chr_incr     (listtype arguments);
+objecttype chr_le       (listtype arguments);
+objecttype chr_low      (listtype arguments);
+objecttype chr_lt       (listtype arguments);
+objecttype chr_ne       (listtype arguments);
+objecttype chr_ord      (listtype arguments);
+objecttype chr_pred     (listtype arguments);
+objecttype chr_str      (listtype arguments);
+objecttype chr_succ     (listtype arguments);
+objecttype chr_up       (listtype arguments);
+objecttype chr_value    (listtype arguments);
 
 #else
 

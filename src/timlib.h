@@ -27,10 +27,10 @@
 
 #ifdef ANSI_C
 
-objecttype tim_await (listtype);
-objecttype tim_from_timestamp (listtype);
-objecttype tim_now (listtype);
-objecttype tim_set_local_tz (listtype);
+objecttype tim_await          (listtype arguments);
+objecttype tim_from_timestamp (listtype arguments);
+objecttype tim_now            (listtype arguments);
+objecttype tim_set_local_tz   (listtype arguments);
 
 #else
 

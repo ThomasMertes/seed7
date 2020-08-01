@@ -872,6 +872,24 @@ const func time: time (in integer: year, in integer: month, in integer: day,
 
 
 (**
+ *  Return the specified time in the specified timeZone.
+ *)
+const func time: timeInTimeZone (in integer: year, in integer: month, in integer: day,
+    in integer: hour, in integer: minute, in integer: second, in integer: timeZone) is func
+  result
+    var time: result is time.value;
+  begin
+    result.year     := year;
+    result.month    := month;
+    result.day      := day;
+    result.hour     := hour;
+    result.minute   := minute;
+    result.second   := second;
+    result.timeZone := timeZone;
+  end func;
+
+
+(**
  *  Return the specified UTC date.
  *)
 const func time: date (in integer: year, in integer: month, in integer: day) is func

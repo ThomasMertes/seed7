@@ -124,9 +124,6 @@ version.h:
 	echo #define ALLOW_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define USE_ALTERNATE_UTIME >> version.h
-	echo #undef  USE_MMAP >> version.h
-	echo #undef  INCL_NCURSES_TERM >> version.h
-	echo #undef  INCL_CURSES_BEFORE_TERM >> version.h
 	echo #define REMOVE_FAILS_FOR_EMPTY_DIRS >> version.h
 	echo #define OS_PATH_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h
@@ -254,7 +251,7 @@ version.h:
 	echo return 0; >> chkccomp.c
 	echo } >> chkccomp.c
 	$(CC) -o chkccomp chkccomp.c
-	.\chkccomp >> version.h
+	.\chkccomp.exe >> version.h
 	del chkccomp.c
 	del chkccomp.exe
 	del cc_version
@@ -304,7 +301,7 @@ version.h:
 	echo return 0; >> setpaths.c
 	echo } >> setpaths.c
 	$(CC) -o setpaths setpaths.c
-	.\setpaths >> version.h
+	.\setpaths.exe >> version.h
 	del setpaths.c
 	del setpaths.exe
 

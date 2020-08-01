@@ -100,7 +100,6 @@ hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
 	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS) -o hi
 	$(MAKE) ../prg/hi
 	./hi level
-#	cp hi /usr/local/bin/hi
 
 hi.gp: $(OBJ)
 	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
@@ -108,7 +107,6 @@ hi.gp: $(OBJ)
 
 ../prg/hi:
 	ln -s ../src/hi ../prg
-
 
 clear: clean
 
@@ -130,8 +128,6 @@ version.h:
 	echo "#define USE_LOCALTIME_R" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
-	echo "#undef  INCL_NCURSES_TERM" >> version.h
-	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
 	echo "#define OS_PATH_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
@@ -230,6 +226,7 @@ version.h:
 	echo "#define EXECUTABLE_FILE_EXTENSION \"\"" >> version.h
 	echo "#define C_COMPILER \"$(CC)\"" >> version.h
 	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
+	echo "#define CC_SOURCE_UTF8" >> version.h
 	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
 	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
 	echo "#define REDIRECT_C_ERRORS \"2>\"" >> version.h
@@ -239,7 +236,7 @@ version.h:
 	echo "#define SEED7_LIB \"`pwd`/$(SEED7_LIB)\"" >> version.h
 	echo "#define COMP_DATA_LIB \"`pwd`/$(COMP_DATA_LIB)\"" >> version.h
 	echo "#define COMPILER_LIB \"`pwd`/$(COMPILER_LIB)\"" >> version.h
-	cd ../lib; echo "#define SEED7_LIBRARY" \"`pwd`\" >> ../src/version.h; cd ../src
+	cd ../lib; echo "#define SEED7_LIBRARY \"`pwd`\"" >> ../src/version.h; cd ../src
 
 hi.o: hi.c
 	$(CC) $(CFLAGS) -c hi.c

@@ -27,24 +27,24 @@
 
 #ifdef ANSI_C
 
-objecttype dcl_attr (listtype);
-objecttype dcl_const (listtype);
-objecttype dcl_elements (listtype);
-objecttype dcl_fwd (listtype);
-objecttype dcl_getfunc (listtype);
-objecttype dcl_getobj (listtype);
-objecttype dcl_global (listtype);
-objecttype dcl_in1var (listtype);
-objecttype dcl_in2var (listtype);
-objecttype dcl_inout1 (listtype);
-objecttype dcl_inout2 (listtype);
-objecttype dcl_param_attr (listtype);
-objecttype dcl_ref1 (listtype);
-objecttype dcl_ref2 (listtype);
-objecttype dcl_symb (listtype);
-objecttype dcl_val1 (listtype);
-objecttype dcl_val2 (listtype);
-objecttype dcl_var (listtype);
+objecttype dcl_attr       (listtype arguments);
+objecttype dcl_const      (listtype arguments);
+objecttype dcl_elements   (listtype arguments);
+objecttype dcl_fwd        (listtype arguments);
+objecttype dcl_getfunc    (listtype arguments);
+objecttype dcl_getobj     (listtype arguments);
+objecttype dcl_global     (listtype arguments);
+objecttype dcl_in1var     (listtype arguments);
+objecttype dcl_in2var     (listtype arguments);
+objecttype dcl_inout1     (listtype arguments);
+objecttype dcl_inout2     (listtype arguments);
+objecttype dcl_param_attr (listtype arguments);
+objecttype dcl_ref1       (listtype arguments);
+objecttype dcl_ref2       (listtype arguments);
+objecttype dcl_symb       (listtype arguments);
+objecttype dcl_val1       (listtype arguments);
+objecttype dcl_val2       (listtype arguments);
+objecttype dcl_var        (listtype arguments);
 
 #else
 

@@ -308,7 +308,7 @@ rtlGenerictype source;
 
 #ifdef ANSI_C
 
-stritype refFile (objecttype obj_arg1)
+const_stritype refFile (objecttype obj_arg1)
 #else
 
 stritype refFile (obj_arg1)
@@ -317,8 +317,7 @@ objecttype obj_arg1;
 
   {
     filenumtype file_number;
-    const_cstritype name;
-    stritype result;
+    const_stritype result;
 
   /* refFile */
     if (HAS_POSINFO(obj_arg1)) {
@@ -333,8 +332,7 @@ objecttype obj_arg1;
     } else {
       file_number = 0;
     } /* if */
-    name = (const_cstritype) file_name(file_number);
-    result = cstri_to_stri(name);
+    result = file_name(file_number);
     if (result == NULL) {
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -466,7 +464,7 @@ objecttype obj_arg;
     } else if (HAS_PROPERTY(obj_arg)) {
       /* trace1(obj_arg);
       printf(" %s %u %u\n",
-          file_name(obj_arg->descriptor.property->file_number),
+          file_name_ustri(obj_arg->descriptor.property->file_number),
           obj_arg->descriptor.property->line,
           obj_arg->descriptor.property->syNumberInLine); */
       /* Cast to inttype: The line is probably in the range 0 to 2147483647 */
@@ -823,7 +821,7 @@ objecttype obj_arg;
     if (obj_arg == NULL) {
       stri = " *NULL_OBJECT* ";
     } else if (HAS_POSINFO(obj_arg)) {
-      stri = (const_cstritype) file_name(GET_FILE_NUM(obj_arg));
+      stri = (const_cstritype) file_name_ustri(GET_FILE_NUM(obj_arg));
       buffer_len = (memsizetype) strlen(stri) + 32;
       if (!ALLOC_CSTRI(buffer, buffer_len)) {
         raise_error(MEMORY_ERROR);

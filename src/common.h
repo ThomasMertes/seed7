@@ -83,6 +83,7 @@ typedef int booltype;
 #undef  DO_HEAP_LOG
 #define UTF32_STRINGS
 #define WITH_STRI_CAPACITY
+#define ALLOW_STRITYPE_SLICES
 #define INTTYPE_SIZE 32
 #undef  FLOATTYPE_DOUBLE
 
@@ -348,14 +349,19 @@ typedef struct stristruct {
 #ifdef WITH_STRI_CAPACITY
     memsizetype capacity;
 #endif
+#ifdef ALLOW_STRITYPE_SLICES
+    strelemtype *mem;
+    strelemtype  mem1[1];
+#else
     strelemtype mem[1];
+#endif
   } strirecord;
 
 typedef struct bstristruct {
     memsizetype size;
 #ifdef MMAP_ABLE_BSTRI
     uchartype *mem;
-    uchartype mem1[1];
+    uchartype  mem1[1];
 #else
     uchartype mem[1];
 #endif

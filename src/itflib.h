@@ -27,16 +27,16 @@
 
 #ifdef ANSI_C
 
-objecttype itf_cmp (listtype);
-objecttype itf_conv2 (listtype);
-objecttype itf_cpy (listtype);
-objecttype itf_cpy2 (listtype);
-objecttype itf_create (listtype);
-objecttype itf_create2 (listtype);
-objecttype itf_eq (listtype);
-objecttype itf_hashcode (listtype);
-objecttype itf_ne (listtype);
-objecttype itf_select (listtype);
+objecttype itf_cmp      (listtype arguments);
+objecttype itf_conv2    (listtype arguments);
+objecttype itf_cpy      (listtype arguments);
+objecttype itf_cpy2     (listtype arguments);
+objecttype itf_create   (listtype arguments);
+objecttype itf_create2  (listtype arguments);
+objecttype itf_eq       (listtype arguments);
+objecttype itf_hashcode (listtype arguments);
+objecttype itf_ne       (listtype arguments);
+objecttype itf_select   (listtype arguments);
 
 #else
 

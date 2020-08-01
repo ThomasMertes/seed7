@@ -962,7 +962,7 @@ listtype list;
               printcategory(CATEGORY_OF_OBJ(list->obj));
               prot_cstri("> ");
               if (HAS_POSINFO(list->obj)) {
-                prot_cstri((const_cstritype) file_name(GET_FILE_NUM(list->obj)));
+                prot_cstri((const_cstritype) file_name_ustri(GET_FILE_NUM(list->obj)));
                 prot_cstri("(");
                 prot_int((inttype) GET_LINE_NUM(list->obj));
                 prot_cstri(")");
@@ -1434,7 +1434,7 @@ objecttype traceobject;
       } /* if */
       prot_cstri(": ");
       if (HAS_POSINFO(traceobject)) {
-        prot_cstri((const_cstritype) file_name(GET_FILE_NUM(traceobject)));
+        prot_cstri((const_cstritype) file_name_ustri(GET_FILE_NUM(traceobject)));
         prot_cstri("(");
         prot_int((inttype) GET_LINE_NUM(traceobject));
         prot_cstri(")");

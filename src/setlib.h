@@ -27,36 +27,36 @@
 
 #ifdef ANSI_C
 
-objecttype set_arrlit (listtype);
-objecttype set_baselit (listtype);
-objecttype set_card (listtype);
-objecttype set_cmp (listtype);
-objecttype set_conv (listtype);
-objecttype set_cpy (listtype);
-objecttype set_create (listtype);
-objecttype set_destr (listtype);
-objecttype set_diff (listtype);
-objecttype set_elem (listtype);
-objecttype set_empty (listtype);
-objecttype set_eq (listtype);
-objecttype set_excl (listtype);
-objecttype set_ge (listtype);
-objecttype set_gt (listtype);
-objecttype set_hashcode (listtype);
-objecttype set_iconv (listtype);
-objecttype set_incl (listtype);
-objecttype set_intersect (listtype);
-objecttype set_le (listtype);
-objecttype set_lt (listtype);
-objecttype set_max (listtype);
-objecttype set_min (listtype);
-objecttype set_ne (listtype);
-objecttype set_not_elem (listtype);
-objecttype set_rand (listtype);
-objecttype set_sconv (listtype);
-objecttype set_symdiff (listtype);
-objecttype set_union (listtype);
-objecttype set_value (listtype);
+objecttype set_arrlit    (listtype arguments);
+objecttype set_baselit   (listtype arguments);
+objecttype set_card      (listtype arguments);
+objecttype set_cmp       (listtype arguments);
+objecttype set_conv      (listtype arguments);
+objecttype set_cpy       (listtype arguments);
+objecttype set_create    (listtype arguments);
+objecttype set_destr     (listtype arguments);
+objecttype set_diff      (listtype arguments);
+objecttype set_elem      (listtype arguments);
+objecttype set_empty     (listtype arguments);
+objecttype set_eq        (listtype arguments);
+objecttype set_excl      (listtype arguments);
+objecttype set_ge        (listtype arguments);
+objecttype set_gt        (listtype arguments);
+objecttype set_hashcode  (listtype arguments);
+objecttype set_iconv     (listtype arguments);
+objecttype set_incl      (listtype arguments);
+objecttype set_intersect (listtype arguments);
+objecttype set_le        (listtype arguments);
+objecttype set_lt        (listtype arguments);
+objecttype set_max       (listtype arguments);
+objecttype set_min       (listtype arguments);
+objecttype set_ne        (listtype arguments);
+objecttype set_not_elem  (listtype arguments);
+objecttype set_rand      (listtype arguments);
+objecttype set_sconv     (listtype arguments);
+objecttype set_symdiff   (listtype arguments);
+objecttype set_union     (listtype arguments);
+objecttype set_value     (listtype arguments);
 
 #else
 

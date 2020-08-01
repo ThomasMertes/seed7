@@ -82,6 +82,9 @@ memsizetype len;
         result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
       } /* if */
       if (result != NULL) {
+#ifdef ALLOW_STRITYPE_SLICES
+        result->mem = result->mem1;
+#endif
         result->capacity = new_len;
       } /* if */
     } /* if */
@@ -112,6 +115,9 @@ memsizetype len;
          stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
     fflush(stdout); */
     result = REALLOC_HEAP(stri, stritype, SIZ_STRI(new_len));
+#ifdef ALLOW_STRITYPE_SLICES
+    result->mem = result->mem1;
+#endif
     result->capacity = new_len;
     return(result);
   } /* shrinkStri */

@@ -27,29 +27,29 @@
 
 #ifdef ANSI_C
 
-objecttype soc_accept (listtype);
-objecttype soc_bind (listtype);
-objecttype soc_close (listtype);
-objecttype soc_connect (listtype);
-objecttype soc_cpy (listtype);
-objecttype soc_create (listtype);
-objecttype soc_empty (listtype);
-objecttype soc_eq (listtype);
-objecttype soc_getc (listtype);
-objecttype soc_gets (listtype);
-objecttype soc_inet_addr (listtype);
-objecttype soc_inet_local_addr (listtype);
-objecttype soc_inet_serv_addr (listtype);
-objecttype soc_line_read (listtype);
-objecttype soc_listen (listtype);
-objecttype soc_ne (listtype);
-objecttype soc_recv (listtype);
-objecttype soc_recvfrom (listtype);
-objecttype soc_send (listtype);
-objecttype soc_sendto (listtype);
-objecttype soc_socket (listtype);
-objecttype soc_word_read (listtype);
-objecttype soc_write (listtype);
+objecttype soc_accept          (listtype arguments);
+objecttype soc_bind            (listtype arguments);
+objecttype soc_close           (listtype arguments);
+objecttype soc_connect         (listtype arguments);
+objecttype soc_cpy             (listtype arguments);
+objecttype soc_create          (listtype arguments);
+objecttype soc_empty           (listtype arguments);
+objecttype soc_eq              (listtype arguments);
+objecttype soc_getc            (listtype arguments);
+objecttype soc_gets            (listtype arguments);
+objecttype soc_inet_addr       (listtype arguments);
+objecttype soc_inet_local_addr (listtype arguments);
+objecttype soc_inet_serv_addr  (listtype arguments);
+objecttype soc_line_read       (listtype arguments);
+objecttype soc_listen          (listtype arguments);
+objecttype soc_ne              (listtype arguments);
+objecttype soc_recv            (listtype arguments);
+objecttype soc_recvfrom        (listtype arguments);
+objecttype soc_send            (listtype arguments);
+objecttype soc_sendto          (listtype arguments);
+objecttype soc_socket          (listtype arguments);
+objecttype soc_word_read       (listtype arguments);
+objecttype soc_write           (listtype arguments);
 
 #else
 

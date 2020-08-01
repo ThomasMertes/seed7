@@ -27,18 +27,18 @@
 
 #ifdef ANSI_C
 
-objecttype sct_alloc (listtype);
-objecttype sct_cat (listtype);
-objecttype sct_conv (listtype);
-objecttype sct_cpy (listtype);
-objecttype sct_create (listtype);
-objecttype sct_destr (listtype);
-objecttype sct_elem (listtype);
-objecttype sct_empty (listtype);
-objecttype sct_incl (listtype);
-objecttype sct_lng (listtype);
-objecttype sct_refidx (listtype);
-objecttype sct_select (listtype);
+objecttype sct_alloc  (listtype arguments);
+objecttype sct_cat    (listtype arguments);
+objecttype sct_conv   (listtype arguments);
+objecttype sct_cpy    (listtype arguments);
+objecttype sct_create (listtype arguments);
+objecttype sct_destr  (listtype arguments);
+objecttype sct_elem   (listtype arguments);
+objecttype sct_empty  (listtype arguments);
+objecttype sct_incl   (listtype arguments);
+objecttype sct_lng    (listtype arguments);
+objecttype sct_refidx (listtype arguments);
+objecttype sct_select (listtype arguments);
 
 #else
 

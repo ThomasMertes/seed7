@@ -957,6 +957,12 @@ stritype name;
 #else
         opt = "FALSE";
 #endif
+      } else if (strcmp(opt_name, "ALLOW_STRITYPE_SLICES") == 0) {
+#ifdef ALLOW_STRITYPE_SLICES
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
       } else if (strcmp(opt_name, "RSHIFT_DOES_SIGN_EXTEND") == 0) {
 #ifdef RSHIFT_DOES_SIGN_EXTEND
         opt = "TRUE";
@@ -977,6 +983,12 @@ stritype name;
 #endif
       } else if (strcmp(opt_name, "FLOAT_ZERO_DIV_ERROR") == 0) {
 #ifdef FLOAT_ZERO_DIV_ERROR
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "CC_SOURCE_UTF8") == 0) {
+#ifdef CC_SOURCE_UTF8
         opt = "TRUE";
 #else
         opt = "FALSE";

@@ -50,6 +50,7 @@
 #include "memory.h"
 #include "name.h"
 #include "infile.h"
+#include "str_rtl.h"
 #include "ref_data.h"
 
 #undef EXTERN
@@ -497,28 +498,14 @@ listtype arguments;
 #endif
 
   {
-    objecttype obj_arg1;
-    filenumtype file_number;
-    const_cstritype name;
     stritype result;
 
   /* ref_file */
     isit_reference(arg_1(arguments));
-    obj_arg1 = take_reference(arg_1(arguments));
-    if (HAS_POSINFO(obj_arg1)) {
-      file_number = GET_FILE_NUM(obj_arg1);
-    } else if (HAS_PROPERTY(obj_arg1)) {
-      /* trace1(obj_arg1);
-      printf(" %u %u %u\n",
-          obj_arg1->descriptor.property->file_number,
-          obj_arg1->descriptor.property->line,
-          obj_arg1->descriptor.property->syNumberInLine); */
-      file_number = obj_arg1->descriptor.property->file_number;
-    } else {
-      file_number = 0;
+    result = refFile(take_reference(arg_1(arguments)));
+    if (result != NULL) {
+      result = strCreate(result);
     } /* if */
-    name = (const_cstritype) file_name(file_number);
-    result = cstri_to_stri(name);
     if (result == NULL) {
       return raise_exception(SYS_MEM_EXCEPTION);
     } else {
