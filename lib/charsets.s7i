@@ -1553,6 +1553,30 @@ const string: geostd8 is "\
     \?????????????№??";
 
 (**
+ *  Conversion table from JIS X 0201 encoding to Unicode.
+ *  JIS X 0201 is a Japanese Industrial Standard which combines
+ *  ASCII (except backslash and tilde) with half-width kana
+ *  (the halfwidth form of katakana).
+ *)
+const string: jis_x_0201 is "\
+    \\0;\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\
+    \\P\Q\R\S\T\U\V\W\X\Y\Z\e\28;\29;\30;\31;\
+    \ !\"#$%&'()*+,-./\
+    \0123456789:;<=>?\
+    \@ABCDEFGHIJKLMNO\
+    \PQRSTUVWXYZ[¥]^_\
+    \`abcdefghijklmno\
+    \pqrstuvwxyz{|}‾\127;\
+    \\128;\129;\130;\131;\132;\133;\134;\135;\136;\137;\138;\139;\140;\141;\142;\143;\
+    \\144;\145;\146;\147;\148;\149;\150;\151;\152;\153;\154;\155;\156;\157;\158;\159;\
+    \\160;｡｢｣､･ｦｧｨｩｪｫｬｭｮｯ\
+    \ｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿ\
+    \ﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏ\
+    \ﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ\
+    \????????????????\
+    \????????????????";
+
+(**
  *  Conversion table from VISCII encoding to Unicode.
  *  VISCII is the Vietnamese Standard Code for Information Interchange.
  *)

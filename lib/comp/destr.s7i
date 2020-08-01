@@ -117,20 +117,18 @@ const proc: process_sct_destr_declaration (in type: object_type,
 
   local
     var string: diagnosticLine is "";
-    var number_element_hash: elements is number_element_hash.EMPTY_HASH;
-    var integer: number is 0;
-    var reference: struct_elem is NIL;
+    var integer: structSize is 0;
+    var integer: elementIndex is 0;
     var string: select_value is "";
   begin
     if object_type in destrFunction then
       diagnosticLine := diagnosticLine(destrFunction[object_type]);
     end if;
-    if object_type in struct_elements then
-      elements := flip(struct_elements[object_type]);
+    if object_type in struct_size then
+      structSize := struct_size[object_type];
     end if;
-    for number range 0 to pred(length(elements)) do
-      struct_elem := elements[number][1];
-      process_destr_declaration(struct_element_type[object_type][struct_elem], c_expr);
+    for elementIndex range 0 to pred(structSize) do
+      process_destr_declaration(struct_element_type[object_type][elementIndex], c_expr);
     end for;
     if structFreelist and object_type not in flist_declared then
       # Free list might already be defined by the declaration of create_... .
@@ -150,12 +148,11 @@ const proc: process_sct_destr_declaration (in type: object_type,
     c_expr.expr &:= "b->usage_count--;\n";
     c_expr.expr &:= diagnosticLine;
     c_expr.expr &:= "if (b->usage_count == 0) {\n";
-    for number range 0 to pred(length(elements)) do
-      struct_elem := elements[number][1];
-      select_value := select_value_from_rtlObjectStruct(struct_element_type[object_type][struct_elem]);
+    for elementIndex range 0 to pred(structSize) do
+      select_value := select_value_from_rtlObjectStruct(struct_element_type[object_type][elementIndex]);
       c_expr.expr &:= diagnosticLine;
-      process_destr_call(struct_element_type[object_type][struct_elem],
-          "b->stru[" & str(number) & "]" & select_value, c_expr.expr);
+      process_destr_call(struct_element_type[object_type][elementIndex],
+          "b->stru[" & str(elementIndex) & "]" & select_value, c_expr.expr);
     end for;
     if structFreelist then
       c_expr.expr &:= diagnosticLine;

@@ -78,9 +78,6 @@ striType sqlErrMessage (void);
 void sqlExecute (sqlStmtType sqlStatement);
 boolType sqlFetch (sqlStmtType sqlStatement);
 boolType sqlIsNull (sqlStmtType sqlStatement, intType column);
-databaseType sqlOpen (intType driver, const const_striType dbName,
-                      const const_striType user,
-                      const const_striType password);
 sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri);
 intType sqlStmtColumnCount (sqlStmtType sqlStatement);
 striType sqlStmtColumnName (sqlStmtType sqlStatement, intType column);

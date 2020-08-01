@@ -35,6 +35,7 @@
 #include "objutl.h"
 #include "runerr.h"
 #include "sql_rtl.h"
+#include "sql_drv.h"
 
 
 
@@ -699,22 +700,129 @@ objectType sql_ne_stmt (listType arguments)
 
 
 
-objectType sql_open (listType arguments)
+objectType sql_open_fire (listType arguments)
 
   {
     databaseType database;
 
-  /* sql_open */
-    isit_int(arg_1(arguments));
+  /* sql_open_fire */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenFire(take_stri(arg_2(arguments)),
+                           take_int(arg_3(arguments)),
+                           take_stri(arg_4(arguments)),
+                           take_stri(arg_5(arguments)),
+                           take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_fire */
+
+
+
+objectType sql_open_lite (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_lite */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenLite(take_stri(arg_2(arguments)),
+                           take_int(arg_3(arguments)),
+                           take_stri(arg_4(arguments)),
+                           take_stri(arg_5(arguments)),
+                           take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_lite */
+
+
+
+objectType sql_open_my (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_my */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenMy(take_stri(arg_2(arguments)),
+                         take_int(arg_3(arguments)),
+                         take_stri(arg_4(arguments)),
+                         take_stri(arg_5(arguments)),
+                         take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_my */
+
+
+
+objectType sql_open_oci (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_oci */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenOci(take_stri(arg_2(arguments)),
+                          take_int(arg_3(arguments)),
+                          take_stri(arg_4(arguments)),
+                          take_stri(arg_5(arguments)),
+                          take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_oci */
+
+
+
+objectType sql_open_odbc (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_odbc */
     isit_stri(arg_2(arguments));
     isit_stri(arg_3(arguments));
     isit_stri(arg_4(arguments));
-    database = sqlOpen(take_int(arg_1(arguments)),
-                       take_stri(arg_2(arguments)),
-                       take_stri(arg_3(arguments)),
-                       take_stri(arg_4(arguments)));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenOdbc(take_stri(arg_2(arguments)),
+                           take_stri(arg_3(arguments)),
+                           take_stri(arg_4(arguments)),
+                           take_stri(arg_5(arguments)),
+                           take_stri(arg_6(arguments)));
     return bld_database_temp(database);
-  } /* sql_open */
+  } /* sql_open_odbc */
+
+
+
+objectType sql_open_post (listType arguments)
+
+  {
+    databaseType database;
+
+  /* sql_open_post */
+    isit_stri(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    isit_stri(arg_4(arguments));
+    isit_stri(arg_5(arguments));
+    isit_stri(arg_6(arguments));
+    database = sqlOpenPost(take_stri(arg_2(arguments)),
+                           take_int(arg_3(arguments)),
+                           take_stri(arg_4(arguments)),
+                           take_stri(arg_5(arguments)),
+                           take_stri(arg_6(arguments)));
+    return bld_database_temp(database);
+  } /* sql_open_post */
 
 
 

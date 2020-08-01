@@ -4087,21 +4087,21 @@ const proc: process_hsh_destr_declaration (in reference: current_object) is func
 const proc: addStructElem (in type: structType, in type: elemType, in reference: elementOfStruct) is func
 
   local
-    var element_number_hash: element_number is element_number_hash.EMPTY_HASH;
-    var element_type_hash: element_type is element_type_hash.EMPTY_HASH;
+    var integer: elementIndex is 0;
+    var element_idx_hash: element_index is element_idx_hash.EMPTY_HASH;
   begin
-    if structType in struct_elements then
-      if elementOfStruct not in struct_elements[structType] then
-        struct_elements[structType] @:= [elementOfStruct] length(struct_elements[structType]);
-      end if;
-      if elementOfStruct not in struct_element_type[structType] then
-        struct_element_type[structType] @:= [elementOfStruct] elemType;
-      end if;
+    if structType in struct_element_idx then
+      elementIndex := struct_size[structType];
+      struct_element_idx[structType] @:= [elementOfStruct] elementIndex;
+      struct_element_type[structType] &:= elemType;
+      struct_element[structType] &:= elementOfStruct;
+      struct_size @:= [structType] succ(elementIndex);
     else
-      element_number @:= [elementOfStruct] 0;
-      struct_elements @:= [structType] element_number;
-      element_type @:= [elementOfStruct] elemType;
-      struct_element_type @:= [structType] element_type;
+      struct_size @:= [structType] 1;
+      element_index @:= [elementOfStruct] 0;
+      struct_element_idx @:= [structType] element_index;
+      struct_element_type @:= [structType] [0] elemType;
+      struct_element @:= [structType] [0] elementOfStruct;
     end if;
   end func;
 
@@ -4113,9 +4113,7 @@ const proc: process_sct_cpy_declaration (in reference: current_object) is func
     var type: sct_type is void;
     var type: meta_type is void;
     var type: interfaceType is void;
-    var number_element_hash: elements is number_element_hash.EMPTY_HASH;
-    var reference: elementOfStruct is NIL;
-    var integer: number is 0;
+    var integer: structIndex is 0;
   begin
     params := formalParams(current_object);
     if length(params) >= 1 then
@@ -4124,11 +4122,10 @@ const proc: process_sct_cpy_declaration (in reference: current_object) is func
       typeCategory @:= [sct_type] STRUCTOBJECT;
       if isDerived(sct_type) then
         meta_type := meta(sct_type);
-        if meta_type in struct_elements then
-          elements := flip(struct_elements[meta_type]);
-          for number range 0 to pred(length(elements)) do
-            elementOfStruct := elements[number][1];
-            addStructElem(sct_type, struct_element_type[meta_type][elementOfStruct], elementOfStruct);
+        if meta_type in struct_element_idx then
+          for structIndex range 0 to pred(struct_size[meta_type]) do
+            addStructElem(sct_type, struct_element_type[meta_type][structIndex],
+                          struct_element[meta_type][structIndex]);
           end for;
         end if;
         if meta_type in interfaceOfType then
@@ -4177,7 +4174,7 @@ const proc: process_sct_select_declaration (in reference: current_object,
     var reference: elementOfStruct is NIL;
   begin
     params := formalParams(current_object);
-    if length(params) >= 3 then
+    if length(params) >= 3 and not isVar(params[1]) then
       structType := getType(params[1]);
       elementOfStruct := params[3];
       elemType := resultType(getType(current_object));
@@ -4189,7 +4186,7 @@ const proc: process_sct_select_declaration (in reference: current_object,
       c_expr.expr &:= "->o_";
       create_name2(elementOfStruct, c_expr.expr);
       c_expr.expr &:= " = ";
-      c_expr.expr &:= str(struct_elements[structType][elementOfStruct]);
+      c_expr.expr &:= str(struct_element_idx[structType][elementOfStruct]);
       c_expr.expr &:= " */\n";
     end if;
   end func;
@@ -4205,7 +4202,7 @@ const proc: process_ref_select_declaration (in reference: current_object,
     var reference: elementOfStruct is NIL;
   begin
     params := formalParams(current_object);
-    if length(params) >= 3 then
+    if length(params) >= 3 and not isVar(params[1]) then
       structType := getType(params[1]);
       elementOfStruct := params[3];
       elemType := resultType(getType(current_object));
@@ -4217,7 +4214,7 @@ const proc: process_ref_select_declaration (in reference: current_object,
       c_expr.expr &:= "->o_";
       create_name2(elementOfStruct, c_expr.expr);
       c_expr.expr &:= " = ";
-      c_expr.expr &:= str(struct_elements[structType][elementOfStruct]);
+      c_expr.expr &:= str(struct_element_idx[structType][elementOfStruct]);
       c_expr.expr &:= " */\n";
     end if;
   end func;
@@ -7324,7 +7321,7 @@ const proc: writeHelp is func
     writeln("         2 Evaluate constant parameter expressions to simplify expressions.");
     writeln("         3 Like -oc2 and additionally evaluate all constant expressions.");
     writeln("  -p   Activate simple function profiling.");
-    writeln("  -sx  Supress checks specified with x. E.g.: -sr or -sro");
+    writeln("  -sx  Suppress checks specified with x. E.g.: -sr or -sro");
     writeln("       The checks x are specified with letters from the following list:");
     writeln("         r Suppress the generation of range checks for strings and arrays.");
     writeln("         o Suppress the generation of integer overflow checks.");

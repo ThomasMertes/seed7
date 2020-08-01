@@ -88,10 +88,11 @@ $ const $ apple: (* "func" or "type" expected found "apple" *)  e is 1;
 $ const jkl:     (* Type expected found jkl                 *)  b is 5;
 $ syntax expr: .i2.i3 is -> 3; const expr: i4 is i2 i5;
 ignore("¿Ä");   (* Overlong UTF-8 encoding used for character "\0;" (U+0000) *)
-ignore("Ì†Ä");     (* UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+d800) *)
-ignore("ÙêÄÄ");     (* Non Unicode character found "\1114112;" (U+110000) *)
+ignore("Ì†Ä");(*UTF-16 surrogate character found in UTF-8 encoding "\55296;" (U+d800) *) ignore(
+"ÙêÄÄ");    (* Non Unicode character found "\1114112;" (U+110000) *)
 ignore("ÌÄA");(*UTF-8 continuation byte expected found "A" *)
 ignore("Ä"); (* Unexpected UTF-8 continuation byte found "\128;" (U+0080) *)
 ignore("ÌA");    (* Solitary UTF-8 start byte found "\237;" (U+00ed) *)
-(* √Ñ¬µ‚Ç¨ *)     (* Illegal character in text "\8;" (U+0008)      *)
+(* √Ñ¬µ‚Ç¨ *)     (* Illegal character in text "\8;" (U+0008) *)
+(*Ôº°Ôº¢Ôº£*)    (* Illegal character in text "\7;" (U+0007) *)
                 (* Unclosed comment

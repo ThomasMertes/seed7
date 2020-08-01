@@ -758,8 +758,10 @@ const proc: create (in database: testDb, inout testState: state,
         execute(state.statement);
         if columnName(state.statement, 1) <> fieldName then
           state.okay := FALSE;
-          writeln(" *** Column name expected: " <& fieldName <& " found: " <&
-                  columnName(state.statement, 1));
+          if state.details then
+            writeln(" *** Column name expected: " <& fieldName <& " found: " <&
+                    columnName(state.statement, 1));
+          end if;
         end if;
       exception
         catch RANGE_ERROR:

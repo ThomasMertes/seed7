@@ -497,7 +497,7 @@ const proc: process (REF_SELECT, in reference: function,
     var type: object_type is void;
   begin
     object_type := getExprResultType(params[1]);
-    if object_type in struct_elements and params[3] in struct_elements[object_type] then
+    if object_type in struct_element_idx and params[3] in struct_element_idx[object_type] then
 
       c_expr.expr &:= "((structType)(";
       getAnyParamToExpr(params[1], c_expr);
@@ -507,7 +507,7 @@ const proc: process (REF_SELECT, in reference: function,
       getAnyParamToExpr(params[1], c_expr);
       c_expr.expr &:= ")))->stru[";
 *)
-      c_expr.expr &:= str(struct_elements[object_type][params[3]]);
+      c_expr.expr &:= str(struct_element_idx[object_type][params[3]]);
       c_expr.expr &:= "]";
       c_expr.expr &:= select_value_from_rtlObjectStruct(resultType(getType(function)));
       c_expr.expr &:= "/*->o_";
@@ -776,7 +776,7 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "printf(\"  *NULL_STRUCT* \");\n";
           c_expr.expr &:= "} else {\n";
           c_expr.expr &:= "printf(\" struct[";
-          c_expr.expr &:= str(length(struct_elements[object_type]));
+          c_expr.expr &:= str(struct_size[object_type]);
           c_expr.expr &:= "]\");\n";
           c_expr.expr &:= "if (sct->usage_count != 0) {\n";
           c_expr.expr &:= "printf(\"<%lu>\", sct->usage_count);\n";

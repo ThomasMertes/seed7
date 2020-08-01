@@ -287,7 +287,6 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
         ignore(gets(inFile, header.size));
       end if;
       seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
-      # seek(inFile, succ(succ((tell(inFile) - 2) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
       header := readHeadBlock(inFile);
       # showHeader(STD_OUT, header);
     end while;
@@ -346,6 +345,9 @@ const func tarHeader: readMinimumOfHeadBlock (inout file: inFile) is func
 const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is func
   local
     var string: filePath8 is "";
+    var string: extendedHeader is "";
+    var integer: pos is 1;
+    var string: metaData is "";
   begin
     header := readMinimumOfHeadBlock(inFile);
     # showHeader(STD_OUT, header);
@@ -356,9 +358,19 @@ const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is f
       if header.typeflag = LONGNAMETYPE then
         filePath8 := gets(inFile, header.size);
         seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
-        # seek(inFile, succ(succ((tell(inFile) - 2) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
+      elsif header.typeflag = EXTENDED_HEADER then
+        extendedHeader := gets(inFile, header.size);
+        pos := 1;
+        while pos <= length(extendedHeader) do
+          metaData := getMetaData(extendedHeader, pos);
+          # writeln("metaData: " <& metaData);
+          if startsWith(metaData, "path=") then
+            filePath8 := metaData[6 ..];
+          end if;
+        end while;
+        seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.size) mod TAR_BLOCK_SIZE);
       else  # header.typeflag = LONGLINKTYPE or
-            # header.typeflag = EXTENDED_HEADER or header.typeflag = GLOBAL_HEADER
+            # header.typeflag = GLOBAL_HEADER
         seek(inFile, succ(succ((tell(inFile) + header.size - 2) mdiv
                      TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE));
       end if;

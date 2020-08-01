@@ -1697,7 +1697,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                           FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
+                                          FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day, hour, minute,
                        second < 0 || micro_second < 0 ? "-" : "",
@@ -2733,7 +2733,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     } /* if */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") --> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
+                                            FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
                        *year, *month, *day, *hour, *minute,
                        *second < 0 || *micro_second < 0 ? "-" : "",
@@ -3651,8 +3651,9 @@ static errInfoType doAttach (loginType loginData, const_cstriType extension,
 
 
 
-databaseType sqlOpenFire (const const_striType dbName,
-    const const_striType user, const const_striType password)
+databaseType sqlOpenFire (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
 
   {
     striType fileName;
@@ -3667,7 +3668,9 @@ databaseType sqlOpenFire (const const_striType dbName,
 
   /* sqlOpenFire */
     logFunction(printf("sqlOpenFire(\"%s\", ",
-                       striAsUnquotedCStri(dbName));
+                       striAsUnquotedCStri(host));
+                printf(FMT_D ", \"%s\", ",
+                       port, striAsUnquotedCStri(dbName));
                 printf("\"%s\", ", striAsUnquotedCStri(user));
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
@@ -3733,6 +3736,7 @@ databaseType sqlOpenFire (const const_striType dbName,
                     memset(database, 0, sizeof(dbRecord));
                     database->usage_count = 1;
                     database->sqlFunc = sqlFunc;
+                    database->driver = 6; /* Firebird/InterBase */
                     database->connection = db_handle;
                     database->trans_handle = trans_handle;
                   } /* if */
@@ -3753,6 +3757,26 @@ databaseType sqlOpenFire (const const_striType dbName,
     logFunction(printf("sqlOpenFire --> " FMT_U_MEM "\n",
                        (memSizeType) database););
     return (databaseType) database;
+  } /* sqlOpenFire */
+
+#else
+
+
+
+databaseType sqlOpenFire (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
+
+  { /* sqlOpenFire */
+    logError(printf("sqlOpenFire(\"%s\", ",
+                    striAsUnquotedCStri(host));
+             printf(FMT_D ", \"%s\", ",
+                    port, striAsUnquotedCStri(dbName));
+             printf("\"%s\", ", striAsUnquotedCStri(user));
+             printf("\"%s\"): Firebird/InterBase driver not present.\n",
+                    striAsUnquotedCStri(password)););
+    raise_error(RANGE_ERROR);
+    return NULL;
   } /* sqlOpenFire */
 
 #endif

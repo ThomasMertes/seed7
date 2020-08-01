@@ -76,27 +76,21 @@ typedef struct {
   } sqlFuncRecord, *sqlFuncType;
 
 
-#ifdef MYSQL_INCLUDE
-databaseType sqlOpenMy (const const_striType dbName,
+databaseType sqlOpenFire (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);
+databaseType sqlOpenLite (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);
+databaseType sqlOpenMy (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);
+databaseType sqlOpenOci (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);
+databaseType sqlOpenOdbc (const const_striType driver,
+    const const_striType server, const const_striType dbName,
     const const_striType user, const const_striType password);
-#endif
-#ifdef SQLITE_INCLUDE
-databaseType sqlOpenLite (const const_striType dbName,
-    const const_striType user, const const_striType password);
-#endif
-#ifdef POSTGRESQL_INCLUDE
-databaseType sqlOpenPost (const const_striType dbName,
-    const const_striType user, const const_striType password);
-#endif
-#ifdef OCI_INCLUDE
-databaseType sqlOpenOci (const const_striType dbName,
-    const const_striType user, const const_striType password);
-#endif
-#ifdef ODBC_INCLUDE
-databaseType sqlOpenOdbc (const const_striType dbName,
-    const const_striType user, const const_striType password);
-#endif
-#ifdef FIRE_INCLUDE
-databaseType sqlOpenFire (const const_striType dbName,
-    const const_striType user, const const_striType password);
-#endif
+databaseType sqlOpenPost (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password);

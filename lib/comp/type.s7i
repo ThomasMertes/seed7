@@ -33,8 +33,8 @@ const type: typeReferenceHash is hash [type] reference;
 const type: typeCategoryHash is hash [type] category;
 const type: type_hash is hash [type] type;
 const type: boolean_type_hash is hash [type] boolean;
-const type: element_type_hash is hash [reference] type;
-const type: struct_element_type_hash is hash [type] element_type_hash;
+const type: element_type_array is array type;
+const type: struct_element_type_hash is hash [type] element_type_array;
 const type: string_type_hash is hash [type] string;
 const type: implements_hash is hash [type] array type;
 
@@ -43,13 +43,19 @@ var type_hash: array_element is type_hash.EMPTY_HASH;
 var type_hash: array_type is type_hash.EMPTY_HASH;
 var struct_element_type_hash: struct_element_type is struct_element_type_hash.EMPTY_HASH;
 
-const type: number_element_hash is hash [integer] array reference;
 const type: element_number_hash is hash [reference] integer;
-const type: struct_elements_hash is hash [type] element_number_hash;
+const type: number_element_hash is hash [integer] array reference;
+const type: struct_size_hash is hash [type] integer;
+const type: struct_element_array is array reference;
+const type: struct_element_hash is hash [type] struct_element_array;
+const type: element_idx_hash is hash [reference] integer;
+const type: struct_element_idx_hash is hash [type] element_idx_hash;
 const type: boolean_obj_hash is hash [reference] boolean;
 
 var implements_hash: implements is implements_hash.EMPTY_HASH;
-var struct_elements_hash: struct_elements is struct_elements_hash.EMPTY_HASH;
+var struct_size_hash: struct_size is struct_size_hash.value;
+var struct_element_hash: struct_element is struct_element_hash.EMPTY_HASH;
+var struct_element_idx_hash: struct_element_idx is struct_element_idx_hash.EMPTY_HASH;
 
 # Type variables which hold types from the program being compiled
 var type: proctype is void;

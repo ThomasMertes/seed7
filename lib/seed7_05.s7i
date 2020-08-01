@@ -642,6 +642,18 @@ const func type: varptr (in type: baseType) is func
 $ include "forloop.s7i";
 
 
+const func integer: width (in string: stri) is func
+  result
+    var integer: width is 0;
+  local
+    var char: ch is ' ';
+  begin
+    for ch range stri do
+      width +:= width(ch);
+    end for;
+  end func;
+
+
 const func string: reverse (in string: stri) is func
   result
     var string: reversed is "";

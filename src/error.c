@@ -91,7 +91,7 @@ static ustriType read_ustri8_line (memSizeType *line_len)
         (*line_len)++;
         ch = next_character();
       } /* if */
-    } /*while */
+    } /* while */
     line = REALLOC_USTRI(line, buffer_len, *line_len);
     return line;
   } /* read_ustri8_line */
@@ -157,7 +157,7 @@ static memSizeType calculate_output_length (striType stri)
     memSizeType pos;
     charType ch;
     memSizeType width;
-    char buffer[51];
+    char escapeBuffer[ESC_SEQUENCE_MAX_LEN + NULL_TERMINATION_LEN];
     memSizeType output_length = 0;
 
   /* calculate_output_length */
@@ -165,7 +165,7 @@ static memSizeType calculate_output_length (striType stri)
       ch = stri->mem[pos];
       if ((ch >= 0xd800 && ch <= 0xdfff) || ch > 0x10ffff) {
         /* UTF-16 surrogate character or non Unicode character. */
-        output_length++;
+        output_length += (memSizeType) sprintf(escapeBuffer, "\\" FMT_U32 ";", ch);
       } else {
         width = (memSizeType) chrWidth(ch);
         if (width >= 1) {
@@ -178,7 +178,7 @@ static memSizeType calculate_output_length (striType stri)
             output_length += strlen(stri_escape_sequence[ch]);
           } /* if */
         } else {
-          output_length += (memSizeType) sprintf(buffer, "\\" FMT_U32 ";", ch);
+          output_length += (memSizeType) sprintf(escapeBuffer, "\\" FMT_U32 ";", ch);
         } /* if */
       } /* if */
     } /* for */
@@ -196,15 +196,16 @@ static void print_stri (striType stri)
     memSizeType output_length = 0;
     struct striStruct stri1_buffer;
     striType stri1;
-    char buffer[51];
+    char escapeBuffer[ESC_SEQUENCE_MAX_LEN + NULL_TERMINATION_LEN];
+    char tabBuffer[TAB_POSITION + NULL_TERMINATION_LEN];
 
   /* print_stri */
     for (pos = 0; pos < stri->size; pos++) {
       ch = stri->mem[pos];
       if ((ch >= 0xd800 && ch <= 0xdfff) || ch > 0x10ffff) {
         /* UTF-16 surrogate character or non Unicode character. */
-        prot_cstri("?");
-        output_length++;
+        output_length += (memSizeType) sprintf(escapeBuffer, "\\" FMT_U32 ";", ch);
+        prot_cstri(escapeBuffer);
       } else {
         width = (memSizeType) chrWidth(ch);
         if (width >= 1) {
@@ -214,17 +215,17 @@ static void print_stri (striType stri)
         } else if (ch < ' ') {
           if (ch == '\t') {
             width = TAB_POSITION - output_length % TAB_POSITION;
-            memset(buffer, ' ', width);
-            buffer[width] = '\0';
-            prot_cstri(buffer);
+            memset(tabBuffer, ' ', width);
+            tabBuffer[width] = '\0';
+            prot_cstri(tabBuffer);
             output_length += width;
           } else {
             prot_cstri(stri_escape_sequence[ch]);
             output_length += strlen(stri_escape_sequence[ch]);
           } /* if */
         } else {
-          output_length += (memSizeType) sprintf(buffer, "\\" FMT_U32 ";", ch);
-          prot_cstri(buffer);
+          output_length += (memSizeType) sprintf(escapeBuffer, "\\" FMT_U32 ";", ch);
+          prot_cstri(escapeBuffer);
         } /* if */
       } /* if */
     } /* for */

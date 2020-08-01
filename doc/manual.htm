@@ -297,7 +297,7 @@ pre.indent {
 <li><a class="link" href="#os_readlink"><b>readlink</b></a></li>
 <li><a class="link" href="#os_symlink"><b>symlink</b></a></li>
 <li><a class="link" href="#os_removeFile"><b>removeFile</b></a></li>
-<li><a class="link" href="#os_removeAnyFile"><b>removeAnyFile</b></a></li>
+<li><a class="link" href="#os_removeTree"><b>removeTree</b></a></li>
 <li><a class="link" href="#os_copyFile"><b>copyFile</b></a></li>
 <li><a class="link" href="#os_cloneFile"><b>cloneFile</b></a></li>
 <li><a class="link" href="#os_moveFile"><b>moveFile</b></a></li>
@@ -2930,6 +2930,8 @@ CASE_DECLS(<a class="type" href="#types_boolean">boolean</a>);
                     str(-Infinity) <b>&rArr;</b> <span class="stri">"-Infinity"</span>,
                     str(NaN) <b>&rArr;</b> <span class="stri">"NaN"</span> )
       <span class="func">isNaN</span>(A)  Check if A is Not-a-Number
+      <span class="func">isNegativeZero</span>(A)   Check if A is negative zero (-0.0)
+      <span class="func">isPositiveZero</span>(A)   Check if A is +0.0
       <span class="func">sin</span>(A)    Sine
       <span class="func">cos</span>(A)    Cosine
       <span class="func">tan</span>(A)    Tangent
@@ -9001,7 +9003,9 @@ my_dir := homeDir;
 
 <a name="os_removeFile"><h3>12.19 removeFile</h3></a>
 <p>
-    The function <tt><span class="func">removeFile</span></tt> removes a file or empty directory:
+    The function <tt><span class="func">removeFile</span></tt> removes a file of any type unless it
+  is a directory that is not empty. An attempt to remove a directory
+  that is not empty triggers <a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a>. 
 </p><pre class="indent">
 <span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: removeFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
@@ -9015,12 +9019,12 @@ my_dir := homeDir;
         <dd>The file does not exist or a system function returns an error.</dd>
 </dl></dd></dl></div><p></p>
 
-<a name="os_removeAnyFile"><h3>12.20 removeAnyFile</h3></a>
+<a name="os_removeTree"><h3>12.20 removeTree</h3></a>
 <p>
-    The function <tt><span class="func">removeAnyFile</span></tt> removes a file independent of its
-  file type:
+    The function <tt><span class="func">removeTree</span></tt> removes a file of any type inclusive
+  a directory tree:
 </p><pre class="indent">
-<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: removeAnyFile (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
+<span class="keywd">const</span> <a class="type" href="#types_proc">proc</a>: removeTree (<span class="keywd">in</span> <a class="type" href="#types_string">string</a>: filePath) <span class="keywd">is</span> ...
 </pre>
   <div><dl><dt><p>Possible exceptions:</p></dt><dd><dl>
     <dt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></dt>
@@ -11694,7 +11698,7 @@ number <span class="op">+</span> <a class="type" href="#types_integer">integer</
 </p><dl><dt>
     It may be raised by the following functions:</dt><dd>
         <a class="func" href="#os_fileSize">fileSize</a>, <a class="func" href="#os_fileSize">bigFileSize</a>, <a class="func" href="#os_fileType">fileType</a>, <a class="func" href="#os_fileType">fileTypeSL</a>, <a class="func" href="#os_fileMode">fileMode</a>, <a class="func" href="#os_setFileMode">setFileMode</a>,
-        <a class="func" href="#os_readDir">readDir</a>, <a class="func" href="#os_removeFile">removeFile</a>, <a class="func" href="#os_removeAnyFile">removeAnyFile</a>, <a class="func" href="#os_moveFile">moveFile</a>, <a class="func" href="#os_cloneFile">cloneFile</a>, <a class="func" href="#os_copyFile">copyFile</a>,
+        <a class="func" href="#os_readDir">readDir</a>, <a class="func" href="#os_removeFile">removeFile</a>, <a class="func" href="#os_removeTree">removeTree</a>, <a class="func" href="#os_moveFile">moveFile</a>, <a class="func" href="#os_cloneFile">cloneFile</a>, <a class="func" href="#os_copyFile">copyFile</a>,
         <a class="func" href="#os_readlink">readlink</a>, <a class="func" href="#os_symlink">symlink</a>, hasNext, seek, tell, bigTell, setbuf, write,
         <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd></dl>
 <p></p>

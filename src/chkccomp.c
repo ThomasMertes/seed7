@@ -150,6 +150,10 @@
 #define REDIRECT_FILDES_2 "2>"
 #endif
 
+#ifndef FORMAT_LL_TRIGGERS_WARNINGS
+#define FORMAT_LL_TRIGGERS_WARNINGS 0
+#endif
+
 #define NAME_SIZE    1024
 #define COMMAND_SIZE 1024
 #define BUFFER_SIZE  4096
@@ -1244,7 +1248,8 @@ static void numericSizes (FILE *versionFile)
                            "return 0;}\n") && doTest() == 8) {
         int64TypeSuffix = "LL";
       } /* if */
-      if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+      if (!FORMAT_LL_TRIGGERS_WARNINGS &&
+          compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
                            "int main(int argc, char *argv[])\n"
                            "{char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
                            "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);\n"

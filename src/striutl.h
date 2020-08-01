@@ -34,6 +34,9 @@
  */
 #define STRLEN(s) (sizeof(s) / sizeof(s[0]) - 1)
 
+/* Maximum escape sequence length in string literal: */
+#define ESC_SEQUENCE_MAX_LEN STRLEN("\\4294967295;")
+
 #if STRINGIFY_WORKS
 #define STRINGIFY(s) STRINGIFY_HELPER(s)
 #define STRINGIFY_HELPER(s) #s

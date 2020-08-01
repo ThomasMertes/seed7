@@ -1,3 +1,79 @@
+20190818:
+- Interpreter and compiler have been improved to work correct, when
+  a derived struct overrides an element of the parent struct. Many
+  thanks go to Zachary Menzies, for reporting this error and for
+  providing a test program.
+- In the FAQ the explanation, why Seed7 uses UTF-32, has been improved.
+  An explanation of the database abstraction layer, which provides an
+  database independent API, has also been added to the FAQ.
+- In the manual the chapter about the deprecated function
+  removeAnyFile() has been replaced by a chapter about the function
+  removeTree().
+- The program db7.sd7 (Database Inspector) has been improved quote a
+  table name from the catalog when doing a select.
+- The program sql7.sd7 has been improved to allow the execution of SQL
+  statements from a file. The function getSqlStatement has been added,
+  which reads a semicolon terminated SQL statement from a file.
+- The library tar.s7i has been improved to accept extended headers with
+  meta data (PAX format) also when a tar file is opened as file system
+  with openTar(). The function readMinimumOfHead has been improved to
+  do this.
+- A code page for JIS X 0201 encoding has been added to charsets.s7i.
+- The program err.sd7 has been improved to contain test cases, where
+  UTF-16 surrogate characters and non Unicode characters are written as
+  Seed7 string escape sequences.
+- In sql_oci.c the function sqlOpenOci() has been improved to allow
+  opening a database with host name, port and database name. This way a
+  database can be opened without an entry in tnsnames.ora. The type
+  connectDataRecord and the function setupConnectData() have been added
+  to sql_oci.c.
+- The functions sqlOpenMy (in sql_my.c) and sqlOpenPost (in sql_post.c)
+  have been improved to allow opening a database with host name, port
+  and database name. Now host, port and dbName are parameters. Before
+  the functions split the parameter dbName into host and database name.
+  Specifying a port was not possible.
+- In sql_odbc.c the function sqlOpenOdbc() has been improved to allow
+  opening a database with ODBC driver name, server name and database
+  name. This way a database can be opened without specifying a data
+  source in the ODBC Data Source Administrator (in the Control Panel).
+  The type connectDataRecord and the functions getRegularName(),
+  wstriSearchCh(), wstriSearch(), connectToServer(), connectToDriver()
+  and driverConnect() have been added to sql_odbc.c. A definition of
+  SQL_NEED_DATA has been added to db_odbc.h.
+- In sql_rtl.c the function sqlErrMessage() has been improved to allow
+  database error messages encoded in UTF-8.
+- The function sqlOpen() has been removed from sql_rtl.c.
+- The function width() has been added to string.s7i and seed7_05.s7i.
+  This function computes the sum of the character widths in a string.
+  A character width can be 0 (for control characters), 1 (for normal
+  printable characters) and 2 (for fullwidth characters, e.g. KANJI).
+- The library console.s7i has been improved to use the function
+  width(), to work correct with fullwidth characters (where the width
+  of a character is 2).
+- Documentation comments have been improved in sql_base.s7i,
+  bytedata.s7i, unicode.s7i, integer.s7i and str_rtl.c.
+- Interpreter and compiler have been improved to support the new
+  actions SQL_OPEN_FIRE, SQL_OPEN_LITE, SQL_OPEN_MY, SQL_OPEN_OCI,
+  SQL_OPEN_ODBC and SQL_OPEN_POST. The support for the action SQL_OPEN
+  has been removed.
+- The program chkccomp.c and the makefiles mk_mingw.mak, mk_mingc.mak,
+  mk_msys.mak and mk_nmake.mak have been changed to avoid the warning
+  "unknown conversion type character 'l' in format", when compiling
+  with the MinGW C compiler. The macro FORMAT_LL_TRIGGERS_WARNINGS is
+  used to avoid the usage of the format length modifier ll.
+- In error.c the function print_stri has been improved to write UTF-16
+  surrogate characters or non Unicode characters as Seed7 string escape
+  sequences.
+- The unused functions con_beep() and con_setfont() have been removed
+  from con_con.c and con_win.c.
+- The new macro ESC_SEQUENCE_MAX_LEN has been defined in striutl.h.
+  This macro is used in error.c and str_rtl.c to define the local
+  buffer escapeBuffer.
+- Changes have been done in stat_win.c and stat_win.c to reduce the
+  number of MinGW C compiler warnings.
+- Log functions have been added or improved in sctlib.c, sql_fire.c,
+  sql_my.c, sql_oci.c, sql_odbc.c and sql_post.c.
+
 20190714:
 - The library tls.s7i has been improved to support elliptic curve
   diffie hellman key exchange.

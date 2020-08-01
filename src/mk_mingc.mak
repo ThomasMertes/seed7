@@ -158,6 +158,7 @@ version.h: chkccomp.h
 	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_getch _getwch >> version.h
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
+	echo #define FORMAT_LL_TRIGGERS_WARNINGS 1 >> version.h
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h

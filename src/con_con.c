@@ -202,14 +202,6 @@ charType kbdRawGetc (void)
 
 
 
-static void con_beep (void)
-
-  { /* con_beep */
-    fputc('\007', stderr);
-  } /* con_beep */
-
-
-
 static void con_setcolor (intType foreground, intType background)
 
   { /* con_setcolor */
@@ -231,13 +223,6 @@ static void con_normalcolour (void)
   { /* con_normalcolour */
     con_setcolor(lightgray, black);
   } /* con_normalcolour */
-
-
-
-static void con_setfont (char *fontname)
-
-  { /* con_setfont */
-  } /* con_setfont */
 
 
 

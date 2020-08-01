@@ -371,7 +371,6 @@ objectType flt_decompose (listType arguments)
     objectType fraction_var;
     objectType exponent_var;
     floatType number;
-    int exponent;
 
   /* flt_decompose */
     isit_float(arg_1(arguments));
@@ -384,8 +383,12 @@ objectType flt_decompose (listType arguments)
     number = take_float(arg_1(arguments));
     logFunction(printf("flt_decompose(" FMT_E ", ...)\n", number););
 #if FREXP_FUNCTION_OKAY
-    fraction_var->value.floatValue = frexp(number, &exponent);
-    exponent_var->value.intValue = (intType) exponent;
+    {
+      int exponent;
+
+      fraction_var->value.floatValue = frexp(number, &exponent);
+      exponent_var->value.intValue = (intType) exponent;
+    }
 #else
     fraction_var->value.floatValue =
         fltDecompose(number, &exponent_var->value.intValue);

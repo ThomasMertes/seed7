@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  sql_oci.c     Database access functions for OCI.                */
-/*  Copyright (C) 1989 - 2018  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2019  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -117,8 +117,24 @@ typedef struct {
     boolType       fetchFinished;
   } preparedStmtRecord, *preparedStmtType;
 
+typedef struct {
+    memSizeType tnsNameLength;
+    cstriType tnsName;
+    memSizeType connectStringServiceLength;
+    cstriType connectStringService;
+    memSizeType connectStringSidLength;
+    cstriType connectStringSid;
+  } connectDataRecord, *connectDataType;
+
 static sqlFuncType sqlFunc = NULL;
 
+#define DEFAULT_PORT 1521
+#define CONNECT_STRING_SERVICE_TEMPLATE "(DESCRIPTION=(ADDRESS_LIST=" \
+            "(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%s)))" \
+            "(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=%s)))"
+#define CONNECT_STRING_SID_TEMPLATE "(DESCRIPTION=(ADDRESS_LIST=" \
+            "(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%s)))" \
+            "(CONNECT_DATA=(SERVER=DEDICATED)(SID=%s)))"
 #define MAX_BIND_VAR_SIZE 4
 #define MIN_BIND_VAR_NUM 0
 #define MAX_BIND_VAR_NUM (26 * 26 * 26 - 1)
@@ -599,7 +615,7 @@ static void freePreparedStmt (sqlStmtType sqlStatement)
     memSizeType pos;
 
   /* freePreparedStmt */
-    logFunction(printf("freePreparedStmt(%lx)\n",
+    logFunction(printf("freePreparedStmt(" FMT_U_MEM ")\n",
                        (memSizeType) sqlStatement););
     preparedStmt = (preparedStmtType) sqlStatement;
     if (preparedStmt->param_array != NULL) {
@@ -2328,7 +2344,7 @@ static int setBigRat (void *const buffer, const const_bigIntType numerator,
       } /* if */
     } /* if */
     logFunction(printf("setBigRat --> ");
-                dumpSqltNumber(length, (const uint8Type *) buffer);
+                dumpSqltNumber((memSizeType) length, (const uint8Type *) buffer);
                 printf("\n"););
     return length;
   } /* setBigRat */
@@ -2437,7 +2453,7 @@ static int setFloat (void *const buffer, const floatType floatValue,
       } /* if */
     } /* if */
     logFunction(printf("setFloat --> ");
-                dumpSqltNumber(length, (const uint8Type *) buffer);
+                dumpSqltNumber((memSizeType) length, (const uint8Type *) buffer);
                 printf("\n"););
     return length;
   } /* setFloat */
@@ -2752,7 +2768,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                           FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
+                                          FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day, hour, minute,
                        second < 0 || micro_second < 0 ? "-" : "",
@@ -3634,7 +3650,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     } /* if */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
+                                            FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
                        *year, *month, *day, *hour, *minute,
                        *second < 0 || *micro_second < 0 ? "-" : "",
@@ -4458,12 +4474,81 @@ static boolType setupFuncTable (void)
 
 
 
-databaseType sqlOpenOci (const const_striType dbName,
-    const const_striType user, const const_striType password)
+static boolType setupConnectData (const_cstriType host8, intType port, const_cstriType dbName8, connectDataType connectData)
 
   {
-    cstriType dbName8;
+    boolType possibleTnsName;
+    memSizeType portNameLength;
+    char portName[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    memSizeType host8Length;
     memSizeType dbName8Length;
+    boolType okay = FALSE;
+
+  /* setupConnectData */
+    logFunction(printf("setupConnectData(\"%s\", " FMT_D ", \"%s\", *)\n",
+                       host8, port, dbName8););
+    possibleTnsName = host8[0] == '\0' && port == 0;
+    if (host8[0] == '\0') {
+      host8 = "localhost";
+    } /* if */
+    if (port == 0) {
+      port = DEFAULT_PORT;
+    } /* if */
+    portNameLength = (memSizeType) sprintf(portName, FMT_D, port);
+    host8Length = strlen(host8);
+    dbName8Length = strlen(dbName8);
+    if (likely(host8Length <= MAX_CSTRI_LEN / 4 && dbName8Length <= MAX_CSTRI_LEN / 4)) {
+      /* The computation of the connect string lengths is safe. */
+      /* printf("host8: \"%s\"\n", host8);
+         printf("port: \"%s\"\n", portName);
+         printf("dbName8: \"%s\"\n", dbName8); */
+      memset(connectData, 0, sizeof(connectDataRecord));
+      if (possibleTnsName &&
+          ALLOC_CSTRI(connectData->tnsName, dbName8Length)) {
+        connectData->tnsNameLength = dbName8Length;
+        memcpy(connectData->tnsName, dbName8, dbName8Length + NULL_TERMINATION_LEN);
+      } /* if */
+      if (likely(!possibleTnsName || connectData->tnsName != NULL)) {
+        connectData->connectStringServiceLength = STRLEN(CONNECT_STRING_SERVICE_TEMPLATE) - 3 * 2 +
+            host8Length + portNameLength + dbName8Length;
+        connectData->connectStringSidLength = STRLEN(CONNECT_STRING_SID_TEMPLATE) - 3 * 2 +
+            host8Length + portNameLength + dbName8Length;
+        if (unlikely(!ALLOC_CSTRI(connectData->connectStringService,
+                                  connectData->connectStringServiceLength) ||
+                     !ALLOC_CSTRI(connectData->connectStringSid,
+                                  connectData->connectStringSidLength))) {
+          UNALLOC_CSTRI(connectData->tnsName, connectData->tnsNameLength);
+          UNALLOC_CSTRI(connectData->connectStringService, connectData->connectStringServiceLength);
+          UNALLOC_CSTRI(connectData->connectStringSid, connectData->connectStringSidLength);
+        } else {
+          sprintf(connectData->connectStringService, CONNECT_STRING_SERVICE_TEMPLATE,
+                  host8, portName, dbName8);
+          sprintf(connectData->connectStringSid, CONNECT_STRING_SID_TEMPLATE,
+                  host8, portName, dbName8);
+          /* printf("connectStringService: %s\n", connectData->connectStringService);
+             printf("connectStringServiceLength: " FMT_U_MEM "\n",
+                    connectData->connectStringServiceLength); */
+          /* printf("connectStringSid: %s\n", connectData->connectStringSid);
+             printf("connectStringSidLength: " FMT_U_MEM "\n",
+                    connectData->connectStringSidLength); */
+          okay = TRUE;
+        } /* if */
+      } /* if */
+    } /* if */
+    logFunction(printf("setupConnectData --> \"%d\"\n", okay););
+    return okay;
+  } /* setupConnectData */
+
+
+
+databaseType sqlOpenOci (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
+
+  {
+    const_cstriType host8;
+    cstriType dbName8;
+    connectDataRecord connectData;
     cstriType user8;
     memSizeType user8Length;
     cstriType password8;
@@ -4474,148 +4559,181 @@ databaseType sqlOpenOci (const const_striType dbName,
 
   /* sqlOpenOci */
     logFunction(printf("sqlOpenOci(\"%s\", ",
-                       striAsUnquotedCStri(dbName));
+                       striAsUnquotedCStri(host));
+                printf(FMT_D ", \"%s\", ",
+                       port, striAsUnquotedCStri(dbName));
                 printf("\"%s\", ", striAsUnquotedCStri(user));
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenOci: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
+    } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
+      database = NULL;
     } else {
-      dbName8 = stri_to_cstri8_buf(dbName, &dbName8Length);
-      if (unlikely(dbName8 == NULL)) {
-        err_info = MEMORY_ERROR;
+      if (unlikely((dbName8 = stri_to_cstri8(dbName, &err_info)) == NULL)) {
         database = NULL;
       } else {
-        user8 = stri_to_cstri8_buf(user, &user8Length);
-        if (unlikely(user8 == NULL)) {
+        if (unlikely(!setupConnectData(host8, port, dbName8, &connectData))) {
           err_info = MEMORY_ERROR;
           database = NULL;
         } else {
-          password8 = stri_to_cstri8_buf(password, &password8Length);
-          if (unlikely(password8 == NULL)) {
+          user8 = stri_to_cstri8_buf(user, &user8Length);
+          if (unlikely(user8 == NULL)) {
             err_info = MEMORY_ERROR;
             database = NULL;
           } else {
-            memset(&db, 0, sizeof(dbRecord));
-            /* printf("dbName:   %s\n", dbName8);
-               printf("user:     %s\n",user8);
-               printf("password: %s\n", password8); */
-            if (dbName8Length   > SB4MAXVAL ||
-                user8Length     > UB4MAXVAL ||
-                password8Length > UB4MAXVAL) {
-              /* It is not possible to cast the lengths to sb4 and ub4. */
+            password8 = stri_to_cstri8_buf(password, &password8Length);
+            if (unlikely(password8 == NULL)) {
               err_info = MEMORY_ERROR;
-              database = NULL;
-            } else if (OCIEnvCreate(&db.oci_environment, OCI_DEFAULT,
-                                    NULL, NULL, NULL, NULL, 0, NULL) != OCI_SUCCESS) {
-              logError(printf("sqlOpenOci: OCIEnvCreate failed\n"););
-              sqlClose((databaseType) &db);
-              err_info = FILE_ERROR;
-              database = NULL;
-            } else if ((db.charSetId = OCINlsCharSetNameToId(db.oci_environment, (oratext *) "AL32UTF8")) == 0) {
-              logError(printf("sqlOpenOci: OCINlsCharSetNameToId failed\n"););
-              sqlClose((databaseType) &db);
-              err_info = FILE_ERROR;
-              database = NULL;
-            } else if (OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
-                                       NULL, NULL, NULL, NULL, 0, NULL,
-                                       db.charSetId, db.charSetId) != OCI_SUCCESS) {
-              logError(printf("sqlOpenOci: OCINlsCharSetNameToId failed\n"););
-              err_info = FILE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (OCIHandleAlloc(db.oci_environment,
-                                      (dvoid **) &db.oci_server,
-                                      OCI_HTYPE_SERVER, 0, NULL) != OCI_SUCCESS ||
-                       OCIHandleAlloc(db.oci_environment,
-                                      (void **) &db.oci_error,
-                                      OCI_HTYPE_ERROR, 0, NULL) != OCI_SUCCESS ||
-                       OCIHandleAlloc(db.oci_environment,
-                                      (void **) &db.oci_service_context,
-                                      OCI_HTYPE_SVCCTX, 0, NULL) != OCI_SUCCESS ||
-                       OCIHandleAlloc(db.oci_environment,
-                                      (dvoid **) &db.oci_session,
-                                      OCI_HTYPE_SESSION, 0, NULL) != OCI_SUCCESS) {
-              logError(printf("sqlOpenOci: OCIHandleAlloc failed\n"););
-              err_info = FILE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (OCIServerAttach(db.oci_server, db.oci_error,
-                                       (OraText *) dbName8, (sb4) dbName8Length,
-                                       OCI_DEFAULT) != OCI_SUCCESS) {
-              setDbErrorMsg("sqlOpenOci", "OCIServerAttach", db.oci_error);
-              logError(printf("sqlOpenOci: OCIServerAttach(*, \"%s\", " FMT_U_MEM ", OCI_DEFAULT):\n%s\n",
-                              dbName8, dbName8Length, dbError.message););
-              err_info = DATABASE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX,
-                                  db.oci_server, (ub4) 0,
-                                  OCI_ATTR_SERVER, db.oci_error) != OCI_SUCCESS) {
-              setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
-              logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_SERVER:\n%s\n",
-                              dbError.message););
-              err_info = DATABASE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (OCIAttrSet(db.oci_session, OCI_HTYPE_SESSION,
-                                  user8, (ub4) user8Length,
-                                  OCI_ATTR_USERNAME, db.oci_error) != OCI_SUCCESS) {
-              setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
-              logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_USERNAME:\n%s\n",
-                              dbError.message););
-              err_info = DATABASE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (OCIAttrSet(db.oci_session, OCI_HTYPE_SESSION,
-                                  password8, (ub4) password8Length,
-                                  OCI_ATTR_PASSWORD, db.oci_error) != OCI_SUCCESS) {
-              setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
-              logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_PASSWORD:\n%s\n",
-                              dbError.message););
-              err_info = DATABASE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (OCISessionBegin(db.oci_service_context, db.oci_error, db.oci_session,
-                                       OCI_CRED_RDBMS, OCI_DEFAULT) != OCI_SUCCESS) {
-              setDbErrorMsg("sqlOpenOci", "OCISessionBegin", db.oci_error);
-              logError(printf("sqlOpenOci: OCISessionBegin:\n%s\n",
-                              dbError.message););
-              err_info = DATABASE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX,
-                                  db.oci_session, (ub4) 0,
-                                  OCI_ATTR_SESSION, db.oci_error) != OCI_SUCCESS) {
-              setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
-              logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_SESSION:\n%s\n",
-                              dbError.message););
-              err_info = DATABASE_ERROR;
-              sqlClose((databaseType) &db);
-              database = NULL;
-            } else if (unlikely(!setupFuncTable() ||
-                                !ALLOC_RECORD(database, dbRecord, count.database))) {
-              err_info = MEMORY_ERROR;
-              sqlClose((databaseType) &db);
               database = NULL;
             } else {
-              memset(database, 0, sizeof(dbRecord));
-              database->usage_count = 1;
-              database->sqlFunc = sqlFunc;
-              database->oci_environment     = db.oci_environment;
-              database->oci_server          = db.oci_server;
-              database->oci_error           = db.oci_error;
-              database->oci_session         = db.oci_session;
-              database->oci_service_context = db.oci_service_context;
-              database->charSetId           = db.charSetId;
+              memset(&db, 0, sizeof(dbRecord));
+              /* printf("dbName:         %s\n", connectData.tnsName);
+                 printf("connectString1: %s\n", connectData.connectStringService);
+                 printf("connectString2: %s\n", connectData.connectStringSid);
+                 printf("user:           %s\n", user8);
+                 printf("password:       %s\n", password8); */
+              if (connectData.tnsNameLength              > SB4MAXVAL ||
+                  connectData.connectStringServiceLength > SB4MAXVAL ||
+                  connectData.connectStringSidLength     > SB4MAXVAL ||
+                  user8Length         > UB4MAXVAL ||
+                  password8Length     > UB4MAXVAL) {
+                /* It is not possible to cast the lengths to sb4 and ub4. */
+                err_info = MEMORY_ERROR;
+                database = NULL;
+              } else if (OCIEnvCreate(&db.oci_environment, OCI_DEFAULT,
+                                      NULL, NULL, NULL, NULL, 0, NULL) != OCI_SUCCESS) {
+                logError(printf("sqlOpenOci: OCIEnvCreate failed\n"););
+                sqlClose((databaseType) &db);
+                err_info = FILE_ERROR;
+                database = NULL;
+              } else if ((db.charSetId = OCINlsCharSetNameToId(db.oci_environment, (oratext *) "AL32UTF8")) == 0) {
+                logError(printf("sqlOpenOci: OCINlsCharSetNameToId failed\n"););
+                sqlClose((databaseType) &db);
+                err_info = FILE_ERROR;
+                database = NULL;
+              } else if (OCIHandleFree(db.oci_environment, OCI_HTYPE_ENV) != OCI_SUCCESS) {
+                logError(printf("sqlOpenOci: OCIHandleFree failed\n"););
+                sqlClose((databaseType) &db);
+                err_info = FILE_ERROR;
+                database = NULL;
+              } else if (OCIEnvNlsCreate(&db.oci_environment, OCI_OBJECT, /* OCI_DEFAULT, */
+                                         NULL, NULL, NULL, NULL, 0, NULL,
+                                         db.charSetId, db.charSetId) != OCI_SUCCESS) {
+                logError(printf("sqlOpenOci: OCINlsCharSetNameToId failed\n"););
+                err_info = FILE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if (OCIHandleAlloc(db.oci_environment,
+                                        (dvoid **) &db.oci_server,
+                                        OCI_HTYPE_SERVER, 0, NULL) != OCI_SUCCESS ||
+                         OCIHandleAlloc(db.oci_environment,
+                                        (void **) &db.oci_error,
+                                        OCI_HTYPE_ERROR, 0, NULL) != OCI_SUCCESS ||
+                         OCIHandleAlloc(db.oci_environment,
+                                        (void **) &db.oci_service_context,
+                                        OCI_HTYPE_SVCCTX, 0, NULL) != OCI_SUCCESS ||
+                         OCIHandleAlloc(db.oci_environment,
+                                        (dvoid **) &db.oci_session,
+                                        OCI_HTYPE_SESSION, 0, NULL) != OCI_SUCCESS) {
+                logError(printf("sqlOpenOci: OCIHandleAlloc failed\n"););
+                err_info = FILE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if ((connectData.tnsName == NULL ||
+                          /* Possible TNS name: No host and no port has been specified. */
+                          OCIServerAttach(db.oci_server, db.oci_error,
+                                          (OraText *) connectData.tnsName,
+                                          (sb4) connectData.tnsNameLength,
+                                          OCI_DEFAULT) != OCI_SUCCESS) &&
+                         OCIServerAttach(db.oci_server, db.oci_error,
+                                         (OraText *) connectData.connectStringService,
+                                         (sb4) connectData.connectStringServiceLength,
+                                         OCI_DEFAULT) != OCI_SUCCESS &&
+                         OCIServerAttach(db.oci_server, db.oci_error,
+                                         (OraText *) connectData.connectStringSid,
+                                         (sb4) connectData.connectStringSidLength,
+                                         OCI_DEFAULT) != OCI_SUCCESS) {
+                setDbErrorMsg("sqlOpenOci", "OCIServerAttach", db.oci_error);
+                logError(printf("sqlOpenOci: OCIServerAttach(*, \"%s\", " FMT_U_MEM ", OCI_DEFAULT):\n%s\n",
+                                connectData.connectStringService,
+                                connectData.connectStringServiceLength, dbError.message););
+                err_info = DATABASE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX,
+                                    db.oci_server, (ub4) 0,
+                                    OCI_ATTR_SERVER, db.oci_error) != OCI_SUCCESS) {
+                setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
+                logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_SERVER:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if (OCIAttrSet(db.oci_session, OCI_HTYPE_SESSION,
+                                    user8, (ub4) user8Length,
+                                    OCI_ATTR_USERNAME, db.oci_error) != OCI_SUCCESS) {
+                setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
+                logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_USERNAME:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if (OCIAttrSet(db.oci_session, OCI_HTYPE_SESSION,
+                                    password8, (ub4) password8Length,
+                                    OCI_ATTR_PASSWORD, db.oci_error) != OCI_SUCCESS) {
+                setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
+                logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_PASSWORD:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if (OCISessionBegin(db.oci_service_context, db.oci_error, db.oci_session,
+                                         OCI_CRED_RDBMS, OCI_DEFAULT) != OCI_SUCCESS) {
+                setDbErrorMsg("sqlOpenOci", "OCISessionBegin", db.oci_error);
+                logError(printf("sqlOpenOci: OCISessionBegin:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if (OCIAttrSet(db.oci_service_context, OCI_HTYPE_SVCCTX,
+                                    db.oci_session, (ub4) 0,
+                                    OCI_ATTR_SESSION, db.oci_error) != OCI_SUCCESS) {
+                setDbErrorMsg("sqlOpenOci", "OCIAttrSet", db.oci_error);
+                logError(printf("sqlOpenOci: OCIAttrSet OCI_ATTR_SESSION:\n%s\n",
+                                dbError.message););
+                err_info = DATABASE_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else if (unlikely(!setupFuncTable() ||
+                                  !ALLOC_RECORD(database, dbRecord, count.database))) {
+                err_info = MEMORY_ERROR;
+                sqlClose((databaseType) &db);
+                database = NULL;
+              } else {
+                memset(database, 0, sizeof(dbRecord));
+                database->usage_count = 1;
+                database->sqlFunc = sqlFunc;
+                database->driver = 4; /* OCI */
+                database->oci_environment     = db.oci_environment;
+                database->oci_server          = db.oci_server;
+                database->oci_error           = db.oci_error;
+                database->oci_session         = db.oci_session;
+                database->oci_service_context = db.oci_service_context;
+                database->charSetId           = db.charSetId;
+              } /* if */
+              free_cstri8(password8, password);
             } /* if */
-            free_cstri8(password8, password);
+            free_cstri8(user8, user);
           } /* if */
-          free_cstri8(user8, user);
+          UNALLOC_CSTRI(connectData.tnsName, connectData.tnsNameLength);
+          UNALLOC_CSTRI(connectData.connectStringService, connectData.connectStringServiceLength);
+          UNALLOC_CSTRI(connectData.connectStringSid, connectData.connectStringSidLength);
         } /* if */
         free_cstri8(dbName8, dbName);
       } /* if */
+      free_cstri8(host8, host);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -4623,6 +4741,26 @@ databaseType sqlOpenOci (const const_striType dbName,
     logFunction(printf("sqlOpenOci --> " FMT_U_MEM "\n",
                        (memSizeType) database););
     return (databaseType) database;
+  } /* sqlOpenOci */
+
+#else
+
+
+
+databaseType sqlOpenOci (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
+
+  { /* sqlOpenOci */
+    logError(printf("sqlOpenOci(\"%s\", ",
+                    striAsUnquotedCStri(host));
+             printf(FMT_D ", \"%s\", ",
+                    port, striAsUnquotedCStri(dbName));
+             printf("\"%s\", ", striAsUnquotedCStri(user));
+             printf("\"%s\"): OCI driver not present.\n",
+                    striAsUnquotedCStri(password)););
+    raise_error(RANGE_ERROR);
+    return NULL;
   } /* sqlOpenOci */
 
 #endif

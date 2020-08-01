@@ -1208,7 +1208,7 @@ intType intBitLength (intType number)
  *         When 'isSigned' is TRUE the result is encoded with the
  *         twos-complement representation. In this case a negative
  *         'number' is converted to a result where the most significant
- *         byte has an ordinal > BYTE_MAX (=12/).
+ *         byte has an ordinal > BYTE_MAX (=127).
  *  @return a string with the shortest binary representation of 'number'.
  *  @exception RANGE_ERROR When 'number' is negative and 'isSigned' is FALSE.
  *  @exception MEMORY_ERROR Not enough memory to represent the result.
@@ -1414,7 +1414,7 @@ striType intBytesLe (intType number, boolType isSigned)
     logFunction(printf("intBytesLe(" FMT_D ", %d)\n", number, isSigned););
     if (number >= 0) {
       do {
-        buffer[pos] = (ucharType) (number & 0xff);
+        buffer[pos] = (strElemType) (number & 0xff);
         number >>= CHAR_BIT;
         pos++;
       } while (number != 0);
@@ -1424,7 +1424,7 @@ striType intBytesLe (intType number, boolType isSigned)
       } /* if */
     } else if (likely(isSigned)) {
       do {
-        buffer[pos] = (ucharType) (number & 0xff);
+        buffer[pos] = (strElemType) (number & 0xff);
 #if RSHIFT_DOES_SIGN_EXTEND
         number >>= CHAR_BIT;
 #else

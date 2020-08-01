@@ -761,7 +761,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                           FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
+                                          FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day, hour, minute,
                        second < 0 || micro_second < 0 ? "-" : "",
@@ -1599,7 +1599,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     } /* if */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
+                                            FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
                        *year, *month, *day, *hour, *minute,
                        *second < 0 || *micro_second < 0 ? "-" : "",
@@ -1960,6 +1960,7 @@ static void sqlExecute (sqlStmtType sqlStatement)
     if (unlikely(!allParametersBound(preparedStmt))) {
       dbLibError("sqlExecute", "SQLExecute",
                  "Unbound statement parameter(s).\n");
+      logError(printf("sqlExecute: Unbound statement parameter(s).\n"););
       raise_error(DATABASE_ERROR);
     } else {
       /* printf("ppStmt: %lx\n", (unsigned long) preparedStmt->ppStmt); */
@@ -2262,8 +2263,9 @@ static boolType setupFuncTable (void)
 
 
 
-databaseType sqlOpenLite (const const_striType dbName,
-    const const_striType user, const const_striType password)
+databaseType sqlOpenLite (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
 
   {
     striType fileName;
@@ -2285,6 +2287,12 @@ databaseType sqlOpenLite (const const_striType dbName,
     if (!findDll()) {
       logError(printf("sqlOpenLite: findDll() failed\n"););
       err_info = FILE_ERROR;
+      database = NULL;
+    } else if (unlikely(host->size != 0 || port != 0)) {
+      dbLibError("sqlOpenLite", "sqlOpenLite",
+                 "Host or port has been specified.\n");
+      logError(printf("sqlOpenLite: Host or port has been specified.\n"););
+      err_info = DATABASE_ERROR;
       database = NULL;
     } else {
       if (dbName->size == 0) {
@@ -2363,6 +2371,7 @@ databaseType sqlOpenLite (const const_striType dbName,
           memset(database, 0, sizeof(dbRecord));
           database->usage_count = 1;
           database->sqlFunc = sqlFunc;
+          database->driver = 2; /* SQLite */
           database->connection = connection;
         } /* if */
       } /* if */
@@ -2379,6 +2388,26 @@ databaseType sqlOpenLite (const const_striType dbName,
     logFunction(printf("sqlOpenLite --> " FMT_U_MEM "\n",
                        (memSizeType) database););
     return (databaseType) database;
+  } /* sqlOpenLite */
+
+#else
+
+
+
+databaseType sqlOpenLite (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
+
+  { /* sqlOpenLite */
+    logError(printf("sqlOpenLite(\"%s\", ",
+                    striAsUnquotedCStri(host));
+             printf(FMT_D ", \"%s\", ",
+                    port, striAsUnquotedCStri(dbName));
+             printf("\"%s\", ", striAsUnquotedCStri(user));
+             printf("\"%s\"): SQLite driver not present.\n",
+                    striAsUnquotedCStri(password)););
+    raise_error(RANGE_ERROR);
+    return NULL;
   } /* sqlOpenLite */
 
 #endif

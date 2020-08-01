@@ -256,7 +256,7 @@ const func boolean: (in integer: number1) = (in integer: number2)   is action "I
 
 (**
  *  Check if two integer numbers are not equal.
- *  @return FALSE if both numbers are equal,
+ *  @return FALSE if the two numbers are equal,
  *          TRUE otherwise.
  *)
 const func boolean: (in integer: number1) <> (in integer: number2)  is action "INT_NE";

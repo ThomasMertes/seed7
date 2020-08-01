@@ -277,7 +277,8 @@ const proc: doCatalog (inout browserConnection: browser, in database: currDb) is
         elsif maxWidth <= 0 then
           displayMessage(browser, "Error", "Maximum column width is less than or equal 0.");
         elsif execute.activated then
-          doExecute(browser, currDb, "SELECT * FROM " & tableList.selected, numLines, maxWidth);
+          doExecute(browser, currDb, "SELECT * FROM \"" &
+                    replace(tableList.selected, "\"", "\"\"") & "\"", numLines, maxWidth);
         end if;
       until returnButton.activated or logout.activated or exit.activated;
     end if;

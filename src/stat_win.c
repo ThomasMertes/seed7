@@ -155,7 +155,7 @@ static time_t correctAdjustedUnixTime (time_t aTime)
 /**
  *  Determine a Unix file mode from Windows attributes and file name.
  */
-static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
+static short unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
 
   {
     unsigned int mode;
@@ -185,7 +185,7 @@ static unsigned int fileAttr2UnixMode (DWORD attr, const wchar_t *path)
       } /* if */
     } /* if */
     logFunction(printf("fileAttr2UnixMode --> 0%o\n", mode););
-    return mode;
+    return (short unsigned int) mode;
   } /* fileAttr2UnixMode */
 
 
@@ -227,9 +227,9 @@ int wstati64Ext (const wchar_t *path, os_stat_struct *statBuf)
                                         fileInfo.nFileSizeLow;
       } /* if */
       if (path[PREFIX_LEN] >= 'a' && path[PREFIX_LEN] <= 'z') {
-        statBuf->st_dev = path[PREFIX_LEN] - 'a';
+        statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'a');
       } else if (path[PREFIX_LEN] >= 'A' && path[PREFIX_LEN] <= 'Z') {
-        statBuf->st_dev = path[PREFIX_LEN] - 'A';
+        statBuf->st_dev = (wchar_t) (path[PREFIX_LEN] - 'A');
       } /* if */
       statBuf->st_rdev = statBuf->st_dev;
     } else {

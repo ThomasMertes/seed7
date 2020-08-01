@@ -1138,7 +1138,7 @@ striType sqlErrMessage (void)
     striType message;
 
   /* sqlErrMessage */
-    message = cstri_to_stri(dbError.message);
+    message = cstri8_or_cstri_to_stri(dbError.message);
     if (unlikely(message == NULL)) {
       raise_error(MEMORY_ERROR);
     } /* if */
@@ -1240,79 +1240,6 @@ boolType sqlIsNull (sqlStmtType sqlStatement, intType column)
 
 
 /**
- *  Open the database 'dbName' with the specified 'user' and 'password'.
- *  @param driver Database driver to be used.
- *  @param dbName Database name. The 'dbName' can be specified with host name
- *         ("e.g.: "www.example.org/myDb"), or with IPv4 address in standard dot
- *         notation (e.g.: "192.0.2.235/myDb"). Operating systems supporting IPv6
- *         may also accept an IPv6 address in colon notation.
- *  @param user Database user name.
- *  @param password Database password.
- *  @return the database connection.
- *  @exception FILE_ERROR When the DLL of the database could not be found.
- *             RANGE_ERROR When dbName, user or password cannot be converted to
- *                         the character set of the database.
- *             DATABASE_ERROR The connection to the database failed.
- */
-databaseType sqlOpen (intType driver, const const_striType dbName,
-    const const_striType user, const const_striType password)
-
-  {
-    databaseType database;
-
-  /* sqlOpen */
-    logFunction(printf("sqlOpen(" FMT_D ", \"%s\", ",
-                       driver, striAsUnquotedCStri(dbName));
-                printf("\"%s\", ", striAsUnquotedCStri(user));
-                printf("\"%s\")\n", striAsUnquotedCStri(password)););
-    switch (castIntTypeForSwitch(driver)) {
-#ifdef MYSQL_INCLUDE
-      case 1:
-        database = sqlOpenMy(dbName, user, password);
-        break;
-#endif
-#ifdef SQLITE_INCLUDE
-      case 2:
-        database = sqlOpenLite(dbName, user, password);
-        break;
-#endif
-#ifdef POSTGRESQL_INCLUDE
-      case 3:
-        database = sqlOpenPost(dbName, user, password);
-        break;
-#endif
-#ifdef OCI_INCLUDE
-      case 4:
-        database = sqlOpenOci(dbName, user, password);
-        break;
-#endif
-#ifdef ODBC_INCLUDE
-      case 5:
-        database = sqlOpenOdbc(dbName, user, password);
-        break;
-#endif
-#ifdef FIRE_INCLUDE
-      case 6:
-        database = sqlOpenFire(dbName, user, password);
-        break;
-#endif
-      default:
-        logError(printf("sqlOpen: Unknown driver: " FMT_D "\n", driver););
-        raise_error(RANGE_ERROR);
-        database = NULL;
-        break;
-    } /* switch */
-    if (database != NULL) {
-      ((dbType) database)->driver = driver;
-    } /* if */
-    logFunction(printf("sqlOpen --> " FMT_U_MEM "\n",
-                       (memSizeType) database););
-    return database;
-  } /* sqlOpen */
-
-
-
-/**
  *  Create a prepared statement for the given 'database'.
  *  @param database Database connection for which the prepared
  *         statement should be created.
@@ -1344,6 +1271,12 @@ sqlStmtType sqlPrepare (databaseType database, striType sqlStatementStri)
 
 
 
+/**
+ *  Return the number of columns in the result data of a ''statement''.
+ *  It is not necessary to ''execute'' the prepared statement, before
+ *  ''columnCount'' is called.
+ *  @param statement Prepared statement.
+ */
 intType sqlStmtColumnCount (sqlStmtType sqlStatement)
 
   {

@@ -409,6 +409,17 @@ const func string: bytes (in bigInteger: number, SIGNED, LE, in integer: length)
 
 (**
  *  Convert a [[bigint|bigInteger]] to a [[string]] of bytes with a ''length''.
+ *  The result uses binary representation with a base of 256.
+ *  The result contains chars (bytes) with an ordinal <= 255.
+ *   bytes(1413829460_, SIGNED, BE, 5)    returns "\0;TEST"
+ *   bytes(1413829460_, SIGNED, BE, 4)    returns "TEST"
+ *   bytes(1413829460_, SIGNED, BE, 3)    raises RANGE_ERROR
+ *   bytes(-1246382667_, SIGNED, BE, 6)   returns "ÿÿµµµµ"
+ *   bytes(-1246382667_, SIGNED, LE, 6)   returns "µµµµÿÿ"
+ *   bytes(-1246382667_, SIGNED, LE, 4)   returns "µµµµ"
+ *   bytes(-1246382667_, SIGNED, LE, 3)   raises RANGE_ERROR
+ *   bytes(3048584629_, UNSIGNED, BE, 4)  returns "µµµµ"
+ *   bytes(3048584629_, UNSIGNED, LE, 6)  returns "µµµµ\0;\0;"
  *  @param number BigInteger number to be converted.
  *  @param signed Determines the [[#signedness|signedness]] of the result.
  *         Possible values are UNSIGNED and SIGNED. When ''signed'' is SIGNED

@@ -113,6 +113,11 @@ objectType sct_cat (listType arguments)
   /* sct_cat */
     isit_struct(arg_1(arguments));
     isit_struct(arg_3(arguments));
+    logFunction(printf("sct_cat(");
+                trace1(arg_1(arguments));
+                printf(", ");
+                trace1(arg_3(arguments));
+                printf(")\n"););
     stru1 = take_struct(arg_1(arguments));
     stru2 = take_struct(arg_3(arguments));
     stru1_size = stru1->size;
@@ -168,6 +173,9 @@ objectType sct_conv (listType arguments)
   /* sct_conv */
     stru_arg = arg_3(arguments);
     isit_struct(stru_arg);
+    logFunction(printf("sct_conv(");
+                trace1(stru_arg);
+                printf(")\n"););
     if (TEMP_OBJECT(stru_arg)) {
       result = stru_arg;
       result->type_of = NULL;
@@ -265,6 +273,11 @@ objectType sct_create (listType arguments)
   /* sct_create */
     dest = arg_1(arguments);
     source = arg_3(arguments);
+    logFunction(printf("sct_create(");
+                trace1(dest);
+                printf(", ");
+                trace1(source);
+                printf(")\n"););
     SET_CATEGORY_OF_OBJ(dest, STRUCTOBJECT);
     isit_struct(source);
     if (TEMP_OBJECT(source)) {
@@ -453,6 +466,11 @@ objectType sct_incl (listType arguments)
     stru_to = take_struct(stru_variable);
     isit_reference(arg_2(arguments));
     elem = take_reference(arg_2(arguments));
+    logFunction(printf("sct_incl(");
+                trace1(stru_variable);
+                printf(", ");
+                trace1(elem);
+                printf(")\n"););
     stru_size = stru_to->size;
     stru_to = REALLOC_STRUCT(stru_to, stru_size, stru_size + 1);
     if (stru_to == NULL) {
@@ -529,10 +547,10 @@ printf("\n");
         GET_ENTITY(selector)->syobject != NULL) {
       selector_syobject = GET_ENTITY(selector)->syobject;
       position = stru1->size;
-      struct_pointer = stru1->stru;
+      struct_pointer = &stru1->stru[position - 1];
       while (position > 0) {
 /*
-printf("test ");
+printf("test " FMT_U_MEM ": ", position);
 trace1(struct_pointer);
 printf("\n");
 */
@@ -569,7 +587,7 @@ printf("\n");
           } /* if */
         } /* if */
         position--;
-        struct_pointer++;
+        struct_pointer--;
       } /* while */
     } /* if */
     logError(printf("sct_select(");

@@ -151,7 +151,7 @@ CONTENTS
   12.17   readlink
   12.18   symlink
   12.19   removeFile
-  12.20   removeAnyFile
+  12.20   removeTree
   12.21   copyFile
   12.22   cloneFile
   12.23   moveFile
@@ -2784,6 +2784,8 @@ CONTENTS
                     str(-Infinity) => "-Infinity",
                     str(NaN) => "NaN" )
       isNaN(A)  Check if A is Not-a-Number
+      isNegativeZero(A)   Check if A is negative zero (-0.0)
+      isPositiveZero(A)   Check if A is +0.0
       sin(A)    Sine
       cos(A)    Cosine
       tan(A)    Tangent
@@ -8855,7 +8857,9 @@ CONTENTS
 
 12.19 removeFile
 
-    The function 'removeFile' removes a file or empty directory:
+    The function 'removeFile' removes a file of any type unless it
+  is a directory that is not empty. An attempt to remove a directory
+  that is not empty triggers FILE_ERROR.
 
     const proc: removeFile (in string: filePath) is ...
 
@@ -8869,12 +8873,12 @@ CONTENTS
         The file does not exist or a system function returns an error.
 
 
-12.20 removeAnyFile
+12.20 removeTree
 
-    The function 'removeAnyFile' removes a file independent of its
-  file type:
+    The function 'removeTree' removes a file of any type inclusive
+  a directory tree:
 
-    const proc: removeAnyFile (in string: filePath) is ...
+    const proc: removeTree (in string: filePath) is ...
 
   Possible exceptions:
     MEMORY_ERROR
@@ -11548,7 +11552,7 @@ CONTENTS
 
     It may be raised by the following functions:
         fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
-        readDir, removeFile, removeAnyFile, moveFile, cloneFile, copyFile,
+        readDir, removeFile, removeTree, moveFile, cloneFile, copyFile,
         readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
         inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
 

@@ -519,6 +519,17 @@ const func string: lower (in string: stri)                     is action "STR_LO
 
 
 (**
+ *  Number of screen columns occupied by the Unicode string ''stri''.
+ *  The width of single characters can be 0,1 or 2 depending on the
+ *  width occupied on a terminal. Non-spacing characters and control
+ *  characters have width of 0. Kanji and other full width characters
+ *  have a width of 2.
+ *  @return the sum of the character widths in ''stri''.
+ *)
+const func integer: width (in string: stri) is forward;
+
+
+(**
  *  Reverse the characters in a string.
  *   reverse("ABC")  returns "CBA"
  *  @return the reversed string.

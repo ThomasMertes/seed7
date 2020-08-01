@@ -25,13 +25,15 @@
 $ include "seed7_05.s7i";
   include "keybd.s7i";
   include "console.s7i";
+  include "osfiles.s7i";
   include "editline.s7i";
   include "sql_base.s7i";
+  include "utf8.s7i";
 
 
 const proc: writeHelp is func
   begin
-    writeln("usage: sql7 driver dbName user [password]");
+    writeln("usage: sql7 driver dbName user [password [sqlFile]]");
     writeln;
     writeln("The following drivers are supported: ");
     writeln("  Driver     Shortcut  Database");
@@ -112,11 +114,13 @@ const proc: doExecute (in database: currDb, in var string: command) is func
     exception
       catch DATABASE_ERROR:
         writeln;
+        writeln(command);
         writeln(" *** Database error: " <& errMessage(DATABASE_ERROR));
         writeln;
         failed := TRUE;
       otherwise:
         writeln;
+        writeln(command);
         writeln(" *** Error occurred");
         writeln;
         failed := TRUE;
@@ -133,8 +137,64 @@ const proc: doExecute (in database: currDb, in var string: command) is func
   end func;
 
 
+const func string: getSqlStatement (inout file: inFile) is func
+  result
+    var string: sqlStatement is "";
+  local
+    var char: ch is ' ';
+    var char: delimiter is ' ';
+  begin
+    ch := getc(inFile);
+    while ch <> ';' and ch <> EOF do
+      if ch = ''' or ch = '"' then
+        delimiter := ch;
+        sqlStatement &:= delimiter;
+        ch := getc(inFile);
+        while ch <> delimiter and ch <> EOF do
+          sqlStatement &:= ch;
+          ch := getc(inFile);
+        end while;
+        if ch = delimiter then
+          sqlStatement &:= delimiter;
+          ch := getc(inFile);
+        end if;
+      elsif ch = '/' then
+        ch := getc(inFile);
+        if ch <> '*' or ch = EOF then
+          sqlStatement &:= '/';
+        else
+          ch := getc(inFile);
+          repeat
+            while ch <> '*' and ch <> EOF do
+              ch := getc(inFile);
+            end while;
+            ch := getc(inFile);
+          until ch = '/' or ch = EOF;
+          ch := getc(inFile);
+        end if;
+      elsif ch = '-' then
+        ch := getc(inFile);
+        if ch <> '-' or ch = EOF then
+          sqlStatement &:= '-';
+        else
+          ch := getc(inFile);
+          while ch <> '\n' and ch <> EOF do
+            ch := getc(inFile);
+          end while;
+        end if;
+      else
+        sqlStatement &:= ch;
+        ch := getc(inFile);
+      end if;
+    end while;
+    inFile.bufferChar := ch;
+  end func;
+
+
 const proc: main is func
   local
+    var string: fileName is "";
+    var file: sqlFile is STD_NULL;
     var string: driverName is "";
     var dbCategory: driver is NO_DB;
     var string: password is "";
@@ -143,20 +203,28 @@ const proc: main is func
   begin
     OUT := STD_CONSOLE;
     IN := openEditLine(KEYBOARD, OUT);
-    writeln("Sql7 - Sql command line tool");
-    writeln("Copyright (C) 2014 Thomas Mertes");
-    writeln("This is free software; see the source for copying conditions.  There is NO");
-    writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
-    writeln("Sql7 is written in the Seed7 programming language");
-    writeln("Homepage: http://seed7.sourceforge.net");
-    writeln;
+    if length(argv(PROGRAM)) = 5 then
+      fileName := convDosPath(argv(PROGRAM)[5]);
+      sqlFile := openUtf8(fileName, "r");
+    end if;
+    if sqlFile = STD_NULL then
+      writeln("Sql7 - Sql command line tool");
+      writeln("Copyright (C) 2014 Thomas Mertes");
+      writeln("This is free software; see the source for copying conditions.  There is NO");
+      writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+      writeln("Sql7 is written in the Seed7 programming language");
+      writeln("Homepage: http://seed7.sourceforge.net");
+      writeln;
+    end if;
     if length(argv(PROGRAM)) = 0 then
       writeln("Use  sql7 -?  to get more information about sql7.");
       writeln;
     elsif length(argv(PROGRAM)) = 1 and argv(PROGRAM)[1] = "-?" then
       writeHelp;
-    elsif length(argv(PROGRAM)) not in {3, 4} then
-      writeln("usage: sql7 driver dbName user [password]");
+    elsif length(argv(PROGRAM)) not in {3, 4, 5} then
+      writeln("usage: sql7 driver dbName user [password [sqlfile]]");
+    elsif length(argv(PROGRAM)) = 5 and sqlFile = STD_NULL then
+      writeln(" *** Cannot open " <& fileName);
     else
       driverName := argv(PROGRAM)[1];
       driver := dbCategory(driverName);
@@ -179,15 +247,27 @@ const proc: main is func
             writeln(" *** Cannot open " <& argv(PROGRAM)[2]);
         end block;
         if currDb <> database.value then
-          write("Sql7? ");
-          readln(command);
-          while lower(command) <> "exit" and lower(command) <> "quit" do
-            if command <> "" then
-              doExecute(currDb, command);
-            end if;
+          if sqlFile <> STD_NULL then
+            while hasNext(sqlFile) do
+              command := getSqlStatement(sqlFile);
+              command := trim(command);
+              if command <> "" then
+                # writeln(literal(command));
+                doExecute(currDb, command);
+              end if;
+            end while;
+            close(sqlFile);
+          else
             write("Sql7? ");
             readln(command);
-          end while;
+            while lower(command) <> "exit" and lower(command) <> "quit" do
+              if command <> "" then
+                doExecute(currDb, command);
+              end if;
+              write("Sql7? ");
+              readln(command);
+            end while;
+          end if;
           close(currDb);
         end if;
       end if;

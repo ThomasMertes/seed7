@@ -126,11 +126,22 @@ const proc: (inout sqlStatement: dest) := (ref sqlStatement: source)     is acti
 const func sqlStatement: _GENERATE_EMPTY_STATEMENT                       is action "SQL_EMPTY_STMT";
 const sqlStatement: (attr sqlStatement) . value                          is _GENERATE_EMPTY_STATEMENT;
 
+
+(**
+ *  Check if two database connections are equal.
+ *  @return TRUE if the two database connections are equal,
+ *          FALSE otherwise.
+ *)
 const func boolean: (in sqlStatement: stmt1) = (in sqlStatement: stmt2)  is action "SQL_EQ_STMT";
+
+
+(**
+ *  Check if two database connections are not equal.
+ *  @return FALSE if the two database connections are equal,
+ *          TRUE otherwise.
+ *)
 const func boolean: (in sqlStatement: stmt1) <> (in sqlStatement: stmt2) is action "SQL_NE_STMT";
 
-const func database: SQL_OPEN (in integer: driver, in string: dbName,
-                               in string: user, in string: password)     is action "SQL_OPEN";
 
 const proc: BIND_BIG_RAT (in sqlStatement: statement, in integer: pos,
     in bigInteger: numerator, in bigInteger: denominator)                is action "SQL_BIND_BIGRAT";
@@ -160,53 +171,186 @@ const proc: COLUMN_DURATION (in sqlStatement: statement, in integer: column,
     inout integer: micro_second)                                         is action "SQL_COLUMN_DURATION";
 
 
+const func database: openDatabase (DB_MYSQL, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_MY";
+
+const func database: openDatabase (DB_SQLITE, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_LITE";
+
+const func database: openDatabase (DB_POSTGRESQL, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_POST";
+
+const func database: openDatabase (DB_OCI, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_OCI";
+
+const func database: openDatabase (DB_FIRE, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_FIRE";
+
+const func database: openDatabase (DB_ODBC, in string: odbcDriver,
+                                   in string: server, in string: dbName,
+                                   in string: user, in string: password) is action "SQL_OPEN_ODBC";
+
+
 (**
- *  Open the database ''dbName'' with the specified ''user'' and ''password''.
+ *  Open the database ''dbPath'' with the specified ''user'' and ''password''.
  *  @param driver Database driver to be used.
- *  @param dbName Database name. The ''dbName'' can be specified with host name
- *         ("e.g.: "www.example.org/myDb"), or with IPv4 address in standard dot
- *         notation (e.g.: "192.0.2.235/myDb"). Operating systems supporting IPv6
- *         may also accept an IPv6 address in colon notation.
+ *  @param host The host can be specified by name, with an IPv4 address or with
+ *         an IPv6 address. If ''host'' is empty it is assumed to be "localhost".
+ *  @param port The port to be used to access the database. If ''port'' is
+ *         zero the default port of the database or driver is used.
+ *  @param dbName The name of the database at the specified ''host''.
  *  @param user Database user name.
  *  @param password Database password.
  *  @return the database connection.
  *  @exception FILE_ERROR When the DLL of the database could not be found.
- *             RANGE_ERROR When dbName, user or password cannot be converted to
+ *  @exception RANGE_ERROR When dbPath, user or password cannot be converted to
  *                         the character set of the database.
- *             DATABASE_ERROR The connection to the database failed.
+ *  @exception DATABASE_ERROR The connection to the database failed.
  *)
-const func database: openDatabase (in dbCategory: driver, in string: dbName,
-                                   in string: user, in string: password) is
-  return SQL_OPEN(ord(driver), dbName, user, password);
+const func database: openDatabase (in dbCategory: driver, in string: host,
+                                   in integer: port, in string: dbName,
+                                   in string: user, in string: password) is DYNAMIC;
+
+
+(**
+ *  Open the database ''dbPath'' with the specified ''user'' and ''password''.
+ *  The ''dbPath'' can be in one of the forms:
+ *  * host:port/dbName
+ *  * host/dbName
+ *  * dbName
+ *  The ''host'' can be specified with name (e.g.: www.example.org), or with
+ *  IPv4 address (e.g.: 192.0.2.235) or as IPv6 address in colon notation
+ *  (e.g.: [1234:feed::dead:beef]). Note that an IPv6 address must be enclosed
+ *  in brackets.
+ *
+ *  When ''driver'' is DB_ODBC the ''dbPath'' can be in one of the forms:
+ *  * odbcDriver:dbServer/dbName
+ *  * dbServer/dbName
+ *  * dbServer
+ *  * odbcDataSourceName
+ *  The ''odbcDriver'' can have a value like ''sqlserver''.
+ *
+ *  When ''driver'' is DB_SQLITE the ''dbPath'' is the path of a database file:
+ *  * sqlitePath
+ *  The ''sqlitePath'' uses the Seed7 standard path representation.
+ *
+ *  @param driver Database driver to be used.
+ *  @param dbPath Database name in one of the forms listed above.
+ *         When no host is specified the host "localhost" is used.
+ *         When no port is specified the port of the database driver is used.
+ *         When no odbcDriver is specified "sqlserver" is used.
+ *  @param user Database user name.
+ *  @param password Database password.
+ *  @return the database connection.
+ *  @exception FILE_ERROR When the DLL of the database could not be found.
+ *  @exception RANGE_ERROR When dbPath, user or password cannot be converted to
+ *                         the character set of the database.
+ *  @exception DATABASE_ERROR The connection to the database failed.
+ *)
+const func database: openDatabase (in dbCategory: driver, in string: dbPath,
+                                   in string: user, in string: password) is func
+  result
+    var database: db is database.value;
+  local
+    var string: host is "";
+    var string: port is "";
+    var string: dbName is "";
+    var string: odbcDriver is "";
+    var string: dbServer is "";
+    var integer: portNum is 0;
+    var integer: slashPos is 0;
+    var integer: rightBracketPos is 0;
+    var integer: colonPos is 0;
+  begin
+    if driver = DB_ODBC then
+      colonPos := pos(dbPath, ':');
+      if colonPos <> 0 then
+        odbcDriver := dbPath[.. pred(colonPos)];
+        dbServer := dbPath[succ(colonPos) ..];
+        slashPos := pos(dbServer, '/');
+        if slashPos <> 0 then
+          dbName := dbServer[succ(slashPos) ..];
+          dbServer := dbServer[.. pred(slashPos)];
+        end if;
+      else
+        odbcDriver := "sqlserver";
+        slashPos := pos(dbPath, '/');
+        if slashPos <> 0 then
+          dbServer := dbPath[.. pred(slashPos)];
+          dbName := dbPath[succ(slashPos) ..];
+        end if;
+      end if;
+      db := openDatabase(DB_ODBC, odbcDriver, dbServer, dbName, user, password);
+    else
+      slashPos := pos(dbPath, '/');
+      if driver <> DB_SQLITE and slashPos <> 0 then
+        dbName := dbPath[succ(slashPos) ..];
+        host := dbPath[.. pred(slashPos)];
+        if host <> "" and host[1] = '[' then
+          rightBracketPos := pos(host, ']');
+          if rightBracketPos <> 0 then
+            if length(host) >= succ(rightBracketPos) and
+                host[succ(rightBracketPos)] = ':' then
+              port := host[rightBracketPos + 2 ..];
+            end if;
+            host := host[2 .. pred(rightBracketPos)];
+          else
+            host := host[2 ..];
+          end if;
+        else
+          colonPos := pos(host, ':');
+          if colonPos <> 0 then
+            port := host[succ(colonPos) ..];
+            host := host[.. pred(colonPos)];
+          end if;
+        end if;
+      else
+        dbName := dbPath;
+      end if;
+      # writeln("host: " <& host);
+      # writeln("port: " <& port);
+      # writeln("dbName: " <& dbName);
+      if port <> "" then
+        portNum := integer(port);
+      end if;
+      db := openDatabase(driver, host, portNum, dbName, user, password);
+    end if;
+  end func;
 
 
 (**
  *  Open a database with the specified ''driver'' and ''connectStri''.
  *  The ''connectStri'' must be in one of the forms
- *  * user:password@dbName
- *  * user@dbName
- *  * dbName
- *  The ''dbName'' can be specified with host name ("e.g.: "www.example.org/myDb"),
+ *  * user:password@dbPath
+ *  * user@dbPath
+ *  * dbPath
+ *  The ''dbPath'' can be specified with host name ("e.g.: "www.example.org/myDb"),
  *  or with IPv4 address in standard dot notation (e.g.: "192.0.2.235/myDb").
  *  Operating systems supporting IPv6 may also accept an IPv6 address
- *  in colon notation.
+ *  in colon notation. Some databases allow also the specification of a port
+ *  number (e.g.: "localhost:1234/myDb" or "[1234:feed::dead:beef]:1234/myDb", with
+ *  an IPv6 address).
  *  @param driver Database driver to be used.
- *  @param connectStri Connection string in one of the forms
- *         user:password@dbName user@dbName or dbName
+ *  @param connectStri Connection string in one of the forms listed above.
  *         When no user is specified the user "guest" is used.
  *         When no password is specified the password "guest" is used.
  *  @return the database connection.
  *  @exception FILE_ERROR When the DLL of the database could not be found.
- *             RANGE_ERROR When dbName, user or password cannot be converted to
+ *  @exception RANGE_ERROR When dbPath, user or password cannot be converted to
  *                         the character set of the database.
- *             DATABASE_ERROR The connection to the database failed.
+ *  @exception DATABASE_ERROR The connection to the database failed.
  *)
 const func database: openDatabase (in dbCategory: driver,
                                    in string: connectStri) is func
   result
     var database: db is database.value;
   local
-    var string: dbName is "";
+    var string: dbPath is "";
     var string: user is "guest";
     var string: password is "guest";
     var integer: atPos is 0;
@@ -220,14 +364,14 @@ const func database: openDatabase (in dbCategory: driver,
         password := user[succ(colonPos) ..];
         user := user[.. pred(colonPos)];
       end if;
-      dbName := connectStri[succ(atPos) ..];
+      dbPath := connectStri[succ(atPos) ..];
     else
-      dbName := connectStri;
+      dbPath := connectStri;
     end if;
-    # writeln("dbName: " <& dbName);
+    # writeln("dbPath: " <& dbPath);
     # writeln("user: " <& user);
     # writeln("password: " <& password);
-    db := openDatabase(driver, dbName, user, password);
+    db := openDatabase(driver, dbPath, user, password);
   end func;
 
 
@@ -622,7 +766,22 @@ const func boolean: isNull (in sqlStatement: statement, in integer: column)     
 const proc: commit (in database: db)                                                   is action "SQL_COMMIT";
 
 
+(**
+ *  Return the number of columns in the result data of a ''statement''.
+ *  It is not necessary to ''execute'' the prepared statement, before
+ *  ''columnCount'' is called.
+ *  @param statement Prepared statement.
+ *)
 const func integer: columnCount (in sqlStatement: statement)                           is action "SQL_STMT_COLUMN_COUNT";
+
+
+(**
+ *  Return the name of a column in the result data of a ''statement''.
+ *  It is not necessary to ''execute'' the prepared statement, before
+ *  ''columnName'' is called.
+ *  @param statement Prepared statement.
+ *  @param column Number of the column (starting with 1).
+ *)
 const func string: columnName (in sqlStatement: statement, in integer: column)         is action "SQL_STMT_COLUMN_NAME";
 
 

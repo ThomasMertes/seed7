@@ -142,6 +142,7 @@ typedef SQLHANDLE SQLHWND;
 
 #define SQL_SUCCESS             0
 #define SQL_SUCCESS_WITH_INFO   1
+#define SQL_NEED_DATA          99
 #define SQL_NO_DATA           100
 #define SQL_NULL_DATA         (-1)
 #define SQL_DATA_AT_EXEC      (-2)

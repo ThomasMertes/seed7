@@ -1571,8 +1571,18 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(SQL_NE_DB, function, params, c_expr);
       when {"SQL_NE_STMT"}:
         process(SQL_NE_STMT, function, params, c_expr);
-      when {"SQL_OPEN"}:
-        process(SQL_OPEN, function, params, c_expr);
+      when {"SQL_OPEN_FIRE"}:
+        process(SQL_OPEN_FIRE, function, params, c_expr);
+      when {"SQL_OPEN_LITE"}:
+        process(SQL_OPEN_LITE, function, params, c_expr);
+      when {"SQL_OPEN_MY"}:
+        process(SQL_OPEN_MY, function, params, c_expr);
+      when {"SQL_OPEN_OCI"}:
+        process(SQL_OPEN_OCI, function, params, c_expr);
+      when {"SQL_OPEN_ODBC"}:
+        process(SQL_OPEN_ODBC, function, params, c_expr);
+      when {"SQL_OPEN_POST"}:
+        process(SQL_OPEN_POST, function, params, c_expr);
       when {"SQL_PREPARE"}:
         process(SQL_PREPARE, function, params, c_expr);
       when {"SQL_STMT_COLUMN_COUNT"}:

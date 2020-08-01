@@ -558,6 +558,8 @@ objectType str_create (listType arguments)
     dest = arg_1(arguments);
     source = arg_3(arguments);
     isit_stri(source);
+    logFunction(printf("str_create(*, \"%s\")\n",
+                       striAsUnquotedCStri(take_stri(source))););
     SET_CATEGORY_OF_OBJ(dest, STRIOBJECT);
     if (TEMP_OBJECT(source)) {
       dest->value.striValue = take_stri(source);

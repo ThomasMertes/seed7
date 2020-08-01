@@ -117,6 +117,7 @@ typedef struct {
 
 static sqlFuncType sqlFunc = NULL;
 
+#define DEFAULT_PORT 5432
 #define MAX_BIND_VAR_SIZE 5
 #define MIN_BIND_VAR_NUM 1
 #define MAX_BIND_VAR_NUM 9999
@@ -1573,7 +1574,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                           FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
+                                          FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day, hour, minute,
                        second < 0 || micro_second < 0 ? "-" : "",
@@ -2556,7 +2557,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     } /* if */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
+                                            FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
                        *year, *month, *day, *hour, *minute,
                        *second < 0 || *micro_second < 0 ? "-" : "",
@@ -3355,15 +3356,17 @@ static boolType setupFuncTable (void)
 
 
 
-databaseType sqlOpenPost (const const_striType dbName,
-    const const_striType user, const const_striType password)
+databaseType sqlOpenPost (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
 
   {
-    cstriType dbName8;
+    const_cstriType host8;
+    const_cstriType dbName8;
     const_cstriType user8;
     const_cstriType password8;
-    const_cstriType host;
-    cstriType databaseName;
+    char portBuffer[INTTYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN];
+    cstriType pgport;
     dbRecord db;
     const_cstriType setting;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -3371,12 +3374,16 @@ databaseType sqlOpenPost (const const_striType dbName,
 
   /* sqlOpenPost */
     logFunction(printf("sqlOpenPost(\"%s\", ",
-                       striAsUnquotedCStri(dbName));
+                       striAsUnquotedCStri(host));
+                printf(FMT_D ", \"%s\", ",
+                       port, striAsUnquotedCStri(dbName));
                 printf("\"%s\", ", striAsUnquotedCStri(user));
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenPost: findDll() failed\n"););
       err_info = FILE_ERROR;
+      database = NULL;
+    } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
       database = NULL;
     } else {
       dbName8 = stri_to_cstri8(dbName, &err_info);
@@ -3391,22 +3398,21 @@ databaseType sqlOpenPost (const const_striType dbName,
           if (password8 == NULL) {
             database = NULL;
           } else {
-            databaseName = strchr(dbName8, '/');
-            if (databaseName == NULL) {
-              host = "localhost";
-              databaseName = dbName8;
+            if (port == 0) {
+              /* Use the default value for port, which is probably DEFAULT_PORT. */
+	      pgport = NULL;
             } else {
-              host = dbName8;
-              *databaseName = '\0';
-              databaseName++;
+              sprintf(portBuffer, FMT_D, port);
+              pgport = portBuffer;
             } /* if */
-            db.connection = PQsetdbLogin(host, NULL /* pgport */,
-                NULL /* pgoptions */, NULL /* pgtty */,
-                databaseName, user8, password8);
+            db.connection = PQsetdbLogin(host8[0] == '\0' ? NULL : host8,
+                pgport, NULL /* pgoptions */, NULL /* pgtty */,
+                dbName8, user8, password8);
             if (unlikely(db.connection == NULL)) {
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
                               "\"%s\", \"%s\", \"%s\") returns NULL\n",
-                              host, databaseName, user8, password8););
+                              host8[0] == '\0' ? "NULL" : host8,
+                              dbName8, user8, password8););
               err_info = MEMORY_ERROR;
               database = NULL;
             } else if (PQstatus(db.connection) != CONNECTION_OK) {
@@ -3414,7 +3420,8 @@ databaseType sqlOpenPost (const const_striType dbName,
               logError(printf("sqlOpenPost: PQsetdbLogin(\"%s\", ...  "
                               "\"%s\", \"%s\", \"%s\") error:\n"
                               "status=%d\nerror: %s\n",
-                              host, databaseName, user8, password8,
+                              host8[0] == '\0' ? "NULL" : host8,
+                              dbName8, user8, password8,
                               PQstatus(db.connection),
                               dbError.message););
               err_info = DATABASE_ERROR;
@@ -3436,6 +3443,7 @@ databaseType sqlOpenPost (const const_striType dbName,
               memset(database, 0, sizeof(dbRecord));
               database->usage_count = 1;
               database->sqlFunc = sqlFunc;
+              database->driver = 3; /* PostgreSQL */
               database->connection = db.connection;
               setting = PQparameterStatus(db.connection, "integer_datetimes");
               database->integerDatetimes = setting != NULL && strcmp(setting, "on") == 0;
@@ -3447,6 +3455,7 @@ databaseType sqlOpenPost (const const_striType dbName,
         } /* if */
         free_cstri8(dbName8, dbName);
       } /* if */
+      free_cstri8(host8, host);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -3454,6 +3463,26 @@ databaseType sqlOpenPost (const const_striType dbName,
     logFunction(printf("sqlOpenPost --> " FMT_U_MEM "\n",
                        (memSizeType) database););
     return (databaseType) database;
+  } /* sqlOpenPost */
+
+#else
+
+
+
+databaseType sqlOpenPost (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
+
+  { /* sqlOpenPost */
+    logError(printf("sqlOpenPost(\"%s\", ",
+                    striAsUnquotedCStri(host));
+             printf(FMT_D ", \"%s\", ",
+                    port, striAsUnquotedCStri(dbName));
+             printf("\"%s\", ", striAsUnquotedCStri(user));
+             printf("\"%s\"): PostgreSQL driver not present.\n",
+                    striAsUnquotedCStri(password)););
+    raise_error(RANGE_ERROR);
+    return NULL;
   } /* sqlOpenPost */
 
 #endif

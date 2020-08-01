@@ -133,6 +133,19 @@ typedef struct {
     boolType        fetchFinished;
   } preparedStmtRecord, *preparedStmtType;
 
+typedef struct {
+    wstriType driverW;
+    memSizeType driverW_length;
+    wstriType serverW;
+    memSizeType serverW_length;
+    wstriType dbNameW;
+    memSizeType dbNameW_length;
+    wstriType userW;
+    memSizeType userW_length;
+    wstriType passwordW;
+    memSizeType passwordW_length;
+  } connectDataRecord, *connectDataType;
+
 static sqlFuncType sqlFunc = NULL;
 
 /* ODBC provides two possibilities to encode decimal values.        */
@@ -156,6 +169,15 @@ static sqlFuncType sqlFunc = NULL;
 #define ERROR_MESSAGE_BUFFER_SIZE 960
 #define MAX_DATETIME2_LENGTH 27
 #define MAX_DURATION_LENGTH 32
+
+/* Define formats for SQLLEN and SQLULEN */
+#if POINTER_SIZE == 32
+#define FMT_D_LEN FMT_D32
+#define FMT_U_LEN FMT_U32
+#elif POINTER_SIZE == 64
+#define FMT_D_LEN FMT_D64
+#define FMT_U_LEN FMT_U64
+#endif
 
 
 #ifdef ODBC_DLL
@@ -476,8 +498,8 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName,
                " *** SQLGetDiagRec returned: %d\n", returnCode);
     } else {
       snprintf(dbError.message, DB_ERR_MESSAGE_SIZE,
-               "%s\nSQLState: %s\nNativeError: %d\n",
-               messageText, sqlState, nativeError);
+               "%s\nSQLState: %s\nNativeError: %ld\n",
+               messageText, sqlState, (long int) nativeError);
     } /* if */
   } /* setDbErrorMsg */
 
@@ -1141,7 +1163,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
             c_type = SQL_C_CHAR;
           } /* if */
           if (unlikely(columnDescr->columnSize > (MAX_MEMSIZETYPE / 2) - 1)) {
-            logError(printf("setupResultColumn: ColumnSize too big: %ld\n",
+            logError(printf("setupResultColumn: ColumnSize too big: " FMT_U_LEN "\n",
                             columnDescr->columnSize););
             err_info = MEMORY_ERROR;
           } else {
@@ -1157,7 +1179,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         case SQL_WVARCHAR:
           c_type = SQL_C_WCHAR;
           if (unlikely(columnDescr->columnSize > (MAX_MEMSIZETYPE / 2) - 1)) {
-            logError(printf("setupResultColumn: ColumnSize too big: %ld\n",
+            logError(printf("setupResultColumn: ColumnSize too big: " FMT_U_LEN "\n",
                             columnDescr->columnSize););
             err_info = MEMORY_ERROR;
           } else {
@@ -1173,7 +1195,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         case SQL_VARBINARY:
           c_type = SQL_C_BINARY;
           if (unlikely(columnDescr->columnSize > MAX_MEMSIZETYPE)) {
-            logError(printf("setupResultColumn: ColumnSize too big: %ld\n",
+            logError(printf("setupResultColumn: ColumnSize too big: " FMT_U_LEN "\n",
                             columnDescr->columnSize););
             err_info = MEMORY_ERROR;
           } else {
@@ -1227,7 +1249,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         case SQL_DECIMAL:
           c_type = SQL_C_CHAR;
           if (unlikely(columnDescr->columnSize > MAX_MEMSIZETYPE - 4)) {
-            logError(printf("setupResultColumn: ColumnSize too big: %ld\n",
+            logError(printf("setupResultColumn: ColumnSize too big: " FMT_U_LEN "\n",
                             columnDescr->columnSize););
             err_info = MEMORY_ERROR;
           } else {
@@ -3139,7 +3161,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                           FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
+                                          FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day, hour, minute,
                        second < 0 || micro_second < 0 ? "-" : "",
@@ -3192,7 +3214,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
               if (unlikely(c_type == 0)) {
                 logError(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                                    FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                                   FMT_D "H" FMT_D "M%s%lu.%06luS): "
+                                                   FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S): "
                                                  "There is no adequate interval type.\n",
                                 (memSizeType) sqlStatement, pos,
                                 year, month, day, hour, minute,
@@ -3860,8 +3882,8 @@ static bigIntType sqlColumnBigInt (sqlStmtType sqlStatement, intType column)
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnBigInt", "SQLBindCol");
         logError(printf("sqlColumnBigInt: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
@@ -3942,8 +3964,8 @@ static void sqlColumnBigRat (sqlStmtType sqlStatement, intType column,
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnBigRat", "SQLBindCol");
         logError(printf("sqlColumnBigRat: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
         *numerator = NULL;
         *denominator = NULL;
@@ -4037,8 +4059,8 @@ static boolType sqlColumnBool (sqlStmtType sqlStatement, intType column)
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnBool", "SQLBindCol");
         logError(printf("sqlColumnBool: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
@@ -4160,8 +4182,8 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnBStri", "SQLBindCol");
         logError(printf("sqlColumnBStri: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
@@ -4236,8 +4258,8 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnDuration", "SQLBindCol");
         logError(printf("sqlColumnDuration: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
       } else {
         /* printf("length: %ld\n", columnData->length); */
@@ -4394,7 +4416,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     } /* if */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") --> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
+                                            FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
                        *year, *month, *day, *hour, *minute,
                        *second < 0 || *micro_second < 0 ? "-" : "",
@@ -4432,8 +4454,8 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnFloat", "SQLBindCol");
         logError(printf("sqlColumnFloat: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
         columnValue = 0.0;
       } else {
@@ -4518,8 +4540,8 @@ static intType sqlColumnInt (sqlStmtType sqlStatement, intType column)
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnInt", "SQLBindCol");
         logError(printf("sqlColumnInt: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
         columnValue = 0;
       } else {
@@ -4599,8 +4621,8 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnStri", "SQLBindCol");
         logError(printf("sqlColumnStri: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
         columnValue = NULL;
       } else {
@@ -4740,8 +4762,8 @@ static void sqlColumnTime (sqlStmtType sqlStatement, intType column,
       } else if (unlikely(columnData->length < 0)) {
         dbInconsistent("sqlColumnTime", "SQLBindCol");
         logError(printf("sqlColumnTime: Column " FMT_D ": "
-                        "Negative length: %ld\n", column,
-                        columnData->length););
+                        "Negative length: " FMT_D_LEN "\n",
+                        column, columnData->length););
         raise_error(DATABASE_ERROR);
       } else {
         /* printf("length: %ld\n", columnData->length); */
@@ -5249,50 +5271,337 @@ static boolType setupFuncTable (void)
 
 
 
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
 static void printWstri (wstriType wstri)
 
-  {
+  { /* printWstri */
     while (*wstri != '\0') {
-      printf("%c", (char) *wstri);
+      if (*wstri <= 255) {
+        printf("%c", (char) *wstri);
+      } else {
+        printf("\\%u;", (unsigned int) *wstri);
+      } /* if */
       wstri++;
     } /* while */
-  }
+  } /* printWstri */
+#endif
 
 
 
-static void peekDriver (SQLHDBC sql_connection, SQLWCHAR *driver, SQLSMALLINT driverLength)
+static wstriType getRegularName (wstriType wstri, memSizeType wstriLength)
 
   {
-    SQLWCHAR driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
-    SQLWCHAR inConnectionString[4096];
-    SQLSMALLINT stringLength;
+    wstriType destWstri;
+    wstriType compressedWstri;
+
+  /* getRegularName */
+    if (ALLOC_WSTRI(compressedWstri, wstriLength)) {
+      destWstri = compressedWstri;
+      while (*wstri != '\0') {
+        if (*wstri >= 'A' && *wstri <= 'Z') {
+          *destWstri = (wcharType) (*wstri - 'A' + 'a');
+          destWstri++;
+        } else if (*wstri != ' ') {
+          *destWstri = *wstri;
+          destWstri++;
+        } /* if */
+        wstri++;
+      } /* while */
+      *destWstri = '\0';
+    } /* if */
+    return compressedWstri;
+  } /* getRegularName */
+
+
+
+static wstriType wstriSearchCh (const_wstriType str, const wcharType ch)
+
+  { /* wstriSearchCh */
+    for (; *str != ch; str++) {
+      if (*str == (wcharType) 0) {
+        return NULL;
+      } /* if */
+    } /* for */
+    return (wstriType) str;
+  } /* wstriSearchCh */
+
+
+
+static wstriType wstriSearch (const_wstriType haystack, const_wstriType needle)
+
+  {
+    const_wstriType sc1;
+    const_wstriType sc2;
+
+  /* wstriSearch */
+    if (*needle == (wcharType) 0) {
+      return (wstriType) haystack;
+    } else {
+      for (; (haystack = wstriSearchCh(haystack, *needle)) != NULL; haystack++) {
+        for (sc1 = haystack, sc2 = needle; ; ) {
+          if (*++sc2 == (wcharType) 0) {
+            return (wstriType) haystack;
+          } else if (*++sc1 != *sc2) {
+            break;
+          } /* if */
+        } /* for */
+      } /* for */
+    } /* if */
+    return NULL;
+  } /* wstriSearch */
+
+
+
+static boolType connectToServer (connectDataType connectData,
+    SQLHDBC sql_connection, wstriType driver, memSizeType driverLength,
+    wstriType server, memSizeType serverLength)
+
+  {
+    const wcharType driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
+    const wcharType serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '=', '\0'};
+    const wcharType databaseKey[] = {'D', 'A', 'T', 'A', 'B', 'A', 'S', 'E', '=', '\0'};
+    const wcharType uidKey[] = {'U', 'I', 'D', '=', '\0'};
+    const wcharType pwdKey[] = {'P', 'W', 'D', '=', '\0'};
+    wcharType inConnectionString[4096];
+    memSizeType stringLength;
     SQLWCHAR outConnectionString[4096];
     SQLSMALLINT outConnectionStringLength;
     SQLRETURN returnCode;
 
-  /* peekDriver */
-    memcpy(inConnectionString, driverKey, sizeof(driverKey));
+  /* connectToServer */
+    logFunction(printf("connectToServer(*, *, \"");
+                printWstri(driver);
+                printf("\", " FMT_U_MEM ", \"", driverLength);
+                printWstri(server);
+                printf("\", " FMT_U_MEM ")\n", serverLength););
+    memcpy(inConnectionString, driverKey, STRLEN(driverKey) * sizeof(SQLWCHAR));
     stringLength = STRLEN(driverKey);
     memcpy(&inConnectionString[stringLength], driver, driverLength * sizeof(SQLWCHAR));
     stringLength += driverLength;
+    inConnectionString[stringLength] = ';';
+    stringLength++;
+    memcpy(&inConnectionString[stringLength], serverKey, STRLEN(serverKey) * sizeof(SQLWCHAR));
+    stringLength += STRLEN(serverKey);
+    memcpy(&inConnectionString[stringLength], server, serverLength * sizeof(SQLWCHAR));
+    stringLength += serverLength;
+#if 0
+    if (connectData->serverW_length != 0) {
+      inConnectionString[stringLength] = ';';
+      stringLength++;
+      memcpy(&inConnectionString[stringLength], serverKey, STRLEN(serverKey) * sizeof(SQLWCHAR));
+      stringLength += STRLEN(serverKey);
+      memcpy(&inConnectionString[stringLength], connectData->serverW, connectData->serverW_length * sizeof(SQLWCHAR));
+      stringLength += connectData->serverW_length;
+    } /* if */
+#endif
+    if (connectData->dbNameW_length != 0) {
+      inConnectionString[stringLength] = ';';
+      stringLength++;
+      memcpy(&inConnectionString[stringLength], databaseKey, STRLEN(databaseKey) * sizeof(SQLWCHAR));
+      stringLength += STRLEN(databaseKey);
+      memcpy(&inConnectionString[stringLength], connectData->dbNameW, connectData->dbNameW_length * sizeof(SQLWCHAR));
+      stringLength += connectData->dbNameW_length;
+    } /* if */
+    if (connectData->userW_length != 0) {
+      inConnectionString[stringLength] = ';';
+      stringLength++;
+      memcpy(&inConnectionString[stringLength], uidKey, STRLEN(uidKey) * sizeof(SQLWCHAR));
+      stringLength += STRLEN(uidKey);
+      memcpy(&inConnectionString[stringLength], connectData->userW, connectData->userW_length * sizeof(SQLWCHAR));
+      stringLength += connectData->userW_length;
+    } /* if */
+    if (connectData->passwordW_length != 0) {
+      inConnectionString[stringLength] = ';';
+      stringLength++;
+      memcpy(&inConnectionString[stringLength], pwdKey, STRLEN(pwdKey) * sizeof(SQLWCHAR));
+      stringLength += STRLEN(pwdKey);
+      memcpy(&inConnectionString[stringLength], connectData->passwordW, connectData->passwordW_length * sizeof(SQLWCHAR));
+      stringLength += connectData->passwordW_length;
+    } /* if */
     inConnectionString[stringLength] = '\0';
-    printWstri(inConnectionString);
-    printf("\n");
-    /* printf("stringLength: " FMT_U_MEM "\n", stringLength); */
+    /* printf("inConnectionString: ");
+       printWstri(inConnectionString);
+       printf("\n"); */
     outConnectionString[0] = '\0';
-    returnCode = SQLBrowseConnectW(sql_connection,
-                                   inConnectionString,
-                                   stringLength,
+    returnCode = SQLDriverConnectW(sql_connection,
+                                   NULL, /* GetDesktopWindow(), */
+                                   (SQLWCHAR *) inConnectionString,
+                                   (SQLSMALLINT) stringLength,
                                    outConnectionString,
                                    sizeof(outConnectionString) / sizeof(SQLWCHAR),
-                                   &outConnectionStringLength);
-    printWstri(outConnectionString);
-    printf("\n");
-  } /* peekDriver */
+                                   &outConnectionStringLength,
+                                   SQL_DRIVER_NOPROMPT);
+    /* printf("returnCode: %d\n", returnCode); */
+    /* printf("outConnectionString: ");
+       printWstri(outConnectionString);
+       printf("\n"); */
+    if (returnCode != SQL_SUCCESS && returnCode != SQL_SUCCESS_WITH_INFO) {
+      setDbErrorMsg("connectToServer", "SQLDriverConnectW",
+                    SQL_HANDLE_DBC, sql_connection);
+      logError(printf("connectToServer: SQLDriverConnectW:\n%s\n", dbError.message););
+    } /* if */
+    logFunction(printf("connectToServer --> %d\n",
+                       returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO););
+    return returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO;
+  } /* connectToServer */
 
 
 
-static void listDrivers (SQLHDBC sql_connection, SQLHENV sql_environment)
+static boolType connectToDriver (connectDataType connectData,
+    SQLHDBC sql_connection, wstriType driver, memSizeType driverLength)
+
+  {
+    const wcharType driverKey[] = {'D', 'R', 'I', 'V', 'E', 'R', '=', '\0'};
+    const wcharType serverKey[] = {'S', 'E', 'R', 'V', 'E', 'R', '\0'};
+    wcharType inConnectionString[4096];
+    memSizeType stringLength;
+    SQLWCHAR outConnectionString[4096];
+    SQLSMALLINT outConnectionStringLength;
+    wstriType regularNameOfSearchedServer;
+    wstriType regularServerName;
+    wstriType posFound;
+    wstriType server;
+    boolType lastServer;
+    SQLRETURN returnCode;
+    boolType okay = FALSE;
+
+  /* connectToDriver */
+    logFunction(printf("connectToDriver(*, *, \"");
+                printWstri(driver);
+                printf("\", " FMT_U_MEM ")\n", driverLength););
+    regularNameOfSearchedServer = getRegularName(connectData->serverW,
+        connectData->serverW_length);
+    if (regularNameOfSearchedServer != NULL) {
+      /* printf("Searching for server: ");
+         printWstri(regularNameOfSearchedServer);
+         printf("\n"); */
+      memcpy(inConnectionString, driverKey, STRLEN(driverKey) * sizeof(SQLWCHAR));
+      stringLength = STRLEN(driverKey);
+      memcpy(&inConnectionString[stringLength], driver, driverLength * sizeof(SQLWCHAR));
+      stringLength += driverLength;
+      inConnectionString[stringLength] = '\0';
+      /* printf("inConnectionString: ");
+         printWstri(inConnectionString);
+         printf("\n"); */
+      outConnectionString[0] = '\0';
+      returnCode = SQLBrowseConnectW(sql_connection,
+                                     (SQLWCHAR *) inConnectionString,
+                                     (SQLSMALLINT) stringLength,
+                                     outConnectionString,
+                                     sizeof(outConnectionString) / sizeof(SQLWCHAR),
+                                     &outConnectionStringLength);
+      /* printf("returnCode: %d\n", returnCode); */
+      /* printf("outConnectionString: ");
+         printWstri(outConnectionString);
+         printf("\n"); */
+      if (returnCode == SQL_SUCCESS || returnCode == SQL_SUCCESS_WITH_INFO ||
+          returnCode == SQL_NEED_DATA) {
+        SQLDisconnect(sql_connection);
+        posFound = wstriSearch(outConnectionString, serverKey);
+        if (posFound != NULL) {
+          posFound += STRLEN(serverKey);
+          while (*posFound != '=' && *posFound != '\0') {
+            posFound++;
+          } /* while */
+          if (*posFound == '=') {
+            posFound++;
+            if (*posFound == '{') {
+              posFound++;
+            } /* if */
+            do {
+              server = posFound;
+              while (*posFound != ',' && *posFound != '}' &&
+                     *posFound != ';' && *posFound != '\0') {
+                posFound++;
+              } /* while */
+              lastServer = *posFound != ',';
+              *posFound = '\0';
+              /* printf("check for server: ");
+                 printWstri(server);
+                 printf("\n"); */
+              regularServerName = getRegularName(server,
+                  (memSizeType) (posFound - server));
+              if (regularServerName != NULL) {
+                if (wstriSearch(regularServerName, regularNameOfSearchedServer) != NULL) {
+                  /* printf("server that matches requested one: ");
+                     printWstri(server);
+                     printf("\n"); */
+                  okay = connectToServer(connectData, sql_connection, driver,
+                                         (memSizeType) driverLength, server,
+                                         (memSizeType) (posFound - server));
+                } /* if */
+                UNALLOC_WSTRI(regularServerName, driverLength);
+              } /* if */
+              posFound++;
+            } while (!okay && !lastServer);
+          } /* if */
+        } /* if */
+      } /* if */
+      UNALLOC_WSTRI(regularNameOfSearchedServer, connectData->serverW_length);
+    } /* if */
+    if (!okay) {
+      okay = connectToServer(connectData, sql_connection, driver,
+                             (memSizeType) driverLength, connectData->serverW,
+                             connectData->serverW_length);
+    } /* if */
+    logFunction(printf("connectToDriver --> %d\n", okay););
+    return okay;
+  } /* connectToDriver */
+
+
+
+static boolType driverConnect (connectDataType connectData, SQLHDBC sql_connection,
+    SQLHENV sql_environment)
+
+  {
+    SQLWCHAR driver[4096];
+    SQLWCHAR attr[4096];
+    wstriType regularNameOfSearchedDriver;
+    wstriType regularDriverName;
+    SQLSMALLINT driverLength;
+    SQLSMALLINT attrLength;
+    SQLUSMALLINT direction;
+    boolType okay = FALSE;
+
+  /* driverConnect */
+    logFunction(printf("driverConnect\n"););
+    regularNameOfSearchedDriver = getRegularName(connectData->driverW,
+        connectData->driverW_length);
+    if (regularNameOfSearchedDriver != NULL) {
+      /* printf("Searching for driver: ");
+         printWstri(regularNameOfSearchedDriver);
+         printf("\n"); */
+      direction = SQL_FETCH_FIRST;
+      while (!okay &&
+             SQLDriversW(sql_environment, direction,
+                         driver, sizeof(driver) / sizeof(SQLWCHAR), &driverLength,
+                         attr, sizeof(attr) / sizeof(SQLWCHAR), &attrLength) == SQL_SUCCESS) {
+        direction = SQL_FETCH_NEXT;
+        /* printWstri(driver);
+        printf("\n"); */
+        regularDriverName = getRegularName(driver, (memSizeType) driverLength);
+        if (regularDriverName != NULL) {
+          if (wstriSearch(regularDriverName, regularNameOfSearchedDriver) != NULL) {
+            /* printf("driver that matches requested one: ");
+               printWstri(driver);
+               printf("\n"); */
+            okay = connectToDriver(connectData, sql_connection, driver,
+                                   (memSizeType) driverLength);
+          } /* if */
+          UNALLOC_WSTRI(regularDriverName, driverLength);
+        } /* if */
+      } /* while */
+      UNALLOC_WSTRI(regularNameOfSearchedDriver, connectData->driverW_length);
+    } /* if */
+    logFunction(printf("driverConnect --> %d\n", okay););
+    return okay;
+  } /* driverConnect */
+
+
+
+#if LOG_FUNCTIONS_EVERYWHERE || LOG_FUNCTIONS || VERBOSE_EXCEPTIONS_EVERYWHERE || VERBOSE_EXCEPTIONS
+static void listDrivers (connectDataType connectData, SQLHDBC sql_connection,
+    SQLHENV sql_environment)
 
   {
     SQLWCHAR driver[4096];
@@ -5323,7 +5632,7 @@ static void listDrivers (SQLHDBC sql_connection, SQLHENV sql_environment)
         } /* while */
         attrPtr++;
       } /* while */
-      /* peekDriver(sql_connection, driver, driverLength); */
+      /* peekDriver(connectData, sql_connection, driver, driverLength); */
     } /* while */
     printf("--- end of list ---\n");
   } /* listDrivers */
@@ -5350,19 +5659,16 @@ static void listDataSources (SQLHENV sql_environment)
     } /* while */
     printf("--- end of list ---\n");
   } /* listDataSources */
+#endif
 
 
 
-databaseType sqlOpenOdbc (const const_striType dbName,
+databaseType sqlOpenOdbc (const const_striType driver,
+    const const_striType server, const const_striType dbName,
     const const_striType user, const const_striType password)
 
   {
-    wstriType dbNameW;
-    memSizeType dbNameW_length;
-    wstriType userW;
-    memSizeType userW_length;
-    wstriType passwordW;
-    memSizeType passwordW_length;
+    connectDataRecord connectData;
     SQLHENV sql_environment;
     SQLHDBC sql_connection;
     SQLUSMALLINT SQLDescribeParam_supported;
@@ -5375,135 +5681,146 @@ databaseType sqlOpenOdbc (const const_striType dbName,
 
   /* sqlOpenOdbc */
     logFunction(printf("sqlOpenOdbc(\"%s\", ",
-                       striAsUnquotedCStri(dbName));
+                       striAsUnquotedCStri(driver));
+                printf("\"%s\", ", striAsUnquotedCStri(server));
+                printf("\"%s\", ", striAsUnquotedCStri(dbName));
                 printf("\"%s\", ", striAsUnquotedCStri(user));
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenOdbc: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
+    } else if (unlikely((connectData.driverW =  stri_to_wstri_buf(driver,
+                             &connectData.driverW_length, &err_info)) == NULL)) {
+      database = NULL;
     } else {
-      dbNameW = stri_to_wstri_buf(dbName, &dbNameW_length, &err_info);
-      if (unlikely(dbNameW == NULL)) {
-        err_info = MEMORY_ERROR;
+      connectData.serverW = stri_to_wstri_buf(server, &connectData.serverW_length, &err_info);
+      if (unlikely(connectData.serverW == NULL)) {
         database = NULL;
       } else {
-        userW = stri_to_wstri_buf(user, &userW_length, &err_info);
-        if (unlikely(userW == NULL)) {
-          err_info = MEMORY_ERROR;
+        connectData.dbNameW = stri_to_wstri_buf(dbName, &connectData.dbNameW_length, &err_info);
+        if (unlikely(connectData.dbNameW == NULL)) {
           database = NULL;
         } else {
-          passwordW = stri_to_wstri_buf(password, &passwordW_length, &err_info);
-          if (unlikely(passwordW == NULL)) {
-            err_info = MEMORY_ERROR;
+          connectData.userW = stri_to_wstri_buf(user, &connectData.userW_length, &err_info);
+          if (unlikely(connectData.userW == NULL)) {
             database = NULL;
           } else {
-            /* printf("dbName:   %ls\n", dbNameW);
-               printf("user:     %ls\n", userW);
-               printf("password: %ls\n", passwordW); */
-            if (unlikely(dbNameW_length   > SHRT_MAX ||
-                         userW_length     > SHRT_MAX ||
-                         passwordW_length > SHRT_MAX)) {
-              err_info = MEMORY_ERROR;
-              database = NULL;
-            } else if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE,
-                                      &sql_environment) != SQL_SUCCESS) {
-              logError(printf("sqlOpenOdbc: SQLAllocHandle failed\n"););
-              err_info = MEMORY_ERROR;
-              database = NULL;
-            } else if (SQLSetEnvAttr(sql_environment,
-                                     SQL_ATTR_ODBC_VERSION,
-                                     (SQLPOINTER) SQL_OV_ODBC3,
-                                     SQL_IS_INTEGER) != SQL_SUCCESS) {
-              setDbErrorMsg("sqlOpenOdbc", "SQLSetEnvAttr",
-                            SQL_HANDLE_ENV, sql_environment);
-              logError(printf("sqlOpenOdbc: SQLSetEnvAttr "
-                              "SQL_ATTR_ODBC_VERSION:\n%s\n",
-                              dbError.message););
-              err_info = DATABASE_ERROR;
-              SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
-              database = NULL;
-            } else if (SQLAllocHandle(SQL_HANDLE_DBC, sql_environment,
-                                      &sql_connection) != SQL_SUCCESS) {
-              setDbErrorMsg("sqlOpenOdbc", "SQLAllocHandle",
-                            SQL_HANDLE_ENV, sql_environment);
-              logError(printf("sqlOpenOdbc: SQLAllocHandle "
-                              "SQL_HANDLE_DBC:\n%s\n", dbError.message););
-              err_info = DATABASE_ERROR;
-              SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
+            connectData.passwordW = stri_to_wstri_buf(password, &connectData.passwordW_length, &err_info);
+            if (unlikely(connectData.passwordW == NULL)) {
               database = NULL;
             } else {
-              returnCode = SQLConnectW(sql_connection,
-                                       (SQLWCHAR *) dbNameW, (SQLSMALLINT) dbNameW_length,
-                                       (SQLWCHAR *) userW, (SQLSMALLINT) userW_length,
-                                       (SQLWCHAR *) passwordW, (SQLSMALLINT) passwordW_length);
-              if (returnCode != SQL_SUCCESS &&
-                  returnCode != SQL_SUCCESS_WITH_INFO) {
-                setDbErrorMsg("sqlOpenOdbc", "SQLConnect",
-                              SQL_HANDLE_DBC, sql_connection);
-                logError(printf("sqlOpenOdbc: SQLConnect:\n%s\n",
-                                dbError.message);
-                         listDrivers(sql_connection, sql_environment);
-                         listDataSources(sql_environment););
+              /* printf("dbName:   %ls\n", connectData.dbNameW);
+                 printf("user:     %ls\n", connectData.userW);
+                 printf("password: %ls\n", connectData.passwordW); */
+              if (unlikely(connectData.dbNameW_length   > SHRT_MAX ||
+                           connectData.userW_length     > SHRT_MAX ||
+                           connectData.passwordW_length > SHRT_MAX)) {
+                err_info = MEMORY_ERROR;
+                database = NULL;
+              } else if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE,
+                                        &sql_environment) != SQL_SUCCESS) {
+                logError(printf("sqlOpenOdbc: SQLAllocHandle failed\n"););
+                err_info = MEMORY_ERROR;
+                database = NULL;
+              } else if (SQLSetEnvAttr(sql_environment,
+                                       SQL_ATTR_ODBC_VERSION,
+                                       (SQLPOINTER) SQL_OV_ODBC3,
+                                       SQL_IS_INTEGER) != SQL_SUCCESS) {
+                setDbErrorMsg("sqlOpenOdbc", "SQLSetEnvAttr",
+                              SQL_HANDLE_ENV, sql_environment);
+                logError(printf("sqlOpenOdbc: SQLSetEnvAttr "
+                                "SQL_ATTR_ODBC_VERSION:\n%s\n",
+                                dbError.message););
                 err_info = DATABASE_ERROR;
-                SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
+                SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
+                database = NULL;
+              } else if (SQLAllocHandle(SQL_HANDLE_DBC, sql_environment,
+                                        &sql_connection) != SQL_SUCCESS) {
+                setDbErrorMsg("sqlOpenOdbc", "SQLAllocHandle",
+                              SQL_HANDLE_ENV, sql_environment);
+                logError(printf("sqlOpenOdbc: SQLAllocHandle "
+                                "SQL_HANDLE_DBC:\n%s\n", dbError.message););
+                err_info = DATABASE_ERROR;
                 SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
                 database = NULL;
               } else {
-                if (SQLGetFunctions(sql_connection,
-                                    SQL_API_SQLDESCRIBEPARAM,
-                                    &SQLDescribeParam_supported) != SQL_SUCCESS) {
-                  setDbErrorMsg("sqlOpenOdbc", "SQLGetFunctions",
+                returnCode = SQLConnectW(sql_connection,
+                    (SQLWCHAR *) connectData.dbNameW, (SQLSMALLINT) connectData.dbNameW_length,
+                    (SQLWCHAR *) connectData.userW, (SQLSMALLINT) connectData.userW_length,
+                    (SQLWCHAR *) connectData.passwordW, (SQLSMALLINT) connectData.passwordW_length);
+                if ((returnCode != SQL_SUCCESS &&
+                     returnCode != SQL_SUCCESS_WITH_INFO) &&
+                    !driverConnect(&connectData, sql_connection, sql_environment)) {
+                  setDbErrorMsg("sqlOpenOdbc", "SQLConnect",
                                 SQL_HANDLE_DBC, sql_connection);
-                  logError(printf("sqlOpenOdbc: SQLGetFunctions:\n%s\n",
-                                  dbError.message););
+                  logError(printf("sqlOpenOdbc: SQLConnect:\n%s\n",
+                                  dbError.message);
+                           listDrivers(&connectData, sql_connection, sql_environment);
+                           listDataSources(sql_environment););
                   err_info = DATABASE_ERROR;
-                } else if (SQLGetInfo(sql_connection,
-                                      SQL_MAX_CONCURRENT_ACTIVITIES,
-                                      (SQLPOINTER) &maxConcurrentActivities,
-                                      sizeof(maxConcurrentActivities),
-                                      NULL) != SQL_SUCCESS) {
-                  setDbErrorMsg("sqlOpenOdbc", "SQLGetInfo",
-                                SQL_HANDLE_DBC, sql_connection);
-                  logError(printf("sqlOpenOdbc: SQLGetInfo:\n%s\n",
-                                  dbError.message););
-                  err_info = DATABASE_ERROR;
-                } else {
-                  wideCharsSupported = hasDataType(sql_connection, SQL_WCHAR, &err_info);
-                  tinyintIsUnsigned = dataTypeIsUnsigned(sql_connection, SQL_TINYINT, &err_info);
-                  if (likely(err_info == OKAY_NO_ERROR)) {
-                    if (unlikely(!setupFuncTable() ||
-                                 !ALLOC_RECORD(database, dbRecord, count.database))) {
-                      err_info = MEMORY_ERROR;
-                    } /* if */
-                  } /* if */
-                } /* if */
-                if (unlikely(err_info != OKAY_NO_ERROR)) {
-                  SQLDisconnect(sql_connection);
                   SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
                   SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
                   database = NULL;
                 } else {
-                  /* printf("maxConcurrentActivities: %lu\n", (unsigned long) maxConcurrentActivities); */
-                  memset(database, 0, sizeof(dbRecord));
-                  database->usage_count = 1;
-                  database->sqlFunc = sqlFunc;
-                  database->sql_environment = sql_environment;
-                  database->sql_connection = sql_connection;
-                  database->SQLDescribeParam_supported =
-                      SQLDescribeParam_supported == SQL_TRUE;
-                  database->wideCharsSupported = wideCharsSupported;
-                  database->tinyintIsUnsigned = tinyintIsUnsigned;
-                  database->maxConcurrentActivities = maxConcurrentActivities;
+                  if (SQLGetFunctions(sql_connection,
+                                      SQL_API_SQLDESCRIBEPARAM,
+                                      &SQLDescribeParam_supported) != SQL_SUCCESS) {
+                    setDbErrorMsg("sqlOpenOdbc", "SQLGetFunctions",
+                                  SQL_HANDLE_DBC, sql_connection);
+                    logError(printf("sqlOpenOdbc: SQLGetFunctions:\n%s\n",
+                                    dbError.message););
+                    err_info = DATABASE_ERROR;
+                  } else if (SQLGetInfo(sql_connection,
+                                        SQL_MAX_CONCURRENT_ACTIVITIES,
+                                        (SQLPOINTER) &maxConcurrentActivities,
+                                        sizeof(maxConcurrentActivities),
+                                        NULL) != SQL_SUCCESS) {
+                    setDbErrorMsg("sqlOpenOdbc", "SQLGetInfo",
+                                  SQL_HANDLE_DBC, sql_connection);
+                    logError(printf("sqlOpenOdbc: SQLGetInfo:\n%s\n",
+                                    dbError.message););
+                    err_info = DATABASE_ERROR;
+                  } else {
+                    wideCharsSupported = hasDataType(sql_connection, SQL_WCHAR, &err_info);
+                    tinyintIsUnsigned = dataTypeIsUnsigned(sql_connection, SQL_TINYINT, &err_info);
+                    if (likely(err_info == OKAY_NO_ERROR)) {
+                      if (unlikely(!setupFuncTable() ||
+                                   !ALLOC_RECORD(database, dbRecord, count.database))) {
+                        err_info = MEMORY_ERROR;
+                      } /* if */
+                    } /* if */
+                  } /* if */
+                  if (unlikely(err_info != OKAY_NO_ERROR)) {
+                    SQLDisconnect(sql_connection);
+                    SQLFreeHandle(SQL_HANDLE_DBC, sql_connection);
+                    SQLFreeHandle(SQL_HANDLE_ENV, sql_environment);
+                    database = NULL;
+                  } else {
+                    /* printf("maxConcurrentActivities: %lu\n", (unsigned long) maxConcurrentActivities); */
+                    memset(database, 0, sizeof(dbRecord));
+                    database->usage_count = 1;
+                    database->sqlFunc = sqlFunc;
+                    database->driver = 5; /* ODBC */
+                    database->sql_environment = sql_environment;
+                    database->sql_connection = sql_connection;
+                    database->SQLDescribeParam_supported =
+                        SQLDescribeParam_supported == SQL_TRUE;
+                    database->wideCharsSupported = wideCharsSupported;
+                    database->tinyintIsUnsigned = tinyintIsUnsigned;
+                    database->maxConcurrentActivities = maxConcurrentActivities;
+                  } /* if */
                 } /* if */
               } /* if */
+              free_wstri(connectData.passwordW, password);
             } /* if */
-            free_wstri(passwordW, password);
+            free_wstri(connectData.userW, user);
           } /* if */
-          free_wstri(userW, user);
+          free_wstri(connectData.dbNameW, dbName);
         } /* if */
-        free_wstri(dbNameW, dbName);
+        free_wstri(connectData.serverW, server);
       } /* if */
+      free_wstri(connectData.driverW, driver);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -5511,6 +5828,26 @@ databaseType sqlOpenOdbc (const const_striType dbName,
     logFunction(printf("sqlOpenOdbc --> " FMT_U_MEM "\n",
                        (memSizeType) database););
     return (databaseType) database;
+  } /* sqlOpenOdbc */
+
+#else
+
+
+
+databaseType sqlOpenOdbc (const const_striType driver,
+    const const_striType server, const const_striType dbName,
+    const const_striType user, const const_striType password)
+
+  { /* sqlOpenOdbc */
+    logError(printf("sqlOpenOdbc(\"%s\", ",
+                    striAsUnquotedCStri(driver));
+             printf("\"%s\", ", striAsUnquotedCStri(server));
+             printf("\"%s\", ", striAsUnquotedCStri(dbName));
+             printf("\"%s\", ", striAsUnquotedCStri(user));
+             printf("\"%s\"): ODBC driver not present.\n",
+                    striAsUnquotedCStri(password));
+    raise_error(RANGE_ERROR);
+    return NULL;
   } /* sqlOpenOdbc */
 
 #endif

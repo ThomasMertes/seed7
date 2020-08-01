@@ -169,13 +169,13 @@ const proc: write (in console_file: aConsoleFile, in string: stri) is action "CO
 
 const proc: moveLeft (in console_file: aConsoleFile, in string: stri) is func
   begin
-    write(aConsoleFile, "\b" mult length(stri));
+    write(aConsoleFile, "\b" mult width(stri));
   end func;
 
 
 const proc: erase (in console_file: aConsoleFile, in string: stri) is func
   begin
-    write(aConsoleFile, " " mult length(stri));
+    write(aConsoleFile, " " mult width(stri));
   end func;
 
 

@@ -2520,21 +2520,19 @@ striType strLit (const const_striType stri)
   {
     /* A string literal starts and ends with double quotes ("): */
     const memSizeType numOfQuotes = 2;
-    /* Maximum escape sequence length in string literal: */
-    const memSizeType escSequenceMax = STRLEN("\\4294967295;");
     register strElemType character;
     register memSizeType position;
     memSizeType striSize;
     memSizeType pos;
-    char buffer[25];
+    char escapeBuffer[ESC_SEQUENCE_MAX_LEN + NULL_TERMINATION_LEN];
     memSizeType len;
     striType resized_literal;
     striType literal;
 
   /* strLit */
     striSize = stri->size;
-    if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
-                 !ALLOC_STRI_SIZE_OK(literal, escSequenceMax * striSize + numOfQuotes))) {
+    if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / ESC_SEQUENCE_MAX_LEN ||
+                 !ALLOC_STRI_SIZE_OK(literal, ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
       literal = NULL;
     } else {
@@ -2581,8 +2579,8 @@ striType strLit (const const_striType stri)
           literal->mem[pos + 4] = (strElemType) ';';
           pos += 5;
         } else if (character >= 256) {
-          len = (memSizeType) sprintf(buffer, "\\%lu;", (unsigned long) character);
-          memcpy_to_strelem(&literal->mem[pos], (const_ustriType) buffer, len);
+          len = (memSizeType) sprintf(escapeBuffer, "\\" FMT_U32 ";", character);
+          memcpy_to_strelem(&literal->mem[pos], (const_ustriType) escapeBuffer, len);
           pos += len;
         } else {
           literal->mem[pos] = character;
@@ -2593,14 +2591,14 @@ striType strLit (const const_striType stri)
       pos++;
       literal->size = pos;
       REALLOC_STRI_SIZE_SMALLER(resized_literal, literal,
-          escSequenceMax * striSize + numOfQuotes, pos);
+          ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes, pos);
       if (unlikely(resized_literal == NULL)) {
-        FREE_STRI(literal, escSequenceMax * striSize + numOfQuotes);
+        FREE_STRI(literal, ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
         literal = NULL;
       } else {
         literal = resized_literal;
-        COUNT3_STRI(escSequenceMax * striSize + numOfQuotes, pos);
+        COUNT3_STRI(ESC_SEQUENCE_MAX_LEN * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
     return literal;
@@ -4052,6 +4050,8 @@ striType strTail (const const_striType stri, intType start)
 
 /**
  *  Convert a string to an UTF-8 encoded string of bytes.
+ *  This function accepts unpaired surrogate halves.
+ *   strToUtf8("\16#dc00;")  returns "\16#ed;\16#b0;\16#80;"  (surrogate halve)
  *  @param stri Normal (UTF-32) string to be converted to UTF-8.
  *  @return 'stri' converted to a string of bytes with UTF-8 encoding.
  */
@@ -4214,6 +4214,9 @@ striType strUpTemp (const striType stri)
 
 /**
  *  Convert a string with bytes in UTF-8 encoding to UTF-32.
+ *  This function accepts overlong encodings and unpaired surrogate halves.
+ *   strUtf8ToStri("\16#c0;\16#80;")         returns "\0;"        (overlong encoding)
+ *   strUtf8ToStri("\16#ed;\16#b0;\16#80;")  returns "\16#dc00;"  (surrogate halve)
  *  @param utf8 String of bytes encoded with UTF-8.
  *  @return 'utf8' converted to a normal (UTF-32) string.
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or

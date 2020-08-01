@@ -93,6 +93,7 @@ typedef struct {
 
 static sqlFuncType sqlFunc = NULL;
 
+#define DEFAULT_PORT 3306
 #define MAX_DECIMAL_PRECISION 65
 #define MAX_DECIMAL_SCALE 30
 /* The maximum decimal length additionally needs place for a      */
@@ -1134,7 +1135,7 @@ static void sqlBindDuration (sqlStmtType sqlStatement, intType pos,
   /* sqlBindDuration */
     logFunction(printf("sqlBindDuration(" FMT_U_MEM ", " FMT_D ", P"
                                           FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                          FMT_D "H" FMT_D "M%s%lu.%06luS)\n",
+                                          FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S)\n",
                        (memSizeType) sqlStatement, pos,
                        year, month, day, hour, minute,
                        second < 0 || micro_second < 0 ? "-" : "",
@@ -1757,7 +1758,7 @@ static bstriType sqlColumnBStri (sqlStmtType sqlStatement, intType column)
                   columnValue = NULL;
                 } else {
                   columnData->buffer = columnValue->mem;
-                  columnData->buffer_length = length;
+                  columnData->buffer_length = (unsigned long) length;
                   if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
                                                        preparedStmt->result_array,
                                                        (unsigned int) column - 1,
@@ -1893,7 +1894,7 @@ static void sqlColumnDuration (sqlStmtType sqlStatement, intType column,
     } /* if */
     logFunction(printf("sqlColumnDuration(" FMT_U_MEM ", " FMT_D ") -> P"
                                             FMT_D "Y" FMT_D "M" FMT_D "DT"
-                                            FMT_D "H" FMT_D "M%s%lu.%06luS\n",
+                                            FMT_D "H" FMT_D "M%s" FMT_U "." F_U(06) "S\n",
                        (memSizeType) sqlStatement, column,
                        *year, *month, *day, *hour, *minute,
                        *second < 0 || *micro_second < 0 ? "-" : "",
@@ -2104,7 +2105,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                   err_info = MEMORY_ERROR;
                 } else {
                   columnData->buffer = columnValue->mem;
-                  columnData->buffer_length = length;
+                  columnData->buffer_length = (unsigned long) length;
                   if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
                                                        preparedStmt->result_array,
                                                        (unsigned int) column - 1,
@@ -2128,7 +2129,7 @@ static striType sqlColumnStri (sqlStmtType sqlStatement, intType column)
                   columnValue = NULL;
                 } else {
                   columnData->buffer = utf8_stri;
-                  columnData->buffer_length = length;
+                  columnData->buffer_length = (unsigned long) length;
                   if (unlikely(mysql_stmt_fetch_column(preparedStmt->ppStmt,
                                                        preparedStmt->result_array,
                                                        (unsigned int) column - 1,
@@ -2744,15 +2745,15 @@ static void determineIfBackslashEscapes (dbType database)
 
 
 
-databaseType sqlOpenMy (const const_striType dbName,
-    const const_striType user, const const_striType password)
+databaseType sqlOpenMy (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
 
   {
-    cstriType dbName8;
-    cstriType user8;
-    cstriType password8;
-    cstriType host;
-    cstriType databaseName;
+    const_cstriType host8;
+    const_cstriType dbName8;
+    const_cstriType user8;
+    const_cstriType password8;
     MYSQL *connection;
     MYSQL *connect_result;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -2760,27 +2761,31 @@ databaseType sqlOpenMy (const const_striType dbName,
 
   /* sqlOpenMy */
     logFunction(printf("sqlOpenMy(\"%s\", ",
-                       striAsUnquotedCStri(dbName));
+                       striAsUnquotedCStri(host));
+                printf(FMT_D ", \"%s\", ",
+                       port, striAsUnquotedCStri(dbName));
                 printf("\"%s\", ", striAsUnquotedCStri(user));
                 printf("\"%s\")\n", striAsUnquotedCStri(password)););
     if (!findDll()) {
       logError(printf("sqlOpenMy: findDll() failed\n"););
       err_info = FILE_ERROR;
       database = NULL;
+    } else if (unlikely(port < 0 || port > UINT_MAX)) {
+      err_info = RANGE_ERROR;
+      database = NULL;
+    } else if (unlikely((host8 = stri_to_cstri8(host, &err_info)) == NULL)) {
+      database = NULL;
     } else {
       dbName8 = stri_to_cstri8(dbName, &err_info);
       if (unlikely(dbName8 == NULL)) {
-        err_info = MEMORY_ERROR;
         database = NULL;
       } else {
         user8 = stri_to_cstri8(user, &err_info);
         if (unlikely(user8 == NULL)) {
-          err_info = MEMORY_ERROR;
           database = NULL;
         } else {
           password8 = stri_to_cstri8(password, &err_info);
           if (unlikely(password8 == NULL)) {
-            err_info = MEMORY_ERROR;
             database = NULL;
           } else {
             connection = mysql_init(NULL);
@@ -2794,24 +2799,18 @@ databaseType sqlOpenMy (const const_striType dbName,
                 mysql_close(connection);
                 database = NULL;
               } else {
-                databaseName = strchr(dbName8, '/');
-                if (databaseName == NULL) {
-                  host = NULL;
-                  databaseName = dbName8;
-                } else {
-                  host = dbName8;
-                  *databaseName = '\0';
-                  databaseName++;
-                } /* if */
-                connect_result = mysql_real_connect(connection, host,
-                    user8, password8, databaseName, 0, NULL, 0);
+                /* A host of NULL means "localhost" and a port of 0 means DEFAULT_PORT. */
+                connect_result = mysql_real_connect(connection, host8[0] == '\0' ? NULL : host8,
+                                                    user8, password8, dbName8,
+                                                    (unsigned int) port, NULL, 0);
                 if (connect_result == NULL) {
                   setDbErrorMsg("sqlOpenMy", "mysql_real_connect",
                                 mysql_errno(connection),
                                 mysql_error(connection));
                   logError(printf("sqlOpenMy: mysql_real_connect(conn, "
-                                  "\"%s\", \"%s\", \"%s\", \"%s\") error:\n%s\n",
-                                  host != NULL ? host : "NULL", user8, password8, databaseName,
+                                  "\"%s\", \"%s\", \"%s\", \"%s\", " FMT_D ") error:\n%s\n",
+                                  host8[0] == '\0' ? "NULL" : host8,
+                                  user8, password8, dbName8, port,
                                   mysql_error(connection)););
                   err_info = DATABASE_ERROR;
                   mysql_close(connection);
@@ -2834,6 +2833,7 @@ databaseType sqlOpenMy (const const_striType dbName,
                   memset(database, 0, sizeof(dbRecord));
                   database->usage_count = 1;
                   database->sqlFunc = sqlFunc;
+                  database->driver = 1; /* MariaDB/MySQL */
                   database->connection = connection;
                   determineIfBackslashEscapes(database);
                 } /* if */
@@ -2845,6 +2845,7 @@ databaseType sqlOpenMy (const const_striType dbName,
         } /* if */
         free_cstri8(dbName8, dbName);
       } /* if */
+      free_cstri8(host8, host);
     } /* if */
     if (unlikely(err_info != OKAY_NO_ERROR)) {
       raise_error(err_info);
@@ -2852,6 +2853,26 @@ databaseType sqlOpenMy (const const_striType dbName,
     logFunction(printf("sqlOpenMy --> " FMT_U_MEM "\n",
                        (memSizeType) database););
     return (databaseType) database;
+  } /* sqlOpenMy */
+
+#else
+
+
+
+databaseType sqlOpenMy (const const_striType host, intType port,
+    const const_striType dbName, const const_striType user,
+    const const_striType password)
+
+  { /* sqlOpenMy */
+    logError(printf("sqlOpenMy(\"%s\", ",
+                    striAsUnquotedCStri(host));
+             printf(FMT_D ", \"%s\", ",
+                    port, striAsUnquotedCStri(dbName));
+             printf("\"%s\", ", striAsUnquotedCStri(user));
+             printf("\"%s\"): MariaDB/MySQL driver not present.\n",
+                    striAsUnquotedCStri(password)););
+    raise_error(RANGE_ERROR);
+    return NULL;
   } /* sqlOpenMy */
 
 #endif

@@ -28,6 +28,9 @@
 
 (**
  *  Convert a [[string]] with bytes in UTF-8 encoding to UTF-32.
+ *  This function accepts overlong encodings and unpaired surrogate halves.
+ *   utf8ToStri("\16#c0;\16#80;")         returns "\0;"        (overlong encoding)
+ *   utf8ToStri("\16#ed;\16#b0;\16#80;")  returns "\16#dc00;"  (surrogate halve)
  *  @param utf8 String of bytes encoded with UTF-8.
  *  @return ''utf8'' converted to a normal (UTF-32) [[string]].
  *  @exception RANGE_ERROR When ''utf8'' contains a char beyond '\255;' or
@@ -38,6 +41,8 @@ const func string: utf8ToStri (in string: utf8)                is action "STR_UT
 
 (**
  *  Convert a [[string]] to an UTF-8 encoded string of bytes.
+ *  This function accepts unpaired surrogate halves.
+ *   striToUtf8("\16#dc00;")  returns "\16#ed;\16#b0;\16#80;"  (surrogate halve)
  *  @param stri Normal (UTF-32) string to be converted to UTF-8.
  *  @return ''stri'' converted to a string of bytes with UTF-8 encoding.
  *)
@@ -218,6 +223,12 @@ const func string: striToUtf16le (in string: stri) is func
 
 (**
  *  Return [[string]] where all surrogate pairs are replaced by single chars.
+ *  This function can be used to decode CESU-8 encoded strings:
+ *   replaceUtf16SurrogatePairs(utf8ToStri(cesu8String))
+ *  In CESU-8 an Unicode code point from the Basic Multilingual Plane (BMP) is
+ *  encoded in the same way as in UTF-8. An Unicode code point outside the BMP
+ *  is first represented as a surrogate pair, like in UTF-16, and then each
+ *  surrogate code point is encoded in UTF-8.
  *  @param stri String of UTF-16 or UTF-32 Unicode characters,
  *         which may contain surrogate pairs.
  *  @return ''stri'' with all surrogate pairs replaced by single UTF-32 chars.
