@@ -432,6 +432,43 @@ stritype in_stri;
 
 #ifdef ANSI_C
 
+static void stri_to_utf16 (wstritype wstri, const_stritype stri,
+    errinfotype *err_info)
+#else
+
+static void stri_to_utf16 (wstri, stri, err_info)
+wstritype wstri;
+stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    const strelemtype *strelem;
+    memsizetype len;
+
+  /* stri_to_utf16 */
+    strelem = stri->mem;
+    len = stri->size;
+    for (; len > 0; wstri++, strelem++, len--) {
+      if (*strelem <= 0xFFFF) {
+        *wstri = (os_chartype) *strelem;
+      } else if (*strelem <= 0x10FFFF) {
+        strelemtype currChar = *strelem - 0x10000;
+        *wstri = 0xD800 | (os_chartype) (currChar >> 10);
+        wstri++;
+        *wstri = 0xDC00 | (os_chartype) (currChar & 0x3FF);
+      } else {
+        *err_info = RANGE_ERROR;
+        len = 1;
+      } /* if */
+    } /* for */
+    *wstri = 0;
+  } /* stri_to_utf16 */
+
+
+
+#ifdef ANSI_C
+
 cstritype cp_to_cstri (const_stritype stri)
 #else
 
@@ -454,25 +491,25 @@ stritype stri;
 #ifdef OS_PATH_WCHAR
 #ifdef ANSI_C
 
-os_path_stri cp_to_os_path (const_stritype stri, errinfotype *err_info)
+os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
 #else
 
-os_path_stri cp_to_os_path (stri, err_info)
+os_stritype cp_to_os_path (stri, err_info)
 stritype stri;
 errinfotype *err_info;
 #endif
 
   {
-    os_path_stri wstri;
+    os_stritype wstri;
     const strelemtype *strelem;
     memsizetype len;
-    os_path_stri result;
+    os_stritype result;
 
   /* cp_to_os_path */
 #ifdef TRACE_STRIUTL
     printf("BEGIN cp_to_os_path(%lx, %d)\n", stri, *err_info);
 #endif
-    result = (os_path_stri) malloc(sizeof(os_path_char) * (stri->size * 2 + 1));
+    result = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
     if (result == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
@@ -485,20 +522,20 @@ errinfotype *err_info;
             *err_info = RANGE_ERROR;
             len = 1;
           } else {
-            *wstri = (os_path_char) *strelem;
+            *wstri = (os_chartype) *strelem;
           } /* if */
         } else if (*strelem <= 0x10FFFF) {
           strelemtype currChar = *strelem - 0x10000;
-          *wstri = 0xD800 | (os_path_char) (currChar >> 10);
+          *wstri = 0xD800 | (os_chartype) (currChar >> 10);
           wstri++;
-          *wstri = 0xDC00 | (os_path_char) (currChar & 0x3FF);
+          *wstri = 0xDC00 | (os_chartype) (currChar & 0x3FF);
         } else {
           *err_info = RANGE_ERROR;
           len = 1;
         } /* if */
       } /* for */
       if (*err_info != OKAY_NO_ERROR) {
-        os_path_free(result);
+        os_stri_free(result);
         result = NULL;
       } else {
         *wstri = 0;
@@ -516,16 +553,16 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-os_path_stri cp_to_os_path (const_stritype stri, errinfotype *err_info)
+os_stritype cp_to_os_path (const_stritype stri, errinfotype *err_info)
 #else
 
-os_path_stri cp_to_os_path (stri, err_info)
+os_stritype cp_to_os_path (stri, err_info)
 stritype stri;
 errinfotype *err_info;
 #endif
 
   {
-    os_path_stri result;
+    os_stritype result;
 
   /* cp_to_os_path */
 #ifdef TRACE_STRIUTL
@@ -654,10 +691,10 @@ cstritype cstri;
 
 #ifdef ANSI_C
 
-stritype cstri8_to_stri (const_cstritype cstri)
+static stritype cstri8_to_stri (const_cstritype cstri)
 #else
 
-stritype cstri8_to_stri (cstri)
+static stritype cstri8_to_stri (cstri)
 cstritype cstri;
 #endif
 
@@ -692,10 +729,33 @@ cstritype cstri;
 
 #ifdef ANSI_C
 
-stritype wstri_to_stri (const_wstritype wstri)
+stritype cstri8_or_cstri_to_stri (const_cstritype cstri)
 #else
 
-stritype wstri_to_stri (wstri)
+stritype cstri8_or_cstri_to_stri (cstri)
+cstritype cstri;
+#endif
+
+  {
+    stritype stri;
+
+  /* cstri8_or_cstri_to_stri */
+    stri = cstri8_to_stri(cstri);
+    if (stri == NULL) {
+      stri = cstri_to_stri(cstri);
+    } /* if */
+    return(stri);
+  } /* cstri8_or_cstri_to_stri */
+
+
+
+#ifdef OS_PATH_WCHAR
+#ifdef ANSI_C
+
+static stritype wstri_to_stri (const_wstritype wstri)
+#else
+
+static stritype wstri_to_stri (wstri)
 wstritype wstri;
 #endif
 
@@ -714,6 +774,34 @@ wstritype wstri;
     } /* if */
     return(stri);
   } /* wstri_to_stri */
+#endif
+
+
+
+#ifdef ANSI_C
+
+stritype os_stri_to_stri (os_stritype os_stri)
+#else
+
+stritype os_stri_to_stri (os_stri)
+os_stritype os_stri;
+#endif
+
+  {
+    stritype stri;
+
+  /* os_stri_to_stri */
+#ifdef OS_PATH_WCHAR
+    stri = wstri_to_stri(os_stri);
+#else
+#ifdef OS_PATH_UTF8
+    stri = cstri8_or_cstri_to_stri(os_stri);
+#else
+    stri = cstri_to_stri(os_stri);
+#endif
+#endif
+    return(stri);
+  } /* os_stri_to_stri */
 
 
 
@@ -744,6 +832,99 @@ strelemtype ch;
 
 
 
+#ifdef OS_PATH_WCHAR
+/**
+ *  Returns a command string suitable for the operating system shell.
+ *  The string 'stri' is converted to UTF-16. The command part of
+ *  'stri' (which extends from the beginning up to the first blank)
+ *  is treated special: All occurances of slash ( / ) are replaced
+ *  by PATH_DELIMITER (which is defined as the path delimiter used
+ *  by the operating system shell). Note that some operating systems
+ *  accept / in paths used by C system calls but insist on \ in paths
+ *  used by the system shell. Additionally the command part is also
+ *  searched for the sequence "\ " which is treated special (Note
+ *  that Seed7 string literals need a double backslash to represend
+ "  one backslash. E.g.: "usr/home/tm/My\\ Dir/myCommand"). The
+ *  sequence "\ " is used to allow space characters in the command
+ *  path. Depending on the operating system the sequence "\ " is left
+ *  as is or forces the command path to be surrounded by double
+ *  quotes (in that case "\ " is replaced by " ").
+ */
+#ifdef ANSI_C
+
+os_stritype cp_to_command (stritype stri, errinfotype *err_info)
+#else
+
+os_stritype cp_to_command (stri, err_info)
+stritype stri;
+errinfotype *err_info;
+#endif
+
+  {
+    memsizetype inPos;
+    memsizetype outPos;
+    booltype quote_path;
+    os_stritype cmd;
+
+  /* cp_to_command */
+    cmd = (os_stritype) malloc(sizeof(os_chartype) * (stri->size * 2 + 1));
+    if (cmd == NULL) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      stri_to_utf16(cmd, stri, err_info);
+      if (*err_info != OKAY_NO_ERROR) {
+        os_stri_free(cmd);
+        cmd = NULL;
+      } else {
+        quote_path = FALSE;
+        /* replace "/" by PATH_DELIMITER in cmd */
+        for (inPos = 0, outPos = 0; cmd[inPos] != ' ' && cmd[inPos] != '\0'; inPos++, outPos++) {
+          if (cmd[inPos] == '/') {
+            cmd[outPos] = PATH_DELIMITER;
+          } else if (cmd[inPos] == '\\') {
+            inPos++;
+            if (cmd[inPos] == ' ') {
+#ifdef ESCAPE_SPACES_IN_COMMANDS
+                cmd[outPos] = '\\';
+                outPos++;
+#else
+                quote_path = TRUE;
+#endif
+              cmd[outPos] = ' ';
+            } else {
+              cmd[outPos] = '\\';
+              if (cmd[inPos] != '\0') {
+                outPos++;
+                cmd[outPos] = cmd[inPos];
+              } /* if */
+            } /* if */
+          } else {
+            cmd[outPos] = cmd[inPos];
+          } /* if */
+        } /* for */
+        if (quote_path) {
+          memmove(&cmd[outPos + 2], &cmd[inPos], sizeof(os_chartype) * (wcslen(&cmd[inPos]) + 1));
+          memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
+          cmd[0] = '"';
+          cmd[outPos + 1] = '"';
+        } /* if */
+#ifdef TRACE_CP_TO_COMMAND
+        for (inPos = 0; cmd[inPos] != '\0'; inPos++) {
+          printf("%c", cmd[inPos]);
+        } /* for */
+        printf("\n");
+#endif
+      } /* if */
+    } /* if */
+    return(cmd);
+  } /* cp_to_command */
+
+
+
+#else
+
+
+
 /**
  *  Returns a command string suitable for the operating system shell.
  *  The string 'stri' is converted to UTF-8. The command part of
@@ -763,10 +944,10 @@ strelemtype ch;
  */
 #ifdef ANSI_C
 
-cstritype cp_to_command (stritype stri, errinfotype *err_info)
+os_stritype cp_to_command (stritype stri, errinfotype *err_info)
 #else
 
-cstritype cp_to_command (stri, err_info)
+os_stritype cp_to_command (stri, err_info)
 stritype stri;
 errinfotype *err_info;
 #endif
@@ -775,7 +956,7 @@ errinfotype *err_info;
     memsizetype inPos;
     memsizetype outPos;
     booltype quote_path;
-    cstritype cmd;
+    os_stritype cmd;
 
   /* cp_to_command */
     if (!ALLOC_CSTRI(cmd, compr_size(stri))) {
@@ -823,3 +1004,5 @@ errinfotype *err_info;
     } /* if */
     return(cmd);
   } /* cp_to_command */
+#endif
+

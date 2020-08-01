@@ -1,3 +1,31 @@
+20091115:
+- The unicode support for the functions shell, cmd_sh and popen was improved to
+  use wide char (UTF-16) functions under windows and normal (UTF-8) functions under
+  UNIX/Linux/BSD.
+- The compiler (comp.sd7) was improved to support the actions CMD_FILEMODE,
+  CMD_SET_FILEMODE, DRW_OPEN_SUB_WINDOW, DRW_SETPOS, DRW_XPOS and DRW_YPOS.
+- The compiler was improved to make sure that generated C programs always define
+  the create_... and destr_... functions.
+- The handling of the HSH_IDX action in the compiler was improved.
+- An error in the compiler concerning forwad declarations of function pointers was
+  fixed.
+- The function bigCpy in "big_rtl.c" was improved to work correctly when source and
+  destination are identical.
+- Comments were added to the functions bigGrow and bigShrink in "big_rtl.c" to explain
+  that this functions work when source and destination are identical.
+- Checks for the bigInteger assignment and the functions +:= and -:= were added to
+  the file "chkbig.sd7".
+- The types os_path_stri and os_path_char were renamed to os_stritype and os_chartype
+  respectively in various files.
+- The os_path_... macros were renamed to corresponding os_stri_... macros in various
+  files.
+- The bas7.sd7 (basic interpreter) example program was improved.
+- The functions gkbButtonPressed, drwOpen, drwOpenSubWindow, drwSetPos, drwHeight and
+  drwWidth in "drw_win.c" were improved to work correctly for subwindows.
+- The function drwSetPos in "drw_x11.c" was improved to work correctly for subwindows.
+- The functions prc_args, prc_repeat and prc_while in "prclib.c" were improved.
+- The functions copyArgv and getArgv were added to "str_rtl.c".
+
 20091101:
 - The interpreter (hi) and the compiler (comp.sd7) were improved such that the actions
   STR_CPY, STR_APPEND, ARR_CPY, ARR_APPEND and SET_CPY work correctly when source and
@@ -63,7 +91,7 @@
 - A FAQ about extensible programming languages and the portability of Seed7 programs,
   was added.
 - The bas7.sd7 (basic interpreter) example program was improved.
- - The function gkbButtonPressed in the file drw_win.c was improved.
+- The function gkbButtonPressed in the file drw_win.c was improved.
 
 20090906:
 - Various syntax descriptions in the manual were improved.

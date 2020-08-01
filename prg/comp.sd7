@@ -136,6 +136,8 @@ var struct_element_type_hash: struct_element_type is struct_element_type_hash.EM
 var boolean_type_hash: create_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: cpy_declared is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: destr_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
 var boolean_obj_hash: return_ref_to_value is boolean_obj_hash.EMPTY_HASH;
 var boolean_type_hash: simple_pod_type is boolean_type_hash.EMPTY_HASH;
@@ -335,6 +337,26 @@ const func string: select_value_from_rtlObjectstruct (in type: typeWanted) is fu
       result := ".value.winvalue";
     else
       result := ".value.intvalue";
+    end if;
+  end func;
+
+
+const func string: select_value_from_rtlObjectptr (in type: typeWanted) is func
+  result
+    var string: result is "";
+  begin
+    if typeWanted = typetype then
+      result := "->value.typevalue";
+    elsif typeWanted = floattype then
+      result := "->value.floatvalue";
+    elsif typeWanted = stritype then
+      result := "->value.strivalue";
+    elsif typeWanted = biginttype then
+      result := "->value.bigintvalue";
+    elsif typeWanted = wintype then
+      result := "->value.winvalue";
+    else
+      result := "->value.intvalue";
     end if;
   end func;
 
@@ -572,16 +594,30 @@ const proc: process_create_declaration (in type: object_type,
           object_type in simple_pod_type then
         create_declared @:= [object_type] TRUE;
       else
-        declare_type_if_necessary(object_type, c_expr);
-        c_expr.expr &:= "static ";
-        c_expr.expr &:= type_name(object_type);
-        c_expr.expr &:= " create_";
-        c_expr.expr &:= str(type_number(object_type));
-        c_expr.expr &:= " (";
-        c_expr.expr &:= type_name(object_type);
-        c_expr.expr &:= ");\n\n";
+        if object_type not in create_prototype_declared then
+          declare_type_if_necessary(object_type, c_expr);
+          c_expr.expr &:= "static ";
+          c_expr.expr &:= type_name(object_type);
+          c_expr.expr &:= " create_";
+          c_expr.expr &:= str(type_number(object_type));
+          c_expr.expr &:= " (";
+          c_expr.expr &:= type_name(object_type);
+          c_expr.expr &:= ");\n\n";
+          create_prototype_declared @:= [object_type] TRUE;
+        end if;
       end if;
     end if;
+  end func;
+
+
+const proc: declare_missing_create_declarations (inout expr_type: c_expr) is func
+
+  local
+    var type: object_type is void;
+  begin
+    for key object_type range create_prototype_declared do
+      process_create_declaration(object_type, c_expr);
+    end for;
   end func;
 
 
@@ -767,15 +803,28 @@ const proc: process_destr_declaration (in type: object_type,
           object_type in simple_pod_type then
         destr_declared @:= [object_type] TRUE;
       else
-        c_expr.expr &:= "/* destr_";
-        c_expr.expr &:= str(type_number(object_type));
-        c_expr.expr &:= " declaration for type t_";
-        c_expr.expr &:= str(type_number(object_type));
-        c_expr.expr &:= "**";
-        c_expr.expr &:= str(object_type);
-        c_expr.expr &:= "*/\n\n";
+        if object_type not in destr_prototype_declared then
+          declare_type_if_necessary(object_type, c_expr);
+          c_expr.expr &:= "static void destr_";
+          c_expr.expr &:= str(type_number(object_type));
+          c_expr.expr &:= " (";
+          c_expr.expr &:= type_name(object_type);
+          c_expr.expr &:= ");\n\n";
+          destr_prototype_declared @:= [object_type] TRUE;
+        end if;
       end if;
     end if;
+  end func;
+
+
+const proc: declare_missing_destr_declarations (inout expr_type: c_expr) is func
+
+  local
+    var type: object_type is void;
+  begin
+    for key object_type range destr_prototype_declared do
+      process_destr_declaration(object_type, c_expr);
+    end for;
   end func;
 
 
@@ -836,13 +885,13 @@ const proc: process_destr_call (in type: object_type,
     elsif object_type in isInterfaceType then
       noop;
     else
-      expr &:= param_b & " /* destr_";
+      expr &:= "destr_";
       expr &:= str(type_number(object_type));
-      expr &:= " for type t_";
-      expr &:= str(type_number(object_type));
-      expr &:= "**";
-      expr &:= str(object_type);
-      expr &:= "*/;\n";
+      expr &:= "((";
+      expr &:= type_name(object_type);
+      expr &:= ")(";
+      expr &:= param_b;
+      expr &:= "));\n";
     end if;
   end func;
 
@@ -1096,6 +1145,23 @@ const proc: process_cpy_call (in type: object_type,
   end func;
 
 
+const func boolean: useFunctype (in reference: current_object) is func
+
+  result
+    var boolean: okay is TRUE;
+  local
+    var reference: curr_expr is NIL;
+    var category: exprCategory is category.value;
+  begin
+    curr_expr := getValue(current_object, reference);
+    if curr_expr <> NIL then
+      exprCategory := category(curr_expr);
+      okay := exprCategory = ACTOBJECT or
+              exprCategory = BLOCKOBJECT;
+    end if;
+  end func;
+
+
 const proc: declare_prototype_if_necessary (in reference: function,
     inout expr_type: c_expr) is func
 
@@ -1136,7 +1202,11 @@ const proc: declare_func_pointer_if_necessary (in reference: current_object,
         func_pointer := params[1];
         if category(func_pointer) = REFOBJECT then
           if func_pointer not in function_pointer_declared then
-            c_expr.expr &:= "objreftype o_";
+            if useFunctype(func_pointer) then
+              c_expr.expr &:= "intfunctype o_";
+            else
+              c_expr.expr &:= "objreftype o_";
+            end if;
             create_name(func_pointer, c_expr.expr);
             c_expr.expr &:= ";\n\n";
             function_pointer_declared @:= [func_pointer] TRUE;
@@ -4582,6 +4652,17 @@ const proc: process_cmd_copy_file (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
+const proc: process_cmd_filemode (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
+
+  begin
+    prepare_set_result(result_type(getType(function)), c_expr);
+    c_expr.result_expr := "cmdFileMode(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_cmd_filesize (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -4778,6 +4859,17 @@ const proc: process_cmd_set_atime (in ref_list: params, inout expr_type: c_expr)
     c_expr.expr &:= ", ";
     process_expr(params[9], c_expr);
     c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_cmd_set_filemode (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdSetFileMode(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", (settype)(";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= "));\n";
   end func;
 
 
@@ -5204,6 +5296,24 @@ const proc: process_drw_open (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_drw_open_sub_window (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_win_result(c_expr);
+    c_expr.result_expr := "drwOpenSubWindow(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[3], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[4], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[5], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_drw_parc (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5464,6 +5574,19 @@ const proc: process_drw_rgbcol (in ref_list: params, inout expr_type: c_expr) is
   end func;
 
 
+const proc: process_drw_setpos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwSetPos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
 const proc: process_drw_setTransparentColor (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -5498,6 +5621,24 @@ const proc: process_drw_width (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     c_expr.expr &:= "drwWidth(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_drw_xpos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwXPos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_drw_ypos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwYPos(";
     getAnyParamToExpr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
@@ -6980,13 +7121,8 @@ const proc: process_hsh_idx (in reference: function, in ref_list: params,
   begin
     proc_type := getType(function);
     result_type := result_type(proc_type);
-    if result_type = floattype then
-#     c_expr.expr &:= "*(floattype *)hshIdxAddr(";
+    if is_varfunc(proc_type) then
       c_expr.expr &:= "hshIdxAddr(";
-    elsif result_type = typetype then
-      c_expr.expr &:= "hshIdxAddr(";
-    elsif is_varfunc(proc_type) then
-      c_expr.expr &:= "*hshIdxAddr(";
     else
       c_expr.expr &:= "(";
       c_expr.expr &:= type_name(result_type);
@@ -7002,11 +7138,9 @@ const proc: process_hsh_idx (in reference: function, in ref_list: params,
     c_expr.expr &:= ", (comparetype)(";
     process_expr(params[4], c_expr);
     c_expr.expr &:= "))";
-if result_type = floattype then
-    c_expr.expr &:= "->value.floatvalue";
-elsif result_type = typetype then
-    c_expr.expr &:= "->value.typevalue";
-end if;
+    if is_varfunc(proc_type) then
+      c_expr.expr &:= select_value_from_rtlObjectptr(result_type);
+    end if;
   end func;
 
 
@@ -8889,10 +9023,13 @@ const proc: process_ref_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
-const proc: process_ref_deref (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_ref_deref (in reference: function, in ref_list: params,
+    inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "/*ref_deref*/ *((long *)(";
+    c_expr.expr &:= "/*ref_deref*/ *((";
+    c_expr.expr &:= type_name(result_type(getType(function)));
+    c_expr.expr &:= " *)(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= "))";
   end func;
@@ -12337,6 +12474,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_config_value(params, c_expr);
       elsif action_name = "CMD_COPY_FILE" then
         process_cmd_copy_file(params, c_expr);
+      elsif action_name = "CMD_FILEMODE" then
+        process_cmd_filemode(function, params, c_expr);
       elsif action_name = "CMD_FILESIZE" then
         process_cmd_filesize(params, c_expr);
       elsif action_name = "CMD_FILETYPE" then
@@ -12365,6 +12504,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_remove_any_file(params, c_expr);
       elsif action_name = "CMD_SET_ATIME" then
         process_cmd_set_atime(params, c_expr);
+      elsif action_name = "CMD_SET_FILEMODE" then
+        process_cmd_set_filemode(params, c_expr);
       elsif action_name = "CMD_SET_MTIME" then
         process_cmd_set_mtime(params, c_expr);
       elsif action_name = "CMD_SHELL" then
@@ -12433,6 +12574,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_new_pixmap(params, c_expr);
       elsif action_name = "DRW_OPEN" then
         process_drw_open(params, c_expr);
+      elsif action_name = "DRW_OPEN_SUB_WINDOW" then
+        process_drw_open_sub_window(params, c_expr);
       elsif action_name = "DRW_PARC" then
         process_drw_parc(params, c_expr);
       elsif action_name = "DRW_PCIRCLE" then
@@ -12465,12 +12608,18 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_rect(params, c_expr);
       elsif action_name = "DRW_RGBCOL" then
         process_drw_rgbcol(params, c_expr);
+      elsif action_name = "DRW_SETPOS" then
+        process_drw_setpos(params, c_expr);
       elsif action_name = "DRW_SETTRANSPARENTCOLOR" then
         process_drw_setTransparentColor(params, c_expr);
       elsif action_name = "DRW_TEXT" then
         process_drw_text(params, c_expr);
       elsif action_name = "DRW_WIDTH" then
         process_drw_width(params, c_expr);
+      elsif action_name = "DRW_XPOS" then
+        process_drw_xpos(params, c_expr);
+      elsif action_name = "DRW_YPOS" then
+        process_drw_ypos(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -12932,7 +13081,7 @@ const proc: process_action (in reference: function, in ref_list: params,
       elsif action_name = "REF_CPY" then
         process_ref_cpy(params, c_expr);
       elsif action_name = "REF_DEREF" then
-        process_ref_deref(params, c_expr);
+        process_ref_deref(function, params, c_expr);
       elsif action_name = "REF_EQ" then
         process_ref_eq(params, c_expr);
       elsif action_name = "REF_FILE" then
@@ -14847,23 +14996,6 @@ const proc: object_address (in reference: current_object, inout expr_type: c_exp
             writeln;
         end block;
       end if;
-    end if;
-  end func;
-
-
-const func boolean: useFunctype (in reference: current_object) is func
-
-  result
-    var boolean: okay is TRUE;
-  local
-    var reference: curr_expr is NIL;
-    var category: exprCategory is category.value;
-  begin
-    curr_expr := getValue(current_object, reference);
-    if curr_expr <> NIL then
-      exprCategory := category(curr_expr);
-      okay := exprCategory = ACTOBJECT or
-              exprCategory = BLOCKOBJECT;
     end if;
   end func;
 
@@ -16943,6 +17075,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "biginttype  cmdBigFileSize (stritype);");
     writeln(c_prog, "void        cmdCloneFile (stritype, stritype);");
     writeln(c_prog, "void        cmdCopyFile (stritype, stritype);");
+    writeln(c_prog, "settype     cmdFileMode (stritype);");
     writeln(c_prog, "inttype     cmdFileSize (stritype);");
     writeln(c_prog, "inttype     cmdFileType (stritype);");
     writeln(c_prog, "inttype     cmdFileTypeSL (stritype);");
@@ -16956,6 +17089,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        cmdRemove (stritype);");
     writeln(c_prog, "void        cmdRemoveAnyFile (stritype);");
     writeln(c_prog, "void        cmdSetATime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
+    writeln(c_prog, "void        cmdSetFileMode (stritype, settype);");
     writeln(c_prog, "void        cmdSetMTime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "inttype     cmdShell (stritype);");
     writeln(c_prog, "void        cmdSymlink (stritype, stritype);");
@@ -16980,6 +17114,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "wintype     drwImage (wintype, inttype *, inttype, inttype);");
     writeln(c_prog, "void        drwLine (wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "wintype     drwOpen (inttype, inttype, inttype, inttype, stritype);");
+    writeln(c_prog, "wintype     drwOpenSubWindow (wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwPArc (wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
     writeln(c_prog, "void        drwPCircle (wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwPFArcChord (wintype, inttype, inttype, inttype, floattype, floattype, inttype);");
@@ -16993,8 +17128,11 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        drwPut (wintype, wintype, inttype, inttype);");
     writeln(c_prog, "void        drwRect (wintype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "inttype     drwRgbColor (inttype, inttype, inttype);");
+    writeln(c_prog, "void        drwSetPos (wintype, inttype, inttype);");
     writeln(c_prog, "void        drwText (wintype, inttype, inttype, stritype, inttype, inttype);");
     writeln(c_prog, "inttype     drwWidth (wintype);");
+    writeln(c_prog, "inttype     drwXPos (wintype);");
+    writeln(c_prog, "inttype     drwYPos (wintype);");
     writeln(c_prog, "inttype     enuValue (objreftype a)                         {printf(\"enuValue\\n\");}");
     writeln(c_prog, "biginttype  filBigLng (filetype);");
     writeln(c_prog, "void        filBigSeek (filetype, biginttype);");
@@ -17225,7 +17363,7 @@ const proc: write_prototypes is func
     writeln(c_prog, "stritype    strUp (stritype);");
     writeln(c_prog, "stritype    strUpTemp (stritype);");
     writeln(c_prog, "stritype    strValue (objreftype);");
-    writeln(c_prog, "stritype    cstri_to_stri (char *);");
+    writeln(c_prog, "stritype    cstri8_or_cstri_to_stri (char *);");
     writeln(c_prog, "void        timAwait (inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        timFromTimestamp (inttype, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
     writeln(c_prog, "void        timNow (inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, inttype *, booltype *);");
@@ -17741,6 +17879,8 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= "void *create_parameter_list (listtype a, int *b) {printf(\"create_parameter_list\\n\");}\n";
     end if;
     process_dynamic_decisions(c_expr);
+    declare_missing_create_declarations(c_expr);
+    declare_missing_destr_declarations(c_expr);
     const_index := flip(const_table);
     for number range sort(keys(const_index)) do
       const_object := const_index[number][1];
@@ -17790,7 +17930,7 @@ const proc: generate_main (in program: prog) is func
       c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     end if;
 
-    c_expr.expr &:= "arg_0 = cstri_to_stri(argv[0]);\n";
+    c_expr.expr &:= "arg_0 = cstri8_or_cstri_to_stri(argv[0]);\n";
     c_expr.expr &:= "arg_v = (arraytype)(malloc(sizeof(struct arraystruct) - sizeof(rtlObjecttype) +\n";
     c_expr.expr &:= "  argc * sizeof(rtlObjecttype)));\n";
     c_expr.expr &:= "arg_v->min_position = 1;\n";
@@ -17798,7 +17938,7 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= "{\n";
     c_expr.expr &:= "  int number;\n";
     c_expr.expr &:= "  for (number = 1; number < argc; number++) {\n";
-    c_expr.expr &:= "    arg_v->arr[number-1].value.strivalue=cstri_to_stri(argv[number]);\n";
+    c_expr.expr &:= "    arg_v->arr[number-1].value.strivalue=cstri8_or_cstri_to_stri(argv[number]);\n";
     c_expr.expr &:= "  }\n";
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "setupFloat();\n";

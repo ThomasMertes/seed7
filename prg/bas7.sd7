@@ -2012,6 +2012,9 @@ const func string: exec_str_primary (
         result := getStringVar(variable_name);
         writeln(log, variable_name <& " is " <& literal(result));
       end if;
+    else
+      error_marker;
+      writeln(err, "UNEXPECTED SYMBOL " <& literal(symbol) <& ".");
     end if;
   end func;
 
@@ -2596,6 +2599,9 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       append_index(variable_name, symbol, line);
       result := getNumericVar(variable_name);
       writeln(log, variable_name <& " is " <& result);
+    else
+      error_marker;
+      writeln(err, "UNEXPECTED SYMBOL " <& literal(symbol) <& ".");
     end if;
   end func;
 

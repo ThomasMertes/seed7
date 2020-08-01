@@ -84,7 +84,7 @@ stritype file_name;
 #endif
 
   {
-    os_path_stri name;
+    os_stritype name;
     errinfotype err_info = OKAY_NO_ERROR;
     dirtype result;
 
@@ -95,7 +95,7 @@ stritype file_name;
       result = NULL;
     } else {
       result = os_opendir(name);
-      os_path_free(name);
+      os_stri_free(name);
     } /* if */
     return(result);
   } /* dirOpen */
@@ -119,23 +119,12 @@ dirtype directory;
     do {
       current_entry = os_readdir(directory);
     } while (current_entry != NULL &&
-        (memcmp(current_entry->d_name, dot,    sizeof(os_path_char) * 2) == 0 ||
-         memcmp(current_entry->d_name, dotdot, sizeof(os_path_char) * 3) == 0));
+        (memcmp(current_entry->d_name, dot,    sizeof(os_chartype) * 2) == 0 ||
+         memcmp(current_entry->d_name, dotdot, sizeof(os_chartype) * 3) == 0));
     if (current_entry == NULL) {
       result = NULL;
     } else {
-#ifdef OS_PATH_WCHAR
-      result = wstri_to_stri((const_wstritype)current_entry->d_name); /*!!*/
-#else
-#ifdef OS_PATH_UTF8
-      result = cstri8_to_stri(current_entry->d_name);
-      if (result == NULL) {
-        result = cstri_to_stri(current_entry->d_name);
-      } /* if */
-#else
-      result = cstri_to_stri(current_entry->d_name);
-#endif
-#endif
+      result = os_stri_to_stri(current_entry->d_name);
       if (result == NULL) {
         raise_error(MEMORY_ERROR);
       } /* if */

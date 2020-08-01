@@ -85,84 +85,62 @@ objecttype block_body_list;
 
 #ifdef ANSI_C
 
-static INLINE arraytype read_args (int arg_c, char **arg_v)
+static objecttype copy_args (memsizetype argc, char **argv)
 #else
 
-static INLINE arraytype read_args (arg_c, arg_v)
-int arg_c;
-char **arg_v;
+static objecttype copy_args (argc, argv)
+memsizetype argc;
+char **argv;
 #endif
 
   {
     arraytype arg_array;
-    arraytype resized_arg_array;
-    memsizetype max_array_size;
-    inttype used_array_size;
+    memsizetype arg_idx;
     memsizetype position;
-    stritype str1;
+    stritype stri;
     booltype okay;
-    int arg_idx;
+    objecttype result;
 
-  /* read_args */
-    max_array_size = 256;
-    if (ALLOC_ARRAY(arg_array, max_array_size)) {
-      used_array_size = 0;
+  /* copy_args */
+    if (ALLOC_ARRAY(arg_array, argc)) {
       okay = TRUE;
       arg_idx = 0;
-      while (okay && arg_idx < arg_c) {
-        if ((memsizetype) used_array_size >= max_array_size) {
-          if (max_array_size >= MAX_MEM_INDEX - 256) {
-            resized_arg_array = NULL;
-          } else {
-            resized_arg_array = REALLOC_ARRAY(arg_array,
-                max_array_size, max_array_size + 256);
-          } /* if */
-          if (resized_arg_array == NULL) {
-            okay = FALSE;
-          } else {
-            arg_array = resized_arg_array;
-            COUNT3_ARRAY(max_array_size, max_array_size + 256);
-            max_array_size += 256;
-          } /* if */
-        } /* if */
-        if (okay) {
-          str1 = cstri_to_stri(arg_v[arg_idx]);
-          if (str1 == NULL) {
-            okay = FALSE;
-          } else {
-            arg_array->arr[used_array_size].type_of = take_type(SYS_STRI_TYPE);
-            arg_array->arr[used_array_size].descriptor.property = NULL;
-            arg_array->arr[used_array_size].value.strivalue = str1;
-            INIT_CATEGORY_OF_VAR(&arg_array->arr[used_array_size],
-                STRIOBJECT);
-            used_array_size++;
-            arg_idx++;
-          } /* if */
+      while (okay && arg_idx < argc) {
+        stri = cstri8_or_cstri_to_stri(argv[arg_idx]);
+        if (stri == NULL) {
+          okay = FALSE;
+        } else {
+          arg_array->arr[arg_idx].type_of = take_type(SYS_STRI_TYPE);
+          arg_array->arr[arg_idx].descriptor.property = NULL;
+          arg_array->arr[arg_idx].value.strivalue = stri;
+          INIT_CATEGORY_OF_OBJ(&arg_array->arr[arg_idx], STRIOBJECT);
+          arg_idx++;
         } /* if */
       } /* while */
       if (okay) {
-        resized_arg_array = REALLOC_ARRAY(arg_array,
-            max_array_size, (memsizetype) used_array_size);
-        if (resized_arg_array == NULL) {
-          okay = FALSE;
-        } else {
-          arg_array = resized_arg_array;
-          COUNT3_ARRAY(max_array_size, (memsizetype) used_array_size);
-          arg_array->min_position = 1;
-          arg_array->max_position = used_array_size;
-        } /* if */
-      } /* if */
-      if (!okay) {
-        for (position = 0; position < (memsizetype) used_array_size; position++) {
-          FREE_STRI(arg_array->arr[(int) position].value.strivalue,
-              arg_array->arr[(int) position].value.strivalue->size);
+        arg_array->min_position = 1;
+        arg_array->max_position = (inttype) arg_idx;
+      } else {
+        for (position = 0; position < arg_idx; position++) {
+          FREE_STRI(arg_array->arr[position].value.strivalue,
+              arg_array->arr[position].value.strivalue->size);
         } /* for */
-        FREE_ARRAY(arg_array, max_array_size);
+        FREE_ARRAY(arg_array, argc);
         arg_array = NULL;
       } /* if */
     } /* if */
-    return(arg_array);
-  } /* read_args */
+    if (arg_array != NULL) {
+      if (ALLOC_OBJECT(result)) {
+        result->type_of = NULL;
+        result->descriptor.property = NULL;
+        INIT_CATEGORY_OF_OBJ(result, ARRAYOBJECT);
+        result->value.arrayvalue = arg_array;
+      } /* if */
+    } else {
+      result = NULL;
+    } /* if */
+    return(result);
+  } /* copy_args */
 
 
 
@@ -175,14 +153,14 @@ objecttype prc_args (arguments)
 listtype arguments;
 #endif
 
-  {
-    arraytype result;
-
-  /* prc_args */
-    if ((result = read_args(option.arg_c, option.arg_v)) == NULL) {
+  { /* prc_args */
+    if (option.arg_v == NULL) {
+      option.arg_v = copy_args(option.argc, option.argv);
+    } /* if */
+    if (option.arg_v == NULL) {
       return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
     } else {
-      return(bld_array_temp(result));
+      return(option.arg_v);
     } /* if */
   } /* prc_args */
 
@@ -881,7 +859,7 @@ listtype arguments;
           } /* if */
         } /* if */
       } /* if */
-    } while (!fail_flag & cond);
+    } while (!fail_flag && cond);
     return(SYS_EMPTY_OBJECT);
   } /* prc_repeat */
 
@@ -1306,7 +1284,7 @@ listtype arguments;
       if (TEMP_OBJECT(cond_value)) {
         dump_any_temp(cond_value);
       } /* if */
-      while (cond & !fail_flag) {
+      while (cond && !fail_flag) {
         evaluate(statement);
         if (!fail_flag) {
           cond_value = evaluate(condition);

@@ -2767,7 +2767,11 @@ biginttype big_from;
         *big_to = big_dest;
       } /* if */
     } /* if */
-    memcpy(big_dest->bigdigits, big_from->bigdigits,
+    /* It is possible that *big_to == big_from holds. The */
+    /* behavior of memcpy() is undefined when source and  */
+    /* destination areas overlap (or are identical).      */
+    /* Therefore memmove() is used instead of memcpy().   */
+    memmove(big_dest->bigdigits, big_from->bigdigits,
         (size_t) new_size * sizeof(bigdigittype));
   } /* bigCpy */
 
@@ -3278,6 +3282,9 @@ biginttype big2;
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          /* It is possible that big1 == big2 holds. Since */
+          /* 'big2' is not used after realloc() enlarged   */
+          /* 'big1' a correction of big2 is not necessary. */
           big1 = resized_big1;
           COUNT3_BIG(big1->size, big1->size + 1);
           big1->size++;
@@ -5077,6 +5084,9 @@ biginttype big2;
           *big_variable = NULL;
           raise_error(MEMORY_ERROR);
         } else {
+          /* It is possible that big1 == big2 holds. Since */
+          /* 'big2' is not used after realloc() enlarged   */
+          /* 'big1' a correction of big2 is not necessary. */
           big1 = resized_big1;
           COUNT3_BIG(big1->size, big1->size + 1);
           big1->size++;

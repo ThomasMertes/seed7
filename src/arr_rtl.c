@@ -117,7 +117,6 @@ inttype cmp_func (rtlGenerictype, rtlGenerictype);
 
 
 
-
 #ifdef ANSI_C
 
 void arrAppend (rtlArraytype *arr_variable, rtlArraytype arr_from)

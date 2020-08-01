@@ -37,23 +37,23 @@ extern const_cstritype cstri_escape_sequence[];
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 
 #ifdef OS_PATH_WCHAR
-typedef wchar_t          os_path_char;
-typedef wchar_t         *os_path_stri;
-#define os_path_strlen   wcslen
-#define os_path_strcpy   wcscpy
-#define os_path_strcat   wcscat
-#define os_path_alloc    ALLOC_WSTRI
-#define os_path_realloc  REALLOC_WSTRI
-#define os_path_free     free
+typedef wchar_t          os_chartype;
+typedef wchar_t         *os_stritype;
+#define os_stri_strlen   wcslen
+#define os_stri_strcpy   wcscpy
+#define os_stri_strcat   wcscat
+#define os_stri_alloc    ALLOC_WSTRI
+#define os_stri_realloc  REALLOC_WSTRI
+#define os_stri_free     free
 #else
-typedef char             os_path_char;
-typedef cstritype        os_path_stri;
-#define os_path_strlen   strlen
-#define os_path_strcpy   strcpy
-#define os_path_strcat   strcat
-#define os_path_alloc    ALLOC_CSTRI
-#define os_path_realloc  REALLOC_CSTRI
-#define os_path_free     free
+typedef char             os_chartype;
+typedef cstritype        os_stritype;
+#define os_stri_strlen   strlen
+#define os_stri_strcpy   strcpy
+#define os_stri_strcat   strcat
+#define os_stri_alloc    ALLOC_CSTRI
+#define os_stri_realloc  REALLOC_CSTRI
+#define os_stri_free     free
 #endif
 
 
@@ -63,14 +63,14 @@ memsizetype stri_to_utf8 (ustritype, const_stritype);
 memsizetype utf8_to_stri (strelemtype *, memsizetype *, const_ustritype, size_t);
 memsizetype utf8_bytes_missing (const_ustritype, size_t);
 cstritype cp_to_cstri (const_stritype);
-os_path_stri cp_to_os_path (const_stritype, errinfotype *);
+os_stritype cp_to_os_path (const_stritype, errinfotype *);
 bstritype stri_to_bstri (const_stritype);
 bstritype stri_to_bstri8 (const_stritype);
 stritype cstri_to_stri (const_cstritype cstri);
-stritype cstri8_to_stri (const_cstritype cstri);
-stritype wstri_to_stri (const_wstritype wstri);
+stritype cstri8_or_cstri_to_stri (const_cstritype cstri);
+stritype os_stri_to_stri (os_stritype os_stri);
 strelemtype *stri_charpos (stritype, strelemtype);
-cstritype cp_to_command (stritype, errinfotype *);
+os_stritype cp_to_command (stritype, errinfotype *);
 
 #else
 
@@ -78,14 +78,14 @@ memsizetype stri_to_utf8 ();
 memsizetype utf8_to_stri ();
 memsizetype utf8_bytes_missing ();
 cstritype cp_to_cstri ();
-os_path_stri cp_to_os_path ();
+os_stritype cp_to_os_path ();
 bstritype stri_to_bstri ();
 bstritype stri_to_bstri8 ();
 stritype cstri_to_stri ();
-stritype cstri8_to_stri ();
-stritype wstri_to_stri ();
+stritype cstri8_or_cstri_to_stri ();
+stritype os_stri_to_stri ();
 strelemtype *stri_charpos ();
-cstritype cp_to_command ();
+os_stritype cp_to_command ();
 
 #endif
 

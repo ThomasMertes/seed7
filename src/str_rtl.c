@@ -198,6 +198,66 @@ inttype *used_max_position;
 
 #ifdef ANSI_C
 
+static rtlArraytype copyArgv (memsizetype argc, os_stritype *argv)
+#else
+
+static rtlArraytype copyArgv (argc, argv)
+memsizetype argc;
+os_stritype *argv;
+#endif
+
+  {
+    memsizetype number;
+    rtlArraytype arg_v;
+
+  /* copyArgv */
+    if (!ALLOC_RTL_ARRAY(arg_v, argc)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      arg_v->min_position = 1;
+      arg_v->max_position = (inttype) (argc - 1);
+      for (number = 1; number < argc; number++) {
+        arg_v->arr[number - 1].value.strivalue = os_stri_to_stri(argv[number]);
+      } /* for */
+    } /* if */
+    return(arg_v);
+  } /* copyArgv */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype getArgv (int argc, char **argv)
+#else
+
+rtlArraytype getArgv (argc, argv)
+int argc;
+char **argv;
+#endif
+
+  {
+#ifdef OUT_OF_ORDER
+    os_stritype commandLine;
+    int w_argc;
+    os_stritype **w_argv;
+#endif
+    rtlArraytype arg_v;
+
+  /* getArgv */
+#ifdef OUT_OF_ORDER
+    commandLine = GetCommandLineW();
+    w_argv = CommandLineToArgvW(commandLine, &w_argc);
+    arg_v = copyArgv(w_argc, w_argv);
+#else
+    arg_v = copyArgv(argc, argv);
+#endif
+    return(arg_v);
+  } /* getArgv */
+
+
+
+#ifdef ANSI_C
+
 void strAppend (stritype *const stri_to, const_stritype stri_from)
 #else
 
@@ -236,9 +296,9 @@ stritype stri_from;
     if (new_stri == NULL) {
       raise_error(MEMORY_ERROR);
     } else {
-      /* It is possible that *stri_to == stri_from holds. In */
-      /* this case the variable stri_from must be corrected  */
-      /* when stri_dest is enlarged with realloc().          */
+      /* It is possible that stri_dest == stri_from holds. */
+      /* In this case 'stri_from' must be corrected        */
+      /* after realloc() enlarged 'stri_dest'.             */
       if (stri_dest == stri_from) {
         stri_from = new_stri;
       } /* if */

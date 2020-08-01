@@ -87,13 +87,13 @@ listtype arguments;
         if (TEMP_OBJECT(arg_3(arguments))) {
           memcpy(&new_arr->arr[arr_to_size], arr_from->arr,
               (size_t) (arr_from_size * sizeof(objectrecord)));
-          new_arr->max_position += arr_from_size;
+          new_arr->max_position += (inttype) arr_from_size;
           FREE_ARRAY(arr_from, arr_from_size);
           arg_3(arguments)->value.arrayvalue = NULL;
         } else {
-          /* It is possible that arr_to == arr_from holds. In  */
-          /* this case the variable arr_from must be corrected */
-          /* when arr_to is enlarged with realloc().           */
+          /* It is possible that arr_to == arr_from holds. */
+          /* In this case 'arr_from' must be corrected     */
+          /* after realloc() enlarged 'arr_to'.            */
           if (arr_to == arr_from) {
             arr_from = new_arr;
           } /* if */
@@ -107,7 +107,7 @@ listtype arguments;
             arr_variable->value.arrayvalue = arr_to;
             return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
           } else {
-            new_arr->max_position += arr_from_size;
+            new_arr->max_position += (inttype) arr_from_size;
           } /* if */
         } /* if */
       } /* if */
@@ -322,7 +322,7 @@ listtype arguments;
         return(raise_exception(SYS_MEM_EXCEPTION));
       } /* if */
       COUNT3_ARRAY(arr1_size, result_size);
-      result->max_position += arr2_size;
+      result->max_position += (inttype) arr2_size;
       arg_1(arguments)->value.arrayvalue = NULL;
     } else {
       if (!ALLOC_ARRAY(result, result_size)) {

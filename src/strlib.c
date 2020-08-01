@@ -368,9 +368,9 @@ listtype arguments;
       if (new_str == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        /* It is possible that str_to == str_from holds. In  */
-        /* this case the variable str_from must be corrected */
-        /* when str_to is enlarged with realloc().           */
+        /* It is possible that str_to == str_from holds. */
+        /* In this case 'str_from' must be corrected     */
+        /* after realloc() enlarged 'str_to'.            */
         if (str_to == str_from) {
           str_from = new_str;
         } /* if */

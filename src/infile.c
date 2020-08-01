@@ -201,7 +201,7 @@ errinfotype *err_info;
 #endif
 
   {
-    os_path_stri os_path;
+    os_stritype os_path;
     infiltype new_file;
     FILE *in_fil;
     ustritype in_name;
@@ -218,7 +218,7 @@ errinfotype *err_info;
       in_fil = fopen(os_path, "rb");
 #endif
       /* printf("fopen(\"%s\") ==> %lu\n", os_path, in_fil); */
-      os_path_free(os_path);
+      os_stri_free(os_path);
       if (in_fil == NULL) {
         *err_info = FILE_ERROR;
       } else {

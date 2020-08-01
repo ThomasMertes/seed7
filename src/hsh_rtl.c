@@ -567,15 +567,15 @@ comparetype cmp_func;
 
   {
     rtlHelemtype hashelem;
-    rtlHelemtype result_hashelem;
     int cmp;
+    booltype result;
 
   /* hshContains */
 #ifdef TRACE_HSH_RTL
     printf("BEGIN hshContains(%lX, %lu, %lu)\n",
         (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode);
 #endif
-    result_hashelem = NULL;
+    result = FALSE;
     hashelem = hash1->table[hashcode & hash1->mask];
     while (hashelem != NULL) {
 /*
@@ -590,7 +590,7 @@ printf("%lX\n", (long unsigned) key);
       if (cmp < 0) {
         hashelem = hashelem->next_less;
       } else if (cmp == 0) {
-        result_hashelem = hashelem;
+        result = TRUE;
         hashelem = NULL;
       } else {
         hashelem = hashelem->next_greater;
@@ -599,9 +599,9 @@ printf("%lX\n", (long unsigned) key);
 #ifdef TRACE_HSH_RTL
     printf("END hshContains(%lX, %lu, %lu) ==> %d\n",
         (long unsigned) hash1, (long unsigned) key, (long unsigned) hashcode,
-        result_hashelem != NULL);
+        result);
 #endif
-    return(result_hashelem != NULL);
+    return(result);
   } /* hshContains */
 
 

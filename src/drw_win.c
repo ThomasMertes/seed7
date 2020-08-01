@@ -73,6 +73,8 @@ typedef struct win_winstruct {
   booltype is_pixmap;
   unsigned int width;
   unsigned int height;
+  unsigned int brutto_width_delta;
+  unsigned int brutto_height_delta;
   struct win_winstruct *next;
 } win_winrecord, *win_wintype;
 
@@ -89,6 +91,8 @@ static win_wintype window_list = NULL;
 #define to_transparentPixel(win)     (((win_wintype) win)->transparentPixel)
 #define to_width(win)                (((win_wintype) win)->width)
 #define to_height(win)               (((win_wintype) win)->height)
+#define to_brutto_width_delta(win)   (((win_wintype) win)->brutto_width_delta)
+#define to_brutto_height_delta(win)  (((win_wintype) win)->brutto_height_delta)
 
 #ifndef WM_NCMOUSELEAVE
 #define WM_NCMOUSELEAVE 674
@@ -226,6 +230,10 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           /* printf("BeginPaint left=%ld, top=%ld, right=%ld, bottom=%ld\n",
               paintStruct.rcPaint.left, paintStruct.rcPaint.top,
               paintStruct.rcPaint.right, paintStruct.rcPaint.bottom); */
+          /* printf("WM_PAINT      %lu %d/%d %d/%d\n", hWnd,
+              paintStruct.rcPaint.left, paintStruct.rcPaint.top,
+              paintStruct.rcPaint.right - paintStruct.rcPaint.left,
+              paintStruct.rcPaint.bottom - paintStruct.rcPaint.top); */
           BitBlt(to_hdc(paint_window),
               paintStruct.rcPaint.left, paintStruct.rcPaint.top,
               paintStruct.rcPaint.right - paintStruct.rcPaint.left,
@@ -246,11 +254,19 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           if (GetUpdateRect(paint_window->hWnd, &rect, FALSE) != 0) {
             /* printf("GetUpdateRect left=%ld, top=%ld, right=%ld, bottom=%ld\n",
                rect.left, rect.top, rect.right, rect.bottom); */
+            /* printf("WM_ERASEBKGND %lu %d/%d %d/%d\n", hWnd,
+                rect.left, rect.top,
+                rect.right - rect.left,
+                rect.bottom - rect.top); */
           } else {
             /* printf("GetUpdateRect no update region\n"); */
             GetClientRect(paint_window->hWnd, &rect);
             /* printf("GetClientRect left=%ld, top=%ld, right=%ld, bottom=%ld\n",
                 rect.left, rect.top, rect.right, rect.bottom); */
+            /* printf("WM_ERASEBKGND %lu %d/%d %d/%d +\n", hWnd,
+                rect.left, rect.top,
+                rect.right - rect.left,
+                rect.bottom - rect.top); */
           } /* if */
           /* printf("window width=%ld, height=%ld\n",
               paint_window->width, paint_window->height); */
@@ -724,6 +740,7 @@ chartype button;
     booltype result;
 
   /* gkbButtonPressed */
+    gkbKeyPressed();
     switch (button) {
       case K_CTL_A: case K_ALT_A: case 'A': case 'a': vkey1 = 'A'; break;
       case K_CTL_B: case K_ALT_B: case 'B': case 'b': vkey1 = 'B'; break;
@@ -1460,7 +1477,7 @@ wintype actual_window;
     if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
       result = to_height(actual_window);
     } else {
-      result = rect.bottom - rect.top;
+      result = rect.bottom - rect.top - to_brutto_height_delta(actual_window);
     } /* if */
     return result;
   } /* drwHeight */
@@ -1684,11 +1701,13 @@ stritype window_name;
           printf("height=%d\n",         height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
               GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER));
 #endif
+          result->brutto_width_delta = 2 * GetSystemMetrics(SM_CXSIZEFRAME);
+          result->brutto_height_delta = 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
+              GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER);
           result->hWnd = CreateWindow(windowClass, win_name,
-              WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-              width + 2 * GetSystemMetrics(SM_CXSIZEFRAME),
-              height + 2 * GetSystemMetrics(SM_CYSIZEFRAME) +
-              GetSystemMetrics(SM_CYSIZE) + GetSystemMetrics(SM_CYBORDER),
+              WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, CW_USEDEFAULT, CW_USEDEFAULT,
+              width + result->brutto_width_delta,
+              height + result->brutto_height_delta,
               (HWND) NULL, (HMENU) NULL, NULL, NULL);
           /* printf("hWnd=%lu\n", result->hWnd); */
           if (result->hWnd != NULL) {
@@ -1778,8 +1797,10 @@ inttype height;
         printf("WS_CHILD            = %lx\n", WS_CHILD);
 #endif
 
+        result->brutto_width_delta = 0;
+        result->brutto_height_delta = 0;
         result->hWnd = CreateWindow(windowClass, "",
-            WS_CHILD /* | WS_OVERLAPPED WS_DLGFRAME & ~WS_BORDER & ~WS_THICKFRAME ** WS_OVERLAPPEDWINDOW */,
+            WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
             xPos, yPos, width, height,
             to_hwnd(parent_window), (HMENU) NULL, NULL, NULL);
 #ifdef OUT_OF_ORDER
@@ -1792,7 +1813,7 @@ inttype height;
         /* printf("hWnd=%lu\n", result->hWnd); */
         if (result->hWnd != NULL) {
           SetWindowLong(result->hWnd , GWL_STYLE, GetWindowLong(result->hWnd , GWL_STYLE) &~ WS_CAPTION);
-          SetWindowPos(result->hWnd , HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+          SetWindowPos(result->hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
           result->hdc = GetDC(result->hWnd);
           /* printf("hdc=%lu\n", result->hdc); */
           result->hasTransparentPixel = FALSE;
@@ -2259,8 +2280,13 @@ inttype x1, y1;
 #endif
 
   { /* drwSetPos */
+    /* printf("begin drwSetPos(%lu, %ld, %ld)\n",
+        to_hwnd(actual_window), xPos, yPos); */
     SetWindowPos(to_hwnd(actual_window), 0, xPos, yPos, 0, 0,
-	/* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
+        /* SWP_NOSENDCHANGING | */ SWP_NOZORDER | SWP_NOSIZE);
+    gkbKeyPressed();
+    /* printf("end drwSetPos(%lu, %ld, %ld)\n",
+        to_hwnd(actual_window), xPos, yPos); */
   } /* drwSetPos */
 
 
@@ -2363,7 +2389,7 @@ wintype actual_window;
     if (GetWindowRect(to_hwnd(actual_window), &rect) == 0) {
       result = to_width(actual_window);
     } else {
-      result = rect.right - rect.left;
+      result = rect.right - rect.left - to_brutto_width_delta(actual_window);
     } /* if */
     return result;
   } /* drwWidth */

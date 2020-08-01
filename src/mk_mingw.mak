@@ -172,6 +172,8 @@ version.h:
 	echo #define os_utimbuf_struct struct _utimbuf >> version.h
 	echo #define os_remove _wremove >> version.h
 	echo #define os_rename _wrename >> version.h
+	echo #define os_system _wsystem >> version.h
+	echo #define os_popen _wpopen >> version.h
 	echo #define wide_fopen _wfopen >> version.h
 	echo #define USE_FSEEKO64 >> version.h
 	echo #define USE_WINSOCK >> version.h

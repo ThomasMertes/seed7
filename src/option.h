@@ -39,13 +39,14 @@ typedef struct {
     unsigned int incr_message_line;
     const_cstritype comp_trace_level;
     const_cstritype exec_trace_level;
-    int arg_c;
-    char **arg_v;
+    memsizetype argc;
+    char **argv;
+    objecttype arg_v;
   } opttype;
 
 #ifdef DO_INIT
 opttype option = {NULL, NULL, FALSE, FALSE, FALSE, TRUE, TRUE, FALSE, TRUE, TRUE,
-    727, NULL, NULL, 0, NULL};
+                  727, NULL, NULL, 0, NULL, NULL};
 #else
 EXTERN opttype option;
 #endif

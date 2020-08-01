@@ -2910,8 +2910,15 @@ const func bigInteger: testGrow (in var bigInteger: big1, in bigInteger: big2) i
   end func;
 
 
+const proc: do_grow (inout bigInteger: big1, ref bigInteger: big2) is func
+  begin
+    big1 +:= big2;
+  end func;
+
+
 const proc: chkGrow is func
   local
+    var bigInteger: big1 is 1_;
     var boolean: okay is TRUE;
   begin
     if  testGrow(-2147483650_, -2147483650_) <> -4294967300_ or
@@ -3315,6 +3322,20 @@ const proc: chkGrow is func
         testGrow( 2147483649_,  2147483648_) <>  4294967297_ or
         testGrow( 2147483649_,  2147483649_) <>  4294967298_ then
       writeln("Grow of bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 +:= big1;
+    if big1 <> 20_ then
+      writeln(" ***** 'big1 +:= big1' does not work correct");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    do_grow(big1, big1);
+    if big1 <> 20_ then
+      writeln(" ***** 'big1 +:= big1' does not work correct");
       okay := FALSE;
     end if;
 
@@ -3753,8 +3774,15 @@ const func bigInteger: testShrink (in var bigInteger: big1, in bigInteger: big2)
   end func;
 
 
+const proc: do_shrink (inout bigInteger: big1, ref bigInteger: big2) is func
+  begin
+    big1 -:= big2;
+  end func;
+
+
 const proc: chkShrink is func
   local
+    var bigInteger: big1 is 1_;
     var boolean: okay is TRUE;
   begin
     if  testShrink(-2147483650_, -2147483650_) <>           0_ or
@@ -4158,6 +4186,20 @@ const proc: chkShrink is func
         testShrink( 2147483649_,  2147483648_) <>           1_ or
         testShrink( 2147483649_,  2147483649_) <>           0_ then
       writeln("Shrink of bigInteger does not work correct.");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    big1 -:= big1;
+    if big1 <> 0_ then
+      writeln(" ***** 'big1 -:= big1' does not work correct");
+      okay := FALSE;
+    end if;
+
+    big1 := 10_;
+    do_shrink(big1, big1);
+    if big1 <> 0_ then
+      writeln(" ***** 'big1 -:= big1' does not work correct");
       okay := FALSE;
     end if;
 
@@ -9623,6 +9665,43 @@ const proc: chkConstants is func
   end func;
 
 
+(**
+ *  Test the case where source and destination of an assignment
+ *  are identical.
+ *)
+const proc: do_assign (inout bigInteger: dest, ref bigInteger: source) is func
+  begin
+    dest := source;
+  end func;
+
+
+const proc: chkAssign is func
+  local
+    var boolean: okay is TRUE;
+    var bigInteger: number is 1_;
+  begin
+    okay := TRUE;
+    number := 2_;
+    if number <> 2_ then
+      writeln(" ***** 'number := 2_' does not work correct.");
+      okay := FALSE;
+    end if;
+    number := number;
+    if number <> 2_ then
+      writeln(" ***** bigInteger 'number := number' does not work correct.");
+      okay := FALSE;
+    end if;
+    do_assign(number, number);
+    if number <> 2_ then
+      writeln(" ***** bigInteger 'number := number' does not work correct.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("BigInteger assignment works correct.");
+    end if;
+  end func;
+
+
 const func string: randDigitStri (in integer: length) is func
   result
     var string: result is "";
@@ -9709,5 +9788,6 @@ const proc: main is func
     chkLShift;
     chkRShift;
     chkConstants;
+    chkAssign;
     # testConversion(10);
   end func;

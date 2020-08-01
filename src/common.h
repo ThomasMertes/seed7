@@ -244,6 +244,12 @@ typedef int errinfotype;
 #ifndef os_rename
 #define os_rename rename
 #endif
+#ifndef os_system
+#define os_system system
+#endif
+#ifndef os_popen
+#define os_popen popen
+#endif
 
 
 typedef struct setstruct     *settype;

@@ -202,20 +202,23 @@ XExposeEvent *xexpose;
 
   /* redraw */
 #ifdef TRACE_X11
-    printf("redraw\n");
+    printf("begin redraw\n");
 #endif
     if (xexpose->count == 0) {
       expose_window = find_window(xexpose->window);
       if (expose_window != NULL && expose_window->backup != 0) {
         /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d\n",
-           xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
+	    xexpose->x, xexpose->y, xexpose->width, xexpose->height); */
         XCopyArea(mydisplay, expose_window->backup,
             expose_window->window, mygc, 0, 0,
             to_width(expose_window), to_height(expose_window), 0, 0);
         /* XFlush(mydisplay);
-           XSync(mydisplay, 0); */
+            XSync(mydisplay, 0); */
       } /* if */
     } /* if */
+#ifdef TRACE_X11
+    printf("end redraw\n");
+#endif
   } /* redraw */
 
 
@@ -2871,7 +2874,14 @@ inttype x1, y1;
 #endif
 
   { /* drwSetPos */
+    /* printf("begin drwSetPos(%lu, %ld, %ld)\n",
+        to_window(actual_window), xPos, yPos); */
     XMoveWindow(mydisplay, to_window(actual_window), xPos, yPos);
+    gkbKeyPressed();
+    XFlush(mydisplay);
+    XSync(mydisplay, 0);
+    /* printf("end drwSetPos(%lu, %ld, %ld)\n",
+        to_window(actual_window), xPos, yPos); */
   } /* drwSetPos */
 
 

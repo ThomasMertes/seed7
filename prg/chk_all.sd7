@@ -100,7 +100,8 @@ const string: chkbig_output is "\n\
   \The bigInteger lowestSetBit function works correct.\n\
   \The bigInteger << and <<:= works correct.\n\
   \The bigInteger >> and >>:= works correct.\n\
-  \The bigInteger constants work correct.\n";
+  \The bigInteger constants work correct.\n\
+  \BigInteger assignment works correct.\n";
 
 const string: chkbool_output is "\n\
   \Boolean not works correct.\n\

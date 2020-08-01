@@ -137,9 +137,9 @@ int start;
           option.source_file_name = opt;
         } /* if */
       } else {
-        if (option.arg_v == NULL) {
-          option.arg_c = argc - position;
-          option.arg_v = &argv[position];
+        if (option.argv == NULL) {
+          option.argc = (memsizetype) (argc - position);
+          option.argv = &argv[position];
         } /* if */
       } /* if */
     } /* for */
