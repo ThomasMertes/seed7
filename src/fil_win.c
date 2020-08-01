@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_win.c     File functions which call the Windows API.        */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_win.c                                       */
-/*  Changes: 2011  Thomas Mertes                                    */
+/*  Changes: 2011, 2012  Thomas Mertes                              */
 /*  Content: File functions which call the Windows API.             */
 /*                                                                  */
 /********************************************************************/
@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
+#include "conio.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 
@@ -61,7 +62,7 @@ filetype aFile;
 
   {
     int file_no;
-    long pipeHandle;
+    long fileHandle;
     os_fstat_struct stat_buf;
     DWORD totalBytesAvail;
     booltype result;
@@ -71,20 +72,41 @@ filetype aFile;
     if (file_no != -1 && os_fstat(file_no, &stat_buf) == 0) {
       if (S_ISREG(stat_buf.st_mode)) {
         result = TRUE;
-      } else if (S_ISFIFO(stat_buf.st_mode)) {
-        pipeHandle = _get_osfhandle(file_no);
-        if (pipeHandle != -1) {
-          if (PeekNamedPipe((HANDLE) pipeHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
-            result = totalBytesAvail >= 1;
-          } else if (feof(aFile)) {
-            result = TRUE;
+      } else if (S_ISCHR(stat_buf.st_mode)) {
+        /* printf("read_buffer_empty(aFile)=%d\n", read_buffer_empty(aFile)); */
+        if (!read_buffer_empty(aFile)) {
+          result = TRUE;
+        } else if (file_no == 0) {
+          /* printf("kbhit()=%d\n", kbhit()); */
+          result = kbhit() != 0;
+        } else {
+          fileHandle = _get_osfhandle(file_no);
+          if (fileHandle != -1) {
+            result = WaitForSingleObject((HANDLE) fileHandle, 0) == WAIT_OBJECT_0;
           } else {
             raise_error(FILE_ERROR);
             result = FALSE;
           } /* if */
+        } /* if */
+      } else if (S_ISFIFO(stat_buf.st_mode)) {
+        /* printf("read_buffer_empty(aFile)=%d\n", read_buffer_empty(aFile)); */
+        if (!read_buffer_empty(aFile)) {
+          result = TRUE;
         } else {
-          raise_error(FILE_ERROR);
-          result = FALSE;
+          fileHandle = _get_osfhandle(file_no);
+          if (fileHandle != -1) {
+            if (PeekNamedPipe((HANDLE) fileHandle, NULL, 0, NULL, &totalBytesAvail, NULL) != 0) {
+              result = totalBytesAvail >= 1;
+            } else if (feof(aFile)) {
+              result = TRUE;
+            } else {
+              raise_error(FILE_ERROR);
+              result = FALSE;
+            } /* if */
+          } else {
+            raise_error(FILE_ERROR);
+            result = FALSE;
+          } /* if */
         } /* if */
       } else {
         raise_error(FILE_ERROR);

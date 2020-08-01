@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: General                                                 */
 /*  File: seed7/src/traceutl.c                                      */
-/*  Changes: 1990, 1991, 1992, 1993, 1994  Thomas Mertes            */
+/*  Changes: 1990 - 1994, 2012  Thomas Mertes                       */
 /*  Content: Tracing and protocol procedures.                       */
 /*                                                                  */
 /********************************************************************/
@@ -44,6 +44,7 @@
 #include "infile.h"
 #include "findid.h"
 #include "doany.h"
+#include "set_rtl.h"
 #include "big_drv.h"
 
 #undef EXTERN
@@ -412,7 +413,7 @@ settype setValue;
             } else {
               prot_cstri(", ");
             } /* if */
-            prot_int(position << 5 | (inttype) bit_index);
+            prot_int(position << bitset_shift | (inttype) bit_index);
           } /* if */
         } /* for */
       } /* for */

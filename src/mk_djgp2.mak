@@ -109,6 +109,7 @@ version.h:
 	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define AWAIT_WITH_SELECT >> version.h
+	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
 	echo #define OS_STRI_USES_CODEPAGE >> version.h
 	echo #define os_lstat stat >> version.h
 	echo #define os_fseek fseek >> version.h
@@ -117,18 +118,6 @@ version.h:
 	echo #define os_off_t off_t >> version.h
 	echo #define os_putenv putenv >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
-	$(GET_CC_VERSION_INFO) cc_vers.txt
-	echo #include "direct.h" > chkccomp.h
-	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
-	echo #define USE_BUILTIN_EXPECT >> chkccomp.h
-	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define long_long_EXISTS >> chkccomp.h
-	echo #define long_long_SUFFIX_LL >> chkccomp.h
-	$(CC) chkccomp.c -lm -o chkccomp.exe
-	.\chkccomp.exe >> version.h
-	del chkccomp.h
-	del chkccomp.exe
-	del cc_vers.txt
 	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
 	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
@@ -138,6 +127,17 @@ version.h:
 	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
+	$(GET_CC_VERSION_INFO) cc_vers.txt
+	echo #include "direct.h" > chkccomp.h
+	echo #define USE_BUILTIN_EXPECT >> chkccomp.h
+	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define long_long_EXISTS >> chkccomp.h
+	echo #define long_long_SUFFIX_LL >> chkccomp.h
+	$(CC) chkccomp.c -lm -o chkccomp.exe
+	.\chkccomp.exe >> version.h
+	del chkccomp.h
+	del chkccomp.exe
+	del cc_vers.txt
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h

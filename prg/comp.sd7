@@ -809,6 +809,34 @@ const func string: typeLiteral (in type: aType) is func
   end func;
 
 
+const func string: bitsetElemAsHex (in bitset: set1, in integer: elem_num) is func
+  result
+    var string: hex_num is "";
+  local
+    var integer: byte_num is 0;
+    var integer: bit_num is 0;
+    var integer: hex_digit is 0;
+  begin
+    for byte_num range 0 to pred(INTTYPE_SIZE div 8) do
+      hex_digit := 0;
+      for bit_num range 0 to 3 do
+        if elem_num * INTTYPE_SIZE + byte_num * 8 + bit_num in set1 then
+          hex_digit +:= 2 ** bit_num;
+        end if;
+      end for;
+      hex_num := "0123456789ABCDEF"[succ(hex_digit) len 1] & hex_num;
+      hex_digit := 0;
+      for bit_num range 4 to 7 do
+        if elem_num * INTTYPE_SIZE + byte_num * 8 + bit_num in set1 then
+          hex_digit +:= 2 ** (bit_num - 4);
+        end if;
+      end for;
+      hex_num := "0123456789ABCDEF"[succ(hex_digit) len 1] & hex_num;
+    end for;
+    hex_num := "0x" & hex_num;
+  end func;
+
+
 const proc: process_create_declaration (in type: object_type,
     inout expr_type: c_expr) is forward;
 
@@ -6852,6 +6880,36 @@ const proc: process_cmd_shell_escape (in ref_list: params, inout expr_type: c_ex
   end func;
 
 
+const proc: process_cmd_pipe2 (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdPipe2(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
+const proc: process_cmd_pty (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "cmdPty(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    getAnyParamToExpr(params[2], c_expr);
+    c_expr.expr &:= ", &(";
+    process_expr(params[3], c_expr);
+    c_expr.expr &:= "), &(";
+    process_expr(params[4], c_expr);
+    c_expr.expr &:= "));\n";
+  end func;
+
+
 const proc: process_cmd_start_process (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -12423,7 +12481,17 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
         when {REFLISTOBJECT}:
           c_expr.expr &:= "printf(\"<REFLISTOBJECT>\")";
         when {SETOBJECT}:
-          c_expr.expr &:= "printf(\"<SETOBJECT>\")";
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "settype aSet=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<SETOBJECT>\");\n";
+          c_expr.expr &:= "if (aSet == NULL) {\n";
+          c_expr.expr &:= "printf(\" *NULL_SET* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" set[%ld/%ld]\", aSet->min_position, aSet->max_position);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
         when {ARRAYOBJECT}:
           c_expr.expr &:= "{\n";
           c_expr.expr &:= "arraytype arr=";
@@ -13113,13 +13181,23 @@ const proc: process_set_cpy (in ref_list: params, inout expr_type: c_expr) is fu
 
 const proc: process_set_diff (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    prepare_set_result(getExprResultType(params[1]), c_expr);
-    c_expr.result_expr := "setDiff(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if getConstant(params[1], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET then
+      c_expr.expr &:= bitsetLiteral(EMPTY_SET);
+    elsif getConstant(params[3], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET then
+      getAnyParamToExpr(params[1], c_expr);
+    else
+      prepare_set_result(getExprResultType(params[1]), c_expr);
+      c_expr.result_expr := "setDiff(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -13146,8 +13224,38 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ") == ";
-      c_expr.expr &:= str(min(aBitset));
-    elsif card(aBitset) in {2 .. 4} then
+      c_expr.expr &:= integerLiteral(min(aBitset));
+    elsif card(aBitset) >= 3 and max(aBitset) - min(aBitset) = pred(card(aBitset)) then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      if isNormalVariable(param1) then
+        integer_name := normalVariable(param1, c_expr);
+      else
+        incr(c_expr.temp_num);
+        integer_name := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= integer_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= "=";
+        getAnyParamToExpr(param1, c_expr);
+        c_expr.expr &:= ",";
+      end if;
+      if TWOS_COMPLEMENT_INTTYPE and min(aBitset) = 0 then
+        c_expr.expr &:= "(uinttype)(";
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= ">=";
+        c_expr.expr &:= integerLiteral(min(aBitset));
+        c_expr.expr &:= " && ";
+        c_expr.expr &:= integer_name;
+      end if;
+      c_expr.expr &:= "<=";
+      c_expr.expr &:= integerLiteral(max(aBitset));
+      c_expr.expr &:= ")";
+    elsif card(aBitset) in {2, 3} then
       incr(countOptimizations);
       c_expr.expr &:= "(";
       if isNormalVariable(param1) then
@@ -13171,8 +13279,38 @@ const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
         end if;
         c_expr.expr &:= integer_name;
         c_expr.expr &:= "==";
-        c_expr.expr &:= str(number);
+        c_expr.expr &:= integerLiteral(number);
       end for;
+      c_expr.expr &:= ")";
+    elsif min(aBitset) >= 0 and max(aBitset) <= 31 then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      if isNormalVariable(param1) then
+        integer_name := normalVariable(param1, c_expr);
+      else
+        incr(c_expr.temp_num);
+        integer_name := "tmp_" & str(c_expr.temp_num);
+        c_expr.temp_decls &:= "inttype ";
+        c_expr.temp_decls &:= integer_name;
+        c_expr.temp_decls &:= ";\n";
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= "=";
+        getAnyParamToExpr(param1, c_expr);
+        c_expr.expr &:= ",";
+      end if;
+      if TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= "(uinttype)(";
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= integer_name;
+        c_expr.expr &:= ">=0 && ";
+        c_expr.expr &:= integer_name;
+      end if;
+      c_expr.expr &:= "<=31 && (1<<";
+      c_expr.expr &:= integer_name;
+      c_expr.expr &:= ") & ";
+      c_expr.expr &:= bitsetElemAsHex(aBitset, 0);
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "setElem(";
@@ -13314,13 +13452,22 @@ const proc: process_set_incl (in ref_list: params, inout expr_type: c_expr) is f
 
 const proc: process_set_intersect (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    prepare_set_result(getExprResultType(params[1]), c_expr);
-    c_expr.result_expr := "setIntersect(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if getConstant(params[1], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET or
+        getConstant(params[3], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET then
+      c_expr.expr &:= bitsetLiteral(EMPTY_SET);
+    else
+      prepare_set_result(getExprResultType(params[1]), c_expr);
+      c_expr.result_expr := "setIntersect(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -13375,76 +13522,17 @@ const proc: process_set_ne (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
-const proc: process_const_set_not_elem (in reference: param1, in bitset: aBitset,
-    inout expr_type: c_expr) is func
-
-  local
-    var reference: evaluatedParam is NIL;
-    var string: integer_name is "";
-    var integer: number is 0;
-    var boolean: first_element is TRUE;
-  begin
-    if getConstant(param1, INTOBJECT, evaluatedParam) then
-      incr(countOptimizations);
-      c_expr.expr &:= str(ord(getValue(evaluatedParam, integer) not in aBitset));
-      c_expr.expr &:= "/*";
-      c_expr.expr &:= str(getValue(evaluatedParam, integer) not in aBitset);
-      c_expr.expr &:= "*/";
-    elsif card(aBitset) = 0 then
-      incr(countOptimizations);
-      c_expr.expr &:= "1/*TRUE*/";
-    elsif card(aBitset) = 1 then
-      incr(countOptimizations);
-      c_expr.expr &:= "(";
-      process_expr(param1, c_expr);
-      c_expr.expr &:= ") != ";
-      c_expr.expr &:= str(min(aBitset));
-    elsif card(aBitset) in {2 .. 4} then
-      incr(countOptimizations);
-      c_expr.expr &:= "(";
-      if isNormalVariable(param1) then
-        integer_name := normalVariable(param1, c_expr);
-      else
-        incr(c_expr.temp_num);
-        integer_name := "tmp_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "inttype ";
-        c_expr.temp_decls &:= integer_name;
-        c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= integer_name;
-        c_expr.expr &:= "=";
-        getAnyParamToExpr(param1, c_expr);
-        c_expr.expr &:= ",";
-      end if;
-      for number range aBitset do
-        if first_element then
-          first_element := FALSE;
-        else
-          c_expr.expr &:= "&&";
-        end if;
-        c_expr.expr &:= integer_name;
-        c_expr.expr &:= "!=";
-        c_expr.expr &:= str(number);
-      end for;
-      c_expr.expr &:= ")";
-    else
-      c_expr.expr &:= "setNotElem(";
-      process_expr(param1, c_expr);
-      c_expr.expr &:= ", ";
-      c_expr.expr &:= bitsetLiteral(aBitset);
-      c_expr.expr &:= ")";
-    end if;
-  end func;
-
-
 const proc: process_set_not_elem (in ref_list: params, inout expr_type: c_expr) is func
 
   local
     var reference: evaluatedParam is NIL;
   begin
     if getConstant(params[4], SETOBJECT, evaluatedParam) then
-      process_const_set_not_elem(params[1], getValue(evaluatedParam, bitset), c_expr);
+      c_expr.expr &:= "!(";
+      process_const_set_elem(params[1], getValue(evaluatedParam, bitset), c_expr);
+      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "setNotElem(";
+      c_expr.expr &:= "!setElem(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";
       getAnyParamToExpr(params[4], c_expr);
@@ -13485,13 +13573,23 @@ const proc: process_set_symdiff (in ref_list: params, inout expr_type: c_expr) i
 
 const proc: process_set_union (in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    prepare_set_result(getExprResultType(params[1]), c_expr);
-    c_expr.result_expr := "setUnion(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
-    getAnyParamToResultExpr(params[3], c_expr);
-    c_expr.result_expr &:= ")";
+    if getConstant(params[1], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET then
+      getAnyParamToExpr(params[3], c_expr);
+    elsif getConstant(params[3], SETOBJECT, evaluatedParam) and
+        getValue(evaluatedParam, bitset) = EMPTY_SET then
+      getAnyParamToExpr(params[1], c_expr);
+    else
+      prepare_set_result(getExprResultType(params[1]), c_expr);
+      c_expr.result_expr := "setUnion(";
+      getAnyParamToResultExpr(params[1], c_expr);
+      c_expr.result_expr &:= ", ";
+      getAnyParamToResultExpr(params[3], c_expr);
+      c_expr.result_expr &:= ")";
+    end if;
   end func;
 
 
@@ -16258,6 +16356,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_cmd_shell(params, c_expr);
       elsif action_name = "CMD_SHELL_ESCAPE" then
         process_cmd_shell_escape(params, c_expr);
+      elsif action_name = "CMD_PIPE2" then
+        process_cmd_pipe2(params, c_expr);
+      elsif action_name = "CMD_PTY" then
+        process_cmd_pty(params, c_expr);
       elsif action_name = "CMD_START_PROCESS" then
         process_cmd_start_process(params, c_expr);
       elsif action_name = "CMD_SYMLINK" then
@@ -21951,6 +22053,8 @@ const proc: write_prototypes is func
     declareExtern("void        cmdSetMTime (const const_stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     declareExtern("inttype     cmdShell (const const_stritype, const const_stritype);");
     declareExtern("stritype    cmdShellEscape (const const_stritype);");
+    declareExtern("void        cmdPipe2 (const const_stritype, const const_arraytype, filetype *, filetype *);");
+    declareExtern("void        cmdPty (const const_stritype, const const_arraytype, filetype *, filetype *);");
     declareExtern("void        cmdStartProcess (const const_stritype, const const_arraytype);");
     declareExtern("void        cmdSymlink (const_stritype, const_stritype);");
     declareExtern("stritype    cmdToOsPath (const const_stritype);");
@@ -22203,7 +22307,6 @@ const proc: write_prototypes is func
     declareExtern("booltype    setIsSubset (const const_settype, const const_settype);");
     declareExtern("inttype     setMax (const const_settype);");
     declareExtern("inttype     setMin (const const_settype);");
-    declareExtern("booltype    setNotElem (const inttype, const const_settype);");
     declareExtern("inttype     setRand (const const_settype);");
     declareExtern("inttype     setSConv (const const_settype);");
     declareExtern("settype     setSymdiff (settype, settype);");
@@ -23058,10 +23161,6 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
     var integer: max_position is 0;
     var integer: number is 0;
     var integer: elem_num is 0;
-    var integer: byte_num is 0;
-    var integer: bit_num is 0;
-    var integer: hex_digit is 0;
-    var string: hex_num is "";
   begin
     set_index := flip(set_const_table);
     for number range sort(keys(set_index)) do
@@ -23081,25 +23180,7 @@ const proc: init_set_constants (inout expr_type: c_expr) is func
         c_expr.expr &:= str(max_position);
         c_expr.expr &:= ",";
         for elem_num range min_position to max_position do
-          hex_num := "";
-          for byte_num range 0 to pred(INTTYPE_SIZE div 8) do
-            hex_digit := 0;
-            for bit_num range 0 to 3 do
-              if elem_num * INTTYPE_SIZE + byte_num * 8 + bit_num in set1 then
-                hex_digit +:= 2 ** bit_num;
-              end if;
-            end for;
-            hex_num  := "0123456789ABCDEF"[succ(hex_digit) len 1] & hex_num;
-            hex_digit := 0;
-            for bit_num range 4 to 7 do
-              if elem_num * INTTYPE_SIZE + byte_num * 8 + bit_num in set1 then
-                hex_digit +:= 2 ** (bit_num - 4);
-              end if;
-            end for;
-            hex_num  := "0123456789ABCDEF"[succ(hex_digit) len 1] & hex_num;
-          end for;
-          c_expr.expr &:= "0x";
-          c_expr.expr &:= hex_num;
+          c_expr.expr &:= bitsetElemAsHex(set1, elem_num);
           c_expr.expr &:= ",";
         end for;
       end if;

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  chkccomp   Check properties of C compiler and runtime.          */
-/*  Copyright (C) 2010, 2011  Thomas Mertes                         */
+/*  Copyright (C) 2010, 2011, 2012  Thomas Mertes                   */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -20,7 +20,7 @@
 /*                                                                  */
 /*  Module: Chkccomp                                                */
 /*  File: seed7/src/chkccomp.c                                      */
-/*  Changes: 2010, 2011  Thomas Mertes                              */
+/*  Changes: 2010, 2011, 2012  Thomas Mertes                        */
 /*  Content: Program to Check properties of C compiler and runtime. */
 /*                                                                  */
 /********************************************************************/
@@ -28,7 +28,7 @@
 #include "version.h"
 
 /**
- *  From version.h the following defines are used:
+ *  From version.h the following defines are used (for details see: read_me.txt):
  *
  *  os_off_t
  *      Type used for os_fseek(), os_ftell(), offsetSeek(), offsetTell()
@@ -37,6 +37,22 @@
  *      Use the function _control87() to turn off floating point exceptions.
  *  DEFINE_MATHERR_FUNCTION
  *      Define the function _matherr() which handles floating point errors.
+ *  PATH_DELIMITER:
+ *      Path delimiter character used by the command shell of the operating system.
+ *  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+ *      Map absolute paths to operating system paths with drive letter.
+ *  QUOTE_WHOLE_SHELL_COMMAND:
+ *      Defined when shell commands, starting with " need to be quoted a again.
+ *  OBJECT_FILE_EXTENSION:
+ *      The extension used by the C compiler for object files.
+ *  EXECUTABLE_FILE_EXTENSION:
+ *      The extension which is used by the operating system for executables.
+ *  CC_NO_OPT_OUTPUT_FILE:
+ *      Defined, when compiling and linking with one command cannot use -o.
+ *  REDIRECT_C_ERRORS:
+ *      The redirect command to redirect the errors of the C compiler to a file.
+ *  LINKER_OPT_OUTPUT_FILE:
+ *      Contains the linker option to provide the output filename (e.g.: "-o ").
  */
 
 #include "stdlib.h"
@@ -45,6 +61,14 @@
 #include "time.h"
 #include "float.h"
 #include "math.h"
+#include "sys/types.h"
+#include "sys/stat.h"
+
+#ifdef USE_MYUNISTD_H
+#include "myunistd.h"
+#else
+#include "unistd.h"
+#endif
 
 #include "chkccomp.h"
 
@@ -92,6 +116,17 @@
  */
 
 
+#ifndef EXECUTABLE_FILE_EXTENSION
+#define EXECUTABLE_FILE_EXTENSION ""
+#endif
+
+#ifndef S_ISREG
+#define S_ISREG(mode) (((mode) & S_IFMT) == S_IFREG)
+#endif
+
+char c_compiler[1024];
+
+
 
 #ifdef DEFINE_MATHERR_FUNCTION
 int _matherr (struct _exception *a)
@@ -101,6 +136,131 @@ int _matherr (struct _exception *a)
     return 1;
   } /* _matherr */
 #endif
+
+
+
+void prepareCompileCommand (void)
+
+  {
+    int pos;
+    int quote_command = 0;
+    int len;
+
+  /* prepareCompileCommand */
+    strcpy(c_compiler, C_COMPILER);
+#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
+    if (c_compiler[0] == '/') {
+      c_compiler[0] = c_compiler[1];
+      c_compiler[1] = ':';
+    } /* if */
+#endif
+    for (pos = 0; c_compiler[pos] != '\0'; pos++) {
+      if (c_compiler[pos] == '/') {
+        c_compiler[pos] = PATH_DELIMITER;
+      } else if (c_compiler[pos] == ' ') {
+        quote_command = 1;
+      } /* if */
+    } /* for */
+    if (quote_command) {
+      len = strlen(c_compiler);
+      memmove(&c_compiler[1], c_compiler, len);
+      c_compiler[0] = '\"';
+      c_compiler[len + 1] = '\"';
+      c_compiler[len + 2] = '\0';
+    } /* if */
+  } /* prepareCompileCommand */
+
+
+
+void cleanUpCompilation (void)
+
+  {
+    struct stat stat_buf;
+    char fileName[1024];
+
+  /* cleanUpCompilation */
+    if (stat("ctest.c", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+      remove("ctest.c");
+    } /* if */
+    if (stat("ctest.cerrs", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+      remove("ctest.cerrs");
+    } /* if */
+    sprintf(fileName, "ctest%s", OBJECT_FILE_EXTENSION);
+    if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+      remove(fileName);
+    } /* if */
+    sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
+    if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+      remove(fileName);
+    } /* if */
+    if (stat("ctest.out", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+      remove("ctest.out");
+    } /* if */
+  } /* cleanUpCompilation */
+
+
+
+int compilationOkay (char *content)
+
+  {
+    FILE *testFile;
+    char command[1024];
+    int len;
+    struct stat stat_buf;
+    char fileName[1024];
+    int result = 0;
+
+  /* compilationOkay */
+    cleanUpCompilation();
+    testFile = fopen("ctest.c", "w");
+    if (testFile != NULL) {
+      fprintf(testFile, "%s", content);
+      fclose(testFile);
+      sprintf(command, "%s ctest.c", c_compiler);
+#if defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
+      sprintf(&command[strlen(command)], " %sctest%s",
+              LINKER_OPT_OUTPUT_FILE, EXECUTABLE_FILE_EXTENSION);
+#endif
+#ifdef REDIRECT_C_ERRORS
+      sprintf(&command[strlen(command)], " %sctest.cerrs",
+              REDIRECT_C_ERRORS);
+#endif
+#ifdef QUOTE_WHOLE_SHELL_COMMAND
+      if (command[0] == '\"') {
+        len = strlen(command);
+        memmove(&command[1], command, len);
+        command[0] = '\"';
+        command[len + 1] = '\"';
+        command[len + 2] = '\0';
+      } /* if */
+#endif
+      /* printf("/* %s *\/\n", command); */
+      system(command);
+      sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
+      if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+        result = 1;
+      } /* if */
+    } /* if */
+    return result;
+  } /* compilationOkay */
+
+
+
+int doTest (void)
+
+  {
+    char command[1024];
+    FILE *outFile;
+    int result = -1;
+
+  /* doTest */
+    sprintf(command, ".%cctest%s>ctest.out", PATH_DELIMITER, EXECUTABLE_FILE_EXTENSION);
+    if (system(command) != -1 && (outFile = fopen("ctest.out", "r")) != NULL) {
+      fscanf(outFile, "%d", &result);
+      fclose(outFile);
+    } /* if */
+    return result;
+  } /* doTest */
 
 
 
@@ -123,8 +283,10 @@ int main (int argc, char **argv)
     float nanValue2;
     float plusInf;
     float minusInf;
+    char *define_read_buffer_empty;
 
   /* main */
+    prepareCompileCommand();
 #ifdef WRITE_CC_VERSION_INFO
     WRITE_CC_VERSION_INFO
 #endif
@@ -293,5 +455,32 @@ int main (int argc, char **argv)
     if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {
       puts("#define POWER_OF_ZERO_WRONG");
     } /* if */
+    if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
+    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_cnt <= 0)";
+    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->level <= 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->level <= 0)";
+    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;}\n")) {
+      define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_r <= 0)";
+    } else {
+      define_read_buffer_empty = NULL;
+    } /* if */
+    if (define_read_buffer_empty != NULL) {
+      strcpy(buffer, "#include<stdio.h>\n");
+      strcat(buffer, define_read_buffer_empty);
+      strcat(buffer, "\nint main(int argc,char *argv[]){FILE*fp;fp=fopen(\"version.h\",\"r\");"
+                     "if(fp==NULL||!read_buffer_empty(fp))puts(0);else{"
+                     "getc(fp);printf(\"%d\\n\",read_buffer_empty(fp)?0:1);}return 0;}\n");
+      if (!compilationOkay(buffer) || doTest() != 1) {
+        define_read_buffer_empty = NULL;
+      } /* if */
+    } /* if */
+    if (define_read_buffer_empty != NULL) {
+      puts(define_read_buffer_empty);
+    } else {
+      puts("#error unable to define the macro read_buffer_empty");
+    } /* if */
+    cleanUpCompilation();
     return 0;
   } /* main */

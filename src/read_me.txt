@@ -685,7 +685,7 @@ THE VERSION.H FILE
   file. This is done with 'make depend' (or 'gmake depend' or
   'nmake depend'). The version.h file contains several #defines
   which contain information over available features and the way
-  they are available. I try to explain some of them here:
+  they are available:
 
   ANSI_C: Defined when the ansi C prototypes are used. If
           it is not defined K&R C function headers are used.
@@ -903,6 +903,12 @@ THE VERSION.H FILE
                   characters. Instead Seed7 programs must always
                   use '/' as path delimiter.
 
+  MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS: Defined when absolute
+                                      paths (paths starting with
+                                      '/') should be mapped to
+                                      operating system paths
+                                      with drive letter.
+
   ESCAPE_SHELL_COMMANDS: Depending on the shell/os the C
                          functions system() and popen() need
                          to get processed shell commands.
@@ -915,6 +921,15 @@ THE VERSION.H FILE
                          by double quotes (") when it contains
                          a space, &, comma, ;, =, ^, ~ or the
                          non-breaking space.
+
+  QUOTE_WHOLE_SHELL_COMMAND: Defined when shell commands,
+                             starting with double quotes ("),
+                             need to be quoted a again. In this
+                             case the shell command, together
+                             with its parameters, needs to be
+                             quoted with double quotes (The
+                             final command string starts with
+                             two double quotes).
 
   USE_BIG_RTL_LIBRARY: Defined when the big_rtl library is used
                        to implement the bigInteger functions.
@@ -981,7 +996,7 @@ THE VERSION.H FILE
                          for MSVC and bcc32.
 
   EXECUTABLE_FILE_EXTENSION: The extension which is used by the
-                             operating systemfor executables.
+                             operating system for executables.
                              Since executable extensions are not
                              used under Linux/Unix/BSD it is ""
                              for them. Under Windows the value
@@ -1013,6 +1028,10 @@ THE VERSION.H FILE
 
   CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
                       all warnings.
+
+  CC_NO_OPT_OUTPUT_FILE: Defined, when compiling and linking with
+                         one command does not work, with the option
+                         LINKER_OPT_OUTPUT_FILE.
 
   CC_FLAGS: Contains C compiler flags which should be used when
             C programs are compiled.

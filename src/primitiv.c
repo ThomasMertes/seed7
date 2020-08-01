@@ -218,6 +218,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_MKDIR",               cmd_mkdir,               },
     { "CMD_MOVE",                cmd_move,                },
     { "CMD_PIPE2",               cmd_pipe2,               },
+    { "CMD_PTY",                 cmd_pty,                 },
     { "CMD_READLINK",            cmd_readlink,            },
     { "CMD_REMOVE",              cmd_remove,              },
     { "CMD_REMOVE_ANY_FILE",     cmd_remove_any_file,     },

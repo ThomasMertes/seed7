@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  fil_unx.c     File functions which call the Unix API.           */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/fil_unx.c                                       */
-/*  Changes: 2011  Thomas Mertes                                    */
+/*  Changes: 2011, 2012  Thomas Mertes                              */
 /*  Content: File functions which call the Unix API.                */
 /*                                                                  */
 /********************************************************************/
@@ -61,22 +61,26 @@ filetype aFile;
 
   /* filInputReady */
     /* printf("filInputReady(%lx)\n", aFile); */
-    file_no = fileno(aFile);
-    if (file_no != -1) {
-      /* printf("file_no=%d\n", file_no); */
-      pollFd[0].fd = file_no;
-      pollFd[0].events = POLLIN;
-      poll_result = os_poll(pollFd, 1, 0);
-      if (unlikely(poll_result < 0)) {
+    if (!read_buffer_empty(aFile)) {
+      result = TRUE;
+    } else {
+      file_no = fileno(aFile);
+      if (file_no != -1) {
+        /* printf("file_no=%d\n", file_no); */
+        pollFd[0].fd = file_no;
+        pollFd[0].events = POLLIN;
+        poll_result = os_poll(pollFd, 1, 0);
+        if (unlikely(poll_result < 0)) {
+          raise_error(FILE_ERROR);
+          result = FALSE;
+        } else {
+          /* printf("poll_result=%d, pollFd[0].revents=%08x\n", poll_result, pollFd[0].revents); */
+          result = poll_result == 1 && (pollFd[0].revents & POLLIN);
+        } /* if */
+      } else {
         raise_error(FILE_ERROR);
         result = FALSE;
-      } else {
-        /* printf("poll_result=%d, pollFd[0].revents=%08x\n", poll_result, pollFd[0].revents); */
-        result = poll_result == 1 && (pollFd[0].revents & POLLIN);
       } /* if */
-    } else {
-      raise_error(FILE_ERROR);
-      result = FALSE;
     } /* if */
     return result;
   } /* filInputReady */

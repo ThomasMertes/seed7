@@ -1,3 +1,33 @@
+20120415:
+- Documentation comments were added to "shell.s7i".
+- A description of several C preprocessor macros used in "version.h"
+  was added to the file "src/read_me.txt".
+- In "chkset.sd7" tests for set difference and symmetric difference
+  were added and tests for set intersection and set membership were
+  improved.
+- The compiler (comp.sd7) was improved to support the functions
+  'pipe2' and 'pty' (actions: CMD_PIPE2 and CMD_PTY).
+- The compiler was improved to provide better optimization for set
+  difference, intersection, union and membership.
+- The tracing support for sets in the compiler was improved.
+- The program "chkccomp.c" was improved to use the C compiler to
+  determine elements from the FILE structure.
+- The new experimental function 'cmdPty' was added to "cmd_unx.c"
+  and "cmd_win.c".
+- The function 'filInputReady' in "fil_unx.c" and "fil_win.c" was
+  improved to use the macro 'read_buffer_empty' (which is defined in
+  "version.h" by the program "chkccomp.c").
+- The makefiles were changed to write several macro definitions to
+  "version.h", before the program "chkccomp.c" is compiled. This way
+  "chkccomp.c" gets information about the C compiler from
+  "version.h".
+- The functions 'setDiff' and 'setSymdiff' in "set_rtl.c" were
+  improved to work correctly for big sets.
+- The function 'setNotElem' was removed from "set_rtl.c" and the
+  compiler was changed to use !setElem() instead of setNotElem().
+- The function 'prot_set' in "traceutl.c" was improved to work
+  correctly, when 64-bit bitset elements are used.
+
 20120401:
 - The program "chkccomp.c" was changed to define the macros
   'likely' and 'unlikely' only when __GNUC__ >= 3 holds (thanks

@@ -258,6 +258,22 @@ const proc: pipe2 (in string: command, in array string: parameters,
     inout PRIMITIVE_FILE: primitiveChildStdout) is action "CMD_PIPE2";
 
 
+(**
+ *  Start a process and connect pipes to its standard I/O files.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable. Pipe2
+ *  can be used to execute programs which process a stream of data.
+ *  Interactive programs buffer their I/O when they are not connected
+ *  to a terminal. Pipe2 has no influence of the buffering of the
+ *  executed command. Therefore interactive programs might not work
+ *  correctly with pipe2.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
 const proc: pipe2 (in string: command, in array string: parameters,
     inout file: childStdin, inout file: childStdout) is func
   local
@@ -267,6 +283,32 @@ const proc: pipe2 (in string: command, in array string: parameters,
     var external_file: new_ChildStdout is external_file.value;
   begin
     pipe2(command, parameters, primitiveChildStdin, primitiveChildStdout);
+    if primitiveChildStdin <> PRIMITIVE_NULL_FILE then
+      new_ChildStdin.ext_file := primitiveChildStdin;
+      childStdin := malloc(new_ChildStdin);
+    end if;
+    if primitiveChildStdout <> PRIMITIVE_NULL_FILE then
+      # setbuf(primitiveChildStdout, IO_NO_BUFFERING, 0);
+      new_ChildStdout.ext_file := primitiveChildStdout;
+      childStdout := malloc(new_ChildStdout);
+    end if;
+  end func;
+
+
+const proc: pty (in string: command, in array string: parameters,
+    inout PRIMITIVE_FILE: primitiveChildStdin,
+    inout PRIMITIVE_FILE: primitiveChildStdout) is action "CMD_PTY";
+
+
+const proc: pty (in string: command, in array string: parameters,
+    inout file: childStdin, inout file: childStdout) is func
+  local
+    var PRIMITIVE_FILE: primitiveChildStdin is PRIMITIVE_NULL_FILE;
+    var PRIMITIVE_FILE: primitiveChildStdout is PRIMITIVE_NULL_FILE;
+    var external_file: new_ChildStdin is external_file.value;
+    var external_file: new_ChildStdout is external_file.value;
+  begin
+    pty(command, parameters, primitiveChildStdin, primitiveChildStdout);
     if primitiveChildStdin <> PRIMITIVE_NULL_FILE then
       new_ChildStdin.ext_file := primitiveChildStdin;
       childStdin := malloc(new_ChildStdin);

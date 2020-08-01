@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  set_rtl.c     Primitive actions for the set type.               */
-/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/set_rtl.c                                       */
-/*  Changes: 2004, 2005, 2010  Thomas Mertes                        */
+/*  Changes: 2004, 2005, 2010, 2012  Thomas Mertes                  */
 /*  Content: Primitive actions for the set type.                    */
 /*                                                                  */
 /********************************************************************/
@@ -34,7 +34,6 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-
 
 #include "common.h"
 #include "data_rtl.h"
@@ -449,14 +448,28 @@ settype set2;
     settype result;
 
   /* setDiff */
+#ifdef OUT_OF_ORDER
+    printf("setDiff(");
+    prot_set(set1);
+    printf(", ");
+    prot_set(set2);
+    printf(")\n");
+#endif
+    /* printf("setDiff(%lld/%lld [%llx], ",
+           set1->min_position, set1->max_position, set1->bitset[0]);
+       printf("%lld/%lld [%llx])\n",
+           set2->min_position, set2->max_position, set2->bitset[0]); */
     if (!ALLOC_SET(result, (uinttype) (set1->max_position - set1->min_position + 1))) {
       raise_error(MEMORY_ERROR);
       return NULL;
     } else {
       result->min_position = set1->min_position;
       result->max_position = set1->max_position;
-      if (set2->max_position >= set1->min_position ||
-          set2->min_position <= set1->max_position) {
+      if (set1->max_position < set2->min_position ||
+          set1->min_position > set2->max_position) {
+        memcpy(result->bitset, set1->bitset,
+            (uinttype) (set1->max_position - set1->min_position + 1) * sizeof(bitsettype));
+      } else {
         if (set2->min_position > set1->min_position) {
           bitset_index = (uinttype) (set2->min_position - set1->min_position);
           bitset_index2 = 0;
@@ -476,9 +489,6 @@ settype set2;
           result->bitset[bitset_index] = set1->bitset[bitset_index] &
               ~ set2->bitset[bitset_index2];
         } /* for */
-      } else {
-        memcpy(result->bitset, set1->bitset,
-            (uinttype) (set1->max_position - set1->min_position + 1) * sizeof(bitsettype));
       } /* if */
       return result;
     } /* if */
@@ -1115,38 +1125,6 @@ settype set1;
 
 #ifdef ANSI_C
 
-booltype setNotElem (const inttype number, const const_settype set1)
-#else
-
-booltype setNotElem (number, set1)
-inttype number;
-settype set1;
-#endif
-
-  {
-    inttype position;
-    memsizetype bitset_index;
-    unsigned int bit_index;
-
-  /* setNotElem */
-    position = bitset_pos(number);
-    if (position >= set1->min_position && position <= set1->max_position) {
-      bitset_index = (uinttype) (position - set1->min_position);
-      bit_index = ((unsigned int) number) & bitset_mask;
-      if (set1->bitset[bitset_index] & (bitsettype) 1 << bit_index) {
-        return FALSE;
-      } else {
-        return TRUE;
-      } /* if */
-    } else {
-      return TRUE;
-    } /* if */
-  } /* setNotElem */
-
-
-
-#ifdef ANSI_C
-
 inttype setRand (const const_settype set1)
 #else
 
@@ -1250,26 +1228,42 @@ settype set2;
     } else {
       result->min_position = min_position;
       result->max_position = max_position;
-      for (position = set1->min_position; position < set2->min_position; position++) {
-        result->bitset[position - min_position] = set1->bitset[position - set1->min_position];
-      } /* for */
-      for (position = set2->min_position; position < set1->min_position; position++) {
-        result->bitset[position - min_position] = set2->bitset[position - set2->min_position];
-      } /* for */
-      for (position = start_position; position <= stop_position; position++) {
-        result->bitset[position - min_position] =
-            set1->bitset[position - set1->min_position] ^
-            set2->bitset[position - set2->min_position];
-      } /* for */
-      for (position = stop_position + 1; position < start_position; position++) {
-        result->bitset[position - min_position] = 0;
-      } /* for */
-      for (position = set1->max_position; position < set2->max_position; position++) {
-        result->bitset[position - min_position] = set1->bitset[position - set1->min_position];
-      } /* for */
-      for (position = set2->max_position; position < set1->max_position; position++) {
-        result->bitset[position - min_position] = set2->bitset[position - set2->min_position];
-      } /* for */
+      if (set1->max_position < set2->min_position ||
+          set1->min_position > set2->max_position) {
+        if (set1->max_position < set2->min_position) {
+          memset(&result->bitset[set1->max_position - min_position + 1], 0,
+                 (memsizetype) (set2->min_position - set1->max_position - 1) * sizeof(bitsettype));
+        } else {
+          memset(&result->bitset[set2->max_position - min_position + 1], 0,
+                 (memsizetype) (set1->min_position - set2->max_position - 1) * sizeof(bitsettype));
+        } /* if */
+        memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
+               (uinttype) (set1->max_position - set1->min_position + 1) * sizeof(bitsettype));
+        memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
+               (uinttype) (set2->max_position - set2->min_position + 1) * sizeof(bitsettype));
+      } else {
+        if (set2->min_position > set1->min_position) {
+          memcpy(&result->bitset[set1->min_position - min_position], set1->bitset,
+                 (uinttype) (set2->min_position - set1->min_position) * sizeof(bitsettype));
+        } else {
+          memcpy(&result->bitset[set2->min_position - min_position], set2->bitset,
+                   (uinttype) (set1->min_position - set2->min_position) * sizeof(bitsettype));
+        } /* if */
+        for (position = start_position; position <= stop_position; position++) {
+          result->bitset[position - min_position] =
+              set1->bitset[position - set1->min_position] ^
+              set2->bitset[position - set2->min_position];
+        } /* for */
+        if (set2->max_position > set1->max_position) {
+          memcpy(&result->bitset[set1->max_position - min_position + 1],
+                 &set2->bitset[set1->max_position - set2->min_position + 1],
+                 (memsizetype) (set2->max_position - set1->max_position) * sizeof(bitsettype));
+        } else {
+          memcpy(&result->bitset[set2->max_position - min_position + 1],
+                 &set1->bitset[set2->max_position - set1->min_position + 1],
+                 (memsizetype) (set1->max_position - set2->max_position) * sizeof(bitsettype));
+        } /* if */
+      } /* if */
       return result;
     } /* if */
   } /* setSymdiff */

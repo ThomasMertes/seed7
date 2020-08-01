@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  cmd_win.c     Command functions which call the Windows API.     */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2012  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/cmd_win.c                                       */
-/*  Changes: 2010  Thomas Mertes                                    */
+/*  Changes: 2010, 2012  Thomas Mertes                              */
 /*  Content: Command functions which call the Windows API.          */
 /*                                                                  */
 /********************************************************************/
@@ -571,6 +571,25 @@ filetype *childStdout;
       raise_error(err_info);
     } /* if */
   } /* cmdPipe2 */
+
+
+
+#ifdef ANSI_C
+
+void cmdPty (const const_stritype command, const const_rtlArraytype parameters,
+    filetype *childStdin, filetype *childStdout)
+#else
+
+void cmdPty (command, parameters, childStdin, childStdout)
+stritype command;
+rtlArraytype parameters;
+filetype *childStdin;
+filetype *childStdout;
+#endif
+
+  { /* cmdPty */
+    cmdPipe2(command, parameters, childStdin, childStdout);
+  } /* cmdPty */
 
 
 

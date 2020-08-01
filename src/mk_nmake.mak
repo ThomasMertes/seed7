@@ -142,6 +142,16 @@ version.h:
 	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
 	echo #define USE_WINSOCK >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
+	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
+	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
+	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
+	echo #define C_COMPILER "$(CC)" >> version.h
+	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
+	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
+	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
+	echo #define REDIRECT_C_ERRORS "2>" >> version.h
+	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
+	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #include "direct.h" > chkccomp.h
 	echo #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt"); >> chkccomp.h
 	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
@@ -154,16 +164,6 @@ version.h:
 	del chkccomp.h
 	del chkccomp.exe
 	del cc_vers.txt
-	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
-	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
-	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
-	echo #define C_COMPILER "$(CC)" >> version.h
-	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
-	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
-	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
-	echo #define REDIRECT_C_ERRORS "2>" >> version.h
-	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
-	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
 	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
 	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
 	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h

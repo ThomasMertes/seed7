@@ -110,6 +110,7 @@ version.h:
 	$(ECHO) "#define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS" >> version.h
 	$(ECHO) "#define CATCH_SIGNALS" >> version.h
 	$(ECHO) "#define AWAIT_WITH_SELECT" >> version.h
+	$(ECHO) "#define IMPLEMENT_PTY_WITH_PIPE2" >> version.h
 	$(ECHO) "#define OS_STRI_USES_CODEPAGE" >> version.h
 	$(ECHO) "#define os_lstat stat" >> version.h
 	$(ECHO) "#define os_fseek fseek" >> version.h
@@ -118,18 +119,6 @@ version.h:
 	$(ECHO) "#define os_off_t off_t" >> version.h
 	$(ECHO) "#define os_putenv putenv" >> version.h
 	$(ECHO) "#define $(BIGINT_LIB_DEFINE)" >> version.h
-	$(ECHO) "#include \"direct.h\"" > chkccomp.h
-	$(ECHO) "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
-	$(ECHO) "#define mkdir(path,mode) mkdir(path)" >> chkccomp.h
-	$(ECHO) "#define USE_BUILTIN_EXPECT" >> chkccomp.h
-	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
-	$(ECHO) "#define long_long_EXISTS" >> chkccomp.h
-	$(ECHO) "#define long_long_SUFFIX_LL" >> chkccomp.h
-	$(CC) chkccomp.c -lm -o chkccomp.exe
-	.\chkccomp.exe >> version.h
-	del chkccomp.h
-	del chkccomp.exe
-	del cc_vers.txt
 	$(ECHO) "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
 	$(ECHO) "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
 	$(ECHO) "#define EXECUTABLE_FILE_EXTENSION \".exe\"" >> version.h
@@ -139,6 +128,17 @@ version.h:
 	$(ECHO) "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
 	$(ECHO) "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
 	$(ECHO) "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
+	$(ECHO) "#include \"direct.h\"" > chkccomp.h
+	$(ECHO) "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
+	$(ECHO) "#define USE_BUILTIN_EXPECT" >> chkccomp.h
+	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
+	$(ECHO) "#define long_long_EXISTS" >> chkccomp.h
+	$(ECHO) "#define long_long_SUFFIX_LL" >> chkccomp.h
+	$(CC) chkccomp.c -lm -o chkccomp.exe
+	.\chkccomp.exe >> version.h
+	del chkccomp.h
+	del chkccomp.exe
+	del cc_vers.txt
 	$(ECHO) "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
 	$(ECHO) "#define SYSTEM_CONSOLE_LIBS \"$(SYSTEM_CONSOLE_LIBS)\"" >> version.h
 	$(ECHO) "#define SYSTEM_DRAW_LIBS \"$(SYSTEM_DRAW_LIBS)\"" >> version.h
