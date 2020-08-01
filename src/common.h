@@ -380,6 +380,14 @@ typedef uint64Type         memSizeType;
 
 typedef int                priorityType;
 
+/* NULL_TERMINATION_LEN is the length for the terminating null   */
+/* char (\0) of a null-terminated string. The null termination   */
+/* is measured in characters and not in bytes. A null-terminated */
+/* wide char string is terminated with one wide null char.       */
+/* NULL_TERMINATION_LEN can be used for normal null-terminated   */
+/* strings and for null-terminated wide char strings.            */
+#define NULL_TERMINATION_LEN 1
+
 typedef unsigned char      ucharType;
 typedef char              *cstriType;
 typedef unsigned char     *ustriType;

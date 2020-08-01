@@ -185,6 +185,7 @@ memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
     } else {
       len = (memSizeType) sprintf(buffer, format, doubleValue);
       /* printf("buffer: \"%s\"\n", buffer); */
+      /* Subtract two more chars for sign and letter 'e': */
       len -= MIN_PRINTED_EXPONENT_DIGITS + 2;
       while (buffer[len] != 'e') {
         len--;
@@ -253,6 +254,7 @@ intType fltCmp (floatType number1, floatType number2)
     } else if (number1 > number2) {
       signumValue = 1;
     } else {
+      /* The expression isnan(NaN) can return any value except 0. */
       signumValue = (os_isnan(number1) != 0) - (os_isnan(number2) != 0);
     } /* if */
 #else

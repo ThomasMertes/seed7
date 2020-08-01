@@ -704,7 +704,7 @@ objectType int_lpad0 (listType arguments)
 
 /**
  *  Shift an integer number left by lshift bits.
- *  A << B is equivalent to A * 2_ ** B
+ *  A << B is equivalent to A * 2 ** B
  *  @return the left shifted number.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal INTTYPE_SIZE or
@@ -1259,7 +1259,7 @@ objectType int_rem (listType arguments)
 
 /**
  *  Shift an integer number right by rshift bits.
- *  A >> B is equivalent to A mdiv 2_ ** B
+ *  A >> B is equivalent to A mdiv 2 ** B
  *  @return the right shifted number.
  *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal INTTYPE_SIZE.

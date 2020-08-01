@@ -347,6 +347,8 @@ static inline boolType is_doublewidth (charType ch)
 striType chrCLit (charType character)
 
   {
+    /* A string literal starts and ends with apostrophe ('): */
+    const memSizeType numOfApostrophes = 2;
     memSizeType len;
     striType result;
 
@@ -355,17 +357,17 @@ striType chrCLit (charType character)
     if (character < 127) {
       if (character < ' ') {
         len = strlen(cstri_escape_sequence[character]);
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, len + 2))) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, len + numOfApostrophes))) {
           raise_error(MEMORY_ERROR);
         } else {
-          result->size = len + 2;
+          result->size = len + numOfApostrophes;
           result->mem[0] = '\'';
           memcpy_to_strelem(&result->mem[1],
               (const_ustriType) cstri_escape_sequence[character], len);
           result->mem[len + 1] = '\'';
         } /* if */
       } else if (character == '\\' || character == '\'') {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 4))) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 4))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 4;
@@ -375,7 +377,7 @@ striType chrCLit (charType character)
           result->mem[3] = '\'';
         } /* if */
       } else {
-        if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) 3))) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(result, 3))) {
           raise_error(MEMORY_ERROR);
         } else {
           result->size = 3;

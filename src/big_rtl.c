@@ -37,6 +37,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -52,6 +53,7 @@
 
 #define KARATSUBA_THRESHOLD 32
 #define KARATSUBA_SQUARE_THRESHOLD 32
+#define OCTAL_DIGIT_BITS 3
 
 
 /* Defines to describe a bigdigit:                                  */
@@ -322,6 +324,10 @@ striType bigStr (const const_bigIntType big1);
 cstriType bigHexCStri (const const_bigIntType big1)
 
   {
+    /* Length of the hex prefix (16#): */
+    const memSizeType hexPrefixLen = 3;
+    /* Number of hex digits in a byte: */
+    const memSizeType hexDigitsInByte = 2;
     memSizeType pos;
     memSizeType digitPos;
     memSizeType len;
@@ -331,14 +337,16 @@ cstriType bigHexCStri (const const_bigIntType big1)
 
   /* bigHexCStri */
     if (likely(big1 != NULL && big1->size > 0)) {
-      if (unlikely(big1->size > (MAX_CSTRI_LEN - 3) / 2 / (BIGDIGIT_SIZE >> 3) ||
-                   !ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) * 2 + 3))) {
+      if (unlikely(big1->size > (MAX_CSTRI_LEN - hexPrefixLen) /
+                                hexDigitsInByte / (BIGDIGIT_SIZE >> 3) ||
+                   !ALLOC_CSTRI(result, big1->size * (BIGDIGIT_SIZE >> 3) *
+                                hexDigitsInByte + hexPrefixLen))) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
         buffer = result;
         strcpy(buffer, "16#");
-        buffer += 3;
+        buffer += hexPrefixLen;
         pos = big1->size - 1;
 #if BIGDIGIT_SIZE == 8
         sprintf(buffer, F_X_DIG(02), big1->bigdigits[pos]);
@@ -374,7 +382,7 @@ cstriType bigHexCStri (const const_bigIntType big1)
 #elif BIGDIGIT_SIZE == 32
           sprintf(buffer, F_X_DIG(08), big1->bigdigits[pos]);
 #endif
-          buffer += (BIGDIGIT_SIZE >> 3) * 2;
+          buffer += (BIGDIGIT_SIZE >> 3) * hexDigitsInByte;
         } /* while */
       } /* if */
     } else {
@@ -6724,15 +6732,15 @@ striType bigStr (const const_bigIntType big1)
 
   /* bigStr */
     logFunction(printf("bigStr(%s)\n", bigHexCStri(big1)););
-    if (unlikely((MAX_STRI_LEN <= (MAX_MEMSIZETYPE - 1) / 3 + 2 &&
-                 big1->size > ((MAX_STRI_LEN - 2) * 3 + 1) / BIGDIGIT_SIZE) ||
+    if (unlikely((MAX_STRI_LEN <= (MAX_MEMSIZETYPE - 1) / OCTAL_DIGIT_BITS + 2 &&
+                 big1->size > ((MAX_STRI_LEN - 2) * OCTAL_DIGIT_BITS + 1) / BIGDIGIT_SIZE) ||
                  big1->size > MAX_MEMSIZETYPE / BIGDIGIT_SIZE)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
       /* The size of the result is estimated by computing the    */
       /* number of octal digits plus one character for the sign. */
-      result_size = (big1->size * BIGDIGIT_SIZE - 1) / 3 + 2;
+      result_size = (big1->size * BIGDIGIT_SIZE - 1) / OCTAL_DIGIT_BITS + 2;
       if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -6975,20 +6983,20 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
     byteNum = (BIGDIGIT_SIZE >> 3) - 1;
     if (isSigned) {
       if (IS_NEGATIVE(digit)) {
-        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0xFF) {
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) <= 127) {
           result_size++;
           byteNum++;
         } /* if */
       } else {
-        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0) {
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) >= 128) {
           result_size++;
           byteNum++;
         } /* if */
@@ -7006,7 +7014,7 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
           pos--;
           digit = big1->bigdigits[pos];
         } /* if */
-        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0) {
           result_size--;
           byteNum--;
         } /* while */
@@ -7018,14 +7026,14 @@ bstriType bigToBStriBe (const const_bigIntType big1, const boolType isSigned)
       result->size = result_size;
       charIndex = 0;
       for (; byteNum >= 0; byteNum--) {
-        result->mem[charIndex] = (ucharType) (digit >> byteNum * 8 & 0xFF);
+        result->mem[charIndex] = (ucharType) (digit >> byteNum * CHAR_BIT & 0xFF);
         charIndex++;
       } /* for */
       while (pos > 0) {
         pos--;
         digit = big1->bigdigits[pos];
         for (byteNum = (BIGDIGIT_SIZE >> 3) - 1; byteNum >= 0; byteNum--) {
-          result->mem[charIndex] = (ucharType) (digit >> byteNum * 8 & 0xFF);
+          result->mem[charIndex] = (ucharType) (digit >> byteNum * CHAR_BIT & 0xFF);
           charIndex++;
         } /* for */
       } /* while */
@@ -7070,20 +7078,20 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
     byteNum = (BIGDIGIT_SIZE >> 3) - 1;
     if (isSigned) {
       if (IS_NEGATIVE(digit)) {
-        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0xFF) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0xFF) {
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) <= 127) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) <= 127) {
           result_size++;
           byteNum++;
         } /* if */
       } else {
-        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0) {
           result_size--;
           byteNum--;
         } /* while */
-        if (byteNum < 3 && (digit >> byteNum * 8 & 0xFF) >= 128) {
+        if (byteNum < 3 && (digit >> byteNum * CHAR_BIT & 0xFF) >= 128) {
           result_size++;
           byteNum++;
         } /* if */
@@ -7101,7 +7109,7 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
           pos--;
           digit = big1->bigdigits[pos];
         } /* if */
-        while (byteNum > 0 && (digit >> byteNum * 8 & 0xFF) == 0) {
+        while (byteNum > 0 && (digit >> byteNum * CHAR_BIT & 0xFF) == 0) {
           result_size--;
           byteNum--;
         } /* while */
@@ -7113,14 +7121,14 @@ bstriType bigToBStriLe (const const_bigIntType big1, const boolType isSigned)
       result->size = result_size;
       charIndex = result_size - 1;
       for (; byteNum >= 0; byteNum--) {
-        result->mem[charIndex] = (ucharType) (digit >> byteNum * 8 & 0xFF);
+        result->mem[charIndex] = (ucharType) (digit >> byteNum * CHAR_BIT & 0xFF);
         charIndex--;
       } /* for */
       while (pos > 0) {
         pos--;
         digit = big1->bigdigits[pos];
         for (byteNum = (BIGDIGIT_SIZE >> 3) - 1; byteNum >= 0; byteNum--) {
-          result->mem[charIndex] = (ucharType) (digit >> byteNum * 8 & 0xFF);
+          result->mem[charIndex] = (ucharType) (digit >> byteNum * CHAR_BIT & 0xFF);
           charIndex--;
         } /* for */
       } /* while */

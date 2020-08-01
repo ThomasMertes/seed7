@@ -38,6 +38,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "time.h"
+#include "limits.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -65,7 +66,7 @@
 /* would be -128. -128 radix 2  returns  "-10000000"   */
 /* The result needs 9 digits although -128 fits into a */
 /* signed byte with 8 bits.                            */
-#define RADIX_BUFFER_SIZE (8 * sizeof(intType) + 1)
+#define RADIX_BUFFER_SIZE (CHAR_BIT * sizeof(intType) + 1)
 
 #define BYTE_BUFFER_SIZE sizeof(intType)
 
@@ -1708,6 +1709,64 @@ intType intMultOvfChk (intType factor1, intType factor2)
     logFunction(printf("intMultOvfChk --> " FMT_D "\n", product););
     return product;
   } /* intMultOvfChk */
+
+
+
+#ifdef INT_MULT64_COMPILE_ERROR
+/**
+ *  Multiply two signed 64-bit int values and check for overflow.
+ *  Under Windows clang uses __mulodi4 when the option -ftrapv is used.
+ *  Unfortunately __mulodi4 is not part of the runtime library.
+ *  This rewrite of the original __mulodi4 needs only 56% of the runtime.
+ */
+int64Type __mulodi4 (int64Type factor1, int64Type factor2, int *overflow)
+
+  {
+    int64Type product;
+
+  /* __mulodi4 */
+    logFunction(printf("__mulodi4(" FMT_D64 ", " FMT_D64 ", *)\n",
+                       factor1, factor2););
+    product = (int64Type) ((uint64Type) factor1 * (uint64Type) factor2);
+    if (factor1 < 0) {
+      if (factor2 < 0) {
+        if (unlikely(factor1 < INT64TYPE_MAX / factor2)) {
+          *overflow = 1;
+          logFunction(printf("__mulodi4(overflow=%d) --> " FMT_D64 "\n",
+                             *overflow, product););
+          return product;
+        } /* if */
+      } else if (factor2 != 0) {
+        if (unlikely(factor1 < INT64TYPE_MIN / factor2)) {
+          *overflow = 1;
+          logFunction(printf("__mulodi4(overflow=%d) --> " FMT_D64 "\n",
+                             *overflow, product););
+          return product;
+        } /* if */
+      } /* if */
+    } else if (factor1 != 0) {
+      if (factor2 < 0) {
+        if (unlikely(factor2 < INT64TYPE_MIN / factor1)) {
+          *overflow = 1;
+          logFunction(printf("__mulodi4(overflow=%d) --> " FMT_D64 "\n",
+                             *overflow, product););
+          return product;
+        } /* if */
+      } else if (factor2 != 0) {
+        if (unlikely(factor2 > INT64TYPE_MAX / factor1)) {
+          *overflow = 1;
+          logFunction(printf("__mulodi4(overflow=%d) --> " FMT_D64 "\n",
+                             *overflow, product););
+          return product;
+        } /* if */
+      } /* if */
+    } /* if */
+    *overflow = 0; 
+    logFunction(printf("__mulodi4(overflow=%d) --> " FMT_D64 "\n",
+                       *overflow, product););
+    return product;
+  } /* __mulodi4 */
+#endif
 
 
 

@@ -41,6 +41,7 @@
 #include "errno.h"
 
 #include "common.h"
+#include "striutl.h"
 #include "fil_rtl.h"
 
 
@@ -89,10 +90,10 @@ static unsigned int fileattr_to_unixmode (DWORD attr, const wchar_t *path)
       memSizeType len = wcslen(path);
       if (len >= 4) {
         const WCHAR *end = &path[len - 4];
-        if (memcmp(end, L".bat", 4 * sizeof(WCHAR)) == 0 ||
-            memcmp(end, L".cmd", 4 * sizeof(WCHAR)) == 0 ||
-            memcmp(end, L".com", 4 * sizeof(WCHAR)) == 0 ||
-            memcmp(end, L".exe", 4 * sizeof(WCHAR)) == 0) {
+        if (memcmp(end, L".bat", STRLEN(L".bat") * sizeof(WCHAR)) == 0 ||
+            memcmp(end, L".cmd", STRLEN(L".cmd") * sizeof(WCHAR)) == 0 ||
+            memcmp(end, L".com", STRLEN(L".com") * sizeof(WCHAR)) == 0 ||
+            memcmp(end, L".exe", STRLEN(L".exe") * sizeof(WCHAR)) == 0) {
           mode |= S_IEXEC;
         } /* if */
       } /* if */

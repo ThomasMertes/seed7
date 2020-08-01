@@ -48,6 +48,8 @@ void toUpper (const strElemType *const stri, memSizeType length,
 striType concat_path (const const_striType absolutePath,
     const const_striType relativePath);
 void strAppend (striType *const destination, const_striType stri_from);
+void strAppendN (striType *const destination,
+    const const_striType extensionArray[], memSizeType arraySize);
 void strAppendTemp (striType *const destination, const striType stri_from);
 intType strChIPos (const const_striType main_stri, const charType searched,
     const intType from_index);
@@ -115,5 +117,5 @@ striType strToUtf8 (const const_striType stri);
 striType strTrim (const const_striType stri);
 striType strUp (const const_striType stri);
 striType strUpTemp (const striType stri);
-striType strUtf8ToStri (const_striType utf8);
+striType strUtf8ToStri (const const_striType utf8);
 striType strZero (const intType factor);

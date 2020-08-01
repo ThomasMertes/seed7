@@ -496,6 +496,23 @@ const proc: cloneFile (in string: sourcePath, in string: destPath) is action "CM
 const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CMD_MOVE";
 
 
+const func string: parentDir (in string: path) is func
+  result
+    var string: parentDir is "";
+  local
+    var integer: slashPos is 0;
+  begin
+    slashPos := rpos(path, '/');
+    if slashPos = 0 then
+      parentDir := ".";
+    elsif slashPos = 1 then
+      parentDir := "/";
+    else
+      parentDir := path[.. pred(slashPos)];
+    end if;
+  end func;
+
+
 const func string: convDosPath (in string: path) is func
   result
     var string: stdPath is "";

@@ -89,43 +89,48 @@ const os_charType emulated_root[] = {'/', '\0'};
 
 /* The maximum width when an UTF-32 character is displayed */
 /* in a literal is 12 characters (e.g.: \1234567890; ).    */
-#define MAXIMUM_UTF32_ESCAPE_WIDTH 12
+#define MAXIMUM_UTF32_ESCAPE_WIDTH STRLEN("\\4294967295;")
 
 /* The maximum width when an unsigned char (byte) is      */
 /* displayed in a literal is 5 characters (e.g.: \255; ). */
-#define MAXIMUM_BYTE_ESCAPE_WIDTH 5
+#define MAXIMUM_BYTE_ESCAPE_WIDTH STRLEN("\\255;")
 
 /* The AND_SO_ON_LENGTH includes the length of the terminating \0 byte. */
-#define AND_SO_ON_LENGTH    (STRLEN(AND_SO_ON_TEXT) + MEMSIZETYPE_DECIMAL_SIZE + 1)
+#define AND_SO_ON_LENGTH    (STRLEN(AND_SO_ON_TEXT) + MEMSIZETYPE_DECIMAL_SIZE + NULL_TERMINATION_LEN)
+
+/* UTF-16 encodes characters > 0xffff with surrogate pairs.   */
+/* When converting to UTF-16 it might be necessary to store   */
+/* every character with surrogate pairs (= two Utf-16 chars). */
+#define SURROGATE_PAIR_FACTOR  2
 
 #ifdef OS_STRI_WCHAR
 
-#define MAX_OS_STRI_SIZE    (((MAX_MEMSIZETYPE / sizeof(os_charType)) - 1) / 2)
-#define MAX_OS_BSTRI_SIZE   (((MAX_BSTRI_LEN / sizeof(os_charType)) - 1) / 2)
-#define OS_STRI_SIZE(size)  ((size) * 2)
-#define OS_BSTRI_SIZE(size) (((size) * 2 + 1) * sizeof(os_charType))
+#define MAX_OS_STRI_SIZE    (((MAX_MEMSIZETYPE / sizeof(os_charType)) - NULL_TERMINATION_LEN) / SURROGATE_PAIR_FACTOR)
+#define MAX_OS_BSTRI_SIZE   (((MAX_BSTRI_LEN / sizeof(os_charType)) - NULL_TERMINATION_LEN) / SURROGATE_PAIR_FACTOR)
+#define OS_STRI_SIZE(size)  ((size) * SURROGATE_PAIR_FACTOR)
+#define OS_BSTRI_SIZE(size) (((size) * SURROGATE_PAIR_FACTOR + NULL_TERMINATION_LEN) * sizeof(os_charType))
 
 #elif defined OS_STRI_USES_CODE_PAGE
 
-#define MAX_OS_STRI_SIZE    ((MAX_MEMSIZETYPE / sizeof(os_charType)) - 1)
-#define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN / sizeof(os_charType)) - 1)
+#define MAX_OS_STRI_SIZE    ((MAX_MEMSIZETYPE / sizeof(os_charType)) - NULL_TERMINATION_LEN)
+#define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN / sizeof(os_charType)) - NULL_TERMINATION_LEN)
 #define OS_STRI_SIZE(size)  (size)
-#define OS_BSTRI_SIZE(size) (((size) + 1) * sizeof(os_charType))
+#define OS_BSTRI_SIZE(size) (((size) + NULL_TERMINATION_LEN) * sizeof(os_charType))
 int code_page = DEFAULT_CODE_PAGE;
 
 #elif defined OS_STRI_UTF8
 
 #define MAX_OS_STRI_SIZE    (MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR)
-#define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN - 1) / MAX_UTF8_EXPANSION_FACTOR)
+#define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN - NULL_TERMINATION_LEN) / MAX_UTF8_EXPANSION_FACTOR)
 #define OS_STRI_SIZE(size)  max_utf8_size(size)
-#define OS_BSTRI_SIZE(size) (max_utf8_size(size) + 1)
+#define OS_BSTRI_SIZE(size) (max_utf8_size(size) + NULL_TERMINATION_LEN)
 
 #else
 
-#define MAX_OS_STRI_SIZE    ((MAX_MEMSIZETYPE / sizeof(os_charType)) - 1)
-#define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN / sizeof(os_charType)) - 1)
+#define MAX_OS_STRI_SIZE    ((MAX_MEMSIZETYPE / sizeof(os_charType)) - NULL_TERMINATION_LEN)
+#define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN / sizeof(os_charType)) - NULL_TERMINATION_LEN)
 #define OS_STRI_SIZE(size)  (size)
-#define OS_BSTRI_SIZE(size) (((size) + 1) * sizeof(os_charType))
+#define OS_BSTRI_SIZE(size) (((size) + NULL_TERMINATION_LEN) * sizeof(os_charType))
 
 #endif
 
@@ -1619,22 +1624,25 @@ bstriType stri_to_bstriw (const_striType stri)
     bstriType bstri;
 
   /* stri_to_bstriw */
-    if (stri->size > ((MAX_BSTRI_LEN / sizeof(os_charType)) / 2)) {
+    if (stri->size > ((MAX_BSTRI_LEN / sizeof(os_charType)) / SURROGATE_PAIR_FACTOR)) {
       bstri = NULL;
-    } else if (ALLOC_BSTRI_SIZE_OK(bstri, stri->size * 2 * sizeof(os_charType))) {
+    } else if (ALLOC_BSTRI_SIZE_OK(bstri,
+        stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType))) {
       wstri_size = stri_to_utf16((wstriType) bstri->mem, stri->mem, stri->size, &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_BSTRI(bstri, stri->size * 2 * sizeof(os_charType));
+        FREE_BSTRI(bstri, stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType));
         bstri = NULL;
       } else {
         REALLOC_BSTRI_SIZE_OK(resized_bstri, bstri,
-            stri->size * 2 * sizeof(os_charType), wstri_size * sizeof(os_charType));
+            stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType),
+            wstri_size * sizeof(os_charType));
         if (resized_bstri == NULL) {
-          FREE_BSTRI(bstri, stri->size * 2 * sizeof(os_charType));
+          FREE_BSTRI(bstri, stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType));
           bstri = NULL;
         } else {
           bstri = resized_bstri;
-          COUNT3_BSTRI(stri->size * 2 * sizeof(os_charType), wstri_size * sizeof(os_charType));
+          COUNT3_BSTRI(stri->size * SURROGATE_PAIR_FACTOR * sizeof(os_charType),
+              wstri_size * sizeof(os_charType));
           bstri->size = wstri_size * sizeof(os_charType);
         } /* if */
       } /* if */
@@ -2091,7 +2099,7 @@ void setEmulatedCwd (const os_striType os_path, errInfoType *err_info)
     if (unlikely(!ALLOC_OS_STRI(new_cwd, cwd_len))) {
       *err_info = MEMORY_ERROR;
     } else {
-      memcpy(new_cwd, os_path, (cwd_len + 1) * sizeof(os_charType));
+      memcpy(new_cwd, os_path, (cwd_len + NULL_TERMINATION_LEN) * sizeof(os_charType));
       for (position = 0; new_cwd[position] != '\0'; position++) {
         if (new_cwd[position] == '\\') {
           new_cwd[position] = '/';

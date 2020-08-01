@@ -37,6 +37,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 
 #include "common.h"
 #include "data_rtl.h"
@@ -741,7 +742,7 @@ setType setIConv (intType number)
         memSizeType pos;
 
         for (pos = 1; pos < result_size; pos++) {
-          number >>= 8 * sizeof(bitSetType);
+          number >>= CHAR_BIT * sizeof(bitSetType);
           result->bitset[pos] = (bitSetType) number;
         } /* for */
       }
@@ -1421,7 +1422,7 @@ uintType setToUInt (const const_setType set1, const intType lowestBitNum)
         return (uintType) set1->bitset[bitset_index];
       } else if (position < set1->max_position) {
         return (uintType) (set1->bitset[bitset_index] >> bit_index |
-            set1->bitset[bitset_index + 1] << (8 * sizeof(bitSetType) - bit_index));
+            set1->bitset[bitset_index + 1] << (CHAR_BIT * sizeof(bitSetType) - bit_index));
       } else {
         return (uintType) (set1->bitset[bitset_index] >> bit_index);
       } /* if */
@@ -1429,7 +1430,7 @@ uintType setToUInt (const const_setType set1, const intType lowestBitNum)
       bitset_index = bitsetIndex(set1, position);
       bit_index = ((unsigned int) lowestBitNum) & bitset_mask;
       return (uintType)
-          (set1->bitset[bitset_index + 1] << (8 * sizeof(bitSetType) - bit_index));
+          (set1->bitset[bitset_index + 1] << (CHAR_BIT * sizeof(bitSetType) - bit_index));
     } else {
       return 0;
     } /* if */

@@ -882,6 +882,174 @@ void strAppend (striType *const destination, const_striType extension)
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
 
+
+
+/**
+ *  Append an arbitrary number of strings.
+ *  strAppendN is used by the compiler to optimize appending
+ *  two or more strings.
+ *  @param arraySize Number of strings in extensionArray (>= 2).
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ */
+void strAppendN (striType *const destination,
+    const const_striType extensionArray[], memSizeType arraySize)
+
+  {
+    striType stri_dest;
+    memSizeType size_limit;
+    memSizeType pos;
+    memSizeType new_size;
+    const strElemType *old_dest_origin;
+    const strElemType *old_dest_beyond;
+    striType new_stri;
+    strElemType *dest;
+    memSizeType elem_size;
+    const strElemType *extension_mem;
+
+  /* strAppendN */
+    logFunction(printf("strAppendN(\"%s\", ",
+                       striAsUnquotedCStri(*destination));
+                for (pos = 0; pos < arraySize; pos++) {
+                  printf("\"%s\", ",
+                         striAsUnquotedCStri(extensionArray[pos]));
+                } /* for */
+                printf(FMT_U_MEM ")", arraySize);
+                fflush(stdout););
+    stri_dest = *destination;
+    size_limit = MAX_STRI_LEN - stri_dest->size;
+    pos = arraySize;
+    do {
+      pos--;
+      if (unlikely(extensionArray[pos]->size > size_limit)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        size_limit -= extensionArray[pos]->size;
+      } /* if */
+    } while (pos != 0);
+    new_size = MAX_STRI_LEN - size_limit;
+#ifdef WITH_STRI_CAPACITY
+    if (new_size > stri_dest->capacity) {
+      if (new_size <= MAX_STRI_LEN_IN_FREELIST) {
+        if (unlikely(!ALLOC_STRI_SIZE_OK(new_stri, new_size))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          new_stri->size = new_size;
+          dest = new_stri->mem;
+          memcpy(dest, stri_dest->mem, stri_dest->size * sizeof(strElemType));
+          dest += stri_dest->size;
+          for (pos = 0; pos < arraySize; pos++) {
+            elem_size = extensionArray[pos]->size;
+            memcpy(dest, extensionArray[pos]->mem, elem_size * sizeof(strElemType));
+            dest += elem_size;
+          } /* for */
+          FREE_STRI(stri_dest, stri_dest->size);
+          *destination = new_stri;
+        } /* if */
+      } else {
+        old_dest_origin = GET_DESTINATION_ORIGIN(stri_dest);
+        old_dest_beyond = GET_DESTINATION_BEYOND(stri_dest);
+        new_stri = growStri(stri_dest, new_size);
+        if (unlikely(new_stri == NULL)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          COUNT3_STRI(new_stri->size, new_size);
+          *destination = new_stri;
+          dest = &new_stri->mem[new_stri->size];
+          for (pos = 0; pos < arraySize; pos++) {
+            if (unlikely(SLICE_OVERLAPPING2(extensionArray[pos], old_dest_origin,
+                                            old_dest_beyond))) {
+              /* The extension (extensionArray[pos]) is identical   */
+              /* to the 'destination' or a slice of it (it refers   */
+              /* to the memory area of it). The resizing of the     */
+              /* 'destination' might have moved 'new_stri' to a     */
+              /* new memory area. Therefore 'extension_mem' must    */
+              /* be corrected after realloc() enlarged 'new_stri'.  */
+              if (stri_dest == extensionArray[pos]) {
+                /* For an identical extension the size is also      */
+                /* identical.                                       */
+                elem_size = new_stri->size;
+              } else {
+                /* For a slice the extension size is okay.          */
+                elem_size = extensionArray[pos]->size;
+              } /* if */
+              extension_mem =
+                  &new_stri->mem[extensionArray[pos]->mem - old_dest_origin];
+              /* Correcting extensionArray[pos]->mem is not needed, */
+              /* since a slice will not be used afterwards. In case */
+              /* the extension is identical to 'new_stri' changing  */
+              /* extensionArray[pos]->mem is dangerous since the    */
+              /* memory could have been released.                   */
+            } else {
+              elem_size = extensionArray[pos]->size;
+              extension_mem = extensionArray[pos]->mem;
+            } /* if */
+            memcpy(dest, extension_mem, elem_size * sizeof(strElemType));
+            dest += elem_size;
+          } /* for */
+          new_stri->size = new_size;
+        } /* if */
+      } /* if */
+    } else {
+      COUNT3_STRI(stri_dest->size, new_size);
+      dest = &stri_dest->mem[stri_dest->size];
+      for (pos = 0; pos < arraySize; pos++) {
+        elem_size = extensionArray[pos]->size;
+        memcpy(dest, extensionArray[pos]->mem,
+               elem_size * sizeof(strElemType));
+        dest += elem_size;
+      } /* for */
+      stri_dest->size = new_size;
+    } /* if */
+#else
+    old_dest_origin = GET_DESTINATION_ORIGIN(stri_dest);
+    old_dest_beyond = GET_DESTINATION_BEYOND(stri_dest);
+    GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
+    if (unlikely(new_stri == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      COUNT3_STRI(new_stri->size, new_size);
+      *destination = new_stri;
+      dest = &new_stri->mem[new_stri->size];
+      for (pos = 0; pos < arraySize; pos++) {
+        elem_size = extensionArray[pos]->size;
+        if (unlikely(SLICE_OVERLAPPING2(extensionArray[pos], old_dest_origin,
+                                        old_dest_beyond))) {
+          /* The extension (extensionArray[pos]) is identical   */
+          /* to the 'destination' or a slice of it (it refers   */
+          /* to the memory area of it). The resizing of the     */
+          /* 'destination' might have moved 'new_stri' to a     */
+          /* new memory area. Therefore 'extension_mem' must    */
+          /* be corrected after realloc() enlarged 'new_stri'.  */
+          if (stri_dest == extensionArray[pos]) {
+            /* For an identical extension the size is also      */
+            /* identical.                                       */
+            elem_size = new_stri->size;
+          } else {
+            /* For a slice the extension size is okay.          */
+            elem_size = extensionArray[pos]->size;
+          } /* if */
+          extension_mem =
+              &new_stri->mem[extensionArray[pos]->mem - old_dest_origin];
+          /* Correcting extension->mem is not necessary, since  */
+          /* a slice will not be used afterwards. In case when  */
+          /* 'extension is identical to 'new_stri' changing     */
+          /* extension->mem is dangerous since 'extension'      */
+          /* could have been released.                          */
+        } else {
+          elem_size = extensionArray[pos]->size;
+          extension_mem = extensionArray[pos]->mem;
+        } /* if */
+        memcpy(dest, extension_mem, elem_size * sizeof(strElemType));
+        dest += elem_size;
+      } /* for */
+      new_stri->size = new_size;
+    } /* if */
+#endif
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+  } /* strAppendN */
+
 #else
 
 
@@ -950,6 +1118,115 @@ void strAppend (striType *const destination, const_striType extension)
     } /* if */
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
   } /* strAppend */
+
+
+
+/**
+ *  Append an arbitrary number of strings.
+ *  strAppendN is used by the compiler to optimize appending
+ *  two or more strings.
+ *  @param arraySize Number of strings in extensionArray (>= 2).
+ *  @exception MEMORY_ERROR Not enough memory for the concatenated
+ *             string.
+ */
+void strAppendN (striType *const destination,
+    const const_striType extensionArray[], memSizeType arraySize)
+
+  {
+    striType stri_dest;
+    memSizeType size_limit;
+    memSizeType pos;
+    memSizeType new_size;
+    striType new_stri;
+    strElemType *dest;
+    memSizeType elem_size;
+    const strElemType *extension_mem;
+
+  /* strAppendN */
+    logFunction(printf("strAppendN(\"%s\", ",
+                       striAsUnquotedCStri(*destination));
+                for (pos = 0; pos < arraySize; pos++) {
+                  printf("\"%s\", ",
+                         striAsUnquotedCStri(extensionArray[pos]));
+                } /* for */
+                printf(FMT_U_MEM ")", arraySize);
+                fflush(stdout););
+    stri_dest = *destination;
+    size_limit = MAX_STRI_LEN - stri_dest->size;
+    pos = arraySize;
+    do {
+      pos--;
+      if (unlikely(extensionArray[pos]->size > size_limit)) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else {
+        size_limit -= extensionArray[pos]->size;
+      } /* if */
+    } while (pos != 0);
+    new_size = MAX_STRI_LEN - size_limit;
+#ifdef WITH_STRI_CAPACITY
+    if (new_size > stri_dest->capacity) {
+      new_stri = growStri(stri_dest, new_size);
+      if (unlikely(new_stri == NULL)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT3_STRI(new_stri->size, new_size);
+        *destination = new_stri;
+        dest = &new_stri->mem[new_stri->size];
+        for (pos = 0; pos < arraySize; pos++) {
+          if (stri_dest == extensionArray[pos]) {
+            /* It is possible that stri_dest == extension holds. */
+            /* In this case 'extension' must be corrected        */
+            /* after realloc() enlarged 'stri_dest'.             */
+            elem_size = new_stri->size;
+            extension_mem = new_stri->mem;
+          } else {
+            elem_size = extensionArray[pos]->size;
+            extension_mem = extensionArray[pos]->mem;
+          } /* if */
+          memcpy(dest, extension_mem, elem_size * sizeof(strElemType));
+          dest += elem_size;
+        } /* for */
+        new_stri->size = new_size;
+      } /* if */
+    } else {
+      COUNT3_STRI(stri_dest->size, new_size);
+      dest = &stri_dest->mem[stri_dest->size];
+      for (pos = 0; pos < arraySize; pos++) {
+        elem_size = extensionArray[pos]->size;
+        memcpy(dest, extensionArray[pos]->mem,
+               elem_size * sizeof(strElemType));
+        dest += elem_size;
+      } /* for */
+      stri_dest->size = new_size;
+    } /* if */
+#else
+    GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
+    if (unlikely(new_stri == NULL)) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      COUNT3_STRI(new_stri->size, new_size);
+      *destination = new_stri;
+      dest = &new_stri->mem[new_stri->size];
+      for (pos = 0; pos < arraySize; pos++) {
+        if (stri_dest == extensionArray[pos]) {
+          /* It is possible that stri_dest == extension holds. */
+          /* In this case 'extension' must be corrected        */
+          /* after realloc() enlarged 'stri_dest'.             */
+          elem_size = new_stri->size;
+          extension_mem = new_stri->mem;
+        } else {
+          elem_size = extensionArray[pos]->size;
+          extension_mem = extensionArray[pos]->mem;
+        } /* if */
+        memcpy(dest, extension_mem, elem_size * sizeof(strElemType));
+        dest += elem_size;
+      } /* for */
+      new_stri->size = new_size;
+    } /* if */
+#endif
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*destination)););
+  } /* strAppendN */
 
 #endif
 
@@ -1270,6 +1547,10 @@ rtlArrayType strChSplit (const const_striType mainStri, const charType delimiter
 striType strCLit (const const_striType stri)
 
   {
+    /* A string literal starts and ends with double quotes ("): */
+    const memSizeType numOfQuotes = 2;
+    /* Maximum escape sequence length in C string literal: */
+    const memSizeType escSequenceMax = STRLEN("\\255");
     register strElemType character;
     register memSizeType position;
     memSizeType striSize;
@@ -1280,8 +1561,8 @@ striType strCLit (const const_striType stri)
   /* strCLit */
     logFunction(printf("strCLit(\"%s\")\n", striAsUnquotedCStri(stri)););
     striSize = stri->size;
-    if (unlikely(striSize > (MAX_STRI_LEN - 2) / 4 ||
-                 !ALLOC_STRI_SIZE_OK(result, 4 * striSize + 2))) {
+    if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
+                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * striSize + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -1333,7 +1614,7 @@ striType strCLit (const const_striType stri)
           result->mem[pos + 3] = (strElemType) ((character      & 0x7) + '0');
           pos += 4;
         } else {
-          FREE_STRI(result, 4 * striSize + 2);
+          FREE_STRI(result, escSequenceMax * striSize + numOfQuotes);
           logError(printf("strCLit(\"%s\"): Character > '\\255;' found.\n",
                           striAsUnquotedCStri(stri)););
           raise_error(RANGE_ERROR);
@@ -1343,14 +1624,15 @@ striType strCLit (const const_striType stri)
       result->mem[pos] = (strElemType) '"';
       pos++;
       result->size = pos;
-      REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * striSize + 2, pos);
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+          escSequenceMax * striSize + numOfQuotes, pos);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, 4 * striSize + 2);
+        FREE_STRI(result, escSequenceMax * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(4 * striSize + 2, pos);
+        COUNT3_STRI(escSequenceMax * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
     return result;
@@ -1444,6 +1726,7 @@ striType strConcat (const const_striType stri1, const const_striType stri2)
  *  Concatenate an arbitrary number of strings.
  *  StrConcatN is used by the compiler to optimize the concatination of
  *  three or more strings.
+ *  @param arraySize Number of strings in striArray (>= 3).
  *  @return the result of the concatenation.
  */
 striType strConcatN (const const_striType striArray[], memSizeType arraySize)
@@ -1457,18 +1740,23 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
     striType result;
 
   /* strConcatN */
-    logFunction(printf("strConcatN(" FMT_U_MEM ")\n", arraySize););
-    for (pos = arraySize; pos > 0; pos--) {
-      /* printf("arr[" FMT_U_MEM "]->size=" FMT_U_MEM "\n", pos, striArray[pos - 1]->size);
-      printf("arr[" FMT_U_MEM "]=(" F_X_MEM(08) ") \"%s\"\n",
-      pos, striArray[pos - 1], striAsUnquotedCStri(striArray[pos - 1])); */
-      if (unlikely(striArray[pos - 1]->size > size_limit)) {
+    logFunction(printf("strConcatN(");
+                for (pos = 0; pos < arraySize; pos++) {
+                  printf("\"%s\", ",
+                         striAsUnquotedCStri(striArray[pos]));
+                } /* if */
+                printf(FMT_U_MEM ")", arraySize);
+                fflush(stdout););
+    pos = arraySize;
+    do {
+      pos--;
+      if (unlikely(striArray[pos]->size > size_limit)) {
         raise_error(MEMORY_ERROR);
         return NULL;
       } else {
-        size_limit -= striArray[pos - 1]->size;
+        size_limit -= striArray[pos]->size;
       } /* if */
-    } /* for */
+    } while (pos != 0);
     result_size = MAX_STRI_LEN - size_limit;
     /* printf("result_size=" FMT_U_MEM "\n", result_size); */
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, result_size))) {
@@ -1482,7 +1770,7 @@ striType strConcatN (const const_striType striArray[], memSizeType arraySize)
         dest += elem_size;
       } /* for */
     } /* if */
-    logFunction(printf("strConcatN --> \"%s\"\n", striAsUnquotedCStri(result)););
+    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(result)););
     return result;
   } /* strConcatN */
 
@@ -1548,16 +1836,11 @@ striType strConcatTemp (striType stri1, const const_striType stri2)
 
 
 
-#ifdef ALLOW_STRITYPE_SLICES
 void strCopy (striType *const stri_to, const const_striType stri_from)
 
   {
     memSizeType new_size;
     striType stri_dest;
-    const strElemType *stri_from_mem;
-#ifndef WITH_STRI_CAPACITY
-    const strElemType *stri_from_origin;
-#endif
 
   /* strCopy */
     logFunction(printf("strCopy(\"%s\", ", striAsUnquotedCStri(*stri_to));
@@ -1565,87 +1848,26 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
                 fflush(stdout););
     stri_dest = *stri_to;
     new_size = stri_from->size;
-#ifdef WITH_STRI_CAPACITY
-    if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
-      COUNT3_STRI(stri_dest->size, new_size);
-      stri_dest->size = new_size;
-      stri_from_mem = stri_from->mem;
-#else
-    if (stri_dest->size > new_size) {
-      stri_from_mem = stri_from->mem;
-      if (SLICE_OVERLAPPING(stri_from, stri_dest)) {
-        stri_from_origin = stri_dest->mem;
-      } else {
-        stri_from_origin = NULL;
-      } /* if */
-      SHRINK_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
-      /* printf("strCopy(old_size=%lu, new_size=%lu)\n", stri_dest->size, new_size); */
-      if (unlikely(stri_dest == NULL)) {
-        raise_error(MEMORY_ERROR);
-        return;
-      } else {
-        COUNT3_STRI(stri_dest->size, new_size);
-        stri_dest->size = new_size;
-        if (stri_from_origin != NULL) {
-          /* It is possible that 'stri_from' is identical to    */
-          /* '*stri_to' or a slice of it. This can be checked   */
-          /* with the origin. In this case 'stri_from_mem' must */
-          /* be corrected after realloc() enlarged 'stri_dest'. */
-          stri_from_mem = &stri_dest->mem[stri_from_mem - stri_from_origin];
-          /* Correcting stri_from->mem is not necessary, since  */
-          /* a slice will not be used afterwards. In case when  */
-          /* 'stri_from' is identical to '*stri_to' changing    */
-          /* stri_from->mem is dangerous since 'stri_from'      */
-          /* could have been released.                          */
-        } /* if */
-        *stri_to = stri_dest;
-      } /* if */
-#endif
+    if (stri_dest->size == new_size) {
       /* It is possible that stri_dest and stri_from overlap. */
-      /* The behavior of memcpy() is undefined when source    */
-      /* and destination areas overlap (or are identical).    */
-      /* Therefore memmove() is used instead of memcpy().     */
-      memmove(stri_dest->mem, stri_from_mem,
+      memmove(stri_dest->mem, stri_from->mem,
           new_size * sizeof(strElemType));
     } else {
-      if (unlikely(!ALLOC_STRI_SIZE_OK(stri_dest, new_size))) {
-        raise_error(MEMORY_ERROR);
-        return;
-      } else {
-        stri_dest->size = new_size;
-        memcpy(stri_dest->mem, stri_from->mem,
-               new_size * sizeof(strElemType));
-        FREE_STRI(*stri_to, (*stri_to)->size);
-        *stri_to = stri_dest;
-      } /* if */
-    } /* if */
-    logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*stri_to)););
-  } /* strCopy */
-
-#else
-
-
-void strCopy (striType *const stri_to, const const_striType stri_from)
-
-  {
-    memSizeType new_size;
-    striType stri_dest;
-
-  /* strCopy */
-    logFunction(printf("strCopy(\"%s\", ", striAsUnquotedCStri(*stri_to));
-                printf("\"%s\")", striAsUnquotedCStri(stri_from));
-                fflush(stdout););
-    stri_dest = *stri_to;
-    /* printf("stri_dest=%lu\n", stri_dest); */
-    new_size = stri_from->size;
-    if (stri_dest->size != new_size) {
 #ifdef WITH_STRI_CAPACITY
       if (stri_dest->capacity >= new_size && !SHRINK_REASON(stri_dest, new_size)) {
+        COUNT3_STRI(stri_dest->size, new_size);
         stri_dest->size = new_size;
+        /* It is possible that stri_dest and stri_from overlap. */
+        memmove(stri_dest->mem, stri_from->mem,
+            new_size * sizeof(strElemType));
 #else
       if (stri_dest->size > new_size) {
+        /* It is possible that stri_dest and stri_from overlap. */
+        /* The move must be done before the shrink to avoid     */
+        /* accessing non-existing data.                         */
+        memmove(stri_dest->mem, stri_from->mem,
+            new_size * sizeof(strElemType));
         SHRINK_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
-        /* printf("strCopy(old_size=%lu, new_size=%lu)\n", stri_dest->size, new_size); */
         if (unlikely(stri_dest == NULL)) {
           raise_error(MEMORY_ERROR);
           return;
@@ -1660,22 +1882,16 @@ void strCopy (striType *const stri_to, const const_striType stri_from)
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          FREE_STRI(*stri_to, (*stri_to)->size);
           stri_dest->size = new_size;
+          memcpy(stri_dest->mem, stri_from->mem,
+                 new_size * sizeof(strElemType));
+          FREE_STRI(*stri_to, (*stri_to)->size);
           *stri_to = stri_dest;
         } /* if */
       } /* if */
     } /* if */
-    /* It is possible that *stri_to == stri_from holds. The */
-    /* behavior of memcpy() is undefined when source and    */
-    /* destination areas overlap (or are identical).        */
-    /* Therefore memmove() is used instead of memcpy().     */
-    memmove(stri_dest->mem, stri_from->mem,
-        new_size * sizeof(strElemType));
     logFunctionResult(printf("\"%s\"\n", striAsUnquotedCStri(*stri_to)););
   } /* strCopy */
-
-#endif
 
 
 
@@ -2120,6 +2336,10 @@ boolType strLe (const const_striType stri1, const const_striType stri2)
 striType strLit (const const_striType stri)
 
   {
+    /* A string literal starts and ends with double quotes ("): */
+    const memSizeType numOfQuotes = 2;
+    /* Maximum escape sequence length in string literal: */
+    const memSizeType escSequenceMax = STRLEN("\\4294967295;");
     register strElemType character;
     register memSizeType position;
     memSizeType striSize;
@@ -2131,8 +2351,8 @@ striType strLit (const const_striType stri)
 
   /* strLit */
     striSize = stri->size;
-    if (unlikely(striSize > (MAX_STRI_LEN - 2) / 12 ||
-                 !ALLOC_STRI_SIZE_OK(result, 12 * striSize + 2))) {
+    if (unlikely(striSize > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
+                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * striSize + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -2190,14 +2410,15 @@ striType strLit (const const_striType stri)
       result->mem[pos] = (strElemType) '"';
       pos++;
       result->size = pos;
-      REALLOC_STRI_SIZE_SMALLER(resized_result, result, 12 * striSize + 2, pos);
+      REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+          escSequenceMax * striSize + numOfQuotes, pos);
       if (unlikely(resized_result == NULL)) {
-        FREE_STRI(result, 12 * striSize + 2);
+        FREE_STRI(result, escSequenceMax * striSize + numOfQuotes);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(5 * striSize + 2, pos);
+        COUNT3_STRI(escSequenceMax * striSize + numOfQuotes, pos);
       } /* if */
     } /* if */
     return result;
@@ -3898,7 +4119,7 @@ striType strUpTemp (const striType stri)
  *  @exception RANGE_ERROR When characters beyond '\255;' are present or
  *                         when 'utf8' is not encoded with UTF-8.
  */
-striType strUtf8ToStri (const_striType utf8)
+striType strUtf8ToStri (const const_striType utf8)
 
   {
     memSizeType striSize;
@@ -3909,6 +4130,8 @@ striType strUtf8ToStri (const_striType utf8)
     striType result;
 
   /* strUtf8ToStri */
+    logFunction(printf("strUtf8ToStri(\"%s\")\n",
+                       striAsUnquotedCStri(utf8)););
     striSize = utf8->size;
     if (unlikely(!ALLOC_STRI_SIZE_OK(result, striSize))) {
       raise_error(MEMORY_ERROR);
@@ -3981,6 +4204,11 @@ striType strUtf8ToStri (const_striType utf8)
         } else {
           /* utf8ptr[0] not in range 0xC0 to 0xFF (192 to 255) */
           /* or not enough continuation bytes found.           */
+          logError(printf("strUtf8ToStri: "
+                          "Invalid byte sequence starting at position "
+                          FMT_U_MEM ": \"\\" FMT_U32 ";\\ ...\".\n",
+                          (memSizeType) (utf8ptr - &utf8->mem[0]),
+                          utf8ptr[0]););
           okay = FALSE;
           striSize = 1;
         } /* if */
@@ -4002,6 +4230,8 @@ striType strUtf8ToStri (const_striType utf8)
         result = NULL;
       } /* if */
     } /* if */
+    logFunction(printf("strUtf8ToStri --> \"%s\"\n",
+                       striAsUnquotedCStri(result)););
     return result;
   } /* strUtf8ToStri */
 

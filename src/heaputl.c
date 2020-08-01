@@ -93,7 +93,7 @@ void setupStack (void)
 striType growStri (striType stri, memSizeType len)
 
   {
-    memSizeType new_len;
+    memSizeType newCapacity;
     striType result;
 
   /* growStri */
@@ -101,28 +101,28 @@ striType growStri (striType stri, memSizeType len)
       result = NULL;
     } else {
       if (2 * stri->capacity >= len) {
-        new_len = 2 * stri->capacity;
+        newCapacity = 2 * stri->capacity;
       } else {
-        new_len = 2 * len;
+        newCapacity = 2 * len;
       } /* if */
-      if (new_len < 8) {
-        new_len = 8;
-      } else if (unlikely(new_len > MAX_STRI_LEN)) {
-        new_len = MAX_STRI_LEN;
+      if (newCapacity < MIN_GROW_SHRINK_CAPACITY) {
+        newCapacity = MIN_GROW_SHRINK_CAPACITY;
+      } else if (unlikely(newCapacity > MAX_STRI_LEN)) {
+        newCapacity = MAX_STRI_LEN;
       } /* if */
-      /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u, sizeof=%u\n",
-         stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(striRecord));
+      /* printf("growStri(%lX, %lu) size=%u, capacity=%u, newCapacity=%u, siz_stri=%u, sizeof=%u\n",
+         stri, len, stri->size, stri->capacity, newCapacity, SIZ_STRI(newCapacity), sizeof(striRecord));
       fflush(stdout); */
-      result = REALLOC_HEAP(stri, striType, SIZ_STRI(new_len));
+      result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
       if (result == NULL) {
-        new_len = len;
-        result = REALLOC_HEAP(stri, striType, SIZ_STRI(new_len));
+        newCapacity = len;
+        result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
       } /* if */
       if (result != NULL) {
 #ifdef ALLOW_STRITYPE_SLICES
         result->mem = result->mem1;
 #endif
-        result->capacity = new_len;
+        result->capacity = newCapacity;
       } /* if */
     } /* if */
     logFunction(printf("growStri --> " FMT_X_MEM "\n", (memSizeType) result);
@@ -135,19 +135,19 @@ striType growStri (striType stri, memSizeType len)
 striType shrinkStri (striType stri, memSizeType len)
 
   {
-    memSizeType new_len;
+    memSizeType newCapacity;
     striType result;
 
   /* shrinkStri */
-    new_len = 2 * len;
-    /* printf("shrinkStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u, sizeof=%u\n",
-         stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(striRecord));
+    newCapacity = 2 * len;
+    /* printf("shrinkStri(%lX, %lu) size=%u, capacity=%u, newCapacity=%u, siz_stri=%u, sizeof=%u\n",
+         stri, len, stri->size, stri->capacity, newCapacity, SIZ_STRI(newCapacity), sizeof(striRecord));
     fflush(stdout); */
-    result = REALLOC_HEAP(stri, striType, SIZ_STRI(new_len));
+    result = REALLOC_HEAP(stri, striType, SIZ_STRI(newCapacity));
 #ifdef ALLOW_STRITYPE_SLICES
     result->mem = result->mem1;
 #endif
-    result->capacity = new_len;
+    result->capacity = newCapacity;
     return result;
   } /* shrinkStri */
 #endif

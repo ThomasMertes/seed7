@@ -76,6 +76,7 @@ const proc: str_prototypes (inout file: c_prog) is func
 
   begin
     declareExtern(c_prog, "void        strAppend (striType *const, const_striType);");
+    declareExtern(c_prog, "void        strAppendN (striType *const, const const_striType[], memSizeType);");
     declareExtern(c_prog, "void        strAppendTemp (striType *const, const striType);");
     declareExtern(c_prog, "intType     strChIPos (const const_striType, const charType, const intType);");
     declareExtern(c_prog, "striType    strChMult (const charType, const intType);");
@@ -132,9 +133,86 @@ const proc: str_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "striType    strTrim (const const_striType);");
     declareExtern(c_prog, "striType    strUp (const const_striType);");
     declareExtern(c_prog, "striType    strUpTemp (const striType);");
-    declareExtern(c_prog, "striType    strUtf8ToStri (const_striType);");
+    declareExtern(c_prog, "striType    strUtf8ToStri (const const_striType);");
     declareExtern(c_prog, "striType    strValue (const const_objRefType);");
     declareExtern(c_prog, "striType    strZero (const intType);");
+  end func;
+
+
+const func array reference: getConcatNParamList (in ref_list: params) is func
+  result
+    var array reference: concatNParamList is 0 times NIL;
+  local
+    var reference: leftParam is NIL;
+    var boolean: concatFound is FALSE;
+    var ref_list: subExprParams is ref_list.EMPTY;
+  begin
+    leftParam := params[1];
+    concatNParamList := [] (params[3]);
+    repeat
+      concatFound := FALSE;
+      if category(leftParam) = CALLOBJECT then
+        subExprParams := getValue(leftParam, ref_list);
+        if category(subExprParams[1]) = ACTOBJECT then
+          if str(getValue(subExprParams[1], ACTION)) = "STR_CAT" then
+            leftParam := subExprParams[2];
+            concatNParamList := [] (subExprParams[4]) & concatNParamList;
+            concatFound := TRUE;
+          end if;
+        end if;
+      end if;
+    until not concatFound;
+    concatNParamList := [] (leftParam) & concatNParamList;
+  end func;
+
+
+const func array reference: getAppendExtensions (in reference: extension) is func
+  result
+    var array reference: appendNParamList is 0 times NIL;
+  local
+    var ref_list: params is ref_list.EMPTY;
+  begin
+    if category(extension) = CALLOBJECT then
+      params := getValue(extension, ref_list);
+      if category(params[1]) = ACTOBJECT and
+          str(getValue(params[1], ACTION)) = "STR_CAT" then
+        appendNParamList := getConcatNParamList(params[2 ..]);
+      else
+        appendNParamList := [] (extension);
+      end if;
+    else
+      appendNParamList := [] (extension);
+    end if;
+  end func;
+
+
+const proc: concatConstants (inout array reference: concatNParamList) is func
+  local
+    var integer: index is 1;
+    var reference: evaluatedParam is NIL;
+    var string: paramValue is "";
+  begin
+    while index <= length(concatNParamList) do
+      if getConstant(concatNParamList[index], STRIOBJECT, evaluatedParam) then
+        paramValue := getValue(evaluatedParam, string);
+        if paramValue = "" then
+          # Empty strings are removed.
+          incr(countOptimizations);
+          ignore(remove(concatNParamList, index));
+        elsif succ(index) <= length(concatNParamList) and
+            getConstant(concatNParamList[succ(index)], STRIOBJECT, evaluatedParam) then
+          # Two consecutive constant strings are concatenated at compile time.
+          incr(countOptimizations);
+          concatNParamList[index] := alloc(FALSE, getType(concatNParamList[index]),
+              paramValue & getValue(evaluatedParam, string));
+          ignore(remove(concatNParamList, succ(index)));
+        else
+          incr(index);
+        end if;
+      else
+        incr(index);
+      end if;
+    end while;
   end func;
 
 
@@ -208,7 +286,7 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
     setDiagnosticLine(c_expr);
     if stri = "" then
       incr(countOptimizations);
-      c_expr.expr &:= "/* append empty string */\n";
+      c_expr.expr &:= "/* Append empty string */\n";
     elsif length(stri) = 1 then
       incr(countOptimizations);
       process_const_str_push(param1, stri[1], c_expr);
@@ -222,6 +300,82 @@ const proc: process_const_str_append (in reference: param1, in string: stri,
   end func;
 
 
+(**
+ *  Produces code for the string append operator.
+ *  When two or more strings are appended the function
+ *  strAppendN is used. This avoids copying and allocation operations.
+ *)
+const proc: optimize_str_append (in reference: dest, in reference: extension,
+    inout expr_type: c_expr) is func
+
+  local
+    var expr_type: statement is expr_type.value;
+    var array reference: appendExtensions is 0 times NIL;
+    var string: concatNParamName is "";
+    var integer: index is 1;
+    var reference: evaluatedParam is NIL;
+    var expr_type: c_extension is expr_type.value;
+  begin
+    appendExtensions := getAppendExtensions(extension);
+    concatConstants(appendExtensions);
+    if length(appendExtensions) >= 2 then
+      incr(countOptimizations);
+      incr(statement.temp_num);
+      concatNParamName := "tmp_" & str(statement.temp_num);
+      statement.temp_decls &:= "const_striType ";
+      statement.temp_decls &:= concatNParamName;
+      statement.temp_decls &:= "[";
+      statement.temp_decls &:= str(length(appendExtensions));
+      statement.temp_decls &:= "];\n";
+      for key index range appendExtensions do
+        statement.expr &:= concatNParamName;
+        statement.expr &:= "[";
+        statement.expr &:= str(pred(index));
+        statement.expr &:= "] = ";
+        getAnyParamToExpr(appendExtensions[index], statement);
+        statement.expr &:= ";\n";
+      end for;
+      statement.expr &:= "strAppendN(&(";
+      process_expr(dest, statement);
+      statement.expr &:= "), ";
+      statement.expr &:= concatNParamName;
+      statement.expr &:= ", ";
+      statement.expr &:= str(length(appendExtensions));
+      statement.expr &:= ");\n";
+    elsif length(appendExtensions) = 1 then
+      if getConstant(appendExtensions[1], STRIOBJECT, evaluatedParam) then
+        process_const_str_append(dest, getValue(evaluatedParam, string), c_expr);
+      else
+        if isActionExpression(appendExtensions[1], "CHR_STR") then
+          incr(countOptimizations);
+          statement.expr &:= "strPush(&(";
+          process_expr(dest, statement);
+          statement.expr &:= "), ";
+          process_expr(getActionParameter(appendExtensions[1], 1), statement);
+        else
+          prepareAnyParamTemporarys(appendExtensions[1], c_extension, statement);
+          if c_extension.result_expr <> "" then
+            statement.expr := "strAppendTemp(&(";
+            process_expr(dest, statement);
+            statement.expr &:= "), ";
+            statement.expr &:= c_extension.result_expr;
+          else
+            statement.expr := "strAppend(&(";
+            process_expr(dest, statement);
+            statement.expr &:= "), ";
+            statement.expr &:= c_extension.expr;
+          end if;
+        end if;
+        statement.expr &:= ");\n";
+      end if;
+    else
+      incr(countOptimizations);
+      statement.expr &:= "/* Append empty string */\n";
+    end if;
+    doLocalDeclsOfStatement(statement, c_expr);
+  end func;
+
+
 const proc: process (STR_APPEND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -230,7 +384,9 @@ const proc: process (STR_APPEND, in reference: function,
     var expr_type: c_param1 is expr_type.value;
     var expr_type: c_param3 is expr_type.value;
   begin
-    if getConstant(params[3], STRIOBJECT, evaluatedParam) then
+    if evaluate_const_expr >= 1 then
+      optimize_str_append(params[1], params[3], c_expr);
+    elsif getConstant(params[3], STRIOBJECT, evaluatedParam) then
       process_const_str_append(params[1], getValue(evaluatedParam, string), c_expr);
     else
       process_expr(params[1], c_param1);
@@ -275,66 +431,9 @@ const proc: process (STR_APPEND, in reference: function,
   end func;
 
 
-const func array reference: getConcatNParamList (in ref_list: params) is func
-  result
-    var array reference: concatNParamList is 0 times NIL;
-  local
-    var reference: leftParam is NIL;
-    var boolean: concatFound is FALSE;
-    var ref_list: subExprParams is ref_list.EMPTY;
-  begin
-    leftParam := params[1];
-    concatNParamList := [] (params[3]);
-    repeat
-      concatFound := FALSE;
-      if category(leftParam) = CALLOBJECT then
-        subExprParams := getValue(leftParam, ref_list);
-        if category(subExprParams[1]) = ACTOBJECT then
-          if str(getValue(subExprParams[1], ACTION)) = "STR_CAT" then
-            leftParam := subExprParams[2];
-            concatNParamList := [] (subExprParams[4]) & concatNParamList;
-            concatFound := TRUE;
-          end if;
-        end if;
-      end if;
-    until not concatFound;
-    concatNParamList := [] (leftParam) & concatNParamList;
-  end func;
-
-
-const proc: concatConstants (inout array reference: concatNParamList) is func
-  local
-    var integer: index is 1;
-    var reference: evaluatedParam is NIL;
-    var string: paramValue is "";
-  begin
-    while index <= length(concatNParamList) do
-      if getConstant(concatNParamList[index], STRIOBJECT, evaluatedParam) then
-        paramValue := getValue(evaluatedParam, string);
-        if paramValue = "" then
-          # Empty strings are removed.
-          incr(countOptimizations);
-          ignore(remove(concatNParamList, index));
-        elsif succ(index) <= length(concatNParamList) and
-            getConstant(concatNParamList[succ(index)], STRIOBJECT, evaluatedParam) then
-          # Two consecutive constant strings are concatenated at compile time.
-          incr(countOptimizations);
-          concatNParamList[index] := alloc(FALSE, getType(concatNParamList[index]),
-              paramValue & getValue(evaluatedParam, string));
-          ignore(remove(concatNParamList, succ(index)));
-        else
-          incr(index);
-        end if;
-      else
-        incr(index);
-      end if;
-    end while;
-  end func;
-
-
 (**
  *  Produces code for the string concatenation.
- *  When more than two strings are concatenated the function
+ *  When three or more strings are concatenated the function
  *  strConcatN is used. This saves copying and allocation operations.
  *  When the first parameter is a temporary value the concatenation
  *  is done with strConcatTemp. The strConcatTemp function returns
@@ -351,7 +450,7 @@ const proc: optimize_str_cat (in ref_list: params, inout expr_type: c_expr) is f
   begin
     concatNParamList := getConcatNParamList(params);
     concatConstants(concatNParamList);
-    if length(concatNParamList) > 2 then
+    if length(concatNParamList) >= 3 then
       incr(countOptimizations);
       prepare_stri_result(c_expr);
       incr(c_expr.temp_num);
@@ -2097,9 +2196,12 @@ const proc: process (STR_PUSH, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
     var expr_type: statement is expr_type.value;
   begin
-    if inlineFunctions and ccConf.WITH_STRI_CAPACITY then
+    if getConstant(params[3], CHAROBJECT, evaluatedParam) then
+      process_const_str_push(params[1], getValue(evaluatedParam, char), c_expr);
+    elsif inlineFunctions and ccConf.WITH_STRI_CAPACITY then
       process_inline_str_push(params, c_expr);
     else
       statement.expr := "strPush(&(";

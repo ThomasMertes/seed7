@@ -26,6 +26,7 @@ THE MAKEFILES
   mk_msvc.mak  | Windows (MSVC)  | nmake        | cl         | cmd.exe
   mk_bcc32.mak | Windows (bcc32) | make         | bcc32      | cmd.exe
   mk_bccv5.mak | Windows (bcc32) | make         | bcc32 V5.5 | cmd.exe
+  mk_clangw.mak| Windows (clang) | (g)make      | clang      | cmd.exe
   mk_emccw.mak | Windows (emcc)  | mingw32-make | emcc + gcc | cmd.exe
   mk_djgpp.mak | DOS             | (g)make      | gcc        | cmd.exe
   mk_osx.mak   | Mac OS X        | make         | gcc        | sh

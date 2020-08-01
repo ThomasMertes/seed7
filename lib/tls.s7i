@@ -118,6 +118,7 @@ const type: securityParameters is new struct
     var string:              master_secret           is ""; # length: 48
     var string:              client_random           is ""; # length: 32
     var string:              server_random           is ""; # length: 32
+    var certAndKey:          serverCertificates      is certAndKey.value;
     var rsaKey:              publicCertificateKey    is rsaKey.value;
     var rsaKey:              privateCertificateKey   is rsaKey.value;
     var string:              readMacSecret           is "";
@@ -757,7 +758,6 @@ const proc: processCertificate (inout securityParameters: parameters, inout tlsP
     var integer: certLen is 0;
     var integer: index is 1;
     var x509cert: cert is x509cert.value;
-    var array x509cert: certList is 0 times x509cert.value;
   begin
     # writeln("certificate");
     startPos := state.pos;
@@ -767,19 +767,12 @@ const proc: processCertificate (inout securityParameters: parameters, inout tlsP
     while state.pos <= 3 + sequenceLen do
       certLen := bytes2Int(state.message[state.pos len 3], UNSIGNED, BE);
       state.pos +:= 3;
-      cert := getX509Cert(state.message[state.pos len certLen]);
-      certList &:= cert;
-      # putf("asn1_cert" <& index, state.message[state.pos len certLen]);
+      parameters.serverCertificates.certList &:= [] (state.message[state.pos len certLen]);
       state.pos +:= certLen;
-      incr(index);
     end while;
-    # for index range 1 to pred(length(certList)) do
-    #   writeln("validate Cert-" <& index <& " with Cert-" <& succ(index));
-    #   writeln(validateSignature(certList[index], certList[succ(index)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));
-    # end for;
-    # writeln("validate Cert-" <& length(certList) <& " with Cert-" <& length(certList));
-    # writeln(validateSignature(certList[length(certList)], certList[length(certList)].tbsCertificate.subjectPublicKeyInfo.publicRsaKey));
-    parameters.publicCertificateKey := certList[1].tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
+    cert := getX509Cert(parameters.serverCertificates.certList[1]);
+    parameters.serverCertificates.privateKey := cert.tbsCertificate.subjectPublicKeyInfo.publicRsaKey;
+    parameters.publicCertificateKey := parameters.serverCertificates.privateKey;
     parameters.handshake_messages &:= state.message[startPos .. pred(state.pos)];
   end func;
 
@@ -1937,3 +1930,10 @@ const func string: getln (inout tlsFile: inFile) is func
     end if;
     # writeln("getln --> " <& literal(stri));
   end func;
+
+
+const func string: getServerCertificate (in file: aFile, in integer: pos) is DYNAMIC;
+
+
+const func string: getServerCertificate (in tlsFile: aFile, in integer: pos) is
+  return aFile.parameters.serverCertificates.certList[pos];

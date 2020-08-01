@@ -2082,9 +2082,10 @@ striType cmdGetcwd (void)
             FREE_OS_STRI(os_cwd);
           } /* if */
           raise_error(err_info);
-        } /* if */
-        if (os_cwd != buffer) {
-          FREE_OS_STRI(os_cwd);
+        } else {
+          if (os_cwd != buffer) {
+            FREE_OS_STRI(os_cwd);
+          } /* if */
         } /* if */
       } /* if */
 #ifdef EMULATE_ROOT_CWD
@@ -3163,6 +3164,10 @@ intType cmdShell (const const_striType command, const const_striType parameters)
 striType cmdShellEscape (const const_striType stri)
 
   {
+    /* A shell parameter might start and end with quote ("): */
+    const memSizeType numOfQuotes = 0;
+    /* Maximum escape sequence length in shell parameter: */
+    const memSizeType escSequenceMax = STRLEN("\\=");
     memSizeType inPos;
     memSizeType outPos;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -3170,8 +3175,8 @@ striType cmdShellEscape (const const_striType stri)
     striType result;
 
   /* cmdShellEscape */
-    if (unlikely(stri->size > (MAX_STRI_LEN - 2) / 4 ||
-                 !ALLOC_STRI_SIZE_OK(result, 4 * stri->size + 2))) {
+    if (unlikely(stri->size > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
+                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * stri->size + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -3196,18 +3201,19 @@ striType cmdShellEscape (const const_striType stri)
         } /* switch */
       } /* for */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_STRI(result, 3 * stri->size + 2);
+        FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
         raise_error(err_info);
         result = NULL;
       } else {
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * stri->size + 2, outPos);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+            escSequenceMax * stri->size + numOfQuotes, outPos);
         if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, 4 * stri->size + 2);
+          FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(3 * stri->size + 2, outPos);
+          COUNT3_STRI(escSequenceMax * stri->size + numOfQuotes, outPos);
           result->size = outPos;
         } /* if */
       } /* if */
@@ -3232,6 +3238,10 @@ striType cmdShellEscape (const const_striType stri)
 striType cmdShellEscape (const const_striType stri)
 
   {
+    /* A shell parameter might start and end with quote ("): */
+    const memSizeType numOfQuotes = 2;
+    /* Maximum escape sequence length in shell parameter: */
+    const memSizeType escSequenceMax = 4;
     memSizeType inPos;
     memSizeType outPos;
     boolType quotation_mode = FALSE;
@@ -3242,8 +3252,8 @@ striType cmdShellEscape (const const_striType stri)
     striType result;
 
   /* cmdShellEscape */
-    if (unlikely(stri->size > (MAX_STRI_LEN - 2) / 4 ||
-                 !ALLOC_STRI_SIZE_OK(result, 4 * stri->size + 2))) {
+    if (unlikely(stri->size > (MAX_STRI_LEN - numOfQuotes) / escSequenceMax ||
+                 !ALLOC_STRI_SIZE_OK(result, escSequenceMax * stri->size + numOfQuotes))) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
@@ -3300,7 +3310,7 @@ striType cmdShellEscape (const const_striType stri)
         } /* switch */
       } /* for */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
-        FREE_STRI(result, 3 * stri->size + 2);
+        FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
         raise_error(err_info);
         result = NULL;
       } else {
@@ -3326,14 +3336,15 @@ striType cmdShellEscape (const const_striType stri)
             inPos--;
           } /* if */
         } /* for */
-        REALLOC_STRI_SIZE_SMALLER(resized_result, result, 4 * stri->size + 2, outPos);
+        REALLOC_STRI_SIZE_SMALLER(resized_result, result,
+            escSequenceMax * stri->size + numOfQuotes, outPos);
         if (unlikely(resized_result == NULL)) {
-          FREE_STRI(result, 4 * stri->size + 2);
+          FREE_STRI(result, escSequenceMax * stri->size + numOfQuotes);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           result = resized_result;
-          COUNT3_STRI(3 * stri->size + 2, outPos);
+          COUNT3_STRI(escSequenceMax * stri->size + numOfQuotes, outPos);
           result->size = outPos;
         } /* if */
       } /* if */

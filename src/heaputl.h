@@ -232,9 +232,9 @@ EXTERN memSizeType hs;
 #endif
 
 
-#define SIZ_USTRI(len)   ((len) + 1)
-#define SIZ_CSTRI(len)   ((len) + 1)
-#define SIZ_WSTRI(len)   (sizeof(wcharType) * ((len) + 1))
+#define SIZ_USTRI(len)   ((len) + NULL_TERMINATION_LEN)
+#define SIZ_CSTRI(len)   ((len) + NULL_TERMINATION_LEN)
+#define SIZ_WSTRI(len)   (sizeof(wcharType) * ((len) + NULL_TERMINATION_LEN))
 #define SIZ_STRI(len)    ((sizeof(striRecord)     - sizeof(strElemType))  + (len) * sizeof(strElemType))
 #define SIZ_BSTRI(len)   ((sizeof(bstriRecord)    - sizeof(ucharType))    + (len) * sizeof(ucharType))
 #define SIZ_ARR(len)     ((sizeof(arrayRecord)    - sizeof(objectRecord)) + (len) * sizeof(objectRecord))
@@ -248,9 +248,9 @@ EXTERN memSizeType hs;
 #define SIZ_RTL_ARR(len) ((sizeof(rtlArrayRecord) - sizeof(rtlObjectType))   + (len) * sizeof(rtlObjectType))
 #define SIZ_RTL_HSH(len) ((sizeof(rtlHashRecord)  - sizeof(rtlHashElemType)) + (len) * sizeof(rtlHashElemType))
 
-#define MAX_USTRI_LEN   (MAX_MEMSIZETYPE - 1)
-#define MAX_CSTRI_LEN   (MAX_MEMSIZETYPE - 1)
-#define MAX_WSTRI_LEN   (MAX_MEMSIZETYPE / sizeof(wcharType) - 1)
+#define MAX_USTRI_LEN   (MAX_MEMSIZETYPE - NULL_TERMINATION_LEN)
+#define MAX_CSTRI_LEN   (MAX_MEMSIZETYPE - NULL_TERMINATION_LEN)
+#define MAX_WSTRI_LEN   (MAX_MEMSIZETYPE / sizeof(wcharType) - NULL_TERMINATION_LEN)
 #define MAX_STRI_LEN    ((MAX_MEMSIZETYPE - sizeof(striRecord)     + sizeof(strElemType))   / sizeof(strElemType))
 #define MAX_BSTRI_LEN   ((MAX_MEMSIZETYPE - sizeof(bstriRecord)    + sizeof(ucharType))     / sizeof(ucharType))
 #define MAX_ARR_LEN     ((MAX_MEMSIZETYPE - sizeof(arrayRecord)    + sizeof(objectRecord))  / sizeof(objectRecord))
@@ -349,7 +349,8 @@ EXTERN memSizeType hs;
 #if WITH_STRI_FREELIST
 #ifdef WITH_STRI_CAPACITY
 
-#define STRI_FREELIST_ARRAY_SIZE 20
+#define MAX_STRI_LEN_IN_FREELIST 19
+#define STRI_FREELIST_ARRAY_SIZE MAX_STRI_LEN_IN_FREELIST + 1
 
 #ifdef DO_INIT
 freeListElemType sflist[STRI_FREELIST_ARRAY_SIZE] = {
@@ -401,6 +402,8 @@ EXTERN boolType sflist_was_full[STRI_FREELIST_ARRAY_SIZE];
 
 #else
 
+#define MAX_STRI_LEN_IN_FREELIST 1
+
 #ifdef DO_INIT
 freeListElemType sflist = NULL;
 unsigned int sflist_allowed = 40;
@@ -431,7 +434,8 @@ EXTERN unsigned int sflist_allowed;
 #ifdef WITH_STRI_CAPACITY
 #define GROW_STRI(v1,v2,l1,l2)            ((l2)>(v2)->capacity?(v1=growStri(v2,l2)):(v1=(v2)))
 #define SHRINK_STRI(v1,v2,l1,l2)          ((l2)<(v2)->capacity>>2?(v1=shrinkStri(v2,l2)):(v1=(v2)))
-#define SHRINK_REASON(v2,l2)              ((l2)<(v2)->capacity>>2)
+#define MIN_GROW_SHRINK_CAPACITY          8
+#define SHRINK_REASON(v2,l2)              ((v2)->capacity>MIN_GROW_SHRINK_CAPACITY&&(l2)<(v2)->capacity>>2)
 #else
 #define GROW_STRI(v1,v2,l1,l2)            if((l2) <= MAX_STRI_LEN){HEAP_REALLOC_STRI(v1,v2,l1,l2)}else v1=NULL;
 #define SHRINK_STRI(v1,v2,l1,l2)          HEAP_REALLOC_STRI(v1,v2,l1,l2)
@@ -443,11 +447,15 @@ EXTERN unsigned int sflist_allowed;
 #define REALLOC_STRI_SIZE_SMALLER(v1,v2,l1,l2) HEAP_REALLOC_STRI(v1,v2,l1,l2)
 
 #ifdef ALLOW_STRITYPE_SLICES
+#define GET_DESTINATION_ORIGIN(dest)           (dest)->mem1
+#define SLICE_OVERLAPPING2(var,origin,beyond)  ((var)->mem>=(origin)&&(var)->mem<(beyond))
 #ifdef WITH_STRI_CAPACITY
-#define SLICE_OVERLAPPING(var,dest)       ((var)->mem>=(dest)->mem1&&(var)->mem<&(dest)->mem1[(dest)->capacity])
-#define SET_SLICE_CAPACITY(var,cap)       (var)->capacity = (cap)
+#define GET_DESTINATION_BEYOND(dest)           &(dest)->mem1[(dest)->capacity]
+#define SLICE_OVERLAPPING(var,dest)            ((var)->mem>=(dest)->mem1&&(var)->mem<&(dest)->mem1[(dest)->capacity])
+#define SET_SLICE_CAPACITY(var,cap)            (var)->capacity = (cap)
 #else
-#define SLICE_OVERLAPPING(var,dest)       ((var)->mem>=(dest)->mem1&&(var)->mem<&(dest)->mem1[(dest)->size])
+#define GET_DESTINATION_BEYOND(dest)           &(dest)->mem1[(dest)->size]
+#define SLICE_OVERLAPPING(var,dest)            ((var)->mem>=(dest)->mem1&&(var)->mem<&(dest)->mem1[(dest)->size])
 #define SET_SLICE_CAPACITY(var,cap)
 #endif
 #endif

@@ -33,6 +33,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 
 #include "common.h"
 #include "data.h"
@@ -349,7 +350,7 @@ void prot_set (const_setType setValue)
       for (position = setValue->min_position; position <= setValue->max_position; position++) {
         bitset_elem = setValue->bitset[position - setValue->min_position];
         if (bitset_elem != 0) {
-          for (bit_index = 0; bit_index < 8 * sizeof(bitSetType); bit_index++) {
+          for (bit_index = 0; bit_index < CHAR_BIT * sizeof(bitSetType); bit_index++) {
             if (bitset_elem & ((bitSetType) 1) << bit_index) {
               if (first_elem) {
                 first_elem = FALSE;

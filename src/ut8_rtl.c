@@ -913,7 +913,7 @@ striType ut8WordRead (fileType inFile, charType *terminationChar)
 void ut8Write (fileType outFile, const const_striType stri)
 
   {
-    strElemType *str;
+    const strElemType *str;
     memSizeType len;
     memSizeType size;
     ucharType stri_buffer[max_utf8_size(WRITE_STRI_BLOCK_SIZE)];

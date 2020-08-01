@@ -763,6 +763,7 @@ int isSignedType (const char *typeName)
 void numericSizes (FILE *versionFile)
 
   {
+    int char_bit;
     int sizeof_char;
     int sizeof_short;
     int sizeof_int;
@@ -772,23 +773,32 @@ void numericSizes (FILE *versionFile)
   /* numericSizes */
     fprintf(logFile, "Numeric sizes:");
     fflush(stdout);
+    if (compileAndLinkOk("#include <stdio.h>\n#include <limits.h>\n"
+                         "int main(int argc, char *argv[])"
+                         "{printf(\"%d\\n\",CHAR_BIT);return 0;}\n")) {
+      char_bit = doTest();
+    } else {
+      fputs("#define CHAR_BIT 8\n", versionFile);
+      char_bit = 8;
+    } /* if */
     sizeof_char      = getSizeof("char");
     sizeof_short     = getSizeof("short");
     sizeof_int       = getSizeof("int");
     sizeof_long      = getSizeof("long");
     sizeof_long_long = getSizeof("long long");
-    fprintf(versionFile, "#define SHORT_SIZE %d\n",       8 * sizeof_short);
-    fprintf(versionFile, "#define INT_SIZE %d\n",         8 * sizeof_int);
-    fprintf(versionFile, "#define LONG_SIZE %d\n",        8 * sizeof_long);
+    fprintf(versionFile, "#define CHAR_SIZE %d\n",        char_bit * sizeof_char);
+    fprintf(versionFile, "#define SHORT_SIZE %d\n",       char_bit * sizeof_short);
+    fprintf(versionFile, "#define INT_SIZE %d\n",         char_bit * sizeof_int);
+    fprintf(versionFile, "#define LONG_SIZE %d\n",        char_bit * sizeof_long);
     if (sizeof_long_long != -1) {
-      fprintf(versionFile, "#define LONG_LONG_SIZE %d\n", 8 * sizeof_long_long);
+      fprintf(versionFile, "#define LONG_LONG_SIZE %d\n", char_bit * sizeof_long_long);
     } /* if */
-    fprintf(versionFile, "#define POINTER_SIZE %d\n",     8 * getSizeof("char *"));
-    fprintf(versionFile, "#define FLOAT_SIZE %d\n",       8 * getSizeof("float"));
-    fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      8 * getSizeof("double"));
-    fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     8 * getSizeof("wchar_t"));
-    fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n",    8 * getSizeof("os_off_t"));
-    fprintf(versionFile, "#define TIME_T_SIZE %d\n",      8 * getSizeof("time_t"));
+    fprintf(versionFile, "#define POINTER_SIZE %d\n",     char_bit * getSizeof("char *"));
+    fprintf(versionFile, "#define FLOAT_SIZE %d\n",       char_bit * getSizeof("float"));
+    fprintf(versionFile, "#define DOUBLE_SIZE %d\n",      char_bit * getSizeof("double"));
+    fprintf(versionFile, "#define WCHAR_T_SIZE %d\n",     char_bit * getSizeof("wchar_t"));
+    fprintf(versionFile, "#define OS_OFF_T_SIZE %d\n",    char_bit * getSizeof("os_off_t"));
+    fprintf(versionFile, "#define TIME_T_SIZE %d\n",      char_bit * getSizeof("time_t"));
     fprintf(versionFile, "#define TIME_T_SIGNED %d\n", isSignedType("time_t"));
     fprintf(versionFile, "#define SIZE_T_SIGNED %d\n", isSignedType("size_t"));
     fprintf(versionFile, "#define CHAR_SIGNED %d\n",   isSignedType("char"));
@@ -2031,6 +2041,7 @@ void determineOsDirAccess (FILE *versionFile)
 
   {
     char *dir_include = NULL;
+    char *dir_define = NULL;
     char buffer[4096];
 
   /* determineOsDirAccess */
@@ -2042,11 +2053,11 @@ void determineOsDirAccess (FILE *versionFile)
                          "closedir(directory) == 0);\n"
                          "return 0;}\n")) {
       dir_include = "<dirent.h>";
-      fputs("#define USE_DIRENT\n", versionFile);
+      dir_define = "USE_DIRENT";
     } else {
 #ifdef OS_STRI_WCHAR
       dir_include = "\"dir_win.h\"";
-      fputs("#define USE_DIRWIN\n", versionFile);
+      dir_define = "USE_DIRWIN";
 #else
       fprintf(logFile, " *** Cannot define USE_DIRENT or USE_DIRWIN.\n");
 #endif
@@ -2062,6 +2073,7 @@ void determineOsDirAccess (FILE *versionFile)
                    "_wclosedir(directory) == 0);\n"
                    "return 0;}\n",
                    dir_include), compileAndLinkOk(buffer))) {
+        fprintf(versionFile, "#define %s\n", dir_define);
         fputs("#define os_DIR _WDIR\n", versionFile);
         fputs("#define os_dirent_struct struct _wdirent\n", versionFile);
         fputs("#define os_opendir _wopendir\n", versionFile);
@@ -2076,13 +2088,14 @@ void determineOsDirAccess (FILE *versionFile)
                           "wclosedir(directory) == 0);\n"
                           "return 0;}\n",
                           dir_include), compileAndLinkOk(buffer))) {
-          fputs("#define os_DIR wDIR\n", versionFile);
-          fputs("#define os_dirent_struct struct wdirent\n", versionFile);
-          fputs("#define os_opendir wopendir\n", versionFile);
-          fputs("#define os_readdir wreaddir\n", versionFile);
-          fputs("#define os_closedir wclosedir\n", versionFile);
+        fprintf(versionFile, "#define %s\n", dir_define);
+        fputs("#define os_DIR wDIR\n", versionFile);
+        fputs("#define os_dirent_struct struct wdirent\n", versionFile);
+        fputs("#define os_opendir wopendir\n", versionFile);
+        fputs("#define os_readdir wreaddir\n", versionFile);
+        fputs("#define os_closedir wclosedir\n", versionFile);
       } else if ((sprintf(buffer,
-                          "#include <stdio.h>\n#include %s\n#include \"dir.h\""
+                          "#include <stdio.h>\n#include %s\n#include \"dir.h\"\n"
                           "int main(int argc,char *argv[])\n"
                           "{wDIR *directory; struct wdirent *dirEntry;\n"
                           "printf(\"%%d\\n\", (directory = wopendir(\".\")) != NULL &&\n"
@@ -2090,19 +2103,25 @@ void determineOsDirAccess (FILE *versionFile)
                           "wclosedir(directory) == 0);\n"
                           "return 0;}\n",
                           dir_include), compileAndLinkOk(buffer))) {
-          fputs("#define OS_WIDE_DIR_INCLUDE_DIR_H\n", versionFile);
-          fputs("#define os_DIR wDIR\n", versionFile);
-          fputs("#define os_dirent_struct struct wdirent\n", versionFile);
-          fputs("#define os_opendir wopendir\n", versionFile);
-          fputs("#define os_readdir wreaddir\n", versionFile);
-          fputs("#define os_closedir wclosedir\n", versionFile);
+        fprintf(versionFile, "#define %s\n", dir_define);
+        fputs("#define OS_WIDE_DIR_INCLUDE_DIR_H\n", versionFile);
+        fputs("#define os_DIR wDIR\n", versionFile);
+        fputs("#define os_dirent_struct struct wdirent\n", versionFile);
+        fputs("#define os_opendir wopendir\n", versionFile);
+        fputs("#define os_readdir wreaddir\n", versionFile);
+        fputs("#define os_closedir wclosedir\n", versionFile);
       } else {
+        fputs("#define USE_DIRWIN\n", versionFile);
         fputs("#define os_DIR WDIR\n", versionFile);
         fputs("#define os_dirent_struct struct wdirent\n", versionFile);
         fputs("#define os_opendir wopendir\n", versionFile);
         fputs("#define os_readdir wreaddir\n", versionFile);
         fputs("#define os_closedir wclosedir\n", versionFile);
       } /* if */
+    } /* if */
+#else
+    if (dir_define != NULL) {
+      fprintf(versionFile, "#define %s\n", dir_define);
     } /* if */
 #endif
   } /* determineOsDirAccess */
@@ -2131,7 +2150,7 @@ void determineOsUtime (FILE *versionFile)
       os_utimbuf_struct_stri = "struct utimbuf";
     } else if (compileAndLinkOk("#include <stdio.h>\n#include <sys/utime.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{struct utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
+                         "{struct _utimbuf buf; buf.actime = 0, buf.modtime = 0;\n"
                          "printf(\"%d\\n\",  &buf != NULL); return 0;}\n")) {
       utime_include = "sys/utime.h";
       os_utimbuf_struct_stri = "struct _utimbuf";
@@ -2151,7 +2170,7 @@ void determineOsUtime (FILE *versionFile)
       sprintf(buffer, "#include <stdio.h>\n#include <%s>\n"
                       "int main(int argc,char *argv[])\n"
                       "{%s buf; buf.actime = 0, buf.modtime = 0;\n"
-                      "printf(\"%%d\\n\", _wutime(\"testfile\", &buf) != -1);return 0;}\n",
+                      "printf(\"%%d\\n\", _wutime(L\"testfile\", &buf) != -1);return 0;}\n",
                       utime_include, os_utimbuf_struct_stri);
       if (compileAndLinkOk(buffer)) {
         os_utime_stri = "_wutime";
@@ -2159,7 +2178,7 @@ void determineOsUtime (FILE *versionFile)
         sprintf(buffer, "#include <stdio.h>\n#include <%s>\n"
                         "int main(int argc,char *argv[])\n"
                         "{%s buf; buf.actime = 0, buf.modtime = 0;\n"
-                        "printf(\"%%d\\n\", wutime(\"testfile\", &buf) != -1);return 0;}\n",
+                        "printf(\"%%d\\n\", wutime(L\"testfile\", &buf) != -1);return 0;}\n",
                         utime_include, os_utimbuf_struct_stri);
         if (compileAndLinkOk(buffer)) {
           os_utime_stri = "wutime";
@@ -2173,7 +2192,7 @@ void determineOsUtime (FILE *versionFile)
                 "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
                 "printf(\"%%d\\n\",utime(\"tmp_empty_dir2\",&utime_buf)!=0&&errno==EACCES);\n"
                 "if(remove(\"tmp_empty_dir2\")!=0)rmdir(\"tmp_empty_dir2\");return 0;}\n",
-                makeDirDefinition, utime_include, os_utimbuf_struct_stri);
+                utime_include, makeDirDefinition, os_utimbuf_struct_stri);
         if (compileAndLinkOk(buffer) && doTest() == 1) {
           fputs("#define USE_ALTERNATE_UTIME\n", versionFile);
           fprintf(versionFile, "#define os_utime_orig %s\n", os_utime_stri);
@@ -2263,7 +2282,7 @@ void determineOsFunctions (FILE *versionFile)
 #ifndef os_rename
     if (compileAndLinkOk("#include <stdio.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wrename(L\"testfile\", \"newname\") == 0);return 0;}\n")) {
+                         "{printf(\"%d\\n\", _wrename(L\"testfile\", L\"newname\") == 0);return 0;}\n")) {
       fputs("#define os_rename _wrename\n", versionFile);
     } else {
       fprintf(logFile, " *** Cannot define os_rename.\n");
@@ -2281,11 +2300,11 @@ void determineOsFunctions (FILE *versionFile)
 #ifndef os_fopen
     if (compileAndLinkOk("#include <stdio.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", _wfopen(L\"testfile\", \"r\") != NULL);return 0;}\n")) {
+                         "{printf(\"%d\\n\", _wfopen(L\"testfile\", L\"r\") != NULL);return 0;}\n")) {
       fputs("#define os_fopen _wfopen\n", versionFile);
     } else if (compileAndLinkOk("#include <stdio.h>\n"
                          "int main(int argc,char *argv[])\n"
-                         "{printf(\"%d\\n\", wfopen(L\"testfile\", \"r\") != NULL);return 0;}\n")) {
+                         "{printf(\"%d\\n\", wfopen(L\"testfile\", L\"r\") != NULL);return 0;}\n")) {
       fputs("#define os_fopen wfopen\n", versionFile);
     } else {
       fprintf(logFile, " *** Cannot define os_fopen.\n");

@@ -1,3 +1,28 @@
+20160330:
+- The makefile mk_clangw.mak has been added. This makefile supports
+  compilation under Windows with the clang compiler.
+- The experimental function parentDir has been added to osfiles.s7i.
+- The experimental function getServerCertificate has been added to
+  tls.s7i.
+- The compiler (s7c) has been improved to use the function
+  strAppendN, when two or more strings are appended to a string.
+- Tests for string append (operator &:= ) have been added to
+  chkstr.sd7.
+- The function strAppendN has been added to str_rtl.c.
+- The function strCopy in str_rtl.c has been simplified.
+- The program chkccomp.c has been improved to write a definition of
+  CHAR_BIT, when it is not defined in limits.h.
+- Several files have been changed to use CHAR_BIT instead of the
+  literal 8.
+- in chkccomp.c several string literals have been changed to wide
+  string literals (e.g. L"abc" instead of "abc").
+- In several files integer literals have been replaced by contants or
+  #define macros.
+- The function __mulodi4 has been added to int_rtl.c. This function
+  is used by clang under Windows, but unfortunately is not part of the
+  runtime library. This situation is recognized by chkccomp.c and the
+  function __mulodi4 in int_rtl.c is used instead.
+
 20160229:
 - The function fltCmp in flt_rtl.c has been improved to work correct
   in the case that isnan returns neither 0 nor 1 (Many thanks go to

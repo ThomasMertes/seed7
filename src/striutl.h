@@ -29,6 +29,7 @@
 /*                                                                  */
 /********************************************************************/
 
+/* Compute strlen() for normal or wide strings at compile time: */
 #define STRLEN(s) (sizeof(s) / sizeof(s[0]) - 1)
 
 extern const const_cstriType stri_escape_sequence[];
