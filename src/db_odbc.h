@@ -151,7 +151,8 @@ typedef SQLHANDLE SQLHWND;
 
 #define SQL_ERROR             (-1)
 
-#define SQL_PARAM_INPUT  1
+#define SQL_DRIVER_NOPROMPT  0
+#define SQL_PARAM_INPUT      1
 
 #define SQL_ATTR_ODBC_VERSION    200
 #define SQL_ATTR_APP_ROW_DESC  10010

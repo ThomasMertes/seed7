@@ -2009,7 +2009,7 @@ const proc: testBigIntField (in database: testDb, in dbCategory: databaseKind) i
         end if;
         if row > 1 and isNull(state.statement, 1) then
           state.okay := FALSE;
-          if state.okay then
+          if state.details then
             writeln(" *** testBigIntField: Row: " <& row <&
                     " Expected " <& expect[row] <& " found NULL");
           end if;
@@ -2097,21 +2097,21 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
         if floatColumn <> expect[row] and
             (not isNaN(floatColumn) or not isNaN(expect[row])) then
           state.okay := FALSE;
-          if state.okay then
+          if state.details then
             writeln(" *** testFloatField: Row: " <& row <&
                     " Expected " <& expect[row] <& " found float " <& floatColumn);
           end if;
         end if;
         if row = 1 and not isNull(state.statement, 1) then
           state.okay := FALSE;
-          if state.okay then
+          if state.details then
             writeln(" *** testFloatField: Row: " <& row <&
                     " Expected NULL found float " <& floatColumn);
           end if;
         end if;
         if row > 1 and isNull(state.statement, 1) then
           state.okay := FALSE;
-          if state.okay then
+          if state.details then
             writeln(" *** testFloatField: Row: " <& row <&
                     " Expected " <& expect[row] <& " found NULL");
           end if;

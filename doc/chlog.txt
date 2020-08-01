@@ -1,3 +1,14 @@
+20190819:
+- A definition of SQL_DRIVER_NOPROMPT has been added to db_odbc.h.
+  Many thanks go to Brett Senior for pointing out a fatal compilation
+  error in sql_odbc.c, when compiling Seed7 version 2019-08-18 under
+  Debian Linux.
+- The example program chkdb.sd7 has been improved to write better
+  error messages.
+- In reflib.c the function ref_select() has been improved to work
+  correct, when a derived struct overrides an element of the parent
+  struct.
+
 20190818:
 - Interpreter and compiler have been improved to work correct, when
   a derived struct overrides an element of the parent struct. Many

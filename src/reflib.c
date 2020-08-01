@@ -817,10 +817,10 @@ printf("\n");
       if (HAS_ENTITY(selector) && GET_ENTITY(selector)->syobject != NULL) {
         selector_syobject = GET_ENTITY(selector)->syobject;
         position = stru1->size;
-        struct_pointer = stru1->stru;
+ 	    struct_pointer = &stru1->stru[position - 1];
         while (position > 0) {
 /*
-printf("test ");
+printf("test " FMT_U_MEM ": ", position);
 trace1(struct_pointer);
 printf("\n");
 */
@@ -856,7 +856,7 @@ printf("\n");
             } /* if */
           } /* if */
           position--;
-          struct_pointer++;
+          struct_pointer--;
         } /* while */
       } /* if */
     } /* if */
