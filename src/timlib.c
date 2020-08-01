@@ -36,6 +36,7 @@
 #include "syvarutl.h"
 #include "runerr.h"
 #include "memory.h"
+#include "tim_rtl.h"
 #include "tim_drv.h"
 
 #undef EXTERN

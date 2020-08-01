@@ -548,7 +548,7 @@ errinfotype *err_info;
 #endif
 
   {
-    int number;
+    unsigned int number;
     helemtype *helem;
     listtype result;
 
@@ -601,7 +601,7 @@ errinfotype *err_info;
 #endif
 
   {
-    int number;
+    unsigned int number;
     helemtype *helem;
     listtype result;
 

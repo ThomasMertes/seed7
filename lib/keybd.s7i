@@ -42,6 +42,7 @@ const func char: busy_getc (ref keyboard_file param) is DYNAMIC;
  *)
 const func boolean: keypressed (ref keyboard_file param) is DYNAMIC;
 
+const func boolean: buttonPressed (ref keyboard_file param, ref char param) is DYNAMIC;
 const func integer: getxpos (ref keyboard_file param) is DYNAMIC;
 const func integer: getypos (ref keyboard_file param) is DYNAMIC;
 
@@ -149,8 +150,9 @@ const func string: gets (ref graph_keybd_file param, ref integer param) is      
 
 
 const func char: raw_getc (ref graph_keybd_file param) is                       action "GKB_RAW_GETC";
-const func integer: getxpos (ref graph_keybd_file param) is                     action "GKB_XPOS";
-const func integer: getypos (ref graph_keybd_file param) is                     action "GKB_YPOS";
+const func boolean: buttonPressed (ref graph_keybd_file param, ref char param) is  action "GKB_BUTTON_PRESSED";
+const func integer: getxpos (ref graph_keybd_file param) is                     action "GKB_BUTTON_XPOS";
+const func integer: getypos (ref graph_keybd_file param) is                     action "GKB_BUTTON_YPOS";
 const func string: line_read (ref graph_keybd_file param, inout char param) is  action "GKB_LINE_READ";
 const func string: word_read (ref graph_keybd_file param, inout char param) is  action "GKB_WORD_READ";
 

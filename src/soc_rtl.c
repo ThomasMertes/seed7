@@ -874,6 +874,7 @@ stritype stri;
 
   {
     bstritype buf;
+    memsizetype bytes_sent;
 
   /* socWrite */
     buf = stri_to_bstri(stri);
@@ -883,7 +884,20 @@ stritype stri;
       FREE_BSTRI(buf, buf->size);
       raise_error(RANGE_ERROR);
     } else {
-      if (send(sock, cast_send_recv_data(buf->mem), buf->size, 0) != buf->size) {
+      bytes_sent = (memsizetype) send(sock, cast_send_recv_data(buf->mem), buf->size, 0);
+      if (bytes_sent != buf->size) {
+        /*
+        printf("WSAGetLastError=%d\n", WSAGetLastError());
+        printf("WSAECONNABORTED=%d\n", WSAECONNABORTED);
+        printf("socWrite errno=%d\n", errno);
+        printf("bytes_sent=%ld\n", bytes_sent);
+        printf("buf->mem=%x\n", buf->mem);
+        printf("buf->size=%lu\n", buf->size);
+        printf("stri->size=%lu\n", stri->size);
+        prot_stri(stri);
+        printf("\n");
+        printf("buf->mem[0]=%u\n", buf->mem[0]);
+        */
         FREE_BSTRI(buf, buf->size);
         raise_error(FILE_ERROR);
       } else {

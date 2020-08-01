@@ -183,11 +183,11 @@
 <hr>
 
 <p></p>
-<a name="INTRODUCTION"><big><b>1. INTRODUCTION</b></big></a>
+<a name="INTRODUCTION"><h2>1. INTRODUCTION</h2></a>
 <!-- =============== -->
 <p></p>
 
-<a name="What_is_Seed7"><b>1.1 What is Seed7?</b></a>
+<a name="What_is_Seed7"><h3>1.1 What is Seed7?</h3></a>
 <p>
     Seed7 is a general-purpose programming language. It is a
   higher level language compared to Ada, C++ and Java. In Seed7
@@ -214,7 +214,7 @@
   can be used for scripting and for "real" programs.
 </p>
 
-<a name="Why_a_new_programming_language"><b>1.2 Why a new programming language?</b></a>
+<a name="Why_a_new_programming_language"><h3>1.2 Why a new programming language?</h3></a>
 <p>
     Conventional programming languages have a firmly given
   syntactic structure. The form of the statements, operators,
@@ -253,7 +253,7 @@
   a program easier.
 </p>
 
-<a name="Features_of_Seed7"><b>1.3 Features of Seed7</b></a>
+<a name="Features_of_Seed7"><h3>1.3 Features of Seed7</h3></a>
 <p>
   Seed7 has the following features
 </p><ul>
@@ -370,7 +370,7 @@
     <li><!-- -  -->There is no level limitation for nesting includes.</li>
 </ul>
 
-<a name="How_to_read_the_manual"><b>1.4 How to read the manual</b></a>
+<a name="How_to_read_the_manual"><h3>1.4 How to read the manual</h3></a>
 <p>
     You can have several views of the Seed7 programming language.
   Dependent on the view you can concentrate on specific
@@ -407,7 +407,7 @@
 </p>
 
 <p></p>
-<a name="TUTORIAL"><big><b>2. TUTORIAL</b></big></a>
+<a name="TUTORIAL"><h2>2. TUTORIAL</h2></a>
 <!-- =========== -->
 <p>
     We begin with a tutorial introduction to Seed7. In
@@ -419,7 +419,7 @@
   reference can be learned easier.
 </p>
 
-<a name="Hello_world"><b>2.1 Hello world</b></a>
+<a name="Hello_world"><h3>2.1 Hello world</h3></a>
 <p>
     A Seed7 program consists of a sequence of declarations.
   With each declaration a type and a name is attached to the
@@ -484,7 +484,7 @@
     hello world
 </pre><p></p>
 
-<a name="Local_declarations_and_expressions"><b>2.2 Local declarations and expressions</b></a>
+<a name="Local_declarations_and_expressions"><h3>2.2 Local declarations and expressions</h3></a>
 <p>
     To write a Fahrenheit to Celsius conversion table we use
   the following program:
@@ -542,7 +542,7 @@
     300 148
 </pre><p></p>
 
-<a name="For_loop_and_float_expressions"><b>2.3 For loop and float expressions</b></a>
+<a name="For_loop_and_float_expressions"><h3>2.3 For loop and float expressions</h3></a>
 <p>
     An improved version of the program to write the Fahrenheit
   to Celsius conversion table is:
@@ -601,7 +601,7 @@
   of 6.
 </p>
 
-<a name="Parameters"><b>2.4 Parameters</b></a>
+<a name="Parameters"><h3>2.4 Parameters</h3></a>
 <p>
     Most parameters are not changed inside a function. To
   express this explicit Seed7 uses the <tt>'<font color=blue>in</font>'</tt> parameter as in the
@@ -712,7 +712,7 @@
   over an explicit <tt>'<font color=blue>val</font>'</tt> and <tt>'<font color=blue>ref</font>'</tt> parameter.
 </p>
 
-<a name="Declare_a_statement"><b>2.5 Declare a statement</b></a>
+<a name="Declare_a_statement"><h3>2.5 Declare a statement</h3></a>
 <p>
     This example program writes its arguments
 </p><pre>
@@ -755,7 +755,7 @@
   Because of these powerful features Seed7 does not need Iterators.
 </p>
 
-<a name="Template_declaring_a_statement"><b>2.6 Template declaring a statement</b></a>
+<a name="Template_declaring_a_statement"><h3>2.6 Template declaring a statement</h3></a>
 <p>
   Templates are just normal functions with <font color=red>type</font>s as parameters.
   The following template function declares <tt>'<font color=blue>for</font>'</tt> statements:
@@ -789,7 +789,7 @@
 </p>
 
 <p></p>
-<a name="DECLARATIONS"><big><b>3. DECLARATIONS</b></big></a>
+<a name="DECLARATIONS"><h2>3. DECLARATIONS</h2></a>
 <!-- =============== -->
 <p>
     A declaration specifies the identifier, type, and other
@@ -804,7 +804,7 @@
   which are described in detail in the following subchapters.
 </p>
 
-<a name="Normal_declarations"><b>3.1 Normal declarations</b></a>
+<a name="Normal_declarations"><h3>3.1 Normal declarations</h3></a>
 <p>
     Normal declarations are the most commonly used form of
   declarations. To contrast them to the syntax declarations normal
@@ -925,7 +925,7 @@
   must be defined.
 </p>
 
-<a name="Syntax_declarations"><b>3.2 Syntax declarations</b></a>
+<a name="Syntax_declarations"><h3>3.2 Syntax declarations</h3></a>
 <p>
     Syntax declarations are used to specify the syntax, priority
   and associativity of operators, statements, declarations and
@@ -944,7 +944,7 @@
   Here we use a more complex syntax description:
 </p>
 
-<a name="System_declarations"><b>3.3 System declarations</b></a>
+<a name="System_declarations"><h3>3.3 System declarations</h3></a>
 <p>
     With system declarations the analyzer and the interpreter
   are informed about which objects should be used for various system
@@ -1006,7 +1006,7 @@
 </pre><p></p>
 
 <p></p>
-<a name="PREDEFINED_STATEMENTS"><big><b>4. PREDEFINED STATEMENTS</b></big></a>
+<a name="PREDEFINED_STATEMENTS"><h2>4. PREDEFINED STATEMENTS</h2></a>
 <!-- ======================== -->
 <p>
     The library contains several predefined statements:
@@ -1036,13 +1036,13 @@
 </p><p>
   Declaration:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: (). ; .() <font color=blue>is</font>             &lt;- 50;
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: (). ; <font color=blue>is</font>                 &lt;- 50 [1];
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). ; .() <font color=blue>is</font>            &lt;- 50;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). ; <font color=blue>is</font>                &lt;- 50 [1];
 
     <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>ref</font> <font color=red>void</font> <font color=blue>param</font>) ; (<font color=blue>ref</font> <font color=red>void</font> <font color=blue>param</font>) <font color=blue>is</font> noop;
 </pre><p></p>
 
-<a name="Assignment"><b>4.1 Assignment</b></a>
+<a name="Assignment"><h3>4.1 Assignment</h3></a>
 <p>
   For example:
 </p><pre>
@@ -1066,7 +1066,7 @@
 </p><p>
   Declaration:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: (). := .() <font color=blue>is</font>                      &lt;-> 20;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .(). := .() <font color=blue>is</font>                     &lt;-> 20;
 
     <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>inout</font> <font color=red>type</font> <font color=blue>param</font>) := (<font color=blue>ref</font> <font color=red>type</font> <font color=blue>param</font>) <font color=blue>is</font>           action <font color=maroon>"TYP_CPY"</font>;
     <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>inout</font> <font color=red>proc</font> <font color=blue>param</font>) := (<font color=blue>ref</font> <font color=red>proc</font> <font color=blue>param</font>) <font color=blue>is</font>           action <font color=maroon>"PRC_CPY"</font>;
@@ -1091,7 +1091,7 @@
     <font color=blue>const</font> <font color=red>proc</font>: (<font color=blue>inout</font> <font color=red>file</font> <font color=blue>param</font>) := (<font color=blue>ref</font> <font color=red>external_file</font> <font color=blue>param</font>) <font color=blue>is</font>  action <font color=maroon>"CLS_CPY2"</font>;
 </pre><p></p>
 
-<a name="while-statement"><b>4.2 while-statement</b></a>
+<a name="while-statement"><h3>4.2 while-statement</h3></a>
 <p>
   For example:
 </p><pre>
@@ -1120,7 +1120,7 @@
 </p><p>
   Declaration:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: while.().do.().end.while <font color=blue>is</font>        -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .while.().do.().end.while <font color=blue>is</font>       -> 25;
 
     <font color=blue>const</font> <font color=red>proc</font>: while (<font color=blue>ref</font> <font color=red>func boolean</font> <font color=blue>param</font>) do (<font color=blue>ref</font> <font color=red>proc</font> <font color=blue>param</font>) end while <font color=blue>is action</font> <font color=maroon>"PRC_WHILE"</font>;
     <font color=blue>const</font> <font color=red>proc</font>: while (<font color=blue>ref</font> <font color=red>boolean</font> <font color=blue>param</font>)  do (<font color=blue>ref</font> <font color=red>proc</font> <font color=blue>param</font>) end while <font color=blue>is     action</font> <font color=maroon>"PRC_WHILE"</font>;
@@ -1138,7 +1138,7 @@
       <font color=blue>end func</font>;
 </pre><p></p>
 
-<a name="repeat-statement"><b>4.3 repeat-statement</b></a>
+<a name="repeat-statement"><h3>4.3 repeat-statement</h3></a>
 <p>
   For example:
 </p><pre>
@@ -1167,7 +1167,7 @@
 </p><p>
   Declaration:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: repeat.().until.() <font color=blue>is</font>              -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .repeat.().until.() <font color=blue>is</font>             -> 25;
 
     <font color=blue>const</font> <font color=red>proc</font>: repeat (<font color=blue>ref</font> <font color=red>proc</font> <font color=blue>param</font>) until (<font color=blue>ref</font> <font color=red>func boolean</font> <font color=blue>param</font>) <font color=blue>is action</font> <font color=maroon>"PRC_REPEAT"</font>;
     <font color=blue>const</font> <font color=red>proc</font>: repeat (<font color=blue>ref</font> <font color=red>proc</font> <font color=blue>param</font>) until (<font color=blue>ref</font> <font color=red>boolean</font> <font color=blue>param</font>) <font color=blue>is      action</font> <font color=maroon>"PRC_REPEAT"</font>;
@@ -1185,7 +1185,7 @@
       <font color=blue>end func</font>;
 </pre><p></p>
 
-<a name="for-statement"><b>4.4 for-statement</b></a>
+<a name="for-statement"><h3>4.4 for-statement</h3></a>
 <p>
   For example:
 </p><pre>
@@ -1226,8 +1226,8 @@
 
   Declaration:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: for.().range.().to.().do.().end.for <font color=blue>is</font>     -> 25;
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: for.().range.().downto.().do.().end.for <font color=blue>is</font> -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .for.().range.().to.().do.().end.for <font color=blue>is</font>     -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .for.().range.().downto.().do.().end.for <font color=blue>is</font> -> 25;
 
     <font color=blue>const</font> <font color=red>proc</font>: FOR_DECLS (<font color=blue>in</font> <font color=red>type</font>: aType) <font color=blue>is func</font>
       <font color=blue>begin</font>
@@ -1265,7 +1265,7 @@
     FOR_DECLS(<font color=red>boolean</font>);
 </pre><p></p>
 
-<a name="for-each-statement"><b>4.5 for-each-statement</b></a>
+<a name="for-each-statement"><h3>4.5 for-each-statement</h3></a>
 <p>
   For example:
 </p><pre>
@@ -1325,7 +1325,7 @@
       <font color=blue>end func</font>;
 </pre><p></p>
 
-<a name="if-statement"><b>4.6 if-statement</b></a>
+<a name="if-statement"><h3>4.6 if-statement</h3></a>
 <p>
   For example:
 </p><pre>
@@ -1409,7 +1409,7 @@
     <font color=blue>const</font> <font color=red>ELSIF_PROC</font>: elsif FALSE then (<font color=blue>in</font> <font color=red>proc</font> <font color=blue>param</font>) (<font color=blue>in</font> <font color=red>ELSIF_RESULT</font> <font color=blue>param</font>) <font color=blue>is</font> ELSIF_EMPTY;
 </pre><p></p>
 
-<a name="case-statement"><b>4.7 case-statement</b></a>
+<a name="case-statement"><h3>4.7 case-statement</h3></a>
 <p>
   For example:
 </p><pre>
@@ -1496,7 +1496,7 @@
 </pre><p></p>
 
 <p></p>
-<a name="PREDEFINED_TYPES"><big><b>5. PREDEFINED TYPES</b></big></a>
+<a name="PREDEFINED_TYPES"><h2>5. PREDEFINED TYPES</h2></a>
 <!-- =================== -->
 <p>
     In the following subchapters the predefined types of the
@@ -1508,7 +1508,7 @@
   to show an equivalent expression.
 </p>
 
-<a name="boolean"><b>5.1 boolean</b></a>
+<a name="boolean"><h3>5.1 boolean</h3></a>
 <p>
     The type <tt>'<font color=red>boolean</font>'</tt> consists of the two truth values
   TRUE and FALSE.
@@ -1618,7 +1618,7 @@
     (A <font color=blue>and</font> B) <font color=blue>or</font>  (A <font color=blue>and</font> C)  =  A <font color=blue>and</font> (B <font color=blue>or</font>  C)
 </pre><p></p>
 
-<a name="integer"><b>5.2 integer</b></a>
+<a name="integer"><h3>5.2 integer</h3></a>
 <p>
     The type <tt>'<font color=red>integer</font>'</tt> consists of signed integer numbers
   which are at least 32 bits wide. An <tt>'<font color=red>integer</font>'</tt> literal is
@@ -1848,7 +1848,7 @@
     (sqrt(A) + 1) * (sqrt(A) + 1) > A
 </pre><p></p>
 
-<a name="bigInteger"><b>5.3 bigInteger</b></a>
+<a name="bigInteger"><h3>5.3 bigInteger</h3></a>
 <p>
     The type <tt>'<font color=red>bigInteger</font>'</tt> describes signed integer numbers of
   unlimited size. The literals of the type <tt>'<font color=red>bigInteger</font>'</tt> are sequences
@@ -2049,7 +2049,7 @@
     (sqrt(A) + 1_) * (sqrt(A) + 1_) > A
 </pre><p></p>
 
-<a name="rational"><b>5.4 rational</b></a>
+<a name="rational"><h3>5.4 rational</h3></a>
 <p>
     The type <tt>'<font color=red>rational</font>'</tt> consists of rational numbers
   represented with an <tt>'<font color=red>integer</font>'</tt> numerator and an <tt>'<font color=red>integer</font>'</tt>
@@ -2123,7 +2123,7 @@
   (Without any rounding)
 </p><p></p>
 
-<a name="bigRational"><b>5.5 bigRational</b></a>
+<a name="bigRational"><h3>5.5 bigRational</h3></a>
 <p>
     The type <tt>'<font color=red>bigRational</font>'</tt> consists of rational numbers
   represented with an <tt>'<font color=red>bigInteger</font>'</tt> numerator and an
@@ -2202,7 +2202,7 @@
   (Without any rounding)
 </p>
 
-<a name="float"><b>5.6 float</b></a>
+<a name="float"><h3>5.6 float</h3></a>
 <p>
     The type <tt>'<font color=red>float</font>'</tt> consists of single precision floating
   point numbers.
@@ -2330,7 +2330,7 @@
                   ( A /:= B => A := A / B )
 </pre><p></p>
 
-<a name="complex"><b>5.7 complex</b></a>
+<a name="complex"><h3>5.7 complex</h3></a>
 <p>
     The type <tt>'<font color=red>complex</font>'</tt> consists of complex numbers represented
   with an <tt>'<font color=red>float</font>'</tt> real part and an <tt>'<font color=red>float</font>'</tt> imaginary part.
@@ -2400,7 +2400,7 @@
                   ( A /:= B => A := A / B )
 </pre><p></p>
 
-<a name="char"><b>5.8 char</b></a>
+<a name="char"><h3>5.8 char</h3></a>
 <p>
     The type <tt>'<font color=red>char</font>'</tt> describes UNICODE characters encoded
   with UTF-32. In the source file a character literal is
@@ -2482,7 +2482,7 @@
                   ( decr(A) => A := pred(A) )
 </pre><p></p>
 
-<a name="string"><b>5.9 string</b></a>
+<a name="string"><h3>5.9 string</h3></a>
 <p>
     The type <tt>'<font color=red>string</font>'</tt> describes sequences of UNICODE characters
   (including the empty string). The characters in the <tt>'<font color=red>string</font>'</tt>
@@ -2667,7 +2667,7 @@
                     A @:= [succ(length(A))] 'x' => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="array"><b>5.10 array</b></a>
+<a name="array"><h3>5.10 array</h3></a>
 <p>
     The type <tt>'<font color=red>array baseType</font>'</tt> describes sequences of <tt>'<font color=red>baseType</font>'</tt>
   elements (including the empty sequence).
@@ -2755,7 +2755,7 @@
                   ( Type of argument C: <font color=red>baseType</font> )
 </pre><p></p>
 
-<a name="hash"><b>5.11 hash</b></a>
+<a name="hash"><h3>5.11 hash</h3></a>
 <p>
     The type <tt>'<font color=red>hash [keyType] baseType</font>'</tt> describes hash tables with
   elements of <tt>'<font color=red>baseType</font>'</tt>. The elements can be accessed with an index of
@@ -2818,7 +2818,7 @@
                     Type of argument D: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="set"><b>5.12 set</b></a>
+<a name="set"><h3>5.12 set</h3></a>
 <p>
     The type <tt>'<font color=red>set of baseType</font>'</tt> describes a set of elements of a
   <tt>'<font color=red>baseType</font>'</tt>. (including the empty set). The type <tt>'<font color=red>bitset</font>'</tt> is
@@ -2918,7 +2918,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="struct"><b>5.13 struct</b></a>
+<a name="struct"><h3>5.13 struct</h3></a>
 <p>
     The type <tt>'<font color=red>struct</font>'</tt> describes all structured types.
 </p><pre>
@@ -2961,7 +2961,7 @@
                   ( Type of argument B: <font color=red>reference</font> )
 </pre><p></p>
 
-<a name="category"><b>5.14 category</b></a>
+<a name="category"><h3>5.14 category</h3></a>
 <p>
     The type <tt>'<font color=red>category</font>'</tt> describes the category of a <tt>'<font color=red>reference</font>'</tt>.
 </p><pre>
@@ -2991,7 +2991,7 @@
                     str(CHAROBJECT) => <font color=maroon>"CHAROBJECT"</font> )
 </pre><p></p>
 
-<a name="reference"><b>5.15 reference</b></a>
+<a name="reference"><h3>5.15 reference</h3></a>
 <p>
     The type <tt>'<font color=red>reference</font>'</tt> describes a reference to any
   object.
@@ -3127,7 +3127,7 @@
                   ( Type of argument B: <font color=red>ref_list</font> )
 </pre><p></p>
 
-<a name="ref_list"><b>5.16 ref_list</b></a>
+<a name="ref_list"><h3>5.16 ref_list</h3></a>
 <p>
     The type <tt>'<font color=red>ref_list</font>'</tt> describes a list of <tt>'<font color=red>reference</font>'</tt> objects.
 </p><pre>
@@ -3192,7 +3192,7 @@
                     Type of argument C: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="program"><b>5.17 program</b></a>
+<a name="program"><h3>5.17 program</h3></a>
 <p>
     The type <tt>'<font color=red>program</font>'</tt> describes a Seed7 program.
 </p><pre>
@@ -3225,7 +3225,7 @@
       execute(A) Execute the program referred by A
 </pre><p></p>
 
-<a name="ptr"><b>5.18 ptr</b></a>
+<a name="ptr"><h3>5.18 ptr</h3></a>
 <p>
     The type <tt>'<font color=red>ptr baseType</font>'</tt> describes a pointer to an object
   of a <tt>'<font color=red>baseType</font>'</tt>. With
@@ -3252,7 +3252,7 @@
                   ( Type of argument <font color=red>ptrType</font>: <font color=red>type</font> )
 </pre><p></p>
 
-<a name="ENUMERATION"><b>5.19 ENUMERATION</b></a>
+<a name="ENUMERATION"><h3>5.19 ENUMERATION</h3></a>
 <p>
     With
 </p><pre>
@@ -3292,7 +3292,7 @@
                   ( decr(A) => A:=pred(A) )
 </pre><p></p>
 
-<a name="color"><b>5.20 color</b></a>
+<a name="color"><h3>5.20 color</h3></a>
 <p>
     The type <tt>'<font color=red>color</font>'</tt> describes colors.
 </p><pre>
@@ -3331,7 +3331,7 @@
                     Type of argument B: <font color=red>integer</font> )
 </pre><p></p>
 
-<a name="time"><b>5.21 time</b></a>
+<a name="time"><h3>5.21 time</h3></a>
 <p>
     The type <tt>'<font color=red>time</font>'</tt> describes times and dates.
 </p><pre>
@@ -3413,7 +3413,7 @@
       await(A)  Wait until the given time
 </pre><p></p>
 
-<a name="duration"><b>5.22 duration</b></a>
+<a name="duration"><h3>5.22 duration</h3></a>
 <p>
     The type <tt>'<font color=red>duration</font>'</tt> describes time and date durations.
 </p><pre>
@@ -3458,7 +3458,7 @@
       wait(A)   Wait for given duration
 </pre><p></p>
 
-<a name="file"><b>5.23 file</b></a>
+<a name="file"><h3>5.23 file</h3></a>
 <p>
     The type <tt>'<font color=red>file</font>'</tt> describes sequential files.
 </p><pre>
@@ -3550,7 +3550,7 @@
                     seek(A, -1) => EXCEPTION RANGE_ERROR )
 </pre><p></p>
 
-<a name="text"><b>5.24 text</b></a>
+<a name="text"><h3>5.24 text</h3></a>
 <p>
     The type <tt>'<font color=red>text</font>'</tt> describes two dimensional files.
 </p><pre>
@@ -3605,7 +3605,7 @@
       cursor_off(A) Make the cursor invisible
 </pre><p></p>
 
-<a name="func"><b>5.25 func</b></a>
+<a name="func"><h3>5.25 func</h3></a>
 <p>
     The type <tt>'<font color=red>func baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt>. For example: <tt>'<font color=red>func integer</font>'</tt> describes an <tt>'<font color=red>integer</font>'</tt>
@@ -3694,7 +3694,7 @@
   parameter is <tt>'TRUE'</tt>.
 </p>
 
-<a name="varfunc"><b>5.26 varfunc</b></a>
+<a name="varfunc"><h3>5.26 varfunc</h3></a>
 <p>
     The type <tt>'<font color=red>varfunc baseType</font>'</tt> describes functions which return
   a <tt>'<font color=red>baseType</font>'</tt> variable. For example: A function which returns an
@@ -3727,7 +3727,7 @@
   and <font color=red>struct</font>s can be used in the usual way. 
 </p>
 
-<a name="void"><b>5.27 void</b></a>
+<a name="void"><h3>5.27 void</h3></a>
 <p>
     The type <tt>'<font color=red>void</font>'</tt> describes the empty type.
 </p><pre>
@@ -3735,7 +3735,7 @@
       empty     This is the only value of the type '<font color=red>void</font>'.
 </pre><p></p>
 
-<a name="proc"><b>5.28 proc</b></a>
+<a name="proc"><h3>5.28 proc</h3></a>
 <p>
     The type <tt>'<font color=red>proc</font>'</tt> describes procedures. The type <tt>'<font color=red>proc</font>'</tt>
   is defined as <tt>'<font color=red>func void</font>'</tt>.
@@ -3772,7 +3772,7 @@
                     Type of result: <font color=red>proc</font> )
 </pre><p></p>
 
-<a name="type"><b>5.29 type</b></a>
+<a name="type"><h3>5.29 type</h3></a>
 <p>
     The type <tt>'<font color=red>type</font>'</tt> describes all types.
 </p><pre>
@@ -3840,7 +3840,7 @@
                 Declare variable 'name' with 'value'
 </pre><p></p>
 
-<a name="object"><b>5.30 object</b></a>
+<a name="object"><h3>5.30 object</h3></a>
 <p>
     The type <tt>'<font color=red>object</font>'</tt> is used as meta type for various types.
   This allows defining common operations for all this types.
@@ -3853,7 +3853,7 @@
       TRACE_OBJ(A)  Write internal information
 </pre><p></p>
 
-<a name="expr"><b>5.31 expr</b></a>
+<a name="expr"><h3>5.31 expr</h3></a>
 <p>
     The type <tt>'<font color=red>expr</font>'</tt> is used to describe unmatched expressions.
   These are expressions where the recognizing of the functions
@@ -3866,14 +3866,14 @@
 </pre><p></p>
 
 <p></p>
-<a name="PARAMETERS"><big><b>6. PARAMETERS</b></big></a>
+<a name="PARAMETERS"><h2>6. PARAMETERS</h2></a>
 <!-- ============= -->
 <p>
     The following subchapters introduce the parameter types of
   Seed7.
 </p>
 
-<a name="val_parameter"><b>6.1 'val' parameter</b></a>
+<a name="val_parameter"><h3>6.1 'val' parameter</h3></a>
 <p>
   This function appends a comma and a string to the globalStri
   variable:
@@ -3935,7 +3935,7 @@
     <font color=blue>const</font> <font color=red>func f_param</font>: val (<font color=blue>ref</font> <font color=red>type</font> <font color=blue>param</font>) : (<font color=blue>ref</font> <font color=red>expr</font> <font color=blue>param</font>) <font color=blue>is  action</font> <font color=maroon>"DCL_VAL2"</font>;
 </pre><p></p>
 
-<a name="ref_parameter"><b>6.2 'ref' parameter</b></a>
+<a name="ref_parameter"><h3>6.2 'ref' parameter</h3></a>
 <p>
   The following function defines the primitive action for the
   semicolon operator:
@@ -3991,7 +3991,7 @@
     <font color=blue>const</font> <font color=red>func f_param</font>: ref (<font color=blue>ref</font> <font color=red>type</font> <font color=blue>param</font>) : (<font color=blue>ref</font> <font color=red>expr</font> <font color=blue>param</font>) <font color=blue>is  action</font> <font color=maroon>"DCL_REF2"</font>;
 </pre><p></p>
 
-<a name="in_parameter"><b>6.3 'in' parameter</b></a>
+<a name="in_parameter"><h3>6.3 'in' parameter</h3></a>
 <p>
   This function checks if a given number is a prime number:
 </p><pre>
@@ -4068,7 +4068,7 @@
       <font color=blue>end func</font>;
 </pre><p></p>
 
-<a name="in_var_parameter"><b>6.4 'in var' parameter</b></a>
+<a name="in_var_parameter"><h3>6.4 'in var' parameter</h3></a>
 <p>
   This function computes the greatest common divisor:
 </p><pre>
@@ -4112,7 +4112,7 @@
     <font color=blue>const</font> <font color=red>func f_param</font>: in var (<font color=blue>ref</font> <font color=red>type</font> <font color=blue>param</font>) : (<font color=blue>ref</font> <font color=red>expr</font> <font color=blue>param</font>) <font color=blue>is  action</font> <font color=maroon>"DCL_IN2VAR"</font>;
 </pre><p></p>
 
-<a name="inout_parameter"><b>6.5 'inout' parameter</b></a>
+<a name="inout_parameter"><h3>6.5 'inout' parameter</h3></a>
 <p>
   This procedure doubles the given parameter 'number':
 </p><pre>
@@ -4145,7 +4145,7 @@
     <font color=blue>const</font> <font color=red>func f_param</font>: inout (<font color=blue>ref</font> <font color=red>type</font> <font color=blue>param</font>) : (<font color=blue>ref</font> <font color=red>expr</font> <font color=blue>param</font>) <font color=blue>is   action</font> <font color=maroon>"DCL_INOUT2"</font>;
 </pre><p></p>
 
-<a name="Symbol_parameter"><b>6.6 Symbol parameter</b></a>
+<a name="Symbol_parameter"><h3>6.6 Symbol parameter</h3></a>
 <p>
   Some functions need symbols at fixed places in the parameter
   list. The following IF-statement requests the keywords <tt>'<font color=blue>THEN</font>'</tt>,
@@ -4192,7 +4192,7 @@
       name_identifier | special_identifier .
 </pre><p></p>
 
-<a name="attr_parameter"><b>6.7 'attr' parameter</b></a>
+<a name="attr_parameter"><h3>6.7 'attr' parameter</h3></a>
 <p>
   This declaration associates a name to the type <tt>'<font color=red>char</font>'</tt>:
 </p><pre>
@@ -4234,7 +4234,7 @@
 </pre><p></p>
 
 <p></p>
-<a name="OBJECT_ORIENTATION"><big><b>7. OBJECT ORIENTATION</b></big></a>
+<a name="OBJECT_ORIENTATION"><h2>7. OBJECT ORIENTATION</h2></a>
 <!-- ===================== -->
 <p>
     Many people will be familiar with object-orientation from
@@ -4259,7 +4259,7 @@
   share the same interface. 
 </p>
 
-<a name="interface_and_implementation"><b>7.1 Interface and implementation</b></a>
+<a name="interface_and_implementation"><h3>7.1 Interface and implementation</h3></a>
 <p>
   Seed7 uses interface types and implementation types.
   Objects declared with an interface type refer to a value
@@ -4362,7 +4362,7 @@
   is called dynamic dispatch.
 </p>
 
-<a name="dynamic_dispatch"><b>7.2 Dynamic dispatch</b></a>
+<a name="dynamic_dispatch"><h3>7.2 Dynamic dispatch</h3></a>
 <p>
     When the implementation types have different implementations
   of the same function (method) a dynamic dispatch is necessary.
@@ -4435,7 +4435,7 @@
   pointers.
 </p>
 
-<a name="inheritance"><b>7.3 Inheritance</b></a>
+<a name="inheritance"><h3>7.3 Inheritance</h3></a>
 <p>
     When a new <tt>'struct'</tt> type is defined it is possible to
   inherit from an existing <tt>'struct'</tt> type. E.g.:
@@ -4520,7 +4520,7 @@
   called is-a relation).
 </p>
 
-<a name="class_methods"><b>7.4 Class methods</b></a>
+<a name="class_methods"><h3>7.4 Class methods</h3></a>
 <p>
     Many object-oriented programming languages support methods
   that are associated with a class instead of an instanciated
@@ -4567,7 +4567,7 @@
 </pre><p>
 </p>
 
-<a name="multiple_dispatch"><b>7.5 Multiple dispatch</b></a>
+<a name="multiple_dispatch"><h3>7.5 Multiple dispatch</h3></a>
 <p>
     The Seed7 object system allows multiple dispatch (not to
   be confused with multiple inheritance). The methods are
@@ -4644,7 +4644,7 @@
   to have distinct types for different purposes.
 </p>
 
-<a name="replacing_pointers"><b>7.6 Replacing pointers with interface types</b></a>
+<a name="replacing_pointers"><h3>7.6 Replacing pointers with interface types</h3></a>
 <p>
     Many languages have the concept of a pointer. It is possible
   to implement data structures, such as lists and trees, with
@@ -4742,7 +4742,7 @@
   types and set types can also be used to declare data structures.
 </p>
 <p></p>
-<a name="THE_FILE_SYSTEM"><big><b>8. THE FILE SYSTEM</b></big></a>
+<a name="THE_FILE_SYSTEM"><h2>8. THE FILE SYSTEM</h2></a>
 <!-- ================== -->
 <p>
     The file system is used for communication in various ways.
@@ -4865,7 +4865,7 @@
   In the following subchapters we discuss each of these goals.
 </p>
 
-<a name="Conversion_to_strings_and_back"><b>8.1 Conversion to strings and back</b></a>
+<a name="Conversion_to_strings_and_back"><h3>8.1 Conversion to strings and back</h3></a>
 <p>
     We archive the goal of doing I/O for arbitrary types with
   two conversion functions. In order to do I/O with a type
@@ -4997,7 +4997,7 @@
      99.90
 </pre><p></p>
 
-<a name="Basic_input_and_output_operations"><b>8.2 Basic input and output operations</b></a>
+<a name="Basic_input_and_output_operations"><h3>8.2 Basic input and output operations</h3></a>
 <p>
     To allow arbitrary user defined file-types beside the
   operating system files we chose a model in which the
@@ -5141,7 +5141,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>end func</font>;
 </pre><p></p>
 
-<a name="Input_and_output_with_conversion"><b>8.3 Input and output with conversion</b></a>
+<a name="Input_and_output_with_conversion"><h3>8.3 Input and output with conversion</h3></a>
 <p>
     Normally we need a combination of an I/O operation with
   a conversion operation. There are several functions which are
@@ -5202,7 +5202,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>end func</font>;
 </pre><p></p>
 
-<a name="Simple_read_and_write_statements"><b>8.4 Simple read and write statements</b></a>
+<a name="Simple_read_and_write_statements"><h3>8.4 Simple read and write statements</h3></a>
 <p>
     The simple input/output for the standard I/O-files are
   <tt>'read'</tt> and <tt>'write'</tt> which are defined with <tt>'enable_io'</tt>. Simple
@@ -5282,7 +5282,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     number := <font color=red>integer</font> <font color=blue>parse</font> stri;
 </pre><p></p>
 
-<a name="Standard_input_and_output_files"><b>8.5 Standard input and output files</b></a>
+<a name="Standard_input_and_output_files"><h3>8.5 Standard input and output files</h3></a>
 <p>
     The standard I/O files are OUT for output and IN for input.
   This TWO are file-variables which are declared as follows:
@@ -5320,7 +5320,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   example an <tt>'open'</tt> procedure fails.
 </p>
 
-<a name="Access_to_operating_system_files"><b>8.6 Access to operating system files</b></a>
+<a name="Access_to_operating_system_files"><h3>8.6 Access to operating system files</h3></a>
 <p>
     The interface type <tt>'<font color=red>file</font>'</tt> is also used to access
   operating system files. This is done with the implementation
@@ -5479,7 +5479,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   works without problems.
 </p>
 
-<a name="Keyboard_file"><b>8.7 Keyboard file</b></a>
+<a name="Keyboard_file"><h3>8.7 Keyboard file</h3></a>
 <p>
     As stated earlier <tt>'STD_IN'</tt> provides an interface to the keyboard
   which is line buffered and echoed on <tt>'STD_OUT'</tt>. This means that
@@ -5686,7 +5686,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   with RETURN.
 </p>
 
-<a name="Files_with_line_structure"><b>8.8 Files with line structure</b></a>
+<a name="Files_with_line_structure"><h3>8.8 Files with line structure</h3></a>
 <p>
   The type <tt>'<font color=red>text</font>'</tt> is a subtype of <tt>'<font color=red>file</font>'</tt> which adds a
   line structure and other features such as scrolling and color.
@@ -5726,7 +5726,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   returns a SCREEN_FILE.
 </p>
 
-<a name="Sockets"><b>8.9 Sockets</b></a>
+<a name="Sockets"><h3>8.9 Sockets</h3></a>
 <p>
     The library <font color=maroon>"socket.s7i"</font> defines types and functions to
   access sockets. The implementation type for sockets is
@@ -5765,7 +5765,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     serverSocket := accept(myListener);
 </pre><p></p>
 
-<a name="User_defined_file_types"><b>8.10 User defined file types</b></a>
+<a name="User_defined_file_types"><h3>8.10 User defined file types</h3></a>
 <p>
     In addition to the predefined file types it is often
   necessary to define a new type of file. Such a new file
@@ -5841,7 +5841,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       <font color=blue>end func</font>;
 </pre><p>
 
-<a name="Scanning_a_file"><b>8.11 Scanning a file</b></a>
+<a name="Scanning_a_file"><h3>8.11 Scanning a file</h3></a>
 <p>
     The I/O concept introduced in the previous chapters separates
   the input of data from its conversion. The <tt>'read'</tt>, <tt>'readln'</tt>,
@@ -6147,7 +6147,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p>
 
 <p></p>
-<a name="STRUCTURED_SYNTAX_DEFINITION"><big><b>9. STRUCTURED SYNTAX DEFINITION</b></big></a>
+<a name="STRUCTURED_SYNTAX_DEFINITION"><h2>9. STRUCTURED SYNTAX DEFINITION</h2></a>
 <!-- =============================== -->
 <p>
     Most programming languages have only predefined constructs like
@@ -6174,7 +6174,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   base to explain S7SSD.
 </p>
 
-<a name="The_Extended_Backus-Naur_Form"><b>9.1 The Extended Backus-Naur Form</b></a>
+<a name="The_Extended_Backus-Naur_Form"><h3>9.1 The Extended Backus-Naur Form</h3></a>
 <p>
     As the name says the Extended Backus-Naur Form is an extension
   of BNF. The extension allows the definition of repetitions and
@@ -6222,7 +6222,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '[' expression ']' | '{' expression '}' .
 </pre><p></p>
 
-<a name="The_syntax_of_a_statement"><b>9.2 The syntax of a statement</b></a>
+<a name="The_syntax_of_a_statement"><h3>9.2 The syntax of a statement</h3></a>
 <p>
     To explain the Seed7 Structured Syntax Description we design a
   new statement, the <tt>'<font color=blue>loop</font>'</tt> statement. The <tt>'<font color=blue>loop</font>'</tt> statement should
@@ -6364,7 +6364,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     *** chkloop.sd7(35):51: Match for {loop "X" until {1 + 2 } do integer end loop } failed
 </pre><p></p>
 
-<a name="Priority_and_associativity"><b>9.3 Priority and associativity</b></a>
+<a name="Priority_and_associativity"><h3>9.3 Priority and associativity</h3></a>
 <p>
     When a syntax construct has parameters before the first symbol
   or after the last symbol the priority and the associativity of the
@@ -6464,7 +6464,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   Middle operands can have any priority.
 </p>
 
-<a name="The_syntax_of_operators"><b>9.4 The syntax of operators</b></a>
+<a name="The_syntax_of_operators"><h3>9.4 The syntax of operators</h3></a>
 <p>
     A syntax definition specifies the way a usage of a statement
   or operator must be written. For example a call of the
@@ -6526,7 +6526,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p>
   To describe the syntax of the <tt>'<font color=blue>and</font>'</tt> operator we write:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: ().and.() <font color=blue>is</font>     -> 14;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .().and.() <font color=blue>is</font>    -> 14;
 </pre><p>
   This means that an <tt>'<font color=blue>and</font>'</tt> expression is constructed with the
   symbol <tt>'<font color=blue>and</font>'</tt> surrounded by parameters. The <tt>'->'</tt> defines the
@@ -6639,7 +6639,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       operators <tt>'*'</tt>, <tt>'/'</tt>, <tt>'<font color=blue>div</font>'</tt>, <tt>'<font color=blue>rem</font>'</tt>, <tt>'<font color=blue>mdiv</font>'</tt> and <tt>'<font color=blue>mod</font>'</tt>.</li>
 </ul><p></p>
 
-<a name="Syntax_of_predefined_statements"><b>9.5 Syntax of predefined statements</b></a>
+<a name="Syntax_of_predefined_statements"><h3>9.5 Syntax of predefined statements</h3></a>
 <p>
     Predefined statements can also be defined with S7SSD.
   E.g.: The <tt>'<font color=blue>while</font>'</tt> statement. A use of the <tt>'<font color=blue>while</font>'</tt> statement is:
@@ -6651,7 +6651,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p>
   To describe the syntax of the <tt>'<font color=blue>while</font>'</tt> statement we write:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: while.().do.().end.while <font color=blue>is</font> -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .while.().do.().end.while <font color=blue>is</font> -> 25;
 </pre><p>
   This means that the <tt>'<font color=blue>while</font>'</tt> statement is an expression with the
   symbols <tt>'<font color=blue>while</font>'</tt>, <tt>'<font color=blue>do</font>'</tt>, <tt>'<font color=blue>end</font>'</tt> and <tt>'<font color=blue>while</font>'</tt>. With <tt>'->'</tt> the
@@ -6688,7 +6688,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p>
   which has the following syntax description:
 </p><pre>
-    $ <font color=blue>syntax</font> <font color=red>expr</font>: repeat.().until.() <font color=blue>is</font> -> 25;
+    $ <font color=blue>syntax</font> <font color=red>expr</font>: .repeat.().until.() <font color=blue>is</font> -> 25;
 </pre><p>
   This means that the <tt>'<font color=blue>repeat</font>'</tt> statement is an expression with
   the symbols <tt>'<font color=blue>repeat</font>'</tt> and <tt>'<font color=blue>until</font>'</tt> and a parameter between
@@ -6754,7 +6754,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   is described in the next chapter.
 </p>
 
-<a name="Advanced_syntax_definitions"><b>9.6 Advanced syntax definitions</b></a>
+<a name="Advanced_syntax_definitions"><h3>9.6 Advanced syntax definitions</h3></a>
 <p>
   When we want to use some special syntax which should be only
   allowed at some place we do the following:
@@ -6884,7 +6884,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   legal <tt>'<font color=blue>if</font>'</tt> statements can be written.
 </p>
 
-<a name="Comparison_of_EBNF_and_S7SSD"><b>9.7 Comparison of EBNF and S7SSD</b></a>
+<a name="Comparison_of_EBNF_and_S7SSD"><h3>9.7 Comparison of EBNF and S7SSD</h3></a>
 <p>
   In the S7SSD of the <tt>'<font color=blue>loop</font>'</tt> statement
 </p><pre>
@@ -6953,7 +6953,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </p>
 
 <p></p>
-<a name="TOKENS"><big><b>10. TOKENS</b></big></a>
+<a name="TOKENS"><h2>10. TOKENS</h2></a>
 <!-- ========= -->
 <p>
     A program consists of a sequence of tokens which may be delimited
@@ -6971,7 +6971,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       identifier | literal .
 </pre><p></p>
 
-<a name="White_space"><b>10.1 White space</b></a>
+<a name="White_space"><h3>10.1 White space</h3></a>
 <p>
     There are three types of white space
 </p><pre>
@@ -6989,7 +6989,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       { space | comment | line_comment } .
 </pre><p></p>
 
-<a name="Spaces"><b><i>10.1.1 Spaces</i></b></a>
+<a name="Spaces"><h4>10.1.1 Spaces</h4></a>
 <p>
     There are several types of space characters which are ignored
   except as they separate tokens:
@@ -7002,7 +7002,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       ' ' | TAB | CR | NL .
 </pre><p></p>
 
-<a name="Comments"><b><i>10.1.2 Comments</i></b></a>
+<a name="Comments"><h4>10.1.2 Comments</h4></a>
 <p>
     Comments are introduced with the characters <font color=green>(* and are
   terminated with the characters *)</font> . For example:
@@ -7019,7 +7019,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '(*' { any_character } '*)' .
 </pre><p></p>
 
-<a name="Line_comments"><b><i>10.1.3 Line comments</i></b></a>
+<a name="Line_comments"><h4>10.1.3 Line comments</h4></a>
 <p>
     Line comments are introduced with the character <font color=green># and are
   terminated with the end of the line.</font><br>
@@ -7036,7 +7036,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '#' { any_character } NL .
 </pre><p></p>
 
-<a name="Identifiers"><b>10.2 Identifiers</b></a>
+<a name="Identifiers"><h3>10.2 Identifiers</h3></a>
 <p>
     There are three types of identifiers
 </p><pre>
@@ -7054,7 +7054,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       name_identifier | special_identifier | parenthesis .
 </pre><p></p>
 
-<a name="Name_identifiers"><b><i>10.2.1 Name identifiers</i></b></a>
+<a name="Name_identifiers"><h4>10.2.1 Name identifiers</h4></a>
 <p>
     A name identifier is a sequence of letters, digits and
   underscores ( _ ). The first character must be a letter or an
@@ -7093,7 +7093,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '_' .
 </pre><p></p>
 
-<a name="Special_identifiers"><b><i>10.2.2 Special identifiers</i></b></a>
+<a name="Special_identifiers"><h4>10.2.2 Special identifiers</h4></a>
 <p>
     A special identifier is a sequence of special characters.
   Examples of special identifiers are:
@@ -7120,7 +7120,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '|' | '~' .
 </pre><p></p>
 
-<a name="Parentheses"><b><i>10.2.3 Parentheses</i></b></a>
+<a name="Parentheses"><h4>10.2.3 Parentheses</h4></a>
 <p>
     A parenthesis is one of the following characters:
 </p><pre>
@@ -7136,7 +7136,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '(' | ')' | '[' | ']' | '{' | '}' .
 </pre><p></p>
 
-<a name="Literals"><b>10.3 Literals</b></a>
+<a name="Literals"><h3>10.3 Literals</h3></a>
 <p>
     There are three types of literals
 </p><pre>
@@ -7150,7 +7150,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       integer_literal | character_literal | string_literal .
 </pre><p></p>
 
-<a name="Integer_literals"><b><i>10.3.1 Integer literals</i></b></a>
+<a name="Integer_literals"><h4>10.3.1 Integer literals</h4></a>
 <p>
     An integer literal is a sequence of digits which is taken to
   be decimal. The sequence of digits may be followed by the letter
@@ -7181,7 +7181,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       letter | digit .
 </pre><p></p>
 
-<a name="String_literals"><b><i>10.3.2 String literals</i></b></a>
+<a name="String_literals"><h4>10.3.2 String literals</h4></a>
 <p>
     A string literal is a sequence of characters surrounded by
   double quotes. For example:
@@ -7229,7 +7229,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '\' { space } '\' | '\' integer_literal '\' .
 </pre><p></p>
 
-<a name="Character_literals"><b><i>10.3.3 Character literals</i></b></a>
+<a name="Character_literals"><h4>10.3.3 Character literals</h4></a>
 <p>
     A character literal is a character enclosed in single
   quotes. For example:
@@ -7252,7 +7252,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p></p>
 
 <p></p>
-<a name="EXPRESSIONS"><big><b>11. EXPRESSIONS</b></big></a>
+<a name="EXPRESSIONS"><h2>11. EXPRESSIONS</h2></a>
 <!-- =============== -->
 <p>
     There are two types of expressions. On one side there so
@@ -7265,7 +7265,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   definition)</a>. There are only few fixed predefined syntax rules:
 </p>
 
-<a name="EXPRESSION_Parentheses"><b>11.1 Parentheses</b></a>
+<a name="EXPRESSION_Parentheses"><h3>11.1 Parentheses</h3></a>
 <p>
     Parentheses can be used to override any precedence
   rules of predefined and user defined syntax constructs.
@@ -7281,7 +7281,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       '(' expression ')' .
 </pre><p></p>
 
-<a name="Call_expressions"><b>11.2 Call expressions</b></a>
+<a name="Call_expressions"><h3>11.2 Call expressions</h3></a>
 <p>
     Call expressions can also be used to form a list.
   For example
@@ -7318,7 +7318,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       parentheses_expression | atom .
 </pre><p></p>
 
-<a name="Dot_expressions"><b>11.3 Dot expressions</b></a>
+<a name="Dot_expressions"><h3>11.3 Dot expressions</h3></a>
 <p>
     Dot expressions start with a dot and have dots as separator
   between the elements of the list. For example
@@ -7356,7 +7356,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </pre><p></p>
 
 <p></p>
-<a name="OPERATING_SYSTEM_ACCESS"><big><b>12. OPERATING SYSTEM ACCESS</b></big></a>
+<a name="OPERATING_SYSTEM_ACCESS"><h2>12. OPERATING SYSTEM ACCESS</h2></a>
 <!-- =========================== -->
 <p>
     Seed7 provides a portable access to the services provided
@@ -7364,7 +7364,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   POSIX and UNIX.
 </p>
 
-<a name="Directory_access"><b>12.1 Directory access</b></a>
+<a name="Directory_access"><h3>12.1 Directory access</h3></a>
 <p>
     A portable access to the contents of directories in the file
   system is provided. For example: After the declaration
@@ -7413,7 +7413,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   changes in the program.
 </p>
 
-<a name="Other_directory_operations"><b>12.2 Other directory operations</b></a>
+<a name="Other_directory_operations"><h3>12.2 Other directory operations</h3></a>
 <p>
     In most operating systems each process has a current working
   directory. With the following statement
@@ -7431,7 +7431,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     mkdir(<font color=maroon>"my_dir"</font>);
 </pre><p></p>
 
-<a name="fileType"><b>12.3 fileType</b></a>
+<a name="fileType"><h3>12.3 fileType</h3></a>
 <p>
     The type of a file can determined with <tt>'fileType'</tt> or
     <tt>'fileTypeSL'</tt>:
@@ -7478,7 +7478,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The system returns an error other than ENOENT.</dd>
       </dl></dd></dl></p>
 
-<a name="fileSize"><b>12.4 fileSize</b></a>
+<a name="fileSize"><h3>12.4 fileSize</h3></a>
 <p>
     The size of a file can be determined with <tt>'fileSize'</tt> and <tt>'bigFileSize'</tt>:
 </p><pre>
@@ -7504,7 +7504,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>It was not possible to determine the file size.</dd>
       </dl></dd></dl></p>
 
-<a name="getATime"><b>12.5 getATime</b></a>
+<a name="getATime"><h3>12.5 getATime</h3></a>
 <p>
     The access time of a file is returned by the function <tt>'getATime'</tt>:
 </p><pre>
@@ -7520,7 +7520,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="getCTime"><b>12.6 getCTime</b></a>
+<a name="getCTime"><h3>12.6 getCTime</h3></a>
 <p>
     The change time of a file is returned by the function <tt>'getCTime'</tt>:
 </p><pre>
@@ -7536,7 +7536,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="getMTime"><b>12.7 getMTime</b></a>
+<a name="getMTime"><h3>12.7 getMTime</h3></a>
 <p>
     The modification time of a file is returned by the function <tt>'getMTime'</tt>:
 </p><pre>
@@ -7552,7 +7552,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="setATime"><b>12.8 setATime</b></a>
+<a name="setATime"><h3>12.8 setATime</h3></a>
 <p>
     The function <tt>'setATime'</tt> sets the access time of a file:
 </p><pre>
@@ -7568,7 +7568,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="setMTime"><b>12.9 setMTime</b></a>
+<a name="setMTime"><h3>12.9 setMTime</h3></a>
 <p>
     The function <tt>'setMTime'</tt> sets the modification time of a file:
 </p><pre>
@@ -7584,7 +7584,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The system returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="readlink"><b>12.10 readlink</b></a>
+<a name="readlink"><h3>12.10 readlink</h3></a>
 <p>
     The function <tt>'readlink'</tt> reads the destination of a symbolic link:
 </p><pre>
@@ -7604,7 +7604,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The file described with <tt>'filePath'</tt> does not exist or is not a symbolic link.</dd>
       </dl></dd></dl></p>
 
-<a name="symlink"><b>12.11 symlink</b></a>
+<a name="symlink"><h3>12.11 symlink</h3></a>
 <p>
     The function <tt>'symlink'</tt> creates a symbolic link called
     <tt>'dest'</tt> that contains the string referred by <tt>'source'</tt>:
@@ -7631,7 +7631,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>The system function returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="removeAnyFile"><b>12.12 removeAnyFile</b></a>
+<a name="removeAnyFile"><h3>12.12 removeAnyFile</h3></a>
 <p>
     The function <tt>'removeAnyFile'</tt> removes a file independend
     of its file type:
@@ -7648,7 +7648,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
           <dd>A system function to remove a file or to read a directory returns an error.</dd>
       </dl></dd></dl></p>
 
-<a name="Other_functions"><b>12.13 Other functions</b></a>
+<a name="Other_functions"><h3>12.13 Other functions</h3></a>
 <p>
     Other functions are:
 </p>
@@ -7658,7 +7658,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     copy(<font color=maroon>"from"</font>, <font color=maroon>"to"</font>);
 </pre>
 
-<a name="argv"><b>12.14 argv</b></a>
+<a name="argv"><h3>12.14 argv</h3></a>
 <p>
     The function <tt>'argv(PROGRAM)'</tt> returns the argument
     vector of the program as array of strings.
@@ -7669,7 +7669,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       An array of strings containing the argument vector.
       </dd></dl></p>
 
-<a name="getenv"><b>12.15 getenv</b></a>
+<a name="getenv"><h3>12.15 getenv</h3></a>
 <p>
     The function <tt>'getenv'</tt> determines the value of an
     environment variable.
@@ -7687,7 +7687,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       </dd></dl></p>
 
 <p></p>
-<a name="PRIMITIVE_ACTIONS"><big><b>13. PRIMITIVE ACTIONS</b></big></a>
+<a name="PRIMITIVE_ACTIONS"><h2>13. PRIMITIVE ACTIONS</h2></a>
 <!-- ===================== -->
 <p>
     Not all functions can be described by calling other
@@ -8008,7 +8008,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
   many primitive actions. To implement the remaining primitive
   actions the functions of the <tt>'seed7_05.a'</tt> library are used.
 </p>
-<a name="ACTION"><b>13.1 Actions for the type ACTION</b></a>
+<a name="ACTION"><h3>13.1 Actions for the type ACTION</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>actlib.c function</td>   <td>act_comp.c function</td></tr>
     <tr><td>ACT_ILLEGAL</td>         <td>act_illegal</td>         <td></td></tr>
@@ -8018,7 +8018,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ACT_STR</td>             <td>act_str</td>             <td>actStr</td></tr>
     <tr><td>ACT_VALUE</td>           <td>act_value</td>           <td>actValue</td></tr>
 </table><p></p>
-<a name="array"><b>13.2 Actions for array types</b></a>
+<a name="array"><h3>13.2 Actions for array types</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>arrlib.c function</td>   <td>arr_rtl.c function</td></tr>
     <tr><td>ARR_APPEND</td>          <td>arr_append</td>          <td>arrAppend</td></tr>
@@ -8045,7 +8045,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ARR_TAIL</td>            <td>arr_tail</td>            <td>arrTail</td></tr>
     <tr><td>ARR_TIMES</td>           <td>arr_times</td>           <td>times_ ...</td></tr>
 </table><p></p>
-<a name="bigInteger"><b>13.3 Actions for the type bigInteger</b></a>
+<a name="bigInteger"><h3>13.3 Actions for the type bigInteger</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>biglib.c function</td>   <td>big_rtl.c function</td></tr>
     <tr><td>BIG_ABS</td>             <td>big_abs</td>             <td>bigAbs</td></tr>
@@ -8094,7 +8094,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>BIG_SUCC</td>            <td>big_succ</td>            <td>bigSucc</td></tr>
     <tr><td>BIG_VALUE</td>           <td>big_value</td>           <td>bigValue</td></tr>
 </table><p></p>
-<a name="boolean"><b>13.4 Actions for the type boolean</b></a>
+<a name="boolean"><h3>13.4 Actions for the type boolean</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>blnlib.c function</td>   <td>bln_rtl.c function</td></tr>
     <tr><td>BLN_AND</td>             <td>bln_and</td>             <td>&amp;&amp;</td></tr>
@@ -8109,7 +8109,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>BLN_OR</td>              <td>bln_or</td>              <td>||</td></tr>
     <tr><td>BLN_ORD</td>             <td>bln_ord</td>             <td>(inttype)</td></tr>
 </table><p></p>
-<a name="bstring"><b>13.5 Actions for byte strings</b></a>
+<a name="bstring"><h3>13.5 Actions for byte strings</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>bstlib.c function</td>   <td>bst_rtl.c function</td></tr>
     <tr><td>BST_APPEND</td>          <td>bst_append</td>          <td>bstAppend</td></tr>
@@ -8119,7 +8119,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>BST_DESTR</td>           <td>bst_destr</td>           <td>bstDestr</td></tr>
     <tr><td>BST_EMPTY</td>           <td>bst_empty</td>           <td></td></tr>
 </table><p></p>
-<a name="char"><b>13.6 Actions for the type char</b></a>
+<a name="char"><h3>13.6 Actions for the type char</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>chrlib.c function</td>   <td>chr_rtl.c function</td></tr>
     <tr><td>CHR_CHR</td>             <td>chr_chr</td>             <td>(chartype)</td></tr>
@@ -8145,7 +8145,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CHR_UP</td>              <td>chr_up</td>              <td>chrUp</td></tr>
     <tr><td>CHR_VALUE</td>           <td>chr_value</td>           <td>chrValue</td></tr>
 </table><p></p>
-<a name="commands"><b>13.7 Actions for various directory, file and other commands</b></a>
+<a name="commands"><h3>13.7 Actions for various directory, file and other commands</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>cmdlib.c function</td>   <td>cmd_rtl.c function</td></tr>
     <tr><td>CMD_BIG_FILESIZE</td>    <td>cmd_big_filesize</td>    <td>cmdBigFileSize</td></tr>
@@ -8171,7 +8171,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>CMD_SHELL</td>           <td>cmd_shell</td>           <td>cmdShell</td></tr>
     <tr><td>CMD_SYMLINK</td>         <td>cmd_symlink</td>         <td>cmdSymlink</td></tr>
 </table><p></p>
-<a name="declarations"><b>13.8 Actions for declarations</b></a>
+<a name="declarations"><h3>13.8 Actions for declarations</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>dcllib.c function</td>   <td></td></tr>
     <tr><td>DCL_ATTR</td>            <td>dcl_attr</td>            <td></td></tr>
@@ -8192,7 +8192,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DCL_VAL2</td>            <td>dcl_val2</td>            <td></td></tr>
     <tr><td>DCL_VAR</td>             <td>dcl_var</td>             <td></td></tr>
 </table><p></p>
-<a name="graphic_output"><b>13.9 Actions to do graphic output</b></a>
+<a name="graphic_output"><h3>13.9 Actions to do graphic output</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>drwlib.c function</td>   <td>drw_rtl.c/drw_x11.c/drw_win.c function</td></tr>
     <tr><td>DRW_ARC</td>             <td>drw_arc</td>             <td>drwArc</td></tr>
@@ -8241,7 +8241,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>DRW_TEXT</td>            <td>drw_text</td>            <td>drwText</td></tr>
     <tr><td>DRW_WIDTH</td>           <td>drw_width</td>           <td>drwWidth</td></tr>
 </table><p></p>
-<a name="enumeration"><b>13.10 Actions for enumeration types</b></a>
+<a name="enumeration"><h3>13.10 Actions for enumeration types</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>enulib.c function</td>   <td></td></tr>
     <tr><td>ENU_CONV</td>            <td>enu_conv</td>            <td>(noop)</td></tr>
@@ -8255,7 +8255,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ENU_SIZE</td>            <td>enu_size</td>            <td></td></tr>
     <tr><td>ENU_VALUE</td>           <td>enu_value</td>           <td>enuValue</td></tr>
 </table><p></p>
-<a name="PRIMITIVE_FILE"><b>13.11 Actions for the type PRIMITIVE_FILE</b></a>
+<a name="PRIMITIVE_FILE"><h3>13.11 Actions for the type PRIMITIVE_FILE</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>fillib.c function</td>   <td>fil_rtl.c function</td></tr>
     <tr><td>FIL_BIG_LNG</td>         <td>fil_big_lng</td>         <td>filBigLng</td></tr>
@@ -8287,7 +8287,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FIL_WORD_READ</td>       <td>fil_word_read</td>       <td>filWordRead</td></tr>
     <tr><td>FIL_WRITE</td>           <td>fil_write</td>           <td>filWrite</td></tr>
 </table><p></p>
-<a name="float"><b>13.12 Actions for the type float</b></a>
+<a name="float"><h3>13.12 Actions for the type float</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>fltlib.c function</td>   <td>flt_rtl.c function</td></tr>
     <tr><td>FLT_A2TAN</td>           <td>flt_a2tan</td>           <td>atan2</td></tr>
@@ -8342,7 +8342,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>FLT_TRUNC</td>           <td>flt_trunc</td>           <td>(inttype)</td></tr>
     <tr><td>FLT_VALUE</td>           <td>flt_value</td>           <td>fltValue</td></tr>
 </table><p></p>
-<a name="graphic_keyboard"><b>13.13 Actions to support the graphic keyboard</b></a>
+<a name="graphic_keyboard"><h3>13.13 Actions to support the graphic keyboard</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>drwlib.c function</td>   <td>kbd_rtl.c/drw_x11.c/drw_win.c function</td></tr>
     <tr><td>GKB_BUSY_GETC</td>       <td>gkb_busy_getc</td>       <td>gkbKeyPressed() ? gkbGetc() : 512</td></tr>
@@ -8356,7 +8356,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>GKB_XPOS</td>            <td>gkb_xpos</td>            <td>gkbXpos</td></tr>
     <tr><td>GKB_YPOS</td>            <td>gkb_ypos</td>            <td>gkbYpos</td></tr>
 </table><p></p>
-<a name="hash"><b>13.14 Actions for hash types</b></a>
+<a name="hash"><h3>13.14 Actions for hash types</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>hshlib.c function</td>   <td>hsh_rtl.c function</td></tr>
     <tr><td>HSH_CONTAINS</td>        <td>hsh_contains</td>        <td>hshContains</td></tr>
@@ -8376,7 +8376,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>HSH_REFIDX</td>          <td>hsh_refidx</td>          <td></td></tr>
     <tr><td>HSH_VALUES</td>          <td>hsh_values</td>          <td>hshValues</td></tr>
 </table><p></p>
-<a name="integer"><b>13.15 Actions for the type integer</b></a>
+<a name="integer"><h3>13.15 Actions for the type integer</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>intlib.c function</td>   <td>int_rtl.c function</td></tr>
     <tr><td>INT_ABS</td>             <td>int_abs</td>             <td>labs</td></tr>
@@ -8427,7 +8427,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>INT_SUCC</td>            <td>int_succ</td>            <td>+1</td></tr>
     <tr><td>INT_VALUE</td>           <td>int_value</td>           <td>intValue</td></tr>
 </table><p></p>
-<a name="interface"><b>13.16 Actions for interface types</b></a>
+<a name="interface"><h3>13.16 Actions for interface types</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>itflib.c function</td>   <td></td></tr>
     <tr><td>ITF_CONV2</td>           <td>itf_conv2</td>           <td>(noop)</td></tr>
@@ -8439,7 +8439,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>ITF_NE</td>              <td>itf_ne</td>              <td>!=</td></tr>
     <tr><td>ITF_SELECT</td>          <td>itf_select</td>          <td></td></tr>
 </table><p></p>
-<a name="console_keyboard"><b>13.17 Actions to support the text (console) screen keyboard</b></a>
+<a name="console_keyboard"><h3>13.17 Actions to support the text (console) screen keyboard</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>kbdlib.c function</td>   <td>kbd_rtl.c/kbd_inf.c function</td></tr>
     <tr><td>KBD_BUSY_GETC</td>       <td>kbd_busy_getc</td>       <td>kbdKeyPressed() ? kbdGetc() : 512</td></tr>
@@ -8450,7 +8450,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>KBD_RAW_GETC</td>        <td>kbd_raw_getc</td>        <td>kbdRawGetc</td></tr>
     <tr><td>KBD_WORD_READ</td>       <td>kbd_word_read</td>       <td>kbdWordRead</td></tr>
 </table><p></p>
-<a name="list"><b>13.18 Actions for the list type</b></a>
+<a name="list"><h3>13.18 Actions for the list type</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>lstlib.c function</td>   <td></td></tr>
     <tr><td>LST_CAT</td>             <td>lst_cat</td>             <td></td></tr>
@@ -8467,7 +8467,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>LST_RANGE</td>           <td>lst_range</td>           <td></td></tr>
     <tr><td>LST_TAIL</td>            <td>lst_tail</td>            <td></td></tr>
 </table><p></p>
-<a name="proc"><b>13.19 Actions for proc operations and statements</b></a>
+<a name="proc"><h3>13.19 Actions for proc operations and statements</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>prclib.c function</td>   <td></td></tr>
     <tr><td>PRC_ARGS</td>            <td>prc_args</td>            <td></td></tr>
@@ -8502,7 +8502,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>PRC_VARFUNC2</td>        <td>prc_varfunc2</td>        <td></td></tr>
     <tr><td>PRC_WHILE</td>           <td>prc_while</td>           <td>while</td></tr>
 </table><p></p>
-<a name="program"><b>13.20 Actions for the type program</b></a>
+<a name="program"><h3>13.20 Actions for the type program</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>prglib.c function</td>   <td>prg_comp.c function</td></tr>
     <tr><td>PRG_CPY</td>             <td>prg_cpy</td>             <td>prgCpy</td></tr>
@@ -8525,7 +8525,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>PRG_SYSVAR</td>          <td>prg_sysvar</td>          <td>prgSysvar</td></tr>
     <tr><td>PRG_VALUE</td>           <td>prg_value</td>           <td>prgValue</td></tr>
 </table><p></p>
-<a name="reference"><b>13.21 Actions for the type reference</b></a>
+<a name="reference"><h3>13.21 Actions for the type reference</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>reflib.c function</td>   <td>ref_data.c function</td></tr>
     <tr><td>REF_ADDR</td>            <td>ref_addr</td>            <td>&</td></tr>
@@ -8575,7 +8575,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>REF_TYPE</td>            <td>ref_type</td>            <td>refType</td></tr>
     <tr><td>REF_VALUE</td>           <td>ref_value</td>           <td>refValue</td></tr>
 </table><p></p>
-<a name="ref_list"><b>13.22 Actions for the type ref_list</b></a>
+<a name="ref_list"><h3>13.22 Actions for the type ref_list</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>rfllib.c function</td>   <td>rfl_data.c function</td></tr>
     <tr><td>RFL_APPEND</td>          <td>rfl_append</td>          <td>rflAppend</td></tr>
@@ -8605,7 +8605,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>RFL_TRACE</td>           <td>rfl_trace</td>           <td></td></tr>
     <tr><td>RFL_VALUE</td>           <td>rfl_value</td>           <td>rflValue</td></tr>
 </table><p></p>
-<a name="console_output"><b>13.23 Actions for text (console) screen output</b></a>
+<a name="console_output"><h3>13.23 Actions for text (console) screen output</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>scrlib.c function</td>   <td>scr_inf.c/scr_rtl.c/scr_win.c function</td></tr>
     <tr><td>SCR_CLEAR</td>           <td>scr_clear</td>           <td>scrClear</td></tr>
@@ -8619,7 +8619,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SCR_WIDTH</td>           <td>scr_width</td>           <td>scrWidth</td></tr>
     <tr><td>SCR_WRITE</td>           <td>scr_write</td>           <td>scrWrite</td></tr>
 </table><p></p>
-<a name="struct"><b>13.24 Actions for struct types</b></a>
+<a name="struct"><h3>13.24 Actions for struct types</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>sctlib.c function</td>   <td></td></tr>
     <tr><td>SCT_ALLOC</td>           <td>sct_alloc</td>           <td></td></tr>
@@ -8635,7 +8635,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SCT_REFIDX</td>          <td>sct_refidx</td>          <td></td></tr>
     <tr><td>SCT_SELECT</td>          <td>sct_select</td>          <td>a->stru[b]</td></tr>
 </table><p></p>
-<a name="set"><b>13.25 Actions for set types</b></a>
+<a name="set"><h3>13.25 Actions for set types</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>setlib.c function</td>   <td>set_rtl.c function</td></tr>
     <tr><td>SET_ARRLIT</td>          <td>set_arrlit</td>          <td>setArrlit</td></tr>
@@ -8669,7 +8669,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SET_UNION</td>           <td>set_union</td>           <td>setUnion</td></tr>
     <tr><td>SET_VALUE</td>           <td>set_value</td>           <td>setValue</td></tr>
 </table><p></p>
-<a name="PRIMITIVE_SOCKET"><b>13.26 Actions for the type PRIMITIVE_SOCKET</b></a>
+<a name="PRIMITIVE_SOCKET"><h3>13.26 Actions for the type PRIMITIVE_SOCKET</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>strlib.c function</td>   <td>str_rtl.c function</td></tr>
     <tr><td>SOC_ACCEPT</td>          <td>soc_accept</td>          <td>socAccept</td></tr>
@@ -8696,7 +8696,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>SOC_WORD_READ</td>       <td>soc_word_read</td>       <td>socWordRead</td></tr>
     <tr><td>SOC_WRITE</td>           <td>soc_write</td>           <td>socWrite</td></tr>
 </table><p></p>
-<a name="string"><b>13.27 Actions for the type string</b></a>
+<a name="string"><h3>13.27 Actions for the type string</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>strlib.c function</td>   <td>str_rtl.c function</td></tr>
     <tr><td>STR_APPEND</td>          <td>str_append</td>          <td>strAppend</td></tr>
@@ -8744,13 +8744,13 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>STR_UTF8TOSTRI</td>      <td>str_utf8tostri</td>      <td>strUtf8ToStri</td></tr>
     <tr><td>STR_VALUE</td>           <td>str_value</td>           <td>strValue</td></tr>
 </table><p></p>
-<a name="time"><b>13.28 Actions for the type time</b></a>
+<a name="time"><h3>13.28 Actions for the type time</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>timlib.c function</td>   <td>tim_unx.c/tim_win.c function</td></tr>
     <tr><td>TIM_AWAIT</td>           <td>tim_await</td>           <td>timAwait</td></tr>
     <tr><td>TIM_NOW</td>             <td>tim_now</td>             <td>timNow</td></tr>
 </table><p></p>
-<a name="type"><b>13.29 Actions for the type type</b></a>
+<a name="type"><h3>13.29 Actions for the type type</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>typlib.c function</td>   <td>typ_data.c function</td></tr>
     <tr><td>TYP_ADDINTERFACE</td>    <td>typ_addinterface</td>    <td></td></tr>
@@ -8778,7 +8778,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <tr><td>TYP_VARCONV</td>         <td>typ_varconv</td>         <td></td></tr>
     <tr><td>TYP_VARFUNC</td>         <td>typ_varfunc</td>         <td>typVarfunc</td></tr>
 </table><p></p>
-<a name="utf8_file"><b>13.30 Actions for the type utf8_file</b></a>
+<a name="utf8_file"><h3>13.30 Actions for the type utf8_file</h3></a>
 <p></p><table border="1">
     <tr><td>Action name</td>         <td>ut8lib.c function</td>   <td>ut8_rtl.c function</td></tr>
     <tr><td>UT8_GETC</td>            <td>ut8_getc</td>            <td>ut8Getc</td></tr>
@@ -8790,10 +8790,10 @@ ont color=blue>is</font> <font color=maroon>""</font>;
 </table><p></p>
 
 <p></p>
-<a name="ERRORS"><big><b>14. ERRORS</b></big></a>
+<a name="ERRORS"><h2>14. ERRORS</h2></a>
 <!-- ========== -->
 <p></p>
-<a name="Compile_time_errors"><b>14.1 Compile time errors</b></a>
+<a name="Compile_time_errors"><h3>14.1 Compile time errors</h3></a>
 <p>
   The compile time errors are not fatal (the program can
   execute) except for the error 1 (Out of heap space) which
@@ -8858,7 +8858,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       Undefined error
 </pre><p></p>
 
-<a name="Exceptions"><b>14.2 Exceptions</b></a>
+<a name="Exceptions"><h3>14.2 Exceptions</h3></a>
 <p>
   There are various exceptions which can be raised during
   program execution:
@@ -8902,7 +8902,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
       action ACT_ILLEGAL is executed.</dd><dt>
 </dl><p></p>
 
-<a name="Handlers"><b>14.3 Handlers</b></a>
+<a name="Handlers"><h3>14.3 Handlers</h3></a>
 <p>
   To catch an EXCEPTION the following handler construct can be used:
 </p><pre>
@@ -8914,7 +8914,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     <font color=blue>end block</font>;
 </pre><p></p>
 
-<a name="Stack_trace"><b>14.4 Stack trace</b></a>
+<a name="Stack_trace"><h3>14.4 Stack trace</h3></a>
 <p>
   When an EXCEPTION is not catched at any level the program is
   terminated and the hi interpreter generates a stack trace.
@@ -8930,7 +8930,7 @@ ont color=blue>is</font> <font color=maroon>""</font>;
     main {} no POSINFO
 </pre><p></p>
 
-<a name="Other_errors_and_warnings"><b>14.5 Other errors and warnings</b></a>
+<a name="Other_errors_and_warnings"><h3>14.5 Other errors and warnings</h3></a>
 <p><dl><dt>
   No more memory. Program terminated.</dt><dd>
     This error message is displayed after the compile time error 1

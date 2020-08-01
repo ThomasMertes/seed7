@@ -30,12 +30,15 @@ const integer: port is 1080;
 var string: htdocs is "../htdocs";
 
 
-const proc: sendHttpResponse (inout file: sock, in string: buffer) is func
+const proc: sendHttpResponse (inout file: sock, in string: buffer,
+    in string: contentType) is func
   begin
     writeln(sock, "HTTP/1.0 200 OK");
     writeln(sock, "Server: Comanche");
     writeln(sock, "Transfer-Encoding: identity");
-    if startsWith(buffer, "\137\PNG") then
+    if contentType <> "" then
+      writeln(sock, "Content-Type: " <& contentType);
+    elsif startsWith(buffer, "\137\PNG") then
       writeln(sock, "Content-Type: image/png");
     elsif pos(buffer, "<html") = 0 then
       writeln(sock, "Content-Type: text/plain");
@@ -78,6 +81,7 @@ const proc: processHttpRequest (inout file: sock) is func
     var string: filePath is "";
     var string: hostName is "";
     var string: buffer is "";
+    var string: contentType is "";
   begin
     line := getln(sock);
     while line <> "" do
@@ -127,7 +131,10 @@ const proc: processHttpRequest (inout file: sock) is func
         buffer := "";
       end if;        
       if buffer <> "" then
-        sendHttpResponse(sock, buffer);
+        if endsWith(filePath, ".htm") or endsWith(filePath, ".html") then
+          contentType := "text/html";
+        end if;
+        sendHttpResponse(sock, buffer, contentType);
       else
         sendClientError(sock, "404 Not Found",
             "The requested URL " <& requestPath <&
@@ -168,7 +175,12 @@ const proc: main is func
       listen(inetListener, 10);
       while TRUE do
         sock := accept(inetListener);
-        processHttpRequest(sock);
+        block
+          processHttpRequest(sock);
+        exception
+          catch FILE_ERROR:
+            noop;
+        end block;
         close(sock);
       end while;
     end if;

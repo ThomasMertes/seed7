@@ -40,6 +40,7 @@ void cmdChdir (stritype dir_name);
 void cmdCloneFile (stritype source_name, stritype dest_name);
 stritype cmdConfigValue (stritype name);
 void cmdCopyFile (stritype source_name, stritype dest_name);
+settype cmdFileMode (stritype file_name);
 inttype cmdFileSize (stritype file_name);
 inttype cmdFileType (stritype file_name);
 inttype cmdFileTypeSL (stritype file_name);
@@ -64,6 +65,7 @@ void cmdRemoveAnyFile (stritype file_name);
 void cmdSetATime (stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
+void cmdSetFileMode (stritype file_name, settype mode);
 void cmdSetMTime (stritype file_name,
     inttype year, inttype month, inttype day, inttype hour,
     inttype min, inttype sec, inttype mycro_sec, inttype time_zone);
@@ -80,6 +82,7 @@ void cmdChdir ();
 void cmdCloneFile ();
 stritype cmdConfigValue ();
 void cmdCopyFile ();
+settype cmdFileMode ();
 inttype cmdFileSize ();
 inttype cmdFileType ();
 inttype cmdFileTypeSL ()
@@ -93,6 +96,7 @@ stritype cmdReadlink ();
 void cmdRemove ();
 void cmdRemoveAnyFile ();
 void cmdSetATime ();
+void cmdSetFileMode ();
 void cmdSetMTime ();
 inttype cmdShell ();
 void cmdSymlink ();

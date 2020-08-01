@@ -28,6 +28,9 @@
 #ifdef ANSI_C
 
 objecttype gkb_busy_getc (listtype);
+objecttype gkb_button_pressed (listtype);
+objecttype gkb_button_xpos (listtype);
+objecttype gkb_button_ypos (listtype);
 objecttype gkb_getc (listtype);
 objecttype gkb_gets (listtype);
 objecttype gkb_keypressed (listtype);
@@ -35,8 +38,6 @@ objecttype gkb_line_read (listtype);
 objecttype gkb_raw_getc (listtype);
 objecttype gkb_window (listtype);
 objecttype gkb_word_read (listtype);
-objecttype gkb_xpos (listtype);
-objecttype gkb_ypos (listtype);
 objecttype drw_arc (listtype);
 objecttype drw_arc2 (listtype);
 objecttype drw_background (listtype);
@@ -71,6 +72,8 @@ objecttype drw_pfcircle (listtype);
 objecttype drw_pfellipse (listtype);
 objecttype drw_pline (listtype);
 objecttype drw_point (listtype);
+objecttype drw_pointer_xpos (listtype);
+objecttype drw_pointer_ypos (listtype);
 objecttype drw_polyLine (listtype);
 objecttype drw_ppoint (listtype);
 objecttype drw_prect (listtype);
@@ -86,6 +89,9 @@ objecttype drw_width (listtype);
 #else
 
 objecttype gkb_busy_getc ();
+objecttype gkb_button_pressed ();
+objecttype gkb_button_xpos ();
+objecttype gkb_button_ypos ();
 objecttype gkb_getc ();
 objecttype gkb_gets ();
 objecttype gkb_keypressed ();
@@ -93,8 +99,6 @@ objecttype gkb_line_read ();
 objecttype gkb_raw_getc ();
 objecttype gkb_window ();
 objecttype gkb_word_read ();
-objecttype gkb_xpos ();
-objecttype gkb_ypos ();
 objecttype drw_arc ();
 objecttype drw_arc2 ();
 objecttype drw_background ();
@@ -129,6 +133,8 @@ objecttype drw_pfcircle ();
 objecttype drw_pfellipse ();
 objecttype drw_pline ();
 objecttype drw_point ();
+objecttype drw_pointer_xpos ();
+objecttype drw_pointer_ypos ();
 objecttype drw_polyLine ();
 objecttype drw_ppoint ();
 objecttype drw_prect ();

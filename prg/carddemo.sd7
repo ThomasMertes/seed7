@@ -33,7 +33,7 @@ $ include "seed7_05.s7i";
 const integer: PICTURE_SCALE is 1;
 
 
-const proc: move_card is func
+const proc: move_card (in PRIMITIVE_WINDOW: aCard) is func
   local
     var integer: cursorXpos is 0;
     var integer: cursorYpos is 0;
@@ -42,21 +42,100 @@ const proc: move_card is func
     var PRIMITIVE_WINDOW: backup is PRIMITIVE_WINDOW.value;
   begin
     repeat
-      cursorXpos := getxpos(KEYBOARD);
-      cursorYpos := getypos(KEYBOARD);
-      writeln("X=" <& cursorXpos <& ", Y=" <& cursorYpos);
+      cursorXpos := pointerXPos(curr_win) - width(aCard) div 2;
+      cursorYpos := pointerYPos(curr_win) - height(aCard) div 2;
+      # writeln("X=" <& cursorXpos <& ", Y=" <& cursorYpos);
       if cursorXpos <> cardXpos or
           cursorYpos <> cardYpos then
         put(cardXpos, cardYpos, backup, PSET);
         cardXpos := cursorXpos;
         cardYpos := cursorYpos;
         backup := getPixmap(cardXpos, cardYpos,
-            width(seven_of_hearts), height(seven_of_hearts));
-        put(cardXpos, cardYpos, seven_of_hearts, PSET);
+            width(aCard), height(aCard));
+        put(cardXpos, cardYpos, aCard, PSET);
         DRAW_FLUSH;
       end if;
-      wait(100000 . MYCRO_SECONDS);
-    until busy_getc(KEYBOARD) = KEY_NL;
+      wait(30000 . MYCRO_SECONDS);
+    until not buttonPressed(KEYBOARD, KEY_MOUSE1);
+  end func;
+
+
+const func PRIMITIVE_WINDOW: take_card is func
+  result
+    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+  local
+    var char: ch is ' ';
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    line   := succ((getypos(KEYBOARD) - 4) div 100);
+    column := succ((getxpos(KEYBOARD) - 4) div 75);
+    case line of
+      when {1}:
+        case column of
+          when { 1}: result := ace_of_spades;
+          when { 2}: result := king_of_spades;
+          when { 3}: result := queen_of_spades;
+          when { 4}: result := jack_of_spades;
+          when { 5}: result := ten_of_spades;
+          when { 6}: result := nine_of_spades;
+          when { 7}: result := eight_of_spades;
+          when { 8}: result := seven_of_spades;
+          when { 9}: result := six_of_spades;
+          when {10}: result := five_of_spades;
+          when {11}: result := four_of_spades;
+          when {12}: result := three_of_spades;
+          when {13}: result := two_of_spades;
+        end case;
+      when {2}:
+        case column of
+          when { 1}: result := ace_of_hearts;
+          when { 2}: result := king_of_hearts;
+          when { 3}: result := queen_of_hearts;
+          when { 4}: result := jack_of_hearts;
+          when { 5}: result := ten_of_hearts;
+          when { 6}: result := nine_of_hearts;
+          when { 7}: result := eight_of_hearts;
+          when { 8}: result := seven_of_hearts;
+          when { 9}: result := six_of_hearts;
+          when {10}: result := five_of_hearts;
+          when {11}: result := four_of_hearts;
+          when {12}: result := three_of_hearts;
+          when {13}: result := two_of_hearts;
+        end case;
+      when {3}:
+        case column of
+          when { 1}: result := ace_of_diamonds;
+          when { 2}: result := king_of_diamonds;
+          when { 3}: result := queen_of_diamonds;
+          when { 4}: result := jack_of_diamonds;
+          when { 5}: result := ten_of_diamonds;
+          when { 6}: result := nine_of_diamonds;
+          when { 7}: result := eight_of_diamonds;
+          when { 8}: result := seven_of_diamonds;
+          when { 9}: result := six_of_diamonds;
+          when {10}: result := five_of_diamonds;
+          when {11}: result := four_of_diamonds;
+          when {12}: result := three_of_diamonds;
+          when {13}: result := two_of_diamonds;
+        end case;
+      when {4}:
+        case column of
+          when { 1}: result := ace_of_clubs;
+          when { 2}: result := king_of_clubs;
+          when { 3}: result := queen_of_clubs;
+          when { 4}: result := jack_of_clubs;
+          when { 5}: result := ten_of_clubs;
+          when { 6}: result := nine_of_clubs;
+          when { 7}: result := eight_of_clubs;
+          when { 8}: result := seven_of_clubs;
+          when { 9}: result := six_of_clubs;
+          when {10}: result := five_of_clubs;
+          when {11}: result := four_of_clubs;
+          when {12}: result := three_of_clubs;
+          when {13}: result := two_of_clubs;
+        end case;
+    end case;
   end func;
 
 
@@ -120,6 +199,7 @@ const proc: main is func
     put(829 * PICTURE_SCALE, 304 * PICTURE_SCALE, three_of_clubs,    PSET);
     put(904 * PICTURE_SCALE, 304 * PICTURE_SCALE, two_of_clubs,      PSET);
     DRAW_FLUSH;
-    # move_card;
-    readln(KEYBOARD);
+    while getc(KEYBOARD) = KEY_MOUSE1 do
+      move_card(take_card);
+    end while;
   end func;

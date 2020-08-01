@@ -710,6 +710,112 @@ booltype gkbKeyPressed ()
 
 #ifdef ANSI_C
 
+booltype gkbButtonPressed (chartype button)
+#else
+
+booltype gkbButtonPressed (button)
+chartype button;
+#endif
+
+  {
+    int vkey1;
+    int vkey2 = 0;
+    booltype okay = TRUE;
+    booltype result;
+
+  /* gkbButtonPressed */
+    switch (button) {
+      case K_CTL_A: case K_ALT_A: case 'A': case 'a': vkey1 = 'A'; break;
+      case K_CTL_B: case K_ALT_B: case 'B': case 'b': vkey1 = 'B'; break;
+      case K_CTL_C: case K_ALT_C: case 'C': case 'c': vkey1 = 'C'; break;
+      case K_CTL_D: case K_ALT_D: case 'D': case 'd': vkey1 = 'D'; break;
+      case K_CTL_E: case K_ALT_E: case 'E': case 'e': vkey1 = 'E'; break;
+      case K_CTL_F: case K_ALT_F: case 'F': case 'f': vkey1 = 'F'; break;
+      case K_CTL_G: case K_ALT_G: case 'G': case 'g': vkey1 = 'G'; break;
+      /* K_CTL_H */ case K_ALT_H: case 'H': case 'h': vkey1 = 'H'; break;
+      /* K_CTL_I */ case K_ALT_I: case 'I': case 'i': vkey1 = 'I'; break;
+      /* K_CTL_J */ case K_ALT_J: case 'J': case 'j': vkey1 = 'J'; break;
+      case K_CTL_K: case K_ALT_K: case 'K': case 'k': vkey1 = 'K'; break;
+      case K_CTL_L: case K_ALT_L: case 'L': case 'l': vkey1 = 'L'; break;
+      case K_CTL_M: case K_ALT_M: case 'M': case 'm': vkey1 = 'M'; break;
+      case K_CTL_N: case K_ALT_N: case 'N': case 'n': vkey1 = 'N'; break;
+      case K_CTL_O: case K_ALT_O: case 'O': case 'o': vkey1 = 'O'; break;
+      case K_CTL_P: case K_ALT_P: case 'P': case 'p': vkey1 = 'P'; break;
+      case K_CTL_Q: case K_ALT_Q: case 'Q': case 'q': vkey1 = 'Q'; break;
+      case K_CTL_R: case K_ALT_R: case 'R': case 'r': vkey1 = 'R'; break;
+      case K_CTL_S: case K_ALT_S: case 'S': case 's': vkey1 = 'S'; break;
+      case K_CTL_T: case K_ALT_T: case 'T': case 't': vkey1 = 'T'; break;
+      case K_CTL_U: case K_ALT_U: case 'U': case 'u': vkey1 = 'U'; break;
+      case K_CTL_V: case K_ALT_V: case 'V': case 'v': vkey1 = 'V'; break;
+      case K_CTL_W: case K_ALT_W: case 'W': case 'w': vkey1 = 'W'; break;
+      case K_CTL_X: case K_ALT_X: case 'X': case 'x': vkey1 = 'X'; break;
+      case K_CTL_Y: case K_ALT_Y: case 'Y': case 'y': vkey1 = 'Y'; break;
+      case K_CTL_Z: case K_ALT_Z: case 'Z': case 'z': vkey1 = 'Z'; break;
+
+      case K_ALT_0: case '0': vkey1 = '0'; vkey2 = VK_NUMPAD0; break;
+      case K_ALT_1: case '1': vkey1 = '1'; vkey2 = VK_NUMPAD1; break;
+      case K_ALT_2: case '2': vkey1 = '2'; vkey2 = VK_NUMPAD2; break;
+      case K_ALT_3: case '3': vkey1 = '3'; vkey2 = VK_NUMPAD3; break;
+      case K_ALT_4: case '4': vkey1 = '4'; vkey2 = VK_NUMPAD4; break;
+      case K_ALT_5: case '5': vkey1 = '5'; vkey2 = VK_NUMPAD5; break;
+      case K_ALT_6: case '6': vkey1 = '6'; vkey2 = VK_NUMPAD6; break;
+      case K_ALT_7: case '7': vkey1 = '7'; vkey2 = VK_NUMPAD7; break;
+      case K_ALT_8: case '8': vkey1 = '8'; vkey2 = VK_NUMPAD8; break;
+      case K_ALT_9: case '9': vkey1 = '9'; vkey2 = VK_NUMPAD9; break;
+
+      case K_F1:  case K_SFT_F1:  case K_CTL_F1:  case K_ALT_F1:  vkey1 = VK_F1;  break;
+      case K_F2:  case K_SFT_F2:  case K_CTL_F2:  case K_ALT_F2:  vkey1 = VK_F2;  break;
+      case K_F3:  case K_SFT_F3:  case K_CTL_F3:  case K_ALT_F3:  vkey1 = VK_F3;  break;
+      case K_F4:  case K_SFT_F4:  case K_CTL_F4:  case K_ALT_F4:  vkey1 = VK_F4;  break;
+      case K_F5:  case K_SFT_F5:  case K_CTL_F5:  case K_ALT_F5:  vkey1 = VK_F5;  break;
+      case K_F6:  case K_SFT_F6:  case K_CTL_F6:  case K_ALT_F6:  vkey1 = VK_F6;  break;
+      case K_F7:  case K_SFT_F7:  case K_CTL_F7:  case K_ALT_F7:  vkey1 = VK_F7;  break;
+      case K_F8:  case K_SFT_F8:  case K_CTL_F8:  case K_ALT_F8:  vkey1 = VK_F8;  break;
+      case K_F9:  case K_SFT_F9:  case K_CTL_F9:  case K_ALT_F9:  vkey1 = VK_F9;  break;
+      case K_F10: case K_SFT_F10: case K_CTL_F10: case K_ALT_F10: vkey1 = VK_F10; break;
+
+      case K_LEFT:  case K_CTL_LEFT:  vkey1 = VK_LEFT;   break;
+      case K_RIGHT: case K_CTL_RIGHT: vkey1 = VK_RIGHT;  break;
+      case K_UP:    case K_CTL_UP:    vkey1 = VK_UP;     break;
+      case K_DOWN:  case K_CTL_DOWN:  vkey1 = VK_DOWN;   break;
+      case K_HOME:  case K_CTL_HOME:  vkey1 = VK_HOME;   break;
+      case K_END:   case K_CTL_END:   vkey1 = VK_END;    break;
+      case K_PGUP:  case K_CTL_PGUP:  vkey1 = VK_PRIOR;  break;
+      case K_PGDN:  case K_CTL_PGDN:  vkey1 = VK_NEXT;   break;
+      case K_INS:   case K_CTL_INS:   vkey1 = VK_INSERT; break;
+      case K_DEL:   case K_CTL_DEL:   vkey1 = VK_DELETE; break;
+
+      case K_ESC:                 vkey1 = VK_ESCAPE;               break;
+      case K_BS:                  vkey1 = VK_BACK;    vkey2 = 'H'; break;
+      case K_NL:                  vkey1 = VK_RETURN;  vkey2 = 'J'; break;
+      case K_TAB: case K_BACKTAB: vkey1 = VK_TAB;     vkey2 = 'I'; break;
+
+      case ' ': vkey1 = VK_SPACE;    break;
+      case '*': vkey1 = VK_MULTIPLY; break;
+      case '+': vkey1 = VK_ADD;      break;
+      case '-': vkey1 = VK_SUBTRACT; break;
+      case '/': vkey1 = VK_DIVIDE;   break;
+
+      case K_MOUSE1: vkey1 = VK_LBUTTON; break;
+      case K_MOUSE2: vkey1 = VK_MBUTTON; break;
+      case K_MOUSE3: vkey1 = VK_RBUTTON; break;
+
+      default: result = FALSE; okay = FALSE; break;
+    } /* switch */
+
+    if (okay) {
+      result = (GetAsyncKeyState(vkey1) & 0x8000) != 0;
+      if (!result && vkey2 != 0) {
+        result = (GetAsyncKeyState(vkey2) & 0x8000) != 0;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* gkbButtonPressed */
+
+
+
+#ifdef ANSI_C
+
 chartype gkbRawGetc (void)
 #else
 
@@ -745,29 +851,91 @@ wintype gkbWindow ()
 
 #ifdef ANSI_C
 
-inttype gkbXpos (void)
+inttype gkbButtonXpos (void)
 #else
 
-inttype gkbXpos ()
+inttype gkbButtonXpos ()
 #endif
 
-  { /* gkbXpos */
+  { /* gkbButtonXpos */
     return(button_x);
-  } /* gkbXpos */
+  } /* gkbButtonXpos */
 
 
 
 #ifdef ANSI_C
 
-inttype gkbYpos (void)
+inttype gkbButtonYpos (void)
 #else
 
-inttype gkbYpos ()
+inttype gkbButtonYpos ()
 #endif
 
-  { /* gkbYpos */
+  { /* gkbButtonYpos */
     return(button_y);
-  } /* gkbYpos */
+  } /* gkbButtonYpos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwPointerXpos (const_wintype actual_window)
+#else
+
+inttype drwPointerXpos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    CURSORINFO cursorinfo;
+    inttype result;
+
+  /* drwPointerXpos */
+    cursorinfo.cbSize = sizeof(CURSORINFO);
+    if (GetCursorInfo(&cursorinfo) == 0) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      if (ScreenToClient(to_hwnd(actual_window), &cursorinfo.ptScreenPos) == 0) {
+        raise_error(RANGE_ERROR);
+        result = 0;
+      } else {
+        result = cursorinfo.ptScreenPos.x;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* drwPointerXpos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwPointerYpos (const_wintype actual_window)
+#else
+
+inttype drwPointerYpos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    CURSORINFO cursorinfo;
+    inttype result;
+
+  /* drwPointerYpos */
+    cursorinfo.cbSize = sizeof(CURSORINFO);
+    if (GetCursorInfo(&cursorinfo) == 0) {
+      raise_error(RANGE_ERROR);
+      result = 0;
+    } else {
+      if (ScreenToClient(to_hwnd(actual_window), &cursorinfo.ptScreenPos) == 0) {
+        raise_error(RANGE_ERROR);
+        result = 0;
+      } else {
+        result = cursorinfo.ptScreenPos.y;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* drwPointerYpos */
 
 
 

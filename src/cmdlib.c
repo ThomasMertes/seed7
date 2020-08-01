@@ -237,6 +237,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype cmd_filemode (listtype arguments)
+#else
+
+objecttype cmd_filemode (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_filemode */
+    isit_stri(arg_1(arguments));
+    return(bld_set_temp(cmdFileMode(take_stri(arg_1(arguments)))));
+  } /* cmd_filemode */
+
+
+
+#ifdef ANSI_C
+
 objecttype cmd_filesize (listtype arguments)
 #else
 
@@ -581,6 +597,25 @@ listtype arguments;
                 take_int(arg_9(arguments)));
     return(SYS_EMPTY_OBJECT);
   } /* cmd_set_atime */
+
+
+
+#ifdef ANSI_C
+
+objecttype cmd_set_filemode (listtype arguments)
+#else
+
+objecttype cmd_set_filemode (arguments)
+listtype arguments;
+#endif
+
+  { /* cmd_set_filemode */
+    isit_stri(arg_1(arguments));
+    isit_set(arg_2(arguments));
+    cmdSetFileMode(take_stri(arg_1(arguments)),
+                   take_set(arg_2(arguments)));
+    return(SYS_EMPTY_OBJECT);
+  } /* cmd_set_filemode */
 
 
 

@@ -153,6 +153,7 @@ version.h:
 	cmd /S /C "echo #define USE_LOCALTIME_R" >> version.h
 	cmd /S /C "echo #define USE_ALTERNATE_LOCALTIME_R" >> version.h
 	cmd /S /C "echo #define USE_ALTERNATE_UTIME" >> version.h
+	cmd /S /C "echo #define UTIME_ORIG_BUGGY_FOR_FAT_FILES" >> version.h
 	cmd /S /C "echo #undef  USE_MMAP" >> version.h
 	cmd /S /C "echo #undef  INCL_NCURSES_TERM" >> version.h
 	cmd /S /C "echo #undef  INCL_CURSES_BEFORE_TERM" >> version.h

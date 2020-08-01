@@ -69,6 +69,7 @@
 #include "str_rtl.h"
 #include "fil_rtl.h"
 #include "dir_rtl.h"
+#include "set_rtl.h"
 #include "tim_rtl.h"
 #include "tim_drv.h"
 #include "big_drv.h"
@@ -100,6 +101,11 @@
 #define PRESERVE_ALL        0xFF
 
 #define MAX_SYMLINK_PATH_LENGTH 0x1FFFFFFF
+
+#define USR_BITS_NORMAL (S_IRUSR == 0400 && S_IWUSR == 0200 && S_IXUSR == 0100)
+#define GRP_BITS_NORMAL (S_IRGRP == 0040 && S_IWGRP == 0020 && S_IXGRP == 0010)
+#define OTH_BITS_NORMAL (S_IROTH == 0004 && S_IWOTH == 0002 && S_IXOTH == 0001)
+#define MODE_BITS_NORMAL (USR_BITS_NORMAL && GRP_BITS_NORMAL && OTH_BITS_NORMAL)
 
 
 
@@ -543,16 +549,18 @@ errinfotype *err_info;
           copy_dir(from_name, to_name, flags, err_info);
         } /* if */
         if (*err_info == OKAY_NO_ERROR && !S_ISLNK(from_stat.st_mode)) {
+          if (flags & PRESERVE_TIMESTAMPS) {
+            to_utime.actime = from_stat.st_atime;
+            to_utime.modtime = from_stat.st_mtime;
+            /* printf("copy_any_file: st_atime=%ld\n", from_stat.st_atime); */
+            /* printf("copy_any_file: st_mtime=%ld\n", from_stat.st_mtime); */
+            os_utime(to_name, &to_utime);
+          } /* if */
           if (flags & PRESERVE_MODE) {
             os_chmod(to_name, from_stat.st_mode);
           } /* if */
           if (flags & PRESERVE_OWNERSHIP) {
             os_chown(to_name, from_stat.st_uid, from_stat.st_gid);
-          } /* if */
-          if (flags & PRESERVE_TIMESTAMPS) {
-            to_utime.actime = from_stat.st_atime;
-            to_utime.modtime = from_stat.st_mtime;
-            os_utime(to_name, &to_utime);
           } /* if */
         } /* if */
       } /* if */
@@ -945,6 +953,63 @@ stritype dest_name;
 
 #ifdef ANSI_C
 
+settype cmdFileMode (stritype file_name)
+#else
+
+settype cmdFileMode (file_name)
+stritype file_name;
+#endif
+
+  {
+    os_path_stri os_path;
+    os_stat_struct stat_buf;
+    int stat_result;
+    settype result;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdFileMode */
+#ifdef TRACE_CMD_RTL
+    printf("BEGIN cmdFileMode(");
+    prot_stri(file_name);
+    printf(")\n");
+#endif
+    os_path = cp_to_os_path(file_name, &err_info);
+    if (os_path == NULL) {
+      raise_error(err_info);
+      result = NULL;
+    } else {
+      stat_result = os_stat(os_path, &stat_buf);
+      os_path_free(os_path);
+      if (stat_result == 0) {
+        /* printf("cmdFileMode: st_mode=0%o\n", stat_buf.st_mode); */
+#if MODE_BITS_NORMAL
+        result = setIConv(0777 & stat_buf.st_mode);
+#else
+        /* Force the bits to the standard sequence */
+        result = setIConv(        {
+            (stat_buf.st_mode & S_IRUSR ? 0400 : 0) |
+            (stat_buf.st_mode & S_IWUSR ? 0200 : 0) |
+            (stat_buf.st_mode & S_IXUSR ? 0100 : 0) |
+            (stat_buf.st_mode & S_IRGRP ? 0040 : 0) |
+            (stat_buf.st_mode & S_IWGRP ? 0020 : 0) |
+            (stat_buf.st_mode & S_IXGRP ? 0010 : 0) |
+            (stat_buf.st_mode & S_IROTH ? 0004 : 0) |
+            (stat_buf.st_mode & S_IWOTH ? 0002 : 0) |
+            (stat_buf.st_mode & S_IXOTH ? 0001 : 0));
+#endif
+      } else {
+        /* printf("errno=%d\n", errno); */
+        raise_error(FILE_ERROR);
+        result = NULL;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* cmdFileMode */
+
+
+
+#ifdef ANSI_C
+
 inttype cmdFileSize (stritype file_name)
 #else
 
@@ -1036,6 +1101,7 @@ stritype file_name;
           result = 6;
         } else if (S_ISLNK(stat_buf.st_mode)) {
           result = 7;
+          raise_error(FILE_ERROR);
         } else if (S_ISSOCK(stat_buf.st_mode)) {
           result = 8;
         } else {
@@ -1200,6 +1266,7 @@ booltype *is_dst;
             year, month, day, hour,
             min, sec, mycro_sec, time_zone, is_dst);
       } else {
+        /* printf("errno=%d\n", errno); */
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
@@ -1256,6 +1323,7 @@ booltype *is_dst;
             year, month, day, hour,
             min, sec, mycro_sec, time_zone, is_dst);
       } else {
+        /* printf("errno=%d\n", errno); */
         raise_error(FILE_ERROR);
       } /* if */
     } /* if */
@@ -1590,6 +1658,60 @@ inttype time_zone;
       raise_error(err_info);
     } /* if */
   } /* cmdSetATime */
+
+
+
+#ifdef ANSI_C
+
+void cmdSetFileMode (stritype file_name, settype mode)
+#else
+
+void cmdSetFileMode (file_name, mode)
+stritype file_name;
+settype mode;
+#endif
+
+  {
+    os_path_stri os_path;
+    int int_mode;
+    int chmod_result;
+    errinfotype err_info = OKAY_NO_ERROR;
+
+  /* cmdSetFileMode */
+#ifdef TRACE_CMD_RTL
+    printf("BEGIN cmdSetFileMode(");
+    prot_stri(file_name);
+    printf(")\n");
+#endif
+    os_path = cp_to_os_path(file_name, &err_info);
+    if (os_path != NULL) {
+      int_mode = setSConv(mode);
+      /* printf("cmdSetFileMode: mode=0%o\n", int_mode); */
+#if MODE_BITS_NORMAL
+      chmod_result = os_chmod(os_path, int_mode);
+#else
+      /* Force the bits to the standard sequence */
+      chmod_result = os_chmod(os_path,
+          (int_mode & 0400 ? S_IRUSR : 0) |
+          (int_mode & 0200 ? S_IWUSR : 0) |
+          (int_mode & 0100 ? S_IXUSR : 0) |
+          (int_mode & 0040 ? S_IRGRP : 0) |
+          (int_mode & 0020 ? S_IWGRP : 0) |
+          (int_mode & 0010 ? S_IXGRP : 0) |
+          (int_mode & 0004 ? S_IROTH : 0) |
+          (int_mode & 0002 ? S_IWOTH : 0) |
+          (int_mode & 0001 ? S_IXOTH : 0));
+#endif
+      if (chmod_result != 0) {
+        /* printf("errno=%d\n", errno); */
+        err_info = FILE_ERROR;
+      } /* if */
+      os_path_free(os_path);
+    } /* if */
+    if (err_info != OKAY_NO_ERROR) {
+      raise_error(err_info);
+    } /* if */
+  } /* cmdSetFileMode */
 
 
 

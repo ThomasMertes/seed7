@@ -47,10 +47,8 @@ const func integer: get_uint16_le (inout file: in_file) is func
     var string: stri is "";
   begin
     stri := gets(in_file, 2);
-    if length(stri) = 2 then
-      number := ord(stri[1]) +
-          ord(stri[2]) * 256;
-    end if;
+    number := ord(stri[1]) +
+              ord(stri[2]) * 256;
   end func;
 
 
@@ -61,10 +59,34 @@ const func integer: get_uint32_le (inout file: in_file) is func
     var string: stri is "";
   begin
     stri := gets(in_file, 4);
-    if length(stri) = 4 then
-      number := ord(stri[1]) +
-          ord(stri[2]) * 256 +
-          ord(stri[3]) * 65536 +
-          ord(stri[4]) * 16777216;
-    end if;
+    number := ord(stri[1]) +
+              ord(stri[2]) * 256 +
+              ord(stri[3]) * 65536 +
+              ord(stri[4]) * 16777216;
+  end func;
+
+
+const func integer: get_uint16_be (inout file: in_file) is func
+  result
+    var integer: number is 0;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(in_file, 2);
+    number := ord(stri[1]) * 256 +
+              ord(stri[2]);
+  end func;
+
+
+const func integer: get_uint32_be (inout file: in_file) is func
+  result
+    var integer: number is 0;
+  local
+    var string: stri is "";
+  begin
+    stri := gets(in_file, 4);
+    number := ord(stri[1]) * 16777216 +
+              ord(stri[2]) * 65536 +
+              ord(stri[3]) * 256 +
+              ord(stri[4]);
   end func;

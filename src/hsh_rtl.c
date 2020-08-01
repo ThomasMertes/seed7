@@ -287,10 +287,14 @@ errinfotype *err_info;
     rtlArraytype resized_key_array;
 
   /* keys_helem */
-    array_size = (*key_array)->max_position - (*key_array)->min_position;
+    array_size = (uinttype) ((*key_array)->max_position - (*key_array)->min_position);
     if (*arr_pos >= array_size) {
-      resized_key_array = REALLOC_RTL_ARRAY(*key_array,
-          array_size, array_size + ARRAY_SIZE_INCREMENT);
+      if (array_size >= MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
+        resized_key_array = NULL;
+      } else {
+        resized_key_array = REALLOC_RTL_ARRAY(*key_array,
+            array_size, array_size + ARRAY_SIZE_INCREMENT);
+      } /* if */
       if (resized_key_array == NULL) {
         *err_info = MEMORY_ERROR;
         return;
@@ -352,7 +356,7 @@ errinfotype *err_info;
         number--;
         curr_helem++;
       } /* while */
-      array_size = key_array->max_position - key_array->min_position;
+      array_size = (uinttype) (key_array->max_position - key_array->min_position);
       if (*err_info == OKAY_NO_ERROR) {
         resized_key_array = REALLOC_RTL_ARRAY(key_array, array_size, arr_pos);
         if (resized_key_array == NULL) {
@@ -360,7 +364,7 @@ errinfotype *err_info;
         } else {
           key_array = resized_key_array;
           COUNT3_RTL_ARRAY(array_size, arr_pos);
-          key_array->max_position = arr_pos;
+          key_array->max_position = (inttype) arr_pos;
         } /* if */
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {
@@ -395,10 +399,14 @@ errinfotype *err_info;
     rtlArraytype resized_value_array;
 
   /* values_helem */
-    array_size = (*value_array)->max_position - (*value_array)->min_position;
+    array_size = (uinttype) ((*value_array)->max_position - (*value_array)->min_position);
     if (*arr_pos >= array_size) {
-      resized_value_array = REALLOC_RTL_ARRAY(*value_array,
-          array_size, array_size + ARRAY_SIZE_INCREMENT);
+      if (array_size >= MAX_MEM_INDEX - ARRAY_SIZE_INCREMENT) {
+        resized_value_array = NULL;
+      } else {
+        resized_value_array = REALLOC_RTL_ARRAY(*value_array,
+            array_size, array_size + ARRAY_SIZE_INCREMENT);
+      } /* if */
       if (resized_value_array == NULL) {
         *err_info = MEMORY_ERROR;
         return;
@@ -460,7 +468,7 @@ errinfotype *err_info;
         number--;
         curr_helem++;
       } /* while */
-      array_size = value_array->max_position - value_array->min_position;
+      array_size = (uinttype) (value_array->max_position - value_array->min_position);
       if (*err_info == OKAY_NO_ERROR) {
         resized_value_array = REALLOC_RTL_ARRAY(value_array, array_size, arr_pos);
         if (resized_value_array == NULL) {
@@ -468,7 +476,7 @@ errinfotype *err_info;
         } else {
           value_array = resized_value_array;
           COUNT3_RTL_ARRAY(array_size, arr_pos);
-          value_array->max_position = arr_pos;
+          value_array->max_position = (inttype) arr_pos;
         } /* if */
       } /* if */
       if (*err_info != OKAY_NO_ERROR) {

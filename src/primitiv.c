@@ -193,6 +193,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_CLONE_FILE",      cmd_clone_file,      },
     { "CMD_CONFIG_VALUE",    cmd_config_value,    },
     { "CMD_COPY_FILE",       cmd_copy_file,       },
+    { "CMD_FILEMODE",        cmd_filemode,        },
     { "CMD_FILESIZE",        cmd_filesize,        },
     { "CMD_FILETYPE",        cmd_filetype,        },
     { "CMD_FILETYPE_SL",     cmd_filetype_sl,     },
@@ -207,6 +208,7 @@ static primactrecord prim_act_table[] = {
     { "CMD_REMOVE",          cmd_remove,          },
     { "CMD_REMOVE_ANY_FILE", cmd_remove_any_file, },
     { "CMD_SET_ATIME",       cmd_set_atime,       },
+    { "CMD_SET_FILEMODE",    cmd_set_filemode,    },
     { "CMD_SET_MTIME",       cmd_set_mtime,       },
     { "CMD_SHELL",           cmd_shell,           },
     { "CMD_SYMLINK",         cmd_symlink,         },
@@ -265,6 +267,8 @@ static primactrecord prim_act_table[] = {
     { "DRW_PFELLIPSE",       drw_pfellipse,       },
     { "DRW_PLINE",           drw_pline,           },
     { "DRW_POINT",           drw_point,           },
+    { "DRW_POINTER_XPOS",    drw_pointer_xpos     },
+    { "DRW_POINTER_YPOS",    drw_pointer_ypos     },
     { "DRW_POLYLINE",        drw_polyLine,        },
     { "DRW_PPOINT",          drw_ppoint,          },
     { "DRW_PRECT",           drw_prect,           },
@@ -374,7 +378,10 @@ static primactrecord prim_act_table[] = {
 #endif
 
 #ifdef WITH_DRAW
-    { "GKB_BUSY_GETC",       gkb_busy_getc,       },
+    { "GKB_BUSY_GETC",       gkb_busy_getc        },
+    { "GKB_BUTTON_PRESSED",  gkb_button_pressed   },
+    { "GKB_BUTTON_XPOS",     gkb_button_xpos      },
+    { "GKB_BUTTON_YPOS",     gkb_button_ypos      },
     { "GKB_GETC",            gkb_getc             },
     { "GKB_GETS",            gkb_gets             },
     { "GKB_KEYPRESSED",      gkb_keypressed       },
@@ -382,8 +389,6 @@ static primactrecord prim_act_table[] = {
     { "GKB_RAW_GETC",        gkb_raw_getc         },
     { "GKB_WINDOW",          gkb_window           },
     { "GKB_WORD_READ",       gkb_word_read        },
-    { "GKB_XPOS",            gkb_xpos             },
-    { "GKB_YPOS",            gkb_ypos             },
 #endif
 
     { "HSH_CONTAINS",        hsh_contains,        },

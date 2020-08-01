@@ -738,6 +738,216 @@ booltype gkbKeyPressed ()
 
 #ifdef ANSI_C
 
+static booltype mouseButtonPressed (unsigned int button_mask)
+#else
+
+static booltype mouseButtonPressed (button_mask)
+unsigned int button_mask;
+#endif
+
+  {
+    Window root;
+    Window child;
+    int root_x, root_y;
+    int win_x, win_y;
+    unsigned int keys_buttons;
+    booltype result;
+
+  /* mouseButtonPressed */
+    /* printf("mouseButtonPressed(%x)\n", button_mask); */
+    XQueryPointer(mydisplay, DefaultRootWindow(mydisplay), &root, &child,
+		  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+    /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
+       root, child, root_x, root_y, win_x, win_y, keys_buttons); */
+    result = (keys_buttons & button_mask) != 0;
+    /* printf("mouseButtonPressed(%d) ==> %d\n", button_mask, result); */
+    return(result);
+  } /* mouseButtonPressed */
+
+
+
+#ifdef ANSI_C
+
+static booltype keyboardButtonPressed (KeySym sym)
+#else
+
+static booltype keyboardButtonPressed (sym)
+KeySym sym;
+#endif
+
+  {
+    char key_vector[32];
+    KeyCode code;
+    unsigned int byteindex;
+    unsigned int bitindex;
+    booltype result;
+
+  /* keyboardButtonPressed */
+    code = XKeysymToKeycode(mydisplay, sym);
+    if (code == NoSymbol) {
+      /* printf("keyboardButtonPressed: XKeysymToKeycode returns NoSymbol\n"); */
+      result = 0;
+    } else {
+      byteindex = code >> 3;
+      bitindex = code & 0x7;
+      XQueryKeymap(mydisplay, key_vector);
+      /*
+        printf("sym=%d, code=%d, byteindex=%d, bitindex=%d\n", sym, code, byteindex, bitindex);
+        for (byteindex = 0; byteindex < 32; byteindex++) {
+          printf("%02x", key_vector[byteindex]);
+        }
+        printf("\n");
+      */
+      result = 1 & (key_vector[byteindex] >> bitindex);
+    } /* if */
+    return(result);
+  } /* keyboardButtonPressed */
+
+
+
+#ifdef ANSI_C
+
+booltype gkbButtonPressed (chartype button)
+#else
+
+booltype gkbButtonPressed (button)
+chartype button;
+#endif
+
+  {
+    unsigned int button_mask = 0;
+    KeySym sym1;
+    KeySym sym2 = 0;
+    KeySym sym3 = 0;
+    booltype okay = TRUE;
+    booltype result;
+
+  /* gkbButtonPressed */
+    switch (button) {
+      case K_CTL_A: case K_ALT_A: case 'A': case 'a': sym1 = 'A'; break;
+      case K_CTL_B: case K_ALT_B: case 'B': case 'b': sym1 = 'B'; break;
+      case K_CTL_C: case K_ALT_C: case 'C': case 'c': sym1 = 'C'; break;
+      case K_CTL_D: case K_ALT_D: case 'D': case 'd': sym1 = 'D'; break;
+      case K_CTL_E: case K_ALT_E: case 'E': case 'e': sym1 = 'E'; break;
+      case K_CTL_F: case K_ALT_F: case 'F': case 'f': sym1 = 'F'; break;
+      case K_CTL_G: case K_ALT_G: case 'G': case 'g': sym1 = 'G'; break;
+      /* K_CTL_H */ case K_ALT_H: case 'H': case 'h': sym1 = 'H'; break;
+      /* K_CTL_I */ case K_ALT_I: case 'I': case 'i': sym1 = 'I'; break;
+      /* K_CTL_J */ case K_ALT_J: case 'J': case 'j': sym1 = 'J'; break;
+      case K_CTL_K: case K_ALT_K: case 'K': case 'k': sym1 = 'K'; break;
+      case K_CTL_L: case K_ALT_L: case 'L': case 'l': sym1 = 'L'; break;
+      case K_CTL_M: case K_ALT_M: case 'M': case 'm': sym1 = 'M'; break;
+      case K_CTL_N: case K_ALT_N: case 'N': case 'n': sym1 = 'N'; break;
+      case K_CTL_O: case K_ALT_O: case 'O': case 'o': sym1 = 'O'; break;
+      case K_CTL_P: case K_ALT_P: case 'P': case 'p': sym1 = 'P'; break;
+      case K_CTL_Q: case K_ALT_Q: case 'Q': case 'q': sym1 = 'Q'; break;
+      case K_CTL_R: case K_ALT_R: case 'R': case 'r': sym1 = 'R'; break;
+      case K_CTL_S: case K_ALT_S: case 'S': case 's': sym1 = 'S'; break;
+      case K_CTL_T: case K_ALT_T: case 'T': case 't': sym1 = 'T'; break;
+      case K_CTL_U: case K_ALT_U: case 'U': case 'u': sym1 = 'U'; break;
+      case K_CTL_V: case K_ALT_V: case 'V': case 'v': sym1 = 'V'; break;
+      case K_CTL_W: case K_ALT_W: case 'W': case 'w': sym1 = 'W'; break;
+      case K_CTL_X: case K_ALT_X: case 'X': case 'x': sym1 = 'X'; break;
+      case K_CTL_Y: case K_ALT_Y: case 'Y': case 'y': sym1 = 'Y'; break;
+      case K_CTL_Z: case K_ALT_Z: case 'Z': case 'z': sym1 = 'Z'; break;
+
+      case K_ALT_0: case '0': sym1 = '0'; sym2 = XK_KP_0; break;
+      case K_ALT_1: case '1': sym1 = '1'; sym2 = XK_KP_1; break;
+      case K_ALT_2: case '2': sym1 = '2'; sym2 = XK_KP_2; break;
+      case K_ALT_3: case '3': sym1 = '3'; sym2 = XK_KP_3; break;
+      case K_ALT_4: case '4': sym1 = '4'; sym2 = XK_KP_4; break;
+      case K_ALT_5: case '5': sym1 = '5'; sym2 = XK_KP_5; break;
+      case K_ALT_6: case '6': sym1 = '6'; sym2 = XK_KP_6; break;
+      case K_ALT_7: case '7': sym1 = '7'; sym2 = XK_KP_7; break;
+      case K_ALT_8: case '8': sym1 = '8'; sym2 = XK_KP_8; break;
+      case K_ALT_9: case '9': sym1 = '9'; sym2 = XK_KP_9; break;
+
+      case K_F1:  case K_SFT_F1:  case K_CTL_F1:  case K_ALT_F1:  sym1 = XK_F1;  break;
+      case K_F2:  case K_SFT_F2:  case K_CTL_F2:  case K_ALT_F2:  sym1 = XK_F2;  break;
+      case K_F3:  case K_SFT_F3:  case K_CTL_F3:  case K_ALT_F3:  sym1 = XK_F3;  break;
+      case K_F4:  case K_SFT_F4:  case K_CTL_F4:  case K_ALT_F4:  sym1 = XK_F4;  break;
+      case K_F5:  case K_SFT_F5:  case K_CTL_F5:  case K_ALT_F5:  sym1 = XK_F5;  break;
+      case K_F6:  case K_SFT_F6:  case K_CTL_F6:  case K_ALT_F6:  sym1 = XK_F6;  break;
+      case K_F7:  case K_SFT_F7:  case K_CTL_F7:  case K_ALT_F7:  sym1 = XK_F7;  break;
+      case K_F8:  case K_SFT_F8:  case K_CTL_F8:  case K_ALT_F8:  sym1 = XK_F8;  break;
+      case K_F9:  case K_SFT_F9:  case K_CTL_F9:  case K_ALT_F9:  sym1 = XK_F9;  break;
+      case K_F10: case K_SFT_F10: case K_CTL_F10: case K_ALT_F10: sym1 = XK_F10; break;
+
+      case K_LEFT:  case K_CTL_LEFT:  sym1 = XK_Left;   sym2 = XK_KP_Left;   break;
+      case K_RIGHT: case K_CTL_RIGHT: sym1 = XK_Right;  sym2 = XK_KP_Right;  break;
+      case K_UP:    case K_CTL_UP:    sym1 = XK_Up;     sym2 = XK_KP_Up;     break;
+      case K_DOWN:  case K_CTL_DOWN:  sym1 = XK_Down;   sym2 = XK_KP_Down;   break;
+      case K_HOME:  case K_CTL_HOME:  sym1 = XK_Home;   sym2 = XK_KP_Home;   break;
+      case K_END:   case K_CTL_END:   sym1 = XK_End;    sym2 = XK_KP_End;    break;
+      case K_PGUP:  case K_CTL_PGUP:  sym1 = XK_Prior;  sym2 = XK_KP_Prior;  break;
+      case K_PGDN:  case K_CTL_PGDN:  sym1 = XK_Next;   sym2 = XK_KP_Next;   break;
+      case K_INS:   case K_CTL_INS:   sym1 = XK_Insert; sym2 = XK_KP_Insert; break;
+      case K_DEL:   case K_CTL_DEL:   sym1 = XK_Delete; sym2 = XK_KP_Delete; break;
+
+      case K_ESC:                 sym1 = XK_Escape;                break;
+      case K_PAD_CENTER:          sym1 = XK_KP_Begin;              break;
+      case K_BS:                  sym1 = XK_BackSpace; sym2 = 'H'; break;
+      case K_NL:                  sym1 = XK_Return;    sym2 = 'J'; sym3 = XK_KP_Enter; break;
+      case K_TAB: case K_BACKTAB: sym1 = XK_Tab;       sym2 = 'I'; break;
+
+      case '*': sym1 = '*'; sym2 = XK_KP_Multiply; break;
+      case '+': sym1 = '+'; sym2 = XK_KP_Add;      break;
+      case '-': sym1 = '-'; sym2 = XK_KP_Subtract; break;
+      case '/': sym1 = '/'; sym2 = XK_KP_Divide;   break;
+
+      case ' ':  case '!':  case '\"': case '#':  case '$':
+      case '%':  case '&':  case '\'': case '(':  case ')':
+      case ',':  case '.':  case ':':  case ';':  case '<':
+      case '=':  case '>':  case '?':  case '@':  case '[':
+      case '\\': case ']':  case '^':  case '_':  case '`':
+      case '{':  case '|':  case '}':  case '~':
+	sym1 = (KeySym) button; break;
+
+      /*
+      case K_SCRLUP:
+      case K_SCRLDN:
+      case K_INSLN:
+      case K_DELLN:
+      case K_ERASE:
+      case K_CTL_NL:
+      case K_NULLCMD:
+      case K_REDRAW:
+      case K_NEWWINDOW:
+      case K_UNDEF:
+      case K_NONE:
+
+      case K_NULCHAR:
+      */
+
+      case K_MOUSE1: button_mask = Button1Mask; break;
+      case K_MOUSE2: button_mask = Button2Mask; break;
+      case K_MOUSE3: button_mask = Button3Mask; break;
+      case K_MOUSE4: button_mask = Button4Mask; break;
+      case K_MOUSE5: button_mask = Button5Mask; break;
+
+      default: result = FALSE; okay = FALSE; break;
+    } /* switch */
+
+    if (okay) {
+      if (button_mask != 0) {
+        result = mouseButtonPressed(button_mask);
+      } else {
+        result = keyboardButtonPressed(sym1);
+        if (!result && sym2 != 0) {
+          result = keyboardButtonPressed(sym2);
+          if (!result && sym3 != 0) {
+            result = keyboardButtonPressed(sym3);
+          } /* if */
+        } /* if */
+      } /* if */
+    } /* if */
+    return(result);
+  } /* gkbButtonPressed */
+
+
+
+#ifdef ANSI_C
+
 chartype gkbRawGetc (void)
 #else
 
@@ -773,29 +983,29 @@ wintype gkbWindow ()
 
 #ifdef ANSI_C
 
-inttype gkbXpos (void)
+inttype gkbButtonXpos (void)
 #else
 
-inttype gkbXpos ()
+inttype gkbButtonXpos ()
 #endif
 
-  { /* gkbXpos */
+  { /* gkbButtonXpos */
     return(button_x);
-  } /* gkbXpos */
+  } /* gkbButtonXpos */
 
 
 
 #ifdef ANSI_C
 
-inttype gkbYpos (void)
+inttype gkbButtonYpos (void)
 #else
 
-inttype gkbYpos ()
+inttype gkbButtonYpos ()
 #endif
 
-  { /* gkbYpos */
+  { /* gkbButtonYpos */
     return(button_y);
-  } /* gkbYpos */
+  } /* gkbButtonYpos */
 
 
 
@@ -826,6 +1036,60 @@ unsigned long number;
     } /* if */
     return(result + highest_bit[number]);
   } /* get_highest_bit */
+
+
+
+#ifdef ANSI_C
+
+inttype drwPointerXpos (const_wintype actual_window)
+#else
+
+inttype drwPointerXpos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    Window root;
+    Window child;
+    int root_x, root_y;
+    int win_x, win_y;
+    unsigned int keys_buttons;
+
+  /* drwPointerXpos */
+    XQueryPointer(mydisplay, to_window(actual_window), &root, &child,
+		  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+    /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
+       root, child, root_x, root_y, win_x, win_y, keys_buttons); */
+    /* printf("drwPointerXpos ==> %ld\n", win_x); */
+    return(win_x);
+  } /* drwPointerXpos */
+
+
+
+#ifdef ANSI_C
+
+inttype drwPointerYpos (const_wintype actual_window)
+#else
+
+inttype drwPointerYpos (actual_window)
+wintype actual_window;
+#endif
+
+  {
+    Window root;
+    Window child;
+    int root_x, root_y;
+    int win_x, win_y;
+    unsigned int keys_buttons;
+
+  /* drwPointerYpos */
+    XQueryPointer(mydisplay, to_window(actual_window), &root, &child,
+		  &root_x, &root_y, &win_x, &win_y, &keys_buttons);
+    /* printf("%lx, %lx, %d, %d, %d, %d, %x\n",
+       root, child, root_x, root_y, win_x, win_y, keys_buttons); */
+    /* printf("drwPointerYpos ==> %ld\n", win_y); */
+    return(win_y);
+  } /* drwPointerYpos */
 
 
 

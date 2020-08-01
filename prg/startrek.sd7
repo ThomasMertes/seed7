@@ -89,7 +89,7 @@ const proc: help_course is func
 
 const proc: help_sector is func
   begin
-    writeln("Each sector can contain a klingon (K), star (*), starbase (B), the enterprise");
+    writeln("Each sector can contain a Klingon (K), star (*), starbase (B), the Enterprise");
     writeln("herself (E), or empty space (.).  Each sector is also numbered; a starbase in");
     writeln("sector 3-5 is 3 rows down from the top of the short range scan print-out, and");
     writeln("5 sectors to the right.");
@@ -100,18 +100,18 @@ const proc: help_quadrant is func
   begin
     writeln("The known galaxy is divided into 64 quadrants arranged like a square");
     writeln("checkerboard, 8 on a side.  Each quadrant is represented as a 3-digit number.");
-    writeln("The first (hundreds) digit is the number of klingons in that quadrant, while");
+    writeln("The first (hundreds) digit is the number of Klingons in that quadrant, while");
     writeln("the middle (tens) digit is the number of starbases, and the units digit is the");
-    writeln("number of stars.  An entry of 305 means 3 klingons, no starbases, and 5 stars.");
+    writeln("number of stars.  An entry of 305 means 3 Klingons, no starbases, and 5 stars.");
   end func; (* help_quadrant *)
 
 
 const proc: help_warp_engines is func
   begin
     writeln("WARP ENGINE (command 1 or W):");
-    writeln("The warp engine control is used to move the enterprise.  You will be asked to");
+    writeln("The warp engine control is used to move the Enterprise.  You will be asked to");
     writeln("set the course, and the distance (measured in warps) for the move.  Each move");
-    writeln("that you make with the enterprise from one sector to another, or from one");
+    writeln("that you make with the Enterprise from one sector to another, or from one");
     writeln("quadrant to another, costs you one stardate.  Therefore, a 30-stardate game");
     writeln("means you have 30 moves to win in.");
     writeln;
@@ -152,8 +152,8 @@ const proc: help_long_range_sensors is func
 const proc: help_phasers is func
   begin
     writeln("PHASERS (command 4 or P):");
-    writeln("The portion of the enterprise's energy that you specify will be divided evenly");
-    writeln("among the klingons in the quadrant and fired at them.  Surviving klingons will");
+    writeln("The portion of the Enterprise's energy that you specify will be divided evenly");
+    writeln("among the Klingons in the quadrant and fired at them.  Surviving Klingons will");
     writeln("retaliate.  Phaser fire bypasses stars and starbases, but is attenuated by the");
     writeln("distance it travels.  The arriving energy depletes the shield power of its");
     writeln("target.  Energy is automatically diverted to the shields as needed, but if you");
@@ -166,7 +166,7 @@ const proc: help_photon_torpedoes is func
     writeln("PHOTON TORPEDOES (command 5 or T):");
     writeln("Photon torpedo control will launch a torpedo on a course you specify which will");
     writeln("destroy any object in its path.  Range is limited to the local quadrant.");
-    writeln("Expect return fire from surviving klingons.");
+    writeln("Expect return fire from surviving Klingons.");
     writeln;
     help_course;
   end func; (* help_photon_torpedoes *)
@@ -196,10 +196,10 @@ const proc: help_commands is func
 
 const proc: help_game is func
   begin
-    writeln("   It is stardate 3421 and the federation is being invaded by a band of klingon");
+    writeln("   It is stardate 3421 and the federation is being invaded by a band of Klingon");
     writeln("'pirates' whose objective is to test our defenses.  If even one survives the ");
-    writeln("trial period, klingon headquarters will launch an all-out attack.  As captain");
-    writeln("of the federation starship 'enterprise', your mission is to find and destroy");
+    writeln("trial period, Klingon headquarters will launch an all-out attack.  As captain");
+    writeln("of the federation starship 'Enterprise', your mission is to find and destroy");
     writeln("the invaders before the time runs out.");
     writeln;
     writeln("   You mission is supported by starbases.  Docking at a starbase is done by");
@@ -214,7 +214,7 @@ const proc: help_quit is func
   begin
     writeln("QUIT (command Q):");
     writeln("The quit command allows you to quit your job as captain.");
-  end func; (* help_commands *)
+  end func; (* help_quit *)
 
 
 const proc: help is func
@@ -312,7 +312,7 @@ const proc: init is func
     klingons_in_game := total_klingons;
     write("Objective: Destroy ");
     write(total_klingons);
-    write(" klingon battle cruisers in ");
+    write(" Klingon battle cruisers in ");
     write(endStardate - startStardate);
     writeln(" stardates.");
     write(" The number of starbases is ");
@@ -508,7 +508,7 @@ const proc: move_ship (in float: course, in float: warp_factor,
         writeln;
         write("Blocked by ");
         case sect[row][column] of
-          when {3}: write("klingon");
+          when {3}: write("Klingon");
           when {4}: write("starbase");
           when {5}: write("star");
         end case;
@@ -748,7 +748,7 @@ const proc: phasers is func
           if klingonEnergy[number] > 0.0 then
             unit_hit := phaser_energy / (y3 * klingon_distance(number) ** 0.4);
             klingonEnergy[number] := klingonEnergy[number] - unit_hit;
-            write_phaser_hit(number, unit_hit, "klingon at", klingonEnergy[number]);
+            write_phaser_hit(number, unit_hit, "Klingon at", klingonEnergy[number]);
             if klingonEnergy[number] <= 0.0 then
               writeln("**KLINGON DESTROYED**");
               decr(klingons_in_quadrant);
@@ -962,7 +962,7 @@ const proc: game is func
       writeln("The federation has been saved!");
       writeln("You are promoted to admiral.");
       write(klingons_in_game);
-      write(" klingons in ");
+      write(" Klingons in ");
       write(stardate - startStardate);
       write(" stardates.  Rating = ");
       writeln(rating);
@@ -977,7 +977,7 @@ const proc: game is func
       writeln("Thanks to your bungling, the federation will be");
       write("conquered by the remaining ");
       write(total_klingons);
-      writeln(" klingon cruisers!");
+      writeln(" Klingon cruisers!");
       writeln("You are demoted to cabin boy!");
     end if;
   end func; (* game *)

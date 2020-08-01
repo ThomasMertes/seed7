@@ -277,27 +277,41 @@ os_utimbuf_struct *utime_buf;
     int result;
 
   /* alternate_utime */
+    /* printf("alternate_utime: actime=%ld\n", utime_buf->actime);
+       printf("alternate_utime: modtime=%ld\n", utime_buf->modtime); */
     result = os_utime_orig(os_path, utime_buf);
-    if (result != 0 && errno == EACCES) {
-      if (os_stat(os_path, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode)) {
-        /* printf("old ctime=%ld\n", stat_buf.st_ctime);
-           printf("old atime=%ld\n", stat_buf.st_atime);
-           printf("old mtime=%ld\n", stat_buf.st_mtime); */
-        filehandle = CreateFileW(os_path, GENERIC_WRITE,
-                                 FILE_SHARE_READ | FILE_SHARE_DELETE, NULL,
-                                 OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-        if (filehandle != INVALID_HANDLE_VALUE) {
-          /* The case of utime_buf == NULL is not considered,   */
-          /* since alternate_utime will never be used this way. */
-          actime.nanosecs100 = (utime_buf->actime + SECONDS_1601_1970) * 10000000;
-          modtime.nanosecs100 = (utime_buf->modtime + SECONDS_1601_1970) * 10000000;
-          /* printf("actime=%ld %Ld\n", utime_buf->actime, actime.nanosecs100);
-             printf("modtime=%ld %Ld\n", utime_buf->modtime, modtime.nanosecs100); */
-          if (SetFileTime(filehandle, NULL, &actime.filetime, &modtime.filetime) != 0) {
-            result = 0;
-          } /* if */
-          CloseHandle(filehandle);
+#ifdef UTIME_ORIG_BUGGY_FOR_FAT_FILES
+    /* A FAT filesystem has a mtime resolution of 2 seconds. */
+    /* The error causes an even mtime to be set 2 seconds too big. */
+    if (result == 0 && (utime_buf->modtime & 1) == 0 &&
+        os_stat(os_path, &stat_buf) == 0) {
+      /* printf("new atime=%ld\n", stat_buf.st_atime);
+         printf("new mtime=%ld\n", stat_buf.st_mtime); */
+      if (stat_buf.st_mtime - utime_buf->modtime == 2) {
+        utime_buf->modtime -= 2;
+        result = os_utime_orig(os_path, utime_buf);
+        utime_buf->modtime += 2;
+      } /* if */
+    } /* if */
+#endif
+    if (result != 0 && errno == EACCES &&
+        os_stat(os_path, &stat_buf) == 0 && S_ISDIR(stat_buf.st_mode)) {
+      /* printf("old atime=%ld\n", stat_buf.st_atime);
+         printf("old mtime=%ld\n", stat_buf.st_mtime); */
+      filehandle = CreateFileW(os_path, GENERIC_WRITE,
+                               FILE_SHARE_READ | FILE_SHARE_DELETE, NULL,
+                               OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      if (filehandle != INVALID_HANDLE_VALUE) {
+        /* The case of utime_buf == NULL is not considered,   */
+        /* since alternate_utime will never be used this way. */
+        actime.nanosecs100 = (utime_buf->actime + SECONDS_1601_1970) * 10000000;
+        modtime.nanosecs100 = (utime_buf->modtime + SECONDS_1601_1970) * 10000000;
+        /* printf("actime=%ld %Ld\n", utime_buf->actime, actime.nanosecs100);
+           printf("modtime=%ld %Ld\n", utime_buf->modtime, modtime.nanosecs100); */
+        if (SetFileTime(filehandle, NULL, &actime.filetime, &modtime.filetime) != 0) {
+          result = 0;
         } /* if */
+        CloseHandle(filehandle);
       } /* if */
     } /* if */
     return(result);

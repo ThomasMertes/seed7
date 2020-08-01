@@ -70,6 +70,56 @@ listtype arguments;
 
 #ifdef ANSI_C
 
+objecttype gkb_button_pressed (listtype arguments)
+#else
+
+objecttype gkb_button_pressed (arguments)
+listtype arguments;
+#endif
+
+  { /* gkb_button_pressed */
+    isit_char(arg_2(arguments));
+    if (gkbButtonPressed(take_char(arg_2(arguments)))) {
+      return(SYS_TRUE_OBJECT);
+    } else {
+      return(SYS_FALSE_OBJECT);
+    } /* if */
+  } /* gkb_button_pressed */
+
+
+
+#ifdef ANSI_C
+
+objecttype gkb_button_xpos (listtype arguments)
+#else
+
+objecttype gkb_button_xpos (arguments)
+listtype arguments;
+#endif
+
+  { /* gkb_button_xpos */
+    return(bld_int_temp(gkbButtonXpos()));
+  } /* gkb_button_xpos */
+
+
+
+#ifdef ANSI_C
+
+objecttype gkb_button_ypos (listtype arguments)
+#else
+
+objecttype gkb_button_ypos (arguments)
+listtype arguments;
+#endif
+
+  { /* gkb_button_ypos */
+    return(bld_int_temp(gkbButtonYpos()));
+  } /* gkb_button_ypos */
+
+
+
+#ifdef ANSI_C
+
 objecttype gkb_getc (listtype arguments)
 #else
 
@@ -190,36 +240,6 @@ listtype arguments;
     return(bld_stri_temp(
         gkbWordRead(&ch_variable->value.charvalue)));
   } /* gkb_word_read */
-
-
-
-#ifdef ANSI_C
-
-objecttype gkb_xpos (listtype arguments)
-#else
-
-objecttype gkb_xpos (arguments)
-listtype arguments;
-#endif
-
-  { /* gkb_xpos */
-    return(bld_int_temp(gkbXpos()));
-  } /* gkb_xpos */
-
-
-
-#ifdef ANSI_C
-
-objecttype gkb_ypos (listtype arguments)
-#else
-
-objecttype gkb_ypos (arguments)
-listtype arguments;
-#endif
-
-  { /* gkb_ypos */
-    return(bld_int_temp(gkbYpos()));
-  } /* gkb_ypos */
 
 
 
@@ -1217,6 +1237,38 @@ listtype arguments;
     drwPoint(actual_window, x, y);
     return(SYS_EMPTY_OBJECT);
   } /* drw_point */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_pointer_xpos (listtype arguments)
+#else
+
+objecttype drw_pointer_xpos (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_pointer_xpos */
+    isit_win(arg_1(arguments));
+    return(bld_int_temp(drwPointerXpos(take_win(arg_1(arguments)))));
+  } /* drw_pointer_xpos */
+
+
+
+#ifdef ANSI_C
+
+objecttype drw_pointer_ypos (listtype arguments)
+#else
+
+objecttype drw_pointer_ypos (arguments)
+listtype arguments;
+#endif
+
+  { /* drw_pointer_ypos */
+    isit_win(arg_1(arguments));
+    return(bld_int_temp(drwPointerYpos(take_win(arg_1(arguments)))));
+  } /* drw_pointer_ypos */
 
 
 

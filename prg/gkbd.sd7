@@ -35,6 +35,7 @@ const integer: xSpeed is 2;
 const proc: main is func
   local
     var char: ch is ' ';
+    var char: lastChar is ' ';
     var integer: xPos is 10;
     var integer: xIncr is xSpeed;
   begin
@@ -45,6 +46,7 @@ const proc: main is func
     repeat
       ch := busy_getc(KEYBOARD);
       if ch <> KEY_NONE then
+        lastChar := ch;
         write(ord(ch));
         write(" ");
         if ord(ch) >= 1 and ord(ch) <= length(EVENT_DESCR) then
@@ -60,7 +62,11 @@ const proc: main is func
           xIncr := xSpeed;
         end if;
         xPos +:= xIncr;
-        rect(xPos, 10, 10, 10, light_blue);
+        if buttonPressed(KEYBOARD, lastChar) then
+          rect(xPos, 10, 10, 10, light_red);
+        else
+          rect(xPos, 10, 10, 10, light_blue);
+        end if;
         DRAW_FLUSH;
         await(time(NOW) + 100000 . MYCRO_SECONDS);
       end if;

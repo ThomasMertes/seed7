@@ -1036,8 +1036,8 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: (). ; .() is             <- 50;
-    $ syntax expr: (). ; is                 <- 50 [1];
+    $ syntax expr: .(). ; .() is            <- 50;
+    $ syntax expr: .(). ; is                <- 50 [1];
 
     const proc: (ref void param) ; (ref void param) is noop;
 
@@ -1066,7 +1066,7 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: (). := .() is                      <-> 20;
+    $ syntax expr: .(). := .() is                     <-> 20;
 
     const proc: (inout type param) := (ref type param) is           action "TYP_CPY";
     const proc: (inout proc param) := (ref proc param) is           action "PRC_CPY";
@@ -1120,7 +1120,7 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: while.().do.().end.while is        -> 25;
+    $ syntax expr: .while.().do.().end.while is       -> 25;
 
     const proc: while (ref func boolean param) do (ref proc param) end while is action "PRC_WHILE";
     const proc: while (ref boolean param)  do (ref proc param) end while is     action "PRC_WHILE";
@@ -1167,7 +1167,7 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: repeat.().until.() is              -> 25;
+    $ syntax expr: .repeat.().until.() is             -> 25;
 
     const proc: repeat (ref proc param) until (ref func boolean param) is action "PRC_REPEAT";
     const proc: repeat (ref proc param) until (ref boolean param) is      action "PRC_REPEAT";
@@ -1226,8 +1226,8 @@ CONTENTS
 
   Declaration:
 
-    $ syntax expr: for.().range.().to.().do.().end.for is     -> 25;
-    $ syntax expr: for.().range.().downto.().do.().end.for is -> 25;
+    $ syntax expr: .for.().range.().to.().do.().end.for is     -> 25;
+    $ syntax expr: .for.().range.().downto.().do.().end.for is -> 25;
 
     const proc: FOR_DECLS (in type: aType) is func
       begin
@@ -6526,7 +6526,7 @@ ont color=blue>is "";
 
   To describe the syntax of the 'and' operator we write:
 
-    $ syntax expr: ().and.() is     -> 14;
+    $ syntax expr: .().and.() is    -> 14;
 
   This means that an 'and' expression is constructed with the
   symbol 'and' surrounded by parameters. The '->' defines the
@@ -6651,7 +6651,7 @@ ont color=blue>is "";
 
   To describe the syntax of the 'while' statement we write:
 
-    $ syntax expr: while.().do.().end.while is -> 25;
+    $ syntax expr: .while.().do.().end.while is -> 25;
 
   This means that the 'while' statement is an expression with the
   symbols 'while', 'do', 'end' and 'while'. With '->' the
@@ -6688,7 +6688,7 @@ ont color=blue>is "";
 
   which has the following syntax description:
 
-    $ syntax expr: repeat.().until.() is -> 25;
+    $ syntax expr: .repeat.().until.() is -> 25;
 
   This means that the 'repeat' statement is an expression with
   the symbols 'repeat' and 'until' and a parameter between

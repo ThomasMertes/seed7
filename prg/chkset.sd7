@@ -3184,6 +3184,130 @@ const proc: check_intersection is func
   end func;
 
 
+const proc: check_elem is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 1;
+    const bitset: set_1         is {1};
+    const bitset: set_2         is {2};
+    const bitset: set_1_2       is {1, 2};
+    const bitset: set_2_3       is {2, 3};
+    const bitset: set_1_2_3     is {1, 2, 3};
+    const bitset: set_2_3_4     is {2, 3, 4};
+    const bitset: set_1_2_3_4   is {1, 2, 3, 4};
+    const bitset: set_2_3_4_5   is {2, 3, 4, 5};
+    const bitset: set_1_2_3_4_5 is {1, 2, 3, 4, 5};
+    const bitset: set_2_3_4_5_6 is {2, 3, 4, 5, 6};
+  begin
+    if      1     in EMPTY_SET        or
+       not (1 not in EMPTY_SET)       or
+            1     in {2}              or
+       not (1 not in {2})             or
+            1 not in {1}              or
+       not (1     in {1})             or
+            1     in {2, 3}           or
+       not (1 not in {2, 3})          or
+            1 not in {1, 2}           or
+       not (1     in {1, 2})          or
+            1     in {2, 3, 4}        or
+       not (1 not in {2, 3, 4})       or
+            1 not in {1, 2, 3}        or
+       not (1     in {1, 2, 3})       or
+            1     in {2, 3, 4, 5}     or
+       not (1 not in {2, 3, 4, 5})    or
+            1 not in {1, 2, 3, 4}     or
+       not (1     in {1, 2, 3, 4})    or
+            1     in {2, 3, 4, 5, 6}  or
+       not (1 not in {2, 3, 4, 5, 6}) or
+            1 not in {1, 2, 3, 4, 5}  or
+       not (1     in {1, 2, 3, 4, 5}) then
+      okay := FALSE;
+    end if;
+
+    if      1     in EMPTY_SET      or
+       not (1 not in EMPTY_SET)     or
+            1     in set_2          or
+       not (1 not in set_2)         or
+            1 not in set_1          or
+       not (1     in set_1)         or
+            1     in set_2_3        or
+       not (1 not in set_2_3)       or
+            1 not in set_1_2        or
+       not (1     in set_1_2)       or
+            1     in set_2_3_4      or
+       not (1 not in set_2_3_4)     or
+            1 not in set_1_2_3      or
+       not (1     in set_1_2_3)     or
+            1     in set_2_3_4_5    or
+       not (1 not in set_2_3_4_5)   or
+            1 not in set_1_2_3_4    or
+       not (1     in set_1_2_3_4)   or
+            1     in set_2_3_4_5_6  or
+       not (1 not in set_2_3_4_5_6) or
+            1 not in set_1_2_3_4_5  or
+       not (1     in set_1_2_3_4_5) then
+      okay := FALSE;
+    end if;
+
+    if      number     in EMPTY_SET        or
+       not (number not in EMPTY_SET)       or
+            number     in {2}              or
+       not (number not in {2})             or
+            number not in {1}              or
+       not (number     in {1})             or
+            number     in {2, 3}           or
+       not (number not in {2, 3})          or
+            number not in {1, 2}           or
+       not (number     in {1, 2})          or
+            number     in {2, 3, 4}        or
+       not (number not in {2, 3, 4})       or
+            number not in {1, 2, 3}        or
+       not (number     in {1, 2, 3})       or
+            number     in {2, 3, 4, 5}     or
+       not (number not in {2, 3, 4, 5})    or
+            number not in {1, 2, 3, 4}     or
+       not (number     in {1, 2, 3, 4})    or
+            number     in {2, 3, 4, 5, 6}  or
+       not (number not in {2, 3, 4, 5, 6}) or
+            number not in {1, 2, 3, 4, 6}  or
+       not (number     in {1, 2, 3, 4, 6}) then
+      okay := FALSE;
+    end if;
+
+    if      number     in EMPTY_SET      or
+       not (number not in EMPTY_SET)     or
+            number     in set_2          or
+       not (number not in set_2)         or
+            number not in set_1          or
+       not (number     in set_1)         or
+            number     in set_2_3        or
+       not (number not in set_2_3)       or
+            number not in set_1_2        or
+       not (number     in set_1_2)       or
+            number     in set_2_3_4      or
+       not (number not in set_2_3_4)     or
+            number not in set_1_2_3      or
+       not (number     in set_1_2_3)     or
+            number     in set_2_3_4_5    or
+       not (number not in set_2_3_4_5)   or
+            number not in set_1_2_3_4    or
+       not (number     in set_1_2_3_4)   or
+            number     in set_2_3_4_5_6  or
+       not (number not in set_2_3_4_5_6) or
+            number not in set_1_2_3_4_5  or
+       not (number     in set_1_2_3_4_5) then
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("set membership test works correct.");
+    else
+      writeln(" ***** set membership test does not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: check_min is func
   local
     var boolean: okay is TRUE;
@@ -3267,6 +3391,7 @@ const proc: main is func
     check_relations;
     check_union;
     check_intersection;
+    check_elem;
     check_min;
     check_max;
   end func;

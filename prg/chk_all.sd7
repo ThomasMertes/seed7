@@ -121,6 +121,7 @@ const string: chkset_output is "\n\
   \set relations work correct.\n\
   \set union works correct.\n\
   \set intersection works correct.\n\
+  \set membership test works correct.\n\
   \min(bitset) works correct.\n\
   \max(bitset) works correct.\n";
 

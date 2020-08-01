@@ -157,6 +157,8 @@ const proc: SET_BACKGROUND (ref pixel param) is        action "DRW_BACKGROUND";
 const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,
     ref integer param, ref integer param, in string param,
     ref pixel param, ref pixel param) is               action "DRW_TEXT";
+const func integer: pointerXPos (in PRIMITIVE_WINDOW param) is action "DRW_POINTER_XPOS";
+const func integer: pointerYPos (in PRIMITIVE_WINDOW param) is action "DRW_POINTER_YPOS";
 
 
 const type: pointList is newtype;

@@ -2160,6 +2160,7 @@ const func type: BITSET_OF (in type: baseType) is func
       const varfunc bitset: (attr bitset) varConv (inout setType param) is  action "TYP_VARCONV";
       const func setType: (attr setType) conv (in bitset param) is          action "SET_CONV";
       const setType: (attr setType) . EMPTY_SET is                          setType conv EMPTY_SET;
+      const setType: (attr setType) . value is                              setType conv EMPTY_SET;
 
       const func boolean: (in baseType: aValue) in (in setType: aSet) is
         return ord(aValue) in bitset conv aSet;
@@ -3486,21 +3487,62 @@ const integer: FILE_FIFO    is 6;
 const integer: FILE_SYMLINK is 7;
 const integer: FILE_SOCKET  is 8;
 
-const proc: chdir (in string param) is                      action "CMD_CHDIR";
-const proc: mkdir (in string param) is                      action "CMD_MKDIR";
-const func string: getcwd is                                action "CMD_GETCWD";
-const func integer: fileSize (in string param) is           action "CMD_FILESIZE";
-const func integer: fileType (in string param) is           action "CMD_FILETYPE";
-const func integer: fileTypeSL (in string param) is         action "CMD_FILETYPE_SL";
-const func array string: read_dir (in string param) is      action "CMD_LS";
-const proc: remove (in string param) is                     action "CMD_REMOVE";
-const proc: removeAnyFile (in string param) is              action "CMD_REMOVE_ANY_FILE";
-const proc: rename (in string param, in string param) is    action "CMD_MOVE";
-const proc: cloneFile (in string param, in string param) is action "CMD_CLONE_FILE";
-const proc: copyFile (in string param, in string param) is  action "CMD_COPY_FILE";
-const func string: readlink (in string param) is            action "CMD_READLINK";
-const proc: symlink (in string param, in string param) is   action "CMD_SYMLINK";
-const func string: configValue (in string param) is         action "CMD_CONFIG_VALUE";
+const type: filePermission is new enum
+    EXEC_OTHER,
+    WRITE_OTHER,
+    READ_OTHER,
+    EXEC_GROUP,
+    WRITE_GROUP,
+    READ_GROUP,
+    EXEC_USER,
+    WRITE_USER,
+    READ_USER
+  end enum;
+
+const type: fileMode is set of filePermission;
+
+const func integer: (attr integer) conv (in fileMode: mode) is
+  return integer conv (bitset conv mode);
+
+const func fileMode: (attr fileMode) conv (in integer: int_mode) is
+  return fileMode conv (bitset conv int_mode);
+
+const func string: str (in fileMode: aFileMode) is func
+  result
+    var string: result is "";
+  local
+    const array [filePermission] string: name is
+        [filePermission] ("x", "w", "r", "x", "w", "r", "x", "w", "r");
+    var filePermission: aPermission is READ_USER;
+  begin
+    for aPermission range READ_USER downto EXEC_OTHER do
+      if aPermission in aFileMode then
+        result &:= name[aPermission];
+      else
+        result &:= "-";
+      end if;
+    end for;
+  end func;
+
+enable_output(fileMode);
+
+const proc: chdir (in string param) is                          action "CMD_CHDIR";
+const proc: mkdir (in string param) is                          action "CMD_MKDIR";
+const func string: getcwd is                                    action "CMD_GETCWD";
+const func integer: fileSize (in string param) is               action "CMD_FILESIZE";
+const func integer: fileType (in string param) is               action "CMD_FILETYPE";
+const func integer: fileTypeSL (in string param) is             action "CMD_FILETYPE_SL";
+const func fileMode: fileMode (in string param) is              action "CMD_FILEMODE";
+const proc: setFileMode (in string param, in fileMode param) is action "CMD_SET_FILEMODE";
+const func array string: read_dir (in string param) is          action "CMD_LS";
+const proc: remove (in string param) is                         action "CMD_REMOVE";
+const proc: removeAnyFile (in string param) is                  action "CMD_REMOVE_ANY_FILE";
+const proc: rename (in string param, in string param) is        action "CMD_MOVE";
+const proc: cloneFile (in string param, in string param) is     action "CMD_CLONE_FILE";
+const proc: copyFile (in string param, in string param) is      action "CMD_COPY_FILE";
+const func string: readlink (in string param) is                action "CMD_READLINK";
+const proc: symlink (in string param, in string param) is       action "CMD_SYMLINK";
+const func string: configValue (in string param) is             action "CMD_CONFIG_VALUE";
 
 const func boolean: fileExists (in string: file_name) is func
   result

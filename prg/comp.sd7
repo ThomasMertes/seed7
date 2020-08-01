@@ -2518,9 +2518,9 @@ const proc: process_arr_range (in ref_list: params, inout expr_type: c_expr) is 
 
   begin
     prepare_array_result(getExprResultType(params[1]), c_expr);
-    c_expr.result_expr := "arrRange(";
+    c_expr.result_expr := "arrRange((arraytype)(";
     getTemporaryToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ", ";
+    c_expr.result_expr &:= "), ";
     getStdParamToResultExpr(params[3], c_expr);
     c_expr.result_expr &:= ", ";
     getStdParamToResultExpr(params[5], c_expr);
@@ -2989,6 +2989,7 @@ const proc: process_const_big_ipow (in bigInteger: base, in reference: param3,
     var integer: log2base is 0;
   begin
     if base = -1_ then
+      incr(countOptimizations);
       incr(c_expr.temp_num);
       if 1_ not in bigint_const_table then
         bigint_const_table @:= [1_] length(bigint_const_table);
@@ -3223,10 +3224,11 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
     var bigInteger: bigNumber is 0_;
     var integer: temp_num is 0;
   begin
-    incr(countOptimizations);
     if divisor = 0_ then
+      incr(countOptimizations);
       c_expr.expr &:= "(biginttype)(raise_error(NUMERIC_ERROR),NULL)";
     elsif category(param1) = BIGINTOBJECT and not isVar(param1) then
+      incr(countOptimizations);
       bigNumber := getValue(param1, bigInteger) mdiv divisor;
       if bigNumber not in bigint_const_table then
         bigint_const_table @:= [bigNumber] length(bigint_const_table);
@@ -3237,16 +3239,19 @@ const proc: process_const_big_mdiv (in reference: param1, in bigInteger: divisor
       c_expr.expr &:= str(bigNumber);
       c_expr.expr &:= " */";
     elsif divisor = 1_ then
+      incr(countOptimizations);
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")";
     elsif divisor = -1_ then
+      incr(countOptimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigMinus(";
       getAnyParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ")";
     elsif divisor > 0_ and log2(divisor) <= 2147483647_ and
         2_ ** ord(log2(divisor)) = divisor then
+      incr(countOptimizations);
       prepare_bigint_result(c_expr);
       c_expr.result_expr := "bigRShift(";
       getAnyParamToResultExpr(param1, c_expr);
@@ -4955,6 +4960,24 @@ const proc: process_drw_point (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_drw_pointer_xpos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwPointerXpos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_drw_pointer_ypos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "drwPointerYpos(";
+    getAnyParamToExpr(params[1], c_expr);
+    c_expr.expr &:= ")";
+  end func;
+
+
 const proc: process_drw_polyline (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -6236,17 +6259,26 @@ const proc: process_gkb_word_read (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
-const proc: process_gkb_xpos (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_gkb_button_pressed (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "gkbXpos()";
+    c_expr.expr &:= "gkbButtonPressed(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ")";
   end func;
 
 
-const proc: process_gkb_ypos (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_gkb_button_xpos (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "gkbYpos()";
+    c_expr.expr &:= "gkbButtonXpos()";
+  end func;
+
+
+const proc: process_gkb_button_ypos (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "gkbButtonYpos()";
   end func;
 
 
@@ -6754,16 +6786,19 @@ const proc: process_const_int_div (in reference: param1, in integer: divisor,
     inout expr_type: c_expr) is func
 
   begin
-    incr(countOptimizations);
     if divisor = 0 then
+      incr(countOptimizations);
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
     elsif category(param1) = INTOBJECT and not isVar(param1) then
+      incr(countOptimizations);
       c_expr.expr &:= str(getValue(param1, integer) div divisor);
     elsif divisor = 1 then
+      incr(countOptimizations);
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")";
     elsif divisor = -1 then
+      incr(countOptimizations);
       c_expr.expr &:= "-(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")";
@@ -6959,10 +6994,11 @@ const proc: process_const_int_lshift (in reference: param1, in integer: number,
     inout expr_type: c_expr) is func
 
   begin
-    incr(countOptimizations);
     if number < 0 then
+      incr(countOptimizations);
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
     elsif number >= 32 then
+      incr(countOptimizations);
       c_expr.expr &:= "0";
     else
       c_expr.expr &:= "(";
@@ -7620,12 +7656,14 @@ const proc: process_const_int_rem (in reference: param1, in integer: divisor,
   local
     var integer: temp_num is 0;
   begin
-    incr(countOptimizations);
     if divisor = 0 then
+      incr(countOptimizations);
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
     elsif category(param1) = INTOBJECT and not isVar(param1) then
+      incr(countOptimizations);
       c_expr.expr &:= str(getValue(param1, integer) mod divisor);
     elsif divisor = 1 or divisor = -1 then
+      incr(countOptimizations);
       c_expr.expr &:= "0";
     else
       c_expr.expr &:= "(";
@@ -7642,8 +7680,8 @@ const proc: process_const_int_rem (in integer: dividend, in reference: param3,
   local
     var integer: temp_num is 0;
   begin
-    incr(countOptimizations);
     if dividend = 0 then
+      incr(countOptimizations);
       c_expr.expr &:= "((";
       process_expr(param3, c_expr);
       c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
@@ -7715,10 +7753,11 @@ const proc: process_const_int_rshift (in reference: param1, in integer: number,
   local
     var integer: temp_num is 0;
   begin
-    incr(countOptimizations);
     if number < 0 then
+      incr(countOptimizations);
       c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
     elsif number >= 32 then
+      incr(countOptimizations);
       c_expr.expr &:= "((";
       process_expr(param1, c_expr);
       c_expr.expr &:= ")<0?-1:0)";
@@ -9506,14 +9545,78 @@ const proc: process_set_diff (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_const_set_elem (in reference: param1, in bitset: aBitset,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+    var integer: number is 0;
+    var boolean: first_element is TRUE;
+  begin
+    if category(param1) = INTOBJECT and not isVar(param1) then
+      incr(countOptimizations);
+      c_expr.expr &:= str(ord(getValue(param1, integer) in aBitset));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(getValue(param1, integer) in aBitset);
+      c_expr.expr &:= "*/";
+    elsif card(aBitset) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "0/*FALSE*/";
+    elsif card(aBitset) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ") == ";
+      c_expr.expr &:= str(min(aBitset));
+    elsif card(aBitset) in {2 .. 4} then
+      incr(countOptimizations);
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= "),";
+      for number range aBitset do
+        if first_element then
+          first_element := FALSE;
+        else
+          c_expr.expr &:= "||";
+        end if;
+        c_expr.expr &:= "tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "==";
+        c_expr.expr &:= str(number);
+      end for;
+      c_expr.expr &:= ")";
+    else
+      if aBitset not in set_const_table then
+        set_const_table @:= [aBitset] length(set_const_table);
+      end if;
+      c_expr.expr &:= "setElem(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ", (settype)(set[";
+      c_expr.expr &:= str(set_const_table[aBitset]);
+      c_expr.expr &:= "]))";
+    end if;
+  end func;
+
+
 const proc: process_set_elem (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setElem(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", (settype)(";
-    getAnyParamToExpr(params[3], c_expr);
-    c_expr.expr &:= "))";
+    if category(params[3]) = SETOBJECT and not isVar(params[3]) then
+      process_const_set_elem(params[1], getValue(params[3], bitset), c_expr);
+    else
+      c_expr.expr &:= "setElem(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", (settype)(";
+      getAnyParamToExpr(params[3], c_expr);
+      c_expr.expr &:= "))";
+    end if;
   end func;
 
 
@@ -9689,14 +9792,78 @@ const proc: process_set_ne (in ref_list: params, inout expr_type: c_expr) is fun
   end func;
 
 
+const proc: process_const_set_not_elem (in reference: param1, in bitset: aBitset,
+    inout expr_type: c_expr) is func
+
+  local
+    var integer: temp_num is 0;
+    var integer: number is 0;
+    var boolean: first_element is TRUE;
+  begin
+    if category(param1) = INTOBJECT and not isVar(param1) then
+      incr(countOptimizations);
+      c_expr.expr &:= str(ord(getValue(param1, integer) not in aBitset));
+      c_expr.expr &:= "/*";
+      c_expr.expr &:= str(getValue(param1, integer) not in aBitset);
+      c_expr.expr &:= "*/";
+    elsif card(aBitset) = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "1/*TRUE*/";
+    elsif card(aBitset) = 1 then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ") != ";
+      c_expr.expr &:= str(min(aBitset));
+    elsif card(aBitset) in {2 .. 4} then
+      incr(countOptimizations);
+      incr(c_expr.temp_num);
+      temp_num := c_expr.temp_num;
+      c_expr.temp_decls &:= "inttype tmp_";
+      c_expr.temp_decls &:= str(temp_num);
+      c_expr.temp_decls &:= ";\n";
+      c_expr.expr &:= "(tmp_";
+      c_expr.expr &:= str(temp_num);
+      c_expr.expr &:= "=(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= "),";
+      for number range aBitset do
+        if first_element then
+          first_element := FALSE;
+        else
+          c_expr.expr &:= "&&";
+        end if;
+        c_expr.expr &:= "tmp_";
+        c_expr.expr &:= str(temp_num);
+        c_expr.expr &:= "!=";
+        c_expr.expr &:= str(number);
+      end for;
+      c_expr.expr &:= ")";
+    else
+      if aBitset not in set_const_table then
+        set_const_table @:= [aBitset] length(set_const_table);
+      end if;
+      c_expr.expr &:= "setNotElem(";
+      process_expr(param1, c_expr);
+      c_expr.expr &:= ", (settype)(set[";
+      c_expr.expr &:= str(set_const_table[aBitset]);
+      c_expr.expr &:= "]))";
+    end if;
+  end func;
+
+
 const proc: process_set_not_elem (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "setNotElem(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ", (settype)(";
-    getAnyParamToExpr(params[4], c_expr);
-    c_expr.expr &:= "))";
+    if category(params[4]) = SETOBJECT and not isVar(params[4]) then
+      process_const_set_not_elem(params[1], getValue(params[4], bitset), c_expr);
+    else
+      c_expr.expr &:= "setNotElem(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ", (settype)(";
+      getAnyParamToExpr(params[4], c_expr);
+      c_expr.expr &:= "))";
+    end if;
   end func;
 
 
@@ -11792,6 +11959,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_drw_pline(params, c_expr);
       elsif action_name = "DRW_POINT" then
         process_drw_point(params, c_expr);
+      elsif action_name = "DRW_POINTER_XPOS" then
+        process_drw_pointer_xpos(params, c_expr);
+      elsif action_name = "DRW_POINTER_YPOS" then
+        process_drw_pointer_ypos(params, c_expr);
       elsif action_name = "DRW_POLYLINE" then
         process_drw_polyline(params, c_expr);
       elsif action_name = "DRW_PPOINT" then
@@ -12012,10 +12183,12 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_gkb_window(params, c_expr);
       elsif action_name = "GKB_WORD_READ" then
         process_gkb_word_read(params, c_expr);
-      elsif action_name = "GKB_XPOS" then
-        process_gkb_xpos(params, c_expr);
-      elsif action_name = "GKB_YPOS" then
-        process_gkb_ypos(params, c_expr);
+      elsif action_name = "GKB_BUTTON_PRESSED" then
+        process_gkb_button_pressed(params, c_expr);
+      elsif action_name = "GKB_BUTTON_XPOS" then
+        process_gkb_button_xpos(params, c_expr);
+      elsif action_name = "GKB_BUTTON_YPOS" then
+        process_gkb_button_ypos(params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;
@@ -16023,6 +16196,7 @@ const proc: process_local_consts (in reference: current_object,
         c_expr.expr &:= "/* local function */\n";
         fix_local_function(current_object, obj, c_expr);
       end if;
+      declare_type_if_necessary(getType(obj), global_c_expr);
       process_object_declaration(obj, c_expr);
     end for;
   end func;
@@ -16334,6 +16508,8 @@ const proc: write_prototypes is func
     writeln(c_prog, "void        cmdSetATime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        cmdSetMTime (stritype, inttype, inttype, inttype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "inttype     cmdShell (stritype);");
+    writeln(c_prog, "inttype     drwPointerXpos (wintype);");
+    writeln(c_prog, "inttype     drwPointerYpos (wintype);");
     writeln(c_prog, "void        drwArc (wintype, inttype, inttype, inttype, floattype, floattype);");
     writeln(c_prog, "void        drwArc2 (wintype, inttype, inttype, inttype, inttype, inttype);");
     writeln(c_prog, "void        drwCircle (wintype, inttype, inttype, inttype);");
@@ -16396,6 +16572,9 @@ const proc: write_prototypes is func
     writeln(c_prog, "floattype   fltRand (floattype, floattype);");
     writeln(c_prog, "stritype    fltStr (floattype);");
     writeln(c_prog, "floattype   fltValue (objreftype);");
+    writeln(c_prog, "booltype    gkbButtonPressed (chartype);");
+    writeln(c_prog, "inttype     gkbButtonXpos (void);");
+    writeln(c_prog, "inttype     gkbButtonYpos (void);");
     writeln(c_prog, "chartype    gkbGetc (void);");
     writeln(c_prog, "stritype    gkbGets (inttype);");
     writeln(c_prog, "inttype     gkbKeyPressed (void);");

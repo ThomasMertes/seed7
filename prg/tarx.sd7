@@ -41,7 +41,7 @@ const char: CONTTYPE is '7';   # Contiguous file
 
 const type: header is new struct
     var string: name is "";
-    var integer: mode is 0;
+    var fileMode: mode is fileMode.value;
     var integer: uid is 0;
     var integer: gid is 0;
     var integer: size is 0;
@@ -200,23 +200,23 @@ const proc: read (inout file: in_file, inout header: head) is func
     var string: stri is "";
   begin
     head := header.value;
-    head.name :=     gets0(in_file,   100);
-    head.mode :=     getoct(in_file,    8);
-    head.uid :=      getoct(in_file,    8);
-    head.gid :=      getoct(in_file,    8);
-    head.size :=     getoct(in_file,   12);
-    head.mtime :=    getoct(in_file,   12);
-    head.chksum :=   getoct(in_file,    8);
-    head.typeflag := getc(in_file); (*  1*)
-    head.linkname := gets0(in_file,   100);
-    head.magic :=    gets0spc(in_file,  6);
-    head.version :=  gets(in_file,      2);
-    head.uname :=    gets0(in_file,    32);
-    head.gname :=    gets0(in_file,    32);
-    head.devmajor := getoct(in_file,    8);
-    head.devminor := getoct(in_file,    8);
-    head.prefix :=   gets0(in_file,   155);
-    stri :=          gets(in_file,     12);
+    head.name :=        gets0(in_file,  100);
+    head.mode := fileMode conv getoct(in_file,    8);
+    head.uid :=        getoct(in_file,    8);
+    head.gid :=        getoct(in_file,    8);
+    head.size :=       getoct(in_file,   12);
+    head.mtime :=      getoct(in_file,   12);
+    head.chksum :=     getoct(in_file,    8);
+    head.typeflag :=     getc(in_file);
+    head.linkname :=    gets0(in_file,  100);
+    head.magic :=    gets0spc(in_file,    6);
+    head.version :=      gets(in_file,    2);
+    head.uname :=       gets0(in_file,   32);
+    head.gname :=       gets0(in_file,   32);
+    head.devmajor :=   getoct(in_file,    8);
+    head.devminor :=   getoct(in_file,    8);
+    head.prefix :=      gets0(in_file,  155);
+    stri :=              gets(in_file,   12);
   end func;
 
 
@@ -226,7 +226,7 @@ const proc: write (inout file: out_file, ref header: head) is func
     var string: chksum is "";
   begin
     puts0  (out_stri, head.name,      100);
-    putoct (out_stri, head.mode,        8);
+    putoct (out_stri, integer conv (head.mode), 8);
     putoct (out_stri, head.uid,         8);
     putoct (out_stri, head.gid,         8);
     putoct (out_stri, head.size,       12);
@@ -252,7 +252,7 @@ const proc: status (in string: basePath, in string: name,
     in string: fileTypeMarker, inout header: head) is func
   begin
     head.name :=     name & fileTypeMarker;
-    head.mode :=     33261; (*!!*)
+    head.mode :=     fileMode(basePath & name);
     head.uid :=      100;
     head.gid :=      100;
     head.size :=     fileSize(basePath & name);
@@ -267,34 +267,6 @@ const proc: status (in string: basePath, in string: name,
     head.devmajor := 0;
     head.devminor := 0;
     head.prefix :=   "";
-  end func;
-
-
-const proc: write_rwx (in integer: mode) is func
-  begin
-    if (mode div 4) mod 2 <> 0 then
-      write("r");
-    else
-      write("-");
-    end if;
-    if (mode div 2) mod 2 <> 0 then
-      write("w");
-    else
-      write("-");
-    end if;
-    if mode mod 2 <> 0 then
-      write("x");
-    else
-      write("-");
-    end if;
-  end func;
-
-
-const proc: write_mode (in integer: mode) is func
-  begin
-    write_rwx((mode div 64) mod 8);
-    write_rwx((mode div 8) mod 8);
-    write_rwx(mode mod 8);
   end func;
 
 
@@ -316,7 +288,7 @@ const proc: tar_tell (in string: in_file_name, in boolean: do_view,
           else
             write("-");
           end if;
-          write_mode(head.mode);
+          write(head.mode);
           write(" ");
           if head.uname <> "" then
             write(head.uname);
