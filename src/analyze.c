@@ -87,10 +87,10 @@ progRecord prog;
 
 
 
-static void init_analyze (void)
+static void initAnalyze (void)
 
-  { /* init_analyze */
-    logFunction(printf("init_analyze\n"););
+  { /* initAnalyze */
+    logFunction(printf("initAnalyze\n"););
     if (!analyze_initialized) {
       set_protfile_name(NULL);
       init_chclass();
@@ -99,28 +99,28 @@ static void init_analyze (void)
       memset(&prog, 0, sizeof(progRecord)); /* not used, saved in analyze and interpr */
       analyze_initialized = TRUE;
     } /* if */
-    logFunction(printf("init_analyze -->\n"););
-  } /* init_analyze */
+    logFunction(printf("initAnalyze -->\n"););
+  } /* initAnalyze */
 
 
 
-static inline void system_var (void)
+static inline void systemVar (void)
 
   {
-    int index_found;
-    objectType sys_object;
+    int indexFound;
+    objectType sysObject;
 
-  /* system_var */
-    logFunction(printf("system_var\n"););
+  /* systemVar */
+    logFunction(printf("systemVar\n"););
     scan_symbol();
     if (symbol.sycategory == STRILITERAL) {
-      index_found = find_sysvar(symbol.striValue);
-      if (index_found == -1) {
+      indexFound = find_sysvar(symbol.striValue);
+      if (indexFound == -1) {
         err_warning(WRONGSYSTEM);
       } /* if */
     } else {
       err_warning(STRI_EXPECTED);
-      index_found = -1;
+      indexFound = -1;
     } /* if */
     scan_symbol();
     if (current_ident == prog.id_for.is) {
@@ -128,59 +128,59 @@ static inline void system_var (void)
     } else {
       err_ident(EXPECTED_SYMBOL, prog.id_for.is);
     } /* if */
-    sys_object = read_atom();
-    /* printf("sys_var[%d] = ", index_found);
-        trace1(sys_object);
+    sysObject = read_atom();
+    /* printf("sys_var[%d] = ", indexFound);
+        trace1(sysObject);
         printf("\n"); */
-    if (index_found != -1) {
-      prog.sys_var[index_found] = sys_object;
+    if (indexFound != -1) {
+      prog.sys_var[indexFound] = sysObject;
     } /* if */
     if (current_ident == prog.id_for.semicolon) {
       scan_symbol();
     } else {
       err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
     } /* if */
-    logFunction(printf("system_var -->\n"););
-  } /* system_var */
+    logFunction(printf("systemVar -->\n"););
+  } /* systemVar */
 
 
 
-static inline void include_file (void)
+static inline void includeFile (void)
 
   {
-    striType include_file_name;
+    striType includeFileName;
     errInfoType err_info = OKAY_NO_ERROR;
 
-  /* include_file */
-    logFunction(printf("include_file\n"););
+  /* includeFile */
+    logFunction(printf("includeFile\n"););
     scan_symbol();
     if (symbol.sycategory == STRILITERAL) {
-      if (!ALLOC_STRI_SIZE_OK(include_file_name, symbol.striValue->size)) {
+      if (!ALLOC_STRI_SIZE_OK(includeFileName, symbol.striValue->size)) {
         err_warning(OUT_OF_HEAP_SPACE);
       } else {
-        include_file_name->size = symbol.striValue->size;
-        memcpy(include_file_name->mem, symbol.striValue->mem,
+        includeFileName->size = symbol.striValue->size;
+        memcpy(includeFileName->mem, symbol.striValue->mem,
                (size_t) symbol.striValue->size * sizeof(strElemType));
         scan_symbol();
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
-        if (strChPos(include_file_name, (charType) '\\') != 0) {
-          err_stri(WRONG_PATH_DELIMITER, include_file_name);
+        if (strChPos(includeFileName, (charType) '\\') != 0) {
+          err_stri(WRONG_PATH_DELIMITER, includeFileName);
           scan_symbol();
         } else {
-          find_include_file(include_file_name, &err_info);
+          find_include_file(includeFileName, &err_info);
           if (unlikely(err_info == MEMORY_ERROR)) {
             err_warning(OUT_OF_HEAP_SPACE);
           } else if (unlikely(err_info != OKAY_NO_ERROR)) {
             /* FILE_ERROR or RANGE_ERROR */
-            err_stri(FILENOTFOUND, include_file_name);
+            err_stri(FILENOTFOUND, includeFileName);
           } else {
             scan_byte_order_mark();
           } /* if */
           scan_symbol();
         } /* if */
-        FREE_STRI(include_file_name, include_file_name->size);
+        FREE_STRI(includeFileName, includeFileName->size);
       } /* if */
     } else {
       err_warning(STRI_EXPECTED);
@@ -193,18 +193,18 @@ static inline void include_file (void)
         scan_symbol();
       } /* if */
     } /* if */
-    logFunction(printf("include_file -->\n"););
-  } /* include_file */
+    logFunction(printf("includeFile -->\n"););
+  } /* includeFile */
 
 
 
-static void process_pragma (void)
+static void processPragma (void)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
 
-  /* process_pragma */
-    logFunction(printf("process_pragma\n"););
+  /* processPragma */
+    logFunction(printf("processPragma\n"););
     if (symbol.sycategory != NAMESYMBOL) {
       err_warning(NAMEEXPECTED);
     } else {
@@ -288,19 +288,19 @@ static void process_pragma (void)
         err_warning(ILLEGALPRAGMA);
       } /* if */
     } /* if */
-    logFunction(printf("process_pragma -->\n"););
-  } /* process_pragma */
+    logFunction(printf("processPragma -->\n"););
+  } /* processPragma */
 
 
 
-static inline void decl_any (nodeType objects)
+static inline void declAny (nodeType objects)
 
   {
-    objectType decl_expression;
+    objectType declExpression;
     errInfoType err_info = OKAY_NO_ERROR;
 
-  /* decl_any */
-    logFunction(printf("decl_any\n"););
+  /* declAny */
+    logFunction(printf("declAny\n"););
     scan_symbol();
     while (symbol.sycategory != STOPSYMBOL) {
       if (current_ident == prog.id_for.dollar) {
@@ -311,11 +311,11 @@ static inline void decl_any (nodeType objects)
         } else if (current_ident == prog.id_for.syntax) {
           decl_syntax();
         } else if (current_ident == prog.id_for.system) {
-          system_var();
+          systemVar();
         } else if (current_ident == prog.id_for.include) {
-          include_file();
+          includeFile();
         } else {
-          process_pragma();
+          processPragma();
           scan_symbol();
           if (current_ident != prog.id_for.semicolon) {
             err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
@@ -330,63 +330,63 @@ static inline void decl_any (nodeType objects)
 #ifdef TRACE_DECL_ANY
         printf("before parse expression ");
 #endif
-        decl_expression = pars_infix_expression(SCOL_PRIORITY, FALSE);
+        declExpression = pars_infix_expression(SCOL_PRIORITY, FALSE);
 #ifdef TRACE_DECL_ANY
-        printf("decl_expression ");
-        trace1(decl_expression);
+        printf("declExpression ");
+        trace1(declExpression);
         printf("<<<\n");
         fflush(stdout);
 #endif
-        if (CATEGORY_OF_OBJ(decl_expression) == EXPROBJECT) {
-          match_expression(decl_expression);
+        if (CATEGORY_OF_OBJ(declExpression) == EXPROBJECT) {
+          match_expression(declExpression);
         } /* if */
         if (current_ident != prog.id_for.semicolon) {
           err_ident(EXPECTED_SYMBOL, prog.id_for.semicolon);
         } /* if */
         set_fail_flag(FALSE);
-        evaluate(decl_expression);
+        evaluate(declExpression);
         if (unlikely(fail_flag)) {
           err_object(EXCEPTION_RAISED, fail_value);
           set_fail_flag(FALSE);
         } /* if */
-        free_expression(decl_expression);
+        free_expression(declExpression);
         if (current_ident == prog.id_for.semicolon) {
           scan_symbol();
         } /* if */
       } /* if */
     } /* while */
-    logFunction(printf("decl_any -->\n"););
-  } /* decl_any */
+    logFunction(printf("declAny -->\n"););
+  } /* declAny */
 
 
 
-static striType getProgramName (const const_striType source_file_name)
+static striType getProgramName (const const_striType sourceFileArgument)
 
   {
-    memSizeType name_len;
+    memSizeType nameLen;
     intType lastSlashPos;
     striType program_name;
 
   /* getProgramName */
     logFunction(printf("getProgramName(\"%s\")\n",
-                       striAsUnquotedCStri(source_file_name)););
-    name_len = source_file_name->size;
-    if (name_len > 4 &&
-        source_file_name->mem[name_len - 4] == '.' &&
-        ((source_file_name->mem[name_len - 3] == 's' &&
-          source_file_name->mem[name_len - 2] == 'd' &&
-          source_file_name->mem[name_len - 1] == '7') ||
-         (source_file_name->mem[name_len - 3] == 's' &&
-          source_file_name->mem[name_len - 2] == '7' &&
-          source_file_name->mem[name_len - 1] == 'i'))) {
-      name_len -= 4;
+                       striAsUnquotedCStri(sourceFileArgument)););
+    nameLen = sourceFileArgument->size;
+    if (nameLen > 4 &&
+        sourceFileArgument->mem[nameLen - 4] == '.' &&
+        ((sourceFileArgument->mem[nameLen - 3] == 's' &&
+          sourceFileArgument->mem[nameLen - 2] == 'd' &&
+          sourceFileArgument->mem[nameLen - 1] == '7') ||
+         (sourceFileArgument->mem[nameLen - 3] == 's' &&
+          sourceFileArgument->mem[nameLen - 2] == '7' &&
+          sourceFileArgument->mem[nameLen - 1] == 'i'))) {
+      nameLen -= 4;
     } /* if */
-    lastSlashPos = strRChPos(source_file_name, (charType) '/');
-    name_len -= (memSizeType) lastSlashPos;
-    if (ALLOC_STRI_SIZE_OK(program_name, name_len)) {
-      program_name->size = name_len;
-      memcpy(program_name->mem, &source_file_name->mem[lastSlashPos],
-             name_len * sizeof(strElemType));
+    lastSlashPos = strRChPos(sourceFileArgument, (charType) '/');
+    nameLen -= (memSizeType) lastSlashPos;
+    if (ALLOC_STRI_SIZE_OK(program_name, nameLen)) {
+      program_name->size = nameLen;
+      memcpy(program_name->mem, &sourceFileArgument->mem[lastSlashPos],
+             nameLen * sizeof(strElemType));
     } /* if */
     logFunction(printf("getProgramName --> \"%s\"\n",
                        striAsUnquotedCStri(program_name)););
@@ -395,7 +395,7 @@ static striType getProgramName (const const_striType source_file_name)
 
 
 
-static striType getProgramPath (const const_striType source_file_name)
+static striType getProgramPath (const const_striType sourceFilePath)
 
   {
     striType cwd;
@@ -403,13 +403,13 @@ static striType getProgramPath (const const_striType source_file_name)
 
   /* getProgramPath */
     logFunction(printf("getProgramPath(\"%s\")\n",
-                       striAsUnquotedCStri(source_file_name)););
-    if (source_file_name->size >= 1 &&
-        source_file_name->mem[0] == (charType) '/') {
-      program_path = strCreate(source_file_name);
+                       striAsUnquotedCStri(sourceFilePath)););
+    if (sourceFilePath->size >= 1 &&
+        sourceFilePath->mem[0] == (charType) '/') {
+      program_path = strCreate(sourceFilePath);
     } else {
       cwd = cmdGetcwd();
-      program_path = concat_path(cwd, source_file_name);
+      program_path = concat_path(cwd, sourceFilePath);
       FREE_STRI(cwd, cwd->size);
     } /* if */
     logFunction(printf("getProgramPath --> \"%s\"\n",
@@ -419,41 +419,42 @@ static striType getProgramPath (const const_striType source_file_name)
 
 
 
-static progType analyze_prog (const const_striType source_file_argument,
-    const const_striType source_name, uintType options, const const_rtlArrayType libraryDirs,
-    const const_striType prot_file_name, errInfoType *err_info)
+static progType analyzeProg (const const_striType sourceFileArgument,
+    const const_striType sourceFilePath, uintType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName,
+    errInfoType *err_info)
 
   {
-    striType source_file_argument_copy;
-    traceRecord trace_backup;
-    progRecord prog_backup;
+    striType sourceFileArgumentCopy;
+    traceRecord traceBackup;
+    progRecord progBackup;
     progType resultProg;
 
-  /* analyze_prog */
-    logFunction(printf("analyze_prog(\"%s\", ",
-                       striAsUnquotedCStri(source_file_argument));
+  /* analyzeProg */
+    logFunction(printf("analyzeProg(\"%s\", ",
+                       striAsUnquotedCStri(sourceFileArgument));
                 printf("\"%s\", 0x" F_X(08) ", *, ",
-                       striAsUnquotedCStri(source_name), options);
+                       striAsUnquotedCStri(sourceFilePath), options);
                 printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(prot_file_name)););
+                       striAsUnquotedCStri(protFileName)););
     if (!ALLOC_RECORD(resultProg, progRecord, count.prog)) {
       *err_info = MEMORY_ERROR;
-    } else if (!ALLOC_STRI_SIZE_OK(source_file_argument_copy, source_file_argument->size)) {
+    } else if (!ALLOC_STRI_SIZE_OK(sourceFileArgumentCopy, sourceFileArgument->size)) {
       *err_info = MEMORY_ERROR;
       FREE_RECORD(resultProg, progRecord, count.prog);
       resultProg = NULL;
     } else {
-      /* printf("analyze_prog: new progRecord: %lx\n", resultProg); */
-      source_file_argument_copy->size = source_file_argument->size;
-      memcpy(source_file_argument_copy->mem, source_file_argument->mem,
-             source_file_argument->size * sizeof(strElemType));
+      /* printf("analyzeProg: new progRecord: %lx\n", resultProg); */
+      sourceFileArgumentCopy->size = sourceFileArgument->size;
+      memcpy(sourceFileArgumentCopy->mem, sourceFileArgument->mem,
+             sourceFileArgument->size * sizeof(strElemType));
       resultProg->usage_count = 1;
       resultProg->main_object = NULL;
       resultProg->types = NULL;
-      memcpy(&prog_backup, &prog, sizeof(progRecord));
+      memcpy(&progBackup, &prog, sizeof(progRecord));
       prog.owningProg = resultProg;
       in_file.owningProg = resultProg;
-      init_lib_path(source_file_argument, libraryDirs, err_info);
+      init_lib_path(sourceFileArgument, libraryDirs, err_info);
       init_idents(&prog, err_info);
       init_findid(err_info);
       init_entity(err_info);
@@ -466,11 +467,11 @@ static progType analyze_prog (const const_striType source_file_argument,
       prog.types = NULL;
       prog.literals = NULL;
       if (*err_info == OKAY_NO_ERROR) {
-        memcpy(&trace_backup, &trace, sizeof(traceRecord));
+        memcpy(&traceBackup, &trace, sizeof(traceRecord));
         prog.option_flags = options;
         set_trace(prog.option_flags);
-        set_protfile_name(prot_file_name);
-        decl_any(prog.declaration_root);
+        set_protfile_name(protFileName);
+        declAny(prog.declaration_root);
         if (SYS_MAIN_OBJECT == NULL) {
           prog.error_count++;
           printf("*** System declaration for main missing\n");
@@ -508,9 +509,9 @@ static progType analyze_prog (const const_striType source_file_argument,
         } /* if */
         clean_idents();
         resultProg->owningProg       = resultProg;
-        resultProg->arg0             = source_file_argument_copy;
-        resultProg->program_name     = getProgramName(source_file_argument);
-        resultProg->program_path     = getProgramPath(source_name);
+        resultProg->arg0             = sourceFileArgumentCopy;
+        resultProg->program_name     = getProgramName(sourceFileArgument);
+        resultProg->program_path     = getProgramPath(sourceFilePath);
         resultProg->arg_v            = NULL;
         resultProg->option_flags     = prog.option_flags;
         resultProg->error_count      = prog.error_count;
@@ -524,7 +525,7 @@ static progType analyze_prog (const const_striType source_file_argument,
         resultProg->stack_global     = prog.stack_global;
         resultProg->stack_data       = prog.stack_data;
         resultProg->stack_current    = prog.stack_current;
-        memcpy(&prog, &prog_backup, sizeof(progRecord));
+        memcpy(&prog, &progBackup, sizeof(progRecord));
         close_infile();
         close_symbol();
         free_lib_path();
@@ -537,94 +538,94 @@ static progType analyze_prog (const const_striType source_file_argument,
           } /* if */
         } /* if */
         /* trace_list(resultProg->stack_current->local_object_list); */
-        memcpy(&trace, &trace_backup, sizeof(traceRecord));
+        memcpy(&trace, &traceBackup, sizeof(traceRecord));
       } else {
-        memcpy(&prog, &prog_backup, sizeof(progRecord));
+        memcpy(&prog, &progBackup, sizeof(progRecord));
         FREE_RECORD(resultProg, progRecord, count.prog);
-        FREE_STRI(source_file_argument_copy, source_file_argument_copy->size);
+        FREE_STRI(sourceFileArgumentCopy, sourceFileArgumentCopy->size);
         resultProg = NULL;
       } /* if */
     } /* if */
-    logFunction(printf("analyze_prog --> " FMT_U_MEM "\n",
+    logFunction(printf("analyzeProg --> " FMT_U_MEM "\n",
                        (memSizeType) resultProg););
     return resultProg;
-  } /* analyze_prog */
+  } /* analyzeProg */
 
 
 
-progType analyze_file (const const_striType source_file_argument, uintType options,
-    const const_rtlArrayType libraryDirs, const const_striType prot_file_name,
+progType analyzeFile (const const_striType sourceFileArgument, uintType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName,
     errInfoType *err_info)
 
   {
-    striType source_name;
-    memSizeType name_len;
+    striType sourceFilePath;
+    memSizeType nameLen;
     boolType add_extension;
     progType resultProg;
 
-  /* analyze_file */
-    logFunction(printf("analyze_file(\"%s\", 0x" F_X(08) ", *, ",
-                       striAsUnquotedCStri(source_file_argument), options);
+  /* analyzeFile */
+    logFunction(printf("analyzeFile(\"%s\", 0x" F_X(08) ", *, ",
+                       striAsUnquotedCStri(sourceFileArgument), options);
                 printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(prot_file_name)););
+                       striAsUnquotedCStri(protFileName)););
     interpreter_exception = TRUE;
-    init_analyze();
+    initAnalyze();
     resultProg = NULL;
-    if (source_file_argument->size > 4 &&
-        source_file_argument->mem[source_file_argument->size - 4] == '.' &&
-        source_file_argument->mem[source_file_argument->size - 3] == 's' &&
-        source_file_argument->mem[source_file_argument->size - 2] == 'd' &&
-        source_file_argument->mem[source_file_argument->size - 1] == '7') {
-      name_len = source_file_argument->size;
+    if (sourceFileArgument->size > 4 &&
+        sourceFileArgument->mem[sourceFileArgument->size - 4] == '.' &&
+        sourceFileArgument->mem[sourceFileArgument->size - 3] == 's' &&
+        sourceFileArgument->mem[sourceFileArgument->size - 2] == 'd' &&
+        sourceFileArgument->mem[sourceFileArgument->size - 1] == '7') {
+      nameLen = sourceFileArgument->size;
       add_extension = FALSE;
     } else {
-      name_len = source_file_argument->size + 4;
+      nameLen = sourceFileArgument->size + 4;
       add_extension = TRUE;
     } /* if */
-    if (strChPos(source_file_argument, (charType) '\\') != 0) {
+    if (strChPos(sourceFileArgument, (charType) '\\') != 0) {
       *err_info = RANGE_ERROR;
-    } else if (!ALLOC_STRI_CHECK_SIZE(source_name, name_len)) {
+    } else if (!ALLOC_STRI_CHECK_SIZE(sourceFilePath, nameLen)) {
       *err_info = MEMORY_ERROR;
     } else if (*err_info == OKAY_NO_ERROR) {
-      source_name->size = name_len;
-      memcpy(source_name->mem, source_file_argument->mem,
-             source_file_argument->size * sizeof(strElemType));
+      sourceFilePath->size = nameLen;
+      memcpy(sourceFilePath->mem, sourceFileArgument->mem,
+             sourceFileArgument->size * sizeof(strElemType));
       if (add_extension) {
-        memcpy_to_strelem(&source_name->mem[source_file_argument->size],
+        memcpy_to_strelem(&sourceFilePath->mem[sourceFileArgument->size],
                           (const_ustriType) ".sd7", 4);
       } /* if */
-      open_infile(source_name,
+      open_infile(sourceFilePath,
                   (options & WRITE_LIBRARY_NAMES) != 0,
                   (options & WRITE_LINE_NUMBERS) != 0, err_info);
       if (*err_info == FILE_ERROR && add_extension) {
         *err_info = OKAY_NO_ERROR;
-        source_name->size = name_len - 4;
-        open_infile(source_name,
+        sourceFilePath->size = nameLen - 4;
+        open_infile(sourceFilePath,
                     (options & WRITE_LIBRARY_NAMES) != 0,
                     (options & WRITE_LINE_NUMBERS) != 0, err_info);
       } /* if */
 #if HAS_SYMBOLIC_LINKS
-      source_name = followLink(source_name);
+      sourceFilePath = followLink(sourceFilePath);
 #endif
       if (*err_info == OKAY_NO_ERROR) {
         scan_byte_order_mark();
-        resultProg = analyze_prog(source_file_argument, source_name, options,
-                                  libraryDirs, prot_file_name, err_info);
+        resultProg = analyzeProg(sourceFileArgument, sourceFilePath, options,
+                                 libraryDirs, protFileName, err_info);
       } else if (*err_info == FILE_ERROR) {
         *err_info = OKAY_NO_ERROR;
       } /* if */
-      FREE_STRI(source_name, name_len);
+      FREE_STRI(sourceFilePath, nameLen);
     } /* if */
     interpreter_exception = FALSE;
-    logFunction(printf("analyze_file --> " FMT_U_MEM "\n",
+    logFunction(printf("analyzeFile --> " FMT_U_MEM "\n",
                        (memSizeType) resultProg););
     return resultProg;
-  } /* analyze_file */
+  } /* analyzeFile */
 
 
 
-progType analyze (const const_striType source_file_argument, uintType options,
-    const const_rtlArrayType libraryDirs, const const_striType prot_file_name)
+progType analyze (const const_striType sourceFileArgument, uintType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
@@ -632,15 +633,15 @@ progType analyze (const const_striType source_file_argument, uintType options,
 
   /* analyze */
     logFunction(printf("analyze(\"%s\", 0x" F_X(08) ", *, ",
-                       striAsUnquotedCStri(source_file_argument), options);
+                       striAsUnquotedCStri(sourceFileArgument), options);
                 printf("\"%s\")\n",
-                       striAsUnquotedCStri(prot_file_name)););
-    resultProg = analyze_file(source_file_argument, options,
-                              libraryDirs, prot_file_name, &err_info);
+                       striAsUnquotedCStri(protFileName)););
+    resultProg = analyzeFile(sourceFileArgument, options,
+                             libraryDirs, protFileName, &err_info);
     if (err_info == MEMORY_ERROR) {
       err_warning(OUT_OF_HEAP_SPACE);
     } else if (resultProg == NULL || err_info != OKAY_NO_ERROR) {
-      err_message(NO_SOURCEFILE, source_file_argument);
+      err_message(NO_SOURCEFILE, sourceFileArgument);
     } /* if */
     logFunction(printf("analyze --> " FMT_U_MEM "\n",
                        (memSizeType) resultProg););
@@ -649,25 +650,25 @@ progType analyze (const const_striType source_file_argument, uintType options,
 
 
 
-progType analyze_string (const const_striType input_string, uintType options,
-    const const_rtlArrayType libraryDirs, const const_striType prot_file_name,
+progType analyzeString (const const_striType input_string, uintType options,
+    const const_rtlArrayType libraryDirs, const const_striType protFileName,
     errInfoType *err_info)
 
   {
-    striType source_file_argument;
+    striType sourceFileArgument;
     bstriType input_bstri;
     progType resultProg;
 
-  /* analyze_string */
-    logFunction(printf("analyze_string(\"%s\", 0x" F_X(08) ", *, ",
+  /* analyzeString */
+    logFunction(printf("analyzeString(\"%s\", 0x" F_X(08) ", *, ",
                        striAsUnquotedCStri(input_string), options);
                 printf("\"%s\", *)\n",
-                       striAsUnquotedCStri(prot_file_name)););
+                       striAsUnquotedCStri(protFileName)););
     interpreter_exception = TRUE;
-    init_analyze();
+    initAnalyze();
     resultProg = NULL;
-    source_file_argument = cstri_to_stri("STRING");
-    if (source_file_argument == NULL) {
+    sourceFileArgument = cstri_to_stri("STRING");
+    if (sourceFileArgument == NULL) {
       *err_info = MEMORY_ERROR;
     } else {
       input_bstri = stri_to_bstri8(input_string);
@@ -678,15 +679,15 @@ progType analyze_string (const const_striType input_string, uintType options,
                     (options & WRITE_LIBRARY_NAMES) != 0,
                     (options & WRITE_LINE_NUMBERS) != 0, err_info);
         if (*err_info == OKAY_NO_ERROR) {
-          resultProg = analyze_prog(source_file_argument, source_file_argument,
-                                    options, libraryDirs, prot_file_name, err_info);
+          resultProg = analyzeProg(sourceFileArgument, sourceFileArgument,
+                                   options, libraryDirs, protFileName, err_info);
         } /* if */
         FREE_BSTRI(input_bstri, input_bstri->size);
       } /* if */
-      FREE_STRI(source_file_argument, source_file_argument->size);
+      FREE_STRI(sourceFileArgument, sourceFileArgument->size);
     } /* if */
     interpreter_exception = FALSE;
-    logFunction(printf("analyze_string --> " FMT_U_MEM "\n",
+    logFunction(printf("analyzeString --> " FMT_U_MEM "\n",
                        (memSizeType) resultProg););
     return resultProg;
-  } /* analyze_string */
+  } /* analyzeString */

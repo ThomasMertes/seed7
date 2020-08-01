@@ -178,7 +178,7 @@ static inline boolType speedup (void)
 
 
 
-void open_infile (const_striType source_file_name, boolType write_library_names,
+void open_infile (const_striType sourceFileName, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info)
 
   {
@@ -192,10 +192,10 @@ void open_infile (const_striType source_file_name, boolType write_library_names,
 
   /* open_infile */
     logFunction(printf("open_infile(\"%s\", %d, %d, err_info=%d)\n",
-                       striAsUnquotedCStri(source_file_name),
+                       striAsUnquotedCStri(sourceFileName),
                        write_library_names, write_line_numbers,
                        *err_info););
-    os_path = cp_to_os_path(source_file_name, &path_info, err_info);
+    os_path = cp_to_os_path(sourceFileName, &path_info, err_info);
     if (likely(os_path != NULL)) {
       in_fil = os_fopen(os_path, os_mode_rb);
       /* printf("fopen(\"" FMT_S_OS "\") --> %lu\n", os_path, in_fil); */
@@ -207,32 +207,32 @@ void open_infile (const_striType source_file_name, boolType write_library_names,
           fclose(in_fil);
           *err_info = MEMORY_ERROR;
         } else {
-          name_ustri = (ustriType) stri_to_cstri8(source_file_name, err_info);
+          name_ustri = (ustriType) stri_to_cstri8(sourceFileName, err_info);
           if (name_ustri != NULL) {
             /* printf("name_ustri: \"%s\"\n", name_ustri); */
             name_length = strlen((cstriType) name_ustri);
-            name_ustri = REALLOC_USTRI(name_ustri, max_utf8_size(source_file_name->size), name_length);
+            name_ustri = REALLOC_USTRI(name_ustri, max_utf8_size(sourceFileName->size), name_length);
             if (name_ustri == NULL) {
               *err_info = MEMORY_ERROR;
             } /* if */
           } /* if */
           if (name_ustri == NULL) {
             fclose(in_fil);
-          } else if (!ALLOC_STRI_CHECK_SIZE(in_name, source_file_name->size)) {
-            free_cstri8(name_ustri, source_file_name);
+          } else if (!ALLOC_STRI_CHECK_SIZE(in_name, sourceFileName->size)) {
+            free_cstri8(name_ustri, sourceFileName);
             fclose(in_fil);
             *err_info = MEMORY_ERROR;
           } else {
-            in_name->size = source_file_name->size;
-            memcpy(in_name->mem, source_file_name->mem, source_file_name->size * sizeof(strElemType));
+            in_name->size = sourceFileName->size;
+            memcpy(in_name->mem, sourceFileName->mem, sourceFileName->size * sizeof(strElemType));
             if (in_file.curr_infile != NULL) {
               memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
             } /* if */
             in_file.fil = in_fil;
             if (!speedup()) {
               fclose(in_file.fil);
-              free_cstri8(name_ustri, source_file_name);
-              FREE_STRI(in_name, source_file_name->size);
+              free_cstri8(name_ustri, sourceFileName);
+              FREE_STRI(in_name, sourceFileName->size);
               if (in_file.curr_infile != NULL) {
                 memcpy(&in_file, in_file.curr_infile, sizeof(inFileRecord));
               } else {
@@ -327,7 +327,7 @@ void open_string (bstriType input_string, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info)
 
   {
-    const char source_file_name[] = "STRING";
+    const char sourceFileName[] = "STRING";
     inFileType new_file;
     memSizeType name_length;
     ustriType name_ustri;
@@ -343,7 +343,7 @@ void open_string (bstriType input_string, boolType write_library_names,
       if (!ALLOC_FILE(new_file)) {
         *err_info = MEMORY_ERROR;
       } else {
-        name_length = STRLEN(source_file_name);
+        name_length = STRLEN(sourceFileName);
         if (!ALLOC_USTRI(name_ustri, name_length)) {
           *err_info = MEMORY_ERROR;
         } else if (!ALLOC_STRI_SIZE_OK(in_name, name_length)) {
@@ -351,7 +351,7 @@ void open_string (bstriType input_string, boolType write_library_names,
           *err_info = MEMORY_ERROR;
         } else {
           COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
-          strcpy((cstriType) name_ustri, source_file_name);
+          strcpy((cstriType) name_ustri, sourceFileName);
           in_name->size = name_length;
           memcpy_to_strelem(in_name->mem, name_ustri, name_length);
           if (in_file.curr_infile != NULL) {

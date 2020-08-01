@@ -39,16 +39,15 @@
 #define SHOW_IDENT_TABLE      2048
 #define SHOW_STATISTICS       4096
 
-typedef struct {
-    striType          source_file_argument;
-    const_striType    prot_file_name;
-    boolType          write_help;
-    boolType          analyze_only;
-    boolType          execute_always;
-    uintType          parser_options;
-    uintType          exec_options;
-    boolType          handle_signals;
-    rtlArrayType      seed7_libraries;
+typedef struct optionStruct {
+    striType          sourceFileArgument;
+    const_striType    protFileName;
+    boolType          writeHelp;
+    boolType          analyzeOnly;
+    boolType          executeAlways;
+    uintType          parserOptions;
+    uintType          execOptions;
+    rtlArrayType      libraryDirs;
     rtlArrayType      argv;
-    memSizeType       argv_start;
+    memSizeType       argvStart;
   } optionRecord, *optionType;

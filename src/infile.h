@@ -96,7 +96,7 @@ EXTERN inFileRecord in_file;
 
 
 int fill_buf (void);
-void open_infile (const_striType source_file_name, boolType write_library_names,
+void open_infile (const_striType sourceFileName, boolType write_library_names,
     boolType write_line_numbers, errInfoType *err_info);
 void close_infile (void);
 void open_string (bstriType input_string, boolType write_library_names,

@@ -1,3 +1,21 @@
+20141110:
+- The program toutf8.sd7 has been improved to accept byte order
+  marks for the encodings UTF-16BE and UTF-16LE.
+- Documentation comments have been improved in bigint.s7i,
+  integer.s7i, big_gmp.c, big_rtl.c, bst_rtl.c, flt_rtl.c,
+  int_rtl.c, pcs_rtl.c, rfl_data.c, set_rtl.c, str_rtl.c and
+  typ_data.c.
+- In analyze.c and prg_comp.c function names and parameter names
+  have been changed to use camel case.
+- The global variable programPath and the function
+  relativeToProgramPath have been removed. They were only used when
+  the makefile setting PATHS_RELATIVE_TO_EXECUTABLE was active (this
+  setting was not used by any makefile for years).
+- All explanations related to PATHS_RELATIVE_TO_EXECUTABLE has been
+  removed from the FAQ and from src/read_me.txt.
+- The functions hsh_incl and hsh_update in hshlib.c have been
+  changed to raise RANGE_ERROR when cmp_func is NULL.
+
 20151029:
 - The explanation in the FAQ, how Seed7 programs can be debugged
   with Eclipse, has been improved.

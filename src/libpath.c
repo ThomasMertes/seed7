@@ -48,10 +48,6 @@
 #include "libpath.h"
 
 
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-extern striType programPath; /* defined in s7.c or in the executable of a program */
-#endif
-
 static rtlArrayType lib_path;
 
 
@@ -186,7 +182,7 @@ void append_to_lib_path (const_striType path, errInfoType *err_info)
 
 
 
-void init_lib_path (const_striType source_file_name,
+void init_lib_path (const_striType sourceFileName,
     const const_rtlArrayType seed7_libraries, errInfoType *err_info)
 
   {
@@ -208,8 +204,8 @@ void init_lib_path (const_striType source_file_name,
 
       /* Add directory of the source file to the lib_path. */
       dir_path_size = 0;
-      for (position = 0; position < source_file_name->size; position++) {
-        if (source_file_name->mem[position] == '/') {
+      for (position = 0; position < sourceFileName->size; position++) {
+        if (sourceFileName->mem[position] == '/') {
           dir_path_size = position + 1;
         } /* if */
       } /* for */
@@ -217,26 +213,10 @@ void init_lib_path (const_striType source_file_name,
         *err_info = MEMORY_ERROR;
       } else {
         path->size = dir_path_size;
-        memcpy(path->mem, source_file_name->mem, dir_path_size * sizeof(strElemType));
+        memcpy(path->mem, sourceFileName->mem, dir_path_size * sizeof(strElemType));
         append_to_lib_path(path, err_info);
         FREE_STRI(path, path->size);
       } /* if */
-
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-      /* When the path to the interpreter or to the current        */
-      /* executable ends with "bin" or "prg": Replace "bin"        */
-      /* respectively "prg" with "lib" and add it to the lib_path. */
-      /* prot_cstri("programPath: ");
-         prot_stri(programPath);
-         prot_nl(); */
-      path = relativeToProgramPath(programPath, "lib");
-      if (unlikely(path == NULL)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        append_to_lib_path(path, err_info);
-        FREE_STRI(path, path->size);
-      } /* if */
-#endif
 
       /* Add the libraries from the commandline to the lib_path */
       if (seed7_libraries != NULL) {

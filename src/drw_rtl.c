@@ -53,7 +53,7 @@ void drwCpy (winType *const win_to, const winType win_from)
 
   { /* drwCpy */
     logFunction(printf("drwCpy(" FMT_U_MEM " (usage=" FMT_U "), "
-	                   FMT_U_MEM " (usage=" FMT_U "))\n",
+                       FMT_U_MEM " (usage=" FMT_U "))\n",
                        (memSizeType) *win_to,
                        *win_to != NULL ? (*win_to)->usage_count : (uintType) 0,
                        (memSizeType) win_from,

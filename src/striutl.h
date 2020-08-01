@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  striutl.h     Procedures to work with wide char strings.        */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/striutl.h                                       */
-/*  Changes: 1991 - 1994, 2005 - 2014  Thomas Mertes                */
+/*  Changes: 1991 - 1994, 2005 - 2015  Thomas Mertes                */
 /*  Content: Procedures to work with wide char strings.             */
 /*                                                                  */
 /********************************************************************/
@@ -92,18 +92,25 @@ EXTERN stackAllocRecord stack_alloc_base;
 EXTERN stackAllocType   stack_alloc;
 #endif
 
-#define SIZ_STACK_ALLOC(len)   ((sizeof(stackAllocRecord) - sizeof(char)) + (len) * sizeof(os_charType))
+#define SIZ_STACK_ALLOC(len)   ((sizeof(stackAllocRecord) - sizeof(char)) + \
+                               (len) * sizeof(os_charType))
 /* One is subtracted in the macro MAX_STACK_ALLOC to make */
 /* sure that stack_alloc->beyond does not wrap around.    */
-#define MAX_STACK_ALLOC        (MAX_MEMSIZETYPE - (sizeof(stackAllocRecord) - sizeof(char)) / sizeof(os_charType) - 1)
+#define MAX_STACK_ALLOC        (MAX_MEMSIZETYPE - 1 - \
+                               (sizeof(stackAllocRecord) - sizeof(char)) / sizeof(os_charType))
 #define POP_OS_STRI_OK(len)    (memSizeType) stack_alloc->beyond >= (len) && \
-                               (memSizeType) (stack_alloc->beyond - (len)) >= (memSizeType) stack_alloc->curr_free
+                               (memSizeType) (stack_alloc->beyond - (len)) >= \
+                               (memSizeType) stack_alloc->curr_free
 #define PUSH_OS_STRI_OK(var)   (memSizeType) (var) >= (memSizeType) stack_alloc->start && \
                                (memSizeType) (var) < (memSizeType) stack_alloc->curr_free
-#define POP_OS_STRI(var,len)   (var = (os_striType) stack_alloc->curr_free, stack_alloc->curr_free += (len), TRUE)
+#define POP_OS_STRI(var,len)   (var = (os_striType) stack_alloc->curr_free, \
+                               stack_alloc->curr_free += (len), TRUE)
 #define PUSH_OS_STRI(var)      { stack_alloc->curr_free = (cstriType) (var); }
-#define os_stri_alloc(var,len) (POP_OS_STRI_OK(SIZ_OS_STRI(len)) ? POP_OS_STRI(var, SIZ_OS_STRI(len)) : heapAllocOsStri(&(var), len))
-#define os_stri_free(var)      if (PUSH_OS_STRI_OK(var)) PUSH_OS_STRI(var) else heapFreeOsStri(var);
+#define os_stri_alloc(var,len) (POP_OS_STRI_OK(SIZ_OS_STRI(len)) ? \
+                               POP_OS_STRI(var, SIZ_OS_STRI(len)) : \
+                               heapAllocOsStri(&(var), len))
+#define os_stri_free(var)      if (PUSH_OS_STRI_OK(var)) PUSH_OS_STRI(var) \
+                               else heapFreeOsStri(var);
 #else
 #define os_stri_alloc ALLOC_OS_STRI
 #define os_stri_free  FREE_OS_STRI
@@ -182,7 +189,3 @@ os_striType cp_to_os_path (const_striType std_path, int *path_info,
 os_striType temp_name_in_dir (const const_os_striType path);
 os_striType cp_to_command (const const_striType commandPath,
     const const_striType parameters, errInfoType *err_info);
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-striType relativeToProgramPath (const const_striType basePath,
-    const const_cstriType dir);
-#endif

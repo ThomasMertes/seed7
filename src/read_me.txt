@@ -1426,10 +1426,6 @@ THE VERSION.H FILE
                  (a slash is used as path separator and instead of
                  a drive letter like "C:" the path "/c" is used).
 
-  PATHS_RELATIVE_TO_EXECUTABLE: Defined when S7_LIB_DIR and
-                                SEED7_LIBRARY cannot be determined
-                                at compile time.
-
   INT32TYPE: Name of a signed integer type that is 32 bits wide.
 
   UINT32TYPE: Name of an unsigned integer type that is 32 bits wide.

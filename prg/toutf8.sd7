@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  toutf8.sd7    Convert a file to UTF-8                           *)
-(*  Copyright (C) 2006, 2010  Thomas Mertes                         *)
+(*  Copyright (C) 2006, 2010, 2015  Thomas Mertes                   *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -24,8 +24,10 @@
 
 $ include "seed7_05.s7i";
   include "stdio.s7i";
+  include "osfiles.s7i";
   include "charsets.s7i";
   include "utf8.s7i";
+  include "console.s7i";
 
 
 const proc: main is func
@@ -38,9 +40,15 @@ const proc: main is func
     var string: stri is "";
     var char: ch is ' ';
   begin
-    if length(argv(PROGRAM)) < 2 then
+    if length(argv(PROGRAM)) >= 1 then
+      conv_name := argv(PROGRAM)[1];
+      if startsWith(conv_name, "-") then
+        conv_name := conv_name[2 ..];
+      end if;
+    end if;
+    if length(argv(PROGRAM)) < 2 or conv_name = "?" then
       writeln("Toutf8 Version 1.0 - Convert a file to UTF-8");
-      writeln("Copyright (C) 2006, 2010 Thomas Mertes");
+      writeln("Copyright (C) 2006, 2010, 2015 Thomas Mertes");
       writeln("This is free software; see the source for copying conditions.  There is NO");
       writeln("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
       writeln("Toutf8 is written in the Seed7 programming language");
@@ -65,8 +73,7 @@ const proc: main is func
       writeln("  UTF8, VISCII, WINDOWS-1250, WINDOWS-1251, WINDOWS-1252, WINDOWS-1253,");
       writeln("  WINDOWS-1254, WINDOWS-1255, WINDOWS-1256, WINDOWS-1257, WINDOWS-1258");
     else
-      conv_name := argv(PROGRAM)[1];
-      in_name := argv(PROGRAM)[2];
+      in_name := convDosPath(argv(PROGRAM)[2]);
       if length(argv(PROGRAM)) >= 3 then
         out_name := argv(PROGRAM)[3];
       end if;
@@ -74,127 +81,150 @@ const proc: main is func
       if in_file <> STD_NULL then
         stri := gets(in_file, length(in_file));
         close(in_file);
-        if conv_name = "-437" then
+        if conv_name = "437" then
           conv2unicode(stri, cp_437);
-        elsif conv_name = "-708" then
+        elsif conv_name = "708" then
           conv2unicode(stri, cp_708);
-        elsif conv_name = "-720" then
+        elsif conv_name = "720" then
           conv2unicode(stri, cp_720);
-        elsif conv_name = "-737" then
+        elsif conv_name = "737" then
           conv2unicode(stri, cp_737);
-        elsif conv_name = "-775" then
+        elsif conv_name = "775" then
           conv2unicode(stri, cp_775);
-        elsif conv_name = "-850" then
+        elsif conv_name = "850" then
           conv2unicode(stri, cp_850);
-        elsif conv_name = "-852" then
+        elsif conv_name = "852" then
           conv2unicode(stri, cp_852);
-        elsif conv_name = "-855" then
+        elsif conv_name = "855" then
           conv2unicode(stri, cp_855);
-        elsif conv_name = "-857" then
+        elsif conv_name = "857" then
           conv2unicode(stri, cp_857);
-        elsif conv_name = "-858" then
+        elsif conv_name = "858" then
           conv2unicode(stri, cp_858);
-        elsif conv_name = "-860" then
+        elsif conv_name = "860" then
           conv2unicode(stri, cp_860);
-        elsif conv_name = "-861" then
+        elsif conv_name = "861" then
           conv2unicode(stri, cp_861);
-        elsif conv_name = "-862" then
+        elsif conv_name = "862" then
           conv2unicode(stri, cp_862);
-        elsif conv_name = "-863" then
+        elsif conv_name = "863" then
           conv2unicode(stri, cp_863);
-        elsif conv_name = "-864" then
+        elsif conv_name = "864" then
           conv2unicode(stri, cp_864);
-        elsif conv_name = "-865" then
+        elsif conv_name = "865" then
           conv2unicode(stri, cp_865);
-        elsif conv_name = "-866" then
+        elsif conv_name = "866" then
           conv2unicode(stri, cp_866);
-        elsif conv_name = "-869" then
+        elsif conv_name = "869" then
           conv2unicode(stri, cp_869);
-        elsif conv_name = "-874" then
+        elsif conv_name = "874" then
           conv2unicode(stri, cp_874);
-        elsif conv_name = "-1125" then
+        elsif conv_name = "1125" then
           conv2unicode(stri, cp_1125);
-        elsif conv_name = "-1250" then
+        elsif conv_name = "1250" then
           conv2unicode(stri, cp_1250);
-        elsif conv_name = "-1251" then
+        elsif conv_name = "1251" then
           conv2unicode(stri, cp_1251);
-        elsif conv_name = "-1252" then
+        elsif conv_name = "1252" then
           conv2unicode(stri, cp_1252);
-        elsif conv_name = "-1253" then
+        elsif conv_name = "1253" then
           conv2unicode(stri, cp_1253);
-        elsif conv_name = "-1254" then
+        elsif conv_name = "1254" then
           conv2unicode(stri, cp_1254);
-        elsif conv_name = "-1255" then
+        elsif conv_name = "1255" then
           conv2unicode(stri, cp_1255);
-        elsif conv_name = "-1256" then
+        elsif conv_name = "1256" then
           conv2unicode(stri, cp_1256);
-        elsif conv_name = "-1257" then
+        elsif conv_name = "1257" then
           conv2unicode(stri, cp_1257);
-        elsif conv_name = "-1258" then
+        elsif conv_name = "1258" then
           conv2unicode(stri, cp_1258);
-        elsif conv_name = "-8859-1" or
-              conv_name = "-latin-1" then
+        elsif conv_name = "8859-1" or
+              conv_name = "latin-1" then
           noop;
-        elsif conv_name = "-8859-2" or
-              conv_name = "-latin-2" then
+        elsif conv_name = "8859-2" or
+              conv_name = "latin-2" then
           conv2unicode(stri, iso_8859_2);
-        elsif conv_name = "-8859-3" or
-              conv_name = "-latin-3" then
+        elsif conv_name = "8859-3" or
+              conv_name = "latin-3" then
           conv2unicode(stri, iso_8859_3);
-        elsif conv_name = "-8859-4" or
-              conv_name = "-latin-4" then
+        elsif conv_name = "8859-4" or
+              conv_name = "latin-4" then
           conv2unicode(stri, iso_8859_4);
-        elsif conv_name = "-8859-5" then
+        elsif conv_name = "8859-5" then
           conv2unicode(stri, iso_8859_5);
-        elsif conv_name = "-8859-6" then
+        elsif conv_name = "8859-6" then
           conv2unicode(stri, iso_8859_6);
-        elsif conv_name = "-8859-7" then
+        elsif conv_name = "8859-7" then
           conv2unicode(stri, iso_8859_7);
-        elsif conv_name = "-8859-8" then
+        elsif conv_name = "8859-8" then
           conv2unicode(stri, iso_8859_8);
-        elsif conv_name = "-8859-9" or
-              conv_name = "-latin-5" then
+        elsif conv_name = "8859-9" or
+              conv_name = "latin-5" then
           conv2unicode(stri, iso_8859_9);
-        elsif conv_name = "-8859-10" or
-              conv_name = "-latin-6" then
+        elsif conv_name = "8859-10" or
+              conv_name = "latin-6" then
           conv2unicode(stri, iso_8859_10);
-        elsif conv_name = "-8859-11" then
+        elsif conv_name = "8859-11" then
           conv2unicode(stri, iso_8859_11);
-        elsif conv_name = "-8859-13" or
-              conv_name = "-latin-7" then
+        elsif conv_name = "8859-13" or
+              conv_name = "latin-7" then
           conv2unicode(stri, iso_8859_13);
-        elsif conv_name = "-8859-14" or
-              conv_name = "-latin-8" then
+        elsif conv_name = "8859-14" or
+              conv_name = "latin-8" then
           conv2unicode(stri, iso_8859_14);
-        elsif conv_name = "-8859-15" or
-              conv_name = "-latin-9" then
+        elsif conv_name = "8859-15" or
+              conv_name = "latin-9" then
           conv2unicode(stri, iso_8859_15);
-        elsif conv_name = "-8859-16" then
+        elsif conv_name = "8859-16" then
           conv2unicode(stri, iso_8859_16);
-        elsif conv_name = "-037" then
+        elsif conv_name = "037" then
           conv2unicode(stri, cp_037);
-        elsif conv_name = "-273" then
+        elsif conv_name = "273" then
           conv2unicode(stri, cp_273);
-        elsif conv_name = "-277" then
+        elsif conv_name = "277" then
           conv2unicode(stri, cp_277);
-        elsif conv_name = "-280" then
+        elsif conv_name = "280" then
           conv2unicode(stri, cp_280);
-        elsif conv_name = "-285" then
+        elsif conv_name = "285" then
           conv2unicode(stri, cp_285);
-        elsif conv_name = "-297" then
+        elsif conv_name = "297" then
           conv2unicode(stri, cp_297);
-        elsif conv_name = "-500" then
+        elsif conv_name = "500" then
           conv2unicode(stri, cp_500);
-        elsif conv_name = "-1047" then
+        elsif conv_name = "1047" then
           conv2unicode(stri, cp_1047);
+        elsif conv_name = "UTF-16BE" then
+          if startsWith(stri, "\254;\255;") then
+            stri := utf16beToStri(stri[3 ..]);
+          elsif startsWith(stri, "\255;\254;") then
+            stri := utf16leToStri(stri[3 ..]);
+          else
+            stri := utf16beToStri(stri);
+          end if;
+        elsif conv_name = "UTF-16LE" then
+          if startsWith(stri, "\255;\254;") then
+            stri := utf16leToStri(stri[3 ..]);
+          elsif startsWith(stri, "\254;\255;") then
+            stri := utf16beToStri(stri[3 ..]);
+          else
+            stri := utf16leToStri(stri);
+          end if;
         else
-          conv2unicodeByName(stri, conv_name);
+          block
+            conv2unicodeByName(stri, conv_name);
+          exception
+            catch RANGE_ERROR:
+              writeln(" *** Unsupported codepage: " <& conv_name);
+              writeln("Use the option -? for a list of codepages.");
+              stri := "";
+          end block;
         end if;
         if stri <> "" then
           if out_name <> "" then
             out_file := openUtf8(out_name, "w");
           else
-            out_file := STD_UTF8_OUT;
+            out_file := STD_CONSOLE;
           end if;
           if out_file <> STD_NULL then
             write(out_file, stri);

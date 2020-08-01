@@ -254,15 +254,15 @@ rtlArrayType getArgv (const int argc, const wstriType *const argv,
                         "err_info=%d\n",
                         argc, argv[0], err_info););
       } else {
-        if (exePath != NULL) {
-          *exePath = getExecutablePath(arg_0_temp);
-          if (*exePath == NULL) {
-            err_info = MEMORY_ERROR;
-          } /* if */
-        } /* if */
         if (programName != NULL) {
           *programName = getProgramName(arg_0_temp);
           if (*programName == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
+        } /* if */
+        if (exePath != NULL) {
+          *exePath = getExecutablePath(arg_0_temp);
+          if (*exePath == NULL) {
             err_info = MEMORY_ERROR;
           } /* if */
         } /* if */
@@ -321,15 +321,15 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
                           "err_info=%d\n",
                           argc, w_argv[0], err_info););
         } else {
-          if (exePath != NULL) {
-            *exePath = getExecutablePath(arg_0_temp);
-            if (*exePath == NULL) {
-              err_info = MEMORY_ERROR;
-            } /* if */
-          } /* if */
           if (programName != NULL) {
             *programName = getProgramName(arg_0_temp);
             if (*programName == NULL) {
+              err_info = MEMORY_ERROR;
+            } /* if */
+          } /* if */
+          if (exePath != NULL) {
+            *exePath = getExecutablePath(arg_0_temp);
+            if (*exePath == NULL) {
               err_info = MEMORY_ERROR;
             } /* if */
           } /* if */
@@ -383,15 +383,15 @@ rtlArrayType getArgv (const int argc, const cstriType *const argv,
                         "err_info=%d\n",
                         argc, argv[0], err_info););
       } else {
-        if (exePath != NULL) {
-          *exePath = getExecutablePath(arg_0_temp);
-          if (*exePath == NULL) {
-            err_info = MEMORY_ERROR;
-          } /* if */
-        } /* if */
         if (programName != NULL) {
           *programName = getProgramName(arg_0_temp);
           if (*programName == NULL) {
+            err_info = MEMORY_ERROR;
+          } /* if */
+        } /* if */
+        if (exePath != NULL) {
+          *exePath = getExecutablePath(arg_0_temp);
+          if (*exePath == NULL) {
             err_info = MEMORY_ERROR;
           } /* if */
         } /* if */

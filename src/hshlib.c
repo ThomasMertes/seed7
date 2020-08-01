@@ -1190,11 +1190,20 @@ objectType hsh_incl (listType arguments)
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
     data_copy_func   = take_reference(arg_8(arguments));
+    logFunction(printf("hsh_incl(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ", "
+                       FMT_U ", " FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ", "
+                       FMT_X_MEM ")\n",
+                       (memSizeType) aHashMap, (memSizeType) aKey, (memSizeType) data,
+                       hashcode, cmp_func, key_create_func, data_create_func,
+                       data_copy_func););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
       aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
           key_create_func, data_create_func, &err_info);
       aHashMap->size++;
+    } else if (unlikely(cmp_func == NULL)) {
+      logError(printf("hsh_incl: cmp_func == NULL\n"););
+      return raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } else {
       do {
         cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
@@ -1361,11 +1370,18 @@ objectType hsh_update (listType arguments)
     cmp_func         = take_reference(arg_5(arguments));
     key_create_func  = take_reference(arg_6(arguments));
     data_create_func = take_reference(arg_7(arguments));
+    logFunction(printf("hsh_update(" FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ", "
+                       FMT_U ", " FMT_X_MEM ", " FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) aHashMap, (memSizeType) aKey, (memSizeType) data,
+                       hashcode, cmp_func, key_create_func, data_create_func););
     hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
     if (hashelem == NULL) {
       aHashMap->table[(unsigned int) hashcode & aHashMap->mask] = new_helem(aKey, data,
           key_create_func, data_create_func, &err_info);
       aHashMap->size++;
+    } else if (unlikely(cmp_func == NULL)) {
+      logError(printf("hsh_update: cmp_func == NULL\n"););
+      return raise_with_arguments(SYS_RNG_EXCEPTION, arguments);
     } else {
       do {
         cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);

@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  striutl.c     Procedures to work with wide char strings.        */
-/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2015  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/striutl.c                                       */
-/*  Changes: 1991 - 1994, 2005 - 2014  Thomas Mertes                */
+/*  Changes: 1991 - 1994, 2005 - 2015  Thomas Mertes                */
 /*  Content: Procedures to work with wide char strings.             */
 /*                                                                  */
 /********************************************************************/
@@ -2623,44 +2623,3 @@ os_striType cp_to_command (const const_striType commandPath,
     logFunction(printf("cp_to_command -> " FMT_S_OS "\n", result););
     return result;
   } /* cp_to_command */
-
-
-
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-striType relativeToProgramPath (const const_striType basePath,
-    const const_cstriType dir)
-
-  {
-    memSizeType dir_path_size;
-    memSizeType position;
-    memSizeType len;
-    striType result;
-
-  /* relativeToProgramPath */
-    dir_path_size = 0;
-    for (position = 0; position < basePath->size; position++) {
-      if (basePath->mem[position] == '/') {
-        dir_path_size = position;
-      } /* if */
-    } /* for */
-    if (dir_path_size >= 4 &&
-        basePath->mem[dir_path_size - 4] == '/' && ((
-        basePath->mem[dir_path_size - 3] == 'b' &&
-        basePath->mem[dir_path_size - 2] == 'i' &&
-        basePath->mem[dir_path_size - 1] == 'n') || (
-        basePath->mem[dir_path_size - 3] == 'p' &&
-        basePath->mem[dir_path_size - 2] == 'r' &&
-        basePath->mem[dir_path_size - 1] == 'g'))) {
-      len = strlen(dir);
-      if (likely(ALLOC_STRI_SIZE_OK(result, dir_path_size - 3 + len))) {
-        result->size = dir_path_size - 3 + len;
-        memcpy(result->mem, basePath->mem, (dir_path_size - 3) * sizeof(strElemType));
-        memcpy_to_strelem(&result->mem[dir_path_size - 3],
-                          (const_ustriType) dir, len);
-      } /* if */
-    } else if (likely(ALLOC_STRI_SIZE_OK(result, 0))) {
-      result-> size = 0;
-    } /* if */
-    return result;
-  } /* relativeToProgramPath */
-#endif

@@ -240,12 +240,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2015-10-29 the number of lines is:
+than 200000 lines of Seed7. For version 2015-11-10 the number of lines is:
 
-  125961  C source files (*.c)
-   10117  C header files (*.h)
-  132341  Seed7 source files (*.sd7)
-  131694  Seed7 library/include files (*.s7i)
+  125964  C source files (*.c)
+   10119  C header files (*.h)
+  132371  Seed7 source files (*.sd7)
+  131696  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1791,21 +1791,15 @@ library directories:
  1. The directory of the interpreted program. E.g.: When the program
     '/home/abc/test/pairs.sd7' is interpreted the directory '/home/abc/test'
     is in the list of library directories.
- 2. This point is only in effect when the interpreter was not compiled from source
-    (The C preprocessor macro PATHS_RELATIVE_TO_EXECUTABLE is defined): Interpreter
-    and compiler from the binary release use '../lib' relative to the directory of
-    the 's7' interpreter executable. E.g.: When the interpreter is in the directory
-    '/home/abc/seed7/bin' the directory '/home/abc/seed7/lib' is in the list of
-    library directories.
- 3. The directories that are specified at the command-line with the option -l.
- 4. The directory containing the predefined Seed7 include libraries. This
+ 2. The directories that are specified at the command-line with the option -l.
+ 3. The directory containing the predefined Seed7 include libraries. This
     directory is hard-coded in the interpreter (an absolute path like
     '/directory_where_Seed7_was_installed/seed7/lib'). The hard-coded library
     directory is determined when the interpreter is compiled. When the interpreter
     was not compiled from source (binary release) the path '../lib' relative to the
     current working directory is used.
- 5. The directory specified with the SEED7_LIBRARY environment variable.
- 6. Directories specified in the source file with the library pragma.
+ 4. The directory specified with the SEED7_LIBRARY environment variable.
+ 5. Directories specified in the source file with the library pragma.
     E.g.: The line: $ library "/home/abc/seed7/lib" adds the directory
     '/home/abc/seed7/lib' to the list of library directories.
 
@@ -1832,18 +1826,6 @@ contains the line:
 
 The preprocessor macro SEED7_LIBRARY is used by the function init_lib_path(), which
 is defined in 'seed7/src/infile.c'.
-
-When the interpreter of a binary release is compiled, a slightly modified makefile
-is used. The command 'make depend' writes the following preprocessor macro
-definitions to the file
-'version.h':
-
-  #define PATHS_RELATIVE_TO_EXECUTABLE
-  #define SEED7_LIBRARY "../lib"
-
-The preprocessor macro PATHS_RELATIVE_TO_EXECUTABLE is used by the function
-init_lib_path(), to add a path relative to the interpreter or compiler executable,
-to the library search list (lib_path).
 
 Interpreter and compiler use the same strategy to determine the directory with
 predefined include libraries.

@@ -153,8 +153,6 @@
 extern os_striType *os_environ;
 #endif
 
-extern striType programPath; /* defined in s7.c or in the executable of a program */
-
 #ifdef FILE_UNKNOWN
 #undef FILE_UNKNOWN
 #endif
@@ -1329,19 +1327,9 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "EXECUTABLE_FILE_EXTENSION") == 0) {
         opt = EXECUTABLE_FILE_EXTENSION;
       } else if (strcmp(opt_name, "C_COMPILER") == 0) {
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin/call_gcc");
-        opt = NULL;
-#else
         opt = C_COMPILER;
-#endif
       } else if (strcmp(opt_name, "CPLUSPLUS_COMPILER") == 0) {
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin/call_gcc");
-        opt = NULL;
-#else
         opt = CPLUSPLUS_COMPILER;
-#endif
       } else if (strcmp(opt_name, "C_COMPILER_VERSION") == 0) {
         opt = C_COMPILER_VERSION;
       } else if (strcmp(opt_name, "GET_CC_VERSION_INFO") == 0) {
@@ -1381,12 +1369,7 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "COMPILER_LIB") == 0) {
         opt = COMPILER_LIB;
       } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
-#ifdef PATHS_RELATIVE_TO_EXECUTABLE
-        result = relativeToProgramPath(programPath, "bin");
-        opt = NULL;
-#else
         opt = S7_LIB_DIR;
-#endif
       } else if (strcmp(opt_name, "BOOLTYPE") == 0) {
         opt = BOOLTYPE_STRI;
       } else if (strcmp(opt_name, "INT32TYPE") == 0) {

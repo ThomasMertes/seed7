@@ -133,7 +133,7 @@ static void free_args (objectType arg_v)
 
 
 void interpret (const const_progType currentProg, const const_rtlArrayType argv,
-                memSizeType argv_start, uintType options, const const_striType prot_file_name)
+    memSizeType argvStart, uintType options, const const_striType protFileName)
 
   {
     progRecord prog_backup;
@@ -153,8 +153,8 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
         setup_signal_handlers((options & HANDLE_SIGNALS) != 0,
                               (options & TRACE_SIGNALS) != 0);
         set_trace(prog.option_flags);
-        set_protfile_name(prot_file_name);
-        prog.arg_v = copy_args(argv, argv_start);
+        set_protfile_name(protFileName);
+        prog.arg_v = copy_args(argv, argvStart);
         if (prog.arg_v == NULL) {
           raise_error(MEMORY_ERROR);
         } else {
@@ -314,14 +314,14 @@ objectType prgEval (progType currentProg, objectType object)
 
 
 void prgExec (const const_progType currentProg, const const_rtlArrayType argv,
-    const const_setType options, const const_striType prot_file_name)
+    const const_setType options, const const_striType protFileName)
 
   {
     uintType int_options;
 
   /* prgExec */
     int_options = (uintType) setSConv(options);
-    interpret(currentProg, argv, 0, int_options, prot_file_name);
+    interpret(currentProg, argv, 0, int_options, protFileName);
     set_fail_flag(FALSE);
     fail_value = (objectType) NULL;
     fail_expression = (listType) NULL;
@@ -330,7 +330,7 @@ void prgExec (const const_progType currentProg, const const_rtlArrayType argv,
 
 
 progType prgFilParse (const const_striType fileName, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType prot_file_name)
+    const const_rtlArrayType libraryDirs, const const_striType protFileName)
 
   {
     uintType int_options;
@@ -341,9 +341,9 @@ progType prgFilParse (const const_striType fileName, const const_setType options
     logFunction(printf("prgFilParse(\"%s\")\n", striAsUnquotedCStri(fileName)););
     int_options = (uintType) setSConv(options);
     /* printf("options: %03x\n", int_options); */
-    result = analyze_file(fileName, int_options, libraryDirs, prot_file_name, &err_info);
+    result = analyzeFile(fileName, int_options, libraryDirs, protFileName, &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      logError(printf("prgFilParse(\"%s\"): analyze_file() failed:\n"
+      logError(printf("prgFilParse(\"%s\"): analyzeFile() failed:\n"
                       "int_options=" F_X(03) "\nerr_info=%d\n",
                       striAsUnquotedCStri(fileName), int_options, err_info););
       raise_error(err_info);
@@ -463,7 +463,7 @@ const_striType prgPath (const const_progType aProg)
 
 
 progType prgStrParse (const const_striType stri, const const_setType options,
-    const const_rtlArrayType libraryDirs, const const_striType prot_file_name)
+    const const_rtlArrayType libraryDirs, const const_striType protFileName)
 
   {
     uintType int_options;
@@ -473,9 +473,9 @@ progType prgStrParse (const const_striType stri, const const_setType options,
   /* prgStrParse */
     logFunction(printf("prgStrParse(\"%s\")\n", striAsUnquotedCStri(stri)););
     int_options = (uintType) setSConv(options);
-    result = analyze_string(stri, int_options, libraryDirs, prot_file_name, &err_info);
+    result = analyzeString(stri, int_options, libraryDirs, protFileName, &err_info);
     if (err_info != OKAY_NO_ERROR) {
-      logError(printf("prgStrParse(\"%s\"): analyze_string() failed:\n"
+      logError(printf("prgStrParse(\"%s\"): analyzeString() failed:\n"
                       "int_options=" F_X(03) "\nerr_info=%d\n",
                       striAsUnquotedCStri(stri), int_options, err_info););
       raise_error(err_info);

@@ -421,6 +421,7 @@ const func bigInteger: (attr bigInteger) parse (in string: stri)         is acti
  *   bigInteger("-77777777777", 8)  returns -8589934591_
  *   bigInteger("10101010", 2)      returns         170_
  *   bigInteger("Cafe", 16)         returns       51966_
+ *  @param base Radix of the integer in the ''stri'' parameter.
  *  @return the ''bigInteger'' result of the conversion.
  *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
  *             the string is empty or it does not contain an integer

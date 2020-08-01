@@ -27,6 +27,6 @@
 
 void find_include_file (const_striType include_file_name, errInfoType *err_info);
 void append_to_lib_path (const_striType path, errInfoType *err_info);
-void init_lib_path (const_striType source_file_name,
+void init_lib_path (const_striType sourceFileName,
     const const_rtlArrayType seed7_libraries, errInfoType *err_info);
 void free_lib_path (void);
