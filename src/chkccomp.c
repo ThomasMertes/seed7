@@ -181,6 +181,9 @@ void cleanUpCompilation (void)
     if (stat("ctest.cerrs", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
       remove("ctest.cerrs");
     } /* if */
+    if (stat("ctest.lerrs", &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+      remove("ctest.lerrs");
+    } /* if */
     sprintf(fileName, "ctest%s", OBJECT_FILE_EXTENSION);
     if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
       remove(fileName);
@@ -196,10 +199,9 @@ void cleanUpCompilation (void)
 
 
 
-int compilationOkay (const char *content)
+int doCompileAndLink (const char *options)
 
   {
-    FILE *testFile;
     char command[1024];
     int len;
     struct stat stat_buf;
@@ -207,53 +209,74 @@ int compilationOkay (const char *content)
     int returncode;
     int result = 0;
 
-  /* compilationOkay */
+  /* doCompileAndLink */
+#ifdef CC_FLAGS
+    sprintf(command, "%s %s %s ctest.c", c_compiler, options, CC_FLAGS);
+#else
+    sprintf(command, "%s %s ctest.c", c_compiler, options);
+#endif
+#if defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
+    sprintf(&command[strlen(command)], " %sctest%s",
+            LINKER_OPT_OUTPUT_FILE, EXECUTABLE_FILE_EXTENSION);
+#endif
+#ifdef REDIRECT_C_ERRORS
+    sprintf(&command[strlen(command)], " %sctest.cerrs",
+            REDIRECT_C_ERRORS);
+#endif
+#ifdef QUOTE_WHOLE_SHELL_COMMAND
+    if (command[0] == '\"') {
+      len = strlen(command);
+      memmove(&command[1], command, len);
+      command[0] = '\"';
+      command[len + 1] = '\"';
+      command[len + 2] = '\0';
+    } /* if */
+#endif
+    returncode = system(command);
+    sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
+    if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
+      if (returncode == 0) {
+        result = 1;
+      } else {
+        puts("#define CC_FAILS_BUT_CREATES_EXECUTABLE");
+      } /* if */
+    } /* if */
+#ifdef DEBUG_CHKCCOMP
+    printf("/* command: %s */\n", command);
+    printf("/* content: %s */\n", content);
+    printf("/* returncode: %d */\n", returncode);
+    printf("/* result: %d */\n", result);
+#endif
+    return result;
+  } /* doCompileAndLink */
+
+
+
+int compileAndLinkWithOptionsOk (const char *content, const char *options)
+
+  {
+    FILE *testFile;
+    int result = 0;
+
+  /* compileAndLinkWithOptionsOk */
     /* printf("/\* %s *\/\n", content); */
     cleanUpCompilation();
     testFile = fopen("ctest.c", "w");
     if (testFile != NULL) {
       fprintf(testFile, "%s", content);
       fclose(testFile);
-#ifdef CC_FLAGS
-      sprintf(command, "%s %s ctest.c", c_compiler, CC_FLAGS);
-#else
-      sprintf(command, "%s ctest.c", c_compiler);
-#endif
-#if defined LINKER_OPT_OUTPUT_FILE && !defined CC_NO_OPT_OUTPUT_FILE
-      sprintf(&command[strlen(command)], " %sctest%s",
-              LINKER_OPT_OUTPUT_FILE, EXECUTABLE_FILE_EXTENSION);
-#endif
-#ifdef REDIRECT_C_ERRORS
-      sprintf(&command[strlen(command)], " %sctest.cerrs",
-              REDIRECT_C_ERRORS);
-#endif
-#ifdef QUOTE_WHOLE_SHELL_COMMAND
-      if (command[0] == '\"') {
-        len = strlen(command);
-        memmove(&command[1], command, len);
-        command[0] = '\"';
-        command[len + 1] = '\"';
-        command[len + 2] = '\0';
-      } /* if */
-#endif
-      returncode = system(command);
-      sprintf(fileName, "ctest%s", EXECUTABLE_FILE_EXTENSION);
-      if (stat(fileName, &stat_buf) == 0 && S_ISREG(stat_buf.st_mode)) {
-        if (returncode == 0) {
-          result = 1;
-        } else {
-          puts("#define CC_FAILS_BUT_CREATES_EXECUTABLE");
-        } /* if */
-      } /* if */
-#ifdef DEBUG_CHKCCOMP
-      printf("/* command: %s */\n", command);
-      printf("/* content: %s */\n", content);
-      printf("/* returncode: %d */\n", returncode);
-      printf("/* result: %d */\n", result);
-#endif
+      result = doCompileAndLink(options);
     } /* if */
     return result;
-  } /* compilationOkay */
+  } /* compileAndLinkWithOptionsOk */
+
+
+
+int compileAndLinkOk (const char *content)
+
+  { /* compileAndLinkOk */
+    return compileAndLinkWithOptionsOk(content, "");
+  } /* compileAndLinkOk */
 
 
 
@@ -286,13 +309,13 @@ void determineEnvironDefines (void)
 
   /* determineEnvironDefines */
     buffer[0] = '\0';
-    if (compilationOkay("#include <stdlib.h>\n#include \"version.h\"\n"
-                        "int main(int argc,char *argv[])"
-                        "{os_environ;return 0;}\n")) {
+    if (compileAndLinkOk("#include <stdlib.h>\n#include \"version.h\"\n"
+                         "int main(int argc,char *argv[])"
+                         "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include <stdlib.h>\n");
-    } else if (compilationOkay("#include <unistd.h>\n#include \"version.h\"\n"
-                               "int main(int argc,char *argv[])"
-                               "{os_environ;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include <unistd.h>\n#include \"version.h\"\n"
+                                "int main(int argc,char *argv[])"
+                                "{os_environ;return 0;}\n")) {
       strcat(buffer, "#include <unistd.h>\n");
     } else {
       printf("#define DEFINE_OS_ENVIRON\n");
@@ -314,7 +337,7 @@ void determineEnvironDefines (void)
     strcat(buffer, "int main(int argc,char *argv[])");
 #endif
     strcat(buffer, "{printf(\"%d\\n\",os_environ==(os_striType *)0);return 0;}\n");
-    if (!compilationOkay(buffer) || doTest() == 1) {
+    if (!compileAndLinkOk(buffer) || doTest() == 1) {
       printf("#define INITIALIZE_OS_ENVIRON\n");
     } /* if */
   } /* determineEnvironDefines */
@@ -370,7 +393,7 @@ void checkForLimitedStringLiteralLength (void)
     /* printf("%s\n", buffer); */
     /* Some C compilers limit the maximum string literal length. */
     /* There are limits of 2,048 bytes and 16,384 (16K) bytes.   */
-    if (!compilationOkay(buffer)) {
+    if (!compileAndLinkOk(buffer)) {
       /* A string literal of size repeatCount * lineLength is not accepted. */
       puts("#define LIMITED_CSTRI_LITERAL_LEN");
     } /* if */
@@ -391,6 +414,108 @@ void detemineStackDirection (void)
       puts("#define STACK_GROWS_DOWNWARD");
     } /* if */
   } /* detemineStackDirection */
+
+
+
+void appendToFile (const char *fileName, const char *data)
+
+  {
+    FILE *outFile;
+
+  /* appendToFile */
+    outFile = fopen(fileName, "a");
+    if (outFile != NULL) {
+      fputs(data, outFile);
+      fclose(outFile);
+    } /* if */
+  } /* appendToFile */
+
+
+
+void detemineDatabaseDefines (void)
+
+  {
+    char *oracle_home;
+    char *db_libs;
+    char *include_opt;
+    char include_options[4096];
+    char system_db_libs[4096];
+    char buffer[4096];
+
+  /* detemineDatabaseDefines */
+    include_options[0] = '\0';
+    system_db_libs[0] = '\0';
+#ifdef WITH_SQL
+    if (compileAndLinkOk("#include <mysql/mysql.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define MYSQL_INCLUDE \"mysql/mysql.h\"");
+#ifdef MYSQL_LIBS
+      db_libs = MYSQL_LIBS;
+#else
+      db_libs = "-lmysqlclient";
+#endif
+      if (system_db_libs[0] != '\0') {
+        strcat(system_db_libs, " ");
+      } /* if */
+      strcat(system_db_libs, db_libs);
+    } /* if */
+    if (compileAndLinkOk("#include <sqlite3.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define SQLITE_INCLUDE \"sqlite3.h\"");
+#ifdef SQLITE_LIBS
+      db_libs = SQLITE_LIBS;
+#else
+      db_libs = "-lsqlite3";
+#endif
+      if (system_db_libs[0] != '\0') {
+        strcat(system_db_libs, " ");
+      } /* if */
+      strcat(system_db_libs, db_libs);
+    } /* if */
+    if (compileAndLinkOk("#include <postgresql/libpq-fe.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+      puts("#define POSTGRESQL_INCLUDE \"postgresql/libpq-fe.h\"");
+#ifdef POSTGRESQL_LIBS
+      db_libs = POSTGRESQL_LIBS;
+#else
+      db_libs = "-lpq";
+#endif
+      if (system_db_libs[0] != '\0') {
+        strcat(system_db_libs, " ");
+      } /* if */
+      strcat(system_db_libs, db_libs);
+    } /* if */
+    if ((oracle_home = getenv("ORACLE_HOME")) != NULL) {
+      sprintf(buffer, "-I%s/rdbms/public -L%s/lib -lclntsh -lnnz11", oracle_home, oracle_home);
+      if (compileAndLinkWithOptionsOk("#include \"oci.h\"\nint main(int argc,char *argv[]){return 0;}\n",
+                                      buffer)) {
+        puts("#define OCI_INCLUDE \"oci.h\"");
+#ifdef OCI_INCLUDE_OPTION
+        include_opt = OCI_INCLUDE_OPTION;
+#else
+        sprintf(buffer, "-I%s/rdbms/public", oracle_home);
+        include_opt = buffer;
+#endif
+        if (include_options[0] != '\0') {
+          strcat(include_options, " ");
+        } /* if */
+        strcat(include_options, include_opt);
+#ifdef OCI_LIBS
+        db_libs = OCI_LIBS;
+#else
+        sprintf(buffer, "-L%s/lib -lclntsh -lnnz11 -Wl,-rpath=%s/lib", oracle_home, oracle_home);
+        db_libs = buffer;
+#endif
+        if (system_db_libs[0] != '\0') {
+          strcat(system_db_libs, " ");
+        } /* if */
+        strcat(system_db_libs, db_libs);
+      } /* if */
+    } /* if */
+#endif
+    printf("#define SYSTEM_DB_LIBS \"%s\"\n", system_db_libs);
+    sprintf(buffer, "INCLUDE_OPTIONS = %s\n", include_options);
+    appendToFile("macros", buffer);
+    sprintf(buffer, "SYSTEM_DB_LIBS = %s\n", system_db_libs);
+    appendToFile("macros", buffer);
+  } /* detemineDatabaseDefines */
 
 
 
@@ -444,34 +569,34 @@ int main (int argc, char **argv)
       puts("\"");
       fclose(aFile);
     } /* if */
-    if (compilationOkay("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
+    if (compileAndLinkOk("#include <unistd.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
       puts("#define UNISTD_H_PRESENT");
     } /* if */
-    if (!compilationOkay("static inline int test(int a){return 2*a;}\n"
-                         "int main(int argc,char *argv[]){return test(argc);}\n")) {
+    if (!compileAndLinkOk("static inline int test(int a){return 2*a;}\n"
+                          "int main(int argc,char *argv[]){return test(argc);}\n")) {
       puts("#define inline");
     } /* if */
-    if (!compilationOkay("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
-                         "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA+ptrB;}\n"
-                         "int main(int argc,char *argv[])\n"
-                         "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
+    if (!compileAndLinkOk("int test (int *restrict ptrA, int *restrict ptrB, int *restrict ptrC)\n"
+                          "{*ptrA += *ptrC; *ptrB += *ptrC; return *ptrA+ptrB;}\n"
+                          "int main(int argc,char *argv[])\n"
+                          "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
       puts("#define restrict");
     } /* if */
-    if (compilationOkay("#include <stdio.h>\nint main(int argc,char *argv[])\n"
-                        "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
+                         "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {
       puts("#define likely(x)   __builtin_expect((x),1)");
       puts("#define unlikely(x) __builtin_expect((x),0)");
     } /* if */
-    if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                        "{FILE *aFile; aFile=popen(\""
-                        LIST_DIRECTORY_CONTENTS
-                        "\", \"r\");\n"
-                        "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n") ||
-        compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                        "{FILE *aFile; aFile=_popen(\""
-                        LIST_DIRECTORY_CONTENTS
-                        "\", \"r\");\n"
-                        "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n")) {
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{FILE *aFile; aFile=popen(\""
+                         LIST_DIRECTORY_CONTENTS
+                         "\", \"r\");\n"
+                         "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n") ||
+        compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                         "{FILE *aFile; aFile=_popen(\""
+                         LIST_DIRECTORY_CONTENTS
+                         "\", \"r\");\n"
+                         "printf(\"%d\\n\", ftell(aFile) != -1); return 0;}\n")) {
       if (doTest() == 1) {
         puts("#define FTELL_WRONG_FOR_PIPE");
       } /* if */
@@ -490,7 +615,7 @@ int main (int argc, char **argv)
       remove("tmp_test_file");
     } /* if */
     mkdir("tmp_empty_dir",0x755);
-    if (compilationOkay(
+    if (compileAndLinkOk(
         "#include <stdio.h>\n#include <utime.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
         "{struct utimbuf utime_buf;\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
@@ -504,7 +629,7 @@ int main (int argc, char **argv)
       puts("#define os_utime_orig utime");
 #endif
       puts("#define os_utime alternate_utime");
-    } else if (compilationOkay(
+    } else if (compileAndLinkOk(
         "#include <stdio.h>\n#include <sys/utime.h>\n#include <errno.h>\nint main(int argc,char *argv[])"
         "{struct utimbuf utime_buf;\n"
         "utime_buf.actime=1234567890;utime_buf.modtime=1234567890;\n"
@@ -532,8 +657,8 @@ int main (int argc, char **argv)
     printf("#define SHORT_SIZE %lu\n",    (long unsigned) (8 * sizeof(short)));
     printf("#define INT_SIZE %lu\n",      (long unsigned) (8 * sizeof(int)));
     printf("#define LONG_SIZE %lu\n",     (long unsigned) (8 * sizeof(long)));
-    if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
-                        "{printf(\"%d\\n\",sizeof(long long));return 0;}\n")) {
+    if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
+                         "{printf(\"%d\\n\",sizeof(long long));return 0;}\n")) {
       testResult = doTest();
       if (testResult != -1) {
         printf("#define LONG_LONG_SIZE %lu\n",     (long unsigned) (8 * testResult));
@@ -570,52 +695,52 @@ int main (int argc, char **argv)
       puts("#define UINT64TYPE_STRI \"unsigned long\"");
       puts("#define INT64TYPE_SUFFIX_L");
       puts("#define INT64TYPE_FORMAT_L");
-    } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
-                               "{printf(\"%d\\n\",sizeof(long long));return 0;}\n") && doTest() == 8) {
+    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
+                                "{printf(\"%d\\n\",sizeof(long long));return 0;}\n") && doTest() == 8) {
       /* The type long long is defined and it is a 64-bit type */
       puts("#define INT64TYPE long long");
       puts("#define INT64TYPE_STRI \"long long\"");
       puts("#define UINT64TYPE unsigned long long");
       puts("#define UINT64TYPE_STRI \"unsigned long long\"");
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
-                          "{long long n=12345678LL;return 0;}\n")) {
+      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
+                           "{long long n=12345678LL;return 0;}\n")) {
         puts("#define INT64TYPE_SUFFIX_LL");
       } /* if */
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                          "{char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
-                          "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                           "{char b[99]; sprintf(b, \"A%lldB\", (long long) 1 << 32);\n"
+                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_LL");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                                 "{char b[99]; sprintf(b, \"A%LdB\", (long long) 1 << 32);\n"
-                                 "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                  "{char b[99]; sprintf(b, \"A%LdB\", (long long) 1 << 32);\n"
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_CAPITAL_L");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                                 "{char b[99]; sprintf(b, \"A%I64dB\", (long long) 1 << 32);\n"
-                                 "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                  "{char b[99]; sprintf(b, \"A%I64dB\", (long long) 1 << 32);\n"
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_I64");
       } /* if */
-    } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                               "{printf(\"%d\\n\",sizeof(__int64));return 0;}\n") && doTest() == 8) {
+    } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                "{printf(\"%d\\n\",sizeof(__int64));return 0;}\n") && doTest() == 8) {
       /* The type __int64 is defined and it is a 64-bit type */
       puts("#define INT64TYPE __int64");
       puts("#define INT64TYPE_STRI \"__int64\"");
       puts("#define UINT64TYPE unsigned __int64");
       puts("#define UINT64TYPE_STRI \"unsigned __int64\"");
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])"
-                          "{__int64 n=12345678LL;return 0;}\n")) {
+      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
+                           "{__int64 n=12345678LL;return 0;}\n")) {
         puts("#define INT64TYPE_SUFFIX_LL");
       } /* if */
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                          "{char b[99]; sprintf(b, \"A%lldB\", (__int64) 1 << 32);\n"
-                          "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                           "{char b[99]; sprintf(b, \"A%lldB\", (__int64) 1 << 32);\n"
+                           "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_LL");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                                 "{char b[99]; sprintf(b, \"A%LdB\", (__int64) 1 << 32);\n"
-                                 "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                  "{char b[99]; sprintf(b, \"A%LdB\", (__int64) 1 << 32);\n"
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_CAPITAL_L");
-      } else if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                                 "{char b[99]; sprintf(b, \"A%I64dB\", (__int64) 1 << 32);\n"
-                                 "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
+      } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                                  "{char b[99]; sprintf(b, \"A%I64dB\", (__int64) 1 << 32);\n"
+                                  "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         puts("#define INT64TYPE_FORMAT_I64");
       } /* if */
     } /* if */
@@ -635,22 +760,22 @@ int main (int argc, char **argv)
       puts("#define BIG_ENDIAN_INTTYPE");
     } /* if */
     determineMallocAlignment();
-    if (compilationOkay("#include<signal.h>\nint main(int argc, char *argv[]){\n"
-                        "signal(SIGBUS,SIG_DFL); return 0;}\n")) {
-      if (compilationOkay("#include<stdlib.h>\n#include <stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc, char *argv[]){\n"
-                          "signal(SIGBUS,handleSig);\n"
-                          "int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
-                          "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
+    if (compileAndLinkOk("#include<signal.h>\nint main(int argc, char *argv[]){\n"
+                         "signal(SIGBUS,SIG_DFL); return 0;}\n")) {
+      if (compileAndLinkOk("#include<stdlib.h>\n#include <stdio.h>\n#include<signal.h>\n"
+                           "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                           "int main(int argc, char *argv[]){\n"
+                           "signal(SIGBUS,handleSig);\n"
+                           "int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
+                           "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
         puts("#define UNALIGNED_MEMORY_ACCESS_OKAY");
       } else {
         puts("#define UNALIGNED_MEMORY_ACCESS_FAILS");
       } /* if */
     } else {
-      if (compilationOkay("#include <stdio.h>\nint main(int argc, char *argv[])\n"
-                          "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
-                          "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
+      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
+                           "{int p[3]={12,34,56}, q, *pp; pp=(int *)((char *)&p[1]+1); q=*pp;\n"
+                           "printf(\"1\\n\"); return 0;}\n") && doTest() == 1) {
         puts("#define UNALIGNED_MEMORY_ACCESS_OKAY");
       } else {
         puts("#define UNALIGNED_MEMORY_ACCESS_FAILS");
@@ -664,16 +789,16 @@ int main (int argc, char **argv)
     if (EOF != -1) {
       puts("#define EOF_IS_NOT_MINUS_ONE");
     } /* if */
-    if (!compilationOkay("#include <stdio.h>\n"
-                         "typedef struct emptyStruct { } emptyRecord;\n"
-                         "int main(int argc, char *argv[]){\n"
-                         "return 0;}\n")) {
+    if (!compileAndLinkOk("#include <stdio.h>\n"
+                          "typedef struct emptyStruct { } emptyRecord;\n"
+                          "int main(int argc, char *argv[]){\n"
+                          "return 0;}\n")) {
       puts("#define NO_EMPTY_STRUCTS");
     } /* if */
-    if (compilationOkay("#include <stdio.h>\n#include <string.h>\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
-                        "return 0;}\n") && doTest() == 1) {
+    if (compileAndLinkOk("#include <stdio.h>\n#include <string.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "printf(\"%d\\n\", strcmp(\"\?\?(\", \"[\") == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
       puts("#define TRIGRAPH_SEQUENCES_ARE_REPLACED");
     } /* if */
     checkForLimitedStringLiteralLength();
@@ -688,31 +813,31 @@ int main (int argc, char **argv)
 #ifdef INT_DIV_BY_ZERO_POPUP
     puts("#define CHECK_INT_DIV_BY_ZERO");
 #else
-    if (!compilationOkay("#include<stdio.h>\n"
-                         "int main(int argc,char *argv[]){"
-                         "printf(\"%d\\n\", 1/0);return 0;}\n") ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",1/0==0);return 0;}\n") || doTest() != 2 ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "int zero=0;\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",1/zero==0);return 0;}\n") || doTest() != 2 ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",0/0==0);return 0;}\n") || doTest() != 2 ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "int zero=0;\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2) {
+    if (!compileAndLinkOk("#include<stdio.h>\n"
+                          "int main(int argc,char *argv[]){"
+                          "printf(\"%d\\n\", 1/0);return 0;}\n") ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",1/0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",1/zero==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",0/0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2) {
       puts("#define CHECK_INT_DIV_BY_ZERO");
     } else {
       puts("#define INT_DIV_BY_ZERO_SIGNALS");
@@ -720,40 +845,40 @@ int main (int argc, char **argv)
       puts("#define DO_SIGFPE_WITH_DIV_BY_ZERO");
 #endif
     } /* if */
-    if (!compilationOkay("#include<stdio.h>\n"
-                         "int main(int argc,char *argv[]){"
-                         "printf(\"%d\\n\", 1%0);return 0;}\n") ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "int zero=0;\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",1%zero==0);return 0;}\n") || doTest() != 2 ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "int one=0, zero=0;\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",one%zero==0);return 0;}\n") || doTest() != 2 ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "int zero1=0, zero2=0;\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2) {
+    if (!compileAndLinkOk("#include<stdio.h>\n"
+                          "int main(int argc,char *argv[]){"
+                          "printf(\"%d\\n\", 1%0);return 0;}\n") ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",1%zero==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int one=0, zero=0;\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",one%zero==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero1=0, zero2=0;\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2) {
       puts("#define CHECK_INT_REM_BY_ZERO");
     } /* if */
-    if (!compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",0%0==0);return 0;}\n") || doTest() != 2 ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "int zero=0;\n"
-                         "signal(SIGFPE,handleSig);\n"
-                         "printf(\"%d\\n\",0%zero==0);return 0;}\n") || doTest() != 2) {
+    if (!compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",0%0==0);return 0;}\n") || doTest() != 2 ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "int zero=0;\n"
+                          "signal(SIGFPE,handleSig);\n"
+                          "printf(\"%d\\n\",0%zero==0);return 0;}\n") || doTest() != 2) {
       puts("#define CHECK_INT_REM_ZERO_BY_ZERO");
     } /* if */
 #endif
@@ -771,28 +896,28 @@ int main (int argc, char **argv)
                strcmp(buffer, "1 2 3 1.3 1.8 0.13 0.38 -0 -1 -2 -1.2 -1.7 -0.12 -0.37") == 0) {
       puts("#define ROUND_HALF_UP");
     } /* if */
-    if (!compilationOkay("#include<stdio.h>\n"
-                         "int main(int argc,char *argv[]){"
-                         "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
-        !compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
+    if (!compileAndLinkOk("#include<stdio.h>\n"
+                          "int main(int argc,char *argv[]){"
+                          "printf(\"%f\", 1.0/0.0);return 0;}\n") ||
+        !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
-                         "_control87(MCW_EM, MCW_EM);\n"
+                          "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                         "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
-                         "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
+                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
+                          "printf(\"%d\\n\",1.0/0.0==0.0);return 0;}\n") || doTest() == 2) {
       puts("#define FLOAT_ZERO_DIV_ERROR");
     } /* if */
-    if (!compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
-                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                         "int main(int argc,char *argv[]){\n"
-                         "float zero=0.0;\n"
+    if (!compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
+                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "int main(int argc,char *argv[]){\n"
+                          "float zero=0.0;\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
-                         "_control87(MCW_EM, MCW_EM);\n"
+                          "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                         "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
-                         "printf(\"%d\\n\",1.0/zero==0.0);return 0;}\n") || doTest() == 2) {
+                          "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
+                          "printf(\"%d\\n\",1.0/zero==0.0);return 0;}\n") || doTest() == 2) {
       puts("#define CHECK_FLOAT_DIV_BY_ZERO");
       zero_divide_triggers_signal = 1;
       if (sizeof(float) == sizeof(int)) {
@@ -850,21 +975,21 @@ int main (int argc, char **argv)
     if (pow(zero, -2.0) != plusInf || pow(negativeZero, -1.0) != minusInf) {
       puts("#define POWER_OF_ZERO_WRONG");
     } /* if */
-    if (!compilationOkay("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
-                         "{float f=0.0; isnan(f); return 0;}\n") &&
-        compilationOkay("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
-                        "{float f=0.0; _isnan(f); return 0;}\n")) {
+    if (!compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
+                          "{float f=0.0; isnan(f); return 0;}\n") &&
+        compileAndLinkOk("#include<float.h>\n#include<math.h>\nint main(int argc,char *argv[])"
+                         "{float f=0.0; _isnan(f); return 0;}\n")) {
       puts("#define ISNAN_WITH_UNDERLINE");
     } /* if */
-    if (compilationOkay("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
-                        "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                        "int main(int argc,char *argv[]){\n"
-                        "float zero=1.0E37;\n"
+    if (compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<float.h>\n#include<signal.h>\n"
+                         "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "float zero=1.0E37;\n"
 #ifdef TURN_OFF_FP_EXCEPTIONS
-                        "_control87(MCW_EM, MCW_EM);\n"
+                         "_control87(MCW_EM, MCW_EM);\n"
 #endif
-                        "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
-                        "printf(\"%d\\n\",(int) 1.0E37);return 0;}\n")) {
+                         "signal(SIGFPE,handleSig);\nsignal(SIGILL,handleSig);\nsignal(SIGINT,handleSig);\n"
+                         "printf(\"%d\\n\",(int) 1.0E37);return 0;}\n")) {
       testResult = doTest();
       if ((sizeof(int) == 4 && (long) testResult == 2147483647L) ||
           (sizeof(int) == 2 && testResult == 32767)) {
@@ -880,11 +1005,11 @@ int main (int argc, char **argv)
 #ifdef USE_ALTERNATE_LOCALTIME_R
     puts("#define USE_LOCALTIME_R");
 #else
-    if (compilationOkay("#include<time.h>\nint main(int argc,char *argv[])"
-                        "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
+    if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
+                         "{time_t ts;struct tm res;struct tm*lt;lt=localtime_r(&ts,&res);return 0;}\n")) {
       puts("#define USE_LOCALTIME_R");
-    } else if (compilationOkay("#include<time.h>\nint main(int argc,char *argv[])"
-                               "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<time.h>\nint main(int argc,char *argv[])"
+                                "{time_t ts;struct tm res;localtime_s(&res,&ts);return 0;}\n")) {
       puts("#define USE_LOCALTIME_S");
     } /* if */
 #endif
@@ -902,74 +1027,63 @@ int main (int argc, char **argv)
 #else
     puts("#define HOME_DIR_ENV_VAR {'H', 'O', 'M', 'E', 0}");
 #endif
-    if (compilationOkay("#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
-                        "void handleSig(int sig){puts(\"1\");exit(0);}\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "struct sigaction sig_act;\n"
-                        "sig_act.sa_handler = handleSig;\n"
-                        "sigemptyset(&sig_act.sa_mask);\n"
-                        "sig_act.sa_flags = SA_RESTART;\n"
-                        "if (sigaction(SIGINT, &sig_act, NULL) == -1)\n"
-                        "{puts(\"2\");}else{raise(SIGINT);puts(\"3\");}\n"
-                        "return 0;}\n") && doTest() == 1) {
+    if (compileAndLinkOk("#include <stdlib.h>\n#include <stdio.h>\n#include <signal.h>\n"
+                         "void handleSig(int sig){puts(\"1\");exit(0);}\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "struct sigaction sig_act;\n"
+                         "sig_act.sa_handler = handleSig;\n"
+                         "sigemptyset(&sig_act.sa_mask);\n"
+                         "sig_act.sa_flags = SA_RESTART;\n"
+                         "if (sigaction(SIGINT, &sig_act, NULL) == -1)\n"
+                         "{puts(\"2\");}else{raise(SIGINT);puts(\"3\");}\n"
+                         "return 0;}\n") && doTest() == 1) {
       puts("#define HAS_SIGACTION");
     } /* if */
-    if (compilationOkay("#include <stdio.h>\n#include <sys/resource.h>\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "struct rlimit rlim;\n"
-                        "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
-                        "return 0;}\n") && doTest() == 1) {
+    if (compileAndLinkOk("#include <stdio.h>\n#include <sys/resource.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "struct rlimit rlim;\n"
+                         "printf(\"%d\\n\", getrlimit(RLIMIT_STACK, &rlim) == 0);\n"
+                         "return 0;}\n") && doTest() == 1) {
       puts("#define HAS_GETRLIMIT");
     } /* if */
-    if (compilationOkay("#include <stdio.h>\n#include <setjmp.h>\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "sigjmp_buf env; int ret_code; int count = 2;\n"
-                        "if ((ret_code=sigsetjmp(env, 1)) == 0) {\n"
-                        "count--; siglongjmp(env, count);\n"
-                        "} else printf(\"%d\\n\", ret_code);\n"
-                        "return 0;}\n") && doTest() == 1) {
+    if (compileAndLinkOk("#include <stdio.h>\n#include <setjmp.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "sigjmp_buf env; int ret_code; int count = 2;\n"
+                         "if ((ret_code=sigsetjmp(env, 1)) == 0) {\n"
+                         "count--; siglongjmp(env, count);\n"
+                         "} else printf(\"%d\\n\", ret_code);\n"
+                         "return 0;}\n") && doTest() == 1) {
       puts("#define HAS_SIGSETJMP");
     } /* if */
-    if (compilationOkay("#include <unistd.h>\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "char buf[256]; ssize_t link_len; int ret_code;\n"
-                        "link_len=readlink(\"qwertzuiop\", buf, 256);\n"
-                        "ret_code=symlink(\"qwertzuiop\", \"asdfghjkl\");\n"
-                        "return 0;}\n")) {
+    if (compileAndLinkOk("#include <unistd.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "char buf[256]; ssize_t link_len; int ret_code;\n"
+                         "link_len=readlink(\"qwertzuiop\", buf, 256);\n"
+                         "ret_code=symlink(\"qwertzuiop\", \"asdfghjkl\");\n"
+                         "return 0;}\n")) {
       puts("#define HAS_SYMLINKS");
     } /* if */
-    if (compilationOkay("#include <sys/types.h>\n#include <sys/stat.h>\n"
-                        "int main(int argc, char *argv[]){\n"
-                        "int ret_code;\n"
-                        "ret_code=mkfifo(\"qwertzuiop\", 0);\n"
-                        "return 0;}\n")) {
+    if (compileAndLinkOk("#include <sys/types.h>\n#include <sys/stat.h>\n"
+                         "int main(int argc, char *argv[]){\n"
+                         "int ret_code;\n"
+                         "ret_code=mkfifo(\"qwertzuiop\", 0);\n"
+                         "return 0;}\n")) {
       puts("#define HAS_FIFO_FILES");
     } /* if */
-    if (compilationOkay("#include<poll.h>\nint main(int argc,char *argv[])"
-                        "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
+    if (compileAndLinkOk("#include<poll.h>\nint main(int argc,char *argv[])"
+                         "{struct pollfd pollFd[1];poll(pollFd, 1, 0);return 0;}\n")) {
       puts("#define HAS_POLL");
     } /* if */
-    if (compilationOkay("#include <mysql/mysql.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
-      puts("#define MYSQL_INCLUDE \"mysql/mysql.h\"");
-    } /* if */
-    if (compilationOkay("#include <sqlite3.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
-      puts("#define SQLITE_INCLUDE \"sqlite3.h\"");
-    } /* if */
-    if (compilationOkay("#include <postgresql/libpq-fe.h>\nint main(int argc,char *argv[]){return 0;}\n")) {
-      puts("#define POSTGRESQL_INCLUDE \"postgresql/libpq-fe.h\"");
-    } /* if */
-    if (compilationOkay("#include \"oci.h\"\nint main(int argc,char *argv[]){return 0;}\n")) {
-      puts("#define OCI_INCLUDE \"oci.h\"");
-    } /* if */
-    if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
+    detemineDatabaseDefines();
+    if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_IO_read_ptr>=fp->_IO_read_end;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_IO_read_ptr >= (fp)->_IO_read_end)";
-    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_cnt <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_cnt <= 0)";
-    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->__cnt <= 0;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->__cnt <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->__cnt <= 0)";
-    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->level <= 0;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->level <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->level <= 0)";
-    } else if (compilationOkay("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;return 0;}\n")) {
+    } else if (compileAndLinkOk("#include<stdio.h>\nint main(int argc,char *argv[]){FILE*fp;fp->_r <= 0;return 0;}\n")) {
       define_read_buffer_empty = "#define read_buffer_empty(fp) ((fp)->_r <= 0)";
     } else {
       define_read_buffer_empty = NULL;
@@ -981,7 +1095,7 @@ int main (int argc, char **argv)
                      "{FILE*fp;fp=fopen(\"version.h\",\"r\");"
                      "if(fp==NULL||!read_buffer_empty(fp))puts(0);else{"
                      "getc(fp);printf(\"%d\\n\",read_buffer_empty(fp)?0:1);}return 0;}\n");
-      if (!compilationOkay(buffer) || doTest() != 1) {
+      if (!compileAndLinkOk(buffer) || doTest() != 1) {
         define_read_buffer_empty = NULL;
       } /* if */
     } /* if */

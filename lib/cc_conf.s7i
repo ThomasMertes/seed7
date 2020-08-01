@@ -382,6 +382,13 @@ const type: ccConfigType is new struct
     var string: SYSTEM_DRAW_LIBS            is "";
 
     (**
+     *  Options to link database libraries to a compiled program.
+     *  This is intended for options to link libraries required by the
+     *  Seed7 database runtime libraries (e.g.: "-lmysqlclient").
+     *)
+    var string: SYSTEM_DB_LIBS              is "";
+
+    (**
      *  Name of the Seed7 runtime library (e.g.: "seed7_05.a").
      *)
     var string: SEED7_LIB                   is "";
@@ -483,6 +490,7 @@ const func ccConfigType: getBuiltInConfig is func
     conf.SYSTEM_LIBS                := configValue("SYSTEM_LIBS");
     conf.SYSTEM_CONSOLE_LIBS        := configValue("SYSTEM_CONSOLE_LIBS");
     conf.SYSTEM_DRAW_LIBS           := configValue("SYSTEM_DRAW_LIBS");
+    conf.SYSTEM_DB_LIBS             := configValue("SYSTEM_DB_LIBS");
     conf.SEED7_LIB                  := configValue("SEED7_LIB");
     conf.CONSOLE_LIB                := configValue("CONSOLE_LIB");
     conf.DRAW_LIB                   := configValue("DRAW_LIB");

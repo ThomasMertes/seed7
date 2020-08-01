@@ -363,7 +363,7 @@ void open_string (bstriType input_string, boolType write_library_names,
           COUNT_USTRI(name_length, count.fnam, count.fnam_bytes);
           strcpy((cstriType) name_ustri, source_file_name);
           in_name->size = name_length;
-          ustri_expand(in_name->mem, name_ustri, name_length);
+          memcpy_to_strelem(in_name->mem, name_ustri, name_length);
           if (in_file.curr_infile != NULL) {
             memcpy(in_file.curr_infile, &in_file, sizeof(inFileRecord));
           } /* if */

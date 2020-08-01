@@ -10254,6 +10254,9 @@ CONTENTS
     cstriType stri_to_cstri8 (const_striType stri, errInfoType *err_info)
       Create an UTF-8 encoded C string from a Seed7 UTF-32 string.
 
+    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length, errInfoType *err_info)
+      Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
+
     bstriType stri_to_bstri (const_striType stri, errInfoType *err_info)
       Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.
 
@@ -10263,8 +10266,11 @@ CONTENTS
     striType cstri_to_stri (const_cstriType cstri)
       Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.
 
-    striType cstri8_to_stri (const_cstriType cstri)
+    striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
       Copy an UTF-8 encoded C string to a Seed7 string.
+
+    striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length, errInfoType *err_info)
+      Copy an UTF-8 encoded C string buffer to a Seed7 string.
 
     striType cstri8_or_cstri_to_stri (const_cstriType cstri)
       Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
@@ -10340,6 +10346,30 @@ CONTENTS
         conversion failed (the error is indicated by err_info).
 
 
+  stri_to_cstri8_buf
+
+    cstriType stri_to_cstri8_buf (const_striType stri, memSizeType *length,
+        errInfoType *err_info)
+
+      Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
+      The memory for the zero byte terminated C string is allocated.
+      The C string result must be freed with the macro free_cstri8().
+      This function is intended to create temporary strings, that
+      are used as parameters. To get good performance the allocated
+      memory for the C string is oversized.
+
+      Parameters:
+        stri - Seed7 UTF-32 string to be converted.
+        length - Place to return the length of the result (without '\0').
+        err_info - Unchanged when the function succeeds or
+                   MEMORY_ERROR when the memory allocation failed.
+
+      Returns:
+        an UTF-8 encoded null terminated C string or
+        NULL, when the memory allocation failed
+        (the error is indicated by err_info).
+
+
   stri_to_bstri
 
     bstriType stri_to_bstri (const_striType stri, errInfoType *err_info)
@@ -10397,13 +10427,37 @@ CONTENTS
 
   cstri8_to_stri
 
-    striType cstri8_to_stri (const_cstriType cstri)
+    striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
 
       Copy an UTF-8 encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
 
       Parameters:
         cstri - Null terminated UTF-8 encoded C string.
+        err_info - Unchanged when the function succeeds or
+                   MEMORY_ERROR when the memory allocation failed or
+                   RANGE_ERROR when the conversion failed.
+
+      Returns:
+        an UTF-32 encoded Seed7 string or
+        NULL, when the memory allocation failed or when
+        illegal UTF-8 encodings are used.
+
+
+  cstri8_buf_to_stri
+
+    striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
+        errInfoType *err_info)
+
+      Copy an UTF-8 encoded C string buffer to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+
+      Parameters:
+        cstri - UTF-8 encoded C string buffer (not null terminated).
+        length - Length of the UTF-8 encoded C string buffer.
+        err_info - Unchanged when the function succeeds or
+                   MEMORY_ERROR when the memory allocation failed or
+                   RANGE_ERROR when the conversion failed.
 
       Returns:
         an UTF-32 encoded Seed7 string or

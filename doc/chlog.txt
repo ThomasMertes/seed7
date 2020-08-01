@@ -1,3 +1,36 @@
+20140420:
+- The chapter in the manual about the foreign function interface has
+  been improved.
+- A paragraph about regular expressions and lexical scanner functions
+  has been added to the FAQ.
+- The handling of the actions CHR_CLIT and INT_STRI in the compiler
+  has been improved. The string buffers for chrCLitToBuffer and
+  intStrToBuffer use the correct alignment now.
+- In big_rtl.c the functions bigParseBasedPow2 and bigParseBased2To36
+  have been added and bigParseBased has been changed to call them.
+  This improves the conversion of a string to a bigInteger, when the
+  base is a power of two. Valgrind measurements of the function
+  bigParseBased in chkbig.sd7 show a speed improvement with a factor
+  of 239.
+- The macros memcpy_to_strelem and memset_to_strelem (defined in
+  striutl.h) have been turned into functions (defined in striutl.c).
+- The unrolling in memcpy_to_strelem and memset_to_strelem has been
+  changed from 8 times to 32 times. This improves the performance
+  for big data amounts by 16% (Measured with valgrind and gcc).
+- Usages of the macros memcpy_to_strelem and memset_to_strelem in
+  bst_rtl.c, fil_rtl.c, soc_rtl.c and str_rtl.c have been turned into
+  usages of the corresponding functions.
+- Calls of cstri_expand, ustri_expand, cstri_expand2 and
+  ustri_expand2 in analyze.c, chr_rtl.c, flt_rtl.c, infile.c,
+  str_rtl.c and striutl.c have been turned into calls of
+  memcpy_to_strelem.
+- The functions (macros) cstri_expand, ustri_expand, cstri_expand2
+  and ustri_expand2 have been removed from striutl.c and striutl.h.
+- The functions doCompileAndLink, compileAndLinkWithOptionsOk,
+  compileAndLinkOk, appendToFile and detemineDatabaseDefines have
+  been added to chkccomp.c. The function compilationOkay has been 
+  replaced by compileAndLinkOk.
+
 20140406:
 - The chapters in the manual about primitive actions and the foreign
   function interface have been improved.

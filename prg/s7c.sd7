@@ -6905,20 +6905,23 @@ const proc: process_chr_clit (in ref_list: params, inout expr_type: c_expr) is f
     if ccConf.ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "char ";
-      c_expr.temp_decls &:= buffer_name;
-      c_expr.temp_decls &:= "[sizeof(struct striStruct) + ";
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(";
       if ccConf.INTTYPE_SIZE = 64 then
-        c_expr.temp_decls &:= "19";
+        c_expr.temp_decls &:= "20";
       elsif ccConf.INTTYPE_SIZE = 32 then
-        c_expr.temp_decls &:= "10";
+        c_expr.temp_decls &:= "11";
       end if;
-      c_expr.temp_decls &:= " * sizeof(strElemType)];\n";
+      c_expr.temp_decls &:= ")];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "chrCLitToBuffer(";
       process_expr(params[1], c_expr);
-      c_expr.expr &:= ", (striType) &";
+      c_expr.expr &:= ", &";
       c_expr.expr &:= buffer_name;
-      c_expr.expr &:= ")";
+      c_expr.expr &:= ".striBuf)";
     else
       prepare_stri_result(c_expr);
       c_expr.result_expr := "chrCLit(";
@@ -12070,20 +12073,23 @@ const proc: process_int_str (in ref_list: params, inout expr_type: c_expr) is fu
     if ccConf.ALLOW_STRITYPE_SLICES then
       incr(c_expr.temp_num);
       buffer_name := "buffer_" & str(c_expr.temp_num);
-      c_expr.temp_decls &:= "char ";
-      c_expr.temp_decls &:= buffer_name;
-      c_expr.temp_decls &:= "[sizeof(struct striStruct) + ";
+      c_expr.temp_decls &:= "union {\n";
+      c_expr.temp_decls &:= "  struct striStruct striBuf;\n";
+      c_expr.temp_decls &:= "  char charBuf[SIZ_STRI(";
       if ccConf.INTTYPE_SIZE = 64 then
-        c_expr.temp_decls &:= "19";
+        c_expr.temp_decls &:= "20";
       elsif ccConf.INTTYPE_SIZE = 32 then
-        c_expr.temp_decls &:= "10";
+        c_expr.temp_decls &:= "11";
       end if;
-      c_expr.temp_decls &:= " * sizeof(strElemType)];\n";
+      c_expr.temp_decls &:= ")];\n";
+      c_expr.temp_decls &:= "} ";
+      c_expr.temp_decls &:= buffer_name;
+      c_expr.temp_decls &:= ";\n";
       c_expr.expr &:= "intStrToBuffer(";
       process_expr(params[1], c_expr);
-      c_expr.expr &:= ", (striType) &";
+      c_expr.expr &:= ", &";
       c_expr.expr &:= buffer_name;
-      c_expr.expr &:= ")";
+      c_expr.expr &:= ".striBuf)";
     else
       prepare_stri_result(c_expr);
       c_expr.result_expr := "intStr(";
@@ -23337,6 +23343,7 @@ const proc: write_file_head is func
     end if;
     writeln(c_prog, "} *striType;");
     writeln(c_prog, "typedef const struct striStruct  *const_striType;");
+    writeln(c_prog, "#define SIZ_STRI(len) ((sizeof(struct striStruct) - sizeof(strElemType)) + (len) * sizeof(strElemType))");
     writeln(c_prog, "typedef struct bstriStruct {");
     writeln(c_prog, "  memSizeType size;");
     if ccConf.ALLOW_BSTRITYPE_SLICES then
@@ -26081,6 +26088,9 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
             end if;
             if drawLibraryUsed then
               link_params &:= " " & ccConf.SYSTEM_DRAW_LIBS;
+            end if;
+            if ccConf.SYSTEM_DB_LIBS <> "" then
+              link_params &:= " " & ccConf.SYSTEM_DB_LIBS;
             end if;
             link_params &:= " " & ccConf.SYSTEM_LIBS;
             if ccConf.REDIRECT_C_ERRORS <> "" then

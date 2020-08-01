@@ -65,8 +65,8 @@ striType chrCLit (charType character)
         } else {
           result->size = len + 2;
           result->mem[0] = '\'';
-          cstri_expand(&result->mem[1],
-              cstri_escape_sequence[character], len);
+          memcpy_to_strelem(&result->mem[1],
+              (const_ustriType) cstri_escape_sequence[character], len);
           result->mem[len + 1] = '\'';
         } /* if */
       } else if (character == '\\' || character == '\'') {

@@ -37,60 +37,6 @@ extern const_cstriType cstri_escape_sequence[];
 #define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, (stri)->size);
 #define free_cstri8(cstri,stri) UNALLOC_CSTRI(cstri, max_utf8_size((stri)->size));
 #define free_wstri(wstri,stri) free(wstri);
-#define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustriType) cstri, size)
-#define cstri_expand2(stri,cstri) ustri_expand2(stri, (const_ustriType) cstri)
-
-#define USE_DUFFS_UNROLLING
-#ifdef USE_DUFFS_UNROLLING
-
-#define memcpy_to_strelem(dest,src,len) \
-    if (len != 0) { \
-      register memSizeType pos = (len + 7) & ~(memSizeType) 7; \
-      switch (len & 7) { \
-        case 0: do { dest[pos - 1] = src[pos - 1]; \
-        case 7:      dest[pos - 2] = src[pos - 2]; \
-        case 6:      dest[pos - 3] = src[pos - 3]; \
-        case 5:      dest[pos - 4] = src[pos - 4]; \
-        case 4:      dest[pos - 5] = src[pos - 5]; \
-        case 3:      dest[pos - 6] = src[pos - 6]; \
-        case 2:      dest[pos - 7] = src[pos - 7]; \
-        case 1:      dest[pos - 8] = src[pos - 8]; \
-                } while((pos -= 8) > 0); \
-      } /* switch */\
-    } /* if */
-
-#define memset_to_strelem(dest,ch,len) \
-    if (len != 0) { \
-      register memSizeType pos = (len + 7) & ~(memSizeType) 7; \
-      switch (len & 7) { \
-        case 0: do { dest[pos - 1] = ch; \
-        case 7:      dest[pos - 2] = ch; \
-        case 6:      dest[pos - 3] = ch; \
-        case 5:      dest[pos - 4] = ch; \
-        case 4:      dest[pos - 5] = ch; \
-        case 3:      dest[pos - 6] = ch; \
-        case 2:      dest[pos - 7] = ch; \
-        case 1:      dest[pos - 8] = ch; \
-                } while((pos -= 8) > 0); \
-      } /* switch */ \
-    } /* if */
-
-#else
-
-#define memcpy_to_strelem(dest,src,len) \
-    { register memSizeType pos = len; \
-      for (; pos > 0; pos--) { \
-        dest[pos - 1] = src[pos - 1]; \
-      } /* for */ \
-    }
-
-#define memset_to_strelem(dest,ch,len) \
-    { register memSizeType pos = len; \
-    for (; pos > 0; pos--) { \
-      dest[pos - 1] = (strElemType) ch; \
-    } /* for */
-
-#endif
 
 
 #ifdef OS_STRI_WCHAR
@@ -174,6 +120,10 @@ extern os_charType emulated_root[];
 #define PATH_NOT_MAPPED       2
 
 
+void memcpy_to_strelem (register strElemType *const dest,
+                        register const const_ustriType src, memSizeType len);
+void memset_to_strelem (register strElemType *const dest,
+                        register const strElemType ch, memSizeType len);
 #ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
 boolType heapAllocOsStri (os_striType *var, memSizeType len);
 void heapFreeOsStri (os_striType var);
@@ -187,8 +137,6 @@ void conv_to_cstri (cstriType cstri, const const_striType stri,
                     errInfoType *err_info);
 void conv_to_cstri8 (cstriType cstri, const const_striType stri,
                      errInfoType *err_info);
-void ustri_expand (strElemType *const stri, const const_ustriType ustri, size_t len);
-size_t ustri_expand2 (strElemType *const stri, const_ustriType ustri);
 #ifdef OS_STRI_WCHAR
 memSizeType stri_to_wstri (const wstriType out_wstri,
                            register const strElemType *strelem, memSizeType len,
@@ -204,10 +152,10 @@ bstriType stri_to_bstri8 (const_striType stri);
 bstriType stri_to_bstriw (const_striType stri);
 #endif
 striType cstri_to_stri (const_cstriType cstri);
-striType cstri8_to_stri (const_cstriType cstri);
-striType cstri8_or_cstri_to_stri (const_cstriType cstri);
+striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info);
 striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
                              errInfoType *err_info);
+striType cstri8_or_cstri_to_stri (const_cstriType cstri);
 striType conv_from_os_stri (const const_os_striType os_stri, memSizeType length);
 os_striType stri_to_os_stri (const_striType stri, errInfoType *err_info);
 striType os_stri_to_stri (const_os_striType os_stri, errInfoType *err_info);

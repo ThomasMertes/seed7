@@ -243,6 +243,9 @@ Why is it necessary to initialize all variables?
 <li><a class="link" href="#faq_unicode"><b>
 Is Unicode supported?
 </b></a></li>
+<li><a class="link" href="#faq_regular_expressions"><b>
+Are there regular expressions?
+</b></a></li>
 <li><a class="link" href="#faq_div_operator"><b>
 Why is the div operator used for integer divisions?
 </b></a></li>
@@ -582,12 +585,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-04-06 the number of lines is:
+than 200000 lines of Seed7. For version 2014-04-20 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 98453</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8384</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">120875</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 97488</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 98714</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8332</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">120883</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 97496</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1336,6 +1339,26 @@ characters have multiple characters that map to them.
 Seed7 source code allows Unicode in <span class="link">char literals</span>, <span class="link">string literals</span>, <span class="link">block comments</span>
 and <span class="link">line comments</span>. Interpreter and <span class="link">compiler</span> assume that a Seed7 program is written
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
+</p></div>
+
+<div><br /><a name="faq_regular_expressions"><h3>Are there regular expressions?
+</h3></a><hr />
+<p>
+Regular expressions are a powerful feature. Unfortunately they lead also
+to code, that is hard to maintain. The regular expression language is
+usually embedded in the surrounding programming language. As with other
+language in language features this leads to maintenance problems. There
+are also other difficulties. Regular expressions work typeless but Seed7
+does not. For this reasons regular expressions are currently not supported,
+but there is an alternative (see below).
+</p><p>
+Seed7 has support for lexical scanner functions. Scanner functions use the
+LL(1) aproach, which is used in compilers. Practically no compiler uses
+regular expressions to parse a program. Scanner functions work strictly
+from left to right. They examine one character and do decisions based on
+this character. How scanner functions work is described in <span class="link">the manual</span>.
+Scanner functions for strings are defined in <span class="lib">scanstri.s7i</span> and scanner
+functions for files are defined in <span class="lib">scanfile.s7i</span>.
 </p></div>
 
 <div><br /><a name="faq_div_operator"><h3>Why is the div operator used for integer divisions?

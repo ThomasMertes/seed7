@@ -766,7 +766,7 @@ striType fltStr (floatType number)
       return NULL;
     } else {
       result->size = len;
-      cstri_expand(result->mem, buffer, (size_t) len);
+      memcpy_to_strelem(result->mem, (const_ustriType) buffer, len);
       return result;
     } /* if */
   } /* fltStr */

@@ -73,6 +73,7 @@ os_striType current_emulated_cwd = NULL;
 os_charType emulated_root[] = {'/', '\0'};
 #endif
 
+#define USE_DUFFS_UNROLLING
 #define STACK_ALLOC_SIZE 1000
 
 
@@ -104,6 +105,131 @@ int code_page = DEFAULT_CODE_PAGE;
 #define MAX_OS_BSTRI_SIZE   ((MAX_BSTRI_LEN / sizeof(os_charType)) - 1)
 #define OS_STRI_SIZE(size)  (size)
 #define OS_BSTRI_SIZE(size) (((size) + 1) * sizeof(os_charType))
+
+#endif
+
+
+
+#ifdef USE_DUFFS_UNROLLING
+void memcpy_to_strelem (register strElemType *const dest,
+    register const const_ustriType src, memSizeType len)
+
+  {
+    register memSizeType pos;
+
+  /* memcpy_to_strelem */
+    if (len != 0) {
+      pos = (len + 31) & ~(memSizeType) 31;
+      switch (len & 31) {
+        case  0: do { dest[pos -  1] = src[pos -  1];
+        case 31:      dest[pos -  2] = src[pos -  2];
+        case 30:      dest[pos -  3] = src[pos -  3];
+        case 29:      dest[pos -  4] = src[pos -  4];
+        case 28:      dest[pos -  5] = src[pos -  5];
+        case 27:      dest[pos -  6] = src[pos -  6];
+        case 26:      dest[pos -  7] = src[pos -  7];
+        case 25:      dest[pos -  8] = src[pos -  8];
+        case 24:      dest[pos -  9] = src[pos -  9];
+        case 23:      dest[pos - 10] = src[pos - 10];
+        case 22:      dest[pos - 11] = src[pos - 11];
+        case 21:      dest[pos - 12] = src[pos - 12];
+        case 20:      dest[pos - 13] = src[pos - 13];
+        case 19:      dest[pos - 14] = src[pos - 14];
+        case 18:      dest[pos - 15] = src[pos - 15];
+        case 17:      dest[pos - 16] = src[pos - 16];
+        case 16:      dest[pos - 17] = src[pos - 17];
+        case 15:      dest[pos - 18] = src[pos - 18];
+        case 14:      dest[pos - 19] = src[pos - 19];
+        case 13:      dest[pos - 20] = src[pos - 20];
+        case 12:      dest[pos - 21] = src[pos - 21];
+        case 11:      dest[pos - 22] = src[pos - 22];
+        case 10:      dest[pos - 23] = src[pos - 23];
+        case  9:      dest[pos - 24] = src[pos - 24];
+        case  8:      dest[pos - 25] = src[pos - 25];
+        case  7:      dest[pos - 26] = src[pos - 26];
+        case  6:      dest[pos - 27] = src[pos - 27];
+        case  5:      dest[pos - 28] = src[pos - 28];
+        case  4:      dest[pos - 29] = src[pos - 29];
+        case  3:      dest[pos - 30] = src[pos - 30];
+        case  2:      dest[pos - 31] = src[pos - 31];
+        case  1:      dest[pos - 32] = src[pos - 32];
+                } while ((pos -= 32) > 0);
+      } /* switch */
+    } /* if */
+  } /* memcpy_to_strelem */
+
+
+
+void memset_to_strelem (register strElemType *dest,
+    register const strElemType ch, memSizeType len)
+
+  {
+    register memSizeType pos;
+
+  /* memset_to_strelem */
+    if (len != 0) {
+      pos = (len + 31) & ~(memSizeType) 31;
+      switch (len & 31) {
+        case  0: do { dest[pos -  1] = ch;
+        case 31:      dest[pos -  2] = ch;
+        case 30:      dest[pos -  3] = ch;
+        case 29:      dest[pos -  4] = ch;
+        case 28:      dest[pos -  5] = ch;
+        case 27:      dest[pos -  6] = ch;
+        case 26:      dest[pos -  7] = ch;
+        case 25:      dest[pos -  8] = ch;
+        case 24:      dest[pos -  9] = ch;
+        case 23:      dest[pos - 10] = ch;
+        case 22:      dest[pos - 11] = ch;
+        case 21:      dest[pos - 12] = ch;
+        case 20:      dest[pos - 13] = ch;
+        case 19:      dest[pos - 14] = ch;
+        case 18:      dest[pos - 15] = ch;
+        case 17:      dest[pos - 16] = ch;
+        case 16:      dest[pos - 17] = ch;
+        case 15:      dest[pos - 18] = ch;
+        case 14:      dest[pos - 19] = ch;
+        case 13:      dest[pos - 20] = ch;
+        case 12:      dest[pos - 21] = ch;
+        case 11:      dest[pos - 22] = ch;
+        case 10:      dest[pos - 23] = ch;
+        case  9:      dest[pos - 24] = ch;
+        case  8:      dest[pos - 25] = ch;
+        case  7:      dest[pos - 26] = ch;
+        case  6:      dest[pos - 27] = ch;
+        case  5:      dest[pos - 28] = ch;
+        case  4:      dest[pos - 29] = ch;
+        case  3:      dest[pos - 30] = ch;
+        case  2:      dest[pos - 31] = ch;
+        case  1:      dest[pos - 32] = ch;
+                } while ((pos -= 32) > 0);
+      } /* switch */
+    } /* if */
+  } /* memset_to_strelem */
+
+#else
+
+
+
+void memcpy_to_strelem (register strElemType *const dest,
+    register const const_ustriType src, memSizeType len)
+
+  { /* memcpy_to_strelem */
+    for (; len > 0; len--) {
+      dest[len - 1] = src[len - 1];
+    } /* for */
+  } /* memcpy_to_strelem */
+
+
+
+void memset_to_strelem (register strElemType *dest,
+    register const strElemType ch, memSizeType len)
+
+  { /* memset_to_strelem */
+    for (; len > 0; len--) { \
+      dest[len - 1] = (strElemType) ch; \
+    } /* for */
+  } /* memset_to_strelem */
 
 #endif
 
@@ -444,30 +570,6 @@ static inline void stri_to_os_utf8 (register ustriType out_stri,
     } /* for */
     *out_stri = '\0';
   } /* stri_to_os_utf8 */
-
-
-
-void ustri_expand (strElemType *const stri, const const_ustriType ustri, size_t len)
-
-  { /* ustri_expand */
-    for (; len > 0; len--) {
-      stri[len - 1] = (strElemType) ustri[len - 1];
-    } /* while */
-  } /* ustri_expand */
-
-
-
-size_t ustri_expand2 (strElemType *const stri, const_ustriType ustri)
-
-  {
-    size_t pos = 0;
-
-  /* ustri_expand2 */
-    for (; ustri[pos] != '\0'; pos++) {
-      stri[pos] = (strElemType) ustri[pos];
-    } /* while */
-    return pos;
-  } /* ustri_expand2 */
 
 
 
@@ -1004,7 +1106,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
         } /* if */
       } else {
         stri->size = length;
-        cstri_expand(stri->mem, os_stri, length);
+        memcpy_to_strelem(stri->mem, (const_ustriType) os_stri, length);
       } /* if */
     } /* if */
     return stri;
@@ -1034,7 +1136,7 @@ striType conv_from_os_stri (const const_os_striType os_stri,
 
   /* conv_from_os_stri */
     if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
-      ustri_expand(stri->mem, (const_ustriType) os_stri, length);
+      memcpy_to_strelem(stri->mem, (const_ustriType) os_stri, length);
       stri->size = length;
     } /* if */
     return stri;
@@ -1134,7 +1236,7 @@ cstriType stri_to_cstri8 (const const_striType stri, errInfoType *err_info)
  *  @param stri Seed7 UTF-32 string to be converted.
  *  @param length Place to return the length of the result (without '\0').
  *  @param err_info Unchanged when the function succeeds or
- *                  MEMORY_ERROR when the memory allocation failed or
+ *                  MEMORY_ERROR when the memory allocation failed.
  *  @return an UTF-8 encoded null terminated C string or
  *          NULL, when the memory allocation failed
  *          (the error is indicated by err_info).
@@ -1317,7 +1419,7 @@ striType cstri_to_stri (const_cstriType cstri)
     length = strlen(cstri);
     if (ALLOC_STRI_CHECK_SIZE(result, length)) {
       result->size = length;
-      cstri_expand(result->mem, cstri, length);
+      memcpy_to_strelem(result->mem, (const_ustriType) cstri, length);
     } /* if */
     return result;
   } /* cstri_to_stri */
@@ -1353,11 +1455,14 @@ striType cstri_to_stri (const_cstriType cstri)
  *  Copy an UTF-8 encoded C string to a Seed7 string.
  *  The memory for the UTF-32 encoded Seed7 string is allocated.
  *  @param cstri Null terminated UTF-8 encoded C string.
+ *  @param err_info Unchanged when the function succeeds or
+ *                  MEMORY_ERROR when the memory allocation failed or
+ *                  RANGE_ERROR when the conversion failed.
  *  @return an UTF-32 encoded Seed7 string or
  *          NULL, when the memory allocation failed or when
  *          illegal UTF-8 encodings are used.
  */
-striType cstri8_to_stri (const_cstriType cstri)
+striType cstri8_to_stri (const_cstriType cstri, errInfoType *err_info)
 
   {
     memSizeType length;
@@ -1367,11 +1472,14 @@ striType cstri8_to_stri (const_cstriType cstri)
 
   /* cstri8_to_stri */
     length = strlen(cstri);
-    if (ALLOC_STRI_CHECK_SIZE(stri, length)) {
+    if (!ALLOC_STRI_CHECK_SIZE(stri, length)) {
+      *err_info = MEMORY_ERROR;
+    } else {
       if (utf8_to_stri(stri->mem, &stri_size, (const_ustriType) cstri, length) == 0) {
         REALLOC_STRI_SIZE_SMALLER(resized_stri, stri, length, stri_size);
         if (resized_stri == NULL) {
           FREE_STRI(stri, length);
+          *err_info = MEMORY_ERROR;
           stri = NULL;
         } else {
           stri = resized_stri;
@@ -1380,33 +1488,12 @@ striType cstri8_to_stri (const_cstriType cstri)
         } /* if */
       } else {
         FREE_STRI(stri, length);
+        *err_info = RANGE_ERROR;
         stri = NULL;
       } /* if */
     } /* if */
     return stri;
   } /* cstri8_to_stri */
-
-
-
-/**
- *  Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
- *  The memory for the UTF-32 encoded Seed7 string is allocated.
- *  @param cstri Null terminated UTF-8 or ISO-8859-1 encoded C string.
- *  @return an UTF-32 encoded Seed7 string or
- *          NULL, when the memory allocation failed.
- */
-striType cstri8_or_cstri_to_stri (const_cstriType cstri)
-
-  {
-    striType stri;
-
-  /* cstri8_or_cstri_to_stri */
-    stri = cstri8_to_stri(cstri);
-    if (stri == NULL) {
-      stri = cstri_to_stri(cstri);
-    } /* if */
-    return stri;
-  } /* cstri8_or_cstri_to_stri */
 
 
 
@@ -1453,6 +1540,29 @@ striType cstri8_buf_to_stri (const_cstriType cstri, memSizeType length,
     } /* if */
     return stri;
   } /* cstri8_buf_to_stri */
+
+
+
+/**
+ *  Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.
+ *  The memory for the UTF-32 encoded Seed7 string is allocated.
+ *  @param cstri Null terminated UTF-8 or ISO-8859-1 encoded C string.
+ *  @return an UTF-32 encoded Seed7 string or
+ *          NULL, when the memory allocation failed.
+ */
+striType cstri8_or_cstri_to_stri (const_cstriType cstri)
+
+  {
+    errInfoType err_info = OKAY_NO_ERROR;
+    striType stri;
+
+  /* cstri8_or_cstri_to_stri */
+    stri = cstri8_to_stri(cstri, &err_info);
+    if (stri == NULL) {
+      stri = cstri_to_stri(cstri);
+    } /* if */
+    return stri;
+  } /* cstri8_or_cstri_to_stri */
 
 
 
@@ -2129,6 +2239,7 @@ striType relativeToProgramPath (const const_striType basePath,
   {
     memSizeType dir_path_size;
     memSizeType position;
+    memSizeType len;
     striType result;
 
   /* relativeToProgramPath */
@@ -2146,10 +2257,12 @@ striType relativeToProgramPath (const const_striType basePath,
         basePath->mem[dir_path_size - 3] == 'p' &&
         basePath->mem[dir_path_size - 2] == 'r' &&
         basePath->mem[dir_path_size - 1] == 'g'))) {
-      if (likely(ALLOC_STRI_SIZE_OK(result, dir_path_size - 3 + strlen(dir)))) {
-        result->size = dir_path_size - 3 + strlen(dir);
+      len = strlen(dir);
+      if (likely(ALLOC_STRI_SIZE_OK(result, dir_path_size - 3 + len))) {
+        result->size = dir_path_size - 3 + len;
         memcpy(result->mem, basePath->mem, (dir_path_size - 3) * sizeof(strElemType));
-        cstri_expand2(&result->mem[dir_path_size - 3], dir);
+        memcpy_to_strelem(&result->mem[dir_path_size - 3],
+            (const_ustriType) dir, len);
       } /* if */
     } else {
       result = cstri_to_stri("");

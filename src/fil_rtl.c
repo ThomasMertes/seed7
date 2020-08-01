@@ -503,7 +503,6 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
     ucharType buffer[BUFFER_SIZE];
     memSizeType bytes_in_buffer = 1;
     memSizeType stri_pos;
-    register strElemType *to;
 
   /* read_string */
     /* printf("stri->size=%lu\n", stri->size); */
@@ -517,8 +516,7 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
       } else {
         /* printf("#A# bytes_in_buffer=%d stri_pos=%d\n",
             bytes_in_buffer, stri_pos); */
-        to = &stri->mem[stri_pos];
-        memcpy_to_strelem(to, buffer, bytes_in_buffer);
+        memcpy_to_strelem(&stri->mem[stri_pos], buffer, bytes_in_buffer);
         stri_pos += bytes_in_buffer;
       } /* if */
     } /* while */
@@ -531,8 +529,7 @@ static memSizeType read_string (fileType inFile, striType stri, errInfoType *err
       } else {
         /* printf("#B# bytes_in_buffer=%d stri_pos=%d\n",
             bytes_in_buffer, stri_pos); */
-        to = &stri->mem[stri_pos];
-        memcpy_to_strelem(to, buffer, bytes_in_buffer);
+        memcpy_to_strelem(&stri->mem[stri_pos], buffer, bytes_in_buffer);
         stri_pos += bytes_in_buffer;
       } /* if */
     } /* if */
@@ -549,7 +546,6 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
     ucharType buffer[BUFFER_SIZE];
     memSizeType bytes_in_buffer = 1;
     memSizeType result_pos;
-    register strElemType *to;
     memSizeType new_size;
     striType resized_result;
     striType result;
@@ -584,8 +580,7 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
               result->size = new_size;
             } /* if */
           } /* if */
-          to = &result->mem[result_pos];
-          memcpy_to_strelem(to, buffer, bytes_in_buffer);
+          memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_in_buffer);
           result_pos += bytes_in_buffer;
         } /* if */
       } /* while */
@@ -610,8 +605,7 @@ static striType read_and_alloc_stri (fileType inFile, memSizeType chars_missing,
               result->size = new_size;
             } /* if */
           } /* if */
-          to = &result->mem[result_pos];
-          memcpy_to_strelem(to, buffer, bytes_in_buffer);
+          memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_in_buffer);
           result_pos += bytes_in_buffer;
         } /* if */
       } /* if */
@@ -863,10 +857,7 @@ striType filGets (fileType inFile, intType length)
             printf("inFile=%lx\n", (long int) inFile); */
             err_info = FILE_ERROR;
           } else {
-            ucharType *from = (ucharType *) result->mem;
-            strElemType *to = result->mem;
-
-            memcpy_to_strelem(to, from, num_of_chars_read);
+            memcpy_to_strelem(result->mem, (ucharType *) result->mem, num_of_chars_read);
           } /* if */
         } else {
           num_of_chars_read = read_string(inFile, result, &err_info);

@@ -1156,7 +1156,6 @@ intType strChIPos (const const_striType mainStri, const charType searched,
 striType strChMult (const charType ch, const intType factor)
 
   {
-    register strElemType *result_pointer;
     striType result;
 
   /* strChMult */
@@ -1173,8 +1172,7 @@ striType strChMult (const charType ch, const intType factor)
         result = NULL;
       } else {
         result->size = (memSizeType) factor;
-        result_pointer = result->mem;
-        memset_to_strelem(result_pointer, ch, (memSizeType) factor);
+        memset_to_strelem(result->mem, ch, (memSizeType) factor);
       } /* if */
     } /* if */
     return result;
@@ -2130,6 +2128,7 @@ striType strLit (const const_striType stri)
     memSizeType striSize;
     memSizeType pos;
     char buffer[25];
+    memSizeType len;
     striType resized_result;
     striType result;
 
@@ -2184,7 +2183,9 @@ striType strLit (const const_striType stri)
           pos += 5;
         } else if (character >= 256) {
           sprintf(buffer, "\\%lu;", (unsigned long) character);
-          pos += cstri_expand2(&result->mem[pos], buffer);
+          len = strlen(buffer);
+          memcpy_to_strelem(&result->mem[pos], (const_ustriType) buffer, len);
+          pos += len;
         } else {
           result->mem[pos] = character;
           pos++;
@@ -2515,11 +2516,11 @@ striType strMult (const const_striType stri, const intType factor)
           raise_error(MEMORY_ERROR);
         } else {
           result->size = result_size;
-          result_pointer = result->mem;
           if (len == 1) {
             ch = stri->mem[0];
-            memset_to_strelem(result_pointer, ch, (memSizeType) factor);
+            memset_to_strelem(result->mem, ch, (memSizeType) factor);
           } else {
+            result_pointer = result->mem;
             for (number = (memSizeType) factor; number > 0; number--) {
               memcpy(result_pointer, stri->mem, len * sizeof(strElemType));
               result_pointer += len;

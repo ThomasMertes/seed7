@@ -325,8 +325,6 @@ bstriType bstParse (const const_striType stri)
 striType bstStr (const const_bstriType bstri)
 
   {
-    register const ucharType *from = bstri->mem;
-    register strElemType *to;
     striType result;
 
   /* bstStr */
@@ -334,8 +332,7 @@ striType bstStr (const const_bstriType bstri)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = bstri->size;
-      to = result->mem;
-      memcpy_to_strelem(to, from, bstri->size);
+      memcpy_to_strelem(result->mem, bstri->mem, bstri->size);
     } /* if */
     return result;
   } /* bstStr */

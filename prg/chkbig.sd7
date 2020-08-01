@@ -1916,13 +1916,11 @@ const proc: chkRadix is func
       okay := FALSE;
     end if;
 
-(*
     bigNum := 123456789_ ** 12345;
     if bigInteger(bigNum radix 16, 16) <> bigNum then
       writeln(" ***** The radix operator for bigInteger does not work correct for big values.");
       okay := FALSE;
     end if;
-*)
 
     if okay then
       writeln("The radix operator for bigInteger works correct.");

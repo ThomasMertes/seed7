@@ -235,12 +235,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-04-06 the number of lines is:
+than 200000 lines of Seed7. For version 2014-04-20 the number of lines is:
 
-   98453  C source files (*.c)
-    8384  C header files (*.h)
-  120875  Seed7 source files (*.sd7)
-   97488  Seed7 library/include files (*.s7i)
+   98714  C source files (*.c)
+    8332  C header files (*.h)
+  120883  Seed7 source files (*.sd7)
+   97496  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -989,6 +989,26 @@ characters have multiple characters that map to them.
 Seed7 source code allows Unicode in char literals, string literals, block comments
 and line comments. Interpreter and compiler assume that a Seed7 program is written
 with UTF-8 encoding. Therefore a program editor with UTF-8 encoding should be used.
+
+
+Are there regular expressions?
+==============================
+
+Regular expressions are a powerful feature. Unfortunately they lead also
+to code, that is hard to maintain. The regular expression language is
+usually embedded in the surrounding programming language. As with other
+language in language features this leads to maintenance problems. There
+are also other difficulties. Regular expressions work typeless but Seed7
+does not. For this reasons regular expressions are currently not supported,
+but there is an alternative (see below).
+
+Seed7 has support for lexical scanner functions. Scanner functions use the
+LL(1) aproach, which is used in compilers. Practically no compiler uses
+regular expressions to parse a program. Scanner functions work strictly
+from left to right. They examine one character and do decisions based on
+this character. How scanner functions work is described in the manual.
+Scanner functions for strings are defined in scanstri.s7i and scanner
+functions for files are defined in scanfile.s7i.
 
 
 Why is the div operator used for integer divisions?

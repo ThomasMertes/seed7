@@ -582,7 +582,8 @@ progType analyze_file (const const_striType source_file_argument, uintType optio
       memcpy(source_name->mem, source_file_argument->mem,
           source_file_argument->size * sizeof(strElemType));
       if (add_extension) {
-        cstri_expand(&source_name->mem[source_file_argument->size], ".sd7", 4);
+        memcpy_to_strelem(&source_name->mem[source_file_argument->size],
+                          (const_ustriType) ".sd7", 4);
       } /* if */
       open_infile(source_name,
                   (options & WRITE_LIBRARY_NAMES) != 0,

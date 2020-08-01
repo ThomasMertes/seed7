@@ -10392,6 +10392,9 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right" valign="top"><a class="type" href="#ffi_cstriType">cstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8">stri_to_cstri8</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an UTF-8 encoded C string from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_cstriType">cstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_cstri8_buf">stri_to_cstri8_buf</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length, <span class="type">errInfoType</span> *err_info)</td></tr>
+      <tr><td width="30"></td><td>Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.</td></tr></table></td></tr>
+
     <tr><td align="right" valign="top"><a class="type" href="#ffi_bstriType">bstriType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_stri_to_bstri">stri_to_bstri</a></b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Create an ISO-8859-1 encoded bstring from a Seed7 UTF-32 string.</td></tr></table></td></tr>
 
@@ -10401,8 +10404,11 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
     <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri_to_stri">cstri_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an ISO-8859-1 (Latin-1) encoded C string to a Seed7 string.</td></tr></table></td></tr>
 
-    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_to_stri">cstri8_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <span class="type">errInfoType</span> *err_info)</td></tr>
       <tr><td width="30"></td><td>Copy an UTF-8 encoded C string to a Seed7 string.</td></tr></table></td></tr>
+
+    <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_buf_to_stri">cstri8_buf_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length, <span class="type">errInfoType</span> *err_info)</td></tr>
+      <tr><td width="30"></td><td>Copy an UTF-8 encoded C string buffer to a Seed7 string.</td></tr></table></td></tr>
 
     <tr><td align="right" valign="top"><a class="type" href="#ffi_striType">striType</a></td><td><table border="0" cellspacing="0" cellpadding="0"> <tr><td colspan="2"><b><a class="link" href="#ffi_cstri8_or_cstri_to_stri">cstri8_or_cstri_to_stri</a></b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</td></tr>
       <tr><td width="30"></td><td>Copy an UTF-8 or ISO-8859-1 encoded C string to a Seed7 string.</td></tr></table></td></tr>
@@ -10478,6 +10484,30 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
         conversion failed (the error is indicated by err_info).</dd></dl></dd>
 </dl></div>
 <hr />
+  <div><a name="ffi_stri_to_cstri8_buf"><h3>stri_to_cstri8_buf</h3></a>
+<p>
+    <a class="type" href="#ffi_cstriType">cstriType</a> <b>stri_to_cstri8_buf</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <a class="type" href="#ffi_memSizeType">memSizeType</a> *length,
+        <span class="type">errInfoType</span> *err_info)</p><dl><dd>
+<p>
+      Create an UTF-8 encoded C string buffer from a Seed7 UTF-32 string.
+      The memory for the zero byte terminated C string is allocated.
+      The C string result must be freed with the macro free_cstri8().
+      This function is intended to create temporary strings, that
+      are used as parameters. To get good performance the allocated
+      memory for the C string is oversized.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>stri</tt> - Seed7 UTF-32 string to be converted.</dd>
+        <dd><tt>length</tt> - Place to return the length of the result (without '\0').</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed.</dd>
+</dl></dd>
+      <dd><dl><dt><b>Returns:</b></dt>
+        <dd>an UTF-8 encoded null terminated C string or
+        NULL, when the memory allocation failed
+        (the error is indicated by err_info).</dd></dl></dd>
+</dl></div>
+<hr />
   <div><a name="ffi_stri_to_bstri"><h3>stri_to_bstri</h3></a>
 <p>
     <a class="type" href="#ffi_bstriType">bstriType</a> <b>stri_to_bstri</b> (<a class="type" href="#ffi_striType">const_striType</a> stri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
@@ -10535,13 +10565,37 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <hr />
   <div><a name="ffi_cstri8_to_stri"><h3>cstri8_to_stri</h3></a>
 <p>
-    <a class="type" href="#ffi_striType">striType</a> <b>cstri8_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri)</p><dl><dd>
+    <a class="type" href="#ffi_striType">striType</a> <b>cstri8_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <span class="type">errInfoType</span> *err_info)</p><dl><dd>
 <p>
       Copy an UTF-8 encoded C string to a Seed7 string.
       The memory for the UTF-32 encoded Seed7 string is allocated.
 </p></dd>
       <dd><dl><dt><b>Parameters:</b></dt>
         <dd><tt>cstri</tt> - Null terminated UTF-8 encoded C string.</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
+                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the conversion failed.</dd>
+</dl></dd>
+      <dd><dl><dt><b>Returns:</b></dt>
+        <dd>an UTF-32 encoded Seed7 string or
+        NULL, when the memory allocation failed or when
+        illegal UTF-8 encodings are used.</dd></dl></dd>
+</dl></div>
+<hr />
+  <div><a name="ffi_cstri8_buf_to_stri"><h3>cstri8_buf_to_stri</h3></a>
+<p>
+    <a class="type" href="#ffi_striType">striType</a> <b>cstri8_buf_to_stri</b> (<a class="type" href="#ffi_cstriType">const_cstriType</a> cstri, <a class="type" href="#ffi_memSizeType">memSizeType</a> length,
+        <span class="type">errInfoType</span> *err_info)</p><dl><dd>
+<p>
+      Copy an UTF-8 encoded C string buffer to a Seed7 string.
+      The memory for the UTF-32 encoded Seed7 string is allocated.
+</p></dd>
+      <dd><dl><dt><b>Parameters:</b></dt>
+        <dd><tt>cstri</tt> - UTF-8 encoded C string buffer (not null terminated).</dd>
+        <dd><tt>length</tt> - Length of the UTF-8 encoded C string buffer.</dd>
+        <dd><tt>err_info</tt> - Unchanged when the function succeeds or
+                   <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a> when the memory allocation failed or
+                   <a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a> when the conversion failed.</dd>
 </dl></dd>
       <dd><dl><dt><b>Returns:</b></dt>
         <dd>an UTF-32 encoded Seed7 string or

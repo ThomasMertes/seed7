@@ -579,11 +579,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          if (result_size > 0) {
-            register strElemType *to = result->mem;
-
-            memcpy_to_strelem(to, buffer, result_size);
-          } /* if */
+          memcpy_to_strelem(result->mem, buffer, result_size);
           result->size = result_size;
           if (result_size == 0 && result_size < bytes_requested) {
             *eofIndicator = (charType) EOF;
@@ -600,12 +596,7 @@ striType socGets (socketType inSocket, intType length, charType *const eofIndica
           if (result_size == (memSizeType) (-1)) {
             result_size = 0;
           } /* if */
-          if (result_size > 0) {
-            register const ucharType *from = (ucharType *) result->mem;
-            register strElemType *to = result->mem;
-
-            memcpy_to_strelem(to, from, result_size);
-          } /* if */
+          memcpy_to_strelem(result->mem, (ucharType *) result->mem, result_size);
           result->size = result_size;
           if (result_size < bytes_requested) {
             if (result_size == 0) {
@@ -1179,11 +1170,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
-          if (result_size > 0) {
-            register strElemType *to = result->mem;
-
-            memcpy_to_strelem(to, buffer, result_size);
-          } /* if */
+          memcpy_to_strelem(result->mem, buffer, result_size);
           result->size = result_size;
           *terminationChar = '\n';
         } /* if */
@@ -1212,11 +1199,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
             result = resized_result;
             old_result_size = result_size;
             /* printf("a result[%d], size=%d\n", result_pos, bytes_requested); */
-            {
-              register strElemType *to = &result->mem[result_pos];
-
-              memcpy_to_strelem(to, buffer, bytes_requested);
-            }
+            memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
             result_pos += bytes_requested;
             bytes_received = (memSizeType) recv(inSocket, cast_send_recv_data(buffer),
                                                 BUFFER_DELTA_SIZE, MSG_PEEK);
@@ -1265,11 +1248,7 @@ striType socLineRead (socketType inSocket, charType *const terminationChar)
           } else {
             result = resized_result;
             /* printf("e result[%d], size=%d\n", result_pos, bytes_requested); */
-            if (result_size > 0) {
-              register strElemType *to = &result->mem[result_pos];
-
-              memcpy_to_strelem(to, buffer, bytes_requested);
-            } /* if */
+            memcpy_to_strelem(&result->mem[result_pos], buffer, bytes_requested);
             result->size = result_size;
             *terminationChar = '\n';
           } /* if */
@@ -1405,12 +1384,7 @@ intType socRecv (socketType sock, striType *stri, intType length, intType flags)
       } /* if */
       new_stri_size = (memSizeType) recv(sock, cast_send_recv_data((*stri)->mem),
                                          cast_buffer_len(bytes_requested), (int) flags);
-      if (new_stri_size > 0) {
-        register const ucharType *from = (ucharType *) (*stri)->mem;
-        register strElemType *to = (*stri)->mem;
-
-        memcpy_to_strelem(to, from, new_stri_size);
-      } /* if */
+      memcpy_to_strelem((*stri)->mem, (ucharType *) (*stri)->mem, new_stri_size);
       (*stri)->size = new_stri_size;
       if (new_stri_size < old_stri_size) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, old_stri_size, new_stri_size);
@@ -1498,12 +1472,7 @@ intType socRecvfrom (socketType sock, striType *stri, intType length, intType fl
           } /* if */
         } /* if */
       } /* if */
-      if (stri_size > 0) {
-        register const ucharType *from = (ucharType *) (*stri)->mem;
-        register strElemType *to = (*stri)->mem;
-
-        memcpy_to_strelem(to, from, stri_size);
-      } /* if */
+      memcpy_to_strelem((*stri)->mem, (ucharType *) (*stri)->mem, stri_size);
       (*stri)->size = stri_size;
       if (stri_size < bytes_requested) {
         REALLOC_STRI_SIZE_OK(resized_stri, *stri, bytes_requested, stri_size);

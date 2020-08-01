@@ -1118,6 +1118,8 @@ striType cmdConfigValue (const const_striType name)
         opt = SYSTEM_CONSOLE_LIBS;
       } else if (strcmp(opt_name, "SYSTEM_DRAW_LIBS") == 0) {
         opt = SYSTEM_DRAW_LIBS;
+      } else if (strcmp(opt_name, "SYSTEM_DB_LIBS") == 0) {
+        opt = SYSTEM_DB_LIBS;
       } else if (strcmp(opt_name, "SEED7_LIB") == 0) {
         opt = SEED7_LIB;
       } else if (strcmp(opt_name, "CONSOLE_LIB") == 0) {
