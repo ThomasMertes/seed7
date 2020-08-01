@@ -1709,6 +1709,18 @@ striType cmdConfigValue (const const_striType name)
     } else if (strcmp(opt_name, "INT_RANGE_IN_FLOATTYPE_MAX") == 0) {
       sprintf(buffer, FMT_D, INT_RANGE_IN_FLOATTYPE_MAX);
       opt = buffer;
+    } else if (strcmp(opt_name, "MINIMUM_TRUNC_ARGUMENT") == 0) {
+#if FLOATTYPE_DOUBLE && INTTYPE_SIZE == 64
+      opt = STRINGIFY(MINIMUM_TRUNC_ARGUMENT);
+#else
+      opt = "";
+#endif
+    } else if (strcmp(opt_name, "MAXIMUM_TRUNC_ARGUMENT") == 0) {
+#if FLOATTYPE_DOUBLE && INTTYPE_SIZE == 64
+      opt = STRINGIFY(MAXIMUM_TRUNC_ARGUMENT);
+#else
+      opt = "";
+#endif
     } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
       /* Use string literal concatenation: */
       opt = MACRO_DEFS  OS_ISNAN_DEFINITION;

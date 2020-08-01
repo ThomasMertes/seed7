@@ -1,3 +1,40 @@
+20200308:
+- The new library cpio.s7i has been added. This library supports cpio
+  archive files.
+- The new library rpm.s7i has been added. This library supports rpm
+  archive files.
+- The new library ar.s7i has been added. This library supports ar
+  archive files.
+- The new library subfile.s7i has been added. This library allows to
+  open a part of an existing file as read only file.
+- The new library filebits.s7i has been added. This library defines
+  file mode bits used by archive file systems.
+- The libraries bin32.s7i and bin64.s7i have been improved to support
+  case statements for the types bin32 and bin64.
+- The tarHeader element 'size' has been renamed to 'fileSize' in
+  tar.s7i and tar_cmds.s7i.
+- Tests for the operator 'conv' and for the functions compare(), str(),
+  float(), trunc() and round() have been added to chkflt.sd7.
+- The program chkccomp.c has been improved to determine the values
+  MINIMUM_TRUNC_ARGUMENT and MAXIMUM_TRUNC_ARGUMENT.
+- Definitions of MINIMUM_TRUNC_ARGUMENT and MAXIMUM_TRUNC_ARGUMENT have
+  been added to cc_conf.s7i.
+- The compiler (s7c) has been improved (in comp/flt_act.s7i) such that
+  the actions FLT_TRUNC and FLT_ROUND do the correct check for the
+  exception RANGE_ERROR.
+- The database driver sql_oci.c has been improved to support the types
+  BINARY_FLOAT and BINARY_DOUBLE.
+- Tests for FLOAT and DOUBLE fields have been added to chkdb.sd7.
+- A definition of the constant GZIP_MAGIC has been added to gzip.s7i.
+- In file.s7i and iobuffer.s7i the functions hasNext() and length()
+  have been changed to use an inout parameter for the file. This fixes
+  a problem in compiled programs with some file systems where also an
+  inout parameter is used for the file.
+- The file db_oci.h has been improved to define SQLT_BFLOAT,
+  SQLT_IBFLOAT, SQLT_BDOUBLE and SQLT_IBDOUBLE.
+- In fltlib.c the functions flt_trunc() and flt_round() have been
+  improved to do the correct check for the exception RANGE_ERROR.
+
 20200209:
 - The new database driver sql_tds.c has been added. This driver uses
   the Tabular Data Stream (TDS) protocol to transfer data between

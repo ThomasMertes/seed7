@@ -333,7 +333,7 @@ static void setDbErrorMsg (const char *funcName, const char *dbFuncName)
 
 
 
-static void doExecute (DBPROCESS *dbproc, cstriType query,
+static void doExecute (DBPROCESS *dbproc, const const_cstriType query,
     errInfoType *err_info)
 
   {

@@ -101,7 +101,7 @@ enable_output(fileMode);
 
 
 (**
- *  Interface type for file systems ([[osfiles#osFileSys|os]], [[tar#tarArchive|tar]], [[zip#zipArchive|zip]], [[zip#zipArchive|jar]], [[ftp#ftpConnection|ftp]], ...).
+ *  Interface type for file systems ([[osfiles#osFileSys|os]], [[tar#tarArchive|tar]], [[zip#zipArchive|zip]], [[zip#zipArchive|jar]], [[cpio#cpioArchive|cpio]], [[rpm#rpmArchive|rpm]], [[ftp#ftpConnection|ftp]], ...).
  *)
 const type: fileSys is sub object interface;
 

@@ -194,7 +194,7 @@ const func boolean: eof (in bufferFile: inBufferFile) is
  *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
  *          TRUE otherwise.
  *)
-const func boolean: hasNext (in bufferFile: inBufferFile) is
+const func boolean: hasNext (inout bufferFile: inBufferFile) is
   return inBufferFile.position <= length(inBufferFile.buffer) or
          hasNext(inBufferFile.baseFile);
 
@@ -204,7 +204,7 @@ const func boolean: hasNext (in bufferFile: inBufferFile) is
  *  The file length is measured in characters.
  *  @return the length of a file.
  *)
-const func integer: length (in bufferFile: aBufferFile) is
+const func integer: length (inout bufferFile: aBufferFile) is
   return length(aBufferFile.baseFile);
 
 

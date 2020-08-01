@@ -1939,88 +1939,343 @@ const proc: check_compare is func
   local
     var boolean: okay is TRUE;
   begin
-    if  compare(-Infinity,       -Infinity) <>  0  or
-        compare(-Infinity,         -1.0E37) <> -1  or
-        compare(-Infinity,         -1000.0) <> -1  or
-        compare(-Infinity,            -0.0) <> -1  or
-        compare(-Infinity,             0.0) <> -1  or
-        compare(-Infinity,          1000.0) <> -1  or
-        compare(-Infinity,          1.0E37) <> -1  or
-        compare(-Infinity,        Infinity) <> -1  or
-        compare(-Infinity,             NaN) <> -1  or
-        compare(  -1.0E37,       -Infinity) <>  1  or
-        compare(  -1.0E37,         -1.0E37) <>  0  or
-        compare(  -1.0E37,         -1000.0) <> -1  or
-        compare(  -1.0E37,            -0.0) <> -1  or
-        compare(  -1.0E37,             0.0) <> -1  or
-        compare(  -1.0E37,          1000.0) <> -1  or
-        compare(  -1.0E37,          1.0E37) <> -1  or
-        compare(  -1.0E37,        Infinity) <> -1  or
-        compare(  -1.0E37,             NaN) <> -1  or
-        compare(  -1000.0,       -Infinity) <>  1  or
-        compare(  -1000.0,         -1.0E37) <>  1  or
-        compare(  -1000.0,         -1000.0) <>  0  or
-        compare(  -1000.0,            -0.0) <> -1  or
-        compare(  -1000.0,             0.0) <> -1  or
-        compare(  -1000.0,          1000.0) <> -1  or
-        compare(  -1000.0,          1.0E37) <> -1  or
-        compare(  -1000.0,        Infinity) <> -1  or
-        compare(  -1000.0,             NaN) <> -1  or
-        compare(     -0.0,       -Infinity) <>  1  or
-        compare(     -0.0,         -1.0E37) <>  1  or
-        compare(     -0.0,         -1000.0) <>  1  or
-        compare(     -0.0,            -0.0) <>  0  or
-        compare(     -0.0,             0.0) <>  0  or
-        compare(     -0.0,          1000.0) <> -1  or
-        compare(     -0.0,          1.0E37) <> -1  or
-        compare(     -0.0,        Infinity) <> -1  or
-        compare(     -0.0,             NaN) <> -1  or
-        compare(      0.0,       -Infinity) <>  1  or
-        compare(      0.0,         -1.0E37) <>  1  or
-        compare(      0.0,         -1000.0) <>  1  or
-        compare(      0.0,            -0.0) <>  0  or
-        compare(      0.0,             0.0) <>  0  or
-        compare(      0.0,          1000.0) <> -1  or
-        compare(      0.0,          1.0E37) <> -1  or
-        compare(      0.0,        Infinity) <> -1  or
-        compare(      0.0,             NaN) <> -1  or
-        compare(   1000.0,       -Infinity) <>  1  or
-        compare(   1000.0,         -1.0E37) <>  1  or
-        compare(   1000.0,         -1000.0) <>  1  or
-        compare(   1000.0,            -0.0) <>  1  or
-        compare(   1000.0,             0.0) <>  1  or
-        compare(   1000.0,          1000.0) <>  0  or
-        compare(   1000.0,          1.0E37) <> -1  or
-        compare(   1000.0,        Infinity) <> -1  or
-        compare(   1000.0,             NaN) <> -1  or
-        compare(   1.0E37,       -Infinity) <>  1  or
-        compare(   1.0E37,         -1.0E37) <>  1  or
-        compare(   1.0E37,         -1000.0) <>  1  or
-        compare(   1.0E37,            -0.0) <>  1  or
-        compare(   1.0E37,             0.0) <>  1  or
-        compare(   1.0E37,          1000.0) <>  1  or
-        compare(   1.0E37,          1.0E37) <>  0  or
-        compare(   1.0E37,        Infinity) <> -1  or
-        compare(   1.0E37,             NaN) <> -1  or
-        compare( Infinity,       -Infinity) <>  1  or
-        compare( Infinity,         -1.0E37) <>  1  or
-        compare( Infinity,         -1000.0) <>  1  or
-        compare( Infinity,            -0.0) <>  1  or
-        compare( Infinity,             0.0) <>  1  or
-        compare( Infinity,          1000.0) <>  1  or
-        compare( Infinity,          1.0E37) <>  1  or
-        compare( Infinity,        Infinity) <>  0  or
-        compare( Infinity,             NaN) <> -1  or
-        compare(      NaN,       -Infinity) <>  1  or
-        compare(      NaN,         -1.0E37) <>  1  or
-        compare(      NaN,         -1000.0) <>  1  or
-        compare(      NaN,            -0.0) <>  1  or
-        compare(      NaN,             0.0) <>  1  or
-        compare(      NaN,          1000.0) <>  1  or
-        compare(      NaN,          1.0E37) <>  1  or
-        compare(      NaN,        Infinity) <>  1  or
-        compare(      NaN,             NaN) <>  0  then
-      writeln(" ***** Compare for float values does not work correct.");
+    if  compare(-Infinity, -Infinity) <>  0 or
+        compare(-Infinity,   -1.0E37) <> -1 or
+        compare(-Infinity,   -1000.0) <> -1 or
+        compare(-Infinity,      -0.0) <> -1 or
+        compare(-Infinity,       0.0) <> -1 or
+        compare(-Infinity,    1000.0) <> -1 or
+        compare(-Infinity,    1.0E37) <> -1 or
+        compare(-Infinity,  Infinity) <> -1 or
+        compare(-Infinity,       NaN) <> -1 or
+        compare(  -1.0E37, -Infinity) <>  1 or
+        compare(  -1.0E37,   -1.0E37) <>  0 or
+        compare(  -1.0E37,   -1000.0) <> -1 or
+        compare(  -1.0E37,      -0.0) <> -1 or
+        compare(  -1.0E37,       0.0) <> -1 or
+        compare(  -1.0E37,    1000.0) <> -1 or
+        compare(  -1.0E37,    1.0E37) <> -1 or
+        compare(  -1.0E37,  Infinity) <> -1 or
+        compare(  -1.0E37,       NaN) <> -1 or
+        compare(  -1000.0, -Infinity) <>  1 or
+        compare(  -1000.0,   -1.0E37) <>  1 or
+        compare(  -1000.0,   -1000.0) <>  0 or
+        compare(  -1000.0,      -0.0) <> -1 or
+        compare(  -1000.0,       0.0) <> -1 or
+        compare(  -1000.0,    1000.0) <> -1 or
+        compare(  -1000.0,    1.0E37) <> -1 or
+        compare(  -1000.0,  Infinity) <> -1 or
+        compare(  -1000.0,       NaN) <> -1 or
+        compare(     -0.0, -Infinity) <>  1 or
+        compare(     -0.0,   -1.0E37) <>  1 or
+        compare(     -0.0,   -1000.0) <>  1 or
+        compare(     -0.0,      -0.0) <>  0 or
+        compare(     -0.0,       0.0) <>  0 or
+        compare(     -0.0,    1000.0) <> -1 or
+        compare(     -0.0,    1.0E37) <> -1 or
+        compare(     -0.0,  Infinity) <> -1 or
+        compare(     -0.0,       NaN) <> -1 or
+        compare(      0.0, -Infinity) <>  1 or
+        compare(      0.0,   -1.0E37) <>  1 or
+        compare(      0.0,   -1000.0) <>  1 or
+        compare(      0.0,      -0.0) <>  0 or
+        compare(      0.0,       0.0) <>  0 or
+        compare(      0.0,    1000.0) <> -1 or
+        compare(      0.0,    1.0E37) <> -1 or
+        compare(      0.0,  Infinity) <> -1 or
+        compare(      0.0,       NaN) <> -1 or
+        compare(   1000.0, -Infinity) <>  1 or
+        compare(   1000.0,   -1.0E37) <>  1 or
+        compare(   1000.0,   -1000.0) <>  1 or
+        compare(   1000.0,      -0.0) <>  1 or
+        compare(   1000.0,       0.0) <>  1 or
+        compare(   1000.0,    1000.0) <>  0 or
+        compare(   1000.0,    1.0E37) <> -1 or
+        compare(   1000.0,  Infinity) <> -1 or
+        compare(   1000.0,       NaN) <> -1 or
+        compare(   1.0E37, -Infinity) <>  1 or
+        compare(   1.0E37,   -1.0E37) <>  1 or
+        compare(   1.0E37,   -1000.0) <>  1 or
+        compare(   1.0E37,      -0.0) <>  1 or
+        compare(   1.0E37,       0.0) <>  1 or
+        compare(   1.0E37,    1000.0) <>  1 or
+        compare(   1.0E37,    1.0E37) <>  0 or
+        compare(   1.0E37,  Infinity) <> -1 or
+        compare(   1.0E37,       NaN) <> -1 or
+        compare( Infinity, -Infinity) <>  1 or
+        compare( Infinity,   -1.0E37) <>  1 or
+        compare( Infinity,   -1000.0) <>  1 or
+        compare( Infinity,      -0.0) <>  1 or
+        compare( Infinity,       0.0) <>  1 or
+        compare( Infinity,    1000.0) <>  1 or
+        compare( Infinity,    1.0E37) <>  1 or
+        compare( Infinity,  Infinity) <>  0 or
+        compare( Infinity,       NaN) <> -1 or
+        compare(      NaN, -Infinity) <>  1 or
+        compare(      NaN,   -1.0E37) <>  1 or
+        compare(      NaN,   -1000.0) <>  1 or
+        compare(      NaN,      -0.0) <>  1 or
+        compare(      NaN,       0.0) <>  1 or
+        compare(      NaN,    1000.0) <>  1 or
+        compare(      NaN,    1.0E37) <>  1 or
+        compare(      NaN,  Infinity) <>  1 or
+        compare(      NaN,       NaN) <>  0 then
+      writeln(" ***** Compare of float values does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  compare(floatExpr(-Infinity), -Infinity) <>  0 or
+        compare(floatExpr(-Infinity),   -1.0E37) <> -1 or
+        compare(floatExpr(-Infinity),   -1000.0) <> -1 or
+        compare(floatExpr(-Infinity),      -0.0) <> -1 or
+        compare(floatExpr(-Infinity),       0.0) <> -1 or
+        compare(floatExpr(-Infinity),    1000.0) <> -1 or
+        compare(floatExpr(-Infinity),    1.0E37) <> -1 or
+        compare(floatExpr(-Infinity),  Infinity) <> -1 or
+        compare(floatExpr(-Infinity),       NaN) <> -1 or
+        compare(floatExpr(  -1.0E37), -Infinity) <>  1 or
+        compare(floatExpr(  -1.0E37),   -1.0E37) <>  0 or
+        compare(floatExpr(  -1.0E37),   -1000.0) <> -1 or
+        compare(floatExpr(  -1.0E37),      -0.0) <> -1 or
+        compare(floatExpr(  -1.0E37),       0.0) <> -1 or
+        compare(floatExpr(  -1.0E37),    1000.0) <> -1 or
+        compare(floatExpr(  -1.0E37),    1.0E37) <> -1 or
+        compare(floatExpr(  -1.0E37),  Infinity) <> -1 or
+        compare(floatExpr(  -1.0E37),       NaN) <> -1 or
+        compare(floatExpr(  -1000.0), -Infinity) <>  1 or
+        compare(floatExpr(  -1000.0),   -1.0E37) <>  1 or
+        compare(floatExpr(  -1000.0),   -1000.0) <>  0 or
+        compare(floatExpr(  -1000.0),      -0.0) <> -1 or
+        compare(floatExpr(  -1000.0),       0.0) <> -1 or
+        compare(floatExpr(  -1000.0),    1000.0) <> -1 or
+        compare(floatExpr(  -1000.0),    1.0E37) <> -1 or
+        compare(floatExpr(  -1000.0),  Infinity) <> -1 or
+        compare(floatExpr(  -1000.0),       NaN) <> -1 or
+        compare(floatExpr(     -0.0), -Infinity) <>  1 or
+        compare(floatExpr(     -0.0),   -1.0E37) <>  1 or
+        compare(floatExpr(     -0.0),   -1000.0) <>  1 or
+        compare(floatExpr(     -0.0),      -0.0) <>  0 or
+        compare(floatExpr(     -0.0),       0.0) <>  0 or
+        compare(floatExpr(     -0.0),    1000.0) <> -1 or
+        compare(floatExpr(     -0.0),    1.0E37) <> -1 or
+        compare(floatExpr(     -0.0),  Infinity) <> -1 or
+        compare(floatExpr(     -0.0),       NaN) <> -1 or
+        compare(floatExpr(      0.0), -Infinity) <>  1 or
+        compare(floatExpr(      0.0),   -1.0E37) <>  1 or
+        compare(floatExpr(      0.0),   -1000.0) <>  1 or
+        compare(floatExpr(      0.0),      -0.0) <>  0 or
+        compare(floatExpr(      0.0),       0.0) <>  0 or
+        compare(floatExpr(      0.0),    1000.0) <> -1 or
+        compare(floatExpr(      0.0),    1.0E37) <> -1 or
+        compare(floatExpr(      0.0),  Infinity) <> -1 or
+        compare(floatExpr(      0.0),       NaN) <> -1 or
+        compare(floatExpr(   1000.0), -Infinity) <>  1 or
+        compare(floatExpr(   1000.0),   -1.0E37) <>  1 or
+        compare(floatExpr(   1000.0),   -1000.0) <>  1 or
+        compare(floatExpr(   1000.0),      -0.0) <>  1 or
+        compare(floatExpr(   1000.0),       0.0) <>  1 or
+        compare(floatExpr(   1000.0),    1000.0) <>  0 or
+        compare(floatExpr(   1000.0),    1.0E37) <> -1 or
+        compare(floatExpr(   1000.0),  Infinity) <> -1 or
+        compare(floatExpr(   1000.0),       NaN) <> -1 or
+        compare(floatExpr(   1.0E37), -Infinity) <>  1 or
+        compare(floatExpr(   1.0E37),   -1.0E37) <>  1 or
+        compare(floatExpr(   1.0E37),   -1000.0) <>  1 or
+        compare(floatExpr(   1.0E37),      -0.0) <>  1 or
+        compare(floatExpr(   1.0E37),       0.0) <>  1 or
+        compare(floatExpr(   1.0E37),    1000.0) <>  1 or
+        compare(floatExpr(   1.0E37),    1.0E37) <>  0 or
+        compare(floatExpr(   1.0E37),  Infinity) <> -1 or
+        compare(floatExpr(   1.0E37),       NaN) <> -1 or
+        compare(floatExpr( Infinity), -Infinity) <>  1 or
+        compare(floatExpr( Infinity),   -1.0E37) <>  1 or
+        compare(floatExpr( Infinity),   -1000.0) <>  1 or
+        compare(floatExpr( Infinity),      -0.0) <>  1 or
+        compare(floatExpr( Infinity),       0.0) <>  1 or
+        compare(floatExpr( Infinity),    1000.0) <>  1 or
+        compare(floatExpr( Infinity),    1.0E37) <>  1 or
+        compare(floatExpr( Infinity),  Infinity) <>  0 or
+        compare(floatExpr( Infinity),       NaN) <> -1 or
+        compare(floatExpr(      NaN), -Infinity) <>  1 or
+        compare(floatExpr(      NaN),   -1.0E37) <>  1 or
+        compare(floatExpr(      NaN),   -1000.0) <>  1 or
+        compare(floatExpr(      NaN),      -0.0) <>  1 or
+        compare(floatExpr(      NaN),       0.0) <>  1 or
+        compare(floatExpr(      NaN),    1000.0) <>  1 or
+        compare(floatExpr(      NaN),    1.0E37) <>  1 or
+        compare(floatExpr(      NaN),  Infinity) <>  1 or
+        compare(floatExpr(      NaN),       NaN) <>  0 then
+      writeln(" ***** Compare of float values does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  compare(-Infinity, floatExpr(-Infinity)) <>  0 or
+        compare(-Infinity, floatExpr(  -1.0E37)) <> -1 or
+        compare(-Infinity, floatExpr(  -1000.0)) <> -1 or
+        compare(-Infinity, floatExpr(     -0.0)) <> -1 or
+        compare(-Infinity, floatExpr(      0.0)) <> -1 or
+        compare(-Infinity, floatExpr(   1000.0)) <> -1 or
+        compare(-Infinity, floatExpr(   1.0E37)) <> -1 or
+        compare(-Infinity, floatExpr( Infinity)) <> -1 or
+        compare(-Infinity, floatExpr(      NaN)) <> -1 or
+        compare(  -1.0E37, floatExpr(-Infinity)) <>  1 or
+        compare(  -1.0E37, floatExpr(  -1.0E37)) <>  0 or
+        compare(  -1.0E37, floatExpr(  -1000.0)) <> -1 or
+        compare(  -1.0E37, floatExpr(     -0.0)) <> -1 or
+        compare(  -1.0E37, floatExpr(      0.0)) <> -1 or
+        compare(  -1.0E37, floatExpr(   1000.0)) <> -1 or
+        compare(  -1.0E37, floatExpr(   1.0E37)) <> -1 or
+        compare(  -1.0E37, floatExpr( Infinity)) <> -1 or
+        compare(  -1.0E37, floatExpr(      NaN)) <> -1 or
+        compare(  -1000.0, floatExpr(-Infinity)) <>  1 or
+        compare(  -1000.0, floatExpr(  -1.0E37)) <>  1 or
+        compare(  -1000.0, floatExpr(  -1000.0)) <>  0 or
+        compare(  -1000.0, floatExpr(     -0.0)) <> -1 or
+        compare(  -1000.0, floatExpr(      0.0)) <> -1 or
+        compare(  -1000.0, floatExpr(   1000.0)) <> -1 or
+        compare(  -1000.0, floatExpr(   1.0E37)) <> -1 or
+        compare(  -1000.0, floatExpr( Infinity)) <> -1 or
+        compare(  -1000.0, floatExpr(      NaN)) <> -1 or
+        compare(     -0.0, floatExpr(-Infinity)) <>  1 or
+        compare(     -0.0, floatExpr(  -1.0E37)) <>  1 or
+        compare(     -0.0, floatExpr(  -1000.0)) <>  1 or
+        compare(     -0.0, floatExpr(     -0.0)) <>  0 or
+        compare(     -0.0, floatExpr(      0.0)) <>  0 or
+        compare(     -0.0, floatExpr(   1000.0)) <> -1 or
+        compare(     -0.0, floatExpr(   1.0E37)) <> -1 or
+        compare(     -0.0, floatExpr( Infinity)) <> -1 or
+        compare(     -0.0, floatExpr(      NaN)) <> -1 or
+        compare(      0.0, floatExpr(-Infinity)) <>  1 or
+        compare(      0.0, floatExpr(  -1.0E37)) <>  1 or
+        compare(      0.0, floatExpr(  -1000.0)) <>  1 or
+        compare(      0.0, floatExpr(     -0.0)) <>  0 or
+        compare(      0.0, floatExpr(      0.0)) <>  0 or
+        compare(      0.0, floatExpr(   1000.0)) <> -1 or
+        compare(      0.0, floatExpr(   1.0E37)) <> -1 or
+        compare(      0.0, floatExpr( Infinity)) <> -1 or
+        compare(      0.0, floatExpr(      NaN)) <> -1 or
+        compare(   1000.0, floatExpr(-Infinity)) <>  1 or
+        compare(   1000.0, floatExpr(  -1.0E37)) <>  1 or
+        compare(   1000.0, floatExpr(  -1000.0)) <>  1 or
+        compare(   1000.0, floatExpr(     -0.0)) <>  1 or
+        compare(   1000.0, floatExpr(      0.0)) <>  1 or
+        compare(   1000.0, floatExpr(   1000.0)) <>  0 or
+        compare(   1000.0, floatExpr(   1.0E37)) <> -1 or
+        compare(   1000.0, floatExpr( Infinity)) <> -1 or
+        compare(   1000.0, floatExpr(      NaN)) <> -1 or
+        compare(   1.0E37, floatExpr(-Infinity)) <>  1 or
+        compare(   1.0E37, floatExpr(  -1.0E37)) <>  1 or
+        compare(   1.0E37, floatExpr(  -1000.0)) <>  1 or
+        compare(   1.0E37, floatExpr(     -0.0)) <>  1 or
+        compare(   1.0E37, floatExpr(      0.0)) <>  1 or
+        compare(   1.0E37, floatExpr(   1000.0)) <>  1 or
+        compare(   1.0E37, floatExpr(   1.0E37)) <>  0 or
+        compare(   1.0E37, floatExpr( Infinity)) <> -1 or
+        compare(   1.0E37, floatExpr(      NaN)) <> -1 or
+        compare( Infinity, floatExpr(-Infinity)) <>  1 or
+        compare( Infinity, floatExpr(  -1.0E37)) <>  1 or
+        compare( Infinity, floatExpr(  -1000.0)) <>  1 or
+        compare( Infinity, floatExpr(     -0.0)) <>  1 or
+        compare( Infinity, floatExpr(      0.0)) <>  1 or
+        compare( Infinity, floatExpr(   1000.0)) <>  1 or
+        compare( Infinity, floatExpr(   1.0E37)) <>  1 or
+        compare( Infinity, floatExpr( Infinity)) <>  0 or
+        compare( Infinity, floatExpr(      NaN)) <> -1 or
+        compare(      NaN, floatExpr(-Infinity)) <>  1 or
+        compare(      NaN, floatExpr(  -1.0E37)) <>  1 or
+        compare(      NaN, floatExpr(  -1000.0)) <>  1 or
+        compare(      NaN, floatExpr(     -0.0)) <>  1 or
+        compare(      NaN, floatExpr(      0.0)) <>  1 or
+        compare(      NaN, floatExpr(   1000.0)) <>  1 or
+        compare(      NaN, floatExpr(   1.0E37)) <>  1 or
+        compare(      NaN, floatExpr( Infinity)) <>  1 or
+        compare(      NaN, floatExpr(      NaN)) <>  0 then
+      writeln(" ***** Compare of float values does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  compare(floatExpr(-Infinity), floatExpr(-Infinity)) <>  0 or
+        compare(floatExpr(-Infinity), floatExpr(  -1.0E37)) <> -1 or
+        compare(floatExpr(-Infinity), floatExpr(  -1000.0)) <> -1 or
+        compare(floatExpr(-Infinity), floatExpr(     -0.0)) <> -1 or
+        compare(floatExpr(-Infinity), floatExpr(      0.0)) <> -1 or
+        compare(floatExpr(-Infinity), floatExpr(   1000.0)) <> -1 or
+        compare(floatExpr(-Infinity), floatExpr(   1.0E37)) <> -1 or
+        compare(floatExpr(-Infinity), floatExpr( Infinity)) <> -1 or
+        compare(floatExpr(-Infinity), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr(  -1.0E37), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr(  -1.0E37), floatExpr(  -1.0E37)) <>  0 or
+        compare(floatExpr(  -1.0E37), floatExpr(  -1000.0)) <> -1 or
+        compare(floatExpr(  -1.0E37), floatExpr(     -0.0)) <> -1 or
+        compare(floatExpr(  -1.0E37), floatExpr(      0.0)) <> -1 or
+        compare(floatExpr(  -1.0E37), floatExpr(   1000.0)) <> -1 or
+        compare(floatExpr(  -1.0E37), floatExpr(   1.0E37)) <> -1 or
+        compare(floatExpr(  -1.0E37), floatExpr( Infinity)) <> -1 or
+        compare(floatExpr(  -1.0E37), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr(  -1000.0), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr(  -1000.0), floatExpr(  -1.0E37)) <>  1 or
+        compare(floatExpr(  -1000.0), floatExpr(  -1000.0)) <>  0 or
+        compare(floatExpr(  -1000.0), floatExpr(     -0.0)) <> -1 or
+        compare(floatExpr(  -1000.0), floatExpr(      0.0)) <> -1 or
+        compare(floatExpr(  -1000.0), floatExpr(   1000.0)) <> -1 or
+        compare(floatExpr(  -1000.0), floatExpr(   1.0E37)) <> -1 or
+        compare(floatExpr(  -1000.0), floatExpr( Infinity)) <> -1 or
+        compare(floatExpr(  -1000.0), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr(     -0.0), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr(     -0.0), floatExpr(  -1.0E37)) <>  1 or
+        compare(floatExpr(     -0.0), floatExpr(  -1000.0)) <>  1 or
+        compare(floatExpr(     -0.0), floatExpr(     -0.0)) <>  0 or
+        compare(floatExpr(     -0.0), floatExpr(      0.0)) <>  0 or
+        compare(floatExpr(     -0.0), floatExpr(   1000.0)) <> -1 or
+        compare(floatExpr(     -0.0), floatExpr(   1.0E37)) <> -1 or
+        compare(floatExpr(     -0.0), floatExpr( Infinity)) <> -1 or
+        compare(floatExpr(     -0.0), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr(      0.0), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr(      0.0), floatExpr(  -1.0E37)) <>  1 or
+        compare(floatExpr(      0.0), floatExpr(  -1000.0)) <>  1 or
+        compare(floatExpr(      0.0), floatExpr(     -0.0)) <>  0 or
+        compare(floatExpr(      0.0), floatExpr(      0.0)) <>  0 or
+        compare(floatExpr(      0.0), floatExpr(   1000.0)) <> -1 or
+        compare(floatExpr(      0.0), floatExpr(   1.0E37)) <> -1 or
+        compare(floatExpr(      0.0), floatExpr( Infinity)) <> -1 or
+        compare(floatExpr(      0.0), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr(   1000.0), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr(   1000.0), floatExpr(  -1.0E37)) <>  1 or
+        compare(floatExpr(   1000.0), floatExpr(  -1000.0)) <>  1 or
+        compare(floatExpr(   1000.0), floatExpr(     -0.0)) <>  1 or
+        compare(floatExpr(   1000.0), floatExpr(      0.0)) <>  1 or
+        compare(floatExpr(   1000.0), floatExpr(   1000.0)) <>  0 or
+        compare(floatExpr(   1000.0), floatExpr(   1.0E37)) <> -1 or
+        compare(floatExpr(   1000.0), floatExpr( Infinity)) <> -1 or
+        compare(floatExpr(   1000.0), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr(   1.0E37), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr(   1.0E37), floatExpr(  -1.0E37)) <>  1 or
+        compare(floatExpr(   1.0E37), floatExpr(  -1000.0)) <>  1 or
+        compare(floatExpr(   1.0E37), floatExpr(     -0.0)) <>  1 or
+        compare(floatExpr(   1.0E37), floatExpr(      0.0)) <>  1 or
+        compare(floatExpr(   1.0E37), floatExpr(   1000.0)) <>  1 or
+        compare(floatExpr(   1.0E37), floatExpr(   1.0E37)) <>  0 or
+        compare(floatExpr(   1.0E37), floatExpr( Infinity)) <> -1 or
+        compare(floatExpr(   1.0E37), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr( Infinity), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr( Infinity), floatExpr(  -1.0E37)) <>  1 or
+        compare(floatExpr( Infinity), floatExpr(  -1000.0)) <>  1 or
+        compare(floatExpr( Infinity), floatExpr(     -0.0)) <>  1 or
+        compare(floatExpr( Infinity), floatExpr(      0.0)) <>  1 or
+        compare(floatExpr( Infinity), floatExpr(   1000.0)) <>  1 or
+        compare(floatExpr( Infinity), floatExpr(   1.0E37)) <>  1 or
+        compare(floatExpr( Infinity), floatExpr( Infinity)) <>  0 or
+        compare(floatExpr( Infinity), floatExpr(      NaN)) <> -1 or
+        compare(floatExpr(      NaN), floatExpr(-Infinity)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr(  -1.0E37)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr(  -1000.0)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr(     -0.0)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr(      0.0)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr(   1000.0)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr(   1.0E37)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr( Infinity)) <>  1 or
+        compare(floatExpr(      NaN), floatExpr(      NaN)) <>  0 then
+      writeln(" ***** Compare of float values does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -3014,7 +3269,59 @@ const proc: check_str is func
   local
     var boolean: okay is TRUE;
   begin
-    if  str(                 1.0)  <>                  "1.0" or
+    if  str(-10000000000000000.0)  <> "-10000000000000000.0" or
+        str( -9007199254740992.0)  <>  "-9007199254740992.0" or
+        str( -4503599627370496.0)  <>  "-4503599627370496.0" or
+        str( -2251799813685248.0)  <>  "-2251799813685248.0" or
+        str( -1125899906842624.0)  <>  "-1125899906842624.0" or
+        str( -1000000000000000.0)  <>  "-1000000000000000.0" or
+        str(  -999999999999999.0)  <>   "-999999999999999.0" or
+        str(  -234567891234567.0)  <>   "-234567891234567.0" or
+        str(  -100000000000000.0)  <>   "-100000000000000.0" or
+        str(   -99999999999999.0)  <>    "-99999999999999.0" or
+        str(   -34567891234567.0)  <>    "-34567891234567.0" or
+        str(   -10000000000000.0)  <>    "-10000000000000.0" or
+        str(    -9999999999999.0)  <>     "-9999999999999.0" or
+        str(    -4567891234567.0)  <>     "-4567891234567.0" or
+        str(    -1000000000000.0)  <>     "-1000000000000.0" or
+        str(     -999999999999.0)  <>      "-999999999999.0" or
+        str(     -567891234567.0)  <>      "-567891234567.0" or
+        str(     -100000000000.0)  <>      "-100000000000.0" or
+        str(      -99999999999.0)  <>       "-99999999999.0" or
+        str(      -67891234567.0)  <>       "-67891234567.0" or
+        str(      -10000000000.0)  <>       "-10000000000.0" or
+        str(       -9999999999.0)  <>        "-9999999999.0" or
+        str(       -7891234567.0)  <>        "-7891234567.0" or
+        str(       -1000000000.0)  <>        "-1000000000.0" or
+        str(        -999999999.0)  <>         "-999999999.0" or
+        str(        -891234567.0)  <>         "-891234567.0" or
+        str(        -100000000.0)  <>         "-100000000.0" or
+        str(         -99999999.0)  <>          "-99999999.0" or
+        str(         -91234567.0)  <>          "-91234567.0" or
+        str(         -10000000.0)  <>          "-10000000.0" or
+        str(          -9999999.0)  <>           "-9999999.0" or
+        str(          -1234567.0)  <>           "-1234567.0" or
+        str(          -1000000.0)  <>           "-1000000.0" or
+        str(           -999999.0)  <>            "-999999.0" or
+        str(           -234567.0)  <>            "-234567.0" or
+        str(           -100000.0)  <>            "-100000.0" or
+        str(            -99999.0)  <>             "-99999.0" or
+        str(            -34567.0)  <>             "-34567.0" or
+        str(            -10000.0)  <>             "-10000.0" or
+        str(             -9999.0)  <>              "-9999.0" or
+        str(             -4567.0)  <>              "-4567.0" or
+        str(             -1000.0)  <>              "-1000.0" or
+        str(              -999.0)  <>               "-999.0" or
+        str(              -567.0)  <>               "-567.0" or
+        str(              -100.0)  <>               "-100.0" or
+        str(               -99.0)  <>                "-99.0" or
+        str(               -67.0)  <>                "-67.0" or
+        str(               -10.0)  <>                "-10.0" or
+        str(                -9.0)  <>                 "-9.0" or
+        str(                -7.0)  <>                 "-7.0" or
+        str(                -1.0)  <>                 "-1.0" or
+        str(                 0.0)  <>                  "0.0" or
+        str(                 1.0)  <>                  "1.0" or
         str(                 7.0)  <>                  "7.0" or
         str(                 9.0)  <>                  "9.0" or
         str(                10.0)  <>                 "10.0" or
@@ -3065,57 +3372,6 @@ const proc: check_str is func
         str(  4503599627370496.0)  <>   "4503599627370496.0" or
         str(  9007199254740992.0)  <>   "9007199254740992.0" or
         str( 10000000000000000.0)  <>  "10000000000000000.0" or
-        str(                -1.0)  <>                 "-1.0" or
-        str(                -7.0)  <>                 "-7.0" or
-        str(                -9.0)  <>                 "-9.0" or
-        str(               -10.0)  <>                "-10.0" or
-        str(               -67.0)  <>                "-67.0" or
-        str(               -99.0)  <>                "-99.0" or
-        str(              -100.0)  <>               "-100.0" or
-        str(              -567.0)  <>               "-567.0" or
-        str(              -999.0)  <>               "-999.0" or
-        str(             -1000.0)  <>              "-1000.0" or
-        str(             -4567.0)  <>              "-4567.0" or
-        str(             -9999.0)  <>              "-9999.0" or
-        str(            -10000.0)  <>             "-10000.0" or
-        str(            -34567.0)  <>             "-34567.0" or
-        str(            -99999.0)  <>             "-99999.0" or
-        str(           -100000.0)  <>            "-100000.0" or
-        str(           -234567.0)  <>            "-234567.0" or
-        str(           -999999.0)  <>            "-999999.0" or
-        str(          -1000000.0)  <>           "-1000000.0" or
-        str(          -1234567.0)  <>           "-1234567.0" or
-        str(          -9999999.0)  <>           "-9999999.0" or
-        str(         -10000000.0)  <>          "-10000000.0" or
-        str(         -91234567.0)  <>          "-91234567.0" or
-        str(         -99999999.0)  <>          "-99999999.0" or
-        str(        -100000000.0)  <>         "-100000000.0" or
-        str(        -891234567.0)  <>         "-891234567.0" or
-        str(        -999999999.0)  <>         "-999999999.0" or
-        str(       -1000000000.0)  <>        "-1000000000.0" or
-        str(       -7891234567.0)  <>        "-7891234567.0" or
-        str(       -9999999999.0)  <>        "-9999999999.0" or
-        str(      -10000000000.0)  <>       "-10000000000.0" or
-        str(      -67891234567.0)  <>       "-67891234567.0" or
-        str(      -99999999999.0)  <>       "-99999999999.0" or
-        str(     -100000000000.0)  <>      "-100000000000.0" or
-        str(     -567891234567.0)  <>      "-567891234567.0" or
-        str(     -999999999999.0)  <>      "-999999999999.0" or
-        str(    -1000000000000.0)  <>     "-1000000000000.0" or
-        str(    -4567891234567.0)  <>     "-4567891234567.0" or
-        str(    -9999999999999.0)  <>     "-9999999999999.0" or
-        str(   -10000000000000.0)  <>    "-10000000000000.0" or
-        str(   -34567891234567.0)  <>    "-34567891234567.0" or
-        str(   -99999999999999.0)  <>    "-99999999999999.0" or
-        str(  -100000000000000.0)  <>   "-100000000000000.0" or
-        str(  -234567891234567.0)  <>   "-234567891234567.0" or
-        str(  -999999999999999.0)  <>   "-999999999999999.0" or
-        str( -1000000000000000.0)  <>  "-1000000000000000.0" or
-        str( -1125899906842624.0)  <>  "-1125899906842624.0" or
-        str( -2251799813685248.0)  <>  "-2251799813685248.0" or
-        str( -4503599627370496.0)  <>  "-4503599627370496.0" or
-        str( -9007199254740992.0)  <>  "-9007199254740992.0" or
-        str(-10000000000000000.0)  <> "-10000000000000000.0" or
         str( -4503599627370495.5)  <>  "-4503599627370495.5" or
         str( -4000000000000000.5)  <>  "-4000000000000000.5" or
         str( -3000000000000000.5)  <>  "-3000000000000000.5" or
@@ -3673,33 +3929,455 @@ const proc: check_conversion is func
   local
     var boolean: okay is TRUE;
   begin
-    if  float conv        (-2) <>         -2.0 or
-        float conv        (-1) <>         -1.0 or
-        float conv          0  <>          0.0 or
-        float conv          1  <>          1.0 or
-        float conv         10  <>         10.0 or
-        float conv        100  <>        100.0 or
-        float conv       1000  <>       1000.0 or
-        float conv      10000  <>      10000.0 or
-        float conv     100000  <>     100000.0 or
-        float conv    1000000  <>    1000000.0 or
-        float conv   10000000  <>   10000000.0 or
-        float conv  100000000  <>  100000000.0 or
-        float conv 1000000000  <> 1000000000.0 or
-        float(        -2) <>         -2.0 or
-        float(        -1) <>         -1.0 or
-        float(         0) <>          0.0 or
-        float(         1) <>          1.0 or
-        float(        10) <>         10.0 or
-        float(       100) <>        100.0 or
-        float(      1000) <>       1000.0 or
-        float(     10000) <>      10000.0 or
-        float(    100000) <>     100000.0 or
-        float(   1000000) <>    1000000.0 or
-        float(  10000000) <>   10000000.0 or
-        float( 100000000) <>  100000000.0 or
-        float(1000000000) <> 1000000000.0 then
-      writeln(" ***** Conversion from integer to float does not work correct.");
+    if  float conv        (integer.first) <> -9223372036854775808.0 or
+        float conv (-9223372036854774784) <> -9223372036854774784.0 or
+        float conv (-1000000000000000000) <> -1000000000000000000.0 or
+        float conv  (-100000000000000000) <>  -100000000000000000.0 or
+        float conv   (-10000000000000000) <>   -10000000000000000.0 or
+        float conv    (-9007199254740992) <>    -9007199254740992.0 or
+        float conv    (-4503599627370496) <>    -4503599627370496.0 or
+        float conv    (-2251799813685248) <>    -2251799813685248.0 or
+        float conv    (-1125899906842624) <>    -1125899906842624.0 or
+        float conv    (-1000000000000000) <>    -1000000000000000.0 or
+        float conv     (-999999999999999) <>     -999999999999999.0 or
+        float conv     (-234567891234567) <>     -234567891234567.0 or
+        float conv     (-100000000000000) <>     -100000000000000.0 or
+        float conv      (-99999999999999) <>      -99999999999999.0 or
+        float conv      (-34567891234567) <>      -34567891234567.0 or
+        float conv      (-10000000000000) <>      -10000000000000.0 or
+        float conv       (-9999999999999) <>       -9999999999999.0 or
+        float conv       (-4567891234567) <>       -4567891234567.0 or
+        float conv       (-1000000000000) <>       -1000000000000.0 or
+        float conv        (-999999999999) <>        -999999999999.0 or
+        float conv        (-567891234567) <>        -567891234567.0 or
+        float conv        (-100000000000) <>        -100000000000.0 or
+        float conv         (-99999999999) <>         -99999999999.0 or
+        float conv         (-10000000000) <>         -10000000000.0 or
+        float conv          (-9999999999) <>          -9999999999.0 or
+        float conv          (-7891234567) <>          -7891234567.0 or
+        float conv          (-1000000000) <>          -1000000000.0 or
+        float conv           (-999999999) <>           -999999999.0 or
+        float conv           (-891234567) <>           -891234567.0 or
+        float conv           (-100000000) <>           -100000000.0 or
+        float conv            (-99999999) <>            -99999999.0 or
+        float conv            (-91234567) <>            -91234567.0 or
+        float conv            (-10000000) <>            -10000000.0 or
+        float conv             (-9999999) <>             -9999999.0 or
+        float conv             (-1234567) <>             -1234567.0 or
+        float conv             (-1000000) <>             -1000000.0 or
+        float conv              (-999999) <>              -999999.0 or
+        float conv              (-234567) <>              -234567.0 or
+        float conv              (-100000) <>              -100000.0 or
+        float conv               (-99999) <>               -99999.0 or
+        float conv               (-34567) <>               -34567.0 or
+        float conv               (-10000) <>               -10000.0 or
+        float conv                (-9999) <>                -9999.0 or
+        float conv                (-4567) <>                -4567.0 or
+        float conv                (-1000) <>                -1000.0 or
+        float conv                 (-999) <>                 -999.0 or
+        float conv                 (-567) <>                 -567.0 or
+        float conv                 (-100) <>                 -100.0 or
+        float conv                  (-99) <>                  -99.0 or
+        float conv                  (-67) <>                  -67.0 or
+        float conv                  (-10) <>                  -10.0 or
+        float conv                   (-9) <>                   -9.0 or
+        float conv                   (-7) <>                   -7.0 or
+        float conv                   (-1) <>                   -1.0 or
+        float conv                     0  <>                    0.0 or
+        float conv                     1  <>                    1.0 or
+        float conv                     7  <>                    7.0 or
+        float conv                     9  <>                    9.0 or
+        float conv                    10  <>                   10.0 or
+        float conv                    67  <>                   67.0 or
+        float conv                    99  <>                   99.0 or
+        float conv                   100  <>                  100.0 or
+        float conv                   567  <>                  567.0 or
+        float conv                   999  <>                  999.0 or
+        float conv                  1000  <>                 1000.0 or
+        float conv                  4567  <>                 4567.0 or
+        float conv                  9999  <>                 9999.0 or
+        float conv                 10000  <>                10000.0 or
+        float conv                 34567  <>                34567.0 or
+        float conv                 99999  <>                99999.0 or
+        float conv                100000  <>               100000.0 or
+        float conv                234567  <>               234567.0 or
+        float conv                999999  <>               999999.0 or
+        float conv               1000000  <>              1000000.0 or
+        float conv               1234567  <>              1234567.0 or
+        float conv               9999999  <>              9999999.0 or
+        float conv              10000000  <>             10000000.0 or
+        float conv              91234567  <>             91234567.0 or
+        float conv              99999999  <>             99999999.0 or
+        float conv             100000000  <>            100000000.0 or
+        float conv             891234567  <>            891234567.0 or
+        float conv             999999999  <>            999999999.0 or
+        float conv            1000000000  <>           1000000000.0 or
+        float conv            7891234567  <>           7891234567.0 or
+        float conv            9999999999  <>           9999999999.0 or
+        float conv           10000000000  <>          10000000000.0 or
+        float conv           67891234567  <>          67891234567.0 or
+        float conv           99999999999  <>          99999999999.0 or
+        float conv          100000000000  <>         100000000000.0 or
+        float conv          567891234567  <>         567891234567.0 or
+        float conv          999999999999  <>         999999999999.0 or
+        float conv         1000000000000  <>        1000000000000.0 or
+        float conv         4567891234567  <>        4567891234567.0 or
+        float conv         9999999999999  <>        9999999999999.0 or
+        float conv        10000000000000  <>       10000000000000.0 or
+        float conv        34567891234567  <>       34567891234567.0 or
+        float conv        99999999999999  <>       99999999999999.0 or
+        float conv       100000000000000  <>      100000000000000.0 or
+        float conv       234567891234567  <>      234567891234567.0 or
+        float conv       999999999999999  <>      999999999999999.0 or
+        float conv      1000000000000000  <>     1000000000000000.0 or
+        float conv      1125899906842624  <>     1125899906842624.0 or
+        float conv      2251799813685248  <>     2251799813685248.0 or
+        float conv      4503599627370496  <>     4503599627370496.0 or
+        float conv      9007199254740992  <>     9007199254740992.0 or
+        float conv     10000000000000000  <>    10000000000000000.0 or
+        float conv    100000000000000000  <>   100000000000000000.0 or
+        float conv   1000000000000000000  <>  1000000000000000000.0 or
+        float conv   9223372036854774784  <>  9223372036854774784.0 then
+      writeln(" ***** Conversion from integer to float does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  float conv intExpr(       integer.first) <> -9223372036854775808.0 or
+        float conv intExpr(-9223372036854774784) <> -9223372036854774784.0 or
+        float conv intExpr(-1000000000000000000) <> -1000000000000000000.0 or
+        float conv intExpr( -100000000000000000) <>  -100000000000000000.0 or
+        float conv intExpr(  -10000000000000000) <>   -10000000000000000.0 or
+        float conv intExpr(   -9007199254740992) <>    -9007199254740992.0 or
+        float conv intExpr(   -4503599627370496) <>    -4503599627370496.0 or
+        float conv intExpr(   -2251799813685248) <>    -2251799813685248.0 or
+        float conv intExpr(   -1125899906842624) <>    -1125899906842624.0 or
+        float conv intExpr(   -1000000000000000) <>    -1000000000000000.0 or
+        float conv intExpr(    -999999999999999) <>     -999999999999999.0 or
+        float conv intExpr(    -234567891234567) <>     -234567891234567.0 or
+        float conv intExpr(    -100000000000000) <>     -100000000000000.0 or
+        float conv intExpr(     -99999999999999) <>      -99999999999999.0 or
+        float conv intExpr(     -34567891234567) <>      -34567891234567.0 or
+        float conv intExpr(     -10000000000000) <>      -10000000000000.0 or
+        float conv intExpr(      -9999999999999) <>       -9999999999999.0 or
+        float conv intExpr(      -4567891234567) <>       -4567891234567.0 or
+        float conv intExpr(      -1000000000000) <>       -1000000000000.0 or
+        float conv intExpr(       -999999999999) <>        -999999999999.0 or
+        float conv intExpr(       -567891234567) <>        -567891234567.0 or
+        float conv intExpr(       -100000000000) <>        -100000000000.0 or
+        float conv intExpr(        -99999999999) <>         -99999999999.0 or
+        float conv intExpr(        -10000000000) <>         -10000000000.0 or
+        float conv intExpr(         -9999999999) <>          -9999999999.0 or
+        float conv intExpr(         -7891234567) <>          -7891234567.0 or
+        float conv intExpr(         -1000000000) <>          -1000000000.0 or
+        float conv intExpr(          -999999999) <>           -999999999.0 or
+        float conv intExpr(          -891234567) <>           -891234567.0 or
+        float conv intExpr(          -100000000) <>           -100000000.0 or
+        float conv intExpr(           -99999999) <>            -99999999.0 or
+        float conv intExpr(           -91234567) <>            -91234567.0 or
+        float conv intExpr(           -10000000) <>            -10000000.0 or
+        float conv intExpr(            -9999999) <>             -9999999.0 or
+        float conv intExpr(            -1234567) <>             -1234567.0 or
+        float conv intExpr(            -1000000) <>             -1000000.0 or
+        float conv intExpr(             -999999) <>              -999999.0 or
+        float conv intExpr(             -234567) <>              -234567.0 or
+        float conv intExpr(             -100000) <>              -100000.0 or
+        float conv intExpr(              -99999) <>               -99999.0 or
+        float conv intExpr(              -34567) <>               -34567.0 or
+        float conv intExpr(              -10000) <>               -10000.0 or
+        float conv intExpr(               -9999) <>                -9999.0 or
+        float conv intExpr(               -4567) <>                -4567.0 or
+        float conv intExpr(               -1000) <>                -1000.0 or
+        float conv intExpr(                -999) <>                 -999.0 or
+        float conv intExpr(                -567) <>                 -567.0 or
+        float conv intExpr(                -100) <>                 -100.0 or
+        float conv intExpr(                 -99) <>                  -99.0 or
+        float conv intExpr(                 -67) <>                  -67.0 or
+        float conv intExpr(                 -10) <>                  -10.0 or
+        float conv intExpr(                  -9) <>                   -9.0 or
+        float conv intExpr(                  -7) <>                   -7.0 or
+        float conv intExpr(                  -1) <>                   -1.0 or
+        float conv intExpr(                   0) <>                    0.0 or
+        float conv intExpr(                   1) <>                    1.0 or
+        float conv intExpr(                   7) <>                    7.0 or
+        float conv intExpr(                   9) <>                    9.0 or
+        float conv intExpr(                  10) <>                   10.0 or
+        float conv intExpr(                  67) <>                   67.0 or
+        float conv intExpr(                  99) <>                   99.0 or
+        float conv intExpr(                 100) <>                  100.0 or
+        float conv intExpr(                 567) <>                  567.0 or
+        float conv intExpr(                 999) <>                  999.0 or
+        float conv intExpr(                1000) <>                 1000.0 or
+        float conv intExpr(                4567) <>                 4567.0 or
+        float conv intExpr(                9999) <>                 9999.0 or
+        float conv intExpr(               10000) <>                10000.0 or
+        float conv intExpr(               34567) <>                34567.0 or
+        float conv intExpr(               99999) <>                99999.0 or
+        float conv intExpr(              100000) <>               100000.0 or
+        float conv intExpr(              234567) <>               234567.0 or
+        float conv intExpr(              999999) <>               999999.0 or
+        float conv intExpr(             1000000) <>              1000000.0 or
+        float conv intExpr(             1234567) <>              1234567.0 or
+        float conv intExpr(             9999999) <>              9999999.0 or
+        float conv intExpr(            10000000) <>             10000000.0 or
+        float conv intExpr(            91234567) <>             91234567.0 or
+        float conv intExpr(            99999999) <>             99999999.0 or
+        float conv intExpr(           100000000) <>            100000000.0 or
+        float conv intExpr(           891234567) <>            891234567.0 or
+        float conv intExpr(           999999999) <>            999999999.0 or
+        float conv intExpr(          1000000000) <>           1000000000.0 or
+        float conv intExpr(          7891234567) <>           7891234567.0 or
+        float conv intExpr(          9999999999) <>           9999999999.0 or
+        float conv intExpr(         10000000000) <>          10000000000.0 or
+        float conv intExpr(         67891234567) <>          67891234567.0 or
+        float conv intExpr(         99999999999) <>          99999999999.0 or
+        float conv intExpr(        100000000000) <>         100000000000.0 or
+        float conv intExpr(        567891234567) <>         567891234567.0 or
+        float conv intExpr(        999999999999) <>         999999999999.0 or
+        float conv intExpr(       1000000000000) <>        1000000000000.0 or
+        float conv intExpr(       4567891234567) <>        4567891234567.0 or
+        float conv intExpr(       9999999999999) <>        9999999999999.0 or
+        float conv intExpr(      10000000000000) <>       10000000000000.0 or
+        float conv intExpr(      34567891234567) <>       34567891234567.0 or
+        float conv intExpr(      99999999999999) <>       99999999999999.0 or
+        float conv intExpr(     100000000000000) <>      100000000000000.0 or
+        float conv intExpr(     234567891234567) <>      234567891234567.0 or
+        float conv intExpr(     999999999999999) <>      999999999999999.0 or
+        float conv intExpr(    1000000000000000) <>     1000000000000000.0 or
+        float conv intExpr(    1125899906842624) <>     1125899906842624.0 or
+        float conv intExpr(    2251799813685248) <>     2251799813685248.0 or
+        float conv intExpr(    4503599627370496) <>     4503599627370496.0 or
+        float conv intExpr(    9007199254740992) <>     9007199254740992.0 or
+        float conv intExpr(   10000000000000000) <>    10000000000000000.0 or
+        float conv intExpr(  100000000000000000) <>   100000000000000000.0 or
+        float conv intExpr( 1000000000000000000) <>  1000000000000000000.0 or
+        float conv intExpr( 9223372036854774784) <>  9223372036854774784.0 then
+      writeln(" ***** Conversion from integer to float does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if  float(       integer.first) <> -9223372036854775808.0 or
+        float(-9223372036854774784) <> -9223372036854774784.0 or
+        float(-1000000000000000000) <> -1000000000000000000.0 or
+        float( -100000000000000000) <>  -100000000000000000.0 or
+        float(  -10000000000000000) <>   -10000000000000000.0 or
+        float(   -9007199254740992) <>    -9007199254740992.0 or
+        float(   -4503599627370496) <>    -4503599627370496.0 or
+        float(   -2251799813685248) <>    -2251799813685248.0 or
+        float(   -1125899906842624) <>    -1125899906842624.0 or
+        float(   -1000000000000000) <>    -1000000000000000.0 or
+        float(    -999999999999999) <>     -999999999999999.0 or
+        float(    -234567891234567) <>     -234567891234567.0 or
+        float(    -100000000000000) <>     -100000000000000.0 or
+        float(     -99999999999999) <>      -99999999999999.0 or
+        float(     -34567891234567) <>      -34567891234567.0 or
+        float(     -10000000000000) <>      -10000000000000.0 or
+        float(      -9999999999999) <>       -9999999999999.0 or
+        float(      -4567891234567) <>       -4567891234567.0 or
+        float(      -1000000000000) <>       -1000000000000.0 or
+        float(       -999999999999) <>        -999999999999.0 or
+        float(       -567891234567) <>        -567891234567.0 or
+        float(       -100000000000) <>        -100000000000.0 or
+        float(        -99999999999) <>         -99999999999.0 or
+        float(        -10000000000) <>         -10000000000.0 or
+        float(         -9999999999) <>          -9999999999.0 or
+        float(         -7891234567) <>          -7891234567.0 or
+        float(         -1000000000) <>          -1000000000.0 or
+        float(          -999999999) <>           -999999999.0 or
+        float(          -891234567) <>           -891234567.0 or
+        float(          -100000000) <>           -100000000.0 or
+        float(           -99999999) <>            -99999999.0 or
+        float(           -91234567) <>            -91234567.0 or
+        float(           -10000000) <>            -10000000.0 or
+        float(            -9999999) <>             -9999999.0 or
+        float(            -1234567) <>             -1234567.0 or
+        float(            -1000000) <>             -1000000.0 or
+        float(             -999999) <>              -999999.0 or
+        float(             -234567) <>              -234567.0 or
+        float(             -100000) <>              -100000.0 or
+        float(              -99999) <>               -99999.0 or
+        float(              -34567) <>               -34567.0 or
+        float(              -10000) <>               -10000.0 or
+        float(               -9999) <>                -9999.0 or
+        float(               -4567) <>                -4567.0 or
+        float(               -1000) <>                -1000.0 or
+        float(                -999) <>                 -999.0 or
+        float(                -567) <>                 -567.0 or
+        float(                -100) <>                 -100.0 or
+        float(                 -99) <>                  -99.0 or
+        float(                 -67) <>                  -67.0 or
+        float(                 -10) <>                  -10.0 or
+        float(                  -9) <>                   -9.0 or
+        float(                  -7) <>                   -7.0 or
+        float(                  -1) <>                   -1.0 or
+        float(                   0) <>                    0.0 or
+        float(                   1) <>                    1.0 or
+        float(                   7) <>                    7.0 or
+        float(                   9) <>                    9.0 or
+        float(                  10) <>                   10.0 or
+        float(                  67) <>                   67.0 or
+        float(                  99) <>                   99.0 or
+        float(                 100) <>                  100.0 or
+        float(                 567) <>                  567.0 or
+        float(                 999) <>                  999.0 or
+        float(                1000) <>                 1000.0 or
+        float(                4567) <>                 4567.0 or
+        float(                9999) <>                 9999.0 or
+        float(               10000) <>                10000.0 or
+        float(               34567) <>                34567.0 or
+        float(               99999) <>                99999.0 or
+        float(              100000) <>               100000.0 or
+        float(              234567) <>               234567.0 or
+        float(              999999) <>               999999.0 or
+        float(             1000000) <>              1000000.0 or
+        float(             1234567) <>              1234567.0 or
+        float(             9999999) <>              9999999.0 or
+        float(            10000000) <>             10000000.0 or
+        float(            91234567) <>             91234567.0 or
+        float(            99999999) <>             99999999.0 or
+        float(           100000000) <>            100000000.0 or
+        float(           891234567) <>            891234567.0 or
+        float(           999999999) <>            999999999.0 or
+        float(          1000000000) <>           1000000000.0 or
+        float(          7891234567) <>           7891234567.0 or
+        float(          9999999999) <>           9999999999.0 or
+        float(         10000000000) <>          10000000000.0 or
+        float(         67891234567) <>          67891234567.0 or
+        float(         99999999999) <>          99999999999.0 or
+        float(        100000000000) <>         100000000000.0 or
+        float(        567891234567) <>         567891234567.0 or
+        float(        999999999999) <>         999999999999.0 or
+        float(       1000000000000) <>        1000000000000.0 or
+        float(       4567891234567) <>        4567891234567.0 or
+        float(       9999999999999) <>        9999999999999.0 or
+        float(      10000000000000) <>       10000000000000.0 or
+        float(      34567891234567) <>       34567891234567.0 or
+        float(      99999999999999) <>       99999999999999.0 or
+        float(     100000000000000) <>      100000000000000.0 or
+        float(     234567891234567) <>      234567891234567.0 or
+        float(     999999999999999) <>      999999999999999.0 or
+        float(    1000000000000000) <>     1000000000000000.0 or
+        float(    1125899906842624) <>     1125899906842624.0 or
+        float(    2251799813685248) <>     2251799813685248.0 or
+        float(    4503599627370496) <>     4503599627370496.0 or
+        float(    9007199254740992) <>     9007199254740992.0 or
+        float(   10000000000000000) <>    10000000000000000.0 or
+        float(  100000000000000000) <>   100000000000000000.0 or
+        float( 1000000000000000000) <>  1000000000000000000.0 or
+        float( 9223372036854774784) <>  9223372036854774784.0 then
+      writeln(" ***** Conversion from integer to float does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if  float(intExpr(       integer.first)) <> -9223372036854775808.0 or
+        float(intExpr(-9223372036854774784)) <> -9223372036854774784.0 or
+        float(intExpr(-1000000000000000000)) <> -1000000000000000000.0 or
+        float(intExpr( -100000000000000000)) <>  -100000000000000000.0 or
+        float(intExpr(  -10000000000000000)) <>   -10000000000000000.0 or
+        float(intExpr(   -9007199254740992)) <>    -9007199254740992.0 or
+        float(intExpr(   -4503599627370496)) <>    -4503599627370496.0 or
+        float(intExpr(   -2251799813685248)) <>    -2251799813685248.0 or
+        float(intExpr(   -1125899906842624)) <>    -1125899906842624.0 or
+        float(intExpr(   -1000000000000000)) <>    -1000000000000000.0 or
+        float(intExpr(    -999999999999999)) <>     -999999999999999.0 or
+        float(intExpr(    -234567891234567)) <>     -234567891234567.0 or
+        float(intExpr(    -100000000000000)) <>     -100000000000000.0 or
+        float(intExpr(     -99999999999999)) <>      -99999999999999.0 or
+        float(intExpr(     -34567891234567)) <>      -34567891234567.0 or
+        float(intExpr(     -10000000000000)) <>      -10000000000000.0 or
+        float(intExpr(      -9999999999999)) <>       -9999999999999.0 or
+        float(intExpr(      -4567891234567)) <>       -4567891234567.0 or
+        float(intExpr(      -1000000000000)) <>       -1000000000000.0 or
+        float(intExpr(       -999999999999)) <>        -999999999999.0 or
+        float(intExpr(       -567891234567)) <>        -567891234567.0 or
+        float(intExpr(       -100000000000)) <>        -100000000000.0 or
+        float(intExpr(        -99999999999)) <>         -99999999999.0 or
+        float(intExpr(        -10000000000)) <>         -10000000000.0 or
+        float(intExpr(         -9999999999)) <>          -9999999999.0 or
+        float(intExpr(         -7891234567)) <>          -7891234567.0 or
+        float(intExpr(         -1000000000)) <>          -1000000000.0 or
+        float(intExpr(          -999999999)) <>           -999999999.0 or
+        float(intExpr(          -891234567)) <>           -891234567.0 or
+        float(intExpr(          -100000000)) <>           -100000000.0 or
+        float(intExpr(           -99999999)) <>            -99999999.0 or
+        float(intExpr(           -91234567)) <>            -91234567.0 or
+        float(intExpr(           -10000000)) <>            -10000000.0 or
+        float(intExpr(            -9999999)) <>             -9999999.0 or
+        float(intExpr(            -1234567)) <>             -1234567.0 or
+        float(intExpr(            -1000000)) <>             -1000000.0 or
+        float(intExpr(             -999999)) <>              -999999.0 or
+        float(intExpr(             -234567)) <>              -234567.0 or
+        float(intExpr(             -100000)) <>              -100000.0 or
+        float(intExpr(              -99999)) <>               -99999.0 or
+        float(intExpr(              -34567)) <>               -34567.0 or
+        float(intExpr(              -10000)) <>               -10000.0 or
+        float(intExpr(               -9999)) <>                -9999.0 or
+        float(intExpr(               -4567)) <>                -4567.0 or
+        float(intExpr(               -1000)) <>                -1000.0 or
+        float(intExpr(                -999)) <>                 -999.0 or
+        float(intExpr(                -567)) <>                 -567.0 or
+        float(intExpr(                -100)) <>                 -100.0 or
+        float(intExpr(                 -99)) <>                  -99.0 or
+        float(intExpr(                 -67)) <>                  -67.0 or
+        float(intExpr(                 -10)) <>                  -10.0 or
+        float(intExpr(                  -9)) <>                   -9.0 or
+        float(intExpr(                  -7)) <>                   -7.0 or
+        float(intExpr(                  -1)) <>                   -1.0 or
+        float(intExpr(                   0)) <>                    0.0 or
+        float(intExpr(                   1)) <>                    1.0 or
+        float(intExpr(                   7)) <>                    7.0 or
+        float(intExpr(                   9)) <>                    9.0 or
+        float(intExpr(                  10)) <>                   10.0 or
+        float(intExpr(                  67)) <>                   67.0 or
+        float(intExpr(                  99)) <>                   99.0 or
+        float(intExpr(                 100)) <>                  100.0 or
+        float(intExpr(                 567)) <>                  567.0 or
+        float(intExpr(                 999)) <>                  999.0 or
+        float(intExpr(                1000)) <>                 1000.0 or
+        float(intExpr(                4567)) <>                 4567.0 or
+        float(intExpr(                9999)) <>                 9999.0 or
+        float(intExpr(               10000)) <>                10000.0 or
+        float(intExpr(               34567)) <>                34567.0 or
+        float(intExpr(               99999)) <>                99999.0 or
+        float(intExpr(              100000)) <>               100000.0 or
+        float(intExpr(              234567)) <>               234567.0 or
+        float(intExpr(              999999)) <>               999999.0 or
+        float(intExpr(             1000000)) <>              1000000.0 or
+        float(intExpr(             1234567)) <>              1234567.0 or
+        float(intExpr(             9999999)) <>              9999999.0 or
+        float(intExpr(            10000000)) <>             10000000.0 or
+        float(intExpr(            91234567)) <>             91234567.0 or
+        float(intExpr(            99999999)) <>             99999999.0 or
+        float(intExpr(           100000000)) <>            100000000.0 or
+        float(intExpr(           891234567)) <>            891234567.0 or
+        float(intExpr(           999999999)) <>            999999999.0 or
+        float(intExpr(          1000000000)) <>           1000000000.0 or
+        float(intExpr(          7891234567)) <>           7891234567.0 or
+        float(intExpr(          9999999999)) <>           9999999999.0 or
+        float(intExpr(         10000000000)) <>          10000000000.0 or
+        float(intExpr(         67891234567)) <>          67891234567.0 or
+        float(intExpr(         99999999999)) <>          99999999999.0 or
+        float(intExpr(        100000000000)) <>         100000000000.0 or
+        float(intExpr(        567891234567)) <>         567891234567.0 or
+        float(intExpr(        999999999999)) <>         999999999999.0 or
+        float(intExpr(       1000000000000)) <>        1000000000000.0 or
+        float(intExpr(       4567891234567)) <>        4567891234567.0 or
+        float(intExpr(       9999999999999)) <>        9999999999999.0 or
+        float(intExpr(      10000000000000)) <>       10000000000000.0 or
+        float(intExpr(      34567891234567)) <>       34567891234567.0 or
+        float(intExpr(      99999999999999)) <>       99999999999999.0 or
+        float(intExpr(     100000000000000)) <>      100000000000000.0 or
+        float(intExpr(     234567891234567)) <>      234567891234567.0 or
+        float(intExpr(     999999999999999)) <>      999999999999999.0 or
+        float(intExpr(    1000000000000000)) <>     1000000000000000.0 or
+        float(intExpr(    1125899906842624)) <>     1125899906842624.0 or
+        float(intExpr(    2251799813685248)) <>     2251799813685248.0 or
+        float(intExpr(    4503599627370496)) <>     4503599627370496.0 or
+        float(intExpr(    9007199254740992)) <>     9007199254740992.0 or
+        float(intExpr(   10000000000000000)) <>    10000000000000000.0 or
+        float(intExpr(  100000000000000000)) <>   100000000000000000.0 or
+        float(intExpr( 1000000000000000000)) <>  1000000000000000000.0 or
+        float(intExpr( 9223372036854774784)) <>  9223372036854774784.0 then
+      writeln(" ***** Conversion from integer to float does not work correct. (4)");
       okay := FALSE;
     end if;
 
@@ -3793,6 +4471,10 @@ const proc: check_trunc is func
         trunc( 1152921504606846976.0) <>  1152921504606846976 or
         trunc( 2305843009213693952.0) <>  2305843009213693952 or
         trunc( 4611686018427387904.0) <>  4611686018427387904 or
+        trunc( 9223372036854774784.0) <>  9223372036854774784 or
+            raisesRangeError(trunc( 9223372036854775295.0)) or
+        not raisesRangeError(trunc( 9223372036854775297.0)) or
+        not raisesRangeError(trunc( 9223372036854775807.0)) or
         not raisesRangeError(trunc( 9223372036854777000.0)) or
         not raisesRangeError(trunc(              1.0e37  )) or
         not raisesRangeError(trunc(           FLOAT_MAX  )) or
@@ -3801,8 +4483,12 @@ const proc: check_trunc is func
         not raisesRangeError(trunc(floatExpr(           -Infinity  ))) or
         not raisesRangeError(trunc(floatExpr(          -FLOAT_MAX  ))) or
         not raisesRangeError(trunc(floatExpr(             -1.0e37  ))) or
-        not raisesRangeError(trunc(floatExpr(-9223372036854777000.0))) or
-        trunc(floatExpr(-9223372036854775808.0)) <>        integer.first or
+        not raisesRangeError(trunc(floatExpr(-9223372036854777000.0))) then
+      writeln(" ***** Truncation of float does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  trunc(floatExpr(-9223372036854775808.0)) <>        integer.first or
         trunc(floatExpr(-4611686018427387904.0)) <> -4611686018427387904 or
         trunc(floatExpr(-2305843009213693952.0)) <> -2305843009213693952 or
         trunc(floatExpr(-1152921504606846976.0)) <> -1152921504606846976 or
@@ -3876,15 +4562,31 @@ const proc: check_trunc is func
         trunc(floatExpr( 1152921504606846976.0)) <>  1152921504606846976 or
         trunc(floatExpr( 2305843009213693952.0)) <>  2305843009213693952 or
         trunc(floatExpr( 4611686018427387904.0)) <>  4611686018427387904 or
+        trunc(floatExpr( 9223372036854774784.0)) <>  9223372036854774784 or
+            raisesRangeError(trunc(floatExpr( 9223372036854775295.0))) or
+        not raisesRangeError(trunc(floatExpr( 9223372036854775297.0))) or
+        not raisesRangeError(trunc(floatExpr( 9223372036854775807.0))) or
         not raisesRangeError(trunc(floatExpr( 9223372036854777000.0))) or
         not raisesRangeError(trunc(floatExpr(              1.0e37  ))) or
         not raisesRangeError(trunc(floatExpr(           FLOAT_MAX  ))) or
         not raisesRangeError(trunc(floatExpr(            Infinity  ))) or
         not raisesRangeError(trunc(floatExpr(                 NaN  ))) then
-      writeln(" ***** Truncation of float does not work correct.");
+      writeln(" ***** Truncation of float does not work correct. (2)");
       okay := FALSE;
     end if;
 
+    if okay then
+      writeln("Truncation of float works correct.");
+    else
+      writeln(" ***** Truncation of float does not work correct.");
+    end if;
+  end func;
+
+
+const proc: check_round is func
+  local
+    var boolean: okay is TRUE;
+  begin
     if  not raisesRangeError(round(           -Infinity  )) or
         not raisesRangeError(round(          -FLOAT_MAX  )) or
         not raisesRangeError(round(             -1.0e37  )) or
@@ -3930,26 +4632,26 @@ const proc: check_trunc is func
         round(            -1000000.0) <>             -1000000 or
         round(             -999999.5) <>             -1000000 or
         round(             -999999.49999999) <>       -999999 or
-        round(              100000.5) <>               100001 or
-        round(              100000.499999999) <>       100000 or
-        round(              100000.0) <>               100000 or
-        round(               99999.5) <>               100000 or
-        round(               99999.499999999) <>        99999 or
-        round(               10000.5) <>                10001 or
-        round(               10000.4999999999) <>       10000 or
-        round(               10000.0) <>                10000 or
-        round(                9999.5) <>                10000 or
-        round(                9999.4999999999) <>        9999 or
-        round(                1000.5) <>                 1001 or
-        round(                1000.49999999999) <>       1000 or
-        round(                1000.0) <>                 1000 or
-        round(                 999.5) <>                 1000 or
-        round(                 999.49999999999) <>        999 or
-        round(                 100.5) <>                  101 or
-        round(                 100.499999999999) <>       100 or
-        round(                 100.0) <>                  100 or
-        round(                  99.5) <>                  100 or
-        round(                  99.499999999999) <>        99 or
+        round(             -100000.5) <>              -100001 or
+        round(             -100000.499999999) <>      -100000 or
+        round(             -100000.0) <>              -100000 or
+        round(              -99999.5) <>              -100000 or
+        round(              -99999.499999999) <>       -99999 or
+        round(              -10000.5) <>               -10001 or
+        round(              -10000.4999999999) <>      -10000 or
+        round(              -10000.0) <>               -10000 or
+        round(               -9999.5) <>               -10000 or
+        round(               -9999.4999999999) <>       -9999 or
+        round(               -1000.5) <>                -1001 or
+        round(               -1000.49999999999) <>      -1000 or
+        round(               -1000.0) <>                -1000 or
+        round(                -999.5) <>                -1000 or
+        round(                -999.49999999999) <>       -999 or
+        round(                -100.5) <>                 -101 or
+        round(                -100.499999999999) <>      -100 or
+        round(                -100.0) <>                 -100 or
+        round(                 -99.5) <>                 -100 or
+        round(                 -99.499999999999) <>       -99 or
         round(                 -10.5) <>                  -11 or
         round(                 -10.4999999999999) <>      -10 or
         round(                 -10.0) <>                  -10 or
@@ -4031,6 +4733,10 @@ const proc: check_trunc is func
         round( 1152921504606846976.0) <>  1152921504606846976 or
         round( 2305843009213693952.0) <>  2305843009213693952 or
         round( 4611686018427387904.0) <>  4611686018427387904 or
+        round( 9223372036854774784.0) <>  9223372036854774784 or
+            raisesRangeError(round( 9223372036854775295.0)) or
+        not raisesRangeError(round( 9223372036854775297.0)) or
+        not raisesRangeError(round( 9223372036854775807.0)) or
         not raisesRangeError(round( 9223372036854777000.0)) or
         not raisesRangeError(round(              1.0e37  )) or
         not raisesRangeError(round(           FLOAT_MAX  )) or
@@ -4039,8 +4745,12 @@ const proc: check_trunc is func
         not raisesRangeError(round(floatExpr(           -Infinity  ))) or
         not raisesRangeError(round(floatExpr(          -FLOAT_MAX  ))) or
         not raisesRangeError(round(floatExpr(             -1.0e37  ))) or
-        not raisesRangeError(round(floatExpr(-9223372036854777000.0))) or
-        round(floatExpr(-9223372036854775808.0)) <>        integer.first or
+        not raisesRangeError(round(floatExpr(-9223372036854777000.0))) then
+      writeln(" ***** Rounding of float does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if  round(floatExpr(-9223372036854775808.0)) <>        integer.first or
         round(floatExpr(-4611686018427387904.0)) <> -4611686018427387904 or
         round(floatExpr(-2305843009213693952.0)) <> -2305843009213693952 or
         round(floatExpr(-1152921504606846976.0)) <> -1152921504606846976 or
@@ -4081,26 +4791,26 @@ const proc: check_trunc is func
         round(floatExpr(            -1000000.0)) <>             -1000000 or
         round(floatExpr(             -999999.5)) <>             -1000000 or
         round(floatExpr(             -999999.49999999)) <>       -999999 or
-        round(floatExpr(              100000.5)) <>               100001 or
-        round(floatExpr(              100000.499999999)) <>       100000 or
-        round(floatExpr(              100000.0)) <>               100000 or
-        round(floatExpr(               99999.5)) <>               100000 or
-        round(floatExpr(               99999.499999999)) <>        99999 or
-        round(floatExpr(               10000.5)) <>                10001 or
-        round(floatExpr(               10000.4999999999)) <>       10000 or
-        round(floatExpr(               10000.0)) <>                10000 or
-        round(floatExpr(                9999.5)) <>                10000 or
-        round(floatExpr(                9999.4999999999)) <>        9999 or
-        round(floatExpr(                1000.5)) <>                 1001 or
-        round(floatExpr(                1000.49999999999)) <>       1000 or
-        round(floatExpr(                1000.0)) <>                 1000 or
-        round(floatExpr(                 999.5)) <>                 1000 or
-        round(floatExpr(                 999.49999999999)) <>        999 or
-        round(floatExpr(                 100.5)) <>                  101 or
-        round(floatExpr(                 100.499999999999)) <>       100 or
-        round(floatExpr(                 100.0)) <>                  100 or
-        round(floatExpr(                  99.5)) <>                  100 or
-        round(floatExpr(                  99.499999999999)) <>        99 or
+        round(floatExpr(             -100000.5)) <>              -100001 or
+        round(floatExpr(             -100000.499999999)) <>      -100000 or
+        round(floatExpr(             -100000.0)) <>              -100000 or
+        round(floatExpr(              -99999.5)) <>              -100000 or
+        round(floatExpr(              -99999.499999999)) <>       -99999 or
+        round(floatExpr(              -10000.5)) <>               -10001 or
+        round(floatExpr(              -10000.4999999999)) <>      -10000 or
+        round(floatExpr(              -10000.0)) <>               -10000 or
+        round(floatExpr(               -9999.5)) <>               -10000 or
+        round(floatExpr(               -9999.4999999999)) <>       -9999 or
+        round(floatExpr(               -1000.5)) <>                -1001 or
+        round(floatExpr(               -1000.49999999999)) <>      -1000 or
+        round(floatExpr(               -1000.0)) <>                -1000 or
+        round(floatExpr(                -999.5)) <>                -1000 or
+        round(floatExpr(                -999.49999999999)) <>       -999 or
+        round(floatExpr(                -100.5)) <>                 -101 or
+        round(floatExpr(                -100.499999999999)) <>      -100 or
+        round(floatExpr(                -100.0)) <>                 -100 or
+        round(floatExpr(                 -99.5)) <>                 -100 or
+        round(floatExpr(                 -99.499999999999)) <>       -99 or
         round(floatExpr(                 -10.5)) <>                  -11 or
         round(floatExpr(                 -10.4999999999999)) <>      -10 or
         round(floatExpr(                 -10.0)) <>                  -10 or
@@ -4182,19 +4892,23 @@ const proc: check_trunc is func
         round(floatExpr( 1152921504606846976.0)) <>  1152921504606846976 or
         round(floatExpr( 2305843009213693952.0)) <>  2305843009213693952 or
         round(floatExpr( 4611686018427387904.0)) <>  4611686018427387904 or
+        round(floatExpr( 9223372036854774784.0)) <>  9223372036854774784 or
+            raisesRangeError(round(floatExpr( 9223372036854775295.0))) or
+        not raisesRangeError(round(floatExpr( 9223372036854775297.0))) or
+        not raisesRangeError(round(floatExpr( 9223372036854775807.0))) or
         not raisesRangeError(round(floatExpr( 9223372036854777000.0))) or
         not raisesRangeError(round(floatExpr(              1.0e37  ))) or
         not raisesRangeError(round(floatExpr(           FLOAT_MAX  ))) or
         not raisesRangeError(round(floatExpr(            Infinity  ))) or
         not raisesRangeError(round(floatExpr(                 NaN  ))) then
-      writeln(" ***** Rounding of float does not work correct.");
+      writeln(" ***** Rounding of float does not work correct. (2)");
       okay := FALSE;
     end if;
 
     if okay then
-      writeln("Truncation of float works correct.");
+      writeln("Rounding of float works correct.");
     else
-      writeln(" ***** Truncation of float does not work correct.");
+      writeln(" ***** Rounding of float does not work correct.");
     end if;
   end func;
 
@@ -12019,6 +12733,7 @@ const proc: main is func
     check_str;
     check_conversion;
     check_trunc;
+    check_round;
     check_add;
     check_mult;
     check_division;

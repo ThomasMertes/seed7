@@ -1,0 +1,148 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  subfile.s7i   Open part of an existing file as read only file.  *)
+(*  Copyright (C) 2019 - 2020  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "stdio.s7i";
+include "time.s7i";
+
+
+const type: subFile is sub null_file struct
+    var file: baseFile is STD_NULL;
+    var integer: startPos is 0;
+    var integer: size is 0;
+    var integer: position is 1;
+  end struct;
+
+type_implements_interface(subFile, file);
+
+
+const func file: openSubFile (in file: baseFile, in integer: startPos, in integer: size) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var subFile: new_subFile is subFile.value;
+  begin
+    if baseFile <> STD_NULL then
+      new_subFile.baseFile := baseFile;
+      new_subFile.startPos := startPos;
+      new_subFile.size := size;
+      newFile := toInterface(new_subFile);
+    end if;
+  end func;
+
+
+(**
+ *  Read a character from ''inSubFile''.
+ *  @return the character read, or [[char#EOF|EOF]] at the end of the file.
+ *)
+const func char: getc (inout subFile: inSubFile) is func
+  result
+    var char: charRead is ' ';
+  begin
+    if inSubFile.position <= inSubFile.size then
+      seek(inSubFile.baseFile, pred(inSubFile.startPos + inSubFile.position));
+      charRead := getc(inSubFile.baseFile);
+      incr(inSubFile.position);
+    else
+      charRead := EOF;
+    end if;
+  end func;
+
+
+(**
+ *  Read a [[string]] with maximum length from ''inSubFile''.
+ *  @return the string read.
+ *)
+const func string: gets (inout subFile: inSubFile, in integer: maxLength) is func
+  result
+    var string: striRead is "";
+  begin
+    if inSubFile.position <= inSubFile.size then
+      seek(inSubFile.baseFile, pred(inSubFile.startPos + inSubFile.position));
+      if pred(inSubFile.position + maxLength) <= inSubFile.size then
+        striRead := gets(inSubFile.baseFile, maxLength);
+        inSubFile.position +:= maxLength;
+      else
+        striRead := gets(inSubFile.baseFile, succ(inSubFile.size - inSubFile.position));
+        inSubFile.position := succ(inSubFile.size);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set if at least one request to read
+ *  from the file failed.
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in subFile: inSubFile) is
+  return inSubFile.position > inSubFile.size;
+
+
+(**
+ *  Determine if at least one character can be read successfully.
+ *  This function allows a file to be handled like an iterator.
+ *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
+ *          TRUE otherwise.
+ *)
+const func boolean: hasNext (in subFile: inSubFile) is
+  return inSubFile.position <= inSubFile.size;
+
+
+(**
+ *  Obtain the length of a ''aSubFile''.
+ *  The file length is measured in characters.
+ *  @return the length of a file.
+ *)
+const func integer: length (in subFile: aSubFile) is
+  return aSubFile.size;
+
+
+(**
+ *  Set the current file position.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *)
+const proc: seek (inout subFile: aSubFile, in integer: position) is func
+  begin
+    if position <= 0 then
+      raise RANGE_ERROR;
+    else
+      aSubFile.position := position;
+    end if;
+  end func;
+
+
+(**
+ *  Obtain the current file position of ''aSubFile''.
+ *  The file position is measured in characters from the start of the file.
+ *  The first character in the file has the position 1.
+ *  @return the current file position.
+ *)
+const func integer: tell (in subFile: aSubFile) is
+  return aSubFile.position;

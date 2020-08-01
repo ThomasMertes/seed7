@@ -114,6 +114,7 @@ wumpus.sd7   Hunt the Wumpus game
 
   Seed7 include files:
 aes.s7i      AES (Advanced Encryption Standard) cipher support.
+ar.s7i       Ar archive library
 arc4.s7i     Support for ARC4 (Alleged RC4) stream cipher.
 array.s7i    Support for arrays with integer index
 asn1.s7i     Support for Abstract Syntax Notation One (ASN.1).
@@ -145,6 +146,7 @@ clib_file.s7i Type for FILE * files from the C runtime library
 color.s7i    Functions for color processing
 complex.s7i  Complex support library
 console.s7i  Text implementation type for text console/window.
+cpio.s7i     Cpio archive library
 crc32.s7i    CRC-32 cyclic redundancy check support library
 cronos16.s7i Cronos vector font with capHeight 16.
 cronos27.s7i Cronos vector font with capHeight 27.
@@ -165,6 +167,7 @@ environment.s7i Support for program arguments and environment.
 external_file.s7i File implementation type describing OS files
 field.s7i    Filter file which reads the input fieldwise
 file.s7i     Interface type describing sequential files.
+filebits.s7i File mode bits used by archive file systems.
 filesys.s7i  Interface for file systems (os, tar, zip, ...)
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
@@ -226,6 +229,7 @@ rational.s7i Rational number support library
 ref_list.s7i Reference list support library
 reference.s7i Reference to object support library
 reverse.s7i  Filter file which writes right to left on output
+rpm.s7i      Rpm archive library
 scanfile.s7i File scanner functions
 scanstri.s7i String scanner functions
 seed7_05.s7i Standard Seed7 library
@@ -252,6 +256,7 @@ strifile.s7i Implementation type for files stored in a string
 string.s7i   String support library
 stritext.s7i string text library (uses an array string)
 struct.s7i   Struct support library
+subfile.s7i  Open part of an existing file as read only file.
 subrange.s7i Subrange support library
 syntax.s7i   Syntax definition of the standard Seed7 library
 tar.s7i      Tar archive library

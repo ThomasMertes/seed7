@@ -1620,18 +1620,22 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
         case SQLT_VCS: /* VARCHAR */
         case SQLT_DAT: /* DATE */
         case SQLT_VBI: /* VARRAW */
-#ifdef SQLT_BFLOAT
-        case SQLT_BFLOAT:
-#endif
-#ifdef SQLT_BDOUBLE
-        case SQLT_BDOUBLE:
-#endif
+        case SQLT_BFLOAT:  /* BINARY_FLOAT */
+        case SQLT_BDOUBLE: /* BINARY_DOUBLE */
         case SQLT_BIN: /* RAW */
         case SQLT_LVC: /* LONG VARCHAR */
         case SQLT_LVB: /* LONG VARRAW */
         case SQLT_AFC: /* CHAR */
         case SQLT_AVC: /* CHARZ */
         case SQLT_VST: /* OCI STRING type */
+          strategy = USE_BUFFER;
+          break;
+        case SQLT_IBFLOAT:  /* BINARY_FLOAT */
+          resultData->buffer_type = SQLT_BFLOAT;
+          strategy = USE_BUFFER;
+          break;
+        case SQLT_IBDOUBLE: /* BINARY_DOUBLE */
+          resultData->buffer_type = SQLT_BDOUBLE;
           strategy = USE_BUFFER;
           break;
         default:
@@ -1652,6 +1656,7 @@ static errInfoType setupResultColumn (preparedStmtType preparedStmt,
             resultData->buffer = &resultData->descriptor;
           } /* if */
         } else if (strategy == USE_BUFFER) {
+          /* printf ("column_size: " FMT_U32 "\n", column_size); */
           resultData->buffer = malloc(column_size);
           if (unlikely(resultData->buffer == NULL)) {
             err_info = MEMORY_ERROR;
@@ -3759,16 +3764,12 @@ static floatType sqlColumnFloat (sqlStmtType sqlStatement, intType column)
         /* printf("buffer_type: %s\n",
            nameOfBufferType(columnData->buffer_type)); */
         switch (columnData->buffer_type) {
-#ifdef SQLT_BFLOAT
           case SQLT_BFLOAT:
             columnValue = *(float *) columnData->buffer;
             break;
-#endif
-#ifdef SQLT_BDOUBLE
           case SQLT_BDOUBLE:
             columnValue = *(double *) columnData->buffer;
             break;
-#endif
           case SQLT_NUM:
             columnValue = getFloat(columnData->buffer, columnData->length);
             break;

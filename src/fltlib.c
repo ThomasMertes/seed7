@@ -66,6 +66,13 @@ typedef union {
   double aDouble;
 } double2BitsType;
 
+static const intType minimumTruncArgument = 
+#if TWOS_COMPLEMENT_INTTYPE
+    INTTYPE_MIN;
+#else
+    INT_SUFFIX(MINIMUM_TRUNC_ARGUMENT);
+#endif
+
 
 
 /**
@@ -1119,8 +1126,8 @@ objectType flt_round (listType arguments)
     number = take_float(arg_1(arguments));
     logFunction(printf("flt_round(" FMT_E ")\n", number););
     if (unlikely(os_isnan(number) ||
-                 number < (floatType) INTTYPE_MIN - 0.5 ||
-                 number > (floatType) INTTYPE_MAX + 0.5)) {
+                 number < (floatType) minimumTruncArgument ||
+                 number > (floatType) INT_SUFFIX(MAXIMUM_TRUNC_ARGUMENT))) {
       logError(printf("flt_round(" FMT_E "): "
                       "Number does not fit into an integer.\n",
                       number););
@@ -1384,14 +1391,16 @@ objectType flt_trunc (listType arguments)
   /* flt_trunc */
     isit_float(arg_1(arguments));
     number = take_float(arg_1(arguments));
+    logFunction(printf("flt_trunc(" FMT_E ")\n", number););
     if (unlikely(os_isnan(number) ||
-                 number < (floatType) INTTYPE_MIN ||
-                 number > (floatType) INTTYPE_MAX)) {
+                 number < (floatType) minimumTruncArgument ||
+                 number > (floatType) INT_SUFFIX(MAXIMUM_TRUNC_ARGUMENT))) {
       logError(printf("flt_trunc(" FMT_E "): "
                       "Number does not fit into an integer.\n",
                       number););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
+      logFunction(printf("flt_trunc --> " FMT_D "\n", (intType) number););
       return bld_int_temp((intType) number);
     } /* if */
   } /* flt_trunc */

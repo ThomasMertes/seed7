@@ -2513,6 +2513,38 @@ static void numericProperties (FILE *versionFile)
                          "return 0;}\n")) {
       testOutputToVersionFile(versionFile);
     } /* if */
+    sprintf(buffer,
+            "#include<stdio.h>\n#include<float.h>\n"
+            "int main(int argc,char *argv[]){\n"
+            "typedef %s int64Type;\n"
+            "int64Type number;\n"
+            "int64Type intFirst = (int64Type) (-9223372036854775807 - 1);\n"
+            "int64Type intLast = (int64Type) 9223372036854775807;\n"
+            "double argument;\n"
+            "int foundMin = 0;\n"
+            "int foundMax = 0;\n"
+#ifdef TURN_OFF_FP_EXCEPTIONS
+            "_control87(MCW_EM, MCW_EM);\n"
+#endif
+            "for (number = 0; !(foundMin && foundMax) && number < 1000; number++) {\n"
+            "  argument = (double) (intFirst + number);\n"
+            "  if (!foundMin && (int64Type) argument != 0) {\n"
+            "    printf(\"#define MINIMUM_TRUNC_ARGUMENT %%%sd\\n\",\n"
+            "           intFirst + number);\n"
+            "    foundMin = 1;\n"
+            "  }\n"
+            "  argument = (double) (intLast - number);\n"
+            "  if (!foundMax && (int64Type) argument > 0) {\n"
+            "    printf(\"#define MAXIMUM_TRUNC_ARGUMENT %%%sd\\n\",\n"
+            "           intLast - number);\n"
+            "    foundMax = 1;\n"
+            "  }\n"
+            "}\n"
+            "return 0;}\n",
+            int64TypeStri, int64TypeFormat, int64TypeFormat);
+    if (assertCompAndLnk(buffer)) {
+      testOutputToVersionFile(versionFile);
+    } /* if */
     if (assertCompAndLnk("#include<stdio.h>\n#include<string.h>\n"
                          "int main(int argc,char *argv[]){\n"
                          "char buffer[100010];\n"

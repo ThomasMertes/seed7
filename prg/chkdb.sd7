@@ -2073,9 +2073,32 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
                                  " (" & state.fieldName & " " & floatType(databaseKind) & ")");
       execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= 0.0);
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
-      insert(state, NULL,                       expect &:=                    0.0);
+      insert(state, NULL, expect &:= 0.0);
+
+      insert(testDb, state,            "-16777215",     expect &:=            -16777215.0);
+      insert(testDb, state,                   "-1",     expect &:=                   -1.0);
+      insert(testDb, state,                    "0",     expect &:=                    0.0);
+      insert(testDb, state,                    "1",     expect &:=                    1.0);
+      insert(testDb, state,             "16777215",     expect &:=             16777215.0);
+
+      insert(testDb, state, "-9223372036854775809.0",   expect &:= -9223372036854775809.0);
+      insert(testDb, state, "-9223372036854775808.0",   expect &:= -9223372036854775808.0);
+      insert(testDb, state,    "0.0",                   expect &:=    0.0);
+      insert(testDb, state,    "5.9604644775390625e-8", expect &:=    5.9604644775390625e-8);
+      insert(testDb, state,    "2.384185791015625e-7",  expect &:=    2.384185791015625e-7);
+      insert(testDb, state,    "4.76837158203125e-7",   expect &:=    4.76837158203125e-7);
+      insert(testDb, state,    "9.5367431640625e-7",    expect &:=    9.5367431640625e-7);
+      insert(testDb, state,    "0.000244140625",        expect &:=    0.000244140625);
+      insert(testDb, state,    "0.0009765625",          expect &:=    0.0009765625);
+      insert(testDb, state,    "3.5",                   expect &:=    3.5);
+      insert(testDb, state,    "4.125",                 expect &:=    4.125);
+      insert(testDb, state, "4882.8125",                expect &:= 4882.8125);
+      insert(testDb, state,  "9223372036854775807.0",   expect &:=  9223372036854775807.0);
+      insert(testDb, state,  "9223372036854775808.0",   expect &:=  9223372036854775808.0);
+
       insert(state, 1,                          expect &:=                    1.0);
       insert(state, pred(-9223372036854775807), expect &:= -9223372036854775808.0);
       insert(state, 9223372036854775807,        expect &:=  9223372036854775807.0);
@@ -2098,14 +2121,19 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
-      insert(state,  4.125,                     expect &:=  4.125);
-      insert(state,  0.0009765625,              expect &:=  0.0009765625);
-      insert(state,  0.000244140625,            expect &:=  0.000244140625);
-      insert(state,  9.5367431640625e-7,        expect &:=  9.5367431640625e-7);
-      insert(state,  4.76837158203125e-7,       expect &:=  4.76837158203125e-7);
-      insert(state,  2.384185791015625e-7,      expect &:=  2.384185791015625e-7);
-      insert(state,  5.9604644775390625e-8,     expect &:=  5.9604644775390625e-8);
+      insert(state, -9223372036854775809.0,     expect &:= -9223372036854775809.0);
       insert(state, -9223372036854775808.0,     expect &:= -9223372036854775808.0);
+      insert(state,    0.0,                     expect &:=    0.0);
+      insert(state,    5.9604644775390625e-8,   expect &:=    5.9604644775390625e-8);
+      insert(state,    2.384185791015625e-7,    expect &:=    2.384185791015625e-7);
+      insert(state,    4.76837158203125e-7,     expect &:=    4.76837158203125e-7);
+      insert(state,    9.5367431640625e-7,      expect &:=    9.5367431640625e-7);
+      insert(state,    0.000244140625,          expect &:=    0.000244140625);
+      insert(state,    0.0009765625,            expect &:=    0.0009765625);
+      insert(state,    3.5,                     expect &:=    3.5);
+      insert(state,    4.125,                   expect &:=    4.125);
+      insert(state, 4882.8125,                  expect &:= 4882.8125);
+      insert(state,  9223372036854775807.0,     expect &:=  9223372036854775807.0);
       insert(state,  9223372036854775808.0,     expect &:=  9223372036854775808.0);
       insInf(state, -Infinity,                  expect &:= -Infinity);
       insInf(state,  Infinity,                  expect &:=  Infinity);
@@ -2128,14 +2156,14 @@ const proc: testFloatField (in database: testDb, in dbCategory: databaseKind) is
                     " Expected " <& expect[row] <& " found float " <& floatColumn);
           end if;
         end if;
-        if row = 1 and not isNull(state.statement, 1) then
+        if row <= 2 and not isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
             writeln(" *** testFloatField: Row: " <& row <&
                     " Expected NULL found float " <& floatColumn);
           end if;
         end if;
-        if row > 1 and isNull(state.statement, 1) then
+        if row > 2 and isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
             writeln(" *** testFloatField: Row: " <& row <&
@@ -2181,9 +2209,32 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
       state.statement := prepare(testDb, "CREATE TABLE " & state.tableName &
                            " (" & state.fieldName & " " & doubleType(databaseKind) & ")");
       execute(state.statement);
+      insert(testDb, state, "NULL", expect &:= 0.0);
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
-      insert(state, NULL,                       expect &:=                    0.0);
+      insert(state, NULL, expect &:= 0.0);
+
+      insert(testDb, state,    "-9007199254740991",     expect &:=    -9007199254740991.0);
+      insert(testDb, state,                   "-1",     expect &:=                   -1.0);
+      insert(testDb, state,                    "0",     expect &:=                    0.0);
+      insert(testDb, state,                    "1",     expect &:=                    1.0);
+      insert(testDb, state,     "9007199254740991",     expect &:=     9007199254740991.0);
+
+      insert(testDb, state, "-9223372036854775809.0",   expect &:= -9223372036854775809.0);
+      insert(testDb, state, "-9223372036854775808.0",   expect &:= -9223372036854775808.0);
+      insert(testDb, state,    "0.0",                   expect &:=    0.0);
+      insert(testDb, state,    "5.9604644775390625e-8", expect &:=    5.9604644775390625e-8);
+      insert(testDb, state,    "2.384185791015625e-7",  expect &:=    2.384185791015625e-7);
+      insert(testDb, state,    "4.76837158203125e-7",   expect &:=    4.76837158203125e-7);
+      insert(testDb, state,    "9.5367431640625e-7",    expect &:=    9.5367431640625e-7);
+      insert(testDb, state,    "0.000244140625",        expect &:=    0.000244140625);
+      insert(testDb, state,    "0.0009765625",          expect &:=    0.0009765625);
+      insert(testDb, state,    "3.5",                   expect &:=    3.5);
+      insert(testDb, state,    "4.125",                 expect &:=    4.125);
+      insert(testDb, state, "4882.8125",                expect &:= 4882.8125);
+      insert(testDb, state,  "9223372036854775807.0",   expect &:=  9223372036854775807.0);
+      insert(testDb, state,  "9223372036854775808.0",   expect &:=  9223372036854775808.0);
+
       insert(state, 1,                          expect &:=                    1.0);
       insert(state, pred(-9223372036854775807), expect &:= -9223372036854775808.0);
       insert(state, 9223372036854775807,        expect &:=  9223372036854775807.0);
@@ -2206,14 +2257,19 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
 
       state.statement := prepare(testDb, "INSERT INTO " & state.tableName &
                                  " (" & state.fieldName & ") VALUES (?)");
-      insert(state,  4.125,                     expect &:=  4.125);
-      insert(state,  0.0009765625,              expect &:=  0.0009765625);
-      insert(state,  0.000244140625,            expect &:=  0.000244140625);
-      insert(state,  9.5367431640625e-7,        expect &:=  9.5367431640625e-7);
-      insert(state,  4.76837158203125e-7,       expect &:=  4.76837158203125e-7);
-      insert(state,  2.384185791015625e-7,      expect &:=  2.384185791015625e-7);
-      insert(state,  5.9604644775390625e-8,     expect &:=  5.9604644775390625e-8);
+      insert(state, -9223372036854775809.0,     expect &:= -9223372036854775809.0);
       insert(state, -9223372036854775808.0,     expect &:= -9223372036854775808.0);
+      insert(state,    0.0,                     expect &:=    0.0);
+      insert(state,    5.9604644775390625e-8,   expect &:=    5.9604644775390625e-8);
+      insert(state,    2.384185791015625e-7,    expect &:=    2.384185791015625e-7);
+      insert(state,    4.76837158203125e-7,     expect &:=    4.76837158203125e-7);
+      insert(state,    9.5367431640625e-7,      expect &:=    9.5367431640625e-7);
+      insert(state,    0.000244140625,          expect &:=    0.000244140625);
+      insert(state,    0.0009765625,            expect &:=    0.0009765625);
+      insert(state,    3.5,                     expect &:=    3.5);
+      insert(state,    4.125,                   expect &:=    4.125);
+      insert(state, 4882.8125,                  expect &:= 4882.8125);
+      insert(state,  9223372036854775807.0,     expect &:=  9223372036854775807.0);
       insert(state,  9223372036854775808.0,     expect &:=  9223372036854775808.0);
       insInf(state, -Infinity,                  expect &:= -Infinity);
       insInf(state,  Infinity,                  expect &:=  Infinity);
@@ -2236,14 +2292,14 @@ const proc: testDoubleField (in database: testDb, in dbCategory: databaseKind) i
                     " Expected " <& expect[row] <& " found double " <& doubleColumn);
           end if;
         end if;
-        if row = 1 and not isNull(state.statement, 1) then
+        if row <= 2 and not isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
             writeln(" *** testDoubleField: Row: " <& row <&
                     " Expected NULL found double " <& doubleColumn);
           end if;
         end if;
-        if row > 1 and isNull(state.statement, 1) then
+        if row > 2 and isNull(state.statement, 1) then
           state.okay := FALSE;
           if state.details then
             writeln(" *** testDoubleField: Row: " <& row <&
@@ -6322,7 +6378,6 @@ const proc: testDb (in database: testDb, in connectData: dbConnectData) is func
     testTimeStampField(testDb, databaseKind);
     testTimeStampTzField(testDb, databaseKind);
     testDurationField(testDb, databaseKind);
-
     # testFloatField2(testDb, databaseKind);
     # testBigRatField2(testDb, databaseKind);
     # testCharField2(testDb, databaseKind);

@@ -423,3 +423,5 @@ const type: _bin32Array is array bin32;
 
 
 enable_output(bin32);
+
+CASE_DECLS(bin32);

@@ -303,6 +303,20 @@ const type: ccConfigType is new struct
     var integer: INT_RANGE_IN_FLOATTYPE_MAX  is 0;
 
     (**
+     *  Minimum value that trunc() or round() can convert.
+     *  Values below MINIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
+     *  when trunc() or round() is applied to them.
+     *)
+    var integer: MINIMUM_TRUNC_ARGUMENT      is 0;
+
+    (**
+     *  Maximum value that trunc() or round() can convert.
+     *  Values above MAXIMUM_TRUNC_ARGUMENT raise RANGE_ERROR,
+     *  when trunc() or round() is applied to them.
+     *)
+    var integer: MAXIMUM_TRUNC_ARGUMENT      is 0;
+
+    (**
      *  Name of a type for the boolean values 0 and 1.
      *  The runtime library and the compiler use a typedef to define
      *  the type ''boolType'' with BOOLTYPE.
@@ -653,6 +667,8 @@ const func ccConfigType: getBuiltInConfig is func
     conf.INT_SIZE                   := integer(configValue("INT_SIZE"));
     conf.LONG_SIZE                  := integer(configValue("LONG_SIZE"));
     conf.INT_RANGE_IN_FLOATTYPE_MAX := integer(configValue("INT_RANGE_IN_FLOATTYPE_MAX"));
+    conf.MINIMUM_TRUNC_ARGUMENT     := integer(configValue("MINIMUM_TRUNC_ARGUMENT"));
+    conf.MAXIMUM_TRUNC_ARGUMENT     := integer(configValue("MAXIMUM_TRUNC_ARGUMENT"));
     conf.BOOLTYPE                   := configValue("BOOLTYPE");
     conf.INT32TYPE                  := configValue("INT32TYPE");
     conf.UINT32TYPE                 := configValue("UINT32TYPE");

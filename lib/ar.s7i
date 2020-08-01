@@ -1,0 +1,649 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  ar.s7i        Ar archive library                                *)
+(*  Copyright (C) 2019, 2020  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "stdio.s7i";
+include "time.s7i";
+include "filesys.s7i";
+include "filebits.s7i";
+include "subfile.s7i";
+include "iobuffer.s7i";
+
+
+const string: AR_MAGIC is "!<arch>\n";
+
+const integer: AR_HEADER_SIZE      is 60;
+
+
+const type: arHeader is new struct
+    var string: filePath is "";
+    var integer: mtime is 0;
+    var integer: ownerId is 0;
+    var integer: groupId is 0;
+    var integer: mode is 0;
+    var integer: fileSize is 0;
+    var boolean: okay is FALSE;
+    var integer: longNameStart is 0;
+    var integer: dataStartPos is 0;
+  end struct;
+
+
+const proc: showHeader (inout file: outFile, in arHeader: header) is func
+  begin
+    writeln(outFile, "filePath: " <& header.filePath);
+    writeln(outFile, "mtime: " <& header.mtime);
+    writeln(outFile, "ownerId: " <& header.ownerId);
+    writeln(outFile, "groupId: " <& header.groupId);
+    writeln(outFile, "mode: " <& header.mode);
+    writeln(outFile, "fileSize: " <& header.fileSize);
+    writeln(outFile, "okay: " <& header.okay);
+    writeln(outFile, "longNameStart: " <& header.longNameStart);
+    writeln(outFile, "dataStartPos: " <& header.dataStartPos);
+  end func;
+
+
+const proc: assignFilePath (inout arHeader: header, in string: stri) is func
+  local
+    var integer: slashPos is 0;
+  begin
+    slashPos := rpos(stri, '/', 16);
+    # writeln("slashPos: " <& slashPos);
+    if slashPos = 0 then
+      header.filePath := rtrim(stri[ .. 16]);
+    elsif slashPos = 1 then
+      if stri[2] >= '0' and stri[2] <= '9' then
+        header.longNameStart := succ(integer(rtrim(stri[2 .. 16])));
+      else
+        header.filePath := "/";
+      end if;
+    elsif slashPos = 2 and stri[1] = '/' then
+      header.filePath := "//";
+    else
+      header.filePath := stri[ .. pred(slashPos)];
+    end if;
+  end func;
+
+
+const func arHeader: arHeader (in string: stri) is func
+  result
+    var arHeader: header is arHeader.value;
+  begin
+    assignFilePath(header, stri);
+    if stri[17 .. 48] <> " " mult 32 then
+      header.mtime :=   integer(rtrim(stri[17 len 12]));
+      header.ownerId := integer(rtrim(stri[29 len  6]));
+      header.groupId := integer(rtrim(stri[35 len  6]));
+      header.mode :=    integer(rtrim(stri[41 len  8]));
+    end if;
+    header.fileSize :=           integer(rtrim(stri[49 len 10]));
+    header.okay :=                             stri[59 len  2] = "`\n";
+  end func;
+
+
+const proc: readHead (inout file: inFile, inout arHeader: header) is func
+  local
+    var string: stri is "";
+  begin
+    stri := gets(inFile, AR_HEADER_SIZE);
+    if length(stri) = AR_HEADER_SIZE then
+      # writeln(literal(stri));
+      header := arHeader(stri);
+      header.dataStartPos := tell(inFile);
+    else
+      header := arHeader.value;
+    end if;
+    # showHeader(OUT, header);
+  end func;
+
+
+const proc: readMinimumOfHead (inout file: inFile, inout arHeader: header) is func
+  local
+    var string: stri is "";
+  begin
+    stri := gets(inFile, AR_HEADER_SIZE);
+    if length(stri) = AR_HEADER_SIZE then
+      assignFilePath(header, stri);
+      header.fileSize :=       integer(rtrim(stri[49 len 10]));
+      header.okay :=                         stri[59 len  2] = "`\n";
+    else
+      header := arHeader.value;
+    end if;
+    # showHeader(OUT, header);
+  end func;
+
+
+const func string: getLongName (in string: longNames, in integer: longNameStart) is func
+  result
+    var string: longName is "";
+  local
+    var integer: nlPos is 0;
+  begin
+    nlPos := pos(longNames, '\n', longNameStart);
+    if nlPos <> 0 then
+      longName := longNames[longNameStart .. pred(nlPos)];
+    else
+      longName := longNames[longNameStart ..];
+    end if;
+    longName := longName[ .. pred(rpos(longName, '/'))];
+    # writeln("getLongName: " <& longName);
+  end func;
+
+
+const type: arRegisterType is hash [string] integer;
+const type: arCatalogType is hash [string] arHeader;
+
+
+const type: arArchive is sub emptyFileSys struct
+    var file: arFile is STD_NULL;
+    var string: longNames is "";
+    var arRegisterType: register is arRegisterType.value;
+    var arCatalogType: catalog is arCatalogType.value;
+    var string: magic is "";
+    var integer: headerSize is 0;
+    var integer: padding is 0;
+    var integer: trailerPos is 0;
+  end struct;
+
+
+(**
+ *  Open a AR archive with the given arFile.
+ *  @param arFile File that contains a AR archive.
+ *  @return a file system that accesses the AR archive.
+ *)
+const func fileSys: openAr (inout file: arFile) is func
+  result
+    var fileSys: newFileSys is fileSys.value;
+  local
+    var string: magic is "";
+    var arHeader: header is arHeader.value;
+    var integer: headPos is 1;
+    var arArchive: ar is arArchive.value;
+  begin
+    if length(arFile) = 0 then
+      ar.arFile := arFile;
+      newFileSys := toInterface(ar);
+    else
+      seek(arFile, headPos);
+      magic := gets(arFile, length(AR_MAGIC));
+      if magic = AR_MAGIC then
+        ar.arFile := arFile;
+        headPos := tell(arFile);
+        readHead(arFile, header);
+        while header.okay do
+          # writeln(header.filePath <& " " <& headPos);
+          if header.filePath = "//" then
+            # showHeader(OUT, header);
+            ar.longNames := gets(arFile, header.fileSize);
+            writeln("long Names: " <& literal(ar.longNames));
+            headPos := tell(arFile);
+          elsif header.filePath = "/" then
+            # showHeader(OUT, header);
+            # lookup table
+            ignore(gets(arFile, header.fileSize));
+            headPos := tell(arFile);
+          else
+            if header.longNameStart <> 0 then
+              header.filePath := getLongName(ar.longNames, header.longNameStart);
+            end if;
+            # showHeader(OUT, header);
+            ar.register @:= [header.filePath] headPos;
+            if header.fileSize = 0 then
+              headPos := tell(arFile);
+            else
+              headPos := tell(arFile) +
+                  succ(pred(header.fileSize) mdiv 2) * 2;
+              seek(arFile, headPos);
+            end if;
+          end if;
+          readHead(arFile, header);
+        end while;
+        newFileSys := toInterface(ar);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Open a AR archive with the given arFileName.
+ *  @param arFileName Name of the AR archive to be opened.
+ *  @return a file system that accesses the AR archive.
+ *)
+const func fileSys: openAr (in string: arFileName) is func
+  result
+    var fileSys: ar is fileSys.value;
+  local
+    var file: arFile is STD_NULL;
+  begin
+    arFile := open(arFileName, "r");
+    ar := openAr(arFile);
+  end func;
+
+
+(**
+ *  Close a AR archive.
+ *)
+const proc: close (inout arArchive: ar) is func
+  begin
+    close(ar.arFile);
+    ar.arFile := STD_NULL;
+  end func;
+
+
+const func arHeader: addToCatalog (inout arArchive: ar, in string: filePath) is func
+  result
+    var arHeader: header is arHeader.value;
+  local
+    var string: linkPath is "";
+  begin
+    seek(ar.arFile, ar.register[filePath]);
+    readHead(ar.arFile, header);
+    ar.catalog @:= [filePath] header;
+  end func;
+
+
+const func boolean: implicitDir (inout arArchive: ar, in string: dirPath) is func
+  result
+    var boolean: implicitDir is FALSE;
+  local
+    var string: filePath is "";
+  begin
+    writeln("implicitDir: " <& literal(dirPath));
+    if dirPath <> "" then
+      for key filePath range ar.register do
+        if startsWith(filePath, dirPath) and
+            length(filePath) > length(dirPath) and
+            (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
+          implicitDir := TRUE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func arHeader: addImplicitDir (inout arArchive: ar,
+    in string: dirPath) is func
+  result
+    var arHeader: header is arHeader.value;
+  begin
+    header.filePath := dirPath;
+    header.mode := ord(MODE_FILE_DIR) + 8#775;
+    header.dataStartPos := -1;
+    ar.catalog @:= [dirPath] header;
+  end func;
+
+
+(**
+ *  Determine the file names in a directory inside a AR archive.
+ *  Note that the function returns only the file names.
+ *  Additional information must be obtained with other calls.
+ *  @param ar Open AR archive.
+ *  @param dirPath path of a directory in the AR archive.
+ *  @return an array with the file names.
+ *  @exception RANGE_ERROR ''dirPath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''dirPath'' is not present in the AR archive.
+ *)
+const func array string: readDir (inout arArchive: ar, in string: dirPath) is func
+  result
+    var array string: fileNames is 0 times "";
+  local
+    var string: filePath is "";
+    var boolean: dirExists is FALSE;
+    var set of string: fileNameSet is (set of string).value;
+    var string: fileName is "";
+    var integer: slashPos is 0;
+  begin
+    if dirPath <> "/" and endsWith(dirPath, "/") then
+      raise RANGE_ERROR;
+    elsif dirPath = "" or dirPath = "." then
+      for key fileName range ar.register do
+        slashPos := pos(fileName, '/');
+        if slashPos <> 0 then
+          if slashPos = 1 then
+            fileName := "/";
+          else
+            fileName := fileName[.. pred(slashPos)];
+          end if;
+        end if;
+        if fileName not in fileNameSet then
+          incl(fileNameSet, fileName);
+        end if;
+      end for;
+    else
+      for key filePath range ar.register do
+        if startsWith(filePath, dirPath) then
+          fileName := filePath[succ(length(dirPath)) ..];
+          if fileName = "" then
+            dirExists := TRUE;
+          elsif startsWith(fileName, "/") then
+            fileName := fileName[2 ..];
+          elsif dirPath <> "/" then
+            fileName := "";  # A file name <> dirPath starts with dirPath.
+          end if;
+          slashPos := pos(fileName, '/');
+          if slashPos <> 0 then
+            fileName := fileName[.. pred(slashPos)];
+          end if;
+          if fileName <> "" and fileName not in fileNameSet then
+            incl(fileNameSet, fileName);
+            dirExists := TRUE;
+          end if;
+        end if;
+      end for;
+      if not dirExists then
+        raise FILE_ERROR;
+      end if;
+    end if;
+    fileNames := sort(toArray(fileNameSet));
+  end func;
+
+
+(**
+ *  Determine the file paths in a AR archive.
+ *  Note that the function returns only the file paths.
+ *  Additional information must be obtained with other calls.
+ *  @param ar Open AR archive.
+ *  @return an array with the file paths.
+ *)
+const func array string: readDir (inout arArchive: ar, RECURSIVE) is
+  return sort(keys(ar.register));
+
+
+(**
+ *  Determine the type of a file in a AR archive.
+ *  The function does follow symbolic links. If the chain of
+ *  symbolic links is too long the function returns ''FILE_SYMLINK''.
+ *  If a symbolic link refers to a place where the permission
+ *  is denied the function returns ''FILE_SYMLINK''.
+ *  A return value of ''FILE_ABSENT'' does not imply that a file
+ *  with this name can be created, since missing directories and
+ *  illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *)
+const func fileType: fileType (inout arArchive: ar, in var string: filePath) is func
+  result
+    var fileType: aFileType is FILE_UNKNOWN;
+  local
+    var arHeader: header is arHeader.value;
+    var integer: symlinkCount is 5;
+  begin
+    # writeln("fileType: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      aFileType := FILE_DIR;
+    else
+      repeat
+        if filePath in ar.catalog then
+          header := ar.catalog[filePath];
+        elsif filePath in ar.register then
+          header := addToCatalog(ar, filePath);
+        elsif implicitDir(ar, filePath) then
+          header := addImplicitDir(ar, filePath);
+        else
+          aFileType := FILE_ABSENT;
+        end if;
+        if aFileType = FILE_UNKNOWN then
+          case bin32(header.mode) & MODE_FILE_TYPE_MASK of
+            when {MODE_FILE_REGULAR}: aFileType := FILE_REGULAR;
+            when {MODE_FILE_DIR}:     aFileType := FILE_DIR;
+            when {MODE_FILE_CHAR}:    aFileType := FILE_CHAR;
+            when {MODE_FILE_BLOCK}:   aFileType := FILE_BLOCK;
+            when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
+            when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
+            when {MODE_FILE_SYMLINK}:
+              seek(ar.arFile, header.dataStartPos);
+              filePath := gets(ar.arFile, header.fileSize);
+            otherwise:
+              raise RANGE_ERROR;
+          end case;
+        end if;
+        decr(symlinkCount);
+      until aFileType <> FILE_UNKNOWN or symlinkCount = 0;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the type of a file in a AR archive.
+ *  The function does not follow symbolic links. Therefore it may
+ *  return ''FILE_SYMLINK''. A return value of ''FILE_ABSENT'' does
+ *  not imply that a file with this name can be created, since missing
+ *  directories and illegal file names cause also ''FILE_ABSENT''.
+ *  @return the type of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *)
+const func fileType: fileTypeSL (inout arArchive: ar, in string: filePath) is func
+  result
+    var fileType: aFileType is FILE_UNKNOWN;
+  local
+    var integer: modeValue is 0;
+  begin
+    # writeln("fileTypeSL: " <& filePath);
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath = "" then
+      aFileType := FILE_DIR;
+    else
+      if filePath in ar.catalog then
+        modeValue := ar.catalog[filePath].mode;
+      elsif filePath in ar.register then
+        modeValue := addToCatalog(ar, filePath).mode;
+      elsif implicitDir(ar, filePath) then
+        modeValue := addImplicitDir(ar, filePath).mode;
+      else
+        aFileType := FILE_ABSENT;
+      end if;
+      if aFileType = FILE_UNKNOWN then
+        # writeln("modeValue: " <& modeValue radix 8);
+        case bin32(modeValue) & MODE_FILE_TYPE_MASK of
+          when {MODE_FILE_REGULAR}: aFileType := FILE_REGULAR;
+          when {MODE_FILE_DIR}:     aFileType := FILE_DIR;
+          when {MODE_FILE_CHAR}:    aFileType := FILE_CHAR;
+          when {MODE_FILE_BLOCK}:   aFileType := FILE_BLOCK;
+          when {MODE_FILE_FIFO}:    aFileType := FILE_FIFO;
+          when {MODE_FILE_SOCKET}:  aFileType := FILE_SOCKET;
+          when {MODE_FILE_SYMLINK}: aFileType := FILE_SYMLINK;
+          otherwise:
+            raise RANGE_ERROR;
+        end case;
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the file mode (permissions) of a file in a AR archive.
+ *  @return the file mode.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive.
+ *)
+const func fileMode: fileMode (inout arArchive: ar, in string: filePath) is func
+  result
+    var fileMode: mode is fileMode.value;
+  local
+    var integer: modeValue is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in ar.catalog then
+      modeValue := ar.catalog[filePath].mode;
+    elsif filePath in ar.register then
+      modeValue := addToCatalog(ar, filePath).mode;
+    elsif implicitDir(ar, filePath) then
+      modeValue := addImplicitDir(ar, filePath).mode;
+    else
+      raise FILE_ERROR;
+    end if;
+    # writeln(filePath <& " mode: " <& modeValue radix 8);
+    mode := fileMode conv modeValue;
+  end func;
+
+
+(**
+ *  Determine the size of a file in a AR archive.
+ *  The file size is measured in bytes.
+ *  For directories a size of 0 is returned.
+ *  @return the size of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive.
+ *)
+const func integer: fileSize (inout arArchive: ar, in string: filePath) is func
+  result
+    var integer: size is 0;
+  local
+    var arHeader: header is arHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in ar.catalog then
+      size := ar.catalog[filePath].fileSize;
+    elsif filePath in ar.register then
+      size := addToCatalog(ar, filePath).fileSize;
+    elsif implicitDir(ar, filePath) then
+      size := addImplicitDir(ar, filePath).fileSize;
+    else
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  Determine the modification time of a file in a AR archive.
+ *  @return the modification time of the file.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive.
+ *)
+const func time: getMTime (inout arArchive: ar, in string: filePath) is func
+  result
+    var time: modificationTime is time.value;
+  local
+    var arHeader: header is arHeader.value;
+    var integer: mtime is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in ar.catalog then
+      mtime := ar.catalog[filePath].mtime;
+    elsif filePath in ar.register then
+      mtime := addToCatalog(ar, filePath).mtime;
+    elsif implicitDir(ar, filePath) then
+      mtime := addImplicitDir(ar, filePath).mtime;
+    else
+      raise FILE_ERROR;
+    end if;
+    modificationTime := timestamp1970ToTime(mtime);
+  end func;
+
+
+(**
+ *  Get the contents of a file in a AR archive.
+ *  @return the specified file as string.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the AR archive,
+ *             or is not a regular file.
+ *)
+const func string: getFile (inout arArchive: ar, in string: filePath) is func
+  result
+    var string: content is "";
+  local
+    var arHeader: header is arHeader.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in ar.catalog then
+      header := ar.catalog[filePath];
+      if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
+        seek(ar.arFile, header.dataStartPos);
+      end if;
+    elsif filePath in ar.register then
+      header := addToCatalog(ar, filePath);
+    else
+      raise FILE_ERROR;
+    end if;
+    if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
+      content := gets(ar.arFile, header.fileSize);
+    else
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+(**
+ *  For-loop which loops recursively over the paths in a AR archive.
+ *)
+const proc: for (inout string: filePath) range (inout arArchive: ar) do
+              (in proc: statements)
+            end for is func
+  begin
+    for key filePath range ar.register do
+      statements;
+    end for;
+  end func;
+
+
+const func file: openFileInAr (inout arArchive: ar, in string: filePath,
+    in string: mode) is func
+  result
+    var file: newFile is STD_NULL;
+  local
+    var arHeader: header is arHeader.value;
+    var boolean: okay is TRUE;
+  begin
+    if mode = "r" then
+      if filePath <> "/" and endsWith(filePath, "/") then
+        raise RANGE_ERROR;
+      elsif filePath in ar.catalog then
+        header := ar.catalog[filePath];
+      elsif filePath in ar.register then
+        header := addToCatalog(ar, filePath);
+      elsif implicitDir(ar, filePath) then
+        header := addImplicitDir(ar, filePath);
+      else
+        okay := FALSE;
+      end if;
+      if okay and
+          bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
+        newFile := openSubFile(ar.arFile, header.dataStartPos, header.fileSize);
+      end if;
+    end if;
+  end func;
+
+
+(**
+ *  Open a file with ''filePath'' and ''mode'' in in a AR archive.
+ *)
+const func file: open (inout arArchive: ar, in string: filePath,
+    in string: mode) is
+  return openBufferFile(openFileInAr(ar, filePath, mode));

@@ -146,7 +146,7 @@ const func boolean: eof (in file: inFile)                    is DYNAMIC;
  *  @return FALSE if ''getc'' would return [[char#EOF|EOF]],
  *          TRUE otherwise.
  *)
-const func boolean: hasNext (in file: inFile)                is DYNAMIC;
+const func boolean: hasNext (inout file: inFile)             is DYNAMIC;
 
 
 (**
@@ -169,7 +169,7 @@ const func boolean: inputReady (in file: inFile)             is DYNAMIC;
  *             not seekable or a system function returns an error
  *             or the file length reported by the system is negative.
  *)
-const func integer: length (in file: aFile)                  is DYNAMIC;
+const func integer: length (inout file: aFile)               is DYNAMIC;
 
 
 (**

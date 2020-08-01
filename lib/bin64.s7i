@@ -464,3 +464,5 @@ const type: _bin64Array is array bin64;
 
 
 enable_output(bin64);
+
+CASE_DECLS(bin64);

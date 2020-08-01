@@ -27,7 +27,6 @@
 
 
 include "stdio.s7i";
-include "osfiles.s7i";
 include "inflate.s7i";
 include "inflatefile.s7i";
 include "bytedata.s7i";
@@ -435,9 +434,9 @@ const proc: close (inout zipArchive: zip) is func
   end func;
 
 
-const func boolean: implizitDir (inout zipArchive: zip, in string: dirPath) is func
+const func boolean: implicitDir (inout zipArchive: zip, in string: dirPath) is func
   result
-    var boolean: implizitDir is FALSE;
+    var boolean: implicitDir is FALSE;
   local
     var string: filePath is "";
   begin
@@ -446,14 +445,14 @@ const func boolean: implizitDir (inout zipArchive: zip, in string: dirPath) is f
         if startsWith(filePath, dirPath) and
             length(filePath) > length(dirPath) and
             (filePath[succ(length(dirPath))] = '/' or dirPath = "/") then
-          implizitDir := TRUE;
+          implicitDir := TRUE;
         end if;
       end for;
     end if;
   end func;
 
 
-const func central_file_header: addImplizitDir (inout zipArchive: zip,
+const func central_file_header: addImplicitDir (inout zipArchive: zip,
     in string: dirPath) is func
   result
     var central_file_header: header is central_file_header.value;
@@ -555,8 +554,8 @@ const func fileType: fileType (inout zipArchive: zip, in string: filePath) is fu
         seek(zip.zipFile, zip.register[filePath]);
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
-      elsif implizitDir(zip, filePath) then
-        header := addImplizitDir(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
       else
         aFileType := FILE_ABSENT;
       end if;
@@ -596,8 +595,8 @@ const func fileType: fileTypeSL (inout zipArchive: zip, in string: filePath) is 
         seek(zip.zipFile, zip.register[filePath]);
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
-      elsif implizitDir(zip, filePath) then
-        header := addImplizitDir(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
       else
         aFileType := FILE_ABSENT;
       end if;
@@ -645,8 +644,8 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
         seek(zip.zipFile, zip.register[filePath]);
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
-      elsif implizitDir(zip, filePath) then
-        header := addImplizitDir(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
       else
         raise FILE_ERROR;
       end if;
@@ -702,8 +701,8 @@ const func integer: fileSize (inout zipArchive: zip, in string: filePath) is fun
         header := get_central_header(zip.zipFile);
         size := header.uncompressed_size;
         zip.catalog @:= [filePath] header;
-      elsif implizitDir(zip, filePath) then
-        header := addImplizitDir(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
       else
         raise FILE_ERROR;
       end if;
@@ -734,8 +733,8 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
         seek(zip.zipFile, zip.register[filePath]);
         header := get_central_header(zip.zipFile);
         zip.catalog @:= [filePath] header;
-      elsif implizitDir(zip, filePath) then
-        header := addImplizitDir(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
       else
         raise FILE_ERROR;
       end if;
@@ -790,8 +789,8 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         header := get_central_header(zip.zipFile);
         localHeaderPos := succ(header.relative_offset_of_local_header);
         zip.catalog @:= [filePath] header;
-      elsif implizitDir(zip, filePath) then
-        header := addImplizitDir(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
       else
         raise FILE_ERROR;
       end if;
