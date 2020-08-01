@@ -1,7 +1,7 @@
-# Makefile for bcc32 and Borland make under windows. Commands executed by: cmd.exe
+# Makefile for bcc32 version 5.5 and Borland make under windows. Commands executed by: cmd.exe
 # To compile use a windows console and call:
-#   make -f mk_bcc32.mak depend
-#   make -f mk_bcc32.mak
+#   make -f mk_bccv5.mak depend
+#   make -f mk_bccv5.mak
 # If you use MinGW you should use mk_mingw.mak, mk_nmake.mak or mk_msys.mak instead.
 # If you use msvc you should use mk_msvc.mak instead.
 
@@ -84,12 +84,12 @@ COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeut
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
 hi: $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB)
-	$(CC) $(LFLAGS) -o hi.exe $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
+	$(CC) $(LFLAGS) $(OBJ) $(COMPILER_LIB) $(COMP_DATA_LIB) $(SEED7_LIB) $(LIBS)
 	copy hi.exe ..\prg /Y
 	.\hi level
 
 hi.gp: $(OBJ)
-	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
+	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o/usr/local/bin/hi.gp
 	hi level
 
 scr_x11.obj: scr_x11.c version.h scr_drv.h trm_drv.h
@@ -130,10 +130,6 @@ clear: clean
 clean:
 	del version.h
 	del calltlib.exe
-	del a_depend
-	del b_depend
-	del c_depend
-	del depend
 	del *.obj
 	del *.lib
 	del *.tds
@@ -166,7 +162,6 @@ version.h:
 	cmd /S /C "echo #define USE_MYUNISTD_H" >> version.h
 	cmd /S /C "echo #define INT64TYPE __int64" >> version.h
 	cmd /S /C "echo #define UINT64TYPE unsigned __int64" >> version.h
-	cmd /S /C "echo #define INT64TYPE_SUFFIX_LL" >> version.h
 	cmd /S /C "echo #define OS_PATH_WCHAR" >> version.h
 	cmd /S /C "echo #define OS_WIDE_DIR_INCLUDE_DIR_H" >> version.h
 	cmd /S /C "echo #define OS_CHMOD_INCLUDE_IO_H" >> version.h
@@ -233,11 +228,10 @@ version.h:
 	cmd /S /C "echo #define OBJECT_FILE_EXTENSION ".obj"" >> version.h
 	cmd /S /C "echo #define EXECUTABLE_FILE_EXTENSION ".exe"" >> version.h
 	cmd /S /C "echo #define C_COMPILER "$(CC)"" >> version.h
-	cmd /S /C "echo #define CC_OPT_DEBUG_INFO "-y -v"" >> version.h
 	cmd /S /C "echo #define CC_OPT_NO_WARNINGS "-w-"" >> version.h
+	cmd /S /C "echo #define CC_OPT_DEBUG_INFO "-y -v"" >> version.h
 	cmd /S /C "echo #define REDIRECT_C_ERRORS "\076"" >> version.h
 	cmd /S /C "echo #define LINKER_OPT_DEBUG_INFO "-v"" >> version.h
-	cmd /S /C "echo #define LINKER_OPT_OUTPUT_FILE "-o "" >> version.h
 	cmd /S /C "echo #define LINKER_FLAGS "$(LFLAGS)"" >> version.h
 	cmd /S /C "echo #define SYSTEM_LIBS "$(LIBS)"" >> version.h
 	cmd /S /C "echo #include "stdio.h"" > setpaths.c
@@ -309,29 +303,8 @@ hi.obj: hi.c
 .c.obj:
 	$(CC) $(CFLAGS) -c $<
 
-depend: a_depend b_depend c_depend version.h
-	$(CC) $(CFLAGS) -c -w- -m -md $(SRC)
-	copy *.d depend
-	del *.d
-	del $(OBJ)
-
-a_depend: version.h
-	$(CC) $(CFLAGS) -c -w- -m -md $(SEED7_LIB_SRC)
-	copy *.d a_depend
-	del *.d
-	del $(SEED7_LIB_OBJ)
-
-b_depend: version.h
-	$(CC) $(CFLAGS) -c -w- -m -md $(COMP_DATA_LIB_SRC)
-	copy *.d b_depend
-	del *.d
-	del $(COMP_DATA_LIB_OBJ)
-
-c_depend: version.h
-	$(CC) $(CFLAGS) -c -w- -m -md $(COMPILER_LIB_SRC)
-	copy *.d c_depend
-	del *.d
-	del $(COMPILER_LIB_OBJ)
+depend: version.h
+	echo Working without dependency file
 
 level.h:
 	hi level
@@ -360,16 +333,3 @@ lint: $(SRC)
 
 lint2: $(SRC)
 	lint -Zn2048 $(SRC) $(LIBS)
-
-!if "exist depend"
-!include depend
-!endif
-!if "exist a_depend"
-!include a_depend
-!endif
-!if "exist b_depend"
-!include b_depend
-!endif
-!if "exist c_depend"
-!include c_depend
-!endif

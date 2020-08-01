@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_gmp.c     Functions for bigInteger using the gmp library.   */
-/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_gmp.c                                       */
-/*  Changes: 2008, 2009  Thomas Mertes                              */
+/*  Changes: 2008, 2009, 2010  Thomas Mertes                        */
 /*  Content: Functions for bigInteger using the gmp library.        */
 /*                                                                  */
 /********************************************************************/

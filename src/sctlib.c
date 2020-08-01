@@ -540,7 +540,7 @@ listtype arguments;
     structtype stru1;
     objecttype selector;
     objecttype selector_syobject;
-    inttype position;
+    memsizetype position;
     objecttype struct_pointer;
     objecttype result;
 
@@ -589,7 +589,7 @@ printf("\n");
               destr_struct(stru1->stru,
                   (memsizetype) (struct_pointer - stru1->stru));
               destr_struct(&struct_pointer[1],
-                  (memsizetype) (stru1->size - (struct_pointer - stru1->stru) - 1));
+                  (stru1->size - (memsizetype) (struct_pointer - stru1->stru) - 1));
               FREE_STRUCT(stru1, stru1->size);
               arg_1(arguments)->value.structvalue = NULL;
             } /* if */

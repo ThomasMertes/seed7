@@ -15,16 +15,17 @@ THE MAKEFILES
     Several makefiles are prepared for various combinations
   of operating system, make utility, C compiler and shell:
 
-  makefile name|operating system |make prog|compiler|shell
-  -------------+-----------------+---------+--------+--------
-  mk_linux.mak | linux/unix/bsd  | (g)make | gcc    | sh
-  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc    | sh
-  mk_msys.mak  | windows (MinGW) | (g)make | gcc    | sh
-  mk_mingw.mak | windows (MinGW) | (g)make | gcc    | cmd.exe
-  mk_nmake.mak | windows (MinGW) | nmake   | gcc    | cmd.exe
-  mk_msvc.mak  | windows (MSVC)  | nmake   | cl     | cmd.exe
-  mk_bcc32.mak | windows (bcc32) | make    | bcc32  | cmd.exe
-  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc    | sh
+  makefile name|operating system |make prog|compiler    |shell
+  -------------+-----------------+---------+------------+--------
+  mk_linux.mak | linux/unix/bsd  | (g)make | gcc        | sh
+  mk_cygw.mak  | windows (Cygwin)| (g)make | gcc        | sh
+  mk_msys.mak  | windows (MinGW) | (g)make | gcc        | sh
+  mk_mingw.mak | windows (MinGW) | (g)make | gcc        | cmd.exe
+  mk_nmake.mak | windows (MinGW) | nmake   | gcc        | cmd.exe
+  mk_msvc.mak  | windows (MSVC)  | nmake   | cl         | cmd.exe
+  mk_bcc32.mak | windows (bcc32) | make    | bcc32      | cmd.exe
+  mk_bccv5.mak | windows (bcc32) | make    | bcc32 V5.5 | cmd.exe
+  mk_osx.mak   | Mac OS X (Xcode)| make    | gcc        | sh
 
   In the optimal case you just copy one of this files to
   'makefile' and do:
@@ -123,6 +124,12 @@ COMPILING UNDER WINDOWS WITH BCC32
     make
 
   After the compilation the interpreter is copied to prg/hi.exe.
+  For the older version of bcc32 (Version 5.5, which is available
+  in the internet) use:
+
+    copy mk_bccv5.mak makefile
+    make depend
+    make
 
 
 COMPILING UNDER WINDOWS WITH CYGWIN
@@ -318,6 +325,189 @@ HOW TO USE THE GMP LIBRARY?
     make clean
     make depend
     make
+
+
+SOURCE FILES
+============
+
+    The C code of Seed7 can be grouped into several categorys:
+  Interpreter main, Parser, Interpreter core, Primitive action functions,
+  General helper functions, Runtime library and Compiler data library.
+
+
+INTERPRETER MAIN
+
+    The main() function of the interpreter calls the Parser to
+  create an internal program representation and afterwards it calls
+  the Interpreter core to execute this program.
+
+    hi.c       Main program of the hi Interpreter.
+
+  The interpreter main is licensed under the GPL.
+
+
+PARSER
+
+    The Seed7 parser (analyzer) reads Seed7 programs from a
+  file or string and creates an internal representation for them.
+
+    analyze.c  Main procedure of the analyzing phase.
+    syntax.c   Generate new syntax descriptions out of expressions.
+    token.c    Procedures to maintain objects of type tokentype.
+    parser.c   Main procedures of the parser.
+    name.c     Enter an object in a specified declaration level.
+    type.c     Parse and assign a type of an object.
+    expr.c     Read the next expression from the source file.
+    atom.c     Read the next object from the source file.
+    object.c   Procedures to maintain objects and lists.
+    scanner.c  Read the next symbol from the source file.
+    literal.c  Read next char or string literal from the source file.
+    numlit.c   Read the next number from the source file.
+    findid.c   Procedures to maintain the identifier table.
+    error.c    Submit normal compile time error messages.
+    infile.c   Procedures to open, close and read the source file.
+    symbol.c   Maintains the current symbol of the scanner.
+    info.c     Procedures for compile time info.
+    stat.c     Procedures for maintaining an analyze phase statistic.
+    fatal.c    Submit fatal compile time error messages.
+    match.c    Procedures to do static match on expressions.
+    act_comp.c Primitive actions for the action type.
+    prg_comp.c Primitive actions for the program type.
+
+  The Seed7 parser is licensed under the GPL.
+
+
+INTERPRETER CORE
+
+    The interpreter core executes the internal representation
+  of a program. In doing so primitive action functions are called.
+
+    exec.c     Main interpreter procedures.
+    doany.c    Procedures to call several Seed7 functions from C.
+    memory.c   isit_.. and bld_.. functions for primitive datatypes.
+
+  The interpreter core is licensed under the GPL.
+
+
+PRIMITIVE ACTION FUNCTIONS
+
+    The *lib.c files contain interpreter functions which execute
+  "PRIMITIVE ACTIONS" (in doing so they can call functions from
+  the runtime library. The PRIMITIVE ACTION functions are called
+  from the interpreter core.
+
+    actlib.c   ACTION (ACT_*) actions
+    arrlib.c   array (ARR_*) actions
+    biglib.c   bigInteger (BIG_*) actions
+    blnlib.c   boolean (BLN_*) actions
+    bstlib.c   byte string (BST_*) actions
+    chrlib.c   char (CHR_*) actions
+    cmdlib.c   Directory, file and system command (CMD_*) actions
+    dcllib.c   Declaration (DCL_*) actions
+    drwlib.c   Drawing (DRW_*) actions
+    enulib.c   Enumeration (ENU_*) actions
+    fillib.c   PRIMITIVE_FILE (FIL_*) actions
+    fltlib.c   float (FLT_*) actions
+    hshlib.c   hash (HSH_*) actions
+    intlib.c   integer (INT_*) actions
+    itflib.c   interface (ITF_*) actions
+    kbdlib.c   Keyboard (KBD_*) actions
+    lstlib.c   List (LST_*) actions
+    prclib.c   proc/statement (PRC_*) actions
+    prglib.c   Program (PRG_*) actions
+    reflib.c   reference (REF_*) actions
+    rfllib.c   ref_list (RFL_*) actions
+    scrlib.c   Screen (SCR_*) actions
+    sctlib.c   struct (SCT_*) actions
+    setlib.c   set (SET_*) actions
+    soclib.c   PRIMITIVE_SOCKET (SOC_*) actions
+    strlib.c   string (STR_*) actions
+    timlib.c   time and duration (TIM_*) actions
+    typlib.c   type (TYP_*) actions
+    ut8lib.c   utf8_file (UT8_*) actions
+
+  The primitive action functions are licensed under the GPL.
+
+
+GENERAL HELPER FUNCTIONS
+
+    General helper functions are used by Parser, Interpreter
+  core and Primitive action functions.
+
+    runerr.c   Runtime error and exception handling procedures.
+    option.c   Reads and interprets the command line options.
+    primitiv.c Table definitions for all primitive actions.
+    syvarutl.c Maintains the interpreter system variables.
+    traceutl.c Tracing and protocol procedures.
+    actutl.c   Conversion of strings to ACTIONs and back.
+    arrutl.c   Procedures to maintain objects of type arraytype.
+    executl.c  Initalisation operation procedures used at runtime.
+    blockutl.c Procedures to maintain objects of type blocktype.
+    entutl.c   Procedures to maintain objects of type entitytype.
+    identutl.c Procedures to maintain objects of type identtype.
+    chclsutl.c Compute the type of a character very quickly.
+    sigutl.c   Driver shutdown and signal handling.
+
+  The general helper functions are licensed under the GPL.
+
+
+RUNTIME LIBRARY
+
+    The functions defined in the runtime library are called from
+  interpreted and compiled code (The Seed7 runtime library is
+  linked to every compiled Seed7 program).
+
+    arr_rtl.c  array library
+    big_rtl.c  bigInteger library
+    bln_rtl.c  boolean library
+    bst_rtl.c  byte string library
+    chr_rtl.c  char library
+    cmd_rtl.c  Various directory, file and other commands
+    dir_rtl.c  Directory library
+    drw_rtl.c  Drawing library
+    fil_rtl.c  File library
+    flt_rtl.c  float library
+    hsh_rtl.c  hash library
+    int_rtl.c  integer library
+    kbd_rtl.c  Keyboard library
+    scr_rtl.c  Screen (text console/terminal) library
+    set_rtl.c  set library
+    soc_rtl.c  Socket library
+    str_rtl.c  string library
+    tim_rtl.c  time library
+    ut8_rtl.c  utf8_file library
+    heaputl.c  heap utility library
+    striutl.c  string utility library
+    big_gmp.c  Alternate bigInteger library based on GMP
+    scr_inf.c  Terminfo screen (text console/terminal) driver
+    scr_win.c  Windows screen (text console/terminal) driver
+    kbd_inf.c  Terminfo keybord driver
+    trm_inf.c  Terminfo support
+    tim_unx.c  Unix time driver
+    tim_win.c  Windows time driver
+    drw_win.c  Windows drawing functions
+    drw_x11.c  X11 drawing functions
+
+  The runtime library is licensed under the LGPL.
+
+
+COMPILER DATA LIBRARY
+
+    The functions in the compiler data library manipulate
+  compiler and interpreter internal data such as "type",
+  "ref_list" and "reference". The compiler data library is
+  linked to the interpreter and to some compiled Seed7
+  programs such as the compiler (comp.sd7) itself.
+
+    typ_data.c Primitive actions for the type type.
+    rfl_data.c Primitive actions for the ref_list type.
+    ref_data.c Primitive actions for the reference type.
+    listutl.c  Procedures to maintain objects of type listtype.
+    flistutl.c Procedures for free memory list maintainance.
+    typeutl.c  Procedures to maintain objects of type typetype.
+    datautl.c  Procedures to maintain objects of type identtype.
+
+  The compiler data library is licensed under the GPL.
 
 
 THE VERSION.H FILE
@@ -564,11 +754,11 @@ THE VERSION.H FILE
               compiler and linker (Most IDEs provide also a
               stand-alone compiler/linker).
 
-  CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
-                      all warnings.
-
   CC_OPT_DEBUG_INFO: Contains the C compiler option to add source
                      level debugging information to the object file.
+
+  CC_OPT_NO_WARNINGS: Contains the C compiler option to suppress
+                      all warnings.
 
   REDIRECT_C_ERRORS: The redirect command to redirect the errors
                      of the C compiler to a file. The MSVC
@@ -583,6 +773,11 @@ THE VERSION.H FILE
                          executable file. Many compiler/linker
                          combinations don't need this option
                          to do source level debugging.
+
+  LINKER_OPT_OUTPUT_FILE: Contains the linker option to provide the
+                          output filename (e.g.: "-o "). When no
+                          such option exists the definition of
+                          LINKER_OPT_OUTPUT_FILE should be ommited.
 
   LINKER_FLAGS: Contains options for the stand-alone linker to link
                 a compiled Seed7 program.

@@ -28,7 +28,7 @@
 /* #define IDENT_TABLE(STRI, LEN) prog.ident.table[((STRI[0] & 63) << 4) | (LEN & 15)] */
 /* #define IDENT_TABLE(STRI, LEN) prog.ident.table[((STRI[0] << 4) | LEN) & (ID_TABLE_SIZE - 1)] */
 /* #define IDENT_TABLE(STRI, LEN) prog.ident.table[((STRI[0] << 4) ^ (STRI[1] << 2) ^ LEN) & (ID_TABLE_SIZE - 1)] */
-#define IDENT_TABLE(STRI, LEN) prog.ident.table[((STRI[0] << 4) ^ (STRI[LEN - 1] << 2) ^ LEN) & (ID_TABLE_SIZE - 1)]
+#define IDENT_TABLE(STRI, LEN) prog.ident.table[((STRI[0] << 4) ^ (STRI[LEN - 1] << 2) ^ (int) LEN) & (ID_TABLE_SIZE - 1)]
 
 
 #ifdef ANSI_C

@@ -215,9 +215,10 @@ version.h:
 	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h
 	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
 	echo #define C_COMPILER "$(CC)" >> version.h
-	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define CC_OPT_DEBUG_INFO "-Zi -Yd" >> version.h
+	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
 	echo #define REDIRECT_C_ERRORS "2>NUL: >" >> version.h
+	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
 	echo #define LINKER_FLAGS "$(LFLAGS)" >> version.h
 	echo #define SYSTEM_LIBS "$(LIBS)" >> version.h
 	echo #include "stdio.h" > setpaths.c

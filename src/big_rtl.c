@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  big_rtl.c     Functions for bigInteger without helping library. */
-/*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
+/*  Copyright (C) 1989 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -24,7 +24,7 @@
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/big_rtl.c                                       */
-/*  Changes: 2005, 2006, 2008, 2009  Thomas Mertes                  */
+/*  Changes: 2005, 2006, 2008, 2009, 2010  Thomas Mertes            */
 /*  Content: Functions for bigInteger without helping library.      */
 /*                                                                  */
 /********************************************************************/
@@ -3017,7 +3017,7 @@ int32type number;
       raise_error(MEMORY_ERROR);
     } else {
       result->size = result_size;
-      result->bigdigits[0] = (bigdigittype) (number & BIGDIGIT_MASK);
+      result->bigdigits[0] = (bigdigittype) (((uint32type) number) & BIGDIGIT_MASK);
 #if BIGDIGIT_SIZE < 32
       {
         memsizetype pos;
@@ -3593,7 +3593,7 @@ biginttype big1;
         if (bigdigit_log2 == -1) {
           uBigDecr(result);
         } else {
-          result->bigdigits[0] |= bigdigit_log2;
+          result->bigdigits[0] |= (bigdigittype) bigdigit_log2;
         } /* if */
         result = normalize(result);
       } /* if */
@@ -4556,7 +4556,7 @@ biginttype upper_limit;
         result->size = scale_limit->size;
         mask = ((bigdigittype) BIGDIGIT_MASK) >>
             (8 * sizeof(bigdigittype) -
-            digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) - 1);
+	    (memsizetype) (digitMostSignificantBit(scale_limit->bigdigits[scale_limit->size - 1]) + 1));
         do {
           pos = 0;
           do {

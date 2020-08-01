@@ -189,6 +189,8 @@ const func string: noDiagnosticLine is func
   begin
     if source_debug_info then
       result &:= "#line 1 \"no_file\"\n";
+    else
+      result &:= "/* line 1 \"no_file\" */\n";
     end if;
   end func;
 
@@ -1804,6 +1806,8 @@ const func boolean: isConstant (in reference: current_expression) is func
 const proc: process_statements (in expr_type: statements, inout expr_type: c_expr) is func
 
   begin
+    c_expr.currentFile := statements.currentFile;
+    c_expr.currentLine := statements.currentLine;
     if statements.temp_num <> 0 then
       c_expr.expr &:= statements.temp_decls;
       c_expr.expr &:= statements.temp_assigns;
@@ -2041,13 +2045,15 @@ const proc: process_prc_for_to (in ref_list: params, inout expr_type: c_expr) is
   end func;
 
 
-const proc: process_bitset (in bitset: currentSet, inout expr_type: c_expr) is func
+const proc: process_bitset (in bitset: currentSet, in string: diagnosticLine,
+    inout expr_type: c_expr) is func
 
   local
     var integer: number is 0;
   begin
     for number range min(currentSet) to max(currentSet) do
       if number in currentSet then
+        c_expr.expr &:= diagnosticLine;
         c_expr.expr &:= "case ";
         c_expr.expr &:= str(number);
         c_expr.expr &:= ":\n";
@@ -2065,7 +2071,8 @@ const proc: process_case_labels (in reference: current_expression, inout expr_ty
     case_labels := evaluate(prog, current_expression);
     labelCategory := category(case_labels);
     if labelCategory = SETOBJECT then
-      process_bitset(getValue(case_labels, bitset), c_expr);
+      process_bitset(getValue(case_labels, bitset),
+          diagnosticLine(current_expression), c_expr);
     else
       c_expr.expr &:= "/* case ";
       c_expr.expr &:= str(labelCategory);
@@ -2085,6 +2092,7 @@ const proc: process_when (in reference: when_expr, inout expr_type: c_expr) is f
     params := params[2 ..];
     process_case_labels(params[2], c_expr);
     process_expr(params[4], c_expr);
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "break;\n";
     if length(params) >= 5 then
       process_when(params[5], c_expr);
@@ -2095,6 +2103,7 @@ const proc: process_when (in reference: when_expr, inout expr_type: c_expr) is f
 const proc: process_prc_case (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "switch (";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ") {\n";
@@ -2106,6 +2115,7 @@ const proc: process_prc_case (in ref_list: params, inout expr_type: c_expr) is f
 const proc: process_prc_case_def (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "switch (";
     process_expr(params[2], c_expr);
     c_expr.expr &:= ") {\n";
@@ -2124,44 +2134,62 @@ const proc: process_prc_block (in ref_list: params, inout expr_type: c_expr) is 
     var ref_list: catch_expr is ref_list.EMPTY;
     var reference: catch_value is NIL;
   begin
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "{\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "int fail_value;\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos++;\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "if (catch_stack_pos >= max_catch_stack) {\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "  resize_catch_stack();\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
     if USE_SIGSETJMP then
       c_expr.expr &:= "if ((fail_value = sigsetjmp(catch_stack[catch_stack_pos], -1)) == 0) {\n";
     else
       c_expr.expr &:= "if ((fail_value = setjmp(catch_stack[catch_stack_pos])) == 0) {\n";
     end if;
     process_expr(params[2], c_expr);
-    c_expr.expr &:= "} else {\n";
-    # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
     current_catch := params[4];
     catch_expr := getValue(current_catch, ref_list);
+    c_expr.expr &:= diagnosticLine(current_catch);
+    c_expr.expr &:= "} else {\n";
+    # c_expr.expr &:= "printf(\"catch %d\\n\", fail_value);\n";
     while current_catch <> NIL and
         category(current_catch) = MATCHOBJECT and
         length(catch_expr) >= 5 do
       catch_value := catch_expr[3];
+      c_expr.expr &:= diagnosticLine(current_catch);
       c_expr.expr &:= "if (";
       process_expr(catch_value, c_expr);
       c_expr.expr &:= " == fail_value - 1) {\n";
       process_expr(catch_expr[5], c_expr);
       if length(catch_expr) >= 6 then
-        c_expr.expr &:= "} else ";
+        c_expr.expr &:= diagnosticLine(current_catch);
+        c_expr.expr &:= "} else\n";
         current_catch := catch_expr[6];
         catch_expr := getValue(current_catch, ref_list);
       else
+        incr(c_expr.currentLine);
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "} else {\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "  catch_stack_pos--;\n";
+        setDiagnosticLine(c_expr);
         c_expr.expr &:= "  raise_error(fail_value);\n";
         current_catch := NIL;
       end if;
     end while;
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "catch_stack_pos--;\n";
+    setDiagnosticLine(c_expr);
     c_expr.expr &:= "}\n";
   end func;
 
@@ -10391,6 +10419,7 @@ const proc: process_sct_cpy (in ref_list: params, inout expr_type: c_expr) is fu
       c_expr.expr &:= "*struct_ptr=(structtype)(";
       c_expr.expr &:= c_param3.result_expr;
       c_expr.expr &:= ");\n";
+      setDiagnosticLine(c_expr);
       c_expr.expr &:= "(*struct_ptr)->type_num = old_struct->type_num;\n";
       process_destr_declaration(getExprResultType(params[1]), global_c_expr);
       setDiagnosticLine(c_expr);
@@ -16060,18 +16089,16 @@ const proc: process_dynamic_param_implements (in reference: current_object,
     var type: implementationType is void;
   begin
     formal_param := formal_params[paramNum];
+    c_expr.expr &:= diagnosticLine(current_object);
     for implementationType range implements[param_type] do
       c_expr.expr &:= "if (";
       if isPointerParam(formal_param) then
         c_expr.expr &:= "((interfacetype) *o_";
-        create_name(formal_param, c_expr.expr);
-        c_expr.expr &:= ")->type_num";
       else
         c_expr.expr &:= "((interfacetype) o_";
-        create_name(formal_param, c_expr.expr);
-        c_expr.expr &:= ")->type_num";
       end if;
-      c_expr.expr &:= "==";
+      create_name(formal_param, c_expr.expr);
+      c_expr.expr &:= ")->type_num==";
       c_expr.expr &:= str(type_number(implementationType));
       c_expr.expr &:= "/*";
       c_expr.expr &:= str(implementationType);
@@ -16082,25 +16109,27 @@ const proc: process_dynamic_param_implements (in reference: current_object,
       process_dynamic_condition(current_object,
           formal_params, paramNum, c_expr);
       setType(formal_params[paramNum], param_type);
+      c_expr.expr &:= diagnosticLine(current_object);
       c_expr.expr &:= "} else ";
     end for;
     c_expr.expr &:= "{\n";
+    c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "printf(\"type_num=%d\\n\", ";
     if isPointerParam(formal_param) then
       c_expr.expr &:= "((interfacetype) *o_";
-      create_name(formal_param, c_expr.expr);
-      c_expr.expr &:= ")->type_num";
     else
       c_expr.expr &:= "((interfacetype) o_";
-      create_name(formal_param, c_expr.expr);
-      c_expr.expr &:= ")->type_num";
     end if;
-    c_expr.expr &:= ");\n";
+    create_name(formal_param, c_expr.expr);
+    c_expr.expr &:= ")->type_num);\n";
+    c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "printf(\"o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= "(\");\n";
+    c_expr.expr &:= diagnosticLine(current_object);
     print_parameter_list(formal_params, c_expr);
     c_expr.expr &:= "printf(\")\\n\");\n";
+    c_expr.expr &:= diagnosticLine(current_object);
     c_expr.expr &:= "}\n";
   end func;
 
@@ -16234,6 +16263,7 @@ const proc: process_dynamic_decision (in reference: current_object,
         c_expr.expr &:= c_proc_body.expr;
         c_expr.expr &:= c_param_list.temp_frees;
         c_expr.expr &:= c_proc_body.temp_frees;
+        c_expr.expr &:= diagnosticLine(current_object);
         c_expr.expr &:= "}\n\n";
       end if;
     end if;
@@ -18575,6 +18605,7 @@ const proc: generate_main (in program: prog) is func
     c_expr.expr &:= global_init.temp_assigns;
     c_expr.expr &:= global_init.expr;
     write_call_of_main(prog, c_expr);
+    c_expr.expr &:= noDiagnosticLine;
     c_expr.expr &:= global_init.temp_frees;
     c_expr.expr &:= "return 0;\n";
     c_expr.expr &:= "} else {\n";
@@ -18747,10 +18778,11 @@ const proc: pass_3 (in string: source, in program: prog,
     const string: OBJECT_FILE_EXTENSION is     configValue("OBJECT_FILE_EXTENSION");
     const string: EXECUTABLE_FILE_EXTENSION is configValue("EXECUTABLE_FILE_EXTENSION");
     const string: C_COMPILER is                configValue("C_COMPILER");
-    const string: CC_OPT_NO_WARNINGS is        configValue("CC_OPT_NO_WARNINGS");
     const string: CC_OPT_DEBUG_INFO is         configValue("CC_OPT_DEBUG_INFO");
+    const string: CC_OPT_NO_WARNINGS is        configValue("CC_OPT_NO_WARNINGS");
     const string: REDIRECT_C_ERRORS is         configValue("REDIRECT_C_ERRORS");
     const string: LINKER_OPT_DEBUG_INFO is     configValue("LINKER_OPT_DEBUG_INFO");
+    const string: LINKER_OPT_OUTPUT_FILE is    configValue("LINKER_OPT_OUTPUT_FILE");
     const string: LINKER_FLAGS is              configValue("LINKER_FLAGS");
     const string: SYSTEM_LIBS is               configValue("SYSTEM_LIBS");
     const string: SEED7_LIB is                 configValue("SEED7_LIB");
@@ -18815,7 +18847,10 @@ const proc: pass_3 (in string: source, in program: prog,
           if LINKER_FLAGS <> "" then
             link_cmd &:= " " & LINKER_FLAGS;
           end if;
-          link_cmd &:= " -o " & source & EXECUTABLE_FILE_EXTENSION;
+          if LINKER_OPT_OUTPUT_FILE <> "" then
+            link_cmd &:= " " & LINKER_OPT_OUTPUT_FILE &
+                source & EXECUTABLE_FILE_EXTENSION;
+          end if;
           link_cmd &:= " " & temp_name(source) & OBJECT_FILE_EXTENSION;
           if compilerLibraryUsed then
             link_cmd &:= " " & literal(COMPILER_LIB);
@@ -18830,6 +18865,11 @@ const proc: pass_3 (in string: source, in program: prog,
           writeln(link_cmd);
           flush(OUT);
           cmd_sh(link_cmd);
+          if LINKER_OPT_OUTPUT_FILE = "" and
+              fileType(temp_name(source) & EXECUTABLE_FILE_EXTENSION) = FILE_REGULAR then
+            moveFile(temp_name(source) & EXECUTABLE_FILE_EXTENSION,
+                source & EXECUTABLE_FILE_EXTENSION);
+          end if;
           if fileType(source & EXECUTABLE_FILE_EXTENSION) <> FILE_REGULAR then
             if fileType(temp_name(source) & ".lerrs") = FILE_REGULAR and
                 fileSize(temp_name(source) & ".lerrs") = 0 then

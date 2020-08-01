@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
 /*  hi   Interpreter for Seed7 programs.                            */
-/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*  Copyright (C) 1990 - 2010  Thomas Mertes                        */
 /*                                                                  */
 /*  This program is free software; you can redistribute it and/or   */
 /*  modify it under the terms of the GNU General Public License as  */
@@ -359,7 +359,7 @@ settype setValue;
             } else {
               prot_cstri(", ");
             } /* if */
-            prot_int(position << 5 | bit_index);
+            prot_int(position << 5 | (inttype) bit_index);
           } /* if */
         } /* for */
       } /* for */
