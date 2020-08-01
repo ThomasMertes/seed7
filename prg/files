@@ -1,0 +1,78 @@
+
+  Seed7 program examples:
+addup.sd7    Game of adding numbers to reach a goal number     
+bas.sd7      Basic interpreter                                 
+calc.sd7     Calculator                                        
+celsius.sd7  Print a Fahrenheit-Celsius table                  
+chkexc.sd7   Checks exceptions                                 
+chkint.sd7   Checks integer literals and operations            
+chkprc.sd7   Checks procedures and statements                  
+chkset.sd7   Checks set literals and operations                
+chkstr.sd7   Checks string literals and operations             
+chkbool.sd7  Checks boolean operations                         
+clock.sd7    Displays a digital clock                          
+clock2.sd7   Displays a digital clock with mycroseconds        
+cmpfil.sd7   Compares two files in main memory                 
+comp.sd7     Compiler from Seed7 to C                          
+dirx.sd7     Make a directory listing                          
+dirtst.sd7   Test reading a directory as file                  
+dna.sd7      Bacterial fight                                   
+echo.sd7     Write the arguments of the program                
+eliza.sd7    The computer psychiatrist                         
+err.sd7      Test for almost all possible compile time errors  
+fib.sd7      Compute fibonacci numbers                         
+gcd.sd7      Compute the greatest common divisor               
+hal.sd7      HAL 9000 simulation program                       
+hamu.sd7     Game to govern the ancient kingdom of sumeria.    
+hanoi.sd7    Solve the tower of hanoi problem                  
+hello.sd7    Hello world                                       
+kbd.sd7      Keyboard test program                             
+memory.sd7   Memory game                                       
+mind.sd7     Guess a four digit number game                    
+ms.sd7       Mine sweeper game                                 
+nicoma.sd7   Puzzle from arithmetica of Nicomachus (A.D. 90)!  
+pac.sd7      Pacman game                                       
+panic.sd7    Catch aliens in traps game                        
+prime.sd7    Write a list of prime numbers                     
+rand.sd7     Floating point random numbers test                
+rever.sd7    Reversi game                                      
+roman.sd7    Write roman numbers                               
+self.sd7     A program that writes itself (except this header) 
+shisen.sd7   Shisen game                                       
+sl.sd7       Game of Life                                      
+snake.sd7    Snake eats apple game                             
+startrek.sd7 Classical startrek game                           
+tak.sd7      Little benchmark computing tak(18, 12, 6)         
+tarx.sd7     Simple tar program                                
+tch.sd7      The hitchhikers guide ...                         
+tet.sd7      Tetris game with text output                      
+tetg.sd7     Tetris game with graphical output                 
+wiz.sd7      Find treasures and fight monsters labyrinth game  
+wrinum.sd7   Write numbers as english text                     
+wumpus.sd7   Hunt the Wumpus game                              
+
+  Seed7 include files:
+dir.s7i      Read directorys as files                          
+dna_base.s7i Bacterial fight dna interface                     
+draw.s7i     Graphic library                                   
+echo.s7i     Filter file which generates an echo of the input  
+field.s7i    Filter file which reads the input fieldwise       
+float.s7i    Floating point support library                    
+getf.s7i     Read and write whole files into and from strings  
+graph.s7i    Graphic library                                   
+keybd.s7i    Keyboard driver                                   
+line.s7i     Filter file which reads the input linewise        
+lower.s7i    Filter file which turns characters to lower case  
+more.s7i     Filter file which shows another file screenwise   
+multiscr.s7i Demonstration for several file filters            
+progs.s7i    Program handling support library                  
+rational.s7i Rational number support library                   
+reverse.s7i  Filter file which writes right to left on output  
+screen.s7i   General text screen with random access            
+seed7_05.s7i Standard Seed7 library                            
+syntax.s7i   Syntax definition of the standard Seed7 library   
+tee.s7i      Filter file which emulates the tee functionality  
+time.s7i     Time library                                      
+upper.s7i    Filter file which turns characters to upper case  
+window.s7i   Filter file for text windows with random access   
+wrinum.s7i   Function to write numbers as english text         

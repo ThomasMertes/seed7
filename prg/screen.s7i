@@ -1,0 +1,110 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  screen.s7i    General text screen with random access            *)
+(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: SCREEN_FILE is sub NULL_FILE struct
+  end struct;
+
+const SCREEN_FILE: STD_SCREEN is SCREEN_FILE.value;
+
+const proc: SCR_OPEN is                               action "SCR_OPEN";
+
+
+const func SCREEN_FILE: open (SCREEN) is func
+  result
+    var SCREEN_FILE: result is STD_SCREEN;
+  begin
+    SCR_OPEN;
+    result := STD_SCREEN;
+  end func;
+
+
+const proc: flush (ref SCREEN_FILE param) is                        action "SCR_FLUSH";
+const func integer: height (ref SCREEN_FILE param) is               action "SCR_HEIGHT";
+const func integer: width (ref SCREEN_FILE param) is                action "SCR_WIDTH";
+const proc: cursor (ref SCREEN_FILE param, ref boolean param) is    action "SCR_CURSOR";
+const proc: clear (ref SCREEN_FILE param, ref integer param,
+    ref integer param, ref integer param, ref integer param) is     action "SCR_CLEAR";
+const proc: v_scroll (ref SCREEN_FILE param,
+    ref integer param, ref integer param, ref integer param,
+    ref integer param, ref integer param) is                        action "SCR_V_SCL";
+const proc: h_scroll (ref SCREEN_FILE param,
+    ref integer param, ref integer param, ref integer param,
+    ref integer param, ref integer param) is                        action "SCR_H_SCL";
+const proc: setPos (ref SCREEN_FILE param,
+    ref integer param, ref integer param) is                        action "SCR_SETPOS";
+const proc: color (ref SCREEN_FILE param, ref color param) is noop;
+const proc: color (ref SCREEN_FILE param, ref color param, ref color param) is noop;
+
+
+const proc: (ref SCREEN_FILE param) << (in string param) is         action "SCR_WRITE";
+
+const proc: (ref SCREEN_FILE: screen_fil) << (ref char: ch) is func
+  begin
+    screen_fil << str(ch);
+  end func;
+
+const proc: clear (ref SCREEN_FILE: screen_fil) is func
+  begin
+    clear(screen_fil, 1, 1, height(screen_fil), width(screen_fil));
+  end func;
+
+(*
+const proc: (ref SCREEN_FILE: screen_fil) << NL is func
+  begin
+    if LINE(screen_fil) = height(screen_fil) then
+      SCROLL_UP(screen_fil, 1, 1, height(screen_fil), width(screen_fil), 1);
+      setPos(screen_fil, LINE(screen_fil), 1);
+    else
+      setPos(screen_fil, succ(LINE(screen_fil)), 1);
+    end if;
+  end func;
+
+
+const proc: (ref SCREEN_FILE: screen_fil) << BS is func
+  begin
+    if COLUMN(screen_fil) > 1 then
+      setPos(screen_fil, LINE(screen_fil); pred(COLUMN(screen_fil)));
+      if COLUMN(screen_fil) <= width(screen_fil) then
+        screen_fil.OUT_FILE << " ";
+        setPos(screen_fil, LINE(screen_fil); pred(COLUMN(screen_fil)));
+      end if;
+    end if;
+  end func;
+*)
+
+
+const proc: cursor_on (ref SCREEN_FILE: screen_fil) is func
+  begin
+    screen_fil << "_";
+  end func;
+
+
+const proc: cursor_off (ref SCREEN_FILE: screen_fil) is func
+  begin
+    screen_fil << " ";
+  end func;

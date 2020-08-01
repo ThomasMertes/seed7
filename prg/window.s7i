@@ -1,0 +1,368 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  window.s7i    Filter file for text windows with random access   *)
+(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: WINDOW_FILE is sub NULL_FILE struct
+    var TEXT: out_file is STD_NULL;
+    var integer: upper_border is 0;
+    var integer: left_border is 0;
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: curr_line is 0;
+    var integer: curr_column is 0;
+  end struct;
+
+
+const func integer: height (in WINDOW_FILE: out_fil) is
+  return out_fil.height;
+
+
+const func integer: width (in WINDOW_FILE: out_fil) is
+  return out_fil.width;
+
+
+const func integer: line (in WINDOW_FILE: out_fil) is
+  return out_fil.curr_line;
+
+
+const func integer: column (in WINDOW_FILE: out_fil) is
+  return out_fil.curr_column;
+
+
+const func WINDOW_FILE: open_window (ref TEXT: out_fil,
+    in integer: upper, in integer: left, in integer: high, in integer: wide) is func
+  result
+    var WINDOW_FILE: window_fil is WINDOW_FILE.value;
+  begin
+    window_fil := WINDOW_FILE.value;
+    window_fil.out_file := out_fil;
+    window_fil.upper_border := upper;
+    window_fil.left_border := left;
+    if upper + high - 1 <= height(out_fil) then
+      window_fil.height := high;
+    else
+      window_fil.height := height(out_fil) - upper + 1;
+    end if;
+    if left + wide - 1 <= width(out_fil) then
+      window_fil.width := wide;
+    else
+      window_fil.width := width(out_fil) - left + 1;
+    end if;
+    window_fil.curr_line := 1;
+    window_fil.curr_column := 1;
+  end func;
+
+
+const proc: flush (ref WINDOW_FILE: window_fil) is func
+  begin
+    if window_fil.curr_line >= 1 and
+        window_fil.curr_line <= window_fil.height and
+        window_fil.curr_column >= 1 and
+        window_fil.curr_column <= window_fil.width then
+      setPos(window_fil.out_file,
+          pred(window_fil.upper_border + window_fil.curr_line),
+          pred(window_fil.left_border + window_fil.curr_column));
+    end if;
+    flush(window_fil.out_file);
+  end func;
+
+
+const proc: box (ref WINDOW_FILE: window_fil) is func
+  local
+    var TEXT: outf is STD_NULL;
+    var integer: line is 1;
+    var integer: start_line is 1;
+    var integer: start_col is 1;
+    var string: stri is "";
+  begin
+    outf := window_fil.out_file;
+    start_col := window_fil.left_border;
+    start_line := window_fil.upper_border;
+    stri := "";
+    if window_fil.left_border > 1 then
+      decr(start_col);
+      stri := "+";
+      for line range start_line to
+          start_line + window_fil.height - 1 do
+        setPos(outf, line, start_col);
+        outf << "|";
+      end for;
+    end if;
+    stri &:= "-" mult window_fil.width;
+    if window_fil.left_border + window_fil.width - 1 < width(window_fil.out_file) then
+      stri &:= "+";
+      for line range start_line to
+          start_line + window_fil.height - 1 do
+        setPos(outf,
+            line, window_fil.left_border + window_fil.width);
+        outf << "|";
+      end for;
+    end if;
+    if start_line > 1 then
+      setPos(outf, start_line - 1, start_col);
+      outf << stri;
+    end if;
+    if start_line + window_fil.height - 1 < height(window_fil.out_file) then
+      setPos(outf, start_line + window_fil.height, start_col);
+      outf << stri;
+    end if;
+  end func;
+
+
+const proc: clear_box (ref WINDOW_FILE: window_fil) is func
+  local
+    var TEXT: outf is STD_NULL;
+    var integer: line is 1;
+    var integer: start_line is 1;
+    var integer: start_col is 1;
+    var string: stri is "";
+  begin
+    outf := window_fil.out_file;
+    start_col := window_fil.left_border;
+    start_line := window_fil.upper_border;
+    stri := "";
+    if window_fil.left_border > 1 then
+      decr(start_col);
+      stri := " ";
+      for line range start_line to
+          start_line + window_fil.height - 1 do
+        setPos(outf, line, start_col);
+        outf << " ";
+      end for;
+    end if;
+    stri &:= " " mult window_fil.width;
+    if window_fil.left_border + window_fil.width - 1 < width(window_fil.out_file) then
+      stri &:= " ";
+      for line range start_line to
+          start_line + window_fil.height - 1 do
+        setPos(outf,
+            line, window_fil.left_border + window_fil.width);
+        outf << " ";
+      end for;
+    end if;
+    if start_line > 1 then
+      setPos(outf, start_line - 1, start_col);
+      outf << stri;
+    end if;
+    if start_line + window_fil.height - 1 < height(window_fil.out_file) then
+      setPos(outf, start_line + window_fil.height, start_col);
+      outf << stri;
+    end if;
+  end func;
+
+
+const proc: clear (ref WINDOW_FILE: window_fil,
+    in integer: upper, in integer: left, in integer: lower, in integer: right) is func
+  begin
+    clear(window_fil.out_file,
+        pred(window_fil.upper_border + upper),
+        pred(window_fil.left_border + left),
+        pred(window_fil.upper_border + lower),
+        pred(window_fil.left_border + right));
+  end func;
+
+
+const proc: clear (inout WINDOW_FILE: window_fil) is func
+  begin
+    clear(window_fil.out_file, window_fil.upper_border,
+        window_fil.left_border,
+        pred(window_fil.upper_border + window_fil.height),
+        pred(window_fil.left_border + window_fil.width));
+    window_fil.curr_line := 1;
+    window_fil.curr_column := 1;
+  end func;
+
+
+const proc: v_scroll (ref WINDOW_FILE: window_fil, in integer: count) is func
+  begin
+    v_scroll(window_fil.out_file, window_fil.upper_border,
+        window_fil.left_border,
+        window_fil.upper_border + window_fil.height - 1,
+        window_fil.left_border + window_fil.width - 1, count);
+  end func;
+
+
+const proc: v_scroll (ref WINDOW_FILE: window_fil,
+    in integer: upper, in integer: left, in integer: lower, in integer: right, in integer: count) is func
+  begin
+    v_scroll(window_fil.out_file,
+        pred(window_fil.upper_border + upper),
+        pred(window_fil.left_border + left),
+        pred(window_fil.upper_border + lower),
+        pred(window_fil.left_border + right),
+        count);
+  end func;
+
+
+const proc: h_scroll (ref WINDOW_FILE: window_fil, in integer: count) is func
+  begin
+    h_scroll(window_fil.out_file, window_fil.upper_border,
+        window_fil.left_border,
+        window_fil.upper_border + window_fil.height - 1,
+        window_fil.left_border + window_fil.width - 1, count);
+  end func;
+
+
+const proc: h_scroll (ref WINDOW_FILE: window_fil,
+    in integer: upper, in integer: left, in integer: lower, in integer: right, in integer: count) is func
+  begin
+    h_scroll(window_fil.out_file,
+        pred(window_fil.upper_border + upper),
+        pred(window_fil.left_border + left),
+        pred(window_fil.upper_border + lower),
+        pred(window_fil.left_border + right),
+        count);
+  end func;
+
+
+const proc: color (inout WINDOW_FILE: window_fil, in color: col) is func
+  begin
+    color(window_fil.out_file, col);
+  end func;
+
+
+const proc: color (inout WINDOW_FILE: window_fil, in color: col1, in color: col2) is func
+  begin
+    color(window_fil.out_file, col1, col2);
+  end func;
+
+
+const proc: setPos (inout WINDOW_FILE: window_fil, in integer: line, in integer: column) is func
+  begin
+    window_fil.curr_line := line;
+    window_fil.curr_column := column;
+  end func;
+
+
+const proc: setLine (inout WINDOW_FILE: window_fil, in integer: line) is func
+  begin
+    window_fil.curr_line := line;
+  end func;
+
+
+const proc: setColumn (inout WINDOW_FILE: window_fil, in integer: column) is func
+  begin
+    window_fil.curr_column := column;
+  end func;
+
+
+const proc: (inout WINDOW_FILE: window_fil) << (ref string: stri) is func
+  begin
+    if window_fil.curr_line >= 1 and
+        window_fil.curr_line <= window_fil.height and
+        window_fil.curr_column <= window_fil.width then
+      if window_fil.curr_column >= 1 then
+        setPos(window_fil.out_file,
+            pred(window_fil.upper_border + window_fil.curr_line),
+            pred(window_fil.left_border + window_fil.curr_column));
+        window_fil.out_file <<
+            stri[.. succ(window_fil.width - window_fil.curr_column)];
+      elsif length(stri) >= 2 - window_fil.curr_column then
+        setPos(window_fil.out_file,
+            pred(window_fil.upper_border + window_fil.curr_line),
+            window_fil.left_border);
+        window_fil.out_file <<
+            stri[2 - window_fil.curr_column ..
+            succ(window_fil.width - window_fil.curr_column)];
+      end if;
+    end if;
+    window_fil.curr_column +:= length(stri);
+  end func;
+
+
+const proc: (inout WINDOW_FILE: window_fil) << (in char: ch) is func
+  begin
+    if window_fil.curr_line >= 1 and
+        window_fil.curr_line <= window_fil.height and
+        window_fil.curr_column >= 1 and
+        window_fil.curr_column <= window_fil.width then
+      setPos(window_fil.out_file,
+          window_fil.upper_border + window_fil.curr_line - 1,
+          window_fil.left_border + window_fil.curr_column - 1);
+      window_fil.out_file << ch;
+    end if;
+    incr(window_fil.curr_column);
+  end func;
+
+
+const proc: (inout WINDOW_FILE: window_fil) << NL is func
+  begin
+    if window_fil.curr_line = window_fil.height then
+      v_scroll(window_fil.out_file, window_fil.upper_border,
+          window_fil.left_border,
+          window_fil.upper_border + window_fil.height - 1,
+          window_fil.left_border + window_fil.width - 1, 1);
+    else
+      incr(window_fil.curr_line);
+    end if;
+    window_fil.curr_column := 1;
+  end func;
+
+
+const proc: (inout WINDOW_FILE: window_fil) << BS is func
+  begin
+    if window_fil.curr_column > 1 then
+      decr(window_fil.curr_column);
+      if window_fil.curr_column <= window_fil.width then
+        setPos(window_fil.out_file,
+            window_fil.upper_border + window_fil.curr_line - 1,
+            window_fil.left_border + window_fil.curr_column - 1);
+        window_fil.out_file << " ";
+        setPos(window_fil.out_file,
+            window_fil.upper_border + window_fil.curr_line - 1,
+            window_fil.left_border + window_fil.curr_column - 1);
+      end if;
+    end if;
+  end func;
+
+
+const proc: cursor_on (ref WINDOW_FILE: window_fil) is func
+  begin
+    if window_fil.curr_line >= 1 and
+        window_fil.curr_line <= window_fil.height and
+        window_fil.curr_column >= 1 and
+        window_fil.curr_column <= window_fil.width then
+      setPos(window_fil.out_file,
+          window_fil.upper_border + window_fil.curr_line - 1,
+          window_fil.left_border + window_fil.curr_column - 1);
+      cursor_on(window_fil.out_file);
+    end if;
+  end func;
+
+
+const proc: cursor_off (ref WINDOW_FILE: window_fil) is func
+  begin
+    if window_fil.curr_line >= 1 and
+        window_fil.curr_line <= window_fil.height and
+        window_fil.curr_column >= 1 and
+        window_fil.curr_column <= window_fil.width then
+      setPos(window_fil.out_file,
+          window_fil.upper_border + window_fil.curr_line - 1,
+          window_fil.left_border + window_fil.curr_column - 1);
+      cursor_off(window_fil.out_file);
+    end if;
+  end func;

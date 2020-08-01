@@ -1,0 +1,247 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  syntax.s7i    Syntax definition of the standard Seed7 library   *)
+(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ const $ type: type is                            $ newtype;
+
+$ const type: void is                              $ newtype;
+$ const type: proc is                              $ func void;
+$ const void: empty is                             $ enumlit;
+
+$ const type: expr is                              $ newtype;
+$ const type: object is                            $ newtype;
+$ const type: string is                            $ subtype object;
+$ const type: ACTION is                            $ newtype;
+$ const type: f_param is                           $ newtype;
+
+$ system "type" is type;
+$ system "expr" is expr;
+$ system "string" is string;
+$ system "empty" is empty;
+(* $ system "true" is TRUE; *)
+(* $ system "false" is FALSE; *)
+(* $ system "integer" is integer; *)
+(* $ system "char" is char; *)
+(* $ system "string" is string; *)
+(* $ system "type" is type; *)
+$ system "proc" is proc;
+$ system "assign" is := ;
+$ system "create" is ::= ;
+$ system "destroy" is destroy;
+$ system "ord" is ord;
+$ system "in" is in;
+$ system "prot_outfile" is PROT_OUTFILE;
+$ system "flush" is flush;
+$ system "write" is << ;
+$ system "nl" is NL;
+(* $ system "main" is main; *)
+
+(* OPERATORS *)
+$ syntax expr: . { .(). } is                   ->  1;
+$ syntax expr: . { .(). .. .(). } is           ->  1;
+$ syntax expr: .().conv.() is                  ->  1;
+$ syntax expr: .().var_conv.() is              ->  1;
+$ syntax expr: .().value.() is                 ->  1;
+$ syntax expr: .().parse.() is                 ->  1;
+$ syntax expr: .getobj.(expr) is              <-   1;
+$ syntax expr: . [ . ] .() is                 <-   1;
+$ syntax expr: . [ .(). ] .() is              <-   1;
+(* $ syntax expr: .(). <- .() is                  ->  1;
+$ syntax expr: .(). <- . ( .(). ) is           ->  1; *)
+$ syntax expr: .(). . .() is                   ->  2;
+$ syntax expr: .(). [ .(). ] is                ->  2;
+$ syntax expr: .(). [ .(). .. . ] is           ->  2;
+$ syntax expr: .(). [ . .. .(). ] is           ->  2;
+$ syntax expr: .(). [ .(). .. .(). ] is        ->  2;
+$ syntax expr: .(). [ .(). len .(). ] is       ->  2;
+$ syntax expr: .(). ^  is                      ->  2;
+$ syntax expr: .(). -> .() is                  ->  2;
+$ syntax expr: . & .() is                      ->  3;
+$ syntax expr: .(). ** .() is                  ->  4;
+$ syntax expr: .(). ! .() is                   ->  4;
+$ syntax expr: . ! .() is                      ->  4;
+$ syntax expr: . + .() is                     <-   5;
+$ syntax expr: . - .() is                     <-   5;
+$ syntax expr: .(). * .() is                   ->  6;
+$ syntax expr: .(). / .() is                   ->  6;
+$ syntax expr: .().div.() is                   ->  6;
+$ syntax expr: .().rem.() is                   ->  6;
+$ syntax expr: .().mdiv.() is                  ->  6;
+$ syntax expr: .().mod.() is                   ->  6;
+$ syntax expr: .(). + .() is                   ->  7;
+$ syntax expr: .(). - .() is                   ->  7;
+$ syntax expr: .().times.() is                <-   8;
+$ syntax expr: .().mult.() is                  ->  8;
+$ syntax expr: .().find.() is                  ->  8;
+$ syntax expr: .(). & .() is                   ->  9;
+$ syntax expr: .(). >< .() is                  -> 11;
+$ syntax expr: .(). | .() is                   -> 11;
+$ syntax expr: .(). = .() is                  <-> 12;
+$ syntax expr: .(). == .() is                 <-> 12;
+$ syntax expr: .(). <> .() is                 <-> 12;
+$ syntax expr: .(). > .() is                  <-> 12;
+$ syntax expr: .(). >= .() is                 <-> 12;
+$ syntax expr: .(). < .() is                  <-> 12;
+$ syntax expr: .(). <= .() is                 <-> 12;
+$ syntax expr: .().in.() is                   <-> 12;
+$ syntax expr: .().not.in.() is               <-> 12;
+$ syntax expr: .not.() is                     <-  13;
+$ syntax expr: .subtype.() is                 <-  13;
+$ syntax expr: .forward_ptr.(expr) is         <-  13;
+$ syntax expr: .ptr.() is                     <-  13;
+$ syntax expr: .varptr.() is                  <-  13;
+$ syntax expr: .tuple.() is                   <-  13;
+$ syntax expr: .set.of.() is                  <-  13;
+$ syntax expr: .array.() is                   <-  13;
+$ syntax expr: .array. [ .(). ] .() is        <-  13;
+$ syntax expr: .hash. [ .(). ] .() is         <-  13;
+$ syntax expr: .new.enum.(expr).end.enum is    -> 13;
+$ syntax expr: .new.enum.end.enum is           -> 13;
+$ syntax expr: .new.struct2.().end.struct is   -> 13;
+$ syntax expr: .new.struct.().end.struct is    -> 13;
+$ syntax expr: .new.struct.end.struct is       -> 13;
+$ syntax expr: .new.().struct.().end.struct is -> 13;
+$ syntax expr: .new.().struct.end.struct is    -> 13;
+$ syntax expr: .sub.().struct.().end.struct is -> 13;
+$ syntax expr: .sub.().struct.end.struct is    -> 13;
+$ syntax expr: .new.class.().end.class is      -> 13;
+$ syntax expr: .new.class.end.class is         -> 13;
+$ syntax expr: .new.().class.().end.class is   -> 13;
+$ syntax expr: .new.().class.end.class is      -> 13;
+$ syntax expr: .sub.().class.().end.class is   -> 13;
+$ syntax expr: .sub.().class.end.class is      -> 13;
+$ syntax expr: .().and.() is                   -> 14;
+$ syntax expr: .().or.() is                    -> 15;
+$ syntax expr: .().val.() is                   -> 16;
+$ syntax expr: .().digits.() is                -> 16;
+$ syntax expr: .().lpad.() is                  -> 17;
+$ syntax expr: .().rpad.() is                  -> 17;
+$ syntax expr: .(). <& .() is                  -> 18;
+$ syntax expr: .(). << .() is                 <-  19;
+$ syntax expr: .(). >> .() is                 <-  19;
+$ syntax expr: .(). := .() is                 <-> 20;
+$ syntax expr: .(). +:= .() is                <-> 20;
+$ syntax expr: .(). -:= .() is                <-> 20;
+$ syntax expr: .(). &:= .() is                <-> 20;
+$ syntax expr: .(). @:= . [ .(). ] .() is     <-> 20;
+$ syntax expr: .(). ::= .() is                <-> 20;
+$ syntax expr: .(). :- .() is                 <-> 20;
+
+(* ASSOCIATIVITY
+$ syntax: . -> .() is                   -> 25;
+$ syntax: . <- .() is                   -> 25;
+$ syntax: . <-> .() is                  -> 25;
+$ syntax: . -><- .() is                 -> 25;
+*)
+
+(* STATEMENTS *)
+$ syntax expr: .while.().do.().end.while is                         -> 25;
+$ syntax expr: .repeat.().until.() is                               -> 25;
+
+$ syntax expr: .for.().range.().to.().do.().end.for is              -> 25;
+$ syntax expr: .for.().range.().downto.().do.().end.for is          -> 25;
+$ syntax expr: .for.().range.().to.().step.().do.().end.for is      -> 25;
+$ syntax expr: .for.().range.().do.().end.for is                    -> 25;
+
+$ syntax expr: .if.().then.().end.if is                             -> 25;
+$ syntax expr: .if.().then.().().end.if is                          -> 25;
+
+$ syntax expr: .case.().of.().end.case is                           -> 25;
+$ syntax expr: .case.().of.().otherwise. : .().end.case is          -> 25;
+$ syntax expr: .case.().of.end.case is                              -> 25;
+
+$ syntax expr: .block.().exception.().end.block is                  -> 25;
+$ syntax expr: .block.().exception.().otherwise. : .().end.block is -> 25;
+$ syntax expr: .block.().exception.end.block is                     -> 25;
+
+$ syntax expr: .global.().end.global is                             -> 25;
+
+$ syntax expr: .raise.() is                                         -> 25;
+
+$ syntax expr: .func.() is              <-  30;
+$ syntax expr: .varfunc.() is           <-  30;
+
+(* PROCEDURE BODY *)
+$ syntax expr: .func.local.().begin.(expr).end.func is                                -> 30;
+$ syntax expr: .func.begin.(expr).end.func is                                         -> 30;
+$ syntax expr: .func.result.var.(). : .(expr).is.().begin.(expr).end.func is          -> 30;
+$ syntax expr: .func.result.var.(). : .(expr).is.().local.().begin.(expr).end.func is -> 30;
+$ syntax expr: .varfunc.return.().().end.varfunc is                                   -> 30;
+$ syntax expr: .return.() is                                                          -> 30;
+$ syntax expr: .return.var.() is                                                      -> 30;
+
+$ syntax expr: .action.() is                      -> 30;
+
+$ syntax expr: . $ .() is                         -> 35;
+
+(* PARAMETER *)
+$ syntax expr: .val.().param is                   -> 40;
+$ syntax expr: .val.(). : .(expr) is              -> 40;
+$ syntax expr: .in.().param is                    -> 40;
+$ syntax expr: .in.(). : .(expr) is               -> 40;
+$ syntax expr: .in.var.().param is                -> 40;
+$ syntax expr: .in.var.(). : .(expr) is           -> 40;
+$ syntax expr: .inout.().param is                 -> 40;
+$ syntax expr: .inout.(). : .(expr) is            -> 40;
+$ syntax expr: .ref.().param is                   -> 40;
+$ syntax expr: .ref.(). : .(expr) is              -> 40;
+$ syntax expr: .symb.() is                        -> 40;
+$ syntax expr: .attr.() is                        -> 40;
+
+(* DECLARATORS *)
+$ syntax expr: .syntax. : .().is.() is            -> 40;
+$ syntax expr: .syntax.(). : .().is.() is         -> 40;
+$ syntax expr: .const.(). : .(expr).is.(expr) is  -> 40;
+$ syntax expr: .const.(). : .(expr).is.forward is -> 40;
+$ syntax expr: .var.(). : .(expr).is.(expr) is    -> 40;
+$ syntax expr: .import.().is.() is                -> 40;
+$ syntax expr: .include.() is                     -> 40;
+$ syntax expr: .elem.(). : .(expr).is.(expr) is   -> 40;
+
+(* system VARIABLES *)
+$ syntax expr: .system.().is.() is                -> 40;
+
+(* SEMICOLON *)
+$ syntax expr: .(). ; .() is                      <- 50;
+$ syntax expr: .(). ;  is                         <- 50[1];
+
+(* WHEN *)
+$ syntax expr: .when.(). : .().() is              <- 60;
+$ syntax expr: .when.(). : .() is                 <- 60;
+
+(* ELSIF *)
+$ syntax expr: .elsif.().then.() is               <- 60;
+$ syntax expr: .elsif.().then.().() is            <- 60;
+$ syntax expr: .else.() is                        <- 60;
+
+(* EXCEPTION *)
+$ syntax expr: .catch.(). : .().() is             <- 60;
+$ syntax expr: .catch.(). : .() is                <- 60;
+
+(* COMMA *)
+$ syntax expr: .(). , .() is    ->  100;
+(* $ syntax expr: . ) is          <-  100; *)

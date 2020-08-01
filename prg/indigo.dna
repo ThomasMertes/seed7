@@ -1,0 +1,318 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dna.sd7       Bacterial fight                                   *)
+(*  Copyright (C) 1985  Johannes Gritsch                            *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: actionType is new enum
+    OnlyEat, Murder, Canibalism, OnlySplit
+  end enum;
+
+const type: mainDir is direction; (* HERE .. LastDir *)
+const type: mainDirArr is array [mainDir] mainDir;
+
+const type: place is new struct
+     var COLOUR: occupant is CLEAR;
+     var power: occSize is 0;
+     var power: foodMass is 0;
+  end struct;
+
+const type: surrounding is array [direction] place;
+const type: mvChangeTyp is array [direction] array [direction] direction;
+
+
+const proc: dna (INDIGO) is func
+  local
+    const direction: firstDir  is N;
+    const direction: lastDir   is E;
+    const direction: firstDiag is NW;
+    const direction: lastDiag  is SE;
+    const COLOUR: SELF is INDIGO;
+
+    (* Parameters *)
+
+    const power: ownSizeVal is     8; (* Value of own size *)
+    const power: hereFoodVal is    4; (* Value of Food at place *)
+    const power: thereFoodVal is   2; (* Value of Food at neighbour place in main direction *)
+    const power: overThFoodVal is  1; (* Value of Food at neighbour place in secondary dir  *)
+    const power: killBonus is      1; (* Bonus for killing a stranger *)
+    const power: cannFine is       4; (* Fine for killing a relative *)
+
+
+
+
+    const mvChangeTyp: mvChange is (* new order of movement in Dir N .. E *)
+                                   (* HERE, N,    S,    W,    E,    NW,   NE,   SW,   SE *)
+              [direction]([direction](HERE, HERE, HERE, HERE, HERE, HERE, HERE, HERE, HERE), (* unused *)
+               (* N *)    [direction](N,    S,    HERE, NW,   NE,   SW,   SE,   W,    E),
+               (* W *)    [direction](S,    HERE, N,    SW,   SE,   W,    E,    NW,   NE),
+               (* S *)    [direction](W,    NW,   SW,   E,    HERE, NE,   N,    SE,   S),
+               (* E *)    [direction](E,    NE,   SE,   HERE, W,    N,    NW,   S,    SW));
+
+    const mainDirArr: oppositDir is [mainDir](HERE, S, N, E, W);
+
+
+    var power: avFood is 0;
+    var power: avFoodMax is 0;
+    var power: ownSize is 0;
+    var power: splHereSize is 0;
+    var power: splThereSize is 0;
+    var lifeSpan: ownHunger is 0;
+    var integer: foodSum is 0;
+    var integer: foodFields is 0;
+    var directSet: mvOptDir is directSet.EMPTY_SET;
+    var directSet: splOptDir is directSet.EMPTY_SET;
+    var boolean: doSplit is FALSE;
+    var integer: maxState is 0;
+    var direction: dir is HERE;
+    var surrounding: landscape is direction times place.value;
+
+
+    const proc: initSurr (inout surrounding: landscape) is func
+
+      local
+        var direction: dir is HERE;
+
+      begin (* initSurr *)
+        foodSum := 0;
+        avFoodMax := 0;
+        foodFields := 9;
+        ownHunger := hunger;
+        ownSize := strength(HERE);
+        splThereSize := ownSize div 2;
+        splHereSize := ownSize - splThereSize;
+        for dir range HERE to lastDiag do
+          landscape[dir].occupant := view(dir);
+          landscape[dir].occSize := strength(dir);
+          landscape[dir].foodMass := food(dir);
+          foodSum +:= landscape[dir].foodMass;
+          if landscape[dir].occupant = EDGE then
+            decr(foodFields)
+          elsif landscape[dir].occupant = CLEAR then
+            if avFoodMax < landscape[dir].foodMass then
+              avFoodMax := landscape[dir].foodMass;
+            end if;
+          elsif dir <> HERE and
+              landscape[dir].occSize < avFoodMax and
+              landscape[dir].occSize <= ownSize then
+            avFoodMax := landscape[dir].occSize;
+          end if;
+        end for;
+        avFood := foodSum div foodFields + 1;
+      end func; (* initSurr *)
+
+
+    const proc: setSurr (inout place: surr, in COLOUR: setColor, in power: setSize, in power: setFood) is func
+
+      begin (* setSurr *)
+        surr.occupant := setColor;
+        surr.occSize := setSize;
+        surr.foodMass := setFood
+      end func; (* setSurr *)
+
+
+    const func power: showNextSize (in power: ownSize, in place: surrField) is func
+
+      result
+        var power: result is 0;
+
+      begin (* showNextSize *)
+        if surrField.occupant = EDGE then
+          result := 0;
+        else
+          if surrField.occupant = CLEAR then
+            result := nextSize(ownSize, surrField.foodMass, MAXLIFESPAN);
+          else
+            if surrField.occSize > ownSize then
+              result := 0;
+            else
+              result := nextSize(ownSize, surrField.occSize, MAXLIFESPAN);
+            end if;
+          end if;
+        end if;
+      end func; (* showNextSize *)
+
+
+    const func power: possNextSize (in surrounding: surr, in direction: dir) is func
+
+      result
+        var power: result is 0;
+
+      begin (* possNextSize *)
+        result := nextSize(surr[dir].occSize, surr[dir].foodMass, MAXLIFESPAN);
+        result := max(result, showNextSize(surr[dir].occSize, surr[left[dir]]));
+        result := max(result, showNextSize(surr[dir].occSize, surr[right[dir]]));
+      end func; (* possNextSize *)
+
+
+    const proc: feed (inout place: surr, in power: foe, in COLOUR: foeCol) is func
+
+      (* assumes surr.occSize to be ownSize, foe to be size of previous owner *)
+
+      local
+        var power: dinner is 0;
+
+      begin (* feed *)
+        if foeCol = CLEAR then
+          dinner := min(surr.foodMass, surr.occSize);
+          surr.foodMass := surr.foodMass - dinner;
+          surr.occSize := nextSize(surr.occSize, dinner, ownHunger);
+        else
+          surr.occSize := nextSize(surr.occSize, foe, ownHunger);
+        end if;
+      end func; (* feed *)
+
+
+    const func integer: stateVal (in surrounding: surr, in actionType: wotHap) is func
+
+      result
+        var integer: result is 0;
+      local
+        var direction: dir is HERE;
+        var power: foeSize is 0;
+
+      begin (* stateVal *)
+        result := ownSizeVal * surr[HERE].occSize +
+               hereFoodVal * surr[HERE].foodMass;
+
+        for dir range firstDir to lastDir do
+          case surr[dir].occupant of
+            when {EDGE}:  noop;
+            when {CLEAR}: result +:= thereFoodVal * surr[dir].foodMass;
+            when {SELF}:  result +:= -cannFine * possNextSize(surr, dir) +
+                              thereFoodVal * surr[dir].foodMass;
+            otherwise:
+              if surr[dir].occSize < surr[HERE].occSize then
+                foeSize := possNextSize(surr, dir);
+                if foeSize <= surr[HERE].occSize then
+                  result +:= foeSize * thereFoodVal + killBonus +
+                          overThFoodVal * surr[dir].foodMass;
+                end if;
+              end if;
+          end case;
+        end for;
+
+        for dir range firstDiag to lastDiag do
+          if surr[dir].occupant <> EDGE then
+            result +:= overThFoodVal * surr[dir].foodMass;
+          end if;
+        end for;
+      end func; (* stateVal *)
+
+
+    const func integer: doMove (in direction: dir, in boolean: doSplit) is func
+
+      result
+        var integer: result is 0;
+      local
+        var surrounding: newSurr is direction times place.value;
+        var surrounding: splitSurr is direction times place.value;
+        var direction: di is HERE;
+        var direction: oldPlace is HERE;
+        var power: splitSize is 0;
+
+      begin
+        if dir = HERE then
+          newSurr := landscape;
+          feed(newSurr[HERE], 0, CLEAR);
+          result := stateVal(newSurr, OnlyEat);
+        elsif landscape[dir].occupant = EDGE or
+            landscape[dir].occupant > CLEAR and (landscape[dir].occSize > 0 or doSplit) then
+          result := 0;
+        else
+          oldPlace := oppositDir[dir];
+          for di range HERE to lastDiag do
+            newSurr[di] := landscape[mvChange[dir][di]];
+          end for;
+          if landscape[left[dir]].occupant = EDGE then
+            (* movement along the left edge *)
+            setSurr(newSurr[right[dir]], CLEAR, 0, avFood);
+          elsif landscape[right[dir]].occupant = EDGE then
+            (* movement along the right edge *)
+            setSurr(newSurr[left[dir]], CLEAR, 0, avFood);
+          else
+            setSurr(newSurr[right[dir]], CLEAR, 0, avFood);
+            setSurr(newSurr[left[dir]], CLEAR, 0, avFood);
+          end if;
+
+          if doSplit then
+            splitSize := ownSize div 2;
+            newSurr[HERE].occSize := splitSize;
+            newSurr[oldPlace].occSize := ownSize - splitSize;
+            splitSurr := landscape;
+            setSurr(splitSurr[dir], SELF, splitSize, splitSurr[dir].foodMass);
+            splitSurr[HERE].occSize := ownSize - splitSize;
+            feed(newSurr[HERE], 0, CLEAR);
+            feed(newSurr[oldPlace], 0, CLEAR);
+            feed(splitSurr[dir], 0, CLEAR);
+            feed(splitSurr[HERE], 0, CLEAR);
+            result := stateVal(newSurr, OnlySplit) + stateVal(splitSurr, OnlySplit);
+          else
+            setSurr(newSurr[HERE], SELF, landscape[dir].occSize, landscape[dir].foodMass);
+            setSurr(newSurr[oldPlace], CLEAR, 0, landscape[HERE].foodMass);
+            feed(newSurr[dir], landscape[dir].occSize, landscape[dir].occupant);
+            result := stateVal(newSurr, actionType conv (ord(landscape[dir].occupant > CLEAR) +
+                                                         ord(landscape[dir].occupant = SELF)));
+          end if;
+        end if;
+      end func; (* doMove *)
+
+
+    const proc: compare (in direction: dir, in integer: newState,
+                         inout directSet: optDir, inout directSet: notOptDir,
+                         inout integer: maxState) is func
+
+      begin (* compare *)
+        if newState > maxState then
+          maxState := newState;
+          optDir := {dir};
+          notOptDir := directSet.EMPTY_SET;
+        elsif newState = maxState then
+          incl(optDir, dir);
+        end if;
+      end func; (* compare *)
+
+
+  begin (* dna (INDIGO) *)
+    initSurr(landscape);
+    maxState := doMove(HERE, FALSE);
+    mvOptDir := {HERE};
+    splOptDir := directSet.EMPTY_SET;
+    for dir range firstDir to lastDir do
+      if landscape[dir].occupant <> EDGE then
+        compare(dir, doMove(dir, FALSE), mvOptDir, splOptDir, maxState);
+        if landscape[dir].occupant = CLEAR then
+          compare(dir, doMove(dir, TRUE), splOptDir, mvOptDir, maxState);
+        end if;
+      end if;
+    end for;
+
+    if splOptDir <> directSet.EMPTY_SET then
+      split(ranDir(splOptDir), splHereSize, splThereSize);
+    else
+      dir := ranDir(mvOptDir);
+      if view(dir) <> CLEAR and dir <> HERE then
+        kill(dir);
+      else
+        eat(dir, ownSize);
+      end if;
+    end if;
+  end func; (* dna (INDIGO) *)

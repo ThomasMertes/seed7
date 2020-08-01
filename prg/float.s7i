@@ -1,0 +1,91 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  float.s7i     Floating point support library                    *)
+(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: float is          subtype object;
+$ system "float" is float;
+
+const proc: destroy (ref float param) is                           noop;
+const proc: (ref float param) ::= (ref float param) is             action "FLT_CREATE";
+IN_PARAM_IS_VALUE(float);
+
+const float: (attr float) . value is 0.0;
+
+const float: PI is 3.1415926535897932384626433832795028841972;
+(* const float: E  is 2.7182818284590452353602874713526624977572; *)
+
+const func float: + (ref float param) is                           action "FLT_PLUS";
+const func float: - (ref float param) is                           action "FLT_MINUS";
+
+const proc: (inout float param) := (ref float param) is            action "FLT_CPY";
+const proc: (inout float param) +:= (ref float param) is           action "FLT_GROW";
+const proc: (inout float param) -:= (ref float param) is           action "FLT_SHRINK";
+const func float: (ref float param) + (ref float param) is         action "FLT_ADD";
+const func float: (ref float param) - (ref float param) is         action "FLT_SBTR";
+const func float: (ref float param) * (ref float param) is         action "FLT_MULT";
+const func float: (ref float param) / (ref float param) is         action "FLT_DIV";
+const func float: (ref float param) ** (ref integer param) is      action "FLT_IPOW";
+const func float: (ref float param) ** (ref float param) is        action "FLT_POW";
+const func string: (ref float param) digits (ref integer param) is action "FLT_DGTS";
+const func boolean: (ref float param) = (ref float param) is       action "FLT_EQ";
+const func boolean: (ref float param) < (ref float param) is       action "FLT_LT";
+const func boolean: (ref float param) > (ref float param) is       action "FLT_GT";
+const func boolean: (ref float param) <= (ref float param) is      action "FLT_LE";
+const func boolean: (ref float param) >= (ref float param) is      action "FLT_GE";
+const func boolean: (ref float param) <> (ref float param) is      action "FLT_NE";
+const func integer: compare (in float param, in float param) is    action "FLT_CMP";
+const func integer: hashCode (in float param) is                   action "FLT_HASHCODE";
+
+const func float: flt (ref integer param) is                       action "FLT_IFLT";
+const func float: sin (ref float param) is                         action "FLT_SIN";
+const func float: cos (ref float param) is                         action "FLT_COS";
+const func float: tan (ref float param) is                         action "FLT_TAN";
+const func float: asin (ref float param) is                        action "FLT_ASIN";
+const func float: acos (ref float param) is                        action "FLT_ACOS";
+const func float: atan (ref float param) is                        action "FLT_ATAN";
+const func float: atan2 (ref float param, ref float param) is      action "FLT_A2TAN";
+const func float: sinh (ref float param) is                        action "FLT_HSIN";
+const func float: cosh (ref float param) is                        action "FLT_HCOS";
+const func float: tanh (ref float param) is                        action "FLT_HTAN";
+const func float: sqrt (ref float param) is                        action "FLT_SQRT";
+const func float: exp (ref float param) is                         action "FLT_EXP";
+const func float: log (ref float param) is                         action "FLT_LOG";
+const func float: log10 (ref float param) is                       action "FLT_LOG10";
+const func float: ceil (ref float param) is                        action "FLT_CEIL";
+const func float: floor (ref float param) is                       action "FLT_FLOOR";
+const func float: abs (ref float param) is                         action "FLT_ABS";
+const func string: str (ref float param) is                        action "FLT_STR";
+const func float: (attr float) parse (in string param) is          action "FLT_PARSE";
+const func integer: round (ref float param) is                     action "FLT_ROUND";
+const func integer: trunc (ref float param) is                     action "FLT_TRUNC";
+const func string: literal (ref float param) is                    action "FLT_STR";
+
+const func float: rand (ref float param, ref float param) is       action "FLT_RAND";
+
+const func float: (attr float) value (ref reference param) is      action "FLT_VALUE";
+
+enable_io(float);

@@ -1,0 +1,212 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  addup.sd7     Game of adding numbers to reach a goal number     *)
+(*  Copyright (C) 1993, 1994, 2004  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+include "keybd.s7i";
+include "echo.s7i";
+include "line.s7i";
+include "reverse.s7i";
+include "upper.s7i";
+include "lower.s7i";
+include "tee.s7i";
+include "more.s7i";
+
+var boolean: quit is FALSE;
+
+
+const proc: human_move (in integer: max_step, inout integer: sum) is func
+  local
+    var boolean: okay is FALSE;
+    var string: answer is " ";
+    var integer: human_step is 0;
+  begin
+    okay := FALSE;
+    repeat
+      write("The sum is ");
+      write(sum);
+      write(" Your number? ");
+      readln(answer);
+      if upper(answer) = "Q" then
+        quit := TRUE;
+      else
+        block
+          human_step := integer parse answer;
+          if human_step < 1 then
+            write(human_step);
+            writeln(" is less than 1.");
+          elsif human_step > max_step then
+            write(human_step);
+            write(" is greater than ");
+            write(max_step);
+            writeln(".");
+          else
+            sum +:= human_step;
+            okay := TRUE;
+          end if;
+        exception
+          catch RANGE_ERROR:
+            write("\"");
+            write(answer);
+            writeln("\" is not a number.");
+        end block;
+      end if;
+    until okay or quit;
+  end func;
+
+
+const proc: comp_move (in integer: max_step, inout integer: sum, in integer: goal) is func
+  local
+    var boolean: okay is FALSE;
+    var string: answer is " ";
+    var integer: comp_step is 0;
+  begin
+    comp_step := (goal - sum) rem (max_step + 1);
+    if comp_step = 0 then
+      comp_step := rand(1, max_step);
+    end if;
+    write("The sum is ");
+    write(sum);
+    write(" My number is ");
+    write(comp_step);
+    writeln(".");
+    sum +:= comp_step;
+  end func;
+
+
+const proc: game (in integer: goal, in integer: max_step) is func
+  local
+    var string: answer is " ";
+    var integer: sum is 0;
+  begin
+    repeat
+      writeln;
+      write("Who should begin (Computer/Human/Quit)? ");
+      readln(answer);
+      answer := upper(answer);
+      quit := answer = "Q";
+    until answer = "C" or answer = "H" or quit;
+    if not quit then
+      writeln;
+      write("The sum to be reached is ");
+      write(goal);
+      write(" and valid numbers are between 1 and ");
+      write(max_step);
+      writeln(".");
+      sum := 0;
+      if answer = "C" then
+        comp_move(max_step, sum, goal);
+      end if;
+      repeat
+        human_move(max_step, sum);
+        if not quit then
+          if sum >= goal then
+            write("The sum is ");
+            write(sum);
+            writeln(" You won. Congratulations!");
+          else
+            comp_move(max_step, sum, goal);
+            if sum >= goal then
+              write("The sum is ");
+              write(sum);
+              writeln(" You lost. Sorry!");
+            end if;
+          end if;
+        end if;
+      until sum >= goal or quit;
+    end if;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: answer is " ";
+    var integer: goal is 0;
+    var integer: sum is 0;
+    var integer: max_step is 0;
+  begin
+    (* OUT := open_reverse(OUT, 79); *)
+    (* OUT := open_upper(OUT); *)
+    (* OUT := open_lower(OUT); *)
+    (* OUT := open_more(OUT, KEYBOARD, 10); *)
+    IN := KEYBOARD;
+    IN := open_echo(IN, OUT);
+    IN := open_line(IN);
+    writeln;
+    writeln("ADDUP - Computer and human sum up numbers to reach a goal number.");
+    writeln("        To end the program just type q and enter at any time.");
+    repeat
+      goal := 0;
+      repeat
+        writeln;
+        write("What should be the goal number (between 50 and 200)? ");
+        readln(answer);
+        block
+          goal := integer parse answer;
+        exception
+          catch RANGE_ERROR:
+            quit := upper(answer) = "Q";
+        end block;
+      until (goal >= 50 and goal <= 200) or quit;
+      if not quit then
+        max_step := 0;
+        repeat
+          writeln;
+          write("What should be the maximum number to be added (between 7 and 15)? ");
+          readln(answer);
+          block
+            max_step := integer parse answer;
+          exception
+            catch RANGE_ERROR:
+              quit := upper(answer) = "Q";
+          end block;
+        until (max_step >= 7 and max_step <= 15) or quit;
+      end if;
+      if not quit then
+        repeat
+          game(goal, max_step);
+          if not quit then
+            repeat
+              writeln;
+              write("Another game with the same rules (Yes/No/Quit)? ");
+              readln(answer);
+              answer := upper(answer);
+              quit := answer = "Q";
+            until answer = "Y" or answer = "N" or quit;
+          end if;
+        until answer = "N" or quit;
+      end if;
+      if not quit then
+        repeat
+          writeln;
+          write("Another game with other rules (Yes/No/Quit)? ");
+          readln(answer);
+          answer := upper(answer);
+          quit := answer = "Q" or answer = "N";
+        until answer = "Y" or quit;
+      end if;
+    until quit;
+    writeln("Goodbye");
+  end func;
+
+$ system "main" is main;

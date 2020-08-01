@@ -1,0 +1,300 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  rational.s7i  Rational number support library                   *)
+(*  Copyright (C) 1991, 1992, 1993, 1994, 2005  Thomas Mertes       *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: rational is new object struct
+    var integer: numerator is 0;
+    var integer: denominator is 1;
+  end struct;
+
+const rational: RAT_ZERO is rational.value;
+
+(*
+const proc: (inout rational: rat1) := (ref rational: rat2) is func
+  begin
+    rat1.numerator := rat2.numerator;
+    rat1.denominator := rat2.denominator;
+  end func;
+*)
+
+
+const proc: normalize (inout rational: rat) is func
+  begin
+    if rat.denominator < 0 then
+      rat.numerator := -rat.numerator;
+      rat.denominator := -rat.denominator;
+    end if;
+    while rat.denominator rem 2 = 0 and rat.numerator rem 2 = 0 do
+      rat.denominator := rat.denominator div 2;
+      rat.numerator := rat.numerator div 2;
+    end while;
+    while rat.denominator rem 3 = 0 and rat.numerator rem 3 = 0 do
+      rat.denominator := rat.denominator div 3;
+      rat.numerator := rat.numerator div 3;
+    end while;
+    while rat.denominator rem 5 = 0 and rat.numerator rem 5 = 0 do
+      rat.denominator := rat.denominator div 5;
+      rat.numerator := rat.numerator div 5;
+    end while;
+    while rat.denominator rem 7 = 0 and rat.numerator rem 7 = 0 do
+      rat.denominator := rat.denominator div 7;
+      rat.numerator := rat.numerator div 7;
+    end while;
+    while rat.denominator rem 11 = 0 and rat.numerator rem 11 = 0 do
+      rat.denominator := rat.denominator div 11;
+      rat.numerator := rat.numerator div 11;
+    end while;
+  end func;
+
+
+const func rational: + (in rational: rat) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := rat.numerator;
+    rat_val.denominator := rat.denominator;
+  end func;
+
+
+const func rational: - (in rational: rat) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := -rat.numerator;
+    rat_val.denominator := rat.denominator;
+  end func;
+
+
+const func rational: (in rational: rat1) + (in rational: rat2) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := rat1.numerator * rat2.denominator +
+        rat2.numerator * rat1.denominator;
+    rat_val.denominator := rat1.denominator * rat2.denominator;
+    normalize(rat_val);
+  end func;
+
+
+const func rational: (in rational: rat1) - (in rational: rat2) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := rat1.numerator * rat2.denominator -
+        rat2.numerator * rat1.denominator;
+    rat_val.denominator := rat1.denominator * rat2.denominator;
+    normalize(rat_val);
+  end func;
+
+
+const func rational: (in rational: rat1) * (in rational: rat2) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := rat1.numerator * rat2.numerator;
+    rat_val.denominator := rat1.denominator * rat2.denominator;
+    normalize(rat_val);
+  end func;
+
+
+const func rational: (in rational: rat1) / (in rational: rat2) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := rat1.numerator * rat2.denominator;
+    rat_val.denominator := rat1.denominator * rat2.numerator;
+    normalize(rat_val);
+  end func;
+
+
+const proc: (inout rational: rat1) +:= (in rational: rat2) is func
+  begin
+    rat1.numerator := rat1.numerator * rat2.denominator +
+        rat2.numerator * rat1.denominator;
+    rat1.denominator := rat1.denominator * rat2.denominator;
+    normalize(rat1);
+  end func;
+
+
+const proc: (inout rational: rat1) -:= (in rational: rat2) is func
+  begin
+    rat1.numerator := rat1.numerator * rat2.denominator -
+        rat2.numerator * rat1.denominator;
+    rat1.denominator := rat1.denominator * rat2.denominator;
+    normalize(rat1);
+  end func;
+
+
+const func rational: (in integer: int1) / (in integer: int2) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := int1;
+    rat_val.denominator := int2;
+    normalize(rat_val);
+  end func;
+
+
+const func rational: (in rational: rat1) ** (in integer: int2) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    if int2 >= 0 then
+      rat_val.numerator := rat1.numerator ** int2;
+      rat_val.denominator := rat1.denominator ** int2;
+    else
+      rat_val.numerator := rat1.denominator ** int2;
+      rat_val.denominator := rat1.numerator ** int2;
+    end if;
+    normalize(rat_val);
+  end func;
+
+
+const func boolean: (in rational: rat1) = (in rational: rat2) is
+  return rat1.numerator   = rat2.numerator and
+         rat1.denominator = rat2.denominator;
+
+
+const func boolean: (in rational: rat1) < (in rational: rat2) is
+  return rat1.numerator * rat2.denominator <
+         rat2.numerator * rat1.denominator;
+
+
+const func boolean: (in rational: rat1) > (in rational: rat2) is
+  return rat1.numerator * rat2.denominator >
+         rat2.numerator * rat1.denominator;
+
+
+const func boolean: (in rational: rat1) <= (in rational: rat2) is
+  return rat1.numerator * rat2.denominator <=
+         rat2.numerator * rat1.denominator;
+
+
+const func boolean: (in rational: rat1) >= (in rational: rat2) is
+  return rat1.numerator * rat2.denominator >=
+         rat2.numerator * rat1.denominator;
+
+
+const func boolean: (in rational: rat1) <> (in rational: rat2) is
+  return rat1.numerator   <> rat2.numerator or
+         rat1.denominator <> rat2.denominator;
+
+
+const func integer: compare (in rational: rat1, in rational: rat2) is func
+  result
+    var integer: result is 0;
+  begin
+    if rat1.numerator * rat2.denominator <
+        rat2.numerator * rat1.denominator then
+      result := -1;
+    elsif rat1.numerator * rat2.denominator >
+        rat2.numerator * rat1.denominator then
+      result := 1;
+    end if;
+  end func;
+
+
+const func integer: hashCode (in rational: rat) is
+  return rat.numerator * rat.denominator;
+
+
+const func rational: rat (in integer: number) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := number;
+    rat_val.denominator := 1;
+  end func;
+
+
+const func rational: abs (in rational: rat1) is func
+  result
+    var rational: rat_val is RAT_ZERO;
+  begin
+    rat_val.numerator := abs(rat1.numerator);
+    rat_val.denominator := rat1.denominator;
+  end func;
+
+
+const func string: str (in rational: rat1) is func
+  result
+    var string: str_val is "";
+  begin
+    str_val := str(rat1.numerator) & "/" & str(rat1.denominator);
+  end func;
+
+
+const func rational: (attr rational) parse (in var string: stri) is func
+  result
+    var rational: rational is TRUE;
+  begin
+    rational.numerator := integer parse getint(stri);
+    if stri[1] <> '/' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    rational.denominator := integer parse getint(stri);
+  end func;
+
+
+enable_io(rational);
+
+
+const func integer: floor (ref rational: rat1) is func
+  result
+    var integer: int_val is 0;
+  begin
+    int_val := rat1.numerator mdiv rat1.denominator;
+  end func;
+
+
+const func integer: ceil (ref rational: rat1) is func
+  result
+    var integer: int_val is 0;
+  begin
+    int_val := -(rat1.numerator mdiv -rat1.denominator);
+  end func;
+
+
+const func integer: trunc (ref rational: rat1) is func
+  result
+    var integer: int_val is 0;
+  begin
+    int_val := rat1.numerator div rat1.denominator;
+  end func;
+
+
+const func integer: round (ref rational: rat1) is func
+  result
+    var integer: int_val is 0;
+  begin
+    if rat1.numerator >= 0 then
+      int_val := (2 * rat1.numerator + rat1.denominator) div (2 * rat1.denominator);
+    else
+      int_val := (2 * rat1.numerator - rat1.denominator) div (2 * rat1.denominator);
+    end if;
+  end func;

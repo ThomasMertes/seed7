@@ -1,0 +1,81 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  reverse.s7i   Filter file which writes right to left on output  *)
+(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: REVERSE_FILE is sub NULL_FILE struct
+    var file: out_file is STD_NULL;
+    var integer: line_size is 0;
+  end struct;
+
+
+const func REVERSE_FILE: open_reverse (ref file: out_fil, in integer: lin_size) is func
+  result
+    var REVERSE_FILE: result is REVERSE_FILE.value;
+  begin
+    result := REVERSE_FILE.value;
+    result.out_file := out_fil;
+    result.line_size := lin_size;
+  end func;
+
+
+(*
+const proc: page (ref REVERSE_FILE: reverse_fil) is func
+  begin
+    page(reverse_fil.out_file);
+  end func;
+*)
+
+
+const proc: (ref REVERSE_FILE: reverse_fil) << (ref string: stri) is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(stri) do
+      if stri[number] <> '\b' then
+        reverse_fil.out_file << stri[number];
+        reverse_fil.out_file << '\b';
+        reverse_fil.out_file << '\b';
+      else
+        reverse_fil.out_file << "  ";
+        reverse_fil.out_file << '\b';
+      end if;
+    end for;
+  end func;
+
+
+const proc: (ref REVERSE_FILE: reverse_fil) << NL is func
+  begin
+    reverse_fil.out_file << NL;
+    reverse_fil.out_file << "" lpad reverse_fil.line_size - 1;
+  end func;
+
+
+const proc: (ref REVERSE_FILE: reverse_fil) << BS is func
+  begin
+    reverse_fil.out_file << "  ";
+    reverse_fil.out_file << '\b';
+  end func;

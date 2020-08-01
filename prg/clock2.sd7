@@ -1,0 +1,47 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  clock2.sd7    Displays a digital clock with mycroseconds        *)
+(*  Copyright (C) 1992, 1993, 1994, 2004  Thomas Mertes             *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ info off;
+$ include "seed7_05.s7i";
+include "time.s7i";
+include "keybd.s7i";
+
+var time: last_time is NULL_TIME;
+
+const proc: main is func
+  begin
+    writeln;
+    while busy_getc(KEYBOARD) = KEY_NONE do
+      last_time := time(NOW);
+      write(last_time);
+      write(" ");
+      write(replace(last_time.mycro_second lpad 6, " ", "0"));
+      write("\r");
+      flush(OUT);
+    end while;
+    writeln;
+    writeln;
+  end func;
+
+$ system "main" is main;

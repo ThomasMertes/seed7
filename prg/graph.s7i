@@ -1,0 +1,524 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  graph.s7i     Graphic library                                   *)
+(*  Copyright (C) 1994, 1995, 2004, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ syntax expr: .inv.() is         ->  4;
+$ syntax expr: .().conn.() is     ->  5;
+$ syntax expr: .().over.() is     ->  5;
+$ syntax expr: .().draw.() is     <- 15;
+$ syntax expr: .().color.() is    ->  8;
+
+
+const type: PRIMITIVE_WINDOW is newtype;
+const proc: (ref PRIMITIVE_WINDOW param) ::= (in PRIMITIVE_WINDOW param) is       action "DRW_CREATE";
+IN_PARAM_IS_REFERENCE(PRIMITIVE_WINDOW);
+const proc: destroy (ref PRIMITIVE_WINDOW param) is                               action "DRW_DESTR";
+const proc: (inout PRIMITIVE_WINDOW param) := (in PRIMITIVE_WINDOW param) is      action "DRW_CPY";
+const func boolean: (in PRIMITIVE_WINDOW param) = (in PRIMITIVE_WINDOW param) is  action "DRW_EQ";
+const func boolean: (in PRIMITIVE_WINDOW param) <> (in PRIMITIVE_WINDOW param) is action "DRW_NE";
+const func PRIMITIVE_WINDOW: _GENERATE_EMPTY_WINDOW is                            action "DRW_EMPTY";
+const PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) . value is                        _GENERATE_EMPTY_WINDOW;
+(*
+const func PRIMITIVE_WINDOW: (attr PRIMITIVE_WINDOW) conv (in char param) is      action "CHR_CONV";
+const func char: (attr char) conv (in PRIMITIVE_WINDOW param) is                  action "CHR_CONV";
+*)
+
+const type: pixel is newtype;
+const proc: (ref pixel param) ::= (in pixel param) is       action "INT_CREATE";
+IN_PARAM_IS_VALUE(pixel);
+const proc: destroy (ref pixel param) is                    noop;
+const proc: (inout pixel param) := (in pixel param) is      action "INT_CPY";
+const func boolean: (in pixel param) = (in pixel param) is  action "INT_EQ";
+const func boolean: (in pixel param) <> (in pixel param) is action "INT_NE";
+const func pixel: (attr pixel) conv (in integer param) is   action "INT_CONV";
+const func integer: (attr integer) conv (in pixel param) is action "INT_CONV";
+const func integer: ord (in pixel param) is                 action "INT_ORD";
+const pixel: (attr pixel) . value is                        pixel conv 0;
+
+
+const proc: DRAW_POINT (inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param) is           action "DRW_POINT";
+const proc: DRAW_PPOINT (inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref pixel param) is                                action "DRW_PPOINT";
+const proc: DRAW_LINE (inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param) is           action "DRW_LINE";
+const proc: DRAW_RECT (inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param) is           action "DRW_RECT";
+const proc: DRAW_PRECT (inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param,
+    ref pixel param) is                                action "DRW_PRECT";
+const proc: DRAW_CIRCLE(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param) is                              action "DRW_CIRCLE";
+const proc: DRAW_CLEAR(inout PRIMITIVE_WINDOW param) is  action "DRW_CLEAR";
+const proc: FILL_CIRCLE(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param) is                              action "DRW_FCIRCLE";
+const proc: DRAW_ARC(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, ref integer param,
+    ref float param, ref float param) is               action "DRW_ARC";
+const proc: FILL_ARCCHORD(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, ref integer param,
+    ref float param, ref float param) is               action "DRW_FARCCHORD";
+const proc: FILL_ARCPIESLICE(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, ref integer param,
+    ref float param, ref float param) is               action "DRW_FARCPIESLICE";
+const proc: DRAW_ARC2(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, ref integer param,
+    ref integer param, ref integer param) is           action "DRW_ARC2";
+const proc: FILL_ELLIPSE(inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param) is           action "DRW_FELLIPSE";
+const proc: DRAW_FLUSH is                              action "DRW_FLUSH";
+const func PRIMITIVE_WINDOW: PRIMITIVE_GRAPHIC_OPEN (
+    ref integer param, ref integer param,
+    ref integer param, ref integer param,
+    ref string param) is                               action "DRW_OPEN";
+const func PRIMITIVE_WINDOW: DRAW_GET (
+    in PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param,
+    ref integer param, ref integer param) is           action "DRW_GET";
+const func PRIMITIVE_WINDOW: newPixmap (
+    in PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param) is           action "DRW_NEW_PIXMAP";
+const func PRIMITIVE_WINDOW: DRAW_IMAGE (in PRIMITIVE_WINDOW param,
+    in array array pixel param) is                     action "DRW_IMAGE";
+const proc: DRAW_PUT (
+    inout PRIMITIVE_WINDOW param, in PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param) is           action "DRW_PUT";
+const func integer: height (in PRIMITIVE_WINDOW param) is    action "DRW_HEIGHT";
+const func integer: width (in PRIMITIVE_WINDOW param) is     action "DRW_WIDTH";
+const func pixel: rgbPixel (ref integer param,
+    ref integer param, ref integer param) is           action "DRW_RGBCOL";
+const proc: SET_COLOR (ref pixel param) is             action "DRW_COLOR";
+const proc: SET_BACKGROUND (ref pixel param) is        action "DRW_BACKGROUND";
+const proc: DRAW_TEXT (inout PRIMITIVE_WINDOW param,
+    ref integer param, ref integer param, in string param) is action "DRW_TEXT";
+const proc: UNX_SLEEP (ref integer param) is           action "UNX_SLEEP";
+
+
+const type: GRAPH is subtype object;
+
+const proc: destroy (ref GRAPH param) is                      noop;
+const proc: (ref GRAPH param) ::= (ref GRAPH param) is        action "ENU_CREATE";
+const proc: (ref GRAPH param) := (ref GRAPH param) is         action "ENU_CPY";
+(* const func GRAPH: (ref GRAPH param) conn (ref GRAPH param) is   DYNAMIC; *)
+(* const func GRAPH: (ref GRAPH param) over (ref GRAPH param) is   DYNAMIC; *)
+
+
+const type: NULL_GRAPH is new GRAPH struct
+  end struct;
+
+const NULL_GRAPH: EMPTY_NODE is NULL_GRAPH.value;
+
+const proc: (ref GRAPH param) ::= (ref NULL_GRAPH param) is          action "ENU_CREATE";
+const proc: (ref GRAPH param) := (ref NULL_GRAPH param) is           action "ENU_CPY";
+
+
+const type: WINDOW is sub NULL_FILE struct
+    var PRIMITIVE_WINDOW: EXT_WINDOW is PRIMITIVE_WINDOW.value;
+    var GRAPH: CONTENT is EMPTY_NODE;
+  end struct;
+
+const WINDOW: NULL_WINDOW is WINDOW.value;
+
+const proc: (ref WINDOW param) draw (ref GRAPH param) is          DYNAMIC;
+const proc: SHOW (ref GRAPH param) is                         DYNAMIC;
+
+const proc: (ref WINDOW param) draw (ref NULL_GRAPH param) is   noop;
+
+
+var integer: CURR_X_POS is 0;
+var integer: CURR_Y_POS is 0;
+var integer: END_X_POS is 0;
+var integer: END_Y_POS is 0;
+
+
+const func WINDOW: OPEN_GRAPHIC (in integer: x_min, in integer: y_min, in integer: x_max, in integer: y_max) is func
+  result
+    var WINDOW: result is NULL_WINDOW;
+  local
+    var PRIMITIVE_WINDOW: NEW_WINDOW is PRIMITIVE_WINDOW.value;
+  begin
+    NEW_WINDOW := PRIMITIVE_GRAPHIC_OPEN(x_min, y_min, x_max, y_max, name(PROGRAM));
+    if NEW_WINDOW <> PRIMITIVE_WINDOW.value then
+      result := WINDOW.value;
+      result.EXT_WINDOW := NEW_WINDOW;
+    end if;
+  end func;
+
+
+const type: LINE_GRAPH is sub NULL_GRAPH struct
+    var integer: end_x is 0;
+    var integer: end_y is 0;
+  end struct;
+
+
+const func LINE_GRAPH: LINE (in integer: x, in integer: y) is func
+    result
+      var LINE_GRAPH: result is LINE_GRAPH.value;
+    begin
+      result := LINE_GRAPH.value;
+      result.end_x := x;
+      result.end_y := y;
+    end func;
+
+const proc: (inout WINDOW: CURR_WINDOW) draw (ref LINE_GRAPH: line) is func
+    begin
+      END_X_POS := CURR_X_POS + line.end_x;
+      END_Y_POS := CURR_Y_POS + line.end_y;
+      DRAW_LINE(CURR_WINDOW.EXT_WINDOW,
+          CURR_X_POS, CURR_Y_POS, END_X_POS, END_Y_POS);
+    end func;
+
+const proc: SHOW (ref LINE_GRAPH: line) is func
+    begin
+      END_X_POS := CURR_X_POS + line.end_x;
+      END_Y_POS := CURR_Y_POS + line.end_y;
+      write("LINE(");
+      write(CURR_X_POS);
+      write(", ");
+      write(CURR_Y_POS);
+      write(", ");
+      write(END_X_POS);
+      write(", ");
+      write(END_Y_POS);
+      write(")");
+    end func;
+
+
+const type: RECT_GRAPH is sub NULL_GRAPH struct
+    var integer: length_x is 0;
+    var integer: length_y is 0;
+  end struct;
+
+
+const func RECT_GRAPH: RECT (ref integer: x, ref integer: y) is func
+    result
+      var RECT_GRAPH: result is RECT_GRAPH.value;
+    begin
+      result := RECT_GRAPH.value;
+      result.length_x := x;
+      result.length_y := y;
+    end func;
+
+const proc: (inout WINDOW: CURR_WINDOW) draw (ref RECT_GRAPH: rect) is func
+    begin
+      END_X_POS := CURR_X_POS + rect.length_x;
+      END_Y_POS := CURR_Y_POS + rect.length_y;
+      DRAW_RECT(CURR_WINDOW.EXT_WINDOW,
+          CURR_X_POS, CURR_Y_POS, rect.length_x, rect.length_y);
+    end func;
+
+const proc: SHOW (ref RECT_GRAPH: rect) is func
+    begin
+      END_X_POS := CURR_X_POS + rect.length_x;
+      END_Y_POS := CURR_Y_POS + rect.length_y;
+      write("RECT(");
+      write(CURR_X_POS);
+      write(", ");
+      write(CURR_Y_POS);
+      write(", ");
+      write(rect.length_x);
+      write(", ");
+      write(rect.length_y);
+      write(")");
+    end func;
+
+
+const type: CIRCLE_GRAPH is sub NULL_GRAPH struct
+    var integer: radius is 0;
+  end struct;
+
+
+const func CIRCLE_GRAPH: CIRCLE (in integer: r) is func
+    result
+      var CIRCLE_GRAPH: result is CIRCLE_GRAPH.value;
+    begin
+      result := CIRCLE_GRAPH.value;
+      result.radius := r;
+    end func;
+
+const proc: (inout WINDOW: CURR_WINDOW) draw (ref CIRCLE_GRAPH: circle) is func
+    begin
+      END_X_POS := CURR_X_POS;
+      END_Y_POS := CURR_Y_POS;
+      DRAW_CIRCLE(CURR_WINDOW.EXT_WINDOW,
+          CURR_X_POS, CURR_Y_POS, circle.radius);
+    end func;
+
+const proc: SHOW (ref CIRCLE_GRAPH: circle) is func
+    begin
+      END_X_POS := CURR_X_POS;
+      END_Y_POS := CURR_Y_POS;
+      write("CIRCLE(");
+      write(CURR_X_POS);
+      write(", ");
+      write(CURR_Y_POS);
+      write(", ");
+      write(circle.radius);
+      write(")");
+    end func;
+
+
+const type: ARC_GRAPH is sub NULL_GRAPH struct
+    var integer: end_x is 0;
+    var integer: end_y is 0;
+    var integer: radius is 0;
+  end struct;
+
+
+const func ARC_GRAPH: ARC (in integer: x, in integer: y, in integer: r) is func
+    result
+      var ARC_GRAPH: result is ARC_GRAPH.value;
+    begin
+      result := ARC_GRAPH.value;
+      result.end_x := x;
+      result.end_y := y;
+      result.radius := r;
+    end func;
+
+const proc: (inout WINDOW: CURR_WINDOW) draw (ref ARC_GRAPH: arc) is func
+    begin
+      END_X_POS := CURR_X_POS + arc.end_x;
+      END_Y_POS := CURR_Y_POS + arc.end_y;
+      DRAW_ARC2(CURR_WINDOW.EXT_WINDOW,
+          CURR_X_POS, CURR_Y_POS, END_X_POS, END_Y_POS, arc.radius);
+    end func;
+
+const proc: SHOW (ref ARC_GRAPH: arc) is func
+    begin
+      END_X_POS := CURR_X_POS + arc.end_x;
+      END_Y_POS := CURR_Y_POS + arc.end_y;
+      write("ARC(");
+      write(CURR_X_POS);
+      write(", ");
+      write(CURR_Y_POS);
+      write(", ");
+      write(END_X_POS);
+      write(", ");
+      write(END_Y_POS);
+      write(", ");
+      write(arc.radius);
+      write(")");
+    end func;
+
+
+const type: CONN_GRAPH is sub NULL_GRAPH struct
+    var GRAPH: first is EMPTY_NODE;
+    var GRAPH: second is EMPTY_NODE;
+  end struct;
+
+
+const func CONN_GRAPH: (ref GRAPH: LEFT) conn (ref GRAPH: RIGHT) is func
+    result
+      var CONN_GRAPH: result is CONN_GRAPH.value;
+    begin
+      result := CONN_GRAPH.value;
+      result.first := LEFT;
+      result.second := RIGHT;
+    end func;
+
+const proc: (ref WINDOW: CURR_WINDOW) draw (ref CONN_GRAPH: conn) is func
+    begin
+      CURR_WINDOW draw conn.first;
+      CURR_X_POS := END_X_POS;
+      CURR_Y_POS := END_Y_POS;
+      CURR_WINDOW draw conn.second;
+    end func;
+
+const proc: SHOW (ref CONN_GRAPH: conn) is func
+    begin
+      SHOW(conn.first);
+      write(NL);
+      CURR_X_POS := END_X_POS;
+      CURR_Y_POS := END_Y_POS;
+      SHOW(conn.second);
+      write(NL);
+    end func;
+
+
+const type: OVER_GRAPH is sub NULL_GRAPH struct
+    var GRAPH: first is EMPTY_NODE;
+    var GRAPH: second is EMPTY_NODE;
+  end struct;
+
+
+const func OVER_GRAPH: (ref GRAPH: left) over (ref GRAPH: right) is func
+    result
+      var OVER_GRAPH: result is OVER_GRAPH.value;
+    begin
+      result := OVER_GRAPH.value;
+      result.first := left;
+      result.second := right;
+    end func;
+
+const proc: (ref WINDOW: CURR_WINDOW) draw (ref OVER_GRAPH: over) is func
+    local
+      var integer: CURR_X_BACKUP is 0;
+      var integer: CURR_Y_BACKUP is 0;
+    begin
+      CURR_X_BACKUP := CURR_X_POS;
+      CURR_Y_BACKUP := CURR_Y_POS;
+      CURR_WINDOW draw over.first;
+      CURR_X_POS := CURR_X_BACKUP;
+      CURR_Y_POS := CURR_Y_BACKUP;
+      CURR_WINDOW draw over.second;
+    end func;
+
+const proc: SHOW (ref OVER_GRAPH: over) is func
+    begin
+      SHOW(over.first);
+      write(NL);
+      SHOW(over.second);
+      write(NL);
+    end func;
+
+
+const type: COLOR_GRAPH is sub NULL_GRAPH struct
+    var pixel: color is pixel.value;
+    var GRAPH: picture is EMPTY_NODE;
+  end struct;
+
+
+const func COLOR_GRAPH: (in pixel: col) color (ref GRAPH: pic) is func
+    result
+      var COLOR_GRAPH: result is COLOR_GRAPH.value;
+    begin
+      result := COLOR_GRAPH.value;
+      result.color := col;
+      result.picture := pic;
+    end func;
+
+const proc: (ref WINDOW: CURR_WINDOW) draw (ref COLOR_GRAPH: col_graph) is func
+    begin
+      SET_COLOR(col_graph.color);
+      CURR_WINDOW draw col_graph.picture;
+      SET_COLOR(rgbPixel(0, 0, 0));
+    end func;
+
+
+const type: ROTATE_GRAPH is sub NULL_GRAPH struct
+    var integer: angle is 0;
+    var GRAPH: picture is EMPTY_NODE;
+  end struct;
+
+
+const type: MOVE_GRAPH is sub NULL_GRAPH struct
+    var integer: end_x is 0;
+    var integer: end_y is 0;
+  end struct;
+
+
+const func MOVE_GRAPH: MOVE (in integer: x, in integer: y) is func
+    result
+      var MOVE_GRAPH: result is MOVE_GRAPH.value;
+    begin
+      result := MOVE_GRAPH.value;
+      result.end_x := x;
+      result.end_y := y;
+    end func;
+
+const proc: (ref WINDOW: CURR_WINDOW) draw (ref MOVE_GRAPH: move) is func
+    begin
+      END_X_POS := CURR_X_POS + move.end_x;
+      END_Y_POS := CURR_Y_POS + move.end_y;
+    end func;
+
+const proc: DRAW (ref MOVE_GRAPH: move) is func
+    begin
+      END_X_POS := CURR_X_POS + move.end_x;
+      END_Y_POS := CURR_Y_POS + move.end_y;
+    end func;
+
+const proc: SHOW (ref MOVE_GRAPH: move) is func
+    begin
+      END_X_POS := CURR_X_POS + move.end_x;
+      END_Y_POS := CURR_Y_POS + move.end_y;
+      write("MOVE(");
+      write(CURR_X_POS);
+      write(", ");
+      write(CURR_Y_POS);
+      write(", ");
+      write(END_X_POS);
+      write(", ");
+      write(END_Y_POS);
+      write(")");
+    end func;
+
+
+const proc: DRAW (CLEAR) is func
+    begin
+      CURR_X_POS := 0;
+      CURR_Y_POS := 0;
+      END_X_POS := 0;
+      END_Y_POS := 0;
+    end func;
+
+const proc: SHOW (CLEAR) is func
+    begin
+      CURR_X_POS := 0;
+      CURR_Y_POS := 0;
+      END_X_POS := 0;
+      END_Y_POS := 0;
+      writeln("CLEAR");
+    end func;
+
+const proc: SHOW (ref NULL_GRAPH: EMPTY_GR) is func
+    begin
+      write("EMPTY_NODE");
+    end func;
+
+
+const func GRAPH: (ref GRAPH: CURR_GRAPH) mult (in integer: factor) is func
+  result
+    var GRAPH: result is EMPTY_NODE;
+  local
+    var integer: counter is 0;
+  begin
+    for counter range 1 to factor do
+      result := result conn CURR_GRAPH;
+    end for;
+  end func;
+
+
+const proc: (ref WINDOW: CURR_WINDOW) << (ref GRAPH: DRAWING) is func
+  begin
+    CURR_WINDOW.CONTENT := CURR_WINDOW.CONTENT conn DRAWING;
+  end func;
+
+
+const proc: FLUSH (ref WINDOW: CURR_WINDOW) is func
+  begin
+(*  PRINT("FLUSH WINDOW"); *)
+    DRAW(CLEAR);
+    CURR_WINDOW draw CURR_WINDOW.CONTENT;
+  end func;

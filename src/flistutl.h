@@ -1,0 +1,206 @@
+/********************************************************************/
+/*                                                                  */
+/*  hi   Interpreter for Seed7 programs.                            */
+/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*                                                                  */
+/*  This program is free software; you can redistribute it and/or   */
+/*  modify it under the terms of the GNU General Public License as  */
+/*  published by the Free Software Foundation; either version 2 of  */
+/*  the License, or (at your option) any later version.             */
+/*                                                                  */
+/*  This program is distributed in the hope that it will be useful, */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of  */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   */
+/*  GNU General Public License for more details.                    */
+/*                                                                  */
+/*  You should have received a copy of the GNU General Public       */
+/*  License along with this program; if not, write to the Free      */
+/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
+/*  MA 02111-1307 USA                                               */
+/*                                                                  */
+/*  Module: General                                                 */
+/*  File: seed7/src/flistutl.h                                      */
+/*  Changes: 1993, 1994  Thomas Mertes                              */
+/*  Content: Procedures for free memory list maintainance.          */
+/*                                                                  */
+/********************************************************************/
+
+typedef struct {
+    objecttype objects;
+    listtype list_elems;
+    nodetype nodes;
+    infiltype infiles;
+#ifdef WITH_STRI_FLIST
+    stritype stris[256];
+    memsizetype siz;
+    stritype str;
+#endif
+  } flisttype;
+
+#ifdef DO_INIT
+flisttype flist = {NULL, NULL, NULL, NULL,
+#ifdef WITH_STRI_FLIST
+   {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}
+#endif
+    };
+#else
+EXTERN flisttype flist;
+#endif
+
+
+#ifdef DO_HEAP_LOG
+#define F_LOG1(X)     printf("\nlalloc(%u) -> %ld\n", sizeof(*X), (long) X),
+#define F_LOG2(X)     printf("\nlfree(%u) <- %ld\n", sizeof(*X), (long) X),
+#else
+#define F_LOG1(X)
+#define F_LOG2(X)
+#endif
+
+#ifdef USE_CHUNK_ALLOCS
+#ifdef USE_ALTERNATE_CHUNK_ALLOCS
+#define OLD_CHUNK(var,tp,byt)    (var = (tp) chunk.freemem, chunk.freemem += (byt), TRUE)
+#define NEW_CHUNK(var,tp,byt)    ((var = (tp) heap_chunk(byt)) != NULL)
+#define ALLOC_CHUNK(var,tp,byt)  ((byt) > chunk.byond - chunk.freemem ? NEW_CHUNK(var, tp, byt) : OLD_CHUNK(var, tp, byt))
+#define FREE_CHUNK(var,byt)      (chunk.lost_bytes += (byt))
+#else
+#define OLD_CHUNK(var,tp,byt)    (var = (tp) chunk.freemem, chunk.freemem += (byt), chunk.size -= (byt), TRUE)
+#define NEW_CHUNK(var,tp,byt)    ((var = (tp) heap_chunk(byt)) != NULL)
+#define ALLOC_CHUNK(var,tp,byt)  ((byt) > chunk.size ? NEW_CHUNK(var, tp, byt) : OLD_CHUNK(var, tp, byt))
+#define FREE_CHUNK(var,byt)      (chunk.lost_bytes += (byt))
+#endif
+#else
+#define ALLOC_CHUNK(var,tp,byt)  ALLOC_HEAP(var, tp, byt)
+#endif
+
+
+#ifdef USE_CHUNK_ALLOCS
+#define ALLOC_ID_NAME(var,len)     ALLOC_CHUNK(var, ustritype, SIZ_ID(len))
+#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_ID(len), count.idt, count.idt_bytes), FREE_CHUNK(var, SIZ_ID(len)))
+#else
+#define ALLOC_ID_NAME(var,len)     ALLOC_HEAP(var, ustritype, SIZ_USTRI(len))
+#define FREE_ID_NAME(var,len)      (CNT2_USTRI(len, SIZ_USTRI(len), count.idt, count.idt_bytes), FREE_HEAP(var, SIZ_USTRI(len)))
+#endif
+#define COUNT_ID_NAME(len)         CNT1_USTRI((len), SIZ_USTRI(len), count.idt, count.idt_bytes)
+
+
+#define ALLOC_FLISTELEM(var,rec)   ALLOC_CHUNK(var, rec *, SIZ_REC(rec))
+#define COUNT_FLISTELEM(rec,cnt)   CNT1_REC(SIZ_REC(rec), cnt)
+
+
+#define HEAP_OBJ(O,T)   (!ALLOC_FLISTELEM(O, T) ? FALSE : (COUNT_FLISTELEM(T, count.object),    TRUE))
+#define HEAP_L_E(L,T)   (!ALLOC_FLISTELEM(L, T) ? FALSE : (COUNT_FLISTELEM(T, count.list_elem), TRUE))
+#define HEAP_NODE(N,T)  (!ALLOC_FLISTELEM(N, T) ? FALSE : (COUNT_FLISTELEM(T, count.node),      TRUE))
+#define HEAP_FILE(F,T)  (!ALLOC_FLISTELEM(F, T) ? FALSE : (COUNT_FLISTELEM(T, count.infil),     TRUE))
+#define HEAP_STRI(S,L)  ALLOC_HEAP(S, stritype, SIZ_STRI(L))
+#define CHUNK_STRI(S,L) ALLOC_CHUNK(S, stritype, SIZ_STRI(L))
+
+#define POP_OBJ(O)      (O = flist.objects,    flist.objects = flist.objects->value.objvalue, F_LOG1(O) TRUE)
+#define POP_L_E(L)      (L = flist.list_elems, flist.list_elems = flist.list_elems->next,     F_LOG1(L) TRUE)
+#define POP_NODE(N)     (N = flist.nodes,      flist.nodes = flist.nodes->next1,              F_LOG1(N) TRUE)
+#define POP_FILE(F)     (F = flist.infiles,    flist.infiles = flist.infiles->next,           F_LOG1(F) TRUE)
+#define POP_STRI(S,L)   (S = flist.stris[L],   flist.stris[L] = (stritype) flist.stris[L]->SIZE, TRUE)
+
+#define ALLOC_OBJECT(O) (flist.objects != NULL ? POP_OBJ(O) : HEAP_OBJ(O, objectrecord))
+#define FREE_OBJECT(O)  (F_LOG2(O) (O)->value.objvalue = flist.objects, (O)->objclass = 0, flist.objects = (O))
+
+#define ALLOC_L_ELEM(L) (flist.list_elems != NULL ? POP_L_E(L) : HEAP_L_E(L, listrecord))
+#define FREE_L_ELEM(L)  (F_LOG2(L) (L)->next = flist.list_elems, flist.list_elems = (L))
+
+#define ALLOC_NODE(N)   (flist.nodes != NULL ? POP_NODE(N) : HEAP_NODE(N, noderecord))
+#define FREE_NODE(N)    (F_LOG2(N) (N)->next1 = flist.nodes, flist.nodes = (N))
+
+#define ALLOC_FILE(F)   (flist.infiles != NULL ? POP_FILE(F) : HEAP_FILE(F, infilrecord))
+#define FREE_FILE(F)    (F_LOG2(F) (F)->next = flist.infiles, flist.infiles = (F))
+
+#ifdef WITH_STRI_FLIST
+#define ALLOC_STRI(S,L) (/* printf("<+%ld>", L), */ L >= 256 ? HEAP_STRI(S, L) : (flist.stris[L] != NULL ? POP_STRI(S, L) : CHUNK_STRI(S, L)))
+#define FREE_STRI(S,L)  (/* printf("<-%ld>", L), */ L < 256 ? (flist.siz = (memsizetype) flist.stris[L], flist.stris[L] = (S), (S)->SIZE = flist.siz) : FREE_HEAP(S, L))
+#define RESIZE_STRI(S,L1,L2) (flist.siz = L2, ALLOC_STRI(flist.str, flist.siz), /* printf("X"), */ memcpy(flist.str, S, flist.siz > L1 ? SIZ_STRI(L1) : SIZ_STRI(flist.siz)), FREE_STRI(S, L1), S = flist.str)
+
+#ifdef OUT_OF_ORDER
+#define ALLOC_STRI(S,L)      (S = ALLOC_S(L))
+#define RESIZE_STRI(S,L1,L2) (S = RESIZE_S(S,L1,L2))
+
+#ifdef ANSI_C
+
+stritype ALLOC_S (memsizetype);
+void FREE_STRI (stritype, memsizetype);
+stritype RESIZE_S (stritype, memsizetype, memsizetype);
+
+#else
+
+stritype ALLOC_S ();
+void FREE_STRI ();
+stritype RESIZE_S ();
+
+#endif
+#endif
+#endif
+
+
+#ifdef ANSI_C
+
+#ifdef DO_HEAP_STATISTIK
+void heap_statistic (void);
+#endif
+memsizetype heapsize (void);
+#ifdef USE_CHUNK_ALLOCS
+void *flist_alloc (SIZE_TYPE);
+void reuse_free_lists (void);
+#endif
+#ifndef USE_CHUNK_ALLOCS
+void REUSE_FLIST.LISTS (void);
+#endif
+#ifdef USE_CHUNK_ALLOCS
+void *heap_chunk (SIZE_TYPE);
+#endif
+
+#else
+
+#ifdef DO_HEAP_STATISTIK
+void heap_statistic ();
+#endif
+memsizetype heapsize ();
+#ifdef USE_CHUNK_ALLOCS
+void *flist_alloc ();
+void reuse_free_lists ();
+#endif
+#ifndef USE_CHUNK_ALLOCS
+void REUSE_FLIST.LISTS ();
+#endif
+#ifdef USE_CHUNK_ALLOCS
+void *heap_chunk ();
+#endif
+
+#endif

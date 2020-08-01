@@ -1,0 +1,4498 @@
+(********************************************************************)
+(*                                                                  *)
+(*  manual.txt                                                      *)
+(*                                                                  *)
+(*  Copyright (C) 1989 - 1994  Thomas Mertes                        *)
+(*  All rights reserved.                                            *)
+(*                                                                  *)
+(*  Documentation: Manual for the Seed7 programming language        *)
+(*                                                                  *)
+(*  This file is distributed "AS IS" in the hope that it will be    *)
+(*  useful, but WITHOUT ANY WARRANTY; without even the implied      *)
+(*  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*)
+(*                                                                  *)
+(********************************************************************)
+
+
+
+CONTENTS
+========
+
+  1.    Introduction
+  2.    TUTORIAL
+  2.1     Getting started
+  2.2     Local declarations and expressions
+  2.3     For loop and float expressions
+  2.4     Parameters
+  3.    SYNTAX
+  4.    PREDEFINED STATEMENTS
+  4.1     Assignment
+  4.2     while-statement
+  4.3     repeat-statement
+  4.4     for-statement
+  4.5     for-iterator-statement
+  4.6     if-statement
+  4.7     case-statement
+  5.    PREDEFINED TYPES
+  5.1     boolean
+  5.2     integer
+  5.3     rational
+  5.4     float
+  5.5     char
+  5.6     string
+  5.7     array
+  5.8     hash
+  5.9     set
+  5.10    reference
+  5.11    ref_list
+  5.12    ptr
+  5.13    ENUMERATION
+  5.14    time
+  5.15    duration
+  5.16    file
+  5.17    TEXT
+  5.18    type
+  5.19    struct
+  5.20    object
+  5.21    expr
+  6.    PARAMETERS
+  6.1     'val' parameter
+  6.2     'ref' parameter
+  6.3     'in' parameter
+  6.4     'in var' parameter
+  6.5     'inout' parameter
+  6.6     Symbol parameter
+  7.    FILES
+  7.1     Conversion to strings and back
+  7.2     Basic input and output operations
+  7.3     Input and output with conversion
+  7.4     Simple read and write statements
+  7.5     Standard input and output files
+  7.6     Access to operating system files
+  7.7     User defined file types
+  8.    DECLARATIONS
+  8.1     System declarations
+  8.2     Syntax declarations
+  8.3     Semantic declarations
+  9.    TOKENS
+  9.1     White space
+  9.1.1     Spaces
+  9.1.2     Comments
+  9.1.3     Line comments
+  9.2     Identifiers
+  9.2.1     Name identifiers
+  9.2.2     Special identifiers
+  9.2.3     Parentheses
+  9.3     Literals
+  9.3.1     Integer literals
+  9.3.2     String literals
+  9.3.3     Character literals
+  10.   EXPRESSIONS
+  10.1    Parentheses
+  10.2    Call expressions
+  10.3    Dot expressions
+  11.   OPERATING SYSTEM ACCESS
+  11.1    Directory access
+  11.2    Other directory operations
+  11.3    File operations
+  12.   PRIMITIVE ACTIONS
+  13.   ERRORS
+  13.1    Compile time errors
+  13.2    Exceptions
+  13.3    Handlers
+  13.4    Other errors and warnings:
+
+
+
+1. INTRODUCTION
+===============
+
+
+1.1 WHAT IS SEED7?
+
+    Seed7 is a general purpose programming language. It is a
+  higher level language compared to Ada, C++ and Java. In Seed7
+  new statements and operators can be defined easily. Functions
+  with type results and type parameters are more elegant than
+  the usual template or generics concept. Object orientation is
+  used when it brings advantages and not in places when other
+  solutions are more obvious. Although Seed7 contains several
+  concepts of other programming languages it cannot be seen as
+  direct descendant of another programming language.
+
+  The programmer should concentrate on problem solving instead
+  of administration or the fulfilment of some paradigm.
+  Therefore Seed7 allows programming in the "problem space"
+  instead of bending everything into a small syntactic or
+  semantic concept. The predefined constructs of Seed7 are
+  defined in a way to be easy readable and understandable. This
+  practical approach can be subsumed as:
+
+    "Programming should be fun"
+
+  Seed7 programs can be interpreted or compiled. Therefore Seed7
+  can be used for scripting and for "real" programs.
+
+
+1.2 WHY A NEW PROGRAMMING LANGUAGE?
+
+    Conventional programming languages have a firmly given
+  syntactic structure. The form of the statements, operators,
+  declarations, procedures and functions is fixed in the
+  language definition and cannot be changed by the user. It is
+  only possible to declare new procedures, functions and in
+  some languages also new operators. However the syntax of
+  procedure-, function and operator calls cannot be changed.
+  Although this rigid pattern is favorable for the portability
+  of programs, the improvement of a programming language is
+  almost impossible. Extensions are however desirable, in order
+  to repair existing weaknesses, to introduce new more obvious
+  constructs and to adapt the programming language to different
+  application areas. E.g.: In the area of mathematics the
+  readability of a program can be substantially increased by
+  the introduction of matrix and vector operators. After
+  declaring an inner product and an outer (or cross) product for
+  vectors it is possible to write e.g.
+
+    v1: = v2 cross v3;   write(v1 * v2);
+
+  Programs searching some data can become more understandable
+  by using a search statement instead of a search procedure. A
+  call of a new declared search statement could be:
+
+    search person1.age = person2.age and
+       person1.mother = person2.mother and
+       person1 <> person2
+    when found
+       write("Twins: " <& person1.name <& " and " <& person2.name);
+    else
+       write("No twins found.");
+    end search;
+
+  Such extensions make understanding, changing and debugging of
+  a program easier.
+
+
+1.3 FEATURES OF SEED7
+
+  Seed7 has the following features
+
+    - It is object oriented
+
+    - User defined statements and operators
+
+    - exception handling
+
+    - overloading of procedures/functions/operators/statements
+
+    - templates/generics (in the form of functions with
+      type results and type parameters)
+
+    - Resizable arrays
+
+    - Bitsets
+
+    - Strong typing
+
+
+  But a new programming language differs not only from existing
+  ones by new features. The real advantage comes from omitting
+  features which are outdated.
+
+  Several concepts in use by other languages are not present
+
+    - There is no goto statement.
+      Hidden goto's like break- and continue-statements are
+      also omitted.
+
+    - There is no return statement. Instead a result variable
+      can be declared to which the result of a function can
+      be assigned.
+
+    - There are no automatic type conversions.
+      When a subprogram should be used for different types
+      it must be overloaded.
+
+    - There are no variable length parameter lists.
+      Instead it is possible to use arrays as parameters.
+
+    - There are no default parameters.
+      But it is easy to define two subprograms: One with and
+      one without an additional parameter.
+
+    - There is no special "parameter" called "self" or "this".
+      In a procedure the receiving object is declared as
+      formal parameter with a user-defined name.
+
+    - There is no macro feature since this mechanism is too
+      similar to the subprogram feature. Instead subprograms
+      can be used in a more flexible way than in other languages.
+
+    - There are no reserved words.
+
+    - There is no conceptual distinction between functions,
+      operators, procedures and statements.
+
+    - The procedure calling mechanism is not based on a concept
+      with an object-message pair (An object receives a message).
+      Instead a match is done over a list of objects. This more
+      general (and powerful) mechanism is called multimatch and
+      it includes the simple object-message mechanism as special
+      case.
+
+  There are several concepts which are also used by other languages:
+
+    - Comments start with (* and end with *) and may be nested.
+
+    - Comments start with # and are terminated with the end of
+      the line.
+
+  There are several concepts which are new
+
+    - Variables and constants must be initialized when they are
+      declared.
+
+    - Every expression has exactly one type.
+      That means that overloaded functions are resolved with
+      their actual parameters and not with the context of their
+      call. (This is different to the overloading mechanism
+      used by ADA)
+
+    - With a syntax declaration new operators and statements
+      can be defined.
+
+    - Not only the predefined operator symbols can be
+      overloaded. Additionally it is possible to invent
+      completely new operator symbols.
+
+  Several restrictions of other languages are released
+
+    - There is no limitation in the length of an identifier and
+      all characters of an identifier are significant.
+
+    - Statements and parentheses can be nested without limitation
+      in depth.
+
+    - The number of parameters and local variables is not
+      limited.
+
+    - Strings can contain any characters (also the NUL character)
+      This allows holding binary information in strings.
+
+    - Although strings are not NUL terminated they have
+      no size limitation. (Except there is no more memory)
+
+    - String literals can have any length.
+
+    - There is no limitation in the length of a source line.
+
+    - There is no level limitation for nesting includes.
+
+
+1.4 HOW TO READ THE MANUAL
+
+    You can have several views of the Seed7 programming language.
+  Dependent on the view you can concentrate on specific
+  chapters.
+
+  For example Seed7 can be used as conventional programming language.
+  In this case you are interested in how the statements look like,
+  which types are available, which operators are predefined, how
+  to declare variables and procedures and other things like these.
+  The statements and the predefined types are described in chapter
+  4 and 5 and the declaration mechanism is described in chapter 8.
+
+  But Seed7 is also an object oriented programming language.
+  In this case you are interested in how to define new classes,
+  how instances are generated, the method calling mechanism,
+  the predefined class hierarchy and other things like these.
+  A good example for classes and instances are the Files which are
+  described in chapter 7.
+
+  And Seed7 is also an extendable programming language.
+  In this case you are interested in how to declare new
+  statements, how to define new operators, assigning a priority
+  and an associativity to operators and other things like these.
+  How syntax declarations are done is described in chapter 3
+  and chapter 4 contains various examples of syntax and semantic
+  declarations. The primary parts of the syntax are described in
+  the chapters 9 and 10.
+
+
+
+2. TUTORIAL
+===========
+
+    We begin with a tutorial introduction to Seed7. In
+  this chapter we want to show the principal ideas that
+  make Seed7 work. At this point, we are not trying to be
+  complete or precise. We just want to give a clear view
+  to the primary philosophic ideas of Seed7. When the
+  primary ideas are understood a complete and precise
+  reference can be learned easier.
+
+
+2.1 Getting started
+
+    A Seed7 program consists of a sequence of declarations.
+  With each declaration a type and a name is attached to the
+  new object. In addition every new declared object gets an
+  initial value. 
+
+  Here is an example of an object declaration:
+
+    const proc: main is func
+      begin
+        writeln("hello world");
+      end func;
+
+  The object 'main' is declared as constant and the object
+  'proc' is the type of 'main'. Declaring 'main' with the type
+  'proc' makes a procedure out of it. The object 'main' gets a
+
+    func ... end func
+
+  construct as value. The 'func' construct is similar to
+  begin end in PASCAL and { } in C. Inside the 'func' is a
+  'writeln' statement with the "hello world" string. The
+  'writeln' statement is used to write a string followed by a
+  newline character. To use this declaration as the standard
+  hello world example program, we have to add a few things:
+
+    $ include "seed7_05.s7i"
+
+    const proc: main is func
+      begin
+        writeln("hello world");
+      end func;
+
+    $ system "main" is main;
+
+  The first line includes all definitions of the standard
+  library. In contrast to other standard libraries the seed7_05.s7i
+  library contains not only function declarations but also
+  declarations of statements and operators.
+
+  The last line specifies that in this program the object
+  'main' should be executed.
+
+  If you write this program in a file called hello.sd7
+  and execute the command
+
+    hi hello
+
+  The Seed7 interpreter writes something like
+
+    HI INTERPRETER Version 4.5.79  Copyright (c) 1990-2005 Thomas Mertes
+       245 syntax.s7i
+      2635 seed7_05.s7i
+        33 hello.sd7
+      2913 lines total
+     29130 lines per second
+    1184171 bytes
+    hello world
+
+  You get information about the Seed7 interpreter, a list of
+  libraries included and how many lines they contain, the
+  number of bytes used by the hello.sd7 program and finally
+  the output of the hello.sd7 program itself:
+
+    hello world
+
+
+2.2 Local declarations and expressions
+
+    To write a Fahrenheit to Celsius conversion table we use
+  the following program:
+
+    (* Print a Fahrenheit-Celsius table
+       for Fahrenheit values between 0 and 300 *)
+
+    $ include "seed7_05.s7i"
+
+    const proc: main is func
+      local
+        const integer: lower is 0;
+        const integer: upper is 300;
+        const integer: increment is 20;
+        var integer: fahr is 0;
+        var integer: celsius is 0;
+      begin
+        fahr := lower;
+        while fahr <= upper do
+          celsius := 5 * (fahr - 32) div 9;
+          write(fahr);
+          write(" ");
+          writeln(celsius);
+          fahr := fahr + increment;
+        end while;
+      end func;
+
+    $ system "main" is main;
+
+  Everything between (* and *) is a comment which is ignored.
+  This program contains local constants and variables of the
+  type 'integer'. The constants and variables must be
+  initialized when they are declared. This program contains
+  also an assignment, a while loop and the expression to
+  compute the 'celsius' value. Note that the statements inside
+  the 'while' loop are between 'do' and 'end while'. The
+  expression to compute the 'celsius' value uses an integer
+  division ('div'). The 'write' statement can be used to write
+  strings and integers without a newline character. The output
+  produced by this program is
+
+    0 -17
+    20 -6
+    40 4
+    60 15
+    80 26
+    100 37
+    120 48
+    140 60
+    160 71
+    180 82
+    200 93
+    220 104
+    240 115
+    260 126
+    280 137
+    300 148
+
+
+2.3 For loop and float expressions
+
+    An improved version of the program to write the Fahrenheit
+  to Celsius conversion table is:
+
+    $ include "seed7_05.s7i"
+    include "float.s7i"
+
+    const proc: main is func
+      local
+        const integer: lower is 0;
+        const integer: upper is 300;
+        const integer: increment is 20;
+        var integer: fahr is 0;
+        var float: celsius is 0.0;
+      begin
+        for fahr range lower to upper step increment do
+          celsius := flt(5 * (fahr - 32)) / 9.0;
+          writeln(fahr lpad 3 <& " " <& celsius digits 2 lpad 6);
+        end for;
+      end func;
+
+    $ system "main" is main;
+
+  To use the type 'float' it is necessary to include
+  "float.s7i". The 'float' variable 'celsius' must be
+  initialized with 0.0 (instead of 0). The 'for' loop is
+  written as:
+
+    for ... range ... to ... step ... do
+      ...
+    end for
+
+  To specify a lower and an upper limit together with a step
+  value. For a step value of 1 the for loop it is written as:
+
+    for ... range ... to ... do
+      ...
+    end for
+
+  And for a step value of -1 it can be written as:
+
+    for ... range ... downto ... do
+      ...
+    end for
+
+  Since Seed7 is strong typed 'integer' and 'float' values
+  cannot be mixed in expressions. Therefore the 'integer'
+  expression '5 * (fahr - 32)' is converted to 'float' with
+  the 'flt' function. For the same reason a '/' division and
+  the value '9.0' must be used. The '<&' operator is used to
+  concatenate elements before writing. If the right operand of
+  the '<&' operator has not the type 'string' it is converted to
+  a 'string' using the 'str' function. The 'lpad' operator
+  converts the value of 'fahr' to a string and pads spaces to
+  the left until the string has length 3. The 'digits' operator
+  converts the value of 'celsius' to a string with 2 decimal
+  digits. The resulting string is padded left up to a length
+  of 6.
+
+
+2.4 Parameters
+
+    Most parameters are not changed inside a function. To
+  express this explicit Seed7 uses the 'in' parameter as in the
+  following examples:
+
+    const func integer: negate (in integer: num1) is
+      return -num1;
+
+    const func integer: fib (in integer: num1) is func
+      result
+        var integer: result is 1;
+      begin
+        if num1 <> 1 and num1 <> 2 then
+          result := fib(pred(num1)) + fib(num1 - 2);
+        end if;
+      end func;
+
+  In both cases the formal parameter 'num1' is used in the
+  function but no assignment is done to 'num1'. Inside the
+  functions the parameter 'num1' behaves like a constant.
+
+  When a function should change the value of the actual
+  parameter we can use the 'inout' parameter as in the
+  following example:
+
+    const proc: reset (inout integer: num2) is func
+      begin
+        num2 := 0;
+      end func;
+
+  If you call this function with
+
+    reset(number)
+
+  the variable 'number' has the value 0 afterwards. By the way,
+  writing 'in' instead of 'inout' would have been illegal in
+  the example above.
+
+  Sometimes an 'in' parameter is needed, but you need to change
+  the formal parameter in the function without affecting the
+  actual parameter. In this case we use the 'in var' parameter:
+
+    const func string: oct_str (in var integer: number) is func
+      result
+        var string: result is "";
+      begin
+        while number >= 0 do
+          result := str(number rem 8) & result;
+          number := number div 8;
+        end while;
+      end func;
+
+  As you can see this works like a combination of an 'in'
+  parameter with a local 'var'.
+
+  Conventionally there are two kinds of parameters:
+  'call by value' and 'call by reference'. When taking the
+  access right (constant or variable) into account we get
+  the following table:
+
+    +-----------+-----------+--------------+
+    | parameter |  call by  | access right |
+    +-----------+-----------+--------------+
+    | val       |   value   | const        |
+    | ref       | reference | const        |
+    | in        | val / ref | const        |
+    | in var    |   value   | var          |
+    | inout     | reference | var          |
+    +-----------+-----------+--------------+
+
+  Additionally to the parameters we already know this table
+  describes also 'val' and 'ref' parameters which use
+  'call by value' and 'call by reference' and have a constant
+  formal parameter. The 'in' parameter is called by
+  'val / ref' in this table which is easily explained:
+
+    An 'in' parameter is either a 'val' or a 'ref' parameter
+    depending on the type of the parameter.
+
+  The parameter
+
+    in integer: number
+
+  is a 'val' parameter which could also be declared as
+
+    val integer: number
+
+  while the parameter
+
+    in string: stri
+
+  is a 'ref' parameter which could also be declared as
+
+    ref string: stri
+
+  The meaning of the 'in' parameter is predefined for most
+  types. Usually types with small amounts of data use 'val'
+  as 'in' parameter while types with bigger data amounts use
+  'ref'. Most of the time it is not necessary to care if an
+  'in' parameter is really a 'val' or 'ref' parameter. 
+
+  In rare cases a 'ref' parameter would have undesired side
+  effects with global variables or other 'ref' parameters.
+  In this cases an explicit 'val' parameter instead of an
+  'in' parameter makes sense.
+
+  In all normal cases an 'in' parameter should be preferred
+  over an explicit 'val' and 'ref' parameter.
+
+
+
+3. SYNTAX
+=========
+
+    A syntax declaration defines the way a usage of a statement
+  or operator must be written. For example a call of the
+  not-operator looks like:
+
+    not okay
+
+  To describe the syntax of the not-operator we write:
+
+    $ syntax expr: .not.() is <- 13;
+
+  This means that a not-expression is constructed with the
+  symbol 'not' followed by a parameter. The place of the
+  parameter is marked with the () sign. The syntax description
+  contains no information about the types of the parameters. At
+  the syntax level a parameter may be anything. With '<-' the
+  associativity of the not-operator is specified as right
+  associative. This means that the right operand is allowed to
+  have the same priority as the operator symbol. So the
+  expression
+
+    not not okay
+
+  is legal and means
+
+    not (not okay)
+
+  When the associativity of the not-operator is specified with
+  '->' instead of '<-' the not-not-expression above is not legal.
+  With 13 the priority of the whole not-operator is determined.
+  As convention priorities from 1 to 20 are used by operators
+  and priority 25 is used by statements. Arithmetic operators
+  have priorities from 1 to 11 and comparisons have priority 12.
+
+  To define the not-operator completely there must be also
+  a semantic definition which is as follows:
+
+    const func boolean: not (in boolean: aBool) is func
+      result
+        var boolean: result is FALSE;
+      begin
+        if aBool then
+          result := FALSE;
+        else
+          result := TRUE;
+        end if;
+      end func;
+
+  In the declaration the not-operator is written exactly
+  in the same way it is written when it is called. The syntax
+  definition is used at both places: declaration and call.
+  The syntax and semantic declarations define precisely how
+  the not-operator works.
+
+    As next example we try an infix operator like the and-operator.
+  A call of the and-operator may look like:
+
+    okay and not error
+
+  To describe the syntax of the and-operator we write:
+
+    $ syntax expr: ().and.() is     -> 14;
+
+  This means that a and-expression is constructed with the
+  symbol 'and' surrounded by a parameters. The '->' defines the
+  and-operator as left associative. This means that an expression
+  like
+
+    A and B and C
+
+  is interpreted as
+
+    (A and B) and C
+
+  With 14 the priority of the whole and-operator is determined.
+  Since priority 14 is weaker than the priority of the not-operator
+  which is 13 the example expression is evaluated as:
+
+    okay and (not error)
+
+  Note that the expression
+
+    okay and not error
+
+  makes no sense when the and-operator has priority 12 instead of 14.
+
+    As next let's try the syntax declaration of a statement.
+  For example a call of the while-statement looks like:
+
+    while element_index > 0 and okay do
+      processElement;
+      write(".");
+    end while;
+
+  To describe the syntax of the while-statement we write:
+
+    $ syntax expr: while.().do.().end.while is -> 25;
+
+  This means that the while-statement is an expression with the
+  symbols 'while', 'do', 'end' and 'while'. With '->' the
+  associativity of the while-statement is specified as left
+  associative. The associativity has no meaning for the
+  while-statement since there is no parameter before the first
+  symbol or after the last symbol. With 25 the priority of the
+  whole while-statement is determined.
+
+  The semantic definition of the while-statement is as follows:
+
+    const proc: while (ref func boolean: condition) do
+        (ref proc: statement) end while is func
+      begin
+        if condition then
+          statement;
+          while condition do
+            statement;
+          end while;
+        end if;
+      end func;
+
+  The syntax definition is used at the declaration and at the call.
+  This declaration defines precisely how the while-statement
+  works. It is based on the if-statement and uses recursion
+  to emulate the repetition of the loop body.
+  Another example for a syntax description is the
+  repeat-statement
+
+    repeat
+      processElement;
+      write(".");
+    until element_index = 0 or not okay;
+
+  which has the following syntax description:
+
+    $ syntax expr: repeat.().until.() is -> 25;
+
+  This means that the repeat-statement is an expression with
+  the symbols 'repeat' and 'until' and a parameter between
+  'repeat' and 'until' and after 'until'. With 25 the priority
+  of the whole repeat-statement is determined. With '->' the
+  associativity of the repeat-statement is specified as left
+  associative. This allows priorities from 0 to 24 for the
+  parameter after 'until'. Since statements have priority 25
+  it is not possible to write a statement direct behind 'until'.
+
+  As next let's take a more complex statement: The if-statement.
+  A usage of the if-statement might be:
+
+    if okay then
+      writeln("okay");
+    else
+      writeln("not okay");
+    end if;
+
+  As syntax description we use
+
+    $ syntax expr: .if.().then.().end.if is            -> 25;
+    $ syntax expr: .if.().then.().else.().end.if is    -> 25;
+
+  Note that this description allows if-statements with and
+  without else-parts. As semantic description we use
+
+    const proc: if (in boolean: condition) then
+                  (in proc: statement)
+                end if is func
+      begin
+        case condition of
+          when {TRUE}: statement;
+        end case;
+      end func;
+
+    const proc: if (in boolean: condition) then
+                  (in proc: statement1)
+                else
+                  (in proc: statement2)
+                end if is func
+      begin
+        case condition of
+          when {TRUE}:  statement1;
+          when {FALSE}: statement2;
+        end case;
+      end func;
+
+  We define the two forms of the if statement based on the
+  case statement. A more complex if-statement can be:
+
+    if number < 0 then
+      write("less");
+    elsif number = 0 then
+      write("equal");
+    else
+      write("greater");
+    end if;
+
+  Here we use a more complex syntax description:
+
+    $ syntax expr: .if.().then.().end.if is            -> 25;
+    $ syntax expr: .if.().then.().().end.if is         -> 25;
+    $ syntax expr: .elsif.().then.() is                <- 60;
+    $ syntax expr: .elsif.().then.().() is             <- 60;
+    $ syntax expr: .else.() is                         <- 60;
+
+  Note that the second line of syntax description is different
+  to the syntax description of the previous example. The 'else'
+  is taken out to form an expression of its own.
+
+
+
+4. PREDEFINED STATEMENTS
+========================
+
+    The library contains several predefined statements:
+  assignment, while-statement, repeat-statement, for-statement,
+  if-statement, case-statement, BEGIN-statement
+  and procedure call.
+
+
+  Syntax:
+
+    statement ::=
+      single_statement [ ';' [ statement ] ] .
+
+    single_statement ::=
+      assignment_statement | while_statement | repeat_statement |
+      for_statement | if_statement | case_statement |
+      procedure_call | empty_statement .
+
+    empty_statement ::=
+      'noop' .
+
+  Everywhere where one statement can be written a sequence of
+  statements can also be used. The semicolon-operator concatenates
+  two statements giving a new statement. The semicolon operator
+  can also be used behind the last statement of a statement
+  sequence. In this case the semicolon is just ignored.
+
+
+  Declaration:
+
+    $ syntax expr: (). ; .() is             <- 50;
+    $ syntax expr: (). ; is                 <- 50 [1];
+
+    const proc: (ref void param) ; (ref void param) is noop;
+
+
+4.1 Assignment
+
+  For example:
+
+    minimum := maximum div 2;
+
+  Semantics:
+    The expression at the right side of the assignment symbol is
+    evaluated and assigned to the variable at the left side.
+
+
+  Syntax:
+
+    assignment_statement ::=
+      designator ':=' expression .
+
+  The assignment statement is defined for every standard type.
+
+  If an assignment for a new user defined type is needed it
+  must be defined additionally.
+
+
+  Declaration:
+
+    $ syntax expr: (). := .() is                      <-> 20;
+
+    const proc: (inout type param) := (ref type param) is           action "TYP_CPY";
+    const proc: (inout proc param) := (ref proc param) is           action "PRC_CPY";
+    const proc: (inout func aType param) := (ref func aType param) is action "PRC_CPY";
+    const proc: (inout varfunc aType param) := (ref varfunc aType param) is action "PRC_CPY";
+    const proc: (inout ACTION param) := (in ACTION param) is        action "ACT_CPY";
+    const proc: (inout boolean param) := (in boolean param) is      action "BLN_CPY";
+    const proc: (inout integer param) := (in integer param) is      action "INT_CPY";
+    const proc: (inout char param) := (ref char param) is           action "CHR_CPY";
+    const proc: (inout string param) := (ref string param) is       action "STR_CPY";
+    const proc: (inout reference param) := (ref reference param) is action "REF_CPY";
+    const proc: (inout ref_list param) := (in ref_list param) is    action "RFL_CPY";
+    const proc: (inout ptrType param) := (in ptrType param) is      action "REF_CPY";
+    const proc: (inout varptrType param) := (in varptrType param) is action "REF_CPY";
+    const proc: (inout arrayType param) := (in arrayType param) is  action "ARR_CPY";
+    const proc: (inout bitset param) := (in bitset param) is        action "SET_CPY";
+    const proc: (inout structType param) := (in structType param) is action "SCT_CPY";
+    const proc: (inout enumType param) := (in enumType param) is    action "ENU_CPY";
+    const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param) is action "FIL_CPY";
+    const proc: (inout file param) := (ref file param) is           action "CLS_CPY";
+    const proc: (inout file param) := (ref NULL_FILE param) is      action "CLS_CPY2";
+    const proc: (inout file param) := (ref external_file param) is  action "CLS_CPY2";
+
+
+4.2 while-statement
+
+  For example:
+
+    while maximum > minimum do
+      minimum := 2 * minimum + stepValue;
+      decr(stepValue);
+    end while;
+
+  Semantics:
+    First the condition between 'while' and 'do' is evaluated.
+    When this evaluation yields 'FALSE', the while-statement is
+    finished. When the evaluation yields 'TRUE', the statement
+    between 'do' and 'end' is executed and the whole while-statement
+    is executed again.
+
+
+  Syntax:
+
+    while_statement ::=
+      'while' expression 'do'
+        statement
+      'end' 'while' .
+
+  The expression must be of type 'boolean'.
+
+
+  Declaration:
+
+    $ syntax expr: while.().do.().end.while is        -> 25;
+
+    const proc: while (ref func boolean param) do (ref proc param) end while is action "PRC_WHILE";
+    const proc: while (ref boolean param)  do (ref proc param) end while is     action "PRC_WHILE";
+
+  Alternate declaration:
+
+    const proc: while (ref func boolean: condition) do (ref proc: statement) end while is func
+      begin
+        if condition then
+          statement;
+          while condition do
+            statement;
+          end while;
+        end if;
+      end func;
+
+
+4.3 repeat-statement
+
+  For example:
+
+    repeat
+      incr(minimum);
+      maximum := maximum - stepValue;
+    until 2 * minimum > maximum;
+
+  Semantics:
+    The statement between 'repeat' and 'until' is executed.
+    Then the condition after 'until' is evaluated. When this
+    evaluation yields 'TRUE', the repeat-statement is finished.
+    When the evaluation yields 'FALSE' the repeat-statement is
+    executed again.
+
+
+  Syntax:
+
+    repeat_statement ::=
+      'repeat'
+        statement
+      'until' expression .
+
+  The expression must be of type 'boolean'.
+
+
+  Declaration:
+
+    $ syntax expr: repeat.().until.() is              -> 25;
+
+    const proc: repeat (ref proc param) until (ref func boolean param) is action "PRC_REPEAT";
+    const proc: repeat (ref proc param) until (ref boolean param) is      action "PRC_REPEAT";
+
+  Alternate declaration:
+
+    const proc: repeat (ref proc: statement) until (ref func boolean: condition) is func
+      begin
+        statement;
+        if not condition then
+          repeat
+            statement;
+          until condition;
+        end if;
+      end func;
+
+
+4.4 for-statement
+
+  For example:
+
+    for index range min_index to max_index do
+      sumValue +:= field[index];
+    end for;
+
+  Semantics:
+    When the 'to' symbol is used the for-statement is defined as
+    follows:
+      First the lower limit and the upper limit which stand behind
+      'range' and 'to' are evaluated. Then the lower limit is assigned
+      to the control variable which stands behind 'for'. If the value
+      of the control variable is less than or equal the upper limit
+      the statements behind 'do' are executed. After that the control
+      variable is incremented and compared with the upper limit
+      again. This compare - execute - increment cycle is repeated
+      until the control variable is greater than the upper limit.
+    When the 'downto' symbol is used the for-statement is defined as
+    follows:
+      First the upper limit and the lower limit which stand behind
+      'range' and 'downto' are evaluated. Then the upper limit is
+      assigned to the control variable which stands behind 'for'. If
+      the value of the control variable is greater than or equal the
+      lower limit the statements behind 'do' are executed. After that
+      the control variable is decremented and compared with the lower
+      limit again. This compare - execute - increment cycle is
+      repeated until the control variable is less than the lower limit.
+
+
+  Syntax:
+
+    for_statement ::=
+      'for' identifier 'range' expression [ 'to' | 'downto' ] expression 'do'
+        statement
+      'end' 'for' .
+
+
+  Declaration:
+
+    $ syntax expr: for.().range.().to.().do.().end.for is     -> 25;
+    $ syntax expr: for.().range.().downto.().do.().end.for is -> 25;
+
+    const proc: FOR_DECLS (in type: aType) is func
+      begin
+        const proc: for (inout aType: variable) range
+            (in aType: lower_limit) to (in aType: upper_limit) do
+            (in proc: statements) end for is func
+          begin
+            variable := lower_limit;
+            if variable <= upper_limit then
+              statements;
+              while variable < upper_limit do
+                incr(variable);
+                statements;
+              end while;
+            end if;
+          end func;
+
+        const proc: for (inout aType: variable) range
+            (in aType: upper_limit) downto (in aType: lower_limit) do
+            (in proc: statements) end for is func
+          begin
+            variable := upper_limit;
+            if variable >= lower_limit then
+              statements;
+              while variable > lower_limit do
+                decr(variable);
+                statements;
+              end while;
+            end if;
+          end func;
+      end func;
+
+    FOR_DECLS(integer);
+    FOR_DECLS(char);
+    FOR_DECLS(boolean);
+
+
+4.5 for-iterator-statement
+
+  For example:
+
+    for currObject range element_list do
+      result &:= " " & str(currObject);
+    end for;
+
+  Semantics:
+    First the element list which stands behind 'range' is evaluated.
+    If the element list is empty the for-list-statement is finished.
+    Otherwise the first element of the element list is assigned
+    to the control variable which stands behind 'for'. Then the
+    statements behind 'do' are executed. If there is no next element
+    in the element the for-list-statement is finished. Otherwise
+    the next element of the element list is assigned to the control
+    variable. This check for next element - execute cycle is repeated
+    until there is no next element in the element list.
+
+
+  Syntax:
+
+    for_statement ::=
+      'for' identifier 'range' expression 'do'
+        statement
+      'end' 'for' .
+
+
+  Declaration:
+
+    $ syntax expr: .for.().range.().do.().end.for is          -> 25;
+
+    const proc: for (ref reference param) range (ref ref_list param) do
+                  (ref proc param)
+                end for is action "RFL_FOR";
+
+    const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
+                  (in proc: statements)
+                end for is func
+      local
+        var integer: number is 0;
+      begin
+        for number range 1 to length(arr_obj) do
+          variable := arr_obj[number];
+          statements;
+        end for;
+      end func;
+
+    const proc: for (inout baseType: variable) range (in setType: a_set) do
+                  (in proc: statements)
+                end for is func
+      begin
+        for variable range min(a_set) to max(a_set) do
+          if variable in a_set then
+            statements;
+          end if;
+        end for;
+      end func;
+
+
+4.6 if-statement
+
+  For example:
+
+    if sumValue < minimum then
+      factor := sumValue;
+      sumValue := minimum;
+    elsif sumValue > maximum then
+      factor := -sumValue;
+      sumValue := maximum;
+    else
+      factor := 0;
+    end if;
+
+  Semantics:
+    The expressions before 'then' are evaluated in row.
+    When such an expression evaluates to 'TRUE' the statements
+    behind 'then' are executed and the if-statement is finished.
+    If all expressions before 'then' evaluate to 'FALSE' and an
+    else-part is present the statements behind 'else' are executed
+    and the if-statement is finished.
+    If all expressions before 'then' evaluate to 'FALSE' and no
+    else-part is present the if-statement is finished.
+
+
+  Syntax:
+
+    if_statement ::=
+      'if' expression 'then'
+        statement
+      { 'elsif' expression 'then'
+        statement }
+      [ 'else'
+        statement ]
+      'end' 'if' .
+
+  The expression must be of type 'boolean'.
+
+
+  Declaration:
+
+    $ syntax expr: .if.().then.().end.if is           -> 25;
+    $ syntax expr: .if.().then.().().end.if is        -> 25;
+
+    $ syntax expr: .elsif.().then.() is               <- 60;
+    $ syntax expr: .elsif.().then.().() is            <- 60;
+    $ syntax expr: .else.() is                        <- 60;
+
+    const type: ELSIF_RESULT is newtype;
+    const proc: (ref ELSIF_RESULT param) ::= enumlit is  action "ENU_GENLIT";
+    const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
+    const type: ELSIF_PROC is                        (func ELSIF_RESULT);
+    const proc: (ref ELSIF_PROC param) ::= (ref ELSIF_RESULT param) is action "ENU_CREATE";
+
+    const proc:       if (in boolean param) then
+                        (in proc param)
+                      end if is                        action "PRC_IF";
+
+    const proc:       if (in boolean param) then
+                        (in proc param)
+                      (in ELSIF_PROC param)
+                      end if is                        action "PRC_IF_ELSIF";
+
+    const ELSIF_PROC: elsif (in boolean param) then
+                        (in proc param) is             action "PRC_IF";
+
+    const ELSIF_PROC: elsif (in boolean param) then
+                        (in proc param)
+                      (in ELSIF_PROC param) is         action "PRC_IF_ELSIF";
+
+    const ELSIF_PROC: else
+                        (in void param) is             ELSIF_EMPTY;
+
+
+    const proc: if TRUE  then (in void param) end if is                           noop;
+    const proc: if TRUE  then (in void param) (in ELSIF_PROC param) end if is     noop;
+    const proc: if FALSE then (in proc param) end if is                           noop;
+    const proc: if FALSE then (in proc param) (in ELSIF_RESULT param) end if is   noop;
+    const ELSIF_PROC: elsif TRUE  then (in void param) is                         ELSIF_EMPTY;
+    const ELSIF_PROC: elsif TRUE then (in void param) (in ELSIF_PROC param)   is  ELSIF_EMPTY;
+    const ELSIF_PROC: elsif FALSE then (in proc param) is                         ELSIF_EMPTY;
+    const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is ELSIF_EMPTY;
+
+
+4.7 case-Statement
+
+  For example:
+
+    case currChar of
+      when {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+          'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+          'U', 'V', 'W', 'X', 'Y', 'Z'}:
+        characterClass := LETTER;
+      when {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}:
+        characterClass := DIGIT;
+      when {'!', '$', '%', '&', '*', '+', ',', '-', '.', '/',
+          ':', ';', '<', '=', '>', '?', '@', '\', '^', '`',
+          '|', '~'}:
+        characterClass := SPECIAL;
+      when {'(', ')', '[', ']', '{', '}'}:
+        characterClass := PAREN;
+      when {'"'}:
+        characterClass := APPOSTROPHE;
+      when {'"'}:
+        characterClass := QUOTE;
+      otherwise:
+        characterClass := ILLEGAL;
+    end case;
+
+  Semantics:
+    The expression between 'case' and 'of' is evaluated.
+    This value is compared with the values after the 'when's.
+    When the values are equal the statements behind the colon
+    are executed and the case-statement is finished.
+    If in all comparisons the values are not equal and an
+    otherwise-part is present the statements behind the otherwise
+    are executed and the case-statement is finished.
+    If in all comparisons the values are not equal and no
+    otherwise-part is present the case-statement is finished.
+
+
+  Syntax:
+
+    case_statement ::=
+      'case' expression 'of'
+        { 'when' set_expression ':'
+          statement }
+        [ 'otherwise' ':'
+          statement ]
+      'end' 'case' .
+
+
+  Declaration:
+
+    $ syntax expr: .case.().of.().end.case is                      -> 25;
+    $ syntax expr: .case.().of.().otherwise. : .().end.case is     -> 25;
+    $ syntax expr: .case.().of.end.case is                         -> 25;
+
+    $ syntax expr: .when.(). : .().() is              <- 60;
+    $ syntax expr: .when.(). : .() is                 <- 60;
+
+    const proc: CASE_DECLS (in type: aType) is func
+      local
+        var type: WHEN_RESULT is void;
+        var type: WHEN_PROC is void;
+        var type: SELECTOR_TYPE is void;
+      begin
+        WHEN_RESULT := newtype;
+        WHEN_PROC := (func WHEN_RESULT);
+        SELECTOR_TYPE := set of aType;
+        const proc: case (ref aType param) of end case                       is noop;
+        const proc: case (ref aType param) of
+                      (ref WHEN_PROC param)
+                    end case                                                 is action "PRC_CASE";
+        const proc: case (ref aType param) of
+                      (ref WHEN_PROC param)
+                      otherwise : (ref proc param)
+                    end case                                                 is action "PRC_CASE_DEF";
+        const proc: (ref WHEN_RESULT param) ::= enumlit                      is action "ENU_GENLIT";
+        const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
+        const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)        is action "ENU_CREATE";
+        const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)   is WHEN_EMPTY(aType);
+        const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)
+                           (ref WHEN_PROC param)                             is WHEN_EMPTY(aType);
+      end func;
+
+    CASE_DECLS(integer);
+    CASE_DECLS(char);
+
+
+
+5. PREDEFINED TYPES
+===================
+
+    In the following subchapters the predefined types of the
+  standard library are introduced. The operators have, when not
+  stated otherwise, the type described in the subchapter as
+  parameter type and result type. The relations have also the
+  type described in the subchapter as parameter type and
+  a result of type 'boolean'. In the descriptions => is used
+  to show an equivalent expression.
+
+
+5.1 boolean
+
+    The type 'boolean' consists of the two truth values
+  TRUE and FALSE.
+
+    Prefix operators:
+      not       Negation
+                  ( not TRUE => FALSE,
+                    not FALSE => TRUE )
+    Infix operators:
+      and       Logical and
+                  ( TRUE and TRUE => TRUE,
+                    A and B => FALSE else )
+      or        Inclusive logical or
+                  ( FALSE or FALSE => FALSE,
+                    A or B => TRUE else )
+      boolean conv A   Conversion to boolean
+                  ( Type of argument A: integer,
+                    boolean conv 0 => FALSE,
+                    boolean conv 1 => TRUE )
+      boolean parse A   Conversion of string to boolean
+                  ( Type of argument A: string,
+                    boolean parse "FALSE" => FALSE,
+                    boolean parse "TRUE" => TRUE,
+                    boolean parse "TRUE " => EXCEPTION RANGE_ERROR,
+                    boolean parse "ASDF" => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, <>, >, >=, <, <=
+                  ( A relation B =>
+                    ord(A) relation ord(B) )
+    Functions:
+      ord(A)    Ordinal number
+                  ( Type of result: integer,
+                    ord(FALSE) => 0, ord(TRUE) => 1 )
+      succ(A)   Successor
+                  ( succ(FALSE) => TRUE,
+                    succ(TRUE) => EXCEPTION RANGE_ERROR )
+      pred(A)   Predecessor
+                  ( pred(FALSE) => EXCEPTION RANGE_ERROR )
+                    pred(TRUE) => FALSE )
+      str(A)    Conversion to string
+                  ( Type of result: string,
+                    str(FALSE) => "FALSE",
+                    str(TRUE) => "TRUE" )
+      rand(A, B) Random value in the range [A, B]
+                  ( rand(A, B) returns a random value such that
+                    A <= rand(A, B) and rand(A, B) <= B holds.
+                    rand(A, A) => A,
+                    rand(TRUE, FALSE) => EXCEPTION RANGE_ERROR )
+
+
+    The logical operators 'and' and 'or' work strictly left to
+  right. First they evaluate the left operand and then the
+  right operand. When the result of the operation can be
+  determined after evaluation of the left operand the right
+  operand is not evaluated. This can be used to check for
+  a boundary in a boolean expression. Note that the 'and'
+  and 'or' operators do not work correct when side effects
+  appear in the right operand.
+
+
+  Table for the behaviour of different boolean expressions:
+
+                               Result when the    Result when the
+    Expression                  first operand      first operand
+                             evaluates to FALSE  evaluates to TRUE
+
+    not A                           TRUE               FALSE
+    A and B  respectively
+      not((not A)or(not B))         FALSE                B
+    A or  B  respectively
+      not((not A)and(not B))          B                TRUE
+    A >  B  respectively
+      A and(not B)                  FALSE              not B
+    A >= B  respectively
+      A or(not B)                   not B              TRUE
+    A <  B  respectively
+      (not A)and B                    B                FALSE
+    A <= B  respectively
+      (not A)or B                   TRUE                 B
+    not (A and B)  respectively
+      (not A)or(not B)              TRUE               not B
+    not (A or B)  respectively
+      (not A)and(not B)             not B              FALSE
+
+
+  Optimizing boolean expressions:
+
+    When the result of a boolean expression can be
+  determined at compile time, the expression can be
+  replaced by a constant. Boolean relations ( =, <>, >, >=,
+  <, <= ) may also skip the evaluation of the right operand
+  when the result of the operation can be determined
+  after evaluation of the left operand. But this behaviour
+  is not enforced. The boolean relations may also evaluate
+  the right operand always. To be on the safe side it must
+  always be possible to evaluate the right side of a
+  boolean relation and there must be no side effects in
+  the right operand. Additionally the following equations
+  can be used:
+
+    (A or  B) and (A or  C)  =  A or  (B and C)
+    (A and B) or  (A and C)  =  A and (B or  C)
+
+
+5.2 integer
+
+    The type 'integer' consists of all integer numbers. The
+  literals of the type 'integer' are sequences of digits.
+
+    Prefix operators:
+      +         Identity
+      -         Change sign
+      !         Faktorial
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      div       Integer division truncated towards zero
+                  ( A div B => trunc(flt(A) / flt(B)),
+                    A div 0 => EXCEPTION NUMERIC_ERROR )
+      rem       Reminder of integer division div
+                  ( A rem B => A - (A div B) * B,
+                    A rem 0 => EXCEPTION NUMERIC_ERROR )
+      mdiv      Integer division truncated towards minus infinite
+                  ( A mdiv B => round(floor(flt(A) / flt(B))),
+                    A mdiv 0 => EXCEPTION NUMERIC_ERROR )
+      mod       Reminder of integer division mdiv
+                  ( A mod B => A - (A mdiv B) * B,
+                    A mod 0 => EXCEPTION NUMERIC_ERROR )
+      **        Power
+                  ( A ** B is okay for B > 0,
+                    A ** 0 is okay for A <> 0,
+                    A ** -1 => EXCEPTION NUMERIC_ERROR,
+                    0 ** 0 => EXCEPTION NUMERIC_ERROR )
+      !         Binomial coefficient
+                  ( A ! B => !A div (!B * !(A - B)) )
+      integer conv A   Identity
+                  ( integer conv A => A )
+      integer parse A   Conversion of string to integer
+                  ( Type of argument A: string,
+                    integer parse "123" => 123,
+                    integer parse "-123" => -123,
+                    integer parse " 1" => EXCEPTION RANGE_ERROR,
+                    integer parse "+5" => EXCEPTION RANGE_ERROR,
+                    integer parse "10 " => EXCEPTION RANGE_ERROR,
+                    integer parse "ASDF" => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      ord(A)    Identity
+      succ(A)   Successor
+                  ( succ(A) => A+1 )
+      pred(A)   Predecessor
+                  ( pred(A) => A-1 )
+      abs(A)    Absolute value
+      odd(A)    Odd value
+                  ( Type of result: boolean )
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      literal(A) Conversion to a literal
+                  ( Type of result: string,
+                    literal(A) => str(A) )
+      sqrt(A)   Integer square root
+                  ( sqrt(A) is okay for A >= 0
+                    sqrt(A) => trunc(sqrt(flt(A))),
+                    sqrt(-1.0) => EXCEPTION NUMERIC_ERROR )
+      rand(A, B) Random number in the range [A, B]
+                  ( rand(A, B) returns a random number such that
+                    A <= rand(A, B) and rand(A, B) <= B holds.
+                    rand(A, A) => A,
+                    rand(1, 0) => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( compare(1, 2) => -1,
+                    compare(5, 5) => 0,
+                    compare(8, 7) => 1 )
+      hashCode(A) Hash function
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+      incr(A)   Increment with 1
+                  ( incr(A) => A +:= 1 )
+      decr(A)   Decrement with 1
+                  ( decr(A) => A -:= 1 )
+
+  For the operations 'div' and 'rem' holds for all A:
+    (A div B) * B + A rem B = A         when B <> 0
+    -A div B = -(A div B)               when B <> 0
+
+  For the operations 'mdiv' and 'mod' holds for all A:
+    (A mdiv B) * B + A mod B = A        when B <> 0
+    (A mod B) >= 0 and (A mod B) < B    when B > 0
+    (A mod B) <= 0 and (A mod B) > B    when B < 0
+
+  For the operation 'mdiv' holds:
+    A mdiv B = A div B - 1   When A and B have different
+                             signs and A rem B <> 0 holds.
+    A mdiv B = A div B       When A and B have the same
+                             sign or A rem B = 0 holds.
+
+  For the operation 'mod' holds:
+    A mod B = A rem B + B    When A and B have different
+                             signs and A rem B <> 0 holds.
+    A mod B = A rem B        When A and B have the same
+                             sign or A rem B = 0 holds.
+
+
+  Table for the behaviour of 'div', 'rem', 'mdiv' and 'mod':
+
+     A    B   A div B   A rem B   A mdiv B  A mod B
+
+     5    3      1         2         1         2
+     4    3      1         1         1         1
+     3    3      1         0         1         0
+     2    3      0         2         0         2
+     1    3      0         1         0         1
+     0    3      0         0         0         0
+    -1    3      0        -1        -1         2
+    -2    3      0        -2        -1         1
+    -3    3     -1         0        -1         0
+    -4    3     -1        -1        -2         2
+    -5    3     -1        -2        -2         1
+
+     A    B   A div B   A rem B   A mdiv B  A mod B
+
+     5   -3     -1         2        -2        -1
+     4   -3     -1         1        -2        -2
+     3   -3     -1         0        -1         0
+     2   -3      0         2        -1        -1
+     1   -3      0         1        -1        -2
+     0   -3      0         0         0         0
+    -1   -3      0        -1         0        -1
+    -2   -3      0        -2         0        -2
+    -3   -3      1         0         1         0
+    -4   -3      1        -1         1        -1
+    -5   -3      1        -2         1        -2
+
+
+  For the 'sqrt' function holds (when A >= 0):
+    sqrt(A) * sqrt(A) <= A and
+    (sqrt(A) + 1) * (sqrt(A) + 1) > A
+
+
+
+5.3 rational
+
+    The type 'rational' consists of rational numbers. The
+  literals of the type 'rational' are finite and periodical
+  decimal numbers. (The period of a periodical number is
+  separated with an apostrophe (') from the rest of the
+  number. E.g.: 3.'3 or 123.45'678)
+
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      /         Division
+      **        Power
+                  ( rational ** integer )
+      rational parse A   Conversion of string to rational
+                  ( Type of argument A: string )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      abs(A)    Absolute value
+      rat(A)    Conversion to rational
+                  ( Type of argument A: integer,
+                    rat(1) => 1.0 )
+      floor(A)  Truncation towards minus infinite
+                  ( Type of result: integer,
+                    floor( 1.8)=> 1, floor( 1.0)=> 1,
+                    floor(-1.0)=>-1, floor(-1.8)=>-2 )
+      ceil(A)   Rounding up towards plus infinite
+                  ( Type of result: integer,
+                    ceil( 1.2)=> 2, ceil( 1.0)=> 1,
+                    ceil(-1.0)=>-1, ceil(-1.2)=>-1 )
+      trunc(A)  Truncation towards zero
+                  ( Type of result: integer,
+                    trunc( 1.8)=> 1, trunc( 1.0)=> 1,
+                    trunc(-1.0)=>-1, trunc(-1.8)=>-1 )
+      round(A)  Round towards zero
+                  ( Type of result: integer,
+                    round(0.5)=>1, round(-0.5)=>-1,
+                    round(0.4)=>0, round(-0.4)=>0 )
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      compare(A, B) Compare function
+                  ( Type of result: integer,
+                    compare(1.9, 2.0) => -1,
+                    compare(5.2, 5.2) => 0,
+                    compare(8.0, 7.9) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+
+  All calculations with 'rational' numbers are done exact.
+  (Without any rounding)
+
+
+5.4 float
+
+    The type 'float' consists of floating point numbers.
+
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Addition
+      -         Subtraction
+      *         Multiplication
+      /         Division
+                  ( A / 0.0 => EXCEPTION NUMERIC_ERROR )
+      **        Power
+                  ( A ** B is okay for A > 0.0,
+                    0.0 ** B => 0.0  for B > 0.0,
+                    -1.0 ** B => EXCEPTION NUMERIC_ERROR,
+                    0.0 ** 0.0 => EXCEPTION NUMERIC_ERROR,
+                    0.0 ** -1.0 => EXCEPTION NUMERIC_ERROR )
+      **        Power
+                  ( Type of right operand: integer
+                    A ** B is okay for A > 0.0,
+                    A ** B is okay for A < 0.0,
+                    0.0 ** B => 0.0  for B > 0,
+                    0.0 ** 0 => EXCEPTION NUMERIC_ERROR,
+                    0.0 ** -1 => EXCEPTION NUMERIC_ERROR )
+      digits    Conversion to string with specified precision
+                  ( Type of right operand: integer,
+                    Type of result: string,
+                    3.1415 digits 2 => "3.14" )
+      float parse A   Conversion of string to float
+                  ( Type of argument A: string )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      abs(A)    Absolute value
+      flt(A)    Conversion to float
+                  ( Type of argument A: integer,
+                    flt(1) => 1.0 )
+      floor(A)  Truncation towards minus infinite
+                  ( floor( 1.8)=> 1.0, floor( 1.0)=> 1.0,
+                    floor(-1.0)=>-1.0, floor(-1.2)=>-2.0,
+                    floor( 0.9)=> 0.0, floor(-0.1)=>-1.0 )
+      ceil(A)   Rounding up towards plus infinite
+                  ( ceil( 1.2)=> 2.0, ceil( 1.0)=> 1.0,
+                    ceil(-1.8)=>-1.0, ceil(-1.0)=>-1.0,
+                    ceil( 0.1)=> 1.0, ceil(-0.9)=> 0.0 )
+      trunc(A)  Truncation towards zero
+                  ( Type of result: integer,
+                    trunc( 1.8)=> 1, trunc( 1.0)=> 1,
+                    trunc(-1.8)=>-1, trunc(-1.0)=>-1,
+                    trunc( 0.9)=> 0, trunc(-0.9)=> 0 )
+      round(A)  Round towards zero
+                  ( Type of result: integer,
+                    round(1.5)=>2, round(-1.5)=>-2,
+                    round(0.5)=>1, round(-0.5)=>-1,
+                    round(0.4)=>0, round(-0.4)=>0 )
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      sin(A)    Sine
+      cos(A)    Cosine
+      tan(A)    Tangent
+      exp(A)    Exponential function
+      log(A)    Natural logarithm
+                  ( log(A) is okay for A > 0.0,
+                    log(-1.0) => EXCEPTION NUMERIC_ERROR )
+      log10(A)  Base 10 logarithm
+                  ( log10(A) is okay for A > 0.0,
+                    log10(-1.0) => EXCEPTION NUMERIC_ERROR )
+      sqrt(A)   Square root
+                  ( sqrt(A) is okay for A >= 0.0,
+                    sqrt(-1.0) => EXCEPTION NUMERIC_ERROR )
+      asin(A)   Inverse sine
+                  ( asin(A) is okay for A >= -1.0 and A <= 1.0,
+                    asin(2.0) => EXCEPTION NUMERIC_ERROR )
+      acos(A)   Inverse cosine
+                  ( acos(A) is okay for A >= -1.0 and A <= 1.0,
+                    acos(2.0) => EXCEPTION NUMERIC_ERROR )
+      atan(A)   Inverse tangent
+      atan2(A, B) Inverse tangent of A / B
+      sinh(A)   Hyperbolic sine
+      cosh(A)   Hyperbolic cosine
+      tanh(A)   Hyperbolic tangent
+      rand(A, B) Random number in the range [A, B]
+                  ( rand(A, B) returns a random number such that
+                    A <= rand(A, B) and rand(A, B) <= B holds.
+                    rand(A, A) => A,
+                    rand(1.0, 0.0) => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: integer,
+                    compare(1.9, 2.1) => -1,
+                    compare(5.3, 5.3) => 0,
+                    compare(7.8, 7.7) => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      A +:= B   Increment A by B
+                  ( A +:= B => A := A + B )
+      A -:= B   Decrement A by B
+                  ( A -:= B => A := A - B )
+
+
+5.5 char
+
+    A character literal is a character enclosed in single
+  quotes. For example:
+
+    'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''
+
+  In order to represent nonprintable characters and certain
+  printable characters the following escape sequences may be
+  used.
+
+    audible alert    BEL      \a         backslash     \\
+    backspace        BS       \b         apostrophe    \'
+    escape           ESC      \e         double quote  \"
+    formfeed         FF       \f
+    newline          NL (LF)  \n         control-A     \A
+    carriage return  CR       \r           ...
+    horizontal tab   HT       \t         control-Z     \Z
+    vertical tab     VT       \v
+
+
+    Infix operators:
+      char conv A   Conversion to char
+                  ( char conv 65 => 'A' )
+      char parse A   Conversion of string to char
+                  ( Type of argument A: string )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      ord(A)    Ordinal number
+                  ( Type of result: integer )
+      chr(A)    Conversion to char
+                  ( Type of argument: integer )
+      succ(A)   Successor
+                  ( succ(A)=>chr(succ(ord(A))) )
+      pred(A)   Predecessor
+                  ( pred(A)=>chr(pred(ord(A))) )
+      str(A)    Conversion to string
+                  ( Type of result: string,
+                    str('A') => "A" )
+      literal(A) Conversion to a literal
+                  ( Type of result: string,
+                    literal('A') => "'A'" )
+      upper(A)  Conversion to upper case character
+                  ( upper('A') => 'A' )
+                  ( upper('z') => 'Z' )
+      lower(A)  Conversion to lower case character
+                  ( lower('A') => 'a' )
+                  ( lower('z') => 'z' )
+      rand(A, B) Random character in the range [A, B]
+                  ( rand(A, B) returns a random character such that
+                    A <= rand(A, B) and rand(A, B) <= B holds.
+                    rand(A, A) => A,
+                    rand('B', 'A') => EXCEPTION RANGE_ERROR )
+      compare(A, B) Compare function
+                  ( Type of result: integer,
+                    compare('A', 'B') => -1,
+                    compare('A', 'A') => 0,
+                    compare('B', 'A') => 1 )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      incr(A)   Increment
+                  ( incr(A) => A := succ(A) )
+      decr(A)   Decrement
+                  ( decr(A) => A := pred(A) )
+
+
+5.6 string
+
+    The type 'string' describes sequences of ASCII-characters
+  (including the empty string). A string literal is a
+  sequence of ASCII-characters surrounded by double quotes.
+  For example: ""   " "   "\""   "'"   "String"   "CAN\"T !"
+  To represent control characters and certain other
+  characters in strings the same escape sequences as for
+  character literals may be used. Additionally quotation
+  characters (") inside strings can be represented by
+  preceding them with a backslash ( \" ).
+
+    Infix operators:
+      &         String concatenation
+                  ( "All " & "OK" => "All OK" )
+      mult      String multiplication
+                  ( Type of right operand: integer,
+                    "LA" mult 3 => "LALALA",
+                    "WORD" mult 0 => "",
+                    "ANY" mult -1 => EXCEPTION RANGE_ERROR )
+      lpad      Left padding with spaces
+                  ( Type of right operand: integer,
+                    "HELLO" lpad  8 => "   HELLO",
+                    "HELLO" lpad  6 => " HELLO",
+                    "HELLO" lpad  5 => "HELLO",
+                    "HELLO" lpad  4 => "HELLO",
+                    "HELLO" lpad  0 => "HELLO",
+                    "HELLO" lpad -8 => "HELLO" )
+      rpad      Left padding with spaces
+                  ( Type of right operand: integer,
+                    "HELLO" rpad  8 => "HELLO   ",
+                    "HELLO" rpad  6 => "HELLO ",
+                    "HELLO" rpad  5 => "HELLO",
+                    "HELLO" rpad  4 => "HELLO",
+                    "HELLO" rpad  0 => "HELLO",
+                    "HELLO" rpad -8 => "HELLO" )
+      string parse A   Identity
+    Indices:
+      [ A ]     Access one character
+                  ( Type of argument A: integer,
+                    Type of result: char,
+                    A[1]=>First character,
+                    A[length(A)]=>Last character )
+      [ A .. B ] Access a substring from position A to B
+                  ( Type of arguments A and B: integer )
+      [ A len B ] Access a substring from position A with length B
+                  ( Type of arguments A and B: integer )
+      [ A .. ]  Access a substring beginning at position A
+                  ( Type of argument A: integer )
+      [ .. A ]  Access a substring ending at position A
+                  ( Type of argument A: integer )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      length(A) Length of string
+                  ( Type of result: integer,
+                    length("") => 0 )
+      pos(A,B)  First position of string B in string A
+                  ( Type of result: integer,
+                    pos("ABCDE ABCDE","BC")=>2,
+                    pos("XYZXYZ","ZYX")=>0,
+                    pos("123456789","")=>0 )
+      rpos(A,B) Last position of string B in string A
+                  ( Type of result: integer,
+                    rpos("ABCDE ABCDE","BC")=>8,
+                    rpos("XYZXYZ","ZYX")=>0,
+                    rpos("123456789","")=>0 )
+      replace(A,B,C) Replace all occurrences of string B in
+                string A by string C
+                  ( replace("old gold", "old", "one")=>
+                    "one gone" )
+      str(A)    Conversion to string
+                  ( Type of result: string,
+                    str(A) => A )
+      literal(A) Conversion to a literal
+                  ( Type of result: string,
+                    literal("ABC") => "\"ABC\"",
+                    literal("O' \"X\"") => "\"O\' \\\"X\\\"\"" )
+      upper(A)  Conversion to upper case characters
+                  ( upper("Upper")=>"UPPER" )
+      lower(A)  Conversion to lower case characters
+                  ( lower("Lower")=>"lower" )
+      compare(A, B) Compare function
+                  ( Type of result: integer,
+                    compare("ABC", "ABCD")=>-1,
+                    compare("ABC", "ABC")=>0,
+                    compare("ABCD", "ABCC")=>1 )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
+    Statements:
+      A &:= B   Append B to A
+                  ( A &:= B => A := A & B )
+      A @:= [B] C  Assign C to element B of string A
+                  ( Type of argument B: integer,
+                    Type of argument C: char,
+                    A @:= [B] C =>
+                      A := A[..pred(B)] & str(C) & A[succ(B)..] )
+
+
+5.7 array
+
+    The type 'array baseType' describes sequences of identical
+  elements of a 'baseType'. (including the empty sequence).
+  For example: 'array integer' describes array of integer elements.
+
+    Literal:
+      [](elem1, elem2)  Create an array with the given elements
+    Infix operators:
+      &         Array concatenation
+      times     Array generation
+                  ( Left operand: integer,
+                    Right operand: baseType,
+                    A times B Generates an 'array baseType'
+                    with A elements of B,
+                    -1 times B => EXCEPTION RANGE_ERROR )
+    Indices:
+      [ A ]     Access one array element
+                  ( Type of argument A: integer,
+                    Type of result: baseType,
+                    A[1]=>First element,
+                    A[length(A)]=>Last element,
+                    A[0] => EXCEPTION RANGE_ERROR,
+                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
+      [ A .. B ] Access a sub array
+                  ( Type of arguments A and B: integer )
+      [ A .. ]  Access a sub array beginning at position A
+                  ( Type of argument A: integer )
+      [ .. A ]  Access a sub array ending at position A
+                  ( Type of argument A: integer )
+    Relations:
+      =, <>
+    Functions:
+      length(A) Length of array
+                  ( Type of result: integer,
+                    length(0 times TRUE) => 0 )
+    Statements:
+      A &:= B   Append B to A
+                  ( A &:= B => A := A & B )
+      for A range B do
+        C
+      end for   Loop over all elements of an array
+                  ( Type of argument A: baseType,
+                    Type of argument C: proc )
+
+
+5.8 hash
+
+    The type 'hash [keyType] baseType' describes hash tables with
+  elements of 'baseType' which can be accessed using an index of
+  'keyType'.
+  For example: 'hash [string] integer' describes hash table of
+  integer elements with a string key.
+
+    Constant:
+      hashType.EMPTY_HASH  Empty hashtable
+    Infix operators:
+      in        Element
+                  ( Left argument: baseType,
+                    Type of result: boolean )
+      not in    Is not Element
+                  ( Left argument: baseType,
+                    Type of result: boolean )
+    Indices:
+      [ A ]     Access one hashtable element
+                  ( Type of argument A: keyType,
+                    Type of result: baseType )
+    Functions:
+      length(A) Number of elements in hashtable A
+                  ( Type of result: integer,
+                    length(hashType.EMPTY_HASH) => 0 )
+    Statements:
+      incl(A,B,C) Include element B to hashtable A
+                  ( Type of argument B: keyType,
+                    Type of argument C: baseType )
+      excl(A,B) Exclude element B from hashtable A
+                  ( Type of argument B: keyType )
+      A @:= [B] C  Assign C to element B of hashtable A
+                  ( Type of argument B: keyType,
+                    Type of argument C: baseType )
+
+
+5.9 set
+
+    The type 'set of baseType' describes a set of elements of a
+  'baseType'. (including the empty set).
+
+    Constant:
+      setType.EMPTY_SET  Empty set
+    Infix operators:
+      |         Union 
+      &         Intersection
+      -         Difference
+      ><        Symmetric Difference
+      in        Element
+                  ( Left argument: baseType,
+                    Type of result: boolean )
+      not in    Is not Element
+                  ( Left argument: baseType,
+                    Type of result: boolean )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      card      Cardinality of a set
+                  ( Type of result: integer,
+                    card(setType.EMPTY_SET) = 0  )
+      min       Minimal element
+                  ( Type of result: baseType,
+                    Delivers the element from the set for
+                    which the following condition holds:
+                       Element < X
+                    for all X which are in the set.
+                    min(setType.EMPTY_SET) => ERROR )
+      max       Maximum element
+                  ( Type of result: baseType,
+                    Delivers the element from the set for
+                    which the following condition holds:
+                       Element > X
+                    for all X which are in the set.
+                    min(setType.EMPTY_SET) => ERROR )
+    Statements:
+      incl(A,B) Include element B to set A
+                  ( Type of argument B: baseType )
+      excl(A,B) Exclude element B from set A
+                  ( Type of argument B: baseType )
+      for A range B do
+        C
+      end for   Loop over all elements of a set
+                  ( Type of argument A: baseType,
+                    Type of argument C: proc )
+
+
+5.10 reference
+
+    The type 'reference' describes a reference to any
+  object.
+
+    Constants:
+      NIL       Reference to no element.
+    Infix operators:
+      reference value A  Dereference as reference
+                  ( Type of result: reference )
+      ref_list value A   Dereference as ref_list
+                  ( Type of result: ref_list )
+      integer value A    Dereference as integer
+                  ( Type of result: integer )
+      float value A      Dereference float
+                  ( Type of result: float )
+      char value A       Dereference as char
+                  ( Type of result: char )
+      string value A     Dereference as string
+                  ( Type of result: string )
+      bitset value A     Dereference as bitset
+                  ( Type of result: bitset )
+      program value A    Dereference as program
+                  ( Type of result: program )
+      ACTION value A     Dereference as ACTION
+                  ( Type of result: ACTION )
+      type value A       Dereference as type
+                  ( Type of result: type )
+      reference parse A  Conversion of string to reference
+                  ( Type of argument A: string )
+    Relations:
+      =, <>
+    Functions:
+      str(A)             Conversion to string
+                  ( Type of result: string )
+      getType(A)         Delivers the type of an object
+                  ( Type of result: type )
+      obj_number(A)      Delivers an unique number for each object
+                  ( Type of result: integer )
+      is_var(A)          Reference to a variable object
+                  ( Type of result: boolean )
+      obj_class(A)       Gets the class of an object
+                  ( Type of result: string )
+      params(A)          Gets the formal params of a function
+                  ( Type of result: ref_list )
+      locals(A)          Gets the local variables of a function
+                  ( Type of result: ref_list )
+      body(A)            Gets the body of a function
+      func_result(A)     Gets the result object of a function
+      func_res_init(A)   Gets the init value of the result
+                         object of a function
+
+
+5.11 ref_list
+
+    The type 'ref_list' describes a list of reference objects.
+
+    Constants:
+      ref_list.EMPTY  Empty reference list.
+    Infix operators:
+      &         Ref_list list concatenation
+    Indices:
+      [ A ]     Access one ref_list element
+                  ( Type of argument A: integer,
+                    Type of result: reference,
+                    A[1]=>First element,
+                    A[length(A)]=>Last element,
+                    A[0] => EXCEPTION RANGE_ERROR,
+                    A[succ(length(A))] => EXCEPTION RANGE_ERROR )
+      [ A .. B ]  Access a sub list
+                  ( Type of arguments A and B: integer )
+      [ A .. ]  Access a sub list beginning at position A
+                  ( Type of argument A: integer )
+      [ .. A ]  Access a sub list ending at position A
+                  ( Type of argument A: integer )
+    Relations:
+      =, <>
+    Funktions:
+      length(A) Length of ref_list
+                  ( Type of result: integer,
+                    length(ref_list.EMPTY) => 0 )
+      incl(A, B) Include element in list
+                  ( Type of argument B: reference )
+      excl(A, B) Exclude element from list
+                  ( Type of argument B: reference )
+    Statements:
+      for A range B do
+        C
+      end for   Loop over all elements of a ref_list
+                  ( Type of argument A: reference,
+                    Type of argument C: proc )
+
+
+5.12 ptr
+
+    The type 'ptr baseType' describes a pointer to an object
+  of a 'baseType'. With
+
+    const type: ptrType is ptr baseType;
+
+  a new pointer type 'ptrType' is declared.
+
+    Constants:
+      ptrType.NIL   Reference to no element
+    Prefix operators:
+      &         Address of
+                  ( Type of operand: baseType )
+    Postfix operators:
+      ^         Dereference
+                  ( Type of result: baseType )
+    Infix operators:
+      ptrType conv A  Conversion from reference A to ptrType
+      reference conv A  Conversion from ptrType A to reference
+    Relations:
+      =, <>
+    Functions:
+      base_type(ptrType)  Gets the baseType of a ptrType
+                  ( Type of argument ptrType: type )
+
+
+5.13 ENUMERATION
+
+    With
+
+    const type: enumType is new enum
+        enum_literal1, enum_literal2
+      end enum;
+
+  a new enumeration type is declared. The values of this type are:
+
+    enum_literal1 and enum_literal2
+
+  For a enumeration type only few operations are predefined.
+  Additional operations must be defined separately. So it is
+  necessary to define the 'str' and 'parse' functions in order to
+  do i/o for a new enumeration type.
+
+    Infix operators:
+      enumType conv A  Conversion from integer A to enumType
+                  ( Type of argument A: integer,
+                    enumType conv 0 => enum_literal1 )
+      integer conv A   Conversion from enumType A to integer
+                  ( Type of result: integer,
+                    integer conv enum_literal1 => 0 )
+    Relations:
+      =, <>, <, <=, >, >=
+    Funktions:
+      ord(A)    Ordinal number
+                  ( Type of result: integer )
+      succ(A)   Successor
+                  ( succ(A)=>enumType conv(succ(ord(A))) )
+      pred(A)   Predecessor
+                  ( pred(A)=>enumType conv(pred(ord(A))) )
+    Statements:
+      incr(A)   Increment
+                  ( incr(A) => A:=succ(A) )
+      decr(A)   Decrement
+                  ( decr(A) => A:=pred(A) )
+
+
+5.14 time
+
+    The type 'time' describes times and dates.
+
+    Infix operators:
+      +         Add a duration to a time
+                  ( Type of right operand: duration )
+      -         Subtract a duration from a time
+                  ( Type of right operand: duration )
+      -         Subtract two times
+                  ( Type of result: duration )
+      time parse A   Conversion of string to time
+                  ( Type of argument A: string,
+                    time parse "2005/02/28 12:00:01" => 2005/02/28 12:00:01,
+                    time parse "2005/02/29 12:00:01" => EXCEPTION RANGE_ERROR )
+    Relations:
+      =, <>, <, <=, >, >=
+    Functions:
+      time(NOW) Gets the current time
+      str(A)    Conversion to string
+                  ( Type of result: string )
+    Statements:
+      await(A)  Wait until the given time
+
+
+5.15 duration
+
+    The type 'duration' describes time and date durations.
+
+    Prefix operators:
+      +         Identity
+      -         Change sign
+    Infix operators:
+      +         Add two durations
+      -         Subtract two durations
+      *         Multiply a duration by an integer
+                  ( Type of left operand: integer )
+      *         Multiply a duration by an integer
+                  ( Type of right operand: integer )
+    Relations:
+      =, <>
+    Functions:
+      str(A)    Conversion to string
+                  ( Type of result: string )
+    Statements:
+      wait(A)   Wait for given duration
+
+
+5.16 file
+
+    The type 'file' describes sequential files.
+
+    Constants:
+      STD_NULL  Standard null file
+      STD_IN    Standard input of the operating system
+      STD_OUT   Standard output of the operating system
+      STD_ERR   Standard error output of the operating system
+    Variables:
+      IN        Standard input file used for file input
+                  operations when no file is specified
+                  ( IN is initialized with STD_IN )
+      OUT       Standard output file used for file output
+                  operations when no file is specified
+                  ( OUT is initialized with STD_OUT )
+    Infix statement:
+      <<        Write string to file
+                  ( Type of right operand: string,
+                    file << string )
+      >>        Read string from file
+                  ( Type of right operand: string,
+                    file >> string )
+    Relations:
+      =, <>
+    Functions:
+      open(A, B) Open external file
+                  ( Type of argument A: string,
+                    Type of argument B: string,
+                    Type of result: file,
+                    Returns STD_NULL if open was not
+                    possible )
+      close(A)  Close file
+                  ( Type of argument: file )
+      length(A) Length of file A
+                  ( Type of result: integer )
+      seek(A, B) Set actual file position of file A to B
+                  ( Type of argument A: file,
+                    Type of argument B: integer,
+                    seek(A, 1) => Set to file begin,
+                    seek(A, length(A)) => Set to last position,
+                    seek(A, length(A) + 1) => Set to end of file,
+                    seek(A, -1) => EXCEPTION RANGE_ERROR )
+      tell(A)   Return the actual file position
+                  ( Type of argument: file,
+                    The first position in the file is 1 )
+      flush(A)  Flush file
+                  ( Type of argument: file )
+      getc(A)   Get one character from file A
+                  ( Type of result: char )
+      gets(A, B) Get string with maximum length B from file A
+                  ( Type of argument A: integer,
+                    Type of argument B: file,
+                    Type of result: string,
+                    gets(A, -1) => EXCEPTION RANGE_ERROR )
+      getwd(A)  Get one word from file A
+                  ( Type of result: string )
+      getln(A)  Get one line from file A
+                  ( Type of result: string )
+      eoln(A)   End of line
+                  ( Type of result: boolean )
+      eof(A)    End of file
+                  ( Type of result: boolean )
+
+
+5.17 TEXT
+
+    The type TEXT describes two dimensional files.
+
+    Infix statement:
+      <<        Write string to TEXT
+                  ( Type of right operand: string,
+                    TEXT << string )
+    Relations:
+      =, <>
+    Functions:
+      open_window(F, A, B, C, D) Open a TEXT
+                  ( Type of argument A: integer,
+                    Type of argument B: integer,
+                    Type of argument C: integer,
+                    Type of argument D: integer )
+      box(A)    Write a box around the window
+      CLEAR_BOX(A) Clear the box around the window
+      CLEAR(A)  Clear the window
+      v_scroll(A) Scroll the window vertical
+      h_scroll(A) Scroll the window horizontal
+      setPos(A, B, C) Set the current position of the window
+      CURSOR_ON(A) Make the cursor visible
+      CURSOR_OFF(A) Make the cursor invisible
+
+
+5.18 type
+
+    The type 'type' describes all types.
+
+    Prefix operators:
+      func      Procedure type
+                  ( func char => Function which returns char )
+      ptr       Pointer type
+                  ( ptr bitset => Pointer to bitset )
+      array     Array type
+                  ( array string => Array of strings )
+      set of    Set type
+                  ( set of integer => Set of integer )
+      subtype   Create subtype of existing type
+                  ( subtype char => Subtype of char )
+    Relations:
+      =, <>
+    Functions:
+      str(A)    Conversion to string
+                  ( Type of result: string )
+      newtype   Create a new type
+      gentype   Generate a type
+      gensub(A) Generate a subtype
+      typeof(A) Get the type of an expression
+                  ( Type of argument A: Defined for all types,
+                    typeof(1) => integer,
+                    typeof("asdf") => string )
+      result_type(A)  Get the result type of a function type
+                  ( result_type(func char) => char )
+      base_type(A)  Get the base type of an array, pointer or
+                    set type
+                  ( base_type(array char) => char,
+                    base_type(ptr string) => string,
+                    base_type(set of integer) => integer )                    
+      type_number(A)  Get an unique number for a type
+                  ( Type of result: integer )
+      match_obj(A)  Get the match object of a type
+                  ( Type of result: reference )
+
+    Statements:
+      const type: name is value
+                Declare constant 'name' with 'value'
+      var type: name is value
+                Declare variable 'name' with 'value'
+
+
+5.19 struct
+
+    The type 'struct' describes all structured types.
+
+    Prefix operators:
+      new struct
+        elem type: name is value;
+        ...
+      end struct
+                Create new structure type
+
+      new METATYPE struct
+        elem type: name is value;
+        ...
+      end struct
+                Create new structure type as subtype of METATYPE,
+                which is not a structure
+
+      sub METATYPE struct
+        elem type: name is value;
+        ...
+      end struct
+                Create new structure type as subtype of METATYPE.
+                which is a structure type
+
+      elem type: name is value
+                Declace structure element 'name' with 'value'
+
+    Infixoperators:
+      .         Access Element of STRUCT
+                  ( example.element )
+      ->        Access Element of ptr STRUCT
+                  ( example->element )
+    Relations:
+      =, <>
+    Funktions:
+      incl(A, B) Include element in MODULE
+                  ( Type of argument B: reference )
+      excl(A, B) Exclude element from MODULE
+                  ( Type of argument B: reference )
+
+
+5.20 object
+
+    The type 'object' is used as meta type for various types.
+  This allows to define common operations for all this types.
+  The type 'object' is not used as element type for container
+  classes since this can be done much better and type save
+  with abstract data types like 'array', 'set', 'hash' and
+  others.
+
+    Functions:
+      TRACE_OBJ(A)  Write internal information
+
+
+5.21 expr
+
+    The type 'expr' is used to describe unmatched expressions.
+  This are expressions where the recognizing of the functions
+  and the type check is not done yet. This is used for example
+  in the definition of function bodies.
+
+    Functions:
+      WRITE_EXPR(A)
+                Write expr A to FILE OUT
+
+
+
+6. PARAMETERS
+=============
+
+    The following subchapters introduce the parameter types of
+  Seed7.
+
+
+6.1 'val' parameter
+
+  This function appends a comma and a string to the globalStri
+  variable:
+
+    const proc: appendStri (val string: stri) is func
+      begin
+        globalStri &:= ",";
+        globalStri &:= stri;
+      end func;
+
+  After doing
+
+    globalStri &:= "a";
+    appendStri(globalStri);
+
+  the globalStri variable contains the value "a,a". If the function
+  header would be
+
+    const proc: appendStri (in string: stri) is func
+
+  the globalStri variable would contain the value "a,a,". This
+  difference is because of the following reasons:
+
+  For arrays 'in' parameters are equal to 'ref' parameters.
+  When appendStri called with globalStri as parameter an unwanted
+  side effect takes place: Every change of globalStri changes also
+  the 'ref' parameter stri. Changes to the 'ref' parameter would
+  also change the global variable. Such unwanted side effects can
+  also take place between parameters (when at least one parameter
+  is an inout parameter).
+
+  In most cases such unwanted side effects are impossible or can
+  be avoided easily. When possible 'in' parameters should be
+  preferred over 'val' parameters.
+
+  Semantics:
+    When calling a function a formal 'val' parameter gets its
+    value from the corresponding actual parameter. This is done
+    with a create procedure ( ::= ). In the function it is only
+    possible to read a formal 'val' parameter. Changing a formal
+    'val' parameter is not possible. When a function is left a
+    'destr' procedure is called for every 'val' parameter. Formal
+    'val' parameters have the access right 'const'.
+
+
+  Syntax:
+
+    val_parameter ::=
+      'val' type_expression ':' identifier_declaration |
+      'val' type_expression 'param' .
+
+
+  Declaration:
+
+    $ syntax expr: .val.().param is                   -> 40;
+    $ syntax expr: .val.(). : .(expr) is              -> 40;
+
+    const func f_param: val (ref type param) param is               action "DCL_VAL1";
+    const func f_param: val (ref type param) : (ref expr param) is  action "DCL_VAL2";
+
+
+6.2 'ref' parameter
+
+  The following function defines the primitive action for the
+  semicolon operator:
+
+    const proc: (ref void param) ; (ref void param) is noop;
+
+  In this definition and other definitions of primitive actions
+  'ref' parameters are used. For normal functions usually 
+  'in' parameters are used instead of 'ref' parameters:
+
+    const func integer: total_length (in array string: arr) is func
+      result
+        var integer: result is 0;
+      local
+        var integer: index is 0;
+      begin
+        for index range 1 to length(arr) do
+          result +:= length(arr[index]);
+        end for;
+      end func;
+
+  Above function could also be defined with the following
+  function head:
+
+    const func integer: total_length (ref array string: arr) is func
+
+  Since for array types 'in' parameters are defined to act as
+  'ref' parameters both definitions are equal. When possible
+  'in' parameters should be preferred over 'ref' parameters.
+
+  Semantics:
+    When calling a function a formal 'ref' parameter is set to
+    refer to the corresponding actual parameter. In the function
+    it is only possible to read a formal 'ref' parameter.
+    Changing a formal 'ref' parameter is not possible. Formal
+    'ref' parameters have the access right 'const'.
+
+
+  Syntax:
+
+    ref_parameter ::=
+      'ref' type_expression ':' identifier_declaration |
+      'ref' type_expression 'param' .
+
+
+  Declaration:
+
+    $ syntax expr: .ref.().param is                   -> 40;
+    $ syntax expr: .ref.(). : .(expr) is              -> 40;
+
+    const func f_param: ref (ref type param) param is               action "DCL_REF1";
+    const func f_param: ref (ref type param) : (ref expr param) is  action "DCL_REF2";
+
+
+6.3 'in' parameter
+
+  This function checks if a given number is a prime number:
+
+    const func boolean: is_prime (in integer: number) is func
+      result
+        var boolean: result is FALSE;
+      local
+        var integer: count is 2;
+      begin
+        if number = 2 then
+          result := TRUE;
+        elsif number >= 3 then
+          while number rem count <> 0 and count * count <= number do
+            incr(count);
+          end while;
+          result := number rem count <> 0;
+        end if;
+      end func;
+
+  The following function defines the ex (outer) product:
+
+    const func array array integer:
+        (in array integer: a) ex (in array integer: b) is func
+      return
+        var array array integer: result is 0 times 0 times 0;
+      local
+        var integer: index1 is 1;
+      begin
+        result := length(a) times length(b) times 0;
+        for index1 range 1 to length(a) do
+          for index2 range 1 to length(b) do
+            result[index1][index2] := a[index1] * b[index2];
+          end for;
+        end for;
+      end func;
+
+  Although both examples use 'in' parameters the parameter in the
+  first example is actually a 'val' parameter while the parameters
+  in the second example are actually 'ref' parameters. When a new
+  type is created with the 'newtype' function it is necessary to
+  specify the meaning of the 'in' parameter. This is done with a
+  call of the IN_PARAM_IS_VALUE or the IN_PARAM_IS_REFERENCE function
+  with the new generated type as parameter. If a new type is created
+  with the 'subtype' function this specification is optional since
+  the base type has already a specification of the 'in' parameter.
+
+  Semantics:
+    Depending on the type an 'in' parameter is equivalent to an
+    'val' (call by value) parameter or to an 'ref' (call by reference)
+    parameter. Formal 'in' parameters have the access right 'const'.
+
+
+  Syntax:
+
+    in_parameter ::=
+      'in' type_expression ':' identifier_declaration .
+
+
+  Declaration:
+
+    $ syntax expr: .in.().param is                    -> 40;
+    $ syntax expr: .in.(). : .(expr) is               -> 40;
+
+    const func f_param: in (ref type param) param is                action "DCL_REF1";
+
+    const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
+      begin
+        const func f_param: in (attr aType) : (ref expr param) is   action "DCL_VAL2";
+      end func;
+
+    const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
+      begin
+        const func f_param: in (attr aType) : (ref expr param) is   action "DCL_REF2";
+      end func;
+
+
+6.4 'in var' parameter
+
+  This function computes the greatest common divisor:
+
+    const func integer: gcd (in var integer: a, in var integer: b) is func
+      result
+        var integer: result is 0;
+      local
+        var integer: help is 0;
+      begin
+        while a <> 0 do
+          help := b rem a;
+          b := a;
+          a := help;
+        end while;
+        result := b;
+      end func;
+
+  Semantics:
+    When calling a function a formal 'in var' parameter gets its
+    value from the corresponding actual parameter. This is done
+    with a create procedure ( ::= ). In the function it is
+    possible to read and change a formal 'in var' parameter.
+    Changing a formal 'in var' parameter has no effect on the
+    actual parameter. When a function is left a 'destr' procedure
+    is called for every 'in var' parameter. Formal 'in var'
+    parameters have the access right 'var'.
+
+
+  Syntax:
+
+   in_var_parameter ::=
+     'in var' type-expression ':' identifier_declaration .
+
+
+  Declaration:
+
+    $ syntax expr: .in.var.().param is                -> 40;
+    $ syntax expr: .in.var.(). : .(expr) is           -> 40;
+
+    const func f_param: in var (ref type param) param is               action "DCL_IN1VAR";
+    const func f_param: in var (ref type param) : (ref expr param) is  action "DCL_IN2VAR";
+
+
+6.5 'inout' parameter
+
+  This procedure doubles the given parameter 'number':
+
+    const proc: double (inout integer: number) is func
+      begin
+        number := 2 * number;
+      end func;
+
+  Semantics:
+    When calling a function a formal 'inout' parameter is set to 
+    refer to the corresponding actual parameter. In the function
+    it is possible to read and change a formal 'inout' parameter.
+    Changing a formal 'inout' parameter changes the actual
+    parameter as well. Formal 'inout' parameters have the
+    access right 'var'.
+
+
+  Syntax:
+
+    inout_parameter ::=
+      'inout' type_expression ':' identifier_declaration .
+
+
+  Declaration:
+
+    $ syntax expr: .inout.().param is                 -> 40;
+    $ syntax expr: .inout.(). : .(expr) is            -> 40;
+
+    const func f_param: inout (ref type param) param is                action "DCL_INOUT1";
+    const func f_param: inout (ref type param) : (ref expr param) is   action "DCL_INOUT2";
+
+
+6.6 Symbol parameter
+
+  Some functions need symbols at fixed places in the parameter
+  list. The following IF-statements requests the keywords 'THEN',
+  'END' and 'IF' at specific places:
+
+    IF condition THEN
+      statement
+    END IF
+
+  After defining the syntax of this IF-statement with
+
+    $ syntax expr: .IF.().THEN.().END.IF is -> 25;
+
+  the semantic can be defined with:
+
+    const proc: IF (in boolean: condition) THEN
+                  (in proc: statement)
+                END IF is
+
+                  case condition of
+                    when {TRUE}: statement;
+                  end case;
+
+  The symbol parameters are just written outside the parentheses.
+  A call of this statement could be:
+
+    IF value < maximum THEN
+      write(value)
+    END IF;
+
+  Semantics:
+  Symbol parameters must be defined in a syntax definition and in
+  a corresponding semantic definition. In the semantic definition
+  symbol parameters are written outside of the parentheses.
+  In the actual parameter list the corresponding symbol of the
+  formal parameter list must be written.
+
+
+   Syntax:
+
+   symbol_parameter ::=
+      name_identifier | special_identifier .
+
+
+
+7. THE FILE SYSTEM
+==================
+
+    The file system is used for communication in various ways.
+  For example: To write strings on the screen we use the
+  following statements:
+
+    write("hello world");
+    writeln;
+
+  'writeln' means write newline. We can also write data of
+  various types with 'write':
+
+    write("result = ");
+    write(number div 5);
+    write(" ");
+    writeln(not error);
+
+  The 'writeln' above writes data and then terminates the line.
+  This is equal to a 'write' followed by a writeln. Instead of
+  multiple write statements the '<&' operator can be used to
+  concatenate the elements to be written:
+
+    writeln("result = " <& number div 5 <& " " <& not error);
+
+  The '<&' operator requests a 'string' as left operand and
+  is overloaded for various types as right operand.
+  We can also read data from the keyboard:
+
+    write("Amount? ");
+    read(amount);
+
+  The user is allowed to use backspace and sends the input
+  to the program with the RETURN-key. To let the user respond
+  with the RETURN-key we can write:
+
+    writeln("Type RETURN");
+    readln;
+
+  To read a line of data we can use 'readln':
+
+    write("Your comment? ");
+    readln(user_comment_string);
+
+  In the previous examples all 'read' statements read from the
+  file IN and all 'write' statements write to the file OUT. The
+  files IN and OUT are initialized with STD_IN and STD_OUT
+  which are the stdin and stdout files of the operating system.
+  (Usually the keyboard and the screen). When we want to write
+  to other files we use write statements with the file as first
+  parameter. To write a line of text to the file "info.fil" we
+  use the following statements:
+
+    info_file := open("info.fil", "w");
+    writeln(info_file, "This is the first line of the info file.";
+    close(info_file);
+
+  First the external file is opened for writing and then it is
+  used. To read the file back in the string 'stri' we write:
+
+    info_file := open("info.fil", "r");
+    readln(info_file, stri);
+    close(info_file);
+
+  It is also possible to write values of other types to
+  'info_file':
+
+    writeln(info_file, number);
+
+  Here the 'number' is converted to a string which is written
+  to the file. A 'number' is read back with:
+
+    readln(info_file, number);
+
+  There are also C++ like i/o statements. When using the '<<'
+  and the '>>' statements the last four examples look like:
+
+    info_file := open("info.fil", "w");
+    info_file << "This is the first line of the info file.";
+    info_file << NL;  (* New line *)
+    close(info_file);
+
+    info_file := open("info.fil", "r");
+    info_file >> stri;
+    close(info_file);
+
+    info_file << number;
+
+    info_file >> number;
+
+  For doing i/o to a window on the screen we write:
+
+    window1 := open_window(SCREEN, 10, 10, 5, 60);
+    box(window1);
+    setPos(window1, 3, 1);
+    window1 << "hello there";
+
+  This opens the window 'window1' on the SCREEN at the position
+  10, 10. This window has 5 lines and 60 columns. A box (of
+  characters: - | + ) is written to surround the 'window1' and
+  finally the string "hello there" is written in the window
+  'window1' at Position 3, 1. If we want to clear the 'window1'
+  we write:
+
+    clear(window1);
+
+  Files can be used for much more things. Here is a list of
+  goals for a file system:
+
+    - A concept which provides conversions from arbitrary
+      types to strings and back.
+
+    - Basic input and output operations to process a file
+      character wise, word wise or line wise.
+
+    - Input and output statements which combine input with
+      conversion respectively conversion with output.
+
+    - Simple read and write statements for standard
+      input and output for arbitrary types.
+
+    - Standard input and output files and the possibility
+      to route the standard i/o to any file.
+
+    - Access to operating system files and devices.
+
+    - An interface which allows the user to define
+      his own file types.
+
+  In the following subchapters we discuss each of this goals.
+
+
+7.1 Conversion to strings and back
+
+    We archive the goal of doing i/o for arbitrary types with
+  two conversion functions. In order to do i/o with a type
+  the 'str' and 'parse' functions must be defined for that
+  type. As an example we show the conversion functions for the
+  type boolean:
+
+    const func string: str (in boolean: aBool) is func
+      result
+        var string: result is "";
+      begin
+        if aBool then
+          result := "TRUE";
+        else
+          result := "FALSE";
+        end if;
+      end func;
+
+    const func boolean: (attr boolean) parse (in string: stri) is func
+      result
+        var boolean: result is FALSE;
+      begin
+        if stri = "TRUE" then
+          result := TRUE;
+        elsif stri = "FALSE" then
+          result := FALSE;
+        else
+          raise RANGE_ERROR;
+        end if;
+      end func;
+
+  The 'str' function must deliver a corresponding string for
+  every value of the type. The 'parse' function parses a string
+  and delivers the converted value as result. If the conversion
+  is not successful the exception RANGE_ERROR is raised. The
+  attribute used with 'parse' allows that it is overloaded for
+  different types.
+
+  After defining the 'str' and 'parse' functions for a type the
+  enable_io function can be called for this type as in:
+
+    enable_io(boolean);
+
+  The enable_io package declares various io functions like
+  'read', 'write' and others for the provided type (in this
+  example 'boolean'). If only output (or only input) is needed
+  for a type it is possible to define just 'str' (or 'parse')
+  and activate just enable_output (or enable_input).
+
+  There is also a formatting operator called lpad which is based
+  on the 'str' function. The statements
+
+    write(12 lpad 6);
+    write(3 lpad 6);
+    writeln(45 lpad 6);
+    write(678 lpad 6);
+    write(98765 lpad 6);
+    writeln(4321 lpad 6);
+
+  produce the following output:
+
+        12     3    45
+       678 98765  4321
+
+  As we see the lpad operator can be used to produce right
+  justified output. There is also a rpad operator to produce
+  left justified output. The basic definitions of the 'lpad'
+  and 'rpad' operators work on strings and are as follows:
+
+    const func string: (ref string: stri) lpad (in integer: leng) is func
+      result
+        var string: result is "";
+      begin
+        if leng > length(stri) then
+          result := leng - length(stri) mult " " & stri;
+        else
+          result := stri;
+        end if;
+      end func;
+
+    const func string: (ref string: stri) rpad (in integer: leng) is func
+      result
+        var string: result is "";
+      begin
+        if leng > length(stri) then
+          result := stri & leng - length(stri) mult " ";
+        else
+          result := stri;
+        end if;
+      end func;
+
+  The enable_io package contains definitions of 'lpad' and 'rpad'
+  to work on the type specified with enable_io:
+
+    const func string: (in aType: aValue) lpad (in integer: leng) is func
+      result
+        var string: stri is "";
+      begin
+        stri := str(aValue) lpad leng;
+      end func;
+
+    const func string: (in aType: aValue) rpad (in integer: leng) is func
+      result
+        var string: stri is "";
+      begin
+        stri := str(aValue) rpad leng;
+      end func;
+
+  For 'float' values exists an additional way to convert them to
+  strings. The digits operator allows the specification of a
+  precision. For example the statements
+
+    writeln(3.1415 digits 2);
+    writeln(4.0 digits 2);
+
+  produce the following output:
+
+    3.14
+    4.00
+
+  A combination with the lpad operator as in
+
+    writeln(3.1415 digits 2 lpad 6);
+    writeln(99.9 digits 2 lpad 6);
+
+  is also possible and produces the following output:
+
+      3.14
+     99.90
+
+
+7.2 Basic input and output operations
+
+    To allow arbitrary user defined file-types beside the
+  operating system files we chose a model in which the
+  i/o methods are assigned to the type of the file-value and
+  not to the type of the file-variable. This allows a file
+  variable to point to any file-value. The file-variables
+  have the type 'file' which has only the assignment method
+  defined. For the operating system files and for each user
+  defined file a file-type must be declared which has the
+  i/o methods defined. These file-types are derived (direct
+  or indirect) from the type NULL_FILE for which all i/o
+  methods are defined upon a base of basic string i/o
+  methods. So for a new user defined file-type only the
+  basic string i/o methods must be defined.
+
+  The two basic i/o methods defined for the NULL_FILE are
+
+    const proc: (ref NULL_FILE param) << (in string param) is    noop;
+    const string: gets (ref NULL_FILE param, ref integer param) is "";
+
+  This means that writing any string to the NULL_FILE has
+  no effect and reading any number of characters from the
+  NULL_FILE delivers the empty string. When a user defined
+  file type is declared these are the two methods that must
+  be redefined for the new file-type. Based upon these
+  two methods three more methods are defined for the
+  NULL_FILE named 'getc', 'getwd' and 'getln'.
+  This methods get a character, a word and a line
+  respectively. A word is terminated by a space, a tab
+  or a linefeed. A line is terminated by a linefeed.
+  This methods need not to be redefined for an user defined
+  file type but for performance reasons they can also be
+  redefined. The definitions for 'getc', 'getwd' and 'getln' for
+  the NULL_FILE are
+
+    const func char: getc (ref NULL_FILE: aFile) is func
+      result
+        var char: ch is ' ';
+      begin
+        ch := gets(aFile, 1)[1];
+      end func;
+
+    const func string: getwd (inout NULL_FILE: aFile) is func
+      result
+        var string: stri is "";
+      local
+        var string: buffer is "";
+      begin
+        repeat
+          buffer := gets(file conv aFile, 1);
+        until buffer <> " " and buffer <> "\t";
+        while buffer <> " " and buffer <> "\t" and
+            buffer <> "\n" and buffer <> "" do
+          stri &:= buffer;
+          buffer := gets(file conv aFile, 1);
+        end while;
+        aFile.TERMINATION_CHAR := buffer[1];
+      end func;
+
+    const func string: getln (inout NULL_FILE: aFile) is func
+      result
+        var string: stri is "";
+      local
+        var string: buffer is "";
+      begin
+        buffer := gets(file conv aFile, 1);
+        while buffer <> "\n" and buffer <> "" do
+          stri &:= buffer;
+          buffer := gets(file conv aFile, 1);
+        end while;
+        aFile.TERMINATION_CHAR := buffer[1];
+      end func;
+
+  Note that 'getwd' skips leading spaces and tabs while 'getc' and
+  'getln' do not.
+  When 'getc', 'getwd' or 'getln' is not defined for a new user defined
+  file type the declarations from the NULL_FILE are used instead.
+  This declarations are based on the method 'gets' which must be
+  defined for every new user defined file-type.
+
+  Note that there is an assignment to the variable TERMINATION_CHAR.
+  This variable is a component of NULL_FILE and therefore also
+  a component of all derived file types. This allows an
+  eoln-function to test if the last 'getwd' or 'getln' reach the end
+  of a line. Here is a definition of the eoln-function:
+
+    const func boolean: eoln (ref NULL_FILE: aFile) is func
+      result
+        var boolean: result is TRUE;
+      begin
+        result := aFile.TERMINATION_CHAR = '\n';
+      end func;
+
+
+7.3 Input and output with conversion
+
+    Normally we need a combination of an i/o operation with
+  a conversion operation. There are several functions which are
+  based on the 'str' and 'parse' conversions and on the basic
+  i/o-functions. The following declaration allows the << operator
+  to be used for all types which define 'enable_io':
+
+    const proc: (in file: aFile) << (in aType: aValue) is func
+      begin
+        aFile << str(aValue);
+      end func;
+
+  The next declaration allow the use the >> operator for
+  strings:
+
+    const proc: (inout file: aFile) >> (inout string: stri) is func
+      begin
+        stri := getwd(aFile);
+        aFile.io_empty := stri = "";
+        aFile.io_ok := TRUE;
+      end func;
+
+  For types which define 'enable_io' the >> operator is declared as:
+
+    const proc: (inout file: aFile) >> (inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getwd(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+  To allow the use of 'read' and 'readln' functions the following
+  declarations are made with 'enable_io':
+
+    const proc: read (inout file: aFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getwd(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    const proc: readln (inout file: aFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getln(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+  The next two declarations define the output of NL and BS:
+
+    const proc: (ref external_file: aFile) << NL is func
+      begin
+        aFile << "\n";
+      end func;
+
+    const proc: (ref external_file: aFile) << BS is func
+      begin
+        aFile << "\b \b";
+      end func;
+
+
+7.4 Simple read and write statements
+
+    The simple input/output for the standard i/o-files are
+  'read' and 'write' which are defined with 'enable_io'. Simple
+  i/o may look like:
+
+    write("Amount? ");
+    read(amount);
+
+  'read' and 'write' use the files IN and OUT which are described
+  in the next chapter.  Here is the definition of the 'read' and
+  'write' procedures done with 'enable_io':
+
+    const proc: read (inout aType: aValue) is func
+      begin
+        read(IN, aValue);
+      end func;
+
+    const proc: readln (inout aType: aValue) is func
+      begin
+        readln(IN, aValue);
+      end func;
+
+    const proc: write (in aType: aValue) is func
+      begin
+        OUT << aValue;
+      end func;
+
+    const proc: writeln (in aType: aValue) is func
+      begin
+        OUT << aValue;
+        OUT << NL;
+      end func;
+
+  Additional procedures defined outside of 'enable_io' are:
+
+    const proc: readln is func
+      local
+        var string: stri is "";
+      begin
+        stri := getln(IN);
+        IN.io_empty := stri = "";
+        IN.io_ok := TRUE;
+      end func;
+
+    const proc: read (NL) is func
+      begin
+        readln;
+      end func;
+
+    const proc: writeln is func
+      begin
+        OUT << NL;
+      end func;
+
+    const proc: write (NL) is func
+      begin
+        OUT << NL;
+      end func;
+
+  As an example when you call
+
+    readln(number);
+
+  the readln(integer) procedure calls
+
+    readln(IN, number);
+
+  if the file IN has not redeclared readln(IN, integer) this
+  procedure calls
+
+    stri := getln(IN);
+
+  and 'getln' may call gets(IN, 1) in a loop or may be defined
+  for the file IN. Finally the 'parse' function converts the
+  string read into an 'integer' and assigns it to 'number'
+
+    number := integer parse stri;
+
+
+7.5 Standard input and output files
+
+    The standard i/o files are OUT for output and IN for input.
+  This TWO are file-variables which are declared as follows:
+
+    var file: IN is STD_IN;
+    var file: OUT is STD_OUT;
+
+  STD_IN and STD_OUT are the standard input and output files of
+  the operating system (Usually the keyboard and the screen).
+  Because IN and OUT are variables redirection of standard input
+  or standard output can be done easily by assigning a new value
+  to them:
+
+    IN := OTHER_FILE;
+
+  After that all 'read' statements refer to OTHER_FILE.
+  Most operating systems have also a stderr file which
+  can be accessed via the name STD_ERR. If you want to
+  write error messages to the screen even when stdout
+  is redirected elsewhere you can write:
+
+    STD_ERR << "ERROR MESSAGE";
+    STD_ERR << NL;
+
+  To redirect the standard output to STD_ERR you can write:
+
+    OUT := STD_ERR;
+
+  There is also a file STD_NULL defined. Anything written to
+  it is ignored. Reading from it does deliver empty strings.
+  This file can be used to initialize file variables as in:
+
+    var file: MY_FILE is STD_NULL;
+
+  It is also used to represent an illegal file value when for
+  example an 'open' procedure fails.
+
+
+7.6 Access to operating system files
+
+    The access to operating system files is done via files of
+  the types 'external_file', KEYBOARD_FILE and SCREEN_FILE.
+  The type 'external_file' is defined as:
+
+    const type: external_file is sub NULL_FILE struct
+        var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+        var string: name is "";
+      end struct;
+
+  This means that every data item of the type 'external_file'
+  has the components from NULL_FILE and additionally the
+  components ext_file and name. Note the type PRIMITIVE_FILE
+  which points directly to an operating system file. Objects
+  of type PRIMITIVE_FILE can only have operating system
+  files as values while objects of type 'file' can also have
+  other files as values. To allow the implementation of the
+  type 'external_file' several operations for the type
+  PRIMITIVE_FILE are defined. But outside 'external_file' the
+  type PRIMITIVE_FILE and its operations should not be used.
+
+  There are three predefined external files STD_IN, STD_OUT
+  and STD_ERR which have the following declarations:
+
+    const func external_file: INIT_STD_FILE (ref PRIMITIVE_FILE: primitive_file,
+        in string: file_name) is func
+      result
+        var external_file: result is external_file.value;
+      begin
+        result.ext_file := primitive_file;
+        result.name := file_name;
+      end func;
+
+    var external_file: STD_IN is  INIT_STD_FILE(PRIMITIVE_INPUT,  "STD_IN");
+    var external_file: STD_OUT is INIT_STD_FILE(PRIMITIVE_OUTPUT, "STD_OUT");
+    var external_file: STD_ERR is INIT_STD_FILE(PRIMITIVE_ERROR,  "STD_ERR");
+
+  It is possible to do i/o directly with them, but it is more wisely
+  to use them only to initialize user defined file variables as in:
+
+    var file: ERR is STD_ERR;
+
+  In the rest of the program references to such a variable can be
+  used:
+
+    ERR << "Some error occurred";
+    ERR << NL;
+
+  In this case redirection of the ERR file can be done very easy.
+  The second way to access external_files is to use the 'open'
+  function. Usually a file variable is declared
+
+    var file: MY_OUT is STD_NULL;
+
+  and the result of the 'open' function is assigned to this file
+  variable
+
+    MY_OUT := open("my_file", "w");
+
+  If the 'open' has failed it returns STD_NULL so we must check the
+  file variable to be on the save side
+
+    if MY_OUT <> STD_NULL then
+
+  After that output to MY_OUT is possible with
+
+    MY_OUT << "hi there";
+    MY_OUT << NL;
+
+  As stated earlier STD_IN provides an interface to the keyboard
+  which is line buffered and echoed on STD_OUT. This means that
+  you can see everything you typed in and correct it with BACKSPACE
+  until you press RETURN. But sometimes an unbuffered and unechoed
+  input is needed. This is provided with the file KEYBOARD.
+  This are the declaration of the type KEYBOARD_FILE and the file
+  KEYBOARD itself:
+
+    const type: KEYBOARD_FILE is subtype file;
+
+    var KEYBOARD_FILE: KEYBOARD is SCREEN_KEYBOARD;
+
+  Reading from KEYBOARD may deliver simple ascii characters or
+  special codes for function keys. This special codes can also
+  be copied to a character variables because the type 'char' is
+  not limited to 8 bits. For each function key exists a
+  predefined constant that can be used to test which key is
+  pressed.
+
+  Additionally to the operations possible with other files there
+  are two functions that are applicable only for the file KEYBOARD.
+  The busy_getc(KEYBOARD) function delivers the next character
+  from the keyboard or the character KEY_NONE if no key has been
+  pressed. The busy_gets(KEYBOARD, integer) function delivers a
+  string consisting of the characters in the keyboard buffer but
+  with the maximum length which is specified in the second
+  parameter.
+
+  To allow random access output to a text screen (or text window)
+  the type SCREEN_FILE is defined. The function
+
+    open(SCREEN_FILE)
+
+  returns a SCREEN_FILE.
+
+
+7.7 User defined file types
+
+    In addition to the predefined file types it is often
+  necessary to define a new type of file. Such a new file
+  has several possibilities:
+
+    - It could store its contents in a string (not only to be
+      faster but also to provide additional file operations)
+
+    - The information can be processed (e.g To upper case)
+      and sent to another file.
+
+    - It could work just like an unix utility (Think of
+      more, sort, tee, uniq ...)
+
+    - It could provide a file-like interface for something
+      with an other interface. (e.g. The contents of a
+      directory, or random access i/o to the screen)
+
+  With the following declaration we define a new file type:
+
+    const type: NEW_FILE is sub NULL_FILE struct
+        ...
+        (* Local data *)
+        ...
+      end struct;
+
+  It is not necessary to derive the NEW_FILE type direct from
+  NULL_FILE. The NEW_FILE type may also be an indirect descendant
+  of NULL_FILE. So it is possible to create file type hierarchies.
+
+  As next an open function is needed to generate a new NEW_FILE:
+
+    const func file: open_new_file (  (* Parameters *) ) is func
+      result
+        var file: result is STD_NULL;
+      begin
+        ...
+        (* Initialisation of the local data *)
+        result := malloc( ... );
+        ...
+      end func;
+
+  Note the usage of the ALLOC function to generate a new data
+  item. This data item is not freed automatically but if you
+  do not open files to often this does not hurt. Now only the
+  two basic i/o operations must be defined:
+
+    const proc: (inout NEW_FILE: new_fil) << (in string: stri) is func
+      begin
+        ...
+        (* Statements that do the output *)
+        ...
+      end func;
+
+    const proc: gets (inout NEW_FILE: new_fil, in integer: leng) is func
+      result
+        var string: STRI is "";
+      begin
+        ...
+        (* Statements that do the input *)
+        ...
+      end func;
+
+
+
+8. DECLARATIONS
+===============
+
+  Seed7 has three kinds of declarations:
+
+    - System declarations
+    - Syntax declarations
+    - Semantic declarations
+
+  which are described in detail in the following subchapters.
+
+
+8.1 System declarations
+
+    With system declarations the analyzer and the interpreter
+  are informed about which objects should be used for various system
+  internal purposes. An example of a system declaration is
+
+    $ system "integer" is integer;
+
+  This defines that the type of all integer literals is 'integer'.
+  Additionally 'integer' is used as type for all integers generated
+  by primitive actions.
+  There are different objects which are defined by a
+  system declaration
+
+    - The types of literals and simple expressions for example:
+        'string' for Strings and 'integer' for integers
+
+    - Which objects should be used as result values for
+      primitive actions for example:
+        TRUE, FALSE and empty
+
+    - The EXCEPTIONS which are to be raised by
+      primitive actions for example:
+        NUMERIC_ERROR and MEMORY_ERROR
+
+    - Which objects should be used for several implicit
+      actions for example:
+        := ::= destroy << and flush
+
+  The following system declarations exist
+
+    $ system "integer" is integer;
+    $ system "char" is char;
+    $ system "string" is string;
+    $ system "primitive_file" is PRIMITIVE_FILE;
+    $ system "proc" is proc;
+    $ system "reference" is reference;
+    $ system "float" is float;
+
+    $ system "call" is EXPR;
+    $ system "dot" is EXPR;
+    $ system "list" is LIST;
+    $ system "expr" is EXPR;
+
+    $ system "true" is TRUE;
+    $ system "false" is FALSE;
+    $ system "empty" is empty;
+
+    $ system "fail" is FAIL;
+    $ system "memory_error" is MEMORY_ERROR;
+    $ system "numeric_error" is NUMERIC_ERROR;
+    $ system "range_error" is RANGE_ERROR;
+    $ system "illegal_action" is ILLEGAL_ACTION;
+    $ system "empty_expr_error" is EMPTY_EXPR_ERROR;
+    $ system "eval_lambda_error" is EVAL_LAMBDA_ERROR;
+    $ system "var_required" is VAR_REQUIRED;
+
+    $ system "assign" is := ;
+    $ system "create" is ::= ;
+    $ system "destroy" is destroy;
+    $ system "semicol" is ; ;
+    $ system "prot_outfile" is PROT_OUTFILE;
+    $ system "flush" is flush;
+    $ system "write" is << ;
+    $ system "nl" is NL;
+    $ system "main" is main;
+
+
+8.2 Syntax declarations
+
+    In many languages exist predefined constructs like statements
+  and operators. This constructs have fixed syntax and semantics
+  defined in a natural language or in some meta language. Further
+  more no programmer is allowed to define new such constructs.
+  But sometimes a full description of the syntax and semantics
+  of a construct written in the programming language itself is
+  helpful. This avoids the need to use ambiguous natural language
+  descriptions and to learn an additional meta language. Also
+  this gives the opportunity to define new constructs. Note that
+  a compiler-compiler does not offer this opportunity and has
+  also a meta language.
+
+    When a syntax construct has parameters before the first
+  symbol or after the last symbol the priority and the
+  associativity of the construct are significant. Constructs
+  with stronger priority bind their parameters earlier than
+  constructs with weaker priority. The priority is described
+  by a natural number (inclusive 0). The strongest priority
+  is 0. Weaker priorities are described by larger numbers.
+  What bind means is can be declared with an example:
+
+                                       =
+    A + B = C * D                    /   \
+                                    /     \
+    * priority 4                   +       *
+    + priority 5                 /   \   /   \
+    = priority 8                A     B C     D
+
+  First the * takes its parameters, then the + and at last
+  the = follows.
+
+  The associativity describes, in which order constructs
+  with equal priority bind their parameters. For example
+
+    A - B - C
+
+  can be interpreted in two ways:
+
+    (A - B) - C    or   A - (B - C)
+
+  There are four associativities possible:
+                                                   Symbol
+
+    Binding from left to right                       ->
+
+    Binding from right to left                       <-
+
+    Neither the left nor the right parameter
+    are allowed to have the same priority            <->
+
+    At the left side there is a binding from
+    left to right and at the right side there
+    is a binding from right to left                 -><-
+
+  The last two possibilities give no legal interpretation
+  in the subtraction example.
+  The third kind of assiciativity ( <-> ) is used by the
+  equal operator ( = ) of Pascal because there a expression
+  like
+
+    A = B = C
+
+  is not legal.
+
+  There is a second way to describe the associativity.
+  The associativity describes if an operand must have a stronger
+  priority than the priority of the operator. For example:
+
+                             -                     3
+    A - B - C              /   \                 /   \
+                          /     \           <=3 /     \ <3
+    - priority 3 ->      /       \             /       \
+                        -         C           3         0
+                      /   \                 /   \
+                     /     \           <=3 /     \ <3
+                    /       \             /       \
+                   A         B           0         0
+
+  The numbers in the nodes of the right tree show the priority
+  of each sub expression (sub tree). With < and <= the required
+  condition for the priority of an operand is described. An
+  interpretation is legal if all this conditions are met.
+  If there are more than one legal interpretations or no legal
+  interpretation the expression is illegal.
+
+  Table for the possibilities of associativity:
+
+    +---------------+------------------------------+
+    | associativity |     The priority of the      |
+    +---------------+--------------+---------------+
+    |               | left operand | right operand |
+    |               |    must be   |    must be    |
+    +---------------+--------------+---------------+
+    |      ->       |      <=      |      <        |
+    |      <-       |      <       |      <=       |
+    |      <->      |      <       |      <        |
+    |     -><-      |      <=      |      <=       |
+    +---------------+--------------+---------------+
+    |               |  than that of the operator   |
+    +---------------+------------------------------+
+
+  The parameter before the operator symbol is called left operand.
+  The parameter after the last symbol of a construct is called
+  right operand. In case of normal operators the last symbol of a
+  construct and the operator symbol are identical. If this is not
+  the case there is a third kind of operand. Between the operator
+  symbol and the last symbol of a construct are the middle operands.
+  Middle operands can have any priority.
+
+
+8.3 Semantic declarations
+
+    A semantic declaration declares an object in the database.
+  For example
+
+    const integer: ONE is 1;
+
+  declares the 'integer' constant ONE which is initialized with the
+  value 1. Variable declarations are also possible. For example
+
+    var integer: NUMBER is 0;
+
+  declares the 'integer' variable NUMBER which is initialized with
+  the value 0. With each declaration the new declared object
+  obtains an initial value. Note that it is not possible to declare
+  an object without an initial value. Declarations with initialisation
+  expressions are also possible. For example
+
+    var string: FILE_NAME is NAME & ".txt";
+
+  The expression is evaluated and the result is assigned to the
+  new object using the creation operation ( ::= ). For example
+  the expression
+
+    ONE . ::= . 1
+
+  is executed to assign 1 to the object ONE. There are two
+  reasons to use ::= instead of := to assign the initialisation
+  value.
+
+  1. The assignment ( := ) can only be used to assign a value
+    to a variable and initialisation is also needed for
+    constants.
+
+  2. Sometimes some initialisations are needed for the new
+    object in addition to the pure assignment.
+
+  For all predefined types the creation operator ( ::= )
+  is already defined. To allow the declaration of objects of a
+  new user defined type the constructor operation for this type
+  must be defined.
+
+
+
+9. TOKENS
+=========
+
+    A program consists of a sequence of tokens which may be delimited
+  by white space. There are two types of tokens:
+
+    identifiers
+    literals
+
+  Syntax:
+
+    program ::=
+      { white_space | token } .
+
+    token ::=
+      identifier | literal .
+
+
+9.1 White space:
+
+    There are three types of white space
+
+    spaces
+    comments
+    line comments
+
+  White space always terminates a preceding token. Some white
+  space is required to separate otherwise adjacent tokens.
+
+  Syntax:
+
+    white_space ::=
+      ( space | comment | line_comment )
+      { space | comment | line_comment } .
+
+
+9.1.1 Spaces:
+
+    There are several types of space characters which are ignored
+  except as they separate tokens:
+
+    blanks, horizontal tabs, carriage returns and new lines.
+
+  Syntax:
+
+    space ::=
+      ' ' | TAB | CR | NL .
+
+
+9.1.2 Comments:
+
+    Comments are introduced with the characters (* and are
+  terminated with the characters *) . For example:
+
+    (* This is a comment *)
+
+  Comment nesting is allowed so it is possible to comment out
+  larger sections of the program which can also include comments.
+  Comments cannot occur within string or character literals.
+
+  Syntax:
+
+    comment ::=
+      '(*' { any_character } '*)' .
+
+9.1.3 Line comments:
+
+    Line comments are introduced with the character # and are
+  terminated with the end of the line. For example:
+
+    # This is a comment
+
+  Comments cannot occur within string, character or numerical
+  literals.
+
+  Syntax:
+
+    line_comment ::=
+      '#' { any_character } NL .
+
+
+9.2 Identifiers:
+
+    There are three types of identifiers
+
+    name identifiers
+    special identifiers
+    parenthesis
+
+  Identifiers can be written adjacent except that between two
+  name identifiers and between two special identifiers white space
+  must be used to separate them.
+
+  Syntax:
+
+    identifier ::=
+      name_identifier | special_identifier | parenthesis .
+
+
+9.2.1 Name identifiers
+
+    A name identifier is a sequence of letters, digits and
+  underscores ( _ ). The first character must be a letter or an
+  underscore. Examples of name identifiers are:
+
+    NUMBER  integer  const  if  UPPER_LIMIT  LowerLimit  x5  _end
+
+  Upper and lower case letters are different. Name identifiers
+  may have any length and all characters are significant. The
+  name identifier is terminated with a character which is
+  neither a letter (or _ ) nor a digit. The terminating
+  character is not part of the name identifier.
+
+  Syntax:
+
+    name_identifier ::=
+      ( letter | underscore ) { letter | digit | underscore } .
+
+    letter ::=
+      upper_case_letter | lower_case_letter .
+
+    upper_case_letter ::=
+      'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' |
+      'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' |
+      'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' .
+
+    lower_case_letter ::=
+      'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' |
+      'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' |
+      'u' | 'v' | 'w' | 'x' | 'y' | 'z' .
+
+    digit ::=
+      '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' .
+
+    underscore ::=
+      '_' .
+
+
+9.2.2 Special identifiers
+
+    A special identifier is a sequence of special characters.
+  Examples of special identifiers are:
+
+    +  :=  <=  *  ->  ,  &
+
+  Here is a list of all special characters:
+
+    ! $ % & * + , - . / : ; < = > ? @ \ ^ ` | ~
+
+  Special identifiers may have any length and all characters are
+  significant. The special identifier is terminated with a character
+  which is not a special character. The terminating character is
+  not part of the special identifier.
+
+  Syntax:
+
+    special_identifier ::=
+      special_character { special_character } .
+
+    special_character ::=
+      '!' | '$' | '%' | '&' | '*' | '+' | ',' | '-' | '.' | '/' |
+      ':' | ';' | '<' | '=' | '>' | '?' | '@' | '\' | '^' | '`' |
+      '|' | '~' .
+
+
+9.2.3 Parentheses
+
+    A parenthesis is one of the following characters:
+
+    ( ) [ ] { }
+
+  Note that a parenthesis consists of only one character. Except
+  for the character sequence (* (which introduces a comment)
+  a parenthesis is terminated with the next character.
+
+  Syntax:
+
+    parenthesis ::=
+      '(' | ')' | '[' | ']' | '{' | '}' .
+
+
+9.3 Literals
+
+    There are three types of literals
+
+    integer literals
+    character literals
+    string literals
+
+  Syntax:
+
+    literal ::=
+      integer_literal | character_literal | string_literal .
+
+
+9.3.1 Integer literals
+
+    An integer literal is a sequence of digits which is taken to
+  be decimal. The sequence of digits may be followed by the letter
+  E or e an optional + sign and a decimal exponent. Based numbers
+  can be specified when the sequence of digits is followed by
+  the # character and a sequence of extended digits. The decimal
+  number in front of the # character specifies the base of the
+  number which follows the # character. As base a number between
+  2 and 36 is allowed. As extended digits the letters A or a can
+  be used for 10, B or b can be used for 11 and so on to Z or z
+  which can be used as 35.
+
+  Syntax:
+
+    integer_literal ::=
+      decimal_integer [ exponent | based_integer ] .
+
+    decimal_integer ::=
+      digit { digit } .
+
+    exponent ::=
+      ( 'E' | 'e' ) [ '+' ] decimal_integer .
+
+    based_integer ::=
+      '#' extended_digit { extended_digit } .
+
+    extended_digit ::=
+      letter | digit .
+
+
+9.3.2 String literals
+
+    A string literal is a sequence of characters surrounded by
+  double quotes. For example:
+
+    ""   " "   "\""   "'"   "\'"   "String"   "CAN\"T !"   "\n\n"
+
+  In order to represent nonprintable characters and certain
+  printable characters the following escape sequences may be
+  used.
+
+    audible alert    BEL      \a         backslash     \\
+    backspace        BS       \b         apostrophe    \'
+    escape           ESC      \e         double quote  \"
+    formfeed         FF       \f
+    newline          NL (LF)  \n         control-A     \A
+    carriage return  CR       \r           ...
+    horizontal tab   HT       \t         control-Z     \Z
+    vertical tab     VT       \v
+
+  Additionally there are the following possibilities:
+
+    - Two backslashes with a sequence of blanks, horizontal tabs,
+      carriage returns and new lines between them are completely
+      ignored. The ignored characters are not part of the string.
+      This can be used to continue a string in the following line.
+      Note that in this case the leading spaces in the new line
+      are not part of the string.
+
+    - Two backslashes with an integer literal between them is
+      interpreted as character with the specified ordinal number.
+      Note that the integer literal is interpreted decimal unless
+      it is written as based integer.
+
+  Syntax:
+
+    string_literal ::=
+      '"' { string_character } '"' .
+
+    string_character ::=
+      printable_character | escape_sequence .
+
+    escape_sequence ::=
+      '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |
+      '\\' | '\''' | '\"' | '\' upper_case_letter |
+      '\' { space } '\' | '\' integer_literal '\' .
+
+
+9.3.3 Character literals
+
+    A character literal is a character enclosed in single
+  quotes. For example:
+
+    'a'   ' '   '\n'   '!'   '\\'   '2'   '"'   '\"'   '\''
+
+  To represent control characters and certain other characters in
+  character literals the same escape sequences as for string
+  literals may be used.
+
+  Syntax:
+
+    character_literal ::=
+      ''' ( printable_character | escape_sequence ) ''' .
+
+    escape_sequence ::=
+      '\a' | '\b' | '\e' | '\f' | '\n' | '\r' | '\t' | '\v' |
+      '\\' | '\''' | '\"' | '\' upper_case_letter |
+      '\' { space } '\' | '\' integer_literal '\' .
+
+
+
+10. EXPRESSIONS
+===============
+
+    There are two types of expressions. On one side there so
+  called simple expressions which are constructed using fixed
+  predefined syntax rules. On the other side there are expressions
+  which are constructed according to syntax rules defined with
+  syntax declarations. Here we describe only simple expressions.
+  How syntax declarations work is described in the Chapters 3 and
+  8.2. There are only few fixed predefined syntax rules:
+
+
+10.1 Parentheses
+
+    Parentheses can be used to override any precedence
+  rules of predefined and user defined syntax constructs.
+  For example
+
+    2 * (3 + 4)
+
+  specifies that the + operator gets his parameters first.
+
+  Syntax:
+
+    parentheses_expression ::=
+      '(' expression ')' .
+
+
+10.2 Call expressions
+
+    Call expressions can also be used to form a list.
+  For example
+
+    writeln("hello world")
+
+  forms a list expression with the elements
+
+    "hello world"
+    writeln
+
+  The meta object of this list is specified with the system
+  declaration "system expr" which is defined in the include
+  file "syntax.s7i included from "seed7_05.s7i" as
+
+    $ system "expr" is expr;
+
+  A call expression with two parameters as
+
+    pos("Scotty! Beam me up.", "am")
+
+  forms a list expression with the elements
+
+    "Scotty! Beam me up."
+    "am"
+    pos
+
+  Syntax:
+
+    call_expression ::=
+      primary_expression [ '(' comma_expression ')' ] .
+
+    primary_expression ::=
+      parentheses_expression | atom .
+
+
+10.3 Dot expressions
+
+    Dot expressions start with a dot and have dots as separator
+  between the elements of the list. For example
+
+    .not.TRUE
+
+  and
+
+    .OKAY.and.GO_ON
+
+  form list expressions with the elements
+
+    not
+    TRUE
+
+  and
+
+    OKAY
+    and
+    GO_ON
+
+  The meta object of this list is specified with the system
+  declaration "system expr" which is defined in the include
+  file "syntax.s7i included from "seed7_05.s7i" as
+
+    $ system "expr" is expr;
+
+  Dot expressions override the priority of the elements.
+  Dot expressions are used in 'syntax' declarations.
+
+  Syntax:
+
+    dot_expression ::=
+      [ '.' ] call_expression { '.' call_expression } .
+
+
+
+11. OPERATING SYSTEM ACCESS
+===========================
+
+    Seed7 provides a portable access to the services provided
+  by an operating system. This interface is oriented towards
+  POSIX and UNIX.
+
+
+11.1 Directory access
+
+    A portable access to the contents of directories in the file
+  system is provided. For example: After the declaration
+
+    var array string: dir_array is 0 times "";
+
+  the following statement
+
+    dir_array := read_dir(".");
+
+  reads the current working directory and stores it into the
+  string-array 'dir_array'. The components of the directory
+  can now be accessed via indexing:
+
+    for index range 1 to length(dir_array) do
+      writeln(dir_array[index]);
+    end for;
+
+  Note that the strings contain only the name of the file.
+  Additional information must be obtained by other calls.
+  Other directories can be read by using their name in the
+  'read_dir' call.
+  Basing on this mechanism another mechanism is constructed
+  to read the contents of a directory as file. This is shown
+  in the following example
+
+    ...
+
+    $ include "dir.s7i"
+
+    var file: dir_file is STD_NULL;
+    var string: file_name is "";
+
+    ...
+
+    dir_file := open_dir(".");
+    file_name := getln(dir_file);
+    while file_name <> "" do
+      writeln(file_name);
+      file_name := getln(dir_file);
+    end while;
+
+  This is useful in programs that accept a list of filenames
+  as input. Using the 'open_dir' mechanism it is possible to
+  read the filenames directly from a directory without large
+  changes in the program.
+
+
+11.2 Other directory operations
+
+    In most operating systems each process has a current working
+  directory. With the following statement
+
+    my_dir := getcwd();
+
+  the full path of the current working directory is assigned to
+  the string variable 'my_dir'. To change the current working
+  directory the next statement can be used
+
+    chdir("/usr/bin");
+
+  A new directory can be created with
+
+    mkdir("my_dir");
+
+
+11.3 File operations
+
+    There are the following file operations accessible
+
+    remove("file");
+    rename("old_name", "new_name");
+    copy("from", "to");
+
+
+
+12. PRIMITIVE ACTIONS
+=====================
+
+    Not all functions can be described by calling other
+  functions of the same language. For this reason and for
+  performance reasons several functions are defined using a
+  mechanism called action. For example the while statement can
+  easy be defined using recursion. But this would hurt
+  performance and use a huge amount of memory for the runtime
+  stack. In practise an implementation of the while statement
+  can use a goto instead of a subroutine call. Since we have
+  no goto-statement the primitive action PRC_WHILE can be used.
+  The declaration of the while statement follows:
+
+    const proc: while (in func boolean param) do
+        (in proc param) end while is action "PRC_WHILE";
+
+  This declaration shows the types and the position of the
+  parameters of the while-statement. This gives you enough
+  information to use this statement. But it is not possible
+  to change the position or the type of the parameters because
+  they are hard coded in the interpreter.
+
+    Currently there are several hundred primitive actions
+  predefined in the interpreter. They all have names in upper
+  case characters which have the form:
+
+    TYPE_ACTION
+
+  Which means that for example all 'integer' actions start with
+  INT_ and all assignment actions end with _CPY . For the
+  following types exist primitive actions:
+
+    ACT_  Action operations
+    ARR_  Array operations
+    BLN_  Boolean operations
+    BSY_  Busy read from keyboard
+    CHR_  Character operations
+    DCL_  Declaration operations
+    DRW_  Drawing operations
+    ENU_  Enumeration operations
+    FIL_  File operations
+    FLT_  Float operations
+    INT_  Integer operations
+    KBD_  Keyboard operations
+    LST_  List operations
+    PRC_  Proc operations and statements
+    PRG_  Program operations
+    REF_  Reference operations
+    RFL_  Reference list operations
+    SCR_  Screen operations
+    SCT_  Struct operations
+    SET_  Set operations
+    STR_  String operations
+    TIM_  Time operations
+    TYP_  Type operations
+    UNX_  Portable operating system access
+
+  The following list shows actions which are used with more than
+  one type:
+
+    _ABS     Absolute value
+    _ADD     Addition
+    _CAT     Concatenation
+    _CPY     Copy (Assignment)
+    _CREATE  Initialize (Construct)
+    _DESTR   Destroy (Destruct)
+    _DECR    Decrement
+    _DIV     Division
+    _EQ      Equal
+    _GE      Greater equal
+    _GT      Greater than
+    _HEAD    Head of List, Array, String
+    _IDX     Index (Element) of List, Array, String
+    _INCR    Increment
+    _LE      Less equal
+    _LNG     Length
+    _LOWER   Convert to lower case
+    _LT      Less than
+    _MINUS   Change sign
+    _MULT    Multiply
+    _NE      Not equal
+    _PLUS    Positive sign (noop)
+    _POW     Power
+    _PRED    Predecessor
+    _RAND    Random value
+    _RANGE   Range of List, Array, String
+    _SBTR    Subtract
+    _SCAN    Convert from string to type
+    _SQRT    Square root
+    _STR     Convert to string
+    _SUCC    Successor
+    _TAIL    Tail of List, Array, String
+    _UPPER   Convert to upper case
+
+  If you are interested in the primitive actions just look into
+  the file seed7_05.s7i .
+
+
+
+13. ERRORS
+==========
+
+13.1 Compile time errors
+
+  The compile time errors are not fatal (the program can
+  execute) except for the error 1 (Out of heap space) which
+  terminates the compilation process and no execution occurs.
+
+   1: Fatal Error: Out of heap space
+   2: File "%s" not found
+   3: Include file "%s" not found
+   4: "END OF FILE" encountered
+   5: Illegal character in text "%s"
+   6: Unclosed comment
+   7: Illegal pragma "%s"
+   8: Illegal action "%s"
+   9: Illegal system declaration "%s"
+  10: Integer "%s" too big
+  11: Negative exponent in integer literal
+  12: Digit expected found "%s"
+  13: Integer "%dE%s" too big
+  14: Integer base "%ld" not between 2 and 36
+  15: Extended digit expected found "%s"
+  16: Illegal digit "%c" in based integer "%d#%s"
+  17: Based integer "%d#%s" too big
+  18: "'" expected found "%s"
+  19: Character literal exceeds source line
+  20: Use \" instead of "" to represent " in a string
+  21: Illegal string escape "\%s"
+  22: Numerical escape sequences should end with "\" not "%s");
+  23: String continuations should end with "\" not "%s");
+  24: String literal exceeds source line
+  25: Name expected found "%s"
+  26: Cardinal literal expected found "%s"
+  27: String literal expected found "%s"
+  28: Identifier expected found "%s"
+  29: Expression expected found "%s"
+  30: Expression expected after "begin"
+  31: Declaration expected found "%s"
+  32: Initialisation of "%s" failed
+  33: "%s" declared twice
+  34: "%s" not declared
+  35: Associativity expected found "%s"
+  36: Statement priority "%s" too big
+  37: Syntax with two parameters before operator is illegal
+  38: Empty syntax declaration
+  39: "%s" redeclared with infix priority %d not %d
+  40: "%s" redeclared with prefix priority %d not %d
+  41: Priority %d required for parameter after "%s" not %d
+  42: Priority <= %d expected found "%s" with priority %d
+  43: "%s" must have priority %d not %d for dot expression
+  44: "%s" expected found "%s"
+  44: ":" expected found "%s"
+  44: ";" expected found "%s"
+  44: ")" expected found "%s"
+  44: "}" expected found "%s"
+  44: "is" expected found "%s"
+  44: "end" expected found "%s"
+  44: "proc" expected found "%s"
+  44: "module" expected found "%s"
+       Undefined error
+
+
+13.2 Exceptions
+
+  There are various exceptions which can be raised during
+  program execution:
+
+    MEMORY_ERROR:
+      May be raised by various operations of the following types:
+          array, struct, hash, file, func, proc, reference, string
+      Additionally the interpreter kernel may raise this exception also.
+    NUMERIC_ERROR:
+      May be raised from the following 'integer' operations:
+          !, **, div, rem, mdiv, mod, ld
+      May be raised from the following 'float' operations:
+          /, **, acos, asin, ln, sqrt
+    RANGE_ERROR:
+      May be raised from the following 'integer' operation:
+          rand
+      May be raised from the following 'float' operation:
+          rand
+      May be raised from the following 'char' operation:
+          str
+      May be raised from the following 'array' operation:
+          [ ]
+      May be raised from the following 'hash' operation:
+          [ ]
+    IO_ERROR:
+      May be raised with the following statement:
+          cp
+    ILLEGAL_ACTION:
+      May be raised by the interpreter kernel when a primitive action
+      points to nowhere.
+
+
+13.3 Handlers
+
+  To catch an EXCEPTION the following handler construct can be used:
+
+    block
+      number := 1 div 0;
+    exception
+      catch NUMERIC_ERROR:
+        number := 1;
+    end block;
+
+
+13.4 Other errors and warnings:
+
+  No more memory. Program terminated.
+    This error message is displayed after the compile time error 1
+    (Out of heap space) . The file name and line number of the
+    analyzer source code where this happens is displayed together
+    with internal heap information. If this happens the -m option
+    can be used to make more memory available. Perhaps this slows
+    the compilation phase down.
+
+  System declaration for main missing
+    Each program must contain a system declaration that describes
+    which procedure to start as first one. Normally this is done
+    in the include file "syntax.s7i" which is included from
+    "seed7_05.s7i" so it is not necessary to do anything.
+
+  EXCEPTION %s raised at level %d with
+  HANDLER %s for exception %s at level %d with
+    If your trace level specifies exception tracing exceptions
+    and handlers are displayed with this messages and the user
+    must type the ENTER-key to accept.
+
+  Uncaught EXCEPTION %s raised with
+    If a program terminates due to a uncaught exception this
+    message is displayed at program termination.
+
+  ACTION $%s REQUIRES %s NOT %s
+    This error can happen when an action tries to do something
+    with the wrong primitive value. For example adding an
+    integer to a string with INT_ADD. Since the analyze phase
+    checks for the right types this error can only happen when the
+    basic libraries are defined wrong.
+
+  ACTION $%s REQUIRES VARIABLE %s NOT %s
+    This error can happen with actions which assign a value to
+    a constant. Since the analyze phase checks for variable objects
+    this error can only happen when the basic libraries are defined
+    wrong. Principally this error is possible with the following
+    operations: :=, incr, decr, wrd_rd, lin_rd

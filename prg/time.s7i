@@ -1,0 +1,993 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  time.s7i      Time library                                      *)
+(*  Copyright (C) 1991, 1992, 1993, 1994, 2005  Thomas Mertes       *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: time is new object struct
+    var integer: year is 0;
+    var integer: month is 1;
+    var integer: day is 1;
+    var integer: hour is 0;
+    var integer: minute is 0;
+    var integer: second is 0;
+    var integer: mycro_second is 0;
+    var integer: timezone is 0;
+(*  var WEEKDAYS: WEEKDAY is SUNDAY;
+    var integer: YEARDAY is 0; *)
+    var boolean: is_daylight_saving_time is FALSE;
+  end struct;
+
+const time: NULL_TIME is time.value;
+
+const proc: GET_TIME (inout integer param, inout integer param, inout integer param,
+    inout integer param, inout integer param, inout integer param, inout integer param,
+    inout integer param) is action "TIM_NOW";
+
+const proc: AWAIT_TIME (ref integer param, ref integer param, ref integer param, ref integer param, ref integer param,
+    ref integer param, ref integer param) is action "TIM_AWAIT";
+
+
+const func boolean: leap_year (in integer: year) is
+  return (year rem 4 = 0 and year rem 100 <> 0) or year rem 400 = 0;
+
+
+const func integer: length (in integer: year, in integer: month) is func
+  result
+    var integer: leng is 0;
+  begin
+    if month = 1 or month = 3 or month = 5 or month = 7 or
+        month = 8 or month = 10 or month = 12 then
+      leng := 31;
+    else
+      if month = 2 then
+        if leap_year(year) then
+          leng := 29;
+        else
+          leng := 28;
+        end if;
+      else
+        leng := 30;
+      end if;
+    end if;
+  end func;
+
+
+const func string: str2 (in integer: number) is func
+  result
+    var string: stri is "";
+  begin
+    if number < 10 then
+      stri := "0" & str(number);
+    else
+      stri := str(number);
+    end if;
+  end func;
+
+
+const func string: str_date (in time: aTime) is
+  return str(aTime.year) & "/" & str2(aTime.month) & "/" & str2(aTime.day);
+
+
+const func string: str_time (in time: aTime) is
+  return str2(aTime.hour) & ":" & str2(aTime.minute) & ":" & str2(aTime.second);
+
+
+const func string: str (in time: aTime) is
+  return str_date(aTime) & " " & str_time(aTime);
+
+
+const func time: (attr time) parse (in var string: stri) is func
+  result
+    var time: result is NULL_TIME;
+  begin
+    result.year := integer parse getint(stri);
+    if stri[1] <> '/' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.month := integer parse getint(stri);
+    if stri[1] <> '/' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.day := integer parse getint(stri);
+    if stri[1] <> ' ' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.hour := integer parse getint(stri);
+    if stri[1] <> ':' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.minute := integer parse getint(stri);
+    if stri[1] <> ':' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.second := integer parse getint(stri);
+    if stri <> "" then
+      raise RANGE_ERROR;
+    end if;
+    result.mycro_second := 0;
+    result.timezone := 0;
+    result.is_daylight_saving_time := FALSE;
+    if result.month < 1 or result.month > 12 or
+        result.day < 1 or result.day > length(result.year, result.month) or
+        result.hour < 0 or result.hour > 23 or
+        result.minute < 0 or result.minute > 59 or
+        result.second < 0 or result.second > 59 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+enable_io(time);
+
+
+const func boolean: (in time: tim1) = (in time: tim2) is
+  return
+    tim1.year = tim2.year and
+    tim1.month = tim2.month and
+    tim1.day = tim2.day and
+    tim1.hour = tim2.hour and
+    tim1.minute = tim2.minute and
+    tim1.second = tim2.second and
+    tim1.mycro_second = tim2.mycro_second;
+
+
+const func boolean: (in time: tim1) <> (in time: tim2) is
+  return
+    tim1.year <> tim2.year or
+    tim1.month <> tim2.month or
+    tim1.day <> tim2.day or
+    tim1.hour <> tim2.hour or
+    tim1.minute <> tim2.minute or
+    tim1.second <> tim2.second or
+    tim1.mycro_second <> tim2.mycro_second;
+
+
+const func boolean: (in time: tim1) >= (in time: tim2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    if tim1.year > tim2.year then
+      result := TRUE;
+    elsif tim1.year = tim2.year then
+      if tim1.month > tim2.month then
+        result := TRUE;
+      elsif tim1.month = tim2.month then
+        if tim1.day > tim2.day then
+          result := TRUE;
+        elsif tim1.day = tim2.day then
+          if tim1.hour > tim2.hour then
+            result := TRUE;
+          elsif tim1.hour = tim2.hour then
+            if tim1.minute > tim2.minute then
+              result := TRUE;
+            elsif tim1.minute = tim2.minute then
+              if tim1.second > tim2.second then
+                result := TRUE;
+              elsif tim1.second = tim2.second then
+                if tim1.mycro_second >= tim2.mycro_second then
+                  result := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: (in time: tim1) <= (in time: tim2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    if tim1.year < tim2.year then
+      result := TRUE;
+    elsif tim1.year = tim2.year then
+      if tim1.month < tim2.month then
+        result := TRUE;
+      elsif tim1.month = tim2.month then
+        if tim1.day < tim2.day then
+          result := TRUE;
+        elsif tim1.day = tim2.day then
+          if tim1.hour < tim2.hour then
+            result := TRUE;
+          elsif tim1.hour = tim2.hour then
+            if tim1.minute < tim2.minute then
+              result := TRUE;
+            elsif tim1.minute = tim2.minute then
+              if tim1.second < tim2.second then
+                result := TRUE;
+              elsif tim1.second = tim2.second then
+                if tim1.mycro_second <= tim2.mycro_second then
+                  result := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func boolean: (in time: tim1) < (in time: tim2) is
+  return not tim1 >= tim2;
+
+
+const func boolean: (in time: tim1) > (in time: tim2) is
+  return not tim1 <= tim2;
+
+
+const func integer: compare (in time: tim1, in time: tim2) is func
+  result
+    var integer: result is 0;
+  begin
+    if tim1.year < tim2.year then
+      result := -1;
+    elsif tim1.year > tim2.year then
+      result := 1;
+    elsif tim1.month < tim2.month then
+      result := -1;
+    elsif tim1.month > tim2.month then
+      result := 1;
+    elsif tim1.day < tim2.day then
+      result := -1;
+    elsif tim1.day > tim2.day then
+      result := 1;
+    elsif tim1.hour < tim2.hour then
+      result := -1;
+    elsif tim1.hour > tim2.hour then
+      result := 1;
+    elsif tim1.minute < tim2.minute then
+      result := -1;
+    elsif tim1.minute > tim2.minute then
+      result := 1;
+    elsif tim1.second < tim2.second then
+      result := -1;
+    elsif tim1.second > tim2.second then
+      result := 1;
+    elsif tim1.mycro_second < tim2.mycro_second then
+      result := -1;
+    elsif tim1.mycro_second > tim2.mycro_second then
+      result := 1;
+    end if;
+  end func;
+
+
+const func integer: hashCode (in time: tim) is
+  return tim.year + tim.month + tim.day +
+      tim.hour + tim.minute + tim.second + tim.mycro_second;
+
+
+const proc: NORMALIZE (inout time: tim) is func
+  local
+    var integer: month_length is 0;
+  begin
+    (* STD_ERR << "NORM IN  "; STD_ERR << tim; STD_ERR << tim.mycro_second lpad 8; STD_ERR << NL; *)
+    tim.second := tim.second + tim.mycro_second mdiv 1000000;
+    tim.mycro_second := tim.mycro_second mod 1000000;
+    tim.minute := tim.minute + tim.second mdiv 60;
+    tim.second := tim.second mod 60;
+    tim.hour := tim.hour + tim.minute mdiv 60;
+    tim.minute := tim.minute mod 60;
+    tim.day := tim.day + tim.hour mdiv 24;
+    tim.hour := tim.hour mod 24;
+    tim.year := tim.year + pred(tim.month) mdiv 12;
+    tim.month := succ(pred(tim.month) mod 12);
+    month_length := length(tim.year, tim.month);
+    while tim.day > month_length do
+      tim.day := tim.day - month_length;
+      if tim.month < 12 then
+        incr(tim.month);
+      else
+        tim.month := 1;
+        incr(tim.year);
+      end if;
+      month_length := length(tim.year, tim.month);
+    end while;
+    while tim.day < 1 do
+      if tim.month > 1 then
+        decr(tim.month);
+      else
+        tim.month := 12;
+        decr(tim.year);
+      end if;
+      tim.day := tim.day + length(tim.year, tim.month);
+    end while;
+    (* STD_ERR << "NORM OUT "; STD_ERR << tim; STD_ERR << tim.mycro_second lpad 8; STD_ERR << NL; *)
+  end func;
+
+
+const func time: time (NOW) is func
+  result
+    var time: TIME_VAL is NULL_TIME;
+  begin
+    (* writeln("before get_time"); *)
+    GET_TIME(TIME_VAL.year, TIME_VAL.month, TIME_VAL.day,
+        TIME_VAL.hour, TIME_VAL.minute, TIME_VAL.second,
+        TIME_VAL.mycro_second, TIME_VAL.timezone);
+    TIME_VAL.is_daylight_saving_time := FALSE;
+  end func;
+
+
+const proc: await (ref time: tim) is func
+  begin
+    AWAIT_TIME(tim.year, tim.month, tim.day,
+        tim.hour, tim.minute, tim.second, tim.mycro_second);
+  end func;
+
+
+const type: duration is new object struct
+    var integer: year_365 is 0;
+    var integer: year_366 is 0;
+    var integer: month_28 is 0;
+    var integer: month_29 is 0;
+    var integer: month_30 is 0;
+    var integer: month_31 is 0;
+    var integer: day is 0;
+    var integer: hour is 0;
+    var integer: minute is 0;
+    var integer: second is 0;
+    var integer: mycro_second is 0;
+  end struct;
+
+const duration: NULL_DURATION is duration.value;
+
+
+const func integer: year (in duration: aDuration) is func
+  result
+    var integer: NUM_YEARS is 0;
+  begin
+    NUM_YEARS := aDuration.year_365 + aDuration.year_366;
+  end func;
+
+
+const func integer: month (in duration: aDuration) is func
+  result
+    var integer: NUM_MONTHS is 0;
+  begin
+    NUM_MONTHS := aDuration.month_28 + aDuration.month_29 +
+        aDuration.month_30 + aDuration.month_31;
+  end func;
+
+
+const func string: str (in duration: aDuration) is func
+  result
+    var string: stri is "";
+  begin
+    stri := str(year(aDuration)) & "/" & str2(month(aDuration)) & "/" &
+        str2(aDuration.day) & " " & str2(aDuration.hour) & ":" &
+        str2(aDuration.minute) & ":" & str2(aDuration.second);
+  end func;
+
+
+const func duration: (attr duration) parse (in var string: stri) is func
+  result
+    var duration: result is NULL_DURATION;
+  begin
+    result.year_365 := integer parse getint(stri);
+    if stri[1] <> '/' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.month_30 := integer parse getint(stri);
+    if stri[1] <> '/' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.day := integer parse getint(stri);
+    if stri[1] <> ' ' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.hour := integer parse getint(stri);
+    if stri[1] <> ':' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.minute := integer parse getint(stri);
+    if stri[1] <> ':' then
+      raise RANGE_ERROR;
+    end if;
+    stri := stri[2 ..];
+    result.second := integer parse getint(stri);
+    if stri <> "" then
+      raise RANGE_ERROR;
+    end if;
+    result.mycro_second := 0;
+    if result.month_30 < 1 or result.month_30 > 12 or
+        result.day < 1 or result.day > length(result.year_365, result.month_30) or
+        result.hour < 0 or result.hour > 23 or
+        result.minute < 0 or result.minute > 59 or
+        result.second < 0 or result.second > 59 then
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+
+enable_io(duration);
+
+
+const func boolean: (in duration: dur1) = (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result :=
+        dur1.year_365 = dur2.year_365 and
+        dur1.year_366 = dur2.year_366 and
+        dur1.month_28 = dur2.month_28 and
+        dur1.month_29 = dur2.month_29 and
+        dur1.month_30 = dur2.month_30 and
+        dur1.month_31 = dur2.month_31 and
+        dur1.day = dur2.day and
+        dur1.hour = dur2.hour and
+        dur1.minute = dur2.minute and
+        dur1.second = dur2.second and
+        dur1.mycro_second = dur2.mycro_second;
+  end func;
+
+
+const func boolean: (in duration: dur1) <> (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result :=
+        dur1.year_365 <> dur2.year_365 and
+        dur1.year_366 <> dur2.year_366 and
+        dur1.month_28 <> dur2.month_28 and
+        dur1.month_29 <> dur2.month_29 and
+        dur1.month_30 <> dur2.month_30 and
+        dur1.month_31 <> dur2.month_31 and
+        dur1.day <> dur2.day or
+        dur1.hour <> dur2.hour or
+        dur1.minute <> dur2.minute or
+        dur1.second <> dur2.second or
+        dur1.mycro_second <> dur2.mycro_second;
+  end func;
+
+
+const func boolean: (in duration: dur1) >= (in duration: dur2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    if dur1.year_365 + dur1.year_366 > dur2.year_365 + dur2.year_366 then
+      result := TRUE;
+    elsif dur1.year_365 + dur1.year_366 = dur2.year_365 + dur2.year_366 then
+      if dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 >
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        result := TRUE;
+      elsif dur1.month_28 + dur1.month_29 + dur1.month_30 + dur1.month_31 =
+          dur2.month_28 + dur2.month_29 + dur2.month_30 + dur2.month_31 then
+        if dur1.day > dur2.day then
+          result := TRUE;
+        elsif dur1.day = dur2.day then
+          if dur1.hour > dur2.hour then
+            result := TRUE;
+          elsif dur1.hour = dur2.hour then
+            if dur1.minute > dur2.minute then
+              result := TRUE;
+            elsif dur1.minute = dur2.minute then
+              if dur1.second > dur2.second then
+                result := TRUE;
+              elsif dur1.second = dur2.second then
+                if dur1.mycro_second > dur2.mycro_second then
+                  result := TRUE;
+                elsif dur1.mycro_second = dur2.mycro_second then
+                  result := TRUE;
+                end if;
+              end if;
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func duration: (in integer: YRS) . YEARS is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := YRS;
+  end func;
+
+
+const func duration: (in integer: MONS) . MONTHS is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.month_30 := MONS;
+  end func;
+
+
+const func duration: (in integer: DS) . DAYS is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.day := DS;
+  end func;
+
+
+const func duration: (in integer: HRS) . HOURS is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.hour := HRS;
+  end func;
+
+
+const func duration: (in integer: MINS) . MINUTES is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.minute := MINS;
+  end func;
+
+
+const func duration: (in integer: SECS) . SECONDS is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.second := SECS;
+  end func;
+
+
+const func duration: (in integer: MY_SECS) . MYCRO_SECONDS is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.mycro_second := MY_SECS;
+  end func;
+
+
+const func integer: YEARS (in duration: dur_val) is func
+  result
+    var integer: NUM_YEARS is 0;
+  begin
+    NUM_YEARS := dur_val.year_365 + dur_val.year_366;
+  end func;
+
+
+const func integer: MONTHS (in duration: dur_val) is func
+  result
+    var integer: NUM_MONTHS is 0;
+  begin
+    NUM_MONTHS := (dur_val.year_365 + dur_val.year_366) * 12 +
+        dur_val.month_28 +
+        dur_val.month_29 +
+        dur_val.month_30 +
+        dur_val.month_31;
+  end func;
+
+
+const func integer: DAYS (in duration: dur_val) is func
+  result
+    var integer: NUM_DAYS is 0;
+  begin
+    NUM_DAYS := dur_val.year_365 * 365 +
+        dur_val.year_366 * 366 +
+        dur_val.month_28 * 28 +
+        dur_val.month_29 * 29 +
+        dur_val.month_30 * 30 +
+        dur_val.month_31 * 31 +
+        dur_val.day;
+  end func;
+
+
+const func integer: HOURS (in duration: dur_val) is func
+  result
+    var integer: NUM_HOURS is 0;
+  begin
+    NUM_HOURS := DAYS(dur_val) * 24 +
+        dur_val.hour;
+  end func;
+
+
+const func integer: MINUTES (in duration: dur_val) is func
+  result
+    var integer: NUM_MINUTES is 0;
+  begin
+    NUM_MINUTES := (DAYS(dur_val) * 24 +
+        dur_val.hour) * 60 +
+        dur_val.minute;
+  end func;
+
+
+const func integer: SECONDS (in duration: dur_val) is func
+  result
+    var integer: NUM_SECONDS is 0;
+  begin
+    NUM_SECONDS := ((DAYS(dur_val) * 24 +
+        dur_val.hour) * 60 +
+        dur_val.minute) * 60 +
+        dur_val.second;
+  end func;
+
+
+const func integer: MYCRO_SECONDS (in duration: dur_val) is func
+  result
+    var integer: NUM_MYCRO_SECONDS is 0;
+  begin
+    NUM_MYCRO_SECONDS := (((DAYS(dur_val) * 24 +
+        dur_val.hour) * 60 +
+        dur_val.minute) * 60 +
+        dur_val.second) * 1000000 +
+        dur_val.mycro_second;
+  end func;
+
+
+const proc: NORMALIZE (inout duration: DUR) is func
+  begin
+(*  write("NORM IN  "); write(DUR); writeln; *)
+    DUR.second := DUR.second + DUR.mycro_second mdiv 1000000;
+    DUR.mycro_second := DUR.mycro_second mod 1000000;
+    DUR.minute := DUR.minute + DUR.second mdiv 60;
+    DUR.second := DUR.second mod 60;
+    DUR.hour := DUR.hour + DUR.minute mdiv 60;
+    DUR.minute := DUR.minute mod 60;
+    DUR.day := DUR.day + DUR.hour mdiv 24;
+    DUR.hour := DUR.hour mod 24;
+(*  write("NORM OUT "); write(DUR); writeln; *)
+  end func;
+
+
+const proc: (inout time: tim) +:= (in duration: DUR) is func
+  begin
+    tim.year +:= year(DUR);
+    tim.month +:= month(DUR);
+    tim.day +:= DUR.day;
+    tim.hour +:= DUR.hour;
+    tim.minute +:= DUR.minute;
+    tim.second +:= DUR.second;
+    tim.mycro_second +:= DUR.mycro_second;
+    NORMALIZE(tim);
+  end func;
+
+
+const func time: (in time: tim) + (in duration: DUR) is func
+  result
+    var time: TIM_VAL is NULL_TIME;
+  begin
+    TIM_VAL.year := tim.year + year(DUR);
+    TIM_VAL.month := tim.month + month(DUR);
+    TIM_VAL.day := tim.day + DUR.day;
+    TIM_VAL.hour := tim.hour + DUR.hour;
+    TIM_VAL.minute := tim.minute + DUR.minute;
+    TIM_VAL.second := tim.second + DUR.second;
+    TIM_VAL.mycro_second := tim.mycro_second + DUR.mycro_second;
+    NORMALIZE(TIM_VAL);
+  end func;
+
+
+const func time: (in time: tim) - (in duration: DUR) is func
+  result
+    var time: TIM_VAL is NULL_TIME;
+  begin
+    TIM_VAL.year := tim.year - year(DUR);
+    TIM_VAL.month := tim.month - month(DUR);
+    TIM_VAL.day := tim.day - DUR.day;
+    TIM_VAL.hour := tim.hour - DUR.hour;
+    TIM_VAL.minute := tim.minute - DUR.minute;
+    TIM_VAL.second := tim.second - DUR.second;
+    TIM_VAL.mycro_second := tim.mycro_second - DUR.mycro_second;
+    NORMALIZE(TIM_VAL);
+  end func;
+
+
+const func duration: (in time: tim1) - (in time: tim2) is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := tim1.year - tim2.year;
+    dur_val.month_30 := tim1.month - tim2.month;
+    dur_val.day := tim1.day - tim2.day;
+    dur_val.hour := tim1.hour - tim2.hour;
+    dur_val.minute := tim1.minute - tim2.minute;
+    dur_val.second := tim1.second - tim2.second;
+    dur_val.mycro_second := tim1.mycro_second - tim2.mycro_second;
+(*
+write("tim1>");
+write(tim1);
+write(" ");
+writeln(replace(tim1.mycro_second lpad 6, " ", "0"));
+write("tim2>");
+write(tim2);
+write(" ");
+writeln(replace(tim2.mycro_second lpad 6, " ", "0"));
+write("D>");
+write(dur_val);
+write(" ");
+writeln(replace(dur_val.mycro_second lpad 6, " ", "0"));
+*)
+    NORMALIZE(dur_val);
+(*
+write("E>");
+write(dur_val);
+write(" ");
+writeln(replace(dur_val.mycro_second lpad 6, " ", "0"));
+*)
+  end func;
+
+
+const func duration: - (in duration: DUR) is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := -DUR.year_365;
+    dur_val.year_366 := -DUR.year_366;
+    dur_val.month_28 := -DUR.month_28;
+    dur_val.month_29 := -DUR.month_29;
+    dur_val.month_30 := -DUR.month_30;
+    dur_val.month_31 := -DUR.month_31;
+    dur_val.day := -DUR.day;
+    dur_val.hour := -DUR.hour;
+    dur_val.minute := -DUR.minute;
+    dur_val.second := -DUR.second;
+  end func;
+
+
+const func duration: + (in duration: DUR) is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := DUR.year_365;
+    dur_val.year_366 := DUR.year_366;
+    dur_val.month_28 := DUR.month_28;
+    dur_val.month_29 := DUR.month_29;
+    dur_val.month_30 := DUR.month_30;
+    dur_val.month_31 := DUR.month_31;
+    dur_val.day := DUR.day;
+    dur_val.hour := DUR.hour;
+    dur_val.minute := DUR.minute;
+    dur_val.second := DUR.second;
+  end func;
+
+
+const func duration: (in duration: DUR1) + (in duration: DUR2) is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := DUR1.year_365 + DUR2.year_365;
+    dur_val.year_366 := DUR1.year_366 + DUR2.year_366;
+    dur_val.month_28 := DUR1.month_28 + DUR2.month_28;
+    dur_val.month_29 := DUR1.month_29 + DUR2.month_29;
+    dur_val.month_30 := DUR1.month_30 + DUR2.month_30;
+    dur_val.month_31 := DUR1.month_31 + DUR2.month_31;
+    dur_val.day := DUR1.day + DUR2.day;
+    dur_val.hour := DUR1.hour + DUR2.hour;
+    dur_val.minute := DUR1.minute + DUR2.minute;
+    dur_val.second := DUR1.second + DUR2.second;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in duration: DUR1) - (in duration: DUR2) is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := DUR1.year_365 - DUR2.year_365;
+    dur_val.year_366 := DUR1.year_366 - DUR2.year_366;
+    dur_val.month_28 := DUR1.month_28 - DUR2.month_28;
+    dur_val.month_29 := DUR1.month_29 - DUR2.month_29;
+    dur_val.month_30 := DUR1.month_30 - DUR2.month_30;
+    dur_val.month_31 := DUR1.month_31 - DUR2.month_31;
+    dur_val.day := DUR1.day - DUR2.day;
+    dur_val.hour := DUR1.hour - DUR2.hour;
+    dur_val.minute := DUR1.minute - DUR2.minute;
+    dur_val.second := DUR1.second - DUR2.second;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in integer: number) * (in duration: DUR) is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := number * DUR.year_365;
+    dur_val.year_366 := number * DUR.year_366;
+    dur_val.month_28 := number * DUR.month_28;
+    dur_val.month_29 := number * DUR.month_29;
+    dur_val.month_30 := number * DUR.month_30;
+    dur_val.month_31 := number * DUR.month_31;
+    dur_val.day := number * DUR.day;
+    dur_val.hour := number * DUR.hour;
+    dur_val.minute := number * DUR.minute;
+    dur_val.second := number * DUR.second;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const func duration: (in duration: DUR) * (in integer: number) is func
+  result
+    var duration: dur_val is NULL_DURATION;
+  begin
+    dur_val.year_365 := DUR.year_365 * number;
+    dur_val.year_366 := DUR.year_366 * number;
+    dur_val.month_28 := DUR.month_28 * number;
+    dur_val.month_29 := DUR.month_29 * number;
+    dur_val.month_30 := DUR.month_30 * number;
+    dur_val.month_31 := DUR.month_31 * number;
+    dur_val.day := DUR.day * number;
+    dur_val.hour := DUR.hour * number;
+    dur_val.minute := DUR.minute * number;
+    dur_val.second := DUR.second * number;
+    NORMALIZE(dur_val);
+  end func;
+
+
+const proc: wait (in duration: aDuration) is func
+  begin
+    await(time(NOW) + aDuration);
+  end func;
+
+
+(*
+const type: MONTH_ENUM is new enum
+    JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE,
+    JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER
+  end enum;
+
+
+const string: str (JANUARY) is "JANUARY";
+const MONTH_ENUM: pred (JANUARY) is DECEMBER;
+const MONTH_ENUM: succ (JANUARY) is FEBRUARY;
+const integer: ord (JANUARY) is 1;
+const integer: length (JANUARY) is 31;
+
+const string: str (FEBRUARY) is "FEBRUARY";
+const MONTH_ENUM: pred (FEBRUARY) is JANUARY;
+const MONTH_ENUM: succ (FEBRUARY) is MARCH;
+const integer: ord (FEBRUARY) is 2;
+const integer: length (FEBRUARY) is 28;
+
+const string: str (MARCH) is "MARCH";
+const MONTH_ENUM: pred (MARCH) is FEBRUARY;
+const MONTH_ENUM: succ (MARCH) is APRIL;
+const integer: ord (MARCH) is 3;
+const integer: length (MARCH) is 31;
+
+const string: str (APRIL) is "APRIL";
+const MONTH_ENUM: pred (APRIL) is MARCH;
+const MONTH_ENUM: succ (APRIL) is MAY;
+const integer: ord (APRIL) is 4;
+const integer: length (APRIL) is 30;
+
+const string: str (MAY) is "MAY";
+const MONTH_ENUM: pred (MAY) is APRIL;
+const MONTH_ENUM: succ (MAY) is JUNE;
+const integer: ord (MAY) is 5;
+const integer: length (MAY) is 31;
+
+const string: str (JUNE) is "JUNE";
+const MONTH_ENUM: pred (JUNE) is MAY;
+const MONTH_ENUM: succ (JUNE) is JULY;
+const integer: ord (JUNE) is 6;
+const integer: length (JUNE) is 30;
+
+const string: str (JULY) is "JULY";
+const MONTH_ENUM: pred (JULY) is JUNE;
+const MONTH_ENUM: succ (JULY) is AUGUST;
+const integer: ord (JULY) is 7;
+const integer: length (JULY) is 31;
+
+const string: str (AUGUST) is "AUGUST";
+const MONTH_ENUM: pred (AUGUST) is JULY;
+const MONTH_ENUM: succ (AUGUST) is SEPTEMBER;
+const integer: ord (AUGUST) is 8;
+const integer: length (AUGUST) is 31;
+
+const string: str (SEPTEMBER) is "SEPTEMBER";
+const MONTH_ENUM: pred (SEPTEMBER) is AUGUST;
+const MONTH_ENUM: succ (SEPTEMBER) is OCTOBER;
+const integer: ord (SEPTEMBER) is 9;
+const integer: length (SEPTEMBER) is 30;
+
+const string: str (OCTOBER) is "OCTOBER";
+const MONTH_ENUM: pred (OCTOBER) is SEPTEMBER;
+const MONTH_ENUM: succ (OCTOBER) is NOVEMBER;
+const integer: ord (OCTOBER) is 10;
+const integer: length (OCTOBER) is 31;
+
+const string: str (NOVEMBER) is "NOVEMBER";
+const MONTH_ENUM: pred (NOVEMBER) is OCTOBER;
+const MONTH_ENUM: succ (NOVEMBER) is DECEMBER;
+const integer: ord (NOVEMBER) is 11;
+const integer: length (NOVEMBER) is 30;
+
+const string: str (DECEMBER) is "DECEMBER";
+const MONTH_ENUM: pred (DECEMBER) is NOVEMBER;
+const MONTH_ENUM: succ (DECEMBER) is JANUARY;
+const integer: ord (DECEMBER) is 12;
+const integer: length (DECEMBER) is 31;
+
+
+const proc: MONTH_ENUM.val.(in integer: number) is func
+  result
+    var MONTH_ENUM: MON_VAL is JANUARY;
+  begin
+    case number of
+      when { 1}: MON_VAL := JANUARY;
+      when { 2}: MON_VAL := FEBRUARY;
+      when { 3}: MON_VAL := MARCH;
+      when { 4}: MON_VAL := APRIL;
+      when { 5}: MON_VAL := MAY;
+      when { 6}: MON_VAL := JUNE;
+      when { 7}: MON_VAL := JULY;
+      when { 8}: MON_VAL := AUGUST;
+      when { 9}: MON_VAL := SEPTEMBER;
+      when {10}: MON_VAL := OCTOBER;
+      when {11}: MON_VAL := NOVEMBER;
+      when {12}: MON_VAL := DECEMBER;
+    end case;
+  end func;
+
+
+const type: WEEKDAYS is new enum
+    MONDAY, TUESDAY, WEDNESDAY, THURSDAY,
+    FRIDAY, SATURDAY, SUNDAY
+  end enum;
+
+
+const string: str (MONDAY) is "MONDAY";
+const WEEKDAYS: pred (MONDAY) is SUNDAY;
+const WEEKDAYS: succ (MONDAY) is TUESDAY;
+const integer: ord (MONDAY) is 1;
+
+const string: str (TUESDAY) is "TUESDAY";
+const WEEKDAYS: pred (TUESDAY) is MONDAY;
+const WEEKDAYS: succ (TUESDAY) is WEDNESDAY;
+const integer: ord (TUESDAY) is 2;
+
+const string: str (WEDNESDAY) is "WEDNESDAY";
+const WEEKDAYS: pred (WEDNESDAY) is TUESDAY;
+const WEEKDAYS: succ (WEDNESDAY) is THURSDAY;
+const integer: ord (WEDNESDAY) is 3;
+
+const string: str (THURSDAY) is "THURSDAY";
+const WEEKDAYS: pred (THURSDAY) is WEDNESDAY;
+const WEEKDAYS: succ (THURSDAY) is FRIDAY;
+const integer: ord (THURSDAY) is 4;
+
+const string: str (FRIDAY) is "FRIDAY";
+const WEEKDAYS: pred (FRIDAY) is THURSDAY;
+const WEEKDAYS: succ (FRIDAY) is SATURDAY;
+const integer: ord (FRIDAY) is 5;
+
+const string: str (SATURDAY) is "SATURDAY";
+const WEEKDAYS: pred (SATURDAY) is FRIDAY;
+const WEEKDAYS: succ (SATURDAY) is SUNDAY;
+const integer: ord (SATURDAY) is 6;
+
+const string: str (SUNDAY) is "SUNDAY";
+const WEEKDAYS: pred (SUNDAY) is SATURDAY;
+const WEEKDAYS: succ (SUNDAY) is MONDAY;
+const integer: ord (SUNDAY) is 7;
+*)

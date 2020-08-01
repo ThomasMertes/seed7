@@ -1,0 +1,2436 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  shisen.sd7    Shisen game                                       *)
+(*  Copyright (C) 2005  Thomas Mertes                               *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+	
+$ include "seed7_05.s7i";
+include "float.s7i";
+include "graph.s7i";
+include "draw.s7i";
+include "keybd.s7i";
+include "time.s7i";
+
+
+var TEXT: screen is STD_NULL;
+
+const integer: UPPER_BORDER is 12 + 64 + 12;
+const integer: LEFT_BORDER is 64;
+const integer: CARD_SIZE is 64;
+const integer: CARD_BORDER is 4;
+const integer: FIELD_STEP is CARD_SIZE + 2 * CARD_BORDER;
+const integer: HALF_FIELD is FIELD_STEP div 2;
+const integer: FRAME_THICKNESS is 3;
+const integer: FIELD_LINES is 8;
+const integer: FIELD_COLUMNS is 12;
+const integer: COMPUTER_HIT_XPOS is 8;
+const integer: PLAYER_HIT_XPOS is UPPER_BORDER + FIELD_LINES * FIELD_STEP + FIELD_STEP + 8;
+
+var array PRIMITIVE_WINDOW: digit_pixmap is 0 times PRIMITIVE_WINDOW.value;
+
+const type: cardType is new struct
+    var array string: picture is 0 times "";
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+    var integer: number is 0;
+  end struct;
+
+const type: visibleType is new enum
+    normal, marked, removed
+  end enum;
+
+const type: fieldType is new struct
+    var integer: cardNumber is 0;
+    var visibleType: visible is normal;
+    var boolean: selected is FALSE;
+  end struct;
+
+var integer: playerHits is 0;
+var integer: computerHits is 0;
+
+
+const array string: small_bush_pic is [](
+  "     G GG       ",
+  "   G  GG  GG  G ",
+  " G  G  G G   G  ",
+  "  GGGG GG G GGG ",
+  "      GG  GGG   ",
+  " GGG   G G   GG ",
+  "   GGG GG GG GGG",
+  " G  G GG  G G   ",
+  " G  GG G  GG G G",
+  "GG GG Gg  g  GG ",
+  " G  g  g g   G  ",
+  "GGG  g ggGG GGGG",
+  "   g  gg   g    ",
+  "    g  g  gGG   ",
+  "     g g g      ",
+  "      ggg       ");
+
+
+const array string: big_bush_pic is [](
+  "     G G  GG  G  G   G G        ",
+  "      GG   G  G G    GGGGG      ",
+  "       G    G GG    gg G   G  G ",
+  "    GGGGG    GGG G gg  G   G GG ",
+  " G     Ggg G  gg Ggg   G   gg   ",
+  " GG   G  ggG  gg gg   gG  ggGG  ",
+  "   G      gg  ggggG  gg  gg     ",
+  " G  GGGGggggg ggg   gg  ggggGGGG",
+  "  G  G      bbbb    bbggg       ",
+  "GGGG   G  G  bbb   bbgg G    GG ",
+  "   gg   GG G  bb  bb  G   G  G  ",
+  " GGGgg   G  ggbb bb G   G GggGGG",
+  "     gg  gG  gbbbb  G gg  gg    ",
+  "  G   gg g bb bbb   ggg  ggggGG ",
+  " GGG   gbg  bbbb  G gg  gg G    ",
+  "    G   bg   bbb G  g  gg   G   ",
+  "  G  G   gb   bbbb  bbbb  G    G",
+  "   g  g  gbb  bbb   bbbg  G  GG ",
+  "GGGgggggbb bb bb  G bb    gg G  ",
+  "       bbb  bbbb  GbbggGG ggg   ",
+  "  G  GGGbb  Gbbb  bb      ggGGG ",
+  "   G     bb   bb bbggGG  gg     ",
+  "    gg G  bb  bbbb      ggggGGGG",
+  " GGggggG GGbb bbb      gggg     ",
+  "   G  gg    bbbb   G  bb  GGGG  ",
+  "  G    ggG   bbb  G  bb    G    ",
+  "     G  gg  G bbgg  bb          ",
+  "  GGgggggbb  Gbbg  bbbggggGGGG  ",
+  "    G     bb  bb  bb   G        ",
+  "       GGGGbb bb bb     G       ",
+  "            bbbbbbGGGG          ",
+  "             bbbb               ");
+
+
+const array string: statue_pic is [](
+  "     XXXXX      ",
+  "   XXXXXXXXX    ",
+  "  XXXXXXXXXXX   ",
+  "  XXXXXXXXXXX   ",
+  "  XXXXXXXXXXX   ",
+  "  XXXXXXXX XX   ",
+  "  XXXXXXXXXXXX  ",
+  "  XXXXXXXXXXXXX ",
+  "  XXXXXXXXXXX   ",
+  "   XXXXXXXX     ",
+  "    XXXXXXXX    ",
+  "     XXXXX      ",
+  "     XXXXX      ",
+  "   XXXXXXXXX    ",
+  "XXXXXXXXXXXXXXXX",
+  "X              X");
+
+
+const array string: fountain_pic is [](
+  "            BB    BB            ",
+  "           B B    B B           ",
+  "     BBBB     B  B     BBBB     ",
+  "   BB    BB   B  B   BB    BB   ",
+  "  BB      BB   BB   BB      BB  ",
+  "  B        BB  BB  BB        B  ",
+  "B          BBBBBBBBBB          B",
+  "BB          BBBBBBBB          BB",
+  "            BBBBBBBB            ",
+  "B            BBBBBB            B",
+  "             BBBBBB             ",
+  "              BBBB              ",
+  "              BBBB              ",
+  "               BB               ",
+  "               BB               ",
+  "               BB               ",
+  "               XX               ",
+  "               XX               ",
+  "              XXXX              ",
+  "             XXXXXX             ",
+  "      xxxxxxxXXxxXXxxxxxxx      ",
+  "    xxxxxxxxxXXxxXXxxxxxxxxx    ",
+  "  xxxxBBBBBBxXXxxXXxBBBBBBxxxx  ",
+  " xxxBBBBBBBBxXXxxXXxBBBBBBBBxxx ",
+  "xxxBBBBBBBxxxXXXXXXxxxBBBBBBBxxx",
+  "xxBBBBBBBBxxXXXXXXXXxxBBBBBBBBxx",
+  "xxBBBBBBBBBxxxxxxxxxxBBBBBBBBBxx",
+  "xxxBBBBBBBBBBBBBBBBBBBBBBBBBBxxx",
+  " xxxBBBBBBBBBBBBBBBBBBBBBBBBxxx ",
+  "  xxxxxBBBBBBBBBBBBBBBBBBxxxxx  ",
+  "    xxxxxxxxxxxxxxxxxxxxxxxx    ",
+  "      xxxxxxxxxxxxxxxxxxxx      ");
+
+
+const array string: wood_pic is [](
+  "bbbbbbbbbbbbbbrr",
+  "rrbbbbbrrrrbbbbb",
+  "bbrrrrrbbbbrrrbb",
+  "bbbbbbbbbbbbbbbb",
+  "rrrbbbbbbbbbbbbb",
+  "bbbrrbbbbrrrrrrb",
+  "bbbbbrrrrrbbbbbb",
+  "bbbbbbbbbbbbrrrr",
+  "rrrrbbbbbrrrbbbb",
+  "bbbbrrrrrbbbbbbb",
+  "bbbbbbbbbbbbbrrr",
+  "rrbbbbbbrrrrrbbb",
+  "bbbbbbbbbbbbbbbb",
+  "bbbrrrrbbbbbrrrb",
+  "rrrbbbbrrrrrbbbb",
+  "bbbbbbbbbbbbbbbb");
+
+
+const array string: chain_pic is [](
+  "     BBB   BBB  ",
+  "    B   B B   B ",
+  "    B  BBBBB  B ",
+  "    BB  B B   B ",
+  "    BBBB   BBB  ",
+  "   BB           ",
+  " BBB            ",
+  "B B B           ",
+  "B   B           ",
+  "B B B           ",
+  " BBB            ",
+  "   BBBBB   BBB  ",
+  "    BB  B B   B ",
+  "    B  BBBBB  B ",
+  "    B   B B   B ",
+  "     BBB   BBB  ");
+
+
+const array string: up_pic is [](
+  "         XX  X  ",
+  "         X X  X ",
+  "      XXXX  X  X",
+  "      XX  X  XXX",
+  "      X X  X X  ",
+  "   XXXX  X  XX  ",
+  "   XX  X  XXXX  ",
+  "   X X  X X    X",
+  "XXXX  X  XX   X ",
+  "XX  X  XXXX  X  ",
+  "X X  X X    X   ",
+  "X  X  XX   X    ",
+  " X  XXXX  X     ",
+  "  X X    X      ",
+  "   XX   X       ",
+  "    XXXX        ");
+
+
+const array string: down_pic is [](
+  "     XXXXXXXXXXX",
+  "    XX          ",
+  "   X X      X   ",
+  "  X  XXXX    X X",
+  " X  X  XX     XX",
+  "X  X  X X    XXX",
+  "X X  X  XXXX    ",
+  "XX  X  X  XX    ",
+  "XXXX  X  X X    ",
+  "   X X  X  XXXX ",
+  "   XX  X  X  XX ",
+  "   XXXX  X  X X ",
+  "      X X  X  XX",
+  "      XX  X  X  ",
+  "      XXXX  X   ",
+  "         X X    ");
+
+
+const array string: ogre_pic is [](
+  "     GGGGGGG    ",
+  "    GGGGGGGGG   ",
+  "    GG  G  GG   ",
+  "    GGGGGGGGG   ",
+  "    GGG   GGG   ",
+  "    GG  G  GG   ",
+  "   GxGGGGGGGxG  ",
+  "  GGxxxxxxxxxGG ",
+  " GG xxxxxxxxx GG",
+  " GG xxxxxxxxx GG",
+  " bb xxxxxxxxx   ",
+  " bb  bbb bbb    ",
+  "bbbb bbb bbb    ",
+  "bbbb bb   bb    ",
+  "bbbb bb   bb    ",
+  " bbrrrr   rrrr  ");
+
+
+const array string: demon_pic is [](
+  "     XXXXXX     ",
+  "    XXXXXXXX    ",
+  "   XXXXXXXXXX   ",
+  "   XX  XX  XX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XX  XX  XX   ",
+  "   X  X  X  X   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XXXXXXXXXX   ",
+  "   XX XXXX XX   ",
+  "   X   XX   X   ");
+
+
+const array string: big_spider_pic is [](
+  " B            B ",
+  "  B          B  ",
+  "   B        B   ",
+  "    B      B    ",
+  "     B    B     ",
+  "BBB   B  B   BBB",
+  "   BBBXXXXBBB   ",
+  "     XXXXXX     ",
+  "     XXXXXX     ",
+  "   BBBXXXXBBB   ",
+  "BBB   B  B   BBB",
+  "     B    B     ",
+  "    B      B    ",
+  "   B        B   ",
+  "  B          B  ",
+  " B            B ");
+
+
+const array string: small_spider_pic is [](
+  "                ",
+  "  B          B  ",
+  "   B        B   ",
+  "    B      B    ",
+  "     B    B     ",
+  " BBB  B  B  BBB ",
+  "    BBBXXBBB    ",
+  "      XXXX      ",
+  "    BBBXXBBB    ",
+  " BBB  B  B  BBB ",
+  "     B    B     ",
+  "    B      B    ",
+  "   B        B   ",
+  "  B          B  ",
+  "                ",
+  "                ");
+
+
+const array string: bat_pic is [](
+  "     r    r     ",
+  "     rr  rr     ",
+  "     rrrrrr     ",
+  "     rBrrBr     ",
+  "     rrrrrr     ",
+  "     rXXXXr     ",
+  "   rrrXrrXrrr   ",
+  " rrbbrbbbbrbbrr ",
+  " rbbbrbbbbrbbbr ",
+  "rbbbbrbbbbrbbbbr",
+  "rbbbbrbbbbrbbbbr",
+  "rrrbrrbbbbrrbrrr",
+  "r  r  rbbr  r  r",
+  "     r rr r     ",
+  "     r    r     ",
+  "   rr      rr   ");
+
+
+const array string: snake_pic is [](
+  "          gggg                  ",
+  "        gggggggg                ",
+  " ggggggggggXXgggg               ",
+  "ggggggggggXXXXgggg              ",
+  " X X X ggg  XXgggRRgggGG        ",
+  " X X X  ggg XggggRRggGGGgg      ",
+  "        ggggggGGggggGGgGgRRg    ",
+  "        gggggggGGggGGggGgRRgg   ",
+  "X X X X gggggRRgGGGGRRgGggggg   ",
+  "X X X XggggggRRggGGgRRgGGGGGGG  ",
+  "gggggggggggggg         gRRggGGg ",
+  " gggggggggggg           RRgGGgg ",
+  "                         ggGGggg",
+  "                         gGGggRR",
+  "       GRGgGgGgR          gGGgRR",
+  "     RGgGgGRGgGGG         ggGGgg",
+  "    GGG         RG        gggGGg",
+  "   gGR           Gg       RRggGG",
+  "  RgG             GR      RRgGGg",
+  "  gGg             gG      ggGGgg",
+  " gGg      g       Gg      gGGggg",
+  " GgR      g       RG      GGgRRg",
+  "ggGg      g       Gg     ggGGRR ",
+  "RggG      gg     ggg     ggGGgg ",
+  "ggGg       gggGGggg     RRggGG  ",
+  " GGGG       ggGGgg     gRRggGG  ",
+  " gggG                 GGGGGGG   ",
+  "  RgGgR             ggGgggggg   ",
+  "   gGGGGgRgGGgRRgGGgRRGgRRgg    ",
+  "    gggGggGGGGggGGGGRRGgRRg     ",
+  "     RgGgGGggGGGGggGGgGgg       ",
+  "       GGGgRRgGGgRRgGGG         ");
+
+
+const array string: vampire_pic is [](
+  "      bbbb      ",
+  "     bbbbbb     ",
+  "     bBxxBb     ",
+  "XX   xxxxxx   XX",
+  "Xx   xXXXXx   xX",
+  " xx   XxxX   xx ",
+  "  xxggggggggxx  ",
+  "  bxggggggggxb  ",
+  "  bbggggggggbb  ",
+  "  bbggggggggbb  ",
+  "  bbggggggggbb  ",
+  "  bbbxxbbxxbbb  ",
+  "  bbbxxbbxxbbb  ",
+  "  bbbxxbbxxbbb  ",
+  "     xx  xx     ",
+  "   rrrr  rrrr   ");
+
+
+const array string: door_pic is [](
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB",
+  "B  B  B  B  B  B",
+  "B  B  B  B  B  B",
+  "BBBBBBBBBBBBBBBB");
+
+
+const array string: lamp_pic is [](
+  "          BBBBBBBBBBBB          ",
+  "         BBBBBBBBBBBBBB         ",
+  "        BBB          BBB        ",
+  "       BBB            BBB       ",
+  "       BB              BB       ",
+  "       BB              BB       ",
+  " BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB ",
+  " BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB ",
+  " BBXXXXXXXXXXXXXXXXXXXXXXXXXXBB ",
+  " BBXXXXXXXXXXXXXXXXXXXXXXXXXXBB ",
+  " BBXXXXXXXXYYYYYYYYYYXXXXXXXXBB ",
+  " BBXXXXXXYYYYYYYYYYYYYYXXXXXXBB ",
+  " BBXXXXXYYYYYYYYYYYRYYYYXXXXXBB ",
+  " BBXXXXYYYYYYYYYYYRYYYYYYXXXXBB ",
+  " BBXXXYYYYYYYYYYYRRYYYYYYYXXXBB ",
+  " BBXXXYYYYYYYYYYRRYYYYYYYYXXXBB ",
+  " BBXXYYYYYYYYYYRRRYYYYYYYYYXXBB ",
+  " BBXXYYYYYYYYYRRRRYYYYYYYYYXXBB ",
+  " BBXXYYYYYYYYYRRRRYYYYYYYYYXXBB ",
+  " BBXXYYYYYYYYRRRRRRYYYYYYYYXXBB ",
+  " BBXXYYYYYYYYRRRRRRYYYYYYYYXXBB ",
+  " BBXXYYYYYYYYRRRRRRYYYYYYYYXXBB ",
+  " BBXXYYYYYYYYYRRRRYYYYYYYYYXXBB ",
+  " BBXXXYYYYYY   RR   YYYYYYXXXBB ",
+  " BBXXXYYYYYY XXXXXX YYYYYYXXXBB ",
+  " BBXXXXYYYYY XXXXXX YYYYYXXXXBB ",
+  " BBXXXXXYYYY XXXXXX YYYYXXXXXBB ",
+  " BBXXXXXXXYY XXXXXX YYXXXXXXXBB ",
+  " BBXXXXXXXXX XXXXXX XXXXXXXXXBB ",
+  " BBXXXXXXXXX XXXXXX XXXXXXXXXBB ",
+  " BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB ",
+  " BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB ");
+
+
+const array string: scepter_pic is [](
+  "                          RR  RR",
+  "                          RR  RR",
+  "                            YY  ",
+  "                           YYY  ",
+  "                          YYY RR",
+  "                         YYY  RR",
+  "                        YYY     ",
+  "                 YYYY  YYY      ",
+  "               YYYYYYYYYY       ",
+  "              YYYYYYYYYY        ",
+  "             YYYYYYYYYYY        ",
+  "             YYYYYXXYYYYY       ",
+  "            YYYYYXXXXYYYY       ",
+  "            YYYYXXXXXYYYY       ",
+  "            YYYYXXXXYYYYY       ",
+  "            YYYYYXXYYYYY        ",
+  "             YYYYYYYYYYY        ",
+  "            YYYYYYYYYYY         ",
+  "           YRRYYYYYYYY          ",
+  "          YYRRY YYYY            ",
+  "         YYYYY                  ",
+  "        YYYYY                   ",
+  "       YYYYY                    ",
+  "      YYYYY                     ",
+  "     YBBYY                      ",
+  "    YYBBY                       ",
+  "   YYYYY                        ",
+  "  YYYYY                         ",
+  " YYYYY                          ",
+  "YYYYY                           ",
+  "RRYY                            ",
+  "RRY                             ");
+
+
+const array string: book_pic is [](
+  "  RRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+  " RR                            R",
+  "ROR                            R",
+  "OOR                            R",
+  "OOR   GG        XX        GG   R",
+  "OOR   GG        XX        GG   R",
+  "OOR          XXXXXXXX          R",
+  "OOR          XXXXXXXX          R",
+  "OOR             XX             R",
+  "OOR             XX             R",
+  "OOR   GG        XX        GG   R",
+  "OOR   GG        XX        GG   R",
+  "OOR                            R",
+  "OOR                            R",
+  "OOR   XXXX  XX  XX  XX  XXXX   R",
+  "OOR   XXXX  XX  XX  XX  XXXX   R",
+  "OOR   XXXX  XX  XX  XX  XXXX   R",
+  "OOR   XXXX  XX  XX  XX  XXXX   R",
+  "OOR   XXXX  XX  XX  XX  XXXX   R",
+  "OOR   XXXX  XX  XX  XX  XXXX   R",
+  "OOR                            R",
+  "OOR                            R",
+  "OORRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+  "ORXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  "RXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  "RXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  "RXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  "RXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  "RXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  "RXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  " RXXXXXXXXXXXXXXXXXXXXXXXXXXXX  ",
+  "  RRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
+
+
+const array string: magic_wand_pic is [](
+  "           Y        G      XXX  ",
+  "          YYY      GGG    XXXXX ",
+  "       YYYYYYYYY    G    XXXXXXX",
+  "        YYYXYYY         XXXXXXXX",
+  "         YXXXY         XXXXXXXXX",
+  "        YYYXYYY       XXXXXXXXX ",
+  "       YYYYYYYYY     XXXXXXXXX  ",
+  "          YYY       XXXXXXXXX   ",
+  "           Y       X  XXXXXX    ",
+  "                  X    XXXX     ",
+  "                 X      XX    B ",
+  "                X       X    BBB",
+  "               X       X      B ",
+  "              X       X         ",
+  "             X       X          ",
+  "            X       X     R R R ",
+  "           X       X       RRR  ",
+  "          X       X       RR RR ",
+  "         X       X         RRR  ",
+  "        X       X         R R R ",
+  "       X       X                ",
+  "      X       X                 ",
+  "     X       X                  ",
+  "    X       X                   ",
+  "   X       X                    ",
+  "  X       X                     ",
+  " X       X                      ",
+  "X       X                       ",
+  "X      X                        ",
+  "X     X                         ",
+  " X   X                          ",
+  "  XXX                           ");
+
+
+const array string: sword_pic is [](
+  "                           BBBBB",
+  "                          BBBBBB",
+  "                         BBBBBXB",
+  "                        BBBBBXXB",
+  "                       BBBBBXXBB",
+  "                      BBBBBXXBB ",
+  "                     BBBBBXXBB  ",
+  "                    BBBBBXXBB   ",
+  "                   BBBBBXXBB    ",
+  "                  BBBBBXXBB     ",
+  "                 BBBBBXXBB      ",
+  "                BBBBBXXBB       ",
+  "               BBBBBXXBB        ",
+  "       b      BBBBBXXBB         ",
+  "      bb     BBBBBXXBB          ",
+  "     bbb    BBBBBXXBB           ",
+  "    bbbbb  BBBBBXXBB            ",
+  "       bbbBBBBBXXBB             ",
+  "        bbbBBBXXBB              ",
+  "         bbbBXXBB               ",
+  "         bbbbXBB                ",
+  "        bbbbbbB                 ",
+  "       bbbbbbbb                 ",
+  "      bbbbb  bbb                ",
+  "     bbbbb    bbbbb             ",
+  "    bbbbb      bbb              ",
+  "bbbbbbbb       bb               ",
+  "bbbbbbb        b                ",
+  "  bbbb                          ",
+  "   bbb                          ",
+  "    bb                          ",
+  "    bb                          ");
+
+
+const array string: key_pic is [](
+  "                    RRRRRR      ",
+  "                  RRRRRRRRRR    ",
+  "                 RRR      RRR   ",
+  "                RR          RR  ",
+  "               RR            RR ",
+  "               RR            RR ",
+  "             BRRB             RR",
+  "            BBRRBB            RR",
+  "BBBBBBBBBBBBB RR BB           RR",
+  "BBBBBBBBBBBBB RR BB           RR",
+  " BBBBB      BBBBBB            RR",
+  " BBBBB       BBBB             RR",
+  " B B B         RR            RR ",
+  "               RR     BB     RR ",
+  "                RR   BBBB   RR  ",
+  "                 RRRBB  BBRRR   ",
+  "                  RRRRRRBBRR    ",
+  "                    RRRRBB      ",
+  "                    BB  BB      ",
+  "                     BBBB       ",
+  "                      BB        ",
+  "                      BB        ",
+  "                      BB        ",
+  "                      BB        ",
+  "                      BB        ",
+  "                      BB        ",
+  "                      BBBBB     ",
+  "                      BBBB      ",
+  "                      BBBBB     ",
+  "                      BBBB      ",
+  "                      BBBBB     ",
+  "                      BB        ");
+
+
+const array string: glasses_pic is [](
+  "                                ",
+  "                                ",
+  "  bb                        bb  ",
+  " bb                          bb ",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb                            bb",
+  "bb   BBBB              BBBB   bb",
+  "bb BBBBBBBB          BBBBBBBB bb",
+  "bbBBBccccBBB        BBBccccBBBbb",
+  "bBBccccccccBB      BBccccccccBBb",
+  "bBBccccccccBB      BBccccccccBBb",
+  "BBccccccccccBB    BBccccccccccBB",
+  "BBccccccccccBBBBBBBBccccccccccBB",
+  "BBccccccccccBBBBBBBBccccccccccBB",
+  "BBccccccccccBB    BBccccccccccBB",
+  " BBccccccccBB      BBccccccccBB ",
+  " BBccccccccBB      BBccccccccBB ",
+  "  BBBccccBBB        BBBccccBBB  ",
+  "   BBBBBBBB          BBBBBBBB   ",
+  "     BBBB              BBBB     ",
+  "                                ",
+  "                                ");
+
+
+const array string: helmet_pic is [](
+  " RBRBRBRBRBR    ",
+  "  RBRBRBRBR     ",
+  "   RBRBRBR      ",
+  "    RBRBR       ",
+  "    YYYYY       ",
+  "    YYYYY       ",
+  "  YYYYYYYYY     ",
+  " YYYYXXXYYYY    ",
+  "YYYYXXXXXYYYY   ",
+  "YYYYXXXXXYYYY   ",
+  "YYYYXXXXXYYYYYYY",
+  "RRRRRRRRRRRRRRRR",
+  "Y   YYYYY       ",
+  "Y   YYYYY       ",
+  "     XXX        ",
+  "      Y         ");
+
+
+const array string: wine_flask_pic is [](
+  "              bbbb              ",
+  "              bbbb              ",
+  "             GGGGGG             ",
+  "              GGGG              ",
+  "              GGGG              ",
+  "              GGGG              ",
+  "              GGGG              ",
+  "              GGGG              ",
+  "            GGGGGGGG            ",
+  "          GGGGGGGGGGGG          ",
+  "         GGGGGGGGGGGGGG         ",
+  "         GGGGGGGGGGGGGG         ",
+  "        GGGGGGGGGGGGGGGG        ",
+  "        GGGGGGGGGGGGGGGG        ",
+  "        GGXXXXXXXXXXXXGG        ",
+  "        GGXXXXXXXXXXXXGG        ",
+  "        GGXXRRXXXXRRXXGG        ",
+  "        GGXXRRXXXXRRXXGG        ",
+  "        GGXXXXXXXXXXXXGG        ",
+  "        GGXXXXXXXXXXXXGG        ",
+  "        GGXXRRXXXXRRXXGG        ",
+  "        GGXXRRRXXRRRXXGG        ",
+  "        GGXXXRRRRRRXXXGG        ",
+  "        GGXXXXRRRRXXXXGG        ",
+  "        GGXXXXXXXXXXXXGG        ",
+  "        GGXXXXXXXXXXXXGG        ",
+  "        GGGGGGGGGGGGGGGG        ",
+  "        GGGGGGGGGGGGGGGG        ",
+  "        GGGGGGGGGGGGGGGG        ",
+  "        GGGGGGGGGGGGGGGG        ",
+  "        GGGGGGGGGGGGGGGG        ",
+  "        GGGGGGGGGGGGGGGG        ");
+
+
+const array string: crystal_ball_pic is [](
+  "           XXXXXXXXXX           ",
+  "         XXXXXXXXXXXXXX         ",
+  "       XXXXXXXXXXXXXXXXXX       ",
+  "      XXXXXXXXXXXXXXXXXXXX      ",
+  "     XXXXXXXXXXXXXXXXXXXXXX     ",
+  "    XXXXXXBBBXXXXXXXXXXXXXXX    ",
+  "   XXXXXBBBXXXXXXXXXXXXXXXXXX   ",
+  "  XXXXXBBXXXXXXXXXXXXXXXXXXXXX  ",
+  "  XXXXBBXXXXXXXXXXXXXXXXXXXXXX  ",
+  " XXXXXBXXXXXXXXXXXXXXXXXXXXXXXX ",
+  " XXXXBBXXXXXXXXXXXXXXXXXXXXXXXX ",
+  "XXXXXBXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXBXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXRXXXXX",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXXRXXXXX",
+  " XXXXXXXXXXXXXXXXXXXXXXXXRRXXXX ",
+  " XXXXXXXXXXXXXXXXXXXXXXXXRXXXXX ",
+  "  XXXXXXXXXXXXXXXXXXXXXXRRXXXX  ",
+  "  XXXXXXXXXXXXXXXXXXXXXRRXXXXX  ",
+  "   XXXXXXXXXXXXXXXXXXRRRXXXXX   ",
+  "    XXXXXXXXXXXXXXXRRRXXXXXX    ",
+  "     XXXXXXXXXXXXXXXXXXXXXX     ",
+  "   bbbbbbbbbbbbbbbbbbbbbbbbbb   ",
+  "  bbbbbbbbbbbbbbbbbbbbbbbbbbbb  ",
+  " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+
+const array string: necklace_pic is [](
+  "                RR              ",
+  "         GG YYRRRRRRYY GG       ",
+  "        GGGGYYRRRRRRYYGGGG      ",
+  "      YYGGGG    RR    GGGGYY    ",
+  "      YY GG            GG YY    ",
+  "     BB                    BB   ",
+  "    BBBB                  BBBB  ",
+  "    BBBB                  BBBB  ",
+  "     BB                    BB   ",
+  "    YY                      YY  ",
+  "    YY                      YY  ",
+  "   RR                        RR ",
+  "  RRRR                      RRRR",
+  "  RRRR                      RRRR",
+  "   RR                        RR ",
+  "    YY                      YY  ",
+  "    YY                      YY  ",
+  "     GG                    GG   ",
+  "    GGGG                  GGGG  ",
+  "    GGGGYY BB        BB YYGGGG  ",
+  "     GG YYBBBB      BBBBYY GG   ",
+  "          BBBBYYYYYYBBBB        ",
+  "           BB YYYYYY BB         ",
+  "                YY              ",
+  "                YY              ",
+  "             RRRYYRRR           ",
+  "            RRRRYYRRRR          ",
+  "            RRRRRRRRRR          ",
+  "             RRRRRRRR           ",
+  "              RRRRRR            ",
+  "               RRRR             ",
+  "                RR              ");
+
+
+const array string: holy_cross_pic is [](
+  "               RR               ",
+  "              RRRR              ",
+  "             YXXXXY             ",
+  "            YYXRRXYY            ",
+  "          BBYXRRRRXYBB          ",
+  "          BBYYXRRXYYBB          ",
+  "            YYXXXXYY            ",
+  "             YYYYYY             ",
+  "              YYYY              ",
+  "              YBBY              ",
+  "              YBBY              ",
+  "              YYYY              ",
+  "             YYYYYY             ",
+  "    YYY     YYYYYYYY     YYY    ",
+  "   YYRYYYYYYYYYBBYYYYYYYYYRYY   ",
+  "  YYRRRYYYXXYYBBBBYYXXYYYRRRYY  ",
+  "  YYRRRYYYXXYYBBBBYYXXYYYRRRYY  ",
+  "   YYRYYYYYYYYYBBYYYYYYYYYRYY   ",
+  "    YYY     YYYYYYYY     YYY    ",
+  "             YYYYYY             ",
+  "              YYYY              ",
+  "              YYYY              ",
+  "              YBBY              ",
+  "              YBBY              ",
+  "              YYYY              ",
+  "              YYYY              ",
+  "              YYYY              ",
+  "              YYYY              ",
+  "             YYYYYY             ",
+  "            YYYYYYYY            ",
+  "          RRYYYYYYYYRR          ",
+  "          RRYYYYYYYYRR          ");
+
+
+const array string: diamond_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "               XB               ",
+  "              XXBB              ",
+  "             XXccBB             ",
+  "            XXXccBBB            ",
+  "           XXXccccBBB           ",
+  "          XXXXccccBBBB          ",
+  "         XXXXccccccBBBB         ",
+  "        XXXXXccccccBBBBB        ",
+  "       XXXXXccccccccBBBBB       ",
+  "      XXXXXXccccccccBBBBBB      ",
+  "     XXXXXXccccccccccBBBBBB     ",
+  "    XXXXXXXccccccccccBBBBBBB    ",
+  "   XXXXXXXccccccccccccBBBBBBB   ",
+  "  XXXXXXXXccccccccccccBBBBBBBB  ",
+  " XXXXXXXXccccccccccccccBBBBBBBB ",
+  "XXXXXXXXXccccccccccccccBBBBBBBBB",
+  "ccccccccBBBBBBBBBBBBBBBBXXXXXXXX",
+  "  cccccccBBBBBBBBBBBBBBXXXXXXX  ",
+  "    ccccccBBBBBBBBBBBBXXXXXX    ",
+  "      cccccBBBBBBBBBBXXXXX      ",
+  "        ccccBBBBBBBBXXXX        ",
+  "          cccBBBBBBXXX          ",
+  "            ccBBBBXX            ",
+  "              cBBX              ",
+  "               cX               ",
+  "                                ",
+  "                                ",
+  "                                ");
+
+
+const array string: silver_bars_pic is [](
+  "           XXXXXXXXXXXXXX       ",
+  "          XXXxxxxxxxxxxxXX      ",
+  "         XXXXxxxxxxxxxxxXxX     ",
+  "         XXXxxxxxxxxxxxxXxxX    ",
+  "        XXXXxxxxxxxxxxxXxxxxX   ",
+  "        XXXxxxxxxxxxxxxXxxxxxX  ",
+  "       XXXXxxxxxxxxxxxXxxxxxxxX ",
+  "       XXXxxxxxxxxxxxxXxxxxxxxxX",
+  "      XXXXxxxxxxxxxxxXxxxxxxxxxX",
+  "      XXXxxxxxxxxxxxxXxxxxxxxxX ",
+  "     XXXXxxxxxxxxxxxXxxxxxxxxxX ",
+  "     XXXxxxxxxxxxxxxXxxxxxxxxX  ",
+  "    XXXXxxxxxxxxxxxXxxxxxxxxxX  ",
+  "    XXXxxxxxxxxxxxxXxxxxxxxxX   ",
+  "   XXXXxxxxxxxxxxxXxxxxxxxxxXX  ",
+  "   XXXXXXXXXXXXXXXXxxxxxxxxXxxX ",
+  "  XXXXxxxxxxxxxxxxxXxxxxxxxXxxxX",
+  "  XXXxxxxxxxxxxxxxxxXxxxxxXxxxxX",
+  " XXXxxxxxxxxxxxxxxxxxXxxxxXxxxX ",
+  " XXxxxxxxxxxxxxxxxxxxxXxxXxxxxX ",
+  "XXxxxxxxxxxxxxxxxxxxxxxXxXxxxX  ",
+  "XxxxxxxxxxxxxxxxxxxxxxxxXxxxxX  ",
+  "XxxxxxxxxxxxxxxxxxxxxxxxXxxxX   ",
+  "XXXXXXXXXXXXXXXXXXXXXXXXXxxxX   ",
+  "  XXXXxxxxxxxxxxxxXxxxxxxxxX    ",
+  "  XXXxxxxxxxxxxxxxxXxxxxxxxX    ",
+  " XXXxxxxxxxxxxxxxxxxXxxxxxX     ",
+  " XXxxxxxxxxxxxxxxxxxxXxxxxX     ",
+  "XXxxxxxxxxxxxxxxxxxxxxXxxX      ",
+  "XxxxxxxxxxxxxxxxxxxxxxxXxX      ",
+  "XxxxxxxxxxxxxxxxxxxxxxxxX       ",
+  "XXXXXXXXXXXXXXXXXXXXXXXXX       ");
+
+
+const array string: ruby_pic is [](
+  "                                ",
+  "                                ",
+  "                                ",
+  "                                ",
+  "               Xr               ",
+  "              XXrr              ",
+  "             XXRRrr             ",
+  "            XXXRRrrr            ",
+  "           XXXRRRRrrr           ",
+  "          XXXXRRRRrrrr          ",
+  "         XXXXRRRRRRrrrr         ",
+  "        XXXXXRRRRRRrrrrr        ",
+  "       XXXXXRRRRRRRRrrrrr       ",
+  "      XXXXXXRRRRRRRRrrrrrr      ",
+  "     XXXXXXRRRRRRRRRRrrrrrr     ",
+  "    XXXXXXXRRRRRRRRRRrrrrrrr    ",
+  "   XXXXXXXRRRRRRRRRRRRrrrrrrr   ",
+  "  XXXXXXXXRRRRRRRRRRRRrrrrrrrr  ",
+  " XXXXXXXXRRRRRRRRRRRRRRrrrrrrrr ",
+  "XXXXXXXXXRRRRRRRRRRRRRRrrrrrrrrr",
+  "RRRRRRRRrrrrrrrrrrrrrrrrXXXXXXXX",
+  "  RRRRRRRrrrrrrrrrrrrrrXXXXXXX  ",
+  "    RRRRRRrrrrrrrrrrrrXXXXXX    ",
+  "      RRRRRrrrrrrrrrrXXXXX      ",
+  "        RRRRrrrrrrrrXXXX        ",
+  "          RRRrrrrrrXXX          ",
+  "            RRrrrrXX            ",
+  "              RrrX              ",
+  "               RX               ",
+  "                                ",
+  "                                ",
+  "                                ");
+
+
+const array string: jade_figurine_pic is [](
+  "       GGG      ",
+  "      GGGGG     ",
+  "      GGGGG     ",
+  "       GGG      ",
+  "     GGGGGGG    ",
+  "    GGGGGGGGG   ",
+  "   GG GGGGG GG  ",
+  "  GG  GGGGG  GG ",
+  "  G  GGGGGGG  G ",
+  "     GGGGGGG    ",
+  "     GGG GGG    ",
+  "      GG GG     ",
+  "      GG GG     ",
+  "       G G      ",
+  "       G G      ",
+  "     GGG GGG    ");
+
+
+const array string: harp_pic is [](
+  "    OOOO                        ",
+  "    OOOOO                       ",
+  "   OOOOOOOO                     ",
+  "   OOO xOOOOOO            OOOOO ",
+  "   OOO x xOOOOOOOO      OOOOOOOO",
+  "  OOO  x x x xOOOOOOOOOOOOOOOOOO",
+  "  OOO  x x x x x xOOOOOOOx x OOO",
+  "  OOO  x x x x x x x x x x xbOOO",
+  " OOO   x x x x x x x x x xbxOOOO",
+  " OOO   x x x x x x x x x xOxOOOO",
+  " OOO   x x x x x x x x xbxOOOOOb",
+  " OOO   x x x x x x x x xOxOOOOb ",
+  "OOO    x x x x x x x xbxOOOOOb  ",
+  "OOO    x x x x x x x xOxOOOOb   ",
+  "OOO    x x x x x x xbxOOOOOb    ",
+  "OOO    x x x x x x xOxOOOOb     ",
+  "OOO    x x x x x xbxOOOOOb      ",
+  "OOO    x x x x x xOxOOOOb       ",
+  "OOO    x x x x xbxOOOOOb        ",
+  "OOO    x x x x xOxOOOOb         ",
+  " OOO   x x x xbxOOOOOb          ",
+  " OOO   x x x xOxOOOOb           ",
+  " OOO   x x xbxOOOOOb            ",
+  " OOO   x x xOxOOOOb             ",
+  "  OOO  x xbxOOOOOb              ",
+  "  OOO  x xOxOOOOb               ",
+  "  OOO  xbxOOOOOb                ",
+  "   OOO xOxOOOOb                 ",
+  "   OOObxOOOOOb                  ",
+  "   OOOOxOOOOb                   ",
+  "    OOOOOOOb                    ",
+  "    OOOOOOb                     ");
+
+
+const array string: hourglass_pic is [](
+  " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",
+  " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",
+  "   bb  XXXXXXXXXXXXXXXXXX  bb   ",
+  "   bb XXXXXXXXXXXXXXXXXXXX bb   ",
+  "   bbXX                  XXbb   ",
+  "   bbXX                  XXbb   ",
+  "   bbXX       YYYY       XXbb   ",
+  "   bbXX      YYYYYY      XXbb   ",
+  "   bb XX    YYYYYYYY    XX bb   ",
+  "   bb  XX  YYYYYYYYYY  XX  bb   ",
+  "   bb   XXYYYYYYYYYYYYXX   bb   ",
+  "   bb    XXYYYYYYYYYYXX    bb   ",
+  "   bb     XXYYYYYYYYXX     bb   ",
+  "   bb      XXYYYYYYXX      bb   ",
+  "   bb       XXYYYYXX       bb   ",
+  "   bb        XXYYXX        bb   ",
+  "   bb        XXYYXX        bb   ",
+  "   bb       XX YY XX       bb   ",
+  "   bb      XX  YY  XX      bb   ",
+  "   bb     XX   YY   XX     bb   ",
+  "   bb    XX    YY    XX    bb   ",
+  "   bb   XX     YY     XX   bb   ",
+  "   bb  XX      YY      XX  bb   ",
+  "   bb XX      YYYY      XX bb   ",
+  "   bbXX      YYYYYY      XXbb   ",
+  "   bbXX     YYYYYYYY     XXbb   ",
+  "   bbXX    YYYYYYYYYY    XXbb   ",
+  "   bbXX   YYYYYYYYYYYY   XXbb   ",
+  "   bb XXXXXXXXXXXXXXXXXXXX bb   ",
+  "   bb  XXXXXXXXXXXXXXXXXX  bb   ",
+  " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ",
+  " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ");
+
+
+const array string: large_gem_pic is [](
+  "                                ",
+  "                                ",
+  "     RRRRRR          RRRRRR     ",
+  "   RRRRRRRRRR      RRRRRRRRRR   ",
+  "  RRRrrrrrrRRR    RRRrrrrrrRRR  ",
+  " RRrrrrrrrrrrRR  RRrrrrrrrrrrRR ",
+  " RRrrrrrrrrrrrRRRRrrrrrrrrrrrRR ",
+  "RRrrrrrrrrrrrrrRRrrrrrrrrrrrrrRR",
+  "RRrrrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  "RRrrrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  "RRrrrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  "RRrrrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  "RRrrrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  "RRrrrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  "RRrrrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  " RRrrrrrrrrrrrrrrrrrrrrrrrrrrRR",
+  " RRrrrrrrrrrrrrrrrrrrrrrrrrrrRR ",
+  "  RRrrrrrrrrrrrrrrrrrrrrrrrrRR  ",
+  "   RRrrrrrrrrrrrrrrrrrrrrrrRR   ",
+  "    RRrrrrrrrrrrrrrrrrrrrrRR    ",
+  "     RRrrrrrrrrrrrrrrrrrrRR     ",
+  "      RRrrrrrrrrrrrrrrrrRR      ",
+  "       RRrrrrrrrrrrrrrrRR       ",
+  "        RRrrrrrrrrrrrrRR        ",
+  "         RRrrrrrrrrrrRR         ",
+  "          RRrrrrrrrrRR          ",
+  "           RRrrrrrrRR           ",
+  "            RRrrrrRR            ",
+  "             RRrrRR             ",
+  "              RRRR              ",
+  "               RR               ",
+  "                                ");
+
+
+const array string: goldbar_pic is [](
+  "        XXXXX   ",
+  "       XXYYYXX  ",
+  "      XXYYYYXYX ",
+  "      XXYYYXYYYX",
+  "     XXYYYYXYYYX",
+  "     XXYYYXYYYYX",
+  "    XXYYYYXYYYX ",
+  "    XXYYYXYYYYX ",
+  "   XXYYYYXYYYX  ",
+  "   XXYYYXYYYYX  ",
+  "  XXYYYYXYYYX   ",
+  "  XXXXXXYYYYX   ",
+  " XXYYYYYXYYX    ",
+  " XYYYYYYYXYX    ",
+  "XYYYYYYYYYX     ",
+  "XXXXXXXXXXX     ");
+
+
+const array string: fancy_goblet_pic is [](
+  "    RRRRRRRR    ",
+  "   RRYYYYYYRR   ",
+  "  RYYYYYYYYYYR  ",
+  "  RYYYYYYYYYYR  ",
+  "  XRRYYYYYYRRX  ",
+  "  XYRRRRRRRRYX  ",
+  "   XGYYYYYYBX   ",
+  "    XYBYYGYX    ",
+  "     XYYYYX     ",
+  "      XYYX      ",
+  "    XXBYYBXX    ",
+  "   XXRBYYBRXX   ",
+  "  XRYYBYYBYYRX  ",
+  "  XYYYYBBYYYYX  ",
+  "   XBYRYYRYBX   ",
+  "    XXXXXXXX    ");
+
+
+const array string: crown_pic is [](
+  "                                ",
+  "                                ",
+  "               YY               ",
+  "               YY               ",
+  "               YY               ",
+  "               YY               ",
+  "          YYYYYXXYYYYY          ",
+  "          YYYYYXXYYYYY          ",
+  "               YY               ",
+  "               YY               ",
+  "               YY               ",
+  "  R       R    YY    R       R  ",
+  "  R       R    YY    R       R  ",
+  "RRRRR   RRRRR  YY  RRRRR   RRRRR",
+  "  R       R    YY    R       R  ",
+  "  R       R    YY    R       R  ",
+  "  Y      YYYYYYYYYYYYYY      Y  ",
+  "  Y  YYYYYYYYYYYYYYYYYYYYYY  Y  ",
+  "  YYYYYYYYYYYYYBBYYYYYYYYYYYYY  ",
+  "  YYYYYYYYYYYYBBBBYYYYYYYYYYYY  ",
+  "RRYYYYXYYYYYYBBRRBBYYYYYYXYYYYRR",
+  "RRYYYXXXYYYYYBBRRBBYYYYYXXXYYYRR",
+  "  YYXXXXXYYYYYBBBBYYYYYXXXXXYY  ",
+  "  YYXXXXXYYYYYYBBYYYYYYXXXXXYY  ",
+  "BBYYYXXXYYYRRYYYYYYRRYYYXXXYYYBB",
+  "BBYYYYXYYYYRRYYYYYYRRYYYYXYYYYBB",
+  "  YYYYYYYYYYYYYYYYYYYYYYYYYYYY  ",
+  "  YYYYYYYYYYYYYYYYYYYYYYYYYYYY  ",
+  "  RRRRRRRRRRRRRRRRRRRRRRRRRRRR  ",
+  "  RRRRRRRRRRRRRRRRRRRRRRRRRRRR  ",
+  "  YYYYYYYYYYYYYYYYYYYYYYYYYYYY  ",
+  "  YYYYYYYYYYYYYYYYYYYYYYYYYYYY  ");
+
+
+const array string: fairy_pic is [](
+  "      xxxxx                   YYYY                   xxxxx      ",
+  "    xxxcccxxx               YYYYYYYY               xxxcccxxx    ",
+  "   xxcccccccxx             YYYYYYYYYY             xxcccccccxx   ",
+  "  xxcccccccccxx           YYYYYYYYYYYY           xxcccccccccxx  ",
+  "  xcccccccccccxx          YYYXXXXXXYYY          xxcccccccccccx  ",
+  "  xccccccccccccxx        YYYXXXXXXXXYYY        xxccccccccccccx  ",
+  "  xxccccccccccccxx       YYYXBBXXBBXYYY       xxccccccccccccxx  ",
+  "   xcccccccccccccxx      YYYXXXXXXXXYYY      xxcccccccccccccx   ",
+  "   xxcccccccccccccxx     YYYXXXXXXXXYYY     xxcccccccccccccxx   ",
+  "    xxxccccccccccccxx    YYYXXOXXOXXYYY    xxccccccccccccxxx    ",
+  "   xxcccccBccccBccccxx   YYYXXXOOXXXYYY   xxcccccccccccccccxx   ",
+  "   xcccccccBccBccccccxx      XXXXXX      xxcccccccccccccccccx   ",
+  "  xxccccccccccccccccccxx      XXXX      xxccccccccccccccccccxx  ",
+  "  xccccccBBcXXcBBccccccxx     XXXX     xxccccccccccccccccccccx  ",
+  "  xcccccccccXXccccccccccxXXXXXXXXXXXXXXxcccccccccccccccccccccx  ",
+  "  xxccccccBcRRcBcccccccXXXXXXXXXXXXXXXXXXcccccccccccccccccccxx  ",
+  "   xcccccBccRRccBcccccXXXXXXXXXXXXXXXXXXXXccccccccccccccccccx   ",
+  "   xxcccccccRRcccccccXXXXXRRRXXXXXXRRRXXXXXccccccccccccccccxx   ",
+  "    xxxcccccRRccccccXXXXXRRRRRXXXXRRRRRXXXXXcccccccccccccxxx    ",
+  "   xxcccccccRRcccccXXXXXRRRRRRRXXRRRRRRRXXXXXccccccccccccccxx   ",
+  "   xccccccccRRccccXXXXXcRRRRRRRXXRRRRRRRcXXXXXccccccccccccccx   ",
+  "  xxccccccccRRcccXXXXXccRRRRRRRXXRRRRRRRccXXXXXcccccccccccccxx  ",
+  "  xcccccccccRRccXXXXXcccxRRRRRXXXXRRRRRxcccXXXXXcccccccccccccx  ",
+  "  xcccccccccRRcXXXXXcccxxcRRRXXXXXXRRRcxxcccXXXXXccccccccccccx  ",
+  "  xxccccccccRRXXXXXcccxx   XXXXXXXXXX   xxcccXXXXXccccccccccxx  ",
+  "   xcccccccXXXXXXXcccxx    XXXXXXXXXX    xxcccXXXXXXXXccccccx   ",
+  "   xxcccccXXXXXXXcccxx     XXXXXXXXXX     xxcccXXXXXXccccccxx   ",
+  "    xxxcccXXXXXXcccxx      XXXXYYXXXX      xxcccXXXXXXcccxxx    ",
+  "   xxcccccXXXXXcccxx      XXXXXYYXXXXX      xxccXXXXXXXccccxx   ",
+  "   xcccccccXXXcccxx       XXXXXXXXXXXX       xxccXXXXXccccccx   ",
+  "  xxccccccccccccxx       XXXXXXXXXXXXXX       xxccXXccccccccxx  ",
+  "  xccccccccccccxx       RRRRRRRRRRRRRRRR       xxccccccccccccx  ",
+  "  xcccccccccccxx        XXRRRRRRRRRRRRXX        xxcccccccccccx  ",
+  "  xxcccccccccxx        XXXXXRRRRRRRRXXXXX        xxcccccccccxx  ",
+  "   xxcccccccxx         XXXXXXRRRRRRXXXXXX         xxcccccccxx   ",
+  "    xxxcccxxx          XXXXXXXRRRRXXXXXXX          xxxcccxxx    ",
+  "      xxxxx            XXXXXXXRRRRXXXXXXX            xxxxx      ",
+  "                       XXXXXXXXRRXXXXXXXX                       ",
+  "                        XXXXXXXRRXXXXXXX                        ",
+  "                        XXXXXXX  XXXXXXX                        ",
+  "                         XXXXXX  XXXXXX                         ",
+  "                         XXXXXX  XXXXXX                         ",
+  "                         XXXXXX  XXXXXX                         ",
+  "                         XXXXXX  XXXXXX                         ",
+  "                          XXXXX  XXXXX                          ",
+  "                          XXXXX  XXXXX                          ",
+  "                          XXXXX  XXXXX                          ",
+  "                          XXXXX  XXXXX                          ",
+  "                          XXXXX  XXXXX                          ",
+  "                          XXXXX  XXXXX                          ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                           XXXX  XXXX                           ",
+  "                          XXXXX  XXXXX                          ",
+  "                         XXXXXX  XXXXXX                         ",
+  "                         XXXXXX  XXXXXX                         ");
+
+
+const array string: computer_pic is [](
+  "ccccccccccccccccccc                                 YYYYY       ",
+  "ccccccccccccccccccc                                YYYYYYY      ",
+  "cc               cc                               YYYYYYYY      ",
+  "cc XXX  R R  XXX cc                               YYYYYYYYY     ",
+  "cc  X  RRRRR XXX cc                               YYYYYYYYY     ",
+  "cc  X  RRRRR  X  cc                                XXXYYYYY     ",
+  "cc  X   RRR  XXX cc                                cXXYYYYY     ",
+  "cc  X   RRR   X  cc                               XXXXYYYYY     ",
+  "cc XXX   R   X X cc                               XXXXRYYYY     ",
+  "cc               cc                                XXXYYYYY     ",
+  "cc ccccccccccc   cc                                OXXYYYYY     ",
+  "cc XXXXXXXXXXX   cc                                XXXXX        ",
+  "cc X         X   cc                                 XXX         ",
+  "cc X XXXX XX X   cc                                 XXX         ",
+  "cc X         X   cc                                RRRRR  GGG   ",
+  "cc X   ccccccccc cc                                RRRRR GGGG   ",
+  "cc X X XXXXXXXXX cc                                RRRRRRGGGG   ",
+  "cc X   X       X cc                               RRRRRRRGGGG cc",
+  "cc XXXXX  RRGG X cc                              RRRRRRRRGGGG cc",
+  "cc     X RRRR  X cc                             RRRRRRRRRGGGGccc",
+  "cc     X  RR   X cc                             RRRRRRRRRGGGGccc",
+  "cc     XXXXXXXXX cc                             RRRRRRRRRGGGGccc",
+  "cc               cc                              RRRRRRRRGGGGccc",
+  "ccccccccccccccccccc                               RRRRRRRGGGG cc",
+  "ccccccccccccccccccc                               RRRRRRRGGGG cc",
+  "       xxxxx      R   G  R                       RRRRRRRRGGGG cc",
+  "       xxxxx       R  G R                        RRRRRRRRGGGG cc",
+  "       xxxxx        R GR                        RRRRRRRRR GGG cc",
+  "xxxxxxxxxxxxxxxxxxx BBBB                     RRRRRRRRRRRR     cc",
+  "xxxxxxxxxxxXXXXXXxx BBBB                  RRRRRRRRRRRRRRR     cc",
+  "xxXXxxxxxxxxxxxxxxx BBBB  cccc  XXXXX  RRRRRRRRRR  RRRRRR     cc",
+  "xxXXxxxxxxxXXXXXXxx BBBB  cccccccXXXXXXRRRRRRR     RRRRRR     cc",
+  "xxxxxxxxxxxxxxxxxxx BBBB  cccccccccXXXXRRRR        GGGGGG     cc",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb        GGGGGG     cc",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb        BBBBBBB    cc",
+  "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb       BBBBBBBB    cc",
+  "  bbbb                  bbbb                  BBBBBBBBBBBBB   cc",
+  "  bbbb                  bbbb              BBBBBBBBBBBBBBBBB   cc",
+  "  bbbb                  bbbb          BBBBBBBBBBBBBBBBBBBBB   cc",
+  "  bbbb                  bbbb       BBBBBBBBBBBBBBBBBBBBBBBB   cc",
+  "  bbbb                  bbbb      BBBBBBBBBBBBBBBBBBBBBBBB    cc",
+  "  bbbb                  bbbb     BBBBBBBBBBBBBBBBBBBBBBBBB    cc",
+  "  bbbb                  bbbb     BBBBBBBBBBBBBBBBBBBBBBBB     cc",
+  "  bbbb                  bbbb     BBBBBBBBBBBBBBBBBBBBBB       cc",
+  "  bbbb                  bbbb     BBBBBBGGGGGGGGGGGGGGGGGGGGG  cc",
+  "  bbbb                  bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
+  "  bbbb            X     bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
+  "  bbbb      X    XX     bbbb     BBBBBGGGGGGGGGGGGGGGGGGGGGGG cc",
+  "  bbbb      XX  XXX     bbbb     BBBBB          ccc  cccccc  ccc",
+  "  bbbb     XXX XXXX     bbbb     BBBBB          ccc ccccccccccc ",
+  "  bbbb    xxxxxxxxxx    bbbb     BBBBB          ccc cccccccccc  ",
+  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xxxXxxxXxx    bbbb     BBBBB          ccc             ",
+  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xXxxxXxxxX    bbbb     BBBBB          ccc             ",
+  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xxxXxxxXxx    bbbb     BBBBB          ccc             ",
+  "  bbbb    XxXxXxXxXx    bbbb     BBBBB          ccc             ",
+  "  bbbb    xXxxxXxxxX    bbbb     BBBBB   ccccccccccccccccc      ",
+  "  bbbb    XxXxXxXxXx    bbbb     BBBBB ccccccccccccccccccccc    ",
+  "  bbbb    xxxXxxxXxx    bbbb     BBBBB ccccccccccccccccccccc    ",
+  "  bbbb    XxXxXxXxXx    bbbb  RRRRRRRR bbb      bbb      bbb    ",
+  "  bbbb    xXxxxXxxxX    bbbb RRRRRRRRR bbb      bbb      bbb    ",
+  "  bbbb    xxxxxxxxxx    bbbb RRRRRRRRR bbb      bbb      bbb    ");
+
+
+const array string: sea_pic is [](
+  "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "cccccccccccccccccccccccccccccccccccccccccccccccOOOOOOOcccccccccc",
+  "cccccccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOcccccccc",
+  "cccccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOOOOOcccccc",
+  "ccccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOOOOOOOccccc",
+  "cccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOOOOOOOOOcccc",
+  "cccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOOOOOOOOOcccc",
+  "ccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOOOOOOOOOOOccc",
+  "ccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOOOOOOOOOOOccc",
+  "ccccccccccccccccccccccccccccccccccccccccOOOOOOOOOOOOOOOOOOOOOccc",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBOOOOBOOOOOBOOOOOBOOOOBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBOOOOOBOOOOOBOOOOOBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBOOOBOOOBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "BXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXBBXXB",
+  "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYRRRRRYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYbbbbbbYYYYYYYYYYYYYYYYYYYXRRRRXXXXYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYbbbbbbbbbYYYYYYYYYYYYYYYYYYXXRRRXXXXXXXYYYYYYYYYYYYYYYYYYYYYYY",
+  "YbbbbXXXXXXYYYYYXXXRXXXXXXXXXXXRRXXXXXXXXXXYYYYYYYYYYYYYYYYYYYYY",
+  "YbbbXXBXXXXXYYXXXXxRXXXXXXXXXXXRXXXXXXXXXXXXXYYYYYYYYYYYYYXXXYYY",
+  "bbbbXXBXXOXXXXXXXXXXxxXXXXXXXXXRXXXXXXXXXXXXXXXYYYYYYXXXXXXXXXYY",
+  "bbbbXXXXXXOXXXXXXXXXXXxxXXXXXXXRXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY",
+  "bbbbXXBXXOXXXXXXXXXXXXXXxxXXXXXRXXXXXXXXXXXXXXXXXXXXXXXXYYYYXXXY",
+  "YbbbXXBXXXXXYYXXXRRRXXXXXXxxXXXRRXXXXXXXXXXXXXXXXXXXYYYYYYYYYXXX",
+  "YbbbbXXXXXXYYYYYRRRRRXXXXXXXYYYYYYYYYYYYYYYYYYXXXXYYYYYYYYYYYYRX",
+  "YGbbbbbbbbbGGGGGGRRRRRGGXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGY",
+  "GGGGGGGGGGGGGGGGGGGGGGGGGGXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "GGGGGGGGGGGGGGGGGGXXXXXXXXXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "GGGGGGGGGGGGGGGXXXXXXXXXXXXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "GGGGGGGGGGGXXXXXXXXXXXXXXXXXXXXGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",
+  "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY");
+
+
+const array string: zero is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc     xBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: one is [](
+  "                ",
+  "                ",
+  "     xBBBBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "        xBc     ",
+  "      xBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "  xBBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: two is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "   xBBBBBBBBBc  ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBc        ",
+  "  xBBBBBBBBBBBc ",
+  "                ");
+
+
+const array string: three is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "   xBBBBBBBBBc  ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: four is [](
+  "                ",
+  "                ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc    xBc    ",
+  "  xBc    xBc    ",
+  "  xBBBBBBBBBBBc ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "      xBBBBc    ",
+  "                ");
+
+const array string: five is [](
+  "                ",
+  "                ",
+  "  xBBBBBBBBBBBc ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBBBBBBBBBBc  ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: six is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBc           ",
+  "  xBBBBBBBBBBc  ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: seven is [](
+  "                ",
+  "                ",
+  "  xBBBBBBBBBBBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "            xBc ",
+  "           xBBc ",
+  "      xBBBBBBc  ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "     xBBBBc     ",
+  "                ");
+
+
+const array string: eight is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "   xBBBBBBBBBc  ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const array string: nine is [](
+  "                ",
+  "                ",
+  "   xBBBBBBBBBc  ",
+  "  xBBc     xBBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "  xBc       xBc ",
+  "   xBBBBBBBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "         xBBBBc ",
+  "  xBc    xBBBBc ",
+  "  xBBc   xBBBBc ",
+  "   xBBBBBBBBBc  ",
+  "                ");
+
+
+const func cardType: genCard (in array string: pattern) is func
+  result
+    var cardType: result is cardType.value;
+  begin
+    result.picture := pattern;
+  end func;
+
+
+var array cardType: cards is [](
+    genCard(fairy_pic),
+    genCard(computer_pic),
+    genCard(sea_pic),
+    genCard(big_bush_pic),
+    genCard(crown_pic),
+    genCard(fountain_pic),
+    genCard(harp_pic),
+    genCard(snake_pic),
+    genCard(lamp_pic),
+    genCard(scepter_pic),
+    genCard(book_pic),
+    genCard(hourglass_pic),
+    genCard(large_gem_pic),
+    genCard(magic_wand_pic),
+    genCard(sword_pic),
+    genCard(key_pic),
+    genCard(glasses_pic),
+    genCard(helmet_pic),
+    genCard(wine_flask_pic),
+    genCard(crystal_ball_pic),
+    genCard(necklace_pic),
+    genCard(holy_cross_pic),
+    genCard(diamond_pic),
+    genCard(silver_bars_pic),
+    genCard(ruby_pic),
+    genCard(jade_figurine_pic),
+    genCard(bat_pic),
+    genCard(goldbar_pic),
+    genCard(fancy_goblet_pic),
+    genCard(statue_pic),
+    genCard(door_pic),
+    genCard(vampire_pic),
+    genCard(ogre_pic),
+    genCard(demon_pic)
+  );
+
+var array array fieldType: field is 0 times 0 times fieldType.value;
+
+
+const func color: charColor (in char: ch) is func
+  result
+    var color: result is black;
+  begin
+    case ch of
+      when {' '}: result := black;
+      when {'R'}: result := light_red;
+      when {'G'}: result := light_green;
+      when {'B'}: result := light_blue;
+      when {'Y'}: result := yellow;
+      when {'M'}: result := light_magenta;
+      when {'O'}: result := orange;
+      when {'r'}: result := dark_red;
+      when {'g'}: result := dark_green;
+      when {'c'}: result := light_cyan;
+      when {'X'}: result := white;
+      when {'x'}: result := light_gray;
+      when {'b'}: result := brown;
+      otherwise:  result := black;
+    end case;
+  end func;
+
+
+const func PRIMITIVE_WINDOW: create_pixmap (in array string: pattern,
+    in integer: scale) is func
+  result
+    var PRIMITIVE_WINDOW: result is PRIMITIVE_WINDOW.value;
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    height := length(pattern);
+    width := length(pattern[1]);
+    result := newPixmap(width * scale, height * scale);
+    clear(result, black);
+    for line range 1 to height do
+      for column range 1 to width do
+        rect(result, pred(column) * scale, pred(line) * scale,
+            scale, scale, charColor(pattern[line][column]));
+      end for;
+    end for;
+  end func;
+
+
+const proc: draw (in integer: xPos, in integer: yPos,
+    in array string: pattern, in integer: scale) is func
+  local
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: lin is 0;
+    var integer: col is 0;
+    var integer: xPosition is 0;
+    var integer: yPosition1 is 0;
+    var integer: yPosition2 is 0;
+    var integer: line1 is 0;
+    var integer: line2 is 0;
+  begin
+    height := length(pattern);
+    width := length(pattern[1]);
+    for lin range 1 to height div 2 do
+      xPosition := xPos;
+      yPosition1 := yPos + (height div 2 - lin) * scale;
+      yPosition2 := yPos + pred(height div 2 + lin) * scale;
+      line1 := succ(height div 2 - lin);
+      line2 := height div 2 + lin;
+      for col range 1 to width do
+        rect(xPosition,
+            yPosition1,
+            scale, scale,
+            charColor(pattern[line1][col]));
+        rect(xPosition,
+            yPosition2,
+            scale, scale,
+            charColor(pattern[line2][col]));
+        xPosition +:= scale;
+      end for;
+    end for;
+  end func;
+
+
+const proc: draw (in integer: xPos, in integer: yPos,
+    inout cardType: aCard) is func
+  begin
+    if aCard.pixmap = PRIMITIVE_WINDOW.value then
+      rect(xPos, yPos, CARD_SIZE, CARD_SIZE, white);
+      draw(xPos, yPos, aCard.picture, CARD_SIZE div length(aCard.picture));
+      aCard.pixmap := getPixmap(xPos, yPos, CARD_SIZE, CARD_SIZE);
+    else
+      put(xPos, yPos, aCard.pixmap, PSET);
+    end if;
+  end func;
+
+
+const proc: put (inout cardType: aCard, in integer: line, in integer: column) is func
+  begin
+    draw(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(column),
+        UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(line), aCard);
+  end func;
+
+
+const proc: show (in integer: line, in integer: column) is func
+  begin
+    put(cards[field[line][column].cardNumber], line, column);
+    field[line][column].visible := normal;
+  end func;
+
+
+const proc: mark (in integer: line, in integer: column) is func
+  begin
+    if field[line][column].visible = normal then
+      rect(LEFT_BORDER + FIELD_STEP * pred(column),
+          UPPER_BORDER + FIELD_STEP * pred(line),
+          CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, light_red);
+      rect(LEFT_BORDER + FIELD_STEP * pred(column),
+          UPPER_BORDER + FIELD_STEP * pred(line),
+          FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, light_red);
+      rect(LEFT_BORDER + FIELD_STEP * column - FRAME_THICKNESS,
+          UPPER_BORDER + FIELD_STEP * pred(line),
+          FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, light_red);
+      rect(LEFT_BORDER + FIELD_STEP * pred(column),
+          UPPER_BORDER + FIELD_STEP * line - FRAME_THICKNESS,
+          CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, light_red);
+      field[line][column].visible := marked;
+      field[line][column].selected := TRUE;
+    end if;
+  end func;
+
+
+const proc: unmark (in integer: line, in integer: column) is func
+  begin
+    if field[line][column].visible = marked then
+      rect(LEFT_BORDER + FIELD_STEP * pred(column),
+          UPPER_BORDER + FIELD_STEP * pred(line),
+          CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, white);
+      rect(LEFT_BORDER + FIELD_STEP * pred(column),
+          UPPER_BORDER + FIELD_STEP * pred(line),
+          FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, white);
+      rect(LEFT_BORDER + FIELD_STEP * column - FRAME_THICKNESS,
+          UPPER_BORDER + FIELD_STEP * pred(line),
+          FRAME_THICKNESS, CARD_SIZE + 2 * CARD_BORDER, white);
+      rect(LEFT_BORDER + FIELD_STEP * pred(column),
+          UPPER_BORDER + FIELD_STEP * line - FRAME_THICKNESS,
+          CARD_SIZE + 2 * CARD_BORDER, FRAME_THICKNESS, white);
+      field[line][column].visible := normal;
+      field[line][column].selected := FALSE;
+    end if;
+  end func;
+
+
+const proc: remove (in integer: line, in integer: column) is func
+  begin
+    if field[line][column].visible <> removed then
+      rect(LEFT_BORDER + CARD_BORDER + FIELD_STEP * pred(column),
+          UPPER_BORDER + CARD_BORDER + FIELD_STEP * pred(line), CARD_SIZE, CARD_SIZE, white);
+      field[line][column].visible := removed;
+    end if;
+  end func;
+
+
+const proc: unmarkAll is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    for line range 1 to length(field) do 
+      for column range 1 to length(field[line]) do
+        unmark(line, column);
+      end for;
+    end for;
+  end func;
+
+
+const func integer: countCards is func
+  result
+    var integer: result is 0;
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    for line range 1 to length(field) do 
+      for column range 1 to length(field[line]) do
+        if field[line][column].visible <> removed then
+          incr(result);
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: showHit (in integer: cardNumber, in var integer: yPos, in var integer: hits) is func
+  begin
+    if hits >= 20 then
+      hits -:= 20;
+      yPos +:= 64 + 8;
+    end if;
+    line(200 + 128 + 8 + 32 * hits,     yPos, 0, 64, white);
+    draw(200 + 128 + 8 + 32 * hits + 1, yPos, cards[cardNumber]);
+    line(200 + 128 + 8 + 32 * hits + 5, yPos, 0, 64, white);
+    draw(200 + 128 + 8 + 32 * hits + 6, yPos, cards[cardNumber]);
+  end func;
+
+
+const proc: horizontal (in integer: line, in integer: column1, in integer: column2,
+    in color: currColor) is func
+  begin
+    if currColor <> black then
+      rectTo(LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column1),
+          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line) - 2,
+          LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column2),
+          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line) + 2, currColor);
+    end if;
+  end func;
+
+
+const proc: vertical (in integer: column, in integer: line1, in integer: line2,
+    in color: currColor) is func
+  begin
+    if currColor <> black then
+      rectTo(LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column) - 2,
+          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line1),
+          LEFT_BORDER + HALF_FIELD + FIELD_STEP * pred(column) + 2,
+          UPPER_BORDER + HALF_FIELD+ FIELD_STEP * pred(line2), currColor);
+    end if;
+  end func;
+
+
+const func boolean: line_free (in integer: line, in integer: column1, in integer: column2) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var integer: column is 0;
+  begin
+    column := column1;
+    while column <= column2 and field[line][column].visible = removed do
+      incr(column);
+    end while;
+    if column > column2 then
+      result := TRUE;
+    end if;
+  end func;
+
+
+const func boolean: column_free (in integer: column, in integer: line1, in integer: line2) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var integer: line is 0;
+  begin
+    line := line1;
+    while line <= line2 and field[line][column].visible = removed do
+      incr(line);
+    end while;
+    if line > line2 then
+      result := TRUE;
+    end if;
+  end func;
+
+
+const proc: upper_way (in integer: line1, in integer: column1, in integer: column2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: line is 0;
+  begin
+    line := pred(line1);
+    while not found_way and line >= 1 and
+        field[line][column1].visible = removed and
+        field[line][column2].visible = removed do
+      if line_free(line, succ(column1), pred(column2)) then
+        vertical(column1, line, line1, currColor);
+        vertical(column2, line, line1, currColor);
+        horizontal(line, column1, column2, currColor);
+        found_way := TRUE;
+      else
+        decr(line);
+      end if;
+    end while;
+    if line = 0 then
+      vertical(column1, line, line1, currColor);
+      vertical(column2, line, line1, currColor);
+      horizontal(line, column1, column2, currColor);
+      found_way := TRUE;
+    end if;
+  end func;
+
+
+const proc: lower_way (in integer: line1, in integer: column1, in integer: column2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: line is 0;
+  begin
+    line := succ(line1);
+    while not found_way and line <= length(field) and
+        field[line][column1].visible = removed and
+        field[line][column2].visible = removed do
+      if line_free(line, succ(column1), pred(column2)) then
+        vertical(column1, line1, line, currColor);
+        vertical(column2, line1, line, currColor);
+        horizontal(line, column1, column2, currColor);
+        found_way := TRUE;
+      else
+        incr(line);
+      end if;
+    end while;
+    if line > length(field) then
+      vertical(column1, line1, line, currColor);
+      vertical(column2, line1, line, currColor);
+      horizontal(line, column1, column2, currColor);
+      found_way := TRUE;
+    end if;
+  end func;
+
+
+const proc: left_way (in integer: column1, in integer: line1, in integer: line2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: column is 0;
+  begin
+    column := pred(column1);
+    while not found_way and column >= 1 and
+        field[line1][column].visible = removed and
+        field[line2][column].visible = removed do
+      if column_free(column, succ(line1), pred(line2)) then
+        horizontal(line1, column, column1, currColor);
+        horizontal(line2, column, column1, currColor);
+        vertical(column, line1, line2, currColor);
+        found_way := TRUE;
+      else
+        decr(column);
+      end if;
+    end while;
+    if column = 0 then
+      horizontal(line1, column, column1, currColor);
+      horizontal(line2, column, column1, currColor);
+      vertical(column, line1, line2, currColor);
+      found_way := TRUE;
+    end if;
+  end func;
+
+
+const proc: right_way (in integer: column1, in integer: line1, in integer: line2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: column is 0;
+  begin
+    column := succ(column1);
+    while not found_way and column <= length(field[1]) and
+        field[line1][column].visible = removed and
+        field[line2][column].visible = removed do
+      if column_free(column, succ(line1), pred(line2)) then
+        horizontal(line1, column1, column, currColor);
+        horizontal(line2, column1, column, currColor);
+        vertical(column, line1, line2, currColor);
+        found_way := TRUE;
+      else
+        incr(column);
+      end if;
+    end while;
+    if column > length(field[1]) then
+      horizontal(line1, column1, column, currColor);
+      horizontal(line2, column1, column, currColor);
+      vertical(column, line1, line2, currColor);
+      found_way := TRUE;
+    end if;
+  end func;
+
+
+const proc: way_down_right (in integer: line1, in integer: column1,
+    in integer: line2, in integer: column2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: line is 0;
+  begin
+    line := succ(line1);
+    while not found_way and line < line2 do
+      if column_free(column1, succ(line1), line) and
+          column_free(column2, line, pred(line2)) and
+          line_free(line, succ(column1), pred(column2)) then
+        vertical(column1, line1, line, currColor);
+        vertical(column2, line, line2, currColor);
+        horizontal(line, column1, column2, currColor);
+        found_way := TRUE;
+      else
+        incr(line);
+      end if;
+    end while;
+  end func;
+
+
+const proc: way_right_down (in integer: line1, in integer: column1,
+    in integer: line2, in integer: column2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: column is 0;
+  begin
+    column := succ(column1);
+    while not found_way and column < column2 do
+      if line_free(line1, succ(column1), column) and
+          line_free(line2, column, pred(column2)) and
+          column_free(column, succ(line1), pred(line2)) then
+        horizontal(line1, column1, column, currColor);
+        horizontal(line2, column, column2, currColor);
+        vertical(column, line1, line2, currColor);
+        found_way := TRUE;
+      else
+        incr(column);
+      end if;
+    end while;
+  end func;
+
+
+const proc: way_down_left (in integer: line1, in integer: column1,
+    in integer: line2, in integer: column2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: line is 0;
+  begin
+    line := succ(line1);
+    while not found_way and line < line2 do
+      if column_free(column1, succ(line1), line) and
+          column_free(column2, line, pred(line2)) and
+          line_free(line, succ(column2), pred(column1)) then
+        vertical(column1, line1, line, currColor);
+        vertical(column2, line, line2, currColor);
+        horizontal(line, column2, column1, currColor);
+        found_way := TRUE;
+      else
+        incr(line);
+      end if;
+    end while;
+  end func;
+
+
+const proc: way_left_down (in integer: line1, in integer: column1,
+    in integer: line2, in integer: column2,
+    in color: currColor, inout boolean: found_way) is func
+  local
+    var integer: column is 0;
+  begin
+    column := succ(column2);
+    while not found_way and column < column1 do
+      if line_free(line1, column, pred(column1)) and
+          line_free(line2, succ(column2), column) and
+          column_free(column, succ(line1), pred(line2)) then
+        horizontal(line1, column, column1, currColor);
+        horizontal(line2, column2, column, currColor);
+        vertical(column, line1, line2, currColor);
+        found_way := TRUE;
+      else
+        incr(column);
+      end if;
+    end while;
+  end func;
+
+
+const func boolean: find_way (in var integer: line1, in var integer: column1,
+    in var integer: line2, in var integer: column2, in color: currColor) is func
+  result
+    var boolean: found_way is FALSE;
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    if line1 = line2 then
+      if column2 < column1 then
+        column := column1;
+        column1 := column2;
+        column2 := column;
+      end if;
+      if line_free(line1, succ(column1), pred(column2)) then
+        horizontal(line1, column1, column2, currColor);
+        found_way := TRUE;
+      else
+        upper_way(line1, column1, column2, currColor, found_way);
+        lower_way(line1, column1, column2, currColor, found_way);
+      end if;
+    elsif column1 = column2 then
+      if line2 < line1 then
+        line := line1;
+        line1 := line2;
+        line2 := line;
+      end if;
+      if column_free(column1, succ(line1), pred(line2)) then
+        vertical(column1, line1, line2, currColor);
+        found_way := TRUE;
+      else
+        left_way(column1, line1, line2, currColor, found_way);
+        right_way(column1, line1, line2, currColor, found_way);
+      end if;
+    elsif line1 < line2 and column1 < column2 or
+        line1 > line2 and column1 > column2 then
+      if line1 > line2 and column1 > column2 then
+        line := line1;
+        line1 := line2;
+        line2 := line;
+        column := column1;
+        column1 := column2;
+        column2 := column;
+      end if;        
+      if line_free(line1, succ(column1), column2) and
+          column_free(column2, succ(line1), pred(line2)) then
+        horizontal(line1, column1, column2, currColor);
+        vertical(column2, line1, line2, currColor);
+        found_way := TRUE;
+      elsif column_free(column1, succ(line1), line2) and
+          line_free(line2, succ(column1), pred(column2)) then
+        vertical(column1, line1, line2, currColor);
+        horizontal(line2, column1, column2, currColor);
+        found_way := TRUE;
+      else
+        way_down_right(line1, column1, line2, column2, currColor, found_way);
+        way_right_down(line1, column1, line2, column2, currColor, found_way);
+        if not found_way and column_free(column2, line1, pred(line2)) then
+          upper_way(line1, column1, column2, currColor, found_way);
+          if found_way then
+            vertical(column2, line1, line2, currColor);
+          end if;
+        end if;
+        if not found_way and column_free(column1, succ(line1), line2) then
+          lower_way(line2, column1, column2, currColor, found_way);
+          if found_way then
+            vertical(column1, line1, line2, currColor);
+          end if;
+        end if;
+        if not found_way and line_free(line2, column1, pred(column2)) then
+          left_way(column1, line1, line2, currColor, found_way);
+          if found_way then
+            horizontal(line2, column1, column2, currColor);
+          end if;
+        end if;
+        if not found_way and line_free(line1, succ(column1), column2) then
+          right_way(column2, line1, line2, currColor, found_way);
+          if found_way then
+            horizontal(line1, column1, column2, currColor);
+          end if;
+        end if;
+      end if;
+    elsif line1 < line2 and column1 > column2 or
+        line1 > line2 and column1 < column2 then
+      if line1 > line2 and column1 < column2 then
+        line := line1;
+        line1 := line2;
+        line2 := line;
+        column := column1;
+        column1 := column2;
+        column2 := column;
+      end if;        
+      if line_free(line1, column2, pred(column1)) and
+          column_free(column2, succ(line1), pred(line2)) then
+        horizontal(line1, column2, column1, currColor);
+        vertical(column2, line1, line2, currColor);
+        found_way := TRUE;
+      elsif column_free(column1, succ(line1), line2) and
+          line_free(line2, succ(column2), pred(column1)) then
+        vertical(column1, line1, line2, currColor);
+        horizontal(line2, column2, column1, currColor);
+        found_way := TRUE;
+      else
+        way_down_left(line1, column1, line2, column2, currColor, found_way);
+        way_left_down(line1, column1, line2, column2, currColor, found_way);
+        if not found_way and column_free(column2, line1, pred(line2)) then
+          upper_way(line1, column2, column1, currColor, found_way);
+          if found_way then
+            vertical(column2, line1, line2, currColor);
+          end if;
+        end if;
+        if not found_way and column_free(column1, succ(line1), line2) then
+          lower_way(line2, column2, column1, currColor, found_way);
+          if found_way then
+            vertical(column1, line1, line2, currColor);
+          end if;
+        end if;
+        if not found_way and line_free(line1, column2, pred(column1)) then
+          left_way(column2, line1, line2, currColor, found_way);
+          if found_way then
+            horizontal(line1, column2, column1, currColor);
+          end if;
+        end if;
+        if not found_way and line_free(line2, succ(column2), column1) then
+          right_way(column1, line1, line2, currColor, found_way);
+          if found_way then
+            horizontal(line2, column2, column1, currColor);
+          end if;
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: help is func
+  local
+    var integer: line1 is 0;
+    var integer: column1 is 0;
+    var integer: line2 is 0;
+    var integer: column2 is 0;
+    var boolean: found is FALSE;
+    var char: command is ' ';
+  begin
+    for line1 range 1 to FIELD_LINES do
+      for column1 range 1 to FIELD_COLUMNS do
+        if not found and field[line1][column1].visible = normal then
+          for column2 range succ(column1) to length(field[line1]) do
+            if not found and
+                field[line1][column2].visible = normal and
+                field[line1][column1].cardNumber =
+                field[line1][column2].cardNumber then
+              if find_way(line1, column1, line1, column2, light_red) then
+                mark(line1, column1);
+                mark(line1, column2);
+                DRAW_FLUSH;
+                command := upper(getc(KEYBOARD));
+                if command <> 'H' then
+                  found := TRUE;
+                end if;
+                ignore(find_way(line1, column1, line1, column2, white));
+                unmark(line1, column1);
+                unmark(line1, column2);
+                if command in {KEY_NL} then
+                  remove(line1, column1);
+                  remove(line1, column2);
+                  (* showHit(field[line1][column1].cardNumber, PLAYER_HIT_XPOS, playerHits); *)
+                  incr(playerHits);
+                else
+                  show(line1, column1);
+                  show(line1, column2);
+                end if;
+              end if;
+            end if;
+          end for;
+          for line2 range succ(line1) to length(field) do 
+            for column2 range 1 to length(field[line1]) do
+              if not found and
+                  field[line2][column2].visible = normal and
+                  field[line1][column1].cardNumber =
+                  field[line2][column2].cardNumber then
+                if find_way(line1, column1, line2, column2, light_red) then
+                  mark(line1, column1);
+                  mark(line2, column2);
+                  DRAW_FLUSH;
+                  command := upper(getc(KEYBOARD));
+                  if command <> 'H' then
+                    found := TRUE;
+                  end if;
+                  ignore(find_way(line1, column1, line2, column2, white));
+                  unmark(line1, column1);
+                  unmark(line2, column2);
+                  if command in {KEY_NL} then
+                    remove(line1, column1);
+                    remove(line2, column2);
+                    (* showHit(field[line1][column1].cardNumber, PLAYER_HIT_XPOS, playerHits); *)
+                    incr(playerHits);
+                  else
+                    show(line1, column1);
+                    show(line2, column2);
+                  end if;
+                end if;
+              end if;
+            end for;
+          end for;
+        end if;
+      end for;
+    end for;
+  end func;
+
+
+const proc: playerMove (inout integer: line1, inout integer: column1,
+    inout integer: line2, inout integer: column2, inout char: command) is func
+  local
+    var integer: openCards is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var boolean: moveFinished is FALSE;
+  begin
+    repeat
+      command := getc(KEYBOARD);
+      if upper(command) = 'H' then
+        help;
+      elsif command <> KEY_MOUSE1 then
+        moveFinished := TRUE;
+      else
+        line := getypos(KEYBOARD);
+        column := getxpos(KEYBOARD);
+        if line >= UPPER_BORDER and column >= LEFT_BORDER then
+          line := (line - UPPER_BORDER) div FIELD_STEP + 1;
+          column := (column - LEFT_BORDER) div FIELD_STEP + 1;
+          if line >= 1 and line <= length(field) and
+              column >= 1 and column <= length(field[line]) then
+            if field[line][column].visible = normal then
+              if openCards = 0 then
+                mark(line, column);
+                incr(openCards);
+                line1 := line;
+                column1 := column;
+              elsif openCards = 1 and
+                  field[line1][column1].cardNumber = field[line][column].cardNumber and
+                  find_way(line1, column1, line, column, light_red) then
+                mark(line, column);
+                line2 := line;
+                column2 := column;
+                moveFinished := TRUE;
+              end if;
+            elsif field[line][column].visible = marked then
+              unmark(line, column);
+              decr(openCards);
+            end if;
+          end if;
+        end if;
+      end if;
+    until moveFinished;
+  end func;
+
+
+const proc: playerTurn (inout char: command) is func
+  local
+    var integer: line1 is 0;
+    var integer: column1 is 0;
+    var integer: line2 is 0;
+    var integer: column2 is 0;
+    var boolean: onTurn is TRUE;
+    var integer: number is 0;
+  begin
+    while countCards > 0 and onTurn do
+      playerMove(line1, column1, line2, column2, command);
+      if command <> KEY_MOUSE1 then
+        unmarkAll;
+        onTurn := FALSE;
+      elsif field[line1][column1].cardNumber =
+          field[line2][column2].cardNumber then
+        DRAW_FLUSH;
+        number := 0;
+        while not keypressed(KEYBOARD) and number <= 5 do
+          wait(100000 . MYCRO_SECONDS);
+          incr(number);
+        end while;
+        ignore(find_way(line1, column1, line2, column2, white));
+        unmark(line1, column1);
+        unmark(line2, column2);
+        remove(line1, column1);
+        remove(line2, column2);
+        (* showHit(field[line1][column1].cardNumber, PLAYER_HIT_XPOS, playerHits); *)
+        incr(playerHits);
+      else
+        unmark(line1, column1);
+        unmark(line2, column2);
+        onTurn := FALSE;
+      end if;
+    end while;
+  end func;
+
+
+const func boolean: solvable is func
+  result
+    var boolean: result is FALSE;
+  local
+    var integer: line1 is 0;
+    var integer: column1 is 0;
+    var integer: line2 is 0;
+    var integer: column2 is 0;
+    var boolean: searching is TRUE;
+    var integer: pairs_present is 0;
+  begin
+    pairs_present := FIELD_LINES * FIELD_COLUMNS div 2;
+    repeat
+      searching := TRUE;
+      for line1 range 1 to FIELD_LINES do
+        if searching then
+          for column1 range 1 to FIELD_COLUMNS do
+            if searching and field[line1][column1].visible = normal then
+              for column2 range succ(column1) to length(field[line1]) do
+                if searching and
+                    field[line1][column2].visible = normal and
+                    field[line1][column1].cardNumber =
+                    field[line1][column2].cardNumber then
+                  if find_way(line1, column1, line1, column2, black) then
+                    field[line1][column1].visible := removed;
+                    field[line1][column2].visible := removed;
+                    decr(pairs_present);
+                    searching := FALSE;
+                  end if;
+                end if;
+              end for;
+              for line2 range succ(line1) to length(field) do 
+                if searching then
+                  for column2 range 1 to length(field[line1]) do
+                    if searching and
+                        field[line2][column2].visible = normal and
+                        field[line1][column1].cardNumber =
+                        field[line2][column2].cardNumber then
+                      if find_way(line1, column1, line2, column2, black) then
+                        field[line1][column1].visible := removed;
+                        field[line2][column2].visible := removed;
+                        decr(pairs_present);
+                        searching := FALSE;
+                      end if;
+                    end if;
+                  end for;
+                end if;
+              end for;
+            end if;
+          end for;
+        end if;
+      end for;
+    until searching;
+    result := pairs_present = 0;
+  end func;
+
+
+const proc: dealCards is func
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: cardNumber is 0;
+  begin
+    repeat
+      for cardNumber range 1 to FIELD_LINES * FIELD_COLUMNS div 4 do
+        cards[cardNumber].number := 0;
+      end for;
+      field := FIELD_LINES times FIELD_COLUMNS times fieldType.value;
+      for line range 1 to FIELD_LINES do
+        for column range 1 to FIELD_COLUMNS do
+          repeat
+            cardNumber := rand(1, FIELD_LINES * FIELD_COLUMNS div 4);
+          until cards[cardNumber].number < 4;
+          field[line][column].cardNumber := cardNumber;
+          incr(cards[cardNumber].number);
+        end for;
+      end for;
+    until solvable;
+    for line range 1 to FIELD_LINES do
+      for column range 1 to FIELD_COLUMNS do
+        field[line][column].visible := normal;
+        show(line, column);
+        DRAW_FLUSH;
+      end for;
+    end for;
+  end func;
+
+
+const proc: main is func
+  local
+    var char: command is ' ';
+  begin
+    screen(1024, 768);
+    clear(curr_win, white);
+    screen := open(curr_win, 16);
+    KEYBOARD := GRAPH_KEYBOARD;
+    digit_pixmap := [0](
+      create_pixmap(zero,  2),
+      create_pixmap(one,   2),
+      create_pixmap(two,   2),
+      create_pixmap(three, 2),
+      create_pixmap(four,  2),
+      create_pixmap(five,  2),
+      create_pixmap(six,   2),
+      create_pixmap(seven, 2),
+      create_pixmap(eight, 2),
+      create_pixmap(nine,  2));
+
+    repeat
+      dealCards;
+
+      repeat
+        playerTurn(command);
+      until countCards = 0 or upper(command) = 'N' or upper(command) = 'Q';
+      if upper(command) <> 'N' and upper(command) <> 'Q' then
+        command := getc(KEYBOARD);
+      end if;
+    until upper(command) = 'Q';
+  end func;
+
+$ system "main" is main;

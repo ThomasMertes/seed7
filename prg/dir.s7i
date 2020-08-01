@@ -1,0 +1,97 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dir.s7i       Read directorys as files                          *)
+(*  Copyright (C) 1994, 2005  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: DIR_FILE is sub NULL_FILE struct
+    var string: path is "";
+    var array string: dir_array is 0 times "";
+    var integer: curr_line is 0;
+    var integer: curr_column is 0;
+  end struct;
+
+
+const func DIR_FILE: open_dir (in string: dir_name) is func
+  result
+    var DIR_FILE: result is DIR_FILE.value;
+  begin
+    result := DIR_FILE.value;
+    result.path := "";
+    result.dir_array := read_dir(dir_name);
+    result.curr_line := 1;
+    result.curr_column := 1;
+  end func;
+
+
+const func DIR_FILE: open_dir_path (in string: dir_name) is func
+  result
+    var DIR_FILE: result is DIR_FILE.value;
+  begin
+    result := DIR_FILE.value;
+    if dir_name[length(dir_name)] <> '/' then
+      result.path := dir_name & "/";
+    else
+      result.path := dir_name;
+    end if;
+    result.dir_array := read_dir(dir_name);
+    result.curr_line := 1;
+    result.curr_column := 1;
+  end func;
+
+
+const func string: getln (inout DIR_FILE: dir_fil) is func
+  result
+    var string: stri is "";
+  begin
+    if dir_fil.curr_line <= length(dir_fil.dir_array) then
+      stri := dir_fil.path &
+          dir_fil.dir_array[dir_fil.curr_line][dir_fil.curr_column .. ];
+      incr(dir_fil.curr_line);
+      dir_fil.curr_column := 1;
+    end if;
+  end func;
+
+
+const func string: getwd (inout DIR_FILE: dir_fil) is func
+  result
+    var string: stri is "";
+  begin
+    if dir_fil.curr_line <= length(dir_fil.dir_array) then
+      stri := dir_fil.path &
+          dir_fil.dir_array[dir_fil.curr_line][dir_fil.curr_column .. ];
+      incr(dir_fil.curr_line);
+      dir_fil.curr_column := 1;
+    end if;
+  end func;
+
+
+const func string: gets (in DIR_FILE: dir_fil, in integer: leng) is func
+  result
+    var string: stri is "";
+  begin
+    stri := "";
+  end func;
+

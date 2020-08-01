@@ -1,0 +1,193 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  field.s7i     Filter file which reads the input fieldwise       *)
+(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: FIELD_FILE is sub NULL_FILE struct
+    var file: in_file is STD_NULL;
+    var TEXT: out_file is STD_NULL;
+    var integer: linePos is 0;
+    var integer: columnPos is 0;
+    var integer: width is 0;
+    var integer: column is 0;
+    var string: default is "";
+    var string: field is "";
+  end struct;
+
+
+const func FIELD_FILE: open_field (in file: in_fil, in TEXT: out_fil,
+    in integer: line, in integer: column, in integer: width, in string: default) is func
+  result
+    var FIELD_FILE: field_fil is FIELD_FILE.value;
+  begin
+    field_fil := FIELD_FILE.value;
+    field_fil.in_file := in_fil;
+    field_fil.out_file := out_fil;
+    field_fil.linePos := line;
+    field_fil.columnPos := column;
+    field_fil.width := width;
+    field_fil.field := (default & " " mult width)[ .. width];
+    setPos(out_fil, line, column);
+    write(out_fil, default[.. width]);
+  end func;
+
+
+const func string: getwd (inout FIELD_FILE: field_fil) is func
+  result
+    var string: result is "";
+  local
+    var boolean: input_done is FALSE;
+    var char: ch is ' ';
+  begin
+    field_fil.column := 1;
+    repeat
+      setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+      ch := getc(field_fil.in_file);
+      case ch of
+        when {KEY_LEFT}:
+          if field_fil.column > 1 then
+            decr(field_fil.column);
+          end if;
+        when {KEY_RIGHT}:
+          if field_fil.column < field_fil.width then
+            incr(field_fil.column);
+          end if;
+        when {KEY_BS}:
+          if field_fil.column = field_fil.width and field_fil.field[field_fil.width] <> ' ' then
+            field_fil.field @:= [field_fil.column] ' ';
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+            write(field_fil.out_file, ' ');            
+          elsif field_fil.column > 1 then
+            decr(field_fil.column);
+            field_fil.field @:= [field_fil.column] ' ';
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+            write(field_fil.out_file, ' ');
+          end if;
+        when {KEY_DEL}:
+          field_fil.field @:= [field_fil.column] ' ';
+          write(field_fil.out_file, ' ');
+        when {' ' .. '~'}:
+          if not input_done and field_fil.column = 1 then
+            field_fil.field := " " mult field_fil.width;
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
+            write(field_fil.out_file, " " mult field_fil.width);
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
+            input_done := TRUE;
+          end if;
+          field_fil.field @:= [field_fil.column] ch;
+          write(field_fil.out_file, ch);
+          if field_fil.column < field_fil.width then
+            incr(field_fil.column);
+          end if;
+      end case;
+    until ch in {KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN, KEY_ESC};
+    result := field_fil.field;
+    while length(result) >= 1 and result[1] = ' ' do
+      result := result[2 ..];
+    end while;
+    while length(result) >= 1 and result[length(result)] = ' ' do
+      result := result[.. pred(length(result))];
+    end while;
+    field_fil.TERMINATION_CHAR := ch;
+  end func;
+
+
+const func string: getln (inout FIELD_FILE: field_fil) is func
+  result
+    var string: result is "";
+  local
+    var boolean: input_done is FALSE;
+    var char: ch is ' ';
+  begin
+    field_fil.column := 1;
+    repeat
+      setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+      ch := getc(field_fil.in_file);
+      case ch of
+        when {KEY_LEFT}:
+          if field_fil.column > 1 then
+            decr(field_fil.column);
+          end if;
+        when {KEY_RIGHT}:
+          if field_fil.column < field_fil.width then
+            incr(field_fil.column);
+          end if;
+        when {KEY_BS}:
+          if field_fil.column = field_fil.width and field_fil.field[field_fil.width] <> ' ' then
+            field_fil.field @:= [field_fil.column] ' ';
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+            write(field_fil.out_file, ' ');            
+          elsif field_fil.column > 1 then
+            decr(field_fil.column);
+            field_fil.field @:= [field_fil.column] ' ';
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos + field_fil.column - 1);
+            write(field_fil.out_file, ' ');
+          end if;
+        when {KEY_DEL}:
+          field_fil.field @:= [field_fil.column] ' ';
+          write(field_fil.out_file, ' ');
+        when {' ' .. '~'}:
+          if not input_done and field_fil.column = 1 then
+            field_fil.field := " " mult field_fil.width;
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
+            write(field_fil.out_file, " " mult field_fil.width);
+            setPos(field_fil.out_file, field_fil.linePos, field_fil.columnPos);
+            input_done := TRUE;
+          end if;
+          field_fil.field @:= [field_fil.column] ch;
+          write(field_fil.out_file, ch);
+          if field_fil.column < field_fil.width then
+            incr(field_fil.column);
+          end if;
+      end case;
+    until ch in {KEY_NL, KEY_TAB, KEY_BACKTAB, KEY_UP, KEY_DOWN, KEY_ESC};
+    result := field_fil.field;
+    field_fil.TERMINATION_CHAR := ch;
+  end func;
+
+
+const func char: getc (inout FIELD_FILE: field_fil) is func
+  result
+    var char: ch is ' ';
+  begin
+    if field_fil.field = "" then
+      field_fil.field := getln(field_fil) & "\n";
+    end if;
+    ch := field_fil.field[1];
+    field_fil.field := field_fil.field[2 .. ];
+  end func;
+
+
+const func string: gets (inout FIELD_FILE: field_fil, in integer: leng) is func
+  result
+    var string: stri is "";
+  begin
+    while length(field_fil.field) < leng do
+      field_fil.field &:= getln(field_fil) & "\n";
+    end while;
+    stri := field_fil.field[ .. leng];
+    field_fil.field := field_fil.field[succ(leng) .. ];
+  end func;

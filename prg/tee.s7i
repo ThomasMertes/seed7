@@ -1,0 +1,79 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tee.s7i       Filter file which emulates the tee functionality  *)
+(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: TEE_FILE is sub NULL_FILE struct
+    var file: out_file1 is STD_NULL;
+    var file: out_file2 is STD_NULL;
+  end struct;
+
+
+const func TEE_FILE: open_tee (ref file: out_fil1, ref file: out_fil2) is func
+  result
+    var TEE_FILE: result is TEE_FILE.value;
+  begin
+    result := TEE_FILE.value;
+    result.out_file1 := out_fil1;
+    result.out_file2 := out_fil2;
+  end func;
+
+
+const proc: (ref TEE_FILE: tee_fil) << (ref string: stri) is func
+  begin
+    tee_fil.out_file1 << stri;
+    tee_fil.out_file2 << stri;
+  end func;
+
+
+const proc: (ref TEE_FILE: tee_fil) << NL is func
+  begin
+    tee_fil.out_file1 << NL;
+    tee_fil.out_file2 << NL;
+  end func;
+
+
+const proc: (ref TEE_FILE: tee_fil) << BS is func
+  begin
+    tee_fil.out_file1 << BS;
+    tee_fil.out_file2 << BS;
+  end func;
+
+
+(*
+const proc: cursor_on (ref TEE_FILE: tee_fil) is func
+  begin
+    cursor_on(tee_fil.out_file1);
+    cursor_on(tee_fil.out_file2);
+  end func;
+
+
+const proc: cursor_off (ref TEE_FILE: tee_fil) is func
+  begin
+    cursor_off(tee_fil.out_file1);
+    cursor_off(tee_fil.out_file2);
+  end func;
+*)

@@ -1,0 +1,1736 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkstr.sd7    Checks string literals and operations             *)
+(*  Copyright (C) 1992, 1993, 1994, 2004  Thomas Mertes             *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+
+
+const proc: check_string_literal is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if ord("\A"[1]) <> 1 then
+      write("ord(\"\\A\"[1]) is ");
+      write(ord("\A"[1]));
+      writeln(" not 1");
+      okay := FALSE;
+    end if;
+    if ord("\B"[1]) <> 2 then
+      write("ord(\"\\B\"[1]) is ");
+      write(ord("\B"[1]));
+      writeln(" not 2");
+      okay := FALSE;
+    end if;
+    if ord("\C"[1]) <> 3 then
+      write("ord(\"\\C\"[1]) is ");
+      write(ord("\C"[1]));
+      writeln(" not 3");
+      okay := FALSE;
+    end if;
+    if ord("\D"[1]) <> 4 then
+      write("ord(\"\\D\"[1]) is ");
+      write(ord("\D"[1]));
+      writeln(" not 4");
+      okay := FALSE;
+    end if;
+    if ord("\E"[1]) <> 5 then
+      write("ord(\"\\E\"[1]) is ");
+      write(ord("\E"[1]));
+      writeln(" not 5");
+      okay := FALSE;
+    end if;
+    if ord("\F"[1]) <> 6 then
+      write("ord(\"\\F\"[1]) is ");
+      write(ord("\F"[1]));
+      writeln(" not 6");
+      okay := FALSE;
+    end if;
+    if ord("\G"[1]) <> 7 then
+      write("ord(\"\\G\"[1]) is ");
+      write(ord("\G"[1]));
+      writeln(" not 7");
+      okay := FALSE;
+    end if;
+    if ord("\H"[1]) <> 8 then
+      write("ord(\"\\H\"[1]) is ");
+      write(ord("\H"[1]));
+      writeln(" not 8");
+      okay := FALSE;
+    end if;
+    if ord("\I"[1]) <> 9 then
+      write("ord(\"\\I\"[1]) is ");
+      write(ord("\I"[1]));
+      writeln(" not 9");
+      okay := FALSE;
+    end if;
+    if ord("\J"[1]) <> 10 then
+      write("ord(\"\\J\"[1]) is ");
+      write(ord("\J"[1]));
+      writeln(" not 10");
+      okay := FALSE;
+    end if;
+    if ord("\K"[1]) <> 11 then
+      write("ord(\"\\K\"[1]) is ");
+      write(ord("\K"[1]));
+      writeln(" not 11");
+      okay := FALSE;
+    end if;
+    if ord("\L"[1]) <> 12 then
+      write("ord(\"\\L\"[1]) is ");
+      write(ord("\L"[1]));
+      writeln(" not 12");
+      okay := FALSE;
+    end if;
+    if ord("\M"[1]) <> 13 then
+      write("ord(\"\\M\"[1]) is ");
+      write(ord("\M"[1]));
+      writeln(" not 13");
+      okay := FALSE;
+    end if;
+    if ord("\N"[1]) <> 14 then
+      write("ord(\"\\N\"[1]) is ");
+      write(ord("\N"[1]));
+      writeln(" not 14");
+      okay := FALSE;
+    end if;
+    if ord("\O"[1]) <> 15 then
+      write("ord(\"\\O\"[1]) is ");
+      write(ord("\O"[1]));
+      writeln(" not 15");
+      okay := FALSE;
+    end if;
+    if ord("\P"[1]) <> 16 then
+      write("ord(\"\\P\"[1]) is ");
+      write(ord("\P"[1]));
+      writeln(" not 16");
+      okay := FALSE;
+    end if;
+    if ord("\Q"[1]) <> 17 then
+      write("ord(\"\\Q\"[1]) is ");
+      write(ord("\Q"[1]));
+      writeln(" not 17");
+      okay := FALSE;
+    end if;
+    if ord("\R"[1]) <> 18 then
+      write("ord(\"\\R\"[1]) is ");
+      write(ord("\R"[1]));
+      writeln(" not 18");
+      okay := FALSE;
+    end if;
+    if ord("\S"[1]) <> 19 then
+      write("ord(\"\\S\"[1]) is ");
+      write(ord("\S"[1]));
+      writeln(" not 19");
+      okay := FALSE;
+    end if;
+    if ord("\T"[1]) <> 20 then
+      write("ord(\"\\T\"[1]) is ");
+      write(ord("\T"[1]));
+      writeln(" not 20");
+      okay := FALSE;
+    end if;
+    if ord("\U"[1]) <> 21 then
+      write("ord(\"\\U\"[1]) is ");
+      write(ord("\U"[1]));
+      writeln(" not 21");
+      okay := FALSE;
+    end if;
+    if ord("\V"[1]) <> 22 then
+      write("ord(\"\\V\"[1]) is ");
+      write(ord("\V"[1]));
+      writeln(" not 22");
+      okay := FALSE;
+    end if;
+    if ord("\W"[1]) <> 23 then
+      write("ord(\"\\W\"[1]) is ");
+      write(ord("\W"[1]));
+      writeln(" not 23");
+      okay := FALSE;
+    end if;
+    if ord("\X"[1]) <> 24 then
+      write("ord(\"\\X\"[1]) is ");
+      write(ord("\X"[1]));
+      writeln(" not 24");
+      okay := FALSE;
+    end if;
+    if ord("\Y"[1]) <> 25 then
+      write("ord(\"\\Y\"[1]) is ");
+      write(ord("\Y"[1]));
+      writeln(" not 25");
+      okay := FALSE;
+    end if;
+    if ord("\Z"[1]) <> 26 then
+      write("ord(\"\\Z\"[1]) is ");
+      write(ord("\Z"[1]));
+      writeln(" not 26");
+      okay := FALSE;
+    end if;
+    if ord("\""[1]) <> 34 then
+      write("ord(\"\\\"\"[1]) is ");
+      write(ord("\""[1]));
+      writeln(" not 34");
+      okay := FALSE;
+    end if;
+    if ord("\'"[1]) <> 39 then
+      write("ord(\"\\\'\"[1]) is ");
+      write(ord("\'"[1]));
+      writeln(" not 39");
+      okay := FALSE;
+    end if;
+    if ord("\\"[1]) <> 92 then
+      write("ord(\"\\\\\"[1]) is ");
+      write(ord("\\"[1]));
+      writeln(" not 92");
+      okay := FALSE;
+    end if;
+    if ord("\a"[1]) <> 7 then
+      write("ord(\"\\a\"[1]) is ");
+      write(ord("\a"[1]));
+      writeln(" not 7");
+      okay := FALSE;
+    end if;
+    if ord("\b"[1]) <> 8 then
+      write("ord(\"\\b\"[1]) is ");
+      write(ord("\b"[1]));
+      writeln(" not 8");
+      okay := FALSE;
+    end if;
+    if ord("\e"[1]) <> 27 then
+      write("ord(\"\\e\"[1]) is ");
+      write(ord("\e"[1]));
+      writeln(" not 27");
+      okay := FALSE;
+    end if;
+    if ord("\f"[1]) <> 12 then
+      write("ord(\"\\f\"[1]) is ");
+      write(ord("\f"[1]));
+      writeln(" not 12");
+      okay := FALSE;
+    end if;
+    if ord("\n"[1]) <> 10 then
+      write("ord(\"\\n\"[1]) is ");
+      write(ord("\n"[1]));
+      writeln(" not 10");
+      okay := FALSE;
+    end if;
+    if ord("\r"[1]) <> 13 then
+      write("ord(\"\\r\"[1]) is ");
+      write(ord("\r"[1]));
+      writeln(" not 13");
+      okay := FALSE;
+    end if;
+    if ord("\t"[1]) <> 9 then
+      write("ord(\"\\t\"[1]) is ");
+      write(ord("\t"[1]));
+      writeln(" not 9");
+      okay := FALSE;
+    end if;
+    if ord("\v"[1]) <> 11 then
+      write("ord(\"\\v\"[1]) is ");
+      write(ord("\v"[1]));
+      writeln(" not 11");
+      okay := FALSE;
+    end if;
+    if "\ \" <> "" or "\
+\"           <> "" or "\
+          \" <> "" then
+      writeln("1String escape sequences do not work correct.");
+      okay := FALSE;
+    end if;
+    if "\1\\2\\3\\4\\5\\6\\7\\8\\9\\10\\11\\12\\13\\
+        \\14\\15\\16\\17\\18\\19\\20\\21\\22\\23\\24\\25\\26\" <>
+        "\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z" then
+      writeln("2String escape sequences do not work correct.");
+      okay := FALSE;
+    end if;
+    if "\8#1\\8#2\\8#3\\8#4\\8#5\\8#6\\8#7\\8#10\\8#11\\8#12\\
+        \\8#13\\8#14\\8#15\\8#16\\8#17\\8#20\\8#21\\8#22\\8#23\\
+        \\8#24\\8#25\\8#26\\8#27\\8#30\\8#31\\8#32\" <>
+        "\A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z" then
+      writeln("3String escape sequences do not work correct.");
+      okay := FALSE;
+    end if;
+    if  ord("\16#7\"[1])       <>        7 or
+        ord("\16#8\"[1])       <>        8 or
+        ord("\16#F\"[1])       <>       15 or
+        ord("\16#10\"[1])      <>       16 or
+        ord("\16#1F\"[1])      <>       31 or
+        ord("\16#20\"[1])      <>       32 or
+        ord("\16#3F\"[1])      <>       63 or
+        ord("\16#40\"[1])      <>       64 or
+        ord("\16#7F\"[1])      <>      127 or
+        ord("\16#80\"[1])      <>      128 or
+        ord("\16#FF\"[1])      <>      255 or
+        ord("\16#100\"[1])     <>      256 or
+        ord("\16#1FF\"[1])     <>      511 or
+        ord("\16#200\"[1])     <>      512 or
+        ord("\16#3FF\"[1])     <>     1023 or
+        ord("\16#400\"[1])     <>     1024 or
+        ord("\16#7FF\"[1])     <>     2047 or
+        ord("\16#800\"[1])     <>     2048 or
+        ord("\16#FFF\"[1])     <>     4095 or
+        ord("\16#1000\"[1])    <>     4096 or
+        ord("\16#1FFF\"[1])    <>     8191 or
+        ord("\16#2000\"[1])    <>     8192 or
+        ord("\16#3FFF\"[1])    <>    16383 or
+        ord("\16#4000\"[1])    <>    16384 or
+        ord("\16#7FFF\"[1])    <>    32767 or
+        ord("\16#8000\"[1])    <>    32768 or
+        ord("\16#FFFF\"[1])    <>    65535 or
+        ord("\16#10000\"[1])   <>    65536 or
+        ord("\16#1FFFF\"[1])   <>   131071 or
+        ord("\16#20000\"[1])   <>   131072 or
+        ord("\16#3FFFF\"[1])   <>   262143 or
+        ord("\16#40000\"[1])   <>   262144 or
+        ord("\16#7FFFF\"[1])   <>   524287 or
+        ord("\16#80000\"[1])   <>   524288 or
+        ord("\16#FFFFF\"[1])   <>  1048575 or
+        ord("\16#100000\"[1])  <>  1048576 or
+        ord("\16#1FFFFF\"[1])  <>  2097151 or
+        ord("\16#200000\"[1])  <>  2097152 or
+        ord("\16#3FFFFF\"[1])  <>  4194303 or
+        ord("\16#400000\"[1])  <>  4194304 or
+        ord("\16#7FFFFF\"[1])  <>  8388607 or
+        ord("\16#800000\"[1])  <>  8388608 or
+        ord("\16#FFFFFF\"[1])  <> 16777215 or
+        ord("\16#1000000\"[1]) <> 16777216 or
+        ord("\16#1FFFFFF\"[1]) <> 33554431 or
+        ord("\16#2000000\"[1]) <> 33554432 then
+      writeln("4String escape sequences do not work correct.");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String literals work correct.");
+    else
+      writeln(" ***** String literals do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_string_comparisons is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if not ("" = "") or
+        not ("a" = "a") or
+        not ("b" = "b") or
+        not ("aa" = "aa") or
+        not ("ab" = "ab") or
+        not ("ba" = "ba") or
+        not ("aaa" = "aaa") or
+        not ("abc" = "abc") or
+        not ("cbc" = "cbc") or
+        not ("123456789" = "123456789") or
+        not ("1234567890" = "1234567890") or
+        not ("abcdefghijklmnopqrstuvwxyz" = "abcdefghijklmnopqrstuvwxyz") or
+        "" = "a" or
+        "" = "123456789" or
+        "a" = "" or
+        "a" = "b" or
+        "a" = "aa" or
+        "a" = "ab" or
+        "a" = "123456789" or
+        "b" = "a" or
+        "aa" = "a" or
+        "aa" = "ab" or
+        "aa" = "ba" or
+        "aa" = "aaa" or
+        "ab" = "a" or
+        "ab" = "aa" or
+        "ab" = "ba" or
+        "ba" = "aa" or
+        "ba" = "ab" or
+        "aaa" = "aa" or
+        "abc" = "cbc" or
+        "cbc" = "abc" or
+        "123456789" = "" or
+        "123456789" = "a" or
+        "123456789" = "1234567890" or
+        "123456789" = "abcdefghijklmnopqrstuvwxyz" or
+        "1234567890" = "123456789" or
+        "abcdefghijklmnopqrstuvwxyz" = "123456789" then
+      writeln(" ***** STRING = STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if "" <> "" or
+        "a" <> "a" or
+        "b" <> "b" or
+        "aa" <> "aa" or
+        "ab" <> "ab" or
+        "ba" <> "ba" or
+        "aaa" <> "aaa" or
+        "abc" <> "abc" or
+        "cbc" <> "cbc" or
+        "123456789" <> "123456789" or
+        "1234567890" <> "1234567890" or
+        "abcdefghijklmnopqrstuvwxyz" <> "abcdefghijklmnopqrstuvwxyz" or
+        not ("" <> "a") or
+        not ("" <> "123456789") or
+        not ("a" <> "") or
+        not ("a" <> "b") or
+        not ("a" <> "aa") or
+        not ("a" <> "ab") or
+        not ("a" <> "123456789") or
+        not ("b" <> "a") or
+        not ("aa" <> "a") or
+        not ("aa" <> "ab") or
+        not ("aa" <> "ba") or
+        not ("aa" <> "aaa") or
+        not ("ab" <> "a") or
+        not ("ab" <> "aa") or
+        not ("ab" <> "ba") or
+        not ("ba" <> "aa") or
+        not ("ba" <> "ab") or
+        not ("aaa" <> "aa") or
+        not ("abc" <> "cbc") or
+        not ("cbc" <> "abc") or
+        not ("123456789" <> "") or
+        not ("123456789" <> "a") or
+        not ("123456789" <> "1234567890") or
+        not ("123456789" <> "abcdefghijklmnopqrstuvwxyz") or
+        not ("1234567890" <> "123456789") or
+        not ("abcdefghijklmnopqrstuvwxyz" <> "123456789") then
+      writeln(" ***** STRING <> STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if  not (
+        not (""      > ""      ) and
+        not (""      > "0"     ) and
+        not (""      > "00"    ) and
+        not (""      > "01"    ) and
+        not (""      > "02"    ) and
+        not (""      > "1"     ) and
+        not (""      > "10"    ) and
+        not (""      > "11"    ) and
+        not (""      > "12"    ) and
+        not (""      > "2"     ) and
+        not (""      > "20"    ) and
+        not (""      > "21"    ) and
+        not (""      > "22"    ) and
+        not (""      > "22222" ) and
+             "1"     > ""        and
+             "1"     > "0"       and
+             "1"     > "00"      and
+             "1"     > "01"      and
+             "1"     > "02"      and
+             "1"     > "0234"    and
+        not ("1"     > "1"     ) and
+        not ("1"     > "10"    ) and
+        not ("1"     > "11"    ) and
+        not ("1"     > "110"   ) and
+        not ("1"     > "111"   ) and
+        not ("1"     > "112"   ) and
+        not ("1"     > "12"    ) and
+        not ("1"     > "2"     ) and
+        not ("1"     > "20"    ) and
+        not ("1"     > "21"    ) and
+        not ("1"     > "22"    ) and
+             "123"   > ""        and
+             "123"   > "0"       and
+             "123"   > "1"       and
+             "123"   > "11"      and
+             "123"   > "12"      and
+             "123"   > "122"     and
+             "123"   > "1222"    and
+             "123"   > "1223"    and
+             "123"   > "1224"    and
+        not ("123"   > "123"   ) and
+        not ("123"   > "124"   ) and
+        not ("123"   > "13"    ) and
+        not ("123"   > "2"     ) and
+        not ("123"   > "21"    ) and
+        not ("123"   > "22"    ) and
+        not ("123"   > "222"   ) and
+        not ("123"   > "2222"  ) and
+        not (""      > ""      ) and
+             "0"     > ""        and
+             "00"    > ""        and
+             "01"    > ""        and
+             "02"    > ""        and
+             "1"     > ""        and
+             "10"    > ""        and
+             "11"    > ""        and
+             "12"    > ""        and
+             "2"     > ""        and
+             "20"    > ""        and
+             "21"    > ""        and
+             "22"    > ""        and
+             "22222" > ""        and
+        not (""      > "1"     ) and
+        not ("0"     > "1"     ) and
+        not ("00"    > "1"     ) and
+        not ("01"    > "1"     ) and
+        not ("02"    > "1"     ) and
+        not ("0234"  > "1"     ) and
+        not ("1"     > "1"     ) and
+             "10"    > "1"       and
+             "11"    > "1"       and
+             "110"   > "1"       and
+             "111"   > "1"       and
+             "112"   > "1"       and
+             "12"    > "1"       and
+             "2"     > "1"       and
+             "20"    > "1"       and
+             "21"    > "1"       and
+             "22"    > "1"       and
+        not (""      > "123"   ) and
+        not ("0"     > "123"   ) and
+        not ("1"     > "123"   ) and
+        not ("11"    > "123"   ) and
+        not ("12"    > "123"   ) and
+        not ("122"   > "123"   ) and
+        not ("1222"  > "123"   ) and
+        not ("1223"  > "123"   ) and
+        not ("1224"  > "123"   ) and
+        not ("123"   > "123"   ) and
+             "124"   > "123"     and
+             "13"    > "123"     and
+             "2"     > "123"     and
+             "21"    > "123"     and
+             "22"    > "123"     and
+             "222"   > "123"     and
+             "2222"  > "123"
+             ) then
+      writeln(" ***** STRING > STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if  not (
+             ""      >= ""        and
+        not (""      >= "0"     ) and
+        not (""      >= "00"    ) and
+        not (""      >= "01"    ) and
+        not (""      >= "02"    ) and
+        not (""      >= "1"     ) and
+        not (""      >= "10"    ) and
+        not (""      >= "11"    ) and
+        not (""      >= "12"    ) and
+        not (""      >= "2"     ) and
+        not (""      >= "20"    ) and
+        not (""      >= "21"    ) and
+        not (""      >= "22"    ) and
+        not (""      >= "22222" ) and
+             "1"     >= ""        and
+             "1"     >= "0"       and
+             "1"     >= "00"      and
+             "1"     >= "01"      and
+             "1"     >= "02"      and
+             "1"     >= "0234"    and
+             "1"     >= "1"       and
+        not ("1"     >= "10"    ) and
+        not ("1"     >= "11"    ) and
+        not ("1"     >= "110"   ) and
+        not ("1"     >= "111"   ) and
+        not ("1"     >= "112"   ) and
+        not ("1"     >= "12"    ) and
+        not ("1"     >= "2"     ) and
+        not ("1"     >= "20"    ) and
+        not ("1"     >= "21"    ) and
+        not ("1"     >= "22"    ) and
+             "123"   >= ""        and
+             "123"   >= "0"       and
+             "123"   >= "1"       and
+             "123"   >= "11"      and
+             "123"   >= "12"      and
+             "123"   >= "122"     and
+             "123"   >= "1222"    and
+             "123"   >= "1223"    and
+             "123"   >= "1224"    and
+             "123"   >= "123"     and
+        not ("123"   >= "124"   ) and
+        not ("123"   >= "13"    ) and
+        not ("123"   >= "2"     ) and
+        not ("123"   >= "21"    ) and
+        not ("123"   >= "22"    ) and
+        not ("123"   >= "222"   ) and
+        not ("123"   >= "2222"  ) and
+             ""      >= ""        and
+             "0"     >= ""        and
+             "00"    >= ""        and
+             "01"    >= ""        and
+             "02"    >= ""        and
+             "1"     >= ""        and
+             "10"    >= ""        and
+             "11"    >= ""        and
+             "12"    >= ""        and
+             "2"     >= ""        and
+             "20"    >= ""        and
+             "21"    >= ""        and
+             "22"    >= ""        and
+             "22222" >= ""        and
+        not (""      >= "1"     ) and
+        not ("0"     >= "1"     ) and
+        not ("00"    >= "1"     ) and
+        not ("01"    >= "1"     ) and
+        not ("02"    >= "1"     ) and
+        not ("0234"  >= "1"     ) and
+             "1"     >= "1"       and
+             "10"    >= "1"       and
+             "11"    >= "1"       and
+             "110"   >= "1"       and
+             "111"   >= "1"       and
+             "112"   >= "1"       and
+             "12"    >= "1"       and
+             "2"     >= "1"       and
+             "20"    >= "1"       and
+             "21"    >= "1"       and
+             "22"    >= "1"       and
+        not (""      >= "123"   ) and
+        not ("0"     >= "123"   ) and
+        not ("1"     >= "123"   ) and
+        not ("11"    >= "123"   ) and
+        not ("12"    >= "123"   ) and
+        not ("122"   >= "123"   ) and
+        not ("1222"  >= "123"   ) and
+        not ("1223"  >= "123"   ) and
+        not ("1224"  >= "123"   ) and
+             "123"   >= "123"     and
+             "124"   >= "123"     and
+             "13"    >= "123"     and
+             "2"     >= "123"     and
+             "21"    >= "123"     and
+             "22"    >= "123"     and
+             "222"   >= "123"     and
+             "2222"  >= "123"
+             ) then
+      writeln(" ***** STRING >= STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if  not (
+        not (""      < ""      ) and
+        not ("0"     < ""      ) and
+        not ("00"    < ""      ) and
+        not ("01"    < ""      ) and
+        not ("02"    < ""      ) and
+        not ("1"     < ""      ) and
+        not ("10"    < ""      ) and
+        not ("11"    < ""      ) and
+        not ("12"    < ""      ) and
+        not ("2"     < ""      ) and
+        not ("20"    < ""      ) and
+        not ("21"    < ""      ) and
+        not ("22"    < ""      ) and
+        not ("22222" < ""      ) and
+             ""      < "1"       and
+             "0"     < "1"       and
+             "00"    < "1"       and
+             "01"    < "1"       and
+             "02"    < "1"       and
+             "0234"  < "1"       and
+        not ("1"     < "1"     ) and
+        not ("10"    < "1"     ) and
+        not ("11"    < "1"     ) and
+        not ("110"   < "1"     ) and
+        not ("111"   < "1"     ) and
+        not ("112"   < "1"     ) and
+        not ("12"    < "1"     ) and
+        not ("2"     < "1"     ) and
+        not ("20"    < "1"     ) and
+        not ("21"    < "1"     ) and
+        not ("22"    < "1"     ) and
+             ""      < "123"     and
+             "0"     < "123"     and
+             "1"     < "123"     and
+             "11"    < "123"     and
+             "12"    < "123"     and
+             "122"   < "123"     and
+             "1222"  < "123"     and
+             "1223"  < "123"     and
+             "1224"  < "123"     and
+        not ("123"   < "123"   ) and
+        not ("124"   < "123"   ) and
+        not ("13"    < "123"   ) and
+        not ("2"     < "123"   ) and
+        not ("21"    < "123"   ) and
+        not ("22"    < "123"   ) and
+        not ("222"   < "123"   ) and
+        not ("2222"  < "123"   ) and
+        not (""      < ""      ) and
+             ""      < "0"       and
+             ""      < "00"      and
+             ""      < "01"      and
+             ""      < "02"      and
+             ""      < "1"       and
+             ""      < "10"      and
+             ""      < "11"      and
+             ""      < "12"      and
+             ""      < "2"       and
+             ""      < "20"      and
+             ""      < "21"      and
+             ""      < "22"      and
+             ""      < "22222"   and
+        not ("1"     < ""      ) and
+        not ("1"     < "0"     ) and
+        not ("1"     < "00"    ) and
+        not ("1"     < "01"    ) and
+        not ("1"     < "02"    ) and
+        not ("1"     < "0234"  ) and
+        not ("1"     < "1"     ) and
+             "1"     < "10"      and
+             "1"     < "11"      and
+             "1"     < "110"     and
+             "1"     < "111"     and
+             "1"     < "112"     and
+             "1"     < "12"      and
+             "1"     < "2"       and
+             "1"     < "20"      and
+             "1"     < "21"      and
+             "1"     < "22"      and
+        not ("123"   < ""      ) and
+        not ("123"   < "0"     ) and
+        not ("123"   < "1"     ) and
+        not ("123"   < "11"    ) and
+        not ("123"   < "12"    ) and
+        not ("123"   < "122"   ) and
+        not ("123"   < "1222"  ) and
+        not ("123"   < "1223"  ) and
+        not ("123"   < "1224"  ) and
+        not ("123"   < "123"   ) and
+             "123"   < "124"     and
+             "123"   < "13"      and
+             "123"   < "2"       and
+             "123"   < "21"      and
+             "123"   < "22"      and
+             "123"   < "222"     and
+             "123"   < "2222"
+             ) then
+      writeln(" ***** STRING < STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if  not (
+             ""      <= ""        and
+        not ("0"     <= ""      ) and
+        not ("00"    <= ""      ) and
+        not ("01"    <= ""      ) and
+        not ("02"    <= ""      ) and
+        not ("1"     <= ""      ) and
+        not ("10"    <= ""      ) and
+        not ("11"    <= ""      ) and
+        not ("12"    <= ""      ) and
+        not ("2"     <= ""      ) and
+        not ("20"    <= ""      ) and
+        not ("21"    <= ""      ) and
+        not ("22"    <= ""      ) and
+        not ("22222" <= ""      ) and
+             ""      <= "1"       and
+             "0"     <= "1"       and
+             "00"    <= "1"       and
+             "01"    <= "1"       and
+             "02"    <= "1"       and
+             "0234"  <= "1"       and
+             "1"     <= "1"       and
+        not ("10"    <= "1"     ) and
+        not ("11"    <= "1"     ) and
+        not ("110"   <= "1"     ) and
+        not ("111"   <= "1"     ) and
+        not ("112"   <= "1"     ) and
+        not ("12"    <= "1"     ) and
+        not ("2"     <= "1"     ) and
+        not ("20"    <= "1"     ) and
+        not ("21"    <= "1"     ) and
+        not ("22"    <= "1"     ) and
+             ""      <= "123"     and
+             "0"     <= "123"     and
+             "1"     <= "123"     and
+             "11"    <= "123"     and
+             "12"    <= "123"     and
+             "122"   <= "123"     and
+             "1222"  <= "123"     and
+             "1223"  <= "123"     and
+             "1224"  <= "123"     and
+             "123"   <= "123"     and
+        not ("124"   <= "123"   ) and
+        not ("13"    <= "123"   ) and
+        not ("2"     <= "123"   ) and
+        not ("21"    <= "123"   ) and
+        not ("22"    <= "123"   ) and
+        not ("222"   <= "123"   ) and
+        not ("2222"  <= "123"   ) and
+             ""      <= ""        and
+             ""      <= "0"       and
+             ""      <= "00"      and
+             ""      <= "01"      and
+             ""      <= "02"      and
+             ""      <= "1"       and
+             ""      <= "10"      and
+             ""      <= "11"      and
+             ""      <= "12"      and
+             ""      <= "2"       and
+             ""      <= "20"      and
+             ""      <= "21"      and
+             ""      <= "22"      and
+             ""      <= "22222"   and
+        not ("1"     <= ""      ) and
+        not ("1"     <= "0"     ) and
+        not ("1"     <= "00"    ) and
+        not ("1"     <= "01"    ) and
+        not ("1"     <= "02"    ) and
+        not ("1"     <= "0234"  ) and
+             "1"     <= "1"       and
+             "1"     <= "10"      and
+             "1"     <= "11"      and
+             "1"     <= "110"     and
+             "1"     <= "111"     and
+             "1"     <= "112"     and
+             "1"     <= "12"      and
+             "1"     <= "2"       and
+             "1"     <= "20"      and
+             "1"     <= "21"      and
+             "1"     <= "22"      and
+        not ("123"   <= ""      ) and
+        not ("123"   <= "0"     ) and
+        not ("123"   <= "1"     ) and
+        not ("123"   <= "11"    ) and
+        not ("123"   <= "12"    ) and
+        not ("123"   <= "122"   ) and
+        not ("123"   <= "1222"  ) and
+        not ("123"   <= "1223"  ) and
+        not ("123"   <= "1224"  ) and
+             "123"   <= "123"     and
+             "123"   <= "124"     and
+             "123"   <= "13"      and
+             "123"   <= "2"       and
+             "123"   <= "21"      and
+             "123"   <= "22"      and
+             "123"   <= "222"     and
+             "123"   <= "2222"
+             ) then
+      writeln(" ***** STRING <= STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if  "\2050\" < "\1152\" or
+        "\1152\" > "\2050\" then
+      writeln(" ***** \"\\4096\\\" < \"\\1152\\\" does not work correct");
+      okay := FALSE;
+    end if;
+    if  "\16#0201\" < "\16#0102\" or
+        "\16#0102\" > "\16#0201\" then
+      writeln(" ***** \"\\16#0201\\\" < \"\\16#0102\\\" does not work correct");
+      okay := FALSE;
+    end if;
+    if  "\16#030201\" < "\16#010203\" or
+        "\16#010203\" > "\16#030201\" then
+      writeln(" ***** \"\\16#030201\\\" < \"\\16#010203\\\" does not work correct");
+      okay := FALSE;
+    end if;
+    if  "\16#04030201\" < "\16#01020304\" or
+        "\16#01020304\" > "\16#04030201\" then
+      writeln(" ***** \"\\16#04030201\\\" < \"\\16#01020304\\\" does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String comparisons work correct");
+    end if;
+  end func;
+
+
+const proc: check_string_index is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if "1234567890" [ -5 .. -10 ] <> "" or
+        "1234567890" [ -5 .. -5 ] <> "" or
+        "1234567890" [ -5 .. 0 ] <> "" or
+        "1234567890" [ -5 .. 1 ] <> "1" or
+        "1234567890" [ -5 .. 5 ] <> "12345" or
+        "1234567890" [ -5 .. 10 ] <> "1234567890" or
+        "1234567890" [ -5 .. 11 ] <> "1234567890" or
+        "1234567890" [ -5 .. 15 ] <> "1234567890" or
+        "1234567890" [ 0 .. -5 ] <> "" or
+        "1234567890" [ 0 .. 0 ] <> "" or
+        "1234567890" [ 0 .. 1 ] <> "1" or
+        "1234567890" [ 0 .. 5 ] <> "12345" or
+        "1234567890" [ 0 .. 10 ] <> "1234567890" or
+        "1234567890" [ 0 .. 11 ] <> "1234567890" or
+        "1234567890" [ 0 .. 15 ] <> "1234567890" or
+        "1234567890" [ 1 .. -5 ] <> "" or
+        "1234567890" [ 1 .. 0 ] <> "" or
+        "1234567890" [ 1 .. 1 ] <> "1" or
+        "1234567890" [ 1 .. 5 ] <> "12345" or
+        "1234567890" [ 1 .. 10 ] <> "1234567890" or
+        "1234567890" [ 1 .. 11 ] <> "1234567890" or
+        "1234567890" [ 1 .. 15 ] <> "1234567890" or
+        "1234567890" [ 5 .. -5 ] <> "" or
+        "1234567890" [ 5 .. 0 ] <> "" or
+        "1234567890" [ 5 .. 1 ] <> "" or
+        "1234567890" [ 5 .. 4 ] <> "" or
+        "1234567890" [ 5 .. 5 ] <> "5" or
+        "1234567890" [ 5 .. 6 ] <> "56" or
+        "1234567890" [ 5 .. 8 ] <> "5678" or
+        "1234567890" [ 5 .. 10 ] <> "567890" or
+        "1234567890" [ 5 .. 11 ] <> "567890" or
+        "1234567890" [ 5 .. 15 ] <> "567890" or
+        "1234567890" [ 10 .. -5 ] <> "" or
+        "1234567890" [ 10 .. 0 ] <> "" or
+        "1234567890" [ 10 .. 1 ] <> "" or
+        "1234567890" [ 10 .. 5 ] <> "" or
+        "1234567890" [ 10 .. 10 ] <> "0" or
+        "1234567890" [ 10 .. 11 ] <> "0" or
+        "1234567890" [ 10 .. 15 ] <> "0" or
+        "1234567890" [ 11 .. -5 ] <> "" or
+        "1234567890" [ 11 .. 0 ] <> "" or
+        "1234567890" [ 11 .. 1 ] <> "" or
+        "1234567890" [ 11 .. 5 ] <> "" or
+        "1234567890" [ 11 .. 10 ] <> "" or
+        "1234567890" [ 11 .. 11 ] <> "" or
+        "1234567890" [ 11 .. 15 ] <> "" or
+        "1234567890" [ 15 .. -5 ] <> "" or
+        "1234567890" [ 15 .. 0 ] <> "" or
+        "1234567890" [ 15 .. 1 ] <> "" or
+        "1234567890" [ 15 .. 5 ] <> "" or
+        "1234567890" [ 15 .. 10 ] <> "" or
+        "1234567890" [ 15 .. 11 ] <> "" or
+        "1234567890" [ 15 .. 15 ] <> "" or
+        "1234567890" [ 15 .. 20 ] <> "" then
+      writeln(" ***** STRING [ START .. STOP ] does not work correct");
+      okay := FALSE;
+    end if;
+    if "1234567890" [ -5 len -10 ] <> "" or
+        "1234567890" [ -5 len -5 ] <> "" or
+        "1234567890" [ -5 len 0 ] <> "" or
+        "1234567890" [ -5 len 1 ] <> "" or
+        "1234567890" [ -5 len 5 ] <> "" or
+        "1234567890" [ -5 len 6 ] <> "" or
+        "1234567890" [ -5 len 7 ] <> "1" or
+        "1234567890" [ -5 len 8 ] <> "12" or
+        "1234567890" [ -5 len 10 ] <> "1234" or
+        "1234567890" [ -5 len 11 ] <> "12345" or
+        "1234567890" [ -5 len 15 ] <> "123456789" or
+        "1234567890" [ -5 len 16 ] <> "1234567890" or
+        "1234567890" [ -5 len 17 ] <> "1234567890" or
+        "1234567890" [ -5 len 20 ] <> "1234567890" or
+        "1234567890" [ 0 len -5 ] <> "" or
+        "1234567890" [ 0 len 0 ] <> "" or
+        "1234567890" [ 0 len 1 ] <> "" or
+        "1234567890" [ 0 len 2 ] <> "1" or
+        "1234567890" [ 0 len 3 ] <> "12" or
+        "1234567890" [ 0 len 5 ] <> "1234" or
+        "1234567890" [ 0 len 6 ] <> "12345" or
+        "1234567890" [ 0 len 10 ] <> "123456789" or
+        "1234567890" [ 0 len 11 ] <> "1234567890" or
+        "1234567890" [ 0 len 12 ] <> "1234567890" or
+        "1234567890" [ 0 len 15 ] <> "1234567890" or
+        "1234567890" [ 1 len -5 ] <> "" or
+        "1234567890" [ 1 len 0 ] <> "" or
+        "1234567890" [ 1 len 1 ] <> "1" or
+        "1234567890" [ 1 len 2 ] <> "12" or
+        "1234567890" [ 1 len 5 ] <> "12345" or
+        "1234567890" [ 1 len 6 ] <> "123456" or
+        "1234567890" [ 1 len 9 ] <> "123456789" or
+        "1234567890" [ 1 len 10 ] <> "1234567890" or
+        "1234567890" [ 1 len 11 ] <> "1234567890" or
+        "1234567890" [ 1 len 15 ] <> "1234567890" or
+        "1234567890" [ 2 len -5 ] <> "" or
+        "1234567890" [ 2 len 0 ] <> "" or
+        "1234567890" [ 2 len 1 ] <> "2" or
+        "1234567890" [ 2 len 2 ] <> "23" or
+        "1234567890" [ 2 len 5 ] <> "23456" or
+        "1234567890" [ 2 len 6 ] <> "234567" or
+        "1234567890" [ 2 len 8 ] <> "23456789" or
+        "1234567890" [ 2 len 9 ] <> "234567890" or
+        "1234567890" [ 2 len 10 ] <> "234567890" or
+        "1234567890" [ 2 len 15 ] <> "234567890" or
+        "1234567890" [ 5 len -5 ] <> "" or
+        "1234567890" [ 5 len 0 ] <> "" or
+        "1234567890" [ 5 len 1 ] <> "5" or
+        "1234567890" [ 5 len 2 ] <> "56" or
+        "1234567890" [ 5 len 4 ] <> "5678" or
+        "1234567890" [ 5 len 5 ] <> "56789" or
+        "1234567890" [ 5 len 6 ] <> "567890" or
+        "1234567890" [ 5 len 7 ] <> "567890" or
+        "1234567890" [ 5 len 10 ] <> "567890" or
+        "1234567890" [ 5 len 15 ] <> "567890" or
+        "1234567890" [ 9 len -5 ] <> "" or
+        "1234567890" [ 9 len 0 ] <> "" or
+        "1234567890" [ 9 len 1 ] <> "9" or
+        "1234567890" [ 9 len 2 ] <> "90" or
+        "1234567890" [ 9 len 5 ] <> "90" or
+        "1234567890" [ 9 len 10 ] <> "90" or
+        "1234567890" [ 9 len 11 ] <> "90" or
+        "1234567890" [ 9 len 15 ] <> "90" or
+        "1234567890" [ 10 len -5 ] <> "" or
+        "1234567890" [ 10 len 0 ] <> "" or
+        "1234567890" [ 10 len 1 ] <> "0" or
+        "1234567890" [ 10 len 5 ] <> "0" or
+        "1234567890" [ 10 len 10 ] <> "0" or
+        "1234567890" [ 10 len 11 ] <> "0" or
+        "1234567890" [ 10 len 15 ] <> "0" or
+        "1234567890" [ 11 len -5 ] <> "" or
+        "1234567890" [ 11 len 0 ] <> "" or
+        "1234567890" [ 11 len 1 ] <> "" or
+        "1234567890" [ 11 len 5 ] <> "" or
+        "1234567890" [ 11 len 10 ] <> "" or
+        "1234567890" [ 11 len 11 ] <> "" or
+        "1234567890" [ 11 len 15 ] <> "" or
+        "1234567890" [ 15 len -5 ] <> "" or
+        "1234567890" [ 15 len 0 ] <> "" or
+        "1234567890" [ 15 len 1 ] <> "" or
+        "1234567890" [ 15 len 5 ] <> "" or
+        "1234567890" [ 15 len 10 ] <> "" or
+        "1234567890" [ 15 len 11 ] <> "" or
+        "1234567890" [ 15 len 15 ] <> "" or
+        "1234567890" [ 15 len 20 ] <> "" then
+      writeln(" ***** STRING [ START len LENGTH ] does not work correct");
+      okay := FALSE;
+    end if;
+    if "1234567890" [ -5 .. ] <> "1234567890" or
+        "1234567890" [ 0 .. ] <> "1234567890" or
+        "1234567890" [ 1 .. ] <> "1234567890" or
+        "1234567890" [ 5 .. ] <> "567890" or
+        "1234567890" [ 10 .. ] <> "0" or
+        "1234567890" [ 11 .. ] <> "" or
+        "1234567890" [ 15 .. ] <> "" then
+      writeln(" ***** STRING [ START .. ] does not work correct");
+      okay := FALSE;
+    end if;
+    if "1234567890" [ .. -5 ] <> "" or
+        "1234567890" [ .. 0 ] <> "" or
+        "1234567890" [ .. 1 ] <> "1" or
+        "1234567890" [ .. 5 ] <> "12345" or
+        "1234567890" [ .. 10 ] <> "1234567890" or
+        "1234567890" [ .. 11 ] <> "1234567890" or
+        "1234567890" [ .. 15 ] <> "1234567890" then
+      writeln(" ***** STRING [ .. STOP ] does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String indices work correct");
+    end if;
+  end func;
+
+
+const proc: check_string_ops is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if "" & "" <> "" or
+        "" & "a" <> "a" or
+        "a" & "" <> "a" or
+        "" & "ab" <> "ab" or
+        "a" & "b" <> "ab" or
+        "ab" & "" <> "ab" or
+        "" & "abc" <> "abc" or
+        "a" & "bc" <> "abc" or
+        "ab" & "c" <> "abc" or
+        "abc" & "" <> "abc" or
+        "" & "abcd" <> "abcd" or
+        "a" & "bcd" <> "abcd" or
+        "ab" & "cd" <> "abcd" or
+        "abc" & "d" <> "abcd" or
+        "abcd" & "" <> "abcd" or
+        "" & "abcde" <> "abcde" or
+        "a" & "bcde" <> "abcde" or
+        "ab" & "cde" <> "abcde" or
+        "abc" & "de" <> "abcde" or
+        "abcd" & "e" <> "abcde" or
+        "abcde" & "" <> "abcde" or
+        "" & "abcdef" <> "abcdef" or
+        "a" & "bcdef" <> "abcdef" or
+        "ab" & "cdef" <> "abcdef" or
+        "abc" & "def" <> "abcdef" or
+        "abcd" & "ef" <> "abcdef" or
+        "abcde" & "f" <> "abcdef" or
+        "abcdef" & "" <> "abcdef" or
+        "" & "abcdefghij" <> "abcdefghij" or
+        "a" & "bcdefghij" <> "abcdefghij" or
+        "ab" & "cdefghij" <> "abcdefghij" or
+        "abc" & "defghij" <> "abcdefghij" or
+        "abcd" & "efghij" <> "abcdefghij" or
+        "abcde" & "fghij" <> "abcdefghij" or
+        "abcdef" & "ghij" <> "abcdefghij" or
+        "abcdefg" & "hij" <> "abcdefghij" or
+        "abcdefgh" & "ij" <> "abcdefghij" or
+        "abcdefghi" & "j" <> "abcdefghij" or
+        "abcdefghij" & "" <> "abcdefghij" then
+      writeln(" ***** STRING & STRING does not work correct");
+      okay := FALSE;
+    end if;
+    if "" mult 0 <> "" or
+        "" mult 1 <> "" or
+        "" mult 2 <> "" or
+        "" mult 3 <> "" or
+        "" mult 4 <> "" or
+        "" mult 5 <> "" or
+        "" mult 6 <> "" or
+        "" mult 10 <> "" or
+        "" mult 50 <> "" or
+        "" mult 100 <> "" or
+        "" mult 1000 <> "" or
+        "" mult 10000 <> "" or
+        "" mult 100000 <> "" or
+        "" mult 1000000 <> "" or
+        "" mult 10000000 <> "" or
+        "" mult 100000000 <> "" or
+        "" mult 1000000000 <> "" or
+        "a" mult 0 <> "" or
+        "a" mult 1 <> "a" or
+        "a" mult 2 <> "aa" or
+        "a" mult 3 <> "aaa" or
+        "a" mult 4 <> "aaaa" or
+        "a" mult 5 <> "aaaaa" or
+        "a" mult 6 <> "aaaaaa" or
+        "a" mult 10 <> "aaaaaaaaaa" or
+        "a" mult 20 <> "aaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 30 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 40 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 50 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "a" mult 60 <> "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" or
+        "ab" mult 0 <> "" or
+        "ab" mult 1 <> "ab" or
+        "ab" mult 2 <> "abab" or
+        "ab" mult 3 <> "ababab" or
+        "ab" mult 4 <> "abababab" or
+        "ab" mult 5 <> "ababababab" or
+        "ab" mult 6 <> "abababababab" or
+        "ab" mult 10 <> "abababababababababab" or
+        "ab" mult 20 <> "abababababababababababababababababababab" or
+        "ab" mult 30 <> "abababababababababababababababababababababababababababababab" or
+        "abc" mult 0 <> "" or
+        "abc" mult 1 <> "abc" or
+        "abc" mult 2 <> "abcabc" or
+        "abc" mult 3 <> "abcabcabc" or
+        "abc" mult 4 <> "abcabcabcabc" or
+        "abc" mult 5 <> "abcabcabcabcabc" or
+        "abc" mult 6 <> "abcabcabcabcabcabc" or
+        "abc" mult 10 <> "abcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 15 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abc" mult 20 <> "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc" or
+        "abcd" mult 0 <> "" or
+        "abcd" mult 1 <> "abcd" or
+        "abcd" mult 2 <> "abcdabcd" or
+        "abcd" mult 3 <> "abcdabcdabcd" or
+        "abcd" mult 4 <> "abcdabcdabcdabcd" or
+        "abcd" mult 5 <> "abcdabcdabcdabcdabcd" or
+        "abcd" mult 6 <> "abcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 10 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcd" mult 15 <> "abcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcdabcd" or
+        "abcde" mult 0 <> "" or
+        "abcde" mult 1 <> "abcde" or
+        "abcde" mult 2 <> "abcdeabcde" or
+        "abcde" mult 3 <> "abcdeabcdeabcde" or
+        "abcde" mult 4 <> "abcdeabcdeabcdeabcde" or
+        "abcde" mult 5 <> "abcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 6 <> "abcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcde" mult 10 <> "abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde" or
+        "abcdef" mult 0 <> "" or
+        "abcdef" mult 1 <> "abcdef" or
+        "abcdef" mult 2 <> "abcdefabcdef" or
+        "abcdef" mult 3 <> "abcdefabcdefabcdef" or
+        "abcdef" mult 4 <> "abcdefabcdefabcdefabcdef" or
+        "abcdef" mult 5 <> "abcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 6 <> "abcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdef" mult 10 <> "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef" or
+        "abcdefghij" mult 0 <> "" or
+        "abcdefghij" mult 1 <> "abcdefghij" or
+        "abcdefghij" mult 2 <> "abcdefghijabcdefghij" or
+        "abcdefghij" mult 3 <> "abcdefghijabcdefghijabcdefghij" or
+        "abcdefghij" mult 4 <> "abcdefghijabcdefghijabcdefghijabcdefghij" or
+        "abcdefghij" mult 5 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
+        "abcdefghij" mult 6 <> "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" or
+        "\16#1234\" mult 0 <> "" or
+        "\16#1234\" mult 1 <> "\16#1234\" or
+        "\16#1234\" mult 2 <> "\16#1234\\16#1234\" or
+        "\16#1234\" mult 3 <> "\16#1234\\16#1234\\16#1234\" or
+        "\16#1234\" mult 4 <> "\16#1234\\16#1234\\16#1234\\16#1234\" or
+        "\16#1234\" mult 5 <> "\16#1234\\16#1234\\16#1234\\16#1234\\16#1234\" or
+        "\16#1234\" mult 6 <> "\16#1234\\16#1234\\16#1234\\16#1234\\16#1234\\16#1234\" or
+        "\16#FECB\" mult 0 <> "" or
+        "\16#FECB\" mult 1 <> "\16#FECB\" or
+        "\16#FECB\" mult 2 <> "\16#FECB\\16#FECB\" or
+        "\16#FECB\" mult 3 <> "\16#FECB\\16#FECB\\16#FECB\" or
+        "\16#FECB\" mult 4 <> "\16#FECB\\16#FECB\\16#FECB\\16#FECB\" or
+        "\16#FECB\" mult 5 <> "\16#FECB\\16#FECB\\16#FECB\\16#FECB\\16#FECB\" or
+        "\16#FECB\" mult 6 <> "\16#FECB\\16#FECB\\16#FECB\\16#FECB\\16#FECB\\16#FECB\" or
+        "\16#1234\\16#FECB\" mult 0 <> "" or
+        "\16#1234\\16#FECB\" mult 1 <> "\16#1234\\16#FECB\" or
+        "\16#1234\\16#FECB\" mult 2 <> "\16#1234\\16#FECB\\16#1234\\16#FECB\" or
+        "\16#1234\\16#FECB\" mult 3 <> "\16#1234\\16#FECB\\16#1234\\16#FECB\\16#1234\\16#FECB\" or
+        "\16#FECB\\16#1234\" mult 0 <> "" or
+        "\16#FECB\\16#1234\" mult 1 <> "\16#FECB\\16#1234\" or
+        "\16#FECB\\16#1234\" mult 2 <> "\16#FECB\\16#1234\\16#FECB\\16#1234\" or
+        "\16#FECB\\16#1234\" mult 3 <> "\16#FECB\\16#1234\\16#FECB\\16#1234\\16#FECB\\16#1234\" then
+      writeln(" ***** STRING mult integer does not work correct");
+      okay := FALSE;
+    end if;
+    if ("" lpad -10) <> "" or
+        ("" lpad -5) <> "" or
+        ("" lpad -2) <> "" or
+        ("" lpad -1) <> "" or
+        ("" lpad 0) <> "" or
+        ("" lpad 1) <> " " or
+        ("" lpad 2) <> "  " or
+        ("" lpad 5) <> "     " or
+        ("" lpad 10) <> "          " or
+        ("a" lpad -10) <> "a" or
+        ("a" lpad -5) <> "a" or
+        ("a" lpad -2) <> "a" or
+        ("a" lpad -1) <> "a" or
+        ("a" lpad 0) <> "a" or
+        ("a" lpad 1) <> "a" or
+        ("a" lpad 2) <> " a" or
+        ("a" lpad 5) <> "    a" or
+        ("a" lpad 10) <> "         a" or
+        ("ab" lpad -10) <> "ab" or
+        ("ab" lpad -5) <> "ab" or
+        ("ab" lpad -2) <> "ab" or
+        ("ab" lpad -1) <> "ab" or
+        ("ab" lpad 0) <> "ab" or
+        ("ab" lpad 1) <> "ab" or
+        ("ab" lpad 2) <> "ab" or
+        ("ab" lpad 5) <> "   ab" or
+        ("ab" lpad 10) <> "        ab" or
+        ("abcd" lpad -10) <> "abcd" or
+        ("abcd" lpad -5) <> "abcd" or
+        ("abcd" lpad -2) <> "abcd" or
+        ("abcd" lpad -1) <> "abcd" or
+        ("abcd" lpad 0) <> "abcd" or
+        ("abcd" lpad 1) <> "abcd" or
+        ("abcd" lpad 2) <> "abcd" or
+        ("abcd" lpad 5) <> " abcd" or
+        ("abcd" lpad 10) <> "      abcd" or
+        ("abcde" lpad -10) <> "abcde" or
+        ("abcde" lpad -5) <> "abcde" or
+        ("abcde" lpad -2) <> "abcde" or
+        ("abcde" lpad -1) <> "abcde" or
+        ("abcde" lpad 0) <> "abcde" or
+        ("abcde" lpad 1) <> "abcde" or
+        ("abcde" lpad 2) <> "abcde" or
+        ("abcde" lpad 5) <> "abcde" or
+        ("abcde" lpad 10) <> "     abcde" or
+        ("abcdef" lpad -10) <> "abcdef" or
+        ("abcdef" lpad -5) <> "abcdef" or
+        ("abcdef" lpad -2) <> "abcdef" or
+        ("abcdef" lpad -1) <> "abcdef" or
+        ("abcdef" lpad 0) <> "abcdef" or
+        ("abcdef" lpad 1) <> "abcdef" or
+        ("abcdef" lpad 2) <> "abcdef" or
+        ("abcdef" lpad 5) <> "abcdef" or
+        ("abcdef" lpad 10) <> "    abcdef" or
+        ("abcdefghi" lpad -10) <> "abcdefghi" or
+        ("abcdefghi" lpad -5) <> "abcdefghi" or
+        ("abcdefghi" lpad -2) <> "abcdefghi" or
+        ("abcdefghi" lpad -1) <> "abcdefghi" or
+        ("abcdefghi" lpad 0) <> "abcdefghi" or
+        ("abcdefghi" lpad 1) <> "abcdefghi" or
+        ("abcdefghi" lpad 2) <> "abcdefghi" or
+        ("abcdefghi" lpad 5) <> "abcdefghi" or
+        ("abcdefghi" lpad 10) <> " abcdefghi" or
+        ("abcdefghij" lpad -10) <> "abcdefghij" or
+        ("abcdefghij" lpad -5) <> "abcdefghij" or
+        ("abcdefghij" lpad -2) <> "abcdefghij" or
+        ("abcdefghij" lpad -1) <> "abcdefghij" or
+        ("abcdefghij" lpad 0) <> "abcdefghij" or
+        ("abcdefghij" lpad 1) <> "abcdefghij" or
+        ("abcdefghij" lpad 2) <> "abcdefghij" or
+        ("abcdefghij" lpad 5) <> "abcdefghij" or
+        ("abcdefghij" lpad 10) <> "abcdefghij" or
+        ("abcdefghijk" lpad -10) <> "abcdefghijk" or
+        ("abcdefghijk" lpad -5) <> "abcdefghijk" or
+        ("abcdefghijk" lpad -2) <> "abcdefghijk" or
+        ("abcdefghijk" lpad -1) <> "abcdefghijk" or
+        ("abcdefghijk" lpad 0) <> "abcdefghijk" or
+        ("abcdefghijk" lpad 1) <> "abcdefghijk" or
+        ("abcdefghijk" lpad 2) <> "abcdefghijk" or
+        ("abcdefghijk" lpad 5) <> "abcdefghijk" or
+        ("abcdefghijk" lpad 10) <> "abcdefghijk" then
+      writeln(" ***** string lpad integer does not work correct");
+      okay := FALSE;
+    end if;
+    if ("" rpad -10) <> "" or
+        ("" rpad -5) <> "" or
+        ("" rpad -2) <> "" or
+        ("" rpad -1) <> "" or
+        ("" rpad 0) <> "" or
+        ("" rpad 1) <> " " or
+        ("" rpad 2) <> "  " or
+        ("" rpad 5) <> "     " or
+        ("" rpad 10) <> "          " or
+        ("a" rpad -10) <> "a" or
+        ("a" rpad -5) <> "a" or
+        ("a" rpad -2) <> "a" or
+        ("a" rpad -1) <> "a" or
+        ("a" rpad 0) <> "a" or
+        ("a" rpad 1) <> "a" or
+        ("a" rpad 2) <> "a " or
+        ("a" rpad 5) <> "a    " or
+        ("a" rpad 10) <> "a         " or
+        ("ab" rpad -10) <> "ab" or
+        ("ab" rpad -5) <> "ab" or
+        ("ab" rpad -2) <> "ab" or
+        ("ab" rpad -1) <> "ab" or
+        ("ab" rpad 0) <> "ab" or
+        ("ab" rpad 1) <> "ab" or
+        ("ab" rpad 2) <> "ab" or
+        ("ab" rpad 5) <> "ab   " or
+        ("ab" rpad 10) <> "ab        " or
+        ("abcd" rpad -10) <> "abcd" or
+        ("abcd" rpad -5) <> "abcd" or
+        ("abcd" rpad -2) <> "abcd" or
+        ("abcd" rpad -1) <> "abcd" or
+        ("abcd" rpad 0) <> "abcd" or
+        ("abcd" rpad 1) <> "abcd" or
+        ("abcd" rpad 2) <> "abcd" or
+        ("abcd" rpad 5) <> "abcd " or
+        ("abcd" rpad 10) <> "abcd      " or
+        ("abcde" rpad -10) <> "abcde" or
+        ("abcde" rpad -5) <> "abcde" or
+        ("abcde" rpad -2) <> "abcde" or
+        ("abcde" rpad -1) <> "abcde" or
+        ("abcde" rpad 0) <> "abcde" or
+        ("abcde" rpad 1) <> "abcde" or
+        ("abcde" rpad 2) <> "abcde" or
+        ("abcde" rpad 5) <> "abcde" or
+        ("abcde" rpad 10) <> "abcde     " or
+        ("abcdef" rpad -10) <> "abcdef" or
+        ("abcdef" rpad -5) <> "abcdef" or
+        ("abcdef" rpad -2) <> "abcdef" or
+        ("abcdef" rpad -1) <> "abcdef" or
+        ("abcdef" rpad 0) <> "abcdef" or
+        ("abcdef" rpad 1) <> "abcdef" or
+        ("abcdef" rpad 2) <> "abcdef" or
+        ("abcdef" rpad 5) <> "abcdef" or
+        ("abcdef" rpad 10) <> "abcdef    " or
+        ("abcdefghi" rpad -10) <> "abcdefghi" or
+        ("abcdefghi" rpad -5) <> "abcdefghi" or
+        ("abcdefghi" rpad -2) <> "abcdefghi" or
+        ("abcdefghi" rpad -1) <> "abcdefghi" or
+        ("abcdefghi" rpad 0) <> "abcdefghi" or
+        ("abcdefghi" rpad 1) <> "abcdefghi" or
+        ("abcdefghi" rpad 2) <> "abcdefghi" or
+        ("abcdefghi" rpad 5) <> "abcdefghi" or
+        ("abcdefghi" rpad 10) <> "abcdefghi " or
+        ("abcdefghij" rpad -10) <> "abcdefghij" or
+        ("abcdefghij" rpad -5) <> "abcdefghij" or
+        ("abcdefghij" rpad -2) <> "abcdefghij" or
+        ("abcdefghij" rpad -1) <> "abcdefghij" or
+        ("abcdefghij" rpad 0) <> "abcdefghij" or
+        ("abcdefghij" rpad 1) <> "abcdefghij" or
+        ("abcdefghij" rpad 2) <> "abcdefghij" or
+        ("abcdefghij" rpad 5) <> "abcdefghij" or
+        ("abcdefghij" rpad 10) <> "abcdefghij" or
+        ("abcdefghijk" rpad -10) <> "abcdefghijk" or
+        ("abcdefghijk" rpad -5) <> "abcdefghijk" or
+        ("abcdefghijk" rpad -2) <> "abcdefghijk" or
+        ("abcdefghijk" rpad -1) <> "abcdefghijk" or
+        ("abcdefghijk" rpad 0) <> "abcdefghijk" or
+        ("abcdefghijk" rpad 1) <> "abcdefghijk" or
+        ("abcdefghijk" rpad 2) <> "abcdefghijk" or
+        ("abcdefghijk" rpad 5) <> "abcdefghijk" or
+        ("abcdefghijk" rpad 10) <> "abcdefghijk" then
+      writeln(" ***** string rpad integer does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String operations work correct");
+    end if;
+  end func;
+
+
+const proc: check_string_funcs is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    okay := TRUE;
+    if pos(""      , "") <> 0 or
+        pos("a"     , "") <> 0 or
+        pos("ab"    , "") <> 0 or
+        pos("abc"   , "") <> 0 or
+        pos("abcde" , "") <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba" , "") <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz" , "") <> 0 then
+      writeln(" ***** pos(STRING, \"\") does not work correct");
+      okay := FALSE;
+    end if;
+    if pos(""      , "\0\") <> 0 or
+        pos("a"     , "\0\") <> 0 or
+        pos("ab"    , "\0\") <> 0 or
+        pos("abc"   , "\0\") <> 0 or
+        pos("abcde" , "\0\") <> 0 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba" , "\0\") <> 0 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz" , "\0\") <> 0 then
+      writeln(" ***** pos(STRING, \"\\0\\\") does not work correct");
+      okay := FALSE;
+    end if;
+    if pos("\0\\4096\\0\" , "\4096\") <> 2 then
+      writeln(" ***** pos(STRING, \"\\4096\\\") does not work correct");
+      okay := FALSE;
+    end if;
+    if pos(""      , "a") <> 0 or
+        pos("b"     , "a") <> 0 or
+        pos("a"     , "a") <> 1 or
+        pos("bc"    , "a") <> 0 or
+        pos("ab"    , "a") <> 1 or
+        pos("za"    , "a") <> 2 or
+        pos("aa"    , "a") <> 1 or
+        pos("bcd"   , "a") <> 0 or
+        pos("abc"   , "a") <> 1 or
+        pos("zab"   , "a") <> 2 or
+        pos("yza"   , "a") <> 3 or
+        pos("aab"   , "a") <> 1 or
+        pos("aba"   , "a") <> 1 or
+        pos("zaa"   , "a") <> 2 or
+        pos("aaa"   , "a") <> 1 or
+        pos("bcdef" , "a") <> 0 or
+        pos("abcde" , "a") <> 1 or
+        pos("zabcd" , "a") <> 2 or
+        pos("yzabc" , "a") <> 3 or
+        pos("xyzab" , "a") <> 4 or
+        pos("wxyza" , "a") <> 5 or
+        pos("ababc" , "a") <> 1 or
+        pos("zabad" , "a") <> 2 or
+        pos("yzaba" , "a") <> 3 or
+        pos("yzaab" , "a") <> 3 or
+        pos("xyzaa" , "a") <> 4 or
+        pos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba" , "a") <> 1 or
+        pos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz" , "a") <> 26 then
+      writeln(" ***** pos(STRING, \"a\") does not work correct");
+      okay := FALSE;
+    end if;
+    if pos(""      , "ab") <> 0 or
+        pos("c"     , "ab") <> 0 or
+        pos("a"     , "ab") <> 0 or
+        pos("b"     , "ab") <> 0 or
+        pos("cd"    , "ab") <> 0 or
+        pos("bc"    , "ab") <> 0 or
+        pos("ab"    , "ab") <> 1 or
+        pos("za"    , "ab") <> 0 or
+        pos("cde"   , "ab") <> 0 or
+        pos("bcd"   , "ab") <> 0 or
+        pos("abc"   , "ab") <> 1 or
+        pos("zab"   , "ab") <> 2 or
+        pos("yza"   , "ab") <> 0 or
+        pos("azy"   , "ab") <> 0 or
+        pos("baz"   , "ab") <> 0 or
+        pos("cba"   , "ab") <> 0 or
+        pos("dcb"   , "ab") <> 0 or
+        pos("aaa"   , "ab") <> 0 or
+        pos("bbb"   , "ab") <> 0 or
+        pos("cdefg" , "ab") <> 0 or
+        pos("bcdef" , "ab") <> 0 or
+        pos("abcde" , "ab") <> 1 or
+        pos("zabcd" , "ab") <> 2 or
+        pos("yzabc" , "ab") <> 3 or
+        pos("xyzab" , "ab") <> 4 or
+        pos("wxyza" , "ab") <> 0 or
+        pos("abbbb" , "ab") <> 1 or
+        pos("aabbb" , "ab") <> 2 or
+        pos("aaabb" , "ab") <> 3 or
+        pos("aaaab" , "ab") <> 4 or
+        pos("ababc" , "ab") <> 1 or
+        pos("abcab" , "ab") <> 1 or
+        pos("zabab" , "ab") <> 2 or
+        pos("azbaz" , "ab") <> 0 or
+        pos("bazba" , "ab") <> 0 or
+        pos("cbazb" , "ab") <> 0 or
+        pos("aaaaa" , "ab") <> 0 or
+        pos("bbbbb" , "ab") <> 0 then
+      writeln(" ***** pos(STRING, \"ab\") does not work correct");
+      okay := FALSE;
+    end if;
+    if pos(""      , "abc") <> 0 or
+        pos("d"     , "abc") <> 0 or
+        pos("a"     , "abc") <> 0 or
+        pos("b"     , "abc") <> 0 or
+        pos("c"     , "abc") <> 0 or
+        pos("de"    , "abc") <> 0 or
+        pos("bc"    , "abc") <> 0 or
+        pos("ab"    , "abc") <> 0 or
+        pos("za"    , "abc") <> 0 or
+        pos("cde"   , "abc") <> 0 or
+        pos("bcd"   , "abc") <> 0 or
+        pos("abc"   , "abc") <> 1 or
+        pos("zab"   , "abc") <> 0 or
+        pos("yza"   , "abc") <> 0 or
+        pos("azy"   , "abc") <> 0 or
+        pos("baz"   , "abc") <> 0 or
+        pos("cba"   , "abc") <> 0 or
+        pos("dcb"   , "abc") <> 0 or
+        pos("aaa"   , "abc") <> 0 or
+        pos("bbb"   , "abc") <> 0 or
+        pos("ccc"   , "abc") <> 0 or
+        pos("abcz"  , "abc") <> 1 or
+        pos("zabc"  , "abc") <> 2 or
+        pos("aabc"  , "abc") <> 2 or
+        pos("yzab"  , "abc") <> 0 or
+        pos("xyza"  , "abc") <> 0 or
+        pos("cbax"  , "abc") <> 0 or
+        pos("xcba"  , "abc") <> 0 or
+        pos("abab"  , "abc") <> 0 or
+        pos("xaba"  , "abc") <> 0 or
+        pos("cdefg" , "abc") <> 0 or
+        pos("bcdef" , "abc") <> 0 or
+        pos("abcde" , "abc") <> 1 or
+        pos("zabcd" , "abc") <> 2 or
+        pos("yzabc" , "abc") <> 3 or
+        pos("xyzab" , "abc") <> 0 or
+        pos("wxyza" , "abc") <> 0 or
+        pos("bcccc" , "abc") <> 0 or
+        pos("abccc" , "abc") <> 1 or
+        pos("aabcc" , "abc") <> 2 or
+        pos("aaabc" , "abc") <> 3 or
+        pos("aaaab" , "abc") <> 0 or
+        pos("abcab" , "abc") <> 1 or
+        pos("aabcc" , "abc") <> 2 or
+        pos("zabab" , "abc") <> 0 or
+        pos("azbaz" , "abc") <> 0 or
+        pos("bazba" , "abc") <> 0 or
+        pos("cbazb" , "abc") <> 0 or
+        pos("aaaaa" , "abc") <> 0 or
+        pos("bbbbb" , "abc") <> 0 or
+        pos("ccccc" , "abc") <> 0 or
+        pos("ababababababababababababababababcababababababababab" , "abc") <> 31 or
+        pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc" , "abc") <> 31 or
+        pos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb" , "abc") <> 31 or
+        pos("ababababababcbababababcbababababcbababababcbabababa" , "abc") <> 11 then
+      writeln(" ***** pos(STRING, \"abc\") does not work correct");
+      okay := FALSE;
+    end if;
+    if rpos(""      , "") <> 0 or
+        rpos("a"     , "") <> 0 or
+        rpos("ab"    , "") <> 0 or
+        rpos("abc"   , "") <> 0 or
+        rpos("abcde" , "") <> 0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba" , "") <> 0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz" , "") <> 0 then
+      writeln(" ***** rpos(STRING, \"\") does not work correct");
+      okay := FALSE;
+    end if;
+    if rpos(""      , "\0\") <> 0 or
+        rpos("a"     , "\0\") <> 0 or
+        rpos("ab"    , "\0\") <> 0 or
+        rpos("abc"   , "\0\") <> 0 or
+        rpos("abcde" , "\0\") <> 0 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba" , "\0\") <> 0 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz" , "\0\") <> 0 then
+      writeln(" ***** rpos(STRING, \"\\0\\\") does not work correct");
+      okay := FALSE;
+    end if;
+    if rpos("\0\\4096\\0\" , "\4096\") <> 2 then
+      writeln(" ***** rpos(STRING, \"\\4096\\\") does not work correct");
+      okay := FALSE;
+    end if;
+    if rpos(""      , "a") <> 0 or
+        rpos("b"     , "a") <> 0 or
+        rpos("a"     , "a") <> 1 or
+        rpos("bc"    , "a") <> 0 or
+        rpos("ab"    , "a") <> 1 or
+        rpos("za"    , "a") <> 2 or
+        rpos("aa"    , "a") <> 2 or
+        rpos("bcd"   , "a") <> 0 or
+        rpos("abc"   , "a") <> 1 or
+        rpos("zab"   , "a") <> 2 or
+        rpos("yza"   , "a") <> 3 or
+        rpos("aab"   , "a") <> 2 or
+        rpos("aba"   , "a") <> 3 or
+        rpos("zaa"   , "a") <> 3 or
+        rpos("aaa"   , "a") <> 3 or
+        rpos("bcdef" , "a") <> 0 or
+        rpos("abcde" , "a") <> 1 or
+        rpos("zabcd" , "a") <> 2 or
+        rpos("yzabc" , "a") <> 3 or
+        rpos("xyzab" , "a") <> 4 or
+        rpos("wxyza" , "a") <> 5 or
+        rpos("ababc" , "a") <> 3 or
+        rpos("zabad" , "a") <> 4 or
+        rpos("yzaba" , "a") <> 5 or
+        rpos("yzaab" , "a") <> 4 or
+        rpos("xyzaa" , "a") <> 5 or
+        rpos("abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba" , "a") <> 51 or
+        rpos("zyxwvutsrqponmlkjihgfedcbabcdefghijklmnopqrstuvwxyz" , "a") <> 26 then
+      writeln(" ***** rpos(STRING, \"a\") does not work correct");
+      okay := FALSE;
+    end if;
+    if rpos(""      , "ab") <> 0 or
+        rpos("c"     , "ab") <> 0 or
+        rpos("a"     , "ab") <> 0 or
+        rpos("b"     , "ab") <> 0 or
+        rpos("cd"    , "ab") <> 0 or
+        rpos("bc"    , "ab") <> 0 or
+        rpos("ab"    , "ab") <> 1 or
+        rpos("za"    , "ab") <> 0 or
+        rpos("cde"   , "ab") <> 0 or
+        rpos("bcd"   , "ab") <> 0 or
+        rpos("abc"   , "ab") <> 1 or
+        rpos("zab"   , "ab") <> 2 or
+        rpos("yza"   , "ab") <> 0 or
+        rpos("azy"   , "ab") <> 0 or
+        rpos("baz"   , "ab") <> 0 or
+        rpos("cba"   , "ab") <> 0 or
+        rpos("dcb"   , "ab") <> 0 or
+        rpos("aaa"   , "ab") <> 0 or
+        rpos("bbb"   , "ab") <> 0 or
+        rpos("cdefg" , "ab") <> 0 or
+        rpos("bcdef" , "ab") <> 0 or
+        rpos("abcde" , "ab") <> 1 or
+        rpos("zabcd" , "ab") <> 2 or
+        rpos("yzabc" , "ab") <> 3 or
+        rpos("xyzab" , "ab") <> 4 or
+        rpos("wxyza" , "ab") <> 0 or
+        rpos("abbbb" , "ab") <> 1 or
+        rpos("aabbb" , "ab") <> 2 or
+        rpos("aaabb" , "ab") <> 3 or
+        rpos("aaaab" , "ab") <> 4 or
+        rpos("ababc" , "ab") <> 3 or
+        rpos("abcab" , "ab") <> 4 or
+        rpos("zabab" , "ab") <> 4 or
+        rpos("azbaz" , "ab") <> 0 or
+        rpos("bazba" , "ab") <> 0 or
+        rpos("cbazb" , "ab") <> 0 or
+        rpos("aaaaa" , "ab") <> 0 or
+        rpos("bbbbb" , "ab") <> 0 then
+      writeln(" ***** rpos(STRING, \"ab\") does not work correct");
+      okay := FALSE;
+    end if;
+    if rpos(""      , "abc") <> 0 or
+        rpos("d"     , "abc") <> 0 or
+        rpos("a"     , "abc") <> 0 or
+        rpos("b"     , "abc") <> 0 or
+        rpos("c"     , "abc") <> 0 or
+        rpos("de"    , "abc") <> 0 or
+        rpos("bc"    , "abc") <> 0 or
+        rpos("ab"    , "abc") <> 0 or
+        rpos("za"    , "abc") <> 0 or
+        rpos("cde"   , "abc") <> 0 or
+        rpos("bcd"   , "abc") <> 0 or
+        rpos("abc"   , "abc") <> 1 or
+        rpos("zab"   , "abc") <> 0 or
+        rpos("yza"   , "abc") <> 0 or
+        rpos("azy"   , "abc") <> 0 or
+        rpos("baz"   , "abc") <> 0 or
+        rpos("cba"   , "abc") <> 0 or
+        rpos("dcb"   , "abc") <> 0 or
+        rpos("aaa"   , "abc") <> 0 or
+        rpos("bbb"   , "abc") <> 0 or
+        rpos("ccc"   , "abc") <> 0 or
+        rpos("abcz"  , "abc") <> 1 or
+        rpos("zabc"  , "abc") <> 2 or
+        rpos("aabc"  , "abc") <> 2 or
+        rpos("yzab"  , "abc") <> 0 or
+        rpos("xyza"  , "abc") <> 0 or
+        rpos("cbax"  , "abc") <> 0 or
+        rpos("xcba"  , "abc") <> 0 or
+        rpos("abab"  , "abc") <> 0 or
+        rpos("xaba"  , "abc") <> 0 or
+        rpos("cdefg" , "abc") <> 0 or
+        rpos("bcdef" , "abc") <> 0 or
+        rpos("abcde" , "abc") <> 1 or
+        rpos("zabcd" , "abc") <> 2 or
+        rpos("yzabc" , "abc") <> 3 or
+        rpos("xyzab" , "abc") <> 0 or
+        rpos("wxyza" , "abc") <> 0 or
+        rpos("bcccc" , "abc") <> 0 or
+        rpos("abccc" , "abc") <> 1 or
+        rpos("aabcc" , "abc") <> 2 or
+        rpos("aaabc" , "abc") <> 3 or
+        rpos("aaaab" , "abc") <> 0 or
+        rpos("abcab" , "abc") <> 1 or
+        rpos("aabcc" , "abc") <> 2 or
+        rpos("zabab" , "abc") <> 0 or
+        rpos("azbaz" , "abc") <> 0 or
+        rpos("bazba" , "abc") <> 0 or
+        rpos("cbazb" , "abc") <> 0 or
+        rpos("aaaaa" , "abc") <> 0 or
+        rpos("bbbbb" , "abc") <> 0 or
+        rpos("ccccc" , "abc") <> 0 or
+        rpos("ababababababababababababababababcababababababababab" , "abc") <> 31 or
+        rpos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcabcbcbcbcbcbcbcbcbcbc" , "abc") <> 31 or
+        rpos("acbacbacbacbacbacbacbacbacbacbabcacbacbacbacbacbacb" , "abc") <> 31 or
+        rpos("ababababababcbababababcbababababcbababababcbabababa" , "abc") <> 41 then
+      writeln(" ***** rpos(STRING, \"abc\") does not work correct");
+      okay := FALSE;
+    end if;
+    if lower(""        ) <> "" or
+        lower("a"      ) <> "a" or
+        lower("A"      ) <> "a" or
+        lower("1"      ) <> "1" or
+        lower("\1\"    ) <> "\1\" or
+        lower("\127\"  ) <> "\127\" or
+        lower("\200\"  ) <> "\200\" or
+        lower("\255\"  ) <> "\255\" or
+        lower("abcdefghijklmnopqrstuvwxyz") <> "abcdefghijklmnopqrstuvwxyz" or
+        lower("ABCDEFGHIJKLMNOPQRSTUVWXYZ") <> "abcdefghijklmnopqrstuvwxyz" or
+        lower("0123456789") <> "0123456789" or
+        lower("Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8Ii9") <> "aa1bb2cc3dd4ee5ff6gg7hh8ii9" or
+        lower("aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ") <>
+            "aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz" then
+      writeln(" ***** lower(STRING) does not work correct");
+      okay := FALSE;
+    end if;
+    if upper(""        ) <> "" or
+        upper("a"      ) <> "A" or
+        upper("A"      ) <> "A" or
+        upper("1"      ) <> "1" or
+        upper("\1\"    ) <> "\1\" or
+        upper("\127\"  ) <> "\127\" or
+        upper("\200\"  ) <> "\200\" or
+        upper("\255\"  ) <> "\255\" or
+        upper("abcdefghijklmnopqrstuvwxyz") <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ" or
+        upper("ABCDEFGHIJKLMNOPQRSTUVWXYZ") <> "ABCDEFGHIJKLMNOPQRSTUVWXYZ" or
+        upper("0123456789") <> "0123456789" or
+        upper("Aa1Bb2Cc3Dd4Ee5Ff6Gg7Hh8Ii9") <> "AA1BB2CC3DD4EE5FF6GG7HH8II9" or
+        upper("aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ") <>
+            "AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ" then
+      writeln(" ***** upper(STRING) does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String functions work correct");
+    end if;
+  end func;
+
+
+const proc: check_string_append is func
+  local
+    var boolean: okay is TRUE;
+    var string: stri is "";
+  begin
+    okay := TRUE;
+    stri := "123";
+    stri &:= "456";
+    if stri <> "123456" then
+      writeln(" ***** 'string &:= string' does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String append works correct");
+    end if;
+  end func;
+
+
+const proc: main is func
+
+  begin
+    writeln;
+    check_string_literal();
+    check_string_comparisons();
+    check_string_index();
+    check_string_ops();
+    check_string_funcs();
+    check_string_append();
+  end func;
+
+$ system "main" is main;

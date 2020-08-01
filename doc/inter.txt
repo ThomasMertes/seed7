@@ -1,0 +1,81 @@
+(********************************************************************)
+(*                                                                  *)
+(*  inter.txt                                                       *)
+(*                                                                  *)
+(*  Copyright (C) 1990 - 1994  Thomas Mertes                        *)
+(*  All rights reserved.                                            *)
+(*                                                                  *)
+(*  Documentation: Using the Seed7 interpreter                      *)
+(*                                                                  *)
+(*  This file is distributed "AS IS" in the hope that it will be    *)
+(*  useful, but WITHOUT ANY WARRANTY; without even the implied      *)
+(*  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*)
+(*                                                                  *)
+(********************************************************************)
+
+
+THE HI INTERPRETER
+==================
+
+  The hi Interpreter is called with the command
+
+    hi [options] sourcefile [parameters]
+
+  Note that the options must be written before the sourcefile.
+  If the sourcefile is not found .sd7 is appended to the sourcefile
+  and searched for that file.
+
+  The following options are recognized by hi:
+
+    -a   Analyze only and suppress the execution phase.
+
+    -i   Show the identifier table after the analyzing phase.
+
+    -q   Compile quiet. Line and file information and compilation
+         statistics are suppressed.
+
+    -m   Use less memory during the analyzing phase.
+         If there is a "No more memory" error you can try this
+         option.
+
+    -tx  Set runtime trace level to x. Where x is a string consisting
+         of the following characters:
+
+           a Trace primitive actions
+           c Do action check
+           d Trace dynamic calls
+           e Trace exceptions and handlers
+
+    -t   Equivalent to -ta
+
+    -dx  Set compiletime trace level to x. Where x is a string consisting
+         of the following characters:
+
+           a Trace primitive actions
+           c Do action check
+           d Trace dynamic calls
+           e Trace exceptions and handlers
+
+    -d   Equivalent to -da
+
+  The parameters can be accessed via the argv(PROGRAM) procedure.
+  argv(PROGRAM) delivers an array of strings. length(argv(PROGRAM))
+  is the number of parameters while argv(PROGRAM)[1] is the first
+  parameter.
+
+  The environment can be accessed via the getenv(string) function.
+  getenv(string) delivers a string containing the value of the environment
+  variable described with 'string'. If no such variable exists the
+  empty string is delivert.
+
+  The interpreter is designed to analyze a program as fast as possible.
+  This should speed up the typical programming cycle:
+
+    while not OK do
+      edit program
+      test program
+    end while;
+
+  Note that a good design of your program is necessary before you
+  start this cycle. But when you start programming you can act
+  very fast. No compile time and no link time hurts you.

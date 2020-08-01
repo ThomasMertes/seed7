@@ -1,0 +1,41 @@
+(********************************************************************)
+(*                                                                  *)
+(*  problems.txt                                                    *)
+(*                                                                  *)
+(*  Copyright (C) 1994  Thomas Mertes                               *)
+(*  All rights reserved.                                            *)
+(*                                                                  *)
+(*  Documentation: Problems in this package                         *)
+(*                                                                  *)
+(*  This file is distributed "AS IS" in the hope that it will be    *)
+(*  useful, but WITHOUT ANY WARRANTY; without even the implied      *)
+(*  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*)
+(*                                                                  *)
+(********************************************************************)
+
+
+There are a lot of minor problems ...
+
+  - Not all documentation files are completely up to date.
+    The documentation files are correct but some minor changes
+    in the programming language might not be documented or
+    might be documented wrong.
+    Normaly this does not hurt. When you see differences in the
+    actual behaviour look at the programming examples.
+
+  - Rational literals are not implemented.
+    All literals with a dot ( . ) are of type 'float'.
+    It is possible to use the division ( / ) of two integers to
+    generate a rational number. For example
+
+      const rational: RAT_NUM is 2/3;
+
+    This division and all other operations for RATIONAL numbers
+    are defined in the file rational.s7i.
+    The constant RAT_ZERO can be used instead of 0/1 .
+
+  - The notation to write periodical decimal numbers is
+    not implemented now.
+
+  - It is not possible to initialize a local variable with the
+    value of a parameter.

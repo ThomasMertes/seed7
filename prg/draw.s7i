@@ -1,0 +1,690 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  draw.s7i      Graphic library                                   *)
+(*  Copyright (C) 2001, 2005  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+var PRIMITIVE_WINDOW: curr_win is PRIMITIVE_WINDOW.value;
+
+const color: black         is color(0, 0, 0);             (* Black   *)
+const color: dark_red      is color(32768, 0, 0);         (* Maroon  *)
+const color: dark_green    is color(0, 32768, 0);         (* Green   *)
+const color: brown         is color(32768, 16384, 0);
+const color: dark_blue     is color(0, 0, 32768);         (* Navy    *)
+const color: dark_magenta  is color(32768, 0, 32768);     (* Purple  *)
+const color: dark_cyan     is color(0, 65535, 65535);     (* Aqua    *)
+const color: light_gray    is color(49152, 49152, 49152); (* Silver  *)
+const color: dark_gray     is color(16384, 16384, 16384);
+const color: light_red     is color(65535, 0, 0);         (* Red     *)
+const color: light_green   is color(0, 65535, 0);         (* Lime    *)
+const color: yellow        is color(65535, 65535, 0);     (* Yellow  *)
+const color: light_blue    is color(0, 0, 65535);         (* Blue    *)
+const color: light_magenta is color(65535, 0, 65535);     (* Fuchsia *)
+const color: light_cyan    is color(32768, 65535, 65535);
+const color: white         is color(65535, 65535, 65535); (* White   *)
+const color: orange        is color(65535, 32768, 0);
+const color: amber         is color(49152, 32768, 16384);
+const color: pink          is color(65535, 32768, 32768);
+
+(* Basic HTML colors: *)
+
+const color: Black         is color(0, 0, 0);
+const color: Maroon        is color(32768, 0, 0);
+const color: Green         is color(0, 32768, 0);
+const color: Navy          is color(0, 0, 32768);
+const color: Silver        is color(49152, 49152, 49152);
+const color: Red           is color(65535, 0, 0);
+const color: Lime          is color(0, 65535, 0);
+const color: Blue          is color(0, 0, 65535);
+const color: Gray          is color(32768, 32768, 32768);
+const color: Purple        is color(32768, 0, 32768);
+const color: Olive         is color(32768, 32768, 0);
+const color: Teal          is color(0, 32768, 32768);
+const color: White         is color(65535, 65535, 65535);
+const color: Fuchsia       is color(65535, 0, 65535);
+const color: Yellow        is color(65535, 65535, 0);
+const color: Aqua          is color(0, 65535, 65535);
+
+
+const func pixel: colorPixel (in color: col) is
+  return rgbPixel(col.red_part, col.green_part, col.blue_part);
+
+
+const proc: screen (in integer: width, in integer: height) is func
+  begin
+    curr_win := PRIMITIVE_GRAPHIC_OPEN(0, 0, width, height, name(PROGRAM));
+  end func;
+
+
+const proc: color (in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+  end func;
+
+
+const proc: color (in color: col1, in color: col2) is func
+  begin
+    SET_COLOR(colorPixel(col1));
+    SET_BACKGROUND(colorPixel(col2));
+  end func;
+
+
+const proc: point (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in color: col) is func
+  begin
+    DRAW_PPOINT(win, x, y, colorPixel(col));
+  end func;
+
+
+const proc: point (in integer: x, in integer: y, in color: col) is func
+  begin
+    DRAW_PPOINT(curr_win, x, y, colorPixel(col));
+  end func;
+
+
+const proc: line (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: delta_x, in integer: delta_y, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(win, x1, y1, x1 + delta_x, y1 + delta_y);
+  end func;
+
+
+const proc: line (in integer: x1, in integer: y1,
+    in integer: delta_x, in integer: delta_y, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(curr_win, x1, y1, x1 + delta_x, y1 + delta_y);
+  end func;
+
+
+const proc: lineTo (in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(curr_win, x1, y1, x2, y2);
+  end func;
+
+
+const proc: lineTo (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(win, x1, y1, x2, y2);
+  end func;
+
+
+const proc: hline (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(win, x1, y1, x2, y1);
+  end func;
+
+
+const proc: hline (in integer: x1, in integer: y1,
+    in integer: x2, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(curr_win, x1, y1, x2, y1);
+  end func;
+
+
+const proc: vline (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: y2, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(win, x1, y1, x1, y2);
+  end func;
+
+
+const proc: vline (in integer: x1, in integer: y1,
+    in integer: y2, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_LINE(curr_win, x1, y1, x1, y2);
+  end func;
+
+const proc: rect (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    DRAW_PRECT(win, x1, y1, width, height, colorPixel(col));
+  end func;
+
+
+const proc: rect (in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    DRAW_PRECT(curr_win, x1, y1, width, height, colorPixel(col));
+  end func;
+
+
+const proc: rect (inout array array pixel: image,
+    in integer: x1, in integer: y1,
+    in integer: width, in integer: height, in color: col) is func
+  local
+    var pixel: pix is pixel.value;
+    var integer: line is 0;
+    var integer: column is 0;
+  begin
+    pix := colorPixel(col);
+    for line range 1 to height do
+      for column range 1 to width do
+        image[y1 + line][x1 + column] := pix;
+      end for;
+    end for;
+  end func;
+
+
+const proc: rectTo (inout PRIMITIVE_WINDOW: win,
+    in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    DRAW_PRECT(win, x1, y1, x2 - x1 + 1, y2 - y1 + 1, colorPixel(col));
+  end func;
+
+
+const proc: rectTo (in integer: x1, in integer: y1,
+    in integer: x2, in integer: y2, in color: col) is func
+  begin
+    DRAW_PRECT(curr_win, x1, y1, x2 - x1 + 1, y2 - y1 + 1, colorPixel(col));
+  end func;
+
+
+const proc: circle (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: r, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_CIRCLE(win, x, y, r);
+  end func;
+
+
+const proc: circle (in integer: x, in integer: y, in integer: r, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_CIRCLE(curr_win, x, y, r);
+  end func;
+
+
+const proc: fcircle (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y, in integer: r, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    FILL_CIRCLE(win, x, y, r);
+  end func;
+
+
+const proc: fcircle (in integer: x, in integer: y, in integer: r, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    FILL_CIRCLE(curr_win, x, y, r);
+  end func;
+
+
+const proc: arc (in integer: x, in integer: y, in integer: r, in color: col,
+    in float: cstart, in float: cend) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_ARC(curr_win, x, y, r, cstart, cend);
+  end func;
+
+
+const proc: chord (in integer: x, in integer: y, in integer: r, in color: col,
+    in float: cstart, in float: cend) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    FILL_ARCCHORD(curr_win, x, y, r, cstart, cend);
+  end func;
+
+
+const proc: pieslice (in integer: x, in integer: y, in integer: r, in color: col,
+    in float: cstart, in float: cend) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    FILL_ARCPIESLICE(curr_win, x, y, r, cstart, cend);
+  end func;
+
+
+const proc: fellipse (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    FILL_ELLIPSE(win, x, y, width, height);
+  end func;
+
+
+const proc: fellipse (in integer: x, in integer: y,
+    in integer: width, in integer: height, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    FILL_ELLIPSE(curr_win, x, y, width, height);
+  end func;
+
+
+const proc: clear (inout PRIMITIVE_WINDOW: win, in color: col) is func
+  begin
+    SET_COLOR(colorPixel(col));
+    DRAW_CLEAR(win);
+  end func;
+
+
+const proc: clear (inout PRIMITIVE_WINDOW: win) is func
+  begin
+    SET_COLOR(colorPixel(black));
+    DRAW_CLEAR(win);
+  end func;
+
+
+const proc: clear is func
+  begin
+    SET_COLOR(colorPixel(black));
+    DRAW_CLEAR(curr_win);
+  end func;
+
+
+const proc: paint (in integer: x, in integer: y, in integer: col) is func
+  begin
+    write("PAINT");
+  end func;
+
+
+const proc: put (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, PSET) is func
+  begin
+    DRAW_PUT(win, pixmap, x, y);
+  end func;
+
+
+const proc: put (inout PRIMITIVE_WINDOW: win,
+    in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, XOR) is func
+  begin
+    DRAW_PUT(win, pixmap, x, y);
+  end func;
+
+
+const proc: put (in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, PSET) is func
+  begin
+    DRAW_PUT(curr_win, pixmap, x, y);
+  end func;
+
+
+const proc: put (in integer: x, in integer: y,
+    in PRIMITIVE_WINDOW: pixmap, XOR) is func
+  begin
+    DRAW_PUT(curr_win, pixmap, x, y);
+  end func;
+
+
+const func PRIMITIVE_WINDOW: getPixmap (in integer: x1, in integer: y1,
+    in integer: width, in integer: height) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  begin
+    pixmap := DRAW_GET(curr_win, x1, y1, width, height);
+  end func;
+
+
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win,
+    in integer: x1, in integer: y1, in integer: width, in integer: height) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  begin
+    pixmap := DRAW_GET(source_win, x1, y1, width, height);
+  end func;
+
+
+const func PRIMITIVE_WINDOW: getPixmap (in PRIMITIVE_WINDOW: source_win) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  begin
+    pixmap := DRAW_GET(source_win, 0, 0, width(source_win), height(source_win));
+  end func;
+
+
+const func PRIMITIVE_WINDOW: newPixmap (in integer: width, in integer: height) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  begin
+    pixmap := newPixmap(curr_win, width, height);
+  end func;
+
+
+const func PRIMITIVE_WINDOW: imagePixmap (ref array array pixel: image) is func
+  result
+    var PRIMITIVE_WINDOW: pixmap is PRIMITIVE_WINDOW.value;
+  begin
+    pixmap := DRAW_IMAGE(curr_win, image);
+  end func;
+
+
+const proc: palette (in integer: col, in integer: pal) is func
+  begin
+    write("PALETTE");
+  end func;
+
+
+const proc: palette is func
+  begin
+    write("PALETTE");
+  end func;
+
+
+const proc: sleep (in integer: seconds) is func
+  begin
+    DRAW_FLUSH;
+    UNX_SLEEP(seconds);
+  end func;
+
+
+const proc: sound (in integer: freq, in integer: dur) is func
+  begin
+    write("SOUND");
+  end func;
+
+
+const type: GRAPH_FILE is sub NULL_FILE struct
+    var PRIMITIVE_WINDOW: win is PRIMITIVE_WINDOW.value;
+    var integer: line_delta is 0;
+    var integer: column_delta is 0;
+    var integer: height is 0;
+    var integer: width is 0;
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: min_x is 0;
+    var integer: min_y is 0;
+    var integer: curr_x is 0;
+    var integer: curr_y is 0;
+    var color: foreground is white;
+    var color: background is black;
+  end struct;
+
+
+const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win) is func
+  result
+    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+  begin
+    graphFile.win := graph_win;
+    graphFile.line_delta := 13;
+    graphFile.column_delta := 6;
+    graphFile.height := height(graph_win) div graphFile.line_delta;
+    graphFile.width := width(graph_win) div graphFile.column_delta;
+    graphFile.line := 1;
+    graphFile.column := 1;
+    graphFile.min_x := 0;
+    graphFile.min_y := 0;
+    graphFile.curr_x := 0;
+    graphFile.curr_y := 11;
+  end func;
+
+
+const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win,
+    in integer: min_x, in integer: min_y) is func
+  result
+    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+  begin
+    graphFile.win := graph_win;
+    graphFile.line_delta := 13;
+    graphFile.column_delta := 6;
+    graphFile.height := (height(graph_win) - min_y) div graphFile.line_delta;
+    graphFile.width := (width(graph_win) - min_x) div graphFile.column_delta;
+    graphFile.line := 1;
+    graphFile.column := 1;
+    graphFile.min_x := min_x;
+    graphFile.min_y := min_y;
+    graphFile.curr_x := 0;
+    graphFile.curr_y := 11;
+  end func;
+
+
+const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win,
+    in integer: min_x, in integer: min_y, in integer: width, in integer: height) is func
+  result
+    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+  begin
+    graphFile.win := graph_win;
+    graphFile.line_delta := 13;
+    graphFile.column_delta := 6;
+    graphFile.height := height div graphFile.line_delta;
+    graphFile.width := width div graphFile.column_delta;
+    graphFile.line := 1;
+    graphFile.column := 1;
+    graphFile.min_x := min_x;
+    graphFile.min_y := min_y;
+    graphFile.curr_x := 0;
+    graphFile.curr_y := 11;
+  end func;
+
+
+const func GRAPH_FILE: open (in PRIMITIVE_WINDOW: graph_win, in integer: lin_delta) is func
+  result
+    var GRAPH_FILE: graphFile is GRAPH_FILE.value;
+  begin
+    graphFile.win := graph_win;
+    graphFile.line_delta := lin_delta;
+    graphFile.column_delta := 6;
+    graphFile.height := height(graph_win) div graphFile.line_delta;
+    graphFile.width := width(graph_win) div graphFile.column_delta;
+    graphFile.line := 1;
+    graphFile.column := 1;
+    graphFile.min_x := 0;
+    graphFile.min_y := 0;
+    graphFile.curr_x := 0;
+    graphFile.curr_y := 11;
+  end func;
+
+
+const proc: flush (in GRAPH_FILE: graphFile) is func
+  begin
+    DRAW_FLUSH;
+  end func;
+
+
+const proc: color (inout GRAPH_FILE: graphFile, in color: col) is func
+  begin
+    graphFile.foreground := col;
+  end func;
+
+
+const proc: color (inout GRAPH_FILE: graphFile, in color: col1, in color: col2) is func
+  begin
+    graphFile.foreground := col1;
+    graphFile.background := col2;
+  end func;
+
+
+const func integer: height (in GRAPH_FILE: graphFile) is
+  return graphFile.height;
+
+
+const func integer: width (in GRAPH_FILE: graphFile) is
+  return graphFile.width;
+
+
+const func integer: line (in GRAPH_FILE: graphFile) is
+  return graphFile.line;
+
+
+const func integer: column (in GRAPH_FILE: graphFile) is
+  return graphFile.column;
+
+
+const proc: clear (in GRAPH_FILE: graphFile,
+    in integer: upper, in integer: left, in integer: lower, in integer: right) is func
+  begin
+    rectTo(curr_win,
+        graphFile.min_x + graphFile.column_delta * pred(left),
+        graphFile.min_y + graphFile.line_delta * pred(upper),
+        graphFile.min_x + pred(graphFile.column_delta * right),
+        graphFile.min_y + pred(graphFile.line_delta * lower),
+        graphFile.background);
+  end func;
+
+
+const proc: clear (in GRAPH_FILE: graphFile) is func
+  begin
+    clear(graphFile, 1, 1, height(graphFile), width(graphFile));
+  end func;
+
+
+const proc: cursor (ref GRAPH_FILE: graphFile, ref boolean: active) is noop;
+
+
+const proc: v_scroll (ref GRAPH_FILE: graphFile,
+    in integer: upper, in integer: left, in integer: lower, in integer: right,
+    in integer: count) is func
+  local
+    var PRIMITIVE_WINDOW: helpArea is PRIMITIVE_WINDOW.value;
+  begin
+    if count > 0 then
+      helpArea := getPixmap(graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper + count),
+          graphFile.column_delta * succ(right - left),
+          graphFile.line_delta * succ(lower - upper - count));
+      put(graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper),
+          helpArea, PSET);
+      rect(graphFile.column_delta * pred(left),
+          graphFile.line_delta * (lower - count),
+          graphFile.column_delta * succ(right - left),
+          graphFile.line_delta * count,
+          black);
+
+(*
+      line(graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper + count),
+          graphFile.column_delta * succ(right - left),
+          graphFile.line_delta * succ(lower - upper - count),
+          light_red);
+*)
+    elsif count < 0 then
+      helpArea := getPixmap(graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper),
+          graphFile.column_delta * succ(right - left),
+          graphFile.line_delta * succ(lower - upper + count));
+      put(graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper - count),
+          helpArea, PSET);
+(*
+      line(graphFile.column_delta * pred(left),
+          graphFile.line_delta * pred(upper),
+          graphFile.column_delta * succ(right - left),
+          graphFile.line_delta * succ(lower - upper + count),
+          light_green);
+*)
+    end if;
+  end func;
+
+
+const proc: h_scroll (ref GRAPH_FILE: graphFile,
+    in integer: upper, in integer: left, in integer: lower, in integer: right,
+    in integer: count) is func
+  begin
+    noop;
+  end func;
+
+
+const proc: setPos (inout GRAPH_FILE: graphFile, in integer: line, in integer: column) is func
+  begin
+    graphFile.line := line;
+    graphFile.column := column;
+    graphFile.curr_x := graphFile.min_x + graphFile.column_delta * column - 6;
+    graphFile.curr_y := graphFile.min_y + graphFile.line_delta * line - 2;
+  end func;
+
+
+const proc: setPosXY (inout GRAPH_FILE: graphFile, in integer: xPos, in integer: yPos) is func
+  begin
+    graphFile.curr_x := graphFile.min_x + xPos;
+    graphFile.curr_y := graphFile.min_y + yPos;
+    graphFile.line := (graphFile.curr_y + 2) div graphFile.line_delta;
+    graphFile.column := (graphFile.curr_x + 6) div graphFile.column_delta;
+  end func;
+
+
+const proc: setLine (inout GRAPH_FILE: graphFile, in integer: line) is func
+  begin
+    graphFile.line := line;
+    graphFile.curr_y := graphFile.min_y + graphFile.line_delta * line - 2;
+  end func;
+
+
+const proc: setColumn (inout GRAPH_FILE: graphFile, in integer: column) is func
+  begin
+    graphFile.column := column;
+    graphFile.curr_x := graphFile.min_x + graphFile.column_delta * column - 6;
+  end func;
+
+
+const proc: setXY (inout GRAPH_FILE: graphFile, in integer: xPos, in integer: yPos) is func
+  begin
+    graphFile.curr_x := graphFile.min_x + xPos;
+    graphFile.curr_y := graphFile.min_y + yPos;
+  end func;
+
+
+const proc: (inout GRAPH_FILE: graphFile) << (in string: stri) is func
+  begin
+    SET_COLOR(colorPixel(graphFile.foreground));
+    SET_BACKGROUND(colorPixel(graphFile.background));
+    DRAW_TEXT(graphFile.win, graphFile.curr_x, graphFile.curr_y, stri);
+    graphFile.column +:= length(stri);
+    graphFile.curr_x +:= graphFile.column_delta * length(stri);
+  end func;
+
+
+const proc: (inout GRAPH_FILE: graphFile) << (ref char: ch) is func
+  begin
+    graphFile << str(ch);
+  end func;
+
+
+const proc: (inout GRAPH_FILE: graphFile) << NL is func
+  begin
+    incr(graphFile.line);
+    graphFile.column := 1;
+    graphFile.curr_x := graphFile.min_x + graphFile.column_delta - 6;
+    graphFile.curr_y +:= graphFile.line_delta;
+  end func;
+
+
+const proc: cursor_on (inout GRAPH_FILE: graphFile) is func
+  begin
+    graphFile << "_";
+  end func;
+
+
+const proc: cursor_off (inout GRAPH_FILE: graphFile) is func
+  begin
+    graphFile << " ";
+  end func;

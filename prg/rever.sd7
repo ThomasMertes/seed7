@@ -1,0 +1,810 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  rever.sd7     Reversi game                                      *)
+(*  Copyright (C) 1993, 1994, 2004  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+	
+$ include "seed7_05.s7i";
+
+const integer: THINK_INDICATOR_START_LEVEL is 2;
+
+const char: COMPUTER_STONE is 'o';
+const char: HUMAN_STONE is 'x';
+
+const type: field_type is subtype integer;
+const field_type: FREE_PLACE is 1;
+const field_type: HUMAN is      2;
+const field_type: COMPUTER is   3;
+const field_type: EDGE is       4;
+const field_type: (attr field_type) . value is FREE_PLACE;
+
+const type: direction_type is new enum
+    NORTH,  NORTHEAST,  EAST,  SOUTHEAST, 
+    SOUTH,  SOUTHWEST,  WEST,  NORTHWEST
+  end enum;
+
+const array direction_type: ALL_DIRECTIONS is [](NORTH, NORTHEAST, EAST, SOUTHEAST,
+    SOUTH, SOUTHWEST, WEST, NORTHWEST);
+
+const type: move_type is subtype integer;       (* -1 ..  1 *)
+const type: board_type is subtype integer;      (*  1 ..  8 *)
+const type: range_type is subtype integer;      (*  0 ..  9 *)
+const type: range_fields is subtype integer;    (*  0 .. 64 *)
+const type: field_array is array array field_type; (* array [10][10] *)
+
+const type: moveType is new struct
+    var integer: result_value is 0;
+    var range_type: line is 0;
+    var range_type: column is 0;
+  end struct;
+
+var boolean: exit_program is FALSE;
+var boolean: normal_end is FALSE;
+var integer: level is 0;
+var integer: current_value is 0;
+
+var field_array: board is 10 times 10 times FREE_PLACE;
+var array array integer: TVAL is 10 times 10 times 0;
+var array integer: field_counter is 4 times 0;
+
+const integer: line_delta (NORTH    ) is -1;
+const integer: line_delta (NORTHEAST) is -1;
+const integer: line_delta (EAST     ) is  0;
+const integer: line_delta (SOUTHEAST) is  1;
+const integer: line_delta (SOUTH    ) is  1;
+const integer: line_delta (SOUTHWEST) is  1;
+const integer: line_delta (WEST     ) is  0;
+const integer: line_delta (NORTHWEST) is -1;
+const func integer: line_delta (in direction_type param) is DYNAMIC;
+
+const integer: column_delta (NORTH    ) is  0;
+const integer: column_delta (NORTHEAST) is  1;
+const integer: column_delta (EAST     ) is  1;
+const integer: column_delta (SOUTHEAST) is  1;
+const integer: column_delta (SOUTH    ) is  0;
+const integer: column_delta (SOUTHWEST) is -1;
+const integer: column_delta (WEST     ) is -1;
+const integer: column_delta (NORTHWEST) is -1;
+const func integer: column_delta (in direction_type param) is DYNAMIC;
+
+
+const proc: rules is func
+
+  begin (* rules *)
+    writeln;
+    writeln("THE RULES OF REVERSI:");
+    writeln("=====================");
+    writeln;
+    writeln("The game is played between two players (human and computer). It  uses  a  chess");
+    writeln("board (64 fields) and every player has 32 stones.");
+    writeln;
+    write("  computer stones:  ");
+    writeln(COMPUTER_STONE);
+    write("  human stones:     ");
+    writeln(HUMAN_STONE);
+    writeln;
+    writeln("The players alternate in doing their move. In a move one stone is put on a free");
+    writeln("field  adjacent to a stone of the other player. The stone must enclose at least");
+    writeln("one horizontal, vertical or diagonal chain of one or more stones of  the  other");
+    writeln("player.  A  chain  of  stones is enclosed correct when at the other side of the");
+    writeln("chain is also an own stone. After that the chain(s) of enclosed stones is (are)");
+    writeln("turned  into  own  stones.  The  game  ends when one of the players cannot do a");
+    writeln("correct move. At the end of the game the player with most  own  stones  on  the");
+    writeln("board wins.");
+    writeln;
+    writeln("You can enter a move by typing the coordinate of the  field.  For  example:  a1");
+    writeln("When you want to surrender just type q.");
+    writeln;
+    write("  Type RETURN to continue ");
+    read(NL);
+    writeln;
+  end func; (* rules *)
+
+
+const proc: count_fields (in field_array: board) is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+
+  begin (* count_fields *)
+    field_counter[COMPUTER] := 0;
+    field_counter[HUMAN] := 0;
+    field_counter[FREE_PLACE] := 0;
+
+    for line range 2 to 9 do
+      for column range 2 to 9 do
+        incr(field_counter[board[line][column]]);
+      end for;
+    end for;
+  end func; (* count_fields *)
+
+
+const proc: write_move (in integer: line, in integer: column) is func
+
+  begin
+    write(chr(ord('A') + column - 2));
+    write(pred(line));
+  end func;
+
+
+const proc: show_board (in field_type: current_colour,
+    in integer: move_line, in integer: move_column) is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+
+  begin (* show_board *)
+    count_fields(board);
+
+    writeln;
+    writeln("   |  A  |  B  |  C  |  D  |  E  |  F  |  G  |  H  |");
+    writeln("---+-----+-----+-----+-----+-----+-----+-----+-----+---");
+
+    for line range 9 downto 2 do
+      write(pred(line) lpad 2);
+      write(" |");
+      for column range 2 to 9 do
+        case board[line][column] of
+          when {HUMAN}:
+            write(HUMAN_STONE lpad 3);
+            write("  |");
+          when {COMPUTER}:
+            write(COMPUTER_STONE lpad 3);
+            write("  |");
+          when {FREE_PLACE}:
+            write("     |");
+        end case;
+      end for;
+      write(" ");
+      writeln(pred(line));
+      writeln("---+-----+-----+-----+-----+-----+-----+-----+-----+---");
+    end for;
+    writeln("   |  A  |  B  |  C  |  D  |  E  |  F  |  G  |  H  |");
+    writeln;
+    write("You have");
+    write(field_counter[HUMAN] lpad 3);
+    if field_counter[HUMAN] = 1 then
+      write(" field  ");
+    else
+      write(" fields ");
+    end if;
+    write(HUMAN_STONE);
+    if current_colour = HUMAN then
+      write("  Your move was: ");
+      write_move(move_line, move_column);
+    end if;
+    writeln;
+    write("I have  ");
+    write(field_counter[COMPUTER] lpad 3);
+    if field_counter[COMPUTER] = 1 then
+      write(" field  ");
+    else
+      write(" fields ");
+    end if;
+    write(COMPUTER_STONE);
+    if current_colour = COMPUTER then
+      write("  My move was:   ");
+      write_move(move_line, move_column);
+    end if;
+    writeln;
+  end func; (* show_board *)
+
+
+const proc: turn (
+    inout field_array: board,
+    in integer: put_line,
+    in integer: put_column,
+    in field_type: current_colour,
+    in field_type: other_colour) is func
+
+  local
+    var integer: dist is 0;
+    var integer: distance is 0;
+    var direction_type: direction is NORTH;
+    var move_type: line_direction is 0;
+    var move_type: column_direction is 0;
+    var integer: hvar_line is 0;
+    var integer: hvar_column is 0;
+
+  begin (* turn *)
+    board[put_line][put_column] := current_colour;
+    for direction range ALL_DIRECTIONS do
+      if board[put_line + line_delta(direction)]
+          [put_column + column_delta(direction)] = other_colour then
+        dist := 1;
+        line_direction := line_delta(direction);
+        column_direction := column_delta(direction);
+        hvar_line := put_line + line_direction + line_direction;
+        hvar_column := put_column + column_direction + column_direction;
+        while board[hvar_line][hvar_column] = other_colour do
+          incr(dist);
+          hvar_line +:= line_direction;
+          hvar_column +:= column_direction;
+        end while;
+        if board[hvar_line][hvar_column] = current_colour then
+          hvar_line := put_line + line_direction;
+          hvar_column := put_column + column_direction;
+          for distance range 1 to dist do
+            board[hvar_line][hvar_column] := current_colour;
+            hvar_line +:= line_direction;
+            hvar_column +:= column_direction;
+          end for;
+        end if;
+      end if;
+    end for;
+  end func; (* turn *)
+
+
+const proc: turn_evaluation (
+    in field_array: board,
+    in integer: move_line,
+    in integer: move_column,
+    in integer: line_direction,
+    in integer: column_direction,
+    in field_type: current_colour,
+    in field_type: other_colour,
+    inout integer: sum,
+    inout range_fields: count) is func
+
+  local
+    var integer: h_sum is 0;
+    var range_fields: h_count is 0;
+    var integer: hvar_line is 0;
+    var integer: hvar_column is 0;
+
+  begin (* turn_evaluation *)
+    h_sum := 0;
+    h_count := 1;
+    hvar_line := move_line + line_direction + line_direction;
+    hvar_column := move_column + column_direction + column_direction;
+    (* As long as there are enemy stones let the chain grow *)
+    while board[hvar_line][hvar_column] = other_colour do
+      h_sum +:= TVAL[hvar_line][hvar_column];
+      incr(h_count);
+      hvar_line +:= line_direction;
+      hvar_column +:= column_direction;
+    end while;
+    (* Is an own stone at the other side of the chain? *)
+    if board[hvar_line][hvar_column] = current_colour then
+      sum +:= TVAL[move_line + line_direction][move_column + column_direction] + h_sum;
+      count +:= h_count;
+    end if;
+  end func; (* turn_evaluation *)
+
+
+const proc: move_value (
+    in field_array: board,
+    in integer: move_line,
+    in integer: move_column,
+    in field_type: current_colour,
+    in field_type: other_colour,
+    inout integer: sum,
+    inout range_fields: count) is func
+
+  begin (* move_value *)
+    sum := 0;
+    count := 0;
+    (* For each direction check if adjacent stone is enemy stone *)
+    if board[move_line][move_column + 1] = other_colour then
+      turn_evaluation(board, move_line, move_column, 0, 1,
+          current_colour, other_colour, sum, count);
+    end if;
+    if board[move_line - 1][move_column + 1] = other_colour then
+      turn_evaluation(board, move_line, move_column, -1, 1,
+          current_colour, other_colour, sum, count);
+    end if;
+    if board[move_line - 1][move_column] = other_colour then
+      turn_evaluation(board, move_line, move_column, -1, 0,
+          current_colour, other_colour, sum, count);
+    end if;
+    if board[move_line - 1][move_column - 1] = other_colour then
+      turn_evaluation(board, move_line, move_column, -1, -1,
+          current_colour, other_colour, sum, count);
+    end if;
+    if board[move_line][move_column - 1] = other_colour then
+      turn_evaluation(board, move_line, move_column, 0, -1,
+          current_colour, other_colour, sum, count);
+    end if;
+    if board[move_line + 1][move_column - 1] = other_colour then
+      turn_evaluation(board, move_line, move_column, 1, -1,
+          current_colour, other_colour, sum, count);
+    end if;
+    if board[move_line + 1][move_column] = other_colour then
+      turn_evaluation(board, move_line, move_column, 1, 0,
+          current_colour, other_colour, sum, count);
+    end if;
+    if board[move_line + 1][move_column + 1] = other_colour then
+      turn_evaluation(board, move_line, move_column, 1, 1,
+          current_colour, other_colour, sum, count);
+    end if;
+  end func; (* move_value *)
+
+
+const proc: calculate_move (
+    in field_array: board,
+    inout integer: move_line,
+    inout integer: move_column,
+    in field_type: current_colour,
+    in field_type: other_colour,
+    in integer: level,
+    inout integer: current_value) is func
+
+  local
+    var array moveType: best_move is 9 times moveType.value;
+    var integer: best_move_count is 0; (* 0 .. 9 *)
+    var integer: min_value is 0; (* 0 .. 9 *)
+    var integer: max_value is 0; (* 0 .. 9 *)
+    var integer: index is 0; (* 0 .. 9 *)
+    var integer: sum is 0;
+    var range_fields: count is 0;
+    var board_type: index_line is 0;
+    var board_type: index_column is 0;
+    var field_array: help_board is 0 times 0 times FREE_PLACE;
+
+  begin (* calculate_move *)
+    best_move_count := 0;
+
+    for index_line range 2 to 9 do
+      for index_column range 2 to 9 do
+        if board[index_line][index_column] = FREE_PLACE then
+
+(*        move_value(board, index_line, index_column,
+              current_colour, other_colour, sum, count);
+*)
+          sum := 0;
+          count := 0;
+          (* For each direction check if adjacent stone is enemy stone *)
+          if board[index_line][index_column + 1] = other_colour then
+            turn_evaluation(board, index_line, index_column, 0, 1,
+                current_colour, other_colour, sum, count);
+          end if;
+          if board[index_line - 1][index_column + 1] = other_colour then
+            turn_evaluation(board, index_line, index_column, -1, 1,
+                current_colour, other_colour, sum, count);
+          end if;
+          if board[index_line - 1][index_column] = other_colour then
+            turn_evaluation(board, index_line, index_column, -1, 0,
+                current_colour, other_colour, sum, count);
+          end if;
+          if board[index_line - 1][index_column - 1] = other_colour then
+            turn_evaluation(board, index_line, index_column, -1, -1,
+                current_colour, other_colour, sum, count);
+          end if;
+          if board[index_line][index_column - 1] = other_colour then
+            turn_evaluation(board, index_line, index_column, 0, -1,
+                current_colour, other_colour, sum, count);
+          end if;
+          if board[index_line + 1][index_column - 1] = other_colour then
+            turn_evaluation(board, index_line, index_column, 1, -1,
+                current_colour, other_colour, sum, count);
+          end if;
+          if board[index_line + 1][index_column] = other_colour then
+            turn_evaluation(board, index_line, index_column, 1, 0,
+                current_colour, other_colour, sum, count);
+          end if;
+          if board[index_line + 1][index_column + 1] = other_colour then
+            turn_evaluation(board, index_line, index_column, 1, 1,
+                current_colour, other_colour, sum, count);
+          end if;
+
+          if count <> 0 then
+            current_value := sum + TVAL[index_line][index_column];
+(*          write(current_value lpad 5);
+            write("  ");
+            write_move(index_line, index_column);
+            writeln;
+            flush(OUT); *)
+            if best_move_count < level then
+              incr(best_move_count);
+              best_move[best_move_count].result_value := current_value;
+              best_move[best_move_count].line := index_line;
+              best_move[best_move_count].column := index_column;
+              if best_move_count = level then
+                min_value := best_move_count;
+                for index range 1 to best_move_count - 1 do
+                  if best_move[index].result_value < current_value then
+                    min_value := index;
+                    current_value := best_move[index].result_value;
+                  end if;
+                end for;
+              end if;
+            else
+              if current_value > best_move[min_value].result_value then
+                best_move[min_value].result_value := current_value;
+                best_move[min_value].line := index_line;
+                best_move[min_value].column := index_column;
+                for index range 1 to best_move_count do
+                  if best_move[index].result_value < current_value then
+                    min_value := index;
+                    current_value := best_move[index].result_value;
+                  end if;
+                end for;
+              end if;
+            end if;
+          end if;
+        end if;
+      end for;
+    end for;
+
+(*    writeln(best_move_count); *)
+    if best_move_count > 1 then
+      for index range 1 to best_move_count do
+(*
+        if level >= THINK_INDICATOR_START_LEVEL then
+          write("  ");
+          write_move(best_move[index].line, best_move[index].column);
+          flush(OUT);
+        end if;
+*)
+(*      write(" ");
+        write(level);
+        write(" ");
+        write(heapsize(PROGRAM)); *)
+        help_board := board;
+(*      write(" ");
+        writeln(heapsize(PROGRAM)); *)
+        turn(help_board, best_move[index].line,
+            best_move[index].column, current_colour, other_colour);
+        calculate_move(help_board, move_line, move_column,
+            other_colour, current_colour, pred(level), current_value);
+        best_move[index].result_value :=
+            best_move[index].result_value - current_value;
+(*
+        if level >= THINK_INDICATOR_START_LEVEL then
+          write("\b\b\b\b");
+          flush(OUT);
+        end if;
+*)
+      end for;
+      current_value := -32768;
+      for index range 1 to best_move_count do
+        if best_move[index].result_value > current_value then
+          current_value := best_move[index].result_value;
+          max_value := index;
+        end if;
+      end for;
+      move_line := best_move[max_value].line;
+      move_column := best_move[max_value].column;
+      current_value := best_move[max_value].result_value;
+    else
+      if best_move_count = 1 then
+        move_line := best_move[1].line;
+        move_column := best_move[1].column;
+        current_value := best_move[1].result_value;
+      else
+        count_fields(board);
+        move_line := 0;
+        move_column := 0;
+        if field_counter[current_colour] > field_counter[other_colour] then
+          current_value := 5000;
+        else
+          if field_counter[current_colour] < field_counter[other_colour] then
+            current_value := -5000;
+          else
+            current_value := 0;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func; (* calculate_move *)
+
+
+const proc: computer_move is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+
+  begin (* computer_move *)
+    write("Thinking ");
+    calculate_move(board, line, column, COMPUTER, HUMAN,
+        level, current_value);
+    writeln;
+    if line <> 0 then
+      turn(board, line, column, COMPUTER, HUMAN);
+      show_board(COMPUTER, line, column);
+    else
+      normal_end := TRUE;
+    end if;
+  end func; (* computer_move *)
+
+
+const proc: read_column (inout integer: column, inout boolean: okay) is func
+
+  local
+    var char: command is ' ';
+
+  begin (* read_column *)
+    okay := FALSE;
+    command := upper(getc(IN));
+    if command = 'Q' then
+      writeln;
+      exit_program := TRUE;
+    else
+      if command >= 'A' and command <= 'H' then
+        column := ord(command) - ord('A') + 2;
+        okay := TRUE;
+      else
+        if command <> '\n' then
+          read(NL);
+          writeln(" *** Only letters between A and H are allowed as columns!");
+        end if;
+      end if;
+    end if;
+  end func; (* read_column *)
+
+
+const proc: read_line (inout integer: line, in integer: column, inout boolean: okay) is func
+
+  local
+    var char: command is ' ';
+    var integer: sum is 0;
+    var range_fields: count is 0;
+
+  begin (* read_line *)
+    okay := FALSE;
+    command := getc(IN);
+    if command >= '1' and command <= '8' then
+      line := ord(command) - ord('1') + 2;
+      if board[line][column] <> FREE_PLACE then
+        read(NL);
+        writeln(" *** This field is not free!");
+      else
+        move_value(board, line, column, HUMAN, COMPUTER,
+            sum, count);
+        if count = 0 then
+          read(NL);
+          writeln(" *** A line of stones of the other player must be enclosed!");
+        else
+          okay := TRUE;
+        end if;
+      end if;
+    else
+      if command = '\n' then
+        writeln(" *** You must specify a line also!");
+      else
+        read(NL);
+        writeln(" *** Only digits between 1 and 8 are allowed as lines!");
+      end if;
+    end if;
+  end func; (* read_line *)
+
+
+const proc: read_move (inout integer: line, inout integer: column) is func
+
+  local
+    var boolean: okay is TRUE;
+
+  begin (* read_move *)
+    repeat
+      write("Coordinates (e.g.: ");
+      write_move(line, column);
+      write(", Surrender=q)? ");
+      read_column(column, okay);
+      if okay then
+        read_line(line, column, okay);
+        if okay then
+          if getc(IN) <> '\n' then
+            read(NL);
+            writeln(" *** Terminate the input with RETURN!");
+            okay := FALSE;
+          end if;
+        end if;
+      end if;
+    until okay or exit_program;
+  end func; (* read_move *)
+
+
+const proc: human_move is func
+
+  local
+    var range_type: line is 0;
+    var range_type: column is 0;
+    var integer: value_of_move is 0;
+
+  begin (* human_move *)
+    calculate_move(board, line, column, HUMAN, COMPUTER,
+        1, value_of_move);
+    if line <> 0 then
+      read_move(line, column);
+      if not exit_program then
+        turn(board, line, column, HUMAN, COMPUTER);
+        show_board(HUMAN, line, column);
+      end if;
+    else
+      normal_end := TRUE;
+    end if;
+  end func; (* human_move *)
+
+
+const proc: first_move is func
+
+  local
+    var char: command is ' ';
+
+  begin (* first_move *)
+    repeat
+      write("Who should start (Human, Computer)? ");
+      command := upper(getc(IN));
+      if command = '\n' then
+        command := ' ';
+      else
+        read(NL);
+      end if;
+      if command = 'Q' then
+        exit_program := TRUE;
+      else
+        if command = 'H' then
+          human_move();
+        else
+          if command <> 'C' then
+            writeln(" *** Only H or C or Q are legal!");
+          end if;
+        end if;
+      end if;
+    until command = 'H' or command = 'C' or exit_program;
+  end func; (* first_move *)
+
+
+const proc: final_result is func
+
+  begin (* final_result *)
+    show_board(FREE_PLACE,1,1);
+    if normal_end then
+      if field_counter[COMPUTER] > field_counter[HUMAN] then
+        writeln(" *** I won! ***");
+      else
+        if field_counter[COMPUTER] = field_counter[HUMAN] then
+          writeln(" *** Remis! ***");
+        else
+          writeln("Congratulation: You won!");
+        end if;
+      end if;
+    else
+      writeln("See you next time ...");
+    end if;
+  end func; (* final_result *)
+
+
+const proc: set_tvals is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+
+  begin (* set_tvals *)
+    (* Tactical values of the fields for one quadrant *)
+    TVAL[2][2] := 256; TVAL[2][3] :=  10; TVAL[2][4] :=  64; TVAL[2][5] :=  32;
+    TVAL[3][2] :=  10; TVAL[3][3] :=   1; TVAL[3][4] :=   8; TVAL[3][5] :=   4;
+    TVAL[4][2] :=  64; TVAL[4][3] :=   8; TVAL[4][4] :=  10; TVAL[4][5] :=   8;
+    TVAL[5][2] :=  32; TVAL[5][3] :=   4; TVAL[5][4] :=   8; TVAL[5][5] :=   2;
+
+    (* Copy the quadrant giving the half board *)
+    for line range 2 to 5 do
+      for column range 6 to 9 do
+        TVAL[line][column] := TVAL[line][11 - column];
+      end for;
+    end for;
+
+    (* Copy the half board *)
+    for line range 6 to 9 do
+      for column range 2 to 9 do
+        TVAL[line][column] := TVAL[11 - line][column];
+      end for;
+    end for;
+  end func; (* set_tvals *)
+
+
+const proc: generate_start_board is func
+
+  local
+    var integer: line is 0;
+    var integer: column is 0;
+    var integer: number is 0;
+
+  begin (* generate_start_board *)
+    for line range 2 to 9 do
+      for column range 2 to 9 do
+        board[line][column] := FREE_PLACE;
+      end for;
+    end for;
+
+    board[5][5] := COMPUTER;
+    board[5][6] := COMPUTER;
+    board[6][5] := HUMAN;
+    board[6][6] := HUMAN;
+
+    for number range 1 to 10 do
+      board[1][number] := EDGE;
+      board[10][number] := EDGE;
+      board[number][1] := EDGE;
+      board[number][10] := EDGE;
+    end for;
+  end func; (* generate_start_board *)
+
+
+const proc: start is func
+
+  local
+    var char: answer is ' ';
+
+  begin (* start *)
+    exit_program := FALSE;
+    normal_end := FALSE;
+    write("Are you interested in the rules (Y/N)? ");
+    answer := upper(getc(IN));
+    if answer = '\n' then
+      answer := 'N';
+    else
+      read(NL);
+    end if;
+    if answer = 'Q' then
+      exit_program := TRUE;
+    else
+      write("\n");
+      if answer = 'Y' then
+        rules();
+      end if;
+      repeat
+        write("Level (1-9)? ");
+        answer := upper(getc(IN));
+        if answer = '\n' then
+          answer := '0';
+        else
+          read(NL);
+        end if;
+        if answer = 'Q' then
+          exit_program := TRUE;
+        else
+          writeln;
+        end if;
+      until (answer >= '1' and answer <= '9') or exit_program;
+      if not exit_program then
+        level := ord(answer) - ord('0');
+        generate_start_board();
+      end if;
+    end if;
+  end func; (* start *)
+
+
+const proc: main is func
+
+  begin (* main *)
+    set_tvals();
+    start();
+    if not exit_program then
+      show_board(FREE_PLACE, 1, 1);
+      first_move();
+
+      while not exit_program and not normal_end do
+        computer_move();
+(*      writeln(heapsize(PROGRAM)); *)
+        if not normal_end then
+          human_move();
+        end if;
+      end while;
+      final_result();
+    end if;
+  end func; (* main *)
+
+$ system "main" is main;

@@ -1,0 +1,83 @@
+(********************************************************************)
+(*                                                                  *)
+(*  install.txt                                                     *)
+(*                                                                  *)
+(*  Copyright (C) 1990 - 1994  Thomas Mertes                        *)
+(*  All rights reserved.                                            *)
+(*                                                                  *)
+(*  Documentation: Installation of the Seed7 interpreter            *)
+(*                                                                  *)
+(*  This file is distributed "AS IS" in the hope that it will be    *)
+(*  useful, but WITHOUT ANY WARRANTY; without even the implied      *)
+(*  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.*)
+(*                                                                  *)
+(********************************************************************)
+
+
+INSTALLATION
+============
+
+    The Seed7 package consists of a lot of files. There are two
+  ways to install them. In a simple installation just use the seed7
+  directorys 'src', 'prg' and 'doc' from the tar file. To compile
+  the interpreter just go to the 'src' directory and type:
+
+    gmake depend
+    gmake
+
+  When the interpreter is compiled just go to the 'prg' directory
+  and start a program like hello.sd7 with:
+
+    hi hello
+
+  The programs find their include files in the local directory.
+  No path (except . ) must be set. This installation can be used for
+  playing a little bit with the example programs.
+
+    In a professional installation Seed7 programs can be executed
+  direct with their name from any directory and from any user.
+  This means that the programs can be used for production
+  programs.
+
+    To do a professional installation the following things must
+  be done:
+
+    1. Put the interpreter (hi) in a directory with public
+       access which is in the search path. In our example we
+       chose /usr/local/bin. The advantage of being in the
+       search path is that direct calls of hi (Like: hi myprog)
+       can be done from any directory (Provided that myprog is
+       there).
+
+    2. Put the include files (Extension .s7i) in a directory
+       with public access. In our example we chose
+       /usr/seed7/include. The directory and the files must
+       have read access for any user.
+
+    To generate a Seed7 program which can be called from any
+  directory and from any user the following things must be done:
+
+    1. The first three lines in the program must be:
+
+         #! /usr/local/bin/hi
+         $ info off
+         $ library "/usr/seed7/include"
+
+       The first line informs the operating system where
+       to find the interpreter to execute the program.
+       The second line informs the interpreter to suppress the
+       compiling information. (This is not necessary but we
+       assume the program is tested and the compiling
+       information is not wanted in a production program)
+       The third line of the program informs the interpreter
+       where to find the include files.
+
+    2. Rename the file to the name you want and put it in a
+       directory which is member of the path (For example:
+       /usr/local/bin).
+
+    3. Make the file executable with
+
+         chmod 755 myprog
+
+    4. Test it by calling from another directory

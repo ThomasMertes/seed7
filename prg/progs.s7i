@@ -1,0 +1,70 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  progs.s7i     Program handling support library                  *)
+(*  Copyright (C) 1991 - 1994, 2004, 2005  Thomas Mertes            *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: program is subtype object;
+
+const proc: (ref program param) ::= (ref program param) is                 action "PRG_CREATE";
+const proc: destroy (ref program param) is                                 action "PRG_DESTR";
+const proc: (inout program param) := (ref program param) is                action "PRG_CPY";
+
+const func program: _GENERATE_EMPTY_PROG is                                action "PRG_EMPTY";
+const program: (attr program) . EMPTY is                                   _GENERATE_EMPTY_PROG;
+const program: (attr program) . value is                                   program.EMPTY;
+
+const func boolean: (ref program param) = (ref program param) is           action "PRG_EQ";
+const func boolean: (ref program param) <> (ref program param) is          action "PRG_NE";
+
+const func program: analyze (in string param) is                           action "PRG_ANALYZE";
+const func program: analyze_stri (in string param) is                      action "PRG_S_ANALYZE";
+const func reference: evaluate (ref program param, ref reference param) is action "PRG_EVAL";
+const proc: execute (ref program param) is                                 action "PRG_EXEC";
+
+const func reference: sys_var (ref program param, in string param) is      action "PRG_SYSVAR";
+const func ref_list: declared_objects (ref program param) is               action "PRG_DECL_OBJECTS";
+const func boolean: is_var (ref reference param) is                        action "REF_ISVAR";
+const func string: obj_class (ref reference param) is                      action "REF_OBJCLASS";
+(* const func reference: meta (ref reference param) is                     action "REF_META"; *)
+const func ref_list: params (ref reference param) is                       action "REF_PARAMS";
+const func reference: func_result (ref reference param) is                 action "REF_RESULT";
+const func reference: func_res_init (ref reference param) is               action "REF_RESINI";
+const func ref_list: locals (ref reference param) is                       action "REF_LOCALS";
+const func reference: body (ref reference param) is                        action "REF_BODY";
+const func integer: obj_number (ref reference param) is                    action "REF_NUM";
+const func integer: type_number (ref type param) is                        action "TYP_NUM";
+const func reference: match_obj (ref type param) is                        action "TYP_MATCHOBJ";
+const func ref_list: (attr ref_list) value (ref reference param) is        action "RFL_VALUE";
+const func integer: (attr integer) value (ref reference param) is          action "INT_VALUE";
+const func char: (attr char) value (ref reference param) is                action "CHR_VALUE";
+const func string: (attr string) value (ref reference param) is            action "STR_VALUE";
+const func bitset: (attr bitset) value (ref reference param) is            action "SET_VALUE";
+const func program: (attr program) value (ref reference param) is          action "PRG_VALUE";
+const func ACTION: (attr ACTION) value (ref reference param) is            action "ACT_VALUE";
+
+const func program: get (PROGRAM) is                                       action "PRG_PROG";
+
+const proc: unx_sh (in string param) is                                    action "UNX_SH";

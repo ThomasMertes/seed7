@@ -1,0 +1,649 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkint.sd7    Checks integer literals and operations            *)
+(*  Copyright (C) 1991 - 1994, 2004, 2005  Thomas Mertes            *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+
+
+const proc: check_exponent_integer_literal is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+  begin
+    okay := TRUE;
+    if 0 <> 0E0 or 0E0 <> 0e0 or
+        0 <> 0E1 or 0E1 <> 0e1 or
+        0 <> 0E2 or 0E2 <> 0e2 or
+        0 <> 0E3 or 0E3 <> 0e3 or
+        0 <> 0E4 or 0E4 <> 0e4 or
+        0 <> 0E5 or 0E5 <> 0e5 or
+        0 <> 0E6 or 0E6 <> 0e6 or
+        0 <> 0E7 or 0E7 <> 0e7 or
+        0 <> 0E8 or 0E8 <> 0e8 or
+        0 <> 0E9 or 0E9 <> 0e9 or
+        0 <> 0E10 or 0E10 <> 0e10 or
+        0 <> 0E11 or 0E11 <> 0e11 or
+        0 <> 0E12 or 0E12 <> 0e12 or
+        0 <> 0E13 or 0E13 <> 0e13 or
+        0 <> 0E14 or 0E14 <> 0e14 or
+        0 <> 0E15 or 0E15 <> 0e15 or
+        0 <> 0E16 or 0E16 <> 0e16 or
+        0 <> 0E17 or 0E17 <> 0e17 or
+        0 <> 0E999999999999999 or 0E999999999999999 <> 0e999999999999999 or
+        1 <>          1E0 or 1E0 <> 1e0 or
+        10 <>         1E1 or 1E1 <> 1e1 or
+        100 <>        1E2 or 1E2 <> 1e2 or
+        1000 <>       1E3 or 1E3 <> 1e3 or
+        10000 <>      1E4 or 1E4 <> 1e4 or
+        100000 <>     1E5 or 1E5 <> 1e5 or
+        1000000 <>    1E6 or 1E6 <> 1e6 or
+        10000000 <>   1E7 or 1E7 <> 1e7 or
+        100000000 <>  1E8 or 1E8 <> 1e8 or
+        1000000000 <> 1E9 or 1E9 <> 1e9 or
+        12 <>         12E0 or 12E0 <> 12e0 or
+        120 <>        12E1 or 12E1 <> 12e1 or
+        1200 <>       12E2 or 12E2 <> 12e2 or
+        1200000 <>    12E5 or 12E5 <> 12e5 or
+        1200000000 <> 12E8 or 12E8 <> 12e8 or
+        123 <>        123E0 or 123E0 <> 123e0 or
+        1230 <>       123E1 or 123E1 <> 123e1 or
+        12300 <>      123E2 or 123E2 <> 123e2 or
+        12300000 <>   123E5 or 123E5 <> 123e5 or
+        1230000000 <> 123E7 or 123E7 <> 123e7 or
+        12345 <>      12345E0 or 12345E0 <> 12345e0 or
+        123450 <>     12345E1 or 12345E1 <> 12345e1 or
+        1234500 <>    12345E2 or 12345E2 <> 12345e2 or
+        123450000 <>  12345E4 or 12345E4 <> 12345e4 or
+        1234500000 <> 12345E5 or 12345E5 <> 12345e5 then
+      writeln("Integer literals with exponent do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Integer literals with exponent work correct.");
+    else
+      writeln(" ***** Integer literals with exponent do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: chack_based_integer_literal is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+  begin
+    okay := TRUE;
+    if     0 <>  2#0 or  2#0 <>  3#0 or
+         3#0 <>  4#0 or  4#0 <>  5#0 or  5#0 <>  6#0 or  6#0 <>  7#0 or
+         7#0 <>  8#0 or  8#0 <>  9#0 or  9#0 <> 10#0 or 10#0 <> 11#0 or
+        11#0 <> 12#0 or 12#0 <> 13#0 or 13#0 <> 14#0 or 14#0 <> 15#0 or
+        15#0 <> 16#0 or 16#0 <> 17#0 or 17#0 <> 18#0 or 18#0 <> 19#0 or
+        19#0 <> 20#0 or 20#0 <> 21#0 or 21#0 <> 22#0 or 22#0 <> 23#0 or
+        23#0 <> 24#0 or 24#0 <> 25#0 or 25#0 <> 26#0 or 26#0 <> 27#0 or
+        27#0 <> 28#0 or 28#0 <> 29#0 or 29#0 <> 30#0 or 30#0 <> 31#0 or
+        31#0 <> 32#0 or 32#0 <> 33#0 or 33#0 <> 34#0 or 34#0 <> 35#0 or
+        35#0 <> 36#0 then
+      writeln("Based integer literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if     1 <>  2#1 or  2#1 <>  3#1 or
+         3#1 <>  4#1 or  4#1 <>  5#1 or  5#1 <>  6#1 or  6#1 <>  7#1 or
+         7#1 <>  8#1 or  8#1 <>  9#1 or  9#1 <> 10#1 or 10#1 <> 11#1 or
+        11#1 <> 12#1 or 12#1 <> 13#1 or 13#1 <> 14#1 or 14#1 <> 15#1 or
+        15#1 <> 16#1 or 16#1 <> 17#1 or 17#1 <> 18#1 or 18#1 <> 19#1 or
+        19#1 <> 20#1 or 20#1 <> 21#1 or 21#1 <> 22#1 or 22#1 <> 23#1 or
+        23#1 <> 24#1 or 24#1 <> 25#1 or 25#1 <> 26#1 or 26#1 <> 27#1 or
+        27#1 <> 28#1 or 28#1 <> 29#1 or 29#1 <> 30#1 or 30#1 <> 31#1 or
+        31#1 <> 32#1 or 32#1 <> 33#1 or 33#1 <> 34#1 or 34#1 <> 35#1 or
+        35#1 <> 36#1 then
+      writeln("Based integer literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if     2 <> 2#10 or 2#10 <>  3#2 or
+         3#2 <>  4#2 or  4#2 <>  5#2 or  5#2 <>  6#2 or  6#2 <>  7#2 or
+         7#2 <>  8#2 or  8#2 <>  9#2 or  9#2 <> 10#2 or 10#2 <> 11#2 or
+        11#2 <> 12#2 or 12#2 <> 13#2 or 13#2 <> 14#2 or 14#2 <> 15#2 or
+        15#2 <> 16#2 or 16#2 <> 17#2 or 17#2 <> 18#2 or 18#2 <> 19#2 or
+        19#2 <> 20#2 or 20#2 <> 21#2 or 21#2 <> 22#2 or 22#2 <> 23#2 or
+        23#2 <> 24#2 or 24#2 <> 25#2 or 25#2 <> 26#2 or 26#2 <> 27#2 or
+        27#2 <> 28#2 or 28#2 <> 29#2 or 29#2 <> 30#2 or 30#2 <> 31#2 or
+        31#2 <> 32#2 or 32#2 <> 33#2 or 33#2 <> 34#2 or 34#2 <> 35#2 or
+        35#2 <> 36#2 then
+      writeln("Based integer literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if    16 <> 2#10000 or 2#10000 <> 3#121 or
+        3#121 <> 4#100 or 4#100 <>  5#31 or  5#31 <>  6#24 or  6#24 <>  7#22 or
+         7#22 <>  8#20 or  8#20 <>  9#17 or  9#17 <> 10#16 or 10#16 <> 11#15 or
+        11#15 <> 12#14 or 12#14 <> 13#13 or 13#13 <> 14#12 or 14#12 <> 15#11 or
+        15#11 <> 16#10 or 16#10 <> 17#G or 17#G <> 18#G or 18#G <> 19#G or
+        19#G <> 20#G or 20#G <> 21#G or 21#G <> 22#G or 22#G <> 23#G or
+        23#G <> 24#G or 24#G <> 25#G or 25#G <> 26#G or 26#G <> 27#G or
+        27#G <> 28#G or 28#G <> 29#G or 29#G <> 30#G or 30#G <> 31#G or
+        31#G <> 32#G or 32#G <> 33#G or 33#G <> 34#G or 34#G <> 35#G or
+        35#G <> 36#G then
+      writeln("Based integer literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if    32 <> 2#100000 or 2#100000 <> 3#1012 or
+       3#1012 <> 4#200 or 4#200 <> 5#112 or 5#112 <>  6#52 or  6#52 <>  7#44 or
+         7#44 <>  8#40 or  8#40 <>  9#35 or  9#35 <> 10#32 or 10#32 <> 11#2A or
+        11#2A <> 12#28 or 12#28 <> 13#26 or 13#26 <> 14#24 or 14#24 <> 15#22 or
+        15#22 <> 16#20 or 16#20 <> 17#1F or 17#1F <> 18#1E or 18#1E <> 19#1D or
+        19#1D <> 20#1C or 20#1C <> 21#1B or 21#1B <> 22#1A or 22#1A <> 23#19 or
+        23#19 <> 24#18 or 24#18 <> 25#17 or 25#17 <> 26#16 or 26#16 <> 27#15 or
+        27#15 <> 28#14 or 28#14 <> 29#13 or 29#13 <> 30#12 or 30#12 <> 31#11 or
+        31#11 <> 32#10 or 32#10 <> 33#W or 33#W <> 34#W or 34#W <> 35#W or
+        35#W <> 36#W then
+      writeln("Based integer literals do not work correct.");
+      okay := FALSE;
+    end if;
+    if  1000000 <>  2#11110100001001000000 or
+        1000000 <>  3#1212210202001 or
+        1000000 <>  4#3310021000 or
+        1000000 <>  5#224000000 or
+        1000000 <>  6#33233344 or
+        1000000 <>  7#11333311 or
+        1000000 <>  8#3641100 or
+        1000000 <>  9#1783661 or
+        1000000 <> 10#1000000 or
+        1000000 <> 11#623351 or
+        1000000 <> 12#402854 or
+        1000000 <> 13#290221 or
+        1000000 <> 14#1C0608 or
+        1000000 <> 15#14B46A or
+        1000000 <> 16#F4240 or
+        1000000 <> 17#BG939 or
+        1000000 <> 18#9987A or
+        1000000 <> 19#7CF1B or
+        1000000 <> 20#65000 or
+        1000000 <> 21#52KC1 or
+        1000000 <> 22#45K2C or
+        1000000 <> 23#3D486 or
+        1000000 <> 24#3082G or
+        1000000 <> 25#2E000 or
+        1000000 <> 26#24N7E or
+        1000000 <> 27#1NLK1 or
+        1000000 <> 28#1HFE8 or
+        1000000 <> 29#1C01M or
+        1000000 <> 30#1713A or
+        1000000 <> 31#12HI2 or
+        1000000 <> 32#UGI0 or
+        1000000 <> 33#RR91 or
+        1000000 <> 34#PF1Q or
+        1000000 <> 35#NBBF or
+        1000000 <> 36#LFLS then
+      writeln("Based integer literals do not work correct.");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Based integer literals work correct.");
+    else
+      writeln(" ***** Based integer literals do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_negation is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: neg_number is 0;
+  begin
+    okay := TRUE;
+    neg_number := 10;
+    for number range -10 to 10 do
+      if -number <> neg_number then
+        write(" ***** -");
+        write(number);
+        writeln(" is not correct computed");
+        okay := FALSE;
+      end if;
+      decr(neg_number);
+    end for;
+    if okay then
+      writeln("-i is correct computed in the range -10 to 10");
+    end if;
+  end func;
+
+
+const proc: check_add is func
+  begin
+    if           0 +          0 =          0 and
+                 2 +          3 =          5 and
+               127 +        127 =        254 and
+               255 +        255 =        510 and
+             18341 +      26783 =      45124 and
+             32767 +      32767 =      65534 and
+             35759 +      58537 =      94296 and
+             65535 +      65535 =     131070 and
+             73819 +     124303 =     198122 and
+        2147483647 +          0 = 2147483647 and
+                 0 + 2147483647 = 2147483647 then
+      writeln("Addition works correct for selected values");
+    else
+      writeln(" ***** Addition does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_div is func
+  begin
+    writeln("a div b is integer division and a rem b is integer remainder:");
+
+    if ( 11 div  4) =  2  and  ( 11 rem  4) =  3 then
+      if (-11 div -4) =  2  and  (-11 rem -4) = -3 then
+        if ( ( 11 div -4) = -2  and  ( 11 rem -4) =  3 ) and
+           ( (-11 div  4) = -2  and  (-11 rem  4) = -3 ) then
+          writeln("for positive and negative a and b");
+        else
+          writeln("only when a and b have the same sign");
+        end if;
+      else
+        writeln("only when a and b are positive");
+      end if;
+    else
+      writeln("not even when a and b are positive");
+    end if;
+  end func;
+
+
+$ trace "+e";
+const proc: check_div_exception is func
+  local
+    var integer: div_result is 0;
+  begin
+    div_result := 5 div 0;
+  end func;
+
+
+const proc: check_rem is func
+  local
+    var boolean: p_div_p is FALSE;
+    var boolean: n_div_n is FALSE;
+    var boolean: p_div_n is FALSE;
+    var boolean: n_div_p is FALSE;
+  begin
+    p_div_p := ( 11 div  4) *  4 + ( 11 rem  4) =  11;
+    n_div_n := (-11 div -4) * -4 + (-11 rem -4) = -11;
+    p_div_n := ( 11 div -4) * -4 + ( 11 rem -4) =  11;
+    n_div_p := (-11 div  4) *  4 + (-11 rem  4) = -11;
+
+    write("(a div b) * b + (a rem b) = a  holds ");
+
+    if p_div_p then
+      if n_div_n then
+        if p_div_n and n_div_p then
+          writeln("for positive and negative a and b");
+        else
+          writeln("only when a and b have the same sign");
+        end if;
+      else
+        writeln("only when a and b are positive");
+      end if;
+    else
+      writeln("not even when a and b are positive");
+    end if;
+  end func;
+
+
+const proc: check_division is func
+  local
+    var boolean: okay is TRUE;
+    var integer: dividend is 0;
+    var integer: divisor is 0;
+  begin
+    okay := TRUE;
+    for dividend range -9 to 9 do
+      for divisor range -4 to 4 do
+        if divisor <> 0 then
+          if (dividend div divisor) * divisor + dividend rem divisor <>
+              dividend then
+            okay := FALSE;
+          end if;
+        end if;
+      end for;
+    end for;
+    if okay then
+      writeln("Div and rem work correct for selected values");
+    else
+      writeln(" ***** div and rem does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_mdiv is func
+  local
+    var boolean: okay is TRUE;
+    var integer: dividend is 0;
+    var integer: divisor is 0;
+  begin
+    okay := TRUE;
+    for dividend range -9 to 9 do
+      for divisor range -4 to 4 do
+        if divisor <> 0 then
+          if (dividend mdiv divisor) * divisor + dividend mod divisor <>
+              dividend then
+            okay := FALSE;
+          end if;
+        end if;
+      end for;
+    end for;
+    if okay then
+      writeln("Mdiv and mod work correct for selected values");
+    else
+      writeln(" ***** mdiv and mod does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_odd is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: is_odd is FALSE;
+    var integer: number is 0;
+  begin
+    okay := TRUE;
+    is_odd := FALSE;
+    for number range -20 to 20 do
+      if is_odd <> odd(number) then
+        okay := FALSE;
+      end if;
+      is_odd := not is_odd;
+    end for;
+    if okay then
+      writeln("odd(i) works correct in the range -20 to 20");
+    else
+      writeln(" ***** odd(i) does not work correct");
+    end if;
+  end func;
+
+
+const proc: check_fact is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: fact is 0;
+  begin
+    okay := TRUE;
+    if !0 <> 1 then
+      okay := FALSE;
+    else
+      fact := 1;
+      for number range 1 to 12 do
+        fact := fact * number;
+        if !number <> fact then
+          write(" ***** !");
+          write(number);
+          writeln(" is not correct computed");
+          okay := FALSE;
+        end if;
+      end for;
+    end if;
+    if okay then
+      writeln("!i works correct for i in the range 0 to 12");
+    end if;
+  end func;
+
+
+const proc: check_binom is func
+  local
+    var boolean: okay is TRUE;
+    var integer: n is 0;
+    var integer: k is 0;
+  begin
+    okay := TRUE;
+    for n range 0 to 12 do
+      for k range 0 to n do
+        if n ! k <> !n div (!(n - k) * !k) then
+          write(" ***** ");
+          write(n);
+          write(" ! ");
+          write(k);
+          writeln(" is not correct computed");
+          okay := FALSE;
+        end if;
+      end for;
+    end for;
+    for n range 1 to 30 do
+      for k range 0 to n do
+        if n ! k <> pred(n) ! pred(k) + pred(n) ! k then
+          write(" ***** ");
+          write(n);
+          write(" ! ");
+          write(k);
+          writeln(" is not correct computed");
+          write(pred(n) ! pred(k));
+          write(" ");
+          write(pred(n) ! k);
+          write(" ");
+          write(pred(n) ! pred(k) + pred(n) ! k);
+          write(" ");
+          writeln(n ! k);
+          okay := FALSE;
+        end if;
+      end for;
+    end for;
+    if okay then
+      writeln("n ! k is correct for n <= 30");
+    end if;
+  end func;
+
+
+const proc: check_power is func
+  local
+    var boolean: okay is TRUE;
+    var integer: BASE is 0;
+    var integer: EXP is 0;
+    var integer: number is 0;
+  begin
+    okay := TRUE;
+    for BASE range 1 to 4 do
+      number := 1;
+      for EXP range 0 to 4 do
+        if BASE ** EXP <> number then
+          write(" ***** ");
+          write(BASE);
+          write(" ** ");
+          write(EXP);
+          writeln(" is not correct computed");
+          okay := FALSE;
+        end if;
+        number := BASE * number;
+      end for;
+    end for;
+    for BASE range -1 downto -4 do
+      EXP := 0;
+      number := 1;
+      for EXP range 0 to 4 do
+        if BASE ** EXP <> number then
+          write(" ***** ");
+          write(BASE);
+          write(" ** ");
+          write(EXP);
+          writeln(" is not correct computed");
+          okay := FALSE;
+        end if;
+        number := BASE * number;
+      end for;
+    end for;
+    for EXP range 1 to 4 do
+      if 0 ** EXP <> 0 then
+        write(" ***** 0 ** ");
+        write(EXP);
+        writeln(" is not correct computed");
+        okay := FALSE;
+      end if;
+    end for;
+    if okay then
+      writeln("i ** j is correct for -4 <= i <= 4 and 0 <= j <= 4");
+    end if;
+  end func;
+
+
+const proc: check_sqrt is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: sqrt_num is 0;
+    var integer: count is 0;
+  begin
+    okay := TRUE;
+    for number range 0 to 1000 do
+      sqrt_num := sqrt(number);
+      if sqrt_num * sqrt_num > number or
+          (sqrt_num + 1) * (sqrt_num + 1) <= number then
+        write("sqrt(");
+        write(number);
+        write(") = ");
+        write(sqrt_num);
+        writeln(" is NOT OKAY");
+        okay := FALSE;
+      end if;
+    end for;
+    if okay then
+      writeln("Integer sqrt is correct for values between 0 and 1000");
+    end if;
+    okay := TRUE;
+    for count range 1 to 10000 do
+      number := rand(0, 2147395599);
+      sqrt_num := sqrt(number);
+      if sqrt_num * sqrt_num > number or
+          (sqrt_num + 1) * (sqrt_num + 1) <= number then
+        write("sqrt(");
+        write(number);
+        write(") = ");
+        write(sqrt_num);
+        writeln(" is NOT OKAY");
+        okay := FALSE;
+      end if;
+    end for;
+    for count range 1 to 1000 do
+      number := rand(2147395600, 2147483647);
+      sqrt_num := sqrt(number);
+      if sqrt_num <> 46340 then
+        write("sqrt(");
+        write(number);
+        write(") = ");
+        write(sqrt_num);
+        writeln(" is NOT OKAY");
+        okay := FALSE;
+      end if;
+    end for;
+    if okay then
+      writeln("Integer sqrt is correct for 11000 random values");
+    end if;
+  end func;
+
+
+const proc: check_ld is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: power_of_two is 0;
+    var integer: counter is 0;
+    var integer: ld_arg is 0;
+    var integer: ld_num is 0;
+  begin
+    okay := TRUE;
+    if ld(0) <> -1 then
+      write("ld(0) = ");
+      write(ld(0));
+      writeln(" instead of -1");
+      okay := FALSE;
+    end if;
+    power_of_two := 1;
+    for number range 0 to 30 do
+      for counter range 1 to 200 do
+        ld_arg := power_of_two + rand(0, power_of_two div 2);
+        ld_num := ld(ld_arg);
+        if ld_num <> number then
+          write("ld(");
+          write(ld_arg);
+          write(") = ");
+          write(ld_num);
+          write(" instead of ");
+          writeln(number);
+          okay := FALSE;
+        end if;
+      end for;
+      power_of_two := power_of_two * 2;
+    end for;
+    if okay then
+      writeln("ld is correct for results between 0 and 30");
+    end if;
+  end func;
+
+
+const proc: division is func
+  local
+    var integer: dividend is 0;
+    var integer: divisor is 0;
+  begin
+    dividend := 5;
+    divisor := 3;
+    while dividend >= -5 do
+      write(dividend);
+      write(" ");
+      write(dividend div divisor);
+      write(" ");
+      write(dividend rem divisor);
+      write(" ");
+      write(dividend mod divisor);
+      write(" ");
+      write(dividend div -divisor);
+      write(" ");
+      write(dividend rem -divisor);
+      write(" ");
+      write(dividend mod -divisor);
+      writeln;
+      decr(dividend);
+    end while;
+  end func;
+
+
+const proc: main is func
+
+  begin
+    writeln;
+    check_exponent_integer_literal();
+    chack_based_integer_literal();
+    check_negation();
+    check_add();
+    check_div();
+(*    check_div_exception(); *)
+    check_rem();
+    check_division();
+    check_mdiv();
+    check_odd();
+    check_fact();
+    check_binom();
+    check_power();
+    check_sqrt();
+    check_ld();
+  end func;
+
+$ system "main" is main;

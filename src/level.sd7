@@ -1,0 +1,37 @@
+#! ./hi
+$ info on;
+$ library "../prg";
+$ include "seed7_05.s7i";
+
+const proc: main is func
+
+  local
+    var file: level_file is STD_NULL;
+    var string: word is "";
+    var integer: level is 0;
+  begin
+    level_file := open("level.h", "r");
+    if level_file <> STD_NULL then
+      word := getwd(level_file);
+      word := getwd(level_file);
+      level_file >> level;
+      close(level_file);
+    else
+      level := 0;
+    end if;
+    write("Current level is ");
+    writeln(level);
+    incr(level);
+    level_file := open("level.h", "w");
+    if level_file <> STD_NULL then
+      level_file << "#define LEVEL ";
+      level_file << level;
+      level_file << NL;
+      close(level_file);
+    else
+      writeln("*** Cannot write to \"level.h\" !");
+    end if;
+  end func;
+
+$ system "main" is main;
+

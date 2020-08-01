@@ -1,0 +1,83 @@
+CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall -Wstrict-prototypes -Winline -Wid-clash-6 -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -unroll-loops -pg -Wall
+LFLAGS = -O2
+LIBS = /usr/X11/lib/libX11.a -lncurses -lm
+CC = g++
+
+MOBJS1 = hi.o option.o primitiv.o
+LOBJS1 = arrlib.o chrlib.o drwlib.o enulib.o fillib.o fltlib.o
+LOBJS2 = hallib.o intlib.o kbdlib.o lstlib.o modlib.o prclib.o
+LOBJS3 = reflib.o scrlib.o strlib.o timlib.o unxlib.o
+EOBJS1 = interpr.o propag.o create.o doany.o
+ROBJS1 = random.o memory.o runfile.o runerr.o runlist.o runobj.o
+AOBJS1 = analyze.o syntax.o param.o parser.o import.o name.o proc.o meta.o
+AOBJS2 = list.o expr.o atom.o object.o select.o scanner.o literal.o
+AOBJS3 = numlit.o findid.o error.o infile.o symbol.o stat.o fatal.o
+GOBJS1 = sysvar.o trace.o action.o listutil.o objutil.o block.o
+GOBJS2 = ident.o chclass.o flist.o heap.o util.o
+DOBJS1 = scr_inf.o tim_unx.o drw_x11.o
+OBJS = $(MOBJS1) $(LOBJS1) $(LOBJS2) $(LOBJS3) $(EOBJS1) $(ROBJS1) $(AOBJS1) $(AOBJS2) $(AOBJS3) $(GOBJS1) $(GOBJS2) $(DOBJS1)
+
+MSRC1 = hi.c option.c primitiv.c
+LSRC1 = arrlib.c chrlib.c drwlib.c enulib.c fillib.c fltlib.c
+LSRC2 = hallib.c intlib.c kbdlib.c lstlib.c modlib.c prclib.c
+LSRC3 = reflib.c scrlib.c strlib.c timlib.c unxlib.c
+ESRC1 = interpr.c propag.c create.c doany.c
+RSRC1 = random.c memory.c runfile.c runerr.c runlist.c runobj.c
+ASRC1 = analyze.c syntax.c param.c parser.c import.c name.c proc.c
+ASRC2 = meta.c list.c block.c expr.c atom.c object.c select.c scanner.c
+ASRC3 = literal.c numlit.c findid.c error.c infile.c symbol.c fatal.c
+GSRC1 = sysvar.c trace.c action.c listutil.c objutil.c
+GSRC2 = ident.c chclass.c stat.c flist.c heap.c util.c
+DSRC1 = scr_inf.c tim_unx.c drw_x11.c
+SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(RSRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2) $(DSRC1)
+
+#hi: hallib.a
+#	$(CC) $(LFLAGS) hallib.a $(LIBS) -o /usr/local/bin/hi
+
+hi: $(OBJS)
+	$(CC) $(LFLAGS) $(OBJS) $(LIBS) -o /usr/local/bin/hi
+	hi level
+
+clear:
+	rm *.o
+	rm version.h
+
+dep: $(SRC) version.h
+	$(CC) -M $(SRC) > .depend
+
+strip:
+	strip /usr/local/bin/hi
+
+version.h:
+	echo "#define ANSI_C" > version.h
+	echo "#define USE_DIRENT" >> version.h
+	echo "#define PATH_DELIMITER '/'" >> version.h
+	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define C_PLUS_PLUS" >> version.h
+
+level.h:
+	hi level
+
+hallib: $(MOBJS1) $(LOBJS1) $(LOBJS2) $(LOBJS3) $(EOBJS1) $(ROBJS1) $(AOBJS1) $(AOBJS2) $(AOBJS3) $(GOBJS1) $(GOBJS2) $(DOBJS1)
+	ar r hallib.a $(MOBJS1) $(LOBJS1) $(LOBJS2) $(LOBJS3) $(EOBJS1) $(ROBJS1) $(AOBJS1) $(AOBJS2) $(AOBJS3) $(GOBJS1) $(GOBJS2) $(DOBJS1)
+
+wc: $(SRC)
+	wc $(GSRC1) $(GSRC2)
+	wc $(ASRC1) $(ASRC2) $(ASRC3)
+	wc $(RSRC1)
+	wc $(ESRC1)
+	wc $(LSRC1) $(LSRC2) $(LSRC3)
+	wc $(DSRC1)
+	wc $(MSRC1)
+	wc $(SRC)
+
+lint: $(SRC)
+	lint -p $(SRC) $(LIBS)
+
+lint2: $(SRC)
+	lint -Zn2048 $(SRC) $(LIBS)
+
+ifeq (.depend,$(wildcard .depend))
+include .depend
+endif

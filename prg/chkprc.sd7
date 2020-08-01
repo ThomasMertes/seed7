@@ -1,0 +1,1287 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkprc.sd7    Checks procedures and statements                  *)
+(*  Copyright (C) 1992, 1993, 1994, 2004  Thomas Mertes             *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+
+var boolean: global_loop_control is TRUE;
+
+var boolean: true_var is TRUE;
+var boolean: false_var is FALSE;
+
+const func boolean: bool_func (ref boolean: value) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result := value;
+  end func;
+
+const proc: check_if is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+  begin
+    okay := TRUE;
+    number := 0;
+
+    (* Test if statements with constants *)
+
+    if TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    end if;
+
+    if TRUE then
+      incr(number);
+    else
+      writeln(" ***** if TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    else
+      writeln(" ***** if FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if TRUE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if FALSE ... elsif TRUE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    else
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif TRUE ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    elsif FALSE then
+      writeln(" ***** if FALSE ... elsif FALSE ... elsif FALSE ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    elsif TRUE then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    elsif TRUE then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif TRUE then
+      incr(number);
+    else
+      okay := FALSE;
+    end if;
+    if FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    elsif FALSE then
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+
+    (* Test if statements with variables *)
+
+    if true_var then
+      incr(number);
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    end if;
+
+    if true_var then
+      incr(number);
+    else
+      writeln(" ***** if true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    else
+      writeln(" ***** if false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if true_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if false_var ... elsif true_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      writeln(" ***** if false_var ... elsif true_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    else
+      writeln(" ***** if false_var ... elsif false_var ... elsif true_var ... else  does not work correct");
+      okay := FALSE;
+    end if;
+    if false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    elsif false_var then
+      writeln(" ***** if false_var ... elsif false_var ... elsif false_var ... else  does not work correct");
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+    if true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    elsif true_var then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    elsif true_var then
+      okay := FALSE;
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif true_var then
+      incr(number);
+    else
+      okay := FALSE;
+    end if;
+    if false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    elsif false_var then
+      okay := FALSE;
+    else
+      incr(number);
+    end if;
+
+    if okay and number = 68 then
+      writeln("If statements work correct.");
+    else
+      writeln(" ***** If statements do not work correct");
+      PRINT(str(number));
+      PRINT(str(ord(okay)));
+      writeln;
+    end if;
+  end func;
+
+const proc: check_while is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: local_loop_control is TRUE;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    while FALSE do
+      writeln(" ***** while FALSE ...  does not work correct");
+      okay := FALSE;
+    end while;
+    global_loop_control := FALSE;
+    while global_loop_control do
+      writeln(" ***** while GLOBAL_VARIABLE ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    local_loop_control := FALSE;
+    while local_loop_control do
+      writeln(" ***** while LOCAL_VARIABLE ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    while 0 <> 0 do
+      writeln(" ***** while EXPRESSION ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    while bool_func(FALSE) do
+      writeln(" ***** while FUNCTION ...  with no loop trip does not work correct");
+      okay := FALSE;
+    end while;
+    counter := 0;
+    global_loop_control := TRUE;
+    while global_loop_control do
+      incr(counter);
+      if counter = 1 then
+        global_loop_control := FALSE;
+      else
+        writeln(" ***** while GLOBAL_VARIABLE ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 or global_loop_control then
+      writeln(" ***** while GLOBAL_VARIABLE ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := TRUE;
+    while local_loop_control do
+      incr(counter);
+      if counter = 1 then
+        local_loop_control := FALSE;
+      else
+        writeln(" ***** while LOCAL_VARIABLE ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 or local_loop_control then
+      writeln(" ***** while LOCAL_VARIABLE ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    while counter = 0 do
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** while EXPRESSION ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 then
+      writeln(" ***** while EXPRESSION ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    global_loop_control := TRUE;
+    while bool_func(global_loop_control) do
+      incr(counter);
+      if counter = 1 then
+        global_loop_control := FALSE;
+      else
+        writeln(" ***** while FUNCTION ...  with one loop trip does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 1 or global_loop_control then
+      writeln(" ***** while FUNCTION ...  with one loop trip does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    global_loop_control := TRUE;
+    while global_loop_control do
+      incr(counter);
+      if counter = 2 then
+        global_loop_control := FALSE;
+      elsif counter > 2 then
+        writeln(" ***** while GLOBAL_VARIABLE ...  with two loop trips does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 2 or global_loop_control then
+      writeln(" ***** while GLOBAL_VARIABLE ...  with two loop trips does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := TRUE;
+    while local_loop_control do
+      incr(counter);
+      if counter = 2 then
+        local_loop_control := FALSE;
+      elsif counter > 2 then
+        writeln(" ***** while LOCAL_VARIABLE ...  with two loop trips does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 2 or local_loop_control then
+      writeln(" ***** while LOCAL_VARIABLE ...  with two loop trips does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    while counter <= 1 do
+      incr(counter);
+      if counter > 2 then
+        writeln(" ***** while EXPRESSION ...  with two loop trips does not work correct");
+        okay := FALSE;
+      end if;
+    end while;
+    if counter <> 2 then
+      writeln(" ***** while EXPRESSION ...  with two loop trips does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("While statements work correct.");
+    else
+      writeln(" ***** While statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_repeat is func
+  local
+    var boolean: okay is TRUE;
+    var boolean: local_loop_control is TRUE;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    counter := 0;
+    repeat
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** repeat ... until TRUE  does not work correct");
+        okay := FALSE;
+      end if;
+    until TRUE;
+    if counter <> 1 then
+      writeln(" ***** repeat ... until TRUE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := TRUE;
+    repeat
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** repeat ... until VARIABLE  does not work correct");
+        okay := FALSE;
+      end if;
+    until local_loop_control;
+    if counter <> 1 or not local_loop_control then
+      writeln(" ***** repeat ... until VARIABLE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := FALSE;
+    repeat
+      incr(counter);
+      if counter = 1 then
+        local_loop_control := TRUE;
+      else
+        writeln(" ***** repeat ... until VARIABLE  does not work correct");
+        okay := FALSE;
+      end if;
+    until local_loop_control;
+    if counter <> 1 or not local_loop_control then
+      writeln(" ***** repeat ... until VARIABLE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    local_loop_control := FALSE;
+    repeat
+      incr(counter);
+      if counter = 2 then
+        local_loop_control := TRUE;
+      elsif counter > 2 then
+        writeln(" ***** repeat ... until VARIABLE  does not work correct");
+        okay := FALSE;
+      end if;
+    until local_loop_control;
+    if counter <> 2 or not local_loop_control then
+      writeln(" ***** repeat ... until VARIABLE  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    repeat
+      incr(counter);
+      if counter <> 1 then
+        writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+        okay := FALSE;
+      end if;
+    until counter = 1;
+    if counter <> 1 then
+      writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    repeat
+      incr(counter);
+      if counter > 3 then
+        writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+        okay := FALSE;
+      end if;
+    until counter >= 3;
+    if counter <> 3 then
+      writeln(" ***** repeat ... until EXPRESSION  does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Repeat statements work correct.");
+    else
+      writeln(" ***** Repeat statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_int_to is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    for number range 1 to 0 do
+      writeln(" ***** for integer range 1 to 0 ...  does not work correct");
+      okay := FALSE;
+    end for;
+    counter := 0;
+    for number range 1 to 1 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 then
+      writeln(" ***** for integer range 1 to 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 1 to 2 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 2 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 2 then
+      writeln(" ***** for integer range 1 to 2 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 1 to 3 do
+      incr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 to 3 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 3 then
+      writeln(" ***** for integer range 1 to 3 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range 0 to counter do
+      incr(counter);
+      if number <> 0 then
+        writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct");
+        counter := 0;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 then
+      writeln(" ***** for integer range 0 to VARIABLE ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("For to statements work correct.");
+    else
+      writeln(" ***** For to statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_for_int_downto is func
+  local
+    var boolean: okay is TRUE;
+    var integer: number is 0;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    for number range 0 downto 1 do
+      writeln(" ***** for integer range 0 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end for;
+    counter := 2;
+    for number range 1 downto 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 1 downto 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 then
+      writeln(" ***** for integer range 1 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 3;
+    for number range 2 downto 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 2 downto 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 then
+      writeln(" ***** for integer range 2 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 4;
+    for number range 3 downto 1 do
+      decr(counter);
+      if number <> counter then
+        writeln(" ***** for integer range 3 downto 1 ...  does not work correct");
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 then
+      writeln(" ***** for integer range 3 downto 1 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    for number range counter downto 0 do
+      incr(counter);
+      if number <> 0 then
+        writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct");
+        counter := 0;
+        okay := FALSE;
+      end if;
+    end for;
+    if counter <> 1 then
+      writeln(" ***** for integer range VARIABLE downto 0 ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("For downto statements work correct.");
+    else
+      writeln(" ***** For downto statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_case_int is func
+  local
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    counter := 0;
+    case 1 of
+    end case;
+    case 1 of
+      when {1}: incr(counter);
+    end case;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    case 1 of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1} {2}  ...  does not work correct");
+          okay := FALSE;
+      when {2}: incr(counter);
+    end case;
+    case 1 of
+      when {1}: incr(counter);
+      when {2}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct");
+          okay := FALSE;
+      when {3}: writeln(" ***** case 1 of when {1} {2} {3}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    case 2 of
+      when {1}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct");
+          okay := FALSE;
+      when {2}: incr(counter);
+      when {3}: writeln(" ***** case 2 of when {1} {2} {3}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    case 3 of
+      when {1}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct");
+          okay := FALSE;
+      when {2}: writeln(" ***** case 3 of when {1} {2} {3}  ...  does not work correct");
+          okay := FALSE;
+      when {3}: incr(counter);
+    end case;
+    if okay and counter = 6 then
+      writeln("Case integer statements work correct.");
+    else
+      writeln(" ***** Case integer statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: check_case_char is func
+  local
+    var boolean: okay is TRUE;
+    var integer: counter is 0;
+  begin
+    okay := TRUE;
+    case 'a' of
+    end case;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'}  ...  does not work correct");
+      okay := FALSE;
+    end if;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'}  ...  does not work correct");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'a' of
+      when {'a'}: incr(counter);
+      when {'b'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct");
+          okay := FALSE;
+      when {'c'}: writeln(" ***** case 'a' of when {'a'} {'b'} {'c'}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'a' of when {'a'} {'b'} {'c'} ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'b' of
+      when {'a'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct");
+          okay := FALSE;
+      when {'b'}: incr(counter);
+      when {'c'}: writeln(" ***** case 'b' of when {'a'} {'b'} {'c'}  ...  does not work correct");
+          okay := FALSE;
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'b' of when {'a'} {'b'} {'c'} ...  does not work correct");
+      okay := FALSE;
+    end if;
+    counter := 0;
+    case 'c' of
+      when {'a'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct");
+          okay := FALSE;
+      when {'b'}: writeln(" ***** case 'c' of when {'a'} {'b'} {'c'}  ...  does not work correct");
+          okay := FALSE;
+      when {'c'}: incr(counter);
+    end case;
+    if counter <> 1 then
+      writeln(" ***** case 'c' of when {'a'} {'b'} {'c'} ...  does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("Case char statements work correct.");
+    else
+      writeln(" ***** Case char statements do not work correct");
+      writeln;
+    end if;
+  end func;
+
+
+const proc: main is func
+
+  begin
+    writeln;
+    check_if();
+    check_while();
+    check_repeat();
+    check_for_int_to();
+    check_for_int_downto();
+    check_case_int();
+    check_case_char();
+  end func;
+
+$ system "main" is main;

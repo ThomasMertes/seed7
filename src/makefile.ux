@@ -1,0 +1,60 @@
+CFLAGS = -O
+LIBS = -lmalloc -lcurses -lm
+
+GOBJS1 = heap.o flist.o stat.o chclass.o ident.o
+GOBJS2 = objutil.o listutil.o action.o trace.o types.o
+AOBJS1 = symbol.o infile.o error.o findid.o numlit.o literal.o
+AOBJS2 = scanner.o object.o stri.o atom.o expr.o block.o list.o
+AOBJS3 = meta.o proc.o parser.o param.o syntax.o analyze.o
+ROBJS1 = runobj.o runlist.o runerr.o memory.o
+EOBJS1 = create.o propag.o interpr.o
+LOBJS1 = primitiv.o arrlib.o chrlib.o fillib.o fltlib.o intlib.o
+LOBJS2 = hallib.o kbdlib.o lstlib.o modlib.o prclib.o reflib.o
+LOBJS3 = scrlib.o strlib.o timlib.o reclib.o
+MOBJS1 = scr_tcp.o timunx.o hi.o
+OBJS = $(GOBJS1) $(GOBJS2) $(AOBJS1) $(AOBJS2) $(AOBJS3) $(ROBJS1) $(EOBJS1) $(LOBJS1) $(LOBJS2) $(LOBJS3) $(MOBJS1)
+
+hi: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o hi
+
+hg: $(GOBJS1) $(GOBJS2)
+	wc $(GOBJS1) $(GOBJS2)
+	$(CC) $(CFLAGS) $(GOBJS1) $(GOBJS2) $(LIBS) -o hg
+
+ha: $(GOBJS1) $(GOBJS2) $(AOBJS1) $(AOBJS2) $(AOBJS3)
+	wc $(AOBJS1) $(AOBJS2) $(AOBJS3)
+	$(CC) $(CFLAGS) $(GOBJS1) $(GOBJS2) $(AOBJS1) $(AOBJS2) $(AOBJS3) $(LIBS) -o ha
+
+he: $(GOBJS1) $(GOBJS2) $(ROBJS1) $(EOBJS1)
+	wc $(EOBJS1)
+	$(CC) $(CFLAGS) $(GOBJS1) $(GOBJS2) $(ROBJS1) $(EOBJS1) $(LIBS) -o he
+
+hl: $(GOBJS1) $(GOBJS2) $(ROBJS1) $(LOBJS1) $(LOBJS2) $(LOBJS3)
+	wc $(LOBJS1) $(LOBJS2) $(LOBJS3)
+	$(CC) $(CFLAGS) $(GOBJS1) $(GOBJS2) $(ROBJS1) $(LOBJS1) $(LOBJS2) $(LOBJS3) $(LIBS) -o hl
+
+version.h:
+	echo "#undef ANSI_C" > version.h
+	echo "#define PATH_DELIMITER '/'" >> version.h
+
+heap.o: heap.c version.h
+	$(CC) $(CFLAGS) -c heap.c
+
+GSRC1 = heap.c stat.c chclass.c ident.c
+GSRC2 = objutil.c listutil.c action.c trace.c types.c
+ASRC1 = symbol.c infile.c error.c findid.c numlit.c literal.c
+ASRC2 = scanner.c object.c stri.c atom.c expr.c block.c list.c
+ASRC3 = meta.c proc.c parser.c param.c syntax.c analyze.c
+RSRC1 = runobj.c runlist.c runerr.c memory.c
+ESRC1 = create.c propag.c interpr.c
+LSRC1 = primitiv.c arrlib.c chrlib.c fillib.c fltlib.c intlib.c
+LSRC2 = hallib.c kbdlib.c lstlib.c modlib.c prclib.c reflib.c
+LSRC3 = scrlib.c strlib.c timlib.c
+MSRC1 = scr_tcp.c hi.c
+SRC = $(GSRC1) $(GSRC2) $(ASRC1) $(ASRC2) $(ASRC3) $(RSRC1) $(ESRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(MSRC1)
+
+lint: $(SRC)
+	lint -p $(SRC) $(LIBS)
+
+lint2: $(SRC)
+	lint -Zn2048 $(SRC) $(LIBS)

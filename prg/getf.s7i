@@ -1,0 +1,70 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  getf.s7i      Read and write whole files into and from strings  *)
+(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const func string: getf (in string: file_name) is func
+  result
+    var string: result is "";
+  local
+    var file: work_file is STD_NULL;
+  begin
+    work_file := open(file_name, "r");
+    if work_file <> STD_NULL then
+      result := gets(work_file, length(work_file));
+      close(work_file);
+    end if;
+  end func;
+
+
+const proc: putf (in string: file_name, ref string: stri) is func
+  local
+    var file: work_file is STD_NULL;
+  begin
+    if stri <> "" then
+      work_file := open(file_name, "w");
+      if work_file <> STD_NULL then
+        work_file << stri;
+        close(work_file);
+      end if;
+    end if;
+  end func;
+
+
+const func array string: readf (in string: file_name) is func
+  result
+    var array string: result is 0 times "";
+  local
+    var file: work_file is STD_NULL;
+  begin
+    work_file := open(file_name, "r");
+    if work_file <> STD_NULL then
+      while not eof(work_file) do
+        result &:= [] getln(work_file)
+      end while;
+      close(work_file);
+    end if;
+  end func;

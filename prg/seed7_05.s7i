@@ -1,0 +1,2795 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  seed7_05.s7i  Standard Seed7 library                            *)
+(*  Copyright (C) 1989 - 2005  Thomas Mertes                        *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "syntax.s7i";
+
+(*
+$ const $ type: type is                            $ newtype;
+
+$ const type: void is                              $ newtype;
+$ const type: proc is                              $ func void;
+$ const void: empty is                             $ enumlit;
+
+$ const type: expr is                              $ newtype;
+$ const type: object is                            $ newtype;
+$ const type: string is                            $ subtype object;
+$ const type: ACTION is                            $ newtype;
+$ const type: f_param is                           $ newtype;
+*)
+
+$ const $ func type: $ func (ref type param) is    $ action "TYP_FUNC";
+$ const $ func type: $ varfunc (ref type param) is $ action "TYP_VARFUNC";
+
+$ const func ACTION: $ action (ref string param)  is       $ action "ACT_GEN";
+$ const proc: $ (ref proc param) ::= (ref ACTION param) is $ action "ACT_CREATE";
+$ const proc: $ destroy (ref string param) is                action "STR_DESTR";
+
+$ const proc: $ (ref func f_param param) ::= (ref ACTION param) is action "ACT_CREATE";
+$ const func f_param: $ ref (ref type param) param is              action "DCL_REF1";
+
+$ const proc: const (ref type param) : (ref expr param) is (ref expr param) is action "DCL_CONST";
+
+const proc: const (ref type param) : (ref expr param) is forward is            action "DCL_FWD";
+const proc: var   (ref type param) : (ref expr param) is (ref expr param) is   action "DCL_VAR";
+
+const func f_param: ref (ref type param) : (ref expr param) is     action "DCL_REF2";
+const func f_param: val (ref type param) param is                  action "DCL_VAL1";
+const func f_param: val (ref type param) : (ref expr param) is     action "DCL_VAL2";
+const func f_param: in var (ref type param) param is               action "DCL_IN1VAR";
+const func f_param: in var (ref type param) : (ref expr param) is  action "DCL_IN2VAR";
+const func f_param: inout (ref type param) param is                action "DCL_INOUT1";
+const func f_param: inout (ref type param) : (ref expr param) is   action "DCL_INOUT2";
+const func f_param: in (ref type param) param is                   action "DCL_REF1";
+const func f_param: attr (ref type param) is                       action "DCL_ATTR";
+
+const proc: (ref type param) ::= (in type param) is             action "TYP_CREATE";
+const proc: destroy (ref type param) is                         action "TYP_DESTR";
+
+const proc: (inout type param) := (ref type param) is           action "TYP_CPY";
+const proc: (ref func proc param) ::= (ref ACTION param) is     action "ACT_CREATE";
+const proc: (ref varfunc proc param) ::= (ref ACTION param) is  action "ACT_CREATE";
+const func proc: func begin (ref expr param) end func is        action "PRC_BEGIN";
+const func proc: func local (ref proc param) begin (ref expr param) end func is action "PRC_LOCAL";
+const proc: (ref proc param) ::= (ref proc param) is            action "PRC_CREATE";
+const proc: (inout proc param) := (ref proc param) is           action "PRC_CPY";
+const proc: destroy (ref proc param) is                         action "PRC_NOOP";
+const proc: noop is                                             action "PRC_NOOP";
+const proc: (ref void param) ; (ref void param) is noop;
+
+const proc: PRINT (in string param) is                          action "PRC_PRINT";
+
+const proc: IN_PARAM_IS_VALUE (ref type: aType) is func
+  begin
+    const func f_param: in (attr aType) : (ref expr param) is   action "DCL_VAL2";
+  end func;
+
+const proc: IN_PARAM_IS_REFERENCE (ref type: aType) is func
+  begin
+    const func f_param: in (attr aType) : (ref expr param) is   action "DCL_REF2";
+  end func;
+
+IN_PARAM_IS_REFERENCE(type);
+IN_PARAM_IS_REFERENCE(proc);
+IN_PARAM_IS_REFERENCE(object);
+IN_PARAM_IS_REFERENCE(string);
+IN_PARAM_IS_REFERENCE(ACTION);
+
+
+const proc: BASIC_TYPE_DECLS (in type: aType) is func
+  begin
+(*    PRINT("in BASIC_TYPE_DECLS\n"); *)
+    const proc: TRACE (ref aType param)                                  is action "REF_TRACE";
+    const proc: ignore (ref aType param)                                 is noop;
+    const proc: (ref func aType param) ::= (ref ACTION param)            is action "ACT_CREATE";
+    const proc: (ref varfunc aType param) ::= (ref ACTION param)         is action "ACT_CREATE";
+    const proc: (ref func aType param) ::= (ref func aType param)        is action "PRC_CREATE";
+    const proc: (ref varfunc aType param) ::= (ref varfunc aType param)  is action "PRC_CREATE";
+    const proc: (inout func aType param) := (ref func aType param)       is action "PRC_CPY";
+    const proc: (inout varfunc aType param) := (ref varfunc aType param) is action "PRC_CPY";
+    const type: typeof (ref aType param)                                 is aType;
+    const proc: (ref func func aType param) ::= (ref ACTION param)       is action "ACT_CREATE";
+    const proc: (ref func varfunc aType param) ::= (ref ACTION param)    is action "ACT_CREATE";
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref aType param)
+                           local
+                             (ref proc param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_LOCAL";
+
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref func aType param)
+                           local
+                             (ref proc param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_LOCAL";
+
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref aType param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_BEGIN";
+
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref func aType param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_BEGIN";
+
+    const func func aType: return (ref func aType param)              is action "PRC_RETURN";
+
+    const func func aType: return (ref aType param)                   is action "PRC_RETURN";
+
+    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_VARFUNC";
+
+    const func varfunc aType: return var (inout aType param)          is action "PRC_VARFUNC";
+
+  end func;
+
+BASIC_TYPE_DECLS(type);
+BASIC_TYPE_DECLS(string);
+BASIC_TYPE_DECLS(ACTION);
+
+
+const func string: str (in type param) is                     action "TYP_STR";
+const func string: (in string param) & (in string param) is   action "STR_CAT";
+const func type: gentype is                                   action "TYP_GENTYPE";
+const func type: gensub (in type param) is                    action "TYP_GENSUB";
+
+const func type: newtype is func
+  result
+    var type: aType is void;
+  begin
+    aType := gentype;
+(*    PRINT("GENERATE type: newtype as "); PRINT(str(aType)); PRINT("\n"); *)
+    BASIC_TYPE_DECLS(aType);
+(*  TRACE(aType);
+    PRINT("\n"); *)
+  end func;
+
+const func type: subtype (in type: baseType) is func
+  result
+    var type: aType is void;
+  begin
+    aType := gensub(baseType);
+(*    PRINT("GENERATE type: subtype "); PRINT(str(baseType)); PRINT(" as "); PRINT(str(aType)); PRINT("\n"); *)
+    BASIC_TYPE_DECLS(aType);
+
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref baseType param)
+                           local
+                             (ref proc param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_LOCAL";
+
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref func baseType param)
+                           local
+                             (ref proc param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_LOCAL";
+
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref baseType param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_BEGIN";
+
+    const func func aType: func
+                           result
+                             var (attr aType) : (ref expr param) is (ref func baseType param)
+                           begin
+                             (ref expr param)
+                           end func                                   is action "PRC_RES_BEGIN";
+
+(*
+    const func func aType: return (ref func aType param)              is action "PRC_RETURN";
+
+    const func func aType: return (ref aType param)                   is action "PRC_RETURN";
+
+    const func varfunc aType: return var (ref varfunc aType param)    is action "PRC_VARFUNC";
+
+    const func varfunc aType: return var (inout aType param)          is action "PRC_VARFUNC";
+*)
+
+(*  TRACE(aType);
+    PRINT("\n"); *)
+(*
+    pixel conv 25
+    pixel conv number
+    pixel conv (number)
+    pixel conv (2 + number)
+    pixel.conv 25
+    pixel.conv number
+    pixel.conv (number)
+    pixel.conv (2 + number)
+    pixel`25
+    pixel`number
+    pixel`(number)
+    pixel`(2 + number)
+    pixel^25
+    pixel^number
+    pixel^(number)
+    pixel^(2 + number)
+    pixel<-25
+    pixel<-number
+    pixel<-(number)
+    pixel<-(2 + number)
+    pixel~25
+    pixel~number
+    pixel~(number)
+    pixel~(2 + number)
+    pixel\25
+    pixel\number
+    pixel\(number)
+    pixel\(2 + number)
+    pixel$25
+    pixel$number
+    pixel$(number)
+    pixel$(2 + number)
+    pixel!25
+    pixel!number
+    pixel!(number)
+    pixel!(2 + number)
+    pixel%25
+    pixel%number
+    pixel%(number)
+    pixel%(2 + number)
+    pixel|25
+    pixel|number
+    pixel|(number)
+    pixel|(2 + number)
+    pixel.25
+    pixel.number
+    pixel.(number)
+    pixel.(2 + number)
+    pixel@25
+    pixel@number
+    pixel@(number)
+    pixel@(2 + number)
+*)
+  end func;
+
+
+(*
+const func type: func (in type: baseType) is func
+  result
+    var type: aType is void;
+  begin
+    aType := gentype;
+    const func type: func baseType is                        aType;
+    const proc: TRACE (ref aType param) is                   action "REF_TRACE";
+    const proc: (ref aType param) ::= (ref ACTION param) is  action "ACT_CREATE";
+    const proc: (ref aType param) ::= (ref aType param) is   action "PRC_CREATE";
+  end func;
+*)
+
+
+const type: PRIMITIVE_FILE is newtype;
+const type: EXCEPTION is      newtype;
+const type: LEGAL is          newtype;
+
+const type: DISCRETE is       subtype object;
+const type: integer is        subtype DISCRETE;
+$ system "integer" is integer;
+IN_PARAM_IS_VALUE(integer);
+const type: char is           subtype DISCRETE;
+$ system "char" is char;
+IN_PARAM_IS_VALUE(char);
+const type: ENUMERATION is    subtype DISCRETE;
+IN_PARAM_IS_VALUE(ENUMERATION);
+const type: INDEXABLE is      subtype object;
+const type: MODULE is         subtype object;
+
+const proc: destroy (ref ACTION param) is           noop;
+const proc: destroy (ref ENUMERATION param) is      noop;
+const proc: destroy (ref integer param) is          noop;
+const proc: destroy (ref char param) is             noop;
+const proc: destroy (ref EXCEPTION param) is        noop;
+const proc: destroy (ref PRIMITIVE_FILE param) is   noop;
+
+const proc: (ref ACTION param) ::= (in ACTION param) is            action "ACT_CREATE";
+const proc: destroy (ref func ACTION param) is                     noop;
+const proc: (inout ACTION param) := (in ACTION param) is           action "ACT_CPY";
+const proc: (ref ENUMERATION param) ::= (ref ENUMERATION param) is action "ENU_CREATE";
+const proc: (ref ENUMERATION param) ::= enumlit is                 action "ENU_GENLIT";
+const proc: (ref integer param) ::= (ref integer param) is         action "INT_CREATE";
+const proc: (ref char param) ::= (in char param) is                action "CHR_CREATE";
+const proc: (ref string param) ::= (in string param) is            action "STR_CREATE";
+const proc: (ref func object param) ::= (in ACTION param) is       action "ACT_CREATE";
+const proc: (ref PRIMITIVE_FILE param) ::= (ref PRIMITIVE_FILE param) is action "FIL_CREATE";
+const proc: (ref EXCEPTION param) ::= (ref EXCEPTION param) is     action "ENU_CREATE";
+const proc: (ref EXCEPTION param) ::= enumlit is                   action "ENU_GENLIT";
+
+const EXCEPTION: MEMORY_ERROR is      enumlit;
+const EXCEPTION: NUMERIC_ERROR is     enumlit;
+const EXCEPTION: RANGE_ERROR is       enumlit;
+const EXCEPTION: IO_ERROR is          enumlit;
+const EXCEPTION: ILLEGAL_ACTION is    enumlit;
+
+$ system "memory_error" is   MEMORY_ERROR;
+$ system "numeric_error" is  NUMERIC_ERROR;
+$ system "range_error" is    RANGE_ERROR;
+$ system "io_error" is       IO_ERROR;
+$ system "illegal_action" is ILLEGAL_ACTION;
+
+const proc: raise (ref EXCEPTION param) is  action "PRC_RAISE";
+
+const func string: str (in ACTION param) is action "ACT_STR";
+
+const ACTION: DYNAMIC is action "PRC_DYNAMIC";
+
+
+const proc: exit (PROGRAM) is                  action "PRC_EXIT";
+
+const proc: TRACE_OPTIONS (in string param) is action "PRC_SETTRACE";
+const proc: TRACE_OBJ (in object param) is     action "REF_TRACE";
+const proc: TRACE_PROC (in proc param) is      action "REF_TRACE";
+const proc: DECLS is                           action "PRC_DECLS";
+
+
+(* boolean *)
+
+const type: boolean is subtype ENUMERATION;
+IN_PARAM_IS_VALUE(boolean);
+
+const proc: (ref boolean param) ::= (in boolean param) is     action "BLN_CREATE";
+const proc: destroy (ref boolean param) is                    noop;
+const proc: (inout boolean param) := (in boolean param) is    action "BLN_CPY";
+
+const boolean: FALSE is enumlit;
+const boolean: TRUE is enumlit;
+
+$ system "true" is TRUE;
+$ system "false" is FALSE;
+
+const boolean: (attr boolean) . value is FALSE;
+const boolean: (attr boolean) . first is FALSE;
+const boolean: (attr boolean) . last is  TRUE;
+
+const func boolean: not (in boolean param) is action "BLN_NOT";
+
+const func boolean: (in boolean param) and (in func boolean param) is    action "BLN_AND";
+const func boolean: (in boolean param) and (in varfunc boolean param) is action "BLN_AND";
+const func boolean: (in boolean param) and (in boolean param) is         action "BLN_AND";
+const func boolean: (in boolean param) or (in func boolean param) is     action "BLN_OR";
+const func boolean: (in boolean param) or (in varfunc boolean param) is  action "BLN_OR";
+const func boolean: (in boolean param) or (in boolean param) is          action "BLN_OR";
+
+const func boolean: (in boolean param) = (in boolean param) is           action "ENU_EQ";
+const func boolean: (in boolean param) <> (in boolean param) is          action "ENU_NE";
+const func boolean: (in boolean param) < (in boolean param) is           action "BLN_LT";
+const func boolean: (in boolean param) <= (in boolean param) is          action "BLN_LE";
+const func boolean: (in boolean param) > (in boolean param) is           action "BLN_GT";
+const func boolean: (in boolean param) >= (in boolean param) is          action "BLN_GE";
+
+const func integer: ord (in boolean param) is                            action "BLN_ORD";
+const func boolean: (attr boolean) conv (in integer param) is            action "BLN_ICONV";
+
+
+const boolean: succ (FALSE) is TRUE;
+const boolean: pred (TRUE) is  FALSE;
+
+const func boolean: succ(ref boolean param) is DYNAMIC;
+const func boolean: pred(ref boolean param) is DYNAMIC;
+
+const proc: incr (inout boolean: bool_value) is func
+  begin
+    bool_value := succ(bool_value);
+  end func;
+
+const proc: decr (inout boolean: bool_value) is func
+  begin
+    bool_value := pred(bool_value);
+  end func;
+
+(*
+const func boolean: not (attr TRUE) is          FALSE;
+const func boolean: not (attr FALSE) is         TRUE;
+
+const func boolean: (attr FALSE) and (func boolean) is FALSE;
+const func boolean: (attr FALSE) and boolean is        FALSE;
+const func boolean: (attr FALSE) or (attr FALSE) is    FALSE;
+const func boolean: (attr FALSE) or (attr TRUE) is     TRUE;
+const func boolean: (attr FALSE) = (attr FALSE) is     TRUE;
+const func boolean: (attr FALSE) = (attr TRUE) is      FALSE;
+const func boolean: (attr FALSE) < (attr FALSE) is     FALSE;
+const func boolean: (attr FALSE) < (attr TRUE) is      TRUE;
+const func boolean: (attr FALSE) > boolean is          FALSE;
+const func boolean: (attr FALSE) <= boolean is         TRUE;
+const func boolean: (attr FALSE) >= (attr FALSE) is    TRUE;
+const func boolean: (attr FALSE) >= (attr TRUE) is     FALSE;
+const func boolean: (attr FALSE) <> (attr FALSE) is    FALSE;
+const func boolean: (attr FALSE) <> (attr TRUE) is     TRUE;
+
+const integer: ord (attr FALSE) is       0;
+const func boolean: succ (attr FALSE) is TRUE;
+const EXCEPTION: pred (attr FALSE) is    RANGE_ERROR;
+const string: str (attr FALSE) is        "FALSE";
+
+const func boolean: (attr TRUE) and (attr FALSE) is    FALSE;
+const func boolean: (attr TRUE) and (attr TRUE) is     TRUE;
+const func boolean: (attr TRUE) or (func boolean) is   TRUE;
+const func boolean: (attr TRUE) or boolean is          TRUE;
+const func boolean: (attr TRUE) = (attr FALSE) is      FALSE;
+const func boolean: (attr TRUE) = (attr TRUE) is       TRUE;
+const func boolean: (attr TRUE) < boolean is           FALSE;
+const func boolean: (attr TRUE) > (attr FALSE) is      TRUE;
+const func boolean: (attr TRUE) > (attr TRUE) is       FALSE;
+const func boolean: (attr TRUE) <= (attr FALSE) is     FALSE;
+const func boolean: (attr TRUE) <= (attr TRUE) is      TRUE;
+const func boolean: (attr TRUE) >= boolean is          TRUE;
+const func boolean: (attr TRUE) <> (attr FALSE) is     TRUE;
+const func boolean: (attr TRUE) <> (attr TRUE) is      FALSE;
+
+const integer: ord (attr TRUE) is        1;
+const EXCEPTION: succ (attr TRUE) is     RANGE_ERROR;
+const func boolean: pred (attr TRUE) is  FALSE;
+const string: str (attr TRUE) is         "TRUE";
+*)
+
+const func boolean: (in type param) = (in type param) is    action "TYP_EQ";
+const func boolean: (in type param) <> (in type param) is   action "TYP_NE";
+const func boolean: is_func (in type param) is              action "TYP_ISFUNC";
+const func boolean: is_varfunc (in type param) is           action "TYP_ISVARFUNC";
+const func type: result_type (in type param) is             action "TYP_RESULT";
+
+(* IF *)
+
+const type: ELSIF_RESULT is newtype;
+const proc: (ref ELSIF_RESULT param) ::= enumlit is  action "ENU_GENLIT";
+const ELSIF_RESULT: ELSIF_EMPTY is enumlit;
+const type: ELSIF_PROC is                            (func ELSIF_RESULT);
+IN_PARAM_IS_REFERENCE(ELSIF_PROC);
+const proc: (ref ELSIF_PROC param) ::= (ref ELSIF_RESULT param) is action "ENU_CREATE";
+
+const proc:       if (in boolean param) then
+                    (in proc param)
+                  end if is                          action "PRC_IF";
+const proc:       if (in boolean param) then
+                    (in proc param)
+                  (in ELSIF_PROC param)
+                  end if is                          action "PRC_IF_ELSIF";
+const ELSIF_PROC: elsif (in boolean param) then
+                    (in proc param) is               action "PRC_IF";
+const ELSIF_PROC: elsif (in boolean param) then
+                    (in proc param)
+                  (in ELSIF_PROC param) is           action "PRC_IF_ELSIF";
+const ELSIF_PROC: else
+                    (in void param) is               ELSIF_EMPTY;
+
+(*
+const proc: if TRUE  then (in void param) end if is                           noop;
+const proc: if TRUE  then (in void param) (in ELSIF_PROC param) end if is     noop;
+const proc: if FALSE then (in proc param) end if is                           noop;
+const proc: if FALSE then (in proc param) (in ELSIF_RESULT param) end if is   noop;
+const ELSIF_PROC: elsif TRUE  then (in void param) is                         ELSIF_EMPTY;
+const ELSIF_PROC: elsif TRUE then (in void param) (in ELSIF_PROC param)   is  ELSIF_EMPTY;
+const ELSIF_PROC: elsif FALSE then (in proc param) is                         ELSIF_EMPTY;
+const ELSIF_PROC: elsif FALSE then (in proc param) (in ELSIF_RESULT param) is ELSIF_EMPTY;
+*)
+
+(* WHILE + REPEAT *)
+
+const proc: while (in func boolean param) do (in proc param) end while is     action "PRC_WHILE";
+const proc: while (in varfunc boolean param) do (in proc param) end while is action "PRC_WHILE";
+const proc: while (ref boolean param)  do (in proc param) end while is        action "PRC_WHILE";
+
+const proc: repeat (in proc param) until (in func boolean param) is           action "PRC_REPEAT";
+const proc: repeat (in proc param) until (in varfunc boolean param) is        action "PRC_REPEAT";
+const proc: repeat (in proc param) until (ref boolean param) is               action "PRC_REPEAT";
+
+const proc: global (in proc param) end global is                              action "DCL_GLOBAL";
+
+(* integer *)
+
+const integer: (attr integer) . value is 0;
+
+const func integer: + (in integer param) is                         action "INT_PLUS";
+const func integer: - (in integer param) is                         action "INT_MINUS";
+const func integer: ! (in integer param) is                         action "INT_FACT";
+
+const proc: (inout integer param) := (in integer param) is          action "INT_CPY";
+const proc: (inout integer param) +:= (in integer param) is         action "INT_GROW";
+const proc: (inout integer param) -:= (in integer param) is         action "INT_SHRINK";
+const func integer: (in integer param) + (in integer param) is      action "INT_ADD";
+const func integer: (in integer param) - (in integer param) is      action "INT_SBTR";
+const func integer: (in integer param) * (in integer param) is      action "INT_MULT";
+const func integer: (in integer param) div (in integer param) is    action "INT_DIV";
+const func integer: (in integer param) rem (in integer param) is    action "INT_REM";
+const func integer: (in integer param) mdiv (in integer param) is   action "INT_MDIV";
+const func integer: (in integer param) mod (in integer param) is    action "INT_MOD";
+const func integer: (in integer param) ** (in integer param) is     action "INT_POW";
+const func integer: (in integer param) ! (in integer param) is      action "INT_BINOM";
+const func boolean: (in integer param) = (in integer param) is      action "INT_EQ";
+const func boolean: (in integer param) < (in integer param) is      action "INT_LT";
+const func boolean: (in integer param) > (in integer param) is      action "INT_GT";
+const func boolean: (in integer param) <= (in integer param) is     action "INT_LE";
+const func boolean: (in integer param) >= (in integer param) is     action "INT_GE";
+const func boolean: (in integer param) <> (in integer param) is     action "INT_NE";
+const func integer: compare (in integer param, in integer param) is action "INT_CMP";
+const func integer: hashCode (in integer param) is                  action "INT_HASHCODE";
+
+const func integer: succ (in integer param) is                      action "INT_SUCC";
+const func integer: pred (in integer param) is                      action "INT_PRED";
+const func integer: abs (in integer param) is                       action "INT_ABS";
+const func integer: sqrt (in integer param) is                      action "INT_SQRT";
+const func integer: ld (in integer param) is                        action "INT_LD";
+const func boolean: odd (in integer param) is                       action "INT_ODD";
+const func integer: ord (in integer param) is                       action "INT_ORD";
+const func integer: (attr integer) conv (in integer param) is       action "INT_CONV";
+const func string: str (in integer param) is                        action "INT_STR";
+const func string: literal (in integer param) is                    action "INT_STR";
+const proc: incr (inout integer param) is                           action "INT_INCR";
+const proc: decr (inout integer param) is                           action "INT_DECR";
+
+const func integer: rand (in integer param, in integer param) is    action "INT_RAND";
+const func integer: (attr integer) parse (in string param) is       action "INT_PARSE";
+
+const func boolean: rand (in boolean: low, in boolean: high) is
+  return odd(rand(ord(low), ord(high)));
+
+(* char *)
+
+const char: (attr char) . value is ' ';
+const char: (attr char) . first is '\0\';
+const char: (attr char) . last is  '\512\';
+
+const proc: (inout char param) := (in char param) is          action "CHR_CPY";
+const func boolean: (in char param) = (in char param) is      action "CHR_EQ";
+const func boolean: (in char param) < (in char param) is      action "CHR_LT";
+const func boolean: (in char param) > (in char param) is      action "CHR_GT";
+const func boolean: (in char param) <= (in char param) is     action "CHR_LE";
+const func boolean: (in char param) >= (in char param) is     action "CHR_GE";
+const func boolean: (in char param) <> (in char param) is     action "CHR_NE";
+const func integer: compare (in char param, in char param) is action "CHR_CMP";
+const func integer: hashCode (in char param) is               action "CHR_HASHCODE";
+
+const func integer: ord (in char param) is                    action "CHR_ORD";
+const func char: (attr char) conv (in integer param) is       action "CHR_ICONV";
+const func char: chr (in integer param) is                    action "CHR_CHR";
+const func char: succ (in char param) is                      action "CHR_SUCC";
+const func char: pred (in char param) is                      action "CHR_PRED";
+const func string: str (in char param) is                     action "CHR_STR";
+const func char: lower (in char param) is                     action "CHR_LOW";
+const func char: upper (in char param) is                     action "CHR_UP";
+const proc: incr (inout char param) is                        action "CHR_INCR";
+const proc: decr (inout char param) is                        action "CHR_DECR";
+
+const func char: rand (in char: low, in char: high) is
+  return chr(rand(ord(low), ord(high)));
+
+(* Procedures literal and c_literal defined after string *)
+
+(* Procedure read defined after operations for IN and OUT *)
+
+(* string *)
+
+const string: (attr string) . value is "";
+
+const func string: (in string param) mult (in integer param) is   action "STR_MULT";
+
+const proc: (inout string param) := (in string param) is          action "STR_CPY";
+const proc: (inout string param) &:= (in string param) is         action "STR_APPEND";
+const proc: (inout string param) @:= [ (in integer param) ] (in char param) is action "STR_ELEMCPY";
+const func string: (in string param) lpad (in integer param) is   action "STR_LPAD";
+const func string: (in string param) rpad (in integer param) is   action "STR_RPAD";
+const func string: (in string param) <& (in string param) is      action "STR_CAT";
+const func char: (in string param) [ (in integer param) ] is      action "STR_IDX";
+const func string: (in string param) [ (in integer param) .. ] is action "STR_TAIL";
+const func string: (in string param) [ .. (in integer param) ] is action "STR_HEAD";
+const func string: (in string param) [ (in integer param) ..
+                                       (in integer param) ] is    action "STR_RANGE";
+const func string: (in string param) [ (in integer param) len
+                                       (in integer param) ] is    action "STR_SUBSTR";
+const func boolean: (in string param) = (in string param) is      action "STR_EQ";
+const func boolean: (in string param) < (in string param) is      action "STR_LT";
+const func boolean: (in string param) > (in string param) is      action "STR_GT";
+const func boolean: (in string param) <= (in string param) is     action "STR_LE";
+const func boolean: (in string param) >= (in string param) is     action "STR_GE";
+const func boolean: (in string param) <> (in string param) is     action "STR_NE";
+const func integer: compare (in string param, in string param) is action "STR_CMP";
+const func integer: hashCode (in string param) is                 action "STR_HASHCODE";
+
+const func integer: length (in string param) is                   action "STR_LNG";
+const func integer: pos (in string param, in string param) is     action "STR_POS";
+const func integer: rpos (in string param, in string param) is    action "STR_RPOS";
+(* const proc: count (in string param, in string param) is        action "STR_CNT"; *)
+const func string: replace (in string param, in string param, in string param) is action "STR_REPL";
+const func string: upper (in string param) is                     action "STR_UP";
+const func string: lower (in string param) is                     action "STR_LOW";
+const func string: str (in string param) is                       action "STR_STR";
+const func string: literal (in string param) is                   action "STR_LIT";
+const func string: c_literal (in string param) is                 action "STR_CLIT";
+
+const func string: getint (inout string: stri) is func
+  result
+    var string: result is "";
+  local
+    var integer: leng is 0;
+    var integer: pos is 1;
+  begin
+    leng := length(stri);
+    while pos <= leng and stri[pos] >= '0' and stri[pos] <= '9' do
+      incr(pos);
+    end while;
+    result := stri[.. pred(pos)];
+    stri := stri[pos ..];
+  end func;
+
+const func string: gets (inout string: stri, in integer: leng) is func
+  result
+    var string: result is "";
+  begin
+    result := stri[.. leng];
+    stri := stri[succ(leng) ..];
+  end func;
+
+const func string: (attr string) parse (in string: stri) is func
+  result
+    var string: result is "";
+  begin
+    result := stri;
+  end func;
+
+const func char: (attr char) parse (in string: stri) is func
+  result
+    var char: result is ' ';
+  begin
+    if length(stri) >= 1 then
+      result := stri[1];
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+const func boolean: (attr boolean) parse (in string: stri) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    if stri = "TRUE" then
+      result := TRUE;
+    elsif stri = "FALSE" then
+      result := FALSE;
+    else
+      raise RANGE_ERROR;
+    end if;
+  end func;
+
+const func string: str (in boolean: aBool) is func
+  result
+    var string: result is "";
+  begin
+    if aBool then
+      result := "TRUE";
+    else
+      result := "FALSE";
+    end if;
+  end func;
+
+(* Procedures literal and c_literal from char *)
+
+const func string: literal (in char: ch) is func
+  result
+    var string: result is "";
+  begin
+    if ch = ''' then
+      result := "'\\''";
+    elsif ch <= chr(255) then
+      result := literal(str(ch));
+      result := "'" & result[2 .. length(result) - 1] & "'";
+    else
+      result := "'\\" & str(ord(ch)) & "\\'";
+    end if;
+  end func;
+
+const func string: c_literal (in char: ch) is func
+  result
+    var string: result is "";
+  begin
+    if ch = ''' then
+      result := "'\\''";
+    elsif ch <= chr(255) then
+      result := c_literal(str(ch));
+      result := "'" & result[2 .. length(result) - 1] & "'";
+    else
+      result := str(ord(ch));
+(*
+      result := "'\\" &
+          str(ord(ch) div 64) &
+          str(ord(ch) div 8 mod 8) &
+          str(ord(ch) mod 8) & "'";
+*)
+    end if;
+  end func;
+
+
+(* REFERENCE *)
+
+const type: reference is subtype object;
+IN_PARAM_IS_VALUE(reference);
+
+const proc: (ref reference param) ::= (in reference param) is         action "REF_CREATE";
+const proc: destroy (ref reference param) is                          noop;
+const proc: (inout reference param) := (in reference param) is        action "REF_CPY";
+(* Deactivated since it allows 'reference' := anything which is aggainst type checking *)
+(* const proc: (inout reference param) := (in object param) is           action "REF_MKREF"; *)
+const func reference: (attr reference) value (in reference param) is  action "REF_VALUE";
+const func boolean: (in reference param) = (in reference param) is    action "REF_EQ";
+const func boolean: (in reference param) <> (in reference param) is   action "REF_NE";
+const func string: str (ref reference param) is                       action "REF_STR";
+
+const func reference: _GENERATE_NIL is                                action "REF_NIL";
+const reference: NIL is                                               _GENERATE_NIL;
+const reference: (attr reference) . value is                          NIL;
+
+const func type: getType (in reference param) is                      action "REF_TYPE";
+const func boolean: is_symb (in reference param) is                   action "REF_ISSYMB";
+const func f_param: symb (in reference param) is                      action "REF_SYMB";
+const func type: (attr type) value (in reference param) is            action "TYP_VALUE";
+const func reference: getobj (in expr param) is                       action "DCL_GETOBJ";
+
+const func type: get_type (in reference: type_ref) is func
+  result
+    var type: result is void;
+  begin
+    if type_ref <> NIL and getType(type_ref) = type then
+      result := type value type_ref;
+    end if;
+  end func;
+
+
+(* REF_LIST *)
+
+const type: ref_list is subtype object;
+IN_PARAM_IS_REFERENCE(ref_list);
+
+const proc: (ref ref_list param) ::= (in ref_list param) is              action "RFL_CREATE";
+const proc: destroy (ref ref_list param) is                              action "RFL_DESTR";
+const proc: (inout ref_list param) := (in ref_list param) is             action "RFL_CPY";
+
+const func ref_list: _GENERATE_EMPTY_REFLIST is                          action "RFL_EMPTY";
+const ref_list: (attr ref_list) . EMPTY is                               _GENERATE_EMPTY_REFLIST;
+const ref_list: (attr ref_list) . value is                               ref_list.EMPTY;
+
+const func ref_list: make_list (in reference param) is                   action "RFL_MKLIST";
+
+const func boolean: (in ref_list param) = (in ref_list param) is         action "RFL_EQ";
+const func boolean: (in ref_list param) <> (in ref_list param) is        action "RFL_NE";
+
+const func reference: (in ref_list param) [ (in integer param) ] is      action "RFL_IDX";
+const func ref_list: (in ref_list param) [ (in integer param) .. ] is    action "RFL_TAIL";
+const func ref_list: (in ref_list param) [ .. (in integer param) ] is    action "RFL_HEAD";
+const func ref_list: (in ref_list param) [ (in integer param) ..
+                                           (in integer param) ] is       action "RFL_RANGE";
+const func ref_list: (in ref_list param) & (in ref_list param) is        action "RFL_CAT";
+
+const func boolean: (in reference param) in (in ref_list param) is       action "RFL_ELEM";
+const proc: incl (in ref_list param, in reference param) is              action "RFL_INCL";
+const proc: excl (in ref_list param, in reference param) is              action "RFL_EXCL";
+const func integer: length (in ref_list param) is                        action "RFL_LNG";
+
+const proc: for (inout reference param) range (ref ref_list param) do (ref proc param) end for is action "RFL_FOR";
+
+
+(* POINTER *)
+
+var type: CURR_STRUCT_PTR is void;
+var type: FORWARD_PTR is void;
+
+const func boolean: is_declared (in type param) is                    action "TYP_ISDECLARED";
+const func boolean: is_forward (in type param) is                     action "TYP_ISFORWARD";
+
+const func type: forward_ptr (ref expr: baseTypeName) is func
+  result
+    var type: ptrType is void;
+  begin
+    PRINT("forward_ptr\n");
+(*
+    TRACE(baseTypeName);
+*)
+    const type: baseTypeName is forward;
+    ptrType := newtype;
+    FORWARD_PTR := ptrType;
+    IN_PARAM_IS_VALUE(ptrType);
+    const proc: (ref ptrType param) ::= (in ptrType param) is         action "REF_CREATE";
+    const proc: destroy (ref ptrType param) is                        noop;
+    const proc: (inout ptrType param) := (in ptrType param) is        action "REF_CPY";
+    const func boolean: (in ptrType param) = (in ptrType param) is    action "REF_EQ";
+    const func boolean: (in ptrType param) <> (in ptrType param) is   action "REF_NE";
+    const func ptrType: (attr ptrType) conv (in reference param) is   action "REF_CONV";
+    const func reference: (attr reference) conv (in ptrType param) is action "REF_CONV";
+    const ptrType: (attr ptrType) . NIL is                            ptrType conv NIL;
+    const ptrType: (attr ptrType) . value is                          ptrType.NIL;
+  end func;
+
+
+const proc: finish_ptr (in type: baseType, in type: ptrType) is func
+  begin
+    if FORWARD_PTR <> void then
+      PRINT("finish_ptr\n");
+      FORWARD_PTR := void;
+      const type: ptr (attr baseType) is                              ptrType;
+      const type: base_type (attr ptrType) is                         baseType;
+      const func ptrType: & (in baseType param) is                    action "REF_ADDR";
+      const func baseType: (in ptrType param) ^ is                    action "REF_DEREF";
+    end if;
+  end func;
+
+
+const func type: ptr (in type: baseType) is func
+  result
+    var type: ptrType is void;
+  begin
+    if FORWARD_PTR <> void then
+      if is_declared(baseType) then
+        PRINT("declared\n");
+       elsif is_forward(baseType) then
+        PRINT("forward\n");
+      else
+        PRINT("undeclared\n");
+      end if;
+      ptrType := FORWARD_PTR;
+      finish_ptr(baseType, ptrType);
+    else
+      if is_declared(baseType) then
+        PRINT("declared\n");
+        ptrType := CURR_STRUCT_PTR;
+      elsif is_forward(baseType) then
+        PRINT("forward\n");
+      else
+        ptrType := get_type(getobj(ptr (attr baseType)));
+      end if;
+    end if;
+    if ptrType = void then
+      global
+      ptrType := newtype;
+      IN_PARAM_IS_VALUE(ptrType);
+      const type: ptr (attr baseType) is                                ptrType;
+      const type: base_type (attr ptrType) is                           baseType;
+      const proc: (ref ptrType param) ::= (in ptrType param) is         action "REF_CREATE";
+      const proc: destroy (ref ptrType param) is                        noop;
+      const proc: (inout ptrType param) := (in ptrType param) is        action "REF_CPY";
+      const func boolean: (in ptrType param) = (in ptrType param) is    action "REF_EQ";
+      const func boolean: (in ptrType param) <> (in ptrType param) is   action "REF_NE";
+      const func ptrType: & (in baseType param) is                      action "REF_ADDR";
+      const func baseType: (in ptrType param) ^ is                      action "REF_DEREF";
+      const func ptrType: (attr ptrType) conv (in reference param) is   action "REF_CONV";
+      const func reference: (attr reference) conv (in ptrType param) is action "REF_CONV";
+      const ptrType: (attr ptrType) . NIL is                            ptrType conv NIL;
+      const ptrType: (attr ptrType) . value is                          ptrType.NIL;
+      end global;
+    end if;
+  end func;
+
+
+const func type: varptr (in type: baseType) is func
+  result
+    var type: varptrType is void;
+  begin
+    varptrType := get_type(getobj(varptr (attr baseType)));
+    if varptrType = void then
+      global
+      varptrType := newtype;
+      IN_PARAM_IS_VALUE(varptrType);
+      const type: varptr (attr baseType) is                                 varptrType;
+      const type: base_type (attr varptrType) is                            baseType;
+      const proc: (ref varptrType param) ::= (in varptrType param) is       action "REF_CREATE";
+      const proc: destroy (ref varptrType param) is                         noop;
+      const proc: (inout varptrType param) := (in varptrType param) is      action "REF_CPY";
+      const func boolean: (in varptrType param) = (in varptrType param) is  action "REF_EQ";
+      const func boolean: (in varptrType param) <> (in varptrType param) is action "REF_NE";
+      const func varptrType: & (inout baseType param) is                    action "REF_ADDR";
+      const varfunc baseType: (in varptrType param) ^ is                    action "REF_DEREF";
+      const func varptrType: (attr varptrType) conv (in reference param) is action "REF_CONV";
+      const func reference: (attr reference) conv (in varptrType param) is  action "REF_CONV";
+      const varptrType: (attr varptrType) . NIL is                          varptrType conv NIL;
+      const varptrType: (attr varptrType) . value is                        varptrType.NIL;
+      end global;
+    end if;
+  end func;
+
+
+(* FOR *)
+
+const proc: for (inout integer param) range (in integer param) to (in integer param) do
+              (in proc param)
+            end for is                                                      action "PRC_FOR_TO";
+const proc: for (inout integer param) range (in integer param) downto (in integer param) do
+              (in proc param)
+            end for is                                                      action "PRC_FOR_DOWNTO";
+
+const proc: FOR_STEP_DECLS (in type: aType) is func
+  begin
+    if getobj((inout aType param) +:= (in integer param)) <> NIL then
+
+      const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit)
+          step (in integer: incr_step) do
+          (in proc: statements) end for is func
+        begin
+          variable := lower_limit;
+          if variable <= upper_limit then
+            statements;
+            while variable < upper_limit do
+              variable +:= incr_step;
+              statements;
+            end while;
+          end if;
+        end func;
+
+    end if;
+  end func;
+
+const proc: FOR_DECLS (in type: aType) is func
+  begin
+
+    const proc: for (inout aType: variable) range (in aType: lower_limit) to (in aType: upper_limit) do
+        (in proc: statements) end for is func
+      begin
+        variable := lower_limit;
+        if variable <= upper_limit then
+          statements;
+          while variable < upper_limit do
+            incr(variable);
+            statements;
+          end while;
+        end if;
+      end func;
+
+    const proc: for (inout aType: variable) range (in aType: upper_limit) downto (in aType: lower_limit) do
+        (in proc: statements) end for is func
+      begin
+        variable := upper_limit;
+        if variable >= lower_limit then
+          statements;
+          while variable > lower_limit do
+            decr(variable);
+            statements;
+          end while;
+        end if;
+      end func;
+
+    FOR_STEP_DECLS(aType);
+  end func;
+
+FOR_STEP_DECLS(integer);
+FOR_DECLS(char);
+FOR_DECLS(boolean);
+
+const proc: for (inout char: variable) range (in string: stri) do
+              (in proc: statements)
+            end for is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(stri) do
+      variable := stri[number];
+      statements;
+    end for;
+  end func;
+
+
+(* TUPLE *)
+
+const func type: tuple (in type: baseType) is func
+  result
+    var type: tupleType is void;
+  begin
+    tupleType := get_type(getobj(tuple (attr baseType)));
+    if tupleType = void then
+      global
+      tupleType := newtype;
+      IN_PARAM_IS_REFERENCE(tupleType);
+      const type: tuple (attr baseType) is tupleType;
+      const proc: destroy (ref tupleType param) is                          action "ARR_DESTR";
+      const func tupleType: (in baseType param) , (in baseType param) is    action "ARR_GEN";
+      const func tupleType: (in tupleType param) , (in baseType param) is   action "ARR_EXTEND";
+(*
+      const func tupleType: (in baseType: lower_limit) .. (in baseType: upper_limit) is func
+        result
+          var tupleType: result is
+        local
+          var baseType: element is baseType.value;
+       begin
+          element := lower_limit;
+          if variable <= upper_limit then
+            result &:= element;
+            while element < upper_limit then
+              result &:= element;
+              incr(element);
+            end while;
+          end if;
+        end func;
+*)
+      end global;
+    end if;
+  end func;
+
+const type: TST_1 is tuple integer;
+const type: TST_2 is tuple integer;
+
+
+(* ARRAY *)
+
+const func type: array (in type: baseType) is func
+  result
+    var type: arrayType is void;
+  local
+    var type: tupleType is void;
+  begin
+    arrayType := get_type(getobj(array (attr baseType)));
+    if arrayType = void then
+      global
+      arrayType := newtype;
+      IN_PARAM_IS_REFERENCE(arrayType);
+      tupleType := tuple(baseType);
+      const type: array (attr baseType) is                                       arrayType;
+      const type: base_type (attr arrayType) is                                  baseType;
+      const proc: (ref arrayType param) ::= (in arrayType param) is              action "ARR_CREATE";
+      const proc: destroy (ref arrayType param) is                               action "ARR_DESTR";
+      const proc: (inout arrayType param) := (in arrayType param) is             action "ARR_CPY";
+      const proc: (inout arrayType param) &:= (in arrayType param) is            action "ARR_APPEND";
+
+      const func arrayType: [] (in tupleType param) is                           action "ARR_ARRLIT";
+      const func arrayType: [] (in baseType param) is                            action "ARR_BASELIT";
+      const func arrayType: [ (in integer param) ] (in tupleType param) is       action "ARR_ARRLIT2";
+      const func arrayType: [ (in integer param) ] (in baseType param) is        action "ARR_BASELIT2";
+
+      const func arrayType: (in arrayType param) & (in arrayType param) is       action "ARR_CAT";
+      const func baseType: (in arrayType param) [ (in integer param) ] is        action "ARR_IDX";
+      const varfunc baseType: (inout arrayType param) [ (in integer param) ] is  action "ARR_IDX";
+      const func arrayType: (in arrayType param) [ (in integer param) .. ] is    action "ARR_TAIL";
+      const func arrayType: (in arrayType param) [ .. (in integer param) ] is    action "ARR_HEAD";
+      const func arrayType: (in arrayType param) [ (in integer param) ..
+                                                   (in integer param) ] is       action "ARR_RANGE";
+      const func baseType: remove(inout arrayType param, in integer param) is    action "ARR_REMOVE";
+      const func integer: length (in arrayType param) is                         action "ARR_LNG";
+      const func arrayType: (in integer param) times (in baseType param) is      action "ARR_TIMES";
+      const arrayType: (attr arrayType) . value is                               0 times baseType.value;
+
+      const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
+                    (in proc: statements)
+                  end for is func
+        local
+          var integer: number is 0;
+        begin
+          for number range 1 to length(arr_obj) do
+            variable := arr_obj[number];
+            statements;
+          end for;
+        end func;
+
+      const func baseType: rand (in arrayType: arr_obj) is
+        return arr_obj[rand(1, length(arr_obj))];
+
+      const proc: insert (inout arrayType: arr, in integer: index, in baseType: element) is func
+        begin
+          if index >= 1 or index <= succ(length(arr)) then
+            arr := arr[.. pred(index)] & [] (element) & arr[index ..];
+          else
+            raise RANGE_ERROR;
+          end if;
+        end func;
+
+      if getobj((in baseType param) < (in baseType param)) <> NIL and
+          getobj((in baseType param) > (in baseType param)) <> NIL then
+
+        const proc: insert (inout arrayType: arr, in baseType: element) is func
+          local
+            var integer: number is 1;
+          begin
+            while number <= length(arr) and arr[number] < element do
+              incr(number);
+            end while;
+            if number > length(arr) then
+              arr := arr & [] (element);
+            elsif arr[number] > element then
+              arr := arr[.. pred(number)] & [] (element) & arr[number ..];
+            end if;
+          end func;
+
+      end if;
+      end global;
+    end if;
+  end func;
+
+const type: TEST_1 is array integer;
+const type: TEST_2 is array integer;
+const type: TEST_3 is array string;
+
+
+const func type: array [ (in type: indexType) ] (in type: baseType) is func
+  result
+    var type: arrayType is void;
+  local
+    var type: stdArrayType is void;
+    var type: tupleType is void;
+  begin
+    arrayType := get_type(getobj(array [ (attr indexType) ] (attr baseType)));
+    if arrayType = void then
+      global
+      arrayType := newtype;
+      IN_PARAM_IS_REFERENCE(arrayType);
+      stdArrayType := array baseType;
+      tupleType := tuple(baseType);
+      const type: array [ (attr indexType) ] (attr baseType) is                  arrayType;
+      const type: base_type (attr arrayType) is                                  baseType;
+      const proc: (ref arrayType param) ::= (in arrayType param) is              action "ARR_CREATE";
+      const proc: destroy (ref arrayType param) is                               action "ARR_DESTR";
+      const proc: (inout arrayType param) := (in arrayType param) is             action "ARR_CPY";
+      const proc: (inout arrayType param) &:= (in arrayType param) is            action "ARR_APPEND";
+
+      const func arrayType: (in arrayType param) & (in arrayType param) is       action "ARR_CAT";
+      const func integer: length (in arrayType param) is                         action "ARR_LNG";
+      const func stdArrayType: (attr stdArrayType) conv (in arrayType param) is  action "ARR_CONV";
+      const func arrayType: (attr arrayType) conv (in stdArrayType param) is     action "ARR_CONV";
+      const func tupleType: (attr tupleType) conv (in arrayType param) is        action "ARR_CONV";
+      const varfunc stdArrayType: (attr stdArrayType) conv (inout arrayType param) is action "TYP_VARCONV";
+      const arrayType: (attr arrayType) . value is                               arrayType conv (0 times baseType.value);
+
+      const func arrayType: [ (attr indexType) ] (in tupleType: arr_tuple) is
+        return arrayType conv ([ord(indexType.value)] arr_tuple);
+
+      const func arrayType: [ (attr indexType) ] (in baseType: base_elem) is
+        return arrayType conv ([ord(indexType.value)] base_elem);
+
+      const func baseType: (in arrayType: an_array) [ (in indexType: an_index) ] is
+        return stdArrayType conv an_array[ord(an_index)];
+
+      const varfunc baseType: (inout arrayType: an_array) [ (in indexType: an_index) ] is
+        return var stdArrayType conv an_array[ord(an_index)];
+
+      const func arrayType: (in arrayType: an_array) [ (in indexType: an_index) .. ] is
+        return arrayType conv (stdArrayType conv an_array[ord(an_index) .. ]);
+
+      const func arrayType: (in arrayType: an_array) [ .. (in indexType: an_index) ] is
+        return arrayType conv (stdArrayType conv an_array[ .. ord(an_index)]);
+
+      const func arrayType: (in arrayType: an_array) [ (in indexType: index1) .. (in indexType: index2) ] is
+        return arrayType conv (stdArrayType conv an_array[ord(index1) .. ord(index2)]);
+
+      const proc: for (inout baseType: variable) range (in arrayType: arr_obj) do
+          (in proc: statements) end for is func
+        local
+          var integer: number is 0;
+        begin
+          for number range 1 to length(arr_obj) do
+            variable := stdArrayType conv arr_obj[number];
+            statements;
+          end for;
+        end func;
+
+      if getobj((attr indexType) . first) <> NIL and
+          getobj((attr indexType) . last) <> NIL then
+
+        const func arrayType: (attr indexType) times (in baseType: base_value) is func
+          result
+            var arrayType: result is arrayType.value;
+          begin
+            result := arrayType conv (succ(ord(indexType.last) - ord(indexType.first)) times base_value);
+            result := arrayType conv ([ord(indexType.first)] (tupleType conv result));
+          end func;
+
+      end if;
+(*
+PRINT(str(arrayType));
+PRINT(" = array [");
+PRINT(str(indexType));
+PRINT("] ");
+PRINT(str(baseType));
+PRINT("\n");
+*)
+      end global;
+    end if;
+  end func;
+
+const type: test_x is array [char] string;
+const type: test_y is array [char] string;
+const type: test_z is array [integer] string;
+
+
+(* LIST
+
+const func type: list (in type: baseType) is func
+  result
+    var type: LST is void;
+  local
+    var type: tupleType is void;
+  begin
+    LST := get_type(getobj(list (attr baseType)));
+    if LST = void then
+      global
+      LST := newtype;
+      IN_PARAM_IS_REFERENCE(LST);
+      tupleType := tuple(baseType);
+      const type: list (attr baseType) is                                        LST;
+      const type: base_type (attr LST) is                                        baseType;
+      const proc: (ref LST param) ::= (in LST param) is                          action "LST_CREATE";
+      const proc: destroy (ref LST param) is                                     action "LST_DESTR";
+      const proc: (inout LST param) := (in LST param) is                         action "LST_CPY";
+      const proc: (inout LST param) &:= (in LST param) is                        action "LST_APPEND";
+
+      const func LST: [] (in tupleType param) is                                 action "LST_LSTLIT";
+      const func LST: [] (in baseType param) is                                  action "LST_BASELIT";
+      const func LST: [ (in integer param) ] (in tupleType param) is             action "LST_LSTLIT2";
+      const func LST: [ (in integer param) ] (in baseType param) is              action "LST_BASELIT2";
+
+      const func LST: (in LST param) & (in LST param) is                         action "LST_CAT";
+      const func baseType: (in LST param) [ (in integer param) ] is              action "LST_IDX";
+      const varfunc baseType: (inout LST param) [ (in integer param) ] is        action "LST_IDX";
+      const func LST: (in LST param) [ (in integer param) .. ] is                action "LST_TAIL";
+      const func LST: (in LST param) [ .. (in integer param) ] is                action "LST_HEAD";
+      const func LST: (in LST param) [ (in integer param) ..
+                                       (in integer param) ] is                   action "LST_RANGE";
+      const func integer: length (in LST param) is                               action "LST_LNG";
+      const func LST: (in integer param) times (in baseType param) is            action "LST_TIMES";
+      const LST: (attr LST) . value is                                           0 times baseType.value;
+      end global;
+    end if;
+  end func;
+*)
+
+
+(* HASH *)
+
+const func type: hash [ (in type: keyType) ] (in type: baseType) is func
+  result
+    var type: hashType is void;
+  begin
+    hashType := get_type(getobj(hash [ (attr keyType) ] (attr baseType)));
+    if hashType = void then
+      global
+      hashType := newtype;
+      IN_PARAM_IS_REFERENCE(hashType);
+      const type: hash [ (attr keyType) ] (attr baseType) is                     hashType;
+      const type: base_type (attr hashType) is                                   baseType;
+
+      const reference: (attr hashType) . keyCreate   is getobj((ref keyType param) ::= (in keyType param));
+      const reference: (attr hashType) . keyDestroy  is getobj(destroy(ref keyType param));
+      const reference: (attr hashType) . dataCreate  is getobj((ref baseType param) ::= (in baseType param));
+      const reference: (attr hashType) . dataDestroy is getobj(destroy(ref baseType param));
+      const reference: (attr hashType) . dataCopy    is getobj((inout baseType param) := (in baseType param));
+      const reference: (attr hashType) . cmp_func    is getobj(compare(in keyType param, in keyType param));
+
+      const proc: CREATE (ref hashType param, in hashType param,
+                          in reference param, in reference param,
+                          in reference param, in reference param) is             action "HSH_CREATE";
+      const proc: DESTROY (ref hashType param, in reference param,
+                           in reference param) is                                action "HSH_DESTR";
+      const proc: COPY (inout hashType param, in hashType param,
+                        in reference param, in reference param,
+                        in reference param, in reference param) is               action "HSH_CPY";
+
+      const proc: (ref hashType: dest) ::= (in hashType: source) is func
+        begin
+          CREATE(dest, source, hashType.keyCreate, hashType.keyDestroy,
+              hashType.dataCreate, hashType.dataDestroy);
+        end func;
+
+      const proc: destroy (ref hashType: oldHash) is func
+        begin
+          DESTROY(oldHash, hashType.keyDestroy, hashType.dataDestroy);
+        end func;
+
+      const proc: (inout hashType: dest) := (in hashType: source) is func
+        begin
+          COPY(dest, source, hashType.keyCreate, hashType.keyDestroy,
+              hashType.dataCreate, hashType.dataDestroy);
+        end func;
+
+      const func integer: length (in hashType param) is                          action "HSH_LNG";
+      const func baseType: INDEX (in hashType param, in keyType param,
+                                  in integer param, in reference param) is       action "HSH_IDX";
+      const varfunc baseType: INDEX (inout hashType param, in keyType param,
+                                       in integer param, in reference param) is  action "HSH_IDX";
+
+      const func baseType: INDEX2 (in hashType param, in keyType param,
+                                   in baseType param, in integer param,
+                                   in reference param, in reference param,
+                                   in reference param) is                        action "HSH_IDX2";
+      const varfunc baseType: INDEX2 (inout hashType param, in keyType param,
+                                      in baseType param, in integer param,
+                                      in reference param, in reference param,
+                                      in reference param) is                     action "HSH_IDX2";
+
+      const func ptr baseType: REFINDEX (in hashType param, in keyType param,
+                                         in integer param, in reference param) is action "HSH_REFIDX";
+      const proc: INCL (inout hashType param, in keyType param,
+                        in baseType param, in integer param,
+                        in reference param, in reference param,
+                        in reference param, in reference param) is               action "HSH_INCL";
+      const proc: EXCL (inout hashType param, in keyType param,
+                        in integer param, in reference param,
+                        in reference param, in reference param) is               action "HSH_EXCL";
+(*
+      const func ptr baseType: @ (in hashType param) [ (in string param) ] is    action "HSH_REFIDX";
+      const func varptr baseType: @ (inout hashType param) [ (in string param) ] is action "HSH_REFIDX";
+      const varfunc baseType: table (inout hashType param, in baseType param) is action "HSH_NEW";
+      const func baseType: free (inout hashType param, in baseType param) is     action "HSH_FREE";
+*)
+      const func boolean: CONTAINS (in hashType param, in keyType param,
+                                    in integer param, in reference param) is     action "HSH_CONTAINS";
+(*
+      const func hashType: (attr hashType) conv (in hashType param) is           action "HSH_CONV";
+      const varfunc hashType: (attr hashType) conv (inout hashType param) is     action "TYP_VARCONV";
+*)
+      const func hashType: (attr hashType) . _GENERATE_EMPTY_HASH is             action "HSH_EMPTY";
+      const hashType: (attr hashType) . EMPTY_HASH is                            hashType._GENERATE_EMPTY_HASH;
+
+      const func baseType: (in hashType: aHash) [ (in keyType: aKey) ] is
+        return INDEX(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+
+      const varfunc baseType: (inout hashType: aHash) [ (in keyType: aKey) ] is
+        return var INDEX(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+
+      const func boolean: (in keyType: aKey) in (in hashType: aHash) is
+        return CONTAINS(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+
+      const func boolean: (in keyType: aKey) not in (in hashType: aHash) is
+        return not CONTAINS(aHash, aKey, hashCode(aKey), hashType.cmp_func);
+
+      const proc: incl (inout hashType: aHash, in keyType: aKey, in baseType: anElem) is func
+        begin
+          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.cmp_func,
+              hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
+        end func;
+
+      const proc: excl (inout hashType: aHash, in keyType: aKey) is func
+        begin
+          EXCL(aHash, aKey, hashCode(aKey), hashType.cmp_func,
+              hashType.keyDestroy, hashType.dataDestroy);
+        end func;
+
+      const proc: (inout hashType: aHash) @:= [ (in keyType: aKey) ] (in baseType: anElem) is func
+        begin
+          INCL(aHash, aKey, anElem, hashCode(aKey), hashType.cmp_func,
+              hashType.keyCreate, hashType.dataCreate, hashType.dataCopy);
+        end func;
+
+(*
+      const proc: clear (inout hashType: aHash) is func
+        local
+          var baseType: anElem is baseType.value;
+        begin
+          for anElem range source do
+            excl(dest, anElem);
+          end for;
+        end func;
+*)
+      end global;
+    end if;
+  end func;
+
+(*
+const type: TEST_100 is hash [string] integer;
+const type: TEST_101 is hash [integer] string;
+const type: TEST_102 is hash [char] boolean;
+const type: TEST_103 is hash [string] reference;
+*)
+(*
+var TEST_100: TEST_HASH is TEST_100.EMPTY_HASH;
+incl(TEST_HASH, "asdf", 25);
+incl(TEST_HASH, "gold", 1000);
+PRINT(str(TEST_HASH["asdf"]));
+PRINT(str(TEST_HASH["gold"]));
+PRINT(str(TEST_HASH["silver"]));
+var TEST_100: TEST_HASH2 is TEST_HASH;
+excl(TEST_HASH, "gold");
+PRINT(str(TEST_HASH["gold"]));
+PRINT(str(TEST_HASH2["gold"]));
+*)
+
+
+(* SET *)
+
+const type: bitset is subtype object;
+IN_PARAM_IS_REFERENCE(bitset);
+
+const proc: (ref bitset param) ::= (in bitset param) is            action "SET_CREATE";
+const proc: destroy (ref bitset param) is                          action "SET_DESTR";
+const proc: (inout bitset param) := (in bitset param) is           action "SET_CPY";
+const func bitset: (in bitset param) | (in bitset param) is        action "SET_UNION";
+const func bitset: (in bitset param) >< (in bitset param) is       action "SET_SYMDIFF";
+const func bitset: (in bitset param) & (in bitset param) is        action "SET_INTERSECT";
+const func bitset: (in bitset param) - (in bitset param) is        action "SET_DIFF";
+const func boolean: (in bitset param) = (in bitset param) is       action "SET_EQ";
+const func boolean: (in bitset param) <> (in bitset param) is      action "SET_NE";
+const func boolean: (in bitset param) < (in bitset param) is       action "SET_LT";
+const func boolean: (in bitset param) <= (in bitset param) is      action "SET_LE";
+const func boolean: (in bitset param) > (in bitset param) is       action "SET_GT";
+const func boolean: (in bitset param) >= (in bitset param) is      action "SET_GE";
+const func boolean: (in integer param) in (in bitset param) is     action "SET_ELEM";
+const func boolean: (in integer param) not in (in bitset param) is action "SET_NOT_ELEM";
+const proc: incl (inout bitset param, in integer param) is         action "SET_INCL";
+const proc: excl (inout bitset param, in integer param) is         action "SET_EXCL";
+const func integer: card (in bitset param) is                      action "SET_CARD";
+const func integer: min (in bitset param) is                       action "SET_MIN";
+const func integer: max (in bitset param) is                       action "SET_MAX";
+const func bitset: { (in integer: value) } is                      action "SET_BASELIT";
+
+const func bitset: _GENERATE_EMPTY_SET is                          action "SET_EMPTY";
+const bitset: EMPTY_SET is                                         _GENERATE_EMPTY_SET;
+const bitset: (attr bitset) . EMPTY_SET is                         EMPTY_SET;
+
+const func bitset: { (in tuple integer: value) } is func
+  result
+    var bitset: result is EMPTY_SET;
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length([] value) do
+      incl(result, ([] value)[number]);
+    end for;
+  end func;
+
+const proc: for (inout integer: variable) range (in bitset: a_set) do
+              (in proc: statements)
+            end for is func
+  begin
+    if card(a_set) > 0 then
+      for variable range min(a_set) to max(a_set) do
+        if variable in a_set then
+          statements;
+        end if;
+      end for;
+    end if;
+  end func;
+
+const type: set of (attr integer) is bitset;
+
+
+const func type: set of (in type: baseType) is func
+  result
+    var type: setType is void;
+  local
+    var type: tupleType is void;
+    var type: array_type is void;
+  begin
+    setType := get_type(getobj(set of (attr baseType)));
+    if setType = void then
+      global
+      setType := newtype;
+      IN_PARAM_IS_REFERENCE(setType);
+      const type: set of (attr baseType) is                                 setType;
+      const type: base_type (attr setType) is                               baseType;
+      const proc: (ref setType param) ::= (in setType param) is             action "SET_CREATE";
+      const proc: destroy (ref setType param) is                            action "SET_DESTR";
+      const proc: (inout setType param) := (in setType param) is            action "SET_CPY";
+      const func setType: (in setType param) | (in setType param) is        action "SET_UNION";
+      const func setType: (in setType param) >< (in setType param) is       action "SET_SYMDIFF";
+      const func setType: (in setType param) & (in setType param) is        action "SET_INTERSECT";
+      const func setType: (in setType param) - (in setType param) is        action "SET_DIFF";
+      const func boolean: (in setType param) = (in setType param) is        action "SET_EQ";
+      const func boolean: (in setType param) <> (in setType param) is       action "SET_NE";
+      const func boolean: (in setType param) < (in setType param) is        action "SET_LT";
+      const func boolean: (in setType param) <= (in setType param) is       action "SET_LE";
+      const func boolean: (in setType param) > (in setType param) is        action "SET_GT";
+      const func boolean: (in setType param) >= (in setType param) is       action "SET_GE";
+      const func integer: card (in setType param) is                        action "SET_CARD";
+      const func bitset: (attr bitset) conv (in setType param) is           action "SET_CONV";
+      const varfunc bitset: (attr bitset) var_conv (inout setType param) is action "TYP_VARCONV";
+      const func setType: (attr setType) conv (in bitset param) is          action "SET_CONV";
+      const setType: (attr setType) . EMPTY_SET is                          setType conv EMPTY_SET;
+
+      const func boolean: (in baseType: set_elem) in (in setType: a_set) is
+        return ord(set_elem) in bitset conv a_set;
+
+      const func boolean: (in baseType: set_elem) not in (in setType: a_set) is
+        return ord(set_elem) not in bitset conv a_set;
+
+      const proc: incl (inout setType: a_set, in baseType: set_elem) is func
+        begin
+          incl(bitset var_conv a_set, ord(set_elem));
+        end func;
+
+      const proc: excl (inout setType: a_set, in baseType: set_elem) is func
+        begin
+          excl(bitset var_conv a_set, ord(set_elem));
+        end func;
+
+      const func baseType: min (in setType: a_set) is
+        return baseType conv min(bitset conv a_set);
+
+      const func baseType: max (in setType: a_set) is
+        return baseType conv max(bitset conv a_set);
+
+      const func setType: { (in baseType: value) } is
+        return setType conv ( { ord(value) } );
+
+      tupleType := tuple baseType;
+      array_type := array baseType;
+
+      const func setType: { (in tupleType: value) } is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var integer: number is 0;
+        begin
+          for number range 1 to length([] value) do
+            incl(result, ([] value)[number]);
+          end for;
+        end func;
+
+      const func setType: { (in baseType: lower_value) .. (in baseType: upper_value) } is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var baseType: value is baseType.value;
+        begin
+          for value range lower_value to upper_value do
+            incl(result, value);
+          end for;
+        end func;
+
+      const proc: for (inout baseType: variable) range (in setType: a_set) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          if card(a_set) > 0 then
+            for variable range min(a_set) to max(a_set) do
+              if variable in a_set then
+                statements;
+              end if;
+            end for;
+          end if;
+        end func;
+
+      if getobj(str(ref baseType param)) <> NIL then
+        const func string: str (in setType: a_set) is func
+          result
+            var string: result is "{";
+          local
+            var baseType: setElement is baseType.value;
+          begin
+            for setElement range a_set do
+              if result <> "{" then
+                result &:= ", ";
+              end if;
+              result &:= str(setElement);
+            end for;
+            result &:= "}";
+          end func;
+
+      end if;
+      end global;
+    end if;
+  end func;
+
+const type: TEST_A is set of integer;
+const type: TEST_B is set of char;
+const type: TEST_C is set of char;
+const type: TEST_D is set of boolean;
+
+const set of char: alpha is {'A' .. 'Z'} | {'a' .. 'z'};
+const set of char: alnum is {'A' .. 'Z'} | {'a' .. 'z'} | {'0' .. '9'};
+const set of char: digit is {'0' .. '9'};
+
+
+(* STRUCT *)
+
+const type: STRUCT is newtype;
+IN_PARAM_IS_REFERENCE(STRUCT);
+const proc: (ref STRUCT param) ::= (in STRUCT param) is                         action "SCT_CREATE";
+const proc: destroy (ref STRUCT param) is                                       action "SCT_DESTR";
+const proc: (inout STRUCT param) := (in STRUCT param) is                        action "SCT_CPY";
+const func integer: length (in STRUCT param) is                                 action "SCT_LNG";
+(* const func STRUCT: elem (in type param) : (in expr param) is (in expr param) is action "SCT_ELEM"; *)
+const func STRUCT: (in STRUCT param) & (in STRUCT param) is                     action "SCT_CAT";
+const proc: incl (inout STRUCT param, in reference param) is                    action "SCT_INCL";
+const func STRUCT: empty (attr STRUCT) is                                       action "SCT_EMPTY";
+
+(* const func reference: (in STRUCT param) [ (in integer param) ] is               action "SCT_REFIDX"; *)
+
+const func ref_list: declare_elements (ref proc param) is                       action "DCL_ELEMENTS";
+
+(*
+const proc: (attr integer) <- ( (in integer param) ) is noop;
+integer<-(1);
+*)
+
+const func type: new struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := newtype;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    CURR_STRUCT_PTR := ptrType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        (* TRACE(elem_obj); PRINT("\n"); *)
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is                     structType conv struct_value;
+  end func;
+
+const func type: new struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := newtype;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
+  end func;
+
+const func type: new (in type: baseType) struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const structType: (attr structType) . value is                     structType conv struct_value;
+  end func;
+
+const func type: new (in type: baseType) struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is                     structType conv empty(STRUCT);
+  end func;
+
+const func type: sub (in type: baseType) struct (ref proc: elem_decl) end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    elem_list := declare_elements(elem_decl);
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+(* PRINT(str(length(elem_list)));
+PRINT("\n"); *)
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+(* PRINT(str(number));
+PRINT(": ");
+TRACE(elem_obj);
+PRINT("\n");
+if number <= 6 then *)
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout structType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+(* end if; *)
+      end if;
+    end for;
+    const structType: (attr structType) . value is      structType conv (STRUCT conv (baseType.value) & struct_value);
+  end func;
+
+const func type: sub (in type: baseType) struct end struct is func
+  result
+    var type: structType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+  begin
+    structType := subtype baseType;
+    IN_PARAM_IS_REFERENCE(structType);
+    ptrType := ptr structType;
+    varptrType := varptr structType;
+    const proc: (ref structType param) ::= (in structType param) is    action "SCT_CREATE";
+    const proc: destroy (ref structType param) is                      action "SCT_DESTR";
+    const proc: (inout structType param) := (in structType param) is   action "SCT_CPY";
+    const func ptrType: alloc (in structType param) is                 action "SCT_ALLOC";
+    const func varptrType: varalloc (in structType param) is           action "SCT_ALLOC";
+    const func structType: (attr structType) conv (in STRUCT param) is action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in structType param) is     action "SCT_CONV";
+    const structType: (attr structType) . value is     structType conv (STRUCT conv (baseType.value));
+  end func;
+
+(* body *)
+(*
+const proc: body (ref type: STRU) is (ref expr: DECLS) end body is func
+  begin
+    const proc: DECL_BODY (attr STRU) is func
+        DECLS;
+      end func;
+    DECL_BODY(STRU);
+  end func;
+*)
+
+(* CLASS *)
+
+const func type: new class (ref proc: elem_decl) end class is func
+  result
+    var type: classType is void;
+  local
+    var type: ptrType is void;
+    var type: varptrType is void;
+    var ref_list: elem_list is ref_list.EMPTY;
+    var STRUCT: struct_value is empty(STRUCT);
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    classType := newtype;
+    IN_PARAM_IS_REFERENCE(classType);
+    ptrType := ptr classType;
+    CURR_STRUCT_PTR := ptrType;
+    varptrType := varptr classType;
+    elem_list := declare_elements(elem_decl);
+    const func boolean: (ref classType param) = (ref classType param) is         action "ENU_EQ";
+    const func boolean: (ref classType param) <> (ref classType param) is        action "ENU_NE";
+
+    const proc: (ref classType param) ::= (in classType param) is                action "SCT_CREATE";
+    const proc: destroy (ref classType param) is                                 action "SCT_DESTR";
+    const proc: (inout classType param) := (in classType param) is               action "SCT_CPY";
+    const func ptrType: alloc (in classType param) is                            action "SCT_ALLOC";
+    const func varptrType: varalloc (in classType param) is                      action "SCT_ALLOC";
+    const func classType: (attr classType) conv (in STRUCT param) is             action "SCT_CONV";
+    const func STRUCT: (attr STRUCT) conv (in classType param) is                action "SCT_CONV";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      if is_symb(elem_obj) then
+        (* TRACE(elem_obj); PRINT("\n"); *)
+        incl(struct_value, elem_obj);
+        const func    getType(elem_obj):    (in classType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const varfunc getType(elem_obj): (inout classType param) .  (symb elem_obj) is action "SCT_SELECT";
+        const func    getType(elem_obj):    (in ptrType    param) -> (symb elem_obj) is action "REF_SELECT";
+        const varfunc getType(elem_obj):    (in varptrType param) -> (symb elem_obj) is action "REF_SELECT";
+      end if;
+    end for;
+    const classType: (attr classType) . value is                     classType conv struct_value;
+  end func;
+
+(*
+const func type: MAKE_CLASS (ref type: STRU) is func
+  result
+    var type: CLS is void;
+  local
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    CLS := newtype;
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      const func getType(elem_obj): (ref CLS param) . (symb elem_obj) is  action "CLS_SELECT";
+    end for;
+    const proc: (ref CLS param) ::= (ref CLS param) is          action "CLS_CREATE";
+    const proc: (ref CLS param) ::= (ref STRU param) is         action "CLS_CREATE2";
+    const proc: (inout CLS param) := (ref CLS param) is         action "CLS_CPY";
+    const proc: (inout CLS param) := (ref STRU param) is        action "CLS_CPY2";
+    const proc: (ref CLS param) = (ref CLS param) is            action "CLS_EQ";
+    const proc: (ref CLS param) <> (ref CLS param) is           action "CLS_NE";
+    const func type: (attr CLS) . struct_type is                STRU;
+  end func;
+
+const func type: new class (ref STRUCT: elem_list) end class is func
+  result
+    var type: CLS is void;
+  local
+    var type: STRU is void;
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+  begin
+    CLS := newtype;
+    STRU := newtype;
+    const proc: (ref func STRU param) ::= (ref STRUCT param) is action "SCT_CREATE";
+    const func STRU: (attr STRU) . value is                     elem_list;
+    const func STRU: (attr CLS) . value is                      elem_list;
+    const func STRUCT: (ref STRU param) & (ref STRUCT param) is action "SCT_CAT";
+    const proc: (ref STRU param) ::= (ref STRU param) is        action "SCT_CREATE";
+    const proc: (inout STRU param) := (ref STRU param) is       action "SCT_CPY";
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      const func getType(elem_obj): (ref STRU param) . (symb elem_obj) is action "SCT_SELECT";
+      const func getType(elem_obj): (ref CLS param) . (symb elem_obj) is  action "CLS_SELECT";
+    end for;
+    const proc: (ref CLS param) ::= (ref CLS param) is          action "CLS_CREATE";
+    const proc: (ref CLS param) ::= (ref STRU param) is         action "CLS_CREATE2";
+    const proc: (inout CLS param) := (ref CLS param) is         action "CLS_CPY";
+    const proc: (inout CLS param) := (ref STRU param) is        action "CLS_CPY2";
+    const proc: (ref CLS param) = (ref CLS param) is            action "CLS_EQ";
+    const proc: (ref CLS param) <> (ref CLS param) is           action "CLS_NE";
+    const func type: (attr CLS) . struct_type is                STRU;
+  end func;
+*)
+
+const type: linkedList is new struct
+    var reference: next is NIL;
+  end struct;
+
+
+const proc: type_implements_interface (in type: aType, in type: interfaceType) is func
+  begin
+    const proc: (ref interfaceType param) ::= (ref aType param) is           action "CLS_CREATE2";
+    const proc: (inout interfaceType param) := (ref aType param) is          action "CLS_CPY2";
+    const func interfaceType: (attr interfaceType) conv (ref aType param) is action "CLS_CONV2";
+  end func;
+
+
+(* LIST *)
+
+const type: LIST is           subtype INDEXABLE;
+IN_PARAM_IS_REFERENCE(LIST);
+
+const proc: destroy (ref LIST param) is                         action "LST_DESTR";
+const proc: (ref LIST param) ::= (ref LIST param) is            action "LST_CREATE";
+
+const proc: (inout LIST param) := (ref LIST param) is           action "LST_CPY";
+const func LIST: (ref LIST param) & (ref LIST param) is         action "LST_CAT";
+const func object: (ref LIST param) [ (ref integer param) ] is  action "LST_IDX";
+const func LIST: (ref LIST param) [ (ref integer param) .. ] is action "LST_TAIL";
+const func LIST: (ref LIST param) [ .. (ref integer param) ] is action "LST_HEAD";
+const func integer: length (ref LIST param) is                  action "LST_LNG";
+
+const func LIST: _GENERATE_EMPTY_LIST is                        action "LST_EMPTY";
+const LIST: (attr LIST) . EMPTY is                              _GENERATE_EMPTY_LIST;
+
+(* const proc: object in (ref LIST param) is        action "LST_ELEM"; *)
+const proc: incl(ref LIST param, ref object param) is    action "LST_INCL";
+const proc: excl(ref LIST param, ref object param) is    action "LST_EXCL";
+
+(* const proc: INDEX_EXPR := (ref LIST param) is action "LST_CPY"; *)
+
+(*
+const proc: for (inout object: variable) range (ref LIST: obj_list) do
+    (ref proc: statements) end for is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(obj_list) do
+      variable := obj_list[number];
+      statements;
+    end for;
+  end func;
+
+const proc: str (ref LIST: aList) is func
+  result
+    var string: result is "";
+  local
+    var reference: obj is NIL;
+    var boolean: FIRST_OBJ is TRUE;
+  begin
+    result := "{";
+    for obj range aList do
+      if FIRST_OBJ then
+        FIRST_OBJ := FALSE;
+      else
+        result := result & ", ";
+      end if;
+      result := result & str(obj);
+    end for;
+    result := result & "}";
+  end func;
+
+const proc: literal (ref LIST: aList) is func
+  result
+    var string: result is "";
+  local
+    var reference: obj is NIL;
+    var boolean: FIRST_OBJ is TRUE;
+  begin
+    result := "{";
+    for obj range aList do
+      if FIRST_OBJ then
+        FIRST_OBJ := FALSE;
+      else
+        result := result & ", ";
+      end if;
+      result := result & str(obj);
+    end for;
+    result := result & "}";
+  end func;
+*)
+
+
+(* INDEXABLE *)
+
+const func integer: length (ref INDEXABLE param) is DYNAMIC;
+const func object: (ref INDEXABLE param) [ (ref integer param) ] is DYNAMIC;
+
+(*
+const func boolean: (ref object: obj) in (ref INDEXABLE: AREA1) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(AREA1) do
+      if obj = AREA1[number] then
+        result := TRUE;
+      end if;
+    end for;
+  end func;
+
+const func boolean: (ref INDEXABLE: AREA1) = (ref INDEXABLE: AREA2) is func
+  result
+    var boolean: result is TRUE;
+  local
+    var integer: leng is 0;
+    var integer: INDEX is 1;
+  begin
+    leng := length(AREA1);
+    if leng <> length(AREA2) then
+      result := FALSE;
+    else
+      for INDEX range 1 to leng do
+        if AREA1[INDEX] <> AREA2[INDEX] then
+          result := FALSE;
+        end if;
+      end for;
+    end if;
+  end func;
+
+const func boolean: (ref INDEXABLE: AREA1) <> (ref INDEXABLE: AREA2) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var integer: leng is 0;
+    var integer: INDEX is 1;
+  begin
+    leng := length(AREA1);
+    if leng <> length(AREA2) then
+      result := TRUE;
+    else
+      for INDEX range 1 to leng do
+        if AREA1[INDEX] = AREA2[INDEX] then
+          result := TRUE;
+        end if;
+      end for;
+    end if;
+  end func;
+*)
+
+(* CASE_DECLS *)
+
+const proc: CASE_DECLS (in type: aType) is func
+  local
+    var type: WHEN_RESULT is void;
+    var type: WHEN_PROC is void;
+    var type: SELECTOR_TYPE is void;
+  begin
+(*    PRINT("in CASE_DECLS "); PRINT(str(aType)); PRINT("\n"); *)
+    WHEN_RESULT := newtype;
+    WHEN_PROC := (func WHEN_RESULT);
+    SELECTOR_TYPE := set of aType;
+    const proc: case (ref aType param) of end case                       is noop;
+    const proc: case (ref aType param) of
+                  (ref WHEN_PROC param)
+                end case                                                 is action "PRC_CASE";
+    const proc: case (ref aType param) of
+                  (ref WHEN_PROC param)
+                  otherwise : (ref proc param)
+                end case                                                 is action "PRC_CASE_DEF";
+    const proc: (ref WHEN_RESULT param) ::= enumlit                      is action "ENU_GENLIT";
+    const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
+    const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)        is action "ENU_CREATE";
+    const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)   is WHEN_EMPTY(aType);
+    const WHEN_PROC: when (ref SELECTOR_TYPE param) : (ref proc param)
+                       (ref WHEN_PROC param)                             is WHEN_EMPTY(aType);
+  end func;
+
+CASE_DECLS(integer);
+CASE_DECLS(char);
+(* CASE_DECLS(string); *)
+
+const func ref_list: expr_to_list (ref expr: elem_expr) is action "RFL_EXPR";
+const proc: TRACE (ref expr param) is                      action "REF_TRACE";
+
+const func type: new enum (ref expr: elem_expr) end enum is func
+  result
+    var type: enumType is void;
+  local
+    var ref_list: elem_list is ref_list.EMPTY;
+    var integer: number is 0;
+    var reference: elem_obj is NIL;
+    var ref_list: literal_list is ref_list.EMPTY;
+  begin
+    enumType := subtype ENUMERATION;
+    IN_PARAM_IS_REFERENCE(enumType);
+    elem_list := expr_to_list(elem_expr);
+    const proc: (ref enumType param) ::= (in enumType param) is        action "ENU_CREATE";
+    const proc: (ref enumType param) ::= enumlit is                    action "ENU_GENLIT";
+    const proc: destroy (ref enumType param) is                        noop;
+    const proc: (inout enumType param) := (in enumType param) is       action "ENU_CPY";
+    const func boolean: (in enumType param) = (in enumType param) is   action "ENU_EQ";
+    const func boolean: (in enumType param) <> (in enumType param) is  action "ENU_NE";
+    const func enumType: (attr enumType) value (in reference param) is action "ENU_VALUE";
+    const func integer: ord (in enumType param) is                     DYNAMIC;
+    literal_list := ref_list.EMPTY;
+    for number range 1 to length(elem_list) do
+      elem_obj := elem_list[number];
+      const integer: ord(symb elem_obj) is pred(number);
+      const enumType: .(symb elem_obj) is enumlit;
+      elem_obj := getobj(. (symb elem_obj));
+      if elem_obj <> NIL and getType(elem_obj) = enumType then
+        literal_list := literal_list & make_list(elem_obj);
+      end if;
+    end for;
+    const ref_list: (attr enumType) . literal_list is                literal_list;
+    if length(literal_list) >= 1 then
+      const enumType: (attr enumType) . value is   enumType value (literal_list[1]);
+      const enumType: (attr enumType) . first is   enumType value (literal_list[1]);
+      const enumType: (attr enumType) . last is    enumType value (literal_list[length(literal_list)]);
+    end if;
+
+    const func enumType: (attr enumType) conv (in integer: number) is
+      return enumType value (enumType.literal_list[succ(number)]);
+
+    const func integer: (attr integer) conv (in enumType: enum_val) is
+      return ord(enum_val);
+
+    const func enumType: succ (ref enumType: enum_val) is
+      return enumType conv succ(ord(enum_val));
+
+    const func enumType: pred (ref enumType: enum_val) is
+      return enumType conv pred(ord(enum_val));
+
+    const proc: incr (inout enumType: enum_val) is func
+      begin
+        enum_val := succ(enum_val);
+      end func;
+
+    const proc: decr (inout enumType: enum_val) is func
+      begin
+        enum_val := pred(enum_val);
+      end func;
+
+    const func boolean: (in enumType: enum_val1) < (in enumType: enum_val2) is
+      return ord(enum_val1) < ord(enum_val2);
+
+    const func boolean: (in enumType: enum_val1) <= (in enumType: enum_val2) is
+      return ord(enum_val1) <= ord(enum_val2);
+
+    const func boolean: (in enumType: enum_val1) > (in enumType: enum_val2) is
+      return ord(enum_val1) > ord(enum_val2);
+
+    const func boolean: (in enumType: enum_val1) >= (in enumType: enum_val2) is
+      return ord(enum_val1) >= ord(enum_val2);
+
+    FOR_DECLS(enumType);(* Necessary for this is <= < >= > *)
+    CASE_DECLS(enumType);
+  end func;
+
+
+(* COLOR *)
+
+const type: color is new struct
+    var integer: red_part is 0;
+    var integer: green_part is 0;
+    var integer: blue_part is 0;
+  end struct;
+
+
+const func boolean: (in color: col1) = (in color: col2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result := col1.red_part = col2.red_part and
+        col1.green_part = col2.green_part and
+        col1.blue_part = col2.blue_part;
+  end func;
+
+
+const func boolean: (in color: col1) <> (in color: col2) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result := col1.red_part <> col2.red_part or
+        col1.green_part <> col2.green_part or
+        col1.blue_part <> col2.blue_part;
+  end func;
+
+
+const func color: (in color: col1) + (in color: col2) is func
+  result
+    var color: result is color.value;
+  begin
+    result.red_part :=   (col1.red_part   + col2.red_part)   div 2;
+    result.green_part := (col1.green_part + col2.green_part) div 2;
+    result.blue_part :=  (col1.blue_part  + col2.blue_part)  div 2;
+  end func;
+
+
+const func color: color (in integer: red, in integer: green, in integer: blue) is func
+  result
+    var color: result is color.value;
+  begin
+    result.red_part := red;
+    result.green_part := green;
+    result.blue_part := blue;
+  end func;
+
+
+(* BLOCK *)
+
+const proc: BLOCK_DECLS (in type: unusedType) is func
+  local
+    var type: CATCH_RESULT is void;
+    var type: CATCH_PROC is void;
+  begin
+(*    PRINT("in BLOCK_DECLS\n"); *)
+    CATCH_RESULT := new enum CATCH_EMPTY end enum;
+    CATCH_PROC := (func CATCH_RESULT);
+    const proc: block (ref proc param) exception end block               is noop;
+    const proc: block (ref proc param) exception
+                  (ref CATCH_PROC param)
+                end block                                                is action "PRC_BLOCK";
+    (*const proc: block (ref proc param) exception
+                  (ref CATCH_PROC param)
+                  otherwise : (ref proc param)
+                end block                                                is action "PRC_BLOCK_DEF"; *)
+    const proc: (ref CATCH_PROC param) ::= (ref CATCH_RESULT param)      is action "ENU_CREATE";
+    const CATCH_PROC: catch (ref EXCEPTION param) : (ref proc param)     is CATCH_RESULT.value;
+    const CATCH_PROC: catch (ref EXCEPTION param) : (ref proc param)
+                       (ref CATCH_PROC param)                            is CATCH_RESULT.value;
+  end func;
+
+BLOCK_DECLS(void);
+
+
+(* Set of operations for the PRIMITIVE_FILE *)
+
+const proc: (inout PRIMITIVE_FILE param) := (ref PRIMITIVE_FILE param) is       action "FIL_CPY";
+const func boolean: (ref PRIMITIVE_FILE param) = (ref PRIMITIVE_FILE param) is  action "FIL_EQ";
+const func boolean: (ref PRIMITIVE_FILE param) <> (ref PRIMITIVE_FILE param) is action "FIL_NE";
+const proc: (ref PRIMITIVE_FILE param) << (in string param) is                  action "FIL_WRITE";
+
+const func PRIMITIVE_FILE: PRIMITIVE_INPUT is         action "FIL_IN";
+const func PRIMITIVE_FILE: PRIMITIVE_OUTPUT is        action "FIL_OUT";
+const func PRIMITIVE_FILE: PRIMITIVE_ERROR is         action "FIL_ERR";
+const func PRIMITIVE_FILE: PRIMITIVE_NULL_FILE is     action "FIL_NIL";
+const func PRIMITIVE_FILE: PRIMITIVE_FILE_OPEN (in string param, in string param) is action "FIL_OPEN";
+const proc: close (ref PRIMITIVE_FILE param) is                           action "FIL_CLOSE";
+const func boolean: eof (ref PRIMITIVE_FILE param) is                     action "FIL_EOF";
+const proc: flush (ref PRIMITIVE_FILE param) is                           action "FIL_FLUSH";
+const func string: gets (ref PRIMITIVE_FILE param, ref integer param) is  action "FIL_STRI_READ";
+const func char: getc (ref PRIMITIVE_FILE param) is                       action "FIL_GETC";
+const func string: wrd_rd (ref PRIMITIVE_FILE param, inout char param) is action "FIL_WORD_READ";
+const func string: lin_rd (ref PRIMITIVE_FILE param, inout char param) is action "FIL_L_RD";
+const func integer: length (ref PRIMITIVE_FILE param) is                  action "FIL_LNG";
+const proc: seek (ref PRIMITIVE_FILE param, ref integer param) is         action "FIL_SEEK";
+const func integer: tell (ref PRIMITIVE_FILE param) is                    action "FIL_TELL";
+const proc: literal (ref PRIMITIVE_FILE param) is                         action "FIL_LIT";
+
+const char: EOF is chr(-1);
+
+(* Procedures and Elements granted for every file *)
+
+const type: file is           subtype object;
+const proc: destroy (ref file param) is             noop;
+const proc: (ref file param) ::= (ref file param) is               action "CLS_CREATE";
+const proc: (inout file param) := (ref file param) is              action "CLS_CPY";
+
+const func boolean: (ref file param) = (ref file param) is DYNAMIC;
+const func boolean: (ref file param) <> (ref file param) is DYNAMIC;
+const proc: (ref file param) << (in string param) is DYNAMIC;
+const proc: (ref file param) << NL is DYNAMIC;
+const proc: (ref file param) << BS is DYNAMIC;
+const proc: close (ref file param) is DYNAMIC;
+const proc: flush (ref file param) is DYNAMIC;
+const func file: malloc (ref file param) is DYNAMIC;
+const func char: getc (ref file param) is DYNAMIC;
+const func string: gets (ref file param, ref integer param) is DYNAMIC;
+const func string: getln (inout file param) is DYNAMIC;
+const func string: getwd (inout file param) is DYNAMIC;
+const func string: getk (ref file param) is DYNAMIC;
+const func boolean: eoln (ref file param) is DYNAMIC;
+const func boolean: eof (ref file param) is DYNAMIC;
+const func integer: length (ref file param) is DYNAMIC;
+const proc: seek (ref file param, ref integer param) is DYNAMIC;
+const func integer: tell (ref file param) is DYNAMIC;
+const func char: (ref file param).TERMINATION_CHAR is DYNAMIC;
+const varfunc char: (inout file param).TERMINATION_CHAR is DYNAMIC;
+const func boolean: (ref file param).io_empty is DYNAMIC;
+const varfunc boolean: (inout file param).io_empty is DYNAMIC;
+const func boolean: (ref file param).io_ok is DYNAMIC;
+const varfunc boolean: (inout file param).io_ok is DYNAMIC;
+
+const func boolean: io_ok (in file: aFile) is
+  return aFile.io_ok;
+
+const func boolean: io_error (in file: aFile) is
+  return not aFile.io_ok;
+
+const func boolean: io_empty (in file: aFile) is
+  return aFile.io_empty;
+
+const func boolean: io_filled (in file: aFile) is
+  return not aFile.io_empty;
+
+const proc: writeln (ref file: aFile) is func
+  begin
+    aFile << NL;
+  end func;
+
+const proc: readln (inout file: aFile) is func
+  local
+    var string: stri is "";
+  begin
+    stri := getln(aFile);
+    aFile.io_empty := stri = "";
+    aFile.io_ok := TRUE;
+  end func;
+
+
+(* NULL_FILE *)
+
+const type: NULL_FILE is new struct
+    var char: TERMINATION_CHAR is '\n';
+    var boolean: io_empty is FALSE;
+    var boolean: io_ok is TRUE;
+  end struct;
+
+type_implements_interface(NULL_FILE, file);
+
+const func boolean: (ref NULL_FILE param) = (ref NULL_FILE param) is   action "ENU_EQ";
+const func boolean: (ref NULL_FILE param) <> (ref NULL_FILE param) is  action "ENU_NE";
+
+const file: STD_NULL is NULL_FILE.value;
+const file: (attr file) . value is STD_NULL;
+
+const proc: (ref NULL_FILE param) << (in string param) is         noop;
+const string: gets (ref NULL_FILE param, ref integer param) is "";
+
+const func char: getc (ref NULL_FILE: aFile) is
+  return gets(aFile, 1)[1];
+
+const func string: getwd (inout NULL_FILE: aFile) is func
+  result
+    var string: stri is "";
+  local
+    var string: buffer is "";
+  begin
+    repeat
+      buffer := gets(file conv aFile, 1);
+    until buffer <> " " and buffer <> "\t";
+    while buffer <> " " and buffer <> "\t" and
+        buffer <> "\n" and buffer <> "" do
+      stri &:= buffer;
+      buffer := gets(file conv aFile, 1);
+    end while;
+    aFile.TERMINATION_CHAR := buffer[1];
+  end func;
+
+const func string: getln (inout NULL_FILE: aFile) is func
+  result
+    var string: stri is "";
+  local
+    var string: buffer is "";
+  begin
+    buffer := gets(file conv aFile, 1);
+    while buffer <> "\n" and buffer <> "" do
+      stri &:= buffer;
+      buffer := gets(file conv aFile, 1);
+    end while;
+    aFile.TERMINATION_CHAR := buffer[1];
+  end func;
+
+const boolean: eof (ref NULL_FILE param) is TRUE;
+
+const func boolean: eoln (ref NULL_FILE: aFile) is
+  return aFile.TERMINATION_CHAR = '\n';
+
+const integer: length (ref NULL_FILE param) is 0;
+
+const proc: seek (ref NULL_FILE param, ref integer param) is noop;
+
+const integer: tell (ref NULL_FILE param) is 1;
+
+const proc: (ref NULL_FILE: aFile) << NL is noop;
+
+const proc: (ref NULL_FILE: aFile) << BS is noop;
+
+const proc: (inout NULL_FILE: aFile) >> (inout string: stri) is func
+  begin
+    stri := getln(aFile);
+  end func;
+
+const proc: (ref NULL_FILE: aFile) >> (inout char: ch) is func
+  begin
+    ch := getc(aFile);
+  end func;
+
+const proc: close (ref NULL_FILE param) is noop;
+const proc: flush (ref NULL_FILE param) is noop;
+
+(* Set of operations for external_file *)
+
+const type: external_file is sub NULL_FILE struct
+    var PRIMITIVE_FILE: ext_file is PRIMITIVE_NULL_FILE;
+    var string: name is "";
+  end struct;
+
+(*
+const proc: (ref file param) ::= (ref external_file param) is          action "CLS_CREATE2";
+const proc: (inout file param) := (ref external_file param) is       action "CLS_CPY2";
+*)
+
+const func external_file: malloc (ref external_file: ext_file) is func
+  result
+    var external_file: result is external_file.value;
+  begin
+    result := ext_file;
+  end func;
+
+const func file: open (in string: file_name, in string: access) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+    var external_file: new_file is external_file.value;
+  begin
+    open_file := PRIMITIVE_FILE_OPEN(file_name, access);
+    if open_file <> PRIMITIVE_NULL_FILE then
+      new_file.ext_file := open_file;
+      new_file.name := file_name;
+      result := malloc(new_file);
+    end if;
+  end func;
+
+(*
+const func external_file: open (in string: file_name, in string: access) is func
+  result
+    var external_file: result is external_file.value;
+  local
+    var PRIMITIVE_FILE: open_file is PRIMITIVE_NULL_FILE;
+  begin
+    open_file := PRIMITIVE_FILE_OPEN(file_name, access);
+    if open_file <> PRIMITIVE_NULL_FILE then
+      result := external_file.value;
+      result.ext_file := open_file;
+      result.name := file_name;
+    end if;
+  end func;
+*)
+
+const proc: close (ref external_file: aFile) is func
+  begin
+    close(aFile.ext_file);
+  end func;
+
+const proc: flush (ref external_file: aFile) is func
+  begin
+    flush(aFile.ext_file);
+  end func;
+
+const proc: (ref external_file: aFile) << (in string: stri) is func
+  begin
+    aFile.ext_file << stri;
+  end func;
+
+const proc: (ref external_file: aFile) << (in char: ch) is func
+  begin
+    aFile.ext_file << str(ch);
+  end func;
+
+const proc: (ref external_file: aFile) << NL is func
+  begin
+    aFile << "\n";
+  end func;
+
+const proc: (ref external_file: aFile) << BS is func
+  begin
+    aFile << "\b \b";
+  end func;
+
+const func string: gets (ref external_file: aFile, in integer: leng) is
+  return gets(aFile.ext_file, leng);
+
+const func char: getc (ref external_file: aFile) is
+  return getc(aFile.ext_file);
+
+const func string: getwd (inout external_file: aFile) is
+  return wrd_rd(aFile.ext_file, aFile.TERMINATION_CHAR);
+
+const func string: getln (inout external_file: aFile) is
+  return lin_rd(aFile.ext_file, aFile.TERMINATION_CHAR);
+
+const func boolean: eof (ref external_file: aFile) is
+  return eof(aFile.ext_file);
+
+const func integer: length (ref external_file: aFile) is
+  return length(aFile.ext_file);
+
+const proc: seek (ref external_file: aFile, in integer: pos) is func
+  begin
+    seek(aFile.ext_file, pos);
+  end func;
+
+const func integer: tell (ref external_file: aFile) is
+  return tell(aFile.ext_file);
+
+(* System STD_IN, STD_OUT and STD_ERR files *)
+
+const func external_file: INIT_STD_FILE (ref PRIMITIVE_FILE: primitive_file,
+    in string: file_name) is func
+  result
+    var external_file: result is external_file.value;
+  begin
+    result.ext_file := primitive_file;
+    result.name := file_name;
+  end func;
+
+var external_file: STD_IN is  INIT_STD_FILE(PRIMITIVE_INPUT,  "STD_IN");
+var external_file: STD_OUT is INIT_STD_FILE(PRIMITIVE_OUTPUT, "STD_OUT");
+var external_file: STD_ERR is INIT_STD_FILE(PRIMITIVE_ERROR,  "STD_ERR");
+
+(* Set of operations for IN and OUT *)
+
+var file: IN is STD_IN;
+var file: OUT is STD_OUT;
+var file: PROT_OUTFILE is STD_OUT;
+
+const proc: writeln is func
+  begin
+    OUT << NL;
+  end func;
+
+const proc: write (NL) is func
+  begin
+    OUT << NL;
+  end func;
+
+const proc: readln is func
+  local
+    var string: stri is "";
+  begin
+    stri := getln(IN);
+    IN.io_empty := stri = "";
+    IN.io_ok := TRUE;
+  end func;
+
+const proc: read (NL) is func
+  begin
+    readln;
+  end func;
+
+
+(* io definitions for string *)
+
+const proc: (inout file: aFile) >> (inout string: stri) is func
+  begin
+    stri := getwd(aFile);
+    aFile.io_empty := stri = "";
+    aFile.io_ok := TRUE;
+  end func;
+
+const proc: write (in file: aFile, in string: stri) is func
+  begin
+    aFile << stri;
+  end func;
+
+const proc: writeln (in file: aFile, in string: stri) is func
+  begin
+    aFile << stri;
+    aFile << NL;
+  end func;
+
+const proc: write (in string: stri) is func
+  begin
+    OUT << stri;
+  end func;
+
+const proc: writeln (in string: stri) is func
+  begin
+    OUT << stri;
+    OUT << NL;
+  end func;
+
+const proc: read (inout file: aFile, inout string: stri) is func
+  begin
+    stri := getwd(aFile);
+    aFile.io_empty := stri = "";
+    aFile.io_ok := TRUE;
+  end func;
+
+const proc: readln (inout file: aFile, inout string: stri) is func 
+ begin
+    stri := getln(aFile);
+    aFile.io_empty := stri = "";
+    aFile.io_ok := TRUE;
+  end func;
+
+const proc: read (inout string: stri) is func
+  begin
+    read(IN, stri);
+  end func;
+
+const proc: readln (inout string: stri) is func
+  begin
+    readln(IN, stri);
+  end func;
+
+
+(* enable_io *)
+
+const proc: enable_input (in type: aType) is func
+  begin
+    const proc: (inout file: aFile) >> (inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getwd(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    const proc: read (inout file: aFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getwd(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    const proc: readln (inout file: aFile, inout aType: aValue) is func
+      local
+        var string: stri is "";
+      begin
+        stri := getln(aFile);
+        aFile.io_empty := stri = "";
+        block
+          aValue := aType parse stri;
+          aFile.io_ok := TRUE;
+        exception
+          catch RANGE_ERROR:
+            aFile.io_ok := FALSE;
+        end block;
+      end func;
+
+    const proc: read (inout aType: aValue) is func
+      begin
+        read(IN, aValue);
+      end func;
+
+    const proc: readln (inout aType: aValue) is func
+      begin
+        readln(IN, aValue);
+      end func;
+
+  end func;
+
+const proc: enable_output (in type: aType) is func
+  begin
+    const proc: (in file: aFile) << (in aType: aValue) is func
+      begin
+        aFile << str(aValue);
+      end func;
+
+    const proc: write (in file: aFile, in aType: aValue) is func
+      begin
+        aFile << str(aValue);
+      end func;
+
+    const proc: writeln (in file: aFile, in aType: aValue) is func
+      begin
+        aFile << str(aValue);
+        aFile << NL;
+      end func;
+
+    const proc: write (in aType: aValue) is func
+      begin
+        OUT << aValue;
+      end func;
+
+    const proc: writeln (in aType: aValue) is func
+      begin
+        OUT << aValue;
+        OUT << NL;
+      end func;
+
+    const func string: (in aType: aValue) lpad (in integer: leng) is
+      return str(aValue) lpad leng;
+
+    const func string: (in aType: aValue) rpad (in integer: leng) is
+      return str(aValue) rpad leng;
+
+    const func string: (in string: stri) <& (in aType: aValue) is
+      return stri & str(aValue);
+
+  end func;
+
+const proc: enable_io (in type: aType) is func
+  begin
+    enable_input(aType);
+    enable_output(aType);
+  end func;
+
+enable_io(char);
+enable_io(integer);
+enable_io(boolean);
+enable_output(type);
+enable_output(ACTION);
+enable_output(reference);
+
+
+(* TEXT *)
+
+const type: TEXT is subtype file;
+
+(* Procedures and Elements granted for every TEXT *)
+
+const proc: (ref TEXT param) << (in string param) is DYNAMIC;
+const proc: (ref TEXT param) << (ref char param) is DYNAMIC;
+const proc: (ref TEXT param) << NL is DYNAMIC;
+const proc: (ref TEXT param) << BS is DYNAMIC;
+const func integer: height (ref TEXT param) is DYNAMIC;
+const func integer: width (ref TEXT param) is DYNAMIC;
+const func integer: line (ref TEXT param) is DYNAMIC;
+const func integer: column (ref TEXT param) is DYNAMIC;
+const proc: clear (ref TEXT param) is DYNAMIC;
+const proc: clear (ref TEXT param, ref integer param, ref integer param,
+    ref integer param, ref integer param) is DYNAMIC;
+const proc: v_scroll (ref TEXT param, in integer param) is DYNAMIC;
+const proc: v_scroll (ref TEXT param, ref integer param, ref integer param,
+    ref integer param, ref integer param, ref integer param) is DYNAMIC;
+const proc: h_scroll (ref TEXT param, in integer param) is DYNAMIC;
+const proc: h_scroll (ref TEXT param, ref integer param, ref integer param,
+    ref integer param, ref integer param, ref integer param) is DYNAMIC;
+const proc: color (ref TEXT param, ref color param) is DYNAMIC;
+const proc: color (ref TEXT param, ref color param, ref color param) is DYNAMIC;
+const proc: setPos (ref TEXT param, ref integer param, ref integer param) is DYNAMIC;
+const proc: setPosXY (ref TEXT param, ref integer param, ref integer param) is DYNAMIC;
+const proc: setLine (ref TEXT param, ref integer param) is DYNAMIC;
+const proc: setColumn (ref TEXT param, ref integer param) is DYNAMIC;
+const proc: setXY (ref TEXT param, ref integer param, ref integer param) is DYNAMIC;
+const proc: flush (ref TEXT param) is DYNAMIC;
+const proc: cursor (ref TEXT param, ref boolean param) is DYNAMIC;
+const proc: cursor_on (ref TEXT param) is DYNAMIC;
+const proc: cursor_off (ref TEXT param) is DYNAMIC;
+const proc: box (ref TEXT param) is DYNAMIC;
+const proc: clear_box (ref TEXT param) is DYNAMIC;
+
+(* ARGS + ENV *)
+
+const func array string: argv (PROGRAM) is     action "PRC_ARGS";
+const func string: name (PROGRAM) is           action "PRG_NAME";
+const func string: getenv (in string param) is action "PRC_ENV";
+
+(* DIRECTORY *)
+
+const proc: chdir (in string param) is                   action "UNX_CD";
+const proc: mkdir (in string param) is                   action "UNX_MKDIR";
+const func string: getcwd is                             action "UNX_PWD";
+const func integer: file_size (in string param) is       action "UNX_LNG";
+const func array string: read_dir (in string param) is   action "UNX_LS";
+const proc: remove (in string param) is                  action "UNX_RM";
+const proc: rename (in string param, in string param) is action "UNX_MV";
+const proc: copy (in string param, in string param) is   action "UNX_CP";
+
+const func integer: heapsize (PROGRAM) is                action "INT_HSIZE";
+const proc: include (in string param) is                 action "PRC_INCLUDE";
+
+(*
+const proc: var (ref expr: typeExpr) : (ref expr: nameExpr) is (ref expr: initExpr) is action "PRC_TRACE";
+*)

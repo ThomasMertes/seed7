@@ -1,0 +1,107 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  wrinum.s7i    Function to write numbers as english text         *)
+(*  Copyright (C) 1991, 1992, 1993, 1994, 2005  Thomas Mertes       *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const array string: STR_0_TO_19 is [](
+    "zero",      "one",       "two",       "three",     "four",
+    "five",      "six",       "seven",     "eight",     "nine",
+    "ten",       "eleven",    "twelve",    "thirteen",  "fourteen",
+    "fifteen",   "sixteen",   "seventeen", "eighteen",  "nineteen");
+
+const array string: STR_20_TO_90 is [](
+    "twenty",    "thirty",    "fourty",    "fifty",
+    "sixty",     "seventy",   "eighty",    "ninty");
+
+
+const func string: str_99 (in integer: number) is func
+  result
+    var string: stri is "";
+  begin
+    if number < 20 then
+      stri := STR_0_TO_19[succ(number)];
+    else
+      stri := STR_20_TO_90[pred(number div 10)];
+      if number rem 10 <> 0 then
+        stri &:= STR_0_TO_19[succ(number rem 10)];
+      end if;
+    end if;
+  end func;
+
+
+const func string: str_1E3 (in integer: number) is func
+  result
+    var string: stri is "";
+  begin
+    if number >= 100 then
+      if number >= 200 then
+        stri := STR_0_TO_19[succ(number div 100)];
+      end if;
+      stri &:= "hundred";
+    end if;
+    if number rem 100 <> 0 then
+      if number >= 100 then
+        stri &:= "and";
+      end if;
+      stri &:= str_99(number rem 100);
+    end if;
+  end func;
+
+
+const func string: str_1E6 (in integer: number) is func
+  result
+    var string: stri is "";
+  begin
+    if number >= 1000 then
+      if number >= 2000 then
+        stri := str_1E3(number div 1000);
+      end if;
+      stri &:= "thousand";
+    end if;
+    if number rem 1000 <> 0 then
+      if number >= 1000 then
+        stri &:= "and";
+      end if;
+      stri &:= str_1E3(number rem 1000);
+    end if;
+  end func;
+
+
+const func string: str_1E9 (in integer: number) is func
+  result
+    var string: stri is "";
+  begin
+    if number >= 1000000 then
+      if number < 2000000 then
+        stri := "onemillion";
+      else
+        stri := str_1E3(number div 1000000) & "millions";
+      end if;
+    end if;
+    if number rem 1000000 <> 0 then
+      stri &:= str_1E6(number rem 1000000);
+    end if;
+  end func;

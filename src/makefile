@@ -1,0 +1,154 @@
+# CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
+CFLAGS = -O2 -fomit-frame-pointer -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
+# CFLAGS = -O2 -funroll-loops -Wall -pg
+LFLAGS = -O2
+# LFLAGS = -O2 -pg
+LIBS = /usr/X11R6/lib/libX11.so -lncurses -lm
+CC = gcc
+
+# SCREEN_OBJ = scr_x11.o
+# SCREEN_SRC = scr_x11.c
+SCREEN_OBJ = scr_infi.o kbd_infi.o trm_inf.o
+SCREEN_SRC = scr_inf.c kbd_inf.c trm_inf.c
+# SCREEN_OBJ = scr_infp.o kbd_infp.o trm_cap.o
+# SCREEN_SRC = scr_inf.c kbd_inf.c trm_cap.c
+# SCREEN_OBJ = scr_cur.o
+# SCREEN_SRC = scr_cur.c
+# SCREEN_OBJ = scr_cap.o
+# SCREEN_SRC = scr_cap.c
+# SCREEN_OBJ = scr_tcp.o
+# SCREEN_SRC = scr_tcp.c
+
+MOBJ1 = hi.o option.o primitiv.o
+LOBJ1 = actlib.o arrlib.o blnlib.o chrlib.o clslib.o dcllib.o drwlib.o enulib.o
+LOBJ2 = fillib.o fltlib.o hshlib.o intlib.o kbdlib.o lstlib.o prclib.o prglib.o
+LOBJ3 = reflib.o rfllib.o scrlib.o sctlib.o setlib.o strlib.o timlib.o typlib.o unxlib.o
+EOBJ1 = exec.o doany.o memory.o runfile.o runerr.o
+AOBJ1 = analyze.o syntax.o token.o parser.o name.o type.o
+AOBJ2 = expr.o atom.o object.o scanner.o literal.o numlit.o findid.o
+AOBJ3 = error.o infile.o symbol.o info.o stat.o fatal.o match.o
+GOBJ1 = syvarutl.o traceutl.o actutl.o listutl.o executl.o blockutl.o
+GOBJ2 = typeutl.o entutl.o identutl.o chclsutl.o flistutl.o sigutl.o
+ROBJ1 = fil_rtl.o flt_rtl.o int_rtl.o set_rtl.o str_rtl.o heaputl.o striutl.o
+DOBJ1 = $(SCREEN_OBJ) tim_unx.o drw_x11.o
+OBJ = $(MOBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
+A_OBJ = $(ROBJ1) $(DOBJ1)
+
+MSRC1 = hi.c option.c primitiv.c
+LSRC1 = actlib.c arrlib.c blnlib.c chrlib.c clslib.c dcllib.c drwlib.c enulib.c
+LSRC2 = fillib.c fltlib.c hshlib.c intlib.c kbdlib.c lstlib.c prclib.c prglib.c
+LSRC3 = reflib.c rfllib.c scrlib.c sctlib.c setlib.c strlib.c timlib.c typlib.c unxlib.c
+ESRC1 = exec.c doany.c memory.c runfile.c runerr.c
+ASRC1 = analyze.c syntax.c token.c parser.c name.c type.c
+ASRC2 = expr.c atom.c object.c scanner.c literal.c numlit.c findid.c
+ASRC3 = error.c infile.c symbol.c info.c stat.c fatal.c match.c
+GSRC1 = syvarutl.c traceutl.c actutl.c listutl.c executl.c blockutl.c
+GSRC2 = typeutl.c entutl.c identutl.c chclsutl.c flistutl.c sigutl.c
+RSRC1 = fil_rtl.c flt_rtl.c int_rtl.c set_rtl.c str_rtl.c heaputl.c striutl.c
+DSRC1 = $(SCREEN_SRC) tim_unx.c drw_x11.c
+SRC = $(MSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
+A_SRC = $(RSRC1) $(DSRC1)
+
+hi: $(OBJ) seed7_05.a
+	$(CC) $(LFLAGS) $(OBJ) seed7_05.a $(LIBS) -o hi
+	make ../prg/hi
+	./hi level
+#	cp hi /usr/local/bin/hi
+
+hi.gp: $(OBJ)
+	$(CC) $(LFLAGS) $(OBJ) $(LIBS) -o /usr/local/bin/hi.gp
+	hi level
+
+../prg/hi:
+	ln -s ../src/hi ../prg
+
+scr_x11.o: scr_x11.c version.h scr_drv.h trm_drv.h
+	$(CC) $(CFLAGS) -c scr_x11.c
+
+scr_infi.o: scr_inf.c version.h scr_drv.h trm_drv.h
+	echo "#undef  USE_TERMCAP" > inf_conf.h
+	$(CC) $(CFLAGS) -c scr_inf.c
+	mv scr_inf.o scr_infi.o
+
+scr_infp.o: scr_inf.c version.h scr_drv.h trm_drv.h
+	echo "#define USE_TERMCAP" > inf_conf.h
+	$(CC) $(CFLAGS) -c scr_inf.c
+	mv scr_inf.o scr_infp.o
+
+kbd_infi.o: kbd_inf.c version.h kbd_drv.h trm_drv.h
+	echo "#undef  USE_TERMCAP" > inf_conf.h
+	$(CC) $(CFLAGS) -c kbd_inf.c
+	mv kbd_inf.o kbd_infi.o
+
+kbd_infp.o: kbd_inf.c version.h kbd_drv.h trm_drv.h
+	echo "#define USE_TERMCAP" > inf_conf.h
+	$(CC) $(CFLAGS) -c kbd_inf.c
+	mv kbd_inf.o kbd_infp.o
+
+trm_inf.o: trm_inf.c version.h trm_drv.h
+	$(CC) $(CFLAGS) -c trm_inf.c
+
+trm_cap.o: trm_cap.c version.h trm_drv.h
+	$(CC) $(CFLAGS) -c trm_cap.c
+
+scr_cur.o: scr_cur.c version.h scr_drv.h
+	$(CC) $(CFLAGS) -c scr_cur.c
+
+
+clear:
+	rm *.o
+	rm *.a
+	rm version.h
+
+dep: depend
+
+strip:
+	strip /usr/local/bin/hi
+
+version.h:
+	echo "#define ANSI_C" > version.h
+	echo "#define USE_DIRENT" >> version.h
+	echo "#define PATH_DELIMITER '/'" >> version.h
+	echo "#define CATCH_SIGNALS" >> version.h
+	echo "#define USE_MMAP" >> version.h
+	echo "#undef  INCL_NCURSES_TERM" >> version.h
+	echo "#undef  INCL_CURSES_BEFORE_TERM" >> version.h
+	echo "#undef  MKDIR_WITH_ONE_PARAMETER" >> version.h
+	echo "#undef  CHOWN_MISSING" >> version.h
+	echo "#undef  CHMOD_MISSING" >> version.h
+
+hi.o: hi.c
+	$(CC) $(CFLAGS) -c hi.c
+
+depend: version.h
+	$(CC) -M $(SRC) > depend
+	$(CC) -M $(A_SRC) > a_depend
+
+level.h:
+	hi level
+
+seed7_05.a: $(ROBJ1) $(DOBJ1)
+	ar r seed7_05.a $(ROBJ1) $(DOBJ1)
+
+wc: $(SRC)
+	wc $(GSRC1) $(GSRC2)
+	wc $(ASRC1) $(ASRC2) $(ASRC3)
+	wc $(RSRC1)
+	wc $(ESRC1)
+	wc $(LSRC1) $(LSRC2) $(LSRC3)
+	wc $(DSRC1)
+	wc $(MSRC1)
+	wc $(SRC)
+
+lint: $(SRC)
+	lint -p $(SRC) $(LIBS)
+
+lint2: $(SRC)
+	lint -Zn2048 $(SRC) $(LIBS)
+
+ifeq (depend,$(wildcard depend))
+include depend
+include a_depend
+endif

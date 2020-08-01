@@ -1,0 +1,340 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  keybd.s7i     Keyboard driver                                   *)
+(*  Copyright (C) 1993, 1994, 2005  Thomas Mertes                   *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: KEYBOARD_FILE is subtype file;
+
+(* Procedures granted for every KEYBOARD_FILE *)
+
+const func integer: getxpos (ref KEYBOARD_FILE param) is DYNAMIC;
+const func integer: getypos (ref KEYBOARD_FILE param) is DYNAMIC;
+const func char: busy_getc (ref KEYBOARD_FILE param) is DYNAMIC;
+const func boolean: keypressed (ref KEYBOARD_FILE param) is DYNAMIC;
+
+
+const type: SCREEN_KEYBD_FILE is sub NULL_FILE struct
+  end struct;
+
+const func char: getc (ref SCREEN_KEYBD_FILE param) is                           action "KBD_GETC";
+const func string: gets (ref SCREEN_KEYBD_FILE param, ref integer param) is      action "KBD_STRI_READ";
+const func char: raw_getc (ref SCREEN_KEYBD_FILE param) is                       action "KBD_RAW_GETC";
+const func string: lin_rd (ref SCREEN_KEYBD_FILE param, inout char param) is     action "KBD_LINE_READ";
+const func string: wrd_rd (ref SCREEN_KEYBD_FILE param, inout char param) is     action "KBD_WORD_READ";
+const func char: busy_getc (ref SCREEN_KEYBD_FILE param) is                      action "KBD_BUSY_GETC";
+const func boolean: keypressed (ref SCREEN_KEYBD_FILE param) is                  action "KBD_KEYPRESSED";
+
+
+var SCREEN_KEYBD_FILE: SCREEN_KEYBOARD is SCREEN_KEYBD_FILE.value;
+
+const func string: getk (inout SCREEN_KEYBD_FILE: keybd) is func
+  result
+    var string: result is "";
+  begin
+    result := str(raw_getc(keybd));
+    while keypressed(keybd) do
+      result &:= str(raw_getc(keybd));
+    end while;
+  end func;
+
+const func string: getln (inout SCREEN_KEYBD_FILE: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := lin_rd(keybd, keybd.TERMINATION_CHAR);
+  end func;
+
+const func string: getwd (inout SCREEN_KEYBD_FILE: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := wrd_rd(keybd, keybd.TERMINATION_CHAR);
+  end func;
+
+
+const type: GRAPH_KEYBD_FILE is sub NULL_FILE struct
+  end struct;
+
+const func char: getc (ref GRAPH_KEYBD_FILE param) is                           action "GKB_GETC";
+const func string: gets (ref GRAPH_KEYBD_FILE param, ref integer param) is      action "GKB_STRI_READ";
+const func char: raw_getc (ref GRAPH_KEYBD_FILE param) is                       action "GKB_RAW_GETC";
+const func integer: getxpos (ref GRAPH_KEYBD_FILE param) is                     action "GKB_XPOS";
+const func integer: getypos (ref GRAPH_KEYBD_FILE param) is                     action "GKB_YPOS";
+const func string: lin_rd (ref GRAPH_KEYBD_FILE param, inout char param) is     action "GKB_LINE_READ";
+const func string: wrd_rd (ref GRAPH_KEYBD_FILE param, inout char param) is     action "GKB_WORD_READ";
+const func char: busy_getc (ref GRAPH_KEYBD_FILE param) is                      action "GKB_BUSY_GETC";
+const func boolean: keypressed (ref GRAPH_KEYBD_FILE param) is                  action "GKB_KEYPRESSED";
+
+
+var GRAPH_KEYBD_FILE: GRAPH_KEYBOARD is GRAPH_KEYBD_FILE.value;
+
+const func string: getk (inout GRAPH_KEYBD_FILE: keybd) is func
+  result
+    var string: result is "";
+  begin
+    result := str(raw_getc(keybd));
+    while keypressed(keybd) do
+      result &:= str(raw_getc(keybd));
+    end while;
+  end func;
+
+const func string: getln (inout GRAPH_KEYBD_FILE: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := lin_rd(keybd, keybd.TERMINATION_CHAR);
+  end func;
+
+const func string: getwd (inout GRAPH_KEYBD_FILE: keybd) is func
+  result
+    var string: stri is "";
+  begin
+    stri := wrd_rd(keybd, keybd.TERMINATION_CHAR);
+  end func;
+
+
+var KEYBOARD_FILE: KEYBOARD is SCREEN_KEYBOARD;
+
+
+const char: KEY_CTL_A is        '\1\';
+const char: KEY_CTL_B is        '\2\';
+const char: KEY_CTL_C is        '\3\';
+const char: KEY_CTL_D is        '\4\';
+const char: KEY_CTL_E is        '\5\';
+const char: KEY_CTL_F is        '\6\';
+const char: KEY_CTL_G is        '\7\';
+const char: KEY_CTL_H is        '\8\';
+const char: KEY_BS is           '\8\';
+const char: KEY_CTL_I is        '\9\';
+const char: KEY_TAB is          '\9\';
+const char: KEY_CTL_J is       '\10\';
+const char: KEY_NL is          '\10\';
+const char: KEY_CTL_K is       '\11\';
+const char: KEY_CTL_L is       '\12\';
+const char: KEY_CTL_M is       '\13\';
+const char: KEY_CR is          '\13\';
+const char: KEY_CTL_N is       '\14\';
+const char: KEY_CTL_O is       '\15\';
+const char: KEY_CTL_P is       '\16\';
+const char: KEY_CTL_Q is       '\17\';
+const char: KEY_CTL_R is       '\18\';
+const char: KEY_CTL_S is       '\19\';
+const char: KEY_CTL_T is       '\20\';
+const char: KEY_CTL_U is       '\21\';
+const char: KEY_CTL_V is       '\22\';
+const char: KEY_CTL_W is       '\23\';
+const char: KEY_CTL_X is       '\24\';
+const char: KEY_CTL_Y is       '\25\';
+const char: KEY_CTL_Z is       '\26\';
+const char: KEY_ESC is         '\27\';
+const char: KEY_ALT_A is      '\257\';
+const char: KEY_ALT_B is      '\258\';
+const char: KEY_ALT_C is      '\259\';
+const char: KEY_ALT_D is      '\260\';
+const char: KEY_ALT_E is      '\261\';
+const char: KEY_ALT_F is      '\262\';
+const char: KEY_ALT_G is      '\263\';
+const char: KEY_ALT_H is      '\264\';
+const char: KEY_ALT_I is      '\265\';
+const char: KEY_ALT_J is      '\266\';
+const char: KEY_ALT_K is      '\267\';
+const char: KEY_ALT_L is      '\268\';
+const char: KEY_ALT_M is      '\269\';
+const char: KEY_ALT_N is      '\270\';
+const char: KEY_ALT_O is      '\271\';
+const char: KEY_ALT_P is      '\272\';
+const char: KEY_ALT_Q is      '\273\';
+const char: KEY_ALT_R is      '\274\';
+const char: KEY_ALT_S is      '\275\';
+const char: KEY_ALT_T is      '\276\';
+const char: KEY_ALT_U is      '\277\';
+const char: KEY_ALT_V is      '\278\';
+const char: KEY_ALT_W is      '\279\';
+const char: KEY_ALT_X is      '\280\';
+const char: KEY_ALT_Y is      '\281\';
+const char: KEY_ALT_Z is      '\282\';
+const char: KEY_ALT_0 is      '\304\';
+const char: KEY_ALT_1 is      '\305\';
+const char: KEY_ALT_2 is      '\306\';
+const char: KEY_ALT_3 is      '\307\';
+const char: KEY_ALT_4 is      '\308\';
+const char: KEY_ALT_5 is      '\309\';
+const char: KEY_ALT_6 is      '\310\';
+const char: KEY_ALT_7 is      '\311\';
+const char: KEY_ALT_8 is      '\312\';
+const char: KEY_ALT_9 is      '\313\';
+const char: KEY_F1 is         '\320\';
+const char: KEY_F2 is         '\321\';
+const char: KEY_F3 is         '\322\';
+const char: KEY_F4 is         '\323\';
+const char: KEY_F5 is         '\324\';
+const char: KEY_F6 is         '\325\';
+const char: KEY_F7 is         '\326\';
+const char: KEY_F8 is         '\327\';
+const char: KEY_F9 is         '\328\';
+const char: KEY_F10 is        '\329\';
+const char: KEY_SFT_F1 is     '\336\';
+const char: KEY_SFT_F2 is     '\337\';
+const char: KEY_SFT_F3 is     '\338\';
+const char: KEY_SFT_F4 is     '\339\';
+const char: KEY_SFT_F5 is     '\340\';
+const char: KEY_SFT_F6 is     '\341\';
+const char: KEY_SFT_F7 is     '\342\';
+const char: KEY_SFT_F8 is     '\343\';
+const char: KEY_SFT_F9 is     '\344\';
+const char: KEY_SFT_F10 is    '\345\';
+const char: KEY_CTL_F1 is     '\352\';
+const char: KEY_CTL_F2 is     '\353\';
+const char: KEY_CTL_F3 is     '\354\';
+const char: KEY_CTL_F4 is     '\355\';
+const char: KEY_CTL_F5 is     '\356\';
+const char: KEY_CTL_F6 is     '\357\';
+const char: KEY_CTL_F7 is     '\358\';
+const char: KEY_CTL_F8 is     '\359\';
+const char: KEY_CTL_F9 is     '\360\';
+const char: KEY_CTL_F10 is    '\361\';
+const char: KEY_ALT_F1 is     '\368\';
+const char: KEY_ALT_F2 is     '\369\';
+const char: KEY_ALT_F3 is     '\370\';
+const char: KEY_ALT_F4 is     '\371\';
+const char: KEY_ALT_F5 is     '\372\';
+const char: KEY_ALT_F6 is     '\373\';
+const char: KEY_ALT_F7 is     '\374\';
+const char: KEY_ALT_F8 is     '\375\';
+const char: KEY_ALT_F9 is     '\376\';
+const char: KEY_ALT_F10 is    '\377\';
+const char: KEY_NULCHAR is    '\400\';
+const char: KEY_BACKTAB is    '\401\';
+const char: KEY_LEFT is       '\416\';
+const char: KEY_RIGHT is      '\417\';
+const char: KEY_UP is         '\418\';
+const char: KEY_DOWN is       '\419\';
+const char: KEY_HOME is       '\420\';
+const char: KEY_END is        '\421\';
+const char: KEY_PGUP is       '\422\';
+const char: KEY_PGDN is       '\423\';
+const char: KEY_INS is        '\424\';
+const char: KEY_DEL is        '\425\';
+const char: KEY_PAD_CENTER is '\426\';
+const char: KEY_CTL_LEFT is   '\480\';
+const char: KEY_CTL_RIGHT is  '\481\';
+const char: KEY_CTL_UP is     '\482\';
+const char: KEY_CTL_DOWN is   '\483\';
+const char: KEY_CTL_HOME is   '\484\';
+const char: KEY_CTL_END is    '\485\';
+const char: KEY_CTL_PGUP is   '\486\';
+const char: KEY_CTL_PGDN is   '\487\';
+const char: KEY_CTL_INS is    '\488\';
+const char: KEY_CTL_DEL is    '\489\';
+const char: KEY_SCRLUP is     '\490\';
+const char: KEY_SCRLDN is     '\491\';
+const char: KEY_INSLN is      '\492\';
+const char: KEY_DELLN is      '\493\';
+const char: KEY_ERASE is      '\494\';
+const char: KEY_CTL_CR is     '\495\';
+const char: KEY_NULLCMD is    '\500\';
+const char: KEY_REDRAW is     '\501\';
+const char: KEY_NEWWINDOW is  '\502\';
+const char: KEY_MOUSE1 is     '\503\';
+const char: KEY_MOUSE2 is     '\504\';
+const char: KEY_MOUSE3 is     '\505\';
+const char: KEY_MOUSE4 is     '\506\';
+const char: KEY_MOUSE5 is     '\507\';
+const char: KEY_UNDEF is      '\511\';
+const char: KEY_NONE is       '\512\';
+
+const array string: EVENT_DESCR is [](
+"KEY_CTL_A", "KEY_CTL_B", "KEY_CTL_C", "KEY_CTL_D", "KEY_CTL_E",
+"KEY_CTL_F", "KEY_CTL_G", "KEY_CTL_H", "KEY_CTL_I", "KEY_CTL_J",
+"KEY_CTL_K", "KEY_CTL_L", "KEY_CTL_M", "KEY_CTL_N", "KEY_CTL_O",
+"KEY_CTL_P", "KEY_CTL_Q", "KEY_CTL_R", "KEY_CTL_S", "KEY_CTL_T",
+"KEY_CTL_U", "KEY_CTL_V", "KEY_CTL_W", "KEY_CTL_X", "KEY_CTL_Y",
+"KEY_CTL_Z", "KEY_ESC",   "\\28\\",    "\\29\\",    "\\30\\",    "\\31\\",
+" ", "!", "\"", "#", "$", "%", "&", "'",
+"(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";",
+"<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+"P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", "`", "a", "b", "c",
+"d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w",
+"x", "y", "z", "{", "|", "}", "~", "\127\",
+"\128\", "\129\", "\130\", "\131\", "\132\", "\133\", "\134\", "\135\", "\136\", "\137\", "\138\", "\139\",
+"\140\", "\141\", "\142\", "\143\", "\144\", "\145\", "\146\", "\147\", "\148\", "\149\", "\150\", "\151\",
+"\152\", "\153\", "\154\", "\155\", "\156\", "\157\", "\158\", "\159\", "\160\", "\161\", "\162\", "\163\",
+"\164\", "\165\", "\166\", "\167\", "\168\", "\169\", "\170\", "\171\", "\172\", "\173\", "\174\", "\175\",
+"\176\", "\177\", "\178\", "\179\", "\180\", "\181\", "\182\", "\183\", "\184\", "\185\", "\186\", "\187\",
+"\188\", "\189\", "\190\", "\191\", "\192\", "\193\", "\194\", "\195\", "\196\", "\197\", "\198\", "\199\",
+"\200\", "\201\", "\202\", "\203\", "\204\", "\205\", "\206\", "\207\", "\208\", "\209\", "\210\", "\211\",
+"\212\", "\213\", "\214\", "\215\", "\216\", "\217\", "\218\", "\219\", "\220\", "\221\", "\222\", "\223\",
+"\224\", "\225\", "\226\", "\227\", "\228\", "\229\", "\230\", "\231\", "\232\", "\233\", "\234\", "\235\",
+"\236\", "\237\", "\238\", "\239\", "\240\", "\241\", "\242\", "\243\", "\244\", "\245\",
+"\246\", "\247\", "\248\", "\249\", "\250\", "\251\", "\252\", "\253\", "\254\", "\255\", "\256\",
+"KEY_ALT_A", "KEY_ALT_B", "KEY_ALT_C", "KEY_ALT_D", "KEY_ALT_E",
+"KEY_ALT_F", "KEY_ALT_G", "KEY_ALT_H", "KEY_ALT_I", "KEY_ALT_J",
+"KEY_ALT_K", "KEY_ALT_L", "KEY_ALT_M", "KEY_ALT_N", "KEY_ALT_O",
+"KEY_ALT_P", "KEY_ALT_Q", "KEY_ALT_R", "KEY_ALT_S", "KEY_ALT_T",
+"KEY_ALT_U", "KEY_ALT_V", "KEY_ALT_W", "KEY_ALT_X", "KEY_ALT_Y",
+"KEY_ALT_Z",
+"\\283\\", "\\284\\", "\\285\\", "\\286\\", "\\287\\", "\\288\\", "\\289\\", "\\290\\",
+"\\291\\", "\\292\\", "\\293\\", "\\294\\", "\\295\\", "\\296\\", "\\297\\", "\\298\\",
+"\\299\\", "\\300\\", "\\301\\", "\\302\\", "\\303\\",
+"KEY_ALT_0", "KEY_ALT_1", "KEY_ALT_2", "KEY_ALT_3", "KEY_ALT_4",
+"KEY_ALT_5", "KEY_ALT_6", "KEY_ALT_7", "KEY_ALT_8", "KEY_ALT_9",
+"\\314\\", "\\315\\", "\\316\\", "\\317\\", "\\318\\", "\\319\\",
+"KEY_F1", "KEY_F2", "KEY_F3", "KEY_F4", "KEY_F5",
+"KEY_F6", "KEY_F7", "KEY_F8", "KEY_F9", "KEY_F10",
+"\\330\\", "\\331\\", "\\332\\", "\\333\\", "\\334\\", "\\335\\",
+"KEY_SFT_F1", "KEY_SFT_F2", "KEY_SFT_F3", "KEY_SFT_F4", "KEY_SFT_F5",
+"KEY_SFT_F6", "KEY_SFT_F7", "KEY_SFT_F8", "KEY_SFT_F9", "KEY_SFT_F10",
+"\\346\\", "\\347\\", "\\348\\", "\\349\\", "\\350\\", "\\351\\",
+"KEY_CTL_F1", "KEY_CTL_F2", "KEY_CTL_F3", "KEY_CTL_F4", "KEY_CTL_F5",
+"KEY_CTL_F6", "KEY_CTL_F7", "KEY_CTL_F8", "KEY_CTL_F9", "KEY_CTL_F10",
+"\\362\\", "\\363\\", "\\364\\", "\\365\\", "\\366\\", "\\367\\",
+"KEY_ALT_F1", "KEY_ALT_F2", "KEY_ALT_F3", "KEY_ALT_F4", "KEY_ALT_F5",
+"KEY_ALT_F6", "KEY_ALT_F7", "KEY_ALT_F8", "KEY_ALT_F9", "KEY_ALT_F10",
+"\\378\\", "\\379\\", "\\380\\", "\\381\\", "\\382\\", "\\383\\",
+"\\384\\", "\\385\\", "\\386\\", "\\387\\", "\\388\\", "\\389\\",
+"\\390\\", "\\391\\", "\\392\\", "\\393\\", "\\394\\", "\\395\\",
+"\\396\\", "\\397\\", "\\398\\", "\\399\\",
+"KEY_NULCHAR", "KEY_BACKTAB",
+"\\402\\", "\\403\\", "\\404\\", "\\405\\", "\\406\\", "\\407\\",
+"\\408\\", "\\409\\", "\\410\\", "\\411\\", "\\412\\", "\\413\\",
+"\\414\\", "\\415\\",
+"KEY_LEFT", "KEY_RIGHT", "KEY_UP", "KEY_DOWN",
+"KEY_HOME", "KEY_END", "KEY_PGUP", "KEY_PGDN",
+"KEY_INS", "KEY_DEL", "KEY_PAD_CENTER",
+"\\427\\", "\\428\\", "\\429\\", "\\430\\",
+"\\431\\", "\\432\\", "\\433\\", "\\434\\", "\\435\\", "\\436\\", "\\437\\", "\\438\\", "\\439\\", "\\440\\",
+"\\441\\", "\\442\\", "\\443\\", "\\444\\", "\\445\\", "\\446\\", "\\447\\", "\\448\\", "\\449\\", "\\450\\",
+"\\451\\", "\\452\\", "\\453\\", "\\454\\", "\\455\\", "\\456\\", "\\457\\", "\\458\\", "\\459\\", "\\460\\",
+"\\461\\", "\\462\\", "\\463\\", "\\464\\", "\\465\\", "\\466\\", "\\467\\", "\\468\\", "\\469\\", "\\470\\",
+"\\471\\", "\\472\\", "\\473\\", "\\474\\", "\\475\\", "\\476\\", "\\477\\", "\\478\\", "\\479\\",
+"KEY_CTL_LEFT", "KEY_CTL_RIGHT", "KEY_CTL_UP", "KEY_CTL_DOWN",
+"KEY_CTL_HOME", "KEY_CTL_END", "KEY_CTL_PGUP", "KEY_CTL_PGDN",
+"KEY_CTL_INS", "KEY_CTL_DEL", "KEY_SCRLUP", "KEY_SCRLDN",
+"KEY_INSLN", "KEY_DELLN", "KEY_ERASE", "KEY_CTL_CR",
+"\\496\\", "\\497\\", "\\498\\", "\\499\\",
+"KEY_NULLCMD", "KEY_REDRAW", "KEY_NEWWINDOW",
+"KEY_MOUSE1", "KEY_MOUSE2", "KEY_MOUSE3", "KEY_MOUSE4", "KEY_MOUSE5", "\\508\\", "\\509\\", "\\510\\",
+"KEY_UNDEF", "KEY_NONE");

@@ -1,0 +1,398 @@
+/********************************************************************/
+/*                                                                  */
+/*  hi   Interpreter for Seed7 programs.                            */
+/*  Copyright (C) 1990 - 2000  Thomas Mertes                        */
+/*                                                                  */
+/*  This program is free software; you can redistribute it and/or   */
+/*  modify it under the terms of the GNU General Public License as  */
+/*  published by the Free Software Foundation; either version 2 of  */
+/*  the License, or (at your option) any later version.             */
+/*                                                                  */
+/*  This program is distributed in the hope that it will be useful, */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of  */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   */
+/*  GNU General Public License for more details.                    */
+/*                                                                  */
+/*  You should have received a copy of the GNU General Public       */
+/*  License along with this program; if not, write to the Free      */
+/*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  */
+/*  MA 02111-1307 USA                                               */
+/*                                                                  */
+/*  Module: General                                                 */
+/*  File: seed7/src/listutl.c                                       */
+/*  Changes: 1990, 1991, 1992, 1993, 1994, 2002  Thomas Mertes      */
+/*  Content: Procedures to maintain objects of type listtype.       */
+/*                                                                  */
+/********************************************************************/
+
+#include "stdlib.h"
+#include "stdio.h"
+
+#include "version.h"
+#include "common.h"
+#include "data.h"
+#include "heaputl.h"
+#include "flistutl.h"
+
+#undef EXTERN
+#define EXTERN
+#include "listutl.h"
+
+
+
+#ifdef ANSI_C
+
+void emptylist (listtype list)
+#else
+
+void emptylist (list)
+listtype list;
+#endif
+
+  {
+    register listtype list_end;
+
+  /* emptylist */
+    if (list != NULL) {
+      list_end = list;
+      while (list_end->next != NULL) {
+        list_end = list_end->next;
+      } /* while */
+      list_end->next = flist.list_elems;
+      flist.list_elems = list;
+    } /* if */
+  } /* emptylist */
+
+
+
+#ifdef ANSI_C
+
+listtype *append_element_to_list (listtype *list_insert_place, objecttype object,
+    errinfotype *err_info)
+#else
+
+listtype *append_element_to_list (list_insert_place, object, err_info)
+listtype *list_insert_place;
+objecttype object;
+errinfotype *err_info;
+#endif
+
+  {
+    listtype help_element;
+
+  /* append_element_to_list */
+    if (ALLOC_L_ELEM(help_element)) {
+      help_element->next = NULL;
+      help_element->obj = object;
+      *list_insert_place = help_element;
+      return(&help_element->next);
+    } else {
+      *err_info = MEMORY_ERROR;
+      return(NULL);
+    } /* if */
+  } /* append_element_to_list */
+
+
+
+#ifdef ANSI_C
+
+void copy_expression (objecttype object_from,
+    objecttype *object_to, errinfotype *err_info)
+#else
+
+void copy_expression (object_from, object_to, err_info)
+objecttype object_from;
+objecttype *object_to;
+errinfotype *err_info;
+#endif
+
+  {
+    listtype list_from_elem;
+    listtype *list_insert_place;
+    objecttype object_to_elem;
+
+  /* copy_expression */
+    if (CLASS_OF_OBJ(object_from) == EXPROBJECT) {
+      if (!ALLOC_OBJECT(*object_to)) {
+        *err_info = MEMORY_ERROR;
+      } else {
+        (*object_to)->type_of = object_from->type_of;
+        (*object_to)->entity = object_from->entity;
+        (*object_to)->value.listvalue = NULL;
+        list_insert_place = &(*object_to)->value.listvalue;
+        INIT_CLASS_OF_OBJ((*object_to), CLASS_OF_OBJ(object_from));
+        list_from_elem = object_from->value.listvalue;
+        while (list_from_elem != NULL && *err_info == NO_ERROR) {
+          copy_expression(list_from_elem->obj, &object_to_elem, err_info);
+          list_insert_place = append_element_to_list(list_insert_place,
+              object_to_elem, err_info);
+          list_from_elem = list_from_elem->next;
+        } /* while */
+      } /* if */
+    } else {
+      *object_to = object_from;
+    } /* if */
+  } /* copy_expression */
+
+
+
+#ifdef ANSI_C
+
+void concat_lists (listtype *list1, listtype list2)
+#else
+
+void concat_lists (list1, list2)
+listtype *list1;
+listtype list2;
+#endif
+
+  {
+    listtype help_element;
+
+  /* concat_lists */
+#ifdef TRACE_LIST
+    printf("BEGIN concat_lists\n");
+#endif
+/*  printf("%ld %ld", *list1, list2);
+    prot_list(list2);
+    printf("\n"); */
+    if (*list1 == NULL) {
+      *list1 = list2;
+    } else {
+      if (list2 != NULL) {
+        help_element = *list1;
+        while (help_element->next != NULL) {
+          help_element = help_element->next;
+        } /* while */
+        help_element->next = list2;
+      } /* if */
+    } /* if */
+#ifdef TRACE_LIST
+    printf("END concat_lists\n");
+#endif
+  } /* concat_lists */
+
+
+
+#ifdef ANSI_C
+
+void incl_list (listtype *list, objecttype element_object,
+    errinfotype *err_info)
+#else
+
+void incl_list (list, element_object, err_info)
+listtype *list;
+objecttype element_object;
+errinfotype *err_info;
+#endif
+
+  {
+    listtype help_element;
+
+  /* incl_list */
+#ifdef TRACE_RUNLIST
+    printf("BEGIN incl_list\n");
+#endif
+    if (!ALLOC_L_ELEM(help_element)) {
+      *err_info = MEMORY_ERROR;
+    } else {
+      help_element->next = *list;
+      help_element->obj = element_object;
+      *list = help_element;
+    } /* if */
+#ifdef TRACE_RUNLIST
+    printf("END incl_list\n");
+#endif
+  } /* incl_list */
+
+
+
+#ifdef ANSI_C
+
+void excl_list (listtype *list, objecttype elementobject)
+#else
+
+void excl_list (list, elementobject)
+listtype *list;
+objecttype elementobject;
+#endif
+
+  {
+    listtype listelement, disposeelement;
+    booltype found;
+
+  /* excl_list */
+#ifdef TRACE_RUNLIST
+    printf("BEGIN excl_list\n");
+#endif
+    if (*list != NULL) {
+      listelement = *list;
+      if (listelement->obj == elementobject) {
+        *list = listelement->next;
+        FREE_L_ELEM(listelement);
+      } else {
+        found = FALSE;
+        while ((listelement->next != NULL) && !found) {
+          if (listelement->next->obj == elementobject) {
+            found = TRUE;
+          } else {
+            listelement = listelement->next;
+          } /* if */
+        } /* while */
+        if (found) {
+          disposeelement = listelement->next;
+          listelement->next = disposeelement->next;
+          FREE_L_ELEM(disposeelement);
+        } /* if */
+      } /* if */
+    } /* if */
+#ifdef TRACE_RUNLIST
+    printf("END excl_list\n");
+#endif
+  } /* excl_list */
+
+
+
+#ifdef ANSI_C
+
+void copy_list (listtype list_from, listtype *list_to,
+    errinfotype *err_info)
+#else
+
+void copy_list (list_from, list_to, err_info)
+listtype list_from;
+listtype *list_to;
+errinfotype *err_info;
+#endif
+
+  {
+    listtype help_element;
+
+  /* copy_list */
+#ifdef TRACE_RUNLIST
+    printf("BEGIN copy_list\n");
+#endif
+    if (list_from != NULL) {
+      if (flist.list_elems != NULL) {
+        help_element = flist.list_elems;
+        *list_to = help_element;
+        help_element->obj = list_from->obj;
+        list_from = list_from->next;
+        while (list_from != NULL && help_element->next != NULL) {
+          help_element = help_element->next;
+          help_element->obj = list_from->obj;
+          list_from = list_from->next;
+        } /* while */
+        flist.list_elems = help_element->next;
+      } else {
+        if (!ALLOC_RECORD(help_element, listrecord)) {
+          *list_to = (listtype) NULL;
+          *err_info = MEMORY_ERROR;
+        } else {
+          COUNT_RECORD(listrecord, count.list_elem);
+          *list_to = help_element;
+          help_element->obj = list_from->obj;
+          list_from = list_from->next;
+        } /* if */
+      } /* if */
+      if (*err_info == NO_ERROR) {
+        while (list_from != NULL && *err_info == NO_ERROR) {
+          if (!ALLOC_RECORD(help_element->next, listrecord)) {
+            *err_info = MEMORY_ERROR;
+          } else {
+            COUNT_RECORD(listrecord, count.list_elem);
+            help_element = help_element->next;
+            help_element->obj = list_from->obj;
+            list_from = list_from->next;
+          } /* if */
+        } /* while */
+        help_element->next = NULL;
+      } /* if */
+      if (*err_info != NO_ERROR) {
+        emptylist(*list_to);
+        *list_to = (listtype) NULL;
+      } /* if */
+    } else {
+      *list_to = (listtype) NULL;
+    } /* if */
+#ifdef TRACE_RUNLIST
+    printf("END copy_list\n");
+#endif
+  } /* copy_list */
+
+
+
+#ifdef ANSI_C
+
+booltype array_to_list (arraytype arr_from, listtype *list_to)
+#else
+
+booltype array_to_list (arr_from, list_to)
+arraytype arr_from;
+listtype *list_to;
+#endif
+
+  {
+    listtype help_element;
+    memsizetype arr_from_size;
+    memsizetype position;
+    booltype okay;
+
+  /* array_to_list */
+#ifdef TRACE_RUNLIST
+    printf("BEGIN array_to_list\n");
+#endif
+    okay = TRUE;
+    arr_from_size = arr_from->max_position - arr_from->min_position + 1;
+    if (arr_from_size != 0) {
+      if (flist.list_elems != NULL) {
+        help_element = flist.list_elems;
+        *list_to = help_element;
+        help_element->obj = &arr_from->arr[0];
+        position = 1;
+        while (position < arr_from_size && help_element->next != NULL) {
+          help_element = help_element->next;
+          help_element->obj = &arr_from->arr[position];
+          position++;
+        } /* while */
+        flist.list_elems = help_element->next;
+      } else {
+        if (!ALLOC_RECORD(help_element, listrecord)) {
+          *list_to = (listtype) NULL;
+          okay = FALSE;
+        } else {
+          COUNT_RECORD(listrecord, count.list_elem);
+          *list_to = help_element;
+          help_element->obj = &arr_from->arr[0];
+          position = 1;
+        } /* if */
+      } /* if */
+      if (okay) {
+        while (position < arr_from_size && okay) {
+          if (!ALLOC_RECORD(help_element->next, listrecord)) {
+            okay = FALSE;
+          } else {
+            COUNT_RECORD(listrecord, count.list_elem);
+            help_element = help_element->next;
+            help_element->obj = &arr_from->arr[position];
+            position++;
+          } /* if */
+        } /* while */
+        help_element->next = NULL;
+      } /* if */
+      if (!okay) {
+        emptylist(*list_to);
+        *list_to = (listtype) NULL;
+      } /* if */
+    } else {
+      *list_to = (listtype) NULL;
+    } /* if */
+#ifdef TRACE_RUNLIST
+    printf("END array_to_list\n");
+#endif
+    return(okay);
+  } /* array_to_list */
+
+
+
+

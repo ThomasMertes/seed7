@@ -1,0 +1,3594 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  bas.sd7       Basic interpreter                                 *)
+(*  Copyright (C) 1994, 2001, 2004, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(*  This basic interpreter implements the following functions and   *)
+(*  statements ( ** means recognized but not implemented):          *)
+(*                                                                  *)
+(*  ABS, ASC, ATN, **BEEP, CHR$, CINT, **CLEAR, CLOSE, CLS,         *)
+(*  **COLOR, COS, CSRLIN, DATA, DATE$, DEF FN, **DEF SEG, **DEFINT, *)
+(*  DEFSTR, DIM, END, EOF, EXP, FIX, FOR, GOSUB, GOSUB OF, GOTO,    *)
+(*  GOTO OF, HEX$, IF, INKEY$, INPUT, INPUT#, INPUT$, INSTR, INT,   *)
+(*  LCASE$, LEFT$, LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOG,  *)
+(*  MID$, NEXT, OCT$, **ON ERROR, ON GOSUB, ON GOTO, **ON KEY,      *)
+(*  OPEN, OPTION BASE, POS, PRINT, RANDOMIZE, READ, REM, RESET,     *)
+(*  RESTORE, RETURN, RIGHT$, RND, SCREEN, SGN, SIN, **SOUND,        *)
+(*  SPACE$, SPC, SQR, STOP, STR$, STRING$, SYSTEM, TAB, TAN, TIME$, *)
+(*  TIMER, UCASE$, VAL, WEND, WHILE, **WIDTH                        *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+include "float.s7i";
+include "screen.s7i";
+include "graph.s7i";
+include "draw.s7i";
+include "window.s7i";
+include "keybd.s7i";
+include "echo.s7i";
+include "line.s7i";
+include "time.s7i";
+
+const set of char: letter_char is {'A' .. 'Z'} | {'a' .. 'z'};
+const set of char: digit_char is {'0' .. '9'};
+const set of char: alphanum_char is letter_char | digit_char;
+const set of char: hexdigit_char is digit_char | {'A' .. 'F'} | {'a' .. 'f'};
+const set of char: octdigit_char is {'0' .. '7'};
+
+var array string: prg is 0 times "";
+var array string: prg_label is 0 times "";
+
+var file: log is STD_NULL;
+var file: err is STD_NULL;
+var TEXT: scr is STD_NULL;
+var TEXT: win is STD_NULL;
+
+var integer: file_line_number is 0;
+var string: statement_label is "";
+var integer: on_error_line_number is 0;
+
+const type: label_hash is hash [string] integer;
+var label_hash: label is label_hash.EMPTY_HASH;
+
+var integer: data_line_number is 0;
+var string: data_line is "";
+
+var set of char: defstr_any is {'\"'};
+var set of char: defstr_var is (set of char).EMPTY_SET;
+
+var array string: function_name is 0 times "";
+var array string: function_params is 0 times "";
+var array string: function_expression is 0 times "";
+
+const type: numeric_hash is hash [string] float;
+var numeric_hash: numeric_var is numeric_hash.EMPTY_HASH;
+
+const type: string_hash is hash [string] string;
+var string_hash: string_var is string_hash.EMPTY_HASH;
+
+const type: file_array is array file;
+var file_array: file_value is 256 times STD_NULL;
+
+var array string: for_var_name is 0 times "";
+var array float: for_upper_limit is 0 times 0.0;
+var array float: for_step_value is 0 times 0.0;
+var array integer: for_body_line is 0 times 0;
+var array integer: for_body_column is 0 times 0;
+
+var array integer: while_cond_line is 0 times 0;
+var array integer: while_cond_column is 0 times 0;
+
+var array integer: return_line is 0 times 0;
+var array integer: return_column is 0 times 0;
+
+var integer: currX is 0;
+var integer: currY is 0;
+
+
+const proc: list_prog () is func
+  local
+    var integer: number is 0;
+  begin
+    for number range 1 to length(prg) do
+      if prg[number] <> "" then
+        write(prg_label[number] lpad 5);
+        write(" ");
+        writeln(prg[number]);
+      end if;
+    end for;
+  end func;
+
+
+const func integer: hex_value (in string: stri) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: pos is 0;
+    var integer: digit is 0;
+  begin
+    pos := 1;
+    while pos <= length(stri) do
+      if stri[pos] >= '0' and stri[pos] <= '9' then
+        digit := ord(stri[pos]) - ord('0');
+      elsif stri[pos] >= 'A' and stri[pos] <= 'F' then
+        digit := 10 + ord(stri[pos]) - ord('A');
+      elsif stri[pos] >= 'a' and stri[pos] <= 'f' then
+        digit := 10 + ord(stri[pos]) - ord('a');
+      end if;
+      result := result * 16 + digit;
+      incr(pos);
+    end while;
+  end func;
+
+
+const func integer: oct_value (in string: stri) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: pos is 0;
+    var integer: digit is 0;
+  begin
+    pos := 1;
+    while pos <= length(stri) do
+      if stri[pos] >= '0' and stri[pos] <= '7' then
+        digit := ord(stri[pos]) - ord('0');
+      end if;
+      result := result * 8 + digit;
+      incr(pos);
+    end while;
+  end func;
+
+
+const func string: hex_str (in var integer: number) is func
+  result
+    var string: result is "";
+  local
+    var integer: digit is 0;
+  begin
+    while number >= 0 do
+      digit := number rem 16;
+      number := number div 16;
+      if digit <= 9 then
+        result := str(chr(ord('0') + digit)) & result;
+      else
+        result := str(chr(ord('A') + digit - 10)) & result;
+      end if;
+    end while;
+  end func;
+
+
+const func string: oct_str (in var integer: number) is func
+  result
+    var string: result is "";
+  begin
+    while number >= 0 do
+      result := str(number rem 8) & result;
+      number := number div 8;
+    end while;
+  end func;
+
+
+const func string: get_symbol (inout string: line) is func
+  result
+    var string: symbol is "";
+  local
+    var integer: leng is 0;
+    var integer: start is 0;
+    var integer: index is 0;
+    var char: ch is ' ';
+  begin
+    leng := length(line);
+    if leng > 0 then
+      repeat
+        incr(start);
+        if start <= leng then
+          ch := line[start];
+        else
+          ch :=  '\0\';
+        end if;
+      until ch <> ' ' and ch <> '\t';
+      index := start;
+      if ch in letter_char then
+        repeat
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  ' ';
+          end if;
+        until ch not in alphanum_char;
+        if ch = '$' or ch = '%' or ch = '!' or ch = '#' then
+          incr(index);
+        end if;
+        symbol := upper(line[start .. pred(index)]);
+        line := line[index .. ];
+      elsif ch in digit_char then
+        repeat
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  ' ';
+          end if;
+        until ch not in digit_char;
+        if ch = '.' then
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  ' ';
+          end if;
+          if ch in digit_char then
+            repeat
+              incr(index);
+              if index <= leng then
+                ch := line[index];
+              else
+                ch :=  ' ';
+              end if;
+            until ch < '0' or ch > '9';
+          end if;
+        end if;
+        if ch = 'E' or ch = 'e' then
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  ' ';
+          end if;
+          if ch in digit_char or ch = '+' or ch = '-' then
+            if ch = '+' or ch = '-' then
+              incr(index);
+              if index <= leng then
+                ch := line[index];
+              else
+                ch :=  ' ';
+              end if;
+            end if;
+            while ch in digit_char do
+              incr(index);
+              if index <= leng then
+                ch := line[index];
+              else
+                ch :=  ' ';
+              end if;
+            end while;
+          else
+            decr(index);
+          end if;
+        end if;
+        if ch = '!' or ch = '#' then
+          incr(index);
+        end if;
+        symbol := line[start .. pred(index)];
+        line := line[index .. ];
+      elsif ch = '.' then
+        incr(index);
+        if index <= leng then
+          ch := line[index];
+        else
+          ch :=  ' ';
+        end if;
+        if ch in digit_char then
+          repeat
+            incr(index);
+            if index <= leng then
+              ch := line[index];
+            else
+              ch :=  ' ';
+            end if;
+          until ch not in digit_char;
+          if ch = 'E' or ch = 'e' then
+            incr(index);
+            if index <= leng then
+              ch := line[index];
+            else
+              ch :=  ' ';
+            end if;
+            if ch in digit_char or ch = '+' or ch = '-' then
+              if ch = '+' or ch = '-' then
+                incr(index);
+                if index <= leng then
+                  ch := line[index];
+                else
+                  ch :=  ' ';
+                end if;
+              end if;
+              while ch in digit_char do
+                incr(index);
+                if index <= leng then
+                  ch := line[index];
+                else
+                  ch :=  ' ';
+                end if;
+              end while;
+            else
+              decr(index);
+            end if;
+          end if;
+          if ch = '!' or ch = '#' then
+            incr(index);
+          end if;
+          symbol := "0" & line[start .. pred(index)];
+          line := line[index .. ];
+        else
+          symbol := ".";
+          line := line[index .. ];
+        end if;
+      elsif ch = '&' then
+        incr(index);
+        if index <= leng then
+          ch := line[index];
+        else
+          ch :=  ' ';
+        end if;
+        if ch = 'H' then
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  ' ';
+          end if;
+          start := index;
+          while ch in hexdigit_char do
+            incr(index);
+            if index <= leng then
+              ch := line[index];
+            else
+              ch :=  ' ';
+            end if;
+          end while;
+          symbol := str(hex_value(line[start .. pred(index)]));
+          line := line[index .. ];
+        else
+          if ch = 'O' then
+            incr(index);
+            if index <= leng then
+              ch := line[index];
+            else
+              ch :=  ' ';
+            end if;
+          end if;
+          start := index;
+          while ch in octdigit_char do
+            incr(index);
+            if index <= leng then
+              ch := line[index];
+            else
+              ch :=  ' ';
+            end if;
+          end while;
+          symbol := str(oct_value(line[start .. pred(index)]));
+          line := line[index .. ];
+        end if;
+      elsif ch = '"' then
+        repeat
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  ' ';
+          end if;
+        until ch = '"' or index > leng;
+        symbol := line[start .. pred(index)];
+        line := line[succ(index) .. ];
+      elsif ch = '<' then
+        (* Sometimes <> or <= are written as < > or < =  *)
+        repeat
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  '\0\';
+          end if;
+        until ch <> ' ' and ch <> '\t';
+        if ch = '>' then
+          incr(index);
+          symbol := "<>";
+        elsif ch = '=' then
+          incr(index);
+          symbol := "<=";
+        else
+          symbol := "<";
+        end if;
+        line := line[index .. ];
+      elsif ch = '>' then
+        (* Sometimes >= is written as > =  *)
+        repeat
+          incr(index);
+          if index <= leng then
+            ch := line[index];
+          else
+            ch :=  '\0\';
+          end if;
+        until ch <> ' ' and ch <> '\t';
+        if ch = '=' then
+          incr(index);
+          symbol := ">=";
+        else
+          symbol := ">";
+        end if;
+        line := line[index .. ];
+      elsif ch = '\r' then
+        symbol := "";
+        line := line[succ(index) .. ];
+      else
+        symbol := str(line[index]);
+        line := line[succ(index) .. ];
+      end if;
+    end if;
+  end func;
+
+
+const proc: error_marker is func
+  begin
+    err << " ***** ";
+    if statement_label <> "" then
+      err << "[";
+      err << statement_label;
+      err << "] ";
+    else
+      err << "(";
+      err << file_line_number;
+      err << ") ";
+    end if;
+  end func; 
+
+
+const proc: error_expect (in string: expected_symbol, in string: symbol) is func
+  begin
+    error_marker;
+    err << literal(expected_symbol);
+    err << " EXPECTED - FOUND ";
+    err << literal(symbol);
+    err << ".";
+    err << NL;
+  end func;
+
+
+const proc: error_expect2 (in string: expected_symbol1, in string: expected_symbol2, in string: symbol) is func
+  begin
+    error_marker;
+    err << literal(expected_symbol1);
+    err << " OR ";
+    err << literal(expected_symbol2);
+    err << " EXPECTED - FOUND ";
+    err << literal(symbol);
+    err << ".";
+    err << NL;
+  end func;
+
+
+const proc: expect (in string: expected_symbol, inout string: symbol, inout string: line) is func
+  begin
+    if symbol = expected_symbol then
+      symbol := get_symbol(line);
+    else
+      error_expect(expected_symbol, symbol);
+    end if;
+  end func;
+
+
+const func color: color_num (in integer: col_num) is func
+  result
+    var color: result is black;
+  begin
+    case col_num of
+      when {0}: result := black;
+      when {1}: result := dark_blue;
+      when {2}: result := dark_green;
+      when {3}: result := dark_cyan;
+      when {4}: result := dark_red;
+      when {5}: result := dark_magenta;
+      when {6}: result := brown;
+      when {7}: result := light_gray;
+      when {8}: result := dark_gray;
+      when {9}: result := light_blue;
+      when {10}: result := light_green;
+      when {11}: result := light_cyan;
+      when {12}: result := light_red;
+      when {13}: result := light_magenta;
+      when {14}: result := yellow;
+      when {15}: result := white;
+    end case;
+  end func;
+
+
+const func string: get_data_line () is func
+  result
+    var string: data_line is "";
+  local
+    var boolean: searching is TRUE;
+    var string: data_symbol is "";
+  begin
+    while searching do
+      incr(data_line_number);
+      if data_line_number > length(prg) then
+        error_marker;
+        err << "OUT OF DATA";
+        err << NL;
+        data_line := ",,,,,,,,,,,,,,,,,,,,,,,,,";
+        searching := FALSE;
+      elsif prg[data_line_number] <> "" then
+        data_line := prg[data_line_number];
+        (* write(data_line_number lpad 5);
+        write(" ");
+        write(prg[data_line_number]);
+        writeln; *)
+        repeat
+          data_symbol := get_symbol(data_line);
+        until data_symbol = "" or data_symbol = "DATA" or
+            data_symbol = "REM" or data_symbol = "'";
+        if data_symbol = "DATA" then
+          searching := FALSE;
+        end if;
+      end if;
+    end while;
+  end func;
+
+
+const func string: get_data_field () is func
+  result
+    var string: data_field is "";
+  local
+    var integer: comma_pos is 0;
+    var integer: quote_pos is 0;
+    var integer: colon_pos is 0;
+    var string: data_symbol is "";
+  begin
+    if data_line = "" then
+      data_line := get_data_line();
+    end if;
+    while data_line[1] = ' ' do
+      data_line := data_line[2 .. ];
+    end while;
+    if data_line[ .. 1] = "\"" then
+      data_field := "";
+      data_line := data_line[2 .. ];
+      quote_pos := pos(data_line, "\"");
+      while quote_pos <> 0 do
+        if succ(quote_pos) <= length(data_line) and
+            data_line[succ(quote_pos)] = '"' then
+          data_field &:= data_line[ .. quote_pos];
+          data_line := data_line[quote_pos + 2 .. ];
+          quote_pos := pos(data_line, "\"");
+        else
+          data_field &:= data_line[ .. pred(quote_pos)];
+          data_line := data_line[succ(quote_pos) .. ];
+          quote_pos := 0;
+        end if;
+      end while;
+      comma_pos := pos(data_line, ",");
+      if comma_pos <> 0 then
+        data_line := data_line [succ(comma_pos) .. ];
+      else
+        data_line := "";
+      end if;
+    else
+      comma_pos := pos(data_line, ",");
+      colon_pos := pos(data_line, ":");
+      if colon_pos <> 0 then
+        if comma_pos = 0 or colon_pos < comma_pos then
+          data_field := data_line[ .. pred(colon_pos)];
+          data_line :=  data_line[succ(colon_pos) .. ];
+          repeat
+            data_symbol := get_symbol(data_line);
+          until data_symbol = "" or data_symbol = "DATA" or
+              data_symbol = "REM" or data_symbol = "'";
+          if data_symbol <> "DATA" then
+            data_line := "";
+          end if;
+        else
+          data_field := data_line[ .. pred(comma_pos)];
+          data_line :=  data_line[succ(comma_pos) .. ];
+          if data_line = "" then
+            (* A comma at the end of a DATA line is READ as an    *)
+            (* empty string with the next call of get_data_field. *)
+            data_line := " ";
+          end if;
+        end if;
+      else
+        if comma_pos <> 0 then
+          data_field := data_line[ .. pred(comma_pos)];
+          data_line :=  data_line[succ(comma_pos) .. ];
+          if data_line = "" then
+            (* A comma at the end of a DATA line is READ as an    *)
+            (* empty string with the next call of get_data_field. *)
+            data_line := " ";
+          end if;
+        else
+          data_field := data_line;
+          data_line := "";
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const proc: set_function (in string: name, in string: params, in string: expression) is func
+  local
+    var integer: index is 0;
+    var boolean: found is FALSE;
+  begin
+    for index range 1 to length(function_name) do
+      if name = function_name[index] then
+        function_params[index] := params;
+        function_expression[index] := expression;
+        found := TRUE;
+      end if;
+    end for;
+    if not found then
+      function_name := function_name & 1 times name;
+      function_params := function_params & 1 times params;
+      function_expression := function_expression & 1 times expression;
+    end if;
+  end func;
+
+
+const func integer: get_function_number (in string: name) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: index is 0;
+  begin
+    for index range 1 to length(function_name) do
+      if name = function_name[index] then
+        result := index;
+      end if;
+    end for;
+  end func;
+
+
+const func float: get_num_value (in string: name) is func
+  result
+    var float: result is 0.0;
+  begin
+    if name in numeric_var then
+      result := numeric_var[name];
+    end if;
+  end func;
+
+
+const func string: get_str_value (in string: name) is func
+  result
+    var string: result is "";
+  begin
+    if name in string_var then
+      result := string_var[name];
+    end if;
+  end func;
+
+
+const func float: exec_expr (inout string: symbol, inout string: line) is forward;
+
+
+const func string: get_name (inout string: symbol, inout string: line) is func
+  result
+    var string: name is "";
+  local
+    var float: num is 0.0;
+  begin
+    name := symbol;
+    symbol := get_symbol(line);
+    if symbol = "(" or symbol = "[" then
+      symbol := get_symbol(line);
+      num := exec_expr(symbol, line);
+      name &:= "(" & str(round(num));
+      while symbol = "," do
+        symbol := get_symbol(line);
+        num := exec_expr(symbol, line);
+        name &:= "," & str(round(num));
+      end while;
+      if symbol <> ")" and symbol <> "]" then
+        error_expect2(")", "]", symbol);
+      else
+        name &:= ")";
+        symbol := get_symbol(line);
+      end if;
+    end if;
+  end func;
+
+
+const func string: exec_str_expr (
+    inout string: symbol,
+    inout string: line,
+    inout string: variable_name) is forward;
+
+
+const func string: exec_str_function (in integer: func_num, inout string: symbol, inout string: line) is func
+  result
+    var string: result is "";
+  local
+    var string: func_expr is "";
+    var string: func_symbol is "";
+    var string: formal_params is "";
+    var string: formal_param is "";
+    var string: unused_name is "";
+    var array string: str_value_backup is 0 times "";
+    var array float: num_value_backup is 0 times 0.0;
+  begin
+    log << "function ";
+    log << function_name[func_num];
+    formal_params := function_params[func_num];
+    symbol := get_symbol(line);
+    if symbol = "(" then
+      log << "(";
+      repeat
+        symbol := get_symbol(line);
+        formal_param := get_symbol(formal_params);
+        if formal_param[length(formal_param)] = '$' then
+          if formal_param in string_var then
+            str_value_backup &:= [] (string_var[formal_param]);
+          else
+            str_value_backup &:= [] ("");
+          end if;
+          string_var @:= [formal_param] exec_str_expr(symbol, line, unused_name);
+          log << string_var[formal_param];
+        else
+          if formal_param in numeric_var then
+            num_value_backup &:= [] (numeric_var[formal_param]);
+          else
+            num_value_backup &:= [] (0.0);
+          end if;
+          numeric_var @:= [formal_param] exec_expr(symbol, line);
+          log << numeric_var[formal_param];
+        end if;
+        log << symbol;
+      until symbol <> ",";
+      expect(")", symbol, line);
+    end if;
+    func_expr := function_expression[func_num];
+    log << " = ";
+    log << func_expr;
+    log << NL;
+    flush(log);
+    func_symbol := get_symbol(func_expr);
+    result := exec_str_expr(func_symbol, func_expr, unused_name);
+    formal_params := function_params[func_num];
+    formal_param := get_symbol(formal_params);
+    while formal_param <> "" do
+      if formal_param[length(formal_param)] = '$' then
+        string_var @:= [formal_param] str_value_backup[1];
+        str_value_backup := str_value_backup[2 ..];
+      else
+        numeric_var @:= [formal_param] num_value_backup[1];
+        num_value_backup := num_value_backup[2 ..];
+      end if;
+      formal_param := get_symbol(formal_params);
+    end while;
+  end func;
+
+
+const func string: exec_str_primary (
+    inout string: symbol,
+    inout string: line,
+    inout string: variable_name) is func
+  result
+    var string: result is "";
+  local
+    var string: unused_name is "";
+    var string: stri1 is "";
+    var string: stri2 is "";
+    var float: num1 is 0.0;
+    var float: num2 is 0.0;
+    var integer: func_num is 0;
+  begin
+    variable_name := "";
+    if symbol[1] = '"' then
+      result := symbol[2 .. ];
+      symbol := get_symbol(line);
+    elsif symbol = "LEFT$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(",", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := stri1[ .. round(num1)];
+      log << "LEFT$(";
+      log << literal(stri1);
+      log << ", ";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "RIGHT$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(",", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := stri1[length(stri1) - round(num1) + 1 .. ];
+      log << "RIGHT$(";
+      log << literal(stri1);
+      log << ", ";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "MID$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(",", symbol, line);
+      num1 := exec_expr(symbol, line);
+      log << "MID$(";
+      log << literal(stri1);
+      log << ", ";
+      log << num1;
+      if symbol = "," then
+        symbol := get_symbol(line);
+        num2 := exec_expr(symbol, line);
+        result := stri1[round(num1) .. round(num1) + round(num2) - 1];
+        log << ", ";
+        log << num2;
+      else
+        result := stri1[round(num1) .. ];
+      end if;
+      expect(")", symbol, line);
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "STRING$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(",", symbol, line);
+      if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+        stri1 := exec_str_expr(symbol, line, unused_name);
+        result := stri1 mult round(num1);
+        log << "STRING$(";
+        log << num1;
+        log << ", \"";
+        log << stri1;
+        log << "\")";
+        log << NL;
+        flush(log);
+      else
+        num2 := exec_expr(symbol, line);
+        result := str(chr(round(num2))) mult round(num1);
+        log << "STRING$(";
+        log << num1;
+        log << ", ";
+        log << num2;
+        log << ")";
+        log << NL;
+        flush(log);
+      end if;
+      expect(")", symbol, line);
+    elsif symbol = "SPACE$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := " " mult round(num1);
+      log << "SPACE$(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "CHR$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := str(chr(round(num1)));
+      log << "CHR$(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "STR$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := str(round(num1));
+      if result[1] <> '-' then
+        result := " " & result;
+      end if;
+      if result[length(result) - 1 .. ] = ".0" then
+        result := result[ .. length(result) - 2];
+      end if;
+      log << "STR$(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "LCASE$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      result := lower(stri1);
+      log << "LCASE$(\"";
+      log << stri1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "UCASE$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      result := upper(stri1);
+      log << "UCASE$(\"";
+      log << stri1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "INKEY$" then
+      symbol := get_symbol(line);
+      flush(win);
+      result := str(busy_getc(KEYBOARD));
+      log << "INKEY$ -> ";
+      log << literal(result);
+      log << NL;
+      flush(log);
+    elsif symbol = "INPUT$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      flush(win);
+      result := gets(KEYBOARD, round(num1));
+      log << "INPUT$(";
+      log << round(num1);
+      log << ") -> ";
+      log << literal(result);
+      log << NL;
+      flush(log);
+    elsif symbol = "HEX$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := hex_str(round(num1));
+      log << "HEX$(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "OCT$" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := oct_str(round(num1));
+      log << "OCT$(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "TIME$" then
+      symbol := get_symbol(line);
+      result := str_time(time(NOW));
+      log << "TIME$ -> ";
+      log << literal(result);
+      log << NL;
+      flush(log);
+    elsif symbol = "DATE$" then
+      symbol := get_symbol(line);
+      result := replace(str_date(time(NOW)), "/", "-");
+      log << "DATE$ -> ";
+      log << literal(result);
+      log << NL;
+      flush(log);
+    elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
+      func_num := get_function_number(symbol);
+      if func_num = 0 then
+        variable_name := get_name(symbol, line);
+        result := get_str_value(variable_name);
+        log << variable_name;
+        log << " is ";
+        log << result;
+        log << NL;
+        flush(log);
+      else
+        result := exec_str_function(func_num, symbol, line);
+        log << "function ";
+        log << function_name[func_num];
+        log << " is ";
+        log << result;
+        log << NL;
+        flush(log);
+      end if;
+    end if;
+  end func;
+
+
+const func string: exec_str_expr (
+    inout string: symbol,
+    inout string: line,
+    inout string: variable_name) is func
+  result
+    var string: result is "";
+  local
+    var string: unused_name is "";
+    var string: op is "";
+    var string: stri is "";
+  begin
+    result := exec_str_primary(symbol, line, variable_name);
+    while symbol = "+" do
+      variable_name := "";
+      op := symbol;
+      symbol := get_symbol(line);
+      stri := exec_str_primary(symbol, line, unused_name);
+      if op = "+" then
+         result &:= stri;
+      end if;
+    end while;
+  end func;
+
+
+const func float: exec_function (in integer: func_num, inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var string: func_expr is "";
+    var string: func_symbol is "";
+    var string: formal_params is "";
+    var string: formal_param is "";
+    var string: unused_name is "";
+    var array string: str_value_backup is 0 times "";
+    var array float: num_value_backup is 0 times 0.0;
+  begin
+    log << "function ";
+    log << function_name[func_num];
+    formal_params := function_params[func_num];
+    symbol := get_symbol(line);
+    if symbol = "(" then
+      log << "(";
+      repeat
+        symbol := get_symbol(line);
+        formal_param := get_symbol(formal_params);
+        if formal_param[length(formal_param)] = '$' then
+          if formal_param in string_var then
+            str_value_backup &:= [] (string_var[formal_param]);
+          else
+            str_value_backup &:= [] ("");
+          end if;
+          string_var @:= [formal_param] exec_str_expr(symbol, line, unused_name);
+          log << string_var[formal_param];
+        else
+          if formal_param in numeric_var then
+            num_value_backup &:= [] (numeric_var[formal_param]);
+          else
+            num_value_backup &:= [] (0.0);
+          end if;
+          numeric_var @:= [formal_param] exec_expr(symbol, line);
+          log << numeric_var[formal_param];
+        end if;
+        log << symbol;
+      until symbol <> ",";
+      expect(")", symbol, line);
+    end if;
+    func_expr := function_expression[func_num];
+    log << " = ";
+    log << func_expr;
+    log << NL;
+    flush(log);
+    func_symbol := get_symbol(func_expr);
+    result := exec_expr(func_symbol, func_expr);
+    formal_params := function_params[func_num];
+    formal_param := get_symbol(formal_params);
+    while formal_param <> "" do
+      if formal_param[length(formal_param)] = '$' then
+        string_var @:= [formal_param] str_value_backup[1];
+        str_value_backup := str_value_backup[2 ..];
+      else
+        numeric_var @:= [formal_param] num_value_backup[1];
+        num_value_backup := num_value_backup[2 ..];
+      end if;
+      formal_param := get_symbol(formal_params);
+    end while;
+  end func;
+
+
+const func float: exec_primary (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var string: variable_name is "";
+    var string: unused_name is "";
+    var string: stri1 is "";
+    var string: stri2 is "";
+    var float: num1 is 0.0;
+    var integer: index1 is 0;
+    var integer: func_num is 0;
+  begin
+    if symbol[1] in digit_char then
+      block
+        result := float parse symbol;
+        symbol := get_symbol(line);
+      exception
+        catch RANGE_ERROR:
+          error_marker;
+          err << "ERROR IN PARSE NUMBER ";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
+      end block;
+    elsif symbol = "INT" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := floor(num1);
+      log << "INT(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "ABS" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := abs(num1);
+      log << "ABS(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "LEN" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      result := flt(length(stri1));
+      log << "LEN(\"";
+      log << stri1;
+      log << "\")";
+      log << NL;
+      flush(log);
+    elsif symbol = "ASC" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      log << "ASC(\"";
+      log << stri1;
+      log << "\")";
+      log << NL;
+      flush(log);
+      if stri1 <> "" then
+        result := flt(ord(stri1[1]));
+      else
+        error_marker;
+        err << "ASC(\"\") IS ILLEGAL.";
+        err << NL;
+      end if;
+    elsif symbol = "INSTR" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+        num1 := 1.0;
+      else
+        num1 := exec_expr(symbol, line);
+        expect(",", symbol, line);
+      end if;
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(",", symbol, line);
+      stri2 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      result := flt(pos(stri1[round(num1) .. ], stri2));
+      log << "INSTR(";
+      log << num1;
+      log << ", ";
+      log << literal(stri1);
+      log << ", ";
+      log << literal(stri2);
+      log << ") -> ";
+      log << result;
+      log << NL;
+      flush(log);
+    elsif symbol = "RND" then
+      symbol := get_symbol(line);
+      if symbol = "(" then
+        symbol := get_symbol(line);
+        num1 := exec_expr(symbol, line);
+        expect(")", symbol, line);
+      end if;
+      result := rand(0.0, 1.0);
+      log << "RND -> ";
+      log << result;
+      log << NL;
+      flush(log);
+    elsif symbol = "SQR" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := sqrt(num1);
+      log << "SQR(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "CINT" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := flt(round(num1));
+      log << "CINT(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "FIX" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := flt(trunc(num1));
+      log << "FIX(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "VAL" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      expect(")", symbol, line);
+      block
+        result := float parse stri1;
+      exception
+        catch RANGE_ERROR:
+          result := 0.0;
+      end block;
+      log << "VAL(";
+      log << stri1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "SGN" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      if num1 > 0.0 then
+        result := 1.0;
+      elsif num1 = 0.0 then
+        result := 0.0;
+      else
+        result := -1.0;
+      end if;
+      log << "SGN(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "SIN" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := sin(num1);
+      log << "SIN(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "COS" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := cos(num1);
+      log << "COS(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "TAN" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := tan(num1);
+      log << "TAN(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "ATN" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := atan(num1);
+      log << "ATN(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "EXP" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := exp(num1);
+      log << "EXP(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "LOG" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := log(num1);
+      log << "LOG(";
+      log << num1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "EOF" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      index1 := round(exec_expr(symbol, line));
+      expect(")", symbol, line);
+      if eof(file_value[index1]) then
+        result := -1.0;
+      else
+        result := 0.0;
+      end if;
+      log << "EOF(";
+      log << index1;
+      log << ")";
+      log << NL;
+      flush(log);
+    elsif symbol = "POS" then
+      symbol := get_symbol(line);
+      expect("(", symbol, line);
+      num1 := exec_expr(symbol, line);
+      expect(")", symbol, line);
+      result := flt(column(win));
+      log << "POS -> ";
+      log << result;
+      log << NL;
+      flush(log);
+    elsif symbol = "CSRLIN" then
+      symbol := get_symbol(line);
+      result := flt(line(win));
+      log << "CSRLIN -> ";
+      log << result;
+      log << NL;
+      flush(log);
+    elsif symbol = "TIMER" then
+      symbol := get_symbol(line);
+      result := 0.0;
+      log << "TIMER -> ";
+      log << result;
+      log << NL;
+      flush(log);
+    elsif symbol = "(" then
+      symbol := get_symbol(line);
+      result := exec_expr(symbol, line);
+      expect(")", symbol, line);
+    elsif symbol[1] >= 'A' and symbol[1] <= 'Z' then
+      func_num := get_function_number(symbol);
+      if func_num = 0 then
+        variable_name := get_name(symbol, line);
+        result := get_num_value(variable_name);
+        log << variable_name;
+        log << " is ";
+        log << result;
+        log << NL;
+        flush(log);
+      else
+        result := exec_function(func_num, symbol, line);
+        log << "function ";
+        log << function_name[func_num];
+        log << " is ";
+        log << result;
+        log << NL;
+        flush(log);
+      end if;
+    end if;
+  end func;
+
+
+const func float: exec_exponentation (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var float: num is 0.0;
+  begin
+    result := exec_primary(symbol, line);
+    if symbol = "^" then
+      symbol := get_symbol(line);
+      num := exec_primary(symbol, line);
+      if flt(round(num)) = num then
+        result := result ** round(num);
+      else
+        result := result ** num;
+      end if;
+    end if;
+  end func;
+
+
+const func float: exec_negation (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  begin
+    if symbol = "-" then
+      symbol := get_symbol(line);
+      result := -exec_exponentation(symbol, line);
+    elsif symbol = "+" then
+      symbol := get_symbol(line);
+      result := exec_exponentation(symbol, line);
+    else
+      result := exec_exponentation(symbol, line);
+    end if;
+  end func;
+
+
+const func float: exec_multdiv (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var string: op is "";
+    var float: num is 0.0;
+  begin
+    result := exec_negation(symbol, line);
+    while symbol = "*" or symbol = "/" or symbol = "\\" or symbol = "MOD" do
+      op := symbol;
+      symbol := get_symbol(line);
+      num := exec_negation(symbol, line);
+      if op = "*" then
+        result := result * num;
+      else
+        block
+          if op = "/" then
+            result := result / num;
+          elsif op = "\\" then
+            result := flt(round(result) div round(num));
+          elsif op = "MOD" then
+            result := flt(round(result) rem round(num));
+          end if;
+        exception
+          catch NUMERIC_ERROR:
+            error_marker;
+            err << "DIVISION BY ZERO (";
+            err << result;
+            err << op;
+            err << num;
+            err << ")";
+            err << NL;
+            result := 0.0;
+        end block;
+      end if;
+    end while;
+  end func;
+
+
+const func float: exec_addsub (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var string: op is "";
+    var float: num is 0.0;
+  begin
+    result := exec_multdiv(symbol, line);
+    while symbol = "+" or symbol = "-" do
+      op := symbol;
+      symbol := get_symbol(line);
+      num := exec_multdiv(symbol, line);
+      if op = "+" then
+         result := result + num;
+      elsif op = "-" then
+         result := result - num;
+      end if;
+    end while;
+  end func;
+
+
+const func float: exec_comparison (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var string: unused_name is "";
+    var string: op is "";
+    var string: stri1 is "";
+    var string: stri2 is "";
+    var float: num is 0.0;
+  begin
+    if (symbol[length(symbol)] = '$' or symbol[1] in defstr_any) and
+        symbol <> "INT" and symbol <> "ABS"    and symbol <> "LEN"   and
+        symbol <> "ASC" and symbol <> "INSTR"  and symbol <> "RND"   and
+        symbol <> "SQR" and symbol <> "CINT"   and symbol <> "FIX"   and
+        symbol <> "VAL" and symbol <> "SGN"    and symbol <> "SIN"   and
+        symbol <> "COS" and symbol <> "TAN"    and symbol <> "ATN"   and
+        symbol <> "EXP" and symbol <> "LOG"    and symbol <> "EOF"   and
+        symbol <> "POS" and symbol <> "CSRLIN" and symbol <> "TIMER" then
+      stri1 := exec_str_expr(symbol, line, unused_name);
+      if symbol = "=" or symbol = "<>" or
+          symbol = "<" or symbol = ">" or
+          symbol = "<=" or symbol = ">=" then
+        op := symbol;
+        symbol := get_symbol(line);
+        stri2 := exec_str_expr(symbol, line, unused_name);
+        if op = "=" then
+           result := flt(-ord(stri1 = stri2));
+        elsif op = "<>" then
+           result := flt(-ord(stri1 <> stri2));
+        elsif op = "<" then
+           result := flt(-ord(stri1 < stri2));
+        elsif op = ">" then
+           result := flt(-ord(stri1 > stri2));
+        elsif op = "<=" then
+           result := flt(-ord(stri1 <= stri2));
+        elsif op = ">=" then
+           result := flt(-ord(stri1 >= stri2));
+        end if;
+      end if;
+    else
+      result := exec_addsub(symbol, line);
+      if symbol = "=" or symbol = "<>" or
+          symbol = "<" or symbol = ">" or
+          symbol = "<=" or symbol = ">=" then
+        op := symbol;
+        symbol := get_symbol(line);
+        num := exec_addsub(symbol, line);
+        if op = "=" then
+           result := flt(-ord(result = num));
+        elsif op = "<>" then
+           result := flt(-ord(result <> num));
+        elsif op = "<" then
+           result := flt(-ord(result < num));
+        elsif op = ">" then
+           result := flt(-ord(result > num));
+        elsif op = "<=" then
+           result := flt(-ord(result <= num));
+        elsif op = ">=" then
+           result := flt(-ord(result >= num));
+        end if;
+      end if;
+    end if;
+  end func;
+
+
+const func float: exec_cond_not (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var float: num is 0.0;
+  begin
+    if symbol = "NOT" then
+      symbol := get_symbol(line);
+      num := exec_comparison(symbol, line);
+      result := flt(-ord(num = 0.0));
+    else
+      result := exec_comparison(symbol, line);
+    end if;
+  end func;
+
+
+const func integer: binary_and (in var integer: number1, in var integer: number2) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: count is 0;
+  begin
+    for count range 0 to 15 do
+      if odd(number1) and odd(number2) then
+        result +:= 2 ** count;
+      end if;
+      number1 := number1 div 2;
+      number2 := number2 div 2;
+    end for;
+  end func;
+
+
+const func float: exec_cond_and (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var integer: number1 is 0;
+    var integer: number2 is 0;
+  begin
+    result := exec_cond_not(symbol, line);
+    while symbol = "AND" do
+      number1 := round(result);
+      symbol := get_symbol(line);
+      number2 := round(exec_cond_not(symbol, line));
+      result := flt(binary_and(number1, number2));
+    end while;
+  end func;
+
+
+const func integer: binary_or (in var integer: number1, in var integer: number2) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: count is 0;
+  begin
+    for count range 0 to 15 do
+      if odd(number1) or odd(number2) then
+        result +:= 2 ** count;
+      end if;
+      number1 := number1 div 2;
+      number2 := number2 div 2;
+    end for;
+  end func;
+
+
+const func integer: binary_xor (in var integer: number1, in var integer: number2) is func
+  result
+    var integer: result is 0;
+  local
+    var integer: count is 0;
+  begin
+    for count range 0 to 15 do
+      if odd(number1) <> odd(number2) then
+        result +:= 2 ** count;
+      end if;
+      number1 := number1 div 2;
+      number2 := number2 div 2;
+    end for;
+  end func;
+
+
+const func float: exec_cond_or (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var string: op is "";
+    var float: num is 0.0;
+    var integer: number1 is 0;
+    var integer: number2 is 0;
+  begin
+    result := exec_cond_and(symbol, line);
+    while symbol = "OR" or symbol = "XOR" do
+      number1 := round(result);
+      op := symbol;
+      symbol := get_symbol(line);
+      number2 := round(exec_cond_and(symbol, line));
+      if op = "OR" then
+        result := flt(binary_or(number1, number2));
+      elsif op = "XOR" then
+        result := flt(binary_xor(number1, number2));
+      end if;
+    end while;
+  end func;
+
+
+const func float: exec_expr (inout string: symbol, inout string: line) is func
+  result
+    var float: result is 0.0;
+  local
+    var float: num is 0.0;
+  begin
+    result := exec_cond_or(symbol, line);
+  end func;
+
+
+const func string: next_symbol (inout string: line) is func
+  result
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := get_symbol(line);
+      if symbol = "" then
+        incr(file_line_number);
+        if file_line_number <= length(prg) then
+          statement_label := prg_label[file_line_number];
+          line := prg[file_line_number];
+          symbol := get_symbol(line);
+        end if;
+      end if;
+    until symbol <> "" or file_line_number > length(prg);
+  end func;
+
+
+const func string: find_then (inout string: line) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := get_symbol(line);
+    while symbol <> "THEN" and symbol <> "" do
+      symbol := get_symbol(line);
+    end while;
+  end func;
+
+
+const func string: find_else (inout string: line) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := get_symbol(line);
+    while symbol <> "ELSE" and symbol <> "" do
+      if symbol = "IF" then
+        symbol := find_else(line);
+      end if;
+      symbol := get_symbol(line);
+    end while;
+  end func;
+
+
+const func string: find_end_if (inout string: line) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := next_symbol(line);
+    while symbol <> "END" and symbol <> "" do
+      if symbol = "IF" then
+        symbol := find_then(line);
+        if symbol = "THEN" then
+          symbol := get_symbol(line);
+          if symbol = "" then
+            symbol := find_end_if(line);
+          else
+            line := "";
+            symbol := next_symbol(line);
+          end if;
+        end if;
+      end if;
+      symbol := next_symbol(line);
+    end while;
+    if symbol = "END" then
+      repeat
+        symbol := get_symbol(line);
+      until symbol <> "END";
+      if symbol <> "IF" then
+        symbol := find_end_if(line);
+      end if;
+    end if;
+  end func;
+
+
+const func string: find_else_or_end_if (inout string: line) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := next_symbol(line);
+    while symbol <> "ELSE" and symbol <> "END" and symbol <> "" do
+      if symbol = "IF" then
+        symbol := find_then(line);
+        if symbol = "THEN" then
+          symbol := get_symbol(line);
+          if symbol = "" then
+            symbol := find_end_if(line);
+          else
+            line := "";
+            symbol := next_symbol(line);
+          end if;
+        end if;
+      end if;
+      symbol := next_symbol(line);
+    end while;
+    if symbol = "END" then
+      repeat
+        symbol := get_symbol(line);
+      until symbol <> "END";
+      if symbol <> "IF" then
+        symbol := find_else_or_end_if(line);
+      end if;
+    end if;
+  end func;
+
+
+const func string: find_next (inout string: line) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := next_symbol(line);
+    while symbol <> "NEXT" and symbol <> "" do
+      if symbol = "FOR" then
+        symbol := find_next(line);
+      end if;
+      symbol := next_symbol(line);
+    end while;
+  end func;
+
+
+const func string: find_wend (inout string: line) is func
+  result
+    var string: symbol is "";
+  begin
+    symbol := next_symbol(line);
+    while symbol <> "WEND" and symbol <> "" do
+      if symbol = "WHILE" then
+        symbol := find_wend(line);
+      end if;
+      symbol := next_symbol(line);
+    end while;
+  end func;
+
+
+const func boolean: exec_cmd (inout string: symbol, inout string: line) is func
+  result
+    var boolean: result is TRUE;
+  local
+    var string: variable_name is "";
+    var string: unused_name is "";
+    var string: param1 is "";
+    var string: param2 is "";
+    var string: param3 is "";
+    var float: num1 is 0.0;
+    var float: num2 is 0.0;
+    var float: num3 is 0.0;
+    var float: num4 is 0.0;
+    var integer: index1 is 0;
+    var integer: index2 is 0;
+    var integer: index3 is 0;
+    var boolean: okay is FALSE;
+    var char: ch1 is ' ';
+  begin
+    if symbol = "IF" then
+      symbol := get_symbol(line);
+      num1 := exec_expr(symbol, line);
+      log << "IF ";
+      log << num1;
+      log << NL;
+      flush(log);
+      if num1 <> 0.0 then
+        if symbol = "THEN" then
+          symbol := get_symbol(line);
+          if symbol = "" then
+            noop;
+            (* Execute statements in the following lines until "ELSE" or "END" "IF" *)
+          elsif symbol[1] in digit_char then
+            if symbol in label then
+              statement_label := symbol;
+              log << "THEN ";
+              log << statement_label;
+              log << NL;
+              flush(log);
+              file_line_number := label[statement_label];
+              decr(file_line_number);
+              symbol := "";
+              line := "";
+            else
+              error_marker;
+              err << "UNDEFINED LABEL ";
+              err << symbol;
+              err << " AFTER \"THEN\".";
+              err << NL;
+            end if;
+          else
+            log << "THEN ";
+            log << symbol;
+            log << " ";
+            log << line;
+            log << NL;
+            flush(log);
+            result := exec_cmd(symbol, line);
+          end if;
+        elsif symbol = "GOTO" then
+          symbol := get_symbol(line);
+          if symbol in label then
+            statement_label := symbol;
+            log << "GOTO ";
+            log << statement_label;
+            log << NL;
+            flush(log);
+            file_line_number := label[statement_label];
+            decr(file_line_number);
+            symbol := "";
+            line := "";
+          else
+            error_marker;
+            err << "UNDEFINED LABEL ";
+            err << symbol;
+            err << " AFTER \"GOTO\".";
+            err << NL;
+          end if;
+        else
+          error_expect2("THEN", "GOTO", symbol);
+        end if;
+      else
+        if symbol = "THEN" or symbol = "GOTO" then
+          symbol := get_symbol(line);
+        else
+          error_expect("THEN", symbol);
+        end if;
+        if symbol = "" then
+          symbol := find_else_or_end_if(line);
+          if symbol = "ELSE" then
+            symbol := get_symbol(line);
+            (* Execute statements in the following lines until "END" "IF" *)
+          elsif symbol = "IF" then
+            symbol := get_symbol(line);
+          end if;
+        else
+          if symbol <> "ELSE" then
+            symbol := find_else(line);
+          end if;
+          if symbol = "ELSE" then
+            symbol := get_symbol(line);
+            if symbol[1] in digit_char then
+              if symbol in label then
+                statement_label := symbol;
+                log << "ELSE ";
+                log << statement_label;
+                log << NL;
+                flush(log);
+                file_line_number := label[statement_label];
+                decr(file_line_number);
+                symbol := "";
+                line := "";
+              else
+                error_marker;
+                err << "UNDEFINED LABEL ";
+                err << symbol;
+                err << " AFTER \"ELSE\".";
+                err << NL;
+              end if;
+            else
+              if symbol = ":" then
+                symbol := get_symbol(line);
+              end if;
+              log << "ELSE";
+              log << NL;
+              flush(log);
+              result := exec_cmd(symbol, line);
+            end if;
+          else
+            log << "ELSE NEXT line";
+            log << NL;
+            flush(log);
+          end if;
+        end if;
+      end if;
+    elsif symbol = "GOTO" then
+      symbol := get_symbol(line);
+      if symbol in label then
+        statement_label := symbol;
+        log << "GOTO ";
+        log << statement_label;
+        log << NL;
+        flush(log);
+        file_line_number := label[statement_label];
+        decr(file_line_number);
+        symbol := "";
+        line := "";
+      else
+        index1 := round(exec_expr(symbol, line));
+        expect("OF", symbol, line);
+        if index1 >= 1 then
+          index2 := 1;
+          while index2 < index1 do
+            symbol := get_symbol(line);
+            if symbol = "," then
+              symbol := get_symbol(line);
+              incr(index2);
+            else
+              index2 := succ(index1);
+            end if;
+          end while;
+          if index2 = index1 then
+            if symbol in label then
+              statement_label := symbol;
+              log << "GOTO ";
+              log << index1;
+              log << " OF ";
+              log << statement_label;
+              log << NL;
+              flush(log);
+              file_line_number := label[statement_label];
+              decr(file_line_number);
+              symbol := "";
+              line := "";
+            else
+              error_marker;
+              err << "UNDEFINED LABEL ";
+              err << symbol;
+              err << " AFTER \"OF\".";
+              err << NL;
+            end if;
+          else
+            log << "GOTO ";
+            log << index1;
+            log << " OF NEXT STATEMENT";
+            log << NL;
+            flush(log);
+            while symbol <> ":" and symbol <> "" do
+              symbol := get_symbol(line);
+            end while;
+          end if;
+        else
+          log << "GOTO ";
+          log << index1;
+          log << " OF NEXT STATEMENT";
+          log << NL;
+          flush(log);
+          while symbol <> ":" and symbol <> "" do
+            symbol := get_symbol(line);
+          end while;
+        end if;
+      end if;
+    elsif symbol = "PRINT" then
+      log << "PRINT ";
+      symbol := get_symbol(line);
+      if symbol = ":" or symbol = "" then
+        win << NL;
+        flush(win);
+        log << NL;
+        flush(log);
+      else
+        repeat
+          if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+            param1 := exec_str_expr(symbol, line, unused_name);
+            win << param1;
+            log << literal(param1);
+          elsif symbol = "TAB" then
+            symbol := get_symbol(line);
+            expect("(", symbol, line);
+            num1 := exec_expr(symbol, line);
+            expect(")", symbol, line);
+            if column(win) < round(num1) then
+              win << "" rpad round(num1) - column(win);
+            end if;
+            log << "TAB(";
+            log << round(num1);
+            log << ")";
+          elsif symbol = "SPC" then
+            symbol := get_symbol(line);
+            expect("(", symbol, line);
+            num1 := exec_expr(symbol, line);
+            expect(")", symbol, line);
+            win << "" rpad round(num1);
+            log << "SPC(";
+            log << round(num1);
+            log << ")";
+          else
+            win << " ";
+            log << " ";
+            num1 := exec_expr(symbol, line);
+            param1 := str(num1);
+            if param1[length(param1) - 1 .. ] = ".0" then
+              param1 := param1[ .. length(param1) - 2];
+            end if;
+            win << param1;
+            log << num1;
+            if symbol <> ":" and symbol <> "" then
+              win << " ";
+              log << " ";
+            end if;
+          end if;
+          if symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'" then
+            win << NL;
+          elsif symbol = ";" then
+            symbol := get_symbol(line);
+            log << "; ";
+          elsif symbol = "," then
+            symbol := get_symbol(line);
+            win << "  ";
+            log << ", ";
+          else
+            (* This is the next thing to be printed *)
+            log << " (;) ";
+            log << symbol;
+          end if;
+        until symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'";
+        flush(win);
+        flush(log);
+        log << NL;
+      end if;
+    elsif symbol = "GOSUB" then
+      symbol := get_symbol(line);
+      if symbol in label then
+        statement_label := symbol;
+        return_line := 1 times file_line_number & return_line;
+        return_column :=
+            1 times length(prg[file_line_number]) - length(line) + 1 &
+            return_column;
+        log << "GOSUB ";
+        log << statement_label;
+        log << NL;
+        flush(log);
+        file_line_number := label[statement_label];
+        decr(file_line_number);
+        symbol := "";
+        line := "";
+      else
+        index1 := round(exec_expr(symbol, line));
+        expect("OF", symbol, line);
+        if index1 >= 1 then
+          index2 := 1;
+          while index2 < index1 do
+            symbol := get_symbol(line);
+            if symbol = "," then
+              symbol := get_symbol(line);
+              incr(index2);
+            else
+              index2 := succ(index1);
+            end if;
+          end while;
+          if index2 = index1 then
+            if symbol in label then
+              statement_label := symbol;
+              while symbol <> ":" and symbol <> "" do
+                index2 := length(line);
+                symbol := get_symbol(line);
+              end while;
+              return_line := 1 times file_line_number & return_line;
+              return_column :=
+                  1 times length(prg[file_line_number]) - index2 + 1 &
+                  return_column;
+              log << "GOSUB ";
+              log << index1;
+              log << " OF ";
+              log << statement_label;
+              log << NL;
+              flush(log);
+              file_line_number := label[statement_label];
+              decr(file_line_number);
+              symbol := "";
+              line := "";
+            else
+              error_marker;
+              err << "UNDEFINED LABEL ";
+              err << symbol;
+              err << " AFTER \"OF\".";
+              err << NL;
+            end if;
+          else
+            log << "GOSUB ";
+            log << index1;
+            log << " OF NEXT STATEMENT";
+            log << NL;
+            flush(log);
+            while symbol <> ":" and symbol <> "" do
+              symbol := get_symbol(line);
+            end while;
+          end if;
+        else
+          log << "GOSUB ";
+          log << index1;
+          log << " OF NEXT STATEMENT";
+          log << NL;
+          flush(log);
+          while symbol <> ":" and symbol <> "" do
+            symbol := get_symbol(line);
+          end while;
+        end if;
+      end if;
+    elsif symbol = "RETURN" then
+      if length(return_line) >= 1 then
+        file_line_number := return_line[1];
+        statement_label := prg_label[file_line_number];
+        line := prg[file_line_number][return_column[1] .. ];
+        symbol := get_symbol(line);
+        return_line := return_line[2 .. ];
+        return_column := return_column[2 .. ];
+        log << "RETURN TO ";
+        log << statement_label;
+        log << " ";
+        log << literal(symbol);
+        log << " ";
+        log << literal(line);
+        log << NL;
+        flush(log);
+      else
+        symbol := get_symbol(line);
+        error_marker;
+        err << "RETURN WITHOUT GOSUB.";
+        err << NL;
+      end if;
+    elsif symbol = "LOCATE" then
+      symbol := get_symbol(line);
+      if symbol <> "," then
+        num1 := exec_expr(symbol, line);
+        expect(",", symbol, line);
+        num2 := exec_expr(symbol, line);
+        setPos(win, round(num1), round(num2));
+        log << "LOCATE ";
+        log << round(num1);
+        log << ",";
+        log << round(num2);
+        log << NL;
+        flush(log);
+      else
+        symbol := get_symbol(line);
+      end if;
+      if symbol = "," then
+        symbol := get_symbol(line);
+        num1 := exec_expr(symbol, line);
+        if round(num1) = 0 then
+          cursor(scr, FALSE);
+        else
+          cursor(scr, TRUE);
+        end if;
+        log << "LOCATE ,,";
+        log << round(num1);
+        log << NL;
+        flush(log);
+      end if;
+    elsif symbol = "READ" then
+      repeat
+        symbol := get_symbol(line);
+        if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+          variable_name := get_name(symbol, line);
+          param1 := get_data_field();
+          string_var @:= [variable_name] param1;
+          log << "READ ";
+          log << variable_name;
+          log << " ";
+          log << param1;
+          log << NL;
+          flush(log);
+        else
+          variable_name := get_name(symbol, line);
+          param1 := get_data_field();
+          if param1 = "" then
+            (* Empty DATA fields can be read as 0.0 *)
+            numeric_var @:= [variable_name] 0.0;
+            log << "READ ";
+            log << variable_name;
+            log << " ";
+            log << 0.0;
+            log << NL;
+            flush(log);
+          else
+            block
+              num1 := float parse param1;
+              numeric_var @:= [variable_name] num1;
+              log << "READ ";
+              log << variable_name;
+              log << " ";
+              log << num1;
+              log << NL;
+              flush(log);
+            exception
+              catch RANGE_ERROR:
+                error_marker;
+                err << "NUMBER EXPECTED IN READ FOUND ";
+                err << literal(param1);
+                err << ".";
+                err << NL;
+            end block;
+          end if;
+        end if;
+      until symbol <> ",";
+    elsif symbol = "INPUT" or symbol = "INPUT#" then
+      if symbol = "INPUT#" then
+        symbol := "#";
+      else
+        symbol := get_symbol(line);
+      end if;
+      if symbol = "#" then
+        symbol := get_symbol(line);
+        index1 := round(exec_expr(symbol, line));
+        if file_value[index1] <> STD_NULL then
+          while symbol = "," do
+            symbol := get_symbol(line);
+            if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+              variable_name := get_name(symbol, line);
+              file_value[index1] >> param1;
+              string_var @:= [variable_name] param1;
+              log << "INPUT #";
+              log << index1;
+              log << ", ";
+              log << variable_name;
+              log << " ";
+              log << param1;
+              log << NL;
+              flush(log);
+            else
+              variable_name := get_name(symbol, line);
+              file_value[index1] >> param1;
+              block
+                num1 := float parse param1;
+                numeric_var @:= [variable_name] num1;
+                log << "INPUT ";
+                log << variable_name;
+                log << " ";
+                log << num1;
+                log << NL;
+                flush(log);
+              exception
+                catch RANGE_ERROR:
+                  error_marker;
+                  err << "NUMBER EXPECTED IN INPUT FOUND ";
+                  err << literal(param1);
+                  err << ".";
+                  err << NL;
+              end block;
+            end if;
+          end while;
+        else
+          error_marker;
+          err << "FILE #";
+          err << index1;
+          err << " NOT OPEN IN INPUT.";
+          err << NL;
+        end if;
+      else
+        if symbol = ";" then
+          symbol := get_symbol(line);
+        end if;
+        if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+          param1 := exec_str_expr(symbol, line, variable_name);
+          if symbol = ";" or symbol = "," then
+            win << param1;
+            if symbol = ";" then
+              (* A comma is used to suppress the question mark *)
+              win << "? ";
+            end if;
+            flush(win);
+            symbol := get_symbol(line);
+            if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+              variable_name := get_name(symbol, line);
+              readln(param2);
+              win << NL;
+              flush(win);
+              string_var @:= [variable_name] param2;
+              log << "INPUT \"";
+              log << param1;
+              log << "\"; ";
+              log << variable_name;
+              log << " ";
+              log << param2;
+              log << NL;
+            else
+              variable_name := get_name(symbol, line);
+              read(num1);
+              win << NL;
+              flush(win);
+              numeric_var @:= [variable_name] num1;
+              log << "INPUT \"";
+              log << param1;
+              log << "\"; ";
+              log << variable_name;
+              log << " ";
+              log << num1;
+              log << NL;
+            end if;
+          elsif variable_name <> "" then
+            win << "? ";
+            flush(win);
+            readln(param2);
+            win << NL;
+            flush(win);
+            string_var @:= [variable_name] param2;
+            log << "INPUT ";
+            log << variable_name;
+            log << " ";
+            log << param2;
+            log << NL;
+          else
+            error_expect2(";", ",", symbol);
+          end if;
+        else
+          variable_name := get_name(symbol, line);
+          win << "? ";
+          flush(win);
+          read(num1);
+          win << NL;
+          flush(win);
+          numeric_var @:= [variable_name] num1;
+          log << "INPUT ";
+          log << variable_name;
+          log << " ";
+          log << num1;
+          log << NL;
+        end if;
+      end if;
+    elsif symbol = "LINE" then
+      symbol := get_symbol(line);
+      if symbol = "INPUT" or symbol = "INPUT#" then
+        if symbol = "INPUT#" then
+          symbol := "#";
+        else
+          symbol := get_symbol(line);
+        end if;
+        if symbol = "#" then
+          symbol := get_symbol(line);
+          index1 := round(exec_expr(symbol, line));
+          if file_value[index1] <> STD_NULL then
+            expect(",", symbol, line);
+            if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+              variable_name := get_name(symbol, line);
+              file_value[index1] >> param1;
+              string_var @:= [variable_name] param1;
+              log << "LINE INPUT #";
+              log << index1;
+              log << ", ";
+              log << variable_name;
+              log << " ";
+              log << param1;
+              log << NL;
+              flush(log);
+            else
+              error_marker;
+              err << "STRING VARIABLE EXPECTED IN LINE INPUT FOUND ";
+              err << literal(symbol);
+              err << ".";
+              err << NL;
+            end if;
+          else
+            error_marker;
+            err << "FILE #";
+            err << index1;
+            err << " NOT OPEN IN LINE INPUT.";
+            err << NL;
+          end if;
+        else
+          if symbol = ";" then
+            symbol := get_symbol(line);
+          end if;
+          if symbol[length(symbol)] = '$' or symbol[1] in defstr_any then
+            param1 := exec_str_expr(symbol, line, variable_name);
+            if symbol = ";" or symbol = "," then
+              symbol := get_symbol(line);
+              win << param1;
+              flush(win);
+              log << param1;
+              flush(log);
+              if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+                variable_name := get_name(symbol, line);
+                readln(param2);
+                win << NL;
+                flush(win);
+                string_var @:= [variable_name] param2;
+                log << "LINE INPUT \"";
+                log << param1;
+                log << "\"; ";
+                log << variable_name;
+                log << " ";
+                log << param2;
+                log << NL;
+              else
+                error_marker;
+                err << "STRING EXPECTED FOR LINE INPUT - FOUND ";
+                err << symbol;
+                err << ".";
+                err << NL;
+              end if;
+            elsif variable_name <> "" then
+              win << "? ";
+              flush(win);
+              log << "? ";
+              flush(log);
+              readln(param2);
+              win << NL;
+              flush(win);
+              string_var @:= [variable_name] param2;
+              log << "LINE INPUT ";
+              log << variable_name;
+              log << " ";
+              log << param2;
+              log << NL;
+            else
+              error_expect2(";", ",", symbol);
+            end if;
+          else
+            error_marker;
+            err << "STRING EXPECTED FOR LINE INPUT - FOUND ";
+            err << symbol;
+            err << ".";
+            err << NL;
+          end if;
+        end if;
+      elsif symbol = "(" or symbol = "-" then
+        if symbol = "-" then
+          symbol := get_symbol(line);
+          index1 := currX;
+          index2 := currY;
+        else
+          symbol := get_symbol(line);
+          index1 := round(exec_expr(symbol, line));
+          expect(",", symbol, line);
+          index2 := round(exec_expr(symbol, line));
+          expect(")", symbol, line);
+          expect("-", symbol, line);
+        end if;
+        expect("(", symbol, line);
+        currX := round(exec_expr(symbol, line));
+        expect(",", symbol, line);
+        currY := round(exec_expr(symbol, line));
+        expect(")", symbol, line);
+        if symbol = "," then
+          symbol := get_symbol(line);
+          index3 := round(exec_expr(symbol, line));
+          if symbol = "," then
+            param1 := get_symbol(line);
+            if param1 = "BF" then
+              rectTo(index1, index2, currX, currY, color_num(index3));
+            end if;
+            symbol := get_symbol(line);
+          else
+            param1 := "";
+            lineTo(index1, index2, currX, currY, color_num(index3));
+          end if;
+          log << "LINE (";
+          log << index1;
+          log << ", ";
+          log << index2;
+          log << ") - (";
+          log << currX;
+          log << ", ";
+          log << currY;
+          log << "), ";
+          log << index3;
+          log << ", ";
+          log << param1;
+          log << " ";
+          log << line;
+          log << NL;
+          flush(log);
+        else
+          log << " ***** LINE (";
+          log << index1;
+          log << ", ";
+          log << index2;
+          log << ") - (";
+          log << currX;
+          log << ", ";
+          log << currY;
+          log << ") ";
+          log << line;
+          log << NL;
+          flush(log);
+        end if;
+      else
+        expect("INPUT", symbol, line);
+      end if;
+    elsif symbol = "ELSE" then
+      if upper(prg[file_line_number]) = "ELSE" then
+        symbol := find_end_if(line);
+        if symbol = "IF" then
+          symbol := get_symbol(line);
+        end if;
+      else
+        line := "";
+        symbol := "";
+      end if;
+    elsif symbol = "FOR" then
+      variable_name := get_symbol(line);
+      symbol := get_symbol(line);
+      expect("=", symbol, line);
+      num1 := exec_expr(symbol, line);
+      numeric_var @:= [variable_name] num1;
+      expect("TO", symbol, line);
+      num2 := exec_expr(symbol, line);
+      if symbol = "STEP" then
+        symbol := get_symbol(line);
+        num3 := exec_expr(symbol, line);
+      else
+        num3 := 1.0;
+      end if;
+      if (num3 > 0.0 and num1 <= num2) or
+         (num3 < 0.0 and num1 >= num2) then
+        for_var_name := 1 times variable_name & for_var_name;
+        for_upper_limit := 1 times num2 & for_upper_limit;
+        for_step_value := 1 times num3 & for_step_value;
+        for_body_line := 1 times file_line_number & for_body_line;
+        for_body_column :=
+            1 times length(prg[file_line_number]) - length(line) + 1 &
+            for_body_column;
+        log << "FOR ";
+        log << variable_name;
+        log << "=";
+        log << num1;
+        log << " TO ";
+        log << num2;
+        log << " STEP ";
+        log << num3;
+        log << NL;
+        flush(log);
+      else
+        log << "EMPTY FOR ";
+        log << variable_name;
+        log << "=";
+        log << num1;
+        log << " TO ";
+        log << num2;
+        log << " STEP ";
+        log << num3;
+        log << " IN LINE ";
+        log << statement_label;
+        log << NL;
+        if symbol <> "NEXT" then
+          param1 := statement_label;
+          symbol := find_next(line);
+        end if;
+        if symbol = "NEXT" then
+          symbol := get_symbol(line);
+          if symbol <> ":" and symbol <> "" and symbol <> "REM" and symbol <> "'" then
+            if symbol <> variable_name then
+              error_marker;
+              err << "NEXT ";
+              err << symbol;
+              err << "DOES NOT FIT TO FOR ";
+              err << variable_name;
+              err << NL;
+            end if;
+            repeat
+              symbol := get_symbol(line);
+            until symbol = ":" or symbol = "";
+          end if;
+          log << "CONTINUE AFTER NEXT";
+          log << NL;
+          log << statement_label;
+          log << " ";
+          log << line;
+          log << NL;
+          flush(log);
+        else
+          err << " ***** (";
+          err << param1;
+          err << ") NO CORRESPONDING NEXT FOUND FOR FOR ";
+          err << variable_name;
+          err << NL;
+        end if;
+      end if;
+    elsif symbol = "NEXT" then
+      repeat
+        symbol := get_symbol(line);
+        if length(for_var_name) >= 1 then
+          if symbol = ":" or symbol = "" or symbol = "REM" or symbol = "'" then
+            variable_name := for_var_name[1];
+          else
+            variable_name := symbol;
+            symbol := get_symbol(line);
+          end if;
+          if variable_name <> for_var_name[1] then
+            index1 := 2;
+            while index1 <= length(for_var_name) and variable_name <> for_var_name[index1] do
+              incr(index1)
+            end while;
+            if index1 <= length(for_var_name) and variable_name = for_var_name[index1] then
+              for index2 range 1 to pred(index1) do
+                log << "THE FOR ";
+                log << for_var_name[index2];
+                log << " LOOP SEEMS TO HAVE BEEN LEFT";
+                log << NL;
+                flush(log);
+              end for;
+              for_var_name := for_var_name[index1 .. ];
+              for_upper_limit := for_upper_limit[index1 .. ];
+              for_step_value := for_step_value[index1 .. ];
+              for_body_line := for_body_line[index1 .. ];
+              for_body_column := for_body_column[index1 .. ];
+            end if;
+          end if;
+          if variable_name = for_var_name[1] then
+            num1 := get_num_value(variable_name);
+            if (for_step_value[1] > 0.0 and num1 + for_step_value[1] <= for_upper_limit[1]) or
+               (for_step_value[1] < 0.0 and num1 + for_step_value[1] >= for_upper_limit[1]) then
+              numeric_var @:= [variable_name] num1 + for_step_value[1];
+              file_line_number := for_body_line[1];
+              statement_label := prg_label[file_line_number];
+              line := prg[file_line_number][for_body_column[1] .. ];
+              if line <> "" then
+                symbol := ":";
+              else
+                symbol := "";
+              end if;
+              log << "NEXT ";
+              log << variable_name;
+              log << " = ";
+              log << num1 + for_step_value[1];
+              log << " CONTINUE FOR";
+              log << NL;
+              log << statement_label;
+              log << " ";
+              log << line;
+              log << NL;
+              flush(log);
+            else
+              log << "NEXT ";
+              log << variable_name;
+              log << " = ";
+              log << num1;
+              log << " END FOR";
+              log << NL;
+              flush(log);
+              for_var_name := for_var_name[2 .. ];
+              for_upper_limit := for_upper_limit[2 .. ];
+              for_step_value := for_step_value[2 .. ];
+              for_body_line := for_body_line[2 .. ];
+              for_body_column := for_body_column[2 .. ];
+            end if;
+          else
+            error_marker;
+            err << "\"NEXT ";
+            err << for_var_name[1];
+            err << "\" EXPECTED - FOUND \"NEXT ";
+            err << variable_name;
+            err << "\"";
+            err << NL;
+          end if;
+        else
+          error_marker;
+          err << "UNEXPECTED \"NEXT ";
+          err << variable_name;
+          err << "\"";
+          err << NL;
+        end if;
+      until symbol <> ",";
+    elsif symbol = "ON" then
+      symbol := get_symbol(line);
+      if symbol = "ERROR" then
+        symbol := get_symbol(line);
+        expect("GOTO", symbol, line);
+        block
+          on_error_line_number := integer parse symbol;
+          symbol := get_symbol(line);
+          log << "**ON ERROR GOTO ";
+          log << on_error_line_number;
+          log << NL;
+          flush(log);
+        exception
+          catch RANGE_ERROR:
+            error_marker;
+            err << "ON ERROR GOTO NEEDS INTEGER NOT ";
+            err << literal(symbol);
+            err << ".";
+            err << NL;
+        end block;
+      elsif symbol = "KEY" then
+        log << "**ON KEY ";
+        log << line;
+        log << NL;
+        flush(log);
+        repeat
+          symbol := get_symbol(line);
+        until symbol = ":" or symbol = "";
+      else
+        index1 := round(exec_expr(symbol, line));
+        if symbol = "GOTO" or symbol = "GOSUB" then
+          param1 := symbol;
+          symbol := get_symbol(line);
+          if index1 >= 1 then
+            index2 := 1;
+            while index2 < index1 do
+              symbol := get_symbol(line);
+              if symbol = "," then
+                symbol := get_symbol(line);
+                incr(index2);
+              else
+                index2 := succ(index1);
+              end if;
+            end while;
+            if index2 = index1 then
+              if symbol in label then 
+                statement_label := symbol;
+                if param1 = "GOSUB" then
+                  while symbol <> ":" and symbol <> "" do
+                    index2 := length(line);
+                    symbol := get_symbol(line);
+                  end while;
+                  return_line := 1 times file_line_number & return_line;
+                  return_column :=
+                      1 times length(prg[file_line_number]) - index2 + 1 &
+                      return_column;
+                end if;
+                log << "ON ";
+                log << index1;
+                log << " ";
+                log << param1;
+                log << " ";
+                log << statement_label;
+                log << NL;
+                flush(log);
+                file_line_number := label[statement_label];
+                decr(file_line_number);
+                symbol := "";
+                line := "";
+              else
+                error_marker;
+                err << "UNDEFINED LABEL ";
+                err << symbol;
+                err << " AFTER \"OF\".";
+                err << NL;
+              end if;
+            else
+              log << "ON ";
+              log << index1;
+              log << " GOTO NEXT STATEMENT";
+              log << NL;
+              flush(log);
+              while symbol <> ":" and symbol <> "" do
+                symbol := get_symbol(line);
+              end while;
+            end if;
+          else
+            log << "ON ";
+            log << index1;
+            log << " GOTO NEXT STATEMENT";
+            log << NL;
+            flush(log);
+            while symbol <> ":" and symbol <> "" do
+              symbol := get_symbol(line);
+            end while;
+          end if;
+        else
+          error_expect2("GOTO", "GOSUB", symbol);
+        end if;
+      end if;
+    elsif symbol = "WHILE" then
+      index1 := file_line_number;
+      index2 := length(prg[file_line_number]) - length(line) + 1;
+      symbol := get_symbol(line);
+      num1 := exec_expr(symbol, line);
+      log << "WHILE ";
+      log << num1;
+      log << NL;
+      flush(log);
+      if num1 <> 0.0 then
+        while_cond_line := 1 times index1 & while_cond_line;
+        while_cond_column := 1 times index2 & while_cond_column;
+      else
+        log << "EMPTY WHILE IN LINE ";
+        log << statement_label;
+        log << NL;
+        if symbol <> "WEND" then
+          param1 := statement_label;
+          symbol := find_wend(line);
+        end if;
+        if symbol = "WEND" then
+          repeat
+            symbol := get_symbol(line);
+          until symbol = ":" or symbol = "";
+          log << "CONTINUE AFTER WEND";
+          log << NL;
+          log << statement_label;
+          log << " ";
+          log << line;
+          log << NL;
+          flush(log);
+        else
+          err << " ***** (";
+          err << param1;
+          err << ") NO CORRESPONDING WEND FOUND FOR WHILE";
+          err << NL;
+        end if;
+      end if;
+    elsif symbol = "WEND" then
+      if length(while_cond_line) >= 1 then
+        index1 := while_cond_line[1];
+        param2 := prg[index1][while_cond_column[1] .. ];
+        param1 := get_symbol(param2);
+        num1 := exec_expr(param1, param2);
+        if num1 <> 0.0 then
+          file_line_number := index1;
+          statement_label := prg_label[file_line_number];
+          symbol := param1;
+          line := param2;
+          log << "WEND - CONTINUE WHILE";
+          log << NL;
+          log << statement_label;
+          log << " ";
+          log << symbol;
+          log << " ";
+          log << line;
+          log << NL;
+          flush(log);
+        else
+          symbol := get_symbol(line);
+          while_cond_line := while_cond_line[2 .. ];
+          while_cond_column := while_cond_column[2 .. ];
+          log << "WEND - END WHILE";
+          log << NL;
+          log << statement_label;
+          log << " ";
+          log << symbol;
+          log << " ";
+          log << line;
+          log << NL;
+          flush(log);
+        end if;
+      else
+        error_marker;
+        err << "UNEXPECTED \"WEND\"";
+        err << NL;
+      end if;
+    elsif symbol = "COLOR" then
+      symbol := get_symbol(line);
+      num1 := exec_expr(symbol, line);
+      if symbol = "," then
+        symbol := get_symbol(line);
+        num2 := exec_expr(symbol, line);
+      end if;
+      log << "**COLOR ";
+      log << round(num1);
+      log << ",";
+      log << round(num2);
+      log << NL;
+    elsif symbol = "DEF" then
+      symbol := get_symbol(line);
+      if symbol = "SEG" then
+        log << "**DEF SEG";
+        log << NL;
+        flush(log);
+        while symbol <> ":" and symbol <> "" do
+          symbol := get_symbol(line);
+        end while;
+      else
+        variable_name := symbol;
+        if variable_name[1] >= 'A' and variable_name[1] <= 'Z' then
+          symbol := get_symbol(line);
+          if variable_name = "FN" and symbol[1] >= 'A' and symbol[1] <= 'Z' then
+            variable_name &:= symbol;
+            symbol := get_symbol(line);
+          end if;
+          param1 := "";
+          if symbol = "(" then
+            repeat
+              symbol := get_symbol(line);
+              if symbol[1] >= 'A' and symbol[1] <= 'Z' then
+                param1 &:= symbol & " ";
+              end if;
+              symbol := get_symbol(line);
+            until symbol <> ",";
+            expect(")", symbol, line);
+            if length(param1) >= 1 then
+              param1 := param1[.. pred(length(param1))];
+            end if;
+          end if;
+          if symbol = "=" then
+            param2 := line;
+            while symbol <> ":" and symbol <> "" do
+              symbol := get_symbol(line);
+            end while;
+            if symbol = ":" then
+              param2 := param2[ .. length(param2) - length(line) - 1];
+            else
+              param2 := param2[ .. length(param2) - length(line)];
+            end if;
+            set_function(variable_name, param1, param2);
+            log << "DEF ";
+            log << variable_name;
+            log << "(";
+            log << param1;
+            log << ")";
+            log << "=";
+            log << param2;
+            log << NL;
+            flush(log);
+          else
+            expect("=", symbol, line);
+          end if;
+        end if;
+      end if;
+    elsif symbol = "REM" then
+      symbol := "";
+      log << "REM ";
+      log << line;
+      log << NL;
+      flush(log);
+    elsif symbol = "'" then
+      symbol := "";
+      log << "'";
+      log << line;
+      log << NL;
+      flush(log);
+    elsif symbol = "CLEAR" then
+      symbol := get_symbol(line);
+      log << "**CLEAR ";
+      log << symbol;
+      log << NL;
+      flush(log);
+      while symbol <> ":" and symbol <> "" do
+        symbol := get_symbol(line);
+      end while;
+    elsif symbol = "BEEP" then
+      symbol := get_symbol(line);
+      log << "**BEEP";
+      log << NL;
+      flush(log);
+    elsif symbol = "SOUND" then
+      symbol := get_symbol(line);
+      num1 := exec_expr(symbol, line);
+      expect(",", symbol, line);
+      num2 := exec_expr(symbol, line);
+      log << "**SOUND ";
+      log << symbol;
+      log << NL;
+      flush(log);
+    elsif symbol = "DATA" then
+      symbol := "";
+      log << "DATA";
+      log << NL;
+      flush(log);
+    elsif symbol = "RESTORE" then
+      symbol := get_symbol(line);
+      log << "RESTORE";
+      log << NL;
+      flush(log);
+      data_line_number := 0;
+      data_line := "";
+    elsif symbol = "CLS" then
+      clear(win);
+      log << "CLS";
+      log << NL;
+      flush(log);
+      symbol := get_symbol(line);
+    elsif symbol = "DIM" then
+      log << "DIM ";
+      log << line;
+      log << NL;
+      flush(log);
+      repeat
+        symbol := get_symbol(line);
+      until symbol = ":" or symbol = "";
+    elsif symbol = "OPTION" then
+      log << "OPTION ";
+      log << line;
+      log << NL;
+      flush(log);
+      repeat
+        symbol := get_symbol(line);
+      until symbol = ":" or symbol = "";
+    elsif symbol = "SCREEN" then
+      symbol := get_symbol(line);
+      num1 := exec_expr(symbol, line);
+      if symbol = "," then
+        symbol := get_symbol(line);
+        num2 := exec_expr(symbol, line);
+      end if;
+      case round(num1) of
+        when {1}: screen(320, 200);
+        when {2}: screen(640, 200);
+        when {7}: screen(320, 200);
+        when {8}: screen(640, 200);
+      end case;
+      if curr_win <> PRIMITIVE_WINDOW.value then
+        clear(curr_win, white);
+        color(white, black);
+        KEYBOARD := GRAPH_KEYBOARD;
+        scr := open(curr_win);
+      end if;
+      log << "SCREEN ";
+      log << round(num1);
+      log << ", ";
+      log << round(num2);
+      log << " ";
+      log << line;
+      log << NL;
+      flush(log);
+      repeat
+        symbol := get_symbol(line);
+      until symbol = ":" or symbol = "";
+    elsif symbol = "WIDTH" then
+      log << "**WIDTH ";
+      log << line;
+      log << NL;
+      flush(log);
+      repeat
+        symbol := get_symbol(line);
+      until symbol = ":" or symbol = "";
+    elsif symbol = "KEY" then
+      log << "**KEY ";
+      log << line;
+      log << NL;
+      flush(log);
+      repeat
+        symbol := get_symbol(line);
+      until symbol = ":" or symbol = "";
+    elsif symbol = "RANDOMIZE" then
+      symbol := get_symbol(line);
+      if symbol <> "" and symbol <> ":" then
+        num1 := exec_expr(symbol, line);
+      end if;
+      log << "RANDOMIZE";
+      log << NL;
+      flush(log);
+    elsif symbol = "RUN" then
+      file_line_number := 0;
+      symbol := "";
+      line := "";
+      log << "RUN";
+      log << NL;
+      flush(log);
+    elsif symbol = "DEFINT" then
+      symbol := get_symbol(line);
+      log << "**DEFINT ";
+      log << line;
+      log << NL;
+      flush(log);
+      repeat
+        symbol := get_symbol(line);
+      until symbol = ":" or symbol = "";
+    elsif symbol = "DEFSTR" then
+      symbol := get_symbol(line);
+      defstr_any := {'\"'};
+      defstr_var := (set of char).EMPTY_SET;
+      okay := FALSE;
+      repeat
+        if length(symbol) = 1 and symbol >= "A" and symbol <= "Z" then
+          param1 := symbol;
+          symbol := get_symbol(line);
+          if symbol = "-" then
+            symbol := get_symbol(line);
+            if length(symbol) = 1 and symbol >= param1 and symbol <= "Z" then
+              param2 := symbol;
+              symbol := get_symbol(line);
+              for ch1 range param1[1] to param2[1] do
+                incl(defstr_any, ch1);
+                incl(defstr_var, ch1);
+              end for;
+              log << "DEFSTR ";
+              log << param1;
+              log << "-";
+              log << param2;
+              log << NL;
+              flush(log);
+            else
+              error_marker;
+              err << "ILLEGAL DEFSTR ";
+              err << param1;
+              err << "-";
+              err << symbol;
+              err << NL;
+            end if;
+          else
+            incl(defstr_any, param1[1]);
+            incl(defstr_var, param1[1]);
+            log << "DEFSTR ";
+            log << param1;
+            log << NL;
+            flush(log);
+          end if;
+        else
+          error_marker;
+          err << "ILLEGAL DEFSTR ";
+          err << symbol;
+          err << NL;
+        end if;
+        if symbol = "," then
+          symbol := get_symbol(line);
+        else
+          okay := TRUE;
+        end if;
+      until okay;
+    elsif symbol = "OPEN" then
+      symbol := get_symbol(line);
+      param1 := exec_str_expr(symbol, line, unused_name);
+      if symbol = "FOR" then
+        symbol := get_symbol(line);
+        if symbol = "INPUT" then
+          param2 := "r";
+        elsif symbol = "OUTPUT" then
+          param2 := "w";
+        end if;
+        symbol := get_symbol(line);
+      end if;
+      if symbol = "AS" then
+        symbol := get_symbol(line);
+        if symbol = "#" then
+          symbol := get_symbol(line);
+        end if;
+        index1 := round(exec_expr(symbol, line));
+        file_value[index1] := open(param1, param2);
+      else
+        if param1[.. 1] = "I" then
+          param1 := "r";
+        elsif param1[.. 1] = "O" then
+          param1 := "w";
+        end if;
+        expect(",", symbol, line);
+        if symbol = "#" then
+          symbol := get_symbol(line);
+        end if;
+        index1 := round(exec_expr(symbol, line));
+        expect(",", symbol, line);
+        param2 := exec_str_expr(symbol, line, unused_name);
+        file_value[index1] := open(param2, param1);
+      end if;
+      log << "OPEN ";
+      log << param1;
+      log << " FOR ";
+      log << param2;
+      log << " AS #";
+      log << index1;
+      log << NL;
+      flush(log);
+    elsif symbol = "CLOSE" or symbol = "CLOSE#" then
+      if symbol = "CLOSE#" then
+        symbol := "#";
+      else
+        symbol := get_symbol(line);
+      end if;
+      if symbol = "#" then
+        symbol := get_symbol(line);
+        index1 := round(exec_expr(symbol, line));
+        close(file_value[index1]);
+        file_value[index1] := STD_NULL;
+      end if;
+      log << "CLOSE #";
+      log << index1;
+      log << NL;
+      flush(log);
+    elsif symbol = "RESET" then
+      symbol := get_symbol(line);
+      for index1 range 1 to length(file_value) do
+        close(file_value[index1]);
+        file_value[index1] := STD_NULL;
+      end for;
+      log << "RESET";
+      log << NL;
+      flush(log);
+    elsif symbol = "END" then
+      symbol := get_symbol(line);
+      if symbol = "IF" then
+        symbol := get_symbol(line);
+      else
+        log << "END";
+        log << NL;
+        flush(log);
+        symbol := "";
+        result := FALSE;
+      end if;
+    elsif symbol = "STOP" or symbol = "SYSTEM" then
+      log << symbol;
+      log << NL;
+      flush(log);
+      symbol := "";
+      result := FALSE;
+    elsif symbol <> "" then
+      if symbol = "LET" then
+        symbol := get_symbol(line);
+      end if;
+      if symbol[length(symbol)] = '$' or symbol[1] in defstr_var then
+        variable_name := get_name(symbol, line);
+        if symbol = "=" then
+          symbol := get_symbol(line);
+          param3 := exec_str_expr(symbol, line, unused_name);
+          string_var @:= [variable_name] param3;
+          log << "LET ";
+          log << variable_name;
+          log << "=\"";
+          log << param3;
+          log << "\"";
+          log << NL;
+          flush(log);
+        else
+          error_marker;
+          err << "\"=\" EXPECTED AFTER ";
+          err << literal(variable_name);
+          err << " - FOUND ";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
+        end if;
+      else
+        variable_name := get_name(symbol, line);
+        if symbol = "=" then
+          symbol := get_symbol(line);
+          num1 := exec_expr(symbol, line);
+          numeric_var @:= [variable_name] num1;
+          log << "LET ";
+          log << variable_name;
+          log << "=";
+          log << num1;
+          log << NL;
+          flush(log);
+        elsif variable_name[.. 3] = "REM" then
+          (* When a name is starting with REM and is      *)
+          (* not followed by "=" it is treated as remark. *)
+          log << "REM ";
+          log << variable_name;
+          log << " ";
+          log << symbol;
+          log << line;
+          log << NL;
+          flush(log);
+          symbol := "";
+        else
+          error_marker;
+          err << "\"=\" EXPECTED AFTER ";
+          err << literal(variable_name);
+          err << " - FOUND ";
+          err << literal(symbol);
+          err << ".";
+          err << NL;
+        end if;
+      end if;
+    end if;
+    if symbol = ":" then
+      symbol := get_symbol(line);
+      result := exec_cmd(symbol, line);
+    elsif symbol = "REM" then
+      log << "REM ";
+      log << line;
+      log << NL;
+      flush(log);
+    elsif symbol = "'" then
+      log << "'";
+      log << line;
+      log << NL;
+      flush(log);
+    elsif symbol <> "" and symbol <> "ELSE" then
+      error_marker;
+      err << "UNEXPECTED SYMBOL ";
+      err << literal(symbol);
+      err << ".";
+      err << NL;
+      repeat
+        symbol := get_symbol(line);
+      until symbol = ":" or symbol = "";
+      if symbol = ":" then
+        symbol := get_symbol(line);
+        result := exec_cmd(symbol, line);
+      end if;
+    end if;
+  end func;
+
+
+const proc: exec_lines () is func
+  local
+    var boolean: running is TRUE;
+    var string: symbol is "";
+    var string: line is "";
+  begin
+    while running do
+      if file_line_number > length(prg) then
+        log << "END OF PROGRAM REACHED";
+        log << NL;
+        flush(log);
+        running := FALSE;
+      elsif prg[file_line_number] <> "" then
+        statement_label := prg_label[file_line_number];
+        line := prg[file_line_number];
+        (* write(file_line_number lpad 5);
+        write(" ");
+        write(prg[file_line_number]);
+        writeln; *)
+        symbol := get_symbol(line);
+        running := exec_cmd(symbol, line);
+      end if;
+      incr(file_line_number);
+    end while;
+  end func;
+
+
+const proc: run_prog () is func
+  begin
+    file_line_number := 1;
+    exec_lines();
+  end func;
+
+
+const func boolean: load_prog (in string: name) is func
+  result
+    var boolean: result is FALSE;
+  local
+    var file: infile is STD_NULL;
+    var integer: file_line_number is 0;
+    var integer: number is 0;
+    var integer: last_number is 0;
+    var string: symbol is "";
+    var string: line_number is "";
+    var string: line_label is "";
+    var string: line is "";
+    var string: help_line is "";
+    var boolean: control_z is FALSE;
+  begin
+    infile := open(name, "r");
+    if infile = STD_NULL then
+      infile := open(name & ".bas", "r");
+    end if;
+    if infile <> STD_NULL then
+      repeat
+        line := getln(infile);
+        incr(file_line_number);
+        while line <> "" and line[length(line)] in {' ', '\r'} do
+          line := line[.. pred(length(line))];
+        end while;
+        if pos(line, "\Z") <> 0 then
+          (* Control-Z is used sometimes as end of file marker *)
+          line := line[.. pred(pos(line, "\Z"))];
+          control_z := TRUE;
+        end if;
+        while line <> "" and line[1] = ' ' do
+          line := line[2 .. ];
+        end while;
+        if line <> "" then
+          if line[1] in digit_char then
+            line_number := getint(line);
+            while line <> "" and line[1] = ' ' do
+              line := line[2 .. ];
+            end while;
+            if line_number in label then
+              err << " ***** LINE NUMBER ";
+              err << line_number;
+              err << " ALREADY DEFINED AS ";
+              err << name;
+              err << "(";
+              err << label[line_number];
+              err << ")";
+              err << NL;
+            else
+              label @:= [line_number] file_line_number;
+            end if;
+          else
+            line_number := "";
+          end if;
+          help_line := line;
+          line_label := get_symbol(help_line);
+          if line_label <> ""        and line_label <> "BEEP"      and line_label <> "CLEAR"   and
+              line_label <> "CLOSE"  and line_label <> "CLS"       and line_label <> "COLOR"   and
+              line_label <> "DATA"   and line_label <> "DEF"       and line_label <> "DEFINT"  and
+              line_label <> "DEFSTR" and line_label <> "DIM"       and line_label <> "END"     and
+              line_label <> "FOR"    and line_label <> "GOSUB"     and line_label <> "GOTO"    and
+              line_label <> "IF"     and line_label <> "INPUT"     and line_label <> "LET"     and
+              line_label <> "LINE"   and line_label <> "LOCATE"    and line_label <> "NEXT"    and
+              line_label <> "ON"     and line_label <> "OPEN"      and line_label <> "OPTION"  and
+              line_label <> "PRINT"  and line_label <> "RANDOMIZE" and line_label <> "READ"    and
+              line_label <> "REM"    and line_label <> "RESET"     and line_label <> "RESTORE" and
+              line_label <> "RETURN" and line_label <> "SCREEN"    and line_label <> "SOUND"   and
+              line_label <> "STOP"   and line_label <> "SYSTEM"    and line_label <> "WEND"    and
+              line_label <> "WHILE"  and line_label <> "WIDTH" then
+            symbol := get_symbol(help_line);
+            if symbol = ":" then
+              if line_label in label then
+                err << " ***** LABEL ";
+                err << line_label;
+                err << " ALREADY DEFINED AS ";
+                err << name;
+                err << "(";
+                err << label[line_label];
+                err << ")";
+                err << NL;
+              else
+                label @:= [line_label] file_line_number;
+              end if;
+              line := help_line;
+              while line <> "" and line[1] = ' ' do
+                line := line[2 .. ];
+              end while;
+            else
+              line_label := "";
+            end if;
+          else
+            line_label := "";
+          end if;
+          prg &:= [] line;
+          prg_label &:= [] line_number;
+          if line_number <> "" then
+            log << line_number lpad 5;
+            log << " ";
+            if line_label <> "" then
+              log << line_label;
+              log << ": ";
+            end if;
+          elsif line_label <> "" then
+            log << line_label & ":" rpad 5;
+            log << " ";
+          else
+            log << "" lpad 5;
+            log << " ";
+          end if;
+          log << line;
+          log << NL;
+        else
+          prg &:= [] "";
+          prg_label &:= [] "";
+          log << NL;
+        end if;
+(*
+            block
+              number := integer parse symbol;
+              while line <> "" and line[1] = ' ' do
+                line := line[2 .. ];
+              end while;
+              if number <= 0 then
+                err << " ***** ILLEGAL LINE NUMBER ";
+                err << number;
+                err << " ";
+                err << line;
+                err << NL;
+              else
+                if number > length(prg) then
+                  prg &:= number - length(prg) times "";
+                end if;
+                if number <= last_number then
+                  err << " ***** LINE NUMBER ";
+                  err << number;
+                  err << " LESS OR EQUAL PREVIOUS LINE NUMBER ";
+                  err << length(prg);
+                  err << NL;
+                end if;
+                if prg[number] <> "" then
+                  err << " ***** LINE ";
+                  err << number;
+                  err << " ALREADY DEFINED AS ";
+                  err << prg[number];
+                  err << NL;
+                end if;
+                prg[number] := line;
+                last_number := number;
+                log << number;
+                log << " ";
+                log << line;
+                log << NL;
+              end if;
+            exception
+              catch RANGE_ERROR:
+                err << " ***** LINE NUMBER MUST BE INTEGER NOT ";
+                err << literal(symbol);
+                err << ".";
+                err << NL;
+            end block;
+          elsif symbol = "REM" or symbol = "'" then
+            log << symbol;
+            log << " ";
+            log << line;
+            log << NL;
+          else
+            log << " ***** NO NUMBER ";
+            log << line;
+            log << NL;
+            if last_number <> 0 then
+              log << " ***** last_number ";
+              log << last_number;
+              log << NL;
+              line := original_line;
+              while line <> "" and line[1] = ' ' do
+                line := line[2 .. ];
+              end while;
+              prg[last_number] := prg[last_number] & line;
+              log << last_number;
+              log << " ";
+              log << prg[last_number];
+              log << NL;
+            else
+              log << " ***** IGNORE ";
+              log << line;
+              log << NL;
+            end if;
+          end if;
+        end if;
+*)
+      until eof(infile) or control_z;
+      close(infile);
+      result := TRUE;
+    end if;
+    log << "load_prog finished";
+    log << NL;
+  end func;
+
+
+const proc: main is func
+  begin
+    if length(argv(PROGRAM)) >= 1 then
+      log := open("bas.log", "w");
+      err := log;
+      if load_prog(argv(PROGRAM)[1]) then
+        (* list_prog(); *)
+        scr := open(SCREEN);
+        cursor(scr, TRUE);
+        win := open_window(scr, 1, 1, 35, 150);
+        OUT := win;
+        IN := KEYBOARD;
+        IN := open_echo(IN, OUT);
+        IN := open_line(IN);
+        run_prog();
+      else
+        write(" ***** FILE ");
+        write(literal(argv(PROGRAM)[1]));
+        writeln(" NOT FOUND.");
+      end if;
+    end if;
+  end func;
+
+$ system "main" is main;

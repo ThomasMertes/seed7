@@ -1,0 +1,342 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  chkexc.sd7    Checks exceptions                                 *)
+(*  Copyright (C) 1994, 2005  Thomas Mertes                         *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+include "float.s7i";
+
+
+const func integer: test_func (in integer: number) is func
+  result
+    var integer: result is 0;
+  begin
+    result := number;
+  end func;
+
+
+const proc: main is func
+  local
+    var string: stri is "";
+    var array boolean: arr is 0 times TRUE;
+    var boolean: bool is FALSE;
+    var integer: number is 0;
+    var reference: obj is NIL;
+    var float: f_num is 0.0;
+  begin
+    block
+      stri := "asdf" mult -1;
+      writeln(" ***** \"asdf\" mult -1 did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("\"asdf\" mult -1 raises RANGE_ERROR");
+    end block;
+
+    block
+      arr := -1 times TRUE;
+      writeln(" ***** -1 times TRUE did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("-1 times TRUE raises RANGE_ERROR");
+    end block;
+
+    block
+      number := (1 times 2)[0];
+      writeln(" ***** (1 times 2)[0] did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("(1 times 2)[0] raises RANGE_ERROR");
+    end block;
+
+    block
+      number := 1 div 0;
+      writeln(" ***** 1 div 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      number := ! (-1);
+      writeln(" ***** ! (-1) did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("! (-1) raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("! (-1) raises RANGE_ERROR");
+    end block;
+
+    block
+      number := ld(-1);
+      writeln(" ***** ld(-1) did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("ld(-1) raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("ld(-1) raises RANGE_ERROR");
+    end block;
+
+    block
+      number := 1 mdiv 0;
+      writeln(" ***** 1 mdiv 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 mdiv 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 mdiv 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      number := 1 mod 0;
+      writeln(" ***** 1 mod 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 mod 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 mod 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      number := 1 ** (-2);
+      writeln(" ***** 1 ** (-2) did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 ** (-2) raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 ** (-2) raises RANGE_ERROR");
+    end block;
+
+    block
+      number := 0 ** 0;
+      writeln(" ***** 0 ** 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("0 ** 0 raises NUMERIC_ERROR");
+    end block;
+
+    block
+      number := rand(1, 0);
+      writeln(" ***** rand(1, 0) did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("rand(1, 0) raises RANGE_ERROR");
+    end block;
+
+    block
+      number := 1 rem 0;
+      writeln(" ***** 1 rem 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 rem 0 raises NUMERIC_ERROR");
+    end block;
+
+    block
+      number  := sqrt(-1);
+      writeln(" ***** sqrt(-1) did not raise NUMERIC_ERROR");
+    exception
+      catch  NUMERIC_ERROR: writeln("sqrt(-1) raises NUMERIC_ERROR");
+    end block;
+
+    block
+      stri := str('\99999\');
+      writeln("str('\\99999\\') did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln(" ***** str('\\99999\\') raises RANGE_ERROR");
+    end block;
+
+    block
+      obj := ref_list.EMPTY[0];
+      writeln(" ***** ref_list.EMPTY[0] did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("ref_list.EMPTY[0] raises RANGE_ERROR");
+    end block;
+
+    block
+      obj := ref_list.EMPTY[1];
+      writeln(" ***** ref_list.EMPTY[1] did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("ref_list.EMPTY[1] raises RANGE_ERROR");
+    end block;
+
+    block
+      ignore(action "asdf");
+      writeln(" ***** action \"asdf\" did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("action \"asdf\" raises RANGE_ERROR");
+    end block;
+(*
+    block
+      while -1 do noop; end while;
+      writeln(" ***** while -1 do ...  did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("while -1 do ...  raises RANGE_ERROR");
+    end block;
+
+    block
+      repeat noop; noop until -1;
+      writeln(" ***** repeat ... until -1  did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("repeat ... until -1  raises RANGE_ERROR");
+    end block;
+*)
+    block
+      f_num  := rand(1.0, 0.0);
+      writeln(" ***** rand(1.0, 0.0) did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("rand(1.0, 0.0) raises RANGE_ERROR");
+    end block;
+
+    block
+      f_num  := sqrt(-1.0);
+      writeln(" ***** sqrt(-1.0) did not raise NUMERIC_ERROR");
+    exception
+      catch  NUMERIC_ERROR: writeln("sqrt(-1.0) raises NUMERIC_ERROR");
+    end block;
+
+    block
+      seek(STD_IN, 0);
+      writeln(" ***** seek(STD_IN, 0) did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("seek(STD_IN, 0) raises RANGE_ERROR");
+    end block;
+
+    block
+      stri := gets(STD_IN, -1);
+      writeln(" ***** gets(STD_IN, -1) did not raise RANGE_ERROR");
+    exception
+      catch RANGE_ERROR: writeln("gets(STD_IN, -1) raises RANGE_ERROR");
+    end block;
+
+    block
+      number := test_func(1 div 0);
+      writeln(" ***** test_func(1 div 0) did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("test_func(1 div 0) raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("test_func(1 div 0) raises RANGE_ERROR");
+    end block;
+
+    block
+      bool := 1 div 0 = 0 and TRUE;
+      writeln(" ***** 1 div 0 = 0 and TRUE did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 = 0 and TRUE raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 = 0 and TRUE raises RANGE_ERROR");
+    end block;
+
+    block
+      bool := 1 div 0 = 0 and FALSE;
+      writeln(" ***** 1 div 0 = 0 and FALSE did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 = 0 and FALSE raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 = 0 and FALSE raises RANGE_ERROR");
+    end block;
+
+    block
+      bool := TRUE and 1 div 0 = 0;
+      writeln(" ***** TRUE and 1 div 0 = 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("TRUE and 1 div 0 = 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("TRUE and 1 div 0 = 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      bool := 1 div 0 = 0 or TRUE;
+      writeln(" ***** 1 div 0 = 0 or TRUE did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 = 0 or TRUE raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 = 0 or TRUE raises RANGE_ERROR");
+    end block;
+
+    block
+      bool := 1 div 0 = 0 or FALSE;
+      writeln(" ***** 1 div 0 = 0 or FALSE did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 = 0 or FALSE raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 = 0 or FALSE raises RANGE_ERROR");
+    end block;
+
+    block
+      bool := FALSE or 1 div 0 = 0;
+      writeln(" ***** FALSE or 1 div 0 = 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("FALSE or 1 div 0 = 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("FALSE or 1 div 0 = 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      if 1 div 0 = 0 then
+        writeln(" ***** if 1 div 0 did not raise NUMERIC_ERROR");
+      end if;
+      writeln(" ***** if 1 div 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("if 1 div 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("if 1 div 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      if TRUE then
+        number := 1 div 0;
+      end if;
+      writeln(" ***** 1 div 0 in if then did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 in if then raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 in if then raises RANGE_ERROR");
+    end block;
+
+    block
+      if FALSE then
+        noop;
+      else
+        number := 1 div 0;
+      end if;
+      writeln(" ***** 1 div 0 in if else did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 in if else raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 in if else raises RANGE_ERROR");
+    end block;
+
+    block
+      while 1 div 0 = 0 do
+        writeln(" ***** while 1 div 0 did not raise NUMERIC_ERROR");
+      end while;
+      writeln(" ***** while 1 div 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("while 1 div 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("while 1 div 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      while TRUE do
+        number := 1 div 0;
+      end while;
+      writeln(" ***** 1 div 0 in while did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 in while raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 in while raises RANGE_ERROR");
+    end block;
+
+    block
+      repeat
+        noop;
+      until 1 div 0 = 0;
+      writeln(" ***** repeat until 1 div 0 did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("repeat until 1 div 0 raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("repeat until 1 div 0 raises RANGE_ERROR");
+    end block;
+
+    block
+      repeat
+        number := 1 div 0;
+      until TRUE;
+      writeln(" ***** 1 div 0 in repeat did not raise NUMERIC_ERROR");
+    exception
+      catch NUMERIC_ERROR: writeln("1 div 0 in repeat raises NUMERIC_ERROR");
+      catch RANGE_ERROR:   writeln("1 div 0 in repeat raises RANGE_ERROR");
+    end block;
+  end func;
+
+$ system "main" is main;

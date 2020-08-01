@@ -1,0 +1,96 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dna_base.s7i  Bacterial fight dna interface                     *)
+(*  Copyright (C) 1985, 1986, 2005  Thomas Mertes                   *)
+(*  Copyright (C) 1985, 1986,       Markus Stumptner                *)
+(*  Copyright (C) 1985, 1986, 1991  Johannes Gritsch                *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: COLOUR is new enum
+    EDGE, CLEAR, WHITE, VIOLET, INDIGO, BLUE, CYAN,
+    GREEN, YELLOW, AMBER, ORANGE, RED, SCARLET, TAN,
+    LILIAC, PINK
+  end enum;
+
+const func string: str (in COLOUR: aColour) is
+  return [] (
+    "Edge", "Clear", "White", "Violet", "Indigo", "Blue", "Cyan",
+    "Green", "Yellow", "Amber", "Orange", "Red", "Scarlet", "Tan",
+    "Lilac", "Pink"
+  )[succ(ord(aColour))];
+
+enable_output(COLOUR);
+
+const COLOUR: FIRSTCOL is WHITE;
+const COLOUR: LASTCOL  is PINK;
+
+const type: direction is new enum
+    HERE, N, S, W, E, NW, NE, SW, SE
+  end enum;
+
+const func string: str (in direction: aDirection) is
+  return [] (
+    "HERE", "N", "S", "W", "E", "NW", "NE", "SW", "SE"
+  )[succ(ord(aDirection))];
+
+enable_output(direction);
+
+const type: hue is subtype COLOUR; (* FIRSTCOL .. LASTCOL *)
+const hue: (attr hue) . first is FIRSTCOL;
+const hue: (attr hue) . last is LASTCOL;
+const hue: (attr hue) . value is FIRSTCOL;
+const type: COLOURSET is set of COLOUR;
+const type: directSet is set of direction;
+const type: directArr is array [direction] direction;
+const type: power is integer; (* 0 .. all *)
+const type: lifeSpan is subtype integer; (* 0 .. MAXLIFESPAN *)
+const type: percent is subtype integer; (* 0 .. 100 *)
+
+const power: ALL is 1000000;
+const lifeSpan: MAXLIFESPAN is 3;
+
+const array [direction] direction: right is [direction] (
+    HERE, NE, SW, NW, SE, N, E, W, S);
+const array [direction] direction: left is [direction] (
+    HERE, NW, SE, SW, NE, W, N, S, E);
+
+const integer: defaultVal is 10; (* DefaultWerte fuer die drei Parameter *)
+
+var power: initSize is defaultVal;
+var power: foodReserve is defaultVal;
+var percent: shrinkage is defaultVal;
+const COLOURSET: ALL_COLOURS is {WHITE, VIOLET, INDIGO, BLUE, CYAN,
+    GREEN, YELLOW, AMBER, ORANGE, RED, SCARLET, TAN, LILIAC, PINK};
+const directSet: MAIN_DIRECTIONS is {N, S, W, E};
+const directSet: DIAGONAL_DIRECTIONS is {NW, NE, SW, SE};
+
+const func integer: min (in integer: a, in integer: b) is forward;
+const func integer: max (in integer: a, in integer: b) is forward;
+const func direction: ranDir (in directSet: dirset) is forward;
+const func power: shrinkSize (in power: size) is forward;
+const func power: nextSize (in power: ownsize, in power: foodmass, in lifeSpan: ownHunger) is forward;
+const func power: strength (in direction: direct) is forward;
+const func COLOUR: view (in direction: direct) is forward;
+const func power: food (in direction: direct) is forward;
+const func lifeSpan: hunger is forward;
+const proc: eat (in direction: direct, in power: quantity) is forward;
+const proc: kill (in direction: direct) is forward;
+const proc: split (in direction: direct, in power: quantity1, in power: quantity2) is forward;

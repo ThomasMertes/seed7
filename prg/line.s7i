@@ -1,0 +1,94 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  line.s7i      Filter file which reads the input linewise        *)
+(*  Copyright (C) 1992, 1993, 1994, 2005  Thomas Mertes             *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 59 Temple Place, Suite 330,     *)
+(*  Boston, MA 02111-1307 USA                                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+const type: LINE_FILE is sub NULL_FILE struct
+    var file: in_file is STD_NULL;
+    var string: line is "";
+  end struct;
+
+
+const func LINE_FILE: open_line (ref file: in_fil) is func
+  result
+    var LINE_FILE: line_fil is LINE_FILE.value;
+  begin
+    line_fil := LINE_FILE.value;
+    line_fil.in_file := in_fil;
+  end func;
+
+
+const func string: getln (inout LINE_FILE: line_fil) is func
+  result
+    var string: stri is "";
+  local
+    var char: ch is ' ';
+  begin
+    if line_fil.line = "" then
+      ch := gets(line_fil.in_file, 1)[1];
+      while ch <> '\n' do
+        if ch = '\b' then
+          if stri <> "" then
+            stri := stri[ .. pred(length(stri))];
+          end if;
+        else
+          stri &:= str(ch);
+        end if;
+        ch := gets(line_fil.in_file, 1)[1];
+      end while;
+    else
+      if line_fil.line[length(line_fil.line)] = '\n' then
+        stri := line_fil.line[ .. pred(length(line_fil.line))];
+      else
+        stri := line_fil.line;
+      end if;
+      line_fil.line := "";
+    end if;
+  end func;
+
+
+const func char: getc (inout LINE_FILE: line_fil) is func
+  result
+    var char: ch is ' ';
+  begin
+    if line_fil.line = "" then
+      line_fil.line := getln(line_fil) & "\n";
+    end if;
+    ch := line_fil.line[1];
+    line_fil.line := line_fil.line[2 .. ];
+  end func;
+
+
+const func string: gets (inout LINE_FILE: line_fil, in integer: leng) is func
+  result
+    var string: stri is "";
+  begin
+    while length(line_fil.line) < leng do
+      line_fil.line &:= getln(line_fil) & "\n";
+    end while;
+    stri := line_fil.line[ .. leng];
+    line_fil.line := line_fil.line[succ(leng) .. ];
+  end func;

@@ -1,0 +1,436 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  dna.sd7       Bacterial fight                                   *)
+(*  Copyright (C) 1985  Markus Stumptner                            *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(* GREEN V4.2 *)
+
+const float: NEIGHBFOOD  is 0.5;
+const float: NEIGHBENEMY is 0.4;
+const float: NEIGHBOWN   is 0.1;
+
+const integer: EATBASEPRI   is 19;
+const integer: KILLBASEPRI  is 20;
+const integer: SPLITBASEPRI is 18;
+
+const integer: GREENKILLMOD is -7;
+const integer: GREENMENCMOD is  5;
+const integer: HUNGER1MOD   is -3;
+const integer: MENACE2MOD   is -7;
+const integer: INITSPLITMOD is  2;
+const integer: HUNGSPLITMOD is -3;
+
+const float: HEREVALFACTOR is 0.75;
+
+
+const type: importance is subtype integer;
+
+const type: bactAction is new enum
+    SINGLEACT, SPLITACT
+  end enum;
+
+const type: dataElem is new struct
+    var importance: priority is 0;
+    var float: valued is 0.0;
+    var power: quantity is 0;
+  end struct;
+
+
+var array [direction] array [bactAction] dataElem: data is
+    direction times bactAction times dataElem.value;
+
+var array [direction] float: nextVal is direction times 0.0;
+
+var float: initSplitSize is 0.0;
+
+var direction: bestDir is HERE;
+var bactAction: bestAct is SINGLEACT;
+var power: quant is 0;
+var power: strH is 0;
+var power: shrH is 0;
+
+
+const func boolean: NOENEMY is func
+  result
+    var boolean: result is FALSE;
+  local
+    const COLOURSET: ACTSET is {CLEAR, EDGE, GREEN};
+
+  begin (* NOENEMY *)
+    result := (view(N)  in ACTSET) and (view(S)  in ACTSET) and
+               (view(W)  in ACTSET) and (view(W)  in ACTSET) and
+               (view(NW) in ACTSET) and (view(SW) in ACTSET) and
+               (view(NE) in ACTSET) and (view(SE) in ACTSET);
+  end func; (* NOENEMY *)
+
+
+const func power: newStrength (in power: currStr, in direction: actdir) is func
+  result
+    var power: result is 0;
+
+  begin (* newStrength *)
+    if view(actdir) in {EDGE,CLEAR} or actdir = HERE then
+      result := currStr + min(food(actdir), currStr) -
+                    shrinkSize(currStr);
+    else
+      result := currStr + strength(actdir) - shrinkSize(currStr);
+    end if;
+  end func; (* newStrength *)
+
+
+const func float: MAXR (in float: x, in float: y) is func
+  result
+    var float: result is 0.0;
+
+  begin (* MAXR *)
+    if x < y then
+      result := y;
+    else
+      result := x;
+    end if;
+  end func; (* MAXR *)
+
+
+const func float: neighbourVal (in direction: actdir) is func
+  result
+    var float: result is 0.0;
+
+  begin (* neighbourVal *)
+    case view(actdir) of
+      when {EDGE}:
+        result := 0.0;
+      when {CLEAR}:
+        result := flt(food(actdir)) * NEIGHBFOOD;
+      when {GREEN}:
+        result := flt(food(actdir) + strength(actdir)) * NEIGHBOWN;
+      otherwise:
+        result := flt(food(actdir) + strength(actdir)) * NEIGHBENEMY;
+    end case;
+  end func; (* neighbourVal *)
+
+
+const func integer: locMenace (in power: newstr, in direction: actdir) is func
+  result
+    var integer: men is 0;
+  local
+    var power: str is 0;
+
+  begin (* locMenace *)
+    men := 4;
+    str := strength(actdir);
+    if not view(actdir) in {EDGE, CLEAR, GREEN} then
+      if str > newstr then
+        men := 1;
+      else
+        if str + min(food(actdir), str) - shrinkSize(str) > newstr then
+          men := 2;
+        end if;
+      end if;
+    end if;
+  end func; (* locMenace *)
+
+
+const func integer: menace (in power: str, in direction: actdir) is func
+  result
+    var integer: result is 0;
+  local
+    var power: newstr is 0;
+
+  begin (* menace *)
+    newstr := newStrength(str, actdir);
+    if actdir = HERE then
+      result := min(min(locMenace(newstr, N), locMenace(newstr, S)),
+                    min(locMenace(newstr, W), locMenace(newstr, E)));
+    else
+      result := min(locMenace(newstr, left[actdir]),
+                    locMenace(newstr, right[actdir]));
+    end if;
+  end func; (* menace *)
+
+
+const proc: killer (in direction: actdir) is func
+  local
+    var integer: men is 0;
+    var power: str is 0;
+
+  begin (* killer *)
+    str := strength(actdir);
+    if str <= strH then
+
+      data[actdir][SINGLEACT].valued := flt(str + food(actdir)) + nextVal[actdir];
+
+      data[actdir][SINGLEACT].priority := KILLBASEPRI;
+      if view(actdir) = GREEN then
+        data[actdir][SINGLEACT].priority +:= GREENKILLMOD;
+        if (locMenace(str, left[actdir])  = 1) or
+           (locMenace(str, right[actdir]) = 1) then
+          data[actdir][SINGLEACT].priority +:= GREENMENCMOD;
+        end if;
+      end if;
+      if str < shrH then
+        if hunger = 0 then
+          data[actdir][SINGLEACT].priority := 0;
+        else
+          data[actdir][SINGLEACT].priority +:= HUNGER1MOD;
+        end if;
+      end if;
+      men := menace(strH, actdir);
+      if data[actdir][SINGLEACT].priority > 0 then
+        if men = 1 then
+          data[actdir][SINGLEACT].priority := 0;
+        else
+          if men = 2 then
+            data[actdir][SINGLEACT].priority +:= MENACE2MOD;
+          end if;
+        end if;
+      end if;
+    end if;
+  end func; (* killer *)
+
+
+const proc: eater (in direction: actdir) is func
+  local
+    var integer: men is 0;
+
+  begin (* eater *)
+
+    if actdir = HERE then
+      data[actdir][SINGLEACT].valued := (flt(food(HERE)) + nextVal[HERE]) * HEREVALFACTOR;
+      if data[actdir][SINGLEACT].valued = 0.0 then
+        data[actdir][SINGLEACT].valued := -1.0;
+      end if;
+    else
+      data[actdir][SINGLEACT].valued := flt(food(actdir)) + nextVal[actdir];
+    end if;
+
+    data[actdir][SINGLEACT].priority := EATBASEPRI;
+    if food(actdir) < shrH then
+      if hunger = 0 then
+        data[actdir][SINGLEACT].priority := 0;
+      else
+        data[actdir][SINGLEACT].priority +:= HUNGER1MOD;
+      end if;
+    end if;
+    men := menace(strH, actdir);
+    if data[actdir][SINGLEACT].priority > 0 then
+      if men = 1 then
+        data[actdir][SINGLEACT].priority := 0;
+      else
+        if men = 2 then
+          data[actdir][SINGLEACT].priority +:= MENACE2MOD;
+        end if;
+      end if;
+    end if;
+    if NOENEMY and flt(food(actdir)) < 0.33 * flt(foodReserve) then
+      data[actdir][SINGLEACT].quantity := shrH;
+    else
+      data[actdir][SINGLEACT].quantity := min(strH, food(actdir));
+    end if;
+  end func; (* eater *)
+
+
+const proc: splitter (in direction: actdir) is func
+  local
+    var power: str1 is 0;
+    var power: str2 is 0;
+    var power: shrs1 is 0;
+    var power: shrs2 is 0;
+    var integer: men1 is 0;
+    var integer: men2 is 0;
+
+  begin (* splitter *)
+    str2 := strH div 2;
+    str1 := strH - str2;
+    shrs1 := shrinkSize(str1);
+    shrs2 := shrinkSize(str2);
+
+    data[actdir][SPLITACT].valued := flt(food(HERE) + food(actdir)) +
+                                     nextVal[HERE] + nextVal[actdir];
+
+    data[actdir][SPLITACT].priority := SPLITBASEPRI;
+    if NOENEMY and (food(actdir) = foodReserve and
+        flt(strH) >= initSplitSize or strH > 5 and strH = initSize) then
+      data[actdir][SPLITACT].priority +:= INITSPLITMOD;
+    end if;
+    if hunger = 0 and food(HERE) < shrs1 and food(actdir) < shrs2 then
+      data[actdir][SPLITACT].priority := 0;
+    else
+      if hunger = 0 and food(HERE) < shrs1 and food(actdir) < shrs2 then
+        data[actdir][SPLITACT].priority +:= HUNGSPLITMOD;
+      end if;
+    end if;
+    if data[actdir][SPLITACT].priority > 0 then
+      men1 := menace(str1, HERE);
+      men2 := menace(str2, actdir);
+      if men1 = 1 or men2 = 1 then
+        data[actdir][SPLITACT].priority := 0;
+      else
+        if men1 = 2 and men2 = 2 then
+          data[actdir][SPLITACT].priority +:= MENACE2MOD;
+        end if;
+      end if;
+    end if;
+  end func; (* splitter *)
+
+
+const func bactAction: anyAct is func
+  result
+    var bactAction: result is SINGLEACT;
+
+  begin (* anyAct *)
+    if rand(FALSE, TRUE) then
+      result := SINGLEACT
+    else
+      result := SPLITACT;
+    end if;
+  end func; (* anyAct *)
+
+
+const proc: evaluate (inout bactAction: bestAct, inout direction: bestDir, inout power: quant) is func
+  local
+    var direction: actdir is HERE;
+    var bactAction: actact is SINGLEACT;
+    var importance: dirbPri is 0;
+    var importance: bestPri is 0;
+    var float: dirbVal is 0.0;
+    var float: bestVal is 0.0;
+    var directSet: bestDirs is directSet.EMPTY_SET;
+    var array [direction] bactAction: bacts is direction times bactAction.value;
+
+  begin (* evaluate *)
+    bestDirs := directSet.EMPTY_SET;
+    bestPri := 0;
+    bestVal := 0.0;
+    for actdir range HERE to E do
+      dirbPri := 0;
+      dirbVal := 0.0;
+      for actact range SINGLEACT to SPLITACT do
+        if data[actdir][actact].priority > dirbPri or
+            data[actdir][actact].priority = dirbPri and
+            data[actdir][actact].valued > dirbVal then
+          bacts[actdir] := actact;
+          dirbPri := data[actdir][actact].priority;
+          dirbVal := data[actdir][actact].valued;
+        else
+          if data[actdir][actact].priority = dirbPri and
+              data[actdir][actact].valued = dirbVal then
+            bacts[actdir] := anyAct;
+          end if;
+        end if;
+      end for;
+      if data[actdir][bacts[actdir]].priority > bestPri or
+          data[actdir][bacts[actdir]].priority = bestPri and
+          data[actdir][bacts[actdir]].valued > bestVal then
+        bestDirs := {actdir};
+        bestPri := data[actdir][bacts[actdir]].priority;
+        bestVal := data[actdir][bacts[actdir]].valued;
+      else
+        if data[actdir][bacts[actdir]].priority = bestPri and
+            data[actdir][bacts[actdir]].valued = bestVal then
+          incl(bestDirs, actdir);
+        end if;
+      end if;
+    end for;
+    bestDir := ranDir(bestDirs);
+    bestAct := bacts[bestDir];
+    if bestAct = SINGLEACT then
+      quant := data[bestDir][bestAct].quantity;
+    else
+      quant := 0; (* NUR WICHTIG FUER EAT *)
+    end if;
+  end func; (* evaluate *)
+
+
+const proc: execute (in bactAction: act, in direction: dir, in power: quant) is func
+  local
+    var power: qu2 is 0;
+
+  begin (* execute *)
+    case act of
+      when {SINGLEACT}:
+        if (strength(dir) > 0) and (dir <> HERE) then
+          kill(dir);
+        else
+          eat(dir, quant);
+        end if;
+      when {SPLITACT}:
+        qu2 := strength(HERE) div 2;
+        split(dir, strength(HERE) - qu2, qu2);
+    end case;
+  end func; (* execute *)
+
+
+const proc: initData is func
+  local
+    var direction: actdir is HERE;
+    var bactAction: actact is SINGLEACT;
+    var array [direction] float: neighbVal is direction times 0.0;
+
+  begin (* initData *)
+    initSplitSize := -0.00875 * flt(foodReserve**2) +
+        1.145 * flt(foodReserve) + 3.0;
+    if initSplitSize < 5.0 then
+      initSplitSize := 5.0;
+    end if;
+    strH := strength(HERE);
+    shrH := shrinkSize(strH);
+    for actdir range HERE to E do
+      for actact range SINGLEACT to SPLITACT do
+        data[actdir][actact].priority := 0;
+        data[actdir][actact].valued := 0.0;
+        data[actdir][actact].quantity := 0;
+      end for;
+    end for;
+    for actdir range N to SE do
+      neighbVal[actdir] := neighbourVal(actdir);
+    end for;
+    for actdir range N to E do
+      nextVal[actdir] := MAXR(neighbVal[left[actdir]],
+                              neighbVal[right[actdir]]);
+    end for;
+    nextVal[HERE] := MAXR(MAXR(neighbVal[N], neighbVal[S]),
+                          MAXR(neighbVal[W], neighbVal[E]));
+  end func; (* initData *)
+
+
+const proc: dna (GREEN) is func
+  local
+    var direction: actdir is HERE;
+
+  begin (* dna (GREEN) *)
+    initData;
+    for actdir range MAIN_DIRECTIONS do
+      if view(actdir) <> EDGE then
+        if view(actdir) <> CLEAR then
+          killer(actdir)
+        else
+          eater(actdir);
+          if strH > 1 then
+            splitter(actdir);
+          end if;
+        end if;
+      end if;
+    end for;
+    eater(HERE);
+    evaluate(bestAct, bestDir, quant);
+    execute(bestAct, bestDir, quant);
+  end func; (* dna (GREEN) *)

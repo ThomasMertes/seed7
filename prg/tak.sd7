@@ -1,0 +1,65 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  tak.sd7       Little benchmark computing tak(18, 12, 6)         *)
+(*  Copyright (C) 1990, 1991, 1992, 1993, 1994, 2004  Thomas Mertes *)
+(*                                                                  *)
+(*  This program is free software; you can redistribute it and/or   *)
+(*  modify it under the terms of the GNU General Public License as  *)
+(*  published by the Free Software Foundation; either version 2 of  *)
+(*  the License, or (at your option) any later version.             *)
+(*                                                                  *)
+(*  This program is distributed in the hope that it will be useful, *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of  *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   *)
+(*  GNU General Public License for more details.                    *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU General Public       *)
+(*  License along with this program; if not, write to the Free      *)
+(*  Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,  *)
+(*  MA 02111-1307 USA                                               *)
+(*                                                                  *)
+(********************************************************************)
+
+
+$ include "seed7_05.s7i";
+include "time.s7i";
+
+var time: before is NULL_TIME;
+var time: after is NULL_TIME;
+var duration: diff is NULL_DURATION;
+
+
+const func integer: tak (in integer: x, in integer: y, in integer: z) is func
+  result
+    var integer: result is 0;
+  begin
+    if y >= x then
+      result := z;
+    else
+      result := tak(tak(pred(x), y, z),
+                    tak(pred(y), z, x),
+                    tak(pred(z), x, y));
+    end if;
+  end func;
+
+
+const proc: main is func
+  begin
+    before := time(NOW);
+    write("tak(18, 12, 6) = ");
+    writeln(tak(18, 12, 6));
+    after := time(NOW);
+    write(before);
+    write(" ");
+    writeln(before.mycro_second lpad 6);
+    write(after);
+    write(" ");
+    writeln(after.mycro_second lpad 6);
+    diff := after - before;
+    write(diff);
+    write(" ");
+    writeln(diff.mycro_second lpad 6);
+  end func;
+
+$ system "main" is main;
