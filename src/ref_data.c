@@ -797,6 +797,26 @@ intType intValue (objectType obj_arg)
 
 
 
+processType pcsValue (objectType obj_arg)
+
+  {
+    processType process_value;
+
+  /* pcsValue */
+    if (obj_arg == NULL || CATEGORY_OF_OBJ(obj_arg) != PROCESSOBJECT) {
+      raise_error(RANGE_ERROR);
+      return NULL;
+    } else {
+      process_value = take_process(obj_arg);
+      if (process_value != NULL) {
+        process_value->usage_count++;
+      } /* if */
+      return process_value;
+    } /* if */
+  } /* pcsValue */
+
+
+
 pollType polValue (objectType obj_arg)
 
   { /* polValue */

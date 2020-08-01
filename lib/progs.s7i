@@ -33,6 +33,7 @@ include "float.s7i";
 include "external_file.s7i";
 include "graph.s7i";
 include "poll.s7i";
+include "process.s7i";
 
 
 (**
@@ -380,6 +381,7 @@ const func float: getValue (in reference: aReference, attr float)            is 
 const func reference: getValue (in reference: aReference, attr reference)    is action "REF_VALUE";
 const func PRIMITIVE_WINDOW: getValue (in reference: aReference,
                                        attr PRIMITIVE_WINDOW)                is action "DRW_VALUE";
+const func process: getValue (in reference: aReference, attr process)        is action "PCS_VALUE";
 # const func type: getValue (in reference: aReference, attr type)            is action "TYP_VALUE";
 
 const proc: setValue(inout reference: listRef, in ref_list: list)      is action "RFL_SETVALUE";

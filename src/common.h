@@ -510,6 +510,7 @@ typedef struct striStruct     *striType;
 typedef struct bstriStruct    *bstriType;
 typedef struct pollStruct     *pollType;
 typedef struct winStruct      *winType;
+typedef struct processStruct  *processType;
 typedef struct databaseStruct *databaseType;
 typedef struct sqlStmtStruct  *sqlStmtType;
 
@@ -518,6 +519,7 @@ typedef const struct striStruct     *const_striType;
 typedef const struct bstriStruct    *const_bstriType;
 typedef const struct pollStruct     *const_pollType;
 typedef const struct winStruct      *const_winType;
+typedef const struct processStruct  *const_processType;
 typedef const struct databaseStruct *const_databaseType;
 typedef const struct sqlStmtStruct  *const_sqlStmtType;
 
@@ -560,6 +562,11 @@ typedef struct winStruct {
     uintType usage_count;
     /* The rest of the structure is only accessable for the driver */
   } winRecord;
+
+typedef struct processStruct {
+    uintType usage_count;
+    /* The rest of the structure is only accessable for the driver */
+  } processRecord;
 
 typedef struct databaseStruct {
     uintType usage_count;

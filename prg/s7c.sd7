@@ -705,6 +705,11 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_frees &:= "drwDestr(o_";
       create_name(current_object, c_declaration.temp_frees);
       c_declaration.temp_frees &:= ");\n";
+    elsif valueCategory = PROCESSOBJECT then
+      c_declaration.temp_decls &:= "=NULL";
+      c_declaration.temp_frees &:= "pcsDestr(o_";
+      create_name(current_object, c_declaration.temp_frees);
+      c_declaration.temp_frees &:= ");\n";
     elsif valueCategory = PROGOBJECT then
       c_declaration.temp_decls &:= "=NULL";
       c_declaration.temp_frees &:= "prgDestr(o_";
@@ -1678,6 +1683,7 @@ const proc: process_call (in reference: current_expression, inout expr_type: c_e
           functionCategory = STRUCTOBJECT or
           functionCategory = INTERFACEOBJECT or
           functionCategory = WINOBJECT or
+          functionCategory = PROCESSOBJECT or
           functionCategory = PROGOBJECT or
           functionCategory = ENUMLITERALOBJECT or
           functionCategory = TYPEOBJECT then
@@ -2009,6 +2015,18 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         create_name(current_expression, c_expr.expr);
       else
         c_expr.expr &:= windowLiteral(getValue(current_expression, PRIMITIVE_WINDOW));
+      end if;
+    elsif exprCategory = PROCESSOBJECT then
+      if isVar(current_expression) then
+        c_expr.expr &:= "o_";
+        create_name(current_expression, c_expr.expr);
+      else
+        if getValue(current_expression, process) = process.EMPTY then
+          c_expr.expr &:= "/*process.EMPTY*/NULL";
+        else
+          c_expr.expr &:= "o_";
+          create_name(current_expression, c_expr.expr);
+        end if;
       end if;
     elsif exprCategory = PROGOBJECT then
       if isVar(current_expression) then
@@ -2753,6 +2771,14 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       process_generic_destr_declaration(object_type, global_c_expr);
       c_expr.expr &:= "&generic_destr_";
       c_expr.expr &:= str(typeNumber(object_type));
+    elsif action_name = "PCS_CMP" then
+      c_expr.expr &:= "&pcsCmpGeneric";
+    elsif action_name = "PCS_CPY" then
+      c_expr.expr &:= "&pcsCpyGeneric";
+    elsif action_name = "PCS_CREATE" then
+      c_expr.expr &:= "&pcsCreateGeneric";
+    elsif action_name = "PCS_DESTR" then
+      c_expr.expr &:= "&pcsDestrGeneric";
     elsif action_name = "PRC_NOOP" then
       c_expr.expr &:= "&prcNoop";
     elsif action_name = "REF_CMP" then
@@ -3180,6 +3206,19 @@ const proc: process_win_declaration (in reference: current_object,
         global_init.expr &:= windowLiteral(getValue(current_object, PRIMITIVE_WINDOW));
         global_init.expr &:= ");\n";
       end if;
+      count_declarations(c_expr);
+    end if;
+  end func;
+
+
+const proc: process_process_declaration (in reference: current_object,
+    inout expr_type: c_expr) is func
+
+  begin
+    if isVar(current_object) then
+      c_expr.expr &:= "processType o_";
+      create_name(current_object, c_expr.expr);
+      c_expr.expr &:= "=NULL;\n\n";
       count_declarations(c_expr);
     end if;
   end func;
@@ -4353,6 +4392,9 @@ const proc: process_action_declaration (in reference: current_object,
       elsif action_name = "BST_CPY" or action_name = "BST_CREATE" then
         defineParam1TypeCategory(current_object, BSTRIOBJECT);
         count_declarations(c_expr);
+      elsif action_name = "PCS_CPY" or action_name = "PCS_CREATE" then
+        defineParam1TypeCategory(current_object, PROCESSOBJECT);
+        count_declarations(c_expr);
       elsif action_name = "DRW_CPY" or action_name = "DRW_CREATE" then
         defineParam1TypeCategory(current_object, WINOBJECT);
         count_declarations(c_expr);
@@ -4481,6 +4523,8 @@ const proc: process_object_declaration (in reference: current_object,
       process_interface_declaration(current_object, c_expr);
     elsif objectCategory = WINOBJECT then
       process_win_declaration(current_object, c_expr);
+    elsif objectCategory = PROCESSOBJECT then
+      process_process_declaration(current_object, c_expr);
     elsif objectCategory = PROGOBJECT then
       process_prog_declaration(current_object, c_expr);
     elsif objectCategory = CONSTENUMOBJECT then
@@ -4855,6 +4899,10 @@ const proc: write_file_head is func
     writeln(c_prog, "  uintType usage_count;");
     writeln(c_prog, "} *winType;");
     writeln(c_prog, "typedef const struct winStruct *const_winType;");
+    writeln(c_prog, "typedef struct processStruct {");
+    writeln(c_prog, "  uintType usage_count;");
+    writeln(c_prog, "} *processType;");
+    writeln(c_prog, "typedef const struct processStruct *const_processType;");
     writeln(c_prog, "typedef struct databaseStruct {");
     writeln(c_prog, "  uintType usage_count;");
     writeln(c_prog, "} *databaseType;");
@@ -4901,6 +4949,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  pollType      pollValue;");
     writeln(c_prog, "  setType       setValue;");
     writeln(c_prog, "  winType       winValue;");
+    writeln(c_prog, "  processType   processValue;");
     writeln(c_prog, "  progType      progValue;");
     writeln(c_prog, "  arrayType     arrayValue;");
     writeln(c_prog, "  hashType      hashValue;");
@@ -4926,6 +4975,7 @@ const proc: write_file_head is func
     writeln(c_prog, "  const_pollType      pollValue;");
     writeln(c_prog, "  const_setType       setValue;");
     writeln(c_prog, "  const_winType       winValue;");
+    writeln(c_prog, "  const_processType   processValue;");
     writeln(c_prog, "  const_progType      progValue;");
     writeln(c_prog, "  const_arrayType     arrayValue;");
     writeln(c_prog, "  const_hashType      hashValue;");
@@ -5139,6 +5189,7 @@ const proc: write_prototypes is func
     int_prototypes(c_prog);
     itf_prototypes(c_prog);
     kbd_prototypes(c_prog);
+    pcs_prototypes(c_prog);
     pol_prototypes(c_prog);
     prg_prototypes(c_prog);
     ref_prototypes(c_prog);

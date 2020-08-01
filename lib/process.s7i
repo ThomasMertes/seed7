@@ -31,6 +31,150 @@ include "cc_conf.s7i";
 
 
 (**
+ *  Type to manage processes.
+ *)
+const type: process is newtype;
+
+
+const proc: (ref process param) ::= (in process param)       is action "PCS_CREATE";
+IN_PARAM_IS_REFERENCE(process);
+const proc: destroy (ref process param)                      is action "PCS_DESTR";
+const proc: (inout process: dest) := (in process: source)    is action "PCS_CPY";
+const func process: _GENERATE_EMPTY_PROCESS                  is action "PCS_EMPTY";
+const process: (attr process) . value                        is _GENERATE_EMPTY_PROCESS;
+const process: (attr process) . EMPTY                        is _GENERATE_EMPTY_PROCESS;
+
+
+(**
+ *  Check if two processes are equal.
+ *  @return TRUE if the two processes are equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in process: process1) = (in process: process2)  is action "PCS_EQ";
+
+
+(**
+ *  Check if two processes are not equal.
+ *  @return TRUE if both processes are not equal,
+ *          FALSE otherwise.
+ *)
+const func boolean: (in process: process1) <> (in process: process2) is action "PCS_NE";
+
+
+(**
+ *  Compare two process values.
+ *  The order of two processes is determined by comparing the process
+ *  identifiers (PID). Therefore the result of ''compare'' may change
+ *  when the program is executed again. Inside a program the result
+ *  of ''compare'' is consistent and can be used to maintain hash
+ *  tables.
+ *  @return -1, 0 or 1 if the first argument is considered to be
+ *          respectively less than, equal to, or greater than the
+ *          second.
+ *)
+const func integer: compare (in process: process1, in process: process2) is action "PCS_CMP";
+
+
+(**
+ *  Compute the hash value of a process.
+ *  @return the hash value.
+ *)
+const func integer: hashCode (in process: aProcess) is action "PCS_HASHCODE";
+
+
+(**
+ *  Convert a ''process'' to a [[string]].
+ *  The process is converted to a string with the process identifier (PID).
+ *  @return the string result of the conversion.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: str (in process: aProcess) is action "PCS_STR";
+
+
+(**
+ *  Test whether the specified process is alive.
+ *  @return TRUE if the specified process has not yet terminated,
+ *          FALSE otherwise.
+ *)
+const func boolean: isAlive (in process: process1) is action "PCS_IS_ALIVE";
+
+
+(**
+ *  Start a new process.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable.
+ *  @param command Name of the command to be executed. A path must
+ *         use the standard path representation.
+ *  @param parameters Array of argument strings passed to the new
+ *         program.
+ *  @return the process that has been started.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const func process: startProcess (in string: command, in array string: parameters) is action "PCS_START";
+
+
+(**
+ *  Start a new process.
+ *  The command path must lead to an executable file. The environment
+ *  variable PATH is not used to search for an executable.
+ *  @param cmdAndParams Command to be executed and optional space
+ *         separated list of parameters. Command and parameters
+ *         must be space separated.
+ *  @return the process that has been started.
+ *  @exception MEMORY_ERROR Not enough memory to convert 'command'
+ *             to the system path type.
+ *  @exception RANGE_ERROR 'command' is not representable in the
+ *             system path type.
+ *  @exception FILE_ERROR The file does not exist or does not
+ *             have execute permission.
+ *)
+const func process: startProcess (in var string: cmdAndParams) is func
+  result
+    var process: childProcess is process.value;
+  local
+    var string: command is "";
+    var string: parameter is "";
+    var array string: parameters is 0 times "";
+  begin
+    command := getCommandLineWord(cmdAndParams);
+    parameter := getCommandLineWord(cmdAndParams);
+    while parameter <> "" do
+      parameters &:= parameter;
+      parameter := getCommandLineWord(cmdAndParams);
+    end while;
+    childProcess := startProcess(command, parameters);
+  end func;
+
+
+(**
+ *  Kill the specified process.
+ *  @exception FILE_ERROR It was not possible to kill the process.
+ *)
+const proc: kill (in process: aProcess) is action "PCS_KILL";
+
+
+(**
+ *  Wait until the specified child process has terminated.
+ *  Suspend the execution of the calling process until the
+ *  specified child has terminated.
+ *)
+const proc: waitFor (in process: aProcess) is action "PCS_WAIT_FOR";
+
+
+(**
+ *  Return the exit value of the specified process.
+ *  By convention, the value 0 indicates normal termination.
+ *  @return the exit value of the specified process.
+ *)
+const func integer: exitValue (in process: aProcess) is action "PCS_EXIT_VALUE";
+
+
+(**
  *  Returns the search path of the system as [[array]] of [[string]]s.
  *  @return the search path of the system.
  *  @exception MEMORY_ERROR Not enough memory to create the result.
@@ -108,7 +252,7 @@ const func string: commandDir (in string: command) is func
 
 const proc: pipe2 (in string: command, in array string: parameters,
     inout clib_file: primitiveChildStdin,
-    inout clib_file: primitiveChildStdout) is action "CMD_PIPE2";
+    inout clib_file: primitiveChildStdout) is action "PCS_PIPE2";
 
 
 (**
@@ -150,7 +294,7 @@ const proc: pipe2 (in string: command, in array string: parameters,
 
 const proc: pty (in string: command, in array string: parameters,
     inout clib_file: primitiveChildStdin,
-    inout clib_file: primitiveChildStdout) is action "CMD_PTY";
+    inout clib_file: primitiveChildStdout) is action "PCS_PTY";
 
 
 const proc: pty (in string: command, in array string: parameters,
@@ -170,24 +314,4 @@ const proc: pty (in string: command, in array string: parameters,
       new_ChildStdout.ext_file := primitiveChildStdout;
       childStdout := toInterface(new_ChildStdout);
     end if;
-  end func;
-
-
-const proc: startProcess (in string: command,
-                            in array string: parameters) is action "CMD_START_PROCESS";
-
-
-const proc: startProcess (in var string: cmdAndParams) is func
-  local
-    var string: command is "";
-    var string: parameter is "";
-    var array string: parameters is 0 times "";
-  begin
-    command := getCommandLineWord(cmdAndParams);
-    parameter := getCommandLineWord(cmdAndParams);
-    while parameter <> "" do
-      parameters &:= parameter;
-      parameter := getCommandLineWord(cmdAndParams);
-    end while;
-    startProcess(command, parameters);
   end func;

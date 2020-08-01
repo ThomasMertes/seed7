@@ -681,62 +681,6 @@ objectType cmd_move (listType arguments)
 
 
 
-objectType cmd_pipe2 (listType arguments)
-
-  {
-    objectType childStdin_variable;
-    objectType childStdout_variable;
-    rtlArrayType parameters;
-
-  /* cmd_pipe2 */
-    isit_stri(arg_1(arguments));
-    isit_array(arg_2(arguments));
-    childStdin_variable = arg_3(arguments);
-    isit_file(childStdin_variable);
-    childStdout_variable = arg_4(arguments);
-    isit_file(childStdout_variable);
-    parameters = gen_rtl_array(take_array(arg_2(arguments)));
-    if (parameters == NULL) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      cmdPipe2(take_stri(arg_1(arguments)), parameters,
-               &childStdin_variable->value.fileValue,
-               &childStdout_variable->value.fileValue);
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
-    } /* if */
-    return SYS_EMPTY_OBJECT;
-  } /* cmd_pipe2 */
-
-
-
-objectType cmd_pty (listType arguments)
-
-  {
-    objectType childStdin_variable;
-    objectType childStdout_variable;
-    rtlArrayType parameters;
-
-  /* cmd_pty */
-    isit_stri(arg_1(arguments));
-    isit_array(arg_2(arguments));
-    childStdin_variable = arg_3(arguments);
-    isit_file(childStdin_variable);
-    childStdout_variable = arg_4(arguments);
-    isit_file(childStdout_variable);
-    parameters = gen_rtl_array(take_array(arg_2(arguments)));
-    if (parameters == NULL) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      cmdPty(take_stri(arg_1(arguments)), parameters,
-               &childStdin_variable->value.fileValue,
-               &childStdout_variable->value.fileValue);
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
-    } /* if */
-    return SYS_EMPTY_OBJECT;
-  } /* cmd_pty */
-
-
-
 /**
  *  Reads the destination of a symbolic link.
  *  @return The destination refered by the symbolic link.
@@ -987,26 +931,6 @@ objectType cmd_shell_escape (listType arguments)
     return bld_stri_temp(
         cmdShellEscape(take_stri(arg_1(arguments))));
   } /* cmd_shell_escape */
-
-
-
-objectType cmd_start_process (listType arguments)
-
-  {
-    rtlArrayType parameters;
-
-  /* cmd_start_process */
-    isit_stri(arg_1(arguments));
-    isit_array(arg_2(arguments));
-    parameters = gen_rtl_array(take_array(arg_2(arguments)));
-    if (parameters == NULL) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      cmdStartProcess(take_stri(arg_1(arguments)), parameters);
-      FREE_RTL_ARRAY(parameters, ARRAY_LENGTH(parameters));
-    } /* if */
-    return SYS_EMPTY_OBJECT;
-  } /* cmd_start_process */
 
 
 

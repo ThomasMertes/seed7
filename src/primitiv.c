@@ -51,6 +51,7 @@
 #include "itflib.h"
 #include "kbdlib.h"
 #include "lstlib.h"
+#include "pcslib.h"
 #include "pollib.h"
 #include "prclib.h"
 #include "prglib.h"
@@ -244,8 +245,6 @@ static primActRecord prim_act_table[] = {
     { "CMD_LS",                  cmd_ls,                  },
     { "CMD_MKDIR",               cmd_mkdir,               },
     { "CMD_MOVE",                cmd_move,                },
-    { "CMD_PIPE2",               cmd_pipe2,               },
-    { "CMD_PTY",                 cmd_pty,                 },
     { "CMD_READLINK",            cmd_readlink,            },
     { "CMD_REMOVE_FILE",         cmd_remove_file,         },
     { "CMD_REMOVE_TREE",         cmd_remove_tree,         },
@@ -256,7 +255,6 @@ static primActRecord prim_act_table[] = {
     { "CMD_SET_SEARCH_PATH",     cmd_setSearchPath,       },
     { "CMD_SHELL",               cmd_shell,               },
     { "CMD_SHELL_ESCAPE",        cmd_shell_escape,        },
-    { "CMD_START_PROCESS",       cmd_start_process,       },
     { "CMD_SYMLINK",             cmd_symlink,             },
     { "CMD_TO_OS_PATH",          cmd_to_os_path,          },
 
@@ -585,6 +583,24 @@ static primActRecord prim_act_table[] = {
     { "LST_LNG",                 lst_lng,                 },
     { "LST_RANGE",               lst_range,               },
     { "LST_TAIL",                lst_tail,                },
+
+    { "PCS_CMP",                 pcs_cmp,                 },
+    { "PCS_CPY",                 pcs_cpy,                 },
+    { "PCS_CREATE",              pcs_create,              },
+    { "PCS_DESTR",               pcs_destr,               },
+    { "PCS_EMPTY",               pcs_empty,               },
+    { "PCS_EQ",                  pcs_eq,                  },
+    { "PCS_EXIT_VALUE",          pcs_exit_value,          },
+    { "PCS_HASHCODE",            pcs_hashcode,            },
+    { "PCS_IS_ALIVE",            pcs_is_alive,            },
+    { "PCS_KILL",                pcs_kill,                },
+    { "PCS_NE",                  pcs_ne,                  },
+    { "PCS_PIPE2",               pcs_pipe2,               },
+    { "PCS_PTY",                 pcs_pty,                 },
+    { "PCS_START",               pcs_start,               },
+    { "PCS_STR",                 pcs_str,                 },
+    { "PCS_VALUE",               pcs_value,               },
+    { "PCS_WAIT_FOR",            pcs_wait_for,            },
 
     { "POL_ADD_CHECK",           pol_addCheck,            },
     { "POL_CLEAR",               pol_clear,               },

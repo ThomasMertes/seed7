@@ -627,6 +627,18 @@ const proc: process (REF_TRACE, in reference: function,
           c_expr.expr &:= "printf(\" window [%lu] %lu\", win->usage_count, win);\n";
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
+        when {PROCESSOBJECT}:
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "processType process=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "printf(\"<PROCESSOBJECT>\");\n";
+          c_expr.expr &:= "if (process == NULL) {\n";
+          c_expr.expr &:= "printf(\"  *NULL_PROCESS* \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\" process [%lu] %lu\", process->usage_count, process);\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "}\n";
         when {PROGOBJECT}:
           c_expr.expr &:= "{\n";
           c_expr.expr &:= "progType prg=";

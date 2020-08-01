@@ -4158,11 +4158,11 @@ void bigGrowSignedDigit (bigIntType *const big_variable, const intType delta)
 intType bigHashCode (const const_bigIntType big1)
 
   {
-    intType result;
+    intType hashCode;
 
   /* bigHashCode */
-    result = (intType) (big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1]);
-    return result;
+    hashCode = (intType) (big1->bigdigits[0] << 5 ^ big1->size << 3 ^ big1->bigdigits[big1->size - 1]);
+    return hashCode;
   } /* bigHashCode */
 
 

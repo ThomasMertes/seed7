@@ -112,6 +112,7 @@ const category: POLLOBJECT        is category parse "POLLOBJECT";
 const category: LISTOBJECT        is category parse "LISTOBJECT";
 const category: FLOATOBJECT       is category parse "FLOATOBJECT";
 const category: WINOBJECT         is category parse "WINOBJECT";
+const category: PROCESSOBJECT     is category parse "PROCESSOBJECT";
 const category: ENUMLITERALOBJECT is category parse "ENUMLITERALOBJECT";
 const category: CONSTENUMOBJECT   is category parse "CONSTENUMOBJECT";
 const category: VARENUMOBJECT     is category parse "VARENUMOBJECT";

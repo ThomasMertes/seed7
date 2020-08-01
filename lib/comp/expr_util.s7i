@@ -218,6 +218,27 @@ const proc: prepare_win_result (inout expr_type: c_expr) is func
   end func;
 
 
+const proc: prepare_process_result (inout expr_type: c_expr) is func
+
+  begin
+    incr(c_expr.temp_num);
+    c_expr.result_temp := "tmp_";
+    c_expr.result_temp &:= str(c_expr.temp_num);
+    c_expr.result_decl := "processType tmp_";
+    c_expr.result_decl &:= str(c_expr.temp_num);
+    c_expr.result_decl &:= " = NULL;\n";
+    c_expr.result_free := "pcsDestr(tmp_";
+    c_expr.result_free &:= str(c_expr.temp_num);
+    c_expr.result_free &:= ");\n";
+    c_expr.result_to_null := c_expr.result_temp;
+    c_expr.result_to_null &:= " = NULL;\n";
+    c_expr.result_intro := "(tmp_";
+    c_expr.result_intro &:= str(c_expr.temp_num);
+    c_expr.result_intro &:= "=";
+    c_expr.result_finish := ")";
+  end func;
+
+
 const proc: prepareAnyParamTemporarys (in reference: aParam,
     inout expr_type: c_param, inout expr_type: c_expr) is func
 
@@ -468,7 +489,7 @@ const func boolean: isNormalVariable (in reference: a_param) is
       CHAROBJECT, STRIOBJECT, BSTRIOBJECT, ARRAYOBJECT, HASHOBJECT,
       STRUCTOBJECT, INTERFACEOBJECT, SETOBJECT, FILEOBJECT,
       SOCKETOBJECT, POLLOBJECT, LISTOBJECT, FLOATOBJECT, WINOBJECT,
-      REFOBJECT, REFLISTOBJECT, ACTOBJECT, VALUEPARAMOBJECT,
+      PROCESSOBJECT, REFOBJECT, REFLISTOBJECT, ACTOBJECT, VALUEPARAMOBJECT,
       REFPARAMOBJECT, RESULTOBJECT, LOCALVOBJECT, PROGOBJECT};
 
 

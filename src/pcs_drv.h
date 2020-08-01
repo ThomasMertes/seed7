@@ -1,7 +1,7 @@
 /********************************************************************/
 /*                                                                  */
-/*  cmd_drv.h     Prototypes of OS specific command functions.      */
-/*  Copyright (C) 1989 - 2011  Thomas Mertes                        */
+/*  pcs_drv.h     Prototypes of OS specific process functions.      */
+/*  Copyright (C) 1989 - 2014  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
 /*                                                                  */
@@ -23,44 +23,23 @@
 /*  Fifth Floor, Boston, MA  02110-1301, USA.                       */
 /*                                                                  */
 /*  Module: Seed7 Runtime Library                                   */
-/*  File: seed7/src/cmd_drv.h                                       */
-/*  Changes: 2010  Thomas Mertes                                    */
-/*  Content: Prototypes of OS specific command functions.           */
+/*  File: seed7/src/pcs_drv.h                                       */
+/*  Changes: 2010, 2014  Thomas Mertes                              */
+/*  Content: Prototypes of OS specific process functions.           */
 /*                                                                  */
 /********************************************************************/
 
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-typedef struct {
-    uint32Type magicValue;
-    uint32Type driveBitmask;
-    int currentDrive;
-  } volumeListType;
-
-#define IS_VOLUME_LIST(ptr) (ptr != NULL && ((volumeListType *) (ptr))->magicValue == UINT32TYPE_MAX)
-#endif
-
-
-#ifdef C_PLUS_PLUS
-#define C "C"
-#else
-#define C
-#endif
-
-#ifdef DEFINE_OS_STAT_PROTOTYPE
-extern C int __cdecl os_stat (const_os_striType path, os_stat_struct *buffer);
-#endif
-
-
-os_striType *getUtf16Argv (int *w_argc);
-void freeUtf16Argv (os_striType *w_argv);
-striType getExecutablePath (const const_striType arg_0);
-#ifdef DEFINE_WGETENV
-os_striType wgetenv (const const_os_striType name);
-#endif
-#ifdef DEFINE_WSETENV
-int wsetenv (const const_os_striType name, const const_os_striType value,
-    int overwrite);
-#endif
-#ifdef MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS
-volumeListType *openVolumeList (void);
-#endif
+intType pcsCmp (const const_processType process1, const const_processType process2);
+boolType pcsEq (const const_processType process1, const const_processType process2);
+intType pcsExitValue (const const_processType process);
+void pcsFree (processType old_process);
+intType pcsHashCode (const const_processType aProcess);
+boolType pcsIsAlive (const processType aProcess);
+void pcsKill (const processType aProcess);
+void pcsPipe2 (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout);
+void pcsPty (const const_striType command, const const_rtlArrayType parameters,
+    fileType *childStdin, fileType *childStdout);
+processType pcsStart (const const_striType command, const const_rtlArrayType parameters);
+striType pcsStr (const const_processType process);
+void pcsWaitFor (const processType process);

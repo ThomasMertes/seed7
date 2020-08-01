@@ -49,6 +49,7 @@ include "comp/hsh_act.s7i";
 include "comp/int_act.s7i";
 include "comp/itf_act.s7i";
 include "comp/kbd_act.s7i";
+include "comp/pcs_act.s7i";
 include "comp/pol_act.s7i";
 include "comp/prc_act.s7i";
 include "comp/prg_act.s7i";
@@ -447,12 +448,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(CMD_SHELL, function, params, c_expr);
       elsif action_name = "CMD_SHELL_ESCAPE" then
         process(CMD_SHELL_ESCAPE, function, params, c_expr);
-      elsif action_name = "CMD_PIPE2" then
-        process(CMD_PIPE2, function, params, c_expr);
-      elsif action_name = "CMD_PTY" then
-        process(CMD_PTY, function, params, c_expr);
-      elsif action_name = "CMD_START_PROCESS" then
-        process(CMD_START_PROCESS, function, params, c_expr);
       elsif action_name = "CMD_SYMLINK" then
         process(CMD_SYMLINK, function, params, c_expr);
       elsif action_name = "CMD_TO_OS_PATH" then
@@ -1029,6 +1024,38 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(KBD_RAW_GETC, function, params, c_expr);
       elsif action_name = "KBD_WORD_READ" then
         process(KBD_WORD_READ, function, params, c_expr);
+      else
+        process_unknown_action(action_name, c_expr);
+      end if;
+    elsif action_prefix = "PCS" then
+      if action_name = "PCS_CMP" then
+        process(PCS_CMP, function, params, c_expr);
+      elsif action_name = "PCS_CPY" then
+        process(PCS_CPY, function, params, c_expr);
+      elsif action_name = "PCS_EQ" then
+        process(PCS_EQ, function, params, c_expr);
+      elsif action_name = "PCS_EXIT_VALUE" then
+        process(PCS_EXIT_VALUE, function, params, c_expr);
+      elsif action_name = "PCS_HASHCODE" then
+        process(PCS_HASHCODE, function, params, c_expr);
+      elsif action_name = "PCS_IS_ALIVE" then
+        process(PCS_IS_ALIVE, function, params, c_expr);
+      elsif action_name = "PCS_KILL" then
+        process(PCS_KILL, function, params, c_expr);
+      elsif action_name = "PCS_NE" then
+        process(PCS_NE, function, params, c_expr);
+      elsif action_name = "PCS_PIPE2" then
+        process(PCS_PIPE2, function, params, c_expr);
+      elsif action_name = "PCS_PTY" then
+        process(PCS_PTY, function, params, c_expr);
+      elsif action_name = "PCS_START" then
+        process(PCS_START, function, params, c_expr);
+      elsif action_name = "PCS_STR" then
+        process(PCS_STR, function, params, c_expr);
+      elsif action_name = "PCS_VALUE" then
+        process(PCS_VALUE, function, params, c_expr);
+      elsif action_name = "PCS_WAIT_FOR" then
+        process(PCS_WAIT_FOR, function, params, c_expr);
       else
         process_unknown_action(action_name, c_expr);
       end if;

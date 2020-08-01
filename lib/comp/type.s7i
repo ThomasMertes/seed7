@@ -80,6 +80,7 @@ const func string: raw_type_name (in type: object_type) is func
         when {POLLOBJECT}:      typeName := "pollType";
         when {SETOBJECT}:       typeName := "setType";
         when {WINOBJECT}:       typeName := "winType";
+        when {PROCESSOBJECT}:   typeName := "processType";
         when {PROGOBJECT}:      typeName := "progType";
         when {ARRAYOBJECT}:     typeName := "arrayType";
         when {HASHOBJECT}:      typeName := "hashType";
@@ -176,6 +177,7 @@ const func string: raw_type_value (in type: object_type) is func
         when {POLLOBJECT}:      valueName := "pollValue";
         when {SETOBJECT}:       valueName := "setValue";
         when {WINOBJECT}:       valueName := "winValue";
+        when {PROCESSOBJECT}:   valueName := "processValue";
         when {PROGOBJECT}:      valueName := "progValue";
         when {ARRAYOBJECT}:     valueName := "arrayValue";
         when {HASHOBJECT}:      valueName := "hashValue";
@@ -207,7 +209,7 @@ const func boolean: valueIsAtHeap (in type: aType) is func
     var boolean: isAtHeap is FALSE;
   local
     const set of category: heapCategories is {
-        BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, WINOBJECT, PROGOBJECT,
+        BIGINTOBJECT, STRIOBJECT, BSTRIOBJECT, WINOBJECT, PROCESSOBJECT, PROGOBJECT,
         ARRAYOBJECT, STRUCTOBJECT, SETOBJECT, HASHOBJECT, INTERFACEOBJECT};
   begin
     if aType in typeCategory and typeCategory[aType] in heapCategories then

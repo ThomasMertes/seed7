@@ -61,6 +61,7 @@ winType drwValue (objectType obj_arg);
 fileType filValue (objectType obj_arg);
 floatType fltValue (objectType obj_arg);
 intType intValue (objectType obj_arg);
+processType pcsValue (objectType obj_arg);
 pollType polValue (objectType obj_arg);
 progType prgValue (objectType obj_arg);
 objectType refValue (objectType obj_arg);

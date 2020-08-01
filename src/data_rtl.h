@@ -116,6 +116,7 @@ typedef union {
     socketType       socketValue;    /* SOCKETOBJECT */
     rtlListType      listValue;      /* LISTOBJECT, EXPROBJECT */
     winType          winValue;       /* WINOBJECT */
+    processType      processValue;   /* PROCESSOBJECT */
     rtlPtrType       ptrValue;
 /*    enumType         enumValue;      */
 /*    pollType         pollValue;      */

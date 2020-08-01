@@ -1,3 +1,23 @@
+20141116:
+- The type process has been added to the library process.s7i. The
+  type process is used to manage child processes.
+- The functions compare, hashCode, str, exitValue isAlive,
+  startProcess, kill and waitFor have been added to process.s7i.
+- Support for the actions CMD_PIPE2, CMD_PTY and CMD_START_PROCESS
+  has been removed from interpreter and compiler.
+- Support for the actions PCS_CMP, PCS_CPY, PCS_EQ, PCS_EXIT_VALUE,
+  PCS_HASHCODE, PCS_IS_ALIVE, PCS_KILL, PCS_NE, PCS_PIPE, PCS_PTY,
+  PCS_START, PCS_STR, PCS_VALUE and PCS_WAIT_FOR has been added to
+  interpreter and compiler.
+- The files pcs_rtl.c, pcs_rtl.h, pcs_unx.c, pcs_win.c, pcs_drv.h,
+  pcslib.c, pcslib.h and pcs_act.s7i have been added.
+- The functions freeArgVector, genArgVector have been moved from
+  cmd_unx.c to pcs_unx.c.
+- The function prepareCommandLine has been moved from cmd_win.c to
+  pcs_win.c.
+- The makefiles have been improved to consider the files necessary
+  for process support.
+
 20141102:
 - The files to generate man pages for Seed7 interpreter and compiler
   (files doc/s7.1 and doc/s7c.1) have been improved.

@@ -274,6 +274,7 @@ const proc: process_create_call (in type: object_type,
         when {POLLOBJECT}:      expr &:= "polCreate(" & param_b & ")";
         when {REFLISTOBJECT}:   expr &:= "rflCreate(" & param_b & ")";
         when {WINOBJECT}:       expr &:= "drwCreate(" & param_b & ")";
+        when {PROCESSOBJECT}:   expr &:= "pcsCreate(" & param_b & ")";
         when {PROGOBJECT}:      expr &:= "prgCreate(" & param_b & ")";
         when {INTERFACEOBJECT}: expr &:= "itfCreate(" & param_b & ")";
         when {ARRAYOBJECT, HASHOBJECT, STRUCTOBJECT}:

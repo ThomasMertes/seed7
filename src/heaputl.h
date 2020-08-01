@@ -69,6 +69,7 @@ typedef struct {
     unsigned long polldata;
     unsigned long prepared_stmt;
     unsigned long win;
+    unsigned long process;
     unsigned long fnam;
     memSizeType fnam_bytes;
     unsigned long symb;
@@ -81,7 +82,7 @@ countType count = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   0, 0};
+                   0, 0, 0};
 #else
 EXTERN countType count;
 #endif

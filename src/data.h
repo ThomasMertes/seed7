@@ -64,6 +64,7 @@ typedef enum {
     LISTOBJECT,          /* listValue -   list                      */
     FLOATOBJECT,         /* floatValue -  float                     */
     WINOBJECT,           /* winValue -    Window                    */
+    PROCESSOBJECT,       /* processValue - Process                  */
     ENUMLITERALOBJECT,   /* objValue -    Enumeration literal       */
     CONSTENUMOBJECT,     /* objValue -    Constant enumeration obj  */
     VARENUMOBJECT,       /* objValue -    Variable enumeration obj  */
@@ -211,6 +212,7 @@ typedef union {
     pollType     pollValue;     /* POLLOBJECT */
     listType     listValue;     /* LISTOBJECT, EXPROBJECT */
     winType      winValue;      /* WINOBJECT */
+    processType  processValue;  /* PROCESSOBJECT */
     objectType   objValue;      /* ENUMLITERALOBJECT, CONSTENUMOBJECT */
                                 /* VARENUMOBJECT, VALUEPARAMOBJECT */
                                 /* REFPARAMOBJECT, RESULTOBJECT */

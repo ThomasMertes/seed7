@@ -582,6 +582,25 @@ objectType bld_win_temp (winType temp_win)
 
 
 
+objectType bld_process_temp (processType temp_process)
+
+  {
+    register objectType result;
+
+  /* bld_process_temp */
+    if (ALLOC_OBJECT(result)) {
+      result->type_of = NULL;
+      result->descriptor.property = NULL;
+      INIT_CATEGORY_OF_TEMP(result, PROCESSOBJECT);
+      result->value.processValue = temp_process;
+      return result;
+    } else {
+      return raise_exception(SYS_MEM_EXCEPTION);
+    } /* if */
+  } /* bld_process_temp */
+
+
+
 void dump_temp_value (objectType object)
 
   {
@@ -722,6 +741,15 @@ void dump_temp_value (objectType object)
           object->value.winValue->usage_count--;
           if (object->value.winValue->usage_count == 0) {
             drwFree(object->value.winValue);
+          } /* if */
+        } /* if */
+        SET_UNUSED_FLAG(object);
+        break;
+      case PROCESSOBJECT:
+        if (object->value.processValue != NULL) {
+          object->value.processValue->usage_count--;
+          if (object->value.processValue->usage_count == 0) {
+            pcsFree(object->value.processValue);
           } /* if */
         } /* if */
         SET_UNUSED_FLAG(object);

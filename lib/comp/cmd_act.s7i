@@ -54,9 +54,6 @@ const ACTION: CMD_SET_MTIME        is action "CMD_SET_MTIME";
 const ACTION: CMD_SET_SEARCH_PATH  is action "CMD_SET_SEARCH_PATH";
 const ACTION: CMD_SHELL            is action "CMD_SHELL";
 const ACTION: CMD_SHELL_ESCAPE     is action "CMD_SHELL_ESCAPE";
-const ACTION: CMD_PIPE2            is action "CMD_PIPE2";
-const ACTION: CMD_PTY              is action "CMD_PTY";
-const ACTION: CMD_START_PROCESS    is action "CMD_START_PROCESS";
 const ACTION: CMD_SYMLINK          is action "CMD_SYMLINK";
 const ACTION: CMD_TO_OS_PATH       is action "CMD_TO_OS_PATH";
 
@@ -93,9 +90,6 @@ const proc: cmd_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        cmdSetMTime (const const_striType, intType, intType, intType, intType, intType, intType, intType, intType);");
     declareExtern(c_prog, "intType     cmdShell (const const_striType, const const_striType);");
     declareExtern(c_prog, "striType    cmdShellEscape (const const_striType);");
-    declareExtern(c_prog, "void        cmdPipe2 (const const_striType, const const_arrayType, fileType *, fileType *);");
-    declareExtern(c_prog, "void        cmdPty (const const_striType, const const_arrayType, fileType *, fileType *);");
-    declareExtern(c_prog, "void        cmdStartProcess (const const_striType, const const_arrayType);");
     declareExtern(c_prog, "void        cmdSymlink (const_striType, const_striType);");
     declareExtern(c_prog, "striType    cmdToOsPath (const const_striType);");
   end func;
@@ -519,50 +513,6 @@ const proc: process (CMD_SHELL_ESCAPE, in reference: function,
     c_expr.result_expr := "cmdShellEscape(";
     getAnyParamToResultExpr(params[1], c_expr);
     c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process (CMD_PIPE2, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "cmdPipe2(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ", &(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "), &(";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= "));\n";
-  end func;
-
-
-const proc: process (CMD_PTY, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "cmdPty(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ", &(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "), &(";
-    process_expr(params[4], c_expr);
-    c_expr.expr &:= "));\n";
-  end func;
-
-
-const proc: process (CMD_START_PROCESS, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "cmdStartProcess(";
-    getAnyParamToExpr(params[1], c_expr);
-    c_expr.expr &:= ", ";
-    getAnyParamToExpr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
   end func;
 
 

@@ -318,6 +318,13 @@ void rtlHeapStatistic (void)
           (unsigned int) sizeof_winRecord);
       bytes_used += count.win * sizeof_winRecord;
     } /* if */
+    if (count.process != 0) {
+      printf("%9lu bytes in %8lu processes of           %4u bytes\n",
+          count.process * sizeof_processRecord,
+          count.process,
+          (unsigned int) sizeof_processRecord);
+      bytes_used += count.process * sizeof_processRecord;
+    } /* if */
     bytes_in_buffers =
         count.fnam_bytes + count.fnam +
         count.symb_bytes + count.symb +

@@ -839,6 +839,7 @@ objectType exec_call (objectType object)
       case FLOATOBJECT:
 #endif
       case WINOBJECT:
+      case PROCESSOBJECT:
       case VARENUMOBJECT:
       case ENUMLITERALOBJECT:
       case REFOBJECT:

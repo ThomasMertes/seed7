@@ -239,7 +239,7 @@ objectType big_eq (listType arguments)
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
     if (bigEq(take_bigint(arg_1(arguments)),
-        take_bigint(arg_3(arguments)))) {
+              take_bigint(arg_3(arguments)))) {
       return SYS_TRUE_OBJECT;
     } else {
       return SYS_FALSE_OBJECT;
@@ -623,7 +623,7 @@ objectType big_ne (listType arguments)
     isit_bigint(arg_1(arguments));
     isit_bigint(arg_3(arguments));
     if (bigEq(take_bigint(arg_1(arguments)),
-        take_bigint(arg_3(arguments)))) {
+              take_bigint(arg_3(arguments)))) {
       return SYS_FALSE_OBJECT;
     } else {
       return SYS_TRUE_OBJECT;
