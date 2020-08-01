@@ -1,3 +1,11 @@
+20100117:
+- The seed7_05.s7i library was improved to support union (|), intersection (&),
+  difference (-) and symmetric difference (><) for sets implemented with hashes
+  like 'set of string'.
+- The "tarx.sd7" example program was improved to create archives correctly, even
+  when the file names are longer than 100 chars.
+- The bas7.sd7 (basic interpreter) example program was improved.
+
 20100103:
 - The chapter explaining operating system access in the manual was improved.
 - The "tarx.sd7" example program was improved to uncompress files when the z option

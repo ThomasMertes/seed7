@@ -185,6 +185,7 @@ const type: boundsType is new struct
 
 const type: dimensionType is array boundsType;
 
+var float: lastRandomNumber is 0.0;
 var integer: screenMode is 0;
 var integer: currX is 0;
 var integer: currY is 0;
@@ -1430,8 +1431,9 @@ const proc: skip_parenthesized_stri (inout string: symbol, inout string: line) i
     while symbol <> close_symbol and symbol <> "" do
       if symbol = "(" or symbol = "[" then
         skip_parenthesized_stri(symbol, line);
+      else
+        symbol := get_symbol(line);
       end if;
-      symbol := get_symbol(line);
     end while;
     if symbol <> close_symbol then
       error_expect(close_symbol, symbol);
@@ -2199,7 +2201,10 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         num1 := exec_expr(symbol, line);
         expect(")", symbol, line);
       end if;
-      result := rand(0.0, 1.0);
+      if num1 <> 0.0 then
+        lastRandomNumber := rand(0.0, 1.0);
+      end if;
+      result := lastRandomNumber;
       writeln(log, "RND -> " <& result);
     elsif symbol = "SQR" then
       symbol := get_symbol(line);
@@ -2239,7 +2244,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
         catch RANGE_ERROR:
           result := 0.0;
       end block;
-      writeln(log, "VAL(" <& literal(stri1) <& ") -> " <& result);
+      writeln(log, "VAL(" <& literal(stri2) <& ") -> " <& result);
     elsif symbol = "SGN" then
       symbol := get_symbol(line);
       expect("(", symbol, line);
@@ -2310,6 +2315,7 @@ const func float: exec_primary (inout string: symbol, inout string: line) is fun
       else
         error_marker;
         writeln(err, "FILE #" <& index1 <& " NOT OPEN IN EOF.");
+        result := -1.0;
       end if;
     elsif symbol = "LOF" then
       symbol := get_symbol(line);
@@ -4846,7 +4852,7 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
           write(log, "; ");
         elsif symbol = "," then
           symbol := get_symbol(line);
-          write(win, "  ");
+          write(win, "" rpad 15 - column(win) rem 14);
           write(log, ", ");
         else
           (* This is the next thing to be printed *)
@@ -5236,7 +5242,7 @@ const proc: exec_input (inout string: symbol, inout string: line) is func
     end if;
     if isStringExpr(symbol) then
       param1 := exec_str_expr(symbol, line, variable_name);
-      if symbol = ";" or symbol = "," then
+      if symbol = ";" or (variable_name = "" and symbol = ",") then
         write(win, param1);
         line_marker;
         write(log, "INPUT " <& literal(param1));

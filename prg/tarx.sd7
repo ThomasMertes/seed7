@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  tarx.sd7      Simple tar program                                *)
-(*  Copyright (C) 1994, 2004, 2005  Thomas Mertes                   *)
+(*  Copyright (C) 1994, 2004, 2005, 2010  Thomas Mertes             *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -81,13 +81,13 @@ const proc: check (ref file: out_file, ref header: head) is func
     write("chksum: ");
     writeln(head.chksum);
     write("typeflag: ");
-    writeln(head.typeflag);
+    writeln(literal(head.typeflag));
     write("linkname: ");
     writeln(head.linkname);
     write("magic: ");
     writeln(head.magic);
     write("version: ");
-    writeln(head.version);
+    writeln(literal(head.version));
     write("uname: ");
     writeln(head.uname);
     write("gname: ");
@@ -198,7 +198,7 @@ const func integer: chksum (in string: stri) is func
   end func;
 
 
-const proc: read (inout file: in_file, inout header: head) is func
+const proc: readHeadBlock (inout file: in_file, inout header: head) is func
   local
     var string: stri is "";
   begin
@@ -223,7 +223,24 @@ const proc: read (inout file: in_file, inout header: head) is func
   end func;
 
 
-const proc: write (inout file: out_file, ref header: head) is func
+const proc: readHead (inout file: in_file, inout header: head) is func
+  local
+    var string: fileName is "";
+  begin
+    readHeadBlock(in_file, head);
+    check(STD_OUT, head);
+    if head.name <> "" and head.magic = TMAGIC and
+        head.typeflag = LONGNAMETYPE and head.size <> 0 then
+      fileName := gets0(in_file, head.size);
+      seek(in_file, tell(in_file) - head.size + succ(pred(head.size) div 512) * 512);
+      readHeadBlock(in_file, head);
+      check(STD_OUT, head);
+      head.name := fileName;
+    end if;
+  end func;
+
+
+const proc: writeHeadBlock (inout file: out_file, ref header: head) is func
   local
     var string: out_stri is "";
     var string: chksum is "";
@@ -251,25 +268,53 @@ const proc: write (inout file: out_file, ref header: head) is func
   end func;
 
 
+const proc: writeHead (inout file: out_file, ref header: head) is func
+  local
+    var header: longNameHead is header.value;
+  begin
+    if length(head.name) > 100 then
+      longNameHead.name     := "././@LongLink";
+      longNameHead.mode     := fileMode.value;
+      longNameHead.uid      := 0;
+      longNameHead.gid      := 0;
+      longNameHead.size     := length(head.name);
+      longNameHead.mtime    := 0;
+      longNameHead.typeflag := LONGNAMETYPE;
+      longNameHead.linkname := "";
+      longNameHead.magic    := TMAGIC;
+      longNameHead.version  := "  ";
+      longNameHead.uname    := "root";
+      longNameHead.gname    := "root";
+      longNameHead.devmajor := 0;
+      longNameHead.devminor := 0;
+      longNameHead.prefix   := "";
+      writeHeadBlock(out_file, longNameHead);
+      write(out_file, head.name);
+      write(out_file, "\0\" mult succ(pred(longNameHead.size) div 512) * 512 - longNameHead.size);
+    end if;
+    writeHeadBlock(out_file, head);
+  end func;
+
+
 const proc: status (in string: basePath, in string: name,
     in string: fileTypeMarker, inout header: head) is func
   begin
-    head.name :=     name & fileTypeMarker;
-    head.mode :=     fileMode(basePath & name);
-    head.uid :=      100;
-    head.gid :=      100;
-    head.size :=     fileSize(basePath & name);
-    head.mtime :=    timestamp1970(getMTime(basePath & name));
-    head.chksum :=   0;
+    head.name     := name & fileTypeMarker;
+    head.mode     := fileMode(basePath & name);
+    head.uid      := 100;
+    head.gid      := 100;
+    head.size     := fileSize(basePath & name);
+    head.mtime    := timestamp1970(getMTime(basePath & name));
+    head.chksum   := 0;
     head.typeflag := REGTYPE;
     head.linkname := "";
-    head.magic :=    TMAGIC;
-    head.version :=  "  ";
-    head.uname :=    "";
-    head.gname :=    "";
+    head.magic    := TMAGIC;
+    head.version  := "  ";
+    head.uname    := "";
+    head.gname    := "";
     head.devmajor := 0;
     head.devminor := 0;
-    head.prefix :=   "";
+    head.prefix   := "";
   end func;
 
 
@@ -294,56 +339,42 @@ const proc: tar_tell (inout file: in_file, in boolean: do_view,
   local
     var header: head is header.value;
     var time: modTime is time.value;
-    var string: fileName is "";
   begin
-    read(in_file, head);
+    readHead(in_file, head);
     while head.name <> "" and head.magic = TMAGIC do
-      # check(STD_OUT, head);
-      if head.typeflag = LONGNAMETYPE and head.size <> 0 then
-        fileName := gets(in_file, head.size);
-        seek(in_file, tell(in_file) - head.size + succ(pred(head.size) div 512) * 512);
-      else
-        if do_view then
-          if head.typeflag = DIRTYPE then
-            write("d");
-          else
-            write("-");
-          end if;
-          write(head.mode);
-          write(" ");
-          if head.uname <> "" then
-            write(head.uname);
-          else
-            write(head.uid);
-          end if;
-          write("/");
-          if head.gname <> "" then
-            write(head.gname);
-          else
-            write(head.gid);
-          end if;
-          write(head.size lpad 14);
-          write(" ");
-          modTime := timestamp1970ToTime(head.mtime);
-          write(strDate(modTime));
-          write(" ");
-          write(str_hh_mm(modTime, ":"));
-          write(" ");
-          # write(strTimeZone(modTime) rpad 12);
-        end if;
-        if fileName <> "" then
-          writeln(fileName);
-          fileName := "";
+      if do_view then
+        if head.typeflag = DIRTYPE then
+          write("d");
         else
-          writeln(head.name);
+          write("-");
         end if;
-        (* check(OUT, head);
-           readln; *)
-        if head.size <> 0 then
-          seek(in_file, tell(in_file) + succ(pred(head.size) div 512) * 512);
+        write(head.mode);
+        write(" ");
+        if head.uname <> "" then
+          write(head.uname);
+        else
+          write(head.uid);
         end if;
+        write("/");
+        if head.gname <> "" then
+          write(head.gname);
+        else
+          write(head.gid);
+        end if;
+        write(head.size lpad 14);
+        write(" ");
+        modTime := timestamp1970ToTime(head.mtime);
+        write(strDate(modTime));
+        write(" ");
+        write(str_hh_mm(modTime, ":"));
+        write(" ");
+        # write(strTimeZone(modTime) rpad 12);
       end if;
-      read(in_file, head);
+      writeln(head.name);
+      if head.size <> 0 then
+        seek(in_file, tell(in_file) + succ(pred(head.size) div 512) * 512);
+      end if;
+      readHead(in_file, head);
     end while;
   end func;
 
@@ -374,44 +405,33 @@ const proc: tar_xtract (inout file: in_file, in boolean: do_view,
     var string: stri is "";
     var header: head is header.value;
     var time: modTime is time.value;
-    var string: fileName is "";
   begin
-    read(in_file, head);
+    readHead(in_file, head);
     while head.name <> "" and head.magic = TMAGIC do
-      # check(STD_OUT, head);
-      if head.typeflag = LONGNAMETYPE and head.size <> 0 then
-        fileName := gets(in_file, head.size);
-        seek(in_file, tell(in_file) - head.size + succ(pred(head.size) div 512) * 512);
-      else
-        if fileName = "" then
-          fileName := head.name;
-        end if;
-        if do_view then
-          write("x ");
-          writeln(fileName);
-        end if;
-        if endsWith(fileName, "/") then
-          fileName := fileName[.. pred(length(fileName))];
-        end if;
-        if head.typeflag = DIRTYPE then
-          mkdir(fileName);
-          modTime := timestamp1970ToTime(head.mtime);
-          # writeln(modTime);
-          setMTime(fileName, modTime);
-          # writeln(getCTime(fileName));
-          # writeln(getATime(fileName));
-          # writeln(getMTime(fileName));
-        elsif head.typeflag = REGTYPE or head.typeflag = AREGTYPE then
-          if head.size <> 0 then
-            stri := gets(in_file, succ(pred(head.size) div 512) * 512);
-            putf(fileName, stri[ .. head.size]);
-            modTime := timestamp1970ToTime(head.mtime);
-            setMTime(fileName, modTime);
-          end if;
-        end if;
-        fileName := "";
+      if do_view then
+        write("x ");
+        writeln(head.name);
       end if;
-      read(in_file, head);
+      if endsWith(head.name, "/") then
+        head.name := head.name[.. pred(length(head.name))];
+      end if;
+      if head.typeflag = DIRTYPE then
+        mkdir(head.name);
+        modTime := timestamp1970ToTime(head.mtime);
+        # writeln(modTime);
+        setMTime(head.name, modTime);
+        # writeln(getCTime(head.name));
+        # writeln(getATime(head.name));
+        # writeln(getMTime(head.name));
+      elsif head.typeflag = REGTYPE or head.typeflag = AREGTYPE then
+        if head.size <> 0 then
+          stri := gets(in_file, succ(pred(head.size) div 512) * 512);
+          putf(head.name, stri[ .. head.size]);
+          modTime := timestamp1970ToTime(head.mtime);
+          setMTime(head.name, modTime);
+        end if;
+      end if;
+      readHead(in_file, head);
     end while;
   end func;
 
@@ -455,15 +475,15 @@ const proc: tar_create (inout file: out_file, in boolean: do_view,
         status(basePath, name, "/", head);
         head.typeflag := DIRTYPE;
         head.size :=     0;
-        write(out_file, head);
+        writeHead(out_file, head);
         tar_create(out_file, do_view, basePath, name & "/", dir_content);
       else
         stri := getf(name);
         status(basePath, name, "", head);
-        write(out_file, head);
+        writeHead(out_file, head);
         write(out_file, stri);
         if (succ(pred(head.size) div 512) * 512) - length(stri) >= 0 then
-          write(out_file, " " mult (succ(pred(head.size) div 512) * 512) - length(stri));
+          write(out_file, "\0\" mult (succ(pred(head.size) div 512) * 512) - length(stri));
         end if;
       end if;
     end for;

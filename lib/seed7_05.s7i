@@ -2318,6 +2318,68 @@ const func type: HASHSET_OF (in type: baseType) is func
               setType.keyDestroy, setType.dataDestroy);
         end func;
 
+      const proc: for (inout baseType: variable) range (in setType: aSet) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          FOR_KEY(variable, aSet, statements, setType.keyCopy);
+        end func;
+
+      const func setType: (in setType: set1) | (in setType: set2) is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          result := set1;
+          for element range set2 do
+            incl(result, element);
+          end for;
+        end func;
+
+      const func setType: (in setType: set1) - (in setType: set2) is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          result := set1;
+          for element range set2 do
+            excl(result, element);
+          end for;
+        end func;
+
+      const func setType: (in setType: set1) & (in setType: set2) is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set1 do
+            if element in set2 then
+              incl(result, element);
+            end if;
+          end for;
+        end func;
+
+      const func setType: (in setType: set1) >< (in setType: set2) is func
+        result
+          var setType: result is setType.EMPTY_SET;
+        local
+          var baseType: element is baseType.value;
+        begin
+          for element range set1 do
+            if element not in set2 then
+              incl(result, element);
+            end if;
+          end for;
+          for element range set2 do
+            if element not in set1 then
+              incl(result, element);
+            end if;
+          end for;
+        end func;
+
       const func setType: { (in baseType: value) } is func
         result
           var setType: result is setType.EMPTY_SET;
@@ -2325,13 +2387,6 @@ const func type: HASHSET_OF (in type: baseType) is func
           var integer: number is 0;
         begin
           incl(result, value);
-        end func;
-
-      const proc: for (inout baseType: variable) range (in setType: aSet) do
-                    (in proc: statements)
-                  end for is func
-        begin
-          FOR_KEY(variable, aSet, statements, setType.keyCopy);
         end func;
 
       tupleType := tuple baseType;
@@ -2348,6 +2403,23 @@ const func type: HASHSET_OF (in type: baseType) is func
           end for;
         end func;
 
+      if getobj(str(ref baseType param)) <> NIL then
+        const func string: str (in setType: aSet) is func
+          result
+            var string: result is "{";
+          local
+            var baseType: setElement is baseType.value;
+          begin
+            for setElement range aSet do
+              if result <> "{" then
+                result &:= ", ";
+              end if;
+              result &:= str(setElement);
+            end for;
+            result &:= "}";
+          end func;
+
+      end if;
       end global;
     end if;
   end func;

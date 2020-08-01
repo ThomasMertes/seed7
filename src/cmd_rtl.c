@@ -612,6 +612,9 @@ errinfotype *err_info;
             } /* if */
             break;
           default:
+            /* printf("errno=%d\n", errno);
+            printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  ENOTDIR=%d  EROFS=%d\n",
+	        EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, ENOTDIR, EROFS); */
             *err_info = FILE_ERROR;
             break;
         } /* switch */
