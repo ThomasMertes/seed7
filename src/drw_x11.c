@@ -2213,9 +2213,11 @@ inttype height;
             /* printf("backup=%lu\n", (long unsigned) result->backup); */
           } /* if */
 
+          /*
           mygc = XCreateGC(mydisplay, result->window, 0, 0);
           XSetBackground(mydisplay, mygc, mybackground);
           XSetForeground(mydisplay, mygc, myforeground);
+          */
 
           XSelectInput(mydisplay, result->window,
               ButtonPressMask | KeyPressMask | ExposureMask);

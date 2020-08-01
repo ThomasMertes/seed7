@@ -39,11 +39,14 @@ rtlArraytype arrCat (rtlArraytype arr1, rtlArraytype arr2);
 rtlArraytype arrExtend (rtlArraytype arr1, rtlObjecttype element);
 rtlArraytype arrGen (rtlObjecttype element1, rtlObjecttype element2);
 rtlArraytype arrHead (rtlArraytype arr1, inttype stop);
-rtlGenerictype arrIdxTemp (rtlArraytype arr1, inttype pos);
+rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop);
+rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos);
 rtlArraytype arrRange (rtlArraytype arr1, inttype start, inttype stop);
+rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop);
 rtlGenerictype arrRemove (rtlArraytype *arr_to, inttype position);
 rtlArraytype arrSort (rtlArraytype arr1, inttype cmp_func (rtlGenerictype, rtlGenerictype));
 rtlArraytype arrTail (rtlArraytype arr1, inttype start);
+rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start);
 
 #else
 
@@ -55,10 +58,13 @@ rtlArraytype arrCat ();
 rtlArraytype arrExtend ();
 rtlArraytype arrGen ();
 rtlArraytype arrHead ();
+rtlArraytype arrHeadTemp ();
 rtlGenerictype arrIdxTemp ();
 rtlArraytype arrRange ();
+rtlArraytype arrRangeTemp ();
 rtlGenerictype arrRemove ();
 rtlArraytype arrSort ();
 rtlArraytype arrTail ();
+rtlArraytype arrTailTemp ();
 
 #endif

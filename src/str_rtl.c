@@ -55,15 +55,6 @@ static const_cstritype stri_escape_sequence[] = {
     "\\25\\", "\\26\\", "\\e",    "\\28\\", "\\29\\",
     "\\30\\", "\\31\\"};
 
-static const_cstritype cstri_escape_sequence[] = {
-    "\\000", "\\001", "\\002", "\\003", "\\004",
-    "\\005", "\\006", "\\007", "\\b",   "\\t",
-    "\\n",   "\\013", "\\f",   "\\r",   "\\016",
-    "\\017", "\\020", "\\021", "\\022", "\\023",
-    "\\024", "\\025", "\\026", "\\027", "\\030",
-    "\\031", "\\032", "\\033", "\\034", "\\035",
-    "\\036", "\\037"};
-
 
 
 #ifdef UTF32_STRINGS
@@ -207,7 +198,7 @@ inttype *used_max_position;
 
 #ifdef ANSI_C
 
-void strAppend (stritype *const stri_to, const const_stritype stri_from)
+void strAppend (stritype *const stri_to, const_stritype stri_from)
 #else
 
 void strAppend (stri_to, stri_from)
@@ -218,21 +209,171 @@ stritype stri_from;
   {
     memsizetype new_size;
     stritype stri_dest;
+    stritype new_stri;
 
   /* strAppend */
     stri_dest = *stri_to;
     new_size = stri_dest->size + stri_from->size;
-    GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
-    if (stri_dest == NULL) {
+#ifdef WITH_STRI_CAPACITY
+    if (new_size > stri_dest->capacity) {
+      new_stri = growStri(stri_dest, new_size);
+      if (new_stri == NULL) {
+        raise_error(MEMORY_ERROR);
+        return;
+      } else if (stri_dest == stri_from) {
+        stri_from = new_stri;
+      } /* if */
+    } else {
+      new_stri = stri_dest;
+    } /* if */
+    COUNT3_STRI(new_stri->size, new_size);
+    memcpy(&new_stri->mem[new_stri->size], stri_from->mem,
+        stri_from->size * sizeof(strelemtype));
+    new_stri->size = new_size;
+    *stri_to = new_stri;
+#else
+    GROW_STRI(new_stri, stri_dest, stri_dest->size, new_size);
+    if (new_stri == NULL) {
       raise_error(MEMORY_ERROR);
     } else {
+      /* It is possible that *stri_to == stri_from holds. In */
+      /* this case the variable stri_from must be corrected  */
+      /* when stri_dest is enlarged with realloc().          */
+      if (stri_dest == stri_from) {
+        stri_from = new_stri;
+      } /* if */
+      COUNT3_STRI(new_stri->size, new_size);
+      memcpy(&new_stri->mem[new_stri->size], stri_from->mem,
+          stri_from->size * sizeof(strelemtype));
+      new_stri->size = new_size;
+      *stri_to = new_stri;
+    } /* if */
+#endif
+  } /* strAppend */
+
+
+
+#ifdef ANSI_C
+
+void strAppendTemp (stritype *const stri_to, const stritype stri_from)
+#else
+
+void strAppendTemp (stri_to, stri_from)
+stritype *stri_to;
+stritype stri_from;
+#endif
+
+  {
+    memsizetype new_size;
+    stritype stri_dest;
+
+  /* strAppendTemp */
+    /* printf("strAppend(dest->size=%lu, from->size=%lu)\n",
+       (*stri_to)->size, stri_from->size); */
+    stri_dest = *stri_to;
+#ifdef WITH_STRI_CAPACITY
+    new_size = stri_dest->size + stri_from->size;
+    if (new_size <= stri_from->capacity) {
+      if (stri_dest->size != 0) {
+        memmove(&stri_from->mem[stri_dest->size], stri_from->mem,
+            stri_from->size * sizeof(strelemtype));
+        memcpy(stri_from->mem, stri_dest->mem,
+            stri_dest->size * sizeof(strelemtype));
+        stri_from->size = new_size;
+      } /* if */
+      *stri_to = stri_from;
+      FREE_STRI(stri_dest, stri_dest->size);
+    } else {
+#else
+    if (stri_dest->size == 0) {
+      *stri_to = stri_from;
+      FREE_STRI(stri_dest, stri_dest->size);
+    } else {
+      new_size = stri_dest->size + stri_from->size;
+#endif
+      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+      if (stri_dest == NULL) {
+        FREE_STRI(stri_from, stri_from->size);
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT3_STRI(stri_dest->size, new_size);
+        memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
+            stri_from->size * sizeof(strelemtype));
+        stri_dest->size = new_size;
+        *stri_to = stri_dest;
+        FREE_STRI(stri_from, stri_from->size);
+      } /* if */
+    } /* if */
+    /* printf("strAppend() => dest->size=%lu\n", (*stri_to)->size); */
+  } /* strAppendTemp */
+
+
+
+#ifdef OUT_OF_ORDER
+#ifdef ANSI_C
+
+void strAppendTemp (stritype *const stri_to, const stritype stri_from)
+#else
+
+void strAppendTemp (stri_to, stri_from)
+stritype *stri_to;
+stritype stri_from;
+#endif
+
+  {
+    memsizetype new_size;
+    stritype stri_dest;
+
+  /* strAppendTemp */
+    /* printf("strAppend(dest->size=%lu, from->size=%lu)\n",
+       (*stri_to)->size, stri_from->size); */
+    stri_dest = *stri_to;
+#ifdef WITH_STRI_CAPACITY
+    new_size = stri_dest->size + stri_from->size;
+    if (stri_dest->size == 0) {
+      *stri_to = stri_from;
+      FREE_STRI(stri_dest, stri_dest->size);
+    } else if (new_size <= stri_dest->capacity) {
       COUNT3_STRI(stri_dest->size, new_size);
       memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
           stri_from->size * sizeof(strelemtype));
       stri_dest->size = new_size;
       *stri_to = stri_dest;
+      FREE_STRI(stri_from, stri_from->size);
+    } else if (new_size <= stri_from->capacity) {
+      COUNT3_STRI(stri_from->size, new_size);
+      memmove(&stri_from->mem[stri_dest->size], stri_from->mem,
+          stri_from->size * sizeof(strelemtype));
+      memcpy(stri_from->mem, stri_dest->mem,
+          stri_dest->size * sizeof(strelemtype));
+      stri_from->size = new_size;
+      *stri_to = stri_from;
+      FREE_STRI(stri_dest, stri_dest->size);
+    } else {
+      stri_dest = growStri(stri_dest, new_size);
+#else
+    if (stri_dest->size == 0) {
+      *stri_to = stri_from;
+      FREE_STRI(stri_dest, stri_dest->size);
+    } else {
+      new_size = stri_dest->size + stri_from->size;
+      GROW_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+#endif
+      if (stri_dest == NULL) {
+        FREE_STRI(stri_from, stri_from->size);
+        raise_error(MEMORY_ERROR);
+      } else {
+        COUNT3_STRI(stri_dest->size, new_size);
+        memcpy(&stri_dest->mem[stri_dest->size], stri_from->mem,
+            stri_from->size * sizeof(strelemtype));
+        stri_dest->size = new_size;
+        *stri_to = stri_dest;
+        FREE_STRI(stri_from, stri_from->size);
+      } /* if */
     } /* if */
-  } /* strAppend */
+    /* printf("strAppend() => dest->size=%lu\n", (*stri_to)->size); */
+  } /* strAppendTemp */
+#endif
 
 
 
@@ -579,15 +720,15 @@ stritype stri2;
     result_size = stri1->size + stri2->size;
     if (!ALLOC_STRI(result, result_size)) {
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      result = NULL;
     } else {
       result->size = result_size;
       memcpy(result->mem, stri1->mem,
           stri1->size * sizeof(strelemtype));
       memcpy(&result->mem[stri1->size], stri2->mem,
           stri2->size * sizeof(strelemtype));
-      return(result);
     } /* if */
+    return(result);
   } /* strConcat */
 
 
@@ -618,15 +759,15 @@ stritype stri2;
     if (resized_stri1 == NULL) {
       FREE_STRI(stri1, stri1->size);
       raise_error(MEMORY_ERROR);
-      return(NULL);
+      stri1 = NULL;
     } else {
       stri1 = resized_stri1;
       COUNT3_STRI(stri1->size, result_size);
       memcpy(&stri1->mem[stri1->size], stri2->mem,
           stri2->size * sizeof(strelemtype));
       stri1->size = result_size;
-      return(stri1);
     } /* if */
+    return(stri1);
   } /* strConcatTemp */
 
 
@@ -651,16 +792,37 @@ stritype stri_from;
     /* printf("stri_dest=%lu\n", stri_dest); */
     new_size = stri_from->size;
     if (stri_dest->size != new_size) {
-      if (!ALLOC_STRI(stri_dest, new_size)) {
-        raise_error(MEMORY_ERROR);
-        return;
+#ifdef WITH_STRI_CAPACITY
+      if (stri_dest->capacity >= new_size) {
+#else
+      if (stri_dest->size > new_size) {
+#endif
+        /* printf("strCopy(old_size=%lu, new_size=%lu)\n", stri_dest->size, new_size); */
+        SHRINK_STRI(stri_dest, stri_dest, stri_dest->size, new_size);
+        if (stri_dest == NULL) {
+          raise_error(MEMORY_ERROR);
+          return;
+        } else {
+          COUNT3_STRI(stri_dest->size, new_size);
+          stri_dest->size = new_size;
+          *stri_to = stri_dest;
+        } /* if */
       } else {
-        FREE_STRI(*stri_to, (*stri_to)->size);
-        stri_dest->size = new_size;
-        *stri_to = stri_dest;
+        if (!ALLOC_STRI(stri_dest, new_size)) {
+          raise_error(MEMORY_ERROR);
+          return;
+        } else {
+          FREE_STRI(*stri_to, (*stri_to)->size);
+          stri_dest->size = new_size;
+          *stri_to = stri_dest;
+        } /* if */
       } /* if */
     } /* if */
-    memcpy(stri_dest->mem, stri_from->mem,
+    /* It is possible that *stri_to == stri_from holds. The */
+    /* behavior of memcpy() is undefined when source and    */
+    /* destination areas overlap (or are identical).        */
+    /* Therefore memmove() is used instead of memcpy().     */
+    memmove(stri_dest->mem, stri_from->mem,
         new_size * sizeof(strelemtype));
   } /* strCopy */
 
@@ -871,20 +1033,59 @@ inttype stop;
       } /* if */
       if (!ALLOC_STRI(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+      } else {
+        result->size = result_size;
+        memcpy(result->mem, stri->mem,
+            result_size * sizeof(strelemtype));
       } /* if */
-      result->size = result_size;
-      memcpy(result->mem, stri->mem,
-          result_size * sizeof(strelemtype));
     } else {
       if (!ALLOC_STRI(result, (memsizetype) 0)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+      } else {
+        result->size = 0;
       } /* if */
-      result->size = 0;
     } /* if */
     return(result);
   } /* strHead */
+
+
+
+#ifdef ANSI_C
+
+stritype strHeadTemp (const stritype stri, const inttype stop)
+#else
+
+stritype strHeadTemp (stri, stop)
+stritype stri;
+inttype stop;
+#endif
+
+  {
+    memsizetype length;
+    memsizetype result_size;
+    stritype result;
+
+  /* strHeadTemp */
+    length = stri->size;
+    if (stop >= 1 && length >= 1) {
+      if (length <= (uinttype) stop) {
+        return(stri);
+      } else {
+        result_size = (uinttype) stop;
+      } /* if */
+    } else {
+      result_size = 0;
+    } /* if */
+    SHRINK_STRI(result, stri, length, result_size);
+    if (result == NULL) {
+      FREE_STRI(stri, stri->size);
+      raise_error(MEMORY_ERROR);
+    } else {
+      COUNT3_STRI(length, result_size);
+      result->size = result_size;
+    } /* if */
+    return(result);
+  } /* strHeadTemp */
 
 
 
@@ -1546,6 +1747,7 @@ stritype replace;
     memsizetype main_size;
     memsizetype searched_size;
     memsizetype guessed_result_size;
+    memsizetype result_size;
     strelemtype ch_1;
     const strelemtype *main_mem;
     const strelemtype *searched_mem;
@@ -1598,17 +1800,18 @@ stritype replace;
       memcpy(result_end, copy_start,
           (memsizetype) (&main_stri->mem[main_size] - copy_start) * sizeof(strelemtype));
       result_end += &main_stri->mem[main_size] - copy_start;
-      result->size = (memsizetype) (result_end - result->mem);
-      /* printf("result=%lu, guessed_result_size=%ld, result->size=%ld\n",
-         result, guessed_result_size, result->size); */
-      REALLOC_STRI(resized_result, result, guessed_result_size, result->size);
+      result_size = (memsizetype) (result_end - result->mem);
+      /* printf("result=%lu, guessed_result_size=%ld, result_size=%ld\n",
+         result, guessed_result_size, result_size); */
+      REALLOC_STRI(resized_result, result, guessed_result_size, result_size);
       if (resized_result == NULL) {
         FREE_STRI(result, guessed_result_size);
         raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_STRI(guessed_result_size, result->size);
+        COUNT3_STRI(guessed_result_size, result_size);
+        result->size = result_size;
       } /* if */
     } /* if */
     return(result);
@@ -1887,10 +2090,10 @@ stritype delimiter;
       used_max_position = 0;
       delimiter_size = delimiter->size;
       delimiter_mem = delimiter->mem;
-      ch_1 = delimiter_mem[0];
       search_start = main_stri->mem;
       segment_start = search_start;
       if (delimiter_size != 0 && main_stri->size >= delimiter_size) {
+        ch_1 = delimiter_mem[0];
         search_end = &main_stri->mem[main_stri->size - delimiter_size + 1];
         while ((found_pos = search_strelem(search_start,
             ch_1, (memsizetype) (search_end - search_start))) != NULL &&
@@ -2045,6 +2248,7 @@ stritype stri;
     register strelemtype *dest;
     register const strelemtype *source;
     memsizetype len;
+    memsizetype result_size;
     stritype resized_result;
     stritype result;
 
@@ -2085,14 +2289,16 @@ stritype stri;
           *dest++ = 0x80 | ( *source        & 0x3F);
         } /* if */
       } /* for */
-      result->size = (memsizetype) (dest - result->mem);
-      REALLOC_STRI(resized_result, result, compr_size(stri), result->size);
+      result_size = (memsizetype) (dest - result->mem);
+      REALLOC_STRI(resized_result, result, compr_size(stri), result_size);
       if (resized_result == NULL) {
-        FREE_BSTRI(result, compr_size(stri));
+        FREE_STRI(result, compr_size(stri));
+        raise_error(MEMORY_ERROR);
         result = NULL;
       } else {
         result = resized_result;
-        COUNT3_BSTRI(compr_size(stri), result->size);
+        COUNT3_STRI(compr_size(stri), result_size);
+        result->size = result_size;
       } /* if */
     } /* if */
     return(result);
@@ -2288,14 +2494,15 @@ stritype stri8;
         } /* if */
       } /* for */
       if (okay) {
-        result->size = pos;
-        REALLOC_STRI(resized_result, result, stri8->size, result->size);
+        REALLOC_STRI(resized_result, result, stri8->size, pos);
         if (resized_result == NULL) {
           FREE_STRI(result, stri8->size);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           result = resized_result;
+          COUNT3_STRI(stri8->size, pos);
+          result->size = pos;
         } /* if */
       } else {
         FREE_STRI(result, stri8->size);

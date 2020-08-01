@@ -3193,24 +3193,6 @@ const proc: check_string_funcs is func
   end func;
 
 
-const proc: check_string_append is func
-  local
-    var boolean: okay is TRUE;
-    var string: stri is "";
-  begin
-    okay := TRUE;
-    stri := "123";
-    stri &:= "456";
-    if stri <> "123456" then
-      writeln(" ***** 'string &:= string' does not work correct");
-      okay := FALSE;
-    end if;
-    if okay then
-      writeln("String append works correct");
-    end if;
-  end func;
-
-
 const proc: check_string_split is func
   local
     var boolean: okay is TRUE;
@@ -4015,6 +3997,85 @@ const proc: check_string_join is func
   end func;
 
 
+(**
+ *  Test the case where source and destination of an assignment
+ *  are identical.
+ *)
+const proc: do_assign (inout string: dest, ref string: source) is func
+  begin
+    dest := source;
+  end func;
+
+
+const proc: check_string_assign is func
+  local
+    var boolean: okay is TRUE;
+    var string: stri is "";
+  begin
+    okay := TRUE;
+    stri := "asdf";
+    if stri <> "asdf" then
+      writeln(" ***** 'stri := \"asdf\"' does not work correct");
+      okay := FALSE;
+    end if;
+    stri := stri;
+    if stri <> "asdf" then
+      writeln(" ***** 'stri := stri' does not work correct");
+      okay := FALSE;
+    end if;
+    do_assign(stri, stri);
+    if stri <> "asdf" then
+      writeln(" ***** 'stri := stri' does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String assignment works correct");
+    end if;
+  end func;
+
+
+(**
+ *  Test the case where source and destination of an append
+ *  are identical.
+ *)
+const proc: do_append (inout string: dest, ref string: source) is func
+  begin
+    dest &:= source;
+  end func;
+
+
+const proc: check_string_append is func
+  local
+    var boolean: okay is TRUE;
+    var string: stri is "";
+    var string: stri2 is "";
+    var string: stri3 is "";
+  begin
+    okay := TRUE;
+    stri := "123";
+    stri &:= "456";
+    if stri <> "123456" then
+      writeln(" ***** 'string &:= string' does not work correct");
+      okay := FALSE;
+    end if;
+    stri2 := "1234567890";
+    stri2 &:= stri2;
+    if stri2 <> "12345678901234567890" then
+      writeln(" ***** 'string &:= string' does not work correct");
+      okay := FALSE;
+    end if;
+    stri3 := "1234567890";
+    do_append(stri3, stri3);
+    if stri3 <> "12345678901234567890" then
+      writeln(" ***** 'string &:= string' does not work correct");
+      okay := FALSE;
+    end if;
+    if okay then
+      writeln("String append works correct");
+    end if;
+  end func;
+
+
 const proc: check_string_assign_at is func
   local
     var boolean: okay is TRUE;
@@ -4093,13 +4154,14 @@ const proc: main is func
     var string: stri is "";
   begin
     writeln;
-    check_string_literal();
-    check_string_comparisons();
-    check_string_index();
-    check_string_ops();
-    check_string_funcs();
-    check_string_append();
-    check_string_split();
-    check_string_join();
-    check_string_assign_at();
+    check_string_literal;
+    check_string_comparisons;
+    check_string_index;
+    check_string_ops;
+    check_string_funcs;
+    check_string_split;
+    check_string_join;
+    check_string_assign;
+    check_string_append;
+    check_string_assign_at;
   end func;

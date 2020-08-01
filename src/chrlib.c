@@ -38,6 +38,7 @@
 #include "syvarutl.h"
 #include "runerr.h"
 #include "memory.h"
+#include "chr_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -70,6 +71,23 @@ listtype arguments;
     return(bld_char_temp((chartype) number));
 #endif
   } /* chr_chr */
+
+
+
+#ifdef ANSI_C
+
+objecttype chr_clit (listtype arguments)
+#else
+
+objecttype chr_clit (arguments)
+listtype arguments;
+#endif
+
+  { /* chr_clit */
+    isit_char(arg_1(arguments));
+    return(bld_stri_temp(chrCLit(
+        take_char(arg_1(arguments)))));
+  } /* chr_clit */
 
 
 

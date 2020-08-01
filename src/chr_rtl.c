@@ -33,14 +33,71 @@
 
 #include "stdlib.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "common.h"
 #include "heaputl.h"
+#include "striutl.h"
+#include "int_rtl.h"
 #include "rtl_err.h"
 
 #undef EXTERN
 #define EXTERN
 #include "chr_rtl.h"
+
+
+
+#ifdef ANSI_C
+
+stritype chrCLit (chartype character)
+#else
+
+stritype chrCLit (character)
+chartype character;
+#endif
+
+  {
+    memsizetype len;
+    stritype result;
+
+  /* chrCLit */
+    if (character < 127) {
+      if (character < ' ') {
+        len = strlen(cstri_escape_sequence[character]);
+        if (!ALLOC_STRI(result, len + 2)) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = len + 2;
+          result->mem[0] = '\'';
+          cstri_expand(&result->mem[1],
+              cstri_escape_sequence[character], len);
+          result->mem[len + 1] = '\'';
+        } /* if */
+      } else if (character == '\\' || character == '\'') {
+        if (!ALLOC_STRI(result, (memsizetype) (4))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 4;
+          result->mem[0] = '\'';
+          result->mem[1] = (strelemtype) '\\';
+          result->mem[2] = (strelemtype) character;
+          result->mem[3] = '\'';
+        } /* if */
+      } else {
+        if (!ALLOC_STRI(result, (memsizetype) (3))) {
+          raise_error(MEMORY_ERROR);
+        } else {
+          result->size = 3;
+          result->mem[0] = '\'';
+          result->mem[1] = (strelemtype) character;
+          result->mem[2] = '\'';
+        } /* if */
+      } /* if */
+    } else {
+      result = intStr((inttype) character);
+    } /* if */
+    return(result);
+  } /* chrCLit */
 
 
 
@@ -54,9 +111,7 @@ chartype char1;
 chartype char2;
 #endif
 
-  {
-
-  /* chrCmp */
+  { /* chrCmp */
     if (char1 < char2) {
       return(-1);
     } else if (char1 > char2) {

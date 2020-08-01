@@ -622,6 +622,7 @@ const func char: lower (in char param) is                        action "CHR_LOW
 const func char: upper (in char param) is                        action "CHR_UP";
 const proc: incr (inout char param) is                           action "CHR_INCR";
 const proc: decr (inout char param) is                           action "CHR_DECR";
+const func string: c_literal (in char: ch) is                    action "CHR_CLIT";
 
 const func char: rand (in char: low, in char: high) is
   return chr(rand(ord(low), ord(high)));
@@ -779,7 +780,7 @@ const func string: str (in boolean: aBool) is func
     end if;
   end func;
 
-(* Procedures literal and c_literal from char *)
+(* Procedure literal from char *)
 
 const func string: literal (in char: ch) is func
   result
@@ -792,26 +793,6 @@ const func string: literal (in char: ch) is func
       result := "'" & result[2 .. length(result) - 1] & "'";
     else
       result := "'\\" & str(ord(ch)) & "\\'";
-    end if;
-  end func;
-
-const func string: c_literal (in char: ch) is func
-  result
-    var string: result is "";
-  begin
-    if ch = ''' then
-      result := "'\\''";
-    elsif ch <= chr(127) then
-      result := c_literal(str(ch));
-      result := "'" & result[2 .. length(result) - 1] & "'";
-    else
-      result := str(ord(ch));
-(*
-      result := "'\\" &
-          str(ord(ch) div 64) &
-          str(ord(ch) div 8 mod 8) &
-          str(ord(ch) mod 8) & "'";
-*)
     end if;
   end func;
 

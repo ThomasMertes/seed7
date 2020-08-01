@@ -31,6 +31,7 @@
 
 #ifdef ANSI_C
 
+stritype chrCLit (chartype character);
 inttype chrCmp (chartype char1, chartype char2);
 void chrCpy (chartype *dest, chartype source);
 chartype chrCreate (chartype source);
@@ -40,6 +41,7 @@ chartype chrUp (chartype ch);
 
 #else
 
+stritype chrCLit ();
 inttype chrCmp ();
 void chrCpy ();
 chartype chrCreate ();

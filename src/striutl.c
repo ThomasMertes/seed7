@@ -43,6 +43,16 @@
 #include "striutl.h"
 
 
+const_cstritype cstri_escape_sequence[] = {
+    "\\000", "\\001", "\\002", "\\003", "\\004",
+    "\\005", "\\006", "\\007", "\\b",   "\\t",
+    "\\n",   "\\013", "\\f",   "\\r",   "\\016",
+    "\\017", "\\020", "\\021", "\\022", "\\023",
+    "\\024", "\\025", "\\026", "\\027", "\\030",
+    "\\031", "\\032", "\\033", "\\034", "\\035",
+    "\\036", "\\037"};
+
+
 
 #ifdef UTF32_STRINGS
 #ifdef ANSI_C
@@ -653,19 +663,22 @@ cstritype cstri;
 
   {
     memsizetype length;
+    memsizetype stri_size;
     stritype resized_stri;
     stritype stri;
 
   /* cstri8_to_stri */
     length = strlen(cstri);
     if (ALLOC_STRI(stri, length)) {
-      if (utf8_to_stri(stri->mem, &stri->size, (const_ustritype) cstri, length) == 0) {
-        REALLOC_STRI(resized_stri, stri, length, stri->size);
+      if (utf8_to_stri(stri->mem, &stri_size, (const_ustritype) cstri, length) == 0) {
+        REALLOC_STRI(resized_stri, stri, length, stri_size);
         if (resized_stri == NULL) {
           FREE_STRI(stri, length);
           stri = NULL;
         } else {
           stri = resized_stri;
+          COUNT3_STRI(length, stri_size);
+          stri->size = stri_size;
         } /* if */
       } else {
         FREE_STRI(stri, length);

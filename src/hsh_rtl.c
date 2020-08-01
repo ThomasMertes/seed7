@@ -77,15 +77,17 @@ destrfunctype data_destr_func;
 #endif
 
   { /* free_helem */
-    if (old_helem != NULL) {
-      key_destr_func(old_helem->key.value.genericvalue);
-      data_destr_func(old_helem->data.value.genericvalue);
+    key_destr_func(old_helem->key.value.genericvalue);
+    data_destr_func(old_helem->data.value.genericvalue);
+    if (old_helem->next_less != NULL) {
       free_helem(old_helem->next_less, key_destr_func,
           data_destr_func);
+    } /* if */
+    if (old_helem->next_greater != NULL) {
       free_helem(old_helem->next_greater, key_destr_func,
           data_destr_func);
-      FREE_RECORD(old_helem, rtlHelemrecord, count.helem);
     } /* if */
+    FREE_RECORD(old_helem, rtlHelemrecord, count.helem);
   } /* free_helem */
 
 
@@ -111,7 +113,9 @@ destrfunctype data_destr_func;
       number = old_hash->table_size;
       curr_helem = &old_hash->table[0];
       while (number > 0) {
-        free_helem(*curr_helem, key_destr_func, data_destr_func);
+        if (*curr_helem != NULL) {
+          free_helem(*curr_helem, key_destr_func, data_destr_func);
+        } /* if */
         number--;
         curr_helem++;
       } /* while */
@@ -188,11 +192,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static rtlHelemtype copy_helem (const_rtlHelemtype source_helem, createfunctype key_create_func,
+static rtlHelemtype create_helem (const_rtlHelemtype source_helem, createfunctype key_create_func,
     createfunctype data_create_func, errinfotype *err_info)
 #else
 
-static rtlHelemtype copy_helem (source_helem, key_create_func, data_create_func, err_info)
+static rtlHelemtype create_helem (source_helem, key_create_func, data_create_func, err_info)
 rtlHelemtype source_helem;
 createfunctype key_create_func;
 createfunctype data_create_func;
@@ -202,34 +206,38 @@ errinfotype *err_info;
   {
     rtlHelemtype dest_helem;
 
-  /* copy_helem */
-    if (source_helem != NULL) {
-      if (!ALLOC_RECORD(dest_helem, rtlHelemrecord, count.helem)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        dest_helem->key.value.genericvalue = key_create_func(source_helem->key.value.genericvalue);
-        dest_helem->data.value.genericvalue = data_create_func(source_helem->data.value.genericvalue);
-        dest_helem->next_less = copy_helem(source_helem->next_less,
-            key_create_func, data_create_func, err_info);
-        dest_helem->next_greater = copy_helem(source_helem->next_greater,
-            key_create_func, data_create_func, err_info);
-      } /* if */
+  /* create_helem */
+    if (!ALLOC_RECORD(dest_helem, rtlHelemrecord, count.helem)) {
+      *err_info = MEMORY_ERROR;
     } else {
-      dest_helem = NULL;
+      dest_helem->key.value.genericvalue = key_create_func(source_helem->key.value.genericvalue);
+      dest_helem->data.value.genericvalue = data_create_func(source_helem->data.value.genericvalue);
+      if (source_helem->next_less != NULL) {
+        dest_helem->next_less = create_helem(source_helem->next_less,
+            key_create_func, data_create_func, err_info);
+      } else {
+        dest_helem->next_less = NULL;
+      } /* if */
+      if (source_helem->next_greater != NULL) {
+        dest_helem->next_greater = create_helem(source_helem->next_greater,
+            key_create_func, data_create_func, err_info);
+      } else {
+        dest_helem->next_greater = NULL;
+      } /* if */
     } /* if */
     return(dest_helem);
-  } /* copy_helem */
+  } /* create_helem */
 
 
 
 #ifdef ANSI_C
 
-static rtlHashtype copy_hash (const const_rtlHashtype source_hash,
+static rtlHashtype create_hash (const const_rtlHashtype source_hash,
     createfunctype key_create_func, createfunctype data_create_func,
     errinfotype *err_info)
 #else
 
-static rtlHashtype copy_hash (source_hash, key_create_func, data_create_func,
+static rtlHashtype create_hash (source_hash, key_create_func, data_create_func,
     err_info)
 rtlHashtype source_hash;
 createfunctype key_create_func;
@@ -244,7 +252,7 @@ errinfotype *err_info;
     rtlHelemtype *dest_helem;
     rtlHashtype dest_hash;
 
-  /* copy_hash */
+  /* create_hash */
     new_size = source_hash->table_size;
     if (!ALLOC_RTL_HASH(dest_hash, new_size)) {
       *err_info = MEMORY_ERROR;
@@ -257,13 +265,65 @@ errinfotype *err_info;
       source_helem = &source_hash->table[0];
       dest_helem = &dest_hash->table[0];
       while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        *dest_helem = copy_helem(*source_helem, key_create_func, data_create_func, err_info);
+        if (*source_helem != NULL) {
+          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func, err_info);
+        } else {
+          *dest_helem = NULL;
+        } /* if */
         number--;
         source_helem++;
         dest_helem++;
       } /* while */
     } /* if */
     return(dest_hash);
+  } /* create_hash */
+
+
+
+#ifdef ANSI_C
+
+static void copy_hash (const rtlHashtype dest_hash, const const_rtlHashtype source_hash,
+    createfunctype key_create_func, createfunctype data_create_func,
+    destrfunctype key_destr_func, destrfunctype data_destr_func,
+    errinfotype *err_info)
+#else
+
+static void copy_hash (dest_hash, source_hash, key_create_func, data_create_func,
+    key_destr_func, data_destr_func, err_info)
+rtlHashtype dest_hash;
+rtlHashtype source_hash;
+createfunctype key_create_func;
+createfunctype data_create_func;
+destrfunctype key_destr_func;
+destrfunctype data_destr_func;
+errinfotype *err_info;
+#endif
+
+  {
+    unsigned int number;
+    const rtlHelemtype *source_helem;
+    rtlHelemtype *dest_helem;
+
+  /* copy_hash */
+    dest_hash->bits = source_hash->bits;
+    dest_hash->mask = source_hash->mask;
+    dest_hash->size = source_hash->size;
+    number = source_hash->table_size;
+    source_helem = &source_hash->table[0];
+    dest_helem = &dest_hash->table[0];
+    while (number > 0 && *err_info == OKAY_NO_ERROR) {
+      if (*dest_helem != NULL) {
+        free_helem(*dest_helem, key_destr_func, data_destr_func);
+      } /* if */
+      if (*source_helem != NULL) {
+        *dest_helem = create_helem(*source_helem, key_create_func, data_create_func, err_info);
+      } else {
+        *dest_helem = NULL;
+      } /* if */
+      number--;
+      source_helem++;
+      dest_helem++;
+    } /* while */
   } /* copy_hash */
 
 
@@ -567,9 +627,15 @@ destrfunctype data_destr_func;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* hshCpy */
-    free_hash(*hash_to, key_destr_func, data_destr_func);
-    *hash_to = copy_hash(hash_from,
-        key_create_func, data_create_func, &err_info);
+    if ((*hash_to)->table_size == hash_from->table_size) {
+      copy_hash(*hash_to, hash_from,
+          key_create_func, data_create_func,
+          key_destr_func, data_destr_func, &err_info);
+    } else {
+      free_hash(*hash_to, key_destr_func, data_destr_func);
+      *hash_to = create_hash(hash_from,
+          key_create_func, data_create_func, &err_info);
+    } /* if */
     if (err_info != OKAY_NO_ERROR) {
       free_hash(*hash_to, key_destr_func, data_destr_func);
       *hash_to = NULL;
@@ -600,7 +666,7 @@ destrfunctype data_destr_func;
     rtlHashtype result;
 
   /* hshCreate */
-    result = copy_hash(hash_from,
+    result = create_hash(hash_from,
         key_create_func, data_create_func, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       free_hash(result, key_destr_func, data_destr_func);

@@ -1442,88 +1442,6 @@ biginttype big2;
 
 
 
-/**
- *  Returns the square of the nonnegative big integer big1. The result
- *  is written into big_help (which is a scratch variable and is
- *  assumed to contain enough memory). Before returning the result
- *  the variable big1 is assigned to big_help. This way it is possible
- *  to square a given base with base = uBigSquare(base, &big_help).
- *  Note that the old base is in the scratch variable big_help
- *  afterwards. This squaring algorithm takes into account that
- *  digit1 * digit2 + digit2 * digit1 == (digit1 * digit2) << 1.
- *  This reduces the number of multiplications approx. by factor 2.
- *  Unfortunately one bit more than sizeof(doublebigdigittype) is
- *  needed to store the shifted product. Therefore extra effort is
- *  necessary to avoid an overflow.
- */
-#ifdef ANSI_C
-
-static biginttype uBigSquare (const biginttype big1, biginttype *big_help)
-#else
-
-static biginttype uBigSquare (big1, big_help)
-biginttype big1;
-biginttype *big_help;
-#endif
-
-  {
-    memsizetype pos1;
-    memsizetype pos2;
-    doublebigdigittype carry;
-    doublebigdigittype product;
-    bigdigittype digit;
-    biginttype result;
-
-  /* uBigSquare */
-    result = *big_help;
-    digit = big1->bigdigits[0];
-    carry = (doublebigdigittype) digit * digit;
-    result->bigdigits[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
-    carry >>= 8 * sizeof(bigdigittype);
-    for (pos2 = 1; pos2 < big1->size; pos2++) {
-      product = (doublebigdigittype) digit * big1->bigdigits[pos2];
-      carry += (product << 1) & BIGDIGIT_MASK;
-      result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
-      carry += product >> (8 * sizeof(bigdigittype) - 1);
-    } /* for */
-    result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-    for (pos1 = 1; pos1 < big1->size; pos1++) {
-      digit = big1->bigdigits[pos1];
-      carry = (doublebigdigittype) result->bigdigits[pos1 + pos1] +
-          (doublebigdigittype) digit * digit;
-      result->bigdigits[pos1 + pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= 8 * sizeof(bigdigittype);
-      for (pos2 = pos1 + 1; pos2 < big1->size; pos2++) {
-        product = (doublebigdigittype) digit * big1->bigdigits[pos2];
-        carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
-            ((product << 1) & BIGDIGIT_MASK);
-        result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= 8 * sizeof(bigdigittype);
-        carry += product >> (8 * sizeof(bigdigittype) - 1);
-      } /* for */
-      result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
-    } /* for */
-    pos1 = big1->size + big1->size;
-    pos1--;
-    digit = result->bigdigits[pos1];
-    if (digit == 0) {
-      do {
-        pos1--;
-        digit = result->bigdigits[pos1];
-      } while (pos1 > 0 && digit == 0);
-      if (IS_NEGATIVE(digit)) {
-        pos1++;
-      } /* if */
-    } /* if */
-    pos1++;
-    result->size = pos1;
-    *big_help = big1;
-    return result;
-  } /* uBigSquare */
-
-
-
 #ifdef ANSI_C
 
 static void uBigDigitAdd (const bigdigittype *const big1, const memsizetype size1,
@@ -2184,6 +2102,7 @@ biginttype *big_help;
     biginttype result;
 
   /* uBigMultIntoHelp */
+    /* printf("uBigMultIntoHelp(big1->size=%lu, big2->size=%lu)\n", big1->size, big2->size); */
     result = *big_help;
     uBigMult(big1, big2, result);
     pos1 = big1->size + big2->size;
@@ -2201,8 +2120,231 @@ biginttype *big_help;
     pos1++;
     result->size = pos1;
     *big_help = big1;
+    /* printf("uBigMultIntoHelp(big1->size=%lu, big2->size=%lu) => result->size=%lu\n",
+           big1->size, big2->size, result->size);
+       prot_bigint(result);
+       printf("\n"); */
     return result;
   } /* uBigMultIntoHelp */
+
+
+
+/**
+ *  Returns the square of the nonnegative big integer big1. The result
+ *  is written into big_help (which is a scratch variable and is
+ *  assumed to contain enough memory). Before returning the result
+ *  the variable big1 is assigned to big_help. This way it is possible
+ *  to square a given base with base = uBigSquare(base, &big_help).
+ *  Note that the old base is in the scratch variable big_help
+ *  afterwards. This squaring algorithm takes into account that
+ *  digit1 * digit2 + digit2 * digit1 == (digit1 * digit2) << 1.
+ *  This reduces the number of multiplications approx. by factor 2.
+ *  Unfortunately one bit more than sizeof(doublebigdigittype) is
+ *  needed to store the shifted product. Therefore extra effort is
+ *  necessary to avoid an overflow.
+ */
+#ifdef ANSI_C
+
+static biginttype uBigSquare (const biginttype big1, biginttype *big_help)
+#else
+
+static biginttype uBigSquare (big1, big_help)
+biginttype big1;
+biginttype *big_help;
+#endif
+
+  {
+    memsizetype pos1;
+    memsizetype pos2;
+    doublebigdigittype carry;
+    doublebigdigittype product;
+    bigdigittype digit;
+    biginttype result;
+
+  /* uBigSquare */
+    /* printf("uBigSquare(big1->size=%lu)\n", big1->size); */
+    result = *big_help;
+    digit = big1->bigdigits[0];
+    carry = (doublebigdigittype) digit * digit;
+    result->bigdigits[0] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    carry >>= 8 * sizeof(bigdigittype);
+    for (pos2 = 1; pos2 < big1->size; pos2++) {
+      product = (doublebigdigittype) digit * big1->bigdigits[pos2];
+      carry += (product << 1) & BIGDIGIT_MASK;
+      result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+      carry += product >> (8 * sizeof(bigdigittype) - 1);
+    } /* for */
+    result->bigdigits[pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    for (pos1 = 1; pos1 < big1->size; pos1++) {
+      digit = big1->bigdigits[pos1];
+      carry = (doublebigdigittype) result->bigdigits[pos1 + pos1] +
+          (doublebigdigittype) digit * digit;
+      result->bigdigits[pos1 + pos1] = (bigdigittype) (carry & BIGDIGIT_MASK);
+      carry >>= 8 * sizeof(bigdigittype);
+      for (pos2 = pos1 + 1; pos2 < big1->size; pos2++) {
+        product = (doublebigdigittype) digit * big1->bigdigits[pos2];
+        carry += (doublebigdigittype) result->bigdigits[pos1 + pos2] +
+            ((product << 1) & BIGDIGIT_MASK);
+        result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+        carry >>= 8 * sizeof(bigdigittype);
+        carry += product >> (8 * sizeof(bigdigittype) - 1);
+      } /* for */
+      result->bigdigits[pos1 + pos2] = (bigdigittype) (carry & BIGDIGIT_MASK);
+    } /* for */
+    pos1 = big1->size + big1->size;
+    pos1--;
+    digit = result->bigdigits[pos1];
+    if (digit == 0) {
+      do {
+        pos1--;
+        digit = result->bigdigits[pos1];
+      } while (pos1 > 0 && digit == 0);
+      if (IS_NEGATIVE(digit)) {
+        pos1++;
+      } /* if */
+    } /* if */
+    pos1++;
+    result->size = pos1;
+    *big_help = big1;
+    /* printf("uBigSquare(big1->size=%lu) => result->size=%lu\n", big1->size, result->size);
+       prot_bigint(result);
+       printf("\n"); */
+    return result;
+  } /* uBigSquare */
+
+
+
+#ifdef ANSI_C
+
+static biginttype bigIPowN (const bigdigittype base, inttype exponent, unsigned int bit_size)
+#else
+
+static biginttype bigIPowN (base, exponent, bit_size)
+bigdigittype base;
+inttype exponent;
+unsigned int bit_size;
+#endif
+
+  {
+    memsizetype help_size;
+    biginttype square;
+    biginttype big_help;
+    biginttype result;
+
+  /* bigIPowN */
+    /* printf("bigIPowN(%lu, %lu, %u)\n", base, exponent, bit_size); */
+    /* help_size = (bit_size * ((uinttype) exponent) - 1) / (8 * sizeof(bigdigittype)) + 2; */
+    /* printf("help_sizeA=%ld\n", help_size); */
+    help_size = (uinttype) exponent + 1;
+    /* printf("help_sizeB=%ld\n", help_size); */
+    if (!ALLOC_BIG(square, help_size)) {
+      raise_error(MEMORY_ERROR);
+      result = NULL;
+    } else {
+      if (!ALLOC_BIG(big_help, help_size)) {
+        FREE_BIG(square,  help_size);
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        if (!ALLOC_BIG(result, help_size)) {
+          FREE_BIG(square,  help_size);
+          FREE_BIG(big_help,  help_size);
+          raise_error(MEMORY_ERROR);
+        } else {
+          square->size = 1;
+          square->bigdigits[0] = base;
+          if (exponent & 1) {
+            result->size = square->size;
+            memcpy(result->bigdigits, square->bigdigits,
+                (size_t) square->size * sizeof(bigdigittype));
+          } else {
+            result->size = 1;
+            result->bigdigits[0] = 1;
+          } /* if */
+          exponent >>= 1;
+          while (exponent != 0) {
+            square = uBigSquare(square, &big_help);
+            if (exponent & 1) {
+              result = uBigMultIntoHelp(result, square, &big_help);
+            } /* if */
+            exponent >>= 1;
+          } /* while */
+          memset(&result->bigdigits[result->size], 0,
+              (size_t) (help_size - result->size) * sizeof(bigdigittype));
+          result->size = help_size;
+          result = normalize(result);
+          FREE_BIG(square, help_size);
+          FREE_BIG(big_help, help_size);
+        } /* if */
+      } /* if */
+    } /* if */
+    /* printf("bigIPowN() => result->size=%lu\n", result->size); */
+    return result;
+  } /* bigIPowN */
+
+
+
+/**
+ *  Computes base to the power of exponent for signed big integers.
+ *  It is assumed that the exponent is >= 1.
+ *  The result variable is set to base or 1 depending on the
+ *  rightmost bit of the exponent. After that the base is
+ *  squared in a loop and every time the corresponding bit of
+ *  the exponent is set the current square is multiplied
+ *  with the result variable. This reduces the number of square
+ *  operations to ld(exponent).
+ */
+#ifdef ANSI_C
+
+static biginttype bigIPow1 (bigdigittype base, inttype exponent)
+#else
+
+static biginttype bigIPow1 (base, exponent)
+bigdigittype base;
+inttype exponent;
+#endif
+
+  {
+    booltype negative;
+    unsigned int bit_size;
+    biginttype result;
+
+  /* bigIPow1 */
+    /* printf("bigIPow1(%ld, %lu)\n", base, exponent); */
+    if (base == 0) {
+      if (!ALLOC_BIG(result, 1)) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        result->size = 1;
+        result->bigdigits[0] = 0;
+      } /* if */
+    } else {
+      if (IS_NEGATIVE(base)) {
+        base = -base;
+        negative = exponent & 1;
+      } else {
+        negative = FALSE;
+      } /* if */
+      bit_size = (unsigned int) (digitMostSignificantBit(base) + 1);
+      if (base == (1 << (bit_size - 1))) {
+        result = bigLShiftOne((inttype) (bit_size - 1) * exponent);
+        if (negative) {
+          negate_positive_big(result);
+          result = normalize(result);
+        } /* if */
+      } else {
+        result = bigIPowN(base, exponent, bit_size);
+        if (negative) {
+          negate_positive_big(result);
+        } /* if */
+        result = normalize(result);
+      } /* if */
+    } /* if */
+    /* printf("bigIPow1 => result->size=%lu\n", result->size); */
+    return result;
+  } /* bigIPow1 */
 
 
 
@@ -3327,9 +3469,24 @@ inttype exponent;
     biginttype result;
 
   /* bigIPow */
-    if (exponent < 0) {
-      raise_error(NUMERIC_ERROR);
-      return NULL;
+    if (exponent <= 1) {
+      if (exponent == 0) {
+        if (!ALLOC_BIG(result, 1)) {
+          raise_error(MEMORY_ERROR);
+          return NULL;
+        } else {
+          result->size = 1;
+          result->bigdigits[0] = 1;
+          return result;
+        } /* if */
+      } else if (exponent == 1) {
+        return bigCreate(base);
+      } else {
+        raise_error(NUMERIC_ERROR);
+        return NULL;
+      } /* if */
+    } else if (base->size == 1) {
+      return bigIPow1(base->bigdigits[0], exponent);
     } else {
       help_size = base->size * ((uinttype) exponent + 1);
       if (!ALLOC_BIG(square, help_size)) {
@@ -3498,8 +3655,8 @@ inttype lshift;
 
   /* bigLShift */
     if (lshift < 0) {
-      result = NULL;
       raise_error(NUMERIC_ERROR);
+      result = NULL;
     } else {
       if (big1->size == 1 && big1->bigdigits[0] == 0) {
         if (!ALLOC_BIG(result, 1)) {
@@ -3677,6 +3834,46 @@ inttype lshift;
       } /* if */
     } /* if */
   } /* bigLShiftAssign */
+
+
+
+#ifdef ANSI_C
+
+biginttype bigLShiftOne (const inttype lshift)
+#else
+
+biginttype bigLShiftOne (lshift)
+inttype rshift;
+#endif
+
+  {
+    memsizetype result_size;
+    int bit_pos;
+    biginttype result;
+
+  /* bigLShiftOne */
+    if (lshift < 0) {
+      raise_error(NUMERIC_ERROR);
+      result = NULL;
+    } else {
+      result_size = (((uinttype) lshift + 1) >> BIGDIGIT_LOG2_SIZE) + 1;
+      if (!ALLOC_BIG(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->size = result_size;
+        bit_pos = lshift & BIGDIGIT_SIZE_MASK;
+        if (bit_pos == BIGDIGIT_SIZE_MASK) {
+          memset(result->bigdigits, 0, (result_size - 2) * sizeof(bigdigittype));
+          result->bigdigits[result_size - 2] = ((bigdigittype) 1) << bit_pos;
+          result->bigdigits[result_size - 1] = 0;
+        } else {
+          memset(result->bigdigits, 0, (result_size - 1) * sizeof(bigdigittype));
+          result->bigdigits[result_size - 1] = ((bigdigittype) 1) << bit_pos;
+        } /* if */
+      } /* if */
+    } /* if */
+    return result;
+  } /* bigLShiftOne */
 
 
 
@@ -4520,8 +4717,8 @@ inttype rshift;
 
   /* bigRShift */
     if (rshift < 0) {
-      result = NULL;
       raise_error(NUMERIC_ERROR);
+      result = NULL;
     } else {
       if (big1->size <= (uinttype) rshift >> BIGDIGIT_LOG2_SIZE) {
         if (!ALLOC_BIG(result, 1)) {
@@ -4978,6 +5175,7 @@ biginttype big1;
             } /* if */
           } /* if */
           digit = uBigDivideByPowerOf10(help_big);
+          /* printf("help_big->size=%lu, digit=%lu\n", help_big->size, digit); */
           if (help_big->bigdigits[help_big->size - 1] == 0) {
             help_big->size--;
           } /* if */

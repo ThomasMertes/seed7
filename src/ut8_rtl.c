@@ -111,13 +111,13 @@ errinfotype *err_info;
 #ifdef ANSI_C
 
 static memsizetype read_strelements (filetype aFile, memsizetype chars_requested,
-    stritype *result, errinfotype *err_info)
+    stritype result, errinfotype *err_info)
 #else
 
 static memsizetype read_strelements (aFile, chars_requested, result, err_info)
 filetype aFile;
 memsizetype chars_requested;
-stritype *result;
+stritype result;
 errinfotype *err_info;
 #endif
 
@@ -129,14 +129,14 @@ errinfotype *err_info;
     read_state state = {0, 0, 1, 0};
 
   /* read_strelements */
-    for (stri_dest = (*result)->mem, chars_missing = chars_requested;
+    for (stri_dest = result->mem, chars_missing = chars_requested;
         chars_missing >= BUFFER_SIZE - state.bytes_missing + state.chars_there &&
         (state.chars_read > 0 || state.chars_there);
         stri_dest += state.chars_read, chars_missing -= state.chars_read) {
       bytes_in_buffer = (memsizetype) fread(&buffer[state.bytes_remaining], 1,
           BUFFER_SIZE, aFile);
       /* printf("#A# bytes_in_buffer=%d num_of_chars_read=%d\n",
-          bytes_in_buffer, (memsizetype) (stri_dest - (*result)->mem)); */
+          bytes_in_buffer, (memsizetype) (stri_dest - result->mem)); */
       bytes_to_strelements(buffer, bytes_in_buffer, stri_dest,
            &state, err_info);
     } /* for */
@@ -146,12 +146,12 @@ errinfotype *err_info;
           chars_missing - state.chars_there + state.bytes_missing, aFile);
       /* printf("#B# bytes_in_buffer=%d chars_missing=%d chars_read=%d chars_there=%d bytes_missing=%d num_of_chars_read=%d\n",
           bytes_in_buffer, chars_missing, chars_read, chars_there,
-          state.bytes_missing, (memsizetype) (stri_dest - (*result)->mem)); */
+          state.bytes_missing, (memsizetype) (stri_dest - result->mem)); */
 
       bytes_to_strelements(buffer, bytes_in_buffer, stri_dest,
            &state, err_info);
     } /* for */
-    return (memsizetype) (stri_dest - (*result)->mem);
+    return (memsizetype) (stri_dest - result->mem);
   } /* read_strelements */
 
 
@@ -476,21 +476,21 @@ inttype length;
         } /* if */
       } /* if */
       result->size = chars_requested;
-      num_of_chars_read = read_strelements(aFile, chars_requested, &result, &err_info);
+      num_of_chars_read = read_strelements(aFile, chars_requested, result, &err_info);
       if (err_info != OKAY_NO_ERROR) {
-        FREE_STRI(result, result->size);
+        FREE_STRI(result, chars_requested);
         raise_error(err_info);
         result = NULL;
       } else {
-        REALLOC_STRI(resized_result, result, result->size, num_of_chars_read);
+        REALLOC_STRI(resized_result, result, chars_requested, num_of_chars_read);
         if (resized_result == NULL) {
-          FREE_STRI(result, result->size);
+          FREE_STRI(result, chars_requested);
           raise_error(MEMORY_ERROR);
           result = NULL;
         } else {
           result = resized_result;
+          COUNT3_STRI(chars_requested, num_of_chars_read);
           result->size = num_of_chars_read;
-          COUNT3_STRI(chars_requested, result->size);
         } /* if */
       } /* if */
     } /* if */
@@ -517,6 +517,7 @@ chartype *termination_char;
     memsizetype newmemlength;
     bstritype resized_buffer;
     bstritype buffer;
+    memsizetype result_size;
     stritype resized_result;
     stritype result;
 
@@ -551,21 +552,22 @@ chartype *termination_char;
         FREE_BSTRI(buffer, memlength);
         raise_error(MEMORY_ERROR);
       } else {
-        if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
+        if (utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0) {
           FREE_BSTRI(buffer, memlength);
           FREE_STRI(result, position);
           raise_error(RANGE_ERROR);
           result = NULL;
         } else {
           FREE_BSTRI(buffer, memlength);
-          REALLOC_STRI(resized_result, result, position, result->size);
+          REALLOC_STRI(resized_result, result, position, result_size);
           if (resized_result == NULL) {
             FREE_STRI(result, position);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
             result = resized_result;
-            COUNT3_STRI(position, result->size);
+            COUNT3_STRI(position, result_size);
+            result->size = result_size;
             *termination_char = (chartype) ch;
           } /* if */
         } /* if */
@@ -624,6 +626,7 @@ chartype *termination_char;
     memsizetype newmemlength;
     bstritype resized_buffer;
     bstritype buffer;
+    memsizetype result_size;
     stritype resized_result;
     stritype result;
 
@@ -663,21 +666,22 @@ chartype *termination_char;
         FREE_BSTRI(buffer, memlength);
         raise_error(MEMORY_ERROR);
       } else {
-        if (utf8_to_stri(result->mem, &result->size, buffer->mem, position) != 0) {
+        if (utf8_to_stri(result->mem, &result_size, buffer->mem, position) != 0) {
           FREE_BSTRI(buffer, memlength);
           FREE_STRI(result, position);
           raise_error(RANGE_ERROR);
           result = NULL;
         } else {
           FREE_BSTRI(buffer, memlength);
-          REALLOC_STRI(resized_result, result, position, result->size);
+          REALLOC_STRI(resized_result, result, position, result_size);
           if (resized_result == NULL) {
             FREE_STRI(result, position);
             raise_error(MEMORY_ERROR);
             result = NULL;
           } else {
             result = resized_result;
-            COUNT3_STRI(position, result->size);
+            COUNT3_STRI(position, result_size);
+            result->size = result_size;
             *termination_char = (chartype) ch;
           } /* if */
         } /* if */

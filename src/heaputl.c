@@ -65,6 +65,9 @@ memsizetype len;
     } else {
       new_len = 2 * len;
     } /* if */
+    if (new_len < 8) {
+      new_len = 8;
+    } /* if */
     /* printf("growStri(%lX, %lu) size=%u, capacity=%u, new_len=%u, siz_stri=%u sizeof=%u",
        stri, len, stri->size, stri->capacity, new_len, SIZ_STRI(new_len), sizeof(strirecord));
     fflush(stdout); */

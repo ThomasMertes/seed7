@@ -608,12 +608,13 @@ bstritype *address;
       COUNT3_STRI((*stri)->size, bytes_requested);
       REALLOC_BSTRI(resized_address, *address, (*address)->size, MAX_ADDRESS_SIZE);
       if (resized_address == NULL) {
-        REALLOC_STRI(resized_stri, *stri, bytes_requested, (*stri)->size);
+        stri_size = (*stri)->size;
+        REALLOC_STRI(resized_stri, *stri, bytes_requested, stri_size);
         if (resized_stri == NULL) {
           (*stri)->size = bytes_requested;
         } else {
           *stri = resized_stri;
-          COUNT3_STRI(bytes_requested, (*stri)->size);
+          COUNT3_STRI(bytes_requested, stri_size);
         } /* if */
         raise_error(MEMORY_ERROR);
         return(0);

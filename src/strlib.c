@@ -261,10 +261,10 @@ stritype delimiter;
       used_max_position = 0;
       delimiter_size = delimiter->size;
       delimiter_mem = delimiter->mem;
-      ch_1 = delimiter_mem[0];
       search_start = main_stri->mem;
       segment_start = search_start;
       if (delimiter_size != 0 && main_stri->size >= delimiter_size) {
+        ch_1 = delimiter_mem[0];
         search_end = &main_stri->mem[main_stri->size - delimiter_size + 1];
         while ((found_pos = search_strelem(search_start,
             ch_1, (memsizetype) (search_end - search_start))) != NULL &&
@@ -350,7 +350,9 @@ listtype arguments;
     objecttype str_variable;
     stritype str_to;
     stritype str_from;
+    stritype new_str;
     memsizetype new_size;
+    memsizetype str_to_size;
 
   /* str_append */
     str_variable = arg_1(arguments);
@@ -360,16 +362,23 @@ listtype arguments;
     isit_stri(arg_3(arguments));
     str_from = take_stri(arg_3(arguments));
     if (str_from->size != 0) {
-      new_size = str_to->size + str_from->size;
-      GROW_STRI(str_to, str_to, str_to->size, new_size);
-      if (str_to == NULL) {
+      str_to_size = str_to->size;
+      new_size = str_to_size + str_from->size;
+      GROW_STRI(new_str, str_to, str_to_size, new_size);
+      if (new_str == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
       } else {
-        COUNT3_STRI(str_to->size, new_size);
-        memcpy(&str_to->mem[str_to->size], str_from->mem,
+        /* It is possible that str_to == str_from holds. In  */
+        /* this case the variable str_from must be corrected */
+        /* when str_to is enlarged with realloc().           */
+        if (str_to == str_from) {
+          str_from = new_str;
+        } /* if */
+        COUNT3_STRI(str_to_size, new_size);
+        memcpy(&new_str->mem[str_to_size], str_from->mem,
             str_from->size * sizeof(strelemtype));
-        str_to->size = new_size;
-        str_variable->value.strivalue = str_to;
+        new_str->size = new_size;
+        str_variable->value.strivalue = new_str;
       } /* if */
     } /* if */
     return(SYS_EMPTY_OBJECT);
@@ -557,7 +566,7 @@ listtype arguments;
     objecttype str_to;
     objecttype str_from;
     memsizetype new_size;
-    stritype new_str;
+    stritype stri_dest;
 
   /* str_cpy */
     str_to = arg_1(arguments);
@@ -565,24 +574,33 @@ listtype arguments;
     isit_stri(str_to);
     isit_stri(str_from);
     is_variable(str_to);
-    new_str = take_stri(str_to);
+    stri_dest = take_stri(str_to);
     if (TEMP_OBJECT(str_from)) {
-      FREE_STRI(new_str, new_str->size);
+      FREE_STRI(stri_dest, stri_dest->size);
       str_to->value.strivalue = take_stri(str_from);
       str_from->value.strivalue = NULL;
     } else {
       new_size = take_stri(str_from)->size;
-      if (new_str->size != new_size) {
-        if (!ALLOC_STRI(new_str, new_size)) {
+      if (stri_dest->size == new_size) {
+        /* It is possible that str_to == str_from holds. The */
+        /* behavior of memcpy() is undefined when source and */
+        /* destination areas overlap (or are identical).     */
+        /* Therefore a check for this case is necessary.     */
+        if (stri_dest != take_stri(str_from)) {
+          memcpy(stri_dest->mem, take_stri(str_from)->mem,
+              new_size * sizeof(strelemtype));
+        } /* if */
+      } else {
+        if (!ALLOC_STRI(stri_dest, new_size)) {
           return(raise_exception(SYS_MEM_EXCEPTION));
         } else {
           FREE_STRI(take_stri(str_to), take_stri(str_to)->size);
-          str_to->value.strivalue = new_str;
-          new_str->size = new_size;
+          str_to->value.strivalue = stri_dest;
+          stri_dest->size = new_size;
         } /* if */
+        memcpy(stri_dest->mem, take_stri(str_from)->mem,
+            new_size * sizeof(strelemtype));
       } /* if */
-      memcpy(new_str->mem, take_stri(str_from)->mem,
-          new_size * sizeof(strelemtype));
     } /* if */
     return(SYS_EMPTY_OBJECT);
   } /* str_cpy */

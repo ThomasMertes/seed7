@@ -808,6 +808,34 @@ inttype lshift;
 
 
 
+#ifdef ANSI_C
+
+biginttype bigLShiftOne (const inttype lshift)
+#else
+
+biginttype bigLShiftOne (lshift)
+inttype rshift;
+#endif
+
+  {
+    mpz_t one;
+    biginttype result;
+
+  /* bigLShiftOne */
+    if (lshift < 0) {
+      raise_error(NUMERIC_ERROR);
+      result = NULL;
+    } else {
+      result = malloc(sizeof(__mpz_struct));
+      mpz_init(result);
+      mpz_init_set_ui(one, 1);
+      mpz_mul_2exp(result, one, lshift);
+    } /* if */
+    return(result);
+  } /* bigLShiftOne */
+
+
+
 /**
  *  Computes an integer modulo division of big1 by big2 for signed
  *  big integers.

@@ -61,9 +61,10 @@ const string: chkstr_output is "\n\
   \String indices work correct\n\
   \String operations work correct\n\
   \String functions work correct\n\
-  \String append works correct\n\
   \split(string) works correct\n\
   \join(string) works correct\n\
+  \String assignment works correct\n\
+  \String append works correct\n\
   \@:= for strings works correct\n";
 
 const string: chkprc_output is "\n\
@@ -123,7 +124,8 @@ const string: chkset_output is "\n\
   \set intersection works correct.\n\
   \set membership test works correct.\n\
   \min(bitset) works correct.\n\
-  \max(bitset) works correct.\n";
+  \max(bitset) works correct.\n\
+  \set assignment works correct.\n";
 
 const string: chkexc_output is "\n\
   \Integer exceptions work correct.\n\

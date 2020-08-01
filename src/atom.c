@@ -174,8 +174,12 @@ static INLINE stritype new_string ()
     printf("BEGIN new_string\n");
 #endif
 #ifdef ALTERNATE_STRI_LITERALS
-    REALLOC_STRI(stri_created, symbol.strivalue,
-        symbol.stri_max, stri_created->size);
+    {
+      memsizetype stri_created_size = symbol.strivalue->size;
+
+      REALLOC_STRI(stri_created, symbol.strivalue,
+          symbol.stri_max, stri_created_size);
+    }
     if (stri_created == NULL) {
       fatal_memory_error(SOURCE_POSITION(2055));
     } /* if */

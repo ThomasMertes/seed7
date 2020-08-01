@@ -285,7 +285,11 @@ listtype arguments;
         set_dest->min_position = set_source->min_position;
         set_dest->max_position = set_source->max_position;
       } /* if */
-      memcpy(set_dest->bitset, set_source->bitset,
+      /* It is possible that set_to == set_from holds. The */
+      /* behavior of memcpy() is undefined when source and */
+      /* destination areas overlap (or are identical).     */
+      /* Therefore memmove() is used instead of memcpy().  */
+      memmove(set_dest->bitset, set_source->bitset,
           (size_t) set_source_size * sizeof(bitsettype));
     } /* if */
     return(SYS_EMPTY_OBJECT);

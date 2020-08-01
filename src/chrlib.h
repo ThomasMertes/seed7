@@ -28,6 +28,7 @@
 #ifdef ANSI_C
 
 objecttype chr_chr (listtype);
+objecttype chr_clit (listtype);
 objecttype chr_cmp (listtype);
 objecttype chr_conv (listtype);
 objecttype chr_cpy (listtype);
@@ -53,6 +54,7 @@ objecttype chr_value (listtype);
 #else
 
 objecttype chr_chr ();
+objecttype chr_clit ();
 objecttype chr_cmp ();
 objecttype chr_conv ();
 objecttype chr_cpy ();

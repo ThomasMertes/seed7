@@ -31,7 +31,8 @@
 
 #ifdef ANSI_C
 
-void strAppend (stritype *const stri_to, const const_stritype stri_from);
+void strAppend (stritype *const stri_to, const_stritype stri_from);
+void strAppendTemp (stritype *const stri_to, const stritype stri_from);
 inttype strChIpos (const const_stritype main_stri, const chartype searched,
     const inttype from_index);
 inttype strChPos (const const_stritype main_stri, const chartype searched);
@@ -50,6 +51,7 @@ stritype strGetenv (const const_stritype stri);
 booltype strGt (const const_stritype stri1, const const_stritype stri2);
 inttype strHashCode (const const_stritype stri);
 stritype strHead (const const_stritype stri, const inttype stop);
+stritype strHeadTemp (const stritype stri, const inttype stop);
 inttype strIpos (const const_stritype main_stri, const const_stritype searched,
     const inttype from_index);
 booltype strLe (const const_stritype stri1, const const_stritype stri2);
@@ -84,6 +86,7 @@ stritype strUtf8ToStri (const_stritype stri8);
 #else
 
 void strAppend ();
+void strAppendTemp ();
 void strChAppend ();
 inttype strChIpos ();
 inttype strChPos ();
@@ -101,6 +104,7 @@ stritype strGetenv ();
 booltype strGt ();
 inttype strHashCode ();
 stritype strHead ();
+stritype strHeadTemp ()
 inttype strIpos ();
 booltype strLe ();
 stritype strLit ();

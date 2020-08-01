@@ -29,6 +29,8 @@
 /*                                                                  */
 /********************************************************************/
 
+extern const_cstritype cstri_escape_sequence[];
+
 #define compr_size(stri) (6 * (stri)->size)
 #define free_cstri(cstri,stri) UNALLOC_CSTRI(cstri, compr_size(stri));
 #define free_wstri(wstri,stri) free(wstri);

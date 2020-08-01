@@ -166,6 +166,7 @@ static primactrecord prim_act_table[] = {
     { "BST_EMPTY",           bst_empty,           },
 
     { "CHR_CHR",             chr_chr,             },
+    { "CHR_CLIT",            chr_clit,            },
     { "CHR_CMP",             chr_cmp,             },
     { "CHR_CONV",            chr_conv,            },
     { "CHR_CPY",             chr_cpy,             },

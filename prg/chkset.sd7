@@ -3378,6 +3378,25 @@ const proc: check_max is func
   end func;
 
 
+const proc: check_assign is func
+  local
+    var boolean: okay is TRUE;
+    var bitset: set_1 is {2, 3, 5, 7, 11, 13};
+  begin
+    set_1 := set_1;
+    if set_1 <> {2, 3, 5, 7, 11, 13} then
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("set assignment works correct.");
+    else
+      writeln(" ***** set assignment does not work correct");
+      writeln;
+    end if;
+  end func;
+
+
 const proc: main is func
 
   begin
@@ -3394,4 +3413,5 @@ const proc: main is func
     check_elem;
     check_min;
     check_max;
+    check_assign;
   end func;

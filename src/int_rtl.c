@@ -873,7 +873,7 @@ inttype number;
 #endif
 
   {
-    uinttype unsigned_number;
+    register uinttype unsigned_number;
     booltype negative;
     strelemtype buffer_1[50];
     strelemtype *buffer;

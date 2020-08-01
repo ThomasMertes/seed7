@@ -982,18 +982,17 @@ stritype stri;
       register strelemtype *str;
       memsizetype len;
       register uchartype *ustri;
-      register memsizetype buf_len;
+      register uint16type buf_len;
       uchartype buffer[BUFFER_SIZE];
 
       for (str = stri->mem, len = stri->size;
           len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
-        for (ustri = buffer, buf_len = BUFFER_SIZE;
-            buf_len > 0; str++, ustri++, buf_len--) {
+        for (ustri = buffer, buf_len = BUFFER_SIZE; buf_len > 0; buf_len--) {
           if (*str >= 256) {
             raise_error(RANGE_ERROR);
             return;
           } /* if */
-          *ustri = (uchartype) *str;
+          *ustri++ = (uchartype) *str++;
         } /* for */
         if (BUFFER_SIZE != fwrite(buffer, sizeof(uchartype), BUFFER_SIZE, aFile)) {
           raise_error(FILE_ERROR);
@@ -1001,13 +1000,12 @@ stritype stri;
         } /* if */
       } /* for */
       if (len > 0) {
-        for (ustri = buffer, buf_len = len;
-            buf_len > 0; str++, ustri++, buf_len--) {
+        for (ustri = buffer, buf_len = (uint16type) len; buf_len > 0; buf_len--) {
           if (*str >= 256) {
             raise_error(RANGE_ERROR);
             return;
           } /* if */
-          *ustri = (uchartype) *str;
+          *ustri++ = (uchartype) *str++;
         } /* for */
         if (len != fwrite(buffer, sizeof(uchartype), len, aFile)) {
           raise_error(FILE_ERROR);

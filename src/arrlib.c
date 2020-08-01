@@ -61,6 +61,7 @@ listtype arguments;
     objecttype arr_variable;
     arraytype arr_to;
     arraytype arr_from;
+    arraytype new_arr;
     memsizetype new_size;
     memsizetype arr_to_size;
     memsizetype arr_from_size;
@@ -77,30 +78,38 @@ listtype arguments;
     if (arr_from_size != 0) {
       arr_to_size = (uinttype) (arr_to->max_position - arr_to->min_position + 1);
       new_size = arr_to_size + arr_from_size;
-      arr_to = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
-      if (arr_to == NULL) {
+      new_arr = REALLOC_ARRAY(arr_to, arr_to_size, new_size);
+      if (new_arr == NULL) {
         return(raise_exception(SYS_MEM_EXCEPTION));
-      } /* if */
-      COUNT3_ARRAY(arr_to_size, new_size);
-      arr_variable->value.arrayvalue = arr_to;
-      if (TEMP_OBJECT(arg_3(arguments))) {
-        memcpy(&arr_to->arr[arr_to_size], arr_from->arr,
-            (size_t) (arr_from_size * sizeof(objectrecord)));
-        arr_to->max_position += arr_from_size;
-        FREE_ARRAY(arr_from, arr_from_size);
-        arg_3(arguments)->value.arrayvalue = NULL;
       } else {
-        if (!crea_array(&arr_to->arr[arr_to_size], arr_from->arr,
-            arr_from_size)) {
-          arr_to = REALLOC_ARRAY(arr_to, new_size, arr_to_size);
-          if (arr_to == NULL) {
-            return(raise_exception(SYS_MEM_EXCEPTION));
+        COUNT3_ARRAY(arr_to_size, new_size);
+        arr_variable->value.arrayvalue = new_arr;
+        if (TEMP_OBJECT(arg_3(arguments))) {
+          memcpy(&new_arr->arr[arr_to_size], arr_from->arr,
+              (size_t) (arr_from_size * sizeof(objectrecord)));
+          new_arr->max_position += arr_from_size;
+          FREE_ARRAY(arr_from, arr_from_size);
+          arg_3(arguments)->value.arrayvalue = NULL;
+        } else {
+          /* It is possible that arr_to == arr_from holds. In  */
+          /* this case the variable arr_from must be corrected */
+          /* when arr_to is enlarged with realloc().           */
+          if (arr_to == arr_from) {
+            arr_from = new_arr;
           } /* if */
-          COUNT3_ARRAY(new_size, arr_to_size);
-          arr_variable->value.arrayvalue = arr_to;
-          return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          if (!crea_array(&new_arr->arr[arr_to_size], arr_from->arr,
+              arr_from_size)) {
+            arr_to = REALLOC_ARRAY(new_arr, new_size, arr_to_size);
+            if (arr_to == NULL) {
+              return(raise_exception(SYS_MEM_EXCEPTION));
+            } /* if */
+            COUNT3_ARRAY(new_size, arr_to_size);
+            arr_variable->value.arrayvalue = arr_to;
+            return(raise_with_arguments(SYS_MEM_EXCEPTION, arguments));
+          } else {
+            new_arr->max_position += arr_from_size;
+          } /* if */
         } /* if */
-        arr_to->max_position += arr_from_size;
       } /* if */
     } /* if */
     /* printf("end   arr_append %lu\n", heapsize()); */
@@ -933,7 +942,7 @@ listtype arguments;
       } else {
         memcpy(result, &array_pointer[position - arr1->min_position], sizeof(objectrecord));
         SET_TEMP_FLAG(result);
-        memcpy(&array_pointer[position - arr1->min_position],
+        memmove(&array_pointer[position - arr1->min_position],
             &array_pointer[position - arr1->min_position + 1],
             (uinttype) (arr1->max_position - position) * sizeof(objectrecord));
         arr1->max_position--;

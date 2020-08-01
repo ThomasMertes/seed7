@@ -334,7 +334,11 @@ settype set_from;
       set_dest->min_position = set_from->min_position;
       set_dest->max_position = set_from->max_position;
     } /* if */
-    memcpy(set_dest->bitset, set_from->bitset,
+    /* It is possible that *set_to == set_from holds. The */
+    /* behavior of memcpy() is undefined when source and  */
+    /* destination areas overlap (or are identical).      */
+    /* Therefore memmove() is used instead of memcpy().   */
+    memmove(set_dest->bitset, set_from->bitset,
         (size_t) set_source_size * sizeof(bitsettype));
   } /* setCpy */
 

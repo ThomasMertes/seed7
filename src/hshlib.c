@@ -69,18 +69,20 @@ objecttype data_destr_func;
 #endif
 
   { /* free_helem */
-    if (old_helem != NULL) {
-      param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
-      if (CATEGORY_OF_OBJ(&old_helem->data) != FORWARDOBJECT) {
-        /* FORWARDOBJECT is used as magic category in hsh_idx */
-        param2_call(data_destr_func, &old_helem->data, SYS_DESTR_OBJECT);
-      } /* if */
+    param2_call(key_destr_func, &old_helem->key, SYS_DESTR_OBJECT);
+    if (CATEGORY_OF_OBJ(&old_helem->data) != FORWARDOBJECT) {
+      /* FORWARDOBJECT is used as magic category in hsh_idx */
+      param2_call(data_destr_func, &old_helem->data, SYS_DESTR_OBJECT);
+    } /* if */
+    if (old_helem->next_less != NULL) {
       free_helem(old_helem->next_less, key_destr_func,
           data_destr_func);
+    } /* if */
+    if (old_helem->next_greater != NULL) {
       free_helem(old_helem->next_greater, key_destr_func,
           data_destr_func);
-      FREE_RECORD(old_helem, helemrecord, count.helem);
     } /* if */
+    FREE_RECORD(old_helem, helemrecord, count.helem);
   } /* free_helem */
 
 
@@ -106,7 +108,9 @@ objecttype data_destr_func;
       number = old_hash->table_size;
       curr_helem = &old_hash->table[0];
       while (number > 0) {
-        free_helem(*curr_helem, key_destr_func, data_destr_func);
+        if (*curr_helem != NULL) {
+          free_helem(*curr_helem, key_destr_func, data_destr_func);
+        } /* if */
         number--;
         curr_helem++;
       } /* while */
@@ -183,11 +187,11 @@ errinfotype *err_info;
 
 #ifdef ANSI_C
 
-static helemtype copy_helem (helemtype source_helem,
+static helemtype create_helem (helemtype source_helem,
     objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
 #else
 
-static helemtype copy_helem (source_helem, key_create_func, data_create_func, err_info)
+static helemtype create_helem (source_helem, key_create_func, data_create_func, err_info)
 helemtype source_helem;
 objecttype key_create_func;
 objecttype data_create_func;
@@ -197,39 +201,43 @@ errinfotype *err_info;
   {
     helemtype dest_helem;
 
-  /* copy_helem */
-    if (source_helem != NULL) {
-      if (!ALLOC_RECORD(dest_helem, helemrecord, count.helem)) {
-        *err_info = MEMORY_ERROR;
-      } else {
-        dest_helem->key.descriptor.property = source_helem->key.descriptor.property;
-        INIT_CATEGORY_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
-        dest_helem->key.type_of = source_helem->key.type_of;
-        param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
-        dest_helem->data.descriptor.property = source_helem->data.descriptor.property;
-        INIT_CATEGORY_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
-        dest_helem->data.type_of = source_helem->data.type_of;
-        param3_call(data_create_func, &dest_helem->data, SYS_CREA_OBJECT, &source_helem->data);
-        dest_helem->next_less = copy_helem(source_helem->next_less,
-            key_create_func, data_create_func, err_info);
-        dest_helem->next_greater = copy_helem(source_helem->next_greater,
-            key_create_func, data_create_func, err_info);
-      } /* if */
+  /* create_helem */
+    if (!ALLOC_RECORD(dest_helem, helemrecord, count.helem)) {
+      *err_info = MEMORY_ERROR;
     } else {
-      dest_helem = NULL;
+      dest_helem->key.descriptor.property = source_helem->key.descriptor.property;
+      INIT_CATEGORY_OF_VAR(&dest_helem->key, DECLAREDOBJECT);
+      dest_helem->key.type_of = source_helem->key.type_of;
+      param3_call(key_create_func, &dest_helem->key, SYS_CREA_OBJECT, &source_helem->key);
+      dest_helem->data.descriptor.property = source_helem->data.descriptor.property;
+      INIT_CATEGORY_OF_VAR(&dest_helem->data, DECLAREDOBJECT);
+      dest_helem->data.type_of = source_helem->data.type_of;
+      param3_call(data_create_func, &dest_helem->data, SYS_CREA_OBJECT, &source_helem->data);
+      if (source_helem->next_less != NULL) {
+        dest_helem->next_less = create_helem(source_helem->next_less,
+            key_create_func, data_create_func, err_info);
+      } else {
+        dest_helem->next_less = NULL;
+      } /* if */
+      if (source_helem->next_greater != NULL) {
+        dest_helem->next_greater = create_helem(source_helem->next_greater,
+            key_create_func, data_create_func, err_info);
+      } else {
+        dest_helem->next_greater = NULL;
+      } /* if */
     } /* if */
     return(dest_helem);
-  } /* copy_helem */
+  } /* create_helem */
 
 
 
 #ifdef ANSI_C
 
-static hashtype copy_hash (hashtype source_hash,
+static hashtype create_hash (hashtype source_hash,
     objecttype key_create_func, objecttype data_create_func, errinfotype *err_info)
 #else
 
-static hashtype copy_hash (source_hash, key_create_func, data_create_func, err_info)
+static hashtype create_hash (source_hash, key_create_func, data_create_func, err_info)
 hashtype source_hash;
 objecttype key_create_func;
 objecttype data_create_func;
@@ -243,7 +251,7 @@ errinfotype *err_info;
     helemtype *dest_helem;
     hashtype dest_hash;
 
-  /* copy_hash */
+  /* create_hash */
     new_size = source_hash->table_size;
     if (!ALLOC_HASH(dest_hash, new_size)) {
       *err_info = MEMORY_ERROR;
@@ -256,14 +264,18 @@ errinfotype *err_info;
       source_helem = &source_hash->table[0];
       dest_helem = &dest_hash->table[0];
       while (number > 0 && *err_info == OKAY_NO_ERROR) {
-        *dest_helem = copy_helem(*source_helem, key_create_func, data_create_func, err_info);
+        if (*source_helem != NULL) {
+          *dest_helem = create_helem(*source_helem, key_create_func, data_create_func, err_info);
+        } else {
+          *dest_helem = NULL;
+        } /* if */
         number--;
         source_helem++;
         dest_helem++;
       } /* while */
     } /* if */
     return(dest_hash);
-  } /* copy_hash */
+  } /* create_hash */
 
 
 
@@ -804,7 +816,7 @@ listtype arguments;
       hsh_to->value.hashvalue = hsh_source;
       hsh_from->value.hashvalue = NULL;
     } else {
-      hsh_to->value.hashvalue = copy_hash(hsh_source,
+      hsh_to->value.hashvalue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         free_hash(hsh_to->value.hashvalue, key_destr_func,
@@ -854,7 +866,7 @@ listtype arguments;
       hsh_to->value.hashvalue = hsh_source;
       hsh_from->value.hashvalue = NULL;
     } else {
-      hsh_to->value.hashvalue = copy_hash(hsh_source,
+      hsh_to->value.hashvalue = create_hash(hsh_source,
           key_create_func, data_create_func, &err_info);
       if (err_info != OKAY_NO_ERROR) {
         free_hash(hsh_to->value.hashvalue, key_destr_func,

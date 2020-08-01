@@ -1,3 +1,41 @@
+20091101:
+- The interpreter (hi) and the compiler (comp.sd7) were improved such that the actions
+  STR_CPY, STR_APPEND, ARR_CPY, ARR_APPEND and SET_CPY work correctly when source and
+  destination are identical.
+- The compiler was improved to use the functions stringLiteral, bigIntegerLiteral and
+  bitsetLiteral to write occurrences of string, bigInteger and bitset literals to
+  the generated C program.
+- The functions arrHead, arrHeadTemp, arrRange, arrRangeTemp, arrTail and arrTailTemp
+  in the file "arr_rtl.c" were added or improved to avoid unnecessary copies of arrays
+  in compiled programs.
+- The functions free_helem, free_hash, create_helem, create_hash and copy_hash in the
+  files "hshlib.c" and "hsh_rtl.c" were improved to increase the speed of the actions
+  HSH_CPY and HSH_CREATE in interpreted and compiled programs.
+- The function chrCLit was added to the file "chr_rtl.c" to support the action CHR_CLIT
+  in the interpreter and in the compiler.
+- The function chkPower in the file "chkbig.sd7" was improved.
+- The function check_assign was added to the file "chkset.sd7".
+- The functions check_string_append and check_string_assign in the file "chkstr.sd7"
+  were added or improved.
+- Several improvements were done to avoid that old memory areas were accessed after
+  realloc() was called.
+- The function bigLShiftOne was added to "big_rtl.c" and "big_gmp.c" to allow faster
+  computation of powers of two in compiled and interpreted programs.
+- The functions bigIPowN, bigIPow1 and bigIPow in "big_rtl.c" were added or improved.
+- The function drwOpenSubWindow in "drw_x11.c" was changed to omit the creation of a
+  graphic context.
+- The function filWrite in "fil_rtl.c" was improved.
+- The functions strAppend, strAppendTemp, strHead and strHeadTemp in "str_rtl.c" were
+  added or improved.
+- A possible memory leak in 'while' and 'repeat' loops of compiled programs, which
+  can occur when the conditional expression produces temporary values in the heap,
+  was closed.
+- The handling of the action STR_APPEND in the compiler was improved to use strPush
+  when possible.
+- The handling of bigInteger expressions with constants in the compiler was improved.
+- The compiler was improved to support the actions CHR_CLIT, CMD_FILETYPE_SL and
+  CMD_SYMLINK.
+
 20091018:
 - The compiler (comp.sd7) was improved to support the primitive actions CMD_GET_CTIME
   and TIM_FROM_TIMESTAMP.

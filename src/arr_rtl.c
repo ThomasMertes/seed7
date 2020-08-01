@@ -354,8 +354,6 @@ inttype stop;
   {
     memsizetype length;
     memsizetype result_size;
-    memsizetype stop_idx;
-    rtlArraytype resized_arr1;
     rtlArraytype result;
 
   /* arrHead */
@@ -367,33 +365,78 @@ inttype stop;
       result_size = (uinttype) (stop - arr1->min_position + 1);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
-      } /* if */
-      result->min_position = arr1->min_position;
-      result->max_position = stop;
-      stop_idx = (uinttype) (stop - arr1->min_position);
-      memcpy(result->arr, arr1->arr,
-          (size_t) (result_size * sizeof(rtlObjecttype)));
-      memcpy(arr1->arr, &arr1->arr[stop_idx + 1],
-          (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-      if (resized_arr1 == NULL) {
-        raise_error(MEMORY_ERROR);
       } else {
-        arr1 = resized_arr1;
-        COUNT3_RTL_ARRAY(length, length - result_size);
-        arr1->max_position -= result_size;
+        result->min_position = arr1->min_position;
+        result->max_position = stop;
+        memcpy(result->arr, arr1->arr,
+            (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arr1->min_position - 1;
       } /* if */
-      result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position - 1;
     } /* if */
     return(result);
   } /* arrHead */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype arrHeadTemp (rtlArraytype *arr_temp, inttype stop)
+#else
+
+rtlArraytype arrHeadTemp (arr_temp, stop)
+rtlArraytype *arr_temp;
+inttype stop;
+#endif
+
+  {
+    rtlArraytype arr1;
+    memsizetype length;
+    memsizetype result_size;
+    rtlArraytype new_arr1;
+    rtlArraytype result;
+
+  /* arrHeadTemp */
+    arr1 = *arr_temp;
+    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
+    if (stop >= arr1->min_position && length >= 1) {
+      if (stop > arr1->max_position) {
+        stop = arr1->max_position;
+      } /* if */
+      result_size = (uinttype) (stop - arr1->min_position + 1);
+      if (!ALLOC_RTL_ARRAY(new_arr1, length - result_size)) {
+        raise_error(MEMORY_ERROR);
+        result = NULL;
+      } else {
+        new_arr1->min_position = stop + 1;
+        new_arr1->max_position = arr1->max_position;
+        memcpy(new_arr1->arr, &arr1->arr[result_size],
+            (size_t) ((length - result_size) * sizeof(rtlObjecttype)));
+        result = REALLOC_RTL_ARRAY(arr1, length, result_size);
+        if (result == NULL) {
+          FREE_RTL_ARRAY(new_arr1, length - result_size);
+          raise_error(MEMORY_ERROR);
+        } else {
+          COUNT3_RTL_ARRAY(length, result_size);
+          result->max_position = stop;
+          *arr_temp = new_arr1;
+        } /* if */
+      } /* if */
+    } else {
+      if (!ALLOC_RTL_ARRAY(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arr1->min_position - 1;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* arrHeadTemp */
 
 
 
@@ -403,20 +446,22 @@ inttype stop;
  */
 #ifdef ANSI_C
 
-rtlGenerictype arrIdxTemp (rtlArraytype arr1, inttype pos)
+rtlGenerictype arrIdxTemp (rtlArraytype *arr_temp, inttype pos)
 #else
 
-rtlGenerictype arrIdxTemp (arr1, pos)
-rtlArraytype arr1;
+rtlGenerictype arrIdxTemp (arr_temp, pos)
+rtlArraytype *arr_temp;
 inttype pos;
 #endif
 
   {
+    rtlArraytype arr1;
     memsizetype length;
     rtlArraytype resized_arr1;
     rtlGenerictype result;
 
   /* arrIdxTemp */
+    arr1 = *arr_temp;
     if (pos >= arr1->min_position && pos <= arr1->max_position) {
       length = (uinttype) (arr1->max_position - arr1->min_position + 1);
       result = arr1->arr[pos - arr1->min_position].value.genericvalue;
@@ -428,9 +473,9 @@ inttype pos;
       if (resized_arr1 == NULL) {
         raise_error(MEMORY_ERROR);
       } else {
-        arr1 = resized_arr1;
         COUNT3_RTL_ARRAY(length, length - 1);
-        arr1->max_position--;
+        resized_arr1->max_position--;
+        *arr_temp = resized_arr1;
       } /* if */
     } else {
       raise_error(RANGE_ERROR);
@@ -456,8 +501,6 @@ inttype stop;
     memsizetype length;
     memsizetype result_size;
     memsizetype start_idx;
-    memsizetype stop_idx;
-    rtlArraytype resized_arr1;
     rtlArraytype result;
 
   /* arrRange */
@@ -473,34 +516,92 @@ inttype stop;
       result_size = (uinttype) (stop - start + 1);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
-      } /* if */
-      result->min_position = arr1->min_position;
-      result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-      start_idx = (uinttype) (start - arr1->min_position);
-      stop_idx = (uinttype) (stop - arr1->min_position);
-      memcpy(result->arr, &arr1->arr[start_idx],
-          (size_t) (result_size * sizeof(rtlObjecttype)));
-      memcpy(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
-          (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-      if (resized_arr1 == NULL) {
-        raise_error(MEMORY_ERROR);
       } else {
-        arr1 = resized_arr1;
-        COUNT3_RTL_ARRAY(length, length - result_size);
-        arr1->max_position -= result_size;
+        result->min_position = arr1->min_position;
+        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+        start_idx = (uinttype) (start - arr1->min_position);
+        memcpy(result->arr, &arr1->arr[start_idx],
+            (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arr1->min_position - 1;
       } /* if */
-      result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position - 1;
     } /* if */
     return(result);
   } /* arrRange */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype arrRangeTemp (rtlArraytype *arr_temp, inttype start, inttype stop)
+#else
+
+rtlArraytype arrRangeTemp (arr_temp, start, stop)
+rtlArraytype *arr_temp;
+inttype start;
+inttype stop;
+#endif
+
+  {
+    rtlArraytype arr1;
+    memsizetype length;
+    memsizetype result_size;
+    memsizetype start_idx;
+    memsizetype stop_idx;
+    rtlArraytype resized_arr1;
+    rtlArraytype result;
+
+  /* arrRangeTemp */
+    arr1 = *arr_temp;
+    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
+    if (stop >= start && start <= arr1->max_position &&
+        stop >= arr1->min_position && length >= 1) {
+      if (start < arr1->min_position) {
+        start = arr1->min_position;
+      } /* if */
+      if (stop > arr1->max_position) {
+        stop = arr1->max_position;
+      } /* if */
+      result_size = (uinttype) (stop - start + 1);
+      if (!ALLOC_RTL_ARRAY(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+        start_idx = (uinttype) (start - arr1->min_position);
+        stop_idx = (uinttype) (stop - arr1->min_position);
+        memcpy(result->arr, &arr1->arr[start_idx],
+            (size_t) (result_size * sizeof(rtlObjecttype)));
+        memmove(&arr1->arr[start_idx], &arr1->arr[stop_idx + 1],
+            (size_t) ((length - stop_idx - 1) * sizeof(rtlObjecttype)));
+        resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+        if (resized_arr1 == NULL) {
+          memcpy(&arr1->arr[length - result_size], result->arr,
+              (size_t) (result_size * sizeof(rtlObjecttype)));
+          FREE_RTL_ARRAY(result, result_size);
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          COUNT3_RTL_ARRAY(length, length - result_size);
+          resized_arr1->max_position -= result_size;
+          *arr_temp = resized_arr1;
+        } /* if */
+      } /* if */
+    } else {
+      if (!ALLOC_RTL_ARRAY(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arr1->min_position - 1;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* arrRangeTemp */
 
 
 
@@ -526,7 +627,7 @@ inttype position;
     if (position >= arr1->min_position && position <= arr1->max_position) {
       array_pointer = arr1->arr;
       result = array_pointer[position - arr1->min_position].value.genericvalue;
-      memcpy(&array_pointer[position - arr1->min_position],
+      memmove(&array_pointer[position - arr1->min_position],
           &array_pointer[position - arr1->min_position + 1],
           (uinttype) (arr1->max_position - position) * sizeof(rtlObjecttype));
       arr1->max_position--;
@@ -581,7 +682,6 @@ inttype start;
     memsizetype length;
     memsizetype result_size;
     memsizetype start_idx;
-    rtlArraytype resized_arr1;
     rtlArraytype result;
 
   /* arrTail */
@@ -593,28 +693,78 @@ inttype start;
       result_size = (uinttype) (arr1->max_position - start + 1);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
-      } /* if */
-      result->min_position = arr1->min_position;
-      result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
-      start_idx = (uinttype) (start - arr1->min_position);
-      memcpy(result->arr, &arr1->arr[start_idx],
-          (size_t) (result_size * sizeof(rtlObjecttype)));
-      resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
-      if (resized_arr1 == NULL) {
-        raise_error(MEMORY_ERROR);
       } else {
-        arr1 = resized_arr1;
-        COUNT3_RTL_ARRAY(length, length - result_size);
-        arr1->max_position -= result_size;
+        result->min_position = arr1->min_position;
+        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+        start_idx = (uinttype) (start - arr1->min_position);
+        memcpy(result->arr, &arr1->arr[start_idx],
+            (size_t) (result_size * sizeof(rtlObjecttype)));
       } /* if */
     } else {
       if (!ALLOC_RTL_ARRAY(result, 0)) {
         raise_error(MEMORY_ERROR);
-        return(NULL);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arr1->min_position - 1;
       } /* if */
-      result->min_position = arr1->min_position;
-      result->max_position = arr1->min_position - 1;
     } /* if */
     return(result);
   } /* arrTail */
+
+
+
+#ifdef ANSI_C
+
+rtlArraytype arrTailTemp (rtlArraytype *arr_temp, inttype start)
+#else
+
+rtlArraytype arrTailTemp (arr_temp, start)
+rtlArraytype *arr_temp;
+inttype start;
+#endif
+
+  {
+    rtlArraytype arr1;
+    memsizetype length;
+    memsizetype result_size;
+    memsizetype start_idx;
+    rtlArraytype resized_arr1;
+    rtlArraytype result;
+
+  /* arrTailTemp */
+    arr1 = *arr_temp;
+    length = (uinttype) (arr1->max_position - arr1->min_position + 1);
+    if (start <= arr1->max_position && length >= 1) {
+      if (start < arr1->min_position) {
+        start = arr1->min_position;
+      } /* if */
+      result_size = (uinttype) (arr1->max_position - start + 1);
+      if (!ALLOC_RTL_ARRAY(result, result_size)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = (inttype) ((memsizetype) arr1->min_position + result_size - 1);
+        start_idx = (uinttype) (start - arr1->min_position);
+        memcpy(result->arr, &arr1->arr[start_idx],
+            (size_t) (result_size * sizeof(rtlObjecttype)));
+        resized_arr1 = REALLOC_RTL_ARRAY(arr1, length, length - result_size);
+        if (resized_arr1 == NULL) {
+          FREE_RTL_ARRAY(result, result_size);
+          raise_error(MEMORY_ERROR);
+          result = NULL;
+        } else {
+          COUNT3_RTL_ARRAY(length, length - result_size);
+          resized_arr1->max_position = start - 1;
+          *arr_temp = resized_arr1;
+        } /* if */
+      } /* if */
+    } else {
+      if (!ALLOC_RTL_ARRAY(result, 0)) {
+        raise_error(MEMORY_ERROR);
+      } else {
+        result->min_position = arr1->min_position;
+        result->max_position = arr1->min_position - 1;
+      } /* if */
+    } /* if */
+    return(result);
+  } /* arrTailTemp */

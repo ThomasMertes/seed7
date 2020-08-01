@@ -4792,8 +4792,6 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
   begin
     if endOfStatement(symbol) then
       writeln(win);
-      flush(win);
-      writeln(log);
     else
       repeat
         if isStringExpr(symbol) then
@@ -4871,8 +4869,6 @@ const proc: exec_print (inout file: outFile,
   begin
     if endOfStatement(symbol) then
       writeln(outFile);
-      flush(outFile);
-      writeln(log);
     else
       repeat
         if isStringExpr(symbol) then
@@ -5391,6 +5387,7 @@ const func file: basicOpen (in var string: filePath, in string: access) is func
     var boolean: path_okay is TRUE;
     var string: path is "";
   begin
+    # writeln("basicOpen(\"" <& filePath <& "\")");
     if filePath <> "" then
       filePath := replace(filePath, "\\", "/");
       pathElems := split(filePath, '/');
@@ -8699,10 +8696,12 @@ const proc: main is func
             readln(KEYBOARD);
           end if;
         else
-          write(" ***** FILE ");
+          write(" ***** File ");
           write(literal(arg_v[argumentIndex]));
-          writeln(" NOT FOUND.");
+          writeln(" not found.");
         end if;
+      else
+        writeln(" ***** File name missing");
       end if;
     else
       writeln("usage: bas7 [options] basic_program");
