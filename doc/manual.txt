@@ -3643,6 +3643,10 @@ CONTENTS
                   ( succ(A) => enumType conv(succ(ord(A))) )
       pred(A)   Predecessor
                   ( pred(A) => enumType conv(pred(ord(A))) )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       incr(A)   Increment
                   ( incr(A) => A:=succ(A) )
@@ -3964,6 +3968,10 @@ CONTENTS
                   ( Type of result: boolean )
       eof(A)    End of file
                   ( Type of result: boolean )
+      compare(A, B) Compare function
+                  ( Type of result: integer )
+      hashCode(A) Hash function
+                  ( Type of result: integer )
     Statements:
       write(A, B) Write string B to file A
                   ( Type of argument B: string )

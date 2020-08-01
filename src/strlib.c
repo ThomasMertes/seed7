@@ -667,6 +667,7 @@ listtype arguments;
       FREE_STRI(old_string, old_string->size);
       arg_1(arguments)->value.strivalue = NULL;
     } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* str_destr */
 

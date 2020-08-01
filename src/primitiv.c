@@ -141,6 +141,7 @@ static primactrecord prim_act_table[] = {
     { "BIG_ODD",                 big_odd,                 },
     { "BIG_ORD",                 big_ord,                 },
     { "BIG_PARSE",               big_parse,               },
+    { "BIG_PARSE_BASED",         big_parse_based,         },
     { "BIG_PLUS",                big_plus,                },
     { "BIG_PRED",                big_pred,                },
     { "BIG_RAND",                big_rand,                },
@@ -434,6 +435,8 @@ static primactrecord prim_act_table[] = {
     { "FLT_TRUNC",               flt_trunc,               },
     { "FLT_VALUE",               flt_value,               },
 #endif
+
+    { "GEN_DESTR",               gen_destr,               },
 
 #ifdef WITH_DRAW
     { "GKB_BUSY_GETC",           gkb_busy_getc,           },

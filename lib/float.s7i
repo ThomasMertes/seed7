@@ -37,7 +37,7 @@ const type: float is          subtype object;
 
 $ system "float" is float;
 
-const proc: destroy (ref float param)                          is noop;
+const proc: destroy (ref float param)                          is action "GEN_DESTR";
 const proc: (ref float param) ::= (ref float param)            is action "FLT_CREATE";
 IN_PARAM_IS_VALUE(float);
 
@@ -442,12 +442,16 @@ const func float: max (in float: value1, in float: value2) is func
   result
     var float: maximum is 0.0;
   begin
-    if value1 < value2 then
+    if value1 > value2 then
       maximum := value1;
     else
       maximum := value2;
     end if;
   end func;
+
+
+# Allows 'array float' everywhere without extra type definition.
+const type: _floatArray is array float;
 
 
 enable_io(float);

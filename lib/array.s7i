@@ -306,6 +306,38 @@ const func type: array (in type: baseType) is func
 
       if getobj(compare(in baseType: element1, in baseType: element2)) <> NIL then
 
+        const func integer: compare (in arrayType: arr1, in arrayType: arr2) is func
+          result
+            var integer: signumValue is 0;
+          local
+            var integer: idx1 is 0;
+            var integer: idx2 is 0;
+          begin
+            idx1 := minIdx(arr1);
+            idx2 := minIdx(arr2);
+            while idx1 <= maxIdx(arr1) and idx2 <= maxIdx(arr2) and compare(arr1[idx1], arr2[idx2]) = 0 do
+              incr(idx1);
+              incr(idx2);
+            end while;
+            if idx1 <= maxIdx(arr1) and idx2 <= maxIdx(arr2) then
+              signumValue := compare(arr1[idx1], arr2[idx2]);
+            else
+              signumValue := compare(length(arr1), length(arr2));
+            end if;
+          end func;
+
+        const func boolean: (in arrayType: arr1) < (in arrayType: arr2) is
+          return compare(arr1, arr2) < 0;
+
+        const func boolean: (in arrayType: arr1) > (in arrayType: arr2) is
+          return compare(arr1, arr2) > 0;
+
+        const func boolean: (in arrayType: arr1) <= (in arrayType: arr2) is
+          return compare(arr1, arr2) <= 0;
+
+        const func boolean: (in arrayType: arr1) >= (in arrayType: arr2) is
+          return compare(arr1, arr2) >= 0;
+
         const reference: (attr arrayType) . dataCompare  is getobj(compare(in baseType: element1, in baseType: element2));
 
         const func arrayType: SORT (in arrayType: arr, in reference: dataCompare) is   action "ARR_SORT";

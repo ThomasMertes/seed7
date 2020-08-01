@@ -35,7 +35,7 @@ const type: boolean is subtype ENUMERATION;
 IN_PARAM_IS_VALUE(boolean);
 
 const proc: (ref boolean param) ::= (in boolean param)     is action "BLN_CREATE";
-const proc: destroy (ref boolean param)                    is noop;
+const proc: destroy (ref boolean param)                    is action "GEN_DESTR";
 const proc: (inout boolean: dest) := (in boolean: source)  is action "BLN_CPY";
 
 

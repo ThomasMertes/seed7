@@ -76,42 +76,42 @@
     )
 #elif INTTYPE_SIZE == 64
 #define DECIMAL_DIGITS(num) \
-    (num < INT_SUFFIX(10000000000000000) ?                 \
-      (num < INT_SUFFIX(100000000) ?                       \
-        (num < INT_SUFFIX(10000) ?                         \
-          (num < INT_SUFFIX(100) ?                         \
-            (num < INT_SUFFIX(10) ? 1 : 2)                 \
-          :                                                \
-            (num < INT_SUFFIX(1000) ? 3 : 4)               \
-          )                                                \
-        :                                                  \
-          (num < INT_SUFFIX(1000000) ?                     \
-            (num < INT_SUFFIX(100000) ? 5 : 6)             \
-          :                                                \
-            (num < INT_SUFFIX(10000000) ? 7 : 8)           \
-          )                                                \
-        )                                                  \
-      :                                                    \
-        (num < INT_SUFFIX(1000000000000) ?                 \
-          (num < INT_SUFFIX(10000000000) ?                 \
-            (num < INT_SUFFIX(1000000000) ? 9 : 10)        \
-          :                                                \
-            (num < INT_SUFFIX(100000000000) ? 11 : 12)     \
-          )                                                \
-        :                                                  \
-          (num < INT_SUFFIX(100000000000000) ?             \
-            (num < INT_SUFFIX(10000000000000) ? 13 : 14)   \
-          :                                                \
-            (num < INT_SUFFIX(1000000000000000) ? 15 : 16) \
-          )                                                \
-        )                                                  \
-      )                                                    \
-    :                                                      \
-      (num < INT_SUFFIX(1000000000000000000) ?             \
-        (num < INT_SUFFIX(100000000000000000) ? 17 : 18)   \
-      :                                                    \
-        (num < INT_SUFFIX(10000000000000000000) ? 19 : 20) \
-      )                                                    \
+    (num < INT_SUFFIX(10000000000000000) ?                  \
+      (num < INT_SUFFIX(100000000) ?                        \
+        (num < INT_SUFFIX(10000) ?                          \
+          (num < INT_SUFFIX(100) ?                          \
+            (num < INT_SUFFIX(10) ? 1 : 2)                  \
+          :                                                 \
+            (num < INT_SUFFIX(1000) ? 3 : 4)                \
+          )                                                 \
+        :                                                   \
+          (num < INT_SUFFIX(1000000) ?                      \
+            (num < INT_SUFFIX(100000) ? 5 : 6)              \
+          :                                                 \
+            (num < INT_SUFFIX(10000000) ? 7 : 8)            \
+          )                                                 \
+        )                                                   \
+      :                                                     \
+        (num < INT_SUFFIX(1000000000000) ?                  \
+          (num < INT_SUFFIX(10000000000) ?                  \
+            (num < INT_SUFFIX(1000000000) ? 9 : 10)         \
+          :                                                 \
+            (num < INT_SUFFIX(100000000000) ? 11 : 12)      \
+          )                                                 \
+        :                                                   \
+          (num < INT_SUFFIX(100000000000000) ?              \
+            (num < INT_SUFFIX(10000000000000) ? 13 : 14)    \
+          :                                                 \
+            (num < INT_SUFFIX(1000000000000000) ? 15 : 16)  \
+          )                                                 \
+        )                                                   \
+      )                                                     \
+    :                                                       \
+      (num < INT_SUFFIX(1000000000000000000) ?              \
+        (num < INT_SUFFIX(100000000000000000) ? 17 : 18)    \
+      :                                                     \
+        (num < INT_SUFFIX(10000000000000000000U) ? 19 : 20) \
+      )                                                     \
     )
 #endif
 

@@ -49,7 +49,7 @@ const func bigRational: compute_pi_machin is func
     end for;
   end func;
 
- const proc: main is func
-   begin
-     writeln(compute_pi_machin digits 1000);
-   end func;
+const proc: main is func
+  begin
+    writeln(compute_pi_machin digits 1000);
+  end func;

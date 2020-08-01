@@ -2501,6 +2501,7 @@ settype mode;
 
   {
     os_stritype os_path;
+    inttype inttype_mode;
     int int_mode;
     int chmod_result;
     int path_info;
@@ -2514,26 +2515,32 @@ settype mode;
 #endif
     os_path = cp_to_os_path(file_name, &path_info, &err_info);
     if (likely(err_info == OKAY_NO_ERROR)) {
-      int_mode = setSConv(mode);
-      /* printf("cmdSetFileMode: mode=0%o\n", int_mode); */
+      inttype_mode = setSConv(mode);
+      if (inttype_mode >= 0 && inttype_mode <= 0777) {
+        /* Just the read, write and execute permissions are accepted */
+        int_mode = (int) inttype_mode;
+        /* printf("cmdSetFileMode: mode=0%o\n", int_mode); */
 #if MODE_BITS_NORMAL
-      chmod_result = os_chmod(os_path, int_mode);
+        chmod_result = os_chmod(os_path, int_mode);
 #else
-      /* Force the bits to the standard sequence */
-      chmod_result = os_chmod(os_path,
-          (int_mode & 0400 ? S_IRUSR : 0) |
-          (int_mode & 0200 ? S_IWUSR : 0) |
-          (int_mode & 0100 ? S_IXUSR : 0) |
-          (int_mode & 0040 ? S_IRGRP : 0) |
-          (int_mode & 0020 ? S_IWGRP : 0) |
-          (int_mode & 0010 ? S_IXGRP : 0) |
-          (int_mode & 0004 ? S_IROTH : 0) |
-          (int_mode & 0002 ? S_IWOTH : 0) |
-          (int_mode & 0001 ? S_IXOTH : 0));
+        /* Force the bits to the standard sequence */
+        chmod_result = os_chmod(os_path,
+            (int_mode & 0400 ? S_IRUSR : 0) |
+            (int_mode & 0200 ? S_IWUSR : 0) |
+            (int_mode & 0100 ? S_IXUSR : 0) |
+            (int_mode & 0040 ? S_IRGRP : 0) |
+            (int_mode & 0020 ? S_IWGRP : 0) |
+            (int_mode & 0010 ? S_IXGRP : 0) |
+            (int_mode & 0004 ? S_IROTH : 0) |
+            (int_mode & 0002 ? S_IWOTH : 0) |
+            (int_mode & 0001 ? S_IXOTH : 0));
 #endif
-      if (chmod_result != 0) {
-        /* printf("\nerrno=%d %s\n", errno, strerror(errno)); */
-        err_info = FILE_ERROR;
+        if (chmod_result != 0) {
+          /* printf("\nerrno=%d %s\n", errno, strerror(errno)); */
+          err_info = FILE_ERROR;
+        } /* if */
+      } else {
+        err_info = RANGE_ERROR;
       } /* if */
       os_stri_free(os_path);
     } /* if */

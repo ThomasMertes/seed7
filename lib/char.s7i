@@ -36,7 +36,7 @@ const type: char           is subtype DISCRETE;
 $ system "char" is char;
 IN_PARAM_IS_VALUE(char);
 
-const proc: destroy (ref char param)        is noop;
+const proc: destroy (ref char param)                          is action "GEN_DESTR";
 
 const proc: (ref char param) ::= (in char param)              is action "CHR_CREATE";
 

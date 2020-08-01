@@ -316,6 +316,7 @@ listtype arguments;
       FREE_BSTRI(old_bstring, old_bstring->size);
       arg_1(arguments)->value.bstrivalue = NULL;
     } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* bst_destr */
 

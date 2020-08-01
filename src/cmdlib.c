@@ -70,7 +70,7 @@ char *strg2;
 #endif
 
   { /* cmp_mem */
-    return strCompare(
+    return (int) strCompare(
         ((const_objecttype) strg1)->value.strivalue,
         ((const_objecttype) strg2)->value.strivalue);
   } /* cmp_mem */

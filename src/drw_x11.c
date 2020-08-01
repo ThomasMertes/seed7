@@ -66,7 +66,8 @@
 
 Display *mydisplay = NULL;
 Atom wm_delete_window;
-unsigned long myforeground, mybackground;
+unsigned long myforeground;
+unsigned long mybackground;
 GC mygc;
 XSizeHints myhint;
 XWMHints mywmhint;
@@ -525,12 +526,12 @@ floattype startAngle, sweepAngle;
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
     } /* if */
@@ -559,16 +560,16 @@ inttype col;
     printf("drwPArc(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
         actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
     } /* if */
@@ -600,20 +601,20 @@ floattype startAngle, sweepAngle;
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
     } /* if */
@@ -642,25 +643,25 @@ inttype col;
     printf("drwPFArcChord(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
         actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
     XSetArcMode(mydisplay, mygc, ArcChord);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
     } /* if */
@@ -692,20 +693,20 @@ floattype startAngle, sweepAngle;
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
     } /* if */
@@ -734,25 +735,25 @@ inttype col;
     printf("drwPFArcPieSlice(%lu, %ld, %ld, %ld, %.4f, %.4f)\n",
         actual_window, x, y, radius, startAngle, sweepAngle);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
     XSetArcMode(mydisplay, mygc, ArcPieSlice);
     startAng = (int) (startAngle * (23040.0 / (2 * PI)));
     sweepAng = (int) (sweepAngle * (23040.0 / (2 * PI)));
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     XFillArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius),
         startAng, sweepAng);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius),
           startAng, sweepAng);
     } /* if */
@@ -774,7 +775,7 @@ inttype x1, y1, x2, y2, radius;
   { /* drwArc2 */
 /*  printf("drwArc2(%d, %d, %d, %d)\n", x1, y1, radius); */
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x1 - radius, y1 - radius,
+        castToInt(x1 - radius), castToInt(y1 - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
   } /* drwArc2 */
@@ -797,11 +798,11 @@ inttype x, y, radius;
     printf("drwCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
 #endif
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     } /* if */
   } /* drwCircle */
@@ -824,13 +825,13 @@ inttype col;
 #ifdef TRACE_X11
     printf("drwPCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     } /* if */
   } /* drwPCircle */
@@ -852,7 +853,7 @@ inttype col;
     printf("drwClear(%lu, %08lx)\n", actual_window, col);
 #endif
     to_var_clear_col(actual_window) = col;
-    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
     /* The main window is cleared with the real window size. */
     XFillRectangle(mydisplay, to_window(actual_window), mygc, 0, 0,
         (unsigned int) drwWidth(actual_window), (unsigned int) drwHeight(actual_window));
@@ -888,25 +889,32 @@ inttype dest_y;
     printf("drwCopyArea(%lu, %lu, %lu, %ld, %ld, %ld, %ld, %ld)\n",
         src_window, dest_window, src_x, src_y, width, height, dest_x, dest_y);
 #endif
-    if (width < 1 || height < 1) {
+    if (!inIntRange(src_x) || !inIntRange(src_y) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        !inIntRange(dest_x) || !inIntRange(dest_y) ||
+        width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
     } else if (to_backup(src_window) != 0) {
       XCopyArea(mydisplay, to_backup(src_window), to_window(dest_window),
-          mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
-          dest_x, dest_y);
+                mygc, (int) src_x, (int) src_y,
+                (unsigned int) width, (unsigned int) height,
+                (int) dest_x, (int) dest_y);
       if (to_backup(dest_window) != 0) {
         XCopyArea(mydisplay, to_backup(src_window), to_backup(dest_window),
-            mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
-            dest_x, dest_y);
+                  mygc, (int) src_x, (int) src_y,
+                  (unsigned int) width, (unsigned int) height,
+                  (int) dest_x, (int) dest_y);
       } /* if */
     } else {
       XCopyArea(mydisplay, to_window(src_window), to_window(dest_window),
-          mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
-          dest_x, dest_y);
+                mygc, (int) src_x, (int) src_y,
+                (unsigned int) width, (unsigned int) height,
+                (int) dest_x, (int) dest_y);
       if (to_backup(dest_window) != 0) {
         XCopyArea(mydisplay, to_window(src_window), to_backup(dest_window),
-            mygc, src_x, src_y, (unsigned int) width, (unsigned int) height,
-            dest_x, dest_y);
+                  mygc, (int) src_x, (int) src_y,
+                  (unsigned int) width, (unsigned int) height,
+                  (int) dest_x, (int) dest_y);
       } /* if */
     } /* if */
   } /* drwCopyArea */
@@ -929,17 +937,17 @@ inttype x, y, radius;
     printf("drwFCircle(%lu, %ld, %ld, %ld)\n", actual_window, x, y, radius);
 #endif
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     XFillArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     } /* if */
   } /* drwFCircle */
@@ -963,19 +971,19 @@ inttype col;
     printf("drwPFCircle(%lu, %ld, %ld, %ld, %08lx)\n",
         actual_window, x, y, radius, col);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
     XDrawArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     XFillArc(mydisplay, to_window(actual_window), mygc,
-        x - radius, y - radius,
+        castToInt(x - radius), castToInt(y - radius),
         (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     if (to_backup(actual_window) != 0) {
       XDrawArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
       XFillArc(mydisplay, to_backup(actual_window), mygc,
-          x - radius, y - radius,
+          castToInt(x - radius), castToInt(y - radius),
           (unsigned) (2 * radius), (unsigned) (2 * radius), 0, 23040);
     } /* if */
   } /* drwPFCircle */
@@ -1001,14 +1009,14 @@ inttype x, y, width, height;
       raise_error(RANGE_ERROR);
     } else {
       XDrawArc(mydisplay, to_window(actual_window), mygc,
-          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
       XFillArc(mydisplay, to_window(actual_window), mygc,
-          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
       if (to_backup(actual_window) != 0) {
         XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
         XFillArc(mydisplay, to_backup(actual_window), mygc,
-            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
       } /* if */
     } /* if */
   } /* drwFEllipse */
@@ -1034,16 +1042,16 @@ inttype col;
     if (width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
     } else {
-      XSetForeground(mydisplay, mygc, (unsigned) col);
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawArc(mydisplay, to_window(actual_window), mygc,
-          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
       XFillArc(mydisplay, to_window(actual_window), mygc,
-          x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+          castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
       if (to_backup(actual_window) != 0) {
         XDrawArc(mydisplay, to_backup(actual_window), mygc,
-            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
         XFillArc(mydisplay, to_backup(actual_window), mygc,
-            x, y, (unsigned int) width, (unsigned int) height, 0, 23040);
+            castToInt(x), castToInt(y),(unsigned int) width, (unsigned int) height, 0, 23040);
       } /* if */
     } /* if */
   } /* drwPFEllipse */
@@ -1113,11 +1121,11 @@ inttype height;
       result->height = (unsigned int) height;
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_backup(actual_window),
-            result->window, mygc, left, upper,
+            result->window, mygc, castToInt(left), castToInt(upper),
             (unsigned int) width, (unsigned int) height, 0, 0);
       } else {
         XCopyArea(mydisplay, to_window(actual_window),
-            result->window, mygc, left, upper,
+            result->window, mygc, castToInt(left), castToInt(upper),
             (unsigned int) width, (unsigned int) height, 0, 0);
       } /* if */
       /* printf("XCopyArea(%ld, %ld, %ld, %ld)\n", left, upper, width, height); */
@@ -1147,10 +1155,12 @@ inttype y;
     printf("drwGetPixel(%lu, %ld, %ld)\n", actual_window, x, y);
 #endif
     if (to_backup(actual_window) != 0) {
-      image = XGetImage(mydisplay, to_backup(actual_window), x, y, 1, 1,
+      image = XGetImage(mydisplay, to_backup(actual_window),
+                        castToInt(x), castToInt(y), 1, 1,
                         (unsigned long) -1, ZPixmap);
     } else {
-      image = XGetImage(mydisplay, to_window(actual_window), x, y, 1, 1,
+      image = XGetImage(mydisplay, to_window(actual_window),
+                        castToInt(x), castToInt(y), 1, 1,
                         (unsigned long) -1, ZPixmap);
     } /* if */
     pixel = (inttype) XGetPixel(image, 0, 0);
@@ -1266,9 +1276,11 @@ inttype x1, y1, x2, y2;
 #ifdef TRACE_X11
     printf("drwLine(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x1, y1, x2, y2);
 #endif
-    XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
+    XDrawLine(mydisplay, to_window(actual_window), mygc,
+              castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
     if (to_backup(actual_window) != 0) {
-      XDrawLine(mydisplay, to_backup(actual_window), mygc, x1, y1, x2, y2);
+      XDrawLine(mydisplay, to_backup(actual_window), mygc,
+                castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
     } /* if */
   } /* drwLine */
 
@@ -1290,10 +1302,12 @@ inttype col;
 #ifdef TRACE_X11
     printf("drwPLine(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x1, y1, x2, y2, col);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
-    XDrawLine(mydisplay, to_window(actual_window), mygc, x1, y1, x2, y2);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
+    XDrawLine(mydisplay, to_window(actual_window), mygc,
+              castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
     if (to_backup(actual_window) != 0) {
-      XDrawLine(mydisplay, to_backup(actual_window), mygc, x1, y1, x2, y2);
+      XDrawLine(mydisplay, to_backup(actual_window), mygc,
+                castToInt(x1), castToInt(y1), castToInt(x2), castToInt(y2));
     } /* if */
   } /* drwPLine */
 
@@ -1414,7 +1428,9 @@ stritype window_name;
         xPos, yPos, width, height);
 #endif
     result = NULL;
-    if (width < 1 || height < 1) {
+    if (!inIntRange(xPos) || !inIntRange(yPos) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
     } else {
       if (mydisplay == NULL) {
@@ -1431,10 +1447,10 @@ stritype window_name;
             memset(result, 0, sizeof(struct x11_winstruct));
             result->usage_count = 1;
 
-            myhint.x = xPos;
-            myhint.y = yPos;
-            myhint.width = width;
-            myhint.height = height;
+            myhint.x = (int) xPos;
+            myhint.y = (int) yPos;
+            myhint.width = (int) width;
+            myhint.height = (int) height;
             myhint.flags = PPosition | PSize;
             mywmhint.flags = InputHint;
             mywmhint.input = True;
@@ -1540,7 +1556,9 @@ inttype height;
         xPos, yPos, width, height);
 #endif
     result = NULL;
-    if (width < 1 || height < 1) {
+    if (!inIntRange(xPos) || !inIntRange(yPos) ||
+        !inIntRange(width) || !inIntRange(height) ||
+        width < 1 || height < 1) {
       raise_error(RANGE_ERROR);
     } else {
       if (mydisplay == NULL) {
@@ -1553,17 +1571,17 @@ inttype height;
           memset(result, 0, sizeof(struct x11_winstruct));
           result->usage_count = 1;
 
-          myhint.x = xPos;
-          myhint.y = yPos;
-          myhint.width = width;
-          myhint.height = height;
+          myhint.x = (int) xPos;
+          myhint.y = (int) yPos;
+          myhint.width = (int) width;
+          myhint.height = (int) height;
           myhint.flags = PPosition | PSize;
           mywmhint.flags = InputHint;
           mywmhint.input = True;
 
           result->window = XCreateSimpleWindow(mydisplay,
               to_window(parent_window),
-              xPos, yPos, (unsigned) width, (unsigned) height,
+              (int) xPos, (int) yPos, (unsigned) width, (unsigned) height,
               0, myforeground, mybackground);
           enter_window((wintype) result, result->window);
 
@@ -1645,9 +1663,9 @@ inttype x, y;
 #ifdef TRACE_X11
     printf("drwPoint(%lu, %ld, %ld)\n", actual_window, x, y);
 #endif
-    XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
+    XDrawPoint(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y));
     if (to_backup(actual_window) != 0) {
-      XDrawPoint(mydisplay, to_backup(actual_window), mygc, x, y);
+      XDrawPoint(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y));
     } /* if */
   } /* drwPoint */
 
@@ -1668,10 +1686,10 @@ inttype col;
 #ifdef TRACE_X11
     printf("drwPPoint(%lu, %ld, %ld, %08lx)\n", actual_window, x, y, col);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
-    XDrawPoint(mydisplay, to_window(actual_window), mygc, x, y);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
+    XDrawPoint(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y));
     if (to_backup(actual_window) != 0) {
-      XDrawPoint(mydisplay, to_backup(actual_window), mygc, x, y);
+      XDrawPoint(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y));
     } /* if */
   } /* drwPPoint */
 
@@ -1812,9 +1830,9 @@ inttype col;
       points = (XPoint *) point_list->mem;
       npoints = (int) (point_list->size / sizeof(XPoint));
       memcpy(&startBackup, &points[0], sizeof(XPoint));
-      points[0].x += (short) x;
-      points[0].y += (short) y;
-      XSetForeground(mydisplay, mygc, (unsigned) col);
+      points[0].x += castToShort(x);
+      points[0].y += castToShort(y);
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
       if (to_backup(actual_window) != 0) {
         XDrawLines(mydisplay, to_backup(actual_window), mygc, points, npoints, CoordModePrevious);
@@ -1850,9 +1868,9 @@ inttype col;
       points = (XPoint *) point_list->mem;
       npoints = (int) (point_list->size / sizeof(XPoint));
       memcpy(&startBackup, &points[0], sizeof(XPoint));
-      points[0].x += (short) x;
-      points[0].y += (short) y;
-      XSetForeground(mydisplay, mygc, (unsigned) col);
+      points[0].x += castToShort(x);
+      points[0].y += castToShort(y);
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
       XDrawLines(mydisplay, to_window(actual_window), mygc, points, npoints, CoordModePrevious);
       XFillPolygon(mydisplay, to_window(actual_window), mygc, points, npoints,
           Nonconvex, CoordModePrevious);
@@ -1891,13 +1909,13 @@ inttype y;
     if (pixmap != NULL) {
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, to_clip_mask(pixmap));
-        XSetClipOrigin(mydisplay, mygc, x, y);
+        XSetClipOrigin(mydisplay, mygc, castToInt(x), castToInt(y));
       } /* if */
       XCopyArea(mydisplay, to_window(pixmap), to_window(actual_window),
-          mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
+          mygc, 0, 0, to_width(pixmap), to_height(pixmap), castToInt(x), castToInt(y));
       if (to_backup(actual_window) != 0) {
         XCopyArea(mydisplay, to_window(pixmap), to_backup(actual_window),
-            mygc, 0, 0, to_width(pixmap), to_height(pixmap), x, y);
+            mygc, 0, 0, to_width(pixmap), to_height(pixmap), castToInt(x), castToInt(y));
       } /* if */
       if (to_clip_mask(pixmap) != 0) {
         XSetClipMask(mydisplay, mygc, None);
@@ -1922,10 +1940,10 @@ inttype x, y, width, height;
 #ifdef TRACE_X11
     printf("drwRect(%lu, %ld, %ld, %ld, %ld)\n", actual_window, x, y, width, height);
 #endif
-    XFillRectangle(mydisplay, to_window(actual_window), mygc, x, y,
+    XFillRectangle(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y),
         (unsigned) width, (unsigned) height);
     if (to_backup(actual_window) != 0) {
-      XFillRectangle(mydisplay, to_backup(actual_window), mygc, x, y,
+      XFillRectangle(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y),
           (unsigned) width, (unsigned) height);
     } /* if */
   } /* drwRect */
@@ -1948,11 +1966,11 @@ inttype col;
 #ifdef TRACE_X11
     printf("drwPRect(%lu, %ld, %ld, %ld, %ld, %08lx)\n", actual_window, x, y, width, height, col);
 #endif
-    XSetForeground(mydisplay, mygc, (unsigned) col);
-    XFillRectangle(mydisplay, to_window(actual_window), mygc, x, y,
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
+    XFillRectangle(mydisplay, to_window(actual_window), mygc, castToInt(x), castToInt(y),
         (unsigned) width, (unsigned) height);
     if (to_backup(actual_window) != 0) {
-      XFillRectangle(mydisplay, to_backup(actual_window), mygc, x, y,
+      XFillRectangle(mydisplay, to_backup(actual_window), mygc, castToInt(x), castToInt(y),
           (unsigned) width, (unsigned) height);
     } /* if */
   } /* drwPRect */
@@ -2019,6 +2037,7 @@ inttype blue_val;
       printf("allocated [%04lx, %04lx, %04lx] color = %08lx\n",
           red_val, green_val, blue_val, col.pixel);
       */
+      /* printf("drwRgbColor(%ld, %ld, %ld) --> %lx\n", red_val, green_val, blue_val, (inttype) col.pixel); */
       return (inttype) col.pixel;
     } /* if */
     if (color_hash == NULL) {
@@ -2030,12 +2049,12 @@ inttype blue_val;
       } /* if */
       memset(color_hash, 0, 4096 * sizeof(color_entry_type));
     } /* if */
-    col.red = red_val;
-    col.green = green_val;
-    col.blue = blue_val;
-    hash_num = ((col.red   & 0xF000) >> 4) ^
-               ((col.green & 0xF000) >> 8) ^
-               ((col.blue  & 0xF000) >> 12);
+    col.red   = (short unsigned int) red_val;
+    col.green = (short unsigned int) green_val;
+    col.blue  = (short unsigned int) blue_val;
+    hash_num = ((unsigned int) (col.red   & 0xF000) >>  4) ^
+               ((unsigned int) (col.green & 0xF000) >>  8) ^
+               ((unsigned int) (col.blue  & 0xF000) >> 12);
     nearest_entry = NULL;
     insert_place = &color_hash[hash_num];
     entry = color_hash[hash_num];
@@ -2162,10 +2181,10 @@ inttype blue_val;
         col.pixel = 0;
       } else {
         memset(entry, 0, sizeof(struct color_entry));
-        entry->red = red_val;
-        entry->green = green_val;
-        entry->blue = blue_val;
-        entry->pixel = col.pixel;
+        entry->red    = (unsigned short int) red_val;
+        entry->green  = (unsigned short int) green_val;
+        entry->blue   = (unsigned short int) blue_val;
+        entry->pixel  = col.pixel;
         *insert_place = entry;
       } /* if */
     } else {
@@ -2248,12 +2267,13 @@ inttype *blue_val;
       *blue_val  = (inttype)(((unsigned long) col & default_visual->blue_mask)  << rshift_blue  >> lshift_blue);
     } else {
       cmap = DefaultColormap(mydisplay, myscreen);
-      color.pixel = col;
+      color.pixel = (unsigned long) col;
       XQueryColor(mydisplay, cmap, &color);
       *red_val   = color.red;
       *green_val = color.green;
       *blue_val  = color.blue;
     } /* if */
+    /* printf("drwPixelToRgb(%lx) -> %ld %ld %ld\n", col, *red_val, *green_val, *blue_val); */
   } /* drwPixelToRgb */
 
 
@@ -2269,7 +2289,7 @@ inttype col;
 
   { /* drwBackground */
 /*  printf("set color = %ld\n", (long) col); */
-    XSetBackground(mydisplay, mygc, (unsigned) col);
+    XSetBackground(mydisplay, mygc, (unsigned long) col);
   } /* drwBackground */
 
 
@@ -2285,7 +2305,7 @@ inttype col;
 
   { /* drwColor */
 /*  printf("set color = %ld\n", (long) col); */
-    XSetForeground(mydisplay, mygc, (unsigned) col);
+    XSetForeground(mydisplay, mygc, (unsigned long) col);
   } /* drwColor */
 
 
@@ -2378,7 +2398,7 @@ inttype col;
       XSetForeground(mydisplay, bitmap_gc, 1);
       XSetBackground(mydisplay, bitmap_gc, 0);
       plane_mask = 1;
-      if (col & plane_mask) {
+      if ((unsigned long) col & plane_mask) {
         XSetFunction(mydisplay, bitmap_gc, GXcopyInverted);
       } else {
         XSetFunction(mydisplay, bitmap_gc, GXcopy);
@@ -2390,7 +2410,7 @@ inttype col;
           0, 0, to_width(pixmap), to_height(pixmap), 0, 0, plane_mask);
       plane_mask <<= 1;
       for (plane = 1; plane < depth; plane++) {
-        if (col & plane_mask) {
+        if ((unsigned long) col & plane_mask) {
           XSetFunction(mydisplay, bitmap_gc, GXorInverted);
         } else {
           XSetFunction(mydisplay, bitmap_gc, GXor);
@@ -2446,13 +2466,13 @@ inttype bkcol;
         wstri->byte2 = *strelem & 0xFF;
       } /* for */
 
-      XSetForeground(mydisplay, mygc, (unsigned) col);
-      XSetBackground(mydisplay, mygc, (unsigned) bkcol);
+      XSetForeground(mydisplay, mygc, (unsigned long) col);
+      XSetBackground(mydisplay, mygc, (unsigned long) bkcol);
       XDrawImageString16(mydisplay, to_window(actual_window), mygc,
-          x, y, stri_buffer, (int) stri->size);
+          castToInt(x), castToInt(y), stri_buffer, (int) stri->size);
       if (to_backup(actual_window) != 0) {
         XDrawImageString16(mydisplay, to_backup(actual_window), mygc,
-            x, y, stri_buffer, (int) stri->size);
+            castToInt(x), castToInt(y), stri_buffer, (int) stri->size);
       } /* if */
       free(stri_buffer);
     } /* if */

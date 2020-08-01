@@ -435,6 +435,7 @@ listtype arguments;
       } /* if */
       arg_1(arguments)->value.objvalue = NULL;
     } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* itf_destr */
 

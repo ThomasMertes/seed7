@@ -242,6 +242,7 @@ listtype arguments;
     isit_reflist(arg_1(arguments));
     free_list(take_reflist(arg_1(arguments)));
     arg_1(arguments)->value.listvalue = NULL;
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* rfl_destr */
 

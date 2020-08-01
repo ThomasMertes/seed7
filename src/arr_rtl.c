@@ -699,7 +699,7 @@ inttype stop;
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (uinttype) (stop - arr1->min_position + 1);
+      result_size = arraySize2(arr1->min_position, stop);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -745,7 +745,7 @@ inttype stop;
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (uinttype) (stop - arr1->min_position + 1);
+      result_size = arraySize2(arr1->min_position, stop);
       if (!ALLOC_RTL_ARRAY(new_arr1, length - result_size)) {
         raise_error(MEMORY_ERROR);
         result = NULL;
@@ -915,7 +915,7 @@ inttype stop;
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (uinttype) (stop - start + 1);
+      result_size = arraySize2(start, stop);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -969,7 +969,7 @@ inttype stop;
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (uinttype) (stop - start + 1);
+      result_size = arraySize2(start, stop);
       if (!ALLOC_RTL_ARRAY(result, result_size)) {
         raise_error(MEMORY_ERROR);
       } else {
@@ -1127,7 +1127,7 @@ inttype len;
     length = arraySize(arr1);
     if (len >= 1 && start <= arr1->max_position && length >= 1 &&
         (start >= arr1->min_position ||
-	(uinttype) len > (uinttype) (arr1->min_position - start))) {
+        (uinttype) len > (uinttype) (arr1->min_position - start))) {
       if (start < arr1->min_position) {
         start = arr1->min_position;
         len -= arr1->min_position - start;
@@ -1183,7 +1183,7 @@ inttype len;
     length = arraySize(arr1);
     if (len >= 1 && start <= arr1->max_position && length >= 1 &&
         (start >= arr1->min_position ||
-	(uinttype) len > (uinttype) (arr1->min_position - start))) {
+        (uinttype) len > (uinttype) (arr1->min_position - start))) {
       if (start < arr1->min_position) {
         start = arr1->min_position;
         len -= arr1->min_position - start;

@@ -198,6 +198,7 @@ listtype arguments;
     isit_type(arg_1(arguments));
     /* old_type = take_type(arg_1(arguments)); */
     /* printf("typ_destr "); trace1(old_type->match_obj); printf("\n"); */
+    SET_UNUSED_FLAG(arg_1(arguments));
 #ifdef TRACE_TYPLIB
     printf("END typ_destr\n");
 #endif

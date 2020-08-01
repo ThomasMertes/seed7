@@ -359,6 +359,7 @@ listtype arguments;
       FREE_SET(old_set, (uinttype) (old_set->max_position - old_set->min_position + 1));
       arg_1(arguments)->value.setvalue = NULL;
     } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* set_destr */
 

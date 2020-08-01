@@ -57,6 +57,27 @@ static inttype fact[] = {
 
 
 
+/**
+ *  Generic Destr function.
+ *  Used for all types that require no special action to
+ *  destroy the data.
+ */
+#ifdef ANSI_C
+
+objecttype gen_destr (listtype arguments)
+#else
+
+objecttype gen_destr (arguments)
+listtype arguments;
+#endif
+
+  { /* gen_destr */
+    SET_UNUSED_FLAG(arg_1(arguments));
+    return SYS_EMPTY_OBJECT;
+  } /* gen_destr */
+
+
+
 #ifdef ANSI_C
 
 objecttype int_abs (listtype arguments)

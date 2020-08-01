@@ -64,7 +64,7 @@ rtlGenerictype pollFile;
     objecttype newFileOject;
 
   /* incrUsageCount */
-    fileObject = (objecttype) pollFile;
+    fileObject = (objecttype) (memsizetype) pollFile;
     if (CATEGORY_OF_OBJ(fileObject) != STRUCTOBJECT) {
       run_error(STRUCTOBJECT, fileObject);
       return 0;
@@ -91,7 +91,7 @@ rtlGenerictype pollFile;
         } /* if */
       } /* if */
     } /* if */
-    return (rtlGenerictype) fileObject;
+    return (rtlGenerictype) (memsizetype) fileObject;
   } /* incrUsageCount */
 
 
@@ -109,7 +109,7 @@ rtlGenerictype pollFile;
     errinfotype err_info = OKAY_NO_ERROR;
 
   /* decrUsageCount */
-    do_destroy((objecttype) pollFile, &err_info);
+    do_destroy((objecttype) (memsizetype) pollFile, &err_info);
     if (err_info != OKAY_NO_ERROR) {
       raise_error(err_info);
     } /* if */
@@ -150,7 +150,7 @@ listtype arguments;
     polAddCheck(take_poll(arg_1(arguments)),
                 take_socket(arg_2(arguments)),
                 take_int(arg_3(arguments)),
-                (rtlGenerictype) take_interface(arg_4(arguments)));
+                (rtlGenerictype) (memsizetype) take_interface(arg_4(arguments)));
     return SYS_EMPTY_OBJECT;
   } /* pol_addCheck */
 
@@ -249,6 +249,7 @@ listtype arguments;
     isit_poll(arg_1(arguments));
     polDestr(take_poll(arg_1(arguments)));
     arg_1(arguments)->value.pollvalue = NULL;
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* pol_destr */
 
@@ -394,8 +395,9 @@ listtype arguments;
     isit_poll(arg_1(arguments));
     isit_interface(arg_2(arguments));
     isit_struct(take_interface(arg_2(arguments)));
-    nextFile = (objecttype) polNextFile(take_poll(arg_1(arguments)),
-                                        (rtlGenerictype) take_interface(arg_2(arguments)));
+    nextFile = (objecttype) (memsizetype)
+               polNextFile(take_poll(arg_1(arguments)),
+                           (rtlGenerictype) (memsizetype) take_interface(arg_2(arguments)));
     isit_struct(nextFile);
     if (nextFile->value.structvalue->usage_count != 0) {
       nextFile->value.structvalue->usage_count++;

@@ -541,6 +541,7 @@ listtype arguments;
       } /* if */
       arg_1(arguments)->value.winvalue = NULL;
     } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* drw_destr */
 
@@ -775,7 +776,7 @@ listtype arguments;
   /* drw_genPointList */
     isit_array(arg_1(arguments));
     points_array = take_array(arg_1(arguments));
-    len = (uinttype) (points_array->max_position - points_array->min_position + 1);
+    len = arraySize(points_array);
     if (len == 0 || len & 1) {
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {

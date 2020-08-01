@@ -814,22 +814,27 @@ objecttype object;
       case ENUMLITERALOBJECT:
       case MATCHOBJECT:
       case FWDREFOBJECT:
+        SET_UNUSED_FLAG(object);
         break;
       case TYPEOBJECT:
         typDestr(object->value.typevalue);
+        SET_UNUSED_FLAG(object);
         break;
       case BIGINTOBJECT:
         bigDestr(object->value.bigintvalue);
+        SET_UNUSED_FLAG(object);
         break;
       case STRIOBJECT:
         if (object->value.strivalue != NULL) {
           FREE_STRI(object->value.strivalue, object->value.strivalue->size);
         } /* if */
+        SET_UNUSED_FLAG(object);
         break;
       case BSTRIOBJECT:
         if (object->value.bstrivalue != NULL) {
           FREE_BSTRI(object->value.bstrivalue, object->value.bstrivalue->size);
         } /* if */
+        SET_UNUSED_FLAG(object);
         break;
       case SETOBJECT:
         if (object->value.setvalue != NULL) {
@@ -837,6 +842,7 @@ objecttype object;
               (memsizetype) (object->value.setvalue->max_position -
               object->value.setvalue->min_position + 1));
         } /* if */
+        SET_UNUSED_FLAG(object);
         break;
       case ARRAYOBJECT:
         if (object->value.arrayvalue != NULL) {
@@ -849,6 +855,8 @@ objecttype object;
 #endif
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+        } else {
+          SET_UNUSED_FLAG(object);
         } /* if */
         break;
       case HASHOBJECT:
@@ -862,6 +870,8 @@ objecttype object;
 #endif
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+        } else {
+          SET_UNUSED_FLAG(object);
         } /* if */
         break;
       case STRUCTOBJECT:
@@ -875,16 +885,21 @@ objecttype object;
 #endif
           CLEAR_TEMP_FLAG(object);
           do_destroy(object, &err_info);
+        } else {
+          SET_UNUSED_FLAG(object);
         } /* if */
         break;
       case POLLOBJECT:
         polDestr(object->value.pollvalue);
+        SET_UNUSED_FLAG(object);
         break;
       case REFLISTOBJECT:
         free_list(object->value.listvalue);
+        SET_UNUSED_FLAG(object);
         break;
       case LISTOBJECT:
         free_list(object->value.listvalue);
+        SET_UNUSED_FLAG(object);
         break;
       case BLOCKOBJECT:
         if (object->value.blockvalue != NULL) {
@@ -893,9 +908,11 @@ objecttype object;
           printf("\n"); */
           free_block(object->value.blockvalue);
         } /* if */
+        SET_UNUSED_FLAG(object);
         break;
       case PROGOBJECT:
         prgDestr(object->value.progvalue);
+        SET_UNUSED_FLAG(object);
         break;
       case WINOBJECT:
         if (object->value.winvalue != NULL) {
@@ -904,6 +921,7 @@ objecttype object;
             drwFree(object->value.winvalue);
           } /* if */
         } /* if */
+        SET_UNUSED_FLAG(object);
         break;
       case INTERFACEOBJECT:
         if (object->value.objvalue != NULL) {
@@ -957,7 +975,13 @@ objecttype object;
 
   { /* dump_any_temp */
     dump_temp_value(object);
-    FREE_OBJECT(object);
+    if (IS_UNUSED(object)) {
+      FREE_OBJECT(object);
+    } else if (CATEGORY_OF_OBJ(object) != STRUCTOBJECT) {
+      printf("not dumped: ");
+      trace1(object);
+      printf("\n");
+    } /* if */
   } /* dump_any_temp */
 
 

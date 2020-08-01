@@ -81,7 +81,7 @@ const func proc: func local (ref proc: localDefinitions)
                  begin (ref expr: statements) end func       is action "PRC_LOCAL";
 const proc: (ref proc param) ::= (ref proc param)            is action "PRC_CREATE";
 const proc: (inout proc: dest) := (ref proc: source)         is action "PRC_CPY";
-const proc: destroy (ref proc param)                         is action "PRC_NOOP";
+const proc: destroy (ref proc param)                         is action "GEN_DESTR";
 const proc: noop                                             is action "PRC_NOOP";
 const proc: (ref void param) ; (ref void param)              is noop;
 
@@ -115,8 +115,8 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const proc: (ref varfunc aType param) ::= (ref ACTION param)           is action "ACT_CREATE";
     const proc: (ref func aType param) ::= (ref func aType param)          is action "PRC_CREATE";
     const proc: (ref varfunc aType param) ::= (ref varfunc aType param)    is action "PRC_CREATE";
-    const proc: destroy (ref func aType param)                             is action "PRC_NOOP";
-    const proc: destroy (ref varfunc aType param)                          is action "PRC_NOOP";
+    const proc: destroy (ref func aType param)                             is action "GEN_DESTR";
+    const proc: destroy (ref varfunc aType param)                          is action "GEN_DESTR";
     const proc: (inout func aType: dest) := (ref func aType: source)       is action "PRC_CPY";
     const proc: (inout varfunc aType: dest) := (ref varfunc aType: source) is action "PRC_CPY";
     const type: typeof (ref aType param)                                   is aType;
@@ -124,8 +124,8 @@ const proc: BASIC_TYPE_DECLS (in type: aType) is func
     const proc: (ref func varfunc aType param) ::= (ref ACTION param)      is action "ACT_CREATE";
     const proc: (ref func func aType param) ::= (ref func func aType param)        is action "PRC_CREATE";
     const proc: (ref func varfunc aType param) ::= (ref func varfunc aType param)  is action "PRC_CREATE";
-    # const proc: destroy (ref func func aType param)                      is action "PRC_NOOP";
-    # const proc: destroy (ref func varfunc aType param)                   is action "PRC_NOOP";
+    # const proc: destroy (ref func func aType param)                      is action "GEN_DESTR";
+    # const proc: destroy (ref func varfunc aType param)                   is action "GEN_DESTR";
 
     const func func aType: func
                            result
@@ -288,10 +288,10 @@ IN_PARAM_IS_VALUE(ENUMERATION);
 const type: INDEXABLE      is subtype object;
 const type: MODULE         is subtype object;
 
-const proc: destroy (ref ACTION param)      is noop;
-const proc: destroy (ref ENUMERATION param) is noop;
-const proc: destroy (ref integer param)     is noop;
-const proc: destroy (ref EXCEPTION param)   is noop;
+const proc: destroy (ref ACTION param)      is action "GEN_DESTR";
+const proc: destroy (ref ENUMERATION param) is action "GEN_DESTR";
+const proc: destroy (ref integer param)     is action "GEN_DESTR";
+const proc: destroy (ref EXCEPTION param)   is action "GEN_DESTR";
 
 const proc: (ref ACTION param) ::= (in ACTION param)            is action "ACT_CREATE";
 const proc: (inout ACTION: dest) := (in ACTION: source)         is action "ACT_CPY";
@@ -499,7 +499,7 @@ const func type: forward_ptr (ref expr: baseTypeName) is func
     FORWARD_PTR := ptrType;
     IN_PARAM_IS_VALUE(ptrType);
     const proc: (ref ptrType param) ::= (in ptrType param)           is action "REF_CREATE";
-    const proc: destroy (ref ptrType param)                          is noop;
+    const proc: destroy (ref ptrType param)                          is action "GEN_DESTR";
     const proc: (inout ptrType: dest) := (in ptrType: source)        is action "REF_CPY";
     const func boolean: (in ptrType param) = (in ptrType param)      is action "REF_EQ";
     const func boolean: (in ptrType param) <> (in ptrType param)     is action "REF_NE";
@@ -553,7 +553,7 @@ const func type: ptr (in type: baseType) is func
       const type: ptr (attr baseType)                                is   ptrType;
       const type: base_type (attr ptrType)                           is   baseType;
       const proc: (ref ptrType param) ::= (in ptrType param)         is action "REF_CREATE";
-      const proc: destroy (ref ptrType param)                        is noop;
+      const proc: destroy (ref ptrType param)                        is action "GEN_DESTR";
       const proc: (inout ptrType: dest) := (in ptrType: source)      is action "REF_CPY";
       const func boolean: (in ptrType param) = (in ptrType param)    is action "REF_EQ";
       const func boolean: (in ptrType param) <> (in ptrType param)   is action "REF_NE";
@@ -579,7 +579,7 @@ const func type: varptr (in type: baseType) is func
       const type: varptr (attr baseType)                                 is varptrType;
       const type: base_type (attr varptrType)                            is baseType;
       const proc: (ref varptrType param) ::= (in varptrType param)       is action "REF_CREATE";
-      const proc: destroy (ref varptrType param)                         is noop;
+      const proc: destroy (ref varptrType param)                         is action "GEN_DESTR";
       const proc: (inout varptrType: dest) := (in varptrType: source)    is action "REF_CPY";
       const func boolean: (in varptrType param) = (in varptrType param)  is action "REF_EQ";
       const func boolean: (in varptrType param) <> (in varptrType param) is action "REF_NE";
@@ -734,7 +734,7 @@ $ include "hashsetof.s7i";
 $ include "set.s7i";
 
 
-const func integer: toInt (in string: stri, in integer: base) is func
+const func integer: integer (in var string: stri, in integer: base) is func
   result
     var integer: anInteger is 0;
   local
@@ -746,16 +746,30 @@ const func integer: toInt (in string: stri, in integer: base) is func
         -1, -1, -1, -1, -1, -1,
         10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,  # a - m
         23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35); # n - z
+    var boolean: negative is FALSE;
     var integer: pos is 1;
     var integer: digit is 0;
   begin
-    for pos range 1 to length(stri) do
-      digit := digitval[ord(stri[pos]) - 47];
-      if digit = -1 then
-        raise RANGE_ERROR;
+    if stri <> "" and base >= 2 and base <= 36 then
+      if stri[1] = '-' then
+        stri := stri[2 ..];
+        negative := TRUE;
+      elsif stri[1] = '+' then
+        stri := stri[2 ..];
       end if;
-      anInteger := anInteger * base + digit;
-    end for;
+      for pos range 1 to length(stri) do
+        digit := digitval[ord(stri[pos]) - ord('0') + 1];
+        if digit = -1 or digit >= base then
+          raise RANGE_ERROR;
+        end if;
+        anInteger := anInteger * base + digit;
+      end for;
+      if negative then
+        anInteger := -anInteger;
+      end if;
+    else
+      raise RANGE_ERROR;
+    end if;
   end func;
 
 
@@ -865,11 +879,11 @@ const func type: new enum (ref expr: elem_expr) end enum is func
   begin
     global
     enumType := subtype ENUMERATION;
-    IN_PARAM_IS_REFERENCE(enumType);
+    IN_PARAM_IS_VALUE(enumType);
     elem_list := expr_to_list(elem_expr);
     const proc: (ref enumType param) ::= (in enumType param)         is action "ENU_CREATE";
     const proc: (ref enumType param) ::= enumlit                     is action "ENU_GENLIT";
-    const proc: destroy (ref enumType param)                         is noop;
+    const proc: destroy (ref enumType param)                         is action "GEN_DESTR";
     const proc: (inout enumType: dest) := (in enumType: source)      is action "ENU_CPY";
     const func boolean: (in enumType param) = (in enumType param)    is action "ENU_EQ";
     const func boolean: (in enumType param) <> (in enumType param)   is action "ENU_NE";
@@ -899,6 +913,12 @@ const func type: new enum (ref expr: elem_expr) end enum is func
 
     const func integer: ord (in enumType: enum_val) is
       return ORD2(enum_val, enumType.literal_list);
+
+    const func integer: hashCode (in enumType: enum_val) is
+      return ord(enum_val);
+
+    const func integer: compare (in enumType: enum1, in enumType: enum2) is
+      return compare(ord(enum1), ord(enum2));
 
     const func integer: (attr integer) conv (in enumType: enum_val) is
       return ord(enum_val);

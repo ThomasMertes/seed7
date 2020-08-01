@@ -35,7 +35,7 @@ const type: category is newtype;
 IN_PARAM_IS_VALUE(category);
 
 const proc: (ref category param) ::= (ref category param)      is action "INT_CREATE";
-const proc: destroy (ref category param)                       is noop;
+const proc: destroy (ref category param)                       is action "GEN_DESTR";
 const proc: (inout category: dest) := (in category: source)    is action "INT_CPY";
 
 

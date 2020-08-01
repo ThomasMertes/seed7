@@ -309,7 +309,8 @@ rtlGenerictype value2;
 #endif
 
   { /* setCmpGeneric */
-    return setCmp((const_settype) value1, (const_settype) value2);
+    return setCmp((const_settype) (memsizetype) value1,
+                  (const_settype) (memsizetype) value2);
   } /* setCmpGeneric */
 
 
@@ -401,7 +402,8 @@ rtlGenerictype from_value;
 #endif
 
   { /* setCreateGeneric */
-    return (rtlGenerictype) (memsizetype) setCreate((const_settype) from_value);
+    return (rtlGenerictype) (memsizetype)
+           setCreate((const_settype) (memsizetype) from_value);
   } /* setCreateGeneric */
 
 

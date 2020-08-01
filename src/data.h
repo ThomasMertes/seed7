@@ -454,6 +454,7 @@ extern progrecord prog;
 #define TEMP2_MASK     ((categorytype)  256)
 #define POSINFO_MASK   ((categorytype)  512)
 #define MATCH_ERR_MASK ((categorytype) 1024)
+#define UNUSED_MASK    ((categorytype) 2048)
 
 #define SET_ANY_FLAG(O,FLAG)            (O)->objcategory = (O)->objcategory | (FLAG)
 
@@ -486,6 +487,10 @@ extern progrecord prog;
 #define SET_MATCH_ERR_FLAG(O)           (O)->objcategory = (O)->objcategory | MATCH_ERR_MASK
 #define CLEAR_MATCH_ERR_FLAG(O)         (O)->objcategory = (O)->objcategory & ~MATCH_ERR_MASK
 #define HAS_MATCH_ERR(O)                ((O)->objcategory & MATCH_ERR_MASK)
+
+#define SET_UNUSED_FLAG(O)              (O)->objcategory = (O)->objcategory | UNUSED_MASK
+#define CLEAR_UNUSED_FLAG(O)            (O)->objcategory = (O)->objcategory & ~UNUSED_MASK
+#define IS_UNUSED(O)                    ((O)->objcategory & UNUSED_MASK)
 
 #define HAS_PROPERTY(O)                 (!HAS_POSINFO(O) && (O)->descriptor.property != NULL)
 #define HAS_ENTITY(O)                   (HAS_PROPERTY(O) && (O)->descriptor.property->entity != NULL)

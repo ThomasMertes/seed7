@@ -3765,6 +3765,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( succ(A) <b>&rArr;</b> enumType <span class="op">conv</span>(succ(ord(A))) )
       pred(A)   Predecessor
                   ( pred(A) <b>&rArr;</b> enumType <span class="op">conv</span>(pred(ord(A))) )
+      compare(A, B) Compare function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      hashCode(A) Hash function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       incr(A)   Increment
                   ( incr(A) <b>&rArr;</b> A:=succ(A) )
@@ -4086,6 +4090,10 @@ CASE_DECLS(<a class="type" href="#types_char">char</a>);
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
       <span class="func">eof</span>(A)    End of file
                   ( Type of result: <a class="type" href="#types_boolean">boolean</a> )
+      <span class="func">compare</span>(A, B) Compare function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
+      <span class="func">hashCode</span>(A) Hash function
+                  ( Type of result: <a class="type" href="#types_integer">integer</a> )
     Statements:
       <span class="func">write</span>(A, B) Write <a class="type" href="#types_string">string</a> B to <a class="type" href="#types_file">file</a> A
                   ( Type of argument B: <a class="type" href="#types_string">string</a> )

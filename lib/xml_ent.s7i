@@ -70,7 +70,7 @@ const func string: decodeXmlEntities (in string: stri, in xmlEntityHashType: xml
           old_pos := succ(semicol_pos);
         elsif length(entityName) >= 3 and entityName[1 .. 2] = "#x" and
             isDigitString(entityName[3 ..], 16) then
-          entityValue := str(chr(toInt(entityName[3 ..], 16)));
+          entityValue := str(chr(integer(entityName[3 ..], 16)));
           decoded &:= stri[old_pos .. pred(new_pos)];
           decoded &:= entityValue;
           old_pos := succ(semicol_pos);

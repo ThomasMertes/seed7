@@ -399,7 +399,13 @@ listtype backup_loc_var;
     fail_flag = FALSE;
     while (loc_var != NULL) {
       destroy_local_object(&loc_var->local, &err_info);
-      FREE_OBJECT(loc_var->local.object->value.objvalue);
+      if (IS_UNUSED(loc_var->local.object->value.objvalue)) {
+        FREE_OBJECT(loc_var->local.object->value.objvalue);
+      } else if (CATEGORY_OF_OBJ(loc_var->local.object->value.objvalue) != STRUCTOBJECT) {
+        printf("loc not dumped: ");
+        trace1(loc_var->local.object->value.objvalue);
+        printf("\n");
+      } /* if */
       loc_var->local.object->value.objvalue = backup_loc_var->obj;
       loc_var = loc_var->next;
       backup_loc_var = backup_loc_var->next;
@@ -656,14 +662,12 @@ listtype evaluated_act_params;
     if (evaluated_act_params != NULL) {
       list_end = evaluated_act_params;
       while (list_end->next != NULL) {
-        if (list_end->obj != NULL &&
-            TEMP_OBJECT(list_end->obj)) {
+        if (list_end->obj != NULL && TEMP_OBJECT(list_end->obj)) {
           dump_any_temp(list_end->obj);
         } /* if */
         list_end = list_end->next;
       } /* while */
-      if (list_end->obj != NULL &&
-          TEMP_OBJECT(list_end->obj)) {
+      if (list_end->obj != NULL && TEMP_OBJECT(list_end->obj)) {
         dump_any_temp(list_end->obj);
       } /* if */
       free_list2(evaluated_act_params, list_end);

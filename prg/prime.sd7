@@ -29,7 +29,7 @@ $ include "seed7_05.s7i";
 var integer: position is 0;
 
 
-const func boolean: is_prime (in integer: number) is func
+const func boolean: isPrime (in integer: number) is func
   result
     var boolean: prime is FALSE;
   local
@@ -48,7 +48,7 @@ const func boolean: is_prime (in integer: number) is func
         end if;
       end if;
     end if;
-  end func; (* is_prime *)
+  end func; (* isPrime *)
 
 
 const proc: main is func
@@ -59,7 +59,7 @@ const proc: main is func
     position := 4;
     number := 11;
     repeat
-      if is_prime(number) then
+      if isPrime(number) then
         write(str(number) lpad 8);
         incr(position);
         if position = 9 then

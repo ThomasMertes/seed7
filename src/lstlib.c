@@ -215,10 +215,8 @@ listtype arguments;
       list_end->next = flist.list_elems;
       flist.list_elems = take_list(old_list);
     } /* if */
-#ifdef OUT_OF_ORDER
-    free_list(take_list(old_list));
-#endif
     old_list->value.listvalue = NULL;
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* lst_destr */
 

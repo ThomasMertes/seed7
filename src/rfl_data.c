@@ -151,7 +151,8 @@ rtlGenerictype value2;
 #endif
 
   { /* rflCmpGeneric */
-    return rflCmp((const_listtype) value1, (const_listtype) value2);
+    return rflCmp((const_listtype) (memsizetype) value1,
+                  (const_listtype) (memsizetype) value2);
   } /* rflCmpGeneric */
 
 
@@ -224,7 +225,8 @@ rtlGenerictype from_value;
 #endif
 
   { /* rflCreateGeneric */
-    return (rtlGenerictype) (memsizetype) rflCreate((const_listtype) from_value);
+    return (rtlGenerictype) (memsizetype)
+           rflCreate((const_listtype) (memsizetype) from_value);
   } /* rflCreateGeneric */
 
 

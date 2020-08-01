@@ -27,6 +27,7 @@
 
 #ifdef ANSI_C
 
+objecttype gen_destr          (listtype arguments);
 objecttype int_abs            (listtype arguments);
 objecttype int_add            (listtype arguments);
 objecttype int_binom          (listtype arguments);
@@ -78,6 +79,7 @@ objecttype int_value          (listtype arguments);
 
 #else
 
+objecttype gen_destr ();
 objecttype int_abs ();
 objecttype int_add ();
 objecttype int_binom ();

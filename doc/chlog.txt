@@ -1,3 +1,42 @@
+20130505:
+- Functions to compare arrays (compare, <, >, <=, >=) have been added
+  to the library array.s7i.
+- In seed7_05.s7i the functions hashCode and compare have been
+  defined for enum types.
+- In the library bigrat.s7i the operator parse has been improved. Now
+  the parse operator accepts decimal numbers with repeating decimals.
+- The function integer has been added to the library integer.s7i.
+  This function converts a numeric string, with a specified radix, to
+  an integer.
+- The function bigInteger has been added to the library bigint.s7i.
+  This function converts a numeric string, with a specified radix, to
+  a bigInteger.
+- The files encoding.s7i, gethttp.s7i, scanfile.s7i, scanstri.s7i,
+  xml_ent.s7i and bas7.sd7 have been changed to use the new function
+  integer instead of toInt (toInt was an undocumented internal
+  function).
+- Checks for the function integer have been added to chkint.sd7.
+- Checks for the function bigInteger have been added to chkbig.sd7.
+- The operator sci has been added to to the library complex.s7i. This
+  operater converts a complex to a string in scientific notation.
+- The compiler (s7c) has been improved to support the actions
+  BIG_PARSE_BASED, TYP_CMP, ENU_CPY, ENU_CREATE and GEN_DESTR.
+- The memory management in the interpreter has been improved. Now it
+  is possible that a destructor is called and the object memory is
+  not freed. This is used to free the memory of struct objects only,
+  when the usage_count reaches zero.
+- The UNUSED flag was defined in data.h and used to monitor if the
+  object memory can be freed.
+- The compiler has been improved to call the destructor for local
+  interface objects (In process_local_declaration process_destr_call
+  is called for INTERFACEOBJECT objects).
+- The compiler has been improved to initialize set constants, that
+  are part of a data structure (In walk_const_list SETOBJECT objects
+  are added to set_const_table).
+- The runtime library has been improved to use the action GEN_DESTR
+  instead of PRC_NOOP as destructor for integer and other simple
+  data types.
+
 20130421:
 - The FAQ explanation concerning garbage collection has been
   improved.

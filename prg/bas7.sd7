@@ -461,7 +461,7 @@ const func string: get_symbol (inout string: line) is func
                 incr(index);
               end while;
               if index > start then
-                symbol := str(toInt(line[start .. pred(index)], 16));
+                symbol := str(integer(line[start .. pred(index)], 16));
                 if index <= leng and line[index] in number_suffix then
                   symbol &:= line[index len 1];
                   incr(index);
@@ -476,7 +476,7 @@ const func string: get_symbol (inout string: line) is func
                 incr(index);
               end while;
               if index > start then
-                symbol := str(toInt(line[start .. pred(index)], 8));
+                symbol := str(integer(line[start .. pred(index)], 8));
                 if index <= leng and line[index] in number_suffix then
                   symbol &:= line[index len 1];
                   incr(index);

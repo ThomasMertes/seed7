@@ -30,6 +30,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 
 #include "common.h"
 #include "sigutl.h"
@@ -491,10 +492,18 @@ objecttype prc_exit (arguments)
 listtype arguments;
 #endif
 
-  { /* prc_exit */
+  {
+    inttype status;
+
+  /* prc_exit */
     isit_int(arg_1(arguments));
-    shut_drivers();
-    exit(take_int(arg_1(arguments)));
+    status = take_int(arg_1(arguments));
+    if (!inIntRange(status)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      shut_drivers();
+      exit((int) status);
+    } /* if */
     return SYS_EMPTY_OBJECT;
   } /* prc_exit */
 

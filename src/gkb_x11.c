@@ -97,10 +97,12 @@ Window curr_window;
     if (window_hash == NULL) {
       window = NULL;
     } else {
-      window = (wintype) hshIdxWithDefault(window_hash,
-          (rtlGenerictype) (memsizetype) curr_window, (rtlGenerictype) NULL,
-          (inttype) ((memsizetype) curr_window) >> 6,
-          (comparetype) &uintCmpGeneric);
+      window = (wintype) (memsizetype)
+          hshIdxWithDefault(window_hash,
+                            (rtlGenerictype) (memsizetype) curr_window,
+                            (rtlGenerictype) (memsizetype) NULL,
+                            (inttype) ((memsizetype) curr_window) >> 6,
+                            (comparetype) &uintCmpGeneric);
     } /* if */
     return window;
   } /* find_window */

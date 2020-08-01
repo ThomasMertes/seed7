@@ -46,7 +46,7 @@ const func char: (attr char) conv (in PRIMITIVE_WINDOW param)                  i
 const type: pixel is newtype;
 const proc: (ref pixel param) ::= (in pixel param)       is action "INT_CREATE";
 IN_PARAM_IS_VALUE(pixel);
-const proc: destroy (ref pixel param)                    is noop;
+const proc: destroy (ref pixel param)                    is action "GEN_DESTR";
 const proc: (inout pixel: dest) := (in pixel: source)    is action "INT_CPY";
 const func boolean: (in pixel: pix1) = (in pixel: pix2)  is action "INT_EQ";
 const func boolean: (in pixel: pix1) <> (in pixel: pix2) is action "INT_NE";

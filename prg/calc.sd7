@@ -53,6 +53,7 @@ const proc: main is func
         \include \"float.s7i\";\n\
         \include \"math.s7i\";\n\
         \include \"rational.s7i\";\n\
+        \include \"complex.s7i\";\n\
         \include \"bigint.s7i\";\n\
         \include \"bigrat.s7i\";\n\
         \include \"time.s7i\";\n\

@@ -1173,6 +1173,7 @@ errinfotype *err_info;
       case CONSTENUMOBJECT:
       case VARENUMOBJECT:
       case ENUMLITERALOBJECT:
+        SET_UNUSED_FLAG(local->object->value.objvalue);
         break;
       default:
         call_object.type_of = NULL;

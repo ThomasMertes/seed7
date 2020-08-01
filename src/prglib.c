@@ -145,6 +145,7 @@ listtype arguments;
   { /* prg_destr */
     isit_prog(arg_1(arguments));
     prgDestr(take_prog(arg_1(arguments)));
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* prg_destr */
 

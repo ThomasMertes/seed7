@@ -335,7 +335,8 @@ listtype arguments;
     isit_struct(arg_1(arguments));
     old_struct = take_struct(arg_1(arguments));
     if (old_struct != NULL) {
-      /* printf("sct_destr: usage_count=%u %lu\n", old_struct->usage_count, (unsigned long) old_struct); */
+      /* printf("sct_destr: usage_count=%u %lu %lu\n", old_struct->usage_count,
+         (unsigned long) old_struct, (unsigned long) arg_1(arguments)); */
       if (old_struct->usage_count != 0) {
         old_struct->usage_count--;
         if (old_struct->usage_count == 0) {
@@ -343,8 +344,11 @@ listtype arguments;
           /* printf("FREE_STRUCT 10 %lu\n", old_struct); */
           FREE_STRUCT(old_struct, old_struct->size);
           arg_1(arguments)->value.structvalue = NULL;
+          SET_UNUSED_FLAG(arg_1(arguments));
         } /* if */
       } /* if */
+    } else {
+      SET_UNUSED_FLAG(arg_1(arguments));
     } /* if */
     return SYS_EMPTY_OBJECT;
   } /* sct_destr */

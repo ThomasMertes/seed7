@@ -109,7 +109,7 @@ const func string: getHostname                                              is a
 const type: PRIMITIVE_SOCKET is newtype;
 IN_PARAM_IS_VALUE(PRIMITIVE_SOCKET);
 
-const proc: destroy (ref PRIMITIVE_SOCKET param)                            is noop;
+const proc: destroy (ref PRIMITIVE_SOCKET param)                            is action "GEN_DESTR";
 const proc: (ref PRIMITIVE_SOCKET param) ::= (ref PRIMITIVE_SOCKET param)   is action "SOC_CREATE";
 const proc: (inout PRIMITIVE_SOCKET: dest) := (ref PRIMITIVE_SOCKET: source) is action "SOC_CPY";
 

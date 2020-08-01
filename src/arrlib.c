@@ -605,6 +605,7 @@ listtype arguments;
       FREE_ARRAY(old_arr, old_size);
       arg_1(arguments)->value.arrayvalue = NULL;
     } /* if */
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* arr_destr */
 
@@ -783,7 +784,7 @@ listtype arguments;
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (uinttype) (stop - arr1->min_position + 1);
+      result_size = arraySize2(arr1->min_position, stop);
       if (TEMP_OBJECT(arg_1(arguments))) {
         result = arr1;
         arg_1(arguments)->value.arrayvalue = NULL;
@@ -854,7 +855,7 @@ listtype arguments;
               (uinttype) (position - arr1->min_position));
           destr_array(&array_pointer[position - arr1->min_position + 1],
               (uinttype) (arr1->max_position - position));
-          FREE_ARRAY(arr1, (memsizetype) arraySize(arr1));
+          FREE_ARRAY(arr1, arraySize(arr1));
           arg_1(arguments)->value.arrayvalue = NULL;
           /* code to avoid destr_array:
           if (position != arr1->max_position) {
@@ -1036,7 +1037,7 @@ listtype arguments;
       if (stop > arr1->max_position) {
         stop = arr1->max_position;
       } /* if */
-      result_size = (uinttype) (stop - start + 1);
+      result_size = arraySize2(start, stop);
       if (!ALLOC_ARRAY(result, result_size)) {
         return raise_exception(SYS_MEM_EXCEPTION);
       } /* if */

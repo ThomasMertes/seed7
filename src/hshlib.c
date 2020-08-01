@@ -895,6 +895,7 @@ listtype arguments;
     data_destr_func = take_reference(arg_3(arguments));
     free_hash(old_hash, key_destr_func, data_destr_func);
     arg_1(arguments)->value.hashvalue = NULL;
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* hsh_destr */
 

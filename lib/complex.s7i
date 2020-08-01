@@ -27,6 +27,7 @@
 
 
 include "enable_io.s7i";
+include "float.s7i";
 include "math.s7i";
 
 
@@ -376,11 +377,11 @@ const func complex: (attr complex) parse (in string: stri) is func
 
 (**
  *  Convert a complex to a [[string]] in decimal fixed point notation.
- *  The precision parameter specifies the number of digits after
- *  the decimal point of the real and imaginary part.
  *  The number is converted to a string with real and imaginary
  *  part (e.g.: "1.5-2.8i"). Real and imaginary part are separated
- *  with a + or - sign.
+ *  with a + or - sign. The ''precision'' parameter specifies the number
+ *  of digits after the decimal point of the real and imaginary part.
+ *  When the ''precision'' is zero the decimal point is omitted.
  *   complex(3.1415) digits 2   returns "3.14+0.00i"
  *  @return the string result of the conversion.
  *)
@@ -393,6 +394,29 @@ const func string: (in complex: number) digits (in integer: precision) is func
       stri := number.re digits precision <&        stri;
     else
       stri := number.re digits precision <& "+" <& stri;
+    end if;
+  end func;
+
+
+(**
+ *  Convert a complex to a [[string]] in scientific notation.
+ *  The number is converted to a string with real and imaginary
+ *  part (e.g.: "1.5e+2-2.8e+0i"). Real and imaginary part are separated
+ *  with a + or - sign. The ''precision'' parameter specifies the number
+ *  of digits after the decimal point of the real and imaginary part.
+ *  When the ''precision'' is zero the decimal point is omitted.
+ *   complex(31415.9, 27182.8) sci 4   returns "3.1416e+4+2.7183e+4i"
+ *  @return the string result of the conversion.
+ *)
+const func string: (in complex: number) sci (in integer: precision) is func
+  result
+    var string: stri is "";
+  begin
+    stri := number.im sci precision <& "i";
+    if stri[1] = '-' then
+      stri := number.re sci precision <&        stri;
+    else
+      stri := number.re sci precision <& "+" <& stri;
     end if;
   end func;
 

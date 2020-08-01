@@ -97,7 +97,7 @@ const func integer: (in integer: dividend) div (in integer: divisor)   is action
 
 (**
  *  Computes the remainder of an integer division of two numbers.
- *  This is the reminder of integer division div.
+ *  This is the reminder of integer division ''div''.
  *  The result has the same sign as the dividend.
  *   A rem B
  *  is equivalent to
@@ -125,7 +125,7 @@ const func integer: (in integer: dividend) mdiv (in integer: divisor)  is action
 
 (**
  *  Computes the modulo of an integer division of two numbers.
- *  The modulo is the remainder of integer division mdiv.
+ *  The modulo is the remainder of integer division ''mdiv''.
  *  The result has the same sign as the divisor.
  *   A mod B
  *  is equivalent to
@@ -429,14 +429,35 @@ const func integer: lowestSetBit (in integer: number)            is action "INT_
  *  Convert a [[string]] to an ''integer'' number.
  *  The [[string]] must contain an integer literal consisting of an
  *  optional + or - sign, followed by a sequence of digits. Other
- *  characters as well as leading or trailing whitespace charaters are
+ *  characters as well as leading or trailing whitespace characters are
  *  not allowed. The sequence of digits is taken to be decimal.
  *  @return the ''integer'' result of the conversion.
- *  @exception RANGE_ERROR When the string is empty or does not contain
+ *  @exception RANGE_ERROR When the string is empty or it does not contain
  *             an integer literal or when the integer literal is too big
  *             or too small to be represented as ''integer'' value.
  *)
 const func integer: (attr integer) parse (in string: stri)       is action "INT_PARSE";
+
+
+(**
+ *  Convert a numeric [[string]], with a specified radix, to an ''integer''.
+ *  The numeric [[string]] must contain the representation of an integer
+ *  in the specified radix. It consists of an optional + or - sign,
+ *  followed by a sequence of digits in the specified radix. Digit values
+ *  from 10 upward can be encoded with upper or lower case letters.
+ *  E.g.: 10 can be encoded with A or a, 11 with B or b, etc. Other
+ *  characters as well as leading or trailing whitespace characters
+ *  are not allowed.
+ *   integer("beef", 16)     returns  48879
+ *   integer("-177", 8)      returns   -127
+ *   integer("10101010", 2)  returns    170
+ *   integer("Cafe", 16)     returns  51966
+ *  @return the ''integer'' result of the conversion.
+ *  @exception RANGE_ERROR When base < 2 or base > 36 holds or
+ *             the string is empty or it does not contain an integer
+ *             literal with the specified base.
+ *)
+const func integer: integer (in string: stri, in integer: base)  is forward;
 
 
 const func integer: min (in integer: value1, in integer: value2) is func
@@ -455,7 +476,7 @@ const func integer: max (in integer: value1, in integer: value2) is func
   result
     var integer: maximum is 0;
   begin
-    if value1 < value2 then
+    if value1 > value2 then
       maximum := value1;
     else
       maximum := value2;

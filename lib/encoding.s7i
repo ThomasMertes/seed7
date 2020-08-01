@@ -221,8 +221,10 @@ const func string: fromQuotedPrintable (in string: quoted) is func
         startPos := equalSignPos + 2;
       elsif equalSignPos <= length(quoted) - 2 then
         twoChars := quoted[succ(equalSignPos) len 2];
-        if twoChars <> "\r\n" then
-          decoded &:= str(chr(toInt(twoChars, 16)));
+        if twoChars[1] in hexdigit_char then
+          decoded &:= str(chr(integer(twoChars, 16)));
+        elsif twoChars <> "\r\n" then
+          raise RANGE_ERROR;
         end if;
         startPos := equalSignPos + 3;
       else
@@ -400,7 +402,7 @@ const func string: fromPercentEncoded (in string: percentEncoded) is func
           decoded[succ(pos)] in hexdigit_char and
           decoded[pos + 2] in hexdigit_char then
         decoded := decoded[.. pred(pos)] &
-            str(chr(toInt(decoded[succ(pos) len 2], 16))) &
+            str(chr(integer(decoded[succ(pos) len 2], 16))) &
             decoded[pos + 3 ..];
       end if;
       pos := pos(decoded, '%', succ(pos));
@@ -467,7 +469,7 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
           urlEncoded[succ(pos)] in hexdigit_char and
           urlEncoded[pos + 2] in hexdigit_char then
         decoded &:= urlEncoded[start .. pred(pos)];
-        decoded &:= chr(toInt(urlEncoded[succ(pos) len 2], 16));
+        decoded &:= chr(integer(urlEncoded[succ(pos) len 2], 16));
         pos +:= 2;
         start := succ(pos);
       elsif ch = '+' then

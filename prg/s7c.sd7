@@ -5561,6 +5561,18 @@ const proc: process_big_parse (in ref_list: params, inout expr_type: c_expr) is 
   end func;
 
 
+const proc: process_big_parse_based (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bigint_result(c_expr);
+    c_expr.result_expr := "bigParseBased(";
+    getAnyParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ", ";
+    getStdParamToResultExpr(params[2], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_big_plus (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -16623,6 +16635,17 @@ const proc: process_tim_set_local_tz (in ref_list: params, inout expr_type: c_ex
   end func;
 
 
+const proc: process_typ_cmp (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "typCmpGeneric((generictype)(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= "), (generictype)(";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= "))";
+  end func;
+
+
 const proc: process_typ_cpy (in ref_list: params, inout expr_type: c_expr) is func
 
   local
@@ -17018,6 +17041,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_big_ord(params, c_expr);
       elsif action_name = "BIG_PARSE" then
         process_big_parse(params, c_expr);
+      elsif action_name = "BIG_PARSE_BASED" then
+        process_big_parse_based(params, c_expr);
       elsif action_name = "BIG_PLUS" then
         process_big_plus(params, c_expr);
       elsif action_name = "BIG_PRED" then
@@ -18218,7 +18243,9 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "TYP" then
-      if action_name = "TYP_CPY" then
+      if action_name = "TYP_CMP" then
+        process_typ_cmp(params, c_expr);
+      elsif action_name = "TYP_CPY" then
         process_typ_cpy(params, c_expr);
       elsif action_name = "TYP_EQ" then
         process_typ_eq(params, c_expr);
@@ -18443,6 +18470,10 @@ const proc: process_local_declaration (in reference: current_object, in var refe
         c_declaration.temp_assigns &:= str(const_table[object_value]);
         c_declaration.temp_assigns &:= "]));\n";
       end if;
+      process_destr_declaration(objectType, global_c_expr);
+      param_name := "o_";
+      create_name(current_object, param_name);
+      process_destr_call(objectType, param_name, c_declaration.temp_frees);
     elsif valueCategory = TYPEOBJECT then
       c_declaration.temp_decls &:= "=";
       c_declaration.temp_decls &:= typeLiteral(getValue(object_value, type));
@@ -18586,6 +18617,10 @@ const proc: process_local_declaration (in reference: current_object, in var refe
       c_declaration.temp_assigns &:= "=itf[";
       c_declaration.temp_assigns &:= str(const_table[object_value]);
       c_declaration.temp_assigns &:= "];\n";
+      process_destr_declaration(objectType, global_c_expr);
+      param_name := "o_";
+      create_name(current_object, param_name);
+      process_destr_call(objectType, param_name, c_declaration.temp_frees);
     elsif valueCategory = WINOBJECT then
       if getValue(object_value, PRIMITIVE_WINDOW) = PRIMITIVE_WINDOW.value then
         c_declaration.temp_decls &:= "=NULL";
@@ -19645,6 +19680,9 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
         end if;
       end if;
     elsif exprCategory = ACTOBJECT then
+      c_expr.expr &:= "/* process_expr ACTOBJECT ";
+      c_expr.expr &:= str(getValue(current_expression, ACTION));
+      c_expr.expr &:= " */";
       process_action(current_expression, ref_list.EMPTY, c_expr);
     elsif exprCategory = LOCALVOBJECT then
       if current_expression in funcparam_data then
@@ -20565,12 +20603,18 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&drwCreateGeneric";
     elsif action_name = "DRW_DESTR" then
       c_expr.expr &:= "&drwDestr";
+    elsif action_name = "ENU_CPY" then
+      c_expr.expr &:= "&intCpy";
+    elsif action_name = "ENU_CREATE" then
+      c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "FLT_CMP" then
       c_expr.expr &:= "&fltCmpGeneric";
     elsif action_name = "FLT_CPY" then
       c_expr.expr &:= "&fltCpy";
     elsif action_name = "FLT_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
+    elsif action_name = "GEN_DESTR" then
+      c_expr.expr &:= "&intDestrGeneric";
     elsif action_name = "INT_CMP" then
       c_expr.expr &:= "&intCmpGeneric";
     elsif action_name = "INT_CPY" then
@@ -20592,11 +20636,7 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
       c_expr.expr &:= "&destr_";
       c_expr.expr &:= str(typeNumber(object_type));
     elsif action_name = "PRC_NOOP" then
-      if length(formalParams(function)) = 2 then
-        c_expr.expr &:= "&intDestrGeneric";
-      else
-        c_expr.expr &:= "&prcNoop";
-      end if;
+      c_expr.expr &:= "&prcNoop";
     elsif action_name = "REF_CMP" then
       c_expr.expr &:= "&uintCmpGeneric";
     elsif action_name = "REF_CPY" then
@@ -22882,6 +22922,7 @@ const proc: write_prototypes is func
       writeln(c_prog, "#define     bigOrd bigToInt32");
     end if;
     declareExtern("biginttype  bigParse (const const_stritype);");
+    declareExtern("biginttype  bigParseBased (const const_stritype, inttype);");
     declareExtern("biginttype  bigPred (const const_biginttype);");
     declareExtern("biginttype  bigPredTemp (biginttype);");
     declareExtern("biginttype  bigRand (const const_biginttype, const const_biginttype);");
@@ -23580,6 +23621,10 @@ const proc: walk_const_list (in ref_list: const_list, inout ref_list: sorted_lis
       elsif objectCategory = BSTRIOBJECT then
         if getValue(current_object, bstring) not in bstri_const_table then
           bstri_const_table @:= [getValue(current_object, bstring)] length(bstri_const_table);
+        end if;
+      elsif objectCategory = SETOBJECT then
+        if getValue(current_object, bitset) not in set_const_table then
+          set_const_table @:= [getValue(current_object, bitset)] length(set_const_table);
         end if;
       elsif objectCategory = ARRAYOBJECT then
         if current_object not in const_table then

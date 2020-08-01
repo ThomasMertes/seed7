@@ -5745,6 +5745,115 @@ const proc: check_parse is func
       okay := FALSE;
     end if;
 
+    if  integer("11110100001001000000", 2)  <>  1000000 or
+        integer("1212210202001", 3)         <>  1000000 or
+        integer("3310021000", 4)            <>  1000000 or
+        integer("224000000", 5)             <>  1000000 or
+        integer("33233344", 6)              <>  1000000 or
+        integer("11333311", 7)              <>  1000000 or
+        integer("3641100", 8)               <>  1000000 or
+        integer("1783661", 9)               <>  1000000 or
+        integer("1000000", 10)              <>  1000000 or
+        integer("623351", 11)               <>  1000000 or
+        integer("402854", 12)               <>  1000000 or
+        integer("290221", 13)               <>  1000000 or
+        integer("1C0608", 14)               <>  1000000 or
+        integer("14B46A", 15)               <>  1000000 or
+        integer("F4240", 16)                <>  1000000 or
+        integer("BG939", 17)                <>  1000000 or
+        integer("9987A", 18)                <>  1000000 or
+        integer("7CF1B", 19)                <>  1000000 or
+        integer("65000", 20)                <>  1000000 or
+        integer("52KC1", 21)                <>  1000000 or
+        integer("45K2C", 22)                <>  1000000 or
+        integer("3D486", 23)                <>  1000000 or
+        integer("3082G", 24)                <>  1000000 or
+        integer("2E000", 25)                <>  1000000 or
+        integer("24N7E", 26)                <>  1000000 or
+        integer("1NLK1", 27)                <>  1000000 or
+        integer("1HFE8", 28)                <>  1000000 or
+        integer("1C01M", 29)                <>  1000000 or
+        integer("1713A", 30)                <>  1000000 or
+        integer("12HI2", 31)                <>  1000000 or
+        integer("UGI0", 32)                 <>  1000000 or
+        integer("RR91", 33)                 <>  1000000 or
+        integer("PF1Q", 34)                 <>  1000000 or
+        integer("NBBF", 35)                 <>  1000000 or
+        integer("LFLS", 36)                 <>  1000000 or
+        integer("+11110100001001000000", 2) <>  1000000 or
+        integer("+1212210202001", 3)        <>  1000000 or
+        integer("+3310021000", 4)           <>  1000000 or
+        integer("+224000000", 5)            <>  1000000 or
+        integer("+33233344", 6)             <>  1000000 or
+        integer("+11333311", 7)             <>  1000000 or
+        integer("+3641100", 8)              <>  1000000 or
+        integer("+1783661", 9)              <>  1000000 or
+        integer("+1000000", 10)             <>  1000000 or
+        integer("+623351", 11)              <>  1000000 or
+        integer("+402854", 12)              <>  1000000 or
+        integer("+290221", 13)              <>  1000000 or
+        integer("+1C0608", 14)              <>  1000000 or
+        integer("+14B46A", 15)              <>  1000000 or
+        integer("+F4240", 16)               <>  1000000 or
+        integer("+BG939", 17)               <>  1000000 or
+        integer("+9987A", 18)               <>  1000000 or
+        integer("+7CF1B", 19)               <>  1000000 or
+        integer("+65000", 20)               <>  1000000 or
+        integer("+52KC1", 21)               <>  1000000 or
+        integer("+45K2C", 22)               <>  1000000 or
+        integer("+3D486", 23)               <>  1000000 or
+        integer("+3082G", 24)               <>  1000000 or
+        integer("+2E000", 25)               <>  1000000 or
+        integer("+24N7E", 26)               <>  1000000 or
+        integer("+1NLK1", 27)               <>  1000000 or
+        integer("+1HFE8", 28)               <>  1000000 or
+        integer("+1C01M", 29)               <>  1000000 or
+        integer("+1713A", 30)               <>  1000000 or
+        integer("+12HI2", 31)               <>  1000000 or
+        integer("+UGI0", 32)                <>  1000000 or
+        integer("+RR91", 33)                <>  1000000 or
+        integer("+PF1Q", 34)                <>  1000000 or
+        integer("+NBBF", 35)                <>  1000000 or
+        integer("+LFLS", 36)                <>  1000000 or
+        integer("-11110100001001000000", 2) <> -1000000 or
+        integer("-1212210202001", 3)        <> -1000000 or
+        integer("-3310021000", 4)           <> -1000000 or
+        integer("-224000000", 5)            <> -1000000 or
+        integer("-33233344", 6)             <> -1000000 or
+        integer("-11333311", 7)             <> -1000000 or
+        integer("-3641100", 8)              <> -1000000 or
+        integer("-1783661", 9)              <> -1000000 or
+        integer("-1000000", 10)             <> -1000000 or
+        integer("-623351", 11)              <> -1000000 or
+        integer("-402854", 12)              <> -1000000 or
+        integer("-290221", 13)              <> -1000000 or
+        integer("-1C0608", 14)              <> -1000000 or
+        integer("-14B46A", 15)              <> -1000000 or
+        integer("-F4240", 16)               <> -1000000 or
+        integer("-BG939", 17)               <> -1000000 or
+        integer("-9987A", 18)               <> -1000000 or
+        integer("-7CF1B", 19)               <> -1000000 or
+        integer("-65000", 20)               <> -1000000 or
+        integer("-52KC1", 21)               <> -1000000 or
+        integer("-45K2C", 22)               <> -1000000 or
+        integer("-3D486", 23)               <> -1000000 or
+        integer("-3082G", 24)               <> -1000000 or
+        integer("-2E000", 25)               <> -1000000 or
+        integer("-24N7E", 26)               <> -1000000 or
+        integer("-1NLK1", 27)               <> -1000000 or
+        integer("-1HFE8", 28)               <> -1000000 or
+        integer("-1C01M", 29)               <> -1000000 or
+        integer("-1713A", 30)               <> -1000000 or
+        integer("-12HI2", 31)               <> -1000000 or
+        integer("-UGI0", 32)                <> -1000000 or
+        integer("-RR91", 33)                <> -1000000 or
+        integer("-PF1Q", 34)                <> -1000000 or
+        integer("-NBBF", 35)                <> -1000000 or
+        integer("-LFLS", 36)                <> -1000000 then
+      writeln(" ***** Conversion of numeric string with specified radix does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Integer parse does work correct.");
     end if;

@@ -107,7 +107,8 @@ rtlGenerictype from_value;
 #endif
 
   { /* drwCreateGeneric */
-    return (rtlGenerictype) (memsizetype) drwCreate((wintype) from_value);
+    return (rtlGenerictype) (memsizetype)
+           drwCreate((wintype) (memsizetype) from_value);
   } /* drwCreateGeneric */
 
 

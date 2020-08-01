@@ -40,7 +40,7 @@ const type: clib_file is newtype;
 IN_PARAM_IS_VALUE(clib_file);
 
 const proc: (ref clib_file param) ::= (ref clib_file param)           is action "FIL_CREATE";
-const proc: destroy (ref clib_file param)                             is noop;
+const proc: destroy (ref clib_file param)                             is action "GEN_DESTR";
 const proc: (inout clib_file: dest) := (ref clib_file: source)        is action "FIL_CPY";
 
 

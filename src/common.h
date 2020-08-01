@@ -84,7 +84,7 @@ typedef UINT32TYPE         uint32type;
 #define INT32TYPE_MIN              (-2147483647L)
 #endif
 #define INT32TYPE_MAX                2147483647L
-#define UINT32TYPE_MAX ((uint32type) 0xFFFFFFFFL)
+#define UINT32TYPE_MAX ((uint32type) 0xffffffffL)
 #else
 #define INT32_SUFFIX(num) num
 #define INT32TYPE_LITERAL_SUFFIX ""
@@ -94,7 +94,7 @@ typedef UINT32TYPE         uint32type;
 #define INT32TYPE_MIN              (-2147483647)
 #endif
 #define INT32TYPE_MAX                2147483647
-#define UINT32TYPE_MAX ((uint32type) 0xFFFFFFFF)
+#define UINT32TYPE_MAX ((uint32type) 0xffffffff)
 #endif
 
 #if   defined INT32TYPE_FORMAT_L
@@ -117,7 +117,7 @@ typedef UINT64TYPE         uint64type;
 #define INT64TYPE_MIN               (-9223372036854775807LL)
 #endif
 #define INT64TYPE_MAX                 9223372036854775807LL
-#define UINT64TYPE_MAX ((uint64type) 18446744073709551615LL)
+#define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffffLL)
 #elif defined INT64TYPE_SUFFIX_L
 #define INT64_SUFFIX(num) num ## L
 #define INT64TYPE_LITERAL_SUFFIX "L"
@@ -127,7 +127,7 @@ typedef UINT64TYPE         uint64type;
 #define INT64TYPE_MIN               (-9223372036854775807L)
 #endif
 #define INT64TYPE_MAX                 9223372036854775807L
-#define UINT64TYPE_MAX ((uint64type) 18446744073709551615L)
+#define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffffL)
 #else
 #define INT64_SUFFIX(num) num
 #define INT64TYPE_LITERAL_SUFFIX ""
@@ -137,7 +137,7 @@ typedef UINT64TYPE         uint64type;
 #define INT64TYPE_MIN               (-9223372036854775807)
 #endif
 #define INT64TYPE_MAX                 9223372036854775807
-#define UINT64TYPE_MAX ((uint64type) 18446744073709551615)
+#define UINT64TYPE_MAX ((uint64type)   0xffffffffffffffff)
 #endif
 
 #if   defined INT64TYPE_FORMAT_L
@@ -186,6 +186,21 @@ typedef uint64type              uinttype;
 #define uintLeastSignificantBit uint64LeastSignificantBit
 #endif
 
+#if SHORT_SIZE < INTTYPE_SIZE
+#define inShortRange(num) ((num) >= SHRT_MIN && (num) <= SHRT_MAX)
+#define castToShort(num)  (inShortRange(num) ? (short int) (num) : (raise_error(RANGE_ERROR), (short int) 0))
+#else
+#define inShortRange(num) 1
+#define castToShort(num)  ((short int) (num))
+#endif
+
+#if INT_SIZE < INTTYPE_SIZE
+#define inIntRange(num) ((num) >= INT_MIN && (num) <= INT_MAX)
+#define castToInt(num)  (inIntRange(num) ? (int) (num) : (raise_error(RANGE_ERROR), 0))
+#else
+#define inIntRange(num) 1
+#define castToInt(num)  ((int) (num))
+#endif
 
 #if   BITSETTYPE_SIZE == 32
 typedef uint32type         bitsettype;
@@ -285,8 +300,8 @@ typedef int errinfotype;
 /* assure that they are never called with this values. Since */
 /* the calls either use data from an existing array or use   */
 /* 1 as min_position this condition is fulfilled.            */
-#define arraySize(arr) ((uinttype) (arr)->max_position - (uinttype) (arr)->min_position + 1)
-#define arraySize2(min_position,max_position) ((uinttype) (max_position) - (uinttype) (min_position) + 1)
+#define arraySize(arr) (memsizetype) ((uinttype) (arr)->max_position - (uinttype) (arr)->min_position + 1)
+#define arraySize2(min_position,max_position) (memsizetype) ((uinttype) (max_position) - (uinttype) (min_position) + 1)
 
 
 typedef struct setstruct      *settype;

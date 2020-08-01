@@ -208,7 +208,7 @@ rtlArraytype arg_v;
                 position++;
                 opt = stri_to_standard_path(arg_v->arr[position].value.strivalue);
                 if (seed7_libraries != NULL) {
-                  arrPush(&seed7_libraries, (rtlGenerictype) opt);
+                  arrPush(&seed7_libraries, (rtlGenerictype) (memsizetype) opt);
                 } /* if */
                 arg_v->arr[position].value.strivalue = NULL;
                 opt = NULL;

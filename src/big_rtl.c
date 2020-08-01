@@ -3086,7 +3086,8 @@ rtlGenerictype value2;
 #endif
 
   { /* bigCmpGeneric */
-    return bigCmp((const_biginttype) value1, (const_biginttype) value2);
+    return bigCmp((const_biginttype) (memsizetype) value1,
+                  (const_biginttype) (memsizetype) value2);
   } /* bigCmpGeneric */
 
 
@@ -3219,7 +3220,8 @@ rtlGenerictype from_value;
 #endif
 
   { /* bigCreateGeneric */
-    return (rtlGenerictype) (memsizetype) bigCreate((const_biginttype) from_value);
+    return (rtlGenerictype) (memsizetype)
+           bigCreate((const_biginttype) (memsizetype) from_value);
   } /* bigCreateGeneric */
 
 

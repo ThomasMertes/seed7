@@ -47,7 +47,7 @@ const func bigRational: compute_pi_bailey_borwein_plouffe is func
     end for;
   end func;
 
- const proc: main is func
-   begin
-     writeln(compute_pi_bailey_borwein_plouffe digits 1000);
-   end func;
+const proc: main is func
+  begin
+    writeln(compute_pi_bailey_borwein_plouffe digits 1000);
+  end func;

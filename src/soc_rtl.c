@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
+#include "limits.h"
 #ifdef USE_WINSOCK
 #define FD_SETSIZE 16384
 #include "winsock2.h"
@@ -813,7 +814,7 @@ inttype port;
         result = NULL;
       } else {
 #ifdef USE_GETADDRINFO
-        sprintf(servicename, "%u", port);
+        sprintf(servicename, "%u", (unsigned int) port);
         memset(&hints, 0, sizeof(struct addrinfo));
         hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
@@ -962,7 +963,7 @@ inttype port;
       result = NULL;
     } else {
 #ifdef USE_GETADDRINFO
-      sprintf(servicename, "%u", port);
+      sprintf(servicename, "%u", (unsigned int) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
@@ -1035,7 +1036,7 @@ inttype port;
       result = NULL;
     } else {
 #ifdef USE_GETADDRINFO
-      sprintf(servicename, "%u", port);
+      sprintf(servicename, "%u", (unsigned int) port);
       memset(&hints, 0, sizeof(struct addrinfo));
       hints.ai_family = AF_UNSPEC;
       hints.ai_socktype = SOCK_STREAM;
@@ -1436,7 +1437,9 @@ inttype backlog;
 #endif
 
   { /* socListen */
-    if (unlikely(listen(sock, backlog) != 0)) {
+    if (!inIntRange(backlog)) {
+      raise_error(RANGE_ERROR);
+    } else if (unlikely(listen(sock, (int) backlog) != 0)) {
       /* printf("socListen(%d) errno=%d %s\n", sock, errno, strerror(errno));
       printf("WSAGetLastError=%d\n", WSAGetLastError());
       printf("WSANOTINITIALISED=%ld, WSAENETDOWN=%ld, WSAEFAULT=%ld, WSAENOTCONN=%ld\n",
@@ -1473,7 +1476,7 @@ inttype flags;
     memsizetype new_stri_size;
 
   /* socRecv */
-    if (unlikely(length < 0)) {
+    if (unlikely(length < 0 || !inIntRange(flags))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1494,7 +1497,7 @@ inttype flags;
         old_stri_size = bytes_requested;
       } /* if */
       new_stri_size = (memsizetype) recv(sock, cast_send_recv_data((*stri)->mem),
-                                         cast_buffer_len(bytes_requested), flags);
+                                         cast_buffer_len(bytes_requested), (int) flags);
       if (new_stri_size > 0) {
         uchartype *from = &((uchartype *) (*stri)->mem)[new_stri_size - 1];
         strelemtype *to = &(*stri)->mem[new_stri_size - 1];
@@ -1543,7 +1546,7 @@ bstritype *address;
     memsizetype stri_size;
 
   /* socRecvfrom */
-    if (unlikely(length < 0)) {
+    if (unlikely(length < 0 || !inIntRange(flags))) {
       raise_error(RANGE_ERROR);
       return 0;
     } else {
@@ -1577,7 +1580,7 @@ bstritype *address;
         COUNT3_BSTRI(old_address_size, MAX_ADDRESS_SIZE);
         addrlen = MAX_ADDRESS_SIZE;
         stri_size = (memsizetype) recvfrom(sock, cast_send_recv_data((*stri)->mem),
-                                           cast_buffer_len(bytes_requested), flags,
+                                           cast_buffer_len(bytes_requested), (int) flags,
                                            (struct sockaddr *) (*address)->mem, &addrlen);
         if (unlikely(stri_size == (memsizetype) -1 || addrlen < 0 || addrlen > MAX_ADDRESS_SIZE)) {
           REALLOC_BSTRI_SIZE_OK(resized_address, *address, MAX_ADDRESS_SIZE, old_address_size);
@@ -1648,13 +1651,13 @@ inttype flags;
     if (unlikely(buf == NULL)) {
       raise_error(MEMORY_ERROR);
       result = 0;
-    } else if (unlikely(buf->size != stri->size)) {
+    } else if (unlikely(buf->size != stri->size || !inIntRange(flags))) {
       FREE_BSTRI(buf, buf->size);
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
       bytes_sent = (memsizetype) send(sock, cast_send_recv_data(buf->mem),
-                                      cast_buffer_len(buf->size), flags);
+                                      cast_buffer_len(buf->size), (int) flags);
       FREE_BSTRI(buf, buf->size);
       if (unlikely(bytes_sent == (memsizetype) -1)) {
         result = -1;
@@ -1692,13 +1695,13 @@ bstritype address;
     if (unlikely(buf == NULL)) {
       raise_error(MEMORY_ERROR);
       result = 0;
-    } else if (unlikely(buf->size != stri->size)) {
+    } else if (unlikely(buf->size != stri->size || !inIntRange(flags))) {
       FREE_BSTRI(buf, buf->size);
       raise_error(RANGE_ERROR);
       result = 0;
     } else {
       bytes_sent = (memsizetype) sendto(sock, cast_send_recv_data(buf->mem),
-                                        cast_buffer_len(buf->size), flags,
+                                        cast_buffer_len(buf->size), (int) flags,
                                         (const struct sockaddr *) address->mem,
                                         (socklen_type) address->size);
       FREE_BSTRI(buf, buf->size);
@@ -1730,17 +1733,21 @@ inttype protocol;
     sockettype result;
 
   /* socSocket */
-    /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
-    check_initialization((sockettype) -1);
-    result = socket(domain, type, protocol);
+    if (!inIntRange(domain) || !inIntRange(type) || !inIntRange(protocol)) {
+      raise_error(RANGE_ERROR);
+    } else {
+      /* printf("socSocket(%d, %d, %d)\n", domain, type, protocol); */
+      check_initialization((sockettype) -1);
+      result = socket((int) domain, (int) type, (int) protocol);
 #if defined USE_WINSOCK && !defined TWOS_COMPLEMENT_INTTYPE
-    /* In this case INVALID_SOCKET != (sockettype) -1 holds and    */
-    /* (sockettype) -1 must be returned instead of INVALID_SOCKET. */
-    /* Probably a computer, which needs this, does not exist.      */
-    if (unlikely(result == INVALID_SOCKET)) {
-      result = (sockettype) -1;
-    } /* if */
+      /* In this case INVALID_SOCKET != (sockettype) -1 holds and    */
+      /* (sockettype) -1 must be returned instead of INVALID_SOCKET. */
+      /* Probably a computer, which needs this, does not exist.      */
+      if (unlikely(result == INVALID_SOCKET)) {
+        result = (sockettype) -1;
+      } /* if */
 #endif
+    } /* if */
     return result;
   } /* socSocket */
 

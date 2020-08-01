@@ -412,21 +412,73 @@ const func string: (in bigRational: number) digits (in integer: precision) is fu
 
 (**
  *  Convert a string to a ''bigRational'' number.
- *  The string must contain a fraction (e.g.: "3/5"), were numerator
- *  and denominator are separated with a slash (/).
+ *  The string must contain a fraction (e.g.: "3/5") or a decimal number
+ *  (e.g.: "1.25"). In a fraction numerator and denominator are separated
+ *  with a slash (/). A decimal number can have repeating decimals,
+ *  which are enclosed in parentheses ("e.g.: "0.(3)"). The repeating
+ *  decimals are not allowed to start before the decimal point.
+ *   bigRational parse "3/5"         returns   3_ /   5_
+ *   bigRational parse "1.25"        returns   5_ /   4_
+ *   bigRational parse "0.(3)"       returns   1_ /   3_
+ *   bigRational parse "1.23(45)"    returns 679_ / 550_
+ *   bigRational parse "3.(142857)"  returns  22_ /   7_
+ *   bigRational parse "0.(846153)"  returns  11_ /  13_
  *  @return the ''bigRational'' result of the conversion.
  *  @exception RANGE_ERROR When stri contains not a valid ''bigRational'' value.
  *)
 const func bigRational: (attr bigRational) parse (in var string: stri) is func
   result
     var bigRational: aRational is bigRational.value;
+  local
+    var string: fraction is "";
+    var string: period is "";
   begin
-    aRational.numerator := bigInteger parse getint(stri);
-    if stri[1] <> '/' then
+    if stri <> "" then
+      if stri[1] = '-' then
+        stri := stri[2 ..];
+        aRational.numerator := -bigInteger parse getint(stri);
+      else
+        if stri[1] = '+' then
+          stri := stri[2 ..];
+        end if;
+        aRational.numerator := bigInteger parse getint(stri);
+      end if;
+      if stri[1] = '/' then
+        stri := stri[2 ..];
+        aRational.denominator := bigInteger parse getint(stri);
+        reduce(aRational);
+      elsif stri[1] = '.' then
+        stri := stri[2 ..];
+        if startsWith(stri, "(") then
+          stri := stri[2 ..];
+          period := getint(stri);
+          aRational.denominator := 1_;
+          aRational +:= bigInteger parse period / pred(10_ ** length(period));
+          if stri[1] = ')' then
+            stri := stri[2 ..];
+          end if;
+        else
+          fraction := getint(stri);
+          aRational.denominator := 10_ ** length(fraction);
+          aRational.numerator *:= aRational.denominator;
+          aRational.numerator +:= bigInteger parse fraction;
+          if startsWith(stri, "(") then
+            stri := stri[2 ..];
+            period := getint(stri);
+            aRational +:= bigInteger parse period / (pred(10_ ** length(period)) * aRational.denominator);
+            if stri[1] = ')' then
+              stri := stri[2 ..];
+            end if;
+          end if;
+        end if;
+        reduce(aRational);
+      end if;
+      if stri <> "" then
+        raise RANGE_ERROR;
+      end if;
+    else
       raise RANGE_ERROR;
     end if;
-    stri := stri[2 ..];
-    aRational.denominator := bigInteger parse getint(stri);
   end func;
 
 

@@ -182,7 +182,8 @@ rtlGenerictype value2;
 #endif
 
   { /* bstCmpGeneric */
-    return bstCmp((const_bstritype) value1, (const_bstritype) value2);
+    return bstCmp((const_bstritype) (memsizetype) value1,
+                  (const_bstritype) (memsizetype) value2);
   } /* bstCmpGeneric */
 
 
@@ -267,7 +268,8 @@ rtlGenerictype from_value;
 #endif
 
   { /* bstCreateGeneric */
-    return (rtlGenerictype) (memsizetype) bstCreate((const_bstritype) from_value);
+    return (rtlGenerictype) (memsizetype)
+           bstCreate((const_bstritype) (memsizetype) from_value);
   } /* bstCreateGeneric */
 
 

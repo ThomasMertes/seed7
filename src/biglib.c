@@ -226,6 +226,7 @@ listtype arguments;
     isit_bigint(arg_1(arguments));
     bigDestr(take_bigint(arg_1(arguments)));
     arg_1(arguments)->value.bigintvalue = NULL;
+    SET_UNUSED_FLAG(arg_1(arguments));
     return SYS_EMPTY_OBJECT;
   } /* big_destr */
 
@@ -704,6 +705,24 @@ listtype arguments;
     return bld_bigint_temp(
         bigParse(take_stri(arg_3(arguments))));
   } /* big_parse */
+
+
+
+#ifdef ANSI_C
+
+objecttype big_parse_based (listtype arguments)
+#else
+
+objecttype big_parse_based (arguments)
+listtype arguments;
+#endif
+
+  { /* big_parse_based */
+    isit_stri(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    return bld_bigint_temp(
+        bigParseBased(take_stri(arg_1(arguments)), take_int(arg_2(arguments))));
+  } /* big_parse_based */
 
 
 

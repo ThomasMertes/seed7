@@ -890,7 +890,8 @@ rtlGenerictype value2;
 #endif
 
   { /* strCmpGeneric */
-    return strCompare((const_stritype) value1, (const_stritype) value2);
+    return strCompare((const_stritype) (memsizetype) value1,
+                      (const_stritype) (memsizetype) value2);
   } /* strCmpGeneric */
 
 
@@ -1221,7 +1222,8 @@ rtlGenerictype from_value;
 #endif
 
   { /* strCreateGeneric */
-    return (rtlGenerictype) (memsizetype) strCreate((const_stritype) from_value);
+    return (rtlGenerictype) (memsizetype)
+           strCreate((const_stritype) (memsizetype) from_value);
   } /* strCreateGeneric */
 
 
