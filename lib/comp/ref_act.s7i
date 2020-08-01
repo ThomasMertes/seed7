@@ -65,6 +65,39 @@ const ACTION: REF_TYPE           is action "REF_TYPE";
 const ACTION: REF_VALUE          is action "REF_VALUE";
 
 
+const proc: ref_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "objRefType  refAlloc (objRefType);");
+    declareExtern(c_prog, "intType     refArrMaxIdx (objRefType);");
+    declareExtern(c_prog, "intType     refArrMinIdx (objRefType);");
+    declareExtern(c_prog, "listType    refArrToList (objRefType);");
+    declareExtern(c_prog, "objRefType  refBody (objRefType);");
+    declareExtern(c_prog, "intType     refCategory (objRefType);");
+    declareExtern(c_prog, "striType    refCatStr (intType);");
+    declareExtern(c_prog, "striType    refFile (objRefType);");
+    declareExtern(c_prog, "listType    refHshDataToList (objRefType);");
+    declareExtern(c_prog, "listType    refHshKeysToList (objRefType);");
+    declareExtern(c_prog, "boolType    refIsVar (objRefType);");
+    declareExtern(c_prog, "objRefType  refItfToSct (objRefType);");
+    declareExtern(c_prog, "intType     refLine (objRefType);");
+    declareExtern(c_prog, "listType    refLocalConsts (objRefType);");
+    declareExtern(c_prog, "listType    refLocalVars (objRefType);");
+    declareExtern(c_prog, "intType     refNum (objRefType);");
+    declareExtern(c_prog, "listType    refParams (objRefType);");
+    declareExtern(c_prog, "objRefType  refResini (objRefType);");
+    declareExtern(c_prog, "objRefType  refResult (objRefType);");
+    declareExtern(c_prog, "listType    refSctToList (objRefType);");
+    declareExtern(c_prog, "void        refSetCategory (objRefType, intType);");
+    declareExtern(c_prog, "void        refSetParams (objRefType, const_listType);");
+    declareExtern(c_prog, "void        refSetType (objRefType, typeType);");
+    declareExtern(c_prog, "void        refSetVar (objRefType, boolType);");
+    declareExtern(c_prog, "striType    refStr (objRefType);");
+    declareExtern(c_prog, "typeType    refType (objRefType);");
+    declareExtern(c_prog, "objRefType  refValue (objRefType);");
+  end func;
+
+
 const proc: process (REF_ADDR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

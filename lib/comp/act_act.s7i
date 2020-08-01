@@ -33,6 +33,16 @@ const ACTION: ACT_STR    is action "ACT_STR";
 const ACTION: ACT_VALUE  is action "ACT_VALUE";
 
 
+const proc: act_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "actType     actIConv (intType);");
+    declareExtern(c_prog, "intType     actOrd (actType);");
+    declareExtern(c_prog, "striType    actStr (actType);");
+    declareExtern(c_prog, "actType     actValue (objRefType);");
+  end func;
+
+
 const proc: process (ACT_CPY, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

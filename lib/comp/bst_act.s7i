@@ -37,6 +37,26 @@ const ACTION: BST_STR       is action "BST_STR";
 const ACTION: BST_VALUE     is action "BST_VALUE";
 
 
+const proc: bst_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        bstAppend (bstriType *const, const_bstriType);");
+    declareExtern(c_prog, "bstriType   bstCat (const_bstriType, const_bstriType);");
+    declareExtern(c_prog, "intType     bstCmp (const const_bstriType, const const_bstriType);");
+    declareExtern(c_prog, "intType     bstCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "void        bstCpy (bstriType *const, const const_bstriType);");
+    declareExtern(c_prog, "void        bstCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "bstriType   bstCreate (const const_bstriType);");
+    declareExtern(c_prog, "genericType bstCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        bstDestr (const const_bstriType);");
+    declareExtern(c_prog, "void        bstDestrGeneric (const genericType);");
+    declareExtern(c_prog, "intType     bstHashCode (const const_bstriType);");
+    declareExtern(c_prog, "bstriType   bstParse (const const_striType);");
+    declareExtern(c_prog, "striType    bstStr (const const_bstriType);");
+    declareExtern(c_prog, "bstriType   bstValue (objRefType);");
+  end func;
+
+
 const proc: process (BST_APPEND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

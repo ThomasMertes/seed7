@@ -45,6 +45,8 @@ const string: chkint_output is "\n\
   \Conversion of little endian byte string to integer works correct.\n\
   \-i is correct computed in the range -10 to 10.\n\
   \Addition works correct for selected values.\n\
+  \Subtraction works correct for selected values.\n\
+  \Multiplication works correct for selected values.\n\
   \a div b is integer division and a rem b is integer remainder:\n\
   \for positive and negative a and b\n\
   \(a div b) * b + (a rem b) = a  holds for positive and negative a and b\n\
@@ -58,7 +60,7 @@ const string: chkint_output is "\n\
   \!i works correct for i in the range 0 to 12.\n\
   \n ! k is correct for n <= 30.\n\
   \Power works correct for selected values.\n\
-  \Computing powers of two works correct.\n\
+  \The integer abs function works correct.\n\
   \Integer sqrt is correct for values between 0 and 1000.\n\
   \Integer sqrt is correct for 11000 random values.\n\
   \The integer log2 function works correct.\n\

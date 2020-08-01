@@ -46,6 +46,34 @@ const ACTION: RFL_TAIL       is action "RFL_TAIL";
 const ACTION: RFL_VALUE      is action "RFL_VALUE";
 
 
+const proc: rfl_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        rflAppend (listType *const, const listType);");
+    declareExtern(c_prog, "listType    rflCat (listType, const listType);");
+    declareExtern(c_prog, "intType     rflCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "void        rflCpy (listType *const, const const_listType);");
+    declareExtern(c_prog, "void        rflCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "listType    rflCreate (const const_listType);");
+    declareExtern(c_prog, "genericType rflCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        rflDestr (const listType);");
+    declareExtern(c_prog, "void        rflDestrGeneric (const genericType);");
+    declareExtern(c_prog, "boolType    rflElem (const const_objRefType, const_listType);");
+    declareExtern(c_prog, "void        rflElemcpy (listType, intType, objRefType);");
+    declareExtern(c_prog, "boolType    rflEq (const_listType, const_listType);");
+    declareExtern(c_prog, "listType    rflHead (const listType, intType);");
+    declareExtern(c_prog, "objRefType  rflIdx (const_listType, intType);");
+    declareExtern(c_prog, "void        rflIncl (listType *, objRefType);");
+    declareExtern(c_prog, "intType     rflIpos (listType, objRefType, intType);");
+    declareExtern(c_prog, "intType     rflLng (const_listType);");
+    declareExtern(c_prog, "listType    rflMklist (objRefType);");
+    declareExtern(c_prog, "intType     rflPos (const_listType, const const_objRefType);");
+    declareExtern(c_prog, "void        rflSetValue (objRefType, listType);");
+    declareExtern(c_prog, "listType    rflTail (const_listType, intType);");
+    declareExtern(c_prog, "listType    rflValue (objRefType);");
+  end func;
+
+
 const proc: process (RFL_APPEND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

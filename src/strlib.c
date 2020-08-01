@@ -431,7 +431,7 @@ objectType str_cmp (listType arguments)
   {
     striType stri1;
     striType stri2;
-    intType result;
+    intType signumValue;
 
   /* str_cmp */
     isit_stri(arg_1(arguments));
@@ -439,17 +439,17 @@ objectType str_cmp (listType arguments)
     stri1 = take_stri(arg_1(arguments));
     stri2 = take_stri(arg_2(arguments));
     if (stri1->size < stri2->size) {
-      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
-      if (result == 0) {
-        result = -1;
+      signumValue = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
+      if (signumValue == 0) {
+        signumValue = -1;
       } /* if */
     } else {
-      result = strelem_memcmp(stri1->mem, stri2->mem, stri2->size);
-      if (result == 0 && stri1->size > stri2->size) {
-        result = 1;
+      signumValue = strelem_memcmp(stri1->mem, stri2->mem, stri2->size);
+      if (signumValue == 0 && stri1->size > stri2->size) {
+        signumValue = 1;
       } /* if */
     } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(signumValue);
   } /* str_cmp */
 
 
@@ -859,12 +859,9 @@ objectType str_lng (listType arguments)
 #if POINTER_SIZE > INTTYPE_SIZE
     if (stri->size > MAX_MEM_INDEX) {
       return raise_exception(SYS_RNG_EXCEPTION);
-    } else {
-      return bld_int_temp((intType) stri->size);
     } /* if */
-#else
-    return bld_int_temp((intType) stri->size);
 #endif
+    return bld_int_temp((intType) stri->size);
   } /* str_lng */
 
 

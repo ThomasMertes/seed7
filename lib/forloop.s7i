@@ -95,6 +95,69 @@ const proc: FOR_STEP_DECLS (in type: aType) is func
 
 
 (**
+ *  Template function to define for-loops with condition for ''aType''.
+ *  Defines an upward and a downward counting for-loop which
+ *  increments/decrements the loop variable with 1. Additionally
+ *  a condition is checked before the statements in the loop body
+ *  are executed.
+ *)
+const proc: FOR_UNTIL_DECLS (in type: aType) is func
+  begin
+    const proc: for (inout aType: variable)
+                range (in aType: lowerLimit)
+                to (in aType: upperLimit)
+                until (ref func boolean: condition)
+                do (in proc: statements) end for is func
+      begin
+        variable := lowerLimit;
+        while variable <= upperLimit and not condition do
+          statements;
+          incr(variable);
+        end while;
+      end func;
+
+    const proc: for (inout aType: variable)
+                range (in aType: lowerLimit)
+                to (in aType: upperLimit)
+                until (ref boolean: condition)
+                do (in proc: statements) end for is func
+      begin
+        variable := lowerLimit;
+        while variable <= upperLimit and not condition do
+          statements;
+          incr(variable);
+        end while;
+      end func;
+
+    const proc: for (inout aType: variable)
+                range (in aType: upperLimit)
+                downto (in aType: lowerLimit)
+                until (ref func boolean: condition)
+                do (in proc: statements) end for is func
+      begin
+        variable := upperLimit;
+        while variable >= lowerLimit and not condition do
+          statements;
+          decr(variable);
+        end while;
+      end func;
+
+    const proc: for (inout aType: variable)
+                range (in aType: upperLimit)
+                downto (in aType: lowerLimit)
+                until (ref boolean: condition)
+                do (in proc: statements) end for is func
+      begin
+        variable := upperLimit;
+        while variable >= lowerLimit and not condition do
+          statements;
+          decr(variable);
+        end while;
+      end func;
+  end func;
+
+
+(**
  *  Template function to define all for-loops for ''aType''.
  *  Defines upward and downward counting for-loops which
  *  increment/decrement the loop variable with 1 or with a
@@ -130,10 +193,12 @@ const proc: FOR_DECLS (in type: aType) is func
         end if;
       end func;
 
+    FOR_UNTIL_DECLS(aType);
     FOR_STEP_DECLS(aType);
   end func;
 
 
+FOR_UNTIL_DECLS(integer);
 FOR_STEP_DECLS(integer);
 FOR_DECLS(char);
 FOR_DECLS(boolean);

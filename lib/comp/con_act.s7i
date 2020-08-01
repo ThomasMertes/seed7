@@ -36,6 +36,23 @@ const ACTION: CON_WIDTH   is action "CON_WIDTH";
 const ACTION: CON_WRITE   is action "CON_WRITE";
 
 
+const proc: con_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        conClear (intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        conCursor (boolType);");
+    declareExtern(c_prog, "void        conFlush (void);");
+    declareExtern(c_prog, "int         conHeight (void);");
+    declareExtern(c_prog, "void        conHScroll (intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "int         conOpen (void);");
+    declareExtern(c_prog, "void        conSetpos (intType, intType);");
+    declareExtern(c_prog, "void        conShut (void);");
+    declareExtern(c_prog, "void        conVScroll (intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "int         conWidth (void);");
+    declareExtern(c_prog, "void        conWrite (const_striType);");
+  end func;
+
+
 const proc: process (CON_CLEAR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

@@ -105,12 +105,13 @@ CONTENTS
   8.11    Scanning a file
   9.    STRUCTURED SYNTAX DEFINITION
   9.1     The Extended Backus-Naur Form
-  9.2     The syntax of a statement
-  9.3     Priority and associativity
-  9.4     The syntax of operators
-  9.5     Syntax of predefined statements
-  9.6     Advanced syntax definitions
-  9.7     Comparison of EBNF and S7SSD
+  9.2     The Seed7 Structured Syntax Description
+  9.3     The syntax of a statement
+  9.4     Priority and associativity
+  9.5     The syntax of operators
+  9.6     Syntax of predefined statements
+  9.7     Advanced syntax definitions
+  9.8     Comparison of EBNF and S7SSD
   10.   TOKENS
   10.1    White space
   10.1.1    Spaces
@@ -6925,7 +6926,37 @@ CONTENTS
       '{' ebnf_expression '}' .
 
 
-9.2 The syntax of a statement
+9.2 The Seed7 Structured Syntax Description
+
+    The Seed7 Structured Syntax Description is abreviated with S7SSD.
+  The S7SSD can describe most but not all of the syntax of a
+  programming language. The syntax of identifiers, literals and
+  comments is not described with S7SSD. S7SSD views a program as
+  a big typeless expression. The syntax of this expression is
+  described with prefix-, infix- and postfix-operators. The operators
+  have a priority and an associativity. Operators can have one or
+  more operator symbols. The operator symbols of an operator can be
+  adjacent or they can have parameters in between. The S7SSD of
+  an infix + is:
+
+    $ syntax expr: .(). + .()   is -> 7;
+
+  This defines the + as left associative infix operator with
+  priority 7. The + operator is an infix operator because the
+  operator pattern is:
+
+    () + ()
+
+  The place of the parameters is specified with (). Any expression
+  can be used as parameter. The type of the parameters and the type
+  of the result of + is not specified by the S7SSD. Checks for the
+  correct type are not done at the syntactic level. This way S7SSD
+  allows syntax that would not be allowed in a corresponding EBNF
+  description. S7SSD considers just operator symbols and their
+  priority and associativity.
+
+
+9.3 The syntax of a statement
 
     To explain the Seed7 Structured Syntax Description we design a
   new statement, the loop-statement. The loop-statement should
@@ -7068,7 +7099,7 @@ CONTENTS
     *** chkloop.sd7(35):51: Match for {loop "X" until {1 + 2 } do integer end loop } failed
 
 
-9.3 Priority and associativity
+9.4 Priority and associativity
 
     When a syntax construct has parameters before the first symbol
   or after the last symbol the priority and the associativity of the
@@ -7176,7 +7207,7 @@ CONTENTS
   Middle operands can have any priority.
 
 
-9.4 The syntax of operators
+9.5 The syntax of operators
 
     A syntax definition specifies the way a usage of a statement
   or operator must be written. For example a call of the
@@ -7349,7 +7380,7 @@ CONTENTS
       operators '*', '/', 'div', 'rem', 'mdiv' and 'mod'.
 
 
-9.5 Syntax of predefined statements
+9.6 Syntax of predefined statements
 
     Predefined statements can also be defined with S7SSD.
   E.g.: The while-statement. A use of the while-statement is:
@@ -7464,7 +7495,7 @@ CONTENTS
   is described in the next chapter.
 
 
-9.6 Advanced syntax definitions
+9.7 Advanced syntax definitions
 
   When we want to use some special syntax which should be only
   allowed at some place we do the following:
@@ -7594,7 +7625,7 @@ CONTENTS
   legal if-statements can be written.
 
 
-9.7 Comparison of EBNF and S7SSD
+9.8 Comparison of EBNF and S7SSD
 
   In the S7SSD of the loop-statement
 

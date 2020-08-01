@@ -239,6 +239,39 @@ const func integer: length (in string: stri)                     is action "STR_
 
 
 (**
+ *  Determine if a string starts with a ''prefix''.
+ *   startsWith("tmp_s7c.c", "tmp_")  returns TRUE
+ *   startsWith("example", "E")       returns FALSE
+ *  @return TRUE if ''stri'' starts with ''prefix'',
+ *          FALSE otherwise.
+ *)
+const func boolean: startsWith (in string: stri, in string: prefix) is
+  return stri[.. length(prefix)] = prefix;
+
+
+(**
+ *  Determine if a string ends with a ''suffix''.
+ *   endsWith("hello.sd7", ".sd7")  returns TRUE
+ *   endsWith("A string", "\0;")    returns FALSE
+ *  @return TRUE if ''stri'' ends with ''suffix'',
+ *          FALSE otherwise.
+ *)
+const func boolean: endsWith (in string: stri, in string: suffix) is
+  return stri[succ(length(stri) - length(suffix)) ..] = suffix;
+
+
+(**
+ *  Check if ''stri'' has the ''searched'' characters starting from ''index''.
+ *   equalAtIndex("The quick brown fox", "quick", 5)  returns TRUE
+ *   equalAtIndex("axis", "xi", 3)                    returns FALSE
+ *  @return TRUE if ''stri'' has the ''searched'' characters starting from ''index'',
+ *          FALSE otherwise.
+ *)
+const func boolean: equalAtIndex (in string: stri, in string: searched, in integer: index) is
+  return stri[index len length(searched)] = searched;
+
+
+(**
  *  Determine leftmost position of string ''searched'' in ''mainStri''.
  *  When the string is found the position of its first character
  *  is the result. The first character in a string has the position 1.
@@ -272,7 +305,7 @@ const func integer: pos (in string: mainStri, in char: searched)    is action "S
  *
  *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched'' at or after ''fromIndex''.
- *  @exception RANGE_ERROR ''fromIndex'' <= 0 holds.
+ *  @exception RANGE_ERROR When ''fromIndex'' <= 0 holds.
  *)
 const func integer: pos (in string: mainStri, in string: searched,
                          in integer: fromIndex)                     is action "STR_IPOS";
@@ -284,7 +317,7 @@ const func integer: pos (in string: mainStri, in string: searched,
  *  The first character in a string has the position 1.
  *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched'' at or after ''fromIndex''.
- *  @exception RANGE_ERROR ''fromIndex'' <= 0 holds.
+ *  @exception RANGE_ERROR When ''fromIndex'' <= 0 holds.
  *)
 const func integer: pos (in string: mainStri, in char: searched,
                          in integer: fromIndex)                     is action "STR_CHIPOS";
@@ -323,7 +356,7 @@ const func integer: rpos (in string: mainStri, in char: searched)   is action "S
  *
  *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched'' at or before ''fromIndex''.
- *  @exception RANGE_ERROR ''fromIndex'' > length(stri) holds.
+ *  @exception RANGE_ERROR When ''fromIndex'' > length(stri) holds.
  *)
 const func integer: rpos (in string: mainStri, in string: searched,
                           in integer: fromIndex)                    is action "STR_RIPOS";
@@ -335,7 +368,7 @@ const func integer: rpos (in string: mainStri, in string: searched,
  *  The first character in a string has the position 1.
  *  @return the position of ''searched'' or 0 when ''mainStri''
  *          does not contain ''searched'' at or before ''fromIndex''.
- *  @exception RANGE_ERROR ''fromIndex'' > length(stri) holds.
+ *  @exception RANGE_ERROR When ''fromIndex'' > length(stri) holds.
  *)
 const func integer: rpos (in string: mainStri, in char: searched,
                           in integer: fromIndex)                    is action "STR_RCHIPOS";
@@ -345,8 +378,16 @@ const func integer: rpos (in string: mainStri, in char: searched,
 
 
 (**
- *  Replace all occurrences of ''target'' in ''mainStri'' by ''replacement''.
- *   replace("old gold", "old", "one")  returns "one gone"
+ *  Replace occurrences of ''target'' in ''mainStri'' by ''replacement''.
+ *  The function processes ''mainStri'' from left to right and replaces
+ *  ''target'' by ''replacement''. After a ''target'' has been replaced
+ *  the search for the next ''target'' starts after the ''replacement''.
+ *  If a replacement creates new occurances of ''target'' they are left
+ *  intact.
+ *   replace("old gold", "old", "one")        returns "one gone"
+ *   replace("it   is very  low", "  ", " ")  returns "it  is very low"
+ *   replace("balll", "all", "al")            returns "ball"
+ *   replace("faaaaceeees", "aacee", "ace")   returns "faaaceees"
  *  @return the result of the replacement.
  *)
 const func string: replace (in string: mainStri, in string: target,
@@ -354,7 +395,60 @@ const func string: replace (in string: mainStri, in string: target,
 
 
 (**
- *  Replace all occurrences of ''search1'' followed by ''search2'' with ''replacement''.
+ *  Replace all occurrences of ''target'' in ''mainStri'' by ''replacement''.
+ *  The function processes ''mainStri'' from left to right and replaces
+ *  ''target'' by ''replacement''. If a replacement creates new occurances
+ *  of ''target'' they are replaced also.  This can be used to replace
+ *  multiple occurances of a character by one occurance
+ *   replace("//path///file", "//", "/")      returns "/path/file"
+ *   replace("it   is very  low", "  ", " ")  returns "it is very low"
+ *   replace("balll", "all", "al")            returns "bal"
+ *   replace("faaaaceeees", "aacee", "ace")   returns "faces"
+ *  @return the result of the replacement.
+ *  @exception MEMORY_ERROR When ''target'' is a substring of ''replacement''.
+ *)
+const func string: replaceN (in string: mainStri, in string: target,
+                             in string: replacement) is func
+  result
+    var string: replaced is "";
+  local
+    var integer: length is 0;
+  begin
+    if length(replacement) < length(target) then
+      length := length(mainStri);
+      replaced := replace(mainStri, target, replacement);
+      while length(replaced) <> length do
+        length := length(replaced);
+        replaced := replace(replaced, target, replacement);
+      end while;
+    elsif length(replacement) > length(target) then
+      if pos(replacement, target) <> 0 then
+        if pos(mainStri, target) <> 0 then
+          raise MEMORY_ERROR;
+        else
+          replaced := mainStri;
+        end if;
+      else
+        length := length(mainStri);
+        replaced := replace(mainStri, target, replacement);
+        while length(replaced) <> length do
+          length := length(replaced);
+          replaced := replace(replaced, target, replacement);
+        end while;
+      end if;
+    elsif target = replacement then
+      replaced := mainStri;
+    else
+      replaced := replace(mainStri, target, replacement);
+      while pos(replaced, target) <> 0 do
+        replaced := replace(replaced, target, replacement);
+      end while;
+    end if;
+  end func;
+
+
+(**
+ *  Replace occurrences of ''search1'' followed by ''search2'' with ''replacement''.
  *  Searches ''mainStri'' for ''search1'' followed by ''search2''. The
  *  characters from the beginning of ''search1'' to the end of ''search2''
  *  are replaced by ''replacement''. There can be zero or more characters
@@ -366,17 +460,17 @@ const func string: replace (in string: mainStri, in string: target,
 const func string: replace2 (in string: mainStri, in string: search1,
     in string: search2, in string: replacement) is func
   result
-    var string: resultStri is "";
+    var string: replaced is "";
   local
     var integer: startPos is 0;
     var integer: endPos is 1;
   begin
     startPos := pos(mainStri, search1);
     while startPos <> 0 do
-      resultStri &:= mainStri[endPos .. pred(startPos)];
+      replaced &:= mainStri[endPos .. pred(startPos)];
       endPos := pos(mainStri, search2, startPos + length(search1));
       if endPos <> 0 then
-        resultStri &:= replacement;
+        replaced &:= replacement;
         endPos +:= length(search2);
         startPos := pos(mainStri, search1, endPos);
       else
@@ -384,7 +478,7 @@ const func string: replace2 (in string: mainStri, in string: search1,
         startPos := 0;
       end if;
     end while;
-    resultStri &:= mainStri[endPos ..];
+    replaced &:= mainStri[endPos ..];
   end func;
 
 
@@ -450,39 +544,6 @@ const func string: str (in string: stri)                       is action "STR_ST
 
 const func string: literal (in string: stri)                   is action "STR_LIT";
 const func string: c_literal (in string: stri)                 is action "STR_CLIT";
-
-
-(**
- *  Determine if a string starts with a ''prefix''.
- *   startsWith("tmp_s7c.c", "tmp_")  returns TRUE
- *   startsWith("example", "E")       returns FALSE
- *  @return TRUE if ''stri'' starts with ''prefix'',
- *          FALSE otherwise.
- *)
-const func boolean: startsWith (in string: stri, in string: prefix) is
-  return stri[.. length(prefix)] = prefix;
-
-
-(**
- *  Determine if a string ends with a ''suffix''.
- *   endsWith("hello.sd7", ".sd7")  returns TRUE
- *   endsWith("A string", "\0;")    returns FALSE
- *  @return TRUE if ''stri'' ends with ''suffix'',
- *          FALSE otherwise.
- *)
-const func boolean: endsWith (in string: stri, in string: suffix) is
-  return stri[succ(length(stri) - length(suffix)) ..] = suffix;
-
-
-(**
- *  Check if ''stri'' has the ''searched'' characters starting from ''index''.
- *   equalAtIndex("The quick brown fox", "quick", 5)  returns TRUE
- *   equalAtIndex("axis", "xi", 3)                    returns FALSE
- *  @return TRUE if ''stri'' has the ''searched'' characters starting from ''index'',
- *          FALSE otherwise.
- *)
-const func boolean: equalAtIndex (in string: stri, in string: searched, in integer: index) is
-  return stri[index len length(searched)] = searched;
 
 
 const func string: getint (inout string: stri) is func

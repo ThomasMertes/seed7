@@ -34,7 +34,6 @@ striType chrCLit (charType character);
 striType chrCLitToBuffer (charType character, striType buffer);
 #endif
 intType chrCmp (charType char1, charType char2);
-void chrCpy (charType *dest, charType source);
 charType chrLow (charType ch);
 striType chrStr (charType ch);
 charType chrUp (charType ch);

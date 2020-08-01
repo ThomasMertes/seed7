@@ -50,6 +50,8 @@ const func type: bitset (in type: baseType) is func
       const proc: destroy (ref setType param)                            is action "SET_DESTR";
       const proc: (inout setType: dest) := (in setType: source)          is action "SET_CPY";
 
+      const boolean: isBitset (attr setType)                             is TRUE;
+
       (**
        *  Union of two sets.
        *  @return the union of the two sets.
@@ -264,18 +266,29 @@ const func type: bitset (in type: baseType) is func
           var baseType: upperBound is baseType.value;
           var boolean: leave is FALSE;
         begin
-          if aSet <> setType.EMPTY_SET and not cond then
+          if aSet <> setType.EMPTY_SET then
             forVar := min(aSet);
             upperBound := max(aSet);
-            repeat
+            leave := cond;
+            while not leave do
               statements;
-              if forVar = upperBound or cond then
+              if forVar = upperBound then
                 leave := TRUE;
               else
                 forVar := next(aSet, forVar);
+                leave := cond;
               end if;
-            until leave;
+            end while;
           end if;
+        end func;
+
+      const proc: for (inout baseType: forVar) range (in setType: aSet) until (ref boolean: cond) do
+                    (in proc: statements)
+                  end for is func
+        begin
+          for forVar range aSet until cond = TRUE do
+            statements;
+          end for;
         end func;
 
       if getobj(str(ref baseType param)) <> NIL then

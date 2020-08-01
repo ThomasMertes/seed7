@@ -28,6 +28,9 @@ const proc: process_action (in reference: function, in ref_list: params,
     inout expr_type: c_expr) is forward;
 
 
+const proc: declareExtern (inout file: c_prog, in string: prototype) is forward;
+
+
 include "comp/act_act.s7i";
 include "comp/arr_act.s7i";
 include "comp/big_act.s7i";
@@ -54,10 +57,22 @@ include "comp/rfl_act.s7i";
 include "comp/sct_act.s7i";
 include "comp/set_act.s7i";
 include "comp/soc_act.s7i";
+# include "comp/sql_act.s7i";
 include "comp/str_act.s7i";
 include "comp/tim_act.s7i";
 include "comp/typ_act.s7i";
 include "comp/ut8_act.s7i";
+
+
+const proc: declareExtern (inout file: c_prog, in string: prototype) is func
+
+  begin
+    write(c_prog, "extern ");
+    if declare_with_extern_c then
+      write(c_prog, "\"C\" ");
+    end if;
+    writeln(c_prog, prototype);
+  end func;
 
 
 const proc: process_unknown_action (in string: action_name, inout expr_type: c_expr) is func

@@ -42,6 +42,14 @@ const ACTION: BLN_ORD    is action "BLN_ORD";
 const ACTION: BLN_VALUE  is action "BLN_VALUE";
 
 
+const proc: bln_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        blnCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "boolType    blnValue (objRefType);");
+  end func;
+
+
 const proc: process (BIN_AND, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

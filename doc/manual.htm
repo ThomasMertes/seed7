@@ -243,6 +243,7 @@ pre.indent {
 <li><a class="link" href="#file_Scanning_a_file"><b>Scanning a file</b></a></li></ol></li>
 <li><a class="link" href="#syntax_file_start"><big><b>STRUCTURED SYNTAX DEFINITION</b></big></a><ol>
 <li><a class="link" href="#syntax_The_Extended_Backus-Naur_Form"><b>The Extended Backus-Naur Form</b></a></li>
+<li><a class="link" href="#syntax_The_Seed7_Structured_Syntax_Description"><b>The Seed7 Structured Syntax Description</b></a></li>
 <li><a class="link" href="#syntax_The_syntax_of_a_statement"><b>The syntax of a statement</b></a></li>
 <li><a class="link" href="#syntax_Priority_and_associativity"><b>Priority and associativity</b></a></li>
 <li><a class="link" href="#syntax_The_syntax_of_operators"><b>The syntax of operators</b></a></li>
@@ -7063,7 +7064,37 @@ currSymbol := getSymbol(inFile);
       '{' <a class="ebnf" href="#syntax_ebnf_ebnf_expression">ebnf_expression</a> '}' .</dd>
 </dl></tt></dd></dl><p></p>
 
-<a name="syntax_The_syntax_of_a_statement"><h3>9.2 The syntax of a statement</h3></a>
+<a name="syntax_The_Seed7_Structured_Syntax_Description"><h3>9.2 The Seed7 Structured Syntax Description</h3></a>
+<p>
+    The Seed7 Structured Syntax Description is abreviated with S7SSD.
+  The S7SSD can describe most but not all of the syntax of a
+  programming language. The syntax of identifiers, literals and
+  comments is not described with S7SSD. S7SSD views a program as
+  a big typeless expression. The syntax of this expression is
+  described with prefix-, infix- and postfix-operators. The operators
+  have a priority and an associativity. Operators can have one or
+  more operator symbols. The operator symbols of an operator can be
+  adjacent or they can have parameters in between. The S7SSD of
+  an infix <tt>+</tt> is:
+</p><pre class="indent">
+$ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>: .(). + .()   <span class="keywd">is</span> -> 7;
+</pre><p>
+  This defines the <tt>+</tt> as left associative infix operator with
+  priority 7. The <tt>+</tt> operator is an infix operator because the
+  operator pattern is:
+</p><pre class="indent">
+() + ()
+</pre><p>
+  The place of the parameters is specified with <tt>()</tt>. Any expression
+  can be used as parameter. The type of the parameters and the type
+  of the result of <tt>+</tt> is not specified by the S7SSD. Checks for the
+  correct type are not done at the syntactic level. This way S7SSD
+  allows syntax that would not be allowed in a corresponding EBNF
+  description. S7SSD considers just operator symbols and their
+  priority and associativity.
+</p>
+
+<a name="syntax_The_syntax_of_a_statement"><h3>9.3 The syntax of a statement</h3></a>
 <p>
     To explain the Seed7 Structured Syntax Description we design a
   new statement, the <a class="link" href="#syntax_The_syntax_of_a_statement">loop-statement</a>. The <a class="link" href="#syntax_The_syntax_of_a_statement">loop-statement</a> should
@@ -7206,7 +7237,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
 *** chkloop.sd7(35):51: Match for {loop "X" until {1 + 2 } do integer end loop } failed
 </pre><p></p>
 
-<a name="syntax_Priority_and_associativity"><h3>9.3 Priority and associativity</h3></a>
+<a name="syntax_Priority_and_associativity"><h3>9.4 Priority and associativity</h3></a>
 <p>
     When a syntax construct has parameters before the first symbol
   or after the last symbol the priority and the associativity of the
@@ -7314,7 +7345,7 @@ A = B = C
   Middle operands can have any priority.
 </p>
 
-<a name="syntax_The_syntax_of_operators"><h3>9.4 The syntax of operators</h3></a>
+<a name="syntax_The_syntax_of_operators"><h3>9.5 The syntax of operators</h3></a>
 <p>
     A syntax definition specifies the way a usage of a statement
   or operator must be written. For example a call of the
@@ -7487,7 +7518,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
       operators <tt><span class="keywd">*</span></tt>, <tt><span class="keywd">/</span></tt>, <tt><span class="keywd">div</span></tt>, <tt><span class="keywd">rem</span></tt>, <tt><span class="keywd">mdiv</span></tt> and <tt><span class="keywd">mod</span></tt>.</li>
 </ul><p></p>
 
-<a name="syntax_Syntax_of_predefined_statements"><h3>9.5 Syntax of predefined statements</h3></a>
+<a name="syntax_Syntax_of_predefined_statements"><h3>9.6 Syntax of predefined statements</h3></a>
 <p>
     Predefined statements can also be defined with S7SSD.
   E.g.: The <a class="link" href="#stats_while-statement">while-statement</a>. A use of the <a class="link" href="#stats_while-statement">while-statement</a> is:
@@ -7602,7 +7633,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a>:
   is described in the next chapter.
 </p>
 
-<a name="syntax_Advanced_syntax_definitions"><h3>9.6 Advanced syntax definitions</h3></a>
+<a name="syntax_Advanced_syntax_definitions"><h3>9.7 Advanced syntax definitions</h3></a>
 <p>
   When we want to use some special syntax which should be only
   allowed at some place we do the following:
@@ -7732,7 +7763,7 @@ $ <span class="keywd">syntax</span> <a class="type" href="#types_expr">expr</a> 
   legal <a class="link" href="#stats_if-statement">if-statements</a> can be written.
 </p>
 
-<a name="syntax_Comparison_of_EBNF_and_S7SSD"><h3>9.7 Comparison of EBNF and S7SSD</h3></a>
+<a name="syntax_Comparison_of_EBNF_and_S7SSD"><h3>9.8 Comparison of EBNF and S7SSD</h3></a>
 <p>
   In the S7SSD of the <a class="link" href="#syntax_The_syntax_of_a_statement">loop-statement</a>
 </p><pre class="indent">

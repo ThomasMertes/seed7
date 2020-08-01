@@ -48,6 +48,26 @@ const ACTION: CHR_UP        is action "CHR_UP";
 const ACTION: CHR_VALUE     is action "CHR_VALUE";
 
 
+const proc: chr_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "striType    chrCLit (charType);");
+    declareExtern(c_prog, "striType    chrCLitToBuffer (charType, striType);");
+    declareExtern(c_prog, "intType     chrCmp (charType, charType);");
+    declareExtern(c_prog, "intType     chrCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "void        chrCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "charType    chrLow (charType);");
+    declareExtern(c_prog, "striType    chrStr (charType);");
+    if ccConf.ALLOW_STRITYPE_SLICES then
+      writeln(c_prog, "#define     chrStrMacro(ch,str) (str.size=1,str.mem=str.mem1,str.mem1[0]=(strElemType)(ch),&str)");
+    else
+      writeln(c_prog, "#define     chrStrMacro(ch,str) (str.size=1,str.mem[0]=(strElemType)(ch),&str)");
+    end if;
+    declareExtern(c_prog, "charType    chrUp (charType);");
+    declareExtern(c_prog, "charType    chrValue (objRefType);");
+  end func;
+
+
 const proc: process_const_chr_chr (in reference: function, in integer: number, inout expr_type: c_expr) is func
 
   begin

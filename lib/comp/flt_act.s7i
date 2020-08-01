@@ -78,6 +78,36 @@ const ACTION: FLT_TRUNC           is action "FLT_TRUNC";
 const ACTION: FLT_VALUE           is action "FLT_VALUE";
 
 
+const proc: flt_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "intType     fltCmp (floatType, floatType);");
+    declareExtern(c_prog, "intType     fltCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "void        fltCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "striType    fltDgts (floatType, intType);");
+    if ccConf.NAN_COMPARISON_WRONG then
+      declareExtern(c_prog, "boolType    fltEq (floatType, floatType);");
+      declareExtern(c_prog, "boolType    fltGe (floatType, floatType);");
+      declareExtern(c_prog, "boolType    fltGt (floatType, floatType);");
+    end if;
+    declareExtern(c_prog, "floatType   fltIPow (floatType, intType);");
+    declareExtern(c_prog, "boolType    fltIsNegativeZero (floatType);");
+    writeln(c_prog, "#define     fltIsNegativeZeroMacro(number) (memcmp(&(number), &negativeZero, sizeof(floatType)) == 0)");
+    if ccConf.NAN_COMPARISON_WRONG then
+      declareExtern(c_prog, "boolType    fltLe (floatType, floatType);");
+      declareExtern(c_prog, "boolType    fltLt (floatType, floatType);");
+    end if;
+    declareExtern(c_prog, "floatType   fltParse (const const_striType);");
+    if ccConf.POWER_OF_ZERO_WRONG then
+      declareExtern(c_prog, "floatType   fltPow (floatType, floatType);");
+    end if;
+    declareExtern(c_prog, "floatType   fltRand (floatType, floatType);");
+    declareExtern(c_prog, "striType    fltSci (floatType, intType);");
+    declareExtern(c_prog, "striType    fltStr (floatType);");
+    declareExtern(c_prog, "floatType   fltValue (objRefType);");
+  end func;
+
+
 const proc: process (FLT_A2TAN, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

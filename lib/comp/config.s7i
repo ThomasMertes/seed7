@@ -26,6 +26,7 @@
 
 var boolean: array_range_check      is TRUE;
 var boolean: conversion_range_check is TRUE;
+var boolean: integer_overflow_check is FALSE;
 var boolean: integer_shift_check    is FALSE;
 var boolean: source_debug_info      is TRUE;
 var boolean: trace_exception        is FALSE;

@@ -129,12 +129,25 @@ const func string: integerLiteral (in integer: number) is func
   begin
     if ccConf.INTTYPE_SIZE = 64 and ccConf.INTTYPE_LITERAL_SUFFIX = "" then
       if number < 0 then
-        expr := "-(intType) ";
-        expr &:= str(-number);
+        if number = integer.first then
+          expr := "(intType) (";
+          expr &:= str(succ(integer.first));
+          expr &:= "-1)";
+        else
+          expr := "-(intType) ";
+          expr &:= str(-number);
+        end if;
       else
         expr := "(intType) ";
         expr &:= str(number);
       end if;
+    elsif number = integer.first then
+      expr := "(";
+      expr &:= str(succ(integer.first));
+      expr &:= ccConf.INTTYPE_LITERAL_SUFFIX;
+      expr &:= "-1";
+      expr &:= ccConf.INTTYPE_LITERAL_SUFFIX;
+      expr &:= ")";
     else
       expr := str(number);
       expr &:= ccConf.INTTYPE_LITERAL_SUFFIX;

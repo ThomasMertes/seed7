@@ -212,6 +212,10 @@ typedef uint32Type                uintType;
 #define INTTYPE_MIN               INT32TYPE_MIN
 #define INTTYPE_MAX               INT32TYPE_MAX
 #define UINTTYPE_MAX              UINT32TYPE_MAX
+typedef int16Type                 halfIntType;
+#define HALF_INTTYPE_MIN          INT16TYPE_MIN
+#define HALF_INTTYPE_MAX          INT16TYPE_MAX
+#define HALF_UINTTYPE_MAX         UINT16TYPE_MAX
 #define F_D(width)                F_D32(width)
 #define F_U(width)                F_U32(width)
 #define F_X(width)                F_X32(width)
@@ -231,6 +235,10 @@ typedef uint64Type                uintType;
 #define INTTYPE_MIN               INT64TYPE_MIN
 #define INTTYPE_MAX               INT64TYPE_MAX
 #define UINTTYPE_MAX              UINT64TYPE_MAX
+typedef int32Type                 halfIntType;
+#define HALF_INTTYPE_MIN          INT32TYPE_MIN
+#define HALF_INTTYPE_MAX          INT32TYPE_MAX
+#define HALF_UINTTYPE_MAX         UINT32TYPE_MAX
 #define F_D(width)                F_D64(width)
 #define F_U(width)                F_U64(width)
 #define F_X(width)                F_X64(width)
@@ -251,8 +259,18 @@ typedef uint64Type                uintType;
 #endif
 
 
+#ifdef USE_SIMPLE_RANGE_CHECK
+#define inHalfIntTypeRange(num) ((num) >= HALF_INTTYPE_MIN && (num) <= HALF_INTTYPE_MAX)
+#else
+#define inHalfIntTypeRange(num) ((intType) (halfIntType) (num) == (num))
+#endif
+
 #if SHORT_SIZE < INTTYPE_SIZE
+#ifdef USE_SIMPLE_RANGE_CHECK
 #define inShortRange(num) ((num) >= SHRT_MIN && (num) <= SHRT_MAX)
+#else
+#define inShortRange(num) ((intType) (short int) (num) == (num))
+#endif
 #define castToShort(num)  (inShortRange(num) ? (short int) (num) : (raise_error(RANGE_ERROR), (short int) 0))
 #else
 #define inShortRange(num) 1
@@ -260,7 +278,11 @@ typedef uint64Type                uintType;
 #endif
 
 #if INT_SIZE < INTTYPE_SIZE
+#ifdef USE_SIMPLE_RANGE_CHECK
 #define inIntRange(num) ((num) >= INT_MIN && (num) <= INT_MAX)
+#else
+#define inIntRange(num) ((intType) (int) (num) == (num))
+#endif
 #define castToInt(num)  (inIntRange(num) ? (int) (num) : (raise_error(RANGE_ERROR), 0))
 #else
 #define inIntRange(num) 1
@@ -268,7 +290,11 @@ typedef uint64Type                uintType;
 #endif
 
 #if LONG_SIZE < INTTYPE_SIZE
+#ifdef USE_SIMPLE_RANGE_CHECK
 #define inLongRange(num) ((num) >= LONG_MIN && (num) <= LONG_MAX)
+#else
+#define inLongRange(num) ((intType) (long int) (num) == (num))
+#endif
 #define castToLong(num)  (inLongRange(num) ? (long) (num) : (raise_error(RANGE_ERROR), 0))
 #else
 #define inLongRange(num) 1

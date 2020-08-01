@@ -50,6 +50,34 @@ const ACTION: ARR_TIMES     is action "ARR_TIMES";
 const ACTION: ARR_TAIL      is action "ARR_TAIL";
 
 
+const proc: arr_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        arrAppend (arrayType *const, const arrayType);");
+    declareExtern(c_prog, "arrayType   arrArrlit2 (intType, arrayType);");
+    declareExtern(c_prog, "arrayType   arrBaselit (const genericType);");
+    declareExtern(c_prog, "arrayType   arrBaselit2 (intType, const genericType);");
+    declareExtern(c_prog, "arrayType   arrCat (arrayType, const arrayType);");
+    declareExtern(c_prog, "arrayType   arrExtend (arrayType, const genericType);");
+    declareExtern(c_prog, "void        arrFree (arrayType);");
+    declareExtern(c_prog, "arrayType   arrGen (const genericType, const genericType);");
+    declareExtern(c_prog, "arrayType   arrHead (const const_arrayType, intType);");
+    declareExtern(c_prog, "arrayType   arrHeadTemp (arrayType *, intType);");
+    declareExtern(c_prog, "genericType arrIdxTemp (arrayType *, intType);");
+    declareExtern(c_prog, "arrayType   arrMalloc (intType, intType);");
+    declareExtern(c_prog, "void        arrPush (arrayType *const, const genericType);");
+    declareExtern(c_prog, "arrayType   arrRange (const const_arrayType, intType, intType);");
+    declareExtern(c_prog, "arrayType   arrRangeTemp (arrayType *, intType, intType);");
+    declareExtern(c_prog, "arrayType   arrRealloc (arrayType, memSizeType, memSizeType);");
+    declareExtern(c_prog, "genericType arrRemove (arrayType *, intType);");
+    declareExtern(c_prog, "arrayType   arrSort (arrayType, compareType);");
+    declareExtern(c_prog, "arrayType   arrSubarr (const const_arrayType, intType, intType);");
+    declareExtern(c_prog, "arrayType   arrSubarrTemp (arrayType *, intType, intType);");
+    declareExtern(c_prog, "arrayType   arrTail (const const_arrayType, intType);");
+    declareExtern(c_prog, "arrayType   arrTailTemp (arrayType *, intType);");
+  end func;
+
+
 const proc: declare_prototype_if_necessary (in reference: function,
     inout expr_type: c_expr) is func
 

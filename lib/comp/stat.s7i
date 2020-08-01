@@ -24,7 +24,8 @@
 (********************************************************************)
 
 
-var integer: countOptimizations is 0;
-var integer: countEvaluations   is 0;
-var integer: countRangeChecks   is 0;
-var integer: countNoRangeChecks is 0;
+var integer: countOptimizations  is 0;
+var integer: countEvaluations    is 0;
+var integer: countRangeChecks    is 0;
+var integer: countNoRangeChecks  is 0;
+var integer: countOverflowChecks is 0;

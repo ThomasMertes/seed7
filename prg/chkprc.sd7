@@ -1364,11 +1364,11 @@ const proc: main is func
 
   begin
     writeln;
-    check_if();
-    check_while();
-    check_repeat();
-    check_for_int_to();
-    check_for_int_downto();
-    check_case_int();
-    check_case_char();
+    check_if;
+    check_while;
+    check_repeat;
+    check_for_int_to;
+    check_for_int_downto;
+    check_case_int;
+    check_case_char;
   end func;

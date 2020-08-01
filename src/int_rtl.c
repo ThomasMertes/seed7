@@ -50,9 +50,9 @@
 #define UINT_BITS(A)                     ((A) & UINTTYPE_MAX)
 #define UINT_BITS_WITHOUT_HIGHEST_BIT(A) ((A) & (UINTTYPE_MAX >> 1))
 #define UINT_HIGHEST_BIT(A)              ((A) >> (INTTYPE_SIZE - 1))
-#define UINT_LOWER_HALVE_BITS_SET        (UINTTYPE_MAX >> (INTTYPE_SIZE >> 1))
-#define LOWER_HALVE_OF_UINT(A)           ((A) & UINT_LOWER_HALVE_BITS_SET)
-#define UPPER_HALVE_OF_UINT(A)           ((A) >> (INTTYPE_SIZE >> 1))
+#define UINT_LOWER_HALF_BITS_SET         (UINTTYPE_MAX >> (INTTYPE_SIZE >> 1))
+#define LOWER_HALF_OF_UINT(A)            ((A) & UINT_LOWER_HALF_BITS_SET)
+#define UPPER_HALF_OF_UINT(A)            ((A) >> (INTTYPE_SIZE >> 1))
 
 /* Number of characters needed when the most negative  */
 /* integer is written with radix 2. One character is   */
@@ -171,6 +171,79 @@ const const_cstriType digitTable[] = {lcDigits, ucDigits};
 
 
 /**
+ *  Multiply two uintType factors to an uintType product.
+ *  A uintType number is splitted into two halve uintType parts.
+ *  The bits of an uintType have the following memory layout:
+ *  +-------------------+
+ *  |     uintType      |
+ *  +---------+---------+
+ *  |  part1  |  part0  |
+ *  +---------+---------+
+ *   ^ highest bit     ^ lowest bit
+ *  @exception NUMERIC_ERROR When the multiplication overflows.
+ *  @return the product
+ */
+uintType uint_safe_mult (uintType factor1, uintType factor2)
+
+  {
+    uintType factor1_part0;
+    uintType factor1_part1;
+    uintType factor2_part0;
+    uintType factor2_part1;
+    uintType c1;  /* memory layout:   | part[1] | part[0] |  */
+    uintType c2;  /* memory layout:   | part[2] | part[1] |  */
+    uintType product;
+
+  /* uint_safe_mult */
+    factor1_part0 = LOWER_HALF_OF_UINT(factor1);
+    factor1_part1 = UPPER_HALF_OF_UINT(factor1);
+    factor2_part0 = LOWER_HALF_OF_UINT(factor2);
+    factor2_part1 = UPPER_HALF_OF_UINT(factor2);
+    if (factor1_part1 == 0) {
+      c1 = factor1_part0 * factor2_part1;
+    } else if (factor2_part1 == 0) {
+      c1 = factor1_part1 * factor2_part0;
+    } else {
+      raise_error(NUMERIC_ERROR);
+      return 0;
+    } /* if */
+    if (unlikely(c1 > UINT_LOWER_HALF_BITS_SET)) {
+      raise_error(NUMERIC_ERROR);
+      return 0;
+    } else {
+      c1 <<= 32;
+      c2 = factor1_part0 * factor2_part0;
+      if (unlikely(c1 > UINTTYPE_MAX - c2)) {
+        raise_error(NUMERIC_ERROR);
+        return 0;
+      } else {
+        product = c1 + c2;
+      } /* if */
+    } /* if */
+    return product;
+  } /* uint_safe_mult */
+
+
+
+uintType uint_safe_mult2 (uintType factor1, uintType factor2)
+
+  {
+    uintType product;
+
+  /* uint_safe_mult2 */
+    if (factor1 != 0) {
+      if (unlikely(factor2 > UINTTYPE_MAX / factor1)) {
+        raise_error(NUMERIC_ERROR);
+        return 0;
+      } /* if */
+    } /* if */
+    product = factor1 * factor2;
+    return product;
+  } /* uint_safe_mult2 */
+
+
+
+/**
  *  Multiply two uintType factors to a double uintType product.
  *  The whole product fits into the double uintType number.
  *  The product is returned in product_high and product_low.
@@ -206,15 +279,15 @@ uintType uint_mult (uintType factor1, uintType factor2, uintType *product_high)
     printf("BEGIN uint_mult(%08x, %08x)\n",
         (unsigned int) factor1, (unsigned int) factor2);
 #endif
-    factor1_part[0] = LOWER_HALVE_OF_UINT(factor1);
-    factor1_part[1] = UPPER_HALVE_OF_UINT(factor1);
-    factor2_part[0] = LOWER_HALVE_OF_UINT(factor2);
-    factor2_part[1] = UPPER_HALVE_OF_UINT(factor2);
+    factor1_part[0] = LOWER_HALF_OF_UINT(factor1);
+    factor1_part[1] = UPPER_HALF_OF_UINT(factor1);
+    factor2_part[0] = LOWER_HALF_OF_UINT(factor2);
+    factor2_part[1] = UPPER_HALF_OF_UINT(factor2);
     c1 = factor1_part[0] * factor2_part[0];
     c2 = factor1_part[0] * factor2_part[1];
     c3 = factor1_part[1] * factor2_part[0];
-    c4 = UPPER_HALVE_OF_UINT(c1) + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3);
-    c5 = UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) + UPPER_HALVE_OF_UINT(c4) +
+    c4 = UPPER_HALF_OF_UINT(c1) + LOWER_HALF_OF_UINT(c2) + LOWER_HALF_OF_UINT(c3);
+    c5 = UPPER_HALF_OF_UINT(c2) + UPPER_HALF_OF_UINT(c3) + UPPER_HALF_OF_UINT(c4) +
          factor1_part[1] * factor2_part[1];
     /* c5 contains the high uintType of factor1 * factor2 */
     product_low = UINT_BITS(factor1 * factor2);
@@ -267,15 +340,15 @@ static inline uintType uint2_mult (uintType factor1_high, uintType factor1_low,
         (unsigned int) factor1_high, (unsigned int) factor1_low,
         (unsigned int) factor2_high, (unsigned int) factor2_low);
 #endif
-    factor1_part[0] = LOWER_HALVE_OF_UINT(factor1_low);
-    factor1_part[1] = UPPER_HALVE_OF_UINT(factor1_low);
-    factor2_part[0] = LOWER_HALVE_OF_UINT(factor2_low);
-    factor2_part[1] = UPPER_HALVE_OF_UINT(factor2_low);
+    factor1_part[0] = LOWER_HALF_OF_UINT(factor1_low);
+    factor1_part[1] = UPPER_HALF_OF_UINT(factor1_low);
+    factor2_part[0] = LOWER_HALF_OF_UINT(factor2_low);
+    factor2_part[1] = UPPER_HALF_OF_UINT(factor2_low);
     c1 = factor1_part[0] * factor2_part[0];
     c2 = factor1_part[0] * factor2_part[1];
     c3 = factor1_part[1] * factor2_part[0];
-    c4 = UPPER_HALVE_OF_UINT(c1) + LOWER_HALVE_OF_UINT(c2) + LOWER_HALVE_OF_UINT(c3);
-    c5 = UPPER_HALVE_OF_UINT(c2) + UPPER_HALVE_OF_UINT(c3) + UPPER_HALVE_OF_UINT(c4) +
+    c4 = UPPER_HALF_OF_UINT(c1) + LOWER_HALF_OF_UINT(c2) + LOWER_HALF_OF_UINT(c3);
+    c5 = UPPER_HALF_OF_UINT(c2) + UPPER_HALF_OF_UINT(c3) + UPPER_HALF_OF_UINT(c4) +
          factor1_part[1] * factor2_part[1];
     /* c5 contains the high uintType of factor1_low * factor2_low */
     product_low = UINT_BITS(factor1_low * factor2_low);
@@ -684,7 +757,7 @@ genericType ptrCreateGeneric (const genericType from_value)
     rtlObjectType result;
 
   /* ptrCreateGeneric */
-    INIT_GENERIC_INT(result.value.genericValue);
+    INIT_GENERIC_PTR(result.value.genericValue);
     result.value.ptrValue =
         ((const_rtlObjectType *) &from_value)->value.ptrValue;
     return result.value.genericValue;
@@ -1049,14 +1122,6 @@ intType intCmpGeneric (const genericType value1, const genericType value2)
 
 
 
-void intCpy (intType *dest, intType source)
-
-  { /* intCpy */
-    *dest = source;
-  } /* intCpy */
-
-
-
 /**
  *  Compute the truncated base 10 logarithm of an integer number.
  *  The definition of intLog10 is extended by defining intLog10(0) = -1.
@@ -1257,29 +1322,102 @@ intType intParse (const const_striType stri)
 intType intPow (intType base, intType exponent)
 
   {
-    intType result;
+    intType power;
 
   /* intPow */
     if (unlikely(exponent < 0)) {
       raise_error(NUMERIC_ERROR);
-      result = 0;
+      power = 0;
     } else {
       if (exponent & 1) {
-        result = base;
+        power = base;
       } else {
-        result = 1;
+        power = 1;
       } /* if */
       exponent >>= 1;
       while (exponent != 0) {
         base *= base;
         if (exponent & 1) {
-          result *= base;
+          power *= base;
         } /* if */
         exponent >>= 1;
       } /* while */
     } /* if */
-    return result;
+    return power;
   } /* intPow */
+
+
+
+/**
+ *  Compute the exponentiation of a integer base with an integer exponent.
+ *  @return the result of the exponentation.
+ *  @exception NUMERIC_ERROR When the exponent is negative or
+ *                           when an integer overflow occurs.
+ */
+intType intPowOvfChk (intType base, intType exponent)
+
+  {
+    uintType unsignedBase;
+    boolType negative;
+    uintType unsignedPower;
+    intType power;
+
+  /* intPowOvfChk */
+    if (unlikely(exponent < 0)) {
+      raise_error(NUMERIC_ERROR);
+      power = 0;
+    } else {
+      if (base < 0) {
+        /* The unsigned value is negated to avoid a signed integer */
+        /* overflow when the smallest signed integer is negated.   */
+        unsignedBase = -(uintType) base;
+        negative = exponent & 1;
+      } else {
+        unsignedBase = (uintType) base;
+        negative = FALSE;
+      } /* if */
+      if (exponent & 1) {
+        unsignedPower = unsignedBase;
+      } else {
+        unsignedPower = 1;
+      } /* if */
+      exponent >>= 1;
+      while (exponent != 0) {
+        if (unlikely(unsignedBase > HALF_UINTTYPE_MAX)) {
+          raise_error(NUMERIC_ERROR);
+          unsignedPower = 0;
+          exponent = 0;
+        } else {
+          unsignedBase *= unsignedBase;
+          if (exponent & 1) {
+            if (likely(unsignedPower <= HALF_UINTTYPE_MAX &&
+                       unsignedBase <= HALF_UINTTYPE_MAX)) {
+              unsignedPower *= unsignedBase;
+            } else {
+              unsignedPower = uint_safe_mult2(unsignedPower, unsignedBase);
+            } /* if */
+          } /* if */
+          exponent >>= 1;
+        } /* if */
+      } /* while */
+      if (negative) {
+        if (unlikely(unsignedPower > -(uintType) INTTYPE_MIN)) {
+          raise_error(NUMERIC_ERROR);
+          power = 0;
+        } else {
+          power = (intType) -unsignedPower;
+        } /* if */
+      } else {
+        if (unlikely(unsignedPower > INTTYPE_MAX)) {
+          raise_error(NUMERIC_ERROR);
+          power = 0;
+        } else {
+          power = (intType) unsignedPower;
+        } /* if */
+      } /* if */
+    } /* if */
+    return power;
+  } /* intPowOvfChk */
 
 
 
@@ -1429,6 +1567,48 @@ intType intRand (intType low, intType high)
     } /* if */
     return result;
   } /* intRand */
+
+
+
+/**
+ *  Multiply two integer numbers.
+ *  @return the product of the two numbers.
+ *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ */
+intType intSafeMult (intType factor1, intType factor2)
+
+  {
+    intType product;
+
+  /* intSafeMult */
+    if (factor1 < 0) {
+      if (factor2 < 0) {
+        if (unlikely(factor1 < INTTYPE_MAX / factor2)) {
+          raise_error(NUMERIC_ERROR);
+          return 0;
+        } /* if */
+      } else if (factor2 != 0) {
+        if (unlikely(factor1 < INTTYPE_MIN / factor2)) {
+          raise_error(NUMERIC_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+    } else if (factor1 != 0) {
+      if (factor2 < 0) {
+        if (unlikely(factor2 < INTTYPE_MIN / factor1)) {
+          raise_error(NUMERIC_ERROR);
+          return 0;
+        } /* if */
+      } else if (factor2 != 0) {
+        if (unlikely(factor2 > INTTYPE_MAX / factor1)) {
+          raise_error(NUMERIC_ERROR);
+          return 0;
+        } /* if */
+      } /* if */
+    } /* if */
+    product = factor1 * factor2;
+    return product;
+  } /* intSafeMult */
 
 
 

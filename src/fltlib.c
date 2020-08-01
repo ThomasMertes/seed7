@@ -825,15 +825,17 @@ objectType flt_round (listType arguments)
 
   {
     floatType number;
+    intType rounded;
 
   /* flt_round */
     isit_float(arg_1(arguments));
     number = take_float(arg_1(arguments));
     if (number < (floatType) 0.0) {
-      return bld_int_temp(-((intType) (0.5 - number)));
+      rounded = -((intType) (0.5 - number));
     } else {
-      return bld_int_temp((intType) (0.5 + number));
+      rounded = (intType) (0.5 + number);
     } /* if */
+    return bld_int_temp(rounded);
   } /* flt_round */
 
 

@@ -60,6 +60,46 @@ const ACTION: CMD_SYMLINK          is action "CMD_SYMLINK";
 const ACTION: CMD_TO_OS_PATH       is action "CMD_TO_OS_PATH";
 
 
+const proc: cmd_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "bigIntType  cmdBigFileSize (const const_striType);");
+    declareExtern(c_prog, "void        cmdChdir (const const_striType);");
+    declareExtern(c_prog, "void        cmdCloneFile (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    cmdConfigValue (const const_striType);");
+    declareExtern(c_prog, "void        cmdCopyFile (const const_striType, const const_striType);");
+    declareExtern(c_prog, "arrayType   cmdEnvironment (void);");
+    declareExtern(c_prog, "setType     cmdFileMode (const const_striType);");
+    declareExtern(c_prog, "intType     cmdFileSize (const const_striType);");
+    declareExtern(c_prog, "intType     cmdFileType (const const_striType);");
+    declareExtern(c_prog, "intType     cmdFileTypeSL (const const_striType);");
+    declareExtern(c_prog, "striType    cmdGetcwd (void);");
+    declareExtern(c_prog, "striType    cmdGetenv (const const_striType);");
+    declareExtern(c_prog, "void        cmdGetATime (const const_striType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
+    declareExtern(c_prog, "void        cmdGetCTime (const const_striType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
+    declareExtern(c_prog, "void        cmdGetMTime (const const_striType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
+    declareExtern(c_prog, "arrayType   cmdGetSearchPath (void);");
+    declareExtern(c_prog, "striType    cmdHomeDir (void);");
+    declareExtern(c_prog, "arrayType   cmdLs (const const_striType);");
+    declareExtern(c_prog, "void        cmdMkdir (const const_striType);");
+    declareExtern(c_prog, "void        cmdMove (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    cmdReadlink (const const_striType);");
+    declareExtern(c_prog, "void        cmdRemoveFile (const const_striType);");
+    declareExtern(c_prog, "void        cmdRemoveTree (const const_striType);");
+    declareExtern(c_prog, "void        cmdSetenv (const const_striType, const const_striType);");
+    declareExtern(c_prog, "void        cmdSetATime (const const_striType, intType, intType, intType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        cmdSetFileMode (const const_striType, const const_setType);");
+    declareExtern(c_prog, "void        cmdSetMTime (const const_striType, intType, intType, intType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "intType     cmdShell (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    cmdShellEscape (const const_striType);");
+    declareExtern(c_prog, "void        cmdPipe2 (const const_striType, const const_arrayType, fileType *, fileType *);");
+    declareExtern(c_prog, "void        cmdPty (const const_striType, const const_arrayType, fileType *, fileType *);");
+    declareExtern(c_prog, "void        cmdStartProcess (const const_striType, const const_arrayType);");
+    declareExtern(c_prog, "void        cmdSymlink (const_striType, const_striType);");
+    declareExtern(c_prog, "striType    cmdToOsPath (const const_striType);");
+  end func;
+
+
 const proc: process (CMD_BIG_FILESIZE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

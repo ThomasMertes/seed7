@@ -86,25 +86,178 @@ const ACTION: INT_XOR             is action "INT_XOR";
 const ACTION: INT_XOR_ASSIGN      is action "INT_XOR_ASSIGN";
 
 
+const proc: int_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "intType     intBinom (intType, intType);");
+    declareExtern(c_prog, "intType     intBitLength (intType);");
+    declareExtern(c_prog, "striType    intBytesBe (intType, boolType);");
+    declareExtern(c_prog, "intType     intBytesBe2Int (const const_striType, boolType);");
+    declareExtern(c_prog, "striType    intBytesLe (intType, boolType);");
+    declareExtern(c_prog, "intType     intBytesLe2Int (const const_striType, boolType);");
+    declareExtern(c_prog, "intType     intCmp (intType, intType);");
+    declareExtern(c_prog, "intType     intCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "intType     intLog10 (intType);");
+    declareExtern(c_prog, "intType     intLog2 (intType);");
+    declareExtern(c_prog, "intType     intLowestSetBit (intType);");
+    declareExtern(c_prog, "striType    intLpad0 (intType, const intType);");
+    declareExtern(c_prog, "intType     intParse (const const_striType);");
+    declareExtern(c_prog, "intType     intPow (intType, intType);");
+    declareExtern(c_prog, "intType     intPowOvfChk (intType, intType);");
+    declareExtern(c_prog, "striType    intRadix (intType, intType, boolType);");
+    declareExtern(c_prog, "striType    intRadixPow2 (intType, int, int, boolType);");
+    declareExtern(c_prog, "intType     intRand (intType, intType);");
+    declareExtern(c_prog, "intType     intSqrt (intType);");
+    declareExtern(c_prog, "striType    intStr (intType);");
+    declareExtern(c_prog, "striType    intStrToBuffer (intType, striType);");
+    declareExtern(c_prog, "intType     intValue (objRefType);");
+  end func;
+
+
 const proc: process (INT_ABS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: number_name is "";
   begin
-    c_expr.expr &:= "labs(";
-    process_expr(params[1], c_expr);
+    c_expr.expr &:= "(";
+    number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+    c_expr.expr &:= number_name;
+    c_expr.expr &:= "<0?";
+    if integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "==";
+      c_expr.expr &:= integerLiteral(integer.first);
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ": -";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= " -";
+      c_expr.expr &:= number_name;
+    end if;
+    c_expr.expr &:= ":";
+    c_expr.expr &:= number_name;
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process_const_int_add (in reference: summand1, in integer: summand2,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: summand1_name is "";
+  begin
+    if getConstant(summand1, INTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      block
+        c_expr.expr &:= integerLiteral(getValue(evaluatedParam, integer) + summand2);
+      exception
+        catch NUMERIC_ERROR:
+          c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      end block;
+    elsif summand2 = 0 then
+      incr(countOptimizations);
+      process_expr(summand1, c_expr);
+    elsif integer_overflow_check then
+      incr(countOptimizations);
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      summand1_name := getParameterAsVariable("intType", "tmp_", summand1, c_expr);
+      c_expr.expr &:= summand1_name;
+      if summand2 < 0 then
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(integer.first - summand2);
+      else
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(integer.last - summand2);
+      end if;
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= summand1_name;
+      c_expr.expr &:= " + ";
+      c_expr.expr &:= integerLiteral(summand2);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(summand1, c_expr);
+      c_expr.expr &:= ") + ";
+      c_expr.expr &:= integerLiteral(summand2);
+    end if;
   end func;
 
 
 const proc: process (INT_ADD, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
+    var string: summand1_name is "";
+    var string: summand2_name is "";
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") + (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_add(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_add(params[3], getValue(evaluatedParam, integer), c_expr);
+    elsif integer_overflow_check then
+      incr(countOverflowChecks);
+      if params[1] = params[3] then
+        incr(countOptimizations);
+        c_expr.expr &:= "/*ovfchk*/(";
+        summand1_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(integer.first div 2);
+        c_expr.expr &:= " || ";
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(integer.last div 2);
+        c_expr.expr &:= "?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= " + ";
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "/*ovfchk*/(";
+        summand1_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+        summand2_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
+        c_expr.expr &:= summand2_name;
+        c_expr.expr &:= "<0&&";
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= "-";
+        c_expr.expr &:= summand2_name;
+        c_expr.expr &:= " || ";
+        c_expr.expr &:= summand2_name;
+        c_expr.expr &:= ">=0&&";
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(integer.last);
+        c_expr.expr &:= "-";
+        c_expr.expr &:= summand2_name;
+        c_expr.expr &:= "?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= " + ";
+        c_expr.expr &:= summand2_name;
+        c_expr.expr &:= ")";
+      end if;
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") + (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -245,11 +398,40 @@ const proc: process (INT_CPY, in reference: function,
 const proc: process (INT_DECR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var string: number_name is "";
   begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "--(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ");\n";
+    if integer_overflow_check then
+      incr(countOverflowChecks);
+      if isNormalVariable(params[1]) then
+        process_expr(params[1], c_param1);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "/*ovfchk*/ if (";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "==";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= ") raise_error(NUMERIC_ERROR); else --(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+      else
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "{\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "intType *int_ptr=&(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "/*ovfchk*/ if (*int_ptr==";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= ") raise_error(NUMERIC_ERROR); else --(*int_ptr);\n";
+        c_expr.expr &:= "}\n";
+      end if;
+    else
+      c_expr.expr &:= "--(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ");\n";
+    end if;
   end func;
 
 
@@ -258,13 +440,19 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
 
   local
     var reference: evaluatedDividend is NIL;
+    var string: dividend_name is "";
   begin
     if divisor = 0 then
       incr(countOptimizations);
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
       incr(countOptimizations);
-      c_expr.expr &:= str(getValue(evaluatedDividend, integer) div divisor);
+      block
+        c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) div divisor);
+      exception
+        catch NUMERIC_ERROR:
+          c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      end block;
     elsif divisor = 1 then
       incr(countOptimizations);
       c_expr.expr &:= "(";
@@ -272,14 +460,29 @@ const proc: process_const_int_div (in reference: dividend, in integer: divisor,
       c_expr.expr &:= ")";
     elsif divisor = -1 then
       incr(countOptimizations);
-      c_expr.expr &:= "-(";
-      process_expr(dividend, c_expr);
-      c_expr.expr &:= ")";
+      if integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE then
+        # integer.first / -1 causes an integer overflow.
+        incr(countOverflowChecks);
+        c_expr.expr &:= "/*ovfchk*/(";
+        dividend_name := getParameterAsVariable("intType", "tmp_", dividend, c_expr);
+        c_expr.expr &:= dividend_name;
+        c_expr.expr &:= "==";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= "?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ": -";
+        c_expr.expr &:= dividend_name;
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "-(";
+        process_expr(dividend, c_expr);
+        c_expr.expr &:= ")";
+      end if;
     else
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ") / ";
-      c_expr.expr &:= str(divisor);
+      c_expr.expr &:= integerLiteral(divisor);
     end if;
   end func;
 
@@ -297,6 +500,26 @@ const proc: process_const_int_div (in integer: dividend, in reference: divisor,
       c_expr.expr &:= ")==0?";
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
       c_expr.expr &:= ":0)";
+    elsif integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE and
+          dividend = integer.first then
+      # integer.first / -1 causes an integer overflow.
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= "==-1";
+      if ccConf.CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= "||";
+        c_expr.expr &:= divisor_name;
+        c_expr.expr &:= "==0";
+      end if;
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= integerLiteral(dividend);
+      c_expr.expr &:= " / ";
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= ")";
     elsif ccConf.CHECK_INT_DIV_BY_ZERO then
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
@@ -304,12 +527,12 @@ const proc: process_const_int_div (in integer: dividend, in reference: divisor,
       c_expr.expr &:= "==0?";
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= integerLiteral(dividend);
       c_expr.expr &:= " / ";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= integerLiteral(dividend);
       c_expr.expr &:= " / (";
       process_expr(divisor, c_expr);
       c_expr.expr &:= ")";
@@ -322,12 +545,37 @@ const proc: process (INT_DIV, in reference: function,
 
   local
     var reference: evaluatedParam is NIL;
+    var string: dividend_name is "";
     var string: divisor_name is "";
   begin
     if getConstant(params[3], INTOBJECT, evaluatedParam) then
       process_const_int_div(params[1], getValue(evaluatedParam, integer), c_expr);
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_div(getValue(evaluatedParam, integer), params[3], c_expr);
+    elsif integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE then
+      # integer.first / -1 causes an integer overflow.
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      dividend_name := getParameterAsVariable("intType", "tmp_b_", params[1], c_expr);
+      divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
+      c_expr.expr &:= dividend_name;
+      c_expr.expr &:= "==";
+      c_expr.expr &:= integerLiteral(integer.first);
+      c_expr.expr &:= "&&";
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= "==-1";
+      if ccConf.CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= "||";
+        c_expr.expr &:= divisor_name;
+        c_expr.expr &:= "==0";
+      end if;
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= dividend_name;
+      c_expr.expr &:= " / ";
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= ")";
     elsif ccConf.CHECK_INT_DIV_BY_ZERO then
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "tmp_b_", params[3], c_expr);
@@ -392,17 +640,93 @@ const proc: process (INT_GE, in reference: function,
   end func;
 
 
+const proc: process_const_int_grow (in reference: param1, in integer: delta,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: variable_name is "";
+    var expr_type: statement is expr_type.value;
+  begin
+    if delta = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore integer +:= 0_; */\n";
+    elsif integer_overflow_check then
+      incr(countOptimizations);
+      incr(countOverflowChecks);
+      statement.expr &:= "/*ovfchk*/ ";
+      variable_name := getParameterAsReference("intType", "tmp_", param1, statement);
+      statement.expr &:= variable_name;
+      if delta < 0 then
+        statement.expr &:= "<";
+        statement.expr &:= integerLiteral(integer.first - delta);
+      else
+        statement.expr &:= ">";
+        statement.expr &:= integerLiteral(integer.last - delta);
+      end if;
+      statement.expr &:= "?";
+      statement.expr &:= raiseError("NUMERIC_ERROR");
+      statement.expr &:= ":(";
+      statement.expr &:= variable_name;
+      statement.expr &:= "+=";
+      statement.expr &:= integerLiteral(delta);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    else
+      process_expr(param1, statement);
+      statement.expr &:= "+=";
+      statement.expr &:= integerLiteral(delta);
+      statement.expr &:= ";\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
+  end func;
+
+
 const proc: process (INT_GROW, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
+    var string: variable_name is "";
+    var string: delta_name is "";
     var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], statement);
-    statement.expr &:= "+=";
-    process_expr(params[3], statement);
-    statement.expr &:= ";\n";
-    doLocalDeclsOfStatement(statement, c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_grow(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif integer_overflow_check then
+      incr(countOverflowChecks);
+      statement.expr &:= "/*ovfchk*/ ";
+      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+      delta_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
+      statement.expr &:= delta_name;
+      statement.expr &:= "<0&&";
+      statement.expr &:= variable_name;
+      statement.expr &:= "<";
+      statement.expr &:= integerLiteral(integer.first);
+      statement.expr &:= "-";
+      statement.expr &:= delta_name;
+      statement.expr &:= " || ";
+      statement.expr &:= delta_name;
+      statement.expr &:= ">=0&&";
+      statement.expr &:= variable_name;
+      statement.expr &:= ">";
+      statement.expr &:= integerLiteral(integer.last);
+      statement.expr &:= "-";
+      statement.expr &:= delta_name;
+      statement.expr &:= "?";
+      statement.expr &:= raiseError("NUMERIC_ERROR");
+      statement.expr &:= ":(";
+      statement.expr &:= variable_name;
+      statement.expr &:= "+=";
+      statement.expr &:= delta_name;
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    else
+      process_expr(params[1], statement);
+      statement.expr &:= "+=";
+      process_expr(params[3], statement);
+      statement.expr &:= ";\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
   end func;
 
 
@@ -431,11 +755,40 @@ const proc: process (INT_HASHCODE, in reference: function,
 const proc: process (INT_INCR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var expr_type: c_param1 is expr_type.value;
+    var string: variable_name is "";
   begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "++(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ");\n";
+    if integer_overflow_check then
+      incr(countOverflowChecks);
+      if isNormalVariable(params[1]) then
+        process_expr(params[1], c_param1);
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "/*ovfchk*/ if (";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= "==";
+        c_expr.expr &:= integerLiteral(integer.last);
+        c_expr.expr &:= ") raise_error(NUMERIC_ERROR); else ++(";
+        c_expr.expr &:= c_param1.expr;
+        c_expr.expr &:= ");\n";
+      else
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "{\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "intType *int_ptr=&(";
+        process_expr(params[1], c_expr);
+        c_expr.expr &:= ");\n";
+        setDiagnosticLine(c_expr);
+        c_expr.expr &:= "/*ovfchk*/ if (*int_ptr==";
+        c_expr.expr &:= integerLiteral(integer.last);
+        c_expr.expr &:= ") raise_error(NUMERIC_ERROR); else ++(*int_ptr);\n";
+        c_expr.expr &:= "}\n";
+      end if;
+    else
+      c_expr.expr &:= "++(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ");\n";
+    end if;
   end func;
 
 
@@ -512,7 +865,7 @@ const proc: process_const_int_lshift (in reference: param1, in integer: shiftCou
       c_expr.expr &:= "(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ") << ";
-      c_expr.expr &:= str(shiftCount);
+      c_expr.expr &:= integerLiteral(shiftCount);
     end if;
   end func;
 
@@ -592,25 +945,44 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
     if divisor = 0 then
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
-      c_expr.expr &:= str(getValue(evaluatedDividend, integer) mdiv divisor);
+      block
+        c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) mdiv divisor);
+      exception
+        catch NUMERIC_ERROR:
+          c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      end block;
     elsif divisor = 1 then
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ")";
     elsif divisor = -1 then
-      c_expr.expr &:= "-(";
-      process_expr(dividend, c_expr);
-      c_expr.expr &:= ")";
+      if integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "/*ovfchk*/(";
+        dividend_name := getParameterAsVariable("intType", "tmp_", dividend, c_expr);
+        c_expr.expr &:= dividend_name;
+        c_expr.expr &:= "==";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= "?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ": -";
+        c_expr.expr &:= dividend_name;
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "-(";
+        process_expr(dividend, c_expr);
+        c_expr.expr &:= ")";
+      end if;
     elsif divisor > 0 and 2 ** log2(divisor) = divisor then
       if ccConf.RSHIFT_DOES_SIGN_EXTEND then
         c_expr.expr &:= "(";
         process_expr(dividend, c_expr);
         c_expr.expr &:= ") >> ";
-        c_expr.expr &:= str(log2(divisor));
+        c_expr.expr &:= integerLiteral(log2(divisor));
       else
         c_expr.expr &:= "(";
         dividend_name := getParameterAsVariable("intType", "tmp_a_", dividend, c_expr);
-        doRshift(dividend_name, str(log2(divisor)), c_expr);
+        doRshift(dividend_name, integerLiteral(log2(divisor)), c_expr);
         c_expr.expr &:= ")";
       end if;
     elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
@@ -618,24 +990,52 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
       #   divisor < 0 and 2 ** log2(-divisor) = -divisor
       # The check with bitLength is used to avoid negating the divisor.
       # Negating the divisor would fail for the most negative integer.
-      if ccConf.RSHIFT_DOES_SIGN_EXTEND then
-        c_expr.expr &:= "-(";
-        process_expr(dividend, c_expr);
-        c_expr.expr &:= ") >> ";
-        c_expr.expr &:= str(bitLength(divisor));
-      else
-        incr(c_expr.temp_num);
-        dividend_name := "tmp_a_" & str(c_expr.temp_num);
-        c_expr.temp_decls &:= "intType ";
-        c_expr.temp_decls &:= dividend_name;
-        c_expr.temp_decls &:= ";\n";
+      if ccConf.TWOS_COMPLEMENT_INTTYPE then
         c_expr.expr &:= "(";
+        dividend_name := getParameterAsVariable("intType", "tmp_a_", dividend, c_expr);
         c_expr.expr &:= dividend_name;
-        c_expr.expr &:= "=-(";
-        process_expr(dividend, c_expr);
-        c_expr.expr &:= "),";
-        doRshift(dividend_name, str(bitLength(divisor)), c_expr);
+        c_expr.expr &:= "==";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= "?(intType)((uintType)";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= " >> ";
+        c_expr.expr &:= integerLiteral(bitLength(divisor));
+        c_expr.expr &:= "):";
+        if ccConf.RSHIFT_DOES_SIGN_EXTEND then
+          c_expr.expr &:= "-";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= " >> ";
+          c_expr.expr &:= integerLiteral(bitLength(divisor));
+        else
+          c_expr.expr &:= "(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "=-";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= ",";
+          doRshift(dividend_name, integerLiteral(bitLength(divisor)), c_expr);
+          c_expr.expr &:= ")";
+        end if;
         c_expr.expr &:= ")";
+      else
+        if ccConf.RSHIFT_DOES_SIGN_EXTEND then
+          c_expr.expr &:= "-(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= ") >> ";
+          c_expr.expr &:= integerLiteral(bitLength(divisor));
+        else
+          incr(c_expr.temp_num);
+          dividend_name := "tmp_a_" & str(c_expr.temp_num);
+          c_expr.temp_decls &:= "intType ";
+          c_expr.temp_decls &:= dividend_name;
+          c_expr.temp_decls &:= ";\n";
+          c_expr.expr &:= "(";
+          c_expr.expr &:= dividend_name;
+          c_expr.expr &:= "=-(";
+          process_expr(dividend, c_expr);
+          c_expr.expr &:= "),";
+          doRshift(dividend_name, integerLiteral(bitLength(divisor)), c_expr);
+          c_expr.expr &:= ")";
+        end if;
       end if;
     else
       c_expr.expr &:= "(";
@@ -646,22 +1046,22 @@ const proc: process_const_int_mdiv (in reference: dividend, in integer: divisor,
         c_expr.expr &:= "<0?(";
         c_expr.expr &:= dividend_name;
         c_expr.expr &:= "+1)/";
-        c_expr.expr &:= str(divisor);
+        c_expr.expr &:= integerLiteral(divisor);
         c_expr.expr &:= "-1:(intType)((uintType)";
         c_expr.expr &:= dividend_name;
         c_expr.expr &:= "/";
-        c_expr.expr &:= str(divisor);
+        c_expr.expr &:= integerLiteral(divisor);
         c_expr.expr &:= "))";
       else # divisor < 0
         (* Formula used: a>0?(a-1)/b-1:a/b *)
         c_expr.expr &:= ">0?(";
         c_expr.expr &:= dividend_name;
         c_expr.expr &:= "-1)/";
-        c_expr.expr &:= str(divisor);
+        c_expr.expr &:= integerLiteral(divisor);
         c_expr.expr &:= "-1:";
         c_expr.expr &:= dividend_name;
         c_expr.expr &:= "/";
-        c_expr.expr &:= str(divisor);
+        c_expr.expr &:= integerLiteral(divisor);
         c_expr.expr &:= ")";
       end if;
     end if;
@@ -681,6 +1081,32 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
       c_expr.expr &:= ")==0?";
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
       c_expr.expr &:= ":0)";
+    elsif integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE and
+          dividend = integer.first then
+      incr(countOverflowChecks);
+      (* Formula used: b==-1?NUMERIC_ERROR:b>0?(a+1)/b-1:a/b *)
+      c_expr.expr &:= "/*ovfchk*/(";
+      divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= "==-1?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= ">0?";
+      c_expr.expr &:= integerLiteral(succ(dividend));
+      c_expr.expr &:= "/";
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= "-1:";
+      if ccConf.CHECK_INT_DIV_BY_ZERO then
+        c_expr.expr &:= divisor_name;
+        c_expr.expr &:= "==0?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
+      end if;
+      c_expr.expr &:= integerLiteral(dividend);
+      c_expr.expr &:= "/";
+      c_expr.expr &:= divisor_name;
+      c_expr.expr &:= ")";
     else
       c_expr.expr &:= "(";
       divisor_name := getParameterAsVariable("intType", "tmp_b_", divisor, c_expr);
@@ -688,11 +1114,11 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
       if dividend > 0 then
         (* Formula used: b<0?(a-1)/b-1:a/b *)
         c_expr.expr &:= "<0?";
-        c_expr.expr &:= str(pred(dividend));
+        c_expr.expr &:= integerLiteral(pred(dividend));
       else # dividend < 0
         (* Formula used: b>0?(a+1)/b-1:a/b *)
         c_expr.expr &:= ">0?";
-        c_expr.expr &:= str(succ(dividend));
+        c_expr.expr &:= integerLiteral(succ(dividend));
       end if;
       c_expr.expr &:= "/";
       c_expr.expr &:= divisor_name;
@@ -703,7 +1129,7 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: divisor,
         c_expr.expr &:= raiseError("NUMERIC_ERROR");
         c_expr.expr &:= ":";
       end if;
-      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= integerLiteral(dividend);
       c_expr.expr &:= "/";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ")";
@@ -744,7 +1170,23 @@ const proc: process (INT_MDIV, in reference: function,
       c_expr.expr &:= "+1)/";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= "-1:";
-      if ccConf.CHECK_INT_DIV_BY_ZERO then
+      if integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= "/*ovfchk*/";
+        c_expr.expr &:= dividend_name;
+        c_expr.expr &:= "==";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= "&&";
+        c_expr.expr &:= divisor_name;
+        c_expr.expr &:= "==-1";
+        if ccConf.CHECK_INT_DIV_BY_ZERO then
+          c_expr.expr &:= "||";
+          c_expr.expr &:= divisor_name;
+          c_expr.expr &:= "==0";
+        end if;
+        c_expr.expr &:= "?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
+      elsif ccConf.CHECK_INT_DIV_BY_ZERO then
         c_expr.expr &:= divisor_name;
         c_expr.expr &:= "==0?";
         c_expr.expr &:= raiseError("NUMERIC_ERROR");
@@ -769,15 +1211,15 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
     incr(countOptimizations);
     if divisor = 0 then
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
-    elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
-      c_expr.expr &:= str(getValue(evaluatedDividend, integer) mod divisor);
     elsif divisor = 1 or divisor = -1 then
       c_expr.expr &:= "0";
+    elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
+      c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) mod divisor);
     elsif divisor > 0 and 2 ** log2(divisor) = divisor then
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ")&";
-      c_expr.expr &:= str(pred(divisor));
+      c_expr.expr &:= integerLiteral(pred(divisor));
     elsif divisor < 0 and bitLength(divisor) = lowestSetBit(divisor) then
       # The check above is (almost) equivalent to:
       #   divisor < 0 and 2 ** log2(-divisor) = -divisor
@@ -786,7 +1228,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       c_expr.expr &:= "-(-(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ")&";
-      c_expr.expr &:= str(-succ(divisor));
+      c_expr.expr &:= integerLiteral(-succ(divisor));
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "(";
@@ -801,7 +1243,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       c_expr.expr &:= "=";
       c_expr.expr &:= dividend_name;
       c_expr.expr &:= "%";
-      c_expr.expr &:= str(divisor);
+      c_expr.expr &:= integerLiteral(divisor);
       c_expr.expr &:= ",";
       c_expr.expr &:= dividend_name;
       if divisor > 0 then
@@ -816,7 +1258,7 @@ const proc: process_const_int_mod (in reference: dividend, in integer: divisor,
       c_expr.expr &:= "!=0?";
       c_expr.expr &:= quotient_name;
       c_expr.expr &:= "+";
-      c_expr.expr &:= str(divisor);
+      c_expr.expr &:= integerLiteral(divisor);
       c_expr.expr &:= ":";
       c_expr.expr &:= quotient_name;
       c_expr.expr &:= ")";
@@ -868,7 +1310,7 @@ const proc: process_const_int_mod (in integer: dividend, in reference: divisor,
       (* Formula used: c=a%b,a<0^b<0&&c!=0?c+b:c *)
       c_expr.expr &:= quotient_name;
       c_expr.expr &:= "=";
-      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= integerLiteral(dividend);
       c_expr.expr &:= "%";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ",";
@@ -1011,10 +1453,35 @@ const proc: process (INT_NE, in reference: function,
 const proc: process (INT_NEGATE, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
+    var string: number_name is "";
+    var integer: number is 0;
   begin
-    c_expr.expr &:= "-(";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[2], INTOBJECT, evaluatedParam) then
+      number := getValue(evaluatedParam, integer);
+      if number = integer.first and ccConf.TWOS_COMPLEMENT_INTTYPE then
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      else
+        c_expr.expr &:= integerLiteral(-number);
+      end if;
+    elsif integer_overflow_check and ccConf.TWOS_COMPLEMENT_INTTYPE then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      number_name := getParameterAsVariable("intType", "tmp_", params[2], c_expr);
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "==";
+      c_expr.expr &:= integerLiteral(integer.first);
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ": -";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "-(";
+      process_expr(params[2], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 
@@ -1097,6 +1564,10 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
         (* 20 *) "(c=(b=(a=x*x,a*a*x),b*b),c*c)", "(c=(b=(a=x*x,a*a*x),b*b),c*c*x)",
         (* 22 *) "(c=(b=(a=x*x,a*a*x),b*b*x),c*c)");
     const string: variables is "abc";
+    const array integer: minBase is [2] (-3037000499, -2097152, -55108, -6208, -1448,
+        -512, -234, -128, -78, -52, -38, -28, -22, -18, -15, -13, -11, -9, -8, -8, -7);
+    const array integer: maxBase is [2] (3037000499, 2097151, 55108, 6208, 1448,
+        511, 234, 127, 78, 52, 38, 28, 22, 18, 15, 13, 11, 9, 8, 7, 7);
     var reference: evaluatedBase is NIL;
     var string: powerTemplate is "";
     var string: baseName is "";
@@ -1108,7 +1579,12 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif getConstant(base, INTOBJECT, evaluatedBase) then
       incr(countOptimizations);
-      c_expr.expr &:= str(getValue(evaluatedBase, integer) ** exponent);
+      block
+        c_expr.expr &:= integerLiteral(getValue(evaluatedBase, integer) ** exponent);
+      exception
+        catch NUMERIC_ERROR:
+          c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      end block;
     elsif exponent = 0 then
       incr(countOptimizations);
       c_expr.expr &:= integerLiteral(1);
@@ -1120,6 +1596,20 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
       powerTemplate := power[exponent];
       c_expr.expr &:= "(";
       baseName := getParameterAsVariable("intType", "tmp_", base, c_expr);
+      if integer_overflow_check then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "/*ovfchk*/ ";
+        c_expr.expr &:= baseName;
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(minBase[exponent]);
+        c_expr.expr &:= "||";
+        c_expr.expr &:= baseName;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(maxBase[exponent]);
+        c_expr.expr &:= "?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
+      end if;
       for ch range variables do
         if pos(powerTemplate, ch) <> 0 then
           incr(c_expr.temp_num);
@@ -1133,10 +1623,15 @@ const proc: process_const_int_pow (in reference: base, in integer: exponent,
       c_expr.expr &:= replace(powerTemplate, "x", baseName);
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "intPow(";
+      if integer_overflow_check then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "intPowOvfChk(";
+      else
+        c_expr.expr &:= "intPow(";
+      end if;
       process_expr(base, c_expr);
       c_expr.expr &:= ", ";
-      c_expr.expr &:= str(exponent);
+      c_expr.expr &:= integerLiteral(exponent);
       c_expr.expr &:= ")";
     end if;
   end func;
@@ -1186,7 +1681,16 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
       c_expr.expr &:= "(";
       exponent_name := getParameterAsVariable("intType", "tmp_", exponent, c_expr);
       c_expr.expr &:= exponent_name;
-      c_expr.expr &:= "<0?";
+      if integer_overflow_check then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "<0||";
+        c_expr.expr &:= exponent_name;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(log2(integer.last));
+        c_expr.expr &:= "?";
+      else
+        c_expr.expr &:= "<0?";
+      end if;
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
       c_expr.expr &:= ":";
       c_expr.expr &:= integerLiteral(1);
@@ -1198,18 +1702,32 @@ const proc: process_const_int_pow (in integer: base, in reference: exponent,
       c_expr.expr &:= "(";
       exponent_name := getParameterAsVariable("intType", "tmp_", exponent, c_expr);
       c_expr.expr &:= exponent_name;
-      c_expr.expr &:= "<0?";
+      if integer_overflow_check then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "<0||";
+        c_expr.expr &:= exponent_name;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(log2(integer.last) div log2(base));
+        c_expr.expr &:= "?";
+      else
+        c_expr.expr &:= "<0?";
+      end if;
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
       c_expr.expr &:= ":";
       c_expr.expr &:= integerLiteral(1);
       c_expr.expr &:= "<<";
-      c_expr.expr &:= str(log2(base));
+      c_expr.expr &:= integerLiteral(log2(base));
       c_expr.expr &:= "*";
       c_expr.expr &:= exponent_name;
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "intPow(";
-      c_expr.expr &:= str(base);
+      if integer_overflow_check then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "intPowOvfChk(";
+      else
+        c_expr.expr &:= "intPow(";
+      end if;
+      c_expr.expr &:= integerLiteral(base);
       c_expr.expr &:= ", ";
       process_expr(exponent, c_expr);
       c_expr.expr &:= ")";
@@ -1228,7 +1746,12 @@ const proc: process (INT_POW, in reference: function,
     elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
       process_const_int_pow(getValue(evaluatedParam, integer), params[3], c_expr);
     else
-      c_expr.expr &:= "intPow(";
+      if integer_overflow_check then
+        incr(countOverflowChecks);
+        c_expr.expr &:= "intPowOvfChk(";
+      else
+        c_expr.expr &:= "intPow(";
+      end if;
       process_expr(params[1], c_expr);
       c_expr.expr &:= ", ";
       process_expr(params[3], c_expr);
@@ -1240,10 +1763,26 @@ const proc: process (INT_POW, in reference: function,
 const proc: process (INT_PRED, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: number_name is "";
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ")-1";
+    if integer_overflow_check then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "==";
+      c_expr.expr &:= integerLiteral(integer.first);
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "-1)";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")-1";
+    end if;
   end func;
 
 
@@ -1263,9 +1802,9 @@ const proc: process_const_int_radix (in reference: param1, in integer: base,
       c_expr.result_expr := "intRadixPow2(";
       getStdParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ",";
-      c_expr.result_expr &:= str(log2(base));
+      c_expr.result_expr &:= integerLiteral(log2(base));
       c_expr.result_expr &:= ",";
-      c_expr.result_expr &:= str(pred(base));
+      c_expr.result_expr &:= integerLiteral(pred(base));
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= str(ord(upperCase));
       c_expr.result_expr &:= ")";
@@ -1274,7 +1813,7 @@ const proc: process_const_int_radix (in reference: param1, in integer: base,
       c_expr.result_expr := "intRadix(";
       getStdParamToResultExpr(param1, c_expr);
       c_expr.result_expr &:= ", ";
-      c_expr.result_expr &:= str(base);
+      c_expr.result_expr &:= integerLiteral(base);
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= str(ord(upperCase));
       c_expr.result_expr &:= ")";
@@ -1340,17 +1879,17 @@ const proc: process_const_int_rem (in reference: dividend, in integer: divisor,
     if divisor = 0 then
       incr(countOptimizations);
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
-    elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
-      incr(countOptimizations);
-      c_expr.expr &:= str(getValue(evaluatedDividend, integer) rem divisor);
     elsif divisor = 1 or divisor = -1 then
       incr(countOptimizations);
       c_expr.expr &:= "0";
+    elsif getConstant(dividend, INTOBJECT, evaluatedDividend) then
+      incr(countOptimizations);
+      c_expr.expr &:= integerLiteral(getValue(evaluatedDividend, integer) rem divisor);
     else
       c_expr.expr &:= "(";
       process_expr(dividend, c_expr);
       c_expr.expr &:= ") % ";
-      c_expr.expr &:= str(divisor);
+      c_expr.expr &:= integerLiteral(divisor);
     end if;
   end func;
 
@@ -1375,12 +1914,12 @@ const proc: process_const_int_rem (in integer: dividend, in reference: divisor,
       c_expr.expr &:= "==0?";
       c_expr.expr &:= raiseError("NUMERIC_ERROR");
       c_expr.expr &:= ":";
-      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= integerLiteral(dividend);
       c_expr.expr &:= " % ";
       c_expr.expr &:= divisor_name;
       c_expr.expr &:= ")";
     else
-      c_expr.expr &:= str(dividend);
+      c_expr.expr &:= integerLiteral(dividend);
       c_expr.expr &:= " % (";
       process_expr(divisor, c_expr);
       c_expr.expr &:= ")";
@@ -1447,11 +1986,11 @@ const proc: process_const_int_rshift (in reference: param1, in integer: shiftCou
         c_expr.expr &:= "(";
         process_expr(param1, c_expr);
         c_expr.expr &:= ") >> ";
-        c_expr.expr &:= str(shiftCount);
+        c_expr.expr &:= integerLiteral(shiftCount);
       else
         c_expr.expr &:= "(";
         number_name := getParameterAsVariable("intType", "tmp_", param1, c_expr);
-        doRshift(number_name, str(shiftCount), c_expr);
+        doRshift(number_name, integerLiteral(shiftCount), c_expr);
         c_expr.expr &:= ")";
       end if;
     end if;
@@ -1575,15 +2114,186 @@ const proc: process (INT_RSHIFT_ASSIGN, in reference: function,
   end func;
 
 
+const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahend,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: minuend_name is "";
+  begin
+    if getConstant(minuend, INTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      block
+        c_expr.expr &:= integerLiteral(getValue(evaluatedParam, integer) - subtrahend);
+      exception
+        catch NUMERIC_ERROR:
+          c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      end block;
+    elsif subtrahend = 0 then
+      incr(countOptimizations);
+      process_expr(minuend, c_expr);
+    elsif integer_overflow_check then
+      incr(countOptimizations);
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      minuend_name := getParameterAsVariable("intType", "tmp_", minuend, c_expr);
+      c_expr.expr &:= minuend_name;
+      if subtrahend < 0 then
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(integer.last + subtrahend);
+      else
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(integer.first + subtrahend);
+      end if;
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= minuend_name;
+      c_expr.expr &:= " - ";
+      c_expr.expr &:= integerLiteral(subtrahend);
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= "(";
+      process_expr(minuend, c_expr);
+      c_expr.expr &:= ") - ";
+      c_expr.expr &:= integerLiteral(subtrahend);
+    end if;
+  end func;
+
+
+const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahend,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: subtrahend_name is "";
+  begin
+    if integer_overflow_check then
+      incr(countOptimizations);
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      subtrahend_name := getParameterAsVariable("intType", "tmp_", subtrahend, c_expr);
+      c_expr.expr &:= subtrahend_name;
+      if minuend < 0 then
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(-(integer.first - minuend));
+      elsif minuend = 0 then
+        c_expr.expr &:= "==";
+        c_expr.expr &:= integerLiteral(integer.first);
+      else
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(-(integer.last - minuend));
+      end if;
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      if minuend <> 0 then
+        c_expr.expr &:= integerLiteral(minuend);
+      end if;
+      c_expr.expr &:= " - ";
+      c_expr.expr &:= subtrahend_name;
+      c_expr.expr &:= ")";
+    else
+      c_expr.expr &:= integerLiteral(minuend);
+      c_expr.expr &:= " - (";
+      process_expr(subtrahend, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (INT_SBTR, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
+    var string: minuend_name is "";
+    var string: subtrahend_name is "";
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") - (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_sbtr(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_sbtr(getValue(evaluatedParam, integer), params[3], c_expr);
+    elsif integer_overflow_check then
+      if params[1] = params[3] then
+        incr(countOptimizations);
+        c_expr.expr &:= "0";
+      else
+        incr(countOverflowChecks);
+        c_expr.expr &:= "/*ovfchk*/(";
+        minuend_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+        subtrahend_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
+        c_expr.expr &:= subtrahend_name;
+        c_expr.expr &:= "<0&&";
+        c_expr.expr &:= minuend_name;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(integer.last);
+        c_expr.expr &:= "+";
+        c_expr.expr &:= subtrahend_name;
+        c_expr.expr &:= " || ";
+        c_expr.expr &:= subtrahend_name;
+        c_expr.expr &:= ">=0&&";
+        c_expr.expr &:= minuend_name;
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(integer.first);
+        c_expr.expr &:= "+";
+        c_expr.expr &:= subtrahend_name;
+        c_expr.expr &:= "?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
+        c_expr.expr &:= minuend_name;
+        c_expr.expr &:= " - ";
+        c_expr.expr &:= subtrahend_name;
+        c_expr.expr &:= ")";
+      end if;
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") - (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process_const_int_shrink (in reference: param1, in integer: delta,
+    inout expr_type: c_expr) is func
+
+  local
+    var string: variable_name is "";
+    var expr_type: statement is expr_type.value;
+  begin
+    if delta = 0 then
+      incr(countOptimizations);
+      c_expr.expr &:= "/* ignore integer -:= 0_; */\n";
+    elsif integer_overflow_check then
+      incr(countOptimizations);
+      incr(countOverflowChecks);
+      statement.expr &:= "/*ovfchk*/ ";
+      variable_name := getParameterAsReference("intType", "tmp_", param1, statement);
+      statement.expr &:= variable_name;
+      if delta < 0 then
+        statement.expr &:= ">";
+        statement.expr &:= integerLiteral(integer.last + delta);
+      else
+        statement.expr &:= "<";
+        statement.expr &:= integerLiteral(integer.first + delta);
+      end if;
+      statement.expr &:= "?";
+      statement.expr &:= raiseError("NUMERIC_ERROR");
+      statement.expr &:= ":(";
+      statement.expr &:= variable_name;
+      statement.expr &:= "-=";
+      statement.expr &:= integerLiteral(delta);
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    else
+      process_expr(param1, statement);
+      statement.expr &:= "-=";
+      statement.expr &:= integerLiteral(delta);
+      statement.expr &:= ";\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
   end func;
 
 
@@ -1591,13 +2301,48 @@ const proc: process (INT_SHRINK, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
   local
+    var reference: evaluatedParam is NIL;
+    var string: variable_name is "";
+    var string: delta_name is "";
     var expr_type: statement is expr_type.value;
   begin
-    process_expr(params[1], statement);
-    statement.expr &:= "-=";
-    process_expr(params[3], statement);
-    statement.expr &:= ";\n";
-    doLocalDeclsOfStatement(statement, c_expr);
+    if getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_shrink(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif integer_overflow_check then
+      incr(countOverflowChecks);
+      statement.expr &:= "/*ovfchk*/ ";
+      variable_name := getParameterAsReference("intType", "tmp_", params[1], statement);
+      delta_name := getParameterAsVariable("intType", "tmp_", params[3], statement);
+      statement.expr &:= delta_name;
+      statement.expr &:= "<0&&";
+      statement.expr &:= variable_name;
+      statement.expr &:= ">";
+      statement.expr &:= integerLiteral(integer.last);
+      statement.expr &:= "+";
+      statement.expr &:= delta_name;
+      statement.expr &:= " || ";
+      statement.expr &:= delta_name;
+      statement.expr &:= ">=0&&";
+      statement.expr &:= variable_name;
+      statement.expr &:= "<";
+      statement.expr &:= integerLiteral(integer.first);
+      statement.expr &:= "+";
+      statement.expr &:= delta_name;
+      statement.expr &:= "?";
+      statement.expr &:= raiseError("NUMERIC_ERROR");
+      statement.expr &:= ":(";
+      statement.expr &:= variable_name;
+      statement.expr &:= "-=";
+      statement.expr &:= delta_name;
+      statement.expr &:= ");\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    else
+      process_expr(params[1], statement);
+      statement.expr &:= "-=";
+      process_expr(params[3], statement);
+      statement.expr &:= ";\n";
+      doLocalDeclsOfStatement(statement, c_expr);
+    end if;
   end func;
 
 
@@ -1643,10 +2388,26 @@ const proc: process (INT_STR, in reference: function,
 const proc: process (INT_SUCC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var string: number_name is "";
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ")+1";
+    if integer_overflow_check then
+      incr(countOverflowChecks);
+      c_expr.expr &:= "/*ovfchk*/(";
+      number_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "==";
+      c_expr.expr &:= integerLiteral(integer.last);
+      c_expr.expr &:= "?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
+      c_expr.expr &:= number_name;
+      c_expr.expr &:= "+1)";
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ")+1";
+    end if;
   end func;
 
 
@@ -1664,7 +2425,7 @@ const proc: process_const_int_urshift (in reference: param1, in integer: shiftCo
       c_expr.expr &:= "(intType)((uintType)(";
       process_expr(param1, c_expr);
       c_expr.expr &:= ") >> ";
-      c_expr.expr &:= str(shiftCount);
+      c_expr.expr &:= integerLiteral(shiftCount);
       c_expr.expr &:= ")";
     end if;
   end func;

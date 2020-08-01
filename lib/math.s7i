@@ -164,10 +164,3 @@ const func float: ceil (in float: x)                           is action "FLT_CE
  *  @return the rounded value.
  *)
 const func float: floor (in float: x)                          is action "FLT_FLOOR";
-
-
-(**
- *  Compute the absolute value of a [[float]] number.
- *  @return the absolute value.
- *)
-const func float: abs (in float: number)                       is action "FLT_ABS";

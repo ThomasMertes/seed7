@@ -434,7 +434,7 @@ floatType fltIPow (floatType base, intType exponent)
 
   {
     boolType neg_exp = FALSE;
-    floatType result;
+    floatType power;
 
   /* fltIPow */
 #ifdef IPOW_EXPONENTIATION_BY_SQUARING
@@ -460,22 +460,22 @@ floatType fltIPow (floatType base, intType exponent)
         neg_exp = TRUE;
       } /* if */
       if (exponent & 1) {
-        result = base;
+        power = base;
       } else {
-        result = 1.0;
+        power = 1.0;
       } /* if */
       exponent >>= 1;
       while (exponent != 0) {
         base *= base;
         if (exponent & 1) {
-          result *= base;
+          power *= base;
         } /* if */
         exponent >>= 1;
       } /* while */
       if (neg_exp) {
-        return 1.0 / result;
+        return 1.0 / power;
       } else {
-        return result;
+        return power;
       } /* if */
     } /* if */
 #else

@@ -61,7 +61,7 @@
 
 
 
-#ifdef WITH_TYPE_CHECK
+#ifdef OUT_OF_ORDER
 void isit_bool (objectType argument)
 
   {
@@ -84,9 +84,11 @@ void isit_bool (objectType argument)
       run_error(ENUMLITERALOBJECT, argument);
     } /* if */
   } /* isit_bool */
+#endif
 
 
 
+#ifdef WITH_TYPE_CHECK
 void isit_enum (objectType argument)
 
   { /* isit_enum */

@@ -1362,21 +1362,21 @@ striType strCLit (const const_striType stri)
 intType strCompare (const const_striType stri1, const const_striType stri2)
 
   {
-    intType result;
+    intType signumValue;
 
   /* strCompare */
     if (stri1->size < stri2->size) {
-      result = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
-      if (result == 0) {
-        result = -1;
+      signumValue = strelem_memcmp(stri1->mem, stri2->mem, stri1->size);
+      if (signumValue == 0) {
+        signumValue = -1;
       } /* if */
     } else {
-      result = strelem_memcmp(stri1->mem, stri2->mem, stri2->size);
-      if (result == 0 && stri1->size > stri2->size) {
-        result = 1;
+      signumValue = strelem_memcmp(stri1->mem, stri2->mem, stri2->size);
+      if (signumValue == 0 && stri1->size > stri2->size) {
+        signumValue = 1;
       } /* if */
     } /* if */
-    return result;
+    return signumValue;
   } /* strCompare */
 
 

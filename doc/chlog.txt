@@ -1,3 +1,50 @@
+20140706:
+- The interpreter has been improved to recognize integer overflow.
+  Now the exception NUMERIC_ERROR is raised, when a program triggers
+  an integer overflow. The checks for overflow are done in software,
+  but the overhead is small. With overflow checks the interpreter
+  needs 0.5% (zero point five percent) more run-time to execute the
+  program chkint.sd7 (verified with gcc and valgrind).
+- A chapter about the Seed7 Structured Syntax Description (S7SSD)
+  has been added to the manual.
+- The for-until-loops in bitset.s7i and bitsetof.s7i have been
+  improved such that the for-variable has the correct value, when it
+  is used in the until-condition.
+- The function replaceN has been added to string.s7i. This function
+  does replacements until no occurance of the target string is left.
+  This function is used by toStdPath to replace multiple occurances
+  of a character by one occurance (replace("/a///b////c", "//", "/")
+  returns "/a/b/c").
+- The program calc.sd7 has been renamed to calc7.sd7.
+- The program calc7.sd7 has been changed to accept the commands
+  'quit' and 'exit'. This commands can be used to exit the program.
+  The possibility to leave the program with an empty input line has
+  been removed.
+- The program calc7.sd7 has been improved to write the name of the
+  exception, when it has been raised.
+- The compiler has been improved to allow the generation of overflow
+  checking code. Overflow checking code can be generated for the
+  operators +, -, **, +:= and -:= and the functions abs, succ, pred,
+  incr and decr. Until the rest of the functions is implemented and
+  enough tests have been added to chkint.sd7 the functionality is
+  switched off.
+- The template FOR_UNTIL_DECLS has been added to forloop.s7i. This
+  template defines for-loops with a condition.
+- The function abs has been moved from the library math.s7i to the
+  library float.s7i.
+- Checks for addition, subtraction, multiplication, power and abs
+  have been added to chkint.sd7.
+- In the compiler the statements to write the C prototypes have been
+  moved from s7c.sd7 to functions in the files comp/xxx_act.s7i
+  (xxx is the abbreviation for the corresponding primitive type).
+- The functions getReference getParameterAsReference have been added
+  to comp/expr_util.s7i.
+- The function isit_bool from objutl.c has been replaced by the macro
+  isit_bool (defined in objutl.h). This improves the speed of the
+  interpreter.
+- The function set_card has been improved to call setCard, which
+  computes the cardinality of a set much quicker.
+
 20140615:
 - The makefile mk_freebsd.mk has been changed to work with the new
   version of chkccomp.c. Thanks go to Pietro Cerutti for pointing out

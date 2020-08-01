@@ -72,6 +72,72 @@ const ACTION: STR_UTF8TOSTRI  is action "STR_UTF8TOSTRI";
 const ACTION: STR_VALUE       is action "STR_VALUE";
 
 
+const proc: str_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        strAppend (striType *const, const_striType);");
+    declareExtern(c_prog, "void        strAppendTemp (striType *const, const striType);");
+    declareExtern(c_prog, "intType     strChIPos (const const_striType, const charType, const intType);");
+    declareExtern(c_prog, "striType    strChMult (const charType, const intType);");
+    declareExtern(c_prog, "intType     strChPos (const const_striType, const charType);");
+    declareExtern(c_prog, "arrayType   strChSplit (const const_striType, const charType);");
+    declareExtern(c_prog, "intType     strCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "intType     strCompare (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    strConcat (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    strConcatN (const const_striType[], memSizeType);");
+    declareExtern(c_prog, "striType    strConcatTemp (striType, const const_striType);");
+    declareExtern(c_prog, "striType    strCLit (const const_striType);");
+    declareExtern(c_prog, "void        strCopy (striType *const, const const_striType);");
+    declareExtern(c_prog, "void        strCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "striType    strCreate (const const_striType);");
+    declareExtern(c_prog, "genericType strCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        strDestr (const const_striType);");
+    declareExtern(c_prog, "void        strDestrGeneric (const genericType);");
+    declareExtern(c_prog, "striType    strEmpty(void);");
+    declareExtern(c_prog, "boolType    strGe (const const_striType, const const_striType);");
+    declareExtern(c_prog, "boolType    strGt (const const_striType, const const_striType);");
+    declareExtern(c_prog, "intType     strHashCode (const const_striType);");
+    declareExtern(c_prog, "striType    strHead (const_striType, intType);");
+    declareExtern(c_prog, "void        strHeadSlice (const const_striType, const intType, striType);");
+    declareExtern(c_prog, "striType    strHeadTemp (const striType, const intType);");
+    declareExtern(c_prog, "intType     strIPos (const const_striType, const const_striType, const intType);");
+    declareExtern(c_prog, "boolType    strLe (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    strLit (const const_striType);");
+    declareExtern(c_prog, "striType    strLow (const const_striType);");
+    declareExtern(c_prog, "striType    strLowTemp (const striType);");
+    declareExtern(c_prog, "striType    strLpad (const const_striType, const intType);");
+    declareExtern(c_prog, "striType    strLpadTemp (const striType, const intType);");
+    declareExtern(c_prog, "striType    strLpad0 (const const_striType, const intType);");
+    declareExtern(c_prog, "striType    strLpad0Temp (const striType, const intType);");
+    declareExtern(c_prog, "boolType    strLt (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    strLtrim (const const_striType);");
+    declareExtern(c_prog, "striType    strMult (const const_striType, const intType);");
+    declareExtern(c_prog, "intType     strPos (const const_striType, const const_striType);");
+    declareExtern(c_prog, "void        strPush (striType *const, const charType);");
+    declareExtern(c_prog, "striType    strRange (const_striType, intType, intType);");
+    declareExtern(c_prog, "void        strRangeSlice (const const_striType, intType, intType, striType);");
+    declareExtern(c_prog, "intType     strRChIPos (const const_striType, const charType, const intType);");
+    declareExtern(c_prog, "intType     strRChPos (const const_striType, const charType);");
+    declareExtern(c_prog, "striType    strRepl (const const_striType, const const_striType, const const_striType);");
+    declareExtern(c_prog, "intType     strRIPos (const const_striType, const const_striType, const intType);");
+    declareExtern(c_prog, "striType    strRpad (const const_striType, const intType);");
+    declareExtern(c_prog, "intType     strRPos (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    strRtrim (const const_striType);");
+    declareExtern(c_prog, "arrayType   strSplit (const const_striType, const const_striType);");
+    declareExtern(c_prog, "striType    strSubstr (const_striType, intType, intType);");
+    declareExtern(c_prog, "void        strSubstrSlice (const const_striType, intType, intType, striType);");
+    declareExtern(c_prog, "striType    strTail (const_striType, intType);");
+    declareExtern(c_prog, "void        strTailSlice (const const_striType, intType, striType);");
+    declareExtern(c_prog, "striType    strToUtf8 (const const_striType);");
+    declareExtern(c_prog, "striType    strTrim (const const_striType);");
+    declareExtern(c_prog, "striType    strUp (const const_striType);");
+    declareExtern(c_prog, "striType    strUpTemp (const striType);");
+    declareExtern(c_prog, "striType    strUtf8ToStri (const_striType);");
+    declareExtern(c_prog, "striType    strValue (objRefType);");
+    declareExtern(c_prog, "striType    strZero (const intType);");
+  end func;
+
+
 const proc: process_const_inline_str_push (in reference: param1, in char: ch,
     inout expr_type: c_expr) is func
 

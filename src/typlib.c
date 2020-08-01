@@ -78,7 +78,7 @@ objectType typ_cmp (listType arguments)
   {
     memSizeType typ1;
     memSizeType typ2;
-    intType result;
+    intType signumValue;
 
   /* typ_cmp */
     isit_type(arg_1(arguments));
@@ -86,13 +86,13 @@ objectType typ_cmp (listType arguments)
     typ1 = (memSizeType) take_type(arg_1(arguments));
     typ2 = (memSizeType) take_type(arg_2(arguments));
     if (typ1 < typ2) {
-      result = -1;
+      signumValue = -1;
     } else if (typ1 > typ2) {
-      result = 1;
+      signumValue = 1;
     } else {
-      result = 0;
+      signumValue = 0;
     } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(signumValue);
   } /* typ_cmp */
 
 

@@ -156,7 +156,7 @@ objectType bst_cmp (listType arguments)
   {
     bstriType bstri1;
     bstriType bstri2;
-    intType result;
+    intType signumValue;
 
   /* bst_cmp */
     isit_bstri(arg_1(arguments));
@@ -165,23 +165,23 @@ objectType bst_cmp (listType arguments)
     bstri2 = take_bstri(arg_2(arguments));
     if (bstri1->size < bstri2->size) {
       if (memcmp(bstri1->mem, bstri2->mem, bstri1->size * sizeof(ucharType)) <= 0) {
-        result = -1;
+        signumValue = -1;
       } else {
-        result = 1;
+        signumValue = 1;
       } /* if */
     } else {
-      result = memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(ucharType));
-      if (result == 0) {
+      signumValue = memcmp(bstri1->mem, bstri2->mem, bstri2->size * sizeof(ucharType));
+      if (signumValue == 0) {
         if (bstri1->size > bstri2->size) {
-          result = 1;
+          signumValue = 1;
         } /* if */
-      } else if (result > 0) {
-        result = 1;
+      } else if (signumValue > 0) {
+        signumValue = 1;
       } else {
-        result = -1;
+        signumValue = -1;
       } /* if */
     } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(signumValue);
   } /* bst_cmp */
 
 
@@ -392,12 +392,9 @@ objectType bst_lng (listType arguments)
 #if POINTER_SIZE > INTTYPE_SIZE
     if (bstri->size > MAX_MEM_INDEX) {
       return raise_exception(SYS_RNG_EXCEPTION);
-    } else {
-      return bld_int_temp((intType) bstri->size);
     } /* if */
-#else
-    return bld_int_temp((intType) bstri->size);
 #endif
+    return bld_int_temp((intType) bstri->size);
   } /* bst_lng */
 
 

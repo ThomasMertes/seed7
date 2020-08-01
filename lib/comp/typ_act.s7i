@@ -42,6 +42,24 @@ const ACTION: TYP_VALUE      is action "TYP_VALUE";
 const ACTION: TYP_VARCONV    is action "TYP_VARCONV";
 
 
+const proc: typ_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "intType     typCmp (const const_typeType, const const_typeType);");
+    declareExtern(c_prog, "intType     typCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "typeType    typFunc (typeType);");
+    declareExtern(c_prog, "boolType    typIsDerived (typeType);");
+    declareExtern(c_prog, "boolType    typIsFunc (typeType);");
+    declareExtern(c_prog, "boolType    typIsVarfunc (typeType);");
+    declareExtern(c_prog, "objRefType  typMatchobj (typeType);");
+    declareExtern(c_prog, "typeType    typMeta (typeType);");
+    declareExtern(c_prog, "intType     typNum (typeType);");
+    declareExtern(c_prog, "typeType    typResult (typeType);");
+    declareExtern(c_prog, "striType    typStr (typeType);");
+    declareExtern(c_prog, "typeType    typValue (objRefType);");
+  end func;
+
+
 const proc: process (TYP_CMP, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

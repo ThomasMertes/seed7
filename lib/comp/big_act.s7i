@@ -80,6 +80,93 @@ const ACTION: BIG_VALUE           is action "BIG_VALUE";
 const bigInteger: INTTYPE_MAX is 2_ ** pred(ccConf.INTTYPE_SIZE) - 1_;
 
 
+const proc: big_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "bigIntType  bigAbs (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigAdd (const_bigIntType, const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigAddTemp (bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigAnd (const_bigIntType, const_bigIntType);");
+    declareExtern(c_prog, "intType     bigBitLength (const const_bigIntType);");
+    declareExtern(c_prog, "intType     bigCmp (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "intType     bigCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "intType     bigCmpSignedDigit (const const_bigIntType, intType);");
+    declareExtern(c_prog, "void        bigCpy (bigIntType *const, const const_bigIntType);");
+    declareExtern(c_prog, "void        bigCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "bigIntType  bigCreate (const const_bigIntType);");
+    declareExtern(c_prog, "genericType bigCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        bigDecr (bigIntType *const);");
+    declareExtern(c_prog, "void        bigDestr (const const_bigIntType);");
+    declareExtern(c_prog, "void        bigDestrGeneric (const genericType);");
+    declareExtern(c_prog, "bigIntType  bigDiv (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "boolType    bigEq (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "boolType    bigEqSignedDigit (const const_bigIntType, intType);");
+    if ccConf.INTTYPE_SIZE = 64 then
+      declareExtern(c_prog, "bigIntType  bigFromInt64 (intType);");
+      writeln(c_prog, "#define     bigIConv bigFromInt64");
+    elsif ccConf.INTTYPE_SIZE = 32 then
+      declareExtern(c_prog, "bigIntType  bigFromInt32 (intType);");
+      writeln(c_prog, "#define     bigIConv bigFromInt32");
+    end if;
+    declareExtern(c_prog, "bigIntType  bigFromBStriBe (const const_bstriType, const boolType);");
+    declareExtern(c_prog, "bigIntType  bigFromBStriLe (const const_bstriType, const boolType);");
+    declareExtern(c_prog, "bigIntType  bigGcd (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "void        bigGrow (bigIntType *const, const const_bigIntType);");
+    declareExtern(c_prog, "void        bigGrowSignedDigit (bigIntType *const, const intType);");
+    declareExtern(c_prog, "intType     bigHashCode (const const_bigIntType);");
+    declareExtern(c_prog, "char       *bigHexCStri (const const_bigIntType);");
+    declareExtern(c_prog, "void        bigIncr (bigIntType *const);");
+    declareExtern(c_prog, "bigIntType  bigIPow (const const_bigIntType, intType);");
+    declareExtern(c_prog, "bigIntType  bigIPowSignedDigit (intType, intType);");
+    declareExtern(c_prog, "bigIntType  bigLog10 (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigLog2 (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigLowerBits (const const_bigIntType, const intType);");
+    declareExtern(c_prog, "bigIntType  bigLowerBitsTemp (const bigIntType, const intType);");
+    declareExtern(c_prog, "intType     bigLowestSetBit (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigLShift (const const_bigIntType, const intType);");
+    declareExtern(c_prog, "void        bigLShiftAssign (bigIntType *const, intType);");
+    declareExtern(c_prog, "bigIntType  bigLShiftOne (const intType);");
+    declareExtern(c_prog, "bigIntType  bigLog2BaseIPow (const intType, const intType);");
+    declareExtern(c_prog, "bigIntType  bigMDiv (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigMod (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigMult (const_bigIntType, const_bigIntType);");
+    declareExtern(c_prog, "void        bigMultAssign (bigIntType *const, const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigMultSignedDigit (const_bigIntType, intType);");
+    declareExtern(c_prog, "bigIntType  bigNegate (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigNegateTemp (bigIntType);");
+    declareExtern(c_prog, "boolType    bigOdd (const const_bigIntType);");
+    if ccConf.INTTYPE_SIZE = 64 then
+      declareExtern(c_prog, "intType     bigToInt64 (const const_bigIntType);");
+      writeln(c_prog, "#define     bigOrd bigToInt64");
+    elsif ccConf.INTTYPE_SIZE = 32 then
+      declareExtern(c_prog, "intType     bigToInt32 (const const_bigIntType);");
+      writeln(c_prog, "#define     bigOrd bigToInt32");
+    end if;
+    declareExtern(c_prog, "bigIntType  bigOr (const_bigIntType, const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigParse (const const_striType);");
+    declareExtern(c_prog, "bigIntType  bigParseBased (const const_striType, intType);");
+    declareExtern(c_prog, "bigIntType  bigPred (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigPredTemp (bigIntType);");
+    declareExtern(c_prog, "striType    bigRadix (const const_bigIntType, intType, boolType);");
+    declareExtern(c_prog, "bigIntType  bigRand (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigRem (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigRShift (const const_bigIntType, const intType);");
+    declareExtern(c_prog, "void        bigRShiftAssign (bigIntType *const, intType);");
+    declareExtern(c_prog, "bigIntType  bigSbtr (const const_bigIntType, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigSbtrTemp (bigIntType, const_bigIntType);");
+    declareExtern(c_prog, "void        bigShrink (bigIntType *const, const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigSquare (const_bigIntType);");
+    declareExtern(c_prog, "striType    bigStr (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigSucc (const const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigSuccTemp (bigIntType);");
+    declareExtern(c_prog, "bstriType   bigToBStriBe (const const_bigIntType, const boolType);");
+    declareExtern(c_prog, "bstriType   bigToBStriLe (const const_bigIntType, const boolType);");
+    declareExtern(c_prog, "bigIntType  bigValue (objRefType);");
+    declareExtern(c_prog, "bigIntType  bigXor (const_bigIntType, const_bigIntType);");
+    declareExtern(c_prog, "bigIntType  bigZero (void);");
+  end func;
+
+
 const proc: process (BIG_ABS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
@@ -531,40 +618,40 @@ const proc: process (BIG_GE, in reference: function,
   end func;
 
 
-const proc: process_const_big_grow (in reference: param1, in bigInteger: number,
+const proc: process_const_big_grow (in reference: param1, in bigInteger: delta,
     inout expr_type: c_expr) is func
 
   local
     var expr_type: statement is expr_type.value;
   begin
-    if number = -1_ then
+    if delta = -1_ then
       incr(countOptimizations);
       statement.expr := "bigDecr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
-    elsif number = 0_ then
+    elsif delta = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore bigInteger +:= 0_; */\n";
-    elsif number = 1_ then
+    elsif delta = 1_ then
       incr(countOptimizations);
       statement.expr := "bigIncr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
-    elsif abs(number) <= MAX_BIGDIGIT then
+    elsif abs(delta) <= MAX_BIGDIGIT then
       incr(countOptimizations);
       statement.expr := "bigGrowSignedDigit(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
-      statement.expr &:= integerLiteral(ord(number));
+      statement.expr &:= integerLiteral(ord(delta));
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
       statement.expr := "bigGrow(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
-      statement.expr &:= bigIntegerLiteral(number);
+      statement.expr &:= bigIntegerLiteral(delta);
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     end if;
@@ -1574,40 +1661,40 @@ const proc: process (BIG_SBTR, in reference: function,
   end func;
 
 
-const proc: process_const_big_shrink (in reference: param1, in bigInteger: number,
+const proc: process_const_big_shrink (in reference: param1, in bigInteger: delta,
     inout expr_type: c_expr) is func
 
   local
     var expr_type: statement is expr_type.value;
   begin
-    if number = -1_ then
+    if delta = -1_ then
       incr(countOptimizations);
       statement.expr := "bigIncr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
-    elsif number = 0_ then
+    elsif delta = 0_ then
       incr(countOptimizations);
       c_expr.expr &:= "/* ignore bigInteger -:= 0_; */\n";
-    elsif number = 1_ then
+    elsif delta = 1_ then
       incr(countOptimizations);
       statement.expr := "bigDecr(&(";
       process_expr(param1, statement);
       statement.expr &:= "));\n";
       doLocalDeclsOfStatement(statement, c_expr);
-    elsif abs(number) <= MAX_BIGDIGIT then
+    elsif abs(delta) <= MAX_BIGDIGIT then
       incr(countOptimizations);
       statement.expr := "bigGrowSignedDigit(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
-      statement.expr &:= integerLiteral(-ord(number));
+      statement.expr &:= integerLiteral(-ord(delta));
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     else
       statement.expr := "bigShrink(&(";
       process_expr(param1, statement);
       statement.expr &:= "), ";
-      statement.expr &:= bigIntegerLiteral(number);
+      statement.expr &:= bigIntegerLiteral(delta);
       statement.expr &:= ");\n";
       doLocalDeclsOfStatement(statement, c_expr);
     end if;

@@ -30,6 +30,16 @@ const ACTION: TIM_NOW             is action "TIM_NOW";
 const ACTION: TIM_SET_LOCAL_TZ    is action "TIM_SET_LOCAL_TZ";
 
 
+const proc: tim_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        timAwait (intType, intType, intType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        timFromIntTimestamp (intType, intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
+    declareExtern(c_prog, "void        timNow (intType *, intType *, intType *, intType *, intType *, intType *, intType *, intType *, boolType *);");
+    declareExtern(c_prog, "void        timSetLocalTZ (intType, intType, intType, intType, intType, intType, intType *, boolType *);");
+  end func;
+
+
 const proc: process (TIM_AWAIT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

@@ -77,6 +77,7 @@ const func string: getAsciiz (in string: stri, inout integer: currPos) is func
 (**
  *  Convert a [[string]] of bytes to its hexadecimal representation.
  *  Each byte is represented by two hexadecimal digits.
+ *   hex("!;Mn")  returns "213b4d6e"
  *  @return the hexadecimal representation of the given [[string]].
  *  @exception RANGE_ERROR When characters beyond '\255;' are present.
  *)

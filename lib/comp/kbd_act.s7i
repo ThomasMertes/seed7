@@ -33,6 +33,18 @@ const ACTION: KBD_RAW_GETC    is action "KBD_RAW_GETC";
 const ACTION: KBD_WORD_READ   is action "KBD_WORD_READ";
 
 
+const proc: kbd_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "charType    kbdGetc (void);");
+    declareExtern(c_prog, "striType    kbdGets (intType);");
+    declareExtern(c_prog, "boolType    kbdKeyPressed (void);");
+    declareExtern(c_prog, "striType    kbdLineRead (charType *);");
+    declareExtern(c_prog, "charType    kbdRawGetc (void);");
+    declareExtern(c_prog, "striType    kbdWordRead (charType *);");
+  end func;
+
+
 const proc: process (KBD_BUSY_GETC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

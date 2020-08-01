@@ -326,6 +326,63 @@ objectType prc_case_def (listType arguments)
 
 
 
+#ifdef OUT_OF_ORDER
+objectType prc_case_hashset (listType arguments)
+
+  {
+    objectType switch_object;
+    intType switch_hashcode;
+    objectType cmp_func;
+    objectType when_objects;
+    objectType current_when;
+    objectType when_values;
+    objectType when_set;
+    hashType hashMap_value;
+    objectType when_statement;
+    errInfoType err_info = OKAY_NO_ERROR;
+    boolType searching;
+
+  /* prc_case_hashset */
+    searching = TRUE;
+    switch_object = arg_2(arguments);
+    when_objects = arg_4(arguments);
+    current_when = when_objects;
+    while (searching && current_when != NULL &&
+        CATEGORY_OF_OBJ(current_when) == MATCHOBJECT &&
+        current_when->value.listValue->next->next->next->next != NULL) {
+      when_values = arg_3(current_when->value.listValue);
+      if (CATEGORY_OF_OBJ(when_values) != HASHOBJECT) {
+        when_set = exec_object(when_values);
+        isit_hash(when_set);
+        hashMap_value = take_hash(when_set);
+        if (TEMP_OBJECT(when_set)) {
+          when_values->type_of = NULL;
+          when_values->descriptor.property = NULL;
+          SET_CATEGORY_OF_OBJ(when_values, HASHOBJECT);
+          when_values->value.hashValue = hashMap_value;
+        } /* if */
+      } else {
+        hashMap_value = take_hash(when_values);
+      } /* if */
+      if (hsh_contains_element(hashMap_value, switch_object,
+          switch_hashcode, mp_func)) {
+        when_statement = arg_5(current_when->value.listValue);
+        evaluate(when_statement);
+        searching = FALSE;
+      } else {
+        if (current_when->value.listValue->next->next->next->next->next != NULL) {
+          current_when = arg_6(current_when->value.listValue);
+        } else {
+          current_when = NULL;
+        } /* if */
+      } /* if */
+    } /* while */
+    return SYS_EMPTY_OBJECT;
+  } /* prc_case_hashset */
+#endif
+
+
+
 objectType prc_cpy (listType arguments)
 
   {

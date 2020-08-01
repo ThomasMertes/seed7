@@ -59,7 +59,7 @@ extern char *stack_base;
 extern memSizeType max_stack_size;
 #endif
 
-extern boolType in_analyze;
+extern boolType interpreter_exception;
 
 
 
@@ -1152,9 +1152,9 @@ objectType exec_expr (const_progType currentProg, objectType object,
       set_protfile_name(NULL);
       prog.option_flags = 0;
       set_trace(prog.option_flags);
-      in_analyze = TRUE;
+      interpreter_exception = TRUE;
       result = exec_object(object);
-      in_analyze = FALSE;
+      interpreter_exception = FALSE;
       if (fail_flag) {
         /*
         printf("\n*** Uncaught EXCEPTION ");

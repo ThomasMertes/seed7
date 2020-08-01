@@ -516,6 +516,39 @@ static void for_data_key_hash (objectType for_variable, objectType key_variable,
 
 
 
+#ifdef OUT_OF_ORDER
+objectType hsh_contains_element (hashType aHashMap, objectType aKey,
+    intType hashcode, objectType cmp_func)
+
+  {
+    hashElemType hashelem;
+    objectType cmp_obj;
+    intType cmp;
+    objectType result;
+
+  /* hsh_contains_element */
+    result = SYS_FALSE_OBJECT;
+    hashelem = aHashMap->table[(unsigned int) hashcode & aHashMap->mask];
+    while (hashelem != NULL) {
+      cmp_obj = param3_call(cmp_func, &hashelem->key, aKey, cmp_func);
+      isit_int(cmp_obj);
+      cmp = take_int(cmp_obj);
+      FREE_OBJECT(cmp_obj);
+      if (cmp < 0) {
+        hashelem = hashelem->next_less;
+      } else if (cmp == 0) {
+        result = SYS_TRUE_OBJECT;
+        hashelem = NULL;
+      } else {
+        hashelem = hashelem->next_greater;
+      } /* if */
+    } /* while */
+    return result;
+  } /* hsh_contains_element */
+#endif
+
+
+
 /**
  *  Hash membership test.
  *  Determine if 'aKey' is a member of the hash map 'aHashMap'.

@@ -99,7 +99,7 @@ typedef union {
     genericType      genericValue;
 /*    posType          pos;            ** SYMBOLOBJECT */
 /*    nodeType         nodeValue;      ** MDULEOBJECT */
-/*    boolType         boolValue;      */
+    boolType         boolValue;
     rtlTypeType      typeValue;      /* TYPEOBJECT */
     intType          intValue;       /* INTOBJECT */
     bigIntType       bigIntValue;    /* BIGINTOBJECT */

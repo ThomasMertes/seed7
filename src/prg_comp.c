@@ -59,6 +59,8 @@
 
 #undef TRACE_PRG_COMP
 
+extern boolType interpreter_exception;
+
 
 
 static objectType copy_args (const const_rtlArrayType argv, const memSizeType start)
@@ -164,7 +166,9 @@ void interpret (const const_progType currentProg, const const_rtlArrayType argv,
             prot_nl();
           } /* if */
 #endif
+          interpreter_exception = TRUE;
           exec_call(prog.main_object);
+          interpreter_exception = FALSE;
 #ifdef WITH_PROTOCOL
           if (trace.actions) {
             if (trace.heapsize) {

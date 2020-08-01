@@ -253,7 +253,7 @@ objectType ref_cmp (listType arguments)
   {
     memSizeType ref1;
     memSizeType ref2;
-    intType result;
+    intType signumValue;
 
   /* ref_cmp */
     isit_reference(arg_1(arguments));
@@ -261,13 +261,13 @@ objectType ref_cmp (listType arguments)
     ref1 = (memSizeType) take_reference(arg_1(arguments));
     ref2 = (memSizeType) take_reference(arg_2(arguments));
     if (ref1 < ref2) {
-      result = -1;
+      signumValue = -1;
     } else if (ref1 > ref2) {
-      result = 1;
+      signumValue = 1;
     } else {
-      result = 0;
+      signumValue = 0;
     } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(signumValue);
   } /* ref_cmp */
 
 

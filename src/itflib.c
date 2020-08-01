@@ -58,7 +58,7 @@ objectType itf_cmp (listType arguments)
   {
     memSizeType interface1;
     memSizeType interface2;
-    intType result;
+    intType signumValue;
 
   /* itf_cmp */
     isit_interface(arg_1(arguments));
@@ -66,13 +66,13 @@ objectType itf_cmp (listType arguments)
     interface1 = (memSizeType) take_interface(arg_1(arguments));
     interface2 = (memSizeType) take_interface(arg_2(arguments));
     if (interface1 < interface2) {
-      result = -1;
+      signumValue = -1;
     } else if (interface1 > interface2) {
-      result = 1;
+      signumValue = 1;
     } else {
-      result = 0;
+      signumValue = 0;
     } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(signumValue);
   } /* itf_cmp */
 
 

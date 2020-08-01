@@ -183,6 +183,8 @@ $ syntax expr: .repeat.().until.()                               is  -> 25;
 
 $ syntax expr: .for.().range.().to.().do.().end.for              is  -> 25;
 $ syntax expr: .for.().range.().downto.().do.().end.for          is  -> 25;
+$ syntax expr: .for.().range.().to.().until.().do.().end.for     is  -> 25;
+$ syntax expr: .for.().range.().downto.().until.().do.().end.for is  -> 25;
 $ syntax expr: .for.().range.().to.().step.().do.().end.for      is  -> 25;
 $ syntax expr: .for.().range.().downto.().step.().do.().end.for  is  -> 25;
 $ syntax expr: .for.().range.().do.().end.for                    is  -> 25;

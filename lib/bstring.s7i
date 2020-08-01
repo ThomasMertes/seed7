@@ -184,3 +184,6 @@ const func bstring: bStriBe (in bigInteger: number,
  *)
 const func bstring: bStriLe (in bigInteger: number,
     in boolean: isSigned)                                     is action "BIG_TO_BSTRI_LE";
+
+
+enable_io(bstring);

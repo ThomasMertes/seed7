@@ -82,6 +82,70 @@ const ACTION: DRW_XPOS                 is action "DRW_XPOS";
 const ACTION: DRW_YPOS                 is action "DRW_YPOS";
 
 
+const proc: drw_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "intType     drwPointerXpos (const_winType);");
+    declareExtern(c_prog, "intType     drwPointerYpos (const_winType);");
+    declareExtern(c_prog, "void        drwArc (const_winType, intType, intType, intType, floatType, floatType);");
+    declareExtern(c_prog, "void        drwArc2 (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwBackground (intType);");
+    declareExtern(c_prog, "void        drwCircle (const_winType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwClear (winType, intType);");
+    declareExtern(c_prog, "void        drwColor (intType);");
+    declareExtern(c_prog, "void        drwCopyArea (const_winType, const_winType, intType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwCpy (winType *const, const winType);");
+    declareExtern(c_prog, "void        drwCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "winType     drwCreate (const winType);");
+    declareExtern(c_prog, "genericType drwCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        drwDestr (const winType);");
+    declareExtern(c_prog, "void        drwDestrGeneric (const genericType);");
+    declareExtern(c_prog, "void        drwFArcChord (const_winType, intType, intType, intType, floatType, floatType);");
+    declareExtern(c_prog, "void        drwFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType);");
+    declareExtern(c_prog, "void        drwFCircle (const_winType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwFEllipse (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwFlush (void);");
+    declareExtern(c_prog, "bstriType   drwGenPointList (const const_arrayType);");
+    declareExtern(c_prog, "winType     drwGet (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "bstriType   drwGetImage (const_winType);");
+    declareExtern(c_prog, "intType     drwGetImagePixel (const_bstriType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "intType     drwGetPixel (const_winType, intType, intType);");
+    declareExtern(c_prog, "intType     drwHeight (const_winType);");
+    declareExtern(c_prog, "winType     drwImage (int32Type *, memSizeType, memSizeType);");
+    declareExtern(c_prog, "void        drwLine (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "winType     drwNewPixmap (intType, intType);");
+    declareExtern(c_prog, "winType     drwOpen (intType, intType, intType, intType, const const_striType);");
+    declareExtern(c_prog, "winType     drwOpenSubWindow (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPArc (const_winType, intType, intType, intType, floatType, floatType, intType);");
+    declareExtern(c_prog, "void        drwPCircle (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPFArcChord (const_winType, intType, intType, intType, floatType, floatType, intType);");
+    declareExtern(c_prog, "void        drwPFArcPieSlice (const_winType, intType, intType, intType, floatType, floatType, intType);");
+    declareExtern(c_prog, "void        drwPFCircle (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPFEllipse (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPixelToRgb (intType, intType *, intType *, intType *);");
+    declareExtern(c_prog, "void        drwPLine (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPoint (const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwPPoint (const_winType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPRect (const_winType, intType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "void        drwPolyLine (const_winType, intType, intType, bstriType, intType);");
+    declareExtern(c_prog, "void        drwFPolyLine (const_winType, intType, intType, bstriType, intType);");
+    declareExtern(c_prog, "void        drwPut (const_winType, const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwRect (const_winType, intType, intType, intType, intType);");
+    declareExtern(c_prog, "intType     drwRgbColor (intType, intType, intType);");
+    declareExtern(c_prog, "winType     drwRtlImage (const_arrayType);");
+    declareExtern(c_prog, "void        drwSetContent (const_winType, const_winType);");
+    declareExtern(c_prog, "void        drwSetPos (const_winType, intType, intType);");
+    declareExtern(c_prog, "void        drwSetTransparentColor (winType, intType);");
+    declareExtern(c_prog, "void        drwText (const_winType, intType, intType, const const_striType, intType, intType);");
+    declareExtern(c_prog, "void        drwToBottom (const_winType);");
+    declareExtern(c_prog, "void        drwToTop (const_winType);");
+    declareExtern(c_prog, "winType     drwValue (objRefType);");
+    declareExtern(c_prog, "intType     drwWidth (const_winType);");
+    declareExtern(c_prog, "intType     drwXPos (const_winType);");
+    declareExtern(c_prog, "intType     drwYPos (const_winType);");
+  end func;
+
+
 const proc: process (DRW_ARC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

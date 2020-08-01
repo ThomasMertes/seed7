@@ -883,13 +883,16 @@ const proc: CASE_DECLS (in type: aType) is func
     WHEN_PROC := (func WHEN_RESULT);
     SELECTOR_TYPE := set of aType;
     const proc: case (ref aType: decisionValue) of end case                     is noop;
-    const proc: case (ref aType: decisionValue) of
-                  (ref WHEN_PROC: whenPart)
-                end case                                                        is action "PRC_CASE";
-    const proc: case (ref aType: decisionValue) of
-                  (ref WHEN_PROC: whenPart)
-                  otherwise : (ref proc: statements)
-                end case                                                        is action "PRC_CASE_DEF";
+    if getobj(ord(ref aType param)) <> NIL and
+        getobj(ord(ref aType param, mayRaiseRangeError)) = NIL then
+      const proc: case (ref aType: decisionValue) of
+                    (ref WHEN_PROC: whenPart)
+                  end case                                                      is action "PRC_CASE";
+      const proc: case (ref aType: decisionValue) of
+                    (ref WHEN_PROC: whenPart)
+                    otherwise : (ref proc: statements)
+                  end case                                                      is action "PRC_CASE_DEF";
+    end if;
     const proc: (ref WHEN_RESULT param) ::= enumlit                             is action "ENU_GENLIT";
     const WHEN_RESULT: WHEN_EMPTY (attr aType) is enumlit;
     const proc: (ref WHEN_PROC param) ::= (ref WHEN_RESULT param)               is action "ENU_CREATE";

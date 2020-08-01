@@ -59,6 +59,43 @@ const func integer: bitset_pos (in integer: number) is
   return number >> log2(ccConf.INTTYPE_SIZE);
 
 
+const proc: set_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "setType     setArrlit (const_arrayType);");
+    declareExtern(c_prog, "setType     setBaselit (const intType);");
+    declareExtern(c_prog, "intType     setCard (const const_setType);");
+    declareExtern(c_prog, "intType     setCmp (const const_setType, const const_setType);");
+    declareExtern(c_prog, "intType     setCmpGeneric (const genericType, const genericType);");
+    declareExtern(c_prog, "void        setCpy (setType *const, const const_setType);");
+    declareExtern(c_prog, "void        setCpyGeneric (genericType *const, const genericType);");
+    declareExtern(c_prog, "setType     setCreate (const const_setType);");
+    declareExtern(c_prog, "genericType setCreateGeneric (const genericType);");
+    declareExtern(c_prog, "void        setDestr (const const_setType);");
+    declareExtern(c_prog, "void        setDestrGeneric (const genericType);");
+    declareExtern(c_prog, "setType     setDiff (const const_setType, const const_setType);");
+    declareExtern(c_prog, "boolType    setElem (const intType, const const_setType);");
+    declareExtern(c_prog, "boolType    setEq (const const_setType, const const_setType);");
+    declareExtern(c_prog, "void        setExcl (setType *const, const intType);");
+    declareExtern(c_prog, "intType     setHashCode (const const_setType);");
+    declareExtern(c_prog, "setType     setIConv (intType);");
+    declareExtern(c_prog, "void        setIncl (setType *const, const intType);");
+    declareExtern(c_prog, "setType     setIntersect (const const_setType, const const_setType);");
+    declareExtern(c_prog, "boolType    setIsEmpty (const const_setType);");
+    declareExtern(c_prog, "boolType    setIsProperSubset (const const_setType, const const_setType);");
+    declareExtern(c_prog, "boolType    setIsSubset (const const_setType, const const_setType);");
+    declareExtern(c_prog, "intType     setMax (const const_setType);");
+    declareExtern(c_prog, "intType     setMin (const const_setType);");
+    declareExtern(c_prog, "intType     setNext (const const_setType, const intType);");
+    declareExtern(c_prog, "intType     setRand (const const_setType);");
+    declareExtern(c_prog, "setType     setRangelit (const intType, const intType);");
+    declareExtern(c_prog, "intType     setSConv (const const_setType);");
+    declareExtern(c_prog, "setType     setSymdiff (const const_setType, const const_setType);");
+    declareExtern(c_prog, "setType     setUnion (const const_setType, const const_setType);");
+    declareExtern(c_prog, "setType     setValue (objRefType);");
+  end func;
+
+
 const func string: bitsetElemAsHex (in bitset: set1, in integer: start_num) is func
 
   result

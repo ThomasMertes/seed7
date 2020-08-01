@@ -264,7 +264,7 @@ objectType drw_cmp (listType arguments)
   {
     memSizeType ref1;
     memSizeType ref2;
-    intType result;
+    intType signumValue;
 
   /* drw_cmp */
     isit_win(arg_1(arguments));
@@ -272,13 +272,13 @@ objectType drw_cmp (listType arguments)
     ref1 = (memSizeType) take_win(arg_1(arguments));
     ref2 = (memSizeType) take_win(arg_2(arguments));
     if (ref1 < ref2) {
-      result = -1;
+      signumValue = -1;
     } else if (ref1 > ref2) {
-      result = 1;
+      signumValue = 1;
     } else {
-      result = 0;
+      signumValue = 0;
     } /* if */
-    return bld_int_temp(result);
+    return bld_int_temp(signumValue);
   } /* drw_cmp */
 
 

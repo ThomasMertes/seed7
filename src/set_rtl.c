@@ -175,7 +175,7 @@ intType setCard (const const_setType aSet)
     memSizeType bitset_index;
     bitSetType bitset;
     uintType card = 0;
-    intType result;
+    intType cardinality;
 
   /* setCard */
     index_beyond = bitsetSize(aSet);
@@ -185,12 +185,12 @@ intType setCard (const const_setType aSet)
     } /* for */
     if (card > INTTYPE_MAX) {
       raise_error(RANGE_ERROR);
-      result = 0;
+      cardinality = 0;
     } else {
-      result = (intType) card;
+      cardinality = (intType) card;
     } /* if */
-    /* printf(" = %d\n", result); */
-    return result;
+    /* printf(" = %d\n", cardinality); */
+    return cardinality;
   } /* setCard */
 
 

@@ -38,6 +38,27 @@ const ACTION: POL_REMOVE_CHECK   is action "POL_REMOVE_CHECK";
 const ACTION: POL_VALUE          is action "POL_VALUE";
 
 
+const proc: pol_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "void        polAddCheck (const pollType, const socketType, intType, const genericType);");
+    declareExtern(c_prog, "void        polClear (const pollType);");
+    declareExtern(c_prog, "void        polCpy (const pollType, const const_pollType);");
+    declareExtern(c_prog, "pollType    polCreate (const const_pollType);");
+    declareExtern(c_prog, "void        polDestr (const pollType);");
+    declareExtern(c_prog, "pollType    polEmpty (void);");
+    declareExtern(c_prog, "intType     polGetCheck (const const_pollType, const socketType);");
+    declareExtern(c_prog, "intType     polGetFinding (const const_pollType, const socketType);");
+    declareExtern(c_prog, "boolType    polHasNext (const pollType);");
+    declareExtern(c_prog, "void        polIterChecks (const pollType, intType);");
+    declareExtern(c_prog, "void        polIterFindings (const pollType, intType);");
+    declareExtern(c_prog, "genericType polNextFile (const pollType, const genericType);");
+    declareExtern(c_prog, "void        polPoll (const pollType);");
+    declareExtern(c_prog, "void        polRemoveCheck (const pollType, const socketType, intType);");
+    declareExtern(c_prog, "pollType    polValue (objRefType);");
+  end func;
+
+
 const proc: process (POL_ADD_CHECK, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

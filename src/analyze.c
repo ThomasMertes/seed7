@@ -78,7 +78,7 @@
 
 /* when the analyzer is used from a compiled program this */
 /* flag decides which exception handler should be called: */
-boolType in_analyze = FALSE;
+boolType interpreter_exception = FALSE;
 
 static boolType analyze_initialized = FALSE;
 progRecord prog;
@@ -559,7 +559,7 @@ progType analyze_file (const const_striType source_file_argument, uintType optio
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze_file\n");
 #endif
-    in_analyze = TRUE;
+    interpreter_exception = TRUE;
     init_analyze();
     resultProg = NULL;
     if (source_file_argument->size > 4 &&
@@ -607,7 +607,7 @@ progType analyze_file (const const_striType source_file_argument, uintType optio
       } /* if */
       FREE_STRI(source_name, name_len);
     } /* if */
-    in_analyze = FALSE;
+    interpreter_exception = FALSE;
 #ifdef TRACE_ANALYZE
     printf("END analyze_file\n");
 #endif
@@ -655,7 +655,7 @@ progType analyze_string (const const_striType input_string, uintType options,
 #ifdef TRACE_ANALYZE
     printf("BEGIN analyze_string\n");
 #endif
-    in_analyze = TRUE;
+    interpreter_exception = TRUE;
     init_analyze();
     resultProg = NULL;
     source_file_argument = cstri_to_stri("STRING");
@@ -677,7 +677,7 @@ progType analyze_string (const const_striType input_string, uintType options,
       } /* if */
       FREE_STRI(source_file_argument, source_file_argument->size);
     } /* if */
-    in_analyze = FALSE;
+    interpreter_exception = FALSE;
 #ifdef TRACE_ANALYZE
     printf("END analyze_string\n");
 #endif

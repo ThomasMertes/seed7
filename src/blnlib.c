@@ -303,13 +303,13 @@ objectType bln_or (listType arguments)
  */
 objectType bln_ord (listType arguments)
 
-  { /* bln_ord */
+  {
+    intType ordinal;
+
+  /* bln_ord */
     isit_bool(arg_1(arguments));
-    if (take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT) {
-      return bld_int_temp(1);
-    } else {
-      return bld_int_temp(0);
-    } /* if */
+    ordinal = take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT;
+    return bld_int_temp(ordinal);
   } /* bln_ord */
 
 

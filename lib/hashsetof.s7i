@@ -83,6 +83,8 @@ const func type: hashset (in type: baseType) is func
               setType.dataCreate, setType.dataDestroy);
         end func;
 
+      const boolean: isBitset (attr setType)                                   is FALSE;
+
       (**
        *  Compute the cardinality of a set.
        *  @return the number of elements in ''aSet''.

@@ -34,6 +34,14 @@ const ACTION: ITF_NE            is action "ITF_NE";
 const ACTION: ITF_TO_INTERFACE  is action "ITF_TO_INTERFACE";
 
 
+const proc: itf_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "interfaceType itfCreate (const interfaceType);");
+    declareExtern(c_prog, "genericType itfCreateGeneric (const genericType);");
+  end func;
+
+
 const proc: process (ITF_CMP, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

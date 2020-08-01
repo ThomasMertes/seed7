@@ -32,6 +32,18 @@ const ACTION: UT8_WORD_READ  is action "UT8_WORD_READ";
 const ACTION: UT8_WRITE      is action "UT8_WRITE";
 
 
+const proc: ut8_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "charType    ut8Getc (fileType);");
+    declareExtern(c_prog, "striType    ut8Gets (fileType, intType);");
+    declareExtern(c_prog, "striType    ut8LineRead (fileType, charType *);");
+    declareExtern(c_prog, "void        ut8Seek (fileType, intType);");
+    declareExtern(c_prog, "striType    ut8WordRead (fileType, charType *);");
+    declareExtern(c_prog, "void        ut8Write (fileType, const const_striType);");
+  end func;
+
+
 const proc: process (UT8_GETC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

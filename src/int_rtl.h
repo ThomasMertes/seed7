@@ -55,16 +55,17 @@ intType intBytesBe2Int (const const_striType byteStri, boolType isSigned);
 striType intBytesLe (intType number, boolType isSigned);
 intType intBytesLe2Int (const const_striType byteStri, boolType isSigned);
 intType intCmp (intType number1, intType number2);
-void intCpy (intType *dest, intType source);
 intType intLog10 (intType number);
 intType intLog2 (intType number);
 intType intLowestSetBit (intType number);
 striType intLpad0 (intType number, const intType pad_size);
 intType intParse (const const_striType stri);
 intType intPow (intType base, intType exponent);
+intType intPowOvfChk (intType base, intType exponent);
 striType intRadix (intType number, intType base, boolType upperCase);
 striType intRadixPow2 (intType number, int shift, int mask, boolType upperCase);
 intType intRand (intType low, intType high);
+intType intSafeMult (intType factor1, intType factor2);
 intType intSqrt (intType number);
 striType intStr (intType number);
 #ifdef ALLOW_STRITYPE_SLICES

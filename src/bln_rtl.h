@@ -29,4 +29,4 @@
 /*                                                                  */
 /********************************************************************/
 
-void blnCpy (boolType *dest, boolType source);
+void blnCpyGeneric (genericType *const dest, const genericType source);

@@ -46,26 +46,6 @@
 #include "setlib.h"
 
 
-static int card_byte[] = {
-    0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    3, 4, 4, 5, 4, 5, 5, 6, 4, 5, 5, 6, 5, 6, 6, 7,
-    4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8
-  };
-
-
 
 objectType set_arrlit (listType arguments)
 
@@ -141,38 +121,10 @@ objectType set_baselit (listType arguments)
  */
 objectType set_card (listType arguments)
 
-  {
-    setType aSet;
-    memSizeType bitset_index;
-    unsigned char *byte;
-    size_t idx;
-    intType result;
-
-  /* set_card */
+  { /* set_card */
     isit_set(arg_1(arguments));
-    aSet = take_set(arg_1(arguments));
-    result = 0;
-    for (bitset_index = 0;
-        bitset_index <= (uintType) (aSet->max_position - aSet->min_position);
-        bitset_index++) {
-      byte = (unsigned char *) &aSet->bitset[bitset_index];
-      for (idx = 0; idx < sizeof(bitSetType); idx++) {
-        /* printf("%c%c%c%c%c%c%c%c [%d] ",
-               *byte & 0x80 ? '1' : '0',
-               *byte & 0x40 ? '1' : '0',
-               *byte & 0x20 ? '1' : '0',
-               *byte & 0x10 ? '1' : '0',
-               *byte & 0x08 ? '1' : '0',
-               *byte & 0x04 ? '1' : '0',
-               *byte & 0x02 ? '1' : '0',
-               *byte & 0x01 ? '1' : '0',
-               card_byte[(int) *byte]); */
-        result += card_byte[(int) *byte];
-        byte++;
-      } /* for */
-    } /* for */
-    /* printf(" = %d\n", result); */
-    return bld_int_temp(result);
+    return bld_int_temp(
+        setCard(take_set(arg_1(arguments))));
   } /* set_card */
 
 

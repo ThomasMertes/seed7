@@ -39,6 +39,9 @@ const proc: destroy (ref bitset param)                          is action "SET_D
 const proc: (inout bitset: dest) := (in bitset: source)         is action "SET_CPY";
 
 
+const boolean: isBitset (attr bitset)                           is TRUE;
+
+
 (**
  *  Union of two sets.
  *  @return the union of the two sets.
@@ -292,17 +295,19 @@ const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref func 
     var integer: upperBound is 0;
     var boolean: leave is FALSE;
   begin
-    if aSet <> EMPTY_SET and not cond then
+    if aSet <> EMPTY_SET then
       forVar := min(aSet);
       upperBound := max(aSet);
-      repeat
+      leave := cond;
+      while not leave do
         statements;
-        if forVar = upperBound or cond then
+        if forVar = upperBound then
           leave := TRUE;
         else
           forVar := next(aSet, forVar);
+          leave := cond;
         end if;
-      until leave;
+      end while;
     end if;
   end func;
 
@@ -314,25 +319,6 @@ const proc: for (inout integer: forVar) range (in bitset: aSet) until (ref boole
       statements;
     end for;
   end func;
-(*
-  local
-    var integer: upperBound is 0;
-    var boolean: leave is FALSE;
-  begin
-    if aSet <> EMPTY_SET and not cond then
-      forVar := min(aSet);
-      upperBound := max(aSet);
-      repeat
-        statements;
-        if forVar = upperBound or cond then
-          leave := TRUE;
-        else
-          forVar := next(aSet, forVar);
-        end if;
-      until leave;
-    end if;
-  end func;
-*)
 
 
 (**

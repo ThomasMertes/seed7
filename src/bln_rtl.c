@@ -35,6 +35,7 @@
 #include "stdio.h"
 
 #include "common.h"
+#include "data_rtl.h"
 
 #undef EXTERN
 #define EXTERN
@@ -42,8 +43,9 @@
 
 
 
-void blnCpy (boolType *dest, boolType source)
+void blnCpyGeneric (genericType *const dest, const genericType source)
 
-  { /* blnCpy */
-    *dest = source;
-  } /* blnCpy */
+  { /* blnCpyGeneric */
+    ((rtlObjectType *) dest)->value.boolValue =
+        ((const_rtlObjectType *) &source)->value.boolValue;
+  } /* blnCpyGeneric */

@@ -41,6 +41,25 @@ const ACTION: HSH_UPDATE        is action "HSH_UPDATE";
 const ACTION: HSH_VALUES        is action "HSH_VALUES";
 
 
+const proc: hsh_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "boolType    hshContains (const const_hashType, const genericType, intType, compareType);");
+    declareExtern(c_prog, "void        hshCpy (hashType *const, const const_hashType, const createFuncType, const destrFuncType, const createFuncType, const destrFuncType);");
+    declareExtern(c_prog, "hashType    hshCreate (const const_hashType, const createFuncType, const destrFuncType, const createFuncType, const destrFuncType);");
+    declareExtern(c_prog, "void        hshDestr (const const_hashType, const destrFuncType, const destrFuncType);");
+    declareExtern(c_prog, "hashType    hshEmpty (void);");
+    declareExtern(c_prog, "void        hshExcl (const hashType, const genericType, intType, compareType, const destrFuncType, const destrFuncType);");
+    declareExtern(c_prog, "genericType hshIdx (const const_hashType, const genericType, intType, compareType);");
+    declareExtern(c_prog, "rtlObjectType *hshIdxAddr (const const_hashType, const genericType, intType, compareType);");
+    declareExtern(c_prog, "rtlObjectType *hshIdxAddr2 (const const_hashType, const genericType, intType, compareType);");
+    declareExtern(c_prog, "void        hshIncl (const hashType, const genericType, const genericType, intType, compareType, const createFuncType, const createFuncType, const copyFuncType);");
+    declareExtern(c_prog, "arrayType   hshKeys (const const_hashType, const createFuncType, const destrFuncType);");
+    declareExtern(c_prog, "genericType hshUpdate (const hashType, const genericType, const genericType, intType, compareType, const createFuncType, const createFuncType);");
+    declareExtern(c_prog, "arrayType   hshValues (const const_hashType, const createFuncType, const destrFuncType);");
+  end func;
+
+
 const proc: process (HSH_CONTAINS, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

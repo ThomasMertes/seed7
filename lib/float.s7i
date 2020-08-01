@@ -379,6 +379,13 @@ const func float: (attr float) conv (in integer: number)       is action "FLT_IC
 
 
 (**
+ *  Compute the absolute value of a ''float'' number.
+ *  @return the absolute value.
+ *)
+const func float: abs (in float: number)                       is action "FLT_ABS";
+
+
+(**
  *  Round a ''float'' to the nearest [[integer]].
  *  Halfway cases are rounded away from zero.
  *   round(0.5)    returns  1

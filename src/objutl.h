@@ -79,7 +79,10 @@
                             if (unlikely(take_array(arg) == NULL))      { empty_value(arg); return(NULL); }
 #define isit_bigint(arg)    hasCategory(arg, BIGINTOBJECT)
 #define isit_block(arg)     hasCategory(arg, BLOCKOBJECT)
-/*      isit_bool(arg)      */
+#define isit_bool(arg)      if (take_bool(arg) != SYS_TRUE_OBJECT && \
+                                take_bool(arg) != SYS_FALSE_OBJECT) { \
+                              run_exception(ENUMLITERALOBJECT, arg); \
+                            }
 #define isit_bstri(arg)     hasCategory(arg, BSTRIOBJECT); \
                             if (unlikely(take_bstri(arg) == NULL))      { empty_value(arg); return(NULL); }
 #define isit_call(arg)      hasCategory(arg, CALLOBJECT)
@@ -150,32 +153,32 @@
 
 
 #ifdef WITH_TYPE_CHECK
-/* void isit_action (objectType); */
-/* void isit_array (objectType); */
-/* void isit_block (objectType); */
-void isit_bool (objectType argument);
-/* void isit_bstri (objectType); */
-/* void isit_call (objectType); */
-/* void isit_char (objectType); */
-/* void isit_interface (objectType); */
+/* void isit_action (objectType argument); */
+/* void isit_array (objectType argument); */
+/* void isit_block (objectType argument); */
+/* void isit_bool (objectType argument); */
+/* void isit_bstri (objectType argument); */
+/* void isit_call (objectType argument); */
+/* void isit_char (objectType argument); */
+/* void isit_interface (objectType argument); */
 void isit_enum (objectType argument);
-/* void isit_file (objectType); */
+/* void isit_file (objectType argument); */
 #ifdef WITH_FLOAT
-/* void isit_float (objectType); */
+/* void isit_float (objectType argument); */
 #endif
-/* void isit_hash (objectType); */
-/* void isit_int (objectType); */
+/* void isit_hash (objectType argument); */
+/* void isit_int (objectType argument); */
 void isit_list (objectType argument);
-/* void isit_proc (objectType); */
-/* void isit_prog (objectType); */
-/* void isit_reference (objectType); */
-/* void isit_reflist (objectType); */
-/* void isit_set (objectType); */
-/* void isit_socket (objectType); */
-/* void isit_stri (objectType); */
-/* void isit_struct (objectType); */
-/* void isit_type (objectType); */
-/* void isit_win (objectType); */
+/* void isit_proc (objectType argument); */
+/* void isit_prog (objectType argument); */
+/* void isit_reference (objectType argument); */
+/* void isit_reflist (objectType argument); */
+/* void isit_set (objectType argument); */
+/* void isit_socket (objectType argument); */
+/* void isit_stri (objectType argument); */
+/* void isit_struct (objectType argument); */
+/* void isit_type (objectType argument); */
+/* void isit_win (objectType argument); */
 #endif
 objectType bld_action_temp (actType temp_action);
 objectType bld_array_temp (arrayType temp_array);

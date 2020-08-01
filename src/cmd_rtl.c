@@ -87,7 +87,7 @@
 #include "cmd_rtl.h"
 
 #undef TRACE_CMD_RTL
-#define VERBOSE_EXCEPTIONS
+#undef VERBOSE_EXCEPTIONS
 
 
 #define MAX_CSTRI_BUFFER_LEN 40

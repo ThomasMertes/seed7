@@ -53,6 +53,38 @@ const ACTION: SOC_WORD_READ        is action "SOC_WORD_READ";
 const ACTION: SOC_WRITE            is action "SOC_WRITE";
 
 
+const proc: soc_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "socketType  socAccept (socketType, bstriType *);");
+    declareExtern(c_prog, "intType     socAddrFamily (const const_bstriType);");
+    declareExtern(c_prog, "striType    socAddrNumeric (const const_bstriType);");
+    declareExtern(c_prog, "striType    socAddrService (const const_bstriType);");
+    declareExtern(c_prog, "void        socBind (socketType, const_bstriType);");
+    declareExtern(c_prog, "void        socClose (socketType);");
+    declareExtern(c_prog, "void        socConnect (socketType, const_bstriType);");
+    declareExtern(c_prog, "charType    socGetc (socketType, charType *);");
+    declareExtern(c_prog, "striType    socGets (socketType, intType, charType *);");
+    declareExtern(c_prog, "bstriType   socGetAddr (socketType);");
+    declareExtern(c_prog, "striType    socGetHostname(void);");
+    declareExtern(c_prog, "boolType    socHasNext (socketType);");
+    declareExtern(c_prog, "bstriType   socInetAddr (const const_striType, intType);");
+    declareExtern(c_prog, "bstriType   socInetLocalAddr (intType);");
+    declareExtern(c_prog, "bstriType   socInetServAddr (intType);");
+    declareExtern(c_prog, "boolType    socInputReady (socketType, intType, intType);");
+    declareExtern(c_prog, "striType    socLineRead (socketType, charType *);");
+    declareExtern(c_prog, "void        socListen (socketType, intType);");
+    declareExtern(c_prog, "intType     socRecv (socketType, striType *, intType, intType);");
+    declareExtern(c_prog, "intType     socRecvfrom (socketType, striType *, intType, intType, bstriType *);");
+    declareExtern(c_prog, "intType     socSend (socketType, const_striType, intType);");
+    declareExtern(c_prog, "intType     socSendto (socketType, const_striType, intType, bstriType);");
+    declareExtern(c_prog, "void        socSetOptBool (socketType, intType, boolType);");
+    declareExtern(c_prog, "socketType  socSocket (intType, intType, intType);");
+    declareExtern(c_prog, "striType    socWordRead (socketType, charType *);");
+    declareExtern(c_prog, "void        socWrite (socketType, const const_striType);");
+  end func;
+
+
 const proc: process (SOC_ACCEPT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

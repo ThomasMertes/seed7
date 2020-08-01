@@ -37,6 +37,22 @@ const ACTION: GKB_BUTTON_XPOS     is action "GKB_BUTTON_XPOS";
 const ACTION: GKB_BUTTON_YPOS     is action "GKB_BUTTON_YPOS";
 
 
+const proc: gkb_prototypes (inout file: c_prog) is func
+
+  begin
+    declareExtern(c_prog, "boolType    gkbButtonPressed (charType);");
+    declareExtern(c_prog, "intType     gkbButtonXpos (void);");
+    declareExtern(c_prog, "intType     gkbButtonYpos (void);");
+    declareExtern(c_prog, "charType    gkbGetc (void);");
+    declareExtern(c_prog, "striType    gkbGets (intType);");
+    declareExtern(c_prog, "boolType    gkbKeyPressed (void);");
+    declareExtern(c_prog, "striType    gkbLineRead (charType *);");
+    declareExtern(c_prog, "charType    gkbRawGetc (void);");
+    declareExtern(c_prog, "winType     gkbWindow (void);");
+    declareExtern(c_prog, "striType    gkbWordRead (charType *);");
+  end func;
+
+
 const proc: process (GKB_BUSY_GETC, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 

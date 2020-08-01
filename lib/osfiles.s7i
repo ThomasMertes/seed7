@@ -502,8 +502,6 @@ const proc: moveFile (in string: sourcePath, in string: destPath)  is action "CM
 const func string: convDosPath (in string: path) is func
   result
     var string: stdPath is "";
-  local
-    var integer: length is 0;
   begin
     # Path delimiter is slash
     stdPath := replace(path, "\\", "/");
@@ -514,10 +512,7 @@ const func string: convDosPath (in string: path) is func
       stdPath @:= [1] '/';
     end if;
     # Remove double slashes
-    repeat
-      length := length(stdPath);
-      stdPath := replace(stdPath, "//", "/");
-    until length(stdPath) = length;
+    stdPath := replaceN(stdPath, "//", "/");
     # Remove slash at end of path
     while stdPath <> "/" and endsWith(stdPath, "/") do
       stdPath := stdPath[.. pred(length(stdPath))];
@@ -528,15 +523,10 @@ const func string: convDosPath (in string: path) is func
 const func string: toStdPath (in string: path) is func
   result
     var string: stdPath is "";
-  local
-    var integer: length is 0;
   begin
     stdPath := path;
     # Remove double slashes
-    repeat
-      length := length(stdPath);
-      stdPath := replace(stdPath, "//", "/");
-    until length(stdPath) = length;
+    stdPath := replaceN(stdPath, "//", "/");
     # Remove slash at end of path
     while stdPath <> "/" and endsWith(stdPath, "/") do
       stdPath := stdPath[.. pred(length(stdPath))];
