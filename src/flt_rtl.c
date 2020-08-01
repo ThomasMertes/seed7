@@ -182,10 +182,10 @@ inttype fltCmpGeneric (const rtlGenerictype value1, const rtlGenerictype value2)
 
 
 
-void fltCpy (floattype *dest, floattype source)
+void fltCpyGeneric (floattype *dest, const rtlGenerictype source)
 
   { /* fltCpy */
-    *dest = source;
+    *dest = ((const_rtlObjecttype *) &source)->value.floatvalue;
   } /* fltCpy */
 
 

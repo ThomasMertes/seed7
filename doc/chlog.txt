@@ -1,3 +1,34 @@
+20130722:
+- Spelling errors in chlog.txt, faq.htm and faq.txt have been fixed.
+- The function conText (in con_win.c) has been improved to work
+  correctly for long strings. The underlying function WriteConsoleW
+  fails for string lengths above some limit between 26000 to 32000.
+- The functions find_window, remove_window, gkbGetc, gkbKeyPressed,
+  gkbButtonPressed, gkbRawGetc, gkbWindow, gkbButtonXpos and
+  gkbButtonYpos have been moved from drw_win.c to the new file
+  gkb_win.c.
+- In the functions drwPCircle, drwPFCircle, drwPFEllipse and
+  drwFPolyLine (file drw_win.c) wrong usages of inIntRange have been
+  replaced with better code.
+- In con_win.c the table map_key has been improved such that kbdGetc
+  recognizes the key F12.
+- In gkb_x11.c the functions find_window, enter_window and
+  remove_window have been improved.
+- The makefiles mk_bcc32.mak, mk_bccv5.mak, mk_mingc.mak,
+  mk_mingw.mak, mk_msvc.mak, mk_msys.mak and mk_nmake.mak have been
+  changed to use the new file gkb_win.c.
+- The program chk_all.sd7 has been improved to call chkhsh.sd7.
+- The program chkhsh.sd7 has been improved.
+- The compiler has been improved to generate compare functions with
+  the correct prototype.
+- The functions bitSize and process_generic_cmp_declaration have been
+  added to s7c.sd7.
+- In flt_rtl.c the function fltCpy has been renamed to fltCpyGeneric.
+- The functions dump_hash and dump_helem have been added to
+  hsh_rtl.c.
+- The function new_type in typeutl.c has been changed to add the new
+  type to the parameter owningProg instead of the global prog.
+
 20130704:
 - A wordfile for Ultraedit and a syntax definition file for Textpad
   has been added. Many thanks to Renato Lenzi for providing it. This
@@ -63,7 +94,7 @@
   improved to use the default Unicode case mapping. In other words:
   conversions to lower respectively upper case works for all Unicode
   characters, which have a case mapping. Characters without case
-  mapping are left unchanged. The mapping is independend from the
+  mapping are left unchanged. The mapping is independent from the
   locale. Individual character case mappings cannot be reversed,
   because some characters have multiple characters that map to them.
 - In the library deflate.s7i the performance of the deflate
@@ -220,7 +251,7 @@
 - Checks for the function integer have been added to chkint.sd7.
 - Checks for the function bigInteger have been added to chkbig.sd7.
 - The operator sci has been added to to the library complex.s7i. This
-  operater converts a complex to a string in scientific notation.
+  operator converts a complex to a string in scientific notation.
 - The compiler (s7c) has been improved to support the actions
   BIG_PARSE_BASED, TYP_CMP, ENU_CPY, ENU_CREATE and GEN_DESTR.
 - The memory management in the interpreter has been improved. Now it
@@ -644,7 +675,7 @@
   pairs.sd7 and shisen.sd7 and added to pic16.s7i and pic32.s7i.
 - The function getValue was overloaded for PRIMITIVE_WINDOW values
   in the library progs.s7i.
-- Documention comments were added to the operators & and <& in the
+- Documentation comments were added to the operators & and <& in the
   library string.s7i.
 - Interpreter and compiler were improved to support the action
   DRW_VALUE. The function drw_value was added to drwlib.c and the
@@ -743,7 +774,7 @@
   USE_BUILTIN_EXPECT in chkccomp.h.
 - The functions flt_div and flt_div_assign in fltlib.c were improved
   to work correctly when CHECK_FLOAT_DIV_BY_ZERO is defined.
-- Several #defines were ommitted from the makefiles.
+- Several #defines were omitted from the makefiles.
 - Explanations of several version.h #defines were added to
   read_me.txt.
 
@@ -802,7 +833,7 @@
   are identical.
 - The compiler was improved to support the action ITF_DESTR.
 - The compiler was improved, to call C compiler and linker with
-  specific options, such that unneeded functions are ommited (when
+  specific options, such that unneeded functions are omitted (when
   the linker and executable file format support this feature).
 - The compiler was improved to remove debug symbols, unless called
   with -g (some makefiles now define LINKER_OPT_NO_DEBUG_INFO).
@@ -1349,7 +1380,7 @@
 - Documentation comments were improved in "dir.s7i", "stdio.s7i"
   and "enable_io.s7i".
 - Testcases for the operators 'sci' and 'exp' in "chkflt.sd7" were
-  changed to succedd on all supported platforms.
+  changed to succeed on all supported platforms.
 - The compiler (comp.sd7) was improved, to create better debugging
   information for compiler generated (DYNAMIC) dispatcher functions.
 - The compiler was improved to define and use the macro 'do_setjmp'
@@ -1475,7 +1506,7 @@
   the program in the compiler ("comp.sd7"), was improved.
 - Compiler options, to control the optimization of constant
   expressions, were introduced. Allowed options are -oc0 (no
-  optimisation), -oc1 (default), -oc2 and -oc3 (best optimisation).
+  optimization), -oc1 (default), -oc2 and -oc3 (best optimization).
 - The functions 'bigSquare' and 'bigLog2BaseLShift' were added to
   "big_rtl.c" and "big_gmp.c" and used by the compiler.
 - The functions 'uBigDigitSquare', 'uBigKaratsubaSquare' and
@@ -1486,7 +1517,7 @@
   "big_rtl.c" were improved.
 - A free list memory management for 'biginttype' (bigInteger) values
   was introduced in "big_gmp.c".
-- All occurrances of the macro UTF32_STRINGS in *.c and *.h files
+- All occurrences of the macro UTF32_STRINGS in *.c and *.h files
   were removed. Strings will always use UTF-32 encoded characters.
   Strings restricted to byte elements must use a different type.
 - The functions 'conWrite' (in "con_rtl.c") and 'conText' (in
@@ -1777,7 +1808,7 @@
 20110508:
 - FAQ answers about Seed7s application area, Unicode support, Seed7s
   closures and how the compiler implements them, were added.
-- A new example program (sydir7.sd7), an utility to syncronize directory
+- A new example program (sydir7.sd7), an utility to synchronize directory
   trees, was added.
 - The comanche.sd7 webserver was improved to use the Seed7 interpreter (hi)
   to execute CGI scripts with the extension ".sd7".
@@ -1814,7 +1845,7 @@
 - The compiler (comp.sd7) was improved to generate less code to initialize
   arrays. Repeated elements in array initialisations are recognized and
   the initialisation is done with loops instead of individual assignments.
-  When compiling panic.sd7 this optimisation reduces the size of the
+  When compiling panic.sd7 this optimization reduces the size of the
   generated C program by 77% and the size of the executable by 69%.
 - The compiler (comp.sd7) was improved to generate string literals with
   reduced space requirements.
@@ -1825,7 +1856,7 @@
   "drw_dos.c".
 
 20110320:
-- An explaination where the interpreter looks for include files, was added to
+- An explanation where the interpreter looks for include files, was added to
   the FAQ.
 - An explanation how the directory of the predefined include libraries
   is determined, was added to the FAQ.
@@ -1938,7 +1969,7 @@
   use string slices which point to an array of characters.
 - The 'const' specifier and the macros 'likely' and 'unlikely' were added to
   several *.c and *.h files.
-- The implemention of the function path(PROGRAM) in the interpreter was
+- The implementation of the function path(PROGRAM) in the interpreter was
   improved.
 - The drawing functions for filled areas were improved in "drw_x11.c".
 - The function 'create_hash' in "hsh_rtl.c" was improved.
@@ -2226,7 +2257,7 @@
 - Documentation comments were added to the libraries "graph.s7i", "keybd.s7i"
   and "time.s7i".
 - The compiler (comp.sd7) was improved to support the option -te which enables
-  tracing of exceptions in the generated executeble.
+  tracing of exceptions in the generated executable.
 - Some types generated by the compiler were renamed to make them unique (This
   helps a debugger to distinguish types when values are displayed).
 - The declaration of 'flush' in "seed7_05.s7i" was improved (This way the
@@ -2273,7 +2304,7 @@
 - The function 'printparam' was added to "traceutl.c".
 
 20100606:
-- An explaination of the difference between overloading and object orientation,
+- An explanation of the difference between overloading and object orientation,
   was added to the FAQ.
 - The function 'popen8', which opens an UTF-8 pipe, was added to the
   "shell.s7i" library.
@@ -2344,7 +2375,7 @@
 - The "shell.s7i" library was improved such that 'popen' behaves correctly
   when the created pipe is closed with 'close'.
 - The compiler and the runtime library were improved to use the correct
-  exeption handling function in compiled and interpreded code (When the
+  exeption handling function in compiled and interpreted code (When the
   compiled compiler analyzes a source program the interpreter will execute
   some expressions).
 - The macro processing of the compiler was improved to work better for
@@ -2504,7 +2535,7 @@
   checks for the functions 'str' and 'integer conv'.
 - The file "common.h" was improved to define several types and constants for
   integers of different sizes.
-- The system to define the (text) screen and keybord driver was improved to
+- The system to define the (text) screen and keyboard driver was improved to
   work without the file "inf_conf.h".
 - The keyboard driver "kbd_inf.c" was improved to define the functions
   return_char_if_present(), consume_chars_present() (which both encapsulate calls
@@ -2545,7 +2576,7 @@
 - The compiler (comp.sd7) was improved to support source level debugging with the
   option '-g' (comp.sd7 generates C programs with '#line' directives and the C
   compiler is called with a corresponding debugging option).
-- An explaination what happens when an exception is not catched, was added to the
+- An explanation what happens when an exception is not caught, was added to the
   FAQ.
 - The chapter in the manual, which explains a stack trace, was improved.
 - The flag 'mayRaiseRangeError' was added to the "bigint.s7i" library to describe
@@ -2734,7 +2765,7 @@
   all files with extension ".htm" or ".html".
 - The comanche.sd7 webserver was changed to catch the exception FILE_ERROR (which
   is raised when a browser aborts a connection).
-- The compiler (comp.sd7) was improved to do some optimisations for set membership
+- The compiler (comp.sd7) was improved to do some optimizations for set membership
   tests.
 - Some spelling corrections were done in the startrek.sd7 example program.
 - The tarx.sd7 example program was improved to read and write file modes.
@@ -2982,7 +3013,7 @@
 
 20090222:
 - A new example program (chkhsh.sd7), which checks hash table operations, was added.
-- The logic to link to librarys in the compiler (comp.sd7) was improved.
+- The logic to link to libraries in the compiler (comp.sd7) was improved.
 - A compare function was added for the type 'boolean'.
 - The file big_rtl.c was improved to avoid unnecessary shifts wider than the size of
   the type (the result of this shifts was not used anyway).
@@ -3082,9 +3113,9 @@
   getNextXmlAttribute were added to the scanfile.s7i library.
 - In the library scanstri.s7i the function getXmlTagHeadOrContent was added and the
   function getSymbolInHtmlTag was renamed to getSymbolInXmlTag.
-- The call stack written by the (hi) interpreter, when an uncatched exception occurs, was
+- The call stack written by the (hi) interpreter, when an uncaught exception occurs, was
   improved.
-- The compiler (comp.sd7) was improved to write a file name and a line when an uncatched
+- The compiler (comp.sd7) was improved to write a file name and a line when an uncaught
   exception occurs.
 - The handling of sockets in the compiler was improved to support them also for the
   cl C compiler from msvc.
@@ -3325,7 +3356,7 @@
   refArrmaxidx, refArrminidx, ref_arrmaxidx ref_arrminidx.
 
 20080420:
-- An explatation how to uncompress the Seed7 package was added to the FAQ.
+- An explanation how to uncompress the Seed7 package was added to the FAQ.
 - The descriptions of the functions log2, gcd, lowestSetBit, 'rem', 'mdiv' and
   'mod' in the manual were added or improved.
 - The functions gcd and modInverse were added to the bigint.s7i library.
@@ -3339,7 +3370,7 @@
 - The handling of +:=, -:=, *:=, <<:= and >>:= in the compiler was improved to
   avoid memory leaks.
 - The handling of the bigInteger 'mdiv' and * in the compiler was improved to do some
-  optimisations like using shift operations instead.
+  optimizations like using shift operations instead.
 - Three example programs printpi1.sd7, printpi2.sd7 and printpi3.sd7 were added.
 - The big_gmp.c interface library was added to allow bigInteger computations based
   on the mpz_ functions of the GMP library.
@@ -3373,7 +3404,7 @@
 - The compiler (comp.sd7) was improved to create optimized/improved versions for the bigInteger
   functions odd, compare, <, <=, >, >=, ** and for the integer functions 'mdiv' and 'mod'.
 - A description about the type bigRational was added to the manual.
-- An explatation about type inference was added to the FAQ.
+- An explanation about type inference was added to the FAQ.
 - A new constructor for complex numbers from a float was added to the complex.s7i library.
 - A boss mode was added to the panic.sd7 and mahjong.sd7 example programs.
 - The bas7.sd7 (basic interpreter) example program was improved.
@@ -3445,7 +3476,7 @@
   -0.5000+0.8660i format.
 - The hasNext function, which allows an iterator like handling of files, was added to
   the file interface.
-- Two new object librarys s7_comp and s7_data were added to support the compiler.
+- Two new object libraries s7_comp and s7_data were added to support the compiler.
 - The following files were added: act_comp.c, act_comp.h prg_comp.c, prg_comp.h,
   ref_data.c, ref_data.h, rfl_data.c, rfl_data.h typ_data.c, typ_data.h, datautl.c and
   datautl.h .
@@ -3460,7 +3491,7 @@
 - The Exit function of the castle.sd7 example program was improved.
 
 20080120:
-- Optimisations for the string functions =, <>, stri[num], &, upper, lower, pos, rpos, split
+- Optimizations for the string functions =, <>, stri[num], &, upper, lower, pos, rpos, split
   and for the array indexing were added to the compiler (comp.sd7).
 - Documentation comments were added to bigint.s7i, draw.s7i, bas7.sd7 and mahjong.sd7.
 - The bas.sd7 (basic interpreter) example program was improved and renamed to bas7.sd7.
@@ -3479,7 +3510,7 @@
   return statement, were fixed.
 
 20080106:
-- Documentation comments were added to the functions of the librarys bigint.s7i,
+- Documentation comments were added to the functions of the libraries bigint.s7i,
   bigrat.s7i, complex.s7i, float.s7i, getf.s7i, keybd.s7i, rational.s7i, scanner.s7i,
   socket.s7i, stritext.s7i, time.s7i and dna_base.s7i.
 - The bas.sd7 (basic interpreter) example program was improved.
@@ -3662,7 +3693,7 @@
 20070419:
 - The compiler support for result variables, which are initialized with expressions, was improved.
 - The bas (basic interpreter) example program was improved.
-- The bigrat.s7i, rational.s7i librarys were improved.
+- The bigrat.s7i, rational.s7i libraries were improved.
 - Some multiplication testcases were added to the chkbig.sd7 example program.
 - The compiler was changed to mark its temporary *.c files with a temp_marker.
 - Several performance improvements for uBigMultSub, uBigAddTo, uBigDiv, uBigMult,
@@ -3737,7 +3768,7 @@
 - The X11 keyboard driver was improved.
 
 20070104:
-- The hashtype was changend to maintain the size of the hash instead of computing it.
+- The hashtype was changed to maintain the size of the hash instead of computing it.
 - The &:= statement for the type ref_list was added.
 - The compiler was improved to support 'in var' parameters.
 - A new include file (complex.s7i) to support complex numbers was added.
@@ -3849,7 +3880,7 @@
   support exit statements.
 - A tiny bug in the panic example program was fixed.
 - The hi interpreter was improved to write a stack trace when
-  an exception is not catched.
+  an exception is not caught.
 
 20060520:
 - The performance of the interpreter was raised by circa 8% with

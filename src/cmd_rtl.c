@@ -1123,6 +1123,9 @@ stritype cmdConfigValue (const const_stritype name)
       } else if (strcmp(opt_name, "POINTER_SIZE") == 0) {
         sprintf(buffer, "%d", POINTER_SIZE);
         opt = buffer;
+      } else if (strcmp(opt_name, "INT_SIZE") == 0) {
+        sprintf(buffer, "%d", INT_SIZE);
+        opt = buffer;
       } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
 #ifdef FLOATTYPE_DOUBLE
         opt = "TRUE";

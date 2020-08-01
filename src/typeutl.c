@@ -79,8 +79,8 @@ typetype new_type (progtype owningProg, typetype meta_type, typetype result_type
           created_type->ord_call_obj = NULL;
           created_type->in_call_obj = NULL;
           list_elem->obj = match_obj;
-          list_elem->next = prog.types;
-          prog.types = list_elem;
+          list_elem->next = owningProg->types;
+          owningProg->types = list_elem;
         } else {
           FREE_L_ELEM(list_elem);
           FREE_OBJECT(match_obj);

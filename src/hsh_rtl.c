@@ -444,6 +444,48 @@ static rtlArraytype values_hash (const const_rtlHashtype curr_hash,
 
 
 
+#ifdef OUT_OF_ORDER
+static void dump_helem (const_rtlHelemtype curr_helem)
+
+  { /* dump_helem */
+    printf("key: %ld, %lx, %f / value: %ld, %lx, %f\n",
+	   curr_helem->key.value.intvalue,
+	   curr_helem->key.value.genericvalue,
+	   curr_helem->key.value.floatvalue,
+	   curr_helem->data.value.intvalue,
+	   curr_helem->data.value.genericvalue,
+	   curr_helem->data.value.floatvalue);
+    if (curr_helem->next_less != NULL) {
+      dump_helem(curr_helem->next_less);
+    } /* if */
+    if (curr_helem->next_greater != NULL) {
+      dump_helem(curr_helem->next_greater);
+    } /* if */
+  } /* dump_helem */
+
+
+
+static void dump_hash (const const_rtlHashtype curr_hash)
+
+  {
+    memsizetype number;
+    const rtlHelemtype *curr_helem;
+
+  /* dump_hash */
+    number = curr_hash->table_size;
+    curr_helem = &curr_hash->table[0];
+    while (number > 0) {
+      if (*curr_helem != NULL) {
+        dump_helem(*curr_helem);
+      } /* if */
+      number--;
+      curr_helem++;
+    } /* while */
+  } /* dump_hash */
+#endif
+
+
+
 /**
  *  Hash membership test.
  *  Determine if 'aKey' is a member of the hash map 'aHashMap'.
@@ -725,10 +767,11 @@ rtlObjecttype *hshIdxAddr (const const_rtlHashtype aHashMap,
       result = NULL;
     } /* if */
 #ifdef TRACE_HSH_RTL
-    printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX)\n",
+    printf("END hshIdxAddr(%lX, %lu, %lu) ==> %lX (%lX, %f)\n",
         (unsigned long) aHashMap, (unsigned long) aKey, (unsigned long) hashcode,
         (unsigned long) result,
-        (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0));
+        (unsigned long) (result != NULL ? *((rtlGenerictype *)result) : 0),
+        result != NULL ? result->value.floatvalue : 0.0);
 #endif
     return result;
   } /* hshIdxAddr */

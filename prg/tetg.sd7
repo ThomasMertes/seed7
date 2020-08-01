@@ -386,7 +386,7 @@ const proc: set_piece (in tetromino_type: tetromino) is func
           right(actual_piece);
         elsif command = KEY_UP then
           rotate(actual_piece);
-        elsif command = KEY_DOWN then
+        elsif command = KEY_DOWN or command = KEY_PAD_CENTER then
           drop(actual_piece);
         elsif command = 'q' or command = 'Q' then
           actual_piece.moving := FALSE;

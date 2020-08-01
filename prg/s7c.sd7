@@ -57,6 +57,7 @@ const integer: INTTYPE_SIZE              is integer parse configValue("INTTYPE_S
 const integer: FLOATTYPE_SIZE            is integer parse configValue("FLOATTYPE_SIZE");
 const integer: POINTER_SIZE              is integer parse configValue("POINTER_SIZE");
 const integer: GENERIC_SIZE              is max({INTTYPE_SIZE, FLOATTYPE_SIZE, POINTER_SIZE});
+const integer: INT_SIZE                  is integer parse configValue("INT_SIZE");
 const string:  INT32TYPE_LITERAL_SUFFIX  is configValue("INT32TYPE_LITERAL_SUFFIX");
 const string:  INT64TYPE_LITERAL_SUFFIX  is configValue("INT64TYPE_LITERAL_SUFFIX");
 
@@ -205,6 +206,7 @@ var boolean_type_hash: create_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: cpy_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: generic_cpy_declared is boolean_type_hash.EMPTY_HASH;
+var boolean_type_hash: generic_cmp_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: create_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_type_hash: destr_prototype_declared is boolean_type_hash.EMPTY_HASH;
 var boolean_obj_hash: prototype_declared is boolean_obj_hash.EMPTY_HASH;
@@ -470,6 +472,41 @@ const func string: type_name2 (in type: object_type) is func
     typeName &:= str(typeNumber(object_type));
     typeName &:= "_";
     typeName &:= str(object_type);
+  end func;
+
+
+const func integer: bitSize (in type: object_type) is func
+
+  result
+    var integer: bitSize is 0;
+  begin
+    if object_type in typeCategory then
+      case typeCategory[object_type] of
+        when {VOIDOBJECT}:      bitSize := 0;
+        when {BOOLOBJECT}:      bitSize := INT_SIZE;
+        when {ENUMOBJECT}:      bitSize := INT_SIZE;
+        when {INTOBJECT}:       bitSize := INTTYPE_SIZE;
+        when {BIGINTOBJECT}:    bitSize := POINTER_SIZE;
+        when {FLOATOBJECT}:     bitSize := FLOATTYPE_SIZE;
+        when {CHAROBJECT}:      bitSize := 32;
+        when {STRIOBJECT}:      bitSize := POINTER_SIZE;
+        when {BSTRIOBJECT}:     bitSize := POINTER_SIZE;
+        when {FILEOBJECT}:      bitSize := POINTER_SIZE;
+        when {SOCKETOBJECT}:    bitSize := INT_SIZE;
+        when {POLLOBJECT}:      bitSize := POINTER_SIZE;
+        when {SETOBJECT}:       bitSize := POINTER_SIZE;
+        when {WINOBJECT}:       bitSize := POINTER_SIZE;
+        when {PROGOBJECT}:      bitSize := POINTER_SIZE;
+        when {ARRAYOBJECT}:     bitSize := POINTER_SIZE;
+        when {HASHOBJECT}:      bitSize := POINTER_SIZE;
+        when {STRUCTOBJECT}:    bitSize := POINTER_SIZE;
+        when {INTERFACEOBJECT}: bitSize := POINTER_SIZE;
+        when {REFOBJECT}:       bitSize := POINTER_SIZE;
+        when {REFLISTOBJECT}:   bitSize := POINTER_SIZE;
+        when {TYPEOBJECT}:      bitSize := POINTER_SIZE;
+        when {ACTOBJECT}:       bitSize := POINTER_SIZE;
+      end case;
+    end if;
   end func;
 
 
@@ -1791,6 +1828,29 @@ const proc: process_generic_sct_cpy_declaration (in type: object_type,
   end func;
 
 
+const proc: process_generic_cmp_declaration (in reference: function,
+    in type: object_type, inout expr_type: c_expr) is func
+
+  begin
+    if object_type not in generic_cmp_declared then
+      process_cpy_declaration(object_type, c_expr);
+      c_expr.expr &:= "static booltype generic_cmp_";
+      c_expr.expr &:= str(typeNumber(object_type));
+      c_expr.expr &:= " (generictype a, generictype b)\n";
+      c_expr.expr &:= "{\n";
+      c_expr.expr &:= "return o_";
+      create_name(function, c_expr.expr);
+      c_expr.expr &:= "((";
+      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= ") a, (";
+      c_expr.expr &:= type_name(object_type);
+      c_expr.expr &:= ") b);\n";
+      c_expr.expr &:= "}\n\n";
+      generic_cmp_declared @:= [object_type] TRUE;
+    end if;
+  end func;
+
+
 const func boolean: useFunctype (in reference: current_object) is func
 
   result
@@ -2214,7 +2274,7 @@ const proc: getGenericValueToResultExpr (in reference: current_expression,
       c_expr.result_expr &:= "(";
       c_expr.result_expr &:= temp_name;
       c_expr.result_expr &:= ".floatvalue=";
-      process_expr(current_expression, c_expr);
+      getAnyParamToResultExpr(current_expression, c_expr);
       c_expr.result_expr &:= ",";
       c_expr.result_expr &:= temp_name;
       c_expr.result_expr &:= ".genericvalue)";
@@ -7492,9 +7552,9 @@ const proc: process_drw_clear (in ref_list: params, inout expr_type: c_expr) is 
 const proc: process_drw_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "uintCmpGeneric((generictype)(";
+    c_expr.expr &:= "uintCmpGeneric((generictype)(memsizetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (generictype)(";
+    c_expr.expr &:= "), (generictype)(memsizetype)(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= "))";
   end func;
@@ -12029,9 +12089,9 @@ const proc: process_int_xor (in ref_list: params, inout expr_type: c_expr) is fu
 const proc: process_itf_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "uintCmpGeneric((generictype)(";
+    c_expr.expr &:= "uintCmpGeneric((generictype)(memsizetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (generictype)(";
+    c_expr.expr &:= "), (generictype)(memsizetype)(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= "))";
   end func;
@@ -12767,9 +12827,9 @@ const proc: process_ref_cat_str (in ref_list: params, inout expr_type: c_expr) i
 const proc: process_ref_cmp (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "uintCmpGeneric((generictype)(";
+    c_expr.expr &:= "uintCmpGeneric((generictype)(memsizetype)(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= "), (generictype)(";
+    c_expr.expr &:= "), (generictype)(memsizetype)(";
     process_expr(params[2], c_expr);
     c_expr.expr &:= "))";
   end func;
@@ -20980,7 +21040,7 @@ const proc: action_address (in reference: function, inout expr_type: c_expr) is 
     elsif action_name = "FLT_CMP" then
       c_expr.expr &:= "&fltCmpGeneric";
     elsif action_name = "FLT_CPY" then
-      c_expr.expr &:= "&fltCpy";
+      c_expr.expr &:= "&fltCpyGeneric";
     elsif action_name = "FLT_CREATE" then
       c_expr.expr &:= "&intCreateGeneric";
     elsif action_name = "GEN_DESTR" then
@@ -21073,7 +21133,7 @@ const proc: block_address (in reference: function, inout expr_type: c_expr) is f
     var ref_list: formal_params is ref_list.EMPTY;
     var reference: formal_param is NIL;
     var type: object_type is void;
-    var boolean: hash_create is FALSE;
+    var boolean: address_written is FALSE;
   begin
     formal_params := formalParams(function);
     if length(formal_params) = 3 and category(formal_params[2]) = SYMBOLOBJECT and
@@ -21082,12 +21142,22 @@ const proc: block_address (in reference: function, inout expr_type: c_expr) is f
       object_type := getType(formal_param);
       if object_type in parametersOfHshCreate then
         process_create_declaration(object_type, global_c_expr);
-        hash_create := TRUE;
         c_expr.expr &:= "&create_";
         c_expr.expr &:= str(typeNumber(object_type));
+        address_written := TRUE;
+      end if;
+    elsif length(formal_params) = 3 and category(formal_params[3]) = SYMBOLOBJECT and
+        str(formal_params[3]) = "compare" then
+      formal_param := formal_params[1];
+      object_type := getType(formal_param);
+      if bitSize(object_type) <> GENERIC_SIZE then
+        process_generic_cmp_declaration(function, object_type, global_c_expr);
+        c_expr.expr &:= "&generic_cmp_";
+        c_expr.expr &:= str(typeNumber(object_type));
+        address_written := TRUE;
       end if;
     end if;
-    if not hash_create then
+    if not address_written then
       c_expr.expr &:= "&o_";
       create_name(function, c_expr.expr);
     end if;
@@ -23471,7 +23541,7 @@ const proc: write_prototypes is func
     declareExtern("filetype    filValue (objreftype);");
     declareExtern("inttype     fltCmp (floattype, floattype);");
     declareExtern("inttype     fltCmpGeneric (const generictype, const generictype);");
-    declareExtern("void        fltCpy (floattype *, floattype);");
+    declareExtern("void        fltCpyGeneric (floattype *, const generictype);");
     declareExtern("stritype    fltDgts (floattype, inttype);");
     if NAN_COMPARISON_WRONG then
       declareExtern("booltype    fltEq (floattype, floattype);");

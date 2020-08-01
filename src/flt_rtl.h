@@ -46,7 +46,6 @@ extern const rtlValueunion f_const[];
 
 void setupFloat (void);
 inttype fltCmp (floattype number1, floattype number2);
-void fltCpy (floattype *dest, floattype source);
 stritype fltDgts (floattype number, inttype digits_precision);
 #ifdef NAN_COMPARISON_WRONG
 booltype fltEq (floattype number1, floattype number2);

@@ -113,7 +113,7 @@ const proc: chkBooleanHash is func
         length(booleanTypeHashVar)       <> 0 or
         length(booleanReferenceHashVar)  <> 0 or
         length(booleanHashHashVar)       <> 0 then
-      writeln(" ***** Number of elements in empty hash table not 0");
+      writeln(" ***** Number of elements in empty hash[boolean] table not 0");
       okay := FALSE;
     end if;
     if  TRUE in booleanBooleanHashVar    or
@@ -132,7 +132,7 @@ const proc: chkBooleanHash is func
     booleanBooleanHashVar    @:= [TRUE] TRUE;
     booleanIntegerHashVar    @:= [TRUE] 1234;
     booleanBigIntegerHashVar @:= [TRUE] 9999999999_;
-    booleanFloatHashVar      @:= [TRUE] 3.141592;
+    booleanFloatHashVar      @:= [TRUE] 3.1415926535;
     booleanComplexHashVar    @:= [TRUE] complex(1.2, 3.4);
     booleanCharHashVar       @:= [TRUE] 'Q';
     booleanStringHashVar     @:= [TRUE] "success";
@@ -149,7 +149,7 @@ const proc: chkBooleanHash is func
         length(booleanTypeHashVar)       <> 1 or
         length(booleanReferenceHashVar)  <> 1 or
         length(booleanHashHashVar)       <> 1 then
-      writeln(" ***** Number of elements in hash table not 1");
+      writeln(" ***** Number of elements in hash[boolean] table not 1");
       okay := FALSE;
     end if;
     if  TRUE in booleanBooleanHashVar    and
@@ -164,13 +164,13 @@ const proc: chkBooleanHash is func
         TRUE in booleanHashHashVar       then
       noop;
     else
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[boolean] table");
       okay := FALSE;
     end if;
     booleanBooleanHashVar    @:= [TRUE] TRUE;
     booleanIntegerHashVar    @:= [TRUE] 1234;
     booleanBigIntegerHashVar @:= [TRUE] 9999999999_;
-    booleanFloatHashVar      @:= [TRUE] 3.141592;
+    booleanFloatHashVar      @:= [TRUE] 3.1415926535;
     booleanComplexHashVar    @:= [TRUE] complex(1.2, 3.4);
     booleanCharHashVar       @:= [TRUE] 'Q';
     booleanStringHashVar     @:= [TRUE] "success";
@@ -187,19 +187,19 @@ const proc: chkBooleanHash is func
         TRUE not in booleanTypeHashVar       or
         TRUE not in booleanReferenceHashVar  or
         TRUE not in booleanHashHashVar       then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[boolean] table");
       okay := FALSE;
     end if;
     if  booleanBooleanHashVar    [TRUE] <> TRUE              or
         booleanIntegerHashVar    [TRUE] <> 1234              or
         booleanBigIntegerHashVar [TRUE] <> 9999999999_       or
-        booleanFloatHashVar      [TRUE] <> 3.141592          or
+        booleanFloatHashVar      [TRUE] <> 3.1415926535      or
         booleanComplexHashVar    [TRUE] <> complex(1.2, 3.4) or
         booleanCharHashVar       [TRUE] <> 'Q'               or
         booleanStringHashVar     [TRUE] <> "success"         or
         booleanTypeHashVar       [TRUE] <> char              or
         booleanReferenceHashVar  [TRUE] <> NIL               then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements with wrong value in hash[boolean] table");
       okay := FALSE;
     end if;
     if okay then
@@ -234,7 +234,7 @@ const proc: chkIntegerHash is func
         length(integerTypeHashVar)       <> 0 or
         length(integerReferenceHashVar)  <> 0 or
         length(integerHashHashVar)       <> 0 then
-      writeln(" ***** Number of elements in empty hash table not 0");
+      writeln(" ***** Number of elements in empty hash[integer] table not 0");
       okay := FALSE;
     end if;
     if  87654321 in integerBooleanHashVar    or
@@ -253,7 +253,7 @@ const proc: chkIntegerHash is func
     integerBooleanHashVar    @:= [87654321] TRUE;
     integerIntegerHashVar    @:= [87654321] 1234;
     integerBigIntegerHashVar @:= [87654321] 9999999999_;
-    integerFloatHashVar      @:= [87654321] 3.141592;
+    integerFloatHashVar      @:= [87654321] 3.1415926535;
     integerComplexHashVar    @:= [87654321] complex(1.2, 3.4);
     integerCharHashVar       @:= [87654321] 'Q';
     integerStringHashVar     @:= [87654321] "success";
@@ -270,7 +270,7 @@ const proc: chkIntegerHash is func
         length(integerTypeHashVar)       <> 1 or
         length(integerReferenceHashVar)  <> 1 or
         length(integerHashHashVar)       <> 1 then
-      writeln(" ***** Number of elements in hash table not 1");
+      writeln(" ***** Number of elements in hash[integer] table not 1");
       okay := FALSE;
     end if;
     if  87654321 in integerBooleanHashVar    and
@@ -285,13 +285,13 @@ const proc: chkIntegerHash is func
         87654321 in integerHashHashVar       then
       noop;
     else
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[integer] table");
       okay := FALSE;
     end if;
     integerBooleanHashVar    @:= [87654321] TRUE;
     integerIntegerHashVar    @:= [87654321] 1234;
     integerBigIntegerHashVar @:= [87654321] 9999999999_;
-    integerFloatHashVar      @:= [87654321] 3.141592;
+    integerFloatHashVar      @:= [87654321] 3.1415926535;
     integerComplexHashVar    @:= [87654321] complex(1.2, 3.4);
     integerCharHashVar       @:= [87654321] 'Q';
     integerStringHashVar     @:= [87654321] "success";
@@ -308,19 +308,19 @@ const proc: chkIntegerHash is func
         87654321 not in integerTypeHashVar       or
         87654321 not in integerReferenceHashVar  or
         87654321 not in integerHashHashVar       then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[integer] table");
       okay := FALSE;
     end if;
     if  integerBooleanHashVar    [87654321] <> TRUE              or
         integerIntegerHashVar    [87654321] <> 1234              or
         integerBigIntegerHashVar [87654321] <> 9999999999_       or
-        integerFloatHashVar      [87654321] <> 3.141592          or
+        integerFloatHashVar      [87654321] <> 3.1415926535      or
         integerComplexHashVar    [87654321] <> complex(1.2, 3.4) or
         integerCharHashVar       [87654321] <> 'Q'               or
         integerStringHashVar     [87654321] <> "success"         or
         integerTypeHashVar       [87654321] <> char              or
         integerReferenceHashVar  [87654321] <> NIL               then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements with wrong value in hash[integer] table");
       okay := FALSE;
     end if;
     if okay then
@@ -356,7 +356,7 @@ const proc: chkFloatHash is func
         length(floatTypeHashVar)       <> 0 or
         length(floatReferenceHashVar)  <> 0 or
         length(floatHashHashVar)       <> 0 then
-      writeln(" ***** Number of elements in empty hash table not 0");
+      writeln(" ***** Number of elements in empty hash[float] table not 0");
       okay := FALSE;
     end if;
     if  3.1415926535 in floatBooleanHashVar    or
@@ -375,7 +375,7 @@ const proc: chkFloatHash is func
     floatBooleanHashVar    @:= [3.1415926535] TRUE;
     floatIntegerHashVar    @:= [3.1415926535] 1234;
     floatBigIntegerHashVar @:= [3.1415926535] 9999999999_;
-    floatFloatHashVar      @:= [3.1415926535] 3.141592;
+    floatFloatHashVar      @:= [3.1415926535] 3.1415926535;
     floatComplexHashVar    @:= [3.1415926535] complex(1.2, 3.4);
     floatCharHashVar       @:= [3.1415926535] 'Q';
     floatStringHashVar     @:= [3.1415926535] "success";
@@ -392,7 +392,7 @@ const proc: chkFloatHash is func
         length(floatTypeHashVar)       <> 1 or
         length(floatReferenceHashVar)  <> 1 or
         length(floatHashHashVar)       <> 1 then
-      writeln(" ***** Number of elements in hash table not 1");
+      writeln(" ***** Number of elements in hash[float] table not 1");
       okay := FALSE;
     end if;
     if  3.1415926535 in floatBooleanHashVar    and
@@ -407,13 +407,13 @@ const proc: chkFloatHash is func
         3.1415926535 in floatHashHashVar       then
       noop;
     else
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[float] table");
       okay := FALSE;
     end if;
     floatBooleanHashVar    @:= [3.1415926535] TRUE;
     floatIntegerHashVar    @:= [3.1415926535] 1234;
     floatBigIntegerHashVar @:= [3.1415926535] 9999999999_;
-    floatFloatHashVar      @:= [3.1415926535] 3.141592;
+    floatFloatHashVar      @:= [3.1415926535] 3.1415926535;
     floatComplexHashVar    @:= [3.1415926535] complex(1.2, 3.4);
     floatCharHashVar       @:= [3.1415926535] 'Q';
     floatStringHashVar     @:= [3.1415926535] "success";
@@ -430,19 +430,19 @@ const proc: chkFloatHash is func
         3.1415926535 not in floatTypeHashVar       or
         3.1415926535 not in floatReferenceHashVar  or
         3.1415926535 not in floatHashHashVar       then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[float] table");
       okay := FALSE;
     end if;
     if  floatBooleanHashVar    [3.1415926535] <> TRUE              or
         floatIntegerHashVar    [3.1415926535] <> 1234              or
         floatBigIntegerHashVar [3.1415926535] <> 9999999999_       or
-        floatFloatHashVar      [3.1415926535] <> 3.141592          or
+        floatFloatHashVar      [3.1415926535] <> 3.1415926535      or
         floatComplexHashVar    [3.1415926535] <> complex(1.2, 3.4) or
         floatCharHashVar       [3.1415926535] <> 'Q'               or
         floatStringHashVar     [3.1415926535] <> "success"         or
         floatTypeHashVar       [3.1415926535] <> char              or
         floatReferenceHashVar  [3.1415926535] <> NIL               then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements with wrong value in hash[float] table");
       okay := FALSE;
     end if;
     if okay then
@@ -478,7 +478,7 @@ const proc: chkComplexHash is func
         length(complexTypeHashVar)       <> 0 or
         length(complexReferenceHashVar)  <> 0 or
         length(complexHashHashVar)       <> 0 then
-      writeln(" ***** Number of elements in empty hash table not 0");
+      writeln(" ***** Number of elements in empty hash[complex] table not 0");
       okay := FALSE;
     end if;
     if  complex(5.6, 7.8) in complexBooleanHashVar    or
@@ -497,7 +497,7 @@ const proc: chkComplexHash is func
     complexBooleanHashVar    @:= [complex(5.6, 7.8)] TRUE;
     complexIntegerHashVar    @:= [complex(5.6, 7.8)] 1234;
     complexBigIntegerHashVar @:= [complex(5.6, 7.8)] 9999999999_;
-    complexFloatHashVar      @:= [complex(5.6, 7.8)] 3.141592;
+    complexFloatHashVar      @:= [complex(5.6, 7.8)] 3.1415926535;
     complexComplexHashVar    @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
     complexCharHashVar       @:= [complex(5.6, 7.8)] 'Q';
     complexStringHashVar     @:= [complex(5.6, 7.8)] "success";
@@ -514,7 +514,7 @@ const proc: chkComplexHash is func
         length(complexTypeHashVar)       <> 1 or
         length(complexReferenceHashVar)  <> 1 or
         length(complexHashHashVar)       <> 1 then
-      writeln(" ***** Number of elements in hash table not 1");
+      writeln(" ***** Number of elements in hash[complex] table not 1");
       okay := FALSE;
     end if;
     if  complex(5.6, 7.8) in complexBooleanHashVar    and
@@ -529,13 +529,13 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) in complexHashHashVar       then
       noop;
     else
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[complex] table");
       okay := FALSE;
     end if;
     complexBooleanHashVar    @:= [complex(5.6, 7.8)] TRUE;
     complexIntegerHashVar    @:= [complex(5.6, 7.8)] 1234;
     complexBigIntegerHashVar @:= [complex(5.6, 7.8)] 9999999999_;
-    complexFloatHashVar      @:= [complex(5.6, 7.8)] 3.141592;
+    complexFloatHashVar      @:= [complex(5.6, 7.8)] 3.1415926535;
     complexComplexHashVar    @:= [complex(5.6, 7.8)] complex(1.2, 3.4);
     complexCharHashVar       @:= [complex(5.6, 7.8)] 'Q';
     complexStringHashVar     @:= [complex(5.6, 7.8)] "success";
@@ -552,19 +552,19 @@ const proc: chkComplexHash is func
         complex(5.6, 7.8) not in complexTypeHashVar       or
         complex(5.6, 7.8) not in complexReferenceHashVar  or
         complex(5.6, 7.8) not in complexHashHashVar       then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[complex] table");
       okay := FALSE;
     end if;
     if  complexBooleanHashVar    [complex(5.6, 7.8)] <> TRUE              or
         complexIntegerHashVar    [complex(5.6, 7.8)] <> 1234              or
         complexBigIntegerHashVar [complex(5.6, 7.8)] <> 9999999999_       or
-        complexFloatHashVar      [complex(5.6, 7.8)] <> 3.141592          or
+        complexFloatHashVar      [complex(5.6, 7.8)] <> 3.1415926535      or
         complexComplexHashVar    [complex(5.6, 7.8)] <> complex(1.2, 3.4) or
         complexCharHashVar       [complex(5.6, 7.8)] <> 'Q'               or
         complexStringHashVar     [complex(5.6, 7.8)] <> "success"         or
         complexTypeHashVar       [complex(5.6, 7.8)] <> char              or
         complexReferenceHashVar  [complex(5.6, 7.8)] <> NIL               then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements with wrong value in hash[complex] table");
       okay := FALSE;
     end if;
     if okay then
@@ -600,7 +600,7 @@ const proc: chkStringHash is func
         length(stringTypeHashVar)       <> 0 or
         length(stringReferenceHashVar)  <> 0 or
         length(stringHashHashVar)       <> 0 then
-      writeln(" ***** Number of elements in empty hash table not 0");
+      writeln(" ***** Number of elements in empty hash[string] table not 0");
       okay := FALSE;
     end if;
     if  "asdfghjkl" in stringBooleanHashVar    or
@@ -619,7 +619,7 @@ const proc: chkStringHash is func
     stringBooleanHashVar    @:= ["asdfghjkl"] TRUE;
     stringIntegerHashVar    @:= ["asdfghjkl"] 1234;
     stringBigIntegerHashVar @:= ["asdfghjkl"] 9999999999_;
-    stringFloatHashVar      @:= ["asdfghjkl"] 3.141592;
+    stringFloatHashVar      @:= ["asdfghjkl"] 3.1415926535;
     stringComplexHashVar    @:= ["asdfghjkl"] complex(1.2, 3.4);
     stringCharHashVar       @:= ["asdfghjkl"] 'Q';
     stringStringHashVar     @:= ["asdfghjkl"] "success";
@@ -636,7 +636,7 @@ const proc: chkStringHash is func
         length(stringTypeHashVar)       <> 1 or
         length(stringReferenceHashVar)  <> 1 or
         length(stringHashHashVar)       <> 1 then
-      writeln(" ***** Number of elements in hash table not 1");
+      writeln(" ***** Number of elements in hash[string] table not 1");
       okay := FALSE;
     end if;
     if  "asdfghjkl" in stringBooleanHashVar    and
@@ -651,13 +651,13 @@ const proc: chkStringHash is func
         "asdfghjkl" in stringHashHashVar       then
       noop;
     else
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[string] table");
       okay := FALSE;
     end if;
     stringBooleanHashVar    @:= ["asdfghjkl"] TRUE;
     stringIntegerHashVar    @:= ["asdfghjkl"] 1234;
     stringBigIntegerHashVar @:= ["asdfghjkl"] 9999999999_;
-    stringFloatHashVar      @:= ["asdfghjkl"] 3.141592;
+    stringFloatHashVar      @:= ["asdfghjkl"] 3.1415926535;
     stringComplexHashVar    @:= ["asdfghjkl"] complex(1.2, 3.4);
     stringCharHashVar       @:= ["asdfghjkl"] 'Q';
     stringStringHashVar     @:= ["asdfghjkl"] "success";
@@ -674,19 +674,19 @@ const proc: chkStringHash is func
         "asdfghjkl" not in stringTypeHashVar       or
         "asdfghjkl" not in stringReferenceHashVar  or
         "asdfghjkl" not in stringHashHashVar       then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements missing in hash[string] table");
       okay := FALSE;
     end if;
     if  stringBooleanHashVar    ["asdfghjkl"] <> TRUE              or
         stringIntegerHashVar    ["asdfghjkl"] <> 1234              or
         stringBigIntegerHashVar ["asdfghjkl"] <> 9999999999_       or
-        stringFloatHashVar      ["asdfghjkl"] <> 3.141592          or
+        stringFloatHashVar      ["asdfghjkl"] <> 3.1415926535      or
         stringComplexHashVar    ["asdfghjkl"] <> complex(1.2, 3.4) or
         stringCharHashVar       ["asdfghjkl"] <> 'Q'               or
         stringStringHashVar     ["asdfghjkl"] <> "success"         or
         stringTypeHashVar       ["asdfghjkl"] <> char              or
         stringReferenceHashVar  ["asdfghjkl"] <> NIL               then
-      writeln(" ***** Elements missing in hash table");
+      writeln(" ***** Elements with wrong value in hash[string] table");
       okay := FALSE;
     end if;
     if okay then

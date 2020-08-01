@@ -168,6 +168,14 @@ const string: chkset_output is "\n\
   \set assignment works correct.\n\
   \character sets work correct.\n";
 
+const string: chkhsh_output is "\n\
+  \Hash tables with boolean keys work correct.\n\
+  \Hash tables with integer keys work correct.\n\
+  \Hash tables with float keys work correct.\n\
+  \Hash tables with complex keys work correct.\n\
+  \Hash tables with string keys work correct.\n\
+  \The keys function for hash tables works correct.\n";
+
 const string: chkexc_output is "\n\
   \Integer exceptions work correct.\n\
   \BigInteger exceptions work correct.\n\
@@ -385,6 +393,7 @@ const proc: main is func
     check("chkbig",  chkbig_output);
     check("chkbool", chkbool_output);
     check("chkset",  chkset_output);
+    check("chkhsh",  chkhsh_output);
     check("chkexc",  chkexc_output);
     if checkAllFailed then
       exit(1);

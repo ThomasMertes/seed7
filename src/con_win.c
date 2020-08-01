@@ -113,7 +113,7 @@ static chartype map_key[] = {
 /* 115 */ K_CTL_LEFT,  K_CTL_RIGHT, K_CTL_END,   K_CTL_PGDN,  K_CTL_HOME,
 /* 120 */ K_ALT_1,     K_ALT_2,     K_ALT_3,     K_ALT_4,     K_ALT_5,
 /* 125 */ K_ALT_6,     K_ALT_7,     K_ALT_8,     K_ALT_9,     K_ALT_0,
-/* 130 */ K_UNDEF,     K_UNDEF,     K_CTL_PGUP,  K_F11,       K_CTL_PGUP,
+/* 130 */ K_UNDEF,     K_UNDEF,     K_CTL_PGUP,  K_F11,       K_F12,
 /* 135 */ K_SFT_F11,   K_SFT_F12,   K_CTL_F11,   K_CTL_F12,   K_ALT_F11,
 /* 140 */ K_ALT_F12,   K_CTL_UP,    K_UNDEF,     K_UNDEF,     K_UNDEF,
 /* 145 */ K_CTL_DOWN,  K_CTL_INS,   K_CTL_DEL,   K_UNDEF,     K_UNDEF,
@@ -414,8 +414,10 @@ memsizetype length)
     HANDLE hConsole;
     COORD position;
     DWORD numchars;
+    booltype doWrite = TRUE;
 
   /* conText */
+    /* printf("conText(..., %lu)\n", length); */
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hConsole != INVALID_HANDLE_VALUE) {
       /* When GetFileType(hConsole) == FILE_TYPE_CHAR holds it is a console */
@@ -423,9 +425,16 @@ memsizetype length)
         position.X = col - 1;
         position.Y = lin - 1;
         if (SetConsoleCursorPosition(hConsole, position)) {
-          WriteConsoleW(hConsole, stri, length, &numchars, NULL);
+          doWrite = FALSE;
         } /* if */
-      } else {
+      } /* if */
+      if (doWrite) {
+        /* Writing may fail for lengths above 26000 to 32000 */
+        while (length > 25000) {
+          WriteConsoleW(hConsole, stri, 25000, &numchars, NULL);
+          stri = &stri[25000];
+          length -= 25000;
+        } /* while */
         WriteConsoleW(hConsole, stri, length, &numchars, NULL);
       } /* if */
     } /* if */
@@ -459,6 +468,12 @@ static void conWriteConsole (HANDLE hConsole, const_stritype stri)
         if (err_info != OKAY_NO_ERROR) {
           raise_error(RANGE_ERROR);
         } else {
+          /* Writing may fail for lengths above 26000 to 32000 */
+          while (wstri_size > 25000) {
+            WriteConsoleW(hConsole, wstri, 25000, &numchars, NULL);
+            wstri = &wstri[25000];
+            wstri_size -= 25000;
+          } /* while */
           WriteConsoleW(hConsole, wstri, wstri_size, &numchars, NULL);
         } /* if */
         UNALLOC_WSTRI(wstri, stri->size * 2 - 1)

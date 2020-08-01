@@ -900,7 +900,7 @@ static chartype mapKeysymToUnicode (KeySym keysym)
 
 
 
-wintype find_window (Window curr_window)
+wintype find_window (Window sys_window)
 
   {
     wintype window;
@@ -911,9 +911,9 @@ wintype find_window (Window curr_window)
     } else {
       window = (wintype) (memsizetype)
           hshIdxWithDefault(window_hash,
-                            (rtlGenerictype) (memsizetype) curr_window,
+                            (rtlGenerictype) (memsizetype) sys_window,
                             (rtlGenerictype) (memsizetype) NULL,
-                            (inttype) ((memsizetype) curr_window) >> 6,
+                            (inttype) ((memsizetype) sys_window) >> 6,
                             (comparetype) &uintCmpGeneric);
     } /* if */
     return window;
@@ -921,15 +921,16 @@ wintype find_window (Window curr_window)
 
 
 
-void enter_window (wintype curr_window, Window xWin)
+void enter_window (wintype curr_window, Window sys_window)
 
   { /* enter_window */
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
-    (void) hshIdxEnterDefault(window_hash, (rtlGenerictype) (memsizetype) xWin,
+    (void) hshIdxEnterDefault(window_hash,
+                              (rtlGenerictype) (memsizetype) sys_window,
                               (rtlGenerictype) (memsizetype) curr_window,
-                              (inttype) ((memsizetype) xWin) >> 6,
+                              (inttype) ((memsizetype) sys_window) >> 6,
                               (comparetype) &uintCmpGeneric,
                               (createfunctype) &intCreateGeneric,
                               (createfunctype) &intCreateGeneric);
@@ -937,12 +938,15 @@ void enter_window (wintype curr_window, Window xWin)
 
 
 
-void remove_window (wintype curr_window, Window xWin)
+void remove_window (Window sys_window)
 
   { /* remove_window */
-    hshExcl(window_hash, (rtlGenerictype) (memsizetype) xWin,
-            (inttype) ((memsizetype) xWin) >> 6, (comparetype) &uintCmpGeneric,
-            (destrfunctype) &intDestrGeneric, (destrfunctype) &intDestrGeneric);
+    hshExcl(window_hash,
+            (rtlGenerictype) (memsizetype) sys_window,
+            (inttype) ((memsizetype) sys_window) >> 6,
+            (comparetype) &uintCmpGeneric,
+            (destrfunctype) &intDestrGeneric,
+            (destrfunctype) &intDestrGeneric);
   } /* remove_window */
 
 
@@ -1947,12 +1951,15 @@ wintype gkbWindow (void)
     wintype result;
 
   /* gkbWindow */
+#ifdef TRACE_KBD
+    printf("begin gkbWindow\n");
+#endif
     result = find_window(button_window);
     if (result != NULL) {
       result->usage_count++;
     } /* if */
 #ifdef TRACE_KBD
-    printf("gkbWindow -> %lu\n", result);
+    printf("end gkbWindow -> %lu\n", result);
 #endif
     return result;
   } /* gkbWindow */

@@ -733,7 +733,7 @@ rtlArraytype arrMalloc (inttype min_position, inttype max_position)
   /* arrMalloc */
     if (min_position < MIN_MEM_INDEX || max_position > MAX_MEM_INDEX ||
         (min_position == MIN_MEM_INDEX && max_position == MAX_MEM_INDEX) ||
-	(min_position > MIN_MEM_INDEX && min_position - 1 > max_position)) {
+        (min_position > MIN_MEM_INDEX && min_position - 1 > max_position)) {
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {

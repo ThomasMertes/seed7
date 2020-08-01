@@ -135,9 +135,9 @@ static const int highest_bit[16] = {
 
 
 
-wintype find_window (Window curr_window);
-void enter_window (wintype curr_window, Window xWin);
-void remove_window (wintype curr_window, Window xWin);
+wintype find_window (Window sys_window);
+void enter_window (wintype curr_window, Window sys_window);
+void remove_window (Window sys_window);
 
 
 
@@ -867,7 +867,7 @@ void drwFree (wintype old_window)
       XFreePixmap(mydisplay, to_window(old_window));
     } else {
       XDestroyWindow(mydisplay, to_window(old_window));
-      remove_window(old_window, to_window(old_window));
+      remove_window(to_window(old_window));
     } /* if */
     FREE_RECORD(old_window, x11_winrecord, count.win);
   } /* drwFree */

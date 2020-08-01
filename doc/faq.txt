@@ -199,11 +199,11 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-07-04 the number of lines is:
+than 200000 lines of Seed7. For version 2013-07-22 the number of lines is:
 
-   93089  C source files (*.c)
-    8129  C header files (*.h)
-  115055  Seed7 source files (*.sd7)
+   93229  C source files (*.c)
+    8128  C header files (*.h)
+  115134  Seed7 source files (*.sd7)
    90442  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
@@ -797,7 +797,7 @@ Why does Seed7 not use type inference?
 Seed7 has a basic principle that would break if type inference would be used:
 
    The type of every expression (and sub expression) is known at compile time.
-   This is independend from the place where this expression is used.
+   This is independent from the place where this expression is used.
 
 It is exactly the violation of this principle that makes type inference possible.
 As long as this principle holds you need to know the global and local declarations
@@ -857,7 +857,7 @@ the same parameter types and just differ in the result type. This type of
 overloading has a big advantage:
 
    The type of every expression (and sub expression) is known at compile time.
-   This is independend from the place where this expression is used.
+   This is independent from the place where this expression is used.
 
 Therefore it is not possible to overload something which has no parameters (like
 a variable or a literal). As a consequence it is sometimes necessary to cast a
@@ -1080,7 +1080,7 @@ a global variable and when the function is called with the same variable as
 actual parameter for all three parameters.
 
 When a programmer has to deal with such corner cases it is necessary
-to explicitely use 'val' or 'ref'.
+to explicitly use 'val' or 'ref'.
 
 
 What is call-by-name?
@@ -1690,7 +1690,7 @@ files to an executable. Config values like RSHIFT_DOES_SIGN_EXTEND,
 TWOS_COMPLEMENT_INTTYPE and LITTLE_ENDIAN_INTTYPE are used to control the kind
 of C code produced by the Seed7 compiler. The function 'configValue' can also
 obtain config values that do not come from "version.h", but are defined in
-"seed7/src/common.h". E.g.:
+"seed7/src/config.h". E.g.:
 
   #define WITH_STRI_CAPACITY
   #define ALLOW_STRITYPE_SLICES

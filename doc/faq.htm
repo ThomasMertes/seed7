@@ -524,11 +524,11 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2013-07-04 the number of lines is:
+than 200000 lines of Seed7. For version 2013-07-22 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 93089</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  8129</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">115055</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 93229</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  8128</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">115134</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
   <tr><td align="right"> 90442</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
@@ -1122,7 +1122,7 @@ type variables and type expressions are used in the <a class="link" href="scrsho
 Seed7 has a basic principle that would break if type inference would be used:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
   &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
-  &nbsp;This is independend from the place where this expression is used.&nbsp;
+  &nbsp;This is independent from the place where this expression is used.&nbsp;
 </td></tr></table></dd></dl><p>
 It is exactly the violation of this principle that makes type inference possible.
 As long as this principle holds you need to know the global and local declarations
@@ -1182,7 +1182,7 @@ the same parameter types and just differ in the result type. This type of
 overloading has a big advantage:
 </p><dl><dd><table border="1" cellspacing="0" cellpadding="5"><tr><td>
   &nbsp;The type of every expression (and sub expression) is known at compile time.&nbsp;<br />
-  &nbsp;This is independend from the place where this expression is used.&nbsp;
+  &nbsp;This is independent from the place where this expression is used.&nbsp;
 </td></tr></table></dd></dl><p>
 Therefore it is not possible to overload something which has no parameters (like
 a variable or a literal). As a consequence it is sometimes necessary to cast a
@@ -1243,7 +1243,7 @@ Conversions to <a class="func" href="libraries/string.htm#upper(in_string)">uppe
 where each character is considered in isolation. Characters without case
 mapping are left unchanged. The mapping is independend from the locale.
 Individual character case mappings cannot be reversed, because some
-characters have multiple characters that map to them. 
+characters have multiple characters that map to them.
 </p><p>
 Seed7 source code allows Unicode in <a class="link" href="manual/tokens.htm#Character_literals">char literals</a>, <a class="link" href="manual/tokens.htm#String_literals">string literals</a>, <a class="link" href="manual/tokens.htm#Comments">block comments</a>
 and <a class="link" href="manual/tokens.htm#Line_comments">line comments</a>. Interpreter and <a class="link" href="scrshots/s7c.htm">compiler</a> assume that a Seed7 program is written
@@ -1405,7 +1405,7 @@ a global variable and when the function is called with the same variable as
 actual parameter for all three parameters.
 </p><p>
 When a programmer has to deal with such corner cases it is necessary
-to explicitely use <tt><span class="keywd">val</span></tt> or <tt><span class="keywd">ref</span></tt>.
+to explicitly use <tt><span class="keywd">val</span></tt> or <tt><span class="keywd">ref</span></tt>.
 </p></div>
 
 <div><br /><a name="call_by_name"><h3>What is call-by-name?
@@ -2015,7 +2015,7 @@ files to an executable. Config values like RSHIFT_DOES_SIGN_EXTEND,
 TWOS_COMPLEMENT_INTTYPE and LITTLE_ENDIAN_INTTYPE are used to control the kind
 of C code produced by the <a class="link" href="scrshots/s7c.htm">Seed7 compiler</a>. The function <tt>'configValue'</tt> can also
 obtain config values that do not come from <tt><span class="stri">"version.h"</span></tt>, but are defined in
-<tt><span class="stri">"seed7/src/common.h"</span></tt>. E.g.:
+<tt><span class="stri">"seed7/src/config.h"</span></tt>. E.g.:
 </p><pre class="indent">
 #define WITH_STRI_CAPACITY
 #define ALLOW_STRITYPE_SLICES
