@@ -1,3 +1,38 @@
+20120101:
+- The type 'pollData' was moved from "socket.s7i" to "poll.s7i".
+  The functions supported by 'pollData' are 'clear', 'addCheck',
+  'removeCheck', 'getCheck', 'poll', 'getFinding', 'hasNext',
+  'iterChecks', 'iterFindings', 'nextFile' and 'for'.
+- The type 'inetListener' was moved from "socket.s7i" to
+  "listener.s7i". The functions supported by 'inetListener' are
+  'openInetListener', 'close', 'signOff', 'listen', 'accept' and
+  'waitForRequest'.
+- The type 'socketAddress' was moved from "socket.s7i" to
+  "sockbase.s7i". The functions supported by 'socketAddress' are
+  'numericAddress', 'inetSocketAddress', 'inetListenerAddress' and
+  'getHostname'.
+- The file "pol_dos.c" was added (thanks to "Rugxulo" for pointing
+  out, that it was missing).
+- Support for the actions POL_ADD_READ_CHECK POL_ADD_WRITE_CHECK,
+  POL_FILES, POL_HAS_NEXT_READ_FILE, POL_HAS_NEXT_WRITE_FILE,
+  POL_NEXT_READ_FILE, POL_NEXT_WRITE_FILE, POL_READY_FOR_READ,
+  POL_READY_FOR_WRITE, POL_REMOVE_READ_CHECK,
+  POL_REMOVE_WRITE_CHECK and SOC_SELECT_INPUT was removed from
+  interpreter and compiler.
+- Support for the actions POL_ADD_CHECK, POL_GET_CHECK,
+  POL_GET_FINDING, POL_HAS_NEXT, POL_ITER_CHECKS, POL_ITER_FINDINGS,
+  POL_NEXT_FILE, POL_REMOVE_CHECK and SOC_GET_ADDR was added to
+  interpreter and compiler.
+- The files "pollib.c", "pollib.h", "pol_dos.c", "pol_sel.c",
+  "pol_unx.c", "pol_drv.h", "soclib.c", "soclib.h", "soc_rtl.c" and
+  "soc_dos.c" were added or improved.
+- The "ftpserv.sd7" example was improved to take the IP address for
+  the "PASV" response from the control socket.
+- The console driver "con_win.c" was improved, such that keypressed
+  recognizes control-C as normal keyboard input.
+- The function 'socGets' was improved to avoid realloc(), when
+  the string read is shorter than requested.
+
 20111218:
 - The type 'pollData' and the functions 'clear', 'addReadCheck',
   'addWriteCheck', 'removeReadCheck', 'removeWriteCheck', 'poll',

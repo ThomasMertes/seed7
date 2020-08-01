@@ -1,0 +1,151 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  sockbase.s7i  Support for socket address and primitive socket   *)
+(*  Copyright (C) 2007 - 2009, 2011  Thomas Mertes                  *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+(**
+ *  Abstract data type to store socket addresses.
+ *)
+const type: socketAddress is newtype;
+
+
+IN_PARAM_IS_REFERENCE(socketAddress);
+
+const proc: destroy (ref socketAddress param)                               is action "BST_DESTR";
+const proc: (ref socketAddress param) ::= (ref socketAddress param)         is action "BST_CREATE";
+const proc: (inout socketAddress param) := (ref socketAddress param)        is action "BST_CPY";
+
+const func socketAddress: _GENERATE_EMPTY_SOCKET_ADDRESS                    is action "BST_EMPTY";
+const socketAddress: (attr socketAddress) . value                           is _GENERATE_EMPTY_SOCKET_ADDRESS;
+
+const func boolean: (ref socketAddress param) = (ref socketAddress param)   is action "BST_EQ";
+const func boolean: (ref socketAddress param) <> (ref socketAddress param)  is action "BST_NE";
+
+const func integer: addrFamily (in socketAddress param)                     is action "SOC_ADDR_FAMILY";
+
+
+(**
+ *  Get the numeric (IP) address of the host at ''sockAddr''.
+ *  IPv4 addresses return the socketAddress in dot notation (e.g.:
+ *  "192.0.2.235") and IPv6 addresses return the socketAddress in
+ *  colon notation (e.g.: "fe80:0:0:0:202:b3ff:fe1e:8329").
+ *  @return the IP address of the specified host.
+ *)
+const func string: numericAddress (in socketAddress: sockAddr)              is action "SOC_ADDR_NUMERIC";
+
+
+const func string: service (in socketAddress param)                         is action "SOC_ADDR_SERVICE";
+
+
+(**
+ *  Create an internet socket address of a port at a host.
+ *  The ''hostName'' is either a host name (e.g.: "www.example.org"),
+ *  or an IPv4 address in standard dot notation (e.g.: "192.0.2.235").
+ *  Operating systems supporting IPv6 may also accept an IPv6 address
+ *  in colon notation.
+ *  @return the internet socket address or socketAddress.value when
+ *          the host cannot be found.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR Not enough memory to convert ''hostName''.
+ *             to the system representation or not enough memory to
+ *             represent the result.
+ *)
+const func socketAddress: inetSocketAddress (in string: hostName,
+                                             in integer: port)              is action "SOC_INET_ADDR";
+
+
+(**
+ *  Create an internet socket address of a port at localhost.
+ *  @return the internet socket address.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func socketAddress: inetSocketAddress (in integer: port)              is action "SOC_INET_LOCAL_ADDR";
+
+
+(**
+ *  Create an internet listener socket address of a port at localhost.
+ *  @return the internet listener socket address.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func socketAddress: inetListenerAddress (in integer: port)            is action "SOC_INET_SERV_ADDR";
+
+
+(**
+ *  Determine the hostname.
+ *  @return the hostname.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
+const func string: getHostname                                              is action "SOC_GET_HOSTNAME";
+
+
+const type: PRIMITIVE_SOCKET is newtype;
+IN_PARAM_IS_VALUE(PRIMITIVE_SOCKET);
+
+const proc: destroy (ref PRIMITIVE_SOCKET param)                            is noop;
+const proc: (ref PRIMITIVE_SOCKET param) ::= (ref PRIMITIVE_SOCKET param)   is action "SOC_CREATE";
+const proc: (inout PRIMITIVE_SOCKET param) := (ref PRIMITIVE_SOCKET param)  is action "SOC_CPY";
+
+const func boolean: (in PRIMITIVE_SOCKET param) = (in PRIMITIVE_SOCKET param)  is action "SOC_EQ";
+const func boolean: (in PRIMITIVE_SOCKET param) <> (in PRIMITIVE_SOCKET param) is action "SOC_NE";
+
+const func PRIMITIVE_SOCKET: _GENERATE_EMPTY_PRIMITIVE_SOCKET               is action "SOC_EMPTY";
+const PRIMITIVE_SOCKET: (attr PRIMITIVE_SOCKET) . value                     is _GENERATE_EMPTY_PRIMITIVE_SOCKET;
+const PRIMITIVE_SOCKET: PRIMITIVE_NULL_SOCKET                               is PRIMITIVE_SOCKET.value;
+
+const proc: close (in PRIMITIVE_SOCKET param)                               is action "SOC_CLOSE";
+const func socketAddress: address (in PRIMITIVE_SOCKET param)               is action "SOC_GET_ADDR";
+const func char: getc (in PRIMITIVE_SOCKET param, inout char param)         is action "SOC_GETC";
+const func string: gets (in PRIMITIVE_SOCKET param, in integer param,
+                         inout char param)                                  is action "SOC_GETS";
+const func boolean: hasNext (in PRIMITIVE_SOCKET param)                     is action "SOC_HAS_NEXT";
+const func string: word_read (in PRIMITIVE_SOCKET param, inout char param)  is action "SOC_WORD_READ";
+const func string: line_read (in PRIMITIVE_SOCKET param, inout char param)  is action "SOC_LINE_READ";
+const proc: write (in PRIMITIVE_SOCKET param, in string param)              is action "SOC_WRITE";
+const func integer: recv (in PRIMITIVE_SOCKET param, inout string param,
+                          in integer param, in integer param)               is action "SOC_RECV";
+const func integer: recvfrom (in PRIMITIVE_SOCKET param, inout string param,
+                          in integer param, in integer param,
+                          inout socketAddress param)                        is action "SOC_RECVFROM";
+const func integer: send (in PRIMITIVE_SOCKET param, in string param,
+                          in integer param)                                 is action "SOC_SEND";
+const func integer: sendto (in PRIMITIVE_SOCKET param, in string param,
+                          in integer param, in socketAddress param)         is action "SOC_SENDTO";
+
+const func PRIMITIVE_SOCKET: PRIMITIVE_SOCKET (in integer param,
+                                               in integer param,
+                                               in integer param)            is action "SOC_SOCKET";
+const func PRIMITIVE_SOCKET: accept (in PRIMITIVE_SOCKET param,
+                                     inout socketAddress param)             is action "SOC_ACCEPT";
+const proc: bind (in PRIMITIVE_SOCKET param, in socketAddress param)        is action "SOC_BIND";
+const proc: connect (in PRIMITIVE_SOCKET param, in socketAddress param)     is action "SOC_CONNECT";
+const proc: listen (in PRIMITIVE_SOCKET param, in integer param)            is action "SOC_LISTEN";
+const func boolean: inputReady (in PRIMITIVE_SOCKET param,
+                                in integer param, in integer param)         is action "SOC_INPUT_READY";

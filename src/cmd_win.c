@@ -492,8 +492,8 @@ filetype *childStdout;
   /* cmdPipe2 */
     os_command_stri = cp_to_os_path(command, &err_info);
     command_line = prepareCommandLine(os_command_stri, parameters, &err_info);
-	printf("cmdPipe2(%ls, %ls, %d, %d)\n", os_command_stri,
-	    command_line, fileno(*childStdin), fileno(*childStdout));
+    /* printf("cmdPipe2(%ls, %ls, %d, %d)\n", os_command_stri,
+       command_line, fileno(*childStdin), fileno(*childStdout)); */
     memset(&startupInfo, 0, sizeof(startupInfo));
     /* memset(&processInformation, 0, sizeof(processInformation)); */
     startupInfo.cb = sizeof(startupInfo);

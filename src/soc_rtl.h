@@ -52,7 +52,6 @@ void socListen (sockettype sock, inttype backlog);
 inttype socRecv (sockettype sock, stritype *stri, inttype length, inttype flags);
 inttype socRecvfrom (sockettype sock, stritype *stri, inttype length, inttype flags,
     bstritype *address);
-settype socSelectInput (const const_rtlArraytype sockArray);
 inttype socSend (sockettype sock, const const_stritype stri, inttype flags);
 inttype socSendto (sockettype sock, const const_stritype stri, inttype flags,
     const_bstritype address);
@@ -82,7 +81,6 @@ stritype socLineRead ();
 void socListen ();
 inttype socRecv ();
 inttype socRecvfrom ();
-settype socSelectInput ();
 inttype socSend ();
 inttype socSendto ();
 sockettype socSocket ();

@@ -27,44 +27,38 @@
 
 #ifdef ANSI_C
 
-objecttype pol_addReadCheck     (listtype arguments);
-objecttype pol_addWriteCheck    (listtype arguments);
-objecttype pol_clear            (listtype arguments);
-objecttype pol_cpy              (listtype arguments);
-objecttype pol_create           (listtype arguments);
-objecttype pol_destr            (listtype arguments);
-objecttype pol_empty            (listtype arguments);
-objecttype pol_files            (listtype arguments);
-objecttype pol_hasNextReadFile  (listtype arguments);
-objecttype pol_hasNextWriteFile (listtype arguments);
-objecttype pol_nextReadFile     (listtype arguments);
-objecttype pol_nextWriteFile    (listtype arguments);
-objecttype pol_poll             (listtype arguments);
-objecttype pol_readyForRead     (listtype arguments);
-objecttype pol_readyForWrite    (listtype arguments);
-objecttype pol_removeReadCheck  (listtype arguments);
-objecttype pol_removeWriteCheck (listtype arguments);
-objecttype pol_value            (listtype arguments);
+objecttype pol_addCheck     (listtype arguments);
+objecttype pol_clear        (listtype arguments);
+objecttype pol_cpy          (listtype arguments);
+objecttype pol_create       (listtype arguments);
+objecttype pol_destr        (listtype arguments);
+objecttype pol_empty        (listtype arguments);
+objecttype pol_getCheck     (listtype arguments);
+objecttype pol_getFinding   (listtype arguments);
+objecttype pol_hasNext      (listtype arguments);
+objecttype pol_iterChecks   (listtype arguments);
+objecttype pol_iterFindings (listtype arguments);
+objecttype pol_nextFile     (listtype arguments);
+objecttype pol_poll         (listtype arguments);
+objecttype pol_removeCheck  (listtype arguments);
+objecttype pol_value        (listtype arguments);
 
 #else
 
-objecttype pol_addReadCheck ();
-objecttype pol_addWriteCheck ();
+objecttype pol_addCheck ();
 objecttype pol_clear ();
 objecttype pol_cpy ();
 objecttype pol_create ();
 objecttype pol_destr ();
 objecttype pol_empty ();
-objecttype pol_files ();
-objecttype pol_hasNextReadFile ();
-objecttype pol_hasNextWriteFile ();
-objecttype pol_nextReadFile ();
-objecttype pol_nextWriteFile ();
+objecttype pol_getCheck ();
+objecttype pol_getFinding ();
+objecttype pol_hasNext ();
+objecttype pol_iterChecks ();
+objecttype pol_iterFindings ();
+objecttype pol_nextFile ();
 objecttype pol_poll ();
-objecttype pol_readyForRead ();
-objecttype pol_readyForWrite ();
-objecttype pol_removeReadCheck ();
-objecttype pol_removeWriteCheck ();
+objecttype pol_removeCheck ();
 objecttype pol_value ();
 
 #endif

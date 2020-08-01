@@ -29,7 +29,7 @@
 include "bigint.s7i";
 include "float.s7i";
 include "external_file.s7i";
-include "socket.s7i";
+include "poll.s7i";
 
 
 const type: program is subtype object;

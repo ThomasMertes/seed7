@@ -43,43 +43,24 @@
 
 #ifdef ANSI_C
 
-objecttype pol_addReadCheck (listtype arguments)
+objecttype pol_addCheck (listtype arguments)
 #else
 
-objecttype pol_addReadCheck (arguments)
+objecttype pol_addCheck (arguments)
 listtype arguments;
 #endif
 
-  { /* pol_addReadCheck */
+  { /* pol_addCheck */
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
-    isit_interface(arg_3(arguments));
-    polAddReadCheck(take_poll(arg_1(arguments)),
-                    take_socket(arg_2(arguments)),
-                    (rtlGenerictype) take_interface(arg_3(arguments)));
+    isit_int(arg_3(arguments));
+    isit_interface(arg_4(arguments));
+    polAddCheck(take_poll(arg_1(arguments)),
+                take_socket(arg_2(arguments)),
+                take_int(arg_3(arguments)),
+                (rtlGenerictype) take_interface(arg_4(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* pol_addReadCheck */
-
-
-
-#ifdef ANSI_C
-
-objecttype pol_addWriteCheck (listtype arguments)
-#else
-
-objecttype pol_addWriteCheck (arguments)
-listtype arguments;
-#endif
-
-  { /* pol_addWriteCheck */
-    isit_poll(arg_1(arguments));
-    isit_socket(arg_2(arguments));
-    isit_interface(arg_3(arguments));
-    polAddWriteCheck(take_poll(arg_1(arguments)),
-                     take_socket(arg_2(arguments)),
-                     (rtlGenerictype) take_interface(arg_3(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* pol_addWriteCheck */
+  } /* pol_addCheck */
 
 
 
@@ -195,124 +176,124 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype pol_files (listtype arguments)
+objecttype pol_getCheck (listtype arguments)
 #else
 
-objecttype pol_files (arguments)
+objecttype pol_getCheck (arguments)
 listtype arguments;
 #endif
 
   {
-    rtlArraytype fileArray;
-    memsizetype arraySize;
-    arraytype resultFileArray;
-    memsizetype pos;
+    inttype result;
 
-  /* pol_files */
+  /* pol_getCheck */
     isit_poll(arg_1(arguments));
-    fileArray = polFiles(take_poll(arg_1(arguments)));
-    if (fileArray == NULL) {
-      return raise_exception(SYS_MEM_EXCEPTION);
-    } else {
-      arraySize = (uinttype) (fileArray->max_position - fileArray->min_position + 1);
-      if (!ALLOC_ARRAY(resultFileArray, arraySize)) {
-        return raise_exception(SYS_MEM_EXCEPTION);
-      } else {
-        resultFileArray->min_position = fileArray->min_position;
-        resultFileArray->max_position = fileArray->max_position;
-        for (pos = 0; pos < arraySize; pos++) {
-          resultFileArray->arr[pos].value.objvalue = bld_interface_temp(
-	      (objecttype) fileArray->arr[pos].value.genericvalue);
-          /* printf("pol_file[%u]: %08lx ", pos, resultFileArray->arr[pos].value.objvalue);
-             trace1(resultFileArray->arr[pos].value.objvalue);
-             printf("\n"); */
-        } /* for */
-      } /* if */
-    } /* if */
-    return bld_array_temp(resultFileArray);
-  } /* pol_files */
+    isit_socket(arg_2(arguments));
+    result = polGetCheck(take_poll(arg_1(arguments)),
+                          take_socket(arg_2(arguments)));
+    return bld_int_temp(result);
+  } /* pol_getCheck */
 
 
 
 #ifdef ANSI_C
 
-objecttype pol_hasNextReadFile (listtype arguments)
+objecttype pol_getFinding (listtype arguments)
 #else
 
-objecttype pol_hasNextReadFile (arguments)
+objecttype pol_getFinding (arguments)
 listtype arguments;
 #endif
 
   {
-    objecttype result;
+    inttype result;
 
-  /* pol_hasNextReadFile */
+  /* pol_getFinding */
     isit_poll(arg_1(arguments));
-    if (polHasNextReadFile(take_poll(arg_1(arguments)))) {
-      result = SYS_TRUE_OBJECT;
-    } else {
-      result = SYS_FALSE_OBJECT;
-    } /* if */
-    return result;
-  } /* pol_hasNextReadFile */
+    isit_socket(arg_2(arguments));
+    result = polGetFinding(take_poll(arg_1(arguments)),
+                           take_socket(arg_2(arguments)));
+    return bld_int_temp(result);
+  } /* pol_getFinding */
 
 
 
 #ifdef ANSI_C
 
-objecttype pol_hasNextWriteFile (listtype arguments)
+objecttype pol_hasNext (listtype arguments)
 #else
 
-objecttype pol_hasNextWriteFile (arguments)
+objecttype pol_hasNext (arguments)
 listtype arguments;
 #endif
 
   {
     objecttype result;
 
-  /* pol_hasNextWriteFile */
+  /* pol_hasNext */
     isit_poll(arg_1(arguments));
-    if (polHasNextWriteFile(take_poll(arg_1(arguments)))) {
+    if (polHasNext(take_poll(arg_1(arguments)))) {
       result = SYS_TRUE_OBJECT;
     } else {
       result = SYS_FALSE_OBJECT;
     } /* if */
     return result;
-  } /* pol_hasNextWriteFile */
+  } /* pol_hasNext */
 
 
 
 #ifdef ANSI_C
 
-objecttype pol_nextReadFile (listtype arguments)
+objecttype pol_iterChecks (listtype arguments)
 #else
 
-objecttype pol_nextReadFile (arguments)
+objecttype pol_iterChecks (arguments)
 listtype arguments;
 #endif
 
-  { /* pol_nextReadFile */
+  { /* pol_iterChecks */
     isit_poll(arg_1(arguments));
-    return (objecttype) polNextReadFile(take_poll(arg_1(arguments)),
-                                        (rtlGenerictype) arg_2(arguments));
-  } /* pol_nextReadFile */
+    isit_int(arg_2(arguments));
+    polIterChecks(take_poll(arg_1(arguments)),
+                  take_int(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* pol_iterChecks */
 
 
 
 #ifdef ANSI_C
 
-objecttype pol_nextWriteFile (listtype arguments)
+objecttype pol_iterFindings (listtype arguments)
 #else
 
-objecttype pol_nextWriteFile (arguments)
+objecttype pol_iterFindings (arguments)
 listtype arguments;
 #endif
 
-  { /* pol_nextWriteFile */
+  { /* pol_iterFindings */
     isit_poll(arg_1(arguments));
-    return (objecttype) polNextWriteFile(take_poll(arg_1(arguments)),
-                                         (rtlGenerictype) arg_2(arguments));
-  } /* pol_nextWriteFile */
+    isit_int(arg_2(arguments));
+    polIterFindings(take_poll(arg_1(arguments)),
+                    take_int(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* pol_iterFindings */
+
+
+
+#ifdef ANSI_C
+
+objecttype pol_nextFile (listtype arguments)
+#else
+
+objecttype pol_nextFile (arguments)
+listtype arguments;
+#endif
+
+  { /* pol_nextFile */
+    isit_poll(arg_1(arguments));
+    return (objecttype) polNextFile(take_poll(arg_1(arguments)),
+                                    (rtlGenerictype) arg_2(arguments));
+  } /* pol_nextFile */
 
 
 
@@ -335,91 +316,22 @@ listtype arguments;
 
 #ifdef ANSI_C
 
-objecttype pol_readyForRead (listtype arguments)
+objecttype pol_removeCheck (listtype arguments)
 #else
 
-objecttype pol_readyForRead (arguments)
+objecttype pol_removeCheck (arguments)
 listtype arguments;
 #endif
 
-  {
-    objecttype result;
-
-  /* pol_readyForRead */
+  { /* pol_removeCheck */
     isit_poll(arg_1(arguments));
     isit_socket(arg_2(arguments));
-    if (polReadyForRead(take_poll(arg_1(arguments)),
-                        take_socket(arg_2(arguments)))) {
-      result = SYS_TRUE_OBJECT;
-    } else {
-      result = SYS_FALSE_OBJECT;
-    } /* if */
-    return result;
-  } /* pol_readyForRead */
-
-
-
-#ifdef ANSI_C
-
-objecttype pol_readyForWrite (listtype arguments)
-#else
-
-objecttype pol_readyForWrite (arguments)
-listtype arguments;
-#endif
-
-  {
-    objecttype result;
-
-  /* pol_readyForWrite */
-    isit_poll(arg_1(arguments));
-    isit_socket(arg_2(arguments));
-    if (polReadyForWrite(take_poll(arg_1(arguments)),
-                         take_socket(arg_2(arguments)))) {
-      result = SYS_TRUE_OBJECT;
-    } else {
-      result = SYS_FALSE_OBJECT;
-    } /* if */
-    return result;
-  } /* pol_readyForWrite */
-
-
-
-#ifdef ANSI_C
-
-objecttype pol_removeReadCheck (listtype arguments)
-#else
-
-objecttype pol_removeReadCheck (arguments)
-listtype arguments;
-#endif
-
-  { /* pol_removeReadCheck */
-    isit_poll(arg_1(arguments));
-    isit_socket(arg_2(arguments));
-    polRemoveReadCheck(take_poll(arg_1(arguments)),
-                       take_socket(arg_2(arguments)));
+    isit_int(arg_3(arguments));
+    polRemoveCheck(take_poll(arg_1(arguments)),
+                   take_socket(arg_2(arguments)),
+                   take_int(arg_3(arguments)));
     return SYS_EMPTY_OBJECT;
-  } /* pol_removeReadCheck */
-
-
-
-#ifdef ANSI_C
-
-objecttype pol_removeWriteCheck (listtype arguments)
-#else
-
-objecttype pol_removeWriteCheck (arguments)
-listtype arguments;
-#endif
-
-  { /* pol_removeWriteCheck */
-    isit_poll(arg_1(arguments));
-    isit_socket(arg_2(arguments));
-    polRemoveWriteCheck(take_poll(arg_1(arguments)),
-                        take_socket(arg_2(arguments)));
-    return SYS_EMPTY_OBJECT;
-  } /* pol_removeWriteCheck */
+  } /* pol_removeCheck */
 
 
 

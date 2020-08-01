@@ -24,11 +24,11 @@
 
 $ include "seed7_05.s7i";
   include "socket.s7i";
+  include "listener.s7i";
   include "osfiles.s7i";
   include "time.s7i";
   include "getf.s7i";
 
-var string: ownIpAddress is "";
 var string: startDirectory is "";
 var integer: ftpControlPort is 2021;
 
@@ -36,6 +36,7 @@ const type: ftpServerConnection is new struct
     var file: control is STD_NULL;
     var file: data is STD_NULL;
     var string: currentDirectory is "";
+    var string: ownIpAddress is "";
   end struct;
 
 const type: ftpConnectionHash is hash [file] ftpServerConnection;
@@ -67,7 +68,7 @@ const func file: openActiveData (in string: parameter) is func
   end func;
 
 
-const func file: openPassiveData (inout file: control) is func
+const func file: openPassiveData (inout file: control, in string: ownIpAddress) is func
   result
     var file: data is STD_NULL;
   local
@@ -134,6 +135,7 @@ const proc: openFtpSession (inout file: control) is func
   begin
     ftp.control := control;
     ftp.currentDirectory := startDirectory;
+    ftp.ownIpAddress := numericAddress(address(control));
     ftpSessions @:= [ftp.control] ftp;
     ftpResponse(ftp.control, "220 Welcome to ftpserv");
   end func;
@@ -157,7 +159,7 @@ const proc: processFtpRequest (inout ftpServerConnection: ftp, in string: reques
     elsif startsWith(request, "SYST") then
       ftpResponse(ftp.control, "215 UNIX Type: L8");
     elsif startsWith(request, "PASV") then
-      ftp.data := openPassiveData(ftp.control);
+      ftp.data := openPassiveData(ftp.control, ftp.ownIpAddress);
     elsif startsWith(request, "PORT ") then
       ftp.data := openActiveData(request[6 ..]);
       if ftp.data <> STD_NULL then
@@ -348,7 +350,6 @@ const proc: main is func
     else
       writeln("FTP directory: " <& startDirectory);
       writeln("Port: " <& ftpControlPort);
-      ownIpAddress := numericAddress(inetSocketAddress(getHostname, 1024));
       aListener := openInetListener(ftpControlPort);
       listen(aListener, 10);
       writeln("To test ftpserv you can call the ftp7 FTP client with:");

@@ -357,21 +357,6 @@ bstritype *address;
 
 #ifdef ANSI_C
 
-settype socSelectInput (const const_rtlArraytype sockArray)
-#else
-
-settype socSelectInput (sockArray)
-rtlArraytype sockArray;
-#endif
-
-  { /* socSelectInput */
-    return NULL;
-  } /* socSelectInput */
-
-
-
-#ifdef ANSI_C
-
 inttype socSend (sockettype sock, const const_stritype stri, inttype flags)
 #else
 

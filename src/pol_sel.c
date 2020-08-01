@@ -55,13 +55,13 @@
 
 #ifdef USE_WINSOCK
 #define DYNAMIC_FD_SET
-#define CHECK_FD_SETSIZE
+#define VERIFY_FD_SETSIZE
 #define SIZEOF_FD_SET(size) \
     (sizeof(fd_set) - FD_SETSIZE * sizeof(SOCKET) + (size) * sizeof(SOCKET))
 #define USED_FD_SET_SIZE(fdset) SIZEOF_FD_SET((fdset)->fd_count)
 #else
 #define SELECT_WITH_NFDS
-#define CHECK_MAXIMUM_FD_NUMBER
+#define VERIFY_MAXIMUM_FD_NUMBER
 #define SIZEOF_FD_SET(size) sizeof(fd_set)
 #define USED_FD_SET_SIZE(fdset) sizeof(fd_set)
 #endif
@@ -69,6 +69,12 @@
 #define USE_PREPARED_FD_SET
 #define MEMCPY_FD_SET
 
+
+typedef enum {
+    ITER_EMPTY,
+    ITER_CHECKS_IN, ITER_CHECKS_OUT, ITER_CHECKS_INOUT,
+    ITER_FINDINGS_IN, ITER_FINDINGS_OUT, ITER_FINDINGS_INOUT
+  } iteratorType;
 
 typedef struct {
     sockettype fd;
@@ -92,14 +98,16 @@ typedef struct {
 #endif
     memsizetype size;
     memsizetype capacity;
-    memsizetype pos;
+    memsizetype iterPos;
     fdAndFileType *files;
     rtlHashtype indexHash;
-  } checkType;
+  } testType;
 
 typedef struct select_based_pollstruct {
-    checkType readCheck;
-    checkType writeCheck;
+    testType readTest;
+    testType writeTest;
+    iteratorType iteratorMode;
+    memsizetype iterEvents;
     memsizetype numOfEvents;
   } select_based_pollrecord, *select_based_polltype;
 
@@ -108,10 +116,12 @@ typedef struct select_based_pollstruct {
 
 #ifdef DYNAMIC_FD_SET
 
-#define to_read_inFdset(data)    (((select_based_polltype) data)->readCheck.inFdset)
-#define to_write_inFdset(data)   (((select_based_polltype) data)->writeCheck.inFdset)
-#define to_read_outFdset(data)   (((select_based_polltype) data)->readCheck.outFdset)
-#define to_write_outFdset(data)  (((select_based_polltype) data)->writeCheck.outFdset)
+#define to_inFdset(test)         ((test)->inFdset)
+#define to_outFdset(test)        ((test)->outFdset)
+#define to_read_inFdset(data)    (((select_based_polltype) data)->readTest.inFdset)
+#define to_write_inFdset(data)   (((select_based_polltype) data)->writeTest.inFdset)
+#define to_read_outFdset(data)   (((select_based_polltype) data)->readTest.outFdset)
+#define to_write_outFdset(data)  (((select_based_polltype) data)->writeTest.outFdset)
 
 #define ALLOC_FDSET(var,nr)      (ALLOC_HEAP(var,fd_set *,SIZEOF_FD_SET(nr))?CNT1_BYT(SIZEOF_FD_SET(nr)),TRUE:FALSE)
 #define FREE_FDSET(var,nr)       (CNT2_BYT(SIZEOF_FD_SET(nr)) FREE_HEAP(var, SIZEOF_FD_SET(nr)))
@@ -120,10 +130,12 @@ typedef struct select_based_pollstruct {
 
 #else
 
-#define to_read_inFdset(data)    (&((select_based_polltype) data)->readCheck.inFdset)
-#define to_write_inFdset(data)   (&((select_based_polltype) data)->writeCheck.inFdset)
-#define to_read_outFdset(data)   (&((select_based_polltype) data)->readCheck.outFdset)
-#define to_write_outFdset(data)  (&((select_based_polltype) data)->writeCheck.outFdset)
+#define to_inFdset(test)         (&(test)->inFdset)
+#define to_outFdset(test)        (&(test)->outFdset)
+#define to_read_inFdset(data)    (&((select_based_polltype) data)->readTest.inFdset)
+#define to_write_inFdset(data)   (&((select_based_polltype) data)->writeTest.inFdset)
+#define to_read_outFdset(data)   (&((select_based_polltype) data)->readTest.outFdset)
+#define to_write_outFdset(data)  (&((select_based_polltype) data)->writeTest.outFdset)
 
 #endif
 
@@ -132,24 +144,28 @@ typedef struct select_based_pollstruct {
 #define TABLE_INCREMENT  1024
 
 
+
+#ifdef OUT_OF_ORDER
 static void dumpPoll (const const_polltype pollData)
     {
       memsizetype pos;
 /*
-      printf("readSize=%d\n", conv(pollData)->readCheck.size);
-      printf("readCapacity=%d\n", conv(pollData)->readCheck.capacity);
-      printf("readPos=%d\n", conv(pollData)->readCheck.pos);
-      printf("writeSize=%d\n", conv(pollData)->writeCheck.size);
-      printf("writeCapacity=%d\n", conv(pollData)->writeCheck.capacity);
-      printf("writePos=%d\n", conv(pollData)->writeCheck.pos);
+      printf("readSize=%d\n", conv(pollData)->readTest.size);
+      printf("readCapacity=%d\n", conv(pollData)->readTest.capacity);
+      printf("readPos=%d\n", conv(pollData)->readTest.pos);
+      printf("writeSize=%d\n", conv(pollData)->writeTest.size);
+      printf("writeCapacity=%d\n", conv(pollData)->writeTest.capacity);
+      printf("writePos=%d\n", conv(pollData)->writeTest.pos);
+      printf("iteratorMode=%d\n", conv(pollData)->iteratorMode);
+      printf("iterEvents=%d\n", conv(pollData)->iterEvents);
       printf("numOfEvents=%d\n", conv(pollData)->numOfEvents);
       */
 #ifdef USE_PREPARED_FD_SET
-      //if (conv(pollData)->readCheck.size <= 5) {
+      //if (conv(pollData)->readTest.size <= 5) {
       printf("readFds:");
-      for (pos = 0; pos < conv(pollData)->readCheck.size; pos++) {
-        printf(" %d", conv(pollData)->readCheck.files[pos].fd);
-        if (!FD_ISSET(conv(pollData)->readCheck.files[pos].fd, to_read_inFdset(pollData))) {
+      for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
+        printf(" %d", conv(pollData)->readTest.files[pos].fd);
+        if (!FD_ISSET(conv(pollData)->readTest.files[pos].fd, to_read_inFdset(pollData))) {
           printf("*");
         }
       }
@@ -157,15 +173,16 @@ static void dumpPoll (const const_polltype pollData)
       //}
       /*
       printf("writeFds:");
-      for (pos = 0; pos < conv(pollData)->writeCheck.size; pos++) {
-        printf(" %d", conv(pollData)->writeCheck.files[pos].fd);
-        if (!FD_ISSET(conv(pollData)->writeCheck.files[pos].fd, to_write_inFdset(pollData))) {
+      for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
+        printf(" %d", conv(pollData)->writeTest.files[pos].fd);
+        if (!FD_ISSET(conv(pollData)->writeTest.files[pos].fd, to_write_inFdset(pollData))) {
           printf("*");
         }
       }
       */
 #endif
     }
+#endif
 
 
 
@@ -175,13 +192,13 @@ static void dumpPoll (const const_polltype pollData)
 
 #ifdef ANSI_C
 
-static void copyFdSet (fd_set *dest, fd_set *source, checkType *check)
+static void copyFdSet (fd_set *dest, fd_set *source, testType *test)
 #else
 
-static void copyFdSet (dest, source, check)
+static void copyFdSet (dest, source, test)
 fd_set *dest;
 fd_set *source;
-checkType *check;
+testType *test;
 #endif
 
   {
@@ -189,9 +206,9 @@ checkType *check;
 
   /* copyFdSet */
     FD_ZERO(dest);
-    for (pos = 0; pos < check->size; pos++) {
-      if (FD_ISSET(check->files[pos].fd, source)) {
-        FD_SET(check->files[pos].fd, dest);
+    for (pos = 0; pos < test->size; pos++) {
+      if (FD_ISSET(test->files[pos].fd, source)) {
+        FD_SET(test->files[pos].fd, dest);
       } /* if */
     } /* for */
   } /* copyFdSet */
@@ -200,16 +217,16 @@ checkType *check;
 
 
 #ifndef DYNAMIC_FD_SET
-#define allocFdSet(check, capacity) TRUE
+#define allocFdSet(test, capacity) TRUE
 #else
 
 #ifdef ANSI_C
 
-static booltype allocFdSet (checkType *check, memsizetype capacity)
+static booltype allocFdSet (testType *test, memsizetype capacity)
 #else
 
-static booltype allocFdSet (check, capacity)
-checkType *check;
+static booltype allocFdSet (test, capacity)
+testType *test;
 memsizetype capacity;
 #endif
 
@@ -218,16 +235,16 @@ memsizetype capacity;
 
   /* allocFdSet */
 #ifdef USE_PREPARED_FD_SET
-    if (unlikely(!ALLOC_FDSET(check->inFdset, capacity))) {
+    if (unlikely(!ALLOC_FDSET(test->inFdset, capacity))) {
       result = FALSE;
-      check->outFdset = NULL;
-    } else if (unlikely(!ALLOC_FDSET(check->outFdset, capacity))) {
+      test->outFdset = NULL;
+    } else if (unlikely(!ALLOC_FDSET(test->outFdset, capacity))) {
       result = FALSE;
-      FREE_FDSET(check->inFdset, capacity);
-      check->inFdset = NULL;
+      FREE_FDSET(test->inFdset, capacity);
+      test->inFdset = NULL;
     } /* if */
 #else
-    if (unlikely(!ALLOC_FDSET(check->outFdset, capacity))) {
+    if (unlikely(!ALLOC_FDSET(test->outFdset, capacity))) {
       result = FALSE;
     } /* if */
 #endif
@@ -238,25 +255,25 @@ memsizetype capacity;
 
 
 #ifndef DYNAMIC_FD_SET
-#define freeFdSet(check, capacity) 0
+#define freeFdSet(test, capacity) 0
 #else
 
 #ifdef ANSI_C
 
-static void freeFdSet (checkType *check, memsizetype capacity)
+static void freeFdSet (testType *test, memsizetype capacity)
 #else
 
-static void freeFdSet (check, capacity)
-checkType *check;
+static void freeFdSet (test, capacity)
+testType *test;
 memsizetype capacity;
 #endif
 
   { /* freeFdSet */
-    if (check->outFdset != NULL) {
+    if (test->outFdset != NULL) {
 #ifdef USE_PREPARED_FD_SET
-      FREE_FDSET(check->inFdset, capacity);
+      FREE_FDSET(test->inFdset, capacity);
 #endif
-      FREE_FDSET(check->outFdset, capacity);
+      FREE_FDSET(test->outFdset, capacity);
     } /* if */
   } /* freeFdSet */
 #endif
@@ -269,11 +286,11 @@ memsizetype capacity;
 
 #ifdef ANSI_C
 
-static booltype reallocFdSet (checkType *check, memsizetype increment)
+static booltype reallocFdSet (testType *test, memsizetype increment)
 #else
 
-static booltype reallocFdSet (check, increment)
-checkType *check;
+static booltype reallocFdSet (test, increment)
+testType *test;
 memsizetype increment;
 #endif
 
@@ -283,22 +300,22 @@ memsizetype increment;
 
   /* reallocFdSet */
 #ifdef USE_PREPARED_FD_SET
-    if (unlikely((newFdset = REALLOC_FDSET(check->inFdset,
-        check->capacity + increment)) == NULL)) {
+    if (unlikely((newFdset = REALLOC_FDSET(test->inFdset,
+        test->capacity + increment)) == NULL)) {
       result = FALSE;
     } else {
-      COUNT3_FDSET(check->capacity,
-                   check->capacity + increment);
-      check->inFdset = newFdset;
+      COUNT3_FDSET(test->capacity,
+                   test->capacity + increment);
+      test->inFdset = newFdset;
     } /* if */
 #endif
-    if (unlikely((newFdset = REALLOC_FDSET(check->outFdset,
-        check->capacity + increment)) == NULL)) {
+    if (unlikely((newFdset = REALLOC_FDSET(test->outFdset,
+        test->capacity + increment)) == NULL)) {
       result = FALSE;
     } else {
-      COUNT3_FDSET(check->capacity,
-                   check->capacity + increment);
-      check->outFdset = newFdset;
+      COUNT3_FDSET(test->capacity,
+                   test->capacity + increment);
+      test->outFdset = newFdset;
     } /* if */
     return result;
   } /* reallocFdSet */
@@ -307,16 +324,16 @@ memsizetype increment;
 
 
 #ifndef DYNAMIC_FD_SET
-#define replaceFdSet(check, capacity) TRUE
+#define replaceFdSet(test, capacity) TRUE
 #else
 
 #ifdef ANSI_C
 
-static booltype replaceFdSet (checkType *check, memsizetype capacity)
+static booltype replaceFdSet (testType *test, memsizetype capacity)
 #else
 
-static booltype replaceFdSet (check, capacity)
-checkType *check;
+static booltype replaceFdSet (test, capacity)
+testType *test;
 memsizetype capacity;
 #endif
 
@@ -343,11 +360,11 @@ memsizetype capacity;
     } /* if */
     if (result) {
 #ifdef USE_PREPARED_FD_SET
-      FREE_FDSET(check->inFdset, capacity);
-      check->inFdset = newInFdset;
+      FREE_FDSET(test->inFdset, capacity);
+      test->inFdset = newInFdset;
 #endif
-      FREE_FDSET(check->outFdset, capacity);
-      check->outFdset = newOutFdset;
+      FREE_FDSET(test->outFdset, capacity);
+      test->outFdset = newOutFdset;
     } /* if */
     return result;
   } /* replaceFdSet */
@@ -357,12 +374,12 @@ memsizetype capacity;
 
 #ifdef ANSI_C
 
-void polAddReadCheck (polltype pollData, const sockettype aSocket,
+static void addCheck (testType *test, const sockettype aSocket,
     const rtlGenerictype fileObj)
 #else
 
-void polAddReadCheck (pollData, aSocket, fileObj)
-polltype pollData;
+static void addCheck (test, aSocket, fileObj)
+testType *test;
 sockettype aSocket;
 rtlGenerictype fileObj;
 #endif
@@ -370,116 +387,314 @@ rtlGenerictype fileObj;
   {
     memsizetype pos;
 
-  /* polAddReadCheck */
-    /* printf("polAddReadCheck(..., %u, 0x%lx)\n", aSocket, (unsigned long) fileObj); */
-#ifdef CHECK_MAXIMUM_FD_NUMBER
+  /* addCheck */
+    /* printf("addCheck(..., %u, 0x%lx)\n", aSocket, (unsigned long) fileObj); */
+#ifdef VERIFY_MAXIMUM_FD_NUMBER
     if (aSocket < 0 || aSocket >= FD_SETSIZE) {
       raise_error(FILE_ERROR);
       return;
     } /* if */
 #endif
-#ifdef CHECK_FD_SETSIZE
-    if (conv(pollData)->readCheck.size >= FD_SETSIZE) {
+#ifdef VERIFY_FD_SETSIZE
+    if (test->size >= FD_SETSIZE) {
       raise_error(FILE_ERROR);
       return;
     } /* if */
 #endif
-    pos = (memsizetype) hshIdxEnterDefault(conv(pollData)->readCheck.indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->readCheck.size,
+    pos = (memsizetype) hshIdxEnterDefault(test->indexHash,
+        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
         (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
         (createfunctype) &intCreateGeneric, (createfunctype) &intCreateGeneric);
-    if (pos == conv(pollData)->readCheck.size) {
-      if (conv(pollData)->readCheck.size >= conv(pollData)->readCheck.capacity) {
-        conv(pollData)->readCheck.files = REALLOC_TABLE(conv(pollData)->readCheck.files,
-            fdAndFileType, conv(pollData)->readCheck.capacity,
-            conv(pollData)->readCheck.capacity + TABLE_INCREMENT);
-        if (conv(pollData)->readCheck.files == NULL ||
-            !reallocFdSet(&conv(pollData)->readCheck, TABLE_INCREMENT)) {
+    if (pos == test->size) {
+      if (test->size >= test->capacity) {
+        test->files = REALLOC_TABLE(test->files,
+            fdAndFileType, test->capacity,
+            test->capacity + TABLE_INCREMENT);
+        if (test->files == NULL ||
+            !reallocFdSet(test, TABLE_INCREMENT)) {
           raise_error(MEMORY_ERROR);
           return;
         } else {
-          COUNT3_TABLE(fdAndFileType, conv(pollData)->readCheck.capacity,
-                       conv(pollData)->readCheck.capacity + TABLE_INCREMENT);
-          conv(pollData)->readCheck.capacity += TABLE_INCREMENT;
-          /* printf("increment table to %lu\n", conv(pollData)->readCheck.capacity); */
+          COUNT3_TABLE(fdAndFileType, test->capacity,
+                       test->capacity + TABLE_INCREMENT);
+          test->capacity += TABLE_INCREMENT;
+          /* printf("increment table to %lu\n", test->capacity); */
         } /* if */
       } /* if */
-      conv(pollData)->readCheck.size++;
-      conv(pollData)->readCheck.files[pos].fd = aSocket;
-      conv(pollData)->readCheck.files[pos].file = fileObj;
+      test->size++;
+      test->files[pos].fd = aSocket;
+      test->files[pos].file = fileObj;
 #ifdef USE_PREPARED_FD_SET
-      FD_SET(aSocket, to_read_inFdset(pollData));
+      FD_SET(aSocket, to_inFdset(test));
 #ifdef SELECT_WITH_NFDS
-      if (aSocket >= conv(pollData)->readCheck.preparedNfds) {
-        conv(pollData)->readCheck.preparedNfds = (int) aSocket + 1;
+      if (aSocket >= test->preparedNfds) {
+        test->preparedNfds = (int) aSocket + 1;
       } /* if */
 #endif
 #endif
     } /* if */
-  } /* polAddReadCheck */
+  } /* addCheck */
 
 
 
 #ifdef ANSI_C
 
-void polAddWriteCheck (polltype pollData, const sockettype aSocket,
-    const rtlGenerictype fileObj)
+static void removeCheck (testType *test, const sockettype aSocket)
 #else
 
-void polAddWriteCheck (pollData, aSocket, fileObj)
-polltype pollData;
+static void removeCheck (test, aSocket)
+testType *test;
 sockettype aSocket;
-rtlGenerictype fileObj;
 #endif
 
   {
     memsizetype pos;
 
-  /* polAddWriteCheck */
-#ifdef CHECK_MAXIMUM_FD_NUMBER
-    if (aSocket < 0 || aSocket >= FD_SETSIZE) {
-      raise_error(FILE_ERROR);
-      return;
-    } /* if */
-#endif
-#ifdef CHECK_FD_SETSIZE
-    if (conv(pollData)->writeCheck.size >= FD_SETSIZE) {
-      raise_error(FILE_ERROR);
-      return;
-    } /* if */
-#endif
-    pos = (memsizetype) hshIdxEnterDefault(conv(pollData)->writeCheck.indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->writeCheck.size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
-        (createfunctype) &intCreateGeneric, (createfunctype) &intCreateGeneric);
-    if (pos == conv(pollData)->writeCheck.size) {
-      if (conv(pollData)->writeCheck.size >= conv(pollData)->writeCheck.capacity) {
-        conv(pollData)->writeCheck.files = REALLOC_TABLE(conv(pollData)->writeCheck.files,
-            fdAndFileType, conv(pollData)->writeCheck.capacity,
-            conv(pollData)->writeCheck.capacity + TABLE_INCREMENT);
-        if (conv(pollData)->writeCheck.files == NULL ||
-            !reallocFdSet(&conv(pollData)->writeCheck, TABLE_INCREMENT)) {
-          raise_error(MEMORY_ERROR);
-          return;
-        } else {
-          COUNT3_TABLE(fdAndFileType, conv(pollData)->writeCheck.capacity,
-                       conv(pollData)->writeCheck.capacity + TABLE_INCREMENT);
-          conv(pollData)->writeCheck.capacity += TABLE_INCREMENT;
+  /* removeCheck */
+    /* printf("removeCheck(..., %u)\n", aSocket); */
+    pos = (memsizetype) hshIdxWithDefault(test->indexHash,
+        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
+        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+    if (pos != test->size) {
+      if (pos + 1 <= test->iterPos) {
+        test->iterPos--;
+        if (pos < test->iterPos) {
+          memcpy(&test->files[pos],
+                 &test->files[test->iterPos], sizeof(fdAndFileType));
+          hshIdxAddr(test->indexHash,
+                     (rtlGenerictype) (memsizetype) test->files[pos].fd,
+                     (inttype) (memsizetype) test->files[pos].fd,
+                     (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
+          pos = test->iterPos;
         } /* if */
       } /* if */
-      conv(pollData)->writeCheck.size++;
-      conv(pollData)->writeCheck.files[pos].fd = aSocket;
-      conv(pollData)->writeCheck.files[pos].file = fileObj;
-#ifdef USE_PREPARED_FD_SET
-      FD_SET(aSocket, to_write_inFdset(pollData));
-#ifdef SELECT_WITH_NFDS
-      if (aSocket >= conv(pollData)->writeCheck.preparedNfds) {
-        conv(pollData)->writeCheck.preparedNfds = (int) aSocket + 1;
+      test->size--;
+      if (pos < test->size) {
+        memcpy(&test->files[pos],
+               &test->files[test->size], sizeof(fdAndFileType));
+        hshIdxAddr(test->indexHash,
+                   (rtlGenerictype) (memsizetype) test->files[pos].fd,
+                   (inttype) (memsizetype) test->files[pos].fd,
+                   (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
       } /* if */
-#endif
+      hshExcl(test->indexHash, (rtlGenerictype) (memsizetype) aSocket,
+              (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
+              (destrfunctype) &intDestrGeneric, (destrfunctype) &intDestrGeneric);
+#ifdef USE_PREPARED_FD_SET
+      FD_CLR(aSocket, to_inFdset(test));
 #endif
     } /* if */
-  } /* polAddWriteCheck */
+  } /* removeCheck */
+
+
+
+#ifdef ANSI_C
+
+static booltype isChecked (testType *test, const sockettype aSocket)
+#else
+
+static booltype isChecked (test, aSocket)
+testType *test;
+sockettype aSocket;
+#endif
+
+  {
+    memsizetype pos;
+    booltype result;
+
+  /* isChecked */
+    pos = (memsizetype) hshIdxWithDefault(test->indexHash,
+        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
+        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+    result = pos != test->size;
+    /* printf("isChecked: sock=%d, pos=%d, fd=%d\n",
+        aSocket, pos, test->files[pos].fd); */
+    return result;
+  } /* isChecked */
+
+
+
+#ifdef ANSI_C
+
+static booltype isReady (testType *test, const sockettype aSocket)
+#else
+
+static booltype isReady (test, aSocket)
+testType *test;
+sockettype aSocket;
+#endif
+
+  {
+    memsizetype pos;
+    booltype result;
+
+  /* isReady */
+    pos = (memsizetype) hshIdxWithDefault(test->indexHash,
+        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) test->size,
+        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
+    if (pos == test->size) {
+      result = FALSE;
+    } else {
+      result = FD_ISSET(test->files[pos].fd, to_outFdset(test)) != 0;
+      /* printf("isReady: sock=%d, pos=%d, fd=%d\n",
+          aSocket, pos, test->files[pos].fd); */
+    } /* if */
+    return result;
+  } /* isReady */
+
+
+
+#ifdef ANSI_C
+
+static booltype hasNextCheck (testType *test)
+#else
+
+static booltype hasNextCheck (test)
+testType *test;
+#endif
+
+  { /* hasNextCheck */
+    return test->iterPos < test->size;
+  } /* hasNextCheck */
+
+
+
+#ifdef ANSI_C
+
+static booltype hasNextFinding (testType *test, memsizetype iterEvents)
+#else
+
+static booltype hasNextFinding (test, iterEvents)
+testType *test;
+memsizetype iterEvents;
+#endif
+
+  {
+    memsizetype pos;
+    fd_set *fdSet;
+    booltype hasNext;
+
+  /* hasNextFinding */
+    if (iterEvents == 0) {
+      hasNext = FALSE;
+      test->iterPos = test->size;
+    } else {
+      pos = test->iterPos;
+      fdSet = to_outFdset(test);
+      while (pos < test->size &&
+          !FD_ISSET(test->files[pos].fd, fdSet)) {
+        pos++;
+      } /* while */
+      hasNext = pos < test->size;
+      test->iterPos = pos;
+    } /* if */
+    return hasNext;
+  } /* hasNextFinding */
+
+
+
+#ifdef ANSI_C
+
+static rtlGenerictype nextCheck (testType *test,
+    const rtlGenerictype nullFile)
+#else
+
+static rtlGenerictype nextCheck (test, nullFile)
+testType *test;
+rtlGenerictype nullFile;
+#endif
+
+  {
+    memsizetype pos;
+    rtlGenerictype checkFile;
+
+  /* nextCheck */
+    pos = test->iterPos;
+    if (pos < test->size) {
+      checkFile = test->files[pos].file;
+      /* printf("nextCheck -> 0x%lx fd[%u]=%d\n",
+          (unsigned long) checkFile, pos,
+          test->files[pos].fd); */
+      test->iterPos = pos + 1;
+    } else {
+      checkFile = nullFile;
+    } /* if */
+    return checkFile;
+  } /* nextCheck */
+
+
+
+#ifdef ANSI_C
+
+static rtlGenerictype nextFinding (testType *test,
+    memsizetype *iterEvents, const rtlGenerictype nullFile)
+#else
+
+static rtlGenerictype nextFinding (test, iterEvents, nullFile)
+testType *test;
+memsizetype *iterEvents;
+rtlGenerictype nullFile;
+#endif
+
+  {
+    memsizetype pos;
+    fd_set *fdSet;
+    rtlGenerictype resultFile;
+
+  /* nextFinding */
+    if (*iterEvents == 0) {
+      resultFile = nullFile;
+      test->iterPos = test->size;
+    } else {
+      pos = test->iterPos;
+      fdSet = to_outFdset(test);
+      while (pos < test->size &&
+          !FD_ISSET(test->files[pos].fd, fdSet)) {
+        pos++;
+      } /* while */
+      if (pos < test->size) {
+        resultFile = test->files[pos].file;
+        /* printf("nextFinding -> 0x%lx fd[%u]=%d\n",
+            (unsigned long) resultFile, pos,
+            test->files[pos].fd); */
+        (*iterEvents)--;
+        pos++;
+      } else {
+        resultFile = nullFile;
+      } /* if */
+      test->iterPos = pos;
+    } /* if */
+    return resultFile;
+  } /* nextFinding */
+
+
+
+/**
+ *  Add ''eventsToCheck'' for ''aSocket'' to ''pollData''.
+ *  The parameter ''fileObj'' determines, which file is returned,
+ *  when the iterator returns files in ''pollData''.
+ */
+#ifdef ANSI_C
+
+void polAddCheck (polltype pollData, const sockettype aSocket,
+    inttype eventsToCheck, const rtlGenerictype fileObj)
+#else
+
+void polAddCheck (pollData, aSocket, eventsToCheck, fileObj)
+polltype pollData;
+sockettype aSocket;
+inttype eventsToCheck;
+rtlGenerictype fileObj;
+#endif
+
+  { /* polAddCheck */
+    if (eventsToCheck & POLL_IN) {
+      addCheck(&conv(pollData)->readTest, aSocket, fileObj);
+    } /* if */
+    if (eventsToCheck & POLL_OUT) {
+      addCheck(&conv(pollData)->writeTest, aSocket, fileObj);
+    } /* if */
+  } /* polAddCheck */
 
 
 
@@ -498,22 +713,24 @@ polltype pollData;
     FD_ZERO(to_read_inFdset(pollData));
     FD_ZERO(to_write_inFdset(pollData));
 #ifdef SELECT_WITH_NFDS
-    conv(pollData)->readCheck.preparedNfds = 0;
-    conv(pollData)->writeCheck.preparedNfds = 0;
+    conv(pollData)->readTest.preparedNfds = 0;
+    conv(pollData)->writeTest.preparedNfds = 0;
 #endif
 #endif
     FD_ZERO(to_read_outFdset(pollData));
     FD_ZERO(to_write_outFdset(pollData));
-    conv(pollData)->readCheck.size = 0;
-    conv(pollData)->readCheck.pos = 0;
-    hshDestr(conv(pollData)->readCheck.indexHash, (destrfunctype) &intDestrGeneric,
+    conv(pollData)->readTest.size = 0;
+    conv(pollData)->readTest.iterPos = 0;
+    hshDestr(conv(pollData)->readTest.indexHash, (destrfunctype) &intDestrGeneric,
              (destrfunctype) &intDestrGeneric);
-    conv(pollData)->readCheck.indexHash = hshEmpty();
-    conv(pollData)->writeCheck.size = 0;
-    conv(pollData)->writeCheck.pos = 0;
-    hshDestr(conv(pollData)->writeCheck.indexHash, (destrfunctype) &intDestrGeneric,
+    conv(pollData)->readTest.indexHash = hshEmpty();
+    conv(pollData)->writeTest.size = 0;
+    conv(pollData)->writeTest.iterPos = 0;
+    hshDestr(conv(pollData)->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
              (destrfunctype) &intDestrGeneric);
-    conv(pollData)->writeCheck.indexHash = hshEmpty();
+    conv(pollData)->writeTest.indexHash = hshEmpty();
+    conv(pollData)->iteratorMode = ITER_EMPTY;
+    conv(pollData)->iterEvents = 0;
     conv(pollData)->numOfEvents = 0;
   } /* polClear */
 
@@ -539,72 +756,74 @@ polltype pollDataFrom;
   /* polCpy */
     /* printf("polCpy\n"); */
     if (poll_to != pollDataFrom) {
-      newReadIndexHash = hshCreate(conv(pollDataFrom)->readCheck.indexHash,
+      newReadIndexHash = hshCreate(conv(pollDataFrom)->readTest.indexHash,
           (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
           (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
-      newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeCheck.indexHash,
+      newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeTest.indexHash,
           (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
           (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
       if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL)) {
         raise_error(MEMORY_ERROR);
       } else {
         pollData = conv(poll_to);
-        if (pollData->readCheck.capacity < conv(pollDataFrom)->readCheck.size) {
+        if (pollData->readTest.capacity < conv(pollDataFrom)->readTest.size) {
           if (unlikely(!ALLOC_TABLE(newReadFiles, fdAndFileType,
-              conv(pollDataFrom)->readCheck.capacity) ||
-              !replaceFdSet(&pollData->readCheck, conv(pollDataFrom)->readCheck.capacity))) {
+              conv(pollDataFrom)->readTest.capacity) ||
+              !replaceFdSet(&pollData->readTest, conv(pollDataFrom)->readTest.capacity))) {
             raise_error(MEMORY_ERROR);
             return;
           } else {
-            FREE_TABLE(pollData->readCheck.files, fdAndFileType, pollData->readCheck.capacity);
-            pollData->readCheck.capacity = conv(pollDataFrom)->readCheck.capacity;
-            pollData->readCheck.files = newReadFiles;
+            FREE_TABLE(pollData->readTest.files, fdAndFileType, pollData->readTest.capacity);
+            pollData->readTest.capacity = conv(pollDataFrom)->readTest.capacity;
+            pollData->readTest.files = newReadFiles;
           } /* if */
         } /* if */
-        if (pollData->writeCheck.capacity < conv(pollDataFrom)->writeCheck.size) {
+        if (pollData->writeTest.capacity < conv(pollDataFrom)->writeTest.size) {
           if (unlikely(!ALLOC_TABLE(newWriteFiles, fdAndFileType,
-              conv(pollDataFrom)->writeCheck.capacity) ||
-              !replaceFdSet(&pollData->writeCheck, conv(pollDataFrom)->writeCheck.capacity))) {
+              conv(pollDataFrom)->writeTest.capacity) ||
+              !replaceFdSet(&pollData->writeTest, conv(pollDataFrom)->writeTest.capacity))) {
             raise_error(MEMORY_ERROR);
             return;
           } else {
-            FREE_TABLE(pollData->writeCheck.files, fdAndFileType, pollData->writeCheck.capacity);
-            pollData->writeCheck.capacity = conv(pollDataFrom)->writeCheck.capacity;
-            pollData->writeCheck.files = newWriteFiles;
+            FREE_TABLE(pollData->writeTest.files, fdAndFileType, pollData->writeTest.capacity);
+            pollData->writeTest.capacity = conv(pollDataFrom)->writeTest.capacity;
+            pollData->writeTest.files = newWriteFiles;
           } /* if */
         } /* if */
 #ifdef USE_PREPARED_FD_SET
         copyFdSet(to_read_inFdset(pollData), to_read_inFdset(pollDataFrom),
-                  &conv(pollDataFrom)->readCheck);
+                  &conv(pollDataFrom)->readTest);
 #ifdef SELECT_WITH_NFDS
-        pollData->readCheck.preparedNfds = conv(pollDataFrom)->readCheck.preparedNfds;
+        pollData->readTest.preparedNfds = conv(pollDataFrom)->readTest.preparedNfds;
 #endif
 #endif
         copyFdSet(to_read_outFdset(pollData), to_read_outFdset(pollDataFrom),
-                  &conv(pollDataFrom)->readCheck);
-        pollData->readCheck.size = conv(pollDataFrom)->readCheck.size;
-        pollData->readCheck.pos = conv(pollDataFrom)->readCheck.pos;
-        memcpy(pollData->readCheck.files, conv(pollDataFrom)->readCheck.files,
-            conv(pollDataFrom)->readCheck.size * sizeof(fdAndFileType));
-        hshDestr(pollData->readCheck.indexHash, (destrfunctype) &intDestrGeneric,
+                  &conv(pollDataFrom)->readTest);
+        pollData->readTest.size = conv(pollDataFrom)->readTest.size;
+        pollData->readTest.iterPos = conv(pollDataFrom)->readTest.iterPos;
+        memcpy(pollData->readTest.files, conv(pollDataFrom)->readTest.files,
+            conv(pollDataFrom)->readTest.size * sizeof(fdAndFileType));
+        hshDestr(pollData->readTest.indexHash, (destrfunctype) &intDestrGeneric,
                  (destrfunctype) &intDestrGeneric);
-        pollData->readCheck.indexHash = newReadIndexHash;
+        pollData->readTest.indexHash = newReadIndexHash;
 #ifdef USE_PREPARED_FD_SET
         copyFdSet(to_write_inFdset(pollData), to_write_inFdset(pollDataFrom),
-                  &conv(pollDataFrom)->writeCheck);
+                  &conv(pollDataFrom)->writeTest);
 #ifdef SELECT_WITH_NFDS
-        pollData->writeCheck.preparedNfds = conv(pollDataFrom)->writeCheck.preparedNfds;
+        pollData->writeTest.preparedNfds = conv(pollDataFrom)->writeTest.preparedNfds;
 #endif
 #endif
         copyFdSet(to_write_outFdset(pollData), to_write_outFdset(pollDataFrom),
-                  &conv(pollDataFrom)->writeCheck);
-        pollData->writeCheck.size = conv(pollDataFrom)->writeCheck.size;
-        pollData->writeCheck.pos = conv(pollDataFrom)->writeCheck.pos;
-        memcpy(pollData->writeCheck.files, conv(pollDataFrom)->writeCheck.files,
-               conv(pollDataFrom)->writeCheck.size * sizeof(fdAndFileType));
-        hshDestr(pollData->writeCheck.indexHash, (destrfunctype) &intDestrGeneric,
+                  &conv(pollDataFrom)->writeTest);
+        pollData->writeTest.size = conv(pollDataFrom)->writeTest.size;
+        pollData->writeTest.iterPos = conv(pollDataFrom)->writeTest.iterPos;
+        memcpy(pollData->writeTest.files, conv(pollDataFrom)->writeTest.files,
+               conv(pollDataFrom)->writeTest.size * sizeof(fdAndFileType));
+        hshDestr(pollData->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
                  (destrfunctype) &intDestrGeneric);
-        pollData->writeCheck.indexHash = newWriteIndexHash;
+        pollData->writeTest.indexHash = newWriteIndexHash;
+        pollData->iteratorMode = conv(pollDataFrom)->iteratorMode;
+        pollData->iterEvents = conv(pollDataFrom)->iterEvents;
         pollData->numOfEvents = conv(pollDataFrom)->numOfEvents;
       } /* if */
     } /* if */
@@ -630,10 +849,10 @@ polltype pollDataFrom;
 
   /* polCreate */
     /* printf("polCreate\n"); */
-    newReadIndexHash = hshCreate(conv(pollDataFrom)->readCheck.indexHash,
+    newReadIndexHash = hshCreate(conv(pollDataFrom)->readTest.indexHash,
         (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
         (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
-    newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeCheck.indexHash,
+    newWriteIndexHash = hshCreate(conv(pollDataFrom)->writeTest.indexHash,
         (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric,
         (createfunctype) &intCreateGeneric, (destrfunctype) &intDestrGeneric);
     if (unlikely(newReadIndexHash == NULL || newWriteIndexHash == NULL ||
@@ -641,17 +860,17 @@ polltype pollDataFrom;
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      if (unlikely(!ALLOC_TABLE(result->readCheck.files, fdAndFileType,
-                                conv(pollDataFrom)->readCheck.capacity) ||
-                   !ALLOC_TABLE(result->writeCheck.files, fdAndFileType,
-                                conv(pollDataFrom)->writeCheck.capacity) ||
-                   !allocFdSet(&result->readCheck, conv(pollDataFrom)->readCheck.capacity) ||
-                   !allocFdSet(&result->writeCheck, conv(pollDataFrom)->writeCheck.capacity))) {
-        if (result->readCheck.files != NULL) {
-          FREE_TABLE(result->readCheck.files, fdAndFileType, conv(pollDataFrom)->readCheck.capacity);
-          if (result->writeCheck.files != NULL) {
-            FREE_TABLE(result->writeCheck.files, fdAndFileType, conv(pollDataFrom)->readCheck.capacity);
-            freeFdSet(&result->readCheck, conv(pollDataFrom)->readCheck.capacity);
+      if (unlikely(!ALLOC_TABLE(result->readTest.files, fdAndFileType,
+                                conv(pollDataFrom)->readTest.capacity) ||
+                   !ALLOC_TABLE(result->writeTest.files, fdAndFileType,
+                                conv(pollDataFrom)->writeTest.capacity) ||
+                   !allocFdSet(&result->readTest, conv(pollDataFrom)->readTest.capacity) ||
+                   !allocFdSet(&result->writeTest, conv(pollDataFrom)->writeTest.capacity))) {
+        if (result->readTest.files != NULL) {
+          FREE_TABLE(result->readTest.files, fdAndFileType, conv(pollDataFrom)->readTest.capacity);
+          if (result->writeTest.files != NULL) {
+            FREE_TABLE(result->writeTest.files, fdAndFileType, conv(pollDataFrom)->readTest.capacity);
+            freeFdSet(&result->readTest, conv(pollDataFrom)->readTest.capacity);
           } /* if */
         } /* if */
         FREE_RECORD(result, select_based_pollrecord, count.polldata);
@@ -660,34 +879,36 @@ polltype pollDataFrom;
       } else {
 #ifdef USE_PREPARED_FD_SET
         copyFdSet(to_read_inFdset(result), to_read_inFdset(pollDataFrom),
-                  &conv(pollDataFrom)->readCheck);
+                  &conv(pollDataFrom)->readTest);
 #ifdef SELECT_WITH_NFDS
-        result->readCheck.preparedNfds = conv(pollDataFrom)->readCheck.preparedNfds;
+        result->readTest.preparedNfds = conv(pollDataFrom)->readTest.preparedNfds;
 #endif
 #endif
         copyFdSet(to_read_outFdset(result), to_read_outFdset(pollDataFrom),
-                  &conv(pollDataFrom)->readCheck);
-        result->readCheck.size = conv(pollDataFrom)->readCheck.size;
-        result->readCheck.capacity = conv(pollDataFrom)->readCheck.capacity;
-        result->readCheck.pos = conv(pollDataFrom)->readCheck.pos;
-        memcpy(result->readCheck.files, conv(pollDataFrom)->readCheck.files,
-               conv(pollDataFrom)->readCheck.size * sizeof(fdAndFileType));
-        result->readCheck.indexHash = newReadIndexHash;
+                  &conv(pollDataFrom)->readTest);
+        result->readTest.size = conv(pollDataFrom)->readTest.size;
+        result->readTest.capacity = conv(pollDataFrom)->readTest.capacity;
+        result->readTest.iterPos = conv(pollDataFrom)->readTest.iterPos;
+        memcpy(result->readTest.files, conv(pollDataFrom)->readTest.files,
+               conv(pollDataFrom)->readTest.size * sizeof(fdAndFileType));
+        result->readTest.indexHash = newReadIndexHash;
 #ifdef USE_PREPARED_FD_SET
         copyFdSet(to_write_inFdset(result), to_write_inFdset(pollDataFrom),
-                  &conv(pollDataFrom)->writeCheck);
+                  &conv(pollDataFrom)->writeTest);
 #ifdef SELECT_WITH_NFDS
-        result->writeCheck.preparedNfds = conv(pollDataFrom)->writeCheck.preparedNfds;
+        result->writeTest.preparedNfds = conv(pollDataFrom)->writeTest.preparedNfds;
 #endif
 #endif
         copyFdSet(to_write_outFdset(result), to_write_outFdset(pollDataFrom),
-                  &conv(pollDataFrom)->writeCheck);
-        result->writeCheck.size = conv(pollDataFrom)->writeCheck.size;
-        result->writeCheck.capacity = conv(pollDataFrom)->writeCheck.capacity;
-        result->writeCheck.pos = conv(pollDataFrom)->writeCheck.pos;
-        memcpy(result->writeCheck.files, conv(pollDataFrom)->writeCheck.files,
-               conv(pollDataFrom)->writeCheck.size * sizeof(fdAndFileType));
-        result->writeCheck.indexHash = newWriteIndexHash;
+                  &conv(pollDataFrom)->writeTest);
+        result->writeTest.size = conv(pollDataFrom)->writeTest.size;
+        result->writeTest.capacity = conv(pollDataFrom)->writeTest.capacity;
+        result->writeTest.iterPos = conv(pollDataFrom)->writeTest.iterPos;
+        memcpy(result->writeTest.files, conv(pollDataFrom)->writeTest.files,
+               conv(pollDataFrom)->writeTest.size * sizeof(fdAndFileType));
+        result->writeTest.indexHash = newWriteIndexHash;
+        result->iteratorMode = conv(pollDataFrom)->iteratorMode;
+        result->iterEvents = conv(pollDataFrom)->iterEvents;
         result->numOfEvents = conv(pollDataFrom)->numOfEvents;
       } /* if */
     } /* if */
@@ -712,25 +933,25 @@ polltype oldPollData;
 
   /* polDestr */
     if (oldPollData != NULL) {
-      capacity = conv(oldPollData)->readCheck.capacity;
+      capacity = conv(oldPollData)->readTest.capacity;
 #ifdef DYNAMIC_FD_SET
 #ifdef USE_PREPARED_FD_SET
-      FREE_FDSET(conv(oldPollData)->readCheck.inFdset, capacity);
+      FREE_FDSET(conv(oldPollData)->readTest.inFdset, capacity);
 #endif
-      FREE_FDSET(conv(oldPollData)->readCheck.outFdset, capacity);
+      FREE_FDSET(conv(oldPollData)->readTest.outFdset, capacity);
 #endif
-      FREE_TABLE(conv(oldPollData)->readCheck.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->readCheck.indexHash, (destrfunctype) &intDestrGeneric,
+      FREE_TABLE(conv(oldPollData)->readTest.files, fdAndFileType, capacity);
+      hshDestr(conv(oldPollData)->readTest.indexHash, (destrfunctype) &intDestrGeneric,
                (destrfunctype) &intDestrGeneric);
-      capacity = conv(oldPollData)->writeCheck.capacity;
+      capacity = conv(oldPollData)->writeTest.capacity;
 #ifdef DYNAMIC_FD_SET
 #ifdef USE_PREPARED_FD_SET
-      FREE_FDSET(conv(oldPollData)->writeCheck.inFdset, capacity);
+      FREE_FDSET(conv(oldPollData)->writeTest.inFdset, capacity);
 #endif
-      FREE_FDSET(conv(oldPollData)->writeCheck.outFdset, capacity);
+      FREE_FDSET(conv(oldPollData)->writeTest.outFdset, capacity);
 #endif
-      FREE_TABLE(conv(oldPollData)->writeCheck.files, fdAndFileType, capacity);
-      hshDestr(conv(oldPollData)->writeCheck.indexHash, (destrfunctype) &intDestrGeneric,
+      FREE_TABLE(conv(oldPollData)->writeTest.files, fdAndFileType, capacity);
+      hshDestr(conv(oldPollData)->writeTest.indexHash, (destrfunctype) &intDestrGeneric,
                (destrfunctype) &intDestrGeneric);
       FREE_RECORD(conv(oldPollData), select_based_pollrecord, count.pollData);
     } /* if */
@@ -760,15 +981,15 @@ polltype polEmpty ()
       raise_error(MEMORY_ERROR);
       result = NULL;
     } else {
-      if (unlikely(!ALLOC_TABLE(result->readCheck.files, fdAndFileType, TABLE_START_SIZE) ||
-                   !ALLOC_TABLE(result->writeCheck.files, fdAndFileType, TABLE_START_SIZE) ||
-                   !allocFdSet(&result->readCheck, TABLE_START_SIZE) ||
-                   !allocFdSet(&result->writeCheck, TABLE_START_SIZE))) {
-        if (result->readCheck.files != NULL) {
-          FREE_TABLE(result->readCheck.files, fdAndFileType, TABLE_START_SIZE);
-          if (result->writeCheck.files != NULL) {
-            FREE_TABLE(result->writeCheck.files, fdAndFileType, TABLE_START_SIZE);
-            freeFdSet(&result->readCheck, TABLE_START_SIZE);
+      if (unlikely(!ALLOC_TABLE(result->readTest.files, fdAndFileType, TABLE_START_SIZE) ||
+                   !ALLOC_TABLE(result->writeTest.files, fdAndFileType, TABLE_START_SIZE) ||
+                   !allocFdSet(&result->readTest, TABLE_START_SIZE) ||
+                   !allocFdSet(&result->writeTest, TABLE_START_SIZE))) {
+        if (result->readTest.files != NULL) {
+          FREE_TABLE(result->readTest.files, fdAndFileType, TABLE_START_SIZE);
+          if (result->writeTest.files != NULL) {
+            FREE_TABLE(result->writeTest.files, fdAndFileType, TABLE_START_SIZE);
+            freeFdSet(&result->readTest, TABLE_START_SIZE);
           } /* if */
         } /* if */
         FREE_RECORD(result, select_based_pollrecord, count.polldata);
@@ -779,20 +1000,22 @@ polltype polEmpty ()
         FD_ZERO(to_read_inFdset(result));
         FD_ZERO(to_write_inFdset(result));
 #ifdef SELECT_WITH_NFDS
-        result->readCheck.preparedNfds = 0;
-        result->writeCheck.preparedNfds = 0;
+        result->readTest.preparedNfds = 0;
+        result->writeTest.preparedNfds = 0;
 #endif
 #endif
         FD_ZERO(to_read_outFdset(result));
         FD_ZERO(to_write_outFdset(result));
-        result->readCheck.size = 0;
-        result->readCheck.capacity = TABLE_START_SIZE;
-        result->readCheck.pos = 0;
-        result->readCheck.indexHash = newReadIndexHash;
-        result->writeCheck.size = 0;
-        result->writeCheck.capacity = TABLE_START_SIZE;
-        result->writeCheck.pos = 0;
-        result->writeCheck.indexHash = newWriteIndexHash;
+        result->readTest.size = 0;
+        result->readTest.capacity = TABLE_START_SIZE;
+        result->readTest.iterPos = 0;
+        result->readTest.indexHash = newReadIndexHash;
+        result->writeTest.size = 0;
+        result->writeTest.capacity = TABLE_START_SIZE;
+        result->writeTest.iterPos = 0;
+        result->writeTest.indexHash = newWriteIndexHash;
+        result->iteratorMode = ITER_EMPTY;
+        result->iterEvents = 0;
         result->numOfEvents = 0;
       } /* if */
     } /* if */
@@ -805,188 +1028,214 @@ polltype polEmpty ()
 
 #ifdef ANSI_C
 
-rtlArraytype polFiles (const const_polltype pollData)
+inttype polGetCheck (polltype pollData, const sockettype aSocket)
 #else
 
-rtlArraytype polFiles (pollData)
+inttype polGetCheck (pollData, aSocket)
 polltype pollData;
+sockettype aSocket;
 #endif
 
   {
-    memsizetype size;
-    memsizetype pos;
-    rtlObjecttype *element;
-    rtlArraytype fileArray;
+    inttype result;
 
-  /* polFiles */
-    size = conv(pollData)->readCheck.size + conv(pollData)->writeCheck.size;
-    if (!ALLOC_RTL_ARRAY(fileArray, size)) {
-      raise_error(MEMORY_ERROR);
+  /* polGetCheck */
+    if (isChecked(&conv(pollData)->readTest, aSocket)) {
+      if (isChecked(&conv(pollData)->writeTest, aSocket)) {
+        result = POLL_INOUT;
+      } else {
+        result = POLL_IN;
+      } /* if */
+    } else if (isChecked(&conv(pollData)->writeTest, aSocket)) {
+      result = POLL_OUT;
     } else {
-      fileArray->min_position = 1;
-      fileArray->max_position = (inttype) size;
-      element = fileArray->arr;
-      for (pos = 0; pos < conv(pollData)->readCheck.size; pos++, element++) {
-        element->value.genericvalue = conv(pollData)->readCheck.files[pos].file;
-      } /* for */
-      for (pos = 0; pos < conv(pollData)->writeCheck.size; pos++, element++) {
-        element->value.genericvalue = conv(pollData)->writeCheck.files[pos].file;
-      } /* for */
+      result = POLL_NOTHING;
     } /* if */
-    return fileArray;
-  } /* polFiles */
+    return result;
+  } /* polGetCheck */
 
 
 
 #ifdef ANSI_C
 
-booltype polHasNextReadFile (polltype pollData)
+inttype polGetFinding (polltype pollData, const sockettype aSocket)
 #else
 
-booltype polHasNextReadFile (pollData)
+inttype polGetFinding (pollData, aSocket)
 polltype pollData;
+sockettype aSocket;
 #endif
 
   {
-    memsizetype readPos;
-    fd_set *readFds;
-    booltype hasNext;
+    inttype result;
 
-  /* polHasNextReadFile */
-    if (conv(pollData)->numOfEvents == 0) {
-      hasNext = FALSE;
-      conv(pollData)->readCheck.pos = conv(pollData)->readCheck.size;
+  /* polGetFinding */
+    if (isReady(&conv(pollData)->readTest, aSocket)) {
+      if (isReady(&conv(pollData)->writeTest, aSocket)) {
+        result = POLL_INOUT;
+      } else {
+        result = POLL_IN;
+      } /* if */
+    } else if (isReady(&conv(pollData)->writeTest, aSocket)) {
+      result = POLL_OUT;
     } else {
-      readPos = conv(pollData)->readCheck.pos;
-      readFds = to_read_outFdset(pollData);
-      while (readPos < conv(pollData)->readCheck.size &&
-          !FD_ISSET(conv(pollData)->readCheck.files[readPos].fd, readFds)) {
-        readPos++;
-      } /* while */
-      hasNext = readPos < conv(pollData)->readCheck.size;
-      conv(pollData)->readCheck.pos = readPos;
+      result = POLL_NOTHING;
     } /* if */
-    return hasNext;
-  } /* polHasNextReadFile */
+    return result;
+  } /* polGetFinding */
 
 
 
 #ifdef ANSI_C
 
-booltype polHasNextWriteFile (polltype pollData)
+booltype polHasNext (polltype pollData)
 #else
 
-booltype polHasNextWriteFile (pollData)
+booltype polHasNext (pollData)
 polltype pollData;
 #endif
 
-  {
-    memsizetype writePos;
-    fd_set *writeFds;
-    booltype hasNext;
-
-  /* polHasNextWriteFile */
-    if (conv(pollData)->numOfEvents == 0) {
-      hasNext = FALSE;
-      conv(pollData)->writeCheck.pos = conv(pollData)->writeCheck.size;
-    } else {
-      writePos = conv(pollData)->writeCheck.pos;
-      writeFds = to_write_outFdset(pollData);
-      while (writePos < conv(pollData)->writeCheck.size &&
-          !FD_ISSET(conv(pollData)->writeCheck.files[writePos].fd, writeFds)) {
-        writePos++;
-      } /* while */
-      hasNext = writePos < conv(pollData)->writeCheck.size;
-      conv(pollData)->writeCheck.pos = writePos;
-    } /* if */
-    return hasNext;
-  } /* polHasNextWriteFile */
+  { /* polHasNext */
+    switch (conv(pollData)->iteratorMode) {
+      case ITER_EMPTY:
+        return FALSE;
+      case ITER_CHECKS_IN:
+        return hasNextCheck(&conv(pollData)->readTest);
+      case ITER_CHECKS_OUT:
+        return hasNextCheck(&conv(pollData)->writeTest);
+      case ITER_CHECKS_INOUT:
+        return hasNextCheck(&conv(pollData)->readTest) ||
+               hasNextCheck(&conv(pollData)->writeTest);
+      case ITER_FINDINGS_IN:
+        return hasNextFinding(&conv(pollData)->readTest,
+                              conv(pollData)->iterEvents);
+      case ITER_FINDINGS_OUT:
+        return hasNextFinding(&conv(pollData)->writeTest,
+                              conv(pollData)->iterEvents);
+      case ITER_FINDINGS_INOUT:
+        return hasNextFinding(&conv(pollData)->readTest,
+                              conv(pollData)->iterEvents) ||
+               hasNextFinding(&conv(pollData)->writeTest,
+                              conv(pollData)->iterEvents);
+      default:
+        raise_error(RANGE_ERROR);
+        return FALSE;
+    } /* switch */
+  } /* polHasNext */
 
 
 
 #ifdef ANSI_C
 
-rtlGenerictype polNextReadFile (polltype pollData, const rtlGenerictype nullFile)
+void polIterChecks (polltype pollData, inttype pollMode)
 #else
 
-rtlGenerictype polNextReadFile (pollData, nullFile)
+void polIterChecks (pollData, pollMode)
+polltype pollData;
+inttype pollMode;
+#endif
+
+  { /* polIterChecks */
+    switch (pollMode) {
+      case POLL_NOTHING:
+        conv(pollData)->iteratorMode = ITER_EMPTY;
+        break;
+      case POLL_IN: 
+        conv(pollData)->iteratorMode = ITER_CHECKS_IN;
+        conv(pollData)->readTest.iterPos = 0;
+        break;
+      case POLL_OUT:
+        conv(pollData)->iteratorMode = ITER_CHECKS_OUT;
+        conv(pollData)->writeTest.iterPos = 0;
+        break;
+      case POLL_INOUT:
+        conv(pollData)->iteratorMode = ITER_CHECKS_INOUT;
+        conv(pollData)->readTest.iterPos = 0;
+        conv(pollData)->writeTest.iterPos = 0;
+        break;
+    } /* switch */
+  } /* polIterChecks */
+
+
+
+#ifdef ANSI_C
+
+void polIterFindings (polltype pollData, inttype pollMode)
+#else
+
+void polIterFindings (pollData, pollMode)
+polltype pollData;
+inttype pollMode;
+#endif
+
+  { /* polIterFindings */
+    switch (pollMode) {
+      case POLL_NOTHING:
+        conv(pollData)->iteratorMode = ITER_EMPTY;
+        break;
+      case POLL_IN: 
+        conv(pollData)->iteratorMode = ITER_FINDINGS_IN;
+        conv(pollData)->readTest.iterPos = 0;
+        break;
+      case POLL_OUT:
+        conv(pollData)->iteratorMode = ITER_FINDINGS_OUT;
+        conv(pollData)->writeTest.iterPos = 0;
+        break;
+      case POLL_INOUT:
+        conv(pollData)->iteratorMode = ITER_FINDINGS_INOUT;
+        conv(pollData)->readTest.iterPos = 0;
+        conv(pollData)->writeTest.iterPos = 0;
+        break;
+    } /* switch */
+    conv(pollData)->iterEvents = conv(pollData)->numOfEvents;
+  } /* polIterFindings */
+
+
+
+#ifdef ANSI_C
+
+rtlGenerictype polNextFile (polltype pollData, const rtlGenerictype nullFile)
+#else
+
+rtlGenerictype polNextFile (pollData, nullFile)
 polltype pollData;
 rtlGenerictype nullFile;
 #endif
 
-  {
-    memsizetype readPos;
-    fd_set *readFds;
-    rtlGenerictype resultFile;
-
-  /* polNextReadFile */
-    if (conv(pollData)->numOfEvents == 0) {
-      resultFile = nullFile;
-      conv(pollData)->readCheck.pos = conv(pollData)->readCheck.size;
-    } else {
-      readPos = conv(pollData)->readCheck.pos;
-      readFds = to_read_outFdset(pollData);
-      while (readPos < conv(pollData)->readCheck.size &&
-          !FD_ISSET(conv(pollData)->readCheck.files[readPos].fd, readFds)) {
-        readPos++;
-      } /* while */
-      if (readPos < conv(pollData)->readCheck.size) {
-        resultFile = conv(pollData)->readCheck.files[readPos].file;
-        /* printf("polNextReadFile -> 0x%lx fd[%u]=%d\n",
-            (unsigned long) resultFile, readPos,
-            conv(pollData)->readCheck.files[readPos].fd); */
-        conv(pollData)->numOfEvents--;
-        readPos++;
-      } else {
-        resultFile = nullFile;
-      } /* if */
-      conv(pollData)->readCheck.pos = readPos;
-    } /* if */
-    return resultFile;
-  } /* polNextReadFile */
-
-
-
-#ifdef ANSI_C
-
-rtlGenerictype polNextWriteFile (polltype pollData, const rtlGenerictype nullFile)
-#else
-
-rtlGenerictype polNextWriteFile (pollData, nullFile)
-polltype pollData;
-rtlGenerictype nullFile;
-#endif
-
-  {
-    memsizetype writePos;
-    fd_set *writeFds;
-    rtlGenerictype resultFile;
-
-  /* polNextWriteFile */
-    if (conv(pollData)->numOfEvents == 0) {
-      resultFile = nullFile;
-      conv(pollData)->writeCheck.pos = conv(pollData)->writeCheck.size;
-    } else {
-      writePos = conv(pollData)->writeCheck.pos;
-      writeFds = to_write_outFdset(pollData);
-      while (writePos < conv(pollData)->writeCheck.size &&
-          !FD_ISSET(conv(pollData)->writeCheck.files[writePos].fd, writeFds)) {
-        writePos++;
-      } /* while */
-      if (writePos < conv(pollData)->writeCheck.size) {
-        resultFile = conv(pollData)->writeCheck.files[writePos].file;
-        /* printf("polNextWriteFile -> 0x%lx fd[%u]=%d\n",
-            (unsigned long) resultFile, writePos,
-            conv(pollData)->writeCheck.files[writePos].fd); */
-        conv(pollData)->numOfEvents--;
-        writePos++;
-      } else {
-        resultFile = nullFile;
-      } /* if */
-      conv(pollData)->writeCheck.pos = writePos;
-    } /* if */
-    return resultFile;
-  } /* polNextWriteFile */
+  { /* polNextFile */
+    switch (conv(pollData)->iteratorMode) {
+      case ITER_EMPTY:
+        return nullFile;
+      case ITER_CHECKS_IN:
+        return nextCheck(&conv(pollData)->readTest, nullFile);
+      case ITER_CHECKS_OUT:
+        return nextCheck(&conv(pollData)->writeTest, nullFile);
+      case ITER_CHECKS_INOUT:
+        if (hasNextCheck(&conv(pollData)->readTest)) {
+          return nextCheck(&conv(pollData)->readTest, nullFile);
+        } else {
+          return nextCheck(&conv(pollData)->writeTest, nullFile);
+        } /* if */
+      case ITER_FINDINGS_IN:
+        return nextFinding(&conv(pollData)->readTest,
+                           &conv(pollData)->iterEvents, nullFile);
+      case ITER_FINDINGS_OUT:
+        return nextFinding(&conv(pollData)->writeTest,
+                           &conv(pollData)->iterEvents, nullFile);
+      case ITER_FINDINGS_INOUT:
+        if (hasNextFinding(&conv(pollData)->readTest,
+                           conv(pollData)->iterEvents)) {
+          return nextFinding(&conv(pollData)->readTest,
+                             &conv(pollData)->iterEvents, nullFile);
+        } else {
+          return nextFinding(&conv(pollData)->writeTest,
+                             &conv(pollData)->iterEvents, nullFile);
+        } /* if */
+      default:
+        raise_error(RANGE_ERROR);
+        return nullFile;
+    } /* switch */
+  } /* polNextFile */
 
 
 
@@ -1015,14 +1264,14 @@ polltype pollData;
     readFds = to_read_outFdset(pollData);
 #ifdef USE_PREPARED_FD_SET
     copyFdSet(readFds, to_read_inFdset(pollData),
-              &conv(pollData)->readCheck.files);
+              &conv(pollData)->readTest.files);
 #ifdef SELECT_WITH_NFDS
-    nfds = conv(pollData)->readCheck.preparedNfds;
+    nfds = conv(pollData)->readTest.preparedNfds;
 #endif
 #else
     FD_ZERO(readFds);
-    for (pos = 0; pos < conv(pollData)->readCheck.size; pos++) {
-      sock = conv(pollData)->readCheck.files[pos].fd;
+    for (pos = 0; pos < conv(pollData)->readTest.size; pos++) {
+      sock = conv(pollData)->readTest.files[pos].fd;
       FD_SET(sock, readFds);
 #ifdef SELECT_WITH_NFDS
       if ((int) sock >= nfds) {
@@ -1034,16 +1283,16 @@ polltype pollData;
     writeFds = to_write_outFdset(pollData);
 #ifdef USE_PREPARED_FD_SET
     copyFdSet(writeFds, to_write_inFdset(pollData),
-              &conv(pollData)->writeCheck.files);
+              &conv(pollData)->writeTest.files);
 #ifdef SELECT_WITH_NFDS
-    if (conv(pollData)->writeCheck.preparedNfds > nfds) {
-      nfds = conv(pollData)->writeCheck.preparedNfds;
+    if (conv(pollData)->writeTest.preparedNfds > nfds) {
+      nfds = conv(pollData)->writeTest.preparedNfds;
     } /* if */
 #endif
 #else
     FD_ZERO(writeFds);
-    for (pos = 0; pos < conv(pollData)->writeCheck.size; pos++) {
-      sock = conv(pollData)->writeCheck.files[pos].fd;
+    for (pos = 0; pos < conv(pollData)->writeTest.size; pos++) {
+      sock = conv(pollData)->writeTest.files[pos].fd;
       FD_SET(sock, writeFds);
 #ifdef SELECT_WITH_NFDS
       if ((int) sock >= nfds) {
@@ -1068,167 +1317,34 @@ polltype pollData;
       /* printf("nfds=%d", nfds); */
       raise_error(FILE_ERROR);
     } else {
-      conv(pollData)->readCheck.pos = 0;
-      conv(pollData)->writeCheck.pos = 0;
+      conv(pollData)->readTest.iterPos = 0;
+      conv(pollData)->writeTest.iterPos = 0;
       conv(pollData)->numOfEvents = (memsizetype) select_result;
     } /* if */
   } /* polPoll */
 
 
 
+/**
+ *  Remove ''eventsToCheck'' for ''aSocket'' from ''pollData''.
+ */
 #ifdef ANSI_C
 
-booltype polReadyForRead (polltype pollData, const sockettype aSocket)
+void polRemoveCheck (polltype pollData, const sockettype aSocket,
+    inttype eventsToCheck)
 #else
 
-booltype polReadyForRead (pollData, aSocket)
+void polRemoveCheck (pollData, aSocket, eventsToCheck)
 polltype pollData;
 sockettype aSocket;
+inttype eventsToCheck;
 #endif
 
-  {
-    memsizetype pos;
-    booltype result;
-
-  /* polReadyForRead */
-    pos = (memsizetype) hshIdxWithDefault(conv(pollData)->readCheck.indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->readCheck.size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
-    if (pos == conv(pollData)->readCheck.size) {
-      result = FALSE;
-    } else {
-      result = FD_ISSET(conv(pollData)->readCheck.files[pos].fd,
-                        to_read_outFdset(pollData)) != 0;
-      /* printf("polReadyForRead: sock=%d, pos=%d, fd=%d\n",
-          aSocket, pos, conv(pollData)->readCheck.files[pos].fd); */
+  { /* polRemoveCheck */
+    if (eventsToCheck & POLL_IN) {
+      removeCheck(&conv(pollData)->readTest, aSocket);
     } /* if */
-    return result;
-  } /* polReadyForRead */
-
-
-
-#ifdef ANSI_C
-
-booltype polReadyForWrite (polltype pollData, const sockettype aSocket)
-#else
-
-booltype polReadyForWrite (pollData, aSocket)
-polltype pollData;
-sockettype aSocket;
-#endif
-
-  {
-    memsizetype pos;
-    booltype result;
-
-  /* polReadyForWrite */
-    pos = (memsizetype) hshIdxWithDefault(conv(pollData)->writeCheck.indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->writeCheck.size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
-    if (pos == conv(pollData)->writeCheck.size) {
-      result = FALSE;
-    } else {
-      result = FD_ISSET(conv(pollData)->writeCheck.files[pos].fd,
-                        to_write_outFdset(pollData)) != 0;
-      /* printf("polReadyForWrite: sock=%d, pos=%d, fd=%d\n",
-          aSocket, pos, conv(pollData)->writeCheck.files[pos].fd); */
+    if (eventsToCheck & POLL_OUT) {
+      removeCheck(&conv(pollData)->writeTest, aSocket);
     } /* if */
-    return result;
-  } /* polReadyForWrite */
-
-
-
-#ifdef ANSI_C
-
-void polRemoveReadCheck (polltype pollData, const sockettype aSocket)
-#else
-
-void polRemoveReadCheck (pollData, aSocket)
-polltype pollData;
-sockettype aSocket;
-#endif
-
-  {
-    memsizetype pos;
-
-  /* polRemoveReadCheck */
-    /* printf("polRemoveReadCheck(..., %u)\n", aSocket); */
-    pos = (memsizetype) hshIdxWithDefault(conv(pollData)->readCheck.indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->readCheck.size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
-    if (pos != conv(pollData)->readCheck.size) {
-      if (conv(pollData)->readCheck.pos <= pos + 1 &&
-          conv(pollData)->writeCheck.pos <= pos + 1) {
-        conv(pollData)->readCheck.size--;
-        if (pos != conv(pollData)->readCheck.size) {
-          memcpy(&conv(pollData)->readCheck.files[pos],
-                 &conv(pollData)->readCheck.files[conv(pollData)->readCheck.size],
-                 sizeof(fdAndFileType));
-          hshIdxAddr(conv(pollData)->readCheck.indexHash,
-                     (rtlGenerictype) (memsizetype) conv(pollData)->readCheck.files[pos].fd,
-                     (inttype) (memsizetype) conv(pollData)->readCheck.files[pos].fd,
-                     (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
-        } /* if */
-        hshExcl(conv(pollData)->readCheck.indexHash, (rtlGenerictype) (memsizetype) aSocket,
-                (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
-                (destrfunctype) &intDestrGeneric, (destrfunctype) &intDestrGeneric);
-        if (conv(pollData)->readCheck.pos == pos + 1) {
-          conv(pollData)->readCheck.pos--;
-        } /* if */
-        if (conv(pollData)->writeCheck.pos == pos + 1) {
-          conv(pollData)->writeCheck.pos--;
-        } /* if */
-      } /* if */
-#ifdef USE_PREPARED_FD_SET
-      FD_CLR(aSocket, to_read_inFdset(pollData));
-#endif
-    } /* if */
-  } /* polRemoveReadCheck */
-
-
-
-#ifdef ANSI_C
-
-void polRemoveWriteCheck (polltype pollData, const sockettype aSocket)
-#else
-
-void polRemoveWriteCheck (pollData, aSocket)
-polltype pollData;
-sockettype aSocket;
-#endif
-
-  {
-    memsizetype pos;
-
-  /* polRemoveWriteCheck */
-    pos = (memsizetype) hshIdxWithDefault(conv(pollData)->writeCheck.indexHash,
-        (rtlGenerictype) (memsizetype) aSocket, (rtlGenerictype) conv(pollData)->writeCheck.size,
-        (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric);
-    if (pos != conv(pollData)->writeCheck.size) {
-      if (conv(pollData)->readCheck.pos <= pos + 1 &&
-          conv(pollData)->writeCheck.pos <= pos + 1) {
-        conv(pollData)->writeCheck.size--;
-        if (pos != conv(pollData)->writeCheck.size) {
-          memcpy(&conv(pollData)->writeCheck.files[pos],
-                 &conv(pollData)->writeCheck.files[conv(pollData)->writeCheck.size],
-                 sizeof(fdAndFileType));
-          hshIdxAddr(conv(pollData)->writeCheck.indexHash,
-                     (rtlGenerictype) (memsizetype) conv(pollData)->writeCheck.files[pos].fd,
-                     (inttype) (memsizetype) conv(pollData)->writeCheck.files[pos].fd,
-                     (comparetype) &uintCmpGeneric)->value.genericvalue = (rtlGenerictype) pos;
-        } /* if */
-        hshExcl(conv(pollData)->writeCheck.indexHash, (rtlGenerictype) (memsizetype) aSocket,
-                (inttype) (memsizetype) aSocket, (comparetype) &uintCmpGeneric,
-                (destrfunctype) &intDestrGeneric, (destrfunctype) &intDestrGeneric);
-        if (conv(pollData)->readCheck.pos == pos + 1) {
-          conv(pollData)->readCheck.pos--;
-        } /* if */
-        if (conv(pollData)->writeCheck.pos == pos + 1) {
-          conv(pollData)->writeCheck.pos--;
-        } /* if */
-      } /* if */
-#ifdef USE_PREPARED_FD_SET
-      FD_CLR(aSocket, to_write_inFdset(pollData));
-#endif
-    } /* if */
-  } /* polRemoveWriteCheck */
+  } /* polRemoveCheck */

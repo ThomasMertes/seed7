@@ -1,0 +1,322 @@
+
+(********************************************************************)
+(*                                                                  *)
+(*  listener.s7i  Support for inet listener                         *)
+(*  Copyright (C) 2007 - 2009, 2011  Thomas Mertes                  *)
+(*                                                                  *)
+(*  This file is part of the Seed7 Runtime Library.                 *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is free software; you can             *)
+(*  redistribute it and/or modify it under the terms of the GNU     *)
+(*  Lesser General Public License as published by the Free Software *)
+(*  Foundation; either version 2.1 of the License, or (at your      *)
+(*  option) any later version.                                      *)
+(*                                                                  *)
+(*  The Seed7 Runtime Library is distributed in the hope that it    *)
+(*  will be useful, but WITHOUT ANY WARRANTY; without even the      *)
+(*  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR *)
+(*  PURPOSE.  See the GNU Lesser General Public License for more    *)
+(*  details.                                                        *)
+(*                                                                  *)
+(*  You should have received a copy of the GNU Lesser General       *)
+(*  Public License along with this program; if not, write to the    *)
+(*  Free Software Foundation, Inc., 51 Franklin Street,             *)
+(*  Fifth Floor, Boston, MA  02110-1301, USA.                       *)
+(*                                                                  *)
+(********************************************************************)
+
+
+include "sockbase.s7i";
+include "socket.s7i";
+include "poll.s7i";
+
+
+const type: inetListener is sub baseListener struct
+    var PRIMITIVE_SOCKET: sock is PRIMITIVE_NULL_SOCKET;
+    var socketAddress: addr is socketAddress.value;
+    var string: service is "";
+    var pollData: checkedSocks is pollData.value;
+    var file: existingConnection is STD_NULL;
+    var file: newConnection is STD_NULL;
+  end struct;
+
+
+type_implements_interface(inetListener, listener);
+
+
+const func inetListener: malloc (in inetListener: aListener) is func
+  result
+    var inetListener: result is inetListener.value;
+  begin
+    result := aListener;
+  end func;
+
+
+(**
+ *  Create a bound internet listener for a port at localhost.
+ *  The listerner is responsible for incoming connections of the
+ *  specified port. The listener also manages its accepted sockets.
+ *  Processing requests from port 1080 can be done with:
+ *   inetListener := openInetListener(1080);
+ *   listen(inetListener, 10);
+ *   while TRUE do
+ *     sock := accept(inetListener);
+ *     # Read and process the request from sock.
+ *     close(sock);
+ *   end while;
+ *  The example above manages requests from different clients
+ *  sequentially. The function ''waitForRequest'' can be used to
+ *  process interleaved requests from several clients.
+ *  @return the bound internet listener.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception RANGE_ERROR The port is not in the range 0 to 65535.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func listener: openInetListener (in integer: portNumber) is func
+  result
+    var listener: result is listener.value;
+  local
+    var socketAddress: address is socketAddress.value;
+    var PRIMITIVE_SOCKET: open_socket is PRIMITIVE_NULL_SOCKET;
+    var inetListener: new_listener is inetListener.value;
+  begin
+    address := inetListenerAddress(portNumber);
+    open_socket := PRIMITIVE_SOCKET(addrFamily(address), SOCK_STREAM, 0);
+    if open_socket <> PRIMITIVE_NULL_SOCKET then
+      new_listener.addr := address;
+      new_listener.service := service(address);
+      bind(open_socket, new_listener.addr);
+      new_listener.sock := open_socket;
+      addCheck(new_listener.checkedSocks, open_socket, POLLIN, STD_NULL);
+      result := malloc(new_listener);
+    end if;
+  end func;
+
+
+(**
+ *  Close the listener ''aListener''.
+ *  A listener manages accepted sockets (its existing connections).
+ *  When the listener is closed all references to the listener
+ *  is removed from the accepted sockets.
+ *)
+const proc: close (inout inetListener: aListener) is func
+  local
+    var array file: managedFiles is 0 times STD_NULL;
+    var integer: index is 0;
+    var file: aFile is STD_NULL;
+  begin
+    close(aListener.sock);
+    iterChecks(aListener.checkedSocks, POLLINOUT);
+    for aFile range aListener.checkedSocks do
+      if aFile <> STD_NULL then
+        release(aFile);
+      end if;
+    end for;
+    clear(aListener.checkedSocks);
+  end func;
+
+
+const proc: signOff (inout inetListener: aListener, in PRIMITIVE_SOCKET: sock) is func
+  local
+    var integer: index is 0;
+    var integer: index_found is 0;
+  begin
+    removeCheck(aListener.checkedSocks, sock, POLLIN);
+  end func;
+
+
+(**
+ *  Listen for socket connections and limit the incoming queue.
+ *  The ''backlog'' argument defines the maximum length to which
+ *  the queue of pending connections for ''aListener'' may grow.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: listen (in inetListener: aListener, in integer: backlog) is func
+  begin
+    listen(aListener.sock, backlog);
+  end func;
+
+
+(*
+const type: listenerArray is array listener;
+const array PRIMITIVE_SOCKET: select (in array PRIMITIVE_SOCKET: socks) is 0 times PRIMITIVE_NULL_SOCKET;
+
+
+const func listener: select (in array listener: listeners) is func
+  result
+    var listener: result is listener.value;
+  local
+    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
+    var integer: index is 0;
+  begin
+    if length(listeners) = 0 then
+      raise RANGE_ERROR;
+    else
+      socks := length(listeners) times PRIMITIVE_NULL_SOCKET;
+      for index range minIdx(listeners) to maxIdx(listeners) do
+        socks[index] := listeners[index].sock;
+      end for;
+      socks := select(socks);
+      for index range minIdx(listeners) to maxIdx(listeners) do
+        if socks[1] = listeners[index].sock then
+          result := listeners[index];
+        end if;
+      end for;
+    end if;
+  end func;
+
+
+const func integer: selectOne (in array listener: listeners) is func
+  result
+    var listener: result is listener.value;
+  local
+    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
+    var integer: index is 0;
+  begin
+    socks := length(listeners) times PRIMITIVE_NULL_SOCKET;
+    for index range minIdx(listeners) to maxIdx(listeners) do
+      socks[index] := listeners[index].sock;
+    end for;
+    result := selectOne(socks);
+  end func;
+
+
+const func file: selectOne (inout inetListener: aListener) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var array PRIMITIVE_SOCKET: socks is 0 times PRIMITIVE_NULL_SOCKET;
+  begin
+    socks := succ(length(aListener.accepted)) times PRIMITIVE_NULL_SOCKET;
+    for index range 1 to length(aListener.accepted) do
+      socks[index] := aListener.accepted[index].sock;
+    end for;
+*)
+
+
+(*
+const func boolean: requestPresent (in listener: aListener, in duration: timeout) is func
+  result
+    var boolean: result is FALSE;
+  begin
+    result := inputReady(aListener.sock, toSeconds(timeout), timeout.micro_second);
+  end func;
+*)
+
+
+(**
+ *  Create a new accepted connection socket for 'aListener'.
+ *  The function waits until at least one connection request is
+ *  in the listeners queue of pending connections. Then it extracts
+ *  the first connection request from the listeners queue. This
+ *  request is accepted and a connection socket is created for it.
+ *  A listener manages accepted sockets (its existing connections).
+ *  When an accepted socket is closed it is signed off from the
+ *  listener.
+ *  @return the accepted connection socket.
+ *  @exception FILE_ERROR A system function returns an error.
+ *  @exception MEMORY_ERROR An out of memory situation occurred.
+ *)
+const func file: accept (inout inetListener: aListener) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var PRIMITIVE_SOCKET: accepted_socket is PRIMITIVE_NULL_SOCKET;
+    var socket: new_socket is socket.value;
+  begin
+    accepted_socket := accept(aListener.sock, new_socket.addr);
+    if accepted_socket <> PRIMITIVE_NULL_SOCKET then
+      new_socket.sock := accepted_socket;
+      new_socket.service := aListener.service;
+      new_socket.acceptedFrom := aListener;
+      result := malloc(new_socket);
+      addCheck(aListener.checkedSocks, result, POLLIN);
+    end if;
+  end func;
+
+
+(*
+const func file: accept (in array listener: listeners) is func
+  result
+    var file: result is STD_NULL;
+  local
+    var integer: index is 0;
+  begin
+    index := selectOne(listeners);
+    result := accept(listeners[index]);
+  end func;
+*)
+
+
+const proc: waitForRequest (inout inetListener: aListener) is func
+  local
+    var integer: index is 0;
+  begin
+    if hasNext(aListener.checkedSocks) then
+      aListener.newConnection := STD_NULL;
+      aListener.existingConnection := nextFile(aListener.checkedSocks);
+      if aListener.existingConnection = STD_NULL then
+        # Skip the listener, which returns STD_NULL, when it is ready.
+        aListener.existingConnection := nextFile(aListener.checkedSocks);
+      end if;
+    else
+      poll(aListener.checkedSocks);
+      if getFinding(aListener.checkedSocks, aListener.sock) = POLLIN then
+        aListener.newConnection := accept(aListener);
+        # writeln("accepted");
+      else
+        aListener.newConnection := STD_NULL;
+      end if;
+      iterFindings(aListener.checkedSocks, POLLIN);
+      aListener.existingConnection := nextFile(aListener.checkedSocks);
+      if aListener.existingConnection = STD_NULL then
+        # Skip the listener, which returns STD_NULL, when it is ready.
+        aListener.existingConnection := nextFile(aListener.checkedSocks);
+      end if;
+    end if;
+  end func;
+
+
+const func file: getExistingConnection (in inetListener: aListener) is
+  return aListener.existingConnection;
+
+
+const func file: getNewConnection (in inetListener: aListener) is
+  return aListener.newConnection;
+
+
+(**
+ *  Wait until a request can be read or an incoming connection is accepted.
+ *  The function ''waitForRequest'' can be used to process interleaved
+ *  requests from several clients. A listener manages accepted sockets
+ *  (its existing connections). This function checks the accepted
+ *  sockets for available input (it is possible to read without
+ *  blocking). The port of the listener is also checked for incoming
+ *  connections. The function returns when input is available for an
+ *  existing connection or when a new incoming connection was accepted.
+ *  Processing requests from port 2021 can be done with:
+ *   aListener := openInetListener(2021);
+ *   listen(aListener, 10);
+ *   while TRUE do
+ *     waitForRequest(aListener, existingConnection, newConnection);
+ *     if existingConnection <> STD_NULL then
+ *       # Read and process the request from existingConnection.
+ *     end if;
+ *     if newConnection <> STD_NULL then
+ *       # Send welcome message to newConnection
+ *     end if;
+ *   end while;
+ *  @param existingConnection A random existing connection, were
+ *         a read will not block, is assigned. When no existing
+ *         connection has available input, STD_NULL is assigned.
+ *  @param newConnection A new accepted connection is assigned.
+ *         When no incoming connection is present, STD_NULL is
+ *         assigned.
+ *)
+const proc: waitForRequest (inout listener: aListener,
+    inout file: existingConnection, inout file: newConnection) is func
+  begin
+    waitForRequest(aListener);
+    existingConnection := getExistingConnection(aListener);
+    newConnection := getNewConnection(aListener);
+  end func;

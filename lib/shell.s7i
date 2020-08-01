@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  shell.s7i     Support for shell commands                        *)
-(*  Copyright (C) 2009  Thomas Mertes                               *)
+(*  Copyright (C) 2009 - 2011  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)

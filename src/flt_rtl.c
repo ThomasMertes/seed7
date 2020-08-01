@@ -726,7 +726,7 @@ inttype digits_precision;
           after_zeros--;
         } /* if */
         memmove(&buffer_ptr[pos], &buffer_ptr[after_zeros],
-  	    sizeof(char) * (len - after_zeros + 1));
+            sizeof(char) * (len - after_zeros + 1));
       } /* if */
     } /* if */
     result = cstri_to_stri(buffer_ptr);

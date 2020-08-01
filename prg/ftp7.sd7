@@ -38,7 +38,7 @@ const proc: writeHelp is func
     writeln;
   end func;
 
-	
+
 const proc: longFileListing (inout ftpConnection: ftp, in string: directory) is func
   local
     var array string: dir is 0 times "";

@@ -47,6 +47,9 @@
 #define SCRHEIGHT 25
 #define SCRWIDTH 80
 
+static booltype keybd_initialized = FALSE;
+static DWORD saved_console_input_mode;
+
 static char currentattribute;
 static booltype console_initialized = FALSE;
 static booltype cursor_on = FALSE;
@@ -119,13 +122,54 @@ static chartype map_key[] = {
 
 #ifdef ANSI_C
 
+static void kbd_init (void)
+#else
+
+static void kbd_init ()
+#endif
+
+  {
+    HANDLE hConsole;
+
+  /* kbd_init */
+    hConsole = GetStdHandle(STD_INPUT_HANDLE);
+    if (hConsole != INVALID_HANDLE_VALUE) {
+      if (GetConsoleMode(hConsole, &saved_console_input_mode)) {
+#ifdef OUT_OF_ORDER
+        if (saved_console_input_mode & ENABLE_ECHO_INPUT) { printf("ECHO_INPUT\n"); }
+        /* if (saved_console_input_mode & ENABLE_INSERT_MODE) { printf("INSERT_MODE\n"); } */
+        if (saved_console_input_mode & ENABLE_LINE_INPUT) { printf("LINE_INPUT\n"); }
+        if (saved_console_input_mode & ENABLE_MOUSE_INPUT) { printf("MOUSE_INPUT\n"); }
+        if (saved_console_input_mode & ENABLE_PROCESSED_INPUT) { printf("PROCESSED_INPUT\n"); }
+        /* if (saved_console_input_mode & ENABLE_QUICK_EDIT_MODE) { printf("QUICK_EDIT_MODE\n"); } */
+        if (saved_console_input_mode & ENABLE_WINDOW_INPUT) { printf("WINDOW_INPUT\n"); }
+#endif
+        SetConsoleMode(hConsole, saved_console_input_mode & ~ENABLE_PROCESSED_INPUT);
+        keybd_initialized = TRUE;
+      } /* if */
+    } /* if */
+  } /* kbd_init */
+
+
+
+#ifdef ANSI_C
+
 void kbdShut (void)
 #else
 
 void kbdShut ()
 #endif
 
-  { /* kbdShut */
+  {
+    HANDLE hConsole;
+
+  /* kbdShut */
+    if (keybd_initialized) {
+      hConsole = GetStdHandle(STD_INPUT_HANDLE);
+      if (hConsole != INVALID_HANDLE_VALUE) {
+        SetConsoleMode(hConsole, saved_console_input_mode);
+      } /* if */
+    } /* if */
   } /* kbdShut */
 
 
@@ -139,6 +183,9 @@ booltype kbdKeyPressed ()
 #endif
 
   { /* kbdKeyPressed */
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     return kbhit();
   } /* kbdKeyPressed */
 
@@ -157,6 +204,9 @@ chartype kbdGetc ()
     chartype result;
 
   /* kbdGetc */
+    if (!keybd_initialized) {
+      kbd_init();
+    } /* if */
     key = getch();
     if (key == 0) {
       key = getch();

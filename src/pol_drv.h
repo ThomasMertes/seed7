@@ -29,46 +29,45 @@
 /*                                                                  */
 /********************************************************************/
 
+#define POLL_NOTHING 0
+#define POLL_IN      1
+#define POLL_OUT     2
+#define POLL_INOUT   3
+
+
 #ifdef ANSI_C
 
-void polAddReadCheck (polltype pollData, const sockettype aSocket,
-                      const rtlGenerictype fileObj);
-void polAddWriteCheck (polltype pollData, const sockettype aSocket,
-                       const rtlGenerictype fileObj);
+void polAddCheck (polltype pollData, const sockettype aSocket,
+                  inttype pollMode, const rtlGenerictype fileObj);
 void polClear (polltype pollData);
 void polCpy (polltype poll_to, const const_polltype pollDataFrom);
 polltype polCreate (const const_polltype pollDataFrom);
 void polDestr (const const_polltype oldPollData);
 polltype polEmpty (void);
-rtlArraytype polFiles (const const_polltype pollData);
-booltype polHasNextReadFile (polltype pollData);
-booltype polHasNextWriteFile (polltype pollData);
-rtlGenerictype polNextReadFile (polltype pollData, const rtlGenerictype nullFile);
-rtlGenerictype polNextWriteFile (polltype pollData, const rtlGenerictype nullFile);
+inttype polGetCheck (polltype pollData, const sockettype aSocket);
+inttype polGetFinding (polltype pollData, const sockettype aSocket);
+booltype polHasNext (polltype pollData);
+void polIterChecks (polltype pollData, inttype pollMode);
+void polIterFindings (polltype pollData, inttype pollMode);
+rtlGenerictype polNextFile (polltype pollData, const rtlGenerictype nullFile);
 void polPoll (polltype pollData);
-booltype polReadyForRead (polltype pollData, const sockettype aSocket);
-booltype polReadyForWrite (polltype pollData, const sockettype aSocket);
-void polRemoveReadCheck (polltype pollData, const sockettype aSocket);
-void polRemoveWriteCheck (polltype pollData, const sockettype aSocket);
+void polRemoveCheck (polltype pollData, const sockettype aSocket, inttype pollMode);
 
 #else
 
-void polAddReadCheck ();
-void polAddWriteCheck ();
+void polAddCheck ();
 void polClear ();
 void polCpy ();
 polltype polCreate ();
 void polDestr ();
 polltype polEmpty ();
-rtlArraytype polFiles ():
-booltype polHasNextReadFile ();
-booltype polHasNextWriteFile ();
-rtlObjecttype polNextReadFile ();
-rtlObjecttype polNextWriteFile ();
+inttype polGetCheck ();
+inttype polGetFinding ();
+booltype polHasNext ();
+void polIterChecks ();
+void polIterFindings ();
+rtlObjecttype polNextFile ();
 void polPoll ();
-booltype polReadyForRead ();
-booltype polReadyForWrite ();
-void polRemoveReadCheck ();
-void polRemoveWriteCheck ();
+void polRemoveCheck ();
 
 #endif

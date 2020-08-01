@@ -129,6 +129,7 @@ inifile.s7i  Read key value pairs from an INI file
 integer.s7i  Integer support library
 keybd.s7i    Read from keyboard without buffering and echo
 line.s7i     Filter file which reads the input linewise
+listener.s7i Support for inet listener
 lower.s7i    Filter file which turns characters to lower case
 mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 math.s7i     Mathematical functions and constants
@@ -140,6 +141,7 @@ pic16.s7i    Pictures in the size 16 x 16
 pic32.s7i    Pictures in the size 32 x 32
 pixmap_file.s7i Text implementation type to use a pixmap font
 pixmapfont.s7i Defines pixmapFontType and the font cache
+poll.s7i     Support for pollData and the poll function
 progs.s7i    Program handling support library
 rational.s7i Rational number support library
 reverse.s7i  Filter file which writes right to left on output
@@ -147,7 +149,8 @@ scanfile.s7i File scanner functions
 scanstri.s7i String scanner functions
 seed7_05.s7i Standard Seed7 library
 shell.s7i    Support for shell commands
-socket.s7i   File implementation type for OS sockets
+sockbase.s7i Support for socket address and primitive socket
+socket.s7i   File implementation type for sockets
 sokoban1.s7i Classic sokoban levels 1 to 90.
 stars.s7i    List of stars with name, RA, DEC and magnitude V
 stdfont10.s7i Standard bitmap font with capHeight 10.

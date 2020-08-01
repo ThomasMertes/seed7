@@ -11465,30 +11465,18 @@ const proc: process_kbd_word_read (in ref_list: params, inout expr_type: c_expr)
   end func;
 
 
-const proc: process_pol_addReadCheck (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_pol_addCheck (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "polAddReadCheck(";
+    c_expr.expr &:= "polAddCheck(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= ", (generictype)(";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= "));\n";
-  end func;
-
-
-const proc: process_pol_addWriteCheck (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "polAddWriteCheck(";
-    process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
-    c_expr.expr &:= ", (generictype)(";
     process_expr(params[3], c_expr);
+    c_expr.expr &:= ", (generictype)(";
+    process_expr(params[4], c_expr);
     c_expr.expr &:= "));\n";
   end func;
 
@@ -11559,39 +11547,43 @@ const proc: process_pol_cpy (in ref_list: params, inout expr_type: c_expr) is fu
   end func;
 
 
-const proc: process_pol_files (in reference: function, in ref_list: params,
-    inout expr_type: c_expr) is func
+const proc: process_pol_hasNext (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    prepare_array_result(result_type(getType(function)), c_expr);
-    c_expr.result_expr := "polFiles(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
-  end func;
-
-
-const proc: process_pol_hasNextReadFile (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    c_expr.expr &:= "polHasNextReadFile(";
+    c_expr.expr &:= "polHasNext(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
   end func;
 
 
-const proc: process_pol_hasNextWriteFile (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_pol_iterChecks (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "polHasNextWriteFile(";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polIterChecks(";
     process_expr(params[1], c_expr);
-    c_expr.expr &:= ")";
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
   end func;
 
 
-const proc: process_pol_nextReadFile (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_pol_iterFindings (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "polNextReadFile(";
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "polIterFindings(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
+  end func;
+
+
+const proc: process_pol_nextFile (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    c_expr.expr &:= "polNextFile(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", (generictype)(";
     process_expr(params[2], c_expr);
@@ -11620,10 +11612,10 @@ const proc: process_pol_poll (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
-const proc: process_pol_readyForRead (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_pol_getCheck (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "polReadyForRead(";
+    c_expr.expr &:= "polGetCheck(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -11631,10 +11623,10 @@ const proc: process_pol_readyForRead (in ref_list: params, inout expr_type: c_ex
   end func;
 
 
-const proc: process_pol_readyForWrite (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_pol_getFinding (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
-    c_expr.expr &:= "polReadyForWrite(";
+    c_expr.expr &:= "polGetFinding(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
@@ -11642,26 +11634,16 @@ const proc: process_pol_readyForWrite (in ref_list: params, inout expr_type: c_e
   end func;
 
 
-const proc: process_pol_removeReadCheck (in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_pol_removeCheck (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "polRemoveReadCheck(";
+    c_expr.expr &:= "polRemoveCheck(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
     process_expr(params[2], c_expr);
-    c_expr.expr &:= ");\n";
-  end func;
-
-
-const proc: process_pol_removeWriteCheck (in ref_list: params, inout expr_type: c_expr) is func
-
-  begin
-    setDiagnosticLine(c_expr);
-    c_expr.expr &:= "polRemoveWriteCheck(";
-    process_expr(params[1], c_expr);
     c_expr.expr &:= ", ";
-    process_expr(params[2], c_expr);
+    process_expr(params[3], c_expr);
     c_expr.expr &:= ");\n";
   end func;
 
@@ -13657,6 +13639,16 @@ const proc: process_soc_gets (in ref_list: params, inout expr_type: c_expr) is f
   end func;
 
 
+const proc: process_soc_get_addr (in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    prepare_bstri_result(c_expr);
+    c_expr.result_expr := "socGetAddr(";
+    getStdParamToResultExpr(params[1], c_expr);
+    c_expr.result_expr &:= ")";
+  end func;
+
+
 const proc: process_soc_get_hostname (in ref_list: params, inout expr_type: c_expr) is func
 
   begin
@@ -13766,17 +13758,6 @@ const proc: process_soc_recv (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= ", ";
     process_expr(params[4], c_expr);
     c_expr.expr &:= ")";
-  end func;
-
-
-const proc: process_soc_select_input (in reference: function, in ref_list: params,
-    inout expr_type: c_expr) is func
-
-  begin
-    prepare_set_result(result_type(getType(function)), c_expr);
-    c_expr.result_expr := "socSelectInput(";
-    getAnyParamToResultExpr(params[1], c_expr);
-    c_expr.result_expr &:= ")";
   end func;
 
 
@@ -16707,34 +16688,28 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_unknown_action(action_name, c_expr);
       end if;
     elsif action_prefix = "POL" then
-      if action_name = "POL_ADD_READ_CHECK" then
-        process_pol_addReadCheck(params, c_expr);
-      elsif action_name = "POL_ADD_WRITE_CHECK" then
-        process_pol_addWriteCheck(params, c_expr);
+      if action_name = "POL_ADD_CHECK" then
+        process_pol_addCheck(params, c_expr);
       elsif action_name = "POL_CLEAR" then
         process_pol_clear(params, c_expr);
       elsif action_name = "POL_CPY" then
         process_pol_cpy(params, c_expr);
-      elsif action_name = "POL_FILES" then
-        process_pol_files(function, params, c_expr);
-      elsif action_name = "POL_HAS_NEXT_READ_FILE" then
-        process_pol_hasNextReadFile(params, c_expr);
-      elsif action_name = "POL_HAS_NEXT_WRITE_FILE" then
-        process_pol_hasNextWriteFile(params, c_expr);
-      elsif action_name = "POL_NEXT_READ_FILE" then
-        process_pol_nextReadFile(params, c_expr);
-      elsif action_name = "POL_NEXT_WRITE_FILE" then
-        process_pol_nextWriteFile(params, c_expr);
+      elsif action_name = "POL_GET_CHECK" then
+        process_pol_getCheck(params, c_expr);
+      elsif action_name = "POL_GET_FINDING" then
+        process_pol_getFinding(params, c_expr);
+      elsif action_name = "POL_HAS_NEXT" then
+        process_pol_hasNext(params, c_expr);
+      elsif action_name = "POL_ITER_CHECKS" then
+        process_pol_iterChecks(params, c_expr);
+      elsif action_name = "POL_ITER_FINDINGS" then
+        process_pol_iterFindings(params, c_expr);
+      elsif action_name = "POL_NEXT_FILE" then
+        process_pol_nextFile(params, c_expr);
       elsif action_name = "POL_POLL" then
         process_pol_poll(params, c_expr);
-      elsif action_name = "POL_READY_FOR_READ" then
-        process_pol_readyForRead(params, c_expr);
-      elsif action_name = "POL_READY_FOR_WRITE" then
-        process_pol_readyForWrite(params, c_expr);
-      elsif action_name = "POL_REMOVE_READ_CHECK" then
-        process_pol_removeReadCheck(params, c_expr);
-      elsif action_name = "POL_REMOVE_WRITE_CHECK" then
-        process_pol_removeWriteCheck(params, c_expr);
+      elsif action_name = "POL_REMOVE_CHECK" then
+        process_pol_removeCheck(params, c_expr);
       elsif action_name = "POL_VALUE" then
         process_pol_value(params, c_expr);
       else
@@ -16991,6 +16966,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_getc(params, c_expr);
       elsif action_name = "SOC_GETS" then
         process_soc_gets(params, c_expr);
+      elsif action_name = "SOC_GET_ADDR" then
+        process_soc_get_addr(params, c_expr);
       elsif action_name = "SOC_GET_HOSTNAME" then
         process_soc_get_hostname(params, c_expr);
       elsif action_name = "SOC_HAS_NEXT" then
@@ -17011,8 +16988,6 @@ const proc: process_action (in reference: function, in ref_list: params,
         process_soc_ne(params, c_expr);
       elsif action_name = "SOC_RECV" then
         process_soc_recv(params, c_expr);
-      elsif action_name = "SOC_SELECT_INPUT" then
-        process_soc_select_input(function, params, c_expr);
       elsif action_name = "SOC_SEND" then
         process_soc_send(params, c_expr);
       elsif action_name = "SOC_SOCKET" then
@@ -21965,23 +21940,20 @@ const proc: write_prototypes is func
     declareExtern("stritype    kbdLineRead (chartype *);");
     declareExtern("chartype    kbdRawGetc (void);");
     declareExtern("stritype    kbdWordRead (chartype *);");
-    declareExtern("void        polAddReadCheck (polltype, const sockettype, const generictype);");
-    declareExtern("void        polAddWriteCheck (polltype, const sockettype, const generictype);");
+    declareExtern("void        polAddCheck (polltype, const sockettype, inttype, const generictype);");
     declareExtern("void        polClear (polltype);");
     declareExtern("void        polCpy (polltype, const const_polltype);");
     declareExtern("polltype    polCreate (const const_polltype);");
     declareExtern("void        polDestr (const const_polltype);");
     declareExtern("polltype    polEmpty (void);");
-    declareExtern("arraytype   polFiles (const const_polltype);");
-    declareExtern("booltype    polHasNextReadFile (polltype);");
-    declareExtern("booltype    polHasNextWriteFile (polltype);");
-    declareExtern("generictype polNextReadFile (polltype, const generictype);");
-    declareExtern("generictype polNextWriteFile (polltype, const generictype);");
+    declareExtern("inttype     polGetCheck (polltype, const sockettype);");
+    declareExtern("inttype     polGetFinding (polltype, const sockettype);");
+    declareExtern("booltype    polHasNext (polltype);");
+    declareExtern("void        polIterChecks (polltype, inttype);");
+    declareExtern("void        polIterFindings (polltype, inttype);");
+    declareExtern("generictype polNextFile (polltype, const generictype);");
     declareExtern("void        polPoll (polltype);");
-    declareExtern("booltype    polReadyForRead (polltype, const sockettype);");
-    declareExtern("booltype    polReadyForWrite (polltype, const sockettype);");
-    declareExtern("void        polRemoveReadCheck (polltype, const sockettype);");
-    declareExtern("void        polRemoveWriteCheck (polltype, const sockettype);");
+    declareExtern("void        polRemoveCheck (polltype, const sockettype, inttype);");
     declareExtern("polltype    polValue (objreftype);");
     declareExtern("inttype     heapsize (void);");
     declareExtern("void        prcNoop (void)                                {}");
@@ -22081,6 +22053,7 @@ const proc: write_prototypes is func
     declareExtern("void        socConnect (sockettype, const_bstritype);");
     declareExtern("chartype    socGetc (sockettype, chartype *);");
     declareExtern("stritype    socGets (sockettype, inttype, chartype *);");
+    declareExtern("bstritype   socGetAddr (sockettype);");
     declareExtern("stritype    socGetHostname(void);");
     declareExtern("booltype    socHasNext (sockettype);");
     declareExtern("bstritype   socInetAddr (const const_stritype, inttype);");
@@ -22091,7 +22064,6 @@ const proc: write_prototypes is func
     declareExtern("void        socListen (sockettype, inttype);");
     declareExtern("inttype     socRecv (sockettype, stritype *, inttype, inttype);");
     declareExtern("inttype     socRecvfrom (sockettype, stritype *, inttype, inttype, bstritype *);");
-    declareExtern("settype     socSelectInput (const_arraytype);");
     declareExtern("inttype     socSend (sockettype, const_stritype, inttype);");
     declareExtern("inttype     socSendto (sockettype, const_stritype, inttype, bstritype);");
     declareExtern("sockettype  socSocket (inttype, inttype, inttype);");

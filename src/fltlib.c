@@ -207,7 +207,7 @@ listtype arguments;
     isit_float(arg_1(arguments));
     isit_float(arg_2(arguments));
     return bld_int_temp(
-	fltCmp(take_float(arg_1(arguments)), take_float(arg_2(arguments))));
+        fltCmp(take_float(arg_1(arguments)), take_float(arg_2(arguments))));
   } /* flt_cmp */
 
 
