@@ -68,9 +68,11 @@ const proc: main is func
           \    block\n\
           \      writeln(" & command & ");\n\
           \    exception\n\
-          \      catch NUMERIC_ERROR: writeln(\"NUMERIC_ERROR\");\n\
-          \      catch RANGE_ERROR:   writeln(\"RANGE_ERROR\");\n\
-          \      catch FILE_ERROR:    writeln(\"FILE_ERROR\");\n\
+          \      catch MEMORY_ERROR:   writeln(\"MEMORY_ERROR\");\n\
+          \      catch NUMERIC_ERROR:  writeln(\"NUMERIC_ERROR\");\n\
+          \      catch OVERFLOW_ERROR: writeln(\"OVERFLOW_ERROR\");\n\
+          \      catch RANGE_ERROR:    writeln(\"RANGE_ERROR\");\n\
+          \      catch FILE_ERROR:     writeln(\"FILE_ERROR\");\n\
           \    end block;\n\
           \  end func;\n\
           \");

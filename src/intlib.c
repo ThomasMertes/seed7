@@ -75,7 +75,7 @@ objectType gen_destr (listType arguments)
 /**
  *  Compute the absolute value of an integer number.
  *  @return the absolute value.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_abs (listType arguments)
 
@@ -90,7 +90,7 @@ objectType int_abs (listType arguments)
       if (unlikely(number == INTTYPE_MIN)) {
         /* Changing the sign of the most negative number in twos */
         /* complement arithmetic triggers an overflow.           */
-        return raise_exception(SYS_NUM_EXCEPTION);
+        return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
 #endif
       number = -number;
@@ -103,7 +103,7 @@ objectType int_abs (listType arguments)
 /**
  *  Add two integer numbers.
  *  @return the sum of the two numbers.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_add (listType arguments)
 
@@ -119,11 +119,11 @@ objectType int_add (listType arguments)
 #ifdef CHECK_INT_OVERFLOW
     if (summand2 < 0) {
       if (unlikely(summand1 < INTTYPE_MIN - summand2)) {
-        return raise_exception(SYS_NUM_EXCEPTION);
+        return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } else {
       if (unlikely(summand1 > INTTYPE_MAX - summand2)) {
-        return raise_exception(SYS_NUM_EXCEPTION);
+        return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } /* if */
 #endif
@@ -374,7 +374,7 @@ objectType int_create (listType arguments)
 /**
  *  Decrement an integer variable.
  *  Decrements the number by 1.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_decr (listType arguments)
 
@@ -387,7 +387,7 @@ objectType int_decr (listType arguments)
     is_variable(int_variable);
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(take_int(int_variable) == INTTYPE_MIN)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
     int_variable->value.intValue--;
@@ -403,8 +403,8 @@ objectType int_decr (listType arguments)
  *  towards zero. Tests in chkint.sd7 find out, if this
  *  assumption is wrong.
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs or
- *                           when an integer overflow occurs.
+ *  @exception NUMERIC_ERROR When a division by zero occurs
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_div (listType arguments)
 
@@ -424,7 +424,7 @@ objectType int_div (listType arguments)
       /* A division of the most negative number by -1 is equivalent */
       /* to changing the sign of the most negative number. In twos  */
       /* complement arithmetic this triggers an overflow.           */
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } /* if */
     return bld_int_temp(dividend / divisor);
@@ -496,7 +496,7 @@ objectType int_ge (listType arguments)
 
 /**
  *  Increment an integer variable by a delta.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_grow (listType arguments)
 
@@ -517,11 +517,11 @@ objectType int_grow (listType arguments)
       number = take_int(int_variable);
       if (delta < 0) {
         if (unlikely(number < INTTYPE_MIN - delta)) {
-          return raise_exception(SYS_NUM_EXCEPTION);
+          return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } else {
         if (unlikely(number > INTTYPE_MAX - delta)) {
-          return raise_exception(SYS_NUM_EXCEPTION);
+          return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } /* if */
     }
@@ -568,7 +568,7 @@ objectType int_hashcode (listType arguments)
 /**
  *  Increment an integer variable.
  *  Increments the number by 1.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_incr (listType arguments)
 
@@ -581,7 +581,7 @@ objectType int_incr (listType arguments)
     is_variable(int_variable);
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(take_int(int_variable) == INTTYPE_MAX)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
     int_variable->value.intValue++;
@@ -672,7 +672,7 @@ objectType int_lpad0 (listType arguments)
  *  Shift an integer number left by lshift bits.
  *  A << B is equivalent to A * 2_ ** B
  *  @return the left shifted number.
- *  @exception NUMERIC_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal INTTYPE_SIZE or
  *             when an integer overflow occurs.
  */
@@ -687,21 +687,21 @@ objectType int_lshift (listType arguments)
     isit_int(arg_3(arguments));
     number = take_int(arg_1(arguments));
     lshift = take_int(arg_3(arguments));
-    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
-    } /* if */
 #ifdef CHECK_INT_OVERFLOW
+    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
+      return raise_exception(SYS_OVF_EXCEPTION);
+    } /* if */
     if (number < 0) {
 #ifdef RSHIFT_DOES_SIGN_EXTEND
       if (unlikely(number < INTTYPE_MIN >> lshift)) {
 #else
       if (unlikely(number < ~(~INTTYPE_MIN >> lshift))) {
 #endif
-        return raise_exception(SYS_NUM_EXCEPTION);
+        return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } else {
       if (unlikely(number > INTTYPE_MAX >> lshift)) {
-        return raise_exception(SYS_NUM_EXCEPTION);
+        return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } /* if */
 #endif
@@ -712,7 +712,7 @@ objectType int_lshift (listType arguments)
 
 /**
  *  Shift a number left by lshift bits and assign the result back to number.
- *  @exception NUMERIC_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal INTTYPE_SIZE or
  *             when an integer overflow occurs.
  */
@@ -728,10 +728,10 @@ objectType int_lshift_assign (listType arguments)
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     lshift = take_int(arg_3(arguments));
-    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
-    } /* if */
 #ifdef CHECK_INT_OVERFLOW
+    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
+      return raise_exception(SYS_OVF_EXCEPTION);
+    } /* if */
     {
       intType number;
 
@@ -742,11 +742,11 @@ objectType int_lshift_assign (listType arguments)
 #else
         if (unlikely(number < ~(~INTTYPE_MIN >> lshift))) {
 #endif
-          return raise_exception(SYS_NUM_EXCEPTION);
+          return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } else {
         if (unlikely(number > INTTYPE_MAX >> lshift)) {
-          return raise_exception(SYS_NUM_EXCEPTION);
+          return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } /* if */
     }
@@ -782,8 +782,8 @@ objectType int_lt (listType arguments)
  *  The modulo (remainder) of this division is computed with int_mod.
  *  Therefore this division is called modulo division (mdiv).
  *  @return the quotient of the integer division.
- *  @exception NUMERIC_ERROR When a division by zero occurs or
- *                           when an integer overflow occurs.
+ *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_mdiv (listType arguments)
 
@@ -804,7 +804,7 @@ objectType int_mdiv (listType arguments)
       /* A division of the most negative number by -1 is equivalent */
       /* to changing the sign of the most negative number. In twos  */
       /* complement arithmetic this triggers an overflow.           */
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } /* if */
     if (dividend > 0 && divisor < 0) {
@@ -824,6 +824,7 @@ objectType int_mdiv (listType arguments)
  *  The modulo has the same sign as the divisor.
  *  @return the modulo of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_mod (listType arguments)
 
@@ -840,12 +841,12 @@ objectType int_mod (listType arguments)
     if (unlikely(divisor == 0)) {
       return raise_exception(SYS_NUM_EXCEPTION);
 #if defined CHECK_INT_OVERFLOW && defined TWOS_COMPLEMENT_INTTYPE
-    } else if (unlikely(divisor == -1)) {
-      /* To compute the modulo the processor would do a division    */
+    } else if (unlikely(divisor == -1 && dividend == INTTYPE_MIN)) {
+      /* To compute the modulo the processor does a division        */
       /* by -1. A division by -1 is equivalent to changing the      */
       /* sign. For the most negative number changing the sign       */
       /* triggers an overflow.                                      */
-      modulo = 0;
+      return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } else {
       modulo = dividend % divisor;
@@ -861,7 +862,7 @@ objectType int_mod (listType arguments)
 /**
  *  Multiply two integer numbers.
  *  @return the product of the two numbers.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_mult (listType arguments)
 
@@ -876,11 +877,21 @@ objectType int_mult (listType arguments)
     factor1 = take_int(arg_1(arguments));
     factor2 = take_int(arg_3(arguments));
 #ifdef CHECK_INT_OVERFLOW
+#ifdef HAS_DOUBLE_INTTYPE
+    {
+      doubleIntType doubleProduct = (doubleIntType) factor1 * (doubleIntType) factor2;
+      product = (intType) doubleProduct;
+      if ((doubleIntType) product != doubleProduct) {
+        return raise_exception(SYS_OVF_EXCEPTION);
+      } /* if */
+    }
+#else
     if (inHalfIntTypeRange(factor1) && inHalfIntTypeRange(factor2)) {
       product = factor1 * factor2;
     } else {
       product = intSafeMult(factor1, factor2);
     } /* if */
+#endif
 #else
     product = factor1 * factor2;
 #endif
@@ -891,6 +902,7 @@ objectType int_mult (listType arguments)
 
 /**
  *  Multiply an integer number by a factor and assign the result back to number.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_mult_assign (listType arguments)
 
@@ -946,7 +958,7 @@ objectType int_ne (listType arguments)
 /**
  *  Minus sign, negate an integer number.
  *  @return the negated value of the number.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_negate (listType arguments)
 
@@ -960,7 +972,7 @@ objectType int_negate (listType arguments)
     if (unlikely(number == INTTYPE_MIN)) {
       /* Changing the sign of the most negative number in twos */
       /* complement arithmetic triggers an overflow.           */
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
     return bld_int_temp(-number);
@@ -1070,8 +1082,8 @@ objectType int_plus (listType arguments)
 /**
  *  Compute the exponentiation of a integer base with an integer exponent.
  *  @return the result of the exponentation.
- *  @exception NUMERIC_ERROR When the exponent is negative or
- *                           when an integer overflow occurs.
+ *  @exception NUMERIC_ERROR When the exponent is negative.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_pow (listType arguments)
 
@@ -1091,7 +1103,7 @@ objectType int_pow (listType arguments)
 /**
  *  Predecessor of an integer number.
  *  @return number - 1
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_pred (listType arguments)
 
@@ -1103,7 +1115,7 @@ objectType int_pred (listType arguments)
     number = take_int(arg_1(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(number == INTTYPE_MIN)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
     return bld_int_temp(number - 1);
@@ -1176,6 +1188,7 @@ objectType int_rand (listType arguments)
  *  The remainder has the same sign as the dividend.
  *  @return the remainder of the integer division.
  *  @exception NUMERIC_ERROR When a division by zero occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_rem (listType arguments)
 
@@ -1192,12 +1205,12 @@ objectType int_rem (listType arguments)
     if (unlikely(divisor == 0)) {
       return raise_exception(SYS_NUM_EXCEPTION);
 #if defined CHECK_INT_OVERFLOW && defined TWOS_COMPLEMENT_INTTYPE
-    } else if (unlikely(divisor == -1)) {
-      /* To compute the remainder the processor would do a division */
+    } else if (unlikely(divisor == -1 && dividend == INTTYPE_MIN)) {
+      /* To compute the remainder the processor does a division     */
       /* by -1. A division by -1 is equivalent to changing the      */
       /* sign. For the most negative number changing the sign       */
       /* triggers an overflow.                                      */
-      remainder = 0;
+      return raise_exception(SYS_OVF_EXCEPTION);
 #endif
     } else {
       remainder = dividend % divisor;
@@ -1211,7 +1224,7 @@ objectType int_rem (listType arguments)
  *  Shift an integer number right by rshift bits.
  *  A >> B is equivalent to A mdiv 2_ ** B
  *  @return the right shifted number.
- *  @exception NUMERIC_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType int_rshift (listType arguments)
@@ -1226,9 +1239,11 @@ objectType int_rshift (listType arguments)
     isit_int(arg_3(arguments));
     number = take_int(arg_1(arguments));
     rshift = take_int(arg_3(arguments));
+#ifdef CHECK_INT_OVERFLOW
     if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
+#endif
 #ifdef RSHIFT_DOES_SIGN_EXTEND
     result = number >> rshift;
 #else
@@ -1245,7 +1260,7 @@ objectType int_rshift (listType arguments)
 
 /**
  *  Shift a number right by rshift bits and assign the result back to number.
- *  @exception NUMERIC_ERROR When the shift amount is
+ *  @exception OVERFLOW_ERROR When the shift amount is
  *             negative or greater equal INTTYPE_SIZE.
  */
 objectType int_rshift_assign (listType arguments)
@@ -1260,9 +1275,11 @@ objectType int_rshift_assign (listType arguments)
     is_variable(int_variable);
     isit_int(arg_3(arguments));
     rshift = take_int(arg_3(arguments));
+#ifdef CHECK_INT_OVERFLOW
     if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
+#endif
 #ifdef RSHIFT_DOES_SIGN_EXTEND
     int_variable->value.intValue >>= rshift;
 #else
@@ -1281,7 +1298,7 @@ objectType int_rshift_assign (listType arguments)
 /**
  *  Compute the subtraction of two integer numbers.
  *  @return the difference of the two numbers.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_sbtr (listType arguments)
 
@@ -1297,11 +1314,11 @@ objectType int_sbtr (listType arguments)
 #ifdef CHECK_INT_OVERFLOW
     if (subtrahend < 0) {
       if (unlikely(minuend > INTTYPE_MAX + subtrahend)) {
-        return raise_exception(SYS_NUM_EXCEPTION);
+        return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } else {
       if (unlikely(minuend < INTTYPE_MIN + subtrahend)) {
-        return raise_exception(SYS_NUM_EXCEPTION);
+        return raise_exception(SYS_OVF_EXCEPTION);
       } /* if */
     } /* if */
 #endif
@@ -1312,7 +1329,7 @@ objectType int_sbtr (listType arguments)
 
 /**
  *  Decrement an integer variable by a delta.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_shrink (listType arguments)
 
@@ -1333,11 +1350,11 @@ objectType int_shrink (listType arguments)
       number = take_int(int_variable);
       if (delta < 0) {
         if (unlikely(number > INTTYPE_MAX + delta)) {
-          return raise_exception(SYS_NUM_EXCEPTION);
+          return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } else {
         if (unlikely(number < INTTYPE_MIN + delta)) {
-          return raise_exception(SYS_NUM_EXCEPTION);
+          return raise_exception(SYS_OVF_EXCEPTION);
         } /* if */
       } /* if */
     }
@@ -1383,7 +1400,7 @@ objectType int_str (listType arguments)
 /**
  *  Successor of an integer number.
  *  @return number + 1
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 objectType int_succ (listType arguments)
 
@@ -1395,7 +1412,7 @@ objectType int_succ (listType arguments)
     number = take_int(arg_1(arguments));
 #ifdef CHECK_INT_OVERFLOW
     if (unlikely(number == INTTYPE_MAX)) {
-      return raise_exception(SYS_NUM_EXCEPTION);
+      return raise_exception(SYS_OVF_EXCEPTION);
     } /* if */
 #endif
     return bld_int_temp(number + 1);
@@ -1429,14 +1446,66 @@ objectType int_umult (listType arguments)
 
 
 
-objectType int_urshift (listType arguments)
+objectType int_ulshift (listType arguments)
 
-  { /* int_urshift */
+  {
+    intType lshift;
+
+  /* int_ulshift */
     isit_int(arg_1(arguments));
     isit_int(arg_3(arguments));
+    lshift = take_int(arg_3(arguments));
+#ifdef CHECK_INT_OVERFLOW
+    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
+      return raise_exception(SYS_OVF_EXCEPTION);
+    } /* if */
+#endif
     return bld_int_temp((intType) (
-        (uintType) (take_int(arg_1(arguments))) >>
-        take_int(arg_3(arguments))));
+        (uintType) (take_int(arg_1(arguments))) << lshift));
+  } /* int_ulshift */
+
+
+
+objectType int_ulshift_assign (listType arguments)
+
+  {
+    objectType int_variable;
+    intType lshift;
+
+  /* int_ulshift_assign */
+    int_variable = arg_1(arguments);
+    isit_int(int_variable);
+    is_variable(int_variable);
+    isit_int(arg_3(arguments));
+    lshift = take_int(arg_3(arguments));
+#ifdef CHECK_INT_OVERFLOW
+    if (unlikely(lshift < 0 || lshift >= INTTYPE_SIZE)) {
+      return raise_exception(SYS_OVF_EXCEPTION);
+    } /* if */
+#endif
+    int_variable->value.intValue = (intType) (
+        (uintType) (take_int(int_variable)) << lshift);
+    return SYS_EMPTY_OBJECT;
+  } /* int_ulshift_assign */
+
+
+
+objectType int_urshift (listType arguments)
+
+  {
+    intType rshift;
+
+  /* int_urshift */
+    isit_int(arg_1(arguments));
+    isit_int(arg_3(arguments));
+    rshift = take_int(arg_3(arguments));
+#ifdef CHECK_INT_OVERFLOW
+    if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
+      return raise_exception(SYS_OVF_EXCEPTION);
+    } /* if */
+#endif
+    return bld_int_temp((intType) (
+        (uintType) (take_int(arg_1(arguments))) >> rshift));
   } /* int_urshift */
 
 
@@ -1445,15 +1514,21 @@ objectType int_urshift_assign (listType arguments)
 
   {
     objectType int_variable;
+    intType rshift;
 
   /* int_urshift_assign */
     int_variable = arg_1(arguments);
     isit_int(int_variable);
     is_variable(int_variable);
     isit_int(arg_3(arguments));
+    rshift = take_int(arg_3(arguments));
+#ifdef CHECK_INT_OVERFLOW
+    if (unlikely(rshift < 0 || rshift >= INTTYPE_SIZE)) {
+      return raise_exception(SYS_OVF_EXCEPTION);
+    } /* if */
+#endif
     int_variable->value.intValue = (intType) (
-        (uintType) (int_variable->value.intValue) >>
-        take_int(arg_3(arguments)));
+        (uintType) (take_int(int_variable)) >> rshift);
     return SYS_EMPTY_OBJECT;
   } /* int_urshift_assign */
 

@@ -151,7 +151,7 @@ double setMantissaAndExponent (int64Type intMantissa, int binaryExponent)
 
 
 memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
-    char *format, char *buffer)
+    const char *format, char *buffer)
 
   {
     long decimalExponent;
@@ -433,70 +433,68 @@ boolType fltGt (floatType number1, floatType number2)
 floatType fltIPow (floatType base, intType exponent)
 
   {
+    uintType unsignedExponent;
     boolType neg_exp = FALSE;
     floatType power;
 
   /* fltIPow */
+    /* printf("fltIPow(" FMT_E ", " FMT_D ")\n", base, exponent); */
 #ifdef IPOW_EXPONENTIATION_BY_SQUARING
     if (base == 0.0) {
       if (exponent < 0) {
-        return POSITIVE_INFINITY;
+        power = POSITIVE_INFINITY;
       } else if (exponent == 0) {
-        return 1.0;
+        power = 1.0;
       } else {
-        return 0.0;
+        power = 0.0;
       } /* if */
     } else {
       if (exponent < 0) {
-        exponent = -exponent;
-        if (exponent < 0) {
-          /* In the twos complement representation the most */
-          /* negative number is the only one where both the */
-          /* number and its negation are negative. When the */
-          /* exponent is proven to be to the most negative  */
-          /* number fltIPow returns 0.0 .                   */
-          return 0.0;
-        } /* if */
+        /* The unsigned value is negated to avoid a signed integer */
+        /* overflow when the smallest signed integer is negated.   */
+        unsignedExponent = -(uintType) exponent;
         neg_exp = TRUE;
+      } else {
+        unsignedExponent = (uintType) exponent;
       } /* if */
-      if (exponent & 1) {
+      if (unsignedExponent & 1) {
         power = base;
       } else {
         power = 1.0;
       } /* if */
-      exponent >>= 1;
-      while (exponent != 0) {
+      unsignedExponent >>= 1;
+      while (unsignedExponent != 0) {
         base *= base;
-        if (exponent & 1) {
+        if (unsignedExponent & 1) {
           power *= base;
         } /* if */
-        exponent >>= 1;
+        unsignedExponent >>= 1;
       } /* while */
       if (neg_exp) {
-        return 1.0 / power;
-      } else {
-        return power;
+        power = 1.0 / power;
       } /* if */
     } /* if */
 #else
     if (base < 0.0) {
       if (exponent & 1) {
-        return -pow(-base, (floatType) exponent);
+        power = -pow(-base, (floatType) exponent);
       } else {
-        return pow(-base, (floatType) exponent);
+        power = pow(-base, (floatType) exponent);
       } /* if */
     } else if (base == 0.0) {
       if (exponent < 0) {
-        return POSITIVE_INFINITY;
+        power = POSITIVE_INFINITY;
       } else if (exponent == 0) {
-        return 1.0;
+        power = 1.0;
       } else {
-        return 0.0;
+        power = 0.0;
       } /* if */
     } else { /* base > 0.0 */
-      return pow(base, (floatType) exponent);
+      power = pow(base, (floatType) exponent);
     } /* if */
 #endif
+    /* printf("fltIPow --> " FMT_E "\n", power); */
+    return power;
   } /* fltIPow */
 
 

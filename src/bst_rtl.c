@@ -292,9 +292,6 @@ intType bstHashCode (const const_bstriType bstri)
 bstriType bstParse (const const_striType stri)
 
   {
-    register const strElemType *str;
-    register ucharType *ustri;
-    register memSizeType pos;
     bstriType result;
 
   /* bstParse */
@@ -302,16 +299,11 @@ bstriType bstParse (const const_striType stri)
       raise_error(MEMORY_ERROR);
     } else {
       result->size = stri->size;
-      str = stri->mem;
-      ustri = result->mem;
-      for (pos = 0; pos < stri->size; pos++) {
-        if (unlikely(str[pos] >= 256)) {
-          FREE_BSTRI(result, result->size);
-          raise_error(RANGE_ERROR);
-          return NULL;
-        } /* if */
-        ustri[pos] = (ucharType) str[pos];
-      } /* for */
+      if (unlikely(memcpy_from_strelem(result->mem, stri->mem, stri->size))) {
+        FREE_BSTRI(result, result->size);
+        raise_error(RANGE_ERROR);
+        return NULL;
+      } /* if */
     } /* if */
     return result;
   } /* bstParse */

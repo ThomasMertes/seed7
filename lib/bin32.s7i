@@ -161,27 +161,33 @@ const func bin32: ~ (in bin32: aBinary) is
 (**
  *  Shift a bin32 value left by lshift bits.
  *  @return the left shifted value.
- *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *  @exception OVERFLOW_ERROR When the shift amount is
+ *             negative or greater equal 64.
  *)
-const func bin32: (in bin32: binValue) << (in integer: lshift) is action "INT_LSHIFT";
+const func bin32: (in bin32: binValue) << (in integer: lshift) is action "INT_ULSHIFT";
 
 
 (**
  *  Shift a bin32 value right by rshift bits.
  *  @return the right shifted value.
- *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *  @exception OVERFLOW_ERROR When the shift amount is
+ *             negative or greater equal 64.
  *)
 const func bin32: (in bin32: binValue) >> (in integer: lshift) is action "INT_URSHIFT";
 
 
 (**
  *  Shift a bin32 value left by lshift bits and assign the result back to ''binValue''.
+ *  @exception OVERFLOW_ERROR When the shift amount is
+ *             negative or greater equal 64.
  *)
-const proc: (inout bin32: binValue) <<:= (in integer: lshift)  is action "INT_LSHIFT_ASSIGN";
+const proc: (inout bin32: binValue) <<:= (in integer: lshift)  is action "INT_ULSHIFT_ASSIGN";
 
 
 (**
  *  Shift a bin32 value right by rshift bits and assign the result back to ''binValue''.
+ *  @exception OVERFLOW_ERROR When the shift amount is
+ *             negative or greater equal 64.
  *)
 const proc: (inout bin32: binValue) >>:= (in integer: rshift)  is action "INT_URSHIFT_ASSIGN";
 
@@ -209,7 +215,8 @@ const proc: (inout bin32: binary1) ><:= (in bin32: binary2)    is action "INT_XO
  *  The vacant bit positions at the right side are filled in with
  *  the bits that are shifted out at the left side.
  *  @return the left rotated value.
- *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *  @exception OVERFLOW_ERROR When the shift amount is negative
+ *             or greater than 32.
  *)
 const func bin32: rotLeft (in bin32: x, in integer: shiftCount) is
   return (x << shiftCount | x >> (32 - shiftCount)) & bin32(16#ffffffff);
@@ -220,7 +227,8 @@ const func bin32: rotLeft (in bin32: x, in integer: shiftCount) is
  *  The vacant bit positions at the left side are filled in with
  *  the bits that are shifted out at the right side.
  *  @return the right rotated value.
- *  @exception NUMERIC_ERROR The shift count is negative (may be raised).
+ *  @exception OVERFLOW_ERROR When the shift amount is negative
+ *             or greater than 32.
  *)
 const func bin32: rotRight (in bin32: x, in integer: shiftCount) is
   return (x >> shiftCount | x << (32 - shiftCount)) & bin32(16#ffffffff);

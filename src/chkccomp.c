@@ -420,7 +420,10 @@ void numericSizes (FILE *versionFile)
       fputs("#define INT64TYPE_STRI \"long\"\n", versionFile);
       fputs("#define UINT64TYPE unsigned long\n", versionFile);
       fputs("#define UINT64TYPE_STRI \"unsigned long\"\n", versionFile);
-      fputs("#define INT64TYPE_SUFFIX_L\n", versionFile);
+      if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
+                           "{long long n=12345678L;printf(\"%d\\n\",sizeof(1L));return 0;}\n") && doTest() == 8) {
+        fputs("#define INT64TYPE_SUFFIX_L\n", versionFile);
+      } /* if */
       fputs("#define INT64TYPE_FORMAT_L\n", versionFile);
     } else if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
                                 "{printf(\"%d\\n\",sizeof(long long));return 0;}\n") && doTest() == 8) {
@@ -430,7 +433,7 @@ void numericSizes (FILE *versionFile)
       fputs("#define UINT64TYPE unsigned long long\n", versionFile);
       fputs("#define UINT64TYPE_STRI \"unsigned long long\"\n", versionFile);
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                           "{long long n=12345678LL;return 0;}\n")) {
+                           "{long long n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
         fputs("#define INT64TYPE_SUFFIX_LL\n", versionFile);
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
@@ -454,7 +457,7 @@ void numericSizes (FILE *versionFile)
       fputs("#define UINT64TYPE unsigned __int64\n", versionFile);
       fputs("#define UINT64TYPE_STRI \"unsigned __int64\"\n", versionFile);
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])"
-                           "{__int64 n=12345678LL;return 0;}\n")) {
+                           "{__int64 n=12345678LL;printf(\"%d\\n\",sizeof(1LL));return 0;}\n") && doTest() == 8) {
         fputs("#define INT64TYPE_SUFFIX_LL\n", versionFile);
       } /* if */
       if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
@@ -470,6 +473,29 @@ void numericSizes (FILE *versionFile)
                                   "printf(\"%d\\n\", strcmp(b,\"A4294967296B\")==0);return 0;}\n") && doTest() == 1) {
         fputs("#define INT64TYPE_FORMAT_I64\n", versionFile);
       } /* if */
+    } /* if */
+    if (compileAndLinkOk("#include <stdio.h>\n#include <time.h>\n"
+                         "int main(int argc, char *argv[])\n"
+                         "{__int128 a = (__int128) time(NULL) * (__int128) clock();\n"
+                         "if (sizeof(__int128)==sizeof(unsigned __int128))\n"
+                         "printf(\"%d\\n\",sizeof(__int128));\n"
+                         "else printf(\"0\\n\");return 0;}\n") && doTest() == 16) {
+      /* The type __int128 is defined and it is a 128-bit type */
+      fputs("#define INT128TYPE __int128\n", versionFile);
+      fputs("#define INT128TYPE_STRI \"__int128\"\n", versionFile);
+      fputs("#define UINT128TYPE unsigned __int128\n", versionFile);
+      fputs("#define UINT128TYPE_STRI \"unsigned __int128\"\n", versionFile);
+    } else if (compileAndLinkOk("#include <stdio.h>\n#include <time.h>\n"
+                                "int main(int argc, char *argv[])\n"
+                                "{__int128 a = (__int128) time(NULL) * (__int128) clock();\n"
+                                "if (sizeof(__int128_t)==sizeof(__uint128_t))\n"
+                                "printf(\"%d\\n\",sizeof(__int128_t));\n"
+                                "else printf(\"0\\n\");return 0;}\n") && doTest() == 16) {
+      /* The type __int128_t is defined and it is a 128-bit type */
+      fputs("#define INT128TYPE __int128_t\n", versionFile);
+      fputs("#define INT128TYPE_STRI \"__int128_t\"\n", versionFile);
+      fputs("#define UINT128TYPE __uint128_t\n", versionFile);
+      fputs("#define UINT128TYPE_STRI \"__uint128_t\"\n", versionFile);
     } /* if */
     printf(" determined\n");
   } /* numericSizes */
@@ -517,26 +543,34 @@ void numericProperties (FILE *versionFile)
                           "int main(int argc,char *argv[]){"
                           "printf(\"%d\\n\", 1/0);return 0;}\n") ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",1/0==0);return 0;}\n") || doTest() != 2 ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
                           "int zero=0;\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",1/zero==0);return 0;}\n") || doTest() != 2 ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0/0==0);return 0;}\n") || doTest() != 2 ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
                           "int zero=0;\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0/zero==0);return 0;}\n") || doTest() != 2) {
       fputs("#define CHECK_INT_DIV_BY_ZERO\n", versionFile);
     } else {
@@ -549,35 +583,45 @@ void numericProperties (FILE *versionFile)
                           "int main(int argc,char *argv[]){"
                           "printf(\"%d\\n\", 1%0);return 0;}\n") ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
                           "int main(int argc,char *argv[]){\n"
                           "int zero=0;\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",1%zero==0);return 0;}\n") || doTest() != 2 ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
                           "int one=0, zero=0;\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",one%zero==0);return 0;}\n") || doTest() != 2 ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
                           "int zero1=0, zero2=0;\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",zero1%zero2==0);return 0;}\n") || doTest() != 2) {
       fputs("#define CHECK_INT_REM_BY_ZERO\n", versionFile);
     } /* if */
     if (!compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0%0==0);return 0;}\n") || doTest() != 2 ||
         !compileAndLinkOk("#include<stdlib.h>\n#include<stdio.h>\n#include<signal.h>\n"
-                          "void handleSig(int sig){puts(\"2\");exit(0);}\n"
-                          "int main(int argc,char *argv[]){\n"
+                          "void handleSigfpe(int sig){puts(\"2\");exit(0);}\n"
+                          "void handleSigill(int sig){puts(\"3\");exit(0);}\n"
+                           "int main(int argc,char *argv[]){\n"
                           "int zero=0;\n"
-                          "signal(SIGFPE,handleSig);\n"
+                          "signal(SIGFPE,handleSigfpe);\n"
+                          "signal(SIGILL,handleSigill);\n"
                           "printf(\"%d\\n\",0%zero==0);return 0;}\n") || doTest() != 2) {
       fputs("#define CHECK_INT_REM_ZERO_BY_ZERO\n", versionFile);
     } /* if */
@@ -1285,11 +1329,28 @@ int main (int argc, char **argv)
                           "{int a=1, b=2, c=3; return test(&a, &b, &c);}\n")) {
       fputs("#define restrict\n", versionFile);
     } /* if */
+    buffer[0] = '\0';
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc,char *argv[])\n"
                          "{if(__builtin_expect(1,1))puts(\"1\");else puts(\"0\");return 0;}\n")) {
       fputs("#define likely(x)   __builtin_expect((x),1)\n", versionFile);
       fputs("#define unlikely(x) __builtin_expect((x),0)\n", versionFile);
+      strcat(buffer, "#define likely(x)   __builtin_expect((x),1)\\n");
+      strcat(buffer, "#define unlikely(x) __builtin_expect((x),0)\\n");
+    } else {
+      strcat(buffer, "#define likely(x) (x)\\n");
+      strcat(buffer, "#define unlikely(x) (x)\\n");
     } /* if */
+    if (compileAndLinkOk("#include <stdlib.h>\n"
+                         "void fatal (void) __attribute__ ((noreturn));\n"
+                         "void fatal (void) {exit(1);}\n"
+                         "int main(int argc,char *argv[])\n"
+                         "{return 0;}\n")) {
+      fputs("#define NORETURN __attribute__ ((noreturn))\n", versionFile);
+      strcat(buffer, "#define NORETURN __attribute__ ((noreturn))\\n");
+    } else {
+      strcat(buffer, "#define NORETURN\\n");
+    } /* if */
+    fprintf(versionFile, "#define MACRO_DEFS \"%s\"\n", buffer);
     if (compileAndLinkOk("#include <stdio.h>\nint main(int argc, char *argv[])\n"
                          "{FILE *aFile; aFile=popen(\""
                          LIST_DIRECTORY_CONTENTS

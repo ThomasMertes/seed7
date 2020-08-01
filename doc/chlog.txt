@@ -1,3 +1,67 @@
+20140720:
+- The compiler has been improved to generate overflow checking code
+  by default. The generation of overflow checking code can be
+  switched off with the option -so.
+- The exception OVERFLOW_ERROR has been introduced. It is raised by
+  the interpreter and by compiled programs when an integer overflow
+  occurs. 
+- A paragraph about integer overflow and the installation of Seed7
+  has been added to the FAQ.
+- The chapter about exceptions in the manual has been improved.
+- The program chkovf.sd7, which checks the recogition of integer
+  overflows, has been added.
+- Checks for +, -, *, rem, mod, <<, +:=, -:=, *:=, succ, pred, incr
+  and decr have been added to chkint.sd7.
+- Checks for the lpad operator have been added to chkstr.sd7.
+- The compiler option -r has been replace by the option -sr.
+- The program calc7.sd7 has been improved to report MEMORY_ERROR and
+  OVERFLOW_ERROR.
+- The library make.s7i has been improved such that make7.sd7 accepts
+  echo (and echo.) statements without parameters.
+- The function eof has been defined for the type tlsFile in tls.s7i.
+- The function gets in tls.s7i has been improved.
+- The function getHttp in gethttp.s7i has been improved to avoid an
+  endless loop when eof has been reached.
+- The function memcpy_from_strelem has been added to striutl.c. This
+  function uses loop unrolling inspired by Duff's device and a trick
+  with a binary or (|=) to check for allowed values.
+- The functions filWrite, socWrite and bstParse have been changed
+  to use memcpy_from_strelem. The reduction in runtime has been
+  measured with gcc and valgrind. The runtime of filWrite, socWrite
+  and bstParse has been reduced to 53%, 61% and 56% respectively.
+- Documentation comments have been added to integer.s7i, bin32.s7i,
+  intlib.c and striutl.c.
+- The compiler has been improved to generate overflow checking code
+  for *, <<, >>, *:=, <<:= and >>:= .
+- The generation of overflow checking code for the operators rem and
+  mod has been improved.
+- Checks for overflow, division by zero, numeric error and index out
+  of bounds in compiled programs now use the macros ovfChk, divChk,
+  numChk and idxChk. This macros inform the C compiler about the
+  unlikeliness of an exception.
+- The function fltIPow has been improved to avoid a signed integer
+  overflow, when the exponent is the most negative integer.
+- The primitive actions INT_ULSHIFT and INT_ULSHIFT_ASSIGN have been
+  added and supported in interpreter and compiler.
+- A version of the function uint_rand, which uses 128-bit integers,
+  has been added to int_rtl.c.
+- The function raise_error3 in runerr.c has been renamed to
+  interprRaiseError.
+- The configuration values INT128TYPE, UINT128TYPE and MACRO_DEFS
+  have been added to cc_conf.s7i. The configuration value
+  SIGILL_ON_OVERFLOW has been replaced with OVERFLOW_SIGNAL.
+- The functions constValueIsEqual, checkRangeFromZero,
+  process_const_int_lshift, process_const_int_lshift_assign,
+  process_const_int_rshift_assign, process_const_int_mult,
+  process_const_int_mult_assign, process_const_int_ulshift_assign,
+  process_const_int_ulshift and process_const_int_urshift_assign
+  have been added to int_act.s7i.
+- The function intExpr in chkbig.sd7, chkexc.sd7, chkint.sd7 and
+  chkstr.sd7 has been changed to make sure that the C compiler
+  cannot evaluate it at compile time.
+- The runtime of the functions str_lpad, strLpad and strLpadTemp has
+  been improved.
+
 20140706:
 - The interpreter has been improved to recognize integer overflow.
   Now the exception NUMERIC_ERROR is raised, when a program triggers
@@ -37,8 +101,8 @@
 - In the compiler the statements to write the C prototypes have been
   moved from s7c.sd7 to functions in the files comp/xxx_act.s7i
   (xxx is the abbreviation for the corresponding primitive type).
-- The functions getReference getParameterAsReference have been added
-  to comp/expr_util.s7i.
+- The functions getReference and getParameterAsReference have been
+  added to comp/expr_util.s7i.
 - The function isit_bool from objutl.c has been replaced by the macro
   isit_bool (defined in objutl.h). This improves the speed of the
   interpreter.

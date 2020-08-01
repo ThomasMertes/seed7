@@ -180,7 +180,7 @@ const const_cstriType digitTable[] = {lcDigits, ucDigits};
  *  |  part1  |  part0  |
  *  +---------+---------+
  *   ^ highest bit     ^ lowest bit
- *  @exception NUMERIC_ERROR When the multiplication overflows.
+ *  @exception OVERFLOW_ERROR When the multiplication overflows.
  *  @return the product
  */
 uintType uint_safe_mult (uintType factor1, uintType factor2)
@@ -204,17 +204,17 @@ uintType uint_safe_mult (uintType factor1, uintType factor2)
     } else if (factor2_part1 == 0) {
       c1 = factor1_part1 * factor2_part0;
     } else {
-      raise_error(NUMERIC_ERROR);
+      raise_error(OVERFLOW_ERROR);
       return 0;
     } /* if */
     if (unlikely(c1 > UINT_LOWER_HALF_BITS_SET)) {
-      raise_error(NUMERIC_ERROR);
+      raise_error(OVERFLOW_ERROR);
       return 0;
     } else {
       c1 <<= 32;
       c2 = factor1_part0 * factor2_part0;
       if (unlikely(c1 > UINTTYPE_MAX - c2)) {
-        raise_error(NUMERIC_ERROR);
+        raise_error(OVERFLOW_ERROR);
         return 0;
       } else {
         product = c1 + c2;
@@ -233,7 +233,7 @@ uintType uint_safe_mult2 (uintType factor1, uintType factor2)
   /* uint_safe_mult2 */
     if (factor1 != 0) {
       if (unlikely(factor2 > UINTTYPE_MAX / factor1)) {
-        raise_error(NUMERIC_ERROR);
+        raise_error(OVERFLOW_ERROR);
         return 0;
       } /* if */
     } /* if */
@@ -409,6 +409,63 @@ static inline uintType uint2_add (uintType summand1_high, uintType summand1_low,
 
 
 
+#ifdef HAS_DOUBLE_INTTYPE
+/**
+ *  Compute a random unsigned number in the range 0 .. UINTTYPE_MAX.
+ *  The linear congruential method is used to generate the random
+ *  sequence of uintType numbers. The generator uses double uintType
+ *  numbers for the seed. Only the high bits of the seed (high_seed)
+ *  are used as random number. This avoids that the lower-order bits
+ *  of the generated sequence have a short period.
+ *  @return the random number.
+ */
+uintType uint_rand (void)
+
+  {
+    static boolType seed_necessary = TRUE;
+    static doubleUintType seed;
+    uintType low_seed;
+    uintType high_seed;
+
+  /* uint_rand */
+#ifdef TRACE_RANDOM
+    printf("BEGIN uint_rand\n");
+#endif
+    if (unlikely(seed_necessary)) {
+      uintType micro_sec = (uintType) timMicroSec();
+
+      high_seed = (uintType) time(NULL);
+      high_seed = high_seed ^ (high_seed << 16);
+      low_seed = (uintType) clock();
+      low_seed = (low_seed ^ (low_seed << 16)) ^ high_seed;
+      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
+      high_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
+#if INTTYPE_SIZE >= 64
+      high_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
+#endif
+      low_seed ^= micro_sec ^ micro_sec << 8 ^ micro_sec << 16 ^ micro_sec << 24;
+#if INTTYPE_SIZE >= 64
+      low_seed ^= micro_sec << 32 ^ micro_sec << 40 ^ micro_sec << 48 ^ micro_sec << 56;
+#endif
+      /* printf("%10lo %010lo seed\n", (long unsigned) high_seed, (long unsigned) low_seed); */
+      seed = (doubleUintType) high_seed << INTTYPE_SIZE | (doubleUintType) low_seed;
+      seed_necessary = FALSE;
+    } /* if */
+#if INTTYPE_SIZE == 32
+    seed = seed * 1103515245 + 12345;
+#elif INTTYPE_SIZE == 64
+    seed = seed * 6364136223846793005 + 1442695040888963407;
+#endif
+#ifdef TRACE_RANDOM
+    printf("END uint_rand ==> " F_X(08) "\n", (uintType) (seed >> INTTYPE_SIZE));
+#endif
+    return (uintType) (seed >> INTTYPE_SIZE);
+  } /* uint_rand */
+
+#else
+
+
+
 /**
  *  Compute a random unsigned number in the range 0 .. UINTTYPE_MAX.
  *  The linear congruential method is used to generate the random
@@ -462,10 +519,11 @@ uintType uint_rand (void)
         &high_seed);
 #endif
 #ifdef TRACE_RANDOM
-    printf("END uint_rand ==> %08x\n", (unsigned int) high_seed);
+    printf("END uint_rand ==> " F_X(08) "\n", high_seed);
 #endif
     return high_seed;
   } /* uint_rand */
+#endif
 
 
 
@@ -885,7 +943,7 @@ striType intBytesBe (intType number, boolType isSigned)
       raise_error(RANGE_ERROR);
       return NULL;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, (memSizeType) (BYTE_BUFFER_SIZE - pos))) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) (BYTE_BUFFER_SIZE - pos)))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = (memSizeType) (BYTE_BUFFER_SIZE - pos);
@@ -1011,7 +1069,7 @@ striType intBytesLe (intType number, boolType isSigned)
       raise_error(RANGE_ERROR);
       return NULL;
     } /* if */
-    if (!ALLOC_STRI_SIZE_OK(result, (memSizeType) (pos))) {
+    if (unlikely(!ALLOC_STRI_SIZE_OK(result, (memSizeType) (pos)))) {
       raise_error(MEMORY_ERROR);
     } else {
       result->size = (memSizeType) (pos);
@@ -1384,32 +1442,46 @@ intType intPowOvfChk (intType base, intType exponent)
       exponent >>= 1;
       while (exponent != 0) {
         if (unlikely(unsignedBase > HALF_UINTTYPE_MAX)) {
-          raise_error(NUMERIC_ERROR);
+          raise_error(OVERFLOW_ERROR);
           unsignedPower = 0;
           exponent = 0;
         } else {
           unsignedBase *= unsignedBase;
           if (exponent & 1) {
+#ifdef HAS_DOUBLE_INTTYPE
+            {
+              doubleUintType product;
+
+              product = (doubleUintType) unsignedPower * (doubleUintType) unsignedBase;
+              if (unlikely(product > UINTTYPE_MAX)) {
+                raise_error(OVERFLOW_ERROR);
+                exponent = 0;
+              } else {
+                unsignedPower = (uintType) product;
+              } /* if */
+            }
+#else
             if (likely(unsignedPower <= HALF_UINTTYPE_MAX &&
                        unsignedBase <= HALF_UINTTYPE_MAX)) {
               unsignedPower *= unsignedBase;
             } else {
               unsignedPower = uint_safe_mult2(unsignedPower, unsignedBase);
             } /* if */
+#endif
           } /* if */
           exponent >>= 1;
         } /* if */
       } /* while */
       if (negative) {
         if (unlikely(unsignedPower > -(uintType) INTTYPE_MIN)) {
-          raise_error(NUMERIC_ERROR);
+          raise_error(OVERFLOW_ERROR);
           power = 0;
         } else {
           power = (intType) -unsignedPower;
         } /* if */
       } else {
         if (unlikely(unsignedPower > INTTYPE_MAX)) {
-          raise_error(NUMERIC_ERROR);
+          raise_error(OVERFLOW_ERROR);
           power = 0;
         } else {
           power = (intType) unsignedPower;
@@ -1573,7 +1645,7 @@ intType intRand (intType low, intType high)
 /**
  *  Multiply two integer numbers.
  *  @return the product of the two numbers.
- *  @exception NUMERIC_ERROR When an integer overflow occurs.
+ *  @exception OVERFLOW_ERROR When an integer overflow occurs.
  */
 intType intSafeMult (intType factor1, intType factor2)
 
@@ -1584,24 +1656,24 @@ intType intSafeMult (intType factor1, intType factor2)
     if (factor1 < 0) {
       if (factor2 < 0) {
         if (unlikely(factor1 < INTTYPE_MAX / factor2)) {
-          raise_error(NUMERIC_ERROR);
+          raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor1 < INTTYPE_MIN / factor2)) {
-          raise_error(NUMERIC_ERROR);
+          raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } /* if */
     } else if (factor1 != 0) {
       if (factor2 < 0) {
         if (unlikely(factor2 < INTTYPE_MIN / factor1)) {
-          raise_error(NUMERIC_ERROR);
+          raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } else if (factor2 != 0) {
         if (unlikely(factor2 > INTTYPE_MAX / factor1)) {
-          raise_error(NUMERIC_ERROR);
+          raise_error(OVERFLOW_ERROR);
           return 0;
         } /* if */
       } /* if */

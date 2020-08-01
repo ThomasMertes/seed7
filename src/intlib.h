@@ -82,6 +82,8 @@ objectType int_shrink         (listType arguments);
 objectType int_sqrt           (listType arguments);
 objectType int_str            (listType arguments);
 objectType int_succ           (listType arguments);
+objectType int_ulshift        (listType arguments);
+objectType int_ulshift_assign (listType arguments);
 objectType int_urshift        (listType arguments);
 objectType int_urshift_assign (listType arguments);
 objectType int_value          (listType arguments);

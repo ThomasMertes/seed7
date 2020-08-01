@@ -340,7 +340,13 @@ pre.indent {
 <li><a class="link" href="#ffi_Functions_to_create_action_results"><b>Functions to create action results</b></a></li></ol></li>
 <li><a class="link" href="#errors_file_start"><big><b>ERRORS</b></big></a><ol>
 <li><a class="link" href="#errors_Compile_time_errors"><b>Compile time errors</b></a></li>
-<li><a class="link" href="#errors_Exceptions"><b>Exceptions</b></a></li>
+<li><a class="link" href="#errors_Exceptions"><b>Exceptions</b></a><ol>
+<li><a class="link" href="#errors_MEMORY_ERROR"><b><i>MEMORY_ERROR</i></b></a></li>
+<li><a class="link" href="#errors_NUMERIC_ERROR"><b><i>NUMERIC_ERROR</i></b></a></li>
+<li><a class="link" href="#errors_OVERFLOW_ERROR"><b><i>OVERFLOW_ERROR</i></b></a></li>
+<li><a class="link" href="#errors_RANGE_ERROR"><b><i>RANGE_ERROR</i></b></a></li>
+<li><a class="link" href="#errors_FILE_ERROR"><b><i>FILE_ERROR</i></b></a></li>
+<li><a class="link" href="#errors_ILLEGAL_ACTION"><b><i>ILLEGAL_ACTION</i></b></a></li></ol></li>
 <li><a class="link" href="#errors_Handlers"><b>Handlers</b></a></li>
 <li><a class="link" href="#errors_Stack_trace"><b>Stack trace</b></a></li>
 <li><a class="link" href="#errors_Other_errors_and_warnings"><b>Other errors and warnings</b></a></li></ol></li>
@@ -11176,64 +11182,185 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 
 <a name="errors_Exceptions"><h3>15.2 Exceptions</h3></a>
 <p>
-  There are various exceptions, which can be raised during
-  program execution:
-</p><dl><dt>
-    <a name="errors_MEMORY_ERROR">MEMORY_ERROR</a>:</dt><dd><dl><dt>
-      May be raised by various operations of the following types:</dt><dd>
-          <tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_struct">struct</a></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_file">file</a></tt>, <tt><a class="type" href="#types_func">func</a></tt>, <tt><a class="type" href="#types_proc">proc</a></tt>, <tt><a class="type" href="#types_reference">reference</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>.</dd><dt>
-      Additionally the interpreter kernel may raise this exception also.</dt></dl></dd><dt>
-    <a name="errors_NUMERIC_ERROR">NUMERIC_ERROR</a>:</dt><dd><dl><dt>
-      May be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
-          <span class="op">!</span>, <span class="op">**</span>, <span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="func">sqrt</span>, <span class="func">log2</span>, <span class="func">log10</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
-          <span class="op">!</span>, <span class="op">**</span>, <span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="func">sqrt</span>, <span class="func">log2</span>, <span class="func">log10</span>.</dd><dt></dl></dd><dt>
-    <a name="errors_RANGE_ERROR">RANGE_ERROR</a>:</dt><dd><dl><dt>
-      May be raised from the following <tt><a class="type" href="#types_boolean">boolean</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="func">rand</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">integer</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">ord</span>, <span class="func">bigInteger</span>, <span class="func">bitLength</span>, <span class="func">modInverse</span>, <span class="func">modPow</span>, .</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_rational">rational</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_bigRational">bigRational</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_float">float</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">rand</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_char">char</a></tt> operations:</dt><dd>
-          <span class="func">chr</span>, <span class="func">rand</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
-          <span class="op">[</span>, <span class="op">@:=</span>, <span class="op">mult</span>, <span class="func">pos</span>, <span class="func">rpos</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_set">bitset</a></tt> operations:</dt><dd>
-          <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">min</span>, <span class="func">max</span>, <span class="func">rand</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
-          <span class="op">[</span>, <span class="op">times</span>, <span class="func">remove</span>, <span class="func">rand</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
-          <span class="op">[</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_category">category</a></tt> operations:</dt><dd>
-          <span class="op">parse</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
-          <span class="op">[</span>, <span class="op">@:=</span>, <span class="func">pos</span>.</dd><dt>
-      May be raised from the following <tt><a class="type" href="#types_file">file</a></tt> operations:</dt><dd>
-          <span class="func">open</span>, <span class="func">write</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">seek</span>, <span class="func">tell</span>.</dd><dt></dl></dd><dt>
-    <a name="errors_FILE_ERROR">FILE_ERROR</a>:</dt><dd><dl><dt>
-      May be raised by the following functions:</dt><dd>
-          <a class="func" href="#os_fileSize">fileSize</a>, <a class="func" href="#os_fileSize">bigFileSize</a>, <a class="func" href="#os_fileType">fileType</a>, <a class="func" href="#os_fileType">fileTypeSL</a>, <a class="func" href="#os_fileMode">fileMode</a>, <a class="func" href="#os_setFileMode">setFileMode</a>,
-          <a class="func" href="#os_readDir">readDir</a>, <a class="func" href="#os_removeFile">removeFile</a>, <a class="func" href="#os_removeAnyFile">removeAnyFile</a>, <a class="func" href="#os_moveFile">moveFile</a>, <a class="func" href="#os_cloneFile">cloneFile</a>, <a class="func" href="#os_copyFile">copyFile</a>,
-          <a class="func" href="#os_readlink">readlink</a>, <a class="func" href="#os_symlink">symlink</a>, hasNext, seek, tell, bigTell, setbuf, write,
-          <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd><dt></dl></dd><dt>
-    <a name="errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a>:</dt><dd>
-      May be raised by the interpreter kernel when a primitive action
-      does not point to any legal action. This check is only done when
-      the s7 interpreter is compiled with <tt>'#define WITH_ACTION_CHECK'</tt>.
-      The ILLEGAL_ACTION exception is also raised when the primitive
-      action ACT_ILLEGAL is executed.</dd><dt>
-</dl><p>
-  A program can raise an exception with the <tt><span class="keywd">raise</span></tt> statement. For example:
+  An exception is an anomalous event that arises during program execution.
+  Exceptions change the normal flow of program execution. An exception
+  transfers the execution to a corresponding exception handler. When no
+  corresponding exception handler exists the program is terminated.
+  There are various exceptions, which can be raised: <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt>,
+  <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>, <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>, <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt> and
+  <tt><a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a></tt>. A program can raise an exception with the <tt><span class="keywd">raise</span></tt>
+  statement. For example:
 </p><pre class="indent">
 <span class="keywd">raise</span> RANGE_ERROR;
 </pre><p></p>
+
+<a name="errors_MEMORY_ERROR"><h4>15.2.1 MEMORY_ERROR</h4></a>
+<p>
+  The exception <tt><span class="exception">MEMORY_ERROR</span></tt> is raised when there is not enough memory
+  to store some data. This error can be raised from the run-time library
+  or from the interpreter kernel. Catching a <tt><span class="exception">MEMORY_ERROR</span></tt> is possible,
+  but it must be done with care. Variables involved in a <tt><span class="exception">MEMORY_ERROR</span></tt>
+  may have an illegal value. A <tt><span class="exception">MEMORY_ERROR</span></tt> may be raised by various
+  operations of the following types:
+</p><dl><dt></dt><dd>
+    <tt><a class="type" href="#types_array">array</a></tt>, <tt><a class="type" href="#types_struct">struct</a></tt>, <tt><a class="type" href="#types_hash">hash</a></tt>, <tt><a class="type" href="#types_file">file</a></tt>, <tt><a class="type" href="#types_func">func</a></tt>, <tt><a class="type" href="#types_proc">proc</a></tt>, <tt><a class="type" href="#types_reference">reference</a></tt>, <tt><a class="type" href="#types_string">string</a></tt>.</dd><dt></dt><dd>
+    Additionally the interpreter kernel may raise this exception also.
+</dd></dl><p></p>
+
+<a name="errors_NUMERIC_ERROR"><h4>15.2.2 NUMERIC_ERROR</h4></a>
+<p>
+  The exception <tt><span class="exception">NUMERIC_ERROR</span></tt> is raised when a numeric operation
+  cannot deliver a correct result. This includes several things that
+  are mathematically undefined such as division by zero, integer
+  exponentiation with a negative exponent, square root of a negative
+  number and logarithm of a negative number. <tt><span class="exception">NUMERIC_ERROR</span></tt> can be
+  raised by operations of several types:
+</p><dl><dt>
+    It may be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
+        <span class="op">!</span>, <span class="op">**</span>, <span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="func">sqrt</span>, <span class="func">log2</span>, <span class="func">log10</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
+        <span class="op">!</span>, <span class="op">**</span>, <span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="func">sqrt</span>, <span class="func">log2</span>, <span class="func">log10</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_rational">rational</a></tt> operation:</dt><dd>
+        <span class="op">/</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_bigRational">bigRational</a></tt> operation:</dt><dd>
+        <span class="op">/</span>.</dd></dl>
+<p>
+  In detail the following conditions can cause a numeric error:
+</p><ul>
+    <li>Division (<span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="op">/</span>) by zero.
+       E.g.: <tt>1 <span class="op">div</span> 0</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>. Note that a <tt><a class="type" href="#types_float">float</a></tt> division
+       by zero does not raise <tt><span class="exception">NUMERIC_ERROR</span></tt> but returns <tt><span class="var">Infinity</span></tt> or
+       <tt><span class="op">-</span><span class="var">Infinity</span></tt> instead.</li>
+    <li><span class="op">Exponentiation</span> (<span class="op">**</span>) when the exponent is negative.
+       E.g.: <tt>2 <span class="op">**</span> (-1)</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>.</li>
+    <li>Functions (<span class="func">sqrt</span>, <span class="func">log2</span>, <span class="func">log10</span>, <span class="op">!</span>) that are only defined for
+       positive arguments. E.g.: <tt><span class="func">sqrt</span>(-1)</tt> raises <tt><span class="exception">NUMERIC_ERROR</span></tt>.</li>
+</ul><p></p>
+
+<a name="errors_OVERFLOW_ERROR"><h4>15.2.3 OVERFLOW_ERROR</h4></a>
+<p>
+  An integer overflow occurs when a calculation produces a result that
+  cannot be stored in an <tt><a class="type" href="#types_integer">integer</a></tt> variable. This happens when the result
+  is less than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span></tt> or greater than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">last</span></tt>.
+</p><dl><dt>
+    It may be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
+        <span class="op">-</span> (sign), <span class="op">+</span>, <span class="op">-</span>, <span class="op">*</span>, <span class="op">**</span>, <span class="op">div</span>, <span class="op">rem</span>, <span class="op">mdiv</span>, <span class="op">mod</span>, <span class="op">&lt;&lt;</span>, <span class="op">&gt;&gt;</span>, <span class="op">+:=</span>, <span class="op">-:=</span>,
+        <span class="op">*:=</span>, <span class="op">&lt;&lt;:=</span>, <span class="op">&gt;&gt;:=</span>, <span class="func">abs</span>, <span class="func">succ</span>, <span class="func">pred</span>, <span class="func">incr</span>, <span class="func">decr</span>.</dd></dl>
+<p>
+  In detail the following conditions can cause an overflow:
+</p><ul>
+    <li><span class="link">Negating</span> can overflow because in a two's complement representation
+       there is no corresponding positive value for the <span class="link">most negative
+       integer</span>. E.g.: <tt><span class="op">-</span><a class="type" href="#types_integer">integer</a>.<span class="var">first</span></tt> raises <tt><span class="exception">OVERFLOW_ERROR</span></tt>.</li>
+    <li><span class="op">Addition</span>, <span class="op">subtraction</span>, <span class="op">multiplication</span> and <span class="op">exponentiation</span> (<span class="op">+</span>, <span class="op">-</span>,
+       <span class="op">*</span>, <span class="op">**</span>, <span class="func">succ</span>, <span class="func">pred</span>) trigger an overflow when the result would be
+       less than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span></tt> or greater than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">last</span></tt>.</li>
+    <li>Arithmetic operations that change a variable (<span class="op">+:=</span>, <span class="op">-:=</span>, <span class="op">*:=</span>, <span class="func">incr</span>,
+       <span class="func">decr</span>) trigger an overflow when the variable would get a value that
+       is less than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span></tt> or greater than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">last</span></tt>.</li>
+    <li>Division with <tt><span class="op">div</span></tt> and <tt><span class="op">mdiv</span></tt> can overflow because a division by
+       <tt>-1</tt> is the same as negating the dividend. E.g.: <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span> <span class="op">div</span> -1</tt>
+       raises <tt><span class="exception">OVERFLOW_ERROR</span></tt>.</li>
+    <li><span class="link">Remainder</span> and <span class="link">modulo</span> are defined to raise <tt><span class="exception">OVERFLOW_ERROR</span></tt> when
+       the dividend is the <span class="link">most negative integer</span> and the divisor is <tt>-1</tt>.
+       E.g.: <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span> <span class="op">rem</span> -1</tt> raises <tt><span class="exception">OVERFLOW_ERROR</span></tt>. This has been
+       defined as overflow because it can trigger so called undefined
+       behaviour of the underlying C code.
+    <li>All shift operations (<tt><span class="op">&lt;&lt;</span></tt>, <tt><span class="op">&gt;&gt;</span></tt>, <span class="op">&lt;&lt;:=</span> and <tt><span class="op">&gt;&gt;:=</span></tt>) trigger an
+       overflow when the shift amount is negative or greater equal <tt>64</tt>.</li>
+    <li>Left shift operations (<tt><span class="op">&lt;&lt;</span></tt> and <span class="op">&lt;&lt;:=</span>) can also trigger an
+       overflow when the shift result would be less than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">first</span></tt>
+       or greater than <tt><a class="type" href="#types_integer">integer</a>.<span class="var">last</span></tt>.</li>
+    <li>Computing the absolute value with <span class="func">abs</span> can overflow, when it is
+       called with the <span class="link">most negative integer</span>. E.g.: <tt><span class="func">abs</span>(<a class="type" href="#types_integer">integer</a>.<span class="var">first</span>)</tt>
+       raises <tt><span class="exception">OVERFLOW_ERROR</span></tt>.</li>
+</ul><p>
+  The interpreter checks always for an integer overflow. By default the
+  <span class="link">compiler</span> generates code to check for an integer overflow. The option
+  <b>-so</b> can be used to suppress the generation of integer overflow checks.
+  When an overflow situation occurs although overflow checking has been
+  switched off (with <b>-so</b>) the behaviour is undefined. In this case the
+  following things can happen:
+</p><ul>
+    <li>The exception <tt><span class="exception">OVERFLOW_ERROR</span></tt> is still raised.</li>
+    <li>A different exception is raised.</li>
+    <li>The program hangs.</li>
+    <li>The program crashes.</li>
+    <li>The computation continues with some garbage value. This garbage
+       value can then trigger dangerous things: The X-ray dosis computed
+       by your program might be totally wrong. Your program might compute
+       the statics of a bridge wrong.</li>
+</ul><p>
+  Without integer overflow checks a handler for <tt><span class="exception">OVERFLOW_ERROR</span></tt> cannot
+  work reliably. Only a program that does not have a handler for an
+  <tt><span class="exception">OVERFLOW_ERROR</span></tt> exception can be considered to be compiled without
+  overflow checks. Careful program analysis and testing (<tt><span class="exception">OVERFLOW_ERROR</span></tt>
+  should never be raised) is necessary to decide about the omission of
+  overflow checking.
+</p><p>
+  The separate overflow exception allows easy recognition of overflow
+  situations. All overflow situations, where <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised
+  correspond to C situations, which have undefined behaviour. The
+  overflow concept of Seed7 has been designed to allow, that simple
+  C code is generated, when the overflow checks are switched off. 
+</p>
+
+<a name="errors_RANGE_ERROR"><h4>15.2.4 RANGE_ERROR</h4></a>
+<p>
+  A <tt><span class="exception">RANGE_ERROR</span></tt> occurs when an index is used to access an array or string
+  element byond the elements that actually exist. Many functions define
+  a range of valid arguments and raise <tt><span class="exception">RANGE_ERROR</span></tt> when this range is
+  violated.
+</p><dl><dt>
+    It may be raised from the following <tt><a class="type" href="#types_boolean">boolean</a></tt> operations:</dt><dd>
+        <span class="op">parse</span>, <span class="func">rand</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_integer">integer</a></tt> operations:</dt><dd>
+        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">integer</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_bigInteger">bigInteger</a></tt> operations:</dt><dd>
+        <span class="op">parse</span>, <span class="op">radix</span>, <span class="op">RADIX</span>, <span class="op">sci</span>, <span class="func">rand</span>, <span class="func">ord</span>, <span class="func">bigInteger</span>, <span class="func">bitLength</span>, <span class="func">modInverse</span>, <span class="func">modPow</span>, .</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_rational">rational</a></tt> operations:</dt><dd>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_bigRational">bigRational</a></tt> operations:</dt><dd>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_float">float</a></tt> operations:</dt><dd>
+        <span class="op">parse</span>, <span class="op">digits</span>, <span class="op">sci</span>, <span class="func">rand</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_char">char</a></tt> operations:</dt><dd>
+        <span class="func">chr</span>, <span class="func">rand</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_string">string</a></tt> operations:</dt><dd>
+        <span class="op">[</span>, <span class="op">@:=</span>, <span class="op">mult</span>, <span class="func">pos</span>, <span class="func">rpos</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_set">bitset</a></tt> operations:</dt><dd>
+        <span class="op">conv</span>, <span class="op">parse</span>, <span class="func">min</span>, <span class="func">max</span>, <span class="func">rand</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_array">array</a></tt> operations:</dt><dd>
+        <span class="op">[</span>, <span class="op">times</span>, <span class="func">remove</span>, <span class="func">rand</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_hash">hash</a></tt> operations:</dt><dd>
+        <span class="op">[</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_category">category</a></tt> operations:</dt><dd>
+        <span class="op">parse</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_ref_list">ref_list</a></tt> operations:</dt><dd>
+        <span class="op">[</span>, <span class="op">@:=</span>, <span class="func">pos</span>.</dd><dt>
+    It may be raised from the following <tt><a class="type" href="#types_file">file</a></tt> operations:</dt><dd>
+        <span class="func">open</span>, <span class="func">write</span>, <span class="func">gets</span>, <span class="func">length</span>, <span class="func">seek</span>, <span class="func">tell</span>.</dd></dl>
+<p></p>
+
+<a name="errors_FILE_ERROR"><h4>15.2.5 FILE_ERROR</h4></a>
+<p>
+  A <tt><span class="exception">FILE_ERROR</span></tt> occurs when an illegal operation with a file is done.
+</p><dl><dt>
+    It may be raised by the following functions:</dt><dd>
+        <a class="func" href="#os_fileSize">fileSize</a>, <a class="func" href="#os_fileSize">bigFileSize</a>, <a class="func" href="#os_fileType">fileType</a>, <a class="func" href="#os_fileType">fileTypeSL</a>, <a class="func" href="#os_fileMode">fileMode</a>, <a class="func" href="#os_setFileMode">setFileMode</a>,
+        <a class="func" href="#os_readDir">readDir</a>, <a class="func" href="#os_removeFile">removeFile</a>, <a class="func" href="#os_removeAnyFile">removeAnyFile</a>, <a class="func" href="#os_moveFile">moveFile</a>, <a class="func" href="#os_cloneFile">cloneFile</a>, <a class="func" href="#os_copyFile">copyFile</a>,
+        <a class="func" href="#os_readlink">readlink</a>, <a class="func" href="#os_symlink">symlink</a>, hasNext, seek, tell, bigTell, setbuf, write,
+        <span class="func">inetSocketAddress</span>, <span class="func">inetListenerAddress</span>, <span class="func">openInetSocket</span>, <span class="func">openInetListener</span>.</dd></dl>
+<p></p>
+
+<a name="errors_ILLEGAL_ACTION"><h4>15.2.6 ILLEGAL_ACTION</h4></a>
+<p>
+  The exception ILLEGAL_ACTION may be raised by the interpreter
+  kernel, when a primitive action does not point to any legal action.
+  This check is only done when the s7 interpreter is compiled with
+  <tt>'#define WITH_ACTION_CHECK'</tt>. The ILLEGAL_ACTION exception
+  is also raised when the primitive action ACT_ILLEGAL is executed.
+</p>
 
 <a name="errors_Handlers"><h3>15.3 Handlers</h3></a>
 <p>
@@ -11242,7 +11369,7 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <span class="keywd">block</span>
   number := 1 <span class="op">div</span> 0;
 <span class="keywd">exception</span>
-  <span class="keywd">catch</span> NUMERIC_ERROR:
+  <span class="keywd">catch</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>:
     number := 1;
 <span class="keywd">end block</span>;
 </pre><p>
@@ -11251,8 +11378,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <span class="keywd">block</span>
   doSomething(someValue);
 <span class="keywd">exception</span>
-  <span class="keywd">catch</span> MEMORY_ERROR:  writeln(<span class="stri">"MEMORY_ERROR"</span>);
-  <span class="keywd">catch</span> NUMERIC_ERROR: writeln(<span class="stri">"NUMERIC_ERROR"</span>);
+  <span class="keywd">catch</span> <a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a>:  writeln(<span class="stri">"MEMORY_ERROR"</span>);
+  <span class="keywd">catch</span> <a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a>: writeln(<span class="stri">"NUMERIC_ERROR"</span>);
 <span class="keywd">end block</span>;
 </pre><p></p>
 
@@ -11270,10 +11397,10 @@ in init_display at lander.sd7(840)
 in setup at lander.sd7(909)
 in main at lander.sd7(1541)
 </pre><p>
-  The stack trace shows that a <tt>'NUMERIC_ERROR'</tt> was raised by the <tt><span class="keywd">div</span></tt> operation.
+  The stack trace shows that a <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt> was raised by the <tt><span class="keywd">div</span></tt> operation.
   This operation is defined in line 95 of <tt><span class="lib">integer.s7i</span></tt>. More interesting is that
   <tt><span class="keywd">div</span></tt> was called from the function <tt>'init_display'</tt> in
-  line 840 of <tt><span class="prog">lander.sd7</span></tt>. A <tt>'NUMERIC_ERROR'</tt> with <tt><span class="keywd">div</span></tt> is
+  line 840 of <tt><span class="prog">lander.sd7</span></tt>. A <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt> with <tt><span class="keywd">div</span></tt> is
   probably caused by a zero division. A short examination in <tt><span class="prog">lander.sd7</span></tt> shows that an assignment to
   <tt>'fuel_max'</tt> was commented out to show how stack traces work.
 </p><p>

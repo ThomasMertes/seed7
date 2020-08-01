@@ -235,12 +235,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 200000 lines of Seed7. For version 2014-07-06 the number of lines is:
+than 200000 lines of Seed7. For version 2014-07-20 the number of lines is:
 
-  100946  C source files (*.c)
-    8479  C header files (*.h)
-  105997  Seed7 source files (*.sd7)
-  120896  Seed7 library/include files (*.s7i)
+  101243  C source files (*.c)
+    8516  C header files (*.h)
+  113630  Seed7 source files (*.sd7)
+  121997  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -423,7 +423,7 @@ or
 
 indicate that your makefile contains commands for the cmd.exe
 (or command.com) windows console, but your 'make' program uses
-a Unix shell (/usr/bin/sh) to execute them. Either use a
+a Unix shell ('/usr/bin/sh') to execute them. Either use a
 makefile which uses Unix shell commands (e.g. mk_msys.mak or
 mk_cygw.mak) or take care that the 'make' program uses cmd.exe
 (or command.com) to execute the commands.
@@ -468,6 +468,7 @@ information from the interpreter):
 
   compiling the compiler - okay
   chkint ........... okay
+  chkovf ........... okay
   chkflt ........... okay
   chkstr ........... okay
   chkprc ........... okay
@@ -478,6 +479,39 @@ information from the interpreter):
   chkexc ........... okay
 
 This verifies that interpreter and compiler work correct.
+
+
+How can I install Seed7?
+========================
+
+The makefiles support the target install. You need appropriate
+privileges to do the installation. Depending on the operating
+system there are different strategies to get the privileges:
+
+ 1. Unix-like operating systems
+
+    Just go to the directory 'seed7/src' and type:
+
+      sudo make install
+
+    With the make command of your computer. The sudo command
+    will ask you for your password. When your permissions are
+    sufficient the command creates symbolic links in the
+    directory '/usr/local/bin'.
+
+ 2. Windows
+
+    You need to open a console as administrator. Then you can
+    go to the directory 'seed7/src' and type:
+
+      make install
+
+    With the make command of your computer. This adds the
+    directory 'seed7/bin' to the search path (PATH variable).
+    You need to start a new console to see the effect of this
+    change.
+
+More details can be found in the file 'seed7/doc/install.txt'.
 
 
 How can I use the Seed7 interpreter?
@@ -553,13 +587,16 @@ Possible options are
        To generate debug information which refers to the temporary C program
        the option -g-debug_c can be used.
   -l   Add a directory to the include library search path (e.g.: -l ../lib).
-  -ocn Optimize constants with level n. E.g.: -oc3 Where n is a digit
-       between 0 and 3:
+  -ocn Optimize constants with level n. E.g.: -oc3
+       The level n is a digit between 0 and 3:
          0 Do no optimizations with constants.
          1 Use literals and named constants to simplify expressions (default).
          2 Evaluate constant expressions to simplify expressions.
          3 Like -oc2 and additionally evaluate all constant expressions.
-  -r   Suppress the generation of range checks for strings and arrays.
+  -sx  Supress checks specified with x. E.g.: -sr or -sro
+       The checks x are specified with letters from the following list:
+         r Suppress the generation of range checks for strings and arrays.
+         o Suppress the generation of integer overflow checks.
   -te  Generate code to trace exceptions. This option works in the same way
        as the interpreter option -te: Every exception will write a message
        to stdout and the user will be asked to continue (with enter) or to
@@ -1227,6 +1264,21 @@ Depending on the condition 'a >= 0' only one of the expressions 'sqrt(a)' and
 is assigned to 'result'.
 
 
+What is an integer overflow?
+============================
+
+An integer overflow occurs when a calculation produces a result that
+cannot be stored in an integer variable. Very popular languages such as
+C, C++, Java, Objective-C and Go do not care about integer overflow.
+Programs in this languages continue to execute with a wrong value
+instead of the correct result. This wrong value can then trigger
+dangerous things. A program can make wrong decisions or produce wrong
+output, without any hint that an integer overflow occurred. In Seed7
+the exception OVERFLOW_ERROR is raised when an overflow occurs.
+When performance is important the overflow checking can be switched
+off with the compiler option -so.
+
+
 Is there a garbage collection?
 ==============================
 
@@ -1691,34 +1743,34 @@ stopped and the file is included. The following directories are in the list of
 library directories:
 
  1. The directory of the interpreted program. E.g.: When the program
-    "/home/abc/test/pairs.sd7" is interpreted the directory "/home/abc/test"
+    '/home/abc/test/pairs.sd7' is interpreted the directory '/home/abc/test'
     is in the list of library directories.
  2. This point is only in effect when the interpreter was not compiled from source
     (The C preprocessor macro PATHS_RELATIVE_TO_EXECUTABLE is defined): Interpreter
-    and compiler from the binary release use "../lib" relative to the directory of
+    and compiler from the binary release use '../lib' relative to the directory of
     the 's7' interpreter executable. E.g.: When the interpreter is in the directory
-    "/home/abc/seed7/bin" the directory "/home/abc/seed7/lib" is in the list of
+    '/home/abc/seed7/bin' the directory '/home/abc/seed7/lib' is in the list of
     library directories.
  3. The directories that are specified at the command-line with the option -l.
  4. The directory containing the predefined Seed7 include libraries. This
     directory is hard-coded in the interpreter (an absolute path like
-    "/directory_where_Seed7_was_installed/seed7/lib"). The hard-coded library
+    '/directory_where_Seed7_was_installed/seed7/lib'). The hard-coded library
     directory is determined when the interpreter is compiled. When the interpreter
-    was not compiled from source (binary release) the path "../lib" relative to the
+    was not compiled from source (binary release) the path '../lib' relative to the
     current working directory is used.
  5. The directory specified with the SEED7_LIBRARY environment variable.
  6. Directories specified in the source file with the library pragma.
     E.g.: The line: $ library "/home/abc/seed7/lib" adds the directory
-    "/home/abc/seed7/lib" to the list of library directories.
+    '/home/abc/seed7/lib' to the list of library directories.
 
 Seed7 interpreter and compiler (s7c) use the same list of library
 directories (the same library search path). When Seed7 is compiled from
 source code both (interpreter and compiler) will find the Seed7 include
 files automatically. Interpreter and compiler from the binary release will
-only find library include files when the path "../lib" relative to the 's7'
+only find library include files when the path '../lib' relative to the 's7'
 or 's7c' executable leads to the library directory. Additionally it is
 possible to set the environment variable SEED7_LIBRARY to the absolute path
-"/directory_where_Seed7_was_installed/seed7/lib".
+'/directory_where_Seed7_was_installed/seed7/lib'.
 
 
 How is the directory of the predefined include libraries determined?
@@ -1727,18 +1779,18 @@ How is the directory of the predefined include libraries determined?
 The directory of the predefined include libraries is hard-coded in the interpreter.
 This information is determined when the Seed7 interpreter is compiled. The command
 'make depend' writes a line, which defines the C preprocessor variable
-SEED7_LIBRARY, to the file "seed7/src/version.h". E.g.: The file "version.h"
+SEED7_LIBRARY, to the file 'seed7/src/version.h'. E.g.: The file 'version.h'
 contains the line:
 
   #define SEED7_LIBRARY "/home/abc/seed7/lib"
 
 The preprocessor macro SEED7_LIBRARY is used by the function init_lib_path(), which
-is defined in "seed7/src/infile.c".
+is defined in 'seed7/src/infile.c'.
 
 When the interpreter of a binary release is compiled, a slightly modified makefile
 is used. The command 'make depend' writes the following preprocessor macro
 definitions to the file
-"version.h":
+'version.h':
 
   #define PATHS_RELATIVE_TO_EXECUTABLE
   #define SEED7_LIBRARY "../lib"
@@ -1756,7 +1808,7 @@ How does the Seed7 compiler get information about C compiler and runtime?
 
 The Seed7 compiler needs detailed information about the C compiler and its runtime
 library. This information is created when the Seed7 interpreter is compiled. The
-command 'make depend' writes C preprocessor macros to "seed7/src/version.h". E.g.:
+command 'make depend' writes C preprocessor macros to 'seed7/src/version.h'. E.g.:
 
   #define SEED7_LIB "seed7_05.a"
   #define CONSOLE_LIB "s7_con.a"
@@ -1772,8 +1824,8 @@ also writes preprocessor macros to "version.h". E.g.:
   #define TWOS_COMPLEMENT_INTTYPE
   #define LITTLE_ENDIAN_INTTYPE
 
-The preprocessor macros used by "version.h" are described in
-"seed7/src/read_me.txt". The Seed7 library cc_conf.s7i can be used to access
+The preprocessor macros used by 'version.h' are described in
+'seed7/src/read_me.txt'. The Seed7 library cc_conf.s7i can be used to access
 values from "version.h". This library defines ccConf, which is a constant
 of type 'ccConfigType'. The type 'ccConfigType' contains elements for various
 configuration values. In our example the element S7_LIB_DIR has the value
@@ -1787,7 +1839,7 @@ files to an executable. Config values like RSHIFT_DOES_SIGN_EXTEND,
 TWOS_COMPLEMENT_INTTYPE and LITTLE_ENDIAN_INTTYPE are used to control the kind
 of C code produced by the Seed7 compiler. The library cc_conf.s7i provides
 also access to config values that do not come from "version.h", but are
-defined in "seed7/src/config.h". E.g.:
+defined in 'seed7/src/config.h'. E.g.:
 
   #define WITH_STRI_CAPACITY
   #define ALLOW_STRITYPE_SLICES
@@ -1802,12 +1854,12 @@ What should a binary Seed7 package install?
 
 A binary Seed7 package needs to install four groups of files:
 
- - The executables of the interpreter (s7 from "seed7/bin") and the compiler
-   (s7c from "seed7/bin" or "seed7/prg").
- - The Seed7 include libraries (files from "seed7/lib" with the extension .s7i).
- - The static Seed7 object libraries (the files seed7_05.a, s7_con.a, s7_draw.a,
-   s7_data.a and s7_comp.a from "seed7/bin").
- - Documentation files (the files COPYING and LGPL and all files from "seed7/doc").
+ - The executables of the interpreter (s7 from 'seed7/bin') and the compiler
+   (s7c from 'seed7/bin' or 'seed7/prg').
+ - The Seed7 include libraries (files from 'seed7/lib' with the extension .s7i).
+ - The static Seed7 object libraries (the files 'seed7_05.a', 's7_con.a', 's7_draw.a',
+   's7_data.a' and 's7_comp.a' from 'seed7/bin').
+ - Documentation files (the files COPYING and LGPL and all files from 'seed7/doc').
 
 The table below shows the suggested directories for Linux/Unix/BSD:
 
@@ -1830,7 +1882,7 @@ can be compiled with 'make s7c'. This three make commands can be combined to
   make S7_LIB_DIR=/usr/lib/seed7/bin SEED7_LIBRARY=/usr/lib/seed7/lib depend s7 s7c
 
 Alternatively the Seed7 compiler can be compiled as post-install step.
-This requires that "seed7/prg/s7c.sd7" is also installed. The actual
+This requires that 'seed7/prg/s7c.sd7' is also installed. The actual
 compilation of s7c is done with:
 
   s7 s7c -O2 s7c
@@ -1901,7 +1953,7 @@ Actions are used to call a corresponding C function in the interpreter.
 For example:
 
 The action "INT_ADD" corresponds to the function 'int_add' in the file
-seed7/src/intlib.c .
+'seed7/src/intlib.c'.
 
 Chapter 13 (Primitive actions) of the manual contains a detailed description
 of the primitive actions. In the interpreter all action functions get the

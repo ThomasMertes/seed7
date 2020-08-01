@@ -124,6 +124,15 @@
 #define INT64TYPE_LITERAL_SUFFIX ""
 #endif
 
+#ifndef INT128TYPE
+#define INT128TYPE_STRI ""
+#define UINT128TYPE_STRI ""
+#endif
+
+#ifndef OVERFLOW_SIGNAL
+#define OVERFLOW_SIGNAL ""
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 2048
 #endif
@@ -1266,6 +1275,10 @@ striType cmdConfigValue (const const_striType name)
         opt = INT64TYPE_STRI;
       } else if (strcmp(opt_name, "UINT64TYPE") == 0) {
         opt = UINT64TYPE_STRI;
+      } else if (strcmp(opt_name, "INT128TYPE") == 0) {
+        opt = INT128TYPE_STRI;
+      } else if (strcmp(opt_name, "UINT128TYPE") == 0) {
+        opt = UINT128TYPE_STRI;
       } else if (strcmp(opt_name, "INT32TYPE_LITERAL_SUFFIX") == 0) {
         opt = INT32TYPE_LITERAL_SUFFIX;
       } else if (strcmp(opt_name, "INT64TYPE_LITERAL_SUFFIX") == 0) {
@@ -1282,6 +1295,10 @@ striType cmdConfigValue (const const_striType name)
       } else if (strcmp(opt_name, "INT_SIZE") == 0) {
         sprintf(buffer, "%d", INT_SIZE);
         opt = buffer;
+      } else if (strcmp(opt_name, "MACRO_DEFS") == 0) {
+        opt = MACRO_DEFS;
+      } else if (strcmp(opt_name, "OVERFLOW_SIGNAL") == 0) {
+        opt = OVERFLOW_SIGNAL;
       } else if (strcmp(opt_name, "FLOATTYPE_DOUBLE") == 0) {
 #ifdef FLOATTYPE_DOUBLE
         opt = "TRUE";
@@ -1326,12 +1343,6 @@ striType cmdConfigValue (const const_striType name)
 #endif
       } else if (strcmp(opt_name, "CHECK_FLOAT_DIV_BY_ZERO") == 0) {
 #ifdef CHECK_FLOAT_DIV_BY_ZERO
-        opt = "TRUE";
-#else
-        opt = "FALSE";
-#endif
-      } else if (strcmp(opt_name, "SIGILL_ON_OVERFLOW") == 0) {
-#ifdef SIGILL_ON_OVERFLOW
         opt = "TRUE";
 #else
         opt = "FALSE";

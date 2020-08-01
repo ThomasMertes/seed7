@@ -45,8 +45,15 @@ const string: chkint_output is "\n\
   \Conversion of little endian byte string to integer works correct.\n\
   \-i is correct computed in the range -10 to 10.\n\
   \Addition works correct for selected values.\n\
+  \Addition assignment works correct for selected values.\n\
   \Subtraction works correct for selected values.\n\
+  \Subtraction assignment works correct for selected values.\n\
+  \Succ works correct for selected values.\n\
+  \Pred works correct for selected values.\n\
+  \Incr works correct for selected values.\n\
+  \Decr works correct for selected values.\n\
   \Multiplication works correct for selected values.\n\
+  \Multiplication assignment works correct for selected values.\n\
   \a div b is integer division and a rem b is integer remainder:\n\
   \for positive and negative a and b\n\
   \(a div b) * b + (a rem b) = a  holds for positive and negative a and b\n\
@@ -72,6 +79,33 @@ const string: chkint_output is "\n\
   \Integer lpad0 does work correct.\n\
   \Integer bitLength does work correct.\n\
   \Integer lowestSetBit does work correct.\n";
+
+const string: chkovf_output is "\n\
+  \Overflow checking of negation works correct.\n\
+  \Overflow checking of addition works correct.\n\
+  \Overflow checking of addition assignment works correct.\n\
+  \Overflow checking of subtraction works correct.\n\
+  \Overflow checking of subtraction assignment works correct.\n\
+  \Overflow checking of succ works correct.\n\
+  \Overflow checking of pred works correct.\n\
+  \Overflow checking of incr works correct.\n\
+  \Overflow checking of decr works correct.\n\
+  \Overflow checking of multiplication works correct.\n\
+  \Overflow checking of multiplication assignment works correct.\n\
+  \Overflow checking of div operator works correct.\n\
+  \Overflow checking of rem operator works correct.\n\
+  \Overflow checking of mdiv operator works correct.\n\
+  \Overflow checking of mod operator works correct.\n\
+  \Overflow checking of left shift works correct.\n\
+  \Overflow checking of left shift assignment works correct.\n\
+  \Overflow checking of right shift works correct.\n\
+  \Overflow checking of right shift assignment works correct.\n\
+  \Overflow checking of unsigned left shift works correct.\n\
+  \Overflow checking of unsigned left shift assignment works correct.\n\
+  \Overflow checking of unsigned right shift works correct.\n\
+  \Overflow checking of unsigned right shift assignment works correct.\n\
+  \Overflow checking of power works correct.\n\
+  \Overflow checking of abs works correct.\n";
 
 const string: chkflt_output is "\n\
   \Comparison of float values works correct.\n\
@@ -470,6 +504,7 @@ const proc: main is func
       end if;
     end if;
     check("chkint",  chkint_output);
+    check("chkovf",  chkovf_output);
     check("chkflt",  chkflt_output);
     check("chkstr",  chkstr_output);
     check("chkprc",  chkprc_output);

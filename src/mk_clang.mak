@@ -10,6 +10,7 @@
 # CFLAGS = -O2 -g -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar -Wc++-compat
 # CFLAGS = -O2 -g -x c++ -Wall -Wextra -Wswitch-default -Wswitch-enum -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
 # CFLAGS = -O2 -fomit-frame-pointer -Wall -Wextra -Wswitch-default -Wcast-qual -Waggregate-return -Wwrite-strings -Winline -Wconversion -Wshadow -Wpointer-arith -Wmissing-noreturn -Wno-multichar
+# CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv -fsanitize=address,integer
 CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -x c++ -Wall -Winline -Wconversion -Wshadow -Wpointer-arith -ftrapv
 # CFLAGS = -O2 -g -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
@@ -19,6 +20,7 @@ CFLAGS = -O2 -g -ffunction-sections -fdata-sections -Wall -Wstrict-prototypes -W
 # CFLAGS = -O2 -fomit-frame-pointer -funroll-loops -Wall
 # CFLAGS = -O2 -funroll-loops -Wall -pg
 LDFLAGS = -Wl,--gc-sections
+# LDFLAGS = -Wl,--gc-sections -fsanitize=address,integer
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
 SYSTEM_LIBS = -lm
@@ -115,10 +117,14 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ../bin/s7 ../prg/s7
 	../bin/s7 -l ../lib level
-	echo "  Use 'make s7c' (with your make command) to create the compiler."
+	@echo
+	@echo "  Use 'make s7c' (with your make command) to create the compiler."
+	@echo
 
 s7c: ../bin/s7c ../prg/s7c
-	echo "  Use 'make test' (with your make command) to check Seed7."
+	@echo
+	@echo "  Use 'make test' (with your make command) to check Seed7."
+	@echo
 
 ../bin/s7: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ../bin/s7
@@ -136,13 +142,18 @@ clear: clean
 
 clean:
 	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend chkccomp.h version.h
-	echo "  Use 'make depend' (with your make command) to create the dependencies."
+	@echo
+	@echo "  Use 'make depend' (with your make command) to create the dependencies."
+	@echo
 
 distclean: clean
 	cp level_bk.h level.h
 
 test:
 	../bin/s7 -l ../lib ../prg/chk_all build
+	@echo
+	@echo "  Use 'sudo make install' (with your make command) to install Seed7."
+	@echo
 
 install:
 	cd ../bin; ln -s `pwd`/s7 /usr/local/bin
@@ -168,7 +179,7 @@ version.h: chkccomp.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
-	echo "#define SIGILL_ON_OVERFLOW" >> version.h
+	echo "#define OVERFLOW_SIGNAL \"SIGILL\"" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
@@ -219,7 +230,9 @@ depend: version.h
 	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) >> depend
 	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) >> depend
 	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
-	echo "  Use 'make' (with your make command) to create the interpreter."
+	@echo
+	@echo "  Use 'make' (with your make command) to create the interpreter."
+	@echo
 
 level.h:
 	../bin/s7 -l ../lib level

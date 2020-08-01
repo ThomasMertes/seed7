@@ -112,6 +112,10 @@ int code_page = DEFAULT_CODE_PAGE;
 
 
 #ifdef USE_DUFFS_UNROLLING
+/**
+ *  Copy len bytes to Seed7 characters in a string.
+ *  This function uses loop unrolling inspired by Duff's device.
+ */
 void memcpy_to_strelem (register strElemType *const dest,
     register const const_ustriType src, memSizeType len)
 
@@ -161,6 +165,13 @@ void memcpy_to_strelem (register strElemType *const dest,
 
 
 
+/**
+ *  Fill len Seed7 characters with the character ch.
+ *  This function uses loop unrolling inspired by Duff's device.
+ *  Up to a length of 6 a simple loop is faster than calling
+ *  this function. With a length of 7 a simple loop is as fast
+ *  as calling this function.
+ */
 void memset_to_strelem (register strElemType *const dest,
     register const strElemType ch, memSizeType len)
 
@@ -208,10 +219,71 @@ void memset_to_strelem (register strElemType *const dest,
     } /* if */
   } /* memset_to_strelem */
 
+
+
+/**
+ *  Copy len Seed7 characters to a byte string.
+ *  This function uses loop unrolling inspired by Duff's device
+ *  and a trick with a binary or (|=) to check for allowed values.
+ *  @return TRUE when one of the characters does not fit into a byte,
+ *          FALSE otherwise.
+ */
+boolType memcpy_from_strelem (register const ustriType dest,
+    register const strElemType *const src, memSizeType len)
+
+  {
+    register memSizeType pos;
+    register strElemType check = 0;
+
+  /* memcpy_from_strelem */
+    if (len != 0) {
+      pos = (len + 31) & ~(memSizeType) 31;
+      switch (len & 31) {
+        case  0: do { check |= src[pos -  1]; dest[pos -  1] = (ucharType) src[pos -  1];
+        case 31:      check |= src[pos -  2]; dest[pos -  2] = (ucharType) src[pos -  2];
+        case 30:      check |= src[pos -  3]; dest[pos -  3] = (ucharType) src[pos -  3];
+        case 29:      check |= src[pos -  4]; dest[pos -  4] = (ucharType) src[pos -  4];
+        case 28:      check |= src[pos -  5]; dest[pos -  5] = (ucharType) src[pos -  5];
+        case 27:      check |= src[pos -  6]; dest[pos -  6] = (ucharType) src[pos -  6];
+        case 26:      check |= src[pos -  7]; dest[pos -  7] = (ucharType) src[pos -  7];
+        case 25:      check |= src[pos -  8]; dest[pos -  8] = (ucharType) src[pos -  8];
+        case 24:      check |= src[pos -  9]; dest[pos -  9] = (ucharType) src[pos -  9];
+        case 23:      check |= src[pos - 10]; dest[pos - 10] = (ucharType) src[pos - 10];
+        case 22:      check |= src[pos - 11]; dest[pos - 11] = (ucharType) src[pos - 11];
+        case 21:      check |= src[pos - 12]; dest[pos - 12] = (ucharType) src[pos - 12];
+        case 20:      check |= src[pos - 13]; dest[pos - 13] = (ucharType) src[pos - 13];
+        case 19:      check |= src[pos - 14]; dest[pos - 14] = (ucharType) src[pos - 14];
+        case 18:      check |= src[pos - 15]; dest[pos - 15] = (ucharType) src[pos - 15];
+        case 17:      check |= src[pos - 16]; dest[pos - 16] = (ucharType) src[pos - 16];
+        case 16:      check |= src[pos - 17]; dest[pos - 17] = (ucharType) src[pos - 17];
+        case 15:      check |= src[pos - 18]; dest[pos - 18] = (ucharType) src[pos - 18];
+        case 14:      check |= src[pos - 19]; dest[pos - 19] = (ucharType) src[pos - 19];
+        case 13:      check |= src[pos - 20]; dest[pos - 20] = (ucharType) src[pos - 20];
+        case 12:      check |= src[pos - 21]; dest[pos - 21] = (ucharType) src[pos - 21];
+        case 11:      check |= src[pos - 22]; dest[pos - 22] = (ucharType) src[pos - 22];
+        case 10:      check |= src[pos - 23]; dest[pos - 23] = (ucharType) src[pos - 23];
+        case  9:      check |= src[pos - 24]; dest[pos - 24] = (ucharType) src[pos - 24];
+        case  8:      check |= src[pos - 25]; dest[pos - 25] = (ucharType) src[pos - 25];
+        case  7:      check |= src[pos - 26]; dest[pos - 26] = (ucharType) src[pos - 26];
+        case  6:      check |= src[pos - 27]; dest[pos - 27] = (ucharType) src[pos - 27];
+        case  5:      check |= src[pos - 28]; dest[pos - 28] = (ucharType) src[pos - 28];
+        case  4:      check |= src[pos - 29]; dest[pos - 29] = (ucharType) src[pos - 29];
+        case  3:      check |= src[pos - 30]; dest[pos - 30] = (ucharType) src[pos - 30];
+        case  2:      check |= src[pos - 31]; dest[pos - 31] = (ucharType) src[pos - 31];
+        case  1:      check |= src[pos - 32]; dest[pos - 32] = (ucharType) src[pos - 32];
+                } while ((pos -= 32) > 0);
+      } /* switch */
+    } /* if */
+    return check >= 256;
+  } /* memcpy_from_strelem */
+
 #else
 
 
 
+/**
+ *  Copy len bytes to Seed7 characters in a string.
+ */
 void memcpy_to_strelem (register strElemType *const dest,
     register const const_ustriType src, memSizeType len)
 
@@ -223,7 +295,10 @@ void memcpy_to_strelem (register strElemType *const dest,
 
 
 
-void memset_to_strelem (register strElemType *dest,
+/**
+ *  Fill len Seed7 characters with the character ch.
+ */
+void memset_to_strelem (register strElemType *const dest,
     register const strElemType ch, memSizeType len)
 
   { /* memset_to_strelem */
@@ -231,6 +306,25 @@ void memset_to_strelem (register strElemType *dest,
       dest[len - 1] = (strElemType) ch; \
     } /* for */
   } /* memset_to_strelem */
+
+
+
+/**
+ *  Copy len Seed7 characters to a byte string.
+ */
+boolType memcpy_from_strelem (register const ustriType dest,
+    register const strElemType *const src, memSizeType len)
+
+  {
+    register strElemType check = 0;
+
+  /* memcpy_from_strelem */
+    for (; len > 0; len--) {
+      check |= src[len - 1]
+      dest[len - 1] = src[len - 1];
+    } /* for */
+    return check >= 256;
+  } /* memcpy_from_strelem */
 
 #endif
 
@@ -1280,9 +1374,6 @@ cstriType stri_to_cstri8_buf (const const_striType stri, memSizeType *length,
 bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
 
   {
-    register const strElemType *str;
-    register ucharType *ustri;
-    register memSizeType pos;
     bstriType bstri;
 
   /* stri_to_bstri */
@@ -1290,16 +1381,11 @@ bstriType stri_to_bstri (const const_striType stri, errInfoType *err_info)
       *err_info = MEMORY_ERROR;
     } else {
       bstri->size = stri->size;
-      str = stri->mem;
-      ustri = bstri->mem;
-      for (pos = 0; pos < stri->size; pos++) {
-        if (unlikely(str[pos] >= 256)) {
-          FREE_BSTRI(bstri, bstri->size);
-          *err_info = RANGE_ERROR;
-          return NULL;
-        } /* if */
-        ustri[pos] = (ucharType) str[pos];
-      } /* for */
+      if (unlikely(memcpy_from_strelem(bstri->mem, stri->mem, stri->size))) {
+        FREE_BSTRI(bstri, bstri->size);
+        *err_info = RANGE_ERROR;
+        return NULL;
+      } /* if */
     } /* if */
     return bstri;
   } /* stri_to_bstri */
@@ -2225,7 +2311,7 @@ static void escape_command (const const_os_striType inBuffer, os_striType outBuf
 #else
         case ' ':  case '%':  case '&':  case '\'': case '(':
         case ')':  case ',':  case ';':  case '=':  case '^':
-        case '~':  case 160:
+      case '~':  case (os_charType) 160:
           quote_path = TRUE;
           outBuffer[outPos] = inBuffer[inPos];
           break;

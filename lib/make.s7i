@@ -359,7 +359,7 @@ const func string: doPwd (inout string: command, in boolean: doLog) is func
       command := command[3 ..];
       skipWhiteSpace(command);
     end if;
-    commandOutput := getcwd;
+    commandOutput := getcwd & "\n";
   end func;
 
 
@@ -390,6 +390,7 @@ const func string: doEcho (inout string: command, in boolean: doLog) is func
     if doLog then
       write("echo " <& commandOutput);
     end if;
+    commandOutput &:= "\n";
   end func;
 
 
@@ -501,7 +502,7 @@ const func boolean: doOneCommand (inout string: command,
         commandOutput := "";
       elsif commandName = "pwd" then
         commandOutput := doPwd(command, doLog);
-      elsif commandName = "echo" then
+      elsif commandName = "echo" or commandName = "echo." then
         commandOutput := doEcho(command, doLog);
       elsif commandName = "cd" then
         doCd(command, doLog);
@@ -561,7 +562,7 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
           end if;
           if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
             fileName := convDosPath(fileName);
-            putf(fileName, commandOutput & "\n");
+            putf(fileName, commandOutput);
           end if;
         elsif redirect = ">>" then
           skipWhiteSpace(command);
@@ -571,10 +572,10 @@ const func boolean: doCommands (inout string: command, in boolean: doLog) is fun
           end if;
           if fileName <> "/dev/null" and fileName <> "NUL:" and fileName <> "NUL" then
             fileName := convDosPath(fileName);
-            appendToFile(fileName, commandOutput & "\n");
+            appendToFile(fileName, commandOutput);
           end if;
         elsif commandOutput <> "" then
-          writeln(commandOutput);
+          write(commandOutput);
         end if;
         skipWhiteSpace(command);
         if command <> "" and command[1] = ';' then

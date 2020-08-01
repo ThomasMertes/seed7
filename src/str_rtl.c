@@ -50,6 +50,10 @@
 
 #define CHAR_DELTA_BEYOND 128
 
+/* memset_to_strelem is not used because it is */
+/* only better for lengths greater than 7.     */
+#define LPAD_WITH_MEMSET_TO_STRELEM 0
+
 
 
 static inline int strelem_memcmp (const strElemType *mem1,
@@ -2287,14 +2291,18 @@ striType strLpad (const const_striType stri, const intType pad_size)
         result = NULL;
       } else {
         result->size = (memSizeType) pad_size;
+#if LPAD_WITH_MEMSET_TO_STRELEM
+        memset_to_strelem(result->mem, ' ', (memSizeType) pad_size - striSize);
+#else	
         {
           strElemType *elem = result->mem;
-          memSizeType len = (memSizeType) pad_size - striSize;
+          memSizeType idx = (memSizeType) pad_size - striSize - 1;
 
-          while (len--) {
-            *elem++ = (strElemType) ' ';
-          } /* while */
-        }
+          do {
+            elem[idx] = (strElemType) ' ';
+          } while (idx-- != 0);
+	}
+#endif
         memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
             striSize * sizeof(strElemType));
       } /* if */
@@ -2332,14 +2340,18 @@ striType strLpadTemp (const striType stri, const intType pad_size)
         result = NULL;
       } else {
         result->size = (memSizeType) pad_size;
+#if LPAD_WITH_MEMSET_TO_STRELEM
+        memset_to_strelem(result->mem, ' ', (memSizeType) pad_size - striSize);
+#else
         {
           strElemType *elem = result->mem;
-          memSizeType len = (memSizeType) pad_size - striSize;
+          memSizeType idx = (memSizeType) pad_size - striSize - 1;
 
-          while (len--) {
-            *elem++ = (strElemType) ' ';
-          } /* while */
+          do {
+            elem[idx] = (strElemType) ' ';
+          } while (idx-- != 0);
         }
+#endif
         memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
             striSize * sizeof(strElemType));
         FREE_STRI(stri, striSize);

@@ -974,6 +974,10 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(INT_STR, function, params, c_expr);
       elsif action_name = "INT_SUCC" then
         process(INT_SUCC, function, params, c_expr);
+      elsif action_name = "INT_ULSHIFT" then
+        process(INT_ULSHIFT, function, params, c_expr);
+      elsif action_name = "INT_ULSHIFT_ASSIGN" then
+        process(INT_ULSHIFT_ASSIGN, function, params, c_expr);
       elsif action_name = "INT_URSHIFT" then
         process(INT_URSHIFT, function, params, c_expr);
       elsif action_name = "INT_URSHIFT_ASSIGN" then

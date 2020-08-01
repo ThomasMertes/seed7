@@ -247,11 +247,11 @@ objectType raise_exception (objectType exception)
 
 
 
-void raise_error3 (int exception_num, const_cstriType filename, int line)
+void interprRaiseError (int exception_num, const_cstriType filename, int line)
 
-  { /* raise_error3 */
+  { /* interprRaiseError */
     (void) raise_exception(prog.sys_var[exception_num]);
-  } /* raise_error3 */
+  } /* interprRaiseError */
 
 
 

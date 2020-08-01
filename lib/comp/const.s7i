@@ -295,9 +295,10 @@ const func boolean: getConstant (in reference: currExpr, in category: exprCatego
           end if;
         end if;
       exception
-        catch NUMERIC_ERROR: noop;
-        catch RANGE_ERROR:   noop;
-        catch FILE_ERROR:    noop;
+        catch NUMERIC_ERROR:  noop;
+        catch OVERFLOW_ERROR: noop;
+        catch RANGE_ERROR:    noop;
+        catch FILE_ERROR:     noop;
       end block;
     end if;
   end func;

@@ -912,11 +912,11 @@ objectType str_lpad (listType arguments)
         result->size = (memSizeType) pad_size;
         {
           strElemType *elem = result->mem;
-          memSizeType len = (memSizeType) pad_size - striSize;
+          memSizeType idx = (memSizeType) pad_size - striSize - 1;
 
-          while (len--) {
-            *elem++ = (strElemType) ' ';
-          } /* while */
+          do {
+            elem[idx] = (strElemType) ' ';
+          } while (idx-- != 0);
         }
         memcpy(&result->mem[(memSizeType) pad_size - striSize], stri->mem,
             striSize * sizeof(strElemType));

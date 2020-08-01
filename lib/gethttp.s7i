@@ -239,22 +239,26 @@ const func string: getHttp (inout file: sock) is func
       line := getln(sock);
     end while;
     if transferEncoding = "chunked" then
-      line := getln(sock);
-      chunkSize := integer(line, 16);
-      while chunkSize > 0 do
-        repeat
-          buffer := gets(sock, chunkSize);
-          chunkSize -:= length(buffer);
-          data &:= buffer;
-        until chunkSize = 0;
-        line := getln(sock);
+      if not eof(sock) then
         line := getln(sock);
         chunkSize := integer(line, 16);
-      end while;
+        while chunkSize > 0 and not eof(sock) do
+          repeat
+            buffer := gets(sock, chunkSize);
+            chunkSize -:= length(buffer);
+            data &:= buffer;
+          until chunkSize = 0 or eof(sock);
+          if not eof(sock) then
+            ignore(getln(sock));
+            line := getln(sock);
+            chunkSize := integer(line, 16);
+          end if;
+        end while;
+      end if;
     elsif transferEncoding = "identity" or
         transferEncoding = "" then
       if contentLengthStri <> "" then
-        while contentLength <> 0 do
+        while contentLength <> 0 and not eof(sock) do
           buffer := gets(sock, contentLength);
           contentLength -:= length(buffer);
           data &:= buffer;

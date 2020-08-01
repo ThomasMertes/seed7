@@ -202,6 +202,11 @@ typedef UINT64TYPE         uint64Type;
 #endif
 #endif
 
+#ifdef INT128TYPE
+typedef INT128TYPE          int128Type;
+typedef UINT128TYPE         uint128Type;
+#endif
+
 
 #if   INTTYPE_SIZE == 32
 typedef int32Type                 intType;
@@ -213,6 +218,12 @@ typedef uint32Type                uintType;
 #define INTTYPE_MAX               INT32TYPE_MAX
 #define UINTTYPE_MAX              UINT32TYPE_MAX
 typedef int16Type                 halfIntType;
+typedef uint16Type                halfUintType;
+#ifdef INT64TYPE
+#define HAS_DOUBLE_INTTYPE
+typedef int64Type                 doubleIntType;
+typedef uint64Type                doubleUintType;
+#endif
 #define HALF_INTTYPE_MIN          INT16TYPE_MIN
 #define HALF_INTTYPE_MAX          INT16TYPE_MAX
 #define HALF_UINTTYPE_MAX         UINT16TYPE_MAX
@@ -236,6 +247,12 @@ typedef uint64Type                uintType;
 #define INTTYPE_MAX               INT64TYPE_MAX
 #define UINTTYPE_MAX              UINT64TYPE_MAX
 typedef int32Type                 halfIntType;
+typedef uint32Type                halfUintType;
+#ifdef INT128TYPE
+#define HAS_DOUBLE_INTTYPE
+typedef int128Type                doubleIntType;
+typedef uint128Type               doubleUintType;
+#endif
 #define HALF_INTTYPE_MIN          INT32TYPE_MIN
 #define HALF_INTTYPE_MAX          INT32TYPE_MAX
 #define HALF_UINTTYPE_MAX         UINT32TYPE_MAX
@@ -264,6 +281,15 @@ typedef int32Type                 halfIntType;
 #else
 #define inHalfIntTypeRange(num) ((intType) (halfIntType) (num) == (num))
 #endif
+
+#ifdef HAS_DOUBLE_INTTYPE
+#ifdef USE_SIMPLE_RANGE_CHECK
+#define inIntTypeRange(num) ((num) >= INTTYPE_MIN && (num) <= INTTYPE_MAX)
+#else
+#define inIntTypeRange(num) ((doubleIntType) (intType) (num) == (num))
+#endif
+#endif
+
 
 #if SHORT_SIZE < INTTYPE_SIZE
 #ifdef USE_SIMPLE_RANGE_CHECK
@@ -415,16 +441,17 @@ typedef const unsigned char *  const_ustriType;
 typedef int errInfoType;
 
 /* errinfo values: */
-#define OKAY_NO_ERROR 0
-#define MEMORY_ERROR  1
-#define NUMERIC_ERROR 2
-#define RANGE_ERROR   3
-#define FILE_ERROR    4
-#define ACTION_ERROR  5
-#define CREATE_ERROR  6
-#define DESTROY_ERROR 7
-#define COPY_ERROR    8
-#define IN_ERROR      9
+#define OKAY_NO_ERROR   0
+#define MEMORY_ERROR    1
+#define NUMERIC_ERROR   2
+#define OVERFLOW_ERROR  3
+#define RANGE_ERROR     4
+#define FILE_ERROR      5
+#define ACTION_ERROR    6
+#define CREATE_ERROR    7
+#define DESTROY_ERROR   8
+#define COPY_ERROR      9
+#define IN_ERROR       10
 
 
 #ifndef likely
@@ -432,6 +459,9 @@ typedef int errInfoType;
 #endif
 #ifndef unlikely
 #define unlikely(x) (x)
+#endif
+#ifndef NORETURN
+#define NORETURN
 #endif
 
 

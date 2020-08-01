@@ -155,7 +155,7 @@ version.h: chkccomp.h
 	echo "#define USE_DIRENT" >> version.h
 	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
 	echo "#define CATCH_SIGNALS" >> version.h
-	echo "#define SIGILL_ON_OVERFLOW" >> version.h
+	echo "#define OVERFLOW_SIGNAL \"SIGILL\"" >> version.h
 	echo "#define USE_MMAP" >> version.h
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h

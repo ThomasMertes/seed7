@@ -62,7 +62,7 @@ const func integer: test_func (in integer: number) is
 
 
 const func integer: intExpr (in integer: number) is
-  return number;
+  return number + length(str(rand(1, 9))[2 ..]);
 
 
 const proc: check_integer_exponentiation (inout boolean: okay) is func

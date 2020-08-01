@@ -541,6 +541,8 @@ static primActRecord prim_act_table[] = {
     { "INT_SQRT",                int_sqrt,                },
     { "INT_STR",                 int_str,                 },
     { "INT_SUCC",                int_succ,                },
+    { "INT_ULSHIFT",             int_ulshift,             },
+    { "INT_ULSHIFT_ASSIGN",      int_ulshift_assign,      },
     { "INT_URSHIFT",             int_urshift,             },
     { "INT_URSHIFT_ASSIGN",      int_urshift_assign,      },
     { "INT_VALUE",               int_value,               },

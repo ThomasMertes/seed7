@@ -96,11 +96,6 @@ const type: ccConfigType is new struct
     var boolean: HAS_SIGSETJMP              is FALSE;
 
     (**
-     *  TRUE, when an integer overflow raises the signal SIGILL.
-     *)
-    var boolean: SIGILL_ON_OVERFLOW         is FALSE;
-
-    (**
      *  TRUE, when floating point divisions by zero cause compilation errors.
      *  Some C compilers check if the dividend is 0.0 and classify a
      *  floating point division by zero as fatal error. The generated
@@ -245,16 +240,30 @@ const type: ccConfigType is new struct
     (**
      *  Name of a signed integer type that is 64 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''int64type'' with INT32TYPE.
+     *  the type ''int64type'' with INT64TYPE.
      *)
     var string: INT64TYPE                   is "";
 
     (**
      *  Name of an unsigned integer type that is 64 bits wide.
      *  The runtime library and the compiler use a typedef to define
-     *  the type ''uint64type'' with UINT32TYPE.
+     *  the type ''uint64type'' with UINT64TYPE.
      *)
     var string: UINT64TYPE                  is "";
+
+    (**
+     *  Name of a signed integer type that is 128 bits wide.
+     *  The runtime library and the compiler use a typedef to define
+     *  the type ''int128type'' with INT128TYPE.
+     *)
+    var string: INT128TYPE                   is "";
+
+    (**
+     *  Name of an unsigned integer type that is 128 bits wide.
+     *  The runtime library and the compiler use a typedef to define
+     *  the type ''uint128type'' with UINT128TYPE.
+     *)
+    var string: UINT128TYPE                  is "";
 
     (**
      *  The suffix used by the literals of the 32 bits wide integer type.
@@ -265,6 +274,18 @@ const type: ccConfigType is new struct
      *  The suffix used by the literals of the 64 bits wide integer type.
      *)
     var string: INT64TYPE_LITERAL_SUFFIX    is "";
+
+    (**
+     *  Definition of several macros (likely, unlikely, noreturn).
+     *)
+    var string: MACRO_DEFS                  is "";
+
+    (**
+     *  Name of the signal that is raised when an integer overflow
+     *  occurs. Empty string when integer overflow does not raise
+     *  a signal.
+     *)
+    var string: OVERFLOW_SIGNAL            is "";
 
     (**
      *  The extension used by the C compiler for object files.
@@ -448,7 +469,6 @@ const func ccConfigType: getBuiltInConfig is func
     conf.NAN_COMPARISON_WRONG       := boolean parse configValue("NAN_COMPARISON_WRONG");
     conf.POWER_OF_ZERO_WRONG        := boolean parse configValue("POWER_OF_ZERO_WRONG");
     conf.HAS_SIGSETJMP              := boolean parse configValue("HAS_SIGSETJMP");
-    conf.SIGILL_ON_OVERFLOW         := boolean parse configValue("SIGILL_ON_OVERFLOW");
     conf.FLOAT_ZERO_DIV_ERROR       := boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
     conf.ISNAN_WITH_UNDERLINE       := boolean parse configValue("ISNAN_WITH_UNDERLINE");
     conf.DO_SIGFPE_WITH_DIV_BY_ZERO := boolean parse configValue("DO_SIGFPE_WITH_DIV_BY_ZERO");
@@ -470,8 +490,12 @@ const func ccConfigType: getBuiltInConfig is func
     conf.UINT32TYPE                 := configValue("UINT32TYPE");
     conf.INT64TYPE                  := configValue("INT64TYPE");
     conf.UINT64TYPE                 := configValue("UINT64TYPE");
+    conf.INT128TYPE                 := configValue("INT128TYPE");
+    conf.UINT128TYPE                := configValue("UINT128TYPE");
     conf.INT32TYPE_LITERAL_SUFFIX   := configValue("INT32TYPE_LITERAL_SUFFIX");
     conf.INT64TYPE_LITERAL_SUFFIX   := configValue("INT64TYPE_LITERAL_SUFFIX");
+    conf.MACRO_DEFS                 := configValue("MACRO_DEFS");
+    conf.OVERFLOW_SIGNAL            := configValue("OVERFLOW_SIGNAL");
     conf.OBJECT_FILE_EXTENSION      := configValue("OBJECT_FILE_EXTENSION");
     conf.LIBRARY_FILE_EXTENSION     := configValue("LIBRARY_FILE_EXTENSION");
     conf.EXECUTABLE_FILE_EXTENSION  := configValue("EXECUTABLE_FILE_EXTENSION");

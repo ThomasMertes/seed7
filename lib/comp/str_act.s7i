@@ -483,8 +483,8 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
     incr(countOptimizations);
     if index < 1 then
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
-      process_raise_error("RANGE_ERROR", function, c_expr);
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+      c_expr.expr &:= "\n";
     else
       process_expr(param1, c_param1);
       if c_param1.temp_num <> 0 or array_range_check then
@@ -499,12 +499,12 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= "striType str1=";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ";\n";
-        c_expr.expr &:= "if (str1->size<=";
+        c_expr.expr &:= "if (idxChk(str1->size<=";
         c_expr.expr &:= str(pred(index));
-        c_expr.expr &:= ") {\n";
+        c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        process_raise_error("RANGE_ERROR", function, c_expr);
-        c_expr.expr &:= ";\n";
+        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  str1->mem[";
@@ -544,8 +544,8 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
     incr(countOptimizations);
     if index < 1 then
       c_expr.expr &:= "/* 'string @:= [n] char' with n < 1 */\n";
-      process_raise_error("RANGE_ERROR", function, c_expr);
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+      c_expr.expr &:= "\n";
     else
       process_expr(param1, c_param1);
       c_param6.temp_num := c_param1.temp_num;
@@ -564,12 +564,12 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         c_expr.expr &:= "striType str1=";
         c_expr.expr &:= c_param1.expr;
         c_expr.expr &:= ";\n";
-        c_expr.expr &:= "if (str1->size<=";
+        c_expr.expr &:= "if (idxChk(str1->size<=";
         c_expr.expr &:= str(pred(index));
-        c_expr.expr &:= ") {\n";
+        c_expr.expr &:= ")) {\n";
         c_expr.expr &:= "  ";
-        process_raise_error("RANGE_ERROR", function, c_expr);
-        c_expr.expr &:= ";\n";
+        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  str1->mem[";
@@ -635,14 +635,14 @@ const proc: process_const_str_elemcpy (in reference: function, in reference: par
         end if;
         c_expr.expr &:= c_param4.expr;
         c_expr.expr &:= ")-1;\n";
-        c_expr.expr &:= "if (";
+        c_expr.expr &:= "if (idxChk(";
         if not ccConf.TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= "pos<0 || ";
         end if;
-        c_expr.expr &:= "pos>=str1->size) {\n";
+        c_expr.expr &:= "pos>=str1->size)) {\n";
         c_expr.expr &:= "  ";
-        process_raise_error("RANGE_ERROR", function, c_expr);
-        c_expr.expr &:= ";\n";
+        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  str1->mem[pos] = (strElemType)(";
@@ -713,14 +713,14 @@ const proc: process (STR_ELEMCPY, in reference: function,
         end if;
         c_expr.expr &:= c_param4.expr;
         c_expr.expr &:= ")-1;\n";
-        c_expr.expr &:= "if (";
+        c_expr.expr &:= "if (idxChk(";
         if not ccConf.TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= "pos<0 || ";
         end if;
-        c_expr.expr &:= "pos>=str1->size) {\n";
+        c_expr.expr &:= "pos>=str1->size)) {\n";
         c_expr.expr &:= "  ";
-        process_raise_error("RANGE_ERROR", function, c_expr);
-        c_expr.expr &:= ";\n";
+        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  str1->mem[pos] = (strElemType)(";
@@ -1044,7 +1044,7 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
     if getConstant(param3, INTOBJECT, evaluatedParam) then
       index := getValue(evaluatedParam, integer);
       if index < 1 or index > length(stri) then
-        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
       else
         c_expr.expr &:= charLiteral(stri[index]);
       end if;
@@ -1063,28 +1063,26 @@ const proc: process_const_str_idx (in reference: function, in string: stri,
         end if;
         c_expr.temp_decls &:= index_name;
         c_expr.temp_decls &:= ";\n";
-        c_expr.expr &:= "(";
         c_expr.expr &:= index_name;
         c_expr.expr &:= "=";
         if ccConf.TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= "(uintType)((";
           process_expr(param3, c_expr);
-          c_expr.expr &:= ")-1), ";
+          c_expr.expr &:= ")-1), idxChk(";
         else
           c_expr.expr &:= "(";
           process_expr(param3, c_expr);
-          c_expr.expr &:= ")-1, ";
+          c_expr.expr &:= ")-1, idxChk(";
           c_expr.expr &:= index_name;
           c_expr.expr &:= "<0 || ";
         end if;
         c_expr.expr &:= index_name;
         c_expr.expr &:= ">=";
         c_expr.expr &:= str(length(stri));
-        c_expr.expr &:= " ? ";
-        process_raise_error("RANGE_ERROR", function, c_expr);
+        c_expr.expr &:= ") ? ";
+        c_expr.expr &:= intRaiseError("RANGE_ERROR");
         c_expr.expr &:= " : 0, ";
         c_expr.expr &:= index_name;
-        c_expr.expr &:= ")";
       else
         incr(countNoRangeChecks);
         c_expr.expr &:= "(";
@@ -1104,7 +1102,7 @@ const proc: process_const_str_idx (in reference: function, in reference: param1,
   begin
     incr(countOptimizations);
     if index < 1 then
-      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
     elsif array_range_check then
       incr(countRangeChecks);
       if isNormalVariable(param1) then
@@ -1122,15 +1120,15 @@ const proc: process_const_str_idx (in reference: function, in reference: param1,
         c_expr.expr &:= ", &";
       end if;
       c_expr.expr &:= stri_name;
-      c_expr.expr &:= "->mem[(";
+      c_expr.expr &:= "->mem[idxChk(";
       c_expr.expr &:= stri_name;
       c_expr.expr &:= "->size<";
       c_expr.expr &:= str(index);
-      c_expr.expr &:= " ? ";
-      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= ") ? ";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
       c_expr.expr &:= " : 0, ";
       c_expr.expr &:= str(pred(index));
-      c_expr.expr &:= ")]";
+      c_expr.expr &:= "]";
       if not isNormalVariable(param1) then
         c_expr.expr &:= "))";
       end if;
@@ -1182,28 +1180,28 @@ const proc: process (STR_IDX, in reference: function,
         c_expr.expr &:= ", &";
       end if;
       c_expr.expr &:= stri_name;
-      c_expr.expr &:= "->mem[(";
+      c_expr.expr &:= "->mem[";
       c_expr.expr &:= index_name;
       c_expr.expr &:= "=";
       if ccConf.TWOS_COMPLEMENT_INTTYPE then
         c_expr.expr &:= "(uintType)((";
         process_expr(params[3], c_expr);
-        c_expr.expr &:= ")-1), ";
+        c_expr.expr &:= ")-1), idxChk(";
       else
         c_expr.expr &:= "(";
         process_expr(params[3], c_expr);
-        c_expr.expr &:= ")-1, ";
+        c_expr.expr &:= ")-1, idxChk(";
         c_expr.expr &:= index_name;
         c_expr.expr &:= "<0 || ";
       end if;
       c_expr.expr &:= index_name;
       c_expr.expr &:= ">=";
       c_expr.expr &:= stri_name;
-      c_expr.expr &:= "->size ? ";
-      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= "->size) ? ";
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
       c_expr.expr &:= " : 0, ";
       c_expr.expr &:= index_name;
-      c_expr.expr &:= ")]";
+      c_expr.expr &:= "]";
       if not isNormalVariable(params[1]) then
         c_expr.expr &:= "))";
       end if;
@@ -1561,8 +1559,8 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
     incr(countOptimizations);
     if index < 1 then
       c_expr.expr &:= "/* 'string @:= [n] string' with n < 1 */\n";
-      process_raise_error("RANGE_ERROR", function, c_expr);
-      c_expr.expr &:= ";\n";
+      c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+      c_expr.expr &:= "\n";
     else
       process_expr(param1, c_param1);
       c_param6.temp_num := c_param1.temp_num;
@@ -1582,12 +1580,12 @@ const proc: process_const_str_poscpy (in reference: function, in reference: para
         c_expr.expr &:= "striType str2=";
         c_expr.expr &:= c_param6.expr;
         c_expr.expr &:= ";\n";
-        c_expr.expr &:= "if (str1->size<str2->size || ";
+        c_expr.expr &:= "if (idxChk(str1->size<str2->size || ";
         c_expr.expr &:= str(pred(index));
-        c_expr.expr &:= "+str2->size>str1->size) {\n";
+        c_expr.expr &:= "+str2->size>str1->size)) {\n";
         c_expr.expr &:= "  ";
-        process_raise_error("RANGE_ERROR", function, c_expr);
-        c_expr.expr &:= ";\n";
+        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  memmove(&str1->mem[";
@@ -1659,14 +1657,14 @@ const proc: process (STR_POSCPY, in reference: function,
         end if;
         c_expr.expr &:= c_param4.expr;
         c_expr.expr &:= ")-1;\n";
-        c_expr.expr &:= "if (";
+        c_expr.expr &:= "if (idxChk(";
         if not ccConf.TWOS_COMPLEMENT_INTTYPE then
           c_expr.expr &:= "pos<0 || ";
         end if;
-        c_expr.expr &:= "str1->size<str2->size || pos+str2->size>str1->size) {\n";
+        c_expr.expr &:= "str1->size<str2->size || pos+str2->size>str1->size)) {\n";
         c_expr.expr &:= "  ";
-        process_raise_error("RANGE_ERROR", function, c_expr);
-        c_expr.expr &:= ";\n";
+        c_expr.expr &:= voidRaiseError("RANGE_ERROR");
+        c_expr.expr &:= "\n";
         c_expr.expr &:= "} else {\n";
         setDiagnosticLine(c_expr);
         c_expr.expr &:= "  memmove(&str1->mem[pos], str2->mem, str2->size*sizeof(strElemType));\n";

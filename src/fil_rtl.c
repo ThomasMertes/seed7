@@ -1411,9 +1411,8 @@ striType filWordRead (fileType inFile, charType *terminationChar)
 void filWrite (fileType outFile, const const_striType stri)
 
   {
-    register const strElemType *str;
+    const strElemType *str;
     memSizeType len;
-    register memSizeType pos;
     ucharType buffer[BUFFER_SIZE];
 
   /* filWrite */
@@ -1428,13 +1427,10 @@ void filWrite (fileType outFile, const const_striType stri)
 #endif
     str = stri->mem;
     for (len = stri->size; len >= BUFFER_SIZE; len -= BUFFER_SIZE) {
-      for (pos = BUFFER_SIZE; pos > 0; pos--) {
-        if (unlikely(str[pos - 1] >= 256)) {
-          raise_error(RANGE_ERROR);
-          return;
-        } /* if */
-        buffer[pos - 1] = (ucharType) str[pos - 1];
-      } /* for */
+      if (unlikely(memcpy_from_strelem(buffer, str, BUFFER_SIZE))) {
+        raise_error(RANGE_ERROR);
+        return;
+      } /* if */
       str = &str[BUFFER_SIZE];
       if (unlikely(BUFFER_SIZE != fwrite(buffer, sizeof(ucharType), BUFFER_SIZE, outFile))) {
         raise_error(FILE_ERROR);
@@ -1442,13 +1438,10 @@ void filWrite (fileType outFile, const const_striType stri)
       } /* if */
     } /* for */
     if (len > 0) {
-      for (pos = len; pos > 0; pos--) {
-        if (unlikely(str[pos - 1] >= 256)) {
-          raise_error(RANGE_ERROR);
-          return;
-        } /* if */
-        buffer[pos - 1] = (ucharType) str[pos - 1];
-      } /* for */
+      if (unlikely(memcpy_from_strelem(buffer, str, len))) {
+        raise_error(RANGE_ERROR);
+        return;
+      } /* if */
       if (unlikely(len != fwrite(buffer, sizeof(ucharType), len, outFile))) {
         raise_error(FILE_ERROR);
         return;

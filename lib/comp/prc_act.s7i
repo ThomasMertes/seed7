@@ -824,7 +824,7 @@ const proc: process (PRC_RAISE, in reference: function,
 
   begin
     setDiagnosticLine(c_expr);
-    c_expr.expr &:= "raise_error2(";
+    c_expr.expr &:= "rtlRaiseError(";
     getAnyParamToExpr(params[2], c_expr);
     c_expr.expr &:= "+1, ";
     c_expr.expr &:= sourceNameString(c_expr.currentFile);

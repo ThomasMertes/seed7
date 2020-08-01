@@ -1738,9 +1738,10 @@ const proc: process_expr (in var reference: current_expression, inout expr_type:
           end if;
         end if;
       exception
-        catch NUMERIC_ERROR: c_expr.expr &:= "/* NUMERIC_ERROR */ "; # noop;
-        catch RANGE_ERROR:   c_expr.expr &:= "/* RANGE_ERROR */ "; # noop;
-        catch FILE_ERROR:    c_expr.expr &:= "/* FILE_ERROR */ "; # noop;
+        catch NUMERIC_ERROR:  c_expr.expr &:= "/* NUMERIC_ERROR */ "; # noop;
+        catch OVERFLOW_ERROR: c_expr.expr &:= "/* OVERFLOW_ERROR */ "; # noop;
+        catch RANGE_ERROR:    c_expr.expr &:= "/* RANGE_ERROR */ "; # noop;
+        catch FILE_ERROR:     c_expr.expr &:= "/* FILE_ERROR */ "; # noop;
       end block;
     end if;
     exprCategory := category(current_expression);
@@ -2165,9 +2166,10 @@ const proc: process_result_declaration (in reference: result_object,
             result_init := evaluatedExpr;
           end if;
         exception
-          catch NUMERIC_ERROR: noop;
-          catch RANGE_ERROR:   noop;
-          catch FILE_ERROR:    noop;
+          catch NUMERIC_ERROR:  noop;
+          catch OVERFLOW_ERROR: noop;
+          catch RANGE_ERROR:    noop;
+          catch FILE_ERROR:     noop;
         end block;
       end if;
       process_local_declaration(result_object, result_init, c_expr);
@@ -4764,6 +4766,10 @@ const proc: write_file_head is func
     writeln(c_prog, "typedef " <& ccConf.UINT32TYPE <& " uint32Type;");
     writeln(c_prog, "typedef " <& ccConf.INT64TYPE <& " int64Type;");
     writeln(c_prog, "typedef " <& ccConf.UINT64TYPE <& " uint64Type;");
+    if ccConf.INT128TYPE <> "" then
+      writeln(c_prog, "typedef " <& ccConf.INT128TYPE <& " int128Type;");
+      writeln(c_prog, "typedef " <& ccConf.UINT128TYPE <& " uint128Type;");
+    end if;
     if ccConf.TWOS_COMPLEMENT_INTTYPE then
       writeln(c_prog, "#define INT32TYPE_MIN ((int32Type) -2147483648" <&
           ccConf.INT32TYPE_LITERAL_SUFFIX <& ")");
@@ -4777,10 +4783,18 @@ const proc: write_file_head is func
       writeln(c_prog, "#define INTTYPE_DECIMAL_SIZE 20");
       writeln(c_prog, "typedef int64Type intType;");
       writeln(c_prog, "typedef uint64Type uintType;");
+      if ccConf.INT128TYPE <> "" then
+        writeln(c_prog, "typedef int128Type doubleIntType;");
+        writeln(c_prog, "typedef uint128Type doubleUintType;");
+        writeln(c_prog, "#define inIntTypeRange(num) ((doubleIntType) (intType) (num) == (num))");
+      end if;
     elsif ccConf.INTTYPE_SIZE = 32 then
       writeln(c_prog, "#define INTTYPE_DECIMAL_SIZE 11");
       writeln(c_prog, "typedef int32Type intType;");
       writeln(c_prog, "typedef uint32Type uintType;");
+      writeln(c_prog, "typedef int64Type doubleIntType;");
+      writeln(c_prog, "typedef uint64Type doubleUintType;");
+      writeln(c_prog, "#define inIntTypeRange(num) ((doubleIntType) (intType) (num) == (num))");
     end if;
     writeln(c_prog, "typedef int boolType;");
     writeln(c_prog, "typedef int enumType;");
@@ -5027,20 +5041,22 @@ const proc: write_file_head is func
       writeln(c_prog, "#define isnan(number) _isnan(number)");
     end if;
     writeln(c_prog, "extern const floatType negativeZero;");
-    writeln(c_prog, "#define OKAY_NO_ERROR 0");
-    writeln(c_prog, "#define MEMORY_ERROR  1");
-    writeln(c_prog, "#define NUMERIC_ERROR 2");
-    writeln(c_prog, "#define RANGE_ERROR   3");
-    writeln(c_prog, "#define FILE_ERROR    4");
-    writeln(c_prog, "#define ACTION_ERROR  5");
-    writeln(c_prog, "#define CREATE_ERROR  6");
-    writeln(c_prog, "#define DESTROY_ERROR 7");
-    writeln(c_prog, "#define COPY_ERROR    8");
-    writeln(c_prog, "#define IN_ERROR      9");
+    writeln(c_prog, "#define OKAY_NO_ERROR   0");
+    writeln(c_prog, "#define MEMORY_ERROR    1");
+    writeln(c_prog, "#define NUMERIC_ERROR   2");
+    writeln(c_prog, "#define OVERFLOW_ERROR  3");
+    writeln(c_prog, "#define RANGE_ERROR     4");
+    writeln(c_prog, "#define FILE_ERROR      5");
+    writeln(c_prog, "#define ACTION_ERROR    6");
+    writeln(c_prog, "#define CREATE_ERROR    7");
+    writeln(c_prog, "#define DESTROY_ERROR   8");
+    writeln(c_prog, "#define COPY_ERROR      9");
+    writeln(c_prog, "#define IN_ERROR       10");
     writeln(c_prog, "static const char *exception_name[] = {");
     writeln(c_prog, "    \"OKAY_NO_ERROR\",");
     writeln(c_prog, "    \"MEMORY_ERROR\",");
     writeln(c_prog, "    \"NUMERIC_ERROR\",");
+    writeln(c_prog, "    \"OVERFLOW_ERROR\",");
     writeln(c_prog, "    \"RANGE_ERROR\",");
     writeln(c_prog, "    \"FILE_ERROR\",");
     writeln(c_prog, "    \"ACTION_ERROR\",");
@@ -5049,6 +5065,11 @@ const proc: write_file_head is func
     writeln(c_prog, "    \"COPY_ERROR\",");
     writeln(c_prog, "    \"IN_ERROR\",");
     writeln(c_prog, "  };");
+    writeln(c_prog, ccConf.MACRO_DEFS);
+    writeln(c_prog, "#define ovfChk(x) unlikely(x)");
+    writeln(c_prog, "#define divChk(x) unlikely(x)");
+    writeln(c_prog, "#define numChk(x) unlikely(x)");
+    writeln(c_prog, "#define idxChk(x) unlikely(x)");
     writeln(c_prog, "#define push_stack(stack,elem) \\");
     writeln(c_prog, "{\\");
     writeln(c_prog, "  hashElemListType new_head = (hashElemListType)(malloc(sizeof(struct hashElemListStruct)));\\");
@@ -5146,8 +5167,10 @@ const proc: write_prototypes is func
     declareExtern("intType     ptrCmpGeneric (const genericType, const genericType);");
     declareExtern("void        ptrCpyGeneric (genericType *const, const genericType);");
     declareExtern("genericType ptrCreateGeneric (const genericType);");
-    declareExtern("void        raise_error2 (int, const char *, int);");
-    writeln(c_prog, "#define raise_error(num) raise_error2(num, __FILE__, __LINE__)\n");
+    declareExtern("void        rtlRaiseError (int, const char *, int) NORETURN;");
+    writeln(c_prog, "#define raise_error(num) rtlRaiseError(num, __FILE__, __LINE__)\n");
+    writeln(c_prog, "#define intRaiseError(num) (rtlRaiseError(num, __FILE__, __LINE__), 0)\n");
+    writeln(c_prog, "#define bigRaiseError(num) (bigIntType)(rtlRaiseError(num, __FILE__, __LINE__), NULL)\n");
 (*
     declareExtern("intType     enuValue (objRefType a)                         {printf(\"enuValue\\n\");}");
     declareExtern("intType     enuValue (objRefType);");
@@ -5157,6 +5180,10 @@ const proc: write_prototypes is func
 
 const proc: write_signal_handlers is func
 
+  local
+    const array string: normalSignals is [] (
+        "SIGABRT", "SIGILL", "SIGINT", "SIGSEGV");
+    var string: signalName is "";
   begin
     writeln(c_prog);
     writeln(c_prog);
@@ -5222,19 +5249,28 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
+    writeln(c_prog, "static void handle_overflow_error (int sig_num)");
+    writeln(c_prog);
+    writeln(c_prog, "  {");
+    if not ccConf.HAS_SIGSETJMP then
+      writeln(c_prog, "    signal(SIGFPE, handle_overflow_error);");
+    end if;
+    writeln(c_prog, "    raise_error(OVERFLOW_ERROR);");
+    writeln(c_prog, "  }");
+    writeln(c_prog);
+    writeln(c_prog);
     writeln(c_prog, "static void activate_signal_handlers (void)");
     writeln(c_prog);
     writeln(c_prog, "  {");
-    writeln(c_prog, "    signal(SIGABRT, handle_signals);");
     writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
-    if ccConf.SIGILL_ON_OVERFLOW then
-      writeln(c_prog, "    signal(SIGILL, handle_numeric_error);");
-    else
-      writeln(c_prog, "    signal(SIGILL, handle_signals);");
-    end if;
-    writeln(c_prog, "    signal(SIGINT, handle_signals);");
-    writeln(c_prog, "    signal(SIGSEGV, handle_signals);");
     writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
+    for signalName range normalSignals do
+      if signalName = ccConf.OVERFLOW_SIGNAL then
+        writeln(c_prog, "    signal(" <& signalName <& ", handle_overflow_error);");
+      else
+        writeln(c_prog, "    signal(" <& signalName <& ", handle_signals);");
+      end if;
+    end for;
     writeln(c_prog, "#ifdef SIGPIPE");
     writeln(c_prog, "    signal(SIGPIPE, SIG_IGN);");
     writeln(c_prog, "#endif");
@@ -5259,7 +5295,7 @@ const proc: write_signal_handlers is func
     writeln(c_prog);
     writeln(c_prog, "static intType int_raise_error (int fail_value, const char *file_name, int line_number)");
     writeln(c_prog, "{");
-    writeln(c_prog, "  raise_error2(fail_value, file_name, line_number);");
+    writeln(c_prog, "  rtlRaiseError(fail_value, file_name, line_number);");
     writeln(c_prog, "  return 0;");
     writeln(c_prog, "}");
     writeln(c_prog);
@@ -5484,7 +5520,7 @@ const proc: init_const_value (in reference: current_object, inout expr_type: c_e
     objectCategory := category(current_object);
     if objectCategory = INTOBJECT then
       c_expr.expr &:= ".value.intValue=";
-      c_expr.expr &:= str(getValue(current_object, integer));
+      c_expr.expr &:= integerLiteral(getValue(current_object, integer));
     elsif objectCategory = BIGINTOBJECT then
       c_expr.expr &:= ".value.bigIntValue=";
       c_expr.expr &:= bigIntegerLiteral(getValue(current_object, bigInteger));
@@ -6532,14 +6568,10 @@ const proc: init_values (inout expr_type: c_expr) is func
   end func;
 
 
-const proc: declare_raise_error2 (inout expr_type: c_expr) is func
+const proc: declare_rtlRaiseError (inout expr_type: c_expr) is func
 
   begin
-    if compilerLibraryUsed then
-      writeln(c_prog, "extern boolType interpreter_exception;");
-      declareExtern("void raise_error3 (int, const char *, int);");
-    end if;
-    c_expr.expr &:= "void raise_error2 (int fail_value, const char *file_name, int line_number)\n";
+    c_expr.expr &:= "void rtlRaiseError (int fail_value, const char *file_name, int line_number)\n";
     c_expr.expr &:= "{\n";
     if trace_exception then
       c_expr.expr &:= "  int ch;\n";
@@ -6555,11 +6587,6 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
       c_expr.expr &:= "    exit(1);\n";
       c_expr.expr &:= "  }\n";
     end if;
-    if compilerLibraryUsed then
-      c_expr.expr &:= "if (interpreter_exception) {\n";
-      c_expr.expr &:= "  raise_error3(fail_value, file_name, line_number);\n";
-      c_expr.expr &:= "} else {\n";
-    end if;
     c_expr.expr &:= "  error_file = file_name;\n";
     c_expr.expr &:= "  error_line = line_number;\n";
     if signal_exception then
@@ -6572,8 +6599,6 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
       c_expr.expr &:= "    }\n";
       c_expr.expr &:= "    printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
       c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
-#     c_expr.expr &:= "    signal(SIGINT, SIG_DFL);\n";
-#     c_expr.expr &:= "    signal(SIGSEGV, SIG_DFL);\n";
       if ccConf.DO_SIGFPE_WITH_DIV_BY_ZERO then
         # Under Windows it is necessary to trigger SIGFPE this way
         # to assure that the debugger can catch it.
@@ -6581,14 +6606,6 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
       else
         c_expr.expr &:= "    raise(SIGFPE);\n";
       end if;
-#     c_expr.expr &:= "    raise(SIGTRAP);\n";
-#     c_expr.expr &:= "    raise(SIGFPE);\n";
-#     c_expr.expr &:= "    raise(SIGINT);\n";
-#     c_expr.expr &:= "    raise(SIGSEGV);\n";
-#     c_expr.expr &:= "    printf(\"after signal handler\\n\");\n";
-#     c_expr.expr &:= "    fflush(stdout);\n";
-#     c_expr.expr &:= "    activate_signal_handlers();\n";
-#     c_expr.expr &:= "    signal(SIGFPE, SIG_DFL);\n";
       c_expr.expr &:= "  }\n";
     end if;
     if ccConf.HAS_SIGSETJMP then
@@ -6596,8 +6613,42 @@ const proc: declare_raise_error2 (inout expr_type: c_expr) is func
     else
       c_expr.expr &:= "  longjmp(catch_stack[catch_stack_pos], fail_value);\n";
     end if;
+    c_expr.expr &:= "}\n";
+    c_expr.expr &:= "\n";
+  end func;
+
+
+const proc: declare_raise_error2 (inout expr_type: c_expr) is func
+
+  begin
     if compilerLibraryUsed then
-      c_expr.expr &:= "}\n";
+      writeln(c_prog, "extern boolType interpreter_exception;");
+      declareExtern("void interprRaiseError (int, const char *, int);");
+    end if;
+    c_expr.expr &:= "void raise_error2 (int fail_value, const char *file_name, int line_number)\n";
+    c_expr.expr &:= "{\n";
+    if compilerLibraryUsed then
+      if trace_exception then
+        c_expr.expr &:= "  int ch;\n";
+        c_expr.expr &:= "  if (fail_value >= 0 && fail_value < sizeof(exception_name) / sizeof(char *)) {\n";
+        c_expr.expr &:= "    printf(\"*** EXCEPTION %s\", exception_name[fail_value]);\n";
+        c_expr.expr &:= "  } else {\n";
+        c_expr.expr &:= "    printf(\"*** EXCEPTION %d\", fail_value);\n";
+        c_expr.expr &:= "  }\n";
+        c_expr.expr &:= "  printf(\" raised at %s(%d)\\n\", file_name, line_number);\n";
+        c_expr.expr &:= "  printf(\"\\n*** (Type RETURN to continue or '*' to terminate)\\n\");\n";
+        c_expr.expr &:= "  ch = fgetc(stdin);\n";
+        c_expr.expr &:= "  if (ch == (int) '*') {\n";
+        c_expr.expr &:= "    exit(1);\n";
+        c_expr.expr &:= "  }\n";
+      end if;
+      c_expr.expr &:= "  if (interpreter_exception) {\n";
+      c_expr.expr &:= "    interprRaiseError(fail_value, file_name, line_number);\n";
+      c_expr.expr &:= "  } else {\n";
+      c_expr.expr &:= "    rtlRaiseError(fail_value, file_name, line_number);\n";
+      c_expr.expr &:= "  }\n";
+    else
+      c_expr.expr &:= "  rtlRaiseError(fail_value, file_name, line_number);\n";
     end if;
     c_expr.expr &:= "}\n";
     c_expr.expr &:= "\n";
@@ -6635,6 +6686,7 @@ const proc: process_global_declarations (in program: prog) is func
       declareExtern("void *create_parameter_list (listType a, int *b) {printf(\"create_parameter_list\\n\"); return NULL;}");
       writeln(c_prog);
     end if;
+    declare_rtlRaiseError(c_expr);
     declare_raise_error2(c_expr);
     process_dynamic_decisions(c_expr);
     declare_missing_create_declarations(c_expr);
@@ -6720,11 +6772,6 @@ const proc: pass_1 (in string: source, inout program: prog,
   begin
     if source <> "" then
       writeln("Compiling the program ...");
-      if "-r" in compiler_option then
-        array_range_check := FALSE;
-        conversion_range_check := FALSE;
-        integer_shift_check := FALSE;
-      end if;
       if "-g" in compiler_option then
         source_debug_info := compiler_option["-g"] <> "-debug_c";
       end if;
@@ -6738,6 +6785,16 @@ const proc: pass_1 (in string: source, inout program: prog,
       if "-o" in compiler_option and compiler_option["-o"] in {"c0", "c1", "c2", "c3"} then
         evaluate_const_expr := integer parse (compiler_option["-o"][2 ..]);
       end if;
+      if "-s" in compiler_option then
+        if pos(compiler_option["-s"], 'r') <> 0 then
+          array_range_check := FALSE;
+          conversion_range_check := FALSE;
+        end if;
+        if pos(compiler_option["-s"], 'o') <> 0 then
+          integer_overflow_check := FALSE;
+        end if;
+      end if;
+      setIntegerOverflowCheck(integer_overflow_check);
       if "-c" in compiler_option then
         generate_c_plus_plus := compiler_option["-c"] = "++";
         declare_with_extern_c := generate_c_plus_plus;
@@ -7095,13 +7152,16 @@ const proc: writeHelp is func
     writeln("       To generate debug information which refers to the temporary C program");
     writeln("       the option -g-debug_c can be used.");
     writeln("  -l   Add a directory to the include library search path (e.g.: -l ../lib).");
-    writeln("  -ocn Optimize constants with level n. E.g.: -oc3 Where n is a digit");
-    writeln("       between 0 and 3:");
+    writeln("  -ocn Optimize constants with level n. E.g.: -oc3");
+    writeln("       The level n is a digit between 0 and 3:");
     writeln("         0 Do no optimizations with constants.");
     writeln("         1 Use literals and named constants to simplify expressions (default).");
     writeln("         2 Evaluate constant expressions to simplify expressions.");
     writeln("         3 Like -oc2 and additionally evaluate all constant expressions.");
-    writeln("  -r   Suppress the generation of range checks for strings and arrays.");
+    writeln("  -sx  Supress checks specified with x. E.g.: -sr or -sro");
+    writeln("       The checks x are specified with letters from the following list:");
+    writeln("         r Suppress the generation of range checks for strings and arrays.");
+    writeln("         o Suppress the generation of integer overflow checks.");
     writeln("  -te  Generate code to trace exceptions. This option works in the same way");
     writeln("       as the interpreter option -te: Every exception will write a message");
     writeln("       to stdout and the user will be asked to continue (with enter) or to");
@@ -7143,8 +7203,13 @@ const proc: main is func
           elsif curr_arg in {"-l"} and index < length(argv(PROGRAM)) then
             incr(index);
             libraryDirs &:= convDosPath(argv(PROGRAM)[index]);
-          elsif curr_arg[.. 2] in {"-?", "-r", "-g", "-t", "-e", "-o", "-c", "-O", "-b"} then
-            compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
+          elsif curr_arg[.. 2] in {"-?", "-b", "-c", "-e", "-g", "-o", "-s", "-t", "-O"} then
+            if curr_arg[.. 2] in compiler_option then
+              writeln("*** Option " <& curr_arg[.. 2] <&
+                      " specified twice. Ignore option: " <& curr_arg);
+            else
+              compiler_option @:= [curr_arg[.. 2]] curr_arg[3 ..];
+            end if;
           else
             writeln("*** Ignore unsupported option: " <& curr_arg);
           end if;

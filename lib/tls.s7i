@@ -1452,6 +1452,18 @@ const proc: close (inout tlsFile: aFile) is func
   end func;
 
 
+(**
+ *  Determine the end-of-file indicator.
+ *  The end-of-file indicator is set when at least one request to read
+ *  from the socket failed. The socket functions ''getc'', ''gets'',
+ *  ''getln'' and ''getwd'' indicate the end-of-file situation by
+ *  setting ''bufferChar'' to [[char#EOF|EOF]].
+ *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
+ *)
+const func boolean: eof (in tlsFile: inFile) is
+  return inFile.bufferChar = EOF;
+
+
 const func string: getApplicationData (inout tlsFile: inFile) is func
   result
     var string: applicationData is "";
@@ -1535,17 +1547,24 @@ const func string: gets (inout tlsFile: inFile, in integer: maxLength) is func
   result
     var string: striRead is "";
   begin
-    # writeln("gets(, " <& maxLength <& ") actual length: " <& length(inFile.readBuffer));
-    while length(inFile.readBuffer) < maxLength and not eof(inFile.sock) do
-      inFile.readBuffer &:= getApplicationData(inFile);
-      # writeln("gets(, " <& maxLength <& ") actual length: " <& length(inFile.readBuffer));
-    end while;
-    if length(inFile.readBuffer) > maxLength then
-      striRead := inFile.readBuffer[.. maxLength];
-      inFile.readBuffer := inFile.readBuffer[succ(maxLength) ..];
+    if maxLength < 0 then
+      raise RANGE_ERROR;
     else
-      striRead := inFile.readBuffer;
-      inFile.readBuffer := "";
+      # writeln("gets(, " <& maxLength <& ") actual length: " <& length(inFile.readBuffer));
+      while length(inFile.readBuffer) < maxLength and not eof(inFile.sock) do
+        inFile.readBuffer &:= getApplicationData(inFile);
+        # writeln("gets(, " <& maxLength <& ") actual length: " <& length(inFile.readBuffer));
+      end while;
+      if length(inFile.readBuffer) > maxLength then
+        striRead := inFile.readBuffer[.. maxLength];
+        inFile.readBuffer := inFile.readBuffer[succ(maxLength) ..];
+      else
+        striRead := inFile.readBuffer;
+        inFile.readBuffer := "";
+      end if;
+      if maxLength > 0 and striRead = "" and eof(inFile.sock) then
+        inFile.bufferChar := EOF;
+      end if;
     end if;
   end func;
 

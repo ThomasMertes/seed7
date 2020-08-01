@@ -533,7 +533,7 @@ const func string: getReference (in string: typeName, in string: namePrefix,
     c_expr.expr &:= "=&(";
     getAnyParamToExpr(param1, c_expr);
     c_expr.expr &:= "),";
-    variableName := "*" & variableName;
+    variableName := "(*" & variableName & ")";
   end func;
 
 
@@ -764,25 +764,6 @@ const func reference: getActionParameter (in reference: current_expression, in i
       actionParameter := params[succ(number)];
     end if;
   end func;
-
-
-const func boolean: useConstPrefix (in type: aType) is func
-
-  result
-    var boolean: useConstPrefix is FALSE;
-  local
-    const set of category: constPrefixCategories is {
-        BIGINTOBJECT, STRIOBJECT, PROGOBJECT,
-        ARRAYOBJECT, SETOBJECT, HASHOBJECT};
-  begin
-    if aType in typeCategory and typeCategory[aType] in constPrefixCategories then
-      useConstPrefix := TRUE;
-    end if;
-  end func;
-
-
-const func boolean: useConstPrefix (in reference: a_param) is
-  return useConstPrefix(getType(a_param));
 
 
 const proc: doRshift (in string: number_name, in string: rshift_name,

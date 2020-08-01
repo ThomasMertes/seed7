@@ -1722,8 +1722,6 @@ striType socWordRead (socketType inSocket, charType *const terminationChar)
 void socWrite (socketType outSocket, const const_striType stri)
 
   {
-    register const strElemType *str;
-    register memSizeType pos;
     ucharType buffer[BUFFER_SIZE];
     memSizeType bytes_sent;
     errInfoType err_info = OKAY_NO_ERROR;
@@ -1731,14 +1729,10 @@ void socWrite (socketType outSocket, const const_striType stri)
 
   /* socWrite */
     if (stri->size <= BUFFER_SIZE) {
-      str = stri->mem;
-      for (pos = stri->size; pos > 0; pos--) {
-        if (unlikely(str[pos - 1] >= 256)) {
-          raise_error(RANGE_ERROR);
-          return;
-        } /* if */
-        buffer[pos - 1] = (ucharType) str[pos - 1];
-      } /* for */
+      if (unlikely(memcpy_from_strelem(buffer, stri->mem, stri->size))) {
+        raise_error(RANGE_ERROR);
+        return;
+      } /* if */
       bytes_sent = (memSizeType) send((os_socketType) outSocket,
                                       cast_send_recv_data(buffer),
                                       cast_buffer_len(stri->size), 0);

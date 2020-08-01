@@ -48,7 +48,7 @@ void setupFloat (void);
 int64Type getMantissaAndExponent (double doubleValue, int *binaryExponent);
 double setMantissaAndExponent (int64Type intMantissa, int binaryExponent);
 memSizeType doubleToCharBuffer (double doubleValue, double largeNumber,
-                                char *format, char *buffer);
+                                const char *format, char *buffer);
 intType fltCmp (floatType number1, floatType number2);
 striType fltDgts (floatType number, intType precision);
 #ifdef NAN_COMPARISON_WRONG

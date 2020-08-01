@@ -203,6 +203,12 @@ CONTENTS
   15.   ERRORS
   15.1    Compile time errors
   15.2    Exceptions
+  15.2.1  MEMORY_ERROR
+  15.2.2  NUMERIC_ERROR
+  15.2.3  OVERFLOW_ERROR
+  15.2.4  RANGE_ERROR
+  15.2.5  FILE_ERROR
+  15.2.6  ILLEGAL_ACTION
   15.3    Handlers
   15.4    Stack trace
   15.5    Other errors and warnings
@@ -11038,63 +11044,184 @@ CONTENTS
 
 15.2 Exceptions
 
-  There are various exceptions, which can be raised during
-  program execution:
-
-    MEMORY_ERROR:
-      May be raised by various operations of the following types:
-          'array', 'struct', 'hash', 'file', 'func', 'proc', 'reference', 'string'.
-      Additionally the interpreter kernel may raise this exception also.
-    NUMERIC_ERROR:
-      May be raised from the following 'integer' operations:
-          !, **, div, rem, mdiv, mod, sqrt, log2, log10.
-      May be raised from the following 'bigInteger' operations:
-          !, **, div, rem, mdiv, mod, sqrt, log2, log10.
-    RANGE_ERROR:
-      May be raised from the following 'boolean' operations:
-          parse, rand.
-      May be raised from the following 'integer' operations:
-          parse, radix, RADIX, sci, rand, integer.
-      May be raised from the following 'bigInteger' operations:
-          parse, radix, RADIX, sci, rand, ord, bigInteger, bitLength, modInverse, modPow, .
-      May be raised from the following 'rational' operations:
-          parse, digits, sci.
-      May be raised from the following 'bigRational' operations:
-          parse, digits, sci.
-      May be raised from the following 'float' operations:
-          parse, digits, sci, rand.
-      May be raised from the following 'char' operations:
-          chr, rand.
-      May be raised from the following 'string' operations:
-          [, @:=, mult, pos, rpos.
-      May be raised from the following 'bitset' operations:
-          conv, parse, min, max, rand.
-      May be raised from the following 'array' operations:
-          [, times, remove, rand.
-      May be raised from the following 'hash' operations:
-          [.
-      May be raised from the following 'category' operations:
-          parse.
-      May be raised from the following 'ref_list' operations:
-          [, @:=, pos.
-      May be raised from the following 'file' operations:
-          open, write, gets, length, seek, tell.
-    FILE_ERROR:
-      May be raised by the following functions:
-          fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
-          readDir, removeFile, removeAnyFile, moveFile, cloneFile, copyFile,
-          readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
-          inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
-    ILLEGAL_ACTION:
-      May be raised by the interpreter kernel when a primitive action
-      does not point to any legal action. This check is only done when
-      the s7 interpreter is compiled with '#define WITH_ACTION_CHECK'.
-      The ILLEGAL_ACTION exception is also raised when the primitive
-      action ACT_ILLEGAL is executed.
-
-  A program can raise an exception with the 'raise' statement. For example:
+  An exception is an anomalous event that arises during program execution.
+  Exceptions change the normal flow of program execution. An exception
+  transfers the execution to a corresponding exception handler. When no
+  corresponding exception handler exists the program is terminated.
+  There are various exceptions, which can be raised: MEMORY_ERROR,
+  NUMERIC_ERROR, OVERFLOW_ERROR, RANGE_ERROR, FILE_ERROR and
+  ILLEGAL_ACTION. A program can raise an exception with the 'raise'
+  statement. For example:
 
     raise RANGE_ERROR;
+
+
+15.2.1 MEMORY_ERROR
+
+  The exception MEMORY_ERROR is raised when there is not enough memory
+  to store some data. This error can be raised from the run-time library
+  or from the interpreter kernel. Catching a MEMORY_ERROR is possible,
+  but it must be done with care. Variables involved in a MEMORY_ERROR
+  may have an illegal value. A MEMORY_ERROR may be raised by various
+  operations of the following types:
+
+    'array', 'struct', 'hash', 'file', 'func', 'proc', 'reference', 'string'.
+    Additionally the interpreter kernel may raise this exception also.
+
+
+15.2.2 NUMERIC_ERROR
+
+  The exception NUMERIC_ERROR is raised when a numeric operation
+  cannot deliver a correct result. This includes several things that
+  are mathematically undefined such as division by zero, integer
+  exponentiation with a negative exponent, square root of a negative
+  number and logarithm of a negative number. NUMERIC_ERROR can be
+  raised by operations of several types:
+
+    It may be raised from the following 'integer' operations:
+        !, **, div, rem, mdiv, mod, sqrt, log2, log10.
+    It may be raised from the following 'bigInteger' operations:
+        !, **, div, rem, mdiv, mod, sqrt, log2, log10.
+    It may be raised from the following 'rational' operation:
+        /.
+    It may be raised from the following 'bigRational' operation:
+        /.
+
+  In detail the following conditions can cause a numeric error:
+
+     - Division (div, rem, mdiv, mod, /) by zero.
+       E.g.: 1 div 0 raises NUMERIC_ERROR. Note that a 'float' division
+       by zero does not raise NUMERIC_ERROR but returns Infinity or
+       -Infinity instead.
+     - Exponentiation (**) when the exponent is negative.
+       E.g.: 2 ** (-1) raises NUMERIC_ERROR.
+     - Functions (sqrt, log2, log10, !) that are only defined for
+       positive arguments. E.g.: sqrt(-1) raises NUMERIC_ERROR.
+
+
+15.2.3 OVERFLOW_ERROR
+
+  An integer overflow occurs when a calculation produces a result that
+  cannot be stored in an 'integer' variable. This happens when the result
+  is less than 'integer.first' or greater than 'integer.last'.
+
+    It may be raised from the following 'integer' operations:
+        - (sign), +, -, *, **, div, rem, mdiv, mod, <<, >>, +:=, -:=,
+        *:=, <<:=, >>:=, abs, succ, pred, incr, decr.
+
+  In detail the following conditions can cause an overflow:
+
+     - Negating can overflow because in a two's complement representation
+       there is no corresponding positive value for the most negative
+       integer. E.g.: -integer.first raises OVERFLOW_ERROR.
+     - Addition, subtraction, multiplication and exponentiation (+, -,
+       *, **, succ, pred) trigger an overflow when the result would be
+       less than 'integer.first' or greater than 'integer.last'.
+     - Arithmetic operations that change a variable (+:=, -:=, *:=, incr,
+       decr) trigger an overflow when the variable would get a value that
+       is less than 'integer.first' or greater than 'integer.last'.
+     - Division with 'div' and 'mdiv' can overflow because a division by
+       -1 is the same as negating the dividend. E.g.: integer.first div -1
+       raises OVERFLOW_ERROR.
+     - Remainder and modulo are defined to raise OVERFLOW_ERROR when
+       the dividend is the most negative integer and the divisor is -1.
+       E.g.: integer.first rem -1 raises OVERFLOW_ERROR. This has been
+       defined as overflow because it can trigger so called undefined
+       behaviour of the underlying C code.
+     - All shift operations ('<<', '>>', <<:= and '>>:=') trigger an
+       overflow when the shift amount is negative or greater equal 64.
+     - Left shift operations ('<<' and <<:=) can also trigger an
+       overflow when the shift result would be less than 'integer.first'
+       or greater than 'integer.last'.
+     - Computing the absolute value with abs can overflow, when it is
+       called with the most negative integer. E.g.: abs(integer.first)
+       raises OVERFLOW_ERROR.
+
+  The interpreter checks always for an integer overflow. By default the
+  compiler generates code to check for an integer overflow. The option
+  -so can be used to suppress the generation of integer overflow checks.
+  When an overflow situation occurs although overflow checking has been
+  switched off (with -so) the behaviour is undefined. In this case the
+  following things can happen:
+
+     - The exception OVERFLOW_ERROR is still raised.
+     - A different exception is raised.
+     - The program hangs.
+     - The program crashes.
+     - The computation continues with some garbage value. This garbage
+       value can then trigger dangerous things: The X-ray dosis computed
+       by your program might be totally wrong. Your program might compute
+       the statics of a bridge wrong.
+
+  Without integer overflow checks a handler for OVERFLOW_ERROR cannot
+  work reliably. Only a program that does not have a handler for an
+  OVERFLOW_ERROR exception can be considered to be compiled without
+  overflow checks. Careful program analysis and testing (OVERFLOW_ERROR
+  should never be raised) is necessary to decide about the omission of
+  overflow checking.
+
+  The separate overflow exception allows easy recognition of overflow
+  situations. All overflow situations, where OVERFLOW_ERROR is raised
+  correspond to C situations, which have undefined behaviour. The
+  overflow concept of Seed7 has been designed to allow, that simple
+  C code is generated, when the overflow checks are switched off.
+
+
+15.2.4 RANGE_ERROR
+
+  A RANGE_ERROR occurs when an index is used to access an array or string
+  element byond the elements that actually exist. Many functions define
+  a range of valid arguments and raise RANGE_ERROR when this range is
+  violated.
+
+    It may be raised from the following 'boolean' operations:
+        parse, rand.
+    It may be raised from the following 'integer' operations:
+        parse, radix, RADIX, sci, rand, integer.
+    It may be raised from the following 'bigInteger' operations:
+        parse, radix, RADIX, sci, rand, ord, bigInteger, bitLength, modInverse, modPow, .
+    It may be raised from the following 'rational' operations:
+        parse, digits, sci.
+    It may be raised from the following 'bigRational' operations:
+        parse, digits, sci.
+    It may be raised from the following 'float' operations:
+        parse, digits, sci, rand.
+    It may be raised from the following 'char' operations:
+        chr, rand.
+    It may be raised from the following 'string' operations:
+        [, @:=, mult, pos, rpos.
+    It may be raised from the following 'bitset' operations:
+        conv, parse, min, max, rand.
+    It may be raised from the following 'array' operations:
+        [, times, remove, rand.
+    It may be raised from the following 'hash' operations:
+        [.
+    It may be raised from the following 'category' operations:
+        parse.
+    It may be raised from the following 'ref_list' operations:
+        [, @:=, pos.
+    It may be raised from the following 'file' operations:
+        open, write, gets, length, seek, tell.
+
+
+15.2.5 FILE_ERROR
+
+  A FILE_ERROR occurs when an illegal operation with a file is done.
+
+    It may be raised by the following functions:
+        fileSize, bigFileSize, fileType, fileTypeSL, fileMode, setFileMode,
+        readDir, removeFile, removeAnyFile, moveFile, cloneFile, copyFile,
+        readlink, symlink, hasNext, seek, tell, bigTell, setbuf, write,
+        inetSocketAddress, inetListenerAddress, openInetSocket, openInetListener.
+
+
+15.2.6 ILLEGAL_ACTION
+
+  The exception ILLEGAL_ACTION may be raised by the interpreter
+  kernel, when a primitive action does not point to any legal action.
+  This check is only done when the s7 interpreter is compiled with
+  '#define WITH_ACTION_CHECK'. The ILLEGAL_ACTION exception
+  is also raised when the primitive action ACT_ILLEGAL is executed.
 
 
 15.3 Handlers
@@ -11132,10 +11259,10 @@ CONTENTS
     in setup at lander.sd7(909)
     in main at lander.sd7(1541)
 
-  The stack trace shows that a 'NUMERIC_ERROR' was raised by the 'div' operation.
+  The stack trace shows that a NUMERIC_ERROR was raised by the 'div' operation.
   This operation is defined in line 95 of "integer.s7i". More interesting is that
   'div' was called from the function 'init_display' in
-  line 840 of "lander.sd7". A 'NUMERIC_ERROR' with 'div' is
+  line 840 of "lander.sd7". A NUMERIC_ERROR with 'div' is
   probably caused by a zero division. A short examination in "lander.sd7" shows that an assignment to
   'fuel_max' was commented out to show how stack traces work.
 

@@ -84,10 +84,14 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ..\bin\s7.exe ..\prg\s7.exe
 	..\bin\s7 -l ..\lib level
-	echo Use 'make s7c' (with your make command) to create the compiler.
+	@echo.
+	@echo Use 'make s7c' (with your make command) to create the compiler.
+	@echo.
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
-	echo Use 'make test' (with your make command) to check Seed7.
+	@echo.
+	@echo Use 'make test' (with your make command) to check Seed7.
+	@echo.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) -o ..\bin\s7
@@ -114,13 +118,19 @@ clean:
 	del chkccomp.h
 	del version.h
 	del setwpath.exe
-	echo Use 'make depend' (with your make command) to create the dependencies.
+	@echo.
+	@echo Use 'make depend' (with your make command) to create the dependencies.
+	@echo.
 
 distclean: clean
 	copy level_bk.h level.h /Y
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
+	@echo.
+	@echo Open a console as administrator, go to the directory seed7/src and
+	@echo use 'make install' (with your make command) to install Seed7.
+	@echo.
 
 install: setwpath.exe
 	.\setwpath.exe add ..\bin
@@ -217,7 +227,9 @@ depend: version.h
 	$(CC) $(CFLAGS) -M $(DRAW_LIB_SRC) >> depend
 	$(CC) $(CFLAGS) -M $(COMP_DATA_LIB_SRC) >> depend
 	$(CC) $(CFLAGS) -M $(COMPILER_LIB_SRC) >> depend
-	echo Use 'make' (with your make command) to create the interpreter.
+	@echo.
+	@echo Use 'make' (with your make command) to create the interpreter.
+	@echo.
 
 level.h:
 	..\bin\s7 -l ..\lib level

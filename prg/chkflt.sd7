@@ -29,7 +29,7 @@ $ include "seed7_05.s7i";
 
 
 const func string: striExpr (in string: stri) is
-  return stri;
+  return stri & str(rand(1, 9))[2 ..];
 
 
 const func float: floatExpr (in float: number) is
@@ -2550,7 +2550,13 @@ const proc: check_ipower is func
          2.0  ** (-1) = 0.5 and
          2.0  **   0  = 1.0 and
          2.0  **   1  = 2.0 and
-         2.0  **   2  = 4.0 then
+         2.0  **   2  = 4.0 and
+       (-1.1) ** integer.first = 0.0 and
+       (-1.0) ** integer.first = 1.0 and
+       (-0.9) ** integer.first = Infinity and
+         0.9  ** integer.first = Infinity and
+         1.0  ** integer.first = 1.0 and
+         1.1  ** integer.first = 0.0 then
       writeln("A ** B with integer B works correct for selected values.");
     else
       writeln(" ***** A ** B with integer B does not work correct");

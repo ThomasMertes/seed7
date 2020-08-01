@@ -27,11 +27,11 @@ $ include "seed7_05.s7i";
 
 
 const func string: striExpr (in string: stri) is
-  return stri;
+  return stri & str(rand(1, 9))[2 ..];
 
 
 const func integer: intExpr (in integer: number) is
-  return number;
+  return number + length(str(rand(1, 9))[2 ..]);
 
 
 const proc: check_string_literal is func
@@ -3638,7 +3638,7 @@ const proc: check_string_ops is func
       writeln(" ***** STRING mult integer does not work correct");
       okay := FALSE;
     end if;
-    if ("" lpad -10) <> "" or
+    if  ("" lpad -10) <> "" or
         ("" lpad -5) <> "" or
         ("" lpad -2) <> "" or
         ("" lpad -1) <> "" or
@@ -3718,7 +3718,88 @@ const proc: check_string_ops is func
         ("abcdefghijk" lpad 1) <> "abcdefghijk" or
         ("abcdefghijk" lpad 2) <> "abcdefghijk" or
         ("abcdefghijk" lpad 5) <> "abcdefghijk" or
-        ("abcdefghijk" lpad 10) <> "abcdefghijk" then
+        ("abcdefghijk" lpad 10) <> "abcdefghijk" or
+        (striExpr("") lpad -10) <> "" or
+        (striExpr("") lpad -5) <> "" or
+        (striExpr("") lpad -2) <> "" or
+        (striExpr("") lpad -1) <> "" or
+        (striExpr("") lpad 0) <> "" or
+        (striExpr("") lpad 1) <> " " or
+        (striExpr("") lpad 2) <> "  " or
+        (striExpr("") lpad 5) <> "     " or
+        (striExpr("") lpad 10) <> "          " or
+        (striExpr("a") lpad -10) <> "a" or
+        (striExpr("a") lpad -5) <> "a" or
+        (striExpr("a") lpad -2) <> "a" or
+        (striExpr("a") lpad -1) <> "a" or
+        (striExpr("a") lpad 0) <> "a" or
+        (striExpr("a") lpad 1) <> "a" or
+        (striExpr("a") lpad 2) <> " a" or
+        (striExpr("a") lpad 5) <> "    a" or
+        (striExpr("a") lpad 10) <> "         a" or
+        (striExpr("ab") lpad -10) <> "ab" or
+        (striExpr("ab") lpad -5) <> "ab" or
+        (striExpr("ab") lpad -2) <> "ab" or
+        (striExpr("ab") lpad -1) <> "ab" or
+        (striExpr("ab") lpad 0) <> "ab" or
+        (striExpr("ab") lpad 1) <> "ab" or
+        (striExpr("ab") lpad 2) <> "ab" or
+        (striExpr("ab") lpad 5) <> "   ab" or
+        (striExpr("ab") lpad 10) <> "        ab" or
+        (striExpr("abcd") lpad -10) <> "abcd" or
+        (striExpr("abcd") lpad -5) <> "abcd" or
+        (striExpr("abcd") lpad -2) <> "abcd" or
+        (striExpr("abcd") lpad -1) <> "abcd" or
+        (striExpr("abcd") lpad 0) <> "abcd" or
+        (striExpr("abcd") lpad 1) <> "abcd" or
+        (striExpr("abcd") lpad 2) <> "abcd" or
+        (striExpr("abcd") lpad 5) <> " abcd" or
+        (striExpr("abcd") lpad 10) <> "      abcd" or
+        (striExpr("abcde") lpad -10) <> "abcde" or
+        (striExpr("abcde") lpad -5) <> "abcde" or
+        (striExpr("abcde") lpad -2) <> "abcde" or
+        (striExpr("abcde") lpad -1) <> "abcde" or
+        (striExpr("abcde") lpad 0) <> "abcde" or
+        (striExpr("abcde") lpad 1) <> "abcde" or
+        (striExpr("abcde") lpad 2) <> "abcde" or
+        (striExpr("abcde") lpad 5) <> "abcde" or
+        (striExpr("abcde") lpad 10) <> "     abcde" or
+        (striExpr("abcdef") lpad -10) <> "abcdef" or
+        (striExpr("abcdef") lpad -5) <> "abcdef" or
+        (striExpr("abcdef") lpad -2) <> "abcdef" or
+        (striExpr("abcdef") lpad -1) <> "abcdef" or
+        (striExpr("abcdef") lpad 0) <> "abcdef" or
+        (striExpr("abcdef") lpad 1) <> "abcdef" or
+        (striExpr("abcdef") lpad 2) <> "abcdef" or
+        (striExpr("abcdef") lpad 5) <> "abcdef" or
+        (striExpr("abcdef") lpad 10) <> "    abcdef" or
+        (striExpr("abcdefghi") lpad -10) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad -5) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad -2) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad -1) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad 0) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad 1) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad 2) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad 5) <> "abcdefghi" or
+        (striExpr("abcdefghi") lpad 10) <> " abcdefghi" or
+        (striExpr("abcdefghij") lpad -10) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad -5) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad -2) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad -1) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad 0) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad 1) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad 2) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad 5) <> "abcdefghij" or
+        (striExpr("abcdefghij") lpad 10) <> "abcdefghij" or
+        (striExpr("abcdefghijk") lpad -10) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad -5) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad -2) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad -1) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad 0) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad 1) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad 2) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad 5) <> "abcdefghijk" or
+        (striExpr("abcdefghijk") lpad 10) <> "abcdefghijk" then
       writeln(" ***** string lpad integer does not work correct");
       okay := FALSE;
     end if;

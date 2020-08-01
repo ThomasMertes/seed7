@@ -218,3 +218,22 @@ const func boolean: valueIsAtHeap (in type: aType) is func
 
 const func boolean: valueIsAtHeap (in reference: a_param) is
   return valueIsAtHeap(getType(a_param));
+
+
+const func boolean: useConstPrefix (in type: aType) is func
+
+  result
+    var boolean: useConstPrefix is FALSE;
+  local
+    const set of category: constPrefixCategories is {
+        BIGINTOBJECT, STRIOBJECT, PROGOBJECT,
+        ARRAYOBJECT, SETOBJECT, HASHOBJECT};
+  begin
+    if aType in typeCategory and typeCategory[aType] in constPrefixCategories then
+      useConstPrefix := TRUE;
+    end if;
+  end func;
+
+
+const func boolean: useConstPrefix (in reference: a_param) is
+  return useConstPrefix(getType(a_param));

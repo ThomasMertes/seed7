@@ -13,7 +13,7 @@ CFLAGS = -O2 -W4 -Z7
 # CFLAGS = -O2 -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -pg -Wall -Wstrict-prototypes -Winline -Wconversion -Wshadow -Wpointer-arith
 # CFLAGS = -O2 -funroll-loops -Wall -pg
-LDFLAGS = /F0x400000
+LDFLAGS = /F0x800000
 # LDFLAGS = -pg
 SYSTEM_LIBS = user32.lib ws2_32.lib
 # SYSTEM_LIBS = user32.lib ws2_32.lib gmp.lib
@@ -81,10 +81,14 @@ COMPILER_LIB_SRC = $(PSRC) $(LSRC) $(ESRC) $(ASRC) $(GSRC)
 
 s7: ..\bin\s7.exe ..\prg\s7.exe
 	..\bin\s7 -l ..\lib level
-	echo Use 'make s7c' (with your make command) to create the compiler.
+	@echo.
+	@echo Use 'make s7c' (with your make command) to create the compiler.
+	@echo.
 
 s7c: ..\bin\s7c.exe ..\prg\s7c.exe
-	echo Use 'make test' (with your make command) to check Seed7.
+	@echo.
+	@echo Use 'make test' (with your make command) to check Seed7.
+	@echo.
 
 ..\bin\s7.exe: $(OBJ) $(ALL_S7_LIBS)
 	$(CC) -Z7 $(LDFLAGS) -o ..\bin\s7.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS)
@@ -111,13 +115,19 @@ clean:
 	del chkccomp.h
 	del version.h
 	del setwpath.exe
-	echo Use 'make depend' (with your make command) to create the dependencies.
+	@echo.
+	@echo Use 'make depend' (with your make command) to create the dependencies.
+	@echo.
 
 distclean: clean
 	copy level_bk.h level.h /Y
 
 test:
 	..\bin\s7 -l ..\lib ..\prg\chk_all build
+	@echo.
+	@echo Open a console as administrator, go to the directory seed7/src and
+	@echo use 'make install' (with your make command) to install Seed7.
+	@echo.
 
 install: setwpath.exe
 	.\setwpath.exe add ..\bin
@@ -212,8 +222,10 @@ version.h: chkccomp.h
 	$(CC) -c $(CFLAGS) $<
 
 depend: version.h
-	echo Working without C header dependency checks.
-	echo Use 'make' (with your make command) to create the interpreter.
+	@echo Working without C header dependency checks.
+	@echo.
+	@echo Use 'make' (with your make command) to create the interpreter.
+	@echo.
 
 level.h:
 	..\bin\s7 -l ..\lib level

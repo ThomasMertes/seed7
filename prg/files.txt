@@ -17,6 +17,7 @@ chkflt.sd7   Checks float literals and operations
 chkhent.sd7  Checks the HTML entity handling functions
 chkhsh.sd7   Checks hash table operations
 chkint.sd7   Checks integer literals and operations
+chkovf.sd7   Checks catching of integer overflows.
 chkprc.sd7   Checks procedures and statements
 chkscan.sd7  Checks the scanner functions
 chkset.sd7   Checks set literals and operations

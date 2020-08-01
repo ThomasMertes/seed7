@@ -73,7 +73,7 @@ const proc: process_const_chr_chr (in reference: function, in integer: number, i
   begin
     incr(countOptimizations);
     if number < pred(-2147483647) or number > 2147483647 then
-      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
     else
       c_expr.expr &:= "(charType) ";
       c_expr.expr &:= str(number);
@@ -98,7 +98,7 @@ const proc: process (CHR_CHR, in reference: function,
       c_expr.expr &:= "<INT32TYPE_MIN||";
       c_expr.expr &:= number_name;
       c_expr.expr &:= ">INT32TYPE_MAX?";
-      process_raise_error("RANGE_ERROR", function, c_expr);
+      c_expr.expr &:= intRaiseError("RANGE_ERROR");
       c_expr.expr &:= ":(charType)";
       c_expr.expr &:= number_name;
       c_expr.expr &:= ")";

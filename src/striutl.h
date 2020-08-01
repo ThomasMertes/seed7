@@ -126,6 +126,9 @@ void memcpy_to_strelem (register strElemType *const dest,
                         register const const_ustriType src, memSizeType len);
 void memset_to_strelem (register strElemType *const dest,
                         register const strElemType ch, memSizeType len);
+boolType memcpy_from_strelem (register const ustriType dest,
+                              register const strElemType *const src,
+                              memSizeType len);
 #ifdef STACK_LIKE_ALLOC_FOR_OS_STRI
 boolType heapAllocOsStri (os_striType *var, memSizeType len);
 void heapFreeOsStri (const_os_striType var);

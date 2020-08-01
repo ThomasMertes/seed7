@@ -42,17 +42,17 @@ const func bigInteger: bigintExpr (in bigInteger: number) is func
 
 
 const func integer: intExpr (in integer: number) is
-  return number;
+  return number + length(str(rand(1, 9))[2 ..]);
 
 
-const func boolean: raisesRangeError (ref func string: striExpr) is func
+const func boolean: raisesRangeError (ref func string: expression) is func
   result
     var boolean: raisesRangeError is FALSE;
   local
     var string: exprResult is "";
   begin
     block
-      exprResult := striExpr;
+      exprResult := expression;
     exception
       catch RANGE_ERROR:
         raisesRangeError := TRUE;

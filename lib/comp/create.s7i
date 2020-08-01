@@ -204,7 +204,10 @@ const proc: declare_create_prototype (in type: object_type,
       c_expr.expr &:= type_name(object_type);
       c_expr.expr &:= " create_";
       c_expr.expr &:= str(typeNumber(object_type));
-      c_expr.expr &:= " (const_";
+      c_expr.expr &:= " (";
+      if useConstPrefix(object_type) then
+        c_expr.expr &:= "const_";
+      end if;
       c_expr.expr &:= type_name(object_type);
       c_expr.expr &:= ");\n\n";
       create_prototype_declared @:= [object_type] TRUE;
