@@ -1211,6 +1211,8 @@ const proc: process_action (in reference: function, in ref_list: params,
         process(REF_ADDR, function, params, c_expr);
       elsif action_name = "REF_ALLOC" then
         process(REF_ALLOC, function, params, c_expr);
+      elsif action_name = "REF_ALLOC_INT" then
+        process(REF_ALLOC_INT, function, params, c_expr);
       elsif action_name = "REF_ALLOC_STRI" then
         process(REF_ALLOC_STRI, function, params, c_expr);
       elsif action_name = "REF_ARRMAXIDX" then

@@ -118,6 +118,7 @@ const string: chkflt_output is "\n\
   \Conversion from integer to float works correct.\n\
   \Truncation of float works correct.\n\
   \Addition works correct for selected values.\n\
+  \Multiplication works correct for selected values.\n\
   \Division works correct for selected values.\n\
   \A ** B works correct for selected values.\n\
   \A ** B with integer B works correct for selected values.\n\

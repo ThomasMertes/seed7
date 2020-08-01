@@ -50,11 +50,11 @@
  */
 
 
-char c_compiler[1024];
+static char c_compiler[1024];
 
 
 
-void prepareCompileCommand (void)
+static void prepareCompileCommand (void)
 
   {
     int pos;

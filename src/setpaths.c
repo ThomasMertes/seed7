@@ -82,7 +82,7 @@ int code_page;
 
 
 
-void get_cwd_to_buffer (os_charType *buffer)
+static void get_cwd_to_buffer (os_charType *buffer)
 
   {
     int position;
@@ -109,7 +109,7 @@ void get_cwd_to_buffer (os_charType *buffer)
 
 #ifdef OS_STRI_WCHAR
 
-void write_as_utf8 (os_charType *wstri)
+static void write_as_utf8 (os_charType *wstri)
 
   {
     unsigned long utf32;
@@ -143,7 +143,7 @@ void write_as_utf8 (os_charType *wstri)
 #else
 #ifdef OS_STRI_USES_CODE_PAGE
 
-char *conv_437[] = {
+static char *conv_437[] = {
     "\\000", "\\001", "\\002", "\\003", "\\004", "\\005", "\\006", "\\007",
     "\\b", "\\t", "\\n", "\\013", "\\f", "\\r", "\\016", "\\017",
     "\\020", "\\021", "\\022", "\\023", "\\024", "\\025", "\\026", "\\027",
@@ -187,7 +187,7 @@ char *conv_437[] = {
     "\\302\\260", "\\342\\210\\231", "\\302\\267", "\\342\\210\\232",
     "\\342\\201\\277", "\\302\\262", "\\342\\226\\240", "\\302\\240"};
 
-char *conv_850[] = {
+static char *conv_850[] = {
     "\\000", "\\001", "\\002", "\\003", "\\004", "\\005", "\\006", "\\007",
     "\\b", "\\t", "\\n", "\\013", "\\f", "\\r", "\\016", "\\017",
     "\\020", "\\021", "\\022", "\\023", "\\024", "\\025", "\\026", "\\027",
@@ -233,7 +233,7 @@ char *conv_850[] = {
 
 
 
-void write_as_utf8 (os_charType *cstri)
+static void write_as_utf8 (os_charType *cstri)
 
   { /* write_as_utf8 */
     if (code_page == 437) {
@@ -253,7 +253,7 @@ void write_as_utf8 (os_charType *cstri)
 
 
 
-void write_as_utf8 (os_charType *cstri)
+static void write_as_utf8 (os_charType *cstri)
 
   { /* write_as_utf8 */
     printf("%s", cstri);
@@ -265,7 +265,7 @@ void write_as_utf8 (os_charType *cstri)
 
 
 #ifdef OS_STRI_USES_CODE_PAGE
-int get_code_page (void)
+static int get_code_page (void)
 
   {
     union REGS r;

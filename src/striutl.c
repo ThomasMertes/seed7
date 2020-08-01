@@ -150,7 +150,7 @@ int code_page = DEFAULT_CODE_PAGE;
  *  truncated and an information about the total length is added.
  *  Since a static buffer is used every call of printf() can only
  *  work correctly with one call of striAsUnquotedCStri(). Because
- *  of the static buffer this function is not thread safe. 
+ *  of the static buffer this function is not thread safe.
  *  @param stri String to be written into the static buffer.
  *  @return a pointer to the static buffer containing the string.
  */
@@ -230,7 +230,7 @@ cstriType striAsUnquotedCStri (const const_striType stri)
  *  truncated and an information about the total length is added.
  *  Since a static buffer is used every call of printf() can only
  *  work correctly with one call of bstriAsUnquotedCStri(). Because
- *  of the static buffer this function is not thread safe. 
+ *  of the static buffer this function is not thread safe.
  *  @param bstri Bstring to be written into the static buffer.
  *  @return a pointer to the static buffer containing the string.
  */

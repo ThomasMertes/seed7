@@ -26,8 +26,10 @@
 /********************************************************************/
 
 objectType refAlloc (const const_objectType aReference);
-objectType refAllocStri (boolType var_flag, typeType any_type,
-                         const const_striType stri_from);
+objectType refAllocInt (boolType isVar, typeType aType,
+                        const intType number);
+objectType refAllocStri (boolType isVar, typeType aType,
+                         const const_striType stri);
 intType refArrMaxIdx (const const_objectType aReference);
 intType refArrMinIdx (const const_objectType aReference);
 listType refArrToList (const const_objectType aReference);

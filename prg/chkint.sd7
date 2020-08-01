@@ -2249,6 +2249,100 @@ const proc: check_add is func
       okay := FALSE;
     end if;
 
+    if          2  +         1  <> 3 or
+                2  + intExpr(1) <> 3 or
+        intExpr(2) +         1  <> 3 or
+        intExpr(2) + intExpr(1) <> 3 then
+      writeln(" ***** Addition of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          4  +         2  +         1  <> 7 or
+                4  +         2  + intExpr(1) <> 7 or
+                4  + intExpr(2) +         1  <> 7 or
+                4  + intExpr(2) + intExpr(1) <> 7 or
+        intExpr(4) +         2  +         1  <> 7 or
+        intExpr(4) +         2  + intExpr(1) <> 7 or
+        intExpr(4) + intExpr(2) +         1  <> 7 or
+        intExpr(4) + intExpr(2) + intExpr(1) <> 7 then
+      writeln(" ***** Addition of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          4  +         2  -         1  <> 5 or
+                4  +         2  - intExpr(1) <> 5 or
+                4  + intExpr(2) -         1  <> 5 or
+                4  + intExpr(2) - intExpr(1) <> 5 or
+        intExpr(4) +         2  -         1  <> 5 or
+        intExpr(4) +         2  - intExpr(1) <> 5 or
+        intExpr(4) + intExpr(2) -         1  <> 5 or
+        intExpr(4) + intExpr(2) - intExpr(1) <> 5 then
+      writeln(" ***** Addition of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          8  +         4  +         2  +         1  <> 15 or
+                8  +         4  +         2  + intExpr(1) <> 15 or
+                8  +         4  + intExpr(2) +         1  <> 15 or
+                8  +         4  + intExpr(2) + intExpr(1) <> 15 or
+                8  + intExpr(4) +         2  +         1  <> 15 or
+                8  + intExpr(4) +         2  + intExpr(1) <> 15 or
+                8  + intExpr(4) + intExpr(2) +         1  <> 15 or
+                8  + intExpr(4) + intExpr(2) + intExpr(1) <> 15 or
+        intExpr(8) +         4  +         2  +         1  <> 15 or
+        intExpr(8) +         4  +         2  + intExpr(1) <> 15 or
+        intExpr(8) +         4  + intExpr(2) +         1  <> 15 or
+        intExpr(8) +         4  + intExpr(2) + intExpr(1) <> 15 or
+        intExpr(8) + intExpr(4) +         2  +         1  <> 15 or
+        intExpr(8) + intExpr(4) +         2  + intExpr(1) <> 15 or
+        intExpr(8) + intExpr(4) + intExpr(2) +         1  <> 15 or
+        intExpr(8) + intExpr(4) + intExpr(2) + intExpr(1) <> 15 then
+      writeln(" ***** Addition of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          16  +         8  +         4  +         2  +         1  <> 31 or
+                16  +         8  +         4  +         2  + intExpr(1) <> 31 or
+                16  +         8  +         4  + intExpr(2) +         1  <> 31 or
+                16  +         8  +         4  + intExpr(2) + intExpr(1) <> 31 or
+                16  +         8  + intExpr(4) +         2  +         1  <> 31 or
+                16  +         8  + intExpr(4) +         2  + intExpr(1) <> 31 or
+                16  +         8  + intExpr(4) + intExpr(2) +         1  <> 31 or
+                16  +         8  + intExpr(4) + intExpr(2) + intExpr(1) <> 31 or
+                16  + intExpr(8) +         4  +         2  +         1  <> 31 or
+                16  + intExpr(8) +         4  +         2  + intExpr(1) <> 31 or
+                16  + intExpr(8) +         4  + intExpr(2) +         1  <> 31 or
+                16  + intExpr(8) +         4  + intExpr(2) + intExpr(1) <> 31 or
+                16  + intExpr(8) + intExpr(4) +         2  +         1  <> 31 or
+                16  + intExpr(8) + intExpr(4) +         2  + intExpr(1) <> 31 or
+                16  + intExpr(8) + intExpr(4) + intExpr(2) +         1  <> 31 or
+                16  + intExpr(8) + intExpr(4) + intExpr(2) + intExpr(1) <> 31 or
+        intExpr(16) +         8  +         4  +         2  +         1  <> 31 or
+        intExpr(16) +         8  +         4  +         2  + intExpr(1) <> 31 or
+        intExpr(16) +         8  +         4  + intExpr(2) +         1  <> 31 or
+        intExpr(16) +         8  +         4  + intExpr(2) + intExpr(1) <> 31 or
+        intExpr(16) +         8  + intExpr(4) +         2  +         1  <> 31 or
+        intExpr(16) +         8  + intExpr(4) +         2  + intExpr(1) <> 31 or
+        intExpr(16) +         8  + intExpr(4) + intExpr(2) +         1  <> 31 or
+        intExpr(16) +         8  + intExpr(4) + intExpr(2) + intExpr(1) <> 31 or
+        intExpr(16) + intExpr(8) +         4  +         2  +         1  <> 31 or
+        intExpr(16) + intExpr(8) +         4  +         2  + intExpr(1) <> 31 or
+        intExpr(16) + intExpr(8) +         4  + intExpr(2) +         1  <> 31 or
+        intExpr(16) + intExpr(8) +         4  + intExpr(2) + intExpr(1) <> 31 or
+        intExpr(16) + intExpr(8) + intExpr(4) +         2  +         1  <> 31 or
+        intExpr(16) + intExpr(8) + intExpr(4) +         2  + intExpr(1) <> 31 or
+        intExpr(16) + intExpr(8) + intExpr(4) + intExpr(2) +         1  <> 31 or
+        intExpr(16) + intExpr(8) + intExpr(4) + intExpr(2) + intExpr(1) <> 31 then
+      writeln(" ***** Addition of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if intExpr(16) +          8  - 8 <> 16 or
+                8  + intExpr(16) - 8 <> 16 then
+      writeln(" ***** Addition and subtraction that cancel each other does not work correct.");
+      okay := FALSE;
+    end if;
+
     if okay then
       writeln("Addition works correct for selected values.");
     else
@@ -2914,6 +3008,7 @@ const proc: check_subtract is func
                           2 - -9223372036854775805 <> 9223372036854775807 or
                           1 - -9223372036854775806 <> 9223372036854775807 or
                           0 - -9223372036854775807 <> 9223372036854775807 or
+                         -1 -            INT64_MIN <> 9223372036854775807 or
         intExpr(9223372036854775807) -                    0 <> 9223372036854775807 or
         intExpr(9223372036854775806) -                   -1 <> 9223372036854775807 or
         intExpr(9223372036854775805) -                   -2 <> 9223372036854775807 or
@@ -2958,6 +3053,7 @@ const proc: check_subtract is func
         intExpr(                  2) - -9223372036854775805 <> 9223372036854775807 or
         intExpr(                  1) - -9223372036854775806 <> 9223372036854775807 or
         intExpr(                  0) - -9223372036854775807 <> 9223372036854775807 or
+        intExpr(                 -1) -            INT64_MIN <> 9223372036854775807 or
         9223372036854775807 - intExpr(                   0) <> 9223372036854775807 or
         9223372036854775806 - intExpr(                  -1) <> 9223372036854775807 or
         9223372036854775805 - intExpr(                  -2) <> 9223372036854775807 or
@@ -3002,6 +3098,7 @@ const proc: check_subtract is func
                           2 - intExpr(-9223372036854775805) <> 9223372036854775807 or
                           1 - intExpr(-9223372036854775806) <> 9223372036854775807 or
                           0 - intExpr(-9223372036854775807) <> 9223372036854775807 or
+                         -1 - intExpr(           INT64_MIN) <> 9223372036854775807 or
         intExpr(9223372036854775807) - intExpr(                   0) <> 9223372036854775807 or
         intExpr(9223372036854775806) - intExpr(                  -1) <> 9223372036854775807 or
         intExpr(9223372036854775805) - intExpr(                  -2) <> 9223372036854775807 or
@@ -3045,10 +3142,108 @@ const proc: check_subtract is func
         intExpr(                  3) - intExpr(-9223372036854775804) <> 9223372036854775807 or
         intExpr(                  2) - intExpr(-9223372036854775805) <> 9223372036854775807 or
         intExpr(                  1) - intExpr(-9223372036854775806) <> 9223372036854775807 or
-        intExpr(                  0) - intExpr(-9223372036854775807) <> 9223372036854775807 then
+        intExpr(                  0) - intExpr(-9223372036854775807) <> 9223372036854775807 or
+        intExpr(                 -1) - intExpr(           INT64_MIN) <> 9223372036854775807 then
       writeln(" ***** Subtraction that results in the maximum integer does not work correct.");
       okay := FALSE;
     end if;
+
+    if          2  -         1  <> 1 or
+                2  - intExpr(1) <> 1 or
+        intExpr(2) -         1  <> 1 or
+        intExpr(2) - intExpr(1) <> 1 then
+      writeln(" ***** Subtraction of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          4  -         2  -         1  <> 1 or
+                4  -         2  - intExpr(1) <> 1 or
+                4  - intExpr(2) -         1  <> 1 or
+                4  - intExpr(2) - intExpr(1) <> 1 or
+        intExpr(4) -         2  -         1  <> 1 or
+        intExpr(4) -         2  - intExpr(1) <> 1 or
+        intExpr(4) - intExpr(2) -         1  <> 1 or
+        intExpr(4) - intExpr(2) - intExpr(1) <> 1 then
+      writeln(" ***** Subtraction of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          4  -         2  +         1  <> 3 or
+                4  -         2  + intExpr(1) <> 3 or
+                4  - intExpr(2) +         1  <> 3 or
+                4  - intExpr(2) + intExpr(1) <> 3 or
+        intExpr(4) -         2  +         1  <> 3 or
+        intExpr(4) -         2  + intExpr(1) <> 3 or
+        intExpr(4) - intExpr(2) +         1  <> 3 or
+        intExpr(4) - intExpr(2) + intExpr(1) <> 3 then
+      writeln(" ***** Subtraction of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          8  -         4  -         2  -         1  <> 1 or
+                8  -         4  -         2  - intExpr(1) <> 1 or
+                8  -         4  - intExpr(2) -         1  <> 1 or
+                8  -         4  - intExpr(2) - intExpr(1) <> 1 or
+                8  - intExpr(4) -         2  -         1  <> 1 or
+                8  - intExpr(4) -         2  - intExpr(1) <> 1 or
+                8  - intExpr(4) - intExpr(2) -         1  <> 1 or
+                8  - intExpr(4) - intExpr(2) - intExpr(1) <> 1 or
+        intExpr(8) -         4  -         2  -         1  <> 1 or
+        intExpr(8) -         4  -         2  - intExpr(1) <> 1 or
+        intExpr(8) -         4  - intExpr(2) -         1  <> 1 or
+        intExpr(8) -         4  - intExpr(2) - intExpr(1) <> 1 or
+        intExpr(8) - intExpr(4) -         2  -         1  <> 1 or
+        intExpr(8) - intExpr(4) -         2  - intExpr(1) <> 1 or
+        intExpr(8) - intExpr(4) - intExpr(2) -         1  <> 1 or
+        intExpr(8) - intExpr(4) - intExpr(2) - intExpr(1) <> 1 then
+      writeln(" ***** Subtraction of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          16  -         8  -         4  -         2  -         1  <> 1 or
+                16  -         8  -         4  -         2  - intExpr(1) <> 1 or
+                16  -         8  -         4  - intExpr(2) -         1  <> 1 or
+                16  -         8  -         4  - intExpr(2) - intExpr(1) <> 1 or
+                16  -         8  - intExpr(4) -         2  -         1  <> 1 or
+                16  -         8  - intExpr(4) -         2  - intExpr(1) <> 1 or
+                16  -         8  - intExpr(4) - intExpr(2) -         1  <> 1 or
+                16  -         8  - intExpr(4) - intExpr(2) - intExpr(1) <> 1 or
+                16  - intExpr(8) -         4  -         2  -         1  <> 1 or
+                16  - intExpr(8) -         4  -         2  - intExpr(1) <> 1 or
+                16  - intExpr(8) -         4  - intExpr(2) -         1  <> 1 or
+                16  - intExpr(8) -         4  - intExpr(2) - intExpr(1) <> 1 or
+                16  - intExpr(8) - intExpr(4) -         2  -         1  <> 1 or
+                16  - intExpr(8) - intExpr(4) -         2  - intExpr(1) <> 1 or
+                16  - intExpr(8) - intExpr(4) - intExpr(2) -         1  <> 1 or
+                16  - intExpr(8) - intExpr(4) - intExpr(2) - intExpr(1) <> 1 or
+        intExpr(16) -         8  -         4  -         2  -         1  <> 1 or
+        intExpr(16) -         8  -         4  -         2  - intExpr(1) <> 1 or
+        intExpr(16) -         8  -         4  - intExpr(2) -         1  <> 1 or
+        intExpr(16) -         8  -         4  - intExpr(2) - intExpr(1) <> 1 or
+        intExpr(16) -         8  - intExpr(4) -         2  -         1  <> 1 or
+        intExpr(16) -         8  - intExpr(4) -         2  - intExpr(1) <> 1 or
+        intExpr(16) -         8  - intExpr(4) - intExpr(2) -         1  <> 1 or
+        intExpr(16) -         8  - intExpr(4) - intExpr(2) - intExpr(1) <> 1 or
+        intExpr(16) - intExpr(8) -         4  -         2  -         1  <> 1 or
+        intExpr(16) - intExpr(8) -         4  -         2  - intExpr(1) <> 1 or
+        intExpr(16) - intExpr(8) -         4  - intExpr(2) -         1  <> 1 or
+        intExpr(16) - intExpr(8) -         4  - intExpr(2) - intExpr(1) <> 1 or
+        intExpr(16) - intExpr(8) - intExpr(4) -         2  -         1  <> 1 or
+        intExpr(16) - intExpr(8) - intExpr(4) -         2  - intExpr(1) <> 1 or
+        intExpr(16) - intExpr(8) - intExpr(4) - intExpr(2) -         1  <> 1 or
+        intExpr(16) - intExpr(8) - intExpr(4) - intExpr(2) - intExpr(1) <> 1 then
+      writeln(" ***** Subtraction of several summands in a chain does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if          -1  - -4611686018427387904 - -4611686018427387904 <> 9223372036854775807 or
+        intExpr(-1) - -4611686018427387904 - -4611686018427387904 <> 9223372036854775807 or
+                -3  - -4611686018427387905 - -4611686018427387905 <> 9223372036854775807 or
+        intExpr(-3) - -4611686018427387905 - -4611686018427387905 <> 9223372036854775807 then
+      writeln(" ***** Subtraction of integer.first or less does not work correct.");
+      okay := FALSE;
+    end if;
+
 
     if okay then
       writeln("Subtraction works correct for selected values.");

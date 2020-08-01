@@ -89,8 +89,31 @@ objectType refAlloc (const const_objectType aReference)
 
 
 
-objectType refAllocStri (boolType var_flag, typeType any_type,
-    const const_striType stri_from)
+objectType refAllocInt (boolType isVar, typeType aType,
+    const intType number)
+
+  {
+    objectType created_object;
+
+  /* refAllocInt */
+    if (unlikely(!ALLOC_OBJECT(created_object))) {
+      raise_error(MEMORY_ERROR);
+    } else {
+      created_object->type_of = aType;
+      created_object->descriptor.property = NULL;
+      INIT_CATEGORY_OF_OBJ(created_object, INTOBJECT);
+      if (isVar) {
+        SET_VAR_FLAG(created_object);
+      } /* if */
+      created_object->value.intValue = number;
+    } /* if */
+    return created_object;
+  } /* refAllocInt */
+
+
+
+objectType refAllocStri (boolType isVar, typeType aType,
+    const const_striType stri)
 
   {
     objectType created_object;
@@ -99,13 +122,13 @@ objectType refAllocStri (boolType var_flag, typeType any_type,
     if (unlikely(!ALLOC_OBJECT(created_object))) {
       raise_error(MEMORY_ERROR);
     } else {
-      created_object->type_of = any_type;
+      created_object->type_of = aType;
       created_object->descriptor.property = NULL;
       INIT_CATEGORY_OF_OBJ(created_object, STRIOBJECT);
-      if (var_flag) {
+      if (isVar) {
         SET_VAR_FLAG(created_object);
       } /* if */
-      created_object->value.striValue = strCreate(stri_from);
+      created_object->value.striValue = strCreate(stri);
     } /* if */
     return created_object;
   } /* refAllocStri */

@@ -917,7 +917,7 @@ winType find_window (Window sys_window)
                             (intType) ((memSizeType) sys_window) >> 6,
                             (compareType) &genericCmp);
     } /* if */
-    logFunction(printf("find_window(" FMT_X_MEM ") --> %" FMT_X_MEM "\n",
+    logFunction(printf("find_window(" FMT_X_MEM ") --> " FMT_X_MEM "\n",
                        (memSizeType) sys_window, (memSizeType) window););
     return window;
   } /* find_window */
@@ -927,7 +927,9 @@ winType find_window (Window sys_window)
 void enter_window (winType curr_window, Window sys_window)
 
   { /* enter_window */
-    /* printf("enter_window(%lx, %lx)\n", (unsigned long) curr_window, (unsigned long) sys_window); */
+    logFunction(printf("enter_window(" FMT_X_MEM ", " FMT_X_MEM ")\n",
+                       (memSizeType) curr_window,
+                       (memSizeType) sys_window););
     if (window_hash == NULL) {
       window_hash = hshEmpty();
     } /* if */
@@ -945,7 +947,8 @@ void enter_window (winType curr_window, Window sys_window)
 void remove_window (Window sys_window)
 
   { /* remove_window */
-    /* printf("remove_window(%lx)\n", (unsigned long) sys_window); */
+    logFunction(printf("remove_window(" FMT_X_MEM ")\n",
+                       (memSizeType) sys_window););
     hshExcl(window_hash,
             (genericType) (memSizeType) sys_window,
             (intType) ((memSizeType) sys_window) >> 6,
@@ -962,7 +965,7 @@ void handleExpose (XExposeEvent *xexpose)
     winType redraw_window;
 
   /* handleExpose */
-    logFunction(printf("handleExpose\n"););
+    logFunction(printf("handleExpose(" FMT_U_MEM ")\n", (memSizeType) xexpose););
     /* printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
         xexpose->x, xexpose->y, xexpose->width, xexpose->height, xexpose->count); */
     redraw_window = find_window(xexpose->window);
@@ -1949,9 +1952,10 @@ winType gkbWindow (void)
 void drwFlush (void)
 
   { /* drwFlush */
-/*  printf("drwFlush()\n"); */
+    logFunction(printf("drwFlush\n"););
     processEvents();
     do {
       doFlush();
     } while (processEvents());
+    logFunction(printf("drwFlush -->\n"););
   } /* drwFlush */

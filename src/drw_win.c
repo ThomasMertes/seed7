@@ -982,19 +982,29 @@ winType drwNewBitmap (const_winType actual_window, intType width, intType height
 
 
 
-static boolType private_console (void)
+static boolType privateConsole (void)
 
   {
+    HWND consoleWnd;
+    DWORD dwProcessId;
     CONSOLE_SCREEN_BUFFER_INFO conBufInfo;
+    boolType private;
 
-  /* private_console */
-    if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &conBufInfo)) {
-      return FALSE;
+  /* privateConsole */
+    logFunction(printf("privateConsole\n"););
+    if (pGetConsoleWindow != NULL) {
+      consoleWnd = pGetConsoleWindow();
+      GetWindowThreadProcessId(consoleWnd, &dwProcessId);
+      private = GetCurrentProcessId() == dwProcessId;
+    } else if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &conBufInfo)) {
+      private = FALSE;
     } else {
-      /* When the cursor position is (0,0) the program has a private console */
-      return conBufInfo.dwCursorPosition.X == 0 && conBufInfo.dwCursorPosition.Y == 0;
+      /* When the cursor position is (0,0) the console is assumed to be private. */
+      private = conBufInfo.dwCursorPosition.X == 0 && conBufInfo.dwCursorPosition.Y == 0;
     } /* if */
-  } /* private_console */
+    logFunction(printf("privateConsole --> %d\n", private););
+    return private;
+  } /* privateConsole */
 
 
 
@@ -1030,7 +1040,7 @@ winType drwOpen (intType xPos, intType yPos,
         if (unlikely(win_name == NULL)) {
           raise_error(err_info);
         } else {
-          if (private_console()) {
+          if (privateConsole()) {
             /* printf("private_session\n"); */
             if (pGetConsoleWindow != NULL) {
               ShowWindow(pGetConsoleWindow(), SW_HIDE);

@@ -143,7 +143,7 @@ static inline void init_dollar (objectType declared_object,
     } else if (current_ident == prog->id_for.enumlit) {
       scan_symbol();
       SET_CATEGORY_OF_OBJ(declared_object, ENUMLITERALOBJECT);
-      declared_object->value.nodeValue = NULL;
+      declared_object->value.objValue = NULL;
     } else if (current_ident == prog->id_for.action) {
       scan_symbol();
       if (symbol.sycategory == STRILITERAL) {

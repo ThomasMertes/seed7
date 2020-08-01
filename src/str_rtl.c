@@ -729,13 +729,13 @@ static rtlArrayType add_stri_to_array (const strElemType *const stri_elems,
 
 /**
  *  Concatenate a relative path to an absolute path.
- *  In the relative path the special directories "." and ".." are 
+ *  In the relative path the special directories "." and ".." are
  *  interpreted according to their conventional meaning. A ".." which
  *  would go above the file system root ("/") is ignored.
  *  @param absolutePath Absolute path in the standard path
  *         representation.
  *  @param relativePath Relative path in the standard path
- *         representation. 
+ *         representation.
  *  @return the concatenated absolute path in the standard path
  *          representation.
  */

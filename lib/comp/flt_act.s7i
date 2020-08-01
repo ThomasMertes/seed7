@@ -1150,15 +1150,148 @@ const proc: process (FLT_LT, in reference: function,
   end func;
 
 
+(**
+ *  Generate code for expressions like: factor * base ** exponent
+ *)
+const proc: process_flt_mult_with_flt_ipow (in reference: factor,
+    in float: base, in reference: exponent, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: exponentName is "";
+    var integer: exponentNum is 0;
+  begin
+    if getConstant(exponent, INTOBJECT, evaluatedParam) then
+      incr(countOptimizations);
+      exponentNum := getValue(evaluatedParam, integer);
+      if getConstant(factor, FLOATOBJECT, evaluatedParam) then
+        c_expr.expr &:= floatLiteral(getValue(evaluatedParam, float) * base ** exponentNum);
+      else
+        c_expr.expr &:= "(";
+        process_expr(factor, c_expr);
+        c_expr.expr &:= ") * ";
+        c_expr.expr &:= floatLiteral(base ** exponentNum);
+      end if;
+    elsif base = 0.0 then
+      incr(countOptimizations);
+      if isNegativeZero(base) then
+        c_expr.expr &:= "(";
+        exponentName := getParameterAsVariable("intType", "exp_", exponent, c_expr);
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= "<0?(";
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= "&1?";
+        c_expr.expr &:= floatLiteral(-Infinity);
+        c_expr.expr &:= ":";
+        c_expr.expr &:= floatLiteral(Infinity);
+        c_expr.expr &:= "):(";
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= "==0?";
+        process_expr(factor, c_expr);
+        c_expr.expr &:= ":(";
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= "&1?";
+        c_expr.expr &:= floatLiteral(-0.0);
+        c_expr.expr &:= ":0.0)))";
+      else
+        c_expr.expr &:= "(";
+        exponentName := getParameterAsVariable("intType", "exp_", exponent, c_expr);
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= "<0?";
+        c_expr.expr &:= floatLiteral(Infinity);
+        c_expr.expr &:= ":(";
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= "==0?";
+        process_expr(factor, c_expr);
+        c_expr.expr &:= ":0.0))";
+      end if;
+    elsif base = 1.0 then
+      incr(countOptimizations);
+      process_expr(factor, c_expr);
+    elsif base = 2.0 then
+      incr(countOptimizations);
+      if ccConf.INT_MIN <= integer.first and ccConf.INT_MAX >= integer.last then
+        c_expr.expr &:= "ldexp(";
+        process_expr(factor, c_expr);
+        c_expr.expr &:= ", ";
+        process_expr(exponent, c_expr);
+        c_expr.expr &:= ")";
+      else
+        c_expr.expr &:= "(";
+        exponentName := getParameterAsVariable("intType", "exp_", exponent, c_expr);
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= "<";
+        c_expr.expr &:= integerLiteral(ccConf.INT_MIN);
+        c_expr.expr &:= "?0.0:(";
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= ">";
+        c_expr.expr &:= integerLiteral(ccConf.INT_MAX);
+        c_expr.expr &:= "?";
+        c_expr.expr &:= floatLiteral(Infinity);
+        c_expr.expr &:= ":ldexp(";
+        process_expr(factor, c_expr);
+        c_expr.expr &:= ", (int) ";
+        c_expr.expr &:= exponentName;
+        c_expr.expr &:= ")))";
+      end if;
+    elsif base >= 4.0 and
+          base <= flt(ccConf.INT_RANGE_IN_FLOATTYPE_MAX) and
+          floor(base) = base and
+          2 ** log2(trunc(base)) = trunc(base) then
+      incr(countOptimizations);
+      c_expr.expr &:= "(";
+      exponentName := getParameterAsVariable("intType", "exp_", exponent, c_expr);
+      c_expr.expr &:= exponentName;
+      c_expr.expr &:= "<";
+      c_expr.expr &:= integerLiteral(ccConf.INT_MIN div trunc(base));
+      c_expr.expr &:= "?0.0:(";
+      c_expr.expr &:= exponentName;
+      c_expr.expr &:= ">";
+      c_expr.expr &:= integerLiteral(ccConf.INT_MAX div trunc(base));
+      c_expr.expr &:= "?";
+      c_expr.expr &:= floatLiteral(Infinity);
+      c_expr.expr &:= ":ldexp(";
+      process_expr(factor, c_expr);
+      c_expr.expr &:= ", (int)";
+      c_expr.expr &:= exponentName;
+      c_expr.expr &:= "*";
+      c_expr.expr &:= str(log2(trunc(base)));
+      c_expr.expr &:= ")))";
+    else
+      c_expr.expr &:= "(";
+      process_expr(factor, c_expr);
+      c_expr.expr &:= ") * (";
+      process_const_flt_ipow(base, exponent, c_expr);
+      c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
 const proc: process (FLT_MULT, in reference: function,
     in ref_list: params, inout expr_type: c_expr) is func
 
+  local
+    var reference: evaluatedParam is NIL;
   begin
-    c_expr.expr &:= "(";
-    process_expr(params[1], c_expr);
-    c_expr.expr &:= ") * (";
-    process_expr(params[3], c_expr);
-    c_expr.expr &:= ")";
+    if isActionExpression(params[1], "FLT_IPOW") and
+        getConstant(getActionParameter(params[1], 1),
+                    FLOATOBJECT, evaluatedParam) then
+      process_flt_mult_with_flt_ipow(params[3],
+          getValue(evaluatedParam, float),
+          getActionParameter(params[1], 3), c_expr);
+    elsif isActionExpression(params[3], "FLT_IPOW") and
+        getConstant(getActionParameter(params[3], 1),
+                    FLOATOBJECT, evaluatedParam) then
+      process_flt_mult_with_flt_ipow(params[1],
+          getValue(evaluatedParam, float),
+          getActionParameter(params[3], 3), c_expr);
+    else
+      c_expr.expr &:= "(";
+      process_expr(params[1], c_expr);
+      c_expr.expr &:= ") * (";
+      process_expr(params[3], c_expr);
+      c_expr.expr &:= ")";
+    end if;
   end func;
 
 

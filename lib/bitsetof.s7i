@@ -198,6 +198,21 @@ const func type: bitset (in type: baseType) is func
         end func;
 
       (**
+       *  Add or remove ''aValue'' to respectively from ''sSet''.
+       *  Adding an existing value or remove a non-existing value
+       *  leaves ''aSet'' unchanged.
+       *  @exception MEMORY_ERROR When there is not enough memory.
+       *)
+      const proc: (inout setType: aSet) @:= [ (in baseType: aValue) ] (in boolean: isElement) is func
+        begin
+          if isElement then
+            incl(bitset varConv aSet, ord(aValue));
+          else
+            excl(bitset varConv aSet, ord(aValue));
+          end if;
+        end func;
+
+      (**
        *  Compute the cardinality of a set.
        *  @return the number of elements in ''aSet''.
        *)

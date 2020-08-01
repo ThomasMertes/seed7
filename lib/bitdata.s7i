@@ -373,7 +373,7 @@ const proc: putBitMsb (inout string: stri, inout integer: bitPos, in integer: bi
  *  the bit position is advanced by ''bitWidth'' bits. The append
  *  direction is from MSB (most significant bit) to LSB (least significant bit).
  *  If necessary ''stri'' is enlarged with bytes in big-endian byte order.
- *   stri := "\2#01011000;"; 
+ *   stri := "\2#01011000;";
  *   putBitsMsb(stri, bitPos, 2#10011, 5);
  *   # Now holds  stri = "\2#01011100;\2#11000000;"  and  bitPos = 2
  *   #                            100    11

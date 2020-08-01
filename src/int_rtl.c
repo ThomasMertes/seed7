@@ -1775,7 +1775,7 @@ int64Type __mulodi4 (int64Type factor1, int64Type factor2, int *overflow)
         } /* if */
       } /* if */
     } /* if */
-    *overflow = 0; 
+    *overflow = 0;
     logFunction(printf("__mulodi4(overflow=%d) --> " FMT_D64 "\n",
                        *overflow, product););
     return product;

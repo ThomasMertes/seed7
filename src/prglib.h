@@ -34,7 +34,6 @@ objectType prg_error_count    (listType arguments);
 objectType prg_eval           (listType arguments);
 objectType prg_exec           (listType arguments);
 objectType prg_fil_parse      (listType arguments);
-objectType prg_find           (listType arguments);
 objectType prg_global_objects (listType arguments);
 objectType prg_match          (listType arguments);
 objectType prg_match_expr     (listType arguments);

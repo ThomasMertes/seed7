@@ -3369,6 +3369,1138 @@ const proc: check_add is func
   end func;
 
 
+const proc: check_mult is func
+  local
+    var boolean: okay is TRUE;
+  begin
+    if 123.0 * 0.0 **       integer.first  <> Infinity or
+       123.0 * 0.0 **        (-2147483649) <> Infinity or
+       123.0 * 0.0 **        (-2147483648) <> Infinity or
+       123.0 * 0.0 **             (-32769) <> Infinity or
+       123.0 * 0.0 **             (-32768) <> Infinity or
+       123.0 * 0.0 **               (-100) <> Infinity or
+       123.0 * 0.0 **                 (-4) <> Infinity or
+       123.0 * 0.0 **                 (-3) <> Infinity or
+       123.0 * 0.0 **                 (-2) <> Infinity or
+       123.0 * 0.0 **                 (-1) <> Infinity or
+       123.0 * 0.0 **                   0  <>    123.0 or
+       123.0 * 0.0 **                   1  <>      0.0 or
+       123.0 * 0.0 **                   2  <>      0.0 or
+       123.0 * 0.0 **                   3  <>      0.0 or
+       123.0 * 0.0 **                   4  <>      0.0 or
+       123.0 * 0.0 **                 100  <>      0.0 or
+       123.0 * 0.0 **               32767  <>      0.0 or
+       123.0 * 0.0 **               32768  <>      0.0 or
+       123.0 * 0.0 **          2147483647  <>      0.0 or
+       123.0 * 0.0 **          2147483648  <>      0.0 or
+       123.0 * 0.0 ** 9223372036854775807  <>      0.0 or
+       123.0 * 1.0 **       integer.first  <>    123.0 or
+       123.0 * 1.0 **        (-2147483649) <>    123.0 or
+       123.0 * 1.0 **        (-2147483648) <>    123.0 or
+       123.0 * 1.0 **             (-32769) <>    123.0 or
+       123.0 * 1.0 **             (-32768) <>    123.0 or
+       123.0 * 1.0 **               (-100) <>    123.0 or
+       123.0 * 1.0 **                 (-4) <>    123.0 or
+       123.0 * 1.0 **                 (-3) <>    123.0 or
+       123.0 * 1.0 **                 (-2) <>    123.0 or
+       123.0 * 1.0 **                 (-1) <>    123.0 or
+       123.0 * 1.0 **                   0  <>    123.0 or
+       123.0 * 1.0 **                   1  <>    123.0 or
+       123.0 * 1.0 **                   2  <>    123.0 or
+       123.0 * 1.0 **                   3  <>    123.0 or
+       123.0 * 1.0 **                   4  <>    123.0 or
+       123.0 * 1.0 **                 100  <>    123.0 or
+       123.0 * 1.0 **               32767  <>    123.0 or
+       123.0 * 1.0 **               32768  <>    123.0 or
+       123.0 * 1.0 **          2147483647  <>    123.0 or
+       123.0 * 1.0 **          2147483648  <>    123.0 or
+       123.0 * 1.0 ** 9223372036854775807  <>    123.0 or
+       123.0 * 2.0 **       integer.first  <>                  0.0 or
+       123.0 * 2.0 **        (-2147483649) <>                  0.0 or
+       123.0 * 2.0 **        (-2147483648) <>                  0.0 or
+       123.0 * 2.0 **             (-32769) <>                  0.0 or
+       123.0 * 2.0 **             (-32768) <>                  0.0 or
+       123.0 * 2.0 **               (-150) <>                  8.6179855555976250e-44 or
+       123.0 * 2.0 **               (-100) <>                  9.7029891342184452e-29 or
+       123.0 * 2.0 **                (-50) <>                  1.0924594562311540e-13 or
+       123.0 * 2.0 **                (-40) <>                  1.1186784831807017e-10 or
+       123.0 * 2.0 **                (-30) <>                  1.1455267667770386e-07 or
+       123.0 * 2.0 **                (-20) <>                  1.1730194091796875e-04 or
+       123.0 * 2.0 **                (-10) <>                  0.1201171875 or
+       123.0 * 2.0 **                 (-4) <>                  7.6875 or
+       123.0 * 2.0 **                 (-3) <>                 15.375 or
+       123.0 * 2.0 **                 (-2) <>                 30.75 or
+       123.0 * 2.0 **                 (-1) <>                 61.5 or
+       123.0 * 2.0 **                   0  <>                123.0 or
+       123.0 * 2.0 **                   1  <>                246.0 or
+       123.0 * 2.0 **                   2  <>                492.0 or
+       123.0 * 2.0 **                   3  <>                984.0 or
+       123.0 * 2.0 **                   4  <>               1968.0 or
+       123.0 * 2.0 **                  10  <>             125952.0 or
+       123.0 * 2.0 **                  20  <>          128974848.0 or
+       123.0 * 2.0 **                  30  <>       132070244352.0 or
+       123.0 * 2.0 **                  40  <>    135239930216448.0 or
+       123.0 * 2.0 **                  50  <> 138485688541642752.0 or
+       123.0 * 2.0 **                 100  <>                  1.5592102382807222e+32 or
+       123.0 * 2.0 **                 150  <>                  1.7555146620283307e+47 or
+       123.0 * 2.0 **               32767  <>             Infinity or
+       123.0 * 2.0 **               32768  <>             Infinity or
+       123.0 * 2.0 **          2147483647  <>             Infinity or
+       123.0 * 2.0 **          2147483648  <>             Infinity or
+       123.0 * 2.0 ** 9223372036854775807  <>             Infinity or
+       123.0 * 4.0 **       integer.first  <>                  0.0 or
+       123.0 * 4.0 **        (-2147483649) <>                  0.0 or
+       123.0 * 4.0 **        (-2147483648) <>                  0.0 or
+       123.0 * 4.0 **             (-32769) <>                  0.0 or
+       123.0 * 4.0 **             (-32768) <>                  0.0 or
+       123.0 * 4.0 **               (-150) <>                  6.0381849623162037e-89 or
+       123.0 * 4.0 **               (-100) <>                  7.6543087917692043e-59 or
+       123.0 * 4.0 **                (-50) <>                  9.7029891342184452e-29 or
+       123.0 * 4.0 **                (-40) <>                  1.0174321534402240e-22 or
+       123.0 * 4.0 **                (-30) <>                  1.0668549377257364e-16 or
+       123.0 * 4.0 **                (-20) <>                  1.1186784831807017e-10 or
+       123.0 * 4.0 **                (-10) <>                  1.1730194091796875e-04 or
+       123.0 * 4.0 **                 (-4) <>                  0.48046875 or
+       123.0 * 4.0 **                 (-3) <>                  1.921875 or
+       123.0 * 4.0 **                 (-2) <>                  7.6875 or
+       123.0 * 4.0 **                 (-1) <>                 30.75 or
+       123.0 * 4.0 **                   0  <>                123.0 or
+       123.0 * 4.0 **                   1  <>                492.0 or
+       123.0 * 4.0 **                   2  <>               1968.0 or
+       123.0 * 4.0 **                   3  <>               7872.0 or
+       123.0 * 4.0 **                   4  <>              31488.0 or
+       123.0 * 4.0 **                  10  <>          128974848.0 or
+       123.0 * 4.0 **                  20  <>    135239930216448.0 or
+       123.0 * 4.0 **                  30  <>                  1.4180934506664218e+20 or
+       123.0 * 4.0 **                  40  <>                  1.4869787581259939e+26 or
+       123.0 * 4.0 **                  50  <>                  1.5592102382807222e+32 or
+       123.0 * 4.0 **                 100  <>                  1.9765337944385580e+62 or
+       123.0 * 4.0 **                 150  <>                  2.5055542508914179e+92 or
+       123.0 * 4.0 **               32767  <>             Infinity or
+       123.0 * 4.0 **               32768  <>             Infinity or
+       123.0 * 4.0 **          2147483647  <>             Infinity or
+       123.0 * 4.0 **          2147483648  <>             Infinity or
+       123.0 * 4.0 ** 9223372036854775807  <>             Infinity then
+      writeln(" ***** Multiplication A * B ** C does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if 123.0 * 0.0 ** intExpr(      integer.first) <> Infinity or
+       123.0 * 0.0 ** intExpr(        -2147483649) <> Infinity or
+       123.0 * 0.0 ** intExpr(        -2147483648) <> Infinity or
+       123.0 * 0.0 ** intExpr(             -32769) <> Infinity or
+       123.0 * 0.0 ** intExpr(             -32768) <> Infinity or
+       123.0 * 0.0 ** intExpr(               -100) <> Infinity or
+       123.0 * 0.0 ** intExpr(                 -4) <> Infinity or
+       123.0 * 0.0 ** intExpr(                 -3) <> Infinity or
+       123.0 * 0.0 ** intExpr(                 -2) <> Infinity or
+       123.0 * 0.0 ** intExpr(                 -1) <> Infinity or
+       123.0 * 0.0 ** intExpr(                  0) <>    123.0 or
+       123.0 * 0.0 ** intExpr(                  1) <>      0.0 or
+       123.0 * 0.0 ** intExpr(                  2) <>      0.0 or
+       123.0 * 0.0 ** intExpr(                  3) <>      0.0 or
+       123.0 * 0.0 ** intExpr(                  4) <>      0.0 or
+       123.0 * 0.0 ** intExpr(                100) <>      0.0 or
+       123.0 * 0.0 ** intExpr(              32767) <>      0.0 or
+       123.0 * 0.0 ** intExpr(              32768) <>      0.0 or
+       123.0 * 0.0 ** intExpr(         2147483647) <>      0.0 or
+       123.0 * 0.0 ** intExpr(         2147483648) <>      0.0 or
+       123.0 * 0.0 ** intExpr(9223372036854775807) <>      0.0 or
+       123.0 * 1.0 ** intExpr(      integer.first) <>    123.0 or
+       123.0 * 1.0 ** intExpr(        -2147483649) <>    123.0 or
+       123.0 * 1.0 ** intExpr(        -2147483648) <>    123.0 or
+       123.0 * 1.0 ** intExpr(             -32769) <>    123.0 or
+       123.0 * 1.0 ** intExpr(             -32768) <>    123.0 or
+       123.0 * 1.0 ** intExpr(               -100) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                 -4) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                 -3) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                 -2) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                 -1) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                  0) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                  1) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                  2) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                  3) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                  4) <>    123.0 or
+       123.0 * 1.0 ** intExpr(                100) <>    123.0 or
+       123.0 * 1.0 ** intExpr(              32767) <>    123.0 or
+       123.0 * 1.0 ** intExpr(              32768) <>    123.0 or
+       123.0 * 1.0 ** intExpr(         2147483647) <>    123.0 or
+       123.0 * 1.0 ** intExpr(         2147483648) <>    123.0 or
+       123.0 * 1.0 ** intExpr(9223372036854775807) <>    123.0 or
+       123.0 * 2.0 ** intExpr(      integer.first) <>                  0.0 or
+       123.0 * 2.0 ** intExpr(        -2147483649) <>                  0.0 or
+       123.0 * 2.0 ** intExpr(        -2147483648) <>                  0.0 or
+       123.0 * 2.0 ** intExpr(             -32769) <>                  0.0 or
+       123.0 * 2.0 ** intExpr(             -32768) <>                  0.0 or
+       123.0 * 2.0 ** intExpr(               -150) <>                  8.6179855555976250e-44 or
+       123.0 * 2.0 ** intExpr(               -100) <>                  9.7029891342184452e-29 or
+       123.0 * 2.0 ** intExpr(                -50) <>                  1.0924594562311540e-13 or
+       123.0 * 2.0 ** intExpr(                -40) <>                  1.1186784831807017e-10 or
+       123.0 * 2.0 ** intExpr(                -30) <>                  1.1455267667770386e-07 or
+       123.0 * 2.0 ** intExpr(                -20) <>                  1.1730194091796875e-04 or
+       123.0 * 2.0 ** intExpr(                -10) <>                  0.1201171875 or
+       123.0 * 2.0 ** intExpr(                 -4) <>                  7.6875 or
+       123.0 * 2.0 ** intExpr(                 -3) <>                 15.375 or
+       123.0 * 2.0 ** intExpr(                 -2) <>                 30.75 or
+       123.0 * 2.0 ** intExpr(                 -1) <>                 61.5 or
+       123.0 * 2.0 ** intExpr(                  0) <>                123.0 or
+       123.0 * 2.0 ** intExpr(                  1) <>                246.0 or
+       123.0 * 2.0 ** intExpr(                  2) <>                492.0 or
+       123.0 * 2.0 ** intExpr(                  3) <>                984.0 or
+       123.0 * 2.0 ** intExpr(                  4) <>               1968.0 or
+       123.0 * 2.0 ** intExpr(                 10) <>             125952.0 or
+       123.0 * 2.0 ** intExpr(                 20) <>          128974848.0 or
+       123.0 * 2.0 ** intExpr(                 30) <>       132070244352.0 or
+       123.0 * 2.0 ** intExpr(                 40) <>    135239930216448.0 or
+       123.0 * 2.0 ** intExpr(                 50) <> 138485688541642752.0 or
+       123.0 * 2.0 ** intExpr(                100) <>                  1.5592102382807222e+32 or
+       123.0 * 2.0 ** intExpr(                150) <>                  1.7555146620283307e+47 or
+       123.0 * 2.0 ** intExpr(              32767) <>             Infinity or
+       123.0 * 2.0 ** intExpr(              32768) <>             Infinity or
+       123.0 * 2.0 ** intExpr(         2147483647) <>             Infinity or
+       123.0 * 2.0 ** intExpr(         2147483648) <>             Infinity or
+       123.0 * 2.0 ** intExpr(9223372036854775807) <>             Infinity or
+       123.0 * 4.0 ** intExpr(      integer.first) <>                  0.0 or
+       123.0 * 4.0 ** intExpr(        -2147483649) <>                  0.0 or
+       123.0 * 4.0 ** intExpr(        -2147483648) <>                  0.0 or
+       123.0 * 4.0 ** intExpr(             -32769) <>                  0.0 or
+       123.0 * 4.0 ** intExpr(             -32768) <>                  0.0 or
+       123.0 * 4.0 ** intExpr(               -150) <>                  6.0381849623162037e-89 or
+       123.0 * 4.0 ** intExpr(               -100) <>                  7.6543087917692043e-59 or
+       123.0 * 4.0 ** intExpr(                -50) <>                  9.7029891342184452e-29 or
+       123.0 * 4.0 ** intExpr(                -40) <>                  1.0174321534402240e-22 or
+       123.0 * 4.0 ** intExpr(                -30) <>                  1.0668549377257364e-16 or
+       123.0 * 4.0 ** intExpr(                -20) <>                  1.1186784831807017e-10 or
+       123.0 * 4.0 ** intExpr(                -10) <>                  1.1730194091796875e-04 or
+       123.0 * 4.0 ** intExpr(                 -4) <>                  0.48046875 or
+       123.0 * 4.0 ** intExpr(                 -3) <>                  1.921875 or
+       123.0 * 4.0 ** intExpr(                 -2) <>                  7.6875 or
+       123.0 * 4.0 ** intExpr(                 -1) <>                 30.75 or
+       123.0 * 4.0 ** intExpr(                  0) <>                123.0 or
+       123.0 * 4.0 ** intExpr(                  1) <>                492.0 or
+       123.0 * 4.0 ** intExpr(                  2) <>               1968.0 or
+       123.0 * 4.0 ** intExpr(                  3) <>               7872.0 or
+       123.0 * 4.0 ** intExpr(                  4) <>              31488.0 or
+       123.0 * 4.0 ** intExpr(                 10) <>          128974848.0 or
+       123.0 * 4.0 ** intExpr(                 20) <>    135239930216448.0 or
+       123.0 * 4.0 ** intExpr(                 30) <>                  1.4180934506664218e+20 or
+       123.0 * 4.0 ** intExpr(                 40) <>                  1.4869787581259939e+26 or
+       123.0 * 4.0 ** intExpr(                 50) <>                  1.5592102382807222e+32 or
+       123.0 * 4.0 ** intExpr(                100) <>                  1.9765337944385580e+62 or
+       123.0 * 4.0 ** intExpr(                150) <>                  2.5055542508914179e+92 or
+       123.0 * 4.0 ** intExpr(              32767) <>             Infinity or
+       123.0 * 4.0 ** intExpr(              32768) <>             Infinity or
+       123.0 * 4.0 ** intExpr(         2147483647) <>             Infinity or
+       123.0 * 4.0 ** intExpr(         2147483648) <>             Infinity or
+       123.0 * 4.0 ** intExpr(9223372036854775807) <>             Infinity then
+      writeln(" ***** Multiplication A * B ** C does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if floatExpr(123.0) * 0.0 **       integer.first  <> Infinity or
+       floatExpr(123.0) * 0.0 **        (-2147483649) <> Infinity or
+       floatExpr(123.0) * 0.0 **        (-2147483648) <> Infinity or
+       floatExpr(123.0) * 0.0 **             (-32769) <> Infinity or
+       floatExpr(123.0) * 0.0 **             (-32768) <> Infinity or
+       floatExpr(123.0) * 0.0 **               (-100) <> Infinity or
+       floatExpr(123.0) * 0.0 **                 (-4) <> Infinity or
+       floatExpr(123.0) * 0.0 **                 (-3) <> Infinity or
+       floatExpr(123.0) * 0.0 **                 (-2) <> Infinity or
+       floatExpr(123.0) * 0.0 **                 (-1) <> Infinity or
+       floatExpr(123.0) * 0.0 **                   0  <>    123.0 or
+       floatExpr(123.0) * 0.0 **                   1  <>      0.0 or
+       floatExpr(123.0) * 0.0 **                   2  <>      0.0 or
+       floatExpr(123.0) * 0.0 **                   3  <>      0.0 or
+       floatExpr(123.0) * 0.0 **                   4  <>      0.0 or
+       floatExpr(123.0) * 0.0 **                 100  <>      0.0 or
+       floatExpr(123.0) * 0.0 **               32767  <>      0.0 or
+       floatExpr(123.0) * 0.0 **               32768  <>      0.0 or
+       floatExpr(123.0) * 0.0 **          2147483647  <>      0.0 or
+       floatExpr(123.0) * 0.0 **          2147483648  <>      0.0 or
+       floatExpr(123.0) * 0.0 ** 9223372036854775807  <>      0.0 or
+       floatExpr(123.0) * 1.0 **       integer.first  <>    123.0 or
+       floatExpr(123.0) * 1.0 **        (-2147483649) <>    123.0 or
+       floatExpr(123.0) * 1.0 **        (-2147483648) <>    123.0 or
+       floatExpr(123.0) * 1.0 **             (-32769) <>    123.0 or
+       floatExpr(123.0) * 1.0 **             (-32768) <>    123.0 or
+       floatExpr(123.0) * 1.0 **               (-100) <>    123.0 or
+       floatExpr(123.0) * 1.0 **                 (-4) <>    123.0 or
+       floatExpr(123.0) * 1.0 **                 (-3) <>    123.0 or
+       floatExpr(123.0) * 1.0 **                 (-2) <>    123.0 or
+       floatExpr(123.0) * 1.0 **                 (-1) <>    123.0 or
+       floatExpr(123.0) * 1.0 **                   0  <>    123.0 or
+       floatExpr(123.0) * 1.0 **                   1  <>    123.0 or
+       floatExpr(123.0) * 1.0 **                   2  <>    123.0 or
+       floatExpr(123.0) * 1.0 **                   3  <>    123.0 or
+       floatExpr(123.0) * 1.0 **                   4  <>    123.0 or
+       floatExpr(123.0) * 1.0 **                 100  <>    123.0 or
+       floatExpr(123.0) * 1.0 **               32767  <>    123.0 or
+       floatExpr(123.0) * 1.0 **               32768  <>    123.0 or
+       floatExpr(123.0) * 1.0 **          2147483647  <>    123.0 or
+       floatExpr(123.0) * 1.0 **          2147483648  <>    123.0 or
+       floatExpr(123.0) * 1.0 ** 9223372036854775807  <>    123.0 or
+       floatExpr(123.0) * 2.0 **       integer.first  <>                  0.0 or
+       floatExpr(123.0) * 2.0 **        (-2147483649) <>                  0.0 or
+       floatExpr(123.0) * 2.0 **        (-2147483648) <>                  0.0 or
+       floatExpr(123.0) * 2.0 **             (-32769) <>                  0.0 or
+       floatExpr(123.0) * 2.0 **             (-32768) <>                  0.0 or
+       floatExpr(123.0) * 2.0 **               (-150) <>                  8.6179855555976250e-44 or
+       floatExpr(123.0) * 2.0 **               (-100) <>                  9.7029891342184452e-29 or
+       floatExpr(123.0) * 2.0 **                (-50) <>                  1.0924594562311540e-13 or
+       floatExpr(123.0) * 2.0 **                (-40) <>                  1.1186784831807017e-10 or
+       floatExpr(123.0) * 2.0 **                (-30) <>                  1.1455267667770386e-07 or
+       floatExpr(123.0) * 2.0 **                (-20) <>                  1.1730194091796875e-04 or
+       floatExpr(123.0) * 2.0 **                (-10) <>                  0.1201171875 or
+       floatExpr(123.0) * 2.0 **                 (-4) <>                  7.6875 or
+       floatExpr(123.0) * 2.0 **                 (-3) <>                 15.375 or
+       floatExpr(123.0) * 2.0 **                 (-2) <>                 30.75 or
+       floatExpr(123.0) * 2.0 **                 (-1) <>                 61.5 or
+       floatExpr(123.0) * 2.0 **                   0  <>                123.0 or
+       floatExpr(123.0) * 2.0 **                   1  <>                246.0 or
+       floatExpr(123.0) * 2.0 **                   2  <>                492.0 or
+       floatExpr(123.0) * 2.0 **                   3  <>                984.0 or
+       floatExpr(123.0) * 2.0 **                   4  <>               1968.0 or
+       floatExpr(123.0) * 2.0 **                  10  <>             125952.0 or
+       floatExpr(123.0) * 2.0 **                  20  <>          128974848.0 or
+       floatExpr(123.0) * 2.0 **                  30  <>       132070244352.0 or
+       floatExpr(123.0) * 2.0 **                  40  <>    135239930216448.0 or
+       floatExpr(123.0) * 2.0 **                  50  <> 138485688541642752.0 or
+       floatExpr(123.0) * 2.0 **                 100  <>                  1.5592102382807222e+32 or
+       floatExpr(123.0) * 2.0 **                 150  <>                  1.7555146620283307e+47 or
+       floatExpr(123.0) * 2.0 **               32767  <>             Infinity or
+       floatExpr(123.0) * 2.0 **               32768  <>             Infinity or
+       floatExpr(123.0) * 2.0 **          2147483647  <>             Infinity or
+       floatExpr(123.0) * 2.0 **          2147483648  <>             Infinity or
+       floatExpr(123.0) * 2.0 ** 9223372036854775807  <>             Infinity or
+       floatExpr(123.0) * 4.0 **       integer.first  <>                  0.0 or
+       floatExpr(123.0) * 4.0 **        (-2147483649) <>                  0.0 or
+       floatExpr(123.0) * 4.0 **        (-2147483648) <>                  0.0 or
+       floatExpr(123.0) * 4.0 **             (-32769) <>                  0.0 or
+       floatExpr(123.0) * 4.0 **             (-32768) <>                  0.0 or
+       floatExpr(123.0) * 4.0 **               (-150) <>                  6.0381849623162037e-89 or
+       floatExpr(123.0) * 4.0 **               (-100) <>                  7.6543087917692043e-59 or
+       floatExpr(123.0) * 4.0 **                (-50) <>                  9.7029891342184452e-29 or
+       floatExpr(123.0) * 4.0 **                (-40) <>                  1.0174321534402240e-22 or
+       floatExpr(123.0) * 4.0 **                (-30) <>                  1.0668549377257364e-16 or
+       floatExpr(123.0) * 4.0 **                (-20) <>                  1.1186784831807017e-10 or
+       floatExpr(123.0) * 4.0 **                (-10) <>                  1.1730194091796875e-04 or
+       floatExpr(123.0) * 4.0 **                 (-4) <>                  0.48046875 or
+       floatExpr(123.0) * 4.0 **                 (-3) <>                  1.921875 or
+       floatExpr(123.0) * 4.0 **                 (-2) <>                  7.6875 or
+       floatExpr(123.0) * 4.0 **                 (-1) <>                 30.75 or
+       floatExpr(123.0) * 4.0 **                   0  <>                123.0 or
+       floatExpr(123.0) * 4.0 **                   1  <>                492.0 or
+       floatExpr(123.0) * 4.0 **                   2  <>               1968.0 or
+       floatExpr(123.0) * 4.0 **                   3  <>               7872.0 or
+       floatExpr(123.0) * 4.0 **                   4  <>              31488.0 or
+       floatExpr(123.0) * 4.0 **                  10  <>          128974848.0 or
+       floatExpr(123.0) * 4.0 **                  20  <>    135239930216448.0 or
+       floatExpr(123.0) * 4.0 **                  30  <>                  1.4180934506664218e+20 or
+       floatExpr(123.0) * 4.0 **                  40  <>                  1.4869787581259939e+26 or
+       floatExpr(123.0) * 4.0 **                  50  <>                  1.5592102382807222e+32 or
+       floatExpr(123.0) * 4.0 **                 100  <>                  1.9765337944385580e+62 or
+       floatExpr(123.0) * 4.0 **                 150  <>                  2.5055542508914179e+92 or
+       floatExpr(123.0) * 4.0 **               32767  <>             Infinity or
+       floatExpr(123.0) * 4.0 **               32768  <>             Infinity or
+       floatExpr(123.0) * 4.0 **          2147483647  <>             Infinity or
+       floatExpr(123.0) * 4.0 **          2147483648  <>             Infinity or
+       floatExpr(123.0) * 4.0 ** 9223372036854775807  <>             Infinity then
+      writeln(" ***** Multiplication A * B ** C does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if floatExpr(123.0) * 0.0 ** intExpr(      integer.first) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(        -2147483649) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(        -2147483648) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(             -32769) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(             -32768) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(               -100) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(                 -4) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(                 -3) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(                 -2) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(                 -1) <> Infinity or
+       floatExpr(123.0) * 0.0 ** intExpr(                  0) <>    123.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(                  1) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(                  2) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(                  3) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(                  4) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(                100) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(              32767) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(              32768) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(         2147483647) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(         2147483648) <>      0.0 or
+       floatExpr(123.0) * 0.0 ** intExpr(9223372036854775807) <>      0.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(      integer.first) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(        -2147483649) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(        -2147483648) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(             -32769) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(             -32768) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(               -100) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                 -4) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                 -3) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                 -2) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                 -1) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                  0) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                  1) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                  2) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                  3) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                  4) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(                100) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(              32767) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(              32768) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(         2147483647) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(         2147483648) <>    123.0 or
+       floatExpr(123.0) * 1.0 ** intExpr(9223372036854775807) <>    123.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(      integer.first) <>                  0.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(        -2147483649) <>                  0.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(        -2147483648) <>                  0.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(             -32769) <>                  0.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(             -32768) <>                  0.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(               -150) <>                  8.6179855555976250e-44 or
+       floatExpr(123.0) * 2.0 ** intExpr(               -100) <>                  9.7029891342184452e-29 or
+       floatExpr(123.0) * 2.0 ** intExpr(                -50) <>                  1.0924594562311540e-13 or
+       floatExpr(123.0) * 2.0 ** intExpr(                -40) <>                  1.1186784831807017e-10 or
+       floatExpr(123.0) * 2.0 ** intExpr(                -30) <>                  1.1455267667770386e-07 or
+       floatExpr(123.0) * 2.0 ** intExpr(                -20) <>                  1.1730194091796875e-04 or
+       floatExpr(123.0) * 2.0 ** intExpr(                -10) <>                  0.1201171875 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 -4) <>                  7.6875 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 -3) <>                 15.375 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 -2) <>                 30.75 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 -1) <>                 61.5 or
+       floatExpr(123.0) * 2.0 ** intExpr(                  0) <>                123.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                  1) <>                246.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                  2) <>                492.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                  3) <>                984.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                  4) <>               1968.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 10) <>             125952.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 20) <>          128974848.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 30) <>       132070244352.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 40) <>    135239930216448.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                 50) <> 138485688541642752.0 or
+       floatExpr(123.0) * 2.0 ** intExpr(                100) <>                  1.5592102382807222e+32 or
+       floatExpr(123.0) * 2.0 ** intExpr(                150) <>                  1.7555146620283307e+47 or
+       floatExpr(123.0) * 2.0 ** intExpr(              32767) <>             Infinity or
+       floatExpr(123.0) * 2.0 ** intExpr(              32768) <>             Infinity or
+       floatExpr(123.0) * 2.0 ** intExpr(         2147483647) <>             Infinity or
+       floatExpr(123.0) * 2.0 ** intExpr(         2147483648) <>             Infinity or
+       floatExpr(123.0) * 2.0 ** intExpr(9223372036854775807) <>             Infinity or
+       floatExpr(123.0) * 4.0 ** intExpr(      integer.first) <>                  0.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(        -2147483649) <>                  0.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(        -2147483648) <>                  0.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(             -32769) <>                  0.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(             -32768) <>                  0.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(               -150) <>                  6.0381849623162037e-89 or
+       floatExpr(123.0) * 4.0 ** intExpr(               -100) <>                  7.6543087917692043e-59 or
+       floatExpr(123.0) * 4.0 ** intExpr(                -50) <>                  9.7029891342184452e-29 or
+       floatExpr(123.0) * 4.0 ** intExpr(                -40) <>                  1.0174321534402240e-22 or
+       floatExpr(123.0) * 4.0 ** intExpr(                -30) <>                  1.0668549377257364e-16 or
+       floatExpr(123.0) * 4.0 ** intExpr(                -20) <>                  1.1186784831807017e-10 or
+       floatExpr(123.0) * 4.0 ** intExpr(                -10) <>                  1.1730194091796875e-04 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 -4) <>                  0.48046875 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 -3) <>                  1.921875 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 -2) <>                  7.6875 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 -1) <>                 30.75 or
+       floatExpr(123.0) * 4.0 ** intExpr(                  0) <>                123.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(                  1) <>                492.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(                  2) <>               1968.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(                  3) <>               7872.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(                  4) <>              31488.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 10) <>          128974848.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 20) <>    135239930216448.0 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 30) <>                  1.4180934506664218e+20 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 40) <>                  1.4869787581259939e+26 or
+       floatExpr(123.0) * 4.0 ** intExpr(                 50) <>                  1.5592102382807222e+32 or
+       floatExpr(123.0) * 4.0 ** intExpr(                100) <>                  1.9765337944385580e+62 or
+       floatExpr(123.0) * 4.0 ** intExpr(                150) <>                  2.5055542508914179e+92 or
+       floatExpr(123.0) * 4.0 ** intExpr(              32767) <>             Infinity or
+       floatExpr(123.0) * 4.0 ** intExpr(              32768) <>             Infinity or
+       floatExpr(123.0) * 4.0 ** intExpr(         2147483647) <>             Infinity or
+       floatExpr(123.0) * 4.0 ** intExpr(         2147483648) <>             Infinity or
+       floatExpr(123.0) * 4.0 ** intExpr(9223372036854775807) <>             Infinity then
+      writeln(" ***** Multiplication A * B ** C does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if 123.0 * floatExpr(0.0) **       integer.first  <> Infinity or
+       123.0 * floatExpr(0.0) **        (-2147483649) <> Infinity or
+       123.0 * floatExpr(0.0) **        (-2147483648) <> Infinity or
+       123.0 * floatExpr(0.0) **             (-32769) <> Infinity or
+       123.0 * floatExpr(0.0) **             (-32768) <> Infinity or
+       123.0 * floatExpr(0.0) **               (-100) <> Infinity or
+       123.0 * floatExpr(0.0) **                 (-4) <> Infinity or
+       123.0 * floatExpr(0.0) **                 (-3) <> Infinity or
+       123.0 * floatExpr(0.0) **                 (-2) <> Infinity or
+       123.0 * floatExpr(0.0) **                 (-1) <> Infinity or
+       123.0 * floatExpr(0.0) **                   0  <>    123.0 or
+       123.0 * floatExpr(0.0) **                   1  <>      0.0 or
+       123.0 * floatExpr(0.0) **                   2  <>      0.0 or
+       123.0 * floatExpr(0.0) **                   3  <>      0.0 or
+       123.0 * floatExpr(0.0) **                   4  <>      0.0 or
+       123.0 * floatExpr(0.0) **                 100  <>      0.0 or
+       123.0 * floatExpr(0.0) **               32767  <>      0.0 or
+       123.0 * floatExpr(0.0) **               32768  <>      0.0 or
+       123.0 * floatExpr(0.0) **          2147483647  <>      0.0 or
+       123.0 * floatExpr(0.0) **          2147483648  <>      0.0 or
+       123.0 * floatExpr(0.0) ** 9223372036854775807  <>      0.0 or
+       123.0 * floatExpr(1.0) **       integer.first  <>    123.0 or
+       123.0 * floatExpr(1.0) **        (-2147483649) <>    123.0 or
+       123.0 * floatExpr(1.0) **        (-2147483648) <>    123.0 or
+       123.0 * floatExpr(1.0) **             (-32769) <>    123.0 or
+       123.0 * floatExpr(1.0) **             (-32768) <>    123.0 or
+       123.0 * floatExpr(1.0) **               (-100) <>    123.0 or
+       123.0 * floatExpr(1.0) **                 (-4) <>    123.0 or
+       123.0 * floatExpr(1.0) **                 (-3) <>    123.0 or
+       123.0 * floatExpr(1.0) **                 (-2) <>    123.0 or
+       123.0 * floatExpr(1.0) **                 (-1) <>    123.0 or
+       123.0 * floatExpr(1.0) **                   0  <>    123.0 or
+       123.0 * floatExpr(1.0) **                   1  <>    123.0 or
+       123.0 * floatExpr(1.0) **                   2  <>    123.0 or
+       123.0 * floatExpr(1.0) **                   3  <>    123.0 or
+       123.0 * floatExpr(1.0) **                   4  <>    123.0 or
+       123.0 * floatExpr(1.0) **                 100  <>    123.0 or
+       123.0 * floatExpr(1.0) **               32767  <>    123.0 or
+       123.0 * floatExpr(1.0) **               32768  <>    123.0 or
+       123.0 * floatExpr(1.0) **          2147483647  <>    123.0 or
+       123.0 * floatExpr(1.0) **          2147483648  <>    123.0 or
+       123.0 * floatExpr(1.0) ** 9223372036854775807  <>    123.0 or
+       123.0 * floatExpr(2.0) **       integer.first  <>                  0.0 or
+       123.0 * floatExpr(2.0) **        (-2147483649) <>                  0.0 or
+       123.0 * floatExpr(2.0) **        (-2147483648) <>                  0.0 or
+       123.0 * floatExpr(2.0) **             (-32769) <>                  0.0 or
+       123.0 * floatExpr(2.0) **             (-32768) <>                  0.0 or
+       123.0 * floatExpr(2.0) **               (-150) <>                  8.6179855555976250e-44 or
+       123.0 * floatExpr(2.0) **               (-100) <>                  9.7029891342184452e-29 or
+       123.0 * floatExpr(2.0) **                (-50) <>                  1.0924594562311540e-13 or
+       123.0 * floatExpr(2.0) **                (-40) <>                  1.1186784831807017e-10 or
+       123.0 * floatExpr(2.0) **                (-30) <>                  1.1455267667770386e-07 or
+       123.0 * floatExpr(2.0) **                (-20) <>                  1.1730194091796875e-04 or
+       123.0 * floatExpr(2.0) **                (-10) <>                  0.1201171875 or
+       123.0 * floatExpr(2.0) **                 (-4) <>                  7.6875 or
+       123.0 * floatExpr(2.0) **                 (-3) <>                 15.375 or
+       123.0 * floatExpr(2.0) **                 (-2) <>                 30.75 or
+       123.0 * floatExpr(2.0) **                 (-1) <>                 61.5 or
+       123.0 * floatExpr(2.0) **                   0  <>                123.0 or
+       123.0 * floatExpr(2.0) **                   1  <>                246.0 or
+       123.0 * floatExpr(2.0) **                   2  <>                492.0 or
+       123.0 * floatExpr(2.0) **                   3  <>                984.0 or
+       123.0 * floatExpr(2.0) **                   4  <>               1968.0 or
+       123.0 * floatExpr(2.0) **                  10  <>             125952.0 or
+       123.0 * floatExpr(2.0) **                  20  <>          128974848.0 or
+       123.0 * floatExpr(2.0) **                  30  <>       132070244352.0 or
+       123.0 * floatExpr(2.0) **                  40  <>    135239930216448.0 or
+       123.0 * floatExpr(2.0) **                  50  <> 138485688541642752.0 or
+       123.0 * floatExpr(2.0) **                 100  <>                  1.5592102382807222e+32 or
+       123.0 * floatExpr(2.0) **                 150  <>                  1.7555146620283307e+47 or
+       123.0 * floatExpr(2.0) **               32767  <>             Infinity or
+       123.0 * floatExpr(2.0) **               32768  <>             Infinity or
+       123.0 * floatExpr(2.0) **          2147483647  <>             Infinity or
+       123.0 * floatExpr(2.0) **          2147483648  <>             Infinity or
+       123.0 * floatExpr(2.0) ** 9223372036854775807  <>             Infinity or
+       123.0 * floatExpr(4.0) **       integer.first  <>                  0.0 or
+       123.0 * floatExpr(4.0) **        (-2147483649) <>                  0.0 or
+       123.0 * floatExpr(4.0) **        (-2147483648) <>                  0.0 or
+       123.0 * floatExpr(4.0) **             (-32769) <>                  0.0 or
+       123.0 * floatExpr(4.0) **             (-32768) <>                  0.0 or
+       123.0 * floatExpr(4.0) **               (-150) <>                  6.0381849623162037e-89 or
+       123.0 * floatExpr(4.0) **               (-100) <>                  7.6543087917692043e-59 or
+       123.0 * floatExpr(4.0) **                (-50) <>                  9.7029891342184452e-29 or
+       123.0 * floatExpr(4.0) **                (-40) <>                  1.0174321534402240e-22 or
+       123.0 * floatExpr(4.0) **                (-30) <>                  1.0668549377257364e-16 or
+       123.0 * floatExpr(4.0) **                (-20) <>                  1.1186784831807017e-10 or
+       123.0 * floatExpr(4.0) **                (-10) <>                  1.1730194091796875e-04 or
+       123.0 * floatExpr(4.0) **                 (-4) <>                  0.48046875 or
+       123.0 * floatExpr(4.0) **                 (-3) <>                  1.921875 or
+       123.0 * floatExpr(4.0) **                 (-2) <>                  7.6875 or
+       123.0 * floatExpr(4.0) **                 (-1) <>                 30.75 or
+       123.0 * floatExpr(4.0) **                   0  <>                123.0 or
+       123.0 * floatExpr(4.0) **                   1  <>                492.0 or
+       123.0 * floatExpr(4.0) **                   2  <>               1968.0 or
+       123.0 * floatExpr(4.0) **                   3  <>               7872.0 or
+       123.0 * floatExpr(4.0) **                   4  <>              31488.0 or
+       123.0 * floatExpr(4.0) **                  10  <>          128974848.0 or
+       123.0 * floatExpr(4.0) **                  20  <>    135239930216448.0 or
+       123.0 * floatExpr(4.0) **                  30  <>                  1.4180934506664218e+20 or
+       123.0 * floatExpr(4.0) **                  40  <>                  1.4869787581259939e+26 or
+       123.0 * floatExpr(4.0) **                  50  <>                  1.5592102382807222e+32 or
+       123.0 * floatExpr(4.0) **                 100  <>                  1.9765337944385580e+62 or
+       123.0 * floatExpr(4.0) **                 150  <>                  2.5055542508914179e+92 or
+       123.0 * floatExpr(4.0) **               32767  <>             Infinity or
+       123.0 * floatExpr(4.0) **               32768  <>             Infinity or
+       123.0 * floatExpr(4.0) **          2147483647  <>             Infinity or
+       123.0 * floatExpr(4.0) **          2147483648  <>             Infinity or
+       123.0 * floatExpr(4.0) ** 9223372036854775807  <>             Infinity then
+      writeln(" ***** Multiplication A * B ** C does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if 0.0 **       integer.first  * 123.0 <> Infinity or
+       0.0 **        (-2147483649) * 123.0 <> Infinity or
+       0.0 **        (-2147483648) * 123.0 <> Infinity or
+       0.0 **             (-32769) * 123.0 <> Infinity or
+       0.0 **             (-32768) * 123.0 <> Infinity or
+       0.0 **               (-100) * 123.0 <> Infinity or
+       0.0 **                 (-4) * 123.0 <> Infinity or
+       0.0 **                 (-3) * 123.0 <> Infinity or
+       0.0 **                 (-2) * 123.0 <> Infinity or
+       0.0 **                 (-1) * 123.0 <> Infinity or
+       0.0 **                   0  * 123.0 <>    123.0 or
+       0.0 **                   1  * 123.0 <>      0.0 or
+       0.0 **                   2  * 123.0 <>      0.0 or
+       0.0 **                   3  * 123.0 <>      0.0 or
+       0.0 **                   4  * 123.0 <>      0.0 or
+       0.0 **                 100  * 123.0 <>      0.0 or
+       0.0 **               32767  * 123.0 <>      0.0 or
+       0.0 **               32768  * 123.0 <>      0.0 or
+       0.0 **          2147483647  * 123.0 <>      0.0 or
+       0.0 **          2147483648  * 123.0 <>      0.0 or
+       0.0 ** 9223372036854775807  * 123.0 <>      0.0 or
+       1.0 **       integer.first  * 123.0 <>    123.0 or
+       1.0 **        (-2147483649) * 123.0 <>    123.0 or
+       1.0 **        (-2147483648) * 123.0 <>    123.0 or
+       1.0 **             (-32769) * 123.0 <>    123.0 or
+       1.0 **             (-32768) * 123.0 <>    123.0 or
+       1.0 **               (-100) * 123.0 <>    123.0 or
+       1.0 **                 (-4) * 123.0 <>    123.0 or
+       1.0 **                 (-3) * 123.0 <>    123.0 or
+       1.0 **                 (-2) * 123.0 <>    123.0 or
+       1.0 **                 (-1) * 123.0 <>    123.0 or
+       1.0 **                   0  * 123.0 <>    123.0 or
+       1.0 **                   1  * 123.0 <>    123.0 or
+       1.0 **                   2  * 123.0 <>    123.0 or
+       1.0 **                   3  * 123.0 <>    123.0 or
+       1.0 **                   4  * 123.0 <>    123.0 or
+       1.0 **                 100  * 123.0 <>    123.0 or
+       1.0 **               32767  * 123.0 <>    123.0 or
+       1.0 **               32768  * 123.0 <>    123.0 or
+       1.0 **          2147483647  * 123.0 <>    123.0 or
+       1.0 **          2147483648  * 123.0 <>    123.0 or
+       1.0 ** 9223372036854775807  * 123.0 <>    123.0 or
+       2.0 **       integer.first  * 123.0 <>                  0.0 or
+       2.0 **        (-2147483649) * 123.0 <>                  0.0 or
+       2.0 **        (-2147483648) * 123.0 <>                  0.0 or
+       2.0 **             (-32769) * 123.0 <>                  0.0 or
+       2.0 **             (-32768) * 123.0 <>                  0.0 or
+       2.0 **               (-150) * 123.0 <>                  8.6179855555976250e-44 or
+       2.0 **               (-100) * 123.0 <>                  9.7029891342184452e-29 or
+       2.0 **                (-50) * 123.0 <>                  1.0924594562311540e-13 or
+       2.0 **                (-40) * 123.0 <>                  1.1186784831807017e-10 or
+       2.0 **                (-30) * 123.0 <>                  1.1455267667770386e-07 or
+       2.0 **                (-20) * 123.0 <>                  1.1730194091796875e-04 or
+       2.0 **                (-10) * 123.0 <>                  0.1201171875 or
+       2.0 **                 (-4) * 123.0 <>                  7.6875 or
+       2.0 **                 (-3) * 123.0 <>                 15.375 or
+       2.0 **                 (-2) * 123.0 <>                 30.75 or
+       2.0 **                 (-1) * 123.0 <>                 61.5 or
+       2.0 **                   0  * 123.0 <>                123.0 or
+       2.0 **                   1  * 123.0 <>                246.0 or
+       2.0 **                   2  * 123.0 <>                492.0 or
+       2.0 **                   3  * 123.0 <>                984.0 or
+       2.0 **                   4  * 123.0 <>               1968.0 or
+       2.0 **                  10  * 123.0 <>             125952.0 or
+       2.0 **                  20  * 123.0 <>          128974848.0 or
+       2.0 **                  30  * 123.0 <>       132070244352.0 or
+       2.0 **                  40  * 123.0 <>    135239930216448.0 or
+       2.0 **                  50  * 123.0 <> 138485688541642752.0 or
+       2.0 **                 100  * 123.0 <>                  1.5592102382807222e+32 or
+       2.0 **                 150  * 123.0 <>                  1.7555146620283307e+47 or
+       2.0 **               32767  * 123.0 <>             Infinity or
+       2.0 **               32768  * 123.0 <>             Infinity or
+       2.0 **          2147483647  * 123.0 <>             Infinity or
+       2.0 **          2147483648  * 123.0 <>             Infinity or
+       2.0 ** 9223372036854775807  * 123.0 <>             Infinity or
+       4.0 **       integer.first  * 123.0 <>                  0.0 or
+       4.0 **        (-2147483649) * 123.0 <>                  0.0 or
+       4.0 **        (-2147483648) * 123.0 <>                  0.0 or
+       4.0 **             (-32769) * 123.0 <>                  0.0 or
+       4.0 **             (-32768) * 123.0 <>                  0.0 or
+       4.0 **               (-150) * 123.0 <>                  6.0381849623162037e-89 or
+       4.0 **               (-100) * 123.0 <>                  7.6543087917692043e-59 or
+       4.0 **                (-50) * 123.0 <>                  9.7029891342184452e-29 or
+       4.0 **                (-40) * 123.0 <>                  1.0174321534402240e-22 or
+       4.0 **                (-30) * 123.0 <>                  1.0668549377257364e-16 or
+       4.0 **                (-20) * 123.0 <>                  1.1186784831807017e-10 or
+       4.0 **                (-10) * 123.0 <>                  1.1730194091796875e-04 or
+       4.0 **                 (-4) * 123.0 <>                  0.48046875 or
+       4.0 **                 (-3) * 123.0 <>                  1.921875 or
+       4.0 **                 (-2) * 123.0 <>                  7.6875 or
+       4.0 **                 (-1) * 123.0 <>                 30.75 or
+       4.0 **                   0  * 123.0 <>                123.0 or
+       4.0 **                   1  * 123.0 <>                492.0 or
+       4.0 **                   2  * 123.0 <>               1968.0 or
+       4.0 **                   3  * 123.0 <>               7872.0 or
+       4.0 **                   4  * 123.0 <>              31488.0 or
+       4.0 **                  10  * 123.0 <>          128974848.0 or
+       4.0 **                  20  * 123.0 <>    135239930216448.0 or
+       4.0 **                  30  * 123.0 <>                  1.4180934506664218e+20 or
+       4.0 **                  40  * 123.0 <>                  1.4869787581259939e+26 or
+       4.0 **                  50  * 123.0 <>                  1.5592102382807222e+32 or
+       4.0 **                 100  * 123.0 <>                  1.9765337944385580e+62 or
+       4.0 **                 150  * 123.0 <>                  2.5055542508914179e+92 or
+       4.0 **               32767  * 123.0 <>             Infinity or
+       4.0 **               32768  * 123.0 <>             Infinity or
+       4.0 **          2147483647  * 123.0 <>             Infinity or
+       4.0 **          2147483648  * 123.0 <>             Infinity or
+       4.0 ** 9223372036854775807  * 123.0 <>             Infinity then
+      writeln(" ***** Multiplication A ** B * C does not work correct. (1)");
+      okay := FALSE;
+    end if;
+
+    if 0.0 ** intExpr(      integer.first) * 123.0 <> Infinity or
+       0.0 ** intExpr(        -2147483649) * 123.0 <> Infinity or
+       0.0 ** intExpr(        -2147483648) * 123.0 <> Infinity or
+       0.0 ** intExpr(             -32769) * 123.0 <> Infinity or
+       0.0 ** intExpr(             -32768) * 123.0 <> Infinity or
+       0.0 ** intExpr(               -100) * 123.0 <> Infinity or
+       0.0 ** intExpr(                 -4) * 123.0 <> Infinity or
+       0.0 ** intExpr(                 -3) * 123.0 <> Infinity or
+       0.0 ** intExpr(                 -2) * 123.0 <> Infinity or
+       0.0 ** intExpr(                 -1) * 123.0 <> Infinity or
+       0.0 ** intExpr(                  0) * 123.0 <>    123.0 or
+       0.0 ** intExpr(                  1) * 123.0 <>      0.0 or
+       0.0 ** intExpr(                  2) * 123.0 <>      0.0 or
+       0.0 ** intExpr(                  3) * 123.0 <>      0.0 or
+       0.0 ** intExpr(                  4) * 123.0 <>      0.0 or
+       0.0 ** intExpr(                100) * 123.0 <>      0.0 or
+       0.0 ** intExpr(              32767) * 123.0 <>      0.0 or
+       0.0 ** intExpr(              32768) * 123.0 <>      0.0 or
+       0.0 ** intExpr(         2147483647) * 123.0 <>      0.0 or
+       0.0 ** intExpr(         2147483648) * 123.0 <>      0.0 or
+       0.0 ** intExpr(9223372036854775807) * 123.0 <>      0.0 or
+       1.0 ** intExpr(      integer.first) * 123.0 <>    123.0 or
+       1.0 ** intExpr(        -2147483649) * 123.0 <>    123.0 or
+       1.0 ** intExpr(        -2147483648) * 123.0 <>    123.0 or
+       1.0 ** intExpr(             -32769) * 123.0 <>    123.0 or
+       1.0 ** intExpr(             -32768) * 123.0 <>    123.0 or
+       1.0 ** intExpr(               -100) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                 -4) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                 -3) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                 -2) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                 -1) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                  0) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                  1) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                  2) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                  3) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                  4) * 123.0 <>    123.0 or
+       1.0 ** intExpr(                100) * 123.0 <>    123.0 or
+       1.0 ** intExpr(              32767) * 123.0 <>    123.0 or
+       1.0 ** intExpr(              32768) * 123.0 <>    123.0 or
+       1.0 ** intExpr(         2147483647) * 123.0 <>    123.0 or
+       1.0 ** intExpr(         2147483648) * 123.0 <>    123.0 or
+       1.0 ** intExpr(9223372036854775807) * 123.0 <>    123.0 or
+       2.0 ** intExpr(      integer.first) * 123.0 <>                  0.0 or
+       2.0 ** intExpr(        -2147483649) * 123.0 <>                  0.0 or
+       2.0 ** intExpr(        -2147483648) * 123.0 <>                  0.0 or
+       2.0 ** intExpr(             -32769) * 123.0 <>                  0.0 or
+       2.0 ** intExpr(             -32768) * 123.0 <>                  0.0 or
+       2.0 ** intExpr(               -150) * 123.0 <>                  8.6179855555976250e-44 or
+       2.0 ** intExpr(               -100) * 123.0 <>                  9.7029891342184452e-29 or
+       2.0 ** intExpr(                -50) * 123.0 <>                  1.0924594562311540e-13 or
+       2.0 ** intExpr(                -40) * 123.0 <>                  1.1186784831807017e-10 or
+       2.0 ** intExpr(                -30) * 123.0 <>                  1.1455267667770386e-07 or
+       2.0 ** intExpr(                -20) * 123.0 <>                  1.1730194091796875e-04 or
+       2.0 ** intExpr(                -10) * 123.0 <>                  0.1201171875 or
+       2.0 ** intExpr(                 -4) * 123.0 <>                  7.6875 or
+       2.0 ** intExpr(                 -3) * 123.0 <>                 15.375 or
+       2.0 ** intExpr(                 -2) * 123.0 <>                 30.75 or
+       2.0 ** intExpr(                 -1) * 123.0 <>                 61.5 or
+       2.0 ** intExpr(                  0) * 123.0 <>                123.0 or
+       2.0 ** intExpr(                  1) * 123.0 <>                246.0 or
+       2.0 ** intExpr(                  2) * 123.0 <>                492.0 or
+       2.0 ** intExpr(                  3) * 123.0 <>                984.0 or
+       2.0 ** intExpr(                  4) * 123.0 <>               1968.0 or
+       2.0 ** intExpr(                 10) * 123.0 <>             125952.0 or
+       2.0 ** intExpr(                 20) * 123.0 <>          128974848.0 or
+       2.0 ** intExpr(                 30) * 123.0 <>       132070244352.0 or
+       2.0 ** intExpr(                 40) * 123.0 <>    135239930216448.0 or
+       2.0 ** intExpr(                 50) * 123.0 <> 138485688541642752.0 or
+       2.0 ** intExpr(                100) * 123.0 <>                  1.5592102382807222e+32 or
+       2.0 ** intExpr(                150) * 123.0 <>                  1.7555146620283307e+47 or
+       2.0 ** intExpr(              32767) * 123.0 <>             Infinity or
+       2.0 ** intExpr(              32768) * 123.0 <>             Infinity or
+       2.0 ** intExpr(         2147483647) * 123.0 <>             Infinity or
+       2.0 ** intExpr(         2147483648) * 123.0 <>             Infinity or
+       2.0 ** intExpr(9223372036854775807) * 123.0 <>             Infinity or
+       4.0 ** intExpr(      integer.first) * 123.0 <>                  0.0 or
+       4.0 ** intExpr(        -2147483649) * 123.0 <>                  0.0 or
+       4.0 ** intExpr(        -2147483648) * 123.0 <>                  0.0 or
+       4.0 ** intExpr(             -32769) * 123.0 <>                  0.0 or
+       4.0 ** intExpr(             -32768) * 123.0 <>                  0.0 or
+       4.0 ** intExpr(               -150) * 123.0 <>                  6.0381849623162037e-89 or
+       4.0 ** intExpr(               -100) * 123.0 <>                  7.6543087917692043e-59 or
+       4.0 ** intExpr(                -50) * 123.0 <>                  9.7029891342184452e-29 or
+       4.0 ** intExpr(                -40) * 123.0 <>                  1.0174321534402240e-22 or
+       4.0 ** intExpr(                -30) * 123.0 <>                  1.0668549377257364e-16 or
+       4.0 ** intExpr(                -20) * 123.0 <>                  1.1186784831807017e-10 or
+       4.0 ** intExpr(                -10) * 123.0 <>                  1.1730194091796875e-04 or
+       4.0 ** intExpr(                 -4) * 123.0 <>                  0.48046875 or
+       4.0 ** intExpr(                 -3) * 123.0 <>                  1.921875 or
+       4.0 ** intExpr(                 -2) * 123.0 <>                  7.6875 or
+       4.0 ** intExpr(                 -1) * 123.0 <>                 30.75 or
+       4.0 ** intExpr(                  0) * 123.0 <>                123.0 or
+       4.0 ** intExpr(                  1) * 123.0 <>                492.0 or
+       4.0 ** intExpr(                  2) * 123.0 <>               1968.0 or
+       4.0 ** intExpr(                  3) * 123.0 <>               7872.0 or
+       4.0 ** intExpr(                  4) * 123.0 <>              31488.0 or
+       4.0 ** intExpr(                 10) * 123.0 <>          128974848.0 or
+       4.0 ** intExpr(                 20) * 123.0 <>    135239930216448.0 or
+       4.0 ** intExpr(                 30) * 123.0 <>                  1.4180934506664218e+20 or
+       4.0 ** intExpr(                 40) * 123.0 <>                  1.4869787581259939e+26 or
+       4.0 ** intExpr(                 50) * 123.0 <>                  1.5592102382807222e+32 or
+       4.0 ** intExpr(                100) * 123.0 <>                  1.9765337944385580e+62 or
+       4.0 ** intExpr(                150) * 123.0 <>                  2.5055542508914179e+92 or
+       4.0 ** intExpr(              32767) * 123.0 <>             Infinity or
+       4.0 ** intExpr(              32768) * 123.0 <>             Infinity or
+       4.0 ** intExpr(         2147483647) * 123.0 <>             Infinity or
+       4.0 ** intExpr(         2147483648) * 123.0 <>             Infinity or
+       4.0 ** intExpr(9223372036854775807) * 123.0 <>             Infinity then
+      writeln(" ***** Multiplication A ** B * C does not work correct. (2)");
+      okay := FALSE;
+    end if;
+
+    if 0.0 **       integer.first  * floatExpr(123.0) <> Infinity or
+       0.0 **        (-2147483649) * floatExpr(123.0) <> Infinity or
+       0.0 **        (-2147483648) * floatExpr(123.0) <> Infinity or
+       0.0 **             (-32769) * floatExpr(123.0) <> Infinity or
+       0.0 **             (-32768) * floatExpr(123.0) <> Infinity or
+       0.0 **               (-100) * floatExpr(123.0) <> Infinity or
+       0.0 **                 (-4) * floatExpr(123.0) <> Infinity or
+       0.0 **                 (-3) * floatExpr(123.0) <> Infinity or
+       0.0 **                 (-2) * floatExpr(123.0) <> Infinity or
+       0.0 **                 (-1) * floatExpr(123.0) <> Infinity or
+       0.0 **                   0  * floatExpr(123.0) <>    123.0 or
+       0.0 **                   1  * floatExpr(123.0) <>      0.0 or
+       0.0 **                   2  * floatExpr(123.0) <>      0.0 or
+       0.0 **                   3  * floatExpr(123.0) <>      0.0 or
+       0.0 **                   4  * floatExpr(123.0) <>      0.0 or
+       0.0 **                 100  * floatExpr(123.0) <>      0.0 or
+       0.0 **               32767  * floatExpr(123.0) <>      0.0 or
+       0.0 **               32768  * floatExpr(123.0) <>      0.0 or
+       0.0 **          2147483647  * floatExpr(123.0) <>      0.0 or
+       0.0 **          2147483648  * floatExpr(123.0) <>      0.0 or
+       0.0 ** 9223372036854775807  * floatExpr(123.0) <>      0.0 or
+       1.0 **       integer.first  * floatExpr(123.0) <>    123.0 or
+       1.0 **        (-2147483649) * floatExpr(123.0) <>    123.0 or
+       1.0 **        (-2147483648) * floatExpr(123.0) <>    123.0 or
+       1.0 **             (-32769) * floatExpr(123.0) <>    123.0 or
+       1.0 **             (-32768) * floatExpr(123.0) <>    123.0 or
+       1.0 **               (-100) * floatExpr(123.0) <>    123.0 or
+       1.0 **                 (-4) * floatExpr(123.0) <>    123.0 or
+       1.0 **                 (-3) * floatExpr(123.0) <>    123.0 or
+       1.0 **                 (-2) * floatExpr(123.0) <>    123.0 or
+       1.0 **                 (-1) * floatExpr(123.0) <>    123.0 or
+       1.0 **                   0  * floatExpr(123.0) <>    123.0 or
+       1.0 **                   1  * floatExpr(123.0) <>    123.0 or
+       1.0 **                   2  * floatExpr(123.0) <>    123.0 or
+       1.0 **                   3  * floatExpr(123.0) <>    123.0 or
+       1.0 **                   4  * floatExpr(123.0) <>    123.0 or
+       1.0 **                 100  * floatExpr(123.0) <>    123.0 or
+       1.0 **               32767  * floatExpr(123.0) <>    123.0 or
+       1.0 **               32768  * floatExpr(123.0) <>    123.0 or
+       1.0 **          2147483647  * floatExpr(123.0) <>    123.0 or
+       1.0 **          2147483648  * floatExpr(123.0) <>    123.0 or
+       1.0 ** 9223372036854775807  * floatExpr(123.0) <>    123.0 or
+       2.0 **       integer.first  * floatExpr(123.0) <>                  0.0 or
+       2.0 **        (-2147483649) * floatExpr(123.0) <>                  0.0 or
+       2.0 **        (-2147483648) * floatExpr(123.0) <>                  0.0 or
+       2.0 **             (-32769) * floatExpr(123.0) <>                  0.0 or
+       2.0 **             (-32768) * floatExpr(123.0) <>                  0.0 or
+       2.0 **               (-150) * floatExpr(123.0) <>                  8.6179855555976250e-44 or
+       2.0 **               (-100) * floatExpr(123.0) <>                  9.7029891342184452e-29 or
+       2.0 **                (-50) * floatExpr(123.0) <>                  1.0924594562311540e-13 or
+       2.0 **                (-40) * floatExpr(123.0) <>                  1.1186784831807017e-10 or
+       2.0 **                (-30) * floatExpr(123.0) <>                  1.1455267667770386e-07 or
+       2.0 **                (-20) * floatExpr(123.0) <>                  1.1730194091796875e-04 or
+       2.0 **                (-10) * floatExpr(123.0) <>                  0.1201171875 or
+       2.0 **                 (-4) * floatExpr(123.0) <>                  7.6875 or
+       2.0 **                 (-3) * floatExpr(123.0) <>                 15.375 or
+       2.0 **                 (-2) * floatExpr(123.0) <>                 30.75 or
+       2.0 **                 (-1) * floatExpr(123.0) <>                 61.5 or
+       2.0 **                   0  * floatExpr(123.0) <>                123.0 or
+       2.0 **                   1  * floatExpr(123.0) <>                246.0 or
+       2.0 **                   2  * floatExpr(123.0) <>                492.0 or
+       2.0 **                   3  * floatExpr(123.0) <>                984.0 or
+       2.0 **                   4  * floatExpr(123.0) <>               1968.0 or
+       2.0 **                  10  * floatExpr(123.0) <>             125952.0 or
+       2.0 **                  20  * floatExpr(123.0) <>          128974848.0 or
+       2.0 **                  30  * floatExpr(123.0) <>       132070244352.0 or
+       2.0 **                  40  * floatExpr(123.0) <>    135239930216448.0 or
+       2.0 **                  50  * floatExpr(123.0) <> 138485688541642752.0 or
+       2.0 **                 100  * floatExpr(123.0) <>                  1.5592102382807222e+32 or
+       2.0 **                 150  * floatExpr(123.0) <>                  1.7555146620283307e+47 or
+       2.0 **               32767  * floatExpr(123.0) <>             Infinity or
+       2.0 **               32768  * floatExpr(123.0) <>             Infinity or
+       2.0 **          2147483647  * floatExpr(123.0) <>             Infinity or
+       2.0 **          2147483648  * floatExpr(123.0) <>             Infinity or
+       2.0 ** 9223372036854775807  * floatExpr(123.0) <>             Infinity or
+       4.0 **       integer.first  * floatExpr(123.0) <>                  0.0 or
+       4.0 **        (-2147483649) * floatExpr(123.0) <>                  0.0 or
+       4.0 **        (-2147483648) * floatExpr(123.0) <>                  0.0 or
+       4.0 **             (-32769) * floatExpr(123.0) <>                  0.0 or
+       4.0 **             (-32768) * floatExpr(123.0) <>                  0.0 or
+       4.0 **               (-150) * floatExpr(123.0) <>                  6.0381849623162037e-89 or
+       4.0 **               (-100) * floatExpr(123.0) <>                  7.6543087917692043e-59 or
+       4.0 **                (-50) * floatExpr(123.0) <>                  9.7029891342184452e-29 or
+       4.0 **                (-40) * floatExpr(123.0) <>                  1.0174321534402240e-22 or
+       4.0 **                (-30) * floatExpr(123.0) <>                  1.0668549377257364e-16 or
+       4.0 **                (-20) * floatExpr(123.0) <>                  1.1186784831807017e-10 or
+       4.0 **                (-10) * floatExpr(123.0) <>                  1.1730194091796875e-04 or
+       4.0 **                 (-4) * floatExpr(123.0) <>                  0.48046875 or
+       4.0 **                 (-3) * floatExpr(123.0) <>                  1.921875 or
+       4.0 **                 (-2) * floatExpr(123.0) <>                  7.6875 or
+       4.0 **                 (-1) * floatExpr(123.0) <>                 30.75 or
+       4.0 **                   0  * floatExpr(123.0) <>                123.0 or
+       4.0 **                   1  * floatExpr(123.0) <>                492.0 or
+       4.0 **                   2  * floatExpr(123.0) <>               1968.0 or
+       4.0 **                   3  * floatExpr(123.0) <>               7872.0 or
+       4.0 **                   4  * floatExpr(123.0) <>              31488.0 or
+       4.0 **                  10  * floatExpr(123.0) <>          128974848.0 or
+       4.0 **                  20  * floatExpr(123.0) <>    135239930216448.0 or
+       4.0 **                  30  * floatExpr(123.0) <>                  1.4180934506664218e+20 or
+       4.0 **                  40  * floatExpr(123.0) <>                  1.4869787581259939e+26 or
+       4.0 **                  50  * floatExpr(123.0) <>                  1.5592102382807222e+32 or
+       4.0 **                 100  * floatExpr(123.0) <>                  1.9765337944385580e+62 or
+       4.0 **                 150  * floatExpr(123.0) <>                  2.5055542508914179e+92 or
+       4.0 **               32767  * floatExpr(123.0) <>             Infinity or
+       4.0 **               32768  * floatExpr(123.0) <>             Infinity or
+       4.0 **          2147483647  * floatExpr(123.0) <>             Infinity or
+       4.0 **          2147483648  * floatExpr(123.0) <>             Infinity or
+       4.0 ** 9223372036854775807  * floatExpr(123.0) <>             Infinity then
+      writeln(" ***** Multiplication A ** B * C does not work correct. (3)");
+      okay := FALSE;
+    end if;
+
+    if 0.0 ** intExpr(      integer.first) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(        -2147483649) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(        -2147483648) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(             -32769) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(             -32768) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(               -100) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(                 -4) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(                 -3) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(                 -2) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(                 -1) * floatExpr(123.0) <> Infinity or
+       0.0 ** intExpr(                  0) * floatExpr(123.0) <>    123.0 or
+       0.0 ** intExpr(                  1) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(                  2) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(                  3) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(                  4) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(                100) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(              32767) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(              32768) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(         2147483647) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(         2147483648) * floatExpr(123.0) <>      0.0 or
+       0.0 ** intExpr(9223372036854775807) * floatExpr(123.0) <>      0.0 or
+       1.0 ** intExpr(      integer.first) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(        -2147483649) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(        -2147483648) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(             -32769) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(             -32768) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(               -100) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                 -4) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                 -3) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                 -2) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                 -1) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                  0) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                  1) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                  2) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                  3) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                  4) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(                100) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(              32767) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(              32768) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(         2147483647) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(         2147483648) * floatExpr(123.0) <>    123.0 or
+       1.0 ** intExpr(9223372036854775807) * floatExpr(123.0) <>    123.0 or
+       2.0 ** intExpr(      integer.first) * floatExpr(123.0) <>                  0.0 or
+       2.0 ** intExpr(        -2147483649) * floatExpr(123.0) <>                  0.0 or
+       2.0 ** intExpr(        -2147483648) * floatExpr(123.0) <>                  0.0 or
+       2.0 ** intExpr(             -32769) * floatExpr(123.0) <>                  0.0 or
+       2.0 ** intExpr(             -32768) * floatExpr(123.0) <>                  0.0 or
+       2.0 ** intExpr(               -150) * floatExpr(123.0) <>                  8.6179855555976250e-44 or
+       2.0 ** intExpr(               -100) * floatExpr(123.0) <>                  9.7029891342184452e-29 or
+       2.0 ** intExpr(                -50) * floatExpr(123.0) <>                  1.0924594562311540e-13 or
+       2.0 ** intExpr(                -40) * floatExpr(123.0) <>                  1.1186784831807017e-10 or
+       2.0 ** intExpr(                -30) * floatExpr(123.0) <>                  1.1455267667770386e-07 or
+       2.0 ** intExpr(                -20) * floatExpr(123.0) <>                  1.1730194091796875e-04 or
+       2.0 ** intExpr(                -10) * floatExpr(123.0) <>                  0.1201171875 or
+       2.0 ** intExpr(                 -4) * floatExpr(123.0) <>                  7.6875 or
+       2.0 ** intExpr(                 -3) * floatExpr(123.0) <>                 15.375 or
+       2.0 ** intExpr(                 -2) * floatExpr(123.0) <>                 30.75 or
+       2.0 ** intExpr(                 -1) * floatExpr(123.0) <>                 61.5 or
+       2.0 ** intExpr(                  0) * floatExpr(123.0) <>                123.0 or
+       2.0 ** intExpr(                  1) * floatExpr(123.0) <>                246.0 or
+       2.0 ** intExpr(                  2) * floatExpr(123.0) <>                492.0 or
+       2.0 ** intExpr(                  3) * floatExpr(123.0) <>                984.0 or
+       2.0 ** intExpr(                  4) * floatExpr(123.0) <>               1968.0 or
+       2.0 ** intExpr(                 10) * floatExpr(123.0) <>             125952.0 or
+       2.0 ** intExpr(                 20) * floatExpr(123.0) <>          128974848.0 or
+       2.0 ** intExpr(                 30) * floatExpr(123.0) <>       132070244352.0 or
+       2.0 ** intExpr(                 40) * floatExpr(123.0) <>    135239930216448.0 or
+       2.0 ** intExpr(                 50) * floatExpr(123.0) <> 138485688541642752.0 or
+       2.0 ** intExpr(                100) * floatExpr(123.0) <>                  1.5592102382807222e+32 or
+       2.0 ** intExpr(                150) * floatExpr(123.0) <>                  1.7555146620283307e+47 or
+       2.0 ** intExpr(              32767) * floatExpr(123.0) <>             Infinity or
+       2.0 ** intExpr(              32768) * floatExpr(123.0) <>             Infinity or
+       2.0 ** intExpr(         2147483647) * floatExpr(123.0) <>             Infinity or
+       2.0 ** intExpr(         2147483648) * floatExpr(123.0) <>             Infinity or
+       2.0 ** intExpr(9223372036854775807) * floatExpr(123.0) <>             Infinity or
+       4.0 ** intExpr(      integer.first) * floatExpr(123.0) <>                  0.0 or
+       4.0 ** intExpr(        -2147483649) * floatExpr(123.0) <>                  0.0 or
+       4.0 ** intExpr(        -2147483648) * floatExpr(123.0) <>                  0.0 or
+       4.0 ** intExpr(             -32769) * floatExpr(123.0) <>                  0.0 or
+       4.0 ** intExpr(             -32768) * floatExpr(123.0) <>                  0.0 or
+       4.0 ** intExpr(               -150) * floatExpr(123.0) <>                  6.0381849623162037e-89 or
+       4.0 ** intExpr(               -100) * floatExpr(123.0) <>                  7.6543087917692043e-59 or
+       4.0 ** intExpr(                -50) * floatExpr(123.0) <>                  9.7029891342184452e-29 or
+       4.0 ** intExpr(                -40) * floatExpr(123.0) <>                  1.0174321534402240e-22 or
+       4.0 ** intExpr(                -30) * floatExpr(123.0) <>                  1.0668549377257364e-16 or
+       4.0 ** intExpr(                -20) * floatExpr(123.0) <>                  1.1186784831807017e-10 or
+       4.0 ** intExpr(                -10) * floatExpr(123.0) <>                  1.1730194091796875e-04 or
+       4.0 ** intExpr(                 -4) * floatExpr(123.0) <>                  0.48046875 or
+       4.0 ** intExpr(                 -3) * floatExpr(123.0) <>                  1.921875 or
+       4.0 ** intExpr(                 -2) * floatExpr(123.0) <>                  7.6875 or
+       4.0 ** intExpr(                 -1) * floatExpr(123.0) <>                 30.75 or
+       4.0 ** intExpr(                  0) * floatExpr(123.0) <>                123.0 or
+       4.0 ** intExpr(                  1) * floatExpr(123.0) <>                492.0 or
+       4.0 ** intExpr(                  2) * floatExpr(123.0) <>               1968.0 or
+       4.0 ** intExpr(                  3) * floatExpr(123.0) <>               7872.0 or
+       4.0 ** intExpr(                  4) * floatExpr(123.0) <>              31488.0 or
+       4.0 ** intExpr(                 10) * floatExpr(123.0) <>          128974848.0 or
+       4.0 ** intExpr(                 20) * floatExpr(123.0) <>    135239930216448.0 or
+       4.0 ** intExpr(                 30) * floatExpr(123.0) <>                  1.4180934506664218e+20 or
+       4.0 ** intExpr(                 40) * floatExpr(123.0) <>                  1.4869787581259939e+26 or
+       4.0 ** intExpr(                 50) * floatExpr(123.0) <>                  1.5592102382807222e+32 or
+       4.0 ** intExpr(                100) * floatExpr(123.0) <>                  1.9765337944385580e+62 or
+       4.0 ** intExpr(                150) * floatExpr(123.0) <>                  2.5055542508914179e+92 or
+       4.0 ** intExpr(              32767) * floatExpr(123.0) <>             Infinity or
+       4.0 ** intExpr(              32768) * floatExpr(123.0) <>             Infinity or
+       4.0 ** intExpr(         2147483647) * floatExpr(123.0) <>             Infinity or
+       4.0 ** intExpr(         2147483648) * floatExpr(123.0) <>             Infinity or
+       4.0 ** intExpr(9223372036854775807) * floatExpr(123.0) <>             Infinity then
+      writeln(" ***** Multiplication A ** B * C does not work correct. (4)");
+      okay := FALSE;
+    end if;
+
+    if floatExpr(0.0) **       integer.first  * 123.0 <> Infinity or
+       floatExpr(0.0) **        (-2147483649) * 123.0 <> Infinity or
+       floatExpr(0.0) **        (-2147483648) * 123.0 <> Infinity or
+       floatExpr(0.0) **             (-32769) * 123.0 <> Infinity or
+       floatExpr(0.0) **             (-32768) * 123.0 <> Infinity or
+       floatExpr(0.0) **               (-100) * 123.0 <> Infinity or
+       floatExpr(0.0) **                 (-4) * 123.0 <> Infinity or
+       floatExpr(0.0) **                 (-3) * 123.0 <> Infinity or
+       floatExpr(0.0) **                 (-2) * 123.0 <> Infinity or
+       floatExpr(0.0) **                 (-1) * 123.0 <> Infinity or
+       floatExpr(0.0) **                   0  * 123.0 <>    123.0 or
+       floatExpr(0.0) **                   1  * 123.0 <>      0.0 or
+       floatExpr(0.0) **                   2  * 123.0 <>      0.0 or
+       floatExpr(0.0) **                   3  * 123.0 <>      0.0 or
+       floatExpr(0.0) **                   4  * 123.0 <>      0.0 or
+       floatExpr(0.0) **                 100  * 123.0 <>      0.0 or
+       floatExpr(0.0) **               32767  * 123.0 <>      0.0 or
+       floatExpr(0.0) **               32768  * 123.0 <>      0.0 or
+       floatExpr(0.0) **          2147483647  * 123.0 <>      0.0 or
+       floatExpr(0.0) **          2147483648  * 123.0 <>      0.0 or
+       floatExpr(0.0) ** 9223372036854775807  * 123.0 <>      0.0 or
+       floatExpr(1.0) **       integer.first  * 123.0 <>    123.0 or
+       floatExpr(1.0) **        (-2147483649) * 123.0 <>    123.0 or
+       floatExpr(1.0) **        (-2147483648) * 123.0 <>    123.0 or
+       floatExpr(1.0) **             (-32769) * 123.0 <>    123.0 or
+       floatExpr(1.0) **             (-32768) * 123.0 <>    123.0 or
+       floatExpr(1.0) **               (-100) * 123.0 <>    123.0 or
+       floatExpr(1.0) **                 (-4) * 123.0 <>    123.0 or
+       floatExpr(1.0) **                 (-3) * 123.0 <>    123.0 or
+       floatExpr(1.0) **                 (-2) * 123.0 <>    123.0 or
+       floatExpr(1.0) **                 (-1) * 123.0 <>    123.0 or
+       floatExpr(1.0) **                   0  * 123.0 <>    123.0 or
+       floatExpr(1.0) **                   1  * 123.0 <>    123.0 or
+       floatExpr(1.0) **                   2  * 123.0 <>    123.0 or
+       floatExpr(1.0) **                   3  * 123.0 <>    123.0 or
+       floatExpr(1.0) **                   4  * 123.0 <>    123.0 or
+       floatExpr(1.0) **                 100  * 123.0 <>    123.0 or
+       floatExpr(1.0) **               32767  * 123.0 <>    123.0 or
+       floatExpr(1.0) **               32768  * 123.0 <>    123.0 or
+       floatExpr(1.0) **          2147483647  * 123.0 <>    123.0 or
+       floatExpr(1.0) **          2147483648  * 123.0 <>    123.0 or
+       floatExpr(1.0) ** 9223372036854775807  * 123.0 <>    123.0 or
+       floatExpr(2.0) **       integer.first  * 123.0 <>                  0.0 or
+       floatExpr(2.0) **        (-2147483649) * 123.0 <>                  0.0 or
+       floatExpr(2.0) **        (-2147483648) * 123.0 <>                  0.0 or
+       floatExpr(2.0) **             (-32769) * 123.0 <>                  0.0 or
+       floatExpr(2.0) **             (-32768) * 123.0 <>                  0.0 or
+       floatExpr(2.0) **               (-150) * 123.0 <>                  8.6179855555976250e-44 or
+       floatExpr(2.0) **               (-100) * 123.0 <>                  9.7029891342184452e-29 or
+       floatExpr(2.0) **                (-50) * 123.0 <>                  1.0924594562311540e-13 or
+       floatExpr(2.0) **                (-40) * 123.0 <>                  1.1186784831807017e-10 or
+       floatExpr(2.0) **                (-30) * 123.0 <>                  1.1455267667770386e-07 or
+       floatExpr(2.0) **                (-20) * 123.0 <>                  1.1730194091796875e-04 or
+       floatExpr(2.0) **                (-10) * 123.0 <>                  0.1201171875 or
+       floatExpr(2.0) **                 (-4) * 123.0 <>                  7.6875 or
+       floatExpr(2.0) **                 (-3) * 123.0 <>                 15.375 or
+       floatExpr(2.0) **                 (-2) * 123.0 <>                 30.75 or
+       floatExpr(2.0) **                 (-1) * 123.0 <>                 61.5 or
+       floatExpr(2.0) **                   0  * 123.0 <>                123.0 or
+       floatExpr(2.0) **                   1  * 123.0 <>                246.0 or
+       floatExpr(2.0) **                   2  * 123.0 <>                492.0 or
+       floatExpr(2.0) **                   3  * 123.0 <>                984.0 or
+       floatExpr(2.0) **                   4  * 123.0 <>               1968.0 or
+       floatExpr(2.0) **                  10  * 123.0 <>             125952.0 or
+       floatExpr(2.0) **                  20  * 123.0 <>          128974848.0 or
+       floatExpr(2.0) **                  30  * 123.0 <>       132070244352.0 or
+       floatExpr(2.0) **                  40  * 123.0 <>    135239930216448.0 or
+       floatExpr(2.0) **                  50  * 123.0 <> 138485688541642752.0 or
+       floatExpr(2.0) **                 100  * 123.0 <>                  1.5592102382807222e+32 or
+       floatExpr(2.0) **                 150  * 123.0 <>                  1.7555146620283307e+47 or
+       floatExpr(2.0) **               32767  * 123.0 <>             Infinity or
+       floatExpr(2.0) **               32768  * 123.0 <>             Infinity or
+       floatExpr(2.0) **          2147483647  * 123.0 <>             Infinity or
+       floatExpr(2.0) **          2147483648  * 123.0 <>             Infinity or
+       floatExpr(2.0) ** 9223372036854775807  * 123.0 <>             Infinity or
+       floatExpr(4.0) **       integer.first  * 123.0 <>                  0.0 or
+       floatExpr(4.0) **        (-2147483649) * 123.0 <>                  0.0 or
+       floatExpr(4.0) **        (-2147483648) * 123.0 <>                  0.0 or
+       floatExpr(4.0) **             (-32769) * 123.0 <>                  0.0 or
+       floatExpr(4.0) **             (-32768) * 123.0 <>                  0.0 or
+       floatExpr(4.0) **               (-150) * 123.0 <>                  6.0381849623162037e-89 or
+       floatExpr(4.0) **               (-100) * 123.0 <>                  7.6543087917692043e-59 or
+       floatExpr(4.0) **                (-50) * 123.0 <>                  9.7029891342184452e-29 or
+       floatExpr(4.0) **                (-40) * 123.0 <>                  1.0174321534402240e-22 or
+       floatExpr(4.0) **                (-30) * 123.0 <>                  1.0668549377257364e-16 or
+       floatExpr(4.0) **                (-20) * 123.0 <>                  1.1186784831807017e-10 or
+       floatExpr(4.0) **                (-10) * 123.0 <>                  1.1730194091796875e-04 or
+       floatExpr(4.0) **                 (-4) * 123.0 <>                  0.48046875 or
+       floatExpr(4.0) **                 (-3) * 123.0 <>                  1.921875 or
+       floatExpr(4.0) **                 (-2) * 123.0 <>                  7.6875 or
+       floatExpr(4.0) **                 (-1) * 123.0 <>                 30.75 or
+       floatExpr(4.0) **                   0  * 123.0 <>                123.0 or
+       floatExpr(4.0) **                   1  * 123.0 <>                492.0 or
+       floatExpr(4.0) **                   2  * 123.0 <>               1968.0 or
+       floatExpr(4.0) **                   3  * 123.0 <>               7872.0 or
+       floatExpr(4.0) **                   4  * 123.0 <>              31488.0 or
+       floatExpr(4.0) **                  10  * 123.0 <>          128974848.0 or
+       floatExpr(4.0) **                  20  * 123.0 <>    135239930216448.0 or
+       floatExpr(4.0) **                  30  * 123.0 <>                  1.4180934506664218e+20 or
+       floatExpr(4.0) **                  40  * 123.0 <>                  1.4869787581259939e+26 or
+       floatExpr(4.0) **                  50  * 123.0 <>                  1.5592102382807222e+32 or
+       floatExpr(4.0) **                 100  * 123.0 <>                  1.9765337944385580e+62 or
+       floatExpr(4.0) **                 150  * 123.0 <>                  2.5055542508914179e+92 or
+       floatExpr(4.0) **               32767  * 123.0 <>             Infinity or
+       floatExpr(4.0) **               32768  * 123.0 <>             Infinity or
+       floatExpr(4.0) **          2147483647  * 123.0 <>             Infinity or
+       floatExpr(4.0) **          2147483648  * 123.0 <>             Infinity or
+       floatExpr(4.0) ** 9223372036854775807  * 123.0 <>             Infinity then
+      writeln(" ***** Multiplication A ** B * C does not work correct. (5)");
+      okay := FALSE;
+    end if;
+
+    if okay then
+      writeln("Multiplication works correct for selected values.");
+    else
+      writeln(" ***** Multiplication does not work correct.");
+    end if;
+  end func;
+
+
 const proc: check_division is func
   begin
     if             0.0  /             1.0  =  0.0  and
@@ -8388,6 +9520,7 @@ const proc: main is func
     check_conversion;
     check_trunc;
     check_add;
+    check_mult;
     check_division;
     check_power;
     check_ipower;

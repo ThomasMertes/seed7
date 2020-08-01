@@ -156,7 +156,7 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
     /* XFlush(mydisplay);
        XSync(mydisplay, 0);
        getchar(); */
-    if (expose_window->backup != 0) {
+    if (expose_window != NULL && expose_window->backup != 0) {
       XCopyArea(mydisplay, expose_window->backup,
           expose_window->window, mygc, xPos, yPos,
           width, height, xPos, yPos);
@@ -165,7 +165,8 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
          printf("yPos + height=%d, to_height(expose_window)=%d\n",
              yPos + height, to_height(expose_window)); */
       if (xPos + width > to_width(expose_window)) {
-        XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
+        XSetForeground(mydisplay, mygc,
+            (unsigned long) to_clear_col(redraw_window));
         if (xPos >= to_width(expose_window)) {
           xClear = xPos;
           clearWidth = width;
@@ -191,7 +192,8 @@ void redraw (winType redraw_window, int xPos, int yPos, int width, int height)
         XFillRectangle(mydisplay, to_window(expose_window), mygc,
             xClear, yPos, clearWidth, height);
       } else if (yPos + height > to_height(expose_window)) {
-        XSetForeground(mydisplay, mygc, to_clear_col(redraw_window));
+        XSetForeground(mydisplay, mygc,
+            (unsigned long) to_clear_col(redraw_window));
         if (yPos >= to_height(expose_window)) {
           yClear = yPos;
           clearHeight = height;
@@ -262,7 +264,8 @@ void configure (XConfigureEvent *xconfigure)
             peekEvent.xexpose.width == xconfigure->width &&
             peekEvent.xexpose.height == xconfigure->height) {
           printf("XExposeEvent x=%d, y=%d, width=%d, height=%d, count=%d\n",
-              peekEvent.xexpose.x, peekEvent.xexpose.y, peekEvent.xexpose.width, peekEvent.xexpose.height, peekEvent.xexpose.count);
+              peekEvent.xexpose.x, peekEvent.xexpose.y, peekEvent.xexpose.width,
+              peekEvent.xexpose.height, peekEvent.xexpose.count);
           /* XNextEvent(mydisplay, &peekEvent); */
         } else {
           printf("peekEvent.type=%d\n", peekEvent.type);
@@ -865,6 +868,9 @@ void drwFree (winType old_window)
       XFreePixmap(mydisplay, to_window(old_window));
     } else {
       XDestroyWindow(mydisplay, to_window(old_window));
+      if (to_backup(old_window) != 0) {
+        XFreePixmap(mydisplay, to_backup(old_window));
+      } /* if */
       remove_window(to_window(old_window));
     } /* if */
     FREE_RECORD(old_window, x11_winRecord, count.win);

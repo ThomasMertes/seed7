@@ -195,7 +195,6 @@ typedef struct ownerStruct {
 
 typedef union {
     posType      pos;           /* SYMBOLOBJECT */
-    nodeType     nodeValue;     /* MDULEOBJECT */
     typeType     typeValue;     /* TYPEOBJECT */
     intType      intValue;      /* INTOBJECT */
     bigIntType   bigIntValue;   /* BIGINTOBJECT */

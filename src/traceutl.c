@@ -1383,13 +1383,6 @@ void trace1 (const_objectType traceobject)
         case FORMPARAMOBJECT:
           printparam(traceobject);
           break;
-#ifdef OUT_OF_ORDER
-        case MODULEOBJECT:
-          prot_cstri("{ ");
-          printnodes(traceobject->value.nodeValue);
-          prot_cstri("}");
-          break;
-#endif
         case TYPEOBJECT:
           printobject(traceobject);
           prot_cstri(" ");

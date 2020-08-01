@@ -169,6 +169,20 @@ objectType ref_alloc (listType arguments)
 
 
 
+objectType ref_alloc_int (listType arguments)
+
+  { /* ref_alloc_int */
+    isit_bool(arg_1(arguments));
+    isit_type(arg_2(arguments));
+    isit_int(arg_3(arguments));
+    return bld_reference_temp(
+        refAllocInt(take_bool(arg_1(arguments)) == SYS_TRUE_OBJECT,
+                     take_type(arg_2(arguments)),
+                     take_int(arg_3(arguments))));
+  } /* ref_alloc_int */
+
+
+
 objectType ref_alloc_stri (listType arguments)
 
   { /* ref_alloc_stri */
@@ -424,36 +438,6 @@ objectType ref_file (listType arguments)
     } /* if */
     return result;
   } /* ref_file */
-
-
-
-objectType ref_find (listType arguments)
-
-  {
-    /* objectType module_object; */
-    objectType result;
-
-  /* ref_find */
-    isit_reference(arg_1(arguments));
-    isit_reference(arg_3(arguments));
-#ifdef OUT_OF_ORDER
-    module_object = take_reference(arg_1(arguments));
-/*  trace2(module_object); */
-    if (CATEGORY_OF_OBJ(module_object) == MODULEOBJECT) {
-/*    printf(" is module\n"); */
-      result = FIND_OBJECT(module_object->value.DECLVALUE,
-          take_reference(arg_3(arguments)));
-      result = NULL;
-/*    trace2(result); */
-    } else {
-/*    printf(" is not module\n"); */
-      result = NULL;
-    } /* if */
-#else
-    result = NULL;
-#endif
-    return bld_reference_temp(result);
-  } /* ref_find */
 
 
 

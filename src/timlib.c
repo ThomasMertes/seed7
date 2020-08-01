@@ -45,6 +45,12 @@
 
 
 
+/**
+ *  Wait until the given time is reached
+ *  @param time_zone/arg_8 Difference to UTC in minutes
+ *                         (for UTC+1 it is 60). The time_zone includes
+ *                         the effect of a daylight saving time.
+ */
 objectType tim_await (listType arguments)
 
   { /* tim_await */
@@ -69,6 +75,12 @@ objectType tim_await (listType arguments)
 
 
 
+/**
+ *  Convert a timestamp into a time from the local time zone.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the local time that corresponds to the timestamp.
+ */
 objectType tim_from_timestamp (listType arguments)
 
   {
@@ -114,6 +126,14 @@ objectType tim_from_timestamp (listType arguments)
 
 
 
+/**
+ *  Determine the current local time.
+ *  @param time_zone/arg_8 Difference to UTC in minutes
+ *                         (for UTC+1 it is 60). The time_zone includes
+ *                         the effect of a daylight saving time.
+ *  @param is_dst/arg_9 Is TRUE, when a daylight saving time is
+ *                      currently in effect.
+ */
 objectType tim_now (listType arguments)
 
   {
@@ -156,6 +176,10 @@ objectType tim_now (listType arguments)
 
 
 
+/**
+ *  Sets timeZone and daylightSavingTime for a given time.
+ *  @return the time in the local time zone.
+ */
 objectType tim_set_local_tz (listType arguments)
 
   {

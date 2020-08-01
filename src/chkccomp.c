@@ -2513,7 +2513,7 @@ static void determineOsFunctions (FILE *versionFile)
                              "{int pipefd[2];\n"
                              "printf(\"%d\\n\", pipe2(pipefd, O_CLOEXEC) == 0);\n"
                              "return 0;}\n") &&
-	    doTest() == 1);
+            doTest() == 1);
   } /* determineOsFunctions */
 
 

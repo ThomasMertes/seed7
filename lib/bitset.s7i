@@ -190,6 +190,21 @@ const proc: excl (inout bitset: aSet, in integer: number)       is action "SET_E
 
 
 (**
+ *  Add or remove ''aValue'' to respectively from ''sSet''.
+ *  Adding an existing value or remove a non-existing value
+ *  leaves ''aSet'' unchanged.
+ *  @exception MEMORY_ERROR When there is not enough memory.
+ *)
+const proc: (inout bitset: aSet) @:= [ (in integer: number) ] (in boolean: isElement) is func
+  begin
+    if isElement then
+      incl(aSet, number);
+    else
+      excl(aSet, number);
+    end if;
+  end func;
+
+(**
  *  Compute the cardinality of a set.
  *  @return the number of elements in ''aSet''.
  *)

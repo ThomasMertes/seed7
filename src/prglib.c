@@ -250,36 +250,6 @@ objectType prg_fil_parse (listType arguments)
 
 
 
-objectType prg_find (listType arguments)
-
-  {
-    /* objectType module_object; */
-    objectType result;
-
-  /* prg_find */
-    isit_reference(arg_1(arguments));
-    isit_reference(arg_3(arguments));
-#ifdef OUT_OF_ORDER
-    module_object = take_reference(arg_1(arguments));
-/*  trace2(module_object); */
-    if (CATEGORY_OF_OBJ(module_object) == MODULEOBJECT) {
-/*    printf(" is module\n"); */
-      result = FIND_OBJECT(module_object->value.DECLVALUE,
-          take_reference(arg_3(arguments)));
-      result = NULL;
-/*    trace2(result); */
-    } else {
-/*    printf(" is not module\n"); */
-      result = NULL;
-    } /* if */
-#else
-    result = NULL;
-#endif
-    return bld_reference_temp(result);
-  } /* prg_find */
-
-
-
 objectType prg_global_objects (listType arguments)
 
   { /* prg_global_objects */

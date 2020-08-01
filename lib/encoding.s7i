@@ -488,7 +488,7 @@ const func string: fromUrlEncoded (in string: urlEncoded) is func
  *  with the characters '!' (encodes 0) through 'u' (encodes 84).
  *  If the last block of the byte string contains fewer than 4 bytes,
  *  the block is padded with up to three null bytes before encoding.
- *  After encoding, as many bytes as were added as padding are removed 
+ *  After encoding, as many bytes as were added as padding are removed
  *  from the end of the output. In files the end of an Ascii85 encoding
  *  is marked with "~>" (this end marker is not added by toAscii85).
  *  @return the Ascii85 encoded string.

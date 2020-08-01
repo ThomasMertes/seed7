@@ -1,3 +1,42 @@
+20160630:
+- The bas7.sd7 (basic interpreter) example program has been improved.
+  Support for CVSMBF, CVDMBF, FLASH, FRE, GR, HGR, HOME, HTAB,
+  INVERSE, NORMAL, TEXT, PR# and VTAB has been added. Support for
+  CLEAR, COLOR, GET, INPUT, LOG, SQR and RUN has been improved.
+  Some keywords can now be used as label.
+- Documentation comments have been added or improved in seversl files.
+- Definitions of the operator @:= have been added to bitset.s7i,
+  bitsetof.s7i and hashsetof.s7i.
+- The compiler has been improved optimize expressions like
+  factor*base**exponent when the base is a power of two.
+- In x509cert.s7i the constant stdCertificate has been improved to
+  have a new validity (until end of 2017).
+- In drw_win.c the function privateConsole has been improved to
+  determine a private console window (A cmd.exe console that was
+  invoked implizit when the program started) more reliable. This
+  avoids that an already existing console (from which the program was
+  started) is accidentally hidden.
+- The function redraw in drw_x11.c has been improved to ignore NULL
+  windows (EXPOSE events can arrive after a window has been freed).
+- The function drwFree in drw_x11.c has been improved to free also the
+  backup pixmap.
+- Compiler and interpreter have been improved to support the action
+  REF_ALLOC_INT.
+- Checks for factor*base**exponent when the base is a power of two
+  have been added to chkflt.sd7.
+- Checks with several summands in a chain and checks of the
+  subtraction of integer.first have been added to chkint.s7i.
+- First steps have been done for a compiler optimization of adding
+  and subtracting several summands in a chain.
+- Occurances of nodeValue and MDULEOBJECT have been removed from
+  interpreter and runtime library.
+- The function prg_find has been removed from prglib.c.
+- The function ref_find has been removed from reflib.c.
+- The support for the actions PRG_FIND and REF_FIND has been removed
+  from the interpreter.
+- Function and variable definitions in setpaths.c and wrdepend.c have
+  been changed to static definitions.
+
 20160531:
 - Documentation comments have been added or improved in many files.
 - The compiler (s7c) has been improved to start C compiler and linker

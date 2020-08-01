@@ -47,6 +47,10 @@
 #endif
 #include "errno.h"
 
+#ifdef UNISTD_H_PRESENT
+#include "unistd.h"
+#endif
+
 #include "common.h"
 #include "os_decls.h"
 #include "rtl_err.h"

@@ -27,6 +27,7 @@
 
 objectType ref_addr          (listType arguments);
 objectType ref_alloc         (listType arguments);
+objectType ref_alloc_int     (listType arguments);
 objectType ref_alloc_stri    (listType arguments);
 objectType ref_arrmaxidx     (listType arguments);
 objectType ref_arrminidx     (listType arguments);
@@ -44,7 +45,6 @@ objectType ref_create        (listType arguments);
 objectType ref_deref         (listType arguments);
 objectType ref_eq            (listType arguments);
 objectType ref_file          (listType arguments);
-objectType ref_find          (listType arguments);
 objectType ref_getref        (listType arguments);
 objectType ref_hashcode      (listType arguments);
 objectType ref_hshdatatolist (listType arguments);

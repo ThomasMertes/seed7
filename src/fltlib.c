@@ -889,6 +889,7 @@ objectType flt_round (listType arguments)
   /* flt_round */
     isit_float(arg_1(arguments));
     number = take_float(arg_1(arguments));
+    logFunction(printf("flt_round(" FMT_E ")\n", number););
     if (unlikely(os_isnan(number) ||
                  number < (floatType) INTTYPE_MIN - 0.5 ||
                  number > (floatType) INTTYPE_MAX + 0.5)) {
@@ -902,6 +903,7 @@ objectType flt_round (listType arguments)
       } else {
         rounded = (intType) (number + 0.5);
       } /* if */
+      logFunction(printf("flt_round --> " FMT_D "\n", rounded););
       return bld_int_temp(rounded);
     } /* if */
   } /* flt_round */

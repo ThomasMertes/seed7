@@ -126,6 +126,159 @@ const array integer: minBaseOfExponent is [2] (
 const array integer: maxBaseOfExponent is [2] (
     3037000499, 2097151, 55108, 6208, 1448, 511, 234, 127,
     78, 52, 38, 28, 22, 18, 15, 13, 11, 9, 8, 7, 7);
+const type: addSubElementType is new struct
+    var boolean: doAdd is TRUE;
+    var reference: summand is NIL;
+    var integer: constSummand is 0;
+  end struct;
+const type: addSubElementListType is array addSubElementType;
+
+
+const func addSubElementListType: getAddSubParamList (in ref_list: params,
+    in boolean: doAdd) is func
+  result
+    var addSubElementListType: addSubParamList is 0 times addSubElementType.value;
+  local
+    var reference: leftParam is NIL;
+    var boolean: concatFound is FALSE;
+    var ref_list: subExprParams is ref_list.EMPTY;
+    var addSubElementType: addSubElement is addSubElementType.value;
+  begin
+    leftParam := params[1];
+    addSubElement.doAdd := doAdd;
+    addSubElement.summand := params[3];
+    addSubParamList := [] (addSubElement);
+    repeat
+      concatFound := FALSE;
+      if category(leftParam) = CALLOBJECT then
+        subExprParams := getValue(leftParam, ref_list);
+        if category(subExprParams[1]) = ACTOBJECT then
+          if str(getValue(subExprParams[1], ACTION)) = "INT_ADD" then
+            leftParam := subExprParams[2];
+            addSubElement.doAdd := TRUE;
+            addSubElement.summand := subExprParams[4];
+            addSubParamList := [] (addSubElement) & addSubParamList;
+            concatFound := TRUE;
+          elsif str(getValue(subExprParams[1], ACTION)) = "INT_SBTR" then
+            leftParam := subExprParams[2];
+            addSubElement.doAdd := FALSE;
+            addSubElement.summand := subExprParams[4];
+            addSubParamList := [] (addSubElement) & addSubParamList;
+            concatFound := TRUE;
+          end if;
+        end if;
+      end if;
+    until not concatFound;
+    addSubElement.doAdd := TRUE;
+    addSubElement.summand := leftParam;
+    addSubParamList := [] (addSubElement) & addSubParamList;
+  end func;
+
+
+const proc: summarizeConstants (inout addSubElementListType: addSubParamList) is func
+  local
+    var integer: index is 1;
+    var integer: paramValue is 0;
+    var bigInteger: bigSum is 0_;
+  begin
+    while index <= length(addSubParamList) do
+      if addSubParamList[index].summand = NIL then
+        paramValue := addSubParamList[index].constSummand;
+        if paramValue = 0 then
+          # Zero elements are removed.
+          incr(countOptimizations);
+          ignore(remove(addSubParamList, index));
+        elsif index < length(addSubParamList) and
+            addSubParamList[succ(index)].summand = NIL then
+          # Two consecutive constant integers are added or subtracted at compile time.
+          incr(countOptimizations);
+          if addSubParamList[index].doAdd then
+            bigSum := bigInteger conv paramValue;
+          else
+            bigSum := -bigInteger conv paramValue;
+          end if;
+          if addSubParamList[succ(index)].doAdd then
+            bigSum +:= bigInteger conv (addSubParamList[succ(index)].constSummand);
+          else
+            bigSum -:= bigInteger conv (addSubParamList[succ(index)].constSummand);
+          end if;
+          if bigSum > bigInteger conv (integer.first) and bigSum < 0_ then
+            if index > 1 then
+              addSubParamList[index].doAdd := FALSE;
+              addSubParamList[index].constSummand := -ord(bigSum);
+            else
+              addSubParamList[index].doAdd := TRUE;
+              addSubParamList[index].constSummand := ord(bigSum);
+            end if;
+            ignore(remove(addSubParamList, succ(index)));
+          elsif bigSum > 0_ and bigSum <= bigInteger conv (integer.last) then
+            addSubParamList[index].doAdd := TRUE;
+            addSubParamList[index].constSummand := ord(bigSum);
+            ignore(remove(addSubParamList, succ(index)));
+          elsif bigSum = 0_ then
+            ignore(remove(addSubParamList, index));
+            ignore(remove(addSubParamList, index));
+          elsif bigSum = bigInteger conv (integer.first) then
+            addSubParamList[index].doAdd := TRUE;
+            addSubParamList[index].constSummand := integer.first;
+            ignore(remove(addSubParamList, succ(index)));
+          elsif bigSum = -bigInteger conv (integer.first) then
+            if index > 1 then
+              addSubParamList[index].doAdd := FALSE;
+              addSubParamList[index].constSummand := integer.first;
+              ignore(remove(addSubParamList, succ(index)));
+            else
+              incr(index);
+            end if;
+          else
+            incr(index);
+          end if;
+        else
+          incr(index);
+        end if;
+      else
+        incr(index);
+      end if;
+    end while;
+  end func;
+
+
+const proc: evaluateConstants (inout addSubElementListType: addSubParamList) is func
+  local
+    var integer: index is 1;
+    var reference: evaluatedParam is NIL;
+    var integer: paramValue is 0;
+  begin
+    for key index range addSubParamList do
+      if getConstant(addSubParamList[index].summand, INTOBJECT, evaluatedParam) then
+        paramValue := getValue(evaluatedParam, integer);
+        addSubParamList[index].summand := NIL;
+        if paramValue > integer.first and paramValue < 0 then
+          addSubParamList[index].doAdd := not addSubParamList[index].doAdd;
+          addSubParamList[index].constSummand := -paramValue;
+        else
+          addSubParamList[index].constSummand := paramValue;
+        end if;
+      end if;
+    end for;
+  end func;
+
+
+const proc: computeConstants (inout addSubElementListType: addSubParamList) is func
+  begin
+    summarizeConstants(addSubParamList);
+    if length(addSubParamList) >= 2 and
+        addSubParamList[1].doAdd and addSubParamList[1].summand = NIL and
+        addSubParamList[2].doAdd and addSubParamList[2].summand <> NIL then
+      # Exchange the first and the second summand.
+      # This way constants before and after the first expression can be combined.
+      # Other summands cannot be exchanged without changing overflow behavior.
+      addSubParamList[1].summand := addSubParamList[2].summand;
+      addSubParamList[2].summand := NIL;
+      addSubParamList[2].constSummand := addSubParamList[1].constSummand;
+      summarizeConstants(addSubParamList);
+    end if;
+  end func;
 
 
 const func boolean: constValueIsEqual (in reference: anExpr, in integer: number) is func
@@ -348,35 +501,27 @@ const proc: process_const_int_add (in reference: summand1, in integer: summand2,
   end func;
 
 
-const proc: process (INT_ADD, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_const_int_sbtr (in reference: minuend, in integer: subtrahend,
+    inout expr_type: c_expr) is forward;
+const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahend,
+    inout expr_type: c_expr) is forward;
+const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
+    inout expr_type: c_expr) is forward;
+
+
+const proc: process_int_add (in reference: summand1, in reference: summand2,
+    inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam is NIL;
     var string: summand1_name is "";
     var string: summand2_name is "";
-    var string: sum_name is "";
   begin
-    if getConstant(params[3], INTOBJECT, evaluatedParam) then
-      process_const_int_add(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
-      process_const_int_add(params[3], getValue(evaluatedParam, integer), c_expr);
-    elsif evaluate_const_expr = 0 and
-          category(params[3]) = INTOBJECT and not isVar(params[3]) and
-          getValue(params[3], integer) = integer.first then
-      # Special case to avoid a compiler error of icc.
-      process_const_int_add(params[1], integer.first, c_expr);
-    elsif evaluate_const_expr = 0 and
-          category(params[1]) = INTOBJECT and not isVar(params[1]) and
-          getValue(params[1], integer) = integer.first then
-      # Special case to avoid a compiler error of icc.
-      process_const_int_add(params[3], integer.first, c_expr);
-    elsif check_int_arithmetic_overflow then
+    if check_int_arithmetic_overflow then
       incr(countOverflowChecks);
       c_expr.expr &:= "(";
-      if params[1] = params[3] then
+      if summand1 = summand2 then
         incr(countOptimizations);
-        summand1_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
+        summand1_name := getParameterAsVariable("intType", "tmp_", summand1, c_expr);
         c_expr.expr &:= "ovfChk(";
         checkIfOutsideRange(summand1_name, integer.first div 2,
                             integer.last div 2, c_expr);
@@ -387,8 +532,8 @@ const proc: process (INT_ADD, in reference: function,
         c_expr.expr &:= " + ";
         c_expr.expr &:= summand1_name;
       else
-        summand1_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-        summand2_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
+        summand1_name := getParameterAsVariable("intType", "tmp_", summand1, c_expr);
+        summand2_name := getParameterAsVariable("intType", "tmp_", summand2, c_expr);
         c_expr.expr &:= "ovfChk(";
         c_expr.expr &:= summand2_name;
         c_expr.expr &:= "<0&&";
@@ -415,10 +560,156 @@ const proc: process (INT_ADD, in reference: function,
       c_expr.expr &:= ")";
     else
       c_expr.expr &:= "(";
-      process_expr(params[1], c_expr);
+      process_expr(summand1, c_expr);
       c_expr.expr &:= ") + (";
-      process_expr(params[3], c_expr);
+      process_expr(summand2, c_expr);
       c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: optimize_int_add (in addSubElementListType: addSubParamList,
+    inout expr_type: c_expr) is func
+
+  local
+    var reference: summand2 is NIL;
+    var string: summand1_name is "";
+    var string: summand2_name is "";
+    var integer: index is 1;
+    var expr_type: c_param1 is expr_type.value;
+  begin
+    if length(addSubParamList) >= 3 then
+      incr(countOptimizations);
+(*
+      if check_int_arithmetic_overflow then
+        incr(countOverflowChecks);
+        summand1_name := defineTempVariable("intType", "tmp_", c_expr);
+        c_expr.expr &:= summand1_name;
+        c_expr.expr &:= "=";
+        optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], c_expr);
+        c_expr.expr &:= ",";
+        summand2 := addSubParamList[length(addSubParamList)].summand;
+        if summand2 <> NIL then
+          summand2_name := getParameterAsVariable("intType", "tmp_", summand2, c_expr);
+        end if;
+        c_expr.expr &:= "ovfChk(";
+        c_expr.expr &:= summand1_name;
+
+      else
+        c_expr.expr &:= "(";
+        optimize_int_add(addSubParamList[.. pred(length(addSubParamList))], c_expr);
+        if addSubParamList[length(addSubParamList)].doAdd then
+          c_expr.expr &:= ") + ";
+        else
+          c_expr.expr &:= ") - ";
+        end if;
+        if addSubParamList[length(addSubParamList)].summand = NIL then
+          c_expr.expr &:= integerLiteral(addSubParamList[length(addSubParamList)].constSummand);
+        else
+          c_expr.expr &:= "(";
+          process_expr(addSubParamList[length(addSubParamList)].summand, c_expr);
+          c_expr.expr &:= ")";
+        end if;
+      end if;
+*)
+    elsif length(addSubParamList) = 2 then
+      if not addSubParamList[1].doAdd then
+        writeln(" ***** Problem in optimize_int_add");
+      elsif addSubParamList[2].doAdd then
+        if addSubParamList[1].summand = NIL then
+          if addSubParamList[2].summand = NIL then
+            block
+              c_expr.expr &:= integerLiteral(addSubParamList[1].constSummand +
+                                             addSubParamList[2].constSummand);
+            exception
+              catch OVERFLOW_ERROR:
+                warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+                c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+            end block;
+          else
+            process_const_int_add(addSubParamList[2].summand,
+                addSubParamList[1].constSummand, c_expr);
+          end if;
+        elsif addSubParamList[2].summand = NIL then
+          process_const_int_add(addSubParamList[1].summand,
+              addSubParamList[2].constSummand, c_expr);
+        else
+          process_int_add(addSubParamList[1].summand, addSubParamList[2].summand, c_expr);
+        end if;
+      else
+        if addSubParamList[1].summand = NIL then
+          if addSubParamList[2].summand = NIL then
+            block
+              c_expr.expr &:= integerLiteral(addSubParamList[1].constSummand -
+                                             addSubParamList[2].constSummand);
+            exception
+              catch OVERFLOW_ERROR:
+                warning(DOES_RAISE, "OVERFLOW_ERROR", c_expr);
+                c_expr.expr &:= intRaiseError("OVERFLOW_ERROR");
+            end block;
+          else
+            process_const_int_sbtr(addSubParamList[1].constSummand,
+                addSubParamList[2].summand, c_expr);
+          end if;
+        elsif addSubParamList[2].summand = NIL then
+          process_const_int_sbtr(addSubParamList[1].summand,
+              addSubParamList[2].constSummand, c_expr);
+        else
+          process_int_sbtr(addSubParamList[1].summand, addSubParamList[2].summand, c_expr);
+        end if;
+      end if;
+    elsif length(addSubParamList) = 1 then
+      incr(countOptimizations);
+      if addSubParamList[1].summand = NIL then
+        c_expr.expr &:= integerLiteral(addSubParamList[1].constSummand);
+      else
+        process_expr(addSubParamList[1].summand, c_expr);
+      end if;
+    else
+      incr(countOptimizations);
+      c_expr.expr &:= integerLiteral(0);
+    end if;
+  end func;
+
+
+const proc: optimize_int_add (in ref_list: params, in boolean: doAdd,
+    inout expr_type: c_expr) is func
+
+  local
+    var addSubElementListType: addSubParamList is 0 times addSubElementType.value;
+    var integer: index is 0;
+  begin
+    addSubParamList := getAddSubParamList(params, doAdd);
+    evaluateConstants(addSubParamList);
+    computeConstants(addSubParamList);
+    optimize_int_add(addSubParamList, c_expr);
+  end func;
+
+
+const proc: process (INT_ADD, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+  begin
+    if FALSE and evaluate_const_expr >= 1 then
+      optimize_int_add(params, TRUE, c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_add(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_add(params[3], getValue(evaluatedParam, integer), c_expr);
+    elsif evaluate_const_expr = 0 and
+          category(params[3]) = INTOBJECT and not isVar(params[3]) and
+          getValue(params[3], integer) = integer.first then
+      # Special case to avoid a compiler error of icc.
+      process_const_int_add(params[1], integer.first, c_expr);
+    elsif evaluate_const_expr = 0 and
+          category(params[1]) = INTOBJECT and not isVar(params[1]) and
+          getValue(params[1], integer) = integer.first then
+      # Special case to avoid a compiler error of icc.
+      process_const_int_add(params[3], integer.first, c_expr);
+    else
+      process_int_add(params[1], params[3], c_expr);
     end if;
   end func;
 
@@ -3282,27 +3573,22 @@ const proc: process_const_int_sbtr (in integer: minuend, in reference: subtrahen
   end func;
 
 
-const proc: process (INT_SBTR, in reference: function,
-    in ref_list: params, inout expr_type: c_expr) is func
+const proc: process_int_sbtr (in reference: minuend, in reference: subtrahend,
+    inout expr_type: c_expr) is func
 
   local
-    var reference: evaluatedParam is NIL;
     var string: minuend_name is "";
     var string: subtrahend_name is "";
   begin
-    if getConstant(params[3], INTOBJECT, evaluatedParam) then
-      process_const_int_sbtr(params[1], getValue(evaluatedParam, integer), c_expr);
-    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
-      process_const_int_sbtr(getValue(evaluatedParam, integer), params[3], c_expr);
-    elsif check_int_arithmetic_overflow then
-      if params[1] = params[3] then
+    if check_int_arithmetic_overflow then
+      if minuend = subtrahend then
         incr(countOptimizations);
         c_expr.expr &:= "0";
       else
         incr(countOverflowChecks);
         c_expr.expr &:= "(";
-        minuend_name := getParameterAsVariable("intType", "tmp_", params[1], c_expr);
-        subtrahend_name := getParameterAsVariable("intType", "tmp_", params[3], c_expr);
+        minuend_name := getParameterAsVariable("intType", "tmp_", minuend, c_expr);
+        subtrahend_name := getParameterAsVariable("intType", "tmp_", subtrahend, c_expr);
         c_expr.expr &:= "ovfChk(";
         c_expr.expr &:= subtrahend_name;
         c_expr.expr &:= "<0&&";
@@ -3329,10 +3615,30 @@ const proc: process (INT_SBTR, in reference: function,
       end if;
     else
       c_expr.expr &:= "(";
-      process_expr(params[1], c_expr);
+      process_expr(minuend, c_expr);
       c_expr.expr &:= ") - (";
-      process_expr(params[3], c_expr);
+      process_expr(subtrahend, c_expr);
       c_expr.expr &:= ")";
+    end if;
+  end func;
+
+
+const proc: process (INT_SBTR, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  local
+    var reference: evaluatedParam is NIL;
+    var string: minuend_name is "";
+    var string: subtrahend_name is "";
+  begin
+    if FALSE and evaluate_const_expr >= 1 then
+      optimize_int_add(params, FALSE, c_expr);
+    elsif getConstant(params[3], INTOBJECT, evaluatedParam) then
+      process_const_int_sbtr(params[1], getValue(evaluatedParam, integer), c_expr);
+    elsif getConstant(params[1], INTOBJECT, evaluatedParam) then
+      process_const_int_sbtr(getValue(evaluatedParam, integer), params[3], c_expr);
+    else
+      process_int_sbtr(params[1], params[3], c_expr);
     end if;
   end func;
 

@@ -98,7 +98,6 @@ typedef union {
   /* This allows initialisations of rtlValueUnion values. */
     genericType      genericValue;
 /*    posType          pos;            ** SYMBOLOBJECT */
-/*    nodeType         nodeValue;      ** MDULEOBJECT */
     boolType         boolValue;
     rtlTypeType      typeValue;      /* TYPEOBJECT */
     intType          intValue;       /* INTOBJECT */

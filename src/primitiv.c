@@ -679,7 +679,6 @@ static const actEntryRecord actEntryTable[] = {
     { "PRG_EVAL",                prg_eval,                },
     { "PRG_EXEC",                prg_exec,                },
     { "PRG_FIL_PARSE",           prg_fil_parse,           },
-    { "PRG_FIND",                prg_find,                },
     { "PRG_GLOBAL_OBJECTS",      prg_global_objects,      },
     { "PRG_MATCH",               prg_match,               },
     { "PRG_MATCH_EXPR",          prg_match_expr,          },
@@ -697,6 +696,7 @@ static const actEntryRecord actEntryTable[] = {
 #ifdef WITH_REFERENCE
     { "REF_ADDR",                ref_addr,                },
     { "REF_ALLOC",               ref_alloc,               },
+    { "REF_ALLOC_INT",           ref_alloc_int,           },
     { "REF_ALLOC_STRI",          ref_alloc_stri,          },
     { "REF_ARRMAXIDX",           ref_arrmaxidx,           },
     { "REF_ARRMINIDX",           ref_arrminidx,           },
@@ -713,7 +713,6 @@ static const actEntryRecord actEntryTable[] = {
     { "REF_DEREF",               ref_deref,               },
     { "REF_EQ",                  ref_eq,                  },
     { "REF_FILE",                ref_file,                },
-    { "REF_FIND",                ref_find,                },
     { "REF_GETREF",              ref_getref,              },
     { "REF_HASHCODE",            ref_hashcode,            },
     { "REF_HSHDATATOLIST",       ref_hshdatatolist,       },

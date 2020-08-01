@@ -147,6 +147,12 @@ time_t unchecked_mkutc (struct tm *timeptr)
 
 
 
+/**
+ *  Convert a timestamp into a time from the local time zone.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the local time that corresponds to the timestamp.
+ */
 void timFromTimestamp (time_t timestamp,
     intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,
@@ -192,6 +198,12 @@ void timFromTimestamp (time_t timestamp,
 
 
 
+/**
+ *  Convert a timestamp into a time from the local time zone.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the local time that corresponds to the timestamp.
+ */
 void timFromIntTimestamp (intType timestamp,
     intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,
@@ -208,6 +220,12 @@ void timFromIntTimestamp (intType timestamp,
 
 
 
+/**
+ *  Convert a time with time_zone to a timestamp.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the timestamp that corresponds to the time.
+ */
 time_t timToTimestamp (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
@@ -241,6 +259,10 @@ time_t timToTimestamp (intType year, intType month, intType day, intType hour,
 
 
 
+/**
+ *  Sets timeZone and daylightSavingTime for a given time.
+ *  @return the time in the local time zone.
+ */
 void timSetLocalTZ (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType *time_zone, boolType *is_dst)
 
@@ -325,6 +347,12 @@ void timSetLocalTZ (intType year, intType month, intType day, intType hour,
 
 
 
+/**
+ *  Convert a bigInteger timestamp into a time from the local time zone.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the local time that corresponds to the timestamp.
+ */
 void timFromBigTimestamp (const const_bigIntType timestamp,
     intType *year, intType *month, intType *day, intType *hour,
     intType *min, intType *sec, intType *micro_sec, intType *time_zone,
@@ -345,6 +373,12 @@ void timFromBigTimestamp (const const_bigIntType timestamp,
 
 
 
+/**
+ *  Convert a time with time_zone to a bigInteger timestamp.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the timestamp that corresponds to the time.
+ */
 bigIntType timToBigTimestamp (intType year, intType month, intType day, intType hour,
     intType min, intType sec, intType micro_sec, intType time_zone)
 
