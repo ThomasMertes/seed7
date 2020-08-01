@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  drw_dos.c     Graphic access using the dos capabilitys.         */
+/*  drw_dos.c     Graphic access using the dos capabilities.        */
 /*  Copyright (C) 1989 - 2006  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_dos.c                                       */
 /*  Changes: 1994  Thomas Mertes                                    */
-/*  Content: Graphic access using the dos capabilitys.              */
+/*  Content: Graphic access using the dos capabilities.             */
 /*                                                                  */
 /********************************************************************/
 

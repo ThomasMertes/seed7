@@ -45,8 +45,8 @@ typedef struct {
 os_stritype *getUtf16Argv (int *w_argc);
 void freeUtf16Argv (os_stritype *w_argv);
 stritype getExecutablePath (const const_stritype arg_0);
-#ifdef USE_WGETENV_WSTRI
-os_stritype wgetenv_wstri (os_stritype name);
+#ifdef DEFINE_WGETENV
+os_stritype wgetenv (os_stritype name);
 #endif
 #ifdef DEFINE_WSETENV
 int wsetenv (os_stritype name, os_stritype value, int overwrite);
@@ -60,8 +60,8 @@ volumeListType *openVolumeList (void);
 os_stritype *getUtf16Argv ();
 void freeUtf16Argv ();
 stritype getExecutablePath ();
-#ifdef USE_WGETENV_WSTRI
-os_stritype wgetenv_wstri ();
+#ifdef DEFINE_WGETENV
+os_stritype wgetenv ();
 #endif
 #ifdef DEFINE_WSETENV
 int wsetenv ();

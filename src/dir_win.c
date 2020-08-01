@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_win.c     Directory access using the windows capabilitys.   */
+/*  dir_win.c     Directory access using the windows capabilities.  */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */

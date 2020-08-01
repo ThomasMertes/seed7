@@ -730,25 +730,25 @@ THE VERSION.H FILE
                         a SIGALRM signal. Only one #define of
                         AWAIT_WITH_xxx is allowed.
 
-  OS_PATH_WCHAR: Defined when the system calls (os_...) use
-                 wide characters (type wchar_t) for the
-                 parameters describing a path. In this case
+  OS_STRI_WCHAR: Defined when the system calls (os_...)
+                 use wide characters (type wchar_t) for
+                 string and path parameters. In this case
                  functions like _wgetcwd(), wreaddir() and
                  _wstati64() together with types like 'WDIR',
                  'wdirent' and 'struct _stati64' must be used.
                  It is therefore necessary to define the os_...
                  macros accordingly.
 
-  OS_PATH_UTF8: Defined when the system calls (os_...) use
-                UTF-8 characters (type char) for the parameters
-                describing a path. In this case functions like
+  OS_STRI_UTF8: Defined when the system calls (os_...) use
+                UTF-8 characters (type char) for string and
+                path parameters. In this case functions like
                 getcwd(), readdir() and stat() together with
                 types like 'DIR', 'dirent' and 'struct stat'
                 must be used. When this functions and types do
                 not use the POSIX/SUS names it is necessary to
                 define the os_... macros accordingly.
 
-  OS_PATH_USES_CODEPAGE: Defined when the system calls (os_...)
+  OS_STRI_USES_CODEPAGE: Defined when the system calls (os_...)
                          use characters (type char) encoded
                          with a codepage (only the codepages
                          437 and 850 are supported). In this
@@ -839,9 +839,9 @@ THE VERSION.H FILE
             target operating system. If not defined rename() is
             used.
 
-  USE_WFOPEN: Use the function _wfopen() to open files with
-              wide (unicode) characters instead of fopen() with
-              UTF-8 encoded characters.
+  os_fopen: Function to be used instead of fopen() under the
+            target operating system. If not defined fopen() is
+            used.
 
   USE_WINSOCK: Use thw winsocket functions instead of the
                normal Unix socket functions.

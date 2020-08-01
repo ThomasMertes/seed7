@@ -97,12 +97,14 @@ DRAW_LIB_SRC = drw_win.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS) -o ..\bin\hi
-	copy ..\bin\hi.exe ..\prg /Y
+hi: ..\bin\hi.exe ..\prg\hi.exe
 	..\bin\hi level
 
-hi: ..\bin\hi.exe
+..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS) -o ..\bin\hi
+
+..\prg\hi.exe: ..\bin\hi.exe
+	copy ..\bin\hi.exe ..\prg /Y
 
 clear: clean
 
@@ -115,6 +117,7 @@ clean:
 	del d_depend
 	del *.o
 	del ..\bin\*.a
+	del ..\prg\hi.exe
 
 dep: depend
 
@@ -128,7 +131,7 @@ version.h:
 	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define USE_ALTERNATE_UTIME >> version.h
-	echo #define OS_PATH_WCHAR >> version.h
+	echo #define OS_STRI_WCHAR >> version.h
 	echo #define os_chdir _wchdir >> version.h
 	echo #define os_getcwd _wgetcwd >> version.h
 	echo #define os_mkdir(path,mode) _wmkdir(path) >> version.h
@@ -152,7 +155,7 @@ version.h:
 	echo #define os_system _wsystem >> version.h
 	echo #define os_pclose _pclose >> version.h
 	echo #define os_popen _wpopen >> version.h
-	echo #define wide_fopen _wfopen >> version.h
+	echo #define os_fopen _wfopen >> version.h
 	echo #define os_fseek fseeko64 >> version.h
 	echo #define os_ftell ftello64 >> version.h
 	echo #define os_off_t off64_t >> version.h

@@ -38,7 +38,7 @@ extern const_cstritype cstri_escape_sequence[];
 #define cstri_expand(stri,cstri,size) ustri_expand(stri, (const_ustritype) cstri, size)
 
 
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 typedef wchar_t         *wstritype;
 typedef const wchar_t   *const_wstritype;
 

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  drw_win.c     Graphic access using the windows capabilitys.     */
+/*  drw_win.c     Graphic access using the windows capabilities.    */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/drw_win.c                                       */
 /*  Changes: 2005 - 2007  Thomas Mertes                             */
-/*  Content: Graphic access using the windows capabilitys.          */
+/*  Content: Graphic access using the windows capabilities.         */
 /*                                                                  */
 /********************************************************************/
 
@@ -245,7 +245,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           EndPaint(paint_window->hWnd, &paintStruct);
         } else {
           printf("paint_window=%lu, backup_hdc=%lu\n",
-              paint_window, paint_window->backup_hdc);
+              (long unsigned int) paint_window,
+              (long unsigned int) paint_window->backup_hdc);
         } /* if */
         result = 0;
         break;
@@ -303,7 +304,8 @@ LRESULT CALLBACK WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
           } /* if */
         } else {
           printf("paint_window=%lu, backup_hdc=%lu\n",
-              paint_window, paint_window->backup_hdc);
+              (long unsigned int) paint_window,
+              (long unsigned int) paint_window->backup_hdc);
         } /* if */
         result = 1;
         break;

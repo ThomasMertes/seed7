@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  tim_unx.c     Time access using the unix capabilitys.           */
+/*  tim_unx.c     Time access using the unix capabilities.          */
 /*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_unx.c                                       */
 /*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
-/*  Content: Time access using the unix capabilitys.                */
+/*  Content: Time access using the unix capabilities.               */
 /*                                                                  */
 /********************************************************************/
 

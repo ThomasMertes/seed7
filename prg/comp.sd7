@@ -41,6 +41,7 @@ const boolean: RSHIFT_DOES_SIGN_EXTEND  is boolean parse configValue("RSHIFT_DOE
 const boolean: TWOS_COMPLEMENT_INTTYPE  is boolean parse configValue("TWOS_COMPLEMENT_INTTYPE");
 const boolean: LITTLE_ENDIAN_INTTYPE    is boolean parse configValue("LITTLE_ENDIAN_INTTYPE");
 const boolean: USE_SIGSETJMP            is boolean parse configValue("USE_SIGSETJMP");
+const boolean: SIGILL_ON_OVERFLOW       is boolean parse configValue("SIGILL_ON_OVERFLOW");
 const boolean: FLOAT_ZERO_DIV_ERROR     is boolean parse configValue("FLOAT_ZERO_DIV_ERROR");
 const boolean: ISNAN_WITH_UNDERLINE     is boolean parse configValue("ISNAN_WITH_UNDERLINE");
 const boolean: CHECK_INT_DIV_BY_ZERO    is boolean parse configValue("CHECK_INT_DIV_BY_ZERO");
@@ -626,21 +627,30 @@ const func boolean: isNormalVariable (in reference: a_param) is
       REFPARAMOBJECT, VALUEPARAMOBJECT, LOCALVOBJECT, RESULTOBJECT};
 
 
+const func string: raiseError (in string: exceptionName) is func
+
+  result
+    var string: expr is "";
+  begin
+    expr &:= "int_raise_error(";
+    expr &:= exceptionName;
+    expr &:= ", __FILE__, __LINE__)";
+  end func;
+
+
 const proc: process_raise_error (in string: exceptionName, in reference: function, inout expr_type: c_expr) is func
 
   begin
     if function <> NIL then
-      c_expr.expr &:= "(raise_error2(";
+      c_expr.expr &:= "int_raise_error(";
       c_expr.expr &:= exceptionName;
       c_expr.expr &:= ", ";
       c_expr.expr &:= sourceNameString(file(function));
       c_expr.expr &:= ", ";
       c_expr.expr &:= str(line(function));
-      c_expr.expr &:= "),0)";
+      c_expr.expr &:= ")";
     else
-      c_expr.expr &:= "(raise_error(";
-      c_expr.expr &:= exceptionName;
-      c_expr.expr &:= "),0)";
+      c_expr.expr &:= raiseError(exceptionName);
     end if;
   end func;
 
@@ -8982,7 +8992,7 @@ const proc: process_const_int_div (in reference: param1, in integer: divisor,
   begin
     if divisor = 0 then
       incr(countOptimizations);
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif category(param1) = INTOBJECT and not isVar(param1) then
       incr(countOptimizations);
       c_expr.expr &:= str(getValue(param1, integer) div divisor);
@@ -9015,7 +9025,9 @@ const proc: process_const_int_div (in integer: dividend, in reference: param3,
       incr(countOptimizations);
       c_expr.expr &:= "((";
       process_expr(param3, c_expr);
-      c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
+      c_expr.expr &:= ")==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
     elsif CHECK_INT_DIV_BY_ZERO then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -9028,7 +9040,9 @@ const proc: process_const_int_div (in integer: dividend, in reference: param3,
       process_expr(param3, c_expr);
       c_expr.expr &:= ",tmp_b_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):";
+      c_expr.expr &:= "==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
       c_expr.expr &:= str(dividend);
       c_expr.expr &:= " / tmp_b_";
       c_expr.expr &:= str(temp_num);
@@ -9063,7 +9077,9 @@ const proc: process_int_div (in ref_list: params, inout expr_type: c_expr) is fu
       process_expr(params[3], c_expr);
       c_expr.expr &:= ",tmp_b_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+      c_expr.expr &:= "==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") / tmp_b_";
       c_expr.expr &:= str(temp_num);
@@ -9108,7 +9124,9 @@ const proc: process_int_fact (in ref_list: params, inout expr_type: c_expr) is f
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "<0||tmp_";
     c_expr.expr &:= str(temp_num);
-    c_expr.expr &:= ">12?(raise_error(NUMERIC_ERROR),0):fact[tmp_";
+    c_expr.expr &:= ">12?";
+    c_expr.expr &:= raiseError("NUMERIC_ERROR");
+    c_expr.expr &:= ":fact[tmp_";
     c_expr.expr &:= str(temp_num);
     c_expr.expr &:= "]))";
   end func;
@@ -9231,7 +9249,7 @@ const proc: process_const_int_lshift (in reference: param1, in integer: number,
   begin
     if number < 0 then
       incr(countOptimizations);
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif number >= 32 then
       incr(countOptimizations);
       c_expr.expr &:= "0";
@@ -9311,7 +9329,7 @@ const proc: process_const_int_mdiv (in reference: param1, in integer: divisor,
   begin
     incr(countOptimizations);
     if divisor = 0 then
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif category(param1) = INTOBJECT and not isVar(param1) then
       c_expr.expr &:= str(getValue(param1, integer) mdiv divisor);
     elsif divisor = 1 then
@@ -9394,7 +9412,9 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: param3,
     if dividend = 0 then
       c_expr.expr &:= "((";
       process_expr(param3, c_expr);
-      c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
+      c_expr.expr &:= ")==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -9422,7 +9442,9 @@ const proc: process_const_int_mdiv (in integer: dividend, in reference: param3,
       if CHECK_INT_DIV_BY_ZERO then
         c_expr.expr &:= "tmp_b_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):";
+        c_expr.expr &:= "==0?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
       end if;
       c_expr.expr &:= str(dividend);
       c_expr.expr &:= "/tmp_b_";
@@ -9479,7 +9501,9 @@ const proc: process_int_mdiv (in ref_list: params, inout expr_type: c_expr) is f
       if CHECK_INT_DIV_BY_ZERO then
         c_expr.expr &:= "tmp_b_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):";
+        c_expr.expr &:= "==0?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":";
       end if;
       c_expr.expr &:= "tmp_a_";
       c_expr.expr &:= str(temp_num);
@@ -9507,7 +9531,7 @@ const proc: process_const_int_mod (in reference: param1, in integer: divisor,
   begin
     incr(countOptimizations);
     if divisor = 0 then
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif category(param1) = INTOBJECT and not isVar(param1) then
       c_expr.expr &:= str(getValue(param1, integer) mod divisor);
     elsif divisor = 1 or divisor = -1 then
@@ -9569,7 +9593,9 @@ const proc: process_const_int_mod (in integer: dividend, in reference: param3,
     if dividend = 0 then
       c_expr.expr &:= "((";
       process_expr(param3, c_expr);
-      c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
+      c_expr.expr &:= ")==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
     else
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -9588,7 +9614,9 @@ const proc: process_const_int_mod (in integer: dividend, in reference: param3,
       if CHECK_INT_DIV_BY_ZERO then
         c_expr.expr &:= "tmp_b_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+        c_expr.expr &:= "==0?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":(";
       end if;
       c_expr.expr &:= "tmp_c_";
       c_expr.expr &:= str(temp_num);
@@ -9667,7 +9695,9 @@ const proc: process_int_mod (in ref_list: params, inout expr_type: c_expr) is fu
       if CHECK_INT_DIV_BY_ZERO then
         c_expr.expr &:= "tmp_b_";
         c_expr.expr &:= str(temp_num);
-        c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+        c_expr.expr &:= "==0?";
+        c_expr.expr &:= raiseError("NUMERIC_ERROR");
+        c_expr.expr &:= ":(";
       end if;
       c_expr.expr &:= "tmp_c_";
       c_expr.expr &:= str(temp_num);
@@ -9792,7 +9822,7 @@ const proc: process_const_int_pow (in reference: param1, in integer: exponent,
   begin
     if exponent < 0 then
       incr(countOptimizations);
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif category(param1) = INTOBJECT and not isVar(param1) then
       incr(countOptimizations);
       c_expr.expr &:= str(getValue(param1, integer) ** exponent);
@@ -9847,7 +9877,9 @@ const proc: process_const_int_pow (in integer: base, in reference: param3,
       process_expr(param3, c_expr);
       c_expr.expr &:= ",tmp_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "<0?(raise_error(NUMERIC_ERROR),0):1-((tmp_";
+      c_expr.expr &:= "<0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":1-((tmp_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "&1)<<1))";
     elsif base = 0 then
@@ -9863,7 +9895,9 @@ const proc: process_const_int_pow (in integer: base, in reference: param3,
       process_expr(param3, c_expr);
       c_expr.expr &:= ",tmp_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "<0?(raise_error(NUMERIC_ERROR),0):(tmp_";
+      c_expr.expr &:= "<0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":(tmp_";
       c_expr.expr &:= str(temp_num);
       c_expr.expr &:= "==0?";
       c_expr.expr &:= integerLiteral(1);
@@ -9874,7 +9908,9 @@ const proc: process_const_int_pow (in integer: base, in reference: param3,
       incr(countOptimizations);
       c_expr.expr &:= "((";
       process_expr(param3, c_expr);
-      c_expr.expr &:= ")<0?(raise_error(NUMERIC_ERROR),0):";
+      c_expr.expr &:= ")<0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
       c_expr.expr &:= integerLiteral(1);
       c_expr.expr &:= ")";
     elsif base = 2 then
@@ -9890,7 +9926,9 @@ const proc: process_const_int_pow (in integer: base, in reference: param3,
       process_expr(param3, c_expr);
       c_expr.expr &:= ",tmp_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "<0?(raise_error(NUMERIC_ERROR),0):";
+      c_expr.expr &:= "<0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
       c_expr.expr &:= integerLiteral(1);
       c_expr.expr &:= "<<tmp_";
       c_expr.expr &:= str(temp_num);
@@ -9908,7 +9946,9 @@ const proc: process_const_int_pow (in integer: base, in reference: param3,
       process_expr(param3, c_expr);
       c_expr.expr &:= ",tmp_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "<0?(raise_error(NUMERIC_ERROR),0):";
+      c_expr.expr &:= "<0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
       c_expr.expr &:= integerLiteral(1);
       c_expr.expr &:= "<<";
       c_expr.expr &:= str(log2(base));
@@ -9979,7 +10019,7 @@ const proc: process_const_int_rem (in reference: param1, in integer: divisor,
   begin
     if divisor = 0 then
       incr(countOptimizations);
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif category(param1) = INTOBJECT and not isVar(param1) then
       incr(countOptimizations);
       c_expr.expr &:= str(getValue(param1, integer) mod divisor);
@@ -10005,7 +10045,9 @@ const proc: process_const_int_rem (in integer: dividend, in reference: param3,
       incr(countOptimizations);
       c_expr.expr &:= "((";
       process_expr(param3, c_expr);
-      c_expr.expr &:= ")==0?(raise_error(NUMERIC_ERROR),0):0)";
+      c_expr.expr &:= ")==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":0)";
     elsif CHECK_INT_DIV_BY_ZERO then
       incr(c_expr.temp_num);
       temp_num := c_expr.temp_num;
@@ -10018,7 +10060,9 @@ const proc: process_const_int_rem (in integer: dividend, in reference: param3,
       process_expr(param3, c_expr);
       c_expr.expr &:= ",tmp_b_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):";
+      c_expr.expr &:= "==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":";
       c_expr.expr &:= str(dividend);
       c_expr.expr &:= " % tmp_b_";
       c_expr.expr &:= str(temp_num);
@@ -10053,7 +10097,9 @@ const proc: process_int_rem (in ref_list: params, inout expr_type: c_expr) is fu
       process_expr(params[3], c_expr);
       c_expr.expr &:= ",tmp_b_";
       c_expr.expr &:= str(temp_num);
-      c_expr.expr &:= "==0?(raise_error(NUMERIC_ERROR),0):(";
+      c_expr.expr &:= "==0?";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
+      c_expr.expr &:= ":(";
       process_expr(params[1], c_expr);
       c_expr.expr &:= ") % tmp_b_";
       c_expr.expr &:= str(temp_num);
@@ -10076,7 +10122,7 @@ const proc: process_const_int_rshift (in reference: param1, in integer: number,
   begin
     if number < 0 then
       incr(countOptimizations);
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif number >= 32 then
       incr(countOptimizations);
       c_expr.expr &:= "((";
@@ -10286,7 +10332,7 @@ const proc: process_const_int_str_based (in reference: param1, in integer: base,
 
   begin
     if base < 2 or base > 36 then
-      c_expr.expr &:= "(raise_error(NUMERIC_ERROR),0)";
+      c_expr.expr &:= raiseError("NUMERIC_ERROR");
     elsif base = 10 then
       prepare_stri_result(c_expr);
       c_expr.result_expr := "intStr(";
@@ -11247,7 +11293,30 @@ const proc: process_ref_trace (in ref_list: params, inout expr_type: c_expr) is 
           c_expr.expr &:= "}\n";
           c_expr.expr &:= "}\n";
         when {REFOBJECT}:
-          c_expr.expr &:= "printf(\"<REFOBJECT>\")";
+          compDataLibraryUsed := TRUE;
+          c_expr.expr &:= "{\n";
+          c_expr.expr &:= "objreftype ref=";
+          c_expr.expr &:= param1.expr;
+          c_expr.expr &:= ";\n";
+          c_expr.expr &:= "stritype typeStri=typStr(refType(ref));\n";
+          c_expr.expr &:= "stritype nameStri=refStr(ref);\n";
+          c_expr.expr &:= "stritype categoryStri=refCatStr(refCategory(ref));\n";
+          c_expr.expr &:= "printf(\"<REFOBJECT>\\n\");\n";
+          c_expr.expr &:= "if (refIsVar(ref)) {\n";
+          c_expr.expr &:= "printf(\"  var \");\n";
+          c_expr.expr &:= "} else {\n";
+          c_expr.expr &:= "printf(\"  const \");\n";
+          c_expr.expr &:= "}\n";
+          c_expr.expr &:= "filWrite(stdout, typeStri);\n";
+          c_expr.expr &:= "printf(\": \");\n";
+          c_expr.expr &:= "filWrite(stdout, nameStri);\n";
+          c_expr.expr &:= "printf(\" is <\");\n";
+          c_expr.expr &:= "filWrite(stdout, categoryStri);\n";
+          c_expr.expr &:= "printf(\">\");\n";
+          c_expr.expr &:= "strDestr(typeStri);\n";
+          c_expr.expr &:= "strDestr(nameStri);\n";
+          c_expr.expr &:= "strDestr(categoryStri);\n";
+          c_expr.expr &:= "}\n";
         when {REFLISTOBJECT}:
           c_expr.expr &:= "printf(\"<REFLISTOBJECT>\")";
         when {SETOBJECT}:
@@ -20743,11 +20812,11 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "  }");
     writeln(c_prog);
     writeln(c_prog);
-    writeln(c_prog, "static void handle_fpe_signal (int sig_num)");
+    writeln(c_prog, "static void handle_numeric_error (int sig_num)");
     writeln(c_prog);
     writeln(c_prog, "  {");
     if not USE_SIGSETJMP then
-      writeln(c_prog, "    signal(SIGFPE, handle_fpe_signal);");
+      writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
     end if;
     writeln(c_prog, "    raise_error(NUMERIC_ERROR);");
     writeln(c_prog, "  }");
@@ -20757,8 +20826,12 @@ const proc: write_signal_handlers is func
     writeln(c_prog);
     writeln(c_prog, "  {");
     writeln(c_prog, "    signal(SIGABRT, handle_signals);");
-    writeln(c_prog, "    signal(SIGFPE, handle_fpe_signal);");
-    writeln(c_prog, "    signal(SIGILL, handle_signals);");
+    writeln(c_prog, "    signal(SIGFPE, handle_numeric_error);");
+    if SIGILL_ON_OVERFLOW then
+      writeln(c_prog, "    signal(SIGILL, handle_numeric_error);");
+    else
+      writeln(c_prog, "    signal(SIGILL, handle_signals);");
+    end if;
     writeln(c_prog, "    signal(SIGINT, handle_signals);");
     writeln(c_prog, "    signal(SIGSEGV, handle_signals);");
     writeln(c_prog, "    signal(SIGTERM, handle_term_signal);");
@@ -20779,6 +20852,13 @@ const proc: write_signal_handlers is func
     writeln(c_prog, "      catch_stack = resized_stack;");
     writeln(c_prog, "    }");
     writeln(c_prog, "  }");
+    writeln(c_prog);
+    writeln(c_prog);
+    writeln(c_prog, "static inttype int_raise_error (int fail_value, const char *file_name, int line_number)");
+    writeln(c_prog, "{");
+    writeln(c_prog, "  raise_error2(fail_value, file_name, line_number);");
+    writeln(c_prog, "  return 0;");
+    writeln(c_prog, "}");
     writeln(c_prog);
     writeln(c_prog);
   end func;
@@ -21126,23 +21206,27 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
     inout expr_type: c_expr) is func
 
   local
+    var array integer: stringPosition is 0 times 0;
     var integer: number is 0;
     var string: stri is "";
     var string: striChars is "";
+    var integer: striPos is 0;
     var integer: striIndex is 0;
     var boolean: found is FALSE;
     var integer: countChars is 0;
     var char: ch is ' ';
   begin
-    for number range sort(keys(stri_index)) do
+    stringPosition := [0 .. pred(length(stri_const_table))] times 0;
+    for number range 0 to pred(length(stri_const_table)) do
       stri := stri_index[number][1];
-      striIndex := pos(striChars, stri);
-      if striIndex = 0 then
+      striPos := pos(striChars, stri);
+      if striPos = 0 then
         found := FALSE;
         if length(striChars) > length(stri) then
           striIndex := rpos(stri, striChars[length(striChars)]);
           while striIndex <> 0 and not found do
             if stri[.. striIndex] = striChars[succ(length(striChars) - striIndex) ..] then
+              stringPosition[number] := succ(length(striChars) - striIndex);
               striChars &:= stri[succ(striIndex) ..];
               found := TRUE;
             else
@@ -21151,8 +21235,11 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
           end while;
         end if;
         if not found then
+          stringPosition[number] := succ(length(striChars));
           striChars &:= stri;
         end if;
+      else
+        stringPosition[number] := striPos;
       end if;
     end for;
     c_expr.expr &:= "static strelemtype striChars[]={\n";
@@ -21168,7 +21255,7 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
     c_expr.expr &:= "};\n\n";
     c_expr.expr &:= "struct stristruct str[]={\n";
     if length(stri_const_table) > 0 then
-      for number range sort(keys(stri_index)) do
+      for number range 0 to pred(length(stri_const_table)) do
         stri := stri_index[number][1];
         c_expr.expr &:= "/* str[";
         c_expr.expr &:= str(number);
@@ -21183,7 +21270,7 @@ const proc: init_string_constants_with_slices (in stri_index_hash: stri_index,
           c_expr.expr &:= "NULL";
         else
           c_expr.expr &:= "&striChars[";
-          c_expr.expr &:= str(pred(pos(striChars, stri)));
+          c_expr.expr &:= str(pred(stringPosition[number]));
           c_expr.expr &:= "]";
         end if;
         c_expr.expr &:= "},";

@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  tim_win.c     Time access using the windows capabilitys.        */
+/*  tim_win.c     Time access using the windows capabilities.       */
 /*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_win.c                                       */
 /*  Changes: 2006, 2009  Thomas Mertes                              */
-/*  Content: Time access using the windows capabilitys.             */
+/*  Content: Time access using the windows capabilities.            */
 /*                                                                  */
 /********************************************************************/
 

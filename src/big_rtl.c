@@ -685,16 +685,18 @@ biginttype big1;
 
   {
     memsizetype pos;
-    doublebigdigittype carry = 1;
 
   /* uBigIncr */
     pos = 0;
-    do {
-      carry += big1->bigdigits[pos];
-      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      pos++;
-    } while (carry != 0 && pos < big1->size);
+    if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
+      do {
+        big1->bigdigits[pos] = 0;
+        pos++;
+      } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+    } /* if */
+    if (pos < big1->size) {
+      big1->bigdigits[pos]++;
+    } /* if */
   } /* uBigIncr */
 
 
@@ -714,16 +716,18 @@ biginttype big1;
 
   {
     memsizetype pos;
-    doublebigdigittype carry;
 
   /* uBigDecr */
     pos = 0;
-    do {
-      carry = (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
-      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      pos++;
-    } while (carry == 0 && pos < big1->size);
+    if (big1->bigdigits[pos] == 0) {
+      do {
+        big1->bigdigits[pos] = BIGDIGIT_MASK;
+        pos++;
+      } while (pos < big1->size && big1->bigdigits[pos] == 0);
+    } /* if */
+    if (pos < big1->size) {
+      big1->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
+    } /* if */
   } /* uBigDecr */
 
 
@@ -2997,7 +3001,6 @@ biginttype *big_variable;
   {
     biginttype big1;
     memsizetype pos;
-    doublebigdigittype carry;
     bigdigittype negative;
     biginttype resized_big1;
 
@@ -3005,12 +3008,15 @@ biginttype *big_variable;
     big1 = *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
-    do {
-      carry = (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
-      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      pos++;
-    } while (carry == 0 && pos < big1->size);
+    if (big1->bigdigits[pos] == 0) {
+      do {
+        big1->bigdigits[pos] = BIGDIGIT_MASK;
+        pos++;
+      } while (pos < big1->size && big1->bigdigits[pos] == 0);
+    } /* if */
+    if (pos < big1->size) {
+      big1->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
+    } /* if */
     pos = big1->size;
     if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (negative) {
@@ -3629,7 +3635,6 @@ biginttype *big_variable;
   {
     biginttype big1;
     memsizetype pos;
-    doublebigdigittype carry = 1;
     bigdigittype negative;
     biginttype resized_big1;
 
@@ -3637,12 +3642,15 @@ biginttype *big_variable;
     big1 = *big_variable;
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
-    do {
-      carry += big1->bigdigits[pos];
-      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      pos++;
-    } while (carry != 0 && pos < big1->size);
+    if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
+      do {
+        big1->bigdigits[pos] = 0;
+        pos++;
+      } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+    } /* if */
+    if (pos < big1->size) {
+      big1->bigdigits[pos]++;
+    } /* if */
     pos = big1->size;
     if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (!negative) {
@@ -4717,7 +4725,6 @@ biginttype big1;
 
   {
     memsizetype pos;
-    doublebigdigittype carry = 0;
     biginttype resized_result;
     biginttype result;
 
@@ -4728,12 +4735,20 @@ biginttype big1;
     } else {
       result->size = big1->size;
       pos = 0;
-      do {
-        carry += (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
-        result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= BIGDIGIT_SIZE;
+      if (big1->bigdigits[pos] == 0) {
+        do {
+          result->bigdigits[pos] = BIGDIGIT_MASK;
+          pos++;
+        } while (pos < big1->size && big1->bigdigits[pos] == 0);
+      } /* if */
+      if (pos < big1->size) {
+        result->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
         pos++;
-      } while (pos < big1->size);
+        while (pos < big1->size) {
+          result->bigdigits[pos] = big1->bigdigits[pos];
+          pos++;
+        } /* while */
+      } /* if */
       if (!IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
@@ -4780,19 +4795,21 @@ biginttype big1;
 
   {
     memsizetype pos;
-    doublebigdigittype carry;
     bigdigittype negative;
     biginttype resized_big1;
 
   /* bigPredTemp */
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
-    do {
-      carry = (doublebigdigittype) big1->bigdigits[pos] + BIGDIGIT_MASK;
-      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      pos++;
-    } while (carry == 0 && pos < big1->size);
+    if (big1->bigdigits[pos] == 0) {
+      do {
+        big1->bigdigits[pos] = BIGDIGIT_MASK;
+        pos++;
+      } while (pos < big1->size && big1->bigdigits[pos] == 0);
+    } /* if */
+    if (pos < big1->size) {
+      big1->bigdigits[pos] = (big1->bigdigits[pos] + BIGDIGIT_MASK) & BIGDIGIT_MASK;
+    } /* if */
     pos = big1->size;
     if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (negative) {
@@ -5527,7 +5544,6 @@ biginttype big1;
 
   {
     memsizetype pos;
-    doublebigdigittype carry = 1;
     biginttype resized_result;
     biginttype result;
 
@@ -5538,12 +5554,20 @@ biginttype big1;
     } else {
       result->size = big1->size;
       pos = 0;
-      do {
-        carry += big1->bigdigits[pos];
-        result->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-        carry >>= BIGDIGIT_SIZE;
+      if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
+        do {
+          result->bigdigits[pos] = 0;
+          pos++;
+        } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+      } /* if */
+      if (pos < big1->size) {
+        result->bigdigits[pos] = big1->bigdigits[pos] + 1;
         pos++;
-      } while (pos < big1->size);
+        while (pos < big1->size) {
+          result->bigdigits[pos] = big1->bigdigits[pos];
+          pos++;
+        } /* while */
+      } /* if */
       if (IS_NEGATIVE(result->bigdigits[pos - 1])) {
         if (!IS_NEGATIVE(big1->bigdigits[pos - 1])) {
           REALLOC_BIG_CHECK_SIZE(resized_result, result, pos, pos + 1);
@@ -5590,19 +5614,21 @@ biginttype big1;
 
   {
     memsizetype pos;
-    doublebigdigittype carry = 1;
     bigdigittype negative;
     biginttype resized_big1;
 
   /* bigSuccTemp */
     negative = IS_NEGATIVE(big1->bigdigits[big1->size - 1]);
     pos = 0;
-    do {
-      carry += big1->bigdigits[pos];
-      big1->bigdigits[pos] = (bigdigittype) (carry & BIGDIGIT_MASK);
-      carry >>= BIGDIGIT_SIZE;
-      pos++;
-    } while (carry != 0 && pos < big1->size);
+    if (big1->bigdigits[pos] == BIGDIGIT_MASK) {
+      do {
+        big1->bigdigits[pos] = 0;
+        pos++;
+      } while (pos < big1->size && big1->bigdigits[pos] == BIGDIGIT_MASK);
+    } /* if */
+    if (pos < big1->size) {
+      big1->bigdigits[pos]++;
+    } /* if */
     pos = big1->size;
     if (IS_NEGATIVE(big1->bigdigits[pos - 1])) {
       if (!negative) {

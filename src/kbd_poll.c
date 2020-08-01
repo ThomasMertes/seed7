@@ -582,7 +582,7 @@ chartype kbdGetc ()
       if (key_table[number] != NULL) {
         len = strlen(key_table[number]);
         if (fread_result == len &&
-            memcmp(key_table[number], buffer, fread_result) == 0) {
+            memcmp(key_table[number], buffer, len) == 0) {
           exact_match++;
           key_number = number;
         } /* if */

@@ -85,6 +85,11 @@ const func socketAddress: inetSocketAddress (in integer: port)              is a
 const func socketAddress: inetListenerAddress (in integer: port)            is action "SOC_INET_SERV_ADDR";
 
 
+(**
+ *  Determine the hostname.
+ *  @return the hostname.
+ *  @exception MEMORY_ERROR Not enough memory to represent the result.
+ *)
 const func string: getHostname                                              is action "SOC_GET_HOSTNAME";
 
 

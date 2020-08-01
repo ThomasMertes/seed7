@@ -237,11 +237,12 @@ listtype list;
     } /* if */
 #endif
     if (exception == NULL) {
-      ALLOC_OBJECT(exception);
-      exception->type_of = NULL;
-      exception->descriptor.property = NULL;
-      INIT_CATEGORY_OF_TEMP(exception, SYMBOLOBJECT);
-      exception->value.intvalue = 0;
+      if (ALLOC_OBJECT(exception)) {
+        exception->type_of = NULL;
+        exception->descriptor.property = NULL;
+        INIT_CATEGORY_OF_TEMP(exception, SYMBOLOBJECT);
+        exception->value.intvalue = 0;
+      } /* if */
     } /* if */
     incl_list(&fail_stack, curr_exec_object, &err_info);
     if (!fail_flag || fail_value == NULL) {

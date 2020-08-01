@@ -1900,6 +1900,7 @@ inttype factor;
 
 
 
+#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 inttype strPos (const const_stritype main_stri, const const_stritype searched)
@@ -1940,10 +1941,10 @@ stritype searched;
     } /* if */
     return 0;
   } /* strPos */
+#endif
 
 
 
-#ifdef OUT_OF_ORDER
 #ifdef ANSI_C
 
 inttype strPos (const const_stritype main_stri, const const_stritype searched)
@@ -1957,8 +1958,9 @@ stritype searched;
   {
     memsizetype main_size;
     memsizetype searched_size;
-    strelemtype ch_1;
     strelemtype ch_n;
+    const strelemtype *ch_n_pos2;
+    memsizetype delta;
     const strelemtype *main_mem;
     const strelemtype *searched_mem;
     const strelemtype *search_start;
@@ -1969,28 +1971,34 @@ stritype searched;
     searched_size = searched->size;
     if (searched_size != 0 && searched_size <= main_size) {
       searched_mem = searched->mem;
-      ch_1 = searched_mem[0];
       ch_n = searched_mem[searched_size - 1];
+      ch_n_pos2 = rsearch_strelem(&searched_mem[searched_size - 2], ch_n, searched_size - 1);
+      if (ch_n_pos2 == NULL) {
+        delta = searched_size;
+      } else {
+        delta = (memsizetype) (&searched_mem[searched_size - 1] - ch_n_pos2);
+      } /* if */
       main_mem = main_stri->mem;
       search_start = &main_mem[searched_size - 1];
       search_end = &main_mem[main_size];
-      while ((search_start = search_strelem(search_start,
-          ch_n, (memsizetype) (search_end - search_start))) != NULL) {
-        if (&search_start[1 - searched_size] == ch_1 && 
-            memcmp(&search_start[1 - searched_size], searched_mem,
-            searched_size * sizeof(strelemtype)) == 0) {
-          return ((inttype) (search_start - main_mem)) + 1;
+      while (search_start < search_end) {
+        if (*search_start == ch_n) {
+          if (memcmp(search_start - searched_size + 1, searched_mem,
+              (searched_size - 1) * sizeof(strelemtype)) == 0) {
+            return ((inttype) (search_start - searched_size + 1 - main_mem)) + 1;
+          } else {
+            search_start += delta;
+          } /* if */
         } else {
-          search_start += delta;
-          if (search_start >= search_end) {
+          search_start = search_strelem(&search_start[1], ch_n, (size_t) (search_end - search_start - 1));
+          if (search_start == NULL) {
             return 0;
           } /* if */
         } /* if */
-      } /* if */
+      } /* while */
     } /* if */
     return 0;
   } /* strPos */
-#endif
 
 
 

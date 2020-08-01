@@ -126,7 +126,7 @@ version.h:
 	echo #define MAP_ABSOLUTE_PATH_TO_DRIVE_LETTERS >> version.h
 	echo #define CATCH_SIGNALS >> version.h
 	echo #define AWAIT_WITH_SELECT >> version.h
-	echo #define OS_PATH_USES_CODEPAGE >> version.h
+	echo #define OS_STRI_USES_CODEPAGE >> version.h
 	echo #define os_lstat stat >> version.h
 	echo #define os_off_t off_t >> version.h
 	echo #define os_putenv putenv >> version.h

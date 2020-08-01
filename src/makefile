@@ -83,7 +83,7 @@ ROBJ3 = heaputl.o striutl.o
 DOBJ1 = $(BIGINT_LIB).o $(SCREEN_OBJ) tim_unx.o cmd_unx.o
 OBJ = $(MOBJ1)
 SEED7_LIB_OBJ = $(ROBJ1) $(ROBJ2) $(ROBJ3) $(DOBJ1)
-DRAW_LIB_OBJ = drw_x11.o
+DRAW_LIB_OBJ = drw_x11.o gkb_x11.o
 COMP_DATA_LIB_OBJ = typ_data.o rfl_data.o ref_data.o listutl.o flistutl.o typeutl.o datautl.o
 COMPILER_LIB_OBJ = $(POBJ1) $(LOBJ1) $(LOBJ2) $(LOBJ3) $(EOBJ1) $(AOBJ1) $(AOBJ2) $(AOBJ3) $(GOBJ1) $(GOBJ2)
 
@@ -104,16 +104,15 @@ RSRC3 = heaputl.c striutl.c
 DSRC1 = $(BIGINT_LIB).c $(SCREEN_SRC) tim_unx.c cmd_unx.c
 SRC = $(MSRC1)
 SEED7_LIB_SRC = $(RSRC1) $(RSRC2) $(RSRC3) $(DSRC1)
-DRAW_LIB_SRC = drw_x11.c
+DRAW_LIB_SRC = drw_x11.c gkb_x11.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-../bin/hi: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS) -o ../bin/hi
-	$(MAKE) ../prg/hi
+hi: ../bin/hi ../prg/hi
 	../bin/hi level
 
-hi: ../bin/hi
+../bin/hi: $(OBJ) $(ALL_S7_LIBS)
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS) -o ../bin/hi
 
 ../prg/hi:
 	ln -s ../bin/hi ../prg
@@ -140,7 +139,7 @@ version.h:
 	echo "#define AWAIT_WITH_SELECT" >> version.h
 	echo "#define $(TERMINFO_OR_TERMCAP)" >> version.h
 	echo "#define SCREEN_UTF8" >> version.h
-	echo "#define OS_PATH_UTF8" >> version.h
+	echo "#define OS_STRI_UTF8" >> version.h
 	echo "#define _FILE_OFFSET_BITS 64" >> version.h
 	echo "#define os_fseek fseeko" >> version.h
 	echo "#define os_ftell ftello" >> version.h

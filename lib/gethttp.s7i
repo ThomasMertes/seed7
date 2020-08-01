@@ -304,17 +304,26 @@ const func string: getHttp (in string: serverName, in integer: portNumber, in st
     var file: sock is STD_NULL;
     var string: statusCode is "";
     var string: location is "";
+    var boolean: okay is TRUE;
+    var integer: repeatCount is 0;
   begin
-    sock := openHttp(serverName, portNumber, url);
-    if sock <> STD_NULL then
-      statusCode := getHttpStatusCode(sock);
-      if statusCode = "301" or statusCode = "302" or
-          statusCode = "303" or statusCode = "307" then
-        location := getHttpLocation(sock);
-        close(sock);
-        sock := openHttp(serverName, portNumber, location);
-      end if;
-    end if;
+    location := url;
+    repeat
+      okay := TRUE;
+      # writeln(location);
+      sock := openHttp(serverName, portNumber, location);
+      if sock <> STD_NULL then
+        statusCode := getHttpStatusCode(sock);
+        if statusCode = "301" or statusCode = "302" or
+            statusCode = "303" or statusCode = "307" then
+          location := getHttpLocation(sock);
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          incr(repeatCount);
+        end if;
+      end if
+    until okay or repeatCount > 5;
     if sock <> STD_NULL then
       result := getHttp(sock);
       close(sock);
@@ -333,25 +342,30 @@ const func string: getHttp (in string: url) is func
     var file: sock is STD_NULL;
     var string: statusCode is "";
     var string: location is "";
+    var boolean: okay is TRUE;
+    var integer: repeatCount is 0;
   begin
-    if proxyServer = "" then
-      sock := openHttp(url);
-    else
-      sock := openHttp(proxyServer, proxyHttpPort, url);
-    end if;
-    if sock <> STD_NULL then
-      statusCode := getHttpStatusCode(sock);
-      if statusCode = "301" or statusCode = "302" or
-          statusCode = "303" or statusCode = "307" then
-        location := getHttpLocation(sock);
-        close(sock);
-        if proxyServer = "" then
-          sock := openHttp(location);
-        else
-          sock := openHttp(proxyServer, proxyHttpPort, location);
-        end if;
+    location := url;
+    repeat
+      okay := TRUE;
+      # writeln(location);
+      if proxyServer = "" then
+        sock := openHttp(location);
+      else
+        sock := openHttp(proxyServer, proxyHttpPort, location);
       end if;
-    end if;
+      if sock <> STD_NULL then
+        statusCode := getHttpStatusCode(sock);
+        if statusCode = "301" or statusCode = "302" or
+            statusCode = "303" or statusCode = "307" then
+          location := getHttpLocation(sock);
+          close(sock);
+          sock := STD_NULL;
+          okay := FALSE;
+          incr(repeatCount);
+        end if;
+      end if
+    until okay or repeatCount > 5;
     if sock <> STD_NULL then
       result := getHttp(sock);
       close(sock);

@@ -659,7 +659,7 @@ inttype file_position;
       while ((ch = getc(aFile)) != EOF &&
              (ch & 0xC0) == 0x80) ;
       if (ch != EOF) {
-        if (offsetSeek(aFile, -1, SEEK_CUR) != 0) {
+        if (offsetSeek(aFile, (os_off_t) -1, SEEK_CUR) != 0) {
           raise_error(FILE_ERROR);
         } /* if */
       } /* if */

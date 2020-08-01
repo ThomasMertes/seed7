@@ -234,7 +234,7 @@ stritype *exePath;
 #endif
 
   {
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
     int w_argc;
     os_stritype *w_argv;
 #endif
@@ -242,7 +242,7 @@ stritype *exePath;
     rtlArraytype arg_v;
 
   /* getArgv */
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
     w_argv = getUtf16Argv(&w_argc);
     if (w_argv == NULL) {
       raise_error(MEMORY_ERROR);
@@ -285,7 +285,7 @@ stritype *exePath;
 
 
 
-#ifndef OS_PATH_WCHAR
+#ifndef OS_STRI_WCHAR
 #ifdef ANSI_C
 
 stritype examineSearchPath (const const_stritype fileName)
@@ -311,9 +311,7 @@ stritype fileName;
     path_environment_variable = os_getenv(path);
     if (path_environment_variable != NULL) {
       searchPathStri = os_stri_to_stri(path_environment_variable, &err_info);
-#ifdef USE_WGETENV_WSTRI
-      os_stri_free(path_environment_variable);
-#endif
+      os_getenv_string_free(path_environment_variable);
       if (likely(err_info == OKAY_NO_ERROR)) {
         searchPath = strChSplit(searchPathStri, (chartype) SEARCH_PATH_DELIMITER);
         FREE_STRI(searchPathStri, searchPathStri->size);

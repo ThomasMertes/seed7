@@ -26,6 +26,9 @@
 (********************************************************************)
 
 
+include "text.s7i";
+
+
 const type: stritext is sub null_file struct
     var array string: content is 0 times "";
     var integer: line is 1;

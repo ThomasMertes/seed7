@@ -1999,6 +1999,85 @@ const proc: check_string_funcs is func
       writeln(" ***** pos(STRING, \"abc\") does not work correct");
       okay := FALSE;
     end if;
+    if  pos("",       "aba") <> 0 or
+        pos("c",      "aba") <> 0 or
+        pos("a",      "aba") <> 0 or
+        pos("b",      "aba") <> 0 or
+        pos("cd",     "aba") <> 0 or
+        pos("bc",     "aba") <> 0 or
+        pos("ab",     "aba") <> 0 or
+        pos("ba",     "aba") <> 0 or
+        pos("za",     "aba") <> 0 or
+        pos("cde",    "aba") <> 0 or
+        pos("bcd",    "aba") <> 0 or
+        pos("aba",    "aba") <> 1 or
+        pos("abc",    "aba") <> 0 or
+        pos("aca",    "aba") <> 0 or
+        pos("cba",    "aba") <> 0 or
+        pos("bab",    "aba") <> 0 or
+        pos("zab",    "aba") <> 0 or
+        pos("yza",    "aba") <> 0 or
+        pos("azy",    "aba") <> 0 or
+        pos("baz",    "aba") <> 0 or
+        pos("cba",    "aba") <> 0 or
+        pos("dcb",    "aba") <> 0 or
+        pos("aaa",    "aba") <> 0 or
+        pos("bbb",    "aba") <> 0 or
+        pos("ccc",    "aba") <> 0 or
+        pos("abaa",   "aba") <> 1 or
+        pos("abab",   "aba") <> 1 or
+        pos("abaz",   "aba") <> 1 or
+        pos("zaba",   "aba") <> 2 or
+        pos("aaba",   "aba") <> 2 or
+        pos("baba",   "aba") <> 2 or
+        pos("azab",   "aba") <> 0 or
+        pos("baza",   "aba") <> 0 or
+        pos("yzab",   "aba") <> 0 or
+        pos("xyza",   "aba") <> 0 or
+        pos("cbax",   "aba") <> 0 or
+        pos("xcba",   "aba") <> 0 or
+        pos("baaa",   "aba") <> 0 or
+        pos("aaab",   "aba") <> 0 or
+        pos("cdefg",  "aba") <> 0 or
+        pos("bcdef",  "aba") <> 0 or
+        pos("abacd",  "aba") <> 1 or
+        pos("abaaa",  "aba") <> 1 or
+        pos("abaab",  "aba") <> 1 or
+        pos("ababa",  "aba") <> 1 or
+        pos("ababb",  "aba") <> 1 or
+        pos("zabac",  "aba") <> 2 or
+        pos("aabac",  "aba") <> 2 or
+        pos("cabaa",  "aba") <> 2 or
+        pos("aabaa",  "aba") <> 2 or
+        pos("zabab",  "aba") <> 2 or
+        pos("babab",  "aba") <> 2 or
+        pos("babac",  "aba") <> 2 or
+        pos("yzaba",  "aba") <> 3 or
+        pos("aaaba",  "aba") <> 3 or
+        pos("baaba",  "aba") <> 3 or
+        pos("bbaba",  "aba") <> 3 or
+        pos("acaba",  "aba") <> 3 or
+        pos("cbaba",  "aba") <> 3 or
+        pos("xyzab",  "aba") <> 0 or
+        pos("wxyza",  "aba") <> 0 or
+        pos("bcccc",  "aba") <> 0 or
+        pos("aaaab",  "aba") <> 0 or
+        pos("azbaz",  "aba") <> 0 or
+        pos("bazba",  "aba") <> 0 or
+        pos("cbazb",  "aba") <> 0 or
+        pos("abczb",  "aba") <> 0 or
+        pos("aaaaa",  "aba") <> 0 or
+        pos("bbbbb",  "aba") <> 0 or
+        pos("ccccc",  "aba") <> 0 or
+        pos("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabaaaaaaaaaaaaaaaaaaa",  "aba") <> 31 or
+        pos("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbababbbbbbbbbbbbbbbbbb",  "aba") <> 31 or
+        pos("abbabbabbabbabbabbabbabbabbabbababbabbabbabbabbabba",  "aba") <> 31 or
+        pos("bcbcbcbcbcbcbcbcbcbcbcbcbcbcbcababcbcbcbcbcbcbcbcbc",  "aba") <> 31 or
+        pos("acbacbacbacbacbacbacbacbacbacbabaacbacbacbacbacbacb",  "aba") <> 31 or
+        pos("cbabcbabcbababababababababababababababababababababa",  "aba") <> 11 then
+      writeln(" ***** pos(STRING, \"aba\") does not work correct");
+      okay := FALSE;
+    end if;
     if  pos("",       "", 1) <> 0 or
         pos("",       "", 2) <> 0 or
         pos("",       "", 9) <> 0 or

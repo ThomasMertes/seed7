@@ -4416,7 +4416,18 @@ const func boolean: chkLShift (in integer: number, in integer: lshift) is func
   result
     var boolean: wrong is FALSE;
   begin
-    wrong := chkLShift(number, lshift, number * 2 ** lshift);
+    if lshift = 31 and number = 0 then
+      # writeln(number <& " << " <& lshift);
+      wrong := chkLShift(number, lshift, 0);
+    elsif lshift = 31 and number = -1 then
+      # writeln(number <& " << " <& lshift);
+      wrong := chkLShift(number, lshift, INT32_MIN);
+    elsif lshift <= 30 and
+        number <= 2147483647 mdiv 2 ** lshift and
+        number >= INT32_MIN mdiv 2 ** lshift then
+      # writeln(number <& " << " <& lshift);
+      wrong := chkLShift(number, lshift, number * 2 ** lshift);
+    end if;
   end func;
 
 
@@ -4441,11 +4452,31 @@ const proc: chkLShift (in integer: lshift, inout boolean: okay) is func
         chkLShift(        128, lshift) or
         chkLShift(        127, lshift) or
         chkLShift(        100, lshift) or
+        chkLShift(         17, lshift) or
+        chkLShift(         16, lshift) or
+        chkLShift(         15, lshift) or
         chkLShift(         10, lshift) or
+        chkLShift(          9, lshift) or
+        chkLShift(          8, lshift) or
+        chkLShift(          7, lshift) or
+        chkLShift(          5, lshift) or
+        chkLShift(          4, lshift) or
+        chkLShift(          3, lshift) or
+        chkLShift(          2, lshift) or
         chkLShift(          1, lshift) or
         chkLShift(          0, lshift) or
         chkLShift(         -1, lshift) or
+        chkLShift(         -2, lshift) or
+        chkLShift(         -3, lshift) or
+        chkLShift(         -4, lshift) or
+        chkLShift(         -5, lshift) or
+        chkLShift(         -7, lshift) or
+        chkLShift(         -8, lshift) or
+        chkLShift(         -9, lshift) or
         chkLShift(        -10, lshift) or
+        chkLShift(        -15, lshift) or
+        chkLShift(        -16, lshift) or
+        chkLShift(        -17, lshift) or
         chkLShift(       -100, lshift) or
         chkLShift(       -128, lshift) or
         chkLShift(       -129, lshift) or

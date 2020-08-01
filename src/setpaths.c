@@ -31,7 +31,7 @@
 #include "stddef.h"
 #include "ctype.h"
 #include "direct.h"
-#ifdef OS_PATH_USES_CODEPAGE
+#ifdef OS_STRI_USES_CODEPAGE
 #include "dos.h"
 #endif
 
@@ -40,14 +40,18 @@
 /**
  *  Some definitions from version.h are used:
  *
- *  OS_PATH_WCHAR
+ *  OS_STRI_WCHAR
  *      System calls (os_...) use wide characters.
+ *  OS_STRI_USES_CODEPAGE
+ *      System calls (os_...) use characters (type char)
+ *      encoded with a codepage (only the codepages
+ *      437 and 850 are supported).
  *  os_getcwd
  *      Copy the current working directory to a buffer.
  *      E.g.: #define os_getcwd _wgetcwd
  */
 
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 #define os_chartype wchar_t
 #else
 #define os_chartype char
@@ -55,7 +59,7 @@
 
 #define BUFFER_LEN 4096
 
-#ifdef OS_PATH_USES_CODEPAGE
+#ifdef OS_STRI_USES_CODEPAGE
 int codepage;
 #endif
 
@@ -81,7 +85,7 @@ void get_cwd_to_buffer (os_chartype *buffer)
 
 
 
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 
 void write_as_utf8 (os_chartype *wstri)
 
@@ -103,7 +107,7 @@ void write_as_utf8 (os_chartype *wstri)
 
 
 #else
-#ifdef OS_PATH_USES_CODEPAGE
+#ifdef OS_STRI_USES_CODEPAGE
 
 char *conv_437[] = {
     "\\000", "\\001", "\\002", "\\003", "\\004", "\\005", "\\006", "\\007",
@@ -226,7 +230,7 @@ void write_as_utf8 (os_chartype *cstri)
 
 
 
-#ifdef OS_PATH_USES_CODEPAGE
+#ifdef OS_STRI_USES_CODEPAGE
 int get_codepage (void)
 
   {
@@ -250,7 +254,7 @@ int main (int argc, char **argv)
     os_chartype buffer[BUFFER_LEN];
 
   /* main */
-#ifdef OS_PATH_USES_CODEPAGE
+#ifdef OS_STRI_USES_CODEPAGE
     codepage = get_codepage();
     printf("#define DEFAULT_CODEPAGE %d\n", codepage);
 #endif

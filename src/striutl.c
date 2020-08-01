@@ -35,6 +35,9 @@
 #include "stdio.h"
 #include "string.h"
 #include "ctype.h"
+#ifdef OS_STRI_WCHAR
+#include "wchar.h"
+#endif
 
 #include "common.h"
 #include "heaputl.h"
@@ -54,18 +57,18 @@ const_cstritype cstri_escape_sequence[] = {
     "\\036", "\\037"};
 
 
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 
 #define MAX_OS_STRI_SIZE (((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1) / 2)
 #define OS_STRI_SIZE(size) ((size) * 2)
 
-#elif defined OS_PATH_USES_CODEPAGE
+#elif defined OS_STRI_USES_CODEPAGE
 
 #define MAX_OS_STRI_SIZE ((MAX_MEMSIZETYPE / sizeof(os_chartype)) - 1)
 #define OS_STRI_SIZE(size) (size)
 int codepage = DEFAULT_CODEPAGE;
 
-#elif defined OS_PATH_UTF8
+#elif defined OS_STRI_UTF8
 
 #define MAX_OS_STRI_SIZE (MAX_CSTRI_LEN / MAX_UTF8_EXPANSION_FACTOR)
 #define OS_STRI_SIZE(size) max_utf8_size(size)
@@ -390,7 +393,7 @@ stritype in_stri;
 
 
 
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 #ifdef ANSI_C
 
 static INLINE void conv_to_os_stri (os_stritype os_stri, const strelemtype *strelem,
@@ -423,7 +426,7 @@ errinfotype *err_info;
 
 
 
-#elif defined OS_PATH_USES_CODEPAGE
+#elif defined OS_STRI_USES_CODEPAGE
 
 static unsigned char map_to_437_160[] = {
 /*  160 */  255,  173,  155,  156,  '?',  157,  '?',  '?',  '?',  '?',
@@ -583,7 +586,7 @@ errinfotype *err_info;
     *os_stri = (os_chartype) 0;
   } /* conv_to_os_stri */
 
-#elif defined OS_PATH_UTF8
+#elif defined OS_STRI_UTF8
 
 
 
@@ -612,7 +615,7 @@ errinfotype *err_info;
 
 
 
-#if defined OS_PATH_WCHAR
+#if defined OS_STRI_WCHAR
 #ifdef ANSI_C
 
 static memsizetype wstri_expand (strelemtype *dest_stri, const_wstritype wstri, memsizetype len)
@@ -679,7 +682,7 @@ os_stritype os_stri;
 
 
 
-#elif defined OS_PATH_USES_CODEPAGE
+#elif defined OS_STRI_USES_CODEPAGE
 
 static strelemtype map_from_437[] = {
 /*   0 */    0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
@@ -1000,7 +1003,7 @@ cstritype cstri;
 
 
 
-#if defined OS_PATH_WCHAR || defined OS_PATH_USES_CODEPAGE
+#if defined OS_STRI_WCHAR || defined OS_STRI_USES_CODEPAGE
 
 
 
@@ -1084,9 +1087,9 @@ errinfotype *err_info;
     stritype stri;
 
   /* os_stri_to_stri */
-#if defined OS_PATH_WCHAR || defined OS_PATH_USES_CODEPAGE
+#if defined OS_STRI_WCHAR || defined OS_STRI_USES_CODEPAGE
     stri = conv_from_os_stri(os_stri);
-#elif defined OS_PATH_UTF8
+#elif defined OS_STRI_UTF8
     stri = cstri8_or_cstri_to_stri(os_stri);
 #else
     stri = cstri_to_stri(os_stri);
@@ -1170,7 +1173,7 @@ errinfotype *err_info;
 
 
 
-#if defined OS_PATH_WCHAR || defined OS_PATH_USES_CODEPAGE
+#if defined OS_STRI_WCHAR || defined OS_STRI_USES_CODEPAGE
 
 
 
@@ -1383,13 +1386,8 @@ errinfotype *err_info;
         } /* if */
       } /* for */
       if (quote_path) {
-#ifdef OS_PATH_WCHAR
-        memmove(&cmd[outPos + 2], &cmd[inPos], sizeof(os_chartype) * (wcslen(&cmd[inPos]) + 1));
+        memmove(&cmd[outPos + 2], &cmd[inPos], sizeof(os_chartype) * (os_stri_strlen(&cmd[inPos]) + 1));
         memmove(&cmd[1], cmd, sizeof(os_chartype) * outPos);
-#else
-        memmove(&cmd[outPos + 2], &cmd[inPos], strlen(&cmd[inPos]) + 1);
-        memmove(&cmd[1], cmd, outPos);
-#endif
         cmd[0] = '"';
         cmd[outPos + 1] = '"';
       } /* if */

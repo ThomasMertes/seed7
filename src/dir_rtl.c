@@ -49,7 +49,7 @@
 #include "dir_rtl.h"
 
 
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 wchar_t dot[]    = {'.', 0};
 wchar_t dotdot[] = {'.', '.', 0};
 wchar_t slash[]  = {'/', 0};

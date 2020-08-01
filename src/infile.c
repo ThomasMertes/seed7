@@ -40,6 +40,7 @@
 #include "info.h"
 #include "stat.h"
 #include "option.h"
+#include "cmd_drv.h"
 
 #ifdef USE_MMAP
 #include "sys/types.h"
@@ -220,11 +221,7 @@ errinfotype *err_info;
 #endif
     os_path = cp_to_os_path(source_file_name, err_info);
     if (os_path != NULL) {
-#ifdef OS_PATH_WCHAR
-      in_fil = wide_fopen(os_path, L"rb");
-#else
-      in_fil = fopen(os_path, "rb");
-#endif
+      in_fil = os_fopen(os_path, os_mode_rb);
       /* printf("fopen(\"%s\") ==> %lu\n", os_path, in_fil); */
       os_stri_free(os_path);
       if (in_fil == NULL) {
@@ -773,9 +770,7 @@ errinfotype *err_info;
       library_environment_variable = os_getenv(seed7_library);
       if (library_environment_variable != NULL) {
         path = cp_from_os_path(library_environment_variable, err_info);
-#ifdef USE_WGETENV_WSTRI
-        os_stri_free(library_environment_variable);
-#endif
+        os_getenv_string_free(library_environment_variable);
         if (path != NULL) {
           append_to_lib_path(path, err_info);
           FREE_STRI(path, path->size);

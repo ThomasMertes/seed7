@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  dir_dos.c     Directory access using the dos capabilitys.       */
+/*  dir_dos.c     Directory access using the dos capabilities.      */
 /*  Copyright (C) 1989 - 2007  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */

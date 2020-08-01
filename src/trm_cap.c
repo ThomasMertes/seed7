@@ -94,7 +94,7 @@ int tputs ();
 #define tgetflag my_tgetflag
 #define tgetstr  my_tgetstr
 
-char capabilitys[2049];
+char capabilities[2049];
 
 
 
@@ -123,7 +123,7 @@ char *terminal_name;
       capbuf[0] = '\0';
       result = -1;
     } /* if */
-    strcpy(capabilitys, capbuf);
+    strcpy(capabilities, capbuf);
     return(result);
   } /* my_tgetent */
 
@@ -148,7 +148,7 @@ char *code;
     buffer[0] = ':';
     strcpy(&buffer[1], code);
     strcat(buffer, "#");
-    if ((found = strstr(capabilitys, buffer)) != NULL) {
+    if ((found = strstr(capabilities, buffer)) != NULL) {
       sscanf(found + 4, "%d", &result);
     } /* if */
 #ifdef TRACE_CAPS
@@ -178,7 +178,7 @@ char *code;
     buffer[0] = ':';
     strcpy(&buffer[1], code);
     strcat(buffer, ":");
-    if ((found = strstr(capabilitys, buffer)) != NULL) {
+    if ((found = strstr(capabilities, buffer)) != NULL) {
       result = TRUE;
     } /* if */
 #ifdef TRACE_CAPS
@@ -213,7 +213,7 @@ char **area;
     buffer[0] = ':';
     strcpy(&buffer[1], code);
     strcat(buffer, "=");
-    if ((found = strstr(capabilitys, buffer)) != NULL) {
+    if ((found = strstr(capabilities, buffer)) != NULL) {
       if ((end = strchr(found + 4, ':')) != NULL) {
         from = found + 4;
         to = to_buf;

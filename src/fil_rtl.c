@@ -55,14 +55,22 @@
 #include "fil_rtl.h"
 
 
-#ifdef DEFINE_FSEEKI64_AND_FTELLI64
 #ifdef C_PLUS_PLUS
-extern "C" int __cdecl _fseeki64(FILE *, __int64, int);
-extern "C" __int64 __cdecl _ftelli64(FILE *);
+#define C "C"
 #else
-extern int __cdecl _fseeki64(FILE *, __int64, int);
-extern __int64 __cdecl _ftelli64(FILE *);
+#define C
 #endif
+
+#ifdef DEFINE_FSEEKI64_PROTOTYPE
+extern C int __cdecl _fseeki64(FILE *, __int64, int);
+#endif
+
+#ifdef DEFINE_FTELLI64_PROTOTYPE
+extern C __int64 __cdecl _ftelli64(FILE *);
+#endif
+
+#ifdef DEFINE_WPOPEN_PROTOTYPE
+extern C FILE *_wpopen (const wchar_t *, const wchar_t *);
 #endif
 
 
@@ -147,7 +155,6 @@ filetype aFile;
 #endif
 
   {
-    os_off_t current_file_position;
     os_off_t file_length;
 
   /* seekFileLength */
@@ -164,22 +171,45 @@ filetype aFile;
     }
 #endif
 #if defined(os_fseek) && defined(os_ftell)
-    current_file_position = os_ftell(aFile);
-    if (current_file_position == (os_off_t) -1) {
-      file_length = -1;
-    } else if (os_fseek(aFile, (os_off_t) 0, SEEK_END) != 0) {
-      file_length = -1;
-    } else {
-      file_length = os_ftell(aFile);
-      if (file_length != (os_off_t) -1) {
+    {
+      os_off_t current_file_position;
+
+      current_file_position = os_ftell(aFile);
+      if (current_file_position == (os_off_t) -1) {
+        file_length = -1;
+      } else if (os_fseek(aFile, (os_off_t) 0, SEEK_END) != 0) {
+        file_length = -1;
+      } else {
+        file_length = os_ftell(aFile);
         if (os_fseek(aFile, current_file_position, SEEK_SET) != 0) {
           file_length = -1;
         } /* if */
       } /* if */
-    } /* if */
+    }
+#elif defined os_fsetpos && defined os_fgetpos
+    {
+      fpos_t current_file_pos;
+      fpos_t file_pos;
+
+      if (os_fgetpos(aFile, &current_file_pos) != 0) {
+        file_length = -1;
+      } else if (fseek(aFile, 0, SEEK_END) != 0) {
+        file_length = -1;
+      } else {
+        if (os_fgetpos(aFile, &file_pos) != 0) {
+          file_length = -1;
+        } else {
+          file_length = file_pos;
+        } /* if */
+        if (os_fsetpos(aFile, &current_file_pos) != 0) {
+          file_length = -1;
+        } /* if */
+      } /* if */
+    }
 #else
     {
       int file_no;
+      os_off_t current_file_position;
 
       file_no = fileno(aFile);
       if (file_no == -1) {
@@ -232,6 +262,16 @@ filetype aFile;
 #endif
 #ifdef os_ftell
     current_file_position = os_ftell(aFile);
+#elif defined os_fgetpos
+    {
+      fpos_t file_pos;
+
+      if (os_fgetpos(aFile, &file_pos) != 0) {
+        current_file_position = -1;
+      } else {
+        current_file_position = file_pos;
+      } /* if */
+    }
 #else
     {
       int file_no;
@@ -265,6 +305,16 @@ int origin;
     int result;
 
   /* offsetSeek */
+    /* printf("offsetSeek(%d, " INT64TYPE_FORMAT ", %d)\n",
+       fileno(aFile), (INT64TYPE) anOffset, origin); */
+#ifdef OS_FSEEK_OFFSET_BITS
+#if OS_FSEEK_OFFSET_BITS == 32
+    if (anOffset > (os_off_t) INT32TYPE_MAX ||
+        anOffset < (os_off_t) INT32TYPE_MIN) {
+      return -1;
+    } /* if */
+#endif
+#endif
 #ifdef FTELL_WRONG_FOR_PIPE
     {
       int file_no;
@@ -279,6 +329,37 @@ int origin;
 #endif
 #ifdef os_fseek
     result = os_fseek(aFile, anOffset, origin);
+#elif defined os_fsetpos && defined os_fgetpos
+    {
+      fpos_t file_pos;
+
+      switch (origin) {
+        case SEEK_SET:
+          file_pos = anOffset;
+          break;
+        case SEEK_CUR:
+          if (os_fgetpos(aFile, &file_pos) != 0) {
+            return -1;
+          } else {
+            file_pos += anOffset;
+          } /* if */
+          break;
+        case SEEK_END:
+          if (fseek(aFile, 0, SEEK_END) != 0) {
+            return -1;
+          } else if (os_fgetpos(aFile, &file_pos) != 0) {
+            return -1;
+          } else {
+            file_pos += anOffset;
+          } /* if */
+          break;
+      } /* switch */
+      if (os_fsetpos(aFile, &file_pos) != 0) {
+        result = -1;
+      } else {
+        result = 0;
+      } /* if */
+    }
 #else
     {
       int file_no;
@@ -699,6 +780,9 @@ filetype aFile;
 
   { /* filClose */
     if (unlikely(fclose(aFile) != 0)) {
+      /* printf("errno=%d\n", errno);
+         printf("EACCES=%d  EBUSY=%d  EEXIST=%d  ENOTEMPTY=%d  ENOENT=%d  EISDIR=%d  EROFS=%d  EBADF=%d\n",
+                EACCES, EBUSY, EEXIST, ENOTEMPTY, ENOENT, EISDIR, EROFS, EBADF); */
       raise_error(FILE_ERROR);
     } /* if */
   } /* filClose */
@@ -1081,11 +1165,7 @@ stritype mode;
 #endif
         result = NULL;
       } else {
-#ifdef OS_PATH_WCHAR
-        result = wide_fopen(os_path, os_mode);
-#else
-        result = fopen(os_path, os_mode);
-#endif
+        result = os_fopen(os_path, os_mode);
         os_stri_free(os_path);
 #ifdef FOPEN_OPENS_DIRECTORIES
         if (result != NULL) {

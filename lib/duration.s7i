@@ -140,6 +140,9 @@ const func string: str (in duration: aDuration) is func
             aDuration.hour       lpad0 2 <& ":" <&
             aDuration.minute     lpad0 2 <& ":" <&
             aDuration.second     lpad0 2;
+    if aDuration.micro_second <> 0 then
+      stri &:= "." <& aDuration.micro_second lpad0 6;
+    end if;
   end func;
 
 

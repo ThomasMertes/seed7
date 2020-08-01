@@ -1,3 +1,46 @@
+20110717:
+- FAQ answers, explaining how interpreter and compiler look for
+  include libraries, was improved.
+- The 'str' function for 'duration' values was improved to provide
+  micro seconds, when they are not zero.
+- Two 'getHttp' functions in "gethttp.s7i" were improved to allow
+  redirections which refer to other redirections.
+- A documentation comment was written for 'getHostname' in
+  "socket.s7i".
+- Checks for left shift in "chkint.sd7" were improved to check only
+  cases were no overflow occurs.
+- Checks for the 'pos' function were added to "chkstr.sd7".
+- The performance of 'uBigIncr', 'uBigDecr', 'bigDecr', 'bigIncr',
+  'bigPred', 'bigPredTemp', 'bigSucc' and 'bigSuccTemp' in
+  "big_rtl.c", was improved.
+- The functions 'processBackslash' and 'CommandLineToArgvW' were
+  added to "cmd_win.c".
+- The function 'wgetenv_wstri' was renamed to 'wgetenv' in
+  "cmd_win.c".
+- The functions gkbGetc, processEvents, gkbKeyPressed,
+  mouseButtonPressed, keyboardButtonPressed, gkbButtonPressed,
+  gkbRawGetc, gkbButtonXpos, gkbButtonYpos and drwFlush were moved
+  from "drw_x11.c" to the new file "gkb_x11.c".
+- The performance of 'strPos' in "str_rtl.c", was improved.
+- The compiler was improved to generate the function
+  'int_raise_error' and to use the function 'raiseError' to create
+  calls of 'int_raise_error'.
+- The compiler (comp.sd7) was improved to generate better code for
+  the action "REF_TRACE", when the object category is REFOBJECT.
+- The generation of the string constant table, in the compiler, was
+  improved.
+- The configuration macro OS_PATH_WCHAR was renamed to OS_STRI_WCHAR
+  in several files.
+- The macro os_getenv_string_free was defined in "os_decls.h".
+- The functions seekFileLength, offsetTell and offsetSeek in
+  "fil_rtl.c" were improved to provide their functionality optionally
+  with os_fgetpos and os_fsetpos.
+- The function offsetSeek in "fil_rtl.c" was improved to return -1,
+  when the offset does not fit into the offset type used by the seek
+  function of the operating system.
+- Makefiles and C source files were changed to use 'os_fopen' instead
+  of 'wide_fopen' and 'fopen'.
+
 20110703:
 - A new example program (ftpserv.sd7), a FTP (file transfer protocol) server,
   was added.

@@ -31,7 +31,7 @@
 
 typedef os_DIR *dirtype;
 
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 extern wchar_t dot[];
 extern wchar_t dotdot[];
 extern wchar_t slash[];

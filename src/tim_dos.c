@@ -1,6 +1,6 @@
 /********************************************************************/
 /*                                                                  */
-/*  tim_dos.c     Time access using the dos capabilitys.            */
+/*  tim_dos.c     Time access using the dos capabilities.           */
 /*  Copyright (C) 1989 - 2009  Thomas Mertes                        */
 /*                                                                  */
 /*  This file is part of the Seed7 Runtime Library.                 */
@@ -25,7 +25,7 @@
 /*  Module: Seed7 Runtime Library                                   */
 /*  File: seed7/src/tim_dos.c                                       */
 /*  Changes: 1992, 1993, 1994, 2009  Thomas Mertes                  */
-/*  Content: Time access using the dos capabilitys.                 */
+/*  Content: Time access using the dos capabilities.                */
 /*                                                                  */
 /********************************************************************/
 

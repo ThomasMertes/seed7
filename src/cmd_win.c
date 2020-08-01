@@ -31,10 +31,14 @@
 
 #include "version.h"
 
+#include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
 #include "sys/types.h"
 #include "sys/stat.h"
+#ifdef OS_STRI_WCHAR
+#include "wchar.h"
+#endif
 
 #include "dir_drv.h"
 
@@ -53,7 +57,183 @@
 
 
 
-#ifndef USE_WMAIN
+#if defined OS_STRI_WCHAR && !defined USE_WMAIN
+#ifdef DEFINE_COMMAND_LINE_TO_ARGV_W
+#ifdef ANSI_C
+
+static void processBackslash (const_os_stritype *sourcePos, os_stritype *destPos)
+#else
+
+static void processBackslash (sourcePos, destPos)
+os_stritype *sourcePos;
+os_stritype *destPos;
+#endif
+
+  {
+    memsizetype backslashCount;
+    memsizetype count;
+
+  /* processBackslash */
+    backslashCount = 1;
+    (*sourcePos)++;
+    while (**sourcePos == '\\') {
+      backslashCount++;
+      (*sourcePos)++;
+    } /* while */
+    if (**sourcePos == '"') {
+      /* Backslashes in the result: backslashCount / 2   */
+      for (count = backslashCount >> 1; count > 0; count--) {
+        **destPos = '\\';
+        (*destPos)++;
+      } /* for */
+      if (backslashCount & 1) {
+        /* Add a quotation mark (") to the result.       */
+        **destPos = '"';
+        (*destPos)++;
+        /* Stay in current quotation mode                */
+        (*sourcePos)++;
+      } else {
+        /* Ignore the quotation mark (").                */
+        /* Switch from inside to outside quotation mode  */
+        /* and vice versa.                               */
+      } /* if */
+    } else {
+      for (count = backslashCount; count > 0; count--) {
+        **destPos = '\\';
+        (*destPos)++;
+      } /* for */
+    } /* if */
+  } /* processBackslash */
+
+
+
+#ifdef ANSI_C
+
+static os_stritype *CommandLineToArgvW (const_os_stritype commandLine, int *w_argc)
+#else
+
+static os_stritype *CommandLineToArgvW (commandLine, w_argc)
+os_stritype commandLine;
+int *w_argc;
+#endif
+
+  {
+    size_t command_line_size;
+    const_os_stritype sourcePos;
+    os_stritype destPos;
+    os_stritype destBuffer;
+    memsizetype argumentCount;
+    os_stritype *result;
+
+  /* CommandLineToArgvW */
+    command_line_size = os_stri_strlen(commandLine);
+    argumentCount = 0;
+    result = (os_stritype *) malloc(command_line_size * sizeof(os_stritype *));
+    if (result != NULL) {
+      sourcePos = commandLine;
+      while (*sourcePos == ' ') {
+        sourcePos++;
+      } /* while */
+      if (*sourcePos == 0) {
+        result[0] = NULL;
+      } else {
+        if (unlikely(!os_stri_alloc(destBuffer, command_line_size))) {
+          free(result);
+          result = NULL;
+        } else {
+          result[0] = destBuffer;
+          argumentCount = 1;
+          destPos = destBuffer;
+          do {
+            /* printf("source char: %d\n", *sourcePos); */
+            if (*sourcePos == '"') {
+              /* Inside quotation mode */
+              sourcePos++;
+              while (*sourcePos != '"' && *sourcePos != 0) {
+                if (*sourcePos == '\\') {
+                  processBackslash(&sourcePos, &destPos);
+                } else {
+                  *destPos = *sourcePos;
+                  sourcePos++;
+                  destPos++;
+                } /* if */
+              } /* while */
+              if (*sourcePos == '"') {
+                /* Consume the terminating quotation mark */
+                sourcePos++;
+              } /* if */
+            } /* if */
+            if (*sourcePos != ' ' && *sourcePos != 0) {
+              /* Outside quotation mode */
+              do {
+                if (*sourcePos == '\\') {
+                  processBackslash(&sourcePos, &destPos);
+                } else {
+                  *destPos = *sourcePos;
+                  sourcePos++;
+                  destPos++;
+                } /* if */
+              } while (*sourcePos != ' ' && *sourcePos != '"' && *sourcePos != 0);
+            } /* if */
+            if (*sourcePos == ' ') {
+              /* The current argument is terminated */
+              *destPos = 0;
+              destPos++;
+              result[argumentCount] = destPos;
+              argumentCount++;
+              while (*sourcePos == ' ') {
+                sourcePos++;
+              } /* while */
+            } /* if */
+          } while (*sourcePos != 0);
+          /* The last argument is terminated */
+          *destPos = 0;
+          result[argumentCount] = NULL;
+        } /* if */
+      } /* if */
+    } /* if */
+    *w_argc = argumentCount;
+    return result;
+  } /* CommandLineToArgvW */
+
+
+
+#ifdef ANSI_C
+
+void freeUtf16Argv (os_stritype *w_argv)
+#else
+
+void freeUtf16Argv (w_argv)
+os_stritype *w_argv;
+#endif
+
+  { /* freeUtf16Argv */
+    if (w_argv != NULL) {
+      os_stri_free(w_argv[0]);
+      free(w_argv);
+    } /* if */
+  } /* freeUtf16Argv */
+
+#else
+
+
+
+#ifdef ANSI_C
+
+void freeUtf16Argv (os_stritype *w_argv)
+#else
+
+void freeUtf16Argv (w_argv)
+os_stritype *w_argv;
+#endif
+
+  { /* freeUtf16Argv */
+    LocalFree(w_argv);
+  } /* freeUtf16Argv */
+#endif
+
+
+
 #ifdef ANSI_C
 
 os_stritype *getUtf16Argv (int *w_argc)
@@ -72,21 +252,6 @@ int *w_argc;
     w_argv = CommandLineToArgvW(commandLine, w_argc);
     return w_argv;
   } /* getUtf16Argv */
-
-
-
-#ifdef ANSI_C
-
-void freeUtf16Argv (os_stritype *w_argv)
-#else
-
-void freeUtf16Argv (w_argv)
-os_stritype *w_argv;
-#endif
-
-  { /* freeUtf16Argv */
-    LocalFree(w_argv);
-  } /* freeUtf16Argv */
 #endif
 
 
@@ -120,13 +285,13 @@ stritype arg_0;
 
 
 
-#ifdef USE_WGETENV_WSTRI
+#ifdef DEFINE_WGETENV
 #ifdef ANSI_C
 
-os_stritype wgetenv_wstri (os_stritype name)
+os_stritype wgetenv (os_stritype name)
 #else
 
-os_stritype wgetenv_wstri (name)
+os_stritype wgetenv (name)
 os_stritype name;
 #endif
 
@@ -134,7 +299,7 @@ os_stritype name;
     memsizetype result_size;
     os_stritype result;
 
-  /* wgetenv_wstri */
+  /* wgetenv */
     result_size = GetEnvironmentVariableW(name, NULL, 0);
     if (result_size == 0) {
       result = NULL;
@@ -147,7 +312,7 @@ os_stritype name;
       } /* if */
     } /* if */
     return result;
-  } /* wgetenv_wstri */
+  } /* wgetenv */
 #endif
 
 

@@ -98,12 +98,14 @@ DRAW_LIB_SRC =  drw_win.c
 COMP_DATA_LIB_SRC = typ_data.c rfl_data.c ref_data.c listutl.c flistutl.c typeutl.c datautl.c
 COMPILER_LIB_SRC = $(PSRC1) $(LSRC1) $(LSRC2) $(LSRC3) $(ESRC1) $(ASRC1) $(ASRC2) $(ASRC3) $(GSRC1) $(GSRC2)
 
-..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) -o ..\bin\hi.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
-	copy ..\bin\hi.exe ..\prg /Y
+hi: ..\bin\hi.exe ..\prg\hi.exe
 	..\bin\hi level
 
-hi: ..\bin\hi.exe
+..\bin\hi.exe: $(OBJ) $(ALL_S7_LIBS)
+	$(CC) $(LDFLAGS) -o ..\bin\hi.exe $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_LIBS)
+
+..\prg\hi.exe: ..\bin\hi.exe
+	copy ..\bin\hi.exe ..\prg /Y
 
 clear: clean
 
@@ -117,6 +119,7 @@ clean:
 	del depend
 	del *.obj
 	del ..\bin\*.lib
+	del ..\prg\hi.exe
 	del *.tds
 	del *.d
 
@@ -138,7 +141,7 @@ version.h:
 	echo ^#define ISNAN_WITH_UNDERLINE >> version.h
 	echo ^#define CHECK_INT_DIV_BY_ZERO >> version.h
 	echo ^#define USE_MYUNISTD_H >> version.h
-	echo ^#define OS_PATH_WCHAR >> version.h
+	echo ^#define OS_STRI_WCHAR >> version.h
 	echo ^#define OS_WIDE_DIR_INCLUDE_DIR_H >> version.h
 	echo ^#define OS_CHMOD_INCLUDE_IO_H >> version.h
 	echo ^#define os_chdir _wchdir >> version.h
@@ -164,13 +167,14 @@ version.h:
 	echo ^#define os_system _wsystem >> version.h
 	echo ^#define os_pclose _pclose >> version.h
 	echo ^#define os_popen _wpopen >> version.h
-	echo ^#define wide_fopen _wfopen >> version.h
-	echo ^#define DEFINE_FSEEKI64_AND_FTELLI64 >> version.h
+	echo ^#define os_fopen _wfopen >> version.h
+	echo ^#define DEFINE_FSEEKI64_PROTOTYPE >> version.h
 	echo ^#define os_fseek _fseeki64 >> version.h
+	echo ^#define DEFINE_FTELLI64_PROTOTYPE >> version.h
 	echo ^#define os_ftell _ftelli64 >> version.h
 	echo ^#define os_off_t __int64 >> version.h
-	echo ^#define USE_WGETENV_WSTRI >> version.h
-	echo ^#define os_getenv wgetenv_wstri >> version.h
+	echo ^#define DEFINE_WGETENV >> version.h
+	echo ^#define os_getenv wgetenv >> version.h
 	echo ^#define DEFINE_WSETENV >> version.h
 	echo ^#define os_setenv wsetenv >> version.h
 	echo ^#define USE_WINSOCK >> version.h

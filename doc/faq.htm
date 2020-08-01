@@ -374,10 +374,10 @@ Seed7 can be used in various application areas:
 The Seed7 package contains more than 100000 lines of C and more
 than 150000 lines of Seed7. For version 2011-07-03 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right"> 94616</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right">  9712</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">100005</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right"> 62960</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right"> 94878</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right">  9731</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">100202</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right"> 62985</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -1548,27 +1548,26 @@ following directories are in the list of library directories:
     path like <tt><font color=maroon>"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</font></tt>).
     The hard-coded library directory is determined when the
     interpreter is compiled. So it only exists when the interpreter
-    was compiled from source. The interpreter from the binary
-    release uses the relative path <tt><font color=maroon>"../lib"</font></tt> instead. This works only
-    when the current working directory is the <tt><font color=maroon>"prg"</font></tt> directory of the
-    Seed7 package. E.g.: When the current working directory is
-    <tt><font color=maroon>"seed7/prg"</font></tt> and the program <tt><font color=maroon>"hello.sd7"</font></tt> is interpreted the
-    include files are searched in <tt><font color=maroon>"seed7/lib"</font></tt>.</li>
+    was compiled from source. Interpreter and compiler from the
+    binary release use <tt><font color=maroon>"../lib"</font></tt> relative to
+    the directory of the <tt>'hi'</tt> interpreter executable.
+    The compiled compiler of the binary release uses <tt><font color=maroon>"../lib"</font></tt>
+    relative to its own executable.</li>
 <li><!--  3.  -->The directory specified with the <tt>SEED7_LIBRARY</tt> environment
     variable.</li>
 <li><!--  4.  -->Directories specified in the source file with the <tt>library</tt>
-    pragma. E.g.: The line: <tt>$ library <font color=maroon>"/home/tm/seed7/lib"</font></tt>
-    adds the directory <tt><font color=maroon>"/home/tm/seed7/lib"</font></tt> to the list of library
+    pragma. E.g.: The line: <tt>$ library <font color=maroon>"/home/abc/seed7/lib"</font></tt>
+    adds the directory <tt><font color=maroon>"/home/abc/seed7/lib"</font></tt> to the list of library
     directories.</li>
 </ol><p>
 Seed7 interpreter and compiler (comp.s7i) use the same list of
 library directories (the same library search path). When Seed7 is
 compiled from source code both (interpreter and compiler) will find
 the Seed7 include files automatically. Interpreter and compiler from
-the binary release will only find library include files when the
-current working directory is <tt><font color=maroon>"seed7/prg"</font></tt>. To interpret programs from
-other current working directories with the binary interpreter it is
-necessary to set the environment variable <tt>SEED7_LIBRARY</tt> to the
+the binary release will only find library include files when the path
+<tt><font color=maroon>"../lib"</font></tt> relative to the <tt>'hi'</tt> or <tt>'comp'</tt>
+executable leads to the library directory. Additionally it is
+possible to set the environment variable <tt>SEED7_LIBRARY</tt> to the
 absolute path <tt><font color=maroon>"/<i>directory_where_Seed7_was_installed</i>/seed7/lib"</font></tt>.
 </p></p>
 
@@ -1581,7 +1580,7 @@ is compiled. The command <tt>'make depend'</tt> writes a line, which defines the
 C preprocessor variable SEED7_LIBRARY, to the file <tt><font color=maroon>"seed7/src/version.h"</font></tt>.
 E.g.: The file <tt><font color=maroon>"version.h"</font></tt> contains the line:
 </p><pre>
-  #define SEED7_LIBRARY <font color=maroon>"/home/abc/seed7_5/lib"</font>
+  #define SEED7_LIBRARY <font color=maroon>"/home/abc/seed7/lib"</font>
 </pre><p>
 The preprocessor macro SEED7_LIBRARY is used by the function
 init_lib_path() which is defined in <tt><font color=maroon>"seed7/src/infile.c"</font></tt>.
@@ -1609,9 +1608,11 @@ and its runtime library. This information is created when the Seed7
 interpreter is compiled. The command <tt>'make depend'</tt> writes C preprocessor
 macros to <tt><font color=maroon>"seed7/src/version.h"</font></tt>. E.g.:
 </p><pre>
-  #define SEED7_LIB <font color=maroon>"/home/abc/seed7_5/bin/seed7_05.a"</font>
-  #define COMP_DATA_LIB <font color=maroon>"/home/abc/seed7_5/bin/s7_data.a"</font>
-  #define COMPILER_LIB <font color=maroon>"/home/abc/seed7_5/bin/s7_comp.a"</font>
+  #define SEED7_LIB <font color=maroon>"seed7_05.a"</font>
+  #define DRAW_LIB <font color=maroon>"s7_draw.a"</font>
+  #define COMP_DATA_LIB <font color=maroon>"s7_data.a"</font>
+  #define COMPILER_LIB <font color=maroon>"s7_comp.a"</font>
+  #define S7_LIB_DIR <font color=maroon>"/home/abc/seed7/bin"</font>
 </pre><p>
 The command <tt>'make depend'</tt> compiles and executes the program
 <tt><font color=maroon>"chkccomp.c"</font></tt>, which also writes preprocessor macros to <tt><font color=maroon>"version.h"</font></tt>.
@@ -1628,13 +1629,14 @@ defined in <tt><font color=maroon>"cmd_rtl.c"</font></tt>, allows access to seve
 this information with the function <tt>'configValue'</tt>. The Seed7
 function <tt>'configValue'</tt> calls the C function <tt>'cmdConfigValue()'</tt>,
 which returns the requested config value. Configuration values
-are returned as strings. E.g.: <tt>configValue(<font color=maroon>"SEED7_LIB"</font>)</tt> returns
-<tt><font color=maroon>"/home/abc/seed7_5/bin/seed7_05.a"</font></tt>. For macros which are either
+are returned as strings. E.g.: <tt>configValue(<font color=maroon>"S7_LIB_DIR"</font>)</tt> returns
+<tt><font color=maroon>"/home/abc/seed7/bin"</font></tt>. For macros which are either
 defined or undefined <tt>'configValue'</tt> returns <tt><font color=maroon>"TRUE"</font></tt> or <tt><font color=maroon>"FALSE"</font></tt>
 respectively. E.g.: <tt>configValue(<font color=maroon>"TWOS_COMPLEMENT_INTTYPE"</font>)</tt> returns
 <tt><font color=maroon>"TRUE"</font></tt>.
 </p><p>
-The Seed7 compiler uses SEED7_LIB, COMP_DATA_LIB and COMPILER_LIB
+The Seed7 compiler uses the runtime libraries SEED7_LIB, DRAW_LIB,
+COMP_DATA_LIB and COMPILER_LIB in the directory S7_LIB_DIR
 when it links object files to an executable. Config values
 like RSHIFT_DOES_SIGN_EXTEND, TWOS_COMPLEMENT_INTTYPE and
 LITTLE_ENDIAN_INTTYPE are used to control the kind of C code

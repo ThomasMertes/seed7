@@ -43,7 +43,7 @@
 #else
 #include "utime.h"
 #endif
-#ifdef OS_PATH_WCHAR
+#ifdef OS_STRI_WCHAR
 #include "wchar.h"
 #ifdef OS_WIDE_DIR_INCLUDE_DIR_H
 #include "dir.h"
@@ -332,13 +332,8 @@ errinfotype *err_info;
 #ifdef TRACE_CMD_RTL
     printf("BEGIN copy_file(\"%s\", \"%s\")\n", from_name, to_name);
 #endif
-#ifdef OS_PATH_WCHAR
-    if ((from_file = wide_fopen(from_name, L"rb")) != NULL) {
-      if ((to_file = wide_fopen(to_name, L"wb")) != NULL) {
-#else
-    if ((from_file = fopen(from_name, "rb")) != NULL) {
-      if ((to_file = fopen(to_name, "wb")) != NULL) {
-#endif
+    if ((from_file = os_fopen(from_name, os_mode_rb)) != NULL) {
+      if ((to_file = os_fopen(to_name, os_mode_wb)) != NULL) {
 #ifdef USE_MMAP
         file_no = fileno(from_file);
         if (file_no != -1 && os_fstat(file_no, &file_stat) == 0) {
@@ -827,11 +822,7 @@ stritype file_name;
       } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
         result = bigIConv(0);
       } else {
-#ifdef OS_PATH_WCHAR
-        aFile = wide_fopen(os_path, L"r");
-#else
-        aFile = fopen(os_path, "r");
-#endif
+        aFile = os_fopen(os_path, os_mode_rb);
         if (aFile == NULL) {
           err_info = FILE_ERROR;
           result = NULL;
@@ -1025,6 +1016,12 @@ stritype name;
 #endif
       } else if (strcmp(opt_name, "CHECK_INT_DIV_BY_ZERO") == 0) {
 #ifdef CHECK_INT_DIV_BY_ZERO
+        opt = "TRUE";
+#else
+        opt = "FALSE";
+#endif
+      } else if (strcmp(opt_name, "SIGILL_ON_OVERFLOW") == 0) {
+#ifdef SIGILL_ON_OVERFLOW
         opt = "TRUE";
 #else
         opt = "FALSE";
@@ -1227,11 +1224,7 @@ stritype file_name;
       } else if (stat_result == 0 && S_ISDIR(stat_buf.st_mode)) {
         result = 0;
       } else {
-#ifdef OS_PATH_WCHAR
-        aFile = wide_fopen(os_path, L"r");
-#else
-        aFile = fopen(os_path, "r");
-#endif
+        aFile = os_fopen(os_path, os_mode_rb);
         if (aFile == NULL) {
           err_info = FILE_ERROR;
           result = 0;
@@ -1444,9 +1437,7 @@ stritype name;
         } /* if */
       } else {
         result = os_stri_to_stri(env_value, &err_info);
-#ifdef USE_WGETENV_WSTRI
-        os_stri_free(env_value);
-#endif
+        os_getenv_string_free(env_value);
       } /* if */
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(err_info);

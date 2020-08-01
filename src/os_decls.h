@@ -42,10 +42,10 @@
 #define os_rmdir rmdir
 #endif
 #ifndef os_opendir
-#define os_opendir  opendir
+#define os_opendir opendir
 #endif
 #ifndef os_readdir
-#define os_readdir  readdir
+#define os_readdir readdir
 #endif
 #ifndef os_closedir
 #define os_closedir closedir
@@ -55,12 +55,6 @@
 #endif
 #ifndef os_dirent_struct
 #define os_dirent_struct struct dirent
-#endif
-#ifndef os_fseek
-#define os_fseek fseek
-#endif
-#ifndef os_ftell
-#define os_ftell ftell
 #endif
 #ifndef os_fstat
 #define os_fstat fstat
@@ -104,9 +98,26 @@
 #ifndef os_popen
 #define os_popen popen
 #endif
+#ifndef os_fopen
+#define os_fopen fopen
+#endif
 #ifndef os_getenv
 #define os_getenv getenv
 #endif
 #ifndef os_setenv
 #define os_setenv setenv
+#endif
+
+#ifdef OS_STRI_WCHAR
+#define os_mode_rb L"rb"
+#define os_mode_wb L"wb"
+#else
+#define os_mode_rb "rb"
+#define os_mode_wb "wb"
+#endif
+
+#ifdef DEFINE_WGETENV
+#define os_getenv_string_free(env_var) os_stri_free(env_var)
+#else
+#define os_getenv_string_free(env_var)
 #endif
