@@ -55,6 +55,7 @@ objectType fil_print            (listType arguments);
 objectType fil_seek             (listType arguments);
 objectType fil_setbuf           (listType arguments);
 objectType fil_tell             (listType arguments);
+objectType fil_truncate         (listType arguments);
 objectType fil_value            (listType arguments);
 objectType fil_word_read        (listType arguments);
 objectType fil_write            (listType arguments);

@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  iobuffer.s7i  Implementation type for a buffered file.          *)
-(*  Copyright (C) 2019  Thomas Mertes                               *)
+(*  Copyright (C) 2019, 2020  Thomas Mertes                         *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -50,7 +50,8 @@ const type: bufferFile is sub null_file struct
     var file: baseFile is STD_NULL;
     var bufferModeType: bufferMode is IO_LINE_BUFFERING;
     var integer: bufferSize is 2**16;
-    var string: buffer is "";
+    var string: inBuffer is "";
+    var string: outBuffer is "";
     var integer: position is 1;
   end struct;
 
@@ -74,6 +75,29 @@ const func file: openBufferFile (in file: baseFile) is func
   end func;
 
 
+(**
+ *  Close a bufferFile.
+ *)
+const proc: close (inout bufferFile: aBufferFile) is func
+  begin
+    write(aBufferFile.baseFile, aBufferFile.outBuffer);
+    close(aBufferFile.baseFile);
+  end func;
+
+
+(**
+ *  Forces that all buffered data of ''aBufferFile'' is sent to its destination.
+ *)
+const proc: flush (inout bufferFile: aBufferFile) is func
+  begin
+    write(aBufferFile.baseFile, aBufferFile.outBuffer);
+    aBufferFile.outBuffer := "";
+    flush(aBufferFile.baseFile);
+    aBufferFile.inBuffer := "";
+    aBufferFile.position := 1;
+  end func;
+
+
 const proc: setbuf (inout bufferFile: aBufferFile, in bufferModeType: mode, in integer: size) is func
   begin
     aBufferFile.bufferMode := mode;
@@ -91,27 +115,32 @@ const proc: write (inout bufferFile: outBufferFile, in string: stri) is func
     if outBufferFile.bufferMode = IO_NO_BUFFERING then
       write(outBufferFile.baseFile, stri);
     else
-      outBufferFile.buffer &:= stri;
+      outBufferFile.outBuffer &:= stri;
       if outBufferFile.bufferMode = IO_LINE_BUFFERING then
-        nlPos := rpos(outBufferFile.buffer, '\n');
+        nlPos := rpos(outBufferFile.outBuffer, '\n');
         if nlPos <> 0 then
-          writeln(outBufferFile.baseFile, outBufferFile.buffer[.. pred(nlPos)]);
-          outBufferFile.buffer := outBufferFile.buffer[succ(nlPos) ..];
+          writeln(outBufferFile.baseFile, outBufferFile.outBuffer[.. pred(nlPos)]);
+          outBufferFile.outBuffer := outBufferFile.outBuffer[succ(nlPos) ..];
         end if;
-      else
-        if length(outBufferFile.buffer) > outBufferFile.bufferSize then
-          write(outBufferFile.baseFile, outBufferFile.buffer);
-          outBufferFile.buffer := "";
+      else # IO_FULL_BUFFERING
+        if length(outBufferFile.outBuffer) > outBufferFile.bufferSize then
+          write(outBufferFile.baseFile, outBufferFile.outBuffer);
+          outBufferFile.outBuffer := "";
         end if;
       end if;
     end if;
   end func;
 
 
-const proc: moveLeft (inout bufferFile: outBufferFile) is func
+const proc: moveLeft (inout bufferFile: outBufferFile, in string: stri) is func
   begin
-    if outBufferFile.position > 1 then
-      decr(outBufferFile.position);
+    if length(outBufferFile.outBuffer) >= length(stri) then
+      outBufferFile.outBuffer :=
+          outBufferFile.outBuffer[.. length(outBufferFile.outBuffer) - length(stri)];
+    else
+      moveLeft(outBufferFile.baseFile,
+          stri[succ(length(stri) - length(outBufferFile.outBuffer)) ..]);
+      outBufferFile.outBuffer := "";
     end if;
   end func;
 
@@ -124,14 +153,14 @@ const func char: getc (inout bufferFile: inBufferFile) is func
   result
     var char: charRead is EOF;
   begin
-    if inBufferFile.position > length(inBufferFile.buffer) then
-      inBufferFile.buffer := gets(inBufferFile.baseFile, inBufferFile.bufferSize);
-      if inBufferFile.buffer <> "" then
-        charRead := inBufferFile.buffer[1];
+    if inBufferFile.position > length(inBufferFile.inBuffer) then
+      inBufferFile.inBuffer := gets(inBufferFile.baseFile, inBufferFile.bufferSize);
+      if inBufferFile.inBuffer <> "" then
+        charRead := inBufferFile.inBuffer[1];
         inBufferFile.position := 2;
       end if;
     else
-      charRead := inBufferFile.buffer[inBufferFile.position];
+      charRead := inBufferFile.inBuffer[inBufferFile.position];
       incr(inBufferFile.position);
     end if;
   end func;
@@ -152,24 +181,24 @@ const func string: gets (inout bufferFile: inBufferFile, in integer: maxLength) 
         raise RANGE_ERROR;
       end if;
     else
-      if pred(inBufferFile.position + maxLength) <= length(inBufferFile.buffer) then
-        striRead := inBufferFile.buffer[inBufferFile.position len maxLength];
+      if pred(inBufferFile.position + maxLength) <= length(inBufferFile.inBuffer) then
+        striRead := inBufferFile.inBuffer[inBufferFile.position len maxLength];
         inBufferFile.position +:= maxLength;
       else
-        missing :=  maxLength - length(inBufferFile.buffer) + inBufferFile.position - 1;
+        missing :=  maxLength - length(inBufferFile.inBuffer) + inBufferFile.position - 1;
         if missing < inBufferFile.bufferSize then
-          striRead := inBufferFile.buffer[inBufferFile.position ..];
-          inBufferFile.buffer := gets(inBufferFile.baseFile, inBufferFile.bufferSize);
-          striRead &:= inBufferFile.buffer[.. missing];
-          if length(inBufferFile.buffer) >= missing then
+          striRead := inBufferFile.inBuffer[inBufferFile.position ..];
+          inBufferFile.inBuffer := gets(inBufferFile.baseFile, inBufferFile.bufferSize);
+          striRead &:= inBufferFile.inBuffer[.. missing];
+          if length(inBufferFile.inBuffer) >= missing then
             inBufferFile.position := succ(missing);
           else
-            inBufferFile.position := succ(length(inBufferFile.buffer));
+            inBufferFile.position := succ(length(inBufferFile.inBuffer));
           end if;
         else
-          striRead := inBufferFile.buffer[inBufferFile.position ..] &
+          striRead := inBufferFile.inBuffer[inBufferFile.position ..] &
                       gets(inBufferFile.baseFile, missing);
-          inBufferFile.buffer := "";
+          inBufferFile.inBuffer := "";
           inBufferFile.position := 1;
         end if;
       end if;
@@ -184,7 +213,7 @@ const func string: gets (inout bufferFile: inBufferFile, in integer: maxLength) 
  *  @return TRUE if the end-of-file indicator is set, FALSE otherwise.
  *)
 const func boolean: eof (in bufferFile: inBufferFile) is
-  return inBufferFile.position > length(inBufferFile.buffer) and
+  return inBufferFile.position > length(inBufferFile.inBuffer) and
          eof(inBufferFile.baseFile);
 
 
@@ -195,7 +224,7 @@ const func boolean: eof (in bufferFile: inBufferFile) is
  *          TRUE otherwise.
  *)
 const func boolean: hasNext (inout bufferFile: inBufferFile) is
-  return inBufferFile.position <= length(inBufferFile.buffer) or
+  return inBufferFile.position <= length(inBufferFile.inBuffer) or
          hasNext(inBufferFile.baseFile);
 
 
@@ -212,12 +241,16 @@ const func integer: length (inout bufferFile: aBufferFile) is
  *  Set the current file position.
  *  The file position is measured in characters from the start of the file.
  *  The first character in the file has the position 1.
+ *  It is possible to switch between reading and writing a ''bufferFile''
+ *  (and vice versa) as long as seek() is called in between.
  *)
 const proc: seek (inout bufferFile: aBufferFile, in integer: position) is func
   begin
+    write(aBufferFile.baseFile, aBufferFile.outBuffer);
+    aBufferFile.outBuffer := "";
     seek(aBufferFile.baseFile, position);
-    aBufferFile.buffer := "";
-    aBufferFile.position := position;
+    aBufferFile.inBuffer := "";
+    aBufferFile.position := 1;
   end func;
 
 
@@ -227,5 +260,14 @@ const proc: seek (inout bufferFile: aBufferFile, in integer: position) is func
  *  The first character in the file has the position 1.
  *  @return the current file position.
  *)
-const func integer: tell (in bufferFile: aBufferFile) is
-  return pred(tell(aBufferFile.baseFile) + aBufferFile.position);
+const func integer: tell (in bufferFile: aBufferFile) is func
+  result
+    var integer: position is 0;
+  begin
+    if aBufferFile.outBuffer <> "" then
+      position := tell(aBufferFile.baseFile) + length(aBufferFile.outBuffer);
+    else
+      position := tell(aBufferFile.baseFile) - length(aBufferFile.inBuffer) +
+                  aBufferFile.position - 1;
+    end if;
+  end func;

@@ -844,6 +844,13 @@ objectType set_rand (listType arguments)
 
 
 
+/**
+ *  Create set with all values from lowValue/arg_2 to highValue/arg_4 inclusive.
+ *  @param lowValue/arg_2 lowest value to be added to the result set.
+ *  @param highValue/arg_4 higest value to be added to the result set.
+ *  @return set with all values from lowValue/arg_2 to highValue/arg_4 inclusive, or
+ *          an empty set if lowValue/arg_2 is greater than highValue/arg_4.
+ */
 objectType set_rangelit (listType arguments)
 
   { /* set_rangelit */

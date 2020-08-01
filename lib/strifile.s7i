@@ -85,10 +85,12 @@ const proc: write (inout strifile: outStrifile, in string: stri) is func
   end func;
 
 
-const proc: moveLeft (inout strifile: outStrifile) is func
+const proc: moveLeft (inout strifile: outStrifile, in string: stri) is func
   begin
-    if outStrifile.position > 1 then
-      decr(outStrifile.position);
+    if outStrifile.position > length(stri) then
+      outStrifile.position -:= length(stri);
+    else
+      outStrifile.position := 1;
     end if;
   end func;
 
@@ -227,6 +229,26 @@ const func boolean: hasNext (in strifile: inStrifile) is
  *)
 const func integer: length (in strifile: aStrifile) is
   return length(aStrifile.content);
+
+
+(**
+ *  Truncate ''aStrifile'' to the given ''length''.
+ *  If the file previously was larger than ''length'', the extra data is lost.
+ *  If the file previously was shorter, it is extended, and the extended
+ *  part is filled with null bytes ('\0;').
+ *  The file length is measured in characters.
+ *)
+const proc: truncate (inout strifile: aStrifile, in integer: length) is func
+  begin
+    if length < 0 then
+      raise RANGE_ERROR;
+    elsif length(aStrifile.content) > length then
+      aStrifile.content := aStrifile.content[.. length];
+    elsif length(aStrifile.content) < length then
+      aStrifile.content := aStrifile.content &
+          "\0;" mult (length - length(aStrifile.content));
+    end if;
+  end func;
 
 
 (**

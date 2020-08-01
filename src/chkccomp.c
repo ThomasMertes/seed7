@@ -25,71 +25,88 @@
 /*                                                                  */
 /********************************************************************/
 
-#include "version.h"
+#include "base.h"
 
 /**
- *  From version.h the following defines are used (for details see: read_me.txt):
+ *  From base.h the following defines are used (for details see: read_me.txt):
  *
- *  TURN_OFF_FP_EXCEPTIONS
- *      Use the function _control87() to turn off floating point exceptions.
- *  PATH_DELIMITER:
+ *  PATH_DELIMITER: (mandatory)
  *      Path delimiter character used by the command shell of the operating system.
- *  OS_STRI_WCHAR:
- *      Defined if the system calls (os_...) use wide characters (type wchar_t)
- *      for string and path parameters.
- *  QUOTE_WHOLE_SHELL_COMMAND:
- *      Defined if shell commands, starting with " need to be quoted again.
- *  OBJECT_FILE_EXTENSION:
+ *  OBJECT_FILE_EXTENSION: (mandatory)
  *      The extension used by the C compiler for object files.
- *  EXECUTABLE_FILE_EXTENSION:
- *      The extension which is used by the operating system for executables.
- *  LINKED_PROGRAM_EXTENSION:
- *      The extension of the file produced by compiling and linking a program.
- *      Normally this is identical to the EXECUTABLE_FILE_EXTENSION, but in case
- *      of Emscripten this is independent from the EXECUTABLE_FILE_EXTENSION.
- *  INTERPRETER_FOR_LINKED_PROGRAM:
- *      Defines an interpreter that is used if compiler and linker create
- *      a file that must be interpreted.
- *  C_COMPILER:
+ *  C_COMPILER: (mandatory)
  *      Contains the command to call the stand-alone C compiler and linker.
+ *      C_COMPILER_SCRIPT and TEST_C_COMPILER can be used instead of C_COMPILER.
  *      If the C compiler is called via a script C_COMPILER_SCRIPT is defined
  *      and C_COMPILER is not defined. In that case TEST_C_COMPILER is defined
  *      (in chkccomp.h) and it is used instead of C_COMPILER as command of
  *      the stand-alone C compiler and linker.
- *  CC_FLAGS:
+ *  LINKER_OPT_OUTPUT_FILE: (mandatory)
+ *      Contains the linker option to provide the output filename (e.g.: "-o ").
+ *      Usually C compiler and linker are called with C_COMPILER. Without
+ *      LINKER_OPT_OUTPUT_FILE the output file name depends on the linker
+ *      used. Some use a fixed name like a.out while others use the source
+ *      name with a different extension.
+ *  OS_STRI_WCHAR: (optional)
+ *      Defined if the system calls (os_...) use wide characters (type wchar_t)
+ *      for string and path parameters.
+ *  QUOTE_WHOLE_SHELL_COMMAND: (optional)
+ *      Defined if shell commands, starting with " need to be quoted again.
+ *  EXECUTABLE_FILE_EXTENSION: (optional)
+ *      The extension which is used by the operating system for executables.
+ *  LINKED_PROGRAM_EXTENSION: (optional)
+ *      The extension of the file produced by compiling and linking a program.
+ *      Normally this is identical to the EXECUTABLE_FILE_EXTENSION, but in case
+ *      of Emscripten this is independent from the EXECUTABLE_FILE_EXTENSION.
+ *  INTERPRETER_FOR_LINKED_PROGRAM: (optional)
+ *      Defines an interpreter that is used if compiler and linker create
+ *      a file that must be interpreted.
+ *  CC_OPT_TRAP_OVERFLOW: (optional)
+ *      Contains a C compiler option that triggers the generation of code to
+ *      raise OVERFLOW_SIGNAL in case there is an integer overflow.
+ *  CC_OPT_VERSION_INFO: (optional)
+ *      C compiler option to write the C compiler version information.
+ *  CC_FLAGS: (optional)
  *      Contains C compiler flags, which should be used when C programs are
  *      compiled.
- *  CC_NO_OPT_OUTPUT_FILE:
+ *  CC_NO_OPT_OUTPUT_FILE: (optional)
  *      Defined, if compiling and linking with one command cannot use -o.
- *  CC_ERROR_FILDES:
+ *  CC_ERROR_FILEDES: (optional)
  *      File descriptor to which the C compiler writes errors.
- *  LINKER:
+ *  CC_VERSION_INFO_FILEDES: (optional)
+ *      File descriptor to which the C compiler writes its version info.
+ *  LINKER: (optional)
  *      Defined if C_COMPILER does just invoke the stand-alone C compiler.
  *      In that case LINKER contains the command to call the stand-alone linker.
- *  LINKER_OPT_OUTPUT_FILE:
- *      Contains the linker option to provide the output filename (e.g.: "-o ").
- *  SYSTEM_LIBS:
+ *  SYSTEM_LIBS: (optional)
  *      Contains system libraries for the stand-alone linker.
- *  INT64TYPE_NO_SUFFIX_BUT_CAST:
+ *  INT64TYPE_NO_SUFFIX_BUT_CAST: (optional)
  *      Defined if 64-bit integer literals do not use a suffix.
- *  INT_DIV_BY_ZERO_POPUP:
+ *  TURN_OFF_FP_EXCEPTIONS (optional)
+ *      Use the function _control87() to turn off floating point exceptions.
+ *  INT_DIV_BY_ZERO_POPUP: (optional)
  *      Defined if an integer division by zero may trigger a popup window.
  *      Consequently chkccomp.c defines CHECK_INT_DIV_BY_ZERO, to avoid the
  *      popup.
- *  DO_SIGFPE_WITH_DIV_BY_ZERO:
+ *  DO_SIGFPE_WITH_DIV_BY_ZERO: (optional)
  *      TRUE, if SIGFPE should be raised with an integer division by zero.
  *      If it is FALSE raise(SIGFPE) can be called instead. Under Windows
  *      it is necessary to trigger SIGFPE this way, to assure that the debugger
  *      can catch it.
- *  USE_ALTERNATE_LOCALTIME_R:
+ *  USE_ALTERNATE_LOCALTIME_R: (optional)
  *      Defined if the function alternate_localtime_r() should be used
  *      instead of localtime().
- *  FILENO_WORKS_FOR_NULL:
+ *  FORMAT_LL_TRIGGERS_WARNINGS: (optional)
+ *      Defined if the printf format ll triggers a warning (and there is an
+ *      alternate format).
+ *  FILENO_WORKS_FOR_NULL: (optional)
  *      TRUE, if the fileno() function works for NULL and returns -1.
- *  LINKER_OPT_STATIC_LINKING:
- *      Contains the linker option to force static linking (e.g.: "-static").
- *  STAT_MISSING:
+ *  STAT_MISSING: (optional)
  *      Defined if the function stat() is missing.
+ *  REDIRECT_FILEDES_1: (optional)
+ *      Symbol to redirect stdout in shell commands (executed with system()).
+ *  REDIRECT_FILEDES_2: (optional)
+ *      Symbol to redirect stderr in shell commands (executed with system()).
  */
 
 #include "stdlib.h"
@@ -110,17 +127,27 @@
  *  removed after chkccomp was compiled and executed.
  *  In chkccomp.h the following macros might be defined:
  *
- *  TEST_C_COMPILER
+ *  TEST_C_COMPILER:
  *      If TEST_C_COMPILER is defined it is used instead of C_COMPILER
  *      as command of the stand-alone C compiler and linker.
- *  WRITE_CC_VERSION_INFO
- *      Write the version of the C compiler to the file "cc_vers.txt".
- *      E.g.: #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt");
- *  LIST_DIRECTORY_CONTENTS
+ *  LIST_DIRECTORY_CONTENTS;
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
  *            #define LIST_DIRECTORY_CONTENTS "dir"
- *  PRINTF_MAXIMUM_FLOAT_PRECISION:
+ *  LINKER_OPT_STATIC_LINKING: (optional)
+ *      Contains the linker option to force static linking (e.g.: "-static").
+ *  SUPPORTS_PARTIAL_LINKING: (optional)
+ *      Defined if partial/incremental linking is prossible.
+ *      In this case source code can be compiled with the options -r -c.
+ *      The option -r produces a relocatable object as output. This is
+ *      also known as partial linking. The tool objcopy is used also.
+ *      Objcopy is used with the option -L symbolname which converts
+ *      a global or weak symbol called symbolname into a local symbol.
+ *      This way the symbol is not visible externally.
+ *  ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS: (optional)
+ *      Defined if X11 or ncurses header files can be replaced by header
+ *      files provided by Seed7.
+ *  PRINTF_MAXIMUM_FLOAT_PRECISION: (optional)
  *      Precision up to which writing a float with printf (using format %e or
  *      %f) will always work ok.
  *  The macros described can be defined in a makefile and they are only used
@@ -153,6 +180,10 @@
 #define CC_OPT_TRAP_OVERFLOW ""
 #endif
 
+#ifndef CC_OPT_VERSION_INFO
+#define CC_OPT_VERSION_INFO ""
+#endif
+
 #ifndef CC_FLAGS
 #define CC_FLAGS ""
 #endif
@@ -165,16 +196,20 @@
 #define S_ISDIR(mode) (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
-#ifndef REDIRECT_FILDES_1
-#define REDIRECT_FILDES_1 ">"
+#ifndef REDIRECT_FILEDES_1
+#define REDIRECT_FILEDES_1 ">"
 #endif
 
-#ifndef REDIRECT_FILDES_2
-#define REDIRECT_FILDES_2 "2>"
+#ifndef REDIRECT_FILEDES_2
+#define REDIRECT_FILEDES_2 "2>"
 #endif
 
 #ifndef FORMAT_LL_TRIGGERS_WARNINGS
 #define FORMAT_LL_TRIGGERS_WARNINGS 0
+#endif
+
+#ifndef SYSTEM_LIBS
+#define SYSTEM_LIBS ""
 #endif
 
 #ifndef MYSQL_LIBRARY_PATH
@@ -312,6 +347,7 @@ static int fileExists (const char *fileName)
 #else
 
 
+
 static int fileIsRegular (const char *fileName)
 
   {
@@ -397,6 +433,30 @@ static void copyFile (const char *sourceName, const char *destName)
 
 
 
+static void appendFile (const char *sourceName, const char *destName)
+
+  {
+    FILE *source;
+    FILE *dest;
+    char buffer[BUFFER_SIZE];
+    size_t len;
+
+  /* appendFile */
+    if (sourceName != NULL && destName != NULL) {
+      if ((source = fopen(sourceName, "r")) != NULL) {
+        if ((dest = fopen(destName, "a")) != NULL) {
+          while ((len = fread(buffer, 1, 1024, source)) != 0) {
+            fwrite(buffer, 1, len, dest);
+          } /* while */
+          fclose(dest);
+        } /* if */
+        fclose(source);
+      } /* if */
+    } /* if */
+  } /* appendFile */
+
+
+
 static void replaceNLBySpace (char *text)
 
   { /* replaceNLBySpace */
@@ -407,6 +467,69 @@ static void replaceNLBySpace (char *text)
       text++;
     } /* while */
   } /* replaceNLBySpace */
+
+
+
+static void determineCompilerVersion (FILE *versionFile)
+
+  {
+    char command[BUFFER_SIZE];
+    int cc_version_info_filedes = 0;
+    FILE *aFile;
+    int ch;
+
+  /* determineCompilerVersion */
+#ifdef CC_VERSION_INFO_FILEDES
+    cc_version_info_filedes = CC_VERSION_INFO_FILEDES;
+#else
+    /* Use heuristic to determine CC_VERSION_INFO_FILEDES. */
+    sprintf(command, "%s %s > cc_vers1.txt 2> cc_vers2.txt", c_compiler, CC_OPT_VERSION_INFO);
+    aFile = fopen("cc_vers1.txt", "r");
+    if (aFile != NULL) {
+      ch = getc(aFile);
+      fclose(aFile);
+      if (ch != EOF) {
+        cc_version_info_filedes = 1;
+      } /* if */
+    } /* if */
+    if (cc_version_info_filedes == 0) {
+      aFile = fopen("cc_vers2.txt", "r");
+      if (aFile != NULL) {
+        ch = getc(aFile);
+        fclose(aFile);
+        if (ch != EOF) {
+          cc_version_info_filedes = 2;
+        } /* if */
+      } /* if */
+    } /* if */
+    doRemove("cc_vers1.txt");
+    doRemove("cc_vers2.txt");
+    fprintf(versionFile, "#define CC_VERSION_INFO_FILEDES %d\n", cc_version_info_filedes);
+#endif
+    if (cc_version_info_filedes == 1) {
+      sprintf(command, "%s %s > cc_vers.txt", c_compiler, CC_OPT_VERSION_INFO);
+    } else if (cc_version_info_filedes == 2) {
+      sprintf(command, "%s %s 2> cc_vers.txt", c_compiler, CC_OPT_VERSION_INFO);
+    } /* if */
+    system(command);
+    aFile = fopen("cc_vers.txt", "r");
+    if (aFile != NULL) {
+      fprintf(versionFile, "#define C_COMPILER_VERSION \"");
+      for (ch=getc(aFile); ch != EOF && ch != 10 && ch != 13; ch = getc(aFile)) {
+        if (ch >= ' ' && ch <= '~') {
+          if (ch == '\"' || ch == '\'' || ch == '\\') {
+            putc('\\', versionFile);
+          } /* if */
+          putc(ch, versionFile);
+        } else {
+          fprintf(versionFile, "\\%3o", ch);
+        } /* if */
+      } /* for */
+      fputs("\"\n", versionFile);
+      fclose(aFile);
+      doRemove("cc_vers.txt");
+    } /* if */
+  } /* determineCompilerVersion */
 
 
 
@@ -456,14 +579,14 @@ static int doCompileAndLink (const char *compilerOptions, const char *linkerOpti
     sprintf(&command[strlen(command)], " %sctest%d%s",
             LINKER_OPT_OUTPUT_FILE, testNumber, LINKED_PROGRAM_EXTENSION);
 #endif
-#ifdef CC_ERROR_FILDES
-    /* A missing CC_ERROR_FILDES or an CC_ERROR_FILDES of zero means: Do not redirect. */
-    if (CC_ERROR_FILDES == 1) {
+#ifdef CC_ERROR_FILEDES
+    /* A missing CC_ERROR_FILEDES or an CC_ERROR_FILEDES of zero means: Do not redirect. */
+    if (CC_ERROR_FILEDES == 1) {
       sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILDES_1, testNumber, REDIRECT_FILDES_2, nullDevice);
-    } else if (CC_ERROR_FILDES == 2) {
+              REDIRECT_FILEDES_1, testNumber, REDIRECT_FILEDES_2, nullDevice);
+    } else if (CC_ERROR_FILEDES == 2) {
       sprintf(&command[strlen(command)], " %sctest%d.cerrs %s%s",
-              REDIRECT_FILDES_2, testNumber, REDIRECT_FILDES_1, nullDevice);
+              REDIRECT_FILEDES_2, testNumber, REDIRECT_FILEDES_1, nullDevice);
     } /* if */
 #endif
 #ifdef QUOTE_WHOLE_SHELL_COMMAND
@@ -3640,6 +3763,213 @@ static void determineFseekFunctions (FILE *versionFile, const char *fileno)
 
 
 
+static void determineFtruncate (FILE *versionFile, const char *fileno)
+
+  {
+    char buffer[BUFFER_SIZE];
+    char *os_ftruncate_stri = NULL;
+    char *ftruncate_size_in_bits;
+    char size_buffer[10];
+
+  /* determineFtruncate */
+    sprintf(buffer, "#include <stdio.h>\n#include <unistd.h>\n"
+                    "int main(int argc, char *argv[])\n"
+                    "{FILE *aFile; int file_no; char buffer[5];\n"
+                    "char *stri = NULL; int func_res = -1;\n"
+                    "aFile = fopen(\"ctstfile.txt\", \"w+\");\n"
+                    "if (aFile != NULL) {\n"
+                    "  file_no = %s(aFile);\n"
+                    "  if (file_no != -1) {\n"
+                    "    fprintf(aFile, \"abcd\");\n"
+                    "    fflush(aFile);\n"
+                    "    func_res = ftruncate(file_no, 1);\n"
+                    "    fseek(aFile, 0, SEEK_SET);\n"
+                    "    stri = fgets(buffer, 4, aFile);\n"
+                    "  }\n"
+                    "  fclose(aFile);\n"
+                    "}\n"
+                    "printf(\"%%d\\n\", func_res == 0 && stri != NULL &&\n"
+                    "       stri[0] == 'a' && stri[1] == '\\0' && sizeof(off_t) == 8);\n"
+                    "return 0;}\n", fileno);
+    if (compileAndLinkOk(buffer) && doTest() == 1) {
+      os_ftruncate_stri = "ftruncate";
+      ftruncate_size_in_bits = "OS_OFF_T_SIZE";
+    } /* if */
+    doRemove("ctstfile.txt");
+    if (os_ftruncate_stri == NULL) {
+      sprintf(buffer, "#include <stdio.h>\n#include <io.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; int file_no; char buffer[5];\n"
+                      "char *stri = NULL; int func_res = -1;\n"
+                      "aFile = fopen(\"ctstfile.txt\", \"w+\");\n"
+                      "if (aFile != NULL) {\n"
+                      "  file_no = %s(aFile);\n"
+                      "  if (file_no != -1) {\n"
+                      "    fprintf(aFile, \"abcd\");\n"
+                      "    fflush(aFile);\n"
+                      "    func_res = _chsize_s(file_no, 1);\n"
+                      "    fseek(aFile, 0, SEEK_SET);\n"
+                      "    stri = fgets(buffer, 4, aFile);\n"
+                      "  }\n"
+                      "  fclose(aFile);\n"
+                      "}\n"
+                      "printf(\"%%d\\n\", func_res == 0 && stri != NULL &&\n"
+                      "       stri[0] == 'a' && stri[1] == '\\0');\n"
+                      "return 0;}\n", fileno);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_ftruncate_stri = "_chsize_s";
+        ftruncate_size_in_bits = "64";
+        fputs("#define FTRUNCATE_INCLUDE_IO_H\n", versionFile);
+      } /* if */
+      doRemove("ctstfile.txt");
+    } /* if */
+    if (os_ftruncate_stri == NULL) {
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "extern int _chsize_s(int fd, %s size);\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; int file_no; char buffer[5];\n"
+                      "char *stri = NULL; int func_res = -1;\n"
+                      "aFile = fopen(\"ctstfile.txt\", \"w+\");\n"
+                      "if (aFile != NULL) {\n"
+                      "  file_no = %s(aFile);\n"
+                      "  if (file_no != -1) {\n"
+                      "    fprintf(aFile, \"abcd\");\n"
+                      "    fflush(aFile);\n"
+                      "    func_res = _chsize_s(file_no, 1);\n"
+                      "    fseek(aFile, 0, SEEK_SET);\n"
+                      "    stri = fgets(buffer, 4, aFile);\n"
+                      "  }\n"
+                      "  fclose(aFile);\n"
+                      "}\n"
+                      "printf(\"%%d\\n\", func_res == 0 && stri != NULL &&\n"
+                      "       stri[0] == 'a' && stri[1] == '\\0');\n"
+                      "return 0;}\n", int64TypeStri, fileno);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_ftruncate_stri = "_chsize_s";
+        ftruncate_size_in_bits = "64";
+        fputs("#define DEFINE_CHSIZE_S_PROTOTYPE\n", versionFile);
+      } /* if */
+      doRemove("ctstfile.txt");
+    } /* if */
+    if (os_ftruncate_stri == NULL) {
+      sprintf(buffer, "#include <stdio.h>\n#include <unistd.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; int file_no; char buffer[5];\n"
+                      "char *stri = NULL; int func_res = -1;\n"
+                      "aFile = fopen(\"ctstfile.txt\", \"w+\");\n"
+                      "if (aFile != NULL) {\n"
+                      "  file_no = %s(aFile);\n"
+                      "  if (file_no != -1) {\n"
+                      "    fprintf(aFile, \"abcd\");\n"
+                      "    fflush(aFile);\n"
+                      "    func_res = ftruncate(file_no, 1);\n"
+                      "    fseek(aFile, 0, SEEK_SET);\n"
+                      "    stri = fgets(buffer, 4, aFile);\n"
+                      "  }\n"
+                      "  fclose(aFile);\n"
+                      "}\n"
+                      "printf(\"%%d\\n\", func_res == 0 && stri != NULL &&\n"
+                      "       stri[0] == 'a' && stri[1] == '\\0' && sizeof(off_t) == 4);\n"
+                      "return 0;}\n", fileno);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_ftruncate_stri = "ftruncate";
+        ftruncate_size_in_bits = "32";
+      } /* if */
+      doRemove("ctstfile.txt");
+    } /* if */
+    if (os_ftruncate_stri == NULL) {
+      sprintf(buffer, "#include <stdio.h>\n#include <io.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; int file_no; char buffer[5];\n"
+                      "char *stri = NULL; int func_res = -1;\n"
+                      "aFile = fopen(\"ctstfile.txt\", \"w+\");\n"
+                      "if (aFile != NULL) {\n"
+                      "  file_no = %s(aFile);\n"
+                      "  if (file_no != -1) {\n"
+                      "    fprintf(aFile, \"abcd\");\n"
+                      "    fflush(aFile);\n"
+                      "    func_res = _chsize(file_no, 1);\n"
+                      "    fseek(aFile, 0, SEEK_SET);\n"
+                      "    stri = fgets(buffer, 4, aFile);\n"
+                      "  }\n"
+                      "  fclose(aFile);\n"
+                      "}\n"
+                      "printf(\"%%d\\n\", func_res == 0 && stri != NULL &&\n"
+                      "       stri[0] == 'a' && stri[1] == '\\0');\n"
+                      "return 0;}\n", fileno);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_ftruncate_stri = "_chsize";
+        sprintf(size_buffer, "%d", getSizeof("long") * 8);
+        ftruncate_size_in_bits = size_buffer;
+        fputs("#define FTRUNCATE_INCLUDE_IO_H\n", versionFile);
+      } /* if */
+      doRemove("ctstfile.txt");
+    } /* if */
+    if (os_ftruncate_stri == NULL) {
+      sprintf(buffer, "#include <stdio.h>\n#include <io.h>\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; int file_no; char buffer[5];\n"
+                      "char *stri = NULL; int func_res = -1;\n"
+                      "aFile = fopen(\"ctstfile.txt\", \"w+\");\n"
+                      "if (aFile != NULL) {\n"
+                      "  file_no = %s(aFile);\n"
+                      "  if (file_no != -1) {\n"
+                      "    fprintf(aFile, \"abcd\");\n"
+                      "    fflush(aFile);\n"
+                      "    func_res = chsize(file_no, 1);\n"
+                      "    fseek(aFile, 0, SEEK_SET);\n"
+                      "    stri = fgets(buffer, 4, aFile);\n"
+                      "  }\n"
+                      "  fclose(aFile);\n"
+                      "}\n"
+                      "printf(\"%%d\\n\", func_res == 0 && stri != NULL &&\n"
+                      "       stri[0] == 'a' && stri[1] == '\\0');\n"
+                      "return 0;}\n", fileno);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_ftruncate_stri = "chsize";
+        sprintf(size_buffer, "%d", getSizeof("long") * 8);
+        ftruncate_size_in_bits = size_buffer;
+        fputs("#define FTRUNCATE_INCLUDE_IO_H\n", versionFile);
+      } /* if */
+      doRemove("ctstfile.txt");
+    } /* if */
+    if (os_ftruncate_stri == NULL) {
+      sprintf(buffer, "#include <stdio.h>\n"
+                      "extern int _chsize(int fd, long size);\n"
+                      "int main(int argc, char *argv[])\n"
+                      "{FILE *aFile; int file_no; char buffer[5];\n"
+                      "char *stri = NULL; int func_res = -1;\n"
+                      "aFile = fopen(\"ctstfile.txt\", \"w+\");\n"
+                      "if (aFile != NULL) {\n"
+                      "  file_no = %s(aFile);\n"
+                      "  if (file_no != -1) {\n"
+                      "    fprintf(aFile, \"abcd\");\n"
+                      "    fflush(aFile);\n"
+                      "    func_res = _chsize(file_no, 1);\n"
+                      "    fseek(aFile, 0, SEEK_SET);\n"
+                      "    stri = fgets(buffer, 4, aFile);\n"
+                      "  }\n"
+                      "  fclose(aFile);\n"
+                      "}\n"
+                      "printf(\"%%d\\n\", func_res == 0 && stri != NULL &&\n"
+                      "       stri[0] == 'a' && stri[1] == '\\0');\n"
+                      "return 0;}\n", fileno);
+      if (compileAndLinkOk(buffer) && doTest() == 1) {
+        os_ftruncate_stri = "_chsize";
+        sprintf(size_buffer, "%d", getSizeof("long") * 8);
+        ftruncate_size_in_bits = size_buffer;
+        fputs("#define DEFINE_CHSIZE_PROTOTYPE\n", versionFile);
+      } /* if */
+      doRemove("ctstfile.txt");
+    } /* if */
+    if (os_ftruncate_stri != NULL) {
+      fprintf(versionFile, "#define os_ftruncate %s\n", os_ftruncate_stri);
+      fprintf(versionFile, "#define FTRUNCATE_SIZE %s\n", ftruncate_size_in_bits);
+    } /* if */
+  } /* determineFtruncate */
+
+
+
 /**
  *  Determine values for DECLARE_OS_ENVIRON, USE_GET_ENVIRONMENT,
  *  INITIALIZE_OS_ENVIRON, DEFINE_WGETENV, DEFINE_WSETENV, os_environ.
@@ -4568,6 +4898,7 @@ static void determineOsFunctions (FILE *versionFile)
     determineSocketLib(versionFile);
     determineOsDirAccess(versionFile);
     determineFseekFunctions(versionFile, fileno);
+    determineFtruncate(versionFile, fileno);
 #if defined OS_STRI_WCHAR
     determineOsWCharFunctions(versionFile);
 #elif PATH_DELIMITER == '\\'
@@ -4814,7 +5145,7 @@ static int findLinkerOption (const char *scopeName, const char *testProgram,
 
   /* findLinkerOption */
     for (nameIndex = 0;
-         !libFound && nameIndex < sizeof(libNameList) / sizeof(char *);
+         !libFound && nameIndex < libNameListLength;
          nameIndex++) {
       linkParam[0] = '\0';
       appendOption(linkParam, libraryOption);
@@ -4881,7 +5212,11 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
 #ifdef X11_LIBRARY_PATH
     const char *libDirList[] = { X11_LIBRARY_PATH };
 #endif
+#ifdef X11_LIBS
+    const char *libNameList[] = { X11_LIBS };
+#else
     const char *libNameList[] = {"-lX11"};
+#endif
 #ifdef X11_DLL
     const char *dllNameList[] = { X11_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
@@ -4901,6 +5236,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
     char system_draw_libs[BUFFER_SIZE];
 
   /* determineX11Defines */
+#ifndef NO_X11_SYSTEM_INCLUDES
     sprintf(testProgram, "#include <X11/X.h>\n"
                          "#include <X11/Xlib.h>\n"
                          "#include <X11/Xutil.h>\n"
@@ -4922,6 +5258,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
         appendOption(include_options, includeOption);
       } /* if */
     } /* if */
+#endif
     if (x11Include != NULL) {
       x11IncludeCommand = "#include <X11/X.h>\n"
                           "#include <X11/Xlib.h>\n"
@@ -5006,7 +5343,7 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
         /* Handle dynamic libraries: */
         fprintf(versionFile, "#define X11_DLL");
         for (nameIndex = 0;
-             searchForLib && nameIndex < sizeof(dllNameList) / sizeof(char *);
+             nameIndex < sizeof(dllNameList) / sizeof(char *);
              nameIndex++) {
           fprintf(logFile, "\rX11: DLL / Shared library: %s\n", dllNameList[nameIndex]);
           fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
@@ -5021,7 +5358,11 @@ static void determineX11Defines (FILE *versionFile, char *include_options)
 static void determineConsoleDefines (FILE *versionFile, char *include_options)
 
   {
+#ifdef CONSOLE_LIBS
+    const char *libNameList[] = { CONSOLE_LIBS };
+#else
     const char *libNameList[] = {"-lncurses"};
+#endif
 #ifdef CONSOLE_DLL
     const char *dllNameList[] = { CONSOLE_DLL };
 #elif LIBRARY_TYPE == UNIX_LIBRARIES
@@ -5040,6 +5381,14 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
     char system_console_libs[BUFFER_SIZE];
 
   /* determineConsoleDefines */
+    if (compileAndLinkOk("#include \"stdio.h\"\n"
+                         "#include \"termios.h\"\n"
+                         "int main(int argc,char *argv[]){\n"
+                         "struct termios termiosData;\n"
+                         "printf(\"%d\\n\", tcgetattr(0, &termiosData) == 0);\n"
+                         "return 0;}\n")) {
+      fprintf(versionFile, "#define HAS_TERMIOS_H\n");
+    } /* if */
     if (compileAndLinkOk("#include \"stdio.h\"\n"
                          "#include \"term.h\"\n"
                          "int main(int argc,char *argv[]){\n"
@@ -5113,6 +5462,21 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
           fprintf(versionFile, "\"\n");
           searchForLib = 0;
         } /* if */
+#ifdef ALLOW_REPLACEMENT_OF_SYSTEM_HEADERS
+        if (searchForLib) {
+          if (compileAndLinkOk("#include \"stdio.h\"\n"
+                               "#include \"fwd_term.h\"\n"
+                               "int main(int argc,char *argv[]){\n"
+                               "TERMINAL *aTerminal;\n"
+                               "return 0;}\n")) {
+            useSystemHeader = 0;
+            fprintf(versionFile, "#define TERM_INCLUDE \"fwd_term.h\"\n");
+            /* fprintf(versionFile, "#define FORWARD_TERM_CALLS %d\n", 0); */
+            consoleInclude = "fwd_term.h";
+            fprintf(logFile, "\rConsole: %s found in Seed7 include directory.\n", consoleInclude);
+          } /* if */
+        } /* if */
+#endif
       } /* if */
       fprintf(versionFile, "#define FORWARD_TERM_CALLS %d\n",
               searchForLib && !useSystemHeader);
@@ -5122,7 +5486,7 @@ static void determineConsoleDefines (FILE *versionFile, char *include_options)
         /* Handle dynamic libraries: */
         fprintf(versionFile, "#define CONSOLE_DLL");
         for (nameIndex = 0;
-             searchForLib && nameIndex < sizeof(dllNameList) / sizeof(char *);
+             nameIndex < sizeof(dllNameList) / sizeof(char *);
              nameIndex++) {
           fprintf(logFile, "\rConsole: DLL / Shared library: %s\n", dllNameList[nameIndex]);
           fprintf(versionFile, " \"%s\",", dllNameList[nameIndex]);
@@ -6614,7 +6978,7 @@ static void determineTdsDefines (FILE *versionFile,
                          "return 0;\n}\n", tdsInclude);
     /* fprintf(logFile, "%s\n", testProgram);
        fprintf(logFile, "tdsInclude: \"%s\"\n", tdsInclude); */
-    if (findLinkerOption("Tds", testProgram, includeOption, TDS_LIBRARY_PATH,
+    if (findLinkerOption("TDS", testProgram, includeOption, TDS_LIBRARY_PATH,
                          libNameList, sizeof(libNameList) / sizeof(char *),
                          system_database_libs)) {
       searchForLib = 0;
@@ -6874,18 +7238,22 @@ int main (int argc, char **argv)
     char *versionFileName = NULL;
     FILE *versionFile = NULL;
     int driveLetters;
-    FILE *aFile;
-    int ch;
 
   /* main */
+    if (!fileIsRegular("settings.h")) {
+      fprintf(stdout, "\n *** fileIsRegular(\"%s\") fails.\n", "settings.h");
+    } /* if */
     if (argc >= 2) {
       versionFileName = argv[1];
-      if (!fileIsRegular(versionFileName)) {
-        fprintf(stdout, "\n *** fileIsRegular(\"%s\") fails.\n", versionFileName);
+      if (fileIsRegular(versionFileName)) {
+        fprintf(stdout, "Truncating existing \"%s\".\n", versionFileName);
       } /* if */
+      copyFile("base.h", versionFileName);
+      appendFile("settings.h", versionFileName);
       copyFile(versionFileName, "tst_vers.h");
     } else {
-      copyFile("version.h", "tst_vers.h");
+      copyFile("base.h", "tst_vers.h");
+      appendFile("settings.h", "tst_vers.h");
     } /* if */
     versionFile = openVersionFile(versionFileName);
     if (logFile == NULL) {
@@ -6894,25 +7262,7 @@ int main (int argc, char **argv)
     fprintf(logFile, "Prepare compile command: ");
     fflush(logFile);
     prepareCompileCommand();
-#ifdef WRITE_CC_VERSION_INFO
-    WRITE_CC_VERSION_INFO
-#endif
-    aFile = fopen("cc_vers.txt", "r");
-    if (aFile != NULL) {
-      fprintf(versionFile, "#define C_COMPILER_VERSION \"");
-      for (ch=getc(aFile); ch != EOF && ch != 10 && ch != 13; ch = getc(aFile)) {
-        if (ch >= ' ' && ch <= '~') {
-          if (ch == '\"' || ch == '\'' || ch == '\\') {
-            putc('\\', versionFile);
-          } /* if */
-          putc(ch, versionFile);
-        } else {
-          fprintf(versionFile, "\\%3o", ch);
-        } /* if */
-      } /* for */
-      fputs("\"\n", versionFile);
-      fclose(aFile);
-    } /* if */
+    determineCompilerVersion(versionFile);
     initializeNullDevice();
     fprintf(logFile, "done\n");
     fprintf(logFile, "Chkccomp uses %s as null device.\n", nullDevice);

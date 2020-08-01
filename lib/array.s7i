@@ -143,14 +143,14 @@ const func type: array (in type: baseType) is func
       const func integer: length (in arrayType: arr)                          is action "ARR_LNG";
 
       (**
-       *  Minimal index of array ''arr''.
-       *  @return the minimal index of the array.
+       *  Minimum index of array ''arr''.
+       *  @return the minimum index of the array.
        *)
       const func integer: minIdx (in arrayType: arr)                          is action "ARR_MINIDX";
 
       (**
-       *  Maximal index of array ''arr''.
-       *  @return the maximal index of the array.
+       *  Maximum index of array ''arr''.
+       *  @return the maximum index of the array.
        *)
       const func integer: maxIdx (in arrayType: arr)                          is action "ARR_MAXIDX";
 

@@ -1033,6 +1033,11 @@ void create_local_object (const_locObjType local, objectType init_value,
     objectType call_result;
 
   /* create_local_object */
+    logFunction(printf("create_local_object(");
+                trace1(local->object);
+                printf(", ");
+                trace1(init_value);
+                printf(")\n"););
     if (ALLOC_OBJECT(new_object)) {
       new_object->type_of = local->object->type_of;
       new_object->descriptor.property = NULL;
@@ -1071,6 +1076,7 @@ void create_local_object (const_locObjType local, objectType init_value,
       set_fail_flag(FALSE);
       *err_info = MEMORY_ERROR;
     } /* if */
+    logFunction(printf("create_local_object -->\n"););
   } /* create_local_object */
 
 
@@ -1084,6 +1090,9 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
     boolType okay = TRUE;
 
   /* destroy_local_object */
+    logFunction(printf("destroy_local_object(");
+               /* trace1(local->object); */
+               printf(", %d)\n", ignoreError););
     switch (CATEGORY_OF_OBJ(local->object->value.objValue)) {
       case INTOBJECT:
       case CHAROBJECT:
@@ -1137,9 +1146,12 @@ void destroy_local_object (const_locObjType local, boolType ignoreError)
     } else if (unlikely(okay &&
         CATEGORY_OF_OBJ(local->object->value.objValue) != STRUCTOBJECT)) {
       printf("loc not dumped: ");
+      trace1(local->object);
+      printf("\n");
       trace1(local->object->value.objValue);
       printf("\n");
     } /* if */
+    logFunction(printf("destroy_local_object -->\n"););
   } /* destroy_local_object */
 
 

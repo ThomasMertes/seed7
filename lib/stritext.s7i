@@ -96,10 +96,10 @@ const proc: writeln (inout stritext: outStritext) is func
   end func;
 
 
-const proc: moveLeft (inout stritext: outStritext) is func
+const proc: moveLeft (inout stritext: outStritext, in string: stri) is func
   begin
-    if outStritext.column > 1 then
-      decr(outStritext.column);
+    if outStrifile.column > length(stri) then
+      outStrifile.column -:= length(stri);
     elsif outStritext.line > 1 then
       decr(outStritext.line);
       if outStritext.line <= length(outStritext.content) then

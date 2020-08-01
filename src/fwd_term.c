@@ -39,6 +39,9 @@
 
 #include "common.h"
 #include "dll_drv.h"
+
+#undef EXTERN
+#define EXTERN
 #include "fwd_term.h"
 
 
@@ -46,9 +49,11 @@
 
 
 typedef int (*tp_setupterm) (const char *term, int filedes, int *errret);
+#ifndef HAS_TERMIOS_H
 typedef int (*tp_tcgetattr) (int fd, struct termios *termios_p);
 typedef int (*tp_tcsetattr) (int fd, int actions,
                              const struct termios *termios_p);
+#endif
 typedef char *(*tp_tgoto) (const char *cap, int col, int row);
 typedef int (*tp_tputs) (const char *str, int affcnt, int (*putc)(int));
 
@@ -59,8 +64,10 @@ typedef char *(*tp_tgetstr) (const char *id, char **area);
 
 
 static tp_setupterm     ptr_setupterm;
+#ifndef HAS_TERMIOS_H
 static tp_tcgetattr     ptr_tcgetattr;
 static tp_tcsetattr     ptr_tcsetattr;
+#endif
 static tp_tgoto         ptr_tgoto;
 static tp_tputs         ptr_tputs;
 
@@ -82,8 +89,10 @@ static boolType setupDll (const char *dllName)
       x11Dll = dllOpen(dllName);
       if (x11Dll != NULL) {
         if ((ptr_setupterm    = (tp_setupterm)    dllFunc(x11Dll, "setupterm"))    == NULL ||
+#ifndef HAS_TERMIOS_H
             (ptr_tcgetattr    = (tp_tcgetattr)    dllFunc(x11Dll, "tcgetattr"))    == NULL ||
             (ptr_tcsetattr    = (tp_tcsetattr)    dllFunc(x11Dll, "tcsetattr"))    == NULL ||
+#endif
             (ptr_tgoto        = (tp_tgoto)        dllFunc(x11Dll, "tgoto"))        == NULL ||
             (ptr_tputs        = (tp_tputs)        dllFunc(x11Dll, "tputs"))        == NULL ||
             (tgetent          = (tp_tgetent)      dllFunc(x11Dll, "tgetent"))      == NULL ||
@@ -285,6 +294,7 @@ int setupterm (const char *term, int filedes, int *errret)
 
 
 
+#ifndef HAS_TERMIOS_H
 int tcgetattr (int fd, struct termios *termios_p)
 
   {
@@ -310,6 +320,7 @@ int tcsetattr (int fd, int actions, const struct termios *termios_p)
     logFunction(printf("tcsetattr --> %d\n", funcResult););
     return funcResult;
   } /* tcsetattr */
+#endif
 
 
 

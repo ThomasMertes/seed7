@@ -169,6 +169,7 @@ field.s7i    Filter file which reads the input fieldwise
 file.s7i     Interface type describing sequential files.
 filebits.s7i File mode bits used by archive file systems.
 filesys.s7i  Interface for file systems (os, tar, zip, ...)
+fileutil.s7i File utility functions.
 float.s7i    Floating point support library
 font.s7i     Defines the font interface
 font8x8.s7i  font with 8x8 pixel used by TI-99/4A.

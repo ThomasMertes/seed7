@@ -31,8 +31,8 @@ $ include "seed7_05.s7i";
 
 const integer: INT32_MIN is pred(-2147483647);
 const integer: INT32_MAX is 2147483647;
-const integer: INT64_MIN is pred(-9223372036854775807);
-const integer: INT64_MAX is 9223372036854775807;
+const integer: INT64_MIN is integer.first;
+const integer: INT64_MAX is integer.last;
 
 
 const func integer: intExpr (in integer: number) is
@@ -2797,16 +2797,16 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
 
     if   abs(ord(charExpr(char(-2147483648) ))) + 9223372034707292159 <>         integer.last or
          abs(ord(charExpr(             '\0;'))) + 9223372034707292159 <>  9223372034707292159 or
-         abs(ord(charExpr(char(-2147483648) ))) + abs(ord(charExpr(char(-2147483648) ))) +
-	     9223372032559808511 <>         integer.last or
-         abs(ord(charExpr(             '\0;'))) + abs(ord(charExpr(             '\0;'))) +
-	     9223372032559808511 <>  9223372032559808511 or
+         abs(ord(charExpr(char(-2147483648) ))) +
+         abs(ord(charExpr(char(-2147483648) ))) + 9223372032559808511 <>         integer.last or
+         abs(ord(charExpr(             '\0;'))) +
+         abs(ord(charExpr(             '\0;'))) + 9223372032559808511 <>  9223372032559808511 or
         -abs(ord(charExpr(char(-2147483648) ))) - 9223372034707292160 <>        integer.first or
         -abs(ord(charExpr(             '\0;'))) - 9223372034707292160 <> -9223372034707292160 or
-        -abs(ord(charExpr(char(-2147483648) ))) - abs(ord(charExpr(char(-2147483648) ))) -
-	     9223372032559808512 <>        integer.first or
-        -abs(ord(charExpr(             '\0;'))) - abs(ord(charExpr(             '\0;'))) -
-	     9223372032559808512 <> -9223372032559808512 then
+        -abs(ord(charExpr(char(-2147483648) ))) -
+         abs(ord(charExpr(char(-2147483648) ))) - 9223372032559808512 <>        integer.first or
+        -abs(ord(charExpr(             '\0;'))) -
+         abs(ord(charExpr(             '\0;'))) - 9223372032559808512 <> -9223372032559808512 then
       writeln(" ***** Reduced overflow check for sums failed: abs(ord(char))");
       okay := FALSE;
     end if;
@@ -6700,7 +6700,7 @@ const proc: check_div is func
         intExpr( -8) div -5 <>  1 or
         intExpr( -9) div -5 <>  1 or
         intExpr(-10) div -5 <>  2 then
-      writeln(" *****) div with an expression and a constant does not work correct");
+      writeln(" ***** div with an expression and a constant does not work correct");
       okay := FALSE;
     end if;
 
@@ -8428,13 +8428,482 @@ const proc: check_rem is func
   end func;
 
 
-const proc: check_mdiv is func
-  local
+const func boolean: check_mdiv_min_max is func
+  result
     var boolean: okay is TRUE;
+  begin
+    if         2109876543  mdiv           INT32_MIN  <>          -1 or
+               2109876543  mdiv         -1073741824  <>          -2 or
+               2109876543  mdiv          -536870912  <>          -4 or
+               2109876543  mdiv          -268435456  <>          -8 or
+               2109876543  mdiv          -134217728  <>         -16 or
+               2109876543  mdiv           -67108864  <>         -32 or
+               2109876543  mdiv           -33554432  <>         -63 or
+               2109876543  mdiv           -16777216  <>        -126 or
+               2109876543  mdiv            -8388608  <>        -252 or
+               2109876543  mdiv            -4194304  <>        -504 or
+               2109876543  mdiv            -2097152  <>       -1007 or
+               2109876543  mdiv            -1048576  <>       -2013 or
+               2109876543  mdiv             -524288  <>       -4025 or
+               2109876543  mdiv             -262144  <>       -8049 or
+               2109876543  mdiv             -131072  <>      -16098 or
+               2109876543  mdiv              -65536  <>      -32195 or
+               2109876543  mdiv              -32768  <>      -64389 or
+               2109876543  mdiv              -16384  <>     -128777 or
+               2109876543  mdiv               -8192  <>     -257554 or
+               2109876543  mdiv               -4096  <>     -515107 or
+               2109876543  mdiv               -2048  <>    -1030214 or
+               2109876543  mdiv               -1024  <>    -2060427 or
+               2109876543  mdiv                -512  <>    -4120853 or
+               2109876543  mdiv                -256  <>    -8241706 or
+               2109876543  mdiv                -128  <>   -16483411 or
+               2109876543  mdiv                 -64  <>   -32966821 or
+               2109876543  mdiv                 -32  <>   -65933642 or
+               2109876543  mdiv                 -16  <>  -131867284 or
+               2109876543  mdiv                  -8  <>  -263734568 or
+               2109876543  mdiv                  -4  <>  -527469136 or
+               2109876543  mdiv                  -2  <> -1054938272 or
+               2109876543  mdiv                   2  <>  1054938271 or
+               2109876543  mdiv                   4  <>   527469135 or
+               2109876543  mdiv                   8  <>   263734567 or
+               2109876543  mdiv                  16  <>   131867283 or
+               2109876543  mdiv                  32  <>    65933641 or
+               2109876543  mdiv                  64  <>    32966820 or
+               2109876543  mdiv                 128  <>    16483410 or
+               2109876543  mdiv                 256  <>     8241705 or
+               2109876543  mdiv                 512  <>     4120852 or
+               2109876543  mdiv                1024  <>     2060426 or
+               2109876543  mdiv                2048  <>     1030213 or
+               2109876543  mdiv                4096  <>      515106 or
+               2109876543  mdiv                8192  <>      257553 or
+               2109876543  mdiv               16384  <>      128776 or
+               2109876543  mdiv               32768  <>       64388 or
+               2109876543  mdiv               65536  <>       32194 or
+               2109876543  mdiv              131072  <>       16097 or
+               2109876543  mdiv              262144  <>        8048 or
+               2109876543  mdiv              524288  <>        4024 or
+               2109876543  mdiv             1048576  <>        2012 or
+               2109876543  mdiv             2097152  <>        1006 or
+               2109876543  mdiv             4194304  <>         503 or
+               2109876543  mdiv             8388608  <>         251 or
+               2109876543  mdiv            16777216  <>         125 or
+               2109876543  mdiv            33554432  <>          62 or
+               2109876543  mdiv            67108864  <>          31 or
+               2109876543  mdiv           134217728  <>          15 or
+               2109876543  mdiv           268435456  <>           7 or
+               2109876543  mdiv           536870912  <>           3 or
+               2109876543  mdiv          1073741824  <>           1 or
+       intExpr(2109876543) mdiv           INT32_MIN  <>          -1 or
+       intExpr(2109876543) mdiv         -1073741824  <>          -2 or
+       intExpr(2109876543) mdiv          -536870912  <>          -4 or
+       intExpr(2109876543) mdiv          -268435456  <>          -8 or
+       intExpr(2109876543) mdiv          -134217728  <>         -16 or
+       intExpr(2109876543) mdiv           -67108864  <>         -32 or
+       intExpr(2109876543) mdiv           -33554432  <>         -63 or
+       intExpr(2109876543) mdiv           -16777216  <>        -126 or
+       intExpr(2109876543) mdiv            -8388608  <>        -252 or
+       intExpr(2109876543) mdiv            -4194304  <>        -504 or
+       intExpr(2109876543) mdiv            -2097152  <>       -1007 or
+       intExpr(2109876543) mdiv            -1048576  <>       -2013 or
+       intExpr(2109876543) mdiv             -524288  <>       -4025 or
+       intExpr(2109876543) mdiv             -262144  <>       -8049 or
+       intExpr(2109876543) mdiv             -131072  <>      -16098 or
+       intExpr(2109876543) mdiv              -65536  <>      -32195 or
+       intExpr(2109876543) mdiv              -32768  <>      -64389 or
+       intExpr(2109876543) mdiv              -16384  <>     -128777 or
+       intExpr(2109876543) mdiv               -8192  <>     -257554 or
+       intExpr(2109876543) mdiv               -4096  <>     -515107 or
+       intExpr(2109876543) mdiv               -2048  <>    -1030214 or
+       intExpr(2109876543) mdiv               -1024  <>    -2060427 or
+       intExpr(2109876543) mdiv                -512  <>    -4120853 or
+       intExpr(2109876543) mdiv                -256  <>    -8241706 or
+       intExpr(2109876543) mdiv                -128  <>   -16483411 or
+       intExpr(2109876543) mdiv                 -64  <>   -32966821 or
+       intExpr(2109876543) mdiv                 -32  <>   -65933642 or
+       intExpr(2109876543) mdiv                 -16  <>  -131867284 or
+       intExpr(2109876543) mdiv                  -8  <>  -263734568 or
+       intExpr(2109876543) mdiv                  -4  <>  -527469136 or
+       intExpr(2109876543) mdiv                  -2  <> -1054938272 or
+       intExpr(2109876543) mdiv                   2  <>  1054938271 or
+       intExpr(2109876543) mdiv                   4  <>   527469135 or
+       intExpr(2109876543) mdiv                   8  <>   263734567 or
+       intExpr(2109876543) mdiv                  16  <>   131867283 or
+       intExpr(2109876543) mdiv                  32  <>    65933641 or
+       intExpr(2109876543) mdiv                  64  <>    32966820 or
+       intExpr(2109876543) mdiv                 128  <>    16483410 or
+       intExpr(2109876543) mdiv                 256  <>     8241705 or
+       intExpr(2109876543) mdiv                 512  <>     4120852 or
+       intExpr(2109876543) mdiv                1024  <>     2060426 or
+       intExpr(2109876543) mdiv                2048  <>     1030213 or
+       intExpr(2109876543) mdiv                4096  <>      515106 or
+       intExpr(2109876543) mdiv                8192  <>      257553 or
+       intExpr(2109876543) mdiv               16384  <>      128776 or
+       intExpr(2109876543) mdiv               32768  <>       64388 or
+       intExpr(2109876543) mdiv               65536  <>       32194 or
+       intExpr(2109876543) mdiv              131072  <>       16097 or
+       intExpr(2109876543) mdiv              262144  <>        8048 or
+       intExpr(2109876543) mdiv              524288  <>        4024 or
+       intExpr(2109876543) mdiv             1048576  <>        2012 or
+       intExpr(2109876543) mdiv             2097152  <>        1006 or
+       intExpr(2109876543) mdiv             4194304  <>         503 or
+       intExpr(2109876543) mdiv             8388608  <>         251 or
+       intExpr(2109876543) mdiv            16777216  <>         125 or
+       intExpr(2109876543) mdiv            33554432  <>          62 or
+       intExpr(2109876543) mdiv            67108864  <>          31 or
+       intExpr(2109876543) mdiv           134217728  <>          15 or
+       intExpr(2109876543) mdiv           268435456  <>           7 or
+       intExpr(2109876543) mdiv           536870912  <>           3 or
+       intExpr(2109876543) mdiv          1073741824  <>           1 or
+               2109876543  mdiv intExpr(  INT32_MIN) <>          -1 or
+               2109876543  mdiv intExpr(-1073741824) <>          -2 or
+               2109876543  mdiv intExpr( -536870912) <>          -4 or
+               2109876543  mdiv intExpr( -268435456) <>          -8 or
+               2109876543  mdiv intExpr( -134217728) <>         -16 or
+               2109876543  mdiv intExpr(  -67108864) <>         -32 or
+               2109876543  mdiv intExpr(  -33554432) <>         -63 or
+               2109876543  mdiv intExpr(  -16777216) <>        -126 or
+               2109876543  mdiv intExpr(   -8388608) <>        -252 or
+               2109876543  mdiv intExpr(   -4194304) <>        -504 or
+               2109876543  mdiv intExpr(   -2097152) <>       -1007 or
+               2109876543  mdiv intExpr(   -1048576) <>       -2013 or
+               2109876543  mdiv intExpr(    -524288) <>       -4025 or
+               2109876543  mdiv intExpr(    -262144) <>       -8049 or
+               2109876543  mdiv intExpr(    -131072) <>      -16098 or
+               2109876543  mdiv intExpr(     -65536) <>      -32195 or
+               2109876543  mdiv intExpr(     -32768) <>      -64389 or
+               2109876543  mdiv intExpr(     -16384) <>     -128777 or
+               2109876543  mdiv intExpr(      -8192) <>     -257554 or
+               2109876543  mdiv intExpr(      -4096) <>     -515107 or
+               2109876543  mdiv intExpr(      -2048) <>    -1030214 or
+               2109876543  mdiv intExpr(      -1024) <>    -2060427 or
+               2109876543  mdiv intExpr(       -512) <>    -4120853 or
+               2109876543  mdiv intExpr(       -256) <>    -8241706 or
+               2109876543  mdiv intExpr(       -128) <>   -16483411 or
+               2109876543  mdiv intExpr(        -64) <>   -32966821 or
+               2109876543  mdiv intExpr(        -32) <>   -65933642 or
+               2109876543  mdiv intExpr(        -16) <>  -131867284 or
+               2109876543  mdiv intExpr(         -8) <>  -263734568 or
+               2109876543  mdiv intExpr(         -4) <>  -527469136 or
+               2109876543  mdiv intExpr(         -2) <> -1054938272 or
+               2109876543  mdiv intExpr(          2) <>  1054938271 or
+               2109876543  mdiv intExpr(          4) <>   527469135 or
+               2109876543  mdiv intExpr(          8) <>   263734567 or
+               2109876543  mdiv intExpr(         16) <>   131867283 or
+               2109876543  mdiv intExpr(         32) <>    65933641 or
+               2109876543  mdiv intExpr(         64) <>    32966820 or
+               2109876543  mdiv intExpr(        128) <>    16483410 or
+               2109876543  mdiv intExpr(        256) <>     8241705 or
+               2109876543  mdiv intExpr(        512) <>     4120852 or
+               2109876543  mdiv intExpr(       1024) <>     2060426 or
+               2109876543  mdiv intExpr(       2048) <>     1030213 or
+               2109876543  mdiv intExpr(       4096) <>      515106 or
+               2109876543  mdiv intExpr(       8192) <>      257553 or
+               2109876543  mdiv intExpr(      16384) <>      128776 or
+               2109876543  mdiv intExpr(      32768) <>       64388 or
+               2109876543  mdiv intExpr(      65536) <>       32194 or
+               2109876543  mdiv intExpr(     131072) <>       16097 or
+               2109876543  mdiv intExpr(     262144) <>        8048 or
+               2109876543  mdiv intExpr(     524288) <>        4024 or
+               2109876543  mdiv intExpr(    1048576) <>        2012 or
+               2109876543  mdiv intExpr(    2097152) <>        1006 or
+               2109876543  mdiv intExpr(    4194304) <>         503 or
+               2109876543  mdiv intExpr(    8388608) <>         251 or
+               2109876543  mdiv intExpr(   16777216) <>         125 or
+               2109876543  mdiv intExpr(   33554432) <>          62 or
+               2109876543  mdiv intExpr(   67108864) <>          31 or
+               2109876543  mdiv intExpr(  134217728) <>          15 or
+               2109876543  mdiv intExpr(  268435456) <>           7 or
+               2109876543  mdiv intExpr(  536870912) <>           3 or
+               2109876543  mdiv intExpr( 1073741824) <>           1 or
+       intExpr(2109876543) mdiv intExpr(  INT32_MIN) <>          -1 or
+       intExpr(2109876543) mdiv intExpr(-1073741824) <>          -2 or
+       intExpr(2109876543) mdiv intExpr( -536870912) <>          -4 or
+       intExpr(2109876543) mdiv intExpr( -268435456) <>          -8 or
+       intExpr(2109876543) mdiv intExpr( -134217728) <>         -16 or
+       intExpr(2109876543) mdiv intExpr(  -67108864) <>         -32 or
+       intExpr(2109876543) mdiv intExpr(  -33554432) <>         -63 or
+       intExpr(2109876543) mdiv intExpr(  -16777216) <>        -126 or
+       intExpr(2109876543) mdiv intExpr(   -8388608) <>        -252 or
+       intExpr(2109876543) mdiv intExpr(   -4194304) <>        -504 or
+       intExpr(2109876543) mdiv intExpr(   -2097152) <>       -1007 or
+       intExpr(2109876543) mdiv intExpr(   -1048576) <>       -2013 or
+       intExpr(2109876543) mdiv intExpr(    -524288) <>       -4025 or
+       intExpr(2109876543) mdiv intExpr(    -262144) <>       -8049 or
+       intExpr(2109876543) mdiv intExpr(    -131072) <>      -16098 or
+       intExpr(2109876543) mdiv intExpr(     -65536) <>      -32195 or
+       intExpr(2109876543) mdiv intExpr(     -32768) <>      -64389 or
+       intExpr(2109876543) mdiv intExpr(     -16384) <>     -128777 or
+       intExpr(2109876543) mdiv intExpr(      -8192) <>     -257554 or
+       intExpr(2109876543) mdiv intExpr(      -4096) <>     -515107 or
+       intExpr(2109876543) mdiv intExpr(      -2048) <>    -1030214 or
+       intExpr(2109876543) mdiv intExpr(      -1024) <>    -2060427 or
+       intExpr(2109876543) mdiv intExpr(       -512) <>    -4120853 or
+       intExpr(2109876543) mdiv intExpr(       -256) <>    -8241706 or
+       intExpr(2109876543) mdiv intExpr(       -128) <>   -16483411 or
+       intExpr(2109876543) mdiv intExpr(        -64) <>   -32966821 or
+       intExpr(2109876543) mdiv intExpr(        -32) <>   -65933642 or
+       intExpr(2109876543) mdiv intExpr(        -16) <>  -131867284 or
+       intExpr(2109876543) mdiv intExpr(         -8) <>  -263734568 or
+       intExpr(2109876543) mdiv intExpr(         -4) <>  -527469136 or
+       intExpr(2109876543) mdiv intExpr(         -2) <> -1054938272 or
+       intExpr(2109876543) mdiv intExpr(          2) <>  1054938271 or
+       intExpr(2109876543) mdiv intExpr(          4) <>   527469135 or
+       intExpr(2109876543) mdiv intExpr(          8) <>   263734567 or
+       intExpr(2109876543) mdiv intExpr(         16) <>   131867283 or
+       intExpr(2109876543) mdiv intExpr(         32) <>    65933641 or
+       intExpr(2109876543) mdiv intExpr(         64) <>    32966820 or
+       intExpr(2109876543) mdiv intExpr(        128) <>    16483410 or
+       intExpr(2109876543) mdiv intExpr(        256) <>     8241705 or
+       intExpr(2109876543) mdiv intExpr(        512) <>     4120852 or
+       intExpr(2109876543) mdiv intExpr(       1024) <>     2060426 or
+       intExpr(2109876543) mdiv intExpr(       2048) <>     1030213 or
+       intExpr(2109876543) mdiv intExpr(       4096) <>      515106 or
+       intExpr(2109876543) mdiv intExpr(       8192) <>      257553 or
+       intExpr(2109876543) mdiv intExpr(      16384) <>      128776 or
+       intExpr(2109876543) mdiv intExpr(      32768) <>       64388 or
+       intExpr(2109876543) mdiv intExpr(      65536) <>       32194 or
+       intExpr(2109876543) mdiv intExpr(     131072) <>       16097 or
+       intExpr(2109876543) mdiv intExpr(     262144) <>        8048 or
+       intExpr(2109876543) mdiv intExpr(     524288) <>        4024 or
+       intExpr(2109876543) mdiv intExpr(    1048576) <>        2012 or
+       intExpr(2109876543) mdiv intExpr(    2097152) <>        1006 or
+       intExpr(2109876543) mdiv intExpr(    4194304) <>         503 or
+       intExpr(2109876543) mdiv intExpr(    8388608) <>         251 or
+       intExpr(2109876543) mdiv intExpr(   16777216) <>         125 or
+       intExpr(2109876543) mdiv intExpr(   33554432) <>          62 or
+       intExpr(2109876543) mdiv intExpr(   67108864) <>          31 or
+       intExpr(2109876543) mdiv intExpr(  134217728) <>          15 or
+       intExpr(2109876543) mdiv intExpr(  268435456) <>           7 or
+       intExpr(2109876543) mdiv intExpr(  536870912) <>           3 or
+       intExpr(2109876543) mdiv intExpr( 1073741824) <>           1 then
+      writeln(" ***** mdiv with powers of two does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  INT64_MIN mdiv           INT64_MIN <>                    1 or
+        INT64_MIN mdiv         -8589934592 <>           1073741824 or
+        INT64_MIN mdiv         -4294967296 <>           2147483648 or
+        INT64_MIN mdiv         -2147483649 <>           4294967294 or
+        INT64_MIN mdiv           INT32_MIN <>           4294967296 or
+        INT64_MIN mdiv         -2147483648 <>           4294967296 or
+        INT64_MIN mdiv         -1073741824 <>           8589934592 or
+        INT64_MIN mdiv               -1025 <>     8998411743272952 or
+        INT64_MIN mdiv               -1024 <>     9007199254740992 or
+        INT64_MIN mdiv               -1023 <>     9016003946094600 or
+        INT64_MIN mdiv                  -2 <>  4611686018427387904 or
+        INT64_MIN mdiv           INT32_MAX <>          -4294967299 or
+        INT64_MIN mdiv          2147483648 <>          -4294967296 or
+        INT64_MIN mdiv          2147483649 <>          -4294967295 or
+        INT64_MIN mdiv          4294967296 <>          -2147483648 or
+        INT64_MIN mdiv          4294967297 <>          -2147483648 or
+        INT64_MIN mdiv     140737488355327 <>               -65537 or
+        INT64_MIN mdiv     140737488355328 <>               -65536 or
+        INT64_MIN mdiv     140737488355329 <>               -65536 or
+        INT64_MIN mdiv 4611686018427387903 <>                   -3 or
+        INT64_MIN mdiv 4611686018427387904 <>                   -2 or
+        INT64_MIN mdiv 4611686018427387905 <>                   -2 or
+        INT64_MIN mdiv           INT64_MAX <>                   -2 or
+        INT64_MAX mdiv           INT64_MIN <>                   -1 or
+        INT64_MAX mdiv           INT32_MIN <>          -4294967296 or
+        INT64_MAX mdiv           INT32_MAX <>           4294967298 or
+        INT64_MAX mdiv          2147483648 <>           4294967295 or
+        INT64_MAX mdiv          2147483649 <>           4294967294 or
+        INT64_MAX mdiv          4294967295 <>           2147483648 or
+        INT64_MAX mdiv          4294967296 <>           2147483647 or
+        INT64_MAX mdiv     140737488355327 <>                65536 or
+        INT64_MAX mdiv     140737488355328 <>                65535 or
+        INT64_MAX mdiv     140737488355329 <>                65535 or
+        INT64_MAX mdiv 4611686018427387903 <>                    2 or
+        INT64_MAX mdiv 4611686018427387904 <>                    1 or
+        INT64_MAX mdiv 4611686018427387905 <>                    1 or
+        INT64_MAX mdiv           INT64_MAX <>                    1 or
+        intExpr(INT64_MIN) mdiv           INT64_MIN <>                    1 or
+        intExpr(INT64_MIN) mdiv         -8589934592 <>           1073741824 or
+        intExpr(INT64_MIN) mdiv         -4294967296 <>           2147483648 or
+        intExpr(INT64_MIN) mdiv         -2147483649 <>           4294967294 or
+        intExpr(INT64_MIN) mdiv           INT32_MIN <>           4294967296 or
+        intExpr(INT64_MIN) mdiv         -2147483648 <>           4294967296 or
+        intExpr(INT64_MIN) mdiv         -1073741824 <>           8589934592 or
+        intExpr(INT64_MIN) mdiv               -1025 <>     8998411743272952 or
+        intExpr(INT64_MIN) mdiv               -1024 <>     9007199254740992 or
+        intExpr(INT64_MIN) mdiv               -1023 <>     9016003946094600 or
+        intExpr(INT64_MIN) mdiv                  -2 <>  4611686018427387904 or
+        intExpr(INT64_MIN) mdiv           INT32_MAX <>          -4294967299 or
+        intExpr(INT64_MIN) mdiv          2147483648 <>          -4294967296 or
+        intExpr(INT64_MIN) mdiv          2147483649 <>          -4294967295 or
+        intExpr(INT64_MIN) mdiv          4294967296 <>          -2147483648 or
+        intExpr(INT64_MIN) mdiv          4294967297 <>          -2147483648 or
+        intExpr(INT64_MIN) mdiv     140737488355327 <>               -65537 or
+        intExpr(INT64_MIN) mdiv     140737488355328 <>               -65536 or
+        intExpr(INT64_MIN) mdiv     140737488355329 <>               -65536 or
+        intExpr(INT64_MIN) mdiv 4611686018427387903 <>                   -3 or
+        intExpr(INT64_MIN) mdiv 4611686018427387904 <>                   -2 or
+        intExpr(INT64_MIN) mdiv 4611686018427387905 <>                   -2 or
+        intExpr(INT64_MIN) mdiv           INT64_MAX <>                   -2 or
+        intExpr(INT64_MAX) mdiv           INT64_MIN <>                   -1 or
+        intExpr(INT64_MAX) mdiv           INT32_MIN <>          -4294967296 or
+        intExpr(INT64_MAX) mdiv           INT32_MAX <>           4294967298 or
+        intExpr(INT64_MAX) mdiv          2147483648 <>           4294967295 or
+        intExpr(INT64_MAX) mdiv          2147483649 <>           4294967294 or
+        intExpr(INT64_MAX) mdiv          4294967295 <>           2147483648 or
+        intExpr(INT64_MAX) mdiv          4294967296 <>           2147483647 or
+        intExpr(INT64_MAX) mdiv     140737488355327 <>                65536 or
+        intExpr(INT64_MAX) mdiv     140737488355328 <>                65535 or
+        intExpr(INT64_MAX) mdiv     140737488355329 <>                65535 or
+        intExpr(INT64_MAX) mdiv 4611686018427387903 <>                    2 or
+        intExpr(INT64_MAX) mdiv 4611686018427387904 <>                    1 or
+        intExpr(INT64_MAX) mdiv 4611686018427387905 <>                    1 or
+        intExpr(INT64_MAX) mdiv           INT64_MAX <>                    1 or
+        INT64_MIN mdiv intExpr(          INT64_MIN) <>                    1 or
+        INT64_MIN mdiv intExpr(        -8589934592) <>           1073741824 or
+        INT64_MIN mdiv intExpr(        -4294967296) <>           2147483648 or
+        INT64_MIN mdiv intExpr(        -2147483649) <>           4294967294 or
+        INT64_MIN mdiv intExpr(          INT32_MIN) <>           4294967296 or
+        INT64_MIN mdiv intExpr(        -2147483648) <>           4294967296 or
+        INT64_MIN mdiv intExpr(        -1073741824) <>           8589934592 or
+        INT64_MIN mdiv intExpr(              -1025) <>     8998411743272952 or
+        INT64_MIN mdiv intExpr(              -1024) <>     9007199254740992 or
+        INT64_MIN mdiv intExpr(              -1023) <>     9016003946094600 or
+        INT64_MIN mdiv intExpr(                 -2) <>  4611686018427387904 or
+        INT64_MIN mdiv intExpr(          INT32_MAX) <>          -4294967299 or
+        INT64_MIN mdiv intExpr(         2147483648) <>          -4294967296 or
+        INT64_MIN mdiv intExpr(         2147483649) <>          -4294967295 or
+        INT64_MIN mdiv intExpr(         4294967296) <>          -2147483648 or
+        INT64_MIN mdiv intExpr(         4294967297) <>          -2147483648 or
+        INT64_MIN mdiv intExpr(    140737488355327) <>               -65537 or
+        INT64_MIN mdiv intExpr(    140737488355328) <>               -65536 or
+        INT64_MIN mdiv intExpr(    140737488355329) <>               -65536 or
+        INT64_MIN mdiv intExpr(4611686018427387903) <>                   -3 or
+        INT64_MIN mdiv intExpr(4611686018427387904) <>                   -2 or
+        INT64_MIN mdiv intExpr(4611686018427387905) <>                   -2 or
+        INT64_MIN mdiv intExpr(          INT64_MAX) <>                   -2 or
+        INT64_MAX mdiv intExpr(          INT64_MIN) <>                   -1 or
+        INT64_MAX mdiv intExpr(          INT32_MIN) <>          -4294967296 or
+        INT64_MAX mdiv intExpr(          INT32_MAX) <>           4294967298 or
+        INT64_MAX mdiv intExpr(         2147483648) <>           4294967295 or
+        INT64_MAX mdiv intExpr(         2147483649) <>           4294967294 or
+        INT64_MAX mdiv intExpr(         4294967295) <>           2147483648 or
+        INT64_MAX mdiv intExpr(         4294967296) <>           2147483647 or
+        INT64_MAX mdiv intExpr(    140737488355327) <>                65536 or
+        INT64_MAX mdiv intExpr(    140737488355328) <>                65535 or
+        INT64_MAX mdiv intExpr(    140737488355329) <>                65535 or
+        INT64_MAX mdiv intExpr(4611686018427387903) <>                    2 or
+        INT64_MAX mdiv intExpr(4611686018427387904) <>                    1 or
+        INT64_MAX mdiv intExpr(4611686018427387905) <>                    1 or
+        INT64_MAX mdiv intExpr(          INT64_MAX) <>                    1 or
+        intExpr(INT64_MIN) mdiv intExpr(          INT64_MIN) <>           1 or
+        intExpr(INT64_MIN) mdiv intExpr(        -8589934592) <>           1073741824 or
+        intExpr(INT64_MIN) mdiv intExpr(        -4294967296) <>           2147483648 or
+        intExpr(INT64_MIN) mdiv intExpr(        -2147483649) <>           4294967294 or
+        intExpr(INT64_MIN) mdiv intExpr(          INT32_MIN) <>           4294967296 or
+        intExpr(INT64_MIN) mdiv intExpr(        -2147483648) <>           4294967296 or
+        intExpr(INT64_MIN) mdiv intExpr(        -1073741824) <>           8589934592 or
+        intExpr(INT64_MIN) mdiv intExpr(              -1025) <>     8998411743272952 or
+        intExpr(INT64_MIN) mdiv intExpr(              -1024) <>     9007199254740992 or
+        intExpr(INT64_MIN) mdiv intExpr(              -1023) <>     9016003946094600 or
+        intExpr(INT64_MIN) mdiv intExpr(                 -2) <>  4611686018427387904 or
+        intExpr(INT64_MIN) mdiv intExpr(          INT32_MAX) <>          -4294967299 or
+        intExpr(INT64_MIN) mdiv intExpr(         2147483648) <>          -4294967296 or
+        intExpr(INT64_MIN) mdiv intExpr(         2147483649) <>          -4294967295 or
+        intExpr(INT64_MIN) mdiv intExpr(         4294967296) <>          -2147483648 or
+        intExpr(INT64_MIN) mdiv intExpr(         4294967297) <>          -2147483648 or
+        intExpr(INT64_MIN) mdiv intExpr(    140737488355327) <>               -65537 or
+        intExpr(INT64_MIN) mdiv intExpr(    140737488355328) <>               -65536 or
+        intExpr(INT64_MIN) mdiv intExpr(    140737488355329) <>               -65536 or
+        intExpr(INT64_MIN) mdiv intExpr(4611686018427387903) <>                   -3 or
+        intExpr(INT64_MIN) mdiv intExpr(4611686018427387904) <>                   -2 or
+        intExpr(INT64_MIN) mdiv intExpr(4611686018427387905) <>                   -2 or
+        intExpr(INT64_MIN) mdiv intExpr(          INT64_MAX) <>                   -2 or
+        intExpr(INT64_MAX) mdiv intExpr(          INT64_MIN) <>                   -1 or
+        intExpr(INT64_MAX) mdiv intExpr(          INT32_MIN) <>          -4294967296 or
+        intExpr(INT64_MAX) mdiv intExpr(          INT32_MAX) <>           4294967298 or
+        intExpr(INT64_MAX) mdiv intExpr(         2147483648) <>           4294967295 or
+        intExpr(INT64_MAX) mdiv intExpr(         2147483649) <>           4294967294 or
+        intExpr(INT64_MAX) mdiv intExpr(         4294967295) <>           2147483648 or
+        intExpr(INT64_MAX) mdiv intExpr(         4294967296) <>           2147483647 or
+        intExpr(INT64_MAX) mdiv intExpr(    140737488355327) <>                65536 or
+        intExpr(INT64_MAX) mdiv intExpr(    140737488355328) <>                65535 or
+        intExpr(INT64_MAX) mdiv intExpr(    140737488355329) <>                65535 or
+        intExpr(INT64_MAX) mdiv intExpr(4611686018427387903) <>                    2 or
+        intExpr(INT64_MAX) mdiv intExpr(4611686018427387904) <>                    1 or
+        intExpr(INT64_MAX) mdiv intExpr(4611686018427387905) <>                    1 or
+        intExpr(INT64_MAX) mdiv intExpr(          INT64_MAX) <>                    1 then
+      writeln(" ***** mdiv with maximum values does not work correct.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const func boolean: check_mdiv_by_zero is func
+  result
+    var boolean: okay is TRUE;
+  local
     var integer: zero is 0;
     var integer: zero2 is 0;
     var integer: one is 1;
     var integer: minusOne is -1;
+  begin
+    if  not raisesNumericError(          INT64_MIN  mdiv         0 ) or
+        not raisesNumericError(        -2147483648  mdiv         0 ) or
+        not raisesNumericError(                 -1  mdiv         0 ) or
+        not raisesNumericError(           minusOne  mdiv         0 ) or
+        not raisesNumericError(                  0  mdiv         0 ) or
+        not raisesNumericError(              zero2  mdiv         0 ) or
+        not raisesNumericError(                  1  mdiv         0 ) or
+        not raisesNumericError(                one  mdiv         0 ) or
+        not raisesNumericError(         2147483647  mdiv         0 ) or
+        not raisesNumericError(          INT64_MAX  mdiv         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mdiv         0 ) or
+        not raisesNumericError(intExpr(-2147483648) mdiv         0 ) or
+        not raisesNumericError(intExpr(         -1) mdiv         0 ) or
+        not raisesNumericError(intExpr(          0) mdiv         0 ) or
+        not raisesNumericError(intExpr(          1) mdiv         0 ) or
+        not raisesNumericError(intExpr( 2147483647) mdiv         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mdiv         0 ) or
+        not raisesNumericError(          INT64_MIN  mdiv      zero ) or
+        not raisesNumericError(        -2147483648  mdiv      zero ) or
+        not raisesNumericError(                 -1  mdiv      zero ) or
+        not raisesNumericError(           minusOne  mdiv      zero ) or
+        not raisesNumericError(                  0  mdiv      zero ) or
+        not raisesNumericError(               zero  mdiv      zero ) or
+        not raisesNumericError(              zero2  mdiv      zero ) or
+        not raisesNumericError(                  1  mdiv      zero ) or
+        not raisesNumericError(                one  mdiv      zero ) or
+        not raisesNumericError(         2147483647  mdiv      zero ) or
+        not raisesNumericError(          INT64_MAX  mdiv      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mdiv      zero ) or
+        not raisesNumericError(intExpr(-2147483648) mdiv      zero ) or
+        not raisesNumericError(intExpr(         -1) mdiv      zero ) or
+        not raisesNumericError(intExpr(          0) mdiv      zero ) or
+        not raisesNumericError(intExpr(          1) mdiv      zero ) or
+        not raisesNumericError(intExpr( 2147483647) mdiv      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mdiv      zero ) or
+        not raisesNumericError(          INT64_MIN  mdiv intExpr(0)) or
+        not raisesNumericError(        -2147483648  mdiv intExpr(0)) or
+        not raisesNumericError(                 -1  mdiv intExpr(0)) or
+        not raisesNumericError(           minusOne  mdiv intExpr(0)) or
+        not raisesNumericError(                  0  mdiv intExpr(0)) or
+        not raisesNumericError(              zero2  mdiv intExpr(0)) or
+        not raisesNumericError(                  1  mdiv intExpr(0)) or
+        not raisesNumericError(                one  mdiv intExpr(0)) or
+        not raisesNumericError(         2147483647  mdiv intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(          0) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(          1) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) mdiv intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) mdiv intExpr(0)) then
+      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_mdiv is func
+  local
+    var boolean: okay is TRUE;
   begin
     if   10 mdiv  5 <>  2 or
           9 mdiv  5 <>  1 or
@@ -9292,459 +9761,11 @@ const proc: check_mdiv is func
       okay := FALSE;
     end if;
 
-    if         2109876543  mdiv           INT32_MIN  <>          -1 or
-               2109876543  mdiv         -1073741824  <>          -2 or
-               2109876543  mdiv          -536870912  <>          -4 or
-               2109876543  mdiv          -268435456  <>          -8 or
-               2109876543  mdiv          -134217728  <>         -16 or
-               2109876543  mdiv           -67108864  <>         -32 or
-               2109876543  mdiv           -33554432  <>         -63 or
-               2109876543  mdiv           -16777216  <>        -126 or
-               2109876543  mdiv            -8388608  <>        -252 or
-               2109876543  mdiv            -4194304  <>        -504 or
-               2109876543  mdiv            -2097152  <>       -1007 or
-               2109876543  mdiv            -1048576  <>       -2013 or
-               2109876543  mdiv             -524288  <>       -4025 or
-               2109876543  mdiv             -262144  <>       -8049 or
-               2109876543  mdiv             -131072  <>      -16098 or
-               2109876543  mdiv              -65536  <>      -32195 or
-               2109876543  mdiv              -32768  <>      -64389 or
-               2109876543  mdiv              -16384  <>     -128777 or
-               2109876543  mdiv               -8192  <>     -257554 or
-               2109876543  mdiv               -4096  <>     -515107 or
-               2109876543  mdiv               -2048  <>    -1030214 or
-               2109876543  mdiv               -1024  <>    -2060427 or
-               2109876543  mdiv                -512  <>    -4120853 or
-               2109876543  mdiv                -256  <>    -8241706 or
-               2109876543  mdiv                -128  <>   -16483411 or
-               2109876543  mdiv                 -64  <>   -32966821 or
-               2109876543  mdiv                 -32  <>   -65933642 or
-               2109876543  mdiv                 -16  <>  -131867284 or
-               2109876543  mdiv                  -8  <>  -263734568 or
-               2109876543  mdiv                  -4  <>  -527469136 or
-               2109876543  mdiv                  -2  <> -1054938272 or
-               2109876543  mdiv                   2  <>  1054938271 or
-               2109876543  mdiv                   4  <>   527469135 or
-               2109876543  mdiv                   8  <>   263734567 or
-               2109876543  mdiv                  16  <>   131867283 or
-               2109876543  mdiv                  32  <>    65933641 or
-               2109876543  mdiv                  64  <>    32966820 or
-               2109876543  mdiv                 128  <>    16483410 or
-               2109876543  mdiv                 256  <>     8241705 or
-               2109876543  mdiv                 512  <>     4120852 or
-               2109876543  mdiv                1024  <>     2060426 or
-               2109876543  mdiv                2048  <>     1030213 or
-               2109876543  mdiv                4096  <>      515106 or
-               2109876543  mdiv                8192  <>      257553 or
-               2109876543  mdiv               16384  <>      128776 or
-               2109876543  mdiv               32768  <>       64388 or
-               2109876543  mdiv               65536  <>       32194 or
-               2109876543  mdiv              131072  <>       16097 or
-               2109876543  mdiv              262144  <>        8048 or
-               2109876543  mdiv              524288  <>        4024 or
-               2109876543  mdiv             1048576  <>        2012 or
-               2109876543  mdiv             2097152  <>        1006 or
-               2109876543  mdiv             4194304  <>         503 or
-               2109876543  mdiv             8388608  <>         251 or
-               2109876543  mdiv            16777216  <>         125 or
-               2109876543  mdiv            33554432  <>          62 or
-               2109876543  mdiv            67108864  <>          31 or
-               2109876543  mdiv           134217728  <>          15 or
-               2109876543  mdiv           268435456  <>           7 or
-               2109876543  mdiv           536870912  <>           3 or
-               2109876543  mdiv          1073741824  <>           1 or
-       intExpr(2109876543) mdiv           INT32_MIN  <>          -1 or
-       intExpr(2109876543) mdiv         -1073741824  <>          -2 or
-       intExpr(2109876543) mdiv          -536870912  <>          -4 or
-       intExpr(2109876543) mdiv          -268435456  <>          -8 or
-       intExpr(2109876543) mdiv          -134217728  <>         -16 or
-       intExpr(2109876543) mdiv           -67108864  <>         -32 or
-       intExpr(2109876543) mdiv           -33554432  <>         -63 or
-       intExpr(2109876543) mdiv           -16777216  <>        -126 or
-       intExpr(2109876543) mdiv            -8388608  <>        -252 or
-       intExpr(2109876543) mdiv            -4194304  <>        -504 or
-       intExpr(2109876543) mdiv            -2097152  <>       -1007 or
-       intExpr(2109876543) mdiv            -1048576  <>       -2013 or
-       intExpr(2109876543) mdiv             -524288  <>       -4025 or
-       intExpr(2109876543) mdiv             -262144  <>       -8049 or
-       intExpr(2109876543) mdiv             -131072  <>      -16098 or
-       intExpr(2109876543) mdiv              -65536  <>      -32195 or
-       intExpr(2109876543) mdiv              -32768  <>      -64389 or
-       intExpr(2109876543) mdiv              -16384  <>     -128777 or
-       intExpr(2109876543) mdiv               -8192  <>     -257554 or
-       intExpr(2109876543) mdiv               -4096  <>     -515107 or
-       intExpr(2109876543) mdiv               -2048  <>    -1030214 or
-       intExpr(2109876543) mdiv               -1024  <>    -2060427 or
-       intExpr(2109876543) mdiv                -512  <>    -4120853 or
-       intExpr(2109876543) mdiv                -256  <>    -8241706 or
-       intExpr(2109876543) mdiv                -128  <>   -16483411 or
-       intExpr(2109876543) mdiv                 -64  <>   -32966821 or
-       intExpr(2109876543) mdiv                 -32  <>   -65933642 or
-       intExpr(2109876543) mdiv                 -16  <>  -131867284 or
-       intExpr(2109876543) mdiv                  -8  <>  -263734568 or
-       intExpr(2109876543) mdiv                  -4  <>  -527469136 or
-       intExpr(2109876543) mdiv                  -2  <> -1054938272 or
-       intExpr(2109876543) mdiv                   2  <>  1054938271 or
-       intExpr(2109876543) mdiv                   4  <>   527469135 or
-       intExpr(2109876543) mdiv                   8  <>   263734567 or
-       intExpr(2109876543) mdiv                  16  <>   131867283 or
-       intExpr(2109876543) mdiv                  32  <>    65933641 or
-       intExpr(2109876543) mdiv                  64  <>    32966820 or
-       intExpr(2109876543) mdiv                 128  <>    16483410 or
-       intExpr(2109876543) mdiv                 256  <>     8241705 or
-       intExpr(2109876543) mdiv                 512  <>     4120852 or
-       intExpr(2109876543) mdiv                1024  <>     2060426 or
-       intExpr(2109876543) mdiv                2048  <>     1030213 or
-       intExpr(2109876543) mdiv                4096  <>      515106 or
-       intExpr(2109876543) mdiv                8192  <>      257553 or
-       intExpr(2109876543) mdiv               16384  <>      128776 or
-       intExpr(2109876543) mdiv               32768  <>       64388 or
-       intExpr(2109876543) mdiv               65536  <>       32194 or
-       intExpr(2109876543) mdiv              131072  <>       16097 or
-       intExpr(2109876543) mdiv              262144  <>        8048 or
-       intExpr(2109876543) mdiv              524288  <>        4024 or
-       intExpr(2109876543) mdiv             1048576  <>        2012 or
-       intExpr(2109876543) mdiv             2097152  <>        1006 or
-       intExpr(2109876543) mdiv             4194304  <>         503 or
-       intExpr(2109876543) mdiv             8388608  <>         251 or
-       intExpr(2109876543) mdiv            16777216  <>         125 or
-       intExpr(2109876543) mdiv            33554432  <>          62 or
-       intExpr(2109876543) mdiv            67108864  <>          31 or
-       intExpr(2109876543) mdiv           134217728  <>          15 or
-       intExpr(2109876543) mdiv           268435456  <>           7 or
-       intExpr(2109876543) mdiv           536870912  <>           3 or
-       intExpr(2109876543) mdiv          1073741824  <>           1 or
-               2109876543  mdiv intExpr(  INT32_MIN) <>          -1 or
-               2109876543  mdiv intExpr(-1073741824) <>          -2 or
-               2109876543  mdiv intExpr( -536870912) <>          -4 or
-               2109876543  mdiv intExpr( -268435456) <>          -8 or
-               2109876543  mdiv intExpr( -134217728) <>         -16 or
-               2109876543  mdiv intExpr(  -67108864) <>         -32 or
-               2109876543  mdiv intExpr(  -33554432) <>         -63 or
-               2109876543  mdiv intExpr(  -16777216) <>        -126 or
-               2109876543  mdiv intExpr(   -8388608) <>        -252 or
-               2109876543  mdiv intExpr(   -4194304) <>        -504 or
-               2109876543  mdiv intExpr(   -2097152) <>       -1007 or
-               2109876543  mdiv intExpr(   -1048576) <>       -2013 or
-               2109876543  mdiv intExpr(    -524288) <>       -4025 or
-               2109876543  mdiv intExpr(    -262144) <>       -8049 or
-               2109876543  mdiv intExpr(    -131072) <>      -16098 or
-               2109876543  mdiv intExpr(     -65536) <>      -32195 or
-               2109876543  mdiv intExpr(     -32768) <>      -64389 or
-               2109876543  mdiv intExpr(     -16384) <>     -128777 or
-               2109876543  mdiv intExpr(      -8192) <>     -257554 or
-               2109876543  mdiv intExpr(      -4096) <>     -515107 or
-               2109876543  mdiv intExpr(      -2048) <>    -1030214 or
-               2109876543  mdiv intExpr(      -1024) <>    -2060427 or
-               2109876543  mdiv intExpr(       -512) <>    -4120853 or
-               2109876543  mdiv intExpr(       -256) <>    -8241706 or
-               2109876543  mdiv intExpr(       -128) <>   -16483411 or
-               2109876543  mdiv intExpr(        -64) <>   -32966821 or
-               2109876543  mdiv intExpr(        -32) <>   -65933642 or
-               2109876543  mdiv intExpr(        -16) <>  -131867284 or
-               2109876543  mdiv intExpr(         -8) <>  -263734568 or
-               2109876543  mdiv intExpr(         -4) <>  -527469136 or
-               2109876543  mdiv intExpr(         -2) <> -1054938272 or
-               2109876543  mdiv intExpr(          2) <>  1054938271 or
-               2109876543  mdiv intExpr(          4) <>   527469135 or
-               2109876543  mdiv intExpr(          8) <>   263734567 or
-               2109876543  mdiv intExpr(         16) <>   131867283 or
-               2109876543  mdiv intExpr(         32) <>    65933641 or
-               2109876543  mdiv intExpr(         64) <>    32966820 or
-               2109876543  mdiv intExpr(        128) <>    16483410 or
-               2109876543  mdiv intExpr(        256) <>     8241705 or
-               2109876543  mdiv intExpr(        512) <>     4120852 or
-               2109876543  mdiv intExpr(       1024) <>     2060426 or
-               2109876543  mdiv intExpr(       2048) <>     1030213 or
-               2109876543  mdiv intExpr(       4096) <>      515106 or
-               2109876543  mdiv intExpr(       8192) <>      257553 or
-               2109876543  mdiv intExpr(      16384) <>      128776 or
-               2109876543  mdiv intExpr(      32768) <>       64388 or
-               2109876543  mdiv intExpr(      65536) <>       32194 or
-               2109876543  mdiv intExpr(     131072) <>       16097 or
-               2109876543  mdiv intExpr(     262144) <>        8048 or
-               2109876543  mdiv intExpr(     524288) <>        4024 or
-               2109876543  mdiv intExpr(    1048576) <>        2012 or
-               2109876543  mdiv intExpr(    2097152) <>        1006 or
-               2109876543  mdiv intExpr(    4194304) <>         503 or
-               2109876543  mdiv intExpr(    8388608) <>         251 or
-               2109876543  mdiv intExpr(   16777216) <>         125 or
-               2109876543  mdiv intExpr(   33554432) <>          62 or
-               2109876543  mdiv intExpr(   67108864) <>          31 or
-               2109876543  mdiv intExpr(  134217728) <>          15 or
-               2109876543  mdiv intExpr(  268435456) <>           7 or
-               2109876543  mdiv intExpr(  536870912) <>           3 or
-               2109876543  mdiv intExpr( 1073741824) <>           1 or
-       intExpr(2109876543) mdiv intExpr(  INT32_MIN) <>          -1 or
-       intExpr(2109876543) mdiv intExpr(-1073741824) <>          -2 or
-       intExpr(2109876543) mdiv intExpr( -536870912) <>          -4 or
-       intExpr(2109876543) mdiv intExpr( -268435456) <>          -8 or
-       intExpr(2109876543) mdiv intExpr( -134217728) <>         -16 or
-       intExpr(2109876543) mdiv intExpr(  -67108864) <>         -32 or
-       intExpr(2109876543) mdiv intExpr(  -33554432) <>         -63 or
-       intExpr(2109876543) mdiv intExpr(  -16777216) <>        -126 or
-       intExpr(2109876543) mdiv intExpr(   -8388608) <>        -252 or
-       intExpr(2109876543) mdiv intExpr(   -4194304) <>        -504 or
-       intExpr(2109876543) mdiv intExpr(   -2097152) <>       -1007 or
-       intExpr(2109876543) mdiv intExpr(   -1048576) <>       -2013 or
-       intExpr(2109876543) mdiv intExpr(    -524288) <>       -4025 or
-       intExpr(2109876543) mdiv intExpr(    -262144) <>       -8049 or
-       intExpr(2109876543) mdiv intExpr(    -131072) <>      -16098 or
-       intExpr(2109876543) mdiv intExpr(     -65536) <>      -32195 or
-       intExpr(2109876543) mdiv intExpr(     -32768) <>      -64389 or
-       intExpr(2109876543) mdiv intExpr(     -16384) <>     -128777 or
-       intExpr(2109876543) mdiv intExpr(      -8192) <>     -257554 or
-       intExpr(2109876543) mdiv intExpr(      -4096) <>     -515107 or
-       intExpr(2109876543) mdiv intExpr(      -2048) <>    -1030214 or
-       intExpr(2109876543) mdiv intExpr(      -1024) <>    -2060427 or
-       intExpr(2109876543) mdiv intExpr(       -512) <>    -4120853 or
-       intExpr(2109876543) mdiv intExpr(       -256) <>    -8241706 or
-       intExpr(2109876543) mdiv intExpr(       -128) <>   -16483411 or
-       intExpr(2109876543) mdiv intExpr(        -64) <>   -32966821 or
-       intExpr(2109876543) mdiv intExpr(        -32) <>   -65933642 or
-       intExpr(2109876543) mdiv intExpr(        -16) <>  -131867284 or
-       intExpr(2109876543) mdiv intExpr(         -8) <>  -263734568 or
-       intExpr(2109876543) mdiv intExpr(         -4) <>  -527469136 or
-       intExpr(2109876543) mdiv intExpr(         -2) <> -1054938272 or
-       intExpr(2109876543) mdiv intExpr(          2) <>  1054938271 or
-       intExpr(2109876543) mdiv intExpr(          4) <>   527469135 or
-       intExpr(2109876543) mdiv intExpr(          8) <>   263734567 or
-       intExpr(2109876543) mdiv intExpr(         16) <>   131867283 or
-       intExpr(2109876543) mdiv intExpr(         32) <>    65933641 or
-       intExpr(2109876543) mdiv intExpr(         64) <>    32966820 or
-       intExpr(2109876543) mdiv intExpr(        128) <>    16483410 or
-       intExpr(2109876543) mdiv intExpr(        256) <>     8241705 or
-       intExpr(2109876543) mdiv intExpr(        512) <>     4120852 or
-       intExpr(2109876543) mdiv intExpr(       1024) <>     2060426 or
-       intExpr(2109876543) mdiv intExpr(       2048) <>     1030213 or
-       intExpr(2109876543) mdiv intExpr(       4096) <>      515106 or
-       intExpr(2109876543) mdiv intExpr(       8192) <>      257553 or
-       intExpr(2109876543) mdiv intExpr(      16384) <>      128776 or
-       intExpr(2109876543) mdiv intExpr(      32768) <>       64388 or
-       intExpr(2109876543) mdiv intExpr(      65536) <>       32194 or
-       intExpr(2109876543) mdiv intExpr(     131072) <>       16097 or
-       intExpr(2109876543) mdiv intExpr(     262144) <>        8048 or
-       intExpr(2109876543) mdiv intExpr(     524288) <>        4024 or
-       intExpr(2109876543) mdiv intExpr(    1048576) <>        2012 or
-       intExpr(2109876543) mdiv intExpr(    2097152) <>        1006 or
-       intExpr(2109876543) mdiv intExpr(    4194304) <>         503 or
-       intExpr(2109876543) mdiv intExpr(    8388608) <>         251 or
-       intExpr(2109876543) mdiv intExpr(   16777216) <>         125 or
-       intExpr(2109876543) mdiv intExpr(   33554432) <>          62 or
-       intExpr(2109876543) mdiv intExpr(   67108864) <>          31 or
-       intExpr(2109876543) mdiv intExpr(  134217728) <>          15 or
-       intExpr(2109876543) mdiv intExpr(  268435456) <>           7 or
-       intExpr(2109876543) mdiv intExpr(  536870912) <>           3 or
-       intExpr(2109876543) mdiv intExpr( 1073741824) <>           1 then
-      writeln(" ***** mdiv with powers of two does not work correct.");
+    if not check_mdiv_min_max then
       okay := FALSE;
     end if;
 
-    if  INT64_MIN mdiv           INT64_MIN <>                    1 or
-        INT64_MIN mdiv         -8589934592 <>           1073741824 or
-        INT64_MIN mdiv         -4294967296 <>           2147483648 or
-        INT64_MIN mdiv         -2147483649 <>           4294967294 or
-        INT64_MIN mdiv           INT32_MIN <>           4294967296 or
-        INT64_MIN mdiv         -2147483648 <>           4294967296 or
-        INT64_MIN mdiv         -1073741824 <>           8589934592 or
-        INT64_MIN mdiv               -1025 <>     8998411743272952 or
-        INT64_MIN mdiv               -1024 <>     9007199254740992 or
-        INT64_MIN mdiv               -1023 <>     9016003946094600 or
-        INT64_MIN mdiv                  -2 <>  4611686018427387904 or
-        INT64_MIN mdiv           INT32_MAX <>          -4294967299 or
-        INT64_MIN mdiv          2147483648 <>          -4294967296 or
-        INT64_MIN mdiv          2147483649 <>          -4294967295 or
-        INT64_MIN mdiv          4294967296 <>          -2147483648 or
-        INT64_MIN mdiv          4294967297 <>          -2147483648 or
-        INT64_MIN mdiv     140737488355327 <>               -65537 or
-        INT64_MIN mdiv     140737488355328 <>               -65536 or
-        INT64_MIN mdiv     140737488355329 <>               -65536 or
-        INT64_MIN mdiv 4611686018427387903 <>                   -3 or
-        INT64_MIN mdiv 4611686018427387904 <>                   -2 or
-        INT64_MIN mdiv 4611686018427387905 <>                   -2 or
-        INT64_MIN mdiv           INT64_MAX <>                   -2 or
-        INT64_MAX mdiv           INT64_MIN <>                   -1 or
-        INT64_MAX mdiv           INT32_MIN <>          -4294967296 or
-        INT64_MAX mdiv           INT32_MAX <>           4294967298 or
-        INT64_MAX mdiv          2147483648 <>           4294967295 or
-        INT64_MAX mdiv          2147483649 <>           4294967294 or
-        INT64_MAX mdiv          4294967295 <>           2147483648 or
-        INT64_MAX mdiv          4294967296 <>           2147483647 or
-        INT64_MAX mdiv     140737488355327 <>                65536 or
-        INT64_MAX mdiv     140737488355328 <>                65535 or
-        INT64_MAX mdiv     140737488355329 <>                65535 or
-        INT64_MAX mdiv 4611686018427387903 <>                    2 or
-        INT64_MAX mdiv 4611686018427387904 <>                    1 or
-        INT64_MAX mdiv 4611686018427387905 <>                    1 or
-        INT64_MAX mdiv           INT64_MAX <>                    1 or
-        intExpr(INT64_MIN) mdiv           INT64_MIN <>                    1 or
-        intExpr(INT64_MIN) mdiv         -8589934592 <>           1073741824 or
-        intExpr(INT64_MIN) mdiv         -4294967296 <>           2147483648 or
-        intExpr(INT64_MIN) mdiv         -2147483649 <>           4294967294 or
-        intExpr(INT64_MIN) mdiv           INT32_MIN <>           4294967296 or
-        intExpr(INT64_MIN) mdiv         -2147483648 <>           4294967296 or
-        intExpr(INT64_MIN) mdiv         -1073741824 <>           8589934592 or
-        intExpr(INT64_MIN) mdiv               -1025 <>     8998411743272952 or
-        intExpr(INT64_MIN) mdiv               -1024 <>     9007199254740992 or
-        intExpr(INT64_MIN) mdiv               -1023 <>     9016003946094600 or
-        intExpr(INT64_MIN) mdiv                  -2 <>  4611686018427387904 or
-        intExpr(INT64_MIN) mdiv           INT32_MAX <>          -4294967299 or
-        intExpr(INT64_MIN) mdiv          2147483648 <>          -4294967296 or
-        intExpr(INT64_MIN) mdiv          2147483649 <>          -4294967295 or
-        intExpr(INT64_MIN) mdiv          4294967296 <>          -2147483648 or
-        intExpr(INT64_MIN) mdiv          4294967297 <>          -2147483648 or
-        intExpr(INT64_MIN) mdiv     140737488355327 <>               -65537 or
-        intExpr(INT64_MIN) mdiv     140737488355328 <>               -65536 or
-        intExpr(INT64_MIN) mdiv     140737488355329 <>               -65536 or
-        intExpr(INT64_MIN) mdiv 4611686018427387903 <>                   -3 or
-        intExpr(INT64_MIN) mdiv 4611686018427387904 <>                   -2 or
-        intExpr(INT64_MIN) mdiv 4611686018427387905 <>                   -2 or
-        intExpr(INT64_MIN) mdiv           INT64_MAX <>                   -2 or
-        intExpr(INT64_MAX) mdiv           INT64_MIN <>                   -1 or
-        intExpr(INT64_MAX) mdiv           INT32_MIN <>          -4294967296 or
-        intExpr(INT64_MAX) mdiv           INT32_MAX <>           4294967298 or
-        intExpr(INT64_MAX) mdiv          2147483648 <>           4294967295 or
-        intExpr(INT64_MAX) mdiv          2147483649 <>           4294967294 or
-        intExpr(INT64_MAX) mdiv          4294967295 <>           2147483648 or
-        intExpr(INT64_MAX) mdiv          4294967296 <>           2147483647 or
-        intExpr(INT64_MAX) mdiv     140737488355327 <>                65536 or
-        intExpr(INT64_MAX) mdiv     140737488355328 <>                65535 or
-        intExpr(INT64_MAX) mdiv     140737488355329 <>                65535 or
-        intExpr(INT64_MAX) mdiv 4611686018427387903 <>                    2 or
-        intExpr(INT64_MAX) mdiv 4611686018427387904 <>                    1 or
-        intExpr(INT64_MAX) mdiv 4611686018427387905 <>                    1 or
-        intExpr(INT64_MAX) mdiv           INT64_MAX <>                    1 or
-        INT64_MIN mdiv intExpr(          INT64_MIN) <>                    1 or
-        INT64_MIN mdiv intExpr(        -8589934592) <>           1073741824 or
-        INT64_MIN mdiv intExpr(        -4294967296) <>           2147483648 or
-        INT64_MIN mdiv intExpr(        -2147483649) <>           4294967294 or
-        INT64_MIN mdiv intExpr(          INT32_MIN) <>           4294967296 or
-        INT64_MIN mdiv intExpr(        -2147483648) <>           4294967296 or
-        INT64_MIN mdiv intExpr(        -1073741824) <>           8589934592 or
-        INT64_MIN mdiv intExpr(              -1025) <>     8998411743272952 or
-        INT64_MIN mdiv intExpr(              -1024) <>     9007199254740992 or
-        INT64_MIN mdiv intExpr(              -1023) <>     9016003946094600 or
-        INT64_MIN mdiv intExpr(                 -2) <>  4611686018427387904 or
-        INT64_MIN mdiv intExpr(          INT32_MAX) <>          -4294967299 or
-        INT64_MIN mdiv intExpr(         2147483648) <>          -4294967296 or
-        INT64_MIN mdiv intExpr(         2147483649) <>          -4294967295 or
-        INT64_MIN mdiv intExpr(         4294967296) <>          -2147483648 or
-        INT64_MIN mdiv intExpr(         4294967297) <>          -2147483648 or
-        INT64_MIN mdiv intExpr(    140737488355327) <>               -65537 or
-        INT64_MIN mdiv intExpr(    140737488355328) <>               -65536 or
-        INT64_MIN mdiv intExpr(    140737488355329) <>               -65536 or
-        INT64_MIN mdiv intExpr(4611686018427387903) <>                   -3 or
-        INT64_MIN mdiv intExpr(4611686018427387904) <>                   -2 or
-        INT64_MIN mdiv intExpr(4611686018427387905) <>                   -2 or
-        INT64_MIN mdiv intExpr(          INT64_MAX) <>                   -2 or
-        INT64_MAX mdiv intExpr(          INT64_MIN) <>                   -1 or
-        INT64_MAX mdiv intExpr(          INT32_MIN) <>          -4294967296 or
-        INT64_MAX mdiv intExpr(          INT32_MAX) <>           4294967298 or
-        INT64_MAX mdiv intExpr(         2147483648) <>           4294967295 or
-        INT64_MAX mdiv intExpr(         2147483649) <>           4294967294 or
-        INT64_MAX mdiv intExpr(         4294967295) <>           2147483648 or
-        INT64_MAX mdiv intExpr(         4294967296) <>           2147483647 or
-        INT64_MAX mdiv intExpr(    140737488355327) <>                65536 or
-        INT64_MAX mdiv intExpr(    140737488355328) <>                65535 or
-        INT64_MAX mdiv intExpr(    140737488355329) <>                65535 or
-        INT64_MAX mdiv intExpr(4611686018427387903) <>                    2 or
-        INT64_MAX mdiv intExpr(4611686018427387904) <>                    1 or
-        INT64_MAX mdiv intExpr(4611686018427387905) <>                    1 or
-        INT64_MAX mdiv intExpr(          INT64_MAX) <>                    1 or
-        intExpr(INT64_MIN) mdiv intExpr(          INT64_MIN) <>           1 or
-        intExpr(INT64_MIN) mdiv intExpr(        -8589934592) <>           1073741824 or
-        intExpr(INT64_MIN) mdiv intExpr(        -4294967296) <>           2147483648 or
-        intExpr(INT64_MIN) mdiv intExpr(        -2147483649) <>           4294967294 or
-        intExpr(INT64_MIN) mdiv intExpr(          INT32_MIN) <>           4294967296 or
-        intExpr(INT64_MIN) mdiv intExpr(        -2147483648) <>           4294967296 or
-        intExpr(INT64_MIN) mdiv intExpr(        -1073741824) <>           8589934592 or
-        intExpr(INT64_MIN) mdiv intExpr(              -1025) <>     8998411743272952 or
-        intExpr(INT64_MIN) mdiv intExpr(              -1024) <>     9007199254740992 or
-        intExpr(INT64_MIN) mdiv intExpr(              -1023) <>     9016003946094600 or
-        intExpr(INT64_MIN) mdiv intExpr(                 -2) <>  4611686018427387904 or
-        intExpr(INT64_MIN) mdiv intExpr(          INT32_MAX) <>          -4294967299 or
-        intExpr(INT64_MIN) mdiv intExpr(         2147483648) <>          -4294967296 or
-        intExpr(INT64_MIN) mdiv intExpr(         2147483649) <>          -4294967295 or
-        intExpr(INT64_MIN) mdiv intExpr(         4294967296) <>          -2147483648 or
-        intExpr(INT64_MIN) mdiv intExpr(         4294967297) <>          -2147483648 or
-        intExpr(INT64_MIN) mdiv intExpr(    140737488355327) <>               -65537 or
-        intExpr(INT64_MIN) mdiv intExpr(    140737488355328) <>               -65536 or
-        intExpr(INT64_MIN) mdiv intExpr(    140737488355329) <>               -65536 or
-        intExpr(INT64_MIN) mdiv intExpr(4611686018427387903) <>                   -3 or
-        intExpr(INT64_MIN) mdiv intExpr(4611686018427387904) <>                   -2 or
-        intExpr(INT64_MIN) mdiv intExpr(4611686018427387905) <>                   -2 or
-        intExpr(INT64_MIN) mdiv intExpr(          INT64_MAX) <>                   -2 or
-        intExpr(INT64_MAX) mdiv intExpr(          INT64_MIN) <>                   -1 or
-        intExpr(INT64_MAX) mdiv intExpr(          INT32_MIN) <>          -4294967296 or
-        intExpr(INT64_MAX) mdiv intExpr(          INT32_MAX) <>           4294967298 or
-        intExpr(INT64_MAX) mdiv intExpr(         2147483648) <>           4294967295 or
-        intExpr(INT64_MAX) mdiv intExpr(         2147483649) <>           4294967294 or
-        intExpr(INT64_MAX) mdiv intExpr(         4294967295) <>           2147483648 or
-        intExpr(INT64_MAX) mdiv intExpr(         4294967296) <>           2147483647 or
-        intExpr(INT64_MAX) mdiv intExpr(    140737488355327) <>                65536 or
-        intExpr(INT64_MAX) mdiv intExpr(    140737488355328) <>                65535 or
-        intExpr(INT64_MAX) mdiv intExpr(    140737488355329) <>                65535 or
-        intExpr(INT64_MAX) mdiv intExpr(4611686018427387903) <>                    2 or
-        intExpr(INT64_MAX) mdiv intExpr(4611686018427387904) <>                    1 or
-        intExpr(INT64_MAX) mdiv intExpr(4611686018427387905) <>                    1 or
-        intExpr(INT64_MAX) mdiv intExpr(          INT64_MAX) <>                    1 then
-      writeln(" ***** mdiv with maximum values does not work correct.");
-      okay := FALSE;
-    end if;
-
-    if  not raisesNumericError(          INT64_MIN  mdiv         0 ) or
-        not raisesNumericError(        -2147483648  mdiv         0 ) or
-        not raisesNumericError(                 -1  mdiv         0 ) or
-        not raisesNumericError(           minusOne  mdiv         0 ) or
-        not raisesNumericError(                  0  mdiv         0 ) or
-        not raisesNumericError(              zero2  mdiv         0 ) or
-        not raisesNumericError(                  1  mdiv         0 ) or
-        not raisesNumericError(                one  mdiv         0 ) or
-        not raisesNumericError(         2147483647  mdiv         0 ) or
-        not raisesNumericError(          INT64_MAX  mdiv         0 ) or
-        not raisesNumericError(intExpr(  INT64_MIN) mdiv         0 ) or
-        not raisesNumericError(intExpr(-2147483648) mdiv         0 ) or
-        not raisesNumericError(intExpr(         -1) mdiv         0 ) or
-        not raisesNumericError(intExpr(          0) mdiv         0 ) or
-        not raisesNumericError(intExpr(          1) mdiv         0 ) or
-        not raisesNumericError(intExpr( 2147483647) mdiv         0 ) or
-        not raisesNumericError(intExpr(  INT64_MAX) mdiv         0 ) or
-        not raisesNumericError(          INT64_MIN  mdiv      zero ) or
-        not raisesNumericError(        -2147483648  mdiv      zero ) or
-        not raisesNumericError(                 -1  mdiv      zero ) or
-        not raisesNumericError(           minusOne  mdiv      zero ) or
-        not raisesNumericError(                  0  mdiv      zero ) or
-        not raisesNumericError(               zero  mdiv      zero ) or
-        not raisesNumericError(              zero2  mdiv      zero ) or
-        not raisesNumericError(                  1  mdiv      zero ) or
-        not raisesNumericError(                one  mdiv      zero ) or
-        not raisesNumericError(         2147483647  mdiv      zero ) or
-        not raisesNumericError(          INT64_MAX  mdiv      zero ) or
-        not raisesNumericError(intExpr(  INT64_MIN) mdiv      zero ) or
-        not raisesNumericError(intExpr(-2147483648) mdiv      zero ) or
-        not raisesNumericError(intExpr(         -1) mdiv      zero ) or
-        not raisesNumericError(intExpr(          0) mdiv      zero ) or
-        not raisesNumericError(intExpr(          1) mdiv      zero ) or
-        not raisesNumericError(intExpr( 2147483647) mdiv      zero ) or
-        not raisesNumericError(intExpr(  INT64_MAX) mdiv      zero ) or
-        not raisesNumericError(          INT64_MIN  mdiv intExpr(0)) or
-        not raisesNumericError(        -2147483648  mdiv intExpr(0)) or
-        not raisesNumericError(                 -1  mdiv intExpr(0)) or
-        not raisesNumericError(           minusOne  mdiv intExpr(0)) or
-        not raisesNumericError(                  0  mdiv intExpr(0)) or
-        not raisesNumericError(              zero2  mdiv intExpr(0)) or
-        not raisesNumericError(                  1  mdiv intExpr(0)) or
-        not raisesNumericError(                one  mdiv intExpr(0)) or
-        not raisesNumericError(         2147483647  mdiv intExpr(0)) or
-        not raisesNumericError(          INT64_MAX  mdiv intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MIN) mdiv intExpr(0)) or
-        not raisesNumericError(intExpr(-2147483648) mdiv intExpr(0)) or
-        not raisesNumericError(intExpr(         -1) mdiv intExpr(0)) or
-        not raisesNumericError(intExpr(          0) mdiv intExpr(0)) or
-        not raisesNumericError(intExpr(          1) mdiv intExpr(0)) or
-        not raisesNumericError(intExpr( 2147483647) mdiv intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MAX) mdiv intExpr(0)) then
-      writeln(" ***** Division by zero with the mdiv operator does not raise NUMERIC_ERROR.");
+    if not check_mdiv_by_zero then
       okay := FALSE;
     end if;
 
@@ -9752,6 +9773,412 @@ const proc: check_mdiv is func
       writeln("Mdiv works correct for selected values.");
     else
       writeln(" ***** mdiv does not work correct.");
+    end if;
+  end func;
+
+
+const func boolean: check_mod_min_max is func
+  result
+    var boolean: okay is TRUE;
+  begin
+    if         2109876543  mod           INT32_MIN  <>   -37607105 or
+               2109876543  mod         -1073741824  <>   -37607105 or
+               2109876543  mod          -536870912  <>   -37607105 or
+               2109876543  mod          -268435456  <>   -37607105 or
+               2109876543  mod          -134217728  <>   -37607105 or
+               2109876543  mod           -67108864  <>   -37607105 or
+               2109876543  mod           -33554432  <>    -4052673 or
+               2109876543  mod           -16777216  <>    -4052673 or
+               2109876543  mod            -8388608  <>    -4052673 or
+               2109876543  mod            -4194304  <>    -4052673 or
+               2109876543  mod            -2097152  <>    -1955521 or
+               2109876543  mod            -1048576  <>     -906945 or
+               2109876543  mod             -524288  <>     -382657 or
+               2109876543  mod             -262144  <>     -120513 or
+               2109876543  mod             -131072  <>     -120513 or
+               2109876543  mod              -65536  <>      -54977 or
+               2109876543  mod              -32768  <>      -22209 or
+               2109876543  mod              -16384  <>       -5825 or
+               2109876543  mod               -8192  <>       -5825 or
+               2109876543  mod               -4096  <>       -1729 or
+               2109876543  mod               -2048  <>       -1729 or
+               2109876543  mod               -1024  <>        -705 or
+               2109876543  mod                -512  <>        -193 or
+               2109876543  mod                -256  <>        -193 or
+               2109876543  mod                -128  <>         -65 or
+               2109876543  mod                 -64  <>          -1 or
+               2109876543  mod                 -32  <>          -1 or
+               2109876543  mod                 -16  <>          -1 or
+               2109876543  mod                  -8  <>          -1 or
+               2109876543  mod                  -4  <>          -1 or
+               2109876543  mod                  -2  <>          -1 or
+               2109876543  mod                   2  <>           1 or
+               2109876543  mod                   4  <>           3 or
+               2109876543  mod                   8  <>           7 or
+               2109876543  mod                  16  <>          15 or
+               2109876543  mod                  32  <>          31 or
+               2109876543  mod                  64  <>          63 or
+               2109876543  mod                 128  <>          63 or
+               2109876543  mod                 256  <>          63 or
+               2109876543  mod                 512  <>         319 or
+               2109876543  mod                1024  <>         319 or
+               2109876543  mod                2048  <>         319 or
+               2109876543  mod                4096  <>        2367 or
+               2109876543  mod                8192  <>        2367 or
+               2109876543  mod               16384  <>       10559 or
+               2109876543  mod               32768  <>       10559 or
+               2109876543  mod               65536  <>       10559 or
+               2109876543  mod              131072  <>       10559 or
+               2109876543  mod              262144  <>      141631 or
+               2109876543  mod              524288  <>      141631 or
+               2109876543  mod             1048576  <>      141631 or
+               2109876543  mod             2097152  <>      141631 or
+               2109876543  mod             4194304  <>      141631 or
+               2109876543  mod             8388608  <>     4335935 or
+               2109876543  mod            16777216  <>    12724543 or
+               2109876543  mod            33554432  <>    29501759 or
+               2109876543  mod            67108864  <>    29501759 or
+               2109876543  mod           134217728  <>    96610623 or
+               2109876543  mod           268435456  <>   230828351 or
+               2109876543  mod           536870912  <>   499263807 or
+               2109876543  mod          1073741824  <>  1036134719 or
+       intExpr(2109876543) mod           INT32_MIN  <>   -37607105 or
+       intExpr(2109876543) mod         -1073741824  <>   -37607105 or
+       intExpr(2109876543) mod          -536870912  <>   -37607105 or
+       intExpr(2109876543) mod          -268435456  <>   -37607105 or
+       intExpr(2109876543) mod          -134217728  <>   -37607105 or
+       intExpr(2109876543) mod           -67108864  <>   -37607105 or
+       intExpr(2109876543) mod           -33554432  <>    -4052673 or
+       intExpr(2109876543) mod           -16777216  <>    -4052673 or
+       intExpr(2109876543) mod            -8388608  <>    -4052673 or
+       intExpr(2109876543) mod            -4194304  <>    -4052673 or
+       intExpr(2109876543) mod            -2097152  <>    -1955521 or
+       intExpr(2109876543) mod            -1048576  <>     -906945 or
+       intExpr(2109876543) mod             -524288  <>     -382657 or
+       intExpr(2109876543) mod             -262144  <>     -120513 or
+       intExpr(2109876543) mod             -131072  <>     -120513 or
+       intExpr(2109876543) mod              -65536  <>      -54977 or
+       intExpr(2109876543) mod              -32768  <>      -22209 or
+       intExpr(2109876543) mod              -16384  <>       -5825 or
+       intExpr(2109876543) mod               -8192  <>       -5825 or
+       intExpr(2109876543) mod               -4096  <>       -1729 or
+       intExpr(2109876543) mod               -2048  <>       -1729 or
+       intExpr(2109876543) mod               -1024  <>        -705 or
+       intExpr(2109876543) mod                -512  <>        -193 or
+       intExpr(2109876543) mod                -256  <>        -193 or
+       intExpr(2109876543) mod                -128  <>         -65 or
+       intExpr(2109876543) mod                 -64  <>          -1 or
+       intExpr(2109876543) mod                 -32  <>          -1 or
+       intExpr(2109876543) mod                 -16  <>          -1 or
+       intExpr(2109876543) mod                  -8  <>          -1 or
+       intExpr(2109876543) mod                  -4  <>          -1 or
+       intExpr(2109876543) mod                  -2  <>          -1 or
+       intExpr(2109876543) mod                   2  <>           1 or
+       intExpr(2109876543) mod                   4  <>           3 or
+       intExpr(2109876543) mod                   8  <>           7 or
+       intExpr(2109876543) mod                  16  <>          15 or
+       intExpr(2109876543) mod                  32  <>          31 or
+       intExpr(2109876543) mod                  64  <>          63 or
+       intExpr(2109876543) mod                 128  <>          63 or
+       intExpr(2109876543) mod                 256  <>          63 or
+       intExpr(2109876543) mod                 512  <>         319 or
+       intExpr(2109876543) mod                1024  <>         319 or
+       intExpr(2109876543) mod                2048  <>         319 or
+       intExpr(2109876543) mod                4096  <>        2367 or
+       intExpr(2109876543) mod                8192  <>        2367 or
+       intExpr(2109876543) mod               16384  <>       10559 or
+       intExpr(2109876543) mod               32768  <>       10559 or
+       intExpr(2109876543) mod               65536  <>       10559 or
+       intExpr(2109876543) mod              131072  <>       10559 or
+       intExpr(2109876543) mod              262144  <>      141631 or
+       intExpr(2109876543) mod              524288  <>      141631 or
+       intExpr(2109876543) mod             1048576  <>      141631 or
+       intExpr(2109876543) mod             2097152  <>      141631 or
+       intExpr(2109876543) mod             4194304  <>      141631 or
+       intExpr(2109876543) mod             8388608  <>     4335935 or
+       intExpr(2109876543) mod            16777216  <>    12724543 or
+       intExpr(2109876543) mod            33554432  <>    29501759 or
+       intExpr(2109876543) mod            67108864  <>    29501759 or
+       intExpr(2109876543) mod           134217728  <>    96610623 or
+       intExpr(2109876543) mod           268435456  <>   230828351 or
+       intExpr(2109876543) mod           536870912  <>   499263807 or
+       intExpr(2109876543) mod          1073741824  <>  1036134719 or
+               2109876543  mod intExpr(  INT32_MIN) <>   -37607105 or
+               2109876543  mod intExpr(-1073741824) <>   -37607105 or
+               2109876543  mod intExpr( -536870912) <>   -37607105 or
+               2109876543  mod intExpr( -268435456) <>   -37607105 or
+               2109876543  mod intExpr( -134217728) <>   -37607105 or
+               2109876543  mod intExpr(  -67108864) <>   -37607105 or
+               2109876543  mod intExpr(  -33554432) <>    -4052673 or
+               2109876543  mod intExpr(  -16777216) <>    -4052673 or
+               2109876543  mod intExpr(   -8388608) <>    -4052673 or
+               2109876543  mod intExpr(   -4194304) <>    -4052673 or
+               2109876543  mod intExpr(   -2097152) <>    -1955521 or
+               2109876543  mod intExpr(   -1048576) <>     -906945 or
+               2109876543  mod intExpr(    -524288) <>     -382657 or
+               2109876543  mod intExpr(    -262144) <>     -120513 or
+               2109876543  mod intExpr(    -131072) <>     -120513 or
+               2109876543  mod intExpr(     -65536) <>      -54977 or
+               2109876543  mod intExpr(     -32768) <>      -22209 or
+               2109876543  mod intExpr(     -16384) <>       -5825 or
+               2109876543  mod intExpr(      -8192) <>       -5825 or
+               2109876543  mod intExpr(      -4096) <>       -1729 or
+               2109876543  mod intExpr(      -2048) <>       -1729 or
+               2109876543  mod intExpr(      -1024) <>        -705 or
+               2109876543  mod intExpr(       -512) <>        -193 or
+               2109876543  mod intExpr(       -256) <>        -193 or
+               2109876543  mod intExpr(       -128) <>         -65 or
+               2109876543  mod intExpr(        -64) <>          -1 or
+               2109876543  mod intExpr(        -32) <>          -1 or
+               2109876543  mod intExpr(        -16) <>          -1 or
+               2109876543  mod intExpr(         -8) <>          -1 or
+               2109876543  mod intExpr(         -4) <>          -1 or
+               2109876543  mod intExpr(         -2) <>          -1 or
+               2109876543  mod intExpr(          2) <>           1 or
+               2109876543  mod intExpr(          4) <>           3 or
+               2109876543  mod intExpr(          8) <>           7 or
+               2109876543  mod intExpr(         16) <>          15 or
+               2109876543  mod intExpr(         32) <>          31 or
+               2109876543  mod intExpr(         64) <>          63 or
+               2109876543  mod intExpr(        128) <>          63 or
+               2109876543  mod intExpr(        256) <>          63 or
+               2109876543  mod intExpr(        512) <>         319 or
+               2109876543  mod intExpr(       1024) <>         319 or
+               2109876543  mod intExpr(       2048) <>         319 or
+               2109876543  mod intExpr(       4096) <>        2367 or
+               2109876543  mod intExpr(       8192) <>        2367 or
+               2109876543  mod intExpr(      16384) <>       10559 or
+               2109876543  mod intExpr(      32768) <>       10559 or
+               2109876543  mod intExpr(      65536) <>       10559 or
+               2109876543  mod intExpr(     131072) <>       10559 or
+               2109876543  mod intExpr(     262144) <>      141631 or
+               2109876543  mod intExpr(     524288) <>      141631 or
+               2109876543  mod intExpr(    1048576) <>      141631 or
+               2109876543  mod intExpr(    2097152) <>      141631 or
+               2109876543  mod intExpr(    4194304) <>      141631 or
+               2109876543  mod intExpr(    8388608) <>     4335935 or
+               2109876543  mod intExpr(   16777216) <>    12724543 or
+               2109876543  mod intExpr(   33554432) <>    29501759 or
+               2109876543  mod intExpr(   67108864) <>    29501759 or
+               2109876543  mod intExpr(  134217728) <>    96610623 or
+               2109876543  mod intExpr(  268435456) <>   230828351 or
+               2109876543  mod intExpr(  536870912) <>   499263807 or
+               2109876543  mod intExpr( 1073741824) <>  1036134719 or
+       intExpr(2109876543) mod intExpr(  INT32_MIN) <>   -37607105 or
+       intExpr(2109876543) mod intExpr(-1073741824) <>   -37607105 or
+       intExpr(2109876543) mod intExpr( -536870912) <>   -37607105 or
+       intExpr(2109876543) mod intExpr( -268435456) <>   -37607105 or
+       intExpr(2109876543) mod intExpr( -134217728) <>   -37607105 or
+       intExpr(2109876543) mod intExpr(  -67108864) <>   -37607105 or
+       intExpr(2109876543) mod intExpr(  -33554432) <>    -4052673 or
+       intExpr(2109876543) mod intExpr(  -16777216) <>    -4052673 or
+       intExpr(2109876543) mod intExpr(   -8388608) <>    -4052673 or
+       intExpr(2109876543) mod intExpr(   -4194304) <>    -4052673 or
+       intExpr(2109876543) mod intExpr(   -2097152) <>    -1955521 or
+       intExpr(2109876543) mod intExpr(   -1048576) <>     -906945 or
+       intExpr(2109876543) mod intExpr(    -524288) <>     -382657 or
+       intExpr(2109876543) mod intExpr(    -262144) <>     -120513 or
+       intExpr(2109876543) mod intExpr(    -131072) <>     -120513 or
+       intExpr(2109876543) mod intExpr(     -65536) <>      -54977 or
+       intExpr(2109876543) mod intExpr(     -32768) <>      -22209 or
+       intExpr(2109876543) mod intExpr(     -16384) <>       -5825 or
+       intExpr(2109876543) mod intExpr(      -8192) <>       -5825 or
+       intExpr(2109876543) mod intExpr(      -4096) <>       -1729 or
+       intExpr(2109876543) mod intExpr(      -2048) <>       -1729 or
+       intExpr(2109876543) mod intExpr(      -1024) <>        -705 or
+       intExpr(2109876543) mod intExpr(       -512) <>        -193 or
+       intExpr(2109876543) mod intExpr(       -256) <>        -193 or
+       intExpr(2109876543) mod intExpr(       -128) <>         -65 or
+       intExpr(2109876543) mod intExpr(        -64) <>          -1 or
+       intExpr(2109876543) mod intExpr(        -32) <>          -1 or
+       intExpr(2109876543) mod intExpr(        -16) <>          -1 or
+       intExpr(2109876543) mod intExpr(         -8) <>          -1 or
+       intExpr(2109876543) mod intExpr(         -4) <>          -1 or
+       intExpr(2109876543) mod intExpr(         -2) <>          -1 or
+       intExpr(2109876543) mod intExpr(          2) <>           1 or
+       intExpr(2109876543) mod intExpr(          4) <>           3 or
+       intExpr(2109876543) mod intExpr(          8) <>           7 or
+       intExpr(2109876543) mod intExpr(         16) <>          15 or
+       intExpr(2109876543) mod intExpr(         32) <>          31 or
+       intExpr(2109876543) mod intExpr(         64) <>          63 or
+       intExpr(2109876543) mod intExpr(        128) <>          63 or
+       intExpr(2109876543) mod intExpr(        256) <>          63 or
+       intExpr(2109876543) mod intExpr(        512) <>         319 or
+       intExpr(2109876543) mod intExpr(       1024) <>         319 or
+       intExpr(2109876543) mod intExpr(       2048) <>         319 or
+       intExpr(2109876543) mod intExpr(       4096) <>        2367 or
+       intExpr(2109876543) mod intExpr(       8192) <>        2367 or
+       intExpr(2109876543) mod intExpr(      16384) <>       10559 or
+       intExpr(2109876543) mod intExpr(      32768) <>       10559 or
+       intExpr(2109876543) mod intExpr(      65536) <>       10559 or
+       intExpr(2109876543) mod intExpr(     131072) <>       10559 or
+       intExpr(2109876543) mod intExpr(     262144) <>      141631 or
+       intExpr(2109876543) mod intExpr(     524288) <>      141631 or
+       intExpr(2109876543) mod intExpr(    1048576) <>      141631 or
+       intExpr(2109876543) mod intExpr(    2097152) <>      141631 or
+       intExpr(2109876543) mod intExpr(    4194304) <>      141631 or
+       intExpr(2109876543) mod intExpr(    8388608) <>     4335935 or
+       intExpr(2109876543) mod intExpr(   16777216) <>    12724543 or
+       intExpr(2109876543) mod intExpr(   33554432) <>    29501759 or
+       intExpr(2109876543) mod intExpr(   67108864) <>    29501759 or
+       intExpr(2109876543) mod intExpr(  134217728) <>    96610623 or
+       intExpr(2109876543) mod intExpr(  268435456) <>   230828351 or
+       intExpr(2109876543) mod intExpr(  536870912) <>   499263807 or
+       intExpr(2109876543) mod intExpr( 1073741824) <>  1036134719 then
+      writeln(" ***** mod with powers of two does not work correct.");
+      okay := FALSE;
+    end if;
+
+    if  INT64_MIN mod           INT64_MIN <>                   0 or
+        INT64_MIN mod         -8589934592 <>                   0 or
+        INT64_MIN mod         -4294967296 <>                   0 or
+        INT64_MIN mod         -2147483649 <>                  -2 or
+        INT64_MIN mod           INT32_MIN <>                   0 or
+        INT64_MIN mod         -2147483648 <>                   0 or
+        INT64_MIN mod         -1073741824 <>                   0 or
+        INT64_MIN mod               -1025 <>                  -8 or
+        INT64_MIN mod               -1024 <>                   0 or
+        INT64_MIN mod               -1023 <>                  -8 or
+        INT64_MIN mod                  -2 <>                   0 or
+        INT64_MIN mod           INT32_MAX <>          2147483645 or
+        INT64_MIN mod          2147483648 <>                   0 or
+        INT64_MIN mod          2147483649 <>          2147483647 or
+        INT64_MIN mod          4294967296 <>                   0 or
+        INT64_MIN mod          4294967297 <>          2147483648 or
+        INT64_MIN mod     140737488355327 <>     140737488289791 or
+        INT64_MIN mod     140737488355328 <>                   0 or
+        INT64_MIN mod     140737488355329 <>               65536 or
+        INT64_MIN mod 4611686018427387903 <> 4611686018427387901 or
+        INT64_MIN mod 4611686018427387904 <>                   0 or
+        INT64_MIN mod 4611686018427387905 <>                   2 or
+        INT64_MIN mod           INT64_MAX <> 9223372036854775806 or
+        INT64_MAX mod           INT64_MIN <>                  -1 or
+        INT64_MAX mod           INT32_MIN <>                  -1 or
+        INT64_MAX mod           INT32_MAX <>                   1 or
+        INT64_MAX mod          2147483648 <>          2147483647 or
+        INT64_MAX mod          2147483649 <>                   1 or
+        INT64_MAX mod          4294967295 <>          2147483647 or
+        INT64_MAX mod          4294967296 <>          4294967295 or
+        INT64_MAX mod     140737488355327 <>               65535 or
+        INT64_MAX mod     140737488355328 <>     140737488355327 or
+        INT64_MAX mod     140737488355329 <>     140737488289792 or
+        INT64_MAX mod 4611686018427387903 <>                   1 or
+        INT64_MAX mod 4611686018427387904 <> 4611686018427387903 or
+        INT64_MAX mod 4611686018427387905 <> 4611686018427387902 or
+        INT64_MAX mod           INT64_MAX <>                   0 or
+        intExpr(INT64_MIN) mod           INT64_MIN <>                   0 or
+        intExpr(INT64_MIN) mod         -8589934592 <>                   0 or
+        intExpr(INT64_MIN) mod         -4294967296 <>                   0 or
+        intExpr(INT64_MIN) mod         -2147483649 <>                  -2 or
+        intExpr(INT64_MIN) mod           INT32_MIN <>                   0 or
+        intExpr(INT64_MIN) mod         -2147483648 <>                   0 or
+        intExpr(INT64_MIN) mod         -1073741824 <>                   0 or
+        intExpr(INT64_MIN) mod               -1025 <>                  -8 or
+        intExpr(INT64_MIN) mod               -1024 <>                   0 or
+        intExpr(INT64_MIN) mod               -1023 <>                  -8 or
+        intExpr(INT64_MIN) mod                  -2 <>                   0 or
+        intExpr(INT64_MIN) mod           INT32_MAX <>          2147483645 or
+        intExpr(INT64_MIN) mod          2147483648 <>                   0 or
+        intExpr(INT64_MIN) mod          2147483649 <>          2147483647 or
+        intExpr(INT64_MIN) mod          4294967296 <>                   0 or
+        intExpr(INT64_MIN) mod          4294967297 <>          2147483648 or
+        intExpr(INT64_MIN) mod     140737488355327 <>     140737488289791 or
+        intExpr(INT64_MIN) mod     140737488355328 <>                   0 or
+        intExpr(INT64_MIN) mod     140737488355329 <>               65536 or
+        intExpr(INT64_MIN) mod 4611686018427387903 <> 4611686018427387901 or
+        intExpr(INT64_MIN) mod 4611686018427387904 <>                   0 or
+        intExpr(INT64_MIN) mod 4611686018427387905 <>                   2 or
+        intExpr(INT64_MIN) mod           INT64_MAX <> 9223372036854775806 or
+        intExpr(INT64_MAX) mod           INT64_MIN <>                  -1 or
+        intExpr(INT64_MAX) mod           INT32_MIN <>                  -1 or
+        intExpr(INT64_MAX) mod           INT32_MAX <>                   1 or
+        intExpr(INT64_MAX) mod          2147483648 <>          2147483647 or
+        intExpr(INT64_MAX) mod          2147483649 <>                   1 or
+        intExpr(INT64_MAX) mod          4294967295 <>          2147483647 or
+        intExpr(INT64_MAX) mod          4294967296 <>          4294967295 or
+        intExpr(INT64_MAX) mod     140737488355327 <>               65535 or
+        intExpr(INT64_MAX) mod     140737488355328 <>     140737488355327 or
+        intExpr(INT64_MAX) mod     140737488355329 <>     140737488289792 or
+        intExpr(INT64_MAX) mod 4611686018427387903 <>                   1 or
+        intExpr(INT64_MAX) mod 4611686018427387904 <> 4611686018427387903 or
+        intExpr(INT64_MAX) mod 4611686018427387905 <> 4611686018427387902 or
+        intExpr(INT64_MAX) mod           INT64_MAX <>                   0 or
+        INT64_MIN mod intExpr(          INT64_MIN) <>                   0 or
+        INT64_MIN mod intExpr(        -8589934592) <>                   0 or
+        INT64_MIN mod intExpr(        -4294967296) <>                   0 or
+        INT64_MIN mod intExpr(        -2147483649) <>                  -2 or
+        INT64_MIN mod intExpr(          INT32_MIN) <>                   0 or
+        INT64_MIN mod intExpr(        -2147483648) <>                   0 or
+        INT64_MIN mod intExpr(        -1073741824) <>                   0 or
+        INT64_MIN mod intExpr(              -1025) <>                  -8 or
+        INT64_MIN mod intExpr(              -1024) <>                   0 or
+        INT64_MIN mod intExpr(              -1023) <>                  -8 or
+        INT64_MIN mod intExpr(                 -2) <>                   0 or
+        INT64_MIN mod intExpr(          INT32_MAX) <>          2147483645 or
+        INT64_MIN mod intExpr(         2147483648) <>                   0 or
+        INT64_MIN mod intExpr(         2147483649) <>          2147483647 or
+        INT64_MIN mod intExpr(         4294967296) <>                   0 or
+        INT64_MIN mod intExpr(         4294967297) <>          2147483648 or
+        INT64_MIN mod intExpr(    140737488355327) <>     140737488289791 or
+        INT64_MIN mod intExpr(    140737488355328) <>                   0 or
+        INT64_MIN mod intExpr(    140737488355329) <>               65536 or
+        INT64_MIN mod intExpr(4611686018427387903) <> 4611686018427387901 or
+        INT64_MIN mod intExpr(4611686018427387904) <>                   0 or
+        INT64_MIN mod intExpr(4611686018427387905) <>                   2 or
+        INT64_MIN mod intExpr(          INT64_MAX) <> 9223372036854775806 or
+        INT64_MAX mod intExpr(          INT64_MIN) <>                  -1 or
+        INT64_MAX mod intExpr(          INT32_MIN) <>                  -1 or
+        INT64_MAX mod intExpr(          INT32_MAX) <>                   1 or
+        INT64_MAX mod intExpr(         2147483648) <>          2147483647 or
+        INT64_MAX mod intExpr(         2147483649) <>                   1 or
+        INT64_MAX mod intExpr(         4294967295) <>          2147483647 or
+        INT64_MAX mod intExpr(         4294967296) <>          4294967295 or
+        INT64_MAX mod intExpr(    140737488355327) <>               65535 or
+        INT64_MAX mod intExpr(    140737488355328) <>     140737488355327 or
+        INT64_MAX mod intExpr(    140737488355329) <>     140737488289792 or
+        INT64_MAX mod intExpr(4611686018427387903) <>                   1 or
+        INT64_MAX mod intExpr(4611686018427387904) <> 4611686018427387903 or
+        INT64_MAX mod intExpr(4611686018427387905) <> 4611686018427387902 or
+        INT64_MAX mod intExpr(          INT64_MAX) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(          INT64_MIN) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(        -8589934592) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(        -4294967296) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(        -2147483649) <>                  -2 or
+        intExpr(INT64_MIN) mod intExpr(          INT32_MIN) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(        -2147483648) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(        -1073741824) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(              -1025) <>                  -8 or
+        intExpr(INT64_MIN) mod intExpr(              -1024) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(              -1023) <>                  -8 or
+        intExpr(INT64_MIN) mod intExpr(                 -2) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(          INT32_MAX) <>          2147483645 or
+        intExpr(INT64_MIN) mod intExpr(         2147483648) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(         2147483649) <>          2147483647 or
+        intExpr(INT64_MIN) mod intExpr(         4294967296) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(         4294967297) <>          2147483648 or
+        intExpr(INT64_MIN) mod intExpr(    140737488355327) <>     140737488289791 or
+        intExpr(INT64_MIN) mod intExpr(    140737488355328) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(    140737488355329) <>               65536 or
+        intExpr(INT64_MIN) mod intExpr(4611686018427387903) <> 4611686018427387901 or
+        intExpr(INT64_MIN) mod intExpr(4611686018427387904) <>                   0 or
+        intExpr(INT64_MIN) mod intExpr(4611686018427387905) <>                   2 or
+        intExpr(INT64_MIN) mod intExpr(          INT64_MAX) <> 9223372036854775806 or
+        intExpr(INT64_MAX) mod intExpr(          INT64_MIN) <>                  -1 or
+        intExpr(INT64_MAX) mod intExpr(          INT32_MIN) <>                  -1 or
+        intExpr(INT64_MAX) mod intExpr(          INT32_MAX) <>                   1 or
+        intExpr(INT64_MAX) mod intExpr(         2147483648) <>          2147483647 or
+        intExpr(INT64_MAX) mod intExpr(         2147483649) <>                   1 or
+        intExpr(INT64_MAX) mod intExpr(         4294967295) <>          2147483647 or
+        intExpr(INT64_MAX) mod intExpr(         4294967296) <>          4294967295 or
+        intExpr(INT64_MAX) mod intExpr(    140737488355327) <>               65535 or
+        intExpr(INT64_MAX) mod intExpr(    140737488355328) <>     140737488355327 or
+        intExpr(INT64_MAX) mod intExpr(    140737488355329) <>     140737488289792 or
+        intExpr(INT64_MAX) mod intExpr(4611686018427387903) <>                   1 or
+        intExpr(INT64_MAX) mod intExpr(4611686018427387904) <> 4611686018427387903 or
+        intExpr(INT64_MAX) mod intExpr(4611686018427387905) <> 4611686018427387902 or
+        intExpr(INT64_MAX) mod intExpr(          INT64_MAX) <>                   0 then
+      writeln(" ***** mod with maximum values does not work correct.");
+      okay := FALSE;
     end if;
   end func;
 
@@ -10538,13 +10965,76 @@ const func boolean: check_mod_by_computed_power_of_two_optimization is func
   end func;
 
 
-const proc: check_mod is func
-  local
+const func boolean: check_mod_by_zero is func
+  result
     var boolean: okay is TRUE;
+  local
     var integer: zero is 0;
     var integer: zero2 is 0;
     var integer: one is 1;
     var integer: minusOne is -1;
+  begin
+    if  not raisesNumericError(          INT64_MIN  mod         0 ) or
+        not raisesNumericError(        -2147483648  mod         0 ) or
+        not raisesNumericError(                 -1  mod         0 ) or
+        not raisesNumericError(           minusOne  mod         0 ) or
+        not raisesNumericError(                  0  mod         0 ) or
+        not raisesNumericError(              zero2  mod         0 ) or
+        not raisesNumericError(                  1  mod         0 ) or
+        not raisesNumericError(                one  mod         0 ) or
+        not raisesNumericError(         2147483647  mod         0 ) or
+        not raisesNumericError(          INT64_MAX  mod         0 ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mod         0 ) or
+        not raisesNumericError(intExpr(-2147483648) mod         0 ) or
+        not raisesNumericError(intExpr(         -1) mod         0 ) or
+        not raisesNumericError(intExpr(          0) mod         0 ) or
+        not raisesNumericError(intExpr(          1) mod         0 ) or
+        not raisesNumericError(intExpr( 2147483647) mod         0 ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mod         0 ) or
+        not raisesNumericError(          INT64_MIN  mod      zero ) or
+        not raisesNumericError(        -2147483648  mod      zero ) or
+        not raisesNumericError(                 -1  mod      zero ) or
+        not raisesNumericError(           minusOne  mod      zero ) or
+        not raisesNumericError(                  0  mod      zero ) or
+        not raisesNumericError(               zero  mod      zero ) or
+        not raisesNumericError(              zero2  mod      zero ) or
+        not raisesNumericError(                  1  mod      zero ) or
+        not raisesNumericError(                one  mod      zero ) or
+        not raisesNumericError(         2147483647  mod      zero ) or
+        not raisesNumericError(          INT64_MAX  mod      zero ) or
+        not raisesNumericError(intExpr(  INT64_MIN) mod      zero ) or
+        not raisesNumericError(intExpr(-2147483648) mod      zero ) or
+        not raisesNumericError(intExpr(         -1) mod      zero ) or
+        not raisesNumericError(intExpr(          0) mod      zero ) or
+        not raisesNumericError(intExpr(          1) mod      zero ) or
+        not raisesNumericError(intExpr( 2147483647) mod      zero ) or
+        not raisesNumericError(intExpr(  INT64_MAX) mod      zero ) or
+        not raisesNumericError(          INT64_MIN  mod intExpr(0)) or
+        not raisesNumericError(        -2147483648  mod intExpr(0)) or
+        not raisesNumericError(                 -1  mod intExpr(0)) or
+        not raisesNumericError(           minusOne  mod intExpr(0)) or
+        not raisesNumericError(                  0  mod intExpr(0)) or
+        not raisesNumericError(              zero2  mod intExpr(0)) or
+        not raisesNumericError(                  1  mod intExpr(0)) or
+        not raisesNumericError(                one  mod intExpr(0)) or
+        not raisesNumericError(         2147483647  mod intExpr(0)) or
+        not raisesNumericError(          INT64_MAX  mod intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MIN) mod intExpr(0)) or
+        not raisesNumericError(intExpr(-2147483648) mod intExpr(0)) or
+        not raisesNumericError(intExpr(         -1) mod intExpr(0)) or
+        not raisesNumericError(intExpr(          0) mod intExpr(0)) or
+        not raisesNumericError(intExpr(          1) mod intExpr(0)) or
+        not raisesNumericError(intExpr( 2147483647) mod intExpr(0)) or
+        not raisesNumericError(intExpr(  INT64_MAX) mod intExpr(0)) then
+      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR.");
+      okay := FALSE;
+    end if;
+  end func;
+
+
+const proc: check_mod is func
+  local
+    var boolean: okay is TRUE;
   begin
     if   10 mod  5 <>  0 or
           9 mod  5 <>  4 or
@@ -11402,403 +11892,7 @@ const proc: check_mod is func
       okay := FALSE;
     end if;
 
-    if         2109876543  mod           INT32_MIN  <>   -37607105 or
-               2109876543  mod         -1073741824  <>   -37607105 or
-               2109876543  mod          -536870912  <>   -37607105 or
-               2109876543  mod          -268435456  <>   -37607105 or
-               2109876543  mod          -134217728  <>   -37607105 or
-               2109876543  mod           -67108864  <>   -37607105 or
-               2109876543  mod           -33554432  <>    -4052673 or
-               2109876543  mod           -16777216  <>    -4052673 or
-               2109876543  mod            -8388608  <>    -4052673 or
-               2109876543  mod            -4194304  <>    -4052673 or
-               2109876543  mod            -2097152  <>    -1955521 or
-               2109876543  mod            -1048576  <>     -906945 or
-               2109876543  mod             -524288  <>     -382657 or
-               2109876543  mod             -262144  <>     -120513 or
-               2109876543  mod             -131072  <>     -120513 or
-               2109876543  mod              -65536  <>      -54977 or
-               2109876543  mod              -32768  <>      -22209 or
-               2109876543  mod              -16384  <>       -5825 or
-               2109876543  mod               -8192  <>       -5825 or
-               2109876543  mod               -4096  <>       -1729 or
-               2109876543  mod               -2048  <>       -1729 or
-               2109876543  mod               -1024  <>        -705 or
-               2109876543  mod                -512  <>        -193 or
-               2109876543  mod                -256  <>        -193 or
-               2109876543  mod                -128  <>         -65 or
-               2109876543  mod                 -64  <>          -1 or
-               2109876543  mod                 -32  <>          -1 or
-               2109876543  mod                 -16  <>          -1 or
-               2109876543  mod                  -8  <>          -1 or
-               2109876543  mod                  -4  <>          -1 or
-               2109876543  mod                  -2  <>          -1 or
-               2109876543  mod                   2  <>           1 or
-               2109876543  mod                   4  <>           3 or
-               2109876543  mod                   8  <>           7 or
-               2109876543  mod                  16  <>          15 or
-               2109876543  mod                  32  <>          31 or
-               2109876543  mod                  64  <>          63 or
-               2109876543  mod                 128  <>          63 or
-               2109876543  mod                 256  <>          63 or
-               2109876543  mod                 512  <>         319 or
-               2109876543  mod                1024  <>         319 or
-               2109876543  mod                2048  <>         319 or
-               2109876543  mod                4096  <>        2367 or
-               2109876543  mod                8192  <>        2367 or
-               2109876543  mod               16384  <>       10559 or
-               2109876543  mod               32768  <>       10559 or
-               2109876543  mod               65536  <>       10559 or
-               2109876543  mod              131072  <>       10559 or
-               2109876543  mod              262144  <>      141631 or
-               2109876543  mod              524288  <>      141631 or
-               2109876543  mod             1048576  <>      141631 or
-               2109876543  mod             2097152  <>      141631 or
-               2109876543  mod             4194304  <>      141631 or
-               2109876543  mod             8388608  <>     4335935 or
-               2109876543  mod            16777216  <>    12724543 or
-               2109876543  mod            33554432  <>    29501759 or
-               2109876543  mod            67108864  <>    29501759 or
-               2109876543  mod           134217728  <>    96610623 or
-               2109876543  mod           268435456  <>   230828351 or
-               2109876543  mod           536870912  <>   499263807 or
-               2109876543  mod          1073741824  <>  1036134719 or
-       intExpr(2109876543) mod           INT32_MIN  <>   -37607105 or
-       intExpr(2109876543) mod         -1073741824  <>   -37607105 or
-       intExpr(2109876543) mod          -536870912  <>   -37607105 or
-       intExpr(2109876543) mod          -268435456  <>   -37607105 or
-       intExpr(2109876543) mod          -134217728  <>   -37607105 or
-       intExpr(2109876543) mod           -67108864  <>   -37607105 or
-       intExpr(2109876543) mod           -33554432  <>    -4052673 or
-       intExpr(2109876543) mod           -16777216  <>    -4052673 or
-       intExpr(2109876543) mod            -8388608  <>    -4052673 or
-       intExpr(2109876543) mod            -4194304  <>    -4052673 or
-       intExpr(2109876543) mod            -2097152  <>    -1955521 or
-       intExpr(2109876543) mod            -1048576  <>     -906945 or
-       intExpr(2109876543) mod             -524288  <>     -382657 or
-       intExpr(2109876543) mod             -262144  <>     -120513 or
-       intExpr(2109876543) mod             -131072  <>     -120513 or
-       intExpr(2109876543) mod              -65536  <>      -54977 or
-       intExpr(2109876543) mod              -32768  <>      -22209 or
-       intExpr(2109876543) mod              -16384  <>       -5825 or
-       intExpr(2109876543) mod               -8192  <>       -5825 or
-       intExpr(2109876543) mod               -4096  <>       -1729 or
-       intExpr(2109876543) mod               -2048  <>       -1729 or
-       intExpr(2109876543) mod               -1024  <>        -705 or
-       intExpr(2109876543) mod                -512  <>        -193 or
-       intExpr(2109876543) mod                -256  <>        -193 or
-       intExpr(2109876543) mod                -128  <>         -65 or
-       intExpr(2109876543) mod                 -64  <>          -1 or
-       intExpr(2109876543) mod                 -32  <>          -1 or
-       intExpr(2109876543) mod                 -16  <>          -1 or
-       intExpr(2109876543) mod                  -8  <>          -1 or
-       intExpr(2109876543) mod                  -4  <>          -1 or
-       intExpr(2109876543) mod                  -2  <>          -1 or
-       intExpr(2109876543) mod                   2  <>           1 or
-       intExpr(2109876543) mod                   4  <>           3 or
-       intExpr(2109876543) mod                   8  <>           7 or
-       intExpr(2109876543) mod                  16  <>          15 or
-       intExpr(2109876543) mod                  32  <>          31 or
-       intExpr(2109876543) mod                  64  <>          63 or
-       intExpr(2109876543) mod                 128  <>          63 or
-       intExpr(2109876543) mod                 256  <>          63 or
-       intExpr(2109876543) mod                 512  <>         319 or
-       intExpr(2109876543) mod                1024  <>         319 or
-       intExpr(2109876543) mod                2048  <>         319 or
-       intExpr(2109876543) mod                4096  <>        2367 or
-       intExpr(2109876543) mod                8192  <>        2367 or
-       intExpr(2109876543) mod               16384  <>       10559 or
-       intExpr(2109876543) mod               32768  <>       10559 or
-       intExpr(2109876543) mod               65536  <>       10559 or
-       intExpr(2109876543) mod              131072  <>       10559 or
-       intExpr(2109876543) mod              262144  <>      141631 or
-       intExpr(2109876543) mod              524288  <>      141631 or
-       intExpr(2109876543) mod             1048576  <>      141631 or
-       intExpr(2109876543) mod             2097152  <>      141631 or
-       intExpr(2109876543) mod             4194304  <>      141631 or
-       intExpr(2109876543) mod             8388608  <>     4335935 or
-       intExpr(2109876543) mod            16777216  <>    12724543 or
-       intExpr(2109876543) mod            33554432  <>    29501759 or
-       intExpr(2109876543) mod            67108864  <>    29501759 or
-       intExpr(2109876543) mod           134217728  <>    96610623 or
-       intExpr(2109876543) mod           268435456  <>   230828351 or
-       intExpr(2109876543) mod           536870912  <>   499263807 or
-       intExpr(2109876543) mod          1073741824  <>  1036134719 or
-               2109876543  mod intExpr(  INT32_MIN) <>   -37607105 or
-               2109876543  mod intExpr(-1073741824) <>   -37607105 or
-               2109876543  mod intExpr( -536870912) <>   -37607105 or
-               2109876543  mod intExpr( -268435456) <>   -37607105 or
-               2109876543  mod intExpr( -134217728) <>   -37607105 or
-               2109876543  mod intExpr(  -67108864) <>   -37607105 or
-               2109876543  mod intExpr(  -33554432) <>    -4052673 or
-               2109876543  mod intExpr(  -16777216) <>    -4052673 or
-               2109876543  mod intExpr(   -8388608) <>    -4052673 or
-               2109876543  mod intExpr(   -4194304) <>    -4052673 or
-               2109876543  mod intExpr(   -2097152) <>    -1955521 or
-               2109876543  mod intExpr(   -1048576) <>     -906945 or
-               2109876543  mod intExpr(    -524288) <>     -382657 or
-               2109876543  mod intExpr(    -262144) <>     -120513 or
-               2109876543  mod intExpr(    -131072) <>     -120513 or
-               2109876543  mod intExpr(     -65536) <>      -54977 or
-               2109876543  mod intExpr(     -32768) <>      -22209 or
-               2109876543  mod intExpr(     -16384) <>       -5825 or
-               2109876543  mod intExpr(      -8192) <>       -5825 or
-               2109876543  mod intExpr(      -4096) <>       -1729 or
-               2109876543  mod intExpr(      -2048) <>       -1729 or
-               2109876543  mod intExpr(      -1024) <>        -705 or
-               2109876543  mod intExpr(       -512) <>        -193 or
-               2109876543  mod intExpr(       -256) <>        -193 or
-               2109876543  mod intExpr(       -128) <>         -65 or
-               2109876543  mod intExpr(        -64) <>          -1 or
-               2109876543  mod intExpr(        -32) <>          -1 or
-               2109876543  mod intExpr(        -16) <>          -1 or
-               2109876543  mod intExpr(         -8) <>          -1 or
-               2109876543  mod intExpr(         -4) <>          -1 or
-               2109876543  mod intExpr(         -2) <>          -1 or
-               2109876543  mod intExpr(          2) <>           1 or
-               2109876543  mod intExpr(          4) <>           3 or
-               2109876543  mod intExpr(          8) <>           7 or
-               2109876543  mod intExpr(         16) <>          15 or
-               2109876543  mod intExpr(         32) <>          31 or
-               2109876543  mod intExpr(         64) <>          63 or
-               2109876543  mod intExpr(        128) <>          63 or
-               2109876543  mod intExpr(        256) <>          63 or
-               2109876543  mod intExpr(        512) <>         319 or
-               2109876543  mod intExpr(       1024) <>         319 or
-               2109876543  mod intExpr(       2048) <>         319 or
-               2109876543  mod intExpr(       4096) <>        2367 or
-               2109876543  mod intExpr(       8192) <>        2367 or
-               2109876543  mod intExpr(      16384) <>       10559 or
-               2109876543  mod intExpr(      32768) <>       10559 or
-               2109876543  mod intExpr(      65536) <>       10559 or
-               2109876543  mod intExpr(     131072) <>       10559 or
-               2109876543  mod intExpr(     262144) <>      141631 or
-               2109876543  mod intExpr(     524288) <>      141631 or
-               2109876543  mod intExpr(    1048576) <>      141631 or
-               2109876543  mod intExpr(    2097152) <>      141631 or
-               2109876543  mod intExpr(    4194304) <>      141631 or
-               2109876543  mod intExpr(    8388608) <>     4335935 or
-               2109876543  mod intExpr(   16777216) <>    12724543 or
-               2109876543  mod intExpr(   33554432) <>    29501759 or
-               2109876543  mod intExpr(   67108864) <>    29501759 or
-               2109876543  mod intExpr(  134217728) <>    96610623 or
-               2109876543  mod intExpr(  268435456) <>   230828351 or
-               2109876543  mod intExpr(  536870912) <>   499263807 or
-               2109876543  mod intExpr( 1073741824) <>  1036134719 or
-       intExpr(2109876543) mod intExpr(  INT32_MIN) <>   -37607105 or
-       intExpr(2109876543) mod intExpr(-1073741824) <>   -37607105 or
-       intExpr(2109876543) mod intExpr( -536870912) <>   -37607105 or
-       intExpr(2109876543) mod intExpr( -268435456) <>   -37607105 or
-       intExpr(2109876543) mod intExpr( -134217728) <>   -37607105 or
-       intExpr(2109876543) mod intExpr(  -67108864) <>   -37607105 or
-       intExpr(2109876543) mod intExpr(  -33554432) <>    -4052673 or
-       intExpr(2109876543) mod intExpr(  -16777216) <>    -4052673 or
-       intExpr(2109876543) mod intExpr(   -8388608) <>    -4052673 or
-       intExpr(2109876543) mod intExpr(   -4194304) <>    -4052673 or
-       intExpr(2109876543) mod intExpr(   -2097152) <>    -1955521 or
-       intExpr(2109876543) mod intExpr(   -1048576) <>     -906945 or
-       intExpr(2109876543) mod intExpr(    -524288) <>     -382657 or
-       intExpr(2109876543) mod intExpr(    -262144) <>     -120513 or
-       intExpr(2109876543) mod intExpr(    -131072) <>     -120513 or
-       intExpr(2109876543) mod intExpr(     -65536) <>      -54977 or
-       intExpr(2109876543) mod intExpr(     -32768) <>      -22209 or
-       intExpr(2109876543) mod intExpr(     -16384) <>       -5825 or
-       intExpr(2109876543) mod intExpr(      -8192) <>       -5825 or
-       intExpr(2109876543) mod intExpr(      -4096) <>       -1729 or
-       intExpr(2109876543) mod intExpr(      -2048) <>       -1729 or
-       intExpr(2109876543) mod intExpr(      -1024) <>        -705 or
-       intExpr(2109876543) mod intExpr(       -512) <>        -193 or
-       intExpr(2109876543) mod intExpr(       -256) <>        -193 or
-       intExpr(2109876543) mod intExpr(       -128) <>         -65 or
-       intExpr(2109876543) mod intExpr(        -64) <>          -1 or
-       intExpr(2109876543) mod intExpr(        -32) <>          -1 or
-       intExpr(2109876543) mod intExpr(        -16) <>          -1 or
-       intExpr(2109876543) mod intExpr(         -8) <>          -1 or
-       intExpr(2109876543) mod intExpr(         -4) <>          -1 or
-       intExpr(2109876543) mod intExpr(         -2) <>          -1 or
-       intExpr(2109876543) mod intExpr(          2) <>           1 or
-       intExpr(2109876543) mod intExpr(          4) <>           3 or
-       intExpr(2109876543) mod intExpr(          8) <>           7 or
-       intExpr(2109876543) mod intExpr(         16) <>          15 or
-       intExpr(2109876543) mod intExpr(         32) <>          31 or
-       intExpr(2109876543) mod intExpr(         64) <>          63 or
-       intExpr(2109876543) mod intExpr(        128) <>          63 or
-       intExpr(2109876543) mod intExpr(        256) <>          63 or
-       intExpr(2109876543) mod intExpr(        512) <>         319 or
-       intExpr(2109876543) mod intExpr(       1024) <>         319 or
-       intExpr(2109876543) mod intExpr(       2048) <>         319 or
-       intExpr(2109876543) mod intExpr(       4096) <>        2367 or
-       intExpr(2109876543) mod intExpr(       8192) <>        2367 or
-       intExpr(2109876543) mod intExpr(      16384) <>       10559 or
-       intExpr(2109876543) mod intExpr(      32768) <>       10559 or
-       intExpr(2109876543) mod intExpr(      65536) <>       10559 or
-       intExpr(2109876543) mod intExpr(     131072) <>       10559 or
-       intExpr(2109876543) mod intExpr(     262144) <>      141631 or
-       intExpr(2109876543) mod intExpr(     524288) <>      141631 or
-       intExpr(2109876543) mod intExpr(    1048576) <>      141631 or
-       intExpr(2109876543) mod intExpr(    2097152) <>      141631 or
-       intExpr(2109876543) mod intExpr(    4194304) <>      141631 or
-       intExpr(2109876543) mod intExpr(    8388608) <>     4335935 or
-       intExpr(2109876543) mod intExpr(   16777216) <>    12724543 or
-       intExpr(2109876543) mod intExpr(   33554432) <>    29501759 or
-       intExpr(2109876543) mod intExpr(   67108864) <>    29501759 or
-       intExpr(2109876543) mod intExpr(  134217728) <>    96610623 or
-       intExpr(2109876543) mod intExpr(  268435456) <>   230828351 or
-       intExpr(2109876543) mod intExpr(  536870912) <>   499263807 or
-       intExpr(2109876543) mod intExpr( 1073741824) <>  1036134719 then
-      writeln(" ***** mod with powers of two does not work correct.");
-      okay := FALSE;
-    end if;
-
-    if  INT64_MIN mod           INT64_MIN <>                   0 or
-        INT64_MIN mod         -8589934592 <>                   0 or
-        INT64_MIN mod         -4294967296 <>                   0 or
-        INT64_MIN mod         -2147483649 <>                  -2 or
-        INT64_MIN mod           INT32_MIN <>                   0 or
-        INT64_MIN mod         -2147483648 <>                   0 or
-        INT64_MIN mod         -1073741824 <>                   0 or
-        INT64_MIN mod               -1025 <>                  -8 or
-        INT64_MIN mod               -1024 <>                   0 or
-        INT64_MIN mod               -1023 <>                  -8 or
-        INT64_MIN mod                  -2 <>                   0 or
-        INT64_MIN mod           INT32_MAX <>          2147483645 or
-        INT64_MIN mod          2147483648 <>                   0 or
-        INT64_MIN mod          2147483649 <>          2147483647 or
-        INT64_MIN mod          4294967296 <>                   0 or
-        INT64_MIN mod          4294967297 <>          2147483648 or
-        INT64_MIN mod     140737488355327 <>     140737488289791 or
-        INT64_MIN mod     140737488355328 <>                   0 or
-        INT64_MIN mod     140737488355329 <>               65536 or
-        INT64_MIN mod 4611686018427387903 <> 4611686018427387901 or
-        INT64_MIN mod 4611686018427387904 <>                   0 or
-        INT64_MIN mod 4611686018427387905 <>                   2 or
-        INT64_MIN mod           INT64_MAX <> 9223372036854775806 or
-        INT64_MAX mod           INT64_MIN <>                  -1 or
-        INT64_MAX mod           INT32_MIN <>                  -1 or
-        INT64_MAX mod           INT32_MAX <>                   1 or
-        INT64_MAX mod          2147483648 <>          2147483647 or
-        INT64_MAX mod          2147483649 <>                   1 or
-        INT64_MAX mod          4294967295 <>          2147483647 or
-        INT64_MAX mod          4294967296 <>          4294967295 or
-        INT64_MAX mod     140737488355327 <>               65535 or
-        INT64_MAX mod     140737488355328 <>     140737488355327 or
-        INT64_MAX mod     140737488355329 <>     140737488289792 or
-        INT64_MAX mod 4611686018427387903 <>                   1 or
-        INT64_MAX mod 4611686018427387904 <> 4611686018427387903 or
-        INT64_MAX mod 4611686018427387905 <> 4611686018427387902 or
-        INT64_MAX mod           INT64_MAX <>                   0 or
-        intExpr(INT64_MIN) mod           INT64_MIN <>                   0 or
-        intExpr(INT64_MIN) mod         -8589934592 <>                   0 or
-        intExpr(INT64_MIN) mod         -4294967296 <>                   0 or
-        intExpr(INT64_MIN) mod         -2147483649 <>                  -2 or
-        intExpr(INT64_MIN) mod           INT32_MIN <>                   0 or
-        intExpr(INT64_MIN) mod         -2147483648 <>                   0 or
-        intExpr(INT64_MIN) mod         -1073741824 <>                   0 or
-        intExpr(INT64_MIN) mod               -1025 <>                  -8 or
-        intExpr(INT64_MIN) mod               -1024 <>                   0 or
-        intExpr(INT64_MIN) mod               -1023 <>                  -8 or
-        intExpr(INT64_MIN) mod                  -2 <>                   0 or
-        intExpr(INT64_MIN) mod           INT32_MAX <>          2147483645 or
-        intExpr(INT64_MIN) mod          2147483648 <>                   0 or
-        intExpr(INT64_MIN) mod          2147483649 <>          2147483647 or
-        intExpr(INT64_MIN) mod          4294967296 <>                   0 or
-        intExpr(INT64_MIN) mod          4294967297 <>          2147483648 or
-        intExpr(INT64_MIN) mod     140737488355327 <>     140737488289791 or
-        intExpr(INT64_MIN) mod     140737488355328 <>                   0 or
-        intExpr(INT64_MIN) mod     140737488355329 <>               65536 or
-        intExpr(INT64_MIN) mod 4611686018427387903 <> 4611686018427387901 or
-        intExpr(INT64_MIN) mod 4611686018427387904 <>                   0 or
-        intExpr(INT64_MIN) mod 4611686018427387905 <>                   2 or
-        intExpr(INT64_MIN) mod           INT64_MAX <> 9223372036854775806 or
-        intExpr(INT64_MAX) mod           INT64_MIN <>                  -1 or
-        intExpr(INT64_MAX) mod           INT32_MIN <>                  -1 or
-        intExpr(INT64_MAX) mod           INT32_MAX <>                   1 or
-        intExpr(INT64_MAX) mod          2147483648 <>          2147483647 or
-        intExpr(INT64_MAX) mod          2147483649 <>                   1 or
-        intExpr(INT64_MAX) mod          4294967295 <>          2147483647 or
-        intExpr(INT64_MAX) mod          4294967296 <>          4294967295 or
-        intExpr(INT64_MAX) mod     140737488355327 <>               65535 or
-        intExpr(INT64_MAX) mod     140737488355328 <>     140737488355327 or
-        intExpr(INT64_MAX) mod     140737488355329 <>     140737488289792 or
-        intExpr(INT64_MAX) mod 4611686018427387903 <>                   1 or
-        intExpr(INT64_MAX) mod 4611686018427387904 <> 4611686018427387903 or
-        intExpr(INT64_MAX) mod 4611686018427387905 <> 4611686018427387902 or
-        intExpr(INT64_MAX) mod           INT64_MAX <>                   0 or
-        INT64_MIN mod intExpr(          INT64_MIN) <>                   0 or
-        INT64_MIN mod intExpr(        -8589934592) <>                   0 or
-        INT64_MIN mod intExpr(        -4294967296) <>                   0 or
-        INT64_MIN mod intExpr(        -2147483649) <>                  -2 or
-        INT64_MIN mod intExpr(          INT32_MIN) <>                   0 or
-        INT64_MIN mod intExpr(        -2147483648) <>                   0 or
-        INT64_MIN mod intExpr(        -1073741824) <>                   0 or
-        INT64_MIN mod intExpr(              -1025) <>                  -8 or
-        INT64_MIN mod intExpr(              -1024) <>                   0 or
-        INT64_MIN mod intExpr(              -1023) <>                  -8 or
-        INT64_MIN mod intExpr(                 -2) <>                   0 or
-        INT64_MIN mod intExpr(          INT32_MAX) <>          2147483645 or
-        INT64_MIN mod intExpr(         2147483648) <>                   0 or
-        INT64_MIN mod intExpr(         2147483649) <>          2147483647 or
-        INT64_MIN mod intExpr(         4294967296) <>                   0 or
-        INT64_MIN mod intExpr(         4294967297) <>          2147483648 or
-        INT64_MIN mod intExpr(    140737488355327) <>     140737488289791 or
-        INT64_MIN mod intExpr(    140737488355328) <>                   0 or
-        INT64_MIN mod intExpr(    140737488355329) <>               65536 or
-        INT64_MIN mod intExpr(4611686018427387903) <> 4611686018427387901 or
-        INT64_MIN mod intExpr(4611686018427387904) <>                   0 or
-        INT64_MIN mod intExpr(4611686018427387905) <>                   2 or
-        INT64_MIN mod intExpr(          INT64_MAX) <> 9223372036854775806 or
-        INT64_MAX mod intExpr(          INT64_MIN) <>                  -1 or
-        INT64_MAX mod intExpr(          INT32_MIN) <>                  -1 or
-        INT64_MAX mod intExpr(          INT32_MAX) <>                   1 or
-        INT64_MAX mod intExpr(         2147483648) <>          2147483647 or
-        INT64_MAX mod intExpr(         2147483649) <>                   1 or
-        INT64_MAX mod intExpr(         4294967295) <>          2147483647 or
-        INT64_MAX mod intExpr(         4294967296) <>          4294967295 or
-        INT64_MAX mod intExpr(    140737488355327) <>               65535 or
-        INT64_MAX mod intExpr(    140737488355328) <>     140737488355327 or
-        INT64_MAX mod intExpr(    140737488355329) <>     140737488289792 or
-        INT64_MAX mod intExpr(4611686018427387903) <>                   1 or
-        INT64_MAX mod intExpr(4611686018427387904) <> 4611686018427387903 or
-        INT64_MAX mod intExpr(4611686018427387905) <> 4611686018427387902 or
-        INT64_MAX mod intExpr(          INT64_MAX) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(          INT64_MIN) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(        -8589934592) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(        -4294967296) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(        -2147483649) <>                  -2 or
-        intExpr(INT64_MIN) mod intExpr(          INT32_MIN) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(        -2147483648) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(        -1073741824) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(              -1025) <>                  -8 or
-        intExpr(INT64_MIN) mod intExpr(              -1024) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(              -1023) <>                  -8 or
-        intExpr(INT64_MIN) mod intExpr(                 -2) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(          INT32_MAX) <>          2147483645 or
-        intExpr(INT64_MIN) mod intExpr(         2147483648) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(         2147483649) <>          2147483647 or
-        intExpr(INT64_MIN) mod intExpr(         4294967296) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(         4294967297) <>          2147483648 or
-        intExpr(INT64_MIN) mod intExpr(    140737488355327) <>     140737488289791 or
-        intExpr(INT64_MIN) mod intExpr(    140737488355328) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(    140737488355329) <>               65536 or
-        intExpr(INT64_MIN) mod intExpr(4611686018427387903) <> 4611686018427387901 or
-        intExpr(INT64_MIN) mod intExpr(4611686018427387904) <>                   0 or
-        intExpr(INT64_MIN) mod intExpr(4611686018427387905) <>                   2 or
-        intExpr(INT64_MIN) mod intExpr(          INT64_MAX) <> 9223372036854775806 or
-        intExpr(INT64_MAX) mod intExpr(          INT64_MIN) <>                  -1 or
-        intExpr(INT64_MAX) mod intExpr(          INT32_MIN) <>                  -1 or
-        intExpr(INT64_MAX) mod intExpr(          INT32_MAX) <>                   1 or
-        intExpr(INT64_MAX) mod intExpr(         2147483648) <>          2147483647 or
-        intExpr(INT64_MAX) mod intExpr(         2147483649) <>                   1 or
-        intExpr(INT64_MAX) mod intExpr(         4294967295) <>          2147483647 or
-        intExpr(INT64_MAX) mod intExpr(         4294967296) <>          4294967295 or
-        intExpr(INT64_MAX) mod intExpr(    140737488355327) <>               65535 or
-        intExpr(INT64_MAX) mod intExpr(    140737488355328) <>     140737488355327 or
-        intExpr(INT64_MAX) mod intExpr(    140737488355329) <>     140737488289792 or
-        intExpr(INT64_MAX) mod intExpr(4611686018427387903) <>                   1 or
-        intExpr(INT64_MAX) mod intExpr(4611686018427387904) <> 4611686018427387903 or
-        intExpr(INT64_MAX) mod intExpr(4611686018427387905) <> 4611686018427387902 or
-        intExpr(INT64_MAX) mod intExpr(          INT64_MAX) <>                   0 then
-      writeln(" ***** mod with maximum values does not work correct.");
+    if not check_mod_min_max then
       okay := FALSE;
     end if;
 
@@ -11810,59 +11904,7 @@ const proc: check_mod is func
       okay := FALSE;
     end if;
 
-    if  not raisesNumericError(          INT64_MIN  mod         0 ) or
-        not raisesNumericError(        -2147483648  mod         0 ) or
-        not raisesNumericError(                 -1  mod         0 ) or
-        not raisesNumericError(           minusOne  mod         0 ) or
-        not raisesNumericError(                  0  mod         0 ) or
-        not raisesNumericError(              zero2  mod         0 ) or
-        not raisesNumericError(                  1  mod         0 ) or
-        not raisesNumericError(                one  mod         0 ) or
-        not raisesNumericError(         2147483647  mod         0 ) or
-        not raisesNumericError(          INT64_MAX  mod         0 ) or
-        not raisesNumericError(intExpr(  INT64_MIN) mod         0 ) or
-        not raisesNumericError(intExpr(-2147483648) mod         0 ) or
-        not raisesNumericError(intExpr(         -1) mod         0 ) or
-        not raisesNumericError(intExpr(          0) mod         0 ) or
-        not raisesNumericError(intExpr(          1) mod         0 ) or
-        not raisesNumericError(intExpr( 2147483647) mod         0 ) or
-        not raisesNumericError(intExpr(  INT64_MAX) mod         0 ) or
-        not raisesNumericError(          INT64_MIN  mod      zero ) or
-        not raisesNumericError(        -2147483648  mod      zero ) or
-        not raisesNumericError(                 -1  mod      zero ) or
-        not raisesNumericError(           minusOne  mod      zero ) or
-        not raisesNumericError(                  0  mod      zero ) or
-        not raisesNumericError(               zero  mod      zero ) or
-        not raisesNumericError(              zero2  mod      zero ) or
-        not raisesNumericError(                  1  mod      zero ) or
-        not raisesNumericError(                one  mod      zero ) or
-        not raisesNumericError(         2147483647  mod      zero ) or
-        not raisesNumericError(          INT64_MAX  mod      zero ) or
-        not raisesNumericError(intExpr(  INT64_MIN) mod      zero ) or
-        not raisesNumericError(intExpr(-2147483648) mod      zero ) or
-        not raisesNumericError(intExpr(         -1) mod      zero ) or
-        not raisesNumericError(intExpr(          0) mod      zero ) or
-        not raisesNumericError(intExpr(          1) mod      zero ) or
-        not raisesNumericError(intExpr( 2147483647) mod      zero ) or
-        not raisesNumericError(intExpr(  INT64_MAX) mod      zero ) or
-        not raisesNumericError(          INT64_MIN  mod intExpr(0)) or
-        not raisesNumericError(        -2147483648  mod intExpr(0)) or
-        not raisesNumericError(                 -1  mod intExpr(0)) or
-        not raisesNumericError(           minusOne  mod intExpr(0)) or
-        not raisesNumericError(                  0  mod intExpr(0)) or
-        not raisesNumericError(              zero2  mod intExpr(0)) or
-        not raisesNumericError(                  1  mod intExpr(0)) or
-        not raisesNumericError(                one  mod intExpr(0)) or
-        not raisesNumericError(         2147483647  mod intExpr(0)) or
-        not raisesNumericError(          INT64_MAX  mod intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MIN) mod intExpr(0)) or
-        not raisesNumericError(intExpr(-2147483648) mod intExpr(0)) or
-        not raisesNumericError(intExpr(         -1) mod intExpr(0)) or
-        not raisesNumericError(intExpr(          0) mod intExpr(0)) or
-        not raisesNumericError(intExpr(          1) mod intExpr(0)) or
-        not raisesNumericError(intExpr( 2147483647) mod intExpr(0)) or
-        not raisesNumericError(intExpr(  INT64_MAX) mod intExpr(0)) then
-      writeln(" ***** Division by zero with the mod operator does not raise NUMERIC_ERROR.");
+    if not check_mod_by_zero then
       okay := FALSE;
     end if;
 

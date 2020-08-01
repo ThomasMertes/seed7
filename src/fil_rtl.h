@@ -55,6 +55,7 @@ void filPrint (const const_striType stri);
 void filSeek (fileType aFile, intType file_position);
 void filSetbuf (fileType aFile, intType mode, intType size);
 intType filTell (fileType aFile);
+void filTruncate (fileType aFile, intType length);
 striType filWordRead (fileType inFile, charType *terminationChar);
 striType filWordReadChkCtrlC (fileType inFile, charType *terminationChar);
 void filWrite (fileType outFile, const const_striType stri);

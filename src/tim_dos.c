@@ -68,36 +68,34 @@ void timAwait (intType year, intType month, intType day, intType hour,
   /* timAwait */
     logFunction(printf("timAwait(%04ld-%02ld-%02ld %02ld:%02ld:%02ld.%06ld %ld)\n",
                        year, month, day, hour, min, sec, micro_sec, time_zone););
-    tm_time.tm_year  = (int) year - 1900;
-    tm_time.tm_mon   = (int) month - 1;
-    tm_time.tm_mday  = (int) day;
-    tm_time.tm_hour  = (int) hour;
-    tm_time.tm_min   = (int) min;
-    tm_time.tm_sec   = (int) sec;
-    tm_time.tm_isdst = 0;
-    await_second = mkutc(&tm_time) - time_zone * 60;
-
-    ftime(&tstruct);
-    /* printf("%ld %d %d %d\n",
-           tstruct.time, tstruct.millitm, tstruct.timezone, tstruct.dstflag);
-       printf("%ld %ld %ld\n",
-           await_second, micro_sec, time_zone);
-       printf("tstruct.time < await_second: %d < %d\n",
-           tstruct.time, await_second); */
-    if (tstruct.time < await_second) {
-      do {
-        ftime(&tstruct);
-/*      printf("%ld ?= %ld\n", tstruct.time, await_second); */
-      } while (tstruct.time < await_second);
-    } /* if */
-    if (micro_sec != 0) {
-      do {
-        ftime(&tstruct);
-/*      printf("%ld.%ld000 ?= %ld.%ld\n",
-            tstruct.time, (long) tstruct.millitm,
-            await_second, micro_sec); */
-      } while (tstruct.time <= await_second &&
-          1000 * ((long) tstruct.millitm) < micro_sec);
+    await_second = timToOsTimestamp(year, month, day, hour, min, sec,
+                                    time_zone);
+    if (unlikely(await_second == (time_t) TIME_T_ERROR)) {
+      logError(printf("timAwait: Timestamp not in allowed range.\n"););
+      raise_error(RANGE_ERROR);
+    } else {
+      ftime(&tstruct);
+      /* printf("%ld %d %d %d\n",
+             tstruct.time, tstruct.millitm, tstruct.timezone, tstruct.dstflag);
+         printf("%ld %ld %ld\n",
+             await_second, micro_sec, time_zone);
+         printf("tstruct.time < await_second: %d < %d\n",
+             tstruct.time, await_second); */
+      if (tstruct.time < await_second) {
+        do {
+          ftime(&tstruct);
+/*        printf("%ld ?= %ld\n", tstruct.time, await_second); */
+        } while (tstruct.time < await_second);
+      } /* if */
+      if (micro_sec != 0) {
+        do {
+          ftime(&tstruct);
+/*        printf("%ld.%ld000 ?= %ld.%ld\n",
+              tstruct.time, (long) tstruct.millitm,
+              await_second, micro_sec); */
+        } while (tstruct.time <= await_second &&
+            1000 * ((long) tstruct.millitm) < micro_sec);
+      } /* if */
     } /* if */
     logFunction(printf("timAwait -->\n"););
   } /* timAwait */
@@ -174,7 +172,7 @@ void timNow (intType *year, intType *month, intType *day, intType *hour,
       } /* if */
       *is_dst    = tstruct.dstflag;
 #else
-      *time_zone = (mkutc(local_time) - tstruct.time) / 60;
+      *time_zone = (intType) (unchecked_mkutc(local_time) - tstruct.time) / 60;
       *is_dst    = local_time->tm_isdst > 0;
 #endif
     } /* if */

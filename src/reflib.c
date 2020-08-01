@@ -209,6 +209,12 @@ objectType ref_alloc_var (listType arguments)
 
 
 
+/**
+ *  Obtain the maximum index of the array referenced by arrayRef/arg_1.
+ *  @param arrayRef Reference to an array object.
+ *  @return the maximum index of the array.
+ *  @exception RANGE_ERROR If arrayRef/arg_1 does not refer to an array.
+ */
 objectType ref_arrmaxidx (listType arguments)
 
   { /* ref_arrmaxidx */
@@ -219,6 +225,12 @@ objectType ref_arrmaxidx (listType arguments)
 
 
 
+/**
+ *  Obtain the minimum index of the array referenced by arrayRef/arg_1.
+ *  @param arrayRef Reference to an array object.
+ *  @return the minimum index of the array.
+ *  @exception RANGE_ERROR If arrayRef/arg_1 does not refer to an array.
+ */
 objectType ref_arrminidx (listType arguments)
 
   { /* ref_arrminidx */

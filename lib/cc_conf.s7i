@@ -490,7 +490,6 @@ const type: ccConfigType is new struct
     var boolean: CALL_C_COMPILER_FROM_SHELL  is FALSE;
 
     var string: C_COMPILER_VERSION           is "";
-    var string: GET_CC_VERSION_INFO          is "";
 
     (**
      *  C compiler option to add source level debugging information.
@@ -529,6 +528,11 @@ const type: ccConfigType is new struct
     var string: CC_OPT_TRAP_OVERFLOW         is "";
 
     (**
+     *  C compiler option to write the C compiler version information.
+     *)
+    var string: CC_OPT_VERSION_INFO          is "";
+
+    (**
      *  C compiler flags to be used if C programs are compiled.
      *)
     var array string: CC_FLAGS               is 0 times "";
@@ -541,7 +545,12 @@ const type: ccConfigType is new struct
      *  MinGW and Cygwin write the error messages to the error
      *  output (file descriptor 2).
      *)
-    var integer: CC_ERROR_FILDES             is 0;
+    var integer: CC_ERROR_FILEDES            is 0;
+
+    (**
+     *  File descriptor to which the C compiler writes its version info.
+     *)
+    var integer: CC_VERSION_INFO_FILEDES     is 0;
 
     (**
      *  Linker option to add source level debugging information.
@@ -653,7 +662,7 @@ const type: ccConfigType is new struct
      *  The file to which the standard output should be
      *  redirected must be appended. E.g.: >myFile.
      *)
-    var string: REDIRECT_FILDES_1            is "";
+    var string: REDIRECT_FILEDES_1           is "";
 
     (**
      *  Shell parameter to redirect to the file descriptor 2.
@@ -661,7 +670,7 @@ const type: ccConfigType is new struct
      *  The file to which the error output should be
      *  redirected must be appended. E.g.: 2>myFile.
      *)
-    var string: REDIRECT_FILDES_2            is "";
+    var string: REDIRECT_FILEDES_2           is "";
 
     (**
      *  Name of the NULL device.
@@ -754,15 +763,16 @@ const func ccConfigType: getBuiltInConfig is func
     conf.CPLUSPLUS_COMPILER         := configValue("CPLUSPLUS_COMPILER");
     conf.CALL_C_COMPILER_FROM_SHELL := boolean(configValue("CALL_C_COMPILER_FROM_SHELL"));
     conf.C_COMPILER_VERSION         := configValue("C_COMPILER_VERSION");
-    conf.GET_CC_VERSION_INFO        := configValue("GET_CC_VERSION_INFO");
     conf.CC_OPT_DEBUG_INFO          := noEmptyStrings(split(configValue("CC_OPT_DEBUG_INFO"), ' '));
     conf.CC_OPT_NO_WARNINGS         := configValue("CC_OPT_NO_WARNINGS");
     conf.CC_OPT_OPTIMIZE_1          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_1"), ' '));
     conf.CC_OPT_OPTIMIZE_2          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_2"), ' '));
     conf.CC_OPT_OPTIMIZE_3          := noEmptyStrings(split(configValue("CC_OPT_OPTIMIZE_3"), ' '));
     conf.CC_OPT_TRAP_OVERFLOW       := configValue("CC_OPT_TRAP_OVERFLOW");
+    conf.CC_OPT_VERSION_INFO        := configValue("CC_OPT_VERSION_INFO");
     conf.CC_FLAGS                   := noEmptyStrings(split(configValue("CC_FLAGS"), ' '));
-    conf.CC_ERROR_FILDES            := integer(configValue("CC_ERROR_FILDES"));
+    conf.CC_ERROR_FILEDES           := integer(configValue("CC_ERROR_FILEDES"));
+    conf.CC_VERSION_INFO_FILEDES    := integer(configValue("CC_VERSION_INFO_FILEDES"));
     conf.LINKER_OPT_DEBUG_INFO      := configValue("LINKER_OPT_DEBUG_INFO");
     conf.LINKER_OPT_NO_DEBUG_INFO   := configValue("LINKER_OPT_NO_DEBUG_INFO");
     conf.LINKER_OPT_OUTPUT_FILE     := configValue("LINKER_OPT_OUTPUT_FILE");
@@ -779,8 +789,8 @@ const func ccConfigType: getBuiltInConfig is func
     conf.COMP_DATA_LIB              := configValue("COMP_DATA_LIB");
     conf.COMPILER_LIB               := configValue("COMPILER_LIB");
     conf.S7_LIB_DIR                 := configValue("S7_LIB_DIR");
-    conf.REDIRECT_FILDES_1          := configValue("REDIRECT_FILDES_1");
-    conf.REDIRECT_FILDES_2          := configValue("REDIRECT_FILDES_2");
+    conf.REDIRECT_FILEDES_1         := configValue("REDIRECT_FILEDES_1");
+    conf.REDIRECT_FILEDES_2         := configValue("REDIRECT_FILEDES_2");
     conf.NULL_DEVICE                := configValue("NULL_DEVICE");
     if conf.INTTYPE_SIZE = 32 then
       conf.INTTYPE_LITERAL_SUFFIX := conf.INT32TYPE_LITERAL_SUFFIX;
@@ -818,15 +828,25 @@ const func ccConfigType: getBuiltInConfig is func
 const ccConfigType: ccConf is getBuiltInConfig;
 
 
-const func string: determineCCVersion (in string: get_cc_version_info) is func
+const func string: determineCCVersion is func
   result
     var string: c_compiler_version is "";
   local
+    var array string: redirection is 0 times "";
     var string: ccVersionFile is "cc_version";
     var file: aFile is STD_NULL;
   begin
     ccVersionFile &:= "_" <& rand(0, 999999990) lpad0 9;
-    cmd_sh(get_cc_version_info & ccVersionFile);
+    case ccConf.CC_VERSION_INFO_FILEDES of
+      when {1}:
+        redirection &:= ccConf.REDIRECT_FILEDES_1 & ccVersionFile;
+        redirection &:= ccConf.REDIRECT_FILEDES_2 & ccConf.NULL_DEVICE;
+      when {2}:
+        redirection &:= ccConf.REDIRECT_FILEDES_1 & ccConf.NULL_DEVICE;
+        redirection &:= ccConf.REDIRECT_FILEDES_2 & ccVersionFile;
+    end case;
+    cmd_sh(ccConf.C_COMPILER, ccConf.CC_OPT_VERSION_INFO <&
+           " " <& join(redirection, " "));
     aFile := open(ccVersionFile, "r");
     if aFile <> STD_NULL then
       c_compiler_version := getln(aFile);
@@ -839,4 +859,4 @@ const func string: determineCCVersion (in string: get_cc_version_info) is func
 
 
 const func boolean: ccVersionIsOkay is
-  return determineCCVersion(ccConf.GET_CC_VERSION_INFO) = ccConf.C_COMPILER_VERSION;
+  return determineCCVersion = ccConf.C_COMPILER_VERSION;

@@ -288,8 +288,8 @@ const func type: bitset (in type: baseType) is func
           end for;
         end func;
 
-      const func setType: { (in baseType: lowerValue) .. (in baseType: upperValue) } is
-        return setType conv ( { ord(lowerValue) .. ord(upperValue) } );
+      const func setType: { (in baseType: lowValue) .. (in baseType: highValue) } is
+        return setType conv ( { ord(lowValue) .. ord(highValue) } );
 
       (**
        *  For-loop where ''variable'' loops over the elements of the set ''aSet''.

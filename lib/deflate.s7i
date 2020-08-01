@@ -254,3 +254,11 @@ const proc: deflateBlock (inout file: inFile, inout string: compressed,
     deflate(deflateState, uncompressed, length(uncompressed), compressed);
     endDeflateBlock(deflateState, compressed);
   end func;
+
+
+const func string: deflate (in string: uncompressed) is func
+  result
+    var string: compressed is "";
+  begin
+    deflateBlock(uncompressed, compressed, TRUE);
+  end func;

@@ -93,9 +93,9 @@ const func boolean: xzPacket (inout lzmaDecoder: lzmaDec) is func
         # writeln("end of file");
         eof := TRUE;
       elsif controlByte <= 2 then
-        writeln("uncompressed chunk");
+        # writeln("uncompressed chunk");
         uncompressedSize := succ(bytes2Int(gets(lzmaDec.rangeDec, 2), UNSIGNED, BE));
-        writeln("uncompressedSize: " <& uncompressedSize);
+        # writeln("uncompressedSize: " <& uncompressedSize);
         if controlByte = 1 then
           # denotes a dictionary reset followed by an uncompressed chunk
           resetDictionary(lzmaDec);

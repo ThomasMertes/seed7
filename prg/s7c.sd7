@@ -3124,16 +3124,22 @@ const proc: process_enum_declaration (in reference: current_object,
 
   begin
     if isVar(current_object) or not isFunc(getType(current_object)) then
-      if not isVar(current_object) then
-        c_expr.expr &:= "const ";
+      if getType(current_object) = voidtype then
+        c_expr.expr &:= "/* do not declare void variable or constant o_";
+        create_name2(current_object, c_expr.expr);
+        c_expr.expr &:= " */\n\n";
+      else
+        if not isVar(current_object) then
+          c_expr.expr &:= "const ";
+        end if;
+        declare_type_if_necessary(getType(current_object), c_expr);
+        c_expr.expr &:= type_name(getType(current_object));
+        c_expr.expr &:= " o_";
+        create_name(current_object, c_expr.expr);
+        c_expr.expr &:= "=";
+        c_expr.expr &:= enum_value(getValue(current_object, reference));
+        c_expr.expr &:= ";\n\n";
       end if;
-      declare_type_if_necessary(getType(current_object), c_expr);
-      c_expr.expr &:= type_name(getType(current_object));
-      c_expr.expr &:= " o_";
-      create_name(current_object, c_expr.expr);
-      c_expr.expr &:= "=";
-      c_expr.expr &:= enum_value(getValue(current_object, reference));
-      c_expr.expr &:= ";\n\n";
     end if;
     count_declarations(c_expr);
   end func;
@@ -3417,6 +3423,7 @@ const proc: process_dynamic_call (in reference: function,
       end if;
     else
       c_expr.expr &:= "/* NOT FOUND */\n";
+      c_expr.expr &:= diagnosticLine(interface_object);
       c_expr.expr &:= "raiseError(ACTION_ERROR);\n";
     end if;
   end func;
@@ -7046,13 +7053,13 @@ const proc: logProgram (in string: command, in array string: parameters,
 
   begin
     write(toShellPath(command) <& " " <& shellParameters(parameters));
-    case ccConf.CC_ERROR_FILDES of
+    case ccConf.CC_ERROR_FILEDES of
       when {1}:
-        write(" " <& ccConf.REDIRECT_FILDES_1 <& toShellPath(errorFile));
-        write(" " <& ccConf.REDIRECT_FILDES_2 <& ccConf.NULL_DEVICE);
+        write(" " <& ccConf.REDIRECT_FILEDES_1 <& toShellPath(errorFile));
+        write(" " <& ccConf.REDIRECT_FILEDES_2 <& ccConf.NULL_DEVICE);
       when {2}:
-        write(" " <& ccConf.REDIRECT_FILDES_2 <& toShellPath(errorFile));
-        write(" " <& ccConf.REDIRECT_FILDES_1 <& ccConf.NULL_DEVICE);
+        write(" " <& ccConf.REDIRECT_FILEDES_2 <& toShellPath(errorFile));
+        write(" " <& ccConf.REDIRECT_FILEDES_1 <& ccConf.NULL_DEVICE);
     end case;
     writeln;
     flush(OUT);
@@ -7066,16 +7073,16 @@ const proc: execProgramScript (in string: command, in array string: parameters,
     var array string: redirection is 0 times "";
   begin
     logProgram(command, parameters, errorFile);
-    case ccConf.CC_ERROR_FILDES of
+    case ccConf.CC_ERROR_FILEDES of
       when {1}:
-        redirection &:= ccConf.REDIRECT_FILDES_1 & toShellPath(errorFile);
-        redirection &:= ccConf.REDIRECT_FILDES_2 & ccConf.NULL_DEVICE;
+        redirection &:= ccConf.REDIRECT_FILEDES_1 & toShellPath(errorFile);
+        redirection &:= ccConf.REDIRECT_FILEDES_2 & ccConf.NULL_DEVICE;
       when {2}:
-        redirection &:= ccConf.REDIRECT_FILDES_2 & toShellPath(errorFile);
-        redirection &:= ccConf.REDIRECT_FILDES_1 & ccConf.NULL_DEVICE;
+        redirection &:= ccConf.REDIRECT_FILEDES_2 & toShellPath(errorFile);
+        redirection &:= ccConf.REDIRECT_FILEDES_1 & ccConf.NULL_DEVICE;
     end case;
     if length(redirection) = 0 then
-      # An CC_ERROR_FILDES of zero means: Do not redirect.
+      # An CC_ERROR_FILEDES of zero means: Do not redirect.
       cmd_sh(command, shellParameters(parameters));
     else
       cmd_sh(command, shellParameters(parameters) <& " " <& join(redirection, " "));
@@ -7092,7 +7099,7 @@ const proc: execProgram (in string: command, in array string: parameters,
     var process: aProcess is process.value;
   begin
     logProgram(command, parameters, errorFile);
-    case ccConf.CC_ERROR_FILDES of
+    case ccConf.CC_ERROR_FILEDES of
       when {1}:
         childStdout := open(errorFile, "w");
         if childStdout = STD_NULL then
@@ -7106,7 +7113,7 @@ const proc: execProgram (in string: command, in array string: parameters,
     end case;
     aProcess := startProcess(commandPath(command), parameters, STD_IN, childStdout, childStderr);
     waitFor(aProcess);
-    case ccConf.CC_ERROR_FILDES of
+    case ccConf.CC_ERROR_FILEDES of
       when {1}: close(childStdout);
       when {2}: close(childStderr);
     end case;
@@ -7229,7 +7236,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
         if fileType(cErrorFile) = FILE_REGULAR then
           writeln("*** Errors in " <& literal(workDir & cSourceFile) <&
               " - see " <& literal(workDir & cErrorFile));
-        elsif ccConf.CC_ERROR_FILDES not in {1, 2} then
+        elsif ccConf.CC_ERROR_FILEDES not in {1, 2} then
           writeln("*** Compilation terminated");
         else
           writeln("*** Compilation terminated without error messages");
@@ -7352,7 +7359,7 @@ const proc: pass_3 (in string: sourcePath, in string: sourceExtension, in progra
               if fileType(linkErrFile) = FILE_REGULAR then
                 writeln("*** Linker errors with " <& literal(workDir & objectFile) <&
                     " - see " <& literal(workDir & linkErrFile));
-              elsif ccConf.CC_ERROR_FILDES not in {1, 2} then
+              elsif ccConf.CC_ERROR_FILEDES not in {1, 2} then
                 writeln("*** Linking terminated");
               else
                 writeln("*** Linking terminated without error messages");

@@ -34,7 +34,6 @@ DATABASE_LIB = s7_db.a
 COMP_DATA_LIB = s7_data.a
 COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ../bin/$(COMPILER_LIB) ../bin/$(COMP_DATA_LIB) ../bin/$(DRAW_LIB) ../bin/$(CONSOLE_LIB) ../bin/$(DATABASE_LIB) ../bin/$(SEED7_LIB)
-GET_CC_VERSION_INFO = $(CC) --version >
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -118,7 +117,7 @@ all: depend
 clear: clean
 
 clean:
-	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h version.h wrdepend
+	rm -f *.o ../bin/*.a ../bin/s7 ../bin/s7c ../prg/s7 ../prg/s7c depend macros chkccomp.h base.h settings.h version.h wrdepend
 
 distclean: clean
 	cp level_bk.h level.h
@@ -155,40 +154,43 @@ chkccomp.h:
 	echo "#define TDS_INCLUDE_OPTIONS \"-I%%LOCALBASE%%/include\"" >> chkccomp.h
 	echo "#define TDS_LIBRARY_PATH \"-L%%LOCALBASE%%/lib\"" >> chkccomp.h
 
-version.h: chkccomp.h
-	echo "#define PATH_DELIMITER '/'" > version.h
-	echo "#define SEARCH_PATH_DELIMITER ':'" >> version.h
-	echo "#define AWAIT_WITH_SELECT" >> version.h
-	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> version.h
-	echo "#define CONSOLE_UTF8" >> version.h
-	echo "#define OS_STRI_UTF8" >> version.h
-	echo "#define ESCAPE_SHELL_COMMANDS" >> version.h
-	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> version.h
-	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> version.h
-	echo "#define C_COMPILER \"$(CC)\"" >> version.h
-	echo "#define CPLUSPLUS_COMPILER \"$(CC) -x c++\"" >> version.h
-	echo "#define GET_CC_VERSION_INFO \"$(GET_CC_VERSION_INFO)\"" >> version.h
-	echo "#define CC_SOURCE_UTF8" >> version.h
-	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> version.h
-	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> version.h
-	echo "#define CC_OPT_TRAP_OVERFLOW \"-ftrapv\"" >> version.h
-	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> version.h
-	echo "#define CC_ERROR_FILDES 2" >> version.h
-	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> version.h
-	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> version.h
-	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> version.h
-	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> version.h
-	$(GET_CC_VERSION_INFO) cc_vers.txt
+base.h:
+	echo "#define PATH_DELIMITER '/'" > base.h
+	echo "#define OBJECT_FILE_EXTENSION \".o\"" >> base.h
+	echo "#define C_COMPILER \"$(CC)\"" >> base.h
+	echo "#define CC_OPT_TRAP_OVERFLOW \"-ftrapv\"" >> base.h
+	echo "#define CC_OPT_VERSION_INFO \"--version\"" >> base.h
+	echo "#define CC_FLAGS \"-ffunction-sections -fdata-sections\"" >> base.h
+	echo "#define CC_ERROR_FILEDES 2" >> base.h
+	echo "#define CC_VERSION_INFO_FILEDES 1" >> base.h
+	echo "#define LINKER_OPT_OUTPUT_FILE \"-o \"" >> base.h
+	echo "#define SYSTEM_LIBS \"$(SYSTEM_LIBS)\"" >> base.h
+
+settings.h:
+	echo "#define SEARCH_PATH_DELIMITER ':'" > settings.h
+	echo "#define AWAIT_WITH_SELECT" >> settings.h
+	echo "#define SIGNAL_HANDLER_CAN_DO_IO" >> settings.h
+	echo "#define CONSOLE_UTF8" >> settings.h
+	echo "#define OS_STRI_UTF8" >> settings.h
+	echo "#define ESCAPE_SHELL_COMMANDS" >> settings.h
+	echo "#define LIBRARY_FILE_EXTENSION \".a\"" >> settings.h
+	echo "#define CPLUSPLUS_COMPILER \"$(CC) -x c++\"" >> settings.h
+	echo "#define CC_SOURCE_UTF8" >> settings.h
+	echo "#define CC_OPT_DEBUG_INFO \"-g\"" >> settings.h
+	echo "#define CC_OPT_NO_WARNINGS \"-w\"" >> settings.h
+	echo "#define LINKER_OPT_NO_DEBUG_INFO \"-Wl,--strip-debug\"" >> settings.h
+	echo "#define LINKER_FLAGS \"$(LDFLAGS)\"" >> settings.h
+	echo "#define SEED7_LIB \"$(SEED7_LIB)\"" >> settings.h
+	echo "#define DRAW_LIB \"$(DRAW_LIB)\"" >> settings.h
+	echo "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> settings.h
+	echo "#define DATABASE_LIB \"$(DATABASE_LIB)\"" >> settings.h
+	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> settings.h
+	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> settings.h
+
+version.h: chkccomp.h base.h settings.h
 	$(CC) -ftrapv chkccomp.c -o chkccomp
 	./chkccomp version.h
 	rm chkccomp
-	rm cc_vers.txt
-	echo "#define SEED7_LIB \"$(SEED7_LIB)\"" >> version.h
-	echo "#define DRAW_LIB \"$(DRAW_LIB)\"" >> version.h
-	echo "#define CONSOLE_LIB \"$(CONSOLE_LIB)\"" >> version.h
-	echo "#define DATABASE_LIB \"$(DATABASE_LIB)\"" >> version.h
-	echo "#define COMP_DATA_LIB \"$(COMP_DATA_LIB)\"" >> version.h
-	echo "#define COMPILER_LIB \"$(COMPILER_LIB)\"" >> version.h
 	$(CC) setpaths.c -o setpaths
 	./setpaths "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	rm setpaths

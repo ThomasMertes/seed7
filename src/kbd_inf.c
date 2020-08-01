@@ -46,6 +46,9 @@
 
 #ifdef TERM_INCLUDE
 #include TERM_INCLUDE
+#ifdef HAS_TERMIOS_H
+#include "termios.h"
+#endif
 #else
 #ifdef INCL_CURSES_BEFORE_TERM
 /* The following include is necessary for RM Machines. */

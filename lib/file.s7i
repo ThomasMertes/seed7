@@ -173,6 +173,21 @@ const func integer: length (inout file: aFile)               is DYNAMIC;
 
 
 (**
+ *  Truncate ''aFile'' to the given ''length''.
+ *  If the file previously was larger than ''length'', the extra data is lost.
+ *  If the file previously was shorter, it is extended, and the extended
+ *  part is filled with null bytes ('\0;').
+ *  @param aFile File to be truncated.
+ *  @param length Requested length of ''aFile'' in bytes.
+ *  @exception RANGE_ERROR The requested length is negative or
+ *             the length is not representable in the type
+ *             used by the system function.
+ *  @exception FILE_ERROR A system function returns an error.
+ *)
+const proc: truncate (inout file: aFile, in integer: length) is DYNAMIC;
+
+
+(**
  *  Set the current file position.
  *  The file position is measured in bytes from the start of the file.
  *  The first byte in the file has the position 1.
@@ -314,44 +329,5 @@ const proc: skip (inout file: inFile, in var integer: numChars) is func
     while numChars <> 0 do
       buffer := gets(inFile, min(numChars, 1000000));
       numChars -:= length(buffer);
-    end while;
-  end func;
-
-
-(**
- *  Copy a file from source to destination.
- *  The ''source'' file is copied to ''dest'' until end-of-file
- *  is reached.
- *)
-const proc: copyFile (inout file: source, inout file: dest) is func
-  local
-    var string: buffer is "";
-   begin
-    buffer := gets(source, 1000000);
-    while buffer <> "" do
-      write(dest, buffer);
-      buffer := gets(source, 1000000);
-    end while;
-  end func;
-
-
-(**
- *  Copy at most ''numChars'' bytes from ''source'' to ''dest''.
- *  The ''source'' file is copied to ''dest'' until '''numChars'' bytes
- *  are copied or end-of-file is reached.
- *  @return the number of bytes copied (which is less or equal ''numChars'').
- *)
-const func integer: copyFile (inout file: source, inout file: dest,
-    in integer: numChars) is func
-  result
-    var integer: charsCopied is 0;
-  local
-    var string: buffer is "";
-  begin
-    buffer := gets(source, min(numChars, 1000000));
-    while buffer <> "" do
-      charsCopied +:= length(buffer);
-      write(dest, buffer);
-      buffer := gets(source, min(numChars - charsCopied, 1000000));
     end while;
   end func;

@@ -66,7 +66,7 @@ typedef union {
   double aDouble;
 } double2BitsType;
 
-static const intType minimumTruncArgument = 
+static const intType minimumTruncArgument =
 #if TWOS_COMPLEMENT_INTTYPE
     INTTYPE_MIN;
 #else

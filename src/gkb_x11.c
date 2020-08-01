@@ -1104,7 +1104,7 @@ static boolType keyboardButtonPressed (KeySym sym)
           if (key_vector[idx] != 0) printf("  byteindex: %d, value: %x", idx, key_vector[idx]);
         }
         printf("\n");
-      } 
+      }
       */
       result = 1 & (key_vector[byteindex] >> bitindex);
     } /* if */
@@ -1121,9 +1121,11 @@ static void setupModState (void)
     modState.rightShift   = keyboardButtonPressed(XK_Shift_R);
     modState.leftControl  = keyboardButtonPressed(XK_Control_L);
     modState.rightControl = keyboardButtonPressed(XK_Control_R);
-    modState.leftAlt      = keyboardButtonPressed(XK_Alt_L);
+    modState.leftAlt      = keyboardButtonPressed(XK_Alt_L) ||
+                            keyboardButtonPressed(XK_Mode_switch);
     modState.rightAlt     = keyboardButtonPressed(XK_Alt_R) ||
-                            keyboardButtonPressed(XK_ISO_Level3_Shift);
+                            keyboardButtonPressed(XK_ISO_Level3_Shift) ||
+                            keyboardButtonPressed(XK_Mode_switch);
     modState.shiftLock    = keyboardButtonPressed(XK_Shift_Lock) ||
                             keyboardButtonPressed(XK_Caps_Lock);
     modState.numLock      = keyboardButtonPressed(XK_Num_Lock);
@@ -1234,6 +1236,10 @@ charType gkbGetc (void)
           button_window = currentEvent.xbutton.window;
           if (currentEvent.xbutton.button >= 1 && currentEvent.xbutton.button <= 5) {
             result = currentEvent.xbutton.button + K_MOUSE1 - 1;
+          } else if (currentEvent.xbutton.button == 6) {
+            result = K_MOUSE4;
+          } else if (currentEvent.xbutton.button == 7) {
+            result = K_MOUSE5;
           } else if (currentEvent.xbutton.button == 8) {
             result = K_MOUSE_BACK;
           } else if (currentEvent.xbutton.button == 9) {
@@ -1247,7 +1253,8 @@ charType gkbGetc (void)
             } else if (currentEvent.xkey.state & ControlMask) {
               result += K_CTL_MOUSE1 - K_MOUSE1;
             } else if (currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
-                       currentEvent.xkey.state & Mod5Mask) { /* ALT GR modifier */
+                       currentEvent.xkey.state & Mod5Mask || /* ALT GR modifier */
+                       modState.leftAlt || modState.rightAlt) {
               result += K_ALT_MOUSE1 - K_MOUSE1;
             } /* if */
           } /* if */
@@ -1324,13 +1331,14 @@ charType gkbGetc (void)
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
                                    modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Mode_switch: modState.leftAlt      = TRUE;
+                                   modState.rightAlt     = TRUE; getNextChar = TRUE; break;
               case XK_Shift_Lock:
               case XK_Caps_Lock:   modState.shiftLock    = TRUE; getNextChar = TRUE; break;
               case XK_Num_Lock:    modState.numLock      = TRUE; getNextChar = TRUE; break;
               case XK_Scroll_Lock: modState.scrollLock   = TRUE; getNextChar = TRUE; break;
               case XK_Meta_L:
               case XK_Meta_R:
-              case XK_Mode_switch:
                 getNextChar = TRUE;
                 break;
               default:
@@ -1416,13 +1424,14 @@ charType gkbGetc (void)
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
                                     modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Mode_switch:  modState.leftAlt      = TRUE;
+                                    modState.rightAlt     = TRUE; getNextChar = TRUE; break;
               case XK_Shift_Lock:
               case XK_Caps_Lock:    modState.shiftLock    = TRUE; getNextChar = TRUE; break;
               case XK_Num_Lock:     modState.numLock      = TRUE; getNextChar = TRUE; break;
               case XK_Scroll_Lock:  modState.scrollLock   = TRUE; getNextChar = TRUE; break;
               case XK_Meta_L:
               case XK_Meta_R:
-              case XK_Mode_switch:
                 getNextChar = TRUE;
                 break;
               default:
@@ -1434,7 +1443,8 @@ charType gkbGetc (void)
                 break;
             } /* switch */
           } else if (currentEvent.xkey.state & Mod1Mask || /* Left ALT modifier */
-                     currentEvent.xkey.state & Mod5Mask) { /* ALT GR modifier */
+                     currentEvent.xkey.state & Mod5Mask || /* ALT GR modifier */
+                     modState.leftAlt || modState.rightAlt) {
             /* printf("Mod1Mask or Mod5Mask\n"); */
             switch (currentKey) {
               case XK_Return:       result = K_ALT_NL;         break;
@@ -1499,13 +1509,14 @@ charType gkbGetc (void)
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
                                     modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Mode_switch:  modState.leftAlt      = TRUE;
+                                    modState.rightAlt     = TRUE; getNextChar = TRUE; break;
               case XK_Shift_Lock:
               case XK_Caps_Lock:    modState.shiftLock    = TRUE; getNextChar = TRUE; break;
               case XK_Num_Lock:     modState.numLock      = TRUE; getNextChar = TRUE; break;
               case XK_Scroll_Lock:  modState.scrollLock   = TRUE; getNextChar = TRUE; break;
               case XK_Meta_L:
               case XK_Meta_R:
-              case XK_Mode_switch:
                 getNextChar = TRUE;
                 break;
               default:
@@ -1598,13 +1609,14 @@ charType gkbGetc (void)
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
                                    modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Mode_switch: modState.leftAlt      = TRUE;
+                                   modState.rightAlt     = TRUE; getNextChar = TRUE; break;
               case XK_Shift_Lock:
               case XK_Caps_Lock:   modState.shiftLock    = TRUE; getNextChar = TRUE; break;
               case XK_Num_Lock:    modState.numLock      = TRUE; getNextChar = TRUE; break;
               case XK_Scroll_Lock: modState.scrollLock   = TRUE; getNextChar = TRUE; break;
               case XK_Meta_L:
               case XK_Meta_R:
-              case XK_Mode_switch:
                 getNextChar = TRUE;
                 break;
               default:
@@ -1665,7 +1677,7 @@ charType gkbGetc (void)
               case XK_KP_9:        result = K_PGUP;       break;
               case XK_KP_3:        result = K_PGDN;       break;
               case XK_KP_0:        result = K_INS;        break;
-              case XK_KP_5:        result = K_UNDEF;      break;
+              case XK_KP_5:        result = K_PAD_CENTER; break;
               case XK_KP_Enter:    result = K_NL;         break;
               case XK_KP_Decimal:  result = K_DEL;        break;
               case XK_Menu:        result = K_MENU;       break;
@@ -1679,13 +1691,14 @@ charType gkbGetc (void)
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
                                    modState.rightAlt     = TRUE; getNextChar = TRUE; break;
+              case XK_Mode_switch: modState.leftAlt      = TRUE;
+                                   modState.rightAlt     = TRUE; getNextChar = TRUE; break;
               case XK_Shift_Lock:
               case XK_Caps_Lock:   modState.shiftLock    = TRUE; getNextChar = TRUE; break;
               case XK_Num_Lock:    modState.numLock      = TRUE; getNextChar = TRUE; break;
               case XK_Scroll_Lock: modState.scrollLock   = TRUE; getNextChar = TRUE; break;
               case XK_Meta_L:
               case XK_Meta_R:
-              case XK_Mode_switch:
                 getNextChar = TRUE;
                 break;
               default:
@@ -1716,6 +1729,8 @@ charType gkbGetc (void)
             case XK_Alt_L:       modState.leftAlt      = FALSE; break;
             case XK_Alt_R:
             case XK_ISO_Level3_Shift:
+                                 modState.rightAlt     = FALSE; break;
+            case XK_Mode_switch: modState.leftAlt      = FALSE;
                                  modState.rightAlt     = FALSE; break;
             case XK_Shift_Lock:
             case XK_Caps_Lock:   modState.shiftLock    = FALSE; break;
@@ -1856,6 +1871,7 @@ boolType processEvents (void)
               case XK_Caps_Lock:
               case XK_Num_Lock:
               case XK_Scroll_Lock:
+              case XK_Mode_switch:
                 switch (currentKey) {
                   case XK_Shift_L:     modState.leftShift    = TRUE; break;
                   case XK_Shift_R:     modState.rightShift   = TRUE; break;
@@ -1864,6 +1880,8 @@ boolType processEvents (void)
                   case XK_Alt_L:       modState.leftAlt      = TRUE; break;
                   case XK_Alt_R:
                   case XK_ISO_Level3_Shift:
+                                       modState.rightAlt     = TRUE; break;
+                  case XK_Mode_switch: modState.leftAlt      = TRUE;
                                        modState.rightAlt     = TRUE; break;
                   case XK_Shift_Lock:
                   case XK_Caps_Lock:   modState.shiftLock    = TRUE; break;
@@ -1878,7 +1896,6 @@ boolType processEvents (void)
                 break;
               case XK_Meta_L:
               case XK_Meta_R:
-              case XK_Mode_switch:
                 if (num_events == 1) {
                   num_events = XEventsQueued(mydisplay, QueuedAfterReading);
                 } else {
@@ -1907,6 +1924,8 @@ boolType processEvents (void)
               case XK_Alt_L:       modState.leftAlt      = FALSE; break;
               case XK_Alt_R:
               case XK_ISO_Level3_Shift:
+                                   modState.rightAlt     = FALSE; break;
+              case XK_Mode_switch: modState.leftAlt      = FALSE;
                                    modState.rightAlt     = FALSE; break;
               case XK_Shift_Lock:
               case XK_Caps_Lock:   modState.shiftLock    = FALSE; break;

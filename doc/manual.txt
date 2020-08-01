@@ -12595,12 +12595,17 @@ CONTENTS
        by your program might be totally wrong. Your program might compute
        the statics of a bridge wrong.
 
-  Without integer overflow checks a handler for OVERFLOW_ERROR cannot
-  work reliably. Only a program that does not have a handler for an
-  OVERFLOW_ERROR exception can be considered to be compiled without
-  overflow checks. Careful program analysis and testing (OVERFLOW_ERROR
-  should never be raised) is necessary to decide about the omission of
-  overflow checking.
+  A handler for OVERFLOW_ERROR can only work reliable with integer
+  overflow checks. The compiler warns if -so is used and there
+  is a handler for OVERFLOW_ERROR:
+
+    *** example.sd7(123): Catch of OVERFLOW_ERROR although the checks are suppressed.
+
+  Only a program that never raises OVERFLOW_ERROR and that does not
+  have a handler for OVERFLOW_ERROR can be considered to be compiled
+  without overflow checks. Careful program analysis and testing
+  (OVERFLOW_ERROR should never be raised) is necessary to decide
+  about the omission of overflow checking.
 
   The separate overflow exception allows easy recognition of overflow
   situations. All overflow situations, where OVERFLOW_ERROR is raised

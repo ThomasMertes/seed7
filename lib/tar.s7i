@@ -3,7 +3,7 @@
 (*                                                                  *)
 (*  tar.s7i       Tar archive library                               *)
 (*  Copyright (C) 1994, 2004, 2005, 2010, 2014  Thomas Mertes       *)
-(*  Copyright (C) 2016 - 2019  Thomas Mertes                        *)
+(*  Copyright (C) 2016 - 2020  Thomas Mertes                        *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -35,8 +35,8 @@ include "subfile.s7i";
 include "iobuffer.s7i";
 
 
-const string: TMAGIC is "ustar";
-const string: NOMAGIC is "";
+const string: TAR_MAGIC is "ustar";
+const string: TAR_NOMAGIC is "";
 
 const integer: TAR_BLOCK_SIZE is 512;
 
@@ -53,6 +53,7 @@ const char: LONGNAMETYPE    is 'L';   # Long (untruncated) filename of the next 
 const char: LONGLINKTYPE    is 'K';   # Long link destination of a previous header.
 const char: GLOBAL_HEADER   is 'g';   # Global extended header with meta data
 const char: EXTENDED_HEADER is 'x';   # Meta data for the next file in the archive.
+
 
 const type: tarHeader is new struct
     var string: name is "";
@@ -258,13 +259,13 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
   local
     var string: filePath8 is "";
     var string: linkPath8 is "";
-    var string: extendedHeader is "";
+    var string: extendedHeaderData is "";
     var integer: pos is 1;
     var string: metaData is "";
   begin
     header := readHeadBlock(inFile);
     # showHeader(STD_OUT, header);
-    while header.magic = TMAGIC and
+    while header.magic = TAR_MAGIC and
         (((header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) and
            header.name = "././@LongLink") or
          header.typeflag = EXTENDED_HEADER or header.typeflag = GLOBAL_HEADER) do
@@ -273,10 +274,10 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
       elsif header.typeflag = LONGLINKTYPE then
         linkPath8 := gets(inFile, header.fileSize);
       elsif header.typeflag = EXTENDED_HEADER then
-        extendedHeader := gets(inFile, header.fileSize);
+        extendedHeaderData := gets(inFile, header.fileSize);
         pos := 1;
-        while pos <= length(extendedHeader) do
-          metaData := getMetaData(extendedHeader, pos);
+        while pos <= length(extendedHeaderData) do
+          metaData := getMetaData(extendedHeaderData, pos);
           # writeln("metaData: " <& metaData);
           if startsWith(metaData, "path=") then
             filePath8 := metaData[6 ..];
@@ -287,7 +288,8 @@ const proc: readHead (inout file: inFile, inout tarHeader: header) is func
       else # header.typeflag = GLOBAL_HEADER
         ignore(gets(inFile, header.fileSize));
       end if;
-      seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
+      seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) -
+           pred(header.fileSize) mod TAR_BLOCK_SIZE);
       header := readHeadBlock(inFile);
       # showHeader(STD_OUT, header);
     end while;
@@ -346,13 +348,13 @@ const func tarHeader: readMinimumOfHeadBlock (inout file: inFile) is func
 const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is func
   local
     var string: filePath8 is "";
-    var string: extendedHeader is "";
+    var string: extendedHeaderData is "";
     var integer: pos is 1;
     var string: metaData is "";
   begin
     header := readMinimumOfHeadBlock(inFile);
     # showHeader(STD_OUT, header);
-    while header.magic = TMAGIC and
+    while header.magic = TAR_MAGIC and
         (((header.typeflag = LONGNAMETYPE or header.typeflag = LONGLINKTYPE) and
            header.name = "././@LongLink") or
          header.typeflag = EXTENDED_HEADER or header.typeflag = GLOBAL_HEADER) do
@@ -360,10 +362,10 @@ const proc: readMinimumOfHead (inout file: inFile, inout tarHeader: header) is f
         filePath8 := gets(inFile, header.fileSize);
         seek(inFile, tell(inFile) + pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
       elsif header.typeflag = EXTENDED_HEADER then
-        extendedHeader := gets(inFile, header.fileSize);
+        extendedHeaderData := gets(inFile, header.fileSize);
         pos := 1;
-        while pos <= length(extendedHeader) do
-          metaData := getMetaData(extendedHeader, pos);
+        while pos <= length(extendedHeaderData) do
+          metaData := getMetaData(extendedHeaderData, pos);
           # writeln("metaData: " <& metaData);
           if startsWith(metaData, "path=") then
             filePath8 := metaData[6 ..];
@@ -458,7 +460,7 @@ const proc: writeHead (inout file: outFile, in var tarHeader: header) is func
           longNameHead.mtime    := 0;
           longNameHead.typeflag := LONGNAMETYPE;
           longNameHead.linkname := "";
-          longNameHead.magic    := TMAGIC;
+          longNameHead.magic    := TAR_MAGIC;
           longNameHead.version  := "  ";
           longNameHead.uname    := "root";
           longNameHead.gname    := "root";
@@ -485,12 +487,12 @@ const type: tarCatalogType is hash [string] tarHeader;
 
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access a TAR archive.
- *  File paths in a tar archive can be absolute (they start with a slash)
+ *  File paths in a TAR archive can be absolute (they start with a slash)
  *  or relative (they do not start with a slash). The tar file system does
  *  not support the concept of a current working directory. The functions
  *  chdir and getcwd are not supported by the tar file system. Absolute
- *  and relative paths in a tar archive can be accessed directly.
- *  Since "/" is just a normal path in a tar archive the root path of a
+ *  and relative paths in a TAR archive can be accessed directly.
+ *  Since "/" is just a normal path in a TAR archive the root path of a
  *  tar file system is "". Possible usages of tar file system functions are:
  *    getMTime(aTarFile, "src/drivers")   # Relative path in the archive.
  *    fileType(aTarFile, "/usr/include")  # Absolute path in the archive.
@@ -525,7 +527,7 @@ const func fileSys: openTar (inout file: tarFile) is func
       seek(tarFile, headPos);
       readHead(tarFile, header);
       if header.chksumOkay and header.filePath <> "" and
-          (header.magic = TMAGIC or header.magic = NOMAGIC) then
+          (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) then
         tar.tarFile := tarFile;
         repeat
           # writeln(header.filePath <& " " <& headPos);
@@ -539,7 +541,7 @@ const func fileSys: openTar (inout file: tarFile) is func
           end if;
           readMinimumOfHead(tarFile, header);
         until header.filePath = "" or
-              (header.magic <> TMAGIC and header.magic <> NOMAGIC);
+              (header.magic <> TAR_MAGIC and header.magic <> TAR_NOMAGIC);
         newFileSys := toInterface(tar);
       end if;
     end if;
@@ -575,20 +577,9 @@ const proc: close (inout tarArchive: tar) is func
 const func tarHeader: addToCatalog (inout tarArchive: tar, in string: filePath) is func
   result
     var tarHeader: header is tarHeader.value;
-  local
-    var string: linkPath is "";
   begin
-    linkPath := filePath;
-    repeat
-      seek(tar.tarFile, tar.register[linkPath]);
-      readHead(tar.tarFile, header);
-      if header.typeflag = LNKTYPE then
-        linkPath := header.linkPath;
-        if linkPath not in tar.register then
-          raise FILE_ERROR;
-        end if;
-      end if;
-    until header.typeflag <> LNKTYPE;
+    seek(tar.tarFile, tar.register[filePath]);
+    readHead(tar.tarFile, header);
     tar.catalog @:= [filePath] header;
   end func;
 
@@ -623,6 +614,63 @@ const func tarHeader: addImplicitDir (inout tarArchive: tar,
     header.typeflag := DIRTYPE;
     header.dataStartPos := -1;
     tar.catalog @:= [dirPath] header;
+  end func;
+
+
+const func string: followSymlink (inout tarArchive: tar, in var string: filePath,
+    inout tarHeader: header) is func
+  result
+    var string: missingPath is "";
+  local
+    var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is TRUE;
+  begin
+    # writeln("followSymlink: " <& filePath);
+    repeat
+      if filePath in tar.catalog then
+        header := tar.catalog[filePath];
+      elsif filePath in tar.register then
+        header := addToCatalog(tar, filePath);
+      elsif implicitDir(tar, filePath) then
+        header := addImplicitDir(tar, filePath);
+      else
+        # The file does not exist.
+        missingPath := filePath;
+        isSymlink := FALSE;
+        # writeln("missing: " <& missingPath);
+      end if;
+      if missingPath = "" then
+        if header.typeflag = SYMTYPE then
+          filePath := header.linkPath;
+          if startsWith(filePath, "/") and
+              filePath not in tar.catalog and filePath not in tar.register then
+            filePath := filePath[2 ..];
+          end if;
+        else
+          isSymlink := FALSE;
+          # writeln("found: " <& header.filePath);
+        end if;
+      end if;
+      decr(symlinkCount);
+    until not isSymlink or symlinkCount = 0;
+    if isSymlink then
+      # Too many symbolic links.
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+const func tarHeader: followSymlink (inout tarArchive: tar, in string: filePath) is func
+  result
+    var tarHeader: header is tarHeader.value;
+  local
+    var string: missingPath is "";
+  begin
+    missingPath := followSymlink(tar, filePath, header);
+    if missingPath <> "" then
+      # The file does not exist.
+      raise FILE_ERROR;
+    end if;
   end func;
 
 
@@ -705,7 +753,7 @@ const func array string: readDir (inout tarArchive: tar, RECURSIVE) is
 
 (**
  *  Determine the type of a file in a TAR archive.
- *  The function does follow symbolic links. If the chain of
+ *  The function follows symbolic links. If the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
  *  If a symbolic link refers to a place where the permission
  *  is denied the function returns ''FILE_SYMLINK''.
@@ -749,6 +797,10 @@ const func fileType: fileType (inout tarArchive: tar, in var string: filePath) i
             when {FIFOTYPE}: aFileType := FILE_FIFO;
             when {CONTTYPE}: aFileType := FILE_UNKNOWN;
             when {SYMTYPE}:  filePath := header.linkPath;
+              if startsWith(filePath, "/") and
+                  filePath not in tar.catalog and filePath not in tar.register then
+                filePath := filePath[2 ..];
+              end if;
             otherwise:
               raise RANGE_ERROR;
           end case;
@@ -810,10 +862,12 @@ const func fileType: fileTypeSL (inout tarArchive: tar, in string: filePath) is 
 
 (**
  *  Determine the file mode (permissions) of a file in a TAR archive.
+ *  The function follows symbolic links.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func fileMode: fileMode (inout tarArchive: tar, in string: filePath) is func
   result
@@ -821,23 +875,19 @@ const func fileMode: fileMode (inout tarArchive: tar, in string: filePath) is fu
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      mode := tar.catalog[filePath].mode;
-    elsif filePath in tar.register then
-      mode := addToCatalog(tar, filePath).mode;
-    elsif implicitDir(tar, filePath) then
-      mode := addImplicitDir(tar, filePath).mode;
     else
-      raise FILE_ERROR;
+      mode := followSymlink(tar, filePath).mode;
     end if;
   end func;
 
 
 (**
  *  Change the file mode (permissions) of a file in a TAR archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             the chain of symbolic links is too long.
  *)
 const proc: setFileMode (inout tarArchive: tar, in string: filePath,
     in fileMode: mode) is func
@@ -846,17 +896,17 @@ const proc: setFileMode (inout tarArchive: tar, in string: filePath,
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      tar.catalog[filePath].mode := mode;
-    elsif filePath in tar.register then
-      header := addToCatalog(tar, filePath);
-      header.mode := mode;
-      tar.catalog @:= [filePath] header;
     else
-      raise FILE_ERROR;
+      header := followSymlink(tar, filePath);
+      if header.filePath in tar.register then
+        header.mode := mode;
+        tar.catalog @:= [header.filePath] header;
+        seek(tar.tarFile, tar.register[header.filePath]);
+        writeHead(tar.tarFile, tar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
-    seek(tar.tarFile, tar.register[filePath]);
-    writeHead(tar.tarFile, tar.catalog[filePath]);
   end func;
 
 
@@ -864,10 +914,12 @@ const proc: setFileMode (inout tarArchive: tar, in string: filePath,
  *  Determine the size of a file in a TAR archive.
  *  The file size is measured in bytes.
  *  For directories a size of 0 is returned.
+ *  The function follows symbolic links.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func integer: fileSize (inout tarArchive: tar, in string: filePath) is func
   result
@@ -877,54 +929,43 @@ const func integer: fileSize (inout tarArchive: tar, in string: filePath) is fun
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      size := tar.catalog[filePath].fileSize;
-    elsif filePath in tar.register then
-      size := addToCatalog(tar, filePath).fileSize;
-    elsif implicitDir(tar, filePath) then
-      size := addImplicitDir(tar, filePath).fileSize;
     else
-      raise FILE_ERROR;
+      size := followSymlink(tar, filePath).fileSize;
     end if;
   end func;
 
 
 (**
  *  Determine the modification time of a file in a TAR archive.
+ *  The function follows symbolic links.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func time: getMTime (inout tarArchive: tar, in string: filePath) is func
   result
     var time: modificationTime is time.value;
-  local
-    var tarHeader: header is tarHeader.value;
-    var integer: mtime is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      mtime := tar.catalog[filePath].mtime;
-    elsif filePath in tar.register then
-      mtime := addToCatalog(tar, filePath).mtime;
-    elsif implicitDir(tar, filePath) then
-      mtime := addImplicitDir(tar, filePath).mtime;
     else
-      raise FILE_ERROR;
+      modificationTime := timestamp1970ToTime(
+          followSymlink(tar, filePath).mtime);
     end if;
-    modificationTime := timestamp1970ToTime(mtime);
   end func;
 
 
 (**
  *  Set the modification time of a file in a TAR archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive, or
+ *             the chain of symbolic links is too long.
  *)
 const proc: setMTime (inout tarArchive: tar, in string: filePath,
     in time: modificationTime) is func
@@ -933,22 +974,20 @@ const proc: setMTime (inout tarArchive: tar, in string: filePath,
     var tarHeader: header is tarHeader.value;
   begin
     mtime := timestamp1970(modificationTime);
-    if mtime < 0 or mtime >= 2 ** 31 then
+    if mtime < 0 or mtime >= 2 ** 31 or
+        (filePath <> "/" and endsWith(filePath, "/")) then
       raise RANGE_ERROR;
-    end if;
-    if filePath <> "/" and endsWith(filePath, "/") then
-      raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      tar.catalog[filePath].mtime := mtime;
-    elsif filePath in tar.register then
-      header := addToCatalog(tar, filePath);
-      header.mtime := mtime;
-      tar.catalog @:= [filePath] header;
     else
-      raise FILE_ERROR;
+      header := followSymlink(tar, filePath);
+      if header.filePath in tar.register then
+        header.mtime := mtime;
+        tar.catalog @:= [header.filePath] header;
+        seek(tar.tarFile, tar.register[header.filePath]);
+        writeHead(tar.tarFile, tar.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
-    seek(tar.tarFile, tar.register[filePath]);
-    writeHead(tar.tarFile, tar.catalog[filePath]);
   end func;
 
 
@@ -1064,11 +1103,13 @@ const proc: moveFile (inout tarArchive: tar, in string: sourcePath,
 
 (**
  *  Get the contents of a file in a TAR archive.
+ *  The function follows symbolic links.
  *  @return the specified file as string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the TAR archive,
- *             or is not a regular file.
+ *             or is not a regular file, or
+ *             the chain of symbolic links is too long.
  *)
 const func string: getFile (inout tarArchive: tar, in string: filePath) is func
   result
@@ -1078,20 +1119,14 @@ const func string: getFile (inout tarArchive: tar, in string: filePath) is func
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      header := tar.catalog[filePath];
+    else
+      header := followSymlink(tar, filePath);
       if header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
         seek(tar.tarFile, header.dataStartPos);
+        content := gets(tar.tarFile, header.fileSize);
+      else
+        raise FILE_ERROR;
       end if;
-    elsif filePath in tar.register then
-      header := addToCatalog(tar, filePath);
-    else
-      raise FILE_ERROR;
-    end if;
-    if header.typeflag = REGTYPE or header.typeflag = AREGTYPE then
-      content := gets(tar.tarFile, header.fileSize);
-    else
-      raise FILE_ERROR;
     end if;
   end func;
 
@@ -1099,69 +1134,73 @@ const func string: getFile (inout tarArchive: tar, in string: filePath) is func
 (**
  *  Write ''data'' to a TAR archive with the given ''filePath''.
  *  If the file exists already, it is overwritten.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *)
-const proc: putFile (inout tarArchive: tar, in string: filePath,
+const proc: putFile (inout tarArchive: tar, in var string: filePath,
     in string: data) is func
   local
     var tarHeader: header is tarHeader.value;
-    var boolean: fileExists is TRUE;
+    var string: missingPath is "";
     var boolean: appendFile is TRUE;
     var integer: length is 0;
   begin
-    if filePath <> "/" and endsWith(filePath, "/") then
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in tar.catalog then
-      header := tar.catalog[filePath];
-    elsif filePath in tar.register then
-      header := addToCatalog(tar, filePath);
-    elsif implicitDir(tar, filePath) then
-      header := addImplicitDir(tar, filePath);
     else
-      fileExists := FALSE;
-    end if;
-    if fileExists then
-      if header.typeflag <> REGTYPE and header.typeflag <> AREGTYPE then
-        raise FILE_ERROR;
+      missingPath := followSymlink(tar, filePath, header);
+      if missingPath = "" then
+        # The file does exist.
+        filePath := header.filePath;
+        if header.typeflag <> REGTYPE and header.typeflag <> AREGTYPE then
+          raise FILE_ERROR;
+        else
+          if succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE =
+              succ(pred(length(data)) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE then
+            # The number of blocks used of the old file and the new file are identical.
+            # The file data is rewritten in place.
+            header.fileSize := length(data);
+            tar.catalog @:= [filePath] header;
+            seek(tar.tarFile, header.dataStartPos - TAR_BLOCK_SIZE);
+            # Write just the main header. Extended headers are left unchanged.
+            write(tar.tarFile, str(header));
+            write(tar.tarFile, data);
+            write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
+                  pred(header.fileSize) mod TAR_BLOCK_SIZE);
+            appendFile := FALSE;
+          end if;
+        end if;
+      else
+        filePath := missingPath;
       end if;
-      if succ(pred(header.fileSize) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE =
-          succ(pred(length(data)) mdiv TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE then
-        # The number of blocks used of the old file and the new file are identical.
-        # The file data is rewritten in place.
+      if appendFile then
+        length := length(tar.tarFile);
+        seek(tar.tarFile, succ(length));
+        # Add zero bytes such that the next header starts at a multiple of the block size:
+        write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
+              pred(length) mod TAR_BLOCK_SIZE);
+        tar.register @:= [filePath] tell(tar.tarFile);
+        if missingPath <> "" then
+          header.name     := filePath[.. 100];
+          header.mode     := fileMode conv 8#664;
+          header.uid      := 100;
+          header.gid      := 100;
+          header.mtime    := timestamp1970(time(NOW));
+          header.typeflag := REGTYPE;
+          header.magic    := TAR_MAGIC;
+          header.version  := "  ";
+          header.filePath := filePath;
+        end if;
         header.fileSize := length(data);
-        tar.catalog @:= [filePath] header;
-        seek(tar.tarFile, tar.register[filePath]);
         writeHead(tar.tarFile, header);
+        header.dataStartPos := tell(tar.tarFile);
+        tar.catalog @:= [filePath] header;
         write(tar.tarFile, data);
-        write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
-        appendFile := FALSE;
+        write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) -
+              pred(header.fileSize) mod TAR_BLOCK_SIZE);
+        flush(tar.tarFile);
       end if;
-    end if;
-    if appendFile then
-      length := length(tar.tarFile);
-      seek(tar.tarFile, succ(length));
-      # Add zero bytes such that the next header starts at a multiple of the block size:
-      write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(length) mod TAR_BLOCK_SIZE);
-      tar.register @:= [filePath] tell(tar.tarFile);
-      if not fileExists then
-        header.name     := filePath[.. 100];
-        header.mode     := fileMode conv 8#664;
-        header.uid      := 100;
-        header.gid      := 100;
-        header.mtime    := timestamp1970(time(NOW));
-        header.typeflag := REGTYPE;
-        header.magic    := TMAGIC;
-        header.version  := "  ";
-        header.filePath := filePath;
-      end if;
-      header.fileSize := length(data);
-      writeHead(tar.tarFile, header);
-      header.dataStartPos := tell(tar.tarFile);
-      tar.catalog @:= [filePath] header;
-      write(tar.tarFile, data);
-      write(tar.tarFile, "\0;" mult pred(TAR_BLOCK_SIZE) - pred(header.fileSize) mod TAR_BLOCK_SIZE);
-      flush(tar.tarFile);
     end if;
   end func;
 
@@ -1179,7 +1218,7 @@ const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
     var integer: dataStartPos is 0;
     var integer: length is 0;
   begin
-    if filePath <> "/" and endsWith(filePath, "/") then
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     elsif filePath in tar.catalog then
       dataStartPos := tar.catalog[filePath].dataStartPos;
@@ -1205,7 +1244,7 @@ const proc: mkdir (inout tarArchive: tar, in string: filePath) is func
         header.gid      := 100;
         header.mtime    := timestamp1970(time(NOW));
         header.typeflag := DIRTYPE;
-        header.magic    := TMAGIC;
+        header.magic    := TAR_MAGIC;
         header.version  := "  ";
         header.filePath := filePath;
         header.filePathSuffix := "/";

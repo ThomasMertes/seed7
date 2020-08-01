@@ -1,3 +1,86 @@
+20200531:
+- The libraries tar.s7i, cpio.s7i and rpm.s7i have been improved such
+  that the file system functions follow symbolic links (inside of the
+  archive).
+- The library zip.s7i has been improved to support the functions
+  setFileMode(), setMTime() and putFile().
+- The library ar.s7i has been improved to allow UTF-8 file names and to
+  support the functions setFileMode(), setMTime(), putFile() and
+  removeFile().
+- The library rpm.s7i has been improved to support a LZMA compressed
+  payload.
+- The library cpio.s7i has been improved such that setFileMode(),
+  putFile() and mkdir() work correct.
+- The library lzma.s7i has been fixed such that xz.s7i can handle
+  uncompressed chunks in an XZ archive. A bug in the function length()
+  has been fixed also.
+- The new library fileutil.s7i has been added. This library supports
+  inserting and deleting areas in a file. The function copyFile, which
+  copies data between open files, has been moved from file.s7i to
+  fileutil.s7i.
+- The function truncate(), which changes the length of a file, has been
+  added to file.s7i, external_file.s7i, clib_file.s7i, strifile.s7i and
+  utf16.s7i.
+- The library iobuffer.s7i has been improved to allow switching between
+  reading and writing (and vice versa) as long as seek() is called in
+  between. The functions flush() and close() have been added and the
+  functions seek(), tell() and moveLeft() have been improved.
+- The function deflate(), which deflates a string has been added to the
+  library deflate.s7i.
+- The function moveLeft() has been improved in strifile.s7i and
+  stritext.s7i.
+- The function timestamp1601 has been added to time.s7i.
+- The bas7.sd7 (basic interpreter) example program has been improved.
+  Support for LINPUT statements, for the function RPT$ and for the
+  string concatenation operator & has been added. The predefined
+  subprogram CHAR has been improved. Now PRINT statemens allow a colon
+  (:) between strings to describe a line break. Now INPUT statements
+  allow a colon (:) between input prompt and variable list. A dummy
+  implementation of the predefined subprogram SOUND has been defined.
+- In seed7_05.s7i the definition of ::= for the type void has been
+  changed to use the action ENU_CREATE instead of PRC_NOOP. This avoids
+  a strange interpreter message (loc not dumped) if a void value is
+  written.
+- Tests in chkint.sd7 have been split into several functions.
+- Documentation in the FAQ, the manual and s7c.1 has been improved.
+- Interpreter and compiler have been improved to support the new action
+  FIL_TRUNCATE.
+- The compiler has been improved (in comp/inline.s7i in the function
+  push_inline_func_param) to add a "const" for a parameter definition.
+  This avoids a compilation error with g++.
+- The keyboard driver gkb_x11.c has been improved to to support the
+  ALT modifier also unter macOS.
+- Code in sql_tds.c has been refactored. Unused struct fields have been
+  removed. The function sqlColumnDuration() has been improved.
+- In tim_dos.c the function timAwait() has been improved to use
+  timToOsTimestamp() instead of mkutc() to get the timestamp.
+- The function mkutc() has been removed from tim_rtl.c.
+- The function XGetKeyboardControl() has been added to fwd_x11.c and
+  x11_x.h.
+- The files fwd_term.c and fwd_term.h have been improved to work also
+  if termios.h is available.
+- The makefiles have been improved to simplify the build system. Now
+  chkccomp.c includes the file base.h and generates version.h by
+  copying base.h and appending settings.h. Afterwards chkccomp.c
+  appends more values to version.h. These values are determined with
+  test programs. Additionally GET_CC_VERSION_INFO has been replaced by
+  CC_OPT_VERSION_INFO and CC_VERSION_INFO_FILEDES. The value
+  C_COMPILER_VERSION is now determined by chkccomp.c.
+- The files confval.sd7, cc_conf.s7i, cmd_rtl.c and setpaths.c have
+  been improved to use the new configuration values.
+- In cc_conf.s7i, confval.sd7, s7c.sd7, chkccomp.c, cmd_rtl.c and
+  os_decls.h the configuration values CC_ERROR_FILDES,
+  REDIRECT_FILDES_1 and REDIRECT_FILDES_2 have been renamed to
+  CC_ERROR_FILEDES, REDIRECT_FILEDES_1 and REDIRECT_FILEDES_2
+  respectively.
+- The functions appendFile(), determineCompilerVersion() and
+  determineFtruncate() have been added to chkccomp.c.
+- Documentation comments have been added or improved in array.s7i,
+  bigint.s7i, integer.s7i, progs.s7i, string.s7i, flt_rtl.c,
+  ref_data.c, reflib.c, setlib.c, set_rtl.c, sigutl.c and tim_rtl.c.
+- Occurrances of the words minimal and maximal have been replaced with
+  minimum and maximum in several files.
+
 20200502:
 - As suggested by Zachary Menzies a detection of more modifier keys has
   been added. E.g.: KEY_SHIFT_LOCK and KEY_NUM_LOCK. These modifier
@@ -87,7 +170,7 @@
   compressed files.
 - The new library lzma.s7i has been added. This library supports LZMA
   compressed files.
-- The library rpm.s7i has been improved to support an XZ compressed
+- The library rpm.s7i has been improved to support a XZ compressed
   payload.
 - The library tar_cmds.s7i and the program tar7.s7i have been improved
   to support XZ and LZMA compressed tar archives.

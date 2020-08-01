@@ -65,7 +65,8 @@ void shutDrivers (void)
 
 
 /**
- *  Determine the name of the given 'signalNum'.
+ *  Determine the name of the given signal 'signalNum'.
+ *  @param signalNum Number of the signal.
  *  @return the name of the signal.
  */
 const_cstriType signalName (int signalNum)
@@ -101,6 +102,12 @@ const_cstriType signalName (int signalNum)
 
 
 
+/**
+ *  Trigger the signal SIGFPE such that a debugger can catch it.
+ *  The compiler option -e causes that SIGFPE is raised with
+ *  triggerSigFpe(), if an uncaught exception occurs. This way a
+ *  debugger can handle uncaught Seed7 exceptions.
+ */
 void triggerSigfpe (void)
 
   {
@@ -133,6 +140,16 @@ void triggerSigfpe (void)
 
 
 
+/**
+ *  Dialog to decide how to continue after a signal has been received.
+ *  This function might be called from a signal handler. Note that this
+ *  function does things that are beyond the specification of what
+ *  signal handlers are allowed to do. Signal handlers should be left
+ *  quickly and several functions (including I/O functions) should never
+ *  be called from them. Waiting in a signal handler for the user to
+ *  respond violates that. Besides that this function works under Linux
+ *  BSD and Windows with various run-time libraries.
+ */
 static boolType signalDecision (int signalNum, boolType inHandler)
 
   {
@@ -195,6 +212,12 @@ static boolType signalDecision (int signalNum, boolType inHandler)
 
 
 #if HAS_SIGACTION || HAS_SIGNAL
+/**
+ *  Signal handler that is used if tracing signals as been activated.
+ *  Tracing signals is activated in interpreter and compiler with the
+ *  option -ts. This signal handler is used for normalSignals
+ *  (e.g.: SIGABRT, SIGILL, SIGINT, SIGFPE).
+ */
 static void handleTracedSignals (int signalNum)
 
   { /* handleTracedSignals */
@@ -215,6 +238,9 @@ static void handleTracedSignals (int signalNum)
 
 
 
+/**
+ *  Signal handler for the signal SIGFPE.
+ */
 static void handleNumericError (int signalNum)
 
   { /* handleNumericError */
@@ -227,6 +253,9 @@ static void handleNumericError (int signalNum)
 
 
 #if OVERFLOW_SIGNAL
+/**
+ *  Signal handler for the OVERFLOW_SIGNAL (SIGILL or SIGABRT).
+ */
 static void handleOverflowError (int signalNum)
 
   {
@@ -239,6 +268,11 @@ static void handleOverflowError (int signalNum)
 
 
 
+/**
+ *  Signal handler for signals that terminate the program.
+ *  This signal handler is used for SIGTERM and for normalSignals
+ *  (e.g.: SIGABRT, SIGILL, SIGINT, SIGFPE).
+ */
 static void handleTermSignal (int signalNum)
 
   { /* handleTermSignal */
@@ -250,6 +284,9 @@ static void handleTermSignal (int signalNum)
 
 
 
+/**
+ *  Signal handler for the signal SIGSEGV.
+ */
 static void handleSegvSignal (int signalNum)
 
   { /* handleSegvSignal */
@@ -274,10 +311,12 @@ static void handleSegvSignal (int signalNum)
 
 /**
  *  Initialize the signal handlers.
- *  @param handleSignals Specifies if signals are handled at all.
- *  @param traceSignals Specifies if signals trigger a dialog at the console.
- *  @param overflowSigError An OVERFLOW_SIGNAL will raise OVERFLOW_ERROR.
- *  @param fpeNumericError An SIGFPE will raise NUMERIC_ERROR.
+ *  @param handleSignals Specifies if signals should be handled at all.
+ *  @param traceSignals Specifies if signals should trigger a dialog at
+ *                      the console.
+ *  @param overflowSigError Specifies if an OVERFLOW_SIGNAL should
+ *                          raise OVERFLOW_ERROR.
+ *  @param fpeNumericError Specifies if SIGFPE should raise NUMERIC_ERROR.
  */
 #if HAS_SIGACTION
 void setupSignalHandlers (boolType handleSignals,
@@ -408,6 +447,12 @@ void setupSignalHandlers (boolType handleSignals,
 
 
 
+/**
+ *  Determine the current signal handler of the given signal 'signalNum'.
+ *  @param signalNum Number of the signal.
+ *  @return signal handler that corresponds to 'signalNum', or
+ *          SIG_ERR if no signal handler could be found.
+ */
 static signalHandlerType getCurrentSignalHandler (int signalNum)
 
   {
@@ -428,7 +473,7 @@ static signalHandlerType getCurrentSignalHandler (int signalNum)
 #endif
 #if HAS_SIGACTION || HAS_SIGNAL
     } else {
-      logError(printf("callSignalHandler(%d) failed.\n", signalNum););
+      logError(printf("getCurrentSignalHandler(%d) failed.\n", signalNum););
       currentHandler = SIG_ERR;
     } /* if */
 #else
@@ -441,6 +486,15 @@ static signalHandlerType getCurrentSignalHandler (int signalNum)
 
 
 
+/**
+ *  Call the current signal handler without raising the signal.
+ *  This function is called if ctrl-c has been pressed.
+ *  If signal tracing is switched on signalDecision() is called
+ *  to determine if the program should resume.
+ *  @param signalNum Number of the signal.
+ *  @return TRUE if the program should resume, or
+ *          FALSE if the program should not resume.
+ */
 boolType callSignalHandler (int signalNum)
 
   {

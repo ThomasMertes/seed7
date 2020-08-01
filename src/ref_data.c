@@ -157,56 +157,68 @@ objectType refAllocVar (typeType aType, const intType aCategory)
 
 
 
-intType refArrMaxIdx (const const_objectType aReference)
+/**
+ *  Obtain the maximum index of the array referenced by 'arrayRef'.
+ *  @param arrayRef Reference to an array object.
+ *  @return the maximum index of the array.
+ *  @exception RANGE_ERROR If 'arrayRef' does not refer to an array.
+ */
+intType refArrMaxIdx (const const_objectType arrayRef)
 
   { /* refArrMaxIdx */
-    if (unlikely(aReference == NULL ||
-                 CATEGORY_OF_OBJ(aReference) != ARRAYOBJECT)) {
+    if (unlikely(arrayRef == NULL ||
+                 CATEGORY_OF_OBJ(arrayRef) != ARRAYOBJECT)) {
       logError(printf("refArrMaxIdx(");
-               trace1(aReference);
+               trace1(arrayRef);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      return take_array(aReference)->max_position;
+      return take_array(arrayRef)->max_position;
     } /* if */
   } /* refArrMaxIdx */
 
 
 
-intType refArrMinIdx (const const_objectType aReference)
+/**
+ *  Obtain the minimum index of the array referenced by 'arrayRef'.
+ *  @param arrayRef Reference to an array object.
+ *  @return the minimum index of the array.
+ *  @exception RANGE_ERROR If 'arrayRef' does not refer to an array.
+ */
+intType refArrMinIdx (const const_objectType arrayRef)
 
   { /* refArrMinIdx */
-    if (unlikely(aReference == NULL ||
-                 CATEGORY_OF_OBJ(aReference) != ARRAYOBJECT)) {
+    if (unlikely(arrayRef == NULL ||
+                 CATEGORY_OF_OBJ(arrayRef) != ARRAYOBJECT)) {
       logError(printf("refArrMinIdx(");
-               trace1(aReference);
+               trace1(arrayRef);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       return 0;
     } else {
-      return take_array(aReference)->min_position;
+      return take_array(arrayRef)->min_position;
     } /* if */
   } /* refArrMinIdx */
 
 
 
-listType refArrToList (const const_objectType aReference)
+listType refArrToList (const const_objectType arrayRef)
 
   {
     errInfoType err_info = OKAY_NO_ERROR;
     listType result;
 
   /* refArrToList */
-    if (unlikely(aReference == NULL ||
-                 CATEGORY_OF_OBJ(aReference) != ARRAYOBJECT)) {
+    if (unlikely(arrayRef == NULL ||
+                 CATEGORY_OF_OBJ(arrayRef) != ARRAYOBJECT)) {
       logError(printf("refArrToList(");
-               trace1(aReference);
+               trace1(arrayRef);
                printf("): Category is not ARRAYOBJECT.\n"););
       raise_error(RANGE_ERROR);
       result = NULL;
     } else {
-      result = array_to_list(take_array(aReference), &err_info);
+      result = array_to_list(take_array(arrayRef), &err_info);
       if (unlikely(err_info != OKAY_NO_ERROR)) {
         raise_error(MEMORY_ERROR);
         result = NULL;

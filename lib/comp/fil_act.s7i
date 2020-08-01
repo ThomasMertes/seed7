@@ -84,6 +84,7 @@ const proc: fil_prototypes (inout file: c_prog) is func
     declareExtern(c_prog, "void        filSeek (fileType, intType);");
     declareExtern(c_prog, "void        filSetbuf (fileType, intType, intType);");
     declareExtern(c_prog, "intType     filTell (fileType);");
+    declareExtern(c_prog, "void        filTruncate (fileType, intType);");
     declareExtern(c_prog, "striType    filWordRead (fileType, charType *);");
     declareExtern(c_prog, "striType    filWordReadChkCtrlC (fileType, charType *);");
     declareExtern(c_prog, "void        filWrite (fileType, const const_striType);");
@@ -409,6 +410,19 @@ const proc: process (FIL_TELL, in reference: function,
     c_expr.expr &:= "filTell(";
     process_expr(params[1], c_expr);
     c_expr.expr &:= ")";
+  end func;
+
+
+const proc: process (FIL_TRUNCATE, in reference: function,
+    in ref_list: params, inout expr_type: c_expr) is func
+
+  begin
+    setDiagnosticLine(c_expr);
+    c_expr.expr &:= "filTruncate(";
+    process_expr(params[1], c_expr);
+    c_expr.expr &:= ", ";
+    process_expr(params[2], c_expr);
+    c_expr.expr &:= ");\n";
   end func;
 
 

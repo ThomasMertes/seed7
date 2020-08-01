@@ -828,7 +828,7 @@ const proc: process_int_add (in reference: summand1, in reference: summand2,
           c_expr.expr &:= ") + (";
           process_expr(summand2, c_expr);
           c_expr.expr &:= ")";
-	elsif summand2_range.minValue >= minAllowedSummand2 or
+        elsif summand2_range.minValue >= minAllowedSummand2 or
               summand2_range.maxValue <= maxAllowedSummand2 then
           incr(countOverflowChecks);
           c_expr.expr &:= "/*simplified_overflow_check_add*/(";
@@ -3700,13 +3700,15 @@ const func boolean: powerOverflows (in integer: base, in integer: exponent) is f
     var boolean: powerOverflows is FALSE;
   begin
     if exponent < 0 then
-      powerOverflows := TRUE;
+      # A negative exponent raises NUMERIC_ERROR instead of OVERFLOW_ERROR.
+      # The function powerOverflows() is never called with a negative exponent.
+      powerOverflows := FALSE;
     elsif exponent >= minIdx(minBaseOfExponent) then
       if exponent <= maxIdx(minBaseOfExponent) then
         if  base < minBaseOfExponent[exponent] or
             base > maxBaseOfExponent[exponent] then
           powerOverflows := TRUE;
-	end if;
+        end if;
       elsif base < minIdx(maxExponentOfBase) or
             base > maxIdx(maxExponentOfBase) or
             exponent > maxExponentOfBase[base] then

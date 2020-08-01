@@ -106,6 +106,9 @@
 #ifndef CC_OPT_TRAP_OVERFLOW
 #define CC_OPT_TRAP_OVERFLOW ""
 #endif
+#ifndef CC_OPT_VERSION_INFO
+#define CC_OPT_VERSION_INFO ""
+#endif
 #ifndef CC_ENVIRONMENT_INI
 #define CC_ENVIRONMENT_INI ""
 #endif
@@ -130,6 +133,9 @@
 #else
 #define LINKED_PROGRAM_EXTENSION ""
 #endif
+#endif
+#ifndef SYSTEM_LIBS
+#define SYSTEM_LIBS ""
 #endif
 
 
@@ -1645,8 +1651,6 @@ striType cmdConfigValue (const const_striType name)
       opt = CALL_C_COMPILER_FROM_SHELL ? "TRUE" : "FALSE";
     } else if (strcmp(opt_name, "C_COMPILER_VERSION") == 0) {
       opt = C_COMPILER_VERSION;
-    } else if (strcmp(opt_name, "GET_CC_VERSION_INFO") == 0) {
-      opt = GET_CC_VERSION_INFO;
     } else if (strcmp(opt_name, "CC_OPT_DEBUG_INFO") == 0) {
       opt = CC_OPT_DEBUG_INFO;
     } else if (strcmp(opt_name, "CC_OPT_NO_WARNINGS") == 0) {
@@ -1659,12 +1663,16 @@ striType cmdConfigValue (const const_striType name)
       opt = CC_OPT_OPTIMIZE_3;
     } else if (strcmp(opt_name, "CC_OPT_TRAP_OVERFLOW") == 0) {
       opt = CC_OPT_TRAP_OVERFLOW;
+    } else if (strcmp(opt_name, "CC_OPT_VERSION_INFO") == 0) {
+      opt = CC_OPT_VERSION_INFO;
     } else if (strcmp(opt_name, "CC_ENVIRONMENT_INI") == 0) {
       opt = CC_ENVIRONMENT_INI;
     } else if (strcmp(opt_name, "CC_FLAGS") == 0) {
       opt = CC_FLAGS;
-    } else if (strcmp(opt_name, "CC_ERROR_FILDES") == 0) {
-      opt = STRINGIFY(CC_ERROR_FILDES);
+    } else if (strcmp(opt_name, "CC_ERROR_FILEDES") == 0) {
+      opt = STRINGIFY(CC_ERROR_FILEDES);
+    } else if (strcmp(opt_name, "CC_VERSION_INFO_FILEDES") == 0) {
+      opt = STRINGIFY(CC_VERSION_INFO_FILEDES);
     } else if (strcmp(opt_name, "LINKER_OPT_DEBUG_INFO") == 0) {
       opt = LINKER_OPT_DEBUG_INFO;
     } else if (strcmp(opt_name, "LINKER_OPT_NO_DEBUG_INFO") == 0) {
@@ -1697,10 +1705,10 @@ striType cmdConfigValue (const const_striType name)
       opt = COMPILER_LIB;
     } else if (strcmp(opt_name, "S7_LIB_DIR") == 0) {
       opt = S7_LIB_DIR;
-    } else if (strcmp(opt_name, "REDIRECT_FILDES_1") == 0) {
-      opt = REDIRECT_FILDES_1;
-    } else if (strcmp(opt_name, "REDIRECT_FILDES_2") == 0) {
-      opt = REDIRECT_FILDES_2;
+    } else if (strcmp(opt_name, "REDIRECT_FILEDES_1") == 0) {
+      opt = REDIRECT_FILEDES_1;
+    } else if (strcmp(opt_name, "REDIRECT_FILEDES_2") == 0) {
+      opt = REDIRECT_FILEDES_2;
     } else if (strcmp(opt_name, "NULL_DEVICE") == 0) {
       opt = NULL_DEVICE;
     } else if (strcmp(opt_name, "BOOLTYPE") == 0) {

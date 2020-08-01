@@ -92,68 +92,6 @@ static const time_t yearDays[2][13] = {
  *  Convert a broken down time in '*timeptr' to a timestamp.
  *  The timestamp is expressed in seconds since the Unix Epoch.
  *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
- *  @return the timestamp that corresponds to the time, or
- *          -1 if the date/time in '*timeptr' is not correct.
- */
-time_t mkutc (struct tm *timeptr)
-
-  {
-    int real_year;
-    int leap_year;
-    int year_before;
-    time_t timestamp;
-
-  /* mkutc */
-    logFunction(printf("mkutc([%d, %d, %d, %d, %d, %d])\n",
-                       timeptr->tm_year, timeptr->tm_mon, timeptr->tm_mday,
-                       timeptr->tm_hour, timeptr->tm_min, timeptr->tm_sec););
-    real_year = 1900 + timeptr->tm_year;
-    if ((real_year % 4 == 0 && real_year % 100 != 0) || real_year % 400 == 0) {
-      leap_year = 1;
-    } else {
-      leap_year = 0;
-    } /* if */
-    if (unlikely(
-        real_year < STRUCT_TM_MIN_YEAR || real_year > STRUCT_TM_MAX_YEAR ||
-        timeptr->tm_mon < 0 || timeptr->tm_mon > 11 || timeptr->tm_mday < 1 ||
-        timeptr->tm_mday > monthDays[leap_year][timeptr->tm_mon] ||
-        timeptr->tm_hour < 0 || timeptr->tm_hour >= 24 ||
-        timeptr->tm_min < 0 || timeptr->tm_min >= 60 ||
-        timeptr->tm_sec < 0 || timeptr->tm_sec >= 60)) {
-      timestamp = (time_t) -1;
-    } else {
-      year_before = real_year - 1;
-      if (year_before < 0) {
-        /* Year_before is divided and truncated towards minus infinite. */
-        /* This is done with: quotient = (dividend + 1) / divisor - 1;  */
-        timestamp = (time_t) year_before * 365 +
-                    ((time_t) real_year / 4 - 1) -
-                    ((time_t) real_year / 100 - 1) +
-                    ((time_t) real_year / 400 - 1);
-      } else {
-        timestamp = (time_t) year_before * 365 +
-                    (time_t) year_before / 4 -
-                    (time_t) year_before / 100 +
-                    (time_t) year_before / 400;
-      } /* if */
-      timestamp = (((timestamp -
-                  (time_t) DAYS_FROM_0_TO_1970 +
-                  yearDays[leap_year][timeptr->tm_mon] +
-                  (time_t) timeptr->tm_mday - 1) * 24 +
-                  (time_t) timeptr->tm_hour) * 60 +
-                  (time_t) timeptr->tm_min) * 60 +
-                  (time_t) timeptr->tm_sec;
-    } /* if */
-    logFunction(printf("mkutc --> " FMT_T "\n", timestamp););
-    return timestamp;
-  } /* mkutc */
-
-
-
-/**
- *  Convert a broken down time in '*timeptr' to a timestamp.
- *  The timestamp is expressed in seconds since the Unix Epoch.
- *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
  *  The date/time in '*timeptr' is not checked for correctness.
  *  @return the timestamp that corresponds to the time.
  */
@@ -206,6 +144,7 @@ time_t unchecked_mkutc (struct tm *timeptr)
  *  Convert a timestamp into a time from the local time zone.
  *  The timestamp is expressed in seconds since the Unix Epoch.
  *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @param timestamp Unix timestamp to be converted.
  *  @return the local time that corresponds to the timestamp.
  */
 void timFromTimestamp (time_t timestamp,
@@ -290,6 +229,7 @@ void timFromTimestamp (time_t timestamp,
  *  Convert a timestamp into a time from the local time zone.
  *  The timestamp is expressed in seconds since the Unix Epoch.
  *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @param timestamp Unix timestamp to be converted.
  *  @return the local time that corresponds to the timestamp.
  */
 void timFromIntTimestamp (intType timestamp,
@@ -311,6 +251,12 @@ void timFromIntTimestamp (intType timestamp,
 
 
 
+/**
+ *  Convert a timestamp into an UTC time.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @param timestamp Unix timestamp to be converted.
+ */
 void timUtcFromTimestamp (timeStampType timestamp,
     intType *year, intType *month, intType *day,
     intType *hour, intType *minute, intType *second)
@@ -403,7 +349,8 @@ void timUtcFromTimestamp (timeStampType timestamp,
  *  Convert a time with timeZone to a timestamp.
  *  The timestamp is expressed in seconds since the Unix Epoch.
  *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
- *  @return the timestamp that corresponds to the time.
+ *  @return the timestamp that corresponds to the time, or
+ *          TIMESTAMPTYPE_MIN if a value is not in the allowed range.
  */
 timeStampType timToTimestamp (intType year, intType month, intType day,
     intType hour, intType minute, intType second, intType timeZone)
@@ -476,6 +423,13 @@ timeStampType timToTimestamp (intType year, intType month, intType day,
 
 
 #if TIME_T_SIZE != TIMESTAMPTYPE_SIZE || !TIME_T_SIGNED
+/**
+ *  Convert a time with timeZone to a timestamp.
+ *  The timestamp is expressed in seconds since the Unix Epoch.
+ *  The Unix Epoch (1970-01-01 00:00:00 UTC) corresponds to 0.
+ *  @return the timestamp that corresponds to the time, or
+ *          TIME_T_ERROR if a value is not in the allowed range.
+ */
 time_t timToOsTimestamp (intType year, intType month, intType day,
     intType hour, intType minute, intType second, intType timeZone)
 
@@ -676,6 +630,13 @@ void dateFromDaysSince1900 (int32Type daysSince1900_01_01,
 
 
 
+/**
+ *  Assign date and time from a string with the given 'isoDate'.
+ *  Possible formats for 'isoData' are "yyyy-mm-dd hh:mm:ss.uuuuuu",
+ *  "yyyy-mm-dd hh:mm:ss", "yyyy-mm-dd hh:mm", "yyyy-mm-dd hh",
+ *  "yyyy-mm-dd", "yyyy-mm", "hh:mm:ss.uuuuuu", "hh:mm:ss" and "hh:mm".
+ *  @param isoDate String with an ISO date/time.
+ */
 boolType assignTime (const_cstriType isoDate, intType *year, intType *month,
     intType *day, intType *hour, intType *minute, intType *second,
     intType *microSecond, boolType *isTime)
@@ -722,9 +683,9 @@ boolType assignTime (const_cstriType isoDate, intType *year, intType *month,
                            FMT_U ":" FMT_U ":" FMT_U ".%6s",
                            hour, minute, second, microsecStri);
       if (numAssigned >= 2) {
-        *year         = 0;
-        *month        = 1;
-        *day          = 1;
+        *year        = 0;
+        *month       = 1;
+        *day         = 1;
         *microSecond = 0;
         *isTime = TRUE;
         if (numAssigned == 4) {

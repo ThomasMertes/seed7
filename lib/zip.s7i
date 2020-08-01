@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  zip.s7i       Zip compression support library                   *)
-(*  Copyright (C) 2009, 2016, 2017  Thomas Mertes                   *)
+(*  Copyright (C) 2009, 2016, 2017, 2020  Thomas Mertes             *)
 (*                                                                  *)
 (*  This file is part of the Seed7 Runtime Library.                 *)
 (*                                                                  *)
@@ -29,11 +29,15 @@
 include "stdio.s7i";
 include "inflate.s7i";
 include "inflatefile.s7i";
+include "deflate.s7i";
+include "unicode.s7i";
 include "bytedata.s7i";
 include "bin32.s7i";
 include "time.s7i";
 include "crc32.s7i";
 include "filesys.s7i";
+include "filebits.s7i";
+include "fileutil.s7i";
 
 
 const string: ZIP_CENTRAL_HEADER_SIGNATURE           is "PK\1;\2;";
@@ -51,6 +55,9 @@ const bin32: ZIP_FILE_NAME_IS_UTF8   is bin32(16#0800);
 
 const bin32: ZIP_DATA_DESCRIPTOR_SIGNATURE_VALUE is
     bin32(bytes2Int(ZIP_DATA_DESCRIPTOR_SIGNATURE, UNSIGNED, LE));
+
+const integer: ZIP_HOST_SYSTEM_MS_DOS is 0;
+const integer: ZIP_HOST_SYSTEM_UNIX   is 3;
 
 
 const func integer: rposOfMagic (inout file: inFile, in string: magic,
@@ -97,6 +104,20 @@ const func zipExtraFieldType: getExtraFieldMap (in string: field) is func
   end func;
 
 
+const func string: extraFieldFromMap (in zipExtraFieldType: extraFieldMap) is func
+  result
+    var string: field is "";
+  local
+    var integer: id is 0;
+    var string: value is "";
+  begin
+    for id range sort(keys(extraFieldMap)) do
+      value := extraFieldMap[id];
+      field &:= int16AsTwoBytesLe(id) & int16AsTwoBytesLe(length(value)) & value;
+    end for;
+  end func;      
+
+
 const proc: writeExtraField (in string: field) is func
   local
     var integer: pos is 1;
@@ -124,10 +145,11 @@ const type: local_file_header is new struct
     var bin32:   crc_32                     is bin32(0); # 4 bytes
     var integer: compressed_size            is 0;        # 4 bytes
     var integer: uncompressed_size          is 0;        # 4 bytes
-    var integer: file_name_length           is 0;        # 2 bytes
-    var integer: extra_field_length         is 0;        # 2 bytes
+    #   integer: file_name_length           is 0;        # 2 bytes
+    #   integer: extra_field_length         is 0;        # 2 bytes
     var string:  file_name                  is "";       # variable size
     var string:  extra_field                is "";       # variable size
+    var string:  filePath is "";
     var zipExtraFieldType: extraFieldMap is zipExtraFieldType.value;
   end struct;
 
@@ -143,8 +165,8 @@ const proc: write (in local_file_header: header) is func
     writeln("crc_32: "                    rpad 45 <& header.crc_32 lpad 16);
     writeln("compressed_size: "           rpad 45 <& header.compressed_size lpad 16);
     writeln("uncompressed_size: "         rpad 45 <& header.uncompressed_size lpad 16);
-    writeln("file_name_length: "          rpad 45 <& header.file_name_length lpad 16);
-    writeln("extra_field_length: "        rpad 45 <& header.extra_field_length lpad 16);
+    writeln("file_name_length: "          rpad 45 <& length(header.file_name) lpad 16);
+    writeln("extra_field_length: "        rpad 45 <& length(header.extra_field) lpad 16);
     writeln("file_name: "                 rpad 45 <& literal(header.file_name) lpad 16);
     writeln("extra_field: "                       <& literal(header.extra_field) lpad 16);
     writeExtraField(header.extra_field);
@@ -156,6 +178,8 @@ const func local_file_header: get_local_header (inout file: inFile) is func
     var local_file_header: header is local_file_header.value;
   local
     var string: stri is "";
+    var integer: file_name_length is 0;
+    var integer: extra_field_length is 0;
   begin
     stri := gets(inFile, ZIP_LOCAL_HEADER_FIXED_SIZE);
     if length(stri) = ZIP_LOCAL_HEADER_FIXED_SIZE and
@@ -169,20 +193,52 @@ const func local_file_header: get_local_header (inout file: inFile) is func
       header.crc_32                    := bin32(bytes2Int(stri[15 len 4], UNSIGNED, LE));
       header.compressed_size                 := bytes2Int(stri[19 len 4], UNSIGNED, LE);
       header.uncompressed_size               := bytes2Int(stri[23 len 4], UNSIGNED, LE);
-      header.file_name_length                := bytes2Int(stri[27 len 2], UNSIGNED, LE);
-      header.extra_field_length              := bytes2Int(stri[29 len 2], UNSIGNED, LE);
-      header.file_name                       := gets(inFile, header.file_name_length);
-      header.extra_field                     := gets(inFile, header.extra_field_length);
+      file_name_length                       := bytes2Int(stri[27 len 2], UNSIGNED, LE);
+      extra_field_length                     := bytes2Int(stri[29 len 2], UNSIGNED, LE);
+      header.file_name                       := gets(inFile, file_name_length);
+      header.extra_field                     := gets(inFile, extra_field_length);
       header.extraFieldMap := getExtraFieldMap(header.extra_field);
       if header.general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
         block
-          header.file_name := utf8ToStri(header.file_name);
+          header.filePath := utf8ToStri(header.file_name);
         exception
-          catch RANGE_ERROR: noop;
+          catch RANGE_ERROR:
+            header.filePath := header.file_name;
         end block;
+      else
+        header.filePath := header.file_name;
+      end if;
+      if header.filePath <> "/" and endsWith(header.filePath, "/") then
+        header.filePath := header.filePath[.. pred(length(header.filePath))];
       end if;
       # write(header);
     end if;
+  end func;
+
+
+const func string: str (in local_file_header: header) is func
+  result
+    var string: stri is "";
+  begin
+    stri := ZIP_LOCAL_HEADER_SIGNATURE &
+            int16AsTwoBytesLe(header.version_needed_to_extract) &
+            int16AsTwoBytesLe(ord(header.general_purpose_bit_flag)) &
+            int16AsTwoBytesLe(header.compression_method) &
+            int16AsTwoBytesLe(header.last_mod_file_time) &
+            int16AsTwoBytesLe(header.last_mod_file_date) &
+            int32AsFourBytesLe(ord(header.crc_32)) &
+            int32AsFourBytesLe(header.compressed_size) &
+            int32AsFourBytesLe(header.uncompressed_size) &
+            int16AsTwoBytesLe(length(header.file_name)) &
+            int16AsTwoBytesLe(length(header.extra_field)) &
+            header.file_name &
+            header.extra_field;
+  end func;
+
+
+const proc: writeHead (inout file: outFile, in local_file_header: header) is func
+  begin
+    write(outFile, str(header));
   end func;
 
 
@@ -194,7 +250,7 @@ const type: end_of_central_directory is new struct
     var integer: entries_in_central_directory                 is 0;   # 2 bytes
     var integer: size_of_central_directory                    is 0;   # 4 bytes
     var integer: offset_of_start_of_central_directory         is 0;   # 4 bytes
-    var integer: file_comment_length                          is 0;   # 2 bytes
+    #   integer: file_comment_length                          is 0;     2 bytes
     var string:  file_comment                                 is "";  # variable size
   end struct;
 
@@ -208,7 +264,7 @@ const proc: write (in end_of_central_directory: endOfCentDir) is func
     writeln("entries_in_central_directory: "                rpad 45 <& endOfCentDir.entries_in_central_directory lpad 16);
     writeln("size_of_central_directory: "                   rpad 45 <& endOfCentDir.size_of_central_directory lpad 16);
     writeln("offset_of_start_of_central_directory: "        rpad 45 <& endOfCentDir.offset_of_start_of_central_directory lpad 16);
-    writeln("file_comment_length: "                         rpad 45 <& endOfCentDir.file_comment_length lpad 16);
+    writeln("file_comment_length: "                         rpad 45 <& length(endOfCentDir.file_comment) lpad 16);
     writeln("file_comment: "                                rpad 45 <& literal(endOfCentDir.file_comment) lpad 16);
   end func;
 
@@ -218,6 +274,7 @@ const func end_of_central_directory: get_end_of_central_directory (inout file: i
     var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
   local
     var string: stri is "";
+    var integer: file_comment_length is 0;
   begin
     stri := gets(inFile, ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE);
     if length(stri) = ZIP_END_OF_CENTRAL_DIRECTORY_FIXED_SIZE and
@@ -229,28 +286,46 @@ const func end_of_central_directory: get_end_of_central_directory (inout file: i
       endOfCentDir.entries_in_central_directory                := bytes2Int(stri[11 len 2], UNSIGNED, LE);
       endOfCentDir.size_of_central_directory                   := bytes2Int(stri[13 len 4], UNSIGNED, LE);
       endOfCentDir.offset_of_start_of_central_directory        := bytes2Int(stri[17 len 4], UNSIGNED, LE);
-      endOfCentDir.file_comment_length                         := bytes2Int(stri[21 len 2], UNSIGNED, LE);
-      endOfCentDir.file_comment                                := gets(inFile, endOfCentDir.file_comment_length);
+      file_comment_length                                      := bytes2Int(stri[21 len 2], UNSIGNED, LE);
+      endOfCentDir.file_comment                                := gets(inFile, file_comment_length);
+      # write(endOfCentDir);
     end if;
   end func;
 
 
-const func end_of_central_directory: read_end_of_central_directory (inout file: inFile) is func
+const func string: str (in end_of_central_directory: endOfCentDir) is func
   result
-    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
+    var string: stri is "";
+  begin
+    stri := ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE &
+            int16AsTwoBytesLe(endOfCentDir.number_of_this_disk) &
+            int16AsTwoBytesLe(endOfCentDir.disk_number_with_start_of_central_directory) &
+            int16AsTwoBytesLe(endOfCentDir.entries_in_central_directory_on_this_disk) &
+            int16AsTwoBytesLe(endOfCentDir.entries_in_central_directory) &
+            int32AsFourBytesLe(endOfCentDir.size_of_central_directory) &
+            int32AsFourBytesLe(endOfCentDir.offset_of_start_of_central_directory) &
+            int16AsTwoBytesLe(length(endOfCentDir.file_comment)) &
+            endOfCentDir.file_comment;
+  end func;
+
+
+const func end_of_central_directory: readEndOfCentralDir (inout file: inFile,
+    inout integer: endOfCentralDirPos) is func
+  result
+    var end_of_central_directory: endOfCentralDir is end_of_central_directory.value;
   local
     const integer: MIN_RECORD_LEN is 22;
     const integer: MAX_RECORD_LEN is MIN_RECORD_LEN + 2**16 - 1;
-    var integer: pos is 0;
   begin
-    pos := rposOfMagic(inFile, ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE, MIN_RECORD_LEN, MAX_RECORD_LEN);
-    if pos <> 0 then
-      seek(inFile, pos);
-      endOfCentDir := get_end_of_central_directory(inFile);
+    endOfCentralDirPos := rposOfMagic(inFile, ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE,
+                                      MIN_RECORD_LEN, MAX_RECORD_LEN);
+    if endOfCentralDirPos <> 0 then
+      seek(inFile, endOfCentralDirPos);
+      endOfCentralDir := get_end_of_central_directory(inFile);
       if tell(inFile) <> succ(length(inFile)) then
         # The end_of_central_directory record is not at the end of the file.
         # writeln("curr pos: " <& tell(inFile) <& " length: " <& length(inFile));
-        endOfCentDir := end_of_central_directory.value;
+        endOfCentralDir := end_of_central_directory.value;
       end if;
     end if;
   end func;
@@ -267,9 +342,9 @@ const type: central_file_header is new struct
     var bin32:   crc_32                          is bin32(0); # 4 bytes
     var integer: compressed_size                 is 0;        # 4 bytes
     var integer: uncompressed_size               is 0;        # 4 bytes
-    var integer: file_name_length                is 0;        # 2 bytes
-    var integer: extra_field_length              is 0;        # 2 bytes
-    var integer: file_comment_length             is 0;        # 2 bytes
+    #   integer: file_name_length                is 0;        # 2 bytes
+    #   integer: extra_field_length              is 0;        # 2 bytes
+    #   integer: file_comment_length             is 0;        # 2 bytes
     var integer: disk_number_start               is 0;        # 2 bytes
     var integer: internal_file_attributes        is 0;        # 2 bytes
     var integer: external_file_attributes        is 0;        # 4 bytes
@@ -277,6 +352,7 @@ const type: central_file_header is new struct
     var string: file_name                        is "";       # variable size
     var string: extra_field                      is "";       # variable size
     var string: file_comment                     is "";       # variable size
+    var string: filePath is "";
     var zipExtraFieldType: extraFieldMap is zipExtraFieldType.value;
   end struct;
 
@@ -293,17 +369,18 @@ const proc: write (in central_file_header: header) is func
     writeln("crc_32: "                          rpad 45 <& header.crc_32 lpad 16);
     writeln("compressed_size: "                 rpad 45 <& header.compressed_size lpad 16);
     writeln("uncompressed_size: "               rpad 45 <& header.uncompressed_size lpad 16);
-    writeln("file_name_length: "                rpad 45 <& header.file_name_length lpad 16);
-    writeln("extra_field_length: "              rpad 45 <& header.extra_field_length lpad 16);
-    writeln("file_comment_length: "             rpad 45 <& header.file_comment_length lpad 16);
+    writeln("file_name_length: "                rpad 45 <& length(header.file_name) lpad 16);
+    writeln("extra_field_length: "              rpad 45 <& length(header.extra_field) lpad 16);
+    writeln("file_comment_length: "             rpad 45 <& length(header.file_comment) lpad 16);
     writeln("disk_number_start: "               rpad 45 <& header.disk_number_start lpad 16);
     writeln("internal_file_attributes: "        rpad 45 <& header.internal_file_attributes lpad 16);
     writeln("external_file_attributes: "        rpad 45 <& header.external_file_attributes radix 16 lpad 16);
     writeln("relative_offset_of_local_header: " rpad 45 <& header.relative_offset_of_local_header lpad 16);
     writeln("file_name: "                       rpad 45 <& literal(header.file_name) lpad 16);
-    writeln("extra_field: "                             <& literal(header.extra_field) lpad 16);
+    writeln("extra_field: "                     rpad 45 <& literal(header.extra_field) lpad 16);
     writeExtraField(header.extra_field);
     writeln("file_comment: "                    rpad 45 <& literal(header.file_comment) lpad 16);
+    writeln("filePath: "                        rpad 45 <& header.filePath);
   end func;
 
 
@@ -312,6 +389,9 @@ const func central_file_header: get_central_header (inout file: inFile) is func
     var central_file_header: header is central_file_header.value;
   local
     var string: stri is "";
+    var integer: file_name_length is 0;
+    var integer: extra_field_length is 0;
+    var integer: file_comment_length is 0;
   begin
     stri := gets(inFile, ZIP_CENTRAL_HEADER_FIXED_SIZE);
     if length(stri) = ZIP_CENTRAL_HEADER_FIXED_SIZE and
@@ -326,32 +406,71 @@ const func central_file_header: get_central_header (inout file: inFile) is func
       header.crc_32                    := bin32(bytes2Int(stri[17 len 4], UNSIGNED, LE));
       header.compressed_size                 := bytes2Int(stri[21 len 4], UNSIGNED, LE);
       header.uncompressed_size               := bytes2Int(stri[25 len 4], UNSIGNED, LE);
-      header.file_name_length                := bytes2Int(stri[29 len 2], UNSIGNED, LE);
-      header.extra_field_length              := bytes2Int(stri[31 len 2], UNSIGNED, LE);
-      header.file_comment_length             := bytes2Int(stri[33 len 2], UNSIGNED, LE);
+      file_name_length                       := bytes2Int(stri[29 len 2], UNSIGNED, LE);
+      extra_field_length                     := bytes2Int(stri[31 len 2], UNSIGNED, LE);
+      file_comment_length                    := bytes2Int(stri[33 len 2], UNSIGNED, LE);
       header.disk_number_start               := bytes2Int(stri[35 len 2], UNSIGNED, LE);
       header.internal_file_attributes        := bytes2Int(stri[37 len 2], UNSIGNED, LE);
       header.external_file_attributes        := bytes2Int(stri[39 len 4], UNSIGNED, LE);
       header.relative_offset_of_local_header := bytes2Int(stri[43 len 4], UNSIGNED, LE);
-      header.file_name                       := gets(inFile, header.file_name_length);
-      header.extra_field                     := gets(inFile, header.extra_field_length);
-      header.file_comment                    := gets(inFile, header.file_comment_length);
+      header.file_name                       := gets(inFile, file_name_length);
+      header.extra_field                     := gets(inFile, extra_field_length);
+      header.file_comment                    := gets(inFile, file_comment_length);
       header.extraFieldMap := getExtraFieldMap(header.extra_field);
       if header.general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
         block
-          header.file_name := utf8ToStri(header.file_name);
+          header.filePath:= utf8ToStri(header.file_name);
         exception
-          catch RANGE_ERROR: noop;
+          catch RANGE_ERROR:
+            header.filePath := header.file_name;
         end block;
+      else
+        header.filePath := header.file_name;
       end if;
-       write(header);
+      if header.filePath <> "/" and endsWith(header.filePath, "/") then
+        header.filePath := header.filePath[.. pred(length(header.filePath))];
+      end if;
+      # write(header);
     end if;
   end func;
 
 
-const func string: get_central_header_file_name (inout file: inFile) is func
+const func string: str (in central_file_header: header) is func
   result
-    var string: file_name is "";
+    var string: stri is "";
+  begin
+    stri := ZIP_CENTRAL_HEADER_SIGNATURE &
+            int16AsTwoBytesLe(header.version_made_by) &
+            int16AsTwoBytesLe(header.version_needed_to_extract) &
+            int16AsTwoBytesLe(ord(header.general_purpose_bit_flag)) &
+            int16AsTwoBytesLe(header.compression_method) &
+            int16AsTwoBytesLe(header.last_mod_file_time) &
+            int16AsTwoBytesLe(header.last_mod_file_date) &
+            int32AsFourBytesLe(ord(header.crc_32)) &
+            int32AsFourBytesLe(header.compressed_size) &
+            int32AsFourBytesLe(header.uncompressed_size) &
+            int16AsTwoBytesLe(length(header.file_name)) &
+            int16AsTwoBytesLe(length(header.extra_field)) &
+            int16AsTwoBytesLe(length(header.file_comment)) &
+            int16AsTwoBytesLe(header.disk_number_start) &
+            int16AsTwoBytesLe(header.internal_file_attributes) &
+            int32AsFourBytesLe(header.external_file_attributes) &
+            int32AsFourBytesLe(header.relative_offset_of_local_header) &
+            header.file_name &
+            header.extra_field &
+            header.file_comment;
+  end func;
+
+
+const proc: writeHead (inout file: outFile, in central_file_header: header) is func
+  begin
+    write(outFile, str(header));
+  end func;
+
+
+const func string: getCentralHeaderFilePath (inout file: inFile) is func
+  result
+    var string: filePath is "";
   local
     var string: stri is "";
     var bin32: general_purpose_bit_flag is bin32(0);
@@ -366,20 +485,112 @@ const func string: get_central_header_file_name (inout file: inFile) is func
       file_name_length                := bytes2Int(stri[29 len 2], UNSIGNED, LE);
       extra_field_length              := bytes2Int(stri[31 len 2], UNSIGNED, LE);
       file_comment_length             := bytes2Int(stri[33 len 2], UNSIGNED, LE);
-      file_name := gets(inFile, file_name_length);
+      filePath := gets(inFile, file_name_length);
       # seek(inFile, tell(inFile) + extra_field_length + file_comment_length);
       ignore(gets(inFile, extra_field_length + file_comment_length));
       if general_purpose_bit_flag & ZIP_FILE_NAME_IS_UTF8 <> bin32(0) then
         block
-          file_name := utf8ToStri(file_name);
+          filePath := utf8ToStri(filePath);
         exception
           catch RANGE_ERROR: noop;
         end block;
       end if;
-      if file_name <> "/" and endsWith(file_name, "/") then
-        file_name := file_name[.. pred(length(file_name))];
+      if filePath <> "/" and endsWith(filePath, "/") then
+        filePath := filePath[.. pred(length(filePath))];
       end if;
     end if;
+  end func;
+
+
+const func local_file_header: toLocalHeader (in central_file_header: header) is func
+  result
+    var local_file_header: localHeader is local_file_header.value;
+  begin
+    localHeader.signature                 := ZIP_LOCAL_HEADER_SIGNATURE;
+    localHeader.version_needed_to_extract := header.version_needed_to_extract;
+    localHeader.general_purpose_bit_flag  := header.general_purpose_bit_flag;
+    localHeader.compression_method        := header.compression_method;
+    localHeader.last_mod_file_time        := header.last_mod_file_time;
+    localHeader.last_mod_file_date        := header.last_mod_file_date;
+    localHeader.crc_32                    := header.crc_32;
+    localHeader.compressed_size           := header.compressed_size;
+    localHeader.uncompressed_size         := header.uncompressed_size;
+    localHeader.file_name                 := header.file_name;
+    localHeader.extra_field               := header.extra_field;
+    # write(localHeader);
+  end func;
+
+
+const proc: updateLocalHeader (inout local_file_header: localHeader,
+    in central_file_header: header) is func
+  begin
+    localHeader.compression_method := header.compression_method;
+    localHeader.last_mod_file_time := header.last_mod_file_time;
+    localHeader.last_mod_file_date := header.last_mod_file_date;
+    localHeader.crc_32             := header.crc_32;
+    localHeader.compressed_size    := header.compressed_size;
+    localHeader.uncompressed_size  := header.uncompressed_size;
+    # write(localHeader);
+  end func;
+
+
+const proc: assignLastModFileTime (inout local_file_header: localHeader,
+    in time: modificationTime) is func
+  local
+    var integer: timestamp is 0;
+  begin
+    if 16#5455 in localHeader.extraFieldMap then
+      # Extended Timestamp Extra Field:
+      timestamp := timestamp1970(modificationTime);
+      localHeader.extraFieldMap[16#5455] @:= [2] int32AsFourBytesLe(timestamp);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    elsif 16#000d in localHeader.extraFieldMap then
+      # UNIX Extra Field
+      timestamp := timestamp1970(modificationTime);
+      localHeader.extraFieldMap[16#000d] @:= [5] int32AsFourBytesLe(timestamp);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    elsif 16#000a in localHeader.extraFieldMap then
+      # NTFS Extra Field:
+      timestamp := timestamp1601(modificationTime);
+      localHeader.extraFieldMap[16#000a] @:= [9] int64AsEightBytesLe(timestamp);
+      localHeader.extra_field := extraFieldFromMap(localHeader.extraFieldMap);
+    end if;
+    localHeader.last_mod_file_time := (modificationTime.hour << 11) +
+                                      (modificationTime.minute << 5) +
+                                      (modificationTime.second >> 1);
+    localHeader.last_mod_file_date := ((modificationTime.year - 1980) << 9) +
+                                       (modificationTime.month << 5) +
+                                        modificationTime.day;    
+  end func;
+
+
+const proc: assignLastModFileTime (inout central_file_header: header,
+    in time: modificationTime) is func
+  local
+    var integer: timestamp is 0;
+  begin
+    if 16#5455 in header.extraFieldMap then
+      # Extended Timestamp Extra Field:
+      timestamp := timestamp1970(modificationTime);
+      header.extraFieldMap[16#5455] @:= [2] int32AsFourBytesLe(timestamp);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    elsif 16#000d in header.extraFieldMap then
+      # UNIX Extra Field
+      timestamp := timestamp1970(modificationTime);
+      header.extraFieldMap[16#000d] @:= [5] int32AsFourBytesLe(timestamp);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    elsif 16#000a in header.extraFieldMap then
+      # NTFS Extra Field:
+      timestamp := timestamp1601(modificationTime);
+      header.extraFieldMap[16#000a] @:= [9] int64AsEightBytesLe(timestamp);
+      header.extra_field := extraFieldFromMap(header.extraFieldMap);
+    end if;
+    header.last_mod_file_time := (modificationTime.hour << 11) +
+                                 (modificationTime.minute << 5) +
+                                 (modificationTime.second >> 1);
+    header.last_mod_file_date := ((modificationTime.year - 1980) << 9) +
+                                  (modificationTime.month << 5) +
+                                   modificationTime.day;    
   end func;
 
 
@@ -397,6 +608,9 @@ const type: zipArchive is sub emptyFileSys struct
     var file: zipFile is STD_NULL;
     var zipRegisterType: register is zipRegisterType.value;
     var zipCatalogType: catalog is zipCatalogType.value;
+    var end_of_central_directory: endOfCentralDir is end_of_central_directory.value;
+    var integer: endOfCentralDirPos is 1;
+    var integer: startOfCentralDirPos is 1;
   end struct;
 
 
@@ -409,24 +623,32 @@ const func fileSys: openZip (inout file: zipFile) is func
   result
     var fileSys: newFileSys is fileSys.value;
   local
-    var end_of_central_directory: endOfCentDir is end_of_central_directory.value;
-    var string: filePath is "";
+    var end_of_central_directory: endOfCentralDir is end_of_central_directory.value;
+    var integer: endOfCentralDirPos is 0;
     var integer: centralHeaderPos is 0;
+    var string: filePath is "";
     var zipArchive: zip is zipArchive.value;
   begin
-    if zipFile <> STD_NULL then
-      endOfCentDir := read_end_of_central_directory(zipFile);
-      if endOfCentDir.signature = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
+    if length(zipFile) = 0 then
+      zip.zipFile := zipFile;
+      zip.endOfCentralDir.signature := ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE;
+      newFileSys := toInterface(zip);
+    else
+      endOfCentralDir := readEndOfCentralDir(zipFile, endOfCentralDirPos);
+      if endOfCentralDir.signature = ZIP_END_OF_CENTRAL_DIRECTORY_SIGNATURE then
         zip.zipFile := zipFile;
-        # write(endOfCentDir);
-        centralHeaderPos := succ(endOfCentDir.offset_of_start_of_central_directory);
+        zip.endOfCentralDir := endOfCentralDir;
+        zip.endOfCentralDirPos := endOfCentralDirPos;
+        zip.startOfCentralDirPos := succ(endOfCentralDir.offset_of_start_of_central_directory);
+        # writeln("startOfCentralDirPos: " <& zip.startOfCentralDirPos);
+        centralHeaderPos := zip.startOfCentralDirPos;
         seek(zip.zipFile, centralHeaderPos);
-        filePath := get_central_header_file_name(zip.zipFile);
+        filePath := getCentralHeaderFilePath(zip.zipFile);
         while filePath <> "" do
           # writeln(filePath <& " " <& centralHeaderPos);
           zip.register @:= [filePath] centralHeaderPos;
           centralHeaderPos := tell(zip.zipFile);
-          filePath := get_central_header_file_name(zip.zipFile);
+          filePath := getCentralHeaderFilePath(zip.zipFile);
         end while;
         newFileSys := toInterface(zip);
       end if;
@@ -460,6 +682,16 @@ const proc: close (inout zipArchive: zip) is func
   end func;
 
 
+const func central_file_header: addToCatalog (inout zipArchive: zip, in string: filePath) is func
+  result
+    var central_file_header: header is central_file_header.value;
+  begin
+    seek(zip.zipFile, zip.register[filePath]);
+    header := get_central_header(zip.zipFile);
+    zip.catalog @:= [filePath] header;
+  end func;
+
+
 const func boolean: implicitDir (inout zipArchive: zip, in string: dirPath) is func
   result
     var boolean: implicitDir is FALSE;
@@ -484,8 +716,36 @@ const func central_file_header: addImplicitDir (inout zipArchive: zip,
     var central_file_header: header is central_file_header.value;
   begin
     header.file_name := dirPath & "/";
+    header.filePath := dirPath;
     header.relative_offset_of_local_header := -1;
     zip.catalog @:= [dirPath] header;
+  end func;
+
+
+const proc: fixRegisterAndCatalog (inout zipArchive: zip, in integer: insertPos,
+    in integer: numChars) is func
+  local
+    var integer: headerPos is 1;
+    var string: filePath is "";
+  begin
+    for key filePath range zip.register do
+      if zip.register[filePath] >= insertPos then
+        zip.register[filePath] +:= numChars;
+      end if;
+    end for;
+    for key filePath range zip.catalog do
+      if zip.catalog[filePath].relative_offset_of_local_header >= insertPos then
+        zip.catalog[filePath].relative_offset_of_local_header +:= numChars;
+        seek(zip.zipFile, zip.register[filePath]);
+        writeHead(zip.zipFile, zip.catalog[filePath]);
+      end if;
+    end for;
+    if zip.startOfCentralDirPos >= insertPos then
+      zip.startOfCentralDirPos +:= numChars;
+    end if;
+    if zip.endOfCentralDirPos >= insertPos then
+      zip.endOfCentralDirPos +:= numChars;
+    end if;
   end func;
 
 
@@ -577,9 +837,7 @@ const func fileType: fileType (inout zipArchive: zip, in string: filePath) is fu
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
       elsif filePath in zip.register then
-        seek(zip.zipFile, zip.register[filePath]);
-        header := get_central_header(zip.zipFile);
-        zip.catalog @:= [filePath] header;
+        header := addToCatalog(zip, filePath);
       elsif implicitDir(zip, filePath) then
         header := addImplicitDir(zip, filePath);
       else
@@ -618,9 +876,7 @@ const func fileType: fileTypeSL (inout zipArchive: zip, in string: filePath) is 
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
       elsif filePath in zip.register then
-        seek(zip.zipFile, zip.register[filePath]);
-        header := get_central_header(zip.zipFile);
-        zip.catalog @:= [filePath] header;
+        header := addToCatalog(zip, filePath);
       elsif implicitDir(zip, filePath) then
         header := addImplicitDir(zip, filePath);
       else
@@ -648,8 +904,6 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
   result
     var fileMode: mode is fileMode.value;
   local
-    const integer: HOST_SYSTEM_MS_DOS is 0;
-    const integer: HOST_SYSTEM_UNIX   is 3;
     const bin32: FAT_READ_ONLY    is bin32(16#01);
     const bin32: FAT_HIDDEN       is bin32(16#02);
     const bin32: FAT_SYSTEM       is bin32(16#04);
@@ -658,7 +912,6 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
     const bin32: FAT_ARCHIVE      is bin32(16#20);
     const bin32: FAT_DEVICE       is bin32(16#40);
     var central_file_header: header is central_file_header.value;
-    var local_file_header: localHeader is local_file_header.value;
     var string: extension is "";
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -667,16 +920,14 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
       elsif filePath in zip.register then
-        seek(zip.zipFile, zip.register[filePath]);
-        header := get_central_header(zip.zipFile);
-        zip.catalog @:= [filePath] header;
+        header := addToCatalog(zip, filePath);
       elsif implicitDir(zip, filePath) then
         header := addImplicitDir(zip, filePath);
       else
         raise FILE_ERROR;
       end if;
       case header.version_made_by >> 8 of
-        when {HOST_SYSTEM_MS_DOS}:
+        when {ZIP_HOST_SYSTEM_MS_DOS}:
           mode := {READ_USER, READ_GROUP, READ_OTHER};
           if bin32(header.external_file_attributes) & FAT_READ_ONLY = bin32(0) then
             mode |:= {WRITE_USER, WRITE_GROUP, WRITE_OTHER};
@@ -688,7 +939,7 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
           if extension in {".bat", ".cmd", ".com", ".exe"} then
             mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
           end if;
-        when {HOST_SYSTEM_UNIX}:
+        when {ZIP_HOST_SYSTEM_UNIX}:
           # The unix mode is in the high 16 bits of the attributes.
           mode := fileMode conv (header.external_file_attributes >> 16);
         otherwise:
@@ -698,6 +949,38 @@ const func fileMode: fileMode (inout zipArchive: zip, in string: filePath) is fu
             mode |:= {EXEC_USER, EXEC_GROUP, EXEC_OTHER};
           end if;
       end case;
+    end if;
+  end func;
+
+
+(**
+ *  Change the file mode (permissions) of a file in an ZIP archive.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive.
+ *)
+const proc: setFileMode (inout zipArchive: zip, in string: filePath,
+    in fileMode: mode) is func
+  local
+    var central_file_header: header is central_file_header.value;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        header := addToCatalog(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      header.external_file_attributes :=
+          header.external_file_attributes mod 8#200000 + (integer(mode) << 16);
+      zip.catalog @:= [filePath] header;
+      seek(zip.zipFile, zip.register[filePath]);
+      writeHead(zip.zipFile, header);
     end if;
   end func;
 
@@ -719,19 +1002,14 @@ const func integer: fileSize (inout zipArchive: zip, in string: filePath) is fun
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
+    elsif filePath in zip.catalog then
+      size := zip.catalog[filePath].uncompressed_size;
+    elsif filePath in zip.register then
+      size := addToCatalog(zip, filePath).uncompressed_size;
+    elsif implicitDir(zip, filePath) then
+      size := addImplicitDir(zip, filePath).uncompressed_size;
     else
-      if filePath in zip.catalog then
-        size := zip.catalog[filePath].uncompressed_size;
-      elsif filePath in zip.register then
-        seek(zip.zipFile, zip.register[filePath]);
-        header := get_central_header(zip.zipFile);
-        size := header.uncompressed_size;
-        zip.catalog @:= [filePath] header;
-      elsif implicitDir(zip, filePath) then
-        header := addImplicitDir(zip, filePath);
-      else
-        raise FILE_ERROR;
-      end if;
+      raise FILE_ERROR;
     end if;
   end func;
 
@@ -756,9 +1034,7 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
       if filePath in zip.catalog then
         header := zip.catalog[filePath];
       elsif filePath in zip.register then
-        seek(zip.zipFile, zip.register[filePath]);
-        header := get_central_header(zip.zipFile);
-        zip.catalog @:= [filePath] header;
+        header := addToCatalog(zip, filePath);
       elsif implicitDir(zip, filePath) then
         header := addImplicitDir(zip, filePath);
       else
@@ -790,6 +1066,46 @@ const func time: getMTime (inout zipArchive: zip, in string: filePath) is func
 
 
 (**
+ *  Set the modification time of a file in an ZIP archive.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
+ *             converted to the system file time.
+ *  @exception FILE_ERROR ''filePath'' is not present in the ZIP archive.
+ *)
+const proc: setMTime (inout zipArchive: zip, in string: filePath,
+    in time: modificationTime) is func
+  local
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+    var integer: timestamp is 0;
+  begin
+    if filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    else
+      if filePath in zip.catalog then
+        header := zip.catalog[filePath];
+      elsif filePath in zip.register then
+        header := addToCatalog(zip, filePath);
+      elsif implicitDir(zip, filePath) then
+        header := addImplicitDir(zip, filePath);
+      else
+        raise FILE_ERROR;
+      end if;
+      assignLastModFileTime(header, modificationTime);
+      zip.catalog @:= [filePath] header;
+      seek(zip.zipFile, zip.register[filePath]);
+      writeHead(zip.zipFile, header);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      localHeader := get_local_header(zip.zipFile);
+      assignLastModFileTime(header, modificationTime);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      writeHead(zip.zipFile, localHeader);
+    end if;
+  end func;
+
+
+(**
  *  Get the contents of a file in a ZIP archive.
  *  @return the specified file as string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
@@ -807,19 +1123,13 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
+    elsif filePath in zip.catalog then
+      localHeaderPos := succ(zip.catalog[filePath].relative_offset_of_local_header);
+    elsif filePath in zip.register then
+      header := addToCatalog(zip, filePath);
+      localHeaderPos := succ(header.relative_offset_of_local_header);
     else
-      if filePath in zip.catalog then
-        localHeaderPos := succ(zip.catalog[filePath].relative_offset_of_local_header);
-      elsif filePath in zip.register then
-        seek(zip.zipFile, zip.register[filePath]);
-        header := get_central_header(zip.zipFile);
-        localHeaderPos := succ(header.relative_offset_of_local_header);
-        zip.catalog @:= [filePath] header;
-      elsif implicitDir(zip, filePath) then
-        header := addImplicitDir(zip, filePath);
-      else
-        raise FILE_ERROR;
-      end if;
+      raise FILE_ERROR;
     end if;
     if localHeaderPos <> 0 then
       seek(zip.zipFile, localHeaderPos);
@@ -845,6 +1155,9 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
           fileData := gets(zip.zipFile, localHeader.compressed_size);
           fileData := inflate(fileData);
         end if;
+      else
+        # writeln("unsupported compression method: " <& localHeader.compression_method);
+        raise FILE_ERROR;
       end if;
       if localHeader.uncompressed_size <> length(fileData) or
           localHeader.crc_32 <> crc32(fileData) then
@@ -855,6 +1168,123 @@ const func string: getFile (inout zipArchive: zip, in string: filePath) is func
         # write(localHeader);
         raise FILE_ERROR;
       end if;
+    end if;
+  end func;
+
+
+(**
+ *  Write ''data'' to a ZIP archive with the given ''filePath''.
+ *  If the file exists already, it is overwritten.
+ *  @exception RANGE_ERROR ''filePath'' does not use the standard path
+ *             representation.
+ *)
+const proc: putFile (inout zipArchive: zip, in string: filePath,
+    in string: data) is func
+  local
+    var central_file_header: header is central_file_header.value;
+    var local_file_header: localHeader is local_file_header.value;
+    var boolean: fileExists is TRUE;
+    var time: modificationTime is time.value;
+    var integer: oldSize is 0;
+    var integer: newSize is 0;
+    var integer: localHeaderPos is 0;
+    var string: filePath8 is "";
+    var string: compressed is "";
+    var integer: roomForNewFile is 0;
+  begin
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
+      raise RANGE_ERROR;
+    elsif filePath in zip.catalog then
+      header := zip.catalog[filePath];
+    elsif filePath in zip.register then
+      header := addToCatalog(zip, filePath);
+    elsif implicitDir(zip, filePath) then
+      raise FILE_ERROR;
+    else
+      fileExists := FALSE;
+    end if;
+    compressed := deflate(data);
+    oldSize := header.compressed_size;
+    modificationTime := time(NOW);
+    assignLastModFileTime(header, modificationTime);
+    header.crc_32 := crc32(data);
+    header.uncompressed_size := length(data);
+    if length(compressed) >= length(data) then
+      header.compression_method := 0;
+      header.compressed_size := length(data);
+      compressed := data;
+    else
+      header.compression_method := 8;
+      header.compressed_size := length(compressed);
+    end if;
+    if fileExists then
+      if endsWith(header.file_name, "/") then
+        raise FILE_ERROR;
+      else
+        localHeaderPos := succ(header.relative_offset_of_local_header);
+        seek(zip.zipFile, localHeaderPos);
+        localHeader := get_local_header(zip.zipFile);
+        newSize := header.compressed_size;
+        # writeln("oldSize: " <& oldSize);
+        # writeln("newSize: " <& newSize);
+        if newSize > oldSize then
+          insertArea(zip.zipFile, localHeaderPos, newSize - oldSize);
+          fixRegisterAndCatalog(zip, localHeaderPos, newSize - oldSize);
+        elsif newSize < oldSize then
+          deleteArea(zip.zipFile, localHeaderPos, oldSize - newSize);
+          fixRegisterAndCatalog(zip, localHeaderPos + (oldSize - newSize),
+                                newSize - oldSize);
+        end if;
+        # Local header and file data are rewritten in place.
+        updateLocalHeader(localHeader, header);
+        assignLastModFileTime(localHeader, modificationTime);
+        seek(zip.zipFile, localHeaderPos);
+        writeHead(zip.zipFile, localHeader);
+        write(zip.zipFile, compressed);
+        zip.catalog @:= [filePath] header;
+        seek(zip.zipFile, zip.register[filePath]);
+        writeHead(zip.zipFile, header);
+        zip.endOfCentralDir.offset_of_start_of_central_directory := pred(zip.startOfCentralDirPos);
+        seek(zip.zipFile, zip.endOfCentralDirPos);
+        write(zip.zipFile, str(zip.endOfCentralDir));
+        flush(zip.zipFile);
+      end if;
+    else
+      filePath8 := striToUtf8(filePath);
+      header.signature := ZIP_CENTRAL_HEADER_SIGNATURE;
+      header.version_made_by            := (ZIP_HOST_SYSTEM_UNIX << 8) + 16#1e;
+      header.version_needed_to_extract  := 10;
+      if filePath8 <> filePath then
+        header.general_purpose_bit_flag := ZIP_FILE_NAME_IS_UTF8;
+      else
+        header.general_purpose_bit_flag := bin32(0);
+      end if;
+      header.disk_number_start          := 0;
+      header.internal_file_attributes   := 0;
+      # The unix mode is in the high 16 bits of the attributes.
+      header.external_file_attributes   := (ord(MODE_FILE_REGULAR) + 8#664) << 16;
+      header.file_name                  := filePath8;
+      header.extra_field                := "";
+      header.file_comment               := "";
+      header.relative_offset_of_local_header := pred(zip.startOfCentralDirPos);
+      roomForNewFile := ZIP_LOCAL_HEADER_FIXED_SIZE + length(header.file_name) +
+          length(header.extra_field) + header.compressed_size;
+      insertArea(zip.zipFile, zip.startOfCentralDirPos, roomForNewFile);
+      fixRegisterAndCatalog(zip, zip.startOfCentralDirPos, roomForNewFile);
+      localHeader := toLocalHeader(header);
+      seek(zip.zipFile, succ(header.relative_offset_of_local_header));
+      writeHead(zip.zipFile, localHeader);
+      write(zip.zipFile, compressed);
+      seek(zip.zipFile, zip.endOfCentralDirPos);
+      zip.register @:= [filePath] zip.endOfCentralDirPos;
+      writeHead(zip.zipFile, header);
+      zip.catalog @:= [filePath] header;
+      zip.endOfCentralDirPos := tell(zip.zipFile);
+      incr(zip.endOfCentralDir.entries_in_central_directory_on_this_disk);
+      incr(zip.endOfCentralDir.entries_in_central_directory);
+      zip.endOfCentralDir.size_of_central_directory := zip.endOfCentralDirPos - zip.startOfCentralDirPos;
+      zip.endOfCentralDir.offset_of_start_of_central_directory := pred(zip.startOfCentralDirPos);
+      write(zip.zipFile, str(zip.endOfCentralDir));
     end if;
   end func;
 

@@ -30,7 +30,6 @@ COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(DATABASE_LIB) ..\bin\$(SEED7_LIB)
 # CC = g++
 CC = gcc
-GET_CC_VERSION_INFO = $(CC) --version >
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -120,6 +119,8 @@ clean:
 	del ..\prg\s7c.exe
 	del depend
 	del chkccomp.h
+	del base.h
+	del settings.h
 	del version.h
 	echo Use 'make depend' (with your make command) to create the dependencies.
 
@@ -138,41 +139,45 @@ strip:
 chkccomp.h:
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 
-version.h: chkccomp.h
-	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ > version.h
-	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define AWAIT_WITH_SELECT >> version.h
-	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
-	echo #define OS_STRI_USES_CODE_PAGE >> version.h
-	echo #define MAP_LONG_FILE_NAMES_TO_SHORT >> version.h
-	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> version.h
-	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
-	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
-	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
-	echo #define C_COMPILER "$(CC)" >> version.h
-	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> version.h
-	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
-	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
-	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
-	echo #define CC_ERROR_FILDES 0 >> version.h
-	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
-	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
-	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
-	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
-	$(GET_CC_VERSION_INFO) cc_vers.txt
+base.h:
+	echo #define PATH_DELIMITER 92 /* backslash (ASCII) */ > base.h
+	echo #define OBJECT_FILE_EXTENSION ".o" >> base.h
+	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> base.h
+	echo #define C_COMPILER "$(CC)" >> base.h
+	echo #define CC_OPT_VERSION_INFO "--version" >> base.h
+	echo #define CC_FLAGS "" >> base.h
+	echo #define CC_ERROR_FILEDES 0 >> base.h
+	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
+	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
+	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
+
+settings.h:
+	echo #define SEARCH_PATH_DELIMITER ';' > settings.h
+	echo #define AWAIT_WITH_SELECT >> settings.h
+	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> settings.h
+	echo #define OS_STRI_USES_CODE_PAGE >> settings.h
+	echo #define MAP_LONG_FILE_NAMES_TO_SHORT >> settings.h
+	echo #define USE_CONSOLE_FOR_PROT_CSTRI >> settings.h
+	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
+	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> settings.h
+	echo #define CC_OPT_DEBUG_INFO "-g" >> settings.h
+	echo #define CC_OPT_NO_WARNINGS "-w" >> settings.h
+	echo #define LINKER_FLAGS "$(LDFLAGS)" >> settings.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
+	echo #define SEED7_LIB "$(SEED7_LIB)" >> settings.h
+	echo #define DRAW_LIB "$(DRAW_LIB)" >> settings.h
+	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> settings.h
+	echo #define DATABASE_LIB "$(DATABASE_LIB)" >> settings.h
+	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> settings.h
+	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
+	echo #define STACK_SIZE_DEFINITION unsigned _stklen = 4194304 >> settings.h
+
+version.h: chkccomp.h base.h settings.h
 	$(CC) chkccomp.c -o chkccomp.exe
 	echo The following C compiler errors can be safely ignored
 	.\chkccomp.exe version.h
 	del chkccomp.exe
-	del cc_vers.txt
-	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
-	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
-	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
-	echo #define DATABASE_LIB "$(DATABASE_LIB)" >> version.h
-	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
-	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
-	echo #define STACK_SIZE_DEFINITION unsigned _stklen = 4194304 >> version.h
 	$(CC) setpaths.c -o setpaths.exe
 	.\setpaths.exe S7_LIB_DIR=$(S7_LIB_DIR) SEED7_LIBRARY=$(SEED7_LIBRARY) >> version.h
 	del setpaths.exe

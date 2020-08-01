@@ -164,12 +164,12 @@ const proc: bossMode (inout boolean: doQuit) is func
     writeln(txt, "MODES OF OPERATION IN PROGRAMS");
     writeln(txt);
     writeln(txt, "Sometimes it is necessary that programs support different modes of operation.");
-    writeln(txt, "It can be necessary to switch between this modes to enhance the workflow.");
+    writeln(txt, "It can be necessary to switch between these modes to enhance the workflow.");
     writeln(txt, "There are several possibilitys to implement such a switch.");
     writeln(txt);
     writeln(txt, "1. The use of several windows. In this case the user just switches to another");
     writeln(txt, "   active window to get another view.");
-    writeln(txt, "2. The use of function keys. In this case function keys allow to switch the");
+    writeln(txt, "2. The use of function keys. In this case function keys allow to change the");
     writeln(txt, "   operating mode.");
     writeln(txt);
     writeln(txt, "The current mode of operation must be explained as well.");

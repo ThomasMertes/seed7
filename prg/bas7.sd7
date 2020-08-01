@@ -34,18 +34,18 @@
 (*  GOSUB OF, GOTO, GOTO OF, GR, HEX$, HGR, HOME, HPLOT, HTAB,      *)
 (*  IF THEN, IF GOSUB, IF GOTO, INCR, INKEY$, **INP, INPUT, INPUT#, *)
 (*  INPUT$, INSTR, INT, **INVERSE, **KEY, LBOUND, LCASE$, LEFT$,    *)
-(*  LEN, LET, LINE INPUT, LINE INPUT#, LOCATE, LOF, LOG, LOOP,      *)
-(*  LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKD$, MKDMBF$,      *)
-(*  MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, OCT$, ON ERROR,      *)
-(*  ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN, OPTION BASE,     *)
-(*  **OUT, **PAINT, **PALETTE, **PEEK, **PLAY, PLOT, **POINT,       *)
-(*  **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING, **PR#, PSET,   *)
-(*  PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET, RESTORE, RESUME, *)
-(*  RETURN, RIGHT$, RND, RSET, RTRIM$, **RUN, SCREEN, SEEK#, SEG$,  *)
-(*  SELECT, SGN, SIN, SLEEP, **SOUND, SPACE$, SPC, SQR, STOP, STR$, *)
-(*  **STRIG, STRING$, **SUB, SWAP, SYSTEM, TAB, TAN, TEXT, TIME$,   *)
-(*  TIMER, **TYPE, UBOUND, UCASE$, VAL, VTAB, WEND, WHILE, WRITE,   *)
-(*  WRITE#                                                          *)
+(*  LEN, LET, LINE INPUT, LINE INPUT#, LINPUT, LINPUT# LOCATE, LOF, *)
+(*  LOG, LOOP, LOOP UNTIL, LOOP WHILE, LSET, LTRIM$, MID$, MKD$,    *)
+(*  MKDMBF$, MKI$, MKL$, MKS$, MKSMBF$, NEXT, **NORMAL, OCT$,       *)
+(*  ON ERROR, ON GOSUB, ON GOTO, **ON KEY, **ON TIMER, OPEN,        *)
+(*  OPTION BASE, **OUT, **PAINT, **PALETTE, **PEEK, **PLAY, PLOT,   *)
+(*  **POINT, **POKE, POS, PRESET, PRINT, PRINT#, PRINT USING,       *)
+(*  **PR#, PSET, PUT, PUT#, RANDOMIZE, READ, REDIM, REM, RESET,     *)
+(*  RESTORE, RESUME, RETURN, RIGHT$, RND, RPT$, RSET, RTRIM$,       *)
+(*  **RUN, SCREEN, SEEK#, SEG$, SELECT, SGN, SIN, SLEEP, **SOUND,   *)
+(*  SPACE$, SPC, SQR, STOP, STR$, **STRIG, STRING$, **SUB, SWAP,    *)
+(*  SYSTEM, TAB, TAN, TEXT, TIME$, TIMER, **TYPE, UBOUND, UCASE$,   *)
+(*  VAL, VTAB, WEND, WHILE, WRITE, WRITE#                           *)
 (*                                                                  *)
 (********************************************************************)
 
@@ -551,7 +551,7 @@ const func string: get_symbol (inout string: line) is func
           symbol := line[start .. pred(index)];
           line := line[succ(index) .. ];
         when {'<'}:
-          (* Sometimes <> or <= are written as < > or < =  *)
+          # Sometimes <> or <= are written as < > or < =
           repeat
             incr(index);
             if index <= leng then
@@ -571,7 +571,7 @@ const func string: get_symbol (inout string: line) is func
           end if;
           line := line[index .. ];
         when {'>'}:
-          (* Sometimes >= is written as > =  *)
+          # Sometimes >= is written as > =
           repeat
             incr(index);
             if index <= leng then
@@ -584,7 +584,7 @@ const func string: get_symbol (inout string: line) is func
             incr(index);
             symbol := ">=";
           elsif ch = '<' then
-            (* Sometimes <> is written as >< or > <  *)
+            # Sometimes <> is written as >< or > <
             incr(index);
             symbol := "<>";
           else
@@ -601,11 +601,11 @@ const func string: get_symbol (inout string: line) is func
             end if;
           until ch <> ' ' and ch <> '\t';
           if ch = '<' then
-            (* Sometimes <= is written as =< or = <  *)
+            # Sometimes <= is written as =< or = <
             incr(index);
             symbol := "<=";
           elsif ch = '>' then
-            (* Sometimes >= is written as => or = >  *)
+            # Sometimes >= is written as => or = >
             incr(index);
             symbol := ">=";
           else
@@ -2021,6 +2021,16 @@ const func string: exec_str_primary (
         exprResult := stri1[length(stri1) - round(num1) + 1 .. ];
         writeln(log, "RIGHT$(" <& literal(stri1) <& ", " <& num1 <&
             ") -> " <& literal(exprResult));
+      when {"RPT$"}:
+        symbol := get_symbol(line);
+        expect("(", symbol, line);
+        stri1 := exec_str_expr(symbol, line, unused_name);
+        expect(",", symbol, line);
+        num1 := exec_expr(symbol, line);
+        expect(")", symbol, line);
+        exprResult := stri1 mult round(num1);
+        writeln(log, "RPT$(" <& literal(stri1) <& ", " <& num1 <&
+            ") -> " <& literal(exprResult));
       when {"RTRIM$"}:
         symbol := get_symbol(line);
         expect("(", symbol, line);
@@ -2172,12 +2182,12 @@ const func string: exec_str_expr (
     var string: stri is "";
   begin
     exprResult := exec_str_primary(symbol, line, variable_name);
-    while symbol = "+" do
+    while symbol = "+" or symbol = "&" do
       variable_name := "";
       op := symbol;
       symbol := get_symbol(line);
       stri := exec_str_primary(symbol, line, unused_name);
-      if op = "+" then
+      if op = "+" or op = "&" then
          exprResult &:= stri;
       end if;
     end while;
@@ -4881,6 +4891,21 @@ const proc: exec_select (inout string: symbol, inout string: line) is func
   end func;
 
 
+const func boolean: continueWithPrintStatement (in var string: line) is func
+  result
+    var boolean: continueWithPrintStatement is FALSE;
+  local
+    var string: symbol is "";
+  begin
+    repeat
+      symbol := get_symbol(line);
+    until symbol <> ":";
+    if symbol = "" or symbol[1] = '\"' or symbol = "TAB" then
+      continueWithPrintStatement := TRUE;
+    end if;
+  end func;
+
+
 const proc: exec_print_using (inout file: outFile,
     inout string: symbol, inout string: line) is func
   local
@@ -5062,12 +5087,28 @@ const proc: exec_print_using (inout file: outFile,
         end while;
         if endOfStatement(symbol) then
           writeln(outFile);
+          if symbol = ":" then
+            # A colon can be a statement separator or it encodes a line break.
+            if continueWithPrintStatement(line) then
+              # The PRINT statement continues after the line break (:).
+              symbol := get_symbol(line);
+              write(log, ":");
+              while symbol = ":" do
+                writeln(win);
+                symbol := get_symbol(line);
+                write(log, ":");
+              end while;
+            else
+              # After the statement separator (:) comes the next statement.
+              symbol := ":";
+            end if;
+          end if;
         elsif symbol = ";" then
           symbol := get_symbol(line);
         elsif symbol = "," then
           symbol := get_symbol(line);
         else
-          (* This is the next thing to be printed *)
+          # This is the next thing to be printed.
           if implicit_semicolon_pos <> length(line) then
             implicit_semicolon_pos := length(line);
             write(log, " (;) ");
@@ -5093,70 +5134,82 @@ const proc: exec_print (inout string: symbol, inout string: line) is func
   begin
     line_marker;
     write(log, "PRINT ");
-    if endOfStatement(symbol) then
-      writeln(win);
-    else
-      repeat
-        if isStringExpr(symbol) then
-          param1 := exec_str_expr(symbol, line, unused_name);
-          write(win, param1);
-          write(log, literal(param1));
-        elsif symbol = "TAB" then
-          symbol := get_symbol(line);
-          expect("(", symbol, line);
-          num1 := exec_expr(symbol, line);
-          expect(")", symbol, line);
-          if column(win) < round(num1) then
-            write(win, "" rpad round(num1) - column(win));
-          end if;
-          write(log, "TAB(" <& round(num1) <& ")");
-        elsif symbol = "SPC" then
-          symbol := get_symbol(line);
-          expect("(", symbol, line);
-          num1 := exec_expr(symbol, line);
-          expect(")", symbol, line);
-          write(win, "" rpad round(num1));
-          write(log, "SPC(" <& round(num1) <& ")");
-        elsif symbol = "USING" then
-          exec_print_using(win, symbol, line);
-        elsif symbol <> ";" and symbol <> "," then
+    repeat
+      if isStringExpr(symbol) then
+        param1 := exec_str_expr(symbol, line, unused_name);
+        write(win, param1);
+        write(log, literal(param1));
+      elsif symbol = "TAB" then
+        symbol := get_symbol(line);
+        expect("(", symbol, line);
+        num1 := exec_expr(symbol, line);
+        expect(")", symbol, line);
+        if column(win) < round(num1) then
+          write(win, "" rpad round(num1) - column(win));
+        end if;
+        write(log, "TAB(" <& round(num1) <& ")");
+      elsif symbol = "SPC" then
+        symbol := get_symbol(line);
+        expect("(", symbol, line);
+        num1 := exec_expr(symbol, line);
+        expect(")", symbol, line);
+        write(win, "" rpad round(num1));
+        write(log, "SPC(" <& round(num1) <& ")");
+      elsif symbol = "USING" then
+        exec_print_using(win, symbol, line);
+      elsif symbol <> ";" and symbol <> "," and not endOfStatement(symbol) then
+        write(win, " ");
+        write(log, " ");
+        num1 := exec_expr(symbol, line);
+        param1 := str(num1);
+        if param1[length(param1) - 1 .. ] = ".0" then
+          param1 := param1[ .. length(param1) - 2];
+        end if;
+        write(win, param1);
+        write(log, num1);
+        if not endOfStatement(symbol) then
           write(win, " ");
           write(log, " ");
-          num1 := exec_expr(symbol, line);
-          param1 := str(num1);
-          if param1[length(param1) - 1 .. ] = ".0" then
-            param1 := param1[ .. length(param1) - 2];
-          end if;
-          write(win, param1);
-          write(log, num1);
-          if not endOfStatement(symbol) then
-            write(win, " ");
-            write(log, " ");
-          end if;
         end if;
-        if endOfStatement(symbol) then
-          writeln(win);
-        elsif symbol = ";" then
-          symbol := get_symbol(line);
-          write(log, "; ");
-        elsif symbol = "," then
-          symbol := get_symbol(line);
-          write(win, "" rpad 15 - column(win) rem 14);
-          write(log, ", ");
-        else
-          (* This is the next thing to be printed *)
-          if implicit_semicolon_pos <> length(line) then
-            implicit_semicolon_pos := length(line);
-            write(log, " (;) ");
-          else
-            writeln(log);
-            error_marker;
-            writeln(err, "IGNORE " <& literal(symbol));
+      end if;
+      if endOfStatement(symbol) then
+        writeln(win);
+        if symbol = ":" then
+          # A colon can be a statement separator or it encodes a line break.
+          if continueWithPrintStatement(line) then
+            # The PRINT statement continues after the line break (:).
             symbol := get_symbol(line);
+            write(log, ":");
+            while symbol = ":" do
+              writeln(win);
+              symbol := get_symbol(line);
+              write(log, ":");
+            end while;
+          else
+            # After the statement separator (:) comes the next statement.
+            symbol := ":";
           end if;
         end if;
-      until endOfStatement(symbol);
-    end if;
+      elsif symbol = ";" then
+        symbol := get_symbol(line);
+        write(log, "; ");
+      elsif symbol = "," then
+        symbol := get_symbol(line);
+        write(win, "" rpad 15 - column(win) rem 14);
+        write(log, ", ");
+      else
+        # This is the next thing to be printed.
+        if implicit_semicolon_pos <> length(line) then
+          implicit_semicolon_pos := length(line);
+          write(log, " (;) ");
+        else
+          writeln(log);
+          error_marker;
+          writeln(err, "IGNORE " <& literal(symbol));
+          symbol := get_symbol(line);
+        end if;
+      end if;
+    until endOfStatement(symbol);
     flush(win);
     writeln(log);
   end func;
@@ -5217,7 +5270,7 @@ const proc: exec_print (inout file: outFile,
           write(outFile, "  ");
           write(log, ", ");
         else
-          (* This is the next thing to be printed *)
+          # This is the next thing to be printed.
           if implicit_semicolon_pos <> length(line) then
             implicit_semicolon_pos := length(line);
             write(log, " (;) ");
@@ -5387,7 +5440,7 @@ const proc: exec_read (inout string: symbol, inout string: line) is func
         data_elem := trim(get_data_field(symbol, line));
         if not in_error_handler then
           if data_elem = "" then
-            (* Empty DATA fields can be read as 0.0 *)
+            # Empty DATA fields can be read as 0.0.
             setNumericVar(variable_name, 0.0);
             line_marker;
             write(log, "READ " <& variable_name <& " 0.0 IN DATA LINE ");
@@ -5544,15 +5597,17 @@ const proc: exec_input (inout string: symbol, inout string: line) is func
     end if;
     if isStringExpr(symbol) then
       param1 := exec_str_expr(symbol, line, variable_name);
-      if symbol = ";" or (variable_name = "" and symbol = ",") then
+      if symbol = ";" or (variable_name = "" and (symbol = "," or symbol = ":")) then
         write(win, param1);
         line_marker;
         write(log, "INPUT " <& literal(param1));
-        if symbol = ";" then
-          (* A comma is used to suppress the question mark *)
-          write(win, "? ");
+        if symbol = ";" or symbol = ":" then
+          if symbol = ";" then
+            # Comma or colon are used to suppress the question mark.
+            write(win, "? ");
+            write(log, "? ");
+          end if;
           symbol := ",";
-          write(log, "? ");
         end if;
         flush(win);
         writeln(log);
@@ -5667,7 +5722,7 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
           writeln(log, " <- " <& literal(param2));
         else
           error_marker;
-          writeln(err, "STRING EXPECTED FOR LINE INPUT - FOUND " <&
+          writeln(err, "STRING VARIABLE EXPECTED FOR LINE INPUT - FOUND " <&
               symbol <& ".");
         end if;
       elsif variable_name <> "" then
@@ -5687,6 +5742,100 @@ const proc: exec_line_input (inout string: symbol, inout string: line) is func
     else
       error_marker;
       writeln(err, "STRING EXPECTED FOR LINE INPUT - FOUND " <&
+          symbol <& ".");
+    end if;
+  end func;
+
+
+const proc: exec_linput_from_file (inout string: symbol, inout string: line) is func
+  local
+    var integer: file_number is 0;
+    var file: aFile is STD_NULL;
+    var string: variable_name is "";
+    var string: param1 is "";
+  begin
+    symbol := get_symbol(line);
+    file_number := round(exec_expr(symbol, line));
+    aFile := getFileValue(file_number);
+    if aFile <> STD_NULL then
+      expect(":", symbol, line);
+      if isStringVar(symbol) then
+        variable_name := get_name(symbol, line);
+        param1 := getln(aFile);
+        setStringVar(variable_name, param1);
+        line_marker;
+        writeln(log, "LINPUT #" <& file_number <& ": " <& variable_name <&
+            " " <& literal(param1));
+      else
+        error_marker;
+        writeln(err, "STRING VARIABLE EXPECTED IN LINPUT FOUND " <&
+            literal(symbol) <& ".");
+      end if;
+    elsif on_error_label <> "" then
+      error_code := 52; # Bad file number
+      line_marker;
+      writeln(log, error_code <& " BAD FILE NUMBER #" <& file_number <&
+          " - ON ERROR GOTO " <& on_error_label);
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+      goto_on_error(on_error_label, line);
+      symbol := "";
+      line := "";
+    else
+      error_marker;
+      writeln(err, "BAD FILE NUMBER #" <& file_number <& " IN LINPUT.");
+      while not endOfStatement(symbol) do
+        symbol := get_symbol(line);
+      end while;
+    end if;
+  end func;
+
+
+const proc: exec_linput (inout string: symbol, inout string: line) is func
+  local
+    var string: variable_name is "";
+    var string: param1 is "";
+    var string: param2 is "";
+  begin
+    if isStringExpr(symbol) then
+      param1 := exec_str_expr(symbol, line, variable_name);
+      if symbol = ":" then
+        symbol := get_symbol(line);
+        write(win, param1);
+        flush(win);
+        if isStringVar(symbol) then
+          variable_name := get_name(symbol, line);
+          line_marker;
+          write(log, "LINPUT " <& literal(param1) <& ": " <& variable_name);
+          flush(log);
+          readln(param2);
+          writeln(win);
+          flush(win);
+          setStringVar(variable_name, param2);
+          writeln(log, " <- " <& literal(param2));
+        else
+          error_marker;
+          writeln(err, "STRING VARIABLE EXPECTED FOR LINPUT - FOUND " <&
+              symbol <& ".");
+        end if;
+      elsif variable_name <> "" then
+        write(win, "? ");
+        flush(win);
+        line_marker;
+        write(log, "LINPUT " <& variable_name);
+        flush(log);
+        readln(param2);
+        writeln(win);
+        flush(win);
+        setStringVar(variable_name, param2);
+        writeln(log, " <- " <& literal(param2));
+      else
+        error_expect(":", symbol);
+      end if;
+    else
+      error_marker;
+      writeln(err, "STRING EXPECTED FOR LINPUT - FOUND " <&
           symbol <& ".");
     end if;
   end func;
@@ -5752,8 +5901,10 @@ const proc: exec_display (inout string: symbol, inout string: line) is func
       end if;
       if symbol = "," then
         symbol := get_symbol(line);
-        write(win, ", ");
         write(log, ", ");
+      elsif symbol = ";" then
+        symbol := get_symbol(line);
+        write(log, "; ");
       else
         finished := TRUE;
       end if;
@@ -7630,8 +7781,9 @@ const proc: setup_graphic is func
   begin
     if screenMode <> -1 then
       screen(1024, 768);
-      clear(curr_win, black);
+      clear(curr_win, light_cyan);
       win := openPixmapFontFile(curr_win);
+      color(win, black, light_cyan);
       KEYBOARD := GRAPH_KEYBOARD;
       OUT := win;
       IN := openEcho(KEYBOARD, win);
@@ -7647,9 +7799,12 @@ const proc: setup_graphic is func
 const proc: exec_call_char (inout string: symbol, inout string: line) is func
   local
     var integer: character_code is 0;
-    var string: pattern is "";
+    var string: patternArgument is "";
     var string: unused_name is "";
     var array string: charPicture is 8 times " " mult 8;
+    var integer: patternStartPos is 1;
+    var char: patternChar is ' ';
+    var string: pattern is "";
     var integer: pos is 0;
     var integer: patternLine is 1;
     var boolean: right is FALSE;
@@ -7661,25 +7816,32 @@ const proc: exec_call_char (inout string: symbol, inout string: line) is func
     expect("(", symbol, line);
     character_code := round(exec_expr(symbol, line));
     expect(",", symbol, line);
-    pattern := exec_str_expr(symbol, line, unused_name);
+    patternArgument := exec_str_expr(symbol, line, unused_name);
     expect(")", symbol, line);
-    for pos range 1 to length(pattern) do
-      number := integer(pattern[pos len 1], 16);
-      for bit range 1 to 4 do
-        if odd(number) then
-          charPicture[patternLine] @:= [ord(right) * 4 + 5 - bit] 'X';
+    patternChar := chr(character_code);
+    repeat
+      pattern := patternArgument[patternStartPos len 16];
+      patternLine := 1;
+      for pos range 1 to length(pattern) do
+        number := integer(pattern[pos len 1], 16);
+        for bit range 1 to 4 do
+          if odd(number) then
+            charPicture[patternLine] @:= [ord(right) * 4 + 5 - bit] 'X';
+          end if;
+          number >>:= 1;
+        end for;
+        if right then
+          incr(patternLine);
         end if;
-        number >>:= 1;
+        right := not right;
       end for;
-      if right then
-        incr(patternLine);
-      end if;
-      right := not right;
-    end for;
-    currentFont.fontPictures @:= [chr(character_code)] charPicture;
-    setFont(win, currentFont);
+      currentFont.fontPictures @:= [patternChar] charPicture;
+      setFont(win, currentFont);
+      patternStartPos +:= 16;
+      incr(patternChar);
+    until patternStartPos > length(patternArgument);
     line_marker;
-    writeln(log, "CALL CHAR(" <& character_code <& ", " <& literal(pattern) <& ")");
+    writeln(log, "CALL CHAR(" <& character_code <& ", " <& literal(patternArgument) <& ")");
   end func;
 
 
@@ -7687,7 +7849,7 @@ const proc: exec_call_clear (inout string: symbol, inout string: line) is func
   begin
     setup_graphic;
     symbol := get_symbol(line);
-    clear(curr_win, black);
+    clear(curr_win, light_cyan);
     line_marker;
     writeln(log, "CALL CLEAR");
   end func;
@@ -7810,6 +7972,25 @@ const proc: exec_call_screen (inout string: symbol, inout string: line) is func
     expect(")", symbol, line);
     line_marker;
     writeln(log, "CALL SCREEN(" <& color_code <& ")");
+  end func;
+
+
+const proc: exec_call_sound (inout string: symbol, inout string: line) is func
+  local
+    var float: duration is 0.0;
+    var integer: frequency is 0;
+    var integer: volume is 0;
+  begin
+    symbol := get_symbol(line);
+    expect("(", symbol, line);
+    duration := exec_expr(symbol, line);
+    expect(",", symbol, line);
+    frequency := round(exec_expr(symbol, line));
+    expect(",", symbol, line);
+    volume := round(exec_expr(symbol, line));
+    expect(")", symbol, line);
+    line_marker;
+    writeln(log, "CALL SOUND(" <& duration <& ", " <& frequency <& ", " <& volume <& ")");
   end func;
 
 
@@ -8063,6 +8244,8 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
             exec_call_key(symbol, line);
           elsif symbol = "SCREEN" then
             exec_call_screen(symbol, line);
+          elsif symbol = "SOUND" then
+            exec_call_sound(symbol, line);
           elsif symbol = "VCHAR" then
             exec_call_vchar(symbol, line);
           else
@@ -8722,6 +8905,15 @@ const func boolean: execCmd (inout string: symbol, inout string: line) is func
           else
             expect("INPUT", symbol, line);
           end if;
+        when {"LINPUT"}:
+          symbol := get_symbol(line);
+          if symbol = "#" then
+            exec_linput_from_file(symbol, line);
+          else
+            exec_linput(symbol, line);
+          end if;
+        when {"LINPUT#"}:
+          exec_linput_from_file(symbol, line);
         when {"LIST"}:
           symbol := get_symbol(line);
           if symbol <> "" and symbol[1] in digit_char then
@@ -9727,7 +9919,7 @@ const proc: loadProg (in string: name, inout file: infile) is func
       line_number_incr := 1;
       repeat
         if pos(line, "\Z") <> 0 then
-          (* Control-Z is used sometimes as end of file marker *)
+          # Control-Z is used sometimes as end of file marker.
           line := line[.. pred(pos(line, "\Z"))];
           control_z := TRUE;
         end if;

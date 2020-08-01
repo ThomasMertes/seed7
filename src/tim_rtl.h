@@ -29,7 +29,6 @@
 /*                                                                  */
 /********************************************************************/
 
-time_t mkutc (struct tm *timeptr);
 time_t unchecked_mkutc (struct tm *timeptr);
 void timFromTimestamp (time_t timestamp,
     intType *year, intType *month, intType *day, intType *hour,

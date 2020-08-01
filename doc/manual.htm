@@ -12632,8 +12632,8 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
 <p>
   An exception is an anomalous event that arises during program execution.
   Exceptions change the normal flow of program execution. An exception
-  transfers the execution to a corresponding exception handler. If no
-  corresponding exception handler exists the program is terminated.
+  transfers the execution to a corresponding exception <a class="link" href="#errors_Handlers">handler</a>. If no
+  corresponding exception <a class="link" href="#errors_Handlers">handler</a> exists the program is terminated.
   There are various exceptions, which can be raised: <tt><a class="exception" href="#errors_MEMORY_ERROR">MEMORY_ERROR</a></tt>,
   <tt><a class="exception" href="#errors_NUMERIC_ERROR">NUMERIC_ERROR</a></tt>, <tt><a class="exception" href="#errors_OVERFLOW_ERROR">OVERFLOW_ERROR</a></tt>, <tt><a class="exception" href="#errors_RANGE_ERROR">RANGE_ERROR</a></tt>, <tt><a class="exception" href="#errors_FILE_ERROR">FILE_ERROR</a></tt> and
   <tt><a class="exception" href="#errors_ILLEGAL_ACTION">ILLEGAL_ACTION</a></tt>. A program can raise an exception with the <tt><span class="keywd">raise</span></tt>
@@ -12741,12 +12741,17 @@ SYSTEM_LIBS = -lm <b>superlib.a</b>
        by your program might be totally wrong. Your program might compute
        the statics of a bridge wrong.</li>
 </ul><p>
-  Without integer overflow checks a handler for <tt><span class="exception">OVERFLOW_ERROR</span></tt> cannot
-  work reliably. Only a program that does not have a handler for an
-  <tt><span class="exception">OVERFLOW_ERROR</span></tt> exception can be considered to be compiled without
-  overflow checks. Careful program analysis and testing (<tt><span class="exception">OVERFLOW_ERROR</span></tt>
-  should never be raised) is necessary to decide about the omission of
-  overflow checking.
+  A <a class="link" href="#errors_Handlers">handler</a> for <tt><span class="exception">OVERFLOW_ERROR</span></tt> can only work reliable with integer
+  overflow checks. The <span class="link">compiler</span> warns if <b>-so</b> is used and there
+  is a <a class="link" href="#errors_Handlers">handler</a> for <tt><span class="exception">OVERFLOW_ERROR</span></tt>:
+</p><pre class="indent">
+*** example.sd7(123): Catch of <span class="exception">OVERFLOW_ERROR</span> although the checks are suppressed.
+</pre><p>
+  Only a program that never raises <tt><span class="exception">OVERFLOW_ERROR</span></tt> and that does not
+  have a <a class="link" href="#errors_Handlers">handler</a> for <tt><span class="exception">OVERFLOW_ERROR</span></tt> can be considered to be compiled
+  without overflow checks. Careful program analysis and testing
+  (<tt><span class="exception">OVERFLOW_ERROR</span></tt> should never be raised) is necessary to decide
+  about the omission of overflow checking.
 </p><p>
   The separate overflow exception allows easy recognition of overflow
   situations. All overflow situations, where <tt><span class="exception">OVERFLOW_ERROR</span></tt> is raised

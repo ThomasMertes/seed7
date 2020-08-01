@@ -939,6 +939,17 @@ const func time: timestamp1970ToTime (in integer: timestamp) is func
   end func;
 
 
+const func integer: timestamp1601 (in time: aTime) is func
+  result
+    var integer: nanosecs100 is 0;
+  local
+    const integer: SECONDS_1601_1970 is 11644473600;
+    const integer: NANOSECS100_TICK is 10000000;
+  begin
+    nanosecs100 := (timestamp1970(aTime) + SECONDS_1601_1970) * NANOSECS100_TICK;
+  end func;
+
+
 const func time: timestamp1601ToTime (in integer: timestamp) is func
   result
     var time: aTime is time.value;

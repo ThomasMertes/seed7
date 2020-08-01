@@ -1407,7 +1407,14 @@ intType setRand (const const_setType aSet)
 
 
 
-setType setRangelit (const intType lowerValue, const intType upperValue)
+/**
+ *  Create set with all values from 'lowValue' to 'highValue' inclusive.
+ *  @param lowValue lowest value to be added to the result set.
+ *  @param highValue higest value to be added to the result set.
+ *  @return set with all values from 'lowValue' to 'highValue' inclusive, or
+ *          an empty set if 'lowValue' is greater than 'highValue'.
+ */
+setType setRangelit (const intType lowValue, const intType highValue)
 
   {
     intType min_position;
@@ -1418,9 +1425,9 @@ setType setRangelit (const intType lowerValue, const intType upperValue)
 
   /* setRangelit */
     logFunction(printf("setRangelit(" FMT_D ", " FMT_D ")\n",
-                       lowerValue, upperValue););
-    min_position = bitset_pos(lowerValue);
-    max_position = bitset_pos(upperValue);
+                       lowValue, highValue););
+    min_position = bitset_pos(lowValue);
+    max_position = bitset_pos(highValue);
     if (min_position > max_position) {
       if (unlikely(!ALLOC_SET(result, 1))) {
         raise_error(MEMORY_ERROR);
@@ -1436,15 +1443,15 @@ setType setRangelit (const intType lowerValue, const intType upperValue)
     } else {
       result->min_position = min_position;
       result->max_position = max_position;
-      bit_index = ((unsigned int) lowerValue) & bitset_mask;
+      bit_index = ((unsigned int) lowValue) & bitset_mask;
       result->bitset[0] = ~(bitSetType) 0 << bit_index;
       if (min_position == max_position) {
-        bit_index = ((unsigned int) upperValue) & bitset_mask;
+        bit_index = ((unsigned int) highValue) & bitset_mask;
         result->bitset[0] &= ~(~(bitSetType) 1 << bit_index);
       } else {
         bitset_size = bitsetSize2(min_position, max_position);
         memset(&result->bitset[1], 0xff, (bitset_size - 2) * sizeof(bitSetType));
-        bit_index = ((unsigned int) upperValue) & bitset_mask;
+        bit_index = ((unsigned int) highValue) & bitset_mask;
         result->bitset[bitset_size - 1] = ~(~(bitSetType) 1 << bit_index);
       } /* if */
     } /* if */

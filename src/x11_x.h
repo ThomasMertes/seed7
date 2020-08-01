@@ -526,6 +526,15 @@ typedef union _XEvent {
     long pad[24];
   } XEvent;
 
+typedef struct {
+    int key_click_percent;
+    int bell_percent;
+    unsigned int bell_pitch, bell_duration;
+    unsigned long led_mask;
+    int global_auto_repeat;
+    char auto_repeats[32];
+  } XKeyboardState;
+
 
 #define BlackPixel(dpy, scr)      XBlackPixel(dpy, scr)
 #define DefaultColormap(dpy, scr) XDefaultColormap(dpy, scr)
@@ -695,6 +704,8 @@ extern XImage *XGetImage (Display *display,
                           unsigned int height,
                           unsigned long plane_mask,
                           int format);
+extern int XGetKeyboardControl (Display *display,
+                                XKeyboardState *values_return);
 extern unsigned long XGetPixel (XImage *ximage,
                                 int x,
                                 int y);

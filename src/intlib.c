@@ -210,9 +210,9 @@ objectType int_binom (listType arguments)
 
 
 /**
- *  Number of bits in the minimal two's-complement representation.
+ *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
- *  minimal two's-complement representation.
+ *  minimum two's-complement representation.
  *  @return the number of bits.
  */
 objectType int_bit_length (listType arguments)

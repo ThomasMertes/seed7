@@ -313,16 +313,10 @@ int main (int argc, char **argv)
         printf("#define CC_ENVIRONMENT_INI \"%s/%s\"\n",
              s7_lib_dir, cc_env_ini);
       } /* if */
-#ifdef C_COMPILER_SCRIPT
-#if !defined C_COMPILER
+#if defined C_COMPILER_SCRIPT && !defined C_COMPILER
       printf("#define C_COMPILER \"%s/%s\"\n",
              s7_lib_dir, C_COMPILER_SCRIPT);
       fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", stdout);
-#endif
-#if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
-      printf("#define GET_CC_VERSION_INFO \"\\\"%s/%s\\\" %s\"\n",
-             s7_lib_dir, C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
-#endif
 #endif
       printf("#define S7_LIB_DIR \"%s\"\n", s7_lib_dir);
     } else {
@@ -332,18 +326,11 @@ int main (int argc, char **argv)
         write_as_utf8(buffer);
         printf("/%s\"\n", cc_env_ini);
       } /* if */
-#ifdef C_COMPILER_SCRIPT
-#if !defined C_COMPILER
+#if defined C_COMPILER_SCRIPT && !defined C_COMPILER
       printf("#define C_COMPILER \"");
       write_as_utf8(buffer);
       printf("/%s\"\n", C_COMPILER_SCRIPT);
       fputs("#define CALL_C_COMPILER_FROM_SHELL 1\n", stdout);
-#endif
-#if !defined GET_CC_VERSION_INFO && defined GET_CC_VERSION_INFO_OPTIONS
-      printf("#define GET_CC_VERSION_INFO \"\\\"");
-      write_as_utf8(buffer);
-      printf("/%s\\\" %s\"\n", C_COMPILER_SCRIPT, GET_CC_VERSION_INFO_OPTIONS);
-#endif
 #endif
       printf("#define S7_LIB_DIR \"");
       write_as_utf8(buffer);

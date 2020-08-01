@@ -871,6 +871,11 @@ boolType fltIsNegativeZero (floatType number)
 
 
 #if !LDEXP_FUNCTION_OKAY
+/**
+ *  Multiply 'number' by 2 raised to the power 'exponent'.
+ *  @return number * 2 ** exponent, or
+ *          NaN if 'number' is NaN.
+ */
 floatType fltLdexp (floatType number, int exponent)
 
   {

@@ -620,7 +620,7 @@ rtlArrayType arrArrlit2 (intType start_position, rtlArrayType arr1)
                   start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
                  (result_size == 0 && start_position == MIN_MEM_INDEX))) {
       logError(printf("arrArrlit2(" FMT_D ", arr1 (size=" FMT_U_MEM ")): "
-                      "Minimal or maximal index out of range.\n",
+                      "Minimum or maximum index out of range.\n",
                       start_position, result_size););
       raise_error(RANGE_ERROR);
       arr1 = NULL;
@@ -822,7 +822,7 @@ rtlArrayType arrHead (const const_rtlArrayType arr1, intType stop)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrHead(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -885,7 +885,7 @@ rtlArrayType arrHeadTemp (rtlArrayType *arr_temp, intType stop)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrHeadTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1057,7 +1057,7 @@ rtlArrayType arrRange (const const_rtlArrayType arr1, intType start, intType sto
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrRange(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1136,7 +1136,7 @@ rtlArrayType arrRangeTemp (rtlArrayType *arr_temp, intType start, intType stop)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrRangeTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start, stop););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1283,7 +1283,7 @@ rtlArrayType arrSubarr (const const_rtlArrayType arr1, intType start, intType le
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrSubarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start, len););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1364,7 +1364,7 @@ rtlArrayType arrSubarrTemp (rtlArrayType *arr_temp, intType start, intType len)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrSubarrTemp(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start, len););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1412,7 +1412,7 @@ rtlArrayType arrTail (const const_rtlArrayType arr1, intType start)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start););
       raise_error(RANGE_ERROR);
       result = NULL;
@@ -1477,7 +1477,7 @@ rtlArrayType arrTailTemp (rtlArrayType *arr_temp, intType start)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arrTailTemp(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start););
       raise_error(RANGE_ERROR);
       result = NULL;

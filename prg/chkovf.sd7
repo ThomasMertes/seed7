@@ -2,7 +2,7 @@
 (********************************************************************)
 (*                                                                  *)
 (*  chkovf.sd7    Checks catching of integer overflows.             *)
-(*  Copyright (C) 2014  Thomas Mertes                               *)
+(*  Copyright (C) 2014, 2018 - 2020  Thomas Mertes                  *)
 (*                                                                  *)
 (*  This program is free software; you can redistribute it and/or   *)
 (*  modify it under the terms of the GNU General Public License as  *)
@@ -29,8 +29,8 @@ $ include "seed7_05.s7i";
 
 const integer: INT32_MIN is pred(-2147483647);
 const integer: INT32_MAX is 2147483647;
-const integer: INT64_MIN is pred(-9223372036854775807);
-const integer: INT64_MAX is 9223372036854775807;
+const integer: INT64_MIN is integer.first;
+const integer: INT64_MAX is integer.last;
 
 
 const func integer: intExpr (in integer: number) is
@@ -274,7 +274,6 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
       okay := FALSE;
     end if;
 
-        # Test 
     if  not raisesOverflowError(       integer.first mdiv intExpr( 1) +                   -1) or
         not raisesOverflowError(-9223372036854775807 mdiv intExpr( 1) +                   -2) or
         not raisesOverflowError(-9223372036854775806 mdiv intExpr( 1) +                   -3) or
@@ -440,11 +439,9 @@ const func boolean: check_reduced_overflow_checking_for_sums is func
     end if;
 
     if  not raisesOverflowError( abs(ord(charExpr(char(-2147483648) ))) + 9223372034707292160) or
-        not raisesOverflowError( abs(ord(charExpr(char(-2147483648) ))) + abs(ord(charExpr(char(-2147483648) ))) +
-	     9223372032559808512) or
+        not raisesOverflowError( abs(ord(charExpr(char(-2147483648) ))) + abs(ord(charExpr(char(-2147483648) ))) + 9223372032559808512) or
         not raisesOverflowError(-abs(ord(charExpr(char(-2147483648) ))) - 9223372034707292161) or
-        not raisesOverflowError(-abs(ord(charExpr(char(-2147483648) ))) - abs(ord(charExpr(char(-2147483648) ))) -
-	     9223372032559808513) then
+        not raisesOverflowError(-abs(ord(charExpr(char(-2147483648) ))) - abs(ord(charExpr(char(-2147483648) ))) - 9223372032559808513) then
       writeln(" ***** Reduced overflow check for sums failed: abs(ord(char))");
       okay := FALSE;
     end if;

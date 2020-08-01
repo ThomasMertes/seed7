@@ -354,11 +354,15 @@ void prgExec (const progType aProgram, const const_rtlArrayType parameters,
     uintType int_options;
 
   /* prgExec */
+    logFunction(printf("prgExec(\"%s\")\n",
+                       striAsUnquotedCStri(aProgram->program_path)););
     int_options = (uintType) setSConv(options);
     interpret(aProgram, parameters, 0, int_options, protFileName);
     set_fail_flag(FALSE);
     fail_value = NULL;
     fail_expression = NULL;
+    logFunction(printf("prgExec(\"%s\") -->\n",
+                       striAsUnquotedCStri(aProgram->program_path)););
   } /* prgExec */
 
 

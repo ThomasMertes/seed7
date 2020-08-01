@@ -610,6 +610,30 @@ objectType fil_tell (listType arguments)
 
 
 /**
+ *  Truncate 'aFile/arg_1' to the given 'length/arg_2'.
+ *  If the file previously was larger than 'length/arg_2', the extra data is lost.
+ *  If the file previously was shorter, it is extended, and the extended
+ *  part is filled with null bytes ('\0;').
+ *  @param aFile/arg_1 File to be truncated.
+ *  @param length/arg_2 Requested length of 'aFile/arg_1' in bytes.
+ *  @exception RANGE_ERROR The requested length is negative or
+ *             the length is not representable in the type
+ *             used by the system function.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+objectType fil_truncate (listType arguments)
+
+  { /* fil_truncate */
+    isit_file(arg_1(arguments));
+    isit_int(arg_2(arguments));
+    filTruncate(take_file(arg_1(arguments)),
+        take_int(arg_2(arguments)));
+    return SYS_EMPTY_OBJECT;
+  } /* fil_truncate */
+
+
+
+/**
  *  Get 'clib_file' value of the object referenced by 'aReference/arg_1'.
  *  @return the 'clib_file' value of the referenced object.
  *  @exception RANGE_ERROR If 'aReference/arg_1' is NIL or

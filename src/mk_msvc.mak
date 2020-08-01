@@ -28,7 +28,6 @@ COMP_DATA_LIB = s7_data.lib
 COMPILER_LIB = s7_comp.lib
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(DATABASE_LIB) ..\bin\$(SEED7_LIB)
 CC = cl
-GET_CC_VERSION_INFO = $(CC) 2>
 CC_ENVIRONMENT_INI = cl_env.ini
 
 !if exist(macros)
@@ -134,6 +133,8 @@ clean:
 	del depend
 	del macros
 	del chkccomp.h
+	del base.h
+	del settings.h
 	del version.h
 	del setwpath.exe
 	del sudo.exe
@@ -162,47 +163,50 @@ uninstall: setwpath.exe
 dep: depend
 
 chkccomp.h:
-	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
+	echo #define LIST_DIRECTORY_CONTENTS "dir" > chkccomp.h
 	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
 
-version.h: chkccomp.h
-	echo #define PATH_DELIMITER '\\' > version.h
-	echo #define USE_WMAIN >> version.h
-	echo #define SEARCH_PATH_DELIMITER ';' >> version.h
-	echo #define INT_DIV_BY_ZERO_POPUP >> version.h
-	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> version.h
-	echo #define FILENO_WORKS_FOR_NULL 0 >> version.h
-	echo #define CONSOLE_WCHAR >> version.h
-	echo #define OS_STRI_WCHAR >> version.h
-	echo #define os_getch _getwch >> version.h
-	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
-	echo #define OBJECT_FILE_EXTENSION ".obj" >> version.h
-	echo #define LIBRARY_FILE_EXTENSION ".lib" >> version.h
-	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> version.h
-	echo #define C_COMPILER "$(CC)" >> version.h
-	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
-	echo #define CC_OPT_DEBUG_INFO "-Z7" >> version.h
-	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
-	echo #define CC_FLAGS "-Zm800" >> version.h
-	echo #define CC_ERROR_FILDES 1 >> version.h
-	echo #define LINKER_OPT_DEBUG_INFO "-Z7" >> version.h
-	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
-	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
-	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
-	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
-	$(GET_CC_VERSION_INFO) cc_vers.txt
+base.h:
+	echo #define PATH_DELIMITER '\\' > base.h
+	echo #define OS_STRI_WCHAR >> base.h
+	echo #define QUOTE_WHOLE_SHELL_COMMAND >> base.h
+	echo #define OBJECT_FILE_EXTENSION ".obj" >> base.h
+	echo #define EXECUTABLE_FILE_EXTENSION ".exe" >> base.h
+	echo #define C_COMPILER "$(CC)" >> base.h
+	echo #define CC_OPT_VERSION_INFO "" >> base.h
+	echo #define CC_FLAGS "-Zm800" >> base.h
+	echo #define CC_ERROR_FILEDES 1 >> base.h
+	echo #define CC_VERSION_INFO_FILEDES 2 >> base.h
+	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
+	echo #define INT_DIV_BY_ZERO_POPUP >> base.h
+	echo #define DO_SIGFPE_WITH_DIV_BY_ZERO 1 >> base.h
+	echo #define FILENO_WORKS_FOR_NULL 0 >> base.h
+	echo #define USE_WMAIN >> base.h
+	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
+
+settings.h:
+	echo #define SEARCH_PATH_DELIMITER ';' > settings.h
+	echo #define CONSOLE_WCHAR >> settings.h
+	echo #define os_getch _getwch >> settings.h
+	echo #define LIBRARY_FILE_EXTENSION ".lib" >> settings.h
+	echo #define CC_OPT_DEBUG_INFO "-Z7" >> settings.h
+	echo #define CC_OPT_NO_WARNINGS "-w" >> settings.h
+	echo #define LINKER_OPT_DEBUG_INFO "-Z7" >> settings.h
+	echo #define LINKER_FLAGS "$(LDFLAGS)" >> settings.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
+	echo #define SEED7_LIB "$(SEED7_LIB)" >> settings.h
+	echo #define DRAW_LIB "$(DRAW_LIB)" >> settings.h
+	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> settings.h
+	echo #define DATABASE_LIB "$(DATABASE_LIB)" >> settings.h
+	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> settings.h
+	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
+
+version.h: chkccomp.h base.h settings.h
 	$(CC) chkccomp.c
 	.\chkccomp.exe version.h
 	del chkccomp.obj
 	del chkccomp.exe
-	del cc_vers.txt
-	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
-	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
-	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
-	echo #define DATABASE_LIB "$(DATABASE_LIB)" >> version.h
-	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
-	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
 	set > ..\bin\$(CC_ENVIRONMENT_INI)
 	$(CC) setpaths.c
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" "CC_ENVIRONMENT_INI=$(CC_ENVIRONMENT_INI)" >> version.h

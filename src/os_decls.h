@@ -164,10 +164,10 @@
 #define CC_OPT_OPTIMIZE_3 "-O3"
 #endif
 
-#ifndef REDIRECT_FILDES_1
-#define REDIRECT_FILDES_1 ">"
+#ifndef REDIRECT_FILEDES_1
+#define REDIRECT_FILEDES_1 ">"
 #endif
 
-#ifndef REDIRECT_FILDES_2
-#define REDIRECT_FILDES_2 "2>"
+#ifndef REDIRECT_FILEDES_2
+#define REDIRECT_FILEDES_2 "2>"
 #endif

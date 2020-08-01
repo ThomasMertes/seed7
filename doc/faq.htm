@@ -623,12 +623,12 @@ Seed7 can be used in various application areas:
 </h3></a><hr />
 <p>
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-05-02 the number of lines is:
+than 300000 lines of Seed7. For version 2020-05-31 the number of lines is:
 </p><dl><dd><table border="0" cellspacing="0">
-  <tr><td align="right">157582</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
-  <tr><td align="right"> 12548</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
-  <tr><td align="right">176184</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
-  <tr><td align="right">155437</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
+  <tr><td align="right">158184</td> <td width="20"></td> <td>C source files (*.c)</td></tr>
+  <tr><td align="right"> 12569</td> <td width="20"></td> <td>C header files (*.h)</td></tr>
+  <tr><td align="right">176424</td> <td width="20"></td> <td>Seed7 source files (*.sd7)</td></tr>
+  <tr><td align="right">156627</td> <td width="20"></td> <td>Seed7 library/include files (*.s7i)</td></tr>
 </table></dd></dl><p>
 C code (*.c and *.h files) can be divided into the following areas:
 </p><dl><dd><table border="0" cellspacing="0">
@@ -2255,7 +2255,7 @@ obvious what it is going on. This way the program is easier to read.
 <div><br /><a name="faq_exceptions"><h3>Are there exceptions?
 </h3></a><hr />
 <p>
-Yes, Seed7 has exceptions which are similar to Ada exceptions. <span class="link">Chapter 14.2
+Yes, Seed7 has exceptions which are similar to Ada exceptions. <span class="link">Chapter 16.2
 (Exceptions)</span> of the manual contains a detailed description of the Seed7 exceptions.
 </p></div>
 
@@ -2297,7 +2297,7 @@ signal, if an uncaught exception occurs. This option allows debuggers to handle
 uncaught Seed7 exceptions. Note that <a class="link" href="#faq_compiler_option-e"><tt><b>-e</b></tt></a> sends the signal SIGFPE. This is done even
 if the exception is not related to floating point operations.
 </p><p>
-<span class="link">Chapter 14.4 (Stack trace)</span> of the manual contains a detailed description how to
+<span class="link">Chapter 16.4 (Stack trace)</span> of the manual contains a detailed description how to
 debug compiled Seed7 programs.
 </p></div>
 
@@ -2595,7 +2595,7 @@ For example:
 The action "INT_ADD" corresponds to the function 'int_add' in the file
 <nobr><span class="lib">seed7/src/intlib.c</span></nobr>.
 </p><p>
-<span class="link">Chapter 13 (Primitive actions)</span> of the manual contains a detailed description
+<span class="link">Chapter 14 (Primitive actions)</span> of the manual contains a detailed description
 of the primitive actions. In the interpreter all action functions get the
 parameters as list. The action functions take the parameters they need from the
 list, perform the action and deliver a result.

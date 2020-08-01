@@ -407,6 +407,7 @@ const func string: replace (in string: mainStri, in string: searched,
 (**
  *  Replace one occurrence of ''searched'' in ''mainStri'' by ''replacement''.
  *  If there is no occurrence of ''searched'' return the unchanged ''mainStri''.
+ *  @return the result of the replacement.
  *)
 const func string: replace1 (in string: mainStri, in string: searched,
     in string: replacement) is func

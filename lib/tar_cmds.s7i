@@ -29,6 +29,7 @@
 
 include "tar.s7i";
 include "osfiles.s7i";
+include "fileutil.s7i";
 include "gzip.s7i";
 include "lzma.s7i";
 include "xz.s7i";
@@ -46,7 +47,7 @@ const proc: setUpHead (in string: basePath, in string: filePath,
     header.chksum   := 0;  # Filled later
     header.typeflag := REGTYPE;
     header.linkname := "";
-    header.magic    := TMAGIC;
+    header.magic    := TAR_MAGIC;
     header.version  := "  ";
     header.uname    := "";
     header.gname    := "";
@@ -65,7 +66,7 @@ const proc: tarTell (inout file: inFile, in array string: arg_list,
     var time: modTime is time.value;
   begin
     readHead(inFile, header);
-    while header.filePath <> "" and (header.magic = TMAGIC or header.magic = NOMAGIC) do
+    while header.filePath <> "" and (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) do
       if do_view then
         if header.typeflag = DIRTYPE then
           write("d");
@@ -151,7 +152,7 @@ const proc: tarXtract (inout file: inFile, in array string: arg_list,
     var boolean: okay is TRUE;
   begin
     readHead(inFile, header);
-    while header.filePath <> "" and (header.magic = TMAGIC or header.magic = NOMAGIC) and okay do
+    while header.filePath <> "" and (header.magic = TAR_MAGIC or header.magic = TAR_NOMAGIC) and okay do
       if do_view then
         write("x ");
         writeln(header.filePath <& header.filePathSuffix);

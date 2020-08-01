@@ -103,96 +103,6 @@ const proc: showHeader (inout file: outFile, in cpioHeader: header) is func
   end func;
 
 
-const func cpioHeader: cpioHeader (in string: stri) is func
-  result
-    var cpioHeader: header is cpioHeader.value;
-  local
-    var integer: device is 0;
-  begin
-    header.magic := stri[1 len 2];
-    if header.magic = CPIO_BINARY_MAGIC then
-      # writeln("CPIO_BINARY_MAGIC");
-      header.devmajor   := ord(stri[3]);
-      header.devminor   := ord(stri[4]);
-      header.ino        := bytes2Int(stri[ 5 len 2], UNSIGNED, BE);
-      header.mode       := bytes2Int(stri[ 7 len 2], UNSIGNED, BE);
-      header.uid        := bytes2Int(stri[ 9 len 2], UNSIGNED, BE);
-      header.gid        := bytes2Int(stri[11 len 2], UNSIGNED, BE);
-      header.nlink      := bytes2Int(stri[13 len 2], UNSIGNED, BE);
-      header.rdevmajor  := ord(stri[15]);
-      header.rdevminor  := ord(stri[16]);
-      header.mtime      := bytes2Int(stri[17 len 4], UNSIGNED, BE);
-      header.nameSize   := bytes2Int(stri[21 len 2], UNSIGNED, BE);
-      header.fileSize   := bytes2Int(stri[23 len 4], UNSIGNED, BE);
-      header.headerSize := 26;
-      header.filePath   := stri[27 ..];
-      header.padding    := 2;
-    elsif header.magic = CPIO_SWAPPED_BINARY_MAGIC then
-      # writeln("CPIO_SWAPPED_BINARY_MAGIC");
-      header.devminor   := ord(stri[3]);
-      header.devmajor   := ord(stri[4]);
-      header.ino        := bytes2Int(stri[ 5 len 2], UNSIGNED, LE);
-      header.mode       := bytes2Int(stri[ 7 len 2], UNSIGNED, LE);
-      header.uid        := bytes2Int(stri[ 9 len 2], UNSIGNED, LE);
-      header.gid        := bytes2Int(stri[11 len 2], UNSIGNED, LE);
-      header.nlink      := bytes2Int(stri[13 len 2], UNSIGNED, LE);
-      header.rdevminor  := ord(stri[15]);
-      header.rdevmajor  := ord(stri[16]);
-      header.mtime      := bytes2Int(stri[17 len 2], UNSIGNED, LE) * 65536 +
-                           bytes2Int(stri[19 len 2], UNSIGNED, LE);
-      header.nameSize   := bytes2Int(stri[21 len 2], UNSIGNED, LE);
-      header.fileSize   := bytes2Int(stri[23 len 2], UNSIGNED, LE) * 65536 +
-                           bytes2Int(stri[25 len 2], UNSIGNED, LE);
-      header.headerSize := 26;
-      header.filePath   := stri[27 ..];
-      header.padding    := 2;
-    else
-      header.magic := stri[1 len 6];
-      if header.magic = CPIO_OLD_ASCII_MAGIC then
-        # writeln("CPIO_OLD_ASCII_MAGIC");
-        device            := integer(stri[ 7 len  6], 8);
-        header.devmajor   := device >> 8;
-        header.devminor   := device mod 256;
-        header.ino        := integer(stri[13 len  6], 8);
-        header.mode       := integer(stri[19 len  6], 8);
-        header.uid        := integer(stri[25 len  6], 8);
-        header.gid        := integer(stri[31 len  6], 8);
-        header.nlink      := integer(stri[37 len  6], 8);
-        device            := integer(stri[43 len  6], 8);
-        header.rdevmajor  := device >> 8;
-        header.rdevminor  := device mod 256;
-        header.mtime      := integer(stri[49 len 11], 8);
-        header.nameSize   := integer(stri[60 len  6], 8);
-        header.fileSize   := integer(stri[66 len 11], 8);
-        header.headerSize := 76;
-        header.filePath   := stri[77 ..];
-        header.padding    := 1;
-      elsif header.magic = CPIO_NEW_ASCII_MAGIC or
-            header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
-        # writeln("CPIO_NEW_ASCII_MAGIC");
-        header.ino        := integer(stri[  7 len 8], 16);
-        header.mode       := integer(stri[ 15 len 8], 16);
-        header.uid        := integer(stri[ 23 len 8], 16);
-        header.gid        := integer(stri[ 31 len 8], 16);
-        header.nlink      := integer(stri[ 39 len 8], 16);
-        header.mtime      := integer(stri[ 47 len 8], 16);
-        header.fileSize   := integer(stri[ 55 len 8], 16);
-        header.devmajor   := integer(stri[ 63 len 8], 16);
-        header.devminor   := integer(stri[ 71 len 8], 16);
-        header.rdevmajor  := integer(stri[ 79 len 8], 16);
-        header.rdevminor  := integer(stri[ 87 len 8], 16);
-        header.nameSize   := integer(stri[ 95 len 8], 16);
-        header.check      := integer(stri[103 len 8], 16);
-        header.headerSize := 110;
-        header.filePath   := stri[111 ..];
-        header.padding    := 4;
-      else
-        header.magic := "";
-      end if;
-    end if;
-  end func;
-
-
 const proc: readHead (inout file: inFile, inout cpioHeader: header) is func
   local
     var string: headerStri is "";
@@ -299,6 +209,9 @@ const proc: readHead (inout file: inFile, inout cpioHeader: header) is func
         ignore(getc(inFile));
       end if;
     end if;
+    if endsWith(header.filePath, "/") and header.filePath <> "/" then
+      header.filePath := header.filePath[.. pred(length(header.filePath))];
+    end if;
     header.dataStartPos := tell(inFile);
     # showHeader(OUT, header);
   end func;
@@ -364,6 +277,9 @@ const proc: readMinimumOfHead (inout file: inFile, inout cpioHeader: header) is 
       else
         ignore(getc(inFile));
       end if;
+    end if;
+    if endsWith(header.filePath, "/") and header.filePath <> "/" then
+      header.filePath := header.filePath[.. pred(length(header.filePath))];
     end if;
     header.dataStartPos := tell(inFile);
     # showHeader(OUT, header);
@@ -453,9 +369,10 @@ const proc: writeTrailer (inout file: outFile, in cpioHeader: header) is func
     var cpioHeader: trailer is cpioHeader.value;
   begin
     trailer.magic := header.magic;
-    trailer.nameSize := length(CPIO_TRAILER_NAME);
+    trailer.nameSize := succ(length(CPIO_TRAILER_NAME));
     writeHead(outFile, trailer);
-    write(outFile, CPIO_TRAILER_NAME);
+    # showHeader(OUT, trailer);
+    write(outFile, CPIO_TRAILER_NAME <& "\0;");
     write(outFile, "\0;" mult pred(header.padding) -
           pred(header.headerSize + trailer.nameSize) mod header.padding);
   end func;
@@ -467,12 +384,12 @@ const type: cpioCatalogType is hash [string] cpioHeader;
 
 (**
  *  [[filesys#fileSys|FileSys]] implementation type to access a CPIO archive.
- *  File paths in a cpio archive can be absolute (they start with a slash)
+ *  File paths in a CPIO archive can be absolute (they start with a slash)
  *  or relative (they do not start with a slash). The cpio file system does
  *  not support the concept of a current working directory. The functions
  *  chdir and getcwd are not supported by the cpio file system. Absolute
- *  and relative paths in a cpio archive can be accessed directly.
- *  Since "/" is just a normal path in a cpio archive the root path of a
+ *  and relative paths in a CPIO archive can be accessed directly.
+ *  Since "/" is just a normal path in a CPIO archive the root path of a
  *  cpio file system is "". Possible usages of cpio file system functions are:
  *    getMTime(aCpioFile, "src/drivers")   # Relative path in the archive.
  *    fileType(aCpioFile, "/usr/include")  # Absolute path in the archive.
@@ -509,7 +426,7 @@ const func fileSys: openCpio (inout file: cpioFile) is func
       cpio.headerSize := 110;
       cpio.padding := 4;
       cpio.cpioFile := cpioFile;
-      cpio.trailerPos := 1;
+      cpio.trailerPos := 0;
       newFileSys := toInterface(cpio);
     else
       seek(cpioFile, headPos);
@@ -566,8 +483,6 @@ const proc: close (inout cpioArchive: cpio) is func
 const func cpioHeader: addToCatalog (inout cpioArchive: cpio, in string: filePath) is func
   result
     var cpioHeader: header is cpioHeader.value;
-  local
-    var string: linkPath is "";
   begin
     seek(cpio.cpioFile, cpio.register[filePath]);
     readHead(cpio.cpioFile, header);
@@ -602,6 +517,64 @@ const func cpioHeader: addImplicitDir (inout cpioArchive: cpio,
     header.mode := ord(MODE_FILE_DIR) + 8#775;
     header.dataStartPos := -1;
     cpio.catalog @:= [dirPath] header;
+  end func;
+
+
+const func string: followSymlink (inout cpioArchive: cpio, in var string: filePath,
+    inout cpioHeader: header) is func
+  result
+    var string: missingPath is "";
+  local
+    var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is TRUE;
+  begin
+    # writeln("followSymlink: " <& filePath);
+    repeat
+      if filePath in cpio.catalog then
+        header := cpio.catalog[filePath];
+      elsif filePath in cpio.register then
+        header := addToCatalog(cpio, filePath);
+      elsif implicitDir(cpio, filePath) then
+        header := addImplicitDir(cpio, filePath);
+      else
+        # The file does not exist.
+        missingPath := filePath;
+        isSymlink := FALSE;
+        # writeln("missing: " <& missingPath);
+      end if;
+      if missingPath = "" then
+        if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+          seek(cpio.cpioFile, header.dataStartPos);
+          filePath := gets(cpio.cpioFile, header.fileSize);
+          if startsWith(filePath, "/") and
+              filePath not in cpio.catalog and filePath not in cpio.register then
+            filePath := "." & filePath;
+          end if;
+        else
+          isSymlink := FALSE;
+          # writeln("found: " <& header.filePath);
+        end if;
+      end if;
+      decr(symlinkCount);
+    until not isSymlink or symlinkCount = 0;
+    if isSymlink then
+      # Too many symbolic links.
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
+const func cpioHeader: followSymlink (inout cpioArchive: cpio, in var string: filePath) is func
+  result
+    var cpioHeader: header is cpioHeader.value;
+  local
+    var string: missingPath is "";
+  begin
+    missingPath := followSymlink(cpio, filePath, header);
+    if missingPath <> "" then
+      # The file does not exist.
+      raise FILE_ERROR;
+    end if;
   end func;
 
 
@@ -684,7 +657,7 @@ const func array string: readDir (inout cpioArchive: cpio, RECURSIVE) is
 
 (**
  *  Determine the type of a file in a CPIO archive.
- *  The function does follow symbolic links. If the chain of
+ *  The function follows symbolic links. If the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
  *  If a symbolic link refers to a place where the permission
  *  is denied the function returns ''FILE_SYMLINK''.
@@ -700,7 +673,7 @@ const func fileType: fileType (inout cpioArchive: cpio, in var string: filePath)
     var fileType: aFileType is FILE_UNKNOWN;
   local
     var cpioHeader: header is cpioHeader.value;
-    var integer: symlinkCount is 5;
+    var integer: symlinkCount is MAX_SYMLINKS;
   begin
     # writeln("fileType: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -789,38 +762,32 @@ const func fileType: fileTypeSL (inout cpioArchive: cpio, in string: filePath) i
 
 (**
  *  Determine the file mode (permissions) of a file in a CPIO archive.
+ *  The function follows symbolic links.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func fileMode: fileMode (inout cpioArchive: cpio, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
-  local
-    var integer: modeValue is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      modeValue := cpio.catalog[filePath].mode;
-    elsif filePath in cpio.register then
-      modeValue := addToCatalog(cpio, filePath).mode;
-    elsif implicitDir(cpio, filePath) then
-      modeValue := addImplicitDir(cpio, filePath).mode;
     else
-      raise FILE_ERROR;
+      mode := fileMode(followSymlink(cpio, filePath).mode);
     end if;
-    # writeln(filePath <& " mode: " <& modeValue radix 8);
-    mode := fileMode conv modeValue;
   end func;
 
 
 (**
  *  Change the file mode (permissions) of a file in a CPIO archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
  *)
 const proc: setFileMode (inout cpioArchive: cpio, in string: filePath,
     in fileMode: mode) is func
@@ -829,18 +796,17 @@ const proc: setFileMode (inout cpioArchive: cpio, in string: filePath,
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      cpio.catalog[filePath].mode := cpio.catalog[filePath].mode >> 9 << 9 +
-          integer(mode);
-    elsif filePath in cpio.register then
-      header := addToCatalog(cpio, filePath);
-      header.mode := header.mode >> 9 << 9 + integer(mode);
-      cpio.catalog @:= [filePath] header;
     else
-      raise FILE_ERROR;
+      header := followSymlink(cpio, filePath);
+      if header.filePath in cpio.register then
+        header.mode := (header.mode >> 9 << 9) + integer(mode);
+        cpio.catalog @:= [header.filePath] header;
+        seek(cpio.cpioFile, cpio.register[header.filePath]);
+        writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
-    seek(cpio.cpioFile, cpio.register[filePath]);
-    writeHead(cpio.cpioFile, cpio.catalog[filePath]);
   end func;
 
 
@@ -848,67 +814,56 @@ const proc: setFileMode (inout cpioArchive: cpio, in string: filePath,
  *  Determine the size of a file in a CPIO archive.
  *  The file size is measured in bytes.
  *  For directories a size of 0 is returned.
+ *  The function follows symbolic links.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func integer: fileSize (inout cpioArchive: cpio, in string: filePath) is func
   result
     var integer: size is 0;
-  local
-    var cpioHeader: header is cpioHeader.value;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      size := cpio.catalog[filePath].fileSize;
-    elsif filePath in cpio.register then
-      size := addToCatalog(cpio, filePath).fileSize;
-    elsif implicitDir(cpio, filePath) then
-      size := addImplicitDir(cpio, filePath).fileSize;
     else
-      raise FILE_ERROR;
+      size := followSymlink(cpio, filePath).fileSize;
     end if;
   end func;
 
 
 (**
  *  Determine the modification time of a file in a CPIO archive.
+ *  The function follows symbolic links.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func time: getMTime (inout cpioArchive: cpio, in string: filePath) is func
   result
     var time: modificationTime is time.value;
-  local
-    var cpioHeader: header is cpioHeader.value;
-    var integer: mtime is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      mtime := cpio.catalog[filePath].mtime;
-    elsif filePath in cpio.register then
-      mtime := addToCatalog(cpio, filePath).mtime;
-    elsif implicitDir(cpio, filePath) then
-      mtime := addImplicitDir(cpio, filePath).mtime;
     else
-      raise FILE_ERROR;
+      modificationTime := timestamp1970ToTime(
+          followSymlink(cpio, filePath).mtime);
     end if;
-    modificationTime := timestamp1970ToTime(mtime);
   end func;
 
 
 (**
  *  Set the modification time of a file in a CPIO archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive, or
+ *             the chain of symbolic links is too long.
  *)
 const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
     in time: modificationTime) is func
@@ -917,22 +872,20 @@ const proc: setMTime (inout cpioArchive: cpio, in string: filePath,
     var cpioHeader: header is cpioHeader.value;
   begin
     mtime := timestamp1970(modificationTime);
-    if mtime < 0 or mtime >= 2 ** 31 then
+    if mtime < 0 or mtime >= 2 ** 31 or
+        (filePath <> "/" and endsWith(filePath, "/")) then
       raise RANGE_ERROR;
-    end if;
-    if filePath <> "/" and endsWith(filePath, "/") then
-      raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      cpio.catalog[filePath].mtime := mtime;
-    elsif filePath in cpio.register then
-      header := addToCatalog(cpio, filePath);
-      header.mtime := mtime;
-      cpio.catalog @:= [filePath] header;
     else
-      raise FILE_ERROR;
+      header := followSymlink(cpio, filePath);
+      if header.filePath in cpio.register then
+        header.mtime := mtime;
+        cpio.catalog @:= [header.filePath] header;
+        seek(cpio.cpioFile, cpio.register[header.filePath]);
+        writeHead(cpio.cpioFile, cpio.catalog[header.filePath]);
+      else
+        raise FILE_ERROR;
+      end if;
     end if;
-    seek(cpio.cpioFile, cpio.register[filePath]);
-    writeHead(cpio.cpioFile, cpio.catalog[filePath]);
   end func;
 
 
@@ -970,11 +923,13 @@ const func string: readlink (inout cpioArchive: cpio, in string: filePath) is fu
 
 (**
  *  Get the contents of a file in a CPIO archive.
+ *  The function follows symbolic links.
  *  @return the specified file as string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the CPIO archive,
- *             or is not a regular file.
+ *             or is not a regular file, or
+ *             the chain of symbolic links is too long.
  *)
 const func string: getFile (inout cpioArchive: cpio, in string: filePath) is func
   result
@@ -984,20 +939,14 @@ const func string: getFile (inout cpioArchive: cpio, in string: filePath) is fun
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      header := cpio.catalog[filePath];
+    else
+      header := followSymlink(cpio, filePath);
       if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
         seek(cpio.cpioFile, header.dataStartPos);
+        content := gets(cpio.cpioFile, header.fileSize);
+      else
+        raise FILE_ERROR;
       end if;
-    elsif filePath in cpio.register then
-      header := addToCatalog(cpio, filePath);
-    else
-      raise FILE_ERROR;
-    end if;
-    if bin32(header.mode) & MODE_FILE_TYPE_MASK = MODE_FILE_REGULAR then
-      content := gets(cpio.cpioFile, header.fileSize);
-    else
-      raise FILE_ERROR;
     end if;
   end func;
 
@@ -1005,97 +954,98 @@ const func string: getFile (inout cpioArchive: cpio, in string: filePath) is fun
 (**
  *  Write ''data'' to a CPIO archive with the given ''filePath''.
  *  If the file exists already, it is overwritten.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *)
-const proc: putFile (inout cpioArchive: cpio, in string: filePath,
+const proc: putFile (inout cpioArchive: cpio, in var string: filePath,
     in string: data) is func
   local
     var cpioHeader: header is cpioHeader.value;
-    var boolean: fileExists is TRUE;
+    var string: missingPath is "";
     var boolean: appendFile is TRUE;
     var integer: length is 0;
     var string: filePath8 is "";
   begin
-    if filePath <> "/" and endsWith(filePath, "/") then
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in cpio.catalog then
-      header := cpio.catalog[filePath];
-    elsif filePath in cpio.register then
-      header := addToCatalog(cpio, filePath);
-    elsif implicitDir(cpio, filePath) then
-      header := addImplicitDir(cpio, filePath);
     else
-      fileExists := FALSE;
-    end if;
-    if fileExists then
-      if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
-        raise FILE_ERROR;
+      missingPath := followSymlink(cpio, filePath, header);
+      if missingPath = "" then
+        # The file does exist.
+        filePath := header.filePath;
+        if bin32(header.mode) & MODE_FILE_TYPE_MASK <> MODE_FILE_REGULAR then
+          raise FILE_ERROR;
+        else
+          if succ(pred(header.fileSize) mdiv header.padding) * header.padding =
+              succ(pred(length(data)) mdiv header.padding) * header.padding then
+            # The number of blocks used of the old file and the new file are identical.
+            # The file data is rewritten in place.
+            header.fileSize := length(data);
+            if header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
+              header.check := computeCheck(data);
+            end if;
+            cpio.catalog @:= [filePath] header;
+            seek(cpio.cpioFile, cpio.register[filePath]);
+            writeHead(cpio.cpioFile, header);
+            seek(cpio.cpioFile, header.dataStartPos);
+            write(cpio.cpioFile, data);
+            write(cpio.cpioFile, "\0;" mult pred(header.padding) -
+                  pred(header.fileSize) mod header.padding);
+            appendFile := FALSE;
+          end if;
+        end if;
+      else
+        filePath := missingPath;
       end if;
-      if succ(pred(header.fileSize) mdiv header.padding) * header.padding =
-          succ(pred(length(data)) mdiv header.padding) * header.padding then
-        # The number of blocks used of the old file and the new file are identical.
-        # The file data is rewritten in place.
+      if appendFile then
+        filePath8 := striToUtf8(filePath);
+        if missingPath <> "" then
+          header.magic      := cpio.magic;
+          header.ino        := 0;
+          header.mode       := ord(MODE_FILE_REGULAR) + 8#664;
+          header.uid        := 100;
+          header.gid        := 100;
+          header.nlink      := 1;
+          header.mtime      := timestamp1970(time(NOW));
+          header.devmajor   := 0;
+          header.devminor   := 0;
+          header.rdevmajor  := 0;
+          header.rdevminor  := 0;
+          header.nameSize   := succ(length(filePath8));
+          header.check      := 0;
+          header.headerSize := cpio.headerSize;
+          header.filePath   := filePath;
+          header.padding    := cpio.padding;
+        end if;
+        length := length(cpio.cpioFile);
+        if cpio.trailerPos = 0 then
+          seek(cpio.cpioFile, succ(length));
+          # Add zero bytes such that the next header starts
+          # at a multiple of the block size:
+          write(cpio.cpioFile, "\0;" mult pred(header.padding) -
+                pred(length) mod header.padding);
+        else
+          seek(cpio.cpioFile, cpio.trailerPos);
+        end if;
+        cpio.register @:= [filePath] tell(cpio.cpioFile);
         header.fileSize := length(data);
         if header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
           header.check := computeCheck(data);
         end if;
-        cpio.catalog @:= [filePath] header;
-        seek(cpio.cpioFile, cpio.register[filePath]);
         writeHead(cpio.cpioFile, header);
-        seek(cpio.cpioFile, header.dataStartPos);
+        write(cpio.cpioFile, filePath8 <& "\0;");
+        write(cpio.cpioFile, "\0;" mult pred(header.padding) -
+              pred(header.headerSize + header.nameSize) mod header.padding);
+        header.dataStartPos := tell(cpio.cpioFile);
+        cpio.catalog @:= [filePath] header;
         write(cpio.cpioFile, data);
         write(cpio.cpioFile, "\0;" mult pred(header.padding) -
-                                   pred(header.fileSize) mod header.padding);
-        appendFile := FALSE;
+              pred(header.fileSize) mod header.padding);
+        cpio.trailerPos := tell(cpio.cpioFile);
+        writeTrailer(cpio.cpioFile, header);
+        flush(cpio.cpioFile);
       end if;
-    end if;
-    if appendFile then
-      length := length(cpio.cpioFile);
-      if succ(length) < cpio.trailerPos then
-        seek(cpio.cpioFile, succ(length));
-        # Add zero bytes such that the next header starts
-        # at a multiple of the block size:
-        write(cpio.cpioFile, "\0;" mult pred(header.padding) -
-                                        pred(length) mod header.padding);
-      else
-        seek(cpio.cpioFile, cpio.trailerPos);
-      end if;
-      cpio.register @:= [filePath] tell(cpio.cpioFile);
-      filePath8 := striToUtf8(filePath);
-      if not fileExists then
-        header.magic      := cpio.magic;
-        header.ino        := 0;
-        header.mode       := ord(MODE_FILE_REGULAR) + 8#664;
-        header.uid        := 100;
-        header.gid        := 100;
-        header.nlink      := 1;
-        header.mtime      := timestamp1970(time(NOW));
-        header.devmajor   := 0;
-        header.devminor   := 0;
-        header.rdevmajor  := 0;
-        header.rdevminor  := 0;
-        header.nameSize   := length(filePath8);
-        header.check      := 0;
-        header.headerSize := cpio.headerSize;
-        header.filePath   := filePath;
-        header.padding    := cpio.padding;
-      end if;
-      header.fileSize := length(data);
-      if header.magic = CPIO_NEW_ASCII_CRC_MAGIC then
-        header.check := computeCheck(data);
-      end if;
-      writeHead(cpio.cpioFile, header);
-      write(cpio.cpioFile, filePath8);
-      write(cpio.cpioFile, "\0;" mult pred(header.padding) -
-            pred(header.headerSize + length(filePath8)) mod header.padding);
-      header.dataStartPos := tell(cpio.cpioFile);
-      cpio.catalog @:= [filePath] header;
-      write(cpio.cpioFile, data);
-      write(cpio.cpioFile, "\0;" mult pred(header.padding) -
-            pred(header.fileSize) mod header.padding);
-      writeTrailer(cpio.cpioFile, header);
-      flush(cpio.cpioFile);
     end if;
   end func;
 
@@ -1114,7 +1064,7 @@ const proc: mkdir (inout cpioArchive: cpio, in string: filePath) is func
     var integer: length is 0;
     var string: filePath8 is "";
   begin
-    if filePath <> "/" and endsWith(filePath, "/") then
+    if filePath = "" or filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     elsif filePath in cpio.catalog then
       dataStartPos := cpio.catalog[filePath].dataStartPos;
@@ -1128,17 +1078,6 @@ const proc: mkdir (inout cpioArchive: cpio, in string: filePath) is func
     if fileExists and dataStartPos <> -1 then
       raise FILE_ERROR;
     else
-      length := length(cpio.cpioFile);
-      if succ(length) < cpio.trailerPos then
-        seek(cpio.cpioFile, succ(length));
-        # Add zero bytes such that the next header starts
-        # at a multiple of the block size:
-        write(cpio.cpioFile, "\0;" mult pred(header.padding) -
-                                        pred(length) mod header.padding);
-      else
-        seek(cpio.cpioFile, cpio.trailerPos);
-      end if;
-      cpio.register @:= [filePath] tell(cpio.cpioFile);
       filePath8 := striToUtf8(filePath);
       if not fileExists then
         header.magic      := cpio.magic;
@@ -1152,19 +1091,31 @@ const proc: mkdir (inout cpioArchive: cpio, in string: filePath) is func
         header.devminor   := 0;
         header.rdevmajor  := 0;
         header.rdevminor  := 0;
-        header.nameSize   := length(filePath8);
+        header.nameSize   := succ(length(filePath8));
         header.check      := 0;
         header.headerSize := cpio.headerSize;
         header.filePath   := filePath;
         header.padding    := cpio.padding;
       end if;
+      length := length(cpio.cpioFile);
+      if cpio.trailerPos = 0 then
+        seek(cpio.cpioFile, succ(length));
+        # Add zero bytes such that the next header starts
+        # at a multiple of the block size:
+        write(cpio.cpioFile, "\0;" mult pred(header.padding) -
+                                        pred(length) mod header.padding);
+      else
+        seek(cpio.cpioFile, cpio.trailerPos);
+      end if;
+      cpio.register @:= [filePath] tell(cpio.cpioFile);
       header.fileSize := 0;
       writeHead(cpio.cpioFile, header);
-      write(cpio.cpioFile, filePath8);
+      write(cpio.cpioFile, filePath8 <& "\0;");
       write(cpio.cpioFile, "\0;" mult pred(header.padding) -
-            pred(header.headerSize + length(filePath8)) mod header.padding);
+            pred(header.headerSize + header.nameSize) mod header.padding);
       header.dataStartPos := tell(cpio.cpioFile);
       cpio.catalog @:= [filePath] header;
+      cpio.trailerPos := tell(cpio.cpioFile);
       writeTrailer(cpio.cpioFile, header);
       flush(cpio.cpioFile);
     end if;

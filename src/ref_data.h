@@ -31,9 +31,9 @@ objectType refAllocInt (boolType isVar, typeType aType,
 objectType refAllocStri (boolType isVar, typeType aType,
                          const const_striType stri);
 objectType refAllocVar (typeType aType, const intType aCategory);
-intType refArrMaxIdx (const const_objectType aReference);
-intType refArrMinIdx (const const_objectType aReference);
-listType refArrToList (const const_objectType aReference);
+intType refArrMaxIdx (const const_objectType arrayRef);
+intType refArrMinIdx (const const_objectType arrayRef);
+listType refArrToList (const const_objectType arrayRef);
 objectType refBody (const const_objectType funcRef);
 intType refCategory (const const_objectType aReference);
 intType refCatParse (const const_striType category_name);

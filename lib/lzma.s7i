@@ -63,11 +63,16 @@ const func string: gets (inout lzmaRangeDecoderState: decoderState, in integer: 
     var string: stri is "";
   begin
     if pred(decoderState.inBufferPos + length) > length(decoderState.inBuffer) then
-      decoderState.inBuffer := gets(decoderState.compressed,
-          pred(decoderState.inBufferPos + length) - length(decoderState.inBuffer));
+      # Not enough chars in inBuffer.
+      stri := decoderState.inBuffer[decoderState.inBufferPos ..] &
+              gets(decoderState.compressed,
+                   pred(decoderState.inBufferPos + length) - length(decoderState.inBuffer));
+      decoderState.inBuffer := "";
+      decoderState.inBufferPos := 1;
+    else
+      stri := decoderState.inBuffer[decoderState.inBufferPos len length];
+      decoderState.inBufferPos +:= length(stri);
     end if;
-    stri := decoderState.inBuffer[decoderState.inBufferPos len length];
-    decoderState.inBufferPos +:= length(stri);
   end func;
 
 
@@ -432,7 +437,7 @@ const proc: decodeLiteral (inout lzmaDecoder: lzma, in integer: state, in intege
     if length(lzma.uncompressed) >= lzma.dictStartPos then
       prevByte := ord(lzma.uncompressed[length(lzma.uncompressed)]);
     end if;
-    
+
     litState := ((length(lzma.uncompressed) mod (1 << lzma.lp)) << lzma.lc) + (prevByte >> (8 - lzma.lc));
 
     if state >= 7 then
@@ -774,7 +779,9 @@ const func integer: length (inout lzmaFile: aFile) is func
     if aFile.unpackSizeDefined then
       length := aFile.unpackSize;
     else
-      aFile.decodeResult := decodePacket(aFile.lzmaDec, TRUE, integer.last);
+      if aFile.decodeResult = LZMA_RES_ONGOING then
+        aFile.decodeResult := decodePacket(aFile.lzmaDec, TRUE, integer.last);
+      end if;
       length := length(aFile.lzmaDec.uncompressed);
     end if;
   end func;

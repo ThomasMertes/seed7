@@ -151,8 +151,10 @@ const proc: push_inline_func_param (in reference: formal_param,
         c_expr.expr &:= "/* push param o_";
         create_name2(formal_param, c_expr.expr);
         c_expr.expr &:= " */ ";
-        if not isVar(formal_param) and not isPointerParam(formal_param) then
-          if useConstPrefix(param_type) then
+        if not isVar(formal_param) then
+          if isPointerParam(formal_param) then
+            c_expr.temp_decls &:= "const ";
+          elsif useConstPrefix(param_type) then
             c_expr.temp_decls &:= "const_";
           end if;
         end if;

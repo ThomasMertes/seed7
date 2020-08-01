@@ -44,7 +44,7 @@
 #if UNISTD_H_PRESENT
 #include "unistd.h"
 #endif
-#ifdef ISATTY_INCLUDE_IO_H
+#if defined ISATTY_INCLUDE_IO_H || defined FTRUNCATE_INCLUDE_IO_H
 #include "io.h"
 #endif
 #include "errno.h"
@@ -83,6 +83,14 @@ extern C __int64 __cdecl _ftelli64 (FILE *);
 
 #ifdef DEFINE_WPOPEN
 DEFINE_WPOPEN
+#endif
+
+#ifdef DEFINE_CHSIZE_S_PROTOTYPE
+extern int _chsize_s (int fd, int64Type size);
+#endif
+
+#ifdef DEFINE_CHSIZE_PROTOTYPE
+extern int _chsize (int fd, long size);
 #endif
 
 #define MAX_MODE_LEN               5
@@ -1793,6 +1801,78 @@ intType filTell (fileType aFile)
     logFunction(printf("filTell --> " FMT_D "\n", position););
     return position;
   } /* filTell */
+
+
+
+/**
+ *  Truncate 'aFile' to the given 'length'.
+ *  If the file previously was larger than 'length', the extra data is lost.
+ *  If the file previously was shorter, it is extended, and the extended
+ *  part is filled with null bytes ('\0;').
+ *  @param aFile File to be truncated.
+ *  @param length Requested length of 'aFile' in bytes.
+ *  @exception RANGE_ERROR The requested length is negative or
+ *             the length is not representable in the type
+ *             used by the system function.
+ *  @exception FILE_ERROR A system function returns an error.
+ */
+void filTruncate (fileType aFile, intType length)
+
+  {
+    int file_no;
+    fpos_t pos;
+
+  /* filTruncate */
+    logFunction(printf("filTruncate(%d, " FMT_D ")\n", safe_fileno(aFile), length););
+    if (unlikely(length < 0)) {
+      logError(printf("filTruncate(%d, " FMT_D "): Length < 0.\n",
+                      safe_fileno(aFile), length););
+      raise_error(RANGE_ERROR);
+#if FTRUNCATE_SIZE < INTTYPE_SIZE
+#if FTRUNCATE_SIZE == 32
+    } else if (unlikely(length > INT32TYPE_MAX)) {
+      logError(printf("filTruncate(%d, " FMT_D "): "
+                      "Length not representable in the system file length type.\n",
+                      safe_fileno(aFile), length););
+      raise_error(RANGE_ERROR);
+#elif FTRUNCATE_SIZE == 64
+    } else if (unlikely(length > INT64TYPE_MAX)) {
+      logError(printf("filTruncate(%d, " FMT_D "): "
+                      "Length not representable in the system file length type.\n",
+                      safe_fileno(aFile), length););
+      raise_error(RANGE_ERROR);
+#else
+#error "FTRUNCATE_SIZE is neither 32 nor 64."
+#endif
+#endif
+    } else {
+      file_no = fileno(aFile);
+      if (unlikely(file_no == -1)) {
+        logError(printf("filTruncate(%d): fileno(%d) failed:\n"
+                        "errno=%d\nerror: %s\n",
+                        safe_fileno(aFile), safe_fileno(aFile),
+                        errno, strerror(errno)););
+        raise_error(FILE_ERROR);
+      } else {
+        /* Use fgetpos() and fsetpos() to ensure, that the internal buffer */
+        /* of aFile is synchronized with the underlying file descriptor file. */
+        /* This way nothing written is lost. */
+        if (unlikely(fgetpos(aFile, &pos) != 0 || fsetpos(aFile, &pos) != 0)) {
+          logError(printf("filTruncate(%d): fgetpos/fsetpos(%d) failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          file_no, file_no, errno, strerror(errno)););
+          raise_error(FILE_ERROR);
+        } else if (unlikely(os_ftruncate(file_no, length) != 0)) {
+          logError(printf("filTruncate(%d, " FMT_D "): "
+                          "ftruncate(%d, " FMT_D ") failed:\n"
+                          "errno=%d\nerror: %s\n",
+                          file_no, length, file_no, length,
+                          errno, strerror(errno)););
+          raise_error(FILE_ERROR);
+        } /* if */
+      } /* if */
+    } /* if */
+  } /* filTruncate */
 
 
 

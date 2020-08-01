@@ -516,9 +516,9 @@ const func bigInteger: rand (in bigInteger: low, in bigInteger: high)    is acti
 
 
 (**
- *  Number of bits in the minimal two's-complement representation.
+ *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
- *  minimal two's-complement representation.
+ *  minimum two's-complement representation.
  *  @return the number of bits.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  *)

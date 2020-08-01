@@ -336,9 +336,9 @@ bigIntType bigAnd (const_bigIntType big1, const_bigIntType big2)
 
 
 /**
- *  Number of bits in the minimal two's-complement representation.
+ *  Number of bits in the minimum two's-complement representation.
  *  The high bits equivalent to the sign bit are not part of the
- *  minimal two's-complement representation.
+ *  minimum two's-complement representation.
  *  @return the number of bits.
  *  @exception RANGE_ERROR The result does not fit into an integer.
  */

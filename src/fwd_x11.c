@@ -143,6 +143,8 @@ typedef Status (*tp_XGetGeometry) (Display *display, Drawable drawable,
 typedef XImage *(*tp_XGetImage) (Display *display, Drawable drawable, int x, int y,
                                  unsigned int width, unsigned int height,
                                  unsigned long plane_mask, int format);
+typedef int (*tp_XGetKeyboardControl) (Display *display,
+                                       XKeyboardState *values_return);
 typedef unsigned long (*tp_XGetPixel) (XImage *ximage, int x, int y);
 typedef Status (*tp_XGetWindowAttributes) (Display *display, Window window,
                                            XWindowAttributes *window_attributes_return);
@@ -226,6 +228,7 @@ static tp_XFreeGC                 ptr_XFreeGC;
 static tp_XFreePixmap             ptr_XFreePixmap;
 static tp_XGetGeometry            ptr_XGetGeometry;
 static tp_XGetImage               ptr_XGetImage;
+static tp_XGetKeyboardControl     ptr_XGetKeyboardControl;
 static tp_XGetPixel               ptr_XGetPixel;
 static tp_XGetWindowAttributes    ptr_XGetWindowAttributes;
 static tp_XInternAtom             ptr_XInternAtom;
@@ -302,6 +305,7 @@ static boolType setupDll (const char *dllName)
             (ptr_XFreePixmap             = (tp_XFreePixmap)             dllFunc(x11Dll, "XFreePixmap"))             == NULL ||
             (ptr_XGetGeometry            = (tp_XGetGeometry)            dllFunc(x11Dll, "XGetGeometry"))            == NULL ||
             (ptr_XGetImage               = (tp_XGetImage)               dllFunc(x11Dll, "XGetImage"))               == NULL ||
+            (ptr_XGetKeyboardControl     = (tp_XGetKeyboardControl)     dllFunc(x11Dll, "XGetKeyboardControl"))     == NULL ||
             (ptr_XGetPixel               = (tp_XGetPixel)               dllFunc(x11Dll, "XGetPixel"))               == NULL ||
             (ptr_XGetWindowAttributes    = (tp_XGetWindowAttributes)    dllFunc(x11Dll, "XGetWindowAttributes"))    == NULL ||
             (ptr_XInternAtom             = (tp_XInternAtom)             dllFunc(x11Dll, "XInternAtom"))             == NULL ||
@@ -950,6 +954,22 @@ XImage *XGetImage (Display *display, Drawable drawable, int x, int y,
                        (memSizeType) xImage););
     return xImage;
   } /* XGetImage */
+
+
+
+int XGetKeyboardControl (Display *display,
+                         XKeyboardState *values_return)
+
+  {
+    int funcResult;
+
+  /* XGetKeyboardControl */
+    logFunction(printf("XGetKeyboardControl(" FMT_U_MEM ", " FMT_U_MEM ")\n",
+                       (memSizeType) display, (memSizeType) values_return););
+    funcResult = ptr_XGetKeyboardControl(display, values_return);
+    logFunction(printf("XGetKeyboardControl --> %d\n", funcResult););
+    return funcResult;
+  } /* XGetKeyboardControl */
 
 
 

@@ -244,12 +244,12 @@ How many lines of code are in the Seed7 project?
 ================================================
 
 The Seed7 package contains more than 100000 lines of C and more
-than 300000 lines of Seed7. For version 2020-05-02 the number of lines is:
+than 300000 lines of Seed7. For version 2020-05-31 the number of lines is:
 
-  157582  C source files (*.c)
-   12548  C header files (*.h)
-  176184  Seed7 source files (*.sd7)
-  155437  Seed7 library/include files (*.s7i)
+  158184  C source files (*.c)
+   12569  C header files (*.h)
+  176424  Seed7 source files (*.sd7)
+  156627  Seed7 library/include files (*.s7i)
 
 C code (*.c and *.h files) can be divided into the following areas:
 
@@ -1876,7 +1876,7 @@ obvious what it is going on. This way the program is easier to read.
 Are there exceptions?
 =====================
 
-Yes, Seed7 has exceptions which are similar to Ada exceptions. Chapter 14.2
+Yes, Seed7 has exceptions which are similar to Ada exceptions. Chapter 16.2
 (Exceptions) of the manual contains a detailed description of the Seed7 exceptions.
 
 
@@ -1918,7 +1918,7 @@ signal, if an uncaught exception occurs. This option allows debuggers to handle
 uncaught Seed7 exceptions. Note that -e sends the signal SIGFPE. This is done even
 if the exception is not related to floating point operations.
 
-Chapter 14.4 (Stack trace) of the manual contains a detailed description how to
+Chapter 16.4 (Stack trace) of the manual contains a detailed description how to
 debug compiled Seed7 programs.
 
 
@@ -2216,7 +2216,7 @@ For example:
 The action "INT_ADD" corresponds to the function 'int_add' in the file
 'seed7/src/intlib.c'.
 
-Chapter 13 (Primitive actions) of the manual contains a detailed description
+Chapter 14 (Primitive actions) of the manual contains a detailed description
 of the primitive actions. In the interpreter all action functions get the
 parameters as list. The action functions take the parameters they need from the
 list, perform the action and deliver a result.

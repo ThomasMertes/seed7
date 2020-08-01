@@ -337,7 +337,7 @@ const proc: DECLS                                  is action "PRC_DECLS";
 
 (* void *)
 
-const proc: (ref void: dest) ::= (in void: source) is noop;
+const proc: (ref void: dest) ::= (in void: source) is action "ENU_CREATE";
 const proc: destroy (ref void: aVoid)              is noop;
 const void: (attr void) . value                    is empty;
 

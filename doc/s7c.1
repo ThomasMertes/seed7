@@ -61,6 +61,9 @@ Optimize constants with level n. E.g.:
 .B \-oc3
 Where n is a digit between 0 and 3
 .TP
+.B \-p
+Activate simple function profiling.
+.TP
 .B \-sx
 Suppress checks specified with x. E.g.:
 .B \-sr
@@ -99,11 +102,14 @@ The option
 can suppress checks.
 The checks x are specified with letters from the following list:
 .TP
-.I  r
-Suppress the generation of range checks for strings and arrays.
+.I  d
+Suppress the generation of checks for integer division by zero.
 .TP
 .I  o
 Suppress the generation of integer overflow checks.
+.TP
+.I  r
+Suppress the generation of range checks for strings and arrays.
 .PD 1
 .SH TRACE LEVEL
 .PD 0
@@ -114,6 +120,9 @@ The trace levels x are specified with letters from the following list:
 .TP
 .I  e
 Trace exceptions and handlers
+.TP
+.I  f
+Trace functions
 .TP
 .I  s
 Trace signals

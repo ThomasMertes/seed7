@@ -32,12 +32,14 @@ include "filesys.s7i";
 include "filebits.s7i";
 include "bytedata.s7i";
 include "gzip.s7i";
+include "lzma.s7i";
 include "xz.s7i";
 include "cpio.s7i";
 
 
 const string: RPM_LEAD_MAGIC is "\16#ed;\16#ab;\16#ee;\16#db;";
 const string: RPM_HEADER_MAGIC is "\16#8e;\16#ad;\16#e8;";
+
 
 const type: rpmLead is new struct
     var string: magic is "";
@@ -891,13 +893,12 @@ const proc: getArchive (inout rpmArchive: rpm) is func
       # writeln("compressor: " <& compressor);
       case compressor of
         when {"gzip"}: payload := openGunzipFile(rpm.rpmFile);
+        when {"lzma"}: payload := openLzmaFile(rpm.rpmFile);
         when {"xz"}:   payload := openXzFile(rpm.rpmFile);
       end case;
     end if;
     if payload <> STD_NULL then
       # writeln("length uncompressed: " <& length(payload));
-      # writeln(store[1 len 50]);
-      # writeln(hex(store[1 len 25]));
       if RPMTAG_PAYLOADFORMAT in rpm.metadata then
         format := getStriValue(rpm.metadataStore, rpm.metadata[RPMTAG_PAYLOADFORMAT]);
         # writeln("format: " <& format);
@@ -1025,6 +1026,47 @@ const func boolean: implicitDir (inout rpmArchive: rpm, in string: dirPath) is f
   end func;
 
 
+const func integer: followSymlink (inout rpmArchive: rpm, in var string: filePath) is func
+  result
+    var integer: fileNumber is 0;
+  local
+    var integer: offset is 0;
+    var integer: pos is 0;
+    var integer: modeValue is 0;
+    var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is TRUE;
+  begin
+    repeat
+      if filePath in rpm.implicitDirs then
+        fileNumber := 0;
+        isSymlink := FALSE;
+      elsif filePath in rpm.register then
+        fileNumber := rpm.register[filePath];
+        offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
+        pos := offset + pred(fileNumber) * 2;
+        modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+        if bin32(modeValue) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+          filePath := rpm.linkTo[fileNumber];
+        else
+          isSymlink := FALSE;
+        end if;
+      elsif implicitDir(rpm, filePath) then
+        incl(rpm.implicitDirs, filePath);
+        fileNumber := 0;
+        isSymlink := FALSE;
+      else
+        # The file does not exist.
+        raise FILE_ERROR;
+      end if;
+      decr(symlinkCount);
+    until not isSymlink or symlinkCount = 0;
+    if isSymlink then
+      # Too many symbolic links.
+      raise FILE_ERROR;
+    end if;
+  end func;
+
+
 (**
  *  Determine the file names in a directory inside a RPM archive.
  *  Note that the function returns only the file names.
@@ -1104,7 +1146,7 @@ const func array string: readDir (inout rpmArchive: rpm, RECURSIVE) is
 
 (**
  *  Determine the type of a file in a RPM archive.
- *  The function does follow symbolic links. If the chain of
+ *  The function follows symbolic links. If the chain of
  *  symbolic links is too long the function returns ''FILE_SYMLINK''.
  *  If a symbolic link refers to a place where the permission
  *  is denied the function returns ''FILE_SYMLINK''.
@@ -1119,11 +1161,11 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
   result
     var fileType: aFileType is FILE_UNKNOWN;
   local
+    var integer: fileNumber is 0;
     var integer: offset is 0;
     var integer: pos is 0;
-    var integer: fileNumber is 0;
     var integer: modeValue is 0;
-    var integer: symlinkCount is 5;
+    var integer: symlinkCount is MAX_SYMLINKS;
   begin
     # writeln("fileType: " <& filePath);
     if filePath <> "/" and endsWith(filePath, "/") then
@@ -1135,8 +1177,8 @@ const func fileType: fileType (inout rpmArchive: rpm, in var string: filePath) i
         if filePath in rpm.implicitDirs then
           aFileType := FILE_DIR;
         elsif filePath in rpm.register then
-          offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
           fileNumber := rpm.register[filePath];
+          offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
           pos := offset + pred(fileNumber) * 2;
           modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
         elsif implicitDir(rpm, filePath) then
@@ -1220,62 +1262,72 @@ const func fileType: fileTypeSL (inout rpmArchive: rpm, in string: filePath) is 
 
 (**
  *  Determine the file mode (permissions) of a file in a RPM archive.
+ *  The function follows symbolic links.
  *  @return the file mode.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func fileMode: fileMode (inout rpmArchive: rpm, in string: filePath) is func
   result
     var fileMode: mode is fileMode.value;
   local
+    var integer: fileNumber is 0;
     var integer: offset is 0;
     var integer: pos is 0;
     var integer: modeValue is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.implicitDirs then
-      modeValue := 8#775;
-    elsif filePath in rpm.register then
-      offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-      pos := offset + pred(rpm.register[filePath]) * 2;
-      modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
-    elsif implicitDir(rpm, filePath) then
-      incl(rpm.implicitDirs, filePath);
-      modeValue := 8#775;
     else
-      raise FILE_ERROR;
+      fileNumber := followSymlink(rpm, filePath);
+      if fileNumber = 0 then
+        # This is an implicit directory.
+        modeValue := 8#775;
+      else
+        offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
+        pos := offset + pred(fileNumber) * 2;
+        modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+      end if;
+      # writeln(filePath <& " mode: " <& modeValue radix 8);
+      mode := fileMode conv modeValue;
     end if;
-    # writeln(filePath <& " mode: " <& modeValue radix 8);
-    mode := fileMode conv modeValue;
   end func;
 
 
 (**
  *  Change the file mode (permissions) of a file in a RPM archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
  *)
 const proc: setFileMode (inout rpmArchive: rpm, in string: filePath,
     in fileMode: mode) is func
   local
     var integer: modeValue is 0;
+    var integer: fileNumber is 0;
     var integer: offset is 0;
     var integer: pos is 0;
   begin
     modeValue := integer conv (mode);
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.register then
-      offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
-      pos := offset + pred(rpm.register[filePath]) * 2;
-      rpm.metadataStore @:= [pos] int32AsFourBytesBe(modeValue);
-      seek(rpm.rpmFile, rpm.metadataStorePos + pos);
-      write(rpm.rpmFile, int32AsFourBytesBe(modeValue));
     else
-      raise FILE_ERROR;
+      fileNumber := followSymlink(rpm, filePath);
+      if fileNumber = 0 then
+        # This is an implicit directory.
+        raise FILE_ERROR;
+      else
+        offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
+        pos := offset + pred(fileNumber) * 2;
+        rpm.metadataStore @:= [pos] int32AsFourBytesBe(modeValue);
+        # The file mode is changed at RPM level but not in the CPIO payload.
+        seek(rpm.rpmFile, rpm.metadataStorePos + pos);
+        write(rpm.rpmFile, int32AsFourBytesBe(modeValue));
+      end if;
     end if;
   end func;
 
@@ -1284,80 +1336,88 @@ const proc: setFileMode (inout rpmArchive: rpm, in string: filePath,
  *  Determine the size of a file in a RPM archive.
  *  The file size is measured in bytes.
  *  For directories a size of 0 is returned.
+ *  The function follows symbolic links.
  *  @return the size of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func integer: fileSize (inout rpmArchive: rpm, in string: filePath) is func
   result
     var integer: size is 0;
   local
+    var integer: fileNumber is 0;
     var integer: offset is 0;
     var integer: pos is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.implicitDirs then
-      size := 0;
-    elsif filePath in rpm.register then
-      offset := succ(rpm.metadata[RPMTAG_FILESIZES].offset);
-      pos := offset + pred(rpm.register[filePath]) * 4;
-      size := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
-    elsif implicitDir(rpm, filePath) then
-      incl(rpm.implicitDirs, filePath);
-      size := 0;
     else
-      raise FILE_ERROR;
+      fileNumber := followSymlink(rpm, filePath);
+      if fileNumber = 0 then
+        # This is an implicit directory.
+        size := 0;
+      else
+        offset := succ(rpm.metadata[RPMTAG_FILESIZES].offset);
+        pos := offset + pred(fileNumber) * 4;
+        size := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
+      end if;
     end if;
   end func;
 
 
 (**
  *  Determine the modification time of a file in a RPM archive.
+ *  The function follows symbolic links.
  *  @return the modification time of the file.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
- *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
  *)
 const func time: getMTime (inout rpmArchive: rpm, in string: filePath) is func
   result
     var time: modificationTime is time.value;
   local
+    var integer: fileNumber is 0;
     var integer: offset is 0;
     var integer: pos is 0;
     var integer: mtime is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.implicitDirs then
-      mtime := 0;
-    elsif filePath in rpm.register then
-      offset := succ(rpm.metadata[RPMTAG_FILEMTIMES].offset);
-      pos := offset + pred(rpm.register[filePath]) * 4;
-      mtime := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
-    elsif implicitDir(rpm, filePath) then
-      incl(rpm.implicitDirs, filePath);
-      mtime := 0;
     else
-      raise FILE_ERROR;
+      fileNumber := followSymlink(rpm, filePath);
+      if fileNumber = 0 then
+        # This is an implicit directory.
+        mtime := 0;
+      else
+        offset := succ(rpm.metadata[RPMTAG_FILEMTIMES].offset);
+        pos := offset + pred(fileNumber) * 4;
+        mtime := bytes2Int(rpm.metadataStore[pos len 4], UNSIGNED, BE);
+      end if;
+      # writeln(filePath <& " mtime: " <& mtime);
+      modificationTime := timestamp1970ToTime(mtime);
     end if;
-    modificationTime := timestamp1970ToTime(mtime);
   end func;
 
 
 (**
  *  Set the modification time of a file in a RPM archive.
+ *  The function follows symbolic links.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception RANGE_ERROR ''aTime'' is invalid or cannot be
  *             converted to the system file time.
- *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive.
+ *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive, or
+ *             the chain of symbolic links is too long.
  *)
 const proc: setMTime (inout rpmArchive: rpm, in string: filePath,
     in time: modificationTime) is func
   local
     var integer: mtime is 0;
+    var integer: fileNumber is 0;
     var integer: offset is 0;
     var integer: pos is 0;
   begin
@@ -1367,14 +1427,19 @@ const proc: setMTime (inout rpmArchive: rpm, in string: filePath,
     end if;
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.register then
-      offset := succ(rpm.metadata[RPMTAG_FILEMTIMES].offset);
-      pos := offset + pred(rpm.register[filePath]) * 4;
-      rpm.metadataStore @:= [pos] int32AsFourBytesBe(mtime);
-      seek(rpm.rpmFile, rpm.metadataStorePos + pos);
-      write(rpm.rpmFile, int32AsFourBytesBe(mtime));
     else
-      raise FILE_ERROR;
+      fileNumber := followSymlink(rpm, filePath);
+      if fileNumber = 0 then
+        # This is an implicit directory.
+        raise FILE_ERROR;
+      else
+        offset := succ(rpm.metadata[RPMTAG_FILEMTIMES].offset);
+        pos := offset + pred(fileNumber) * 4;
+        rpm.metadataStore @:= [pos] int32AsFourBytesBe(mtime);
+        # The modification time is changed at RPM level but not in the CPIO payload.
+        seek(rpm.rpmFile, rpm.metadataStorePos + pos);
+        write(rpm.rpmFile, int32AsFourBytesBe(mtime));
+      end if;
     end if;
   end func;
 
@@ -1391,16 +1456,16 @@ const func string: readlink (inout rpmArchive: rpm, in string: filePath) is func
   result
     var string: linkPath is "";
   local
+    var integer: fileNumber is 0;
     var integer: offset is 0;
     var integer: pos is 0;
-    var integer: fileNumber is 0;
     var integer: modeValue is 0;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
     elsif filePath in rpm.register then
-      offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
       fileNumber := rpm.register[filePath];
+      offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
       pos := offset + pred(fileNumber) * 2;
       modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
     else
@@ -1416,27 +1481,59 @@ const func string: readlink (inout rpmArchive: rpm, in string: filePath) is func
 
 (**
  *  Get the contents of a file in a RPM archive.
+ *  The function follows symbolic links.
  *  @return the specified file as string.
  *  @exception RANGE_ERROR ''filePath'' does not use the standard path
  *             representation.
  *  @exception FILE_ERROR ''filePath'' is not present in the RPM archive,
- *             or is not a regular file.
+ *             or is not a regular file, or
+ *             the chain of symbolic links is too long.
  *)
-const func string: getFile (inout rpmArchive: rpm, in string: filePath) is func
+const func string: getFile (inout rpmArchive: rpm, in var string: filePath) is func
   result
     var string: content is "";
   local
-    var rpmHeader: header is rpmHeader.value;
+    var integer: fileNumber is 0;
+    var integer: offset is 0;
+    var integer: pos is 0;
+    var integer: modeValue is 0;
+    var integer: symlinkCount is MAX_SYMLINKS;
+    var boolean: isSymlink is TRUE;
   begin
     if filePath <> "/" and endsWith(filePath, "/") then
       raise RANGE_ERROR;
-    elsif filePath in rpm.register then
-      if rpm.archive = fileSys.value then
-        getArchive(rpm);
-      end if;
-      content := getFile(rpm.archive, filePath);
     else
-      raise FILE_ERROR;
+      repeat
+        if filePath in rpm.register then
+          fileNumber := rpm.register[filePath];
+          offset := succ(rpm.metadata[RPMTAG_FILEMODES].offset);
+          pos := offset + pred(fileNumber) * 2;
+          modeValue := bytes2Int(rpm.metadataStore[pos len 2], UNSIGNED, BE);
+          if bin32(modeValue) & MODE_FILE_TYPE_MASK = MODE_FILE_SYMLINK then
+            filePath := rpm.linkTo[fileNumber];
+          else
+            isSymlink := FALSE;
+          end if;
+        else
+          # The file is an implizit directory or it does not exist.
+          raise FILE_ERROR;
+        end if;
+        decr(symlinkCount);
+      until not isSymlink or symlinkCount = 0;
+      if isSymlink then
+        # Too many symbolic links.
+        raise FILE_ERROR;
+      else
+        if rpm.archive = fileSys.value then
+          getArchive(rpm);
+        end if;
+        if startsWith(filePath, "/") and
+            fileTypeSL(rpm.archive, filePath) = FILE_ABSENT then
+          content := getFile(rpm.archive, "." & filePath);
+        else
+          content := getFile(rpm.archive, filePath);
+        end if;
+      end if;
     end if;
   end func;
 

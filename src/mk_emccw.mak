@@ -15,10 +15,11 @@ LDFLAGS = -s ASSERTIONS=0 -s ALLOW_MEMORY_GROWTH=1 -s EXTRA_EXPORTED_RUNTIME_MET
 # LDFLAGS = -Wl,--gc-sections,--stack,8388608,--subsystem,windows
 # LDFLAGS = -pg
 # LDFLAGS = -pg -lc_p
-SYSTEM_LIBS =
+SYSTEM_LIBS = -lnodefs.js
 # SYSTEM_LIBS = -lm -lws2_32 -lgmp
 SYSTEM_DRAW_LIBS =
 SYSTEM_CONSOLE_LIBS =
+# SYSTEM_DATABASE_LIBS is defined in the file "macros". The program chkccomp.c writes it to "macros" when doing "make depend".
 SEED7_LIB = seed7_05.a
 DRAW_LIB = s7_draw.a
 CONSOLE_LIB = s7_con.a
@@ -28,9 +29,6 @@ COMPILER_LIB = s7_comp.a
 ALL_S7_LIBS = ..\bin\$(COMPILER_LIB) ..\bin\$(COMP_DATA_LIB) ..\bin\$(DRAW_LIB) ..\bin\$(CONSOLE_LIB) ..\bin\$(DATABASE_LIB) ..\bin\$(SEED7_LIB)
 # CC = em++
 CC = emcc
-GET_CC_VERSION_INFO = $(CC) --version >
-
-TERMINFO_OR_TERMCAP = USE_TERMINFO
 
 MOBJ = s7.o
 POBJ = runerr.o option.o primitiv.o
@@ -97,7 +95,7 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	@echo.
 
 ..\bin\s7.js: $(OBJ) $(ALL_S7_LIBS)
-	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.js
+	$(CC) $(LDFLAGS) $(OBJ) $(ALL_S7_LIBS) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS) -o ..\bin\s7.js
 
 ..\prg\s7.js: ..\bin\s7.js
 	copy ..\bin\s7.js ..\prg /Y
@@ -108,7 +106,7 @@ s7c: ..\bin\s7c.js ..\prg\s7c.js
 	copy ..\prg\s7c.wasm ..\bin /Y
 
 ..\prg\s7c.js: ..\prg\s7c.sd7 $(ALL_S7_LIBS)
-	node --stack_size=2048 ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
+	node --stack-size=2048 ..\bin\s7.js -l ..\lib ..\prg\s7c -l ..\lib -b ..\bin -O2 ..\prg\s7c
 
 sql_%.o: sql_%.c
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDE_OPTIONS) $< -o $@
@@ -138,6 +136,8 @@ clean:
 	del depend
 	del macros
 	del chkccomp.h
+	del base.h
+	del settings.h
 	del version.h
 	del setwpath.exe
 	del wrdepend.exe
@@ -170,64 +170,53 @@ strip:
 	strip ..\bin\s7.exe
 
 chkccomp.h:
-	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
-	echo #define MYSQL_DLL "" >> chkccomp.h
-	echo #define MYSQL_USE_DLL >> chkccomp.h
-	echo #define SQLITE_DLL "" >> chkccomp.h
-	echo #define SQLITE_USE_DLL >> chkccomp.h
-	echo #define POSTGRESQL_DLL "" >> chkccomp.h
-	echo #define POSTGRESQL_USE_DLL >> chkccomp.h
-	echo #define ODBC_DLL "" >> chkccomp.h
-	echo #define ODBC_USE_DLL >> chkccomp.h
-	echo #define OCI_DLL "" >> chkccomp.h
-	echo #define OCI_USE_DLL >> chkccomp.h
-	echo #define FIRE_LIBS "-lfbclient" >> chkccomp.h
-	echo #define FIRE_DLL "" >> chkccomp.h
-	echo #define FIRE_USE_DLL >> chkccomp.h
+	echo #define LIST_DIRECTORY_CONTENTS "dir" > chkccomp.h
 
-version.h: chkccomp.h
-	echo #define PATH_DELIMITER '\\' > version.h
-	echo #define SEARCH_PATH_DELIMITER 0 >> version.h
-	echo #define AWAIT_WITH_NANOSLEEP >> version.h
-	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> version.h
-	echo #define USE_EGL >> version.h
-	echo #define $(TERMINFO_OR_TERMCAP) >> version.h
-	echo #define CONSOLE_UTF8 >> version.h
-	echo #define OS_STRI_UTF8 >> version.h
-	echo #define QUOTE_WHOLE_SHELL_COMMAND >> version.h
-	echo #define OBJECT_FILE_EXTENSION ".o" >> version.h
-	echo #define LIBRARY_FILE_EXTENSION ".a" >> version.h
-	echo #define LINKED_PROGRAM_EXTENSION ".js" >> version.h
-	echo #define INTERPRETER_FOR_LINKED_PROGRAM "node" >> version.h
-	echo #define MOUNT_NODEFS >> version.h
-	echo #define EMULATE_ENVIRONMENT >> version.h
-	echo #define DEFINE_SYSTEM_FUNCTION >> version.h
-	echo #define C_COMPILER "$(CC)" >> version.h
-	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> version.h
-	echo #define CPLUSPLUS_COMPILER "em++" >> version.h
-	echo #define GET_CC_VERSION_INFO "$(GET_CC_VERSION_INFO)" >> version.h
-	echo #define CC_OPT_DEBUG_INFO "-g" >> version.h
-	echo #define CC_OPT_NO_WARNINGS "-w" >> version.h
-	echo #define CC_FLAGS "" >> version.h
-	echo #define CC_ERROR_FILDES 2 >> version.h
-	echo #define LINKER_OPT_NO_DEBUG_INFO "-Wl,--strip-debug" >> version.h
-	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> version.h
-	echo #define LINKER_FLAGS "$(LDFLAGS)" >> version.h
-	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> version.h
-	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> version.h
-	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> version.h
-	$(GET_CC_VERSION_INFO) cc_vers.txt
+base.h:
+	echo #define PATH_DELIMITER '\\' > base.h
+	echo #define QUOTE_WHOLE_SHELL_COMMAND >> base.h
+	echo #define OBJECT_FILE_EXTENSION ".o" >> base.h
+	echo #define C_COMPILER "$(CC)" >> base.h
+	echo #define CC_OPT_VERSION_INFO "--version" >> base.h
+	echo #define CC_FLAGS "" >> base.h
+	echo #define CC_ERROR_FILEDES 2 >> base.h
+	echo #define CC_VERSION_INFO_FILEDES 1 >> base.h
+	echo #define LINKER_OPT_OUTPUT_FILE "-o " >> base.h
+	echo #define LINKED_PROGRAM_EXTENSION ".js" >> base.h
+	echo #define INTERPRETER_FOR_LINKED_PROGRAM "node" >> base.h
+	echo #define EMULATE_ENVIRONMENT >> base.h
+	echo #define SYSTEM_LIBS "$(SYSTEM_LIBS)" >> base.h
+
+settings.h:
+	echo #define SEARCH_PATH_DELIMITER 0 > settings.h
+	echo #define AWAIT_WITH_NANOSLEEP >> settings.h
+	echo #define IMPLEMENT_PTY_WITH_PIPE2 >> settings.h
+	echo #define USE_EGL >> settings.h
+	echo #define CONSOLE_UTF8 >> settings.h
+	echo #define OS_STRI_UTF8 >> settings.h
+	echo #define LIBRARY_FILE_EXTENSION ".a" >> settings.h
+	echo #define MOUNT_NODEFS >> settings.h
+	echo #define DEFINE_SYSTEM_FUNCTION >> settings.h
+	echo #define CALL_C_COMPILER_FROM_SHELL 1 >> settings.h
+	echo #define CPLUSPLUS_COMPILER "em++" >> settings.h
+	echo #define CC_OPT_DEBUG_INFO "-g" >> settings.h
+	echo #define CC_OPT_NO_WARNINGS "-w" >> settings.h
+	echo #define LINKER_OPT_NO_DEBUG_INFO "-Wl,--strip-debug" >> settings.h
+	echo #define LINKER_FLAGS "$(LDFLAGS)" >> settings.h
+	echo #define SYSTEM_DRAW_LIBS "$(SYSTEM_DRAW_LIBS)" >> settings.h
+	echo #define SYSTEM_CONSOLE_LIBS "$(SYSTEM_CONSOLE_LIBS)" >> settings.h
+	echo #define SEED7_LIB "$(SEED7_LIB)" >> settings.h
+	echo #define DRAW_LIB "$(DRAW_LIB)" >> settings.h
+	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> settings.h
+	echo #define DATABASE_LIB "$(DATABASE_LIB)" >> settings.h
+	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> settings.h
+	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> settings.h
+
+version.h: chkccomp.h base.h settings.h
 	gcc chkccomp.c -o chkccomp
 	.\chkccomp.exe version.h
 	del chkccomp.exe
-	del cc_vers.txt
 	del ctest*.wasm
-	echo #define SEED7_LIB "$(SEED7_LIB)" >> version.h
-	echo #define DRAW_LIB "$(DRAW_LIB)" >> version.h
-	echo #define CONSOLE_LIB "$(CONSOLE_LIB)" >> version.h
-	echo #define DATABASE_LIB "$(DATABASE_LIB)" >> version.h
-	echo #define COMP_DATA_LIB "$(COMP_DATA_LIB)" >> version.h
-	echo #define COMPILER_LIB "$(COMPILER_LIB)" >> version.h
 	gcc -o setpaths setpaths.c
 	.\setpaths.exe "S7_LIB_DIR=$(S7_LIB_DIR)" "SEED7_LIBRARY=$(SEED7_LIBRARY)" >> version.h
 	del setpaths.exe
@@ -254,22 +243,22 @@ level.h:
 	node ../bin/s7.js -l ../lib level
 
 ..\bin\$(SEED7_LIB): $(SEED7_LIB_OBJ)
-	ar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
+	emar r ..\bin\$(SEED7_LIB) $(SEED7_LIB_OBJ)
 
 ..\bin\$(DRAW_LIB): $(DRAW_LIB_OBJ)
-	ar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
+	emar r ..\bin\$(DRAW_LIB) $(DRAW_LIB_OBJ)
 
 ..\bin\$(CONSOLE_LIB): $(CONSOLE_LIB_OBJ)
-	ar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
+	emar r ..\bin\$(CONSOLE_LIB) $(CONSOLE_LIB_OBJ)
 
 ..\bin\$(DATABASE_LIB): $(DATABASE_LIB_OBJ)
-	ar r ..\bin\$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
+	emar r ..\bin\$(DATABASE_LIB) $(DATABASE_LIB_OBJ)
 
 ..\bin\$(COMP_DATA_LIB): $(COMP_DATA_LIB_OBJ)
-	ar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
+	emar r ..\bin\$(COMP_DATA_LIB) $(COMP_DATA_LIB_OBJ)
 
 ..\bin\$(COMPILER_LIB): $(COMPILER_LIB_OBJ)
-	ar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
+	emar r ..\bin\$(COMPILER_LIB) $(COMPILER_LIB_OBJ)
 
 ..\bin\bas7.js: ..\prg\bas7.sd7 ..\bin\s7c.js
 	node ..\bin\s7c.js -l ..\lib -b ..\bin -O2 ..\prg\bas7
@@ -401,10 +390,10 @@ wc: $(SRC)
 	wc $(COMPILER_LIB_SRC)
 
 lint: $(SRC)
-	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -p $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 lint2: $(SRC)
-	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
+	lint -Zn2048 $(SRC) $(SYSTEM_DRAW_LIBS) $(SYSTEM_CONSOLE_LIBS) $(SYSTEM_DATABASE_LIBS) $(SYSTEM_LIBS) $(ADDITIONAL_SYSTEM_LIBS)
 
 ifeq (depend,$(wildcard depend))
 include depend

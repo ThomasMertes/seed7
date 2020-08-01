@@ -268,8 +268,8 @@ const func integer: next (in bitset: aSet, in integer: number)  is action "SET_N
 
 const func bitset: { (in integer: aNumber) }                    is action "SET_BASELIT";
 const func bitset: { (in tuple integer: numberTuple) }          is action "SET_ARRLIT";
-const func bitset: { (in integer: lowerValue) ..
-                     (in integer: upperValue) }                 is action "SET_RANGELIT";
+const func bitset: { (in integer: lowValue) ..
+                     (in integer: highValue) }                  is action "SET_RANGELIT";
 
 
 (**

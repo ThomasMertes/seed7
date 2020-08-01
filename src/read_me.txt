@@ -1856,9 +1856,16 @@ MACROS WRITTEN TO VERSION.H BY CHKCCOMP.C
 
   HAS_CBRT: TRUE if the function cbrt() is available.
 
-  NAN_COMPARISON_OKAY: TRUE if comparisons between NaN and any
-                       other value return FALSE. Comparison refers
-                       to comparisons with  ==  <  >  <=  or  >= .
+  FLOAT_NAN_COMPARISON_OKAY: TRUE if comparisons between NaN and
+                             any other value return FALSE.
+                             Comparison refers to comparisons with
+                             ==  <  >  <=  or  >= .
+
+  FLOAT_ZERO_COMPARISON_OKAY: TRUE if comparisons consider negative
+                              zero as equal to positive zero.
+                              FALSE if this is not the case.
+                              Comparison refers to comparisons with
+                              ==  <  >  <=  or  >= .
 
   POW_OF_NAN_OKAY: TRUE if pow(NaN, 0.0) returns 1.0 and
                    pow(NaN, anyOtherExponent) returns NaN.

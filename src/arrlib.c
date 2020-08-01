@@ -223,7 +223,7 @@ objectType arr_arrlit (listType arguments)
       result_size = arraySize(arr1);
       if (unlikely(result_size > MAX_MEM_INDEX)) {
         logError(printf("arr_arrlit(arr1 (size=" FMT_U_MEM ")): "
-                        "Maximal index out of range.\n",
+                        "Maximum index out of range.\n",
                         result_size););
         return raise_exception(SYS_RNG_EXCEPTION);
       } else if (unlikely(!ALLOC_ARRAY(result_array, result_size))) {
@@ -268,7 +268,7 @@ objectType arr_arrlit2 (listType arguments)
                   start_position > (intType) (MAX_MEM_INDEX - result_size + 1)) ||
                  (result_size == 0 && start_position == MIN_MEM_INDEX))) {
       logError(printf("arr_arrlit2(" FMT_D ", arr1 (size=" FMT_U_MEM ")): "
-                      "Minimal or maximal index out of range.\n",
+                      "Minimum or maximum index out of range.\n",
                       start_position, result_size););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -797,7 +797,7 @@ objectType arr_head (listType arguments)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_head(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -892,8 +892,8 @@ objectType arr_lng (listType arguments)
 
 
 /**
- *  Maximal index of array 'arr'.
- *  @return the maximal index of the array.
+ *  Maximum index of array 'arr'.
+ *  @return the maximum index of the array.
  */
 objectType arr_maxidx (listType arguments)
 
@@ -909,8 +909,8 @@ objectType arr_maxidx (listType arguments)
 
 
 /**
- *  Minimal index of array 'arr'.
- *  @return the minimal index of the array.
+ *  Minimum index of array 'arr'.
+ *  @return the minimum index of the array.
  */
 objectType arr_minidx (listType arguments)
 
@@ -1049,7 +1049,7 @@ objectType arr_range (listType arguments)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_range(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start, stop););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -1228,7 +1228,7 @@ objectType arr_subarr (listType arguments)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_subarr(arr1 (size=" FMT_U_MEM "), " FMT_D ", " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start, len););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {
@@ -1290,7 +1290,7 @@ objectType arr_tail (listType arguments)
       } /* if */
     } else if (unlikely(arr1->min_position == MIN_MEM_INDEX)) {
       logError(printf("arr_tail(arr1 (size=" FMT_U_MEM "), " FMT_D "): "
-                      "Cannot create empty array with minimal index.\n",
+                      "Cannot create empty array with minimum index.\n",
                       length, start););
       return raise_exception(SYS_RNG_EXCEPTION);
     } else {

@@ -27,6 +27,7 @@ include "listener.s7i";
 include "unicode.s7i";
 include "filesys.s7i";
 include "osfiles.s7i";
+include "fileutil.s7i";
 include "time.s7i";
 include "bigfile.s7i";
 include "getf.s7i";

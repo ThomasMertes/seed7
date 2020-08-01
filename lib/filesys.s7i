@@ -49,6 +49,8 @@ const fileType: FILE_FIFO    is 6;
 const fileType: FILE_SYMLINK is 7;
 const fileType: FILE_SOCKET  is 8;
 
+const integer: MAX_SYMLINKS is 5;
+
 (**
  *  Type to describe one file permission.
  *  Possible values are ''EXEC_OTHER'', ''WRITE_OTHER'', ''READ_OTHER'',
@@ -80,6 +82,9 @@ const func integer: integer (in fileMode: mode) is
 
 const func integer: (attr integer) conv (in fileMode: mode) is
   return integer(bitset(mode));
+
+const func fileMode: fileMode (in integer: int_mode) is
+  return fileMode conv (bitset(int_mode));
 
 const func fileMode: (attr fileMode) conv (in integer: int_mode) is
   return fileMode conv (bitset(int_mode));
