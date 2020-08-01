@@ -152,12 +152,11 @@ version.h:
 	echo "#define ESCAPE_SHELL_COMMANDS" >> version.h
 	echo "#define USE_SIGSETJMP" >> version.h
 	echo "#define $(BIGINT_LIB_DEFINE)" >> version.h
-	echo "#define likely(x)   __builtin_expect((x),1)" >> version.h
-	echo "#define unlikely(x) __builtin_expect((x),0)" >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	echo "#include \"sys/stat.h\"" > chkccomp.h
 	echo "#include \"sys/types.h\"" >> chkccomp.h
 	echo "#include \"unistd.h\"" >> chkccomp.h
+	echo "#define USE_BUILTIN_EXPECT" >> chkccomp.h
 	echo "#define LIST_DIRECTORY_CONTENTS \"ls\"" >> chkccomp.h
 	echo "#define long_long_EXISTS" >> chkccomp.h
 	echo "#define long_long_SUFFIX_LL" >> chkccomp.h

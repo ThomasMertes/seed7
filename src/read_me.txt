@@ -52,7 +52,7 @@ COMPILING UNTER LINUX
     For Linux the compilation process is the simplest. The
   file 'makefile' is (almost) identical to 'mk_linux.mak' and
   that file is already prepared to compile under Linux.
-  Go to the 'src' directory and type:
+  Go to the 'seed7/src' directory and type:
 
     make depend
     make
@@ -79,14 +79,14 @@ COMPILING UNDER BSD AND UNIX
 COMPILING UNDER WINDOWS WITH GCC FROM MINGW
 
     When gcc and mingw32-make from MinGW are installed use a
-  console, go to the 'src' directory and type:
+  console, go to the 'seed7\src' directory and type:
 
     copy mk_mingw.mak makefile
     mingw32-make depend
     mingw32-make
 
   To compile under MSYS (a Unix shell window from the MinGW
-  tools) go to the 'src' directory and type:
+  tools) go to the 'seed7/src' directory and type:
 
     cp mk_msys.mak makefile
     mingw32-make depend
@@ -97,7 +97,7 @@ COMPILING UNDER WINDOWS WITH GCC FROM MINGW
   mk_msys.mak from a Windows console also.
 
   To compile with gcc from MinGW and nmake from Windows use
-  a console, go to the 'src' directory and type:
+  a console, go to the 'seed7\src' directory and type:
 
     copy mk_nmake.mak makefile
     nmake depend
@@ -121,7 +121,7 @@ COMPILING UNDER WINDOWS WITH CL FROM MSVC
 
   to set up the environment for cl. In order to use cl in a new
   console the command vcvars32 is always necessary. After the
-  setup you can go to the 'src' directory and type:
+  setup you can go to the 'seed7\src' directory and type:
 
     copy mk_msvc.mak makefile
     nmake depend
@@ -135,7 +135,7 @@ COMPILING UNDER WINDOWS WITH BCC32
 
     To compile Seed7 with bcc32 and make (C compiler and make
   utility from a smaller software company) use a console, go
-  to the 'src' directory and type:
+  to the 'seed7\src' directory and type:
 
     copy mk_bcc32.mak makefile
     make depend
@@ -170,7 +170,7 @@ COMPILING UNDER WINDOWS WITH CYGWIN
     CC = gcc
 
   must be changed to define the name of your gcc. When gcc and
-  make work well change to the seed7/src directory and do:
+  make work well change to the 'seed7/src' directory and do:
 
     make -f mk_cygw.mak depend
     make -f mk_cygw.mak
@@ -203,7 +203,7 @@ COMPILING UNDER DOS WITH DJGPP
 
     You need gcc and make from DJGPP. Make sure that the search
   PATH leads to gcc and make from DJGPP. Use the command line,
-  go to the 'src' directory and type:
+  go to the 'seed7\src' directory and type:
 
     copy mk_djgpp.mak makefile
     make depend
@@ -222,7 +222,7 @@ COMPILING UNTER MAC OS X
     To compile under Mac OS X make sure that Xcode is installed.
   The Xcode package contains a C compiler (gcc) and a 'make'
   utility. To compile Seed7 start a command shell, go to the
-  'src' directory and type:
+  'seed7/src' directory and type:
 
     cp mk_osx.mak makefile
     make depend
@@ -323,12 +323,12 @@ WHAT TO DO WHEN ERRORS HAPPEN DURING THE COMPILATION?
   can happen. This indicates that the search path where bcc32.exe
   is found contains a space and the 'make' program is not capable
   to handle spaces in a search path. Creating the batch file
-  'src\bcc32.bat' with the content
+  'seed7\src\bcc32.bat' with the content
 
     bcc32.exe %*
 
   helps. As alternate solution 'bcc32.exe' and 'bcc32.cfg' can
-  be copied to the 'src' directory (this solution should be
+  be copied to the 'seed7\src' directory (this solution should be
   avoided, since it does not consider updates of bcc32).
 
  --- When using cl (msvc) an error like

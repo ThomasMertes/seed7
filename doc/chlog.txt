@@ -1,3 +1,24 @@
+20120401:
+- The program "chkccomp.c" was changed to define the macros
+  'likely' and 'unlikely' only when __GNUC__ >= 3 holds (thanks
+  to "Rugxulo" for pointing out, that GCC 2.95.3 does not
+  support __builtin_expect() ).
+- The library "modern27.s7i", which defines the vector font
+  modern27, was added.
+- The compiler (comp.sd7) was improved to initialize global
+  interface variables correctly.
+- The function cmdPipe2() in "cmd_win.c" was improved to work
+  correctly.
+- In "drw_win.c" the functions drawRectangle(), drwPArc(),
+  drwPFArcPieSlice(), drwPCircle(), drwClear(), drwPFCircle(),
+  drwPFEllipse(), drwPLine(), drwPolyLine(), drwFPolyLine() and
+  drwPRect() were improved to raise MEMORY_ERROR when CreatePen()
+  or CreateSolidBrush() fails.
+- In various makefiles the definition of likely() and unlikely()
+  was removed and a definition of USE_BUILTIN_EXPECT was added.
+- The descriptions of paths in "seed7/src/read_me.txt", were
+  improved.
+
 20120318:
 - The example program "testfont.sd7" was improved to display more
   fonts and more characters.

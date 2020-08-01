@@ -79,6 +79,9 @@
  *  WRITE_CC_VERSION_INFO
  *      Write the version of the C compiler to the file "cc_vers.txt".
  *      E.g.: #define WRITE_CC_VERSION_INFO system("$(GET_CC_VERSION_INFO) cc_vers.txt");
+ *  USE_BUILTIN_EXPECT
+ *      Defined when the function __builtin_expect() should
+ *      be used to define the macros likely() and unlikely()
  *  LIST_DIRECTORY_CONTENTS
  *      Either "ls" or "dir".
  *      E.g.: #define LIST_DIRECTORY_CONTENTS "ls"
@@ -140,6 +143,12 @@ int main (int argc, char **argv)
     } /* for */
     puts("\"");
     fclose(aFile);
+#ifdef USE_BUILTIN_EXPECT
+#if !defined __GNUC__ || __GNUC__ >= 3
+    puts("#define likely(x)   __builtin_expect((x),1)");
+    puts("#define unlikely(x) __builtin_expect((x),0)");
+#endif
+#endif
     aFile = popen(LIST_DIRECTORY_CONTENTS,"r");
     if (ftell(aFile) != -1) {
       puts("#define FTELL_WRONG_FOR_PIPE");

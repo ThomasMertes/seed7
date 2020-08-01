@@ -135,6 +135,7 @@ listener.s7i Support for inet listener
 lower.s7i    Filter file which turns characters to lower case
 mahjng32.s7i Pictures of mahjong tiles in the size 32 x 24
 math.s7i     Mathematical functions and constants
+modern27.s7i Modern vector font with capHeight 27.
 more.s7i     Filter file which shows another file screenwise
 multiscr.s7i Demonstration for several file filters
 null_file.s7i Base implementation type for all files

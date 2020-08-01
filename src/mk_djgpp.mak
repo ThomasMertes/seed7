@@ -118,11 +118,10 @@ version.h:
 	$(ECHO) "#define os_off_t off_t" >> version.h
 	$(ECHO) "#define os_putenv putenv" >> version.h
 	$(ECHO) "#define $(BIGINT_LIB_DEFINE)" >> version.h
-	$(ECHO) "#define likely(x)   __builtin_expect((x),1)" >> version.h
-	$(ECHO) "#define unlikely(x) __builtin_expect((x),0)" >> version.h
 	$(ECHO) "#include \"direct.h\"" > chkccomp.h
 	$(ECHO) "#define WRITE_CC_VERSION_INFO system(\"$(GET_CC_VERSION_INFO) cc_vers.txt\");" >> chkccomp.h
 	$(ECHO) "#define mkdir(path,mode) mkdir(path)" >> chkccomp.h
+	$(ECHO) "#define USE_BUILTIN_EXPECT" >> chkccomp.h
 	$(ECHO) "#define LIST_DIRECTORY_CONTENTS \"dir\"" >> chkccomp.h
 	$(ECHO) "#define long_long_EXISTS" >> chkccomp.h
 	$(ECHO) "#define long_long_SUFFIX_LL" >> chkccomp.h

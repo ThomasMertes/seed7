@@ -34,6 +34,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "windows.h"
+#include "io.h"
 #include "sys/types.h"
 #include "sys/stat.h"
 #ifdef OS_STRI_WCHAR
@@ -57,6 +58,12 @@
 #endif
 
 #define MAXIMUM_COMMAND_LINE_LENGTH 32768
+
+#if POINTER_SIZE == 32
+typedef int32type intptr_type;
+#elif POINTER_SIZE == 64
+typedef int64type intptr_type;
+#endif
 
 
 
@@ -485,6 +492,14 @@ filetype *childStdout;
   {
     os_stritype os_command_stri;
     os_stritype command_line;
+    SECURITY_ATTRIBUTES saAttr;
+    HANDLE childInputRead;
+    HANDLE childInputWrite;
+    HANDLE childInputWriteTemp;
+    HANDLE childOutputReadTemp;
+    HANDLE childOutputRead;
+    HANDLE childOutputWrite;
+    HANDLE childErrorWrite;
     STARTUPINFOW startupInfo;
     PROCESS_INFORMATION processInformation;
     int path_info = PATH_IS_NORMAL;
@@ -497,25 +512,54 @@ filetype *childStdout;
       if (likely(err_info == OKAY_NO_ERROR)) {
         /* printf("cmdPipe2(%ls, %ls, %d, %d)\n", os_command_stri,
            command_line, fileno(*childStdin), fileno(*childStdout)); */
-        memset(&startupInfo, 0, sizeof(startupInfo));
-        /* memset(&processInformation, 0, sizeof(processInformation)); */
-        startupInfo.cb = sizeof(startupInfo);
-        startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-        startupInfo.wShowWindow = 0;
-        startupInfo.hStdInput = *childStdin;
-        startupInfo.hStdOutput = *childStdout;
-        startupInfo.hStdError = stderr;
-        /* printf("before CreateProcessW\n"); */
-        if (CreateProcessW(os_command_stri,
-                           command_line /* lpCommandLine */,
-                           NULL /* lpProcessAttributes */,
-                           NULL /* lpThreadAttributes */,
-                           0  /* bInheritHandles */,
-                           0 /* dwCreationFlags */,
-                           NULL /* lpEnvironment */,
-                           NULL /* lpCurrentDirectory */,
-                           &startupInfo,
-                           &processInformation) == 0) {
+        saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+        saAttr.bInheritHandle = TRUE;
+        saAttr.lpSecurityDescriptor = NULL;
+        if (CreatePipe(&childInputRead, &childInputWriteTemp, &saAttr, 0) &&
+            DuplicateHandle(GetCurrentProcess(), childInputWriteTemp,
+                            GetCurrentProcess(), &childInputWrite,
+                            0, FALSE, // Handle is not inherited
+                            DUPLICATE_SAME_ACCESS) &&
+            CreatePipe(&childOutputReadTemp, &childOutputWrite, &saAttr, 0) &&
+            DuplicateHandle(GetCurrentProcess(),childOutputReadTemp,
+                            GetCurrentProcess(), &childOutputRead,
+                            0, FALSE, // Handle is not inherited
+                            DUPLICATE_SAME_ACCESS) &&
+            DuplicateHandle(GetCurrentProcess(),childOutputWrite,
+                            GetCurrentProcess(),&childErrorWrite,
+                            0, TRUE, DUPLICATE_SAME_ACCESS) &&
+            CloseHandle(childInputWriteTemp) &&
+            CloseHandle(childOutputReadTemp)) {
+          memset(&startupInfo, 0, sizeof(startupInfo));
+          /* memset(&processInformation, 0, sizeof(processInformation)); */
+          startupInfo.cb = sizeof(startupInfo);
+          startupInfo.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+          startupInfo.wShowWindow = 0;
+          startupInfo.hStdInput = childInputRead;
+          startupInfo.hStdOutput = childOutputWrite;
+          startupInfo.hStdError = childErrorWrite;
+          /* printf("before CreateProcessW\n"); */
+          if (CreateProcessW(os_command_stri,
+                             command_line /* lpCommandLine */,
+                             NULL /* lpProcessAttributes */,
+                             NULL /* lpThreadAttributes */,
+                             1  /* bInheritHandles */,
+                             0 /* dwCreationFlags */,
+                             NULL /* lpEnvironment */,
+                             NULL /* lpCurrentDirectory */,
+                             &startupInfo,
+                             &processInformation) != 0) {
+            CloseHandle(childInputRead);
+            CloseHandle(childOutputWrite);
+            CloseHandle(childErrorWrite);
+            *childStdin  = fdopen(_open_osfhandle((intptr_type) (childInputWrite), 0), "w");
+            *childStdout = fdopen(_open_osfhandle((intptr_type) (childOutputRead), 0), "r");
+            CloseHandle(processInformation.hProcess);
+            CloseHandle(processInformation.hThread);
+          } else {
+            err_info = FILE_ERROR;
+          } /* if */
+        } else {
           err_info = FILE_ERROR;
         } /* if */
         /* printf("after CreateProcessW\n"); */
@@ -568,7 +612,10 @@ rtlArraytype parameters;
                            NULL /* lpEnvironment */,
                            NULL /* lpCurrentDirectory */,
                            &startupInfo,
-                           &processInformation) == 0) {
+                           &processInformation) != 0) {
+          CloseHandle(processInformation.hProcess);
+          CloseHandle(processInformation.hThread);
+        } else {
           /* printf("GetLastError=%d\n", GetLastError());
              printf("ERROR_FILE_NOT_FOUND=%d\n", ERROR_FILE_NOT_FOUND); */
           err_info = FILE_ERROR;

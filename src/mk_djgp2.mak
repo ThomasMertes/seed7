@@ -117,11 +117,10 @@ version.h:
 	echo #define os_off_t off_t >> version.h
 	echo #define os_putenv putenv >> version.h
 	echo #define $(BIGINT_LIB_DEFINE) >> version.h
-	echo #define likely(x)   __builtin_expect((x),1) >> version.h
-	echo #define unlikely(x) __builtin_expect((x),0) >> version.h
 	$(GET_CC_VERSION_INFO) cc_vers.txt
 	echo #include "direct.h" > chkccomp.h
 	echo #define mkdir(path,mode) mkdir(path) >> chkccomp.h
+	echo #define USE_BUILTIN_EXPECT >> chkccomp.h
 	echo #define LIST_DIRECTORY_CONTENTS "dir" >> chkccomp.h
 	echo #define long_long_EXISTS >> chkccomp.h
 	echo #define long_long_SUFFIX_LL >> chkccomp.h

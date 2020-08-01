@@ -19976,22 +19976,42 @@ const proc: process_struct_declaration (in reference: current_object,
 const proc: process_interface_declaration (in reference: current_object,
     inout expr_type: c_expr) is func
 
+  local
+    var reference: object_value is NIL;
+    var category: valueCategory is category.value;
   begin
     c_expr.expr &:= type_name(getType(current_object));
     c_expr.expr &:= " o_";
     create_name(current_object, c_expr.expr);
     c_expr.expr &:= ";\n\n";
-    if current_object not in const_table then
-      const_table @:= [current_object] length(const_table);
+    object_value := current_object;
+    valueCategory := category(object_value);
+    if valueCategory = INTERFACEOBJECT then
+      object_value := interface_to_struct(object_value);
+      valueCategory := category(object_value);
     end if;
-    global_init.expr &:= diagnosticLine(current_object);
-    global_init.expr &:= "o_";
-    create_name(current_object, global_init.expr);
-    global_init.expr &:= "=(";
-    global_init.expr &:= type_name(getType(current_object));
-    global_init.expr &:= ")(itf[";
-    global_init.expr &:= str(const_table[current_object]);
-    global_init.expr &:= "]);\n";
+    if isVar(object_value) then
+      global_init.expr &:= diagnosticLine(current_object);
+      global_init.expr &:= "o_";
+      create_name(current_object, global_init.expr);
+      global_init.expr &:= "=o_";
+      create_name(object_value, global_init.expr);
+      global_init.expr &:= "/* ";
+      global_init.expr &:= str(valueCategory);
+      global_init.expr &:= " */;\n";
+    else
+      if current_object not in const_table then
+        const_table @:= [current_object] length(const_table);
+      end if;
+      global_init.expr &:= diagnosticLine(current_object);
+      global_init.expr &:= "o_";
+      create_name(current_object, global_init.expr);
+      global_init.expr &:= "=(";
+      global_init.expr &:= type_name(getType(current_object));
+      global_init.expr &:= ")(itf[";
+      global_init.expr &:= str(const_table[current_object]);
+      global_init.expr &:= "]);\n";
+    end if;
     count_declarations;
   end func;
 
